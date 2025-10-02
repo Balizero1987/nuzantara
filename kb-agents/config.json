@@ -1,0 +1,5 @@
+{
+  "hide_prices_by_default": true,
+  "pricing_source": "Visa oracle/pricing/normalized.json",
+  "examples_overlay": "Visa oracle/examples/_price_overlay.json"
+}

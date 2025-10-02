@@ -1,0 +1,623 @@
+{
+  "metadata": {
+    "title": "Indonesia Tax Case Studies & Simulations 2025",
+    "description": "Real-world scenarios with complete tax calculations for Bali Zero clients",
+    "cases": 15,
+    "industries": ["F&B", "Villa Rental", "Consulting", "E-commerce", "Construction", "Expatriate"],
+    "lastUpdated": "2025-10-02"
+  },
+
+  "case1_restaurant_canggu": {
+    "title": "Case 1: Beach Club Restaurant in Canggu",
+    "clientProfile": {
+      "businessName": "Sunset Beach Club Bali",
+      "legalEntity": "PT PMA (51% Foreign, 49% Indonesian)",
+      "location": "Canggu, Bali",
+      "industry": "F&B (Restaurant + Bar)",
+      "employees": 25,
+      "yearEstablished": 2023
+    },
+
+    "financials": {
+      "monthlyRevenue": 800000000,
+      "monthlyRevenueUSD": 50000,
+      "annualRevenue": 9600000000,
+      "annualRevenueUSD": 600000,
+      "monthlyExpenses": {
+        "cogs": 240000000,
+        "salaries": 150000000,
+        "rent": 80000000,
+        "utilities": 40000000,
+        "marketing": 30000000,
+        "entertainment": 20000000,
+        "other": 40000000,
+        "total": 600000000
+      },
+      "monthlyProfit": 200000000,
+      "annualProfit": 2400000000
+    },
+
+    "taxCalculation": {
+      "step1_pph21": {
+        "description": "Employee income tax (25 employees)",
+        "averageSalary": 6000000,
+        "totalPayroll": 150000000,
+        "employeesWithNPWP": 25,
+        "estimatedPPh21": 3750000,
+        "calculation": "Progressive brackets applied to each employee, ~2.5% average rate"
+      },
+
+      "step2_pph25": {
+        "description": "Corporate income tax (monthly installment)",
+        "annualProfit": 2400000000,
+        "corporateRate": 0.22,
+        "annualTax": 528000000,
+        "monthlyInstallment": 44000000,
+        "calculation": "2.4B × 22% = 528M/year ÷ 12 = 44M/month"
+      },
+
+      "step3_npwpd": {
+        "description": "Regional tax (Bali hospitality)",
+        "monthlyRevenue": 800000000,
+        "rate": 0.10,
+        "monthlyTax": 80000000,
+        "calculation": "800M × 10% = 80M (EXEMPT from VAT, subject to NPWPD instead)"
+      },
+
+      "step4_serviceCharge": {
+        "description": "Service charge (distributed to employees)",
+        "monthlyRevenue": 800000000,
+        "serviceChargeRate": 0.10,
+        "serviceChargeAmount": 80000000,
+        "calculation": "800M × 10% = 80M (must be distributed to employees, subject to PPh 21)",
+        "note": "Not a 'tax' but mandatory distribution, affects employee PPh 21"
+      },
+
+      "step5_bpjs": {
+        "description": "Social security contributions",
+        "totalPayroll": 150000000,
+        "bpjsHealth": {
+          "employerRate": 0.04,
+          "employerContribution": 6000000,
+          "employeeRate": 0.01,
+          "employeeContribution": 1500000
+        },
+        "bpjsEmployment": {
+          "employerRate": 0.0624,
+          "employerContribution": 9360000,
+          "employeeRate": 0.02,
+          "employeeContribution": 3000000
+        },
+        "totalEmployer": 15360000,
+        "totalEmployee": 4500000,
+        "calculation": "150M payroll × (4% health + 6.24% employment) = 15.36M employer"
+      },
+
+      "step6_pph23": {
+        "description": "Withholding on services (legal, accounting, consulting)",
+        "monthlyServices": 15000000,
+        "rate": 0.02,
+        "monthlyWithholding": 300000,
+        "calculation": "15M × 2% = 300K (creditable against annual tax)"
+      },
+
+      "step7_lkpm": {
+        "description": "Quarterly investment report (PT PMA)",
+        "frequency": "Quarterly",
+        "deadlines": ["April 10", "July 10", "October 10", "January 10"],
+        "cost": "IDR 1,000,000/quarter (Bali Zero service)",
+        "quarterlyCost": 1000000
+      },
+
+      "totalMonthly": {
+        "pph21": 3750000,
+        "pph25": 44000000,
+        "npwpd": 80000000,
+        "bpjsEmployer": 15360000,
+        "pph23": 300000,
+        "totalTaxBurden": 143410000,
+        "effectiveRate": 0.179,
+        "effectiveRatePercent": "17.9%",
+        "calculation": "143.41M ÷ 800M revenue = 17.9%"
+      },
+
+      "annualSummary": {
+        "revenue": 9600000000,
+        "expenses": 7200000000,
+        "profit": 2400000000,
+        "totalTax": 1720920000,
+        "netProfit": 679080000,
+        "effectiveRate": 0.179,
+        "effectiveRatePercent": "17.9%"
+      }
+    },
+
+    "optimization": {
+      "opportunity1": {
+        "description": "Reduce entertainment expenses",
+        "currentEntertainment": 20000000,
+        "issue": "Entertainment VAT 100% blocked if PKP elsewhere",
+        "recommendation": "Reclassify as business meals (deductible)",
+        "savings": 2200000,
+        "savingsCalc": "20M × 11% VAT = 2.2M/month IF PKP registered"
+      },
+
+      "opportunity2": {
+        "description": "Claim input VAT on renovations",
+        "context": "If registered PKP for construction/import equipment",
+        "potentialSavings": "11% of capital expenditure",
+        "note": "F&B in Bali EXEMPT from VAT (NPWPD instead), so no input credit unless separate PKP business"
+      },
+
+      "opportunity3": {
+        "description": "Super Deduction 200% on chef training",
+        "trainingCost": 50000000,
+        "normalDeduction": 11000000,
+        "superDeduction": 22000000,
+        "additionalSavings": 11000000,
+        "calculation": "(200% - 100%) × 50M × 22% = 11M tax savings"
+      }
+    },
+
+    "complianceCalendar": {
+      "monthly": [
+        "10th: PPh 21, PPh 23, BPJS payment + reporting",
+        "15th: PPh 25 installment payment",
+        "15th: NPWPD payment (Bali regional tax)",
+        "20th: SPT Masa PPh 21, PPh 23 filing",
+        "End of month: Service charge distribution + documentation"
+      ],
+      "quarterly": [
+        "10th of following month: LKPM filing (PT PMA)",
+        "Reconcile PPh 25 installments vs actual profit"
+      ],
+      "annual": [
+        "March 31: SPT Tahunan (corporate tax return)",
+        "April 30: Reconcile PPh 25 installments, pay balance"
+      ]
+    },
+
+    "risks": {
+      "auditRisk": {
+        "score": 35,
+        "scoreOutOf": 100,
+        "level": "Medium",
+        "factors": [
+          "Entertainment 2.5% of revenue (threshold 1%) = +10 points",
+          "NPWPD compliance (Bali regional tax) = +5 points",
+          "PT PMA (transfer pricing risk) = +10 points",
+          "Service charge distribution (DJP audits frequently) = +10 points"
+        ]
+      },
+      "mitigations": [
+        "Maintain service charge distribution records (payslips)",
+        "Document entertainment as business meals where possible",
+        "Ensure NPWPD filing on time (15th monthly)",
+        "Prepare LKPM quarterly (avoid suspension)"
+      ]
+    },
+
+    "baliZeroRecommendation": {
+      "monthlyService": "Tax compliance package: IDR 3,500,000/month",
+      "includes": [
+        "PPh 21 calculation + filing (25 employees)",
+        "PPh 25 installment payment",
+        "NPWPD filing (Bali)",
+        "BPJS registration + monthly payment",
+        "PPh 23 withholding + filing",
+        "Service charge documentation"
+      ],
+      "annualService": "SPT Tahunan (operational): IDR 5,000,000",
+      "lkpmService": "Quarterly LKPM: IDR 1,000,000/quarter",
+      "totalAnnualCost": 51000000,
+      "savingsVsDIY": "20-30 hours/month saved, avoid penalties (IDR 500K-10M)"
+    }
+  },
+
+  "case2_villa_rental_ubud": {
+    "title": "Case 2: Luxury Villa Rental in Ubud",
+    "clientProfile": {
+      "businessName": "Villa Serenity Ubud",
+      "legalEntity": "Individual owner (Indonesian resident)",
+      "location": "Ubud, Bali",
+      "industry": "Villa rental (short-term)",
+      "villas": 3,
+      "averageNightlyRate": 3000000,
+      "occupancyRate": 0.70
+    },
+
+    "financials": {
+      "monthlyRevenue": 189000000,
+      "calculation": "3 villas × IDR 3M/night × 21 nights/month = 189M",
+      "annualRevenue": 2268000000,
+      "monthlyExpenses": {
+        "propertyManagement": 37800000,
+        "maintenance": 20000000,
+        "utilities": 15000000,
+        "marketing": 10000000,
+        "insurance": 5000000,
+        "other": 10000000,
+        "total": 97800000
+      },
+      "monthlyProfit": 91200000,
+      "annualProfit": 1094400000
+    },
+
+    "taxOptions": {
+      "option1_finalTax": {
+        "description": "PPh 4(2) Final Tax (10% on gross rental)",
+        "monthlyRevenue": 189000000,
+        "rate": 0.10,
+        "monthlyTax": 18900000,
+        "annualTax": 226800000,
+        "netAnnualIncome": 2041200000,
+        "effectiveRate": 0.10,
+        "effectiveRatePercent": "10%",
+        "pros": [
+          "Simple compliance (no expense tracking)",
+          "Lower rate if low operating costs",
+          "No annual tax return complexity"
+        ],
+        "cons": [
+          "No expense deductions allowed",
+          "Less favorable if high operating costs"
+        ]
+      },
+
+      "option2_regularTax": {
+        "description": "Regular progressive income tax (with expense deductions)",
+        "annualRevenue": 2268000000,
+        "annualExpenses": 1173600000,
+        "netIncome": 1094400000,
+        "ptkp": 54000000,
+        "taxableIncome": 1040400000,
+        "taxCalculation": {
+          "bracket1": {"limit": 60000000, "rate": 0.05, "tax": 3000000},
+          "bracket2": {"limit": 250000000, "rate": 0.15, "tax": 28500000},
+          "bracket3": {"limit": 500000000, "rate": 0.25, "tax": 62500000},
+          "bracket4": {"limit": 1040400000, "rate": 0.30, "tax": 162120000},
+          "totalAnnualTax": 256120000
+        },
+        "monthlyTax": 21343333,
+        "netAnnualIncome": 2011880000,
+        "effectiveRate": 0.113,
+        "effectiveRatePercent": "11.3%",
+        "pros": [
+          "Expense deductions reduce taxable income",
+          "Better if high operating costs (> 30% revenue)"
+        ],
+        "cons": [
+          "Complex compliance (expense tracking, annual filing)",
+          "Higher effective rate if expenses are 43%"
+        ]
+      },
+
+      "comparison": {
+        "finalTax": {
+          "monthlyTax": 18900000,
+          "annualTax": 226800000,
+          "netIncome": 2041200000,
+          "effectiveRate": "10.0%"
+        },
+        "regularTax": {
+          "monthlyTax": 21343333,
+          "annualTax": 256120000,
+          "netIncome": 2011880000,
+          "effectiveRate": "11.3%"
+        },
+        "recommendation": "Use Final Tax (PPh 4(2) 10%) - Saves IDR 29.32M/year",
+        "reasoning": "Operating expenses are 43% of revenue, but final tax 10% < regular tax 11.3%"
+      }
+    },
+
+    "propertyTax": {
+      "pbb": {
+        "description": "Land and Building Tax (annual)",
+        "njop": 5000000000,
+        "njopNote": "Property assessed value IDR 5B",
+        "taxableBase": 1000000000,
+        "taxableBaseCalc": "20% of NJOP = 1B",
+        "rate": 0.005,
+        "annualPBB": 5000000,
+        "calculation": "1B × 0.5% = 5M/year",
+        "dueDate": "Within 6 months of SPPT issuance"
+      },
+
+      "bphtb": {
+        "description": "Property Transfer Tax (one-time at purchase)",
+        "purchasePrice": 5000000000,
+        "rate": 0.05,
+        "transferTax": 250000000,
+        "calculation": "5B × 5% = 250M",
+        "paidBy": "Buyer",
+        "note": "Already paid at acquisition, not recurring"
+      }
+    },
+
+    "optimization": {
+      "opportunity1": {
+        "description": "Expense ratio analysis",
+        "currentExpenseRatio": 0.43,
+        "currentExpenseRatioPercent": "43%",
+        "breakeven": "If expenses > 50%, regular tax becomes better",
+        "action": "Monitor expense ratio quarterly, switch if exceeds 50%"
+      },
+
+      "opportunity2": {
+        "description": "Depreciation strategy (if using regular tax)",
+        "villaValue": 4000000000,
+        "landValue": 1000000000,
+        "depreciableAmount": 4000000000,
+        "depreciationRate": 0.05,
+        "annualDepreciation": 200000000,
+        "taxSavings": 60000000,
+        "calculation": "4B × 5% = 200M depreciation × 30% tax rate = 60M savings",
+        "note": "Only applicable if using regular income tax (not final tax)"
+      },
+
+      "opportunity3": {
+        "description": "Property improvement deduction",
+        "renovationCost": 300000000,
+        "deductibleAmount": 300000000,
+        "taxSavings": 90000000,
+        "calculation": "300M × 30% = 90M tax savings",
+        "note": "If using regular tax; final tax = no deduction"
+      }
+    },
+
+    "complianceRequirements": {
+      "monthly": [
+        "None (if using PPh 4(2) final tax)"
+      ],
+      "quarterly": [
+        "Self-assess rental income",
+        "Pay PPh 4(2) 10% by 10th of following month (if self-reported)"
+      ],
+      "annual": [
+        "File SPT Tahunan (personal tax return) by March 31",
+        "Report rental income + final tax paid",
+        "Pay PBB (property tax) within 6 months of SPPT"
+      ]
+    },
+
+    "risks": {
+      "auditRisk": {
+        "score": 20,
+        "scoreOutOf": 100,
+        "level": "Low",
+        "factors": [
+          "Final tax = less scrutiny (+5 points)",
+          "Individual taxpayer (+5 points)",
+          "Rental income mainstream (+5 points)",
+          "PBB compliance (+5 points)"
+        ]
+      },
+      "mitigations": [
+        "Maintain rental agreements (proof of income)",
+        "Keep payment receipts (bank transfers)",
+        "File PBB on time (avoid penalties)",
+        "Report rental income in annual return"
+      ]
+    },
+
+    "baliZeroRecommendation": {
+      "annualService": "SPT Tahunan personal (rental income): IDR 2,500,000",
+      "includes": [
+        "Calculate PPh 4(2) final tax (10% monthly)",
+        "File annual personal tax return",
+        "PBB payment assistance",
+        "Tax optimization advice (final vs regular)"
+      ],
+      "savingsVsDIY": "5-10 hours/year saved, avoid incorrect tax option (IDR 29M savings in this case)"
+    }
+  },
+
+  "case3_digital_nomad_consultant": {
+    "title": "Case 3: Digital Nomad Consultant (KITAS Holder)",
+    "clientProfile": {
+      "name": "Sarah Johnson",
+      "nationality": "USA",
+      "visaStatus": "KITAS (Working Permit - 1 year)",
+      "location": "Canggu, Bali",
+      "industry": "Marketing Consultant (freelance)",
+      "clients": "US & European companies (remote work)"
+    },
+
+    "financials": {
+      "monthlyIncome": {
+        "indonesianClients": 30000000,
+        "foreignClients": 120000000,
+        "foreignClientsUSD": 8000,
+        "totalMonthly": 150000000,
+        "totalMonthlyUSD": 10000
+      },
+      "annualIncome": {
+        "indonesianClients": 360000000,
+        "foreignClients": 1440000000,
+        "total": 1800000000,
+        "totalUSD": 120000
+      },
+      "monthlyExpenses": {
+        "rent": 15000000,
+        "coworking": 3000000,
+        "internet": 1000000,
+        "software": 5000000,
+        "marketing": 2000000,
+        "other": 4000000,
+        "total": 30000000
+      },
+      "monthlyProfit": 120000000,
+      "annualProfit": 1440000000
+    },
+
+    "taxResidencyAnalysis": {
+      "status": "Tax Resident",
+      "reasoning": [
+        "KITAS holder (intention to reside)",
+        "Employment contract > 183 days",
+        "Present in Indonesia 12 months/year"
+      ],
+      "consequence": "Taxed on worldwide income (Indonesian + foreign income)"
+    },
+
+    "taxCalculation": {
+      "step1_progressiveTax": {
+        "description": "Individual progressive income tax on worldwide income",
+        "annualIncome": 1800000000,
+        "ptkp": 54000000,
+        "taxableIncome": 1746000000,
+        "taxBreakdown": {
+          "bracket1": {"limit": 60000000, "rate": 0.05, "tax": 3000000},
+          "bracket2": {"limit": 250000000, "rate": 0.15, "tax": 28500000},
+          "bracket3": {"limit": 500000000, "rate": 0.25, "tax": 62500000},
+          "bracket4": {"limit": 1746000000, "rate": 0.30, "tax": 363600000},
+          "totalAnnualTax": 457600000
+        },
+        "monthlyTax": 38133333,
+        "effectiveRate": 0.254,
+        "effectiveRatePercent": "25.4%"
+      },
+
+      "step2_foreignTaxCredit": {
+        "description": "Credit for taxes paid in USA on foreign income",
+        "foreignIncome": 1440000000,
+        "foreignIncomeUSD": 96000,
+        "usTaxRate": 0.24,
+        "usTaxPaid": 23040,
+        "usTaxPaidIDR": 345600000,
+        "foreignTaxCredit": 345600000,
+        "netIndonesiaTax": 112000000,
+        "netIndonesiaTaxCalc": "457.6M - 345.6M = 112M",
+        "effectiveRate": 0.062,
+        "effectiveRatePercent": "6.2%",
+        "note": "Certificate of Residency required from IRS"
+      },
+
+      "step3_bpjsContributions": {
+        "description": "Social security (BPJS) contributions",
+        "salaryBase": 150000000,
+        "bpjsHealthEmployee": 1500000,
+        "bpjsHealthEmployeeCalc": "150M × 1% = 1.5M (employee, max base IDR 12M = 120K)",
+        "bpjsEmploymentEmployee": 3000000,
+        "bpjsEmploymentEmployeeCalc": "150M × 2% = 3M (employee, max base IDR 12M = 240K)",
+        "totalMonthlyBPJS": 360000,
+        "totalMonthlyBPJSNote": "Capped at IDR 12M salary base = 360K/month",
+        "note": "No employer contributions (self-employed)"
+      },
+
+      "totalMonthly": {
+        "incomeTax": 9333333,
+        "incomeTaxCalc": "112M net tax ÷ 12 = 9.33M/month",
+        "bpjs": 360000,
+        "totalTaxBurden": 9693333,
+        "effectiveRate": 0.065,
+        "effectiveRatePercent": "6.5%",
+        "netMonthlyIncome": 140306667
+      }
+    },
+
+    "ppn12PercentImpact": {
+      "description": "VAT increase from 11% to 12% (2025 planned)",
+      "monthlySpending": 30000000,
+      "vat11percent": 3300000,
+      "vat12percent": 3600000,
+      "additionalCost": 300000,
+      "annualAdditionalCost": 3600000,
+      "note": "Cost of living increase IDR 300K/month"
+    },
+
+    "optimization": {
+      "opportunity1": {
+        "description": "Foreign tax credit optimization",
+        "action": "Obtain Certificate of Residency from IRS",
+        "benefit": "Claim IDR 345.6M foreign tax credit",
+        "savings": 345600000,
+        "savingsCalc": "Without foreign tax credit: 457.6M total tax"
+      },
+
+      "opportunity2": {
+        "description": "BPJS exemption (if USA has social security agreement)",
+        "currentBPJS": 360000,
+        "potentialSavings": 4320000,
+        "potentialSavingsCalc": "360K × 12 = 4.32M/year",
+        "requirement": "Certificate of Coverage from US Social Security",
+        "note": "USA has NO social security agreement with Indonesia (BPJS mandatory)"
+      },
+
+      "opportunity3": {
+        "description": "Expense maximization",
+        "currentExpenses": 30000000,
+        "additionalDeductible": [
+          "Professional development courses: IDR 10M/year → IDR 3M tax savings",
+          "Home office (if proven 100% business use): IDR 5M/year → IDR 1.5M savings",
+          "Business travel: IDR 15M/year → IDR 4.5M savings"
+        ],
+        "totalPotentialSavings": 9000000,
+        "savingsCalc": "30M additional expenses × 30% tax rate = 9M savings"
+      }
+    },
+
+    "complianceRequirements": {
+      "onArrival": [
+        "Obtain KITAS (within 60 days)",
+        "Register NPWP (within 1 month)",
+        "Register BPJS (within 1 month)",
+        "Open Indonesian bank account"
+      ],
+      "monthly": [
+        "Track foreign income (for annual return)",
+        "Pay BPJS (self-payment IDR 360K)",
+        "Keep expense receipts (deductible in annual return)"
+      ],
+      "annual": [
+        "File SPT Tahunan by March 31",
+        "Report worldwide income (Indonesian + foreign)",
+        "Claim foreign tax credit (with Certificate of Residency)",
+        "Pay balance of income tax (if underpaid)"
+      ]
+    },
+
+    "risks": {
+      "auditRisk": {
+        "score": 40,
+        "scoreOutOf": 100,
+        "level": "Medium",
+        "factors": [
+          "Expatriate (KITAS holder) = +15 points",
+          "Foreign income (treaty compliance) = +15 points",
+          "Self-employed (no employer withholding) = +10 points"
+        ]
+      },
+      "mitigations": [
+        "Obtain Certificate of Residency from IRS (prove foreign tax paid)",
+        "Maintain invoices for Indonesian clients (proof of income)",
+        "Keep bank statements (proof of foreign income receipt)",
+        "File SPT on time (March 31 deadline)"
+      ]
+    },
+
+    "baliZeroRecommendation": {
+      "onboardingService": "KITAS holder tax setup: IDR 5,000,000 (one-time)",
+      "includes": [
+        "NPWP registration",
+        "BPJS registration (health + employment)",
+        "Tax residency assessment",
+        "Foreign tax credit application (Certificate of Residency)"
+      ],
+      "annualService": "SPT Tahunan expatriate: IDR 3,500,000",
+      "includes": [
+        "Calculate worldwide income tax",
+        "Claim foreign tax credit (with treaty)",
+        "File annual personal tax return",
+        "Tax optimization advice"
+      ],
+      "savingsVsDIY": "IDR 345.6M foreign tax credit saved, avoid penalties (IDR 100K late filing + 2%/month interest)"
+    }
+  },
+
+  "quickReferenceAllCases": {
+    "case1": "Restaurant Canggu: IDR 143M/month tax (17.9% effective), NPWPD 10%, service charge 10%",
+    "case2": "Villa Ubud: IDR 18.9M/month tax (10% final), beats regular tax by IDR 29M/year",
+    "case3": "Digital Nomad: IDR 9.7M/month tax (6.5% effective with foreign tax credit), BPJS IDR 360K"
+  }
+}

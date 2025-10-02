@@ -1,0 +1,73 @@
+KBLI,Sector,Foreign Ownership,Risk Level,Investment (IDR),Timeline,AMDAL,Key Regulator
+18201,Reproduction (Audio/Software),100%,R/MR,10B,1-2 weeks,No (SPPL),MOI
+18202,Reproduction (Film/Video),100%,MR,10B,1-2 weeks,No (SPPL),MOI
+19211,Fuel Production (Refining),100%,T,500B-2T,8-18 months,Yes,MEMR; MOEF
+19212,Lubricants Manufacturing,100%,T,100B-500B,6-12 months,Depends on scale,MEMR; MOEF
+19213,Re-refining Used Oils,100%,T,50B-200B,6-12 months,Yes,MEMR; MOEF
+19291,Other Refinery Products,100%,T,100B-1T,6-12 months,Yes,MEMR; MOEF
+19292,Coal Briquettes,100%,MT,20B-100B,3-6 months,No (UKL-UPL),MOI; MOEF
+20113,Inorganic Pigments,100%,T,50B-300B,6-12 months,Yes,MOI; MOEF
+20114,Other Inorganic Chemicals,100%,T,30B-200B,6-12 months,Depends on scale,MOI; MOEF
+20115,Organics from Agriculture,100%,T,30B-200B,6-12 months,Depends on scale,MOI; MOEF
+20116,Dyes & Pigment Intermediates,100%,T,30B-200B,6-12 months,Depends on scale,MOI; MOEF
+20117,Organics from Petro/Gas/Coal,100%,T,100B-500B,6-12 months,Yes,MOI; MOEF
+20118,Specialty Organics,100%,MT/T,20B-150B,4-8 months,Depends on scale,MOI; MOEF
+20119,Other Basic Organics,100%,MT,20B-150B,4-8 months,Depends on scale,MOI; MOEF
+21014,Vet Pharma Raw Materials,100%,T,50B-300B,12-18 months,Depends on scale,BPOM; MOA
+21015,Medical Devices (Mfg),100%,MT/T,20B-150B,6-12 months,No/UKL-UPL,MOH
+22193,Rubber for Infrastructure,100%,MT,20B-100B,3-5 months,No (UKL-UPL),MOI
+22194,Rubber for Health,100%,MT,20B-100B,4-6 months,No (UKL-UPL),MOI; MOH
+23124,Clinical Lab Glassware,100%,MT,20B-100B,4-6 months,No (UKL-UPL),MOI; MOH
+20124,Mixed Artificial Fertilizers,100%,MT,20B-150B,3-6 months,No (UKL-UPL),MOA
+20125,Secondary Macronutrient Fertilizers,100%,MT,20B-150B,3-6 months,No (UKL-UPL),MOA
+20126,Micronutrient Fertilizers,100%,MR/MT,10B-100B,3-6 months,No (UKL-UPL),MOA
+20127,Complementary Fertilizers,100%,MR,10B-80B,2-4 months,No (SPPL/UKL-UPL),MOA
+20128,Growing Media,100%,MR,5B-30B,2-4 months,No (SPPL/UKL-UPL),MOA
+20129,Other Fertilizers n.e.c.,100%,MR/MT,10B-100B,2-6 months,Depends on scale,MOA
+20301,Man-Made Filament Fibers/Strips,100%,MT/T,50B-300B,6-12 months,Depends on scale,MOI
+20302,Man-Made Staple Fibers,100%,MT/T,50B-300B,6-12 months,Depends on scale,MOI
+23490,Other Non-Metallic Mineral Products,100%,MT,10B-100B,3-6 months,Depends on scale,MOI
+20211,Pesticide Active Ingredients,100%,T,50B-500B,6-12 months,Depends on scale,MOA
+20212,Pesticide Formulations,100%,MT,20B-150B,3-6 months,No (UKL-UPL),MOA
+20213,Plant Growth Regulators,100%,MT,20B-150B,4-6 months,No (UKL-UPL),MOA
+20214,Soil Ameliorants,100%,MR/MT,10B-100B,3-6 months,No (UKL-UPL),MOA
+20221,Paints & Printing Ink,100%,MT,20B-200B,4-6 months,No (UKL-UPL),MOI
+20222,Varnishes (incl. Mastics),100%,MT,15B-100B,3-6 months,No (UKL-UPL),MOI
+20223,Lacquers,100%,MT,15B-100B,3-6 months,No (UKL-UPL),MOI
+20231,Soaps & Household Cleaners,100%,MT,15B-100B,3-6 months,No (UKL-UPL),MOI; BPOM
+20232,Cosmetics (Humans),100%,MT,20B-150B,4-6 months,No (UKL-UPL),BPOM
+20233,Cosmetics (Animals),100%,MR/MT,10B-80B,3-5 months,No (UKL-UPL),MOA; MOH
+20234,Dental Adhesives,100%,MT,10B-80B,3-6 months,No (UKL-UPL),MOH
+23111,Flat Glass,100%,T,100B-500B,8-12 months,Yes,MOI; MOEF
+23112,Safety Glass,100%,MT,50B-200B,4-6 months,No (UKL-UPL),MOI
+23119,Other Glass Manufacturing,100%,MT,20B-150B,4-6 months,Depends on scale,MOI
+23121,Household Glassware,100%,MR/MT,10B-80B,3-5 months,No (SPPL/UKL-UPL),MOI
+23122,Lab/Pharma Glassware (Non-Clinical),100%,MT,10B-80B,3-5 months,No (UKL-UPL),MOI; MOH
+23123,Glass Containers & Packaging,100%,MT,20B-120B,4-6 months,No (UKL-UPL),MOI
+23129,Other Glass Products n.e.c.,100%,MR/MT,10B-100B,3-5 months,No (SPPL/UKL-UPL),MOI
+23911,Refractory Bricks/Mortars,100%,MT,20B-120B,4-6 months,No (UKL-UPL),MOI
+23919,Other Refractory Products,100%,MT,15B-80B,3-5 months,No (UKL-UPL),MOI
+23921,Clay/Ceramic Bricks,100%,MR/MT,10B-50B,3-5 months,No (UKL-UPL),MOI
+23922,Clay/Ceramic Roof Tiles,100%,MR/MT,10B-50B,3-5 months,No (UKL-UPL),MOI
+23923,Sanitary Porcelain Products,100%,MT,20B-100B,4-6 months,No (UKL-UPL),MOI
+23929,Other Clay/Ceramic Building Materials,100%,MR/MT,10B-80B,3-5 months,No (UKL-UPL),MOI
+23931,Porcelain Household Articles,100%,MR/MT,10B-80B,3-5 months,No (SPPL/UKL-UPL),MOI
+23932,Clay/Ceramic Household Articles,100%,MR/MT,10B-80B,3-5 months,No (SPPL/UKL-UPL),MOI
+23933,Porcelain Lab/Electrical/Technical,100%,MT,10B-80B,3-5 months,No (UKL-UPL),MOI
+23939,Other Clay/Ceramic/Porcelain (non-building),100%,MR/MT,10B-80B,3-5 months,No (SPPL/UKL-UPL),MOI
+23941,Cement (BPS 2020),100%,T,500B-5T,18-36 months,Yes,MOI; MEMR; MOEF
+23942,Lime,100%,MT,50B-300B,4-8 months,Depends on scale,MOI; MOEF
+23943,Gypsum,100%,MT,30B-150B,3-6 months,No (UKL-UPL),MOI
+23951,Articles of Cement,100%,MT,20B-150B,3-6 months,No (UKL-UPL),MOI
+23952,Articles of Lime,100%,MR/MT,10B-80B,3-5 months,No (UKL-UPL),MOI
+23953,Cement/Lime Articles (Construction),100%,MT,20B-150B,3-6 months,No (UKL-UPL),MOI
+23954,Gypsum Articles (Construction),100%,MT,20B-120B,3-6 months,No (UKL-UPL),MOI
+23955,Asbestos Articles (Building),100%,T,20B-150B,4-8 months,Depends on scale,MOI; MOH
+23956,Asbestos Articles (Industrial),100%,T,10B-120B,4-8 months,Depends on scale,MOI; MOH
+23957,Ready-Mix Mortar/Concrete,100%,MT,20B-150B,2-4 months,No (SPPL/UKL-UPL),MOI
+23959,Other Articles (Cement/Lime/Gypsum/Asbestos),100%,MR/MT,10B-100B,2-6 months,Depends on scale,MOI
+23961,Marble/Granite (Household/Display),100%,MR/MT,10B-80B,2-4 months,No (SPPL/UKL-UPL),MOI
+23962,Marble/Granite (Building Materials),100%,MT,20B-150B,3-5 months,No (UKL-UPL),MOI
+23963,Stone Articles (Household/Display/Building),100%,MR/MT,10B-100B,2-4 months,No (SPPL/UKL-UPL),MOI
+23969,Other Marble/Granite/Stone Articles,100%,MR/MT,10B-100B,2-4 months,No (SPPL/UKL-UPL),MOI
+23990,Other Non-Metallic Mineral Products n.e.c.,100%,MR/MT,10B-100B,2-4 months,Depends on scale,MOI

@@ -1,0 +1,300 @@
+{
+  "metadata": {
+    "title": "Indonesia Tax Amnesty & Voluntary Disclosure Programs",
+    "currentProgram": "PPS (Program Pengungkapan Sukarela) 2022",
+    "previousPrograms": ["Tax Amnesty 2016-2017"],
+    "source": "Direktorat Jenderal Pajak",
+    "lastUpdated": "2025-10-01"
+  },
+
+  "pps2022": {
+    "name": "Program Pengungkapan Sukarela (Voluntary Disclosure Program)",
+    "period": {
+      "start": "2022-01-01",
+      "end": "2022-06-30",
+      "duration": "6 months",
+      "status": "CLOSED"
+    },
+
+    "description": "Opportunity for taxpayers to voluntarily disclose previously unreported assets and income with reduced tax rates",
+
+    "eligibility": {
+      "policy1": {
+        "name": "Kebijakan I",
+        "description": "For Tax Amnesty 2016 participants who did not fully disclose",
+        "assetPeriod": "Acquired January 1, 1985 - December 31, 2015",
+        "condition": "Not disclosed during Tax Amnesty 2016",
+        "deadline": "June 30, 2022"
+      },
+
+      "policy2": {
+        "name": "Kebijakan II",
+        "description": "For individual taxpayers with undisclosed assets",
+        "assetPeriod": "Acquired January 1, 2016 - December 31, 2020",
+        "condition": "Not disclosed in 2020 Annual Tax Return",
+        "deadline": "June 30, 2022"
+      }
+    },
+
+    "taxRates": {
+      "policy1": {
+        "repatriated": {
+          "rate": 0.06,
+          "ratePercent": "6%",
+          "condition": "Assets repatriated to Indonesia OR invested in SBN/renewable energy/downstream industries",
+          "lowestRate": true
+        },
+        "declared": {
+          "rate": 0.08,
+          "ratePercent": "8%",
+          "condition": "Assets declared but not repatriated"
+        },
+        "standard": {
+          "rate": 0.11,
+          "ratePercent": "11%",
+          "condition": "Standard declaration"
+        }
+      },
+
+      "policy2": {
+        "repatriated": {
+          "rate": 0.12,
+          "ratePercent": "12%",
+          "condition": "Assets repatriated OR invested in SBN/renewable energy/downstream industries",
+          "lowestRate": true
+        },
+        "declared": {
+          "rate": 0.14,
+          "ratePercent": "14%",
+          "condition": "Assets declared but not repatriated"
+        },
+        "standard": {
+          "rate": 0.18,
+          "ratePercent": "18%",
+          "condition": "Standard declaration"
+        }
+      }
+    },
+
+    "benefits": {
+      "noAudit": "No tax audit for disclosed assets",
+      "noCriminal": "No criminal prosecution for tax evasion on disclosed assets",
+      "noPenalty": "No administrative penalties on disclosed amounts",
+      "finalTax": "PPh rate is final (no further income tax)",
+      "cleanSlate": "Start fresh with compliant tax status"
+    },
+
+    "example": {
+      "scenario": "Individual with undisclosed offshore assets IDR 10B (acquired 2018)",
+      "policy": "Policy II (assets 2016-2020)",
+      "options": [
+        {
+          "choice": "Repatriate and invest in Indonesia",
+          "rate": 0.12,
+          "taxDue": 1200000000,
+          "taxDueFormatted": "IDR 1.2B",
+          "benefit": "Lowest rate 12%"
+        },
+        {
+          "choice": "Declare but keep offshore",
+          "rate": 0.14,
+          "taxDue": 1400000000,
+          "taxDueFormatted": "IDR 1.4B"
+        },
+        {
+          "choice": "Standard disclosure",
+          "rate": 0.18,
+          "taxDue": 1800000000,
+          "taxDueFormatted": "IDR 1.8B"
+        },
+        {
+          "choice": "Don't disclose (caught in audit)",
+          "rate": "Unknown",
+          "taxDue": "Principal + 200% penalty + 2%/month interest + criminal prosecution",
+          "worstCase": "IDR 30B+ total (tax + penalty + interest)"
+        }
+      ]
+    }
+  },
+
+  "taxAmnesty2016": {
+    "name": "Tax Amnesty Program 2016-2017",
+    "period": {
+      "phase1": "July 1 - September 30, 2016",
+      "phase2": "October 1 - December 31, 2016",
+      "phase3": "January 1 - March 31, 2017"
+    },
+
+    "rates": {
+      "phase1": {
+        "repatriated": "2%",
+        "declared": "4%"
+      },
+      "phase2": {
+        "repatriated": "3%",
+        "declared": "6%"
+      },
+      "phase3": {
+        "repatriated": "5%",
+        "declared": "10%"
+      }
+    },
+
+    "results": {
+      "participants": 972000,
+      "assetsDeclared": "IDR 4,881 trillion",
+      "repatriated": "IDR 147 trillion",
+      "taxRevenue": "IDR 135 trillion"
+    },
+
+    "legacy": "Largest tax amnesty in Indonesian history, PPS 2022 was for those who missed it"
+  },
+
+  "voluntaryDisclosure": {
+    "name": "Voluntary Disclosure (Outside Amnesty Period)",
+    "description": "Disclose unreported income/assets voluntarily before audit",
+
+    "rates": {
+      "beforeAudit": {
+        "rate": 0.15,
+        "ratePercent": "15%",
+        "penalty": "50% administrative penalty (waived if voluntary)",
+        "interest": "2% per month from due date",
+        "total": "Effectively 15% + back interest"
+      },
+
+      "duringAudit": {
+        "rate": "Principal tax amount",
+        "penalty": "50% administrative penalty",
+        "interest": "2% per month",
+        "criminal": "Possible if willful evasion",
+        "total": "Tax + 50% penalty + interest (no amnesty protection)"
+      }
+    },
+
+    "benefits": {
+      "reducedPenalty": "May avoid criminal prosecution",
+      "cooperationCredit": "Show good faith to tax office",
+      "lesserInterest": "Stop interest accumulation early"
+    },
+
+    "process": [
+      "Prepare disclosure letter (Surat Pernyataan Pengungkapan Harta)",
+      "Calculate tax due + interest",
+      "Submit to tax office with payment",
+      "Obtain confirmation letter",
+      "Amend previous tax returns if needed"
+    ]
+  },
+
+  "sunsetPolicy": {
+    "name": "Sunset Policy",
+    "description": "Periodic forgiveness of past tax violations",
+    "lastImplemented": "2008",
+    "currentStatus": "No active sunset policy",
+    "futureProspect": "Government may implement periodically (unpredictable)"
+  },
+
+  "comparisonTable": {
+    "programs": [
+      {
+        "program": "PPS 2022 (Policy I)",
+        "rate": "6-11%",
+        "assetPeriod": "1985-2015",
+        "benefits": ["No audit", "No criminal", "Final tax"],
+        "status": "Closed"
+      },
+      {
+        "program": "PPS 2022 (Policy II)",
+        "rate": "12-18%",
+        "assetPeriod": "2016-2020",
+        "benefits": ["No audit", "No criminal", "Final tax"],
+        "status": "Closed"
+      },
+      {
+        "program": "Voluntary Disclosure (current)",
+        "rate": "15% + interest",
+        "assetPeriod": "Any",
+        "benefits": ["Reduced penalty", "Cooperation credit"],
+        "status": "Always available"
+      },
+      {
+        "program": "Caught in Audit",
+        "rate": "Tax + 50% penalty + 2%/month interest + criminal",
+        "assetPeriod": "Any",
+        "benefits": "None",
+        "status": "Worst case"
+      }
+    ]
+  },
+
+  "futurePrograms": {
+    "speculation": "Indonesia may introduce new amnesty programs periodically",
+    "triggers": [
+      "Economic crisis (increase tax revenue)",
+      "Political changes",
+      "International tax transparency initiatives (CRS, FATCA)"
+    ],
+    "recommendation": "Monitor DJP announcements, act quickly if new program announced"
+  },
+
+  "baliZeroAdvice": {
+    "forClients": {
+      "unreportedAssets": [
+        "PPS 2022 closed - missed opportunity for 6-18% rates",
+        "Current option: Voluntary disclosure (15% + interest)",
+        "Alternative: Wait for next amnesty (unpredictable timing)",
+        "Recommendation: Disclose voluntarily if asset value significant",
+        "Example: IDR 5B undisclosed → Voluntary 15% = IDR 750M vs Audit penalty IDR 7.5B+ (tax + 50% + interest + criminal)"
+      ],
+
+      "foreignAccounts": [
+        "CRS (Common Reporting Standard) active - Indonesia receives foreign account data",
+        "FATCA - US accounts reported to Indonesia",
+        "Hidden assets increasingly difficult",
+        "Voluntary disclosure before DJP discovers = better outcome"
+      ],
+
+      "repatriation": [
+        "If new amnesty announced: Repatriate for lowest rate",
+        "Investment options: Government bonds (SBN), renewable energy, downstream industries",
+        "Benefit: Lowest tax rate + contribute to Indonesian economy"
+      ]
+    },
+
+    "taxPlanning": [
+      "Regularize all assets NOW (before audit)",
+      "Maintain proper documentation going forward",
+      "Report all foreign accounts in annual return",
+      "Consider voluntary disclosure if uncertain"
+    ],
+
+    "commonScenarios": {
+      "offshoreInvestments": {
+        "problem": "Indonesian with Singapore/Hong Kong investments not reported",
+        "solution": "Voluntary disclosure (15% + interest)",
+        "alternative": "Wait for next amnesty (risky - CRS may report first)"
+      },
+
+      "propertyAbroad": {
+        "problem": "Villa in Bali owned via nominee (illegal structure)",
+        "solution": "Restructure to legal PT PMA + voluntary disclosure of past income",
+        "cost": "15% + restructuring cost vs 100% loss if caught (nominee illegal)"
+      },
+
+      "businessIncome": {
+        "problem": "Cash revenue not reported for years",
+        "solution": "Voluntary disclosure + amend returns",
+        "benefit": "Avoid 50% penalty + criminal prosecution"
+      }
+    }
+  },
+
+  "quickReference": {
+    "pps2022Status": "CLOSED (ended June 30, 2022)",
+    "currentOption": "Voluntary Disclosure (15% + interest)",
+    "nextAmnesty": "Unknown (monitor DJP announcements)",
+    "crsActive": "Yes - foreign accounts reported to Indonesia",
+    "recommendation": "Disclose voluntarily if significant unreported assets"
+  }
+}

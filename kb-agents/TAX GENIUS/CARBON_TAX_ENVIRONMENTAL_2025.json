@@ -1,0 +1,355 @@
+{
+  "metadata": {
+    "title": "Indonesia Carbon Tax & Environmental Regulations 2025",
+    "legalFramework": "Law No. 7/2021 on Tax Harmonization, Presidential Regulation No. 98/2021",
+    "climatTarget": "41% GHG reduction by 2030, Net-Zero by 2060",
+    "source": "DJP, OECD, ICAP, Ministry of Finance",
+    "lastUpdated": "2025-10-02"
+  },
+
+  "carbonTax": {
+    "legalBasis": {
+      "law": "Law No. 7 of 2021 on Harmonization of Tax Regulations",
+      "promulgated": "October 29, 2021",
+      "presidentialRegulation": "Presidential Regulation No. 98 of 2021 on Implementation of Carbon Economic Value"
+    },
+
+    "taxRate": {
+      "rate": 30,
+      "unit": "IDR per kilogram CO2e",
+      "rateFormatted": "IDR 30/kg CO2e",
+      "rateUSD": "~USD 0.002/kg CO2e",
+      "classification": "Low bracket compared to other countries (OECD 2018)",
+      "comparison": {
+        "sweden": "USD 137/ton CO2e (highest globally)",
+        "switzerland": "USD 101/ton CO2e",
+        "france": "USD 52/ton CO2e",
+        "indonesia": "USD 2/ton CO2e (IDR 30,000/ton)"
+      }
+    },
+
+    "implementationStatus": {
+      "originalPlan": "Start 2022",
+      "actualStatus": "DELAYED - Not implemented until 2025 in most sectors",
+      "reason": "Economic considerations, industry pushback, phased approach",
+      "currentPlan": "Hybrid 'cap-tax-and-trade' system starting 2025"
+    }
+  },
+
+  "emissionsTradingSystem": {
+    "name": "Indonesia ETS (Emissions Trading System)",
+    "launch": "September 26, 2023 - Indonesia Carbon Exchange (IDXCarbon)",
+    "regulation": "OJK Regulation (POJK) Number 14 of 2023 on Carbon Trading",
+
+    "capAndTrade": {
+      "description": "Hybrid 'cap-tax-and-trade' system",
+      "mechanism": "Companies receive emission allowances (cap), trade excess, pay carbon tax if exceed",
+      "phases": {
+        "phase1": {
+          "period": "2023-2024",
+          "covered": "Coal-fired power plants (CFPPs) connected to grid",
+          "companies": "~80 power plants"
+        },
+        "phase2": {
+          "period": "2025 onwards",
+          "covered": [
+            "Captive coal-fired power plants (not connected to grid)",
+            "Gas power plants",
+            "Other high-emission industries (cement, steel, petrochemical)"
+          ]
+        }
+      }
+    },
+
+    "allowanceAllocation": {
+      "method": "Free allocation initially (transition period)",
+      "future": "Auction-based allocation (post-2025)",
+      "benchmark": "Emission intensity per unit of output"
+    },
+
+    "tradingMechanism": {
+      "platform": "IDXCarbon (Indonesia Carbon Exchange)",
+      "participants": "Emitters, financial institutions, intermediaries",
+      "unitTraded": "Carbon credits (1 credit = 1 ton CO2e)",
+      "priceDiscovery": "Market-based (supply and demand)"
+    }
+  },
+
+  "carbonTaxApplication": {
+    "description": "Facilities failing ETS obligations subject to carbon tax",
+
+    "calculation": {
+      "formula": "Carbon Tax = (Actual Emissions - Allowance) × IDR 30/kg CO2e",
+      "example": {
+        "company": "Coal-fired power plant",
+        "allowance": 1000000,
+        "allowanceFormatted": "1,000 tons CO2e",
+        "actualEmissions": 1200000,
+        "actualEmissionsFormatted": "1,200 tons CO2e",
+        "excess": 200000,
+        "excessFormatted": "200 tons CO2e",
+        "carbonTax": 6000000,
+        "carbonTaxFormatted": "IDR 6M (200,000 kg × IDR 30/kg)",
+        "carbonTaxUSD": "~USD 380"
+      }
+    },
+
+    "paymentDeadline": "Quarterly (following quarter deadline)",
+    "reporting": "Annual emissions report to Ministry of Environment"
+  },
+
+  "coveredSectors": {
+    "phase1": {
+      "period": "2023-2024",
+      "sectors": [
+        {
+          "sector": "Power Generation",
+          "specificIndustries": "Coal-fired power plants (grid-connected)",
+          "companies": 80,
+          "emissionsShare": 0.30,
+          "emissionsSharePercent": "~30% of national emissions"
+        }
+      ]
+    },
+
+    "phase2": {
+      "period": "2025 onwards",
+      "sectors": [
+        {
+          "sector": "Power Generation (expanded)",
+          "specificIndustries": "Captive CFPPs, gas power plants",
+          "companies": 150,
+          "emissionsShare": 0.10,
+          "emissionsSharePercent": "~10% of national emissions"
+        },
+        {
+          "sector": "Cement",
+          "specificIndustries": "Cement manufacturing",
+          "companies": 20,
+          "emissionsShare": 0.08,
+          "emissionsSharePercent": "~8% of national emissions"
+        },
+        {
+          "sector": "Steel",
+          "specificIndustries": "Steel production",
+          "companies": 15,
+          "emissionsShare": 0.05,
+          "emissionsSharePercent": "~5% of national emissions"
+        },
+        {
+          "sector": "Petrochemical",
+          "specificIndustries": "Refineries, chemical plants",
+          "companies": 25,
+          "emissionsShare": 0.12,
+          "emissionsSharePercent": "~12% of national emissions"
+        },
+        {
+          "sector": "Transportation (future)",
+          "specificIndustries": "Aviation, shipping (under consideration)",
+          "companies": "TBD",
+          "emissionsShare": 0.15,
+          "emissionsSharePercent": "~15% of national emissions",
+          "status": "Conceptual, not yet implemented"
+        }
+      ]
+    }
+  },
+
+  "revenueProjections": {
+    "2025": {
+      "estimated": 23650000000000,
+      "estimatedFormatted": "IDR 23.65 trillion",
+      "estimatedUSD": "~USD 1.5 billion",
+      "source": "Carbon tax study (Indonesia Ministry of Finance)"
+    },
+
+    "revenueUtilization": [
+      "Climate mitigation programs (renewable energy, reforestation)",
+      "Climate adaptation (flood defense, drought management)",
+      "Just transition support (coal industry workers retraining)",
+      "General state budget (partial allocation)"
+    ]
+  },
+
+  "climatTargets": {
+    "2030Target": {
+      "reduction": 0.41,
+      "reductionPercent": "41%",
+      "baseline": "Business-as-usual emissions",
+      "mechanisms": [
+        "Carbon pricing (ETS + carbon tax)",
+        "Renewable energy expansion (23% by 2025, 31% by 2030)",
+        "Energy efficiency improvements",
+        "Forest conservation (REDD+)",
+        "Electric vehicle adoption"
+      ]
+    },
+
+    "netZero2060": {
+      "target": "Net-Zero Emissions by 2060",
+      "accelerated": "From 2070 (originally) to 2060 (updated commitment)",
+      "strategies": [
+        "Phase out coal power plants (2040-2050)",
+        "100% renewable energy by 2060",
+        "Carbon capture and storage (CCS)",
+        "Nature-based solutions (reforestation, mangroves)",
+        "Green hydrogen development"
+      ]
+    }
+  },
+
+  "exemptionsAndIncentives": {
+    "exemptions": [
+      {
+        "industry": "Renewable energy producers",
+        "reason": "Zero/low emissions",
+        "status": "Exempt from carbon tax"
+      },
+      {
+        "industry": "Small emitters (< 25,000 tons CO2e/year)",
+        "reason": "De minimis threshold",
+        "status": "Exempt (administrative ease)"
+      },
+      {
+        "industry": "Agricultural sector",
+        "reason": "Food security, livelihoods",
+        "status": "Exempt initially (may be included later)"
+      }
+    ],
+
+    "incentives": [
+      {
+        "incentive": "Super Deduction 200%",
+        "appliesTo": "R&D for emission reduction technology",
+        "benefit": "200% tax deduction (vs 100% standard)",
+        "example": "IDR 100M R&D → IDR 44M tax savings (200M × 22%)"
+      },
+      {
+        "incentive": "Tax Holiday",
+        "appliesTo": "Renewable energy projects (solar, wind, geothermal)",
+        "benefit": "100% corporate tax exemption (5-20 years)",
+        "requirement": "Min IDR 500B investment"
+      },
+      {
+        "incentive": "Import duty exemption",
+        "appliesTo": "Clean technology equipment (solar panels, wind turbines)",
+        "benefit": "0% import duty (vs 5-15% standard)"
+      }
+    ]
+  },
+
+  "complianceRequirements": {
+    "forCoveredFacilities": [
+      "Register with IDXCarbon (Indonesia Carbon Exchange)",
+      "Install emissions monitoring equipment (CEMS - Continuous Emissions Monitoring System)",
+      "Submit annual emissions report (verified by third-party auditor)",
+      "Surrender emission allowances quarterly",
+      "Pay carbon tax if exceed allowance",
+      "Maintain emissions records (5-year retention)"
+    ],
+
+    "reporting": {
+      "frequency": "Annual",
+      "deadline": "March 31 of following year",
+      "verifier": "Accredited third-party verifier (ISO 14065)",
+      "penalty": "IDR 5M - 50M for non-reporting or false reporting"
+    }
+  },
+
+  "internationalContext": {
+    "carbonBorderAdjustment": {
+      "description": "EU Carbon Border Adjustment Mechanism (CBAM) - affecting Indonesian exports",
+      "effectiveDate": "2026 (full implementation)",
+      "impact": [
+        "Indonesian exports to EU subject to carbon price",
+        "Industries: Steel, cement, aluminum, fertilizers, electricity",
+        "Incentive: Implement domestic carbon pricing to avoid double taxation"
+      ],
+      "mitigation": "Indonesia ETS + carbon tax may offset CBAM charges (with equivalence recognition)"
+    },
+
+    "climatFinance": {
+      "description": "Indonesia to receive USD 20B climate finance (G20 JETP - Just Energy Transition Partnership)",
+      "period": "2023-2030",
+      "use": [
+        "Coal plant retirement",
+        "Renewable energy deployment",
+        "Grid modernization",
+        "Just transition support (coal workers)"
+      ]
+    }
+  },
+
+  "impactOnBusinesses": {
+    "highEmitters": [
+      {
+        "industry": "Coal power plants",
+        "impact": "High carbon tax liability (if exceed allowance)",
+        "strategy": "Invest in emission reduction (efficiency improvements, CCS), purchase carbon credits"
+      },
+      {
+        "industry": "Cement manufacturers",
+        "impact": "Increased production cost (IDR 30/kg CO2e)",
+        "strategy": "Switch to alternative fuels (biomass, waste-derived), improve kiln efficiency"
+      },
+      {
+        "industry": "Steel producers",
+        "impact": "Carbon cost added to production",
+        "strategy": "Electric arc furnaces (vs blast furnaces), scrap recycling"
+      }
+    ],
+
+    "lowEmitters": [
+      {
+        "industry": "Renewable energy (solar, wind, hydro)",
+        "impact": "Competitive advantage (no carbon cost)",
+        "opportunity": "Generate carbon credits, sell to high emitters"
+      },
+      {
+        "industry": "Services sector (IT, consulting, F&B)",
+        "impact": "Minimal direct impact (low emissions)",
+        "indirect": "Higher electricity costs (if power plants pass carbon cost to consumers)"
+      }
+    ]
+  },
+
+  "baliZeroAdvice": {
+    "forCoveredFacilities": [
+      "Phase 2 (2025): Captive CFPPs, gas plants, cement, steel, petrochemical → Register with IDXCarbon",
+      "Install CEMS (Continuous Emissions Monitoring) - Cost IDR 500M - 2B",
+      "Hire verified auditor (ISO 14065) - Cost IDR 50M - 200M/year",
+      "Develop emission reduction plan (avoid carbon tax)",
+      "Consider carbon credit purchase (if cheaper than emission reduction)"
+    ],
+
+    "forNonCoveredBusinesses": [
+      "Monitor carbon tax expansion (may cover more sectors post-2025)",
+      "Track electricity costs (power plants may pass carbon cost to consumers)",
+      "Voluntary carbon neutrality (competitive advantage, ESG)",
+      "Invest in energy efficiency (reduce electricity consumption)"
+    ],
+
+    "taxIncentives": [
+      "R&D for emission reduction: Super Deduction 200% (IDR 100M R&D → IDR 44M tax savings)",
+      "Renewable energy projects: Tax Holiday (100% exemption 5-20 years)",
+      "Clean tech equipment: 0% import duty"
+    ],
+
+    "strategicPlanning": [
+      "Carbon cost: IDR 30/kg CO2e (low now, likely to increase post-2025)",
+      "Future-proof: Invest in emission reduction early (avoid future higher carbon price)",
+      "Carbon credits: Generate/purchase to offset emissions",
+      "Renewable energy: Switch to clean power (avoid carbon cost + cost savings)"
+    ]
+  },
+
+  "quickReference": {
+    "carbonTaxRate": "IDR 30/kg CO2e (USD 2/ton CO2e)",
+    "etsLaunch": "September 26, 2023 (IDXCarbon)",
+    "phase1": "2023-2024 (coal power plants - grid-connected)",
+    "phase2": "2025 onwards (captive CFPPs, gas, cement, steel, petrochemical)",
+    "revenueProjection": "IDR 23.65 trillion by 2025",
+    "climatTarget": "41% GHG reduction by 2030, Net-Zero by 2060",
+    "euCBAM": "2026 (affects Indonesian exports to EU)"
+  }
+}

@@ -1,0 +1,14 @@
+KBLI,Sector,Foreign Ownership,Risk Level,Investment (IDR),Timeline,AMDAL,Key Regulator
+23951,Articles of Cement,100%,MT,20B-150B,3-6 months,No (UKL-UPL),MOI
+23952,Articles of Lime,100%,MR/MT,10B-80B,3-5 months,No (UKL-UPL),MOI
+23953,Cement/Lime Articles (Construction),100%,MT,20B-150B,3-6 months,No (UKL-UPL),MOI
+23954,Gypsum Articles (Construction),100%,MT,20B-120B,3-6 months,No (UKL-UPL),MOI
+23955,Asbestos Articles (Building),100%,T,20B-150B,4-8 months,Depends on scale,MOI; MOH
+23956,Asbestos Articles (Industrial),100%,T,10B-120B,4-8 months,Depends on scale,MOI; MOH
+23957,Ready-Mix Mortar/Concrete,100%,MT,20B-150B,2-4 months,No (SPPL/UKL-UPL),MOI
+23959,Other Articles (Cement/Lime/Gypsum/Asbestos),100%,MR/MT,10B-100B,2-6 months,Depends on scale,MOI
+23961,Marble/Granite (Household/Display),100%,MR/MT,10B-80B,2-4 months,No (SPPL/UKL-UPL),MOI
+23962,Marble/Granite (Building Materials),100%,MT,20B-150B,3-5 months,No (UKL-UPL),MOI
+23963,Stone Articles (Household/Display/Building),100%,MR/MT,10B-100B,2-4 months,No (SPPL/UKL-UPL),MOI
+23969,Other Marble/Granite/Stone Articles,100%,MR/MT,10B-100B,2-4 months,No (SPPL/UKL-UPL),MOI
+23990,Other Non-Metallic Mineral Products n.e.c.,100%,MR/MT,10B-100B,2-4 months,Depends on scale,MOI

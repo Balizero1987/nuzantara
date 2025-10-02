@@ -1,0 +1,7 @@
+{
+  "export_file": "kbli_export.jsonl",
+  "count": 43,
+  "generated_at": "2025-10-02T00:17:28Z",
+  "base_dir": "/Users/antonellosiano/Desktop/KB agenti/KBLI",
+  "note": "JSONL ready for RAG ingestion: chunked content + metadata. No backend changes required."
+}

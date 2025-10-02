@@ -1,0 +1,20 @@
+KBLI,Sector,Foreign Ownership,Risk Level,Investment (IDR),Timeline,AMDAL,Key Regulator
+18201,Reproduction (Audio/Software),100%,R/MR,10B,1-2 weeks,No (SPPL),MOI
+18202,Reproduction (Film/Video),100%,MR,10B,1-2 weeks,No (SPPL),MOI
+19211,Fuel Production (Refining),100%,T,500B-2T,8-18 months,Yes,MEMR; MOEF
+19212,Lubricants Manufacturing,100%,T,100B-500B,6-12 months,Depends on scale,MEMR; MOEF
+19213,Re-refining Used Oils,100%,T,50B-200B,6-12 months,Yes,MEMR; MOEF
+19291,Other Refinery Products,100%,T,100B-1T,6-12 months,Yes,MEMR; MOEF
+19292,Coal Briquettes,100%,MT,20B-100B,3-6 months,No (UKL-UPL),MOI; MOEF
+20113,Inorganic Pigments,100%,T,50B-300B,6-12 months,Yes,MOI; MOEF
+20114,Other Inorganic Chemicals,100%,T,30B-200B,6-12 months,Depends on scale,MOI; MOEF
+20115,Organics from Agriculture,100%,T,30B-200B,6-12 months,Depends on scale,MOI; MOEF
+20116,Dyes & Pigment Intermediates,100%,T,30B-200B,6-12 months,Depends on scale,MOI; MOEF
+20117,Organics from Petro/Gas/Coal,100%,T,100B-500B,6-12 months,Yes,MOI; MOEF
+20118,Specialty Organics,100%,MT/T,20B-150B,4-8 months,Depends on scale,MOI; MOEF
+20119,Other Basic Organics,100%,MT,20B-150B,4-8 months,Depends on scale,MOI; MOEF
+21014,Vet Pharma Raw Materials,100%,T,50B-300B,12-18 months,Depends on scale,BPOM; MOA
+21015,Medical Devices (Mfg),100%,MT/T,20B-150B,6-12 months,No/UKL-UPL,MOH
+22193,Rubber for Infrastructure,100%,MT,20B-100B,3-5 months,No (UKL-UPL),MOI
+22194,Rubber for Health,100%,MT,20B-100B,4-6 months,No (UKL-UPL),MOI; MOH
+23124,Clinical Lab Glassware,100%,MT,20B-100B,4-6 months,No (UKL-UPL),MOI; MOH

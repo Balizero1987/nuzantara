@@ -1,0 +1,446 @@
+{
+  "metadata": {
+    "title": "Indonesia Tax Audit Procedures & Risk Assessment 2025",
+    "regulation": "PMK 15/2025 (Minister of Finance Regulation)",
+    "effectiveDate": "2025-01-01",
+    "authority": "DJP (Direktorat Jenderal Pajak)",
+    "source": "PMK 15/2025, DJP guidelines, tax consultant insights",
+    "lastUpdated": "2025-10-02"
+  },
+
+  "pmk15_2025": {
+    "name": "PMK 15/2025 on Tax Audit",
+    "description": "New audit framework introducing significant changes to tax audit procedures",
+    "effectiveDate": "January 1, 2025",
+    "keyChanges": [
+      "Introduces 3 types of audits (comprehensive, focused, specific)",
+      "Shortened response period to 5 working days (from 7 days)",
+      "Risk-based selection approach",
+      "Emphasis on Coretax system integration",
+      "Electronic document exchange mandatory"
+    ]
+  },
+
+  "auditTypes": {
+    "comprehensive": {
+      "name": "Comprehensive Audit",
+      "description": "Full-scope examination of all items in tax returns",
+      "assessmentPeriod": "Maximum 5 months",
+      "scope": "All tax return items",
+      "triggerFactors": [
+        "Tax refund application (significant amount)",
+        "Large overpayment declaration",
+        "Complex group structures",
+        "High-value related party transactions",
+        "Repeated non-compliance history"
+      ],
+      "auditRisk": "HIGH"
+    },
+
+    "focused": {
+      "name": "Focused Audit",
+      "description": "Deep dive into one or several specific items",
+      "assessmentPeriod": "Maximum 3 months",
+      "scope": "Targeted items in tax returns",
+      "triggerFactors": [
+        "Transfer pricing inconsistencies",
+        "Significant expense deductions (> 30% revenue)",
+        "Loss declaration despite industry profitability",
+        "VAT credit mismatch",
+        "Foreign transactions without treaty documentation"
+      ],
+      "auditRisk": "MEDIUM-HIGH"
+    },
+
+    "specific": {
+      "name": "Specific Audit",
+      "description": "Simplified audit on targeted items or obligations",
+      "assessmentPeriod": "Maximum 1 month",
+      "scope": "Specific data, items, or obligations",
+      "triggerFactors": [
+        "Late filing or non-filing",
+        "Incomplete documentation",
+        "Data discrepancies (tax return vs third-party reports)",
+        "LKPM inconsistencies",
+        "BPJS payment gaps"
+      ],
+      "auditRisk": "MEDIUM"
+    }
+  },
+
+  "redFlags": {
+    "critical": [
+      {
+        "flag": "Tax refund application",
+        "trigger": "Any refund request (esp. > IDR 100M)",
+        "auditType": "Comprehensive",
+        "auditProbability": 0.95,
+        "auditProbabilityPercent": "95%",
+        "mitigation": "Ensure 100% documentation accuracy, reconcile all input VAT"
+      },
+      {
+        "flag": "Overtax declaration (significant credit balance)",
+        "trigger": "Input VAT > Output VAT for 3+ consecutive months",
+        "auditType": "Comprehensive or Focused",
+        "auditProbability": 0.80,
+        "auditProbabilityPercent": "80%",
+        "mitigation": "Validate all input VAT invoices, maintain e-Faktur accuracy"
+      },
+      {
+        "flag": "Annual income tax declaration in loss state",
+        "trigger": "Corporate loss despite positive revenue",
+        "auditType": "Focused",
+        "auditProbability": 0.75,
+        "auditProbabilityPercent": "75%",
+        "mitigation": "Document extraordinary expenses, industry benchmarks, business challenges"
+      }
+    ],
+
+    "high": [
+      {
+        "flag": "Transfer pricing inconsistencies",
+        "trigger": "Related party transactions > 30% revenue, no TP documentation",
+        "auditType": "Focused",
+        "auditProbability": 0.70,
+        "auditProbabilityPercent": "70%",
+        "mitigation": "Prepare Local File annually, keep management fees < 5% revenue"
+      },
+      {
+        "flag": "Change of accounting year/method or asset revaluation",
+        "trigger": "Accounting changes without DJP approval",
+        "auditType": "Focused",
+        "auditProbability": 0.65,
+        "auditProbabilityPercent": "65%",
+        "mitigation": "Obtain DJP approval BEFORE implementing changes"
+      },
+      {
+        "flag": "Non-submission of tax return after risk analysis",
+        "trigger": "3+ months non-filing",
+        "auditType": "Specific",
+        "auditProbability": 0.60,
+        "auditProbabilityPercent": "60%",
+        "mitigation": "File SPT on time, even if nil report"
+      }
+    ],
+
+    "medium": [
+      {
+        "flag": "Tax returns do not meet DJP requirements",
+        "trigger": "Incomplete forms, missing supporting documents",
+        "auditType": "Specific",
+        "auditProbability": 0.50,
+        "auditProbabilityPercent": "50%",
+        "mitigation": "Use DJP e-Filing system, validate before submission"
+      },
+      {
+        "flag": "Profit margin significantly below industry average",
+        "trigger": "Profit margin < 50% of industry benchmark",
+        "auditType": "Focused",
+        "auditProbability": 0.45,
+        "auditProbabilityPercent": "45%",
+        "mitigation": "Document competitive pressures, pricing strategy, one-time expenses"
+      },
+      {
+        "flag": "High entertainment expenses",
+        "trigger": "Entertainment > 1% of revenue",
+        "auditType": "Focused",
+        "auditProbability": 0.40,
+        "auditProbabilityPercent": "40%",
+        "mitigation": "Limit entertainment, classify as business meals where possible"
+      }
+    ],
+
+    "low": [
+      {
+        "flag": "LKPM inconsistencies",
+        "trigger": "LKPM data does not match tax returns",
+        "auditType": "Specific",
+        "auditProbability": 0.30,
+        "auditProbabilityPercent": "30%",
+        "mitigation": "Reconcile LKPM with tax reports quarterly"
+      },
+      {
+        "flag": "BPJS payment gaps",
+        "trigger": "BPJS employees do not match payroll",
+        "auditType": "Specific",
+        "auditProbability": 0.25,
+        "auditProbabilityPercent": "25%",
+        "mitigation": "Ensure all employees registered in BPJS"
+      }
+    ]
+  },
+
+  "auditProcedures": {
+    "notificationPhase": {
+      "step": 1,
+      "action": "DJP sends audit notification letter (Surat Pemberitahuan Pemeriksaan)",
+      "timeline": "7 days before audit starts",
+      "taxpayerAction": [
+        "Prepare all tax returns (3 years)",
+        "Compile supporting documents",
+        "Prepare accounting records",
+        "Designate company representative"
+      ]
+    },
+
+    "openingMeeting": {
+      "step": 2,
+      "action": "Initial meeting between auditors and taxpayer",
+      "timeline": "Day 1 of audit",
+      "taxpayerAction": [
+        "Present company overview",
+        "Explain accounting system",
+        "Provide document index",
+        "Discuss audit scope"
+      ]
+    },
+
+    "documentReview": {
+      "step": 3,
+      "action": "Auditors review documents and conduct interviews",
+      "timeline": "Days 2-60 (comprehensive), Days 2-40 (focused), Days 2-15 (specific)",
+      "taxpayerAction": [
+        "Respond to document requests within 5 working days (NEW: shortened from 7 days)",
+        "Attend interviews",
+        "Provide explanations",
+        "Maintain cooperation"
+      ],
+      "critical": "Response period shortened to 5 working days (PMK 15/2025), no extension available"
+    },
+
+    "auditFindings": {
+      "step": 4,
+      "action": "DJP issues audit findings letter (Surat Pemberitahuan Hasil Pemeriksaan - SPHP)",
+      "timeline": "End of audit period",
+      "taxpayerAction": [
+        "Review findings carefully",
+        "Prepare rebuttal letter (Tanggapan atas SPHP)",
+        "Provide additional evidence",
+        "Submit within 5 working days (NEW: shortened)"
+      ]
+    },
+
+    "closingMeeting": {
+      "step": 5,
+      "action": "Final meeting to discuss findings and taxpayer rebuttal",
+      "timeline": "Within 7 days of SPHP response",
+      "taxpayerAction": [
+        "Present rebuttal arguments",
+        "Negotiate adjustments",
+        "Seek reduction of penalties"
+      ]
+    },
+
+    "assessmentLetter": {
+      "step": 6,
+      "action": "DJP issues tax assessment letter (Surat Ketetapan Pajak - SKP)",
+      "timeline": "Within 2 months of closing meeting",
+      "taxpayerAction": [
+        "Pay additional tax within 1 month (or appeal)",
+        "File objection if disagree (within 3 months)",
+        "Consider APA for future"
+      ]
+    }
+  },
+
+  "coretaxIntegration": {
+    "description": "PMK 15/2025 emphasizes Coretax system and electronic document exchange",
+    "requirements": [
+      "All audit documents must be exchanged via Coretax portal",
+      "Electronic seals required for all official documents",
+      "Digital signatures mandatory",
+      "Real-time tracking of audit status",
+      "Electronic response submission (5-day deadline)"
+    ],
+    "benefits": [
+      "Faster processing",
+      "Transparent audit trail",
+      "Reduced paper burden",
+      "Easier document retrieval"
+    ],
+    "challenges": [
+      "System accessibility issues (reported in early 2025)",
+      "Authorization problems",
+      "Learning curve for taxpayers",
+      "Digital readiness requirements"
+    ]
+  },
+
+  "riskBasedSelection": {
+    "description": "PMK 15/2025 introduces risk-based selection approach",
+    "riskCriteria": [
+      "Tax refund applications",
+      "Complex corporate structures",
+      "Intercompany transactions",
+      "Industry profit margin deviations",
+      "Historical non-compliance",
+      "Third-party data mismatches (e.g., bank reports, customs data)",
+      "LKPM inconsistencies",
+      "Transfer pricing red flags"
+    ],
+    "riskScoring": {
+      "high": {
+        "score": "75-100",
+        "auditProbability": 0.80,
+        "auditProbabilityPercent": "80%+",
+        "auditType": "Comprehensive"
+      },
+      "medium": {
+        "score": "50-74",
+        "auditProbability": 0.50,
+        "auditProbabilityPercent": "50%",
+        "auditType": "Focused"
+      },
+      "low": {
+        "score": "0-49",
+        "auditProbability": 0.20,
+        "auditProbabilityPercent": "20%",
+        "auditType": "Specific or Random"
+      }
+    }
+  },
+
+  "commonAdjustments": {
+    "entertainmentExpenses": {
+      "issue": "Entertainment expenses not fully deductible (50% limit)",
+      "adjustment": "50% of entertainment expenses disallowed",
+      "example": {
+        "reportedExpense": 100000000,
+        "allowableDeduction": 50000000,
+        "disallowedAmount": 50000000,
+        "additionalTax": 11000000,
+        "calc": "50M × 22% = 11M additional tax"
+      }
+    },
+
+    "transferPricingAdjustments": {
+      "issue": "Related party transactions not at arm's length",
+      "adjustment": "Adjust to median of comparables",
+      "example": {
+        "reportedManagementFee": 50000000,
+        "medianBenchmark": 30000000,
+        "adjustment": 20000000,
+        "additionalTax": 4400000,
+        "calc": "20M × 22% = 4.4M additional tax"
+      }
+    },
+
+    "vatInputCreditDisallowance": {
+      "issue": "Input VAT credit for blocked items (entertainment, luxury cars)",
+      "adjustment": "Disallow 100% of blocked input VAT",
+      "example": {
+        "entertainmentVAT": 11000000,
+        "disallowedCredit": 11000000,
+        "additionalVAT": 11000000,
+        "calc": "11M input VAT credit denied = 11M additional VAT payable"
+      }
+    },
+
+    "depreciation": {
+      "issue": "Accelerated depreciation not approved by DJP",
+      "adjustment": "Revert to straight-line depreciation",
+      "example": {
+        "acceleratedDepreciation": 100000000,
+        "straightLineDepreciation": 60000000,
+        "disallowedAmount": 40000000,
+        "additionalTax": 8800000,
+        "calc": "40M × 22% = 8.8M additional tax"
+      }
+    }
+  },
+
+  "penaltiesAndInterest": {
+    "administrativePenalty": {
+      "understatement": {
+        "rate": 0.50,
+        "ratePercent": "50%",
+        "appliesTo": "Understated tax liability",
+        "example": "IDR 100M underpayment → IDR 50M penalty"
+      },
+      "latePayment": {
+        "rate": 0.02,
+        "ratePercent": "2% per month",
+        "appliesTo": "Tax paid after due date",
+        "compounding": true,
+        "example": "IDR 100M late 6 months → IDR 12M interest"
+      }
+    },
+
+    "criminalPenalty": {
+      "taxEvasion": {
+        "penalty": "200% of underpaid tax + criminal prosecution",
+        "prisonTerm": "6 months - 6 years",
+        "appliesTo": "Willful tax evasion (fake invoices, hidden income)",
+        "example": "IDR 100M evasion → IDR 200M penalty + prison"
+      }
+    }
+  },
+
+  "bestPractices": {
+    "preAudit": [
+      "Conduct internal audit annually (identify issues before DJP does)",
+      "Prepare TP documentation contemporaneously (don't wait for audit)",
+      "Reconcile LKPM with tax returns quarterly",
+      "Maintain organized document archive (5-year retention)",
+      "Ensure e-Faktur and Coretax compliance 100%",
+      "Train staff on PMK 15/2025 procedures"
+    ],
+
+    "duringAudit": [
+      "Respond within 5 working days (NO extension)",
+      "Provide complete documents (partial submission raises suspicion)",
+      "Be cooperative but not overly volunteering information",
+      "Designate single point of contact (avoid conflicting explanations)",
+      "Document all interactions (meetings, emails, document requests)",
+      "Engage tax consultant if complex issues arise"
+    ],
+
+    "postAudit": [
+      "Review assessment letter carefully (check calculations)",
+      "Consider objection if disagree (3-month deadline)",
+      "Pay additional tax promptly (stop interest accumulation)",
+      "Implement corrective actions (prevent future audits)",
+      "Consider APA if transfer pricing issues recurring"
+    ]
+  },
+
+  "baliZeroAdvice": {
+    "forClients": [
+      "PMK 15/2025: Response period shortened to 5 days (vs 7 days before) - CRITICAL!",
+      "Coretax system mandatory: Ensure digital readiness (authorization, digital signature)",
+      "Risk-based selection: Tax refund applications = 95% audit probability",
+      "Transfer pricing: Maintain Local File annually (50% penalty if inadequate)",
+      "VAT input credit: Entertainment 100% blocked - major audit adjustment",
+      "LKPM consistency: Reconcile with tax returns quarterly (avoid specific audit)"
+    ],
+
+    "riskReduction": [
+      "Keep management fees < 5% revenue (safe zone)",
+      "Profit margin > 50% of industry benchmark (avoid red flag)",
+      "Entertainment < 1% revenue (minimize adjustment risk)",
+      "File SPT on time even if nil (avoid non-filing audit)",
+      "Prepare rebuttal letter within 5 days (NO extension!)"
+    ],
+
+    "auditSupport": {
+      "baliZeroService": "Tax audit support IDR 10,000,000 - 50,000,000 (depends on audit type)",
+      "services": [
+        "Pre-audit document review",
+        "Audit representation",
+        "Rebuttal letter preparation",
+        "Negotiation with DJP",
+        "Objection filing (if needed)"
+      ],
+      "timeline": "Contact Bali Zero immediately upon receiving audit notification (7-day lead time critical)"
+    }
+  },
+
+  "quickReference": {
+    "auditTypes": "Comprehensive (5 months), Focused (3 months), Specific (1 month)",
+    "responseDeadline": "5 working days (shortened from 7, NO extension)",
+    "coretaxMandatory": "Yes - electronic document exchange only",
+    "refundAuditProbability": "95%",
+    "transferPricingPenalty": "50% of underpaid tax",
+    "criminaLPenalty": "200% + prison (6 months - 6 years)"
+  }
+}

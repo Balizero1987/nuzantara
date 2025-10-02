@@ -1,0 +1,417 @@
+{
+  "metadata": {
+    "title": "Indonesia Sector-Specific Tax Rules",
+    "sectors": ["F&B (Food & Beverage)", "Villa Rental", "Construction"],
+    "source": "DJP regulations, PWC Indonesia, local Bali regulations",
+    "lastUpdated": "2025-10-01"
+  },
+
+  "fAndB": {
+    "name": "Food & Beverage (Restaurants, Cafes, Bars)",
+    "description": "Tax treatment for hospitality F&B businesses in Bali and Indonesia",
+
+    "serviceCharge": {
+      "rate": 0.10,
+      "ratePercent": "10%",
+      "taxTreatment": "Mandatory, subject to PPh 21 (employee distribution)",
+      "distribution": "Must be distributed to employees",
+      "auditRisk": "DJP regularly audits service charge distribution",
+      "complianceNote": "Maintain records of employee distribution"
+    },
+
+    "restaurantTax": {
+      "name": "PBJT (Pajak Barang dan Jasa Tertentu)",
+      "maxRate": 0.10,
+      "maxRatePercent": "10%",
+      "appliesTo": ["Hotels", "Restaurants", "Cafes", "Bars"],
+      "regionalVariation": "Varies by regency/city (max 10%)",
+      "bali": {
+        "rate": 0.10,
+        "ratePercent": "10%",
+        "name": "NPWPD (Regional Tax)",
+        "paidTo": "Bali Provincial Government",
+        "deadline": "15th of following month"
+      }
+    },
+
+    "vatExemption": {
+      "status": "VAT-EXEMPT",
+      "regulation": "Article 4A VAT Law + Tax Harmonization Law",
+      "reason": "F&B served in restaurants/hotels exempt from VAT",
+      "implication": [
+        "No output VAT charged to customers",
+        "No input VAT credits on purchases",
+        "Subject to NPWPD 10% instead"
+      ]
+    },
+
+    "alcoholTax": {
+      "name": "Luxury Sales Tax (PPnBM)",
+      "importDuty": {
+        "beer": "50-150%",
+        "wine": "90-150%",
+        "spirits": "120-150%"
+      },
+      "exciseTax": {
+        "beer": "IDR 14,000 per liter (varies)",
+        "wine": "IDR 38,000 per liter",
+        "spirits": "IDR 80,000 per liter"
+      },
+      "totalImpact": "Alcohol costs 2-3x retail price in other countries"
+    },
+
+    "touristLevy": {
+      "name": "Bali Tourist Levy",
+      "rate": 150000,
+      "rateUSD": "~USD 10 per tourist",
+      "appliesTo": "International tourists",
+      "collectedBy": "Hotels, restaurants (if primary accommodation provider)",
+      "remittedTo": "Bali Provincial Government"
+    },
+
+    "corporateTax": {
+      "standard": {
+        "rate": 0.22,
+        "ratePercent": "22%",
+        "threshold": "Revenue > IDR 4.8B/year"
+      },
+      "pp23_2018": {
+        "rate": 0.005,
+        "ratePercent": "0.5%",
+        "threshold": "Revenue < IDR 4.8B/year",
+        "duration": "7 years (for PT)",
+        "basedOn": "Gross revenue (no deductions)"
+      }
+    },
+
+    "example": {
+      "scenario": "Restaurant Canggu, revenue IDR 500M/month (IDR 6B/year)",
+      "breakdown": {
+        "revenue": 500000000,
+        "npwpd": 50000000,
+        "npwpdCalc": "500M × 10% = 50M",
+        "serviceCharge": 50000000,
+        "serviceChargeNote": "Distributed to employees (subject to PPh 21)",
+        "pph25": 22000000,
+        "pph25Calc": "Revenue > 4.8B/year → 22% corporate tax",
+        "totalMonthly": 72000000,
+        "effectiveRate": 0.144,
+        "effectiveRatePercent": "14.4%"
+      },
+      "optimizationNote": "If revenue < 4.8B/year: Use PP 23/2018 (0.5% vs 22% = 95% savings)"
+    },
+
+    "baliZeroAdvice": [
+      "Register NPWPD within 30 days of operations",
+      "Service charge 10% mandatory: Maintain employee distribution records",
+      "No VAT registration needed (exempt)",
+      "Entertainment expenses: 100% VAT blocked if PKP registered elsewhere",
+      "Tourist levy: IDR 150K per international guest (hotels/accommodations)"
+    ]
+  },
+
+  "villaRental": {
+    "name": "Villa Rental (Short-term & Long-term)",
+    "description": "Tax options for property rental income in Indonesia",
+
+    "finalTaxOption": {
+      "name": "PPh 4(2) Final Tax",
+      "rate": 0.10,
+      "ratePercent": "10%",
+      "baseCalculation": "Gross rental income (no deductions)",
+      "frequency": "Monthly",
+      "deadline": "10th of following month",
+      "withheldBy": "Tenant (if business entity) or self-reported (if individual tenant)",
+      "isFinal": true,
+      "implication": "No further tax obligations on rental income"
+    },
+
+    "regularTaxOption": {
+      "name": "Regular Income Tax (Progressive)",
+      "rates": {
+        "brackets": [
+          { "limit": 60000000, "rate": 0.05, "ratePercent": "5%" },
+          { "limit": 250000000, "rate": 0.15, "ratePercent": "15%" },
+          { "limit": 500000000, "rate": 0.25, "ratePercent": "25%" },
+          { "limit": 5000000000, "rate": 0.30, "ratePercent": "30%" },
+          { "limit": null, "rate": 0.35, "ratePercent": "35%" }
+        ]
+      },
+      "baseCalculation": "Net income (gross rental - deductible expenses)",
+      "deductibleExpenses": [
+        "Property management fees",
+        "Repairs and maintenance",
+        "Utilities (if paid by owner)",
+        "Property tax (PBB)",
+        "Depreciation (building only, not land)",
+        "Insurance",
+        "Marketing costs"
+      ],
+      "nonDeductibleExpenses": [
+        "Land acquisition cost",
+        "Capital improvements",
+        "Personal expenses"
+      ],
+      "annualFiling": "Part of annual income tax return (SPT Tahunan)"
+    },
+
+    "comparison": {
+      "example": {
+        "grossRentalIncome": 150000000,
+        "grossRentalIncomeNote": "IDR 150M/month (IDR 1.8B/year)",
+        "finalTaxOption": {
+          "tax": 15000000,
+          "taxCalc": "150M × 10% = 15M/month (final)",
+          "netIncome": 135000000,
+          "advantages": [
+            "Simple compliance (no expense tracking)",
+            "Lower rate if few deductible expenses",
+            "No annual tax return complexity"
+          ],
+          "disadvantages": [
+            "No expense deductions allowed",
+            "Less favorable if high operating costs"
+          ]
+        },
+        "regularTaxOption": {
+          "expenses": 30000000,
+          "expensesNote": "Management, repairs, utilities, depreciation",
+          "netIncome": 120000000,
+          "netIncomeCalc": "150M - 30M = 120M net",
+          "annualNetIncome": 1440000000,
+          "ptkp": 54000000,
+          "taxableIncome": 1386000000,
+          "tax": 346500000,
+          "taxMonthly": 28875000,
+          "taxCalc": "60M×5% + 190M×15% + 250M×25% + 886M×30% = 346.5M/year = 28.9M/month",
+          "netIncome": 121125000,
+          "effectiveRate": 0.192,
+          "effectiveRatePercent": "19.2%",
+          "advantages": [
+            "Expense deductions reduce taxable income",
+            "Better if high operating costs (> 20% revenue)"
+          ],
+          "disadvantages": [
+            "Complex compliance (expense tracking, annual filing)",
+            "Higher rate if low operating costs"
+          ]
+        }
+      },
+      "decisionMatrix": {
+        "useFinalTax": [
+          "Operating expenses < 20% of gross rental",
+          "Want simple compliance",
+          "Monthly rental income > IDR 50M"
+        ],
+        "useRegularTax": [
+          "Operating expenses > 30% of gross rental",
+          "Other income sources (can offset losses)",
+          "Monthly rental income < IDR 50M"
+        ]
+      }
+    },
+
+    "nonResidents": {
+      "rate": 0.20,
+      "ratePercent": "20%",
+      "baseCalculation": "Gross rental income",
+      "withheldBy": "Tenant (mandatory withholding)",
+      "isFinal": true,
+      "treatyReduction": "May be reduced with tax treaty (Certificate of Domicile required)"
+    },
+
+    "propertyTax": {
+      "name": "PBB (Pajak Bumi dan Bangunan)",
+      "rate": 0.001,
+      "ratePercent": "0.1-0.3%",
+      "baseCalculation": "NJOP (property assessed value)",
+      "frequency": "Annual",
+      "deductibleExpense": "Yes (if using regular income tax method)"
+    },
+
+    "baliZeroAdvice": [
+      "Analyze expense ratio: < 20% → Use PPh 4(2) 10% final",
+      "High expenses (> 30%)? → Use regular income tax with deductions",
+      "Tenant is business? → They withhold PPh 4(2) 10%",
+      "Tenant is individual? → Owner self-reports monthly",
+      "Non-resident owner? → 20% withholding (or treaty rate)",
+      "Keep records: Rental agreements, payment proof, expense receipts"
+    ]
+  },
+
+  "construction": {
+    "name": "Construction Services (Planning, Supervision, Execution)",
+    "description": "PPh 4(2) final tax for construction industry in Indonesia",
+
+    "planningAndSupervision": {
+      "name": "Construction Planning & Supervision Services",
+      "withCertification": {
+        "rate": 0.035,
+        "ratePercent": "3.5%",
+        "requirement": "Valid SBU (Sertifikat Badan Usaha)",
+        "issuedBy": "LPJK (Lembaga Pengembangan Jasa Konstruksi)",
+        "validity": "3 years from issuance date"
+      },
+      "withoutCertification": {
+        "rate": 0.06,
+        "ratePercent": "6%",
+        "penalty": "71% rate increase (6% vs 3.5%)"
+      },
+      "appliesTo": [
+        "Architectural design",
+        "Engineering design",
+        "Construction supervision",
+        "Project management services"
+      ]
+    },
+
+    "constructionExecution": {
+      "name": "Construction Implementation/Execution Services",
+      "smallQualification": {
+        "rate": 0.0175,
+        "ratePercent": "1.75%",
+        "grades": "1-4",
+        "requirement": "Valid SBU/SIUJK",
+        "regulation": "PP No. 9 of 2022"
+      },
+      "mediumLargeQualification": {
+        "rate": 0.0265,
+        "ratePercent": "2.65%",
+        "grades": "5-7",
+        "requirement": "Valid SBU/SIUJK"
+      },
+      "withoutCertification": {
+        "rate": 0.04,
+        "ratePercent": "4%",
+        "penalty": "129% rate increase vs small (4% vs 1.75%), 51% increase vs medium (4% vs 2.65%)"
+      },
+      "appliesTo": [
+        "Building construction",
+        "Infrastructure construction",
+        "Renovation and repair",
+        "Installation works"
+      ]
+    },
+
+    "withholdingMechanism": {
+      "withheldBy": "Project owner (principal)",
+      "deadline": "10th of following month",
+      "reporting": "SPT Masa PPh 4(2)",
+      "certificate": "Bukti Potong PPh 4(2) issued to contractor",
+      "isFinal": true,
+      "implication": "No further corporate tax on construction revenue"
+    },
+
+    "vat": {
+      "rate": 0.11,
+      "ratePercent": "11%",
+      "appliesTo": "Construction services (unless exempt)",
+      "pkpRequired": "Yes (if revenue > IDR 4.8B/year)",
+      "inputVATCredits": "Materials, equipment, subcontractors (if PKP)"
+    },
+
+    "downPaymentTax": {
+      "name": "PPh 22 Import Duty (for imported materials)",
+      "rate": 0.025,
+      "ratePercent": "2.5%",
+      "appliesTo": "Imported construction materials",
+      "paidAt": "Customs clearance",
+      "creditable": "Yes (as prepaid income tax)"
+    },
+
+    "example": {
+      "scenario": "Construction project IDR 1B (building construction)",
+      "withCertification": {
+        "contractValue": 1000000000,
+        "pph4_2": 17500000,
+        "pph4_2Calc": "1B × 1.75% = 17.5M (small qualification, certified)",
+        "vat": 110000000,
+        "vatCalc": "1B × 11% = 110M (output VAT)",
+        "netPayment": 872500000,
+        "totalTaxBurden": 127500000,
+        "effectiveRate": 0.1275,
+        "effectiveRatePercent": "12.75%"
+      },
+      "withoutCertification": {
+        "contractValue": 1000000000,
+        "pph4_2": 40000000,
+        "pph4_2Calc": "1B × 4% = 40M (no certification)",
+        "vat": 110000000,
+        "vatCalc": "1B × 11% = 110M (output VAT)",
+        "netPayment": 850000000,
+        "totalTaxBurden": 150000000,
+        "effectiveRate": 0.15,
+        "effectiveRatePercent": "15%",
+        "extraCost": 22500000,
+        "extraCostNote": "40M - 17.5M = 22.5M penalty for no certification"
+      }
+    },
+
+    "certificationRequirements": {
+      "sbu": {
+        "name": "Sertifikat Badan Usaha (Business Entity Certificate)",
+        "issuedBy": "LPJK (Lembaga Pengembangan Jasa Konstruksi)",
+        "validity": "3 years",
+        "renewalRequired": "Yes (before expiry)",
+        "consequenceIfExpired": "Subject to higher rate (4% or 6%)"
+      },
+      "siujk": {
+        "name": "Surat Izin Usaha Jasa Konstruksi (Construction Business License)",
+        "note": "Older certification system, being replaced by SBU"
+      }
+    },
+
+    "baliZeroAdvice": [
+      "CRITICAL: Maintain valid SBU (3-year renewal) to avoid 4% rate",
+      "Small contractors: 1.75% rate (vs 4% = 56% savings!)",
+      "Planning/supervision: 3.5% rate (vs 6% = 42% savings!)",
+      "Track certification expiry date: Set reminder 6 months before",
+      "PKP registration: If revenue > 4.8B/year (claim input VAT on materials)",
+      "Down payment collection: Withhold PPh 4(2) from subcontractors",
+      "Import materials: PPh 22 2.5% at customs (creditable)"
+    ],
+
+    "commonMistakes": [
+      "SBU expired without renewal (automatic 4% rate penalty)",
+      "Not withholding PPh 4(2) from subcontractors (DJP penalty)",
+      "Missing Bukti Potong issuance to subcontractors",
+      "Not registering PKP despite revenue > 4.8B (forfeit input VAT credits)"
+    ]
+  },
+
+  "comparisonTable": {
+    "summary": [
+      {
+        "sector": "F&B (Restaurant)",
+        "mainTax": "NPWPD 10% (regional tax)",
+        "corporateTax": "PP 23/2018 0.5% (if < 4.8B/year) or 22%",
+        "vat": "EXEMPT (no VAT, no input credits)",
+        "effectiveRate": "10-15%",
+        "keyCompliance": "NPWPD registration, service charge distribution"
+      },
+      {
+        "sector": "Villa Rental",
+        "mainTax": "PPh 4(2) 10% final OR regular progressive (5-35%)",
+        "corporateTax": "N/A (individual rental income)",
+        "vat": "N/A (rental income exempt)",
+        "effectiveRate": "10-19% (depends on expense ratio)",
+        "keyCompliance": "Choose final vs regular, track expenses if regular"
+      },
+      {
+        "sector": "Construction",
+        "mainTax": "PPh 4(2) 1.75-4% (depends on certification)",
+        "corporateTax": "N/A (PPh 4(2) is final)",
+        "vat": "11% (if PKP registered)",
+        "effectiveRate": "13-15%",
+        "keyCompliance": "SBU certification, PKP registration, withholding from subs"
+      }
+    ]
+  },
+
+  "quickReference": {
+    "fAndB": "NPWPD 10% + service charge 10% (employee) + corporate 0.5-22%",
+    "villaRental": "PPh 4(2) 10% final (simple) OR regular tax (with deductions)",
+    "construction": "PPh 4(2) 1.75-4% (depends on SBU) + VAT 11%",
+    "keyInsight": "Certification = MASSIVE savings (construction 56%, planning 42%)"
+  }
+}

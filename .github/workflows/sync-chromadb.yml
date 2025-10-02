@@ -1,0 +1,77 @@
+name: Sync KB to ChromaDB and GCS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'kb-agents/**'
+      - 'scripts/**'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Export KB to JSONL
+        run: |
+          mkdir -p exports
+          python3 scripts/export_all_for_rag2.py \
+            --base-dir kb-agents \
+            --output exports/kb_export.jsonl
+
+      - name: Build ChromaDB
+        run: |
+          mkdir -p chromadb
+          python3 scripts/upload_to_chroma.py \
+            --jsonl exports/kb_export.jsonl \
+            --collection bali_zero_agents \
+            --persist chromadb/ \
+            --batch 256
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Upload ChromaDB to GCS
+        env:
+          GCS_BUCKET: ${{ secrets.GCS_BUCKET }}
+        run: |
+          gsutil -m rsync -r chromadb/ gs://${GCS_BUCKET}/chroma_db_v2/
+          echo "✅ ChromaDB uploaded to gs://${GCS_BUCKET}/chroma_db_v2/"
+
+      - name: Trigger Cloud Run redeploy (optional)
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        run: |
+          gcloud run services update zantara-rag-backend \
+            --region=europe-west1 \
+            --project=${GCP_PROJECT_ID} \
+            --update-env-vars=CHROMADB_VERSION=$(date +%s) \
+            || echo "⚠️  Cloud Run update failed (may need manual intervention)"
+
+      - name: Summary
+        run: |
+          echo "## 🎉 Sync Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ KB exported to JSONL" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ ChromaDB built locally" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Uploaded to GCS" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Cloud Run notified" >> $GITHUB_STEP_SUMMARY

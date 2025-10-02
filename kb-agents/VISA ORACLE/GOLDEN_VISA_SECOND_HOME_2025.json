@@ -1,0 +1,417 @@
+{
+  "metadata": {
+    "title": "Indonesia Golden Visa & Second Home Visa 2025",
+    "topics": ["Golden Visa Investment", "Second Home Visa", "10-Year Visa", "ITAP Pathway"],
+    "legalBasis": "Minister of Law and Human Rights Regulation No. 22/2023, amended by No. 11/2024",
+    "effectiveDate": "August 30, 2023",
+    "lastUpdated": "2025-10-02"
+  },
+
+  "goldenVisa": {
+    "description": "Indonesia's Golden Visa program attracts high-net-worth individuals and investors with 5-year or 10-year stay permits",
+    "enacted": "August 30, 2023",
+    "goal": "Drive foreign investment, attract quality foreign talent",
+    "pathToITAP": "After 3 years, can apply for ITAP (Indonesia's permanent residency equivalent)",
+
+    "individualInvestors_establishingBusiness": {
+      "description": "For individual investors who wish to establish a business in Indonesia",
+
+      "option5Years": {
+        "investment": {
+          "amount": 2500000,
+          "amountFormatted": "USD 2,500,000",
+          "description": "Minimum investment to establish business in Indonesia"
+        },
+        "additionalRequirements": {
+          "businessOwnership": "Proof of ownership of business OUTSIDE Indonesia (minimum 20% share)",
+          "annualTurnover": 25000000,
+          "annualTurnoverFormatted": "USD 25,000,000",
+          "turnoverDescription": "Annual turnover of overseas business (minimum)",
+          "proofOfFunds": 5000,
+          "proofOfFundsFormatted": "USD 5,000/month",
+          "fundsDescription": "Proof of funds to cover living costs"
+        },
+        "visaValidity": "5 years",
+        "applicationFee": 800,
+        "applicationFeeFormatted": "USD 800 (13 million IDR)"
+      },
+
+      "option10Years": {
+        "investment": {
+          "amount": 5000000,
+          "amountFormatted": "USD 5,000,000",
+          "description": "Minimum investment to establish business in Indonesia"
+        },
+        "additionalRequirements": {
+          "businessOwnership": "Proof of ownership of business OUTSIDE Indonesia (minimum 20% share)",
+          "annualTurnover": 50000000,
+          "annualTurnoverFormatted": "USD 50,000,000",
+          "turnoverDescription": "Annual turnover of overseas business (minimum)",
+          "proofOfFunds": 5000,
+          "proofOfFundsFormatted": "USD 5,000/month",
+          "fundsDescription": "Proof of funds to cover living costs"
+        },
+        "visaValidity": "10 years",
+        "applicationFee": 1200,
+        "applicationFeeFormatted": "USD 1,200 (19.5 million IDR)"
+      },
+
+      "commitmentDeadline": "Investment must be completed within 90 days of permit issuance",
+      "canWork": "Yes (for established business only)",
+      "canDoBusiness": "Yes"
+    },
+
+    "individualInvestors_notEstablishingBusiness": {
+      "description": "For foreign investors NOT intending to establish a company (passive investment)",
+
+      "option5Years": {
+        "investmentOptions": [
+          {
+            "type": "Government bonds",
+            "amount": 350000,
+            "amountFormatted": "USD 350,000",
+            "description": "Indonesian government bonds (SBN - Surat Berharga Negara)"
+          },
+          {
+            "type": "Public company shares",
+            "amount": 350000,
+            "amountFormatted": "USD 350,000",
+            "description": "Shares in Indonesian public companies"
+          },
+          {
+            "type": "Bank deposit",
+            "amount": 350000,
+            "amountFormatted": "USD 350,000",
+            "description": "Savings/deposits in Indonesian State Owned bank"
+          }
+        ],
+        "visaValidity": "5 years",
+        "applicationFee": 800,
+        "applicationFeeFormatted": "USD 800 (13 million IDR)"
+      },
+
+      "option10Years": {
+        "investmentOptions": [
+          {
+            "type": "Government bonds",
+            "amount": 700000,
+            "amountFormatted": "USD 700,000",
+            "description": "Indonesian government bonds (SBN)"
+          },
+          {
+            "type": "Public company shares",
+            "amount": 700000,
+            "amountFormatted": "USD 700,000",
+            "description": "Shares in Indonesian public companies"
+          },
+          {
+            "type": "Bank deposit",
+            "amount": 700000,
+            "amountFormatted": "USD 700,000",
+            "description": "Savings/deposits in Indonesian State Owned bank"
+          },
+          {
+            "type": "Property investment",
+            "amount": 1000000,
+            "amountFormatted": "USD 1,000,000",
+            "description": "Apartment/flat with Hak Pakai rights (right to use land)"
+          }
+        ],
+        "visaValidity": "10 years",
+        "applicationFee": 1200,
+        "applicationFeeFormatted": "USD 1,200 (19.5 million IDR)"
+      },
+
+      "commitmentDeadline": "Investment must be completed within 90 days of permit issuance",
+      "canWork": false,
+      "canDoBusiness": "Yes (but not employment)",
+      "canInvest": "Yes"
+    },
+
+    "corporateInvestors": {
+      "description": "Directors and commissioners of companies establishing business in Indonesia",
+
+      "option5Years": {
+        "companyInvestment": 25000000,
+        "companyInvestmentFormatted": "USD 25,000,000",
+        "description": "Company invests minimum USD 25M in Indonesia",
+        "eligiblePositions": [
+          "Director",
+          "Commissioner"
+        ],
+        "visaValidity": "5 years",
+        "applicationFee": 800,
+        "applicationFeeFormatted": "USD 800 (13 million IDR)"
+      },
+
+      "option10Years": {
+        "companyInvestment": 50000000,
+        "companyInvestmentFormatted": "USD 50,000,000",
+        "description": "Company invests minimum USD 50M in Indonesia",
+        "eligiblePositions": [
+          "Director",
+          "Commissioner"
+        ],
+        "visaValidity": "10 years",
+        "applicationFee": 1200,
+        "applicationFeeFormatted": "USD 1,200 (19.5 million IDR)"
+      },
+
+      "commitmentDeadline": "Investment must be completed within 90 days of permit issuance",
+      "canWork": "Yes (for sponsoring company only)",
+      "canDoBusiness": "Yes"
+    }
+  },
+
+  "secondHomeVisa": {
+    "description": "Long-term stay visa for retirees, investors, high-net-worth individuals (less investment than Golden Visa)",
+    "indexCode": "E33",
+    "validity": "5 or 10 years",
+    "extendable": "Once for 5 years (if issued for 5 years)",
+    "canWork": false,
+    "canDoBusiness": "Yes (conduct business, invest, but NOT employment)",
+    "pathToITAP": "After 3 years, can apply for ITAP (permanent residency equivalent)",
+
+    "financialRequirements": {
+      "mustMeetONE": "Choose ONE of the following options within 90 days of permit issuance",
+
+      "option1_bankDeposit": {
+        "amount": 130000,
+        "amountFormatted": "USD 130,000",
+        "description": "Minimum bank deposit in Indonesian State Owned bank account",
+        "deadline": "Within 90 days of permit issuance",
+        "bankOptions": [
+          "Bank Mandiri",
+          "Bank Negara Indonesia (BNI)",
+          "Bank Rakyat Indonesia (BRI)",
+          "Bank Tabungan Negara (BTN)"
+        ],
+        "withdrawalRestriction": "Cannot withdraw below USD 130K minimum during visa validity"
+      },
+
+      "option2_propertyInvestment": {
+        "amount": 1000000,
+        "amountFormatted": "USD 1,000,000",
+        "description": "Purchase apartment/property with Hak Pakai rights (right to use land)",
+        "deadline": "Within 90 days of permit issuance",
+        "propertyType": "Apartment, flat, condominium (Hak Pakai rights)",
+        "ownershipDuration": "Hak Pakai = 80 years maximum (renewable)"
+      }
+    },
+
+    "applicationRequirement": {
+      "criticalNote": "Can ONLY apply from WITHIN Indonesia (not from abroad)",
+      "process": "Enter Indonesia on tourist visa → Apply for Second Home Visa → Complete investment within 90 days"
+    },
+
+    "applicationProcess": {
+      "step1": "Enter Indonesia on tourist visa (e-VOA, B211A/C1, etc.)",
+      "step2": "Submit Second Home Visa application to Immigration office",
+      "step3": "Receive approval (within 4-6 weeks)",
+      "step4": "Complete investment requirement within 90 days (bank deposit OR property purchase)",
+      "step5": "Submit proof of investment to Immigration",
+      "step6": "Receive Second Home Visa (5 or 10 years)"
+    },
+
+    "processingTime": "6-10 weeks (from application to visa issuance)",
+
+    "cost": {
+      "applicationFee5Years": 800,
+      "applicationFee5YearsFormatted": "USD 800 (13 million IDR)",
+      "applicationFee10Years": 1500,
+      "applicationFee10YearsFormatted": "USD 1,500 (estimated for 10-year option)"
+    },
+
+    "benefits": [
+      "Long-term stay (5 or 10 years) without annual renewals",
+      "Multiple entry/exit (no MERP needed)",
+      "Can conduct business and invest (but not employment)",
+      "After 3 years → eligible for ITAP (permanent residency)",
+      "Minimal documentation (only proof of investment)",
+      "Family members can apply for dependent visas"
+    ],
+
+    "comparisonWithRetirementKITAS": {
+      "secondHomeVisa": {
+        "validity": "5-10 years",
+        "ageRequirement": "No minimum age",
+        "investment": "USD 130K deposit OR USD 1M property",
+        "annualRenewal": "No",
+        "domesticWorker": "Not required",
+        "flexibility": "High (long-term, minimal paperwork)"
+      },
+      "retirementKITAS": {
+        "validity": "1 year (renewable annually)",
+        "ageRequirement": "55+ years",
+        "investment": "USD 18K/year income",
+        "annualRenewal": "Yes",
+        "domesticWorker": "Required",
+        "flexibility": "Low (annual renewal, more requirements)"
+      },
+      "recommendation": "Second Home Visa = better for long-term, Retirement KITAS = better if under 55 or prefer lower upfront investment"
+    }
+  },
+
+  "ITAP_pathway": {
+    "description": "ITAP (Izin Tinggal Tetap) = Indonesia's permanent residency equivalent",
+    "eligibility": "After 3 years holding Golden Visa or Second Home Visa",
+    "validity": "Indefinite (no expiry, but must report annually)",
+    "canWork": "Yes (with IMTA work permit)",
+    "benefits": [
+      "Indefinite stay in Indonesia",
+      "No renewal required (only annual reporting)",
+      "Can work with IMTA",
+      "Multiple entry/exit (no MERP needed)",
+      "Path to Indonesian citizenship (after 5 years ITAP + other requirements)"
+    ],
+
+    "applicationRequirements": {
+      "minimumStay": "3 years on Golden Visa or Second Home Visa",
+      "continuousResidence": "Must have resided in Indonesia for 3 years (not continuous, but cumulative)",
+      "goodConduct": "No criminal record, no immigration violations",
+      "proofOfInvestment": "Maintain investment (bank deposit or property) throughout 3 years",
+      "indonesianLanguage": "Basic Indonesian language proficiency (interview)",
+      "nationalAnthem": "Ability to sing Indonesia Raya (national anthem)"
+    },
+
+    "processingTime": "6-12 months",
+    "cost": "IDR 50-100 million (USD 3,500-7,000) including fees, legal assistance"
+  },
+
+  "comparisonTable": {
+    "goldenVisa_establishingBusiness": {
+      "investment5Years": "USD 2.5M",
+      "investment10Years": "USD 5M",
+      "canWork": "Yes (own business)",
+      "canDoBusiness": "Yes",
+      "pathToITAP": "After 3 years",
+      "applicationFee5Years": "USD 800",
+      "applicationFee10Years": "USD 1,200"
+    },
+
+    "goldenVisa_passiveInvestment": {
+      "investment5Years": "USD 350K (bonds/shares/deposit)",
+      "investment10Years": "USD 700K (or USD 1M property)",
+      "canWork": "No",
+      "canDoBusiness": "Yes (not employment)",
+      "pathToITAP": "After 3 years",
+      "applicationFee5Years": "USD 800",
+      "applicationFee10Years": "USD 1,200"
+    },
+
+    "goldenVisa_corporateInvestor": {
+      "investment5Years": "USD 25M (company investment)",
+      "investment10Years": "USD 50M (company investment)",
+      "canWork": "Yes (sponsoring company)",
+      "canDoBusiness": "Yes",
+      "pathToITAP": "After 3 years",
+      "applicationFee5Years": "USD 800",
+      "applicationFee10Years": "USD 1,200",
+      "eligiblePositions": "Director, Commissioner only"
+    },
+
+    "secondHomeVisa": {
+      "investment5Or10Years": "USD 130K deposit OR USD 1M property",
+      "canWork": "No",
+      "canDoBusiness": "Yes (not employment)",
+      "pathToITAP": "After 3 years",
+      "applicationFee5Years": "USD 800",
+      "applicationFee10Years": "USD 1,500",
+      "mustApplyFrom": "WITHIN Indonesia (not abroad)"
+    }
+  },
+
+  "baliZeroAdvice": {
+    "goldenVisaSupport_establishingBusiness": {
+      "services": [
+        "PT PMA establishment (minimum USD 2.5M or USD 5M paid-up capital)",
+        "Investment structure planning (tax-efficient)",
+        "Golden Visa application (5 or 10 years)",
+        "Investment completion within 90 days (compliance)",
+        "Annual reporting and compliance",
+        "ITAP application after 3 years"
+      ],
+      "cost": "USD 15,000-30,000 (PT PMA setup + Golden Visa + ongoing compliance)",
+      "timeline": "12-16 weeks (PT PMA + Golden Visa)",
+      "benefit": "Can work for own business, long-term stay, path to ITAP",
+      "idealFor": "Entrepreneurs, business owners investing USD 2.5M+"
+    },
+
+    "goldenVisaSupport_passiveInvestment": {
+      "services": [
+        "Investment planning (bonds/shares/deposit selection)",
+        "Indonesian State Owned bank account setup",
+        "Golden Visa application (5 or 10 years)",
+        "Investment completion within 90 days",
+        "Annual reporting",
+        "ITAP application after 3 years"
+      ],
+      "cost": "USD 5,000-10,000 (Golden Visa + compliance)",
+      "timeline": "6-10 weeks",
+      "benefit": "Long-term stay, conduct business (not employment), path to ITAP",
+      "idealFor": "High-net-worth individuals, retirees with USD 350K-700K liquid assets"
+    },
+
+    "secondHomeVisaSupport": {
+      "services": [
+        "Entry coordination (tourist visa → Second Home Visa)",
+        "Second Home Visa application (WITHIN Indonesia)",
+        "Bank account setup (USD 130K deposit) OR property purchase coordination (USD 1M)",
+        "Investment completion within 90 days",
+        "Annual reporting",
+        "ITAP application after 3 years"
+      ],
+      "cost": "USD 3,000-8,000 (Second Home Visa + bank/property setup)",
+      "timeline": "8-12 weeks (after entering Indonesia)",
+      "benefit": "Lower investment than Golden Visa (USD 130K vs USD 350K), long-term stay, path to ITAP",
+      "idealFor": "Retirees, investors, digital nomads with USD 130K+ available",
+      "criticalNote": "MUST apply from WITHIN Indonesia (enter on tourist visa first)"
+    },
+
+    "ITAPSupport": {
+      "services": [
+        "Eligibility assessment (after 3 years Golden Visa/Second Home Visa)",
+        "Document preparation (proof of investment, residency, good conduct)",
+        "Indonesian language proficiency coaching (interview prep)",
+        "ITAP application submission",
+        "Follow-up with Immigration until approval"
+      ],
+      "cost": "USD 5,000-10,000 (ITAP application + legal assistance)",
+      "timeline": "6-12 months",
+      "benefit": "Indefinite stay in Indonesia, can work with IMTA, path to citizenship",
+      "success_rate": "High (if 3-year residency requirement met + good conduct)"
+    },
+
+    "investmentAdvisory": {
+      "services": [
+        "Investment option comparison (bonds/shares/deposit/property)",
+        "Tax implications (Indonesia + home country)",
+        "Property due diligence (for USD 1M property investment)",
+        "Indonesian State Owned bank selection (best rates, service)",
+        "Currency transfer optimization (USD → IDR conversion)"
+      ],
+      "cost": "USD 1,000-3,000 (investment advisory)",
+      "benefit": "Maximize returns, minimize tax, avoid scams"
+    },
+
+    "contact": {
+      "whatsapp": "+62 813 3805 1876",
+      "email": "info@balizero.com",
+      "website": "balizero.com",
+      "availability": "24/7 support for Golden Visa / Second Home Visa clients"
+    }
+  },
+
+  "quickReference": {
+    "goldenVisa_establishingBusiness_5Years": "USD 2.5M investment, 5 years, can work, USD 25M overseas turnover required",
+    "goldenVisa_establishingBusiness_10Years": "USD 5M investment, 10 years, can work, USD 50M overseas turnover required",
+    "goldenVisa_passiveInvestment_5Years": "USD 350K bonds/shares/deposit, 5 years, cannot work",
+    "goldenVisa_passiveInvestment_10Years": "USD 700K bonds/shares/deposit OR USD 1M property, 10 years, cannot work",
+    "goldenVisa_corporateInvestor_5Years": "USD 25M company investment, 5 years, Director/Commissioner can work",
+    "goldenVisa_corporateInvestor_10Years": "USD 50M company investment, 10 years, Director/Commissioner can work",
+    "secondHomeVisa": "USD 130K deposit OR USD 1M property, 5 or 10 years, cannot work, MUST apply from WITHIN Indonesia",
+    "ITAP": "After 3 years Golden Visa/Second Home Visa, indefinite stay, can work with IMTA",
+    "commitmentDeadline": "90 days to complete investment after permit issuance",
+    "pathToITAP": "All visas: After 3 years → eligible for ITAP (permanent residency)"
+  }
+}

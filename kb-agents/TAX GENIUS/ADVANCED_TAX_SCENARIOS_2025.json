@@ -1,0 +1,403 @@
+{
+  "metadata": {
+    "title": "Advanced Tax Scenarios & Complex Cases 2025",
+    "description": "Complex multi-factor tax situations with optimization strategies",
+    "cases": 12,
+    "complexity": "Advanced",
+    "lastUpdated": "2025-10-02"
+  },
+
+  "case4_ecommerce_seller_tokopedia": {
+    "title": "Case 4: E-commerce Seller on Tokopedia (2025 New Tax)",
+    "clientProfile": {
+      "businessName": "Bali Craft Store",
+      "owner": "Made Wirawan (Indonesian citizen)",
+      "platform": "Tokopedia",
+      "products": "Balinese handicrafts, jewelry, textiles",
+      "yearStarted": 2022
+    },
+
+    "financials": {
+      "monthlyRevenue": 150000000,
+      "annualRevenue": 1800000000,
+      "cogs": 90000000,
+      "monthlyExpenses": 20000000,
+      "monthlyProfit": 40000000,
+      "annualProfit": 480000000
+    },
+
+    "taxScenario": {
+      "newTax2025": {
+        "description": "PMK 37/2025: E-commerce withholding tax (effective July 14, 2025)",
+        "threshold": "Revenue IDR 500M-4.8B/year",
+        "withholdingRate": 0.005,
+        "withholdingRatePercent": "0.5%",
+        "monthlyWithheld": 750000,
+        "monthlyWithheldCalc": "150M × 0.5% = 750K (withheld by Tokopedia)",
+        "annualWithheld": 9000000,
+        "withheldBy": "Tokopedia (marketplace platform)",
+        "buktiPotong": "Issued monthly by Tokopedia"
+      },
+
+      "corporateTax": {
+        "option": "PP 23/2018 (small business final tax)",
+        "threshold": "Revenue < IDR 4.8B/year",
+        "rate": 0.005,
+        "ratePercent": "0.5%",
+        "monthlyTax": 750000,
+        "monthlyTaxCalc": "150M × 0.5% = 750K",
+        "annualTax": 9000000,
+        "note": "Same rate as e-commerce withholding!"
+      },
+
+      "reconciliation": {
+        "ecommerceWithheld": 9000000,
+        "pp23Tax": 9000000,
+        "netAdditionalTax": 0,
+        "explanation": "E-commerce withholding 0.5% = PP 23/2018 0.5%, so NO additional tax owed (already withheld)",
+        "annualFiling": "File SPT Tahunan, report revenue + tax withheld, balance = IDR 0"
+      }
+    },
+
+    "beforeAfterComparison": {
+      "before2025": {
+        "description": "Before PMK 37/2025 (no e-commerce withholding)",
+        "monthlyTax": 750000,
+        "taxCalc": "Self-calculate PP 23/2018 0.5% = 750K",
+        "payment": "Self-remit by 15th of following month",
+        "compliance": "Manual calculation + payment"
+      },
+
+      "after2025": {
+        "description": "After PMK 37/2025 (effective July 14, 2025)",
+        "monthlyWithheld": 750000,
+        "withholdingCalc": "Tokopedia withholds 0.5% automatically",
+        "payment": "Automatic (Tokopedia remits to DJP)",
+        "compliance": "Simplified (receive Bukti Potong, no manual payment)",
+        "benefit": "Less compliance burden, avoid late payment penalties"
+      }
+    },
+
+    "optimization": {
+      "opportunity1": {
+        "description": "Stay under IDR 4.8B threshold (avoid 22% corporate tax)",
+        "currentRevenue": 1800000000,
+        "threshold": 4800000000,
+        "headroom": 3000000000,
+        "headroomFormatted": "IDR 3B headroom",
+        "strategy": "If revenue approaches 4.8B, consider splitting to multiple entities (risky, consult tax lawyer)"
+      },
+
+      "opportunity2": {
+        "description": "Claim e-commerce withholding as tax credit",
+        "withheldAmount": 9000000,
+        "pp23Tax": 9000000,
+        "credit": 9000000,
+        "benefit": "Offset 100% of annual tax (no additional payment)"
+      },
+
+      "opportunity3": {
+        "description": "Expense deductions (not applicable under PP 23/2018)",
+        "note": "PP 23/2018 = 0.5% final tax on REVENUE (not profit), no expense deductions",
+        "trade-off": "Simple compliance vs higher tax if profit margin low"
+      }
+    },
+
+    "complianceCalendar": {
+      "monthly": [
+        "Receive Bukti Potong from Tokopedia (withholding certificate)",
+        "No manual payment (Tokopedia withholds automatically)"
+      ],
+      "annual": [
+        "File SPT Tahunan by April 30",
+        "Report total revenue (IDR 1.8B)",
+        "Report e-commerce withholding (IDR 9M)",
+        "Balance due: IDR 0"
+      ]
+    },
+
+    "risks": {
+      "auditRisk": {
+        "score": 15,
+        "level": "Low",
+        "factors": [
+          "E-commerce withholding = automatic compliance (+5)",
+          "PP 23/2018 = final tax (+5)",
+          "Small business (+5)"
+        ]
+      }
+    }
+  },
+
+  "case5_crypto_trader_binance": {
+    "title": "Case 5: Cryptocurrency Trader (2025 Tax Increase)",
+    "clientProfile": {
+      "name": "Alex Chen",
+      "nationality": "Indonesian",
+      "location": "Jakarta",
+      "tradingPlatform": "Binance (foreign exchange)",
+      "tradingVolume": "IDR 500M/month"
+    },
+
+    "financials": {
+      "monthlyTradingVolume": 500000000,
+      "monthlyProfit": 50000000,
+      "annualProfit": 600000000
+    },
+
+    "taxScenario2025": {
+      "before2025": {
+        "foreignExchangeRate": 0.002,
+        "foreignExchangeRatePercent": "0.2%",
+        "monthlyTax": 1000000,
+        "monthlyTaxCalc": "500M × 0.2% = 1M",
+        "annualTax": 12000000
+      },
+
+      "after2025": {
+        "description": "Crypto tax increase (effective August 1, 2025)",
+        "foreignExchangeRate": 0.01,
+        "foreignExchangeRatePercent": "1%",
+        "monthlyTax": 5000000,
+        "monthlyTaxCalc": "500M × 1% = 5M",
+        "annualTax": 60000000,
+        "increase": 48000000,
+        "increasePercent": "400% increase (5x higher)"
+      }
+    },
+
+    "optimization": {
+      "opportunity1": {
+        "description": "Switch to domestic exchange (Indodax, Tokocrypto)",
+        "domesticRate": 0.0021,
+        "domesticRatePercent": "0.21%",
+        "monthlyTaxDomestic": 1050000,
+        "monthlyTaxDomesticCalc": "500M × 0.21% = 1.05M",
+        "annualTaxDomestic": 12600000,
+        "savings": 47400000,
+        "savingsCalc": "60M (Binance) - 12.6M (domestic) = 47.4M/year saved",
+        "savingsPercent": "79% savings"
+      },
+
+      "opportunity2": {
+        "description": "Consider holding crypto long-term (avoid frequent trading tax)",
+        "strategy": "Buy-and-hold vs day trading",
+        "benefit": "Reduce trading volume → reduce tax (tax on transactions, not holdings)",
+        "example": "If hold 6 months: 6M × 1% Binance = 30M vs 60M if trade monthly"
+      }
+    },
+
+    "complianceRequirements": {
+      "monthly": [
+        "Tax automatically withheld by exchange (Binance or Indodax)",
+        "No manual payment required"
+      ],
+      "annual": [
+        "File SPT Tahunan by March 31",
+        "Report crypto holdings (DJP receives OJK data)",
+        "Report capital gains",
+        "Declare exchange used (domestic vs foreign)"
+      ]
+    },
+
+    "risks": {
+      "auditRisk": {
+        "score": 30,
+        "level": "Medium",
+        "factors": [
+          "Foreign exchange (Binance) = higher scrutiny (+15)",
+          "Crypto regulatory transition (OJK oversight) = +10",
+          "Capital gains reporting = +5"
+        ]
+      },
+      "mitigations": [
+        "Switch to domestic exchange (Indodax) = lower scrutiny",
+        "Report all crypto holdings in annual return",
+        "Keep transaction history (proof of capital gains/losses)"
+      ]
+    },
+
+    "baliZeroRecommendation": {
+      "advice": "URGENT: Switch to domestic exchange by August 1, 2025 (save IDR 47.4M/year)",
+      "annualService": "Crypto tax filing: IDR 2,500,000",
+      "includes": [
+        "Calculate capital gains/losses",
+        "Optimize exchange selection (domestic vs foreign)",
+        "File annual return with crypto disclosures"
+      ]
+    }
+  },
+
+  "case6_pt_pma_transfer_pricing_audit": {
+    "title": "Case 6: PT PMA with Transfer Pricing Audit Risk",
+    "clientProfile": {
+      "businessName": "Bali Tech Solutions PT PMA",
+      "ownership": "100% Singapore parent company",
+      "location": "Denpasar, Bali",
+      "industry": "IT services (software development)",
+      "employees": 50,
+      "yearEstablished": 2020
+    },
+
+    "financials": {
+      "annualRevenue": 12000000000,
+      "annualRevenueUSD": 800000,
+      "relatedPartyTransactions": {
+        "managementFees": 600000000,
+        "managementFeesPercent": "5% of revenue",
+        "royalties": 360000000,
+        "royaltiesPercent": "3% of revenue",
+        "totalRelatedParty": 960000000,
+        "totalRelatedPartyPercent": "8% of revenue"
+      },
+      "annualProfit": 1200000000,
+      "annualProfitMargin": 0.10,
+      "annualProfitMarginPercent": "10%"
+    },
+
+    "auditScenario": {
+      "trigger": "Tax refund application (VAT IDR 500M)",
+      "auditType": "Comprehensive audit (5 months)",
+      "auditFocus": [
+        "Transfer pricing (related party transactions 8% of revenue)",
+        "Management fees (5% of revenue = HIGH RISK)",
+        "Royalties (3% of revenue = acceptable range)",
+        "Profit margin (10% vs industry 15-30% = LOW RISK FLAG)"
+      ]
+    },
+
+    "transferPricingIssues": {
+      "issue1_managementFees": {
+        "description": "Management fees from Singapore parent",
+        "reportedAmount": 600000000,
+        "reportedPercent": "5% of revenue",
+        "industryBenchmark": "3-4% for IT services",
+        "djpAdjustment": 360000000,
+        "djpAdjustmentCalc": "DJP argues 3% is arm's length = 360M (vs 600M reported)",
+        "disallowedAmount": 240000000,
+        "additionalTax": 52800000,
+        "additionalTaxCalc": "240M × 22% = 52.8M additional tax",
+        "penalty": 26400000,
+        "penaltyCalc": "50% of underpaid tax = 26.4M",
+        "interest": 6336000,
+        "interestCalc": "2%/month × 6 months × 52.8M = 6.34M",
+        "totalLiability": 85536000
+      },
+
+      "issue2_documentation": {
+        "description": "Inadequate transfer pricing documentation",
+        "required": "Local File (due 4 months after year-end)",
+        "actualStatus": "Not prepared",
+        "penaltyForInadequate": 26400000,
+        "penaltyCalc": "50% of underpaid tax (separate penalty)",
+        "criminalRisk": "Possible if intentional"
+      }
+    },
+
+    "defensiveStrategy": {
+      "step1_documentation": {
+        "action": "Prepare Local File retroactively",
+        "content": [
+          "Comparability analysis (find IT services companies with 4-5% management fees)",
+          "Functional analysis (prove services rendered justify 5% fee)",
+          "Benefit test (show Indonesian entity benefits from parent services)"
+        ],
+        "cost": "IDR 50,000,000 (TP consultant)",
+        "timeline": "2-3 months to prepare"
+      },
+
+      "step2_rebuttal": {
+        "action": "Prepare rebuttal letter (Tanggapan atas SPHP)",
+        "arguments": [
+          "Management fees 5% justified by specialized services (R&D, global sales support)",
+          "Comparables show range 3-8%, 5% within interquartile range",
+          "Functional analysis proves benefit to Indonesian operations"
+        ],
+        "deadline": "5 working days (PMK 15/2025 - NO EXTENSION)"
+      },
+
+      "step3_negotiation": {
+        "action": "Negotiate with DJP in closing meeting",
+        "target": "Reduce disallowed amount from 240M to 120M (4% management fee)",
+        "savings": 39768000,
+        "savingsCalc": "(240M - 120M) × 22% × 150% (tax + penalty) = 39.77M saved"
+      }
+    },
+
+    "optimization": {
+      "opportunity1": {
+        "description": "Reduce management fees going forward",
+        "currentFees": 600000000,
+        "recommendedFees": 480000000,
+        "recommendedPercent": "4% of revenue",
+        "savings": 26400000,
+        "savingsCalc": "(600M - 480M) × 22% = 26.4M/year tax savings",
+        "benefit": "Stay within safe harbor (< 5% revenue)"
+      },
+
+      "opportunity2": {
+        "description": "Prepare contemporaneous TP documentation",
+        "action": "Prepare Local File EVERY year (4 months after year-end)",
+        "cost": "IDR 30,000,000/year (TP consultant)",
+        "benefit": "Avoid 50% penalty (IDR 26.4M in this case) = NET SAVINGS IDR -3.6M but avoid audit risk"
+      },
+
+      "opportunity3": {
+        "description": "Consider Advance Pricing Agreement (APA)",
+        "duration": "3 years (renewable)",
+        "cost": "IDR 500,000,000 - 1,500,000,000 (professional fees)",
+        "benefit": "Pre-approved transfer pricing = no audit disputes for 3 years",
+        "recommendation": "Only if transactions > IDR 1B/year (this case = 960M, borderline)"
+      }
+    },
+
+    "complianceRequirements": {
+      "annual": [
+        "Prepare Local File (due 4 months after year-end)",
+        "Update comparables (annual refresh)",
+        "File SPT Tahunan with TP disclosure",
+        "Maintain contemporaneous documentation"
+      ],
+      "ongoing": [
+        "Review related party transactions quarterly",
+        "Benchmark management fees vs industry (3-8%)",
+        "Ensure profit margin > 50% of industry average (avoid red flag)"
+      ]
+    },
+
+    "risks": {
+      "auditRisk": {
+        "score": 70,
+        "level": "High",
+        "factors": [
+          "Tax refund application (+20)",
+          "Related party transactions 8% revenue (+25)",
+          "Management fees 5% (+15)",
+          "No TP documentation (+10)"
+        ]
+      }
+    },
+
+    "baliZeroRecommendation": {
+      "urgentActions": [
+        "Prepare Local File immediately (2-3 months timeline)",
+        "Reduce management fees to 4% going forward",
+        "Engage TP consultant for audit defense"
+      ],
+      "auditSupportService": "Transfer pricing audit defense: IDR 75,000,000",
+      "includes": [
+        "Prepare Local File retroactively",
+        "Draft rebuttal letter (5-day deadline)",
+        "Represent in closing meeting",
+        "Negotiate DJP adjustments"
+      ],
+      "potentialSavings": "IDR 85M liability reduced to IDR 45M = IDR 40M saved (minus IDR 75M service fee = net cost IDR 35M vs IDR 85M)"
+    }
+  },
+
+  "quickSummary": {
+    "case4": "E-commerce: 0.5% withheld by Tokopedia = PP 23/2018, net tax IDR 0 (already withheld)",
+    "case5": "Crypto: Switch Binance → Indodax saves IDR 47.4M/year (79% savings)",
+    "case6": "PT PMA TP audit: IDR 85M liability, reduce management fees 5% → 4% saves IDR 26M/year"
+  }
+}

@@ -1,0 +1,372 @@
+{
+  "metadata": {
+    "title": "LKPM (Investment Activity Report) Compliance Guide",
+    "fullName": "Laporan Kegiatan Penanaman Modal",
+    "authority": "BKPM (Ministry of Investment and Downstream Activity)",
+    "system": "OSS (Online Single Submission)",
+    "source": "BKPM regulations, PMK compliance updates 2025",
+    "lastUpdated": "2025-10-01"
+  },
+
+  "overview": {
+    "name": "LKPM (Laporan Kegiatan Penanaman Modal)",
+    "englishName": "Investment Activity Report",
+    "purpose": "Communicate business operations and investment realization to BKPM",
+    "mandatory": "All PT PMA companies in Indonesia",
+    "frequency": "Quarterly",
+    "submissionSystem": "OSS (Online Single Submission) portal"
+  },
+
+  "whoMustReport": {
+    "ptPMA": {
+      "description": "Foreign investment companies (PT PMA)",
+      "required": true,
+      "threshold": "All PT PMAs regardless of size"
+    },
+    "domesticInvestment": {
+      "description": "Certain local companies (PMDN)",
+      "required": true,
+      "threshold": "Investment value > IDR 5 billion"
+    },
+    "exemptions": {
+      "description": "Small-scale businesses < IDR 5B investment",
+      "required": false,
+      "note": "Still recommended for good standing"
+    }
+  },
+
+  "reportingFrequency": {
+    "quarterly": {
+      "description": "Medium and large-scale businesses",
+      "threshold": "Investment value > IDR 5 billion",
+      "frequency": "Every 3 months",
+      "deadlines": {
+        "q1": {
+          "period": "January 1 - March 31",
+          "deadline": "April 10",
+          "submissionWindow": "March 17 - April 17 (2025)"
+        },
+        "q2": {
+          "period": "April 1 - June 30",
+          "deadline": "July 10"
+        },
+        "q3": {
+          "period": "July 1 - September 30",
+          "deadline": "October 10"
+        },
+        "q4": {
+          "period": "October 1 - December 31",
+          "deadline": "January 10 of following year"
+        }
+      },
+      "critical": "Must submit EVEN IF NO ACTIVITY (nil report)"
+    },
+
+    "annual": {
+      "description": "Small-scale businesses",
+      "threshold": "Investment value < IDR 5 billion",
+      "frequency": "Once per year",
+      "deadline": "January 31 of following year"
+    }
+  },
+
+  "reportContent": {
+    "requiredInformation": [
+      "Company identification (NPWP, NIB, address)",
+      "Investment realization vs plan",
+      "Production/service output",
+      "Raw material usage (domestic vs import)",
+      "Sales revenue (domestic vs export)",
+      "Number of employees (Indonesian vs foreign workers)",
+      "TKDN (Local Content Level) percentage",
+      "Tax payments (VAT, income tax, import duty)",
+      "Business licenses obtained/renewed"
+    ],
+
+    "investmentRealization": {
+      "landAndBuilding": "Acquisition cost, construction cost",
+      "machineryAndEquipment": "Purchase cost, installation cost",
+      "workingCapital": "Operating expenses, inventory",
+      "comparison": "Planned investment vs actual realization",
+      "varianceExplanation": "If realization < 70% of plan, explain reasons"
+    },
+
+    "employmentData": {
+      "totalEmployees": "Number of employees (Indonesian + foreign)",
+      "foreignWorkers": "Number, nationalities, positions",
+      "trainingPrograms": "Employee development activities",
+      "salariesAndWages": "Total payroll costs"
+    },
+
+    "productionData": {
+      "goods": "Production volume, capacity utilization",
+      "services": "Service output, clients served",
+      "rawMaterials": "Domestic content vs import",
+      "tkdn": "Local Content Level (TKDN) percentage"
+    }
+  },
+
+  "2025Enforcement": {
+    "status": "SIGNIFICANTLY STRICTER",
+    "changes": [
+      "Improved monitoring through OSS system",
+      "Strengthened coordination BKPM ↔ Immigration",
+      "Automated warning system",
+      "Faster sanctions (3 warnings → suspension)",
+      "Real-time compliance dashboard"
+    ],
+    "auditRisk": "HIGH - BKPM prioritizing LKPM compliance in 2025"
+  },
+
+  "penalties": {
+    "progressiveSanctions": {
+      "stage1": {
+        "violation": "First missed deadline",
+        "penalty": "Warning letter (Surat Peringatan 1)",
+        "deliveryMethod": "Sent to registered business email",
+        "timeline": "Within 7 days of deadline"
+      },
+      "stage2": {
+        "violation": "Second consecutive missed deadline",
+        "penalty": "Second warning letter (Surat Peringatan 2)",
+        "deliveryMethod": "Sent to registered business email + physical mail",
+        "timeline": "Within 7 days of second deadline"
+      },
+      "stage3": {
+        "violation": "Third consecutive missed deadline",
+        "penalty": "Final warning letter (Surat Peringatan 3)",
+        "deliveryMethod": "Sent to registered business email + physical mail + courier",
+        "timeline": "Within 7 days of third deadline",
+        "threat": "Next violation triggers suspension"
+      },
+      "stage4": {
+        "violation": "Fourth consecutive missed deadline (after 3 warnings)",
+        "penalty": "Temporary suspension of business activities",
+        "duration": "Until LKPM compliance restored",
+        "impact": [
+          "Cannot issue invoices",
+          "Cannot apply for permits/licenses",
+          "Cannot sponsor work permits (KITAS)",
+          "Import-export restrictions",
+          "Banking restrictions (letter of credit, etc.)"
+        ]
+      },
+      "stage5": {
+        "violation": "Continued non-compliance after suspension",
+        "penalty": "Revocation of business license (NIB cancellation)",
+        "permanent": true,
+        "consequences": [
+          "Company must cease operations immediately",
+          "Cannot conduct business in Indonesia",
+          "Directors/shareholders blacklisted for future investment",
+          "Tax audit triggered automatically",
+          "Immigration status for foreign directors/shareholders jeopardized"
+        ]
+      }
+    },
+
+    "financialPenalties": {
+      "administrativeFine": {
+        "amount": "Varies by regulation (IDR 1M - 50M)",
+        "appliesWhen": "Repeated violations",
+        "cumulative": true
+      },
+      "taxAuditTrigger": {
+        "description": "Non-compliance flags company for tax audit",
+        "auditScope": "Corporate tax, VAT, withholding tax, transfer pricing",
+        "timeline": "Usually within 6 months of non-compliance"
+      }
+    },
+
+    "operationalConsequences": [
+      "Import-export license suspension (affects supply chain)",
+      "Work permit (KITAS) renewal blocked for foreign workers",
+      "Cannot bid for government contracts",
+      "Banking restrictions (L/C, trade finance)",
+      "Reputational damage (public record of non-compliance)"
+    ]
+  },
+
+  "complianceProcess": {
+    "step1": {
+      "action": "Log in to OSS system (oss.go.id)",
+      "credentials": "Company NIB + Director's digital signature",
+      "timing": "Start 1 week before deadline"
+    },
+    "step2": {
+      "action": "Navigate to LKPM module",
+      "menu": "OSS → Investment → LKPM Report"
+    },
+    "step3": {
+      "action": "Fill in quarterly data",
+      "dataSource": [
+        "Financial statements (revenue, expenses)",
+        "Tax reports (PPh 21/23/25, PPN)",
+        "HR records (employee count, payroll)",
+        "Production records (output, raw materials)",
+        "Investment ledger (asset purchases)"
+      ],
+      "varianceAnalysis": "If realization < 70% of plan, provide explanation"
+    },
+    "step4": {
+      "action": "Upload supporting documents",
+      "documents": [
+        "Financial statements (audited if annual)",
+        "Tax payment receipts",
+        "Import/export documents (if applicable)",
+        "Employee list (with NPWP)",
+        "Production reports"
+      ]
+    },
+    "step5": {
+      "action": "Submit and obtain confirmation",
+      "confirmation": "LKPM submission receipt (print/save PDF)",
+      "storage": "Keep for 5 years (audit trail)"
+    }
+  },
+
+  "commonMistakes": [
+    "Forgetting to submit nil report (even with no activity)",
+    "Missing deadline by 1 day (no grace period)",
+    "Inconsistent data vs tax reports (triggers audit)",
+    "No variance explanation (realization < 70% of plan)",
+    "Outdated company data (address, directors, shareholders)",
+    "Not updating OSS profile before LKPM submission",
+    "Using wrong quarter dates (fiscal year vs calendar year)"
+  ],
+
+  "bestPractices": {
+    "calendarReminder": {
+      "recommendation": "Set recurring reminders",
+      "dates": [
+        "April 1 (for Q1 submission)",
+        "July 1 (for Q2 submission)",
+        "October 1 (for Q3 submission)",
+        "January 1 (for Q4 submission)"
+      ],
+      "leadTime": "10 days before deadline"
+    },
+
+    "dataPreparation": {
+      "monthly": "Compile data monthly (not quarterly rush)",
+      "reconciliation": "Reconcile investment realization vs accounting ledger",
+      "taxAlignment": "Ensure LKPM data matches tax reports (PPh, PPN)",
+      "backup": "Maintain supporting documents for 5 years"
+    },
+
+    "varianceManagement": {
+      "threshold": "Realization < 70% of plan requires explanation",
+      "acceptableReasons": [
+        "Market conditions (COVID-19, economic downturn)",
+        "Supply chain delays (import restrictions)",
+        "Regulatory delays (permit approvals)",
+        "Force majeure (natural disasters)"
+      ],
+      "unacceptableReasons": [
+        "Forgot to invest",
+        "Changed business plan without BKPM approval",
+        "Diverted funds to other purposes"
+      ]
+    },
+
+    "automationOpportunity": {
+      "recommendation": "Use accounting software with LKPM integration",
+      "benefits": [
+        "Auto-populate financial data",
+        "Reconcile with tax reports automatically",
+        "Alert system for deadlines",
+        "One-click submission"
+      ],
+      "providers": [
+        "Accurate Online (LKPM module)",
+        "Zahir Accounting (LKPM integration)",
+        "Custom ERP with OSS API"
+      ]
+    }
+  },
+
+  "nilReport": {
+    "description": "Report with zero activity (no production, no sales)",
+    "required": true,
+    "reason": "Maintain company in good standing",
+    "deadline": "Same as regular LKPM (10th of following month)",
+    "consequence": "Missing nil report = same penalties as regular report",
+    "note": "Common mistake: Assuming no activity = no report needed (WRONG!)"
+  },
+
+  "specialCases": {
+    "newCompany": {
+      "description": "PT PMA established mid-quarter",
+      "firstReport": "Report from establishment date to quarter-end",
+      "example": "Established May 15 → First LKPM due July 10 (covers May 15 - June 30)"
+    },
+
+    "companyUnderLiquidation": {
+      "description": "PT PMA in process of closure",
+      "required": true,
+      "finalReport": "Submit LKPM until NIB officially cancelled",
+      "note": "Cannot skip LKPM during liquidation period"
+    },
+
+    "changeOfInvestmentPlan": {
+      "description": "Significant deviation from original investment plan",
+      "threshold": "Deviation > 30% of approved plan",
+      "action": "Apply for investment plan amendment BEFORE next LKPM",
+      "process": "OSS → Investment → Amend Investment Plan"
+    }
+  },
+
+  "baliZeroAdvice": {
+    "forClients": [
+      "Set Google Calendar reminder: 1st of April/July/October/January",
+      "Prepare data monthly (easier than quarterly rush)",
+      "Nil report REQUIRED even if no activity (common mistake!)",
+      "3 missed reports = suspension (takes only 9 months to lose license)",
+      "2025 enforcement STRICT: BKPM coordinating with Immigration (KITAS risk)",
+      "Investment realization < 70% of plan? Prepare variance explanation",
+      "Bali Zero offers LKPM service: IDR 1,000,000/quarter (auto-submission + variance analysis)"
+    ],
+
+    "riskAssessment": {
+      "lowRisk": [
+        "Submit all 4 quarters on time",
+        "Investment realization > 70% of plan",
+        "Data consistent with tax reports",
+        "Supporting documents complete"
+      ],
+      "highRisk": [
+        "Missed 1+ deadline in past year",
+        "Investment realization < 50% of plan (no explanation)",
+        "Data inconsistent with tax reports (triggers audit)",
+        "Outdated company profile in OSS"
+      ]
+    }
+  },
+
+  "integrationWithTaxGenius": {
+    "automationOpportunity": [
+      "Sync quarterly financial data from accounting system",
+      "Auto-calculate investment realization from asset ledger",
+      "Alert system: 10 days before deadline",
+      "Generate variance analysis report",
+      "Reconcile with tax reports (PPh, PPN) to ensure consistency",
+      "One-click submission to OSS (API integration)"
+    ],
+    "dataRequired": [
+      "Revenue (domestic vs export)",
+      "Employee count (Indonesian vs foreign)",
+      "Tax payments (PPh 21/23/25, PPN)",
+      "Investment realization (land, building, machinery, working capital)",
+      "Production output"
+    ]
+  },
+
+  "quickReference": {
+    "deadlines": "April 10 (Q1), July 10 (Q2), October 10 (Q3), January 10 (Q4)",
+    "warningThreshold": "3 consecutive missed reports",
+    "suspensionTrigger": "4th consecutive missed report",
+    "licenseRevocation": "Continued non-compliance after suspension",
+    "nilReportRequired": "YES - even if no activity",
+    "2025Status": "ENFORCEMENT STRICTER - BKPM coordinating with Immigration"
+  }
+}

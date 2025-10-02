@@ -1,0 +1,323 @@
+{
+  "metadata": {
+    "title": "Indonesia Digital Economy Tax 2025",
+    "topics": ["E-commerce Tax", "PMSE (Trading through Electronic Systems)", "Cryptocurrency Tax", "Digital Services"],
+    "mainRegulations": ["PMK 37/2025", "PER-15/PJ/2025"],
+    "effectiveDate": "2025-07-14",
+    "authority": "DJP (Direktorat Jenderal Pajak)",
+    "source": "PMK 37/2025, PER-15/PJ/2025, Alvarez & Marsal, ITR",
+    "lastUpdated": "2025-10-02"
+  },
+
+  "eCommerceTax": {
+    "regulation": "PMK 37/2025",
+    "effectiveDate": "July 14, 2025",
+    "description": "Online marketplace platforms appointed as Income Tax collectors",
+
+    "keyChange": {
+      "before": "E-commerce sellers self-report income tax",
+      "after": "Marketplace platforms withhold 0.5% Article 22 Income Tax",
+      "impact": "Automatic tax collection, improved compliance"
+    },
+
+    "taxMechanism": {
+      "rate": 0.005,
+      "ratePercent": "0.5%",
+      "taxType": "PPh Article 22 (withholding tax)",
+      "baseCalculation": "Gross turnover (excluding VAT and PPnBM)",
+      "withheldBy": "E-commerce platform (marketplace)",
+      "withheldAt": "Time of payment receipt",
+      "appliesTo": "Domestic sellers on Indonesian e-commerce platforms"
+    },
+
+    "sellerThreshold": {
+      "minimum": 500000000,
+      "minimumUSD": "~USD 30,000/year",
+      "maximum": 4800000000,
+      "maximumUSD": "~USD 305,000/year",
+      "description": "Annual revenue range IDR 500M - 4.8B",
+      "belowMinimum": "No withholding required (exempt)",
+      "aboveMaximum": "Regular corporate tax applies (22% or PP 23/2018 0.5%)"
+    },
+
+    "implementingRegulation": {
+      "regulation": "PER-15/PJ/2025",
+      "issuedDate": "August 5, 2025",
+      "description": "Detailed operational procedures for PPh Article 22 collection",
+      "covers": [
+        "Collection procedures",
+        "Deposit timeline (10th of following month)",
+        "Reporting requirements (SPT Masa PPh 22)",
+        "Bukti Potong issuance (withholding certificate)",
+        "Penalties for non-compliance"
+      ]
+    },
+
+    "platformObligations": [
+      "Identify sellers within threshold (IDR 500M - 4.8B/year)",
+      "Withhold 0.5% PPh Article 22 from each transaction",
+      "Deposit withheld tax by 10th of following month",
+      "Issue Bukti Potong (withholding certificate) to sellers",
+      "File monthly SPT Masa PPh 22",
+      "Maintain detailed transaction records (5 years)"
+    ],
+
+    "sellerBenefits": [
+      "Simplified compliance (no manual tax payment)",
+      "Tax automatically withheld (avoid late payment penalties)",
+      "Bukti Potong received (can be credited against annual income tax)",
+      "No need to calculate and remit tax monthly"
+    ],
+
+    "example": {
+      "scenario": "E-commerce seller on Tokopedia, annual revenue IDR 1.2B",
+      "monthlyRevenue": 100000000,
+      "withheldTax": 500000,
+      "withheldTaxCalc": "100M × 0.5% = 500K per month",
+      "annualWithheld": 6000000,
+      "annualWithheldCalc": "500K × 12 = 6M/year",
+      "netPayment": 99500000,
+      "benefit": "Tax automatically withheld, credited against annual return"
+    }
+  },
+
+  "pmseTax": {
+    "name": "PMSE (Perdagangan Melalui Sistem Elektronik) - Trading Through Electronic Systems",
+    "description": "VAT on digital services provided by foreign companies",
+
+    "taxType": "VAT (PPN)",
+    "rate": 0.11,
+    "ratePercent": "11%",
+    "appliesTo": [
+      "Digital products (software, apps, games)",
+      "Digital services (streaming, cloud storage, SaaS)",
+      "Digital content (e-books, music, videos)",
+      "Online advertising",
+      "Marketplace facilitation services"
+    ],
+
+    "foreignProviders": {
+      "description": "Foreign companies providing digital services to Indonesian consumers",
+      "obligation": "Register as VAT collector (if revenue exceeds threshold)",
+      "threshold": "IDR 600 million/year or IDR 50 million/month",
+      "registration": "DJP PMSE registration portal",
+      "collection": "Charge 11% VAT to Indonesian customers",
+      "remittance": "Pay VAT to DJP monthly"
+    },
+
+    "registeredPlatforms": [
+      "Netflix (streaming)",
+      "Spotify (music streaming)",
+      "Google (ads, cloud services, Play Store)",
+      "Meta/Facebook (ads)",
+      "Amazon Web Services (cloud)",
+      "Microsoft (Azure, Office 365)",
+      "Apple (App Store, iCloud)",
+      "TikTok (ads)",
+      "Zoom (video conferencing)",
+      "LinkedIn (premium subscriptions)"
+    ],
+
+    "revenueGenerated": {
+      "asOfMarch2025": 27480000000000,
+      "asOfMarch2025USD": "~USD 1.75 billion",
+      "description": "VAT collected from PMSE (Jan-Mar 2025)",
+      "largestContributor": "PMSE VAT",
+      "totalDigitalTax": 34910000000000,
+      "totalDigitalTaxUSD": "~USD 2.22 billion"
+    },
+
+    "example": {
+      "scenario": "Indonesian business subscribes to AWS (USD 1,000/month)",
+      "monthlyFee": 15000000,
+      "monthlyFeeUSD": 1000,
+      "vat": 1650000,
+      "vatCalc": "15M × 11% = 1.65M",
+      "totalPayment": 16650000,
+      "note": "VAT automatically collected by AWS, remitted to DJP"
+    }
+  },
+
+  "cryptoTax": {
+    "regulation": "PMK (crypto tax regulation)",
+    "effectiveDate": "August 1, 2025",
+    "description": "Tax on cryptocurrency trading and mining",
+
+    "incomeTax": {
+      "domesticExchanges": {
+        "rate": 0.0021,
+        "ratePercent": "0.21%",
+        "baseCalculation": "Transaction value",
+        "previousRate": "0.1% (doubled in 2025)",
+        "appliesTo": "Crypto trading on Indonesian exchanges (Tokocrypto, Indodax)"
+      },
+      "foreignExchanges": {
+        "rate": 0.01,
+        "ratePercent": "1%",
+        "baseCalculation": "Transaction value",
+        "previousRate": "0.2% (5x increase in 2025)",
+        "appliesTo": "Crypto trading on foreign exchanges (Binance, Coinbase)"
+      }
+    },
+
+    "capitalGains": {
+      "treatment": "Final income tax on capital gains",
+      "taxationType": "Final (no additional tax)",
+      "appliesWhen": "Selling crypto or converting to fiat (IDR)"
+    },
+
+    "vat": {
+      "buyers": {
+        "status": "VAT ELIMINATED (effective Aug 1, 2025)",
+        "previousRate": "0.11-0.22%",
+        "benefit": "Reduced cost for crypto buyers"
+      },
+      "miners": {
+        "rate": 0.022,
+        "ratePercent": "2.2%",
+        "previousRate": "1.1% (doubled in 2025)",
+        "appliesTo": "Crypto mining activities"
+      }
+    },
+
+    "2026Changes": {
+      "miners": {
+        "change": "Lose special 0.1% income tax rate",
+        "newRate": "Standard personal or corporate tax rates (5-35% personal, 22% corporate)",
+        "effectiveDate": "January 1, 2026",
+        "impact": "Significant tax increase for miners"
+      }
+    },
+
+    "regulatoryTransfer": {
+      "date": "January 10, 2025",
+      "from": "Bappebti (Commodity Futures Trading Regulatory Agency)",
+      "to": "OJK (Financial Services Authority)",
+      "reclassification": "Crypto assets now classified as digital financial assets (not commodities)",
+      "impact": "Same regulatory framework as traditional financial securities"
+    },
+
+    "example": {
+      "scenario": "Indonesian trader sells Bitcoin IDR 100M on Indodax",
+      "transactionValue": 100000000,
+      "incomeTax": 210000,
+      "incomeTaxCalc": "100M × 0.21% = 210K (final tax)",
+      "vat": 0,
+      "vatNote": "VAT eliminated for buyers (Aug 1, 2025)",
+      "netProceeds": 99790000,
+      "netProceedsCalc": "100M - 210K = 99.79M"
+    },
+
+    "comparisonTable": {
+      "before2025": {
+        "domesticExchanges": "0.1% income tax + 0.11% VAT = 0.21% total",
+        "foreignExchanges": "0.2% income tax",
+        "miners": "0.1% income tax + 1.1% VAT = 1.2% total"
+      },
+      "after2025": {
+        "domesticExchanges": "0.21% income tax + 0% VAT = 0.21% total",
+        "foreignExchanges": "1% income tax (5x increase)",
+        "miners": "0.1% income tax + 2.2% VAT = 2.3% total (2026: standard rates)"
+      }
+    }
+  },
+
+  "digitalRevenueBreakdown": {
+    "asOfMarch2025": {
+      "pmseVAT": {
+        "amount": 27480000000000,
+        "amountUSD": "~USD 1.75 billion",
+        "percentage": 0.787,
+        "percentagePercent": "78.7%"
+      },
+      "eCommerceTax": {
+        "amount": 4850000000000,
+        "amountUSD": "~USD 310 million",
+        "percentage": 0.139,
+        "percentagePercent": "13.9%"
+      },
+      "cryptoTax": {
+        "amount": 2580000000000,
+        "amountUSD": "~USD 164 million",
+        "percentage": 0.074,
+        "percentagePercent": "7.4%"
+      },
+      "total": {
+        "amount": 34910000000000,
+        "amountUSD": "~USD 2.22 billion",
+        "growthYoY": 0.45,
+        "growthYoYPercent": "45% increase vs 2024"
+      }
+    }
+  },
+
+  "complianceRequirements": {
+    "eCommerceSellers": [
+      "Ensure revenue tracking (to determine if within IDR 500M-4.8B threshold)",
+      "Receive Bukti Potong from platform monthly",
+      "File annual income tax return (credit withheld tax)",
+      "Maintain transaction records (5 years)"
+    ],
+
+    "eCommercePlatforms": [
+      "Identify sellers within threshold",
+      "Withhold 0.5% PPh Article 22",
+      "Deposit tax by 10th of following month",
+      "Issue Bukti Potong to sellers",
+      "File monthly SPT Masa PPh 22"
+    ],
+
+    "cryptoTraders": [
+      "Tax automatically withheld by exchange",
+      "Report crypto holdings in annual tax return",
+      "Declare capital gains",
+      "Pay tax on foreign exchange transactions (1%)"
+    ],
+
+    "foreignDigitalProviders": [
+      "Register as PMSE VAT collector (if threshold met)",
+      "Charge 11% VAT to Indonesian customers",
+      "Remit VAT to DJP monthly",
+      "File monthly VAT return"
+    ]
+  },
+
+  "baliZeroAdvice": {
+    "forECommerceSellers": [
+      "Revenue IDR 500M-4.8B/year? → Platform withholds 0.5% automatically",
+      "Receive Bukti Potong monthly → Credit against annual income tax",
+      "< IDR 500M/year? → No withholding, but still report income in annual return",
+      "> IDR 4.8B/year? → Regular corporate tax applies (PP 23/2018 0.5% or 22%)"
+    ],
+
+    "forCryptoTraders": [
+      "Domestic exchange (Indodax, Tokocrypto): 0.21% tax (final)",
+      "Foreign exchange (Binance): 1% tax (5x higher! Use domestic exchange)",
+      "Miners: 2.2% VAT now, standard tax in 2026 (major increase!)",
+      "Report crypto holdings in annual return (DJP has OJK data)"
+    ],
+
+    "forBusinesses": [
+      "Using AWS, Google Cloud, Microsoft Azure? → 11% VAT automatically charged",
+      "Subscribe to Netflix, Spotify, Zoom? → 11% VAT included",
+      "Can claim input VAT credit if PKP registered",
+      "Track digital service expenses (deductible for corporate tax)"
+    ],
+
+    "taxOptimization": [
+      "Crypto: Use domestic exchanges (0.21% vs 1% = 79% savings)",
+      "E-commerce: Structure revenue < IDR 500M/year to avoid withholding (if feasible)",
+      "Digital services: Register PKP to claim 11% VAT input credit"
+    ]
+  },
+
+  "quickReference": {
+    "eCommerceTax": "0.5% withholding (IDR 500M-4.8B revenue sellers)",
+    "pmseTax": "11% VAT (foreign digital services)",
+    "cryptoDomestic": "0.21% income tax (final)",
+    "cryptoForeign": "1% income tax (5x higher)",
+    "cryptoMining": "2.2% VAT (2026: standard rates)",
+    "effectiveDate": "E-commerce: July 14, 2025 | Crypto: August 1, 2025",
+    "totalRevenue": "IDR 34.91 trillion (Jan-Mar 2025)"
+  }
+}

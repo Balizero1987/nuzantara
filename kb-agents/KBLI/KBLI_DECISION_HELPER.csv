@@ -1,0 +1,16 @@
+KBLI,Sector,Typical Use-Case,Risk,Core Permits (summary),Often Combined With,Notes
+55130,Accommodation,Villas/serviced apartments (short-term),MT,"NIB; PBG+SLF; UKL-UPL/AMDAL; Tourism registration; Health + Fire",56101,"Zoning/banjar approvals critical"
+55111,Accommodation,Boutique hotel with F&B,MT,"As 55130 + hotel star rating; halal for F&B",56101,"Strong hygiene compliance"
+55120,Accommodation,Budget hotel/hostel,MT,As 55130, ,"Same PT PMA capital rules"
+56101,Food & Beverage,Restaurant/café,MR/MT,"NIB; Certificate of Standards; SPPL (<50 seats)/UKL-UPL (>50); Hygiene; Halal","55130/55111; 56301","F&B capital exception: same 56.. & regency"
+56301,Food & Beverage,Bar/lounge,T,"NIB; Alcohol license; safety/noise","56101; 93299","Beach-club depends on primary activity"
+79111,Tourism services,Travel agency (resell),MR,"NIB; Tourism registration",79112,Distinguish from tour operator
+79112,Tourism services,Tour operator (operate tours),MR,"NIB; Tourism registration",79111,Own packages/operations
+96122,Wellness,SPA,MR/MT,"NIB; Hygiene/staff cert; Health permits","55130/56101","Non-medical scope only"
+96123,Wellness,Beauty salon/body care,MR,"NIB; Hygiene; Health permits", ,"Avoid medical claims"
+41011,Construction,Residential building contractor,MT/T,"NIB; sector qualifications; PBG; environmental if applicable","41012/41013/41017","Foreign equity caps in some works"
+93291,Entertainment,Nightclub,T,"NIB; safety; noise; alcohol if any",56301,Community approvals common
+93299,Entertainment,Other entertainment/recreation,MR/MT,"NIB; safety","56101/56301","Choose by primary activity"
+62020,IT services,Software/consulting agency,R,NIB (low risk),70209,Watch scope creep (platform/fintech)
+70209,Professional services,Management consulting,R,NIB (low risk),62020,Do not cross into regulated activities
+68112,Real estate,Long-term rental,MR,"NIB; property compliance", ,Not for short-term stays
