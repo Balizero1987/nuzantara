@@ -524,7 +524,7 @@ async def bali_zero_chat(request: BaliZeroRequest):
                             {
                                 "title": doc["metadata"].get("title", "Unknown"),
                                 "text": doc["text"][:200] + "...",
-                                "score": score,
+                                "score": float(score),  # Ensure native Python float for JSON
                                 "reranked": True
                             }
                             for doc, score in reranked
