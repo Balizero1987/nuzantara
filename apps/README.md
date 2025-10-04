@@ -49,12 +49,56 @@ npm run serve
 
 ---
 
-## 🚧 Supporting Apps (Future)
+## 🔧 Supporting Apps
 
-- `orchestrator/` - Integration orchestrator
-- `workspace-addon/` - Google Workspace Add-on
-- `dashboard/` - Ops monitoring
-- `brain/` - AI orchestrator
+### orchestrator
+**Integration Orchestrator** - Microservice for job management
+
+- **Port**: 3000
+- **Tech**: TypeScript, Express
+- **Features**: Post-processing, job executor, registry
+
+```bash
+cd apps/orchestrator
+npm install
+npm run dev
+```
+
+### workspace-addon
+**Google Workspace Add-on** - ZANTARA integration
+
+- **Tech**: Google Apps Script
+- **Deploy**: clasp
+- **Features**: Gmail, Calendar, Drive integration
+
+```bash
+cd apps/workspace-addon
+npm run deploy
+```
+
+### dashboard
+**Operations Dashboard** - Monitoring UI
+
+- **Tech**: Vanilla JS
+- **Port**: 8001
+- **Features**: Real-time metrics, logs viewer
+
+```bash
+cd apps/dashboard
+npm start
+```
+
+### landing
+**Landing Page** - Product overview (planned)
+
+- **Status**: 🚧 Not implemented
+- **Tech**: Next.js (planned)
+
+---
+
+## 🚧 Future Apps
+
+- `brain/` - AI orchestrator (planned)
 
 ---
 
