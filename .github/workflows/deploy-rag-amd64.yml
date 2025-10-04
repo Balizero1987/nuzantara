@@ -34,19 +34,19 @@ jobs:
           cd "apps/backend-rag 2/backend"
           docker build \
             --platform linux/amd64 \
-            -t gcr.io/involuted-box-469105-r0/zantara-rag-backend:v2.4-reranker \
+            -t gcr.io/involuted-box-469105-r0/zantara-rag-backend:${{ github.sha }} \
             -t gcr.io/involuted-box-469105-r0/zantara-rag-backend:latest \
             .
 
       - name: Push to Google Container Registry
         run: |
-          docker push gcr.io/involuted-box-469105-r0/zantara-rag-backend:v2.4-reranker
+          docker push gcr.io/involuted-box-469105-r0/zantara-rag-backend:${{ github.sha }}
           docker push gcr.io/involuted-box-469105-r0/zantara-rag-backend:latest
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy zantara-rag-backend \
-            --image gcr.io/involuted-box-469105-r0/zantara-rag-backend:v2.4-reranker \
+            --image gcr.io/involuted-box-469105-r0/zantara-rag-backend:${{ github.sha }} \
             --region europe-west1 \
             --port 8000 \
             --set-env-vars ENABLE_RERANKER=true \
