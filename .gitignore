@@ -70,6 +70,9 @@ config/misc/oauth2-tokens.json
 
 # Large files (PDF > 50MB, databases)
 KB/**/*.pdf
-zantara-rag/data/chroma_db/
+**/data/raw_books/
+**/data/chroma_db/
+zantara-rag/data/
+apps/backend-rag*/data/
 *.sqlite3
 *.db
