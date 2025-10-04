@@ -24,6 +24,10 @@
     "dist",
     "src/legacy-js/**/*",
     "src/agents/**/*",
-    "src/core/zantara-orchestrator.ts"
+    "src/core/zantara-orchestrator.ts",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "tests/**",
+    "e2e/**"
   ]
 }
