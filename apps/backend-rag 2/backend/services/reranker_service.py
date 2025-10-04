@@ -94,7 +94,8 @@ class RerankerService:
             scores = self.model.predict(pairs)
 
             # Combine documents with scores and sort
-            doc_score_pairs = list(zip(documents, scores))
+            # Convert numpy.float32 to native Python float for JSON serialization
+            doc_score_pairs = list(zip(documents, [float(s) for s in scores]))
             ranked = sorted(doc_score_pairs, key=lambda x: x[1], reverse=True)
 
             # Update stats
