@@ -14,6 +14,55 @@ cat .claude/PROJECT_CONTEXT.md
 
 ---
 
+### **Step 1.5: Verify Git Alignment** 🔍
+
+**CRITICAL: Check desktop ↔ GitHub sync before starting work**
+
+```bash
+cd /Users/antonellosiano/Desktop/NUZANTARA-2
+git status
+git fetch origin
+git status  # Check if behind/ahead of remote
+```
+
+**Expected output (GOOD ✅):**
+```
+On branch main
+Your branch is up to date with 'origin/main'.
+nothing to commit, working tree clean
+```
+
+**If NOT aligned:**
+
+**Case 1: Uncommitted changes**
+```
+Changes not staged for commit:
+  modified: src/file.ts
+```
+→ **ACTION**: Ask user: "Ci sono modifiche non committate. Vuoi commitarle prima di iniziare?" (sì/no)
+
+**Case 2: Behind remote**
+```
+Your branch is behind 'origin/main' by N commits
+```
+→ **ACTION**: `git pull origin main` (sync desktop with GitHub)
+
+**Case 3: Ahead of remote**
+```
+Your branch is ahead of 'origin/main' by N commits
+```
+→ **ACTION**: Ask user: "Ci sono commit non pushati. Vuoi pushare prima di iniziare?" (sì/no)
+
+**Case 4: Diverged**
+```
+Your branch and 'origin/main' have diverged
+```
+→ **ACTION**: STOP and ask user how to resolve (likely needs `git pull --rebase`)
+
+⚠️ **NEVER start work with misaligned git state** - always sync first!
+
+---
+
 ### **Step 2: Read Recent Diaries**
 
 **Today's sessions**:
@@ -193,6 +242,6 @@ Ho finito, aggiorna tutto
 
 ---
 
-**System Version**: 1.0.0
+**System Version**: 1.1.0
 **Created**: 2025-10-01
-**Last Updated**: 2025-10-01 20:30
+**Last Updated**: 2025-10-05 00:45 (Added Step 1.5: Git Alignment Check)
