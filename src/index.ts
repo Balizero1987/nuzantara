@@ -130,14 +130,14 @@ app.use(validateResponse()); // Anti-hallucination validation
 app.use(deepRealityCheck()); // Deep reality anchor system
 
 // Enhanced health endpoint with metrics
-app.get('/health', (req, res) => {
-  const healthData = getHealthMetrics();
+app.get('/health', async (req, res) => {
+  const healthData = await getHealthMetrics();
   res.json(healthData);
 });
 
 // Metrics endpoint for detailed monitoring
-app.get('/metrics', (req, res) => {
-  const healthData = getHealthMetrics();
+app.get('/metrics', async (req, res) => {
+  const healthData = await getHealthMetrics();
   res.json({
     ok: true,
     data: healthData.metrics
