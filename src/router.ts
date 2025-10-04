@@ -148,6 +148,36 @@ async function aiChatWithFallback(ctx: any, params: any) {
 // Minimal core handlers for testing
 const handlers: Record<string, Handler> = {
   // 🧩 Identity & AMBARADAM
+  /**
+   * @handler identity.resolve
+   * @description Resolve user identity from email or identity hint, creating profile if needed. Core handler for user identification and AMBARADAM integration.
+   * @param {string} [params.email] - User email address
+   * @param {string} [params.identity_hint] - Identity hint (automatically mapped to email)
+   * @param {object} [params.metadata] - Additional user metadata (name, company, phone, etc.)
+   * @returns {Promise<{ok: boolean, userId: string, email: string, profile: object, isNew: boolean}>} Resolved user identity
+   * @throws {BadRequestError} If neither email nor identity_hint provided
+   * @example
+   * // Resolve existing user
+   * await call('identity.resolve', {
+   *   email: 'john@example.com'
+   * })
+   *
+   * // Create new user profile
+   * await call('identity.resolve', {
+   *   email: 'maria@newclient.com',
+   *   metadata: {
+   *     name: 'Maria Rossi',
+   *     company: 'Rossi Trading LLC',
+   *     phone: '+62812345678',
+   *     service_interest: 'PT PMA Setup'
+   *   }
+   * })
+   *
+   * // Using identity_hint (for backwards compatibility)
+   * await call('identity.resolve', {
+   *   identity_hint: 'client@business.com'
+   * })
+   */
   "identity.resolve": identityResolve,
   "onboarding.start": onboardingStart,
   "onboarding.ambaradam.start": onboardingStart, // Alias
@@ -268,6 +298,33 @@ const handlers: Record<string, Handler> = {
   "assistant.route": async (params: any) => assistantRoute(params),
 
   // Team Management - Real Bali Zero team data
+  /**
+   * @handler team.list
+   * @description List Bali Zero team members with filtering by department, role, or search query. Returns complete team roster (23 members across 7 departments).
+   * @param {string} [params.department] - Filter by department (management, setup, tax, marketing, reception, advisory, technology)
+   * @param {string} [params.role] - Filter by role (partial match, e.g., "Lead", "Manager", "Executive")
+   * @param {string} [params.search] - Search by name or email (case-insensitive)
+   * @returns {Promise<{ok: boolean, data: {members: Array, departments: object, stats: object, count: number}}>} Team members and statistics
+   * @throws Never throws - returns empty array on error with error message
+   * @example
+   * // Get all team members
+   * await call('team.list', {})
+   *
+   * // Get setup team only
+   * await call('team.list', {
+   *   department: 'setup'
+   * })
+   *
+   * // Search for specific member
+   * await call('team.list', {
+   *   search: 'Amanda'
+   * })
+   *
+   * // Filter by role
+   * await call('team.list', {
+   *   role: 'Lead Executive'
+   * })
+   */
   "team.list": async (params: any) => {
     const mockReq = { body: { params } } as any;
     const mockRes = {
@@ -298,6 +355,32 @@ const handlers: Record<string, Handler> = {
   "oracle.analyze": oracleAnalyze,
   "oracle.predict": oraclePredict,
 
+  /**
+   * @handler ai.chat
+   * @description Multi-provider AI chat with automatic fallback (OpenAI → Claude → Gemini → Cohere). Includes pricing hallucination prevention and auto-save conversation to memory.
+   * @param {string} params.prompt - User prompt or message (required)
+   * @param {string} [params.message] - Alternative to prompt
+   * @param {number} [params.max_tokens=1000] - Maximum tokens in response
+   * @param {number} [params.temperature=0.7] - Response randomness (0.0-1.0)
+   * @param {string} [params.model] - Specific model override
+   * @param {number} [params.timeout_ms=30000] - Request timeout in milliseconds
+   * @returns {Promise<{ok: boolean, response: string, model: string, usage?: object}>} AI-generated response
+   * @throws {Error} If all AI providers fail
+   * @example
+   * // Basic chat
+   * await call('ai.chat', {
+   *   prompt: 'Explain PT PMA company structure in simple terms'
+   * })
+   *
+   * // With custom parameters
+   * await call('ai.chat', {
+   *   prompt: 'Draft professional email for visa extension reminder',
+   *   max_tokens: 500,
+   *   temperature: 0.3
+   * })
+   *
+   * // NOTE: Price-related queries are automatically blocked and redirected to bali.zero.pricing
+   */
   "ai.chat": aiChat,
   // Real AI handlers (TS). Router prefers these; bridgeProxy is used inside if keys missing.
   "openai.chat": openaiChat,
@@ -339,6 +422,32 @@ const handlers: Record<string, Handler> = {
   "drive.search": driveSearch,
   "drive.read": driveRead,
   "calendar.create": calendarCreate,
+  /**
+   * @handler calendar.list
+   * @description List Google Calendar events with optional filtering. Uses OAuth2 or Service Account impersonation for authentication.
+   * @param {string} [params.calendarId='primary'] - Calendar ID to query (default: primary calendar)
+   * @param {string} [params.timeMin] - RFC3339 timestamp for range start (e.g., "2025-01-01T00:00:00Z")
+   * @param {string} [params.timeMax] - RFC3339 timestamp for range end
+   * @param {number} [params.maxResults=10] - Maximum number of events to return
+   * @param {string} [params.q] - Free text search query
+   * @param {boolean} [params.singleEvents=true] - Expand recurring events into instances
+   * @returns {Promise<{ok: boolean, events: Array, nextPageToken?: string}>} Calendar events list
+   * @throws {BadRequestError} If authentication fails or invalid parameters
+   * @example
+   * // Get upcoming events
+   * await call('calendar.list', {
+   *   timeMin: new Date().toISOString(),
+   *   maxResults: 20,
+   *   singleEvents: true
+   * })
+   *
+   * // Search for specific events
+   * await call('calendar.list', {
+   *   q: 'meeting with client',
+   *   timeMin: '2025-01-01T00:00:00Z',
+   *   timeMax: '2025-12-31T23:59:59Z'
+   * })
+   */
   "calendar.list": calendarList,
   "calendar.get": calendarGet,
   "sheets.read": sheetsRead,
@@ -364,8 +473,56 @@ const handlers: Record<string, Handler> = {
   "maps.placeDetails": mapsPlaceDetails,
 
   // Memory System handlers
+  /**
+   * @handler memory.save
+   * @description Save user conversation memory to Firestore with automatic fallback to in-memory Map. Supports multiple data formats (content, key-value, object) and deduplicates entries automatically.
+   * @param {string} params.userId - User ID (required)
+   * @param {string} [params.content] - Memory content to save (preferred format)
+   * @param {string} [params.key] - Memory key for key-value format
+   * @param {any} [params.value] - Memory value for key-value format
+   * @param {object} [params.data] - Memory data object or string
+   * @param {string} [params.type='general'] - Memory type (general, preference, context, etc.)
+   * @param {object} [params.metadata] - Optional metadata (tags, timestamp, etc.)
+   * @returns {Promise<{ok: boolean, memoryId: string, saved: boolean, message: string}>} Success status and memory ID
+   * @throws {BadRequestError} If userId missing or no content/data/key+value provided
+   * @example
+   * // Save user preference
+   * await call('memory.save', {
+   *   userId: 'user123',
+   *   content: 'Prefers Italian language for communication',
+   *   type: 'preference',
+   *   metadata: { source: 'chat', confidence: 'high' }
+   * })
+   *
+   * // Save with key-value format
+   * await call('memory.save', {
+   *   userId: 'client456',
+   *   key: 'visa_type',
+   *   value: 'B211A Tourist Visa',
+   *   type: 'service_interest'
+   * })
+   */
   "memory.save": memorySave,
   "memory.search": memorySearch,
+  /**
+   * @handler memory.retrieve
+   * @description Retrieve user memory from Firestore with automatic fallback to in-memory Map. Returns most recent fact or fact matching a specific key.
+   * @param {string} [params.userId] - User ID to retrieve memory for
+   * @param {string} [params.key] - Memory key to search for (acts as filter or fallback userId)
+   * @returns {Promise<{ok: boolean, content: string, userId: string, facts_count: number, last_updated: string}>} Memory content and metadata
+   * @throws {BadRequestError} If both userId and key are missing
+   * @example
+   * // Retrieve all memory for user
+   * await call('memory.retrieve', {
+   *   userId: 'user123'
+   * })
+   *
+   * // Retrieve specific memory fact
+   * await call('memory.retrieve', {
+   *   userId: 'client456',
+   *   key: 'visa_type'
+   * })
+   */
   "memory.retrieve": memoryRetrieve,
   "memory.list": memoryList,
 
@@ -408,6 +565,32 @@ const handlers: Record<string, Handler> = {
   "zantara.system.diagnostics": zantaraSystemDiagnostics,
 
   // 💰 BALI ZERO OFFICIAL PRICING - HARDCODED ONLY
+  /**
+   * @handler bali.zero.pricing
+   * @description Get official Bali Zero pricing data (2025 pricelist). CRITICAL: Returns only hardcoded official prices, NO AI generation allowed. Includes anti-hallucination safeguards.
+   * @param {string} [params.service_type='all'] - Service category: visa, kitas, kitap, business, tax, or all
+   * @param {string} [params.specific_service] - Search for specific service by name (e.g., "C1 Tourism", "Working KITAS")
+   * @param {boolean} [params.include_details=true] - Include full service details and notes
+   * @returns {Promise<{ok: boolean, data: object, official_notice: string, currency: string, contact_info: object}>} Official pricing with contact details
+   * @throws Never throws - returns fallback contact info on error
+   * @example
+   * // Get all visa prices
+   * await call('bali.zero.pricing', {
+   *   service_type: 'visa',
+   *   include_details: true
+   * })
+   *
+   * // Search for specific service
+   * await call('bali.zero.pricing', {
+   *   specific_service: 'Working KITAS',
+   *   service_type: 'all'
+   * })
+   *
+   * // Get complete pricelist
+   * await call('bali.zero.pricing', {
+   *   service_type: 'all'
+   * })
+   */
   "bali.zero.pricing": baliZeroPricing,
   "bali.zero.price": baliZeroQuickPrice,
   "pricing.official": baliZeroPricing,
@@ -423,9 +606,62 @@ const handlers: Record<string, Handler> = {
   ...weeklyReportHandlers,
 
   // 🧠 RAG System - Python Backend Integration (Ollama + Bali Zero)
+  /**
+   * @handler rag.query
+   * @description Query RAG backend (proxy to Python service) for semantic search + LLM answer generation using Ollama and ChromaDB. Includes graceful degradation if RAG backend unavailable.
+   * @param {string} params.query - Search query or question (required)
+   * @param {number} [params.k=5] - Number of relevant documents to retrieve
+   * @param {boolean} [params.use_llm=true] - Whether to use LLM for answer generation (false = retrieval only)
+   * @param {Array} [params.conversation_history] - Previous conversation turns for context
+   * @returns {Promise<{success: boolean, query: string, answer?: string, sources: Array, error?: string}>} Generated answer with source documents
+   * @throws {Error} Returns error object if query missing, but doesn't throw (graceful degradation)
+   * @example
+   * // Query with LLM answer generation
+   * await call('rag.query', {
+   *   query: 'What are the requirements for PT PMA company setup?',
+   *   k: 3,
+   *   use_llm: true,
+   *   conversation_history: [
+   *     { role: 'user', content: 'Tell me about company setup' },
+   *     { role: 'assistant', content: 'PT PMA is for foreign investors...' }
+   *   ]
+   * })
+   *
+   * // Fast semantic search only (no LLM)
+   * await call('rag.query', {
+   *   query: 'KITAS requirements',
+   *   k: 5,
+   *   use_llm: false
+   * })
+   */
   "rag.query": ragQuery,
   "rag.search": ragSearch,
   "rag.health": ragHealth,
+  /**
+   * @handler bali.zero.chat
+   * @description Bali Zero chatbot with intelligent Haiku/Sonnet routing based on query complexity. Specialized for immigration, visa, and business setup queries with RAG context.
+   * @param {string} params.query - User question or message (required)
+   * @param {Array} [params.conversation_history] - Previous conversation for context continuity
+   * @param {string} [params.user_role='member'] - User role for access control (member, admin, external)
+   * @returns {Promise<{success: boolean, answer: string, model: string, sources: Array, confidence?: number}>} AI-generated answer with model used
+   * @throws {Error} If query missing or RAG service unavailable
+   * @example
+   * // Ask about visa requirements
+   * await call('bali.zero.chat', {
+   *   query: 'What documents do I need for B211A visa extension?',
+   *   user_role: 'member',
+   *   conversation_history: [
+   *     { role: 'user', content: 'I need a visa' },
+   *     { role: 'assistant', content: 'B211A is good for tourism...' }
+   *   ]
+   * })
+   *
+   * // Complex business query (routes to Sonnet)
+   * await call('bali.zero.chat', {
+   *   query: 'Compare PT PMA vs Local PT for F&B business with foreign ownership',
+   *   user_role: 'admin'
+   * })
+   */
   "bali.zero.chat": baliZeroChat,
 
   // 📈 Analytics Dashboard - Real-time Metrics
@@ -441,6 +677,32 @@ const handlers: Record<string, Handler> = {
     const { websocketStats } = await import('./handlers/admin/websocket-admin.js');
     return await websocketStats({});
   },
+  /**
+   * @handler websocket.broadcast
+   * @description Broadcast message to all WebSocket clients on a specific channel. Admin-only operation for real-time notifications and updates.
+   * @param {string} params.channel - Channel name to broadcast to (required)
+   * @param {any} params.data - Message data to broadcast (any JSON-serializable type) (required)
+   * @param {string} [params.excludeClientId] - Client ID to exclude from broadcast (e.g., sender)
+   * @returns {Promise<{ok: boolean, broadcast: boolean, channel: string, timestamp: string}>} Broadcast confirmation
+   * @throws {BadRequestError} If channel or data missing, or WebSocket server not initialized
+   * @example
+   * // Broadcast system notification
+   * await call('websocket.broadcast', {
+   *   channel: 'system',
+   *   data: {
+   *     type: 'announcement',
+   *     message: 'Server maintenance in 10 minutes',
+   *     priority: 'high'
+   *   }
+   * })
+   *
+   * // Broadcast to specific channel, exclude sender
+   * await call('websocket.broadcast', {
+   *   channel: 'team-updates',
+   *   data: { event: 'new-lead', lead_id: 'lead_123' },
+   *   excludeClientId: 'client_abc'
+   * })
+   */
   "websocket.broadcast": async (params: any) => {
     const { websocketBroadcast } = await import('./handlers/admin/websocket-admin.js');
     return await websocketBroadcast(params);

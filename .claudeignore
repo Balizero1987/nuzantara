@@ -1,0 +1,234 @@
+# .claudeignore - Files Claude Code should ignore
+# Format: Same as .gitignore
+
+# ==========================================
+# BUILD ARTIFACTS (no value for AI)
+# ==========================================
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Node modules (Claude knows libraries already)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ==========================================
+# BINARY FILES (too large, no context value)
+# ==========================================
+
+# Vector indexes & embeddings
+*.faiss
+*.index
+*.npy
+*.npz
+*.pkl
+*.pickle
+*.bin
+
+# Compiled binaries
+*.exe
+*.dll
+*.dylib
+*.so
+*.o
+*.a
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Images (unless specific docs needed)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.webp
+
+# Videos
+*.mp4
+*.mov
+*.avi
+*.mkv
+
+# Audio
+*.mp3
+*.wav
+*.flac
+
+# ==========================================
+# CREDENTIALS & SECRETS (security)
+# ==========================================
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*-key.json
+service-account*.json
+sa-key.json
+credentials.json
+token.json
+.gcloud/
+.config/gcloud/
+
+# Google Application Credentials
+**/GOOGLE_APPLICATION_CREDENTIALS*.json
+
+# API keys files
+keys/
+secrets/
+.secrets/
+
+# ==========================================
+# LOGS & TEMPORARY FILES (noise)
+# ==========================================
+*.log
+logs/
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+.cache/
+.parcel-cache/
+
+# ==========================================
+# DATA FILES (too large)
+# ==========================================
+data/
+*.csv
+*.parquet
+*.json.gz
+*.jsonl
+*.tsv
+
+# ChromaDB data (managed in GCS)
+**/chroma_db/
+**/chromadb/
+
+# ==========================================
+# GIT INTERNALS (Claude doesn't need)
+# ==========================================
+.git/
+.gitattributes
+
+# ==========================================
+# IDE & EDITOR FILES
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vim/
+.iterm2/
+
+# ==========================================
+# OS FILES
+# ==========================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# ==========================================
+# COVERAGE & TEST REPORTS (summarized elsewhere)
+# ==========================================
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+*.lcov
+.nyc_output/
+
+# ==========================================
+# KEEP THESE (critical context!)
+# ==========================================
+!README.md
+!ARCHITECTURE.md
+!DECISIONS.md
+!QUICK_REFERENCE.md
+!Makefile
+!.claudeignore
+
+# .claude/ directory (session system)
+!.claude/
+!.claude/**/*.md
+!.claude/INIT.md
+!.claude/PROJECT_CONTEXT.md
+!.claude/README.md
+
+# Documentation
+!docs/
+!docs/**/*.md
+
+# Scripts (with documentation)
+!scripts/
+!scripts/**/*.sh
+!scripts/**/README.md
+
+# Root-level important files
+!package.json
+!tsconfig.json
+!Dockerfile*
+!*.yaml
+!*.yml
+
+# GitHub workflows
+!.github/
+!.github/workflows/*.yml
+
+# Test fixtures (small, useful for context)
+!tests/fixtures/*.json
+!tests/fixtures/*.yaml
+
+# OpenAPI specs (API documentation)
+!openapi*.yaml
+!static/openapi*.yaml
+
+# Configuration examples
+!*.example
+!.env.example
+!config.example.*
+
+# ==========================================
+# RATIONALE NOTES
+# ==========================================
+# dist/              → Compiled code (no value, see src/ instead)
+# node_modules/      → Dependencies (Claude knows npm packages)
+# *.faiss, *.npy     → Binary ML files (150MB+, no readable context)
+# .env, *.key        → Security (never expose credentials)
+# data/, *.csv       → Raw data (too large, summarized in docs)
+# .git/              → Git internals (Claude doesn't need VCS details)
+# coverage/          → Test reports (metrics in docs, not raw HTML)
+#
+# BUT KEEP:
+# .claude/**/*.md    → Session system (critical for continuity)
+# docs/**/*.md       → Documentation (essential context)
+# scripts/**/*.sh    → Deployment scripts (need to understand process)
+# tests/fixtures/    → Small test data (helps understand expected behavior)
