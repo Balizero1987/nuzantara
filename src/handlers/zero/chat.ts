@@ -24,6 +24,17 @@ const getAnthropicClient = () => {
 
 const MODEL = 'claude-sonnet-4-20250514'; // Latest Sonnet with tool use
 
+// Gemini fallback (if Anthropic fails)
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const getGeminiClient = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY not configured');
+  }
+  return new GoogleGenerativeAI(apiKey);
+};
+
 export interface ZeroChatParams {
   userId: string;
   message: string;
