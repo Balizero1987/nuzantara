@@ -1,0 +1,75 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+dist-enhanced/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Local directories
+.local/
+Desktop/
+Documents/
+enhanced-build/
+zantara-bridge/
+zantara_bridge/
+backup*/
+repo/
+zantara_bridge_desktop_backup_*
+
+# Secrets and keys
+*.key
+*.pem
+service-account.json
+service-account-key.json
+credentials.json
+zantara*-key.json
+zantara-sa-key.json
+SA_JSON_SECRET.json
+config/misc/firebase-service-account.json
+oauth2-tokens.json
+config/misc/oauth2-tokens.json
+
+# RTF and docs
+*.rtf
+*.doc
+*.docx
+
+# Large files (PDF > 50MB, databases)
+KB/**/*.pdf
+zantara-rag/data/chroma_db/
+*.sqlite3
+*.db

@@ -1,0 +1,3 @@
+# ML dependencies (heavy, separate layer)
+chromadb==1.1.0
+sentence-transformers==3.2.1

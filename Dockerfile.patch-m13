@@ -1,0 +1,11 @@
+FROM gcr.io/involuted-box-469105-r0/zantara-backend-updated:latest
+
+# Add WhatsApp + Instagram handlers
+COPY dist/handlers/communication/whatsapp.js /app/dist/handlers/communication/whatsapp.js
+COPY dist/handlers/communication/instagram.js /app/dist/handlers/communication/instagram.js
+
+# Update router if needed (if not already in base image)
+COPY dist/router.js /app/dist/router.js 2>/dev/null || true
+
+WORKDIR /app
+CMD ["node", "dist/index.js"]
