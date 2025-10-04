@@ -81,6 +81,7 @@ jobs:
           --timeout=3600
           --min-instances=0
           --max-instances=10
+          --clear-secrets
         env_vars: |
           NODE_ENV=production
           GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }}
@@ -90,15 +91,6 @@ jobs:
           FIRESTORE_PROJECT_ID=involuted-box-469105-r0
           API_KEYS_INTERNAL=zantara-internal-dev-key-2025
           API_KEYS_EXTERNAL=zantara-external-dev-key-2025
-        secrets: |
-          ZANTARA_PLUGIN_API_KEY=ZANTARA_PLUGIN_API_KEY:latest
-          OPENAI_API_KEY=OPENAI_API_KEY:latest
-          MEMORY_DRIVE_FOLDER_ID=MEMORY_DRIVE_FOLDER_ID:latest
-          AMBARADAM_DRIVE_ID=AMBARADAM_DRIVE_ID:latest
-          IMPERSONATE_USER=IMPERSONATE_USER:latest
-          BALI_ZERO_CALENDAR_ID=BALI_ZERO_CALENDAR_ID:latest
-          ZANTARA_SHARED_DRIVE_ID=ZANTARA_SHARED_DRIVE_ID:latest
-          GMAIL_SENDER=GMAIL_SENDER:latest
 
     - name: Show deployed URL
       run: echo "Deployed to ${{ steps.deploy.outputs.url }}"
