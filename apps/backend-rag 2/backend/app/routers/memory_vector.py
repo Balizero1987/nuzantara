@@ -1,0 +1,333 @@
+"""
+ZANTARA RAG - Memory Vector Router
+Semantic memory storage and search using ChromaDB
+Complements Firestore-based memory system with vector search capabilities
+"""
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import List, Optional, Dict, Any
+import logging
+import time
+
+from core.embeddings import EmbeddingsGenerator
+from core.vector_db import ChromaDBClient
+
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/memory", tags=["memory"])
+
+# Initialize services
+embedder = EmbeddingsGenerator()
+memory_vector_db = ChromaDBClient(
+    collection_name="zantara_memories"
+)
+
+logger.info("✅ Memory Vector Router initialized (zantara_memories collection)")
+
+
+# Request/Response Models
+class EmbedRequest(BaseModel):
+    text: str
+    model: str = "sentence-transformers"
+
+
+class EmbedResponse(BaseModel):
+    embedding: List[float]
+    dimensions: int
+    model: str
+
+
+class StoreMemoryRequest(BaseModel):
+    id: str
+    document: str
+    embedding: List[float]
+    metadata: Dict[str, Any]
+
+
+class SearchMemoryRequest(BaseModel):
+    query_embedding: List[float]
+    limit: int = 10
+    metadata_filter: Optional[Dict[str, Any]] = None
+
+
+class SimilarMemoryRequest(BaseModel):
+    memory_id: str
+    limit: int = 5
+
+
+class MemorySearchResponse(BaseModel):
+    results: List[Dict[str, Any]]
+    ids: List[str]
+    distances: List[float]
+    total_found: int
+    execution_time_ms: float
+
+
+# Endpoints
+
+@router.post("/embed", response_model=EmbedResponse)
+async def generate_embedding(request: EmbedRequest):
+    """
+    Generate embedding for text.
+    Uses sentence-transformers (FREE, local) by default.
+    """
+    try:
+        embedding = embedder.generate_single_embedding(request.text)
+
+        return EmbedResponse(
+            embedding=embedding,
+            dimensions=len(embedding),
+            model=embedder.model
+        )
+    except Exception as e:
+        logger.error(f"Embedding generation failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Embedding failed: {str(e)}"
+        )
+
+
+@router.post("/store")
+async def store_memory_vector(request: StoreMemoryRequest):
+    """
+    Store memory in ChromaDB for semantic search.
+
+    Metadata should include:
+    - userId: User ID
+    - type: Memory type (profile, expertise, event, etc)
+    - timestamp: ISO timestamp
+    - entities: Comma-separated entities
+    """
+    try:
+        memory_vector_db.upsert_documents(
+            chunks=[request.document],
+            embeddings=[request.embedding],
+            metadatas=[request.metadata],
+            ids=[request.id]
+        )
+
+        logger.info(f"✅ Memory stored: {request.id} for user {request.metadata.get('userId')}")
+
+        return {
+            "success": True,
+            "memory_id": request.id,
+            "collection": "zantara_memories"
+        }
+    except Exception as e:
+        logger.error(f"Memory storage failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Storage failed: {str(e)}"
+        )
+
+
+@router.post("/search", response_model=MemorySearchResponse)
+async def search_memories_semantic(request: SearchMemoryRequest):
+    """
+    Semantic search across all memories using vector similarity.
+
+    Supports metadata filtering:
+    - userId: Filter by specific user
+    - entities: Filter by entity (use {"entities": {"$contains": "zero"}})
+    """
+    try:
+        start_time = time.time()
+
+        # Prepare filter (ChromaDB where clause)
+        where_filter = None
+        if request.metadata_filter:
+            # Convert TypeScript-style filter to ChromaDB format
+            where_filter = {}
+            for key, value in request.metadata_filter.items():
+                if isinstance(value, dict) and "$contains" in value:
+                    # Handle contains filter (not native in ChromaDB, but we can use simple equality)
+                    # For entities, we stored as comma-separated string
+                    # This is a limitation - for Phase 3 we'd need proper array support
+                    where_filter[key] = value["$contains"]
+                else:
+                    where_filter[key] = value
+
+        # Search ChromaDB
+        results = memory_vector_db.search(
+            query_embedding=request.query_embedding,
+            filter=where_filter,
+            limit=request.limit
+        )
+
+        execution_time = (time.time() - start_time) * 1000
+
+        # Format results
+        formatted_results = []
+        for idx in range(len(results["documents"])):
+            formatted_results.append({
+                "document": results["documents"][idx],
+                "metadata": results["metadatas"][idx],
+                "distance": results["distances"][idx]
+            })
+
+        logger.info(
+            f"Memory search completed: {len(formatted_results)} results in {execution_time:.2f}ms"
+        )
+
+        return MemorySearchResponse(
+            results=formatted_results,
+            ids=results["ids"],
+            distances=results["distances"],
+            total_found=results["total_found"],
+            execution_time_ms=round(execution_time, 2)
+        )
+
+    except Exception as e:
+        logger.error(f"Memory search failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Search failed: {str(e)}"
+        )
+
+
+@router.post("/similar", response_model=MemorySearchResponse)
+async def find_similar_memories(request: SimilarMemoryRequest):
+    """
+    Find memories similar to a given memory.
+    Uses the stored memory's embedding to find neighbors.
+    """
+    try:
+        start_time = time.time()
+
+        # Get the memory's embedding from ChromaDB
+        memory = memory_vector_db.collection.get(
+            ids=[request.memory_id],
+            include=["embeddings"]
+        )
+
+        if not memory["embeddings"] or len(memory["embeddings"]) == 0:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Memory not found: {request.memory_id}"
+            )
+
+        # Search using this embedding
+        query_embedding = memory["embeddings"][0]
+
+        results = memory_vector_db.search(
+            query_embedding=query_embedding,
+            limit=request.limit + 1  # +1 because it will include itself
+        )
+
+        # Remove the original memory from results
+        filtered_results = {
+            "ids": [],
+            "documents": [],
+            "metadatas": [],
+            "distances": []
+        }
+
+        for idx in range(len(results["ids"])):
+            if results["ids"][idx] != request.memory_id:
+                filtered_results["ids"].append(results["ids"][idx])
+                filtered_results["documents"].append(results["documents"][idx])
+                filtered_results["metadatas"].append(results["metadatas"][idx])
+                filtered_results["distances"].append(results["distances"][idx])
+
+        # Limit to requested number
+        for key in filtered_results:
+            filtered_results[key] = filtered_results[key][:request.limit]
+
+        execution_time = (time.time() - start_time) * 1000
+
+        formatted_results = []
+        for idx in range(len(filtered_results["documents"])):
+            formatted_results.append({
+                "document": filtered_results["documents"][idx],
+                "metadata": filtered_results["metadatas"][idx],
+                "distance": filtered_results["distances"][idx]
+            })
+
+        logger.info(
+            f"Similar memories found: {len(formatted_results)} results in {execution_time:.2f}ms"
+        )
+
+        return MemorySearchResponse(
+            results=formatted_results,
+            ids=filtered_results["ids"],
+            distances=filtered_results["distances"],
+            total_found=len(formatted_results),
+            execution_time_ms=round(execution_time, 2)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Similar memory search failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Similar search failed: {str(e)}"
+        )
+
+
+@router.delete("/{memory_id}")
+async def delete_memory_vector(memory_id: str):
+    """Delete memory from vector store"""
+    try:
+        memory_vector_db.collection.delete(ids=[memory_id])
+
+        logger.info(f"✅ Memory deleted: {memory_id}")
+
+        return {
+            "success": True,
+            "deleted_id": memory_id
+        }
+    except Exception as e:
+        logger.error(f"Memory deletion failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Deletion failed: {str(e)}"
+        )
+
+
+@router.get("/stats")
+async def get_memory_stats():
+    """Get memory collection statistics"""
+    try:
+        stats = memory_vector_db.get_collection_stats()
+
+        return {
+            "total_memories": stats.get("total_documents", 0),
+            "collection_name": stats.get("collection_name", "zantara_memories"),
+            "persist_directory": stats.get("persist_directory", ""),
+            "users": len(set([
+                m.get("userId", "")
+                for m in memory_vector_db.collection.peek(limit=1000).get("metadatas", [])
+            ])),
+            "collection_size_mb": stats.get("total_documents", 0) * 0.001  # Rough estimate
+        }
+    except Exception as e:
+        logger.error(f"Stats retrieval failed: {e}")
+        return {
+            "total_memories": 0,
+            "users": 0,
+            "collection_size_mb": 0,
+            "error": str(e)
+        }
+
+
+@router.get("/health")
+async def memory_vector_health():
+    """Health check for memory vector service"""
+    try:
+        stats = memory_vector_db.get_collection_stats()
+
+        return {
+            "status": "operational",
+            "service": "memory_vector",
+            "collection": "zantara_memories",
+            "total_memories": stats.get("total_documents", 0),
+            "embedder_model": embedder.model,
+            "embedder_provider": embedder.provider,
+            "dimensions": embedder.dimensions
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Memory vector service unhealthy: {str(e)}"
+        )

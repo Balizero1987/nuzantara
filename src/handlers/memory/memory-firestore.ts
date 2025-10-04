@@ -2,6 +2,7 @@
 import { ok, err } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { getFirestore } from "../../services/firebase.js";
+import { storeMemoryVector, searchMemoriesSemantica, hybridMemorySearch } from "../../services/memory-vector.js";
 
 // Known entities database (people, projects, skills, companies)
 const KNOWN_ENTITIES = {
@@ -259,8 +260,21 @@ export async function memorySave(params: any) {
     }
   });
 
+  // Phase 2: Store in vector database for semantic search (async, non-blocking)
+  const memoryId = `mem_${Date.now()}`;
+  storeMemoryVector({
+    memoryId,
+    userId,
+    content: fact,
+    type,
+    timestamp: timestamp.split('T')[0],
+    entities
+  }).catch(err => {
+    console.log('⚠️ Vector storage failed (non-blocking):', err?.message);
+  });
+
   return ok({
-    memoryId: `mem_${Date.now()}`,
+    memoryId,
     saved: true,
     message: 'Memory saved successfully',
     userId,
@@ -523,4 +537,133 @@ export async function memoryEntityInfo(params: any) {
     total: 0,
     message: `No data found for ${entity}`
   });
+}
+
+/**
+ * NEW PHASE 2: Semantic memory search using vector embeddings
+ * Searches by meaning, not just keywords (e.g., "chi aiuta con KITAS?" → finds "Krisna specialist visa")
+ */
+export async function memorySearchSemantic(params: any) {
+  const { query, userId, limit = 10 } = params;
+
+  if (!query) {
+    throw new BadRequestError('query is required for memory.search.semantic');
+  }
+
+  try {
+    // Call vector search service (Python RAG backend)
+    const results = await searchMemoriesSemantica({ query, userId, limit });
+
+    return ok({
+      query,
+      results: results.map(r => ({
+        userId: r.userId,
+        content: r.content,
+        type: r.type,
+        timestamp: r.timestamp,
+        entities: r.entities,
+        similarity: r.similarity
+      })),
+      count: results.length,
+      search_type: 'semantic',
+      message: results.length > 0
+        ? `Found ${results.length} semantically similar memories`
+        : 'No similar memories found'
+    });
+  } catch (error: any) {
+    console.log('⚠️ Semantic search error:', error?.message);
+
+    // Fallback to keyword search if vector search fails
+    const keywordResults = await memoryStore.searchMemories(query, userId, limit);
+
+    return ok({
+      query,
+      results: keywordResults.map(m => ({
+        userId: m.userId,
+        content: m.matchingFacts.join('; ') || m.summary,
+        relevance: m.matchingFacts.length,
+        updated_at: m.updated_at
+      })),
+      count: keywordResults.length,
+      search_type: 'keyword_fallback',
+      message: 'Semantic search unavailable, using keyword fallback'
+    });
+  }
+}
+
+/**
+ * NEW PHASE 2: Hybrid search (keyword + semantic)
+ * Combines Firestore keyword matching with ChromaDB vector search for best results
+ */
+export async function memorySearchHybrid(params: any) {
+  const { query, userId, limit = 10 } = params;
+
+  if (!query) {
+    throw new BadRequestError('query is required for memory.search.hybrid');
+  }
+
+  try {
+    // Run both searches in parallel
+    const [vectorResults, keywordResults] = await Promise.all([
+      searchMemoriesSemantica({ query, userId, limit: limit * 2 }).catch(() => []),
+      memoryStore.searchMemories(query, userId, limit * 2)
+    ]);
+
+    // Combine and deduplicate results
+    const combined = new Map();
+
+    // Add vector results (weighted 0.7)
+    vectorResults.forEach(r => {
+      combined.set(r.id, {
+        userId: r.userId,
+        content: r.content,
+        type: r.type,
+        timestamp: r.timestamp,
+        entities: r.entities,
+        score: r.similarity * 0.7,
+        source: 'semantic'
+      });
+    });
+
+    // Add keyword results (weighted 0.3)
+    keywordResults.forEach(m => {
+      const key = `${m.userId}_${m.matchingFacts[0]}`;
+      if (combined.has(key)) {
+        // Boost score if found in both
+        const existing = combined.get(key);
+        existing.score += m.score * 0.3;
+        existing.source = 'hybrid';
+      } else {
+        combined.set(key, {
+          userId: m.userId,
+          content: m.matchingFacts.join('; ') || m.summary,
+          relevance: m.matchingFacts.length,
+          recencyWeight: m.recencyWeight,
+          score: m.score * 0.3,
+          source: 'keyword'
+        });
+      }
+    });
+
+    // Sort by score and limit
+    const sortedResults = Array.from(combined.values())
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+
+    return ok({
+      query,
+      results: sortedResults,
+      count: sortedResults.length,
+      search_type: 'hybrid',
+      sources: {
+        semantic: vectorResults.length,
+        keyword: keywordResults.length,
+        combined: sortedResults.length
+      },
+      message: `Found ${sortedResults.length} results using hybrid search`
+    });
+  } catch (error: any) {
+    console.log('⚠️ Hybrid search error:', error?.message);
+    throw new BadRequestError(`Hybrid search failed: ${error?.message}`);
+  }
 }

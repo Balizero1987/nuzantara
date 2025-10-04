@@ -96,7 +96,7 @@ import {
 } from "./handlers/analytics/daily-drive-recap.js";
 
 // Memory & Persistence
-import { memorySave, memorySearch, memoryRetrieve, memoryList, memorySearchByEntity, memoryGetEntities, memoryEntityInfo } from "./handlers/memory/memory-firestore.js";
+import { memorySave, memorySearch, memoryRetrieve, memoryList, memorySearchByEntity, memoryGetEntities, memoryEntityInfo, memorySearchSemantic, memorySearchHybrid } from "./handlers/memory/memory-firestore.js";
 import { memoryEventSave, memoryTimelineGet, memoryEntityEvents } from "./handlers/memory/episodes-firestore.js";
 import { autoSaveConversation } from "./handlers/memory/conversation-autosave.js";
 import { userMemoryHandlers } from "./legacy-js/user-memory-handlers.js";
@@ -601,6 +601,31 @@ const handlers: Record<string, Handler> = {
    * await call('memory.entity.events', { entity: 'google_workspace', category: 'projects' })
    */
   "memory.entity.events": memoryEntityEvents,
+
+  /**
+   * @handler memory.search.semantic (NEW Phase 2)
+   * @description Semantic search using vector embeddings (searches by meaning, not keywords)
+   * @param {string} params.query - Search query (natural language)
+   * @param {string} [params.userId] - Optional filter by user
+   * @param {number} [params.limit=10] - Max results
+   * @returns {Promise<{ok: boolean, results: Array<{userId, content, similarity, entities}>, count: number}>}
+   * @example
+   * await call('memory.search.semantic', { query: 'chi aiuta con KITAS?' })
+   * // Returns: Krisna (KITAS specialist) even if exact keywords don't match
+   */
+  "memory.search.semantic": memorySearchSemantic,
+
+  /**
+   * @handler memory.search.hybrid (NEW Phase 2)
+   * @description Hybrid search (combines keyword + semantic for best results)
+   * @param {string} params.query - Search query
+   * @param {string} [params.userId] - Optional filter by user
+   * @param {number} [params.limit=10] - Max results
+   * @returns {Promise<{ok: boolean, results: Array, count: number, sources: {semantic, keyword, combined}}>}
+   * @example
+   * await call('memory.search.hybrid', { query: 'tax expert' })
+   */
+  "memory.search.hybrid": memorySearchHybrid,
 
   // User Memory handlers (team members)
   ...userMemoryHandlers,

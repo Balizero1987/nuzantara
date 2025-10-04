@@ -685,6 +685,10 @@ async def bali_zero_chat(request: BaliZeroRequest):
 from app.auth_mock import router as auth_router
 app.include_router(auth_router)
 
+# Include memory vector router (Phase 2)
+from app.routers.memory_vector import router as memory_vector_router
+app.include_router(memory_vector_router)
+
 
 @app.get("/")
 async def root():
