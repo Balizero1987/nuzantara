@@ -96,7 +96,7 @@ import {
 } from "./handlers/analytics/daily-drive-recap.js";
 
 // Memory & Persistence
-import { memorySave, memorySearch, memoryRetrieve, memoryList } from "./handlers/memory/memory-firestore.js";
+import { memorySave, memorySearch, memoryRetrieve, memoryList, memorySearchByEntity, memoryGetEntities } from "./handlers/memory/memory-firestore.js";
 import { autoSaveConversation } from "./handlers/memory/conversation-autosave.js";
 import { userMemoryHandlers } from "./legacy-js/user-memory-handlers.js";
 
@@ -110,6 +110,9 @@ import {
   ragSearch,
   ragHealth
 } from "./handlers/rag/rag.js";
+
+// Zero Mode - Development Tools (Zero-only access)
+import { handlers as zeroHandlers } from "./handlers/zero/index.js";
 
 const ActionSchema = z.object({
   key: z.string(),
@@ -526,6 +529,28 @@ const handlers: Record<string, Handler> = {
   "memory.retrieve": memoryRetrieve,
   "memory.list": memoryList,
 
+  /**
+   * @handler memory.search.entity (NEW Quick Win)
+   * @description Search memories by entity (person, project, skill)
+   * @param {string} params.entity - Entity name to search for
+   * @param {string} [params.category] - Entity category (people/projects/skills/companies)
+   * @param {number} [params.limit=20] - Max results
+   * @returns {Promise<{ok: boolean, entity: string, memories: Array, count: number}>}
+   * @example
+   * await call('memory.search.entity', { entity: 'zero' })
+   */
+  "memory.search.entity": memorySearchByEntity,
+
+  /**
+   * @handler memory.entities (NEW Quick Win)
+   * @description Get all entities (people/projects/skills) related to a user
+   * @param {string} params.userId - User ID
+   * @returns {Promise<{ok: boolean, entities: {people, projects, skills, companies}, total: number}>}
+   * @example
+   * await call('memory.entities', { userId: 'zero' })
+   */
+  "memory.entities": memoryGetEntities,
+
   // User Memory handlers (team members)
   ...userMemoryHandlers,
 
@@ -663,6 +688,9 @@ const handlers: Record<string, Handler> = {
    * })
    */
   "bali.zero.chat": baliZeroChat,
+
+  // 🔧 ZERO MODE - Development Tools (Zero-only access)
+  ...zeroHandlers,
 
   // 📈 Analytics Dashboard - Real-time Metrics
   "dashboard.main": dashboardMain,
