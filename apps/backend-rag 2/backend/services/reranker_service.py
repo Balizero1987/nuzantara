@@ -95,7 +95,8 @@ class RerankerService:
 
             # Combine documents with scores and sort
             # Convert numpy.float32 to native Python float for JSON serialization
-            doc_score_pairs = list(zip(documents, [float(s) for s in scores]))
+            scores_float = [float(s) for s in scores]
+            doc_score_pairs = list(zip(documents, scores_float))
             ranked = sorted(doc_score_pairs, key=lambda x: x[1], reverse=True)
 
             # Update stats
