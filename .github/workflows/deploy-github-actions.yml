@@ -41,6 +41,10 @@ jobs:
       run: npm run lint
       continue-on-error: true
 
+    - name: Build TypeScript
+      run: npm run build
+      continue-on-error: false
+
     - name: Authenticate to Google Cloud
       id: auth
       uses: google-github-actions/auth@v2
@@ -52,8 +56,8 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} .
-        docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:latest .
+        docker build -f Dockerfile.dist -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} .
+        docker tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:latest
 
     - name: Push Docker image
       run: |
