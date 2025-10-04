@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "start": "node dist/index.js",
-    "build": "tsc --outDir dist --rootDir src",
+    "build": "tsc --outDir dist --rootDir src --noEmitOnError false --skipLibCheck true",
+    "build:fast": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js --external:@google-cloud/* --external:@anthropic-ai/* --external:express --external:firebase-admin --external:@prisma/* --external:axios --external:cheerio --external:nodemailer --external:twilio --external:stripe --external:cohere-ai --external:openai",
     "dev": "tsx watch src/index.ts",
     "start:dev": "nodemon --watch src --ext ts,js --exec tsx src/index.ts",
     "test": "jest",
@@ -34,6 +35,7 @@
     "@types/node-fetch": "^2.6.13",
     "@types/supertest": "^6.0.3",
     "autocannon": "^8.0.0",
+    "esbuild": "^0.25.10",
     "jest": "^29.7.0",
     "nodemon": "^3.1.7",
     "playwright": "^1.55.1",
