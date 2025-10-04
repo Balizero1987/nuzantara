@@ -3,6 +3,54 @@ import { ok, err } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { getFirestore } from "../../services/firebase.js";
 
+// Known entities database (people, projects, skills, companies)
+const KNOWN_ENTITIES = {
+  people: ['zero', 'antonello', 'zainal', 'ruslana', 'amanda', 'anton', 'krisna', 'dea', 'adit', 'vino', 'ari', 'surya', 'damar', 'veronika', 'angel', 'kadek', 'dewaayu', 'faisha', 'sahira', 'nina', 'rina', 'marta', 'olena'],
+  projects: ['zantara', 'nuzantara', 'google_workspace', 'rag', 'chromadb', 'pricing', 'pt_pma', 'kitas', 'kitap', 'visa', 'tax'],
+  skills: ['typescript', 'python', 'tax', 'pph', 'ppn', 'kitas', 'e28a', 'e23', 'e33', 'pt_pma', 'bkpm', 'legal', 'compliance', 'cloud_run', 'firestore', 'ai'],
+  companies: ['bali_zero', 'balizero']
+};
+
+/**
+ * Extract entities (people, projects, skills) from text
+ * Simple pattern matching - can be enhanced with NER later
+ */
+function extractEntities(text: string, contextUserId?: string): string[] {
+  const entities: string[] = [];
+  const lowerText = text.toLowerCase();
+
+  // Extract known entities
+  for (const [category, items] of Object.entries(KNOWN_ENTITIES)) {
+    for (const entity of items) {
+      if (lowerText.includes(entity.toLowerCase())) {
+        entities.push(`${category}:${entity}`);
+      }
+    }
+  }
+
+  // Add context user if not already included
+  if (contextUserId && !entities.some(e => e.includes(contextUserId))) {
+    entities.push(`people:${contextUserId}`);
+  }
+
+  return [...new Set(entities)]; // Deduplicate
+}
+
+/**
+ * Calculate recency weight for memory ranking
+ * Recent memories get higher scores (exponential decay)
+ */
+function calculateRecencyWeight(timestamp: Date | null): number {
+  if (!timestamp) return 0.1; // Old memories with no timestamp get low weight
+
+  const now = new Date();
+  const ageInDays = (now.getTime() - new Date(timestamp).getTime()) / (1000 * 60 * 60 * 24);
+
+  // Exponential decay: weight = e^(-age/30)
+  // 0 days ago = 1.0, 30 days ago = 0.37, 90 days ago = 0.05
+  return Math.exp(-ageInDays / 30);
+}
+
 // Firestore memory store implementation
 class FirestoreMemoryStore {
   private db: FirebaseFirestore.Firestore | null = null;
@@ -18,7 +66,7 @@ class FirestoreMemoryStore {
   }
 
   async getMemory(userId: string) {
-    if (!userId) return { profile_facts: [], summary: "", counters: {}, updated_at: null };
+    if (!userId) return { profile_facts: [], summary: "", counters: {}, entities: [], updated_at: null };
 
     try {
       if (this.db) {
@@ -29,6 +77,7 @@ class FirestoreMemoryStore {
             profile_facts: data?.profile_facts || [],
             summary: data?.summary || "",
             counters: data?.counters || {},
+            entities: data?.entities || [],
             updated_at: data?.updated_at || null,
           };
         }
@@ -43,19 +92,20 @@ class FirestoreMemoryStore {
       profile_facts: data.profile_facts || [],
       summary: data.summary || "",
       counters: data.counters || {},
+      entities: data.entities || [],
       updated_at: data.updated_at || null,
     };
   }
 
   async saveMemory(params: any) {
-    const { userId, profile_facts = [], summary = "", counters = {} } = params;
+    const { userId, profile_facts = [], summary = "", counters = {}, entities = [] } = params;
     if (!userId) return;
 
-    // Remove duplicates and limit facts
+    // Remove duplicates only (NO LIMIT - ZANTARA must remember everything)
     const uniq: string[] = [];
     const seen = new Set();
     for (const raw of profile_facts) {
-      const s = (raw || "").trim().slice(0, 140);
+      const s = (raw || "").trim(); // No character limit - full context preserved
       if (s && !seen.has(s)) {
         seen.add(s);
         uniq.push(s);
@@ -65,8 +115,9 @@ class FirestoreMemoryStore {
     const now = new Date();
     const data = {
       userId,
-      profile_facts: uniq.slice(0, 10), // Limit to 10 facts
-      summary: summary.slice(0, 500),   // Limit summary
+      profile_facts: uniq, // NO LIMIT - Unlimited memory for Bali Zero consciousness
+      summary: summary,    // NO LIMIT - Full summary preserved
+      entities: [...new Set(entities)], // Unique entities extracted from facts
       counters,
       updated_at: now,
     };
@@ -107,14 +158,23 @@ class FirestoreMemoryStore {
 
           if (matchingFacts.length > 0 ||
               (data.summary && data.summary.toLowerCase().includes(query.toLowerCase()))) {
+            const recencyWeight = calculateRecencyWeight(data.updated_at);
+            const relevance = matchingFacts.length;
+
             memories.push({
               userId: data.userId,
               matchingFacts,
               summary: data.summary,
-              updated_at: data.updated_at
+              updated_at: data.updated_at,
+              recencyWeight,
+              relevance,
+              score: relevance * recencyWeight // Combined score
             });
           }
         });
+
+        // Sort by score (relevance × recency)
+        memories.sort((a, b) => b.score - a.score);
 
         return memories;
       }
@@ -182,13 +242,17 @@ export async function memorySave(params: any) {
     throw new BadRequestError('Either content, data, or key+value must be provided');
   }
 
+  // Extract entities from fact (people, projects, skills)
+  const entities = extractEntities(fact, userId);
+
   const newFact = `[${timestamp.split('T')[0]}] ${type}: ${fact}`;
 
-  // Save updated memory
+  // Save updated memory with entities
   await memoryStore.saveMemory({
     userId,
     profile_facts: [...(existing.profile_facts || []), newFact],
     summary: existing.summary || `Memory for ${userId}`,
+    entities: [...new Set([...(existing.entities || []), ...entities])], // Merge unique entities
     counters: {
       ...(existing.counters || {}),
       saves: ((existing.counters?.saves || 0) + 1)
@@ -277,8 +341,186 @@ export async function memoryList(params: any) {
     userId,
     facts: memory.profile_facts || [],
     summary: memory.summary || '',
+    entities: memory.entities || [],
     counters: memory.counters || {},
     updated_at: memory.updated_at || null,
     total_facts: (memory.profile_facts || []).length
+  });
+}
+
+/**
+ * NEW: Search memories by entity (person, project, skill)
+ * Example: {"entity": "zero"} finds all memories mentioning Zero
+ */
+export async function memorySearchByEntity(params: any) {
+  const { entity, category, limit = 20 } = params;
+
+  if (!entity) {
+    throw new BadRequestError('entity is required for memory.search.entity');
+  }
+
+  const entityPattern = category ? `${category}:${entity}` : entity;
+  const memories: any[] = [];
+
+  try {
+    const db = memoryStore['db'];
+    if (db) {
+      const snapshot = await db.collection('memories')
+        .where('entities', 'array-contains', entityPattern)
+        .limit(limit)
+        .get();
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const recencyWeight = calculateRecencyWeight(data.updated_at);
+
+        memories.push({
+          userId: data.userId,
+          facts: data.profile_facts || [],
+          entities: data.entities || [],
+          recencyWeight,
+          updated_at: data.updated_at
+        });
+      });
+
+      // Sort by recency
+      memories.sort((a, b) => b.recencyWeight - a.recencyWeight);
+    }
+  } catch (error: any) {
+    console.log('⚠️ Entity search error:', error?.message);
+  }
+
+  return ok({
+    entity: entityPattern,
+    memories,
+    count: memories.length,
+    message: memories.length > 0
+      ? `Found ${memories.length} memories mentioning ${entity}`
+      : `No memories found for ${entity}`
+  });
+}
+
+/**
+ * NEW: Get all people/projects/skills related to a user
+ */
+export async function memoryGetEntities(params: any) {
+  const { userId } = params;
+
+  if (!userId) {
+    throw new BadRequestError('userId is required for memory.entities');
+  }
+
+  const memory = await memoryStore.getMemory(userId);
+  const entities = memory.entities || [];
+
+  // Group by category
+  const grouped: any = {
+    people: [],
+    projects: [],
+    skills: [],
+    companies: []
+  };
+
+  for (const entity of entities) {
+    const [category, name] = entity.split(':');
+    if (grouped[category]) {
+      grouped[category].push(name);
+    }
+  }
+
+  return ok({
+    userId,
+    entities: grouped,
+    total: entities.length,
+    raw: entities
+  });
+}
+
+/**
+ * NEW: Get complete entity profile (semantic facts + episodic events)
+ * Combines data from /memories/ and /episodes/ collections
+ */
+export async function memoryEntityInfo(params: any) {
+  const { entity, category } = params;
+
+  if (!entity) {
+    throw new BadRequestError('entity is required for memory.entity.info');
+  }
+
+  const entityPattern = category ? `${category}:${entity}` : entity;
+
+  // Get all memories mentioning this entity (from memorySearchByEntity)
+  const memories: any[] = [];
+  const db = memoryStore['db'];
+
+  try {
+    if (db) {
+      // Search memories
+      const memSnapshot = await db.collection('memories')
+        .where('entities', 'array-contains', entityPattern)
+        .limit(20)
+        .get();
+
+      memSnapshot.forEach(doc => {
+        const data = doc.data();
+        memories.push({
+          userId: data.userId,
+          facts: data.profile_facts || [],
+          updated_at: data.updated_at
+        });
+      });
+
+      // Search episodes (all users)
+      const episodes: any[] = [];
+      const usersSnapshot = await db.collection('episodes').get();
+
+      for (const userDoc of usersSnapshot.docs) {
+        const eventsSnapshot = await userDoc.ref
+          .collection('events')
+          .where('entities', 'array-contains', entityPattern)
+          .orderBy('timestamp', 'desc')
+          .limit(20)
+          .get();
+
+        eventsSnapshot.forEach(doc => {
+          const data = doc.data();
+          episodes.push({
+            id: data.id,
+            userId: data.userId,
+            timestamp: data.timestamp,
+            event: data.event,
+            type: data.type,
+            metadata: data.metadata || {}
+          });
+        });
+      }
+
+      // Sort episodes by timestamp
+      episodes.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+      return ok({
+        entity: entityPattern,
+        semantic: {
+          memories,
+          count: memories.length
+        },
+        episodic: {
+          events: episodes.slice(0, 20),
+          count: episodes.length
+        },
+        total: memories.length + episodes.length,
+        message: `Complete profile for ${entity}: ${memories.length} facts, ${episodes.length} events`
+      });
+    }
+  } catch (error: any) {
+    console.log('⚠️ Entity info query error:', error?.message);
+  }
+
+  return ok({
+    entity: entityPattern,
+    semantic: { memories: [], count: 0 },
+    episodic: { events: [], count: 0 },
+    total: 0,
+    message: `No data found for ${entity}`
   });
 }

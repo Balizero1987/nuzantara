@@ -96,7 +96,8 @@ import {
 } from "./handlers/analytics/daily-drive-recap.js";
 
 // Memory & Persistence
-import { memorySave, memorySearch, memoryRetrieve, memoryList, memorySearchByEntity, memoryGetEntities } from "./handlers/memory/memory-firestore.js";
+import { memorySave, memorySearch, memoryRetrieve, memoryList, memorySearchByEntity, memoryGetEntities, memoryEntityInfo } from "./handlers/memory/memory-firestore.js";
+import { memoryEventSave, memoryTimelineGet, memoryEntityEvents } from "./handlers/memory/episodes-firestore.js";
 import { autoSaveConversation } from "./handlers/memory/conversation-autosave.js";
 import { userMemoryHandlers } from "./legacy-js/user-memory-handlers.js";
 
@@ -550,6 +551,56 @@ const handlers: Record<string, Handler> = {
    * await call('memory.entities', { userId: 'zero' })
    */
   "memory.entities": memoryGetEntities,
+
+  /**
+   * @handler memory.entity.info (NEW Phase 1)
+   * @description Get complete entity profile (semantic facts + episodic events)
+   * @param {string} params.entity - Entity name (zero, zantara, pricing, etc)
+   * @param {string} [params.category] - Entity category (people/projects/skills/companies)
+   * @returns {Promise<{ok: boolean, entity: string, semantic: {memories, count}, episodic: {events, count}}>}
+   * @example
+   * await call('memory.entity.info', { entity: 'zero' })
+   */
+  "memory.entity.info": memoryEntityInfo,
+
+  /**
+   * @handler memory.event.save (NEW Phase 1)
+   * @description Save timestamped event to episodic memory
+   * @param {string} params.userId - User ID
+   * @param {string} params.event - Event description
+   * @param {string} [params.type='general'] - Event type (deployment|meeting|task|decision)
+   * @param {object} [params.metadata={}] - Additional event metadata
+   * @param {string} [params.timestamp] - ISO timestamp (defaults to now)
+   * @returns {Promise<{ok: boolean, eventId: string, saved: boolean, entities: Array}>}
+   * @example
+   * await call('memory.event.save', { userId: 'zero', event: 'Deployed Google Workspace', type: 'deployment' })
+   */
+  "memory.event.save": memoryEventSave,
+
+  /**
+   * @handler memory.timeline.get (NEW Phase 1)
+   * @description Get user's timeline of events in time range
+   * @param {string} params.userId - User ID
+   * @param {string} [params.startDate] - ISO date (inclusive)
+   * @param {string} [params.endDate] - ISO date (inclusive)
+   * @param {number} [params.limit=50] - Max events to return
+   * @returns {Promise<{ok: boolean, timeline: Array, count: number}>}
+   * @example
+   * await call('memory.timeline.get', { userId: 'zero', startDate: '2025-10-01', endDate: '2025-10-05' })
+   */
+  "memory.timeline.get": memoryTimelineGet,
+
+  /**
+   * @handler memory.entity.events (NEW Phase 1)
+   * @description Get all events mentioning an entity
+   * @param {string} params.entity - Entity name
+   * @param {string} [params.category] - Entity category (people/projects/skills/companies)
+   * @param {number} [params.limit=50] - Max events to return
+   * @returns {Promise<{ok: boolean, events: Array, count: number}>}
+   * @example
+   * await call('memory.entity.events', { entity: 'google_workspace', category: 'projects' })
+   */
+  "memory.entity.events": memoryEntityEvents,
 
   // User Memory handlers (team members)
   ...userMemoryHandlers,
