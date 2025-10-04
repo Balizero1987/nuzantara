@@ -1,0 +1,133 @@
+name: Sync Webapp to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/webapp/**'
+      - 'static/zantara-production.html'
+      - '.github/workflows/sync-webapp-to-pages.yml'
+  workflow_dispatch:
+
+env:
+  TARGET_REPO: Balizero1987/zantara_webapp
+  TARGET_BRANCH: main
+
+jobs:
+  sync-to-pages:
+    name: Sync Webapp to GitHub Pages Repo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout monorepo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git identity
+        run: |
+          git config --global user.name "ZANTARA Auto-Sync"
+          git config --global user.email "noreply@zantara.balizero.com"
+
+      - name: Clone target repository
+        env:
+          GH_TOKEN: ${{ secrets.WEBAPP_DEPLOY_TOKEN }}
+        run: |
+          git clone https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git webapp-pages
+          cd webapp-pages
+          git checkout ${TARGET_BRANCH}
+
+      - name: Sync webapp files
+        run: |
+          # Clear target (except .git)
+          cd webapp-pages
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+
+          # Copy webapp files from monorepo
+          cp -r ../apps/webapp/* .
+
+          # Copy production HTML from static/
+          if [ -f "../static/zantara-production.html" ]; then
+            cp ../static/zantara-production.html ./index.html
+            echo "✅ Copied zantara-production.html as index.html"
+          fi
+
+          # Add deployment timestamp
+          echo "<!-- Deployed: $(date -u +"%Y-%m-%d %H:%M:%S UTC") -->" >> index.html
+          echo "<!-- Source: https://github.com/Balizero1987/nuzantara/commit/${GITHUB_SHA} -->" >> index.html
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          cd webapp-pages
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changes to sync"
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.WEBAPP_DEPLOY_TOKEN }}
+        run: |
+          cd webapp-pages
+          git add .
+
+          # Create commit message with source details
+          COMMIT_MSG="sync: from monorepo @ $(date -u +"%Y-%m-%d %H:%M UTC")
+
+          Source commit: ${GITHUB_SHA:0:7}
+          Triggered by: ${{ github.event_name }}
+
+          🤖 Auto-synced by GitHub Actions"
+
+          git commit -m "$COMMIT_MSG"
+          git push https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git ${TARGET_BRANCH}
+
+          echo "✅ Pushed to ${TARGET_REPO}"
+
+      - name: Wait for GitHub Pages deployment
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          echo "⏳ GitHub Pages will deploy in 2-3 minutes"
+          echo "📍 Live URL: https://zantara.balizero.com/"
+          sleep 10
+
+      - name: Verify deployment
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          echo "🔍 Verifying deployment..."
+
+          # Wait max 3 minutes for deployment
+          for i in {1..18}; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://zantara.balizero.com/)
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ GitHub Pages is live (HTTP $HTTP_CODE)"
+
+              # Check if our commit marker is present
+              TIMESTAMP=$(curl -s https://zantara.balizero.com/ | grep -o "Deployed: [0-9-]* [0-9:]* UTC" | head -1)
+              if [ -n "$TIMESTAMP" ]; then
+                echo "✅ Deployment verified: $TIMESTAMP"
+              fi
+              break
+            fi
+            echo "⏳ Waiting for deployment... ($i/18)"
+            sleep 10
+          done
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## 📊 Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_changes.outputs.has_changes }}" = "true" ]; then
+            echo "✅ **Status**: Webapp synced successfully" >> $GITHUB_STEP_SUMMARY
+            echo "📍 **Live URL**: https://zantara.balizero.com/" >> $GITHUB_STEP_SUMMARY
+            echo "🔗 **Source**: [\`${GITHUB_SHA:0:7}\`](https://github.com/${{ github.repository }}/commit/${GITHUB_SHA})" >> $GITHUB_STEP_SUMMARY
+            echo "⏱️ **Deployed**: $(date -u +"%Y-%m-%d %H:%M UTC")" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ **Status**: No changes to sync" >> $GITHUB_STEP_SUMMARY
+          fi
