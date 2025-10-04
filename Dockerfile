@@ -29,7 +29,7 @@ RUN if [ "$NPM_IGNORE_SCRIPTS" = "true" ]; then npm ci --omit=dev --ignore-scrip
 
 # Bring compiled output and runtime assets
 COPY --from=builder /app/dist ./dist
-COPY openapi-v520-custom-gpt.yaml ./openapi-v520-custom-gpt.yaml
+COPY --from=builder /app/openapi-v520-custom-gpt.yaml ./openapi-v520-custom-gpt.yaml
 # Copy runtime files for unified architecture
 COPY --from=builder /app/bridge.js ./
 COPY --from=builder /app/cache.js ./
