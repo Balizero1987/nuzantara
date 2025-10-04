@@ -1,0 +1,13 @@
+{
+  "name": "@nuzantara/assets",
+  "version": "5.2.0",
+  "private": true,
+  "description": "Brand assets - logos, icons (SVG, PNG)",
+  "files": [
+    "*.svg",
+    "*.png"
+  ],
+  "scripts": {
+    "showcase": "python3 -m http.server 8003"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@nuzantara/tools",
+  "version": "5.2.0",
+  "private": true,
+  "description": "Developer tools - OAuth2 refresh, testing utilities",
+  "scripts": {
+    "refresh-tokens": "node refresh-oauth2-tokens.mjs",
+    "test:drive": "node test-drive-complete.mjs",
+    "test:production": "node test-v520-production.mjs"
+  },
+  "keywords": [
+    "oauth2",
+    "testing",
+    "utilities"
+  ]
+}
