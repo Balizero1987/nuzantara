@@ -60,7 +60,7 @@ memory_service: Optional[MemoryService] = None
 conversation_service: Optional[ConversationService] = None
 emotional_service: Optional[EmotionalAttunementService] = None
 capabilities_service: Optional[CollaborativeCapabilitiesService] = None
-reranker_service: Optional[RerankerService] = None
+reranker_service: Optional["RerankerService"] = None  # String annotation for lazy import
 
 # System prompt
 SYSTEM_PROMPT = """You are ZANTARA (NUZANTARA AI), an intelligent assistant with access to a dual knowledge base system:
