@@ -8,6 +8,8 @@ export default {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^tests/(.*)$': '<rootDir>/tests/$1',
   },
+  resolver: undefined,
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   modulePathIgnorePatterns: [
     '<rootDir>/src/middleware/monitoring.ts',
   ],

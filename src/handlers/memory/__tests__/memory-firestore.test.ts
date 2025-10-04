@@ -3,26 +3,35 @@
  * Tests user memory storage, retrieval, and search
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
-// Mock Firestore before imports
+// Mock Firestore completely
 const mockFirestoreGet = jest.fn();
 const mockFirestoreSet = jest.fn();
 const mockFirestoreDoc = jest.fn();
 const mockFirestoreCollection = jest.fn();
+const mockFirestoreWhere = jest.fn();
+const mockFirestoreLimit = jest.fn();
 
-jest.unstable_mockModule('../../services/firebase.js', () => ({
-  getFirestore: jest.fn(() => ({
-    collection: mockFirestoreCollection.mockReturnThis(),
-    doc: mockFirestoreDoc.mockReturnThis(),
+// Mock firebase service
+const mockGetFirestore = jest.fn(() => ({
+  collection: mockFirestoreCollection.mockReturnValue({
+    doc: mockFirestoreDoc.mockReturnValue({
+      get: mockFirestoreGet,
+      set: mockFirestoreSet,
+    }),
+    where: mockFirestoreWhere,
+    limit: mockFirestoreLimit,
     get: mockFirestoreGet,
-    set: mockFirestoreSet,
-  })),
+  }),
 }));
 
-const { memorySave, memorySearch, memoryRetrieve, memoryList } = await import(
-  '../memory-firestore.js'
-);
+jest.mock('@/services/firebase', () => ({
+  getFirestore: mockGetFirestore,
+}));
+
+// Import handlers after mocking
+import { memorySave, memorySearch, memoryRetrieve, memoryList } from '@/handlers/memory/memory-firestore';
 
 describe('Memory Firestore Handler', () => {
   beforeEach(() => {
@@ -270,7 +279,7 @@ describe('Memory Firestore Handler', () => {
       const result = await memorySearch(params);
 
       expect(result.ok).toBe(true);
-      expect(result.data).toHaveProperty('results');
+      expect(result.data).toHaveProperty('memories');
     });
 
     it('should filter by userId when provided', async () => {
@@ -321,7 +330,7 @@ describe('Memory Firestore Handler', () => {
       expect(result.ok).toBe(true);
       expect(result.data).toHaveProperty('facts');
       expect(result.data).toHaveProperty('summary');
-      expect(result.data).toHaveProperty('count');
+      expect(result.data).toHaveProperty('total_facts');
     });
 
     it('should require userId', async () => {
@@ -341,7 +350,7 @@ describe('Memory Firestore Handler', () => {
 
       expect(result.ok).toBe(true);
       expect(result.data.facts).toEqual([]);
-      expect(result.data.count).toBe(0);
+      expect(result.data.total_facts).toBe(0);
     });
   });
 

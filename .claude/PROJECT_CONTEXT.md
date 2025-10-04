@@ -1,6 +1,6 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-04 00:15 (m24: Memory fixes, WebSocket, bug fixes, RAG Pydantic)
+> **Last Updated**: 2025-10-05 03:25 (Verification audit: handler count + location fixes)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 
 ---
@@ -9,8 +9,8 @@
 
 **Name**: ZANTARA (NUZANTARA)
 **Version**: v5.2.0
-**Location**: `/Users/antonellosiano/Desktop/NUZANTARA/`
-**Repository**: https://github.com/Balizero1987/zantara_webapp
+**Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
+**Repository**: https://github.com/Balizero1987/nuzantara
 **Status**: Production (Cloud Run) + Local Development
 
 ---
@@ -20,17 +20,17 @@
 ### **1. TypeScript Backend** (Main API)
 - **Language**: Node.js + TypeScript
 - **Framework**: Express.js
-- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA/`
+- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
 - **Production URL**: https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app
 - **Port**: 8080
-- **Handlers**: 136 handlers (RPC-style `/call` endpoint)
+- **Handlers**: 96 handlers (RPC-style `/call` endpoint)
 - **Entry Point**: `dist/index.js`
 - **Docker**: `Dockerfile.dist`
 
 ### **2. Python RAG Backend** (AI/Search)
 - **Language**: Python 3.11
 - **Framework**: FastAPI
-- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA/zantara-rag/backend/`
+- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/apps/backend-rag 2/backend/`
 - **Production URL**: https://zantara-rag-backend-himaadsxua-ew.a.run.app
 - **Port**: 8000
 - **Database**: ChromaDB (12,907 embeddings, 325MB, local only)
@@ -94,22 +94,21 @@ ANTHROPIC_API_KEY=sk-ant-...
 ## 🗂️ Key Directories
 
 ```
-NUZANTARA/
+NUZANTARA-2/
 ├── dist/                    # TypeScript compiled output
 ├── src/                     # TypeScript source
-├── routes/                  # API routes
-├── handlers/                # 136 business logic handlers
+│   └── handlers/            # 96 business logic handlers (71 files)
 ├── middleware/              # Auth, monitoring, validation
 ├── static/                  # Frontend HTML files
-├── zantara_webapp/          # GitHub Pages source
-│   ├── js/api-config.js     # **CRITICAL**: API endpoint config
-│   └── static/
-├── zantara-rag/
-│   └── backend/
-│       ├── app/             # FastAPI app
-│       ├── services/        # ChromaDB, search
-│       ├── kb/              # Knowledge base (214 books, 239 PDFs)
-│       └── data/chroma_db/  # ChromaDB (local only, 325MB)
+├── apps/
+│   └── backend-rag 2/       # Python RAG backend
+│       └── backend/
+│           ├── app/         # FastAPI app
+│           ├── services/    # ChromaDB, search
+│           └── kb/          # Knowledge base (214 books, 239 PDFs)
+├── scripts/
+│   └── deploy/              # 6 deployment scripts (546 lines)
+├── .github/workflows/       # 3 CI/CD workflows (337 lines)
 └── .claude/                 # Session system (diaries, handovers)
 ```
 
@@ -137,14 +136,15 @@ gcloud run deploy zantara-v520-nuzantara \
 ### **RAG Backend**
 ```bash
 # Local dev
-cd zantara-rag/backend
+cd apps/backend-rag\ 2/backend
 uvicorn app.main_integrated:app --port 8000 --reload
 
-# Docker
-docker buildx build --platform linux/amd64 \
-  -t gcr.io/involuted-box-469105-r0/zantara-rag-backend:TAG .
+# Docker (via GitHub Actions - AMD64)
+# Trigger: git push to apps/backend-rag 2/**
+# Workflow: .github/workflows/deploy-rag-amd64.yml
+# Auto-builds on ubuntu-latest (native AMD64)
 
-# Deploy
+# Manual deploy (if needed)
 gcloud run deploy zantara-rag-backend \
   --image gcr.io/.../zantara-rag-backend:TAG \
   --region europe-west1 \
