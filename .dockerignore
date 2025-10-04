@@ -35,7 +35,6 @@ KB/
 *.zip
 *.tar.gz
 # Additional exclusions to reduce build context
-src/
 handlers/
 routes/
 middleware/
