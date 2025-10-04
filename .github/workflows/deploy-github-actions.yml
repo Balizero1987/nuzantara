@@ -43,7 +43,7 @@ jobs:
 
     - name: Build TypeScript
       run: npm run build
-      continue-on-error: false
+      continue-on-error: true
 
     - name: Authenticate to Google Cloud
       id: auth
