@@ -30,21 +30,30 @@ class SearchService:
         # Use CHROMA_DB_PATH from environment (set by main_cloud.py after download)
         chroma_path = os.environ.get('CHROMA_DB_PATH', '/tmp/chroma_db')
 
-        # Initialize 5 collections (multi-domain)
+        # Initialize 8 collections (multi-domain + pricing)
         self.collections = {
+            "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing"),
             "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="visa_oracle"),
             "kbli_eye": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_eye"),
             "tax_genius": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_genius"),
             "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_architect"),
+            "kb_indonesian": ChromaDBClient(persist_directory=chroma_path, collection_name="kb_indonesian"),
+            "kbli_comprehensive": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_comprehensive"),
             "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_books")
         }
 
         # Initialize query router
         self.router = QueryRouter()
 
+        # Pricing query keywords
+        self.pricing_keywords = [
+            "price", "cost", "charge", "fee", "how much", "pricing", "rate",
+            "expensive", "cheap", "payment", "pay", "harga", "biaya", "tarif", "berapa"
+        ]
+
         logger.info(f"SearchService initialized with ChromaDB path: {chroma_path}")
-        logger.info(f"✅ Collections: 5 (visa_oracle, kbli_eye, tax_genius, legal_architect, zantara_books)")
-        logger.info(f"✅ Query routing enabled (5-way intelligent routing)")
+        logger.info(f"✅ Collections: 8 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books)")
+        logger.info(f"✅ Query routing enabled (8-way intelligent routing with pricing priority)")
 
     async def search(
         self,
@@ -71,10 +80,17 @@ class SearchService:
             # Generate query embedding
             query_embedding = self.embedder.generate_query_embedding(query)
 
+            # Detect if pricing query
+            is_pricing_query = any(kw in query.lower() for kw in self.pricing_keywords)
+
             # Route to appropriate collection
             if collection_override:
                 collection_name = collection_override
                 logger.info(f"🔧 Using override collection: {collection_name}")
+            elif is_pricing_query:
+                # Pricing query detected - prioritize pricing collection
+                collection_name = "bali_zero_pricing"
+                logger.info(f"💰 PRICING QUERY DETECTED → Using bali_zero_pricing collection")
             else:
                 collection_name = self.router.route(query)
 
