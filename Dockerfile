@@ -47,7 +47,7 @@ COPY --from=builder /app/nlu.js ./
 COPY --from=builder /app/chatbot.js ./
 COPY --from=builder /app/dist/custom-gpt-handlers.js ./custom-gpt-handlers.js
 COPY --from=builder /app/dist/user-memory-handlers.js ./user-memory-handlers.js
-COPY docker-entrypoint.sh ./docker-entrypoint.sh
+COPY scripts/utils/docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
 # Expose port
