@@ -9,9 +9,10 @@ on:
 
 env:
   PROJECT_ID: involuted-box-469105-r0
-  REGION: asia-southeast2
+  REGION: europe-west1
   SERVICE: zantara-bridge-v3
   REGISTRY: gcr.io
+  SERVICE_ACCOUNT: cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com
 
 jobs:
   deploy:
@@ -73,6 +74,7 @@ jobs:
         image: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}
         flags: |
           --allow-unauthenticated
+          --service-account=${{ env.SERVICE_ACCOUNT }}
           --memory=2Gi
           --cpu=2
           --concurrency=1000
