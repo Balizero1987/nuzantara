@@ -85,7 +85,6 @@ jobs:
           NODE_ENV=production
           GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }}
           REGION=${{ env.REGION }}
-          PORT=8080
           CORS_ORIGINS=*.balizero.com
           USE_AI_SUMMARY=true
           FIRESTORE_PROJECT_ID=involuted-box-469105-r0
