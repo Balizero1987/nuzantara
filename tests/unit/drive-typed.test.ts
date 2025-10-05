@@ -24,5 +24,21 @@ describe('Drive handler typed shapes', () => {
     expect(res.data.file).toHaveProperty('id', 'f1');
     expect(res.data.readable).toBe(true);
   });
-});
 
+  test('drive.read non-text returns readable=false', async () => {
+    jest.resetModules();
+    jest.doMock('../../src/services/google-auth-service.js', () => ({
+      getDrive: async () => ({
+        files: {
+          get: jest.fn().mockResolvedValue({ data: { id: 'f2', name: 'file.pdf', mimeType: 'application/pdf', webViewLink: '#' } })
+        }
+      })
+    }));
+
+    const { driveRead } = await import('../../src/handlers/google-workspace/drive.js');
+    const res = await driveRead({ fileId: 'f2' } as any);
+    expect(res.ok).toBe(true);
+    expect(res.data.readable).toBe(false);
+    expect(res.data.content).toBeNull();
+  });
+});

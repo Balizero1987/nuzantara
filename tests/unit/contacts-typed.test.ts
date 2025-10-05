@@ -46,4 +46,8 @@ describe('Contacts handler typed shapes', () => {
     expect(res.data.contact).toHaveProperty('created', true);
     expect(res.data.contact).toHaveProperty('name', 'Zainal');
   });
+
+  test('contacts.create rejects when both name and email are missing', async () => {
+    await expect(contactsCreate({} as any)).rejects.toThrow('Either name or email is required');
+  });
 });
