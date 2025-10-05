@@ -99,7 +99,7 @@ import {
 import { memorySave, memorySearch, memoryRetrieve, memoryList, memorySearchByEntity, memoryGetEntities, memoryEntityInfo, memorySearchSemantic, memorySearchHybrid } from "./handlers/memory/memory-firestore.js";
 import { memoryEventSave, memoryTimelineGet, memoryEntityEvents } from "./handlers/memory/episodes-firestore.js";
 import { autoSaveConversation } from "./handlers/memory/conversation-autosave.js";
-import { userMemoryHandlers } from "./legacy-js/user-memory-handlers.js";
+import { userMemorySave, userMemoryRetrieve, userMemoryList, userMemoryLogin } from "./handlers/memory/user-memory.js";
 
 // Maps
 import { mapsDirections, mapsPlaces, mapsPlaceDetails } from "./handlers/maps/maps.js";
@@ -627,8 +627,11 @@ const handlers: Record<string, Handler> = {
    */
   "memory.search.hybrid": memorySearchHybrid,
 
-  // User Memory handlers (team members)
-  ...userMemoryHandlers,
+  // User Memory handlers (team members) - TS implementation
+  'user.memory.save': userMemorySave,
+  'user.memory.retrieve': userMemoryRetrieve,
+  'user.memory.list': userMemoryList,
+  'user.memory.login': userMemoryLogin,
 
   // Translation handlers - NEW!
   ...translateHandlers,

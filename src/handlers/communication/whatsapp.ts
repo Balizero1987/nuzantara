@@ -369,27 +369,34 @@ async function shouldZantaraRespond(params: any): Promise<{ respond: boolean; re
 /**
  * Send intelligent response using ZANTARA AI
  */
-async function sendIntelligentResponse(to: string, userMessage: string, context: any) {
-  try {
-    // Retrieve user memory
-    const memoryRes: any = await memorySearch({
-      userId: to,
-      query: userMessage,
-      limit: 3
-    });
-
-    // Build context-aware prompt
-    const prompt = `You are ZANTARA, Bali Zero's AI assistant for Indonesian business setup, visas, and tax.
+export function buildWhatsappPrompt(context: any, recentContext: string, userMessage: string) {
+  return `You are ZANTARA, Bali Zero's AI assistant for Indonesian business setup, visas, and tax.
 
 User: ${context.userName}
 ${context.isGroup ? `Group: ${context.groupId}` : '1-to-1 chat'}
-Sentiment: ${context.sentiment.label} (${context.sentiment.score}/10)
+Sentiment: ${context.sentiment?.label} (${context.sentiment?.score}/10)
 
-Recent context: ${memoryRes?.data?.summary || 'No previous context'}
+Recent context: ${recentContext}
 
 User message: "${userMessage}"
 
 Respond professionally in the user's language (ID/EN/IT). Be concise for WhatsApp (max 2 paragraphs). Include relevant info about KBLI, PT PMA, KITAS, or pricing if asked.`;
+}
+
+async function sendIntelligentResponse(to: string, userMessage: string, context: any) {
+  try {
+    // Retrieve user memory
+    const memoryRes: { ok: boolean; data?: { memories?: Array<{ content?: string }>; count?: number; query?: string } } = await memorySearch({
+      userId: to,
+      query: userMessage,
+      limit: 3
+    });
+    const recentContext = Array.isArray(memoryRes?.data?.memories) && memoryRes.data!.memories!.length > 0
+      ? memoryRes.data!.memories!.map((m: any) => m?.content).filter(Boolean).slice(0, 3).join(' | ')
+      : 'No previous context';
+
+    // Build context-aware prompt
+    const prompt = buildWhatsappPrompt(context, recentContext, userMessage);
 
     const aiResponse = await aiChat({
       prompt,
