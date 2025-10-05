@@ -1,0 +1,26 @@
+# Bali Intel Scraper - Python Dependencies
+
+# HTTP & Web Scraping
+requests==2.31.0
+beautifulsoup4==4.12.3
+lxml==5.1.0
+html5lib==1.1
+
+# Dynamic content (JavaScript sites)
+playwright==1.40.0
+
+# Data processing
+pandas==2.1.4
+python-dateutil==2.8.2
+
+# ChromaDB integration
+chromadb==0.4.22
+
+# Utilities
+python-dotenv==1.0.0
+tqdm==4.66.1
+
+# Optional: Social media scraping
+# Note: Requires additional setup/API keys
+# tweepy==4.14.0
+# praw==7.7.1

@@ -1384,4 +1384,41 @@ export function attachRoutes(app: import("express").Express) {
     return twilioSendWhatsapp(req, res);
   });
 
+  // ========================================
+  // INTEL NEWS SEARCH (Bali Intelligence)
+  // ========================================
+
+  app.post("/intel.news.search", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const { intelNewsSearch } = await import("./handlers/intel/news-search");
+      const result = await intelNewsSearch(req.body);
+      return res.status(200).json(result);
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  app.post("/intel.news.critical", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const { intelNewsGetCritical } = await import("./handlers/intel/news-search");
+      const result = await intelNewsGetCritical(req.body);
+      return res.status(200).json(result);
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  app.post("/intel.news.trends", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const { intelNewsGetTrends } = await import("./handlers/intel/news-search");
+      const result = await intelNewsGetTrends(req.body);
+      return res.status(200).json(result);
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
 }
