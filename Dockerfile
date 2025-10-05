@@ -27,27 +27,26 @@ ARG NPM_IGNORE_SCRIPTS=false
 COPY package*.json ./
 RUN if [ "$NPM_IGNORE_SCRIPTS" = "true" ]; then npm ci --omit=dev --ignore-scripts; else npm ci --omit=dev; fi
 
-# Bring compiled output and runtime assets
+# Bring compiled output (tsc generates full dist/ tree)
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/openapi-v520-custom-gpt.yaml ./openapi-v520-custom-gpt.yaml
-# Copy runtime files for unified architecture
-COPY --from=builder /app/bridge.js ./
-COPY --from=builder /app/cache.js ./
-COPY --from=builder /app/dist/handlers.js ./handlers.js
-COPY --from=builder /app/zantara-v2-key.json ./
-# Copy utils directory for Bridge dependencies
-COPY --from=builder /app/utils ./utils
-# Copy OAuth2 tokens (if exists)
-COPY --from=builder /app/oauth2-tokens.json ./
-# Copy additional runtime dependencies
-COPY --from=builder /app/memory.js ./
-COPY --from=builder /app/config.js ./
-COPY --from=builder /app/openaiClient.js ./
-COPY --from=builder /app/nlu.js ./
-COPY --from=builder /app/chatbot.js ./
-COPY --from=builder /app/dist/custom-gpt-handlers.js ./custom-gpt-handlers.js
-COPY --from=builder /app/dist/user-memory-handlers.js ./user-memory-handlers.js
-COPY --from=builder /app/scripts/utils/docker-entrypoint.sh ./docker-entrypoint.sh
+
+# Copy runtime assets
+COPY --from=builder /app/openapi-v520-custom-gpt.yaml* ./
+COPY --from=builder /app/zantara-v2-key.json* ./
+COPY --from=builder /app/oauth2-tokens.json* ./
+
+# Copy legacy JS files if they exist
+COPY --from=builder /app/bridge.js* ./
+COPY --from=builder /app/cache.js* ./
+COPY --from=builder /app/memory.js* ./
+COPY --from=builder /app/config.js* ./
+COPY --from=builder /app/openaiClient.js* ./
+COPY --from=builder /app/nlu.js* ./
+COPY --from=builder /app/chatbot.js* ./
+COPY --from=builder /app/utils* ./utils/
+
+# Copy entrypoint
+COPY --from=builder /app/scripts/utils/docker-entrypoint.sh* ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
 # Expose port
