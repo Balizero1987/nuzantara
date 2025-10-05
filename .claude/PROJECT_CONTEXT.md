@@ -1,6 +1,6 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-05 00:25 (Memory vector integration + RAG_BACKEND_URL setup)
+> **Last Updated**: 2025-10-05 06:42 (Webapp deployment fix - login screen restored)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 
 ---
@@ -43,14 +43,16 @@
 - **Language**: HTML/CSS/JavaScript (vanilla)
 - **Source Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/apps/webapp/`
 - **Production URL**: https://zantara.balizero.com (GitHub Pages)
-- **Alt URL**: https://balizero1987.github.io/zantara_webapp
+- **Entry Point**: `index.html` → auto-redirect → `login.html`
 - **Deploy Method**: Auto-sync via GitHub Actions
   - Source: `apps/webapp/` (monorepo)
   - Target: `Balizero1987/zantara_webapp` repo
   - Workflow: `.github/workflows/sync-webapp-to-pages.yml`
   - Deploy time: 3-4 min (automatic on push)
 - **Main Files**:
-  - `apps/webapp/index.html` (synced to GitHub Pages)
+  - `apps/webapp/index.html` → redirect to login
+  - `apps/webapp/login.html` → ZANTARA authentication
+  - `apps/webapp/dashboard.html` → main app
   - `apps/webapp/js/api-config.js` (API endpoint configuration)
 
 ---
@@ -73,7 +75,7 @@
 - **Branch**: `main`
 - **Status**: ✅ **ACTIVE** (auto-sync enabled)
 - **Live URL**: https://zantara.balizero.com
-- **Alt URL**: https://balizero1987.github.io/zantara_webapp
+- **Entry**: `index.html` (auto-redirect to `login.html`)
 - **Deploy**: Automatic via `.github/workflows/sync-webapp-to-pages.yml` (3-4 min)
 
 ---
