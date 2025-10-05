@@ -23,5 +23,11 @@ describe('Slides handler typed shapes', () => {
     expect(res.data.presentation).toHaveProperty('presentationId');
     expect(Array.isArray(res.data.slides)).toBe(true);
   });
-});
 
+  test('slides.update returns ApiSuccess with replies/writeControl', async () => {
+    const res = await slidesUpdate({ presentationId: 'p1', requests: [] } as any);
+    expect(res.ok).toBe(true);
+    expect(res.data).toHaveProperty('presentationId', 'p1');
+    expect(Array.isArray(res.data.replies)).toBe(true);
+  });
+});
