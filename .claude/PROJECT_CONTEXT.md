@@ -1,6 +1,6 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-05 03:25 (Verification audit: handler count + location fixes)
+> **Last Updated**: 2025-10-05 00:25 (Memory vector integration + RAG_BACKEND_URL setup)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 
 ---
@@ -21,11 +21,12 @@
 - **Language**: Node.js + TypeScript
 - **Framework**: Express.js
 - **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
-- **Production URL**: https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app
+- **Production URL**: https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app
 - **Port**: 8080
-- **Handlers**: 96 handlers (RPC-style `/call` endpoint)
+- **Handlers**: 104 handlers (RPC-style `/call` endpoint)
 - **Entry Point**: `dist/index.js`
 - **Docker**: `Dockerfile.dist`
+- **Deploy**: GitHub Actions (`.github/workflows/deploy-backend.yml`)
 
 ### **2. Python RAG Backend** (AI/Search)
 - **Language**: Python 3.11
@@ -33,18 +34,24 @@
 - **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/apps/backend-rag 2/backend/`
 - **Production URL**: https://zantara-rag-backend-himaadsxua-ew.a.run.app
 - **Port**: 8000
-- **Database**: ChromaDB (12,907 embeddings, 325MB, local only)
+- **Database**: ChromaDB (7,375 docs, 88.2 MB - deployed to GCS)
 - **AI Models**: Anthropic Claude (Haiku/Sonnet routing)
 - **Entry Point**: `app/main_cloud.py` (prod), `app/main_integrated.py` (local)
+- **Deploy**: GitHub Actions (`.github/workflows/deploy-rag-amd64.yml`)
 
 ### **3. Frontend** (Web UI)
 - **Language**: HTML/CSS/JavaScript (vanilla)
-- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA/zantara_webapp/`
-- **Production URL**: https://balizero1987.github.io/zantara_webapp
-- **Custom Domain**: https://zantara.balizero.com (⚠️ GitHub Pages not enabled yet)
+- **Source Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/apps/webapp/`
+- **Production URL**: https://zantara.balizero.com (GitHub Pages)
+- **Alt URL**: https://balizero1987.github.io/zantara_webapp
+- **Deploy Method**: Auto-sync via GitHub Actions
+  - Source: `apps/webapp/` (monorepo)
+  - Target: `Balizero1987/zantara_webapp` repo
+  - Workflow: `.github/workflows/sync-webapp-to-pages.yml`
+  - Deploy time: 3-4 min (automatic on push)
 - **Main Files**:
-  - `static/zantara-production.html`
-  - `js/api-config.js` (API endpoint configuration)
+  - `apps/webapp/index.html` (synced to GitHub Pages)
+  - `apps/webapp/js/api-config.js` (API endpoint configuration)
 
 ---
 
@@ -58,15 +65,16 @@
 ### **Cloud Run Services**
 | Service | URL | Port | Status |
 |---------|-----|------|--------|
-| TypeScript Backend | https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app | 8080 | ✅ Running |
-| RAG Backend | https://zantara-rag-backend-himaadsxua-ew.a.run.app | 8000 | ⚠️ Running (search endpoint broken) |
+| TypeScript Backend | https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app | 8080 | ✅ Running (v5.2.0, 104 handlers) |
+| RAG Backend | https://zantara-rag-backend-himaadsxua-ew.a.run.app | 8000 | ✅ Running (v2.3.0-reranker, all endpoints passing) |
 
 ### **GitHub Pages**
 - **Repository**: https://github.com/Balizero1987/zantara_webapp
 - **Branch**: `main`
-- **Status**: ⚠️ **NOT ENABLED YET** (pending manual action)
-- **Expected URL**: https://balizero1987.github.io/zantara_webapp
-- **Custom Domain**: zantara.balizero.com (DNS configured, Pages disabled)
+- **Status**: ✅ **ACTIVE** (auto-sync enabled)
+- **Live URL**: https://zantara.balizero.com
+- **Alt URL**: https://balizero1987.github.io/zantara_webapp
+- **Deploy**: Automatic via `.github/workflows/sync-webapp-to-pages.yml` (3-4 min)
 
 ---
 
@@ -179,11 +187,12 @@ cd zantara_webapp
 
 > **⚠️ UPDATE THIS** at end of session if major changes
 
-**Last Deployment**: 2025-10-01 18:00
-**Backend Health**: ✅ Passing
-**RAG Health**: ✅ Passing
-**ChromaDB**: 12,907 embeddings (local only, not in production)
-**GitHub Pages**: ⚠️ Not enabled (pending)
+**Last Deployment**: 2025-10-05 00:00 UTC
+**Backend**: ✅ v5.2.0 (revision 00043-nrf, deployed 22:22 UTC)
+**RAG**: ✅ v2.3.0-reranker (revision 00068-nvn, deployed 23:31 UTC)
+**Webapp**: ✅ Auto-sync active (deployed 23:49 UTC)
+**ChromaDB**: 7,375 docs, 88.2 MB (deployed to GCS: `gs://nuzantara-chromadb-2025/chroma_db/`)
+**GitHub Pages**: ✅ Active (auto-sync on every webapp push)
 **Ollama**: Installed locally (llama3.2:3b, 2GB) but **UNUSED** (can be removed)
 
 ---

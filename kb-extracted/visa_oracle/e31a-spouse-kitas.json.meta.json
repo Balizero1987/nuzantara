@@ -1,0 +1,11 @@
+{
+  "title": "E31A Spouse Kitas",
+  "content_type": "reference",
+  "last_updated": "2025-10-03",
+  "domain": "visa",
+  "tags": "visa,limited-stay,kitas",
+  "version": "1.0",
+  "collection": "visa_oracle",
+  "sources": "",
+  "filename": "e31a-spouse-kitas.json"
+}

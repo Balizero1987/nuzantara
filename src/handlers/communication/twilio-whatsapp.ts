@@ -103,14 +103,13 @@ export async function twilioSendWhatsapp(req: any, res: any) {
     const whatsappTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
 
     const result = await sendTwilioWhatsapp(whatsappTo, message);
-
-    return ok(res, {
+    return res.status(200).json(ok({
       success: true,
       messageSid: result.sid,
       to: whatsappTo,
-    });
+    }));
   } catch (error: any) {
     console.error('❌ Twilio send error:', error);
-    return err(res, error.message, 500);
+    return res.status(500).json(err(error.message));
   }
 }

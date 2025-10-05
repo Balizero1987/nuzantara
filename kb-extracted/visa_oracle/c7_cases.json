@@ -1,0 +1,87 @@
+{
+  "metadata": {
+    "title": "C7 Professional Event — Case Studies",
+    "description": "Professional events (30 days, non‑extendable)",
+    "visaCode": "C7",
+    "lastUpdated": "2025-10-02"
+  },
+  "case1_yoga_instructor_retreat": {
+    "title": "Yoga instructor — 2‑week retreat",
+    "clientProfile": {
+      "nationality": "US",
+      "event": "Bali Wellness Retreat",
+      "days": 14
+    },
+    "selectedOption": "C7 (30 giorni)",
+    "requirements": [
+      "Event organizer invitation",
+      "Event program"
+    ],
+    "costs": {
+      "baliZeroServiceIDR": {
+        "initial": 5000000
+      }
+    },
+    "pitfalls": [
+      "Non‑extendable",
+      "Event scope only"
+    ]
+  },
+  "case2_chef_guest_shift": {
+    "title": "Guest chef — 10‑day guest shift",
+    "clientProfile": {
+      "nationality": "JP",
+      "venue": "Resort 5*",
+      "days": 10
+    },
+    "selectedOption": "C7 (30 giorni)"
+  },
+  "quickSummary": {
+    "service": "C7: 5.0M IDR",
+    "work": "Event activities only; no employment"
+  }
+}
+
+{
+  "metadata": {
+    "title": "C7 Professional Event — Case Studies",
+    "description": "Professional events (30 days, non‑extendable)",
+    "visaCode": "C7",
+    "lastUpdated": "2025-10-02"
+  },
+  "case1_yoga_instructor_retreat": {
+    "title": "Yoga instructor — 2‑week retreat",
+    "clientProfile": {
+      "nationality": "US",
+      "event": "Bali Wellness Retreat",
+      "days": 14
+    },
+    "selectedOption": "C7 (30 giorni)",
+    "requirements": [
+      "Event organizer invitation",
+      "Event program"
+    ],
+    "costs": {
+      "baliZeroServiceIDR": {
+        "initial": 5000000
+      }
+    },
+    "pitfalls": [
+      "Non‑extendable",
+      "Event scope only"
+    ]
+  },
+  "case2_chef_guest_shift": {
+    "title": "Guest chef — 10‑day guest shift",
+    "clientProfile": {
+      "nationality": "JP",
+      "venue": "Resort 5*",
+      "days": 10
+    },
+    "selectedOption": "C7 (30 giorni)"
+  },
+  "quickSummary": {
+    "service": "C7: 5.0M IDR",
+    "work": "Event activities only; no employment"
+  }
+}

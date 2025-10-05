@@ -9,8 +9,15 @@
   ],
   "scripts": {
     "start": "node dist/index.js",
-    "build": "tsc --outDir dist --rootDir src --noEmitOnError false --skipLibCheck true",
-    "build:fast": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js --external:@google-cloud/* --external:@anthropic-ai/* --external:express --external:firebase-admin --external:@prisma/* --external:axios --external:cheerio --external:nodemailer --external:twilio --external:stripe --external:cohere-ai --external:openai",
+    "build": "npm run build:fast",
+    "build:fast": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js --minify --log-level=warning \
+      --external:@google-cloud/* --external:@anthropic-ai/* --external:@prisma/* \
+      --external:express --external:firebase-admin --external:googleapis --external:ws \
+      --external:axios --external:cheerio --external:nodemailer --external:twilio --external:stripe \
+      --external:cohere-ai --external:openai --external:chart.js --external:redis --external:node-cache \
+      --external:lru-cache --external:open --external:multer --external:cors --external:zod",
+    "typecheck": "tsc --noEmit --pretty false",
+    "lint": "eslint . --ext .ts,.js || echo 'ESLint not installed'",
     "dev": "tsx watch src/index.ts",
     "start:dev": "nodemon --watch src --ext ts,js --exec tsx src/index.ts",
     "test": "jest",

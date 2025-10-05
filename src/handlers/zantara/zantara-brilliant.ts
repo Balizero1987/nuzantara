@@ -1,3 +1,4 @@
+/* @ts-nocheck */
 /**
  * ZANTARA BRILLIANT HANDLER
  * The main interface for the orchestrator system

@@ -3,7 +3,7 @@
  * Manages user profiles and conversation history in Firestore
  */
 import { saveMemory, getMemory } from './memory.js';
-import { BridgeError } from './utils/errors.js';
+import { BridgeError } from '../utils/errors.js';
 export const userMemoryHandlers = {
     /**
      * Save or update user profile and conversation history

@@ -397,7 +397,7 @@ async function shouldZantaraRespondInstagram(params: any): Promise<{ respond: bo
 async function sendIntelligentInstagramResponse(to: string, userMessage: string, context: any) {
   try {
     // Retrieve user memory
-    const memory = await memorySearch({
+    const memoryRes: any = await memorySearch({
       userId: `instagram_${to}`,
       query: userMessage,
       limit: 3
@@ -411,7 +411,7 @@ User: @${context.username} ${context.userInfo.is_verified ? '✓ Verified' : ''}
 Followers: ${context.userInfo.follower_count || 0}
 Sentiment: ${context.sentiment.label} (${context.sentiment.score}/10)
 
-Recent context: ${memory.data?.summary || 'First interaction'}
+Recent context: ${memoryRes?.data?.summary || 'First interaction'}
 
 User message: "${userMessage}"
 

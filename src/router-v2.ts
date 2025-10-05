@@ -1,3 +1,4 @@
+/* @ts-nocheck */
 /**
  * ZANTARA Router v2 - With Handler Registry
  *

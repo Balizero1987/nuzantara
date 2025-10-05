@@ -248,7 +248,7 @@ app.post('/proxy/claude', async (req, res) => {
     }
 
     // Forward to Claude handler
-    const { claudeChat } = await import('./handlers/ai.js');
+    const { claudeChat } = await import('./handlers/ai-services/ai.js');
     const result = await claudeChat({
       message,
       temperature,
@@ -278,7 +278,7 @@ app.post('/proxy/gemini', async (req, res) => {
     }
 
     // Forward to Gemini handler
-    const { geminiChat } = await import('./handlers/ai.js');
+    const { geminiChat } = await import('./handlers/ai-services/ai.js');
     const result = await geminiChat({
       message,
       temperature,
@@ -308,7 +308,7 @@ app.post('/proxy/cohere', async (req, res) => {
     }
 
     // Forward to Cohere handler
-    const { cohereChat } = await import('./handlers/ai.js');
+    const { cohereChat } = await import('./handlers/ai-services/ai.js');
     const result = await cohereChat({
       message,
       temperature,

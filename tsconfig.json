@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "node",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM"],
     "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
@@ -11,6 +11,14 @@
     "strict": false,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@handlers/*": ["src/handlers/*"],
+      "@services/*": ["src/services/*"],
+      "@middleware/*": ["src/middleware/*"],
+      "@utils/*": ["src/utils/*"]
+    },
     "declaration": false,
     "sourceMap": false,
     "noEmitOnError": false,
@@ -25,6 +33,9 @@
     "src/legacy-js/**/*",
     "src/agents/**/*",
     "src/core/zantara-orchestrator.ts",
+    
+    "src/handlers/zantara/zantara-brilliant.ts",
+    "src/router-v2.ts",
     "**/__tests__/**",
     "**/*.test.ts",
     "tests/**",

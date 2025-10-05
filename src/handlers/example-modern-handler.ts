@@ -17,7 +17,7 @@ export async function sendEmailV2(params: any, req?: any) {
   const { to, subject, body } = params;
 
   if (!to || !subject || !body) {
-    return err("missing_params", "to, subject, and body are required");
+    return err("missing_params: to, subject, and body are required");
   }
 
   // TODO: Implement actual Gmail API call
@@ -56,7 +56,7 @@ export async function kbliLookupV2(params: any, req?: any) {
   const { code, query } = params;
 
   if (!code && !query) {
-    return err("missing_params", "Either 'code' or 'query' is required");
+    return err("missing_params: Either 'code' or 'query' is required");
   }
 
   // TODO: Implement KBLI database lookup

@@ -372,7 +372,7 @@ async function shouldZantaraRespond(params: any): Promise<{ respond: boolean; re
 async function sendIntelligentResponse(to: string, userMessage: string, context: any) {
   try {
     // Retrieve user memory
-    const memory = await memorySearch({
+    const memoryRes: any = await memorySearch({
       userId: to,
       query: userMessage,
       limit: 3
@@ -385,7 +385,7 @@ User: ${context.userName}
 ${context.isGroup ? `Group: ${context.groupId}` : '1-to-1 chat'}
 Sentiment: ${context.sentiment.label} (${context.sentiment.score}/10)
 
-Recent context: ${memory.data?.summary || 'No previous context'}
+Recent context: ${memoryRes?.data?.summary || 'No previous context'}
 
 User message: "${userMessage}"
 

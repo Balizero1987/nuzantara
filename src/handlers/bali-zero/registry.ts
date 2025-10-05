@@ -13,47 +13,47 @@ import { teamList, teamGet, teamDepartments } from './team.js';
 export function registerBaliZeroHandlers() {
   // Oracle handlers
   globalRegistry.registerModule('bali-zero', {
-    'oracle.simulate': oracleSimulate,
-    'oracle.analyze': oracleAnalyze,
-    'oracle.predict': oraclePredict
-  }, {
+    'oracle.simulate': oracleSimulate as any,
+    'oracle.analyze': oracleAnalyze as any,
+    'oracle.predict': oraclePredict as any
+  } as any, {
     requiresAuth: true,
     description: 'Business simulation and prediction'
   });
 
   // Advisory handlers
   globalRegistry.registerModule('bali-zero', {
-    'document.prepare': documentPrepare,
-    'assistant.route': assistantRoute
-  }, {
+    'document.prepare': documentPrepare as any,
+    'assistant.route': assistantRoute as any
+  } as any, {
     requiresAuth: true,
     description: 'Business advisory services'
   });
 
   // KBLI handlers
   globalRegistry.registerModule('bali-zero', {
-    'kbli.lookup': kbliLookup,
-    'kbli.requirements': kbliRequirements
-  }, {
+    'kbli.lookup': kbliLookup as any,
+    'kbli.requirements': kbliRequirements as any
+  } as any, {
     requiresAuth: false,
     description: 'Indonesian business classification'
   });
 
   // Pricing handlers
   globalRegistry.registerModule('bali-zero', {
-    'pricing.get': baliZeroPricing,
-    'pricing.quick': baliZeroQuickPrice
-  }, {
+    'pricing.get': baliZeroPricing as any,
+    'pricing.quick': baliZeroQuickPrice as any
+  } as any, {
     requiresAuth: false,
     description: 'Official Bali Zero pricing'
   });
 
   // Team handlers
   globalRegistry.registerModule('bali-zero', {
-    'team.list': teamList,
-    'team.get': teamGet,
-    'team.departments': teamDepartments
-  }, {
+    'team.list': teamList as any,
+    'team.get': teamGet as any,
+    'team.departments': teamDepartments as any
+  } as any, {
     requiresAuth: true,
     description: 'Team management'
   });

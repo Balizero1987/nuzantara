@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kb.visa-oracle/schema/case_study.schema.json",
+  "title": "Visa Case Studies",
+  "description": "Schema for collections of visa case studies (supports both array or keyed object).",
+  "type": "object",
+  "required": [
+    "metadata"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": [
+        "title",
+        "lastUpdated"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "cases": {
+          "type": "number"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "additionalProperties": true
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Case"
+      }
+    }
+  },
+  "patternProperties": {
+    "^case[0-9]+[_a-z0-9-]*$": {
+      "$ref": "#/definitions/Case"
+    },
+    "^quickSummary$": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "Case": {
+      "type": "object",
+      "required": [
+        "title"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "clientProfile": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "visaRequirement": {
+          "type": "string"
+        },
+        "visaOptions": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "selectedOption": {
+          "type": "string"
+        },
+        "timeline": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "cost": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "costs": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "annualCost": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "financialAnalysis": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "taxImplications": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "workPermitProcess": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "baliZeroSupport": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

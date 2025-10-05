@@ -138,24 +138,19 @@ export async function claudeChat(params: any) {
     // Try RAG first for Bali Zero queries
     let ragContext = '';
     try {
-      const { ragService } = await import('../services/ragService.js');
+      const { ragService } = await import('../../services/ragService.js');
       const userInfo = userId || userEmail || userName || userIdentification;
-      const ragResult = await ragService.baliZeroChat({
+      const ragResult: any = await ragService.baliZeroChat({
         query: p,
         conversation_history: [],
         user_role: 'member'
       });
 
-      if (ragResult.ok && ragResult.data?.answer) {
+      if (ragResult?.success && ragResult?.response) {
         // RAG has complete answer, return it directly
-        const out = ok({ response: ragResult.data.answer, model: 'claude-rag', ts: Date.now(), sources: ragResult.data.sources });
+        const out = ok({ response: ragResult.response, model: ragResult.model_used || 'claude-rag', ts: Date.now(), sources: ragResult.sources });
         await setCachedAI('claude', p, out);
         return out;
-      }
-
-      // Use RAG context to enhance regular Claude response
-      if (ragResult.ok && ragResult.data?.context) {
-        ragContext = `\n\nRELEVANT INFORMATION FROM KNOWLEDGE BASE:\n${ragResult.data.context}`;
       }
     } catch (ragError) {
       console.warn('RAG fallback to direct Claude:', ragError);
@@ -196,21 +191,17 @@ export async function geminiChat(params: any) {
     // Try RAG first for Bali Zero queries
     let ragContext = '';
     try {
-      const { ragService } = await import('../services/ragService.js');
-      const ragResult = await ragService.baliZeroChat({
+      const { ragService } = await import('../../services/ragService.js');
+      const ragResult: any = await ragService.baliZeroChat({
         query: p,
         conversation_history: [],
         user_role: 'member'
       });
 
-      if (ragResult.ok && ragResult.data?.answer) {
-        const out = ok({ response: ragResult.data.answer, model: 'gemini-rag', ts: Date.now(), sources: ragResult.data.sources });
+      if (ragResult?.success && ragResult?.response) {
+        const out = ok({ response: ragResult.response, model: ragResult.model_used || 'gemini-rag', ts: Date.now(), sources: ragResult.sources });
         await setCachedAI('gemini', p, out);
         return out;
-      }
-
-      if (ragResult.ok && ragResult.data?.context) {
-        ragContext = `\n\nRELEVANT INFORMATION FROM KNOWLEDGE BASE:\n${ragResult.data.context}`;
       }
     } catch (ragError) {
       console.warn('RAG fallback:', ragError);

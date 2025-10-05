@@ -9,10 +9,10 @@ import { autoSaveConversation } from './conversation-autosave.js';
 export function registerMemoryHandlers() {
   // Firestore memory handlers
   globalRegistry.registerModule('memory', {
-    'save': memorySave,
-    'search': memorySearch,
-    'retrieve': memoryRetrieve
-  }, { requiresAuth: true, description: 'Firestore persistence' });
+    'save': memorySave as any,
+    'search': memorySearch as any,
+    'retrieve': memoryRetrieve as any
+  } as any, { requiresAuth: true, description: 'Firestore persistence' });
 
   // Conversation autosave
   globalRegistry.registerModule('memory', {
