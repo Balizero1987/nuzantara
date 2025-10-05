@@ -7,6 +7,7 @@ from typing import List, Dict, Any, Optional
 import logging
 import chromadb
 from chromadb.config import Settings as ChromaSettings
+import os
 
 try:
     from app.config import settings
@@ -36,11 +37,13 @@ class ChromaDBClient:
         """
         # Handle case where settings is None (import failed)
         if settings:
-            self.persist_directory = persist_directory or settings.chroma_persist_dir
+            # Prefer explicit argument, then env var provided by app startup, then settings
+            env_dir = os.environ.get("CHROMA_DB_PATH")
+            self.persist_directory = persist_directory or env_dir or settings.chroma_persist_dir
             self.collection_name = collection_name or settings.chroma_collection_name
         else:
             # Fallback defaults when settings unavailable
-            self.persist_directory = persist_directory or "/tmp/chroma_db"
+            self.persist_directory = persist_directory or os.environ.get("CHROMA_DB_PATH", "/tmp/chroma_db")
             self.collection_name = collection_name or "zantara_books"
 
         # Initialize Chroma client with persistence
@@ -55,7 +58,7 @@ class ChromaDBClient:
         # Get or create collection
         self.collection = self.client.get_or_create_collection(
             name=self.collection_name,
-            metadata={"description": "ZANTARA Books Knowledge Base"}
+            metadata={"description": "ZANTARA Knowledge Base"}
         )
 
         logger.info(

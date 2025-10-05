@@ -3,7 +3,36 @@ import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getDrive } from "../../services/google-auth-service.js";
 
-export async function driveUpload(params: any) {
+// === Minimal typed interfaces (Step 1 migration) ===
+export interface DriveUploadParams {
+  requestBody?: { name?: string; parents?: string[] };
+  resource?: { name?: string; parents?: string[] };
+  media?: { mimeType?: string; body?: Buffer | string };
+  fileName?: string;
+  mimeType?: string;
+  parents?: string[];
+  supportsAllDrives?: boolean;
+}
+
+export interface DriveListParams {
+  q?: string;
+  folderId?: string;
+  mimeType?: string;
+  pageSize?: number;
+  fields?: string;
+}
+
+export interface DriveSearchParams {
+  query?: string;
+  folderId?: string;
+  mimeType?: string;
+  pageSize?: number;
+  fields?: string;
+}
+
+export interface DriveReadParams { fileId: string }
+
+export async function driveUpload(params: DriveUploadParams) {
   console.log('📤 Drive upload requested with params:', {
     hasRequestBody: !!params?.requestBody,
     hasResource: !!params?.resource,
@@ -15,8 +44,8 @@ export async function driveUpload(params: any) {
   });
 
   // Support multiple parameter formats for compatibility
-  const requestBody = params?.requestBody || params?.resource || {};
-  const media = params?.media || {};
+  const requestBody: any = params?.requestBody || params?.resource || {};
+  const media: any = params?.media || {};
 
   // Handle fileName fallback
   if (params?.fileName && !requestBody.name) {
@@ -49,7 +78,7 @@ export async function driveUpload(params: any) {
   }
 
   // Handle parents parameter - can be in params or requestBody
-  const parents = params?.parents || requestBody?.parents;
+  const parents = params?.parents || (requestBody?.parents as string[] | undefined);
   const supportsAllDrives = params?.supportsAllDrives;
 
   // Target folder (shared drive) if provided
@@ -122,8 +151,8 @@ export async function driveUpload(params: any) {
   throw new BadRequestError('Drive not configured - check authentication settings');
 }
 
-export async function driveList(params: any) {
-  const { q, folderId, mimeType, pageSize = 25, fields = 'files(id,name,webViewLink,parents,size),nextPageToken' } = params || {};
+export async function driveList(params: DriveListParams) {
+  const { q, folderId, mimeType, pageSize = 25, fields = 'files(id,name,webViewLink,parents,size),nextPageToken' } = params || {} as DriveListParams;
 
   // Build query - support both direct q parameter and simplified parameters
   let query = '';
@@ -162,8 +191,8 @@ export async function driveList(params: any) {
   throw new BadRequestError('Drive not configured');
 }
 
-export async function driveSearch(params: any) {
-  const { query, folderId, mimeType, pageSize = 25, fields = 'files(id,name,webViewLink,parents,size,mimeType)' } = params || {};
+export async function driveSearch(params: DriveSearchParams) {
+  const { query, folderId, mimeType, pageSize = 25, fields = 'files(id,name,webViewLink,parents,size,mimeType)' } = params || {} as DriveSearchParams;
 
   if (!query && !folderId && !mimeType) {
     throw new BadRequestError('At least one of query, folderId, or mimeType is required');
@@ -210,8 +239,8 @@ export async function driveSearch(params: any) {
   throw new BadRequestError('Drive not configured');
 }
 
-export async function driveRead(params: any) {
-  const { fileId } = params || {};
+export async function driveRead(params: DriveReadParams) {
+  const { fileId } = params || ({} as DriveReadParams);
   if (!fileId) throw new BadRequestError('fileId is required');
 
   const drive = await getDrive();
