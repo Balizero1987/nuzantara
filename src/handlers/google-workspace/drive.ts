@@ -1,4 +1,4 @@
-import { ok } from "../../utils/response.js";
+import { ok, type ApiSuccess } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getDrive } from "../../services/google-auth-service.js";
@@ -8,6 +8,9 @@ export interface DriveUploadParams {
   requestBody?: { name?: string; parents?: string[] };
   resource?: { name?: string; parents?: string[] };
   media?: { mimeType?: string; body?: Buffer | string };
+  // Legacy-friendly fields (for callers that pass flat params)
+  name?: string;
+  body?: Buffer | string;
   fileName?: string;
   mimeType?: string;
   parents?: string[];
@@ -31,6 +34,12 @@ export interface DriveSearchParams {
 }
 
 export interface DriveReadParams { fileId: string }
+
+// === Result interfaces ===
+export interface DriveUploadResult { file: any; sharedDrive: string | null }
+export interface DriveListResult { files: any[]; nextPageToken: string | null }
+export interface DriveSearchResult { query: string; files: any[]; nextPageToken: string | null }
+export interface DriveReadResult { file: any; content: string | null; readable: boolean }
 
 export async function driveUpload(params: DriveUploadParams) {
   console.log('📤 Drive upload requested with params:', {
