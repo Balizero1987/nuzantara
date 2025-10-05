@@ -5,19 +5,42 @@ import { getCalendar } from "../../services/google-auth-service.js";
 
 // Using centralized Google authentication service
 
-export async function calendarList(params: any) {
-  const { calendarId = 'primary', timeMin, timeMax, maxResults = 25, singleEvents = true, orderBy = 'startTime' } = params || {};
+// Minimal param interfaces (Step 1 typing)
+export interface CalendarListParams {
+  calendarId?: string;
+  timeMin?: string;
+  timeMax?: string;
+  maxResults?: number;
+  singleEvents?: boolean;
+  orderBy?: 'startTime' | 'updated';
+}
+
+export interface CalendarCreateParams {
+  calendarId?: string;
+  event?: any;
+  summary?: string;
+  start?: any;
+  end?: any;
+  description?: string;
+  attendees?: Array<{ email: string; displayName?: string }>;
+  location?: string;
+}
+
+export interface CalendarGetParams { calendarId?: string; eventId: string }
+
+export async function calendarList(params: CalendarListParams) {
+  const { calendarId = 'primary', timeMin, timeMax, maxResults = 25, singleEvents = true, orderBy = 'startTime' } = params || {} as CalendarListParams;
   const cal = await getCalendar();
   if (cal) {
     const res = await cal.events.list({ calendarId, timeMin, timeMax, maxResults, singleEvents, orderBy });
     return ok({ events: res.data.items || [] });
   }
-  const bridged = await forwardToBridgeIfSupported('calendar.list', params);
+  const bridged = await forwardToBridgeIfSupported('calendar.list', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Calendar not configured');
 }
 
-export async function calendarCreate(params: any) {
+export async function calendarCreate(params: CalendarCreateParams) {
   const {
     calendarId = 'primary',
     event,
@@ -27,7 +50,7 @@ export async function calendarCreate(params: any) {
     description,
     attendees,
     location
-  } = params || {};
+  } = params || ({} as CalendarCreateParams);
 
   let requestBody = event as any;
 
@@ -49,13 +72,13 @@ export async function calendarCreate(params: any) {
     const res = await cal.events.insert({ calendarId, requestBody });
     return ok({ event: res.data });
   }
-  const bridged = await forwardToBridgeIfSupported('calendar.create', params);
+  const bridged = await forwardToBridgeIfSupported('calendar.create', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Calendar not configured');
 }
 
-export async function calendarGet(params: any) {
-  const { calendarId = 'primary', eventId } = params || {};
+export async function calendarGet(params: CalendarGetParams) {
+  const { calendarId = 'primary', eventId } = params || ({} as CalendarGetParams);
   if (!eventId) throw new BadRequestError('eventId is required');
 
   const cal = await getCalendar();
@@ -70,8 +93,7 @@ export async function calendarGet(params: any) {
       throw error;
     }
   }
-  const bridged = await forwardToBridgeIfSupported('calendar.get', params);
+  const bridged = await forwardToBridgeIfSupported('calendar.get', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Calendar not configured');
 }
-

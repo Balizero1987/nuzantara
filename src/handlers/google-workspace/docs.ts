@@ -3,7 +3,12 @@ import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getDocs } from "../../services/google-auth-service.js";
 
-export async function docsCreate(params: any) {
+// Minimal param interfaces (Step 1 typing)
+export interface DocsCreateParams { title?: string; content?: string }
+export interface DocsReadParams { documentId: string }
+export interface DocsUpdateParams { documentId: string; requests: any[] }
+
+export async function docsCreate(params: DocsCreateParams) {
   const { title = 'Untitled Document', content = '' } = params || {};
 
   const docs = await getDocs();
@@ -38,13 +43,13 @@ export async function docsCreate(params: any) {
       created: new Date().toISOString()
     });
   }
-  const bridged = await forwardToBridgeIfSupported('docs.create', params);
+  const bridged = await forwardToBridgeIfSupported('docs.create', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Docs not configured');
 }
 
-export async function docsRead(params: any) {
-  const { documentId } = params || {};
+export async function docsRead(params: DocsReadParams) {
+  const { documentId } = params || ({} as DocsReadParams);
   if (!documentId) throw new BadRequestError('documentId is required');
 
   const docs = await getDocs();
@@ -84,13 +89,13 @@ export async function docsRead(params: any) {
       throw error;
     }
   }
-  const bridged = await forwardToBridgeIfSupported('docs.read', params);
+  const bridged = await forwardToBridgeIfSupported('docs.read', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Docs not configured');
 }
 
-export async function docsUpdate(params: any) {
-  const { documentId, requests } = params || {};
+export async function docsUpdate(params: DocsUpdateParams) {
+  const { documentId, requests } = params || ({} as DocsUpdateParams);
   if (!documentId) throw new BadRequestError('documentId is required');
   if (!requests || !Array.isArray(requests)) throw new BadRequestError('requests array is required');
 
@@ -114,7 +119,7 @@ export async function docsUpdate(params: any) {
       throw error;
     }
   }
-  const bridged = await forwardToBridgeIfSupported('docs.update', params);
+  const bridged = await forwardToBridgeIfSupported('docs.update', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Docs not configured');
 }
