@@ -3,8 +3,16 @@ import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getContacts } from "../../services/google-auth-service.js";
 
-export async function contactsList(params: any) {
-  const { pageSize = 50, sortOrder = 'LAST_NAME_ASCENDING' } = params || {};
+// Param interfaces
+export interface ContactsListParams { pageSize?: number; sortOrder?: 'FIRST_NAME_ASCENDING' | 'LAST_NAME_ASCENDING' }
+export interface ContactsCreateParams { name?: string; email?: string; phone?: string; organization?: string; title?: string; address?: string; notes?: string }
+
+// Result interfaces
+export interface ContactsListResult { contacts: Array<{ resourceName?: string; name: string; email: string | null; phone: string | null; organization: string | null; title: string | null; hasPhoto: boolean }>; totalContacts: number; nextPageToken: string | null }
+export interface ContactsCreateResult { contact: { resourceName?: string; name?: string; email?: string; phone?: string; created: boolean } }
+
+export async function contactsList(params: ContactsListParams) {
+  const { pageSize = 50, sortOrder = 'LAST_NAME_ASCENDING' } = params || ({} as ContactsListParams);
 
   const contacts = await getContacts();
   if (contacts) {
@@ -54,8 +62,8 @@ export async function contactsList(params: any) {
   throw new BadRequestError('Google Contacts not configured');
 }
 
-export async function contactsCreate(params: any) {
-  const { name, email, phone, organization, title, address, notes } = params || {};
+export async function contactsCreate(params: ContactsCreateParams) {
+  const { name, email, phone, organization, title, address, notes } = params || ({} as ContactsCreateParams);
 
   if (!name && !email) {
     throw new BadRequestError('Either name or email is required');

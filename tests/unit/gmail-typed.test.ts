@@ -41,4 +41,36 @@ describe('Gmail handler typed shapes', () => {
     expect(res.data.message).toHaveProperty('id');
     expect(typeof res.data.message.body).toBe('string');
   });
+
+  test('gmail.read handles nested HTML multipart bodies', async () => {
+    jest.resetModules();
+    jest.doMock('../../src/services/google-auth-service.js', () => ({
+      getGmail: async () => ({
+        users: {
+          messages: {
+            get: jest.fn().mockResolvedValue({
+              data: {
+                id: 'm2', threadId: 'thr2',
+                payload: {
+                  parts: [
+                    {
+                      mimeType: 'multipart/alternative',
+                      parts: [
+                        { mimeType: 'text/html', body: { data: Buffer.from('<b>HTML body</b>').toString('base64') } }
+                      ]
+                    }
+                  ]
+                },
+                labelIds: ['INBOX']
+              }
+            })
+          }
+        }
+      })
+    }));
+    const { gmailHandlers } = await import('../../src/handlers/google-workspace/gmail.js');
+    const res = await gmailHandlers['gmail.read']({ messageId: 'm2' } as any);
+    expect(res.ok).toBe(true);
+    expect(res.data.message.body).toContain('HTML body');
+  });
 });

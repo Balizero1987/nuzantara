@@ -353,6 +353,15 @@ import { initializeWebSocketServer } from './services/websocket-server.js';
 const wsServer = initializeWebSocketServer(server);
 console.log('✅ WebSocket server initialized on /ws');
 
+// Global auto-load of handlers (enabled after WS/AI/Communication standardization)
+try {
+  const { loadAllHandlers } = await import('./core/load-all-handlers.js');
+  await loadAllHandlers();
+  console.log('🔄 All handler modules loaded via registry');
+} catch (e: any) {
+  console.warn('⚠️ Handler auto-load failed:', e?.message || e);
+}
+
 // Graceful shutdown handling
 async function gracefulShutdown(signal: string) {
   console.log(`\n🛑 Received ${signal}. Gracefully shutting down...`);

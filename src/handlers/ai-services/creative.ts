@@ -2,6 +2,51 @@
 // Vision AI, Translation & Creative tools for Bali Zero
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
+
+// Minimal API response types (to avoid 'any' where easy)
+type VisionAnnotateResponse = {
+  responses: Array<{
+    textAnnotations?: Array<{ description: string; confidence?: number; boundingPoly?: BoundingPoly }>;
+    labelAnnotations?: Array<{ description: string; score: number; topicality?: string }>;
+    faceAnnotations?: Array<{
+      detectionConfidence: number;
+      joyLikelihood: string; sorrowLikelihood: string; angerLikelihood: string; surpriseLikelihood: string;
+      boundingPoly: BoundingPoly;
+    }>;
+    localizedObjectAnnotations?: Array<{ name: string; score: number; boundingPoly: BoundingPoly }>;
+  }>;
+};
+
+// Refined entities for clean API surface
+type Vertex = { x?: number; y?: number };
+type BoundingPoly = { vertices?: Vertex[]; normalizedVertices?: Vertex[] };
+
+export type VisionText = { text: string; confidence?: number; boundingBox?: BoundingPoly };
+export type VisionLabel = { label: string; confidence: number; category?: string };
+
+export enum EmotionLikelihood {
+  UNKNOWN = 'UNKNOWN',
+  VERY_UNLIKELY = 'VERY_UNLIKELY',
+  UNLIKELY = 'UNLIKELY',
+  POSSIBLE = 'POSSIBLE',
+  LIKELY = 'LIKELY',
+  VERY_LIKELY = 'VERY_LIKELY'
+}
+
+export type FaceEmotion = {
+  joy: EmotionLikelihood;
+  sorrow: EmotionLikelihood;
+  anger: EmotionLikelihood;
+  surprise: EmotionLikelihood;
+};
+export type VisionFace = { confidence: number; emotions: FaceEmotion; boundingBox: BoundingPoly };
+export type VisionEntity = { name: string; confidence: number; box: BoundingPoly };
+
+type SpeechRecognizeResponse = {
+  results?: Array<{ alternatives?: Array<{ transcript: string; confidence?: number }>; languageCode?: string }>;
+};
+
+type AnalyzeSentimentResponse = { documentSentiment?: { score?: number; magnitude?: number } };
 import { getGoogleService } from "../../services/google-auth-service.js";
 
 // =============================================================================
@@ -73,35 +118,35 @@ export async function visionAnalyzeImage(params: any) {
       throw new Error(`Vision API error: ${response.status}`);
     }
 
-    const result = await response.json();
-    const annotations = result.responses[0];
+    const result: VisionAnnotateResponse = await response.json();
+    const annotations = result.responses?.[0] || {} as any;
 
-    return ok({
+    return ok<{ analysis: { text: VisionText[]; labels: VisionLabel[]; faces: VisionFace[]; objects: VisionEntity[] }; metadata: any }>({
       analysis: {
-        text: (annotations.textAnnotations || []).map((t: any) => ({
+        text: (annotations.textAnnotations || []).map((t: any): VisionText => ({
           text: t.description,
           confidence: t.confidence,
           boundingBox: t.boundingPoly
         })),
-        labels: (annotations.labelAnnotations || []).map((l: any) => ({
+        labels: (annotations.labelAnnotations || []).map((l: any): VisionLabel => ({
           label: l.description,
           confidence: l.score,
           category: l.topicality
         })),
-        faces: (annotations.faceAnnotations || []).map((f: any) => ({
+        faces: (annotations.faceAnnotations || []).map((f: any): VisionFace => ({
           confidence: f.detectionConfidence,
           emotions: {
-            joy: f.joyLikelihood,
-            sorrow: f.sorrowLikelihood,
-            anger: f.angerLikelihood,
-            surprise: f.surpriseLikelihood
+            joy: f.joyLikelihood as EmotionLikelihood,
+            sorrow: f.sorrowLikelihood as EmotionLikelihood,
+            anger: f.angerLikelihood as EmotionLikelihood,
+            surprise: f.surpriseLikelihood as EmotionLikelihood
           },
           boundingBox: f.boundingPoly
         })),
-        objects: (annotations.localizedObjectAnnotations || []).map((o: any) => ({
+        objects: (annotations.localizedObjectAnnotations || []).map((o: any): VisionEntity => ({
           name: o.name,
           confidence: o.score,
-          boundingBox: o.boundingPoly
+          box: o.boundingPoly
         }))
       },
       metadata: {
@@ -288,10 +333,10 @@ export async function speechSynthesize(params: any) {
       throw new Error(`Text-to-Speech API error: ${response.status}`);
     }
 
-    const result = await response.json();
+    const result: any = await response.json();
 
     return ok({
-      audioBase64: result.audioContent,
+      audioBase64: result?.audioContent,
       originalText: text,
       voice: {
         language,
@@ -345,8 +390,8 @@ export async function languageAnalyzeSentiment(params: any) {
       throw new Error(`Language API error: ${response.status}`);
     }
 
-    const result = await response.json();
-    const sentiment = result.documentSentiment;
+    const result: AnalyzeSentimentResponse = await response.json();
+    const sentiment = result.documentSentiment || {};
 
     return ok({
       overallSentiment: {

@@ -394,28 +394,35 @@ async function shouldZantaraRespondInstagram(params: any): Promise<{ respond: bo
 /**
  * Send intelligent Instagram response
  */
-async function sendIntelligentInstagramResponse(to: string, userMessage: string, context: any) {
-  try {
-    // Retrieve user memory
-    const memoryRes: any = await memorySearch({
-      userId: `instagram_${to}`,
-      query: userMessage,
-      limit: 3
-    });
-
-    // Build context-aware prompt
-    const prompt = `You are ZANTARA, Bali Zero's AI assistant for Indonesian business setup.
+export function buildInstagramPrompt(context: any, recentContext: string, userMessage: string) {
+  return `You are ZANTARA, Bali Zero's AI assistant for Indonesian business setup.
 
 Platform: Instagram DM
-User: @${context.username} ${context.userInfo.is_verified ? '✓ Verified' : ''}
-Followers: ${context.userInfo.follower_count || 0}
-Sentiment: ${context.sentiment.label} (${context.sentiment.score}/10)
+User: @${context.username} ${context.userInfo?.is_verified ? '✓ Verified' : ''}
+Followers: ${context.userInfo?.follower_count || 0}
+Sentiment: ${context.sentiment?.label} (${context.sentiment?.score}/10)
 
-Recent context: ${memoryRes?.data?.summary || 'First interaction'}
+Recent context: ${recentContext}
 
 User message: "${userMessage}"
 
 Respond professionally but friendly (Instagram style, max 2 short paragraphs). Include relevant info about PT PMA, KITAS, or pricing if asked. Use emojis sparingly. Language: match user's language (ID/EN/IT).`;
+}
+
+async function sendIntelligentInstagramResponse(to: string, userMessage: string, context: any) {
+  try {
+    // Retrieve user memory
+    const memoryRes: { ok: boolean; data?: { memories?: Array<{ content?: string }>; count?: number; query?: string } } = await memorySearch({
+      userId: `instagram_${to}`,
+      query: userMessage,
+      limit: 3
+    });
+    const recentContext = Array.isArray(memoryRes?.data?.memories) && memoryRes.data!.memories!.length > 0
+      ? memoryRes.data!.memories!.map((m: any) => m?.content).filter(Boolean).slice(0, 3).join(' | ')
+      : 'First interaction';
+
+    // Build context-aware prompt
+    const prompt = buildInstagramPrompt(context, recentContext, userMessage);
 
     const aiResponse = await aiChat({
       prompt,

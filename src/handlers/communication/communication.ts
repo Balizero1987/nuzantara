@@ -1,11 +1,25 @@
 import { BadRequestError, InternalServerError } from "../../utils/errors.js";
 import { ok } from "../../utils/response.js";
 
+type SlackAttachment = {
+  color?: string;
+  pretext?: string;
+  text?: string;
+  fields?: Array<{ title: string; value: string; short?: boolean }>;
+};
+
+interface SlackParams {
+  text?: string;
+  channel?: string;
+  attachments?: SlackAttachment[];
+  webhook_url?: string;
+}
+
 /**
  * Slack webhook notification handler
  */
-export async function slackNotify(params: any) {
-  const { text, channel, attachments, webhook_url } = params;
+export async function slackNotify(params: SlackParams) {
+  const { text, channel, attachments, webhook_url } = params || {} as SlackParams;
 
   if (!text && !attachments) {
     throw new BadRequestError('text or attachments required');
@@ -16,7 +30,7 @@ export async function slackNotify(params: any) {
     throw new InternalServerError('SLACK_WEBHOOK_URL not configured');
   }
 
-  const payload: any = { text };
+  const payload: { text?: string; channel?: string; attachments?: SlackAttachment[] } = { text };
   if (channel) payload.channel = channel;
   if (attachments) payload.attachments = attachments;
 
@@ -40,8 +54,25 @@ export async function slackNotify(params: any) {
 /**
  * Discord webhook notification handler
  */
-export async function discordNotify(params: any) {
-  const { content, embeds, username, avatar_url, webhook_url } = params;
+type DiscordEmbed = {
+  title?: string;
+  description?: string;
+  url?: string;
+  color?: number;
+  timestamp?: string;
+  fields?: Array<{ name: string; value: string; inline?: boolean }>;
+};
+
+interface DiscordParams {
+  content?: string;
+  embeds?: DiscordEmbed[];
+  username?: string;
+  avatar_url?: string;
+  webhook_url?: string;
+}
+
+export async function discordNotify(params: DiscordParams) {
+  const { content, embeds, username, avatar_url, webhook_url } = params || {} as DiscordParams;
 
   if (!content && !embeds) {
     throw new BadRequestError('content or embeds required');
@@ -52,7 +83,7 @@ export async function discordNotify(params: any) {
     throw new InternalServerError('DISCORD_WEBHOOK_URL not configured');
   }
 
-  const payload: any = {};
+  const payload: { content?: string; embeds?: DiscordEmbed[]; username?: string; avatar_url?: string } = {};
   if (content) payload.content = content;
   if (embeds) payload.embeds = embeds;
   if (username) payload.username = username;
@@ -79,8 +110,24 @@ export async function discordNotify(params: any) {
 /**
  * Google Chat notification handler
  */
-export async function googleChatNotify(params: any) {
-  const { text, space, thread, cards } = params;
+// Minimal Google Chat Card type (subset)
+type GoogleChatCard = {
+  header?: { title?: string; subtitle?: string; imageUrl?: string };
+  sections?: Array<{
+    header?: string;
+    widgets?: Array<any>;
+  }>;
+};
+
+interface GoogleChatParams {
+  text?: string;
+  space?: string;
+  thread?: string;
+  cards?: GoogleChatCard[];
+}
+
+export async function googleChatNotify(params: GoogleChatParams) {
+  const { text, space, thread, cards } = params || {} as GoogleChatParams;
 
   if (!text && !cards) {
     throw new BadRequestError('text or cards required');
@@ -97,7 +144,7 @@ export async function googleChatNotify(params: any) {
     throw new InternalServerError('Google Chat webhook not configured and API approach not yet implemented');
   }
 
-  const payload: any = { text };
+  const payload: { text?: string; cards?: GoogleChatCard[] } = { text };
   if (cards) payload.cards = cards;
 
   try {
