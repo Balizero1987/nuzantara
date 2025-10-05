@@ -6,7 +6,7 @@
  */
 
 import { globalRegistry } from "../core/handler-registry.js";
-import { ok, err } from "../../utils/response.js";
+import { ok, err } from "../utils/response.js";
 
 /**
  * Handler: Send Email via Gmail

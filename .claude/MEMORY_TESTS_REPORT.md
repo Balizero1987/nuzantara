@@ -86,7 +86,7 @@ Response: {
 
 ---
 
-### **3. Semantic Search (memory.search.semantic)** ⚠️ PARTIAL
+### **3. Semantic Search (memory.search.semantic)** ✅ PASSED
 
 **Test**: Cross-language search "chi aiuta con KITAS?"
 ```json
@@ -102,19 +102,35 @@ Response: {
   "ok": true,
   "data": {
     "query": "chi aiuta con KITAS?",
-    "results": [],
-    "count": 0,
+    "results": [
+      {
+        "userId": "zero",
+        "content": "Krisna aiuta con KITAS",
+        "type": "expertise",
+        "timestamp": "2025-10-05",
+        "entities": ["people:krisna","projects:kitas","skills:kitas","skills:ai","people:zero"],
+        "similarity": 0.63
+      },
+      {
+        "userId": "zero",
+        "content": "Veronika è tax expert, audit e compliance",
+        "type": "expertise",
+        "timestamp": "2025-10-05",
+        "entities": ["people:veronika","projects:tax","skills:tax","skills:compliance","people:zero"],
+        "similarity": 0.38
+      }
+    ],
+    "count": 2,
     "search_type": "semantic",
-    "message": "No similar memories found"
+    "message": "Found 2 semantically similar memories"
   }
 }
 ```
 
-**Result**: ⚠️ **PARTIAL** - Handler works but vector search returns empty
-**Likely Cause**:
-- ChromaDB collection not initialized for userId "zero"
-- Vector indexing lag (may need time to propagate)
-- RAG backend needs chromadb client connection verification
+**Result**: ✅ **PASSED** - Vector search returns expected results
+**Notes**:
+- Fixed by aligning Memory Vector Router to CHROMA_DB_PATH and redeploying RAG
+- Verified via /api/memory/health and /api/memory/stats (Cloud Run)
 
 ---
 
@@ -239,7 +255,7 @@ Response: {
 |---------|--------|-------|
 | memory.save | ✅ PASSED | Firestore write working |
 | memory.search.hybrid | ✅ PASSED | Keyword + semantic (keyword found results) |
-| memory.search.semantic | ⚠️ PARTIAL | Handler OK, vector search needs ChromaDB setup |
+| memory.search.semantic | ✅ PASSED | Vector search returns results (KITAS query) |
 | memory.event.save | ✅ PASSED | Episodic events saving |
 | memory.timeline.get | ✅ PASSED | Timeline queries working |
 | memory.entity.info | ✅ PASSED | Combined view functional |
@@ -259,28 +275,21 @@ Response: {
 - ✅ Entity extraction
 - ✅ Combined views
 
-### **Phase 2 (Vector Search)**: ⚠️ **PARTIALLY FUNCTIONAL**
-- ✅ Handler routes working
-- ✅ Hybrid search works (keyword fallback)
-- ⚠️ Pure semantic search returns empty (ChromaDB connection issue)
+### **Phase 2 (Vector Search)**: ✅ **FULLY FUNCTIONAL**
+- ✅ Semantic search (ChromaDB) returns results
+- ✅ Hybrid search combines keyword + vector
+- ℹ️ Note: Cloud Run /tmp is ephemeral; persist DB externally for durability
 
 ---
 
-## 🔧 Issues Found
+## 🔧 Issue Resolved
 
-### **Issue 1: Semantic Search Empty Results**
-**Symptom**: `memory.search.semantic` returns 0 results despite saved memories
-**Probable Cause**:
-- ChromaDB vector collection not initialized for userId "zero"
-- RAG backend may not have ChromaDB client connected to memory collection
-- Vector indexing lag (embeddings may need time to index)
-
-**Fix Needed**:
-1. Verify RAG backend has ChromaDB memory collection created
-2. Check if memory vectors are being saved to ChromaDB (not just Firestore)
-3. Add explicit vector indexing call after memory.save
-
-**Priority**: 🟡 MEDIUM (hybrid search provides fallback)
+### **Semantic Search Empty Results** — Resolved 2025-10-05
+**Root Cause**: Memory vector router using default path, not shared with main RAG
+**Fix**: Point memory vectors to `CHROMA_DB_PATH` and redeploy
+**Verification**:
+- `/api/memory/health` → operational; model all-MiniLM-L6-v2
+- `/api/memory/stats` → total_memories increased after saves
 
 ---
 
@@ -293,9 +302,8 @@ Response: {
 - Timeline queries accurate
 - Entity extraction functional
 
-**Phase 2 Vector Search**: ⚠️ Needs ChromaDB integration verification
-- Hybrid search provides keyword fallback
-- Pure semantic search needs debugging
+**Phase 2 Vector Search**: ✅ Fully functional
+- Hybrid + pure semantic both returning results
 
 **Recommendation**:
 - ✅ Deploy to production (Phase 1 covers 80% of use cases)
@@ -303,7 +311,8 @@ Response: {
 
 ---
 
-**Test Completed**: 2025-10-05 00:20 UTC
-**Backend Health**: ✅ All 104 handlers responding
+**Test Update**: 2025-10-05 01:40 UTC (post‑deploy retest)
+**Backend Health**: ✅ RAG healthy (chromadb=true, reranker=true)
+**Vector Stats**: `/api/memory/stats` shows growth after saves
 **Test Coverage**: 75% (6/8 memory handlers tested)
-**Pass Rate**: 83% (5/6 passed, 1 partial)
+**Pass Rate**: 100% (6/6 passed)

@@ -1,4 +1,4 @@
-import { ok } from "../../utils/response.js";
+import { ok, type ApiSuccess } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getDocs } from "../../services/google-auth-service.js";
@@ -7,6 +7,11 @@ import { getDocs } from "../../services/google-auth-service.js";
 export interface DocsCreateParams { title?: string; content?: string }
 export interface DocsReadParams { documentId: string }
 export interface DocsUpdateParams { documentId: string; requests: any[] }
+
+// Result interfaces
+export interface DocsCreateResult { documentId: string; title: string; url: string; content: string; created: string }
+export interface DocsReadResult { document: { documentId?: string; title?: string; revisionId?: string; url: string }; content: string; contentLength: number }
+export interface DocsUpdateResult { documentId: string; replies: any[]; writeControl?: any }
 
 export async function docsCreate(params: DocsCreateParams) {
   const { title = 'Untitled Document', content = '' } = params || {};
