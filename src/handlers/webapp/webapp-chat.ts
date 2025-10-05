@@ -25,6 +25,7 @@
  */
 
 import { Request, Response } from 'express';
+import { aiChat } from '../ai-services/ai.js';
 
 // Rate limiting state (in-memory)
 interface RateLimitEntry {
@@ -143,48 +144,34 @@ export async function webappChat(req: Request, res: Response) {
     // 4. Log request (for monitoring/debugging)
     console.log(`[webapp.chat] Request from ${userId}: "${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"`);
 
-    // 5. Import ai.chat handler dynamically to avoid circular deps
-    const { aiChat } = await import('../ai-services/ai.ts');
+    // 5. Build params for ai.chat
+    const aiParams = {
+      prompt: message,
+      conversationId,
+      // Use Haiku for webapp (fast + cheap)
+      model: 'claude-3-5-haiku-20241022',
+      temperature: 0.7,
+      system: 'You are ZANTARA, an intelligent business assistant for Bali Zero. Provide concise, helpful responses about visa services, company setup, tax consulting, and real estate in Indonesia.'
+    };
 
-    // 6. Call existing ai.chat handler with params
-    const chatRequest = {
-      ...req,
-      body: {
-        key: 'ai.chat',
-        params: {
-          message,
-          conversationId,
-          userId,
-          source: 'webapp',
-          // Use Haiku for webapp (fast + cheap)
-          model: 'claude-3-5-haiku-20241022',
-          temperature: 0.7
-        }
-      }
-    } as Request;
+    // 6. Call ai.chat handler
+    const result = await aiChat(aiParams);
 
-    // Create response wrapper to capture result
-    let capturedResult: any = null;
-    const chatResponse = {
-      ...res,
-      json: (data: any) => {
-        capturedResult = data;
-        return res;
-      }
-    } as Response;
-
-    // 7. Execute ai.chat handler
-    await aiChat(chatRequest, chatResponse);
-
-    // 8. Log response
+    // 7. Log response
     const duration = Date.now() - startTime;
-    const success = capturedResult?.ok || false;
+    const success = result?.ok || !!result?.reply || !!result?.text;
     console.log(`[webapp.chat] Response to ${userId}: success=${success}, duration=${duration}ms`);
 
-    // 9. Send response (if not already sent by handler)
-    if (!res.headersSent && capturedResult) {
-      return res.json(capturedResult);
-    }
+    // 8. Extract reply from result
+    const reply = result?.reply || result?.text || result?.message || 'Response generated.';
+
+    // 9. Send response
+    return res.json({
+      ok: true,
+      reply,
+      conversationId: conversationId || `conv-${Date.now()}`,
+      usage: result?.usage || { model: 'claude-3-5-haiku-20241022' }
+    });
 
   } catch (error) {
     const duration = Date.now() - startTime;
