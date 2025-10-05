@@ -313,7 +313,7 @@ You have access to a complete system of handlers for:
 
 ✅ BALI ZERO SERVICES:
 - Pricing lookup for all 17+ services
-- Visa procedures (KITAS, B211A, retirement, investor)
+- Visa procedures (KITAS, C1, retirement, investor)
 - Company setup (PT PMA, KBLI codes)
 - Tax regulations (BPJS, SPT, NPWP)
 - Real estate guidance

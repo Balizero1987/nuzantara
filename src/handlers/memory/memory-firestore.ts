@@ -296,6 +296,52 @@ export async function memoryRetrieve(params: any) {
   const targetUserId = userId || key;
   const memory = await memoryStore.getMemory(targetUserId);
 
+  // Helper: infer preferred language/tone by known collaborator id
+  function inferPrefsForUser(uid: string | undefined): { lang?: string; tone?: string; dialect?: string; cultural?: string } {
+    if (!uid) return {};
+    const base = String(uid).toLowerCase().split('@')[0].replace(/[^a-z0-9]/g, '');
+    const map: Record<string, { lang?: string; tone?: string; dialect?: string; cultural?: string }> = {
+      zero: { lang: 'it', tone: 'napoletano_caloroso', cultural: 'cita_toto_spesso' },
+      ari: { lang: 'su' },
+      faisha: { lang: 'su' },
+      amanda: { lang: 'jv' },
+      dea: { lang: 'jv' },
+      sahira: { lang: 'jv' },
+      damar: { lang: 'jv' },
+      surya: { lang: 'jv' },
+      angel: { lang: 'jv' },
+      vino: { lang: 'jv' },
+      krisna: { lang: 'ban' },
+      kadek: { lang: 'ban' },
+      dewaayu: { lang: 'ban' },
+      adit: { lang: 'ban' },
+      veronika: { lang: 'id', dialect: 'jaksel' }
+    };
+    return map[base] || {};
+  }
+
+  // Ensure default language preference if not set (per-user mapping, else 'id')
+  try {
+    const facts: string[] = memory.profile_facts || [];
+    const hasLangPref = facts.some((f: string) => /language_pref\s*:/i.test(f) || /prefers\s+.*language/i.test(f));
+    const prefs = inferPrefsForUser(targetUserId);
+    const desiredLang = prefs.lang || 'id';
+    if (!hasLangPref && targetUserId) {
+      await memorySave({ userId: targetUserId, type: 'preference', key: 'language_pref', value: desiredLang, metadata: { source: 'auto-default' } });
+      if (prefs.tone) {
+        await memorySave({ userId: targetUserId, type: 'preference', key: 'tone_pref', value: prefs.tone, metadata: { source: 'auto-default' } });
+      }
+      if (prefs.dialect) {
+        await memorySave({ userId: targetUserId, type: 'preference', key: 'dialect_pref', value: prefs.dialect, metadata: { source: 'auto-default' } });
+      }
+      if (prefs.cultural) {
+        await memorySave({ userId: targetUserId, type: 'preference', key: 'cultural_pref', value: prefs.cultural, metadata: { source: 'auto-default' } });
+      }
+    }
+  } catch (e) {
+    console.log('⚠️ Could not enforce default language_pref=id:', (e as any)?.message);
+  }
+
   // Extract the most recent fact that matches the key if provided
   let content = memory.summary;
 
