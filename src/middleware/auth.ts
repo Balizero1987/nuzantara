@@ -14,14 +14,6 @@ const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_FAILED_ATTEMPTS = 5;
 
 export function apiKeyAuth(req: RequestWithCtx, res: Response, next: NextFunction) {
-  // BYPASS AUTH FOR PUBLIC WEBAPP ENDPOINTS
-  // webapp.chat is public (rate-limited internally, no API key required)
-  const requestedKey = req.body?.key;
-  if (requestedKey === 'webapp.chat') {
-    req.ctx = { role: "external" }; // Treat as external (limited permissions)
-    return next();
-  }
-
   const key = req.header("x-api-key");
   const clientIP = req.header("x-forwarded-for") || req.connection?.remoteAddress || "unknown";
 
