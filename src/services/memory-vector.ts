@@ -27,15 +27,14 @@ interface VectorSearchResult {
 export async function generateEmbedding(text: string): Promise<number[]> {
   try {
     // Call Python RAG backend to generate embedding
-    // We'll create a new endpoint /api/embed in the Python backend
-    const response = await axios.post(`${RAG_BACKEND_URL}/api/embed`, {
+    const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/embed`, {
       text,
       model: 'sentence-transformers' // Use FREE local embeddings
     });
 
     return response.data.embedding;
   } catch (error: any) {
-    console.log('⚠️ Embedding generation failed, using fallback:', error?.message);
+    console.error(`⚠️ Embedding generation failed (${RAG_BACKEND_URL}/api/memory/embed):`, error?.message);
     // Fallback: return zero vector (won't work for search but won't crash)
     return new Array(384).fill(0); // sentence-transformers dimension
   }
@@ -76,7 +75,7 @@ export async function storeMemoryVector(params: {
     console.log(`✅ Memory vector stored: ${memoryId} for ${userId}`);
     return true;
   } catch (error: any) {
-    console.log('⚠️ Vector storage failed:', error?.message);
+    console.error(`⚠️ Vector storage failed (${RAG_BACKEND_URL}/api/memory/store):`, error?.response?.data || error?.message);
     return false;
   }
 }

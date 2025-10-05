@@ -93,9 +93,7 @@ jobs:
             --cpu=2 \
             --concurrency=80 \
             --max-instances=10 \
-            --set-env-vars="NODE_ENV=production" \
-            --set-env-vars="API_KEYS_INTERNAL=zantara-internal-dev-key-2025" \
-            --set-env-vars="API_KEYS_EXTERNAL=zantara-external-dev-key-2025" \
+            --set-env-vars="NODE_ENV=production,API_KEYS_INTERNAL=zantara-internal-dev-key-2025,API_KEYS_EXTERNAL=zantara-external-dev-key-2025,RAG_BACKEND_URL=https://zantara-rag-backend-himaadsxua-ew.a.run.app" \
             --port=8080 \
             --no-traffic
 

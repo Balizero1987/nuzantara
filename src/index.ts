@@ -132,7 +132,13 @@ app.use(deepRealityCheck()); // Deep reality anchor system
 // Enhanced health endpoint with metrics
 app.get('/health', async (req, res) => {
   const healthData = await getHealthMetrics();
-  res.json(healthData);
+  res.json({
+    ...healthData,
+    environment: {
+      ragBackendUrl: process.env.RAG_BACKEND_URL || 'not-set',
+      nodeEnv: process.env.NODE_ENV || 'development'
+    }
+  });
 });
 
 // Metrics endpoint for detailed monitoring
