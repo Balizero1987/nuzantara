@@ -95,7 +95,7 @@ jobs:
             --cpu=2 \
             --concurrency=80 \
             --max-instances=10 \
-            --set-env-vars="NODE_ENV=production,API_KEYS_INTERNAL=zantara-internal-dev-key-2025,API_KEYS_EXTERNAL=zantara-external-dev-key-2025,RAG_BACKEND_URL=https://zantara-rag-backend-himaadsxua-ew.a.run.app" \
+            --set-env-vars="NODE_ENV=production,API_KEYS_INTERNAL=zantara-internal-dev-key-2025,API_KEYS_EXTERNAL=zantara-external-dev-key-2025,RAG_BACKEND_URL=https://zantara-rag-backend-himaadsxua-ew.a.run.app,OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }},GOOGLE_SEARCH_API_KEY=${{ secrets.GOOGLE_SEARCH_API_KEY }},GOOGLE_SEARCH_CX=${{ secrets.GOOGLE_SEARCH_CX }},COHERE_API_KEY=${{ secrets.COHERE_API_KEY }}" \
             --port=8080 \
             --no-traffic
 
