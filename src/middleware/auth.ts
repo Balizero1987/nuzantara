@@ -14,6 +14,15 @@ const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_FAILED_ATTEMPTS = 5;
 
 export function apiKeyAuth(req: RequestWithCtx, res: Response, next: NextFunction) {
+  // BYPASS AUTH FOR WEBAPP ORIGIN
+  // Allow requests from zantara.balizero.com without API key
+  const origin = req.header("origin");
+  if (origin === 'https://zantara.balizero.com' || origin === 'https://balizero1987.github.io') {
+    req.ctx = { role: "external" }; // Webapp treated as external client
+    console.log(`[auth] Webapp request from ${origin} (no API key required)`);
+    return next();
+  }
+
   const key = req.header("x-api-key");
   const clientIP = req.header("x-forwarded-for") || req.connection?.remoteAddress || "unknown";
 
