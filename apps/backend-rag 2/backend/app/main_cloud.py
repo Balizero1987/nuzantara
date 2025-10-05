@@ -689,6 +689,10 @@ app.include_router(auth_router)
 from app.routers.memory_vector import router as memory_vector_router
 app.include_router(memory_vector_router)
 
+# Include intel news router (Bali Intel Scraper)
+from app.routers.intel import router as intel_router
+app.include_router(intel_router)
+
 
 @app.get("/")
 async def root():
