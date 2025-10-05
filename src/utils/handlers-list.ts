@@ -28,7 +28,17 @@ const CACHE_TTL = 60000; // 1 minute
  * Extract handlers from router.ts with descriptions
  */
 function extractHandlers(): HandlerInfo[] {
-  const routerPath = join(__dirname, '../router.ts');
+  // Try .ts first (dev), then .js (production)
+  const routerPathTS = join(__dirname, '../router.ts');
+  const routerPathJS = join(__dirname, '../router.js');
+
+  let routerPath = routerPathTS;
+  try {
+    readFileSync(routerPathTS, 'utf-8');
+  } catch {
+    routerPath = routerPathJS;
+  }
+
   const content = readFileSync(routerPath, 'utf-8');
 
   const handlers: HandlerInfo[] = [];
