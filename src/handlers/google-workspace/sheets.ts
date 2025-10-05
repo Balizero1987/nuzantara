@@ -1,4 +1,4 @@
-import { ok } from "../../utils/response.js";
+import { ok, type ApiSuccess } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getSheets } from "../../services/google-auth-service.js";
@@ -8,13 +8,18 @@ export interface SheetsReadParams { spreadsheetId: string; range: string }
 export interface SheetsAppendParams { spreadsheetId: string; range: string; values: any[][]; valueInputOption?: 'RAW' | 'USER_ENTERED' }
 export interface SheetsCreateParams { title: string; data?: any[][] }
 
+// Result interfaces
+export interface SheetsReadResult { values: any[][]; range: string }
+export interface SheetsAppendResult { update: any | null }
+export interface SheetsCreateResult { spreadsheetId?: string; url: string }
+
 export async function sheetsRead(params: SheetsReadParams) {
   const { spreadsheetId, range } = params || ({} as SheetsReadParams);
   if (!spreadsheetId || !range) throw new BadRequestError('spreadsheetId and range are required');
   const sheets = await getSheets();
   if (sheets) {
     const res = await sheets.spreadsheets.values.get({ spreadsheetId, range });
-    return ok({ values: res.data.values || [] });
+    return ok({ values: res.data.values || [], range });
   }
   const bridged = await forwardToBridgeIfSupported('sheets.read', params);
   if (bridged) return bridged;

@@ -3,7 +3,17 @@ import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getSlides } from "../../services/google-auth-service.js";
 
-export async function slidesCreate(params: any) {
+// Param interfaces
+export interface SlidesCreateParams { title?: string }
+export interface SlidesReadParams { presentationId: string }
+export interface SlidesUpdateParams { presentationId: string; requests: any[] }
+
+// Result interfaces
+export interface SlidesCreateResult { presentationId: string; title: string; url: string; slides: number; created: string }
+export interface SlidesReadResult { presentation: { presentationId?: string; title?: string; revisionId?: string; url: string }; slides: Array<{ objectId?: string; text: string }>; slideCount: number }
+export interface SlidesUpdateResult { presentationId: string; replies: any[]; writeControl?: any }
+
+export async function slidesCreate(params: SlidesCreateParams) {
   const { title = 'Untitled Presentation' } = params || {};
 
   const slides = await getSlides();
@@ -28,8 +38,8 @@ export async function slidesCreate(params: any) {
   throw new BadRequestError('Slides not configured');
 }
 
-export async function slidesRead(params: any) {
-  const { presentationId } = params || {};
+export async function slidesRead(params: SlidesReadParams) {
+  const { presentationId } = params || ({} as SlidesReadParams);
   if (!presentationId) throw new BadRequestError('presentationId is required');
 
   const slides = await getSlides();
@@ -84,8 +94,8 @@ export async function slidesRead(params: any) {
   throw new BadRequestError('Slides not configured');
 }
 
-export async function slidesUpdate(params: any) {
-  const { presentationId, requests } = params || {};
+export async function slidesUpdate(params: SlidesUpdateParams) {
+  const { presentationId, requests } = params || ({} as SlidesUpdateParams);
   if (!presentationId) throw new BadRequestError('presentationId is required');
   if (!requests || !Array.isArray(requests)) throw new BadRequestError('requests array is required');
 

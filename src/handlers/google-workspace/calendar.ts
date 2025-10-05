@@ -1,4 +1,4 @@
-import { ok } from "../../utils/response.js";
+import { ok, type ApiSuccess } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getCalendar } from "../../services/google-auth-service.js";
@@ -27,6 +27,11 @@ export interface CalendarCreateParams {
 }
 
 export interface CalendarGetParams { calendarId?: string; eventId: string }
+
+// Result interfaces
+export interface CalendarListResult { events: any[] }
+export interface CalendarCreateResult { event: any }
+export interface CalendarGetResult { event: any }
 
 export async function calendarList(params: CalendarListParams) {
   const { calendarId = 'primary', timeMin, timeMax, maxResults = 25, singleEvents = true, orderBy = 'startTime' } = params || {} as CalendarListParams;

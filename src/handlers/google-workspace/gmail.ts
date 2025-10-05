@@ -1,15 +1,24 @@
-// Gmail Handlers
+// Gmail Handlers (typed & standardized)
 import { google } from 'googleapis';
-import { getOAuth2Client, isOAuth2Available } from '../../services/oauth2-client.js';
+import { getOAuth2Client } from '../../services/oauth2-client.js';
 import { getGmail } from '../../services/google-auth-service.js';
+import { ok } from '../../utils/response.js';
+import { BadRequestError, InternalServerError } from '../../utils/errors.js';
+
+// Param interfaces
+export interface SendEmailParams { to: string; subject: string; body?: string; html?: string }
+export interface ListEmailParams { maxResults?: number; q?: string }
+export interface ReadEmailParams { messageId: string }
+
+// Result interfaces
+export interface GmailSendResult { messageId?: string; threadId?: string; to: string; subject: string; sentAt: string }
+export interface GmailListResult { messages: Array<{ id?: string; threadId?: string; snippet?: string; subject?: string; from?: string; date?: string; labelIds?: string[] }>; total: number; nextPageToken?: string }
+export interface GmailReadResult { message: { id?: string; threadId?: string; subject?: string; from?: string; date?: string; snippet?: string; body?: string; labelIds?: string[]; historyId?: string } }
 
 export const gmailHandlers = {
-  'gmail.send': async (params: any) => {
-    const { to, subject, body, html } = params;
-
-    if (!to || !subject) {
-      throw new Error('Parameters "to" and "subject" are required');
-    }
+  'gmail.send': async (params: SendEmailParams) => {
+    const { to, subject, body, html } = params || ({} as SendEmailParams);
+    if (!to || !subject) throw new BadRequestError('Parameters "to" and "subject" are required');
 
     try {
       // Try to get Gmail service with unified authentication
@@ -48,22 +57,21 @@ export const gmailHandlers = {
         }
       });
 
-      return {
-        ok: true,
+      return ok({
         messageId: result.data.id,
         threadId: result.data.threadId,
         to,
         subject,
         sentAt: new Date().toISOString()
-      };
+      });
     } catch (error: any) {
       console.error('Gmail send error:', error);
-      throw new Error(`Failed to send email: ${error.message}`);
+      throw new InternalServerError(`Failed to send email: ${error.message}`);
     }
   },
 
-  'gmail.list': async (params: any = {}) => {
-    const { maxResults = 10, q = '' } = params;
+  'gmail.list': async (params: ListEmailParams = {}) => {
+    const { maxResults = 10, q = '' } = params || {} as ListEmailParams;
 
     try {
       // Try to get Gmail service with unified authentication
@@ -98,8 +106,7 @@ export const gmailHandlers = {
         )
       );
 
-      return {
-        ok: true,
+      return ok({
         messages: details.map(d => ({
           id: d.data.id,
           threadId: d.data.threadId,
@@ -111,19 +118,16 @@ export const gmailHandlers = {
         })),
         total: messages.length,
         nextPageToken: result.data.nextPageToken
-      };
+      });
     } catch (error: any) {
       console.error('Gmail list error:', error);
-      throw new Error(`Failed to list emails: ${error.message}`);
+      throw new InternalServerError(`Failed to list emails: ${error.message}`);
     }
   },
 
-  'gmail.read': async (params: any) => {
-    const { messageId } = params;
-
-    if (!messageId) {
-      throw new Error('Parameter "messageId" is required');
-    }
+  'gmail.read': async (params: ReadEmailParams) => {
+    const { messageId } = params || ({} as ReadEmailParams);
+    if (!messageId) throw new BadRequestError('Parameter "messageId" is required');
 
     try {
       // Prefer Service Account with Domain‑Wide Delegation when available
@@ -170,8 +174,7 @@ export const gmailHandlers = {
 
       bodyContent = extractTextContent(message.payload);
 
-      return {
-        ok: true,
+      return ok({
         message: {
           id: message.id,
           threadId: message.threadId,
@@ -184,10 +187,10 @@ export const gmailHandlers = {
           labelIds: message.labelIds,
           historyId: message.historyId
         }
-      };
+      });
     } catch (error: any) {
       console.error('Gmail read error:', error);
-      throw new Error(`Failed to read email: ${error.message}`);
+      throw new InternalServerError(`Failed to read email: ${error.message}`);
     }
   }
 };
