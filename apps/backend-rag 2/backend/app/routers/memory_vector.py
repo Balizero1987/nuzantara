@@ -12,17 +12,24 @@ import time
 
 from core.embeddings import EmbeddingsGenerator
 from core.vector_db import ChromaDBClient
+import os
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/memory", tags=["memory"])
 
 # Initialize services
 embedder = EmbeddingsGenerator()
+
+# Use the same persistence path used by the main search service (set at startup)
+_persist_dir = os.environ.get("CHROMA_DB_PATH", "/tmp/chroma_db")
 memory_vector_db = ChromaDBClient(
+    persist_directory=_persist_dir,
     collection_name="zantara_memories"
 )
 
-logger.info("✅ Memory Vector Router initialized (zantara_memories collection)")
+logger.info(
+    f"✅ Memory Vector Router initialized (collection='zantara_memories', path='{_persist_dir}')"
+)
 
 
 # Request/Response Models

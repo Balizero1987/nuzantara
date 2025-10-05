@@ -57,6 +57,21 @@ class QueryRouter:
         "contract", "perjanjian", "property law", "marriage law"
     ]
 
+    # Consolidated high-signal keywords frequently used by Bali Zero users
+    # Used for lightweight diagnostics in get_routing_stats()
+    BALI_ZERO_KEYWORDS = [
+        # Core brands/terms
+        "bali", "zero", "bali zero", "zantara",
+        # Immigration
+        "visa", "kitas", "kitap", "imigrasi", "immigration",
+        # Business/KBLI
+        "kbli", "oss", "nib", "pt pma", "bkpm",
+        # Tax
+        "tax", "pajak", "npwp", "pph", "ppn",
+        # Legal
+        "legal", "notary", "notaris", "akta"
+    ]
+
     # Keywords that indicate philosophical/technical knowledge
     BOOKS_KEYWORDS = [
         # Philosophy
@@ -140,6 +155,7 @@ class QueryRouter:
         query_lower = query.lower()
 
         # Find matching keywords
+        # Diagnostic matches: Bali Zero + Books
         bali_zero_matches = [kw for kw in self.BALI_ZERO_KEYWORDS if kw in query_lower]
         books_matches = [kw for kw in self.BOOKS_KEYWORDS if kw in query_lower]
 

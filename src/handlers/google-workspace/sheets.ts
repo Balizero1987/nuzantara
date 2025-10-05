@@ -3,8 +3,13 @@ import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getSheets } from "../../services/google-auth-service.js";
 
-export async function sheetsRead(params: any) {
-  const { spreadsheetId, range } = params || {};
+// Minimal param interfaces (Step 1 typing)
+export interface SheetsReadParams { spreadsheetId: string; range: string }
+export interface SheetsAppendParams { spreadsheetId: string; range: string; values: any[][]; valueInputOption?: 'RAW' | 'USER_ENTERED' }
+export interface SheetsCreateParams { title: string; data?: any[][] }
+
+export async function sheetsRead(params: SheetsReadParams) {
+  const { spreadsheetId, range } = params || ({} as SheetsReadParams);
   if (!spreadsheetId || !range) throw new BadRequestError('spreadsheetId and range are required');
   const sheets = await getSheets();
   if (sheets) {
@@ -16,21 +21,21 @@ export async function sheetsRead(params: any) {
   throw new BadRequestError('Sheets not configured');
 }
 
-export async function sheetsAppend(params: any) {
-  const { spreadsheetId, range, values, valueInputOption = 'RAW' } = params || {};
+export async function sheetsAppend(params: SheetsAppendParams) {
+  const { spreadsheetId, range, values, valueInputOption = 'RAW' } = params || ({} as SheetsAppendParams);
   if (!spreadsheetId || !range || !values) throw new BadRequestError('spreadsheetId, range and values are required');
   const sheets = await getSheets();
   if (sheets) {
     const res = await sheets.spreadsheets.values.append({ spreadsheetId, range, valueInputOption, requestBody: { values } });
     return ok({ update: res.data.updates || null });
   }
-  const bridged = await forwardToBridgeIfSupported('sheets.append', params);
+  const bridged = await forwardToBridgeIfSupported('sheets.append', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Sheets not configured');
 }
 
-export async function sheetsCreate(params: any) {
-  const { title, data } = params || {};
+export async function sheetsCreate(params: SheetsCreateParams) {
+  const { title, data } = params || ({} as SheetsCreateParams);
   if (!title) throw new BadRequestError('title is required');
 
   const sheets = await getSheets();
@@ -64,8 +69,7 @@ export async function sheetsCreate(params: any) {
   }
 
   // Fallback to bridge if sheets service not available
-  const bridged = await forwardToBridgeIfSupported('sheets.create', params);
+  const bridged = await forwardToBridgeIfSupported('sheets.create', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Sheets not configured');
 }
-
