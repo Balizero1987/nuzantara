@@ -46,13 +46,7 @@ jobs:
           # Copy webapp files from monorepo
           cp -r ../apps/webapp/* .
 
-          # Copy production HTML from static/
-          if [ -f "../static/zantara-production.html" ]; then
-            cp ../static/zantara-production.html ./index.html
-            echo "✅ Copied zantara-production.html as index.html"
-          fi
-
-          # Add deployment timestamp
+          # Add deployment timestamp to index.html
           echo "<!-- Deployed: $(date -u +"%Y-%m-%d %H:%M:%S UTC") -->" >> index.html
           echo "<!-- Source: https://github.com/Balizero1987/nuzantara/commit/${GITHUB_SHA} -->" >> index.html
 
