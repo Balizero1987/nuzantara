@@ -1,0 +1,20 @@
+{
+  "total_examples": 218,
+  "stats": {
+    "total_messages": 9801,
+    "threads_extracted": 2274,
+    "quality_conversations": 212
+  },
+  "pattern_distribution": {
+    "pricing": 95,
+    "general": 36,
+    "property": 12,
+    "tax_consultation": 11,
+    "emergency": 5,
+    "legal": 7,
+    "company_setup": 19,
+    "visa_inquiry": 18,
+    "documents": 9,
+    "unknown": 6
+  }
+}

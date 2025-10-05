@@ -1,0 +1,83 @@
+# TEMPLATE PER EXPORT CHAT WHATSAPP
+
+## FORMATO 1: Export WhatsApp Diretto (PREFERITO)
+[Data, Ora] Sender: Messaggio
+[Data, Ora] Sender: Messaggio
+
+Esempio:
+[10/5/25, 14:32] Cliente: Ho bisogno di aprire una PT PMA
+[10/5/25, 14:33] Bali Zero: Perfetto! Per PT PMA servono minimo 10 miliardi IDR investimento
+[10/5/25, 14:34] Cliente: Quanto tempo ci vuole?
+[10/5/25, 14:35] Bali Zero: 30-45 giorni per completare tutto, include NIB e NPWP
+
+---
+
+## FORMATO 2: Strutturato (SE PREFERISCI ORGANIZZARE)
+
+=== CONVERSAZIONE 1 ===
+CATEGORIA: Visa KITAS
+LINGUA: Italiano
+OUTCOME: Convertito a cliente
+
+Cliente: Ciao, sono un digital nomad e voglio stare a Bali per 1 anno
+Bali Zero: Ciao! Per 1 anno ti serve il Digital Nomad KITAS (E33G). Requisiti: proof of income $60k/anno
+Cliente: Costa molto?
+Bali Zero: €1,200 tutto incluso. Include sponsor, documenti, e assistenza completa
+Cliente: Ok procediamo
+Bali Zero: Perfetto! Ti mando ora il form da compilare. Krisna ti seguirà personalmente
+
+=== CONVERSAZIONE 2 ===
+CATEGORIA: PT PMA Setup
+LINGUA: English
+OUTCOME: In progress
+
+Client: I need to open a company in Indonesia
+Bali Zero: Hi! For foreign ownership you need PT PMA. Minimum investment 10 billion IDR
+Client: What about licenses?
+Bali Zero: We handle everything: NIB, NPWP, business licenses. Takes 30-45 days total
+[continua...]
+
+---
+
+## FORMATO 3: Minimalista (VELOCE)
+
+C: Quanto costa working visa?
+BZ: Working KITAS €800, processo 30-45 giorni
+
+C: Posso pagare a rate?
+BZ: Certo, 50% upfront, 50% all'approvazione
+
+C: Incluso tutto?
+BZ: Sì, sponsor, documenti, governo fees, tutto incluso
+
+---
+
+## INFO UTILI DA INCLUDERE (se le hai)
+
+Per ogni conversazione, se possibile indica:
+- Data (anche approssimativa)
+- Lingua usata (IT/EN/ID)
+- Tipo servizio (visa/company/tax)
+- Outcome (convertito/perso/pending)
+- Problemi particolari risolti
+
+---
+
+## PRIVACY CHECKLIST
+
+Prima di inviare, sostituisci:
+[ ] Nomi reali → Cliente1, Cliente2
+[ ] Telefoni → +62XXXXX
+[ ] Email → cliente@email.com
+[ ] Aziende → Company A, Company B
+[ ] Indirizzi specifici → [località generica]
+[ ] Importi sensibili → [se necessario]
+
+---
+
+QUANTITÀ IDEALE:
+- Minimo: 200 conversazioni
+- Ottimale: 500-700 conversazioni
+- Include: Vari servizi, lingue, difficoltà
+
+Le conversazioni sono IL CUORE del training - più ne hai, meglio ZANTARA imparerà lo stile Bali Zero!
