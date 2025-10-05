@@ -98,6 +98,9 @@ import {
 // Memory & Persistence
 import { memorySave, memorySearch, memoryRetrieve, memoryList, memorySearchByEntity, memoryGetEntities, memoryEntityInfo, memorySearchSemantic, memorySearchHybrid } from "./handlers/memory/memory-firestore.js";
 import { memoryEventSave, memoryTimelineGet, memoryEntityEvents } from "./handlers/memory/episodes-firestore.js";
+
+// Webapp Public Handlers
+import { webappChatRPC } from "./handlers/webapp/webapp-chat.js";
 import { autoSaveConversation } from "./handlers/memory/conversation-autosave.js";
 import { userMemorySave, userMemoryRetrieve, userMemoryList, userMemoryLogin } from "./handlers/memory/user-memory.js";
 
@@ -391,6 +394,26 @@ const handlers: Record<string, Handler> = {
   "claude.chat": claudeChat,
   "gemini.chat": geminiChat,
   "cohere.chat": cohereChat,
+
+  /**
+   * @handler webapp.chat
+   * @description PUBLIC endpoint for webapp chat (no API key required). Rate limited to 100 req/min per user.
+   * @param {string} params.message - User message (max 10000 chars)
+   * @param {string} [params.conversationId] - Optional conversation ID for context
+   * @security No x-api-key required | Rate limited by x-user-id | CORS: zantara.balizero.com
+   * @returns {Promise<{ok: boolean, reply: string, conversationId: string}>} AI response
+   * @example
+   * // From webapp (no API key)
+   * fetch('/call', {
+   *   method: 'POST',
+   *   headers: { 'Content-Type': 'application/json', 'x-user-id': 'user@example.com' },
+   *   body: JSON.stringify({
+   *     key: 'webapp.chat',
+   *     params: { message: 'How much is a KITAS visa?' }
+   *   })
+   * })
+   */
+  "webapp.chat": webappChatRPC,
 
   // 🏢 KBLI Business Codes (NEW)
   "kbli.lookup": async (params: any) => {
