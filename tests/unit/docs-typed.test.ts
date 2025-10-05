@@ -29,5 +29,17 @@ describe('Docs handler typed shapes', () => {
     expect(res.ok).toBe(true);
     expect(Array.isArray(res.data.replies)).toBe(true);
   });
-});
 
+  test('docs.update throws BadRequestError on 404', async () => {
+    jest.resetModules();
+    jest.doMock('../../src/services/google-auth-service.js', () => ({
+      getDocs: async () => ({
+        documents: {
+          batchUpdate: jest.fn().mockRejectedValue({ code: 404 })
+        }
+      })
+    }));
+    const { docsUpdate } = await import('../../src/handlers/google-workspace/docs.js');
+    await expect(docsUpdate({ documentId: 'not-found', requests: [] } as any)).rejects.toThrow('Document not found');
+  });
+});

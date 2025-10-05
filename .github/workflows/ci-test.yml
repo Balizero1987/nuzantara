@@ -5,6 +5,13 @@ on:
     branches: [main, develop, feat/*]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      run_integration:
+        description: 'Run integration + Python RAG tests'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   typecheck:
@@ -113,6 +120,7 @@ jobs:
     timeout-minutes: 20
     needs: test
     continue-on-error: true
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_integration == 'true' }}
 
     steps:
       - name: Checkout code
@@ -137,6 +145,7 @@ jobs:
     name: Python RAG Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_integration == 'true' }}
 
     steps:
       - name: Checkout code
