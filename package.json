@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "build": "npm run build:fast",
-    "build:fast": "esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/index.js --minify --log-level=warning --external:@google-cloud/* --external:@anthropic-ai/* --external:@prisma/* --external:express --external:firebase-admin --external:googleapis --external:ws --external:axios --external:cheerio --external:nodemailer --external:twilio --external:stripe --external:cohere-ai --external:openai --external:chart.js --external:redis --external:node-cache --external:lru-cache --external:open --external:multer --external:cors --external:zod",
+    "build:fast": "tsc && echo 'Build completed with tsc'",
     "typecheck": "tsc --noEmit --pretty false",
     "lint": "eslint . --ext .ts,.js || echo 'ESLint not installed'",
     "dev": "tsx watch src/index.ts",
