@@ -58,13 +58,13 @@ INDONESIAN_WORDS = {
     "yang", "ini", "itu", "banget", "sekali", "juga", "lagi", "udah", "udh"
 }
 
-def is_indonesian(text: str, threshold: float = 0.15) -> bool:
+def is_indonesian(text: str, threshold: float = 0.10) -> bool:
     """
     Quick Indonesian language detection
 
     Args:
         text: Text to check
-        threshold: Minimum ratio of Indonesian words (default 15%)
+        threshold: Minimum ratio of Indonesian words (default 10%)
 
     Returns:
         True if likely Indonesian
