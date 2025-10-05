@@ -45,7 +45,10 @@ export class ZantaraOrchestrator {
     languages: {
       en: { greeting: "Hello!", thanks: "Thank you" },
       id: { greeting: "Selamat datang!", thanks: "Terima kasih" },
-      it: { greeting: "Ciao!", thanks: "Grazie" }
+      it: { greeting: "Ciao!", thanks: "Grazie" },
+      su: { greeting: "Wilujeng sumping!", thanks: "Hatur nuhun" },
+      jv: { greeting: "Sugeng rawuh!", thanks: "Matur nuwun" },
+      ban: { greeting: "Om Swastyastu!", thanks: "Suksma" }
     }
   };
 
@@ -230,30 +233,82 @@ export class ZantaraOrchestrator {
   }
 
   /**
+   * Make output plain, human, and free of odd Markdown decorations
+   */
+  private toHumanPlain(text: string): string {
+    if (!text) return '';
+    let t = String(text);
+    // Remove fenced code markers
+    t = t.replace(/```+/g, '');
+    // Strip Markdown headers
+    t = t.replace(/^#{1,6}\s*/gm, '');
+    // Bold/italic to plain
+    t = t.replace(/\*\*(.*?)\*\*/g, '$1');
+    t = t.replace(/__(.*?)__/g, '$1');
+    t = t.replace(/\*(.*?)\*/g, '$1');
+    t = t.replace(/`([^`]+)`/g, '$1');
+    t = t.replace(/~{2,}([^~]+)~{2,}/g, '$1');
+    // Horizontal rules or repeated symbols
+    t = t.replace(/^[-*_]{3,}\s*$/gm, '');
+    // Remove noisy sequences like ***^&&----
+    t = t.replace(/\*{3,}|_{3,}|-{4,}|\^{2,}|&{2,}/g, '');
+    // Normalize bullet spacing
+    t = t.replace(/^[\s]*-\s*/gm, '- ');
+    // Collapse excessive blank lines
+    t = t.replace(/\n{3,}/g, '\n\n');
+    return t.trim();
+  }
+
+  /**
    * Add personal touches based on context
    */
   private addPersonalTouch(response: string, context: UserContext): any {
-    const language = context.language || 'en';
-    const greeting = this.personality.languages[language].greeting;
+    const language = context.language || 'id';
+    const greeting = (this.personality.languages[language] || this.personality.languages.id).greeting;
 
-    // Add time-appropriate greeting
+    // Time-appropriate greeting per language
     const hour = new Date().getHours();
     let timeGreeting = "";
-
     if (language === 'id') {
       if (hour < 11) timeGreeting = "Selamat pagi! ☀️ ";
       else if (hour < 15) timeGreeting = "Selamat siang! ";
       else if (hour < 19) timeGreeting = "Selamat sore! 🌅 ";
       else timeGreeting = "Selamat malam! 🌙 ";
+    } else if (language === 'su') {
+      if (hour < 11) timeGreeting = "Wilujeng enjing! ";
+      else if (hour < 15) timeGreeting = "Wilujeng siang! ";
+      else if (hour < 19) timeGreeting = "Wilujeng sonten! ";
+      else timeGreeting = "Wilujeng wengi! ";
+    } else if (language === 'jv') {
+      if (hour < 11) timeGreeting = "Sugeng enjang! ";
+      else if (hour < 15) timeGreeting = "Sugeng siang! ";
+      else if (hour < 19) timeGreeting = "Sugeng sonten! ";
+      else timeGreeting = "Sugeng dalu! ";
+    } else if (language === 'ban') {
+      if (hour < 11) timeGreeting = "Rahajeng semeng! ";
+      else if (hour < 15) timeGreeting = "Rahajeng siang! ";
+      else if (hour < 19) timeGreeting = "Rahajeng sanja! ";
+      else timeGreeting = "Rahajeng wengi! ";
     }
 
-    // Add cultural wisdom if appropriate
+    // Add cultural wisdom sometimes
     if (Math.random() > 0.7) {
       response += this.getCulturalWisdom(context);
     }
 
+    // Courtesy lines for regional languages
+    let courtesy = "";
+    if (language === 'su') {
+      courtesy = "\nHatur nuhun. Mangga, abdi siap ngabantosan langkung jéntré.";
+    } else if (language === 'jv') {
+      courtesy = "\nMatur nuwun sanget. Nuwun sewu menawi wonten ingkang dereng cetha.";
+    } else if (language === 'ban') {
+      courtesy = "\nSuksma. Ngiring titiang bantuangang wenten sane dados.";
+    }
+
+    const message = this.toHumanPlain(timeGreeting + response + courtesy);
     return {
-      message: timeGreeting + response,
+      message,
       metadata: {
         orchestrator: 'zantara-v1',
         personality: 'brilliant',
@@ -267,6 +322,18 @@ export class ZantaraOrchestrator {
    * Brilliant visa explanation (not pedantic)
    */
   private brilliantVisaExplanation(visaData: any, context: UserContext): string {
+    if (['su','jv','ban'].includes(context.language)) {
+      return `\nUntuk visa Anda, jalur paling cerdas adalah ${visaData.type}. ` +
+             `Bukan hanya lebih cepat (${visaData.processingTime}), ` +
+             `tetapi memungkinkan Anda mulai segera sementara kami urus sisanya. ` +
+             `Saya sudah membimbing ratusan orang melewati proses ini. 😊\n`;
+    }
+    if (context.language === 'id') {
+      return `\nUntuk visa Anda, jalur paling cerdas adalah ${visaData.type}. ` +
+             `Bukan hanya lebih cepat (${visaData.processingTime}), ` +
+             `tetapi memungkinkan Anda mulai segera sementara kami urus sisanya. ` +
+             `Saya sudah membimbing ratusan orang melewati proses ini. 😊\n`;
+    }
     if (context.language === 'it') {
       return `\nPer il visto, la strada più intelligente è ${visaData.type}. ` +
              `Non solo è più veloce (${visaData.processingTime}), ` +
@@ -298,11 +365,23 @@ export class ZantaraOrchestrator {
       it: [
         "\n💡 Consiglio: A Bali, le relazioni aprono più porte dei documenti.",
         "\n🌺 Ricorda: 'Piano piano' spesso ti porta più veloce qui.",
-        "\n🏝️ Saggezza isolana: La presentazione giusta vale 10 permessi."
+        "\n🏝️ Saggezza isolana: La presentazione giusta vale 10 permessi.",
+        "\n🎭 Totò diceva: 'È la somma che fa il totale.' Facciamo tornare i conti con calma e precisione.",
+        "\n🎭 Totò: 'Signori si nasce...' — e con eleganza portiamo avanti la pratica, senza strafare.",
+        "\n🎭 'Quando si è poveri, bisogna saper tirare la cinghia.' — Procediamo per priorità, senza sprechi (Totò).",
+        "\n🎭 Totò: 'Nessuno è perfetto, ma qualcuno è utile.' — Collaboriamo bene e il risultato arriva." 
       ]
     };
 
-    const langWisdoms = wisdoms[context.language] || wisdoms.en;
+    const lang = context.language || 'id';
+    const langWisdoms = wisdoms[lang] || wisdoms.en;
+    // Per l'italiano, cita Totò spesso: aumenta la frequenza
+    if (lang === 'it') {
+      const pick = langWisdoms[Math.floor(Math.random() * langWisdoms.length)];
+      const extraToto = "\n🎭 Totò: 'È la somma che fa il totale.'";
+      // Restituisci sempre almeno una citazione
+      return pick.includes('Totò') ? pick : pick + extraToto;
+    }
     return langWisdoms[Math.floor(Math.random() * langWisdoms.length)];
   }
 
@@ -334,7 +413,7 @@ export class ZantaraOrchestrator {
     // Load from memory system
     return {
       userId,
-      language: 'en',
+      language: 'id',
       history: [],
       preferences: {}
     };
