@@ -8,7 +8,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 import logging
 
-from core.chromadb_client import ChromaDBClient
+from core.vector_db import ChromaDBClient
 from core.embeddings import EmbeddingsGenerator
 
 router = APIRouter()
