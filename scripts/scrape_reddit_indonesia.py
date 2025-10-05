@@ -34,8 +34,8 @@ import argparse
 # 5. Copia client_id (sotto "personal use script") e client_secret
 
 REDDIT_CONFIG = {
-    "client_id": "YOUR_CLIENT_ID_HERE",  # SOSTITUISCI CON TUO
-    "client_secret": "YOUR_CLIENT_SECRET_HERE",  # SOSTITUISCI CON TUO
+    "client_id": "H3WfBT4W1_TMNHXiAkS87w",
+    "client_secret": "fSY2vbDk-IgAjrZ0YfCIx2mgHMX3wA",
     "user_agent": "ZANTARA Training Data Collector v1.0"
 }
 
