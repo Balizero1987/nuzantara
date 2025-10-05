@@ -2,6 +2,7 @@ import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getCachedAI, setCachedAI } from "../../services/cacheProxy.js";
+import { getHandlersList } from "../../utils/handlers-list.js";
 
 // Lazy imports to reduce cold start and avoid failing when keys are missing
 async function getOpenAI() {
@@ -69,6 +70,14 @@ function dynamicMaxTokens(promptLen: number) {
 
 // Shared ZANTARA context for unified responses
 function zantaraContext(base?: string, userInfo?: string) {
+  // Get dynamic list of available handlers
+  let handlersInfo = '';
+  try {
+    handlersInfo = '\n\n' + getHandlersList();
+  } catch (e) {
+    console.warn('[zantaraContext] Failed to load handlers list:', e);
+  }
+
   const intro = `You are ZANTARA, AI assistant for Bali Zero.
 
 BALI ZERO - PT. BALI NOL IMPERSARIAT
@@ -87,6 +96,15 @@ IMPORTANT: You have access to complete knowledge base via RAG (ChromaDB) with:
 Use the RAG context provided to give accurate, specific answers with exact prices and timelines.
 
 Key contact: WhatsApp +62 859 0436 9574 for custom quotes.
+
+${handlersInfo}
+
+CAPABILITIES: You can perform actions using the handlers listed above.
+When a user asks about capabilities, refer to the handlers list.
+Examples:
+- "Can you save to memory?" → YES (memory.save handler)
+- "Can you access Google Drive?" → YES (drive.* handlers)
+- "Can you create calendar events?" → YES (calendar.create handler)
 
 Respond professionally and concisely.`;
   const userContext = userInfo ? `\nUser: ${userInfo}` : '';
