@@ -32,5 +32,13 @@ describe('Gmail handler typed shapes', () => {
     expect(Array.isArray(res.data.messages)).toBe(true);
     expect(typeof res.data.total).toBe('number');
   });
-});
 
+  test('gmail.read returns ApiSuccess with message object', async () => {
+    // Ensure get() mock returns a detailed payload
+    const { gmailHandlers } = await import('../../src/handlers/google-workspace/gmail.js');
+    const res = await gmailHandlers['gmail.read']({ messageId: 'm1' } as any);
+    expect(res.ok).toBe(true);
+    expect(res.data.message).toHaveProperty('id');
+    expect(typeof res.data.message.body).toBe('string');
+  });
+});

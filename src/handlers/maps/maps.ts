@@ -4,6 +4,36 @@ import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 
 import { google } from 'googleapis';
 
+// Param interfaces
+export interface DirectionsParams {
+  origin: string; destination: string;
+  mode?: 'driving' | 'walking' | 'bicycling' | 'transit';
+  language?: string; region?: string;
+}
+
+export interface PlacesParams {
+  query?: string; location?: string; radius?: number; type?: string;
+  language?: string; region?: string; pageSize?: number;
+}
+
+export interface PlaceDetailsParams { placeId: string; fields?: string }
+
+// Result interfaces
+export interface DirectionsResult {
+  route: {
+    distance: string; duration: string;
+    distanceValue: number; durationValue: number;
+    startAddress: string; endAddress: string;
+    steps: Array<{ instruction: string; distance: string; duration: string }>;
+    overview: string;
+  };
+  origin: string; destination: string; mode: string;
+}
+
+export interface PlaceLite { name: string; placeId: string; address?: string; location: { lat: number; lng: number }; rating: number | null; priceLevel?: number | null; types: string[]; openNow: boolean | null; photos: Array<{ reference: string; width: number; height: number }> }
+export interface PlacesResult { places: PlaceLite[]; totalResults: number; query?: string; location?: string; searchType: 'text' | 'nearby' }
+export interface PlaceDetailsResult { place: { name?: string; placeId?: string; address?: string; phone?: string | null; website?: string | null; rating?: number | null; location?: { lat: number; lng: number } | null; openingHours?: { openNow: boolean; weekdayText: string[] } | null } }
+
 // Google Maps API doesn't use OAuth2 like other Google services
 // It uses API Key authentication
 async function getMapsClient() {
@@ -20,7 +50,7 @@ async function getMapsClient() {
   };
 }
 
-export async function mapsDirections(params: any) {
+export async function mapsDirections(params: DirectionsParams) {
   const { origin, destination, mode = 'driving', language = 'en', region = 'ID' } = params || {};
 
   if (!origin || !destination) {
@@ -77,7 +107,7 @@ export async function mapsDirections(params: any) {
   }
 }
 
-export async function mapsPlaces(params: any) {
+export async function mapsPlaces(params: PlacesParams) {
   const {
     query,
     location,
@@ -162,7 +192,7 @@ export async function mapsPlaces(params: any) {
   }
 }
 
-export async function mapsPlaceDetails(params: any) {
+export async function mapsPlaceDetails(params: PlaceDetailsParams) {
   const { placeId, fields = 'formatted_address,name,rating,formatted_phone_number,website,opening_hours' } = params || {};
 
   if (!placeId) {
