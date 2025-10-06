@@ -1,6 +1,6 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-05 06:42 (Webapp deployment fix - login screen restored)
+> **Last Updated**: 2025-10-06 14:10 (Tool Use Integration - RAG ↔ TypeScript Handlers)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 
 ---
@@ -8,7 +8,7 @@
 ## 📋 Project Identity
 
 **Name**: ZANTARA (NUZANTARA)
-**Version**: v5.2.0
+**Version**: v5.4.0-tool-use
 **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
 **Repository**: https://github.com/Balizero1987/nuzantara
 **Status**: Production (Cloud Run) + Local Development
@@ -23,10 +23,11 @@
 - **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
 - **Production URL**: https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app
 - **Port**: 8080
-- **Handlers**: 104 handlers (RPC-style `/call` endpoint)
+- **Handlers**: 107 handlers (104 existing + 3 intel handlers)
 - **Entry Point**: `dist/index.js`
 - **Docker**: `Dockerfile.dist`
 - **Deploy**: GitHub Actions (`.github/workflows/deploy-backend.yml`)
+- **New**: Intel news search handlers (intel.news.search, intel.news.critical, intel.news.trends)
 
 ### **2. Python RAG Backend** (AI/Search)
 - **Language**: Python 3.11
@@ -38,6 +39,8 @@
 - **AI Models**: Anthropic Claude (Haiku/Sonnet routing)
 - **Entry Point**: `app/main_cloud.py` (prod), `app/main_integrated.py` (local)
 - **Deploy**: GitHub Actions (`.github/workflows/deploy-rag-amd64.yml`)
+- **New**: Intel news API (5 endpoints: /api/intel/search, /store, /critical, /trends, /stats)
+- **Collections**: 16 total (8 KB + 8 intel topics)
 
 ### **3. Frontend** (Web UI)
 - **Language**: HTML/CSS/JavaScript (vanilla)
@@ -53,6 +56,7 @@
   - `apps/webapp/index.html` → redirect to login
   - `apps/webapp/login.html` → ZANTARA authentication
   - `apps/webapp/dashboard.html` → main app
+  - `apps/webapp/intel-dashboard.html` → NEW: Intelligence dashboard (chat + blog sidebar)
   - `apps/webapp/js/api-config.js` (API endpoint configuration)
 
 ---
@@ -107,15 +111,23 @@ ANTHROPIC_API_KEY=sk-ant-...
 NUZANTARA-2/
 ├── dist/                    # TypeScript compiled output
 ├── src/                     # TypeScript source
-│   └── handlers/            # 96 business logic handlers (71 files)
+│   └── handlers/            # 107 business logic handlers (75 files)
+│       └── intel/           # NEW: Intel news handlers
 ├── middleware/              # Auth, monitoring, validation
 ├── static/                  # Frontend HTML files
 ├── apps/
-│   └── backend-rag 2/       # Python RAG backend
-│       └── backend/
-│           ├── app/         # FastAPI app
-│           ├── services/    # ChromaDB, search
-│           └── kb/          # Knowledge base (214 books, 239 PDFs)
+│   ├── backend-rag 2/       # Python RAG backend
+│   │   └── backend/
+│   │       ├── app/         # FastAPI app
+│   │       │   └── routers/ # NEW: intel.py router
+│   │       ├── services/    # ChromaDB, search
+│   │       └── kb/          # Knowledge base (214 books, 239 PDFs)
+│   ├── webapp/              # Frontend
+│   │   └── intel-dashboard.html  # NEW: Intelligence dashboard
+│   └── bali-intel-scraper/  # NEW: Intelligence scraping system (31 files)
+│       ├── scripts/         # 13 Python scrapers + tools
+│       ├── docs/            # Complete documentation
+│       └── templates/       # AI structuring prompts
 ├── scripts/
 │   └── deploy/              # 6 deployment scripts (546 lines)
 ├── .github/workflows/       # 3 CI/CD workflows (337 lines)
@@ -189,12 +201,14 @@ cd zantara_webapp
 
 > **⚠️ UPDATE THIS** at end of session if major changes
 
-**Last Deployment**: 2025-10-05 00:00 UTC
-**Backend**: ✅ v5.2.0 (revision 00043-nrf, deployed 22:22 UTC)
-**RAG**: ✅ v2.3.0-reranker (revision 00068-nvn, deployed 23:31 UTC)
-**Webapp**: ✅ Auto-sync active (deployed 23:49 UTC)
-**ChromaDB**: 7,375 docs, 88.2 MB (deployed to GCS: `gs://nuzantara-chromadb-2025/chroma_db/`)
-**GitHub Pages**: ✅ Active (auto-sync on every webapp push)
+**Last Deployment**: 2025-10-06 14:10 CET
+**Backend**: ✅ v5.4.0-tool-use (107 handlers + 6 system handlers for tool use)
+**RAG**: ✅ v2.4.0-tool-use (Tool use integration active, 41 handlers available)
+**Webapp**: ✅ Auto-deploying (intel-dashboard.html added)
+**ChromaDB**: 7,375 docs + 8 intel collections ready
+**GitHub Pages**: ✅ Active (auto-sync in progress)
+**Bali Intel Scraper**: ✅ Complete (31 files, 8 topics, 240+ sources)
+**Tool Use**: ✅ **ACTIVE** - Chatbot can execute 41 handlers (Gmail, Drive, Memory, etc.)
 **Ollama**: Installed locally (llama3.2:3b, 2GB) but **UNUSED** (can be removed)
 
 ---
