@@ -50,7 +50,7 @@ async function testRegistry() {
     // Group by module
     const byModule: Record<string, string[]> = {};
     for (const handler of allHandlers) {
-      const module = handler.split('.')[0];
+      const module = handler.split('.')[0] || 'unknown';
       if (!byModule[module]) byModule[module] = [];
       byModule[module].push(handler);
     }

@@ -94,7 +94,8 @@ export async function userMemoryLogin(params: LoginRequest) {
   const id = userId.toLowerCase().trim();
   const rec = getOrInit(id);
   const now = new Date().toISOString();
-  rec.profile_facts.push(`${now.split('T')[0]}: Logged in at ${now.split('T')[1].split('.')[0]}`);
+  const [datePart, timePart] = now.split('T');
+  rec.profile_facts.push(`${datePart}: Logged in at ${timePart?.split('.')[0] || '00:00:00'}`);
   rec.counters.logins = (rec.counters.logins || 0) + 1;
   rec.updated_at = now;
   store.set(id, rec);

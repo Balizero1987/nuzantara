@@ -36,7 +36,7 @@ export async function deployBackendZero(): Promise<DeployResult> {
 
     const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
-    const result = await octokit.actions.createWorkflowDispatch({
+    await octokit.actions.createWorkflowDispatch({
       owner: OWNER,
       repo: REPO,
       workflow_id: 'deploy-backend-api.yml',
@@ -55,12 +55,16 @@ export async function deployBackendZero(): Promise<DeployResult> {
 
     const latestRun = runs.data.workflow_runs[0];
 
-    return {
-      ok: true,
-      workflowId: latestRun?.id,
-      runId: latestRun?.id,
-      url: latestRun?.html_url
-    };
+    const result: DeployResult = { ok: true };
+    if (latestRun?.id) {
+      result.workflowId = latestRun.id;
+      result.runId = latestRun.id;
+    }
+    if (latestRun?.html_url) {
+      result.url = latestRun.html_url;
+    }
+
+    return result;
   } catch (error: any) {
     return {
       ok: false,
@@ -98,12 +102,16 @@ export async function deployRagZero(): Promise<DeployResult> {
 
     const latestRun = runs.data.workflow_runs[0];
 
-    return {
-      ok: true,
-      workflowId: latestRun?.id,
-      runId: latestRun?.id,
-      url: latestRun?.html_url
-    };
+    const result: DeployResult = { ok: true };
+    if (latestRun?.id) {
+      result.workflowId = latestRun.id;
+      result.runId = latestRun.id;
+    }
+    if (latestRun?.html_url) {
+      result.url = latestRun.html_url;
+    }
+
+    return result;
   } catch (error: any) {
     return {
       ok: false,
@@ -173,14 +181,28 @@ export async function listRecentDeploymentsZero(
       per_page: limit
     });
 
-    const deployments = data.workflow_runs.map(run => ({
-      id: run.id,
-      name: run.name,
-      status: run.status,
-      conclusion: run.conclusion || undefined,
-      createdAt: run.created_at,
-      url: run.html_url
-    }));
+    const deployments = data.workflow_runs.map(run => {
+      const deployment: {
+        id: number;
+        name: string;
+        status: string;
+        conclusion?: string;
+        createdAt: string;
+        url: string;
+      } = {
+        id: run.id,
+        name: run.name || '',
+        status: run.status || '',
+        createdAt: run.created_at,
+        url: run.html_url
+      };
+      
+      if (run.conclusion) {
+        deployment.conclusion = run.conclusion;
+      }
+      
+      return deployment;
+    });
 
     return {
       ok: true,

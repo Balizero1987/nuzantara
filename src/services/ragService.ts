@@ -12,7 +12,7 @@ interface RAGQueryRequest {
   conversation_history?: Array<{role: string; content: string}>;
 }
 
-interface RAGQueryResponse {
+export interface RAGQueryResponse {
   success: boolean;
   query: string;
   answer?: string;
@@ -31,7 +31,7 @@ interface BaliZeroRequest {
   user_role?: 'member' | 'lead';
 }
 
-interface BaliZeroResponse {
+export interface BaliZeroResponse {
   success: boolean;
   response: string;
   model_used: string;

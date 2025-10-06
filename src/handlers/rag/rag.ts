@@ -5,12 +5,13 @@
 
 import { ragService } from '../../services/ragService.js';
 import type { Request } from 'express';
+import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragService.js';
 
 /**
  * RAG Query - Generate answer using Ollama + ChromaDB
  * Handler: rag.query
  */
-export async function ragQuery(params: any, req?: Request) {
+export async function ragQuery(params: any, req?: Request): Promise<RAGQueryResponse> {
   const { query, k = 5, use_llm = true, conversation_history } = params;
 
   if (!query) {
@@ -42,7 +43,7 @@ export async function ragQuery(params: any, req?: Request) {
  * Handler: bali.zero.chat
  * Specialized for immigration/visa queries
  */
-export async function baliZeroChat(params: any, req?: Request) {
+export async function baliZeroChat(params: any, req?: Request): Promise<BaliZeroResponse> {
   const { query, conversation_history, user_role = 'member' } = params;
 
   if (!query) {

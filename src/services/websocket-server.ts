@@ -70,8 +70,11 @@ export class ZantaraWebSocketServer {
 
     // Extract user info from query params (if authenticated)
     const url = new URL(req.url || '', `http://${req.headers.host}`);
-    client.userId = url.searchParams.get('userId') || undefined;
-    client.userRole = url.searchParams.get('role') || undefined;
+    const userIdParam = url.searchParams.get('userId');
+    const roleParam = url.searchParams.get('role');
+    
+    if (userIdParam) client.userId = userIdParam;
+    if (roleParam) client.userRole = roleParam;
 
     // Send welcome message
     this.sendToClient(client, {
@@ -217,7 +220,7 @@ export class ZantaraWebSocketServer {
   public sendToUser(userId: string, channel: string, data: any) {
     let sent = 0;
 
-    for (const [clientId, client] of this.clients.entries()) {
+    for (const [_clientId, client] of this.clients.entries()) {
       if (client.userId === userId && client.subscriptions.has(channel)) {
         this.sendToClient(client, {
           type: 'message',

@@ -267,19 +267,19 @@
     PUBLIC PRICES:
     
     BPJS / Insurance:
-    - Health Insurance: 2,500,000 IDR / Company (min 2 people) 
+    - Health Insurance: 1,500,000 IDR / Company (min 2 people) 
     - Employment Insurance: 1,500,000 IDR / Company (min 2 people) 
     
     SPT/Annual Tax Report:
     - Annual Tax Company & Personal (Operational): Starting from 4,000,000 IDR 
     - Annual Tax Company & Personal (Zero): Starting from 3,000,000 IDR 
-    - Annual Personal (Amount): 2,000,000 IDR ???
+    - Annual Personal (Amount): 2,000,000 IDR
     
     Monthly Tax Report: Starting from 1,500,000 IDR 
     
     NPWP:
     - NPWP Personal + Coretax: 1,000,000 IDR / Person 
-    - NPWPD: 2,500,000 IDR / Company ???
+    - NPWPD: 2,500,000 IDR / Company
     
     LKPM: 1,000,000 IDR / Report (3 months) 
 

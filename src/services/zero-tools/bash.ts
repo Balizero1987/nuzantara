@@ -48,7 +48,7 @@ export async function bashZero(
 ): Promise<BashResult> {
   try {
     // Security: Check if command starts with allowed prefix
-    const firstWord = command.trim().split(/\s+/)[0];
+    const firstWord = command.trim().split(/\s+/)[0] || '';
     const isAllowed = ALLOWED_COMMANDS.some(cmd => firstWord === cmd || firstWord.startsWith(`${cmd}/`));
 
     if (!isAllowed) {
