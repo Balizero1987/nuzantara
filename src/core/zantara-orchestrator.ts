@@ -10,6 +10,7 @@ import { EyeKBLI } from '../agents/eye-kbli.js';
 import { TaxGenius } from '../agents/tax-genius.js';
 import { LegalArchitect } from '../agents/legal-architect.js';
 import { PropertySage } from '../agents/property-sage.js';
+import { memorySave } from '../handlers/memory/memory-firestore.js';
 
 interface UserContext {
   userId: string;
@@ -65,6 +66,26 @@ export class ZantaraOrchestrator {
    * Main orchestration method - receives user input, returns brilliant response
    */
   async respond(message: string, context: UserContext): Promise<any> {
+    // 0. Live language auto-detect (lightweight heuristics) + persist preference
+    const detected = this.detectLanguageAndDialect(message);
+    const prevLang = context.language;
+    if (detected.language && detected.language !== context.language) {
+      context.language = detected.language;
+      try {
+        if (context.userId) {
+          await memorySave({ userId: context.userId, type: 'preference', key: 'language_pref', value: detected.language, metadata: { source: 'auto-detect' } });
+        }
+      } catch {}
+    }
+    if (detected.dialect && (!context.preferences || context.preferences.dialect_pref !== detected.dialect)) {
+      context.preferences = context.preferences || {};
+      context.preferences.dialect_pref = detected.dialect;
+      try {
+        if (context.userId) {
+          await memorySave({ userId: context.userId, type: 'preference', key: 'dialect_pref', value: detected.dialect, metadata: { source: 'auto-detect' } });
+        }
+      } catch {}
+    }
     // 1. Understand intent with cultural nuance
     const intent = this.detectIntentWithNuance(message, context);
 
@@ -83,6 +104,29 @@ export class ZantaraOrchestrator {
 
     // 5. Add cultural touches and personality
     return this.addPersonalTouch(brilliantResponse, context);
+  }
+
+  /**
+   * Lightweight language/dialect detection from a single message
+   */
+  private detectLanguageAndDialect(text: string): { language: string; dialect?: string } {
+    const t = (text || '').toLowerCase();
+    // Heuristics
+    const itHits = /(ciao|grazie|perche|perché|sono|non|questo|quello|andiamo|subito)/.test(t);
+    const suHits = /(wilujeng|hatur|teu|mah|nuhun|sakedik|abdi|mangga)/.test(t);
+    const jvHits = /(sugeng|matur|nuwun|kulo|nyuwun|monggo|menawi|ingkang)/.test(t);
+    const banHits = /(suksma|rahajeng|titiang|ngiring|dumogi|beli|tiang)/.test(t);
+    const jakselHits = /(gue|gua|lo|elu|banget|nggak|gak|aja|santai|btw|cmiiw)/.test(t);
+    const enHits = /(what|how|please|thanks|help|you|the|is|are)/.test(t);
+
+    if (itHits) return { language: 'it' };
+    if (suHits) return { language: 'su' };
+    if (jvHits) return { language: 'jv' };
+    if (banHits) return { language: 'ban' };
+    if (jakselHits) return { language: 'id', dialect: 'jaksel' };
+    if (enHits) return { language: 'en' };
+    // Default to Indonesian
+    return { language: 'id' };
   }
 
   /**
@@ -304,6 +348,8 @@ export class ZantaraOrchestrator {
       courtesy = "\nMatur nuwun sanget. Nuwun sewu menawi wonten ingkang dereng cetha.";
     } else if (language === 'ban') {
       courtesy = "\nSuksma. Ngiring titiang bantuangang wenten sane dados.";
+    } else if (language === 'id' && (context.preferences?.dialect_pref === 'jaksel')) {
+      courtesy = "\nMakasih ya. Santai aja, nanti kita bantu rapihin pelan‑pelan 🙂";
     }
 
     const message = this.toHumanPlain(timeGreeting + response + courtesy);

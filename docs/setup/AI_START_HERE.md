@@ -49,7 +49,8 @@ All session tracking now in `.claude/` directory:
 
 **Name**: ZANTARA (NUZANTARA)
 **Version**: v5.2.0
-**Location**: `/Users/antonellosiano/Desktop/NUZANTARA/`
+**Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
+**Repository**: https://github.com/Balizero1987/nuzantara
 **Status**: Production (Cloud Run) + Local Development
 
 ---
@@ -57,18 +58,19 @@ All session tracking now in `.claude/` directory:
 ## 🌐 Production Deployments
 
 **TypeScript Backend**:
-- URL: https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app
+- URL: https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app
 - Port: 8080
-- Handlers: 136 RPC-style handlers via `/call`
+- Handlers: 104 RPC-style handlers via `/call`
 
 **Python RAG Backend**:
-- URL: https://zantara-rag-backend-1064094238013.europe-west1.run.app
+- URL: https://zantara-rag-backend-himaadsxua-ew.a.run.app
 - Port: 8000
 - AI: Anthropic Claude (Haiku/Sonnet routing)
 
 **Frontend**:
-- GitHub Pages: https://balizero1987.github.io/zantara_webapp
-- Custom Domain: https://zantara.balizero.com (⚠️ not enabled yet)
+- Source: `apps/webapp/` (monorepo) → auto-sync → `Balizero1987/zantara_webapp`
+- Live URL: https://zantara.balizero.com (GitHub Pages, auto-deploy ~3-4 min)
+- Entry flow: `index.html` → redirect → `login.html`
 
 ---
 
@@ -128,22 +130,18 @@ ANTHROPIC_API_KEY=sk-ant-...
 ## 🗂️ Key Directories
 
 ```
-NUZANTARA/
-├── .claude/                 # 🆕 Session system (diaries, handovers)
-├── dist/                    # TypeScript compiled
-├── src/                     # TypeScript source
-├── routes/                  # API routes
-├── handlers/                # 136 business logic handlers
-├── middleware/              # Auth, monitoring, validation
-├── static/                  # Frontend HTML
-├── zantara_webapp/          # GitHub Pages source
-│   └── js/api-config.js     # **CRITICAL**: API endpoints
-└── zantara-rag/
-    └── backend/
-        ├── app/             # FastAPI
-        ├── services/        # ChromaDB, search
-        ├── kb/              # 214 books, 239 PDFs
-        └── data/chroma_db/  # 12,907 embeddings (325MB, local only)
+NUZANTARA-2/
+├── .claude/                  # Session system (diaries, handovers, context)
+├── apps/
+│   ├── backend-rag 2/backend/ # FastAPI RAG backend (ChromaDB, memory vector API)
+│   └── webapp/                # Frontend synced to GitHub Pages
+├── dist/                     # TypeScript compiled output
+├── src/
+│   └── handlers/             # 104 business logic handlers (RPC via /call)
+├── middleware/               # Auth, monitoring, validation layers
+├── scripts/                  # Deployment & maintenance automation
+├── static/                   # Legacy static assets / redirects
+└── .github/workflows/        # CI/CD (backend, RAG, webapp sync)
 ```
 
 ---
@@ -163,29 +161,29 @@ NUZANTARA/
 
 ## 📊 Current State
 
-**Last Deployment**: 2025-10-01 18:00
-**Backend**: ✅ Healthy
-**RAG**: ✅ Healthy
-**ChromaDB**: 12,907 embeddings (local only)
-**GitHub Pages**: ⚠️ Not enabled yet
-**Ollama**: Installed but UNUSED (can remove, frees 2GB)
+**Last Deployment**: 2025-10-05 00:00 UTC
+**Backend**: ✅ v5.2.0 (Cloud Run revision 00043-nrf)
+**RAG**: ✅ v2.3.0-reranker (revision 00068-nvn)
+**ChromaDB**: 7,375 docs, 88.2 MB (`gs://nuzantara-chromadb-2025/chroma_db/`)
+**GitHub Pages**: ✅ Active (auto-sync via `sync-webapp-to-pages.yml`)
+**Ollama**: Installed locally (unused; optional removal)
 
 ---
 
 ## 🚧 Pending Tasks
 
 ### High Priority
-1. ⚠️ Enable GitHub Pages (manual: Settings → Pages → main branch)
-2. ⚠️ Migrate API keys to Secret Manager
+1. 🛠️ Monitor pricing retrieval – ensure "Pricing Policy" docs stay out of ChromaDB
+2. ⚠️ Migrate API keys to Secret Manager (currently env vars on Cloud Run)
 
 ### Medium Priority
 3. Add unit tests for pricing validation
-4. Deploy ChromaDB to production
-5. Set up monitoring alerts
+4. Set up monitoring & alerting for 4xx/5xx spikes
+5. Harden GitHub Pages sync monitoring (alert on workflow failure)
 
 ### Low Priority
-6. Remove Ollama (unused)
-7. Update OpenAPI specs
+6. Remove Ollama (unused, frees ~2GB)
+7. Update OpenAPI specs for new handlers/routes
 
 ---
 
@@ -217,5 +215,5 @@ Old handover logs archived in:
 
 ---
 
-**System Version**: 1.0.0 (Multi-CLI Session Tracking)
-**Last Updated**: 2025-10-01 20:00
+**System Version**: 1.0.1 (Multi-CLI Session Tracking)
+**Last Updated**: 2025-10-06 04:10 WITA
