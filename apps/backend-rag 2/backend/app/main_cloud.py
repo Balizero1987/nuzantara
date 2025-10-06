@@ -24,6 +24,8 @@ from services.memory_service import MemoryService
 from services.conversation_service import ConversationService
 from services.emotional_attunement import EmotionalAttunementService
 from services.collaborative_capabilities import CollaborativeCapabilitiesService
+from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_handler_proxy
+from services.tool_executor import ToolExecutor
 # from services.reranker_service import RerankerService  # Lazy import to avoid startup delay
 from llm.anthropic_client import AnthropicClient
 from llm.bali_zero_router import BaliZeroRouter
@@ -61,6 +63,7 @@ conversation_service: Optional[ConversationService] = None
 emotional_service: Optional[EmotionalAttunementService] = None
 capabilities_service: Optional[CollaborativeCapabilitiesService] = None
 reranker_service: Optional["RerankerService"] = None  # String annotation for lazy import
+handler_proxy_service: Optional[HandlerProxyService] = None
 
 # System prompt
 SYSTEM_PROMPT = """You are ZANTARA (NUZANTARA AI), AI assistant for Bali Zero - PT. BALI NOL IMPERSARIAT.
@@ -69,33 +72,11 @@ SYSTEM_PROMPT = """You are ZANTARA (NUZANTARA AI), AI assistant for Bali Zero - 
 📍 Kerobokan, Bali | 📱 WhatsApp: +62 859 0436 9574 | 📧 info@balizero.com
 🌐 welcome.balizero.com | 💫 "From Zero to Infinity ∞"
 
-**YOUR EXTENDED CAPABILITIES**:
-You have access to a complete system of handlers for:
-
-✅ GOOGLE WORKSPACE:
-- Gmail (read, send, search emails)
-- Drive (list, upload, download, search files)
-- Calendar (create, list, get events)
-- Sheets (read, append, create spreadsheets)
-- Docs (create, read, update documents)
-- Slides (create, read, update presentations)
-
-✅ MEMORY & DATA:
-- Save and retrieve user information (memory.save, memory.retrieve)
-- Store conversation context and preferences
-- Track client data across sessions
-
-✅ COMMUNICATIONS:
-- WhatsApp, Instagram, Telegram messaging
-- Slack, Discord integrations
-- Email campaigns and notifications
-
-✅ BALI ZERO SERVICES:
-- Pricing lookup for all 17+ services
-- Visa procedures (KITAS, C1, retirement, investor)
-- Company setup (PT PMA, KBLI codes)
-- Tax regulations (BPJS, SPT, NPWP)
-- Real estate guidance
+**YOUR TOOLS & CAPABILITIES**:
+You have access to tools for taking actions. When users ask you to do something, use the available tools:
+- Use tools to send emails, save data, search files, create calendar events, etc.
+- After using a tool, explain what you did in a friendly way
+- If a tool isn't available, explain what you would do and offer alternatives
 
 **Operational Knowledge (Bali Zero Agents - 1,458 documents)**:
 - VISA ORACLE: Immigration, C1, KITAS, KITAP procedures
@@ -217,9 +198,9 @@ def download_chromadb_from_gcs():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, anthropic_client, bali_zero_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service
+    global search_service, anthropic_client, bali_zero_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service
 
-    logger.info("🚀 Starting ZANTARA RAG Backend (Cloud Run + GCS + Re-ranker + Full Collaborative Intelligence)...")
+    logger.info("🚀 Starting ZANTARA RAG Backend (Cloud Run + GCS + Re-ranker + Full Collaborative Intelligence + Tool Use)...")
 
     # Download ChromaDB from Cloud Storage
     try:
@@ -309,6 +290,15 @@ async def startup_event():
     else:
         logger.info("ℹ️ Re-ranker disabled (set ENABLE_RERANKER=true to enable)")
         reranker_service = None
+
+    # Initialize Handler Proxy Service (Tool Use)
+    try:
+        ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app")
+        handler_proxy_service = init_handler_proxy(ts_backend_url)
+        logger.info(f"✅ HandlerProxyService ready → {ts_backend_url}")
+    except Exception as e:
+        logger.error(f"❌ HandlerProxyService initialization failed: {e}")
+        handler_proxy_service = None
 
     logger.info("✅ ZANTARA RAG Backend ready on port 8000")
 
@@ -642,15 +632,76 @@ async def bali_zero_chat(request: BaliZeroRequest):
 
         messages.append({"role": "user", "content": user_message})
 
-        # Generate response
-        response = await anthropic_client.chat_async(
-            messages=messages,
-            model=model_alias,
-            max_tokens=1500,
-            system=enhanced_prompt  # ← Enhanced with memory!
-        )
+        # TOOL USE: Get available tools if handler proxy is available
+        tools = []
+        tool_executor = None
+        if handler_proxy_service:
+            try:
+                internal_key = os.getenv("API_KEYS_INTERNAL")
+                tool_executor = ToolExecutor(handler_proxy_service, internal_key)
+                tools = await tool_executor.get_available_tools()
+                if tools:
+                    logger.info(f"🔧 Loaded {len(tools)} tools for AI")
+            except Exception as e:
+                logger.warning(f"Failed to load tools, continuing without: {e}")
 
-        answer = response.get("text", "")
+        # Generate response with tool use support
+        max_iterations = 5  # Prevent infinite loops
+        iteration = 0
+        answer = ""
+
+        while iteration < max_iterations:
+            iteration += 1
+
+            response = await anthropic_client.chat_async(
+                messages=messages,
+                model=model_alias,
+                max_tokens=1500,
+                system=enhanced_prompt,
+                tools=tools if tools else None
+            )
+
+            answer_text = response.get("text", "")
+            tool_uses = response.get("tool_uses", [])
+            stop_reason = response.get("stop_reason")
+
+            # If no tool use, we're done
+            if stop_reason != "tool_use" or not tool_uses:
+                answer = answer_text
+                break
+
+            # AI wants to use tools
+            logger.info(f"🤖 AI requesting {len(tool_uses)} tool calls")
+
+            # Execute tools
+            if tool_executor:
+                tool_results = await tool_executor.execute_tool_calls(tool_uses)
+
+                # Add assistant message with tool uses
+                messages.append({
+                    "role": "assistant",
+                    "content": [
+                        {"type": "text", "text": answer_text} if answer_text else None,
+                        *tool_uses
+                    ]
+                })
+
+                # Add tool results
+                messages.append({
+                    "role": "user",
+                    "content": tool_results
+                })
+
+                # Continue conversation loop
+                logger.info(f"🔄 Tool execution complete, continuing conversation (iteration {iteration})")
+            else:
+                # No tool executor available, break loop
+                answer = answer_text + "\n\n(Tool execution not available)"
+                break
+
+        if iteration >= max_iterations:
+            logger.warning(f"⚠️ Max tool use iterations reached ({max_iterations})")
+            answer = answer_text + "\n\n(Conversation limit reached)"
 
         # Ensure explicit personalization when collaborator is recognized
         try:

@@ -115,6 +115,10 @@ import {
 // Zero Mode - Development Tools (Zero-only access)
 import { handlers as zeroHandlers } from "./handlers/zero/index.js";
 
+// System Introspection & Proxy
+import { getAllHandlers, getHandlersByCategory, getHandlerDetails, getAnthropicToolDefinitions } from "./handlers/system/handlers-introspection.js";
+import { executeHandler, executeBatchHandlers } from "./handlers/system/handler-proxy.js";
+
 const ActionSchema = z.object({
   key: z.string(),
   params: z.record(z.any()).default({}),
@@ -133,6 +137,13 @@ async function runHandler(key: string, params: any, ctx: any) {
   const handler = handlers[key];
   if (!handler) throw new Error(`handler_not_found: ${key}`);
   return await handler(params, ctx?.req);
+}
+
+/**
+ * Get handler by key (used by proxy)
+ */
+export async function getHandler(key: string) {
+  return handlers[key];
 }
 
 async function aiChatWithFallback(ctx: any, params: any) {
@@ -848,6 +859,14 @@ const handlers: Record<string, Handler> = {
       return ok({ available: false, error: error.message });
     }
   },
+
+  // === SYSTEM INTROSPECTION & PROXY ===
+  "system.handlers.list": getAllHandlers,
+  "system.handlers.category": getHandlersByCategory,
+  "system.handlers.get": getHandlerDetails,
+  "system.handlers.tools": getAnthropicToolDefinitions,
+  "system.handler.execute": executeHandler,
+  "system.handlers.batch": executeBatchHandlers,
 };
 
 const BRIDGE_ONLY_KEYS = [
