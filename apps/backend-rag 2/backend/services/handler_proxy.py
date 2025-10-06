@@ -49,7 +49,7 @@ class HandlerProxyService:
             )
         """
         try:
-            endpoint = f"{self.backend_url}/system.handler.execute"
+            endpoint = f"{self.backend_url}/call"
 
             headers = {
                 "Content-Type": "application/json"
@@ -59,8 +59,8 @@ class HandlerProxyService:
                 headers["x-api-key"] = internal_key
 
             payload = {
-                "handler_key": handler_key,
-                "handler_params": params or {}
+                "key": handler_key,
+                "params": params or {}
             }
 
             logger.info(f"🔌 Executing handler: {handler_key}")
@@ -180,13 +180,17 @@ class HandlerProxyService:
             List of tool definitions ready for Anthropic API
         """
         try:
-            endpoint = f"{self.backend_url}/system.handlers.tools"
+            endpoint = f"{self.backend_url}/call"
 
-            headers = {}
+            headers = {"Content-Type": "application/json"}
             if internal_key:
                 headers["x-api-key"] = internal_key
 
-            response = await self.client.get(endpoint, headers=headers)
+            response = await self.client.post(
+                endpoint, 
+                json={"key": "system.handlers.tools"},
+                headers=headers
+            )
             response.raise_for_status()
 
             data = response.json()
