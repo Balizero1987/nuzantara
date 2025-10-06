@@ -2,6 +2,27 @@
 
 ## Latest Updates
 
+### 2025-10-06 17:15 (ChromaDB Clean Re-ingestion + Deploy) [sonnet-4.5_m1]
+
+**Changed**:
+- ChromaDB: Complete re-ingestion from KB source (7,564 docs, 8 collections, 91.4 MiB)
+- Uploaded to: `gs://nuzantara-chromadb-2025/chroma_db/`
+- Deployed: Revision `zantara-rag-backend-00083-w8l`
+- Collections: bali_zero_pricing (NEW), visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books
+
+**Details**:
+- Source KB: `/Users/antonellosiano/Desktop/KB/` (681 files)
+- Dedicated `bali_zero_pricing` collection created (14 docs, priority routing)
+- Contamination removed: 6 "Pricing Policy" docs + 9 pricing files relocated
+- Results: +2,037% documents (354 → 7,564), +60% collections (5 → 8)
+- Pricing accuracy: 50% → 70-80% (target 99.9% needs further work)
+
+**Related**:
+→ Full session: [2025-10-06_sonnet-4.5_m1.md](../diaries/2025-10-06_sonnet-4.5_m1.md)
+→ Re-ingestion script: /tmp/chromadb_analysis/reingest_chromadb_clean.py
+
+---
+
 ### 2025-10-03 20:30 (Deploy RAG v2.2-kitas-2025) [sonnet-4.5_m24]
 
 **Changed**:
