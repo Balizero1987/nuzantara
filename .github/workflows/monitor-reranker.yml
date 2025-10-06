@@ -29,6 +29,11 @@ jobs:
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
       - name: Resolve Service URL
         id: resolve
         shell: bash
@@ -70,4 +75,3 @@ jobs:
               labels: ['monitoring','reranker','p1']
             });
             core.info(`Opened issue #${issue.number}`);
-
