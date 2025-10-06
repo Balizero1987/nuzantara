@@ -1,4 +1,4 @@
-# 🚀 AI OPERATIONAL BOOTSTRAP - ZANTARA v5.2.0
+# 🚀 AI OPERATIONAL BOOTSTRAP - ZANTARA v5.4.0-tool-use
 
 ---
 
@@ -48,7 +48,7 @@ All session tracking now in `.claude/` directory:
 ## 📋 Project Identity
 
 **Name**: ZANTARA (NUZANTARA)
-**Version**: v5.2.0
+**Version**: v5.4.0-tool-use
 **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
 **Repository**: https://github.com/Balizero1987/nuzantara
 **Status**: Production (Cloud Run) + Local Development
@@ -60,12 +60,14 @@ All session tracking now in `.claude/` directory:
 **TypeScript Backend**:
 - URL: https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app
 - Port: 8080
-- Handlers: 104 RPC-style handlers via `/call`
+- Handlers: 107 RPC-style handlers via `/call` (104 core + 3 intel + tool proxy)
+- Tool Use: Anthropic tool execution via `system.handler.execute` + handler proxy (41 tools live).
 
 **Python RAG Backend**:
 - URL: https://zantara-rag-backend-himaadsxua-ew.a.run.app
 - Port: 8000
 - AI: Anthropic Claude (Haiku/Sonnet routing)
+- Memory: Phase 2 vector endpoints (`/api/memory/*`) with semantic + hybrid search (ensure `/api/memory/init` ran after deploy).
 
 **Frontend**:
 - Source: `apps/webapp/` (monorepo) → auto-sync → `Balizero1987/zantara_webapp`
@@ -161,10 +163,12 @@ NUZANTARA-2/
 
 ## 📊 Current State
 
-**Last Deployment**: 2025-10-05 00:00 UTC
-**Backend**: ✅ v5.2.0 (Cloud Run revision 00043-nrf)
-**RAG**: ✅ v2.3.0-reranker (revision 00068-nvn)
-**ChromaDB**: 7,375 docs, 88.2 MB (`gs://nuzantara-chromadb-2025/chroma_db/`)
+**Last Deployment**: 2025-10-06 14:10 CET
+**Backend**: ✅ v5.4.0-tool-use (Cloud Run latest; 107 handlers + Anthropic tool execution)
+**RAG**: ✅ v2.4.0-tool-use (revision 00095-vd7, tool loop active)
+**Tool Use Bridge**: ✅ RAG ↔ TS handler proxy online (41 tools).
+**ChromaDB**: 7,564 docs, 91 MiB (`gs://nuzantara-chromadb-2025/chroma_db/`)
+**Memory Phase 2**: ⚠️ `/api/memory/store` requires init (run `/api/memory/init` or ensure startup log `Memory vector collection prepared`).
 **GitHub Pages**: ✅ Active (auto-sync via `sync-webapp-to-pages.yml`)
 **Ollama**: Installed locally (unused; optional removal)
 
@@ -173,17 +177,18 @@ NUZANTARA-2/
 ## 🚧 Pending Tasks
 
 ### High Priority
-1. 🛠️ Monitor pricing retrieval – ensure "Pricing Policy" docs stay out of ChromaDB
-2. ⚠️ Migrate API keys to Secret Manager (currently env vars on Cloud Run)
+1. 🧠 Memory Phase 2: ensure `zantara_memories` collection initializes at startup (new `/api/memory/init` endpoint available).
+2. ⚠️ Migrate API keys to Secret Manager (currently env vars on Cloud Run).
+3. 🛰️ Enable GitHub Pages monitoring for sync workflow failures.
 
 ### Medium Priority
-3. Add unit tests for pricing validation
-4. Set up monitoring & alerting for 4xx/5xx spikes
-5. Harden GitHub Pages sync monitoring (alert on workflow failure)
+4. Expand tool registry beyond initial 41 handlers (TS ↔ RAG).
+5. Add unit tests for pricing validation and memory handlers.
+6. Set up monitoring & alerting for 4xx/5xx spikes.
 
 ### Low Priority
-6. Remove Ollama (unused, frees ~2GB)
-7. Update OpenAPI specs for new handlers/routes
+7. Remove Ollama (unused, frees ~2GB).
+8. Update OpenAPI specs for new handlers/routes.
 
 ---
 
@@ -216,4 +221,4 @@ Old handover logs archived in:
 ---
 
 **System Version**: 1.0.1 (Multi-CLI Session Tracking)
-**Last Updated**: 2025-10-06 04:10 WITA
+**Last Updated**: 2025-10-06 21:45 WITA (Tool use + memory init updates)

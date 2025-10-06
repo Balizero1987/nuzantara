@@ -5,6 +5,6 @@ export function ok<T = any>(data: T): ApiSuccess<T> {
   return { ok: true, data };
 }
 
-export function err(message: string, status?: number): ApiError {
+export function err(message: string, _status?: number): ApiError {
   return { ok: false, error: message };
 }

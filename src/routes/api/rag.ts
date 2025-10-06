@@ -89,11 +89,11 @@ router.post('/search', async (req: Request, res: Response) => {
 
     const result = await ragService.search(query, k);
 
-    res.json(result);
+    return res.json(result);
 
   } catch (error: any) {
     console.error('Search error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: error.message || 'Internal server error'
     });
   }

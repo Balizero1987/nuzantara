@@ -19,12 +19,16 @@
       "@middleware/*": ["src/middleware/*"],
       "@utils/*": ["src/utils/*"]
     },
-    "declaration": false,
-    "sourceMap": false,
-    "noEmitOnError": false,
+    "declaration": true,
+    "sourceMap": true,
+    "noEmitOnError": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true
   },
   "include": ["src/**/*"],
   "exclude": [

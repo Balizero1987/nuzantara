@@ -153,7 +153,8 @@ export class RealityAnchorSystem {
     const truthLower = truth.toLowerCase();
 
     // Direct contradiction patterns
-    if (claimLower.includes('not') && claimLower.includes(truthLower.split(' ')[0])) {
+    const firstWord = truthLower.split(' ')[0];
+    if (firstWord && claimLower.includes('not') && claimLower.includes(firstWord)) {
       return true;
     }
 

@@ -19,17 +19,38 @@ router = APIRouter(prefix="/api/memory", tags=["memory"])
 
 # Initialize services
 embedder = EmbeddingsGenerator()
+memory_vector_db: Optional[ChromaDBClient] = None
 
-# Use the same persistence path used by the main search service (set at startup)
-_persist_dir = os.environ.get("CHROMA_DB_PATH", "/tmp/chroma_db")
-memory_vector_db = ChromaDBClient(
-    persist_directory=_persist_dir,
-    collection_name="zantara_memories"
-)
 
-logger.info(
-    f"✅ Memory Vector Router initialized (collection='zantara_memories', path='{_persist_dir}')"
-)
+def initialize_memory_vector_db(persist_dir: Optional[str] = None) -> ChromaDBClient:
+    """Create or refresh the Chroma collection used for semantic memories."""
+    global memory_vector_db
+    target_dir = persist_dir or os.environ.get("CHROMA_DB_PATH", "/tmp/chroma_db")
+
+    try:
+        memory_vector_db = ChromaDBClient(
+            persist_directory=target_dir,
+            collection_name="zantara_memories"
+        )
+        stats = memory_vector_db.get_collection_stats()
+        logger.info(
+            "✅ Memory vector DB ready (collection='zantara_memories', path='%s', total=%s)"
+            % (target_dir, stats.get("total_documents", 0))
+        )
+    except Exception as exc:
+        logger.error(f"Memory vector DB initialization failed: {exc}")
+        raise
+
+    return memory_vector_db
+
+
+def get_memory_vector_db() -> ChromaDBClient:
+    """Return an initialized memory vector database instance."""
+    global memory_vector_db
+    if memory_vector_db is None:
+        logger.warning("Memory vector DB not initialized; creating with default path")
+        return initialize_memory_vector_db()
+    return memory_vector_db
 
 
 # Request/Response Models
@@ -70,7 +91,38 @@ class MemorySearchResponse(BaseModel):
     execution_time_ms: float
 
 
+class InitRequest(BaseModel):
+    persist_directory: Optional[str] = None
+
+
+class InitResponse(BaseModel):
+    status: str
+    collection: str
+    persist_directory: str
+    total_memories: int
+
+
 # Endpoints
+
+@router.post("/init", response_model=InitResponse)
+async def init_memory_collection(request: InitRequest) -> InitResponse:
+    """Reinitialize the semantic memory collection after deployments or resets."""
+    try:
+        db = initialize_memory_vector_db(request.persist_directory)
+        stats = db.get_collection_stats()
+        return InitResponse(
+            status="initialized",
+            collection=stats.get("collection_name", "zantara_memories"),
+            persist_directory=stats.get("persist_directory", request.persist_directory or os.environ.get("CHROMA_DB_PATH", "/tmp/chroma_db")),
+            total_memories=stats.get("total_documents", 0)
+        )
+    except Exception as exc:
+        logger.error(f"Memory vector init failed: {exc}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Initialization failed: {str(exc)}"
+        )
+
 
 @router.post("/embed", response_model=EmbedResponse)
 async def generate_embedding(request: EmbedRequest):
@@ -106,7 +158,8 @@ async def store_memory_vector(request: StoreMemoryRequest):
     - entities: Comma-separated entities
     """
     try:
-        memory_vector_db.upsert_documents(
+        db = get_memory_vector_db()
+        db.upsert_documents(
             chunks=[request.document],
             embeddings=[request.embedding],
             metadatas=[request.metadata],
@@ -155,7 +208,8 @@ async def search_memories_semantic(request: SearchMemoryRequest):
                     where_filter[key] = value
 
         # Search ChromaDB
-        results = memory_vector_db.search(
+        db = get_memory_vector_db()
+        results = db.search(
             query_embedding=request.query_embedding,
             filter=where_filter,
             limit=request.limit
@@ -201,8 +255,10 @@ async def find_similar_memories(request: SimilarMemoryRequest):
     try:
         start_time = time.time()
 
+        db = get_memory_vector_db()
+
         # Get the memory's embedding from ChromaDB
-        memory = memory_vector_db.collection.get(
+        memory = db.collection.get(
             ids=[request.memory_id],
             include=["embeddings"]
         )
@@ -216,7 +272,7 @@ async def find_similar_memories(request: SimilarMemoryRequest):
         # Search using this embedding
         query_embedding = memory["embeddings"][0]
 
-        results = memory_vector_db.search(
+        results = db.search(
             query_embedding=query_embedding,
             limit=request.limit + 1  # +1 because it will include itself
         )
@@ -276,7 +332,8 @@ async def find_similar_memories(request: SimilarMemoryRequest):
 async def delete_memory_vector(memory_id: str):
     """Delete memory from vector store"""
     try:
-        memory_vector_db.collection.delete(ids=[memory_id])
+        db = get_memory_vector_db()
+        db.collection.delete(ids=[memory_id])
 
         logger.info(f"✅ Memory deleted: {memory_id}")
 
@@ -296,7 +353,8 @@ async def delete_memory_vector(memory_id: str):
 async def get_memory_stats():
     """Get memory collection statistics"""
     try:
-        stats = memory_vector_db.get_collection_stats()
+        db = get_memory_vector_db()
+        stats = db.get_collection_stats()
 
         return {
             "total_memories": stats.get("total_documents", 0),
@@ -304,7 +362,7 @@ async def get_memory_stats():
             "persist_directory": stats.get("persist_directory", ""),
             "users": len(set([
                 m.get("userId", "")
-                for m in memory_vector_db.collection.peek(limit=1000).get("metadatas", [])
+                for m in db.collection.peek(limit=1000).get("metadatas", [])
             ])),
             "collection_size_mb": stats.get("total_documents", 0) * 0.001  # Rough estimate
         }
@@ -322,7 +380,8 @@ async def get_memory_stats():
 async def memory_vector_health():
     """Health check for memory vector service"""
     try:
-        stats = memory_vector_db.get_collection_stats()
+        db = get_memory_vector_db()
+        stats = db.get_collection_stats()
 
         return {
             "status": "operational",

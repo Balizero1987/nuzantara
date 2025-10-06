@@ -49,18 +49,18 @@ function extractHandlers(): HandlerInfo[] {
 
   while ((match = handlerBlockRegex.exec(content)) !== null) {
     const key = match[1];
-    const description = match[2].trim().replace(/\s+/g, ' ').slice(0, 100);
-    const category = key.split('.')[0];
+    const description = match[2]?.trim().replace(/\s+/g, ' ').slice(0, 100) || '';
+    const category = key?.split('.')[0] || 'unknown';
 
-    handlers.push({ key, category, description });
+    handlers.push({ key: key || '', category, description });
   }
 
   // Also extract simple handlers (without JSDoc) from handlers object
   const simpleHandlerRegex = /"([a-z.]+)":\s*\w+/g;
   while ((match = simpleHandlerRegex.exec(content)) !== null) {
     const key = match[1];
-    if (!handlers.find(h => h.key === key)) {
-      const category = key.split('.')[0];
+    if (key && !handlers.find(h => h.key === key)) {
+      const category = key.split('.')[0] || 'unknown';
       handlers.push({ key, category, description: '' });
     }
   }

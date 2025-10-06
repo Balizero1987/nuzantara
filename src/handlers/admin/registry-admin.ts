@@ -12,7 +12,7 @@ import { ok } from "../../utils/response.js";
  * GET /admin/handlers/list
  * List all registered handlers
  */
-export async function listAllHandlers(params: any, req?: any) {
+export async function listAllHandlers(_params: any, _req?: any) {
   const handlers = globalRegistry.list();
 
   return ok({
@@ -25,7 +25,7 @@ export async function listAllHandlers(params: any, req?: any) {
  * GET /admin/handlers/stats
  * Get registry statistics
  */
-export async function getHandlerStats(params: any, req?: any) {
+export async function getHandlerStats(_params: any, _req?: any) {
   const stats = globalRegistry.getStats();
 
   return ok({
@@ -38,7 +38,7 @@ export async function getHandlerStats(params: any, req?: any) {
  * GET /admin/handlers/module/:module
  * List handlers in a specific module
  */
-export async function listModuleHandlers(params: any, req?: any) {
+export async function listModuleHandlers(params: any, _req?: any) {
   const { module } = params;
 
   if (!module) {
@@ -61,7 +61,7 @@ export async function listModuleHandlers(params: any, req?: any) {
  * GET /admin/handlers/search
  * Search handlers by keyword
  */
-export async function searchHandlers(params: any, req?: any) {
+export async function searchHandlers(params: any, _req?: any) {
   const { query = '' } = params;
 
   if (!query) {

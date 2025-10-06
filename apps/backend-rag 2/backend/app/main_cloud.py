@@ -212,6 +212,12 @@ async def startup_event():
         # Initialize Search Service
         search_service = SearchService()
         logger.info("✅ ChromaDB search service ready (from GCS)")
+
+        try:
+            initialize_memory_vector_db(chroma_path)
+            logger.info("✅ Memory vector collection prepared")
+        except Exception as memory_exc:
+            logger.error(f"❌ Memory vector initialization failed: {memory_exc}")
     except Exception as e:
         import traceback
         logger.error(f"❌ ChromaDB initialization failed: {e}")
@@ -775,7 +781,10 @@ from app.auth_mock import router as auth_router
 app.include_router(auth_router)
 
 # Include memory vector router (Phase 2)
-from app.routers.memory_vector import router as memory_vector_router
+from app.routers.memory_vector import (
+    router as memory_vector_router,
+    initialize_memory_vector_db
+)
 app.include_router(memory_vector_router)
 
 # Include intel news router (Bali Intel Scraper)
