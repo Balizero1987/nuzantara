@@ -1,0 +1,66 @@
+name: Deploy RAG Backend (Tool Use)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/backend-rag 2/backend/**'
+      - '.github/workflows/deploy-rag-amd64.yml'
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  REGION: europe-west1
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REPO: ${{ secrets.GCP_ARTIFACT_REPO }}
+  SERVICE: zantara-rag-backend
+  IMAGE_NAME: zantara-rag-backend
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up gcloud auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Artifact Registry auth
+        run: gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+
+      - name: Build & Push Image (AMD64)
+        working-directory: "apps/backend-rag 2/backend"
+        run: |
+          set -euo pipefail
+          IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/$REPO/$IMAGE_NAME:${GITHUB_SHA}"
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          docker buildx build --platform linux/amd64 -t "$IMAGE" --push .
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy "$SERVICE" \
+            --image "$IMAGE" \
+            --region "$REGION" \
+            --project "$PROJECT_ID" \
+            --port 8000 \
+            --allow-unauthenticated \
+            --set-env-vars ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }},TYPESCRIPT_BACKEND_URL=${{ secrets.TS_BACKEND_URL }},API_KEYS_INTERNAL=zantara-internal-dev-key-2025,ENABLE_RERANKER=true
+
+      - name: Post-Deployment Smoke Test
+        run: |
+          set -euo pipefail
+          sleep 25
+          curl -sS https://zantara-rag-backend-himaadsxua-ew.a.run.app/health || (echo 'Health check failed' && exit 1)
+          echo 'Health OK'
