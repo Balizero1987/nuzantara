@@ -457,17 +457,30 @@ function getCategories() {
  * Generate Anthropic tool definitions for all handlers
  */
 export async function getAnthropicToolDefinitions() {
-  const tools = Object.values(HANDLER_REGISTRY).map(handler => ({
-    name: handler.key.replace(/\./g, '_'), // Anthropic doesn't allow dots in tool names
-    description: handler.description,
-    input_schema: {
-      type: "object",
-      properties: handler.params || {},
-      required: Object.entries(handler.params || {})
-        .filter(([_, meta]) => meta.required)
-        .map(([name, _]) => name)
+  const tools = Object.values(HANDLER_REGISTRY).map(handler => {
+    // Clean properties: remove 'required' field (it goes in separate array)
+    const properties: Record<string, any> = {};
+    if (handler.params) {
+      for (const [key, value] of Object.entries(handler.params)) {
+        properties[key] = {
+          type: value.type,
+          description: value.description
+        };
+      }
     }
-  }));
+
+    return {
+      name: handler.key.replace(/\./g, '_'), // Anthropic doesn't allow dots in tool names
+      description: handler.description,
+      input_schema: {
+        type: "object",
+        properties,
+        required: Object.entries(handler.params || {})
+          .filter(([_, meta]) => meta.required)
+          .map(([name, _]) => name)
+      }
+    };
+  });
 
   return ok({
     total: tools.length,
