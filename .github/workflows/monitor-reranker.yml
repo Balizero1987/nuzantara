@@ -1,0 +1,73 @@
+name: Monitor RAG Re-ranker
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # hourly
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  PROJECT: involuted-box-469105-r0
+  REGION: europe-west1
+  SERVICE: zantara-rag-backend
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Resolve Service URL
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+          gcloud config set project "$PROJECT" >/dev/null 2>&1 || true
+          URL=$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')
+          echo "service_url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Health check
+        id: health
+        env:
+          SERVICE_URL: ${{ steps.resolve.outputs.service_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "SERVICE_URL=$SERVICE_URL"
+          RESP=$(curl -fsS --max-time 15 "$SERVICE_URL/health")
+          echo "$RESP"
+          RERANKER=$(jq -r '.reranker // .enhancements.cross_encoder_reranking // false' <<<"$RESP")
+          if [ "$RERANKER" != "true" ]; then
+            echo "reranker_active=false" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "reranker_active=true" >> "$GITHUB_OUTPUT"
+
+      - name: Open Issue if not active
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'RAG Re-ranker inactive on production';
+            const body = `Auto-monitor detected reranker=false.\n\n- Service: ${process.env.SERVICE}\n- Region: ${process.env.REGION}\n- Project: ${process.env.PROJECT}\n- Time: ${new Date().toISOString()}\n\nPlease check Cloud Run env var ENABLE_RERANKER and logs ('RerankerService ready').`;
+            const { data: issue } = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['monitoring','reranker','p1']
+            });
+            core.info(`Opened issue #${issue.number}`);
+
