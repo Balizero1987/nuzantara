@@ -274,7 +274,7 @@ async def find_similar_memories(request: SimilarMemoryRequest):
         if hasattr(embeddings_raw, "tolist"):
             embeddings_raw = embeddings_raw.tolist()
 
-        if isinstance(embeddings_raw, list) and embeddings_raw:
+        if isinstance(embeddings_raw, list) and len(embeddings_raw) > 0:
             first_item = embeddings_raw[0]
             if isinstance(first_item, (list, tuple)):
                 query_embedding = list(first_item)
