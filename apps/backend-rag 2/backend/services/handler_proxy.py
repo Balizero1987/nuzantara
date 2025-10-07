@@ -187,8 +187,8 @@ class HandlerProxyService:
                 headers["x-api-key"] = internal_key
 
             response = await self.client.post(
-                endpoint, 
-                json={"key": "system.handlers.tools"},
+                endpoint,
+                json={"key": "system.handlers.tools", "params": {}},
                 headers=headers
             )
             response.raise_for_status()
