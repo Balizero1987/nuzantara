@@ -29,7 +29,7 @@ from services.tool_executor import ToolExecutor
 # from services.reranker_service import RerankerService  # Lazy import to avoid startup delay
 from llm.anthropic_client import AnthropicClient
 from llm.bali_zero_router import BaliZeroRouter
-from services.llama4_scout import get_llama4_scout  # Llama 4 Scout integration
+# from services.llama4_scout import get_llama4_scout  # Llama 4 Scout integration - DISABLED (module not in production)
 
 # Configure logging
 logging.basicConfig(
