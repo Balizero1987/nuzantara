@@ -1,0 +1,226 @@
+{
+  "immigration": {
+    "agent": "Adit",
+    "description": "Immigration & Visas intelligence",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://www.imigrasi.go.id",
+      "https://www.kemenkumham.go.id",
+      "https://jakarta.embassy.gov.au",
+      "https://balitourismboard.org",
+      "https://expat.or.id",
+      "https://www.bali.com",
+      "https://www.indonesia.travel"
+    ],
+    "keywords": ["visa", "kitas", "immigration", "permit", "imigrasi"],
+    "min_sources": 50
+  },
+  "business_bkpm": {
+    "agent": "Dea",
+    "description": "Business, BKPM, OSS intelligence",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://www.bkpm.go.id",
+      "https://oss.go.id",
+      "https://www.kadin-indonesia.or.id",
+      "https://www.indonesia-investments.com",
+      "https://www.antaranews.com",
+      "https://www.thejakartapost.com",
+      "https://www.tempo.co"
+    ],
+    "keywords": ["bkpm", "oss", "business", "investment", "perusahaan"],
+    "min_sources": 50
+  },
+  "real_estate": {
+    "agent": "Krisna",
+    "description": "Real Estate & Property intelligence",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://www.rumah123.com",
+      "https://www.lamudi.co.id",
+      "https://www.olx.co.id",
+      "https://balirealproperty.com",
+      "https://www.bali-real-estate.net",
+      "https://properti.kompas.com",
+      "https://www.iproperty.com.id"
+    ],
+    "keywords": ["property", "real estate", "villa", "tanah", "properti"],
+    "min_sources": 50
+  },
+  "events_culture": {
+    "agent": "Surya",
+    "description": "Events & Culture intelligence",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://www.eventbrite.com",
+      "https://www.timeout.com/bali",
+      "https://www.wheretostay.com",
+      "https://balispirit.com",
+      "https://thebaliagenda.com",
+      "https://www.baliplus.com",
+      "https://nowbali.co.id"
+    ],
+    "keywords": ["event", "festival", "culture", "ceremony", "budaya"],
+    "min_sources": 50
+  },
+  "social_media": {
+    "agent": "Sahira",
+    "description": "Social Media trends intelligence",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [],
+    "keywords": ["trending", "viral", "social media", "tiktok", "instagram"],
+    "min_sources": 0,
+    "auto_discover": true
+  },
+  "competitors": {
+    "agent": "Damar",
+    "description": "Competitors monitoring (all Bali/Indonesia services)",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://startupbali.com",
+      "https://www.hubud.org",
+      "https://balitourismboard.org",
+      "https://www.indonesia.travel",
+      "https://www.bali.com",
+      "https://expat.or.id",
+      "https://balibible.com"
+    ],
+    "keywords": ["startup", "coworking", "services", "expat services"],
+    "min_sources": 50,
+    "monitor_social": true
+  },
+  "general_news": {
+    "agent": "Vino",
+    "description": "General Bali/Indonesia news",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://www.thejakartapost.com",
+      "https://www.antaranews.com",
+      "https://www.tempo.co",
+      "https://www.kompas.com",
+      "https://www.detik.com",
+      "https://www.tribunnews.com",
+      "https://www.liputan6.com"
+    ],
+    "keywords": ["news", "berita", "bali", "indonesia"],
+    "min_sources": 50
+  },
+  "health_wellness": {
+    "agent": "Ari",
+    "description": "Health & Wellness intelligence",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://www.alodokter.com",
+      "https://www.halodoc.com",
+      "https://www.sehatq.com",
+      "https://www.klikdokter.com",
+      "https://rsup.sanglah.go.id",
+      "https://www.siloamhospitals.com",
+      "https://www.bimc.co.id"
+    ],
+    "keywords": ["health", "wellness", "kesehatan", "hospital", "dokter"],
+    "min_sources": 50
+  },
+  "tax_djp": {
+    "agent": "Veronika",
+    "description": "Tax & DJP intelligence",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://www.pajak.go.id",
+      "https://djponline.pajak.go.id",
+      "https://www.ortax.org",
+      "https://www.pajakku.com",
+      "https://www.klinikpajak.co.id",
+      "https://news.ddtc.co.id",
+      "https://www.konsultanpajak.com"
+    ],
+    "keywords": ["tax", "pajak", "djp", "npwp", "spt"],
+    "min_sources": 50
+  },
+  "jobs": {
+    "agent": "Anton",
+    "description": "Jobs & Employment intelligence",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://www.jobstreet.co.id",
+      "https://www.indeed.com",
+      "https://www.linkedin.com",
+      "https://glints.com",
+      "https://www.kalibrr.com",
+      "https://www.urbanhire.com",
+      "https://www.bossjob.id"
+    ],
+    "keywords": ["jobs", "career", "employment", "lowongan", "pekerjaan"],
+    "min_sources": 50
+  },
+  "lifestyle": {
+    "agent": "Dewa Ayu",
+    "description": "Lifestyle & Fashion intelligence",
+    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "seed_sites": [
+      "https://www.femina.co.id",
+      "https://www.cosmopolitan.co.id",
+      "https://www.elle.co.id",
+      "https://www.vogue.co.id",
+      "https://www.timeout.com/bali",
+      "https://www.thehoneycombers.com",
+      "https://nowbali.co.id"
+    ],
+    "keywords": ["lifestyle", "fashion", "beauty", "gaya hidup"],
+    "min_sources": 50
+  },
+  "ai_tech_global": {
+    "agent": "LLAMA",
+    "description": "Global AI & Tech news (RAG + Email only)",
+    "social_channels": [],
+    "email_recipients": ["zero@balizero.com"],
+    "seed_sites": [
+      "https://news.ycombinator.com",
+      "https://techcrunch.com",
+      "https://www.wired.com",
+      "https://www.theverge.com",
+      "https://news.mit.edu",
+      "https://arxiv.org",
+      "https://github.com/trending"
+    ],
+    "keywords": ["ai", "artificial intelligence", "machine learning", "tech"],
+    "min_sources": 0,
+    "rag_only": true
+  },
+  "dev_code_library": {
+    "agent": "LLAMA",
+    "description": "Best code repositories & libraries (RAG + Email only)",
+    "social_channels": [],
+    "email_recipients": ["zero@balizero.com"],
+    "seed_sites": [
+      "https://github.com/trending",
+      "https://dev.to",
+      "https://news.ycombinator.com",
+      "https://www.reddit.com/r/programming",
+      "https://medium.com/tag/programming",
+      "https://www.freecodecamp.org",
+      "https://stackoverflow.blog"
+    ],
+    "keywords": ["code", "library", "repository", "framework", "programming"],
+    "min_sources": 0,
+    "rag_only": true
+  },
+  "future_trends": {
+    "agent": "LLAMA",
+    "description": "Avant-garde ideas & future trends (RAG + Email only)",
+    "social_channels": [],
+    "email_recipients": ["zero@balizero.com"],
+    "seed_sites": [
+      "https://www.wired.com",
+      "https://www.technologyreview.com",
+      "https://singularityhub.com",
+      "https://www.kurzweilai.net",
+      "https://futureoflife.org",
+      "https://openai.com/blog",
+      "https://www.anthropic.com"
+    ],
+    "keywords": ["future", "trends", "innovation", "avant-garde", "emerging"],
+    "min_sources": 0,
+    "rag_only": true
+  }
+}

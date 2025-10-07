@@ -1,4 +1,5 @@
 import { ok } from "../../utils/response.js";
+import { cleanMarkdown, toPlainIfEnabled } from "../../utils/text.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getCachedAI, setCachedAI } from "../../services/cacheProxy.js";
@@ -78,11 +79,11 @@ function zantaraContext(base?: string, userInfo?: string) {
     console.warn('[zantaraContext] Failed to load handlers list:', e);
   }
 
-  const intro = `You are ZANTARA, AI assistant for Bali Zero.
+  let intro = `You are ZANTARA, AI assistant for Bali Zero.
 
 BALI ZERO - PT. BALI NOL IMPERSARIAT
-📍 Kerobokan, Bali | 📱 WhatsApp: +62 859 0436 9574 | 📧 info@balizero.com | 📸 @balizero0
-🌐 welcome.balizero.com | 💫 "From Zero to Infinity ∞"
+Location: Kerobokan, Bali | WhatsApp: +62 859 0436 9574 | Email: info@balizero.com | Instagram: @balizero0
+Website: welcome.balizero.com | Motto: From Zero to Infinity
 
 IMPORTANT: You have access to complete knowledge base via RAG (ChromaDB) with:
 - All Bali Zero services & exact pricing (17+ services)
@@ -102,11 +103,15 @@ ${handlersInfo}
 CAPABILITIES: You can perform actions using the handlers listed above.
 When a user asks about capabilities, refer to the handlers list.
 Examples:
-- "Can you save to memory?" → YES (memory.save handler)
-- "Can you access Google Drive?" → YES (drive.* handlers)
-- "Can you create calendar events?" → YES (calendar.create handler)
+- "Can you save to memory?" -> YES (memory.save handler)
+- "Can you access Google Drive?" -> YES (drive.* handlers)
+- "Can you create calendar events?" -> YES (calendar.create handler)
 
 Respond professionally and concisely.`;
+  const plain = process.env.ZANTARA_PLAIN_TEXT === '1' || process.env.ZANTARA_PLAIN_TEXT === 'true' || process.env.ZANTARA_OUTPUT_FORMAT === 'plain';
+  if (plain) {
+    intro = cleanMarkdown(intro);
+  }
   const userContext = userInfo ? `\nUser: ${userInfo}` : '';
   return base ? `${intro}${userContext}\n\n${base}` : `${intro}${userContext}`;
 }
@@ -130,7 +135,9 @@ export async function openaiChat(params: any) {
       { role: 'user', content: p }
     ];
     const resp = await openai.chat.completions.create({ model, messages, max_tokens: dynamicMaxTokens(p.length) });
-    const out = ok({ response: resp.choices?.[0]?.message?.content || '', model, usage: resp.usage || null, ts: Date.now() });
+    const raw = resp.choices?.[0]?.message?.content || '';
+    const text = toPlainIfEnabled(raw);
+    const out = ok({ response: text, model, usage: resp.usage || null, ts: Date.now() });
     await setCachedAI('openai', p, out);
     return out;
   } catch (e: any) {
@@ -165,8 +172,8 @@ export async function claudeChat(params: any) {
       });
 
       if (ragResult?.success && ragResult?.response) {
-        // RAG has complete answer, return it directly
-        const out = ok({ response: ragResult.response, model: ragResult.model_used || 'claude-rag', ts: Date.now(), sources: ragResult.sources });
+        const cleaned = toPlainIfEnabled(ragResult.response);
+        const out = ok({ response: cleaned, model: ragResult.model_used || 'claude-rag', ts: Date.now(), sources: ragResult.sources });
         await setCachedAI('claude', p, out);
         return out;
       }
@@ -183,7 +190,8 @@ export async function claudeChat(params: any) {
       system: zantaraContext(context + ragContext, userInfo),
       messages: [{ role: 'user', content: p }]
     });
-    const text = Array.isArray((resp as any).content) && (resp as any).content[0]?.type === 'text' ? (resp as any).content[0].text : '';
+    const textRaw = Array.isArray((resp as any).content) && (resp as any).content[0]?.type === 'text' ? (resp as any).content[0].text : '';
+    const text = toPlainIfEnabled(textRaw);
     const out = ok({ response: text, model, ts: Date.now() });
     await setCachedAI('claude', p, out);
     return out;
@@ -217,7 +225,8 @@ export async function geminiChat(params: any) {
       });
 
       if (ragResult?.success && ragResult?.response) {
-        const out = ok({ response: ragResult.response, model: ragResult.model_used || 'gemini-rag', ts: Date.now(), sources: ragResult.sources });
+        const cleaned = toPlainIfEnabled(ragResult.response);
+        const out = ok({ response: cleaned, model: ragResult.model_used || 'gemini-rag', ts: Date.now(), sources: ragResult.sources });
         await setCachedAI('gemini', p, out);
         return out;
       }
@@ -250,7 +259,7 @@ export async function geminiChat(params: any) {
     if (!text || text.trim().length === 0) {
       text = '[Gemini] No content returned';
     }
-    const out = ok({ response: text, model, ts: Date.now() });
+    const out = ok({ response: toPlainIfEnabled(text), model, ts: Date.now() });
     await setCachedAI('gemini', p, out);
     return out;
   } catch (e: any) {
@@ -323,7 +332,7 @@ export async function cohereChat(params: any) {
     const userInfo = userId || userEmail || userName || userIdentification;
     const preamble = zantaraContext(context, userInfo);
     const resp = await cohere.chat({ model, message: p, preamble, temperature });
-    const out = ok({ response: (resp as any).text || '', model, ts: Date.now() });
+    const out = ok({ response: toPlainIfEnabled((resp as any).text || ''), model, ts: Date.now() });
     await setCachedAI('cohere', p, out);
     return out;
   } catch (e: any) {
