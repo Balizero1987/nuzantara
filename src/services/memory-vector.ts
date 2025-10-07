@@ -1,6 +1,7 @@
 // Memory Vector Service for ZANTARA v5.2.0
 // Integrates with Python RAG backend for semantic memory search via embeddings
 import axios from 'axios';
+import { memoryCache, getCachedEmbedding, getCachedSearch } from './memory-cache.js';
 
 const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'http://localhost:8000';
 
@@ -23,16 +24,25 @@ interface VectorSearchResult {
 /**
  * Generate embedding for text using Python RAG backend
  * Uses existing EmbeddingsGenerator (sentence-transformers or OpenAI)
+ * WITH CACHING for performance optimization
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
   try {
-    // Call Python RAG backend to generate embedding
-    const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/embed`, {
-      text,
-      model: 'sentence-transformers' // Use FREE local embeddings
+    // Use cache wrapper
+    const { embedding, cached } = await getCachedEmbedding(text, async () => {
+      // Call Python RAG backend to generate embedding
+      const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/embed`, {
+        text,
+        model: 'sentence-transformers' // Use FREE local embeddings
+      });
+      return response.data.embedding;
     });
 
-    return response.data.embedding;
+    if (cached) {
+      console.log(`⚡ Embedding cache HIT for: "${text.substring(0, 40)}..."`);
+    }
+
+    return embedding;
   } catch (error: any) {
     console.error(`⚠️ Embedding generation failed (${RAG_BACKEND_URL}/api/memory/embed):`, error?.message);
     // Fallback: return zero vector (won't work for search but won't crash)
@@ -82,6 +92,7 @@ export async function storeMemoryVector(params: {
 
 /**
  * Semantic search across all memories using vector similarity
+ * WITH CACHING for performance optimization
  */
 export async function searchMemoriesSemantica(params: {
   query: string;
@@ -92,31 +103,44 @@ export async function searchMemoriesSemantica(params: {
   try {
     const { query, userId, limit = 10, entityFilter } = params;
 
-    // Generate query embedding
-    const queryEmbedding = await generateEmbedding(query);
-
-    // Search ChromaDB
-    const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/search`, {
-      query_embedding: queryEmbedding,
+    // Try cache first (ignore entityFilter for simplicity)
+    const cacheKey = `${query}|${userId || 'all'}`;
+    const { results: cachedResults, cached } = await getCachedSearch(
+      cacheKey,
+      userId,
       limit,
-      metadata_filter: {
-        ...(userId && { userId }),
-        ...(entityFilter && { entities: { $contains: entityFilter } })
+      async () => {
+        // Generate query embedding (also cached)
+        const queryEmbedding = await generateEmbedding(query);
+
+        // Search ChromaDB
+        const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/search`, {
+          query_embedding: queryEmbedding,
+          limit,
+          metadata_filter: {
+            ...(userId && { userId }),
+            ...(entityFilter && { entities: { $contains: entityFilter } })
+          }
+        });
+
+        // Transform results
+        return response.data.results.map((r: any, idx: number) => ({
+          id: response.data.ids[idx],
+          userId: r.metadata.userId,
+          content: r.document,
+          type: r.metadata.type,
+          timestamp: r.metadata.timestamp,
+          entities: r.metadata.entities ? r.metadata.entities.split(',') : [],
+          similarity: 1 / (1 + response.data.distances[idx]) // Convert distance to similarity
+        }));
       }
-    });
+    );
 
-    // Transform results
-    const results: VectorSearchResult[] = response.data.results.map((r: any, idx: number) => ({
-      id: response.data.ids[idx],
-      userId: r.metadata.userId,
-      content: r.document,
-      type: r.metadata.type,
-      timestamp: r.metadata.timestamp,
-      entities: r.metadata.entities ? r.metadata.entities.split(',') : [],
-      similarity: 1 / (1 + response.data.distances[idx]) // Convert distance to similarity
-    }));
+    if (cached) {
+      console.log(`⚡ Search cache HIT for: "${query.substring(0, 40)}..."`);
+    }
 
-    return results;
+    return cachedResults;
   } catch (error: any) {
     console.log('⚠️ Semantic search failed:', error?.message);
     return [];

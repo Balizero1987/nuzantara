@@ -97,6 +97,7 @@ import {
 
 // Memory & Persistence
 import { memorySave, memorySearch, memoryRetrieve, memoryList, memorySearchByEntity, memoryGetEntities, memoryEntityInfo, memorySearchSemantic, memorySearchHybrid } from "./handlers/memory/memory-firestore.js";
+import { memoryCacheStats, memoryCacheClear } from "./handlers/memory/memory-cache-stats.js";
 import { memoryEventSave, memoryTimelineGet, memoryEntityEvents } from "./handlers/memory/episodes-firestore.js";
 import { autoSaveConversation } from "./handlers/memory/conversation-autosave.js";
 import { userMemorySave, userMemoryRetrieve, userMemoryList, userMemoryLogin } from "./handlers/memory/user-memory.js";
@@ -637,6 +638,8 @@ const handlers: Record<string, Handler> = {
    * await call('memory.search.hybrid', { query: 'tax expert' })
    */
   "memory.search.hybrid": memorySearchHybrid,
+  "memory.cache.stats": memoryCacheStats,
+  "memory.cache.clear": memoryCacheClear,
 
   // User Memory handlers (team members) - TS implementation
   'user.memory.save': userMemorySave,
