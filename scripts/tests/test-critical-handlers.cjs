@@ -40,14 +40,15 @@ async function call(body) {
   const logFile = `${logDir}/${new Date().toISOString().slice(0,10)}_critical-handlers.jsonl`;
   const stream = fs.createWriteStream(logFile, { flags: 'a' });
 
+  const STRICT_MAPS = String(process.env.STRICT_MAPS || 'false') === 'true';
   let pass = 0; let fail = 0;
   for (const c of cases) {
     try {
       const r = await call(c.body);
       let ok = r.json && r.status === 200 && (r.json.ok !== false);
-      if (!ok && c.name.startsWith('maps.')) {
+      if (c.name.startsWith('maps.')) {
         const msg = typeof r.json === 'object' ? JSON.stringify(r.json) : '';
-        if (r.status === 400 && msg.includes('API key not configured')) ok = true;
+        if (!STRICT_MAPS && r.status === 400 && msg.includes('API key not configured')) ok = true;
       }
       if (ok) pass++; else fail++;
       stream.write(JSON.stringify({ case: c.name, status: r.status, ok: r.json?.ok, sample: JSON.stringify(r.json)?.slice(0,300) }) + '\n');
