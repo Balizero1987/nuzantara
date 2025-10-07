@@ -1,0 +1,133 @@
+{
+  "category_id": "07_general_news",
+  "category_name": "General News",
+  "collaborator": "Vino",
+  "target_sites": 50,
+  "pipeline": "public",
+  "output_channels": ["blog", "instagram", "facebook", "twitter", "whatsapp", "telegram"],
+  
+  "tier1_major_outlets": [
+    {
+      "url": "https://www.kompas.com",
+      "name": "Kompas",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://www.detik.com",
+      "name": "Detik",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://www.tempo.co",
+      "name": "Tempo",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.cnnindonesia.com",
+      "name": "CNN Indonesia",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.thejakartapost.com",
+      "name": "Jakarta Post",
+      "language": "en",
+      "priority": "high",
+      "check_frequency": "daily"
+    }
+  ],
+  
+  "tier2_regional": [
+    {
+      "url": "https://www.antaranews.com",
+      "name": "Antara News",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://bali.tribunnews.com",
+      "name": "Tribun Bali",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.balipost.com",
+      "name": "Bali Post",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://balisun.com",
+      "name": "Bali Sun",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://coconuts.co/bali",
+      "name": "Coconuts Bali",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "daily"
+    }
+  ],
+  
+  "tier3_international": [
+    {
+      "url": "https://www.reuters.com/world/asia-pacific/indonesia",
+      "name": "Reuters Indonesia",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.bbc.com/indonesian",
+      "name": "BBC Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.straitstimes.com/asia/se-asia/indonesia",
+      "name": "Straits Times Indonesia",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.scmp.com/news/asia/southeast-asia/indonesia",
+      "name": "South China Morning Post Indonesia",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.aljazeera.com/where/indonesia",
+      "name": "Al Jazeera Indonesia",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "search_keywords": ["Indonesia", "politics", "economy", "expat", "Bali", "regulation", "government", "policy"],
+  "content_focus": ["Politics affecting expats", "Economic news", "Major regulations", "Bali-specific news", "National policies"],
+  
+  "metadata": {
+    "created": "2025-10-07",
+    "last_updated": "2025-10-07",
+    "total_sources": 15,
+    "target": 50,
+    "status": "expanded_seed"
+  }
+}

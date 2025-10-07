@@ -1,6 +1,6 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-06 14:10 (Tool Use Integration - RAG ↔ TypeScript Handlers)
+> **Last Updated**: 2025-10-06 22:15 (Tool Use ACTIVE - v5.5.0)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 
 ---
@@ -8,10 +8,10 @@
 ## 📋 Project Identity
 
 **Name**: ZANTARA (NUZANTARA)
-**Version**: v5.4.0-tool-use
+**Version**: v5.5.0-tool-use-active
 **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
 **Repository**: https://github.com/Balizero1987/nuzantara
-**Status**: Production (Cloud Run) + Local Development
+**Status**: Production (Cloud Run) + Local Development + **TOOL USE ACTIVE**
 
 ---
 
@@ -23,11 +23,13 @@
 - **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
 - **Production URL**: https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app
 - **Port**: 8080
-- **Handlers**: 107 handlers (104 existing + 3 intel handlers)
+- **Handlers**: 107 handlers (41 exposed for tool use)
 - **Entry Point**: `dist/index.js`
 - **Docker**: `Dockerfile.dist`
 - **Deploy**: GitHub Actions (`.github/workflows/deploy-backend.yml`)
-- **New**: Intel news search handlers (intel.news.search, intel.news.critical, intel.news.trends)
+- **NEW**: ✅ **Tool Use Integration Active** - 41 handlers available for AI execution
+  - System endpoints: system.handlers.list, system.handlers.tools, system.handler.execute
+  - Anthropic-compatible tool definitions (JSON Schema draft 2020-12)
 
 ### **2. Python RAG Backend** (AI/Search)
 - **Language**: Python 3.11
@@ -39,7 +41,10 @@
 - **AI Models**: Anthropic Claude (Haiku/Sonnet routing)
 - **Entry Point**: `app/main_cloud.py` (prod), `app/main_integrated.py` (local)
 - **Deploy**: GitHub Actions (`.github/workflows/deploy-rag-amd64.yml`)
-- **New**: Intel news API (5 endpoints: /api/intel/search, /store, /critical, /trends, /stats)
+- **NEW**: ✅ **Tool Executor Active** - Can execute TypeScript handlers
+  - Handler proxy: connects to TypeScript backend via /call RPC
+  - Tool executor: converts Anthropic tool calls to handler execution
+  - Max 5 iterations for tool use loops
 - **Collections**: 16 total (8 KB + 8 intel topics)
 
 ### **3. Frontend** (Web UI)
@@ -201,14 +206,17 @@ cd zantara_webapp
 
 > **⚠️ UPDATE THIS** at end of session if major changes
 
-**Last Deployment**: 2025-10-06 14:10 CET
-**Backend**: ✅ v5.4.0-tool-use (107 handlers + 6 system handlers for tool use)
-**RAG**: ✅ v2.4.0-tool-use (Tool use integration active, 41 handlers available)
+**Last Deployment**: 2025-10-06 22:10 CET
+**Backend**: ✅ v5.5.0-tool-use-active (41 handlers for tool use + 66 additional handlers)
+**RAG**: ✅ v2.5.0-tool-use-active (Tool executor ACTIVE, real execution working)
 **Webapp**: ✅ Auto-deploying (intel-dashboard.html added)
 **ChromaDB**: 7,375 docs + 8 intel collections ready
-**GitHub Pages**: ✅ Active (auto-sync in progress)
+**GitHub Pages**: ✅ Active (auto-sync enabled)
 **Bali Intel Scraper**: ✅ Complete (31 files, 8 topics, 240+ sources)
-**Tool Use**: ✅ **ACTIVE** - Chatbot can execute 41 handlers (Gmail, Drive, Memory, etc.)
+**Tool Use**: ✅✅✅ **FULLY ACTIVE IN PRODUCTION!**
+  - Status: Chatbot executes real TypeScript handlers (not simulation)
+  - Tests: team_list ✅ (23 members), bali_zero_pricing ✅ (20M IDR)
+  - Available: Gmail, Drive, Calendar, Memory, AI, Identity, Bali Zero, Communication
 **Ollama**: Installed locally (llama3.2:3b, 2GB) but **UNUSED** (can be removed)
 
 ---

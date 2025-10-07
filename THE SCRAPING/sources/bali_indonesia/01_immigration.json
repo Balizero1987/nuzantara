@@ -1,0 +1,285 @@
+{
+  "category_id": "01_immigration",
+  "category_name": "Immigration & Visas",
+  "collaborator": "Adit",
+  "target_sites": 50,
+  "pipeline": "public",
+  "output_channels": ["blog", "instagram", "facebook", "twitter", "whatsapp", "telegram"],
+  
+  "tier1_government": [
+    {
+      "url": "https://www.imigrasi.go.id/id/",
+      "name": "Direktorat Jenderal Imigrasi",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://www.kemenkumham.go.id/berita",
+      "name": "Kementerian Hukum dan HAM",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://kemlu.go.id/portal/id",
+      "name": "Kementerian Luar Negeri",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://www.indonesia.go.id",
+      "name": "Portal Indonesia Official",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://jdih.kemenkumham.go.id",
+      "name": "JDIH Kemenkumham (Legal Database)",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    }
+  ],
+  
+  "tier2_media": [
+    {
+      "url": "https://www.kompas.com",
+      "name": "Kompas",
+      "language": "id",
+      "search_terms": ["visa", "imigrasi", "KITAS", "KITAP"],
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.detik.com",
+      "name": "Detik",
+      "language": "id",
+      "search_terms": ["imigrasi", "visa", "overstay"],
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.thejakartapost.com",
+      "name": "Jakarta Post",
+      "language": "en",
+      "section": "indonesia",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.tempo.co",
+      "name": "Tempo",
+      "language": "id",
+      "search_terms": ["imigrasi", "visa"],
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.cnnindonesia.com",
+      "name": "CNN Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.antaranews.com",
+      "name": "Antara News",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://bali.tribunnews.com",
+      "name": "Tribun Bali",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.balipost.com",
+      "name": "Bali Post",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://coconuts.co/bali",
+      "name": "Coconuts Bali",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.balitimes.com",
+      "name": "Bali Times",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "daily"
+    }
+  ],
+  
+  "tier3_community": [
+    {
+      "url": "https://indonesiaexpat.id",
+      "name": "Indonesia Expat",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "3x_weekly"
+    },
+    {
+      "url": "https://www.thebalibible.com",
+      "name": "Bali Bible",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "3x_weekly"
+    },
+    {
+      "url": "https://www.bali.com",
+      "name": "Bali.com",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "3x_weekly"
+    },
+    {
+      "url": "https://www.reddit.com/r/bali",
+      "name": "Reddit r/bali",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "3x_weekly"
+    },
+    {
+      "url": "https://www.reddit.com/r/indonesia",
+      "name": "Reddit r/indonesia",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "3x_weekly"
+    },
+    {
+      "url": "https://www.expat.com/en/destination/asia/indonesia",
+      "name": "Expat.com Indonesia",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.internations.org/bali-expats",
+      "name": "InterNations Bali",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.facebook.com/groups/baliexpats",
+      "name": "Facebook Bali Expats",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly",
+      "requires_auth": true
+    },
+    {
+      "url": "https://www.facebook.com/groups/baliexpatservices",
+      "name": "Facebook Bali Expat Services",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly",
+      "requires_auth": true
+    },
+    {
+      "url": "https://www.livinginindonesiaforum.org",
+      "name": "Living in Indonesia Forum",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "tier3_additional": [
+    {
+      "url": "https://www.indonesia-investments.com",
+      "name": "Indonesia Investments",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://asiatravelguide.info/indonesia/bali-visa",
+      "name": "Asia Travel Guide - Bali Visa",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.immi.gov.au/help-support/visa-status-enquiry",
+      "name": "Australian Embassy Indonesia (reciprocal info)",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "monthly"
+    },
+    {
+      "url": "https://www.gov.uk/world/organisations/british-embassy-jakarta",
+      "name": "British Embassy Jakarta",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "monthly"
+    },
+    {
+      "url": "https://id.usembassy.gov",
+      "name": "US Embassy Indonesia",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "monthly"
+    }
+  ],
+  
+  "search_keywords": [
+    "visa Indonesia",
+    "KITAS",
+    "KITAP",
+    "imigrasi",
+    "overstay",
+    "B211A",
+    "B211B",
+    "B213",
+    "E28A investor visa",
+    "golden visa Indonesia",
+    "visa extension",
+    "immigration office Bali",
+    "sponsor letter",
+    "visa on arrival",
+    "visa free",
+    "second home visa"
+  ],
+  
+  "content_focus": [
+    "New visa regulations",
+    "KITAS/KITAP procedure changes",
+    "Application deadlines",
+    "Fee/tariff changes",
+    "Office closures/holidays",
+    "Penalty/overstay fines",
+    "New visa types",
+    "Golden Visa updates",
+    "Sponsor requirements",
+    "Document requirements"
+  ],
+  
+  "exclude_patterns": [
+    "sports news",
+    "celebrity gossip",
+    "weather forecasts",
+    "ads for visa services",
+    "spam",
+    "news older than 7 days"
+  ],
+  
+  "metadata": {
+    "created": "2025-10-07",
+    "last_updated": "2025-10-07",
+    "total_sources": 35,
+    "target": 50,
+    "status": "initial_list"
+  }
+}

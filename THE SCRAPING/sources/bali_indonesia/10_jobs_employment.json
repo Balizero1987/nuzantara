@@ -1,0 +1,119 @@
+{
+  "category_id": "10_jobs_employment",
+  "category_name": "Jobs & Employment",
+  "collaborator": "Anton",
+  "target_sites": 50,
+  "pipeline": "public",
+  "output_channels": ["blog", "instagram", "facebook", "twitter", "whatsapp", "telegram"],
+  
+  "tier1_government_portals": [
+    {
+      "url": "https://www.kemnaker.go.id",
+      "name": "Kementerian Ketenagakerjaan",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://kemnaker.go.id/imta",
+      "name": "IMTA Information",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "daily"
+    }
+  ],
+  
+  "tier2_job_portals": [
+    {
+      "url": "https://www.jobstreet.co.id",
+      "name": "JobStreet Indonesia",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.linkedin.com/jobs/indonesia-jobs",
+      "name": "LinkedIn Indonesia Jobs",
+      "language": "en",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://id.indeed.com",
+      "name": "Indeed Indonesia",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.glints.com/id",
+      "name": "Glints Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.kalibrr.com/id-ID",
+      "name": "Kalibrr Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.jobsdb.com/id",
+      "name": "JobsDB Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "tier3_expat_jobs": [
+    {
+      "url": "https://www.experteer.com/search/jobs/Indonesia",
+      "name": "Experteer Indonesia",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.bayt.com/en/indonesia",
+      "name": "Bayt Indonesia",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://remote.co/remote-jobs/indonesia",
+      "name": "Remote.co Indonesia",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://weworkremotely.com",
+      "name": "We Work Remotely",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.flexjobs.com",
+      "name": "FlexJobs",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "monthly"
+    }
+  ],
+  
+  "search_keywords": ["IMTA", "work permit Indonesia", "expat jobs", "remote work Indonesia", "salary Indonesia", "RPTKA"],
+  "content_focus": ["Work permits (IMTA)", "Job market trends", "Salary benchmarks", "Remote work regulations", "Employment law"],
+  
+  "metadata": {
+    "created": "2025-10-07",
+    "last_updated": "2025-10-07",
+    "total_sources": 13,
+    "target": 50,
+    "status": "expanded_seed"
+  }
+}

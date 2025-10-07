@@ -1,0 +1,126 @@
+{
+  "category_id": "08_health_wellness",
+  "category_name": "Health & Wellness",
+  "collaborator": "Ari",
+  "target_sites": 50,
+  "pipeline": "public",
+  "output_channels": ["blog", "instagram", "facebook", "twitter", "whatsapp", "telegram"],
+  
+  "tier1_government_hospitals": [
+    {
+      "url": "https://www.kemkes.go.id",
+      "name": "Kementerian Kesehatan",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://covid19.go.id",
+      "name": "Covid-19 Indonesia Official",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://www.bimcbali.com",
+      "name": "BIMC Hospital Bali",
+      "language": "en",
+      "priority": "critical",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.siloamhospitals.com/bali",
+      "name": "Siloam Hospital Bali",
+      "language": "en",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.kasihinternational.com",
+      "name": "Kasih International Hospital",
+      "language": "en",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.primayahospital.com/bali",
+      "name": "Primaya Hospital Bali",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    }
+  ],
+  
+  "tier2_insurance_services": [
+    {
+      "url": "https://www.allianz.co.id",
+      "name": "Allianz Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.axa.co.id",
+      "name": "AXA Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.cigna.co.id",
+      "name": "Cigna Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.pacificprimeindo.com",
+      "name": "Pacific Prime Indonesia",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "tier3_health_info": [
+    {
+      "url": "https://www.bpjs-kesehatan.go.id",
+      "name": "BPJS Kesehatan",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.alodokter.com",
+      "name": "Alodokter",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.halodoc.com",
+      "name": "Halodoc",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.who.int/indonesia",
+      "name": "WHO Indonesia",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "search_keywords": ["health insurance", "hospital Bali", "Covid", "vaccination", "medical tourism", "BPJS", "expat health"],
+  "content_focus": ["Healthcare access", "Insurance for expats", "Covid regulations", "Medical services", "BPJS updates", "Vaccination requirements"],
+  
+  "metadata": {
+    "created": "2025-10-07",
+    "last_updated": "2025-10-07",
+    "total_sources": 14,
+    "target": 50,
+    "status": "expanded_seed"
+  }
+}

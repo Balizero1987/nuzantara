@@ -2,6 +2,53 @@
 
 ## Latest Updates
 
+### 2025-10-06 22:10 (Tool Use Integration Complete) [sonnet-4.5_m5]
+
+**Changed**:
+- RAG Backend: Tool execution ACTIVE
+- Revision: `zantara-rag-backend-00102-cjs`
+- Version: v2.5.0-tool-use-active
+- Handler Proxy: Fixed endpoints (POST /call RPC format)
+
+**Details**:
+- File: `apps/backend-rag 2/backend/services/handler_proxy.py`
+  - Fixed `get_anthropic_tools()`: GET /system.handlers.tools → POST /call {"key": "system.handlers.tools"}
+  - Fixed `execute_handler()`: POST /system.handler.execute → POST /call {"key": handler_key, "params": params}
+- TypeScript Backend URL: Updated to `https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app`
+- Tools loaded: 41 (confirmed in logs: "🔧 Loaded 41 tools for AI")
+- Tool execution: ✅ Working (logs: "🔌 Executing handler: team.list", "✅ Tool executed successfully")
+
+**Tests Passed**:
+1. ✅ Team list query → Executed `team_list` → 23 members returned
+2. ✅ Pricing query → Executed `bali_zero_pricing` → 20M IDR returned
+
+**Deployment**:
+- GitHub Actions: deploy-rag-amd64.yml
+- Run IDs: 18289885355, 18290478419
+- Duration: 7m12s, 8m0s
+- Commits: `d9f1c2c`, `6ddcf1f`
+
+**Traffic Routing**:
+- Manual routing required: `gcloud run services update-traffic zantara-rag-backend --region=europe-west1 --to-latest`
+- Current: 100% on revision 00102-cjs
+
+**Health Check**:
+```bash
+# Test tool execution
+curl -X POST https://zantara-rag-backend-himaadsxua-ew.a.run.app/bali-zero/chat \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: zantara-internal-dev-key-2025" \
+  -d '{"query": "list all team members", "user_id": "test", "session_id": "test"}' \
+  | jq '.response' | head -20
+# Expected: AI executes team_list and returns 23 team members
+```
+
+**Related**:
+→ Full session: [2025-10-06_sonnet-4.5_m5.md](../diaries/2025-10-06_sonnet-4.5_m5.md)
+→ TypeScript backend tool use: [deploy-backend.md](deploy-backend.md#2025-10-06-2210)
+
+---
+
 ### 2025-10-06 17:15 (ChromaDB Clean Re-ingestion + Deploy) [sonnet-4.5_m1]
 
 **Changed**:

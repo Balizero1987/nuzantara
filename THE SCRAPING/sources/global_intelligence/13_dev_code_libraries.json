@@ -1,0 +1,119 @@
+{
+  "category_id": "13_dev_code_libraries",
+  "category_name": "Developer Code Libraries",
+  "collaborator": "AUTO",
+  "target_sites": 100,
+  "pipeline": "email_only",
+  "output_channels": ["email"],
+  "email_recipient": "zero@balizero.com",
+  
+  "tier1_platforms": [
+    {
+      "url": "https://github.com/trending",
+      "name": "GitHub Trending",
+      "language": "multi",
+      "priority": "critical",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://github.com/trending/typescript",
+      "name": "GitHub Trending TypeScript",
+      "language": "typescript",
+      "priority": "critical",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://github.com/trending/python",
+      "name": "GitHub Trending Python",
+      "language": "python",
+      "priority": "critical",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://github.com/trending/javascript",
+      "name": "GitHub Trending JavaScript",
+      "language": "javascript",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://about.gitlab.com/blog",
+      "name": "GitLab Blog",
+      "language": "multi",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "tier2_specific_tech": [
+    {
+      "url": "https://github.com/topics/nodejs",
+      "name": "GitHub Node.js",
+      "language": "javascript",
+      "priority": "high",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://github.com/topics/react",
+      "name": "GitHub React",
+      "language": "javascript",
+      "priority": "high",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://github.com/topics/machine-learning",
+      "name": "GitHub ML",
+      "language": "python",
+      "priority": "high",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://github.com/topics/devops",
+      "name": "GitHub DevOps",
+      "language": "multi",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "tier3_awesome_lists": [
+    {
+      "url": "https://github.com/sindresorhus/awesome",
+      "name": "Awesome Lists",
+      "language": "multi",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://github.com/vinta/awesome-python",
+      "name": "Awesome Python",
+      "language": "python",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://github.com/enaqx/awesome-react",
+      "name": "Awesome React",
+      "language": "javascript",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "search_keywords": ["typescript", "react", "python", "AI library", "devops", "framework", "boilerplate"],
+  "content_focus": [
+    "High-quality code libraries",
+    "Innovative solutions",
+    "Performance optimization tools",
+    "Developer productivity",
+    "New frameworks & boilerplates"
+  ],
+  
+  "metadata": {
+    "created": "2025-10-07",
+    "total_sources": 12,
+    "target": 100,
+    "status": "seed_list",
+    "note": "Email digest only - Code repository focused"
+  }
+}

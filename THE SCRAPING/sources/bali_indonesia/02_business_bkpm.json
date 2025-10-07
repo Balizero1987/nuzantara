@@ -1,0 +1,147 @@
+{
+  "category_id": "02_business_bkpm",
+  "category_name": "Business & BKPM",
+  "collaborator": "Dea",
+  "target_sites": 50,
+  "pipeline": "public",
+  "output_channels": ["blog", "instagram", "facebook", "twitter", "whatsapp", "telegram"],
+  
+  "tier1_government": [
+    {
+      "url": "https://www.bkpm.go.id",
+      "name": "BKPM Indonesia",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://oss.go.id",
+      "name": "OSS Indonesia",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://www.kemenkeu.go.id",
+      "name": "Kementerian Keuangan",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://www.kemendag.go.id",
+      "name": "Kementerian Perdagangan",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.bi.go.id",
+      "name": "Bank Indonesia",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.kemenperin.go.id",
+      "name": "Kementerian Perindustrian",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://kbli.kemenperin.go.id",
+      "name": "KBLI Database",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "tier2_media": [
+    {
+      "url": "https://www.bisnis.com",
+      "name": "Bisnis Indonesia",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.kontan.co.id",
+      "name": "Kontan",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://ekonomi.kompas.com",
+      "name": "Kompas Ekonomi",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.cnbcindonesia.com",
+      "name": "CNBC Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.indonesia-investments.com",
+      "name": "Indonesia Investments",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "daily"
+    }
+  ],
+  
+  "tier3_industry": [
+    {
+      "url": "https://kadin.id",
+      "name": "Kadin Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.apindo.or.id",
+      "name": "APINDO",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.deloitte.com/id/en.html",
+      "name": "Deloitte Indonesia",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.pwc.com/id",
+      "name": "PwC Indonesia",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www2.deloitte.com/id",
+      "name": "Deloitte Indonesia Insights",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "monthly"
+    }
+  ],
+  
+  "search_keywords": ["PT", "PMA", "OSS", "BKPM", "investment", "business license", "company registration", "foreign investment", "DNI", "business regulation"],
+  "content_focus": ["PT/PMA regulations", "OSS updates", "Investment policies", "Business licensing", "Political news affecting business", "KBLI changes"],
+  
+  "metadata": {
+    "created": "2025-10-07",
+    "last_updated": "2025-10-07",
+    "total_sources": 17,
+    "target": 50,
+    "status": "expanded_seed"
+  }
+}
