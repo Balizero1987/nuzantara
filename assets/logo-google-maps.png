@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Gmelius 404 Error</title>
+</head>
+  <header>
+    <a href="https://gmelius.com/" target="_blank" class="logo"></a>
+  </header>
+<body class="margin">
+  <div class="center bodymargin">
+    <div class="title">
+        404
+    </div>
+    <div class="text">
+      The page can't be find...
+    </div>
+    <div class="text">
+      Head back to <a href="https://gmelius.com/" target="_blank">Gmelius Website.</a>
+    </div>
+  </div>
+</body>
+
+</html>
+<style lang="css">
+.center {
+  margin: auto !important;
+  width: 50vw;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
+  text-align: center;
+}
+.title {
+  font-size: 4rem;
+  font-weight: 500;
+}
+.text {
+  font-size: 1.2rem;
+  line-height: 1.5rem;
+}
+a {
+  text-decoration: none;
+  color: #2196f3 !important;
+}
+.logo {
+  text-align: left;
+  display: inline-block;
+  width: 48px;
+  height: 70px;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAAn1BMVEUAAADmOjbmOjbmOjbmOjbmOjbmOjbmOjbmOjbmOjbmOjbmOjb////mNjLnQDzlMi7oSkb61tX4yMfznJrqVVH3ubjsYl/vfXvveHXlLin/+vr97Oz84+P+9fX86ej73NvtcW7wiIboRkL0oZ/0p6Xyl5X+8fHwg4DpT0v+9/f50c/5zcz4xMP4wL/1ravsaWbykY/2sa/xjYvrW1f2s7I5jvNLAAAAC3RSTlMAX/rz6eGullstGgqG9z8AAAPESURBVGjezZrpdtowEEazp83okwxesDEGbyxhX/L+z9Y0RchRgcrYOqf3HwfOXKxlNLJ0d+Tt/uX5gVri4fnl/u2uys/XR2qZx9efKv6PJ7LA0w8Z/54scX/8/2SNH1/t/0TWePrdD69kkdfP8flIFnl8s9XDqp9fyCovd89klee7B7LKwx1Z5n8RQGAWhNm4KMtiO00DB0CLAoiDuxhMmKQfj5bbWYS2BAhH7AzzDdoQwJkO2QVGYY6GAiAbsSvMQ9FMkHfZdfo+byIIJuyfDLzbBXtmQtLDbQK4TCNe+Oud33nXm2mKWwQYsyqTVcgFvhBO1klYlRD1BfjWPossj6C+Q+S5I81QV5BWGmKQcuh+OFnlF3FQV5DH7ERJ5+ELdqLD6wmwVI2fgS5RaoPVWCD2Kv61jIPsGH6aUy3B7JR+koCuErJPxrzuMHW1IX6FIul6gmoKnIEUrEH/IA8EqKYAPRl/SA24IhhJQQAbAngy/orIhkCUsodDsiKI5BgdOWRDAE9myg9BRgBeOg0DDkNB2Fcp0gQx2/1+5mQRwEig1gFOJmB8yqobGAnWMgVHBtF5WClqEsdEQD77w/IoAC43fthlVQoYCPhSpgnx5/M4EBfiewttee5yE4H8U8VR4DPfoTPkBdPpOLcJWOLqGVM425g1FLhKwNjQJVQbfz9grFXBp2JDJw4jxtoUHFluCERA8KFX2X5DgSRZHaJo9qEVrHHGw4YCRX9d9Nl3Sk7otSbQSboHQU0FLrvIMgWoqYD4ZsDOEqeciJoLCGIfnwk/BqipQKX8YqiFL+XcbiRQwCtZhQ+PQC0JlKJzqnRlfm1VQBC9+VeUDKA2BQrk4SCeOiBqW6DgnCR2BIrmgjICmRFlNwn6K8fIAL57ryuQjA2KxzxL6i045DPF0J0JuoLItwOmWHIDAaasSuzSlbpo+z2DjGEgkPsPpQg5aVxIszEnI8FMM7BOj+Pvrk1lZ6kMAsMtlFOwvxTfxyyidK6vnWsP5jt9Z6UrRgFV8OZMYy7DmwlIBN1EC+Eftxigw1p/YzRPBeq+zqFUf4p3P4hAkafXLWwRcqPXOTo8OI0SNbn5rn92ab5FQIimUnGR4bbWTl8HedZhVxhtHUF0k0ApehN2gf7eIYWxQAdUvJ8Nv+OgZgJVtZRDpjHZqbqlsYAAz9Wm7YFATQX65NanbcsCioJl8tX2izQCWRAQaDP2fVe9RG0sMChbmgqaY/2gzvpRo/XDUuvHvdYPrG0fuVu/NGD72oP1ixv2r57Yvzxj/frPLyttsTQcHZAqAAAAAElFTkSuQmCC') no-repeat 0 11px;
+  background-size: 48px;
+  cursor: pointer;
+}
+</style>

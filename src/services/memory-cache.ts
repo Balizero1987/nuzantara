@@ -14,13 +14,17 @@ class MemoryCache {
   private embeddingCache: Map<string, CacheEntry<number[]>> = new Map();
   private searchCache: Map<string, CacheEntry<any>> = new Map();
 
-  // Cache TTLs (milliseconds)
-  private readonly EMBEDDING_TTL = 60 * 60 * 1000; // 1 hour
-  private readonly SEARCH_TTL = 5 * 60 * 1000;      // 5 minutes
+  // Request coalescing: prevent duplicate concurrent requests
+  private pendingEmbeddings: Map<string, Promise<number[]>> = new Map();
+  private pendingSearches: Map<string, Promise<any>> = new Map();
 
-  // Max cache sizes (LRU)
-  private readonly MAX_EMBEDDING_CACHE = 1000;
-  private readonly MAX_SEARCH_CACHE = 500;
+  // Cache TTLs (milliseconds) - Optimized for production
+  private readonly EMBEDDING_TTL = 4 * 60 * 60 * 1000; // 4 hours (embeddings rarely change)
+  private readonly SEARCH_TTL = 15 * 60 * 1000;         // 15 minutes (balance freshness vs speed)
+
+  // Max cache sizes (LRU) - Increased for better hit rates
+  private readonly MAX_EMBEDDING_CACHE = 5000;  // ~20MB RAM
+  private readonly MAX_SEARCH_CACHE = 2000;      // ~10MB RAM
 
   /**
    * Get cached embedding for text
@@ -163,7 +167,7 @@ class MemoryCache {
 export const memoryCache = new MemoryCache();
 
 /**
- * Cache-aware wrapper for embedding generation
+ * Cache-aware wrapper for embedding generation with request coalescing
  */
 export async function getCachedEmbedding(
   text: string,
@@ -175,15 +179,30 @@ export async function getCachedEmbedding(
     return { embedding: cached, cached: true };
   }
 
-  // Generate and cache
-  const embedding = await generateFn();
-  memoryCache.setEmbedding(text, embedding);
+  const key = text.toLowerCase().trim().replace(/\s+/g, ' ');
 
-  return { embedding, cached: false };
+  // Check if already pending (request coalescing)
+  const pending = memoryCache['pendingEmbeddings'].get(key);
+  if (pending) {
+    const embedding = await pending;
+    return { embedding, cached: false }; // Not from cache, but deduplicated
+  }
+
+  // Start new request
+  const promise = generateFn();
+  memoryCache['pendingEmbeddings'].set(key, promise);
+
+  try {
+    const embedding = await promise;
+    memoryCache.setEmbedding(text, embedding);
+    return { embedding, cached: false };
+  } finally {
+    memoryCache['pendingEmbeddings'].delete(key);
+  }
 }
 
 /**
- * Cache-aware wrapper for search
+ * Cache-aware wrapper for search with request coalescing
  */
 export async function getCachedSearch(
   query: string,
@@ -197,9 +216,24 @@ export async function getCachedSearch(
     return { results: cached, cached: true };
   }
 
-  // Execute search and cache
-  const results = await searchFn();
-  memoryCache.setSearchResults(query, userId, limit, results);
+  const key = `query:${query.toLowerCase().trim()}|user:${userId || 'all'}|limit:${limit}`;
 
-  return { results, cached: false };
+  // Check if already pending (request coalescing)
+  const pending = memoryCache['pendingSearches'].get(key);
+  if (pending) {
+    const results = await pending;
+    return { results, cached: false }; // Not from cache, but deduplicated
+  }
+
+  // Start new request
+  const promise = searchFn();
+  memoryCache['pendingSearches'].set(key, promise);
+
+  try {
+    const results = await promise;
+    memoryCache.setSearchResults(query, userId, limit, results);
+    return { results, cached: false };
+  } finally {
+    memoryCache['pendingSearches'].delete(key);
+  }
 }

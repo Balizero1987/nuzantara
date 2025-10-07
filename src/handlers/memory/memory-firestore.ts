@@ -655,12 +655,25 @@ export async function memorySearchHybrid(params: any) {
       memoryStore.searchMemories(query, userId, limit * 2)
     ]);
 
-    // Combine and deduplicate results
+    // Combine and deduplicate results using content-based keys
     const combined = new Map();
+
+    // Helper: create content-based key for deduplication
+    const makeKey = (content: string, userId: string) => {
+      // Normalize: lowercase, remove whitespace/punctuation, take first 100 chars
+      const normalized = content.toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .substring(0, 100);
+      return `${userId}:${normalized}`;
+    };
 
     // Add vector results (weighted 0.7)
     vectorResults.forEach(r => {
-      combined.set(r.id, {
+      const key = makeKey(r.content, r.userId);
+      combined.set(key, {
+        id: r.id,
         userId: r.userId,
         content: r.content,
         type: r.type,
@@ -673,7 +686,9 @@ export async function memorySearchHybrid(params: any) {
 
     // Add keyword results (weighted 0.3)
     keywordResults.forEach(m => {
-      const key = `${m.userId}_${m.matchingFacts[0]}`;
+      const content = m.matchingFacts.join('; ') || m.summary;
+      const key = makeKey(content, m.userId);
+
       if (combined.has(key)) {
         // Boost score if found in both
         const existing = combined.get(key);
@@ -682,7 +697,7 @@ export async function memorySearchHybrid(params: any) {
       } else {
         combined.set(key, {
           userId: m.userId,
-          content: m.matchingFacts.join('; ') || m.summary,
+          content,
           relevance: m.matchingFacts.length,
           recencyWeight: m.recencyWeight,
           score: m.score * 0.3,

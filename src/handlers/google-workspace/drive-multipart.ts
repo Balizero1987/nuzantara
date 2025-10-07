@@ -56,7 +56,7 @@ export async function handleDriveUploadMultipart(req: Request, res: Response) {
       supportsAllDrives: true,
     });
 
-    res.json({
+    return res.json({
       ok: true,
       data: {
         file: result.data,
@@ -65,7 +65,7 @@ export async function handleDriveUploadMultipart(req: Request, res: Response) {
     });
   } catch (error: any) {
     console.error('Drive upload error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       error: error?.message || 'Upload failed',
     });

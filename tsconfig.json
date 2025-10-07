@@ -26,7 +26,7 @@
     "noUnusedParameters": false,
     "noImplicitAny": false,
     "exactOptionalPropertyTypes": false,
-    "noImplicitReturns": false,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true
   },
