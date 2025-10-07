@@ -66,8 +66,85 @@ function dynamicMaxTokens(promptLen: number) {
   return 1024;
 }
 
-// User identification check - REMOVED (no longer needed for web app)
-// function checkUserIdentification(params: any) - REMOVED
+// Team member recognition database
+const TEAM_RECOGNITION = {
+  'zero': {
+    id: 'zero',
+    name: 'Zero',
+    role: 'Bridge/Tech Lead',
+    email: 'zero@balizero.com',
+    department: 'technology',
+    language: 'Italian',
+    aliases: ['zero', 'sono zero', "i'm zero", 'io sono zero', 'ciao sono zero'],
+    personalizedResponse: "Ciao Zero! Bentornato. Come capo del team tech, hai accesso completo a tutti i sistemi ZANTARA e Bali Zero."
+  },
+  'zainal': {
+    id: 'zainal',
+    name: 'Zainal Abidin',
+    role: 'CEO',
+    email: 'zainal@balizero.com',
+    department: 'management',
+    language: 'Indonesian',
+    aliases: ['zainal', 'sono zainal', "i'm zainal", 'saya zainal', 'halo saya zainal'],
+    personalizedResponse: "Welcome back Zainal! As CEO, you have full access to all Bali Zero systems and ZANTARA intelligence."
+  },
+  'antonio': {
+    id: 'antonio',
+    name: 'Antonio',
+    role: 'Developer',
+    email: 'antonio@dev.balizero.com',
+    department: 'technology',
+    language: 'Italian',
+    aliases: ['antonio', 'sono antonio', "i'm antonio", 'ciao sono antonio'],
+    personalizedResponse: "Ciao Antonio! Bentornato nel sistema ZANTARA."
+  }
+};
+
+// Context memory for conversations
+const conversationContext = new Map<string, any>();
+
+// Check for identity recognition in prompt
+function checkIdentityRecognition(prompt: string, sessionId: string = 'default'): string | null {
+  const lowerPrompt = prompt.toLowerCase().trim();
+
+  // Get or create session context
+  let context = conversationContext.get(sessionId) || {
+    user: null,
+    history: [],
+    preferences: {}
+  };
+
+  // Check for identity declaration
+  for (const [key, member] of Object.entries(TEAM_RECOGNITION)) {
+    for (const alias of member.aliases) {
+      if (lowerPrompt.includes(alias)) {
+        context.user = member;
+        conversationContext.set(sessionId, context);
+
+        // Log recognition
+        console.log(`🎯 Identity recognized: ${member.name} (${member.role}) - session: ${sessionId}`);
+
+        return member.personalizedResponse;
+      }
+    }
+  }
+
+  return null;
+}
+
+// Get user context for personalization
+function getUserContext(sessionId: string = 'default'): any {
+  const context = conversationContext.get(sessionId);
+  if (context && context.user) {
+    return {
+      name: context.user.name,
+      role: context.user.role,
+      department: context.user.department,
+      language: context.user.language
+    };
+  }
+  return null;
+}
 
 // Shared ZANTARA context for unified responses
 function zantaraContext(base?: string, userInfo?: string) {
@@ -149,14 +226,20 @@ export async function openaiChat(params: any) {
 }
 
 export async function claudeChat(params: any) {
-  const { prompt, message, context, model = 'claude-3-haiku-20240307', max_tokens = 1024, userId, userEmail, userName, userIdentification } = params || {};
+  const { prompt, message, context, model = 'claude-3-haiku-20240307', max_tokens = 1024, userId, userEmail, userName, userIdentification, sessionId } = params || {};
   const actualPrompt = prompt || message;
   if (!actualPrompt) throw new BadRequestError('prompt is required');
 
-  // User identification check removed - no longer required
-
   try {
     const p = normalizePrompt(String(actualPrompt));
+
+    // Check for identity recognition FIRST (before cache or RAG)
+    const identityResponse = checkIdentityRecognition(p, sessionId || userId || userEmail || 'default');
+    if (identityResponse) {
+      console.log(`✅ Returning personalized greeting for recognized user`);
+      return ok({ response: identityResponse, recognized: true, ts: Date.now() });
+    }
+
     const cached = await getCachedAI('claude', p);
     if (cached) return cached;
 
@@ -165,10 +248,15 @@ export async function claudeChat(params: any) {
     try {
       const { ragService } = await import('../../services/ragService.js');
       const userInfo = userId || userEmail || userName || userIdentification;
+
+      // Get user context for personalization
+      const userCtx = getUserContext(sessionId || userId || userEmail || 'default');
+      const userRole = userCtx ? `${userCtx.name} (${userCtx.role})` : 'member';
+
       const ragResult: any = await ragService.baliZeroChat({
         query: p,
         conversation_history: [],
-        user_role: 'member'
+        user_role: userRole
       });
 
       if (ragResult?.success && ragResult?.response) {
