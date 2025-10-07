@@ -50,6 +50,13 @@ jobs:
           echo "<!-- Deployed: $(date -u +"%Y-%m-%d %H:%M:%S UTC") -->" >> index.html
           echo "<!-- Source: https://github.com/Balizero1987/nuzantara/commit/${GITHUB_SHA} -->" >> index.html
 
+      - name: Generate env.js (API base)
+        run: |
+          cd webapp-pages
+          mkdir -p js
+          TS_BASE="https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app"
+          echo "window.ZANTARA_PROXY_BASE='${TS_BASE}';" > js/env.js
+
       - name: Check for changes
         id: check_changes
         run: |
