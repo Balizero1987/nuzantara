@@ -401,6 +401,181 @@ const HANDLER_REGISTRY: Record<string, HandlerMetadata> = {
       conversation_history: { type: "array", description: "Previous messages", required: false }
     }
   },
+
+  // === MEMORY PHASE 1&2 (NEW - Priority HIGH) ===
+  "memory.search.semantic": {
+    key: "memory.search.semantic",
+    category: "memory-advanced",
+    description: "Semantic search using vector embeddings (searches by meaning, not keywords)",
+    params: {
+      query: { type: "string", description: "Search query (natural language)", required: true },
+      userId: { type: "string", description: "Optional filter by user", required: false },
+      limit: { type: "number", description: "Max results (default 10)", required: false }
+    },
+    returns: "{ ok: boolean, results: Array<{userId, content, similarity, entities}>, count: number }"
+  },
+  "memory.search.hybrid": {
+    key: "memory.search.hybrid",
+    category: "memory-advanced",
+    description: "Hybrid search (combines keyword + semantic for best results)",
+    params: {
+      query: { type: "string", description: "Search query", required: true },
+      userId: { type: "string", description: "Optional filter by user", required: false },
+      limit: { type: "number", description: "Max results (default 10)", required: false }
+    },
+    returns: "{ ok: boolean, results: Array, count: number, sources: {semantic, keyword, combined} }"
+  },
+  "memory.entity.info": {
+    key: "memory.entity.info",
+    category: "memory-advanced",
+    description: "Get complete entity profile (semantic facts + episodic events)",
+    params: {
+      entity: { type: "string", description: "Entity name (zero, zantara, pricing, etc)", required: true },
+      category: { type: "string", description: "Entity category (people/projects/skills/companies)", required: false }
+    },
+    returns: "{ ok: boolean, entity: string, semantic: {memories, count}, episodic: {events, count} }"
+  },
+  "memory.event.save": {
+    key: "memory.event.save",
+    category: "memory-advanced",
+    description: "Save timestamped event to episodic memory",
+    params: {
+      userId: { type: "string", description: "User ID", required: true },
+      event: { type: "string", description: "Event description", required: true },
+      type: { type: "string", description: "Event type (deployment/meeting/task/decision)", required: false },
+      metadata: { type: "object", description: "Additional event metadata", required: false },
+      timestamp: { type: "string", description: "ISO timestamp (defaults to now)", required: false }
+    },
+    returns: "{ ok: boolean, eventId: string, saved: boolean, entities: Array }"
+  },
+  "memory.entities": {
+    key: "memory.entities",
+    category: "memory-advanced",
+    description: "Get all entities (people/projects/skills) related to a user",
+    params: {
+      userId: { type: "string", description: "User ID", required: true }
+    },
+    returns: "{ ok: boolean, entities: {people, projects, skills, companies}, total: number }"
+  },
+  "memory.search.entity": {
+    key: "memory.search.entity",
+    category: "memory-advanced",
+    description: "Search memories by entity (person, project, skill)",
+    params: {
+      entity: { type: "string", description: "Entity name to search for", required: true },
+      category: { type: "string", description: "Entity category (people/projects/skills/companies)", required: false },
+      limit: { type: "number", description: "Max results (default 20)", required: false }
+    },
+    returns: "{ ok: boolean, entity: string, memories: Array, count: number }"
+  },
+
+  // === BUSINESS OPERATIONS (NEW - Priority HIGH) ===
+  "lead.save": {
+    key: "lead.save",
+    category: "business",
+    description: "Save new lead from chat conversation for follow-up",
+    params: {
+      name: { type: "string", description: "Lead name", required: false },
+      email: { type: "string", description: "Lead email address", required: false },
+      service: { type: "string", description: "Service type (visa/company/tax/real-estate)", required: true },
+      details: { type: "string", description: "Service details or requirements", required: false },
+      nationality: { type: "string", description: "Lead nationality", required: false },
+      urgency: { type: "string", description: "Urgency level (normal/high/urgent)", required: false }
+    },
+    returns: "{ ok: boolean, leadId: string, followUpScheduled: boolean, message: string, nextSteps: Array }"
+  },
+  "quote.generate": {
+    key: "quote.generate",
+    category: "business",
+    description: "Generate price quote for Bali Zero services",
+    params: {
+      service: { type: "string", description: "Service type (visa/company/tax/real-estate)", required: true },
+      details: { type: "string", description: "Service details for accurate quote", required: false }
+    },
+    returns: "{ ok: boolean, quote: {price: string, timeline: string}, service: string }"
+  },
+  "document.prepare": {
+    key: "document.prepare",
+    category: "business",
+    description: "Prepare documents for visa/legal/tax services",
+    params: {
+      type: { type: "string", description: "Document type to prepare", required: true },
+      userId: { type: "string", description: "User ID requesting document", required: true },
+      data: { type: "object", description: "Document data/fields", required: false }
+    },
+    returns: "{ ok: boolean, documentId: string, status: string, downloadUrl: string }"
+  },
+
+  // === MAPS & LOCATION (NEW - Priority HIGH) ===
+  "maps.directions": {
+    key: "maps.directions",
+    category: "location",
+    description: "Get directions between locations in Bali (offices, immigration, notaries)",
+    params: {
+      origin: { type: "string", description: "Starting location", required: true },
+      destination: { type: "string", description: "Destination location", required: true },
+      mode: { type: "string", description: "Travel mode (driving/walking/transit)", required: false }
+    },
+    returns: "{ ok: boolean, directions: Array, distance: string, duration: string }"
+  },
+  "maps.places": {
+    key: "maps.places",
+    category: "location",
+    description: "Search for nearby places (banks, notaries, immigration offices)",
+    params: {
+      query: { type: "string", description: "Search query (e.g., 'notary near Seminyak')", required: true },
+      location: { type: "string", description: "Center location for search", required: false },
+      radius: { type: "number", description: "Search radius in meters", required: false }
+    },
+    returns: "{ ok: boolean, places: Array<{name, address, rating, distance}>, count: number }"
+  },
+  "maps.placeDetails": {
+    key: "maps.placeDetails",
+    category: "location",
+    description: "Get detailed information about a specific place (hours, contact, reviews)",
+    params: {
+      placeId: { type: "string", description: "Google Place ID", required: true }
+    },
+    returns: "{ ok: boolean, place: {name, address, phone, hours, rating, reviews} }"
+  },
+
+  // === DASHBOARD & MONITORING (NEW - Priority MEDIUM) ===
+  "dashboard.health": {
+    key: "dashboard.health",
+    category: "monitoring",
+    description: "Get system health status and diagnostics",
+    params: {},
+    returns: "{ ok: boolean, status: string, services: object, uptime: number, metrics: object }"
+  },
+  "dashboard.users": {
+    key: "dashboard.users",
+    category: "monitoring",
+    description: "Get active users information and statistics",
+    params: {
+      filter: { type: "string", description: "Filter (active/inactive/all)", required: false },
+      limit: { type: "number", description: "Max users to return", required: false }
+    },
+    returns: "{ ok: boolean, users: Array, count: number, stats: object }"
+  },
+  "daily.recap.current": {
+    key: "daily.recap.current",
+    category: "monitoring",
+    description: "Get current daily activity recap and statistics",
+    params: {},
+    returns: "{ ok: boolean, date: string, activities: Array, stats: object, summary: string }"
+  },
+  "activity.track": {
+    key: "activity.track",
+    category: "monitoring",
+    description: "Track and log user/system activity",
+    params: {
+      userId: { type: "string", description: "User ID performing activity", required: true },
+      activity: { type: "string", description: "Activity description", required: true },
+      type: { type: "string", description: "Activity type", required: false },
+      metadata: { type: "object", description: "Additional activity data", required: false }
+    },
+    returns: "{ ok: boolean, activityId: string, tracked: boolean, timestamp: string }"
+  },
 };
 
 /**
