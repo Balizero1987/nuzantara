@@ -29,6 +29,7 @@ from services.tool_executor import ToolExecutor
 # from services.reranker_service import RerankerService  # Lazy import to avoid startup delay
 from llm.anthropic_client import AnthropicClient
 from llm.bali_zero_router import BaliZeroRouter
+from services.llama4_scout import get_llama4_scout  # Llama 4 Scout integration
 
 # Configure logging
 logging.basicConfig(
@@ -375,6 +376,64 @@ async def health_check():
             "quality_boost": "+400% precision@5" if reranker_service else "standard"
         }
     }
+
+
+@app.get("/api/tools/verify")
+async def verify_tools():
+    """Diagnose tool-use bridge: list tools via TS and execute a simple handler.
+
+    Returns:
+        {
+          ok: bool,
+          ts_backend_url: str,
+          tools_total: int,
+          first5: [str],
+          team_list: { count: int, first3: [str] } | { error: str },
+          error?: str
+        }
+    """
+    try:
+        if not handler_proxy_service:
+            return {
+                "ok": False,
+                "error": "handler_proxy_not_initialized"
+            }
+
+        # Load tools via Anthropic-compatible registry
+        from services.tool_executor import ToolExecutor
+        internal_key = os.getenv("API_KEYS_INTERNAL")
+        executor = ToolExecutor(handler_proxy_service, internal_key)
+        tools = await executor.get_available_tools()
+        names = [t.get("name") for t in (tools or []) if isinstance(t, dict) and t.get("name")]
+        first5 = names[:5]
+
+        # Execute a simple handler to prove end-to-end bridge works
+        team_result = await handler_proxy_service.execute_handler(
+            handler_key="team.list",
+            params={},
+            internal_key=internal_key
+        )
+
+        team_summary = {}
+        if isinstance(team_result, dict) and team_result:
+            members = team_result.get("members", []) or []
+            team_summary = {
+                "count": team_result.get("count", len(members)),
+                "first3": [m.get("name") for m in members[:3] if isinstance(m, dict) and m.get("name")]
+            }
+        else:
+            team_summary = {"error": team_result.get("error", "unknown_error") if isinstance(team_result, dict) else "unknown_error"}
+
+        return {
+            "ok": True,
+            "ts_backend_url": handler_proxy_service.backend_url,
+            "tools_total": len(names),
+            "first5": first5,
+            "team_list": team_summary
+        }
+    except Exception as e:
+        logger.error(f"Tool verification failed: {e}")
+        return {"ok": False, "error": str(e)}
 
 
 def _select_model_alias(
@@ -790,6 +849,10 @@ app.include_router(memory_vector_router)
 # Include intel news router (Bali Intel Scraper)
 from app.routers.intel import router as intel_router
 app.include_router(intel_router)
+
+# Include Llama 4 Scout router
+from routers.llama4 import router as llama4_router
+app.include_router(llama4_router)
 
 
 @app.get("/")
