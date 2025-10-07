@@ -1,7 +1,7 @@
 # NUZANTARA - System Architecture
 
 > **Last Updated**: 2025-10-04 23:45 (m3: Complete architecture documentation)
-> **Version**: 5.2.0
+> **Version**: 5.2.0 (tools: 57 exposed)
 > **Status**: Production (Cloud Run) + Local Development
 
 ---
