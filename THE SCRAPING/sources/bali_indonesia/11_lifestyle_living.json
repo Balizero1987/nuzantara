@@ -1,0 +1,126 @@
+{
+  "category_id": "11_lifestyle_living",
+  "category_name": "Lifestyle & Living",
+  "collaborator": "Dewa Ayu",
+  "target_sites": 50,
+  "pipeline": "public",
+  "output_channels": ["blog", "instagram", "facebook", "twitter", "whatsapp", "telegram"],
+  
+  "tier1_government_media": [
+    {
+      "url": "https://www.beacukai.go.id",
+      "name": "Bea Cukai (Customs)",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.kemendag.go.id",
+      "name": "Ministry of Trade",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "tier2_lifestyle_media": [
+    {
+      "url": "https://www.thebalibible.com",
+      "name": "The Bali Bible",
+      "language": "en",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.nowbali.co.id",
+      "name": "NOW! Bali",
+      "language": "en",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.timeout.com/bali",
+      "name": "Time Out Bali",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.ubud.com",
+      "name": "Ubud.com",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.honeycombers.com/bali",
+      "name": "Honeycombers Bali",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.thebalisociety.com",
+      "name": "The Bali Society",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "tier3_community": [
+    {
+      "url": "https://www.cangguclub.com",
+      "name": "Canggu Club",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.amazingbali.com",
+      "name": "Amazing Bali",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.bali.com",
+      "name": "Bali.com",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.balipocket.com",
+      "name": "Bali Pocket",
+      "language": "id",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.qraved.com/bali",
+      "name": "Qraved Bali",
+      "language": "id",
+      "priority": "low",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://pergikuliner.com/bali",
+      "name": "Pergi Kuliner Bali",
+      "language": "id",
+      "priority": "low",
+      "check_frequency": "weekly"
+    }
+  ],
+  
+  "search_keywords": ["import rules", "customs Indonesia", "expat lifestyle", "Bali dining", "shopping Bali", "expat community"],
+  "content_focus": ["Import rules", "Daily living tips", "Shopping guides", "Dining recommendations", "Community events", "Customs regulations"],
+  
+  "metadata": {
+    "created": "2025-10-07",
+    "last_updated": "2025-10-07",
+    "total_sources": 14,
+    "target": 50,
+    "status": "expanded_seed"
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "category_id": "03_real_estate",
+  "category_name": "Real Estate",
+  "collaborator": "Krisna",
+  "target_sites": 50,
+  "pipeline": "public",
+  "output_channels": ["blog", "instagram", "facebook", "twitter", "whatsapp", "telegram"],
+  
+  "tier1_government": [
+    {
+      "url": "https://www.bpn.go.id",
+      "name": "Badan Pertanahan Nasional",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "2x_daily"
+    },
+    {
+      "url": "https://www.pu.go.id",
+      "name": "Kementerian PUPR",
+      "language": "id",
+      "priority": "critical",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.bps.go.id",
+      "name": "BPS Statistics",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    }
+  ],
+  
+  "tier2_portals": [
+    {
+      "url": "https://www.rumah.com",
+      "name": "Rumah.com",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.lamudi.co.id",
+      "name": "Lamudi Indonesia",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.propertyguru.co.id",
+      "name": "PropertyGuru Indonesia",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.rumah123.com",
+      "name": "Rumah123",
+      "language": "id",
+      "priority": "high",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.olx.co.id/properti",
+      "name": "OLX Property",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    },
+    {
+      "url": "https://www.99.co/id",
+      "name": "99.co Indonesia",
+      "language": "id",
+      "priority": "medium",
+      "check_frequency": "daily"
+    }
+  ],
+  
+  "tier3_blogs": [
+    {
+      "url": "https://www.balipropertywatch.com",
+      "name": "Bali Property Watch",
+      "language": "en",
+      "priority": "high",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.balirealty.com/blog",
+      "name": "Bali Realty Blog",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.iproperty.com.sg/guides/indonesia",
+      "name": "iProperty Indonesia Guide",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "weekly"
+    },
+    {
+      "url": "https://www.cbre.co.id/insights",
+      "name": "CBRE Indonesia Insights",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "monthly"
+    },
+    {
+      "url": "https://www.colliers.com/en-id/research",
+      "name": "Colliers Indonesia Research",
+      "language": "en",
+      "priority": "medium",
+      "check_frequency": "monthly"
+    },
+    {
+      "url": "https://www.jll.co.id/en/trends-and-insights",
+      "name": "JLL Indonesia",
+      "language": "en",
+      "priority": "low",
+      "check_frequency": "monthly"
+    }
+  ],
+  
+  "search_keywords": ["Hak Pakai", "property", "real estate", "land ownership", "building permit", "IMB", "foreign ownership", "villa Bali", "investment property"],
+  "content_focus": ["Hak Pakai changes", "Building permits", "Foreign ownership rules", "Market trends", "Investment opportunities"],
+  
+  "metadata": {
+    "created": "2025-10-07",
+    "last_updated": "2025-10-07",
+    "total_sources": 15,
+    "target": 50,
+    "status": "expanded_seed"
+  }
+}
