@@ -251,7 +251,7 @@ export async function claudeChat(params: any) {
 
       // Get user context for personalization
       const userCtx = getUserContext(sessionId || userId || userEmail || 'default');
-      const userRole = userCtx ? `${userCtx.name} (${userCtx.role})` : 'member';
+      const userRole: 'member' | 'lead' = userCtx && (userCtx.role === 'CEO' || userCtx.role === 'Bridge/Tech Lead') ? 'lead' : 'member';
 
       const ragResult: any = await ragService.baliZeroChat({
         query: p,
