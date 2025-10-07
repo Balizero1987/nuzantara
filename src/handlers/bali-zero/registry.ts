@@ -9,6 +9,7 @@ import { documentPrepare, assistantRoute } from './advisory.js';
 import { kbliLookup, kbliRequirements } from './kbli.js';
 import { baliZeroPricing, baliZeroQuickPrice } from './bali-zero-pricing.js';
 import { teamList, teamGet, teamDepartments } from './team.js';
+import { teamRecentActivity } from './team-activity.js';
 
 export function registerBaliZeroHandlers() {
   // Oracle handlers
@@ -52,10 +53,11 @@ export function registerBaliZeroHandlers() {
   globalRegistry.registerModule('bali-zero', {
     'team.list': teamList as any,
     'team.get': teamGet as any,
-    'team.departments': teamDepartments as any
+    'team.departments': teamDepartments as any,
+    'team.recent_activity': teamRecentActivity as any
   } as any, {
     requiresAuth: true,
-    description: 'Team management'
+    description: 'Team management and activity tracking'
   });
 
   console.log('✅ Bali Zero handlers registered');

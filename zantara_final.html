@@ -306,16 +306,48 @@
     }
 
     .logo-center {
-      width: 120px;
-      height: 120px;
+      width: 360px;
+      height: 360px;
       margin: 0 auto 30px;
       display: block;
       object-fit: contain;
-      filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.1));
+      filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.4))
+              drop-shadow(0 0 80px rgba(255, 255, 255, 0.3))
+              drop-shadow(0 0 120px rgba(255, 255, 255, 0.2));
+      animation: glow-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.4))
+                drop-shadow(0 0 80px rgba(255, 255, 255, 0.3))
+                drop-shadow(0 0 120px rgba(255, 255, 255, 0.2));
+      }
+      50% {
+        filter: drop-shadow(0 0 60px rgba(255, 255, 255, 0.6))
+                drop-shadow(0 0 100px rgba(255, 255, 255, 0.4))
+                drop-shadow(0 0 140px rgba(255, 255, 255, 0.3));
+      }
     }
 
     body.day-mode .logo-center {
-      filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.1));
+      filter: drop-shadow(0 0 40px rgba(0, 0, 0, 0.15))
+              drop-shadow(0 0 80px rgba(0, 0, 0, 0.1))
+              drop-shadow(0 0 120px rgba(0, 0, 0, 0.05));
+      animation: glow-pulse-day 3s ease-in-out infinite;
+    }
+
+    @keyframes glow-pulse-day {
+      0%, 100% {
+        filter: drop-shadow(0 0 40px rgba(0, 0, 0, 0.15))
+                drop-shadow(0 0 80px rgba(0, 0, 0, 0.1))
+                drop-shadow(0 0 120px rgba(0, 0, 0, 0.05));
+      }
+      50% {
+        filter: drop-shadow(0 0 60px rgba(0, 0, 0, 0.2))
+                drop-shadow(0 0 100px rgba(0, 0, 0, 0.15))
+                drop-shadow(0 0 140px rgba(0, 0, 0, 0.1));
+      }
     }
 
     .input-area {
@@ -404,16 +436,28 @@
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
-      border: 1px solid rgba(189, 0, 255, 0.3);
-      background: rgba(189, 0, 255, 0.1);
-      color: rgba(189, 0, 255, 0.9);
+      border: 1px solid #3a3a3a;
+      background: #2a2a2a;
+      color: rgba(255, 255, 255, 0.7);
       transition: all 0.2s;
     }
 
     .filter.active {
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.8), rgba(0, 191, 255, 0.8));
-      border-color: transparent;
+      background: #4a4a4a;
+      border-color: #5a5a5a;
       color: white;
+    }
+
+    body.day-mode .filter {
+      background: #f0f0f0;
+      border-color: #d0d0d0;
+      color: rgba(0, 0, 0, 0.7);
+    }
+
+    body.day-mode .filter.active {
+      background: #d0d0d0;
+      border-color: #b0b0b0;
+      color: #000;
     }
 
     .article {
@@ -499,8 +543,13 @@
       border-radius: 6px;
       font-weight: 600;
       font-size: 9px;
-      background: rgba(189, 0, 255, 0.2);
-      color: rgba(232, 64, 255, 1);
+      background: #3a3a3a;
+      color: #fff;
+    }
+
+    body.day-mode .badge {
+      background: #e0e0e0;
+      color: #000;
     }
 
     /* SCROLLBAR */
@@ -566,7 +615,7 @@
     <header class="header">
       <div class="header-left">
         <button class="sidebar-toggle" id="leftToggle">☰</button>
-        <img src="assets/logo-day.jpeg" class="logo" alt="ZANTARA">
+        <img src="assets/logoscon.png" class="logo" alt="ZANTARA">
       </div>
 
       <div class="header-center">
@@ -612,7 +661,7 @@
       <div class="chat-wrapper">
         <div class="messages">
           <div class="welcome">
-            <img src="assets/logo-day.jpeg" class="logo-center" alt="ZANTARA Logo">
+            <img src="assets/logoscon.png" class="logo-center" alt="ZANTARA Logo">
             <h2>Welcome to ZANTARA</h2>
             <p>Start a conversation</p>
           </div>

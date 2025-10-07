@@ -714,6 +714,15 @@ async def bali_zero_chat(request: BaliZeroRequest):
         max_iterations = 5  # Prevent infinite loops
         iteration = 0
         answer = ""
+        read_only_handlers_called = set()  # Track read-only handlers to prevent re-calling
+
+        # Read-only handlers that should only be called once per conversation
+        READ_ONLY_HANDLERS = {
+            "system.handlers.list", "system.handlers.tools", "system.handler.execute",
+            "team.list", "team.get", "team.departments", "team.recent_activity",
+            "pricing.official", "pricing.get", "contact.info",
+            "identity.resolve", "kbli.lookup", "kbli.requirements"
+        }
 
         while iteration < max_iterations:
             iteration += 1
@@ -736,11 +745,25 @@ async def bali_zero_chat(request: BaliZeroRequest):
                 break
 
             # AI wants to use tools
-            logger.info(f"🤖 AI requesting {len(tool_uses)} tool calls")
+            logger.info(f"🤖 AI requesting {len(tool_uses)} tool calls (iteration {iteration})")
+
+            # Check if AI is trying to re-call read-only handlers
+            tool_keys = [t.get("name", "").replace('_', '.') for t in tool_uses]
+            redundant_calls = [k for k in tool_keys if k in read_only_handlers_called]
+            if redundant_calls:
+                logger.warning(f"⚠️ AI attempting to re-call read-only handlers: {redundant_calls}")
+                # Force stop after providing tool results once
+                answer = answer_text or "I have the information from previous tool calls."
+                break
 
             # Execute tools
             if tool_executor:
                 tool_results = await tool_executor.execute_tool_calls(tool_uses)
+
+                # Track read-only handlers that were called
+                for tool_key in tool_keys:
+                    if tool_key in READ_ONLY_HANDLERS:
+                        read_only_handlers_called.add(tool_key)
 
                 # Add assistant message with tool uses
                 messages.append({
@@ -756,6 +779,15 @@ async def bali_zero_chat(request: BaliZeroRequest):
                     "role": "user",
                     "content": tool_results
                 })
+
+                # If only read-only handlers were called, force final response on next iteration
+                if all(k in READ_ONLY_HANDLERS for k in tool_keys):
+                    logger.info(f"✅ Read-only handlers executed, forcing final response next iteration")
+                    # Add hint to AI to finalize response
+                    messages.append({
+                        "role": "user",
+                        "content": "Please provide your final answer based on the tool results above. Do not call more tools."
+                    })
 
                 # Continue conversation loop
                 logger.info(f"🔄 Tool execution complete, continuing conversation (iteration {iteration})")
