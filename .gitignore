@@ -76,3 +76,4 @@ zantara-rag/data/
 apps/backend-rag*/data/
 *.sqlite3
 *.db
+sa-key.json

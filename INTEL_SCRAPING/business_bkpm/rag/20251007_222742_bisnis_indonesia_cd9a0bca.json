@@ -1,0 +1,55 @@
+{
+  "title": "Breaking News",
+  "summary": "Tragedi Ponpes Al-Khoziny: Ketika Rafi Tak Lagi Bangun dari Sujudnya",
+  "category": "business_bkpm",
+  "sub_category": "news",
+  "entities": {
+    "people": [
+      "Rafi"
+    ],
+    "organizations": [
+      "Ponpes Al-Khoziny",
+      "PNM",
+      "Inacraft"
+    ],
+    "locations": [
+      "Surakarta"
+    ]
+  },
+  "keywords": [
+    "Breaking News",
+    "Tragedi Ponpes Al-Khoziny",
+    "Rafi",
+    "PNM",
+    "Inacraft"
+  ],
+  "dates": {
+    "published": "2025-10-07"
+  },
+  "impact": {
+    "level": "high",
+    "affected_groups": [
+      "businesses",
+      "workers"
+    ],
+    "action_required": true,
+    "urgency": "immediate"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Tragedi Ponpes Al-Khoziny: Ketika Rafi Tak Lagi Bangun dari Sujudnya",
+    "PNM Harumkan Inacraft 2025 Lewat Kopi Sembalun dari Lereng Gunung"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "Tragedy at Ponpes Al-Khoziny school, Rafi's condition worsens",
+  "source_url": "https://www.bisnis.com/",
+  "source_name": "Bisnis Indonesia",
+  "scraped_at": "2025-10-07T22:27:42.227869",
+  "content_hash": "cd9a0bca7679534d",
+  "word_count": 3090
+}

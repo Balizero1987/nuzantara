@@ -1,0 +1,48 @@
+{
+  "title": "Philippines' No.1 Real Estate Partner",
+  "summary": "Lamudi is the Philippines' leading real estate platform offering various property types for sale and rent.",
+  "category": "real_estate",
+  "sub_category": "property",
+  "entities": {
+    "locations": [
+      "Philippines"
+    ]
+  },
+  "keywords": [
+    "real estate",
+    "property",
+    "Philippines"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "investors",
+      "businesses"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Lamudi offers a wide range of properties for sale and rent.",
+    "The platform is the leading real estate partner in the Philippines.",
+    "It provides various property types, including houses, apartments, and land."
+  ],
+  "regulatory_changes": null,
+  "business_implications": "None",
+  "source_url": "https://www.lamudi.co.id/journal/",
+  "source_name": "Lamudi Journal",
+  "scraped_at": "2025-10-07T22:31:27.927038",
+  "content_hash": "e216d439c37f530b",
+  "word_count": 2273
+}

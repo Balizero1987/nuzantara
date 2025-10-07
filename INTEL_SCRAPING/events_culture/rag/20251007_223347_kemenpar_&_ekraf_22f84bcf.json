@@ -1,0 +1,50 @@
+{
+  "title": "Kementerian Pariwisata dan Kementerian Ekonomi Kreatif",
+  "summary": "Kemenpar dan Ekraf berdiri sendiri, tetap bersinergi untuk mendukung pariwisata dan ekonomi kreatif Indonesia.",
+  "category": "events_culture",
+  "sub_category": "",
+  "entities": {
+    "organizations": [
+      "Kementerian Pariwisata",
+      "Kementerian Ekonomi Kreatif"
+    ]
+  },
+  "keywords": [
+    "Kemenpar",
+    "Ekraf",
+    "Pariwisata",
+    "Ekonomi Kreatif",
+    "Indonesia"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "businesses",
+      "investors"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Kemenpar dan Ekraf berdiri sendiri",
+    "Tetap bersinergi untuk mendukung pariwisata dan ekonomi kreatif Indonesia"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.kemenparekraf.go.id/",
+  "source_name": "Kemenpar & Ekraf",
+  "scraped_at": "2025-10-07T22:33:47.489629",
+  "content_hash": "22f84bcf0c41a83c",
+  "word_count": 95
+}

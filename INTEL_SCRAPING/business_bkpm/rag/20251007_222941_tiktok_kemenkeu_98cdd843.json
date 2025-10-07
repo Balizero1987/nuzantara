@@ -1,0 +1,39 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "business_bkpm",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "TikTok"
+    ],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": true
+  },
+  "tier": 0,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.tiktok.com/@kemenkeu.ri",
+  "source_name": "TikTok Kemenkeu",
+  "scraped_at": "2025-10-07T22:29:41.782707",
+  "content_hash": "98cdd843e0b6e5d4",
+  "word_count": 59
+}

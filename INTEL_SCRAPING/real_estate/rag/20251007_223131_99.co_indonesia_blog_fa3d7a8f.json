@@ -1,0 +1,44 @@
+{
+  "title": "Properti Dijual dan Disewa",
+  "summary": "99.co Indonesia menawarkan berbagai jenis properti untuk dijual dan disewa.",
+  "category": "real_estate",
+  "sub_category": "property",
+  "entities": {
+    "locations": [
+      "Indonesia"
+    ]
+  },
+  "keywords": [
+    "properti",
+    "dijual",
+    "disewa"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "99.co Indonesia menawarkan berbagai jenis properti untuk dijual dan disewa.",
+    "Properti dapat ditemukan dalam kategori rumah, apartemen, ruko, tanah, kost, dan lain-lain."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.99.co/blog/indonesia/",
+  "source_name": "99.co Indonesia Blog",
+  "scraped_at": "2025-10-07T22:31:31.187391",
+  "content_hash": "fa3d7a8fdb50898d",
+  "word_count": 2116
+}

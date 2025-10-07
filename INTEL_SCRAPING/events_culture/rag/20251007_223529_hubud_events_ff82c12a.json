@@ -1,0 +1,53 @@
+{
+  "title": "Hubud Events",
+  "summary": "Hubud is a coworking and coliving space in Ubud Bali that hosts various events and programs.",
+  "category": "events_culture",
+  "sub_category": "event_space",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Hubud"
+    ],
+    "locations": [
+      "Ubud Bali"
+    ]
+  },
+  "keywords": [
+    "coworking space",
+    "coliving",
+    "events",
+    "program"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "expats",
+      "investors",
+      "businesses"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Hosts various events and programs",
+    "Coworking and coliving space"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "None",
+  "source_url": "https://www.hubud.org/events/",
+  "source_name": "Hubud Events",
+  "scraped_at": "2025-10-07T22:35:29.023225",
+  "content_hash": "ff82c12a13bfc6a3",
+  "word_count": 291
+}

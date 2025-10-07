@@ -1,0 +1,53 @@
+{
+  "title": "BeritaSatu Ekonomi",
+  "summary": "Latest news and updates from BeritaSatu Ekonomi",
+  "category": "business_bkpm",
+  "sub_category": "Economy",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "B Network",
+      "Mendikdasmen"
+    ],
+    "locations": [
+      "Indonesia"
+    ]
+  },
+  "keywords": [
+    "BeritaSatu Ekonomi",
+    "economy",
+    "business",
+    "news"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "businesses",
+      "investors"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Latest news and updates from BeritaSatu Ekonomi",
+    "Economy and business news from Indonesia"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.beritasatu.com/ekonomi",
+  "source_name": "BeritaSatu Ekonomi",
+  "scraped_at": "2025-10-07T22:28:07.369691",
+  "content_hash": "4f4f2236998cf6b9",
+  "word_count": 1911
+}

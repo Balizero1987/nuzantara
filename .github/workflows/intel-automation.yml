@@ -1,253 +1,74 @@
-name: Intel Automation Pipeline
+name: Intel Automation - Daily Pipeline
 
 on:
+  # Schedule: Every day at 6:00 AM UTC (2:00 PM WIB)
   schedule:
-    # Daily scraping at 06:00 CET (05:00 UTC)
-    - cron: '0 5 * * *'
+    - cron: '0 6 * * *'
 
-    # Weekly roundup on Sunday 18:00 CET (17:00 UTC)
-    - cron: '0 17 * * 0'
-
-  workflow_dispatch:  # Allow manual trigger
+  # Allow manual trigger
+  workflow_dispatch:
     inputs:
-      stage:
-        description: 'Which stage to run'
+      skip_stages:
+        description: 'Stages to skip (e.g., "editorial publishing")'
         required: false
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - scraping
-          - processing
-          - editorial
-          - publishing
+        default: ''
 
 jobs:
-  scraping:
-    name: Stage 1 - Web Scraping
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.stage == 'all' || github.event.inputs.stage == 'scraping' || github.event_name == 'schedule' }}
+  intel-pipeline:
+    runs-on: self-hosted  # Requires self-hosted runner with Ollama
+    timeout-minutes: 360  # 6 hours max
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          python-version: '3.13'
+          cache: 'pip'
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Cache pip packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
-          pip install crawl4ai requests beautifulsoup4
+          # Playwright browser
+          playwright install chromium
 
-      - name: Run scraping
+      - name: Install Python dependencies
         run: |
-          cd scripts
-          python crawl4ai_scraper.py
-        timeout-minutes: 30
+          pip install -r requirements.txt
 
-      - name: Upload scraped data
-        uses: actions/upload-artifact@v3
-        with:
-          name: scraped-data
-          path: INTEL_SCRAPING/
-          retention-days: 7
-
-      - name: Commit scraped data
+      - name: Verify Ollama is running
         run: |
-          git config --global user.name "Intel Bot"
-          git config --global user.email "intel@zantara.com"
-          git add INTEL_SCRAPING/
-          git diff --quiet && git diff --staged --quiet || git commit -m "🤖 Daily intel scraping $(date +%Y-%m-%d)"
-          git push || true
+          ollama list || echo "Warning: Ollama not available"
+          ollama pull llama3.2:3b || echo "Warning: Could not pull LLAMA model"
 
-  processing:
-    name: Stage 2 - LLAMA Processing
-    needs: scraping
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.stage == 'all' || github.event.inputs.stage == 'processing' || github.event_name == 'schedule' }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull latest changes
-        run: |
-          git pull origin ${{ github.ref }}
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install Ollama
-        run: |
-          curl -fsSL https://ollama.com/install.sh | sh
-          ollama serve &
-          sleep 5
-          ollama pull llama3.2:3b
-
-      - name: Install dependencies
-        run: |
-          pip install ollama chromadb
-
-      - name: Process for RAG
-        run: |
-          cd scripts
-          python llama_rag_processor.py
-        timeout-minutes: 20
-
-      - name: Create articles
-        run: |
-          cd scripts
-          python llama_content_creator.py
-        timeout-minutes: 30
-
-      - name: Upload processed data
-        uses: actions/upload-artifact@v3
-        with:
-          name: processed-data
-          path: INTEL_SCRAPING/
-          retention-days: 7
-
-      - name: Commit processed data
-        run: |
-          git config --global user.name "Intel Bot"
-          git config --global user.email "intel@zantara.com"
-          git add INTEL_SCRAPING/
-          git add data/chroma_db/ || true
-          git diff --quiet && git diff --staged --quiet || git commit -m "🤖 AI processing complete $(date +%Y-%m-%d)"
-          git push || true
-
-  editorial:
-    name: Stage 3 - Editorial Review
-    needs: processing
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.stage == 'all' || github.event.inputs.stage == 'editorial' || github.event_name == 'schedule' }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull latest changes
-        run: |
-          git pull origin ${{ github.ref }}
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          pip install anthropic
-
-      - name: Editorial review (Claude Opus)
+      - name: Run Intel Automation Pipeline
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
         run: |
           cd scripts
-          python editorial_ai.py
-        timeout-minutes: 15
+          python3 run_intel_automation.py ${{ github.event.inputs.skip_stages && format('--skip {0}', github.event.inputs.skip_stages) || '' }}
 
-      - name: Upload editorial data
-        uses: actions/upload-artifact@v3
+      - name: Upload scraping results
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: editorial-data
-          path: INTEL_SCRAPING/
-          retention-days: 7
+          name: intel-scraping-${{ github.run_number }}
+          path: scripts/INTEL_SCRAPING/*/raw/*.json
+          retention-days: 30
 
-      - name: Commit editorial decisions
-        run: |
-          git config --global user.name "Intel Bot"
-          git config --global user.email "intel@zantara.com"
-          git add INTEL_SCRAPING/
-          git diff --quiet && git diff --staged --quiet || git commit -m "📝 Editorial review complete $(date +%Y-%m-%d)"
-          git push || true
-
-  publishing:
-    name: Stage 4 - Multi-Channel Publishing
-    needs: editorial
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.stage == 'all' || github.event.inputs.stage == 'publishing' || github.event_name == 'schedule' }}
-
-    steps:
-      - uses: actions/checkout@v4
+      - name: Upload generated articles
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: intel-articles-${{ github.run_number }}
+          path: scripts/INTEL_SCRAPING/*/articles/*.json
+          retention-days: 30
 
-      - name: Pull latest changes
+      - name: Notify on failure
+        if: failure()
         run: |
-          git pull origin ${{ github.ref }}
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          pip install requests
-          pip install tweepy || true
-          pip install python-telegram-bot || true
-
-      - name: Publish to all channels
-        env:
-          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
-          INSTAGRAM_ACCOUNT_ID: ${{ secrets.INSTAGRAM_ACCOUNT_ID }}
-          FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
-          FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
-          TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
-          TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
-          TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
-          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
-        run: |
-          cd scripts
-          python multi_channel_publisher.py
-        timeout-minutes: 15
-
-      - name: Commit publishing results
-        run: |
-          git config --global user.name "Intel Bot"
-          git config --global user.email "intel@zantara.com"
-          git add .
-          git diff --quiet && git diff --staged --quiet || git commit -m "🚀 Content published $(date +%Y-%m-%d)"
-          git push || true
-
-  notify:
-    name: Send Notification
-    needs: [scraping, processing, editorial, publishing]
-    runs-on: ubuntu-latest
-    if: always()
-
-    steps:
-      - name: Check job statuses
-        id: check
-        run: |
-          if [[ "${{ needs.scraping.result }}" == "failure" || \
-                "${{ needs.processing.result }}" == "failure" || \
-                "${{ needs.editorial.result }}" == "failure" || \
-                "${{ needs.publishing.result }}" == "failure" ]]; then
-            echo "status=failure" >> $GITHUB_OUTPUT
-          else
-            echo "status=success" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Send notification
-        if: steps.check.outputs.status == 'failure'
-        run: |
-          echo "Pipeline failed! Check logs at: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          # Add Slack/Discord/Email notification here if needed
+          echo "Intel Automation failed at $(date)"
+          # Add notification logic here (email, Slack, etc.)

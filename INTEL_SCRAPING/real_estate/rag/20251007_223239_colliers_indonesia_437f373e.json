@@ -1,0 +1,49 @@
+{
+  "title": "Colliers Indonesia",
+  "summary": "Real estate services provider in Indonesia.",
+  "category": "real_estate",
+  "sub_category": null,
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Colliers"
+    ],
+    "locations": [
+      "Indonesia"
+    ]
+  },
+  "keywords": [
+    "Colliers Indonesia",
+    "Real Estate Services",
+    "Property Representation"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "For Owners, Landlords and Investors",
+    "Research Services",
+    "Advisory Services"
+  ],
+  "regulatory_changes": [],
+  "business_implications": null,
+  "source_url": "https://www.colliers.com/en-id",
+  "source_name": "Colliers Indonesia",
+  "scraped_at": "2025-10-07T22:32:39.535366",
+  "content_hash": "437f373ecc9602f1",
+  "word_count": 1664
+}

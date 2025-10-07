@@ -1,0 +1,50 @@
+{
+  "title": "Living in Indonesia: the ultimate expat guide",
+  "summary": "Everything you need to know for a successful life in Indonesia.",
+  "category": "immigration",
+  "sub_category": "expat guide",
+  "entities": {
+    "people": [
+      "Anne-Lise Mty"
+    ],
+    "organizations": [],
+    "locations": [
+      "Indonesia"
+    ]
+  },
+  "keywords": [
+    "expat",
+    "indonesia",
+    "guide",
+    "living"
+  ],
+  "dates": {
+    "published": "2022-09-28"
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "expats"
+    ],
+    "action_required": true,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Where to live in Indonesia",
+    "Formalities and visas in Indonesia",
+    "Working in Indonesia"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.expat.com/en/destination/asia/indonesia/",
+  "source_name": "Expat.com Indonesia",
+  "scraped_at": "2025-10-07T22:23:21.961627",
+  "content_hash": "7d033d7bf9dbc718",
+  "word_count": 1746
+}

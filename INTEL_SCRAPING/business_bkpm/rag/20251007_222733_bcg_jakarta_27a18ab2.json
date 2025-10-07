@@ -1,0 +1,45 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "business_bkpm",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "BCG"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Aerospace and Defense",
+    "Automotive Industry",
+    "Consumer Products Industry"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Breakthroughs in automotive technologies and emerging business models are changing the world."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.bcg.com/offices/jakarta",
+  "source_name": "BCG Jakarta",
+  "scraped_at": "2025-10-07T22:27:33.132488",
+  "content_hash": "27a18ab29f9fd508",
+  "word_count": 3451
+}

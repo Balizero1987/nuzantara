@@ -1,0 +1,34 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "",
+  "sub_category": "",
+  "entities": {
+    "locations": [
+      "Jakarta",
+      "Labuan Bajo",
+      "Hong Kong"
+    ]
+  },
+  "keywords": [],
+  "dates": {},
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en"
+  },
+  "tier": 2,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.thejakartapost.com/travel",
+  "source_name": "Jakarta Post Travel",
+  "scraped_at": "2025-10-07T22:22:24.195683",
+  "content_hash": "4efb9120810a5f74",
+  "word_count": 3012
+}

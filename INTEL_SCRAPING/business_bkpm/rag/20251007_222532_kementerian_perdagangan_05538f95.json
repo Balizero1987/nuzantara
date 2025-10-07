@@ -1,0 +1,47 @@
+{
+  "title": "Aksesibilitas",
+  "summary": "Accessibility settings for the website",
+  "category": "business_bkpm",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Kementerian Perdagangan"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "accessibility",
+    "settings",
+    "website"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "informational"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Konversi Abu-abu",
+    "Warna / Klise",
+    "Penerangan"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.kemendag.go.id/",
+  "source_name": "Kementerian Perdagangan",
+  "scraped_at": "2025-10-07T22:25:32.018712",
+  "content_hash": "05538f953eb53a00",
+  "word_count": 2528
+}

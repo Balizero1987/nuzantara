@@ -1,0 +1,37 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "real_estate",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.balirealestate.com/news",
+  "source_name": "Bali Real Estate News",
+  "scraped_at": "2025-10-07T22:31:51.147547",
+  "content_hash": "543432b449df1a01",
+  "word_count": 22
+}

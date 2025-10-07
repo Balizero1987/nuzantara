@@ -1,0 +1,51 @@
+{
+  "title": "OJK (Indonesian Financial Services Authority)",
+  "summary": "The Indonesian Financial Services Authority is a government agency responsible for regulating and supervising the financial sector in Indonesia.",
+  "category": "business_bkpm",
+  "sub_category": "financial_authority",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "OJK"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Indonesian Financial Services Authority",
+    "OJK",
+    "regulation",
+    "supervision",
+    "financial sector"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "critical",
+    "affected_groups": [
+      "businesses",
+      "investors"
+    ],
+    "action_required": true,
+    "urgency": "immediate"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Regulates and supervises the financial sector in Indonesia.",
+    "Ensures stability and soundness of the financial system."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "The OJK's regulations and supervision have a significant impact on businesses operating in the Indonesian financial sector, affecting their operations, profitability, and competitiveness.",
+  "source_url": "https://www.ojk.go.id/",
+  "source_name": "OJK",
+  "scraped_at": "2025-10-07T22:25:45.318676",
+  "content_hash": "a2c857e80817ff2d",
+  "word_count": 3684
+}

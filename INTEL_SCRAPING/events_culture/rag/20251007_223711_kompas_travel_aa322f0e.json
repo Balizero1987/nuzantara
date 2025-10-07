@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "locations": [
+      "Sumatera Utara",
+      "Sumatera Selatan",
+      "Sumatera Barat",
+      "Riau",
+      "Lampung",
+      "Banten",
+      "Yogyakarta",
+      "Jawa Barat",
+      "Jawa Tengah",
+      "Jawa Timur",
+      "Kalimantan Barat",
+      "Kalimantan Timur",
+      "Sulawesi Selatan",
+      "Bali"
+    ]
+  },
+  "keywords": [
+    "Kompas",
+    "Travel",
+    "News",
+    "Events",
+    "Culture"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://travel.kompas.com/",
+  "source_name": "Kompas Travel",
+  "scraped_at": "2025-10-07T22:37:11.061401",
+  "content_hash": "aa322f0e50cefc8e",
+  "word_count": 2878
+}

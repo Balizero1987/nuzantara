@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Option 4: Animated Switch - ZANTARA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      transition: background 0.3s ease;
+    }
+
+    /* Day Mode Background */
+    body[data-theme="day"] {
+      background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F8 100%);
+    }
+
+    /* Night Mode Background */
+    body[data-theme="night"] {
+      background: #0A0E27;
+    }
+
+    /* Day Mode Variables */
+    :root[data-theme="day"] {
+      --bg-glass: rgba(255, 255, 255, 0.85);
+      --glass-border: 1px solid rgba(255, 0, 64, 0.15);
+      --glass-shadow: 0 8px 32px rgba(255, 0, 64, 0.1);
+      --text-primary: #1A1A1A;
+      --text-secondary: #4A4A4A;
+      --red-digital: #FF0040;
+    }
+
+    /* Night Mode Variables */
+    :root[data-theme="night"] {
+      --bg-glass: rgba(139, 92, 246, 0.08);
+      --glass-border: 1px solid rgba(189, 0, 255, 0.3);
+      --glass-shadow: 0 8px 32px rgba(189, 0, 255, 0.2);
+      --text-primary: #FFFFFF;
+      --text-secondary: #B0B0B0;
+    }
+
+    .demo-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .info-banner {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: var(--glass-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .info-banner h1 {
+      color: var(--text-primary);
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .info-banner p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Header Styles */
+    .app-header {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      border-radius: 20px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-3d {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF0040, #8B5CF6);
+    }
+
+    .app-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* OPTION 4: Animated Switch Toggle */
+    .theme-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+      margin-left: auto;
+      margin-right: 8px;
+    }
+
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .theme-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--bg-glass);
+      backdrop-filter: blur(10px);
+      border-radius: 13px;
+      transition: 0.3s;
+      border: var(--glass-border);
+      box-shadow: var(--glass-shadow);
+    }
+
+    .theme-slider:before {
+      content: "";
+      position: absolute;
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 2px;
+      border-radius: 50%;
+      transition: 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Day Mode (unchecked) */
+    [data-theme="day"] .theme-slider {
+      background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 245, 245, 0.9) 100%
+      );
+      border: 1px solid rgba(255, 0, 64, 0.15);
+    }
+
+    [data-theme="day"] .theme-slider:before {
+      background: linear-gradient(135deg, #FF0040, #FFA500);
+      box-shadow: 0 2px 8px rgba(255, 0, 64, 0.4);
+    }
+
+    /* Night Mode (checked) */
+    [data-theme="night"] .theme-slider {
+      background: linear-gradient(135deg,
+        rgba(46, 16, 101, 0.6) 0%,
+        rgba(10, 1, 24, 0.8) 100%
+      );
+      border: 1px solid rgba(189, 0, 255, 0.3);
+      box-shadow: 0 0 20px rgba(189, 0, 255, 0.2);
+    }
+
+    input:checked + .theme-slider:before {
+      transform: translateX(24px);
+    }
+
+    [data-theme="night"] .theme-slider:before {
+      background: linear-gradient(135deg, #BD00FF, #00D9FF);
+      box-shadow: 0 0 10px rgba(189, 0, 255, 0.5);
+    }
+
+    .theme-slider:hover {
+      opacity: 0.9;
+    }
+
+    .menu-toggle {
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Sample Content */
+    .sample-content {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: var(--glass-border);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .sample-content h2 {
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .sample-content p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .feature-tag {
+      display: inline-block;
+      background: linear-gradient(135deg, #FF0040, #8B5CF6);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .demo-container {
+        padding: 20px 12px;
+      }
+    }
+  </style>
+</head>
+<body data-theme="day">
+  <div class="demo-container">
+    <!-- Info Banner -->
+    <div class="info-banner">
+      <h1>🎨 Option 4: Animated Switch Toggle</h1>
+      <p><strong>Design:</strong> Classic toggle switch with sliding animation</p>
+      <p><strong>Width:</strong> 50px | <strong>Best for:</strong> Standard UI pattern, smooth animation</p>
+      <div style="margin-top: 12px;">
+        <span class="feature-tag">Animated</span>
+        <span class="feature-tag">Compact</span>
+        <span class="feature-tag">Standard Pattern</span>
+      </div>
+    </div>
+
+    <!-- Header Demo -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="logo-3d"></div>
+        <span class="app-title">ZANTARA</span>
+
+        <!-- OPTION 4: Animated Switch -->
+        <label class="theme-switch">
+          <input type="checkbox" id="themeCheckbox">
+          <span class="theme-slider"></span>
+        </label>
+
+        <button class="menu-toggle" aria-label="Menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sample Content -->
+    <div class="sample-content">
+      <h2>How it works</h2>
+      <p>
+        Click or drag the switch to toggle between day and night modes.
+        The circular knob slides smoothly from left to right with a satisfying animation.
+      </p>
+      <p>
+        <strong>Day Mode (OFF):</strong> Knob on the left with red-to-orange gradient
+      </p>
+      <p>
+        <strong>Night Mode (ON):</strong> Knob slides to the right with purple-to-cyan gradient and glow effect
+      </p>
+      <p>
+        <strong>Pros:</strong> Standard, familiar toggle pattern. Smooth animation. Compact size (50px).
+      </p>
+      <p>
+        <strong>Cons:</strong> Less explicit than text labels (on/off doesn't clearly indicate day/night
+        without context). Some users may not immediately understand the mapping.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const themeCheckbox = document.getElementById('themeCheckbox');
+    const html = document.documentElement;
+    const body = document.body;
+
+    let currentTheme = 'day';
+
+    themeCheckbox.addEventListener('change', (e) => {
+      // Toggle theme based on checkbox state
+      currentTheme = e.target.checked ? 'night' : 'day';
+
+      // Update DOM
+      html.setAttribute('data-theme', currentTheme);
+      body.setAttribute('data-theme', currentTheme);
+    });
+  </script>
+</body>
+</html>

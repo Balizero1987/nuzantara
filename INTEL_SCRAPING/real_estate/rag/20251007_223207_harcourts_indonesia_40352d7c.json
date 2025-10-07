@@ -1,0 +1,47 @@
+{
+  "title": "Harcourts Indonesia",
+  "summary": "Real estate listings and news from Harcourts Indonesia.",
+  "category": "real_estate",
+  "sub_category": "property",
+  "entities": {
+    "locations": [
+      "Indonesia",
+      "Bali",
+      "Bandung",
+      "Jakarta"
+    ]
+  },
+  "keywords": [
+    "Harcourts Indonesia",
+    "Real Estate",
+    "Property",
+    "Rentals"
+  ],
+  "dates": {},
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "investors",
+      "businesses"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Harcourts Indonesia offers a wide range of properties for sale and rent.",
+    "The company provides expert advice and guidance to clients."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.harcourts.co.id/",
+  "source_name": "Harcourts Indonesia",
+  "scraped_at": "2025-10-07T22:32:07.552726",
+  "content_hash": "40352d7c462c3144",
+  "word_count": 1389
+}

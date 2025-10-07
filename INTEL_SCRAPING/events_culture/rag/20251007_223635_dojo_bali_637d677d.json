@@ -1,0 +1,57 @@
+{
+  "title": "Dojo Bali Coworking Space",
+  "summary": "A coworking space in Bali offering community, coliving, and social impact.",
+  "category": "events_culture",
+  "sub_category": "coworking",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Dojo Bali"
+    ],
+    "locations": [
+      "Bali",
+      "Canggu",
+      "Echo Beach"
+    ]
+  },
+  "keywords": [
+    "Dojo Bali Coworking Space",
+    "Coworking in Bali",
+    "Coliving",
+    "Social Impact"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "expats",
+      "investors",
+      "businesses",
+      "workers"
+    ],
+    "action_required": true,
+    "urgency": "soon"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Thrive in a collaborative community of conscious co-workers",
+    "Enjoy coliving and social impact initiatives",
+    "Located one minute walk from Echo Beach, Canggu"
+  ],
+  "regulatory_changes": [],
+  "business_implications": null,
+  "source_url": "https://www.dojobali.org/",
+  "source_name": "Dojo Bali",
+  "scraped_at": "2025-10-07T22:36:35.048248",
+  "content_hash": "637d677dcc1c7b9d",
+  "word_count": 785
+}

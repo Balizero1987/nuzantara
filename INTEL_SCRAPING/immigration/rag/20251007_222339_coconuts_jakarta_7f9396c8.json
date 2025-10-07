@@ -1,0 +1,41 @@
+{
+  "title": "Coconuts Jakarta",
+  "summary": "Jakarta news and information from Coconuts.",
+  "category": "News",
+  "sub_category": "",
+  "entities": {
+    "locations": [
+      "Jakarta"
+    ]
+  },
+  "keywords": [
+    "Jakarta",
+    "news",
+    "Coconuts"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://coconuts.co/jakarta/",
+  "source_name": "Coconuts Jakarta",
+  "scraped_at": "2025-10-07T22:23:39.012861",
+  "content_hash": "7f9396c89bd63088",
+  "word_count": 804
+}
