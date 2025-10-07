@@ -4,91 +4,13 @@ import { attachRoutes } from "./router.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 // import swaggerUi from 'swagger-ui-express';
-import { readFileSync } from 'fs';
 // import yaml from 'js-yaml';
 
-// Firebase Admin initialization
-import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { ensureFirebaseInitialized } from './services/firebase.js';
 
-// Function to get service account from Secret Manager
-async function getServiceAccountFromSecret() {
-  try {
-    const { SecretManagerServiceClient } = await import('@google-cloud/secret-manager');
-    // Use ADC (Application Default Credentials) in Cloud Run
-    const client = new SecretManagerServiceClient({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'involuted-box-469105-r0'
-    });
-
-    const projectId = process.env.FIREBASE_PROJECT_ID || 'involuted-box-469105-r0';
-    const secretName = `projects/${projectId}/secrets/zantara-service-account-2025/versions/latest`;
-
-    console.log('🔑 Accessing secret:', secretName);
-    const [version] = await client.accessSecretVersion({ name: secretName });
-    const secretPayload = version.payload?.data?.toString();
-
-    if (secretPayload) {
-      console.log('✅ Service account loaded from Secret Manager');
-      return JSON.parse(secretPayload);
-    }
-    return null;
-  } catch (error: any) {
-    console.log('⚠️ Failed to get service account from Secret Manager:', error?.message || error);
-    return null;
-  }
-}
-
-// Initialize Firebase Admin
-async function initializeFirebase() {
-  try {
-    if (getApps().length === 0) {
-      const credentials = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-      const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT;
-      const projectId = process.env.FIREBASE_PROJECT_ID || 'involuted-box-469105-r0';
-
-      let serviceAccount = null;
-
-      // Try to get from Secret Manager first
-      serviceAccount = await getServiceAccountFromSecret();
-
-      if (serviceAccount) {
-        console.log('🔥 Using service account from Secret Manager');
-      } else if (serviceAccountJson) {
-        // Parse service account key from environment variable
-        serviceAccount = JSON.parse(serviceAccountJson);
-        console.log('🔥 Using service account from environment variable');
-      } else if (credentials) {
-        // Read service account key file
-        serviceAccount = JSON.parse(readFileSync(credentials, 'utf8'));
-        console.log('🔥 Using service account from file');
-      }
-
-      if (serviceAccount) {
-        // Initialize with service account
-        initializeApp({
-          credential: cert(serviceAccount),
-          projectId: projectId
-        });
-        console.log('🔥 Firebase Admin initialized with service account');
-      } else {
-        // Fallback initialization
-        initializeApp({ projectId });
-        console.log('🔥 Firebase Admin initialized with default settings');
-      }
-    }
-  } catch (error: any) {
-    console.log('⚠️ Firebase init error (continuing with mock):', error?.message || error);
-    // Continue without Firebase for now
-  }
-}
-
-// Initialize Firebase asynchronously
-initializeFirebase().then(() => {
-  console.log('🔥 Firebase initialization completed');
-}).catch((error) => {
-  console.log('⚠️ Firebase async init error:', error?.message || error);
+await ensureFirebaseInitialized().catch((error) => {
+  console.log('⚠️ Firebase initialization issue:', error?.message || error);
 });
-
-// Rest of the code can continue synchronously
 
 const app = express();
 app.use(express.json({ limit: "10mb" }));
@@ -110,8 +32,10 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key, x-session-id, x-user-id');
   // Fast path for preflight
-  if (req.method === 'OPTIONS') return res.status(204).end();
-  next();
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  return next();
 });
 // === end CORS ===
 
@@ -132,7 +56,7 @@ app.use(deepRealityCheck()); // Deep reality anchor system
 // Enhanced health endpoint with metrics
 app.get('/health', async (req, res) => {
   const healthData = await getHealthMetrics();
-  res.json({
+  return res.json({
     ...healthData,
     environment: {
       ragBackendUrl: process.env.RAG_BACKEND_URL || 'not-set',
@@ -144,7 +68,7 @@ app.get('/health', async (req, res) => {
 // Metrics endpoint for detailed monitoring
 app.get('/metrics', async (req, res) => {
   const healthData = await getHealthMetrics();
-  res.json({
+  return res.json({
     ok: true,
     data: healthData.metrics
   });
@@ -178,7 +102,7 @@ app.get('/openapi-v2.yaml', (_req, res) => {
 
 // Simple documentation placeholder (Swagger UI disabled for now)
 app.get('/docs', (_req, res) => {
-  res.json({
+  return res.json({
     ok: true,
     message: 'API Documentation',
     version: '5.2.0',
@@ -255,10 +179,10 @@ app.post('/proxy/claude', async (req, res) => {
       max_tokens
     });
 
-    res.json({ ok: true, data: result });
+    return res.json({ ok: true, data: result });
   } catch (error: any) {
     console.error('Claude proxy error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       error: error.message || 'Claude proxy failed'
     });
@@ -285,10 +209,10 @@ app.post('/proxy/gemini', async (req, res) => {
       max_tokens
     });
 
-    res.json({ ok: true, data: result });
+    return res.json({ ok: true, data: result });
   } catch (error: any) {
     console.error('Gemini proxy error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       error: error.message || 'Gemini proxy failed'
     });
@@ -315,10 +239,10 @@ app.post('/proxy/cohere', async (req, res) => {
       max_tokens
     });
 
-    res.json({ ok: true, data: result });
+    return res.json({ ok: true, data: result });
   } catch (error: any) {
     console.error('Cohere proxy error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       error: error.message || 'Cohere proxy failed'
     });

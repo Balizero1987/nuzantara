@@ -227,7 +227,7 @@ export async function enforceReality(req: Request, res: Response) {
       { context }
     );
 
-    res.json({
+    return res.json({
       ok: true,
       data: {
         realityCheck,
@@ -239,7 +239,7 @@ export async function enforceReality(req: Request, res: Response) {
       }
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       error: 'Reality enforcement failed',
       message: error.message
@@ -254,7 +254,7 @@ export async function clearRealityCache(req: Request, res: Response) {
   realityAnchor.clearUnverifiedCache();
   antiHallucination.clearUnverifiedFacts();
 
-  res.json({
+  return res.json({
     ok: true,
     data: {
       message: 'Reality cache and unverified facts cleared',

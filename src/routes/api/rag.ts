@@ -29,11 +29,11 @@ router.post('/query', async (req: Request, res: Response) => {
       conversation_history
     });
 
-    res.json(result);
+    return res.json(result);
 
   } catch (error: any) {
     console.error('RAG query error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: error.message || 'Internal server error'
     });
   }
@@ -63,11 +63,11 @@ router.post('/bali-zero', async (req: Request, res: Response) => {
       user_role: role
     });
 
-    res.json(result);
+    return res.json(result);
 
   } catch (error: any) {
     console.error('Bali Zero error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: error.message || 'Internal server error'
     });
   }
@@ -107,13 +107,13 @@ router.get('/health', async (req: Request, res: Response) => {
   try {
     const isHealthy = await ragService.healthCheck();
 
-    res.json({
+    return res.json({
       status: isHealthy ? 'healthy' : 'unhealthy',
       rag_backend: isHealthy
     });
 
   } catch (error) {
-    res.status(503).json({
+    return res.status(503).json({
       status: 'unhealthy',
       error: 'RAG backend unavailable'
     });

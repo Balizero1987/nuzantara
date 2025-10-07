@@ -301,13 +301,34 @@
       position: relative;
     }
 
+    .welcome h2 {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .welcome .powered-by {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 400;
+    }
+
     body.day-mode .welcome {
       color: rgba(0, 0, 0, 0.5);
     }
 
+    body.day-mode .welcome h2 {
+      color: #000;
+    }
+
+    body.day-mode .welcome .powered-by {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
     .logo-center {
-      width: 360px;
-      height: 360px;
+      width: 180px;
+      height: 180px;
       margin: 0 auto 30px;
       display: block;
       object-fit: contain;
@@ -662,8 +683,8 @@
         <div class="messages">
           <div class="welcome">
             <img src="assets/logoscon.png" class="logo-center" alt="ZANTARA Logo">
-            <h2>Welcome to ZANTARA</h2>
-            <p>Start a conversation</p>
+            <h2>Welcome to Zantara</h2>
+            <p class="powered-by">powered by Zero AI</p>
           </div>
         </div>
 

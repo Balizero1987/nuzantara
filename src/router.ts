@@ -1292,7 +1292,10 @@ export function attachRoutes(app: import("express").Express) {
   app.get('/ai.chat.stream', apiKeyAuth, async (req: RequestWithCtx, res) => {
     try {
       const prompt = (req.query.prompt as string) || '';
-      if (!prompt) return res.status(400).end();
+      if (!prompt) {
+        res.status(400).end();
+        return;
+      }
       // SSE headers
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
@@ -1309,12 +1312,14 @@ export function attachRoutes(app: import("express").Express) {
       }
       res.write('event: done\ndata: [END]\n\n');
       res.end();
+      return;
     } catch (err: any) {
       try {
         res.write(`event: error\ndata: ${JSON.stringify({ error: err.message || 'stream_failed' })}\n\n`);
       } finally {
         res.end();
       }
+      return;
     }
   });
 

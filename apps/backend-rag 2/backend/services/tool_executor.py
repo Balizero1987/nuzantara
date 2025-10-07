@@ -3,6 +3,7 @@ TOOL EXECUTOR SERVICE
 Handles Anthropic tool use execution via handler proxy
 """
 
+import json
 import logging
 from typing import Dict, Any, List, Optional
 from services.handler_proxy import HandlerProxyService
@@ -51,7 +52,7 @@ class ToolExecutor:
             {
                 "type": "tool_result",
                 "tool_use_id": "toolu_123",
-                "content": "Email sent successfully"
+                "content": [{"type": "output_text", "text": "Email sent successfully"}]
             }
         ]
         """
@@ -78,19 +79,27 @@ class ToolExecutor:
 
                 # Format result for Anthropic
                 if result.get("error"):
-                    # Tool execution failed
-                    content = f"Error executing {handler_key}: {result['error']}"
+                    error_message = f"Error executing {handler_key}: {result['error']}"
                     logger.error(f"❌ Tool {tool_name} failed: {result['error']}")
-                else:
-                    # Tool execution succeeded
-                    # Anthropic expects string content, so stringify the result
-                    content = str(result.get("result", result))
-                    logger.info(f"✅ Tool {tool_name} executed successfully")
+                    results.append({
+                        "type": "tool_result",
+                        "tool_use_id": tool_id,
+                        "is_error": True,
+                        "content": [{"type": "output_text", "text": error_message}]
+                    })
+                    continue
 
+                payload = result.get('result', result)
+                if isinstance(payload, (dict, list)):
+                    content_text = json.dumps(payload)
+                else:
+                    content_text = str(payload)
+
+                logger.info(f"✅ Tool {tool_name} executed successfully")
                 results.append({
                     "type": "tool_result",
                     "tool_use_id": tool_id,
-                    "content": content
+                    "content": [{"type": "output_text", "text": content_text}]
                 })
 
             except Exception as e:
@@ -98,8 +107,8 @@ class ToolExecutor:
                 results.append({
                     "type": "tool_result",
                     "tool_use_id": tool_id,
-                    "content": f"Tool execution error: {str(e)}",
-                    "is_error": True
+                    "is_error": True,
+                    "content": [{"type": "output_text", "text": f"Tool execution error: {str(e)}"}]
                 })
 
         return results

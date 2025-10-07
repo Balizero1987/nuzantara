@@ -147,22 +147,34 @@ def sanitize_public_answer(text: str) -> str:
 
 
 def download_chromadb_from_gcs():
-    """Download ChromaDB from Cloud Storage to local /tmp"""
+    """Download ChromaDB from Cloud Storage to local /tmp with caching."""
     try:
         bucket_name = "nuzantara-chromadb-2025"
         source_prefix = "chroma_db/"
         local_path = "/tmp/chroma_db"
+        version = os.environ.get("CHROMADB_VERSION")
+        version_file = os.path.join(local_path, ".version")
+        local_path_obj = Path(local_path)
+        has_existing_data = local_path_obj.is_dir() and any(local_path_obj.iterdir())
+
+        if version and has_existing_data and Path(version_file).is_file():
+            cached_version = Path(version_file).read_text().strip()
+            if cached_version == version:
+                logger.info(f"♻️ Using cached ChromaDB (version {version})")
+                return local_path
+            logger.info("🧹 Removing stale ChromaDB cache (version mismatch)")
+            shutil.rmtree(local_path, ignore_errors=True)
+            has_existing_data = False
+        elif has_existing_data and not version:
+            logger.info("♻️ Using cached ChromaDB (no version specified)")
+            return local_path
 
         logger.info(f"📥 Downloading ChromaDB from gs://{bucket_name}/{source_prefix}")
-
-        # Create local directory
         os.makedirs(local_path, exist_ok=True)
 
-        # Initialize GCS client
         storage_client = storage.Client()
         bucket = storage_client.bucket(bucket_name)
 
-        # List and download all files
         blobs = bucket.list_blobs(prefix=source_prefix)
         file_count = 0
         total_size = 0
@@ -171,14 +183,9 @@ def download_chromadb_from_gcs():
             if blob.name.endswith('/'):
                 continue  # Skip directories
 
-            # Get relative path
             relative_path = blob.name.replace(source_prefix, '')
             local_file = os.path.join(local_path, relative_path)
-
-            # Create parent directories
             os.makedirs(os.path.dirname(local_file), exist_ok=True)
-
-            # Download file
             blob.download_to_filename(local_file)
             file_count += 1
             total_size += blob.size
@@ -188,6 +195,12 @@ def download_chromadb_from_gcs():
 
         logger.info(f"✅ ChromaDB downloaded: {file_count} files ({total_size / 1024 / 1024:.1f} MB)")
         logger.info(f"📂 Location: {local_path}")
+
+        if version:
+            try:
+                Path(version_file).write_text(version)
+            except Exception as write_exc:  # pragma: no cover
+                logger.warning(f"⚠️ Failed to write ChromaDB version file: {write_exc}")
 
         return local_path
 
