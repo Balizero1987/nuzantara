@@ -850,9 +850,9 @@ app.include_router(memory_vector_router)
 from app.routers.intel import router as intel_router
 app.include_router(intel_router)
 
-# Include Llama 4 Scout router
-from routers.llama4 import router as llama4_router
-app.include_router(llama4_router)
+# Include Llama 4 Scout router - DISABLED (module not in production)
+# from routers.llama4 import router as llama4_router
+# app.include_router(llama4_router)
 
 
 @app.get("/")
