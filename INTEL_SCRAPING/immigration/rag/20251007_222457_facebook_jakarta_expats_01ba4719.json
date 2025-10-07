@@ -1,0 +1,39 @@
+{
+  "title": "Clear, descriptive title",
+  "summary": "2-3 sentence summary of key information",
+  "category": "immigration",
+  "sub_category": "specific sub-category (visa, tax, property, event, trend, competitor, news)",
+  "entities": {
+    "people": [],
+    "organizations": [],
+    "locations": []
+  },
+  "keywords": [
+    "5-10 relevant keywords for search"
+  ],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": false
+  },
+  "tier": 3,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.facebook.com/groups/jakartaexpats/",
+  "source_name": "Facebook Jakarta Expats",
+  "scraped_at": "2025-10-07T22:24:57.126143",
+  "content_hash": "01ba4719c80b6fe9",
+  "word_count": 0
+}

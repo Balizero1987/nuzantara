@@ -1,0 +1,47 @@
+{
+  "title": "Kementerian Koordinator Bidang Perekonomian Republik Indonesia",
+  "summary": "The Ministry of Coordinator for the Economy of the Republic of Indonesia provides information on its profile, structure, and publications.",
+  "category": "business_bkpm",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Kementerian Koordinator Bidang Perekonomian Republik Indonesia"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Kementerian Koordinator Bidang Perekonomian",
+    "Perekonomian",
+    "Economy",
+    "Indonesia"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Provides information on its profile and structure.",
+    "Publishes various types of publications, including press releases and bulletins."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.ekon.go.id/",
+  "source_name": "Kementerian Koordinator Ekonomi",
+  "scraped_at": "2025-10-07T22:25:19.034939",
+  "content_hash": "bae1eb389dbcebcc",
+  "word_count": 1520
+}

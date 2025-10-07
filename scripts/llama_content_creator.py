@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 try:
     import ollama
@@ -311,29 +312,46 @@ Return the enhanced version maintaining the same structure and length."""
             f.write(f"\n---\n")
             f.write(f"*Generated at {datetime.now().strftime('%H:%M:%S')}*\n")
 
-    def process_all(self):
-        """Process all categories to create articles"""
+    def _process_category_with_digest(self, category: str) -> int:
+        """Process category and create digest, return article count"""
+        self.process_category(category)
+        self.create_category_digest(category)
+
+        # Count articles
+        articles_dir = self.base_dir / category / "articles"
+        if articles_dir.exists():
+            return len(list(articles_dir.glob("article_*.json")))
+        return 0
+
+    def process_all(self, max_workers: int = 4):
+        """Process all categories to create articles in parallel"""
         logger.info("=" * 70)
-        logger.info("INTEL AUTOMATION - STAGE 2B: CONTENT CREATION")
+        logger.info("INTEL AUTOMATION - STAGE 2B: CONTENT CREATION (PARALLEL)")
         logger.info(f"Model: {self.model_name}")
+        logger.info(f"Max Workers: {max_workers}")
         logger.info(f"Starting at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info("=" * 70)
 
         categories = [d.name for d in self.base_dir.iterdir() if d.is_dir()]
 
+        # Process categories in parallel
         total_created = 0
-        for category in categories:
-            logger.info(f"\nProcessing category: {category}")
-            self.process_category(category)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all category processing tasks
+            future_to_category = {
+                executor.submit(self._process_category_with_digest, category): category
+                for category in categories
+            }
 
-            # Create category digest
-            self.create_category_digest(category)
-
-            # Count articles
-            articles_dir = self.base_dir / category / "articles"
-            if articles_dir.exists():
-                count = len(list(articles_dir.glob("article_*.json")))
-                total_created += count
+            # Process results as they complete
+            for future in as_completed(future_to_category):
+                category = future_to_category[future]
+                try:
+                    count = future.result()
+                    total_created += count
+                    logger.info(f"✓ Completed {category}: {count} articles")
+                except Exception as e:
+                    logger.error(f"✗ Failed {category}: {str(e)}")
 
         # Generate overall content summary
         self.generate_content_summary(total_created)

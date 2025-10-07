@@ -1,0 +1,77 @@
+{
+  "title": "McKinsey Indonesia",
+  "summary": "We partner with business and government to build leaders, drive growth, and unlock Indonesia's potential as one of the world's leading economies.",
+  "category": "business_bkpm",
+  "sub_category": null,
+  "entities": {
+    "people": [
+      {
+        "name": "Kaushik Das",
+        "title": "Senior Partner, Southeast Asia, Singapore"
+      },
+      {
+        "name": "Phillia Wibowo",
+        "title": "Partner, Jakarta"
+      },
+      {
+        "name": "Guillaume de Gantes",
+        "title": "Senior Partner, Singapore"
+      }
+    ],
+    "organizations": [
+      "McKinsey & Company"
+    ],
+    "locations": [
+      {
+        "name": "Indonesia",
+        "type": "country"
+      },
+      {
+        "name": "Southeast Asia",
+        "type": "region"
+      },
+      {
+        "name": "Singapore",
+        "type": "city"
+      }
+    ]
+  },
+  "keywords": [
+    "McKinsey Indonesia",
+    "business",
+    "growth",
+    "leadership",
+    "Southeast Asia"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "businesses",
+      "workers"
+    ],
+    "action_required": true,
+    "urgency": "soon"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "We partner with business and government to build leaders, drive growth, and unlock Indonesia's potential as one of the world's leading economies.",
+    "Our alumni hold leadership positions in many established businesses and entrepreneurial start-ups as well as public and social sector organizations."
+  ],
+  "regulatory_changes": null,
+  "business_implications": "McKinsey helps many leading enterprises accelerate sustainable and inclusive growth",
+  "source_url": "https://www.mckinsey.com/id/overview",
+  "source_name": "McKinsey Indonesia",
+  "scraped_at": "2025-10-07T22:27:27.940599",
+  "content_hash": "af417ca552dabc51",
+  "word_count": 1125
+}

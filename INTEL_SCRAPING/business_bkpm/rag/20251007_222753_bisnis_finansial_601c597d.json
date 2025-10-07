@@ -1,0 +1,52 @@
+{
+  "title": "Breaking News",
+  "summary": "Tragedi Ponpes Al-Khoziny: Ketika Rafi Tak Lagi Bangun dari Sujudnya dan Pemkot Surakarta Gandeng GoPay Digitalisasi Layanan Publik dan Pemberdayaan Warga",
+  "category": "business_bkpm",
+  "sub_category": "news",
+  "entities": {
+    "people": [
+      "Rafi"
+    ],
+    "organizations": [
+      "Ponpes Al-Khoziny",
+      "GoPay"
+    ],
+    "locations": [
+      "Surakarta"
+    ]
+  },
+  "keywords": [
+    "Breaking News",
+    "Tragedi Ponpes Al-Khoziny",
+    "Digitalisasi Layanan Publik",
+    "Pemberdayaan Warga"
+  ],
+  "dates": {
+    "published": "20251007"
+  },
+  "impact": {
+    "level": "critical",
+    "affected_groups": [
+      "businesses"
+    ],
+    "action_required": true,
+    "urgency": "immediate"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Tragedi Ponpes Al-Khoziny: Ketika Rafi Tak Lagi Bangun dari Sujudnya",
+    "Pemkot Surakarta Gandeng GoPay Digitalisasi Layanan Publik dan Pemberdayaan Warga"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://finansial.bisnis.com/",
+  "source_name": "Bisnis Finansial",
+  "scraped_at": "2025-10-07T22:27:53.053278",
+  "content_hash": "601c597d524b389a",
+  "word_count": 2316
+}

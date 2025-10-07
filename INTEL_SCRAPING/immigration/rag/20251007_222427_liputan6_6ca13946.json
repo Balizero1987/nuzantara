@@ -1,0 +1,47 @@
+{
+  "title": "Liputan6",
+  "summary": "Indonesian news website with various categories and subcategories.",
+  "category": "News",
+  "sub_category": "General News",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Liputan6"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "news",
+    "indonesia",
+    "lifestyle",
+    "business",
+    "technology"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "general audience"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.liputan6.com/",
+  "source_name": "Liputan6",
+  "scraped_at": "2025-10-07T22:24:27.217559",
+  "content_hash": "6ca139469aec8989",
+  "word_count": 2824
+}

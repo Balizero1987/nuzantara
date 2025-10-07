@@ -1,0 +1,48 @@
+{
+  "title": "Direktorat Jenderal Imigrasi",
+  "summary": "Direktorat Jenderal Imigrasi merupakan Unit Eselon I di bawah Kementerian Imigrasi dan Pemasyarakatan.",
+  "category": "immigration",
+  "sub_category": "government",
+  "entities": {
+    "organizations": [
+      "Direktorat Jenderal Imigrasi",
+      "Kementerian Imigrasi dan Pemasyarakatan"
+    ]
+  },
+  "keywords": [
+    "imigrasi",
+    "direktorat jenderal imigrasi",
+    "kementerian imigrasi"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "warga negara indonesia",
+      "warga negara asing"
+    ],
+    "action_required": true,
+    "urgency": "soon"
+  },
+  "language": {
+    "primary": "id|en",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Situs web resmi kementerian/lembaga Pemerintah RI berakhiran .go.id",
+    "Situs web yang aman menggunakan HTTPS"
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.imigrasi.go.id/id/berita/",
+  "source_name": "Direktorat Imigrasi",
+  "scraped_at": "2025-10-07T22:20:43.978746",
+  "content_hash": "bf99509044b14b2f",
+  "word_count": 358
+}

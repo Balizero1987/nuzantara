@@ -28,11 +28,12 @@ logger = logging.getLogger(__name__)
 # Import all stages
 sys.path.insert(0, str(Path(__file__).parent))
 
-from crawl4ai_scraper import IntelScraper
+from crawl4ai_scraper import IntelScraper, SPECIAL_CATEGORIES, CATEGORY_OWNERS
 from llama_rag_processor import LlamaRAGProcessor
 from llama_content_creator import LlamaContentCreator
 from editorial_ai import EditorialAI
 from multi_channel_publisher import MultiChannelPublisher
+from email_sender import EmailSender
 
 class IntelAutomationOrchestrator:
     """Main orchestrator for the intel automation pipeline"""
@@ -120,14 +121,66 @@ class IntelAutomationOrchestrator:
             }
             return False
 
-    def run_stage_3_editorial(self):
-        """Stage 3: Editorial Review with Claude Opus"""
-        if 'editorial' in self.skip_stages:
-            logger.info("Skipping Stage 3: Editorial Review")
+    def run_stage_3_email_special(self):
+        """Stage 3A: Send Email for Special Categories (skip Claude/social)"""
+        if 'email_special' in self.skip_stages:
+            logger.info("Skipping Stage 3A: Email for Special Categories")
             return True
 
         logger.info("=" * 70)
-        logger.info("STAGE 3: EDITORIAL REVIEW")
+        logger.info("STAGE 3A: EMAIL ROUTING (SPECIAL CATEGORIES)")
+        logger.info("=" * 70)
+
+        try:
+            sender = EmailSender()
+            sent_count = 0
+
+            # Find all articles in special categories
+            base_dir = Path(__file__).parent.parent / "INTEL_SCRAPING"
+
+            for category in SPECIAL_CATEGORIES:
+                articles_dir = base_dir / category / "articles"
+                if not articles_dir.exists():
+                    continue
+
+                # Send each article
+                for article_file in articles_dir.glob("article_*.json"):
+                    try:
+                        with open(article_file) as f:
+                            article = json.load(f)
+
+                        if sender.send_article_email(article, category):
+                            sent_count += 1
+                            logger.info(f"✅ Sent: {article.get('title', 'Untitled')}")
+
+                    except Exception as e:
+                        logger.error(f"Failed to send {article_file.name}: {e}")
+
+            self.results['email_special'] = {
+                'status': 'success',
+                'sent_count': sent_count,
+                'completed_at': datetime.now().isoformat()
+            }
+
+            logger.info(f"Sent {sent_count} special category emails to zero@balizero.com")
+            return True
+
+        except Exception as e:
+            logger.error(f"Email sending failed: {e}")
+            self.results['email_special'] = {
+                'status': 'failed',
+                'error': str(e)
+            }
+            return False
+
+    def run_stage_3_editorial(self):
+        """Stage 3B: Editorial Review with Claude Opus (Standard Categories Only)"""
+        if 'editorial' in self.skip_stages:
+            logger.info("Skipping Stage 3B: Editorial Review")
+            return True
+
+        logger.info("=" * 70)
+        logger.info("STAGE 3B: EDITORIAL REVIEW (STANDARD CATEGORIES)")
         logger.info("=" * 70)
 
         # Check for API key
@@ -142,13 +195,40 @@ class IntelAutomationOrchestrator:
 
         try:
             editor = EditorialAI()
-            approved = editor.process_all()
+
+            # Process only standard categories (exclude special)
+            base_dir = Path(__file__).parent.parent / "INTEL_SCRAPING"
+            approved_count = 0
+
+            for category in CATEGORY_OWNERS.keys():
+                if category in SPECIAL_CATEGORIES:
+                    logger.info(f"Skipping {category} (special category)")
+                    continue
+
+                articles_dir = base_dir / category / "articles"
+                if not articles_dir.exists():
+                    continue
+
+                # Review articles in this category
+                for article_file in articles_dir.glob("article_*.json"):
+                    try:
+                        with open(article_file) as f:
+                            article = json.load(f)
+
+                        approved, review = editor.review_article(article)
+                        if approved:
+                            approved_count += 1
+
+                    except Exception as e:
+                        logger.error(f"Failed to review {article_file.name}: {e}")
+
             self.results['editorial'] = {
                 'status': 'success',
-                'approved_count': len(approved),
+                'approved_count': approved_count,
                 'completed_at': datetime.now().isoformat()
             }
             return True
+
         except Exception as e:
             logger.error(f"Editorial review failed: {e}")
             self.results['editorial'] = {
@@ -158,17 +238,18 @@ class IntelAutomationOrchestrator:
             return False
 
     def run_stage_4_publishing(self):
-        """Stage 4: Multi-Channel Publishing"""
+        """Stage 4: Multi-Channel Publishing (Standard Categories Only)"""
         if 'publishing' in self.skip_stages:
             logger.info("Skipping Stage 4: Publishing")
             return True
 
         logger.info("=" * 70)
-        logger.info("STAGE 4: MULTI-CHANNEL PUBLISHING")
+        logger.info("STAGE 4: MULTI-CHANNEL PUBLISHING (STANDARD CATEGORIES)")
         logger.info("=" * 70)
 
         try:
             publisher = MultiChannelPublisher()
+            # Publisher already handles approved articles only
             publisher.publish_all_approved()
             self.results['publishing'] = {
                 'status': 'success',
@@ -178,6 +259,63 @@ class IntelAutomationOrchestrator:
         except Exception as e:
             logger.error(f"Publishing failed: {e}")
             self.results['publishing'] = {
+                'status': 'failed',
+                'error': str(e)
+            }
+            return False
+
+    def run_stage_5_email_standard(self):
+        """Stage 5: Email Category Owners (Standard Categories)"""
+        if 'email_standard' in self.skip_stages:
+            logger.info("Skipping Stage 5: Email Standard Categories")
+            return True
+
+        logger.info("=" * 70)
+        logger.info("STAGE 5: EMAIL ROUTING (STANDARD CATEGORIES)")
+        logger.info("=" * 70)
+
+        try:
+            sender = EmailSender()
+            sent_count = 0
+
+            # Find all approved articles in standard categories
+            base_dir = Path(__file__).parent.parent / "INTEL_SCRAPING"
+
+            for category in CATEGORY_OWNERS.keys():
+                if category in SPECIAL_CATEGORIES:
+                    continue  # Skip special categories
+
+                articles_dir = base_dir / category / "articles"
+                if not articles_dir.exists():
+                    continue
+
+                # Send ALL articles to category owner (no approval check since editorial review is disabled)
+                for article_file in articles_dir.glob("article_*.json"):
+                    try:
+                        with open(article_file) as f:
+                            article = json.load(f)
+
+                        # Send article directly without approval check
+                        if sender.send_article_email(article, category):
+                            sent_count += 1
+                            owner = CATEGORY_OWNERS[category]
+                            logger.info(f"✅ Sent to {owner}: {article.get('title', 'Untitled')}")
+
+                    except Exception as e:
+                        logger.error(f"Failed to send {article_file.name}: {e}")
+
+            self.results['email_standard'] = {
+                'status': 'success',
+                'sent_count': sent_count,
+                'completed_at': datetime.now().isoformat()
+            }
+
+            logger.info(f"Sent {sent_count} articles to category owners")
+            return True
+
+        except Exception as e:
+            logger.error(f"Email sending failed: {e}")
+            self.results['email_standard'] = {
                 'status': 'failed',
                 'error': str(e)
             }
@@ -230,13 +368,17 @@ class IntelAutomationOrchestrator:
         if not self.check_dependencies():
             logger.warning("Some dependencies are missing. Install them to run all stages.")
 
-        # Run each stage
+        # Run each stage with differentiated workflows
+        # IMPORTANT: Pipeline stops after Stage 3 (Email sending)
+        # Stages 4-5 (Editorial Review, Publishing, Social Media) are DISABLED for now
         stages = [
             ('Stage 1: Scraping', self.run_stage_1_scraping),
             ('Stage 2A: RAG Processing', self.run_stage_2a_rag_processing),
             ('Stage 2B: Content Creation', self.run_stage_2b_content_creation),
-            ('Stage 3: Editorial Review', self.run_stage_3_editorial),
-            ('Stage 4: Publishing', self.run_stage_4_publishing)
+            ('Stage 3A: Email Special Categories', self.run_stage_3_email_special),  # ACTIVE
+            ('Stage 3B: Email Standard Categories', self.run_stage_5_email_standard),  # ACTIVE - renamed for clarity
+            # ('Stage 4: Editorial Review (Standard)', self.run_stage_3_editorial),  # DISABLED
+            # ('Stage 5: Publishing (Standard)', self.run_stage_4_publishing),  # DISABLED
         ]
 
         for stage_name, stage_func in stages:
@@ -296,13 +438,13 @@ def main():
     parser.add_argument(
         '--skip',
         nargs='+',
-        choices=['scraping', 'rag', 'content', 'editorial', 'publishing'],
+        choices=['scraping', 'rag', 'content', 'email_special', 'editorial', 'publishing', 'email_standard'],
         help='Stages to skip'
     )
 
     parser.add_argument(
         '--stage',
-        choices=['scraping', 'rag', 'content', 'editorial', 'publishing', 'all'],
+        choices=['scraping', 'rag', 'content', 'email_special', 'editorial', 'publishing', 'email_standard', 'all'],
         default='all',
         help='Run specific stage only'
     )
@@ -320,7 +462,7 @@ def main():
 
     if args.stage != 'all':
         # Skip all stages except the specified one
-        all_stages = ['scraping', 'rag', 'content', 'editorial', 'publishing']
+        all_stages = ['scraping', 'rag', 'content', 'email_special', 'editorial', 'publishing', 'email_standard']
         skip_stages = [s for s in all_stages if s != args.stage]
 
     # Set test mode if requested

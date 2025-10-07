@@ -1,0 +1,49 @@
+{
+  "title": "The Bali Bible",
+  "summary": "A travel and lifestyle website covering events, culture, and more in Bali.",
+  "category": "events_culture",
+  "sub_category": null,
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Bali Media Co.",
+      "TRAVLR Pty Ltd."
+    ],
+    "locations": [
+      "Bali"
+    ]
+  },
+  "keywords": [
+    "Bali",
+    "travel",
+    "lifestyle"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "tourists",
+      "expats"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.thebalibible.com/events",
+  "source_name": "Bali Bible Events",
+  "scraped_at": "2025-10-07T22:33:53.298209",
+  "content_hash": "44128671363872bc",
+  "word_count": 208
+}

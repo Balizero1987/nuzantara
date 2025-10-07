@@ -1,0 +1,37 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "events_culture",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.indonesia.travel/id/id/home",
+  "source_name": "Wonderful Indonesia Official",
+  "scraped_at": "2025-10-07T22:33:50.407954",
+  "content_hash": "efab6861997c6f84",
+  "word_count": 18
+}

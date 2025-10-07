@@ -1,0 +1,11 @@
+{
+  "start_time": "2025-10-08T01:14:46.228202",
+  "end_time": "2025-10-08T01:14:46.358622",
+  "duration_seconds": 0.13042,
+  "stages": {
+    "rag_processing": {
+      "status": "failed",
+      "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download"
+    }
+  }
+}

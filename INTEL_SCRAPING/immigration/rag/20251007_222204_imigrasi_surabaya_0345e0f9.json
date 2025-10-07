@@ -1,0 +1,51 @@
+{
+  "title": "Kantor Imigrasi Kelas I Khusus TPI Surabaya",
+  "summary": "Information about the Immigration Office of Surabaya for foreign nationals and Indonesian citizens.",
+  "category": "immigration",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Imigrasi Surabaya",
+      "TPI Surabaya"
+    ],
+    "locations": [
+      "Surabaya"
+    ]
+  },
+  "keywords": [
+    "immigration office",
+    "Kantor Imigrasi Kelas I Khusus TPI Surabaya",
+    "Indonesian citizens",
+    "foreign nationals"
+  ],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": true
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Beranda",
+    "Layanan Publik",
+    "Informasi Publik"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://surabaya.imigrasi.go.id/",
+  "source_name": "Imigrasi Surabaya",
+  "scraped_at": "2025-10-07T22:22:04.027146",
+  "content_hash": "0345e0f90701f563",
+  "word_count": 1319
+}

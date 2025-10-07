@@ -1,0 +1,39 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Kontan"
+    ],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": false
+  },
+  "tier": 0,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.kontan.co.id/",
+  "source_name": "Kontan",
+  "scraped_at": "2025-10-07T22:28:04.233668",
+  "content_hash": "44b58b486a7653d8",
+  "word_count": 2290
+}

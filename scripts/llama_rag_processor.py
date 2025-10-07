@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import logging
 import hashlib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 try:
     import ollama
@@ -147,7 +148,13 @@ Return ONLY valid JSON, no other text."""
                     text = text[4:]
                 text = text.strip()
 
-            rag_data = json.loads(text)
+            # Try to extract JSON (improved handling)
+            rag_data = self.extract_json_from_text(text)
+
+            if rag_data is None:
+                logger.error(f"Failed to parse LLAMA response as JSON")
+                logger.debug(f"Response was: {text[:500]}")
+                return None
 
             # Add original metadata
             rag_data['source_url'] = document['url']
@@ -158,13 +165,36 @@ Return ONLY valid JSON, no other text."""
 
             return rag_data
 
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse LLAMA response as JSON: {e}")
-            logger.debug(f"Response was: {text[:500]}")
-            return None
         except Exception as e:
             logger.error(f"Error processing document: {e}")
             return None
+
+    def extract_json_from_text(self, text: str) -> Optional[Dict]:
+        """Extract JSON from text, even if wrapped in other content"""
+        import re
+
+        # Try direct parse first
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            pass
+
+        # Try to find JSON block in text
+        json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
+        matches = re.findall(json_pattern, text, re.DOTALL)
+
+        for match in matches:
+            try:
+                parsed = json.loads(match)
+                # Verify it has expected fields
+                if 'title' in parsed or 'summary' in parsed:
+                    return parsed
+            except json.JSONDecodeError:
+                continue
+
+        # Last attempt: look for key-value pairs and construct JSON
+        logger.warning("Could not extract valid JSON from response")
+        return None
 
     def generate_embedding(self, text: str) -> List[float]:
         """Generate embedding using LLAMA"""
@@ -188,6 +218,14 @@ Return ONLY valid JSON, no other text."""
                     embedding.append(float(bit))
             return embedding
 
+    def clean_metadata_value(self, value):
+        """Clean metadata value - remove None, convert to string if needed"""
+        if value is None or value == '':
+            return 'unknown'
+        if isinstance(value, (list, dict)):
+            return json.dumps(value)
+        return str(value)
+
     def save_to_chromadb(self, rag_data: Dict, category: str, original_content: str):
         """Save processed data to ChromaDB"""
         collection = self.get_or_create_collection(category)
@@ -205,8 +243,8 @@ Key Points: {' '.join(rag_data.get('key_points', []))}
         # Generate embedding
         embedding = self.generate_embedding(doc_text)
 
-        # Prepare metadata (ChromaDB requires simple types)
-        metadata = {
+        # Prepare metadata (ChromaDB requires simple types, NO None values)
+        raw_metadata = {
             'title': rag_data.get('title', ''),
             'summary': rag_data.get('summary', ''),
             'source_name': rag_data.get('source_name', ''),
@@ -215,16 +253,19 @@ Key Points: {' '.join(rag_data.get('key_points', []))}
             'impact_level': rag_data.get('impact', {}).get('level', 'low'),
             'urgency': rag_data.get('impact', {}).get('urgency', 'informational'),
             'action_required': str(rag_data.get('impact', {}).get('action_required', False)),
-            'published_date': rag_data.get('dates', {}).get('published', ''),
-            'effective_date': rag_data.get('dates', {}).get('effective', ''),
-            'deadline_date': rag_data.get('dates', {}).get('deadline', ''),
+            'published_date': rag_data.get('dates', {}).get('published'),
+            'effective_date': rag_data.get('dates', {}).get('effective'),
+            'deadline_date': rag_data.get('dates', {}).get('deadline'),
             'scraped_at': rag_data.get('scraped_at', ''),
             'content_hash': rag_data.get('content_hash', ''),
-            'keywords': json.dumps(rag_data.get('keywords', [])),
-            'affected_groups': json.dumps(rag_data.get('impact', {}).get('affected_groups', [])),
+            'keywords': rag_data.get('keywords', []),
+            'affected_groups': rag_data.get('impact', {}).get('affected_groups', []),
             'category': category,
             'sub_category': rag_data.get('sub_category', ''),
         }
+
+        # Clean all metadata values (remove None, convert to strings)
+        metadata = {k: self.clean_metadata_value(v) for k, v in raw_metadata.items()}
 
         # Add to collection
         try:
@@ -269,33 +310,53 @@ Key Points: {' '.join(rag_data.get('key_points', []))}
                 document = json.load(f)
 
             # Process for RAG
-            logger.info(f"Processing: {document.get('title', json_file.name)[:50]}...")
-            rag_data = self.process_for_rag(document)
+            try:
+                logger.info(f"Processing: {document.get('title', json_file.name)[:50]}...")
+                rag_data = self.process_for_rag(document)
 
-            if rag_data:
-                # Save RAG data
-                with open(rag_file, 'w', encoding='utf-8') as f:
-                    json.dump(rag_data, f, ensure_ascii=False, indent=2)
+                if rag_data:
+                    # Save RAG data
+                    with open(rag_file, 'w', encoding='utf-8') as f:
+                        json.dump(rag_data, f, ensure_ascii=False, indent=2)
 
-                # Save to ChromaDB
-                self.save_to_chromadb(rag_data, category, document['content'])
-                processed += 1
+                    # Save to ChromaDB
+                    self.save_to_chromadb(rag_data, category, document['content'])
+                    processed += 1
+                else:
+                    logger.warning(f"Skipping {json_file.name} - no RAG data generated")
+            except Exception as e:
+                logger.error(f"Error processing {json_file.name}: {e}")
+                continue
 
         logger.info(f"Processed {processed} new documents in {category}")
 
-    def process_all(self):
-        """Process all categories"""
+    def process_all(self, max_workers: int = 4):
+        """Process all categories in parallel"""
         logger.info("=" * 70)
-        logger.info("INTEL AUTOMATION - STAGE 2A: RAG PROCESSING")
+        logger.info("INTEL AUTOMATION - STAGE 2A: RAG PROCESSING (PARALLEL)")
         logger.info(f"Model: {self.model_name}")
+        logger.info(f"Max Workers: {max_workers}")
         logger.info(f"Starting at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info("=" * 70)
 
         categories = [d.name for d in self.base_dir.iterdir() if d.is_dir()]
 
-        for category in categories:
-            logger.info(f"\nProcessing category: {category}")
-            self.process_category(category)
+        # Process categories in parallel
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all category processing tasks
+            future_to_category = {
+                executor.submit(self.process_category, category): category
+                for category in categories
+            }
+
+            # Process results as they complete
+            for future in as_completed(future_to_category):
+                category = future_to_category[future]
+                try:
+                    future.result()
+                    logger.info(f"✓ Completed: {category}")
+                except Exception as e:
+                    logger.error(f"✗ Failed {category}: {str(e)}")
 
         # Generate RAG summary
         self.generate_rag_summary()

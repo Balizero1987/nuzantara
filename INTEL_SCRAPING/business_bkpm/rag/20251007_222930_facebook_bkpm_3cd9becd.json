@@ -1,0 +1,37 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "business_bkpm",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": null,
+    "needs_translation": false
+  },
+  "tier": 3,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.facebook.com/BKPMRI/",
+  "source_name": "Facebook BKPM",
+  "scraped_at": "2025-10-07T22:29:30.473171",
+  "content_hash": "3cd9becdea16201c",
+  "word_count": 55
+}

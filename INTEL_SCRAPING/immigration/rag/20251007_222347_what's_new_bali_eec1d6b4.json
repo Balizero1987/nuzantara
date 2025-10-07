@@ -1,0 +1,48 @@
+{
+  "title": "What's New Bali",
+  "summary": "Bali's latest news and events, including deals, features, and more.",
+  "category": "event",
+  "sub_category": "bali",
+  "entities": {
+    "locations": [
+      "Bali"
+    ]
+  },
+  "keywords": [
+    "Bali",
+    "news",
+    "events"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "tourists",
+      "expats"
+    ],
+    "action_required": false,
+    "urgency": "informational"
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Upcoming events and festivals in Bali",
+    "Latest news on Bali's tourism industry",
+    "Deals and discounts for visitors"
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://whatsnewbali.com/",
+  "source_name": "What's New Bali",
+  "scraped_at": "2025-10-07T22:23:47.653912",
+  "content_hash": "eec1d6b47df4c849",
+  "word_count": 2002
+}

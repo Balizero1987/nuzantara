@@ -1,0 +1,42 @@
+{
+  "title": "What's New Jakarta",
+  "summary": "A comprehensive guide to events, deals, and features in Jakarta.",
+  "category": "events_culture",
+  "sub_category": null,
+  "entities": {
+    "locations": [
+      "Jakarta"
+    ]
+  },
+  "keywords": [
+    "Jakarta",
+    "events",
+    "deals",
+    "features"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": null,
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://whatsnewjakarta.com/",
+  "source_name": "What's New Jakarta",
+  "scraped_at": "2025-10-07T22:36:45.335216",
+  "content_hash": "8a8be78529d00999",
+  "word_count": 1968
+}

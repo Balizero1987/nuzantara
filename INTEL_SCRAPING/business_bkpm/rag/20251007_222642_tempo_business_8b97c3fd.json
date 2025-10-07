@@ -1,0 +1,44 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "business_bkpm",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "TEMPO.CO",
+      "Koran Tempo",
+      "Majalah Tempo",
+      "Tempo English Magazine",
+      "Tempo Institute",
+      "Tempo Data Science"
+    ],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": "",
+  "business_implications": "",
+  "source_url": "https://en.tempo.co/business",
+  "source_name": "Tempo Business",
+  "scraped_at": "2025-10-07T22:26:42.028104",
+  "content_hash": "8b97c3fd9b3cc667",
+  "word_count": 141
+}

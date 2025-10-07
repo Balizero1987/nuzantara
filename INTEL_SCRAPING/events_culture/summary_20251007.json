@@ -1,0 +1,145 @@
+{
+  "category": "events_culture",
+  "timestamp": "2025-10-07T22:37:32.478484",
+  "total_documents": 23,
+  "sources": [
+    {
+      "name": "Pemprov Bali Official",
+      "tier": 1,
+      "word_count": 610,
+      "title": "PEMERINTAH PROVINSI BALI"
+    },
+    {
+      "name": "Pemkot Denpasar",
+      "tier": 1,
+      "word_count": 733,
+      "title": "Website Portal Resmi Pemerintah Kota Denpasar"
+    },
+    {
+      "name": "Kab. Badung",
+      "tier": 1,
+      "word_count": 424,
+      "title": "Landing | Landing Badung"
+    },
+    {
+      "name": "Kemenpar & Ekraf",
+      "tier": 1,
+      "word_count": 95,
+      "title": "Kementerian Pariwisata dan Ekonomi Kreatif"
+    },
+    {
+      "name": "Wonderful Indonesia Official",
+      "tier": 1,
+      "word_count": 18,
+      "title": "Resource Not Found"
+    },
+    {
+      "name": "Bali Bible Events",
+      "tier": 2,
+      "word_count": 208,
+      "title": "The Bali Bible - Bali\u2019s Original Insider Guide."
+    },
+    {
+      "name": "What's New Bali Events",
+      "tier": 2,
+      "word_count": 2002,
+      "title": "WHAT'S NEW BALI - Your Ultimate Island Guide"
+    },
+    {
+      "name": "Honeycombers Bali Events",
+      "tier": 2,
+      "word_count": 719,
+      "title": "The latest events in Bali, Indonesia | Honeycombers Calendar"
+    },
+    {
+      "name": "Eventbrite Bali",
+      "tier": 2,
+      "word_count": 2509,
+      "title": "Bali, Indonesia Events, Calendar & Tickets | Eventbrite"
+    },
+    {
+      "name": "Meetup Bali",
+      "tier": 2,
+      "word_count": 5,
+      "title": null
+    },
+    {
+      "name": "AllEvents Bali",
+      "tier": 2,
+      "word_count": 3851,
+      "title": "Search events all around the world and near you."
+    },
+    {
+      "name": "Time Out Bali Events",
+      "tier": 2,
+      "word_count": 3784,
+      "title": "20 Best Things to Do in Bali Right Now | The Best Bali Experiences"
+    },
+    {
+      "name": "Bali Post Culture",
+      "tier": 2,
+      "word_count": 3576,
+      "title": "BALIPOST.com - Berita Bali terKini, terUpdate dan terPercaya | Portal Media Inspirasi Local Untuk Global"
+    },
+    {
+      "name": "Bali Spirit Festival",
+      "tier": 2,
+      "word_count": 782,
+      "title": "Explore Bali Yoga Retreats | Yoga Retreat Bali | BaliSpirit"
+    },
+    {
+      "name": "Hubud Events",
+      "tier": 2,
+      "word_count": 291,
+      "title": "Events In Bali For Entrepreneurs & Digital Nomads - Hubud"
+    },
+    {
+      "name": "Dojo Bali",
+      "tier": 2,
+      "word_count": 785,
+      "title": "Coworking Bali | Dojo Bali Coworking Canggu | 1 Minute to the Beach"
+    },
+    {
+      "name": "TechCrunch Events Indonesia",
+      "tier": 2,
+      "word_count": 693,
+      "title": "Events Archive | TechCrunch"
+    },
+    {
+      "name": "What's New Jakarta",
+      "tier": 2,
+      "word_count": 1968,
+      "title": "What's New Indonesia"
+    },
+    {
+      "name": "Eventbrite Jakarta",
+      "tier": 2,
+      "word_count": 3374,
+      "title": "Jakarta, Indonesia Events, Calendar & Tickets | Eventbrite"
+    },
+    {
+      "name": "Conde Nast Traveler Bali",
+      "tier": 2,
+      "word_count": 800,
+      "title": "Page Not Found | Cond\u00e9 Nast Traveler"
+    },
+    {
+      "name": "Lonely Planet Bali Events",
+      "tier": 2,
+      "word_count": 841,
+      "title": "404 Page Not Found - Lonely Planet"
+    },
+    {
+      "name": "TripAdvisor Bali Events",
+      "tier": 2,
+      "word_count": 0,
+      "title": "tripadvisor.com"
+    },
+    {
+      "name": "Kompas Travel",
+      "tier": 2,
+      "word_count": 2878,
+      "title": "Berita Travel Terbaru Hari ini - Kompas.com"
+    }
+  ]
+}

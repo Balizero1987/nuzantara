@@ -1,0 +1,15 @@
+{
+  "start_time": "2025-10-07T22:20:40.338582",
+  "end_time": "2025-10-07T23:17:48.059809",
+  "duration_seconds": 3427.721227,
+  "stages": {
+    "scraping": {
+      "status": "success",
+      "completed_at": "2025-10-07T22:49:22.941484"
+    },
+    "rag_processing": {
+      "status": "failed",
+      "error": "'NoneType' object is not subscriptable"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "B-Universe Media Holdings"
+    ],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://jakartaglobe.id/category/indonesia",
+  "source_name": "Jakarta Globe Indonesia",
+  "scraped_at": "2025-10-07T22:22:37.504319",
+  "content_hash": "f42bafbec4c9a397",
+  "word_count": 941
+}

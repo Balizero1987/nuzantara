@@ -126,11 +126,21 @@ class SearchService:
             # Format results consistently
             formatted_results = []
             for i in range(len(raw_results.get("documents", []))):
+                distance = raw_results["distances"][i] if i < len(raw_results.get("distances", [])) else 1.0
+                score = 1 / (1 + distance)
+
+                if collection_name == "bali_zero_pricing":
+                    score = min(1.0, score + 0.15)  # Bias towards official pricing docs
+
+                metadata = raw_results["metadatas"][i] if i < len(raw_results.get("metadatas", [])) else {}
+                if collection_name == "bali_zero_pricing":
+                    metadata = {**metadata, "pricing_priority": "high"}
+
                 formatted_results.append({
                     "id": raw_results["ids"][i] if i < len(raw_results.get("ids", [])) else None,
                     "text": raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else "",
-                    "metadata": raw_results["metadatas"][i] if i < len(raw_results.get("metadatas", [])) else {},
-                    "score": 1 - raw_results["distances"][i] if i < len(raw_results.get("distances", [])) else 0
+                    "metadata": metadata,
+                    "score": round(score, 4)
                 })
 
             return {

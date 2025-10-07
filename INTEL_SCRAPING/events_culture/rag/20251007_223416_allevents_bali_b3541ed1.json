@@ -1,0 +1,58 @@
+{
+  "title": "Brant Garba Night 2025",
+  "summary": "Brant Garba Night 2025 is an event happening on Sat, 11 Oct at Syl Apps Community Centre.",
+  "category": "events_culture",
+  "sub_category": "event",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Syl Apps Community Centre",
+      "Calvary Baptist Church"
+    ],
+    "locations": [
+      "Paris",
+      "Mississauga",
+      "Midland",
+      "Mumbai",
+      "Gurgaon"
+    ]
+  },
+  "keywords": [
+    "Brant Garba Night 2025",
+    "event",
+    "concert",
+    "music",
+    "dance"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "tourists",
+      "expats"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Brant Garba Night 2025 is a cultural event",
+    "The event will take place on October 11th"
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://allevents.in/bali/",
+  "source_name": "AllEvents Bali",
+  "scraped_at": "2025-10-07T22:34:16.788349",
+  "content_hash": "b3541ed1bc1ddbba",
+  "word_count": 3851
+}

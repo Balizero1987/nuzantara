@@ -1,0 +1,37 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "business_bkpm",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.kemenkeu.go.id/publikasi/berita/",
+  "source_name": "Kemenkeu News",
+  "scraped_at": "2025-10-07T22:25:15.420515",
+  "content_hash": "32ca035c6cc32bfa",
+  "word_count": 23
+}
