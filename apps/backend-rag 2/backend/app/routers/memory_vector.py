@@ -263,19 +263,36 @@ async def find_similar_memories(request: SimilarMemoryRequest):
             include=["embeddings"]
         )
 
-        if not memory["embeddings"] or len(memory["embeddings"]) == 0:
+        embeddings_raw = memory.get("embeddings") if isinstance(memory, dict) else None
+        if embeddings_raw is None:
             raise HTTPException(
                 status_code=404,
                 detail=f"Memory not found: {request.memory_id}"
             )
 
-        # Search using this embedding
-        query_embedding = memory["embeddings"][0]
+        # Normalize embedding payloads returned by ChromaDB
+        if hasattr(embeddings_raw, "tolist"):
+            embeddings_raw = embeddings_raw.tolist()
+
+        if isinstance(embeddings_raw, list) and embeddings_raw:
+            first_item = embeddings_raw[0]
+            if isinstance(first_item, (list, tuple)):
+                query_embedding = list(first_item)
+            else:
+                # Handle flat vectors returned directly as a single list of floats
+                query_embedding = list(embeddings_raw)
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail="Invalid embedding format returned by vector store"
+            )
 
         results = db.search(
             query_embedding=query_embedding,
             limit=request.limit + 1  # +1 because it will include itself
         )
+
+        logger.debug(f"Similar search raw results: {results}")
 
         # Remove the original memory from results
         filtered_results = {
