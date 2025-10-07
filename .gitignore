@@ -77,3 +77,4 @@ apps/backend-rag*/data/
 *.sqlite3
 *.db
 sa-key.json
+sa-key-correct.json
