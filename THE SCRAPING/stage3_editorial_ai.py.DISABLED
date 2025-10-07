@@ -1,0 +1,386 @@
+#!/usr/bin/env python3
+"""
+STAGE 3: Editorial AI with Claude Sonnet 4
+Review, refine, and create social media variants of LLAMA articles
+"""
+
+import json
+import os
+from datetime import datetime
+from pathlib import Path
+from typing import List, Dict, Optional
+import logging
+
+try:
+    from anthropic import Anthropic
+except ImportError:
+    print("⚠️ Anthropic SDK not installed. Installing...")
+    os.system("pip install anthropic")
+    from anthropic import Anthropic
+
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+class EditorialAI:
+    """Editorial AI using Claude Sonnet 4 for content refinement"""
+    
+    def __init__(self, api_key: Optional[str] = None):
+        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
+        if not self.api_key:
+            raise ValueError("ANTHROPIC_API_KEY not found in environment or parameter")
+        
+        self.client = Anthropic(api_key=self.api_key)
+        self.model = "claude-sonnet-4-20250514"  # Latest Sonnet 4
+        
+        self.articles_dir = Path("./data/articles")
+        self.reviewed_dir = Path("./data/reviewed")
+        self.social_dir = Path("./data/social_media")
+        self.logs_dir = Path("./logs")
+        
+        # Create directories
+        for dir_path in [self.reviewed_dir, self.social_dir]:
+            dir_path.mkdir(parents=True, exist_ok=True)
+        
+        # Load categories
+        with open("./profiles/categories.json") as f:
+            self.categories = json.load(f)
+        
+        logger.info(f"✅ EditorialAI initialized with {self.model}")
+    
+    def review_article(self, article: Dict) -> Dict:
+        """Review and refine article quality"""
+        
+        prompt = f"""You are a senior editor for a premium digital publication about Bali and Indonesia.
+
+Review and refine this article written by our junior AI writer.
+
+**Original Article**:
+Headline: {article['headline']}
+Subheadline: {article.get('subheadline', '')}
+
+{article['article_body']}
+
+**Your Task**:
+1. Assess quality (1-10 score)
+2. Identify strengths and weaknesses
+3. Rewrite if needed to improve:
+   - Clarity and flow
+   - Engagement and storytelling
+   - Factual accuracy
+   - Professional tone
+   - SEO optimization
+4. Decide: PUBLISH or REJECT
+
+**Output Format** (JSON only):
+{{
+  "quality_score": 8,
+  "decision": "PUBLISH|REJECT",
+  "strengths": ["...", "..."],
+  "improvements_made": ["...", "..."],
+  "refined_headline": "...",
+  "refined_subheadline": "...",
+  "refined_body": "...",
+  "seo_keywords": ["...", "..."],
+  "editor_notes": "..."
+}}
+
+JSON output:"""
+
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=4096,
+                temperature=0.5,
+                messages=[{
+                    "role": "user",
+                    "content": prompt
+                }]
+            )
+            
+            review = json.loads(response.content[0].text)
+            
+            # Add metadata
+            review['original_article'] = article
+            review['reviewed_at'] = datetime.now().isoformat()
+            review['editor_model'] = self.model
+            review['category'] = article['category']
+            
+            logger.info(f"✅ Reviewed: {article['headline'][:50]}... (Score: {review['quality_score']}/10)")
+            return review
+            
+        except Exception as e:
+            logger.error(f"❌ Review failed: {str(e)}")
+            return None
+    
+    def create_social_media_content(self, review: Dict) -> Dict:
+        """Create platform-specific social media content"""
+        
+        if review['decision'] != 'PUBLISH':
+            logger.info("⏭️ Skipping social media - article rejected")
+            return None
+        
+        article = review['original_article']
+        
+        prompt = f"""Create engaging social media content for multiple platforms based on this article.
+
+**Article**:
+Headline: {review['refined_headline']}
+{review['refined_body'][:500]}...
+
+**Platforms Needed**:
+1. Instagram (caption + hashtags)
+2. Facebook (post text)
+3. X/Twitter (thread of 3-5 tweets)
+4. WhatsApp (message text)
+5. Telegram (channel post)
+
+**Guidelines**:
+- Instagram: Engaging, visual-focused, 5-10 hashtags, call-to-action
+- Facebook: Conversational, longer format OK, ask questions
+- X: Punchy, thread format, 1-2 hashtags per tweet
+- WhatsApp: Personal tone, emoji OK, brief
+- Telegram: Professional, informative, link to full article
+
+**Output Format** (JSON):
+{{
+  "instagram": {{
+    "caption": "...",
+    "hashtags": ["...", "..."],
+    "suggested_image": "..."
+  }},
+  "facebook": {{
+    "post_text": "...",
+    "link_preview_text": "..."
+  }},
+  "x_twitter": {{
+    "tweets": ["...", "...", "..."],
+    "thread_length": 3
+  }},
+  "whatsapp": {{
+    "message": "..."
+  }},
+  "telegram": {{
+    "post": "...",
+    "button_text": "Read More"
+  }}
+}}
+
+JSON output:"""
+
+        try:
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=3000,
+                temperature=0.7,
+                messages=[{
+                    "role": "user",
+                    "content": prompt
+                }]
+            )
+            
+            social_content = json.loads(response.content[0].text)
+            
+            # Add metadata
+            social_content['article_headline'] = review['refined_headline']
+            social_content['category'] = article['category']
+            social_content['created_at'] = datetime.now().isoformat()
+            social_content['source_url'] = article['source_url']
+            
+            logger.info(f"✅ Social media content created for: {review['refined_headline'][:50]}...")
+            return social_content
+            
+        except Exception as e:
+            logger.error(f"❌ Social media creation failed: {str(e)}")
+            return None
+    
+    def save_reviewed_article(self, review: Dict) -> Path:
+        """Save reviewed article"""
+        category = review['category']
+        category_dir = self.reviewed_dir / category
+        category_dir.mkdir(exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{category}_{timestamp}_reviewed.json"
+        filepath = category_dir / filename
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(review, f, ensure_ascii=False, indent=2)
+        
+        logger.info(f"💾 Reviewed article saved: {filepath}")
+        return filepath
+    
+    def save_social_content(self, social: Dict) -> Path:
+        """Save social media content"""
+        category = social['category']
+        category_dir = self.social_dir / category
+        category_dir.mkdir(exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{category}_{timestamp}_social.json"
+        filepath = category_dir / filename
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(social, f, ensure_ascii=False, indent=2)
+        
+        logger.info(f"💾 Social content saved: {filepath}")
+        return filepath
+    
+    def process_article(self, article_path: Path) -> Dict:
+        """Process single article through editorial pipeline"""
+        with open(article_path, 'r', encoding='utf-8') as f:
+            article = json.load(f)
+        
+        # Step 1: Review and refine
+        review = self.review_article(article)
+        if not review:
+            return {"status": "failed", "stage": "review"}
+        
+        self.save_reviewed_article(review)
+        
+        # Check if should publish
+        if review['decision'] != 'PUBLISH':
+            logger.info(f"⛔ Article rejected: {article['headline'][:50]}...")
+            return {
+                "status": "rejected",
+                "quality_score": review['quality_score'],
+                "reason": review.get('editor_notes', '')
+            }
+        
+        # Step 2: Create social media content (only if not RAG-only)
+        category_info = self.categories.get(article['category'], {})
+        
+        if not category_info.get('rag_only', False):
+            social = self.create_social_media_content(review)
+            if social:
+                self.save_social_content(social)
+                return {
+                    "status": "published",
+                    "quality_score": review['quality_score'],
+                    "social_platforms": list(social.keys())
+                }
+        
+        return {
+            "status": "published_rag_only",
+            "quality_score": review['quality_score']
+        }
+    
+    def process_category(self, category: str) -> Dict:
+        """Process all articles in a category"""
+        category_dir = self.articles_dir / category
+        
+        if not category_dir.exists():
+            logger.warning(f"⚠️ Category directory not found: {category}")
+            return {"processed": 0, "published": 0, "rejected": 0}
+        
+        article_files = list(category_dir.glob("*.json"))
+        logger.info(f"📝 Processing {category}: {len(article_files)} articles")
+        
+        published = 0
+        rejected = 0
+        scores = []
+        
+        for article_path in article_files:
+            try:
+                result = self.process_article(article_path)
+                
+                if result['status'] in ['published', 'published_rag_only']:
+                    published += 1
+                    scores.append(result['quality_score'])
+                elif result['status'] == 'rejected':
+                    rejected += 1
+                    scores.append(result['quality_score'])
+                
+            except Exception as e:
+                logger.error(f"❌ Error processing {article_path}: {str(e)}")
+        
+        avg_score = sum(scores) / len(scores) if scores else 0
+        
+        result = {
+            "processed": len(article_files),
+            "published": published,
+            "rejected": rejected,
+            "avg_quality_score": round(avg_score, 2)
+        }
+        
+        logger.info(f"✅ {category}: {published} published, {rejected} rejected (avg score: {avg_score:.1f})")
+        return result
+    
+    def process_all(self) -> Dict:
+        """Process all categories"""
+        logger.info("📝 Starting editorial review for all categories...")
+        start_time = datetime.now()
+        
+        results = {}
+        categories = [d.name for d in self.articles_dir.iterdir() if d.is_dir()]
+        
+        for category in categories:
+            results[category] = self.process_category(category)
+        
+        duration = (datetime.now() - start_time).total_seconds()
+        
+        summary = {
+            "started_at": start_time.isoformat(),
+            "completed_at": datetime.now().isoformat(),
+            "duration_seconds": duration,
+            "categories_processed": len(results),
+            "total_published": sum(r['published'] for r in results.values()),
+            "total_rejected": sum(r['rejected'] for r in results.values()),
+            "avg_quality_score": round(
+                sum(r['avg_quality_score'] * r['processed'] for r in results.values()) / 
+                sum(r['processed'] for r in results.values()) if results else 0,
+                2
+            ),
+            "results_by_category": results
+        }
+        
+        summary_file = self.logs_dir / f"editorial_summary_{start_time.strftime('%Y%m%d_%H%M%S')}.json"
+        with open(summary_file, 'w') as f:
+            json.dump(summary, f, indent=2)
+        
+        logger.info(f"✅ Editorial complete: {summary['total_published']} published, {summary['total_rejected']} rejected")
+        logger.info(f"📊 Average quality score: {summary['avg_quality_score']}/10")
+        return summary
+
+
+def main():
+    """Main entry point"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="STAGE 3: Editorial AI")
+    parser.add_argument("--category", "-c", help="Process specific category only")
+    parser.add_argument("--api-key", help="Anthropic API key (or use ANTHROPIC_API_KEY env var)")
+    
+    args = parser.parse_args()
+    
+    try:
+        editor = EditorialAI(api_key=args.api_key)
+        
+        if args.category:
+            print(f"📝 Processing category: {args.category}")
+            result = editor.process_category(args.category)
+            print(f"✅ {result['published']} published, {result['rejected']} rejected")
+            print(f"📊 Average quality: {result['avg_quality_score']}/10")
+        else:
+            print("📝 Processing all categories...")
+            summary = editor.process_all()
+        
+        print("\n✅ Editorial processing complete!")
+        
+    except ValueError as e:
+        print(f"❌ Error: {e}")
+        print("\n💡 Set ANTHROPIC_API_KEY environment variable or use --api-key")
+        return 1
+
+
+if __name__ == "__main__":
+    main()

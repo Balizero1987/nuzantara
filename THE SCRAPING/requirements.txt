@@ -1,0 +1,26 @@
+# THE SCRAPING - Intelligence Automation System
+# Requirements for Stage 1 + Stage 2 ONLY (100% FREE)
+
+# === STAGE 1: SCRAPING ===
+crawl4ai>=0.1.0
+playwright>=1.40.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+requests>=2.31.0
+aiohttp>=3.9.0
+
+# === STAGE 2: AI PROCESSING (LOCAL - FREE) ===
+# LLaMA 3.2 via Ollama (installed separately: brew install ollama)
+ollama>=0.1.0
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+# === UTILITIES ===
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+APScheduler>=3.10.0
+tqdm>=4.66.0
+pandas>=2.0.0
+
+# NOTE: Stage 3 (Editorial AI) and Stage 4 (Distribution) removed
+# System is now 100% free with local LLAMA processing
