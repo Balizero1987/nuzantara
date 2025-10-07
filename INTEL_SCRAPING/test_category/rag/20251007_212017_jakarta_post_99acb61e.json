@@ -1,0 +1,41 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "test_category",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Tenggara Strategics",
+      "B/NDL Studios",
+      "Magdalene"
+    ],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.thejakartapost.com/indonesia",
+  "source_name": "Jakarta Post",
+  "scraped_at": "2025-10-07T21:20:17.188137",
+  "content_hash": "99acb61e91fde48a",
+  "word_count": 3671
+}
