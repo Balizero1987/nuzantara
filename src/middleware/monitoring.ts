@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { createRequire } from 'module';
+import { trackActivity } from '../services/session-tracker.js';
 const require = createRequire(import.meta.url);
 
 // Performance and error tracking
@@ -50,6 +51,14 @@ export function requestTracker(req: Request, res: Response, next: NextFunction) 
   metrics.requestsByPath.set(req.path, (metrics.requestsByPath.get(req.path) || 0) + 1);
 
   console.log(`🔍 [${requestId}] ${req.method} ${req.path} - Started`);
+
+  // Track team member activity (for team.recent_activity handler)
+  try {
+    trackActivity(req, 'action');
+  } catch (err) {
+    // Don't fail request if tracking fails
+    console.warn('⚠️ Activity tracking failed:', (err as Error).message);
+  }
 
   // Track response
   const originalSend = res.send;
