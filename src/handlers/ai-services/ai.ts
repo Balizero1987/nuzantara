@@ -147,7 +147,7 @@ function getUserContext(sessionId: string = 'default'): any {
 }
 
 // Shared ZANTARA context for unified responses
-function zantaraContext(base?: string, userInfo?: string) {
+function zantaraContext(base?: string, userInfo?: string, userLanguage?: string) {
   // Get dynamic list of available handlers
   let handlersInfo = '';
   try {
@@ -190,7 +190,8 @@ Respond professionally and concisely.`;
     intro = cleanMarkdown(intro);
   }
   const userContext = userInfo ? `\nUser: ${userInfo}` : '';
-  return base ? `${intro}${userContext}\n\n${base}` : `${intro}${userContext}`;
+  const languageContext = userLanguage ? `\n\nIMPORTANT: Always respond in ${userLanguage}. This user speaks ${userLanguage}, so all your responses must be in ${userLanguage}.` : '';
+  return base ? `${intro}${userContext}${languageContext}\n\n${base}` : `${intro}${userContext}${languageContext}`;
 }
 
 export async function openaiChat(params: any) {
