@@ -12,6 +12,69 @@ cat .claude/PROJECT_CONTEXT.md
 ```
 **Contiene**: Architettura, deployment URLs, coordinate GCP, stato corrente
 
+### **Step 1A: LLAMA 4 Quick Start (se rilevante)**
+Se la sessione riguarda il fine-tuning di LLAMA 4 per ZANTARA:
+```bash
+# Preferisci i file nella repo (portabili su GitHub)
+cat docs/llama4/.INIT_LLAMA4_FINETUNING.md 2>/dev/null || \
+  cat "/Users/antonellosiano/Desktop/FINE TUNING/.INIT_LLAMA4_FINETUNING.md" 2>/dev/null || \
+  echo "LLAMA4 Quick Start non trovato"
+
+# Guida completa (prime 120 righe)
+sed -n '1,120p' docs/llama4/LLAMA4_FINETUNING_COMPLETE_GUIDE.md 2>/dev/null || \
+  sed -n '1,120p' "/Users/antonellosiano/Desktop/FINE TUNING/LLAMA4_FINETUNING_COMPLETE_GUIDE.md" 2>/dev/null || \
+  echo "LLAMA4 Guida completa non trovata"
+
+# README di sezione
+cat docs/llama4/README_LLAMA4.md 2>/dev/null || \
+  cat "/Users/antonellosiano/Desktop/FINE TUNING/README_LLAMA4.md" 2>/dev/null || true
+```
+Nota: i file LLAMA4 sono ora in `docs/llama4/` (copiati dalla cartella locale "FINE TUNING").
+
+---
+
+### **Step 1B: Backend TypeScript Quick Start**
+Per attività su API Express/handlers TS:
+```bash
+# Handover TS backend (stato, note, hardening)
+sed -n '1,120p' .claude/handovers/backend-typescript.md
+
+# Handlers overview e bug fixes
+sed -n '1,80p' .claude/handovers/backend-handlers.md
+sed -n '1,80p' .claude/handovers/backend-bug-fixes-2025-10-03.md
+```
+
+### **Step 1C: RAG Backend (Python) Quick Start**
+```bash
+# Deploy e integrazione tool use
+sed -n '1,120p' .claude/handovers/deploy-rag-backend.md
+
+# Performance/KB
+sed -n '1,80p' .claude/handovers/rag-performance.md
+```
+
+### **Step 1D: WebApp Quick Start**
+```bash
+sed -n '1,120p' .claude/handovers/frontend-ui.md
+sed -n '1,80p'  .claude/handovers/deploy-webapp.md
+```
+
+### **Step 1E: Deploy Backend (TS) Quick Start**
+```bash
+sed -n '1,120p' .claude/handovers/deploy-backend.md
+```
+
+### **Step 1F: WebSocket Quick Start**
+```bash
+sed -n '1,120p' .claude/handovers/websocket-implementation-2025-10-03.md
+```
+
+### **Step 1G: Security & Secrets Quick Start**
+```bash
+sed -n '1,120p' .claude/handovers/security.md
+sed -n '1,80p'  .claude/handovers/security-audit.md
+```
+
 ---
 
 ### **Step 1.5: Verify Git Alignment** 🔍
@@ -119,6 +182,14 @@ Based on user's task description, detect relevant categories:
 - `frontend-api-client` → ["api-config", "fetch", "cors"]
 - `rag-chromadb` → ["chromadb", "embeddings", "vector"]
 - `debug` → ["fix", "bug", "error"]
+ - `llama4-finetuning` → ["llama 4", "qlora", "runpod", "h100", "fine-tuning", "modal"]
+ - `backend-typescript` → ["express", "handler", "router", "ts", "typescript"]
+ - `backend-rag` → ["fastapi", "rag", "chromadb", "kb", "python"]
+ - `webapp` → ["frontend", "html", "vanilla", "ui", "pages"]
+ - `deploy-webapp` → ["pages", "gh-pages", "workflow", "sync"]
+ - `deploy-backend` → ["cloud run", "github actions", "docker", "workflow"]
+ - `websocket` → ["ws", "websocket", "subscribe", "broadcast"]
+ - `security` → ["secret", "api key", "permission", "audit"]
 
 **Read only relevant handovers** from `.claude/handovers/[category].md`
 (Create handover file if doesn't exist)
@@ -167,6 +238,16 @@ For each category touched during session:
    → Full session: [diary link]#anchor
    ```
 3. Add cross-reference from diary to handover
+
+---
+
+### **Step 2A: LLAMA 4 — Chiusura sessione (se applicabile)**
+
+Se la sessione include `llama4-finetuning`:
+- Aggiorna `docs/llama4/README_LLAMA4.md` con note chiave (VRAM, throughput, step/sec, loss, batch/grad-acc, checkpointing, errori/OOM).
+- Aggiungi un entry in `.claude/handovers/llama4-finetuning.md` con: data/ora, run id/pod id, modello base, LoRA config, dataset, durata, output (link pesi se esistono), problemi+soluzioni.
+- Allega log essenziali nel diario (stdout tail, metriche) e linka eventuali artifact esterni.
+- Se cambiano strumenti/percorsi/modello base → aggiorna `.claude/PROJECT_CONTEXT.md` (sezione AI Models/Fine-Tuning) con breve nota e data.
 
 ---
 
@@ -238,10 +319,13 @@ Leggi .claude/INIT.md
 **To end session**:
 ```
 Ho finito, aggiorna tutto
+- Completa Exit Protocol Step 1–4
+- Se LLAMA4: esegui Step 2A (chiusura LLAMA 4)
+- Altrimenti: aggiorna handover di categoria e diario con log/metriche
 ```
 
 ---
 
 **System Version**: 1.1.0
 **Created**: 2025-10-01
-**Last Updated**: 2025-10-05 00:45 (Added Step 1.5: Git Alignment Check)
+**Last Updated**: 2025-10-08 10:05 (Added LLAMA4 + Quick Starts + Exit alignment)

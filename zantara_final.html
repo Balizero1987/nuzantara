@@ -141,6 +141,7 @@
     .title {
       font-size: 20px;
       font-weight: 700;
+      display: none;
     }
 
     .theme-toggle {
@@ -281,10 +282,24 @@
       height: 100%;
       background: #1e1e1e;
       transition: margin 0.3s ease;
+      position: relative;
     }
 
     body.day-mode .chat-wrapper {
       background: #ffffff;
+    }
+
+    body.day-mode .chat-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      border: 2px solid;
+      animation: rainbow-border 8s linear infinite;
+      z-index: 5;
     }
 
 
@@ -296,22 +311,23 @@
 
     .welcome {
       text-align: center;
-      padding: 120px 20px 60px;
+      padding: 60px 20px 40px;
       color: rgba(255, 255, 255, 0.5);
       position: relative;
     }
 
     .welcome h2 {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 600;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       color: #fff;
     }
 
     .welcome .powered-by {
-      font-size: 14px;
+      font-size: 13px;
       color: rgba(255, 255, 255, 0.6);
       font-weight: 400;
+      margin-bottom: 30px;
     }
 
     body.day-mode .welcome {
@@ -327,9 +343,9 @@
     }
 
     .logo-center {
-      width: 180px;
-      height: 180px;
-      margin: 0 auto 30px;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
       display: block;
       object-fit: contain;
       filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.4))
@@ -369,6 +385,57 @@
                 drop-shadow(0 0 100px rgba(0, 0, 0, 0.15))
                 drop-shadow(0 0 140px rgba(0, 0, 0, 0.1));
       }
+    }
+
+    .integrations-bar {
+      padding: 12px 16px;
+      background: #252525;
+      border-top: 1px solid #3a3a3a;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      overflow-x: auto;
+    }
+
+    body.day-mode .integrations-bar {
+      background: #f8f8f8;
+      border-top-color: #e0e0e0;
+    }
+
+    .integration-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    body.day-mode .integration-group {
+      background: #ffffff;
+      border-color: #d0d0d0;
+    }
+
+    .integration-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      margin-right: 4px;
+    }
+
+    body.day-mode .integration-group-label {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    .integration-logo {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      opacity: 0.7;
+      pointer-events: none;
+      user-select: none;
     }
 
     .input-area {
@@ -635,8 +702,8 @@
   <div class="app">
     <header class="header">
       <div class="header-left">
-        <button class="sidebar-toggle" id="leftToggle">☰</button>
         <img src="assets/logoscon.png" class="logo" alt="ZANTARA">
+        <button class="sidebar-toggle" id="leftToggle">☰</button>
       </div>
 
       <div class="header-center">
@@ -685,6 +752,40 @@
             <img src="assets/logoscon.png" class="logo-center" alt="ZANTARA Logo">
             <h2>Welcome to Zantara</h2>
             <p class="powered-by">powered by Zero AI</p>
+          </div>
+        </div>
+
+        <!-- INTEGRATIONS BAR -->
+        <div class="integrations-bar">
+          <!-- Google Workspace -->
+          <div class="integration-group">
+            <span class="integration-group-label">Google:</span>
+            <img src="assets/logo-google-drive.png" class="integration-logo" alt="Drive" title="Google Drive">
+            <img src="assets/logo-gmail.png" class="integration-logo" alt="Gmail" title="Gmail">
+            <img src="assets/logo-google-calendar.png" class="integration-logo" alt="Calendar" title="Google Calendar">
+            <img src="assets/logo-google-docs.png" class="integration-logo" alt="Docs" title="Google Docs">
+            <img src="assets/logo-google-sheets.png" class="integration-logo" alt="Sheets" title="Google Sheets">
+            <img src="assets/logo-google-slides.png" class="integration-logo" alt="Slides" title="Google Slides">
+            <img src="assets/logo-google-maps.png" class="integration-logo" alt="Maps" title="Google Maps">
+            <img src="assets/logo-google-analytics.png" class="integration-logo" alt="Analytics" title="Google Analytics">
+          </div>
+
+          <!-- Meta -->
+          <div class="integration-group">
+            <span class="integration-group-label">Meta:</span>
+            <img src="assets/logo-whatsapp.png" class="integration-logo" alt="WhatsApp" title="WhatsApp">
+            <img src="assets/logo-instagram.png" class="integration-logo" alt="Instagram" title="Instagram">
+            <img src="assets/logo-facebook.png" class="integration-logo" alt="Facebook" title="Facebook">
+          </div>
+
+          <!-- AI Services -->
+          <div class="integration-group">
+            <span class="integration-group-label">AI:</span>
+            <img src="assets/logo-openai.png" class="integration-logo" alt="OpenAI" title="OpenAI">
+            <img src="assets/logo-claude.png" class="integration-logo" alt="Claude" title="Claude">
+            <img src="assets/logo-gemini.png" class="integration-logo" alt="Gemini" title="Gemini">
+            <img src="assets/logo-perplexity.png" class="integration-logo" alt="Perplexity" title="Perplexity">
+            <img src="assets/logo-llama.png" class="integration-logo" alt="Llama" title="Meta Llama">
           </div>
         </div>
 
@@ -807,6 +908,105 @@
         document.body.classList.add('day-mode');
         themeToggle.innerHTML = '<span>☀️</span><span>Day</span>';
       }
+    });
+
+    // History items - load previous chat
+    document.querySelectorAll('.history-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const title = item.querySelector('.history-title').textContent;
+        const messagesDiv = document.querySelector('.messages');
+
+        // Clear welcome message
+        messagesDiv.innerHTML = `
+          <div class="welcome">
+            <img src="assets/logoscon.png" class="logo-center" alt="ZANTARA Logo">
+            <h2>${title}</h2>
+            <p class="powered-by">Chat history loaded</p>
+          </div>
+        `;
+
+        // Close sidebar on mobile
+        if (window.innerWidth < 968) {
+          chatHistory.classList.remove('open');
+          leftToggle.textContent = '☰';
+          updateChatWrapperMargin();
+        }
+      });
+    });
+
+    // Article cards - open article
+    document.querySelectorAll('.article').forEach(article => {
+      article.addEventListener('click', () => {
+        const title = article.querySelector('.article-title').textContent;
+        const category = article.querySelector('.article-cat').textContent;
+
+        alert(`📰 Opening article:\n\n${category}\n${title}\n\n(Will be connected to blog)`);
+      });
+    });
+
+    // Input buttons functionality
+    const inputField = document.querySelector('.input');
+    const sendBtn = document.querySelectorAll('.btn')[2]; // ➤ button
+    const attachBtn = document.querySelectorAll('.btn')[0]; // 📎 button
+
+    // Send message
+    function sendMessage() {
+      const message = inputField.value.trim();
+      if (!message) return;
+
+      const messagesDiv = document.querySelector('.messages');
+
+      // Remove welcome if present
+      const welcome = messagesDiv.querySelector('.welcome');
+      if (welcome) {
+        messagesDiv.innerHTML = '';
+      }
+
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.style.cssText = 'padding: 12px; margin-bottom: 8px; background: #2a2a2a; border-radius: 12px; text-align: right;';
+      userMsg.textContent = message;
+      messagesDiv.appendChild(userMsg);
+
+      // Clear input
+      inputField.value = '';
+
+      // Scroll to bottom
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+      // Simulate AI response
+      setTimeout(() => {
+        const aiMsg = document.createElement('div');
+        aiMsg.style.cssText = 'padding: 12px; margin-bottom: 8px; background: #3a3a3a; border-radius: 12px;';
+        aiMsg.textContent = 'Message received! Zantara AI is processing your request...';
+        messagesDiv.appendChild(aiMsg);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }, 1000);
+    }
+
+    // Send on button click
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Send on Enter key
+    inputField.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Attach file
+    attachBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.onchange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+          const fileNames = files.map(f => f.name).join(', ');
+          alert(`📎 Files attached:\n\n${fileNames}\n\n(Upload functionality will be implemented)`);
+        }
+      };
+      input.click();
     });
   </script>
 </body>

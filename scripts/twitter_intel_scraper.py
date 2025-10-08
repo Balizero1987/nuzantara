@@ -389,7 +389,11 @@ def scrape_category_twitter(
     stats["output_file"] = str(output_file)
     
     logger.info(f"  ✅ Saved {len(unique_tweets)} tweets to {output_file}")
-    logger.info(f"  📊 Top tweet: {unique_tweets[0]['likes']}❤️ {unique_tweets[0]['retweets']}🔄")
+    
+    if unique_tweets:
+        logger.info(f"  📊 Top tweet: {unique_tweets[0]['likes']}❤️ {unique_tweets[0]['retweets']}🔄")
+    else:
+        logger.warning(f"  ⚠️ No tweets collected for {category}")
     
     return stats
 
@@ -435,6 +439,17 @@ def scrape_all_categories_twitter(categories: List[str] = None) -> Dict:
     
     logger.info(f"✅ Twitter scraping complete: {overall_stats['total_tweets']} tweets")
     logger.info(f"📊 Summary saved: {summary_file}")
+    
+    if overall_stats['total_tweets'] == 0:
+        logger.warning("⚠️ No tweets collected. This may be due to:")
+        logger.warning("   1. snscrape incompatibility with Python 3.13+")
+        logger.warning("   2. Rate limiting by Twitter")
+        logger.warning("   3. Account doesn't exist or is private")
+        logger.warning("")
+        logger.warning("Solutions:")
+        logger.warning("   - Use Python 3.10 or 3.11 (recommended)")
+        logger.warning("   - Install alternative: pip install tweepy (requires API keys)")
+        logger.warning("   - Use Nitter instances (see docs)")
     
     return overall_stats
 
