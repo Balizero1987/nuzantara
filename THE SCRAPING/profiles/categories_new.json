@@ -1,0 +1,695 @@
+{
+  "categories": [
+    {
+      "id": "regulatory_changes",
+      "name": "Regulatory Changes",
+      "priority": "CRITICAL",
+      "description": "Track regulatory changes affecting foreign businesses and individuals in Indonesia",
+      "business_value": "Client retention + Authority positioning",
+      "revenue_impact": "High (prevents churn, positions as expert)",
+      "update_frequency": "daily",
+      "owner": "zero@balizero.com",
+      "sources": {
+        "tier_1": [
+          {
+            "url": "https://peraturan.go.id",
+            "name": "Database Peraturan Indonesia",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://jdih.kemenkumham.go.id",
+            "name": "Legal Documentation Center",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://www.bkpm.go.id/id/peraturan",
+            "name": "BKPM Regulations",
+            "type": "government",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.pajak.go.id/id/peraturan",
+            "name": "Tax Regulations",
+            "type": "government",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.atrbpn.go.id/Beranda/Peraturan",
+            "name": "Land & Property Regulations",
+            "type": "government",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_2": [],
+        "tier_3": []
+      },
+      "extraction_schema": {
+        "required_fields": ["regulation_number", "effective_date", "what_changed", "impact_on", "compliance_deadline"],
+        "optional_fields": ["penalties", "transition_period", "supersedes_regulation"],
+        "validation_rules": {
+          "regulation_number": "^(UU|PP|Perpres|PMK|Permen|Permenkumham)\\s+No\\.?\\s+\\d+\\s+Tahun\\s+\\d{4}$",
+          "effective_date": "^\\d{2}/\\d{2}/\\d{4}$",
+          "impact_on": ["visa", "tax", "business_license", "property", "labor", "banking"]
+        }
+      },
+      "llama_prompt": "Extract REGULATORY CHANGE information:\n\nREQUIRED:\n1. Regulation: Full number (e.g., 'Perpres No. 10 Tahun 2024')\n2. Effective Date: DD/MM/YYYY\n3. What Changed: Specific changes vs previous regulation\n4. Impact On: [Visa holders, PT/PT PMA owners, Property owners, Tax obligations]\n5. Compliance Deadline: When must clients act\n6. Penalties: Fines/consequences of non-compliance\n\nOUTPUT:\nIf regulation impacts our clients → Extract structured data\nIf general/non-relevant → SKIP\n\nCRITICAL: Only regulations affecting foreign businesses/individuals",
+      "content_output": {
+        "email_template": "regulatory_alert",
+        "blog_template": "regulation_explainer",
+        "social_template": "regulation_announcement"
+      },
+      "success_metrics": {
+        "alert_speed": "< 24 hours from publication",
+        "client_compliance": "100% (zero penalties)",
+        "blog_traffic": "Top 10 for '{regulation} Indonesia'"
+      }
+    },
+    {
+      "id": "visa_immigration",
+      "name": "Visa & Immigration Updates",
+      "priority": "CRITICAL",
+      "description": "Track visa requirements, processing changes, and immigration policy updates",
+      "business_value": "Recurring revenue (KITAS renewals)",
+      "revenue_impact": "High ($800-$1,500 per KITAS annually)",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "sources": {
+        "tier_1": [
+          {
+            "url": "https://www.imigrasi.go.id",
+            "name": "Directorate General of Immigration",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://visa-online.imigrasi.go.id",
+            "name": "E-Visa Portal",
+            "type": "government",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.kemenkumham.go.id",
+            "name": "Ministry of Law and Human Rights",
+            "type": "government",
+            "scrape_depth": 2
+          }
+        ],
+        "tier_2": [
+          {
+            "url": "https://www.indonesia.travel/gb/en/trip-ideas/visa-and-immigration",
+            "name": "Indonesia Tourism - Visa Info",
+            "type": "official_tourism",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://kemlu.go.id",
+            "name": "Ministry of Foreign Affairs",
+            "type": "government",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_3": []
+      },
+      "extraction_schema": {
+        "required_fields": ["visa_type", "change_type", "effective_date"],
+        "optional_fields": ["cost_idr", "processing_days", "documents_required", "quota_changes"],
+        "validation_rules": {
+          "visa_type": ["KITAS", "KITAP", "B211A", "E33", "E28A", "C312", "D212"],
+          "change_type": ["cost", "documents", "processing_time", "policy", "new_category"],
+          "cost_idr": "^\\d+$"
+        }
+      },
+      "llama_prompt": "Extract VISA/IMMIGRATION actionable data:\n\nFOCUS ON CHANGES (not static info):\n1. What's new vs last year/month\n2. Cost increases/decreases (IDR)\n3. New document requirements\n4. Processing time changes\n5. Policy shifts (easier/harder to get)\n\nREQUIRED:\n- Visa type\n- Effective date of change\n- Specific impact (who affected)\n\nSKIP generic visa guides (we already know KITAS exists)",
+      "content_output": {
+        "email_template": "visa_update_alert",
+        "blog_template": "visa_requirements_guide",
+        "social_template": "visa_change_announcement"
+      },
+      "success_metrics": {
+        "leads": "10 'Can you help with KITAS?' per month",
+        "retention": "90% KITAS renewal rate",
+        "seo": "'KITAS Indonesia 2024' top 3 Google"
+      }
+    },
+    {
+      "id": "tax_compliance",
+      "name": "Tax Compliance & Changes",
+      "priority": "CRITICAL",
+      "description": "Track tax rate changes, filing deadlines, and compliance requirements",
+      "business_value": "Recurring tax compliance service",
+      "revenue_impact": "High ($500-$2,000 annually per client)",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "sources": {
+        "tier_1": [
+          {
+            "url": "https://www.pajak.go.id",
+            "name": "Directorate General of Taxation (DJP)",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://www.kemenkeu.go.id",
+            "name": "Ministry of Finance",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://djpb.kemenkeu.go.id",
+            "name": "Directorate General of Treasury",
+            "type": "government",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_2": [
+          {
+            "url": "https://www.oecd.org/tax/tax-policy/indonesia.htm",
+            "name": "OECD Indonesia Tax",
+            "type": "international_org",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_3": []
+      },
+      "extraction_schema": {
+        "required_fields": ["tax_type", "change_type", "effective_date"],
+        "optional_fields": ["old_rate", "new_rate", "deadline", "who_affected", "penalties"],
+        "validation_rules": {
+          "tax_type": ["PPh_21", "PPh_23", "PPh_25", "PPh_29", "PPN", "BPHTB", "PBB"],
+          "change_type": ["rate", "deadline", "filing_requirement", "incentive", "penalty"],
+          "rate": "^\\d+(\\.\\d+)?%?$"
+        }
+      },
+      "llama_prompt": "Extract TAX COMPLIANCE intel:\n\nPRIORITY: Changes that require client action\n1. Rate changes (old % → new %)\n2. Deadline shifts (old date → new date)\n3. New obligations (what must clients do now)\n4. Incentives (how to save taxes legally)\n5. System changes (e-Filing updates)\n\nREQUIRED:\n- Tax type (PPh 21/23/25/29, PPN)\n- Effective date\n- Who affected (individuals, PT, PT PMA)\n- Action required (file X by Y date)\n\nSKIP: Generic tax education (focus on changes/deadlines)",
+      "content_output": {
+        "email_template": "tax_deadline_reminder",
+        "blog_template": "tax_calendar_guide",
+        "social_template": "tax_update_alert"
+      },
+      "success_metrics": {
+        "compliance": "Zero late filing penalties for clients",
+        "upsell": "40% visa clients → tax clients",
+        "engagement": "60% email open rate for tax deadlines"
+      }
+    },
+    {
+      "id": "business_setup",
+      "name": "Business Setup & Licensing",
+      "priority": "HIGH",
+      "description": "Track PT/PT PMA requirements, DNI updates, and licensing changes",
+      "business_value": "High-ticket service sales",
+      "revenue_impact": "Very High ($5,000-$8,000 per PT PMA setup)",
+      "update_frequency": "biweekly",
+      "owner": "zero@balizero.com",
+      "sources": {
+        "tier_1": [
+          {
+            "url": "https://oss.go.id",
+            "name": "Online Single Submission",
+            "type": "government",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.bkpm.go.id",
+            "name": "Investment Coordinating Board",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://ahu.go.id",
+            "name": "Company Registration (AHU)",
+            "type": "government",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.bi.go.id",
+            "name": "Bank Indonesia",
+            "type": "government",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_2": [
+          {
+            "url": "https://www.indonesia-investments.com",
+            "name": "Indonesia Investments",
+            "type": "news",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.aseanbriefing.com/indonesia",
+            "name": "ASEAN Briefing - Indonesia",
+            "type": "news",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_3": []
+      },
+      "extraction_schema": {
+        "required_fields": ["entity_type", "change_type", "effective_date"],
+        "optional_fields": ["minimum_capital_idr", "foreign_ownership_pct", "sector", "licenses_required"],
+        "validation_rules": {
+          "entity_type": ["PT", "PT_PMA", "CV", "Firma", "Koperasi"],
+          "change_type": ["capital_requirement", "ownership_rule", "dni_update", "licensing", "timeline"],
+          "foreign_ownership_pct": "^\\d+%$"
+        }
+      },
+      "llama_prompt": "Extract BUSINESS SETUP intel:\n\nFOCUS: Requirements and costs for foreign entrepreneurs\n1. Entity type (PT, PT PMA, CV, Firma)\n2. Capital requirements (IDR minimum)\n3. Ownership % (Indonesian partner needed?)\n4. Licenses required (sector-specific)\n5. Timeline (how long to incorporate)\n6. Costs (government fees + typical service fees)\n\nREQUIRED:\n- Sector/industry\n- Foreign ownership allowed (%)\n- Effective date of rule\n\nSKIP: Promotional content from law firms (unless educational)",
+      "content_output": {
+        "email_template": "business_setup_update",
+        "blog_template": "pt_pma_guide",
+        "social_template": "dni_update_announcement"
+      },
+      "success_metrics": {
+        "leads": "10 qualified PT PMA leads per month",
+        "conversion": "5% blog readers → consultation booking",
+        "seo": "'PT PMA setup Indonesia' top 5 Google"
+      }
+    },
+    {
+      "id": "real_estate_law",
+      "name": "Real Estate & Property Law",
+      "priority": "HIGH",
+      "description": "Track property rights, foreign ownership rules, and land regulations",
+      "business_value": "Transaction consulting fees",
+      "revenue_impact": "High (2-5% of transaction value)",
+      "update_frequency": "biweekly",
+      "owner": "zero@balizero.com",
+      "sources": {
+        "tier_1": [
+          {
+            "url": "https://www.atrbpn.go.id",
+            "name": "National Land Agency (BPN)",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://simbg.pu.go.id",
+            "name": "Building Permits System",
+            "type": "government",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.pu.go.id",
+            "name": "Ministry of Public Works",
+            "type": "government",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_2": [
+          {
+            "url": "https://www.rumah.com/panduan-properti",
+            "name": "Rumah.com Property Guide",
+            "type": "portal",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.lamudi.co.id/journal",
+            "name": "Lamudi Indonesia Journal",
+            "type": "portal",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_3": []
+      },
+      "extraction_schema": {
+        "required_fields": ["property_type", "change_type", "effective_date"],
+        "optional_fields": ["property_rights", "foreign_ownership_rules", "tax_changes", "permits_required"],
+        "validation_rules": {
+          "property_type": ["land", "villa", "apartment", "commercial"],
+          "property_rights": ["Hak_Milik", "HGB", "Hak_Pakai", "Hak_Sewa"],
+          "change_type": ["ownership_rule", "permit", "tax", "zoning"]
+        },
+        "blacklist_keywords": ["machinery", "alat berat", "equipment", "shipping", "logistics", "tug boat", "pupuk", "irigasi"]
+      },
+      "llama_prompt": "Extract PROPERTY LAW intel:\n\nFOCUS: Legal/regulatory (not market trends)\n1. Ownership rules (who can buy what)\n2. Permit requirements (building, transfer)\n3. Tax changes (property tax, transfer fees)\n4. Zoning updates (what can be built where)\n5. Foreign buyer restrictions/allowances\n\nREQUIRED:\n- Property type (land, villa, apartment)\n- Location applicability (Bali-specific or national)\n- Effective date\n\nVALIDATION: Reject if content is about:\n- Interior design\n- Property listings\n- Market prices (unless tax-related)",
+      "content_output": {
+        "email_template": "property_law_update",
+        "blog_template": "foreign_ownership_guide",
+        "social_template": "property_regulation_alert"
+      },
+      "success_metrics": {
+        "due_diligence": "5 property deals per month",
+        "referrals": "10 agent referrals per month",
+        "seo": "'Foreign property ownership Bali' top 3 Google"
+      }
+    },
+    {
+      "id": "banking_finance",
+      "name": "Banking & Finance Regulations",
+      "priority": "MEDIUM",
+      "description": "Track banking requirements, forex rules, and financial compliance",
+      "business_value": "Compliance consulting add-on",
+      "revenue_impact": "Medium (add-on to main services)",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "sources": {
+        "tier_1": [
+          {
+            "url": "https://www.bi.go.id",
+            "name": "Bank Indonesia",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://www.ojk.go.id",
+            "name": "Financial Services Authority (OJK)",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://www.ppatk.go.id",
+            "name": "Financial Transaction Reports (PPATK)",
+            "type": "government",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_2": [
+          {
+            "url": "https://www.bloomberg.com/indonesia",
+            "name": "Bloomberg Indonesia",
+            "type": "news",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.reuters.com/world/asia-pacific/indonesia",
+            "name": "Reuters Indonesia",
+            "type": "news",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_3": []
+      },
+      "extraction_schema": {
+        "required_fields": ["regulation_type", "change_type", "effective_date"],
+        "optional_fields": ["reporting_requirements", "transfer_limits", "kyc_changes", "penalties"],
+        "validation_rules": {
+          "regulation_type": ["account_opening", "foreign_reporting", "forex", "aml_kyc", "transfer_limits"],
+          "change_type": ["requirement", "limit", "rate", "deadline", "system"]
+        }
+      },
+      "llama_prompt": "Extract BANKING/FINANCE regulatory intel:\n\nFOCUS: Compliance requirements for foreign residents/businesses\n1. Reporting obligations (what to declare, when)\n2. Account opening requirements (documents, minimum balance)\n3. Transfer limits (in/out of Indonesia)\n4. Currency regulations (IDR/USD rules)\n5. KYC/AML changes (new verification steps)\n\nREQUIRED:\n- Who affected (individuals, companies, both)\n- Penalties for non-compliance\n- Implementation timeline\n\nSKIP: Stock market analysis, economic forecasts (unless regulatory)",
+      "content_output": {
+        "email_template": "banking_compliance_alert",
+        "blog_template": "bank_account_guide",
+        "social_template": "finance_regulation_update"
+      },
+      "success_metrics": {
+        "account_setups": "20% of new clients add banking setup",
+        "consultations": "5 emergency compliance cases per month",
+        "engagement": "80% open rate on LHDN deadline reminders"
+      }
+    },
+    {
+      "id": "employment_law",
+      "name": "Employment & Labor Law",
+      "priority": "MEDIUM",
+      "description": "Track minimum wage, labor regulations, and BPJS changes",
+      "business_value": "Payroll compliance service",
+      "revenue_impact": "Medium (recurring payroll service)",
+      "update_frequency": "monthly",
+      "owner": "zero@balizero.com",
+      "sources": {
+        "tier_1": [
+          {
+            "url": "https://www.kemnaker.go.id",
+            "name": "Ministry of Manpower",
+            "type": "government",
+            "scrape_depth": 2
+          },
+          {
+            "url": "https://bpjsketenagakerjaan.go.id",
+            "name": "BPJS Employment",
+            "type": "government",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://bpjs-kesehatan.go.id",
+            "name": "BPJS Health",
+            "type": "government",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_2": [
+          {
+            "url": "https://www.hukumonline.com/kategori/ketenagakerjaan",
+            "name": "Hukumonline - Labor Law",
+            "type": "legal_portal",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_3": []
+      },
+      "extraction_schema": {
+        "required_fields": ["regulation_type", "location", "effective_date"],
+        "optional_fields": ["minimum_wage_idr", "bpjs_rates", "severance_formula", "imta_changes"],
+        "validation_rules": {
+          "regulation_type": ["minimum_wage", "bpjs", "severance", "foreign_workers", "contracts"],
+          "location": ["Bali", "Jakarta", "National"],
+          "minimum_wage_idr": "^\\d+$"
+        }
+      },
+      "llama_prompt": "Extract EMPLOYMENT LAW intel:\n\nFOCUS: Employer obligations and costs\n1. Minimum wage (UMK) - per region, effective date\n2. BPJS rates (employer/employee contributions)\n3. Severance formulas (termination costs)\n4. Foreign worker rules (IMTA quotas, sectors)\n5. Contract types (PKWT duration limits)\n\nREQUIRED:\n- Location (Bali, Jakarta, national)\n- Effective date\n- Numeric values (IDR, %, days)\n\nSKIP: Labor union news, strikes (unless regulation impact)",
+      "content_output": {
+        "email_template": "labor_cost_update",
+        "blog_template": "minimum_wage_guide",
+        "social_template": "bpjs_change_alert"
+      },
+      "success_metrics": {
+        "payroll_clients": "15 companies using payroll service",
+        "imta_processing": "3-5 foreign workers per month",
+        "seo": "'Bali minimum wage 2024' top 5 Google"
+      }
+    },
+    {
+      "id": "coworking_ecosystem",
+      "name": "Coworking & Business Ecosystem",
+      "priority": "MEDIUM",
+      "description": "Track coworking spaces, networking events, and business community",
+      "business_value": "Community building and lead generation",
+      "revenue_impact": "Medium (coworking memberships + cross-sell)",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "sources": {
+        "tier_1": [],
+        "tier_2": [
+          {
+            "url": "https://www.coworker.com/indonesia/bali",
+            "name": "Coworker Bali",
+            "type": "directory",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.techinasia.com/indonesia",
+            "name": "Tech in Asia Indonesia",
+            "type": "news",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_3": [
+          {
+            "url": "https://www.facebook.com/groups/balidigitalnomads",
+            "name": "Bali Digital Nomads FB Group",
+            "type": "social_community",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.instagram.com/explore/tags/balicoworking",
+            "name": "Instagram #balicoworking",
+            "type": "social_media",
+            "scrape_depth": 1
+          }
+        ]
+      },
+      "extraction_schema": {
+        "required_fields": ["item_type", "location", "name"],
+        "optional_fields": ["price_idr", "date", "contact_info", "description"],
+        "validation_rules": {
+          "item_type": ["coworking_space", "event", "service_provider", "community"],
+          "location": ["Canggu", "Seminyak", "Ubud", "Sanur", "Denpasar", "Other Bali"],
+          "price_validation": "Bali-only content (reject Jakarta/Surabaya)"
+        }
+      },
+      "llama_prompt": "Extract BUSINESS ECOSYSTEM intel:\n\nFOCUS: Practical resources for digital nomads/entrepreneurs\n1. New coworking spaces (location, pricing)\n2. Networking events (date, topic, cost)\n3. Service providers (who offers what, where)\n4. Community initiatives (visa support, etc.)\n\nREQUIRED:\n- Location (specific area in Bali)\n- Contact info (website, IG, WhatsApp)\n- Pricing (if applicable)\n\nVALIDATION: Must be Bali-focused (reject Jakarta/Surabaya)",
+      "content_output": {
+        "email_template": "community_newsletter",
+        "blog_template": "coworking_directory",
+        "social_template": "event_announcement"
+      },
+      "success_metrics": {
+        "memberships": "30 active coworking members",
+        "events": "20-30 attendees per event",
+        "cross_sell": "15% coworking → tax client conversion"
+      }
+    },
+    {
+      "id": "competitor_intel",
+      "name": "Competitor Intelligence",
+      "priority": "LOW",
+      "description": "Track competitor services, pricing, and market positioning (INTERNAL USE)",
+      "business_value": "Strategic pricing and service development",
+      "revenue_impact": "Indirect (inform business decisions)",
+      "update_frequency": "monthly",
+      "owner": "zero@balizero.com",
+      "internal_only": true,
+      "sources": {
+        "tier_1": [],
+        "tier_2": [
+          {
+            "url": "https://www.cekindo.com",
+            "name": "Cekindo Indonesia",
+            "type": "competitor",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.paulhypepage.com",
+            "name": "Paul Hype Page",
+            "type": "competitor",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_3": [
+          {
+            "url": "https://www.linkedin.com/company/cekindo",
+            "name": "LinkedIn - Competitor Updates",
+            "type": "social_professional",
+            "scrape_depth": 1
+          }
+        ]
+      },
+      "extraction_schema": {
+        "required_fields": ["competitor_name", "service_type", "observation_date"],
+        "optional_fields": ["price_idr", "price_usd", "timeline_days", "usp", "promotion"],
+        "validation_rules": {
+          "service_type": ["pt_setup", "pt_pma_setup", "visa_kitas", "tax_compliance", "accounting", "other"],
+          "price_format": "Numeric values only"
+        }
+      },
+      "llama_prompt": "Extract COMPETITOR INTEL:\n\nFOCUS: Services and pricing\n1. Service type (PT setup, visa, tax, etc.)\n2. Price (IDR or USD)\n3. Timeline (delivery time)\n4. Unique selling points (what they emphasize)\n\nREQUIRED:\n- Competitor name\n- Service specifics\n- Date (when info was published)\n\nOUTPUT: Structured comparison table\nPRIVATE: This category is NOT for public content",
+      "content_output": {
+        "dashboard": "competitor_pricing_matrix",
+        "report": "quarterly_market_analysis",
+        "alert": "competitor_new_service"
+      },
+      "success_metrics": {
+        "pricing_adjustments": "2 per quarter based on intel",
+        "new_services": "1 per quarter informed by gaps",
+        "positioning": "Refined quarterly"
+      }
+    },
+    {
+      "id": "macro_policy",
+      "name": "Indonesia Macroeconomic Policy",
+      "priority": "LOW",
+      "description": "Track interest rates, inflation, and economic policy affecting business",
+      "business_value": "Advisory positioning and thought leadership",
+      "revenue_impact": "Indirect (brand authority)",
+      "update_frequency": "quarterly",
+      "owner": "zero@balizero.com",
+      "sources": {
+        "tier_1": [
+          {
+            "url": "https://www.bi.go.id",
+            "name": "Bank Indonesia - Monetary Policy",
+            "type": "government",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.kemenkeu.go.id",
+            "name": "Ministry of Finance - Fiscal Policy",
+            "type": "government",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.bps.go.id",
+            "name": "Statistics Indonesia",
+            "type": "government",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_2": [
+          {
+            "url": "https://www.worldbank.org/en/country/indonesia",
+            "name": "World Bank Indonesia",
+            "type": "international_org",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.imf.org/en/Countries/IDN",
+            "name": "IMF Indonesia",
+            "type": "international_org",
+            "scrape_depth": 1
+          },
+          {
+            "url": "https://www.adb.org/countries/indonesia",
+            "name": "Asian Development Bank Indonesia",
+            "type": "international_org",
+            "scrape_depth": 1
+          }
+        ],
+        "tier_3": []
+      },
+      "extraction_schema": {
+        "required_fields": ["indicator_type", "value", "date"],
+        "optional_fields": ["previous_value", "forecast", "impact_analysis"],
+        "validation_rules": {
+          "indicator_type": ["interest_rate", "inflation", "gdp_growth", "exchange_rate", "government_spending"],
+          "value_format": "Numeric with unit (%, IDR, etc.)"
+        }
+      },
+      "llama_prompt": "Extract MACROECONOMIC POLICY intel:\n\nFOCUS: Changes that impact business decisions\n1. Interest rates (borrowing costs)\n2. Inflation (cost of living/operations)\n3. Exchange rates (currency risk)\n4. Government spending (infrastructure, subsidies)\n5. Economic forecasts (growth, recession risk)\n\nREQUIRED:\n- Specific numeric change (old → new)\n- Effective date or forecast period\n- Impact explanation (how it affects businesses/individuals)\n\nSKIP: Academic economic theory (focus on actionable insights)",
+      "content_output": {
+        "email_template": "economic_outlook",
+        "blog_template": "business_impact_analysis",
+        "social_template": "policy_announcement"
+      },
+      "success_metrics": {
+        "advisory_clients": "5 strategic consultations per quarter",
+        "thought_leadership": "50k impressions per post",
+        "speaking": "2 conference opportunities per year"
+      }
+    }
+  ],
+  "global_settings": {
+    "scraping": {
+      "default_timeout": 60,
+      "government_timeout": 120,
+      "max_retries": 3,
+      "concurrent_limit": 5,
+      "user_agent": "BaliZeroIntelBot/2.0 (Business Intelligence; +https://balizero.com/bot)"
+    },
+    "quality_thresholds": {
+      "minimum_word_count": 200,
+      "minimum_tier_1_percentage": {
+        "CRITICAL": 50,
+        "HIGH": 40,
+        "MEDIUM": 30,
+        "LOW": 20
+      },
+      "date_presence_required": true,
+      "quality_score_threshold": {
+        "regulatory_changes": 7.0,
+        "visa_immigration": 6.5,
+        "tax_compliance": 7.0,
+        "business_setup": 6.0,
+        "real_estate_law": 6.0,
+        "banking_finance": 6.0,
+        "employment_law": 5.5,
+        "coworking_ecosystem": 4.5,
+        "competitor_intel": 5.0,
+        "macro_policy": 5.5
+      }
+    },
+    "distribution": {
+      "email_alerts": {
+        "CRITICAL": "immediate",
+        "HIGH": "daily_digest",
+        "MEDIUM": "weekly_digest",
+        "LOW": "monthly_digest"
+      },
+      "blog_auto_publish": false,
+      "social_auto_post": false
+    }
+  }
+}

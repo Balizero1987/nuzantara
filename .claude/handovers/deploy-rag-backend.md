@@ -2,6 +2,61 @@
 
 ## Latest Updates
 
+### 2025-10-08 05:40 (Tool Use Loop Prevention) [sonnet-4.5_m1]
+
+**Changed**:
+- File: `apps/backend-rag 2/backend/app/main_cloud.py:717-800`
+- Feature: Prevent infinite tool use loops on exploratory queries
+
+**Implementation**:
+```python
+# Track read-only handlers to prevent re-calling
+read_only_handlers_called = set()
+
+READ_ONLY_HANDLERS = {
+    "system.handlers.list", "system.handlers.tools",
+    "team.list", "team.get", "team.departments", "team.recent_activity",
+    "pricing.official", "pricing.get", "contact.info",
+    "identity.resolve", "kbli.lookup", "kbli.requirements"
+}
+
+# Check for redundant calls
+if redundant_calls:
+    logger.warning(f"⚠️ AI attempting to re-call: {redundant_calls}")
+    break  # Force stop
+
+# After executing read-only handlers, hint AI to finalize
+messages.append({
+    "role": "user",
+    "content": "Please provide your final answer. Do not call more tools."
+})
+```
+
+**Problem Solved**:
+- AI was looping on "Tell me about handlers" queries
+- Would reach max_iterations (5) before responding
+- Now stops after first read-only handler execution
+
+**Testing**:
+```bash
+# Query that previously looped
+curl -X POST https://zantara-rag-backend-himaadsxua-ew.a.run.app/bali-zero/chat \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: zantara-internal-dev-key-2025" \
+  -d '{"query": "tell me more about the team handlers", "user_id": "test"}' \
+  | jq '.response'
+# Expected: Response in 1-2 iterations (not 5)
+```
+
+**Deployment**:
+- Commit: `8c889f8` (auto-deployed with backend)
+- Note: RAG backend uses same main_cloud.py
+
+**Related**:
+→ Full session: [2025-10-08_sonnet-4.5_m1.md](../diaries/2025-10-08_sonnet-4.5_m1.md#rag-loop-fix)
+
+---
+
 ### 2025-10-06 22:10 (Tool Use Integration Complete) [sonnet-4.5_m5]
 
 **Changed**:

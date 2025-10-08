@@ -111,12 +111,7 @@ INTEL_SOURCES = {
 
         # TIER 3 - Community & Forums
         {"url": "https://www.expatindo.org/", "tier": 3, "name": "Expat Indo Forum"},
-        {"url": "https://www.reddit.com/r/bali/", "tier": 3, "name": "Reddit Bali"},
-        {"url": "https://www.reddit.com/r/indonesia/", "tier": 3, "name": "Reddit Indonesia"},
-        {"url": "https://www.reddit.com/r/expats/", "tier": 3, "name": "Reddit Expats"},
         {"url": "https://www.tripadvisor.com/ShowForum-g294226-i7220-Bali.html", "tier": 3, "name": "TripAdvisor Bali Forum"},
-        {"url": "https://www.facebook.com/groups/baliexpats/", "tier": 3, "name": "Facebook Bali Expats"},
-        {"url": "https://www.facebook.com/groups/jakartaexpats/", "tier": 3, "name": "Facebook Jakarta Expats"},
         {"url": "https://forum.balipod.com/", "tier": 3, "name": "Bali Pod Forum"},
     ],
 
@@ -172,13 +167,6 @@ INTEL_SOURCES = {
         {"url": "https://www.reuters.com/world/indonesia/", "tier": 2, "name": "Reuters Indonesia Politics"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.instagram.com/bkpmri/", "tier": 3, "name": "Instagram BKPM"},
-        {"url": "https://twitter.com/BKPM_RI", "tier": 3, "name": "X BKPM Official"},
-        {"url": "https://www.facebook.com/BKPMRI/", "tier": 3, "name": "Facebook BKPM"},
-        {"url": "https://www.instagram.com/kemenkeu.ri/", "tier": 3, "name": "Instagram Kemenkeu"},
-        {"url": "https://twitter.com/KemenkeuRI", "tier": 3, "name": "X Kemenkeu"},
-        {"url": "https://www.tiktok.com/@kemenkeu.ri", "tier": 3, "name": "TikTok Kemenkeu"},
-        {"url": "https://www.linkedin.com/company/bkpm/", "tier": 3, "name": "LinkedIn BKPM"},
     ],
 
     "real_estate": [
@@ -216,7 +204,6 @@ INTEL_SOURCES = {
         {"url": "https://jakartaglobe.id/business/property", "tier": 2, "name": "Jakarta Globe Property"},
 
         # TIER 2 - Indonesian Property Media
-        {"url": "https://www.rumahmesin.com/", "tier": 2, "name": "RumahMesin"},
         {"url": "https://properti.kompas.com/", "tier": 2, "name": "Kompas Properti"},
         {"url": "https://www.suara.com/properti", "tier": 2, "name": "Suara Properti"},
         {"url": "https://www.grid.id/tag/properti", "tier": 2, "name": "Grid Properti"},
@@ -231,14 +218,6 @@ INTEL_SOURCES = {
 
         # TIER 3 - Forums & Social Media
         {"url": "https://forum.balipod.com/", "tier": 3, "name": "Bali Pod Forum"},
-        {"url": "https://www.reddit.com/r/bali/", "tier": 3, "name": "Reddit Bali Property"},
-        {"url": "https://www.instagram.com/balipropertycom/", "tier": 3, "name": "Instagram Bali Property"},
-        {"url": "https://www.instagram.com/propertyguru_id/", "tier": 3, "name": "Instagram PropertyGuru"},
-        {"url": "https://www.facebook.com/PropertyGuruIndonesia/", "tier": 3, "name": "Facebook PropertyGuru"},
-        {"url": "https://www.tiktok.com/@propertyguru_id", "tier": 3, "name": "TikTok PropertyGuru"},
-        {"url": "https://www.instagram.com/rumah123com/", "tier": 3, "name": "Instagram Rumah123"},
-        {"url": "https://twitter.com/PropertyGuru_ID", "tier": 3, "name": "X PropertyGuru"},
-        {"url": "https://www.linkedin.com/company/propertyguru-indonesia/", "tier": 3, "name": "LinkedIn PropertyGuru"},
     ],
 
     "events_culture": [
@@ -282,13 +261,6 @@ INTEL_SOURCES = {
         {"url": "https://lifestyle.kompas.com/", "tier": 2, "name": "Kompas Lifestyle"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.instagram.com/thebalibible/", "tier": 3, "name": "Instagram Bali Bible"},
-        {"url": "https://www.instagram.com/whatsnewbali/", "tier": 3, "name": "Instagram What's New Bali"},
-        {"url": "https://www.instagram.com/balilife/", "tier": 3, "name": "Instagram Bali Life"},
-        {"url": "https://www.facebook.com/BaliBible/", "tier": 3, "name": "Facebook Bali Bible"},
-        {"url": "https://www.facebook.com/groups/balievents/", "tier": 3, "name": "Facebook Bali Events Group"},
-        {"url": "https://www.tiktok.com/@thebalibible", "tier": 3, "name": "TikTok Bali Bible"},
-        {"url": "https://twitter.com/thebalibible", "tier": 3, "name": "X Bali Bible"},
     ],
 
     "social_media": [
@@ -305,23 +277,6 @@ INTEL_SOURCES = {
         {"url": "https://www.hipwee.com/", "tier": 2, "name": "Hipwee"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.instagram.com/explore/tags/bali/", "tier": 3, "name": "Instagram #Bali"},
-        {"url": "https://www.instagram.com/explore/tags/balibusiness/", "tier": 3, "name": "Instagram #BaliBusiness"},
-        {"url": "https://www.instagram.com/explore/tags/balilife/", "tier": 3, "name": "Instagram #BaliLife"},
-        {"url": "https://www.instagram.com/explore/tags/expatbali/", "tier": 3, "name": "Instagram #ExpatBali"},
-        {"url": "https://www.instagram.com/thebalibible/", "tier": 3, "name": "Instagram Bali Bible"},
-        {"url": "https://www.instagram.com/balibucketlist/", "tier": 3, "name": "Instagram Bali Bucket List"},
-        {"url": "https://www.instagram.com/bali.indo/", "tier": 3, "name": "Instagram Bali Indo"},
-        {"url": "https://www.tiktok.com/tag/bali", "tier": 3, "name": "TikTok #Bali"},
-        {"url": "https://www.tiktok.com/tag/balibusiness", "tier": 3, "name": "TikTok #BaliBusiness"},
-        {"url": "https://www.tiktok.com/@thebalibible", "tier": 3, "name": "TikTok Bali Bible"},
-        {"url": "https://www.tiktok.com/tag/indonesia", "tier": 3, "name": "TikTok #Indonesia"},
-        {"url": "https://twitter.com/thebalibible", "tier": 3, "name": "X Bali Bible"},
-        {"url": "https://twitter.com/search?q=bali&src=trend_click", "tier": 3, "name": "X Bali Trending"},
-        {"url": "https://twitter.com/hashtag/BaliLife", "tier": 3, "name": "X #BaliLife"},
-        {"url": "https://www.facebook.com/groups/baliexpats/", "tier": 3, "name": "Facebook Bali Expats"},
-        {"url": "https://www.facebook.com/groups/balibusiness/", "tier": 3, "name": "Facebook Bali Business"},
-        {"url": "https://www.facebook.com/BaliBible/", "tier": 3, "name": "Facebook Bali Bible Page"},
     ],
 
     "competitors": [
@@ -352,12 +307,6 @@ INTEL_SOURCES = {
         {"url": "https://www.firstbase.io/", "tier": 2, "name": "Firstbase"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.instagram.com/emerhub/", "tier": 3, "name": "Instagram Emerhub"},
-        {"url": "https://www.instagram.com/cekindo/", "tier": 3, "name": "Instagram Cekindo"},
-        {"url": "https://www.linkedin.com/company/emerhub/", "tier": 3, "name": "LinkedIn Emerhub"},
-        {"url": "https://www.linkedin.com/company/cekindo/", "tier": 3, "name": "LinkedIn Cekindo"},
-        {"url": "https://twitter.com/IndonesiaBrief", "tier": 3, "name": "X Indonesia Briefing"},
-        {"url": "https://www.facebook.com/IndonesiaBriefing/", "tier": 3, "name": "Facebook Indonesia Briefing"},
     ],
 
     "general_news": [
@@ -400,12 +349,6 @@ INTEL_SOURCES = {
         {"url": "https://www.sindonews.com/", "tier": 2, "name": "Sindonews"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.instagram.com/kompascom/", "tier": 3, "name": "Instagram Kompas"},
-        {"url": "https://www.instagram.com/detikcom/", "tier": 3, "name": "Instagram Detik"},
-        {"url": "https://twitter.com/kompascom", "tier": 3, "name": "X Kompas"},
-        {"url": "https://twitter.com/detikcom", "tier": 3, "name": "X Detik"},
-        {"url": "https://www.tiktok.com/@kompascom", "tier": 3, "name": "TikTok Kompas"},
-        {"url": "https://www.tiktok.com/@detikcom", "tier": 3, "name": "TikTok Detik"},
     ],
 
     "health_wellness": [
@@ -443,10 +386,6 @@ INTEL_SOURCES = {
         {"url": "https://www.kasihibu.co.id/", "tier": 2, "name": "Kasih Ibu Hospital"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.instagram.com/kemenkes_ri/", "tier": 3, "name": "Instagram Kemkes"},
-        {"url": "https://www.instagram.com/halodoc/", "tier": 3, "name": "Instagram Halodoc"},
-        {"url": "https://www.tiktok.com/@halodoc", "tier": 3, "name": "TikTok Halodoc"},
-        {"url": "https://twitter.com/KemenkesRI", "tier": 3, "name": "X Kemkes"},
     ],
 
     "tax_djp": [
@@ -485,17 +424,11 @@ INTEL_SOURCES = {
         {"url": "https://www.ssek.com/practice-areas/tax", "tier": 2, "name": "SSEK Tax"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.instagram.com/ditjenpajakri/", "tier": 3, "name": "Instagram DJP"},
-        {"url": "https://twitter.com/DitjenPajakRI", "tier": 3, "name": "X DJP"},
-        {"url": "https://www.facebook.com/DitjenPajakRI/", "tier": 3, "name": "Facebook DJP"},
-        {"url": "https://www.tiktok.com/@ditjenpajakri", "tier": 3, "name": "TikTok DJP"},
-        {"url": "https://www.linkedin.com/company/direktorat-jenderal-pajak/", "tier": 3, "name": "LinkedIn DJP"},
     ],
 
     "jobs": [
         # TIER 2 - Major Sources
         {"url": "https://www.jobstreet.co.id/", "tier": 2, "name": "JobStreet Indonesia"},
-        {"url": "https://www.linkedin.com/jobs/indonesia-jobs", "tier": 2, "name": "LinkedIn Jobs Indonesia"},
         {"url": "https://www.indeed.co.id/", "tier": 2, "name": "Indeed Indonesia"},
         {"url": "https://www.glassdoor.com/Job/indonesia-jobs-SRCH_IL.0,9_IN102.htm", "tier": 2, "name": "Glassdoor Indonesia"},
         {"url": "https://www.kalibrr.com/id-ID/home", "tier": 2, "name": "Kalibrr Indonesia"},
@@ -522,11 +455,6 @@ INTEL_SOURCES = {
         {"url": "https://cpns.bkn.go.id/", "tier": 1, "name": "CPNS BKN"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.instagram.com/jobstreet_indonesia/", "tier": 3, "name": "Instagram JobStreet"},
-        {"url": "https://www.instagram.com/glints_indonesia/", "tier": 3, "name": "Instagram Glints"},
-        {"url": "https://www.facebook.com/groups/baliexpats/", "tier": 3, "name": "Facebook Bali Expats Jobs"},
-        {"url": "https://www.facebook.com/groups/jakartajobs/", "tier": 3, "name": "Facebook Jakarta Jobs"},
-        {"url": "https://www.linkedin.com/groups/", "tier": 3, "name": "LinkedIn Job Groups"},
     ],
 
     "lifestyle": [
@@ -561,12 +489,6 @@ INTEL_SOURCES = {
         {"url": "https://lifestyle.okezone.com/", "tier": 2, "name": "Okezone Lifestyle"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.instagram.com/thebalibible/", "tier": 3, "name": "Instagram Bali Bible"},
-        {"url": "https://www.instagram.com/whatsnewbali/", "tier": 3, "name": "Instagram What's New Bali"},
-        {"url": "https://www.tiktok.com/@thebalibible", "tier": 3, "name": "TikTok Bali Bible"},
-        {"url": "https://www.facebook.com/BaliBible/", "tier": 3, "name": "Facebook Bali Bible"},
-        {"url": "https://www.instagram.com/popbela/", "tier": 3, "name": "Instagram Popbela"},
-        {"url": "https://www.tiktok.com/@popbela", "tier": 3, "name": "TikTok Popbela"},
     ],
 
     "ai_tech_global": [
@@ -627,8 +549,6 @@ INTEL_SOURCES = {
         {"url": "https://news.ycombinator.com/", "tier": 2, "name": "Hacker News"},
 
         # TIER 3 - Social Media & Communities
-        {"url": "https://www.reddit.com/r/programming/", "tier": 3, "name": "Reddit Programming"},
-        {"url": "https://www.reddit.com/r/coding/", "tier": 3, "name": "Reddit Coding"},
 
         # TIER 2 - Major Sources
         {"url": "https://medium.com/tag/programming", "tier": 2, "name": "Medium Programming"},
@@ -675,7 +595,6 @@ INTEL_SOURCES = {
         {"url": "https://www.mckinsey.com/featured-insights", "tier": 2, "name": "McKinsey Insights"},
         {"url": "https://www.space.com/news", "tier": 2, "name": "Space.com News"},
         {"url": "https://www.nasa.gov/news/", "tier": 2, "name": "NASA News"},
-        {"url": "https://www.spacex.com/updates/", "tier": 2, "name": "SpaceX Updates"},
         {"url": "https://arstechnica.com/science/", "tier": 2, "name": "Ars Technica Science"},
         {"url": "https://www.ibm.com/quantum/blog", "tier": 2, "name": "IBM Quantum Blog"},
         {"url": "https://quantumcomputingreport.com/", "tier": 2, "name": "Quantum Computing Report"},
