@@ -194,14 +194,20 @@ Respond professionally and concisely.`;
 }
 
 export async function openaiChat(params: any) {
-  const { prompt, message, context, model = 'gpt-4o-mini', userId, userEmail, userName, userIdentification } = params || {};
+  const { prompt, message, context, model = 'gpt-4o-mini', userId, userEmail, userName, userIdentification, sessionId } = params || {};
   const actualPrompt = prompt || message;
   if (!actualPrompt) throw new BadRequestError('prompt or message is required');
 
-  // User identification check removed - no longer required
-
   try {
     const p = normalizePrompt(String(actualPrompt));
+
+    // Check for identity recognition FIRST (before cache)
+    const identityResponse = checkIdentityRecognition(p, sessionId || userId || userEmail || 'default');
+    if (identityResponse) {
+      console.log(`✅ [OpenAI] Returning personalized greeting for recognized user`);
+      return ok({ response: identityResponse, recognized: true, ts: Date.now() });
+    }
+
     const cached = await getCachedAI('openai', p);
     if (cached) return cached;
     const openai = await getOpenAI();
