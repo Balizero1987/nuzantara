@@ -15,6 +15,16 @@
 
 ---
 
+## 📚 Documentation Pointers
+
+- LLAMA 4 Fine-Tuning: `docs/llama4/` (Quick Start, Full Guide, README)
+- Handovers Index: `.claude/handovers/INDEX.md`
+- System & Ops: `.claude/` (INIT, diaries, handovers)
+- WebSocket: `.claude/handovers/websocket-implementation-2025-10-03.md`
+- Deploy (TS/RAG/WebApp): `.claude/handovers/deploy-backend.md`, `.claude/handovers/deploy-rag-backend.md`, `.claude/handovers/deploy-webapp.md`
+
+---
+
 ## 🏗️ Architecture Overview
 
 ### **1. TypeScript Backend** (Main API)
