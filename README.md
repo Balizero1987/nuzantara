@@ -10,6 +10,18 @@
 - Dettagli e storico: `docs/adr/ADR-001-runtime-endpoints.md`.
 - Per note infrastrutturali e best practice: cartella `docs/`.
 
+## Documentation Index
+- Project Context: `.claude/PROJECT_CONTEXT.md`
+- Session INIT: `.claude/INIT.md`
+- Handovers Index: `.claude/handovers/INDEX.md`
+- LLAMA 4 Fine-Tuning: `docs/llama4/` (Quick Start, Full Guide, README)
+- Backend TypeScript: `.claude/handovers/backend-typescript.md`
+- RAG Backend: `.claude/handovers/deploy-rag-backend.md`
+- WebApp: `.claude/handovers/frontend-ui.md`
+- Deploy: `.claude/handovers/deploy-backend.md`, `.claude/handovers/deploy-webapp.md`
+- WebSocket: `.claude/handovers/websocket-implementation-2025-10-03.md`
+- Security: `.claude/handovers/security.md`, `.claude/handovers/security-audit.md`
+
 
 ## OAuth2 Secret Handling (v5.2.0)
 - Set `USE_OAUTH2=true` on Cloud Run to enable Google Workspace handlers.
