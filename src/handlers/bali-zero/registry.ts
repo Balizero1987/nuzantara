@@ -49,15 +49,37 @@ export function registerBaliZeroHandlers() {
     description: 'Official Bali Zero pricing'
   });
 
-  // Team handlers
-  globalRegistry.registerModule('bali-zero', {
-    'team.list': teamList as any,
-    'team.get': teamGet as any,
-    'team.departments': teamDepartments as any,
-    'team.recent_activity': teamRecentActivity as any
-  } as any, {
+  // Team handlers (registered with direct keys to match router.ts expectations)
+  globalRegistry.register({
+    key: 'team.list',
+    handler: teamList as any,
+    module: 'bali-zero',
     requiresAuth: true,
-    description: 'Team management and activity tracking'
+    description: 'List all Bali Zero team members'
+  });
+
+  globalRegistry.register({
+    key: 'team.get',
+    handler: teamGet as any,
+    module: 'bali-zero',
+    requiresAuth: true,
+    description: 'Get specific team member details'
+  });
+
+  globalRegistry.register({
+    key: 'team.departments',
+    handler: teamDepartments as any,
+    module: 'bali-zero',
+    requiresAuth: true,
+    description: 'List team departments'
+  });
+
+  globalRegistry.register({
+    key: 'team.recent_activity',
+    handler: teamRecentActivity as any,
+    module: 'bali-zero',
+    requiresAuth: true,
+    description: 'Get recent team activity with real-time session tracking'
   });
 
   console.log('✅ Bali Zero handlers registered');
