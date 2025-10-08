@@ -68,16 +68,7 @@ function dynamicMaxTokens(promptLen: number) {
 
 // Team member recognition database
 const TEAM_RECOGNITION = {
-  'zero': {
-    id: 'zero',
-    name: 'Zero',
-    role: 'Bridge/Tech Lead',
-    email: 'zero@balizero.com',
-    department: 'technology',
-    language: 'Italian',
-    aliases: ['zero', 'sono zero', "i'm zero", 'io sono zero', 'ciao sono zero'],
-    personalizedResponse: "Ciao Zero! Bentornato. Come capo del team tech, hai accesso completo a tutti i sistemi ZANTARA e Bali Zero."
-  },
+  // Leadership
   'zainal': {
     id: 'zainal',
     name: 'Zainal Abidin',
@@ -85,18 +76,226 @@ const TEAM_RECOGNITION = {
     email: 'zainal@balizero.com',
     department: 'management',
     language: 'Indonesian',
-    aliases: ['zainal', 'sono zainal', "i'm zainal", 'saya zainal', 'halo saya zainal'],
-    personalizedResponse: "Welcome back Zainal! As CEO, you have full access to all Bali Zero systems and ZANTARA intelligence."
+    aliases: ['zainal', 'saya zainal', 'halo saya zainal', 'sono zainal'],
+    personalizedResponse: "Selamat datang kembali Zainal! Sebagai CEO, Anda memiliki akses penuh ke semua sistem Bali Zero dan ZANTARA."
   },
-  'antonio': {
-    id: 'antonio',
-    name: 'Antonio',
-    role: 'Developer',
-    email: 'antonio@dev.balizero.com',
+  'ruslana': {
+    id: 'ruslana',
+    name: 'Ruslana',
+    role: 'Board Member',
+    email: 'ruslana@balizero.com',
+    department: 'management',
+    language: 'English',
+    aliases: ['ruslana', 'i am ruslana', 'my name is ruslana', 'sono ruslana'],
+    personalizedResponse: "Welcome back Ruslana! As a Board Member, you have full access to all Bali Zero systems."
+  },
+
+  // Technology & AI
+  'zero': {
+    id: 'zero',
+    name: 'Zero',
+    role: 'AI Bridge/Tech Lead',
+    email: 'zero@balizero.com',
     department: 'technology',
     language: 'Italian',
-    aliases: ['antonio', 'sono antonio', "i'm antonio", 'ciao sono antonio'],
-    personalizedResponse: "Ciao Antonio! Bentornato nel sistema ZANTARA."
+    aliases: ['zero', 'sono zero', "i'm zero", 'io sono zero', 'ciao sono zero'],
+    personalizedResponse: "Ciao Zero! Bentornato. Come capo del team tech, hai accesso completo a tutti i sistemi ZANTARA e Bali Zero."
+  },
+
+  // Setup Team - Indonesian
+  'amanda': {
+    id: 'amanda',
+    name: 'Amanda',
+    role: 'Executive Consultant',
+    email: 'amanda@balizero.com',
+    department: 'setup',
+    language: 'Indonesian',
+    aliases: ['amanda', 'saya amanda', 'halo saya amanda'],
+    personalizedResponse: "Selamat datang Amanda! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero."
+  },
+  'anton': {
+    id: 'anton',
+    name: 'Anton',
+    role: 'Executive Consultant',
+    email: 'anton@balizero.com',
+    department: 'setup',
+    language: 'Indonesian',
+    aliases: ['anton', 'saya anton', 'halo saya anton'],
+    personalizedResponse: "Selamat datang Anton! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero."
+  },
+  'vino': {
+    id: 'vino',
+    name: 'Vino',
+    role: 'Junior Consultant',
+    email: 'vino@balizero.com',
+    department: 'setup',
+    language: 'Indonesian',
+    aliases: ['vino', 'saya vino', 'halo saya vino'],
+    personalizedResponse: "Selamat datang Vino! Sebagai Junior Consultant, Anda dapat mengakses sistem Bali Zero."
+  },
+  'krisna': {
+    id: 'krisna',
+    name: 'Krisna',
+    role: 'Executive Consultant',
+    email: 'krisna@balizero.com',
+    department: 'setup',
+    language: 'Indonesian',
+    aliases: ['krisna', 'saya krisna', 'halo saya krisna'],
+    personalizedResponse: "Selamat datang Krisna! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero."
+  },
+  'adit': {
+    id: 'adit',
+    name: 'Adit',
+    role: 'Crew Lead',
+    email: 'adit@balizero.com',
+    department: 'setup',
+    language: 'Indonesian',
+    aliases: ['adit', 'saya adit', 'halo saya adit'],
+    personalizedResponse: "Selamat datang Adit! Sebagai Crew Lead, Anda dapat mengakses semua sistem Bali Zero."
+  },
+  'ari': {
+    id: 'ari',
+    name: 'Ari',
+    role: 'Specialist Consultant',
+    email: 'ari@balizero.com',
+    department: 'setup',
+    language: 'Indonesian',
+    aliases: ['ari', 'saya ari', 'halo saya ari'],
+    personalizedResponse: "Selamat datang Ari! Sebagai Specialist Consultant, Anda dapat mengakses semua sistem Bali Zero."
+  },
+  'dea': {
+    id: 'dea',
+    name: 'Dea',
+    role: 'Executive Consultant',
+    email: 'dea@balizero.com',
+    department: 'setup',
+    language: 'Indonesian',
+    aliases: ['dea', 'saya dea', 'halo saya dea'],
+    personalizedResponse: "Selamat datang Dea! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero."
+  },
+  'surya': {
+    id: 'surya',
+    name: 'Surya',
+    role: 'Specialist Consultant',
+    email: 'surya@balizero.com',
+    department: 'setup',
+    language: 'Indonesian',
+    aliases: ['surya', 'saya surya', 'halo saya surya'],
+    personalizedResponse: "Selamat datang Surya! Sebagai Specialist Consultant, Anda dapat mengakses semua sistem Bali Zero."
+  },
+  'damar': {
+    id: 'damar',
+    name: 'Damar',
+    role: 'Junior Consultant',
+    email: 'damar@balizero.com',
+    department: 'setup',
+    language: 'Indonesian',
+    aliases: ['damar', 'saya damar', 'halo saya damar'],
+    personalizedResponse: "Selamat datang Damar! Sebagai Junior Consultant, Anda dapat mengakses sistem Bali Zero."
+  },
+
+  // Tax Department
+  'veronika': {
+    id: 'veronika',
+    name: 'Veronika',
+    role: 'Tax Manager',
+    email: 'veronika@balizero.com',
+    department: 'tax',
+    language: 'Ukrainian',
+    aliases: ['veronika', 'я вероніка', 'i am veronika', 'sono veronika'],
+    personalizedResponse: "Ласкаво просимо Вероніка! Як Tax Manager, у вас є повний доступ до всіх систем Bali Zero."
+  },
+  'olena': {
+    id: 'olena',
+    name: 'Olena',
+    role: 'External Tax Advisory',
+    email: 'olena@balizero.com',
+    department: 'tax',
+    language: 'Ukrainian',
+    aliases: ['olena', 'я олена', 'i am olena', 'sono olena'],
+    personalizedResponse: "Ласкаво просимо Олена! Як External Tax Advisory, у вас є доступ до систем Bali Zero."
+  },
+  'angel': {
+    id: 'angel',
+    name: 'Angel',
+    role: 'Tax Expert',
+    email: 'angel@balizero.com',
+    department: 'tax',
+    language: 'English',
+    aliases: ['angel', 'i am angel', 'my name is angel', 'sono angel'],
+    personalizedResponse: "Welcome Angel! As Tax Expert, you have access to all Bali Zero systems."
+  },
+  'kadek': {
+    id: 'kadek',
+    name: 'Kadek',
+    role: 'Tax Consultant',
+    email: 'kadek@balizero.com',
+    department: 'tax',
+    language: 'Indonesian',
+    aliases: ['kadek', 'saya kadek', 'halo saya kadek'],
+    personalizedResponse: "Selamat datang Kadek! Sebagai Tax Consultant, Anda dapat mengakses sistem Bali Zero."
+  },
+  'dewaayu': {
+    id: 'dewaayu',
+    name: 'Dewa Ayu',
+    role: 'Tax Consultant',
+    email: 'dewaayu@balizero.com',
+    department: 'tax',
+    language: 'Indonesian',
+    aliases: ['dewa ayu', 'dewaayu', 'saya dewa ayu', 'halo saya dewa ayu'],
+    personalizedResponse: "Selamat datang Dewa Ayu! Sebagai Tax Consultant, Anda dapat mengakses sistem Bali Zero."
+  },
+  'faisha': {
+    id: 'faisha',
+    name: 'Faisha',
+    role: 'Tax Care',
+    email: 'faisha@balizero.com',
+    department: 'tax',
+    language: 'Indonesian',
+    aliases: ['faisha', 'saya faisha', 'halo saya faisha'],
+    personalizedResponse: "Selamat datang Faisha! Sebagai Tax Care, Anda dapat mengakses sistem Bali Zero."
+  },
+
+  // Reception & Marketing
+  'rina': {
+    id: 'rina',
+    name: 'Rina',
+    role: 'Reception',
+    email: 'rina@balizero.com',
+    department: 'reception',
+    language: 'Indonesian',
+    aliases: ['rina', 'saya rina', 'halo saya rina'],
+    personalizedResponse: "Selamat datang Rina! Sebagai Reception, Anda dapat mengakses sistem Bali Zero."
+  },
+  'nina': {
+    id: 'nina',
+    name: 'Nina',
+    role: 'Marketing Advisory',
+    email: 'nina@balizero.com',
+    department: 'marketing',
+    language: 'English',
+    aliases: ['nina', 'i am nina', 'my name is nina', 'sono nina'],
+    personalizedResponse: "Welcome Nina! As Marketing Advisory, you have access to all Bali Zero systems."
+  },
+  'sahira': {
+    id: 'sahira',
+    name: 'Sahira',
+    role: 'Marketing Specialist',
+    email: 'sahira@balizero.com',
+    department: 'marketing',
+    language: 'Indonesian',
+    aliases: ['sahira', 'saya sahira', 'halo saya sahira'],
+    personalizedResponse: "Selamat datang Sahira! Sebagai Marketing Specialist, Anda dapat mengakses sistem Bali Zero."
+  },
+  'marta': {
+    id: 'marta',
+    name: 'Marta',
+    role: 'External Advisory',
+    email: 'marta@balizero.com',
+    department: 'advisory',
+    language: 'Italian',
+    aliases: ['marta', 'sono marta', 'ciao sono marta', 'i am marta'],
+    personalizedResponse: "Ciao Marta! Benvenuta. Come External Advisory, hai accesso ai sistemi Bali Zero."
   }
 };
 
