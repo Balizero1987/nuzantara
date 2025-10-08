@@ -125,3 +125,13 @@ FINE:
 ---
 
 **Last Updated**: 2025-10-04 16:53 CET
+
+### 2025-10-08 10:20 (INIT/Docs alignment + indices) [chatgpt_m3]
+
+**Changed**:
+- INIT.md: LLAMA4 Quick Start; multi Quick Starts (TS, RAG, WebApp, Deploy, WS, Security); closure LLAMA4
+- PROJECT_CONTEXT.md: added Documentation Pointers (LLAMA4, handover index)
+- docs/README.md: anchors + quick links; README.md (root) added Documentation Index
+
+**Related**:
+- Diary: `.claude/diaries/2025-10-08_sonnet-4.5_m3.md`
