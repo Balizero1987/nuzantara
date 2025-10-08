@@ -30,7 +30,7 @@ import { documentPrepare, assistantRoute } from "./handlers/bali-zero/advisory.j
 import { kbliLookup, kbliRequirements } from "./handlers/bali-zero/kbli.js";
 import { baliZeroPricing, baliZeroQuickPrice } from "./handlers/bali-zero/bali-zero-pricing.js";
 import { teamList, teamGet, teamDepartments } from "./handlers/bali-zero/team.js";
-import { teamRecentActivity } from "./handlers/bali-zero/team-activity.js";
+// teamRecentActivity now loaded via globalRegistry - no direct import needed
 
 // ZANTARA Collaborative Intelligence
 import {
@@ -367,21 +367,7 @@ const handlers: Record<string, Handler> = {
     return await teamDepartments(mockReq, mockRes);
   },
 
-  /**
-   * @handler team.recent_activity
-   * @description Get team members active in recent hours with filtering
-   * @param {number} [params.hours=24] - Hours to look back
-   * @param {number} [params.limit=10] - Max results
-   * @param {string} [params.department] - Filter by department
-   */
-  "team.recent_activity": async (params: any) => {
-    const mockReq = { body: { params } } as any;
-    const mockRes = {
-      json: (data: any) => data,
-      status: () => mockRes
-    } as any;
-    return await teamRecentActivity(mockReq, mockRes);
-  },
+  // team.recent_activity - Now loaded dynamically via globalRegistry (no need for static registration)
 
   // Oracle simulations & planning
   "oracle.simulate": oracleSimulate,
@@ -1219,12 +1205,21 @@ export function attachRoutes(app: import("express").Express) {
       if (key === 'ai.chat') {
         result = await aiChatWithFallback({ req, res }, params);
       } else {
-        const handler = handlers[key];
+        // Try globalRegistry first (dynamic handlers), then static handlers map
+        let handler = handlers[key];
+
         if (!handler) {
-          return res.status(404).json(err('handler_not_found'));
+          // Check if handler exists in globalRegistry (dynamic auto-loaded handlers)
+          const { globalRegistry } = await import('./core/handler-registry.js');
+          if (globalRegistry.has(key)) {
+            result = await globalRegistry.execute(key, params, req);
+          } else {
+            return res.status(404).json(err('handler_not_found'));
+          }
+        } else {
+          const startTime = Date.now();
+          result = await handler(params, req);
         }
-        const startTime = Date.now();
-        result = await handler(params, req);
       }
 
       // Auto-save conversations for ALL important handlers

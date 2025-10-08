@@ -1,0 +1,705 @@
+{
+  "version": "2.0",
+  "last_updated": "2025-10-08",
+  "categories": [
+    {
+      "id": "regulatory_changes",
+      "name": "Regulatory Changes",
+      "priority": "CRITICAL",
+      "enabled": true,
+      "revenue_impact": "VERY_HIGH",
+      "update_frequency": "daily",
+      "owner": "zero@balizero.com",
+      "description": "Track regulatory changes affecting foreign businesses and individuals",
+      "quality_thresholds": {
+        "min_word_count": 300,
+        "min_tier_1_percentage": 70,
+        "quality_score_min": 7.0,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://peraturan.go.id",
+          "name": "Database Peraturan Indonesia",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://jdih.kemenkumham.go.id",
+          "name": "Legal Documentation Center",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.bkpm.go.id/id/peraturan",
+          "name": "BKPM Regulations",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.pajak.go.id/id/peraturan",
+          "name": "Tax Regulations",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.atrbpn.go.id/Beranda/Peraturan",
+          "name": "Land & Property Regulations",
+          "tier": 1,
+          "type": "government"
+        }
+      ],
+      "validation_rules": {
+        "required_fields": ["regulation_number", "effective_date", "what_changed", "impact_on"],
+        "regulation_number_pattern": "^(UU|PP|Perpres|PMK|Permen|Permenkumham)\\s+No\\.?\\s+\\d+\\s+Tahun\\s+\\d{4}$"
+      }
+    },
+    {
+      "id": "visa_immigration",
+      "name": "Visa & Immigration",
+      "priority": "CRITICAL",
+      "enabled": true,
+      "revenue_impact": "VERY_HIGH",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "description": "Track visa requirements, processing changes, and immigration policy",
+      "quality_thresholds": {
+        "min_word_count": 250,
+        "min_tier_1_percentage": 60,
+        "quality_score_min": 6.5,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://www.imigrasi.go.id/id/berita/",
+          "name": "Direktorat Imigrasi",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://bali.imigrasi.go.id/",
+          "name": "Imigrasi Bali",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://denpasar.imigrasi.go.id/",
+          "name": "Imigrasi Denpasar",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kemlu.go.id/portal/id/",
+          "name": "Ministry of Foreign Affairs",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kemenkumham.go.id",
+          "name": "Ministry of Law and Human Rights",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.thejakartapost.com/indonesia",
+          "name": "Jakarta Post Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://en.tempo.co/tag/immigration",
+          "name": "Tempo Immigration",
+          "tier": 2,
+          "type": "news"
+        }
+      ],
+      "validation_rules": {
+        "required_fields": ["visa_type", "change_type", "effective_date"],
+        "visa_types": ["KITAS", "KITAP", "B211A", "E33", "E28A", "C312", "D212"]
+      }
+    },
+    {
+      "id": "tax_compliance",
+      "name": "Tax Compliance",
+      "priority": "CRITICAL",
+      "enabled": true,
+      "revenue_impact": "HIGH",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "description": "Track tax rate changes, filing deadlines, compliance requirements",
+      "quality_thresholds": {
+        "min_word_count": 250,
+        "min_tier_1_percentage": 70,
+        "quality_score_min": 7.0,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://www.pajak.go.id/",
+          "name": "DJP Direktorat Jenderal Pajak",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.pajak.go.id/id/siaran-pers",
+          "name": "DJP Press Releases",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kemenkeu.go.id/",
+          "name": "Ministry of Finance",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://bali.pajak.go.id/",
+          "name": "DJP Bali",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.ddtcnews.com/",
+          "name": "DDTC News",
+          "tier": 2,
+          "type": "news"
+        }
+      ],
+      "validation_rules": {
+        "required_fields": ["tax_type", "change_type", "effective_date"],
+        "tax_types": ["PPh_21", "PPh_23", "PPh_25", "PPh_29", "PPN", "BPHTB", "PBB"]
+      }
+    },
+    {
+      "id": "business_setup",
+      "name": "Business Setup & Licensing",
+      "priority": "HIGH",
+      "enabled": true,
+      "revenue_impact": "VERY_HIGH",
+      "update_frequency": "biweekly",
+      "owner": "zero@balizero.com",
+      "description": "Track PT/PT PMA requirements, DNI updates, licensing changes",
+      "quality_thresholds": {
+        "min_word_count": 250,
+        "min_tier_1_percentage": 60,
+        "quality_score_min": 6.0,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://oss.go.id/",
+          "name": "Online Single Submission",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.bkpm.go.id/id/publikasi/siaran-pers",
+          "name": "BKPM Press Releases",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://ahu.go.id/",
+          "name": "Company Registration (AHU)",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.bi.go.id/",
+          "name": "Bank Indonesia",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.indonesia-investments.com/",
+          "name": "Indonesia Investments",
+          "tier": 2,
+          "type": "news"
+        }
+      ],
+      "validation_rules": {
+        "required_fields": ["entity_type", "change_type", "effective_date"],
+        "entity_types": ["PT", "PT_PMA", "CV", "Firma"]
+      }
+    },
+    {
+      "id": "property_law",
+      "name": "Real Estate & Property Law",
+      "priority": "HIGH",
+      "enabled": true,
+      "revenue_impact": "HIGH",
+      "update_frequency": "biweekly",
+      "owner": "zero@balizero.com",
+      "description": "Track property rights, foreign ownership rules, land regulations",
+      "quality_thresholds": {
+        "min_word_count": 250,
+        "min_tier_1_percentage": 50,
+        "quality_score_min": 6.0,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://www.atrbpn.go.id/",
+          "name": "National Land Agency (BPN)",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://bali.bpn.go.id/",
+          "name": "BPN Bali",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://simbg.pu.go.id/",
+          "name": "Building Permits System",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.propertyguru.co.id/property-guides",
+          "name": "PropertyGuru Guides",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.rumah.com/berita-properti",
+          "name": "Rumah.com News",
+          "tier": 2,
+          "type": "portal"
+        }
+      ],
+      "validation_rules": {
+        "required_fields": ["property_type", "change_type", "effective_date"],
+        "property_types": ["land", "villa", "apartment", "commercial"],
+        "property_rights": ["Hak_Milik", "HGB", "Hak_Pakai"],
+        "blacklist_keywords": ["machinery", "alat berat", "equipment", "shipping", "tug boat", "pupuk", "irigasi"]
+      }
+    },
+    {
+      "id": "banking_finance",
+      "name": "Banking & Finance",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "MEDIUM",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "description": "Track banking requirements, forex rules, financial compliance",
+      "quality_thresholds": {
+        "min_word_count": 200,
+        "min_tier_1_percentage": 60,
+        "quality_score_min": 6.0,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://www.bi.go.id/",
+          "name": "Bank Indonesia",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.ojk.go.id/",
+          "name": "Financial Services Authority (OJK)",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.ppatk.go.id/",
+          "name": "Financial Transaction Reports",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.bloomberg.com/indonesia",
+          "name": "Bloomberg Indonesia",
+          "tier": 2,
+          "type": "news"
+        }
+      ]
+    },
+    {
+      "id": "employment_law",
+      "name": "Employment & Labor Law",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "MEDIUM",
+      "update_frequency": "monthly",
+      "owner": "zero@balizero.com",
+      "description": "Track minimum wage, labor regulations, BPJS changes",
+      "quality_thresholds": {
+        "min_word_count": 200,
+        "min_tier_1_percentage": 60,
+        "quality_score_min": 5.5,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://www.kemnaker.go.id/",
+          "name": "Ministry of Manpower",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://bpjsketenagakerjaan.go.id/",
+          "name": "BPJS Employment",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://bpjs-kesehatan.go.id/",
+          "name": "BPJS Health",
+          "tier": 1,
+          "type": "government"
+        }
+      ]
+    },
+    {
+      "id": "cost_of_living",
+      "name": "Cost of Living",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "LOW",
+      "update_frequency": "monthly",
+      "owner": "zero@balizero.com",
+      "description": "Track rent, food, transport, coworking costs (SEO magnet)",
+      "content_type": "colore",
+      "quality_thresholds": {
+        "min_word_count": 150,
+        "min_tier_1_percentage": 20,
+        "quality_score_min": 4.5,
+        "date_required": false
+      },
+      "sources": [
+        {
+          "url": "https://www.propertyguru.co.id/",
+          "name": "PropertyGuru Indonesia",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.rumah.com/",
+          "name": "Rumah.com",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.indonesia-expat.id/",
+          "name": "Indonesia Expat Magazine",
+          "tier": 2,
+          "type": "expat_media"
+        },
+        {
+          "url": "https://www.thebalibible.com/",
+          "name": "The Bali Bible",
+          "tier": 2,
+          "type": "expat_media"
+        },
+        {
+          "url": "https://coconuts.co/bali/",
+          "name": "Coconuts Bali",
+          "tier": 2,
+          "type": "expat_media"
+        }
+      ]
+    },
+    {
+      "id": "bali_lifestyle",
+      "name": "Bali Lifestyle",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "LOW",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "description": "Best cafes, beaches, yoga, wellness (brand building)",
+      "content_type": "colore",
+      "quality_thresholds": {
+        "min_word_count": 150,
+        "min_tier_1_percentage": 10,
+        "quality_score_min": 4.5,
+        "date_required": false
+      },
+      "sources": [
+        {
+          "url": "https://www.thebalibible.com/",
+          "name": "The Bali Bible",
+          "tier": 2,
+          "type": "expat_media"
+        },
+        {
+          "url": "https://whatsnewbali.com/",
+          "name": "What's New Bali",
+          "tier": 2,
+          "type": "expat_media"
+        },
+        {
+          "url": "https://thehoneycombers.com/bali/",
+          "name": "Honeycombers Bali",
+          "tier": 2,
+          "type": "expat_media"
+        },
+        {
+          "url": "https://www.timeout.com/bali",
+          "name": "Time Out Bali",
+          "tier": 2,
+          "type": "expat_media"
+        },
+        {
+          "url": "https://coconuts.co/bali/",
+          "name": "Coconuts Bali",
+          "tier": 2,
+          "type": "expat_media"
+        },
+        {
+          "url": "https://nowbali.co.id/",
+          "name": "Now Bali",
+          "tier": 2,
+          "type": "expat_media"
+        }
+      ]
+    },
+    {
+      "id": "events_networking",
+      "name": "Events & Networking",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "MEDIUM",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "description": "Coworking events, business networking, expat meetups",
+      "content_type": "colore",
+      "quality_thresholds": {
+        "min_word_count": 100,
+        "min_tier_1_percentage": 10,
+        "quality_score_min": 4.0,
+        "date_required": false
+      },
+      "sources": [
+        {
+          "url": "https://www.eventbrite.com/d/indonesia--bali/events/",
+          "name": "Eventbrite Bali",
+          "tier": 2,
+          "type": "events"
+        },
+        {
+          "url": "https://www.meetup.com/cities/id/bali/",
+          "name": "Meetup Bali",
+          "tier": 2,
+          "type": "events"
+        },
+        {
+          "url": "https://www.hubud.org/events/",
+          "name": "Hubud Events",
+          "tier": 2,
+          "type": "coworking"
+        },
+        {
+          "url": "https://www.dojobali.org/",
+          "name": "Dojo Bali",
+          "tier": 2,
+          "type": "coworking"
+        },
+        {
+          "url": "https://www.balispirit.com/",
+          "name": "Bali Spirit Festival",
+          "tier": 2,
+          "type": "events"
+        }
+      ]
+    },
+    {
+      "id": "health_safety",
+      "name": "Health & Safety",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "LOW",
+      "update_frequency": "as_needed",
+      "owner": "zero@balizero.com",
+      "description": "Health alerts, safety warnings, insurance requirements",
+      "content_type": "colore",
+      "quality_thresholds": {
+        "min_word_count": 150,
+        "min_tier_1_percentage": 50,
+        "quality_score_min": 6.0,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://www.kemkes.go.id/",
+          "name": "Ministry of Health",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://bali.kemkes.go.id/",
+          "name": "Dinkes Bali",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.bpom.go.id/",
+          "name": "BPOM Food & Drug Safety",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://pvmbg.pu.go.id/",
+          "name": "Volcano Monitoring",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.who.int/indonesia",
+          "name": "WHO Indonesia",
+          "tier": 2,
+          "type": "international"
+        }
+      ]
+    },
+    {
+      "id": "transport_connectivity",
+      "name": "Transport & Connectivity",
+      "priority": "LOW",
+      "enabled": true,
+      "revenue_impact": "LOW",
+      "update_frequency": "monthly",
+      "owner": "zero@balizero.com",
+      "description": "Flight routes, airport policies, transport updates",
+      "content_type": "colore",
+      "quality_thresholds": {
+        "min_word_count": 150,
+        "min_tier_1_percentage": 30,
+        "quality_score_min": 4.5,
+        "date_required": false
+      },
+      "sources": [
+        {
+          "url": "https://ngurahrai-airport.co.id/",
+          "name": "Ngurah Rai Airport",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://dishub.baliprov.go.id/",
+          "name": "Bali Transport Dept",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.thejakartapost.com/travel",
+          "name": "Jakarta Post Travel",
+          "tier": 2,
+          "type": "news"
+        }
+      ]
+    },
+    {
+      "id": "competitor_intel",
+      "name": "Competitor Intelligence",
+      "priority": "LOW",
+      "enabled": true,
+      "revenue_impact": "INDIRECT",
+      "update_frequency": "monthly",
+      "owner": "zero@balizero.com",
+      "description": "Competitor services, pricing, market positioning (INTERNAL)",
+      "internal_only": true,
+      "quality_thresholds": {
+        "min_word_count": 100,
+        "min_tier_1_percentage": 0,
+        "quality_score_min": 3.0,
+        "date_required": false
+      },
+      "sources": [
+        {
+          "url": "https://www.cekindo.com/",
+          "name": "Cekindo Indonesia",
+          "tier": 2,
+          "type": "competitor"
+        },
+        {
+          "url": "https://emerhub.com/indonesia/blog/",
+          "name": "Emerhub Blog",
+          "tier": 2,
+          "type": "competitor"
+        },
+        {
+          "url": "https://www.letsmoveindonesia.com/",
+          "name": "Lets Move Indonesia",
+          "tier": 2,
+          "type": "competitor"
+        },
+        {
+          "url": "https://www.indonesia-briefing.com/",
+          "name": "Indonesia Briefing",
+          "tier": 2,
+          "type": "competitor"
+        }
+      ]
+    },
+    {
+      "id": "macro_policy",
+      "name": "Macroeconomic Policy",
+      "priority": "LOW",
+      "enabled": true,
+      "revenue_impact": "INDIRECT",
+      "update_frequency": "quarterly",
+      "owner": "zero@balizero.com",
+      "description": "Interest rates, inflation, economic policy (thought leadership)",
+      "quality_thresholds": {
+        "min_word_count": 200,
+        "min_tier_1_percentage": 70,
+        "quality_score_min": 5.5,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://www.bi.go.id/",
+          "name": "Bank Indonesia",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.bps.go.id/",
+          "name": "Statistics Indonesia",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kemenkeu.go.id/",
+          "name": "Ministry of Finance",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.worldbank.org/en/country/indonesia",
+          "name": "World Bank Indonesia",
+          "tier": 2,
+          "type": "international"
+        }
+      ]
+    }
+  ],
+  "global_settings": {
+    "scraping": {
+      "default_timeout": 60,
+      "government_timeout": 120,
+      "max_retries": 5,
+      "concurrent_limit": 5,
+      "use_circuit_breaker": true,
+      "use_exponential_backoff": true,
+      "use_admiralty_validation": true
+    },
+    "quality": {
+      "use_quality_scoring": true,
+      "reject_tier_e": true,
+      "require_date_for_critical": true,
+      "min_word_count_global": 100
+    },
+    "content_distribution": {
+      "CRITICAL": "immediate_email",
+      "HIGH": "daily_digest",
+      "MEDIUM": "weekly_digest",
+      "LOW": "monthly_digest"
+    }
+  }
+}
