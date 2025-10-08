@@ -1,226 +1,148 @@
 {
-  "immigration": {
-    "agent": "Adit",
-    "description": "Immigration & Visas intelligence",
+  "health_insurance": {
+    "agent": "Nadia",
+    "description": "Sanità & Assicurazioni: allerte, coperture, accesso a cure e assicurazioni (BPJS/privati)",
     "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
     "seed_sites": [
-      "https://www.imigrasi.go.id",
-      "https://www.kemenkumham.go.id",
-      "https://jakarta.embassy.gov.au",
-      "https://balitourismboard.org",
-      "https://expat.or.id",
-      "https://www.bali.com",
-      "https://www.indonesia.travel"
-    ],
-    "keywords": ["visa", "kitas", "immigration", "permit", "imigrasi"],
-    "min_sources": 50
-  },
-  "business_bkpm": {
-    "agent": "Dea",
-    "description": "Business, BKPM, OSS intelligence",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
-    "seed_sites": [
-      "https://www.bkpm.go.id",
-      "https://oss.go.id",
-      "https://www.kadin-indonesia.or.id",
-      "https://www.indonesia-investments.com",
-      "https://www.antaranews.com",
-      "https://www.thejakartapost.com",
-      "https://www.tempo.co"
-    ],
-    "keywords": ["bkpm", "oss", "business", "investment", "perusahaan"],
-    "min_sources": 50
-  },
-  "real_estate": {
-    "agent": "Krisna",
-    "description": "Real Estate & Property intelligence",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
-    "seed_sites": [
-      "https://www.rumah123.com",
-      "https://www.lamudi.co.id",
-      "https://www.olx.co.id",
-      "https://balirealproperty.com",
-      "https://www.bali-real-estate.net",
-      "https://properti.kompas.com",
-      "https://www.iproperty.com.id"
-    ],
-    "keywords": ["property", "real estate", "villa", "tanah", "properti"],
-    "min_sources": 50
-  },
-  "events_culture": {
-    "agent": "Surya",
-    "description": "Events & Culture intelligence",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
-    "seed_sites": [
-      "https://www.eventbrite.com",
-      "https://www.timeout.com/bali",
-      "https://www.wheretostay.com",
-      "https://balispirit.com",
-      "https://thebaliagenda.com",
-      "https://www.baliplus.com",
-      "https://nowbali.co.id"
-    ],
-    "keywords": ["event", "festival", "culture", "ceremony", "budaya"],
-    "min_sources": 50
-  },
-  "social_media": {
-    "agent": "Sahira",
-    "description": "Social Media trends intelligence",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
-    "seed_sites": [],
-    "keywords": ["trending", "viral", "social media", "tiktok", "instagram"],
-    "min_sources": 0,
-    "auto_discover": true
-  },
-  "competitors": {
-    "agent": "Damar",
-    "description": "Competitors monitoring (all Bali/Indonesia services)",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
-    "seed_sites": [
-      "https://startupbali.com",
-      "https://www.hubud.org",
-      "https://balitourismboard.org",
-      "https://www.indonesia.travel",
-      "https://www.bali.com",
-      "https://expat.or.id",
-      "https://balibible.com"
-    ],
-    "keywords": ["startup", "coworking", "services", "expat services"],
-    "min_sources": 50,
-    "monitor_social": true
-  },
-  "general_news": {
-    "agent": "Vino",
-    "description": "General Bali/Indonesia news",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
-    "seed_sites": [
-      "https://www.thejakartapost.com",
-      "https://www.antaranews.com",
-      "https://www.tempo.co",
-      "https://www.kompas.com",
-      "https://www.detik.com",
-      "https://www.tribunnews.com",
-      "https://www.liputan6.com"
-    ],
-    "keywords": ["news", "berita", "bali", "indonesia"],
-    "min_sources": 50
-  },
-  "health_wellness": {
-    "agent": "Ari",
-    "description": "Health & Wellness intelligence",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
-    "seed_sites": [
-      "https://www.alodokter.com",
-      "https://www.halodoc.com",
-      "https://www.sehatq.com",
-      "https://www.klikdokter.com",
+      "https://www.kemkes.go.id",
+      "https://www.bpjs-kesehatan.go.id",
       "https://rsup.sanglah.go.id",
+      "https://www.bimc.co.id",
       "https://www.siloamhospitals.com",
-      "https://www.bimc.co.id"
+      "https://www.who.int/indonesia"
     ],
-    "keywords": ["health", "wellness", "kesehatan", "hospital", "dokter"],
-    "min_sources": 50
+    "keywords": ["dengue", "dbd", "outbreak", "bpjs", "asuransi", "vaksin"],
+    "min_sources": 30,
+    "policy": {
+      "date_required": true,
+      "min_word_count": 200,
+      "min_top_tier_ratio": 0.6,
+      "separate_social_stream": true
+    }
   },
-  "tax_djp": {
+  "alerts_safety": {
+    "agent": "Surya",
+    "description": "Sicurezza & Rischi Naturali: allerte meteo, sismi, vulcani, alluvioni, frane",
+    "social_channels": ["blog", "x", "telegram", "whatsapp"],
+    "seed_sites": [
+      "https://www.bmkg.go.id",
+      "https://magma.esdm.go.id",  
+      "https://www.pvmbg.go.id",
+      "https://bnpb.go.id",
+      "https://bpbd.baliprov.go.id",
+      "https://www.basarnas.go.id",
+      "https://bali.polri.go.id"
+    ],
+    "keywords": ["peringatan dini", "gempa", "erupsi", "banjir", "longsor", "angin kencang"],
+    "min_sources": 20,
+    "policy": {
+      "date_required": true,
+      "min_word_count": 80,
+      "min_top_tier_ratio": 0.8,
+      "separate_social_stream": true
+    }
+  },
+  "transport_connectivity": {
+    "agent": "Damar",
+    "description": "Trasporti & Connessioni: voli, nuove tratte, cancellazioni, traghetti e fast boat",
+    "social_channels": ["blog", "x", "telegram"],
+    "seed_sites": [
+      "https://ap1.co.id",  
+      "https://www.hubdat.dephub.go.id",
+      "https://www.dephub.go.id",
+      "https://www.indonesiaferry.co.id",
+      "https://www.garuda-indonesia.com",
+      "https://www.airasia.com",
+      "https://www.batikair.com"
+    ],
+    "keywords": ["flight update", "rute baru", "pembatalan", "penyeberangan", "ferry", "fast boat"],
+    "min_sources": 25,
+    "policy": {
+      "date_required": true,
+      "min_word_count": 120,
+      "min_top_tier_ratio": 0.6,
+      "separate_social_stream": true
+    }
+  },
+  "cost_of_living": {
+    "agent": "Ari",
+    "description": "Costo della Vita & Prezzi (Bali Index): affitti, utility, spesa, inflazione locale",
+    "social_channels": ["blog"],
+    "seed_sites": [
+      "https://bali.bps.go.id",
+      "https://www.bi.go.id",
+      "https://www.pepito.id",
+      "https://www.frestive.id"
+    ],
+    "keywords": ["ihk", "cpi", "inflasi", "sewa", "harga", "biaya hidup"],
+    "min_sources": 15,
+    "policy": {
+      "date_required": true,
+      "min_word_count": 200,
+      "min_top_tier_ratio": 0.6,
+      "separate_social_stream": true
+    }
+  },
+  "labor_hr": {
     "agent": "Veronika",
-    "description": "Tax & DJP intelligence",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "description": "Lavoro & HR: normative, salari minimi, permessi lavoro, audit",
+    "social_channels": ["blog", "linkedin"],
     "seed_sites": [
-      "https://www.pajak.go.id",
-      "https://djponline.pajak.go.id",
-      "https://www.ortax.org",
-      "https://www.pajakku.com",
-      "https://www.klinikpajak.co.id",
-      "https://news.ddtc.co.id",
-      "https://www.konsultanpajak.com"
+      "https://www.kemnaker.go.id",
+      "https://disnaker.baliprov.go.id",
+      "https://www.bpjsketenagakerjaan.go.id"
     ],
-    "keywords": ["tax", "pajak", "djp", "npwp", "spt"],
-    "min_sources": 50
+    "keywords": ["ketenagakerjaan", "peraturan", "upah minimum", "rptka", "sanksi"],
+    "min_sources": 20,
+    "policy": {
+      "date_required": true,
+      "min_word_count": 200,
+      "min_top_tier_ratio": 0.7,
+      "separate_social_stream": true
+    }
   },
-  "jobs": {
+  "banking_payments": {
     "agent": "Anton",
-    "description": "Jobs & Employment intelligence",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+    "description": "Bancario & Pagamenti: conti per stranieri, KYC e-wallet, limiti valutari, QRIS",
+    "social_channels": ["blog"],
     "seed_sites": [
-      "https://www.jobstreet.co.id",
-      "https://www.indeed.com",
-      "https://www.linkedin.com",
-      "https://glints.com",
-      "https://www.kalibrr.com",
-      "https://www.urbanhire.com",
-      "https://www.bossjob.id"
+      "https://www.bi.go.id",
+      "https://www.ojk.go.id",
+      "https://www.bca.co.id",
+      "https://www.bni.co.id",
+      "https://www.bankmandiri.co.id",
+      "https://www.gojek.com/gopay",
+      "https://www.ovo.id",
+      "https://www.dana.id"
     ],
-    "keywords": ["jobs", "career", "employment", "lowongan", "pekerjaan"],
-    "min_sources": 50
+    "keywords": ["kyc", "rekening wna", "valas", "qris", "surat edaran", "ojk"],
+    "min_sources": 20,
+    "policy": {
+      "date_required": true,
+      "min_word_count": 150,
+      "min_top_tier_ratio": 0.6,
+      "separate_social_stream": true
+    }
   },
-  "lifestyle": {
-    "agent": "Dewa Ayu",
-    "description": "Lifestyle & Fashion intelligence",
-    "social_channels": ["blog", "instagram", "facebook", "x", "whatsapp", "telegram"],
+  "local_regulation": {
+    "agent": "Krisna",
+    "description": "Regolamentazione Locale: Perda/Perbup/Perwali, PBG/IMB, tasse locali, zoning",
+    "social_channels": ["blog"],
     "seed_sites": [
-      "https://www.femina.co.id",
-      "https://www.cosmopolitan.co.id",
-      "https://www.elle.co.id",
-      "https://www.vogue.co.id",
-      "https://www.timeout.com/bali",
-      "https://www.thehoneycombers.com",
-      "https://nowbali.co.id"
+      "https://jdih.baliprov.go.id",
+      "https://jdih.denpasarkota.go.id",
+      "https://jdih.badungkab.go.id",
+      "https://jdih.gianyarkab.go.id",
+      "https://bapenda.badungkab.go.id",
+      "https://dpmptsp.denpasarkota.go.id"
     ],
-    "keywords": ["lifestyle", "fashion", "beauty", "gaya hidup"],
-    "min_sources": 50
-  },
-  "ai_tech_global": {
-    "agent": "LLAMA",
-    "description": "Global AI & Tech news (RAG + Email only)",
-    "social_channels": [],
-    "email_recipients": ["zero@balizero.com"],
-    "seed_sites": [
-      "https://news.ycombinator.com",
-      "https://techcrunch.com",
-      "https://www.wired.com",
-      "https://www.theverge.com",
-      "https://news.mit.edu",
-      "https://arxiv.org",
-      "https://github.com/trending"
-    ],
-    "keywords": ["ai", "artificial intelligence", "machine learning", "tech"],
-    "min_sources": 0,
-    "rag_only": true
-  },
-  "dev_code_library": {
-    "agent": "LLAMA",
-    "description": "Best code repositories & libraries (RAG + Email only)",
-    "social_channels": [],
-    "email_recipients": ["zero@balizero.com"],
-    "seed_sites": [
-      "https://github.com/trending",
-      "https://dev.to",
-      "https://news.ycombinator.com",
-      "https://www.reddit.com/r/programming",
-      "https://medium.com/tag/programming",
-      "https://www.freecodecamp.org",
-      "https://stackoverflow.blog"
-    ],
-    "keywords": ["code", "library", "repository", "framework", "programming"],
-    "min_sources": 0,
-    "rag_only": true
-  },
-  "future_trends": {
-    "agent": "LLAMA",
-    "description": "Avant-garde ideas & future trends (RAG + Email only)",
-    "social_channels": [],
-    "email_recipients": ["zero@balizero.com"],
-    "seed_sites": [
-      "https://www.wired.com",
-      "https://www.technologyreview.com",
-      "https://singularityhub.com",
-      "https://www.kurzweilai.net",
-      "https://futureoflife.org",
-      "https://openai.com/blog",
-      "https://www.anthropic.com"
-    ],
-    "keywords": ["future", "trends", "innovation", "avant-garde", "emerging"],
-    "min_sources": 0,
-    "rag_only": true
+    "keywords": ["perda", "perbup", "perwali", "retribusi", "pbg", "imb"],
+    "min_sources": 20,
+    "policy": {
+      "date_required": true,
+      "min_word_count": 200,
+      "min_top_tier_ratio": 0.8,
+      "separate_social_stream": true
+    }
   }
 }
