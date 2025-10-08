@@ -28,3 +28,13 @@ Se assenti, fallback ai file locali su Desktop:
 
 ## Cross-Reference
 Annota gli aggiornamenti nel diario corrente e linka qui le modifiche significative.
+
+### 2025-10-08 10:20 (Docs alignment) [chatgpt_m3]
+
+**Changed**:
+- Moved LLAMA4 docs into repo `docs/llama4/` (Quick Start, Full Guide, README)
+- Sanitized secrets (RunPod/HF) → placeholders/env
+- INIT updated with Quick Start + LLAMA4 closure step
+
+**Related**:
+- Diary: `.claude/diaries/2025-10-08_sonnet-4.5_m3.md`
