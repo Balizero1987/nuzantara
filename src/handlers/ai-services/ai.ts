@@ -218,12 +218,14 @@ export async function openaiChat(params: any) {
     // Add recognized user context to system prompt
     const userCtx = getUserContext(sessionId || userId || userEmail || 'default');
     let enrichedUserInfo = userInfo;
+    let userLanguage = null;
     if (userCtx) {
       enrichedUserInfo = `${userCtx.name} (${userCtx.role}, ${userCtx.department}) - ${userInfo || 'authenticated'}`;
+      userLanguage = userCtx.language;
     }
 
     const messages = [
-      { role: 'system', content: zantaraContext(context, enrichedUserInfo) },
+      { role: 'system', content: zantaraContext(context, enrichedUserInfo, userLanguage) },
       { role: 'user', content: p }
     ];
     const resp = await openai.chat.completions.create({ model, messages, max_tokens: dynamicMaxTokens(p.length) });
@@ -291,14 +293,16 @@ export async function claudeChat(params: any) {
     // Add recognized user context to system prompt
     const userCtx = getUserContext(sessionId || userId || userEmail || 'default');
     let enrichedUserInfo = userInfo;
+    let userLanguage = null;
     if (userCtx) {
       enrichedUserInfo = `${userCtx.name} (${userCtx.role}, ${userCtx.department}) - ${userInfo || 'authenticated'}`;
+      userLanguage = userCtx.language;
     }
 
     const resp = await anthropic.messages.create({
       model,
       max_tokens: Math.min(max_tokens, dynamicMaxTokens(p.length)),
-      system: zantaraContext(context + ragContext, enrichedUserInfo),
+      system: zantaraContext(context + ragContext, enrichedUserInfo, userLanguage),
       messages: [{ role: 'user', content: p }]
     });
     const textRaw = Array.isArray((resp as any).content) && (resp as any).content[0]?.type === 'text' ? (resp as any).content[0].text : '';
