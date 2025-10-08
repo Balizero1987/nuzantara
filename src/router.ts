@@ -30,6 +30,7 @@ import { documentPrepare, assistantRoute } from "./handlers/bali-zero/advisory.j
 import { kbliLookup, kbliRequirements } from "./handlers/bali-zero/kbli.js";
 import { baliZeroPricing, baliZeroQuickPrice } from "./handlers/bali-zero/bali-zero-pricing.js";
 import { teamList, teamGet, teamDepartments } from "./handlers/bali-zero/team.js";
+import { teamRecentActivity } from "./handlers/bali-zero/team-activity.js";
 
 // ZANTARA Collaborative Intelligence
 import {
@@ -364,6 +365,22 @@ const handlers: Record<string, Handler> = {
       status: () => mockRes
     } as any;
     return await teamDepartments(mockReq, mockRes);
+  },
+
+  /**
+   * @handler team.recent_activity
+   * @description Get team members active in recent hours with filtering
+   * @param {number} [params.hours=24] - Hours to look back
+   * @param {number} [params.limit=10] - Max results
+   * @param {string} [params.department] - Filter by department
+   */
+  "team.recent_activity": async (params: any) => {
+    const mockReq = { body: { params } } as any;
+    const mockRes = {
+      json: (data: any) => data,
+      status: () => mockRes
+    } as any;
+    return await teamRecentActivity(mockReq, mockRes);
   },
 
   // Oracle simulations & planning
