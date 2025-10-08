@@ -1205,14 +1205,30 @@ export function attachRoutes(app: import("express").Express) {
       if (key === 'ai.chat') {
         result = await aiChatWithFallback({ req, res }, params);
       } else {
-        // Try globalRegistry first (dynamic handlers), then static handlers map
+        // Try static handlers map first
         let handler = handlers[key];
 
         if (!handler) {
           // Check if handler exists in globalRegistry (dynamic auto-loaded handlers)
           const { globalRegistry } = await import('./core/handler-registry.js');
           if (globalRegistry.has(key)) {
-            result = await globalRegistry.execute(key, params, req);
+            // Get the handler function from registry
+            const handlerMetadata = globalRegistry.get(key);
+            if (handlerMetadata) {
+              // Create mock Express req/res for handlers that expect them
+              const mockReq = {
+                ...req,
+                body: { params }
+              } as any;
+              const mockRes = {
+                json: (data: any) => data,
+                status: (code: number) => mockRes
+              } as any;
+
+              result = await handlerMetadata.handler(mockReq, mockRes);
+            } else {
+              return res.status(404).json(err('handler_not_found'));
+            }
           } else {
             return res.status(404).json(err('handler_not_found'));
           }
