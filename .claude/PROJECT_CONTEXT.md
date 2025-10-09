@@ -216,17 +216,19 @@ cd zantara_webapp
 
 > **⚠️ UPDATE THIS** at end of session if major changes
 
-**Last Deployment**: 2025-10-06 22:10 CET
+**Last Deployment**: 2025-10-09 10:15 WITA
 **Backend**: ✅ v5.5.0-tool-use-active (41 handlers for tool use + 66 additional handlers)
 **RAG**: ✅ v2.5.0-tool-use-active (Tool executor ACTIVE, real execution working)
 **Webapp**: ✅ Auto-deploying (intel-dashboard.html added)
 **ChromaDB**: 7,375 docs + 8 intel collections ready
-**GitHub Pages**: ✅ Active (auto-sync enabled)
+**GitHub Pages**: ✅ Active (verified operational 2025-10-09)
 **Bali Intel Scraper**: ✅ Complete (31 files, 8 topics, 240+ sources)
 **Tool Use**: ✅✅✅ **FULLY ACTIVE IN PRODUCTION!**
   - Status: Chatbot executes real TypeScript handlers (not simulation)
   - Tests: team_list ✅ (23 members), bali_zero_pricing ✅ (20M IDR)
   - Available: Gmail, Drive, Calendar, Memory, AI, Identity, Bali Zero, Communication
+**Security**: ✅ 100% API keys in Secret Manager (migrated 2025-10-09)
+**Code Cleanup**: ✅ Twilio integration removed (-134 lines, 2025-10-09)
 **Ollama**: Installed locally (llama3.2:3b, 2GB) but **UNUSED** (can be removed)
 
 ---
@@ -239,14 +241,21 @@ cd zantara_webapp
    - Location: `zantara-rag/backend/app/main_cloud.py:9-10, 275-305`
    - Status: Fixed in code, deployed in v2.3-reranker
 
-2. ⚠️ **Enable GitHub Pages** - Manual action required
-   - Settings → Pages → Source: `main` branch
-   - Custom domain: zantara.balizero.com
+2. ✅ **GitHub Pages enabled** - VERIFIED (2025-10-09 m1)
+   - Status: Active and operational
+   - URL: https://zantara.balizero.com
+   - HTTPS enforced, cert expires 2025-12-27
 
-3. ⚠️ **Migrate API Keys to Secret Manager** - Currently using env vars
+3. ✅ **API Keys migrated to Secret Manager** - COMPLETE (2025-10-09 m1)
+   - 4/4 secrets now in Secret Manager (100% coverage)
+   - Zero downtime migration completed
+   - RAG backend updated to use secret references
 
 ### **Medium Priority**
 4. Add unit tests for pricing validation
+5. ✅ **Twilio WhatsApp removed** - DONE (2025-10-09 m1)
+   - WhatsApp connection is direct with Meta, not via Twilio
+   - Code cleanup: -134 lines removed
 6. ✅ **Deploy ChromaDB to production** - DONE (2025-10-03 m23)
    - 229 docs in visa_oracle, 5 collections total
    - Location: `gs://nuzantara-chromadb-2025/chroma_db/`

@@ -87,23 +87,34 @@ export class RAGService {
     path: string,
     data?: any
   ): Promise<T> {
-    const token = await this.getIdentityToken();
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    };
+    try {
+      const token = await this.getIdentityToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
 
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await this.client.request<T>({
+        method,
+        url: path,
+        data,
+        headers
+      });
+
+      return response.data;
+    } catch (error: any) {
+      console.error('RAG backend request failed:', {
+        method,
+        path,
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw new Error(error.response?.data?.detail || error.message || 'Search service unavailable');
     }
-
-    const response = await this.client.request<T>({
-      method,
-      url: path,
-      data,
-      headers
-    });
-
-    return response.data;
   }
 
   /**
