@@ -11,8 +11,7 @@
  * - handlers/zantara/*.ts
  */
 
-import type { Request, Response } from "express";
-import { ok, err } from "../utils/response.js";
+import type { Request } from "express";
 
 // Handler types
 export type HandlerFunction = (params: any, req?: Request) => Promise<any>;
@@ -228,7 +227,7 @@ export const globalRegistry = new HandlerRegistry({
  * ```
  */
 export function Handler(key: string, options: Partial<HandlerMetadata> = {}) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
     // Register on module load

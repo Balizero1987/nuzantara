@@ -78,3 +78,4 @@ apps/backend-rag*/data/
 *.db
 sa-key.json
 sa-key-correct.json
+_SECRETS/
