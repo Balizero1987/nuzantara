@@ -74,10 +74,6 @@ import {
   getInstagramUserAnalytics,
   sendManualInstagramMessage
 } from "./handlers/communication/instagram.js";
-import {
-  twilioWhatsappWebhook,
-  twilioSendWhatsapp
-} from "./handlers/communication/twilio-whatsapp.js";
 import { translateHandlers } from "./handlers/communication/translate.js";
 
 // Analytics & Monitoring
@@ -1215,17 +1211,8 @@ export function attachRoutes(app: import("express").Express) {
             // Get the handler function from registry
             const handlerMetadata = globalRegistry.get(key);
             if (handlerMetadata) {
-              // Create mock Express req/res for handlers that expect them
-              const mockReq = {
-                ...req,
-                body: { params }
-              } as any;
-              const mockRes = {
-                json: (data: any) => data,
-                status: (code: number) => mockRes
-              } as any;
-
-              result = await handlerMetadata.handler(mockReq, mockRes);
+              // Execute handler using globalRegistry (correct signature: params, req)
+              result = await globalRegistry.execute(key, params, req);
             } else {
               return res.status(404).json(err('handler_not_found'));
             }
@@ -1423,20 +1410,6 @@ export function attachRoutes(app: import("express").Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || "Internal Error"));
     }
-  });
-
-  // ========================================
-  // TWILIO WHATSAPP (Alternative to Meta)
-  // ========================================
-
-  // Twilio WhatsApp Webhook (POST) - Receives messages from Twilio Sandbox
-  app.post('/webhook/twilio-whatsapp', async (req, res) => {
-    return twilioWhatsappWebhook(req, res);
-  });
-
-  // Send WhatsApp via Twilio (POST) - Manual message sending
-  app.post('/twilio/whatsapp/send', apiKeyAuth, async (req: RequestWithCtx, res) => {
-    return twilioSendWhatsapp(req, res);
   });
 
   // ========================================

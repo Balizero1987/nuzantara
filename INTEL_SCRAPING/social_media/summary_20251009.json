@@ -1,0 +1,37 @@
+{
+  "category": "social_media",
+  "timestamp": "2025-10-09T11:05:51.933978",
+  "total_documents": 5,
+  "sources": [
+    {
+      "name": "Viva Trending",
+      "tier": 2,
+      "word_count": 1599,
+      "title": "Berita Trending dan Terpopuler Hari Ini"
+    },
+    {
+      "name": "Detik Hot",
+      "tier": 2,
+      "word_count": 1772,
+      "title": "detikHOT | Berita, Foto, dan Video TerHOT dari Dunia Hiburan"
+    },
+    {
+      "name": "IDN Times",
+      "tier": 2,
+      "word_count": 1707,
+      "title": "Berita Terkini Hari Ini yang Terpercaya untuk Gen Z dan Milenial | IDN Times"
+    },
+    {
+      "name": "Popbela",
+      "tier": 2,
+      "word_count": 1397,
+      "title": "Popbela.com: A Pop-culture & Lifestyle for Millennials Women | Popbela.com"
+    },
+    {
+      "name": "Hipwee",
+      "tier": 2,
+      "word_count": 3165,
+      "title": "Hipwee - Jembatan Kebaikan Untuk Gen Z dan Millenials"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "title": "Tax Regulations",
+  "summary": "The Indonesian government's official tax regulations and information.",
+  "category": "regulatory_changes",
+  "sub_category": "tax",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Direktorat Jenderal Pajak",
+      "Kemenkeu"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "pajak",
+    "tax",
+    "Indonesia",
+    "regulations"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "businesses",
+      "workers"
+    ],
+    "action_required": true,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Tax regulations",
+    "Information on tax laws and procedures"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "Businesses must comply with new tax regulations",
+  "source_url": "https://www.pajak.go.id/id/peraturan",
+  "source_name": "Tax Regulations",
+  "scraped_at": "2025-10-09T10:47:29.933296",
+  "content_hash": "a6c4c7c67d2e4a53",
+  "word_count": 957
+}

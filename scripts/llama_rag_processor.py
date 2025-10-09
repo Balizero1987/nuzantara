@@ -157,7 +157,7 @@ Return ONLY valid JSON, no other text."""
                 return None
 
             # Add original metadata
-            rag_data['source_url'] = document['url']
+            rag_data['source_url'] = document.get('source_url') or document.get('url')
             rag_data['source_name'] = document['source_name']
             rag_data['scraped_at'] = document['scraped_at']
             rag_data['content_hash'] = document['content_hash']

@@ -1,0 +1,51 @@
+{
+  "title": "Indonesian Visa Services",
+  "summary": "Lets Move Indonesia provides various visa services for tourists, expats, and businesses.",
+  "category": "competitor_intel",
+  "sub_category": "visa",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Lets Move Indonesia"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Indonesian Visa Services",
+    "Visa on Arrival Extension",
+    "Single Entry Tourist Visa"
+  ],
+  "dates": {
+    "published": "2023-02-20",
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "expats",
+      "investors",
+      "businesses"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Lets Move Indonesia provides various visa services for tourists, expats, and businesses.",
+    "Visa on Arrival Extension is available for tourists.",
+    "Single Entry Tourist Visa is also available."
+  ],
+  "regulatory_changes": [],
+  "business_implications": null,
+  "source_url": "https://www.letsmoveindonesia.com/",
+  "source_name": "Lets Move Indonesia",
+  "scraped_at": "2025-10-09T10:51:51.604621",
+  "content_hash": "31468186052654ad",
+  "word_count": 8609
+}

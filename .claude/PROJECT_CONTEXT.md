@@ -246,8 +246,7 @@ cd zantara_webapp
 3. ⚠️ **Migrate API Keys to Secret Manager** - Currently using env vars
 
 ### **Medium Priority**
-4. Complete Twilio WhatsApp deployment (handler created, not deployed)
-5. Add unit tests for pricing validation
+4. Add unit tests for pricing validation
 6. ✅ **Deploy ChromaDB to production** - DONE (2025-10-03 m23)
    - 229 docs in visa_oracle, 5 collections total
    - Location: `gs://nuzantara-chromadb-2025/chroma_db/`
