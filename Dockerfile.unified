@@ -1,0 +1,157 @@
+# =============================================================================
+# ZANTARA Unified Dockerfile
+# =============================================================================
+# Supports multiple build targets:
+#   - backend-dev: TypeScript backend (development)
+#   - backend-prod: TypeScript backend (production, pre-built dist/)
+#   - rag-backend: Python RAG backend
+#
+# Usage:
+#   docker build --target backend-prod -t zantara-backend:latest .
+#   docker build --target rag-backend -t zantara-rag:latest -f apps/backend-rag\ 2/backend/Dockerfile .
+#
+# Build Args:
+#   BUILD_TYPE: dev|prod (default: prod)
+#   NODE_VERSION: 20|22 (default: 20)
+#   PYTHON_VERSION: 3.11|3.12 (default: 3.11)
+#   PLATFORM: linux/amd64|linux/arm64 (default: linux/amd64)
+# =============================================================================
+
+# =============================================================================
+# TARGET: backend-builder (TypeScript compilation)
+# =============================================================================
+FROM --platform=${PLATFORM:-linux/amd64} mirror.gcr.io/library/node:${NODE_VERSION:-20}-alpine AS backend-builder
+
+ARG NPM_IGNORE_SCRIPTS=false
+ARG BUILD_TYPE=prod
+
+WORKDIR /app
+
+# Install build tools for native modules
+RUN apk add --no-cache python3 make g++ git
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN if [ "$NPM_IGNORE_SCRIPTS" = "true" ]; then \
+      npm ci --ignore-scripts; \
+    else \
+      npm ci; \
+    fi
+
+# Copy source code
+COPY src/ ./src/
+COPY tsconfig.json ./
+
+# Build TypeScript
+RUN npm run build
+
+# =============================================================================
+# TARGET: backend-prod (Production TypeScript Backend)
+# =============================================================================
+FROM --platform=${PLATFORM:-linux/amd64} mirror.gcr.io/library/node:${NODE_VERSION:-20}-alpine AS backend-prod
+
+ARG NPM_IGNORE_SCRIPTS=false
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN if [ "$NPM_IGNORE_SCRIPTS" = "true" ]; then \
+      npm ci --omit=dev --ignore-scripts; \
+    else \
+      npm ci --omit=dev; \
+    fi
+
+# Copy compiled output from builder
+COPY --from=backend-builder /app/dist ./dist
+
+# Copy static assets
+COPY static/ ./static/
+
+# Copy OpenAPI specs (if they exist)
+COPY openapi*.yaml ./
+
+# Environment
+ENV NODE_ENV=production
+ENV PORT=8080
+
+EXPOSE 8080
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "http=require('http');http.get('http://localhost:8080/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+
+# Start server
+CMD ["node", "dist/index.js"]
+
+# =============================================================================
+# TARGET: backend-dev (Development TypeScript Backend)
+# =============================================================================
+FROM --platform=${PLATFORM:-linux/amd64} mirror.gcr.io/library/node:${NODE_VERSION:-20}-alpine AS backend-dev
+
+WORKDIR /app
+
+# Install development tools
+RUN apk add --no-cache python3 make g++ git
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev)
+RUN npm ci
+
+# Copy all source code
+COPY . .
+
+# Environment
+ENV NODE_ENV=development
+ENV PORT=8080
+
+EXPOSE 8080
+
+# Start in watch mode
+CMD ["npm", "run", "dev"]
+
+# =============================================================================
+# TARGET: rag-backend (Python FastAPI RAG Backend)
+# =============================================================================
+FROM --platform=${PLATFORM:-linux/amd64} python:${PYTHON_VERSION:-3.11}-slim AS rag-backend
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY apps/backend-rag\ 2/backend/requirements.txt ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY apps/backend-rag\ 2/backend/ ./
+
+# Environment
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+
+EXPOSE 8000
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+
+# Start FastAPI server
+CMD ["uvicorn", "app.main_cloud:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# =============================================================================
+# DEFAULT TARGET
+# =============================================================================
+FROM backend-prod
