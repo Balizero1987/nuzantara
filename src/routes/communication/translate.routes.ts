@@ -6,7 +6,7 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.js';
+import { err } from '../../utils/response.js';
 import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
 import { translateHandlers } from '../../handlers/communication/translate.js';
 import { BadRequestError } from '../../utils/errors.js';
