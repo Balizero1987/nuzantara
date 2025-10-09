@@ -4,8 +4,11 @@
   "source_document": "https://www.colliers.com/en-id",
   "source_name": "Colliers Indonesia",
   "source_tier": 2,
-  "category": "real_estate",
+  "category": "property_law",
   "created_at": "2025-10-08T06:08:38.500457",
   "word_count": 487,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.737868Z"
+  }
 }

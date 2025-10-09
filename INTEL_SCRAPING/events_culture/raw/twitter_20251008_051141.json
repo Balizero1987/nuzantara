@@ -9,5 +9,8 @@
     },
     "tweets_collected": 0
   },
-  "tweets": []
+  "tweets": [],
+  "dates": {
+    "published": "2025-10-09T10:05:54.720230Z"
+  }
 }

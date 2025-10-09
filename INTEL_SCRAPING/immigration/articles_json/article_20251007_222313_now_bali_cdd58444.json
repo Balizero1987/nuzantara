@@ -4,8 +4,11 @@
   "source_document": "https://nowbali.co.id/",
   "source_name": "Now Bali",
   "source_tier": 2,
-  "category": "Lifestyle",
+  "category": "bali_lifestyle",
   "created_at": "2025-10-08T05:49:27.338520",
   "word_count": 530,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.637229Z"
+  }
 }

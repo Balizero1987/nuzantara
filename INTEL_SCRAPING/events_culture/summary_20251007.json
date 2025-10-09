@@ -1,5 +1,5 @@
 {
-  "category": "events_culture",
+  "category": "events_networking",
   "timestamp": "2025-10-07T22:37:32.478484",
   "total_documents": 23,
   "sources": [
@@ -37,7 +37,7 @@
       "name": "Bali Bible Events",
       "tier": 2,
       "word_count": 208,
-      "title": "The Bali Bible - Bali\u2019s Original Insider Guide."
+      "title": "The Bali Bible - Bali’s Original Insider Guide."
     },
     {
       "name": "What's New Bali Events",
@@ -121,7 +121,7 @@
       "name": "Conde Nast Traveler Bali",
       "tier": 2,
       "word_count": 800,
-      "title": "Page Not Found | Cond\u00e9 Nast Traveler"
+      "title": "Page Not Found | Condé Nast Traveler"
     },
     {
       "name": "Lonely Planet Bali Events",
@@ -141,5 +141,8 @@
       "word_count": 2878,
       "title": "Berita Travel Terbaru Hari ini - Kompas.com"
     }
-  ]
+  ],
+  "dates": {
+    "published": "2025-10-09T10:05:54.711034Z"
+  }
 }

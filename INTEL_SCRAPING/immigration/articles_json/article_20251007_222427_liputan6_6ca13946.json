@@ -4,8 +4,11 @@
   "source_document": "https://www.liputan6.com/",
   "source_name": "Liputan6",
   "source_tier": 2,
-  "category": "News",
+  "category": "bali_lifestyle",
   "created_at": "2025-10-08T06:00:01.867407",
   "word_count": 535,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.633192Z"
+  }
 }

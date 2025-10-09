@@ -1,7 +1,7 @@
 {
   "title": "Jakarta Globe",
   "summary": "Indonesia's trusted source for news and stories.",
-  "category": "business_bkpm",
+  "category": "business_setup",
   "sub_category": "News",
   "entities": {
     "people": [

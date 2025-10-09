@@ -11,5 +11,8 @@
       "status": "failed",
       "error": "'NoneType' object is not subscriptable"
     }
+  },
+  "dates": {
+    "published": "2025-10-09T10:05:54.615319Z"
   }
 }

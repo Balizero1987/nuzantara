@@ -4,8 +4,11 @@
   "source_document": "https://finansial.bisnis.com/",
   "source_name": "Bisnis Finansial",
   "source_tier": 2,
-  "category": "business_bkpm",
+  "category": "business_setup",
   "created_at": "2025-10-08T05:42:40.579360",
   "word_count": 482,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.681719Z"
+  }
 }

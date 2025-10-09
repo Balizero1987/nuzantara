@@ -4,8 +4,11 @@
   "source_document": "https://en.tempo.co/tag/visa",
   "source_name": "Tempo Visa",
   "source_tier": 2,
-  "category": "immigration",
+  "category": "visa_immigration",
   "created_at": "2025-10-08T05:52:24.595970",
   "word_count": 443,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.627964Z"
+  }
 }

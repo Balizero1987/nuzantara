@@ -1,7 +1,7 @@
 {
   "title": "Clear, descriptive title",
   "summary": "2-3 sentence summary of key information",
-  "category": "immigration",
+  "category": "visa_immigration",
   "sub_category": "specific sub-category (visa, tax, property, event, trend, competitor, news)",
   "entities": {
     "people": [
@@ -51,5 +51,5 @@
   "source_name": "Reuters Indonesia",
   "scraped_at": "2025-10-07T22:22:40.567325",
   "content_hash": "01ba4719c80b6fe9",
-  "word_count": 0
+  "word_count": 6
 }

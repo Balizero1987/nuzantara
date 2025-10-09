@@ -4,8 +4,11 @@
   "source_document": "https://www.expat.com/en/destination/asia/indonesia/",
   "source_name": "Expat.com Indonesia",
   "source_tier": 2,
-  "category": "immigration",
+  "category": "visa_immigration",
   "created_at": "2025-10-08T05:55:15.150631",
   "word_count": 486,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.637782Z"
+  }
 }

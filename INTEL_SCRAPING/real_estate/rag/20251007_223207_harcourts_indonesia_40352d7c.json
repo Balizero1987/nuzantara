@@ -1,7 +1,7 @@
 {
   "title": "Harcourts Indonesia",
   "summary": "Real estate listings and news from Harcourts Indonesia.",
-  "category": "real_estate",
+  "category": "property_law",
   "sub_category": "property",
   "entities": {
     "locations": [

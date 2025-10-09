@@ -1,7 +1,7 @@
 {
   "title": "CNBC Indonesia Market Data",
   "summary": "Current market data and quotes for various Indonesian stocks and currencies.",
-  "category": "business_bkpm",
+  "category": "business_setup",
   "sub_category": "market_data",
   "entities": {
     "people": [],

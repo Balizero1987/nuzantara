@@ -1,5 +1,5 @@
 {
-  "category": "business_bkpm",
+  "category": "business_setup",
   "timestamp": "2025-10-07T22:29:48.770832",
   "total_documents": 47,
   "sources": [
@@ -247,7 +247,7 @@
       "name": "Instagram BKPM",
       "tier": 3,
       "word_count": 1,
-      "title": "BKPMRI (@bkpmri) \u2022 Foto e video di Instagram"
+      "title": "BKPMRI (@bkpmri) • Foto e video di Instagram"
     },
     {
       "name": "X BKPM Official",
@@ -285,5 +285,8 @@
       "word_count": 1282,
       "title": "LinkedIn"
     }
-  ]
+  ],
+  "dates": {
+    "published": "2025-10-09T10:05:54.659159Z"
+  }
 }

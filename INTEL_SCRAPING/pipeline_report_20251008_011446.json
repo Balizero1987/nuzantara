@@ -7,5 +7,8 @@
       "status": "failed",
       "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download"
     }
+  },
+  "dates": {
+    "published": "2025-10-09T10:05:54.615620Z"
   }
 }
