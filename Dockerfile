@@ -45,10 +45,6 @@ COPY --from=builder /app/nlu.js* ./
 COPY --from=builder /app/chatbot.js* ./
 COPY --from=builder /app/utils* ./utils/
 
-# Copy entrypoint
-COPY --from=builder /app/scripts/utils/docker-entrypoint.sh* ./docker-entrypoint.sh
-RUN chmod +x ./docker-entrypoint.sh
-
 # Expose port
 EXPOSE 8080
 
@@ -60,6 +56,5 @@ ENV PORT=8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD node -e "http=require('http');http.get('http://localhost:8080/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
 # Start server
 CMD ["node", "dist/index.js"]
