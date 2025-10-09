@@ -34,7 +34,7 @@ export interface CalendarCreateResult { event: any }
 export interface CalendarGetResult { event: any }
 
 export async function calendarList(params: CalendarListParams) {
-  const { calendarId = 'primary', timeMin, timeMax, maxResults = 25, singleEvents = true, orderBy = 'startTime' } = params || {} as CalendarListParams;
+  const { calendarId = 'c_7000dd5c02a3819af0774ad34d76379c506928057eff5e6540d662073aaeaaa7@group.calendar.google.com', timeMin, timeMax, maxResults = 25, singleEvents = true, orderBy = 'startTime' } = params || {} as CalendarListParams;
   const cal = await getCalendar();
   if (cal) {
     const res = await cal.events.list({ calendarId, timeMin, timeMax, maxResults, singleEvents, orderBy });
@@ -47,7 +47,7 @@ export async function calendarList(params: CalendarListParams) {
 
 export async function calendarCreate(params: CalendarCreateParams) {
   const {
-    calendarId = 'primary',
+    calendarId = 'c_7000dd5c02a3819af0774ad34d76379c506928057eff5e6540d662073aaeaaa7@group.calendar.google.com',
     event,
     summary,
     start,
@@ -83,7 +83,7 @@ export async function calendarCreate(params: CalendarCreateParams) {
 }
 
 export async function calendarGet(params: CalendarGetParams) {
-  const { calendarId = 'primary', eventId } = params || ({} as CalendarGetParams);
+  const { calendarId = 'c_7000dd5c02a3819af0774ad34d76379c506928057eff5e6540d662073aaeaaa7@group.calendar.google.com', eventId } = params || ({} as CalendarGetParams);
   if (!eventId) throw new BadRequestError('eventId is required');
 
   const cal = await getCalendar();
