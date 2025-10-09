@@ -1,0 +1,46 @@
+{
+  "title": "CNN Indonesia",
+  "summary": "Indonesian news website providing updates on national and international news.",
+  "category": "bali_lifestyle",
+  "sub_category": null,
+  "entities": {
+    "people": [],
+    "organizations": [
+      "CNN Indonesia"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "CNN Indonesia",
+    "news",
+    "indonesia"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Home page with various categories for news and information.",
+    "Links to different sections of the website, including politics, economy, sports, and technology."
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.cnnindonesia.com/",
+  "source_name": "CNN Indonesia",
+  "scraped_at": "2025-10-07T22:24:23.975444",
+  "content_hash": "a88acad0a9ff6133",
+  "word_count": 1106
+}

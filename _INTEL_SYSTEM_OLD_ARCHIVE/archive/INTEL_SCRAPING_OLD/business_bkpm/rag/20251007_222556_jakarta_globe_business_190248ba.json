@@ -1,0 +1,47 @@
+{
+  "title": "Jakarta Globe Business",
+  "summary": "Jakarta Globe is a trusted source for news and stories about Indonesia's economy, business, and more.",
+  "category": "business_setup",
+  "sub_category": null,
+  "entities": {
+    "people": [],
+    "organizations": [
+      "B-Universe Media Holdings"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Jakarta Globe",
+    "Business",
+    "Economy",
+    "Indonesia"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Jakarta Globe provides news and stories about Indonesia's economy, business, and more.",
+    "B-Universe Media Holdings is a trusted source for news and stories."
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://jakartaglobe.id/business",
+  "source_name": "Jakarta Globe Business",
+  "scraped_at": "2025-10-07T22:25:56.680487",
+  "content_hash": "190248bac2838a92",
+  "word_count": 1331
+}

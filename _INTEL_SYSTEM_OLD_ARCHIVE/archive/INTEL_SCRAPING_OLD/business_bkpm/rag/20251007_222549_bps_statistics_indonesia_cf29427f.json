@@ -1,0 +1,45 @@
+{
+  "title": "Badan Pusat Statistik Indonesia",
+  "summary": "The official website of the Indonesian National Statistics Agency.",
+  "category": "business_setup",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Badan Pusat Statistik"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Indonesia",
+    "National Statistics Agency",
+    "BPS"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Provides official statistics and data on various topics."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.bps.go.id/",
+  "source_name": "BPS Statistics Indonesia",
+  "scraped_at": "2025-10-07T22:25:49.171034",
+  "content_hash": "cf29427faa160230",
+  "word_count": 273
+}

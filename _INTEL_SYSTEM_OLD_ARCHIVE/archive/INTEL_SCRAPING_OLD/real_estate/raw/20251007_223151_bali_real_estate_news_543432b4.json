@@ -1,0 +1,17 @@
+{
+  "url": "https://www.balirealestate.com/news",
+  "source_name": "Bali Real Estate News",
+  "tier": 2,
+  "category": "property_law",
+  "title": "404 Not Found",
+  "description": null,
+  "content": "# Not Found\nThe requested URL was not found on this server.\n* * *\nApache/2.4.62 (Debian) Server at www.balirealestate.com Port 443\n",
+  "content_hash": "543432b449df1a01",
+  "word_count": 22,
+  "scraped_at": "2025-10-07T22:31:51.147547",
+  "language": "en",
+  "links": [
+    "internal",
+    "external"
+  ]
+}

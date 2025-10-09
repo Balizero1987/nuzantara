@@ -1,0 +1,208 @@
+{
+  "category": "property_law",
+  "timestamp": "2025-10-07T22:33:35.932652",
+  "total_documents": 33,
+  "sources": [
+    {
+      "name": "BPN Land Agency",
+      "tier": 1,
+      "word_count": 0,
+      "title": "Beranda"
+    },
+    {
+      "name": "BPN Press Releases",
+      "tier": 1,
+      "word_count": 0,
+      "title": "Beranda"
+    },
+    {
+      "name": "Rumah.com News",
+      "tier": 2,
+      "word_count": 89,
+      "title": "Situs Jual Beli Properti, Rumah, Apartemen & Tanah di Indonesia | Rumah.com"
+    },
+    {
+      "name": "Rumah123 News",
+      "tier": 2,
+      "word_count": 69,
+      "title": "404 Page Not Found | Rumah123.com"
+    },
+    {
+      "name": "Lamudi Journal",
+      "tier": 2,
+      "word_count": 2273,
+      "title": "Jurnal Lamudi Indonesia"
+    },
+    {
+      "name": "99.co Indonesia Blog",
+      "tier": 2,
+      "word_count": 2116,
+      "title": "99.co Indonesia: Situs Jual Beli Rumah, Apartemen & Properti Lainnya"
+    },
+    {
+      "name": "OLX Property",
+      "tier": 2,
+      "word_count": 1631,
+      "title": "Jual Beli Rumah, Apartemen, & Properti Komersil Mudah & Aman | OLX Indonesia"
+    },
+    {
+      "name": "UrbanIndo Blog",
+      "tier": 2,
+      "word_count": 437,
+      "title": "99.co Indonesia: Jual Beli Rumah Jadi Mudah"
+    },
+    {
+      "name": "Bali Real Estate News",
+      "tier": 2,
+      "word_count": 22,
+      "title": "404 Not Found"
+    },
+    {
+      "name": "Bali Luxury Villas Blog",
+      "tier": 2,
+      "word_count": 1492,
+      "title": "Bali Luxury Villas: Website Map"
+    },
+    {
+      "name": "Bali Home Property",
+      "tier": 2,
+      "word_count": 130,
+      "title": "Bali Home | Your Source for Bali Home & Living"
+    },
+    {
+      "name": "Harcourts Indonesia",
+      "tier": 2,
+      "word_count": 1389,
+      "title": "Harcourts Indonesia"
+    },
+    {
+      "name": "Sotheby's Bali",
+      "tier": 2,
+      "word_count": 0,
+      "title": null
+    },
+    {
+      "name": "Jakarta Post Property",
+      "tier": 2,
+      "word_count": 197,
+      "title": "Not Found"
+    },
+    {
+      "name": "Tempo Property",
+      "tier": 2,
+      "word_count": 127,
+      "title": "Oops! - En.tempo.co"
+    },
+    {
+      "name": "Jakarta Globe Property",
+      "tier": 2,
+      "word_count": 629,
+      "title": "Page Not Found | Jakarta Globe"
+    },
+    {
+      "name": "RumahMesin",
+      "tier": 2,
+      "word_count": 3160,
+      "title": "Rumah Mesin - Jual Mesin Usaha TKDN & Tersedia di E Katalog"
+    },
+    {
+      "name": "Kompas Properti",
+      "tier": 2,
+      "word_count": 1754,
+      "title": "Berita Properti Terbaru Hari Ini - Kompas.com"
+    },
+    {
+      "name": "Suara Properti",
+      "tier": 2,
+      "word_count": 1696,
+      "title": "404 Halaman tidak ditemukan - Suara.com"
+    },
+    {
+      "name": "Grid Properti",
+      "tier": 2,
+      "word_count": 1433,
+      "title": "Berita Properti Terbaru Hari Ini - Grid.ID"
+    },
+    {
+      "name": "Colliers Indonesia",
+      "tier": 2,
+      "word_count": 1664,
+      "title": "Colliers | ID | Commercial Real Estate in Indonesia"
+    },
+    {
+      "name": "Cushman & Wakefield Indonesia",
+      "tier": 2,
+      "word_count": 1483,
+      "title": "Cushman & Wakefield | Commercial Real Estate Brokers & Services | Cushman & Wakefield"
+    },
+    {
+      "name": "CBRE Indonesia",
+      "tier": 2,
+      "word_count": 370,
+      "title": "Home - CBRE"
+    },
+    {
+      "name": "JLL Indonesia",
+      "tier": 2,
+      "word_count": 2620,
+      "title": "JLL Southeast Asia | Commercial real estate and property investment"
+    },
+    {
+      "name": "Knight Frank Indonesia",
+      "tier": 2,
+      "word_count": 1685,
+      "title": "Commercial & Residential Property Agents | Knight Frank Indonesia"
+    },
+    {
+      "name": "Savills Indonesia",
+      "tier": 2,
+      "word_count": 2624,
+      "title": "Real Estate Agency In Jakarta | International Property Agent - Savills Indonesia"
+    },
+    {
+      "name": "Instagram Bali Property",
+      "tier": 3,
+      "word_count": 1,
+      "title": "Instagram"
+    },
+    {
+      "name": "Instagram PropertyGuru",
+      "tier": 3,
+      "word_count": 1,
+      "title": "Instagram"
+    },
+    {
+      "name": "Facebook PropertyGuru",
+      "tier": 3,
+      "word_count": 54,
+      "title": "Facebook"
+    },
+    {
+      "name": "TikTok PropertyGuru",
+      "tier": 3,
+      "word_count": 0,
+      "title": "TikTok - Make Your Day"
+    },
+    {
+      "name": "Instagram Rumah123",
+      "tier": 3,
+      "word_count": 1,
+      "title": "Rumah123 (@rumah123com) • Foto e video di Instagram"
+    },
+    {
+      "name": "X PropertyGuru",
+      "tier": 3,
+      "word_count": 22,
+      "title": "X"
+    },
+    {
+      "name": "LinkedIn PropertyGuru",
+      "tier": 3,
+      "word_count": 1282,
+      "title": "LinkedIn"
+    }
+  ],
+  "dates": {
+    "published": "2025-10-09T10:05:54.732318Z"
+  }
+}

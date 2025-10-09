@@ -1,0 +1,47 @@
+{
+  "title": "An Insider's Guide to Life on the Island",
+  "summary": "Subscribe NOW! for exclusive insights into life in Bali.",
+  "category": "bali_lifestyle",
+  "sub_category": "Features",
+  "entities": {
+    "locations": [
+      "Bali"
+    ],
+    "organizations": [
+      "Now Bali"
+    ]
+  },
+  "keywords": [
+    "Bali",
+    "Life on the Island",
+    "Subscribe NOW!"
+  ],
+  "dates": {
+    "published": "2025-09-01"
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "expats"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en"
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Exclusive insights into life in Bali",
+    "Subscribe NOW! for the latest news and updates",
+    "Get the inside scoop on Bali's best-kept secrets"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://nowbali.co.id/",
+  "source_name": "Now Bali",
+  "scraped_at": "2025-10-07T22:23:13.024203",
+  "content_hash": "cdd584449aeeb2b5",
+  "word_count": 1474
+}

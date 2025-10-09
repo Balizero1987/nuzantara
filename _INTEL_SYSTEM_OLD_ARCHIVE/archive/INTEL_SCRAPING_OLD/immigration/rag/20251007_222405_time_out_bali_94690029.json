@@ -1,0 +1,47 @@
+{
+  "title": "Bali Time Out",
+  "summary": "Subscribe to receive the best of Bali straight to your inbox.",
+  "category": "bali_lifestyle",
+  "sub_category": "Subscriptions",
+  "entities": {
+    "locations": [
+      "Bali"
+    ]
+  },
+  "keywords": [
+    "Bali",
+    "Time Out",
+    "Subscription"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "expats",
+      "investors",
+      "businesses"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Sign up for our email to enjoy your city without spending a thing"
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.timeout.com/bali",
+  "source_name": "Time Out Bali",
+  "scraped_at": "2025-10-07T22:24:05.717605",
+  "content_hash": "94690029f7c9c74d",
+  "word_count": 1461
+}

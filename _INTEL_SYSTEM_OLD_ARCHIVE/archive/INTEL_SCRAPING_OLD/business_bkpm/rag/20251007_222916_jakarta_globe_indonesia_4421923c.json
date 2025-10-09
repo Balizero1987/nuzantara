@@ -1,0 +1,50 @@
+{
+  "title": "Jakarta Globe",
+  "summary": "Indonesia's trusted source for news and stories.",
+  "category": "business_setup",
+  "sub_category": "News",
+  "entities": {
+    "people": [
+      "Darren Whiteside",
+      "Yudhi Mahatma"
+    ],
+    "organizations": [
+      "B-Universe Media Holdings"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Jakarta Globe",
+    "B-Universe Media Holdings",
+    "news",
+    "stories"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Join and become part of B-Universe",
+    "Stay inspired with Jakarta Globe"
+  ],
+  "regulatory_changes": [],
+  "business_implications": null,
+  "source_url": "https://jakartaglobe.id/news/indonesia",
+  "source_name": "Jakarta Globe Indonesia",
+  "scraped_at": "2025-10-07T22:29:16.171387",
+  "content_hash": "4421923cf4227c13",
+  "word_count": 943
+}

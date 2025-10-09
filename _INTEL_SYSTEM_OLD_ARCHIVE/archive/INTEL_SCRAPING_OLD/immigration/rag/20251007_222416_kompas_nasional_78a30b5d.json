@@ -1,0 +1,49 @@
+{
+  "title": "Kompas Nasional",
+  "summary": "Kompas.com is a news website providing updates on various topics including news, politics, and lifestyle.",
+  "category": "bali_lifestyle",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Kompas.com",
+      "Plus.kompas.com"
+    ],
+    "locations": [
+      "Indonesia"
+    ]
+  },
+  "keywords": [
+    "news",
+    "politics",
+    "lifestyle"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Kompas.com is a popular news website in Indonesia.",
+    "The website provides updates on various topics including news, politics, and lifestyle."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://nasional.kompas.com/",
+  "source_name": "Kompas Nasional",
+  "scraped_at": "2025-10-07T22:24:16.428192",
+  "content_hash": "78a30b5d133ae745",
+  "word_count": 1408
+}

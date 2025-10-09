@@ -1,0 +1,45 @@
+{
+  "title": "Deloitte Indonesia",
+  "summary": "Deloitte is a professional services firm providing audit, tax, consulting and advisory services to clients across Southeast Asia.",
+  "category": "business_setup",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Deloitte"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Deloitte Indonesia",
+    "professional services firm",
+    "audit",
+    "tax",
+    "consulting"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": "",
+  "business_implications": "Deloitte provides services to clients across Southeast Asia",
+  "source_url": "https://www.deloitte.com/id/en.html",
+  "source_name": "Deloitte Indonesia",
+  "scraped_at": "2025-10-07T22:27:20.807008",
+  "content_hash": "9ff9fb0cb7ba662f",
+  "word_count": 3941
+}

@@ -1,0 +1,43 @@
+{
+  "title": "Clear, descriptive title",
+  "summary": "2-3 sentence summary of key information",
+  "category": "business_setup",
+  "sub_category": "specific sub-category (visa, tax, property, event, trend, competitor, news)",
+  "entities": {
+    "people": [],
+    "organizations": [],
+    "locations": []
+  },
+  "keywords": [
+    "relevant keywords for search"
+  ],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "",
+  "key_points": [
+    "bullet point 1",
+    "bullet point 2",
+    "bullet point 3"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.ey.com/id_id",
+  "source_name": "EY Indonesia",
+  "scraped_at": "2025-10-07T22:27:14.530609",
+  "content_hash": "d2bf3a13265e948f",
+  "word_count": 6
+}

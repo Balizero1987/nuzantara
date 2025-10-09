@@ -1,0 +1,46 @@
+{
+  "title": "Bank Indonesia",
+  "summary": "Bank Indonesia is the central bank of Indonesia.",
+  "category": "business_setup",
+  "sub_category": null,
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Bank Indonesia"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Bank Indonesia",
+    "central bank",
+    "Indonesia"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": [
+      "en",
+      "id"
+    ],
+    "needs_translation": true
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "null",
+  "source_url": "https://www.bi.go.id/id/Default.aspx",
+  "source_name": "Bank Indonesia",
+  "scraped_at": "2025-10-07T22:25:36.594891",
+  "content_hash": "a494459ba9215b42",
+  "word_count": 1244
+}

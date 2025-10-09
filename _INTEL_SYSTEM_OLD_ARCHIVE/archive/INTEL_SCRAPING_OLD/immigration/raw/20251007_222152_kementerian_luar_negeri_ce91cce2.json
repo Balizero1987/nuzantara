@@ -1,0 +1,17 @@
+{
+  "url": "https://www.kemlu.go.id/portal/id/",
+  "source_name": "Kementerian Luar Negeri",
+  "tier": 1,
+  "category": "visa_immigration",
+  "title": "Portal Kemlu",
+  "description": null,
+  "content": "![logo](https://www.kemlu.go.id/assets/logo-BB-sphb8.svg)\n[ ](https://accessibility-widget.pages.dev \"Open Accessibility Menu\")\n",
+  "content_hash": "ce91cce2790d993a",
+  "word_count": 6,
+  "scraped_at": "2025-10-07T22:21:52.858390",
+  "language": "en",
+  "links": [
+    "internal",
+    "external"
+  ]
+}
