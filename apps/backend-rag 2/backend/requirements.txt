@@ -7,6 +7,9 @@ pydantic==2.9.2
 chromadb==1.1.0
 sentence-transformers==3.2.1
 
+# PyTorch (required for sentence-transformers CrossEncoder)
+torch>=2.0.0
+
 # Anthropic API
 anthropic==0.39.0
 
