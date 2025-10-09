@@ -1,0 +1,52 @@
+{
+  "title": "US-China Trade Tariffs: What's in Effect Now?",
+  "summary": "The current landscape of US-China tariff rates is complex, with multiple overlapping trade measures in effect.",
+  "category": "economy-trade",
+  "sub_category": "tariff-updates",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "US",
+      "China"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "US-China Trade Tariffs",
+    "Tariff Rates",
+    "Trade Measures"
+  ],
+  "dates": {
+    "published": null,
+    "effective": "2025",
+    "deadline": null
+  },
+  "impact": {
+    "level": "high",
+    "affected_groups": [
+      "businesses",
+      "investors"
+    ],
+    "action_required": true,
+    "urgency": "soon"
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "The current landscape of US-China tariff rates is complex, with multiple overlapping trade measures in effect.",
+    "This article explains which tariffs apply in 2025 and how they intersect."
+  ],
+  "regulatory_changes": [
+    "Regulation 5/2025"
+  ],
+  "business_implications": "The article provides information on the current landscape of US-China tariff rates and their impact on businesses and investors.",
+  "source_url": "https://www.aseanbriefing.com/",
+  "source_name": "ASEAN Briefing",
+  "scraped_at": "2025-10-09T11:06:36.640144",
+  "content_hash": "4c57cccbb84c1ba9",
+  "word_count": 6609
+}

@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 // === end CORS ===
 
 // Production monitoring
-import { requestTracker, errorTracker, getHealthMetrics } from './middleware/monitoring.js';
+import { requestTracker, errorTracker, getHealthMetrics, getAlertStatus } from './middleware/monitoring.js';
 import { validateResponse, getValidationReport, clearUnverifiedFacts } from './middleware/validation.js';
 import { deepRealityCheck, getRealityMetrics, enforceReality, clearRealityCache } from './middleware/reality-check.js';
 // Google Chat webhook (optional bot integration)
@@ -71,6 +71,15 @@ app.get('/metrics', async (req, res) => {
   return res.json({
     ok: true,
     data: healthData.metrics
+  });
+});
+
+// Alert status endpoint
+app.get('/alerts/status', async (req, res) => {
+  const alertStatus = getAlertStatus();
+  return res.json({
+    ok: true,
+    data: alertStatus
   });
 });
 
