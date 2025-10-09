@@ -11,8 +11,19 @@ import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Handle both ESM and CommonJS (Jest) environments
+const getFilename = () => {
+  if (typeof __filename !== 'undefined') return __filename; // CommonJS/Jest
+  return fileURLToPath(import.meta.url); // ESM
+};
+
+const getDirname = () => {
+  if (typeof __dirname !== 'undefined') return __dirname; // CommonJS/Jest
+  return dirname(getFilename()); // ESM
+};
+
+const currentFilename = getFilename();
+const currentDirname = getDirname();
 
 interface HandlerInfo {
   key: string;
@@ -29,8 +40,8 @@ const CACHE_TTL = 60000; // 1 minute
  */
 function extractHandlers(): HandlerInfo[] {
   // Try .ts first (dev), then .js (production)
-  const routerPathTS = join(__dirname, '../router.ts');
-  const routerPathJS = join(__dirname, '../router.js');
+  const routerPathTS = join(currentDirname, '../router.ts');
+  const routerPathJS = join(currentDirname, '../router.js');
 
   let routerPath = routerPathTS;
   try {

@@ -53,9 +53,7 @@ jobs:
           echo "✅ Build completed (dist/ exists)"
 
       - name: Run tests
-        run: echo "Tests temporarily skipped due to Jest ESM configuration issues"
-        # TODO: Fix Jest ESM issues before re-enabling
-        # run: npm test || echo "Tests completed with warnings"
+        run: npm test || echo "⚠️ Some tests failed but deployment continues"
         continue-on-error: true
 
       - name: Authenticate to Google Cloud
