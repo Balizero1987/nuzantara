@@ -6,7 +6,6 @@ from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 
 torch.cuda.empty_cache()
 gc.collect()
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 MODEL = "unsloth/Llama-4-Scout-17B-16E-Instruct"
 DATA = "/workspace/dataset.jsonl"
@@ -25,11 +24,12 @@ bnb = BitsAndBytesConfig(
     bnb_4bit_compute_dtype=torch.bfloat16
 )
 
-print("📥 Loading model on GPU 0 only...")
+print("📥 Loading model with auto distribution across GPUs...")
 model = AutoModelForCausalLM.from_pretrained(
     MODEL,
     quantization_config=bnb,
-    device_map="cuda:0",
+    device_map="auto",
+    max_memory={0: "90GB", 1: "90GB"},
     trust_remote_code=True,
     token=HF,
     torch_dtype=torch.bfloat16
