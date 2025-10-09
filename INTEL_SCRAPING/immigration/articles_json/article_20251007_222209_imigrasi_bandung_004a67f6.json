@@ -4,8 +4,11 @@
   "source_document": "https://bandung.imigrasi.go.id/",
   "source_name": "Imigrasi Bandung",
   "source_tier": 1,
-  "category": "immigration",
+  "category": "visa_immigration",
   "created_at": "2025-10-08T05:59:05.264749",
   "word_count": 464,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.637548Z"
+  }
 }

@@ -1,7 +1,7 @@
 {
   "title": "Jakarta Globe Business",
   "summary": "Jakarta Globe is a trusted source for news and stories about Indonesia's economy, business, and more.",
-  "category": "business_bkpm",
+  "category": "business_setup",
   "sub_category": null,
   "entities": {
     "people": [],

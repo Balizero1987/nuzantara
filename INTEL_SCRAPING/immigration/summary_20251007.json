@@ -1,5 +1,5 @@
 {
-  "category": "immigration",
+  "category": "visa_immigration",
   "timestamp": "2025-10-07T22:25:01.974107",
   "total_documents": 41,
   "sources": [
@@ -7,7 +7,7 @@
       "name": "Direktorat Imigrasi",
       "tier": 1,
       "word_count": 358,
-      "title": "Not Found (#404) \u2013 Direktorat Jenderal Imigrasi"
+      "title": "Not Found (#404) – Direktorat Jenderal Imigrasi"
     },
     {
       "name": "Kementerian Luar Negeri",
@@ -31,7 +31,7 @@
       "name": "Imigrasi Medan",
       "tier": 1,
       "word_count": 217,
-      "title": "Abadi Makmur \u2013 Pusat Plastik Grosir Terpercaya"
+      "title": "Abadi Makmur – Pusat Plastik Grosir Terpercaya"
     },
     {
       "name": "Jakarta Post Travel",
@@ -133,7 +133,7 @@
       "name": "The Bali Bible",
       "tier": 2,
       "word_count": 2132,
-      "title": "The Bali Bible - Bali\u2019s Original Insider Guide."
+      "title": "The Bali Bible - Bali’s Original Insider Guide."
     },
     {
       "name": "What's New Bali",
@@ -249,5 +249,8 @@
       "word_count": 0,
       "title": "Jakarta Expats for Jobs, Appartments and updates"
     }
-  ]
+  ],
+  "dates": {
+    "published": "2025-10-09T10:05:54.616376Z"
+  }
 }

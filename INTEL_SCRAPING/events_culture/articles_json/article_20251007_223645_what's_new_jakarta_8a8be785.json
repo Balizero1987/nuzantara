@@ -4,8 +4,11 @@
   "source_document": "https://whatsnewjakarta.com/",
   "source_name": "What's New Jakarta",
   "source_tier": 2,
-  "category": "events_culture",
+  "category": "events_networking",
   "created_at": "2025-10-08T05:47:29.673551",
   "word_count": 539,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.716562Z"
+  }
 }

@@ -4,8 +4,11 @@
   "source_document": "https://www.knightfrank.co.id/",
   "source_name": "Knight Frank Indonesia",
   "source_tier": 2,
-  "category": "real_estate",
+  "category": "property_law",
   "created_at": "2025-10-08T06:07:45.114908",
   "word_count": 463,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.738253Z"
+  }
 }

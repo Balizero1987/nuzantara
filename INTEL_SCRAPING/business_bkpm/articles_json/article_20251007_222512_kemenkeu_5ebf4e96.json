@@ -4,8 +4,11 @@
   "source_document": "https://www.kemenkeu.go.id/",
   "source_name": "Kemenkeu",
   "source_tier": 1,
-  "category": "business_bkpm",
+  "category": "business_setup",
   "created_at": "2025-10-08T05:31:31.432816",
   "word_count": 571,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.683173Z"
+  }
 }

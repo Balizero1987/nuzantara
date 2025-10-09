@@ -4,8 +4,11 @@
   "source_document": "https://www.ft.com/indonesia",
   "source_name": "Financial Times Indonesia",
   "source_tier": 0,
-  "category": "business_bkpm",
+  "category": "business_setup",
   "created_at": "2025-10-08T05:39:35.713228",
   "word_count": 473,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.677026Z"
+  }
 }

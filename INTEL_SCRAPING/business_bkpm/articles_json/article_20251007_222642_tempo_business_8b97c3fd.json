@@ -4,8 +4,11 @@
   "source_document": "https://en.tempo.co/business",
   "source_name": "Tempo Business",
   "source_tier": 2,
-  "category": "business_bkpm",
+  "category": "business_setup",
   "created_at": "2025-10-08T05:32:38.698903",
   "word_count": 440,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.672526Z"
+  }
 }

@@ -1,7 +1,7 @@
 {
   "title": "Clear, descriptive title",
   "summary": "2-3 sentence summary of key information",
-  "category": "business_bkpm",
+  "category": "business_setup",
   "sub_category": "specific sub-category (visa, tax, property, event, trend, competitor, news)",
   "entities": {
     "people": [],

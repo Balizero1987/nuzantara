@@ -4,8 +4,11 @@
   "source_document": "https://www.tripadvisor.com/ShowForum-g294226-i7220-Bali.html",
   "source_name": "TripAdvisor Bali Forum",
   "source_tier": 3,
-  "category": "immigration",
+  "category": "visa_immigration",
   "created_at": "2025-10-08T06:04:37.508206",
   "word_count": 518,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.631278Z"
+  }
 }

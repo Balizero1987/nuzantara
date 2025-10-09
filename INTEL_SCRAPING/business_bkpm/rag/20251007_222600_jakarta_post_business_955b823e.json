@@ -1,7 +1,7 @@
 {
   "title": "Jakarta Post Business",
   "summary": "The Jakarta Post provides news and information on various topics including business, politics, and lifestyle.",
-  "category": "business_bkpm",
+  "category": "business_setup",
   "sub_category": "",
   "entities": {
     "people": [],

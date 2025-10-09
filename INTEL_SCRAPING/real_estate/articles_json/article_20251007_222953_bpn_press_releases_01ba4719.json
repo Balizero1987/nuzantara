@@ -4,8 +4,11 @@
   "source_document": "https://www.atrbpn.go.id/Berita-Dan-Informasi/Siaran-Pers",
   "source_name": "BPN Press Releases",
   "source_tier": 1,
-  "category": "real_estate",
+  "category": "property_law",
   "created_at": "2025-10-08T06:05:05.021128",
   "word_count": 552,
-  "model_used": "llama3.2:3b"
+  "model_used": "llama3.2:3b",
+  "dates": {
+    "published": "2025-10-09T10:05:54.737632Z"
+  }
 }
