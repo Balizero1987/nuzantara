@@ -30,7 +30,7 @@ import { documentPrepare, assistantRoute } from "./handlers/bali-zero/advisory.j
 import { kbliLookup, kbliRequirements } from "./handlers/bali-zero/kbli.js";
 import { baliZeroPricing, baliZeroQuickPrice } from "./handlers/bali-zero/bali-zero-pricing.js";
 import { teamList, teamGet, teamDepartments } from "./handlers/bali-zero/team.js";
-// teamRecentActivity now loaded via globalRegistry - no direct import needed
+import { teamRecentActivity } from "./handlers/bali-zero/team-activity.js";
 
 // ZANTARA Collaborative Intelligence
 import {
@@ -363,7 +363,31 @@ const handlers: Record<string, Handler> = {
     return await teamDepartments(mockReq, mockRes);
   },
 
-  // team.recent_activity - Now loaded dynamically via globalRegistry (no need for static registration)
+  /**
+   * @handler team.recent_activity
+   * @description Get recent team member activity with real-time session tracking. Tracks team members active in the last N hours.
+   * @param {number} [params.hours=24] - Number of hours to look back
+   * @param {number} [params.limit=10] - Maximum number of results
+   * @param {string} [params.department] - Filter by department (optional)
+   * @returns {Promise<{ok: boolean, data: {activities: Array, count: number, timeframe: object, stats: object}}>} Recent team activities
+   * @example
+   * // Get activities in last 24 hours
+   * await call('team.recent_activity', { hours: 24 })
+   *
+   * // Get activities for setup department only
+   * await call('team.recent_activity', {
+   *   hours: 24,
+   *   department: 'setup'
+   * })
+   */
+  "team.recent_activity": async (params: any) => {
+    const mockReq = { body: { params } } as any;
+    const mockRes = {
+      json: (data: any) => data,
+      status: (code: number) => mockRes
+    } as any;
+    return await teamRecentActivity(mockReq, mockRes);
+  },
 
   // Oracle simulations & planning
   "oracle.simulate": oracleSimulate,

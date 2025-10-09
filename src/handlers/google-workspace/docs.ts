@@ -6,7 +6,7 @@ import { getDocs } from "../../services/google-auth-service.js";
 // Minimal param interfaces (Step 1 typing)
 export interface DocsCreateParams { title?: string; content?: string }
 export interface DocsReadParams { documentId: string }
-export interface DocsUpdateParams { documentId: string; requests: any[] }
+export interface DocsUpdateParams { documentId: string; requests?: any[]; content?: string }
 
 // Result interfaces
 export interface DocsCreateResult { documentId: string; title: string; url: string; content: string; created: string }
@@ -100,16 +100,41 @@ export async function docsRead(params: DocsReadParams) {
 }
 
 export async function docsUpdate(params: DocsUpdateParams) {
-  const { documentId, requests } = params || ({} as DocsUpdateParams);
+  const { documentId, requests, content } = params || ({} as DocsUpdateParams);
   if (!documentId) throw new BadRequestError('documentId is required');
-  if (!requests || !Array.isArray(requests)) throw new BadRequestError('requests array is required');
+
+  // Support simple content parameter OR requests array
+  let finalRequests = requests;
+  if (!finalRequests && content) {
+    // Simple mode: replace all content with new text
+    finalRequests = [
+      {
+        deleteContentRange: {
+          range: {
+            startIndex: 1,
+            endIndex: 999999 // Delete all content
+          }
+        }
+      },
+      {
+        insertText: {
+          location: { index: 1 },
+          text: content
+        }
+      }
+    ];
+  }
+
+  if (!finalRequests || !Array.isArray(finalRequests)) {
+    throw new BadRequestError('content or requests array is required');
+  }
 
   const docs = await getDocs();
   if (docs) {
     try {
       const res = await docs.documents.batchUpdate({
         documentId,
-        requestBody: { requests }
+        requestBody: { requests: finalRequests }
       });
 
       return ok({

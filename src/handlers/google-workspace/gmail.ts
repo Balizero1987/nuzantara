@@ -192,5 +192,58 @@ export const gmailHandlers = {
       console.error('Gmail read error:', error);
       throw new InternalServerError(`Failed to read email: ${error.message}`);
     }
+  },
+
+  'gmail.search': async (params: { query: string; maxResults?: number }) => {
+    const { query, maxResults = 10 } = params || {};
+    if (!query) throw new BadRequestError('Parameter "query" is required');
+
+    try {
+      let gmail = await getGmail();
+      if (!gmail) {
+        const auth = await getOAuth2Client();
+        if (!auth) {
+          throw new Error('No authentication method available for Gmail');
+        }
+        gmail = google.gmail({ version: 'v1', auth });
+      }
+
+      // Search using Gmail query syntax
+      const result = await gmail.users.messages.list({
+        userId: 'me',
+        q: query,
+        maxResults
+      });
+
+      const messages = result.data.messages || [];
+
+      // Get details for found messages
+      const details = await Promise.all(
+        messages.slice(0, Math.min(messages.length, 10)).map(msg =>
+          gmail.users.messages.get({
+            userId: 'me',
+            id: msg.id!,
+            format: 'metadata',
+            metadataHeaders: ['Subject', 'From', 'Date']
+          })
+        )
+      );
+
+      return ok({
+        query,
+        count: messages.length,
+        messages: details.map(d => ({
+          id: d.data.id,
+          threadId: d.data.threadId,
+          snippet: d.data.snippet,
+          subject: d.data.payload?.headers?.find(h => h.name === 'Subject')?.value,
+          from: d.data.payload?.headers?.find(h => h.name === 'From')?.value,
+          date: d.data.payload?.headers?.find(h => h.name === 'Date')?.value
+        }))
+      });
+    } catch (error: any) {
+      console.error('Gmail search error:', error);
+      throw new InternalServerError(`Failed to search emails: ${error.message}`);
+    }
   }
 };
