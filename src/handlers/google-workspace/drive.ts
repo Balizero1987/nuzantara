@@ -11,6 +11,7 @@ export interface DriveUploadParams {
   // Legacy-friendly fields (for callers that pass flat params)
   name?: string;
   body?: Buffer | string;
+  content?: string; // NEW: Alternative to media.body
   fileName?: string;
   mimeType?: string;
   parents?: string[];
@@ -66,8 +67,8 @@ export async function driveUpload(params: DriveUploadParams) {
     media.mimeType = params.mimeType;
   }
 
-  let body: any = media?.body;
-  if (!body) throw new BadRequestError('media.body is required');
+  let body: any = media?.body || params?.content || params?.body;
+  if (!body) throw new BadRequestError('content or media.body is required');
 
   // Convert string to Buffer (supports base64)
   if (typeof body === 'string') {
