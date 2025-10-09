@@ -1,0 +1,54 @@
+{
+  "title": "The Bali Bible",
+  "summary": "A travel and lifestyle website covering Bali, Indonesia.",
+  "category": "Travel",
+  "sub_category": "Bali Travel Guide",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "The Bali Bible"
+    ],
+    "locations": [
+      "Bali",
+      "Indonesia"
+    ]
+  },
+  "keywords": [
+    "Bali travel guide",
+    "travel tips",
+    "lifestyle",
+    "Indonesia"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "tourists",
+      "expats"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Comprehensive travel guide to Bali",
+    "Lifestyle tips for expats and tourists",
+    "Latest news and updates on Bali"
+  ],
+  "regulatory_changes": [],
+  "business_implications": null,
+  "source_url": "https://www.thebalibible.com/",
+  "source_name": "The Bali Bible",
+  "scraped_at": "2025-10-07T22:23:44.386650",
+  "content_hash": "17c81dfb9e2e641a",
+  "word_count": 2132
+}

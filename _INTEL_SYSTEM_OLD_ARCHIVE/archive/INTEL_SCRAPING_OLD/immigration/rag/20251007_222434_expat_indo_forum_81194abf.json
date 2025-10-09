@@ -1,0 +1,48 @@
+{
+  "title": "Expat Indo Information and Community for Expats in Indonesia",
+  "summary": "A community forum for expats in Indonesia providing information on law, immigration, practical info, lifestyle, and more.",
+  "category": "visa_immigration",
+  "sub_category": "visa-immigration",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Wijaya Law Firm"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Expat Indo",
+    "Indonesia",
+    "expat community",
+    "immigration",
+    "law",
+    "visa"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "expats"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 3,
+  "source_reliability": "community",
+  "key_points": [],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.expatindo.org/",
+  "source_name": "Expat Indo Forum",
+  "scraped_at": "2025-10-07T22:24:34.533555",
+  "content_hash": "81194abfedf27caf",
+  "word_count": 2100
+}

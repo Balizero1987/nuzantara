@@ -1,0 +1,47 @@
+{
+  "title": "Rumah Mesin",
+  "summary": "Distributor Jual Beli Mesin Usaha Anda - Tempat Jual Beli Mesin Pertanian,Mesin Olahan Kelapa,Harga Mesin Perkebunan,Alat Mesin Peternakan, Beli Mesin Perikanan, Mesin Usaha Makanan",
+  "category": "property_law",
+  "sub_category": "business",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Rumah Mesin"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Distributor Jual Beli Mesin Usaha Anda",
+    "Mesin Pertanian",
+    "Mesin Olahan Kelapa",
+    "Harga Mesin Perkebunan",
+    "Alat Mesin Peternakan"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "low",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Distributor Jual Beli Mesin Usaha Anda - Tempat Jual Beli Mesin Pertanian,Mesin Olahan Kelapa,Harga Mesin Perkebunan,Alat Mesin Peternakan, Beli Mesin Perikanan, Mesin Usaha Makanan"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.rumahmesin.com/",
+  "source_name": "RumahMesin",
+  "scraped_at": "2025-10-07T22:32:24.328673",
+  "content_hash": "032eeb2750291c66",
+  "word_count": 3160
+}

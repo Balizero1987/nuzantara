@@ -1,0 +1,47 @@
+{
+  "title": "Jakarta",
+  "summary": "Time Out Jakarta offers the best of the city, news, events, and partner promotions.",
+  "category": "bali_lifestyle",
+  "sub_category": "City Guide",
+  "entities": {
+    "locations": [
+      "Jakarta"
+    ]
+  },
+  "keywords": [
+    "Jakarta",
+    "Time Out",
+    "city guide"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "expats",
+      "investors"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Subscribe to our newsletter for the best of the city",
+    "Sign up for our email to enjoy your city without spending a thing"
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.timeout.com/jakarta",
+  "source_name": "Time Out Jakarta",
+  "scraped_at": "2025-10-07T22:24:01.909900",
+  "content_hash": "90b0c91edd920563",
+  "word_count": 1108
+}

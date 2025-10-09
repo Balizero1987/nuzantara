@@ -1,0 +1,292 @@
+{
+  "category": "business_setup",
+  "timestamp": "2025-10-07T22:29:48.770832",
+  "total_documents": 47,
+  "sources": [
+    {
+      "name": "BKPM Press Releases",
+      "tier": 1,
+      "word_count": 20,
+      "title": "Page no found"
+    },
+    {
+      "name": "BKPM News",
+      "tier": 1,
+      "word_count": 20,
+      "title": "Page no found"
+    },
+    {
+      "name": "OSS System",
+      "tier": 1,
+      "word_count": 0,
+      "title": "OSS RBA - Sistem Perizinan Berusaha Terintegrasi Secara Elektronik"
+    },
+    {
+      "name": "Kemenkeu",
+      "tier": 1,
+      "word_count": 23,
+      "title": "Kementerian Keuangan Republik Indonesia"
+    },
+    {
+      "name": "Kemenkeu News",
+      "tier": 1,
+      "word_count": 23,
+      "title": "Kementerian Keuangan Republik Indonesia"
+    },
+    {
+      "name": "Kementerian Koordinator Ekonomi",
+      "tier": 1,
+      "word_count": 1520,
+      "title": "- Kementerian Koordinator Bidang Perekonomian Republik Indonesia"
+    },
+    {
+      "name": "Kementerian Perindustrian",
+      "tier": 1,
+      "word_count": 1771,
+      "title": "Kementerian Perindustrian"
+    },
+    {
+      "name": "Kementerian Perdagangan",
+      "tier": 1,
+      "word_count": 2528,
+      "title": "Beranda - Kementerian Perdagangan Republik Indonesia"
+    },
+    {
+      "name": "Bank Indonesia",
+      "tier": 1,
+      "word_count": 1244,
+      "title": "Bank Indonesia"
+    },
+    {
+      "name": "OJK",
+      "tier": 1,
+      "word_count": 3684,
+      "title": "Otoritas Jasa Keuangan"
+    },
+    {
+      "name": "BPS Statistics Indonesia",
+      "tier": 1,
+      "word_count": 273,
+      "title": "Badan Pusat Statistik Indonesia"
+    },
+    {
+      "name": "Indonesia Investments",
+      "tier": 2,
+      "word_count": 1353,
+      "title": "Investing in Indonesia | Indonesia Investments"
+    },
+    {
+      "name": "Jakarta Globe Business",
+      "tier": 2,
+      "word_count": 1331,
+      "title": "Business | Jakarta Globe"
+    },
+    {
+      "name": "Jakarta Post Business",
+      "tier": 2,
+      "word_count": 3686,
+      "title": "Business - The Jakarta Post"
+    },
+    {
+      "name": "Tempo Business",
+      "tier": 2,
+      "word_count": 141,
+      "title": "Oops! - En.tempo.co - En.tempo.co"
+    },
+    {
+      "name": "Reuters Asia Pacific",
+      "tier": 2,
+      "word_count": 0,
+      "title": "reuters.com"
+    },
+    {
+      "name": "Bloomberg Asia",
+      "tier": 2,
+      "word_count": 2929,
+      "title": "Bloomberg Asia"
+    },
+    {
+      "name": "Financial Times Indonesia",
+      "tier": 2,
+      "word_count": 2117,
+      "title": "Indonesia | Financial Times"
+    },
+    {
+      "name": "Nikkei Asia Indonesia",
+      "tier": 2,
+      "word_count": 1064,
+      "title": "Indonesia protests expose economic divide threatening Prabowo programs - Nikkei Asia"
+    },
+    {
+      "name": "SCMP Business",
+      "tier": 2,
+      "word_count": 1727,
+      "title": "Business and Stock Market News & Analysis | South China Morning Post"
+    },
+    {
+      "name": "CNA Business",
+      "tier": 2,
+      "word_count": 2401,
+      "title": "Business & Finance: Market News, Stock Updates and Company News - CNA"
+    },
+    {
+      "name": "PwC Indonesia",
+      "tier": 2,
+      "word_count": 1175,
+      "title": "Media Centre"
+    },
+    {
+      "name": "EY Indonesia",
+      "tier": 2,
+      "word_count": 6,
+      "title": "File not found"
+    },
+    {
+      "name": "Deloitte Indonesia",
+      "tier": 2,
+      "word_count": 3941,
+      "title": "Deloitte Southeast Asia | Audit, Consulting, Financial, Risk Management, Tax Services"
+    },
+    {
+      "name": "KPMG Indonesia",
+      "tier": 2,
+      "word_count": 1900,
+      "title": "KPMG Indonesia - KPMG Indonesia"
+    },
+    {
+      "name": "McKinsey Indonesia",
+      "tier": 2,
+      "word_count": 1125,
+      "title": "Indonesia | McKinsey & Company"
+    },
+    {
+      "name": "BCG Jakarta",
+      "tier": 2,
+      "word_count": 3451,
+      "title": "Page Not Found"
+    },
+    {
+      "name": "Baker McKenzie Indonesia",
+      "tier": 2,
+      "word_count": 3565,
+      "title": "Indonesia | Locations | Baker McKenzie"
+    },
+    {
+      "name": "Bisnis Indonesia",
+      "tier": 2,
+      "word_count": 3090,
+      "title": "Bisnis.com - Berita Terbaru Bisnis, Ekonomi, Investasi Indonesia"
+    },
+    {
+      "name": "Bisnis Ekonomi",
+      "tier": 2,
+      "word_count": 2283,
+      "title": "Berita Ekonomi Indonesia, Keuangan, Perbankan, Asuransi, Multifinance, dan Pajak"
+    },
+    {
+      "name": "CNBC Indonesia",
+      "tier": 2,
+      "word_count": 1366,
+      "title": "CNBC Indonesia - Berita Ekonomi & Bisnis Terkini Hari Ini"
+    },
+    {
+      "name": "Bisnis Finansial",
+      "tier": 2,
+      "word_count": 2316,
+      "title": "Berita Finansial, Keuangan, Perbankan, dan Asuransi"
+    },
+    {
+      "name": "Kompas Ekonomi",
+      "tier": 2,
+      "word_count": 1859,
+      "title": "Berita Money Ekonomi Indonesia Terbaru Hari ini - Kompas.com"
+    },
+    {
+      "name": "Detik Finance",
+      "tier": 2,
+      "word_count": 2539,
+      "title": "detikFinance - Berita Ekonomi Bisnis, dan Investasi Hari Ini"
+    },
+    {
+      "name": "Kontan",
+      "tier": 2,
+      "word_count": 2290,
+      "title": "Berita Terkini Investasi dan Ekonomi Indonesia - KONTAN"
+    },
+    {
+      "name": "BeritaSatu Ekonomi",
+      "tier": 2,
+      "word_count": 1911,
+      "title": "Kumpulan Berita ekonomi Hari Ini, Bersatu Menginspirasi - BeritaSatu.com"
+    },
+    {
+      "name": "Jakarta Post Politics",
+      "tier": 2,
+      "word_count": 4076,
+      "title": "Indonesia - Politics - The Jakarta Post"
+    },
+    {
+      "name": "Tempo Politics",
+      "tier": 2,
+      "word_count": 127,
+      "title": "Oops! - En.tempo.co - En.tempo.co"
+    },
+    {
+      "name": "Jakarta Globe Indonesia",
+      "tier": 2,
+      "word_count": 943,
+      "title": "We Are Indonesia"
+    },
+    {
+      "name": "Reuters Indonesia Politics",
+      "tier": 2,
+      "word_count": 0,
+      "title": "reuters.com"
+    },
+    {
+      "name": "Instagram BKPM",
+      "tier": 3,
+      "word_count": 1,
+      "title": "BKPMRI (@bkpmri) • Foto e video di Instagram"
+    },
+    {
+      "name": "X BKPM Official",
+      "tier": 3,
+      "word_count": 22,
+      "title": "X"
+    },
+    {
+      "name": "Facebook BKPM",
+      "tier": 3,
+      "word_count": 55,
+      "title": "Facebook"
+    },
+    {
+      "name": "Instagram Kemenkeu",
+      "tier": 3,
+      "word_count": 1,
+      "title": "Instagram"
+    },
+    {
+      "name": "X Kemenkeu",
+      "tier": 3,
+      "word_count": 22,
+      "title": "X"
+    },
+    {
+      "name": "TikTok Kemenkeu",
+      "tier": 3,
+      "word_count": 59,
+      "title": "TikTok - Make Your Day"
+    },
+    {
+      "name": "LinkedIn BKPM",
+      "tier": 3,
+      "word_count": 1282,
+      "title": "LinkedIn"
+    }
+  ],
+  "dates": {
+    "published": "2025-10-09T10:05:54.659159Z"
+  }
+}

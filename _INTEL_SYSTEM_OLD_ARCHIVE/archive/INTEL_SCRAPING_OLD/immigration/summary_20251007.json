@@ -1,0 +1,256 @@
+{
+  "category": "visa_immigration",
+  "timestamp": "2025-10-07T22:25:01.974107",
+  "total_documents": 41,
+  "sources": [
+    {
+      "name": "Direktorat Imigrasi",
+      "tier": 1,
+      "word_count": 358,
+      "title": "Not Found (#404) – Direktorat Jenderal Imigrasi"
+    },
+    {
+      "name": "Kementerian Luar Negeri",
+      "tier": 1,
+      "word_count": 6,
+      "title": "Portal Kemlu"
+    },
+    {
+      "name": "Imigrasi Surabaya",
+      "tier": 1,
+      "word_count": 1319,
+      "title": "Kantor Imigrasi Kelas I Khusus TPI Surabaya"
+    },
+    {
+      "name": "Imigrasi Bandung",
+      "tier": 1,
+      "word_count": 5755,
+      "title": "Beranda | Laman Resmi Kantor Wilayah Kemenkumham"
+    },
+    {
+      "name": "Imigrasi Medan",
+      "tier": 1,
+      "word_count": 217,
+      "title": "Abadi Makmur – Pusat Plastik Grosir Terpercaya"
+    },
+    {
+      "name": "Jakarta Post Travel",
+      "tier": 2,
+      "word_count": 3012,
+      "title": "Travel - The Jakarta Post"
+    },
+    {
+      "name": "Tempo Immigration",
+      "tier": 2,
+      "word_count": 781,
+      "title": "Berita Terbaru Immigration"
+    },
+    {
+      "name": "Tempo Visa",
+      "tier": 2,
+      "word_count": 802,
+      "title": "Berita terbaru Visa"
+    },
+    {
+      "name": "Jakarta Globe Indonesia",
+      "tier": 2,
+      "word_count": 941,
+      "title": "We Are Indonesia"
+    },
+    {
+      "name": "Reuters Indonesia",
+      "tier": 2,
+      "word_count": 0,
+      "title": "reuters.com"
+    },
+    {
+      "name": "BBC Indonesia",
+      "tier": 2,
+      "word_count": 689,
+      "title": "BBC"
+    },
+    {
+      "name": "Bloomberg Indonesia",
+      "tier": 2,
+      "word_count": 502,
+      "title": "404. Page Not Found - Bloomberg"
+    },
+    {
+      "name": "South China Morning Post",
+      "tier": 2,
+      "word_count": 1439,
+      "title": "Indonesia: Latest News and Updates | South China Morning Post"
+    },
+    {
+      "name": "CNA Indonesia",
+      "tier": 2,
+      "word_count": 1430,
+      "title": "Indonesia Hari Ini: Berita Nasional Terbaru dan Peristiwa Terkini"
+    },
+    {
+      "name": "Straits Times Indonesia",
+      "tier": 2,
+      "word_count": 819,
+      "title": "Latest Indonesia | The Straits Times"
+    },
+    {
+      "name": "Al Jazeera Indonesia",
+      "tier": 2,
+      "word_count": 1640,
+      "title": "Indonesia | Indonesia | Today's latest from Al Jazeera"
+    },
+    {
+      "name": "Now Bali",
+      "tier": 2,
+      "word_count": 1474,
+      "title": "NOW! Bali Magazine | Discover Life on the Island"
+    },
+    {
+      "name": "Living in Indonesia Forum",
+      "tier": 2,
+      "word_count": 412,
+      "title": "Ask Marcus! Questions & Answers about living in Indonesia as an expat"
+    },
+    {
+      "name": "Expat.com Indonesia",
+      "tier": 2,
+      "word_count": 1746,
+      "title": "Living in Indonesia: the ultimate expat guide - Expat.com"
+    },
+    {
+      "name": "InterNations Indonesia",
+      "tier": 2,
+      "word_count": 1564,
+      "title": "Expats in Indonesia - Find Jobs, Forums & Events for Expats"
+    },
+    {
+      "name": "Coconuts Jakarta",
+      "tier": 2,
+      "word_count": 804,
+      "title": "Coconuts | News | Food | Restaurants | Nightlife | Guide"
+    },
+    {
+      "name": "The Bali Bible",
+      "tier": 2,
+      "word_count": 2132,
+      "title": "The Bali Bible - Bali’s Original Insider Guide."
+    },
+    {
+      "name": "What's New Bali",
+      "tier": 2,
+      "word_count": 2002,
+      "title": "WHAT'S NEW BALI - Your Ultimate Island Guide"
+    },
+    {
+      "name": "Honeycombers Bali",
+      "tier": 2,
+      "word_count": 714,
+      "title": "Honeycombers | Your guide on where to eat, stay, spa and party in Bali"
+    },
+    {
+      "name": "Honeycombers Jakarta",
+      "tier": 2,
+      "word_count": 371,
+      "title": "Jakarta | Honeycombers Bali"
+    },
+    {
+      "name": "Time Out Jakarta",
+      "tier": 2,
+      "word_count": 1108,
+      "title": "Jakarta 2024 | Ultimate Guide To Where To Go, Eat & Sleep in Jakarta | Time Out"
+    },
+    {
+      "name": "Time Out Bali",
+      "tier": 2,
+      "word_count": 1461,
+      "title": "Bali 2025 | Ultimate Guide To Where To Go, Eat & Sleep in Bali | Time Out"
+    },
+    {
+      "name": "Kompas",
+      "tier": 2,
+      "word_count": 2672,
+      "title": "Berita Terkini Hari Ini, Kabar Akurat Terpercaya - Kompas.com"
+    },
+    {
+      "name": "DetikNews",
+      "tier": 2,
+      "word_count": 2296,
+      "title": "detikcom - Informasi Berita Terkini dan Terbaru Hari Ini"
+    },
+    {
+      "name": "Kompas Nasional",
+      "tier": 2,
+      "word_count": 1408,
+      "title": "Berita Nasional Peristiwa Terbaru Hari Ini"
+    },
+    {
+      "name": "DetikNews Politik",
+      "tier": 2,
+      "word_count": 1893,
+      "title": "detikNews - Berita hari ini di Indonesia dan Internasional"
+    },
+    {
+      "name": "CNN Indonesia",
+      "tier": 2,
+      "word_count": 1106,
+      "title": "CNN Indonesia | Berita Terbaru, Terkini Indonesia, Dunia"
+    },
+    {
+      "name": "Liputan6",
+      "tier": 2,
+      "word_count": 2824,
+      "title": "Berita Terkini, Kabar Terbaru Hari Ini Indonesia dan Dunia - Liputan6.com"
+    },
+    {
+      "name": "Tribun News",
+      "tier": 2,
+      "word_count": 6125,
+      "title": "TribunNews.com - Berita dan video terkini dari Indonesia dengan sudut pandang lokal"
+    },
+    {
+      "name": "Expat Indo Forum",
+      "tier": 3,
+      "word_count": 2100,
+      "title": "Expat Indo - Information and Community for Expats in Indonesia"
+    },
+    {
+      "name": "Reddit Bali",
+      "tier": 3,
+      "word_count": 666,
+      "title": "Welcome to Bali!"
+    },
+    {
+      "name": "Reddit Indonesia",
+      "tier": 3,
+      "word_count": 1322,
+      "title": "indonesia"
+    },
+    {
+      "name": "Reddit Expats",
+      "tier": 3,
+      "word_count": 1398,
+      "title": "reddit's best expats sub"
+    },
+    {
+      "name": "TripAdvisor Bali Forum",
+      "tier": 3,
+      "word_count": 0,
+      "title": "tripadvisor.com"
+    },
+    {
+      "name": "Facebook Bali Expats",
+      "tier": 3,
+      "word_count": 54,
+      "title": "Facebook"
+    },
+    {
+      "name": "Facebook Jakarta Expats",
+      "tier": 3,
+      "word_count": 0,
+      "title": "Jakarta Expats for Jobs, Appartments and updates"
+    }
+  ],
+  "dates": {
+    "published": "2025-10-09T10:05:54.616376Z"
+  }
+}

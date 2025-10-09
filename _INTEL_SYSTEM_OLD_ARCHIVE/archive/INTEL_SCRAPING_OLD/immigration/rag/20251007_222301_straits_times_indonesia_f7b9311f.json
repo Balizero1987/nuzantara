@@ -1,0 +1,33 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [],
+    "locations": []
+  },
+  "keywords": [],
+  "dates": {},
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "",
+    "needs_translation": false
+  },
+  "tier": 0,
+  "source_reliability": "",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.straitstimes.com/tags/indonesia",
+  "source_name": "Straits Times Indonesia",
+  "scraped_at": "2025-10-07T22:23:01.676565",
+  "content_hash": "f7b9311fe9e8376f",
+  "word_count": 819
+}

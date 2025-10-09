@@ -1,0 +1,55 @@
+{
+  "title": "Bali Spirit Festival",
+  "summary": "The Bali Spirit Festival is a holistic festival that offers yoga retreats, teacher trainings, and wellness programs.",
+  "category": "events_networking",
+  "sub_category": "event",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Bali Spirit"
+    ],
+    "locations": [
+      "Bali"
+    ]
+  },
+  "keywords": [
+    "yoga",
+    "wellness",
+    "retreats",
+    "teacher trainings",
+    "Bali Spirit Festival"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "tourists",
+      "expats",
+      "investors",
+      "businesses"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Yoga retreats and teacher trainings available",
+    "Wellness programs for physical, mental, and spiritual well-being"
+  ],
+  "regulatory_changes": [],
+  "business_implications": null,
+  "source_url": "https://www.balispirit.com/",
+  "source_name": "Bali Spirit Festival",
+  "scraped_at": "2025-10-07T22:34:51.827002",
+  "content_hash": "c9e0bcd21091715c",
+  "word_count": 782
+}

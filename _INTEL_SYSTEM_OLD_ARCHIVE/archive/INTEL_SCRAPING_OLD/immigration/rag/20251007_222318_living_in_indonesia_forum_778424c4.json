@@ -1,0 +1,50 @@
+{
+  "title": "Living in Indonesia - A Site for Expatriates in Indonesia",
+  "summary": "Providing a wealth of practical information for expatriates planning to move to Indonesia.",
+  "category": "visa_immigration",
+  "sub_category": "expat resources",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Expat.or.id"
+    ],
+    "locations": [
+      "Indonesia",
+      "Jakarta"
+    ]
+  },
+  "keywords": [
+    "indonesia",
+    "expatriates",
+    "moving to indonesia",
+    "expat life"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Practical information for expatriates planning to move to Indonesia.",
+    "Useful links and resources for expats in Indonesia."
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.livinginindonesiaforum.org/",
+  "source_name": "Living in Indonesia Forum",
+  "scraped_at": "2025-10-07T22:23:18.538446",
+  "content_hash": "778424c43341f10b",
+  "word_count": 412
+}

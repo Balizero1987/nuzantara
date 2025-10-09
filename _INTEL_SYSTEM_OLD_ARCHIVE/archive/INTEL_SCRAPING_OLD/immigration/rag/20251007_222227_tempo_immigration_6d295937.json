@@ -1,0 +1,55 @@
+{
+  "title": "The Perfect Storm: Why Immigration Has Become the Scapegoat for Our Age of Crisis",
+  "summary": "In today's atmosphere of fear and anger, immigration has been cast as the culprit, offering populist solutions to complex problems.",
+  "category": "visa_immigration",
+  "sub_category": "news",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Indonesia",
+      "Philippines",
+      "India"
+    ],
+    "locations": [
+      "Delhi"
+    ]
+  },
+  "keywords": [
+    "immigration",
+    "populism",
+    "crisis",
+    "fear",
+    "anger"
+  ],
+  "dates": {
+    "published": "2025-10-02",
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "critical",
+    "affected_groups": [
+      "tourists",
+      "expats"
+    ],
+    "action_required": true,
+    "urgency": "immediate"
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Immigration has been cast as the scapegoat for our age of crisis.",
+    "Populist solutions are being offered to complex problems."
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://en.tempo.co/tag/immigration",
+  "source_name": "Tempo Immigration",
+  "scraped_at": "2025-10-07T22:22:27.434256",
+  "content_hash": "6d2959378828d617",
+  "word_count": 781
+}

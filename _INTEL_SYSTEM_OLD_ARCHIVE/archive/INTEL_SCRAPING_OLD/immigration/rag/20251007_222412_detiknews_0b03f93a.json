@@ -1,0 +1,56 @@
+{
+  "title": "Detik News",
+  "summary": "Latest news and updates from Detikcom",
+  "category": "bali_lifestyle",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "detikcom",
+      "CNN Indonesia",
+      "CNBC Indonesia"
+    ],
+    "locations": [
+      "Jateng",
+      "Jatim",
+      "Jabar",
+      "Sulsel",
+      "Sumut",
+      "Bali",
+      "Kalimantan"
+    ]
+  },
+  "keywords": [
+    "Detik News",
+    "Latest news",
+    "Updates"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Latest news and updates from Detikcom",
+    "No specific key points mentioned"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.detik.com/",
+  "source_name": "DetikNews",
+  "scraped_at": "2025-10-07T22:24:12.894560",
+  "content_hash": "0b03f93a6341e7c8",
+  "word_count": 2296
+}

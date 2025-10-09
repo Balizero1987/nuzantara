@@ -1,0 +1,52 @@
+{
+  "title": "PT Cakra Buana Resources Energi Tbk",
+  "summary": "Shipping company specializing in tug and barge services, established in June 2016.",
+  "category": "property_law",
+  "sub_category": null,
+  "entities": {
+    "people": [],
+    "organizations": [
+      "PT Cakra Buana Resources Energi Tbk",
+      "CBRE Tbk"
+    ],
+    "locations": [
+      "Jakarta",
+      "Indonesia"
+    ]
+  },
+  "keywords": [
+    "shipping",
+    "tug and barge",
+    "marine transport",
+    "freight charter",
+    "time charter"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Established in June 2016",
+    "Specializes in tug and barge services"
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.cbre.co.id/",
+  "source_name": "CBRE Indonesia",
+  "scraped_at": "2025-10-07T22:32:50.871994",
+  "content_hash": "a6ad4b4b42649691",
+  "word_count": 370
+}

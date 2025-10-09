@@ -1,0 +1,53 @@
+{
+  "title": "InterNations Indonesia",
+  "summary": "The world's largest expat community in Indonesia, with over 46,585 members.",
+  "category": "visa_immigration",
+  "sub_category": "expats",
+  "entities": {
+    "people": [
+      "Henrik Olsen"
+    ],
+    "organizations": [
+      "InterNations"
+    ],
+    "locations": [
+      "Indonesia",
+      "Jakarta"
+    ]
+  },
+  "keywords": [
+    "expat community",
+    "Indonesia",
+    "interNations"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "expats"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Join our community to connect with fellow expats",
+    "Attend events and groups for expats"
+  ],
+  "regulatory_changes": null,
+  "business_implications": null,
+  "source_url": "https://www.internations.org/indonesia-expats",
+  "source_name": "InterNations Indonesia",
+  "scraped_at": "2025-10-07T22:23:25.349160",
+  "content_hash": "f5422780aba343c2",
+  "word_count": 1564
+}

@@ -1,0 +1,43 @@
+{
+  "title": "Clear, descriptive title",
+  "summary": "2-3 sentence summary of key information",
+  "category": "visa_immigration",
+  "sub_category": "specific sub-category (visa, tax, property, event, trend, competitor, news)",
+  "entities": {
+    "people": [],
+    "organizations": [],
+    "locations": []
+  },
+  "keywords": [
+    "5-10 relevant keywords for search"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": null,
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": null
+  },
+  "language": {
+    "primary": null,
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "bullet point 1",
+    "bullet point 2",
+    "bullet point 3"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.kemlu.go.id/portal/id/",
+  "source_name": "Kementerian Luar Negeri",
+  "scraped_at": "2025-10-07T22:21:52.858390",
+  "content_hash": "ce91cce2790d993a",
+  "word_count": 6
+}

@@ -1,0 +1,52 @@
+{
+  "title": "Database Peraturan Indonesia",
+  "summary": "A database containing regulations and laws in Indonesia.",
+  "category": "regulatory_changes",
+  "sub_category": "government regulations",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Government of Indonesia"
+    ],
+    "locations": [
+      "Indonesia"
+    ]
+  },
+  "keywords": [
+    "peraturan",
+    "regulation",
+    "law",
+    "indonesia"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "businesses",
+      "workers"
+    ],
+    "action_required": true,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Database contains regulations and laws in Indonesia.",
+    "Regulations are categorized by type (e.g. peraturan, uu, perppu)."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "Businesses may need to adapt to changes in regulations.",
+  "source_url": "https://peraturan.go.id",
+  "source_name": "Database Peraturan Indonesia",
+  "scraped_at": "2025-10-09T10:45:48.186847",
+  "content_hash": "f518e37e77c84ebd",
+  "word_count": 1998
+}

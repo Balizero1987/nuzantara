@@ -1,0 +1,54 @@
+{
+  "title": "Nikkei Asia Indonesia",
+  "summary": "Overview of Nikkei Asia Indonesia website and content.",
+  "category": "business_setup",
+  "sub_category": "news",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Nikkei"
+    ],
+    "locations": [
+      "Indonesia",
+      "East Asia",
+      "Southeast Asia",
+      "South Asia",
+      "Central Asia"
+    ]
+  },
+  "keywords": [
+    "Nikkei",
+    "Asia",
+    "Indonesia",
+    "Business",
+    "News"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Overview of Nikkei Asia Indonesia website and content.",
+    "Links to various sections on the website."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://asia.nikkei.com/Economy/Indonesia",
+  "source_name": "Nikkei Asia Indonesia",
+  "scraped_at": "2025-10-07T22:26:58.818315",
+  "content_hash": "683da9aacd557a4f",
+  "word_count": 1064
+}

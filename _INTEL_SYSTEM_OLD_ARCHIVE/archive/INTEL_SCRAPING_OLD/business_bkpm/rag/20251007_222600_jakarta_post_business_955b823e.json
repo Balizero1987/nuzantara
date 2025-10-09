@@ -1,0 +1,45 @@
+{
+  "title": "Jakarta Post Business",
+  "summary": "The Jakarta Post provides news and information on various topics including business, politics, and lifestyle.",
+  "category": "business_setup",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Tenggara Strategics",
+      "B/NDL Studios",
+      "Magdalene"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Jakarta Post",
+    "business news",
+    "Indonesia"
+  ],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": "",
+  "business_implications": "",
+  "source_url": "https://www.thejakartapost.com/business",
+  "source_name": "Jakarta Post Business",
+  "scraped_at": "2025-10-07T22:25:59.889201",
+  "content_hash": "955b823ec8f0a661",
+  "word_count": 3686
+}
