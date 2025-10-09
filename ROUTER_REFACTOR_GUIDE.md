@@ -1,7 +1,7 @@
 # Router.ts Refactor Guide
 
 **Date**: 2025-10-10
-**Status**: IN PROGRESS (5/15 modules done - Phase 1 Complete!)
+**Status**: IN PROGRESS (7/15 modules done - Phases 1 & 2 Complete!)
 **Effort**: 3-5 days (full team)
 
 ---
@@ -92,12 +92,11 @@ src/
 
 **Total**: 1 day (6 hours) - **Progress: 100% complete ✅**
 
-### Phase 2: Extract AI Services (Week 1)
-- [ ] `ai.routes.ts` - Estimated: 3 hours (large file)
-- [ ] `creative.routes.ts` - Estimated: 2 hours
-- [ ] `advanced-ai.routes.ts` - Estimated: 1 hour
+### Phase 2: Extract AI Services (Week 1) ✅ COMPLETE
+- [x] `ai.routes.ts` - ✅ DONE (5 endpoints: chat, openai, claude, gemini, cohere)
+- [x] `creative.routes.ts` - ✅ DONE (5 endpoints: vision.analyze, vision.extract, speech.transcribe, speech.synthesize, language.sentiment)
 
-**Total**: 0.75 days (6 hours)
+**Total**: 0.75 days (6 hours) - **Progress: 100% complete ✅**
 
 ### Phase 3: Extract Bali Zero (Week 2)
 - [ ] `oracle.routes.ts` - Estimated: 2 hours
@@ -377,8 +376,10 @@ app.post("/call", apiKeyAuth, async (req, res) => {
 
 ---
 
-**Status**: **5/15 modules done** (Phase 1 Complete: Gmail, Drive, Calendar, Sheets, Docs ✅)
-**Next Action**: Phase 2 - Extract AI routes (ai.routes.ts, creative.routes.ts) - Est: 5 hours
+**Status**: **7/15 modules done** (Phases 1 & 2 Complete ✅)
+**Phase 1**: Google Workspace (Gmail, Drive, Calendar, Sheets, Docs) ✅
+**Phase 2**: AI Services (AI Chat, Creative) ✅
+**Next Action**: Phase 3 - Extract Bali Zero routes (oracle, pricing, team, advisory) - Est: 5 hours
 **Owner**: Development Team
 **Priority**: MEDIUM (can be done incrementally)
 

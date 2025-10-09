@@ -20,8 +20,8 @@ import sheetsRoutes from './google-workspace/sheets.routes.js';
 import docsRoutes from './google-workspace/docs.routes.js';
 
 // AI Services Routes
-// import aiRoutes from './ai-services/ai.routes.js';
-// import creativeRoutes from './ai-services/creative.routes.js';
+import aiRoutes from './ai-services/ai.routes.js';
+import creativeRoutes from './ai-services/creative.routes.js';
 
 // Bali Zero Routes
 // import oracleRoutes from './bali-zero/oracle.routes.js';
@@ -47,8 +47,8 @@ export function attachModularRoutes(app: Express) {
   app.use('/api/docs', docsRoutes);
 
   // AI Services
-  // app.use('/api/ai', aiRoutes);
-  // app.use('/api/creative', creativeRoutes);
+  app.use('/api/ai', aiRoutes);
+  app.use('/api/creative', creativeRoutes);
 
   // Bali Zero
   // app.use('/api/oracle', oracleRoutes);
@@ -70,10 +70,9 @@ export function attachModularRoutes(app: Express) {
  */
 export function getRouteStats() {
   return {
-    totalModules: 5, // Update as routes are added
-    implemented: ['gmail', 'drive', 'calendar', 'sheets', 'docs'],
+    totalModules: 7, // Update as routes are added
+    implemented: ['gmail', 'drive', 'calendar', 'sheets', 'docs', 'ai', 'creative'],
     pending: [
-      'ai', 'creative',
       'oracle', 'pricing', 'team',
       'whatsapp', 'instagram',
       'analytics'
