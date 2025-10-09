@@ -30,33 +30,175 @@ logger = logging.getLogger(__name__)
 # Base directory for scraped content
 BASE_DIR = Path(__file__).parent.parent / "INTEL_SCRAPING"
 
-# Category configuration with owners
-CATEGORY_OWNERS = {
-    # Standard categories (→ Social Media)
-    "immigration": "adit@balizero.com",
-    "business_bkpm": "dea@balizero.com",
-    "real_estate": "krisna@balizero.com",
-    "events_culture": "surya@balizero.com",
-    "social_media": "sahira@balizero.com",
-    "competitors": "damar@balizero.com",
-    "general_news": "vino@balizero.com",
-    "health_wellness": "ari@balizero.com",
-    "tax_djp": "veronika@balizero.com",
-    "jobs": "anton@balizero.com",
-    "lifestyle": "dewaayu@balizero.com",
+# ============================================
+# V2 CATEGORIES (Generated from config/categories_v2.json)
+# Last updated: 2025-10-08
+# ============================================
 
-    # Special categories (→ Email Only)
-    "ai_tech_global": "zero@balizero.com",
-    "dev_code_library": "zero@balizero.com",
-    "future_trends": "zero@balizero.com",
+# All 22 team members (from team.list backend)
+ALL_TEAM_EMAILS = [
+    "amanda@balizero.com",
+    "angel@balizero.com",
+    "anton@balizero.com",
+    "ari.firda@balizero.com",
+    "consulting@balizero.com",  # Adit
+    "damar@balizero.com",
+    "dea@balizero.com",
+    "dewaayu@balizero.com",
+    "faisha@balizero.com",
+    "kadek@balizero.com",
+    "krisna@balizero.com",
+    "marta@balizero.com",
+    "nina@balizero.com",
+    "olena@balizero.com",
+    "rina@balizero.com",
+    "ruslana@balizero.com",
+    "sahira@balizero.com",
+    "surya@balizero.com",
+    "veronika@balizero.com",
+    "vino@balizero.com",
+    "zainal@balizero.com",
+    "zero@balizero.com",
+]
+
+# CONSOLIDATED EMAIL MODE:
+# Each person gets ONE email with ALL categories
+# (not 14 separate emails per category)
+CATEGORY_OWNERS = {
+    "regulatory_changes": "CONSOLIDATED",  # Handled by consolidated email sender
+    "visa_immigration": "CONSOLIDATED",
+    "tax_compliance": "CONSOLIDATED",
+    "business_setup": "CONSOLIDATED",
+    "property_law": "CONSOLIDATED",
+    "banking_finance": "CONSOLIDATED",
+    "employment_law": "CONSOLIDATED",
+    "cost_of_living": "CONSOLIDATED",
+    "bali_lifestyle": "CONSOLIDATED",
+    "events_networking": "CONSOLIDATED",
+    "health_safety": "CONSOLIDATED",
+    "transport_connectivity": "CONSOLIDATED",
+    "competitor_intel": "CONSOLIDATED",
+    "macro_policy": "CONSOLIDATED",
 }
 
-# Special categories that skip Claude and social media
-SPECIAL_CATEGORIES = {"ai_tech_global", "dev_code_library", "future_trends"}
+# No special categories in V2 (all use standard pipeline)
+SPECIAL_CATEGORIES = set()
 
-# Intel sources by category
+# Intel sources by category (V2)
 INTEL_SOURCES = {
-    "immigration": [
+    "regulatory_changes": [
+        {'url': 'https://peraturan.go.id', 'tier': 1, 'name': 'Database Peraturan Indonesia'},
+        {'url': 'https://jdih.kemenkumham.go.id', 'tier': 1, 'name': 'Legal Documentation Center'},
+        {'url': 'https://www.bkpm.go.id/id/peraturan', 'tier': 1, 'name': 'BKPM Regulations'},
+        {'url': 'https://www.pajak.go.id/id/peraturan', 'tier': 1, 'name': 'Tax Regulations'},
+        {'url': 'https://www.atrbpn.go.id/Beranda/Peraturan', 'tier': 1, 'name': 'Land & Property Regulations'},
+    ],
+
+    "visa_immigration": [
+        {'url': 'https://www.imigrasi.go.id/id/berita/', 'tier': 1, 'name': 'Direktorat Imigrasi'},
+        {'url': 'https://bali.imigrasi.go.id/', 'tier': 1, 'name': 'Imigrasi Bali'},
+        {'url': 'https://denpasar.imigrasi.go.id/', 'tier': 1, 'name': 'Imigrasi Denpasar'},
+        {'url': 'https://www.kemlu.go.id/portal/id/', 'tier': 1, 'name': 'Ministry of Foreign Affairs'},
+        {'url': 'https://www.kemenkumham.go.id', 'tier': 1, 'name': 'Ministry of Law and Human Rights'},
+        {'url': 'https://www.thejakartapost.com/indonesia', 'tier': 2, 'name': 'Jakarta Post Indonesia'},
+        {'url': 'https://en.tempo.co/tag/immigration', 'tier': 2, 'name': 'Tempo Immigration'},
+    ],
+
+    "tax_compliance": [
+        {'url': 'https://www.pajak.go.id/', 'tier': 1, 'name': 'DJP Direktorat Jenderal Pajak'},
+        {'url': 'https://www.pajak.go.id/id/siaran-pers', 'tier': 1, 'name': 'DJP Press Releases'},
+        {'url': 'https://www.kemenkeu.go.id/', 'tier': 1, 'name': 'Ministry of Finance'},
+        {'url': 'https://bali.pajak.go.id/', 'tier': 1, 'name': 'DJP Bali'},
+        {'url': 'https://www.ddtcnews.com/', 'tier': 2, 'name': 'DDTC News'},
+    ],
+
+    "business_setup": [
+        {'url': 'https://oss.go.id/', 'tier': 1, 'name': 'Online Single Submission'},
+        {'url': 'https://www.bkpm.go.id/id/publikasi/siaran-pers', 'tier': 1, 'name': 'BKPM Press Releases'},
+        {'url': 'https://ahu.go.id/', 'tier': 1, 'name': 'Company Registration (AHU)'},
+        {'url': 'https://www.bi.go.id/', 'tier': 1, 'name': 'Bank Indonesia'},
+        {'url': 'https://www.indonesia-investments.com/', 'tier': 2, 'name': 'Indonesia Investments'},
+    ],
+
+    "property_law": [
+        {'url': 'https://www.atrbpn.go.id/', 'tier': 1, 'name': 'National Land Agency (BPN)'},
+        {'url': 'https://bali.bpn.go.id/', 'tier': 1, 'name': 'BPN Bali'},
+        {'url': 'https://simbg.pu.go.id/', 'tier': 1, 'name': 'Building Permits System'},
+        {'url': 'https://www.propertyguru.co.id/property-guides', 'tier': 2, 'name': 'PropertyGuru Guides'},
+        {'url': 'https://www.rumah.com/berita-properti', 'tier': 2, 'name': 'Rumah.com News'},
+    ],
+
+    "banking_finance": [
+        {'url': 'https://www.bi.go.id/', 'tier': 1, 'name': 'Bank Indonesia'},
+        {'url': 'https://www.ojk.go.id/', 'tier': 1, 'name': 'Financial Services Authority (OJK)'},
+        {'url': 'https://www.ppatk.go.id/', 'tier': 1, 'name': 'Financial Transaction Reports'},
+        {'url': 'https://www.bloomberg.com/indonesia', 'tier': 2, 'name': 'Bloomberg Indonesia'},
+    ],
+
+    "employment_law": [
+        {'url': 'https://www.kemnaker.go.id/', 'tier': 1, 'name': 'Ministry of Manpower'},
+        {'url': 'https://bpjsketenagakerjaan.go.id/', 'tier': 1, 'name': 'BPJS Employment'},
+        {'url': 'https://bpjs-kesehatan.go.id/', 'tier': 1, 'name': 'BPJS Health'},
+    ],
+
+    "cost_of_living": [
+        {'url': 'https://www.propertyguru.co.id/', 'tier': 2, 'name': 'PropertyGuru Indonesia'},
+        {'url': 'https://www.rumah.com/', 'tier': 2, 'name': 'Rumah.com'},
+        {'url': 'https://www.indonesia-expat.id/', 'tier': 2, 'name': 'Indonesia Expat Magazine'},
+        {'url': 'https://www.thebalibible.com/', 'tier': 2, 'name': 'The Bali Bible'},
+        {'url': 'https://coconuts.co/bali/', 'tier': 2, 'name': 'Coconuts Bali'},
+    ],
+
+    "bali_lifestyle": [
+        {'url': 'https://www.thebalibible.com/', 'tier': 2, 'name': 'The Bali Bible'},
+        {'url': 'https://whatsnewbali.com/', 'tier': 2, 'name': "What's New Bali"},
+        {'url': 'https://thehoneycombers.com/bali/', 'tier': 2, 'name': 'Honeycombers Bali'},
+        {'url': 'https://www.timeout.com/bali', 'tier': 2, 'name': 'Time Out Bali'},
+        {'url': 'https://coconuts.co/bali/', 'tier': 2, 'name': 'Coconuts Bali'},
+        {'url': 'https://nowbali.co.id/', 'tier': 2, 'name': 'Now Bali'},
+    ],
+
+    "events_networking": [
+        {'url': 'https://www.eventbrite.com/d/indonesia--bali/events/', 'tier': 2, 'name': 'Eventbrite Bali'},
+        {'url': 'https://www.meetup.com/cities/id/bali/', 'tier': 2, 'name': 'Meetup Bali'},
+        {'url': 'https://www.hubud.org/events/', 'tier': 2, 'name': 'Hubud Events'},
+        {'url': 'https://www.dojobali.org/', 'tier': 2, 'name': 'Dojo Bali'},
+        {'url': 'https://www.balispirit.com/', 'tier': 2, 'name': 'Bali Spirit Festival'},
+    ],
+
+    "health_safety": [
+        {'url': 'https://www.kemkes.go.id/', 'tier': 1, 'name': 'Ministry of Health'},
+        {'url': 'https://bali.kemkes.go.id/', 'tier': 1, 'name': 'Dinkes Bali'},
+        {'url': 'https://www.bpom.go.id/', 'tier': 1, 'name': 'BPOM Food & Drug Safety'},
+        {'url': 'https://pvmbg.pu.go.id/', 'tier': 1, 'name': 'Volcano Monitoring'},
+        {'url': 'https://www.who.int/indonesia', 'tier': 2, 'name': 'WHO Indonesia'},
+    ],
+
+    "transport_connectivity": [
+        {'url': 'https://ngurahrai-airport.co.id/', 'tier': 1, 'name': 'Ngurah Rai Airport'},
+        {'url': 'https://dishub.baliprov.go.id/', 'tier': 1, 'name': 'Bali Transport Dept'},
+        {'url': 'https://www.thejakartapost.com/travel', 'tier': 2, 'name': 'Jakarta Post Travel'},
+    ],
+
+    "competitor_intel": [
+        {'url': 'https://www.cekindo.com/', 'tier': 2, 'name': 'Cekindo Indonesia'},
+        {'url': 'https://emerhub.com/indonesia/blog/', 'tier': 2, 'name': 'Emerhub Blog'},
+        {'url': 'https://www.letsmoveindonesia.com/', 'tier': 2, 'name': 'Lets Move Indonesia'},
+        {'url': 'https://www.indonesia-briefing.com/', 'tier': 2, 'name': 'Indonesia Briefing'},
+    ],
+
+    "macro_policy": [
+        {'url': 'https://www.bi.go.id/', 'tier': 1, 'name': 'Bank Indonesia'},
+        {'url': 'https://www.bps.go.id/', 'tier': 1, 'name': 'Statistics Indonesia'},
+        {'url': 'https://www.kemenkeu.go.id/', 'tier': 1, 'name': 'Ministry of Finance'},
+        {'url': 'https://www.worldbank.org/en/country/indonesia', 'tier': 2, 'name': 'World Bank Indonesia'},
+    ],
+
+    # ============================================
+    # OLD CATEGORIES (DEPRECATED - DO NOT USE)
+    # Will be removed after migration complete
+    # ============================================
+    "immigration_OLD_DEPRECATED": [
         # TIER 1 - Official Government Sources
         {"url": "https://www.imigrasi.go.id/id/berita/", "tier": 1, "name": "Direktorat Imigrasi"},
         {"url": "https://bali.imigrasi.go.id/", "tier": 1, "name": "Imigrasi Bali"},

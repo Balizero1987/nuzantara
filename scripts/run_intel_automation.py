@@ -264,58 +264,50 @@ class IntelAutomationOrchestrator:
             }
             return False
 
-    def run_stage_5_email_standard(self):
-        """Stage 5: Email Category Owners (Standard Categories)"""
-        if 'email_standard' in self.skip_stages:
-            logger.info("Skipping Stage 5: Email Standard Categories")
+    def run_stage_5_email_consolidated(self):
+        """Stage 5: Send CONSOLIDATED emails (ONE per person with ALL categories)"""
+        if 'email' in self.skip_stages:
+            logger.info("Skipping Stage 5: Consolidated Email")
             return True
 
         logger.info("=" * 70)
-        logger.info("STAGE 5: EMAIL ROUTING (STANDARD CATEGORIES)")
+        logger.info("STAGE 5: CONSOLIDATED EMAIL SENDING (V2)")
         logger.info("=" * 70)
+        logger.info("Sending ONE email per collaborator with ALL 14 categories")
 
         try:
-            sender = EmailSender()
-            sent_count = 0
+            # Run the consolidated email sender
+            import subprocess
+            script_path = Path(__file__).parent / "send_consolidated_v2.py"
 
-            # Find all approved articles in standard categories
-            base_dir = Path(__file__).parent.parent / "INTEL_SCRAPING"
+            result = subprocess.run(
+                [sys.executable, str(script_path)],
+                capture_output=True,
+                text=True
+            )
 
-            for category in CATEGORY_OWNERS.keys():
-                if category in SPECIAL_CATEGORIES:
-                    continue  # Skip special categories
+            if result.returncode == 0:
+                logger.info("✅ Consolidated emails sent successfully")
+                logger.info(result.stdout)
 
-                articles_dir = base_dir / category / "articles"
-                if not articles_dir.exists():
-                    continue
+                self.results['email_consolidated'] = {
+                    'status': 'success',
+                    'completed_at': datetime.now().isoformat()
+                }
+                return True
+            else:
+                logger.error(f"❌ Consolidated email sending failed")
+                logger.error(result.stderr)
 
-                # Send ALL articles to category owner (no approval check since editorial review is disabled)
-                for article_file in articles_dir.glob("article_*.json"):
-                    try:
-                        with open(article_file) as f:
-                            article = json.load(f)
-
-                        # Send article directly without approval check
-                        if sender.send_article_email(article, category):
-                            sent_count += 1
-                            owner = CATEGORY_OWNERS[category]
-                            logger.info(f"✅ Sent to {owner}: {article.get('title', 'Untitled')}")
-
-                    except Exception as e:
-                        logger.error(f"Failed to send {article_file.name}: {e}")
-
-            self.results['email_standard'] = {
-                'status': 'success',
-                'sent_count': sent_count,
-                'completed_at': datetime.now().isoformat()
-            }
-
-            logger.info(f"Sent {sent_count} articles to category owners")
-            return True
+                self.results['email_consolidated'] = {
+                    'status': 'failed',
+                    'error': result.stderr
+                }
+                return False
 
         except Exception as e:
             logger.error(f"Email sending failed: {e}")
-            self.results['email_standard'] = {
+            self.results['email_consolidated'] = {
                 'status': 'failed',
                 'error': str(e)
             }
@@ -368,17 +360,17 @@ class IntelAutomationOrchestrator:
         if not self.check_dependencies():
             logger.warning("Some dependencies are missing. Install them to run all stages.")
 
-        # Run each stage with differentiated workflows
-        # IMPORTANT: Pipeline stops after Stage 3 (Email sending)
-        # Stages 4-5 (Editorial Review, Publishing, Social Media) are DISABLED for now
+        # Run each stage with V2 workflow
+        # V2 CHANGES:
+        # - Stage 5: CONSOLIDATED emails (ONE per person with ALL categories)
+        # - Editorial Review, Publishing: DISABLED (manual review for now)
         stages = [
             ('Stage 1: Scraping', self.run_stage_1_scraping),
             ('Stage 2A: RAG Processing', self.run_stage_2a_rag_processing),
             ('Stage 2B: Content Creation', self.run_stage_2b_content_creation),
-            ('Stage 3A: Email Special Categories', self.run_stage_3_email_special),  # ACTIVE
-            ('Stage 3B: Email Standard Categories', self.run_stage_5_email_standard),  # ACTIVE - renamed for clarity
-            # ('Stage 4: Editorial Review (Standard)', self.run_stage_3_editorial),  # DISABLED
-            # ('Stage 5: Publishing (Standard)', self.run_stage_4_publishing),  # DISABLED
+            ('Stage 5: Consolidated Email V2', self.run_stage_5_email_consolidated),  # V2 - ONE email per person
+            # ('Stage 4: Editorial Review', self.run_stage_3_editorial),  # DISABLED
+            # ('Stage 6: Publishing', self.run_stage_4_publishing),  # DISABLED
         ]
 
         for stage_name, stage_func in stages:
