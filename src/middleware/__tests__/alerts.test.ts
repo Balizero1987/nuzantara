@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 describe('Error Alerting System', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // Reset environment variables for tests
     process.env.ALERTS_ENABLED = 'true';
     process.env.ALERT_THRESHOLD_4XX = '5';
@@ -15,6 +15,10 @@ describe('Error Alerting System', () => {
     process.env.ALERT_WINDOW_MS = '60000'; // 1 minute for tests
     process.env.ALERT_COOLDOWN_MS = '5000'; // 5 seconds for tests
     process.env.ALERT_WHATSAPP = 'false'; // Disable WhatsApp for tests
+
+    // Reset alert metrics before each test
+    const { resetAlertMetrics } = await import('../monitoring.js');
+    resetAlertMetrics();
   });
 
   describe('Alert Configuration', () => {

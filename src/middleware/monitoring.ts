@@ -406,3 +406,13 @@ export function getAlertStatus() {
     } : null,
   };
 }
+
+// Reset all alert metrics (for testing)
+export function resetAlertMetrics() {
+  alertMetrics.count4xx = 0;
+  alertMetrics.count5xx = 0;
+  alertMetrics.totalRequests = 0;
+  alertMetrics.windowStart = Date.now();
+  alertMetrics.lastAlertTime = 0;
+  alertMetrics.lastAlertType = null;
+}
