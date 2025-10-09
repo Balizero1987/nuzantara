@@ -15,8 +15,8 @@ on:
 
 jobs:
   intel-pipeline:
-    runs-on: self-hosted  # Requires self-hosted runner with Ollama
-    timeout-minutes: 360  # 6 hours max
+    runs-on: ubuntu-latest  # GitHub-hosted runner (uses Claude API)
+    timeout-minutes: 120  # 2 hours max
 
     steps:
       - name: Checkout repository
@@ -37,10 +37,11 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Verify Ollama is running
+      - name: Verify Python environment
         run: |
-          ollama list || echo "Warning: Ollama not available"
-          ollama pull llama3.2:3b || echo "Warning: Could not pull LLAMA model"
+          python --version
+          pip --version
+          echo "Claude API will be used for AI processing"
 
       - name: Run Intel Automation Pipeline
         env:
@@ -48,8 +49,7 @@ jobs:
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
         run: |
-          cd scripts
-          python3 run_intel_automation.py ${{ github.event.inputs.skip_stages && format('--skip {0}', github.event.inputs.skip_stages) || '' }}
+          python3 scripts/run_intel_automation.py ${{ github.event.inputs.skip_stages && format('--skip {0}', github.event.inputs.skip_stages) || '' }}
 
       - name: Upload scraping results
         if: always()
