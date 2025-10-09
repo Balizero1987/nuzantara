@@ -24,11 +24,12 @@ import aiRoutes from './ai-services/ai.routes.js';
 import creativeRoutes from './ai-services/creative.routes.js';
 
 // Bali Zero Routes
-// import oracleRoutes from './bali-zero/oracle.routes.js';
-// import pricingRoutes from './bali-zero/pricing.routes.js';
-// import teamRoutes from './bali-zero/team.routes.js';
+import oracleRoutes from './bali-zero/oracle.routes.js';
+import pricingRoutes from './bali-zero/pricing.routes.js';
+import teamRoutes from './bali-zero/team.routes.js';
 
 // Communication Routes
+import translateRoutes from './communication/translate.routes.js';
 // import whatsappRoutes from './communication/whatsapp.routes.js';
 // import instagramRoutes from './communication/instagram.routes.js';
 
@@ -51,11 +52,12 @@ export function attachModularRoutes(app: Express) {
   app.use('/api/creative', creativeRoutes);
 
   // Bali Zero
-  // app.use('/api/oracle', oracleRoutes);
-  // app.use('/api/pricing', pricingRoutes);
-  // app.use('/api/team', teamRoutes);
+  app.use('/api/oracle', oracleRoutes);
+  app.use('/api/pricing', pricingRoutes);
+  app.use('/api/team', teamRoutes);
 
   // Communication
+  app.use('/api/translate', translateRoutes);
   // app.use('/api/whatsapp', whatsappRoutes);
   // app.use('/api/instagram', instagramRoutes);
 
@@ -70,10 +72,14 @@ export function attachModularRoutes(app: Express) {
  */
 export function getRouteStats() {
   return {
-    totalModules: 7, // Update as routes are added
-    implemented: ['gmail', 'drive', 'calendar', 'sheets', 'docs', 'ai', 'creative'],
-    pending: [
+    totalModules: 11, // Update as routes are added
+    implemented: [
+      'gmail', 'drive', 'calendar', 'sheets', 'docs',
+      'ai', 'creative',
       'oracle', 'pricing', 'team',
+      'translate'
+    ],
+    pending: [
       'whatsapp', 'instagram',
       'analytics'
     ]
