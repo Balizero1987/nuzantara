@@ -4,7 +4,7 @@ Guida rapida ai principali handover e aree del progetto.
 
 ## Aree Principali
 - Backend TypeScript: `backend-typescript.md`, `backend-handlers.md`, `backend-testing.md`, `backend-bug-fixes-2025-10-03.md`
-- Backend RAG (Python): `deploy-rag-backend.md`, `deploy-rag.md`, `rag-performance.md`
+- Backend RAG (Python): `deploy-rag-backend.md`, `deploy-rag.md`, `rag-performance.md`, `reranker-fix-2025-10-10.md` ⭐ NEW
 - WebApp: `frontend-ui.md`, `deploy-webapp.md`, `webapp-performance.md`
 - Deploy Backend (TS): `deploy-backend.md`, `deployment-analysis.md`, `deploy-57-handlers.md`
 - WebSocket: `websocket-implementation-2025-10-03.md`
