@@ -34,7 +34,7 @@ import translateRoutes from './communication/translate.routes.js';
 // import instagramRoutes from './communication/instagram.routes.js';
 
 // Analytics Routes
-// import analyticsRoutes from './analytics/analytics.routes.js';
+import analyticsRoutes from './analytics/analytics.routes.js';
 
 /**
  * Attach all routes to Express app
@@ -62,7 +62,7 @@ export function attachModularRoutes(app: Express) {
   // app.use('/api/instagram', instagramRoutes);
 
   // Analytics
-  // app.use('/api/analytics', analyticsRoutes);
+  app.use('/api/analytics', analyticsRoutes);
 
   console.log('✅ Modular routes attached');
 }
@@ -72,16 +72,17 @@ export function attachModularRoutes(app: Express) {
  */
 export function getRouteStats() {
   return {
-    totalModules: 11, // Update as routes are added
+    totalModules: 12, // Update as routes are added
     implemented: [
       'gmail', 'drive', 'calendar', 'sheets', 'docs',
       'ai', 'creative',
       'oracle', 'pricing', 'team',
-      'translate'
+      'translate',
+      'analytics'
     ],
     pending: [
-      'whatsapp', 'instagram',
-      'analytics'
-    ]
+      'whatsapp', 'instagram'
+    ],
+    note: 'Webhook routes (WhatsApp, Instagram) remain in router.ts by design'
   };
 }
