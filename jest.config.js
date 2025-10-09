@@ -60,4 +60,9 @@ export default {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   testTimeout: 30000,
   maxWorkers: '50%',
+  globals: {
+    'ts-jest': {
+      useESM: true,
+    },
+  },
 };
