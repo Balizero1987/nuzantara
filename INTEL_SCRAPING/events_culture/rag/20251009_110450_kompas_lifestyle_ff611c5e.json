@@ -1,0 +1,49 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "events_culture",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Kompas"
+    ],
+    "locations": [
+      "Sumatera Utara",
+      "Sumatera Selatan",
+      "Sumatera Barat"
+    ]
+  },
+  "keywords": [
+    "Kompas",
+    "Plus",
+    "News",
+    "Nusaraya",
+    "Jagat Literasi"
+  ],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": "",
+  "business_implications": "",
+  "source_url": "https://lifestyle.kompas.com/",
+  "source_name": "Kompas Lifestyle",
+  "scraped_at": "2025-10-09T11:04:50.740278",
+  "content_hash": "ff611c5e2e46c155",
+  "word_count": 1992
+}

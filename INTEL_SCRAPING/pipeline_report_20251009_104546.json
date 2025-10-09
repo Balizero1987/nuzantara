@@ -1,0 +1,11 @@
+{
+  "start_time": "2025-10-09T10:45:46.788053",
+  "end_time": "2025-10-09T10:45:48.266120",
+  "duration_seconds": 1.478067,
+  "stages": {
+    "scraping": {
+      "status": "failed",
+      "error": "'url'"
+    }
+  }
+}

@@ -815,7 +815,7 @@ class IntelScraper:
 
                 # Create document
                 doc = {
-                    "url": url,
+                    "source_url": url,
                     "source_name": source_info['name'],
                     "tier": source_info['tier'],
                     "category": category,
@@ -879,7 +879,7 @@ class IntelScraper:
         with open(md_filepath, 'w', encoding='utf-8') as f:
             f.write(f"# {doc['title']}\n\n")
             f.write(f"**Source**: {doc['source_name']} (Tier {doc['tier']})\n")
-            f.write(f"**URL**: {doc['url']}\n")
+            f.write(f"**URL**: {doc['source_url']}\n")
             f.write(f"**Scraped**: {doc['scraped_at']}\n\n")
             f.write("---\n\n")
             f.write(doc['content'])

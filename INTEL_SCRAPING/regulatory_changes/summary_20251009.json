@@ -1,0 +1,19 @@
+{
+  "category": "regulatory_changes",
+  "timestamp": "2025-10-09T10:47:35.323525",
+  "total_documents": 2,
+  "sources": [
+    {
+      "name": "Database Peraturan Indonesia",
+      "tier": 1,
+      "word_count": 1998,
+      "title": "Database Peraturan | DITJEN PP"
+    },
+    {
+      "name": "Tax Regulations",
+      "tier": 1,
+      "word_count": 957,
+      "title": "Dokumen Peraturan | Direktorat Jenderal Pajak"
+    }
+  ]
+}

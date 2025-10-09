@@ -1,0 +1,56 @@
+{
+  "title": "Ditjen AHU Online",
+  "summary": "Website Ditjen AHU provides information on various aspects of the Indonesian government's corporate registration process.",
+  "category": "business_setup",
+  "sub_category": "corporate_registration",
+  "entities": {
+    "organizations": [
+      "Ditjen AHU",
+      "SIMPADHU",
+      "AHU Unduh Data",
+      "AHU Pendaftaran Notaris",
+      "AHU Perseroan terbatas",
+      "AHU Fidusia Online",
+      "AHU Perkumpulan",
+      "AHU Pesan Nama Badan Hukum Sosial",
+      "AHU Yayasan",
+      "AHU Badan Usaha"
+    ]
+  },
+  "keywords": [
+    "corporate registration",
+    "Indonesian government",
+    "Ditjen AHU"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "businesses",
+      "investors"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Website provides information on corporate registration process",
+    "SIMPADHU is a platform for online registration"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "The website provides valuable resources for businesses looking to register with the Indonesian government",
+  "source_url": "https://ahu.go.id/",
+  "source_name": "Company Registration (AHU)",
+  "scraped_at": "2025-10-09T10:49:15.274632",
+  "content_hash": "c4161a8a33378a5c",
+  "word_count": 373
+}
