@@ -1,6 +1,6 @@
 {
-  "version": "2.0",
-  "last_updated": "2025-10-08",
+  "version": "2.2",
+  "last_updated": "2025-10-10",
   "categories": [
     {
       "id": "regulatory_changes",
@@ -47,6 +47,66 @@
           "name": "Land & Property Regulations",
           "tier": 1,
           "type": "government"
+        },
+        {
+          "url": "https://www.kemenkeu.go.id/publikasi",
+          "name": "Kemenkeu Publications",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kemenkumham.go.id/berita",
+          "name": "Kemenkumham News",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kemenperin.go.id/berita",
+          "name": "Kemenperin News",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kemendag.go.id/berita",
+          "name": "Kemendag News",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.ekon.go.id/",
+          "name": "Menko Ekonomi",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.hukumonline.com/",
+          "name": "Hukum Online",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.legalakses.com/",
+          "name": "Legal Akses",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.indonesia-investments.com/news/regulation",
+          "name": "Indonesia Investments Regulation",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.indonesia-briefing.com/news/regulation",
+          "name": "Indonesia Briefing Regulation",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.bakermckenzie.com/en/locations/asia-pacific/indonesia",
+          "name": "Baker McKenzie Indonesia",
+          "tier": 2,
+          "type": "professional"
         }
       ],
       "validation_rules": {
@@ -111,6 +171,114 @@
           "name": "Tempo Immigration",
           "tier": 2,
           "type": "news"
+        },
+        {
+          "url": "https://jakarta.imigrasi.go.id/",
+          "name": "Imigrasi Jakarta",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://surabaya.imigrasi.go.id/",
+          "name": "Imigrasi Surabaya",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://bandung.imigrasi.go.id/",
+          "name": "Imigrasi Bandung",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://medan.imigrasi.go.id/",
+          "name": "Imigrasi Medan",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://yogyakarta.imigrasi.go.id/",
+          "name": "Imigrasi Yogyakarta",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://semarang.imigrasi.go.id/",
+          "name": "Imigrasi Semarang",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://makassar.imigrasi.go.id/",
+          "name": "Imigrasi Makassar",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://batam.imigrasi.go.id/",
+          "name": "Imigrasi Batam",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.reuters.com/places/indonesia",
+          "name": "Reuters Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.bbc.com/news/world/asia/indonesia",
+          "name": "BBC Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.bloomberg.com/indonesia",
+          "name": "Bloomberg Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.scmp.com/topics/indonesia",
+          "name": "South China Morning Post Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.channelnewsasia.com/indonesia",
+          "name": "CNA Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.straitstimes.com/tags/indonesia",
+          "name": "Straits Times Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.aljazeera.com/where/indonesia/",
+          "name": "Al Jazeera Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://coconuts.co/bali/",
+          "name": "Coconuts Bali",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://nowbali.co.id/",
+          "name": "Now Bali",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.indonesia-expat.id/",
+          "name": "Indonesia Expat Magazine",
+          "tier": 2,
+          "type": "news"
         }
       ],
       "validation_rules": {
@@ -161,6 +329,96 @@
         {
           "url": "https://www.ddtcnews.com/",
           "name": "DDTC News",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://jakarta.pajak.go.id/",
+          "name": "DJP Jakarta",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://jabar.pajak.go.id/",
+          "name": "DJP Jawa Barat",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://jatim.pajak.go.id/",
+          "name": "DJP Jawa Timur",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://sulsel.pajak.go.id/",
+          "name": "DJP Sulawesi Selatan",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://sumut.pajak.go.id/",
+          "name": "DJP Sumatera Utara",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://kalimantan.pajak.go.id/",
+          "name": "DJP Kalimantan",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.pwc.com/id/en/tax",
+          "name": "PwC Indonesia Tax",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://www.ey.com/id_id/tax",
+          "name": "EY Indonesia Tax",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://www.deloitte.com/id/en/services/tax",
+          "name": "Deloitte Indonesia Tax",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://www.kpmg.com/id/en/home/services/tax",
+          "name": "KPMG Indonesia Tax",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://www.ddtc.co.id/",
+          "name": "DDTC Consulting",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://www.ortax.org/",
+          "name": "Ortax Tax Portal",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.pajakku.com/",
+          "name": "Pajakku",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.online-pajak.com/",
+          "name": "OnlinePajak",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.cnbcindonesia.com/news/tag/pajak",
+          "name": "CNBC Indonesia Tax News",
           "tier": 2,
           "type": "news"
         }
@@ -215,6 +473,96 @@
           "name": "Indonesia Investments",
           "tier": 2,
           "type": "news"
+        },
+        {
+          "url": "https://www.kemenkeu.go.id/bea-cukai",
+          "name": "Bea Cukai",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://lkpp.go.id/",
+          "name": "Public Procurement (LKPP)",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kemendag.go.id/",
+          "name": "Kemendag",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kemenparekraf.go.id/",
+          "name": "Kemenparekraf",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.pwc.com/id/en/doing-business",
+          "name": "PwC Doing Business",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://www.ey.com/id_id/private-client-services",
+          "name": "EY Private Client",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://www.deloitte.com/id/en/services/consulting",
+          "name": "Deloitte Consulting",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://www.kpmg.com/id/en/home/services/advisory",
+          "name": "KPMG Advisory",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://www.cekindo.com/blog",
+          "name": "Cekindo Blog",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://emerhub.com/indonesia/blog/",
+          "name": "Emerhub Blog",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.letsmoveindonesia.com/blog",
+          "name": "Let's Move Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.indonesia-briefing.com/",
+          "name": "Indonesia Briefing",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://jakartaglobe.id/business",
+          "name": "Jakarta Globe Business",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.thejakartapost.com/business",
+          "name": "Jakarta Post Business",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.cnbcindonesia.com/",
+          "name": "CNBC Indonesia",
+          "tier": 2,
+          "type": "news"
         }
       ],
       "validation_rules": {
@@ -267,6 +615,66 @@
           "name": "Rumah.com News",
           "tier": 2,
           "type": "portal"
+        },
+        {
+          "url": "https://jakarta.bpn.go.id/",
+          "name": "BPN Jakarta",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://jabar.bpn.go.id/",
+          "name": "BPN Jawa Barat",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://jatim.bpn.go.id/",
+          "name": "BPN Jawa Timur",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://banten.bpn.go.id/",
+          "name": "BPN Banten",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.rumah123.com/berita-properti/",
+          "name": "Rumah123 News",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.lamudi.co.id/journal/",
+          "name": "Lamudi Journal",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.99.co/blog/indonesia/",
+          "name": "99.co Indonesia Blog",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.urbanindo.com/blog",
+          "name": "UrbanIndo Blog",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.thejakartapost.com/life/property",
+          "name": "Jakarta Post Property",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://properti.kompas.com/",
+          "name": "Kompas Properti",
+          "tier": 2,
+          "type": "news"
         }
       ],
       "validation_rules": {
@@ -315,6 +723,24 @@
           "name": "Bloomberg Indonesia",
           "tier": 2,
           "type": "news"
+        },
+        {
+          "url": "https://www.bi.go.id/id/publikasi/laporan",
+          "name": "Bank Indonesia Reports",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://www.kontan.co.id/",
+          "name": "Kontan Financial News",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.reuters.com/markets/asia/indonesia",
+          "name": "Reuters Indonesia Markets",
+          "tier": 2,
+          "type": "news"
         }
       ]
     },
@@ -351,6 +777,18 @@
           "name": "BPJS Health",
           "tier": 1,
           "type": "government"
+        },
+        {
+          "url": "https://www.kemnaker.go.id/berita",
+          "name": "Kemnaker News & Announcements",
+          "tier": 1,
+          "type": "government"
+        },
+        {
+          "url": "https://gajimu.com/",
+          "name": "Gajimu Salary & Labor Info",
+          "tier": 2,
+          "type": "professional"
         }
       ]
     },
@@ -590,6 +1028,24 @@
           "name": "Jakarta Post Travel",
           "tier": 2,
           "type": "news"
+        },
+        {
+          "url": "https://www.soetta.id/",
+          "name": "Soekarno-Hatta Airport",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://www.garuda-indonesia.com/id/id/news",
+          "name": "Garuda Indonesia News",
+          "tier": 2,
+          "type": "airline"
+        },
+        {
+          "url": "https://www.airnav.co.id/",
+          "name": "AirNav Indonesia",
+          "tier": 1,
+          "type": "government"
         }
       ]
     },
@@ -631,6 +1087,18 @@
         {
           "url": "https://www.indonesia-briefing.com/",
           "name": "Indonesia Briefing",
+          "tier": 2,
+          "type": "competitor"
+        },
+        {
+          "url": "https://www.3ecpa.com.hk/blog/",
+          "name": "3E Accounting Blog",
+          "tier": 2,
+          "type": "competitor"
+        },
+        {
+          "url": "https://www.guidemesingapore.com/business-guides/incorporation/indonesia",
+          "name": "GuideMe Singapore Indonesia",
           "tier": 2,
           "type": "competitor"
         }
@@ -675,6 +1143,390 @@
           "name": "World Bank Indonesia",
           "tier": 2,
           "type": "international"
+        }
+      ]
+    },
+    {
+      "id": "social_media",
+      "name": "Social Media Trends",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "MEDIUM",
+      "update_frequency": "daily",
+      "owner": "zero@balizero.com",
+      "description": "Track trending topics, viral content, and social sentiment",
+      "quality_thresholds": {
+        "min_word_count": 150,
+        "min_tier_1_percentage": 0,
+        "quality_score_min": 4.0,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://twitter.com/Kemenkumham_RI",
+          "name": "Twitter @Kemenkumham_RI",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://twitter.com/DitjenImigrasi",
+          "name": "Twitter @DitjenImigrasi",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://twitter.com/DitjenPajak",
+          "name": "Twitter @DitjenPajak",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://twitter.com/BKPM_RI",
+          "name": "Twitter @BKPM_RI",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://twitter.com/Bank_Indonesia",
+          "name": "Twitter @Bank_Indonesia",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.instagram.com/kemenkumham.ri/",
+          "name": "Instagram Kemenkumham",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.instagram.com/ditjenimigrasi/",
+          "name": "Instagram Ditjen Imigrasi",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.instagram.com/ditjenpajak/",
+          "name": "Instagram DJP",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.instagram.com/bkpm_ri/",
+          "name": "Instagram BKPM",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.instagram.com/bank_indonesia/",
+          "name": "Instagram Bank Indonesia",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.facebook.com/KemenkumhamRI",
+          "name": "Facebook Kemenkumham",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.facebook.com/DirektoratJenderalImigrasi",
+          "name": "Facebook Ditjen Imigrasi",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.facebook.com/pajak.go.id",
+          "name": "Facebook DJP",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.facebook.com/BKPM.RI",
+          "name": "Facebook BKPM",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.facebook.com/BankIndonesia",
+          "name": "Facebook Bank Indonesia",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.tiktok.com/@kemenkeu",
+          "name": "TikTok Kemenkeu",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.tiktok.com/@ditjenpajak",
+          "name": "TikTok DJP",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.linkedin.com/company/bank-indonesia",
+          "name": "LinkedIn Bank Indonesia",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.linkedin.com/company/bkpm",
+          "name": "LinkedIn BKPM",
+          "tier": 2,
+          "type": "social"
+        },
+        {
+          "url": "https://www.reddit.com/r/indonesia/",
+          "name": "Reddit r/indonesia",
+          "tier": 3,
+          "type": "social"
+        }
+      ]
+    },
+    {
+      "id": "general_news",
+      "name": "General Indonesia News",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "LOW",
+      "update_frequency": "daily",
+      "owner": "zero@balizero.com",
+      "description": "General news not fitting other categories",
+      "quality_thresholds": {
+        "min_word_count": 200,
+        "min_tier_1_percentage": 0,
+        "quality_score_min": 4.0,
+        "date_required": true
+      },
+      "sources": [
+        {
+          "url": "https://www.kompas.com/",
+          "name": "Kompas",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.detik.com/",
+          "name": "Detik",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.cnnindonesia.com/",
+          "name": "CNN Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.liputan6.com/",
+          "name": "Liputan6",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.tribunnews.com/",
+          "name": "Tribun News",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://en.tempo.co/",
+          "name": "Tempo",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.antaranews.com/",
+          "name": "Antara News",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.mediaindonesia.com/",
+          "name": "Media Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.republika.co.id/",
+          "name": "Republika",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.suara.com/",
+          "name": "Suara",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.okezone.com/",
+          "name": "Okezone",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.sindonews.com/",
+          "name": "Sindonews",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.kontan.co.id/",
+          "name": "Kontan",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.bisnis.com/",
+          "name": "Bisnis Indonesia",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.beritasatu.com/",
+          "name": "BeritaSatu",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.viva.co.id/",
+          "name": "Viva",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.merdeka.com/",
+          "name": "Merdeka",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.jpnn.com/",
+          "name": "JPNN",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.grid.id/",
+          "name": "Grid.id",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://www.kapanlagi.com/",
+          "name": "KapanLagi",
+          "tier": 2,
+          "type": "news"
+        }
+      ]
+    },
+    {
+      "id": "jobs",
+      "name": "Job Opportunities",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "MEDIUM",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "description": "Job openings for expats and professionals",
+      "quality_thresholds": {
+        "min_word_count": 100,
+        "min_tier_1_percentage": 0,
+        "quality_score_min": 3.5,
+        "date_required": false
+      },
+      "sources": [
+        {
+          "url": "https://www.jobstreet.co.id/",
+          "name": "JobStreet Indonesia",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.linkedin.com/jobs/indonesia",
+          "name": "LinkedIn Jobs Indonesia",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://id.indeed.com/",
+          "name": "Indeed Indonesia",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://glints.com/id",
+          "name": "Glints Indonesia",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.kalibrr.com/",
+          "name": "Kalibrr",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.urbanhire.com/",
+          "name": "UrbanHire",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.ekrut.com/",
+          "name": "Ekrut",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.karir.com/",
+          "name": "Karir.com",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://id.jobsdb.com/",
+          "name": "JobsDB Indonesia",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.techinasia.com/jobs",
+          "name": "Tech in Asia Jobs",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://startup.jobs/indonesia",
+          "name": "Startup Jobs Indonesia",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://remote.co/remote-jobs/indonesia",
+          "name": "Remote.co Indonesia",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://weworkremotely.com/",
+          "name": "We Work Remotely",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://www.flexjobs.com/",
+          "name": "FlexJobs",
+          "tier": 2,
+          "type": "portal"
+        },
+        {
+          "url": "https://angel.co/indonesia",
+          "name": "AngelList Indonesia",
+          "tier": 2,
+          "type": "portal"
         }
       ]
     }
