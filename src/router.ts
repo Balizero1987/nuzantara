@@ -117,6 +117,9 @@ import { handlers as zeroHandlers } from "./handlers/zero/index.js";
 import { getAllHandlers, getHandlersByCategory, getHandlerDetails, getAnthropicToolDefinitions } from "./handlers/system/handlers-introspection.js";
 import { executeHandler, executeBatchHandlers } from "./handlers/system/handler-proxy.js";
 
+// Rate Limiting
+import { selectiveRateLimiter } from "./middleware/selective-rate-limit.js";
+
 const ActionSchema = z.object({
   key: z.string(),
   params: z.record(z.any()).default({}),
@@ -1162,7 +1165,7 @@ export function attachRoutes(app: import("express").Express) {
   });
 
   // === Legacy RPC-style /call (for backwards compatibility) ===
-  app.post("/call", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post("/call", apiKeyAuth, selectiveRateLimiter, async (req: RequestWithCtx, res: Response) => {
     let key = '';
     let params = {};
 
