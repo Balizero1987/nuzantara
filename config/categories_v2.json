@@ -1,5 +1,5 @@
 {
-  "version": "2.2",
+  "version": "2.3",
   "last_updated": "2025-10-10",
   "categories": [
     {
@@ -1527,6 +1527,429 @@
           "name": "AngelList Indonesia",
           "tier": 2,
           "type": "portal"
+        }
+      ]
+    },
+    {
+      "id": "ai_tech_global",
+      "name": "AI & Tech Global Trends",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "INDIRECT",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "content_type": "blog_article",
+      "internal_only": true,
+      "description": "Global AI and tech industry trends, research, breakthroughs (Zero personal)",
+      "email_style": "blog",
+      "quality_thresholds": {
+        "min_word_count": 800,
+        "min_tier_1_percentage": 0,
+        "quality_score_min": 6.0,
+        "date_required": false
+      },
+      "sources": [
+        {
+          "url": "https://openai.com/blog",
+          "name": "OpenAI Blog",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://ai.google/research",
+          "name": "Google AI Research",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://research.facebook.com/ai",
+          "name": "Meta AI Research",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://openai.com/research",
+          "name": "OpenAI Research",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://anthropic.com/research",
+          "name": "Anthropic Research",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://deepmind.google/research",
+          "name": "DeepMind Research",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://nvidia.com/en-us/ai",
+          "name": "NVIDIA AI",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://microsoft.com/en-us/research/lab/microsoft-research-ai",
+          "name": "Microsoft Research AI",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://ai.meta.com",
+          "name": "Meta AI",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://techcrunch.com/category/artificial-intelligence",
+          "name": "TechCrunch AI",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://theverge.com/ai-artificial-intelligence",
+          "name": "The Verge AI",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://wired.com/tag/artificial-intelligence",
+          "name": "WIRED AI",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://arstechnica.com/ai",
+          "name": "Ars Technica AI",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://venturebeat.com/ai",
+          "name": "VentureBeat AI",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://aiweekly.co",
+          "name": "AI Weekly",
+          "tier": 2,
+          "type": "newsletter"
+        },
+        {
+          "url": "https://paperswithcode.com",
+          "name": "Papers with Code",
+          "tier": 2,
+          "type": "research"
+        },
+        {
+          "url": "https://huggingface.co/blog",
+          "name": "Hugging Face Blog",
+          "tier": 2,
+          "type": "official"
+        },
+        {
+          "url": "https://arxiv.org/list/cs.AI/recent",
+          "name": "arXiv AI",
+          "tier": 2,
+          "type": "research"
+        },
+        {
+          "url": "https://news.ycombinator.com/newest",
+          "name": "Hacker News",
+          "tier": 2,
+          "type": "community"
+        },
+        {
+          "url": "https://www.technologyreview.com/topic/artificial-intelligence",
+          "name": "MIT Tech Review AI",
+          "tier": 2,
+          "type": "news"
+        }
+      ]
+    },
+    {
+      "id": "dev_code_library",
+      "name": "Developer Tools & Code Libraries",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "INDIRECT",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "content_type": "blog_article",
+      "internal_only": true,
+      "description": "Developer tools, code libraries, frameworks, best practices (Zero personal)",
+      "email_style": "blog",
+      "quality_thresholds": {
+        "min_word_count": 800,
+        "min_tier_1_percentage": 0,
+        "quality_score_min": 6.0,
+        "date_required": false
+      },
+      "sources": [
+        {
+          "url": "https://github.blog/engineering",
+          "name": "GitHub Engineering",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://stackoverflow.blog",
+          "name": "Stack Overflow Blog",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://www.typescriptlang.org/docs/handbook",
+          "name": "TypeScript Handbook",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://react.dev/blog",
+          "name": "React Blog",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://nodejs.org/en/blog",
+          "name": "Node.js Blog",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://python.org/blogs",
+          "name": "Python Blog",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://go.dev/blog",
+          "name": "Go Blog",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://blog.rust-lang.org",
+          "name": "Rust Blog",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://docker.com/blog",
+          "name": "Docker Blog",
+          "tier": 1,
+          "type": "official"
+        },
+        {
+          "url": "https://dev.to",
+          "name": "Dev.to Community",
+          "tier": 2,
+          "type": "community"
+        },
+        {
+          "url": "https://hashnode.com",
+          "name": "Hashnode",
+          "tier": 2,
+          "type": "community"
+        },
+        {
+          "url": "https://medium.com/tag/programming",
+          "name": "Medium Programming",
+          "tier": 2,
+          "type": "community"
+        },
+        {
+          "url": "https://freecodecamp.org/news",
+          "name": "freeCodeCamp",
+          "tier": 2,
+          "type": "educational"
+        },
+        {
+          "url": "https://css-tricks.com",
+          "name": "CSS Tricks",
+          "tier": 2,
+          "type": "blog"
+        },
+        {
+          "url": "https://smashingmagazine.com",
+          "name": "Smashing Magazine",
+          "tier": 2,
+          "type": "blog"
+        },
+        {
+          "url": "https://martinfowler.com",
+          "name": "Martin Fowler",
+          "tier": 2,
+          "type": "blog"
+        },
+        {
+          "url": "https://kentcdodds.com/blog",
+          "name": "Kent C. Dodds",
+          "tier": 2,
+          "type": "blog"
+        },
+        {
+          "url": "https://overreacted.io",
+          "name": "Dan Abramov",
+          "tier": 2,
+          "type": "blog"
+        },
+        {
+          "url": "https://joshwcomeau.com",
+          "name": "Josh W. Comeau",
+          "tier": 2,
+          "type": "blog"
+        },
+        {
+          "url": "https://web.dev/blog",
+          "name": "web.dev Blog",
+          "tier": 2,
+          "type": "official"
+        }
+      ]
+    },
+    {
+      "id": "future_trends",
+      "name": "Future Tech & Emerging Trends",
+      "priority": "MEDIUM",
+      "enabled": true,
+      "revenue_impact": "INDIRECT",
+      "update_frequency": "weekly",
+      "owner": "zero@balizero.com",
+      "content_type": "blog_article",
+      "internal_only": true,
+      "description": "Future tech, predictions, emerging trends, innovation (Zero personal)",
+      "email_style": "blog",
+      "quality_thresholds": {
+        "min_word_count": 800,
+        "min_tier_1_percentage": 0,
+        "quality_score_min": 6.0,
+        "date_required": false
+      },
+      "sources": [
+        {
+          "url": "https://www.technologyreview.com",
+          "name": "MIT Technology Review",
+          "tier": 1,
+          "type": "research"
+        },
+        {
+          "url": "https://wired.com/category/future",
+          "name": "WIRED Future",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://scientificamerican.com/technology",
+          "name": "Scientific American Tech",
+          "tier": 1,
+          "type": "research"
+        },
+        {
+          "url": "https://nature.com/subjects/computer-science",
+          "name": "Nature Computer Science",
+          "tier": 1,
+          "type": "research"
+        },
+        {
+          "url": "https://science.org/topic/computers-mathematics",
+          "name": "Science Magazine",
+          "tier": 1,
+          "type": "research"
+        },
+        {
+          "url": "https://spectrum.ieee.org",
+          "name": "IEEE Spectrum",
+          "tier": 1,
+          "type": "research"
+        },
+        {
+          "url": "https://technews.acm.org",
+          "name": "ACM TechNews",
+          "tier": 1,
+          "type": "research"
+        },
+        {
+          "url": "https://gartner.com/en/research",
+          "name": "Gartner Research",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://mckinsey.com/capabilities/mckinsey-digital",
+          "name": "McKinsey Digital",
+          "tier": 2,
+          "type": "professional"
+        },
+        {
+          "url": "https://futurism.com",
+          "name": "Futurism",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://singularityhub.com",
+          "name": "Singularity Hub",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://thenextweb.com",
+          "name": "The Next Web",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://fastcompany.com/technology",
+          "name": "Fast Company Tech",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://aeon.co/technology",
+          "name": "Aeon Technology",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://noahpinion.substack.com",
+          "name": "Noah Smith",
+          "tier": 2,
+          "type": "blog"
+        },
+        {
+          "url": "https://stratechery.com",
+          "name": "Stratechery",
+          "tier": 2,
+          "type": "blog"
+        },
+        {
+          "url": "https://bloomberg.com/technology",
+          "name": "Bloomberg Technology",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://theinformation.com",
+          "name": "The Information",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://protocol.com",
+          "name": "Protocol",
+          "tier": 2,
+          "type": "news"
+        },
+        {
+          "url": "https://axios.com/technology",
+          "name": "Axios Technology",
+          "tier": 2,
+          "type": "news"
         }
       ]
     }
