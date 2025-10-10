@@ -309,6 +309,7 @@ If during this session you:
 - **Full system docs**: `.claude/README.md`
 - **Project details**: `.claude/PROJECT_CONTEXT.md`
 - **Entry point**: `AI_START_HERE.md`
+- **Onboarding (new joiners)**: `docs/onboarding/INDEX.md`
 
 ---
 
