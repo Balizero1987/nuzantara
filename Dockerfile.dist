@@ -12,6 +12,9 @@ RUN npm ci --only=production --no-audit
 # Copy pre-built dist (all code is compiled here)
 COPY dist/ ./dist/
 
+# Copy static files (HTML, CSS, JS, i18n)
+COPY static/ ./static/
+
 # Environment
 ENV NODE_ENV=production
 ENV PORT=8080
