@@ -57,7 +57,16 @@ export async function baliZeroChat(params: any, req?: Request): Promise<BaliZero
       user_role
     });
 
-    return result;
+    // Normalize empty responses to a safe, user‑visible fallback to avoid "blank" UI replies
+    // Keep the contract stable: always return a non‑empty `response` string
+    const hasText = typeof result?.response === 'string' && result.response.trim().length > 0;
+    const fallback = 'I could not generate a direct answer from the knowledge base. Please rephrase or ask a more specific question.';
+    const normalized = {
+      ...result,
+      response: hasText ? result.response : fallback,
+    } as BaliZeroResponse;
+
+    return normalized;
   } catch (error: any) {
     console.error('Bali Zero chat error:', error);
     throw error;
