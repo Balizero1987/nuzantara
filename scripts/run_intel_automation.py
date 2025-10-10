@@ -87,17 +87,14 @@ class IntelAutomationPipeline:
         else:
             logger.info("⏭️  Skipping Stage 2: AI Processing")
 
-        # Stage 3: Editorial (SKIPPED)
-        logger.info("⏭️  Skipping Stage 3: Editorial (manual)")
+        # Stage 3: Editorial (STANDBY)
+        logger.info("⏭️  Stage 3: Editorial (STANDBY - not in production)")
 
-        # Stage 4: Publishing (SKIPPED)
-        logger.info("⏭️  Skipping Stage 4: Publishing (manual)")
+        # Stage 4: Publishing (STANDBY)
+        logger.info("⏭️  Stage 4: Multi-Channel Publishing (STANDBY - not in production)")
 
-        # Stage 5: Email Notifications
-        if "stage5" not in self.skip_stages and "email" not in self.skip_stages:
-            success = success and self._run_stage5_email()
-        else:
-            logger.info("⏭️  Skipping Stage 5: Email")
+        # NOTE: Email notifications now handled by Stage 2B
+        logger.info("ℹ️  Email workflow integrated in Stage 2B (parallel processing)")
 
         # Final report
         self._print_report()
@@ -164,77 +161,55 @@ class IntelAutomationPipeline:
             return False
 
     def _run_stage2_processing(self) -> bool:
-        """Stage 2: Process raw data with Claude API."""
+        """Stage 2: PARALLEL processing (2A RAG + 2B Content IN CONTEMPORANEA)."""
         logger.info("")
         logger.info("=" * 80)
-        logger.info("STAGE 2: AI PROCESSING (Claude API)")
+        logger.info("STAGE 2: PARALLEL PROCESSING (2A + 2B IN CONTEMPORANEA)")
         logger.info("=" * 80)
 
         start_time = datetime.now()
 
         try:
-            # Check for raw files
-            raw_files = list(OUTPUT_BASE.rglob("*/raw/*.json"))
-            logger.info(f"Found {len(raw_files)} raw JSON files to process")
+            # Check for raw markdown files
+            raw_files = list(OUTPUT_BASE.rglob("*/raw/*.md"))
+            logger.info(f"Found {len(raw_files)} raw markdown files to process")
 
             if not raw_files:
                 logger.warning("⚠️  No raw files found, skipping AI processing")
                 return True
 
-            # Import stage 2 processor
+            # Import parallel processor
             try:
-                from stage2_ai_processor import process_raw_files
+                import asyncio
+                import sys
+                sys.path.insert(0, str(SCRIPT_DIR / 'bali-intel-scraper' / 'scripts'))
 
-                results = process_raw_files(
-                    raw_files=raw_files,
-                    output_chromadb=OUTPUT_BASE / "chromadb_ready",
-                    output_markdown=OUTPUT_BASE / "markdown_articles"
-                )
+                from stage2_parallel_processor import run_stage2_parallel
 
-                self.stats['stages']['processing'] = {
-                    'duration': (datetime.now() - start_time).total_seconds(),
-                    'success': True,
-                    'articles_processed': results.get('total_processed', 0),
-                    'json_generated': results.get('json_count', 0),
-                    'md_generated': results.get('md_count', 0)
-                }
-
-                logger.info(f"✅ Stage 2 complete: {results.get('total_processed', 0)} articles processed")
-                return True
-
-            except ImportError:
-                logger.warning("⚠️  stage2_ai_processor.py not found, creating basic processor...")
-
-                # Basic fallback: just copy raw files
-                chromadb_dir = OUTPUT_BASE / "chromadb_ready"
-                markdown_dir = OUTPUT_BASE / "markdown_articles"
-                chromadb_dir.mkdir(parents=True, exist_ok=True)
-
-                processed = 0
-                for raw_file in raw_files[:10]:  # Limit to 10 for now
-                    try:
-                        with open(raw_file, 'r', encoding='utf-8') as f:
-                            data = json.load(f)
-
-                        # Simple copy to chromadb_ready
-                        output_file = chromadb_dir / f"processed_{raw_file.stem}.json"
-                        with open(output_file, 'w', encoding='utf-8') as f:
-                            json.dump(data, f, indent=2, ensure_ascii=False)
-
-                        processed += 1
-                    except Exception as e:
-                        logger.error(f"Failed to process {raw_file}: {e}")
-
-                logger.info(f"✅ Stage 2 basic processing: {processed} files copied")
+                # Run parallel processing
+                results = asyncio.run(run_stage2_parallel(raw_files))
 
                 self.stats['stages']['processing'] = {
-                    'duration': (datetime.now() - start_time).total_seconds(),
+                    'duration': results.get('duration', 0),
                     'success': True,
-                    'articles_processed': processed,
-                    'mode': 'basic_copy'
+                    'total_files': results.get('total_files', 0),
+                    'stage_2a_processed': results.get('stage_2a', {}).get('processed', 0),
+                    'stage_2b_created': results.get('stage_2b', {}).get('created', 0),
+                    'emails_sent': results.get('stage_2b', {}).get('emails_sent', 0),
+                    'mode': 'parallel'
                 }
 
+                logger.info(f"✅ Stage 2 parallel complete:")
+                logger.info(f"   - RAG: {results.get('stage_2a', {}).get('processed', 0)} processed")
+                logger.info(f"   - Content: {results.get('stage_2b', {}).get('created', 0)} articles created")
+                logger.info(f"   - Emails: {results.get('stage_2b', {}).get('emails_sent', 0)} sent")
                 return True
+
+            except ImportError as e:
+                logger.error(f"❌ stage2_parallel_processor.py not found: {e}")
+                logger.info("   Please ensure the script exists in bali-intel-scraper/scripts/")
+                self.stats['errors'].append(f"Stage 2: Import failed - {str(e)}")
+                return False
 
         except Exception as e:
             logger.error(f"❌ Stage 2 failed: {e}")
