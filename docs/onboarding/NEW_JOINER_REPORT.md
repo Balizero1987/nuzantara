@@ -76,7 +76,8 @@ Common Errors
 - 401 Unauthorized: Add x-api-key header or use webapp origin
 - 429 Too Many Requests: Rate limit hit; wait 60 seconds or use internal API key
 - CORS error: Frontend origin not whitelisted (should be zantara.balizero.com)
-- Param naming mismatch: Use camelCase (userId, serviceType, includeDetails)
+- Param naming mismatch: Use camelCase (userId, serviceType, includeDetails).
+  Exceptions (legacy): pricing.official expects snake_case (service_type, include_details).
 
 Logs
 - Cloud Run: gcloud logging read 'resource.type="cloud_run_revision"' --limit 50

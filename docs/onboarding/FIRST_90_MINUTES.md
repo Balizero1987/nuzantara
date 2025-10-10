@@ -12,6 +12,17 @@
   - team.list, pricing.official, bali.zero.pricing, memory.save, memory.retrieve
 - Verify: p95 latency < 3.5s (curl -w "%{time_total}\\n")
 
+Latency sampling (optional, 20 samples for p95)
+```bash
+URL="https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app/call"
+HDR=(-H 'Content-Type: application/json' -H "x-api-key: $KEY")
+BODY='{"key":"team.list"}'
+for i in $(seq 1 20); do 
+  curl -s -o /dev/null -w "%{time_total}\n" "${URL}" "${HDR[@]}" -d "$BODY"; 
+  sleep 0.15; 
+done | sort -n | awk '{a[NR]=$1} END{p=int(NR*0.95); if(p<1)p=1; print "p95:",a[p],"s", "(N=",NR,")"}'
+```
+
 30–50'
 - RAG chat with citations
   - POST /bali-zero/chat {"query":"What are Bali Zero services?"}
@@ -35,3 +46,7 @@ Acceptance Criteria
 - Tool success > 97%
 - No mock usage (all real production data)
 - ≥ 1 RAG query with tool execution
+ - Respect rate limits (avoid flooding; use sleep/backoff)
+
+Security & PII
+- Use test userIds prefixed with `onboarding_` and avoid real PII.
