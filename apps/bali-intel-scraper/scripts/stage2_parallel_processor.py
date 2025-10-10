@@ -215,11 +215,15 @@ class ContentCreator:
             self.stats['created'] += 1
             logger.info(f"  ✅ Article: {category}/{article_filename}")
 
-            # Send email
-            if send_intel_email:
+            # Send email (skip on GitHub Actions - done locally instead)
+            skip_emails = os.getenv('SKIP_EMAILS', 'false').lower() == 'true'
+
+            if send_intel_email and not skip_emails:
                 email_sent = self._send_email(category, str(article_file))
                 if email_sent:
                     self.stats['emails_sent'] += 1
+            elif skip_emails:
+                logger.debug(f"  📧 Email skipped (SKIP_EMAILS=true)")
 
             return True, str(article_file)
 

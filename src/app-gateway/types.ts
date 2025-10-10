@@ -1,3 +1,4 @@
+import type { Flags } from "../config/flags.js"
 import { z } from 'zod';
 
 export const ActionName = z.union([
@@ -43,6 +44,7 @@ export interface BootstrapResponse {
   ok: true;
   data: {
     sessionId: string;
+    csrfToken: string;
     schema: {
       version: string;
       layout: { header: string[]; leftSidebar?: string[]; main: string[]; rightDrawer?: string[]; footer?: string[] };
@@ -50,6 +52,6 @@ export interface BootstrapResponse {
       components: Record<string, { id: string; type: string; props?: Record<string, any> }>;
       designTokens: Record<string, any>;
     };
-    flags: Record<string, boolean>;
+    flags: import('../config/flags.js').Flags;
   };
 }
