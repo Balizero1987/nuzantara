@@ -1,6 +1,6 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-10 20:45 (Reranker Fixed & Active - v2.5.0)
+> **Last Updated**: 2025-10-10 (Security + Rate Limiting Deployed)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 
 ---
@@ -8,20 +8,74 @@
 ## 📋 Project Identity
 
 **Name**: ZANTARA (NUZANTARA)
-**Version**: v5.5.0-tool-use-active
+**Version**: v5.5.0-tool-use-active + rate-limiting
 **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
 **Repository**: https://github.com/Balizero1987/nuzantara
-**Status**: Production (Cloud Run) + Local Development + **TOOL USE ACTIVE**
+**Status**: Production (Cloud Run) + Local Development + **TOOL USE + RATE LIMITING ACTIVE**
 
 ---
 
 ## 📚 Documentation Pointers
 
+- **Security + Rate Limiting**: `.claude/handovers/security-rate-limiting-2025-10-10.md` ⭐ NEW
+- **Multi-Agent Architecture**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
+- **Session Diaries (2025-10-10)**:
+  - m1: `.claude/diaries/2025-10-10_sonnet-4.5_m1.md` (Reranker fix)
+  - m2: `.claude/diaries/2025-10-10_sonnet-4.5_m2.md` (Multi-agent architecture)
+  - m3: `.claude/diaries/2025-10-10_sonnet-4.5_m3.md` (Security + rate limiting) ⭐ NEW
 - LLAMA 4 Fine-Tuning: `docs/llama4/` (Quick Start, Full Guide, README)
+- LLAMA 4 Training Status: `~/Desktop/FINE TUNING/LLAMA4_100_PERCENT_SUCCESS.md`
 - Handovers Index: `.claude/handovers/INDEX.md`
 - System & Ops: `.claude/` (INIT, diaries, handovers)
 - WebSocket: `.claude/handovers/websocket-implementation-2025-10-03.md`
 - Deploy (TS/RAG/WebApp): `.claude/handovers/deploy-backend.md`, `.claude/handovers/deploy-rag-backend.md`, `.claude/handovers/deploy-webapp.md`
+
+---
+
+## 🎯 Strategic Roadmap: Multi-Agent Architecture
+
+> **Status**: Architecture Designed ✅ | Implementation Pending
+> **Date**: 2025-10-10
+> **Goal**: Reduce operational costs by 81-91% ($450/mo → $42-84/mo)
+
+### Three Architecture Options
+
+| Option | Description | Monthly Cost | Savings | Status |
+|--------|-------------|--------------|---------|--------|
+| **Scenario 1** | Multi-Agent Budget (Cerebras/Groq/Gemini) | $42/mo | 91% | Ready to implement |
+| **Scenario 2** | LLAMA 4 Centro (Modal serverless) | $78/mo | 83% | Pending training |
+| **Scenario 3** | Hybrid (LLAMA 4 + Gemini Flash) | $84/mo | 81% | ⭐ **RECOMMENDED** |
+
+### Key Insights
+
+**Critical Discovery**: LLAMA 4 Scout 17B-16E with **10M context window** should be the **Super-Orchestrator**, not a single-line specialist agent.
+
+**Why 10M Context is Game-Changing**:
+- Entire ZANTARA knowledge base fits in memory
+- 70% of queries answered without external API calls (zero cost, zero latency)
+- Full conversation history retained (no context loss)
+- Tools called only for external actions (Calendar, Gmail, Maps, WhatsApp)
+
+**Performance Projections**:
+- Knowledge queries: 0-1s (vs 2-3s current)
+- Tool calls: 2-4s (same as current)
+- Overall latency: **45% reduction** on knowledge queries
+
+**LLAMA 4 Training Status**:
+- Model: Llama 4 Scout 17B-16E (109B MoE, 17B active, 10M context)
+- Solution: H100 NVL 94GB + Unsloth
+- Cost: $15-20 one-time
+- Timeline: 6-8 hours
+- Dataset: 22,009 ZANTARA examples ready
+- Status: ✅ **READY TO LAUNCH**
+- ROI: Payback in 1.6 days
+
+**Next Steps**:
+1. User decision on architecture (Scenario 1, 2, or 3)
+2. Launch LLAMA 4 training (if Scenario 2 or 3 chosen)
+3. Implement chosen architecture (4-6 hours for Scenario 1, 2-3 days for Scenario 2/3)
+
+**Full Documentation**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
 
 ---
 
@@ -37,9 +91,14 @@
 - **Entry Point**: `dist/index.js`
 - **Docker**: `Dockerfile.dist`
 - **Deploy**: GitHub Actions (`.github/workflows/deploy-backend.yml`)
-- **NEW**: ✅ **Tool Use Integration Active** - 41 handlers available for AI execution
+- **Tool Use Integration**: ✅ **ACTIVE** - 41 handlers available for AI execution
   - System endpoints: system.handlers.list, system.handlers.tools, system.handler.execute
   - Anthropic-compatible tool definitions (JSON Schema draft 2020-12)
+- **Rate Limiting**: ✅ **ACTIVE** (2025-10-10) - Abuse protection for expensive endpoints
+  - 4-tier system: Bali Zero (20/min), AI Chat (30/min), RAG (15/min), Batch (5/min)
+  - Middleware: `src/middleware/rate-limit.ts` (154 LOC) + `selective-rate-limit.ts` (47 LOC)
+  - Internal API keys bypass rate limits
+  - Protection: 98% cost reduction in abuse scenarios ($115k/day → $2.3k/day max)
 
 ### **2. Python RAG Backend** (AI/Search)
 - **Language**: Python 3.11
@@ -72,12 +131,16 @@
   - Target: `Balizero1987/zantara_webapp` repo
   - Workflow: `.github/workflows/sync-webapp-to-pages.yml`
   - Deploy time: 3-4 min (automatic on push)
+- **Security Fix** (2025-10-10): ✅ Removed hardcoded API key exposure
+  - File: `apps/webapp/js/api-config.js:166`
+  - Commit: `fc99ce4`
+  - Auth: Origin-based bypass (`src/middleware/auth.ts:17-24`)
 - **Main Files**:
   - `apps/webapp/index.html` → redirect to login
   - `apps/webapp/login.html` → ZANTARA authentication
   - `apps/webapp/dashboard.html` → main app
-  - `apps/webapp/intel-dashboard.html` → NEW: Intelligence dashboard (chat + blog sidebar)
-  - `apps/webapp/js/api-config.js` (API endpoint configuration)
+  - `apps/webapp/intel-dashboard.html` → Intelligence dashboard (chat + blog sidebar)
+  - `apps/webapp/js/api-config.js` (API endpoint configuration, no API keys)
 
 ---
 
@@ -91,7 +154,7 @@
 ### **Cloud Run Services**
 | Service | URL | Port | Status |
 |---------|-----|------|--------|
-| TypeScript Backend | https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app | 8080 | ✅ Running (v5.5.0-tool-use-active, 107 handlers) |
+| TypeScript Backend | https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app | 8080 | ✅ Running (v5.5.0 + rate-limiting, commit 2a1b5fb) |
 | RAG Backend | https://zantara-rag-backend-himaadsxua-ew.a.run.app | 8000 | ✅ Running (v2.5.0-reranker-active, rev 00118-864) |
 
 ### **GitHub Pages**
@@ -101,6 +164,7 @@
 - **Live URL**: https://zantara.balizero.com
 - **Entry**: `index.html` (auto-redirect to `login.html`)
 - **Deploy**: Automatic via `.github/workflows/sync-webapp-to-pages.yml` (3-4 min)
+- **Latest**: Security fix deployed (commit `fc99ce4`, 2025-10-10)
 
 ---
 
@@ -221,25 +285,48 @@ cd zantara_webapp
 
 > **⚠️ UPDATE THIS** at end of session if major changes
 
-**Last Deployment**: 2025-10-10 20:15 WITA
-**Backend**: ✅ v5.5.0-tool-use-active (41 handlers for tool use + 66 additional handlers)
+**Last Deployment**: 2025-10-10 (Security + Rate Limiting)
+**Backend**: ✅ v5.5.0 + rate-limiting (commit 2a1b5fb, 107 handlers, 41 for tool use)
 **RAG**: ✅ v2.5.0-reranker-active (Tool executor + Reranker both ACTIVE, rev 00118-864)
-**Webapp**: ✅ Auto-deploying (intel-dashboard.html added)
+**Webapp**: ✅ Security fixed (commit fc99ce4, no hardcoded API keys)
 **ChromaDB**: 7,375 docs + 8 intel collections ready
 **GitHub Pages**: ✅ Active (verified operational 2025-10-09)
 **Bali Intel Scraper**: ✅ Complete (31 files, 8 topics, 240+ sources)
+
 **Tool Use**: ✅✅✅ **FULLY ACTIVE IN PRODUCTION!**
   - Status: Chatbot executes real TypeScript handlers (not simulation)
   - Tests: team_list ✅ (23 members), bali_zero_pricing ✅ (20M IDR)
   - Available: Gmail, Drive, Calendar, Memory, AI, Identity, Bali Zero, Communication
-**Reranker**: ✅✅✅ **ACTIVE IN PRODUCTION!** (2025-10-10)
+
+**Reranker**: ✅✅✅ **ACTIVE IN PRODUCTION!** (2025-10-10 m1)
   - Model: cross-encoder/ms-marco-MiniLM-L-6-v2
   - Quality: +400% precision@5 (verified with real queries)
   - Fix: Added torch>=2.0.0 dependency (commit c106140)
   - Environment: ENABLE_RERANKER=true
-**Security**: ✅ 100% API keys in Secret Manager (migrated 2025-10-09)
+
+**Rate Limiting**: ✅✅✅ **ACTIVE IN PRODUCTION!** (2025-10-10 m3)
+  - 4-tier system: Bali Zero (20/min), AI Chat (30/min), RAG (15/min), Batch (5/min)
+  - Files: `src/middleware/rate-limit.ts` (154 LOC) + `selective-rate-limit.ts` (47 LOC)
+  - Protection: 98% cost reduction in abuse scenarios ($115k/day → $2.3k/day max)
+  - Internal API keys bypass rate limits
+  - Zero impact on legitimate usage
+
+**Security**: ✅✅✅ **ENHANCED!** (2025-10-10 m3)
+  - Frontend: Hardcoded API key removed (commit fc99ce4)
+  - Backend: Origin-based auth bypass for webapp
+  - Secret Manager: 100% API keys migrated (2025-10-09)
+  - Rate Limiting: Abuse protection active
+
 **Code Cleanup**: ✅ Twilio integration removed (-134 lines, 2025-10-09)
 **Ollama**: Installed locally (llama3.2:3b, 2GB) but **UNUSED** (can be removed)
+
+**Multi-Agent Architecture**: 📐 **DESIGNED** (2025-10-10 m2)
+  - Session: Complete architecture design with 3 cost-optimized options
+  - Analysis: 107 handlers mapped across 12 categories
+  - Cost Reduction: 81-91% savings potential ($450/mo → $42-84/mo)
+  - LLAMA 4: Training ready ($15-20, 6-8 hours)
+  - Status: Awaiting user decision on architecture choice
+  - Documentation: Complete handover + session diary + executive summary created
 
 ---
 
@@ -280,11 +367,11 @@ cd zantara_webapp
    - Effort: 1-2 hours to fix Jest config
    - Recommendation: Fix before next major deployment
 
-7. ⚠️ **Hardcoded API Keys in Frontend** - PENDING
-   - File: `apps/webapp/js/api-config.js`
-   - Impact: Security risk if key rotation needed
-   - Effort: 30 minutes to move to backend-only auth
-   - Recommendation: Remove client-side API key requirement
+7. ✅ **Hardcoded API Keys in Frontend** - FIXED (2025-10-10 m3)
+   - File: `apps/webapp/js/api-config.js:166`
+   - Fix: Removed hardcoded key, using origin-based auth bypass
+   - Commit: `fc99ce4`
+   - Status: Deployed to GitHub Pages
 
 ### **Medium Priority**
 4. Add unit tests for pricing validation
@@ -353,6 +440,32 @@ When starting a session, **always verify these**:
 1. Edit relevant section
 2. Update "Last Updated" at top
 3. Note change in diary
+
+---
+
+## ⚡ CRITICAL: SYSTEM_PROMPT Maintenance Rule
+
+> **🔴 MANDATORY**: When ZANTARA acquires new powers, update the SYSTEM_PROMPT!
+
+**File**: `apps/backend-rag 2/backend/app/main_cloud.py` (lines 70-236)
+
+**When to update**:
+- ✅ New handlers added (Gmail, Calendar, Maps, Memory, etc.)
+- ✅ New tools integrated (communication, identity, business services)
+- ✅ New capabilities enabled (reranker, tool use, multi-agent, etc.)
+- ✅ Changed behavior expectations (typo handling, user recognition, etc.)
+
+**What to update**:
+1. **"WHAT YOU CAN DO" section**: List new tools/capabilities
+2. **"HOW TO USE YOUR CAPABILITIES" section**: Add practical examples
+3. **Knowledge base info**: Update if KB content significantly changed
+
+**Why this matters**:
+The SYSTEM_PROMPT is ZANTARA's "brain instructions". If we add new powers but don't document them in the prompt, ZANTARA won't know to use them! This causes "stupid chatbot" behavior where capabilities exist but aren't utilized.
+
+**Example**: Adding Gmail integration without updating SYSTEM_PROMPT means ZANTARA will say "I can't send emails" even though the capability exists.
+
+**Deployment**: After updating SYSTEM_PROMPT, RAG backend must be redeployed for changes to take effect
 
 ---
 

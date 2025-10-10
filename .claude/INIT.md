@@ -264,7 +264,27 @@ Update "Last Updated" timestamp if changed.
 
 ---
 
-### **Step 4: Show Summary**
+### **Step 4: Check SYSTEM_PROMPT Updates** ⚡
+
+**CRITICAL**: When ZANTARA acquires new powers/capabilities, the SYSTEM_PROMPT must be updated!
+
+If during this session you:
+- ✅ Added new handlers or tools
+- ✅ Integrated new external services (Gmail, Calendar, Maps, etc.)
+- ✅ Added new business capabilities (pricing, identity, memory, etc.)
+- ✅ Modified how ZANTARA can interact with users
+
+**Then you MUST**:
+1. Update `apps/backend-rag 2/backend/app/main_cloud.py` SYSTEM_PROMPT (lines 70-236)
+2. Add new capabilities to the "WHAT YOU CAN DO" section
+3. Update examples in "HOW TO USE YOUR CAPABILITIES" if needed
+4. Note this in diary and handover
+
+**Why**: The SYSTEM_PROMPT is ZANTARA's "brain instructions". If we add new powers but don't tell ZANTARA about them, it won't use them intelligently!
+
+---
+
+### **Step 5: Show Summary**
 
 ```
 ✅ Session Complete
