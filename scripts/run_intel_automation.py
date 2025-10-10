@@ -189,7 +189,7 @@ class IntelAutomationPipeline:
             try:
                 import asyncio
                 import sys
-                sys.path.insert(0, str(SCRIPT_DIR / 'bali-intel-scraper' / 'scripts'))
+                sys.path.insert(0, str(PROJECT_ROOT / 'apps' / 'bali-intel-scraper' / 'scripts'))
 
                 from stage2_parallel_processor import run_stage2_parallel
 
@@ -301,14 +301,14 @@ class IntelAutomationPipeline:
                 self.stats['workflow_run_id'] = workflow_run_id
 
             # Import analytics logger
-            sys.path.insert(0, str(SCRIPT_DIR / 'bali-intel-scraper' / 'scripts'))
+            sys.path.insert(0, str(PROJECT_ROOT / 'apps' / 'bali-intel-scraper' / 'scripts'))
             from analytics_dashboard import log_daily_run
 
             run_id = log_daily_run(self.stats)
             logger.info(f"📊 Analytics logged (run_id: {run_id})")
 
             # After 7 days, suggest running analytics report
-            analytics_db = SCRIPT_DIR / 'bali-intel-scraper' / 'scripts' / 'analytics.db'
+            analytics_db = PROJECT_ROOT / 'apps' / 'bali-intel-scraper' / 'scripts' / 'analytics.db'
             if analytics_db.exists():
                 import sqlite3
                 conn = sqlite3.connect(analytics_db)
@@ -319,7 +319,7 @@ class IntelAutomationPipeline:
 
                 if total_runs >= 7 and total_runs % 7 == 0:
                     logger.info("💡 TIP: Run weekly analytics report:")
-                    logger.info("   python3 scripts/bali-intel-scraper/scripts/analytics_dashboard.py --report 7")
+                    logger.info("   python3 apps/bali-intel-scraper/scripts/analytics_dashboard.py --report 7")
 
         except Exception as e:
             logger.warning(f"⚠️  Analytics logging failed (non-critical): {e}")
