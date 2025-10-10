@@ -224,11 +224,18 @@ def save_results(results: List[Dict], category: str):
     logger.info(f"[{category.upper()}] Saved {len([r for r in results if r.get('success')])} files to {output_dir}")
 
 
-async def main():
-    """Main scraping orchestrator."""
+async def main(category_filter: Optional[List[str]] = None):
+    """Main scraping orchestrator.
+
+    Args:
+        category_filter: Optional list of category keys to scrape (e.g. ['immigration', 'tax'])
+                        If None, scrapes all categories.
+    """
     logger.info("=" * 70)
     logger.info("INTEL AUTOMATION - STAGE 1: SCRAPING")
     logger.info(f"Starting at: {datetime.now()}")
+    if category_filter:
+        logger.info(f"Category filter: {', '.join(category_filter)}")
     logger.info("=" * 70)
 
     # Find all SITI_*.txt files
@@ -256,6 +263,11 @@ async def main():
                 category = category_match.group(1).lower()
             else:
                 category = siti_file.stem.replace('SITI_', '').lower()
+
+            # Skip if category filter is active and this category is not in it
+            if category_filter and category not in category_filter:
+                logger.debug(f"Skipping category: {category} (not in filter)")
+                continue
 
             logger.info(f"Starting category: {category}")
 
@@ -296,5 +308,20 @@ async def main():
 
 
 if __name__ == '__main__':
-    exit_code = asyncio.run(main())
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Intel Automation - Stage 1: Scraping')
+    parser.add_argument(
+        '--categories',
+        type=str,
+        help='Comma-separated list of categories to scrape (e.g., "immigration,tax,business")'
+    )
+
+    args = parser.parse_args()
+
+    category_filter = None
+    if args.categories:
+        category_filter = [cat.strip().lower() for cat in args.categories.split(',')]
+
+    exit_code = asyncio.run(main(category_filter=category_filter))
     sys.exit(exit_code)

@@ -11,6 +11,9 @@ say "Health checks"
 curl -s "$API/health" | jq '.status,.version' || true
 curl -s https://zantara-rag-backend-himaadsxua-ew.a.run.app/health | jq '.status,.version' || true
 
+say "Flags"
+curl -s "$API/config/flags" | jq '.data'
+
 say "Handlers count"
 curl -s -X POST "$API/call" \
   -H 'Content-Type: application/json' -H "x-api-key: $KEY" \
@@ -47,5 +50,18 @@ say "RAG chat (bali-zero/chat)"
 curl -s -X POST https://zantara-rag-backend-himaadsxua-ew.a.run.app/bali-zero/chat \
   -H 'Content-Type: application/json' \
   -d '{"query":"What is Bali Zero team size?","user_id":"smoke"}' | jq '.response'
+
+# App-Gateway (optional)
+if curl -s "$API/config/flags" | jq -e '.data.ENABLE_APP_GATEWAY == true' >/dev/null; then
+  say "App-Gateway bootstrap"
+  BOOT=$(curl -s -X POST "$API/app/bootstrap" -H 'Content-Type: application/json')
+  echo "$BOOT" | jq '.data.flags'
+  SID=$(echo "$BOOT" | jq -r '.data.sessionId')
+  say "App-Gateway event chat_send"
+  curl -s -X POST "$API/app/event" -H 'Content-Type: application/json' \
+    -d "{\"action\":\"chat_send\",\"sessionId\":\"$SID\",\"payload\":{\"text\":\"hello from smoke\"}}" | jq
+else
+  say "App-Gateway disabled (skip)"
+fi
 
 echo "\nSmoke test done."

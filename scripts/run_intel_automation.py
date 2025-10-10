@@ -122,9 +122,16 @@ class IntelAutomationPipeline:
             logger.info(f"Running scraper: {scraper_path}")
             logger.info("This may take 10-30 minutes depending on sources...")
 
+            # Build scraper command
+            cmd = [sys.executable, str(scraper_path)]
+            if self.categories:
+                # Pass categories filter to scraper
+                cmd.extend(['--categories', ','.join(self.categories)])
+                logger.info(f"Category filter: {', '.join(self.categories)}")
+
             # Run scraper as subprocess
             result = subprocess.run(
-                [sys.executable, str(scraper_path)],
+                cmd,
                 cwd=str(SCRIPT_DIR),
                 capture_output=True,
                 text=True,

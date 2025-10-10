@@ -7,6 +7,11 @@ import { fileURLToPath } from 'url';
 // import yaml from 'js-yaml';
 
 import { ensureFirebaseInitialized } from './services/firebase.js';
+import { correlationId } from './middleware/correlationId.js';
+import { flagGate } from './middleware/flagGate.js';
+import { getFlags, computeFlagsETag } from './config/flags.js';
+import { buildBootstrapResponse } from './app-gateway/app-bootstrap.js';
+import { handleAppEvent } from './app-gateway/app-events.js';
 
 await ensureFirebaseInitialized().catch((error) => {
   console.log('⚠️ Firebase initialization issue:', error?.message || error);
@@ -14,6 +19,7 @@ await ensureFirebaseInitialized().catch((error) => {
 
 const app = express();
 app.use(express.json({ limit: "10mb" }));
+app.use(correlationId());
 
 // === CORS for GitHub Pages + dev (Cloud Run) ===
 // Configure allowed origins via env or use defaults
@@ -63,6 +69,19 @@ app.get('/health', async (req, res) => {
       nodeEnv: process.env.NODE_ENV || 'development'
     }
   });
+});
+
+// Flags endpoint with ETag for caching in webapp
+app.get('/config/flags', (req, res) => {
+  const flags = getFlags();
+  const etag = computeFlagsETag(flags);
+  res.setHeader('ETag', etag);
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Vary', 'Origin, If-None-Match');
+  if (req.headers['if-none-match'] === etag) {
+    return res.status(304).end();
+  }
+  return res.json({ ok: true, data: flags });
 });
 
 // Metrics endpoint for detailed monitoring
@@ -285,6 +304,30 @@ const server = app.listen(port, () => {
 import { initializeWebSocketServer } from './services/websocket-server.js';
 const wsServer = initializeWebSocketServer(server);
 console.log('✅ WebSocket server initialized on /ws');
+
+// === App-Gateway (feature gated) ===
+app.use('/app', flagGate('ENABLE_APP_GATEWAY'));
+
+app.post('/app/bootstrap', async (req, res) => {
+  try {
+    const origin = req.headers.origin as string | undefined;
+    const user = (req.headers['x-user-id'] as string) || undefined;
+    const result = await buildBootstrapResponse({ user, origin });
+    return res.json(result);
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, code: 'bootstrap_failed', message: e?.message || 'unknown_error' });
+  }
+});
+
+app.post('/app/event', async (req, res) => {
+  try {
+    const result = await handleAppEvent(req);
+    const status = result?.ok ? 200 : 400;
+    return res.status(status).json(result);
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, code: 'event_failed', message: e?.message || 'unknown_error' });
+  }
+});
 
 // Global auto-load of handlers (enabled after WS/AI/Communication standardization)
 try {
