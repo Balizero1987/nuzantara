@@ -35,8 +35,8 @@ SITES_DIR = SCRIPT_DIR.parent / "apps" / "bali-intel-scraper" / "sites"
 OUTPUT_BASE = SCRIPT_DIR / "INTEL_SCRAPING"
 
 # Scraping settings
-MAX_CONCURRENT = 3  # Concurrent scrapes per category
-TIMEOUT_MS = 30000  # 30 seconds per page
+MAX_CONCURRENT = 12  # Concurrent scrapes per category (increased for speed)
+TIMEOUT_MS = 20000   # 20 seconds per page (reduced to avoid slow sites)
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
 
 
@@ -112,11 +112,11 @@ async def scrape_site(site: Dict[str, str], category: str, browser: Browser) -> 
 
         page = await context.new_page()
 
-        # Navigate to page
-        await page.goto(url, timeout=TIMEOUT_MS, wait_until='networkidle')
+        # Navigate to page (use 'load' instead of 'networkidle' for speed)
+        await page.goto(url, timeout=TIMEOUT_MS, wait_until='load')
 
-        # Wait for dynamic content
-        await page.wait_for_timeout(2000)
+        # Wait for dynamic content (reduced from 2s to 500ms)
+        await page.wait_for_timeout(500)
 
         # Extract text content
         content = await page.evaluate('''() => {
@@ -183,9 +183,7 @@ async def scrape_category(category_key: str, sites: List[Dict], browser: Browser
         batch_results = await asyncio.gather(*tasks)
         results.extend([r for r in batch_results if r is not None])
 
-        # Small delay between batches
-        if i + MAX_CONCURRENT < len(sites):
-            await asyncio.sleep(1)
+        # No delay between batches - speed up scraping
 
     return results
 
