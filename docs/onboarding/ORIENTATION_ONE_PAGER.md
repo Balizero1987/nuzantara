@@ -3,17 +3,17 @@ Last Updated: 2025-10-10
 Maintainer: Core Team
 
 Who
-- ZANTARA / NUZANTARA-2: backend TS (107 handlers / 41 tool-use), RAG FastAPI (retrieval + reranker), WebApp thin shell.
+- ZANTARA / NUZANTARA-2: backend TS (164 handlers / 164 tool-use live), RAG FastAPI (retrieval + reranker), WebApp thin shell.
 
 Where
-- Backend TS: https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app (v5.5.0 + rate-limiting)
-- RAG FastAPI: https://zantara-rag-backend-himaadsxua-ew.a.run.app (v2.5.0-reranker-active)
+- Backend TS: https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app (v5.2.0 + rate-limiting)
+- RAG FastAPI: https://zantara-rag-backend-himaadsxua-ew.a.run.app (v2.3.0-reranker)
 - WebApp (current): https://zantara.balizero.com (GitHub Pages, auto-sync)
 
 Architecture (5 lines)
 - Channels (WebApp/WhatsApp/Instagram/X/Telegram) → TS Gateway (/app/*, /call)
-- TS Gateway → 107 Handlers (12 categories: AI, Google, Bali Zero, Memory, RAG, Communication, Analytics, Intel, Identity, Maps, WebSocket, Admin)
-- RAG → ChromaDB (7,375 docs) + cross-encoder reranker; tool executor proxy back to TS
+- TS Gateway → 160+ Handlers (12 categories: AI, Google, Bali Zero, Memory, RAG, Communication, Analytics, Intel, Identity, Maps, WebSocket, Admin)
+- RAG → ChromaDB (7,375 docs) + cross-encoder reranker; recommended route via TS handler `bali.zero.chat`
 - LLAMA4 (planned) → Super-Orchestrator (10M context), 70% queries from memory (zero cost)
 - Shared services: GCS/ChromaDB, Firestore, Secret Manager, Cloud Run, GitHub Actions CI/CD
 

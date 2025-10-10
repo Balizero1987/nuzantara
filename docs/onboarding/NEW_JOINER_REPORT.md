@@ -7,7 +7,7 @@ Maintainer: Core Team
 - Health checks:
   - TS: GET https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app/health
   - RAG: GET https://zantara-rag-backend-himaadsxua-ew.a.run.app/health
-  - Expected: {"status":"ok"|"healthy","version":"v5.5.0"|"v2.5.0-reranker-active", ...}
+  - Expected: {"status":"ok"|"healthy","version":"5.2.0"|"2.3.0-reranker", ...}
 
 2) Architecture 101 (10')
 - Request Flow:
@@ -55,6 +55,15 @@ curl -s -X POST \
 ```
 
 RAG Chat (tool-use)
+Preferred (normalized via TS handler):
+```bash
+curl -s -X POST \
+  https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app/call \
+  -H 'Content-Type: application/json' \
+  -H 'x-api-key: zantara-internal-dev-key-2025' \
+  -d '{"key":"bali.zero.chat","params":{"query":"What is the team size?"}}' | jq '.data.response'
+```
+Direct RAG (for debugging only): may return empty `response` depending on upstream model routing.
 ```bash
 curl -s -X POST \
   https://zantara-rag-backend-himaadsxua-ew.a.run.app/bali-zero/chat \
@@ -92,7 +101,7 @@ How to open PR
 6) Glossary & Contacts
 Roles
 - Handler: Business logic unit (e.g., team.list, pricing.official)
-- Tool: Handler exposed for AI tool use (41/107 handlers)
+- Tool: Handler exposed for AI tool use (live: 164/164)
 - RAG Backend: Python FastAPI service for retrieval + AI chat
 - TS Backend: Node.js Express service for handlers + routing
 
