@@ -97,44 +97,59 @@ def find_pending_articles(hours_back: int = 24):
 
 
 def send_pending_emails(dry_run: bool = False):
-    """Send emails for all pending articles."""
+    """Send DIGEST emails (1 per category with all articles)."""
     pending = find_pending_articles()
 
     if not pending:
         logger.info("✅ No pending emails to send")
         return 0
 
+    # GROUP articles by category
+    from collections import defaultdict
+    categories = defaultdict(list)
+
+    for item in pending:
+        category_key = item['category']
+        article_path = item['path']
+        categories[category_key].append(article_path)
+
+    logger.info(f"Found {len(pending)} articles in {len(categories)} categories")
+    logger.info(f"{'[DRY RUN] ' if dry_run else ''}Sending {len(categories)} digest emails...")
+    print()
+
+    # Import digest email sender
+    sys.path.insert(0, str(PROJECT_ROOT / 'apps' / 'bali-intel-scraper' / 'scripts'))
+    from send_category_digest import send_category_digest
+
     sent_log = load_sent_log()
     success_count = 0
     fail_count = 0
 
-    logger.info(f"{'[DRY RUN] ' if dry_run else ''}Sending {len(pending)} emails...")
-    print()
-
-    for item in pending:
-        article_path = item['path']
-        category_key = item['category']
-        article_key = item['key']
-
-        logger.info(f"📧 {category_key}: {article_path.name}")
+    # Send 1 email per category
+    for category_key, articles in categories.items():
+        logger.info(f"📧 Category: {category_key}")
+        logger.info(f"   Articles: {len(articles)}")
 
         if dry_run:
-            logger.info(f"   [DRY RUN] Would send email")
+            logger.info(f"   [DRY RUN] Would send digest email")
             success_count += 1
         else:
-            # Send email
-            success = send_intel_email(
+            # Send category digest
+            success = send_category_digest(
                 category_key=category_key,
-                article_file=str(article_path),
-                article_data=None  # Could parse from article frontmatter if needed
+                articles=[str(p) for p in articles],
+                dry_run=False
             )
 
             if success:
-                sent_log[article_key] = {
-                    'sent_at': datetime.now().isoformat(),
-                    'category': category_key,
-                    'article': article_path.name
-                }
+                # Mark all articles as sent
+                for article_path in articles:
+                    article_key = str(article_path.relative_to(SCRIPT_DIR))
+                    sent_log[article_key] = {
+                        'sent_at': datetime.now().isoformat(),
+                        'category': category_key,
+                        'article': article_path.name
+                    }
                 success_count += 1
             else:
                 fail_count += 1
@@ -150,9 +165,9 @@ def send_pending_emails(dry_run: bool = False):
     logger.info("=" * 70)
     logger.info("EMAIL SUMMARY")
     logger.info("=" * 70)
-    logger.info(f"✅ Sent: {success_count}")
+    logger.info(f"✅ Categories sent: {success_count}")
     logger.info(f"❌ Failed: {fail_count}")
-    logger.info(f"📊 Total: {len(pending)}")
+    logger.info(f"📊 Total articles: {len(pending)}")
     logger.info("=" * 70)
 
     return 0 if fail_count == 0 else 1
