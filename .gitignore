@@ -79,3 +79,9 @@ apps/backend-rag*/data/
 sa-key.json
 sa-key-correct.json
 _SECRETS/
+# Node
+node_modules/
+dist/
+*.log
+.env*
+
