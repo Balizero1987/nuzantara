@@ -13,36 +13,232 @@
    🔗 https://www.bps.go.id
    📝 Statistics office, property data
 
-🔍 SITI SECONDARI (se hai tempo):
-4. 📰 Rumah.com News
+4. 🏛️ BPN Bali
+   🔗 https://bali.bpn.go.id
+   📝 Bali land and property office
+
+5. 🏛️ ATR/BPN News
+   🔗 https://www.atrbpn.go.id/Berita
+   📝 Land affairs ministry announcements
+
+6. 🏛️ Kementerian PUPR Perumahan
+   🔗 https://perumahan.pu.go.id
+   📝 Housing directorate updates
+
+7. 🏛️ BPN Badung
+   🔗 https://badung.bpn.go.id
+   📝 Badung regency land office
+
+8. 🏛️ BPN Denpasar
+   🔗 https://denpasar.bpn.go.id
+   📝 Denpasar city land office
+
+===== PROPERTY NEWS MEDIA (12 siti) =====
+9. 📰 Rumah.com News
    🔗 https://www.rumah.com/berita-properti
-   📝 Property news e trends
+   📝 Property news and trends
 
-5. 📰 Lamudi Indonesia
-   🔗 https://www.lamudi.co.id/journal
-   📝 Property market insights
+10. 📰 Lamudi Indonesia
+    🔗 https://www.lamudi.co.id/journal
+    📝 Property market insights
 
-6. 📱 Property Guru Indonesia
-   🔗 https://www.propertyguru.co.id
-   📝 Property news
+11. 📰 PropertyGuru Indonesia
+    🔗 https://www.propertyguru.co.id/panduan-properti
+    📝 Property news and guides
 
-7. 📱 REI (Real Estate Indonesia)
-   🔗 https://www.rei.or.id
-   📝 Real Estate association
+12. 📰 Kompas Properti
+    🔗 https://properti.kompas.com
+    📝 National property section
+
+13. 📰 Detik Properti
+    🔗 https://properti.detik.com
+    📝 Property news updates
+
+14. 📰 Bisnis.com Properti
+    🔗 https://ekonomi.bisnis.com/properti
+    📝 Business property coverage
+
+15. 📰 Kontan Properti
+    🔗 https://keuangan.kontan.co.id/properti
+    📝 Property investment news
+
+16. 📰 Jakarta Post Property
+    🔗 https://www.thejakartapost.com/life/property
+    📝 English property news
+
+17. 📰 Tribun Properti
+    🔗 https://www.tribunnews.com/properti
+    📝 Regional property updates
+
+18. 📰 Tempo Properti
+    🔗 https://www.tempo.co/tag/properti
+    📝 Property market analysis
+
+19. 📰 CNN Indonesia Properti
+    🔗 https://www.cnnindonesia.com/ekonomi/indeks/10-properti
+    📝 Property economic news
+
+20. 📰 Liputan6 Properti
+    🔗 https://www.liputan6.com/properti
+    📝 Property news and tips
+
+===== REAL ESTATE ASSOCIATIONS (8 siti) =====
+21. 📱 REI (Real Estate Indonesia)
+    🔗 https://www.rei.or.id
+    📝 Real estate association
+
+22. 📱 REI Bali
+    🔗 https://www.reibali.org
+    📝 Bali real estate association
+
+23. 📱 DPD REI Bali News
+    🔗 https://www.reibali.org/berita
+    📝 Bali REI announcements
+
+24. 📱 AREBI (Asosiasi Real Estate Broker Indonesia)
+    🔗 https://www.arebi.or.id
+    📝 Real estate brokers association
+
+25. 📱 Apersi (Asosiasi Pengembang Perumahan)
+    🔗 https://apersi.or.id
+    📝 Housing developers association
+
+26. 📱 Appraisal Indonesia
+    🔗 https://www.appraisal-indonesia.com
+    📝 Property appraisers association
+
+27. 📱 FIABCI Indonesia
+    🔗 https://www.fiabci-indonesia.org
+    📝 International real estate federation
+
+28. 📱 PPPSRS
+    🔗 https://pppsrs.or.id
+    📝 Strata title association
+
+===== LEGAL & NOTARY SOURCES (8 siti) =====
+29. 🏢 SSEK Property Law
+    🔗 https://ssek.com/category/property
+    📝 Property legal insights
+
+30. 🏢 ABNR Property
+    🔗 https://www.abnrlaw.com/insights/?keyword=property
+    📝 Property law updates
+
+31. 🏢 Makarim & Taira Property
+    🔗 https://www.makarim.com/insights?keyword=property
+    📝 Land law articles
+
+32. 🏢 HHP Property Law
+    🔗 https://www.hhp.co.id/insights
+    📝 Property legal analysis
+
+33. 🏢 INI (Ikatan Notaris Indonesia)
+    🔗 https://www.ini.id
+    📝 Notary association updates
+
+34. 🏢 IPPAT
+    🔗 https://www.ippat.or.id
+    📝 Land deed officials association
+
+35. 🏢 PPAT Directory
+    🔗 https://www.atrbpn.go.id/PPAT
+    📝 Official PPAT registry
+
+36. 🏢 Legal Era Property
+    🔗 https://legaleraindonesia.com/category/property
+    📝 Property legal news
+
+===== BANKING & FINANCE (6 siti) =====
+37. 🏦 Bank Indonesia Property
+    🔗 https://www.bi.go.id
+    📝 Central bank property policies
+
+38. 🏦 OJK Property Finance
+    🔗 https://www.ojk.go.id
+    📝 Financial services authority
+
+39. 🏦 BTN (Bank Tabungan Negara)
+    🔗 https://www.btn.co.id/id/Newsroom
+    📝 Housing bank news
+
+40. 🏦 Bank Mandiri Property
+    🔗 https://www.bankmandiri.co.id/kpr
+    📝 Property financing updates
+
+41. 🏦 BCA Property Financing
+    🔗 https://www.bca.co.id/id/Individu/Pinjaman/KPR
+    📝 Mortgage product updates
+
+42. 🏦 BRI Property Loan
+    🔗 https://bri.co.id/kpr
+    📝 Housing loan information
+
+===== LOCAL BALI SOURCES (6 siti) =====
+43. 📱 Bali Post Properti
+    🔗 https://www.balipost.com/tag/properti
+    📝 Local Bali property news
+
+44. 📱 Tribun Bali Properti
+    🔗 https://bali.tribunnews.com/tag/properti
+    📝 Bali regional property
+
+45. 📱 Bali Express Property
+    🔗 https://baliexpress.jawapos.com/tag/properti
+    📝 Bali property updates
+
+46. 📱 Radar Bali Property
+    🔗 https://radarbali.jawapos.com/tag/properti
+    📝 Local property coverage
+
+47. 📱 Nusa Bali
+    🔗 https://nusabali.com/tag/properti
+    📝 Bali newspaper property section
+
+48. 📱 Bali Sun Property
+    🔗 https://balisun.co.id/category/property
+    📝 Bali property news
+
+===== INTERNATIONAL & EXPAT (4 siti) =====
+49. 📱 Indonesia Expat Property
+    🔗 https://indonesiaexpat.id/tag/property
+    📝 Expat property news
+
+50. 📱 Property Report Indonesia
+    🔗 https://www.propertyreport.com/indonesia
+    📝 International property analysis
+
+51. 📱 Southeast Asia Property
+    🔗 https://sea-property.com/indonesia
+    📝 Regional property insights
+
+52. 📱 Global Property Guide Indonesia
+    🔗 https://www.globalpropertyguide.com/Asia/Indonesia
+    📝 International buyers guide
 
 🎯 COSA CERCARE:
 ✅ Hak Pakai rule changes
 ✅ Building permit (IMB/PBG) updates
 ✅ Foreign ownership regulations
-✅ Property tax changes
-✅ Land certificate issues
+✅ Property tax changes (PBB)
+✅ Land certificate issues (SHM, HGB, Hak Pakai)
 ✅ Zoning regulation updates
 ✅ Construction permit changes
-✅ Environmental clearance rules
-✅ Strata title regulations
+✅ Environmental clearance rules (AMDAL)
+✅ Strata title regulations (strata title/rumah susun)
+✅ PPAT/Notary fee changes
+✅ Land transfer tax (BPHTB) updates
+✅ REI policy announcements
+✅ Mortgage regulation changes
+✅ Capital gains tax on property
+✅ Villa/guesthouse licensing
+✅ Airbnb/short-term rental regulations
 
 ❌ NON INCLUDERE:
 ❌ Property listings/ads
 ❌ Market price fluctuations (unless regulatory)
 ❌ Individual property disputes
 ❌ Real estate advertising
+❌ Broker promotions
+❌ Property investment seminars
+❌ Construction company ads
+❌ Interior design trends
