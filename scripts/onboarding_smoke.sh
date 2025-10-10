@@ -54,11 +54,12 @@ curl -s -X POST https://zantara-rag-backend-himaadsxua-ew.a.run.app/bali-zero/ch
 # App-Gateway (optional)
 if curl -s "$API/config/flags" | jq -e '.data.ENABLE_APP_GATEWAY == true' >/dev/null; then
   say "App-Gateway bootstrap"
-  BOOT=$(curl -s -X POST "$API/app/bootstrap" -H 'Content-Type: application/json')
+  BOOT=$(curl -s -X POST "$API/app/bootstrap" -H 'Content-Type: application/json' -H "Origin: https://zantara.balizero.com")
   echo "$BOOT" | jq '.data.flags'
   SID=$(echo "$BOOT" | jq -r '.data.sessionId')
+  CSRF=$(echo "$BOOT" | jq -r '.data.csrfToken')
   say "App-Gateway event chat_send"
-  curl -s -X POST "$API/app/event" -H 'Content-Type: application/json' \
+  curl -s -X POST "$API/app/event" -H 'Content-Type: application/json' -H "Origin: https://zantara.balizero.com" -H "x-csrf-token: $CSRF" \
     -d "{\"action\":\"chat_send\",\"sessionId\":\"$SID\",\"payload\":{\"text\":\"hello from smoke\"}}" | jq
 else
   say "App-Gateway disabled (skip)"
