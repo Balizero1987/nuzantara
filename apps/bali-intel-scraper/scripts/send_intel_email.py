@@ -8,6 +8,7 @@ Email workflow differenziato per Intel System
 import json
 import os
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 import smtplib
@@ -225,8 +226,8 @@ LLAMA Intel Research
 # SEND EMAIL FUNCTION
 # ========================================
 
-def send_email(to_email, subject, body):
-    """Send email via SMTP"""
+def send_email(to_email, subject, body, max_retries=3):
+    """Send email via SMTP with retry logic and exponential backoff"""
     if not SMTP_USER or not SMTP_PASS:
         print("⚠️  SMTP credentials not configured")
         print(f"   Would send to: {to_email}")
@@ -234,26 +235,46 @@ def send_email(to_email, subject, body):
         print(f"   Body preview: {body[:200]}...")
         return False
 
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = SMTP_USER
-        msg['To'] = to_email
-        msg['Subject'] = subject
+    for attempt in range(max_retries):
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = SMTP_USER
+            msg['To'] = to_email
+            msg['Subject'] = subject
 
-        msg.attach(MIMEText(body, 'plain', 'utf-8'))
+            msg.attach(MIMEText(body, 'plain', 'utf-8'))
 
-        server = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASS)
-        server.send_message(msg)
-        server.quit()
+            # Use context manager for automatic cleanup
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as server:
+                server.set_debuglevel(1)  # Enable debug output for troubleshooting
+                server.ehlo()  # Identify ourselves to SMTP server
+                server.starttls()  # Secure the connection
+                server.ehlo()  # Re-identify after STARTTLS
+                server.login(SMTP_USER, SMTP_PASS)
+                server.send_message(msg)
 
-        print(f"✅ Email sent to {to_email}")
-        return True
+            print(f"✅ Email sent to {to_email} (attempt {attempt + 1}/{max_retries})")
+            return True
 
-    except Exception as e:
-        print(f"❌ Failed to send email to {to_email}: {e}")
-        return False
+        except smtplib.SMTPException as e:
+            print(f"❌ SMTP error on attempt {attempt + 1}/{max_retries} for {to_email}: {e}")
+            if attempt < max_retries - 1:
+                wait_time = (2 ** attempt) * 2  # Exponential backoff: 2s, 4s, 8s
+                print(f"   Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                print(f"❌ All SMTP retries exhausted for {to_email}")
+                return False
+
+        except Exception as e:
+            print(f"❌ Unexpected error on attempt {attempt + 1}/{max_retries} for {to_email}: {e}")
+            if attempt < max_retries - 1:
+                wait_time = (2 ** attempt) * 2
+                print(f"   Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                print(f"❌ All retries exhausted for {to_email}")
+                return False
 
 
 # ========================================
