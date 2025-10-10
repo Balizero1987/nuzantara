@@ -929,15 +929,23 @@ async def bali_zero_chat(request: BaliZeroRequest):
                 if is_it:
                     # If starts with a generic Italian greeting and doesn't include the name, inject it
                     if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
-                        # Replace initial 'Ciao' with 'Ciao <Name>, '
-                        answer = "Ciao " + name + ", " + answer.lstrip().split(" ", 1)[1]
+                        # Replace initial 'Ciao' with 'Ciao <Name>, ' (handle incomplete responses)
+                        parts = answer.lstrip().split(" ", 1)
+                        if len(parts) > 1:
+                            answer = "Ciao " + name + ", " + parts[1]
+                        else:
+                            # Response is just "Ciao" or "Ciao " - add greeting
+                            answer = f"Ciao {name}! Come posso aiutarti oggi?"
                     elif name.lower() not in answer[:100].lower():
                         answer = f"Ciao {name}, " + answer
                 else:
                     if answer.strip().lower().startswith(("hello", "hi")) and name.lower() not in answer[:100].lower():
                         # Replace initial greeting with personalized one
-                        first_word, rest = answer.lstrip().split(" ", 1) if " " in answer.lstrip() else (answer.lstrip(), "")
-                        answer = f"Hello {name}, " + rest
+                        parts = answer.lstrip().split(" ", 1) if " " in answer.lstrip() else [answer.lstrip()]
+                        if len(parts) > 1:
+                            answer = f"Hello {name}, " + parts[1]
+                        else:
+                            answer = f"Hello {name}! How can I help you today?"
                     elif name.lower() not in answer[:100].lower():
                         answer = f"Hello {name}, " + answer
         except Exception as _e:
