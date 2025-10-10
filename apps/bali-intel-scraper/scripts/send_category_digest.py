@@ -2,6 +2,7 @@
 """
 Category Digest Email Sender
 Sends 1 email per category with ALL articles grouped together.
+Uses Zantara Gmail API instead of SMTP.
 """
 
 import json
@@ -10,14 +11,12 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from collections import defaultdict
 
-# Import category mappings
+# Import category mappings and API email sender
 sys.path.insert(0, str(Path(__file__).parent))
-from send_intel_email import REGULAR_CATEGORIES, LLAMA_CATEGORIES, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
+from send_intel_email import REGULAR_CATEGORIES, LLAMA_CATEGORIES
+from send_email_via_api import send_email_via_api
 
 
 def create_category_digest_email(category_key, articles, is_llama=False):
@@ -98,43 +97,14 @@ ZANTARA Intel System
 
 
 def send_email_with_retry(to_email, subject, body, max_retries=3):
-    """Send email via SMTP with retry logic."""
+    """Send email via Zantara Gmail API with retry logic."""
 
-    if not SMTP_USER or not SMTP_PASS:
-        print("⚠️  SMTP credentials not configured")
-        print(f"   Would send to: {to_email}")
-        print(f"   Subject: {subject}")
-        print(f"   Body length: {len(body)} chars")
-        return False
+    print(f"📧 Sending email to: {to_email}")
+    print(f"   Subject: {subject}")
+    print(f"   Body length: {len(body)} chars")
 
-    for attempt in range(max_retries):
-        try:
-            msg = MIMEMultipart()
-            msg['From'] = SMTP_USER
-            msg['To'] = to_email
-            msg['Subject'] = subject
-
-            msg.attach(MIMEText(body, 'plain', 'utf-8'))
-
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as server:
-                server.ehlo()
-                server.starttls()
-                server.ehlo()
-                server.login(SMTP_USER, SMTP_PASS)
-                server.send_message(msg)
-
-            print(f"✅ Email sent to {to_email}")
-            return True
-
-        except Exception as e:
-            print(f"❌ Attempt {attempt + 1}/{max_retries} failed: {e}")
-            if attempt < max_retries - 1:
-                wait_time = (2 ** attempt) * 2
-                print(f"   Retrying in {wait_time}s...")
-                time.sleep(wait_time)
-            else:
-                print(f"❌ All retries exhausted for {to_email}")
-                return False
+    # Use Zantara Gmail API (has built-in retry logic)
+    return send_email_via_api(to_email, subject, body, retry_count=max_retries)
 
 
 def send_category_digest(category_key, articles, dry_run=False):

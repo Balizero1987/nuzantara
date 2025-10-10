@@ -85,3 +85,9 @@ dist/
 *.log
 .env*
 
+
+# Intel scraping artifacts
+scripts/INTEL_SCRAPING/
+scripts/INTEL_SCRAPING_DOWNLOADED/
+apps/bali-intel-scraper/scripts/__pycache__/
+*.pyc
