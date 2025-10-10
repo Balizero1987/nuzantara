@@ -11,5 +11,10 @@ Use these reports to get new contributors productive in 60–90 minutes.
 Maintainers: Core team (update on major changes)
 
 Quick Start
-- Run smoke test: scripts/onboarding_smoke.sh
+- Prerequisites: bash, curl, jq
+- Env: export KEY=<internal-dev-key>
+- Run smoke test: KEY=$KEY scripts/onboarding_smoke.sh
 - Health: GET /health (TS, RAG)
+
+Security & Secrets
+- Never commit keys in repo; use env/Secret Manager.
