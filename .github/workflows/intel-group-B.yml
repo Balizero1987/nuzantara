@@ -35,10 +35,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           RAG_BACKEND_URL: ${{ secrets.RAG_BACKEND_URL }}
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SKIP_EMAILS: true  # Emails sent from local machine instead (avoid Gmail rate limit)
         run: |
           python3 scripts/run_intel_automation.py --categories business,macro,lifestyle,tax,business_setup
 
