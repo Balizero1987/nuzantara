@@ -1,6 +1,6 @@
 import { getFirestore } from '../services/firebase.js';
 
-interface SessionRecord { id: string; user?: string; origin?: string; channel?: string; createdAt: number; ttlMs: number }
+interface SessionRecord { id: string; user?: string; origin?: string; channel?: string; csrfToken?: string; createdAt: number; ttlMs: number }
 
 const inMem = new Map<string, SessionRecord>();
 const CLEANUP_MS = 60_000;
@@ -21,7 +21,7 @@ export function createSession(id: string, opt: Partial<SessionRecord>) {
     telegram: 60 * 60 * 1000,
   };
   const ttl = ttlDefaults[(opt.channel || 'webapp')] || ttlDefaults.webapp;
-  const rec: SessionRecord = { id, user: opt.user, origin: opt.origin, channel: opt.channel, createdAt: Date.now(), ttlMs: ttl };
+  const rec: SessionRecord = { id, user: opt.user, origin: opt.origin, channel: opt.channel, csrfToken: opt.csrfToken, createdAt: Date.now(), ttlMs: ttl };
   inMem.set(id, rec);
   return rec;
 }
