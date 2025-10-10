@@ -28,14 +28,14 @@ jobs:
           python-version: '3.13'
           cache: 'pip'
 
-      - name: Install system dependencies
-        run: |
-          # Playwright browser
-          playwright install chromium
-
       - name: Install Python dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r scripts/requirements.txt
+
+      - name: Install Playwright browsers
+        run: |
+          # Install Playwright browser (requires playwright package from requirements.txt)
+          playwright install chromium
 
       - name: Verify Python environment
         run: |
