@@ -13,22 +13,206 @@
    🔗 https://facebook.com
    📝 Groups: Bali Expat, Indonesia Social
 
-🔍 SITI NEWS SECONDARI (se hai tempo):
-4. 📰 Dailysocial.id
+4. 🐦 Twitter/X Indonesia
+   🔗 https://twitter.com/search?q=%23indonesia
+   📝 Trending Indonesian topics
+
+5. 📱 Reddit r/Indonesia
+   🔗 https://www.reddit.com/r/indonesia
+   📝 Indonesian community discussions
+
+6. 📱 Reddit r/Bali
+   🔗 https://www.reddit.com/r/bali
+   📝 Bali community discussions
+
+7. 💬 WhatsApp Business API
+   🔗 https://developers.facebook.com/docs/whatsapp
+   📝 WhatsApp business updates
+
+8. 📺 YouTube Trending Indonesia
+   🔗 https://www.youtube.com/feed/trending?gl=ID
+   📝 Trending Indonesian videos
+
+===== SOCIAL MEDIA NEWS & TECH (12 siti) =====
+9. 📰 DailySocial.id
    🔗 https://dailysocial.id
-   📝 Social media e tech news Indonesia
+   📝 Social media and tech news Indonesia
 
-5. 📰 Marketing.co.id
-   🔗 https://marketing.co.id
-   📝 Marketing e social media trends
+10. 📰 Marketing.co.id
+    🔗 https://marketing.co.id
+    📝 Marketing and social media trends
 
-6. 📱 Social Media Today
-   🔗 https://www.socialmediatoday.com
-   📝 Global social media news
+11. 📰 Tech in Asia Indonesia
+    🔗 https://www.techinasia.com/id
+    📝 Tech and social media updates
 
-7. 📱 Tech in Asia Indonesia
-   🔗 https://www.techinasia.com/id
-   📝 Tech e social media updates
+12. 📰 KrASIA Indonesia
+    🔗 https://kr-asia.com/category/indonesia
+    📝 Tech and social trends
+
+13. 📰 Kompas Tekno
+    🔗 https://tekno.kompas.com
+    📝 Technology news
+
+14. 📰 Detik Inet
+    🔗 https://inet.detik.com
+    📝 Internet and social media news
+
+15. 📰 Liputan6 Tekno
+    🔗 https://www.liputan6.com/tekno
+    📝 Tech coverage
+
+16. 📰 CNN Indonesia Teknologi
+    🔗 https://www.cnnindonesia.com/teknologi
+    📝 Technology news
+
+17. 📰 Tempo Tekno
+    🔗 https://tekno.tempo.co
+    📝 Technology reporting
+
+18. 📰 Katadata Digital
+    🔗 https://katadata.co.id/teknologi
+    📝 Digital economy news
+
+19. 📰 Jakpat Social Trends
+    🔗 https://blog.jakpat.net
+    📝 Social media research
+
+20. 📰 Social Media Week Jakarta
+    🔗 https://socialmediaweek.org/jakarta
+    📝 Social media industry events
+
+===== INFLUENCER & CREATOR NEWS (8 siti) =====
+21. 📱 Influencer Marketing Hub
+    🔗 https://influencermarketinghub.com
+    📝 Global influencer trends
+
+22. 📱 Social Blade Indonesia
+    🔗 https://socialblade.com
+    📝 Creator analytics and tracking
+
+23. 📱 Hypestat Indonesia
+    🔗 https://hypestat.com
+    📝 Website and social stats
+
+24. 📱 Female Daily Network
+    🔗 https://femaledaily.com
+    📝 Beauty and lifestyle influencers
+
+25. 📱 IDN Media
+    🔗 https://www.idntimes.com/trending
+    📝 Millennial and Gen-Z trends
+
+26. 📱 Popbela
+    🔗 https://www.popbela.com
+    📝 Women's lifestyle trends
+
+27. 📱 Hipwee
+    🔗 https://www.hipwee.com
+    📝 Viral content and trends
+
+28. 📱 Brilio.net
+    🔗 https://www.brilio.net
+    📝 Youth-focused viral content
+
+===== PLATFORM POLICY & REGULATION (10 siti) =====
+29. 🏛️ Kominfo (Ministry of Communications)
+    🔗 https://www.kominfo.go.id
+    📝 Digital regulations and policies
+
+30. 🏛️ Kominfo Social Media
+    🔗 https://www.kominfo.go.id/kategori/media-sosial
+    📝 Social media regulations
+
+31. 🏛️ BSSN (Cyber Security Agency)
+    🔗 https://bssn.go.id
+    📝 Cybersecurity and data protection
+
+32. 🏛️ UU ITE Updates
+    🔗 https://www.kominfo.go.id/content/detail/3415/uu-ite/0/regulasi
+    📝 Electronic information law
+
+33. 📰 Meta Newsroom Indonesia
+    🔗 https://about.fb.com/news/category/asia-pacific
+    📝 Facebook/Instagram policy updates
+
+34. 📰 TikTok Newsroom Indonesia
+    🔗 https://newsroom.tiktok.com/id-id
+    📝 TikTok policy and features
+
+35. 📰 Twitter Indonesia Blog
+    🔗 https://blog.twitter.com
+    📝 X/Twitter updates
+
+36. 📰 Google Indonesia Blog
+    🔗 https://indonesia.googleblog.com
+    📝 YouTube and platform updates
+
+37. 📰 LinkedIn Indonesia News
+    🔗 https://www.linkedin.com/company/linkedin/posts
+    📝 Professional platform updates
+
+38. 📰 Snapchat Indonesia
+    🔗 https://newsroom.snap.com
+    📝 Snapchat features and policies
+
+===== DIGITAL CULTURE & TRENDS (8 siti) =====
+39. 📱 We Are Social Indonesia
+    🔗 https://wearesocial.com/id
+    📝 Social media statistics
+
+40. 📱 Hootsuite Indonesia
+    🔗 https://blog.hootsuite.com
+    📝 Social media marketing insights
+
+41. 📱 Digimind Indonesia
+    🔗 https://www.digimind.com/blog
+    📝 Social listening insights
+
+42. 📱 Netray Indonesia
+    🔗 https://netray.id
+    📝 Social media monitoring
+
+43. 📱 Drone Emprit
+    🔗 https://pers.droneemprit.id
+    📝 Twitter analytics Indonesia
+
+44. 📱 Isentia Indonesia
+    🔗 https://www.isentia.com/id
+    📝 Media intelligence
+
+45. 📱 BuzzSumo
+    🔗 https://buzzsumo.com
+    📝 Content performance tracking
+
+46. 📱 Twitonomy Indonesia
+    🔗 https://www.twitonomy.com
+    📝 Twitter analytics
+
+===== E-COMMERCE & SOCIAL COMMERCE (6 siti) =====
+47. 📱 Tokopedia Blog
+    🔗 https://www.tokopedia.com/blog
+    📝 Social commerce trends
+
+48. 📱 Shopee News Indonesia
+    🔗 https://shopee.co.id/m/shopee-news
+    📝 E-commerce social features
+
+49. 📱 Bukalapak Stories
+    🔗 https://blog.bukalapak.com
+    📝 Social shopping updates
+
+50. 📱 TikTok Shop Indonesia
+    🔗 https://seller.tiktokglobalshop.com/id
+    📝 TikTok commerce updates
+
+51. 📱 Instagram Shopping Updates
+    🔗 https://business.instagram.com
+    📝 Social commerce features
+
+52. 📱 WhatsApp Business Indonesia
+    🔗 https://business.whatsapp.com
+    📝 Business messaging updates
 
 🎯 COSA CERCARE:
 ✅ Viral trends riguardanti Bali/Indonesia
@@ -40,9 +224,22 @@
 ✅ Creator economy news
 ✅ Content moderation updates
 ✅ Privacy policy changes
+✅ Algorithm updates affecting reach
+✅ New features on major platforms
+✅ Data protection regulations
+✅ UU ITE enforcement cases
+✅ Social media bans or restrictions
+✅ Influencer licensing requirements
+✅ Digital advertising regulations
+✅ E-commerce integration updates
+✅ Live streaming commerce trends
 
 ❌ NON INCLUDERE:
 ❌ Individual influencer drama
 ❌ Personal social media posts
 ❌ Commercial brand promotions
 ❌ Tech news non-social related
+❌ Celebrity gossip (unless trending)
+❌ Gaming news (unless social features)
+❌ App reviews
+❌ Generic marketing tips
