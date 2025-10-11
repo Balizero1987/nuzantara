@@ -196,11 +196,161 @@ Based on user's task description, detect relevant categories:
 
 ---
 
+### **Step 5.5: Register Session & Check Locks** 🔒
+
+> **CRITICAL**: Multi-CLI coordination - Prevents overlapping work
+
+**A. Register this session**:
+```bash
+mkdir -p .claude/locks
+
+# Create or update active-sessions.json
+node -e "
+const fs = require('fs');
+const file = '.claude/active-sessions.json';
+const data = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file)) : {sessions:[]};
+
+// Detect model and matricola from current context
+const model = 'sonnet-4.5'; // Auto-detect: claude-sonnet-4-5-* → sonnet-4.5
+const date = new Date().toISOString().split('T')[0];
+const existingToday = data.sessions.filter(s => s.id.startsWith('m')).length;
+const matricola = 'm' + (existingToday + 1);
+
+data.sessions.push({
+  id: matricola,
+  model: model,
+  started: new Date().toISOString(),
+  task: 'TASK_DESCRIPTION_HERE', // Will be updated after Step 4
+  categories: [], // Will be filled after category detection
+  files_editing: [],
+  status: 'starting',
+  pid: process.pid
+});
+
+fs.writeFileSync(file, JSON.stringify(data, null, 2));
+console.log('✅ Session registered: ' + matricola);
+" 2>/dev/null || echo "⚠️ Node.js not available, skipping session registration"
+```
+
+**B. Check for conflicts**:
+```bash
+# For each detected category (from Step 5), check locks
+DETECTED_CATEGORIES=("backend-handlers" "middleware") # Example
+
+for CATEGORY in "${DETECTED_CATEGORIES[@]}"; do
+  LOCK_FILE=".claude/locks/${CATEGORY}.lock"
+
+  if [ -f "$LOCK_FILE" ]; then
+    echo ""
+    echo "🔴 CONFLICT DETECTED!"
+    echo "Category: $CATEGORY"
+    echo "Locked by:"
+    cat "$LOCK_FILE"
+    echo ""
+    echo "Options:"
+    echo "1. Wait for other CLI to finish (check diary for ETA)"
+    echo "2. Choose different task/category"
+    echo "3. Coordinate with other CLI (ask user)"
+    echo ""
+    # ASK USER what to do
+    read -p "Continue anyway (risky)? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "Aborting. Choose different task."
+      exit 1
+    fi
+  fi
+done
+```
+
+**C. Create locks**:
+```bash
+# For each category, create lock file
+MATRICOLA="m1" # From Step 3
+MODEL="sonnet-4.5"
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+for CATEGORY in "${DETECTED_CATEGORIES[@]}"; do
+  echo "$TIMESTAMP | $MODEL $MATRICOLA | PID: $$ | Task: YOUR_TASK" > ".claude/locks/${CATEGORY}.lock"
+  echo "🔒 Locked: $CATEGORY"
+done
+```
+
+**D. Update session with task + categories**:
+```bash
+# After Step 4 (user provides task description)
+node -e "
+const fs = require('fs');
+const data = JSON.parse(fs.readFileSync('.claude/active-sessions.json'));
+const session = data.sessions[data.sessions.length - 1]; // Last session (this one)
+session.task = 'YOUR_TASK_FROM_STEP_4';
+session.categories = ['backend-handlers', 'middleware']; // From Step 5
+session.status = 'in_progress';
+fs.writeFileSync('.claude/active-sessions.json', JSON.stringify(data, null, 2));
+" 2>/dev/null
+```
+
+**Why this matters**:
+- 🚫 Prevents 2+ CLIs editing same file simultaneously
+- 👀 Visibility: see what other CLIs are doing
+- ⚡ Coordination: detect conflicts before they happen
+
+---
+
 ### **Step 6: Start Work**
 
 - Create diary: `.claude/diaries/YYYY-MM-DD_model_mN.md`
 - Log all actions in real-time
 - Update diary as you work
+
+#### **During-Session Tracking Protocol** 🔄
+
+**WHEN to update diary** (real-time logging):
+- ✅ **Every 15-30 minutes** - Add timestamp entry with progress
+- ✅ **Immediately after**: File edits, bash commands, test runs, deployments, errors
+- ✅ **Before context switch** - Log current state before switching tasks
+
+**WHAT to log** (be specific):
+```markdown
+## HH:MM - Task Description
+
+**Files modified**:
+- `path/to/file.ts:123-145` - Added rate limiting middleware
+- `path/to/config.json:12` - Updated API timeout to 30s
+
+**Commands executed**:
+\`\`\`bash
+npm run build && docker buildx build ...
+\`\`\`
+
+**Errors encountered**:
+- TypeScript error TS2345 in router.ts:67 - Fixed by adding type annotation
+- Time lost: 5 min
+
+**Deployments**:
+- Backend → https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app (rev 00123)
+- Verified: Health check ✅, handlers count ✅
+
+**Test results**:
+- `npm test` → 45/45 passed ✅
+- Smoke test → All endpoints responding ✅
+
+**Next immediate step**:
+- Test rate limiting with 50 req/min
+```
+
+**TodoWrite Tool Integration** (use when needed):
+- ✅ **Use TodoWrite when**: Task has 3+ steps OR estimated >30 min
+- ✅ **Create todos for**: Multi-step features, bug fixes with multiple files, deployment sequences
+- ✅ **Update todo status**: in_progress when starting, completed immediately after finishing
+- ✅ **Sync with diary**: After marking todo completed, add corresponding diary entry with timestamp
+- ❌ **Don't use for**: Single-step tasks, quick fixes <10 min, exploratory reading
+
+**Format Tips**:
+- Use `## HH:MM` for each major update (makes timeline searchable)
+- Include file paths with line numbers: `file.ts:123-145`
+- Log command outputs (especially errors)
+- Note time lost on blockers (helps improve future estimates)
 
 ---
 
@@ -224,7 +374,22 @@ Update diary with:
 
 ### **Step 2: Update Handovers**
 
-For each category touched during session:
+**WHEN TO UPDATE** (Categories touched):
+
+✅ **UPDATE handover if you**:
+- Modified code in that category (added, edited, deleted)
+- Deployed changes to that category
+- Fixed bug in that category
+- Added feature to that category
+- Changed configuration that affects that category
+
+❌ **DON'T UPDATE if you only**:
+- Read code to understand (no modifications)
+- Discussed or planned (no implementation)
+- Tested existing functionality (no bugs found)
+- Reviewed during onboarding/context gathering
+
+**For EACH category touched**:
 
 1. Open/create `.claude/handovers/[category].md`
 2. Append entry with format:
@@ -238,6 +403,15 @@ For each category touched during session:
    → Full session: [diary link]#anchor
    ```
 3. Add cross-reference from diary to handover
+
+**Multiple Categories**:
+- **2-3 categories** → Update all handovers individually
+- **5+ categories** → Probably a major change, consider updating PROJECT_CONTEXT instead + add note in each handover pointing to diary
+
+**Bidirectional Cross-Reference** (CRITICAL):
+- In handover → link to diary section: `[diary](../diaries/YYYY-MM-DD_model_mN.md#HH-MM-task-name)`
+- In diary → link to handover: `[handover](../handovers/category.md)`
+- This allows navigation in both directions: "What changed in category?" ↔ "Where's the full context?"
 
 ---
 
@@ -253,14 +427,32 @@ Se la sessione include `llama4-finetuning`:
 
 ### **Step 3: Check PROJECT_CONTEXT**
 
-If session made major changes:
-- ✅ New deployment URL → update PROJECT_CONTEXT.md
-- ✅ Architecture change → update PROJECT_CONTEXT.md
-- ✅ Port change → update PROJECT_CONTEXT.md
-- ✅ Major restructure → update PROJECT_CONTEXT.md
-- ❌ Small code changes → NO (goes in handovers)
+**WHEN TO UPDATE** (Major changes only):
 
-Update "Last Updated" timestamp if changed.
+✅ **UPDATE PROJECT_CONTEXT if**:
+- New service deployed OR service removed
+- Deployment URL changed
+- Port changed
+- Major infrastructure change (new database, message queue, cache layer)
+- Major feature added (new backend, new AI model, new integration)
+- ±10 handlers added/removed (107→97 or 107→120)
+- Architecture diagram would change
+- New developer would be confused by outdated info
+
+❌ **DON'T UPDATE if**:
+- Added/modified 1-5 handlers (small changes)
+- Bug fixes (even if critical)
+- Refactoring (no functional changes)
+- Small config changes (timeout, batch size, etc.)
+- Performance optimizations (no architecture impact)
+- UI changes (unless major redesign)
+- Documentation updates
+
+**Rule of Thumb**: Ask yourself: "Would a new AI joining tomorrow be confused by PROJECT_CONTEXT being outdated?" If YES → UPDATE. If NO → Only update handovers.
+
+**If you update**:
+- Update "Last Updated" timestamp at top
+- Keep it concise (PROJECT_CONTEXT is high-level overview, not implementation details)
 
 ---
 
@@ -284,8 +476,33 @@ If during this session you:
 
 ---
 
-### **Step 5: Show Summary**
+### **Step 5: Cleanup & Show Summary**
 
+**A. Remove locks**:
+```bash
+# Remove category locks
+rm -f .claude/locks/*.lock
+echo "🔓 All locks released"
+```
+
+**B. Unregister session**:
+```bash
+# Remove from active-sessions.json
+MATRICOLA="m1" # Your session ID
+
+node -e "
+const fs = require('fs');
+const file = '.claude/active-sessions.json';
+if (fs.existsSync(file)) {
+  const data = JSON.parse(fs.readFileSync(file));
+  data.sessions = data.sessions.filter(s => s.id !== '$MATRICOLA');
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  console.log('✅ Session unregistered: $MATRICOLA');
+}
+" 2>/dev/null || echo "⚠️ Could not unregister session"
+```
+
+**C. Show summary**:
 ```
 ✅ Session Complete
 
@@ -300,6 +517,8 @@ If during this session you:
 
 🚧 Pending:
 [Next steps if any]
+
+🔒 Locks released: [categories]
 ```
 
 ---
@@ -347,6 +566,6 @@ Ho finito, aggiorna tutto
 
 ---
 
-**System Version**: 1.1.0
+**System Version**: 1.3.0
 **Created**: 2025-10-01
-**Last Updated**: 2025-10-08 10:05 (Added LLAMA4 + Quick Starts + Exit alignment)
+**Last Updated**: 2025-10-11 18:25 (Added Multi-CLI Coordination: Lock System + Session Registration)

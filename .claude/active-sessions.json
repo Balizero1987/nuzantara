@@ -1,0 +1,27 @@
+{
+  "sessions": [],
+  "_readme": {
+    "purpose": "Track active Claude Code CLI sessions to prevent overlapping work",
+    "format": "Each session registers on start (Step 5.5) and unregisters on exit (Step 5)",
+    "usage": "Check this file before starting work to see what other CLIs are doing",
+    "created": "2025-10-11",
+    "version": "1.0.0"
+  },
+  "_example_session": {
+    "id": "m1",
+    "model": "sonnet-4.5",
+    "started": "2025-10-11T18:45:30.123Z",
+    "task": "fix rate limiting bugs in middleware",
+    "categories": [
+      "backend-handlers",
+      "middleware"
+    ],
+    "files_editing": [
+      "src/middleware/rate-limit.ts",
+      "src/handlers/system/health.ts"
+    ],
+    "status": "in_progress",
+    "pid": 12345,
+    "last_update": "2025-10-11T19:00:00.000Z"
+  }
+}

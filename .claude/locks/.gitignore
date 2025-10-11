@@ -1,0 +1,7 @@
+# Lock files are temporary and should NOT be committed to git
+# They only exist during active CLI sessions
+
+*.lock
+
+# Keep this directory in git but ignore contents
+!.gitignore
