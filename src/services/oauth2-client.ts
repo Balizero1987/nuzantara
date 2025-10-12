@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import fs from 'fs';
-import { getOAuth2TokensPath } from './token-path.js';
+import { getOAuth2TokensPath } from './token-path.ts';
 
 interface OAuth2Tokens {
   access_token: string;

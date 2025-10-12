@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ok } from '../../utils/response.js';
+import { ok } from '../../utils/response.ts';
 
 // Team member recognition database
 const TEAM_RECOGNITION = {

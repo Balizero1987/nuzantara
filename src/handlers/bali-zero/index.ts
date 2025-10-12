@@ -2,8 +2,8 @@
  * BALI-ZERO Module
  * Auto-generated module index
  */
-export * from './bali-zero-pricing.js';
-export * from './kbli.js';
-export * from './advisory.js';
-export * from './oracle.js';
-export * from './team.js';
+export * from './bali-zero-pricing.ts';
+export * from './kbli.ts';
+export * from './advisory.ts';
+export * from './oracle.ts';
+export * from './team.ts';

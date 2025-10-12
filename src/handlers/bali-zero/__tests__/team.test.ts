@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { teamList, teamGet, teamDepartments } from '../team.js';
-import { createMockRequest, createMockResponse } from '../../../tests/helpers/mocks.js';
+import { teamList, teamGet, teamDepartments } from '../team.ts';
+import { createMockRequest, createMockResponse } from '../../../../tests/helpers/mocks.ts';
 
 describe('Team Handler', () => {
   let mockReq: any;

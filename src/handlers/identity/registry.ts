@@ -2,8 +2,8 @@
  * Identity & Onboarding Module Registry
  */
 
-import { globalRegistry } from '../../core/handler-registry.js';
-import { identityResolve, onboardingStart } from './identity.js';
+import { globalRegistry } from '../../core/handler-registry.ts';
+import { identityResolve, onboardingStart } from './identity.ts';
 
 export function registerIdentityHandlers() {
   // Identity handlers

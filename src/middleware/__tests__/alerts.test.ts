@@ -17,14 +17,14 @@ describe('Error Alerting System', () => {
     process.env.ALERT_WHATSAPP = 'false'; // Disable WhatsApp for tests
 
     // Reset alert metrics before each test
-    const { resetAlertMetrics } = await import('../monitoring.js');
+    const { resetAlertMetrics } = await import('../monitoring.ts');
     resetAlertMetrics();
   });
 
   describe('Alert Configuration', () => {
     it('should load alert config from environment variables', async () => {
       // Dynamic import to get fresh config
-      const { getAlertStatus } = await import('../monitoring.js');
+      const { getAlertStatus } = await import('../monitoring.ts');
       const status = getAlertStatus();
 
       expect(status.enabled).toBe(true);
@@ -36,7 +36,7 @@ describe('Error Alerting System', () => {
     });
 
     it('should have console alerts always enabled', async () => {
-      const { getAlertStatus } = await import('../monitoring.js');
+      const { getAlertStatus } = await import('../monitoring.ts');
       const status = getAlertStatus();
 
       expect(status.config.channels.console).toBe(true);
@@ -47,7 +47,7 @@ describe('Error Alerting System', () => {
 
       // Re-import to get fresh config
       jest.resetModules();
-      const { getAlertStatus } = await import('../monitoring.js');
+      const { getAlertStatus } = await import('../monitoring.ts');
       const status = getAlertStatus();
 
       expect(status.enabled).toBe(false);
@@ -56,7 +56,7 @@ describe('Error Alerting System', () => {
 
   describe('Alert Metrics Tracking', () => {
     it('should track 4xx errors separately from 5xx', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       trackErrorForAlert(404);
       trackErrorForAlert(403);
@@ -70,7 +70,7 @@ describe('Error Alerting System', () => {
     });
 
     it('should calculate error rate correctly', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       // 2 errors out of 10 requests = 20% error rate
       trackErrorForAlert(200); // Not an error
@@ -92,7 +92,7 @@ describe('Error Alerting System', () => {
     it('should reset metrics window after time elapses', async () => {
       // This test would require time manipulation or mocking
       // For now, just verify window start is tracked
-      const { getAlertStatus } = await import('../monitoring.js');
+      const { getAlertStatus } = await import('../monitoring.ts');
       const status = getAlertStatus();
 
       expect(status.currentWindow.windowStarted).toBeDefined();
@@ -102,7 +102,7 @@ describe('Error Alerting System', () => {
 
   describe('Alert Threshold Detection', () => {
     it('should not alert when below 4xx threshold', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       // Add errors below threshold (threshold is 5)
       trackErrorForAlert(404);
@@ -117,7 +117,7 @@ describe('Error Alerting System', () => {
     });
 
     it('should detect when 4xx threshold is exceeded', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       // Exceed threshold (threshold is 5)
       for (let i = 0; i < 6; i++) {
@@ -130,7 +130,7 @@ describe('Error Alerting System', () => {
     });
 
     it('should detect when 5xx threshold is exceeded', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       // Exceed threshold (threshold is 3)
       trackErrorForAlert(500);
@@ -144,7 +144,7 @@ describe('Error Alerting System', () => {
     });
 
     it('should detect when error rate threshold is exceeded', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       // Create 25% error rate (5 errors out of 20 requests)
       // Threshold is 20%
@@ -164,7 +164,7 @@ describe('Error Alerting System', () => {
 
   describe('Alert Status Endpoint', () => {
     it('should return current window metrics', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       trackErrorForAlert(404);
       trackErrorForAlert(500);
@@ -180,14 +180,14 @@ describe('Error Alerting System', () => {
     });
 
     it('should show null for lastAlert when no alerts sent', async () => {
-      const { getAlertStatus } = await import('../monitoring.js');
+      const { getAlertStatus } = await import('../monitoring.ts');
       const status = getAlertStatus();
 
       expect(status.lastAlert).toBeNull();
     });
 
     it('should include alert configuration', async () => {
-      const { getAlertStatus } = await import('../monitoring.js');
+      const { getAlertStatus } = await import('../monitoring.ts');
       const status = getAlertStatus();
 
       expect(status.config).toHaveProperty('thresholds');
@@ -201,7 +201,7 @@ describe('Error Alerting System', () => {
     it('should respect cooldown period between alerts', async () => {
       // This would require mocking time or waiting
       // For now, verify cooldown is configured
-      const { getAlertStatus } = await import('../monitoring.js');
+      const { getAlertStatus } = await import('../monitoring.ts');
       const status = getAlertStatus();
 
       expect(status.config.cooldown).toBe(5000); // 5 seconds in test config
@@ -210,7 +210,7 @@ describe('Error Alerting System', () => {
 
   describe('Error Code Classification', () => {
     it('should classify 4xx errors correctly', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       trackErrorForAlert(400);
       trackErrorForAlert(401);
@@ -226,7 +226,7 @@ describe('Error Alerting System', () => {
     });
 
     it('should classify 5xx errors correctly', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       trackErrorForAlert(500);
       trackErrorForAlert(501);
@@ -242,7 +242,7 @@ describe('Error Alerting System', () => {
     });
 
     it('should not count 2xx/3xx as errors', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
 
       trackErrorForAlert(200);
       trackErrorForAlert(201);

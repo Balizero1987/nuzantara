@@ -1,4 +1,4 @@
-import type { ActionName } from './types.js';
+import type { ActionName } from './types.ts';
 
 export function normalizeParams(action: ActionName, payload: any, meta?: { user?: string }): any {
   try {

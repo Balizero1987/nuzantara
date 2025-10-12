@@ -2,7 +2,7 @@
  * ANALYTICS Module
  * Auto-generated module index
  */
-export * from './analytics.js';
-export * from './dashboard-analytics.js';
-export * from './weekly-report.js';
-export * from './daily-drive-recap.js';
+export * from './analytics.ts';
+export * from './dashboard-analytics.ts';
+export * from './weekly-report.ts';
+export * from './daily-drive-recap.ts';

@@ -28,12 +28,12 @@ jest.unstable_mockModule('@anthropic-ai/sdk', () => ({
 }));
 
 // Mock cache to avoid persistence
-jest.unstable_mockModule('../../services/cacheProxy.js', () => ({
+jest.unstable_mockModule('../../services/cacheProxy.ts', () => ({
   getCachedAI: jest.fn().mockResolvedValue(null),
   setCachedAI: jest.fn().mockResolvedValue(undefined),
 }));
 
-const { openaiChat, claudeChat } = await import('../ai.js');
+const { openaiChat, claudeChat } = await import('../ai.ts');
 
 describe('AI Chat Handlers', () => {
   beforeEach(() => {
@@ -351,7 +351,7 @@ describe('AI Chat Handlers', () => {
 
   describe('Performance and Caching', () => {
     it('should check cache before making API call', async () => {
-      const { getCachedAI } = await import('../../services/cacheProxy.js');
+      const { getCachedAI } = await import('../../services/cacheProxy.ts');
 
       const params = {
         prompt: 'Test query',
@@ -363,7 +363,7 @@ describe('AI Chat Handlers', () => {
     });
 
     it('should cache successful responses', async () => {
-      const { setCachedAI } = await import('../../services/cacheProxy.js');
+      const { setCachedAI } = await import('../../services/cacheProxy.ts');
 
       const params = {
         prompt: 'Test query',

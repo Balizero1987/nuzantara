@@ -15,7 +15,7 @@ import {
   getSlidesService,
   getPeopleService,
   isOAuth2Available
-} from './oauth2-client.js';
+} from './oauth2-client.ts';
 
 interface AuthConfig {
   scopes: string[];

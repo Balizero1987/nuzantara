@@ -1,4 +1,4 @@
-import { getFirestore } from '../services/firebase.js';
+import { getFirestore } from '../services/firebase.ts';
 
 interface SessionRecord { id: string; user?: string; origin?: string; channel?: string; csrfToken?: string; createdAt: number; ttlMs: number }
 

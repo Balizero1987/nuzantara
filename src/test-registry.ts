@@ -5,8 +5,8 @@
  * Verifies that all handlers are correctly registered
  */
 
-import { loadAllHandlers } from './core/load-all-handlers.js';
-import { globalRegistry } from './core/handler-registry.js';
+import { loadAllHandlers } from './core/load-all-handlers.ts';
+import { globalRegistry } from './core/handler-registry.ts';
 
 async function testRegistry() {
   console.log('🧪 Testing Handler Registry...\n');

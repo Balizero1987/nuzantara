@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { baliZeroPricing, baliZeroQuickPrice } from '../bali-zero-pricing.js';
+import { baliZeroPricing, baliZeroQuickPrice } from '../bali-zero-pricing.ts';
 
 describe('Bali Zero Pricing Handler', () => {
   describe('baliZeroPricing', () => {

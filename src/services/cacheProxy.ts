@@ -9,7 +9,7 @@ type CacheModule = {
 
 async function loadCache(): Promise<CacheModule> {
   // Dynamic import to avoid TS compiler scanning JS outside src
-  const spec = '../../' + 'cache.js';
+  const spec = '../../' + 'cache.ts';
   const mod: any = await import(spec as any);
   return mod as CacheModule;
 }

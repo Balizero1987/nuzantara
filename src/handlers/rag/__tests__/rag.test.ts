@@ -11,7 +11,7 @@ const mockSearch = jest.fn();
 const mockBaliZeroChat = jest.fn();
 const mockHealthCheck = jest.fn();
 
-jest.unstable_mockModule('../../services/ragService.js', () => ({
+jest.unstable_mockModule('../../services/ragService.ts', () => ({
   ragService: {
     generateAnswer: mockGenerateAnswer,
     search: mockSearch,
@@ -20,7 +20,7 @@ jest.unstable_mockModule('../../services/ragService.js', () => ({
   },
 }));
 
-const { ragQuery, ragSearch, baliZeroChat, ragHealth } = await import('../rag.js');
+const { ragQuery, ragSearch, baliZeroChat, ragHealth } = await import('../rag.ts');
 
 describe('RAG Handler', () => {
   beforeEach(() => {

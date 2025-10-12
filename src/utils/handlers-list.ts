@@ -41,7 +41,7 @@ const CACHE_TTL = 60000; // 1 minute
 function extractHandlers(): HandlerInfo[] {
   // Try .ts first (dev), then .js (production)
   const routerPathTS = join(currentDirname, '../router.ts');
-  const routerPathJS = join(currentDirname, '../router.js');
+  const routerPathJS = join(currentDirname, '../router.ts');
 
   let routerPath = routerPathTS;
   try {

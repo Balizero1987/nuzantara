@@ -2,9 +2,9 @@ import { describe, test, expect } from '@jest/globals';
 import request from 'supertest';
 import express from 'express';
 import path from 'path';
-import { attachRoutes } from '../router.js';
-import { requestTracker, getHealthMetrics } from '../middleware/monitoring.js';
-import { UnauthorizedError, BadRequestError, ForbiddenError } from '../utils/errors.js';
+import { attachRoutes } from '../router.ts';
+import { requestTracker, getHealthMetrics } from '../middleware/monitoring.ts';
+import { UnauthorizedError, BadRequestError, ForbiddenError } from '../utils/errors.ts';
 
 // Test configuration
 const TEST_API_KEY = 'zantara-internal-dev-key-2025';

@@ -6,12 +6,12 @@ import { fileURLToPath } from 'url';
 // import swaggerUi from 'swagger-ui-express';
 // import yaml from 'js-yaml';
 
-import { ensureFirebaseInitialized } from './services/firebase.js';
-import { correlationId } from './middleware/correlationId.js';
-import { flagGate } from './middleware/flagGate.js';
-import { getFlags, computeFlagsETag } from './config/flags.js';
-import { buildBootstrapResponse } from './app-gateway/app-bootstrap.js';
-import { handleAppEvent } from './app-gateway/app-events.js';
+import { ensureFirebaseInitialized } from './services/firebase.ts';
+import { correlationId } from './middleware/correlationId.ts';
+import { flagGate } from './middleware/flagGate.ts';
+import { getFlags, computeFlagsETag } from './config/flags.ts';
+import { buildBootstrapResponse } from './app-gateway/app-bootstrap.ts';
+import { handleAppEvent } from './app-gateway/app-events.ts';
 
 await ensureFirebaseInitialized().catch((error) => {
   console.log('⚠️ Firebase initialization issue:', error?.message || error);
@@ -46,12 +46,12 @@ app.use((req, res, next) => {
 // === end CORS ===
 
 // Production monitoring
-import { requestTracker, errorTracker, getHealthMetrics, getAlertStatus } from './middleware/monitoring.js';
-import { validateResponse, getValidationReport, clearUnverifiedFacts } from './middleware/validation.js';
-import { deepRealityCheck, getRealityMetrics, enforceReality, clearRealityCache } from './middleware/reality-check.js';
+import { requestTracker, errorTracker, getHealthMetrics, getAlertStatus } from './middleware/monitoring.ts';
+import { validateResponse, getValidationReport, clearUnverifiedFacts } from './middleware/validation.ts';
+import { deepRealityCheck, getRealityMetrics, enforceReality, clearRealityCache } from './middleware/reality-check.ts';
 // Google Chat webhook (optional bot integration)
-// import { handleChatWebhook } from './routes/google-chat.js';
-// import { verifyChatOIDC } from './middleware/chat-oidc.js';
+// import { handleChatWebhook } from './routes/google-chat.ts';
+// import { verifyChatOIDC } from './middleware/chat-oidc.ts';
 // Identity Gate removed - No longer needed for web app usage
 
 app.use(requestTracker);
@@ -200,7 +200,7 @@ app.post('/proxy/claude', async (req, res) => {
     }
 
     // Forward to Claude handler
-    const { claudeChat } = await import('./handlers/ai-services/ai.js');
+    const { claudeChat } = await import('./handlers/ai-services/ai.ts');
     const result = await claudeChat({
       message,
       temperature,
@@ -230,7 +230,7 @@ app.post('/proxy/gemini', async (req, res) => {
     }
 
     // Forward to Gemini handler
-    const { geminiChat } = await import('./handlers/ai-services/ai.js');
+    const { geminiChat } = await import('./handlers/ai-services/ai.ts');
     const result = await geminiChat({
       message,
       temperature,
@@ -260,7 +260,7 @@ app.post('/proxy/cohere', async (req, res) => {
     }
 
     // Forward to Cohere handler
-    const { cohereChat } = await import('./handlers/ai-services/ai.js');
+    const { cohereChat } = await import('./handlers/ai-services/ai.ts');
     const result = await cohereChat({
       message,
       temperature,
@@ -281,7 +281,7 @@ app.post('/proxy/cohere', async (req, res) => {
 // app.post('/chat/webhook', verifyChatOIDC, handleChatWebhook);
 
 // 🔧 Load all handlers using auto-registration system (TEMPORARILY DISABLED)
-// import { loadAllHandlers } from './core/load-all-handlers.js';
+// import { loadAllHandlers } from './core/load-all-handlers.ts';
 // loadAllHandlers().then(stats => {
 //   console.log('✅ Handler registry initialized:', stats);
 // }).catch(err => {
@@ -301,7 +301,7 @@ const server = app.listen(port, () => {
 });
 
 // Initialize WebSocket Server
-import { initializeWebSocketServer } from './services/websocket-server.js';
+import { initializeWebSocketServer } from './services/websocket-server.ts';
 const wsServer = initializeWebSocketServer(server);
 console.log('✅ WebSocket server initialized on /ws');
 
@@ -331,7 +331,7 @@ app.post('/app/event', async (req, res) => {
 
 // Global auto-load of handlers (enabled after WS/AI/Communication standardization)
 try {
-  const { loadAllHandlers } = await import('./core/load-all-handlers.js');
+  const { loadAllHandlers } = await import('./core/load-all-handlers.ts');
   await loadAllHandlers();
   console.log('🔄 All handler modules loaded via registry');
 } catch (e: any) {
@@ -353,7 +353,7 @@ async function gracefulShutdown(signal: string) {
 
   // Clean up OAuth2 client
   try {
-    const { cleanupOAuth2Client } = await import('./services/oauth2-client.js');
+    const { cleanupOAuth2Client } = await import('./services/oauth2-client.ts');
     cleanupOAuth2Client();
     console.log('✅ OAuth2 client cleaned up');
   } catch (error: any) {
