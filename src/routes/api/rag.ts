@@ -4,7 +4,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { ragService } from '../../services/ragService.ts';
+import { ragService } from '../../services/ragService.js';
 
 const router = Router();
 

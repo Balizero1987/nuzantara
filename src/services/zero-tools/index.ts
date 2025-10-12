@@ -5,13 +5,13 @@
  * Supports both localhost (MCP) and Cloud Run (custom tools)
  */
 
-export * from './filesystem.ts';
-export * from './bash.ts';
-export * from './deployment.ts';
+export * from './filesystem.js';
+export * from './bash.js';
+export * from './deployment.js';
 
-import { readFileZero, editFileZero, writeFileZero, globZero, listDirectoryZero } from './filesystem.ts';
-import { bashZero, gitStatusZero, gitDiffZero, gitLogZero, npmRunZero, healthCheckZero } from './bash.ts';
-import { deployBackendZero, deployRagZero, checkWorkflowStatusZero, listRecentDeploymentsZero } from './deployment.ts';
+import { readFileZero, editFileZero, writeFileZero, globZero, listDirectoryZero } from './filesystem.js';
+import { bashZero, gitStatusZero, gitDiffZero, gitLogZero, npmRunZero, healthCheckZero } from './bash.js';
+import { deployBackendZero, deployRagZero, checkWorkflowStatusZero, listRecentDeploymentsZero } from './deployment.js';
 
 /**
  * Tool definitions for Claude API

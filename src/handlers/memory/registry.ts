@@ -2,11 +2,11 @@
  * Memory & Persistence Module Registry
  */
 
-import { globalRegistry } from '../../core/handler-registry.ts';
-import { memorySave, memorySearch, memoryRetrieve } from './memory-firestore.ts';
-import { autoSaveConversation } from './conversation-autosave.ts';
-import type { HandlerFunction } from '../../core/handler-registry.ts';
-import { userMemorySave, userMemoryRetrieve, userMemoryList, userMemoryLogin } from './user-memory.ts';
+import { globalRegistry } from '../../core/handler-registry.js';
+import { memorySave, memorySearch, memoryRetrieve } from './memory-firestore.js';
+import { autoSaveConversation } from './conversation-autosave.js';
+import type { HandlerFunction } from '../../core/handler-registry.js';
+import { userMemorySave, userMemoryRetrieve, userMemoryList, userMemoryLogin } from './user-memory.js';
 
 export function registerMemoryHandlers() {
   // Firestore memory handlers

@@ -5,9 +5,9 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.ts';
-import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.ts';
-import { calendarList, calendarCreate, calendarGet } from '../../handlers/google-workspace/calendar.ts';
+import { ok, err } from '../../utils/response.js';
+import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
+import { calendarList, calendarCreate, calendarGet } from '../../handlers/google-workspace/calendar.js';
 
 const router = Router();
 

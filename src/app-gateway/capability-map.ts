@@ -1,4 +1,4 @@
-import type { ActionName } from './types.ts';
+import type { ActionName } from './types.js';
 
 export interface Capability {
   handler: string | '__dynamic__';

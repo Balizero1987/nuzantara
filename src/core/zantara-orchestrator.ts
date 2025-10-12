@@ -5,12 +5,12 @@
  * Light, elegant, culturally aware - never pedantic
  */
 
-import { VisaOracle } from '../agents/visa-oracle.ts';
-import { EyeKBLI } from '../agents/eye-kbli.ts';
-import { TaxGenius } from '../agents/tax-genius.ts';
-import { LegalArchitect } from '../agents/legal-architect.ts';
-import { PropertySage } from '../agents/property-sage.ts';
-import { memorySave } from '../handlers/memory/memory-firestore.ts';
+import { VisaOracle } from '../agents/visa-oracle.js';
+import { EyeKBLI } from '../agents/eye-kbli.js';
+import { TaxGenius } from '../agents/tax-genius.js';
+import { LegalArchitect } from '../agents/legal-architect.js';
+import { PropertySage } from '../agents/property-sage.js';
+import { memorySave } from '../handlers/memory/memory-firestore.js';
 
 interface UserContext {
   userId: string;

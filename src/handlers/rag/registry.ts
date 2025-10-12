@@ -3,13 +3,13 @@
  * Python backend integration
  */
 
-import { globalRegistry } from '../../core/handler-registry.ts';
+import { globalRegistry } from '../../core/handler-registry.js';
 import {
   ragQuery,
   baliZeroChat,
   ragSearch,
   ragHealth
-} from './rag.ts';
+} from './rag.js';
 
 export function registerRAGHandlers() {
   // RAG handlers

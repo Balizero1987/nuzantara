@@ -3,8 +3,8 @@
  * Google Maps integration
  */
 
-import { globalRegistry } from '../../core/handler-registry.ts';
-import { mapsDirections, mapsPlaces, mapsPlaceDetails } from './maps.ts';
+import { globalRegistry } from '../../core/handler-registry.js';
+import { mapsDirections, mapsPlaces, mapsPlaceDetails } from './maps.js';
 
 export function registerMapsHandlers() {
   // Maps handlers

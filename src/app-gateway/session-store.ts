@@ -1,4 +1,4 @@
-import { getFirestore } from '../services/firebase.ts';
+import { getFirestore } from '../services/firebase.js';
 
 interface SessionRecord { id: string; user?: string; origin?: string; channel?: string; csrfToken?: string; createdAt: number; ttlMs: number }
 
@@ -21,7 +21,7 @@ export function createSession(id: string, opt: Partial<SessionRecord>) {
     telegram: 60 * 60 * 1000,
   };
   const ttl = ttlDefaults[(opt.channel || 'webapp')] || ttlDefaults.webapp;
-  const rec: SessionRecord = { id, user: opt.user, origin: opt.origin, channel: opt.channel, csrfToken: opt.csrfToken, createdAt: Date.now(), ttlMs: ttl };
+  const rec: SessionRecord = { id, user: opt.user, origin: opt.origin, channel: opt.channel, csrfToken: opt.csrfToken, createdAt: Date.now(), ttlMs: ttl ?? 0 };
   inMem.set(id, rec);
   return rec;
 }

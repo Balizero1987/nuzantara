@@ -5,9 +5,9 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.ts';
-import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.ts';
-import { docsCreate, docsRead, docsUpdate } from '../../handlers/google-workspace/docs.ts';
+import { ok, err } from '../../utils/response.js';
+import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
+import { docsCreate, docsRead, docsUpdate } from '../../handlers/google-workspace/docs.js';
 
 const router = Router();
 

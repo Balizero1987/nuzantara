@@ -5,7 +5,7 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { baliZeroChatLimiter, aiChatLimiter, ragQueryLimiter, strictLimiter } from './rate-limit.ts';
+import { baliZeroChatLimiter, aiChatLimiter, ragQueryLimiter, strictLimiter } from './rate-limit.js';
 
 // Map handler keys to their appropriate rate limiters
 const RATE_LIMIT_MAP: Record<string, any> = {

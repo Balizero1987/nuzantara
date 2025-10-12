@@ -3,9 +3,9 @@
  * Integrates Ollama LLM and Bali Zero routing
  */
 
-import { ragService } from '../../services/ragService.ts';
+import { ragService } from '../../services/ragService.js';
 import type { Request } from 'express';
-import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragService.ts';
+import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragService.js';
 
 /**
  * RAG Query - Generate answer using Ollama + ChromaDB

@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { oracleSimulate, oracleAnalyze, oraclePredict } from '../oracle.ts';
+import { oracleSimulate, oracleAnalyze, oraclePredict } from '../oracle.js';
 
 describe('Oracle Handler', () => {
   describe('oracleSimulate', () => {

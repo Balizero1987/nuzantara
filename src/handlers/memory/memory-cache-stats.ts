@@ -3,8 +3,8 @@
  * Exposes cache performance metrics
  */
 
-import { memoryCache } from '../../services/memory-cache.ts';
-import { ok } from '../../utils/response.ts';
+import { memoryCache } from '../../services/memory-cache.js';
+import { ok } from '../../utils/response.js';
 
 /**
  * Get memory cache statistics

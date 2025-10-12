@@ -5,9 +5,9 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { err } from '../../utils/response.ts';
-import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.ts';
-import { gmailHandlers } from '../../handlers/google-workspace/gmail.ts';
+import { err } from '../../utils/response.js';
+import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
+import { gmailHandlers } from '../../handlers/google-workspace/gmail.js';
 
 const router = Router();
 

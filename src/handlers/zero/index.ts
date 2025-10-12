@@ -5,8 +5,8 @@
  * Security enforced via middleware
  */
 
-import { zeroChat } from './chat.ts';
-import { zeroChatSimple } from './chat-simple.ts';
+import { zeroChat } from './chat.js';
+import { zeroChatSimple } from './chat-simple.js';
 
 export const handlers = {
   'zero.chat': zeroChat, // Claude with tool use (requires ANTHROPIC_API_KEY)

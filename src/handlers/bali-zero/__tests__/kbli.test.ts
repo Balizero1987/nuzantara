@@ -1,5 +1,5 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { createMockRequest, createMockResponse } from '../../../../tests/helpers/mocks.ts';
+import { createMockRequest, createMockResponse } from '../../../../tests/helpers/mocks.js';
 
 describe('KBLI Handler', () => {
   let mockReq: any;

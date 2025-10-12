@@ -3,9 +3,9 @@
  * Monitor and manage WebSocket connections
  */
 
-import { ok, err } from '../../utils/response.ts';
-import { BadRequestError } from '../../utils/errors.ts';
-import { getWebSocketServer } from '../../services/websocket-server.ts';
+import { ok, err } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { getWebSocketServer } from '../../services/websocket-server.js';
 
 /**
  * Get WebSocket server stats

@@ -13,8 +13,8 @@ import { apiKeyAuth, RequestWithCtx } from "./middleware/auth.js";
 import { ForbiddenError, BadRequestError, UnauthorizedError } from "./utils/errors.js";
 
 // Import registry system
-import { globalRegistry } from './core/handler-registry.ts';
-import { loadAllHandlers, getAllHandlers } from './core/load-all-handlers.ts';
+import { globalRegistry } from './core/handler-registry.js';
+import { loadAllHandlers, getAllHandlers } from './core/load-all-handlers.js';
 
 // Action schema
 const ActionSchema = z.object({

@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 import { ok, err } from "./utils/response.js";
 import { apiKeyAuth, RequestWithCtx } from "./middleware/auth.js";
 import { ForbiddenError, BadRequestError, UnauthorizedError } from "./utils/errors.js";
-import { forwardToBridgeIfSupported } from './services/bridgeProxy.ts';
+import { forwardToBridgeIfSupported } from './services/bridgeProxy.js';
 
 // === MODULE-FUNCTIONAL IMPORTS (Auto-organized by domain) ===
 

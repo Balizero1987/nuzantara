@@ -2,7 +2,7 @@
  * COMMUNICATION Module
  * Auto-generated module index
  */
-export * from './communication.ts';
-export * from './whatsapp.ts';
-export * from './instagram.ts';
-export * from './translate.ts';
+export * from './communication.js';
+export * from './whatsapp.js';
+export * from './instagram.js';
+export * from './translate.js';

@@ -1,7 +1,7 @@
 import type { Request } from 'express';
-import { EventRequestSchema, type EventRequest, type Patch } from './types.ts';
-import { normalizeParams } from './param-normalizer.ts';
-import { getSession } from './session-store.ts';
+import { EventRequestSchema, type EventRequest, type Patch } from './types.js';
+import { normalizeParams } from './param-normalizer.js';
+import { getSession } from './session-store.js';
 
 // Simple in-memory idempotency cache (P0)
 const IDEMPOTENCY_WINDOW_MS = 5 * 60 * 1000;
