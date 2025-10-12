@@ -13,7 +13,7 @@ describe('KBLI Handler', () => {
 
   describe('kbliLookup', () => {
     it('should return KBLI data successfully', async () => {
-      const { kbliLookup } = await import('../kbli.ts');
+      const { kbliLookup } = await import('../kbli.js');
       
       mockReq.body = { code: '12345' };
       
@@ -25,7 +25,7 @@ describe('KBLI Handler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      const { kbliLookup } = await import('../kbli.ts');
+      const { kbliLookup } = await import('../kbli.js');
       
       // Mock an error scenario
       mockReq.body = { code: 'invalid' };
@@ -41,7 +41,7 @@ describe('KBLI Handler', () => {
     });
 
     it('should validate required parameters', async () => {
-      const { kbliLookup } = await import('../kbli.ts');
+      const { kbliLookup } = await import('../kbli.js');
       
       mockReq.body = {}; // Missing code parameter
       

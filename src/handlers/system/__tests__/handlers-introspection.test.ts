@@ -3,7 +3,7 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 describe('System Handlers', () => {
   describe('getAllHandlers', () => {
     it('should return handler list with metadata', async () => {
-      const { getAllHandlers } = await import('../handlers-introspection.ts');
+      const { getAllHandlers } = await import('../handlers-introspection.js');
       
       const result = await getAllHandlers();
       
@@ -13,7 +13,7 @@ describe('System Handlers', () => {
     });
 
     it('should have valid tool structure', async () => {
-      const { getAnthropicToolDefinitions } = await import('../handlers-introspection.ts');
+      const { getAnthropicToolDefinitions } = await import('../handlers-introspection.js');
       
       const result = await getAnthropicToolDefinitions();
       

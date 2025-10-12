@@ -7,7 +7,7 @@ describe('Error Alerting System', () => {
 
   describe('Alert Metrics Tracking', () => {
     it('should track 4xx errors separately from 5xx', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
       
       // Simulate 4xx errors
       trackErrorForAlert(404, 'Not Found');
@@ -26,7 +26,7 @@ describe('Error Alerting System', () => {
     });
 
     it('should track 5xx errors', async () => {
-      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.ts');
+      const { trackErrorForAlert, getAlertStatus } = await import('../monitoring.js');
       
       // Simulate 5xx errors
       trackErrorForAlert(500, 'Internal Server Error');
