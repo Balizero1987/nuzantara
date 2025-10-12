@@ -124,7 +124,7 @@ export async function getHealthMetrics() {
   let serviceAccountStatus = { available: false, error: 'Not initialized' } as any;
   try {
     // Import firebaseStatus from firebase service
-    const { firebaseStatus } = await import('../services/firebase.ts');
+    const { firebaseStatus } = await import('../services/firebase.js');
 
     if (firebaseStatus.initialized && !firebaseStatus.error) {
       serviceAccountStatus = {
@@ -287,7 +287,7 @@ async function sendAlert(alertType: string, message: string, details: any) {
   if (alertConfig.channels.whatsapp) {
     try {
       // Dynamic import to avoid circular dependency
-      const { sendManualMessage } = await import('../handlers/communication/whatsapp.ts');
+      const { sendManualMessage } = await import('../handlers/communication/whatsapp.js');
 
       const whatsappMessage = `🚨 *ZANTARA ALERT*\n\n*Type:* ${alertType}\n*Message:* ${message}\n\n*Details:*\n${JSON.stringify(details, null, 2)}`;
 

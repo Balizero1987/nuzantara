@@ -200,7 +200,7 @@ app.post('/proxy/claude', async (req, res) => {
     }
 
     // Forward to Claude handler
-    const { claudeChat } = await import('./handlers/ai-services/ai.ts');
+    const { claudeChat } = await import('./handlers/ai-services/ai.js');
     const result = await claudeChat({
       message,
       temperature,
@@ -230,7 +230,7 @@ app.post('/proxy/gemini', async (req, res) => {
     }
 
     // Forward to Gemini handler
-    const { geminiChat } = await import('./handlers/ai-services/ai.ts');
+    const { geminiChat } = await import('./handlers/ai-services/ai.js');
     const result = await geminiChat({
       message,
       temperature,
@@ -260,7 +260,7 @@ app.post('/proxy/cohere', async (req, res) => {
     }
 
     // Forward to Cohere handler
-    const { cohereChat } = await import('./handlers/ai-services/ai.ts');
+    const { cohereChat } = await import('./handlers/ai-services/ai.js');
     const result = await cohereChat({
       message,
       temperature,
@@ -331,7 +331,7 @@ app.post('/app/event', async (req, res) => {
 
 // Global auto-load of handlers (enabled after WS/AI/Communication standardization)
 try {
-  const { loadAllHandlers } = await import('./core/load-all-handlers.ts');
+  const { loadAllHandlers } = await import('./core/load-all-handlers.js');
   await loadAllHandlers();
   console.log('🔄 All handler modules loaded via registry');
 } catch (e: any) {
@@ -353,7 +353,7 @@ async function gracefulShutdown(signal: string) {
 
   // Clean up OAuth2 client
   try {
-    const { cleanupOAuth2Client } = await import('./services/oauth2-client.ts');
+    const { cleanupOAuth2Client } = await import('./services/oauth2-client.js');
     cleanupOAuth2Client();
     console.log('✅ OAuth2 client cleaned up');
   } catch (error: any) {

@@ -13,7 +13,7 @@ describe('Team Handler', () => {
 
   describe('teamList', () => {
     it('should return team members successfully', async () => {
-      const { teamList } = await import('../team.ts');
+      const { teamList } = await import('../team.js');
       
       await teamList(mockReq, mockRes);
       
@@ -23,7 +23,7 @@ describe('Team Handler', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      const { teamList } = await import('../team.ts');
+      const { teamList } = await import('../team.js');
       
       // Mock an error scenario
       jest.spyOn(console, 'error').mockImplementation(() => {});

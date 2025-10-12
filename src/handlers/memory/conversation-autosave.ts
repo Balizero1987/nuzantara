@@ -91,7 +91,7 @@ async function saveToFirestore(conversationData: any) {
 async function saveToDrive(conversationData: any) {
   try {
     // Import the working drive upload handler
-    const { driveUpload } = await import('../google-workspace/drive.ts');
+    const { driveUpload } = await import('../google-workspace/drive.js');
 
     // Format conversation as readable text
     const conversationText = `

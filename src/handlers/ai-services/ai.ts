@@ -482,7 +482,7 @@ export async function claudeChat(params: any) {
     // Try RAG first for Bali Zero queries
     let ragContext = '';
     try {
-      const { ragService } = await import('../../services/ragService.ts');
+      const { ragService } = await import('../../services/ragService.js');
       const userInfo = userId || userEmail || userName || userIdentification;
 
       // Get user context for personalization
@@ -551,7 +551,7 @@ export async function geminiChat(params: any) {
     // Try RAG first for Bali Zero queries
     let ragContext = '';
     try {
-      const { ragService } = await import('../../services/ragService.ts');
+      const { ragService } = await import('../../services/ragService.js');
       const ragResult: any = await ragService.baliZeroChat({
         query: p,
         conversation_history: [],

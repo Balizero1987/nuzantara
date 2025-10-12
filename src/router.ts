@@ -821,7 +821,7 @@ const handlers: Record<string, Handler> = {
 
   // 🔌 WebSocket Admin - Connection Management
   "websocket.stats": async () => {
-    const { websocketStats } = await import('./handlers/admin/websocket-admin.ts');
+    const { websocketStats } = await import('./handlers/admin/websocket-admin.js');
     return await websocketStats({});
   },
   /**
@@ -851,18 +851,18 @@ const handlers: Record<string, Handler> = {
    * })
    */
   "websocket.broadcast": async (params: any) => {
-    const { websocketBroadcast } = await import('./handlers/admin/websocket-admin.ts');
+    const { websocketBroadcast } = await import('./handlers/admin/websocket-admin.js');
     return await websocketBroadcast(params);
   },
   "websocket.send": async (params: any) => {
-    const { websocketSendToUser } = await import('./handlers/admin/websocket-admin.ts');
+    const { websocketSendToUser } = await import('./handlers/admin/websocket-admin.js');
     return await websocketSendToUser(params);
   },
 
   // 🔐 OAuth2 Token Management
   "oauth2.status": async () => {
     try {
-      const { getTokenStatus } = await import('./services/oauth2-client.ts');
+      const { getTokenStatus } = await import('./services/oauth2-client.js');
       return ok(getTokenStatus());
     } catch (error: any) {
       return ok({ available: false, error: error.message });
@@ -871,7 +871,7 @@ const handlers: Record<string, Handler> = {
 
   "oauth2.refresh": async () => {
     try {
-      const { forceTokenRefresh } = await import('./services/oauth2-client.ts');
+      const { forceTokenRefresh } = await import('./services/oauth2-client.js');
       const success = await forceTokenRefresh();
       return ok({ success, message: success ? 'Token refreshed successfully' : 'Token refresh failed' });
     } catch (error: any) {
@@ -881,7 +881,7 @@ const handlers: Record<string, Handler> = {
 
   "oauth2.available": async () => {
     try {
-      const { isOAuth2Available } = await import('./services/oauth2-client.ts');
+      const { isOAuth2Available } = await import('./services/oauth2-client.js');
       const available = await isOAuth2Available();
       return ok({ available });
     } catch (error: any) {
@@ -1233,7 +1233,7 @@ export function attachRoutes(app: import("express").Express) {
 
         if (!handler) {
           // Check if handler exists in globalRegistry (dynamic auto-loaded handlers)
-          const { globalRegistry } = await import('./core/handler-registry.ts');
+          const { globalRegistry } = await import('./core/handler-registry.js');
           if (globalRegistry.has(key)) {
             // Get the handler function from registry
             const handlerMetadata = globalRegistry.get(key);
