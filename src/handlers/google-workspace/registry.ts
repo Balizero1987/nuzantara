@@ -3,16 +3,16 @@
  * Auto-registers all handlers in this module
  */
 
-import { globalRegistry } from '../../core/handler-registry.ts';
+import { globalRegistry } from '../../core/handler-registry.js';
 
 // Import all handlers
-import { gmailHandlers } from './gmail.ts';
-import { driveUpload, driveList, driveSearch, driveRead } from './drive.ts';
-import { calendarCreate, calendarList, calendarGet } from './calendar.ts';
-import { sheetsRead, sheetsAppend, sheetsCreate } from './sheets.ts';
-import { docsCreate, docsRead, docsUpdate } from './docs.ts';
-import { slidesCreate, slidesRead, slidesUpdate } from './slides.ts';
-import { contactsList, contactsCreate } from './contacts.ts';
+import { gmailHandlers } from './gmail.js';
+import { driveUpload, driveList, driveSearch, driveRead } from './drive.js';
+import { calendarCreate, calendarList, calendarGet } from './calendar.js';
+import { sheetsRead, sheetsAppend, sheetsCreate } from './sheets.js';
+import { docsCreate, docsRead, docsUpdate } from './docs.js';
+import { slidesCreate, slidesRead, slidesUpdate } from './slides.js';
+import { contactsList, contactsCreate } from './contacts.js';
 
 /**
  * Register all Google Workspace handlers

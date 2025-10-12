@@ -2,4 +2,4 @@
  * IDENTITY Module
  * Auto-generated module index
  */
-export * from './identity.ts';
+export * from './identity.js';

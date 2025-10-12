@@ -13,28 +13,28 @@
 import { Express } from 'express';
 
 // Google Workspace Routes
-import gmailRoutes from './google-workspace/gmail.routes.ts';
-import driveRoutes from './google-workspace/drive.routes.ts';
-import calendarRoutes from './google-workspace/calendar.routes.ts';
-import sheetsRoutes from './google-workspace/sheets.routes.ts';
-import docsRoutes from './google-workspace/docs.routes.ts';
+import gmailRoutes from './google-workspace/gmail.routes.js';
+import driveRoutes from './google-workspace/drive.routes.js';
+import calendarRoutes from './google-workspace/calendar.routes.js';
+import sheetsRoutes from './google-workspace/sheets.routes.js';
+import docsRoutes from './google-workspace/docs.routes.js';
 
 // AI Services Routes
-import aiRoutes from './ai-services/ai.routes.ts';
-import creativeRoutes from './ai-services/creative.routes.ts';
+import aiRoutes from './ai-services/ai.routes.js';
+import creativeRoutes from './ai-services/creative.routes.js';
 
 // Bali Zero Routes
-import oracleRoutes from './bali-zero/oracle.routes.ts';
-import pricingRoutes from './bali-zero/pricing.routes.ts';
-import teamRoutes from './bali-zero/team.routes.ts';
+import oracleRoutes from './bali-zero/oracle.routes.js';
+import pricingRoutes from './bali-zero/pricing.routes.js';
+import teamRoutes from './bali-zero/team.routes.js';
 
 // Communication Routes
-import translateRoutes from './communication/translate.routes.ts';
-// import whatsappRoutes from './communication/whatsapp.routes.ts';
-// import instagramRoutes from './communication/instagram.routes.ts';
+import translateRoutes from './communication/translate.routes.js';
+// import whatsappRoutes from './communication/whatsapp.routes.js';
+// import instagramRoutes from './communication/instagram.routes.js';
 
 // Analytics Routes
-import analyticsRoutes from './analytics/analytics.routes.ts';
+import analyticsRoutes from './analytics/analytics.routes.js';
 
 /**
  * Attach all routes to Express app

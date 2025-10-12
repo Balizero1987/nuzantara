@@ -52,6 +52,6 @@ export interface BootstrapResponse {
       components: Record<string, { id: string; type: string; props?: Record<string, any> }>;
       designTokens: Record<string, any>;
     };
-    flags: import('../config/flags.ts').Flags;
+    flags: import('../config/flags.js').Flags;
   };
 }

@@ -150,7 +150,7 @@ export function generateMigrationPlan(): string[] {
   // Create index files for each module
   commands.push('# Create module index files');
   for (const { module, handlers } of MODULE_STRUCTURE) {
-    const exports = handlers.map(h => `export * from './${h}.ts';`).join('\n');
+    const exports = handlers.map(h => `export * from './${h}.js';`).join('\n');
     commands.push(`cat > ${module}/index.ts <<'EOF'`);
     commands.push(`/**`);
     commands.push(` * ${module.toUpperCase()} Module`);
@@ -176,7 +176,7 @@ export function generateRouterImports(): string {
 
   for (const { module } of MODULE_STRUCTURE) {
     imports.push(`// ${module.toUpperCase()}`);
-    imports.push(`import * as ${module.replace(/-/g, '_')} from './handlers/${module}/index.ts';`);
+    imports.push(`import * as ${module.replace(/-/g, '_')} from './handlers/${module}/index.js';`);
   }
 
   imports.push('');

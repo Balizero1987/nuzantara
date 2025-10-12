@@ -5,9 +5,9 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.ts';
-import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.ts';
-import { sheetsRead, sheetsAppend, sheetsCreate } from '../../handlers/google-workspace/sheets.ts';
+import { ok, err } from '../../utils/response.js';
+import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
+import { sheetsRead, sheetsAppend, sheetsCreate } from '../../handlers/google-workspace/sheets.js';
 
 const router = Router();
 

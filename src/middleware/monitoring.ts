@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { trackActivity } from '../services/session-tracker.ts';
+import { trackActivity } from '../services/session-tracker.js';
 
 // Performance and error tracking
 interface RequestMetrics {

@@ -6,11 +6,11 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.ts';
-import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.ts';
-import { teamList, teamGet, teamDepartments } from '../../handlers/bali-zero/team.ts';
-import { teamRecentActivity } from '../../handlers/bali-zero/team-activity.ts';
-import { BadRequestError } from '../../utils/errors.ts';
+import { ok, err } from '../../utils/response.js';
+import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
+import { teamList, teamGet, teamDepartments } from '../../handlers/bali-zero/team.js';
+import { teamRecentActivity } from '../../handlers/bali-zero/team-activity.js';
+import { BadRequestError } from '../../utils/errors.js';
 
 const router = Router();
 

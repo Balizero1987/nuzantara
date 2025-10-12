@@ -103,7 +103,7 @@ export async function userMemoryLogin(params: LoginRequest) {
 }
 
 // Optional: register on module load (works with auto-load)
-import { globalRegistry } from '../../core/handler-registry.ts';
+import { globalRegistry } from '../../core/handler-registry.js';
 try {
   globalRegistry.registerModule('memory', {
     'user.memory.save': userMemorySave as any,

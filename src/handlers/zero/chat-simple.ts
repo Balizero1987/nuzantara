@@ -6,8 +6,8 @@
  * and parsed from AI response. Less powerful than Claude version but works with any LLM.
  */
 
-import { geminiChat } from '../ai-services/ai.ts';
-import { executeZeroTool } from '../../services/zero-tools/index.ts';
+import { geminiChat } from '../ai-services/ai.js';
+import { executeZeroTool } from '../../services/zero-tools/index.js';
 
 export interface ZeroChatSimpleParams {
   userId: string;

@@ -12,7 +12,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { ZERO_TOOLS, executeZeroTool } from '../../services/zero-tools/index.ts';
+import { ZERO_TOOLS, executeZeroTool } from '../../services/zero-tools/index.js';
 
 const getAnthropicClient = () => {
   const apiKey = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;

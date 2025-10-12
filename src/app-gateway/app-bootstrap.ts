@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
-import type { BootstrapArgs, BootstrapResponse } from './types.ts';
-import { getFlags } from '../config/flags.ts';
-import { createSession, persistSessionFirestore } from './session-store.ts';
+import type { BootstrapArgs, BootstrapResponse } from './types.js';
+import { getFlags } from '../config/flags.js';
+import { createSession, persistSessionFirestore } from './session-store.js';
 
 function genSessionId(): string {
   return `sess_${Date.now().toString(36)}_${crypto.randomBytes(4).toString('hex')}`;

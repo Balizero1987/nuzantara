@@ -5,7 +5,7 @@
  * Call this once at app startup to register all 136+ handlers
  */
 
-import { globalRegistry } from './handler-registry.ts';
+import { globalRegistry } from './handler-registry.js';
 
 /**
  * Load all handler modules

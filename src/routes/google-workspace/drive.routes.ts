@@ -5,9 +5,9 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.ts';
-import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.ts';
-import { driveUpload, driveList, driveSearch, driveRead } from '../../handlers/google-workspace/drive.ts';
+import { ok, err } from '../../utils/response.js';
+import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
+import { driveUpload, driveList, driveSearch, driveRead } from '../../handlers/google-workspace/drive.js';
 
 const router = Router();
 

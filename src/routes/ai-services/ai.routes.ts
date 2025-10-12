@@ -5,16 +5,16 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.ts';
-import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.ts';
+import { ok, err } from '../../utils/response.js';
+import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
 import {
   aiChat,
   openaiChat,
   claudeChat,
   geminiChat,
   cohereChat
-} from '../../handlers/ai-services/ai.ts';
-import { BadRequestError } from '../../utils/errors.ts';
+} from '../../handlers/ai-services/ai.js';
+import { BadRequestError } from '../../utils/errors.js';
 
 const router = Router();
 

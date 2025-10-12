@@ -2,21 +2,21 @@
  * Communication Module Registry
  */
 
-import { globalRegistry } from '../../core/handler-registry.ts';
-import { slackNotify, discordNotify, googleChatNotify } from './communication.ts';
+import { globalRegistry } from '../../core/handler-registry.js';
+import { slackNotify, discordNotify, googleChatNotify } from './communication.js';
 import {
   whatsappWebhookVerify,
   whatsappWebhookReceiver,
   getGroupAnalytics,
   sendManualMessage
-} from './whatsapp.ts';
+} from './whatsapp.js';
 import {
   instagramWebhookVerify,
   instagramWebhookReceiver,
   getInstagramUserAnalytics,
   sendManualInstagramMessage
-} from './instagram.ts';
-import { translateHandlers } from './translate.ts';
+} from './instagram.js';
+import { translateHandlers } from './translate.js';
 
 export function registerCommunicationHandlers() {
   // Slack/Discord/Google Chat

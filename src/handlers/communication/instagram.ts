@@ -8,10 +8,10 @@
  */
 
 import axios from 'axios';
-import { ok, err } from '../../utils/response.ts';
-import { BadRequestError } from '../../utils/errors.ts';
-import { memorySave, memorySearch } from '../memory/memory-firestore.ts';
-import { aiChat } from '../ai-services/ai.ts';
+import { ok, err } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { memorySave, memorySearch } from '../memory/memory-firestore.js';
+import { aiChat } from '../ai-services/ai.js';
 
 // Instagram API Configuration (same Meta app as WhatsApp)
 const INSTAGRAM_CONFIG = {

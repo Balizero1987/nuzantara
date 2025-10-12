@@ -6,11 +6,11 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.ts';
-import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.ts';
-import { analyticsHandlers } from '../../handlers/analytics/analytics.ts';
-import { weeklyReportHandlers } from '../../handlers/analytics/weekly-report.ts';
-import { BadRequestError } from '../../utils/errors.ts';
+import { ok, err } from '../../utils/response.js';
+import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
+import { analyticsHandlers } from '../../handlers/analytics/analytics.js';
+import { weeklyReportHandlers } from '../../handlers/analytics/weekly-report.js';
+import { BadRequestError } from '../../utils/errors.js';
 
 const router = Router();
 

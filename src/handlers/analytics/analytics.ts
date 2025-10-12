@@ -1,6 +1,6 @@
 // Google Analytics Handlers for ZANTARA v5.2.0
 import { google } from 'googleapis';
-import { getOAuth2Client } from '../../services/oauth2-client.ts';
+import { getOAuth2Client } from '../../services/oauth2-client.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 

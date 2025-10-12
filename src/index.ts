@@ -6,12 +6,12 @@ import { fileURLToPath } from 'url';
 // import swaggerUi from 'swagger-ui-express';
 // import yaml from 'js-yaml';
 
-import { ensureFirebaseInitialized } from './services/firebase.ts';
-import { correlationId } from './middleware/correlationId.ts';
-import { flagGate } from './middleware/flagGate.ts';
-import { getFlags, computeFlagsETag } from './config/flags.ts';
-import { buildBootstrapResponse } from './app-gateway/app-bootstrap.ts';
-import { handleAppEvent } from './app-gateway/app-events.ts';
+import { ensureFirebaseInitialized } from './services/firebase.js';
+import { correlationId } from './middleware/correlationId.js';
+import { flagGate } from './middleware/flagGate.js';
+import { getFlags, computeFlagsETag } from './config/flags.js';
+import { buildBootstrapResponse } from './app-gateway/app-bootstrap.js';
+import { handleAppEvent } from './app-gateway/app-events.js';
 
 await ensureFirebaseInitialized().catch((error) => {
   console.log('⚠️ Firebase initialization issue:', error?.message || error);
@@ -46,12 +46,12 @@ app.use((req, res, next) => {
 // === end CORS ===
 
 // Production monitoring
-import { requestTracker, errorTracker, getHealthMetrics, getAlertStatus } from './middleware/monitoring.ts';
-import { validateResponse, getValidationReport, clearUnverifiedFacts } from './middleware/validation.ts';
-import { deepRealityCheck, getRealityMetrics, enforceReality, clearRealityCache } from './middleware/reality-check.ts';
+import { requestTracker, errorTracker, getHealthMetrics, getAlertStatus } from './middleware/monitoring.js';
+import { validateResponse, getValidationReport, clearUnverifiedFacts } from './middleware/validation.js';
+import { deepRealityCheck, getRealityMetrics, enforceReality, clearRealityCache } from './middleware/reality-check.js';
 // Google Chat webhook (optional bot integration)
-// import { handleChatWebhook } from './routes/google-chat.ts';
-// import { verifyChatOIDC } from './middleware/chat-oidc.ts';
+// import { handleChatWebhook } from './routes/google-chat.js';
+// import { verifyChatOIDC } from './middleware/chat-oidc.js';
 // Identity Gate removed - No longer needed for web app usage
 
 app.use(requestTracker);
@@ -281,7 +281,7 @@ app.post('/proxy/cohere', async (req, res) => {
 // app.post('/chat/webhook', verifyChatOIDC, handleChatWebhook);
 
 // 🔧 Load all handlers using auto-registration system (TEMPORARILY DISABLED)
-// import { loadAllHandlers } from './core/load-all-handlers.ts';
+// import { loadAllHandlers } from './core/load-all-handlers.js';
 // loadAllHandlers().then(stats => {
 //   console.log('✅ Handler registry initialized:', stats);
 // }).catch(err => {
@@ -301,7 +301,7 @@ const server = app.listen(port, () => {
 });
 
 // Initialize WebSocket Server
-import { initializeWebSocketServer } from './services/websocket-server.ts';
+import { initializeWebSocketServer } from './services/websocket-server.js';
 const wsServer = initializeWebSocketServer(server);
 console.log('✅ WebSocket server initialized on /ws');
 
