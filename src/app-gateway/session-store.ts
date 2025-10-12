@@ -1,6 +1,6 @@
 import { getFirestore } from '../services/firebase.js';
 
-interface SessionRecord { id: string; user?: string; origin?: string; channel?: string; csrfToken?: string; createdAt: number; ttlMs: number }
+interface SessionRecord { id: string; user?: string; origin?: string; channel?: string; csrfToken?: string; user_role?: string; createdAt: number; ttlMs: number }
 
 const inMem = new Map<string, SessionRecord>();
 const CLEANUP_MS = 60_000;

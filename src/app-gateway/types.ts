@@ -1,4 +1,4 @@
-import type { Flags } from "../config/flags.js"
+
 import { z } from 'zod';
 
 export const ActionName = z.union([
@@ -16,6 +16,7 @@ export const EventMeta = z.object({
   channel: z.enum(['webapp','whatsapp','instagram','x','telegram']).optional(),
   user: z.string().optional(),
   origin: z.string().optional(),
+  conversation_history: z.array(z.any()).optional(),
 }).partial();
 
 export const EventRequestSchema = z.object({
@@ -33,7 +34,8 @@ export type Patch =
   | { op: 'replace'; target: string; data: any }
   | { op: 'remove'; target: string }
   | { op: 'state'; key: string; value: any }
-  | { op: 'notify'; level: 'info'|'warn'|'error'; message: string }
+  | { op: 'set'; target: string; data: any }
+  | { op: 'notify'; level: 'info'|'warn'|'error'|'success'; message: string }
   | { op: 'navigate'; route: string }
   | { op: 'tool'; name: string; args: any }
   | { op: 'error'; code: string; message: string; details?: any };

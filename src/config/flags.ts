@@ -12,7 +12,7 @@ export interface Flags {
 }
 
 export const DEFAULT_FLAGS: Flags = {
-  ENABLE_APP_GATEWAY: process.env.NODE_ENV !== 'production',
+  ENABLE_APP_GATEWAY: true, // ✅ Gateway now production-ready
   ENABLE_THIN_SHELL: false,
   ENABLE_CAPABILITY_MAP: false,
   ENABLE_OMNICHANNEL: false,
