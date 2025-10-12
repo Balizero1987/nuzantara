@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { createMockRequest, createMockResponse } from '../../../tests/helpers/mocks.js';
+import { createMockRequest, createMockResponse } from '../../../../tests/helpers/mocks.ts';
 
 // Note: These are integration-style tests for WhatsApp handlers
 // Actual implementation would need to be imported dynamically with mocks

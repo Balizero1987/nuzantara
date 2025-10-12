@@ -2,7 +2,7 @@
  * ZANTARA Collaborative Intelligence Registry
  */
 
-import { globalRegistry } from '../../core/handler-registry.js';
+import { globalRegistry } from '../../core/handler-registry.ts';
 import {
   zantaraPersonalityProfile,
   zantaraAttune,
@@ -14,7 +14,7 @@ import {
   zantaraConflictMediate,
   zantaraGrowthTrack,
   zantaraCelebrationOrchestrate
-} from './zantara-test.js';
+} from './zantara-test.ts';
 import {
   zantaraEmotionalProfileAdvanced,
   zantaraConflictPrediction,
@@ -22,13 +22,13 @@ import {
   zantaraClientRelationshipIntelligence,
   zantaraCulturalIntelligenceAdaptation,
   zantaraPerformanceOptimization
-} from './zantara-v2-simple.js';
+} from './zantara-v2-simple.ts';
 import {
   zantaraDashboardOverview,
   zantaraTeamHealthMonitor,
   zantaraPerformanceAnalytics,
   zantaraSystemDiagnostics
-} from './zantara-dashboard.js';
+} from './zantara-dashboard.ts';
 
 export function registerZantaraHandlers() {
   // ZANTARA Test Framework

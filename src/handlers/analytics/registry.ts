@@ -2,8 +2,8 @@
  * Analytics & Monitoring Module Registry
  */
 
-import { globalRegistry } from '../../core/handler-registry.js';
-import { analyticsHandlers } from './analytics.js';
+import { globalRegistry } from '../../core/handler-registry.ts';
+import { analyticsHandlers } from './analytics.ts';
 import {
   dashboardMain,
   dashboardConversations,
@@ -11,12 +11,12 @@ import {
   dashboardHandlers,
   dashboardHealth,
   dashboardUsers
-} from './dashboard-analytics.js';
-import { weeklyReportHandlers } from './weekly-report.js';
+} from './dashboard-analytics.ts';
+import { weeklyReportHandlers } from './weekly-report.ts';
 import {
   updateDailyRecap,
   getCurrentDailyRecap
-} from './daily-drive-recap.js';
+} from './daily-drive-recap.ts';
 
 export function registerAnalyticsHandlers() {
   // Analytics handlers (object-based)

@@ -6,10 +6,10 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.js';
-import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
-import { creativeHandlers } from '../../handlers/ai-services/creative.js';
-import { BadRequestError } from '../../utils/errors.js';
+import { ok, err } from '../../utils/response.ts';
+import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.ts';
+import { creativeHandlers } from '../../handlers/ai-services/creative.ts';
+import { BadRequestError } from '../../utils/errors.ts';
 
 const router = Router();
 

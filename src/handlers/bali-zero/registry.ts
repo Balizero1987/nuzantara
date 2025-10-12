@@ -3,13 +3,13 @@
  * Auto-registers all Indonesian business service handlers
  */
 
-import { globalRegistry } from '../../core/handler-registry.js';
-import { oracleSimulate, oracleAnalyze, oraclePredict } from './oracle.js';
-import { documentPrepare, assistantRoute } from './advisory.js';
-import { kbliLookup, kbliRequirements } from './kbli.js';
-import { baliZeroPricing, baliZeroQuickPrice } from './bali-zero-pricing.js';
-import { teamList, teamGet, teamDepartments } from './team.js';
-import { teamRecentActivity } from './team-activity.js';
+import { globalRegistry } from '../../core/handler-registry.ts';
+import { oracleSimulate, oracleAnalyze, oraclePredict } from './oracle.ts';
+import { documentPrepare, assistantRoute } from './advisory.ts';
+import { kbliLookup, kbliRequirements } from './kbli.ts';
+import { baliZeroPricing, baliZeroQuickPrice } from './bali-zero-pricing.ts';
+import { teamList, teamGet, teamDepartments } from './team.ts';
+import { teamRecentActivity } from './team-activity.ts';
 
 export function registerBaliZeroHandlers() {
   // Oracle handlers

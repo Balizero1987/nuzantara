@@ -2,4 +2,4 @@
  * RAG Module
  * Auto-generated module index
  */
-export * from './rag.js';
+export * from './rag.ts';

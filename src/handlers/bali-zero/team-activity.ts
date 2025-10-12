@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getRecentActivities, getActivityStats } from '../../services/session-tracker.js';
+import { getRecentActivities, getActivityStats } from '../../services/session-tracker.ts';
 
 /**
  * TEAM RECENT ACTIVITY HANDLER

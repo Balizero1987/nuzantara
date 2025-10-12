@@ -5,7 +5,7 @@
  * Call this once at app startup to register all 136+ handlers
  */
 
-import { globalRegistry } from './handler-registry.js';
+import { globalRegistry } from './handler-registry.ts';
 
 /**
  * Load all handler modules
@@ -16,34 +16,34 @@ export async function loadAllHandlers() {
 
   try {
     // Google Workspace (8+ handlers)
-    await import('../handlers/google-workspace/registry.js');
+    await import('../handlers/google-workspace/registry.ts');
 
     // AI Services (10+ handlers)
-    await import('../handlers/ai-services/registry.js');
+    await import('../handlers/ai-services/registry.ts');
 
     // Bali Zero (15+ handlers)
-    await import('../handlers/bali-zero/registry.js');
+    await import('../handlers/bali-zero/registry.ts');
 
     // ZANTARA (20+ handlers)
-    await import('../handlers/zantara/registry.js');
+    await import('../handlers/zantara/registry.ts');
 
     // Communication (10+ handlers)
-    await import('../handlers/communication/registry.js');
+    await import('../handlers/communication/registry.ts');
 
     // Analytics (15+ handlers)
-    await import('../handlers/analytics/registry.js');
+    await import('../handlers/analytics/registry.ts');
 
     // Memory (4 handlers)
-    await import('../handlers/memory/registry.js');
+    await import('../handlers/memory/registry.ts');
 
     // Identity (3 handlers)
-    await import('../handlers/identity/registry.js');
+    await import('../handlers/identity/registry.ts');
 
     // RAG (4 handlers)
-    await import('../handlers/rag/registry.js');
+    await import('../handlers/rag/registry.ts');
 
     // Maps (3 handlers)
-    await import('../handlers/maps/registry.js');
+    await import('../handlers/maps/registry.ts');
 
     const stats = globalRegistry.getStats();
     console.log('✅ Handler loading complete:');

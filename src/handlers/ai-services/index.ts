@@ -2,7 +2,7 @@
  * AI-SERVICES Module
  * Auto-generated module index
  */
-export * from './ai.js';
-export * from './ai-enhanced.js';
-export * from './advanced-ai.js';
-export * from './creative.js';
+export * from './ai.ts';
+export * from './ai-enhanced.ts';
+export * from './advanced-ai.ts';
+export * from './creative.ts';

@@ -1,9 +1,9 @@
 // Gmail Handlers (typed & standardized)
 import { google } from 'googleapis';
-import { getOAuth2Client } from '../../services/oauth2-client.js';
-import { getGmail } from '../../services/google-auth-service.js';
-import { ok } from '../../utils/response.js';
-import { BadRequestError, InternalServerError } from '../../utils/errors.js';
+import { getOAuth2Client } from '../../services/oauth2-client.ts';
+import { getGmail } from '../../services/google-auth-service.ts';
+import { ok } from '../../utils/response.ts';
+import { BadRequestError, InternalServerError } from '../../utils/errors.ts';
 
 // Param interfaces
 export interface SendEmailParams { to: string; subject: string; body?: string; html?: string }

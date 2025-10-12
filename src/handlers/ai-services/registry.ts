@@ -3,10 +3,10 @@
  * Auto-registers all AI/LLM handlers
  */
 
-import { globalRegistry } from '../../core/handler-registry.js';
-import { aiChat, openaiChat, claudeChat, geminiChat, cohereChat } from './ai.js';
-import { aiAnticipate, aiLearn, xaiExplain } from './advanced-ai.js';
-import { creativeHandlers } from './creative.js';
+import { globalRegistry } from '../../core/handler-registry.ts';
+import { aiChat, openaiChat, claudeChat, geminiChat, cohereChat } from './ai.ts';
+import { aiAnticipate, aiLearn, xaiExplain } from './advanced-ai.ts';
+import { creativeHandlers } from './creative.ts';
 
 export function registerAIServicesHandlers() {
   // Core AI handlers

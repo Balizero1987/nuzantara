@@ -3,7 +3,7 @@
  * Tests the tool use integration handlers
  */
 
-import { getAllHandlers, getHandlersByCategory, getAnthropicToolDefinitions } from '../handlers-introspection.js';
+import { getAllHandlers, getHandlersByCategory, getAnthropicToolDefinitions } from '../handlers-introspection.ts';
 
 describe('System Handlers', () => {
   describe('getAllHandlers', () => {

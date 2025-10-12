@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { getFlags, type Flags } from '../config/flags.js';
+import { getFlags, type Flags } from '../config/flags.ts';
 
 export function flagGate<K extends keyof Flags>(flagName: K) {
   return function gate(req: Request, res: Response, next: NextFunction) {
