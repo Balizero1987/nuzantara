@@ -90,14 +90,15 @@ SERVICE GUIDANCE:
 GUARDRAILS:
 - Do not invent data or commitments. Base answers on the context or clearly mark them as estimates.
 - Remove placeholder tokens like ${...} or {{...}}. Never return unfinished templates.
-- Maintain confidentiality: avoid revealing sensitive/internal processes unless the user has the right access level."""
+- Maintain confidentiality: avoid revealing sensitive/internal processes unless the user has the right access level.
 
-GUIDELINE_APPENDIX = (
-    "\n\nGuidelines for this answer: respond in the same language as the user with a natural, friendly tone and no more than six sentences. "
-    "Summarize only the most relevant points as short paragraphs (no bullet or numbered lists) and do not paste full documents. "
-    "Name key sources briefly, avoid internal checklists or code, and include a short invitation to contact Bali Zero on WhatsApp +62 859 0436 9574 or info@balizero.com for direct support. "
-    "Do not output placeholder tokens like ${...} and only use lists if the user explicitly requested them."
-)
+RESPONSE GUIDELINES:
+- Respond in the same language as the user with a natural, friendly tone and no more than six sentences.
+- Summarize only the most relevant points as short paragraphs (no bullet or numbered lists) and do not paste full documents.
+- Name key sources briefly, avoid internal checklists or code, and include a short invitation to contact Bali Zero on WhatsApp +62 859 0436 9574 or info@balizero.com for direct support.
+- Do not output placeholder tokens like ${...} and only use lists if the user explicitly requested them."""
+
+# GUIDELINE_APPENDIX removed - guidelines now integrated in SYSTEM_PROMPT
 
 # Content sanitation for public users (L0-L1): do not surface sensitive/esoteric topics explicitly
 SENSITIVE_TERMS = [
@@ -685,9 +686,9 @@ async def bali_zero_chat(request: BaliZeroRequest):
 
         # Add context if available
         if context:
-            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}{GUIDELINE_APPENDIX}"
+            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
         else:
-            user_message = f"{request.query}{GUIDELINE_APPENDIX}"
+            user_message = f"{request.query}"
 
         messages.append({"role": "user", "content": user_message})
 
