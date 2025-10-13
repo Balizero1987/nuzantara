@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZANTARA - Official</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <script src="js/api-config.js"></script>
+  <!-- Performance: establish early connection to backend -->
+  <link rel="dns-prefetch" href="//zantara-v520-nuzantara-himaadsxua-ew.a.run.app">
+  <link rel="preconnect" href="https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app" crossorigin>
   <style>
     * {
       margin: 0;
@@ -1022,7 +1024,7 @@
   <div class="app">
     <header class="header">
       <div class="header-left">
-        <img src="assets/logoscon.png" class="logo" alt="ZANTARA">
+        <img src="public/images/zantara-logo.jpeg" class="logo" alt="ZANTARA" width="45" height="45" loading="eager" fetchpriority="high" decoding="async">
         <button class="sidebar-toggle" id="leftToggle">☰</button>
       </div>
 
@@ -1090,7 +1092,7 @@
       <div class="chat-wrapper">
         <div class="messages">
           <div class="welcome">
-            <img src="assets/logoscon.png" class="logo-center" alt="ZANTARA Logo">
+            <img src="public/images/zantara-logo.jpeg" class="logo-center" alt="ZANTARA Logo" width="300" height="300" loading="eager" fetchpriority="high" decoding="async">
             <h2>Welcome to Zantara</h2>
             <p class="powered-by">powered by Zero AI</p>
           </div>
@@ -1101,32 +1103,32 @@
           <!-- Google Workspace -->
           <div class="integration-group">
             <span class="integration-group-label">Google:</span>
-            <img src="assets/logo-google-drive.png" class="integration-logo" alt="Drive" title="Google Drive">
-            <img src="assets/logo-gmail.png" class="integration-logo" alt="Gmail" title="Gmail">
-            <img src="assets/logo-google-calendar.png" class="integration-logo" alt="Calendar" title="Google Calendar">
-            <img src="assets/logo-google-docs.png" class="integration-logo" alt="Docs" title="Google Docs">
-            <img src="assets/logo-google-sheets.png" class="integration-logo" alt="Sheets" title="Google Sheets">
-            <img src="assets/logo-google-slides.png" class="integration-logo" alt="Slides" title="Google Slides">
-            <img src="assets/logo-google-maps.png" class="integration-logo" alt="Maps" title="Google Maps">
-            <img src="assets/logo-google-analytics.png" class="integration-logo" alt="Analytics" title="Google Analytics">
+            <img src="assets/logo-google-drive.png" class="integration-logo" alt="Drive" title="Google Drive" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-gmail.png" class="integration-logo" alt="Gmail" title="Gmail" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-google-calendar.png" class="integration-logo" alt="Calendar" title="Google Calendar" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-google-docs.png" class="integration-logo" alt="Docs" title="Google Docs" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-google-sheets.png" class="integration-logo" alt="Sheets" title="Google Sheets" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-google-slides.png" class="integration-logo" alt="Slides" title="Google Slides" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-google-maps.png" class="integration-logo" alt="Maps" title="Google Maps" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-google-analytics.png" class="integration-logo" alt="Analytics" title="Google Analytics" width="20" height="20" loading="lazy" decoding="async">
           </div>
 
           <!-- Meta -->
           <div class="integration-group">
             <span class="integration-group-label">Meta:</span>
-            <img src="assets/logo-whatsapp.png" class="integration-logo" alt="WhatsApp" title="WhatsApp">
-            <img src="assets/logo-instagram.png" class="integration-logo" alt="Instagram" title="Instagram">
-            <img src="assets/logo-facebook.png" class="integration-logo" alt="Facebook" title="Facebook">
+            <img src="assets/logo-whatsapp.png" class="integration-logo" alt="WhatsApp" title="WhatsApp" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-instagram.png" class="integration-logo" alt="Instagram" title="Instagram" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-facebook.png" class="integration-logo" alt="Facebook" title="Facebook" width="20" height="20" loading="lazy" decoding="async">
           </div>
 
           <!-- AI Services -->
           <div class="integration-group">
             <span class="integration-group-label">AI:</span>
-            <img src="assets/logo-openai.png" class="integration-logo" alt="OpenAI" title="OpenAI">
-            <img src="assets/logo-claude.png" class="integration-logo" alt="Claude" title="Claude">
-            <img src="assets/logo-gemini.png" class="integration-logo" alt="Gemini" title="Gemini">
-            <img src="assets/logo-perplexity.png" class="integration-logo" alt="Perplexity" title="Perplexity">
-            <img src="assets/logo-llama.png" class="integration-logo" alt="Llama" title="Meta Llama">
+            <img src="assets/logo-openai.png" class="integration-logo" alt="OpenAI" title="OpenAI" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-claude.png" class="integration-logo" alt="Claude" title="Claude" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-gemini.png" class="integration-logo" alt="Gemini" title="Gemini" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-perplexity.png" class="integration-logo" alt="Perplexity" title="Perplexity" width="20" height="20" loading="lazy" decoding="async">
+            <img src="assets/logo-llama.png" class="integration-logo" alt="Llama" title="Meta Llama" width="20" height="20" loading="lazy" decoding="async">
           </div>
         </div>
 
@@ -1196,6 +1198,7 @@
     </main>
   </div>
 
+  <script src="js/api-config.js" defer></script>
   <script>
     // Filter functionality
     document.querySelectorAll('.filter').forEach(filter => {
@@ -1311,7 +1314,7 @@
         // Clear welcome message
         messagesDiv.innerHTML = `
           <div class="welcome">
-            <img src="assets/logoscon.png" class="logo-center" alt="ZANTARA Logo">
+            <img src="public/images/zantara-logo.jpeg" class="logo-center" alt="ZANTARA Logo" width="300" height="300" loading="eager" fetchpriority="high" decoding="async">
             <h2>${title}</h2>
             <p class="powered-by">Chat history loaded</p>
           </div>

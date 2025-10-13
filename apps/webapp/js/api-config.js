@@ -28,7 +28,7 @@ const API_CONFIG = {
     path: '/chat' // NDJSON endpoint (proxied as /api/zantara/chat)
   },
   // Default headers (client)
-  headers: { 'Content-Type': 'application/json' }
+  headers: { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, br' }
 };
 
 // Lightweight Telemetry

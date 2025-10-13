@@ -14,6 +14,10 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const compression = require('compression');
+const helmet = require('helmet');
+const http = require('http');
+const https = require('https');
 
 const app = express();
 const PORT = process.env.BFF_PORT || 3001;
@@ -35,6 +39,11 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'x-user-id', 'x-session-id']
 };
 
+// Hardening & transport optimizations
+app.disable('x-powered-by');
+app.set('trust proxy', 1);
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(compression());
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 
@@ -48,6 +57,7 @@ app.use((req, res, next) => {
 app.get('/health', async (req, res) => {
   try {
     const backendHealth = await axios.get(`${BACKEND_URL}/health`);
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=300');
     res.json({
       status: 'healthy',
       service: 'zantara-bff',
@@ -101,10 +111,14 @@ app.post('/call', async (req, res) => {
           'x-user-id': userId,
           ...(sessionId && { 'x-session-id': sessionId })
         },
-        timeout: 60000 // 60s timeout
+        timeout: 60000, // 60s timeout
+        httpAgent: new http.Agent({ keepAlive: true }),
+        httpsAgent: new https.Agent({ keepAlive: true })
       }
     );
 
+    // Prevent caching of dynamic POST responses
+    res.set('Cache-Control', 'no-store');
     res.json(response.data);
   } catch (error) {
     console.error('Backend error:', error.message);
@@ -134,7 +148,11 @@ app.post('/call', async (req, res) => {
 // Direct health proxy (no auth needed)
 app.get('/backend/health', async (req, res) => {
   try {
-    const response = await axios.get(`${BACKEND_URL}/health`);
+    const response = await axios.get(`${BACKEND_URL}/health`, {
+      httpAgent: new http.Agent({ keepAlive: true }),
+      httpsAgent: new https.Agent({ keepAlive: true })
+    });
+    res.set('Cache-Control', 'public, max-age=60, s-maxage=300');
     res.json(response.data);
   } catch (error) {
     res.status(503).json({
@@ -153,6 +171,11 @@ Port: ${PORT}
 Backend: ${BACKEND_URL}
 CORS: ${corsOptions.origin.join(', ')}
 API Key: ${API_KEY.substring(0, 20)}...
+
+ Optimizations:
+ - compression: enabled
+ - helmet: enabled
+ - keep-alive: enabled
 
 Endpoints:
 - GET  /health           - BFF health check
