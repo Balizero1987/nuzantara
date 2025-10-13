@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 ZANTARA - AI Intelligence Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .menu {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .menu-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .devai-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .devai-section:hover {
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+
+        .status {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #48bb78;
+        }
+
+        .status-indicator.warning {
+            background: #ed8936;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🤖</div>
+        <h1>ZANTARA</h1>
+        <p class="subtitle">AI Intelligence Platform</p>
+        
+        <div class="menu">
+            <a href="/devai/" class="menu-item devai-section">
+                🔐 DevAI Private Section
+                <span style="font-size: 0.8rem; opacity: 0.8;">(Accesso Riservato)</span>
+            </a>
+            
+            <a href="/static/zantara-production.html" class="menu-item">
+                🌐 ZANTARA Intelligence
+                <span style="font-size: 0.8rem; opacity: 0.8;">(Pubblico)</span>
+            </a>
+            
+            <a href="/static/dashboard.html" class="menu-item">
+                📊 Dashboard
+                <span style="font-size: 0.8rem; opacity: 0.8;">(Analytics)</span>
+            </a>
+        </div>
+
+        <div class="status">
+            <div class="status-item">
+                <span>🔐 DevAI Private Access</span>
+                <div class="status-indicator"></div>
+            </div>
+            <div class="status-item">
+                <span>🌐 ZANTARA Intelligence</span>
+                <div class="status-indicator"></div>
+            </div>
+            <div class="status-item">
+                <span>📊 Analytics Dashboard</span>
+                <div class="status-indicator"></div>
+            </div>
+            <div class="status-item">
+                <span>🚀 GitHub Pages</span>
+                <div class="status-indicator warning"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🤖 ZANTARA AI Platform - Powered by LLAMA & Qwen 2.5 Coder</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">
+                🔑 DevAI Token: <code>devai-zantara-2025-private-access</code>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-redirect to DevAI if URL contains /devai
+        if (window.location.pathname.includes('/devai')) {
+            window.location.href = '/devai/';
+        }
+
+        // Check if we're on the right domain
+        if (window.location.hostname === 'zantara.balizero.com') {
+            console.log('✅ ZANTARA Domain detected');
+        } else {
+            console.log('⚠️ Not on ZANTARA domain:', window.location.hostname);
+        }
+    </script>
+</body>
+</html>
