@@ -1,4 +1,4 @@
-import logger from '../services/logger.js';
+import logger from './services/logger.js';
 import { z } from "zod";
 
 const DEFAULT_INTERNAL_API_KEY = 'zantara-internal-dev-key-2025';

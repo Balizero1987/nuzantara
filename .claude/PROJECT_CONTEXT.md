@@ -1,6 +1,6 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-12 (Llama 3.1 RunPod integration live)
+> **Last Updated**: 2025-10-14 (GCP Cost Optimization: 88-99% savings achieved)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 
 ---
@@ -17,15 +17,14 @@
 
 ## 📚 Documentation Pointers
 
-- **Security + Rate Limiting**: `.claude/handovers/security-rate-limiting-2025-10-10.md` ⭐ NEW
+- **GCP Cost Optimization**: `.claude/handovers/gcp-cost-optimization.md` ⭐ NEW (2025-10-14)
+- **Security + Rate Limiting**: `.claude/handovers/security-rate-limiting-2025-10-10.md`
 - **Multi-Agent Architecture**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
 - **ZANTARA Llama 3.1 Integration**: `ZANTARA_INTEGRATION_COMPLETE_REPORT.md`, `apps/backend-rag 2/backend/README_LLM_INTEGRATION.md`
 - **Session Diaries (2025-10-10)**:
   - m1: `.claude/diaries/2025-10-10_sonnet-4.5_m1.md` (Reranker fix)
   - m2: `.claude/diaries/2025-10-10_sonnet-4.5_m2.md` (Multi-agent architecture)
   - m3: `.claude/diaries/2025-10-10_sonnet-4.5_m3.md` (Security + rate limiting) ⭐ NEW
-- LLAMA 4 Fine-Tuning: `docs/llama4/` (Quick Start, Full Guide, README)
-- LLAMA 4 Training Status: `~/Desktop/FINE TUNING/LLAMA4_100_PERCENT_SUCCESS.md`
 - Handovers Index: `.claude/handovers/INDEX.md`
 - System & Ops: `.claude/` (INIT, diaries, handovers)
 - WebSocket: `.claude/handovers/websocket-implementation-2025-10-03.md`
@@ -49,12 +48,10 @@
 | Option | Description | Status | Notes |
 |--------|-------------|--------|-------|
 | Multi-Agent Budget | Cerebras/Groq/Gemini cost-reduction plan | Ready | Use if RunPod costs spike |
-| LLAMA 4 Centro | Train Llama 4 Scout 17B-16E (10M context) | On hold | Dataset ready, awaiting go/no-go |
-| Hybrid LLAMA4 + Gemini | Combine Llama 4 + Gemini Flash | Recommended | 81% projected savings vs GPT-4o |
 
-**Decision Needed**: whether to launch LLAMA 4 training or remain on Llama 3.1 RunPod primary.
+**Current Stack**: Llama 3.1 RunPod primary + Anthropic fallback - Production stable
 
-**Supporting Docs**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`, `docs/llama4/`
+**Supporting Docs**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
 
 ---
 
@@ -131,21 +128,33 @@
 - **Project ID**: `involuted-box-469105-r0`
 - **Region**: `europe-west1`
 - **Service Account**: `cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com`
+- **Monthly Cost**: IDR 170k-800k (was IDR 7M) - **88-99% savings** ✅
 
 ### **Cloud Run Services**
-| Service | URL | Port | Status |
-|---------|-----|------|--------|
-| TypeScript Backend | https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app | 8080 | ✅ Running (v5.5.0 + rate-limiting, commit 2a1b5fb) |
-| RAG Backend | https://zantara-rag-backend-himaadsxua-ew.a.run.app | 8000 | ✅ Running (v2.5.0 + ZANTARA Llama 3.1 primary, rev 00118-864) |
+| Service | URL | Port | Resources | Status |
+|---------|-----|------|-----------|--------|
+| TypeScript Backend | https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app | 8080 | 1 CPU, 512Mi, minScale=0, maxScale=5, throttle=ON | ✅ Optimized (2025-10-14) |
+| RAG Backend | https://zantara-rag-backend-himaadsxua-ew.a.run.app | 8000 | 1 CPU, 1Gi, minScale=0, maxScale=2, throttle=ON | ✅ Optimized (2025-10-14) |
 
 ### **GitHub Pages**
 - **Repository**: https://github.com/Balizero1987/zantara_webapp
 - **Branch**: `main`
-- **Status**: ✅ **ACTIVE** (auto-sync enabled)
+- **Status**: ✅ **ACTIVE** (manual deploy only)
 - **Live URL**: https://zantara.balizero.com
 - **Entry**: `index.html` (auto-redirect to `login.html`)
-- **Deploy**: Automatic via `.github/workflows/sync-webapp-to-pages.yml` (3-4 min)
+- **Deploy**: Manual trigger via `gh workflow run "Sync Webapp to GitHub Pages"`
 - **Latest**: Security fix deployed (commit `fc99ce4`, 2025-10-10)
+
+### **GitHub Actions**
+- **Status**: 14/14 workflows **DISABLED** (2025-10-14)
+- **Trigger**: Manual only (`workflow_dispatch`) - no automatic runs
+- **Cost Savings**: IDR 3-5M/month → IDR 0/month ✅
+- **Deploy Commands**:
+  ```bash
+  gh workflow run "Deploy Backend API (TypeScript)"
+  gh workflow run "Deploy RAG Backend (AMD64)"
+  gh workflow run "Sync Webapp to GitHub Pages"
+  ```
 
 ---
 

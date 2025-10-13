@@ -1,7 +1,7 @@
 // Anti-Hallucination System for ZANTARA
 // Eliminates false information and ensures all responses are grounded in verified data
 
-import logger from '../services/logger.js';
+import logger from './logger.js';
 import { getFirestore } from "./firebase.js";
 
 export interface VerifiedFact {
