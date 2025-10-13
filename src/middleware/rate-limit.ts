@@ -41,13 +41,14 @@ export const baliZeroChatLimiter = rateLimit({
   // Custom handler for rate limit exceeded
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
-    console.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    console.warn(`🚨 Technical rate limit exceeded for ${identifier} on ${req.path}`);
 
     res.status(429).json({
       ok: false,
-      error: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many requests. Please wait 1 minute before trying again.',
-      retryAfter: 60
+      error: 'TECHNICAL_RATE_LIMIT_EXCEEDED',
+      message: 'Technical rate limit exceeded (not related to your subscription). Please wait 1 minute before trying again.',
+      retryAfter: 60,
+      note: 'This is a technical protection, not a subscription limit. Your PRO+ plan is still active.'
     });
   },
 
@@ -74,13 +75,14 @@ export const aiChatLimiter = rateLimit({
 
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
-    console.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    console.warn(`🚨 Technical rate limit exceeded for ${identifier} on ${req.path}`);
 
     res.status(429).json({
       ok: false,
-      error: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many AI requests. Please wait 1 minute.',
-      retryAfter: 60
+      error: 'TECHNICAL_RATE_LIMIT_EXCEEDED',
+      message: 'Technical rate limit exceeded (not related to your subscription). Please wait 1 minute.',
+      retryAfter: 60,
+      note: 'This is a technical protection, not a subscription limit. Your PRO+ plan is still active.'
     });
   },
 
@@ -106,13 +108,14 @@ export const ragQueryLimiter = rateLimit({
 
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
-    console.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    console.warn(`🚨 Technical rate limit exceeded for ${identifier} on ${req.path}`);
 
     res.status(429).json({
       ok: false,
-      error: 'RATE_LIMIT_EXCEEDED',
-      message: 'Too many search requests. Please wait 1 minute.',
-      retryAfter: 60
+      error: 'TECHNICAL_RATE_LIMIT_EXCEEDED',
+      message: 'Technical rate limit exceeded (not related to your subscription). Please wait 1 minute.',
+      retryAfter: 60,
+      note: 'This is a technical protection, not a subscription limit. Your PRO+ plan is still active.'
     });
   },
 
@@ -138,13 +141,14 @@ export const strictLimiter = rateLimit({
 
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
-    console.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    console.warn(`🚨 Technical rate limit exceeded for ${identifier} on ${req.path}`);
 
     res.status(429).json({
       ok: false,
-      error: 'RATE_LIMIT_EXCEEDED',
-      message: 'This endpoint has strict rate limits. Please wait 1 minute.',
-      retryAfter: 60
+      error: 'TECHNICAL_RATE_LIMIT_EXCEEDED',
+      message: 'Technical rate limit exceeded (not related to your subscription). Please wait 1 minute.',
+      retryAfter: 60,
+      note: 'This is a technical protection, not a subscription limit. Your PRO+ plan is still active.'
     });
   },
 
