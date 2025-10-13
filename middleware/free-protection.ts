@@ -61,21 +61,23 @@ export function freeProtection(req: Request, res: Response, next: NextFunction) 
   // 5. Check rate limits
   if (entry.count > 60) { // Max 60 requests per minute
     entry.blocked = true;
-    console.warn(`⚠️ Rate limit exceeded: ${clientIP} (${entry.count} requests)`);
+    console.warn(`⚠️ Technical rate limit exceeded: ${clientIP} (${entry.count} requests)`);
     return res.status(429).json({
-      error: 'Rate limit exceeded',
-      message: 'Too many requests. Please wait a minute.',
-      retryAfter: Math.ceil((entry.resetTime - now) / 1000)
+      error: 'Technical rate limit exceeded',
+      message: 'Technical protection activated. Please wait a minute. This is not related to your subscription plan.',
+      retryAfter: Math.ceil((entry.resetTime - now) / 1000),
+      note: 'This is a technical protection, not a subscription limit.'
     });
   }
 
   // 6. Special limits for admin endpoints
   if (path.includes('/admin/') && entry.count > 10) {
-    console.warn(`🔒 Admin rate limit: ${clientIP} → ${path}`);
+    console.warn(`🔒 Admin technical rate limit: ${clientIP} → ${path}`);
     return res.status(429).json({
-      error: 'Admin rate limit',
-      message: 'Too many admin requests. Please wait.',
-      retryAfter: Math.ceil((entry.resetTime - now) / 1000)
+      error: 'Admin technical rate limit',
+      message: 'Technical protection for admin endpoints. Please wait. This is not related to your subscription plan.',
+      retryAfter: Math.ceil((entry.resetTime - now) / 1000),
+      note: 'This is a technical protection, not a subscription limit.'
     });
   }
 
