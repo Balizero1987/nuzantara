@@ -366,10 +366,13 @@
 
         <div class="config-panel">
             <h4>⚙️ Configuration</h4>
-            <input type="text" class="config-input" id="apiBaseInput" placeholder="API Base URL" value="http://localhost:8080">
+            <input type="text" class="config-input" id="apiBaseInput" placeholder="API Base URL" value="https://api.balizero.com">
             <input type="text" class="config-input" id="apiKeyInput" placeholder="API Key" value="zantara-internal-dev-key-2025">
-            <button class="btn btn-primary" onclick="saveConfig()">Save Config</button>
+            <button class="btn btn-primary" onclick="saveConfig()">Save & Test</button>
             <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
+            <div style="margin-top: 8px; font-size: 0.8rem; color: #94a3b8;">
+                💡 Pre-configured for production. Switch to localhost:8080 for development.
+            </div>
         </div>
 
         <div class="panel chat-panel">
@@ -449,12 +452,12 @@
     </div>
 
     <script>
-        // Configuration
-        let API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:8080';
+        // Configuration - Auto-configured for production
+        let API_BASE = localStorage.getItem('API_BASE') || 'https://api.balizero.com';
         let API_KEY = localStorage.getItem('API_KEY') || 'zantara-internal-dev-key-2025';
         let currentWorkflowId = null;
 
-        // Initialize
+        // Initialize with production settings
         document.getElementById('apiBaseInput').value = API_BASE;
         document.getElementById('apiKeyInput').value = API_KEY;
 
@@ -464,19 +467,40 @@
             localStorage.setItem('API_BASE', API_BASE);
             localStorage.setItem('API_KEY', API_KEY);
             addMessage('system', 'Configuration saved successfully!');
+            
+            // Auto-test connection after saving
+            setTimeout(() => {
+                addMessage('system', 'Auto-testing connection...');
+                testConnection();
+            }, 500);
         }
 
         function testConnection() {
             addMessage('system', 'Testing connection...');
-            // Simple ping test
-            fetch(`${API_BASE}/health`)
-                .then(response => response.json())
-                .then(data => {
-                    addMessage('system', '✅ Connection successful! API is responding.');
+            // Test DevAI endpoint specifically
+            fetch(`${API_BASE}/api/devai.chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    message: 'Test connection',
+                    max_tokens: 10
                 })
-                .catch(error => {
-                    addMessage('system', '❌ Connection failed: ' + error.message);
-                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success !== false) {
+                    addMessage('system', '✅ DevAI connection successful! Ready to use.');
+                } else {
+                    addMessage('system', '⚠️ DevAI responded but with error: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                addMessage('system', '❌ DevAI connection failed: ' + error.message);
+                addMessage('system', '💡 Try switching to localhost:8080 for development');
+            });
         }
 
         function addMessage(sender, content, isCode = false) {
