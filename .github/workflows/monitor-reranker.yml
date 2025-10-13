@@ -1,8 +1,6 @@
 name: Monitor RAG Re-ranker
 
 on:
-  schedule:
-    - cron: '0 * * * *'  # hourly
   workflow_dispatch:
 
 permissions:
