@@ -122,28 +122,15 @@
           </div>
         </div>
 
-        <!-- ZANTARA Mode Toggle -->
-        <div class="zantara-mode-toggle">
-          <button class="mode-option active" data-mode="santai">
-            <span class="mode-icon santai-mode">🌴</span>
-            <div>
-              <div>Santai</div>
-              <div class="mode-description">Quick & casual</div>
-            </div>
-          </button>
-          <button class="mode-option" data-mode="pikiran">
-            <span class="mode-icon pikiran-mode">🧠</span>
-            <div>
-              <div>Pikiran</div>
-              <div class="mode-description">Deep & detailed</div>
-            </div>
-          </button>
-        </div>
-
         <div class="input-area">
           <button class="btn">📎</button>
           <input type="text" class="input" placeholder="Type a message...">
           <button class="btn">🎤</button>
+          <!-- Mode Selector - ChatGPT Style -->
+          <div class="mode-selector">
+            <button class="mode-btn active" data-mode="ngobrol">Ngobrol</button>
+            <button class="mode-btn" data-mode="mendalam">Mendalam</button>
+          </div>
           <button class="btn">➤</button>
         </div>
       </div>
@@ -351,19 +338,21 @@
     const sendBtn = document.querySelectorAll('.btn')[2]; // ➤ button
     const attachBtn = document.querySelectorAll('.btn')[0]; // 📎 button
 
-    // ZANTARA Mode Management
-    let currentMode = 'santai'; // Default mode
-    
-    // Mode toggle functionality
-    document.querySelectorAll('.mode-option').forEach(option => {
-      option.addEventListener('click', () => {
-        // Remove active class from all options
-        document.querySelectorAll('.mode-option').forEach(opt => opt.classList.remove('active'));
-        // Add active class to clicked option
-        option.classList.add('active');
+    // ZANTARA Mode Management - ChatGPT Style
+    let currentMode = 'ngobrol'; // Default mode
+
+    // Mode selector functionality
+    const modeButtons = document.querySelectorAll('.mode-btn');
+
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remove active from all buttons
+        modeButtons.forEach(b => b.classList.remove('active'));
+        // Add active to clicked button
+        btn.classList.add('active');
         // Update current mode
-        currentMode = option.dataset.mode;
-        console.log(`ZANTARA Mode switched to: ${currentMode}`);
+        currentMode = btn.dataset.mode;
+        console.log(`💭 Mode: ${currentMode === 'ngobrol' ? 'Ngobrol (casual chat)' : 'Mendalam (deep thinking)'}`);
       });
     });
 
