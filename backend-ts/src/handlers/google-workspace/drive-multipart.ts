@@ -1,4 +1,4 @@
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 // import { ok } from "../../utils/response.js";
 // import { BadRequestError } from "../../utils/errors.js";
 import { getDrive } from "../../services/google-auth-service.js";

@@ -5,7 +5,7 @@
  * Verifies that all handlers are correctly registered
  */
 
-import logger from 'services/logger.js';
+import logger from './services/logger.js';
 import { loadAllHandlers } from './core/load-all-handlers.js';
 import { globalRegistry } from './core/handler-registry.js';
 

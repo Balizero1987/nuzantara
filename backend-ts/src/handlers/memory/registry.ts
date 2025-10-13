@@ -2,7 +2,7 @@
  * Memory & Persistence Module Registry
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { memorySave, memorySearch, memoryRetrieve } from './memory-firestore.js';
 import { autoSaveConversation } from './conversation-autosave.js';

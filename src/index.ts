@@ -1,5 +1,5 @@
 import 'dotenv/config';
-// import logger from 'from '../services/logger.js'';
+import logger from './services/logger.js';
 import express from "express";
 import { attachRoutes } from "./router.js";
 import path from 'path';

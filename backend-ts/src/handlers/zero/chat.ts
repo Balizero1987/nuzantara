@@ -11,7 +11,7 @@
  * Security: ZERO_ONLY access enforced via middleware
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { aiChat } from "../ai-services/ai.js";

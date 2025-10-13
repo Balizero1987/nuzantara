@@ -1,10 +1,10 @@
 """
 ZANTARA RAG Backend - Cloud Run Version
 Port 8000
-Uses ChromaDB from Cloud Storage + ZANTARA Llama 3.1 (YOUR custom trained model)
+Uses ChromaDB from Cloud Storage + ZANTARA Llama 3.1 ONLY
 
-PRIMARY AI: ZANTARA Llama 3.1 (22,009 Indonesian business conversations, 98.74% accuracy)
-FALLBACK ONLY: Anthropic Claude (if ZANTARA unavailable)
+AI MODEL: ZANTARA Llama 3.1 (22,009 Indonesian business conversations, 98.74% accuracy)
+NO FALLBACK: ZANTARA-only mode (no external AI dependencies)
 """
 
 from fastapi import FastAPI, HTTPException
@@ -31,10 +31,7 @@ from services.collaborative_capabilities import CollaborativeCapabilitiesService
 from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_handler_proxy
 from services.tool_executor import ToolExecutor
 # from services.reranker_service import RerankerService  # Lazy import to avoid startup delay
-from llm.zantara_client import ZantaraClient  # PRIMARY AI - YOUR custom trained model
-from llm.anthropic_client import AnthropicClient  # FALLBACK ONLY
-from llm.bali_zero_router import BaliZeroRouter
-# from services.llama4_scout import get_llama4_scout  # Llama 4 Scout integration - DISABLED (module not in production)
+from llm.zantara_client import ZantaraClient  # ONLY AI - ZANTARA Llama 3.1
 
 # Configure logging
 logging.basicConfig(
@@ -61,12 +58,8 @@ app.add_middleware(
 
 # Global clients
 search_service: Optional[SearchService] = None
-# PRIMARY AI: ZANTARA Llama 3.1 (YOUR custom trained model)
+# ONLY AI: ZANTARA Llama 3.1 (custom trained model)
 zantara_client: Optional[ZantaraClient] = None
-
-# FALLBACK ONLY: Anthropic Claude
-anthropic_client: Optional[AnthropicClient] = None
-bali_zero_router: Optional[BaliZeroRouter] = None
 collaborator_service: Optional[CollaboratorService] = None
 memory_service: Optional[MemoryService] = None
 conversation_service: Optional[ConversationService] = None

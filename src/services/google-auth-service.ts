@@ -4,7 +4,7 @@
  * Eliminates duplicate GoogleAuth configurations across handlers
  */
 
-import logger from 'logger.js';
+import logger from './logger.js';
 import { google } from 'googleapis';
 // import { GoogleAuth } from 'google-auth-library'; // Not used
 import * as fs from 'fs';

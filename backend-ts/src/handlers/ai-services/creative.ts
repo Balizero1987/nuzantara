@@ -1,6 +1,6 @@
 // Creative & Artistic Handlers for ZANTARA v5.2.0 - Simplified Version
 // Vision AI, Translation & Creative tools for Bali Zero
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 

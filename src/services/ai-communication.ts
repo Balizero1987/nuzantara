@@ -78,7 +78,7 @@ class AICommunicationService {
       let metadata: any = {};
 
       if (request.to === 'zantara') {
-        const result = await aiChat({
+        const result: any = await aiChat({
           prompt: this.buildZantaraPrompt(request, context),
           max_tokens: 1000,
           temperature: 0.7
@@ -90,7 +90,7 @@ class AICommunicationService {
           timestamp: new Date()
         };
       } else if (request.to === 'devai') {
-        const result = await devaiChat({
+        const result: any = await devaiChat({
           message: this.buildDevAIPrompt(request, context),
           max_tokens: 1000,
           temperature: 0.7
@@ -162,7 +162,8 @@ class AICommunicationService {
     }>
   ): Promise<Array<AIBridgeResponse>> {
     const results: Array<AIBridgeResponse> = [];
-    const context = this.getOrCreateContext(workflowId, 'zantara');
+    // Context creation for workflow (currently not used but may be needed for future state management)
+    this.getOrCreateContext(workflowId, 'zantara');
 
     logger.info(`Starting workflow orchestration: ${workflowId}`, {
       steps: steps.length
@@ -246,7 +247,7 @@ class AICommunicationService {
     logger.info(`Workflow cleared: ${workflowId}`);
   }
 
-  private getOrCreateContext(workflowId: string, initiator: 'zantara' | 'devai'): AICommunicationContext {
+  private getOrCreateContext(workflowId: string, _initiator: 'zantara' | 'devai'): AICommunicationContext {
     if (!this.activeWorkflows.has(workflowId)) {
       this.activeWorkflows.set(workflowId, {
         sessionId: workflowId,

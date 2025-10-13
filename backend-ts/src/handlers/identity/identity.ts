@@ -1,4 +1,4 @@
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { z } from "zod";
 import { getFirestore } from "firebase-admin/firestore";
 import { ok } from "../../utils/response.js";

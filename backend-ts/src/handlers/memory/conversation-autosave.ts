@@ -1,6 +1,6 @@
 // Conversation Auto-Save System for ZANTARA v5.2.0
 // Automatically saves all conversations with Zero and collaborators
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 // // import { ok } from "../../utils/response.js"; // Unused import
 import { memorySave } from "./memory-firestore.js";
 import { updateDailyRecap } from "../analytics/daily-drive-recap.js";

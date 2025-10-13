@@ -7,7 +7,7 @@
  * App: Zantara WA (ID: 1074166541097027) - same as WhatsApp
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import axios from 'axios';
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';

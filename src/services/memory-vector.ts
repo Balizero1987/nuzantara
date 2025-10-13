@@ -1,6 +1,6 @@
 // Memory Vector Service for ZANTARA v5.2.0
 // Integrates with Python RAG backend for semantic memory search via embeddings
-import logger from 'logger.js';
+import logger from './logger.js';
 import axios from 'axios';
 import { getCachedEmbedding, getCachedSearch } from './memory-cache.js';
 

@@ -3,7 +3,7 @@
  * Integrates Ollama LLM and Bali Zero routing
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { ragService } from '../../services/ragService.js';
 import type { Request } from 'express';
 import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragService.js';
