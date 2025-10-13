@@ -8,8 +8,7 @@ import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 
-// Configuration
-const HF_API_KEY = process.env.HF_API_KEY || '';
+// Configuration (RunPod only)
 const DEVAI_MODEL = 'zeroai87/devai-qwen-2.5-coder-7b';
 const RUNPOD_ENDPOINT = process.env.RUNPOD_QWEN_ENDPOINT || '';
 const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY || '';
@@ -78,40 +77,26 @@ GUIDELINES:
 - Focus on NUZANTARA codebase patterns`;
   }
 
-  // Try RunPod if configured
-  if (RUNPOD_ENDPOINT && RUNPOD_API_KEY) {
-    try {
-      const response = await callRunPod(systemPrompt, userMessage, max_tokens, temperature);
-      if (response) {
-        return ok({
-          answer: response,
-          model: 'devai-qwen-2.5-coder-7b',
-          provider: 'runpod-vllm',
-          task: task
-        });
-      }
-    } catch (error: any) {
-      logger.error('[DevAI] RunPod error:', error.message);
-      // Fall through to HuggingFace
-    }
+  // Use RunPod (required)
+  if (!RUNPOD_ENDPOINT || !RUNPOD_API_KEY) {
+    throw new Error('DevAI not configured: RUNPOD_QWEN_ENDPOINT and RUNPOD_API_KEY required');
   }
 
-  // Fallback to HuggingFace Inference API
-  if (HF_API_KEY) {
-    try {
-      const response = await callHuggingFace(systemPrompt, userMessage, max_tokens, temperature);
+  try {
+    const response = await callRunPod(systemPrompt, userMessage, max_tokens, temperature);
+    if (response) {
       return ok({
         answer: response,
         model: 'devai-qwen-2.5-coder-7b',
-        provider: 'huggingface-inference',
+        provider: 'runpod-vllm',
         task: task
       });
-    } catch (error: any) {
-      throw new Error(`DevAI unavailable: ${error.message}`);
     }
+    throw new Error('RunPod returned empty response');
+  } catch (error: any) {
+    logger.error('[DevAI] RunPod error:', error.message);
+    throw new Error(`DevAI unavailable: ${error.message}`);
   }
-
-  throw new Error('DevAI not configured: Set RUNPOD_QWEN_ENDPOINT or HF_API_KEY');
 }
 
 
@@ -125,10 +110,10 @@ async function callRunPod(
   temperature: number
 ): Promise<string | null> {
   
-  // Check if using sync or async endpoint
-  const isSync = RUNPOD_ENDPOINT.includes('/runsync');
+  // Always use async endpoint for better cold start handling
+  const asyncEndpoint = RUNPOD_ENDPOINT.replace('/runsync', '/run');
   
-  const response = await fetch(RUNPOD_ENDPOINT, {
+  const response = await fetch(asyncEndpoint, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${RUNPOD_API_KEY}`,
@@ -154,33 +139,21 @@ async function callRunPod(
 
   const data = await response.json();
 
-  if (isSync) {
-    // Synchronous endpoint - result immediately available
-    if (data.output && Array.isArray(data.output) && data.output[0]) {
-      const firstOutput = data.output[0];
-      if (firstOutput.choices && firstOutput.choices[0]) {
-        const choice = firstOutput.choices[0];
-        // Handle tokens array (vLLM format)
-        if (choice.tokens && Array.isArray(choice.tokens)) {
-          return choice.tokens.join('');
-        }
-        // Handle message/text format
-        return choice.message?.content || choice.text || null;
+  // Always use async workflow with polling (better for cold starts)
+  if (data.id) {
+    logger.info(`[DevAI] Job queued: ${data.id}, polling for result...`);
+    return await pollRunPodResult(data.id);
+  }
+
+  // Fallback: if result is immediately available (rare)
+  if (data.output && Array.isArray(data.output) && data.output[0]) {
+    const firstOutput = data.output[0];
+    if (firstOutput.choices && firstOutput.choices[0]) {
+      const choice = firstOutput.choices[0];
+      if (choice.tokens && Array.isArray(choice.tokens)) {
+        return choice.tokens.join('');
       }
-    }
-  } else {
-    // Asynchronous endpoint - need to poll for result
-    if (data.id && data.status === 'IN_QUEUE') {
-      return await pollRunPodResult(data.id);
-    } else if (data.output && Array.isArray(data.output) && data.output[0]) {
-      const firstOutput = data.output[0];
-      if (firstOutput.choices && firstOutput.choices[0]) {
-        const choice = firstOutput.choices[0];
-        if (choice.tokens && Array.isArray(choice.tokens)) {
-          return choice.tokens.join('');
-        }
-        return choice.message?.content || choice.text || null;
-      }
+      return choice.message?.content || choice.text || null;
     }
   }
 
@@ -190,8 +163,8 @@ async function callRunPod(
 /**
  * Poll RunPod for async job result
  */
-async function pollRunPodResult(jobId: string, maxAttempts = 30): Promise<string | null> {
-  const statusEndpoint = RUNPOD_ENDPOINT.replace('/run', `/status/${jobId}`);
+async function pollRunPodResult(jobId: string, maxAttempts = 60): Promise<string | null> {
+  const statusEndpoint = RUNPOD_ENDPOINT.replace('/runsync', '').replace('/run', '') + `/status/${jobId}`;
   
   for (let i = 0; i < maxAttempts; i++) {
     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s between polls
@@ -221,53 +194,7 @@ async function pollRunPodResult(jobId: string, maxAttempts = 30): Promise<string
   throw new Error('RunPod job timeout');
 }
 
-/**
- * Call HuggingFace Inference API (fallback)
- */
-async function callHuggingFace(
-  systemPrompt: string,
-  userMessage: string,
-  maxTokens: number,
-  temperature: number
-): Promise<string> {
-  
-  // Format in Qwen chat format
-  const prompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n<|im_start|>user\n${userMessage}<|im_end|>\n<|im_start|>assistant\n`;
-
-  const response = await fetch(`https://api-inference.huggingface.co/models/${DEVAI_MODEL}`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${HF_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      inputs: prompt,
-      parameters: {
-        max_new_tokens: maxTokens,
-        temperature: temperature,
-        top_p: 0.9,
-        do_sample: true,
-        return_full_text: false
-      }
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error(`HuggingFace error: ${response.statusText}`);
-  }
-
-  const data = await response.json();
-
-  if (Array.isArray(data) && data[0]?.generated_text) {
-    return data[0].generated_text.split('<|im_end|>')[0].trim();
-  } else if (data.generated_text) {
-    return data.generated_text.split('<|im_end|>')[0].trim();
-  } else if (data.error) {
-    throw new Error(data.error);
-  }
-
-  throw new Error('Invalid HuggingFace response');
-}
+// HuggingFace fallback removed - using RunPod only for better reliability
 
 /**
  * Handler: devai.analyze
