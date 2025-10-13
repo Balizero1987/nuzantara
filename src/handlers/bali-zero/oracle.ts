@@ -169,7 +169,7 @@ function timelineSummary(days: number) {
 export async function oracleSimulate(params: OracleParams = {}) {
   if (process.env.BRIDGE_ORACLE_ENABLED === "true") {
     const bridged = await forwardToBridgeIfSupported("oracle.simulate", params);
-    if (bridged && bridged.ok !== false) return bridged;
+    if (bridged && (bridged as any).ok !== false) return bridged;
   }
 
   const service = resolveService(params.service);
@@ -207,7 +207,7 @@ export async function oracleSimulate(params: OracleParams = {}) {
 export async function oracleAnalyze(params: OracleParams = {}) {
   if (process.env.BRIDGE_ORACLE_ENABLED === "true") {
     const bridged = await forwardToBridgeIfSupported("oracle.analyze", params);
-    if (bridged && bridged.ok !== false) return bridged;
+    if (bridged && (bridged as any).ok !== false) return bridged;
   }
 
   const service = resolveService(params.service);
@@ -263,7 +263,7 @@ export async function oracleAnalyze(params: OracleParams = {}) {
 export async function oraclePredict(params: OracleParams = {}) {
   if (process.env.BRIDGE_ORACLE_ENABLED === "true") {
     const bridged = await forwardToBridgeIfSupported("oracle.predict", params);
-    if (bridged && bridged.ok !== false) return bridged;
+    if (bridged && (bridged as any).ok !== false) return bridged;
   }
 
   const service = resolveService(params.service);

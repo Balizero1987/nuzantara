@@ -63,7 +63,7 @@ export async function translateText(params: any) {
   }
 
   try {
-    const { service, client, projectId, baseUrl } = await getTranslateService();
+    const { client, baseUrl } = await getTranslateService();
 
     const requestBody = {
       q: Array.isArray(text) ? text : [text],
@@ -178,7 +178,7 @@ export async function detectLanguage(params: any) {
   }
 
   try {
-    const { service, client, baseUrl } = await getTranslateService();
+    const { client, baseUrl } = await getTranslateService();
 
     // Use Service Account JWT (with DWD) for language detection
     const url = `${baseUrl}/detect`;

@@ -127,7 +127,7 @@ interface GoogleChatParams {
 }
 
 export async function googleChatNotify(params: GoogleChatParams) {
-  const { text, space, thread, cards } = params || {} as GoogleChatParams;
+  const { text, space, thread: _thread, cards } = params || {} as GoogleChatParams;
 
   if (!text && !cards) {
     throw new BadRequestError('text or cards required');

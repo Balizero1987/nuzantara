@@ -50,35 +50,11 @@ function checkIdentityRecognition(prompt: string, _sessionId: string): string | 
   return null;
 }
 
-// Simplified ZANTARA context
-function zantaraContext(base?: string, userInfo?: string, userLanguage?: string) {
-  let intro = `You are ZANTARA, the AI assistant for Bali Zero.
-
-BALI ZERO - PT. BALI NOL IMPERSARIAT
-Location: Kerobokan, Bali | WhatsApp: +62 859 0436 9574 | Email: info@balizero.com
-
-You help with:
-- Visa & immigration (KITAS, KITAP, retirement visas)
-- Tax services (BPJS, NPWP, SPT, LKPM)
-- Company setup (PT PMA, KBLI codes)
-- Real estate (Hak Pakai, HGB)
-- Business consulting
-
-Keep responses natural, helpful, and concise. Use the same language as the user.`;
-  
-  const plain = process.env.ZANTARA_PLAIN_TEXT === '1' || process.env.ZANTARA_PLAIN_TEXT === 'true' || process.env.ZANTARA_OUTPUT_FORMAT === 'plain';
-  if (plain) {
-    intro = intro.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
-  }
-  
-  const userContext = userInfo ? `\nUser: ${userInfo}` : '';
-  const languageContext = userLanguage ? `\n\nIMPORTANT: Always respond in ${userLanguage}. This user speaks ${userLanguage}, so all your responses must be in ${userLanguage}.` : '';
-  return base ? `${intro}${userContext}${languageContext}\n\n${base}` : `${intro}${userContext}${languageContext}`;
-}
+// Simplified ZANTARA context - removed unused function
 
 // ZANTARA-ONLY AI Chat
 export async function aiChat(params: any) {
-  const { provider = 'zantara' } = params || {};
+  const { provider: _provider = 'zantara' } = params || {};
 
   console.log('🎯 [AI Router] ZANTARA-ONLY mode - using only ZANTARA/LLAMA');
 

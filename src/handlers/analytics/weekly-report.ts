@@ -750,7 +750,7 @@ function analyzeServiceEvolution(conversations: any[]) {
   return {
     emerging,
     declining,
-    consistent: Array.from(new Set([...firstWeek.keys(), ...lastWeek.keys()]))
+    consistent: Array.from(new Set([...Array.from(firstWeek.keys()), ...Array.from(lastWeek.keys())]))
       .filter(s => !emerging.includes(s) && !declining.includes(s))
   };
 }
@@ -913,7 +913,7 @@ function generateMonthlyStrategicRecommendations(
   }
 
   // Role-specific strategic recommendations
-  if (userId === 'zero') {
+  if (_userId === 'zero') {
     recommendations.push('Monthly strategy review meeting recommended with all departments');
     recommendations.push('Consider automation for repetitive executive queries');
   }
@@ -924,7 +924,7 @@ function generateMonthlyStrategicRecommendations(
 
 // Generate next month priorities
 function generateNextMonthPriorities(
-  userId: string,
+  _userId: string,
   trends: any,
   clientPatterns: any
 ): string[] {

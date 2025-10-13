@@ -53,7 +53,7 @@ export async function aiChatEnhanced(req: Request, res: Response) {
 
     // Check for identity declaration
     let identityResponse = null;
-    for (const [key, member] of Object.entries(TEAM_RECOGNITION)) {
+    for (const [_key, member] of Object.entries(TEAM_RECOGNITION)) {
       for (const alias of member.aliases) {
         if (lowerPrompt.includes(alias)) {
           context.user = member;

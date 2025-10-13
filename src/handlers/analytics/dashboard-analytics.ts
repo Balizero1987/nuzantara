@@ -392,7 +392,7 @@ export async function dashboardServices(_params: any) {
 }
 
 // Handler performance endpoint
-export async function dashboardHandlers(params: any) {
+export async function dashboardHandlers(_params: any) {
   try {
     const handlers = await analytics.getHandlerMetrics();
 
@@ -416,7 +416,7 @@ export async function dashboardHandlers(params: any) {
 }
 
 // System health endpoint
-export async function dashboardHealth(params: any) {
+export async function dashboardHealth(_params: any) {
   try {
     const health = await analytics.getSystemHealth();
 
@@ -441,7 +441,7 @@ export async function dashboardHealth(params: any) {
 // Top users endpoint
 export async function dashboardUsers(_params: any) {
   try {
-    const limit = params.limit || 10;
+    const limit = _params.limit || 10;
     const users = await analytics.getTopUsers(limit);
 
     return ok({

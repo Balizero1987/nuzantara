@@ -132,7 +132,7 @@ function updateHandlerMetrics(handler: string, realityScore: number) {
 /**
  * Get reality metrics endpoint
  */
-export async function getRealityMetrics(req: Request, res: Response) {
+export async function getRealityMetrics(_req: Request, res: Response) {
   const metrics: any[] = [];
 
   for (const [handler, data] of handlerMetrics.entries()) {
@@ -250,7 +250,7 @@ export async function enforceReality(req: Request, res: Response) {
 /**
  * Clear reality cache endpoint
  */
-export async function clearRealityCache(req: Request, res: Response) {
+export async function clearRealityCache(_req: Request, res: Response) {
   realityAnchor.clearUnverifiedCache();
   antiHallucination.clearUnverifiedFacts();
 

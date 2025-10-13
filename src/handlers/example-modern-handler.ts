@@ -37,7 +37,7 @@ export async function sendEmailV2(params: any, _req?: any) {
  * Auto-registers as "gmail.list.v2"
  */
 export async function listInboxV2(params: any, _req?: any) {
-  const { maxResults = 10 } = params;
+  const { maxResults: _maxResults = 10 } = params;
 
   // TODO: Implement actual Gmail API call
   return ok({

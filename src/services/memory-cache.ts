@@ -56,7 +56,7 @@ class MemoryCache {
     // Evict oldest if cache full (simple LRU)
     if (this.embeddingCache.size >= this.MAX_EMBEDDING_CACHE) {
       const oldestKey = this.embeddingCache.keys().next().value;
-      this.embeddingCache.delete(oldestKey);
+      if (oldestKey) this.embeddingCache.delete(oldestKey);
     }
 
     this.embeddingCache.set(key, {
@@ -94,7 +94,7 @@ class MemoryCache {
     // Evict oldest if cache full
     if (this.searchCache.size >= this.MAX_SEARCH_CACHE) {
       const oldestKey = this.searchCache.keys().next().value;
-      this.searchCache.delete(oldestKey);
+      if (oldestKey) this.searchCache.delete(oldestKey);
     }
 
     this.searchCache.set(key, {

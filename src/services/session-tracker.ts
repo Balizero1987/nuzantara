@@ -44,7 +44,7 @@ function extractUserIdentity(req: Request): { email: string; memberId: string } 
   if (userId && userId.includes('@')) {
     return {
       email: userId,
-      memberId: userId.split('@')[0].toLowerCase()
+      memberId: userId?.split('@')[0]?.toLowerCase() || 'unknown'
     };
   }
 
@@ -62,7 +62,7 @@ function extractUserIdentity(req: Request): { email: string; memberId: string } 
     if (email) {
       return {
         email,
-        memberId: email.split('@')[0].toLowerCase()
+        memberId: email?.split('@')[0]?.toLowerCase() || 'unknown'
       };
     }
   }

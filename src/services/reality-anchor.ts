@@ -21,7 +21,7 @@ interface BusinessTruth {
 
 export class RealityAnchorSystem {
   private static instance: RealityAnchorSystem;
-  private antiHallucination: AntiHallucinationSystem;
+  private _antiHallucination: AntiHallucinationSystem = new AntiHallucinationSystem();
 
   // Immutable business truths about Bali Zero
   private readonly ABSOLUTE_TRUTHS: BusinessTruth[] = [
