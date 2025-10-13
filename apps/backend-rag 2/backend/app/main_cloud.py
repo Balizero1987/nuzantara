@@ -955,6 +955,8 @@ async def bali_zero_chat(request: BaliZeroRequest):
         user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
         # Clear context to prevent RAG activation
         context = None
+        # Force simple response mode
+        mode = "santai"
     else:
         # Add context and mode if available
         if context:
