@@ -13,7 +13,7 @@ import { ok, err } from "../utils/response.js";
  *
  * Auto-registers as "gmail.send.v2"
  */
-export async function sendEmailV2(params: any, req?: any) {
+export async function sendEmailV2(params: any, _req?: any) {
   const { to, subject, body } = params;
 
   if (!to || !subject || !body) {
@@ -36,8 +36,8 @@ export async function sendEmailV2(params: any, req?: any) {
  *
  * Auto-registers as "gmail.list.v2"
  */
-export async function listInboxV2(params: any, req?: any) {
-  const { maxResults = 10, pageToken } = params;
+export async function listInboxV2(params: any, _req?: any) {
+  const { maxResults = 10 } = params;
 
   // TODO: Implement actual Gmail API call
   return ok({
@@ -52,7 +52,7 @@ export async function listInboxV2(params: any, req?: any) {
  *
  * Auto-registers as "kbli.lookup.v2"
  */
-export async function kbliLookupV2(params: any, req?: any) {
+export async function kbliLookupV2(params: any, _req?: any) {
   const { code, query } = params;
 
   if (!code && !query) {
