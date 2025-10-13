@@ -9,7 +9,7 @@ Guida rapida ai principali handover e aree del progetto.
 - Deploy Backend (TS): `deploy-backend.md`, `deployment-analysis.md`, `deploy-57-handlers.md`
 - WebSocket: `websocket-implementation-2025-10-03.md`
 - Security: `security.md`, `security-audit.md`
-- LLAMA 4 Fine-Tuning: `llama4-finetuning.md`
+- GCP Cost Optimization: `gcp-cost-optimization.md` ⭐ NEW (2025-10-14)
 
 ## Come usare
 1) Apri `.claude/INIT.md` e segui gli Step 1A–1G.

@@ -6,7 +6,7 @@
  * Replaces manual registration with auto-discovery pattern
  */
 
-import logger from '../services/logger.js';
+import logger from './services/logger.js';
 import { z } from "zod";
 import type { Request, Response } from "express";
 import { ok, err } from "./utils/response.js";

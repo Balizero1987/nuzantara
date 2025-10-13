@@ -4,7 +4,7 @@
  * Model: zeroai87/devai-qwen-2.5-coder-7b
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 
@@ -343,4 +343,3 @@ function buildPrompt(task: string, message?: string, code?: string, context?: st
     return prompt || message || '';
   }
 }
-
