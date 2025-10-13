@@ -179,7 +179,7 @@ class ZantaraClient:
     ) -> Dict:
         """Call RunPod Serverless vLLM endpoint"""
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=300.0) as client:
             response = await client.post(
                 self.runpod_endpoint,
                 headers={
@@ -234,7 +234,7 @@ class ZantaraClient:
     ) -> Dict:
         """Call HuggingFace Inference API"""
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=300.0) as client:
             response = await client.post(
                 f"https://api-inference.huggingface.co/models/{self.model_name}",
                 headers={
