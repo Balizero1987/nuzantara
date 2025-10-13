@@ -1245,14 +1245,15 @@ export function attachRoutes(app: import("express").Express) {
         const r = await aiChat(params);
 
         // Auto-save AI conversation
+        const responseData: any = r?.data || r;
         await autoSaveConversation(
           req,
           (params as any).prompt || (params as any).message || '',
-          r?.data?.response || r?.response || '',
+          responseData?.response || responseData?.answer || '',
           'ai.chat',
           {
             responseTime: Date.now() - startTime,
-            model: r?.data?.model || 'zantara'
+            model: responseData?.model || 'zantara'
           }
         );
 
@@ -1287,7 +1288,6 @@ export function attachRoutes(app: import("express").Express) {
             return res.status(404).json(err('handler_not_found'));
           }
         } else {
-          const startTime = Date.now();
           result = await handler(params, req);
         }
       }
