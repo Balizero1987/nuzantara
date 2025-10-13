@@ -287,6 +287,11 @@ app.post('/proxy/zantara', async (req, res) => {
 
 attachRoutes(app);
 
+// Subscription management endpoints
+import { fixSubscriptionEndpoint, getSubscriptionStatus } from './middleware/subscription-rate-limit.js';
+app.post('/api/subscription/fix', fixSubscriptionEndpoint);
+app.get('/api/subscription/status', getSubscriptionStatus);
+
 // Error tracking middleware (must be after routes)
 app.use(errorTracker);
 
