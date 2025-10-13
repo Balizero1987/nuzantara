@@ -965,6 +965,8 @@ async def bali_zero_chat(request: BaliZeroRequest):
         context = None
         mode = "santai"
         logger.info("🎯 [Bali Zero Chat] SIMPLE MODE: Brief, friendly response")
+        # FORCE SIMPLE RESPONSE - no RAG context
+        user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
     elif is_business_query:
         # DEPTH & PROFESSIONAL: Detailed analysis with RAG context
         if context:
