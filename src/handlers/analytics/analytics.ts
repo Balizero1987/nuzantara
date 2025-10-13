@@ -1,8 +1,5 @@
 // Google Analytics Handlers for ZANTARA v5.2.0
-import { google } from 'googleapis';
-import { getOAuth2Client } from '../../services/oauth2-client.js';
 import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
 
 // For now, let's create simplified Analytics handlers that can be extended
 // when proper GA4 credentials are configured
@@ -15,9 +12,7 @@ export const analyticsHandlers = {
     const {
       propertyId = '365284833', // Bali Zero property ID
       startDate = '7daysAgo',
-      endDate = 'today',
-      metrics = ['activeUsers', 'sessions', 'pageviews'],
-      dimensions = ['date']
+      endDate = 'today'
     } = params;
 
     // For now, return mock data that represents typical Bali Zero traffic patterns
