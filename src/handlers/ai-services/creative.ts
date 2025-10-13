@@ -393,17 +393,17 @@ export async function languageAnalyzeSentiment(params: any) {
 
     return ok({
       overallSentiment: {
-        score: sentiment?.score || 0, // -1 to 1
-        magnitude: sentiment?.magnitude || 0, // 0 to infinity
-        label: sentiment?.score > 0.1 ? 'POSITIVE' :
-               sentiment?.score < -0.1 ? 'NEGATIVE' : 'NEUTRAL'
+        score: sentiment.score || 0, // -1 to 1
+        magnitude: sentiment.magnitude || 0, // 0 to infinity
+        label: (sentiment.score || 0) > 0.1 ? 'POSITIVE' :
+               (sentiment.score || 0) < -0.1 ? 'NEGATIVE' : 'NEUTRAL'
       },
       businessInsights: {
-        customerSatisfaction: sentiment?.score > 0.3 ? 'High' :
-                              sentiment?.score < -0.3 ? 'Low' : 'Medium',
-        recommendedAction: sentiment?.score < -0.2 ? 'Follow-up required' :
-                          sentiment?.score > 0.5 ? 'Potential upsell' : 'Monitor',
-        priority: sentiment?.magnitude > 0.8 ? 'High' : 'Normal'
+        customerSatisfaction: (sentiment.score || 0) > 0.3 ? 'High' :
+                              (sentiment.score || 0) < -0.3 ? 'Low' : 'Medium',
+        recommendedAction: (sentiment.score || 0) < -0.2 ? 'Follow-up required' :
+                          (sentiment.score || 0) > 0.5 ? 'Potential upsell' : 'Monitor',
+        priority: (sentiment.magnitude || 0) > 0.8 ? 'High' : 'Normal'
       },
       metadata: {
         provider: 'Google Natural Language AI',
