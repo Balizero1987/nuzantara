@@ -9,6 +9,6 @@ import { zeroChat } from './chat.js';
 import { zeroChatSimple } from './chat-simple.js';
 
 export const handlers = {
-  'zero.chat': zeroChat, // Claude with tool use (requires ANTHROPIC_API_KEY)
-  'zero.chat.simple': zeroChatSimple // Gemini fallback (no tool execution)
+  'zero.chat': zeroChat, // ZANTARA-ONLY with tool use
+  'zero.chat.simple': zeroChatSimple // ZANTARA-ONLY simplified
 };
