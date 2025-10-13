@@ -365,7 +365,6 @@ class BaliZeroRequest(BaseModel):
     conversation_history: Optional[List[Dict[str, Any]]] = None
     user_role: str = "member"
     user_email: Optional[str] = None  # ← PHASE 1: Collaborator identification
-    force_model: Optional[str] = None  # 'sonnet' | 'haiku' (advanced override)
 
 
 class BaliZeroResponse(BaseModel):
@@ -423,7 +422,7 @@ async def verify_tools():
                 "error": "handler_proxy_not_initialized"
             }
 
-        # Load tools via Anthropic-compatible registry
+        # Load tools for verification
         from services.tool_executor import ToolExecutor
         internal_key = os.getenv("API_KEYS_INTERNAL")
         executor = ToolExecutor(handler_proxy_service, internal_key)
