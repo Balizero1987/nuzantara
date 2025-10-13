@@ -25,7 +25,7 @@ const ActionSchema = z.object({
 type Handler = (params: any, req?: Request) => Promise<any>;
 
 // AI fallback settings
-const AI_FALLBACK_ORDER = (process.env.AI_FALLBACK_ORDER || 'ai.chat,openai.chat,claude.chat,gemini.chat,cohere.chat')
+const AI_FALLBACK_ORDER = (process.env.AI_FALLBACK_ORDER || 'ai.chat')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);

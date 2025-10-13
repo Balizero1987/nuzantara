@@ -14,10 +14,6 @@ const RATE_LIMIT_MAP: Record<string, any> = {
 
   // AI Chat handlers (expensive: API calls)
   'ai.chat': aiChatLimiter,
-  'openai.chat': aiChatLimiter,
-  'claude.chat': aiChatLimiter,
-  'gemini.chat': aiChatLimiter,
-  'cohere.chat': aiChatLimiter,
 
   // RAG queries (expensive: ChromaDB + embeddings)
   'rag.query': ragQueryLimiter,

@@ -111,7 +111,13 @@ jobs:
           files: ./coverage/lcov.info
           flags: unittests
           name: codecov-nuzantara
-          fail_ci_if_error: false
+          fail_ci_if_error: true
+
+      - name: Security Audit
+        run: npm run security:audit
+
+      - name: Security Fix (if audit passes)
+        run: npm run security:fix || echo "No fixes available or audit failed"
 
       - name: Archive test results
         if: always()

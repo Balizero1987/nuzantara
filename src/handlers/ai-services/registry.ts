@@ -1,24 +1,20 @@
 /**
- * AI Services Module Registry
- * Auto-registers all AI/LLM handlers
+ * ZANTARA-ONLY AI Services Module Registry
+ * Simplified AI system using only ZANTARA/LLAMA
  */
 
 import { globalRegistry } from '../../core/handler-registry.js';
-import { aiChat, openaiChat, claudeChat, geminiChat, cohereChat } from './ai.js';
+import { aiChat } from './ai.js';
 import { aiAnticipate, aiLearn, xaiExplain } from './advanced-ai.js';
 import { creativeHandlers } from './creative.js';
 
 export function registerAIServicesHandlers() {
-  // Core AI handlers
+  // Single ZANTARA AI handler (no multi-provider complexity)
   globalRegistry.registerModule('ai-services', {
-    'chat': aiChat,
-    'openai.chat': openaiChat,
-    'claude.chat': claudeChat,
-    'gemini.chat': geminiChat,
-    'cohere.chat': cohereChat
+    'chat': aiChat
   }, {
     requiresAuth: true,
-    description: 'AI/LLM chat services'
+    description: 'ZANTARA AI chat service (LLAMA-based)'
   });
 
   // Advanced AI handlers

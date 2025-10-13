@@ -16,9 +16,6 @@ const CACHE_CONFIG: Record<string, { ttl: number; type: 'static' | 'dynamic' | '
 
   // Dati dinamici - cache breve
   'ai.chat': { ttl: 300, type: 'dynamic' },
-  'openai.chat': { ttl: 300, type: 'dynamic' },
-  'claude.chat': { ttl: 300, type: 'dynamic' },
-  'gemini.chat': { ttl: 300, type: 'dynamic' },
 
   // Dati critici - nessuna cache
   'quote.generate': { ttl: 0, type: 'critical' },

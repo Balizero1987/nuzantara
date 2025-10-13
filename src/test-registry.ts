@@ -31,7 +31,6 @@ async function testRegistry() {
       'google-workspace.drive.upload',
       'google-workspace.gmail.send',
       'ai-services.chat',
-      'ai-services.openai.chat',
       'bali-zero.kbli.lookup',
       'bali-zero.pricing.get'
     ];
