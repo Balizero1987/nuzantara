@@ -969,6 +969,8 @@ async def bali_zero_chat(request: BaliZeroRequest):
         user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
         # BYPASS RAG COMPLETELY - no context search
         logger.info("🎯 [Bali Zero Chat] BYPASSING RAG for simple interaction")
+        # FORCE SIMPLE RESPONSE - no RAG context
+        user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
     elif is_business_query:
         # DEPTH & PROFESSIONAL: Detailed analysis with RAG context
         if context:
