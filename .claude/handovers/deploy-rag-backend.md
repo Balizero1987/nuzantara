@@ -2,6 +2,17 @@
 
 ## Latest Updates
 
+### 2025-10-13 05:55 (Tone refresh Llama 3.1) [codex-cli_m1]
+
+**Changed**:
+- apps/backend-rag 2/backend/app/main_cloud.py:79 - SYSTEM_PROMPT riscritto per tono naturale + CTA obbligatoria
+- apps/backend-rag 2/backend/app/main_cloud.py:102 - GUIDELINE_APPENDIX aggiunta ai messaggi verso il modello
+- apps/backend-rag 2/backend/app/main_cloud.py:118 - nuova `format_zantara_answer` (cleanup placeholder, taglio listoni, CTA finale)
+- apps/backend-rag 2/backend/app/main_cloud.py:514 & 765 - applicato formatter alle risposte RAG search e Bali Zero chat
+
+**Related**:
+→ Full session: .claude/diaries/2025-10-13_codex-cli_m1.md
+
 ### 2025-10-08 05:40 (Tool Use Loop Prevention) [sonnet-4.5_m1]
 
 **Changed**:

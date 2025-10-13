@@ -30,9 +30,12 @@ echo
 
 command -v gcloud >/dev/null 2>&1 || { echo "gcloud not found"; exit 1; }
 
-if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
-  echo "❌ ANTHROPIC_API_KEY is not set in the environment"
-  echo "   export ANTHROPIC_API_KEY=sk-ant-..."
+# Check for ZANTARA (PRIMARY) or Claude (FALLBACK)
+if [[ -z "${RUNPOD_LLAMA_ENDPOINT:-}" ]] && [[ -z "${HF_API_KEY:-}" ]] && [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
+  echo "❌ No AI configured. Need either:"
+  echo "   1. ZANTARA (PRIMARY): export RUNPOD_LLAMA_ENDPOINT=... RUNPOD_API_KEY=..."
+  echo "   2. ZANTARA (FALLBACK): export HF_API_KEY=..."
+  echo "   3. Claude (FALLBACK): export ANTHROPIC_API_KEY=..."
   exit 1
 fi
 
@@ -50,14 +53,22 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 echo "📦 Building image via Cloud Build..."
 gcloud builds submit --tag "${IMAGE}" --quiet
 
-echo "🚢 Deploying to Cloud Run..."
+echo "🚢 Deploying to Cloud Run with ZANTARA PRIMARY..."
+# Build env vars string (only include configured vars)
+ENV_VARS=""
+[[ -n "${RUNPOD_LLAMA_ENDPOINT:-}" ]] && ENV_VARS="${ENV_VARS}RUNPOD_LLAMA_ENDPOINT=${RUNPOD_LLAMA_ENDPOINT},"
+[[ -n "${RUNPOD_API_KEY:-}" ]] && ENV_VARS="${ENV_VARS}RUNPOD_API_KEY=${RUNPOD_API_KEY},"
+[[ -n "${HF_API_KEY:-}" ]] && ENV_VARS="${ENV_VARS}HF_API_KEY=${HF_API_KEY},"
+[[ -n "${ANTHROPIC_API_KEY:-}" ]] && ENV_VARS="${ENV_VARS}ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY},"
+ENV_VARS="${ENV_VARS%,}"  # Remove trailing comma
+
 gcloud run deploy "${SERVICE}" \
   --image "${IMAGE}" \
   --region "${REGION}" \
   --allow-unauthenticated \
   --port 8000 \
   --service-account "${SERVICE_ACCOUNT}" \
-  --set-env-vars "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}" \
+  --set-env-vars "${ENV_VARS}" \
   --quiet
 
 echo "⏳ Waiting for health (up to 90s)..."
