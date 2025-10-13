@@ -14,6 +14,7 @@ import {
   geminiChat,
   cohereChat
 } from '../../handlers/ai-services/ai.js';
+import { zantaraChat } from '../../handlers/ai-services/zantara-llama.js';
 import { BadRequestError } from '../../utils/errors.js';
 
 const router = Router();
@@ -23,7 +24,7 @@ const AIChatSchema = z.object({
   prompt: z.string().optional(),
   message: z.string().optional(),
   context: z.string().optional(),
-  provider: z.enum(['auto', 'openai', 'claude', 'anthropic', 'gemini', 'google', 'cohere']).optional().default('auto'),
+  provider: z.enum(['auto', 'openai', 'claude', 'anthropic', 'gemini', 'google', 'cohere', 'zantara', 'llama']).optional().default('auto'),
   model: z.string().optional(),
   userId: z.string().optional(),
   userEmail: z.string().optional(),
@@ -113,6 +114,28 @@ router.post('/cohere', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = AIChatSchema.parse(req.body);
     const result = await cohereChat(params);
+    return res.json(ok(result?.data ?? result));
+  } catch (error: any) {
+    if (error instanceof BadRequestError) {
+      return res.status(400).json(err(error.message));
+    }
+    return res.status(500).json(err(error?.message || 'Internal Error'));
+  }
+});
+
+/**
+ * POST /api/ai/zantara
+ * ZANTARA Llama 3.1 - Custom trained model for Indonesian business
+ */
+router.post('/zantara', apiKeyAuth, async (req: RequestWithCtx, res) => {
+  try {
+    const params = AIChatSchema.parse(req.body);
+    const result = await zantaraChat({
+      message: params.prompt || params.message,
+      max_tokens: params.max_tokens,
+      temperature: params.temperature,
+      context: params.context
+    });
     return res.json(ok(result?.data ?? result));
   } catch (error: any) {
     if (error instanceof BadRequestError) {
