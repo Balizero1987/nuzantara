@@ -366,12 +366,12 @@
 
         <div class="config-panel">
             <h4>⚙️ Configuration</h4>
-            <input type="text" class="config-input" id="apiBaseInput" placeholder="API Base URL" value="https://api.balizero.com">
+            <input type="text" class="config-input" id="apiBaseInput" placeholder="API Base URL" value="http://localhost:8080">
             <input type="text" class="config-input" id="apiKeyInput" placeholder="API Key" value="zantara-internal-dev-key-2025">
             <button class="btn btn-primary" onclick="saveConfig()">Save & Test</button>
             <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
             <div style="margin-top: 8px; font-size: 0.8rem; color: #94a3b8;">
-                💡 Pre-configured for production. Switch to localhost:8080 for development.
+                💡 Pre-configured for localhost. api.balizero.com non disponibile.
             </div>
         </div>
 
@@ -452,8 +452,8 @@
     </div>
 
     <script>
-        // Configuration - Auto-configured for production
-        let API_BASE = localStorage.getItem('API_BASE') || 'https://api.balizero.com';
+        // Configuration - Auto-configured for localhost (api.balizero.com non disponibile)
+        let API_BASE = localStorage.getItem('API_BASE') || 'http://localhost:8080';
         let API_KEY = localStorage.getItem('API_KEY') || 'zantara-internal-dev-key-2025';
         let currentWorkflowId = null;
 
