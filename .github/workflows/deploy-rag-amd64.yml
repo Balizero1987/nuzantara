@@ -50,7 +50,7 @@ jobs:
             --image gcr.io/involuted-box-469105-r0/zantara-rag-backend:${{ github.sha }} \
             --region europe-west1 \
             --port 8000 \
-            --update-env-vars ENABLE_RERANKER=true,TYPESCRIPT_BACKEND_URL=https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app,API_KEYS_INTERNAL=zantara-internal-dev-key-2025 \
+            --update-env-vars ENABLE_RERANKER=true,TYPESCRIPT_BACKEND_URL=https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app,API_KEYS_INTERNAL=zantara-internal-dev-key-2025,RUNPOD_LLAMA_ENDPOINT=${{ secrets.RUNPOD_LLAMA_ENDPOINT }},RUNPOD_API_KEY=${{ secrets.RUNPOD_API_KEY }},HF_API_KEY=${{ secrets.HF_API_KEY }},ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
             --memory 2Gi \
             --cpu 2 \
             --min-instances 1 \
