@@ -315,7 +315,7 @@ function checkIdentityRecognition(prompt: string, sessionId: string = 'default')
   };
 
   // Check for identity declaration
-  for (const [key, member] of Object.entries(TEAM_RECOGNITION)) {
+  for (const [, member] of Object.entries(TEAM_RECOGNITION)) {
     for (const alias of member.aliases) {
       if (lowerPrompt.includes(alias)) {
         context.user = member;
@@ -484,7 +484,8 @@ export async function claudeChat(params: any) {
     let ragContext = '';
     try {
       const { ragService } = await import('../../services/ragService.js');
-      const userInfo = userId || userEmail || userName || userIdentification;
+      // FIX: Remove unused variable
+      // const userInfo = userId || userEmail || userName || userIdentification;
 
       // Get user context for personalization
       const userCtx = getUserContext(sessionId || userId || userEmail || 'default');
@@ -678,7 +679,7 @@ export async function cohereChat(params: any) {
 }
 
 export async function aiChat(params: any) {
-  const { provider = 'auto', userId, userEmail, userName, userIdentification } = params || {};
+  const { provider = 'auto' } = params || {};
 
   // User identification check removed - no longer required
 
@@ -699,13 +700,14 @@ export async function aiChat(params: any) {
   };
   // Premium routing: qualità massima per clienti e collaboratori
   const text = normalizePrompt(String(params?.prompt || ''));
-  const isCustomer = params?.context?.includes('cliente') || params?.context?.includes('customer');
-  const isInternal = params?.context?.includes('AMBARADAM') || params?.context?.includes('collaborator');
-  const isAnalytical = /analy(s|z)e|compare|reason|explain|why|because|breakdown|steps/i.test(text);
+  // FIX: Remove unused variables to fix TypeScript errors
+  // const isCustomer = params?.context?.includes('cliente') || params?.context?.includes('customer');
+  // const isInternal = params?.context?.includes('AMBARADAM') || params?.context?.includes('collaborator');
+  // const isAnalytical = /analy(s|z)e|compare|reason|explain|why|because|breakdown|steps/i.test(text);
   const isCode = /code|function|class|api|typescript|javascript|regex|sql|bug/i.test(text);
-  const isCreative = /story|slogan|marketing|post|article|blog|poem|creative/i.test(text);
-  const isTranslate = /translate|traduci|translation|from .* to/i.test(text);
-  const isLong = text.length > 800;
+  // const isCreative = /story|slogan|marketing|post|article|blog|poem|creative/i.test(text);
+  // const isTranslate = /translate|traduci|translation|from .* to/i.test(text);
+  // const isLong = text.length > 800;
 
   try {
     // ⭐ ZANTARA 100% ROUTING - Primary AI for ALL queries
