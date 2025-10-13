@@ -67,8 +67,12 @@ export async function aiChat(params: any) {
       return ok({ response: identityResponse, recognized: true, ts: Date.now() });
     }
 
-    // Use ZANTARA for all queries
-    return zantaraChat({ message: params.prompt || params.message, ...params });
+    // Use ZANTARA for all queries with mode support
+    return zantaraChat({ 
+      message: params.prompt || params.message, 
+      mode: params.mode || 'santai', // Default to Santai mode
+      ...params 
+    });
   } catch (error: any) {
     logger.error('❌ ZANTARA error:', error);
     

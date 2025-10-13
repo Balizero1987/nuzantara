@@ -1,29 +1,28 @@
 /**
- * ZANTARA Llama 3.1 Integration
- * Fine-tuned model for Indonesian business operations
- * Uses YOUR custom trained merged model: zeroai87/zantara-llama-3.1-8b-merged
+ * ZANTARA RAG Backend Integration
+ * Communicates with RAG backend for enhanced responses with knowledge base
+ * Supports Santai (quick) and Pikiran (detailed) modes
  */
 
 import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
+import { ENV } from '../../config.js';
 
-// Configuration - YOUR ZANTARA MERGED MODEL!
-const HF_API_KEY = process.env.HF_API_KEY || '';
-const ZANTARA_MODEL = 'zeroai87/zantara-llama-3.1-8b-merged';
-const RUNPOD_ENDPOINT = process.env.RUNPOD_LLAMA_ENDPOINT || '';
-const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY || '';
+// RAG Backend Configuration
+const RAG_BACKEND_URL = ENV.RAG_BACKEND_URL;
 
 interface ZantaraParams {
   message: string;
   max_tokens?: number;
   temperature?: number;
   context?: string;
+  mode?: 'santai' | 'pikiran';
 }
 
 /**
- * Call ZANTARA Llama 3.1 model
- * Tries RunPod first, falls back to HuggingFace Inference API
+ * Call ZANTARA RAG Backend
+ * Communicates with RAG backend for enhanced responses with knowledge base
  */
 export async function zantaraChat(params: ZantaraParams) {
   if (!params.message) {
@@ -31,147 +30,48 @@ export async function zantaraChat(params: ZantaraParams) {
   }
 
   const message = String(params.message).trim();
-  const maxTokens = params.max_tokens || 500;
-  const temperature = params.temperature || 0.7;
+  const mode = params.mode || 'santai'; // Default to Santai mode
 
-  // System prompt for Indonesian business context
-  const systemPrompt = `You are ZANTARA, an intelligent AI assistant for Bali Zero (PT. Bali Nol Impersariat), specialized in business operations, team management, and customer service for Indonesian markets.
+  logger.info(`🎯 [ZANTARA RAG] Mode: ${mode}, Message: ${message.substring(0, 50)}...`);
 
-IMPORTANT GUIDELINES:
-- For greetings (ciao, hello, hi): respond warmly and ask how you can help with Bali Zero services
-- For questions: provide specific, accurate answers based on your training
-- Always be professional, concise, and helpful
-- When unsure, offer to connect with Bali Zero team at WhatsApp +62 859 0436 9574
-
-Respond in the same language as the user (Italian, English, or Indonesian).`;
-
-  const fullPrompt = `${systemPrompt}\n\nUser: ${message}\n\nAssistant:`;
-
-  // Try RunPod if configured
-  if (RUNPOD_ENDPOINT && RUNPOD_API_KEY) {
-    try {
-      const response = await fetch(RUNPOD_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${RUNPOD_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          input: {
-            prompt: fullPrompt,
-            sampling_params: {
-              max_tokens: maxTokens,
-              temperature: temperature
-            }
-          }
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-
-        // Parse vLLM response format
-        let answer = '';
-        if (data.output && Array.isArray(data.output)) {
-          const firstOutput = data.output[0];
-
-          // vLLM returns tokens array with decoded text
-          if (firstOutput?.choices && firstOutput.choices[0]?.tokens) {
-            // Tokens is an array of strings, join them
-            const tokens = firstOutput.choices[0].tokens;
-            answer = Array.isArray(tokens) ? tokens.join('') : String(tokens);
-          } else if (firstOutput?.choices && firstOutput.choices[0]?.text) {
-            answer = firstOutput.choices[0].text;
-          } else if (firstOutput?.choices && firstOutput.choices[0]?.message?.content) {
-            answer = firstOutput.choices[0].message.content;
-          }
-        } else if (data.output) {
-          answer = String(data.output);
-        }
-
-        if (!answer) {
-          throw new Error('No valid output from vLLM');
-        }
-
-        return ok({
-          answer: answer.trim(),
-          model: 'zantara-llama-3.1-8b-merged',
-          provider: 'runpod-vllm',
-          tokens: data.output?.[0]?.usage?.output || maxTokens,
-          executionTime: `${data.executionTime}ms`
-        });
-      }
-    } catch (error) {
-      logger.warn('⚠️  RunPod unavailable, falling back to HuggingFace:', error);
-    }
-  }
-
-  // Fallback to HuggingFace Inference API with YOUR trained merged model!
   try {
-    if (!HF_API_KEY) {
-      throw new Error('HF_API_KEY not configured - cannot use ZANTARA model');
-    }
-
-    logger.info('🚀 Using YOUR trained ZANTARA model:', ZANTARA_MODEL);
-
-    // HuggingFace Inference API
-    const response = await fetch(`https://api-inference.huggingface.co/models/${ZANTARA_MODEL}`, {
+    // Call RAG Backend
+    const response = await fetch(`${RAG_BACKEND_URL}/bali-zero/chat`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${HF_API_KEY}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        inputs: fullPrompt,
-        parameters: {
-          max_new_tokens: maxTokens,
-          temperature: temperature,
-          return_full_text: false,
-          do_sample: true
-        }
+        query: message,
+        mode: mode,
+        user_email: 'guest', // Default user
+        user_role: 'member'
       })
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`HuggingFace API error: ${response.status} - ${error}`);
+      throw new Error(`RAG Backend error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
-    const answer = data[0]?.generated_text || data.generated_text || '';
+    
+    if (!data.success) {
+      throw new Error(`RAG Backend failed: ${data.response || 'Unknown error'}`);
+    }
+
+    logger.info(`✅ [ZANTARA RAG] Response received (${mode} mode)`);
 
     return ok({
-      answer: answer.trim(),
-      model: 'zantara-llama-3.1-8b-merged',
-      provider: 'huggingface',
-      tokens: maxTokens,
-      trained_on: '22,009 Indonesian business conversations',
-      accuracy: '98.74%'
+      answer: data.response,
+      model: data.model_used || 'zantara-llama-3.1-8b',
+      provider: 'rag-backend',
+      tokens: data.usage?.output_tokens || 0,
+      executionTime: `${Date.now() - Date.now()}ms`,
+      mode: mode
     });
 
   } catch (error: any) {
-    logger.error('❌ ZANTARA error:', error);
-    
-    // ZANTARA model not available - no fallback, force configuration
-    logger.error('ZANTARA model not configured - please set HF_API_KEY or RunPod credentials');
-    
-    // ZANTARA model not available - return error instead of fallback
-    throw new Error(`ZANTARA model not configured: ${error.message}`);
+    logger.error(`❌ [ZANTARA RAG] Error: ${error.message}`);
+    throw new Error(`RAG Backend unavailable: ${error.message}`);
   }
-}
-
-/**
- * Check if ZANTARA is available
- */
-export function isZantaraAvailable(): boolean {
-  // FIX: Always return true to force ZANTARA usage
-  // The model will handle fallback internally if not available
-  logger.info('ZANTARA availability check:', {
-    hfKey: !!HF_API_KEY,
-    runpodEndpoint: !!RUNPOD_ENDPOINT,
-    runpodKey: !!RUNPOD_API_KEY
-  });
-  
-  // FIX: Force ZANTARA to be "available" - let the model handle fallback
-  return true;
 }
