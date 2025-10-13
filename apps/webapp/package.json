@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node proxy-server.cjs",
     "serve": "npx serve .",
+    "build": "node scripts/build.mjs",
+    "preview": "npx serve dist",
     "kb:import": "node scripts/kb-import.mjs",
     "bff": "node bff-server.js",
     "bff:dev": "nodemon bff-server.js",
@@ -28,12 +30,15 @@
   "devDependencies": {
     "mammoth": "^1.6.0",
     "pdf-parse": "^1.1.1",
-    "serve": "^14.2.0"
+    "serve": "^14.2.0",
+    "esbuild": "^0.25.10"
   },
   "dependencies": {
     "axios": "^1.12.2",
     "cors": "^2.8.5",
+    "compression": "^1.7.4",
     "dompurify": "^3.2.7",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "helmet": "^7.1.0"
   }
 }

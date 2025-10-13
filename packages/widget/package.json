@@ -6,7 +6,7 @@
   "main": "zantara-sdk.js",
   "scripts": {
     "demo": "python3 -m http.server 8002",
-    "build": "echo 'No build needed - vanilla JS'"
+    "build": "node scripts/build.mjs"
   },
   "keywords": [
     "widget",
