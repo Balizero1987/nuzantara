@@ -11,7 +11,7 @@ import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragServi
  * RAG Query - Generate answer using Ollama + ChromaDB
  * Handler: rag.query
  */
-export async function ragQuery(params: any, req?: Request): Promise<RAGQueryResponse> {
+export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryResponse> {
   const { query, k = 5, use_llm = true, conversation_history } = params;
 
   if (!query) {
@@ -43,7 +43,7 @@ export async function ragQuery(params: any, req?: Request): Promise<RAGQueryResp
  * Handler: bali.zero.chat
  * Specialized for immigration/visa queries
  */
-export async function baliZeroChat(params: any, req?: Request): Promise<BaliZeroResponse> {
+export async function baliZeroChat(params: any, _req?: Request): Promise<BaliZeroResponse> {
   const { query, conversation_history, user_role = 'member' } = params;
 
   if (!query) {
@@ -77,7 +77,7 @@ export async function baliZeroChat(params: any, req?: Request): Promise<BaliZero
  * RAG Search - Fast semantic search (no LLM)
  * Handler: rag.search
  */
-export async function ragSearch(params: any, req?: Request) {
+export async function ragSearch(params: any, _req?: Request) {
   const { query, k = 5 } = params;
 
   if (!query) {
@@ -97,7 +97,7 @@ export async function ragSearch(params: any, req?: Request) {
  * RAG Health Check
  * Handler: rag.health
  */
-export async function ragHealth(params: any, req?: Request) {
+export async function ragHealth(_params: any, _req?: Request) {
   try {
     const isHealthy = await ragService.healthCheck();
 
