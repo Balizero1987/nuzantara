@@ -321,7 +321,7 @@ class DashboardAnalytics {
 const analytics = new DashboardAnalytics();
 
 // Main dashboard endpoint
-export async function dashboardMain(params: any) {
+export async function dashboardMain(_params: any) {
   try {
     const stats = await analytics.getRealtimeStats();
 
@@ -345,7 +345,7 @@ export async function dashboardMain(params: any) {
 }
 
 // Conversations metrics endpoint
-export async function dashboardConversations(params: any) {
+export async function dashboardConversations(_params: any) {
   try {
     const metrics = await analytics.getConversationMetrics();
 
@@ -364,7 +364,7 @@ export async function dashboardConversations(params: any) {
 }
 
 // Services metrics endpoint
-export async function dashboardServices(params: any) {
+export async function dashboardServices(_params: any) {
   try {
     const metrics = await analytics.getServiceMetrics();
 
@@ -379,7 +379,7 @@ export async function dashboardServices(params: any) {
       section: 'Services',
       data: metrics,
       insights: {
-        most_popular_service: mostPopular[0],
+        most_popular_service: mostPopular?.[0] || 'unknown',
         security_effectiveness: metrics.blocked_requests > 0 ? 'high' : 'untested',
         conversion_rate: metrics.successful_identifications > 0
           ? `${Math.round((metrics.quotes_generated / metrics.successful_identifications) * 100)}%`
@@ -439,7 +439,7 @@ export async function dashboardHealth(params: any) {
 }
 
 // Top users endpoint
-export async function dashboardUsers(params: any) {
+export async function dashboardUsers(_params: any) {
   try {
     const limit = params.limit || 10;
     const users = await analytics.getTopUsers(limit);
