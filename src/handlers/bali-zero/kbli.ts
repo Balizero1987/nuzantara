@@ -225,12 +225,12 @@ export async function kbliLookup(req: Request, res: Response) {
     if (code) {
       // Direct code lookup
       for (const cat of Object.values(KBLI_DATABASE)) {
-        if (cat[code]) {
+        if (cat[code as keyof typeof cat]) {
           return res.json({
             ok: true,
             data: {
               found: true,
-              kbli: cat[code]
+              kbli: cat[code as keyof typeof cat]
             }
           });
         }
@@ -244,13 +244,13 @@ export async function kbliLookup(req: Request, res: Response) {
       });
     }
 
-    if (category && KBLI_DATABASE[category]) {
+    if (category && KBLI_DATABASE[category as keyof typeof KBLI_DATABASE]) {
       // Category listing
       return res.json({
         ok: true,
         data: {
           category,
-          codes: Object.values(KBLI_DATABASE[category])
+          codes: Object.values(KBLI_DATABASE[category as keyof typeof KBLI_DATABASE])
         }
       });
     }
