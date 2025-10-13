@@ -1,6 +1,6 @@
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
-import { openaiChat } from "./ai.js";
+import { aiChat } from "./ai.js";
 
 /**
  * AI Anticipate - Predictive analysis for proactive suggestions
@@ -29,7 +29,7 @@ Provide:
 Format as structured JSON with: predictions, recommendations, optimizations, risks`;
 
   try {
-    const result = await openaiChat({ prompt, model: 'gpt-4o-mini' });
+    const result = await aiChat({ prompt, provider: 'zantara' });
 
     // Parse AI response
     let predictions;
@@ -87,7 +87,7 @@ Analyze and provide:
 Format as structured recommendations for system optimization.`;
 
   try {
-    const result = await openaiChat({ prompt, model: 'gpt-4o-mini' });
+    const result = await aiChat({ prompt, provider: 'zantara' });
 
     return ok({
       learning: {
@@ -161,7 +161,7 @@ Provide a clear, human-readable explanation of:
 4. Alternative options considered`;
 
     try {
-      const result = await openaiChat({ prompt, model: 'gpt-4o-mini' });
+      const result = await aiChat({ prompt, provider: 'zantara' });
       explanation.human_explanation = result.data.response;
     } catch {
       explanation.human_explanation = "Decision based on standard operating parameters";

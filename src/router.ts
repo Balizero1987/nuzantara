@@ -407,7 +407,7 @@ const handlers: Record<string, Handler> = {
 
   /**
    * @handler ai.chat
-   * @description Multi-provider AI chat with automatic fallback (OpenAI → Claude → Gemini → Cohere). Includes pricing hallucination prevention and auto-save conversation to memory.
+   * @description ZANTARA-ONLY AI chat with pricing hallucination prevention and auto-save conversation to memory.
    * @param {string} params.prompt - User prompt or message (required)
    * @param {string} [params.message] - Alternative to prompt
    * @param {number} [params.max_tokens=1000] - Maximum tokens in response
