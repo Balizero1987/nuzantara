@@ -46,6 +46,9 @@ export async function loadAllHandlers() {
     // Maps (3 handlers)
     await import('../handlers/maps/registry.js');
 
+    // DevAI (7+ handlers)
+    await import('../handlers/devai/registry.js');
+
     const stats = globalRegistry.getStats();
     logger.info('✅ Handler loading complete:');
     logger.info(`   📊 Total handlers: ${stats.totalHandlers}`);
