@@ -1,10 +1,22 @@
-# Zantara Bridge — Deployment Snapshot (2025-09-24)
+# NUZANTARA — Intelligent Business Platform
+
+## 🤖 AI Models (Updated: 14 ottobre 2025)
+
+| AI | Model | Status | Endpoint |
+|----|-------|--------|----------|
+| **ZANTARA** | Llama 3.1 8B (Fine-tuned) | ✅ Active | [zantara.balizero.com](https://zantara.balizero.com/) |
+| **DevAI** | Qwen 2.5 Coder 7B (Fine-tuned) | ✅ Active | [zantara.balizero.com/devai](https://zantara.balizero.com/devai/) |
+
+**Complete AI Info**: `docs/AI_MODELS_INFO.md`
+
+---
+
+## 🌍 Deployment Environments
 
 | Environment   | Region          | URL                                                                                     | Version | Notes |
 |---------------|-----------------|------------------------------------------------------------------------------------------|---------|-------|
-| Primary       | europe-west1    | https://zantara-bridge-v2-prod-himaadsxua-ew.a.run.app (alias https://zantara-bridge-v2-prod-1064094238013.europe-west1.run.app) | v5.2.0  | Cloud Run revision `zantara-bridge-v2-prod-00027-xwr` |
+| Primary       | europe-west1    | https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app | v5.2.0  | Cloud Run (latest) |
 | Stable        | asia-southeast2 | https://zantara-bridge-v2-prod-1064094238013.asia-southeast2.run.app                    | v4.0.0  | LTS runtime |
-| ChatGPT Patch | europe-west1    | https://zantara-v520-chatgpt-patch-himaadsxua-ew.a.run.app (alias https://zantara-v520-chatgpt-patch-1064094238013.europe-west1.run.app) | v5.2.0  | Feature branch for GPT actions |
 | Local Dev     | localhost       | http://localhost:8080                                                                    | dev     | `npm run dev` / `npm start` |
 
 - Dettagli e storico: `docs/adr/ADR-001-runtime-endpoints.md`.
