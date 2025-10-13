@@ -8,7 +8,7 @@
  */
 
 import axios from 'axios';
-import { ok, err } from '../../utils/response.js';
+import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
 import { memorySave, memorySearch } from '../memory/memory-firestore.js';
 import { aiChat } from '../ai-services/ai.js';
@@ -188,7 +188,7 @@ async function handleInstagramMessage(messaging: any) {
 async function handleStoryMention(value: any) {
   try {
     const mediaId = value.media_id;
-    const commentId = value.comment_id;
+    // const commentId = value.comment_id; // Not used
     const text = value.text;
 
     console.log('📖 Story mention/reply:', { mediaId, text });
@@ -270,7 +270,8 @@ Message: "${text}"`;
       model: 'claude-3-5-haiku-20241022'
     });
 
-    const result = JSON.parse(response.data?.response || '{"score":5,"label":"neutral","urgency":"low"}');
+    const responseData: any = response.data || response;
+    const result = JSON.parse(responseData.response || responseData.answer || '{"score":5,"label":"neutral","urgency":"low"}');
     return result;
   } catch (error) {
     console.error('❌ Sentiment analysis error:', error);
@@ -356,7 +357,7 @@ function calculateLeadScore(userInfo: any, message: string, engagementScore: num
  * Smart decision: Should ZANTARA respond on Instagram?
  */
 async function shouldZantaraRespondInstagram(params: any): Promise<{ respond: boolean; reason: string; context?: any }> {
-  const { message, sentiment, userId, userInfo } = params;
+  const { message, sentiment, userInfo } = params;
 
   // Rule 1: Always respond to questions
   if (message.includes('?')) {
@@ -430,7 +431,8 @@ async function sendIntelligentInstagramResponse(to: string, userMessage: string,
       model: 'claude-3-5-haiku-20241022'
     });
 
-    const responseText = aiResponse.data?.response || 'Ciao! Come posso aiutarti con i servizi Bali Zero? 🌴';
+    const responseData: any = aiResponse.data || aiResponse;
+    const responseText = responseData.response || responseData.answer || 'Ciao! Come posso aiutarti con i servizi Bali Zero? 🌴';
 
     // Send via Instagram API
     await sendInstagramMessage(to, responseText);
