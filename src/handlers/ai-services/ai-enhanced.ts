@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { Request, Response } from 'express';
 import { ok } from '../../utils/response.js';
 
@@ -61,7 +62,7 @@ export async function aiChatEnhanced(req: Request, res: Response) {
           identityResponse = member.personalizedResponse;
 
           // Log recognition
-          console.log(`🎯 Identity recognized: ${member.name} (${member.role})`);
+          logger.info(`🎯 Identity recognized: ${member.name} (${member.role})`);
           break;
         }
       }
@@ -151,7 +152,7 @@ export async function aiChatEnhanced(req: Request, res: Response) {
     }));
 
   } catch (error: any) {
-    console.error('aiChatEnhanced error:', error);
+    logger.error('aiChatEnhanced error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'AI chat failed'

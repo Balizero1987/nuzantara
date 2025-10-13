@@ -11,6 +11,7 @@
  * Security: ZERO_ONLY access enforced via middleware
  */
 
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { aiChat } from "../ai-services/ai.js";
@@ -50,7 +51,7 @@ export async function zeroChat(params: any) {
       ts: Date.now()
     });
   } catch (error: any) {
-    console.error('Zero chat error:', error);
+    logger.error('Zero chat error:', error);
     throw new BadRequestError(`Zero chat failed: ${error.message}`);
   }
 }

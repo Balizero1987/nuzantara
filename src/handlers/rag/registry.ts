@@ -3,6 +3,7 @@
  * Python backend integration
  */
 
+import logger from '../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import {
   ragQuery,
@@ -20,7 +21,7 @@ export function registerRAGHandlers() {
     'health': ragHealth
   }, { requiresAuth: true, description: 'RAG + Python backend' });
 
-  console.log('✅ RAG handlers registered');
+  logger.info('✅ RAG handlers registered');
 }
 
 registerRAGHandlers();

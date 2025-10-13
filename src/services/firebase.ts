@@ -1,4 +1,5 @@
 // Firebase Admin SDK Setup for ZANTARA v5.2.0
+import logger from '../services/logger.js';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin/app';
 import { getFirestore as getFirestoreAdmin } from 'firebase-admin/firestore';
@@ -27,12 +28,12 @@ async function fetchServiceAccountFromSecret(projectId: string) {
     const payload = version.payload?.data?.toString();
 
     if (payload) {
-      console.log(`🔥 Firebase service account loaded from Secret Manager: ${secretName}`);
+      logger.info(`🔥 Firebase service account loaded from Secret Manager: ${secretName}`);
       firebaseStatus.serviceAccountSource = 'secret-manager';
       return JSON.parse(payload);
     }
   } catch (error: any) {
-    console.log('⚠️ Secret Manager lookup failed, falling back to other credentials:', error?.message || error);
+    logger.info('⚠️ Secret Manager lookup failed, falling back to other credentials:', error?.message || error);
   }
 
   return null;
@@ -54,7 +55,7 @@ async function initializeFirebaseInternal(): Promise<void> {
       const envKey = process.env.GOOGLE_SERVICE_ACCOUNT || process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
       if (envKey) {
         serviceAccount = JSON.parse(envKey);
-        console.log('🔥 Firebase initialized with service account from env variable');
+        logger.info('🔥 Firebase initialized with service account from env variable');
         firebaseStatus.serviceAccountSource = 'env-var';
       }
     }
@@ -65,10 +66,10 @@ async function initializeFirebaseInternal(): Promise<void> {
         try {
           const fileAccount = JSON.parse(readFileSync(credentialsPath, 'utf8'));
           serviceAccount = fileAccount;
-          console.log(`🔥 Firebase initialized with service account from file (${credentialsPath})`);
+          logger.info(`🔥 Firebase initialized with service account from file (${credentialsPath})`);
           firebaseStatus.serviceAccountSource = 'file';
         } catch (fileError: any) {
-          console.log('⚠️ Could not read credentials file, falling back to ADC:', fileError?.message || fileError);
+          logger.info('⚠️ Could not read credentials file, falling back to ADC:', fileError?.message || fileError);
         }
       }
     }
@@ -83,8 +84,8 @@ async function initializeFirebaseInternal(): Promise<void> {
         credential: applicationDefault(),
         projectId,
       });
-      console.log('🔥 Firebase initialized with ADC (Application Default Credentials)');
-      console.log('   Service account: cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com');
+      logger.info('🔥 Firebase initialized with ADC (Application Default Credentials)');
+      logger.info('   Service account: cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com');
       firebaseStatus.serviceAccountSource = 'adc';
     }
 
@@ -92,7 +93,7 @@ async function initializeFirebaseInternal(): Promise<void> {
     firebaseStatus.error = null;
     initialized = true;
   } catch (error: any) {
-    console.error('❌ Firebase initialization failed:', error?.message || error);
+    logger.error('❌ Firebase initialization failed:', error?.message || error);
     firebaseStatus.error = error?.message || 'Unknown error';
     initialized = false;
     throw error;

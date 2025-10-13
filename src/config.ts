@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { z } from "zod";
 
 const DEFAULT_INTERNAL_API_KEY = 'zantara-internal-dev-key-2025';
@@ -24,7 +25,7 @@ function buildKeyList(raw: string, placeholder: string, label: string) {
     .filter(Boolean);
 
   if (keys.includes(placeholder) && parsed.NODE_ENV !== 'test') {
-    console.warn(`[config] ${label} is using the placeholder value. Set ${label} in your environment.`);
+    logger.warn(`[config] ${label} is using the placeholder value. Set ${label} in your environment.`);
   }
 
   return keys;

@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { getFirestore } from '../services/firebase.js';
 
 interface SessionRecord { id: string; user?: string; origin?: string; channel?: string; csrfToken?: string; user_role?: string; createdAt: number; ttlMs: number }
@@ -36,6 +37,6 @@ export async function persistSessionFirestore(rec: SessionRecord) {
     await db.collection('app_sessions').doc(rec.id).set(rec, { merge: true });
   } catch (e) {
     // Best-effort in P0
-    console.warn('Session Firestore persist failed (best-effort):', (e as any)?.message || e);
+    logger.warn('Session Firestore persist failed (best-effort):', (e as any)?.message || e);
   }
 }

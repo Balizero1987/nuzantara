@@ -1,6 +1,7 @@
 // Anti-Hallucination System for ZANTARA
 // Eliminates false information and ensures all responses are grounded in verified data
 
+import logger from '../services/logger.js';
 import { getFirestore } from "./firebase.js";
 
 export interface VerifiedFact {
@@ -80,7 +81,7 @@ export class AntiHallucinationSystem {
   ): Promise<VerifiedFact> {
     // Check if source is trusted
     if (!this.verifiedSources.has(source)) {
-      console.warn(`⚠️ Unverified source: ${source}`);
+      logger.warn(`⚠️ Unverified source: ${source}`);
       confidence *= 0.5; // Reduce confidence for unverified sources
     }
 
@@ -265,7 +266,7 @@ export class AntiHallucinationSystem {
         created_at: new Date()
       });
     } catch (error) {
-      console.log('📝 Fact stored locally only');
+      logger.info('📝 Fact stored locally only');
     }
   }
 
@@ -278,7 +279,7 @@ export class AntiHallucinationSystem {
         this.factStore.delete(key);
       }
     }
-    console.log(`✅ Cleared ${this.factStore.size} unverified facts`);
+    logger.info(`✅ Cleared ${this.factStore.size} unverified facts`);
   }
 
   /**
@@ -329,7 +330,7 @@ export class AntiHallucinationSystem {
 
     // Log if not well-grounded
     if (!grounded.grounded) {
-      console.warn(`⚠️ Low confidence response from ${handlerName}:`, grounded.confidence);
+      logger.warn(`⚠️ Low confidence response from ${handlerName}:`, grounded.confidence);
     }
 
     return grounded;

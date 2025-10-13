@@ -3,6 +3,7 @@
  * Search Bali intelligence news from ChromaDB via RAG backend
  */
 
+import logger from '../services/logger.js';
 import axios from 'axios';
 
 const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'https://zantara-rag-backend-himaadsxua-ew.a.run.app';
@@ -73,7 +74,7 @@ export async function intelNewsSearch(params: IntelSearchParams) {
     };
 
   } catch (error: any) {
-    console.error('Intel news search error:', error.message);
+    logger.error('Intel news search error:', error.message);
     return {
       success: false,
       error: error.message,

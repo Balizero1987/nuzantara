@@ -1,5 +1,6 @@
 // Memory Vector Service for ZANTARA v5.2.0
 // Integrates with Python RAG backend for semantic memory search via embeddings
+import logger from '../services/logger.js';
 import axios from 'axios';
 import { getCachedEmbedding, getCachedSearch } from './memory-cache.js';
 
@@ -42,12 +43,12 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     });
 
     if (cached) {
-      console.log(`⚡ Embedding cache HIT for: "${text.substring(0, 40)}..."`);
+      logger.info(`⚡ Embedding cache HIT for: "${text.substring(0, 40)}..."`);
     }
 
     return embedding;
   } catch (error: any) {
-    console.error(`⚠️ Embedding generation failed (${RAG_BACKEND_URL}/api/memory/embed):`, error?.message);
+    logger.error(`⚠️ Embedding generation failed (${RAG_BACKEND_URL}/api/memory/embed):`, error?.message);
     // Fallback: return zero vector (won't work for search but won't crash)
     return new Array(384).fill(0); // sentence-transformers dimension
   }
@@ -85,10 +86,10 @@ export async function storeMemoryVector(params: {
       }
     });
 
-    console.log(`✅ Memory vector stored: ${memoryId} for ${userId}`);
+    logger.info(`✅ Memory vector stored: ${memoryId} for ${userId}`);
     return true;
   } catch (error: any) {
-    console.error(`⚠️ Vector storage failed (${RAG_BACKEND_URL}/api/memory/store):`, error?.response?.data || error?.message);
+    logger.error(`⚠️ Vector storage failed (${RAG_BACKEND_URL}/api/memory/store):`, error?.response?.data || error?.message);
     return false;
   }
 }
@@ -140,12 +141,12 @@ export async function searchMemoriesSemantica(params: {
     );
 
     if (cached) {
-      console.log(`⚡ Search cache HIT for: "${query.substring(0, 40)}..."`);
+      logger.info(`⚡ Search cache HIT for: "${query.substring(0, 40)}..."`);
     }
 
     return cachedResults;
   } catch (error: any) {
-    console.log('⚠️ Semantic search failed:', error?.message);
+    logger.info('⚠️ Semantic search failed:', error?.message);
     return [];
   }
 }
@@ -195,7 +196,7 @@ export async function findSimilarMemories(params: {
       similarity: 1 / (1 + response.data.distances[idx])
     }));
   } catch (error: any) {
-    console.log('⚠️ Similar memory search failed:', error?.message);
+    logger.info('⚠️ Similar memory search failed:', error?.message);
     return [];
   }
 }
@@ -206,10 +207,10 @@ export async function findSimilarMemories(params: {
 export async function deleteMemoryVector(memoryId: string): Promise<boolean> {
   try {
     await axios.delete(`${RAG_BACKEND_URL}/api/memory/${memoryId}`);
-    console.log(`✅ Memory vector deleted: ${memoryId}`);
+    logger.info(`✅ Memory vector deleted: ${memoryId}`);
     return true;
   } catch (error: any) {
-    console.log('⚠️ Vector deletion failed:', error?.message);
+    logger.info('⚠️ Vector deletion failed:', error?.message);
     return false;
   }
 }
@@ -226,7 +227,7 @@ export async function getMemoryVectorStats(): Promise<{
     const response = await axios.get(`${RAG_BACKEND_URL}/api/memory/stats`);
     return response.data;
   } catch (error: any) {
-    console.log('⚠️ Stats retrieval failed:', error?.message);
+    logger.info('⚠️ Stats retrieval failed:', error?.message);
     return {
       total_memories: 0,
       users: 0,

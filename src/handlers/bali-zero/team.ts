@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { Request, Response } from 'express';
 
 // Complete Bali Zero team data
@@ -112,7 +113,7 @@ export async function teamList(req: Request, res: Response) {
       }
     });
   } catch (error: any) {
-    console.error('team.list error:', error);
+    logger.error('team.list error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to retrieve team list'
@@ -158,7 +159,7 @@ export async function teamGet(req: Request, res: Response) {
       }
     });
   } catch (error: any) {
-    console.error('team.get error:', error);
+    logger.error('team.get error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to retrieve team member'
@@ -209,7 +210,7 @@ export async function teamDepartments(req: Request, res: Response) {
       }
     });
   } catch (error: any) {
-    console.error('team.departments error:', error);
+    logger.error('team.departments error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to retrieve departments'

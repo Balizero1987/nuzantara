@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import NodeCache from 'node-cache';
 
 // Cache intelligente con TTL differenziati per tipo di richiesta
@@ -40,11 +41,11 @@ export async function getFromCache(handler: string, params: any): Promise<any> {
   try {
     const cached = cache.get(key);
     if (cached) {
-      console.log(`🎯 Cache hit: ${handler} (${config.type})`);
+      logger.info(`🎯 Cache hit: ${handler} (${config.type})`);
       return cached;
     }
   } catch (err) {
-    console.log(`⚠️ Cache error: ${err}`);
+    logger.info(`⚠️ Cache error: ${err}`);
   }
 
   return null;
@@ -59,9 +60,9 @@ export async function setInCache(handler: string, params: any, result: any): Pro
 
   try {
     cache.set(key, result, config.ttl);
-    console.log(`💾 Cached: ${handler} for ${config.ttl}s`);
+    logger.info(`💾 Cached: ${handler} for ${config.ttl}s`);
   } catch (err) {
-    console.log(`⚠️ Cache set error: ${err}`);
+    logger.info(`⚠️ Cache set error: ${err}`);
   }
 }
 
@@ -76,11 +77,11 @@ export function invalidateCache(handler?: string): void {
         }
       });
     });
-    console.log(`🗑️ Cache invalidated for: ${handler}`);
+    logger.info(`🗑️ Cache invalidated for: ${handler}`);
   } else {
     // Flush completo
     Object.values(cacheInstances).forEach(cache => cache.flushAll());
-    console.log('🗑️ All caches flushed');
+    logger.info('🗑️ All caches flushed');
   }
 }
 

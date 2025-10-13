@@ -10,6 +10,7 @@
  * - Lazy loading support
  */
 
+import logger from '../services/logger.js';
 import { Express } from 'express';
 
 // Google Workspace Routes
@@ -64,7 +65,7 @@ export function attachModularRoutes(app: Express) {
   // Analytics
   app.use('/api/analytics', analyticsRoutes);
 
-  console.log('✅ Modular routes attached');
+  logger.info('✅ Modular routes attached');
 }
 
 /**

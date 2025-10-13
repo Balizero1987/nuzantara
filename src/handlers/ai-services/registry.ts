@@ -3,6 +3,7 @@
  * Simplified AI system using only ZANTARA/LLAMA
  */
 
+import logger from '../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { aiChat } from './ai.js';
 import { aiAnticipate, aiLearn, xaiExplain } from './advanced-ai.js';
@@ -39,7 +40,7 @@ export function registerAIServicesHandlers() {
     }
   }
 
-  console.log('✅ AI Services handlers registered');
+  logger.info('✅ AI Services handlers registered');
 }
 
 registerAIServicesHandlers();

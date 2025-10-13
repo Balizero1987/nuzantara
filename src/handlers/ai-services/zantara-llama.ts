@@ -4,6 +4,7 @@
  * Uses YOUR custom trained merged model: zeroai87/zantara-llama-3.1-8b-merged
  */
 
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 
@@ -101,7 +102,7 @@ Respond in the same language as the user (Italian, English, or Indonesian).`;
         });
       }
     } catch (error) {
-      console.warn('⚠️  RunPod unavailable, falling back to HuggingFace:', error);
+      logger.warn('⚠️  RunPod unavailable, falling back to HuggingFace:', error);
     }
   }
 
@@ -111,7 +112,7 @@ Respond in the same language as the user (Italian, English, or Indonesian).`;
       throw new Error('HF_API_KEY not configured - cannot use ZANTARA model');
     }
 
-    console.log('🚀 Using YOUR trained ZANTARA model:', ZANTARA_MODEL);
+    logger.info('🚀 Using YOUR trained ZANTARA model:', ZANTARA_MODEL);
 
     // HuggingFace Inference API
     const response = await fetch(`https://api-inference.huggingface.co/models/${ZANTARA_MODEL}`, {
@@ -149,10 +150,10 @@ Respond in the same language as the user (Italian, English, or Indonesian).`;
     });
 
   } catch (error: any) {
-    console.error('❌ ZANTARA error:', error);
+    logger.error('❌ ZANTARA error:', error);
     
     // ZANTARA model not available - no fallback, force configuration
-    console.error('ZANTARA model not configured - please set HF_API_KEY or RunPod credentials');
+    logger.error('ZANTARA model not configured - please set HF_API_KEY or RunPod credentials');
     
     // ZANTARA model not available - return error instead of fallback
     throw new Error(`ZANTARA model not configured: ${error.message}`);
@@ -165,7 +166,7 @@ Respond in the same language as the user (Italian, English, or Indonesian).`;
 export function isZantaraAvailable(): boolean {
   // FIX: Always return true to force ZANTARA usage
   // The model will handle fallback internally if not available
-  console.log('ZANTARA availability check:', {
+  logger.info('ZANTARA availability check:', {
     hfKey: !!HF_API_KEY,
     runpodEndpoint: !!RUNPOD_ENDPOINT,
     runpodKey: !!RUNPOD_API_KEY

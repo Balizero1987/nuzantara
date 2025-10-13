@@ -1,5 +1,6 @@
 // Google Translate Handlers for ZANTARA v5.2.0
 // Multilingual support: EN/ID/IT + auto-detection
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { getTranslate } from "../../services/google-auth-service.js";
@@ -31,7 +32,7 @@ async function getTranslateService() {
     const client = (service as any).auth || (service as any).context?._options?.auth;
 
     if (!client) {
-      console.warn('⚠️ No auth client found in translate service, will use API key only');
+      logger.warn('⚠️ No auth client found in translate service, will use API key only');
     }
 
     return {
@@ -41,7 +42,7 @@ async function getTranslateService() {
       baseUrl: 'https://translation.googleapis.com/language/translate/v2'
     };
   } catch (error: any) {
-    console.error('🔥 Translation service setup failed:', error.message);
+    logger.error('🔥 Translation service setup failed:', error.message);
     throw new BadRequestError('Translation service not available');
   }
 }
@@ -90,7 +91,7 @@ export async function translateText(params: any) {
           throw new Error('Failed to get access token from Service Account');
         }
       } catch (error: any) {
-        console.error('❌ Failed to get access token:', error.message);
+        logger.error('❌ Failed to get access token:', error.message);
         throw new Error(`Translation service authentication failed: ${error.message}`);
       }
     } else {
@@ -124,7 +125,7 @@ export async function translateText(params: any) {
     });
 
   } catch (error: any) {
-    console.error('🔥 Translation failed:', error.message);
+    logger.error('🔥 Translation failed:', error.message);
     throw new BadRequestError(`Translation failed: ${error.message}`);
   }
 }
@@ -165,7 +166,7 @@ export async function translateBatch(params: any) {
     });
 
   } catch (error: any) {
-    console.error('🔥 Batch translation failed:', error.message);
+    logger.error('🔥 Batch translation failed:', error.message);
     throw new BadRequestError(`Batch translation failed: ${error.message}`);
   }
 }
@@ -197,7 +198,7 @@ export async function detectLanguage(params: any) {
           throw new Error('Failed to get access token from Service Account');
         }
       } catch (error: any) {
-        console.error('❌ Failed to get access token for language detection:', error.message);
+        logger.error('❌ Failed to get access token for language detection:', error.message);
         throw new Error(`Language detection authentication failed: ${error.message}`);
       }
     } else {
@@ -239,7 +240,7 @@ export async function detectLanguage(params: any) {
     });
 
   } catch (error: any) {
-    console.error('🔥 Language detection failed:', error.message);
+    logger.error('🔥 Language detection failed:', error.message);
     throw new BadRequestError(`Language detection failed: ${error.message}`);
   }
 }

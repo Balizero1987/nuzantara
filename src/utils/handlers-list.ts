@@ -7,6 +7,7 @@
  * This gives ZANTARA awareness of what it can do.
  */
 
+import logger from '../services/logger.js';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -118,7 +119,7 @@ export function getHandlersList(): string {
 
     return list;
   } catch (error) {
-    console.error('[handlers-list] Error generating list:', error);
+    logger.error('[handlers-list] Error generating list:', error);
     return 'Handlers list temporarily unavailable';
   }
 }

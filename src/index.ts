@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import logger from '../services/logger.js';
 import express from "express";
 import { attachRoutes } from "./router.js";
 import path from 'path';
@@ -14,7 +15,7 @@ import { buildBootstrapResponse } from './app-gateway/app-bootstrap.js';
 import { handleAppEvent } from './app-gateway/app-events.js';
 
 await ensureFirebaseInitialized().catch((error) => {
-  console.log('⚠️ Firebase initialization issue:', error?.message || error);
+  logger.info('⚠️ Firebase initialization issue:', error?.message || error);
 });
 
 const app = express();
@@ -221,7 +222,7 @@ app.post('/proxy/zantara', async (req, res) => {
 
     return res.json({ ok: true, data: result });
   } catch (error: any) {
-    console.error('ZANTARA AI proxy error:', error);
+    logger.error('ZANTARA AI proxy error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'ZANTARA AI proxy failed'
@@ -250,7 +251,7 @@ app.post('/proxy/zantara', async (req, res) => {
 
     return res.json({ ok: true, data: result });
   } catch (error: any) {
-    console.error('ZANTARA AI proxy error:', error);
+    logger.error('ZANTARA AI proxy error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'ZANTARA AI proxy failed'
@@ -279,7 +280,7 @@ app.post('/proxy/zantara', async (req, res) => {
 
     return res.json({ ok: true, data: result });
   } catch (error: any) {
-    console.error('ZANTARA AI proxy error:', error);
+    logger.error('ZANTARA AI proxy error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'ZANTARA AI proxy failed'
@@ -293,9 +294,9 @@ app.post('/proxy/zantara', async (req, res) => {
 // 🔧 Load all handlers using auto-registration system (TEMPORARILY DISABLED)
 // import { loadAllHandlers } from './core/load-all-handlers.js';
 // loadAllHandlers().then(stats => {
-//   console.log('✅ Handler registry initialized:', stats);
+//   logger.info('✅ Handler registry initialized:', stats);
 // }).catch(err => {
-//   console.error('❌ Handler loading failed:', err);
+//   logger.error('❌ Handler loading failed:', err);
 // });
 
 attachRoutes(app);
@@ -307,13 +308,13 @@ app.use(errorTracker);
 const port = Number(process.env.PORT || 8080);
 const server = app.listen(port, () => {
   // eslint-disable-next-line no-console
-  console.log(`🚀 ZANTARA v5.2.0 listening on :${port}`);
+  logger.info(`🚀 ZANTARA v5.2.0 listening on :${port}`);
 });
 
 // Initialize WebSocket Server
 import { initializeWebSocketServer } from './services/websocket-server.js';
 const wsServer = initializeWebSocketServer(server);
-console.log('✅ WebSocket server initialized on /ws');
+logger.info('✅ WebSocket server initialized on /ws');
 
 // === App-Gateway (feature gated) ===
 app.use('/app', flagGate('ENABLE_APP_GATEWAY'));
@@ -343,42 +344,42 @@ app.post('/app/event', async (req, res) => {
 try {
   const { loadAllHandlers } = await import('./core/load-all-handlers.js');
   await loadAllHandlers();
-  console.log('🔄 All handler modules loaded via registry');
+  logger.info('🔄 All handler modules loaded via registry');
 } catch (e: any) {
-  console.warn('⚠️ Handler auto-load failed:', e?.message || e);
+  logger.warn('⚠️ Handler auto-load failed:', e?.message || e);
 }
 
 // Graceful shutdown handling
 async function gracefulShutdown(signal: string) {
-  console.log(`\n🛑 Received ${signal}. Gracefully shutting down...`);
+  logger.info(`\n🛑 Received ${signal}. Gracefully shutting down...`);
 
   // Close HTTP server
   server.close((err) => {
     if (err) {
-      console.error('❌ Error during server shutdown:', err);
+      logger.error('❌ Error during server shutdown:', err);
       process.exit(1);
     }
-    console.log('✅ HTTP server closed');
+    logger.info('✅ HTTP server closed');
   });
 
   // Clean up OAuth2 client
   try {
     const { cleanupOAuth2Client } = await import('./services/oauth2-client.js');
     cleanupOAuth2Client();
-    console.log('✅ OAuth2 client cleaned up');
+    logger.info('✅ OAuth2 client cleaned up');
   } catch (error: any) {
-    console.warn('⚠️ OAuth2 cleanup failed:', error.message);
+    logger.warn('⚠️ OAuth2 cleanup failed:', error.message);
   }
 
   // Shutdown WebSocket server
   if (wsServer) {
     wsServer.shutdown();
-    console.log('✅ WebSocket server closed');
+    logger.info('✅ WebSocket server closed');
   }
 
   // Give the server time to close existing connections
   setTimeout(() => {
-    console.log('✅ Graceful shutdown complete');
+    logger.info('✅ Graceful shutdown complete');
     process.exit(0);
   }, 1000);
 }

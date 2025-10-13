@@ -3,6 +3,7 @@
  * Integrates Ollama LLM and Bali Zero (Haiku/Sonnet)
  */
 
+import logger from '../services/logger.js';
 import axios, { AxiosInstance } from 'axios';
 
 interface RAGQueryRequest {
@@ -74,7 +75,7 @@ export class RAGService {
       }
       return null; // Local development - no auth needed
     } catch (error) {
-      console.warn('Failed to get identity token:', error);
+      logger.warn('Failed to get identity token:', error);
       return null;
     }
   }
@@ -106,7 +107,7 @@ export class RAGService {
 
       return response.data;
     } catch (error: any) {
-      console.error('RAG backend request failed:', {
+      logger.error('RAG backend request failed:', {
         method,
         path,
         error: error.message,
@@ -125,7 +126,7 @@ export class RAGService {
       const data = await this.makeAuthenticatedRequest<{status: string}>('get', '/health');
       return data.status === 'healthy';
     } catch (error) {
-      console.error('RAG backend health check failed:', error);
+      logger.error('RAG backend health check failed:', error);
       return false;
     }
   }
@@ -138,7 +139,7 @@ export class RAGService {
     try {
       return await this.makeAuthenticatedRequest<RAGQueryResponse>('post', '/search', request);
     } catch (error: any) {
-      console.error('RAG generate error:', error);
+      logger.error('RAG generate error:', error);
       return {
         success: false,
         query: request.query,
@@ -156,7 +157,7 @@ export class RAGService {
     try {
       return await this.makeAuthenticatedRequest<BaliZeroResponse>('post', '/bali-zero/chat', request);
     } catch (error: any) {
-      console.error('Bali Zero error:', error);
+      logger.error('Bali Zero error:', error);
       throw new Error(error.response?.data?.detail || 'Bali Zero service unavailable');
     }
   }
@@ -173,7 +174,7 @@ export class RAGService {
         use_llm: false
       });
     } catch (error: any) {
-      console.error('Search error:', error);
+      logger.error('Search error:', error);
       throw new Error('Search service unavailable');
     }
   }

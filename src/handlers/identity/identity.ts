@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { z } from "zod";
 import { getFirestore } from "firebase-admin/firestore";
 import { ok } from "../../utils/response.js";
@@ -84,7 +85,7 @@ export async function identityResolve(params: any) {
 
   } catch (error: any) {
     // Firebase not available, fallback to defaults
-    console.log('🔄 Firebase unavailable, using fallback:', error?.message);
+    logger.info('🔄 Firebase unavailable, using fallback:', error?.message);
 
     if (p.identity_hint === "zero@balizero.com") {
       return ok({
@@ -141,7 +142,7 @@ export async function onboardingStart(params: any) {
     return ok(savedDoc.data() || collaboratorData);
   } catch (error: any) {
     // Firebase not available, return mock data
-    console.log('🔄 Firebase unavailable for onboarding, using fallback:', error?.message);
+    logger.info('🔄 Firebase unavailable for onboarding, using fallback:', error?.message);
     return ok({
       ...collaboratorData,
       system: "v5.2.0-fallback-onboarding"

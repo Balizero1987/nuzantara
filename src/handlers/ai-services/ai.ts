@@ -3,6 +3,7 @@
  * Simplified AI routing with only ZANTARA/LLAMA support
  */
 
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { zantaraChat } from "./zantara-llama.js";
 
@@ -43,7 +44,7 @@ function checkIdentityRecognition(prompt: string, _sessionId: string): string | 
     ];
     
     if (aliases.some(alias => text.includes(alias))) {
-      console.log(`✅ [ZANTARA] Identity recognized: ${member.name} (${member.role})`);
+      logger.info(`✅ [ZANTARA] Identity recognized: ${member.name} (${member.role})`);
       return member.personalizedResponse;
     }
   }
@@ -56,20 +57,20 @@ function checkIdentityRecognition(prompt: string, _sessionId: string): string | 
 export async function aiChat(params: any) {
   const { provider: _provider = 'zantara' } = params || {};
 
-  console.log('🎯 [AI Router] ZANTARA-ONLY mode - using only ZANTARA/LLAMA');
+  logger.info('🎯 [AI Router] ZANTARA-ONLY mode - using only ZANTARA/LLAMA');
 
   try {
     // Check for identity recognition FIRST
     const identityResponse = checkIdentityRecognition(params.prompt || params.message, params.sessionId || 'default');
     if (identityResponse) {
-      console.log(`✅ [ZANTARA] Identity recognized - returning personalized response`);
+      logger.info(`✅ [ZANTARA] Identity recognized - returning personalized response`);
       return ok({ response: identityResponse, recognized: true, ts: Date.now() });
     }
 
     // Use ZANTARA for all queries
     return zantaraChat({ message: params.prompt || params.message, ...params });
   } catch (error: any) {
-    console.error('❌ ZANTARA error:', error);
+    logger.error('❌ ZANTARA error:', error);
     
     // Graceful fallback response instead of throwing error
     return ok({

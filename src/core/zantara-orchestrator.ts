@@ -5,6 +5,7 @@
  * Light, elegant, culturally aware - never pedantic
  */
 
+import logger from '../services/logger.js';
 import { VisaOracle } from '../agents/visa-oracle.js';
 import { EyeKBLI } from '../agents/eye-kbli.js';
 import { TaxGenius } from '../agents/tax-genius.js';
@@ -221,7 +222,7 @@ export class ZantaraOrchestrator {
           sources: data.sources || []
         };
       } catch (error) {
-        console.error(`Agent ${agentName} failed:`, error);
+        logger.error(`Agent ${agentName} failed:`, error);
         return null;
       }
     });

@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { Request, Response } from 'express';
 
 // Database completo codici KBLI Indonesia
@@ -281,7 +282,7 @@ export async function kbliLookup(req: Request, res: Response) {
       }
     });
   } catch (error: any) {
-    console.error('kbli.lookup error:', error);
+    logger.error('kbli.lookup error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to lookup KBLI code'
@@ -345,7 +346,7 @@ export async function kbliRequirements(req: Request, res: Response) {
       }
     });
   } catch (error: any) {
-    console.error('kbli.requirements error:', error);
+    logger.error('kbli.requirements error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to get KBLI requirements'

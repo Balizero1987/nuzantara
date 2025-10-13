@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { z, ZodError } from "zod";
 import type { Request, Response } from "express";
 import { ok, err } from "./utils/response.js";
@@ -1315,7 +1316,7 @@ export function attachRoutes(app: import("express").Express) {
             responseTime: Date.now() - Date.now(), // Will be updated properly
             model: result?.data?.model || key
           }
-        ).catch(err => console.log('⚠️ Auto-save failed:', err.message));
+        ).catch(err => logger.info('⚠️ Auto-save failed:', err.message));
       }
 
       return res.status(200).json(ok(result?.data ?? result));
@@ -1346,7 +1347,7 @@ export function attachRoutes(app: import("express").Express) {
         timestamp: new Date().toISOString()
       };
 
-      console.error(`🔥 Handler Error [${requestId}] ${key}:`, {
+      logger.error(`🔥 Handler Error [${requestId}] ${key}:`, {
         error: e.message,
         stack: e.stack?.split('\n').slice(0, 5).join('\n'),
         ...errorContext
@@ -1359,7 +1360,7 @@ export function attachRoutes(app: import("express").Express) {
 
       // Log critical errors for investigation
       if (key.includes('ai.') || key.includes('memory.') || key.includes('identity.')) {
-        console.error(`🚨 Critical handler failure: ${key}`, {
+        logger.error(`🚨 Critical handler failure: ${key}`, {
           errorType: e.constructor.name,
           errorMessage: e.message,
           ...errorContext

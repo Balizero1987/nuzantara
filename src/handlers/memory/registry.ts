@@ -2,6 +2,7 @@
  * Memory & Persistence Module Registry
  */
 
+import logger from '../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { memorySave, memorySearch, memoryRetrieve } from './memory-firestore.js';
 import { autoSaveConversation } from './conversation-autosave.js';
@@ -36,7 +37,7 @@ export function registerMemoryHandlers() {
     'conversation.autosave': autoSaveAdapter
   }, { requiresAuth: true, description: 'Auto-save conversations' });
 
-  console.log('✅ Memory handlers registered');
+  logger.info('✅ Memory handlers registered');
 }
 
 registerMemoryHandlers();

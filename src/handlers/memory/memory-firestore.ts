@@ -1,4 +1,5 @@
 // Memory System Handlers with Firestore for ZANTARA v5.2.0
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { getFirestore } from "../../services/firebase.js";
@@ -60,9 +61,9 @@ class FirestoreMemoryStore {
   constructor() {
     try {
       this.db = getFirestore();
-      console.log('✅ Firestore memory store initialized');
+      logger.info('✅ Firestore memory store initialized');
     } catch (error: any) {
-      console.log('⚠️ Firestore not available, using in-memory fallback:', error?.message);
+      logger.info('⚠️ Firestore not available, using in-memory fallback:', error?.message);
     }
   }
 
@@ -84,7 +85,7 @@ class FirestoreMemoryStore {
         }
       }
     } catch (error: any) {
-      console.log('⚠️ Firestore read error, using fallback:', error?.message);
+      logger.info('⚠️ Firestore read error, using fallback:', error?.message);
     }
 
     // Fallback to in-memory store
@@ -126,11 +127,11 @@ class FirestoreMemoryStore {
     try {
       if (this.db) {
         await this.db.collection('memories').doc(userId).set(data, { merge: true });
-        console.log(`✅ Memory saved to Firestore for user: ${userId}`);
+        logger.info(`✅ Memory saved to Firestore for user: ${userId}`);
         return;
       }
     } catch (error: any) {
-      console.log('⚠️ Firestore write error, using fallback:', error?.message);
+      logger.info('⚠️ Firestore write error, using fallback:', error?.message);
     }
 
     // Fallback to in-memory store
@@ -180,7 +181,7 @@ class FirestoreMemoryStore {
         return memories;
       }
     } catch (error: any) {
-      console.log('⚠️ Firestore search error, using fallback:', error?.message);
+      logger.info('⚠️ Firestore search error, using fallback:', error?.message);
     }
 
     // Fallback to in-memory search
@@ -270,7 +271,7 @@ export async function memorySave(params: any) {
     timestamp: timestamp?.split('T')[0] || new Date().toISOString().split('T')[0] || '',
     entities
   }).catch(err => {
-    console.log('⚠️ Vector storage failed (non-blocking):', err?.message);
+    logger.info('⚠️ Vector storage failed (non-blocking):', err?.message);
   });
 
   return ok({
@@ -339,7 +340,7 @@ export async function memoryRetrieve(params: any) {
       }
     }
   } catch (e) {
-    console.log('⚠️ Could not enforce default language_pref=id:', (e as any)?.message);
+    logger.info('⚠️ Could not enforce default language_pref=id:', (e as any)?.message);
   }
 
   // Extract the most recent fact that matches the key if provided
@@ -447,7 +448,7 @@ export async function memorySearchByEntity(params: any) {
       memories.sort((a, b) => b.recencyWeight - a.recencyWeight);
     }
   } catch (error: any) {
-    console.log('⚠️ Entity search error:', error?.message);
+    logger.info('⚠️ Entity search error:', error?.message);
   }
 
   return ok({
@@ -573,7 +574,7 @@ export async function memoryEntityInfo(params: any) {
       });
     }
   } catch (error: any) {
-    console.log('⚠️ Entity info query error:', error?.message);
+    logger.info('⚠️ Entity info query error:', error?.message);
   }
 
   return ok({
@@ -617,7 +618,7 @@ export async function memorySearchSemantic(params: any) {
         : 'No similar memories found'
     });
   } catch (error: any) {
-    console.log('⚠️ Semantic search error:', error?.message);
+    logger.info('⚠️ Semantic search error:', error?.message);
 
     // Fallback to keyword search if vector search fails
     const keywordResults = await memoryStore.searchMemories(query, userId, limit);
@@ -724,7 +725,7 @@ export async function memorySearchHybrid(params: any) {
       message: `Found ${sortedResults.length} results using hybrid search`
     });
   } catch (error: any) {
-    console.log('⚠️ Hybrid search error:', error?.message);
+    logger.info('⚠️ Hybrid search error:', error?.message);
     throw new BadRequestError(`Hybrid search failed: ${error?.message}`);
   }
 }

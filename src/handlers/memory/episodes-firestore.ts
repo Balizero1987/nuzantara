@@ -1,5 +1,6 @@
 // Episodic Memory Handlers for ZANTARA v5.2.0
 // Time-indexed events with entity tracking
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { getFirestore } from "../../services/firebase.js";
@@ -42,9 +43,9 @@ class FirestoreEpisodeStore {
   constructor() {
     try {
       this.db = getFirestore();
-      console.log('✅ Firestore episode store initialized');
+      logger.info('✅ Firestore episode store initialized');
     } catch (error: any) {
-      console.log('⚠️ Firestore not available, using in-memory fallback:', error?.message);
+      logger.info('⚠️ Firestore not available, using in-memory fallback:', error?.message);
     }
   }
 
@@ -75,11 +76,11 @@ class FirestoreEpisodeStore {
           .collection('events')
           .doc(eventId)
           .set(episodeData);
-        console.log(`✅ Episode saved: ${eventId} for ${userId}`);
+        logger.info(`✅ Episode saved: ${eventId} for ${userId}`);
         return episodeData;
       }
     } catch (error: any) {
-      console.log('⚠️ Firestore episode write error, using fallback:', error?.message);
+      logger.info('⚠️ Firestore episode write error, using fallback:', error?.message);
     }
 
     // Fallback
@@ -125,7 +126,7 @@ class FirestoreEpisodeStore {
         return episodes;
       }
     } catch (error: any) {
-      console.log('⚠️ Firestore timeline read error, using fallback:', error?.message);
+      logger.info('⚠️ Firestore timeline read error, using fallback:', error?.message);
     }
 
     // Fallback
@@ -177,7 +178,7 @@ class FirestoreEpisodeStore {
         return episodes.slice(0, limit);
       }
     } catch (error: any) {
-      console.log('⚠️ Firestore entity query error, using fallback:', error?.message);
+      logger.info('⚠️ Firestore entity query error, using fallback:', error?.message);
     }
 
     // Fallback: search all users

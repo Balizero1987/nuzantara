@@ -3,6 +3,7 @@
  * Endpoints that proxy to Python RAG backend
  */
 
+import logger from '../services/logger.js';
 import { Router, Request, Response } from 'express';
 import { ragService } from '../../services/ragService.js';
 
@@ -32,7 +33,7 @@ router.post('/query', async (req: Request, res: Response) => {
     return res.json(result);
 
   } catch (error: any) {
-    console.error('RAG query error:', error);
+    logger.error('RAG query error:', error);
     return res.status(500).json({
       error: error.message || 'Internal server error'
     });
@@ -66,7 +67,7 @@ router.post('/bali-zero', async (req: Request, res: Response) => {
     return res.json(result);
 
   } catch (error: any) {
-    console.error('Bali Zero error:', error);
+    logger.error('Bali Zero error:', error);
     return res.status(500).json({
       error: error.message || 'Internal server error'
     });
@@ -92,7 +93,7 @@ router.post('/search', async (req: Request, res: Response) => {
     return res.json(result);
 
   } catch (error: any) {
-    console.error('Search error:', error);
+    logger.error('Search error:', error);
     return res.status(500).json({
       error: error.message || 'Internal server error'
     });
@@ -112,7 +113,9 @@ router.get('/health', async (_req: Request, res: Response) => {
       rag_backend: isHealthy
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error('RAG health check failed', { error: errorMessage });
     return res.status(503).json({
       status: 'unhealthy',
       error: 'RAG backend unavailable'

@@ -3,6 +3,7 @@
  * Auto-registers all handlers in this module
  */
 
+import logger from '../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 
 // Import all handlers
@@ -72,7 +73,7 @@ export function registerGoogleWorkspaceHandlers() {
     'contacts.create': contactsCreate
   }, { requiresAuth: true });
 
-  console.log('✅ Google Workspace handlers registered');
+  logger.info('✅ Google Workspace handlers registered');
 }
 
 // Auto-register on module load

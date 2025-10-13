@@ -7,6 +7,7 @@
  * App: Zantara WA (ID: 1074166541097027) - same as WhatsApp
  */
 
+import logger from '../services/logger.js';
 import axios from 'axios';
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
@@ -49,13 +50,13 @@ export async function instagramWebhookVerify(req: any, res: any) {
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
 
-  console.log('📸 Instagram Webhook Verification Request:', { mode, token });
+  logger.info('📸 Instagram Webhook Verification Request:', { mode, token });
 
   if (mode === 'subscribe' && token === INSTAGRAM_CONFIG.verifyToken) {
-    console.log('✅ Instagram Webhook Verified');
+    logger.info('✅ Instagram Webhook Verified');
     return res.status(200).send(challenge);
   } else {
-    console.error('❌ Instagram Webhook Verification Failed');
+    logger.error('❌ Instagram Webhook Verification Failed');
     return res.status(403).send('Forbidden');
   }
 }
@@ -71,11 +72,11 @@ export async function instagramWebhookReceiver(req: any, res: any) {
     // Quick ACK to Meta (required within 20s)
     res.status(200).send('EVENT_RECEIVED');
 
-    console.log('📸 Instagram Webhook Event:', JSON.stringify(body, null, 2));
+    logger.info('📸 Instagram Webhook Event:', JSON.stringify(body, null, 2));
 
     // Parse webhook payload
     if (!body.object || body.object !== 'instagram') {
-      console.log('⚠️ Not an Instagram event');
+      logger.info('⚠️ Not an Instagram event');
       return;
     }
 
@@ -83,7 +84,7 @@ export async function instagramWebhookReceiver(req: any, res: any) {
       // Auto-detect Page ID and Instagram Account ID
       if (entry.id && !INSTAGRAM_CONFIG.pageId) {
         INSTAGRAM_CONFIG.pageId = entry.id;
-        console.log('📄 Auto-detected Page ID:', INSTAGRAM_CONFIG.pageId);
+        logger.info('📄 Auto-detected Page ID:', INSTAGRAM_CONFIG.pageId);
       }
 
       // Handle different event types
@@ -99,7 +100,7 @@ export async function instagramWebhookReceiver(req: any, res: any) {
       }
     }
   } catch (error) {
-    console.error('❌ Instagram Webhook Error:', error);
+    logger.error('❌ Instagram Webhook Error:', error);
     // Still return 200 to Meta
   }
 }
@@ -114,21 +115,21 @@ async function handleInstagramMessage(messaging: any) {
     const message = messaging.message;
 
     if (!senderId || !message) {
-      console.log('⚠️ No sender or message, skipping');
+      logger.info('⚠️ No sender or message, skipping');
       return;
     }
 
     // Auto-detect Instagram Account ID
     if (recipientId && !INSTAGRAM_CONFIG.instagramAccountId) {
       INSTAGRAM_CONFIG.instagramAccountId = recipientId;
-      console.log('📸 Auto-detected Instagram Account ID:', recipientId);
+      logger.info('📸 Auto-detected Instagram Account ID:', recipientId);
     }
 
     // Get user info
     const userInfo = await getInstagramUserInfo(senderId);
     const username = userInfo.username || senderId;
 
-    console.log(`💬 Instagram DM from @${username}:`, message);
+    logger.info(`💬 Instagram DM from @${username}:`, message);
 
     // Extract message text
     const messageText = message.text || '[Media]';
@@ -144,7 +145,7 @@ async function handleInstagramMessage(messaging: any) {
 
     // 2. Analyze sentiment
     const sentiment = await analyzeSentiment(messageText);
-    console.log(`😊 Sentiment: ${sentiment.score}/10 (${sentiment.label})`);
+    logger.info(`😊 Sentiment: ${sentiment.score}/10 (${sentiment.label})`);
 
     // 3. Update user profile
     await updateInstagramUserProfile(senderId, username, messageText, sentiment, userInfo);
@@ -158,7 +159,7 @@ async function handleInstagramMessage(messaging: any) {
     });
 
     if (shouldRespond.respond) {
-      console.log(`🤖 ZANTARA responding: ${shouldRespond.reason}`);
+      logger.info(`🤖 ZANTARA responding: ${shouldRespond.reason}`);
       await sendIntelligentInstagramResponse(senderId, messageText, {
         username,
         sentiment,
@@ -166,7 +167,7 @@ async function handleInstagramMessage(messaging: any) {
         context: shouldRespond.context
       });
     } else {
-      console.log(`👁️ ZANTARA observing: ${shouldRespond.reason}`);
+      logger.info(`👁️ ZANTARA observing: ${shouldRespond.reason}`);
     }
 
     // 5. Check for alerts (high-value lead, frustrated user, etc.)
@@ -178,7 +179,7 @@ async function handleInstagramMessage(messaging: any) {
       userInfo
     });
   } catch (error) {
-    console.error('❌ Error handling Instagram message:', error);
+    logger.error('❌ Error handling Instagram message:', error);
   }
 }
 
@@ -191,7 +192,7 @@ async function handleStoryMention(value: any) {
     // const commentId = value.comment_id; // Not used
     const text = value.text;
 
-    console.log('📖 Story mention/reply:', { mediaId, text });
+    logger.info('📖 Story mention/reply:', { mediaId, text });
 
     // Get user who mentioned/replied
     const userId = value.from?.id;
@@ -204,9 +205,9 @@ async function handleStoryMention(value: any) {
 
     await sendInstagramMessage(userId, response);
 
-    console.log(`✅ Responded to story mention from @${username}`);
+    logger.info(`✅ Responded to story mention from @${username}`);
   } catch (error) {
-    console.error('❌ Error handling story mention:', error);
+    logger.error('❌ Error handling story mention:', error);
   }
 }
 
@@ -220,7 +221,7 @@ async function getInstagramUserInfo(userId: string): Promise<any> {
     const response = await axios.get(url);
     return response.data;
   } catch (error: any) {
-    console.error('⚠️ Error getting user info:', error.response?.data || error.message);
+    logger.error('⚠️ Error getting user info:', error.response?.data || error.message);
     return { username: userId, id: userId };
   }
 }
@@ -244,9 +245,9 @@ async function saveInstagramMessageToMemory(data: any) {
       counters: { messages_sent: 1 }
     });
 
-    console.log('💾 Instagram message saved to memory:', data.username);
+    logger.info('💾 Instagram message saved to memory:', data.username);
   } catch (error) {
-    console.error('❌ Error saving to memory:', error);
+    logger.error('❌ Error saving to memory:', error);
   }
 }
 
@@ -274,7 +275,7 @@ Message: "${text}"`;
     const result = JSON.parse(responseData.response || responseData.answer || '{"score":5,"label":"neutral","urgency":"low"}');
     return result;
   } catch (error) {
-    console.error('❌ Sentiment analysis error:', error);
+    logger.error('❌ Sentiment analysis error:', error);
     return { score: 5, label: 'neutral', urgency: 'low' };
   }
 }
@@ -318,9 +319,9 @@ async function updateInstagramUserProfile(
     // Update lead score based on engagement
     user.leadScore = calculateLeadScore(userInfo, message, user.engagementScore);
 
-    console.log(`📊 User profile updated: @${username} (lead score: ${user.leadScore})`);
+    logger.info(`📊 User profile updated: @${username} (lead score: ${user.leadScore})`);
   } catch (error) {
-    console.error('❌ Error updating user profile:', error);
+    logger.error('❌ Error updating user profile:', error);
   }
 }
 
@@ -437,9 +438,9 @@ async function sendIntelligentInstagramResponse(to: string, userMessage: string,
     // Send via Instagram API
     await sendInstagramMessage(to, responseText);
 
-    console.log(`✅ Instagram response sent to @${context.username}`);
+    logger.info(`✅ Instagram response sent to @${context.username}`);
   } catch (error) {
-    console.error('❌ Error sending Instagram response:', error);
+    logger.error('❌ Error sending Instagram response:', error);
   }
 }
 
@@ -464,10 +465,10 @@ async function sendInstagramMessage(to: string, text: string) {
       }
     );
 
-    console.log('📤 Instagram message sent:', response.data);
+    logger.info('📤 Instagram message sent:', response.data);
     return response.data;
   } catch (error: any) {
-    console.error('❌ Error sending Instagram message:', error.response?.data || error.message);
+    logger.error('❌ Error sending Instagram message:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -510,13 +511,13 @@ async function checkInstagramAlerts(params: any) {
 
   // Send alerts to team
   for (const alert of alerts) {
-    console.log(`🚨 INSTAGRAM ALERT [${alert.severity}]:`, alert.message);
+    logger.info(`🚨 INSTAGRAM ALERT [${alert.severity}]:`, alert.message);
 
     // Send to Slack/Discord
     try {
       await sendTeamAlert(alert);
     } catch (error) {
-      console.error('❌ Failed to send Instagram alert:', error);
+      logger.error('❌ Failed to send Instagram alert:', error);
     }
   }
 }
@@ -529,7 +530,7 @@ async function sendTeamAlert(alert: any) {
   const discordWebhook = process.env.DISCORD_WEBHOOK_URL;
 
   if (!slackWebhook && !discordWebhook) {
-    console.log('⚠️ No webhook URLs configured (SLACK_WEBHOOK_URL or DISCORD_WEBHOOK_URL)');
+    logger.info('⚠️ No webhook URLs configured (SLACK_WEBHOOK_URL or DISCORD_WEBHOOK_URL)');
     return;
   }
 
@@ -550,9 +551,9 @@ async function sendTeamAlert(alert: any) {
   if (slackWebhook) {
     try {
       await axios.post(slackWebhook, message);
-      console.log('✅ Instagram alert sent to Slack');
+      logger.info('✅ Instagram alert sent to Slack');
     } catch (error: any) {
-      console.error('❌ Slack webhook failed:', error.message);
+      logger.error('❌ Slack webhook failed:', error.message);
     }
   }
 
@@ -568,9 +569,9 @@ async function sendTeamAlert(alert: any) {
         }]
       };
       await axios.post(discordWebhook, discordMessage);
-      console.log('✅ Instagram alert sent to Discord');
+      logger.info('✅ Instagram alert sent to Discord');
     } catch (error: any) {
-      console.error('❌ Discord webhook failed:', error.message);
+      logger.error('❌ Discord webhook failed:', error.message);
     }
   }
 }

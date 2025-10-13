@@ -1,5 +1,6 @@
 // Weekly Report System for ZANTARA v5.2.0
 // Automatic Sunday analysis and reporting to Zero
+import logger from '../services/logger.js';
 import { getFirestore } from "../../services/firebase.js";
 import { getGmail, getDrive } from "../../services/google-auth-service.js";
 import { ok } from "../../utils/response.js";
@@ -38,7 +39,7 @@ async function getUserConversations(userId: string, startDate: Date, endDate: Da
       ...doc.data()
     }));
   } catch (error: any) {
-    console.error(`Failed to get conversations for ${userId}:`, error.message);
+    logger.error(`Failed to get conversations for ${userId}:`, error.message);
     return [];
   }
 }
@@ -414,11 +415,11 @@ async function sendEmailToZero(htmlReport: string) {
       }
     });
 
-    console.log(`✅ Weekly report sent to ${ZERO_EMAIL}`);
+    logger.info(`✅ Weekly report sent to ${ZERO_EMAIL}`);
     return { success: true };
 
   } catch (error: any) {
-    console.error('Failed to send email:', error.message);
+    logger.error('Failed to send email:', error.message);
 
     // Fallback: Save report to Drive
     return await saveReportToDrive(htmlReport);
@@ -449,18 +450,18 @@ async function saveReportToDrive(htmlReport: string) {
       fields: 'id, name'
     });
 
-    console.log(`📁 Report saved to Drive: ${response.data.name}`);
+    logger.info(`📁 Report saved to Drive: ${response.data.name}`);
     return { success: true, driveId: response.data.id };
 
   } catch (error: any) {
-    console.error('Failed to save report to Drive:', error.message);
+    logger.error('Failed to save report to Drive:', error.message);
     return { success: false, error: error.message };
   }
 }
 
 // Main function to generate and send weekly report
 export async function generateWeeklyReport() {
-  console.log('📊 Starting weekly report generation...');
+  logger.info('📊 Starting weekly report generation...');
 
   // Calculate date range (last 7 days)
   const endDate = new Date();
@@ -471,7 +472,7 @@ export async function generateWeeklyReport() {
 
   // Process each team member
   for (const userId of TEAM_MEMBERS) {
-    console.log(`Processing ${userId}...`);
+    logger.info(`Processing ${userId}...`);
 
     // Get conversations for this user
     const conversations = await getUserConversations(userId, startDate, endDate);
@@ -494,7 +495,7 @@ export async function generateWeeklyReport() {
     const htmlReport = formatEmailReport(weeklyAnalysis);
     const result = await sendEmailToZero(htmlReport);
 
-    console.log('✅ Weekly report completed:', result);
+    logger.info('✅ Weekly report completed:', result);
     return ok({
       message: 'Weekly report generated and sent',
       teamMembersProcessed: Object.keys(weeklyAnalysis).length,
@@ -502,7 +503,7 @@ export async function generateWeeklyReport() {
       timestamp: new Date().toISOString()
     });
   } else {
-    console.log('No conversations found for this week');
+    logger.info('No conversations found for this week');
     return ok({
       message: 'No conversations to report this week',
       timestamp: new Date().toISOString()
@@ -529,9 +530,9 @@ async function archiveProcessedConversations(conversations: any[]) {
     });
 
     await batch.commit();
-    console.log(`📦 Archived ${conversations.length} conversations`);
+    logger.info(`📦 Archived ${conversations.length} conversations`);
   } catch (error: any) {
-    console.error('Failed to archive conversations:', error.message);
+    logger.error('Failed to archive conversations:', error.message);
   }
 }
 
@@ -541,7 +542,7 @@ export async function scheduleWeeklyReport() {
 
   // Check if it's Sunday
   if (now.getDay() === REPORT_DAY) {
-    console.log('🗓️ Sunday detected - Running weekly report...');
+    logger.info('🗓️ Sunday detected - Running weekly report...');
     return await generateWeeklyReport();
   } else {
     return ok({
@@ -563,7 +564,7 @@ function getNextSunday(): string {
 
 // Generate monthly report (last day of month)
 export async function generateMonthlyReport() {
-  console.log('📅 Starting monthly report generation...');
+  logger.info('📅 Starting monthly report generation...');
 
   // Get current month range
   const now = new Date();
@@ -574,7 +575,7 @@ export async function generateMonthlyReport() {
 
   // Process each team member for the entire month
   for (const userId of TEAM_MEMBERS) {
-    console.log(`Processing monthly data for ${userId}...`);
+    logger.info(`Processing monthly data for ${userId}...`);
 
     // Get all conversations for this month
     const conversations = await getUserConversations(userId, startDate, endDate);
@@ -591,7 +592,7 @@ export async function generateMonthlyReport() {
     const htmlReport = formatMonthlyExecutiveReport(monthlyAnalysis, now);
     const result = await sendMonthlyReportToZero(htmlReport);
 
-    console.log('✅ Monthly report completed:', result);
+    logger.info('✅ Monthly report completed:', result);
     return ok({
       message: 'Monthly executive report generated and sent',
       month: now.toLocaleString('default', { month: 'long' }),
@@ -1125,11 +1126,11 @@ async function sendMonthlyReportToZero(htmlReport: string) {
       }
     });
 
-    console.log(`✅ Monthly executive report sent to ${ZERO_EMAIL}`);
+    logger.info(`✅ Monthly executive report sent to ${ZERO_EMAIL}`);
     return { success: true };
 
   } catch (error: any) {
-    console.error('Failed to send monthly email:', error.message);
+    logger.error('Failed to send monthly email:', error.message);
     return await saveReportToDrive(htmlReport);
   }
 }
@@ -1140,7 +1141,7 @@ export async function scheduleMonthlyReport() {
   const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
   if (now.getDate() === lastDayOfMonth) {
-    console.log('📅 Last day of month detected - Running monthly report...');
+    logger.info('📅 Last day of month detected - Running monthly report...');
     return await generateMonthlyReport();
   } else {
     const daysUntilEnd = lastDayOfMonth - now.getDate();
