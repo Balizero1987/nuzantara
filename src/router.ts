@@ -10,6 +10,9 @@ import { forwardToBridgeIfSupported } from './services/bridgeProxy.js';
 // Identity & Onboarding
 import { identityResolve, onboardingStart } from "./handlers/identity/identity.js";
 
+// Team Authentication
+import { teamLogin, getTeamMembers, logoutSession } from "./handlers/auth/team-login.js";
+
 // Google Workspace
 import { driveUpload, driveList, driveSearch, driveRead } from "./handlers/google-workspace/drive.js";
 import { calendarCreate, calendarList, calendarGet } from "./handlers/google-workspace/calendar.js";
@@ -197,6 +200,11 @@ const handlers: Record<string, Handler> = {
   "identity.resolve": identityResolve,
   "onboarding.start": onboardingStart,
   "onboarding.ambaradam.start": onboardingStart, // Alias
+
+  // Team Authentication
+  "team.login": teamLogin,
+  "team.members": getTeamMembers,
+  "team.logout": logoutSession,
 
   // Custom GPT Business Handlers
   "contact.info": async () => ok({
@@ -940,6 +948,37 @@ export function attachRoutes(app: import("express").Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
       if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  // Team Authentication Routes
+  app.post("/team.login", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = await teamLogin(req.body);
+      return res.status(200).json(result?.data ?? result);
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  app.get("/team.members", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = getTeamMembers();
+      return res.status(200).json(ok(result));
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  app.post("/team.logout", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const { sessionId } = req.body;
+      const result = logoutSession(sessionId);
+      return res.status(200).json(ok({ success: result }));
+    } catch (e: any) {
       return res.status(500).json(err(e?.message || "Internal Error"));
     }
   });
