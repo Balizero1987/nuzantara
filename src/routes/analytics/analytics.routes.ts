@@ -6,7 +6,7 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.js';
+import { err } from '../../utils/response.js';
 import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
 import { analyticsHandlers } from '../../handlers/analytics/analytics.js';
 import { weeklyReportHandlers } from '../../handlers/analytics/weekly-report.js';
@@ -53,7 +53,7 @@ router.post('/report', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/weekly-report', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = WeeklyReportSchema.parse(req.body);
-    const result = await weeklyReportHandlers['weekly.report.generate'](params);
+    const result = await weeklyReportHandlers['report.weekly.generate'](params);
     return res.json(result);
   } catch (error: any) {
     if (error instanceof BadRequestError) {
@@ -70,7 +70,7 @@ router.post('/weekly-report', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/weekly-report/summary', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = WeeklyReportSchema.parse(req.body);
-    const result = await weeklyReportHandlers['weekly.report.summary'](params);
+    const result = await weeklyReportHandlers['report.weekly.schedule'](params);
     return res.json(result);
   } catch (error: any) {
     if (error instanceof BadRequestError) {
