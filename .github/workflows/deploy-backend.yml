@@ -7,9 +7,6 @@ on:
     paths:
       - 'src/**'
       - 'dist/**'
-      - 'handlers/**'
-      - 'routes/**'
-      - 'middleware/**'
       - 'package*.json'
       - 'Dockerfile.dist'
       - '.github/workflows/deploy-backend.yml'

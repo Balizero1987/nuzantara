@@ -4,10 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/**/*.ts'
       - 'src/router.ts'
       - '.claude/**/*.md'
       - 'docs/**/*.md'
+      - 'ARCHITECTURE.md'
+      - 'README.md'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
