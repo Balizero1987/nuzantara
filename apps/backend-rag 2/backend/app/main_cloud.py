@@ -960,17 +960,34 @@ async def bali_zero_chat(request: BaliZeroRequest):
     
     # HARMONY APPROACH: Balance simplicity with depth
     if is_simple_greeting or is_casual_question:
-        # SIMPLE & FRIENDLY: Brief, warm responses without RAG
-        user_message = f"{request.query}\n\n[CONTEXT: Simple interaction - respond briefly and friendly, no knowledge base needed]"
+        # SIMPLE & FRIENDLY: Use ZANTARA's built-in knowledge, NO RAG
+        user_message = f"{request.query}"
         context = None
         mode = "santai"
-        logger.info("🎯 [Bali Zero Chat] SIMPLE MODE: Brief, friendly response")
-        # FORCE SIMPLE RESPONSE - no RAG context
-        user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
-        # BYPASS RAG COMPLETELY - no context search
-        logger.info("🎯 [Bali Zero Chat] BYPASSING RAG for simple interaction")
-        # FORCE SIMPLE RESPONSE - no RAG context
-        user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
+        logger.info("🎯 [Bali Zero Chat] SIMPLE MODE: Using ZANTARA's built-in knowledge")
+    elif is_business_query:
+        # DEPTH & PROFESSIONAL: Use RAG for business queries
+        if context:
+            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
+        else:
+            user_message = f"{request.query}"
+        
+        mode = request.mode or "pikiran"  # Default to detailed for business
+        if mode == "pikiran":
+            user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
+        else:
+            user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
+        logger.info("🎯 [Bali Zero Chat] DEPTH MODE: Professional analysis with RAG context")
+    else:
+        # BALANCED APPROACH: Use ZANTARA's built-in knowledge for general queries
+        user_message = f"{request.query}"
+        context = None
+        mode = request.mode or "santai"
+        if mode == "pikiran":
+            user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
+        else:
+            user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
+        logger.info("🎯 [Bali Zero Chat] BALANCED MODE: Using ZANTARA's built-in knowledge")
     elif is_business_query:
         # DEPTH & PROFESSIONAL: Detailed analysis with RAG context
         if context:
