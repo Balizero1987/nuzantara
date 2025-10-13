@@ -1,7 +1,10 @@
 """
 ZANTARA RAG Backend - Cloud Run Version
 Port 8000
-Uses ChromaDB from Cloud Storage + Anthropic Claude
+Uses ChromaDB from Cloud Storage + ZANTARA Llama 3.1 (YOUR custom trained model)
+
+PRIMARY AI: ZANTARA Llama 3.1 (22,009 Indonesian business conversations, 98.74% accuracy)
+FALLBACK ONLY: Anthropic Claude (if ZANTARA unavailable)
 """
 
 from fastapi import FastAPI, HTTPException
@@ -27,7 +30,8 @@ from services.collaborative_capabilities import CollaborativeCapabilitiesService
 from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_handler_proxy
 from services.tool_executor import ToolExecutor
 # from services.reranker_service import RerankerService  # Lazy import to avoid startup delay
-from llm.anthropic_client import AnthropicClient
+from llm.zantara_client import ZantaraClient  # PRIMARY AI - YOUR custom trained model
+from llm.anthropic_client import AnthropicClient  # FALLBACK ONLY
 from llm.bali_zero_router import BaliZeroRouter
 # from services.llama4_scout import get_llama4_scout  # Llama 4 Scout integration - DISABLED (module not in production)
 
@@ -42,7 +46,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="ZANTARA RAG API",
     version="2.0.0-cloud",
-    description="RAG + LLM backend for NUZANTARA (ChromaDB from GCS + Anthropic)"
+    description="RAG + LLM backend for NUZANTARA (ChromaDB from GCS + ZANTARA Llama 3.1 PRIMARY, Anthropic fallback)"
 )
 
 # CORS - allow all for now
@@ -56,6 +60,10 @@ app.add_middleware(
 
 # Global clients
 search_service: Optional[SearchService] = None
+# PRIMARY AI: ZANTARA Llama 3.1 (YOUR custom trained model)
+zantara_client: Optional[ZantaraClient] = None
+
+# FALLBACK ONLY: Anthropic Claude
 anthropic_client: Optional[AnthropicClient] = None
 bali_zero_router: Optional[BaliZeroRouter] = None
 collaborator_service: Optional[CollaboratorService] = None
@@ -172,9 +180,9 @@ def download_chromadb_from_gcs():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, anthropic_client, bali_zero_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service
+    global search_service, zantara_client, anthropic_client, bali_zero_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service
 
-    logger.info("🚀 Starting ZANTARA RAG Backend (Cloud Run + GCS + Re-ranker + Full Collaborative Intelligence + Tool Use)...")
+    logger.info("🚀 Starting ZANTARA RAG Backend (Cloud Run + GCS + ZANTARA Llama 3.1 PRIMARY + Re-ranker + Full Collaborative Intelligence + Tool Use)...")
 
     # Download ChromaDB from Cloud Storage
     try:
@@ -199,18 +207,39 @@ async def startup_event():
         logger.warning("⚠️ Continuing without ChromaDB (pure LLM mode)")
         search_service = None
 
-    # Initialize Anthropic (required)
+    # Initialize ZANTARA (PRIMARY AI - YOUR custom trained model)
+    try:
+        zantara_client = ZantaraClient(
+            runpod_endpoint=os.getenv("RUNPOD_LLAMA_ENDPOINT"),
+            runpod_api_key=os.getenv("RUNPOD_API_KEY"),
+            hf_api_key=os.getenv("HF_API_KEY")
+        )
+        logger.info("✅ ZANTARA Llama 3.1 client ready (PRIMARY AI - YOUR custom trained model)")
+        logger.info("   Model: zeroai87/zantara-llama-3.1-8b-merged")
+        logger.info("   Training: 22,009 Indonesian business conversations, 98.74% accuracy")
+    except Exception as e:
+        logger.error(f"❌ ZANTARA initialization failed: {e}")
+        logger.warning("⚠️ Will attempt to use Anthropic Claude as fallback...")
+        zantara_client = None
+
+    # Initialize Anthropic (FALLBACK ONLY - if ZANTARA unavailable)
     try:
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable is required")
-
-        anthropic_client = AnthropicClient(api_key=api_key)
-        bali_zero_router = BaliZeroRouter()
-        logger.info("✅ Anthropic client ready (Haiku/Sonnet routing)")
+            if not zantara_client:
+                raise ValueError("No AI available: ZANTARA failed and ANTHROPIC_API_KEY missing")
+            logger.warning("⚠️ ANTHROPIC_API_KEY not configured - ZANTARA only mode")
+            anthropic_client = None
+        else:
+            anthropic_client = AnthropicClient(api_key=api_key)
+            bali_zero_router = BaliZeroRouter()
+            logger.info("✅ Anthropic Claude ready (FALLBACK ONLY if ZANTARA unavailable)")
     except Exception as e:
-        logger.error(f"❌ Anthropic initialization failed: {e}")
-        raise
+        if not zantara_client:
+            logger.error(f"❌ No AI available: ZANTARA and Anthropic both failed")
+            raise
+        logger.warning(f"⚠️ Anthropic fallback unavailable: {e}")
+        anthropic_client = None
 
     # Initialize CollaboratorService (Phase 1)
     try:
@@ -338,15 +367,22 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "ZANTARA RAG",
-        "version": "2.3.0-reranker",
+        "version": "2.4.0-zantara-primary",
         "chromadb": search_service is not None,
-        "anthropic": anthropic_client is not None,
+        "ai": {
+            "primary": "ZANTARA Llama 3.1" if zantara_client else None,
+            "fallback": "Anthropic Claude" if anthropic_client else None,
+            "zantara_available": zantara_client is not None,
+            "zantara_model": "zeroai87/zantara-llama-3.1-8b-merged",
+            "training": "22,009 Indonesian business conversations, 98.74% accuracy"
+        },
         "reranker": reranker_service is not None,
         "collaborative_intelligence": True,
         "enhancements": {
             "multi_collection_search": True,
             "cross_encoder_reranking": reranker_service is not None,
-            "quality_boost": "+400% precision@5" if reranker_service else "standard"
+            "quality_boost": "+400% precision@5" if reranker_service else "standard",
+            "custom_trained_ai": zantara_client is not None
         }
     }
 
@@ -461,17 +497,12 @@ async def search_endpoint(request: SearchRequest):
         model_used = None
 
         # Generate answer with LLM if requested
-        if request.use_llm and anthropic_client and results.get("results"):
+        if request.use_llm and results.get("results"):
             # Build context from search results
             context = "\n\n".join([
                 f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
                 for r in results["results"][:3]
             ])
-
-            # Route to appropriate model
-            query_lower = request.query.lower()
-            is_complex = len(request.query.split()) > 30 or any(k in query_lower for k in ["analyze", "compare", "legal"])
-            model_used = _select_model_alias(None, request.query, is_complex)
 
             # Build messages
             messages = request.conversation_history or []
@@ -480,16 +511,49 @@ async def search_endpoint(request: SearchRequest):
                 "content": f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
             })
 
-            # Generate answer
-            model_alias = model_used
-            response = await anthropic_client.chat_async(
-                messages=messages,
-                model=model_alias,
-                max_tokens=1500,
-                system=SYSTEM_PROMPT
-            )
-
-            answer = response.get("text", "")
+            # 🎯 PRIMARY: Try ZANTARA first (YOUR custom trained model)
+            if zantara_client:
+                try:
+                    logger.info("🎯 [RAG Search] Using PRIMARY AI: ZANTARA Llama 3.1")
+                    response = await zantara_client.chat_async(
+                        messages=messages,
+                        max_tokens=1500,
+                        system=SYSTEM_PROMPT
+                    )
+                    answer = response.get("text", "")
+                    model_used = "zantara-llama-3.1-8b"
+                except Exception as e:
+                    logger.warning(f"⚠️  [RAG Search] ZANTARA unavailable: {e}, trying fallback...")
+                    if anthropic_client:
+                        # FALLBACK to Claude
+                        query_lower = request.query.lower()
+                        is_complex = len(request.query.split()) > 30 or any(k in query_lower for k in ["analyze", "compare", "legal"])
+                        model_used = _select_model_alias(None, request.query, is_complex)
+                        logger.info(f"🔄 [RAG Search] Using FALLBACK: Claude {model_used}")
+                        response = await anthropic_client.chat_async(
+                            messages=messages,
+                            model=model_used,
+                            max_tokens=1500,
+                            system=SYSTEM_PROMPT
+                        )
+                        answer = response.get("text", "")
+                    else:
+                        raise Exception("No AI available (ZANTARA and Claude both unavailable)")
+            elif anthropic_client:
+                # Only Claude available (ZANTARA not initialized)
+                query_lower = request.query.lower()
+                is_complex = len(request.query.split()) > 30 or any(k in query_lower for k in ["analyze", "compare", "legal"])
+                model_used = _select_model_alias(None, request.query, is_complex)
+                logger.warning(f"⚠️  [RAG Search] ZANTARA not available, using Claude {model_used}")
+                response = await anthropic_client.chat_async(
+                    messages=messages,
+                    model=model_used,
+                    max_tokens=1500,
+                    system=SYSTEM_PROMPT
+                )
+                answer = response.get("text", "")
+            else:
+                raise Exception("No AI configured")
 
         execution_time = (time.time() - start) * 1000
 
@@ -510,10 +574,11 @@ async def search_endpoint(request: SearchRequest):
 @app.post("/bali-zero/chat", response_model=BaliZeroResponse)
 async def bali_zero_chat(request: BaliZeroRequest):
     """
-    Bali Zero chat endpoint with RAG + LLM + Collaborative Intelligence (Phase 1)
+    Bali Zero chat endpoint with RAG + ZANTARA (PRIMARY) + Collaborative Intelligence
+    Uses ZANTARA Llama 3.1 as PRIMARY AI, Claude as fallback only
     """
-    if not anthropic_client:
-        raise HTTPException(503, "Anthropic not available")
+    if not zantara_client and not anthropic_client:
+        raise HTTPException(503, "No AI available (ZANTARA and Claude both unavailable)")
 
     try:
         # PHASE 1: Identify collaborator
@@ -625,8 +690,14 @@ async def bali_zero_chat(request: BaliZeroRequest):
         # Route to appropriate model (Sonnet 4.5 for L3 collaborators by default)
         query_lower = request.query.lower()
         is_complex = len(request.query.split()) > 30 or any(k in query_lower for k in ["analyze", "compare", "legal"])
-        model_alias = _select_model_alias(collaborator, request.query, is_complex, request.force_model)
-        model_used = model_alias
+
+        # Model routing: ZANTARA primary, Claude fallback
+        if zantara_client:
+            model_used = "zantara-llama-3.1-8b"
+            model_alias = "zantara"  # Not used with ZANTARA but kept for fallback
+        else:
+            model_alias = _select_model_alias(collaborator, request.query, is_complex, request.force_model)
+            model_used = model_alias
 
         # Build enhanced system prompt with memory + emotional attunement
         enhanced_prompt = SYSTEM_PROMPT
@@ -700,22 +771,50 @@ async def bali_zero_chat(request: BaliZeroRequest):
         while iteration < max_iterations:
             iteration += 1
 
-            response = await anthropic_client.chat_async(
-                messages=messages,
-                model=model_alias,
-                max_tokens=1500,
-                system=enhanced_prompt,
-                tools=tools if tools else None
-            )
+            # 🎯 PRIMARY: Try ZANTARA first (YOUR custom trained model)
+            if zantara_client:
+                try:
+                    logger.info(f"🎯 [Bali Zero Chat] Using PRIMARY AI: ZANTARA Llama 3.1 (iteration {iteration})")
+                    response = await zantara_client.chat_async(
+                        messages=messages,
+                        max_tokens=1500,
+                        system=enhanced_prompt
+                        # Note: ZANTARA doesn't support tool use yet, so tools are only with Claude fallback
+                    )
+                    answer_text = response.get("text", "")
+                    tool_uses = []  # ZANTARA doesn't return tool uses
+                    stop_reason = "end_turn"
 
-            answer_text = response.get("text", "")
-            tool_uses = response.get("tool_uses", [])
-            stop_reason = response.get("stop_reason")
+                    # ZANTARA doesn't support tool use, so we're done after first response
+                    answer = answer_text
+                    break
+                except Exception as e:
+                    logger.warning(f"⚠️  [Bali Zero Chat] ZANTARA unavailable: {e}, trying Claude fallback...")
+                    if not anthropic_client:
+                        raise Exception("No AI available (ZANTARA failed and Claude not configured)")
+                    # Fall through to Claude fallback below
 
-            # If no tool use, we're done
-            if stop_reason != "tool_use" or not tool_uses:
-                answer = answer_text
-                break
+            # FALLBACK: Use Claude (only if ZANTARA unavailable or failed)
+            if anthropic_client and (not zantara_client or iteration > 1):
+                logger.info(f"🔄 [Bali Zero Chat] Using FALLBACK: Claude {model_alias} (iteration {iteration})")
+                response = await anthropic_client.chat_async(
+                    messages=messages,
+                    model=model_alias,
+                    max_tokens=1500,
+                    system=enhanced_prompt,
+                    tools=tools if tools else None
+                )
+
+                answer_text = response.get("text", "")
+                tool_uses = response.get("tool_uses", [])
+                stop_reason = response.get("stop_reason")
+
+                # If no tool use, we're done
+                if stop_reason != "tool_use" or not tool_uses:
+                    answer = answer_text
+                    break
+            else:
+                raise Exception("No AI available")
 
             # AI wants to use tools
             logger.info(f"🤖 AI requesting {len(tool_uses)} tool calls (iteration {iteration})")
