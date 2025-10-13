@@ -1,4 +1,4 @@
-import logger from 'logger.js';
+import logger from './logger.js';
 import { google } from 'googleapis';
 import * as fs from 'fs';
 import { getOAuth2TokensPath } from './token-path.js';

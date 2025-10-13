@@ -3,7 +3,7 @@
  * Auto-registers all handlers in this module
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 
 // Import all handlers

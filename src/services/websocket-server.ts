@@ -7,7 +7,7 @@
  * - Analytics dashboard live updates
  */
 
-import logger from 'logger.js';
+import logger from './logger.js';
 import { WebSocketServer, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import { Server } from 'http';

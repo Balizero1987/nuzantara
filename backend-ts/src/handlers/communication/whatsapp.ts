@@ -5,7 +5,7 @@
  * Phone: +62 823-1355-1979
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import axios from 'axios';
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';

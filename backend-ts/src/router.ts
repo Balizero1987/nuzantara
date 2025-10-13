@@ -1,4 +1,4 @@
-// import logger from './services/logger.js';
+import logger from './services/logger.js';
 import { z, ZodError } from "zod";
 import type { Request, Response } from "express";
 import { ok, err } from "./utils/response.js";
@@ -38,32 +38,33 @@ import { teamList, teamGet, teamDepartments } from "./handlers/bali-zero/team.js
 import { teamRecentActivity } from "./handlers/bali-zero/team-activity.js";
 
 // ZANTARA Collaborative Intelligence
-import {
-  zantaraPersonalityProfile,
-  zantaraAttune,
-  zantaraSynergyMap,
-  zantaraAnticipateNeeds,
-  zantaraCommunicationAdapt,
-  zantaraLearnTogether,
-  zantaraMoodSync,
-  zantaraConflictMediate,
-  zantaraGrowthTrack,
-  zantaraCelebrationOrchestrate
-} from "./handlers/zantara/zantara-test.js";
-import {
-  zantaraEmotionalProfileAdvanced,
-  zantaraConflictPrediction,
-  zantaraMultiProjectOrchestration,
-  zantaraClientRelationshipIntelligence,
-  zantaraCulturalIntelligenceAdaptation,
-  zantaraPerformanceOptimization
-} from "./handlers/zantara/zantara-v2-simple.js";
-import {
-  zantaraDashboardOverview,
-  zantaraTeamHealthMonitor,
-  zantaraPerformanceAnalytics,
-  zantaraSystemDiagnostics
-} from "./handlers/zantara/zantara-dashboard.js";
+// NOTE: ZANTARA advanced handlers temporarily disabled (files not present in repo)
+// import {
+//   zantaraPersonalityProfile,
+//   zantaraAttune,
+//   zantaraSynergyMap,
+//   zantaraAnticipateNeeds,
+//   zantaraCommunicationAdapt,
+//   zantaraLearnTogether,
+//   zantaraMoodSync,
+//   zantaraConflictMediate,
+//   zantaraGrowthTrack,
+//   zantaraCelebrationOrchestrate
+// } from "./handlers/zantara/zantara-test.js";
+// import {
+//   zantaraEmotionalProfileAdvanced,
+//   zantaraConflictPrediction,
+//   zantaraMultiProjectOrchestration,
+//   zantaraClientRelationshipIntelligence,
+//   zantaraCulturalIntelligenceAdaptation,
+//   zantaraPerformanceOptimization
+// } from "./handlers/zantara/zantara-v2-simple.js";
+// import {
+//   zantaraDashboardOverview,
+//   zantaraTeamHealthMonitor,
+//   zantaraPerformanceAnalytics,
+//   zantaraSystemDiagnostics
+// } from "./handlers/zantara/zantara-dashboard.js";
 
 // Communication
 import { slackNotify, discordNotify, googleChatNotify } from "./handlers/communication/communication.js";
@@ -692,31 +693,31 @@ const handlers: Record<string, Handler> = {
   // Google Analytics handlers - NEW!
   ...analyticsHandlers,
 
-  // 🧠 ZANTARA - Collaborative Intelligence Framework v1.0
-  "zantara.personality.profile": zantaraPersonalityProfile,
-  "zantara.attune": zantaraAttune,
-  "zantara.synergy.map": zantaraSynergyMap,
-  "zantara.anticipate.needs": zantaraAnticipateNeeds,
-  "zantara.communication.adapt": zantaraCommunicationAdapt,
-  "zantara.learn.together": zantaraLearnTogether,
-  "zantara.mood.sync": zantaraMoodSync,
-  "zantara.conflict.mediate": zantaraConflictMediate,
-  "zantara.growth.track": zantaraGrowthTrack,
-  "zantara.celebration.orchestrate": zantaraCelebrationOrchestrate,
+  // 🧠 ZANTARA advanced handlers temporarily disabled
+  // "zantara.personality.profile": zantaraPersonalityProfile,
+  // "zantara.attune": zantaraAttune,
+  // "zantara.synergy.map": zantaraSynergyMap,
+  // "zantara.anticipate.needs": zantaraAnticipateNeeds,
+  // "zantara.communication.adapt": zantaraCommunicationAdapt,
+  // "zantara.learn.together": zantaraLearnTogether,
+  // "zantara.mood.sync": zantaraMoodSync,
+  // "zantara.conflict.mediate": zantaraConflictMediate,
+  // "zantara.growth.track": zantaraGrowthTrack,
+  // "zantara.celebration.orchestrate": zantaraCelebrationOrchestrate,
 
-  // 🧠 ZANTARA v2.0 - Advanced Emotional AI & Predictive Intelligence
-  "zantara.emotional.profile.advanced": zantaraEmotionalProfileAdvanced,
-  "zantara.conflict.prediction": zantaraConflictPrediction,
-  "zantara.multi.project.orchestration": zantaraMultiProjectOrchestration,
-  "zantara.client.relationship.intelligence": zantaraClientRelationshipIntelligence,
-  "zantara.cultural.intelligence.adaptation": zantaraCulturalIntelligenceAdaptation,
-  "zantara.performance.optimization": zantaraPerformanceOptimization,
+  // // 🧠 ZANTARA v2.0 - Advanced Emotional AI & Predictive Intelligence
+  // "zantara.emotional.profile.advanced": zantaraEmotionalProfileAdvanced,
+  // "zantara.conflict.prediction": zantaraConflictPrediction,
+  // "zantara.multi.project.orchestration": zantaraMultiProjectOrchestration,
+  // "zantara.client.relationship.intelligence": zantaraClientRelationshipIntelligence,
+  // "zantara.cultural.intelligence.adaptation": zantaraCulturalIntelligenceAdaptation,
+  // "zantara.performance.optimization": zantaraPerformanceOptimization,
 
-  // 📊 ZANTARA Dashboard - Real-Time Monitoring & Analytics
-  "zantara.dashboard.overview": zantaraDashboardOverview,
-  "zantara.team.health.monitor": zantaraTeamHealthMonitor,
-  "zantara.performance.analytics": zantaraPerformanceAnalytics,
-  "zantara.system.diagnostics": zantaraSystemDiagnostics,
+  // // 📊 ZANTARA Dashboard - Real-Time Monitoring & Analytics
+  // "zantara.dashboard.overview": zantaraDashboardOverview,
+  // "zantara.team.health.monitor": zantaraTeamHealthMonitor,
+  // "zantara.performance.analytics": zantaraPerformanceAnalytics,
+  // "zantara.system.diagnostics": zantaraSystemDiagnostics,
 
   // 💰 BALI ZERO OFFICIAL PRICING - HARDCODED ONLY
   /**

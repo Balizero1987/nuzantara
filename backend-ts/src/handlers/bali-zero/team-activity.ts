@@ -1,4 +1,4 @@
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { Request, Response } from 'express';
 import { getRecentActivities, getActivityStats } from '../../services/session-tracker.js';
 

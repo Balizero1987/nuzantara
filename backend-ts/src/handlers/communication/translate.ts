@@ -1,6 +1,6 @@
 // Google Translate Handlers for ZANTARA v5.2.0
 // Multilingual support: EN/ID/IT + auto-detection
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { getTranslate } from "../../services/google-auth-service.js";

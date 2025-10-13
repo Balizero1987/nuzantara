@@ -3,7 +3,7 @@
  * Simplified AI routing with only ZANTARA/LLAMA support
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { zantaraChat } from "./zantara-llama.js";
 
