@@ -252,7 +252,7 @@ const handlers: Record<string, Handler> = {
   },
 
   "quote.generate": async (params: any) => {
-    const { service = '', details = '' } = params;
+    const { service = '' } = params;
 
     if (!service) {
       throw new BadRequestError('Service type required for quote generation: visa, company, tax, real-estate');
@@ -396,7 +396,7 @@ const handlers: Record<string, Handler> = {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: (code: number) => mockRes
+      status: (_code: number) => mockRes
     } as any;
     return await teamRecentActivity(mockReq, mockRes);
   },
@@ -441,7 +441,7 @@ const handlers: Record<string, Handler> = {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: (code: number) => ({ json: (data: any) => data })
+      status: (_code: number) => ({ json: (data: any) => data })
     } as any;
     return await kbliLookup(mockReq, mockRes);
   },
@@ -449,7 +449,7 @@ const handlers: Record<string, Handler> = {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: (code: number) => ({ json: (data: any) => data })
+      status: (_code: number) => ({ json: (data: any) => data })
     } as any;
     return await kbliRequirements(mockReq, mockRes);
   },
@@ -965,7 +965,7 @@ export function attachRoutes(app: import("express").Express) {
     }
   });
 
-  app.get("/team.members", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get("/team.members", apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = getTeamMembers();
       return res.status(200).json(ok(result));
