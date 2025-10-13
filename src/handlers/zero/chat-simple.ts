@@ -26,7 +26,7 @@ export interface ZeroChatSimpleResult {
  * Zero Chat with ZANTARA (simplified)
  */
 export async function zeroChatSimple(params: ZeroChatSimpleParams): Promise<ZeroChatSimpleResult> {
-  const { userId, message, conversationHistory = [] } = params;
+  const { userId, message } = params;
 
   if (userId !== 'zero') {
     return {
@@ -44,9 +44,11 @@ export async function zeroChatSimple(params: ZeroChatSimpleParams): Promise<Zero
       userId: 'zero'
     });
 
+    const responseData: any = result.data || result;
+    
     return {
       ok: true,
-      response: result.data?.response || result.response,
+      response: responseData.response || responseData.answer,
       toolsUsed: ['zantara']
     };
   } catch (error: any) {
