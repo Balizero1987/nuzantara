@@ -605,6 +605,80 @@
       border-top-color: #e0e0e0;
     }
 
+    /* ZANTARA Mode Toggle */
+    .zantara-mode-toggle {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      padding: 4px;
+      margin-bottom: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .mode-option {
+      flex: 1;
+      padding: 8px 16px;
+      text-align: center;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 500;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.7);
+      border: none;
+    }
+
+    .mode-option.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .mode-option:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .mode-icon {
+      margin-right: 6px;
+      font-size: 16px;
+    }
+
+    .santai-mode {
+      color: #4ade80;
+    }
+
+    .pikiran-mode {
+      color: #3b82f6;
+    }
+
+    .mode-description {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+
+    body.day-mode .zantara-mode-toggle {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    body.day-mode .mode-option {
+      color: rgba(0, 0, 0, 0.7);
+    }
+
+    body.day-mode .mode-option.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    body.day-mode .mode-option:hover:not(.active) {
+      background: rgba(0, 0, 0, 0.1);
+      color: #000;
+    }
+
     .input {
       flex: 1;
       background: none;
@@ -1130,6 +1204,24 @@
           </div>
         </div>
 
+        <!-- ZANTARA Mode Toggle -->
+        <div class="zantara-mode-toggle">
+          <button class="mode-option active" data-mode="santai">
+            <span class="mode-icon santai-mode">🌴</span>
+            <div>
+              <div>Santai</div>
+              <div class="mode-description">Quick & casual</div>
+            </div>
+          </button>
+          <button class="mode-option" data-mode="pikiran">
+            <span class="mode-icon pikiran-mode">🧠</span>
+            <div>
+              <div>Pikiran</div>
+              <div class="mode-description">Deep & detailed</div>
+            </div>
+          </button>
+        </div>
+
         <div class="input-area">
           <button class="btn">📎</button>
           <input type="text" class="input" placeholder="Type a message...">
@@ -1341,6 +1433,22 @@
     const sendBtn = document.querySelectorAll('.btn')[2]; // ➤ button
     const attachBtn = document.querySelectorAll('.btn')[0]; // 📎 button
 
+    // ZANTARA Mode Management
+    let currentMode = 'santai'; // Default mode
+    
+    // Mode toggle functionality
+    document.querySelectorAll('.mode-option').forEach(option => {
+      option.addEventListener('click', () => {
+        // Remove active class from all options
+        document.querySelectorAll('.mode-option').forEach(opt => opt.classList.remove('active'));
+        // Add active class to clicked option
+        option.classList.add('active');
+        // Update current mode
+        currentMode = option.dataset.mode;
+        console.log(`ZANTARA Mode switched to: ${currentMode}`);
+      });
+    });
+
     // Send message
     async function sendMessage() {
       const message = inputField.value.trim();
@@ -1380,13 +1488,14 @@
         // Get user session
         const userEmail = localStorage.getItem('zantara-user-email') || 'guest';
 
-        // Call ZANTARA AI API with session (RAG + Tool Use enabled)
+        // Call ZANTARA AI API with session and mode (RAG + Tool Use enabled)
         const response = await window.ZANTARA_API.call('/call', {
           key: 'bali.zero.chat',
           params: {
             query: message,
             user_email: userEmail,  // For user recognition
-            user_role: 'member'
+            user_role: 'member',
+            mode: currentMode  // ZANTARA mode: 'santai' or 'pikiran'
           }
         }, true);
 
