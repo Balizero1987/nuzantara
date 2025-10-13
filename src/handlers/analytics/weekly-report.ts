@@ -482,7 +482,7 @@ export async function generateWeeklyReport() {
       weeklyAnalysis[userId] = analysis;
 
       // Aggregate daily conversations (cleanup)
-      const dailyGroups = aggregateDailyConversations(conversations);
+      aggregateDailyConversations(conversations);
 
       // Archive old conversations to save space
       await archiveProcessedConversations(conversations);
@@ -679,9 +679,10 @@ function getWeeklyBreakdown(conversations: any[]): any[][] {
   const weeks: any[][] = [[], [], [], []];
 
   conversations.forEach(conv => {
+    if (!conv.timestamp) return;
     const date = new Date(conv.timestamp);
     const weekOfMonth = Math.floor((date.getDate() - 1) / 7);
-    if (weekOfMonth < 4) {
+    if (weekOfMonth < 4 && weeks[weekOfMonth]) {
       weeks[weekOfMonth].push(conv);
     }
   });
@@ -690,9 +691,9 @@ function getWeeklyBreakdown(conversations: any[]): any[][] {
 }
 
 // Calculate monthly trends
-function calculateMonthlyTrends(conversations: any[], weeklyBreakdown: any[][]) {
-  const firstWeek = weeklyBreakdown[0].length;
-  const lastWeek = weeklyBreakdown[weeklyBreakdown.length - 1].length;
+function calculateMonthlyTrends(_conversations: any[], weeklyBreakdown: any[][]) {
+  const firstWeek = weeklyBreakdown[0]?.length || 0;
+  const lastWeek = weeklyBreakdown[weeklyBreakdown.length - 1]?.length || 0;
 
   const growthPercentage = firstWeek > 0 ?
     Math.round(((lastWeek - firstWeek) / firstWeek) * 100) : 0;
