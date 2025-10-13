@@ -6,7 +6,7 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { ok, err } from '../../utils/response.js';
+import { err } from '../../utils/response.js';
 import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
 import { teamList, teamGet, teamDepartments } from '../../handlers/bali-zero/team.js';
 import { teamRecentActivity } from '../../handlers/bali-zero/team-activity.js';
@@ -37,9 +37,9 @@ const TeamActivitySchema = z.object({
  */
 router.post('/list', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
-    const params = TeamListSchema.parse(req.body);
+    TeamListSchema.parse(req.body);
     // Team handlers expect Request/Response, so we pass req/res directly
-    await teamList(req as any, res as any);
+    return await teamList(req as any, res as any);
   } catch (error: any) {
     if (error instanceof BadRequestError) {
       return res.status(400).json(err(error.message));
@@ -54,8 +54,8 @@ router.post('/list', apiKeyAuth, async (req: RequestWithCtx, res) => {
  */
 router.post('/get', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
-    const params = TeamGetSchema.parse(req.body);
-    await teamGet(req as any, res as any);
+    TeamGetSchema.parse(req.body);
+    return await teamGet(req as any, res as any);
   } catch (error: any) {
     if (error instanceof BadRequestError) {
       return res.status(400).json(err(error.message));
@@ -70,7 +70,7 @@ router.post('/get', apiKeyAuth, async (req: RequestWithCtx, res) => {
  */
 router.post('/departments', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
-    await teamDepartments(req as any, res as any);
+    return await teamDepartments(req as any, res as any);
   } catch (error: any) {
     if (error instanceof BadRequestError) {
       return res.status(400).json(err(error.message));
@@ -85,8 +85,8 @@ router.post('/departments', apiKeyAuth, async (req: RequestWithCtx, res) => {
  */
 router.post('/activity/recent', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
-    const params = TeamActivitySchema.parse(req.body);
-    const result = await teamRecentActivity(params);
+    TeamActivitySchema.parse(req.body);
+    const result = await teamRecentActivity(req.body);
     return res.json(result);
   } catch (error: any) {
     if (error instanceof BadRequestError) {
