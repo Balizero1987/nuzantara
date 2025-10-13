@@ -1,6 +1,6 @@
 // Episodic Memory Handlers for ZANTARA v5.2.0
 // Time-indexed events with entity tracking
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { getFirestore } from "../../services/firebase.js";

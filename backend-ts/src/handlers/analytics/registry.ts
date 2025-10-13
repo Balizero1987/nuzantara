@@ -2,7 +2,7 @@
  * Analytics & Monitoring Module Registry
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { analyticsHandlers } from './analytics.js';
 import {

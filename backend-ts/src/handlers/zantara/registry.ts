@@ -2,7 +2,7 @@
  * ZANTARA Collaborative Intelligence Registry
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import {
   zantaraPersonalityProfile,

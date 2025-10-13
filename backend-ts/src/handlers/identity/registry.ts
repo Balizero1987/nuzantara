@@ -2,7 +2,7 @@
  * Identity & Onboarding Module Registry
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { identityResolve, onboardingStart } from './identity.js';
 

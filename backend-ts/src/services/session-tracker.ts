@@ -5,7 +5,7 @@
  * Integrates with auth middleware and monitoring
  */
 
-import logger from '../services/logger.js';
+import logger from './logger.js';
 import type { Request } from 'express';
 
 export interface SessionActivity {

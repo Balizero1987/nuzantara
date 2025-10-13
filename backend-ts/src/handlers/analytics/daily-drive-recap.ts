@@ -1,6 +1,6 @@
 // Daily Drive Recap System for ZANTARA v5.2.0
 // Mantiene file giornalieri aggiornati per ogni collaboratore
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { z } from "zod";
 import { ok } from "../../utils/response.js";
 import { getDrive } from "../../services/google-auth-service.js";
