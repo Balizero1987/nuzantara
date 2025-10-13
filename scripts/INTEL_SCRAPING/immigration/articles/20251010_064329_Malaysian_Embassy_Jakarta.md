@@ -1,0 +1,70 @@
+# Home - Embassy of Malaysia, Jakarta
+
+**Source**: Malaysian Embassy Jakarta
+**URL**: https://www.kln.gov.my/web/idn_jakarta
+**Scraped**: 2025-10-10T06:43:13.142296
+**Category**: immigration
+
+---
+
+Address
+
+Jl. H.R. Rasuna Said Kav.X/6, No. 1-3
+Kuningan, Jakarta Selatan 12950
+Republik Indonesia
+ Jakarta Selatan
+
+Contact Us
+
+ +62 21 522 4947 (General Enquiries)
++62 813 8081 3036 (For Emergencies After Office Hours) 
+ +62 21 522 4974
+ mwjakarta@kln.gov.my
+
+Operation Hours
+
+ Monday - Friday
+ Mon-Fri: 8am-5pm, Counter Operation Hours: 8.30am-11.00am/ 1pm-3pm (Mon-Thu), 8.30am-11am/ 2pm-3pm (Fri). Certificate No Impediment (CNI): 9am-11am / 2pm-4pm (Tue & Thu)
+CLOSED :
+Saturday & Sunday
+
+SOCIAL MEDIA
+SOCIAL MEDIA
+NEWS FROM MISSION
+NEWS FROM MISSION
+14.05.2025
+SCHOLARSHIP OFFER: MALAYSIAN TECHNICAL COOPERATION PROGRAMME (MTCP) FOR THE YEAR 2025/2026
+12.03.2025
+PERMOHONAN UNDI POS KATEGORI 1B ( PENGUNDI POS LUAR NEGARA - ONLINE, BAGI PELAKSANAAN PRK DEWAN NEGERI N.48, AYER KUNING, PERAK
+05.07.2024
+PERMOHONAN PENGESAHAN BUKU NIKAH BAGI PASANGAN (BERAGAMA ISLAM) YANG TELAH BERNIKAH
+05.07.2024
+PERMOHONAN SURAT SOKONGAN UNTUK BERNIKAH DI INDONESIA BAGI WARGANEGARA MALAYSIA (BERAGAMA ISLAM)
+03.07.2024
+PERMOHONAN UNDI POS KATEGORI 1B (LUAR NEGARA) BAGI PILIHAN RAYA KECIL (PRK) DEWAN NEGERI N.43 NENGGIRI, KELANTAN
+Previous Next
+QUICKLINKS
+QUICKLINKS
+
+SULU FRAUD VS MALAYSIA’S TRUTH’ E-BOOK
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Previous Next
+MFA INFO
+MFA INFO
