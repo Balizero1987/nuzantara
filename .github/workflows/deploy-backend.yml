@@ -82,7 +82,7 @@ jobs:
             --cpu=2 \
             --concurrency=80 \
             --max-instances=10 \
-            --set-env-vars="NODE_ENV=production,API_KEYS_INTERNAL=zantara-internal-dev-key-2025,API_KEYS_EXTERNAL=zantara-external-dev-key-2025,RAG_BACKEND_URL=https://zantara-rag-backend-himaadsxua-ew.a.run.app,HF_API_KEY=${{ secrets.HF_API_KEY }},RUNPOD_LLAMA_ENDPOINT=${{ secrets.RUNPOD_LLAMA_ENDPOINT }},RUNPOD_API_KEY=${{ secrets.RUNPOD_API_KEY }}" \
+            --set-env-vars="NODE_ENV=production,API_KEYS_INTERNAL=zantara-internal-dev-key-2025,API_KEYS_EXTERNAL=zantara-external-dev-key-2025,RAG_BACKEND_URL=https://zantara-rag-backend-himaadsxua-ew.a.run.app,HF_API_KEY=${{ secrets.HF_API_KEY }},RUNPOD_LLAMA_ENDPOINT=https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync,RUNPOD_API_KEY=${{ secrets.RUNPOD_API_KEY }}" \
             --port=8080 \
             --no-traffic
 
