@@ -2,7 +2,7 @@
 // Automatic Sunday analysis and reporting to Zero
 import { getFirestore } from "../../services/firebase.js";
 import { getGmail, getDrive } from "../../services/google-auth-service.js";
-import { ok, err } from "../../utils/response.js";
+import { ok } from "../../utils/response.js";
 
 // Configuration
 const ZERO_EMAIL = 'zero@balizero.com';
@@ -64,7 +64,6 @@ async function generateQualitativeAnalysis(userId: string, conversations: any[])
 
   // Analyze conversation patterns
   const topics = new Map<string, number>();
-  const sentiments = { positive: 0, neutral: 0, negative: 0 };
   const handlers = new Map<string, number>();
   const timePatterns = new Map<number, number>(); // hour of day
 
@@ -315,7 +314,7 @@ function formatEmailReport(weeklyAnalysis: Record<string, any>): string {
 `;
 
   // Add each team member's analysis
-  Object.entries(weeklyAnalysis).forEach(([userId, analysis]: [string, any]) => {
+  Object.entries(weeklyAnalysis).forEach(([, analysis]: [string, any]) => {
     html += `
     <div class="team-section">
       <h3>${analysis.summary}</h3>

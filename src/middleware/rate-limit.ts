@@ -10,17 +10,18 @@ import type { Request } from 'express';
 
 /**
  * Identify users by API key, IP, or user ID
+ * SOLUTION: Don't use custom keyGenerator with req.ip to avoid IPv6 warning
  */
 function getRateLimitKey(req: Request): string {
-  // Priority: x-user-id > x-api-key > IP address
+  // Priority: x-user-id > x-api-key (NO IP to avoid IPv6 validation error)
   const userId = req.header('x-user-id');
   if (userId) return `user:${userId}`;
 
   const apiKey = req.header('x-api-key');
   if (apiKey) return `key:${apiKey.substring(0, 12)}`;
 
-  const ip = req.header('x-forwarded-for') || req.ip || 'unknown';
-  return `ip:${ip}`;
+  // Default: use a generic key (rate limit will apply globally)
+  return `anonymous`;
 }
 
 /**

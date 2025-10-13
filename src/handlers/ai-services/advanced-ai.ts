@@ -29,33 +29,37 @@ Provide:
 Format as structured JSON with: predictions, recommendations, optimizations, risks`;
 
   try {
-    const result = await aiChat({ prompt, provider: 'zantara' });
+    const result = await aiChat({ prompt });
 
-    // Parse AI response
+    // Parse AI response - handle ApiSuccess wrapper
     let predictions;
     try {
-      // Try to extract JSON from response
-      const response = result.data?.response || result.response || '';
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      const responseData: any = result.data || result;
+      const responseText = responseData.response || responseData.answer || '';
+      
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       predictions = jsonMatch ? JSON.parse(jsonMatch[0]) : {
-        predictions: [response],
+        predictions: [responseText],
         recommendations: ["Monitor system closely"],
         optimizations: ["Review current configuration"],
         risks: ["Potential unexpected behavior"]
       };
     } catch {
       // Fallback to text response
+      const responseData: any = result.data || result;
       predictions = {
-        analysis: result.data?.response || result.response || '',
+        analysis: responseData.response || responseData.answer || '',
         confidence: "medium"
       };
     }
 
+    const responseData: any = result.data || result;
+    
     return ok({
       anticipation: predictions,
       timeframe,
       ts: Date.now(),
-      model: result.data.model || "gpt-4o-mini"
+      model: responseData.model || "zantara"
     });
   } catch (error: any) {
     throw new BadRequestError(`Anticipation failed: ${error.message}`);
@@ -88,14 +92,15 @@ Analyze and provide:
 Format as structured recommendations for system optimization.`;
 
   try {
-    const result = await aiChat({ prompt, provider: 'zantara' });
+    const result = await aiChat({ prompt });
+    const responseData: any = result.data || result;
 
     return ok({
       learning: {
         type: learning_type,
-        insights: result.data?.response || result.response || '',
+        insights: responseData.response || responseData.answer || '',
         processed_at: Date.now(),
-        model: result.data?.model || result.model || "zantara"
+        model: responseData.model || "zantara"
       },
       recommendations: [
         "Continue monitoring patterns",
@@ -162,8 +167,9 @@ Provide a clear, human-readable explanation of:
 4. Alternative options considered`;
 
     try {
-      const result = await aiChat({ prompt, provider: 'zantara' });
-      explanation.human_explanation = result.data?.response || result.response || '';
+      const result = await aiChat({ prompt });
+      const responseData: any = result.data || result;
+      explanation.human_explanation = responseData.response || responseData.answer || '';
     } catch {
       explanation.human_explanation = "Decision based on standard operating parameters";
     }

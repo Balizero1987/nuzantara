@@ -42,10 +42,6 @@ export type FaceEmotion = {
 export type VisionFace = { confidence: number; emotions: FaceEmotion; boundingBox: BoundingPoly };
 export type VisionEntity = { name: string; confidence: number; box: BoundingPoly };
 
-type SpeechRecognizeResponse = {
-  results?: Array<{ alternatives?: Array<{ transcript: string; confidence?: number }>; languageCode?: string }>;
-};
-
 type AnalyzeSentimentResponse = { documentSentiment?: { score?: number; magnitude?: number } };
 import { getGoogleService } from "../../services/google-auth-service.js";
 
@@ -200,9 +196,11 @@ export async function visionExtractDocuments(params: any) {
     const currentPatterns = patterns[documentType] || patterns.PASSPORT;
     const extractedData: Record<string, string> = {};
 
-    for (const [field, pattern] of Object.entries(currentPatterns)) {
-      const match = fullText.match(pattern);
-      extractedData[field] = match ? match[1].trim() : '';
+    if (currentPatterns && typeof currentPatterns === 'object') {
+      for (const [field, pattern] of Object.entries(currentPatterns)) {
+        const match = fullText.match(pattern);
+        extractedData[field] = match?.[1] ? match[1].trim() : '';
+      }
     }
 
     return ok({
