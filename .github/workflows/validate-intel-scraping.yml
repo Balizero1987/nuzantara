@@ -1,13 +1,7 @@
 name: Validate Intel Scraping Output
 
 on:
-  push:
-    paths:
-      - 'INTEL_SCRAPING/**/*.json'
-      - 'scripts/intel_schema_validator.py'
-      - 'config/categories_v2.json'
-      - 'config/category_guardrails.json'
-  pull_request:
+  workflow_dispatch:
     paths:
       - 'INTEL_SCRAPING/**/*.json'
       - 'scripts/intel_schema_validator.py'

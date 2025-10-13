@@ -1,13 +1,7 @@
 name: DevAI Code Review
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
-      - 'src/**/*.ts'
-      - 'src/**/*.js'
-      - 'apps/**/*.ts'
-      - 'apps/**/*.py'
+  workflow_dispatch:
 
 jobs:
   devai-review:

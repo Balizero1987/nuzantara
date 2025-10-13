@@ -1,11 +1,7 @@
 name: Intel Automation - Daily Pipeline
 
 on:
-  # Schedule: Every day at 6:00 AM Bali time (WIB = UTC+8)
-  schedule:
-    - cron: '0 22 * * *'
-
-  # Allow manual trigger
+  # Manual trigger only (schedule disabled to reduce costs)
   workflow_dispatch:
     inputs:
       skip_stages:
