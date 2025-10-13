@@ -836,6 +836,24 @@ async def bali_zero_chat(request: BaliZeroRequest):
         else:
             logger.info("👤 Anonymous user - L0 (Public)")
 
+
+        # PHASE 1.5: Check for simple greetings BEFORE any RAG/AI processing
+        simple_greetings = ["ciao", "hello", "hi", "salve", "buongiorno", "buonasera"]
+        if request.query.lower().strip() in simple_greetings:
+            logger.info(f"🎯 [Bali Zero Chat] GREETING DETECTED: {request.query}")
+            if "come stai" in request.query.lower() or "how are you" in request.query.lower():
+                response_text = "Sto benissimo, grazie! 😊 Pronta ad assisterti con visti, KITAS, PT PMA e business in Indonesia. Cosa ti serve?\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+            else:
+                response_text = "Ciao! Come posso aiutarti oggi con Bali Zero? 😊\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+            
+            return BaliZeroResponse(
+                success=True,
+                response=response_text,
+                model_used="built-in-greeting",
+                sources=[],
+                usage={"input_tokens": 0, "output_tokens": 0}
+            )
+
         # PHASE 2: Load user memory
         memory = None
         if memory_service and user_id != "anonymous":
@@ -1001,95 +1019,95 @@ async def bali_zero_chat(request: BaliZeroRequest):
             user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
         logger.info("🎯 [Bali Zero Chat] BALANCED MODE: Adaptive response")
 
-        messages.append({"role": "user", "content": user_message})
+            messages.append({"role": "user", "content": user_message})
 
-        # Generate response using ZANTARA ONLY
-        # Note: Tool use is not supported with ZANTARA (planned for future)
-        try:
-            logger.info("🎯 [Bali Zero Chat] Using ZANTARA Llama 3.1 (ONLY AI)")
-            response = await zantara_client.chat_async(
-                messages=messages,
-                max_tokens=1500,
-                system=enhanced_prompt
+            # Generate response using ZANTARA ONLY
+            # Note: Tool use is not supported with ZANTARA (planned for future)
+            try:
+                logger.info("🎯 [Bali Zero Chat] Using ZANTARA Llama 3.1 (ONLY AI)")
+                response = await zantara_client.chat_async(
+                    messages=messages,
+                    max_tokens=1500,
+                    system=enhanced_prompt
+                )
+                answer = format_zantara_answer(response.get("text", ""))
+            except Exception as e:
+                logger.error(f"❌ [Bali Zero Chat] ZANTARA failed: {e}")
+                raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
+
+            # Ensure explicit personalization when collaborator is recognized
+            try:
+                if collaborator:
+                    is_it = (collaborator.language or "en").lower().startswith("it")
+                    name = collaborator.ambaradam_name
+                    if is_it:
+                        # If starts with a generic Italian greeting and doesn't include the name, inject it
+                        if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
+                            # Replace initial 'Ciao' with 'Ciao <Name>, ' (handle incomplete responses)
+                            parts = answer.lstrip().split(" ", 1)
+                            if len(parts) > 1:
+                                answer = "Ciao " + name + ", " + parts[1]
+                            else:
+                                # Response is just "Ciao" or "Ciao " - add greeting
+                                answer = f"Ciao {name}! Come posso aiutarti oggi?"
+                        elif name.lower() not in answer[:100].lower():
+                            answer = f"Ciao {name}, " + answer
+                    else:
+                        if answer.strip().lower().startswith(("hello", "hi")) and name.lower() not in answer[:100].lower():
+                            # Replace initial greeting with personalized one
+                            parts = answer.lstrip().split(" ", 1) if " " in answer.lstrip() else [answer.lstrip()]
+                            if len(parts) > 1:
+                                answer = f"Hello {name}, " + parts[1]
+                            else:
+                                answer = f"Hello {name}! How can I help you today?"
+                        elif name.lower() not in answer[:100].lower():
+                            answer = f"Hello {name}, " + answer
+            except Exception as _e:
+                # Non-blocking: personalization failure should not break response
+                pass
+
+            # Sanitize content for public/curious users (L0-L1): avoid explicit sensitive terminology
+            if sub_rosa_level < 2:
+                answer = sanitize_public_answer(answer)
+            usage = response.get("usage", {})
+
+            # PHASE 2: Save conversation and update memory
+            if conversation_service and user_id != "anonymous":
+                # Save full conversation
+                full_messages = messages.copy()
+                full_messages.append({"role": "assistant", "content": answer})
+
+                metadata = {
+                    "collaborator_name": collaborator.name if collaborator else "Unknown",
+                    "collaborator_role": collaborator.role if collaborator else "guest",
+                    "sub_rosa_level": sub_rosa_level,
+                    "model_used": model_used,
+                    "input_tokens": usage.get("input_tokens", 0),
+                    "output_tokens": usage.get("output_tokens", 0),
+                    "sources_count": len(sources)
+                }
+
+                await conversation_service.save_conversation(user_id, full_messages, metadata)
+                logger.info(f"💬 Conversation saved for {user_id}")
+
+                # Increment conversation counter
+                if memory_service:
+                    await memory_service.increment_counter(user_id, "conversations")
+
+            return BaliZeroResponse(
+                success=True,
+                response=answer,
+                model_used=model_used,
+                sources=sources if sources else None,
+                usage={
+                    "input_tokens": usage.get("input_tokens", 0),
+                    "output_tokens": usage.get("output_tokens", 0)
+                }
             )
-            answer = format_zantara_answer(response.get("text", ""))
+
         except Exception as e:
-            logger.error(f"❌ [Bali Zero Chat] ZANTARA failed: {e}")
-            raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
-
-        # Ensure explicit personalization when collaborator is recognized
-        try:
-            if collaborator:
-                is_it = (collaborator.language or "en").lower().startswith("it")
-                name = collaborator.ambaradam_name
-                if is_it:
-                    # If starts with a generic Italian greeting and doesn't include the name, inject it
-                    if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
-                        # Replace initial 'Ciao' with 'Ciao <Name>, ' (handle incomplete responses)
-                        parts = answer.lstrip().split(" ", 1)
-                        if len(parts) > 1:
-                            answer = "Ciao " + name + ", " + parts[1]
-                        else:
-                            # Response is just "Ciao" or "Ciao " - add greeting
-                            answer = f"Ciao {name}! Come posso aiutarti oggi?"
-                    elif name.lower() not in answer[:100].lower():
-                        answer = f"Ciao {name}, " + answer
-                else:
-                    if answer.strip().lower().startswith(("hello", "hi")) and name.lower() not in answer[:100].lower():
-                        # Replace initial greeting with personalized one
-                        parts = answer.lstrip().split(" ", 1) if " " in answer.lstrip() else [answer.lstrip()]
-                        if len(parts) > 1:
-                            answer = f"Hello {name}, " + parts[1]
-                        else:
-                            answer = f"Hello {name}! How can I help you today?"
-                    elif name.lower() not in answer[:100].lower():
-                        answer = f"Hello {name}, " + answer
-        except Exception as _e:
-            # Non-blocking: personalization failure should not break response
-            pass
-
-        # Sanitize content for public/curious users (L0-L1): avoid explicit sensitive terminology
-        if sub_rosa_level < 2:
-            answer = sanitize_public_answer(answer)
-        usage = response.get("usage", {})
-
-        # PHASE 2: Save conversation and update memory
-        if conversation_service and user_id != "anonymous":
-            # Save full conversation
-            full_messages = messages.copy()
-            full_messages.append({"role": "assistant", "content": answer})
-
-            metadata = {
-                "collaborator_name": collaborator.name if collaborator else "Unknown",
-                "collaborator_role": collaborator.role if collaborator else "guest",
-                "sub_rosa_level": sub_rosa_level,
-                "model_used": model_used,
-                "input_tokens": usage.get("input_tokens", 0),
-                "output_tokens": usage.get("output_tokens", 0),
-                "sources_count": len(sources)
-            }
-
-            await conversation_service.save_conversation(user_id, full_messages, metadata)
-            logger.info(f"💬 Conversation saved for {user_id}")
-
-            # Increment conversation counter
-            if memory_service:
-                await memory_service.increment_counter(user_id, "conversations")
-
-        return BaliZeroResponse(
-            success=True,
-            response=answer,
-            model_used=model_used,
-            sources=sources if sources else None,
-            usage={
-                "input_tokens": usage.get("input_tokens", 0),
-                "output_tokens": usage.get("output_tokens", 0)
-            }
-        )
-
-    except Exception as e:
-        logger.error(f"Chat failed: {e}")
-        raise HTTPException(500, f"Chat failed: {str(e)}")
+            logger.error(f"Chat failed: {e}")
+            raise HTTPException(500, f"Chat failed: {str(e)}")
 
 
 # Include auth mock router
