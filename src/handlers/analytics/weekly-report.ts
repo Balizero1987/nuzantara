@@ -702,7 +702,7 @@ function calculateMonthlyTrends(_conversations: any[], weeklyBreakdown: any[][])
     week.reduce((sum, c) => sum + (c.responseTime || 0), 0) / (week.length || 1)
   );
 
-  const efficiencyTrend = avgResponseTimes[0] > avgResponseTimes[avgResponseTimes.length - 1] ?
+  const efficiencyTrend = (avgResponseTimes[0] || 0) > (avgResponseTimes[avgResponseTimes.length - 1] || 0) ?
     'improving' : 'declining';
 
   return {
@@ -800,9 +800,12 @@ function calculateMonthlyPerformance(conversations: any[]) {
 
   const peakDays = new Map<string, number>();
   conversations.forEach(c => {
+    if (!c.timestamp) return;
     const day = new Date(c.timestamp).getDay();
     const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day];
-    peakDays.set(dayName, (peakDays.get(dayName) || 0) + 1);
+    if (dayName) {
+      peakDays.set(dayName, (peakDays.get(dayName) || 0) + 1);
+    }
   });
 
   const busiestDay = Array.from(peakDays.entries())
@@ -883,8 +886,8 @@ function calculateWeekEfficiency(weekConversations: any[]): number {
 
 // Generate monthly strategic recommendations
 function generateMonthlyStrategicRecommendations(
-  userId: string,
-  conversations: any[],
+  _userId: string,
+  _conversations: any[],
   trends: any,
   serviceEvolution: any
 ): string[] {
