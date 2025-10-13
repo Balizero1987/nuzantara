@@ -84,6 +84,7 @@ jobs:
             --max-instances=10 \
             --set-env-vars="NODE_ENV=production,API_KEYS_INTERNAL=zantara-internal-dev-key-2025,API_KEYS_EXTERNAL=zantara-external-dev-key-2025,RAG_BACKEND_URL=https://zantara-rag-backend-himaadsxua-ew.a.run.app,RUNPOD_LLAMA_ENDPOINT=https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync" \
             --port=8080 \
+            --timeout=600 \
             --no-traffic
 
       - name: Health check

@@ -568,14 +568,14 @@ body.day-mode .user-message {
 
 .ai-message {
   color: #fff;
-  padding: 10px 14px;
-  border-radius: 18px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   margin-right: auto;
   max-width: 85%;
   word-wrap: break-word;
   align-self: flex-start;
-  background: none; /* No background for AI messages */
+  background: none;
+  padding: 0;
+  border-radius: 0;
 }
 
 .ai-message.loading {
@@ -584,7 +584,7 @@ body.day-mode .user-message {
 
 body.day-mode .ai-message {
   color: #000;
-  background: none !important; /* No background for AI messages in day mode */
+  background: none !important;
 }
 
 .error-message {
@@ -647,9 +647,9 @@ body.day-mode .input-area {
 }
 
 .mode-option.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2f7bd6; /* ChatGPT blue */
   color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(47, 123, 214, 0.4);
 }
 
 .mode-option:hover:not(.active) {
@@ -659,7 +659,16 @@ body.day-mode .input-area {
 
 .mode-icon {
   margin-right: 6px;
-  font-size: 16px;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.mode-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .santai-mode {
@@ -686,7 +695,7 @@ body.day-mode .mode-option {
 }
 
 body.day-mode .mode-option.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #2f7bd6; /* ChatGPT blue */
   color: white;
 }
 
