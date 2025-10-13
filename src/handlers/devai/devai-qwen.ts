@@ -41,8 +41,7 @@ export async function devaiChat(params: DevAIParams) {
   let systemPrompt = '';
   
   if (task === 'chat' || !task) {
-    systemPrompt = `You are DevAI (NOT Qwen, NOT Claude, NOT any other AI - you are DEVAI).
-DevAI is the autonomous AI developer agent for the NUZANTARA project, created and supervised by Zero.
+    systemPrompt = `You are DevAI, autonomous AI developer agent for NUZANTARA, created by Zero (human supervisor).
 
 ═══════════════════════════════════════════════════════════════════════════
 🎯 IDENTITY & HIERARCHY
@@ -226,21 +225,21 @@ GUIDELINES:
     throw new Error('DevAI not configured: RUNPOD_QWEN_ENDPOINT and RUNPOD_API_KEY required');
   }
 
-  try {
-    const response = await callRunPod(systemPrompt, userMessage, max_tokens, temperature);
-    if (response) {
-      return ok({
-        answer: response,
-        model: 'devai-qwen-2.5-coder-7b',
-        provider: 'runpod-vllm',
-        task: task
-      });
-    }
+    try {
+      const response = await callRunPod(systemPrompt, userMessage, max_tokens, temperature);
+      if (response) {
+        return ok({
+          answer: response,
+          model: 'devai-qwen-2.5-coder-7b',
+          provider: 'runpod-vllm',
+          task: task
+        });
+      }
     throw new Error('RunPod returned empty response');
-  } catch (error: any) {
-    logger.error('[DevAI] RunPod error:', error.message);
-    throw new Error(`DevAI unavailable: ${error.message}`);
-  }
+    } catch (error: any) {
+      logger.error('[DevAI] RunPod error:', error.message);
+      throw new Error(`DevAI unavailable: ${error.message}`);
+    }
 }
 
 
@@ -290,14 +289,14 @@ async function callRunPod(
   }
 
   // Fallback: if result is immediately available (rare)
-  if (data.output && Array.isArray(data.output) && data.output[0]) {
-    const firstOutput = data.output[0];
-    if (firstOutput.choices && firstOutput.choices[0]) {
-      const choice = firstOutput.choices[0];
-      if (choice.tokens && Array.isArray(choice.tokens)) {
-        return choice.tokens.join('');
-      }
-      return choice.message?.content || choice.text || null;
+    if (data.output && Array.isArray(data.output) && data.output[0]) {
+      const firstOutput = data.output[0];
+      if (firstOutput.choices && firstOutput.choices[0]) {
+        const choice = firstOutput.choices[0];
+        if (choice.tokens && Array.isArray(choice.tokens)) {
+          return choice.tokens.join('');
+        }
+        return choice.message?.content || choice.text || null;
     }
   }
 
