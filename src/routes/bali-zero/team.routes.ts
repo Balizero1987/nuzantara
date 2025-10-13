@@ -86,7 +86,7 @@ router.post('/departments', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/activity/recent', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     TeamActivitySchema.parse(req.body);
-    const result = await teamRecentActivity(req.body, req);
+    const result = await teamRecentActivity(req.body, res);
     return res.json(result);
   } catch (error: any) {
     if (error instanceof BadRequestError) {
