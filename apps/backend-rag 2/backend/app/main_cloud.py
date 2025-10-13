@@ -948,86 +948,83 @@ async def bali_zero_chat(request: BaliZeroRequest):
         # Build messages
         messages = request.conversation_history or []
 
-    # CONTEXT DETECTION & FILTERING: Advanced AI "sgrezzamento" techniques
+    # HARMONY BETWEEN SIMPLICITY & DEPTH: Advanced AI "sgrezzamento" techniques
     simple_greetings = ["ciao", "hello", "hi", "salve", "buongiorno", "buonasera", "come stai", "how are you"]
     casual_questions = ["come stai", "how are you", "come va", "how's it going", "tutto bene", "everything ok"]
+    business_terms = ["kitas", "visa", "pt pma", "business", "investimento", "lavoro", "company", "investment"]
     
-    # Advanced context detection
+    # Advanced context detection with harmony balance
     is_simple_greeting = any(greeting in request.query.lower() for greeting in simple_greetings)
     is_casual_question = any(question in request.query.lower() for question in casual_questions)
-    is_business_query = any(term in request.query.lower() for term in ["kitas", "visa", "pt pma", "business", "investimento", "lavoro"])
+    is_business_query = any(term in request.query.lower() for term in business_terms)
     
+    # HARMONY APPROACH: Balance simplicity with depth
     if is_simple_greeting or is_casual_question:
-        # BYPASS RAG COMPLETELY for simple interactions
+        # SIMPLE & FRIENDLY: Brief, warm responses without RAG
         user_message = f"{request.query}\n\n[CONTEXT: Simple interaction - respond briefly and friendly, no knowledge base needed]"
-        # Clear context to prevent RAG activation
         context = None
-        # Force simple response mode
         mode = "santai"
-        # BYPASS RAG COMPLETELY - no context search
-        logger.info("🎯 [Bali Zero Chat] BYPASSING RAG for simple interaction")
-        # FORCE SIMPLE RESPONSE - no RAG context
-        user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
+        logger.info("🎯 [Bali Zero Chat] SIMPLE MODE: Brief, friendly response")
     elif is_business_query:
-        # Use RAG for business queries
+        # DEPTH & PROFESSIONAL: Detailed analysis with RAG context
         if context:
             user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
         else:
             user_message = f"{request.query}"
         
-        # Add mode instruction
         mode = request.mode or "pikiran"  # Default to detailed for business
         if mode == "pikiran":
             user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
         else:
             user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
+        logger.info("🎯 [Bali Zero Chat] DEPTH MODE: Professional analysis with context")
     else:
-        # Default handling
+        # BALANCED APPROACH: Adaptive based on query complexity
         if context:
             user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
         else:
             user_message = f"{request.query}"
         
-        # Add mode instruction
         mode = request.mode or "santai"
         if mode == "pikiran":
             user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
         else:
             user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
+        logger.info("🎯 [Bali Zero Chat] BALANCED MODE: Adaptive response")
 
-    messages.append({"role": "user", "content": user_message})
+        messages.append({"role": "user", "content": user_message})
 
-    # Generate response using ZANTARA ONLY
-    # Note: Tool use is not supported with ZANTARA (planned for future)
-    try:
-        logger.info("🎯 [Bali Zero Chat] Using ZANTARA Llama 3.1 (ONLY AI)")
-        response = await zantara_client.chat_async(
-            messages=messages,
-            max_tokens=1500,
-            system=enhanced_prompt
-        )
-        answer = format_zantara_answer(response.get("text", ""))
-    except Exception as e:
-        logger.error(f"❌ [Bali Zero Chat] ZANTARA failed: {e}")
-        raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
+        # Generate response using ZANTARA ONLY
+        # Note: Tool use is not supported with ZANTARA (planned for future)
+        try:
+            logger.info("🎯 [Bali Zero Chat] Using ZANTARA Llama 3.1 (ONLY AI)")
+            response = await zantara_client.chat_async(
+                messages=messages,
+                max_tokens=1500,
+                system=enhanced_prompt
+            )
+            answer = format_zantara_answer(response.get("text", ""))
+        except Exception as e:
+            logger.error(f"❌ [Bali Zero Chat] ZANTARA failed: {e}")
+            raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
 
-    # Ensure explicit personalization when collaborator is recognized
-    try:
-        if collaborator:
-            is_it = (collaborator.language or "en").lower().startswith("it")
-            name = collaborator.ambaradam_name
-            if is_it:
-                # If starts with a generic Italian greeting and doesn't include the name, inject it
-                if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
-                    # Replace initial 'Ciao' with 'Ciao <Name>, ' (handle incomplete responses)
-                    parts = answer.lstrip().split(" ", 1)
-                    if len(parts) > 1:
-                        answer = "Ciao " + name + ", " + parts[1]
-                    else:
-                        # Response is just "Ciao" or "Ciao " - add greeting
-                        answer = f"Ciao {name}! Come posso aiutarti oggi?"
-                elif name.lower() not in answer[:100].lower():
-                    answer = f"Ciao {name}, " + answer
+        # Ensure explicit personalization when collaborator is recognized
+        try:
+            if collaborator:
+                is_it = (collaborator.language or "en").lower().startswith("it")
+                name = collaborator.ambaradam_name
+                if is_it:
+                    # If starts with a generic Italian greeting and doesn't include the name, inject it
+                    if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
+                        # Replace initial 'Ciao' with 'Ciao <Name>, ' (handle incomplete responses)
+                        parts = answer.lstrip().split(" ", 1)
+                        if len(parts) > 1:
+                            answer = "Ciao " + name + ", " + parts[1]
+                        else:
+                            # Response is just "Ciao" or "Ciao " - add greeting
+                            answer = f"Ciao {name}! Come posso aiutarti oggi?"
+                    elif name.lower() not in answer[:100].lower():
+                        answer = f"Ciao {name}, " + answer
                 else:
                     if answer.strip().lower().startswith(("hello", "hi")) and name.lower() not in answer[:100].lower():
                         # Replace initial greeting with personalized one
