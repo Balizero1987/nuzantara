@@ -183,6 +183,20 @@ async function pollRunPodResult(jobId: string, maxAttempts = 60): Promise<string
     const data = await response.json();
     
     if (data.status === 'COMPLETED' && data.output) {
+      // Handle array output format from vLLM
+      if (Array.isArray(data.output) && data.output[0]) {
+        const firstOutput = data.output[0];
+        if (firstOutput.choices && firstOutput.choices[0]) {
+          const choice = firstOutput.choices[0];
+          // Handle tokens array (vLLM format)
+          if (choice.tokens && Array.isArray(choice.tokens)) {
+            return choice.tokens.join('');
+          }
+          // Handle message/text format
+          return choice.message?.content || choice.text || null;
+        }
+      }
+      // Legacy format
       if (data.output.choices && data.output.choices[0]) {
         return data.output.choices[0].message?.content || data.output.choices[0].text || null;
       }
