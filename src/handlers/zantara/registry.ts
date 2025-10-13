@@ -2,6 +2,7 @@
  * ZANTARA Collaborative Intelligence Registry
  */
 
+import logger from '../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import {
   zantaraPersonalityProfile,
@@ -63,7 +64,7 @@ export function registerZantaraHandlers() {
     'system.diagnostics': zantaraSystemDiagnostics
   }, { requiresAuth: true, description: 'Real-time Monitoring' });
 
-  console.log('✅ ZANTARA handlers registered');
+  logger.info('✅ ZANTARA handlers registered');
 }
 
 registerZantaraHandlers();

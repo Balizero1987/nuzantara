@@ -1,5 +1,6 @@
 // Conversation Auto-Save System for ZANTARA v5.2.0
 // Automatically saves all conversations with Zero and collaborators
+import logger from '../services/logger.js';
 // // import { ok } from "../../utils/response.js"; // Unused import
 import { memorySave } from "./memory-firestore.js";
 import { updateDailyRecap } from "../analytics/daily-drive-recap.js";
@@ -80,7 +81,7 @@ async function saveToFirestore(conversationData: any) {
       docId: `conv_${Date.now()}`
     };
   } catch (error: any) {
-    console.error('🔥 Firestore save failed:', error.message);
+    logger.error('🔥 Firestore save failed:', error.message);
     return { success: false, error: error.message };
   }
 }
@@ -137,7 +138,7 @@ METADATA:
     }
 
   } catch (error: any) {
-    console.error('🔥 Drive backup failed:', error.message);
+    logger.error('🔥 Drive backup failed:', error.message);
     return { success: false, error: error.message };
   }
 }
@@ -154,7 +155,7 @@ export async function autoSaveConversation(
     // Identify user
     const { userId, role, isZero } = identifyUser(req);
 
-    console.log(`💾 Auto-saving conversation for ${userId} (${role})`);
+    logger.info(`💾 Auto-saving conversation for ${userId} (${role})`);
 
     // Prepare conversation data
     const conversationData = {
@@ -216,13 +217,13 @@ export async function autoSaveConversation(
           }
         });
       } catch (error: any) {
-        console.log('⚠️ Daily recap update failed:', error.message);
+        logger.info('⚠️ Daily recap update failed:', error.message);
         dailyRecapResult = { updated: false, error: error.message };
       }
     }
 
     // Log results
-    console.log('💾 Auto-save results:', {
+    logger.info('💾 Auto-save results:', {
       memory: memoryResult.ok ? '✅' : '❌',
       firestore: firestoreResult.success ? '✅' : '❌',
       drive: driveResult.success ? '✅' : '❌',
@@ -243,7 +244,7 @@ export async function autoSaveConversation(
     };
 
   } catch (error: any) {
-    console.error('❌ Auto-save failed:', error.message);
+    logger.error('❌ Auto-save failed:', error.message);
     return {
       saved: false,
       error: error.message

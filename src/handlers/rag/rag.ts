@@ -3,6 +3,7 @@
  * Integrates Ollama LLM and Bali Zero routing
  */
 
+import logger from '../services/logger.js';
 import { ragService } from '../../services/ragService.js';
 import type { Request } from 'express';
 import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragService.js';
@@ -28,7 +29,7 @@ export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryRes
 
     return result;
   } catch (error: any) {
-    console.error('RAG query error:', error);
+    logger.error('RAG query error:', error);
     return {
       success: false,
       query,
@@ -68,7 +69,7 @@ export async function baliZeroChat(params: any, _req?: Request): Promise<BaliZer
 
     return normalized;
   } catch (error: any) {
-    console.error('Bali Zero chat error:', error);
+    logger.error('Bali Zero chat error:', error);
     throw error;
   }
 }
@@ -88,7 +89,7 @@ export async function ragSearch(params: any, _req?: Request) {
     const result = await ragService.search(query, k);
     return result;
   } catch (error: any) {
-    console.error('RAG search error:', error);
+    logger.error('RAG search error:', error);
     throw error;
   }
 }

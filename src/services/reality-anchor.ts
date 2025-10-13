@@ -1,6 +1,7 @@
 // Reality Anchor System - Advanced Anti-Hallucination Engine
 // Ensures ZANTARA remains grounded in verifiable reality
 
+import logger from '../services/logger.js';
 import { getFirestore } from "./firebase.js";
 // import { AntiHallucinationSystem } from "./anti-hallucination.js"; // Not used
 
@@ -262,7 +263,7 @@ export class RealityAnchorSystem {
         }
       });
     } catch (error) {
-      console.log('📝 Using local history only');
+      logger.info('📝 Using local history only');
     }
 
     return {
@@ -380,7 +381,7 @@ export class RealityAnchorSystem {
         });
       }
     } catch (error) {
-      console.log('📝 Learning stored locally only');
+      logger.info('📝 Learning stored locally only');
     }
   }
 

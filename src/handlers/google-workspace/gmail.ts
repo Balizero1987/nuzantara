@@ -1,4 +1,5 @@
 // Gmail Handlers (typed & standardized)
+import logger from '../services/logger.js';
 import { google } from 'googleapis';
 import { getOAuth2Client } from '../../services/oauth2-client.js';
 import { getGmail } from '../../services/google-auth-service.js';
@@ -65,7 +66,7 @@ export const gmailHandlers = {
         sentAt: new Date().toISOString()
       });
     } catch (error: any) {
-      console.error('Gmail send error:', error);
+      logger.error('Gmail send error:', error);
       throw new InternalServerError(`Failed to send email: ${error.message}`);
     }
   },
@@ -120,7 +121,7 @@ export const gmailHandlers = {
         nextPageToken: result.data.nextPageToken
       });
     } catch (error: any) {
-      console.error('Gmail list error:', error);
+      logger.error('Gmail list error:', error);
       throw new InternalServerError(`Failed to list emails: ${error.message}`);
     }
   },
@@ -189,7 +190,7 @@ export const gmailHandlers = {
         }
       });
     } catch (error: any) {
-      console.error('Gmail read error:', error);
+      logger.error('Gmail read error:', error);
       throw new InternalServerError(`Failed to read email: ${error.message}`);
     }
   },
@@ -242,7 +243,7 @@ export const gmailHandlers = {
         }))
       });
     } catch (error: any) {
-      console.error('Gmail search error:', error);
+      logger.error('Gmail search error:', error);
       throw new InternalServerError(`Failed to search emails: ${error.message}`);
     }
   }

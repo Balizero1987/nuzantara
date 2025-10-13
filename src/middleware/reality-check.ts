@@ -1,4 +1,5 @@
 // Reality Check Middleware - Advanced Anti-Hallucination Layer
+import logger from '../services/logger.js';
 import { Request, Response, NextFunction } from "express";
 import { RealityAnchorSystem } from "../services/reality-anchor.js";
 import { AntiHallucinationSystem } from "../services/anti-hallucination.js";
@@ -82,17 +83,17 @@ async function performAsyncRealityCheck(
 
     // Log warnings for low reality scores
     if (anchoredResponse.reality_anchor?.score < 0.7) {
-      console.warn(`⚠️ Reality Check Warning for ${handler}:`);
-      console.warn(`  Score: ${anchoredResponse.reality_anchor.score}`);
-      console.warn(`  Contradictions: ${anchoredResponse.reality_anchor.contradictions_found}`);
-      console.warn(`  Processing time: ${processingTime}ms`);
+      logger.warn(`⚠️ Reality Check Warning for ${handler}:`);
+      logger.warn(`  Score: ${anchoredResponse.reality_anchor.score}`);
+      logger.warn(`  Contradictions: ${anchoredResponse.reality_anchor.contradictions_found}`);
+      logger.warn(`  Processing time: ${processingTime}ms`);
     }
 
     // Alert on critical issues
     if (anchoredResponse.reality_anchor?.score < 0.3) {
-      console.error(`🚨 CRITICAL: Very low reality score for ${handler}`);
-      console.error(`  Input:`, input);
-      console.error(`  Output:`, output);
+      logger.error(`🚨 CRITICAL: Very low reality score for ${handler}`);
+      logger.error(`  Input:`, input);
+      logger.error(`  Output:`, output);
 
       // Inject warning into response if possible
       if (output && typeof output === 'object') {
@@ -101,7 +102,7 @@ async function performAsyncRealityCheck(
     }
 
   } catch (error) {
-    console.error('Reality check error:', error);
+    logger.error('Reality check error:', error);
   }
 }
 

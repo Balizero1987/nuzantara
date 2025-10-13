@@ -1,4 +1,5 @@
 // ZANTARA Dashboard Analytics - Real-time Metrics & Monitoring
+import logger from '../services/logger.js';
 import { ok, err } from "../../utils/response.js";
 import { getFirestore } from "../../services/firebase.js";
 
@@ -62,7 +63,7 @@ class DashboardAnalytics {
     try {
       this.db = getFirestore();
     } catch (error) {
-      console.log('⚠️ Firestore not available for analytics');
+      logger.info('⚠️ Firestore not available for analytics');
     }
   }
 
@@ -128,7 +129,7 @@ class DashboardAnalytics {
         metrics.active_sessions = sessionsRef.size;
 
       } catch (error) {
-        console.log('Error fetching conversation metrics:', error);
+        logger.info('Error fetching conversation metrics:', error);
       }
     }
 
@@ -186,7 +187,7 @@ class DashboardAnalytics {
         });
 
       } catch (error) {
-        console.log('Error fetching service metrics:', error);
+        logger.info('Error fetching service metrics:', error);
       }
     }
 
@@ -238,7 +239,7 @@ class DashboardAnalytics {
         });
 
       } catch (error) {
-        console.log('Error fetching handler metrics:', error);
+        logger.info('Error fetching handler metrics:', error);
       }
     }
 
@@ -284,7 +285,7 @@ class DashboardAnalytics {
         });
 
       } catch (error) {
-        console.log('Error fetching top users:', error);
+        logger.info('Error fetching top users:', error);
       }
     }
 

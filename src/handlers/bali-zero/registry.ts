@@ -3,6 +3,7 @@
  * Auto-registers all Indonesian business service handlers
  */
 
+import logger from '../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { oracleSimulate, oracleAnalyze, oraclePredict } from './oracle.js';
 import { documentPrepare, assistantRoute } from './advisory.js';
@@ -82,7 +83,7 @@ export function registerBaliZeroHandlers() {
     description: 'Get recent team activity with real-time session tracking'
   });
 
-  console.log('✅ Bali Zero handlers registered');
+  logger.info('✅ Bali Zero handlers registered');
 }
 
 registerBaliZeroHandlers();

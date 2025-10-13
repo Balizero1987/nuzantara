@@ -5,6 +5,7 @@
  * Phone: +62 823-1355-1979
  */
 
+import logger from '../services/logger.js';
 import axios from 'axios';
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
@@ -58,13 +59,13 @@ export async function whatsappWebhookVerify(req: any, res: any) {
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
 
-  console.log('📞 WhatsApp Webhook Verification Request:', { mode, token });
+  logger.info('📞 WhatsApp Webhook Verification Request:', { mode, token });
 
   if (mode === 'subscribe' && token === WHATSAPP_CONFIG.verifyToken) {
-    console.log('✅ WhatsApp Webhook Verified');
+    logger.info('✅ WhatsApp Webhook Verified');
     return res.status(200).send(challenge);
   } else {
-    console.error('❌ WhatsApp Webhook Verification Failed');
+    logger.error('❌ WhatsApp Webhook Verification Failed');
     return res.status(403).send('Forbidden');
   }
 }
@@ -80,11 +81,11 @@ export async function whatsappWebhookReceiver(req: any, res: any) {
     // Quick ACK to Meta (required within 20s)
     res.status(200).send('EVENT_RECEIVED');
 
-    console.log('📨 WhatsApp Webhook Event:', JSON.stringify(body, null, 2));
+    logger.info('📨 WhatsApp Webhook Event:', JSON.stringify(body, null, 2));
 
     // Parse webhook payload
     if (!body.object || body.object !== 'whatsapp_business_account') {
-      console.log('⚠️ Not a WhatsApp business account event');
+      logger.info('⚠️ Not a WhatsApp business account event');
       return;
     }
 
@@ -96,7 +97,7 @@ export async function whatsappWebhookReceiver(req: any, res: any) {
       }
     }
   } catch (error) {
-    console.error('❌ WhatsApp Webhook Error:', error);
+    logger.error('❌ WhatsApp Webhook Error:', error);
     // Still return 200 to Meta to avoid retries
   }
 }
@@ -114,14 +115,14 @@ async function handleIncomingMessage(value: any) {
     // Auto-detect phone number ID
     if (!WHATSAPP_CONFIG.phoneNumberId && metadata.phone_number_id) {
       WHATSAPP_CONFIG.phoneNumberId = metadata.phone_number_id;
-      console.log('📱 Auto-detected Phone Number ID:', WHATSAPP_CONFIG.phoneNumberId);
+      logger.info('📱 Auto-detected Phone Number ID:', WHATSAPP_CONFIG.phoneNumberId);
     }
 
     for (const message of messages) {
       const contact = contacts.find((c: any) => c.wa_id === message.from);
       const userName = contact?.profile?.name || message.from;
 
-      console.log(`💬 Message from ${userName} (${message.from}):`, message);
+      logger.info(`💬 Message from ${userName} (${message.from}):`, message);
 
       // Determine context (group or 1-to-1)
       const isGroup = message.context?.group_id || false;
@@ -132,7 +133,7 @@ async function handleIncomingMessage(value: any) {
       const messageText = extractMessageText(message);
 
       if (!messageText) {
-        console.log('⚠️ No text content, skipping');
+        logger.info('⚠️ No text content, skipping');
         continue;
       }
 
@@ -149,7 +150,7 @@ async function handleIncomingMessage(value: any) {
 
       // 2. Analyze sentiment
       const sentiment = await analyzeSentiment(messageText);
-      console.log(`😊 Sentiment: ${sentiment.score}/10 (${sentiment.label})`);
+      logger.info(`😊 Sentiment: ${sentiment.score}/10 (${sentiment.label})`);
 
       // 3. Update group context if group message
       if (isGroup && groupId) {
@@ -166,7 +167,7 @@ async function handleIncomingMessage(value: any) {
       });
 
       if (shouldRespond.respond) {
-        console.log(`🤖 ZANTARA responding: ${shouldRespond.reason}`);
+        logger.info(`🤖 ZANTARA responding: ${shouldRespond.reason}`);
         await sendIntelligentResponse(message.from, messageText, {
           userName,
           isGroup,
@@ -175,7 +176,7 @@ async function handleIncomingMessage(value: any) {
           context: shouldRespond.context
         });
       } else {
-        console.log(`👁️ ZANTARA observing (no response): ${shouldRespond.reason}`);
+        logger.info(`👁️ ZANTARA observing (no response): ${shouldRespond.reason}`);
       }
 
       // 5. Check for alerts (frustrated customer, conversion signal, etc.)
@@ -189,7 +190,7 @@ async function handleIncomingMessage(value: any) {
       });
     }
   } catch (error) {
-    console.error('❌ Error handling incoming message:', error);
+    logger.error('❌ Error handling incoming message:', error);
   }
 }
 
@@ -227,9 +228,9 @@ async function saveMessageToMemory(data: any) {
       counters: { messages_sent: 1 }
     });
 
-    console.log('💾 Message saved to memory:', data.userId);
+    logger.info('💾 Message saved to memory:', data.userId);
   } catch (error) {
-    console.error('❌ Error saving to memory:', error);
+    logger.error('❌ Error saving to memory:', error);
   }
 }
 
@@ -257,7 +258,7 @@ Message: "${text}"`;
     const result = JSON.parse(responseData.response || responseData.answer || '{"score":5,"label":"neutral","urgency":"low"}');
     return result;
   } catch (error) {
-    console.error('❌ Sentiment analysis error:', error);
+    logger.error('❌ Sentiment analysis error:', error);
     return { score: 5, label: 'neutral', urgency: 'low' };
   }
 }
@@ -313,9 +314,9 @@ async function updateGroupContext(
     member.lastActive = new Date().toISOString();
     member.engagementScore += 1;
 
-    console.log(`📊 Group context updated: ${groupName} (${context.members.size} members)`);
+    logger.info(`📊 Group context updated: ${groupName} (${context.members.size} members)`);
   } catch (error) {
-    console.error('❌ Error updating group context:', error);
+    logger.error('❌ Error updating group context:', error);
   }
 }
 
@@ -411,9 +412,9 @@ async function sendIntelligentResponse(to: string, userMessage: string, context:
     // Send via WhatsApp API
     await sendWhatsAppMessage(to, responseText);
 
-    console.log(`✅ Response sent to ${context.userName}`);
+    logger.info(`✅ Response sent to ${context.userName}`);
   } catch (error) {
-    console.error('❌ Error sending intelligent response:', error);
+    logger.error('❌ Error sending intelligent response:', error);
   }
 }
 
@@ -440,10 +441,10 @@ async function sendWhatsAppMessage(to: string, text: string) {
       }
     );
 
-    console.log('📤 WhatsApp message sent:', response.data);
+    logger.info('📤 WhatsApp message sent:', response.data);
     return response.data;
   } catch (error: any) {
-    console.error('❌ Error sending WhatsApp message:', error.response?.data || error.message);
+    logger.error('❌ Error sending WhatsApp message:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -486,13 +487,13 @@ async function checkAndSendAlerts(params: any) {
 
   // Send alerts to team via Slack/Discord
   for (const alert of alerts) {
-    console.log(`🚨 ALERT [${alert.severity}]:`, alert.message);
+    logger.info(`🚨 ALERT [${alert.severity}]:`, alert.message);
 
     // Send to Slack/Discord (if webhooks configured)
     try {
       await sendTeamAlert(alert);
     } catch (error) {
-      console.error('❌ Failed to send team alert:', error);
+      logger.error('❌ Failed to send team alert:', error);
     }
   }
 }
@@ -505,7 +506,7 @@ async function sendTeamAlert(alert: any) {
   const discordWebhook = process.env.DISCORD_WEBHOOK_URL;
 
   if (!slackWebhook && !discordWebhook) {
-    console.log('⚠️ No webhook URLs configured (SLACK_WEBHOOK_URL or DISCORD_WEBHOOK_URL)');
+    logger.info('⚠️ No webhook URLs configured (SLACK_WEBHOOK_URL or DISCORD_WEBHOOK_URL)');
     return;
   }
 
@@ -525,9 +526,9 @@ async function sendTeamAlert(alert: any) {
   if (slackWebhook) {
     try {
       await axios.post(slackWebhook, message);
-      console.log('✅ Alert sent to Slack');
+      logger.info('✅ Alert sent to Slack');
     } catch (error: any) {
-      console.error('❌ Slack webhook failed:', error.message);
+      logger.error('❌ Slack webhook failed:', error.message);
     }
   }
 
@@ -543,9 +544,9 @@ async function sendTeamAlert(alert: any) {
         }]
       };
       await axios.post(discordWebhook, discordMessage);
-      console.log('✅ Alert sent to Discord');
+      logger.info('✅ Alert sent to Discord');
     } catch (error: any) {
-      console.error('❌ Discord webhook failed:', error.message);
+      logger.error('❌ Discord webhook failed:', error.message);
     }
   }
 }

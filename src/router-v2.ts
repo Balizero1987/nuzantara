@@ -6,15 +6,16 @@
  * Replaces manual registration with auto-discovery pattern
  */
 
-import { z, ZodError } from "zod";
+import logger from '../services/logger.js';
+import { z } from "zod";
 import type { Request, Response } from "express";
 import { ok, err } from "./utils/response.js";
-import { apiKeyAuth, RequestWithCtx } from "./middleware/auth.js";
+import { RequestWithCtx } from "./middleware/auth.js";
 import { ForbiddenError, BadRequestError, UnauthorizedError } from "./utils/errors.js";
 
 // Import registry system
 import { globalRegistry } from './core/handler-registry.js';
-import { loadAllHandlers, getAllHandlers } from './core/load-all-handlers.js';
+import { loadAllHandlers } from './core/load-all-handlers.js';
 
 // Action schema
 const ActionSchema = z.object({
@@ -22,14 +23,14 @@ const ActionSchema = z.object({
   params: z.record(z.any()).default({}),
 });
 
-type Handler = (params: any, req?: Request) => Promise<any>;
+type Handler = (params: Record<string, unknown>, req?: Request) => Promise<unknown>;
 
 // AI fallback settings
 const AI_FALLBACK_ORDER = (process.env.AI_FALLBACK_ORDER || 'ai.chat')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
-const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 30000);
+// Removed unused AI_TIMEOUT_MS
 
 /**
  * Run handler using registry
@@ -160,12 +161,12 @@ function getLegacyHandlers(): Record<string, Handler> {
  * Initialize router with handler registry
  */
 export async function initializeRouter() {
-  console.log('🚀 Initializing ZANTARA Router v2...');
+  logger.info('🚀 Initializing ZANTARA Router v2...');
 
   // Load all handlers (triggers auto-registration)
   await loadAllHandlers();
 
-  console.log('✅ Router v2 initialized with Handler Registry');
+  logger.info('✅ Router v2 initialized with Handler Registry');
 }
 
 /**
@@ -193,7 +194,7 @@ export async function handleAction(req: RequestWithCtx, res: Response) {
     return res.status(200).json(result);
 
   } catch (error: any) {
-    console.error('Action error:', error);
+    logger.error('Action error:', error);
 
     if (error instanceof BadRequestError) {
       return res.status(400).json(err('bad_request', error.message));

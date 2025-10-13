@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { trackActivity } from '../services/session-tracker.js';
+import logger from '../services/logger.js';
 
 // Performance and error tracking
 interface RequestMetrics {
@@ -51,14 +52,14 @@ export function requestTracker(req: Request, res: Response, _next: NextFunction)
   // Store request metrics for later use
   (req as any).requestMetrics = requestMetrics;
 
-  console.log(`🔍 [${requestId}] ${req.method} ${req.path} - Started`);
+  logger.info(`Request started`, { requestId, method: req.method, path: req.path });
 
   // Track team member activity (for team.recent_activity handler)
   try {
     trackActivity(req, 'action');
   } catch (err) {
     // Don't fail request if tracking fails
-    console.warn('⚠️ Activity tracking failed:', (err as Error).message);
+    logger.warn('Activity tracking failed', { error: (err as Error).message });
   }
 
   // Track response
@@ -87,7 +88,7 @@ export function requestTracker(req: Request, res: Response, _next: NextFunction)
       trackErrorForAlert(statusCode);
     }
 
-    console.log(`✅ [${requestId}] ${statusCode} ${req.path} - ${responseTime}ms${isError ? ' ERROR' : ''}`);
+    logger.info(`Request completed`, { requestId, statusCode, path: req.path, responseTime, isError });
 
     return originalSend.call(this, data);
   };
@@ -103,7 +104,9 @@ export function errorTracker(err: any, req: Request, _res: Response, next: NextF
   metrics.errors++;
   metrics.errorsByType.set(errorType, (metrics.errorsByType.get(errorType) || 0) + 1);
 
-  console.error(`❌ [${requestId}] Error: ${errorType}`, {
+  logger.error(`Request error`, {
+    requestId,
+    errorType,
     message: err.message,
     stack: err.stack?.split('\n').slice(0, 3).join('\n'),
     path: req.path,
@@ -189,7 +192,7 @@ export async function getHealthMetrics() {
 // Performance monitoring helper
 export function logSlowQuery(operation: string, durationMs: number, threshold: number = 1000) {
   if (durationMs > threshold) {
-    console.warn(`🐌 Slow operation detected: ${operation} took ${durationMs}ms (threshold: ${threshold}ms)`);
+    logger.warn(`Slow operation detected`, { operation, durationMs, threshold });
   }
 }
 
@@ -272,7 +275,7 @@ async function sendAlert(alertType: string, message: string, details: any) {
 
   // Check cooldown
   if (timeSinceLastAlert < alertConfig.cooldown && alertMetrics.lastAlertType === alertType) {
-    console.log(`⏳ Alert cooldown active for ${alertType} (${Math.round((alertConfig.cooldown - timeSinceLastAlert) / 1000)}s remaining)`);
+    logger.info(`Alert cooldown active`, { alertType, remainingSeconds: Math.round((alertConfig.cooldown - timeSinceLastAlert) / 1000) });
     return;
   }
 
@@ -282,8 +285,7 @@ async function sendAlert(alertType: string, message: string, details: any) {
 
   // Console alert (always active)
   if (alertConfig.channels.console) {
-    console.error(`🚨 ALERT [${alertType}]: ${message}`);
-    console.error('📊 Details:', JSON.stringify(details, null, 2));
+    logger.error(`ALERT`, { alertType, message, details });
   }
 
   // WhatsApp alert (if enabled)
@@ -299,9 +301,9 @@ async function sendAlert(alertType: string, message: string, details: any) {
         message: whatsappMessage
       });
 
-      console.log('✅ WhatsApp alert sent');
+      logger.info('WhatsApp alert sent');
     } catch (error: any) {
-      console.error('❌ Failed to send WhatsApp alert:', error.message);
+      logger.error('Failed to send WhatsApp alert', { error: error.message });
     }
   }
 }
@@ -379,7 +381,7 @@ export function trackErrorForAlert(statusCode: number) {
 
   // Check thresholds (async, non-blocking)
   checkAlertThresholds().catch(err => {
-    console.error('Error checking alert thresholds:', err);
+    logger.error('Error checking alert thresholds', { error: err });
   });
 }
 

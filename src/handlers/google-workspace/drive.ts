@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
@@ -43,7 +44,7 @@ export interface DriveSearchResult { query: string; files: any[]; nextPageToken:
 export interface DriveReadResult { file: any; content: string | null; readable: boolean }
 
 export async function driveUpload(params: DriveUploadParams) {
-  console.log('📤 Drive upload requested with params:', {
+  logger.info('📤 Drive upload requested with params:', {
     hasRequestBody: !!params?.requestBody,
     hasResource: !!params?.resource,
     hasMedia: !!params?.media,
@@ -76,14 +77,14 @@ export async function driveUpload(params: DriveUploadParams) {
       const decoded = Buffer.from(body, 'base64');
       if (decoded.toString('base64') === body.replace(/\s/g, '')) {
         body = decoded;
-        console.log('🔄 Decoded base64 content, size:', body.length);
+        logger.info('🔄 Decoded base64 content, size:', body.length);
       } else {
         body = Buffer.from(body, 'utf8');
-        console.log('🔄 Converted UTF8 content, size:', body.length);
+        logger.info('🔄 Converted UTF8 content, size:', body.length);
       }
     } catch {
       body = Buffer.from(body, 'utf8');
-      console.log('🔄 Fallback UTF8 content, size:', body.length);
+      logger.info('🔄 Fallback UTF8 content, size:', body.length);
     }
   }
 
@@ -102,13 +103,13 @@ export async function driveUpload(params: DriveUploadParams) {
     : (validDriveId ? { ...requestBody, parents: [validDriveId] } : requestBody);
 
   // Try native TS Drive client first
-  console.log('🔍 Attempting to get Drive service...');
+  logger.info('🔍 Attempting to get Drive service...');
   const drive = await getDrive();
 
   if (drive) {
     try {
-      console.log('✅ Drive service obtained, uploading file...');
-      console.log('📦 Upload config:', {
+      logger.info('✅ Drive service obtained, uploading file...');
+      logger.info('📦 Upload config:', {
         fileName: finalRequestBody.name,
         mimeType: media?.mimeType || 'text/plain',
         parents: finalRequestBody.parents,
@@ -124,7 +125,7 @@ export async function driveUpload(params: DriveUploadParams) {
         supportsAllDrives: supportsAllDrives ?? true,
       });
 
-      console.log('✅ File uploaded successfully:', {
+      logger.info('✅ File uploaded successfully:', {
         id: res.data.id,
         name: res.data.name,
         webViewLink: res.data.webViewLink
@@ -132,7 +133,7 @@ export async function driveUpload(params: DriveUploadParams) {
 
       return ok({ file: res.data, sharedDrive: validDriveId || null });
     } catch (error: any) {
-      console.error('❌ Drive upload failed:', {
+      logger.error('❌ Drive upload failed:', {
         error: error?.message,
         code: error?.code,
         status: error?.status,
@@ -141,8 +142,8 @@ export async function driveUpload(params: DriveUploadParams) {
 
       // Check for scope errors specifically
       if (error?.message?.includes('insufficient authentication scopes')) {
-        console.error('🚫 CRITICAL: Authentication has insufficient scopes for Drive upload');
-        console.error('📋 Required scopes: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/drive.file');
+        logger.error('🚫 CRITICAL: Authentication has insufficient scopes for Drive upload');
+        logger.error('📋 Required scopes: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/drive.file');
       }
 
       throw error;
@@ -150,14 +151,14 @@ export async function driveUpload(params: DriveUploadParams) {
   }
 
   // Fallback to Bridge legacy implementation
-  console.log('⚠️ Drive service not available, trying Bridge fallback...');
+  logger.info('⚠️ Drive service not available, trying Bridge fallback...');
   const bridged = await forwardToBridgeIfSupported('drive.upload', params);
   if (bridged) {
-    console.log('✅ Upload succeeded via Bridge fallback');
+    logger.info('✅ Upload succeeded via Bridge fallback');
     return bridged;
   }
 
-  console.error('❌ Drive not configured - both Service Account and Bridge failed');
+  logger.error('❌ Drive not configured - both Service Account and Bridge failed');
   throw new BadRequestError('Drive not configured - check authentication settings');
 }
 

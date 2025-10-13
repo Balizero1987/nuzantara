@@ -11,6 +11,7 @@
  * - handlers/zantara/*.ts
  */
 
+import logger from '../services/logger.js';
 import type { Request } from "express";
 
 // Handler types
@@ -71,7 +72,7 @@ export class HandlerRegistry {
   register(metadata: HandlerMetadata): void {
     if (this.handlers.has(metadata.key)) {
       if (this.options.enableLogging) {
-        console.warn(`⚠️  Handler '${metadata.key}' already registered, overwriting`);
+        logger.warn(`⚠️  Handler '${metadata.key}' already registered, overwriting`);
       }
     }
 
@@ -79,7 +80,7 @@ export class HandlerRegistry {
     this.callCounts.set(metadata.key, 0);
 
     if (this.options.enableLogging) {
-      console.log(`✅ Registered handler: ${metadata.key} (module: ${metadata.module})`);
+      logger.info(`✅ Registered handler: ${metadata.key} (module: ${metadata.module})`);
     }
   }
 
@@ -131,7 +132,7 @@ export class HandlerRegistry {
     }
 
     if (metadata.deprecated) {
-      console.warn(`⚠️  Handler '${key}' is deprecated`);
+      logger.warn(`⚠️  Handler '${key}' is deprecated`);
     }
 
     // Increment call count
@@ -146,13 +147,13 @@ export class HandlerRegistry {
       const duration = Date.now() - startTime;
 
       if (this.options.enableLogging && duration > 1000) {
-        console.warn(`⏱️  Slow handler: ${key} took ${duration}ms`);
+        logger.warn(`⏱️  Slow handler: ${key} took ${duration}ms`);
       }
 
       return result;
     } catch (error: any) {
       if (this.options.enableLogging) {
-        console.error(`❌ Handler error: ${key}`, error.message);
+        logger.error(`❌ Handler error: ${key}`, error.message);
       }
       throw error;
     }

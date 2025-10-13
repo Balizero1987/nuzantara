@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import type { Request, Response, NextFunction } from "express";
 import { ENV } from "../config.js";
 export type ApiRole = "internal" | "external";
@@ -19,7 +20,7 @@ export function apiKeyAuth(req: RequestWithCtx, res: Response, next: NextFunctio
   const origin = req.header("origin");
   if (origin === 'https://zantara.balizero.com' || origin === 'https://balizero1987.github.io') {
     req.ctx = { role: "external" }; // Webapp treated as external client
-    console.log(`[auth] Webapp request from ${origin} (no API key required)`);
+    logger.info(`[auth] Webapp request from ${origin} (no API key required)`);
     return next();
   }
 

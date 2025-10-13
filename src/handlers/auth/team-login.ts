@@ -3,6 +3,7 @@
  * Integrates with ZANTARA identity recognition system
  */
 
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 
@@ -279,7 +280,7 @@ export async function teamLogin(params: any) {
   activeSessions.set(sessionId, session);
 
   // Log successful login
-  console.log(`🔐 Team login successful: ${member.name} (${member.role}) - Session: ${sessionId}`);
+  logger.info(`🔐 Team login successful: ${member.name} (${member.role}) - Session: ${sessionId}`);
 
   return ok({
     success: true,
@@ -359,7 +360,7 @@ export function logoutSession(sessionId: string) {
   const session = activeSessions.get(sessionId);
   if (session) {
     activeSessions.delete(sessionId);
-    console.log(`🔓 Team logout: ${session.user.name} - Session: ${sessionId}`);
+    logger.info(`🔓 Team logout: ${session.user.name} - Session: ${sessionId}`);
     return true;
   }
   return false;

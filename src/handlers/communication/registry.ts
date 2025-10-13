@@ -2,6 +2,7 @@
  * Communication Module Registry
  */
 
+import logger from '../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { slackNotify, discordNotify, googleChatNotify } from './communication.js';
 import {
@@ -54,7 +55,7 @@ export function registerCommunicationHandlers() {
     }
   }
 
-  console.log('✅ Communication handlers registered');
+  logger.info('✅ Communication handlers registered');
 }
 
 registerCommunicationHandlers();

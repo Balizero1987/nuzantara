@@ -2,6 +2,7 @@
  * Analytics & Monitoring Module Registry
  */
 
+import logger from '../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { analyticsHandlers } from './analytics.js';
 import {
@@ -59,7 +60,7 @@ export function registerAnalyticsHandlers() {
     'daily.recap.get': getCurrentDailyRecap
   }, { requiresAuth: true });
 
-  console.log('✅ Analytics handlers registered');
+  logger.info('✅ Analytics handlers registered');
 }
 
 registerAnalyticsHandlers();

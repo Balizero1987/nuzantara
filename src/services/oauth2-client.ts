@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { google } from 'googleapis';
 import * as fs from 'fs';
 import { getOAuth2TokensPath } from './token-path.js';
@@ -45,7 +46,7 @@ async function getSecretManagerClient() {
     });
     return secretManagerClient;
   } catch (error: any) {
-    console.warn('⚠️ Secret Manager not available:', error.message);
+    logger.warn('⚠️ Secret Manager not available:', error.message);
     return null;
   }
 }
@@ -66,10 +67,10 @@ async function saveTokensToSecretManager(tokens: OAuth2Tokens): Promise<boolean>
       }
     });
 
-    console.log('💾 OAuth2 tokens saved to Secret Manager');
+    logger.info('💾 OAuth2 tokens saved to Secret Manager');
     return true;
   } catch (error: any) {
-    console.warn('⚠️ Failed to save tokens to Secret Manager:', error.message);
+    logger.warn('⚠️ Failed to save tokens to Secret Manager:', error.message);
     return false;
   }
 }
@@ -79,10 +80,10 @@ function saveTokensToFile(tokens: OAuth2Tokens): boolean {
   try {
     const tokenPath = getOAuth2TokensPath();
     fs.writeFileSync(tokenPath, JSON.stringify(tokens, null, 2));
-    console.log(`💾 OAuth2 tokens saved to file: ${tokenPath}`);
+    logger.info(`💾 OAuth2 tokens saved to file: ${tokenPath}`);
     return true;
   } catch (error: any) {
-    console.error('❌ Failed to save tokens to file:', error.message);
+    logger.error('❌ Failed to save tokens to file:', error.message);
     return false;
   }
 }
@@ -93,14 +94,14 @@ async function persistTokens(tokens: OAuth2Tokens): Promise<void> {
   const fileSuccess = saveTokensToFile(tokens);
 
   if (!secretManagerSuccess && !fileSuccess) {
-    console.error('❌ CRITICAL: Failed to persist OAuth2 tokens to both Secret Manager and file!');
+    logger.error('❌ CRITICAL: Failed to persist OAuth2 tokens to both Secret Manager and file!');
   }
 }
 
 // Async token refresh with proper error handling
 async function refreshTokensAsync(client: any, currentTokens: OAuth2Tokens): Promise<OAuth2Tokens | null> {
   try {
-    console.log('🔄 Refreshing OAuth2 tokens...');
+    logger.info('🔄 Refreshing OAuth2 tokens...');
     const { credentials } = await client.refreshAccessToken();
 
     const newTokens: OAuth2Tokens = {
@@ -113,14 +114,14 @@ async function refreshTokensAsync(client: any, currentTokens: OAuth2Tokens): Pro
     // Persist tokens immediately
     await persistTokens(newTokens);
 
-    console.log(`✅ OAuth2 tokens refreshed successfully. Expires at: ${new Date(newTokens.expiry_date)}`);
+    logger.info(`✅ OAuth2 tokens refreshed successfully. Expires at: ${new Date(newTokens.expiry_date)}`);
     return newTokens;
   } catch (error: any) {
-    console.error('❌ Failed to refresh OAuth2 tokens:', error.message);
+    logger.error('❌ Failed to refresh OAuth2 tokens:', error.message);
 
     // Check if it's a recoverable error
     if (error.code === 400 && error.message?.includes('invalid_grant')) {
-      console.error('❌ CRITICAL: Refresh token is invalid. OAuth2 re-authorization required.');
+      logger.error('❌ CRITICAL: Refresh token is invalid. OAuth2 re-authorization required.');
     }
 
     return null;
@@ -140,18 +141,18 @@ function scheduleTokenRefresh(state: OAuth2ClientState): void {
     MIN_REFRESH_INTERVAL_MS
   );
 
-  console.log(`⏰ Scheduling OAuth2 token refresh in ${Math.round(timeUntilRefresh / 1000 / 60)} minutes`);
+  logger.info(`⏰ Scheduling OAuth2 token refresh in ${Math.round(timeUntilRefresh / 1000 / 60)} minutes`);
 
   state.refreshSchedule = setTimeout(async () => {
     if (state.refreshPromise) {
-      console.log('🔄 Token refresh already in progress, waiting...');
+      logger.info('🔄 Token refresh already in progress, waiting...');
       await state.refreshPromise;
       return;
     }
 
     const timeSinceLastRefresh = now - state.lastRefresh;
     if (timeSinceLastRefresh < MIN_REFRESH_INTERVAL_MS) {
-      console.log('⏭️ Skipping refresh - too soon since last refresh');
+      logger.info('⏭️ Skipping refresh - too soon since last refresh');
       scheduleTokenRefresh(state); // Reschedule
       return;
     }
@@ -186,7 +187,7 @@ async function initializeOAuth2Client(): Promise<any> {
   if (oauth2ClientState?.client) {
     // Check if token needs refresh
     if (needsImmediateRefresh(oauth2ClientState.tokens)) {
-      console.log('⏰ Token needs immediate refresh');
+      logger.info('⏰ Token needs immediate refresh');
 
       if (!oauth2ClientState.refreshPromise) {
         oauth2ClientState.refreshPromise = (async () => {
@@ -207,7 +208,7 @@ async function initializeOAuth2Client(): Promise<any> {
     }
 
     // Log current token scopes for debugging
-    console.log('🔍 OAuth2 token scopes:', oauth2ClientState.tokens.scope?.split(' ') || 'unknown');
+    logger.info('🔍 OAuth2 token scopes:', oauth2ClientState.tokens.scope?.split(' ') || 'unknown');
 
     return oauth2ClientState.client;
   }
@@ -215,7 +216,7 @@ async function initializeOAuth2Client(): Promise<any> {
   try {
     // Check if USE_OAUTH2 is enabled
     if (!process.env.USE_OAUTH2 || process.env.USE_OAUTH2 !== 'true') {
-      console.log('🔒 OAuth2 initialization skipped: USE_OAUTH2 is not "true" (current value: ' + (process.env.USE_OAUTH2 || 'not set') + ')');
+      logger.info('🔒 OAuth2 initialization skipped: USE_OAUTH2 is not "true" (current value: ' + (process.env.USE_OAUTH2 || 'not set') + ')');
       return null;
     }
 
@@ -223,13 +224,13 @@ async function initializeOAuth2Client(): Promise<any> {
 
     // Load tokens from file
     if (!fs.existsSync(tokenPath)) {
-      console.warn(`⚠️ OAuth2 tokens file not found at ${tokenPath}`);
+      logger.warn(`⚠️ OAuth2 tokens file not found at ${tokenPath}`);
       return null;
     }
 
     const tokens: OAuth2Tokens = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
 
-    console.log('🔍 OAuth2 tokens loaded:', {
+    logger.info('🔍 OAuth2 tokens loaded:', {
       has_access_token: !!tokens.access_token,
       has_refresh_token: !!tokens.refresh_token,
       scopes: tokens.scope?.split(' ') || 'unknown',
@@ -237,7 +238,7 @@ async function initializeOAuth2Client(): Promise<any> {
     });
 
     if (!tokens.refresh_token) {
-      console.error('❌ No refresh token found in OAuth2 tokens');
+      logger.error('❌ No refresh token found in OAuth2 tokens');
       return null;
     }
 
@@ -260,7 +261,7 @@ async function initializeOAuth2Client(): Promise<any> {
 
     // Setup automatic token refresh event handler
     client.on('tokens', async (newTokens: any) => {
-      console.log('🔄 OAuth2 tokens refreshed via event handler');
+      logger.info('🔄 OAuth2 tokens refreshed via event handler');
 
       const updatedTokens: OAuth2Tokens = {
         ...oauth2ClientState!.tokens,
@@ -278,7 +279,7 @@ async function initializeOAuth2Client(): Promise<any> {
 
     // Perform immediate refresh if token is expired or close to expiry
     if (needsImmediateRefresh(tokens)) {
-      console.log('⏰ Token expired or close to expiry, refreshing immediately...');
+      logger.info('⏰ Token expired or close to expiry, refreshing immediately...');
 
       const newTokens = await refreshTokensAsync(client, tokens);
       if (newTokens) {
@@ -286,7 +287,7 @@ async function initializeOAuth2Client(): Promise<any> {
         client.setCredentials(newTokens);
         oauth2ClientState.lastRefresh = Date.now();
       } else {
-        console.error('❌ Failed to refresh expired token on initialization');
+        logger.error('❌ Failed to refresh expired token on initialization');
         return null;
       }
     }
@@ -297,15 +298,15 @@ async function initializeOAuth2Client(): Promise<any> {
     // Set up periodic health checks
     setInterval(() => {
       if (oauth2ClientState && needsImmediateRefresh(oauth2ClientState.tokens)) {
-        console.log('🚨 Periodic check: Token needs refresh');
+        logger.info('🚨 Periodic check: Token needs refresh');
         scheduleTokenRefresh(oauth2ClientState);
       }
     }, TOKEN_REFRESH_INTERVAL_MS);
 
-    console.log('✅ Enhanced OAuth2 client initialized with proactive token management');
+    logger.info('✅ Enhanced OAuth2 client initialized with proactive token management');
     return client;
   } catch (error: any) {
-    console.error('❌ OAuth2 initialization failed:', error.message);
+    logger.error('❌ OAuth2 initialization failed:', error.message);
     return null;
   }
 }
@@ -354,7 +355,7 @@ export function getTokenStatus() {
 // Manual token refresh for testing/emergency use
 export async function forceTokenRefresh(): Promise<boolean> {
   if (!oauth2ClientState) {
-    console.error('❌ OAuth2 not initialized');
+    logger.error('❌ OAuth2 not initialized');
     return false;
   }
 
@@ -377,7 +378,7 @@ export async function forceTokenRefresh(): Promise<boolean> {
     }
     return false;
   } catch (error: any) {
-    console.error('❌ Force refresh failed:', error.message);
+    logger.error('❌ Force refresh failed:', error.message);
     return false;
   }
 }
@@ -386,12 +387,12 @@ export async function forceTokenRefresh(): Promise<boolean> {
 export async function getGoogleService(serviceName: string, version: string = 'v3') {
   try {
     const auth = await getOAuth2Client();
-    console.log(`🔍 Creating OAuth2 ${serviceName} service with version ${version}`);
+    logger.info(`🔍 Creating OAuth2 ${serviceName} service with version ${version}`);
 
     // Verify token has proper scopes for the service
     if (oauth2ClientState?.tokens.scope) {
       const scopes = oauth2ClientState.tokens.scope.split(' ');
-      console.log(`🔍 OAuth2 token has scopes:`, scopes);
+      logger.info(`🔍 OAuth2 token has scopes:`, scopes);
 
       // Check for Drive-specific scopes if it's Drive service
       if (serviceName === 'drive') {
@@ -399,8 +400,8 @@ export async function getGoogleService(serviceName: string, version: string = 'v
           scope.includes('drive') || scope.includes('Drive')
         );
         if (!hasDriveScope) {
-          console.warn('⚠️ OAuth2 token may not have Drive scopes!');
-          console.warn('📋 Required Drive scopes: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/drive.file');
+          logger.warn('⚠️ OAuth2 token may not have Drive scopes!');
+          logger.warn('📋 Required Drive scopes: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/drive.file');
         }
       }
     }
@@ -428,6 +429,6 @@ export function cleanupOAuth2Client(): void {
   if (oauth2ClientState?.refreshSchedule) {
     clearTimeout(oauth2ClientState.refreshSchedule);
     oauth2ClientState.refreshSchedule = null;
-    console.log('🧹 OAuth2 refresh scheduler cleaned up');
+    logger.info('🧹 OAuth2 refresh scheduler cleaned up');
   }
 }

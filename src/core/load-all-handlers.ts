@@ -5,6 +5,7 @@
  * Call this once at app startup to register all 136+ handlers
  */
 
+import logger from '../services/logger.js';
 import { globalRegistry } from './handler-registry.js';
 
 /**
@@ -12,7 +13,7 @@ import { globalRegistry } from './handler-registry.js';
  * This triggers auto-registration in each module
  */
 export async function loadAllHandlers() {
-  console.log('🔄 Loading all handler modules...');
+  logger.info('🔄 Loading all handler modules...');
 
   try {
     // Google Workspace (8+ handlers)
@@ -46,14 +47,14 @@ export async function loadAllHandlers() {
     await import('../handlers/maps/registry.js');
 
     const stats = globalRegistry.getStats();
-    console.log('✅ Handler loading complete:');
-    console.log(`   📊 Total handlers: ${stats.totalHandlers}`);
-    console.log(`   📦 Modules loaded: ${Object.keys(stats.modules).length}`);
-    console.log(`   📦 Module breakdown:`, stats.modules);
+    logger.info('✅ Handler loading complete:');
+    logger.info(`   📊 Total handlers: ${stats.totalHandlers}`);
+    logger.info(`   📦 Modules loaded: ${Object.keys(stats.modules).length}`);
+    logger.info(`   📦 Module breakdown:`, stats.modules);
 
     return stats;
   } catch (error) {
-    console.error('❌ Error loading handlers:', error);
+    logger.error('❌ Error loading handlers:', error);
     throw error;
   }
 }

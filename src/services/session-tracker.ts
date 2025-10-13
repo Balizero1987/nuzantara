@@ -5,6 +5,7 @@
  * Integrates with auth middleware and monitoring
  */
 
+import logger from '../services/logger.js';
 import type { Request } from 'express';
 
 export interface SessionActivity {
@@ -105,7 +106,7 @@ export function trackActivity(req: Request, activityType: SessionActivity['activ
 
   sessionStore.set(identity.memberId, activity);
 
-  console.log(`📊 Activity tracked: ${identity.email} (${activityType}) - ${activity.activityCount} actions`);
+  logger.info(`📊 Activity tracked: ${identity.email} (${activityType}) - ${activity.activityCount} actions`);
 }
 
 /**
@@ -180,7 +181,7 @@ export function cleanupOldSessions(maxAgeHours = 168) { // 7 days default
   }
 
   if (cleaned > 0) {
-    console.log(`🧹 Cleaned ${cleaned} old sessions (older than ${maxAgeHours}h)`);
+    logger.info(`🧹 Cleaned ${cleaned} old sessions (older than ${maxAgeHours}h)`);
   }
 
   return cleaned;

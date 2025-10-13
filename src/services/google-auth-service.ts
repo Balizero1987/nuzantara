@@ -4,6 +4,7 @@
  * Eliminates duplicate GoogleAuth configurations across handlers
  */
 
+import logger from '../services/logger.js';
 import { google } from 'googleapis';
 // import { GoogleAuth } from 'google-auth-library'; // Not used
 import * as fs from 'fs';
@@ -32,7 +33,7 @@ async function getAuthenticatedService<T>(
 ): Promise<T | null> {
 
   // Detailed auth configuration logging
-  console.log(`🔍 Auth config for ${config.serviceName}:`, {
+  logger.info(`🔍 Auth config for ${config.serviceName}:`, {
     USE_OAUTH2: process.env.USE_OAUTH2 || 'not set',
     GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS ? 'set' : 'not set',
     GOOGLE_SERVICE_ACCOUNT_KEY: process.env.GOOGLE_SERVICE_ACCOUNT_KEY ? 'set' : 'not set',
@@ -44,7 +45,7 @@ async function getAuthenticatedService<T>(
   const useOAuth2 = process.env.USE_OAUTH2 === 'true';
   const oauth2Available = useOAuth2 ? await isOAuth2Available() : false;
 
-  console.log(`🔐 Auth decision for ${config.serviceName}:`, {
+  logger.info(`🔐 Auth decision for ${config.serviceName}:`, {
     USE_OAUTH2_env: process.env.USE_OAUTH2,
     useOAuth2_parsed: useOAuth2,
     oauth2Available: oauth2Available,
@@ -53,12 +54,12 @@ async function getAuthenticatedService<T>(
 
   if (oauth2Available && oauth2Service) {
     try {
-      console.log(`🔑 Attempting OAuth2 for ${config.serviceName}...`);
+      logger.info(`🔑 Attempting OAuth2 for ${config.serviceName}...`);
       const service = await oauth2Service();
-      console.log(`✅ OAuth2 succeeded for ${config.serviceName}`);
+      logger.info(`✅ OAuth2 succeeded for ${config.serviceName}`);
       return service;
     } catch (error: any) {
-      console.warn(`⚠️ OAuth2 ${config.serviceName} failed:`, {
+      logger.warn(`⚠️ OAuth2 ${config.serviceName} failed:`, {
         error: error?.message,
         name: error?.name,
         code: error?.code,
@@ -67,33 +68,33 @@ async function getAuthenticatedService<T>(
 
       // Log specific OAuth2 errors for debugging
       if (error.name === 'OAUTH2_NOT_CONFIGURED') {
-        console.warn('🔧 OAuth2 not configured properly');
+        logger.warn('🔧 OAuth2 not configured properly');
       } else if (error.code === 401) {
-        console.warn('🔐 OAuth2 authentication failed - token may be expired');
+        logger.warn('🔐 OAuth2 authentication failed - token may be expired');
       } else if (error.code === 403) {
-        console.warn('🚫 OAuth2 access denied - check scopes');
+        logger.warn('🚫 OAuth2 access denied - check scopes');
         if (error?.message?.includes('insufficient authentication scopes')) {
-          console.warn('📋 OAuth2 token missing required scopes:', config.scopes);
+          logger.warn('📋 OAuth2 token missing required scopes:', config.scopes);
         }
       }
-      console.log(`🔄 Falling back to Service Account for ${config.serviceName}`);
+      logger.info(`🔄 Falling back to Service Account for ${config.serviceName}`);
     }
   } else if (useOAuth2) {
-    console.log(`⚠️ OAuth2 enabled but not available for ${config.serviceName}, using service account`);
+    logger.info(`⚠️ OAuth2 enabled but not available for ${config.serviceName}, using service account`);
   } else {
-    console.log(`🔑 OAuth2 disabled (USE_OAUTH2=${process.env.USE_OAUTH2}), using Service Account for ${config.serviceName}`);
+    logger.info(`🔑 OAuth2 disabled (USE_OAUTH2=${process.env.USE_OAUTH2}), using Service Account for ${config.serviceName}`);
   }
 
   // Use service account authentication (Domain‑Wide Delegation via JWT)
   try {
-    console.log(`🔑 Initializing Service Account (JWT) for ${config.serviceName}`);
+    logger.info(`🔑 Initializing Service Account (JWT) for ${config.serviceName}`);
     const keyFile = process.env.GOOGLE_APPLICATION_CREDENTIALS || '';
     const raw = process.env.GOOGLE_SERVICE_ACCOUNT_KEY || '';
     const impersonate = process.env.IMPERSONATE_USER || undefined;
 
     if (!keyFile && !raw) {
-      console.error('❌ No Google Service Account credentials found');
-      console.error('💡 Set GOOGLE_APPLICATION_CREDENTIALS (file path) or GOOGLE_SERVICE_ACCOUNT_KEY (JSON string)');
+      logger.error('❌ No Google Service Account credentials found');
+      logger.error('💡 Set GOOGLE_APPLICATION_CREDENTIALS (file path) or GOOGLE_SERVICE_ACCOUNT_KEY (JSON string)');
       return null;
     }
 
@@ -105,7 +106,7 @@ async function getAuthenticatedService<T>(
       throw new Error('Service account JSON missing client_email/private_key');
     }
 
-    console.log(`📋 Service Account config:`, {
+    logger.info(`📋 Service Account config:`, {
       keyFile: keyFile ? `✅ Set (${keyFile})` : '❌ Not set',
       credentialsKey: raw ? `✅ Set (length: ${raw.length})` : '❌ Not set',
       client_email: sa.client_email || 'missing',
@@ -121,13 +122,13 @@ async function getAuthenticatedService<T>(
       subject: impersonate,
     });
 
-    console.log(`🔗 Creating ${config.serviceName} client with JWT…`);
+    logger.info(`🔗 Creating ${config.serviceName} client with JWT…`);
     const service = serviceFactory(jwt);
-    console.log(`✅ Service Account authentication successful for ${config.serviceName}`);
+    logger.info(`✅ Service Account authentication successful for ${config.serviceName}`);
     return service;
   } catch (error: any) {
-    console.error(`❌ ${config.serviceName} Service Account authentication failed:`, error?.message);
-    console.error(`❌ Error details:`, {
+    logger.error(`❌ ${config.serviceName} Service Account authentication failed:`, error?.message);
+    logger.error(`❌ Error details:`, {
       name: error.name,
       code: error.code,
       status: error.status,
@@ -136,14 +137,14 @@ async function getAuthenticatedService<T>(
 
     // Provide helpful error messages
     if (error.message?.includes('ENOENT')) {
-      console.error('💡 Service account key file not found. Check GOOGLE_APPLICATION_CREDENTIALS path.');
+      logger.error('💡 Service account key file not found. Check GOOGLE_APPLICATION_CREDENTIALS path.');
     } else if (error.message?.includes('invalid_grant')) {
-      console.error('💡 Service account key is invalid or expired.');
+      logger.error('💡 Service account key is invalid or expired.');
     } else if (error.message?.includes('unregistered callers')) {
-      console.error('💡 Service account not authorized for this API. Check:');
-      console.error('   - Google Cloud Console: Enable required APIs');
-      console.error('   - Service account has necessary IAM roles');
-      console.error('   - For Workspace APIs: Enable domain-wide delegation');
+      logger.error('💡 Service account not authorized for this API. Check:');
+      logger.error('   - Google Cloud Console: Enable required APIs');
+      logger.error('   - Service account has necessary IAM roles');
+      logger.error('   - For Workspace APIs: Enable domain-wide delegation');
     }
     return null;
   }
@@ -167,7 +168,7 @@ export async function getCalendar() {
       try {
         return await getCalendarService();
       } catch (error: any) {
-        console.error('🔴 OAuth2 Calendar service failed:', error.message);
+        logger.error('🔴 OAuth2 Calendar service failed:', error.message);
         throw error;
       }
     }
@@ -194,10 +195,10 @@ export async function getDrive() {
       try {
         const service = await getDriveService();
         // Check if the OAuth2 client has sufficient scopes
-        console.log('🔍 Verifying OAuth2 Drive scopes...');
+        logger.info('🔍 Verifying OAuth2 Drive scopes...');
         return service;
       } catch (error: any) {
-        console.error('🔴 OAuth2 Drive service failed:', {
+        logger.error('🔴 OAuth2 Drive service failed:', {
           error: error.message,
           code: error.code,
           details: error?.response?.data || error?.errors
@@ -225,7 +226,7 @@ export async function getSheets() {
       try {
         return await getSheetsService();
       } catch (error: any) {
-        console.error('🔴 OAuth2 Sheets service failed:', error.message);
+        logger.error('🔴 OAuth2 Sheets service failed:', error.message);
         throw error;
       }
     }
@@ -249,7 +250,7 @@ export async function getDocs() {
       try {
         return await getDocsService();
       } catch (error: any) {
-        console.error('🔴 OAuth2 Docs service failed:', error.message);
+        logger.error('🔴 OAuth2 Docs service failed:', error.message);
         throw error;
       }
     }
@@ -273,7 +274,7 @@ export async function getSlides() {
       try {
         return await getSlidesService();
       } catch (error: any) {
-        console.error('🔴 OAuth2 Slides service failed:', error.message);
+        logger.error('🔴 OAuth2 Slides service failed:', error.message);
         throw error;
       }
     }
@@ -315,7 +316,7 @@ export async function getContacts() {
       try {
         return await getPeopleService();
       } catch (error: any) {
-        console.error('🔴 OAuth2 Contacts service failed:', error.message);
+        logger.error('🔴 OAuth2 Contacts service failed:', error.message);
         throw error;
       }
     }

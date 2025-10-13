@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 // import { ok } from "../../utils/response.js";
 // import { BadRequestError } from "../../utils/errors.js";
 import { getDrive } from "../../services/google-auth-service.js";
@@ -64,7 +65,7 @@ export async function handleDriveUploadMultipart(req: Request, res: Response) {
       }
     });
   } catch (error: any) {
-    console.error('Drive upload error:', error);
+    logger.error('Drive upload error:', error);
     return res.status(500).json({
       ok: false,
       error: error?.message || 'Upload failed',

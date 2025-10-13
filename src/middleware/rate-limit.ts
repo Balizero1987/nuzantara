@@ -5,6 +5,7 @@
  * Uses express-rate-limit with Redis-like in-memory store
  */
 
+import logger from '../services/logger.js';
 import rateLimit from 'express-rate-limit';
 import type { Request } from 'express';
 
@@ -42,7 +43,7 @@ export const baliZeroChatLimiter = rateLimit({
   // Custom handler for rate limit exceeded
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
-    console.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
 
     res.status(429).json({
       ok: false,
@@ -75,7 +76,7 @@ export const aiChatLimiter = rateLimit({
 
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
-    console.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
 
     res.status(429).json({
       ok: false,
@@ -107,7 +108,7 @@ export const ragQueryLimiter = rateLimit({
 
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
-    console.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
 
     res.status(429).json({
       ok: false,
@@ -139,7 +140,7 @@ export const strictLimiter = rateLimit({
 
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
-    console.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
 
     res.status(429).json({
       ok: false,

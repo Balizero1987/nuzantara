@@ -4,6 +4,7 @@
  */
 
 // Removed unused imports for ZANTARA-ONLY mode
+import logger from '../services/logger.js';
 import { aiChat } from "../ai-services/ai.js";
 
 export interface ZeroChatSimpleParams {
@@ -52,7 +53,7 @@ export async function zeroChatSimple(params: ZeroChatSimpleParams): Promise<Zero
       toolsUsed: ['zantara']
     };
   } catch (error: any) {
-    console.error('Zero chat simple error:', error);
+    logger.error('Zero chat simple error:', error);
     return {
       ok: false,
       error: `Zero chat failed: ${error.message}`

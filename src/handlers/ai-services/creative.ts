@@ -1,5 +1,6 @@
 // Creative & Artistic Handlers for ZANTARA v5.2.0 - Simplified Version
 // Vision AI, Translation & Creative tools for Bali Zero
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 
@@ -66,7 +67,7 @@ async function getVisionService() {
       baseUrl: 'https://vision.googleapis.com/v1'
     };
   } catch (error: any) {
-    console.error('🔥 Vision AI service setup failed:', error.message);
+    logger.error('🔥 Vision AI service setup failed:', error.message);
     throw new BadRequestError('Vision AI service not available');
   }
 }
@@ -153,7 +154,7 @@ export async function visionAnalyzeImage(params: any) {
     });
 
   } catch (error: any) {
-    console.error('🔥 Vision analysis failed:', error.message);
+    logger.error('🔥 Vision analysis failed:', error.message);
     throw new BadRequestError(`Vision analysis failed: ${error.message}`);
   }
 }
@@ -216,7 +217,7 @@ export async function visionExtractDocuments(params: any) {
     });
 
   } catch (error: any) {
-    console.error('🔥 Document extraction failed:', error.message);
+    logger.error('🔥 Document extraction failed:', error.message);
     throw new BadRequestError(`Document extraction failed: ${error.message}`);
   }
 }
@@ -287,7 +288,7 @@ export async function speechTranscribe(params: any) {
     });
 
   } catch (error: any) {
-    console.error('🔥 Speech transcription failed:', error.message);
+    logger.error('🔥 Speech transcription failed:', error.message);
     throw new BadRequestError(`Speech transcription failed: ${error.message}`);
   }
 }
@@ -348,7 +349,7 @@ export async function speechSynthesize(params: any) {
     });
 
   } catch (error: any) {
-    console.error('🔥 Speech synthesis failed:', error.message);
+    logger.error('🔥 Speech synthesis failed:', error.message);
     throw new BadRequestError(`Speech synthesis failed: ${error.message}`);
   }
 }
@@ -412,7 +413,7 @@ export async function languageAnalyzeSentiment(params: any) {
     });
 
   } catch (error: any) {
-    console.error('🔥 Sentiment analysis failed:', error.message);
+    logger.error('🔥 Sentiment analysis failed:', error.message);
     throw new BadRequestError(`Sentiment analysis failed: ${error.message}`);
   }
 }

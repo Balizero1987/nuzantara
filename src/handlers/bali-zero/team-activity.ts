@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import { Request, Response } from 'express';
 import { getRecentActivities, getActivityStats } from '../../services/session-tracker.js';
 
@@ -85,7 +86,7 @@ export async function teamRecentActivity(req: Request, res: Response) {
       }
     });
   } catch (error: any) {
-    console.error('team.recent_activity error:', error);
+    logger.error('team.recent_activity error:', error);
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to retrieve recent activity'

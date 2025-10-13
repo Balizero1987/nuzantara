@@ -1,4 +1,5 @@
 // Validation Middleware for Anti-Hallucination
+import logger from '../services/logger.js';
 import { Request, Response, NextFunction } from "express";
 import { AntiHallucinationSystem } from "../services/anti-hallucination.js";
 
@@ -39,10 +40,10 @@ export function validateResponse() {
 
           // Log low-confidence responses
           if (validated.confidence < 0.7) {
-            console.warn(`⚠️ Low confidence response (${validated.confidence})`);
+            logger.warn(`⚠️ Low confidence response (${validated.confidence})`);
           }
         }).catch(error => {
-          console.error('Validation error:', error);
+          logger.error('Validation error:', error);
         });
       }
 

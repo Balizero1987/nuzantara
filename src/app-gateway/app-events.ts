@@ -1,3 +1,4 @@
+import logger from '../services/logger.js';
 import type { Request } from 'express';
 import { EventRequestSchema, type EventRequest, type Patch } from './types.js';
 import { normalizeParams } from './param-normalizer.js';
@@ -184,7 +185,7 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
     }
 
   } catch (error: any) {
-    console.error(`Gateway handler error [${ev.action}]:`, error);
+    logger.error(`Gateway handler error [${ev.action}]:`, error);
 
     // Add error notification
     patches.push({

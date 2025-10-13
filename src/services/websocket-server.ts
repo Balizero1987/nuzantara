@@ -7,6 +7,7 @@
  * - Analytics dashboard live updates
  */
 
+import logger from '../services/logger.js';
 import { WebSocketServer, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import { Server } from 'http';
@@ -44,7 +45,7 @@ export class ZantaraWebSocketServer {
   }
 
   private initialize() {
-    console.log('🔌 WebSocket Server initializing on /ws');
+    logger.info('🔌 WebSocket Server initializing on /ws');
 
     this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
       this.handleConnection(ws as WebSocketClient, req);
@@ -55,7 +56,7 @@ export class ZantaraWebSocketServer {
       this.heartbeat();
     }, 30000);
 
-    console.log('✅ WebSocket Server ready');
+    logger.info('✅ WebSocket Server ready');
   }
 
   private handleConnection(client: WebSocketClient, req: IncomingMessage) {
@@ -66,7 +67,7 @@ export class ZantaraWebSocketServer {
 
     this.clients.set(clientId, client);
 
-    console.log(`🔗 Client connected: ${clientId} (${this.clients.size} active)`);
+    logger.info(`🔗 Client connected: ${clientId} (${this.clients.size} active)`);
 
     // Extract user info from query params (if authenticated)
     const url = new URL(req.url || '', `http://${req.headers.host}`);
@@ -99,7 +100,7 @@ export class ZantaraWebSocketServer {
 
     // Handle errors
     client.on('error', (error) => {
-      console.error(`❌ WebSocket error (${clientId}):`, error);
+      logger.error(`❌ WebSocket error (${clientId}):`, error);
     });
   }
 
@@ -133,10 +134,10 @@ export class ZantaraWebSocketServer {
           break;
 
         default:
-          console.warn(`⚠️ Unknown message type: ${message.type}`);
+          logger.warn(`⚠️ Unknown message type: ${message.type}`);
       }
     } catch (error) {
-      console.error('❌ Error handling WebSocket message:', error);
+      logger.error('❌ Error handling WebSocket message:', error);
       this.sendToClient(client, {
         type: 'message',
         channel: 'error',
@@ -146,7 +147,7 @@ export class ZantaraWebSocketServer {
   }
 
   private handleDisconnect(client: WebSocketClient) {
-    console.log(`🔌 Client disconnected: ${client.clientId}`);
+    logger.info(`🔌 Client disconnected: ${client.clientId}`);
 
     // Remove from all channels
     for (const channel of client.subscriptions) {
@@ -165,7 +166,7 @@ export class ZantaraWebSocketServer {
     this.channels.get(channel)!.add(client.clientId);
     client.subscriptions.add(channel);
 
-    console.log(`✅ Client ${client.clientId} subscribed to ${channel}`);
+    logger.info(`✅ Client ${client.clientId} subscribed to ${channel}`);
 
     this.sendToClient(client, {
       type: 'message',
@@ -181,7 +182,7 @@ export class ZantaraWebSocketServer {
 
     client.subscriptions.delete(channel);
 
-    console.log(`✅ Client ${client.clientId} unsubscribed from ${channel}`);
+    logger.info(`✅ Client ${client.clientId} unsubscribed from ${channel}`);
   }
 
   /**
@@ -211,7 +212,7 @@ export class ZantaraWebSocketServer {
       }
     }
 
-    console.log(`📡 Broadcast to ${channel}: ${sent}/${subscribers.size} clients`);
+    logger.info(`📡 Broadcast to ${channel}: ${sent}/${subscribers.size} clients`);
   }
 
   /**
@@ -233,7 +234,7 @@ export class ZantaraWebSocketServer {
     }
 
     if (sent === 0) {
-      console.warn(`⚠️ User ${userId} not found or not subscribed to ${channel}`);
+      logger.warn(`⚠️ User ${userId} not found or not subscribed to ${channel}`);
     }
   }
 
@@ -252,7 +253,7 @@ export class ZantaraWebSocketServer {
 
     for (const [clientId, client] of this.clients.entries()) {
       if (now - client.lastPing > timeout) {
-        console.log(`⏱️ Client ${clientId} timed out (no ping for ${timeout}ms)`);
+        logger.info(`⏱️ Client ${clientId} timed out (no ping for ${timeout}ms)`);
         client.terminate();
         this.clients.delete(clientId);
       } else if (client.readyState === WebSocket.OPEN) {
@@ -298,7 +299,7 @@ export class ZantaraWebSocketServer {
     }
 
     this.wss.close();
-    console.log('🔌 WebSocket Server shut down');
+    logger.info('🔌 WebSocket Server shut down');
   }
 }
 

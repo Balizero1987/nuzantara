@@ -4,6 +4,7 @@
  * Model: zeroai87/devai-qwen-2.5-coder-7b
  */
 
+import logger from '../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 
@@ -90,7 +91,7 @@ GUIDELINES:
         });
       }
     } catch (error: any) {
-      console.error('[DevAI] RunPod error:', error.message);
+      logger.error('[DevAI] RunPod error:', error.message);
       // Fall through to HuggingFace
     }
   }

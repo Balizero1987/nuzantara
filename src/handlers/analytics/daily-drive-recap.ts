@@ -1,5 +1,6 @@
 // Daily Drive Recap System for ZANTARA v5.2.0
 // Mantiene file giornalieri aggiornati per ogni collaboratore
+import logger from '../services/logger.js';
 import { z } from "zod";
 import { ok } from "../../utils/response.js";
 import { getDrive } from "../../services/google-auth-service.js";
@@ -63,13 +64,13 @@ async function findDailyFile(drive: any, collaboratorId: string, date: Date = ne
 
     if (response.data.files && response.data.files.length > 0) {
       const fileId = response.data.files[0].id;
-      console.log(`📁 Found existing daily file: ${fileName} (${fileId})`);
+      logger.info(`📁 Found existing daily file: ${fileName} (${fileId})`);
       return fileId;
     }
 
     return null;
   } catch (error: any) {
-    console.error('❌ Error searching daily file:', error.message);
+    logger.error('❌ Error searching daily file:', error.message);
     return null;
   }
 }
@@ -84,7 +85,7 @@ async function readDailyFileContent(drive: any, fileId: string): Promise<string>
 
     return response.data || '';
   } catch (error: any) {
-    console.error('❌ Error reading daily file:', error.message);
+    logger.error('❌ Error reading daily file:', error.message);
     return '';
   }
 }
@@ -279,7 +280,7 @@ async function createOrUpdateDailyFile(drive: any, collaboratorId: string, conte
         }
       });
 
-      console.log(`✅ Updated daily file for ${collaborator.name}: ${fileName}`);
+      logger.info(`✅ Updated daily file for ${collaborator.name}: ${fileName}`);
       return existingFileId;
     } else {
       // Create new file
@@ -298,11 +299,11 @@ async function createOrUpdateDailyFile(drive: any, collaboratorId: string, conte
         fields: 'id, name'
       });
 
-      console.log(`✅ Created daily file for ${collaborator.name}: ${fileName} (${response.data.id})`);
+      logger.info(`✅ Created daily file for ${collaborator.name}: ${fileName} (${response.data.id})`);
       return response.data.id;
     }
   } catch (error: any) {
-    console.error('❌ Error creating/updating daily file:', error.message);
+    logger.error('❌ Error creating/updating daily file:', error.message);
     return null;
   }
 }
@@ -377,7 +378,7 @@ export async function updateDailyRecap(params: any) {
     }
 
   } catch (error: any) {
-    console.error('❌ Daily recap update error:', error.message);
+    logger.error('❌ Daily recap update error:', error.message);
     return ok({
       updated: false,
       reason: 'System error during daily recap update',
