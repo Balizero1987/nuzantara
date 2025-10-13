@@ -151,20 +151,11 @@ Respond in the same language as the user (Italian, English, or Indonesian).`;
   } catch (error: any) {
     console.error('❌ ZANTARA error:', error);
     
-    // FIX: Instead of throwing error, return a fallback response
-    // This allows the system to continue working even if ZANTARA model is not available
-    console.warn('ZANTARA model unavailable, using fallback response');
+    // ZANTARA model not available - no fallback, force configuration
+    console.error('ZANTARA model not configured - please set HF_API_KEY or RunPod credentials');
     
-    return ok({
-      response: `Ciao! Sono ZANTARA, l'assistente AI di Bali Zero. Attualmente il mio modello personalizzato non è disponibile, ma posso comunque aiutarti con informazioni sui nostri servizi. Come posso esserti utile oggi?`,
-      model: 'zantara-fallback',
-      usage: {
-        prompt_tokens: 0,
-        completion_tokens: 0,
-        total_tokens: 0
-      },
-      ts: Date.now()
-    });
+    // ZANTARA model not available - return error instead of fallback
+    throw new Error(`ZANTARA model not configured: ${error.message}`);
   }
 }
 
