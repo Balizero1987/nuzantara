@@ -33,6 +33,7 @@ jobs:
         run: |
           cd "apps/backend-rag 2/backend"
           docker build \
+            --no-cache \
             --platform linux/amd64 \
             -t gcr.io/involuted-box-469105-r0/zantara-rag-backend:${{ github.sha }} \
             -t gcr.io/involuted-box-469105-r0/zantara-rag-backend:latest \
