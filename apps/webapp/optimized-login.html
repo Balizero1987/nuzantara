@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ZANTARA - Login</title>
+    
+    <!-- Performance Optimizations -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//api.zantara.com">
+    <link rel="preload" href="/js/utils/logger.js" as="script">
+    <link rel="preload" href="/js/utils/performance-monitor.js" as="script">
+    
+    <!-- Critical CSS inline -->
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}html,body{background:#1e1e1e;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100%;overflow:hidden;transition:background .3s ease}body.day-mode{background:#fff;color:#000}@keyframes rainbow-border{0%,100%{border-color:#FFD700}25%{border-color:#FF0000}50%{border-color:#0000FF}75%{border-color:#00FF00}}.login-wrapper{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;position:relative}body.day-mode .login-wrapper::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;border:2px solid;animation:rainbow-border 8s linear infinite;z-index:5}.login-card{background:#252525;border:1px solid #3a3a3a;border-radius:20px;padding:48px;max-width:480px;width:100%;text-align:center;position:relative;z-index:10}body.day-mode .login-card{background:#fff;border:2px solid #e0e0e0}.logo-center{width:120px;height:120px;margin:0 auto 20px;display:block;object-fit:contain;filter:drop-shadow(0 0 40px rgba(255,255,255,.4)) drop-shadow(0 0 80px rgba(255,255,255,.3)) drop-shadow(0 0 120px rgba(255,255,255,.2));animation:glow-pulse 3s ease-in-out infinite}@keyframes glow-pulse{0%,100%{filter:drop-shadow(0 0 40px rgba(255,255,255,.4)) drop-shadow(0 0 80px rgba(255,255,255,.3)) drop-shadow(0 0 120px rgba(255,255,255,.2))}50%{filter:drop-shadow(0 0 60px rgba(255,255,255,.6)) drop-shadow(0 0 100px rgba(255,255,255,.4)) drop-shadow(0 0 140px rgba(255,255,255,.3))}}.login-title{font-size:2.5rem;font-weight:700;margin-bottom:12px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}body.day-mode .login-title{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.login-subtitle{font-size:1.1rem;color:#888;margin-bottom:40px}body.day-mode .login-subtitle{color:#666}.login-form{display:flex;flex-direction:column;gap:24px}.form-group{position:relative}.form-input{width:100%;padding:16px 20px;background:#1a1a1a;border:2px solid #333;border-radius:12px;color:#fff;font-size:1rem;transition:all .3s ease}body.day-mode .form-input{background:#f8f9fa;border:2px solid #e9ecef;color:#000}.form-input:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.1)}.form-input::placeholder{color:#666}body.day-mode .form-input::placeholder{color:#999}.login-button{width:100%;padding:16px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:none;border-radius:12px;color:#fff;font-size:1.1rem;font-weight:600;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden}.login-button:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(102,126,234,.3)}.login-button:active{transform:translateY(0)}.login-button:disabled{opacity:.6;cursor:not-allowed;transform:none}.theme-toggle{position:fixed;top:20px;right:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s ease;z-index:1000}.theme-toggle:hover{background:rgba(255,255,255,.2);transform:scale(1.1)}.theme-icon{font-size:1.2rem;transition:transform .3s ease}.theme-toggle:hover .theme-icon{transform:rotate(180deg)}
+    </style>
+    
+    <!-- Favicon and icons -->
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- SEO -->
+    <meta name="description" content="ZANTARA AI - Intelligent Business Assistant. Access visa services, company setup, and tax solutions through AI-powered chat.">
+    <meta name="keywords" content="ZANTARA, Bali Zero, AI Assistant, Visa Services, Company Setup, Tax Services, Indonesia Business">
+</head>
+<body>
+    <!-- Theme toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span class="theme-icon">🌙</span>
+    </button>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            <!-- Optimized logo with lazy loading -->
+            <picture>
+                <source srcset="/assets/optimized/logo-day-optimized.webp" media="(prefers-color-scheme: light)" type="image/webp">
+                <source srcset="/assets/optimized/logo-night-optimized.webp" media="(prefers-color-scheme: dark)" type="image/webp">
+                <img src="/assets/logo-day.jpeg" alt="ZANTARA Logo" class="logo-center" loading="eager">
+            </picture>
+            
+            <h1 class="login-title">ZANTARA</h1>
+            <p class="login-subtitle">Your AI Business Assistant</p>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="email" 
+                        placeholder="Email address" 
+                        required 
+                        autocomplete="email"
+                        inputmode="email"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="password" 
+                        placeholder="Password" 
+                        required 
+                        autocomplete="current-password"
+                    >
+                </div>
+                
+                <button type="submit" class="login-button" id="loginButton">
+                    <span class="button-text">Sign In</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Critical JavaScript inline -->
+    <script>
+        // Immediate theme detection
+        (function() {
+            const saved = localStorage.getItem('zantara-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = saved || (prefersDark ? 'night-mode' : 'day-mode');
+            document.body.className = theme;
+            
+            // Update theme toggle icon
+            const icon = document.querySelector('.theme-icon');
+            if (icon) {
+                icon.textContent = theme === 'day-mode' ? '🌙' : '☀️';
+            }
+        })();
+        
+        // Theme toggle
+        document.getElementById('themeToggle')?.addEventListener('click', function() {
+            const body = document.body;
+            const isDay = body.classList.contains('day-mode');
+            const newTheme = isDay ? 'night-mode' : 'day-mode';
+            
+            body.className = newTheme;
+            localStorage.setItem('zantara-theme', newTheme);
+            
+            this.querySelector('.theme-icon').textContent = isDay ? '☀️' : '🌙';
+        });
+        
+        // Form handling
+        document.getElementById('loginForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const button = document.getElementById('loginButton');
+            const buttonText = button.querySelector('.button-text');
+            const originalText = buttonText.textContent;
+            
+            // Show loading state
+            button.disabled = true;
+            buttonText.textContent = 'Signing in...';
+            
+            try {
+                // Simulate login (replace with actual API call)
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Redirect to main app
+                window.location.href = '/chat.html';
+            } catch (error) {
+                console.error('Login failed:', error);
+                buttonText.textContent = 'Sign In Failed';
+                setTimeout(() => {
+                    buttonText.textContent = originalText;
+                    button.disabled = false;
+                }, 2000);
+            }
+        });
+        
+        // Preload critical resources
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+                // Preload chat page resources
+                const link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.href = '/chat.html';
+                document.head.appendChild(link);
+                
+                // Preload critical JS modules
+                const jsModules = ['/js/utils/module-loader.js', '/js/app-optimized.js'];
+                jsModules.forEach(src => {
+                    const script = document.createElement('link');
+                    script.rel = 'modulepreload';
+                    script.href = src;
+                    document.head.appendChild(script);
+                });
+            });
+        }
+    </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('SW registered:', registration))
+                    .catch(error => console.log('SW registration failed:', error));
+            });
+        }
+    </script>
+</body>
+</html>
