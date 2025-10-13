@@ -4,18 +4,14 @@
  */
 
 import { globalRegistry } from '../../core/handler-registry.js';
-import { aiChat, openaiChat, claudeChat, geminiChat, cohereChat } from './ai.js';
+import { aiChat } from './ai.js';
 import { aiAnticipate, aiLearn, xaiExplain } from './advanced-ai.js';
 import { creativeHandlers } from './creative.js';
 
 export function registerAIServicesHandlers() {
   // Core AI handlers
   globalRegistry.registerModule('ai-services', {
-    'chat': aiChat,
-    'openai.chat': openaiChat,
-    'claude.chat': claudeChat,
-    'gemini.chat': geminiChat,
-    'cohere.chat': cohereChat
+    'chat': aiChat
   }, {
     requiresAuth: true,
     description: 'AI/LLM chat services'
