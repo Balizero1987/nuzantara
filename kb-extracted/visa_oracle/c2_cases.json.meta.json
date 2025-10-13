@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "content_type": "case-study",
+  "title": "C2 Cases",
+  "filename": "c2_cases.json",
+  "last_updated": "2025-10-03",
+  "tags": "visa",
+  "collection": "visa_oracle",
+  "sources": "",
+  "domain": "visa"
+}

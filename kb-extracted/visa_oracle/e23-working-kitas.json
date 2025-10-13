@@ -1,0 +1,200 @@
+{
+  "id": "e23-working-kitas",
+  "code": "E23",
+  "name": "Working KITAS",
+  "aliases": [
+    "Work KITAS"
+  ],
+  "jurisdiction": "ID",
+  "category": "kitas",
+  "entry_type": "multiple",
+  "validity": {
+    "min_months": 12,
+    "max_months": 24,
+    "notes": "Aligned with employment contract; renewable"
+  },
+  "can_work": true,
+  "work_scope": "Employment for sponsoring employer (PT/PT PMA/rep office) only",
+  "can_do_business": false,
+  "sponsor": {
+    "required": true,
+    "types": [
+      "Employer (PT, PT PMA, Representative Office)"
+    ]
+  },
+  "eligibility": [
+    "High-level position for 12-24 month permits",
+    "≥5 years relevant experience (long-term permits)"
+  ],
+  "requirements": [
+    "RPTKA approval (Manpower)",
+    "HPK RPTKA & Pengesahan RPTKA",
+    "Employment contract",
+    "Education/experience certificates",
+    "Health insurance"
+  ],
+  "documents": [
+    {
+      "title": "KITAS & Work Permit Complete Guide 2025",
+      "path": "KITAS_WORK_PERMIT_2025.json"
+    }
+  ],
+  "process": [
+    {
+      "id": "rptka",
+      "name": "RPTKA application",
+      "description": "Employer submits RPTKA justification to MoM",
+      "duration": {
+        "min_days": 14,
+        "max_days": 28
+      }
+    },
+    {
+      "id": "hpk",
+      "name": "HPK RPTKA & Pengesahan",
+      "description": "Assessment and attestation",
+      "duration": {
+        "min_days": 7,
+        "max_days": 21
+      }
+    },
+    {
+      "id": "vitas",
+      "name": "VITAS issuance",
+      "description": "Employee applies at embassy/consulate",
+      "duration": {
+        "min_days": 5,
+        "max_days": 10
+      }
+    },
+    {
+      "id": "kitas",
+      "name": "KITAS conversion",
+      "description": "Convert VITAS to KITAS within 60 days",
+      "duration": {
+        "min_days": 7,
+        "max_days": 14
+      }
+    },
+    {
+      "id": "biometrics",
+      "name": "Biometric registration",
+      "description": "Mandatory from June 2025",
+      "duration": {
+        "min_days": 1,
+        "max_days": 1
+      }
+    },
+    {
+      "id": "merp",
+      "name": "MERP issuance",
+      "description": "Multiple exit and re-entry permit"
+    }
+  ],
+  "biometrics": {
+    "required": true,
+    "effective_date": "2025-06-01"
+  },
+  "merp": {
+    "required": true,
+    "cost": {
+      "label": "MERP",
+      "amount": 50,
+      "currency": "USD",
+      "payer": "employee"
+    }
+  },
+  "costs": {
+    "currency": "USD",
+    "breakdown": [
+      {
+        "label": "DKP-TKA (USD 100/month)",
+        "amount": 1200,
+        "payer": "employer",
+        "notes": "Manpower development fund, 12 months"
+      },
+      {
+        "label": "RPTKA + legal/processing",
+        "amount": 500,
+        "payer": "employer"
+      },
+      {
+        "label": "KITAS application (processing/agent)",
+        "amount": 1000,
+        "payer": "employer"
+      },
+      {
+        "label": "VITAS",
+        "amount": 100,
+        "payer": "employee"
+      },
+      {
+        "label": "MERP",
+        "amount": 50,
+        "payer": "employee"
+      }
+    ],
+    "totals": {
+      "employer": 2700,
+      "employee": 150,
+      "notes": "Typical 1-year scenario; excludes insurance and incidental fees"
+    }
+  },
+  "bali_zero_pricing_ref": {
+    "section": "kitas",
+    "code": "E23_WORKING"
+  },
+  "service_prices_idr": {
+    "offshore": 34500000,
+    "onshore": 36000000,
+    "extension": 31000000
+  },
+  "renewals": {
+    "allowed": true,
+    "frequency_months": 12,
+    "limits": "Aligned with employment contract"
+  },
+  "legal_basis": [
+    {
+      "ref_id": "RPTKA-2025",
+      "title": "RPTKA/Notification & KITAS framework (2021-2025)",
+      "citation": "Manpower + Immigration regulations",
+      "path": "INDONESIA_VISA_REGULATIONS_2025_COMPLETE.md"
+    },
+    {
+      "ref_id": "PP-34-2021",
+      "title": "PP 34/2021 — Foreign Workers (TKA)",
+      "citation": "DKP‑TKA",
+      "path": "official/extracts/PP_34_2021_TKA.md#dkp-tka"
+    },
+    {
+      "ref_id": "Permenaker-8-2021",
+      "title": "Permenaker 8/2021 — RPTKA",
+      "citation": "Steps",
+      "path": "official/extracts/Permenaker_8_2021_RPTKA.md#rptka"
+    },
+    {
+      "ref_id": "UU-6-2011",
+      "title": "UU 6/2011 — Immigration Law",
+      "citation": "Visa & Stay",
+      "path": "official/extracts/UU_6_2011.md#visa-stay"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "employment-contract",
+      "text": "Signed Indonesian employment contract"
+    },
+    {
+      "id": "experience-proof",
+      "text": "≥5 years relevant experience (for long-term permits)"
+    },
+    {
+      "id": "education-certs",
+      "text": "Degree/certificates (notarized if required)"
+    }
+  ],
+  "effective_date": "2021-01-01",
+  "last_updated": "2025-10-02",
+  "sources": []
+}

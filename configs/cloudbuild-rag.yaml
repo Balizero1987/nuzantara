@@ -1,0 +1,12 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/involuted-box-469105-r0/zantara-rag:v1'
+      - '-f'
+      - 'Dockerfile.minimal'
+      - '.'
+images:
+  - 'gcr.io/involuted-box-469105-r0/zantara-rag:v1'
+timeout: 600s

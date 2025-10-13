@@ -1,0 +1,50 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "competitors",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Bali Discovery"
+    ],
+    "locations": [
+      "Bali"
+    ]
+  },
+  "keywords": [
+    "Bali Discovery",
+    "Balidiscovery.com",
+    "Marine Safari Bali",
+    "Sababay Winery Tour Experience New"
+  ],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "",
+    "",
+    ""
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.balidiscovery.com/",
+  "source_name": "Bali Discovery",
+  "scraped_at": "2025-10-09T11:06:16.765238",
+  "content_hash": "5963426717b3f032",
+  "word_count": 1009
+}

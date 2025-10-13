@@ -1,0 +1,50 @@
+{
+  "title": "Direktorat Jenderal Pajak",
+  "summary": "Overview of the Direktorat Jenderal Pajak and its various sections.",
+  "category": "tax_compliance",
+  "sub_category": null,
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Direktorat Jenderal Pajak"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Pajak",
+    "Direktorat Jenderal Pajak",
+    "Tax compliance"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "businesses",
+      "workers"
+    ],
+    "action_required": true,
+    "urgency": "soon"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Overview of the Direktorat Jenderal Pajak and its various sections.",
+    "Information on tax compliance and regulations.",
+    "Links to downloadable forms and applications."
+  ],
+  "regulatory_changes": null,
+  "business_implications": "Businesses must comply with tax regulations and submit required forms on time.",
+  "source_url": "https://www.pajak.go.id/",
+  "source_name": "DJP Direktorat Jenderal Pajak",
+  "scraped_at": "2025-10-09T10:48:55.649476",
+  "content_hash": "51748d438b809d30",
+  "word_count": 1164
+}

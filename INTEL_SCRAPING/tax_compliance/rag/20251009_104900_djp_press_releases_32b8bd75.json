@@ -1,0 +1,50 @@
+{
+  "title": "Direktorat Jenderal Pajak",
+  "summary": "Pajak.go.id is the official website of the Directorate General of Taxes in Indonesia.",
+  "category": "tax_compliance",
+  "sub_category": "",
+  "entities": {
+    "organizations": [
+      "Direktorat Jenderal Pajak",
+      "Kementerian Keuangan"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "pajak.go.id",
+    "direktorat jenderal pajak",
+    "tax compliance"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": [
+      "en",
+      "id"
+    ],
+    "needs_translation": true
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "Overview of the Directorate General of Taxes in Indonesia.",
+    "Visi, Misi, Tujuan, dan Maklumat Pelayanan",
+    "Struktur Organisasi"
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.pajak.go.id/id/siaran-pers",
+  "source_name": "DJP Press Releases",
+  "scraped_at": "2025-10-09T10:49:00.355011",
+  "content_hash": "32b8bd75904e6da4",
+  "word_count": 413
+}

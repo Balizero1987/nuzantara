@@ -1,0 +1,13 @@
+#!/bin/bash
+echo "🤖 Starting AI session for ZANTARA..."
+echo "📍 Location: $(pwd)"
+echo "⚡ Server: http://localhost:8080"
+echo "📊 Status: $(curl -s http://localhost:8080/health | jq -r '.status // "OFFLINE"')"
+echo ""
+echo "📋 Quick reference:"
+echo "   - ./check-status.sh       - System health"
+echo "   - ./test-integrations.sh  - Test all APIs"
+echo "   - cat HANDOVER_LOG.md     - Last session"
+echo "   - cat TODO_CURRENT.md     - Current tasks"
+echo ""
+echo "✅ Ready for AI coordination!"

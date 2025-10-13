@@ -1,0 +1,78 @@
+config:
+  target: 'https://zantara-bridge-v2-prod-himaadsxua-et.a.run.app'
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 120  
+      arrivalRate: 10
+      name: "Ramp up load"
+    - duration: 300
+      arrivalRate: 20
+      name: "Sustained load"
+    - duration: 60
+      arrivalRate: 5
+      name: "Cool down"
+  defaults:
+    headers:
+      User-Agent: 'Artillery Load Test'
+      Content-Type: 'application/json'
+  processor: "./artillery-functions.js"
+
+scenarios:
+  - name: "Health Check"
+    weight: 40
+    flow:
+      - get:
+          url: "/bridge/status"
+          capture:
+            - json: "$.ok"
+              as: "healthStatus"
+      - think: 1
+
+  - name: "Bridge Status"
+    weight: 30
+    flow:
+      - get:
+          url: "/bridge/status"
+          capture:
+            - json: "$.ok"
+              as: "bridgeOk"
+      - think: 2
+
+  - name: "Memory Routes"
+    weight: 20
+    flow:
+      - post:
+          url: "/memory"
+          json:
+            action: "recall"
+            query: "performance test data"
+      - think: 3
+
+  - name: "Chat Processing"
+    weight: 10
+    flow:
+      - post:
+          url: "/chat"
+          json:
+            message:
+              text: "Hello, this is a performance test"
+            space:
+              name: "spaces/test"
+      - think: 5
+
+metrics:
+  - name: "response_time_p95"
+    unit: "ms"
+  - name: "response_time_p99" 
+    unit: "ms"
+  - name: "error_rate"
+    unit: "percent"
+
+thresholds:
+  http.response_time:
+    p95: 500
+    p99: 1000
+  http.response_time.health: 100
+  errors.rate: 5

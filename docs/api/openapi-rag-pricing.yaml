@@ -1,0 +1,147 @@
+openapi: 3.0.0
+info:
+  title: ZANTARA RAG Pricing API
+  description: Official Bali Zero pricing service - NO AI generation, only real prices
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local RAG backend
+  - url: https://api.balizero.com
+    description: Production RAG backend (if deployed)
+
+paths:
+  /pricing/all:
+    get:
+      operationId: getAllPrices
+      summary: Get all official Bali Zero prices
+      description: Returns all official prices for visa, KITAS, business, and tax services
+      responses:
+        '200':
+          description: All official prices
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /pricing/search:
+    post:
+      operationId: searchPricing
+      summary: Search for a service by keyword
+      description: Search official Bali Zero services by name or keyword (e.g. "E33G", "remote worker", "NPWP")
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: Search query (e.g. "E33G", "remote worker visa", "NPWP")
+              required:
+                - query
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /pricing/visa:
+    get:
+      operationId: getVisaPrices
+      summary: Get all visa prices
+      description: Returns all single-entry and multiple-entry visa prices
+      responses:
+        '200':
+          description: All visa prices
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /pricing/kitas:
+    get:
+      operationId: getKitasPrices
+      summary: Get all KITAS prices
+      description: Returns all KITAS permit prices (E33G remote worker, investor, etc.)
+      responses:
+        '200':
+          description: All KITAS prices
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /pricing/business:
+    get:
+      operationId: getBusinessPrices
+      summary: Get business & legal service prices
+      description: Returns prices for PT PMA setup, company registration, legal services
+      responses:
+        '200':
+          description: All business service prices
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /pricing/tax:
+    get:
+      operationId: getTaxPrices
+      summary: Get taxation service prices
+      description: Returns prices for NPWP, tax filing, accounting services
+      responses:
+        '200':
+          description: All tax service prices
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /bali-zero/chat:
+    post:
+      operationId: baliZeroChat
+      summary: Intelligent chat with pricing integration
+      description: Ask any question about Bali Zero services and get official pricing automatically
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: User question (any language - IT/EN/ID)
+                  example: "Berapa harga E33G?"
+                use_llm:
+                  type: boolean
+                  default: true
+              required:
+                - query
+      responses:
+        '200':
+          description: Chat response with pricing data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  query:
+                    type: string
+                  answer:
+                    type: string
+                  pricing_results:
+                    type: object
+                  sources:
+                    type: array
+                    items:
+                      type: string
+                  model:
+                    type: string
+                  note:
+                    type: string

@@ -1,0 +1,51 @@
+{
+  "title": "",
+  "summary": "",
+  "category": "employment_law",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Kementerian Ketenagakerjaan Republik Indonesia",
+      "Badan Amil Zakat Nasional"
+    ],
+    "locations": [
+      "Makassar",
+      "Sulawesi Selatan"
+    ]
+  },
+  "keywords": [
+    "magang",
+    "vokasi",
+    "disabilitas",
+    "pelatihan",
+    "kerja",
+    "inspektorat",
+    "barenbang"
+  ],
+  "dates": {
+    "published": "",
+    "effective": "",
+    "deadline": ""
+  },
+  "impact": {
+    "level": "",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": ""
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": true
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.kemnaker.go.id/",
+  "source_name": "Ministry of Manpower",
+  "scraped_at": "2025-10-09T10:50:21.888385",
+  "content_hash": "f2c55680d733a720",
+  "word_count": 673
+}

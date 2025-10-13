@@ -1,0 +1,32 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--platform=linux/amd64'
+      - '-f'
+      - 'Dockerfile.rebuild'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/zantara-v520-fixed:$BUILD_ID'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/zantara-v520-fixed:latest'
+      - '.'
+    timeout: 900s
+
+  # Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/zantara-v520-fixed:$BUILD_ID']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/zantara-v520-fixed:latest']
+
+# Overall timeout
+timeout: 1200s
+
+# Machine type for faster builds
+options:
+  machineType: 'E2_HIGHCPU_8'
+
+images:
+  - 'gcr.io/$PROJECT_ID/zantara-v520-fixed:$BUILD_ID'
+  - 'gcr.io/$PROJECT_ID/zantara-v520-fixed:latest'

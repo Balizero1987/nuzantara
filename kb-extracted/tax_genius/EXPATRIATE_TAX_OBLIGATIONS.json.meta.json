@@ -1,0 +1,11 @@
+{
+  "tags": "income-tax,expatriate-tax,tax,vat",
+  "content_type": "reference",
+  "title": "Expatriate Tax Obligations",
+  "sources": "",
+  "domain": "tax",
+  "collection": "tax_genius",
+  "version": "1.0",
+  "filename": "EXPATRIATE_TAX_OBLIGATIONS.json",
+  "last_updated": "2025-10-03"
+}
