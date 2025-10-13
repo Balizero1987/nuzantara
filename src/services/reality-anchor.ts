@@ -2,7 +2,7 @@
 // Ensures ZANTARA remains grounded in verifiable reality
 
 import { getFirestore } from "./firebase.js";
-import { AntiHallucinationSystem } from "./anti-hallucination.js";
+// import { AntiHallucinationSystem } from "./anti-hallucination.js"; // Not used
 
 interface RealityCheck {
   timestamp: string;
@@ -21,7 +21,7 @@ interface BusinessTruth {
 
 export class RealityAnchorSystem {
   private static instance: RealityAnchorSystem;
-  private _antiHallucination: AntiHallucinationSystem = new AntiHallucinationSystem();
+  // private antiHallucination: AntiHallucinationSystem = AntiHallucinationSystem.getInstance(); // Not used
 
   // Immutable business truths about Bali Zero
   private readonly ABSOLUTE_TRUTHS: BusinessTruth[] = [
@@ -80,7 +80,7 @@ export class RealityAnchorSystem {
   ];
 
   private constructor() {
-    this.antiHallucination = AntiHallucinationSystem.getInstance();
+    // antiHallucination already initialized in property declaration
   }
 
   public static getInstance(): RealityAnchorSystem {
