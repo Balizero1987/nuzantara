@@ -1,8 +1,8 @@
 # NUZANTARA - System Architecture
 
-> **Last Updated**: 2025-10-04 23:45 (m3: Complete architecture documentation)
-> **Version**: 5.2.0 (tools: 57 exposed)
-> **Status**: Production (Cloud Run) + Local Development
+> **Last Updated**: 2025-10-12 12:30 (m6: Llama 3.1 RunPod primary)
+> **Version**: 5.5.0 (tools: 41 exposed for tool use)
+> **Status**: Production (Cloud Run) + Local Development + ZANTARA Llama 3.1 PRIMARY
 
 ---
 
@@ -244,8 +244,8 @@ const handlers: Record<string, Handler> = {
 **Entry Point**: `apps/backend-rag 2/backend/app/main_cloud.py`
 
 **Production vs Development**:
-- **Production**: `main_cloud.py` (ChromaDB from GCS, Anthropic only)
-- **Development**: `main_integrated.py` (Local ChromaDB, multiple LLMs)
+- **Production**: `main_cloud.py` (ChromaDB from GCS, ZANTARA Llama 3.1 RunPod primary + Claude fallback)
+- **Development**: `main_integrated.py` (Local ChromaDB, switchable LLM backends)
 
 #### RAG Pipeline
 
@@ -758,7 +758,7 @@ NUZANTARA 2/
 │   │       │   ├── main_integrated.py  # Local dev (multi-LLM)
 │   │       │   └── main_simple.py      # Minimal version
 │   │       ├── services/         # Search, re-ranker, memory, emotional AI
-│   │       ├── llm/              # Anthropic client, BaliZero router
+│   │       ├── llm/              # ZANTARA RunPod client, Anthropic fallback router
 │   │       ├── kb/               # Knowledge base files (optional, loaded from GCS)
 │   │       └── requirements.txt  # Python dependencies
 │   └── orchestrator/             # (future: multi-agent orchestration)

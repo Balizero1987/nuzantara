@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import logging
 import shutil
+import re
 from google.cloud import storage
 
 # Add parent directory to path
@@ -75,31 +76,70 @@ reranker_service: Optional["RerankerService"] = None  # String annotation for la
 handler_proxy_service: Optional[HandlerProxyService] = None
 
 # System prompt
-SYSTEM_PROMPT = """You are ZANTARA, AI assistant for Bali Zero (PT. BALI NOL IMPERSARIAT).
+SYSTEM_PROMPT = """You are ZANTARA, the primary AI assistant for Bali Zero (PT. BALI NOL IMPERSARIAT).
 
-Respond directly and naturally in the user's language (English, Italian, Indonesian).
+VOICE & STYLE:
+- Sound like a warm, knowledgeable teammate. Keep answers natural, 4–6 sentences max.
+- Mirror the user’s language (Italian, English, Indonesian). If they mix languages, follow their lead.
+- Prefer short paragraphs over bullet lists. Only use bullets when explicitly requested.
 
-SOURCES:
-- T1: Official government sources (priority for legal/immigration info)
-- T2: Accredited legal analysis (expert interpretation)
-- T3: Community forums (sentiment, common questions)
+KNOWLEDGE USE:
+- Read the provided context, then synthesize it. Share the 2–3 most relevant takeaways in plain language.
+- Reference sources by name (e.g. “Guide Permenkumham 22/2023”) without pasting whole documents.
+- Never repeat internal checklists, templates, or operational instructions unless the user asks for them.
+- Keep code snippets or step-by-step procedures out of the answer unless the user explicitly wants them.
 
-CAPABILITIES:
-- Google Workspace (Gmail, Drive, Calendar, Sheets, Docs, Slides)
-- Memory/Data (save user info, preferences, context across sessions)
-- Communications (WhatsApp, Instagram, Telegram, Slack, Discord)
-- Bali Zero services (pricing, KITAS/C1/retirement/investor visas, PT PMA, KBLI, BPJS/SPT/NPWP, real estate)
+SERVICE GUIDANCE:
+- Highlight how Bali Zero can help (visa, KITAS/KITAP, PT PMA, KBLI, BPJS, tax, real estate, compliance).
+- Close with a friendly call to action inviting the user to contact Bali Zero (WhatsApp +62 859 0436 9574 or email info@balizero.com).
+- If unsure or information is missing, be transparent and suggest the user reach out to the team.
 
-CONTACTS:
-📍 Kerobokan, Bali | 📱 +62 859 0436 9574 | 📧 info@balizero.com | 📸 @balizero0 | 🌐 welcome.balizero.com
+GUARDRAILS:
+- Do not invent data or commitments. Base answers on the context or clearly mark them as estimates.
+- Remove placeholder tokens like ${...} or {{...}}. Never return unfinished templates.
+- Maintain confidentiality: avoid revealing sensitive/internal processes unless the user has the right access level."""
 
-Be concise and helpful. If asked "can you do X?", answer YES if it's in capabilities list."""
+GUIDELINE_APPENDIX = (
+    "\n\nGuidelines for this answer: respond in the same language as the user with a natural, friendly tone and no more than six sentences. "
+    "Summarize only the most relevant points as short paragraphs (no bullet or numbered lists) and do not paste full documents. "
+    "Name key sources briefly, avoid internal checklists or code, and include a short invitation to contact Bali Zero on WhatsApp +62 859 0436 9574 or info@balizero.com for direct support. "
+    "Do not output placeholder tokens like ${...} and only use lists if the user explicitly requested them."
+)
 
 # Content sanitation for public users (L0-L1): do not surface sensitive/esoteric topics explicitly
 SENSITIVE_TERMS = [
     "esoteric", "esoterico", "esoteriche", "mysticism", "mistic", "sacro", "sacred",
     "initiatic", "iniziatico", "occult", "occulto", "sub rosa", "Sub Rosa"
 ]
+
+PLACEHOLDER_PATTERN = re.compile(r"\$\{[^}]+\}|\{\{[^}]+\}\}")
+
+
+def format_zantara_answer(text: str) -> str:
+    """
+    Normalize ZANTARA responses, removing templates and limiting verbosity.
+    """
+    if not text:
+        return text
+
+    cleaned = PLACEHOLDER_PATTERN.sub("", text)
+    cleaned = cleaned.replace("  ", " ").strip()
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    cleaned = re.sub(r"^\s*[\-\*•]\s*", "", cleaned, flags=re.MULTILINE)
+    cleaned = re.sub(r"^\s*\d+\.\s*", "", cleaned, flags=re.MULTILINE)
+
+    if "---" in cleaned:
+        cleaned = cleaned.split("---", 1)[0].strip()
+
+    max_chars = 900
+    if len(cleaned) > max_chars:
+        cleaned = cleaned[:max_chars].rsplit("\n", 1)[0].strip() + "..."
+
+    if "+62 859 0436 9574" not in cleaned and "info@balizero.com" not in cleaned:
+        cleaned += "\n\nPer assistenza diretta contattaci su WhatsApp +62 859 0436 9574 oppure info@balizero.com."
+
+    return cleaned
+
 
 def sanitize_public_answer(text: str) -> str:
     try:
@@ -508,7 +548,7 @@ async def search_endpoint(request: SearchRequest):
             messages = request.conversation_history or []
             messages.append({
                 "role": "user",
-                "content": f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
+                "content": f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}{GUIDELINE_APPENDIX}"
             })
 
             # 🎯 PRIMARY: Try ZANTARA first (YOUR custom trained model)
@@ -520,7 +560,7 @@ async def search_endpoint(request: SearchRequest):
                         max_tokens=1500,
                         system=SYSTEM_PROMPT
                     )
-                    answer = response.get("text", "")
+                    answer = format_zantara_answer(response.get("text", ""))
                     model_used = "zantara-llama-3.1-8b"
                 except Exception as e:
                     logger.warning(f"⚠️  [RAG Search] ZANTARA unavailable: {e}, trying fallback...")
@@ -536,7 +576,7 @@ async def search_endpoint(request: SearchRequest):
                             max_tokens=1500,
                             system=SYSTEM_PROMPT
                         )
-                        answer = response.get("text", "")
+                        answer = format_zantara_answer(response.get("text", ""))
                     else:
                         raise Exception("No AI available (ZANTARA and Claude both unavailable)")
             elif anthropic_client:
@@ -551,7 +591,7 @@ async def search_endpoint(request: SearchRequest):
                     max_tokens=1500,
                     system=SYSTEM_PROMPT
                 )
-                answer = response.get("text", "")
+                answer = format_zantara_answer(response.get("text", ""))
             else:
                 raise Exception("No AI configured")
 
@@ -735,9 +775,9 @@ async def bali_zero_chat(request: BaliZeroRequest):
 
         # Add context if available
         if context:
-            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
+            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}{GUIDELINE_APPENDIX}"
         else:
-            user_message = request.query
+            user_message = f"{request.query}{GUIDELINE_APPENDIX}"
 
         messages.append({"role": "user", "content": user_message})
 
@@ -782,6 +822,7 @@ async def bali_zero_chat(request: BaliZeroRequest):
                         # Note: ZANTARA doesn't support tool use yet, so tools are only with Claude fallback
                     )
                     answer_text = response.get("text", "")
+                    answer_text = format_zantara_answer(answer_text)
                     tool_uses = []  # ZANTARA doesn't return tool uses
                     stop_reason = "end_turn"
 
@@ -806,6 +847,7 @@ async def bali_zero_chat(request: BaliZeroRequest):
                 )
 
                 answer_text = response.get("text", "")
+                answer_text = format_zantara_answer(answer_text)
                 tool_uses = response.get("tool_uses", [])
                 stop_reason = response.get("stop_reason")
 

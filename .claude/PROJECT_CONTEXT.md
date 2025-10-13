@@ -1,6 +1,6 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-10 (Security + Rate Limiting Deployed)
+> **Last Updated**: 2025-10-12 (Llama 3.1 RunPod integration live)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 
 ---
@@ -8,10 +8,10 @@
 ## 📋 Project Identity
 
 **Name**: ZANTARA (NUZANTARA)
-**Version**: v5.5.0-tool-use-active + rate-limiting
+**Version**: v5.5.0-tool-use-active + rate-limiting + Llama 3.1 primary
 **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
 **Repository**: https://github.com/Balizero1987/nuzantara
-**Status**: Production (Cloud Run) + Local Development + **TOOL USE + RATE LIMITING ACTIVE**
+**Status**: Production (Cloud Run) + Local Development + **ZANTARA Llama 3.1 PRIMARY + TOOL USE + RATE LIMITING ACTIVE**
 
 ---
 
@@ -19,6 +19,7 @@
 
 - **Security + Rate Limiting**: `.claude/handovers/security-rate-limiting-2025-10-10.md` ⭐ NEW
 - **Multi-Agent Architecture**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
+- **ZANTARA Llama 3.1 Integration**: `ZANTARA_INTEGRATION_COMPLETE_REPORT.md`, `apps/backend-rag 2/backend/README_LLM_INTEGRATION.md`
 - **Session Diaries (2025-10-10)**:
   - m1: `.claude/diaries/2025-10-10_sonnet-4.5_m1.md` (Reranker fix)
   - m2: `.claude/diaries/2025-10-10_sonnet-4.5_m2.md` (Multi-agent architecture)
@@ -32,50 +33,28 @@
 
 ---
 
-## 🎯 Strategic Roadmap: Multi-Agent Architecture
+## 🎯 AI Architecture Status & Roadmap
 
-> **Status**: Architecture Designed ✅ | Implementation Pending
-> **Date**: 2025-10-10
-> **Goal**: Reduce operational costs by 81-91% ($450/mo → $42-84/mo)
+> **2025-10-12**: ZANTARA Llama 3.1 (RunPod vLLM) is the **PRIMARY** model in production.
 
-### Three Architecture Options
+### Current Stack (Live)
+- **Primary Model**: `zeroai87/zantara-llama-3.1-8b-merged` (RunPod Serverless vLLM)
+- **Fallback**: Anthropic Claude (Haiku/Sonnet via API) if RunPod/HF unavailable
+- **Fallback 2**: HuggingFace Inference API (same LoRA merge)
+- **Tool Use**: 41 handlers accessible via Anthropic-compatible schema
+- **Memory**: Firestore (long-term) + ChromaDB (vector) + in-memory cache
+- **Quality Enhancer**: Cross-encoder reranker (`ms-marco-MiniLM-L-6-v2`)
 
-| Option | Description | Monthly Cost | Savings | Status |
-|--------|-------------|--------------|---------|--------|
-| **Scenario 1** | Multi-Agent Budget (Cerebras/Groq/Gemini) | $42/mo | 91% | Ready to implement |
-| **Scenario 2** | LLAMA 4 Centro (Modal serverless) | $78/mo | 83% | Pending training |
-| **Scenario 3** | Hybrid (LLAMA 4 + Gemini Flash) | $84/mo | 81% | ⭐ **RECOMMENDED** |
+### Active Roadmap (Optional Enhancements)
+| Option | Description | Status | Notes |
+|--------|-------------|--------|-------|
+| Multi-Agent Budget | Cerebras/Groq/Gemini cost-reduction plan | Ready | Use if RunPod costs spike |
+| LLAMA 4 Centro | Train Llama 4 Scout 17B-16E (10M context) | On hold | Dataset ready, awaiting go/no-go |
+| Hybrid LLAMA4 + Gemini | Combine Llama 4 + Gemini Flash | Recommended | 81% projected savings vs GPT-4o |
 
-### Key Insights
+**Decision Needed**: whether to launch LLAMA 4 training or remain on Llama 3.1 RunPod primary.
 
-**Critical Discovery**: LLAMA 4 Scout 17B-16E with **10M context window** should be the **Super-Orchestrator**, not a single-line specialist agent.
-
-**Why 10M Context is Game-Changing**:
-- Entire ZANTARA knowledge base fits in memory
-- 70% of queries answered without external API calls (zero cost, zero latency)
-- Full conversation history retained (no context loss)
-- Tools called only for external actions (Calendar, Gmail, Maps, WhatsApp)
-
-**Performance Projections**:
-- Knowledge queries: 0-1s (vs 2-3s current)
-- Tool calls: 2-4s (same as current)
-- Overall latency: **45% reduction** on knowledge queries
-
-**LLAMA 4 Training Status**:
-- Model: Llama 4 Scout 17B-16E (109B MoE, 17B active, 10M context)
-- Solution: H100 NVL 94GB + Unsloth
-- Cost: $15-20 one-time
-- Timeline: 6-8 hours
-- Dataset: 22,009 ZANTARA examples ready
-- Status: ✅ **READY TO LAUNCH**
-- ROI: Payback in 1.6 days
-
-**Next Steps**:
-1. User decision on architecture (Scenario 1, 2, or 3)
-2. Launch LLAMA 4 training (if Scenario 2 or 3 chosen)
-3. Implement chosen architecture (4-6 hours for Scenario 1, 2-3 days for Scenario 2/3)
-
-**Full Documentation**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
+**Supporting Docs**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`, `docs/llama4/`
 
 ---
 
@@ -100,14 +79,14 @@
   - Internal API keys bypass rate limits
   - Protection: 98% cost reduction in abuse scenarios ($115k/day → $2.3k/day max)
 
-### **2. Python RAG Backend** (AI/Search)
+### **2. Python RAG Backend** (AI/Search + Primary LLM)
 - **Language**: Python 3.11
 - **Framework**: FastAPI
 - **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/apps/backend-rag 2/backend/`
 - **Production URL**: https://zantara-rag-backend-himaadsxua-ew.a.run.app
 - **Port**: 8000
 - **Database**: ChromaDB (7,375 docs, 88.2 MB - deployed to GCS)
-- **AI Models**: Anthropic Claude (Haiku/Sonnet routing)
+- **AI Models**: **Primary** ZANTARA Llama 3.1 (RunPod vLLM) · **Fallbacks** HuggingFace Inference + Anthropic Claude
 - **Entry Point**: `app/main_cloud.py` (prod), `app/main_integrated.py` (local)
 - **Deploy**: GitHub Actions (`.github/workflows/deploy-rag-amd64.yml`)
 - **NEW**: ✅ **Tool Executor Active** - Can execute TypeScript handlers
@@ -120,6 +99,8 @@
   - Dependencies: PyTorch (torch>=2.0.0) + sentence-transformers
   - Latency: +2-3s per query (acceptable for quality boost)
 - **Collections**: 16 total (8 KB + 8 intel topics)
+- **Critical ENV**: `RUNPOD_LLAMA_ENDPOINT`, `RUNPOD_API_KEY`, `HF_API_KEY`, `ANTHROPIC_API_KEY`
+- **Logs**: Startup logs confirm primary model with `"✅ ZANTARA Llama 3.1 client ready"`
 
 ### **3. Frontend** (Web UI)
 - **Language**: HTML/CSS/JavaScript (vanilla)
@@ -155,7 +136,7 @@
 | Service | URL | Port | Status |
 |---------|-----|------|--------|
 | TypeScript Backend | https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app | 8080 | ✅ Running (v5.5.0 + rate-limiting, commit 2a1b5fb) |
-| RAG Backend | https://zantara-rag-backend-himaadsxua-ew.a.run.app | 8000 | ✅ Running (v2.5.0-reranker-active, rev 00118-864) |
+| RAG Backend | https://zantara-rag-backend-himaadsxua-ew.a.run.app | 8000 | ✅ Running (v2.5.0 + ZANTARA Llama 3.1 primary, rev 00118-864) |
 
 ### **GitHub Pages**
 - **Repository**: https://github.com/Balizero1987/zantara_webapp
