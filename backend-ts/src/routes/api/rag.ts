@@ -3,7 +3,7 @@
  * Endpoints that proxy to Python RAG backend
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { Router, Request, Response } from 'express';
 import { ragService } from '../../services/ragService.js';
 

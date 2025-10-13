@@ -3,7 +3,7 @@
  * Search Bali intelligence news from ChromaDB via RAG backend
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import axios from 'axios';
 
 const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'https://zantara-rag-backend-himaadsxua-ew.a.run.app';

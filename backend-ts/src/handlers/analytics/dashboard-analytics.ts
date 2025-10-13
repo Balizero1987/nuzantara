@@ -1,5 +1,5 @@
 // ZANTARA Dashboard Analytics - Real-time Metrics & Monitoring
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { ok, err } from "../../utils/response.js";
 import { getFirestore } from "../../services/firebase.js";
 

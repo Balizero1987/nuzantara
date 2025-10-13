@@ -4,7 +4,7 @@
  */
 
 // Removed unused imports for ZANTARA-ONLY mode
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { aiChat } from "../ai-services/ai.js";
 
 export interface ZeroChatSimpleParams {

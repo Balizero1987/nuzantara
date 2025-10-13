@@ -1,5 +1,5 @@
 // Firebase Admin SDK Setup for ZANTARA v5.2.0
-import logger from '../services/logger.js';
+import logger from './logger.js';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 import { initializeApp, getApps, cert, applicationDefault } from 'firebase-admin/app';
 import { getFirestore as getFirestoreAdmin } from 'firebase-admin/firestore';

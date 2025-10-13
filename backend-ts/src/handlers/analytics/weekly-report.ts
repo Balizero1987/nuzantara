@@ -1,6 +1,6 @@
 // Weekly Report System for ZANTARA v5.2.0
 // Automatic Sunday analysis and reporting to Zero
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { getFirestore } from "../../services/firebase.js";
 import { getGmail, getDrive } from "../../services/google-auth-service.js";
 import { ok } from "../../utils/response.js";

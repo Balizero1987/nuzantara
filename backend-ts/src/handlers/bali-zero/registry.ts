@@ -3,7 +3,7 @@
  * Auto-registers all Indonesian business service handlers
  */
 
-import logger from '../services/logger.js';
+import logger from '../../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { oracleSimulate, oracleAnalyze, oraclePredict } from './oracle.js';
 import { documentPrepare, assistantRoute } from './advisory.js';
