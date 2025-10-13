@@ -35,7 +35,10 @@ export async function zantaraChat(params: ZantaraParams) {
   logger.info(`🎯 [ZANTARA RAG] Mode: ${mode}, Message: ${message.substring(0, 50)}...`);
 
   try {
-    // Call RAG Backend
+    // Call RAG Backend with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+    
     const response = await fetch(`${RAG_BACKEND_URL}/bali-zero/chat`, {
       method: 'POST',
       headers: {
@@ -46,8 +49,11 @@ export async function zantaraChat(params: ZantaraParams) {
         mode: mode,
         user_email: 'guest', // Default user
         user_role: 'member'
-      })
+      }),
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`RAG Backend error: ${response.status} ${response.statusText}`);
@@ -72,6 +78,43 @@ export async function zantaraChat(params: ZantaraParams) {
 
   } catch (error: any) {
     logger.error(`❌ [ZANTARA RAG] Error: ${error.message}`);
+    
+    // FALLBACK: Direct RunPod call if RAG backend fails
+    logger.info(`🔄 [ZANTARA FALLBACK] Trying direct RunPod...`);
+    
+    try {
+      const fallbackResponse = await fetch('https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ENV.RUNPOD_API_KEY}`
+        },
+        body: JSON.stringify({
+          input: {
+            prompt: `[MODE: ${mode.toUpperCase()}] ${message}`,
+            max_tokens: mode === 'santai' ? 100 : 300,
+            temperature: 0.7
+          }
+        })
+      });
+      
+      if (fallbackResponse.ok) {
+        const fallbackData = await fallbackResponse.json();
+        logger.info(`✅ [ZANTARA FALLBACK] Direct RunPod success`);
+        
+        return ok({
+          answer: fallbackData.output || 'ZANTARA is thinking...',
+          model: 'zantara-llama-3.1-8b-fallback',
+          provider: 'runpod-direct',
+          tokens: 0,
+          executionTime: 'fallback',
+          mode: mode
+        });
+      }
+    } catch (fallbackError: any) {
+      logger.error(`❌ [ZANTARA FALLBACK] Failed: ${fallbackError.message}`);
+    }
+    
     throw new Error(`RAG Backend unavailable: ${error.message}`);
   }
 }
