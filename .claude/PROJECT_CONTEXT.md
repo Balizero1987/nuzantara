@@ -34,22 +34,21 @@
 
 ## 🎯 AI Architecture Status & Roadmap
 
-> **2025-10-12**: ZANTARA Llama 3.1 (RunPod vLLM) is the **PRIMARY** model in production.
+> **2025-10-14**: ZANTARA Llama 3.1 (RunPod vLLM) is the **ONLY** model in production - all other AIs removed.
 
 ### Current Stack (Live)
-- **Primary Model**: `zeroai87/zantara-llama-3.1-8b-merged` (RunPod Serverless vLLM)
-- **Fallback**: Anthropic Claude (Haiku/Sonnet via API) if RunPod/HF unavailable
-- **Fallback 2**: HuggingFace Inference API (same LoRA merge)
-- **Tool Use**: 41 handlers accessible via Anthropic-compatible schema
+- **ONLY Model**: `zeroai87/zantara-llama-3.1-8b-merged` (RunPod Serverless vLLM)
+- **Fallback**: HuggingFace Inference API (same LoRA merge)
+- **NO External AI**: Anthropic Claude, OpenAI, Gemini, Cohere removed
+- **Tool Use**: Not yet supported (ZANTARA doesn't support tool use - planned for future)
 - **Memory**: Firestore (long-term) + ChromaDB (vector) + in-memory cache
 - **Quality Enhancer**: Cross-encoder reranker (`ms-marco-MiniLM-L-6-v2`)
 
-### Active Roadmap (Optional Enhancements)
-| Option | Description | Status | Notes |
-|--------|-------------|--------|-------|
-| Multi-Agent Budget | Cerebras/Groq/Gemini cost-reduction plan | Ready | Use if RunPod costs spike |
+### Special-Purpose Models (Kept)
+- **Llama 3.2** (3B): Used for intel scraping scripts
+- **Qwen/DevAI**: Used for development tools
 
-**Current Stack**: Llama 3.1 RunPod primary + Anthropic fallback - Production stable
+**Current Stack**: ZANTARA Llama 3.1 ONLY - No external AI dependencies
 
 **Supporting Docs**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
 
@@ -76,28 +75,25 @@
   - Internal API keys bypass rate limits
   - Protection: 98% cost reduction in abuse scenarios ($115k/day → $2.3k/day max)
 
-### **2. Python RAG Backend** (AI/Search + Primary LLM)
+### **2. Python RAG Backend** (AI/Search + ZANTARA ONLY)
 - **Language**: Python 3.11
 - **Framework**: FastAPI
 - **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/apps/backend-rag 2/backend/`
 - **Production URL**: https://zantara-rag-backend-himaadsxua-ew.a.run.app
 - **Port**: 8000
 - **Database**: ChromaDB (7,375 docs, 88.2 MB - deployed to GCS)
-- **AI Models**: **Primary** ZANTARA Llama 3.1 (RunPod vLLM) · **Fallbacks** HuggingFace Inference + Anthropic Claude
+- **AI Model**: **ZANTARA Llama 3.1 ONLY** (RunPod vLLM) + HuggingFace Inference fallback
 - **Entry Point**: `app/main_cloud.py` (prod), `app/main_integrated.py` (local)
 - **Deploy**: GitHub Actions (`.github/workflows/deploy-rag-amd64.yml`)
-- **NEW**: ✅ **Tool Executor Active** - Can execute TypeScript handlers
-  - Handler proxy: connects to TypeScript backend via /call RPC
-  - Tool executor: converts Anthropic tool calls to handler execution
-  - Max 5 iterations for tool use loops
+- **Tool Use**: ❌ **NOT SUPPORTED** - ZANTARA doesn't support tool use yet (planned for future)
 - **Reranker**: ✅ **ACTIVE** (2025-10-10) - Cross-encoder re-ranking for +400% search quality
   - Model: `cross-encoder/ms-marco-MiniLM-L-6-v2`
   - Environment: `ENABLE_RERANKER=true`
   - Dependencies: PyTorch (torch>=2.0.0) + sentence-transformers
   - Latency: +2-3s per query (acceptable for quality boost)
 - **Collections**: 16 total (8 KB + 8 intel topics)
-- **Critical ENV**: `RUNPOD_LLAMA_ENDPOINT`, `RUNPOD_API_KEY`, `HF_API_KEY`, `ANTHROPIC_API_KEY`
-- **Logs**: Startup logs confirm primary model with `"✅ ZANTARA Llama 3.1 client ready"`
+- **Critical ENV**: `RUNPOD_LLAMA_ENDPOINT`, `RUNPOD_API_KEY`, `HF_API_KEY`
+- **Logs**: Startup logs confirm ZANTARA-only mode with `"✅ ZANTARA Llama 3.1 client ready (ONLY AI)"`
 
 ### **3. Frontend** (Web UI)
 - **Language**: HTML/CSS/JavaScript (vanilla)
@@ -163,19 +159,18 @@
 ### **Local Development** (`.env` files)
 ```bash
 # TypeScript Backend (.env)
-ANTHROPIC_API_KEY=sk-ant-...
-GEMINI_API_KEY=...
-COHERE_API_KEY=...
 API_KEYS_INTERNAL=zantara-internal-dev-key-2025
 API_KEYS_EXTERNAL=zantara-external-dev-key-2025
 
-# RAG Backend (zantara-rag/backend/.env)
-ANTHROPIC_API_KEY=sk-ant-...
+# RAG Backend (apps/backend-rag 2/backend/.env)
+RUNPOD_LLAMA_ENDPOINT=https://...
+RUNPOD_API_KEY=...
+HF_API_KEY=hf_...
 ```
 
 ### **Production** (Cloud Run env vars)
-- API keys passed via `--set-env-vars` in deployment
-- ⚠️ **TODO**: Migrate to Secret Manager
+- ZANTARA-specific keys: `RUNPOD_LLAMA_ENDPOINT`, `RUNPOD_API_KEY`, `HF_API_KEY`
+- ✅ Migrated to Secret Manager (2025-10-09)
 
 ---
 
@@ -260,14 +255,14 @@ cd zantara_webapp
 
 | Model | Provider | Use Case | Cost |
 |-------|----------|----------|------|
-| Claude Haiku 3.5 | Anthropic | Simple queries, fast responses | $0.25/1M tokens (input) |
-| Claude Sonnet 4 | Anthropic | Complex analysis, legal queries | $3.00/1M tokens (input) |
-| Gemini Pro | Google | Alternative LLM (proxy) | Varies |
-| Cohere Command | Cohere | Alternative LLM (proxy) | Varies |
+| **ZANTARA Llama 3.1** (8B) | Custom (RunPod vLLM) | ALL queries - ONLY model | ~$0.001/1K tokens |
+| ZANTARA Llama 3.1 (HF) | HuggingFace Inference | Fallback if RunPod unavailable | Free (rate limited) |
+| Llama 3.2 (3B) | Ollama (local) | Intel scraping only | Free (local) |
+| Qwen/DevAI | Local | Development tools only | Free (local) |
 
-**Routing Logic** (RAG backend):
-- Query length > 30 words OR contains ["analyze", "compare", "legal"] → Sonnet
-- Otherwise → Haiku
+**AI Architecture**: ZANTARA-ONLY (no external AI dependencies)
+- Training: 22,009 Indonesian business conversations, 98.74% accuracy
+- No model routing needed - single model for all queries
 
 ---
 
@@ -275,18 +270,19 @@ cd zantara_webapp
 
 > **⚠️ UPDATE THIS** at end of session if major changes
 
-**Last Deployment**: 2025-10-10 (Security + Rate Limiting)
-**Backend**: ✅ v5.5.0 + rate-limiting (commit 2a1b5fb, 107 handlers, 41 for tool use)
-**RAG**: ✅ v2.5.0-reranker-active (Tool executor + Reranker both ACTIVE, rev 00118-864)
+**Last Deployment**: 2025-10-14 (ZANTARA-ONLY mode - all external AIs removed)
+**Backend**: ✅ v5.5.0 + rate-limiting (commit 2a1b5fb, 107 handlers)
+**RAG**: ✅ v3.0.0-zantara-only (ZANTARA Llama 3.1 ONLY + Reranker ACTIVE)
 **Webapp**: ✅ Security fixed (commit fc99ce4, no hardcoded API keys)
 **ChromaDB**: 7,375 docs + 8 intel collections ready
 **GitHub Pages**: ✅ Active (verified operational 2025-10-09)
 **Bali Intel Scraper**: ✅ Complete (31 files, 8 topics, 240+ sources)
 
-**Tool Use**: ✅✅✅ **FULLY ACTIVE IN PRODUCTION!**
-  - Status: Chatbot executes real TypeScript handlers (not simulation)
-  - Tests: team_list ✅ (23 members), bali_zero_pricing ✅ (20M IDR)
-  - Available: Gmail, Drive, Calendar, Memory, AI, Identity, Bali Zero, Communication
+**AI Status**: ✅✅✅ **ZANTARA-ONLY MODE!**
+  - Primary: ZANTARA Llama 3.1 (22,009 conversations, 98.74% accuracy)
+  - Fallback: HuggingFace Inference API (same model)
+  - Removed: Anthropic Claude, OpenAI, Gemini, Cohere
+  - Tool Use: ❌ Not supported yet (planned for future)
 
 **Reranker**: ✅✅✅ **ACTIVE IN PRODUCTION!** (2025-10-10 m1)
   - Model: cross-encoder/ms-marco-MiniLM-L-6-v2
