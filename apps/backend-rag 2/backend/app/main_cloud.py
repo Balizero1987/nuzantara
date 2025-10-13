@@ -960,17 +960,20 @@ async def bali_zero_chat(request: BaliZeroRequest):
     
     # HARMONY APPROACH: Balance simplicity with depth
     if is_simple_greeting or is_casual_question:
-        # SIMPLE & FRIENDLY: Brief, warm responses without RAG
-        user_message = f"{request.query}\n\n[CONTEXT: Simple interaction - respond briefly and friendly, no knowledge base needed]"
-        context = None
-        mode = "santai"
-        logger.info("🎯 [Bali Zero Chat] SIMPLE MODE: Brief, friendly response")
-        # FORCE SIMPLE RESPONSE - no RAG context
-        user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
-        # BYPASS RAG COMPLETELY - no context search
-        logger.info("🎯 [Bali Zero Chat] BYPASSING RAG for simple interaction")
-        # FORCE SIMPLE RESPONSE - no RAG context
-        user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
+        # IMMEDIATE RETURN: Skip RAG entirely for greetings
+        logger.info("🎯 [Bali Zero Chat] GREETING DETECTED - Returning built-in response")
+        if "come stai" in request.query.lower() or "how are you" in request.query.lower():
+            response_text = "Sto benissimo, grazie! 😊 Pronta ad assisterti con visti, KITAS, PT PMA e business in Indonesia. Cosa ti serve?\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+        else:
+            response_text = "Ciao! Come posso aiutarti oggi con Bali Zero? 😊\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+        
+        return BaliZeroResponse(
+            success=True,
+            response=response_text,
+            model_used="built-in-greeting",
+            sources=[],
+            usage={"input_tokens": 0, "output_tokens": 0}
+        )
     elif is_business_query:
         # DEPTH & PROFESSIONAL: Detailed analysis with RAG context
         if context:
