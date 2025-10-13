@@ -988,32 +988,6 @@ async def bali_zero_chat(request: BaliZeroRequest):
         else:
             user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
         logger.info("🎯 [Bali Zero Chat] BALANCED MODE: Using ZANTARA's built-in knowledge")
-    elif is_business_query:
-        # DEPTH & PROFESSIONAL: Detailed analysis with RAG context
-        if context:
-            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
-        else:
-            user_message = f"{request.query}"
-        
-        mode = request.mode or "pikiran"  # Default to detailed for business
-        if mode == "pikiran":
-            user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
-        else:
-            user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
-        logger.info("🎯 [Bali Zero Chat] DEPTH MODE: Professional analysis with context")
-    else:
-        # BALANCED APPROACH: Adaptive based on query complexity
-        if context:
-            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
-        else:
-            user_message = f"{request.query}"
-        
-        mode = request.mode or "santai"
-        if mode == "pikiran":
-            user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
-        else:
-            user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
-        logger.info("🎯 [Bali Zero Chat] BALANCED MODE: Adaptive response")
 
         messages.append({"role": "user", "content": user_message})
 
@@ -1068,15 +1042,15 @@ async def bali_zero_chat(request: BaliZeroRequest):
         usage = response.get("usage", {})
 
         # PHASE 2: Save conversation and update memory
-        if conversation_service and user_id != "anonymous":
-            # Save full conversation
-            full_messages = messages.copy()
-            full_messages.append({"role": "assistant", "content": answer})
+    if conversation_service and user_id != "anonymous":
+        # Save full conversation
+        full_messages = messages.copy()
+        full_messages.append({"role": "assistant", "content": answer})
 
-            metadata = {
-                "collaborator_name": collaborator.name if collaborator else "Unknown",
-                "collaborator_role": collaborator.role if collaborator else "guest",
-                "sub_rosa_level": sub_rosa_level,
+        metadata = {
+            "collaborator_name": collaborator.name if collaborator else "Unknown",
+            "collaborator_role": collaborator.role if collaborator else "guest",
+            "sub_rosa_level": sub_rosa_level,
                 "model_used": model_used,
                 "input_tokens": usage.get("input_tokens", 0),
                 "output_tokens": usage.get("output_tokens", 0),
