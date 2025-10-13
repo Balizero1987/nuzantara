@@ -708,20 +708,8 @@ export async function aiChat(params: any) {
   const isLong = text.length > 800;
 
   try {
-    // Premium routing per qualità massima
-    if (isCustomer) {
-      // Clienti: sempre il meglio disponibile
-      if (availability.openai) return openaiChat({ ...params, model: 'gpt-4o' });
-      if (availability.claude) return claudeChat({ ...params, model: 'claude-3-sonnet-20240229' });
-    }
-    if (isInternal) {
-      // Collaboratori: comprensione profonda
-      if (availability.claude) return claudeChat({ ...params, model: 'claude-3-opus-20240229' });
-      if (availability.openai) return openaiChat({ ...params, model: 'gpt-4-turbo-preview' });
-    }
-
     // ⭐ ZANTARA 100% ROUTING - Primary AI for ALL queries
-    // Trained on 22,009 Indonesian business conversations with 98.74% accuracy
+    // YOUR custom trained model (22,009 Indonesian business conversations, 98.74% accuracy)
     // ONLY 2 EXCEPTIONS:
     // 1. Code queries → Qwen (TODO: not yet integrated, fallback to Gemini)
     // 2. ZANTARA unavailable → Fallback to other providers
