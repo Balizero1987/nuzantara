@@ -1,7 +1,6 @@
 // Conversation Auto-Save System for ZANTARA v5.2.0
 // Automatically saves all conversations with Zero and collaborators
-import { ok, err } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
+import { ok } from "../../utils/response.js";
 import { memorySave } from "./memory-firestore.js";
 import { updateDailyRecap } from "../analytics/daily-drive-recap.js";
 // Removed googleapis imports - using existing drive.upload handler instead
@@ -28,7 +27,6 @@ function identifyUser(req: any): { userId: string, role: string, isZero: boolean
                     '';
 
   const userAgent = req.headers['user-agent'] || '';
-  const apiKey = req.headers['x-api-key'] || '';
 
   // Check if it's Zero
   const isZero = COLLABORATOR_PATTERNS.zero.some(pattern =>
@@ -135,7 +133,7 @@ METADATA:
         fileName: result.data.file.name
       };
     } else {
-      throw new Error(result.error || 'Drive upload failed');
+      throw new Error('Drive upload failed');
     }
 
   } catch (error: any) {
