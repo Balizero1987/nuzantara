@@ -966,6 +966,8 @@ async def bali_zero_chat(request: BaliZeroRequest):
         mode = "santai"
         # BYPASS RAG COMPLETELY - no context search
         logger.info("🎯 [Bali Zero Chat] BYPASSING RAG for simple interaction")
+        # FORCE SIMPLE RESPONSE - no RAG context
+        user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
     elif is_business_query:
         # Use RAG for business queries
         if context:
@@ -993,39 +995,39 @@ async def bali_zero_chat(request: BaliZeroRequest):
         else:
             user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
 
-        messages.append({"role": "user", "content": user_message})
+    messages.append({"role": "user", "content": user_message})
 
-        # Generate response using ZANTARA ONLY
-        # Note: Tool use is not supported with ZANTARA (planned for future)
-        try:
-            logger.info("🎯 [Bali Zero Chat] Using ZANTARA Llama 3.1 (ONLY AI)")
-            response = await zantara_client.chat_async(
-                messages=messages,
-                max_tokens=1500,
-                system=enhanced_prompt
-            )
-            answer = format_zantara_answer(response.get("text", ""))
-        except Exception as e:
-            logger.error(f"❌ [Bali Zero Chat] ZANTARA failed: {e}")
-            raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
+    # Generate response using ZANTARA ONLY
+    # Note: Tool use is not supported with ZANTARA (planned for future)
+    try:
+        logger.info("🎯 [Bali Zero Chat] Using ZANTARA Llama 3.1 (ONLY AI)")
+        response = await zantara_client.chat_async(
+            messages=messages,
+            max_tokens=1500,
+            system=enhanced_prompt
+        )
+        answer = format_zantara_answer(response.get("text", ""))
+    except Exception as e:
+        logger.error(f"❌ [Bali Zero Chat] ZANTARA failed: {e}")
+        raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
 
-        # Ensure explicit personalization when collaborator is recognized
-        try:
-            if collaborator:
-                is_it = (collaborator.language or "en").lower().startswith("it")
-                name = collaborator.ambaradam_name
-                if is_it:
-                    # If starts with a generic Italian greeting and doesn't include the name, inject it
-                    if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
-                        # Replace initial 'Ciao' with 'Ciao <Name>, ' (handle incomplete responses)
-                        parts = answer.lstrip().split(" ", 1)
-                        if len(parts) > 1:
-                            answer = "Ciao " + name + ", " + parts[1]
-                        else:
-                            # Response is just "Ciao" or "Ciao " - add greeting
-                            answer = f"Ciao {name}! Come posso aiutarti oggi?"
-                    elif name.lower() not in answer[:100].lower():
-                        answer = f"Ciao {name}, " + answer
+    # Ensure explicit personalization when collaborator is recognized
+    try:
+        if collaborator:
+            is_it = (collaborator.language or "en").lower().startswith("it")
+            name = collaborator.ambaradam_name
+            if is_it:
+                # If starts with a generic Italian greeting and doesn't include the name, inject it
+                if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
+                    # Replace initial 'Ciao' with 'Ciao <Name>, ' (handle incomplete responses)
+                    parts = answer.lstrip().split(" ", 1)
+                    if len(parts) > 1:
+                        answer = "Ciao " + name + ", " + parts[1]
+                    else:
+                        # Response is just "Ciao" or "Ciao " - add greeting
+                        answer = f"Ciao {name}! Come posso aiutarti oggi?"
+                elif name.lower() not in answer[:100].lower():
+                    answer = f"Ciao {name}, " + answer
                 else:
                     if answer.strip().lower().startswith(("hello", "hi")) and name.lower() not in answer[:100].lower():
                         # Replace initial greeting with personalized one
