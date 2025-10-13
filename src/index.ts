@@ -190,6 +190,10 @@ app.get('/zantara-production.html', (_req, res) => {
   res.sendFile(path.resolve(__dirname, '..', 'static', 'zantara-production.html'));
 });
 
+app.get('/devai-interface.html', (_req, res) => {
+  res.sendFile(path.resolve(__dirname, 'devai-interface.html'));
+});
+
 // Default route for ZANTARA Intelligence
 app.get('/', (_req, res) => {
   res.sendFile(path.resolve(__dirname, '..', 'static', 'zantara-production.html'));
