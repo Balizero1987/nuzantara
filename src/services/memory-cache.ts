@@ -140,7 +140,7 @@ class MemoryCache {
    */
   invalidateUser(userId: string): void {
     // Remove all search results for this user
-    for (const [key, _] of this.searchCache.entries()) {
+    for (const [key, _] of Array.from(this.searchCache.entries())) {
       if (key.includes(`user:${userId}`)) {
         this.searchCache.delete(key);
       }

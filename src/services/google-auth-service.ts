@@ -5,7 +5,7 @@
  */
 
 import { google } from 'googleapis';
-import { GoogleAuth } from 'google-auth-library';
+// import { GoogleAuth } from 'google-auth-library'; // Not used
 import * as fs from 'fs';
 import {
   getCalendarService,

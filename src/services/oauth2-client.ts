@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import fs from 'fs';
+import * as fs from 'fs';
 import { getOAuth2TokensPath } from './token-path.js';
 
 interface OAuth2Tokens {

@@ -8,7 +8,7 @@ import { ok } from "../../utils/response.js";
 /**
  * Handler metadata extracted from JSDoc comments in router.ts (DEPRECATED - used as fallback only)
  */
-import { HANDLER_REGISTRY, HandlerMetadata } from './handler-metadata.js';
+import { HANDLER_REGISTRY } from './handler-metadata.js';
 
 /**
  * Dynamic handler registry (auto-loaded from modules)

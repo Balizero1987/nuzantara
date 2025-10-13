@@ -57,7 +57,7 @@ router.post('/zantara', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = AIChatSchema.parse(req.body);
     const result = await zantaraChat({
-      message: params.prompt || params.message,
+      message: params.prompt || params.message || '',
       max_tokens: params.max_tokens,
       temperature: params.temperature,
       context: params.context
