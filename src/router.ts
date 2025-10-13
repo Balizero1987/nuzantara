@@ -23,7 +23,7 @@ import { gmailHandlers } from "./handlers/google-workspace/gmail.js";
 import { contactsList, contactsCreate } from "./handlers/google-workspace/contacts.js";
 
 // AI Services
-import { aiChat, openaiChat, claudeChat, geminiChat, cohereChat } from "./handlers/ai-services/ai.js";
+import { aiChat } from "./handlers/ai-services/ai.js";
 import { aiAnticipate, aiLearn, xaiExplain } from "./handlers/ai-services/advanced-ai.js";
 import { creativeHandlers } from "./handlers/ai-services/creative.js";
 
@@ -131,7 +131,7 @@ const ActionSchema = z.object({
 type Handler = (params: any, req?: Request) => Promise<any>;
 
 // === AI fallback settings ===
-const AI_FALLBACK_ORDER = (process.env.AI_FALLBACK_ORDER || 'ai.chat,openai.chat,claude.chat,gemini.chat,cohere.chat')
+const AI_FALLBACK_ORDER = (process.env.AI_FALLBACK_ORDER || 'ai.chat')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
@@ -433,10 +433,7 @@ const handlers: Record<string, Handler> = {
    */
   "ai.chat": aiChat,
   // Real AI handlers (TS). Router prefers these; bridgeProxy is used inside if keys missing.
-  "openai.chat": openaiChat,
-  "claude.chat": claudeChat,
-  "gemini.chat": geminiChat,
-  "cohere.chat": cohereChat,
+  // ARCHIVED: Other AI providers removed - ZANTARA-ONLY mode
 
   // 🏢 KBLI Business Codes (NEW)
   "kbli.lookup": async (params: any) => {
@@ -986,7 +983,7 @@ export function attachRoutes(app: import("express").Express) {
   // AI Chat
   app.post("/ai.chat", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
-      const result = await openaiChat(req.body);
+      const result = await aiChat(req.body);
       return res.status(200).json(ok(result?.data ?? result));
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
@@ -1239,9 +1236,9 @@ export function attachRoutes(app: import("express").Express) {
           }));
         }
 
-        // Force to OpenAI path for stability; aiChat available but this ensures consistency
+        // Use ZANTARA-ONLY mode for consistency
         const startTime = Date.now();
-        const r = await openaiChat(params);
+        const r = await aiChat(params);
 
         // Auto-save AI conversation
         await autoSaveConversation(
@@ -1251,7 +1248,7 @@ export function attachRoutes(app: import("express").Express) {
           'ai.chat',
           {
             responseTime: Date.now() - startTime,
-            model: r?.data?.model || 'openai'
+            model: r?.data?.model || 'zantara'
           }
         );
 
