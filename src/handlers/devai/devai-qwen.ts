@@ -9,14 +9,14 @@ import { BadRequestError } from "../../utils/errors.js";
 
 // Configuration
 const HF_API_KEY = process.env.HF_API_KEY || '';
-const DEVAI_MODEL = 'microsoft/DialoGPT-medium';
+const DEVAI_MODEL = 'zeroai87/devai-qwen-2.5-coder-7b';
 const RUNPOD_ENDPOINT = process.env.RUNPOD_QWEN_ENDPOINT || '';
 const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY || '';
 
 interface DevAIParams {
   message?: string;
   code?: string;
-  task?: 'analyze' | 'fix' | 'review' | 'explain' | 'generate-tests' | 'refactor';
+  task?: 'chat' | 'analyze' | 'fix' | 'review' | 'explain' | 'generate-tests' | 'refactor';
   max_tokens?: number;
   temperature?: number;
   context?: string;
@@ -27,7 +27,7 @@ interface DevAIParams {
  * Tries RunPod first, falls back to HuggingFace Inference API
  */
 export async function devaiChat(params: DevAIParams) {
-  const { message, code, task = 'analyze', max_tokens = 800, temperature = 0.7, context } = params;
+  const { message, code, task = 'chat', max_tokens = 800, temperature = 0.7, context } = params;
 
   if (!message && !code) {
     throw new BadRequestError('message or code is required');
@@ -37,7 +37,29 @@ export async function devaiChat(params: DevAIParams) {
   const userMessage = buildPrompt(task, message, code, context);
 
   // System prompt for DevAI
-  const systemPrompt = `You are DevAI, an expert code assistant for the NUZANTARA project.
+  // Different prompts based on task
+  let systemPrompt = '';
+  
+  if (task === 'chat' || !task) {
+    systemPrompt = `You are DevAI, a friendly AI developer assistant for the NUZANTARA project.
+
+PERSONALITY:
+- Friendly and helpful
+- Speak in Italian when appropriate
+- Be conversational and approachable
+- Focus on helping with development tasks
+
+CAPABILITIES:
+- Code analysis and bug detection
+- TypeScript/JavaScript/Python expertise
+- Architecture review and suggestions
+- Test generation
+- Refactoring recommendations
+- Performance optimization
+
+When chatting, be natural and helpful. When analyzing code, be technical and precise.`;
+  } else {
+    systemPrompt = `You are DevAI, an expert code assistant for the NUZANTARA project.
 
 CAPABILITIES:
 - Code analysis and bug detection
@@ -53,6 +75,7 @@ GUIDELINES:
 - Include code examples in fixes
 - Explain your reasoning
 - Focus on NUZANTARA codebase patterns`;
+  }
 
   // Try RunPod if configured
   if (RUNPOD_ENDPOINT && RUNPOD_API_KEY) {
@@ -90,47 +113,6 @@ GUIDELINES:
   throw new Error('DevAI not configured: Set RUNPOD_QWEN_ENDPOINT or HF_API_KEY');
 }
 
-/**
- * Build task-specific prompt
- */
-function buildPrompt(task: string, message?: string, code?: string, context?: string): string {
-  let prompt = '';
-
-  switch (task) {
-    case 'analyze':
-      prompt = `Analyze this code for bugs, performance issues, and improvements:\n\n\`\`\`\n${code || message}\n\`\`\``;
-      break;
-    
-    case 'fix':
-      prompt = `Find and fix bugs in this code. Provide the corrected code with explanations:\n\n\`\`\`\n${code || message}\n\`\`\``;
-      break;
-    
-    case 'review':
-      prompt = `Review this code for quality, best practices, and potential issues:\n\n\`\`\`\n${code || message}\n\`\`\``;
-      break;
-    
-    case 'explain':
-      prompt = `Explain what this code does:\n\n\`\`\`\n${code || message}\n\`\`\``;
-      break;
-    
-    case 'generate-tests':
-      prompt = `Generate unit tests for this code:\n\n\`\`\`\n${code || message}\n\`\`\``;
-      break;
-    
-    case 'refactor':
-      prompt = `Suggest refactoring improvements for this code:\n\n\`\`\`\n${code || message}\n\`\`\``;
-      break;
-    
-    default:
-      prompt = message || code || '';
-  }
-
-  if (context) {
-    prompt += `\n\nContext:\n${context}`;
-  }
-
-  return prompt;
-}
 
 /**
  * Call RunPod vLLM endpoint
@@ -332,5 +314,32 @@ export async function generateTests(params: any) {
  */
 export async function suggestRefactoring(params: any) {
   return devaiChat({ ...params, task: 'refactor' });
+}
+
+/**
+ * Build prompt based on task type
+ */
+function buildPrompt(task: string, message?: string, code?: string, context?: string): string {
+  if (task === 'chat' || !task) {
+    // For chat, just return the message as-is
+    return message || '';
+  } else {
+    // For analysis tasks, format as code analysis
+    let prompt = '';
+    
+    if (code) {
+      prompt += `Analyze this code:\n\n\`\`\`\n${code}\n\`\`\`\n\n`;
+    }
+    
+    if (message) {
+      prompt += `Task: ${message}\n\n`;
+    }
+    
+    if (context) {
+      prompt += `Context: ${context}\n\n`;
+    }
+    
+    return prompt || message || '';
+  }
 }
 
