@@ -32,7 +32,7 @@ class ZantaraClient:
         self.runpod_api_key = runpod_api_key or os.getenv("RUNPOD_API_KEY")
         self.hf_api_key = hf_api_key or os.getenv("HF_API_KEY")
 
-        self.model_name = "zeroai87/zantara-llama-3.1-8b-merged"
+        self.model_name = "meta-llama/Llama-3.1-8B-Instruct"
 
         # Validate configuration
         if not self.runpod_endpoint or not self.runpod_api_key:

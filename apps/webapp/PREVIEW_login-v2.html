@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZANTARA - Login (Preview v2)</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="PREVIEW_design-system-v2.css">
+    <style>
+        /* Page-specific styles */
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--z-space-6);
+            position: relative;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: var(--z-space-6);
+            right: var(--z-space-6);
+            z-index: 100;
+        }
+
+        /* Login Card */
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* Logo */
+        .logo-wrapper {
+            text-align: center;
+            margin-bottom: var(--z-space-8);
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto var(--z-space-4);
+            display: block;
+            object-fit: contain;
+            filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.6));
+            animation: logoFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+                filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.6));
+            }
+            50% {
+                transform: translateY(-10px) scale(1.02);
+                filter: drop-shadow(0 0 60px rgba(99, 102, 241, 0.8));
+            }
+        }
+
+        .logo-title {
+            font-size: var(--z-text-4xl);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: var(--z-space-2);
+        }
+
+        .logo-subtitle {
+            font-size: var(--z-text-sm);
+            color: var(--z-text-tertiary);
+            font-weight: 500;
+        }
+
+        /* Login Toggle */
+        .login-toggle {
+            display: flex;
+            gap: var(--z-space-2);
+            margin-bottom: var(--z-space-6);
+            padding: var(--z-space-1);
+            background: var(--z-glass-bg);
+            border: 1px solid var(--z-glass-border);
+            border-radius: var(--z-radius-lg);
+            backdrop-filter: blur(10px);
+        }
+
+        .toggle-option {
+            flex: 1;
+            padding: var(--z-space-3) var(--z-space-4);
+            background: transparent;
+            border: none;
+            border-radius: calc(var(--z-radius-lg) - 2px);
+            color: var(--z-text-secondary);
+            font-size: var(--z-text-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--z-transition-fast);
+        }
+
+        .toggle-option.active {
+            background: linear-gradient(135deg, var(--z-brand-primary), var(--z-brand-secondary));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Form */
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: slideInLeft 0.3s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: var(--z-space-5);
+        }
+
+        .form-label {
+            display: block;
+            font-size: var(--z-text-sm);
+            font-weight: 600;
+            color: var(--z-text-secondary);
+            margin-bottom: var(--z-space-2);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--z-space-4);
+            font-size: var(--z-text-base);
+            font-family: var(--z-font-primary);
+            color: var(--z-text-primary);
+            background: var(--z-glass-bg);
+            border: 1px solid var(--z-glass-border);
+            border-radius: var(--z-radius-lg);
+            outline: none;
+            transition: all var(--z-transition-fast);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input::placeholder {
+            color: var(--z-text-muted);
+        }
+
+        .form-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--z-brand-primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' opacity='0.5'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: var(--z-space-10);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: var(--z-space-4);
+            font-size: var(--z-text-base);
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--z-brand-primary), var(--z-brand-secondary));
+            color: white;
+            border: none;
+            border-radius: var(--z-radius-lg);
+            cursor: pointer;
+            transition: all var(--z-transition-fast);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Integrations */
+        .integrations {
+            margin-top: var(--z-space-8);
+            padding-top: var(--z-space-6);
+            border-top: 1px solid var(--z-border-subtle);
+        }
+
+        .integrations-title {
+            font-size: var(--z-text-xs);
+            color: var(--z-text-muted);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--z-space-4);
+        }
+
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--z-space-3);
+        }
+
+        .integration-group {
+            background: var(--z-glass-bg);
+            border: 1px solid var(--z-glass-border);
+            border-radius: var(--z-radius-md);
+            padding: var(--z-space-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--z-space-2);
+            transition: all var(--z-transition-fast);
+        }
+
+        .integration-group:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .integration-label {
+            font-size: var(--z-text-xs);
+            color: var(--z-text-tertiary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .integration-logos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--z-space-2);
+        }
+
+        .integration-logo {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            opacity: 0.6;
+            transition: all var(--z-transition-fast);
+        }
+
+        .integration-logo:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* Message */
+        .message {
+            padding: var(--z-space-4);
+            border-radius: var(--z-radius-lg);
+            margin-bottom: var(--z-space-4);
+            font-size: var(--z-text-sm);
+            backdrop-filter: blur(10px);
+            animation: slideInLeft 0.3s ease-out;
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--z-brand-accent);
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .login-page {
+                padding: var(--z-space-4);
+            }
+
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .logo-title {
+                font-size: var(--z-text-3xl);
+            }
+
+            .integration-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="z-animated-bg">
+        <div class="z-orb z-orb-1"></div>
+        <div class="z-orb z-orb-2"></div>
+        <div class="z-orb z-orb-3"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle z-btn-icon z-glass z-hover-lift" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span>
+    </button>
+
+    <!-- Login Page -->
+    <div class="login-page">
+        <div class="login-card z-glass-card">
+            <!-- Logo -->
+            <div class="logo-wrapper">
+                <img src="assets/logoscon.png" class="logo" alt="ZANTARA">
+                <h1 class="logo-title">ZANTARA</h1>
+                <p class="logo-subtitle">Powered by Zero AI</p>
+            </div>
+
+            <!-- Message (hidden by default) -->
+            <div id="message" class="message" style="display: none;"></div>
+
+            <!-- Login Type Toggle -->
+            <div class="login-toggle">
+                <button class="toggle-option active" onclick="switchLogin('public')">
+                    🔓 Public Login
+                </button>
+                <button class="toggle-option" onclick="switchLogin('team')">
+                    👥 Team Login
+                </button>
+            </div>
+
+            <!-- Public Login Form -->
+            <form id="publicLoginForm" class="form-section active">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        class="form-input"
+                        placeholder="your@email.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        class="form-input"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Sign In →
+                </button>
+            </form>
+
+            <!-- Team Login Form -->
+            <form id="teamLoginForm" class="form-section">
+                <div class="form-group">
+                    <label class="form-label" for="teamMember">Select Team Member</label>
+                    <select id="teamMember" class="form-input form-select" required>
+                        <option value="">Loading team members...</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Access Dashboard →
+                </button>
+            </form>
+
+            <!-- Integrations -->
+            <div class="integrations">
+                <div class="integrations-title">Integrated Services</div>
+                <div class="integration-grid">
+                    <!-- Google -->
+                    <div class="integration-group">
+                        <div class="integration-label">Google</div>
+                        <div class="integration-logos">
+                            <img src="assets/logo-google-drive.png" class="integration-logo" alt="Drive" title="Google Drive">
+                            <img src="assets/logo-gmail.png" class="integration-logo" alt="Gmail" title="Gmail">
+                            <img src="assets/logo-google-calendar.png" class="integration-logo" alt="Calendar" title="Google Calendar">
+                            <img src="assets/logo-google-docs.png" class="integration-logo" alt="Docs" title="Google Docs">
+                            <img src="assets/logo-google-maps.png" class="integration-logo" alt="Maps" title="Google Maps">
+                        </div>
+                    </div>
+
+                    <!-- Meta -->
+                    <div class="integration-group">
+                        <div class="integration-label">Meta</div>
+                        <div class="integration-logos">
+                            <img src="assets/logo-whatsapp.png" class="integration-logo" alt="WhatsApp" title="WhatsApp">
+                            <img src="assets/logo-instagram.png" class="integration-logo" alt="Instagram" title="Instagram">
+                            <img src="assets/logo-facebook.png" class="integration-logo" alt="Facebook" title="Facebook">
+                        </div>
+                    </div>
+
+                    <!-- AI Services -->
+                    <div class="integration-group">
+                        <div class="integration-label">AI Powered</div>
+                        <div class="integration-logos">
+                            <img src="assets/logo-openai.png" class="integration-logo" alt="OpenAI" title="OpenAI">
+                            <img src="assets/logo-claude.png" class="integration-logo" alt="Claude" title="Claude">
+                            <img src="assets/logo-gemini.png" class="integration-logo" alt="Gemini" title="Gemini">
+                            <img src="assets/logo-llama.png" class="integration-logo" alt="Llama" title="Meta Llama">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        let isDark = true;
+
+        function toggleTheme() {
+            isDark = !isDark;
+            const icon = document.getElementById('themeIcon');
+
+            if (isDark) {
+                document.body.classList.remove('light-mode');
+                icon.textContent = '🌙';
+            } else {
+                document.body.classList.add('light-mode');
+                icon.textContent = '☀️';
+            }
+        }
+
+        // Login Type Switch
+        function switchLogin(type) {
+            const publicForm = document.getElementById('publicLoginForm');
+            const teamForm = document.getElementById('teamLoginForm');
+            const toggleButtons = document.querySelectorAll('.toggle-option');
+
+            toggleButtons.forEach(btn => btn.classList.remove('active'));
+
+            if (type === 'public') {
+                publicForm.classList.add('active');
+                teamForm.classList.remove('active');
+                toggleButtons[0].classList.add('active');
+            } else {
+                teamForm.classList.add('active');
+                publicForm.classList.remove('active');
+                toggleButtons[1].classList.add('active');
+            }
+        }
+
+        // Show Message
+        function showMessage(text, type = 'success') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Public Login Handler
+        document.getElementById('publicLoginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+
+            // Save to localStorage
+            localStorage.setItem('zantara-user-email', email);
+            localStorage.setItem('zantara-user-name', email.split('@')[0].toUpperCase());
+
+            // Reset introduction flag
+            sessionStorage.removeItem('zantara-introduced');
+
+            // Show success and redirect
+            showMessage('✓ Login successful! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = 'chat.html';
+            }, 1000);
+        });
+
+        // Team Login Handler
+        document.getElementById('teamLoginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const member = document.getElementById('teamMember').value;
+
+            if (!member) {
+                showMessage('Please select a team member', 'error');
+                return;
+            }
+
+            showMessage('✓ Team login successful! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        });
+
+        // Load team members (placeholder)
+        setTimeout(() => {
+            const select = document.getElementById('teamMember');
+            select.innerHTML = `
+                <option value="">Choose your name</option>
+                <option value="zero">Zero Master - CEO</option>
+                <option value="adit">ADIT - Immigration Specialist</option>
+                <option value="amanda">AMANDA - Document Manager</option>
+                <option value="angel">ANGEL - Tax Consultant</option>
+            `;
+        }, 500);
+
+        // Auto-focus email field
+        document.getElementById('email').focus();
+
+        // Check if already logged in
+        const userEmail = localStorage.getItem('zantara-user-email');
+        if (userEmail) {
+            showMessage(`Welcome back! Already logged in as ${userEmail}`, 'success');
+            setTimeout(() => {
+                window.location.href = 'chat.html';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
