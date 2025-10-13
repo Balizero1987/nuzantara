@@ -41,10 +41,12 @@ export async function zeroChat(params: any) {
       userId: 'zero'
     });
 
+    const responseData: any = result.data || result;
+    
     return ok({
-      response: result.data?.response || result.response,
+      response: responseData.response || responseData.answer,
       model: 'zantara-zero',
-      usage: result.data?.usage || result.usage,
+      usage: responseData.usage || responseData.tokens,
       ts: Date.now()
     });
   } catch (error: any) {
