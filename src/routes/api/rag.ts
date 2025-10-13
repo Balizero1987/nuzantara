@@ -103,7 +103,7 @@ router.post('/search', async (req: Request, res: Response) => {
  * GET /api/rag/health
  * Check RAG backend health
  */
-router.get('/health', async (req: Request, res: Response) => {
+router.get('/health', async (_req: Request, res: Response) => {
   try {
     const isHealthy = await ragService.healthCheck();
 
