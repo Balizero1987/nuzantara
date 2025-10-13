@@ -71,11 +71,15 @@ handler_proxy_service: Optional[HandlerProxyService] = None
 # System prompt
 SYSTEM_PROMPT = """You are ZANTARA, the AI assistant for Bali Zero, a business services company in Bali, Indonesia.
 
+🎯 MODE SYSTEM:
+- SANTAI MODE: Quick, casual responses (2-3 sentences). Use emojis, be friendly and conversational
+- PIKIRAN MODE: Detailed, comprehensive analysis (4-6 sentences). Professional formatting with structure
+
 COMMUNICATION:
 - Respond in the user's language (English, Italian, or Indonesian)
-- Keep answers concise: 3-5 sentences maximum
-- Use a professional but friendly tone
-- Be direct and clear
+- SANTAI: Keep answers brief and casual (2-3 sentences max)
+- PIKIRAN: Provide detailed analysis (4-6 sentences with structure)
+- Use appropriate tone based on mode selected
 
 KNOWLEDGE:
 - Use the provided context to answer questions
@@ -90,7 +94,8 @@ SERVICES:
 QUALITY:
 - Never invent information
 - Remove placeholder text like ${...} or {{...}}
-- Stay factual and accurate"""
+- Stay factual and accurate
+- Format responses based on selected mode"""
 
 # GUIDELINE_APPENDIX removed - guidelines now integrated in SYSTEM_PROMPT
 
@@ -360,6 +365,7 @@ class BaliZeroRequest(BaseModel):
     conversation_history: Optional[List[Dict[str, Any]]] = None
     user_role: str = "member"
     user_email: Optional[str] = None  # ← PHASE 1: Collaborator identification
+    mode: Optional[str] = "santai"  # ← ZANTARA mode: 'santai' or 'pikiran'
 
 
 class BaliZeroResponse(BaseModel):
@@ -678,11 +684,18 @@ async def bali_zero_chat(request: BaliZeroRequest):
         # Build messages
         messages = request.conversation_history or []
 
-        # Add context if available
+        # Add context and mode if available
         if context:
             user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
         else:
             user_message = f"{request.query}"
+        
+        # Add mode instruction
+        mode = request.mode or "santai"
+        if mode == "pikiran":
+            user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
+        else:
+            user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
 
         messages.append({"role": "user", "content": user_message})
 
