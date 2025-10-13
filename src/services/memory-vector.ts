@@ -1,15 +1,18 @@
 // Memory Vector Service for ZANTARA v5.2.0
 // Integrates with Python RAG backend for semantic memory search via embeddings
 import axios from 'axios';
-import { memoryCache, getCachedEmbedding, getCachedSearch } from './memory-cache.js';
+import { getCachedEmbedding, getCachedSearch } from './memory-cache.js';
 
 const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'http://localhost:8000';
 
+// Unused interface - commented out
+/*
 interface EmbeddingResponse {
   embedding: number[];
   dimensions: number;
   model: string;
 }
+*/
 
 interface VectorSearchResult {
   id: string;
