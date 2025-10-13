@@ -948,23 +948,26 @@ async def bali_zero_chat(request: BaliZeroRequest):
         # Build messages
         messages = request.conversation_history or []
 
-    # Add context and mode if available
-    if context:
-        user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
-    else:
-        user_message = f"{request.query}"
-    
-    # Add mode instruction
-    mode = request.mode or "santai"
-    if mode == "pikiran":
-        user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
-    else:
-        user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
-    
     # CONTEXT SWITCHING: Simple greetings should not use RAG context
     simple_greetings = ["ciao", "hello", "hi", "salve", "buongiorno", "buonasera", "come stai", "how are you"]
     if any(greeting in request.query.lower() for greeting in simple_greetings):
+        # BYPASS RAG COMPLETELY for simple greetings
         user_message = f"{request.query}\n\n[CONTEXT: Simple greeting - respond briefly and friendly, no knowledge base needed]"
+        # Clear context to prevent RAG activation
+        context = None
+    else:
+        # Add context and mode if available
+        if context:
+            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
+        else:
+            user_message = f"{request.query}"
+        
+        # Add mode instruction
+        mode = request.mode or "santai"
+        if mode == "pikiran":
+            user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
+        else:
+            user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
 
         messages.append({"role": "user", "content": user_message})
 
