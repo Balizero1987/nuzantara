@@ -6,7 +6,6 @@ export interface Flags {
   ENABLE_CAPABILITY_MAP: boolean;
   ENABLE_OMNICHANNEL: boolean;
   ENABLE_OBSERVABILITY: boolean;
-  ENABLE_LLAMA4: boolean;
   ENABLE_SELF_HEALING: boolean;
   ENABLE_WS_TRANSPORT: boolean;
 }
@@ -17,7 +16,6 @@ export const DEFAULT_FLAGS: Flags = {
   ENABLE_CAPABILITY_MAP: false,
   ENABLE_OMNICHANNEL: false,
   ENABLE_OBSERVABILITY: true,
-  ENABLE_LLAMA4: false,
   ENABLE_SELF_HEALING: true,
   ENABLE_WS_TRANSPORT: true,
 };
