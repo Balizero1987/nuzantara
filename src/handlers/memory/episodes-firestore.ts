@@ -1,6 +1,6 @@
 // Episodic Memory Handlers for ZANTARA v5.2.0
 // Time-indexed events with entity tracking
-import { ok, err } from "../../utils/response.js";
+import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { getFirestore } from "../../services/firebase.js";
 
@@ -181,7 +181,7 @@ class FirestoreEpisodeStore {
     }
 
     // Fallback: search all users
-    for (const [userId, userEvents] of this.fallbackStore.entries()) {
+    for (const [_userId, userEvents] of this.fallbackStore.entries()) {
       const matching = userEvents.filter((e: any) =>
         e.entities && e.entities.includes(entity)
       );

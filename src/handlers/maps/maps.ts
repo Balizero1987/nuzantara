@@ -2,7 +2,7 @@ import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 
-import { google } from 'googleapis';
+// // import { google } from 'googleapis'; // Unused import
 
 // Param interfaces
 export interface DirectionsParams {

@@ -10,7 +10,7 @@ import { getWebSocketServer } from '../../services/websocket-server.js';
 /**
  * Get WebSocket server stats
  */
-export async function websocketStats(params: any) {
+export async function websocketStats(_params: any) {
   const wsServer = getWebSocketServer();
 
   if (!wsServer) {

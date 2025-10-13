@@ -52,8 +52,8 @@ router.post('/report', apiKeyAuth, async (req: RequestWithCtx, res) => {
  */
 router.post('/weekly-report', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
-    const params = WeeklyReportSchema.parse(req.body);
-    const result = await weeklyReportHandlers['report.weekly.generate'](params);
+    WeeklyReportSchema.parse(req.body);
+    const result = await weeklyReportHandlers['report.weekly.generate']();
     return res.json(result);
   } catch (error: any) {
     if (error instanceof BadRequestError) {
@@ -69,8 +69,8 @@ router.post('/weekly-report', apiKeyAuth, async (req: RequestWithCtx, res) => {
  */
 router.post('/weekly-report/summary', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
-    const params = WeeklyReportSchema.parse(req.body);
-    const result = await weeklyReportHandlers['report.weekly.schedule'](params);
+    WeeklyReportSchema.parse(req.body);
+    const result = await weeklyReportHandlers['report.weekly.schedule']();
     return res.json(result);
   } catch (error: any) {
     if (error instanceof BadRequestError) {

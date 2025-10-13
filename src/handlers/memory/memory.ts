@@ -1,5 +1,5 @@
 // Memory System Handlers for ZANTARA v5.2.0
-import { ok, err } from "../../utils/response.js";
+import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 
 // Mock memory store for development - in production this would use Firestore

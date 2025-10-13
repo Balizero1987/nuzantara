@@ -29,7 +29,7 @@ export async function identityResolve(params: any) {
     // Try to find by email first
     const byEmail = await col.where("email", "==", p.identity_hint).limit(1).get();
     if (!byEmail.empty) {
-      const data = byEmail.docs[0].data();
+      const data = byEmail.docs[0]?.data() || {};
       const result = {
         ...data,
         system: "v5.2.0-production-firebase"
@@ -133,7 +133,7 @@ export async function onboardingStart(params: any) {
 
   try {
     const db = getFirestore();
-    const doc = db.collection("collaborators").doc(id);
+    const doc = db.collection("collaborators").doc(id ?? 'unknown');
     await doc.set(collaboratorData, { merge: true });
 
     // Return the saved data

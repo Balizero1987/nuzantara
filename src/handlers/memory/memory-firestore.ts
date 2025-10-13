@@ -267,7 +267,7 @@ export async function memorySave(params: any) {
     userId,
     content: fact,
     type,
-    timestamp: timestamp?.split('T')[0] || new Date().toISOString().split('T')[0],
+    timestamp: (timestamp ?? new Date().toISOString()).split('T')[0],
     entities
   }).catch(err => {
     console.log('⚠️ Vector storage failed (non-blocking):', err?.message);
@@ -299,7 +299,7 @@ export async function memoryRetrieve(params: any) {
   // Helper: infer preferred language/tone by known collaborator id
   function inferPrefsForUser(uid: string | undefined): { lang?: string; tone?: string; dialect?: string; cultural?: string } {
     if (!uid) return {};
-    const base = String(uid || '').toLowerCase().split('@')[0].replace(/[^a-z0-9]/g, '');
+    const base = (uid ?? '').toLowerCase().split('@')[0].replace(/[^a-z0-9]/g, '');
     const map: Record<string, { lang?: string; tone?: string; dialect?: string; cultural?: string }> = {
       zero: { lang: 'it', tone: 'napoletano_caloroso', cultural: 'cita_toto_spesso' },
       ari: { lang: 'su' },

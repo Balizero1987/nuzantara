@@ -452,7 +452,7 @@ async function sendWhatsAppMessage(to: string, text: string) {
  * Check for alerts and notify team
  */
 async function checkAndSendAlerts(params: any) {
-  const { userId, userName, message, sentiment, isGroup, groupId } = params;
+  const { userName, message, sentiment } = params;
 
   const alerts = [];
 

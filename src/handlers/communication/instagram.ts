@@ -476,7 +476,7 @@ async function sendInstagramMessage(to: string, text: string) {
  * Check for alerts and notify team
  */
 async function checkInstagramAlerts(params: any) {
-  const { userId, username, message, sentiment, userInfo } = params;
+  const { userId: _userId, username, message, sentiment, userInfo } = params;
 
   const alerts = [];
 

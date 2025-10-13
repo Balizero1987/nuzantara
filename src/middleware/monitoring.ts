@@ -35,7 +35,7 @@ export function requestTracker(req: Request, res: Response, next: NextFunction) 
   (req as any).requestId = requestId;
 
   // Track request start
-  const requestMetrics: RequestMetrics = {
+  const _requestMetrics: RequestMetrics = {
     startTime,
     path: req.path,
     method: req.method,

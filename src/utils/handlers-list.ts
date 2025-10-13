@@ -22,7 +22,7 @@ const getDirname = () => {
   return dirname(getFilename()); // ESM
 };
 
-const currentFilename = getFilename();
+const _currentFilename = getFilename();
 const currentDirname = getDirname();
 
 interface HandlerInfo {

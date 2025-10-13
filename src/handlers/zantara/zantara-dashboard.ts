@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getFirestore } from "firebase-admin/firestore";
+// import { getFirestore } from "firebase-admin/firestore";
 import { ok } from "../../utils/response.js";
 
 // ZARA Real-Time Monitoring Dashboard
@@ -369,7 +369,7 @@ export async function zantaraPerformanceAnalytics(params: any) {
   }
 }
 
-export async function zantaraSystemDiagnostics(params: any) {
+export async function zantaraSystemDiagnostics(_params: any) {
   try {
     const diagnosticsData = {
       system_health: {

@@ -246,7 +246,7 @@ const activeSessions = new Map<string, any>();
  * Team member login authentication
  */
 export async function teamLogin(params: any) {
-  const { name, email, department } = params || {};
+  const { name, email } = params || {};
 
   if (!name) {
     throw new BadRequestError('Name is required for login');
@@ -254,7 +254,7 @@ export async function teamLogin(params: any) {
 
   // Find team member by name or email
   let member = null;
-  for (const [key, teamMember] of Object.entries(TEAM_RECOGNITION)) {
+  for (const [_key, teamMember] of Object.entries(TEAM_RECOGNITION)) {
     if (teamMember.name.toLowerCase() === name.toLowerCase() || 
         teamMember.email.toLowerCase() === email?.toLowerCase()) {
       member = teamMember;

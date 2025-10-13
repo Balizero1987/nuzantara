@@ -1,4 +1,4 @@
-import { ok, type ApiSuccess } from "../../utils/response.js";
+import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getDrive } from "../../services/google-auth-service.js";

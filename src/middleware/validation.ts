@@ -56,7 +56,7 @@ export function validateResponse() {
 /**
  * Endpoint to get validation report
  */
-export async function getValidationReport(req: Request, res: Response) {
+export async function getValidationReport(_req: Request, res: Response) {
   const report = validator.getVerificationReport();
 
   res.json({
@@ -72,7 +72,7 @@ export async function getValidationReport(req: Request, res: Response) {
 /**
  * Endpoint to clear unverified facts
  */
-export async function clearUnverifiedFacts(req: Request, res: Response) {
+export async function clearUnverifiedFacts(_req: Request, res: Response) {
   validator.clearUnverifiedFacts();
 
   res.json({
