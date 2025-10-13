@@ -104,6 +104,9 @@ import { memoryEventSave, memoryTimelineGet, memoryEntityEvents } from "./handle
 import { autoSaveConversation } from "./handlers/memory/conversation-autosave.js";
 import { userMemorySave, userMemoryRetrieve, userMemoryList, userMemoryLogin } from "./handlers/memory/user-memory.js";
 
+// Support & Complaints
+import { submitComplaint, getComplaint, updateComplaintStatus, listComplaints, getComplaintStats } from "./handlers/support/complaint-handler.js";
+
 // Maps
 import { mapsDirections, mapsPlaces, mapsPlaceDetails } from "./handlers/maps/maps.js";
 
@@ -207,6 +210,13 @@ const handlers: Record<string, Handler> = {
   "team.login": teamLogin,
   "team.members": async () => getTeamMembers(),
   "team.logout": async (params: any) => logoutSession(params.sessionId),
+
+  // Support & Complaints
+  "complaint.submit": submitComplaint,
+  "complaint.get": getComplaint,
+  "complaint.update": updateComplaintStatus,
+  "complaint.list": listComplaints,
+  "complaint.stats": getComplaintStats,
 
   // Custom GPT Business Handlers
   "contact.info": async () => ok({
@@ -980,6 +990,62 @@ export function attachRoutes(app: import("express").Express) {
       const { sessionId } = req.body;
       const result = logoutSession(sessionId);
       return res.status(200).json(ok({ success: result }));
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  // Complaint & Support Routes
+  app.post("/complaint.submit", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = await submitComplaint(req.body);
+      return res.status(200).json(result);
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  app.get("/complaint.get", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = await getComplaint({ complaintId: req.query.complaintId });
+      return res.status(200).json(result);
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(404).json(err(e.message));
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  app.post("/complaint.update", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = await updateComplaintStatus(req.body);
+      return res.status(200).json(result);
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  app.get("/complaint.list", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = await listComplaints({
+        type: req.query.type,
+        severity: req.query.severity,
+        status: req.query.status,
+        userId: req.query.userId,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+        offset: req.query.offset ? parseInt(req.query.offset as string) : undefined
+      });
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  app.get("/complaint.stats", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = await getComplaintStats({ period: req.query.period || '7d' });
+      return res.status(200).json(result);
     } catch (e: any) {
       return res.status(500).json(err(e?.message || "Internal Error"));
     }
