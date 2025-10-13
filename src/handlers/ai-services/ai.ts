@@ -4,6 +4,7 @@ import { BadRequestError } from "../../utils/errors.js";
 import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
 import { getCachedAI, setCachedAI } from "../../services/cacheProxy.js";
 import { getHandlersList } from "../../utils/handlers-list.js";
+import { zantaraChat, isZantaraAvailable } from "./zantara-llama.js";
 
 // Lazy imports to reduce cold start and avoid failing when keys are missing
 async function getOpenAI() {
@@ -686,6 +687,7 @@ export async function aiChat(params: any) {
   if (prov === 'claude' || prov === 'anthropic') return claudeChat(params);
   if (prov === 'gemini' || prov === 'google') return geminiChat(params);
   if (prov === 'cohere') return cohereChat(params);
+  if (prov === 'zantara' || prov === 'llama') return zantaraChat({ message: params.prompt || params.message, ...params });
 
   // auto: preferenze basate sulla disponibilità chiavi
   const availability = {
@@ -693,6 +695,7 @@ export async function aiChat(params: any) {
     openai: !!process.env.OPENAI_API_KEY,
     claude: !!process.env.ANTHROPIC_API_KEY,
     cohere: !!process.env.COHERE_API_KEY,
+    zantara: isZantaraAvailable(),
   };
   // Premium routing: qualità massima per clienti e collaboratori
   const text = normalizePrompt(String(params?.prompt || ''));
@@ -717,15 +720,33 @@ export async function aiChat(params: any) {
       if (availability.openai) return openaiChat({ ...params, model: 'gpt-4-turbo-preview' });
     }
 
-    // Task-specific routing ottimizzato
-    if (process.env.AI_ROUTER_STRICT === 'true') {
-      if ((isCode || isAnalytical) && availability.gemini) return geminiChat(params);
-      if (isCreative && availability.claude) return claudeChat(params);
-      if (isTranslate && availability.openai) return openaiChat(params);
-      if (isLong && availability.openai) return openaiChat(params);
+    // ⭐ ZANTARA 100% ROUTING - Primary AI for ALL queries
+    // Trained on 22,009 Indonesian business conversations with 98.74% accuracy
+    // ONLY 2 EXCEPTIONS:
+    // 1. Code queries → Qwen (TODO: not yet integrated, fallback to Gemini)
+    // 2. ZANTARA unavailable → Fallback to other providers
+
+    // Exception 1: CODE QUERIES → QWEN (fallback to Gemini for now)
+    if (isCode) {
+      console.log('💻 [AI Router] Code detected → Routing to Qwen (fallback: Gemini)');
+      // TODO: Add Qwen integration here when ready
+      // if (availability.qwen) return qwenChat(params);
+
+      // Temporary fallback to Gemini for code
+      if (availability.gemini) {
+        console.log('   → Using Gemini (Qwen not yet integrated)');
+        return geminiChat(params);
+      }
     }
 
-    // Fallback prioritization (qualità comunque alta)
+    // PRIMARY: ZANTARA responds to 100% of queries (except code)
+    if (availability.zantara) {
+      console.log('🎯 [AI Router] ZANTARA (primary AI) - handles 100% of queries');
+      return zantaraChat({ message: params.prompt || params.message, ...params });
+    }
+
+    // Exception 2: ZANTARA UNAVAILABLE → Fallback chain
+    console.log('⚠️  [AI Router] ZANTARA unavailable - using fallback providers');
     if (availability.openai) return openaiChat({ ...params, model: 'gpt-4o-mini' });
     if (availability.claude) return claudeChat({ ...params, model: 'claude-3-haiku-20240307' });
     if (availability.gemini) return geminiChat(params);
