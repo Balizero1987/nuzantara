@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZANTARA - Official</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <script src="js/api-config.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      background: #1e1e1e;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      height: 100%;
+      overflow: hidden;
+      transition: background 0.3s ease;
+    }
+
+    /* DAY MODE */
+    body.day-mode {
+      background: #ffffff;
+      color: #000;
+    }
+
+    body.day-mode .header {
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 2px solid;
+      animation: rainbow-border 8s linear infinite;
+    }
+
+    body.day-mode .glass {
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid;
+      animation: rainbow-border 8s linear infinite;
+    }
+
+    body.day-mode .title,
+    body.day-mode .input,
+    body.day-mode .history-title,
+    body.day-mode .article-title {
+      color: #000;
+    }
+
+    body.day-mode .history-time,
+    body.day-mode .article-time,
+    body.day-mode .article-summary {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    body.day-mode .btn {
+      color: #000;
+    }
+
+    body.day-mode .input::placeholder {
+      color: rgba(0, 0, 0, 0.4);
+    }
+
+    @keyframes rainbow-border {
+      0%, 100% { border-color: #FFD700; }
+      25% { border-color: #FF0000; }
+      50% { border-color: #0000FF; }
+      75% { border-color: #00FF00; }
+    }
+
+    /* EFFETTI SYNCRA - Hidden by default in night mode */
+    .orb,
+    .lightning,
+    .particles {
+      display: none;
+    }
+
+    /* APP CONTAINER */
+    .app {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      background: #2a2a2a;
+      border-bottom: 1px solid #3a3a3a;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      justify-content: space-between;
+    }
+
+    .header-left,
+    .header-center,
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-center {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .sidebar-toggle {
+      background: #3a3a3a;
+      border: 1px solid #4a4a4a;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      padding: 8px 12px;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .sidebar-toggle:hover {
+      background: #4a4a4a;
+    }
+
+    body.day-mode .sidebar-toggle {
+      background: #f0f0f0;
+      border-color: #d0d0d0;
+      color: #000;
+    }
+
+    body.day-mode .sidebar-toggle:hover {
+      background: #e0e0e0;
+    }
+
+    .logo {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      display: none;
+    }
+
+    .theme-toggle {
+      margin-left: auto;
+      background: #3a3a3a;
+      border: 1px solid #4a4a4a;
+      border-radius: 20px;
+      padding: 8px 16px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background: #4a4a4a;
+    }
+
+    body.day-mode .theme-toggle {
+      background: #f0f0f0;
+      border-color: #d0d0d0;
+      color: #000;
+    }
+
+    .login-btn, .user-btn {
+      background: #3a3a3a;
+      border: 1px solid #4a4a4a;
+      border-radius: 20px;
+      padding: 8px 16px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+      margin-right: 8px;
+    }
+
+    .login-btn:hover, .user-btn:hover {
+      background: #4a4a4a;
+    }
+
+    body.day-mode .login-btn, body.day-mode .user-btn {
+      background: #f0f0f0;
+      border-color: #d0d0d0;
+      color: #000;
+    }
+
+    .user-btn {
+      background: #2a4a2a;
+      border-color: #3a5a3a;
+    }
+
+    body.day-mode .user-btn {
+      background: #e8f5e8;
+      border-color: #c0e0c0;
+    }
+
+    /* USER DROPDOWN MENU */
+    .user-dropdown {
+      position: absolute;
+      top: 60px;
+      right: 80px;
+      background: #2a2a2a;
+      border: 1px solid #4a4a4a;
+      border-radius: 12px;
+      padding: 8px;
+      min-width: 180px;
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    body.day-mode .user-dropdown {
+      background: #fff;
+      border-color: #d0d0d0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .user-dropdown.show {
+      display: block;
+    }
+
+    .user-dropdown-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      transition: background 0.2s;
+      color: #fff;
+    }
+
+    body.day-mode .user-dropdown-item {
+      color: #000;
+    }
+
+    .user-dropdown-item:hover {
+      background: #3a3a3a;
+    }
+
+    body.day-mode .user-dropdown-item:hover {
+      background: #f0f0f0;
+    }
+
+    .user-dropdown-divider {
+      height: 1px;
+      background: #3a3a3a;
+      margin: 6px 0;
+    }
+
+    body.day-mode .user-dropdown-divider {
+      background: #e0e0e0;
+    }
+
+    /* MAIN LAYOUT */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 0;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* SIDEBARS */
+    .chat-history,
+    .articles {
+      position: fixed;
+      top: 77px;
+      bottom: 0;
+      width: 280px;
+      background: #252525;
+      border-right: 1px solid #3a3a3a;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    .chat-history.open {
+      transform: translateX(0);
+    }
+
+    .articles {
+      right: 0;
+      left: auto;
+      border-right: none;
+      border-left: 1px solid #3a3a3a;
+      transform: translateX(100%);
+    }
+
+    .articles.open {
+      transform: translateX(0);
+    }
+
+    body.day-mode .chat-history,
+    body.day-mode .articles {
+      background: #ffffff;
+      border-color: #e0e0e0;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* LEFT SIDEBAR */
+    .chat-history {
+      padding: 20px;
+    }
+
+    .chat-history h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    body.day-mode .chat-history h3 {
+      color: #000;
+    }
+
+    .history-item {
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .history-item:hover {
+      background: #3a3a3a;
+    }
+
+    body.day-mode .history-item {
+      background: #f5f5f5;
+      border-color: #e0e0e0;
+    }
+
+    body.day-mode .history-item:hover {
+      background: #ebebeb;
+    }
+
+    .history-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-time {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    body.day-mode .history-time {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    /* CENTER CHAT */
+    .chat-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-height: 100%;
+      background: #1e1e1e;
+      transition: margin 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body.day-mode .chat-wrapper {
+      background: #ffffff;
+    }
+
+    body.day-mode .chat-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      border: 2px solid;
+      animation: rainbow-border 8s linear infinite;
+      z-index: 5;
+    }
+
+
+    .messages {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 20px;
+      padding-bottom: 100px;
+      scroll-behavior: smooth;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .welcome {
+      text-align: center;
+      padding: 60px 20px 40px;
+      color: rgba(255, 255, 255, 0.5);
+      position: relative;
+    }
+
+    .welcome h2 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+
+    .welcome .powered-by {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 400;
+      margin-bottom: 30px;
+    }
+
+    body.day-mode .welcome {
+      color: rgba(0, 0, 0, 0.5);
+    }
+
+    body.day-mode .welcome h2 {
+      color: #000;
+    }
+
+    body.day-mode .welcome .powered-by {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    .logo-center {
+      width: 300px;
+      height: 300px;
+      margin: 0 auto;
+      display: block;
+      object-fit: contain;
+      filter: drop-shadow(0 0 80px rgba(255, 255, 255, 0.8))
+              drop-shadow(0 0 120px rgba(255, 255, 255, 0.6))
+              drop-shadow(0 0 160px rgba(255, 255, 255, 0.4));
+      animation: logo-hero 2s ease-in-out infinite;
+    }
+
+    @keyframes logo-hero {
+      0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 80px rgba(255, 255, 255, 0.8))
+                drop-shadow(0 0 120px rgba(255, 255, 255, 0.6))
+                drop-shadow(0 0 160px rgba(255, 255, 255, 0.4));
+      }
+      50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 100px rgba(255, 255, 255, 1))
+                drop-shadow(0 0 140px rgba(255, 255, 255, 0.8))
+                drop-shadow(0 0 180px rgba(255, 255, 255, 0.6));
+      }
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.4))
+                drop-shadow(0 0 80px rgba(255, 255, 255, 0.3))
+                drop-shadow(0 0 120px rgba(255, 255, 255, 0.2));
+      }
+      50% {
+        filter: drop-shadow(0 0 60px rgba(255, 255, 255, 0.6))
+                drop-shadow(0 0 100px rgba(255, 255, 255, 0.4))
+                drop-shadow(0 0 140px rgba(255, 255, 255, 0.3));
+      }
+    }
+
+    body.day-mode .logo-center {
+      filter: drop-shadow(0 0 40px rgba(0, 0, 0, 0.15))
+              drop-shadow(0 0 80px rgba(0, 0, 0, 0.1))
+              drop-shadow(0 0 120px rgba(0, 0, 0, 0.05));
+      animation: glow-pulse-day 3s ease-in-out infinite;
+    }
+
+    @keyframes glow-pulse-day {
+      0%, 100% {
+        filter: drop-shadow(0 0 40px rgba(0, 0, 0, 0.15))
+                drop-shadow(0 0 80px rgba(0, 0, 0, 0.1))
+                drop-shadow(0 0 120px rgba(0, 0, 0, 0.05));
+      }
+      50% {
+        filter: drop-shadow(0 0 60px rgba(0, 0, 0, 0.2))
+                drop-shadow(0 0 100px rgba(0, 0, 0, 0.15))
+                drop-shadow(0 0 140px rgba(0, 0, 0, 0.1));
+      }
+    }
+
+    .integrations-bar {
+      padding: 12px 16px;
+      background: #252525;
+      border-top: 1px solid #3a3a3a;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+
+    body.day-mode .integrations-bar {
+      background: #f8f8f8;
+      border-top-color: #e0e0e0;
+    }
+
+    .integration-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    body.day-mode .integration-group {
+      background: #ffffff;
+      border-color: #d0d0d0;
+    }
+
+    .integration-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      margin-right: 4px;
+    }
+
+    body.day-mode .integration-group-label {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    .integration-logo {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      opacity: 0.7;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* MESSAGE STYLES */
+    .user-message {
+      color: #fff;
+    }
+
+    body.day-mode .user-message {
+      color: #000;
+      background: #e8e8e8 !important;
+    }
+
+    .ai-message {
+      color: #fff;
+    }
+
+    body.day-mode .ai-message {
+      color: #000;
+      background: #f5f5f5 !important;
+    }
+
+    .error-message {
+      color: #ff6b6b !important;
+    }
+
+    body.day-mode .error-message {
+      color: #d63031 !important;
+      background: #ffe0e0 !important;
+    }
+
+    .input-area {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #252525;
+      border-top: 1px solid #3a3a3a;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    body.day-mode .input-area {
+      background: #f8f8f8;
+      border-top-color: #e0e0e0;
+    }
+
+    .input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn {
+      background: none;
+      border: none;
+      color: rgba(189, 0, 255, 0.8);
+      cursor: pointer;
+      padding: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      color: rgba(232, 64, 255, 1);
+      text-shadow: 0 0 20px rgba(232, 64, 255, 0.8);
+    }
+
+    /* RIGHT SIDEBAR */
+    .articles {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .articles-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .articles-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    body.day-mode .articles-header h3 {
+      color: #000;
+    }
+
+    .date {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    body.day-mode .date {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .filter {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #3a3a3a;
+      background: #2a2a2a;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.2s;
+    }
+
+    .filter.active {
+      background: #4a4a4a;
+      border-color: #5a5a5a;
+      color: white;
+    }
+
+    body.day-mode .filter {
+      background: #f0f0f0;
+      border-color: #d0d0d0;
+      color: rgba(0, 0, 0, 0.7);
+    }
+
+    body.day-mode .filter.active {
+      background: #d0d0d0;
+      border-color: #b0b0b0;
+      color: #000;
+    }
+
+    .article {
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .article:hover {
+      background: #3a3a3a;
+    }
+
+    body.day-mode .article {
+      background: #f5f5f5;
+      border-color: #e0e0e0;
+    }
+
+    body.day-mode .article:hover {
+      background: #ebebeb;
+    }
+
+    .article-cat {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      color: #888;
+    }
+
+    body.day-mode .article-cat {
+      color: #666;
+    }
+
+    .article-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      line-height: 1.4;
+      color: #fff;
+    }
+
+    body.day-mode .article-title {
+      color: #000;
+    }
+
+    .article-summary {
+      font-size: 11px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    body.day-mode .article-summary {
+      color: rgba(0, 0, 0, 0.7);
+    }
+
+    .article-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+    }
+
+    .article-time {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    body.day-mode .article-time {
+      color: rgba(0, 0, 0, 0.5);
+    }
+
+    .badge {
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 9px;
+      background: #3a3a3a;
+      color: #fff;
+    }
+
+    body.day-mode .badge {
+      background: #e0e0e0;
+      color: #000;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #2a2a2a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #4a4a4a;
+      border-radius: 4px;
+    }
+
+    body.day-mode ::-webkit-scrollbar-track {
+      background: #f0f0f0;
+    }
+
+    body.day-mode ::-webkit-scrollbar-thumb {
+      background: #c0c0c0;
+    }
+
+    /* MOBILE OPTIMIZATION */
+    @media (max-width: 968px) {
+      /* Hide Syncra effects on mobile for performance */
+      .orb, .lightning, .particles { display: none !important; }
+
+      /* Header compatto */
+      .chat-history, .articles { z-index: 999; }
+      .header { height: 56px; padding: 8px 12px; gap: 8px; }
+      .header-left, .header-right { gap: 6px; }
+      .logo { width: 32px; height: 32px; }
+      .title { font-size: 16px; }
+
+      /* Bottoni header - più grandi per touch */
+      .theme-toggle { font-size: 13px; padding: 8px 14px; gap: 6px; }
+      .login-btn, .user-btn { padding: 8px 14px; }
+      .sidebar-toggle { width: 40px; height: 40px; font-size: 20px; }
+
+      /* Dropdown posizionamento mobile */
+      .user-dropdown {
+        right: 12px;
+        top: 58px;
+        min-width: 160px;
+      }
+
+      /* Main area */
+      .main { height: calc(100vh - 56px); }
+
+      /* Welcome screen - KEEP LOGO BIG ON MOBILE */
+      .logo-center { width: 240px; height: 240px; }
+      .welcome h2 { font-size: 20px; }
+      .powered-by { font-size: 12px; }
+
+      /* Messages area */
+      .messages { padding: 12px; }
+      .user-message, .ai-message { font-size: 15px; line-height: 1.5; }
+
+      /* Integration bar - più compatto */
+      .integrations-bar {
+        padding: 10px;
+        gap: 6px;
+        max-height: 100px;
+        overflow-y: auto;
+      }
+      .integration-group {
+        flex-wrap: wrap;
+        padding: 5px 8px;
+        gap: 4px;
+      }
+      .integration-group-label { font-size: 9px; min-width: 40px; }
+      .integration-logo { width: 16px; height: 16px; }
+
+      /* Input area - touch friendly */
+      .input-area { padding: 14px 12px; gap: 10px; }
+      .input {
+        font-size: 16px; /* Prevent iOS zoom */
+        padding: 12px 14px;
+        min-height: 44px; /* iOS recommended */
+      }
+      .btn {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      /* Sidebars */
+      .articles, .chat-history { width: 280px; }
+      .filters { gap: 6px; flex-wrap: wrap; }
+      .filter { font-size: 11px; padding: 8px 12px; min-height: 36px; }
+      .history-item { padding: 10px; }
+      .history-title { font-size: 13px; }
+    }
+
+    @media (max-width: 480px) {
+      /* Header ultra-compatto */
+      .header { padding: 6px 8px; height: 52px; }
+      .logo { width: 26px; height: 26px; }
+      .title { font-size: 13px; }
+
+      /* Solo icone su phone */
+      .theme-toggle span:last-child,
+      .login-btn span:last-child,
+      .user-btn span:last-child { display: none; }
+
+      .theme-toggle { padding: 8px; min-width: 40px; }
+      .login-btn, .user-btn { padding: 8px; min-width: 40px; }
+      .sidebar-toggle { width: 40px; height: 40px; font-size: 18px; }
+
+      /* Dropdown full width on small screens */
+      .user-dropdown {
+        right: 8px;
+        left: 8px;
+        top: 54px;
+        min-width: auto;
+      }
+
+      /* Full width sidebars */
+      .chat-history, .articles { width: 100%; max-width: 100vw; }
+
+      /* Integration bar nascosta di default, swipeable */
+      .integrations-bar {
+        padding: 8px;
+        max-height: 80px;
+        gap: 4px;
+      }
+      .integration-group { padding: 4px 6px; gap: 3px; }
+      .integration-logo { width: 14px; height: 14px; }
+      .integration-group-label { font-size: 8px; min-width: 35px; }
+
+      /* Input area ottimizzato */
+      .input-area { padding: 12px 10px; gap: 8px; }
+      .btn { width: 44px; height: 44px; font-size: 18px; }
+      .input {
+        font-size: 16px;
+        padding: 12px;
+        min-height: 44px;
+      }
+
+      /* Messages più leggibili */
+      .messages { padding: 10px; }
+      .user-message, .ai-message {
+        font-size: 14px;
+        padding: 10px;
+        max-width: 90%;
+      }
+
+      /* Welcome screen compatto - STILL BIG LOGO */
+      .welcome { padding: 20px 10px; }
+      .logo-center { width: 220px; height: 220px; }
+      .welcome h2 { font-size: 18px; }
+
+      /* Filters più piccoli */
+      .filter { font-size: 10px; padding: 6px 10px; }
+    }
+
+    @media (max-width: 968px) and (orientation: landscape) {
+      /* Landscape: massimizza spazio verticale - LOGO STILL BIG */
+      .main { height: calc(100vh - 48px); }
+      .header { height: 48px; padding: 6px 10px; }
+      .messages { padding: 8px; }
+      .welcome { padding: 15px 20px; }
+      .logo-center { width: 180px; height: 180px; }
+      .welcome h2 { font-size: 16px; }
+
+      /* Nascondi integration bar in landscape */
+      .integrations-bar { display: none; }
+
+      /* Input più compatto */
+      .input-area { padding: 10px; }
+      .btn { width: 40px; height: 40px; }
+    }
+
+    /* Very small screens */
+    @media (max-width: 360px) {
+      .header { padding: 4px 6px; }
+      .header-left, .header-right { gap: 4px; }
+      .logo { width: 24px; height: 24px; }
+      .theme-toggle, .login-btn, .user-btn, .sidebar-toggle {
+        padding: 6px;
+        min-width: 36px;
+        height: 36px;
+        font-size: 16px;
+      }
+      .input { font-size: 15px; padding: 10px; }
+      .btn { width: 40px; height: 40px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- EFFETTI SYNCRA -->
+  <div class="orb"></div>
+
+  <div class="lightning">
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+    <div class="bolt"></div>
+  </div>
+
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <!-- APP -->
+  <div class="app">
+    <header class="header">
+      <div class="header-left">
+        <img src="assets/logoscon.png" class="logo" alt="ZANTARA">
+        <button class="sidebar-toggle" id="leftToggle">☰</button>
+      </div>
+
+      <div class="header-center">
+        <span class="title">ZANTARA</span>
+      </div>
+
+      <div class="header-right">
+        <button class="user-btn" id="userBtn" style="display:none;">
+          <span id="userIcon">👤</span>
+          <span id="userName"></span>
+        </button>
+        <button class="login-btn" id="loginBtn" onclick="window.location.href='login.html'">
+          <span>🔑</span>
+          <span>Login</span>
+        </button>
+        <button class="sidebar-toggle" id="rightToggle">☰</button>
+        <button class="theme-toggle">
+          <span>🌙</span>
+          <span>Night</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- USER DROPDOWN MENU -->
+    <div class="user-dropdown" id="userDropdown">
+      <div class="user-dropdown-item" id="profileBtn">
+        <span>👤</span>
+        <span>Profile</span>
+      </div>
+      <div class="user-dropdown-divider"></div>
+      <div class="user-dropdown-item" id="logoutBtn">
+        <span>🚪</span>
+        <span>Logout</span>
+      </div>
+    </div>
+
+    <main class="main">
+      <!-- LEFT: CHAT HISTORY -->
+      <aside class="chat-history" id="chatHistory">
+        <h3>💬 Chat History</h3>
+        <div class="history-item">
+          <div class="history-title">Immigration regulations Bali</div>
+          <div class="history-time">2 hours ago</div>
+        </div>
+        <div class="history-item">
+          <div class="history-title">KITAS renewal process 2025</div>
+          <div class="history-time">Yesterday</div>
+        </div>
+        <div class="history-item">
+          <div class="history-title">Banking requirements foreigners</div>
+          <div class="history-time">2 days ago</div>
+        </div>
+        <div class="history-item">
+          <div class="history-title">Company registration Indonesia</div>
+          <div class="history-time">3 days ago</div>
+        </div>
+        <div class="history-item">
+          <div class="history-title">Tax obligations digital nomads</div>
+          <div class="history-time">1 week ago</div>
+        </div>
+      </aside>
+
+      <!-- CENTER: CHAT -->
+      <div class="chat-wrapper">
+        <div class="messages">
+          <div class="welcome">
+            <img src="assets/logoscon.png" class="logo-center" alt="ZANTARA Logo">
+            <h2>Welcome to Zantara</h2>
+            <p class="powered-by">powered by Zero AI</p>
+          </div>
+        </div>
+
+        <!-- INTEGRATIONS BAR -->
+        <div class="integrations-bar">
+          <!-- Google Workspace -->
+          <div class="integration-group">
+            <span class="integration-group-label">Google:</span>
+            <img src="assets/logo-google-drive.png" class="integration-logo" alt="Drive" title="Google Drive">
+            <img src="assets/logo-gmail.png" class="integration-logo" alt="Gmail" title="Gmail">
+            <img src="assets/logo-google-calendar.png" class="integration-logo" alt="Calendar" title="Google Calendar">
+            <img src="assets/logo-google-docs.png" class="integration-logo" alt="Docs" title="Google Docs">
+            <img src="assets/logo-google-sheets.png" class="integration-logo" alt="Sheets" title="Google Sheets">
+            <img src="assets/logo-google-slides.png" class="integration-logo" alt="Slides" title="Google Slides">
+            <img src="assets/logo-google-maps.png" class="integration-logo" alt="Maps" title="Google Maps">
+            <img src="assets/logo-google-analytics.png" class="integration-logo" alt="Analytics" title="Google Analytics">
+          </div>
+
+          <!-- Meta -->
+          <div class="integration-group">
+            <span class="integration-group-label">Meta:</span>
+            <img src="assets/logo-whatsapp.png" class="integration-logo" alt="WhatsApp" title="WhatsApp">
+            <img src="assets/logo-instagram.png" class="integration-logo" alt="Instagram" title="Instagram">
+            <img src="assets/logo-facebook.png" class="integration-logo" alt="Facebook" title="Facebook">
+          </div>
+
+          <!-- AI Services -->
+          <div class="integration-group">
+            <span class="integration-group-label">AI:</span>
+            <img src="assets/logo-openai.png" class="integration-logo" alt="OpenAI" title="OpenAI">
+            <img src="assets/logo-claude.png" class="integration-logo" alt="Claude" title="Claude">
+            <img src="assets/logo-gemini.png" class="integration-logo" alt="Gemini" title="Gemini">
+            <img src="assets/logo-perplexity.png" class="integration-logo" alt="Perplexity" title="Perplexity">
+            <img src="assets/logo-llama.png" class="integration-logo" alt="Llama" title="Meta Llama">
+          </div>
+        </div>
+
+        <div class="input-area">
+          <button class="btn">📎</button>
+          <input type="text" class="input" placeholder="Type a message...">
+          <button class="btn">🎤</button>
+          <button class="btn">➤</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: ARTICLES -->
+      <aside class="articles" id="articlesPanel">
+        <div class="articles-header">
+          <h3>📰 Daily Intel</h3>
+          <div class="date">Oct 8, 2025</div>
+        </div>
+
+        <div class="filters">
+          <button class="filter active">All</button>
+          <button class="filter">Immigration</button>
+          <button class="filter">Business</button>
+          <button class="filter">Legal</button>
+          <button class="filter">Finance</button>
+          <button class="filter">Property</button>
+        </div>
+
+        <div class="article">
+          <div class="article-cat">Immigration</div>
+          <div class="article-title">New KITAS regulations effective January 2026</div>
+          <div class="article-summary">The Indonesian government announced significant changes to KITAS renewal procedures.</div>
+          <div class="article-meta">
+            <span class="article-time">2h ago</span>
+            <span class="badge">URGENT</span>
+          </div>
+        </div>
+
+        <div class="article">
+          <div class="article-cat">Business</div>
+          <div class="article-title">PT PMA capital requirements updated</div>
+          <div class="article-summary">New minimum capital requirements for foreign-owned companies in Bali.</div>
+          <div class="article-meta">
+            <span class="article-time">4h ago</span>
+            <span class="badge">HIGH</span>
+          </div>
+        </div>
+
+        <div class="article">
+          <div class="article-cat">Legal</div>
+          <div class="article-title">Land ownership rules clarified for foreigners</div>
+          <div class="article-summary">Supreme Court issues new guidelines on property ownership.</div>
+          <div class="article-meta">
+            <span class="article-time">6h ago</span>
+            <span class="badge">HIGH</span>
+          </div>
+        </div>
+
+        <div class="article">
+          <div class="article-cat">Finance</div>
+          <div class="article-title">Bank Indonesia updates forex regulations</div>
+          <div class="article-summary">Changes to foreign currency transactions for expat business owners.</div>
+          <div class="article-meta">
+            <span class="article-time">8h ago</span>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    // Filter functionality
+    document.querySelectorAll('.filter').forEach(filter => {
+      filter.addEventListener('click', () => {
+        document.querySelectorAll('.filter').forEach(f => f.classList.remove('active'));
+        filter.classList.add('active');
+      });
+    });
+
+    // Sidebar toggles
+    const leftToggle = document.getElementById('leftToggle');
+    const rightToggle = document.getElementById('rightToggle');
+    const chatHistory = document.getElementById('chatHistory');
+    const articles = document.getElementById('articlesPanel');
+    const chatWrapper = document.querySelector('.chat-wrapper');
+    const main = document.querySelector('.main');
+
+    leftToggle.addEventListener('click', () => {
+      chatHistory.classList.toggle('open');
+      leftToggle.textContent = chatHistory.classList.contains('open') ? '✕' : '☰';
+
+      // On mobile, close other sidebar when opening this one
+      if (window.innerWidth <= 968 && chatHistory.classList.contains('open')) {
+        articles.classList.remove('open');
+        rightToggle.textContent = '☰';
+      }
+
+      updateChatWrapperMargin();
+    });
+
+    rightToggle.addEventListener('click', () => {
+      articles.classList.toggle('open');
+      rightToggle.textContent = articles.classList.contains('open') ? '✕' : '☰';
+
+      // On mobile, close other sidebar when opening this one
+      if (window.innerWidth <= 968 && articles.classList.contains('open')) {
+        chatHistory.classList.remove('open');
+        leftToggle.textContent = '☰';
+      }
+
+      updateChatWrapperMargin();
+    });
+
+    function updateChatWrapperMargin() {
+      const leftOpen = chatHistory.classList.contains('open');
+      const rightOpen = articles.classList.contains('open');
+      const isMobile = window.innerWidth <= 968;
+
+      if (!isMobile) {
+        chatWrapper.style.marginLeft = leftOpen ? '280px' : '0';
+        chatWrapper.style.marginRight = rightOpen ? '280px' : '0';
+      } else {
+        // On mobile, sidebars overlay - no margin needed
+        chatWrapper.style.marginLeft = '0';
+        chatWrapper.style.marginRight = '0';
+      }
+    }
+
+    // Close sidebars when clicking on chat area (mobile only)
+    chatWrapper.addEventListener('click', () => {
+      if (window.innerWidth <= 968) {
+        if (chatHistory.classList.contains('open')) {
+          chatHistory.classList.remove('open');
+          leftToggle.textContent = '☰';
+        }
+        if (articles.classList.contains('open')) {
+          articles.classList.remove('open');
+          rightToggle.textContent = '☰';
+        }
+      }
+    });
+
+    // Helper function to scroll messages to bottom
+    function scrollToBottom() {
+      const messagesDiv = document.querySelector('.messages');
+      if (!messagesDiv) return;
+
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      });
+
+      // Double-check after a short delay for images/elements that take time to render
+      setTimeout(() => {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }, 100);
+    }
+
+    // Theme toggle functionality
+    const themeToggle = document.querySelector('.theme-toggle');
+    let isDark = true;
+
+    themeToggle.addEventListener('click', () => {
+      isDark = !isDark;
+
+      if (isDark) {
+        // Night mode - grigio scuro stile Claude
+        document.body.classList.remove('day-mode');
+        themeToggle.innerHTML = '<span>🌙</span><span>Night</span>';
+      } else {
+        // Day mode - bianco con bordi rainbow
+        document.body.classList.add('day-mode');
+        themeToggle.innerHTML = '<span>☀️</span><span>Day</span>';
+      }
+    });
+
+    // History items - load previous chat
+    document.querySelectorAll('.history-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const title = item.querySelector('.history-title').textContent;
+        const messagesDiv = document.querySelector('.messages');
+
+        // Clear welcome message
+        messagesDiv.innerHTML = `
+          <div class="welcome">
+            <img src="assets/logoscon.png" class="logo-center" alt="ZANTARA Logo">
+            <h2>${title}</h2>
+            <p class="powered-by">Chat history loaded</p>
+          </div>
+        `;
+
+        // Close sidebar on mobile
+        if (window.innerWidth < 968) {
+          chatHistory.classList.remove('open');
+          leftToggle.textContent = '☰';
+          updateChatWrapperMargin();
+        }
+      });
+    });
+
+    // Article cards - open article
+    document.querySelectorAll('.article').forEach(article => {
+      article.addEventListener('click', () => {
+        const title = article.querySelector('.article-title').textContent;
+        const category = article.querySelector('.article-cat').textContent;
+
+        alert(`📰 Opening article:\n\n${category}\n${title}\n\n(Will be connected to blog)`);
+      });
+    });
+
+    // Input buttons functionality
+    const inputField = document.querySelector('.input');
+    const sendBtn = document.querySelectorAll('.btn')[2]; // ➤ button
+    const attachBtn = document.querySelectorAll('.btn')[0]; // 📎 button
+
+    // Send message
+    async function sendMessage() {
+      const message = inputField.value.trim();
+      if (!message) return;
+
+      const messagesDiv = document.querySelector('.messages');
+
+      // Remove welcome if present
+      const welcome = messagesDiv.querySelector('.welcome');
+      if (welcome) {
+        messagesDiv.innerHTML = '';
+      }
+
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'user-message';
+      userMsg.style.cssText = 'padding: 12px; margin-bottom: 8px; background: #2a2a2a; border-radius: 12px; text-align: right;';
+      userMsg.textContent = message;
+      messagesDiv.appendChild(userMsg);
+
+      // Clear input
+      inputField.value = '';
+
+      // Scroll to bottom
+      scrollToBottom();
+
+      // Add loading indicator
+      const loadingMsg = document.createElement('div');
+      loadingMsg.className = 'ai-message';
+      loadingMsg.style.cssText = 'padding: 12px; margin-bottom: 8px; background: #3a3a3a; border-radius: 12px; opacity: 0.6;';
+      loadingMsg.textContent = '⏳ Zantara is thinking...';
+      loadingMsg.id = 'loading-msg';
+      messagesDiv.appendChild(loadingMsg);
+      scrollToBottom();
+
+      try {
+        // Get user session
+        const userEmail = localStorage.getItem('zantara-user-email') || 'guest';
+
+        // Call ZANTARA AI API with session (RAG + Tool Use enabled)
+        const response = await window.ZANTARA_API.call('/call', {
+          key: 'bali.zero.chat',
+          params: {
+            query: message,
+            user_email: userEmail,  // For user recognition
+            user_role: 'member'
+          }
+        }, true);
+
+        // Remove loading indicator
+        const loading = document.getElementById('loading-msg');
+        if (loading) loading.remove();
+
+        // Add AI response
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'ai-message';
+        aiMsg.style.cssText = 'padding: 12px; margin-bottom: 8px; background: #3a3a3a; border-radius: 12px;';
+
+        // Extract response from API (supports multiple formats)
+        const aiResponse = response?.data?.response || response?.reply || response?.message || response?.text || 'Response received from Zantara AI.';
+        aiMsg.textContent = aiResponse;
+
+        messagesDiv.appendChild(aiMsg);
+        scrollToBottom();
+      } catch (error) {
+        console.error('AI chat error:', error);
+
+        // Remove loading indicator
+        const loading = document.getElementById('loading-msg');
+        if (loading) loading.remove();
+
+        // Show error message
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'ai-message error-message';
+        errorMsg.style.cssText = 'padding: 12px; margin-bottom: 8px; background: #3a2a2a; border: 1px solid #f00; border-radius: 12px; color: #ff6b6b;';
+        errorMsg.textContent = '❌ Error: ' + (error.message || 'Failed to get response from Zantara AI');
+        messagesDiv.appendChild(errorMsg);
+        scrollToBottom();
+      }
+    }
+
+    // Send on button click
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Send on Enter key
+    inputField.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Attach file
+    attachBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.onchange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+          const fileNames = files.map(f => f.name).join(', ');
+          alert(`📎 Files attached:\n\n${fileNames}\n\n(Upload functionality will be implemented)`);
+        }
+      };
+      input.click();
+    });
+    // Check if user is logged in and initialize session
+    document.addEventListener('DOMContentLoaded', () => {
+      const userEmail = localStorage.getItem('zantara-user-email');
+      const userName = localStorage.getItem('zantara-user-name');
+      const hasIntroduced = sessionStorage.getItem('zantara-introduced');
+
+      // Update UI based on login status
+      const loginBtn = document.getElementById('loginBtn');
+      const userBtn = document.getElementById('userBtn');
+      const userNameSpan = document.getElementById('userName');
+
+      if (userEmail) {
+        // User is logged in - show user button, hide login
+        loginBtn.style.display = 'none';
+        userBtn.style.display = 'flex';
+        userNameSpan.textContent = userName || userEmail.split('@')[0].toUpperCase();
+
+        // Toggle dropdown menu
+        const userDropdown = document.getElementById('userDropdown');
+        userBtn.onclick = (e) => {
+          e.stopPropagation();
+          userDropdown.classList.toggle('show');
+        };
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+            userDropdown.classList.remove('show');
+          }
+        });
+
+        // Profile button (placeholder)
+        document.getElementById('profileBtn').onclick = () => {
+          userDropdown.classList.remove('show');
+          alert(`👤 Profilo: ${userEmail}\n\n(Funzionalità in arrivo)`);
+        };
+
+        // Logout button
+        document.getElementById('logoutBtn').onclick = () => {
+          userDropdown.classList.remove('show');
+          if (confirm('Vuoi fare logout?')) {
+            localStorage.removeItem('zantara-user-email');
+            localStorage.removeItem('zantara-user-name');
+            sessionStorage.removeItem('zantara-introduced');
+            window.location.reload();
+          }
+        };
+      } else {
+        // Not logged in - show login button, hide user
+        loginBtn.style.display = 'flex';
+        userBtn.style.display = 'none';
+      }
+
+      // If logged in but hasn't introduced yet, send automatic introduction
+      if (userEmail && !hasIntroduced) {
+        // Extract first name from email
+        const firstName = userEmail.split('@')[0].toLowerCase();
+
+        // Send introduction message automatically
+        setTimeout(async () => {
+          const introMessage = `Ciao, sono ${firstName}`;
+
+          try {
+            const response = await window.ZANTARA_API.call('/call', {
+              key: 'bali.zero.chat',
+              params: {
+                query: introMessage,
+                user_email: userEmail,  // For user recognition
+                user_role: 'member'
+              }
+            }, true);
+
+            // Mark as introduced
+            sessionStorage.setItem('zantara-introduced', 'true');
+
+            // Just log recognition, no welcome banner
+            if (response?.data?.recognized) {
+              console.log('✅ User recognized:', firstName, '- Language:', response.data.language || 'default');
+            } else {
+              console.log('✅ User introduced to ZANTARA:', firstName);
+            }
+          } catch (error) {
+            console.warn('Failed to send introduction:', error);
+          }
+        }, 1000);
+      }
+
+      // No auto-redirect - user can use chat without login
+      // Login button is always visible in header
+    });
+  </script>
+</body>
+</html>

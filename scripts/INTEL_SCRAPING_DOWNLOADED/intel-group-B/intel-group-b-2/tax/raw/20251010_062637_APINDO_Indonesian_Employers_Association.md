@@ -1,0 +1,48 @@
+# Indonesian Employers Association
+
+**Source**: APINDO (Indonesian Employers Association)
+**URL**: https://www.apindo.or.id
+**Scraped**: 2025-10-10T06:26:29.850490
+**Category**: tax
+
+---
+
+Join Us And Get Updates On Regulations Or Business-Related Issues
+
+Selengkapnya
+APINDO GREETING
+MEDIA & NEWS
+All News
+NO	PUBLISHING DATE	TOPIC
+1	Thursday, 09 October 2025	Apindo East Kalimantan Holds Business Gathering	
+2	Thursday, 09 October 2025	Apindo Deli Serdang and MSMEs Hold Talk Show with Regent Asri Ludin Tambunan on Boosting Productivity	
+3	Thursday, 09 October 2025	Boosting Productivity Through Worker Protection, Apindo North Sumatra Holds Health Insurance Awareness Seminar	
+AGENDA
+All Agendas
+Finished
+EcoTalent Campus Program, tema: Sosialisasi GREENJOBS 🎓🌱, sesi 1: Sustainability 101 dan Krisis Iklim
+Thursday, 09 October 2025 - Thursday, 09 October 2025
+/
+14:00 - 15:30
+Daring
+EcoTalent Campus Program, tema: Sosialisasi GREENJOBS 🎓🌱
+Thursday, 09 October 2025 - Thursday, 11 December 2025
+/
+14:00 - 15:30
+Daring
+Finished
+🚨 FREE Webinar “Protect Data, Build Trust” bersama pakar yang ikut menyusun UU PDP langsung!
+Saturday, 20 September 2025 - Saturday, 20 September 2025
+/
+08:20 - 10:40
+Online / Daring
+MEMBERS ROOM
+Login as Member
+
+Login As Member Login and Access Information Regarding Directory, Gathering and Consultation The member room is specifically for registered companies/APINDO members
+
+LOGIN
+
+You are not registered yet? Join us via the following registration link.
+
+CONSTITUENT AND AFFILIATION

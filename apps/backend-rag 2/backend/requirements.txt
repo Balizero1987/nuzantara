@@ -1,0 +1,29 @@
+# FastAPI and server
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic==2.9.2
+
+# ChromaDB and embeddings
+chromadb==1.1.0
+sentence-transformers==3.2.1
+
+# PyTorch (required for sentence-transformers CrossEncoder)
+torch>=2.0.0
+
+# Anthropic API
+anthropic==0.39.0
+
+# HTTP client
+httpx==0.27.2
+
+# Async support
+tenacity==9.0.0
+
+# Logging
+loguru==0.7.2
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Google Cloud Storage (for ChromaDB download)
+google-cloud-storage==2.18.2
