@@ -1009,6 +1009,41 @@ app.include_router(intel_router)
 # app.include_router(llama4_router)
 
 
+# ========================================
+# EMBEDDINGS API (for Intel Scraper)
+# ========================================
+
+class EmbedRequest(BaseModel):
+    text: str
+    
+class EmbedResponse(BaseModel):
+    embedding: List[float]
+    dimensions: int
+    model: str
+
+@app.post("/api/embed", response_model=EmbedResponse)
+async def generate_embedding(request: EmbedRequest):
+    """
+    Generate embedding for a single text.
+    Used by Intel Scraper for ChromaDB uploads.
+    """
+    try:
+        from core.embeddings import EmbeddingsGenerator
+        
+        embedder = EmbeddingsGenerator()
+        embedding = embedder.generate_single_embedding(request.text)
+        
+        return EmbedResponse(
+            embedding=embedding,
+            dimensions=len(embedding),
+            model=embedder.model
+        )
+    
+    except Exception as e:
+        logger.error(f"Embedding generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Embedding generation failed: {str(e)}")
+
+
 @app.get("/")
 async def root():
     """Root endpoint"""
