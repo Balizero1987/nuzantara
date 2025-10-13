@@ -32,7 +32,7 @@ const TEAM_RECOGNITION: Record<string, { name: string; role: string; department:
 };
 
 // Check for identity recognition
-function checkIdentityRecognition(prompt: string, sessionId: string): string | null {
+function checkIdentityRecognition(prompt: string, _sessionId: string): string | null {
   const text = prompt.toLowerCase();
   
   for (const [, member] of Object.entries(TEAM_RECOGNITION)) {

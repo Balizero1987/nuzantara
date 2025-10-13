@@ -35,9 +35,10 @@ Format as structured JSON with: predictions, recommendations, optimizations, ris
     let predictions;
     try {
       // Try to extract JSON from response
-      const jsonMatch = result.data.response.match(/\{[\s\S]*\}/);
+      const response = result.data?.response || result.response || '';
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
       predictions = jsonMatch ? JSON.parse(jsonMatch[0]) : {
-        predictions: [result.data.response],
+        predictions: [response],
         recommendations: ["Monitor system closely"],
         optimizations: ["Review current configuration"],
         risks: ["Potential unexpected behavior"]
@@ -45,7 +46,7 @@ Format as structured JSON with: predictions, recommendations, optimizations, ris
     } catch {
       // Fallback to text response
       predictions = {
-        analysis: result.data.response,
+        analysis: result.data?.response || result.response || '',
         confidence: "medium"
       };
     }
@@ -92,9 +93,9 @@ Format as structured recommendations for system optimization.`;
     return ok({
       learning: {
         type: learning_type,
-        insights: result.data.response,
+        insights: result.data?.response || result.response || '',
         processed_at: Date.now(),
-        model: result.data.model || "gpt-4o-mini"
+        model: result.data?.model || result.model || "zantara"
       },
       recommendations: [
         "Continue monitoring patterns",
@@ -162,7 +163,7 @@ Provide a clear, human-readable explanation of:
 
     try {
       const result = await aiChat({ prompt, provider: 'zantara' });
-      explanation.human_explanation = result.data.response;
+      explanation.human_explanation = result.data?.response || result.response || '';
     } catch {
       explanation.human_explanation = "Decision based on standard operating parameters";
     }
