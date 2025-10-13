@@ -4,13 +4,12 @@
  */
 
 import { ok } from '../../utils/response.js';
-import type { Handler } from '../../types/handler.js';
 
 /**
  * Lightweight ping to keep DevAI RunPod workers warm
  * Called by cron every 90s to prevent cold starts
  */
-export const devaiWarmup: Handler = async () => {
+export const devaiWarmup = async () => {
   return ok({
     status: 'warm',
     message: 'DevAI worker is ready',

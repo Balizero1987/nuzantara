@@ -20,10 +20,14 @@ import {
   devaiGetSharedContext, 
   devaiClearWorkflow 
 } from './devai-bridge.js';
+import { devaiWarmup } from './devai-warmup.js';
 
 export const devaiHandlers = {
   // Core chat
   'devai.chat': devaiChat,
+  
+  // Warm-up (keeps RunPod workers alive)
+  'devai.warmup': devaiWarmup,
   
   // Task-specific
   'devai.analyze': analyzeCode,
