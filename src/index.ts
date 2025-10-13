@@ -187,92 +187,89 @@ app.use('/static', express.static(path.resolve(__dirname, '..', 'static')));
 // 🚀 AI Model Proxy Endpoints for Cloud Run
 // These endpoints proxy requests to different AI models with proper authentication
 
-// Claude Proxy
-app.post('/proxy/claude', async (req, res) => {
+// ZANTARA AI Proxy (Unified)
+app.post('/proxy/zantara', async (req, res) => {
   try {
     const { message, temperature = 0.7, max_tokens = 2000 } = req.body;
 
-    if (!process.env.CLAUDE_API_KEY) {
+    if (!process.env.ZANTARA_API_KEY) {
       return res.status(500).json({
         ok: false,
-        error: 'Claude API key not configured'
+        error: 'ZANTARA API key not configured'
       });
     }
 
-    // Forward to Claude handler
-    const { claudeChat } = await import('./handlers/ai-services/ai.js');
-    const result = await claudeChat({
-      message,
-      temperature,
-      max_tokens
+    // Forward to ZANTARA AI handler (simplified - only one AI system)
+    const { aiChat } = await import('./handlers/ai-services/ai.js');
+    const result = await aiChat({
+      prompt: message,
+      model: 'zantara-llama'
     });
 
     return res.json({ ok: true, data: result });
   } catch (error: any) {
-    console.error('Claude proxy error:', error);
+    console.error('ZANTARA AI proxy error:', error);
     return res.status(500).json({
       ok: false,
-      error: error.message || 'Claude proxy failed'
+      error: error.message || 'ZANTARA AI proxy failed'
     });
   }
 });
 
-// Gemini Proxy
-app.post('/proxy/gemini', async (req, res) => {
+// ZANTARA AI Proxy (Unified)
+app.post('/proxy/zantara', async (req, res) => {
   try {
     const { message, temperature = 0.7, max_tokens = 2000 } = req.body;
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.ZANTARA_API_KEY) {
       return res.status(500).json({
         ok: false,
-        error: 'Gemini API key not configured'
+        error: 'ZANTARA API key not configured'
       });
     }
 
-    // Forward to Gemini handler
-    const { geminiChat } = await import('./handlers/ai-services/ai.js');
-    const result = await geminiChat({
-      message,
-      temperature,
-      max_tokens
+    // Forward to ZANTARA AI handler (simplified - only one AI system)
+    const { aiChat } = await import('./handlers/ai-services/ai.js');
+    const result = await aiChat({
+      prompt: message,
+      model: 'zantara-llama'
     });
 
     return res.json({ ok: true, data: result });
   } catch (error: any) {
-    console.error('Gemini proxy error:', error);
+    console.error('ZANTARA AI proxy error:', error);
     return res.status(500).json({
       ok: false,
-      error: error.message || 'Gemini proxy failed'
+      error: error.message || 'ZANTARA AI proxy failed'
     });
   }
 });
 
-// Cohere Proxy
-app.post('/proxy/cohere', async (req, res) => {
+// ZANTARA AI Proxy (Unified)
+app.post('/proxy/zantara', async (req, res) => {
   try {
     const { message, temperature = 0.7, max_tokens = 2000 } = req.body;
 
-    if (!process.env.COHERE_API_KEY) {
+    if (!process.env.ZANTARA_API_KEY) {
       return res.status(500).json({
         ok: false,
-        error: 'Cohere API key not configured'
+        error: 'ZANTARA API key not configured'
       });
     }
 
-    // Forward to Cohere handler
-    const { cohereChat } = await import('./handlers/ai-services/ai.js');
-    const result = await cohereChat({
-      message,
-      temperature,
-      max_tokens
+    // Forward to ZANTARA AI handler (simplified - only one AI system)
+    const { aiChat } = await import('./handlers/ai-services/ai.js');
+    const result = await aiChat({
+      prompt: message,
+      model: 'zantara-llama'
     });
 
     return res.json({ ok: true, data: result });
   } catch (error: any) {
-    console.error('Cohere proxy error:', error);
+    console.error('ZANTARA AI proxy error:', error);
     return res.status(500).json({
       ok: false,
-      error: error.message || 'Cohere proxy failed'
+      error: error.message || 'ZANTARA AI proxy failed'
     });
   }
 });

@@ -63,7 +63,7 @@ export const baliZeroChatLimiter = rateLimit({
  * General AI Chat Rate Limiter
  *
  * Limits: 30 requests per 1 minute per user/IP
- * Use case: ai.chat, openai.chat, claude.chat, gemini.chat, cohere.chat
+ * Use case: ai.chat (ZANTARA-only)
  */
 export const aiChatLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute

@@ -240,40 +240,6 @@ export const HANDLER_REGISTRY: Record<string, HandlerMetadata> = {
       model: { type: "string", description: "Preferred model", required: false }
     }
   },
-  "openai.chat": {
-    key: "openai.chat",
-    category: "ai",
-    description: "Chat with OpenAI GPT models",
-    params: {
-      message: { type: "string", description: "User message", required: true },
-      model: { type: "string", description: "Model (gpt-4, gpt-3.5-turbo)", required: false }
-    }
-  },
-  "claude.chat": {
-    key: "claude.chat",
-    category: "ai",
-    description: "Chat with Anthropic Claude",
-    params: {
-      message: { type: "string", description: "User message", required: true },
-      model: { type: "string", description: "Model (claude-3-opus, sonnet, haiku)", required: false }
-    }
-  },
-  "gemini.chat": {
-    key: "gemini.chat",
-    category: "ai",
-    description: "Chat with Google Gemini",
-    params: {
-      message: { type: "string", description: "User message", required: true }
-    }
-  },
-  "cohere.chat": {
-    key: "cohere.chat",
-    category: "ai",
-    description: "Chat with Cohere Command",
-    params: {
-      message: { type: "string", description: "User message", required: true }
-    }
-  },
 
   // === MEMORY & PERSISTENCE ===
   "memory.save": {
