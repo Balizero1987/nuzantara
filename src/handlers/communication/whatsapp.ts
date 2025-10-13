@@ -6,7 +6,7 @@
  */
 
 import axios from 'axios';
-import { ok, err } from '../../utils/response.js';
+import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
 import { memorySave, memorySearch } from '../memory/memory-firestore.js';
 import { aiChat } from '../ai-services/ai.js';
@@ -253,7 +253,8 @@ Message: "${text}"`;
       model: 'claude-3-5-haiku-20241022'
     });
 
-    const result = JSON.parse(response.data?.response || '{"score":5,"label":"neutral","urgency":"low"}');
+    const responseData: any = response.data || response;
+    const result = JSON.parse(responseData.response || responseData.answer || '{"score":5,"label":"neutral","urgency":"low"}');
     return result;
   } catch (error) {
     console.error('❌ Sentiment analysis error:', error);
@@ -322,7 +323,7 @@ async function updateGroupContext(
  * Smart decision: Should ZANTARA respond?
  */
 async function shouldZantaraRespond(params: any): Promise<{ respond: boolean; reason: string; context?: any }> {
-  const { message, isGroup, sentiment, userId, groupId } = params;
+  const { message, isGroup, sentiment } = params;
 
   // Rule 1: Always respond if directly mentioned
   if (message.toLowerCase().includes('@bali zero') ||
@@ -404,7 +405,8 @@ async function sendIntelligentResponse(to: string, userMessage: string, context:
       model: 'claude-3-5-haiku-20241022'
     });
 
-    const responseText = aiResponse.data?.response || 'Mi dispiace, non ho capito. Puoi riformulare?';
+    const responseData: any = aiResponse.data || aiResponse;
+    const responseText = responseData.response || responseData.answer || 'Mi dispiace, non ho capito. Puoi riformulare?';
 
     // Send via WhatsApp API
     await sendWhatsAppMessage(to, responseText);
