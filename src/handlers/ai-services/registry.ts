@@ -8,6 +8,13 @@ import { globalRegistry } from '../../core/handler-registry.js';
 import { aiChat } from './ai.js';
 import { aiAnticipate, aiLearn, xaiExplain } from './advanced-ai.js';
 import { creativeHandlers } from './creative.js';
+import { 
+  zantaraCallDevAI, 
+  zantaraOrchestrateWorkflow, 
+  zantaraGetConversationHistory, 
+  zantaraGetSharedContext, 
+  zantaraClearWorkflow 
+} from './ai-bridge.js';
 
 export function registerAIServicesHandlers() {
   // Single ZANTARA AI handler (no multi-provider complexity)
@@ -26,6 +33,18 @@ export function registerAIServicesHandlers() {
   }, {
     requiresAuth: true,
     description: 'Advanced AI capabilities'
+  });
+
+  // ZANTARA Bridge handlers for AI communication
+  globalRegistry.registerModule('ai-services', {
+    'zantara.call-devai': zantaraCallDevAI,
+    'zantara.orchestrate': zantaraOrchestrateWorkflow,
+    'zantara.history': zantaraGetConversationHistory,
+    'zantara.context': zantaraGetSharedContext,
+    'zantara.clear': zantaraClearWorkflow
+  }, {
+    requiresAuth: true,
+    description: 'ZANTARA AI communication bridge'
   });
 
   // Creative handlers (object-based)
