@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { getFirestore } from "firebase-admin/firestore";
 import { ok } from "../../utils/response.js";
 
 // ZANTARA Test Handler - Simplified version for initial testing
@@ -130,7 +129,7 @@ export async function zantaraSynergyMap(params: any) {
 }
 
 export async function zantaraAnticipateNeeds(params: any) {
-  const p = z.object({
+  z.object({
     collaborator: z.string().min(1),
     timeframe: z.string().default("next_week"),
     context_signals: z.array(z.string()).default([])
@@ -213,7 +212,7 @@ export async function zantaraLearnTogether(params: any) {
 }
 
 export async function zantaraMoodSync(params: any) {
-  const p = z.object({
+  z.object({
     team_members: z.array(z.string()).min(1),
     context: z.string().optional()
   }).parse(params);
@@ -236,7 +235,7 @@ export async function zantaraMoodSync(params: any) {
 }
 
 export async function zantaraConflictMediate(params: any) {
-  const p = z.object({
+  z.object({
     involved_parties: z.array(z.string()).min(2),
     conflict_context: z.string().min(1),
     severity_level: z.enum(["minor", "moderate", "serious", "critical"]).default("moderate")
