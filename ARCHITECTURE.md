@@ -1,14 +1,18 @@
 # NUZANTARA - System Architecture
 
-> **Last Updated**: 2025-10-12 12:30 (m6: Llama 3.1 RunPod primary)
-> **Version**: 5.5.0 (tools: 41 exposed for tool use)
-> **Status**: Production (Cloud Run) + Local Development + ZANTARA Llama 3.1 PRIMARY
+> **Last Updated**: 2025-10-13 19:50 (DevAI Qwen 2.5 Coder integrated!)
+> **Version**: 5.6.0 (tools: 41 exposed + DevAI 7 handlers)
+> **Status**: Production (Cloud Run) + Local Development + ZANTARA Llama 3.1 + DevAI Qwen 2.5
 
 ---
 
 ## 🎯 System Overview
 
-NUZANTARA is a dual-backend AI system combining TypeScript (business logic) and Python (RAG/ML) with 150+ handlers for Google Workspace, AI services, Bali Zero business operations, and collaborative intelligence.
+NUZANTARA is a **multi-AI enterprise system** combining TypeScript (business logic) and Python (RAG/ML) with **121 handlers** for Google Workspace, AI services, Bali Zero business operations, and collaborative intelligence.
+
+**Dual-AI Architecture**:
+- 🧠 **ZANTARA (Llama 3.1 8B)**: Customer-facing AI for business operations
+- 💻 **DevAI (Qwen 2.5 Coder 7B)**: Internal developer AI for code analysis, bug fixing, and optimization
 
 ### High-Level Architecture
 
@@ -24,17 +28,18 @@ graph TB
         Router[RPC Router<br/>/call endpoint]
         MW[Middleware Stack]
 
-        subgraph "150 Handlers"
-            H_Identity[Identity 2]
-            H_GWS[Google Workspace 20+]
-            H_AI[AI Services 10+]
-            H_BZ[Bali Zero 10+]
-            H_Zantara[ZANTARA AI 20+]
-            H_Comm[Communication 15+]
-            H_Memory[Memory 8+]
-            H_Analytics[Analytics 8+]
+        subgraph "121 Handlers"
+            H_Identity[Identity 3]
+            H_GWS[Google Workspace 22]
+            H_AI[AI Services 9]
+            H_DevAI[DevAI 7]
+            H_BZ[Bali Zero 13]
+            H_Zantara[ZANTARA AI 20]
+            H_Comm[Communication 15]
+            H_Memory[Memory 8]
+            H_Analytics[Analytics 17]
             H_RAG[RAG Proxy 4]
-            H_WS[WebSocket 3]
+            H_Maps[Maps 3]
         end
 
         WS[WebSocket Server<br/>ws://host/ws]
@@ -182,8 +187,9 @@ const handlers: Record<string, Handler> = {
 |----------|-------|----------|----------|
 | **Identity & Onboarding** | 2 | `identity.resolve`<br>`onboarding.start` | `handlers/identity/` |
 | **Google Workspace** | 20+ | **Drive**: `drive.upload`, `drive.list`, `drive.search`, `drive.read`<br/>**Calendar**: `calendar.create`, `calendar.list`, `calendar.get`<br/>**Sheets**: `sheets.read`, `sheets.append`, `sheets.create`<br/>**Docs**: `docs.create`, `docs.read`, `docs.update`<br/>**Slides**: `slides.create`, `slides.read`, `slides.update`<br/>**Gmail**: `gmail.send`, `gmail.list`, `gmail.get`<br/>**Contacts**: `contacts.list`, `contacts.create` | `handlers/google-workspace/` |
-| **AI Services** | 10+ | **LLM Proxy**: `ai.chat`, `openai.chat`, `claude.chat`, `gemini.chat`, `cohere.chat`<br/>**Advanced**: `ai.anticipate`, `ai.learn`, `xai.explain`<br/>**Creative**: `creative.story`, `creative.poem`, `creative.brainstorm` | `handlers/ai-services/` |
-| **Bali Zero Business** | 10+ | **Oracle**: `oracle.simulate`, `oracle.analyze`, `oracle.predict`<br/>**Advisory**: `document.prepare`, `assistant.route`<br/>**KBLI**: `kbli.lookup`, `kbli.requirements`<br/>**Pricing**: `bali.zero.pricing`, `bali.zero.price`, `pricing.official`<br/>**Team**: `team.list`, `team.get`, `team.departments` | `handlers/bali-zero/` |
+| **AI Services** | 9 | **LLM Proxy**: `ai.chat`, `openai.chat`, `claude.chat`, `gemini.chat`, `cohere.chat`<br/>**Advanced**: `ai.anticipate`, `ai.learn`, `xai.explain`<br/>**Creative**: `creative.story`, `creative.poem`, `creative.brainstorm` | `handlers/ai-services/` |
+| **DevAI (Qwen 2.5 Coder)** | 7 | **Core**: `devai.chat`, `devai.analyze`, `devai.fix`<br/>**Advanced**: `devai.review`, `devai.explain`, `devai.generate-tests`, `devai.refactor` | `handlers/devai/` |
+| **Bali Zero Business** | 13 | **Oracle**: `oracle.simulate`, `oracle.analyze`, `oracle.predict`<br/>**Advisory**: `document.prepare`, `assistant.route`<br/>**KBLI**: `kbli.lookup`, `kbli.requirements`<br/>**Pricing**: `bali.zero.pricing`, `bali.zero.price`, `pricing.official`<br/>**Team**: `team.list`, `team.get`, `team.departments` | `handlers/bali-zero/` |
 | **ZANTARA Intelligence** | 20+ | **v1.0**: `zantara.personality.profile`, `zantara.attune`, `zantara.synergy.map`, `zantara.anticipate.needs`, `zantara.mood.sync`, `zantara.conflict.mediate`<br/>**v2.0**: `zantara.emotional.profile.advanced`, `zantara.conflict.prediction`, `zantara.multi.project.orchestration`, `zantara.performance.optimization`<br/>**Dashboard**: `zantara.dashboard.overview`, `zantara.team.health.monitor` | `handlers/zantara/` |
 | **Communication** | 15+ | **WhatsApp**: `whatsapp.webhook.verify`, `whatsapp.webhook.receiver`, `whatsapp.analytics`, `whatsapp.send`<br/>**Instagram**: `instagram.webhook.verify`, `instagram.webhook.receiver`, `instagram.analytics`<br/>**Twilio**: `twilio.whatsapp.webhook`, `twilio.send`<br/>**Notifications**: `slack.notify`, `discord.notify`, `google.chat.notify`<br/>**Translation**: `translate.text`, `translate.detect` | `handlers/communication/` |
 | **Analytics & Reports** | 8+ | **Dashboard**: `dashboard.main`, `dashboard.conversations`, `dashboard.services`, `dashboard.handlers`, `dashboard.health`, `dashboard.users`<br/>**Reports**: `weekly.report.generate`, `daily.recap.update`, `daily.recap.current` | `handlers/analytics/` |
@@ -192,7 +198,7 @@ const handlers: Record<string, Handler> = {
 | **RAG Proxy** | 4 | `rag.query`, `rag.search`, `rag.health`, `bali.zero.chat` | `handlers/rag/` |
 | **WebSocket Admin** | 3 | `websocket.stats`, `websocket.broadcast`, `websocket.send` | `handlers/admin/` |
 
-**Total Handlers**: ~150 (not 136 as previously documented)
+**Total Handlers**: 121 (as of v5.6.0 with DevAI integration)
 
 ---
 

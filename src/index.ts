@@ -60,10 +60,23 @@ app.use(validateResponse()); // Anti-hallucination validation
 app.use(deepRealityCheck()); // Deep reality anchor system
 
 // Enhanced health endpoint with metrics
-app.get('/health', async (req, res) => {
+app.get('/health', async (_req, res) => {
   const healthData = await getHealthMetrics();
   return res.json({
     ...healthData,
+    ai_systems: {
+      zantara: {
+        model: 'llama-3.1-8b',
+        status: process.env.RUNPOD_LLAMA_ENDPOINT ? 'active' : 'not-configured',
+        endpoint: process.env.RUNPOD_LLAMA_ENDPOINT ? 'runpod' : 'hf-inference'
+      },
+      devai: {
+        model: 'qwen-2.5-coder-7b',
+        status: process.env.RUNPOD_QWEN_ENDPOINT ? 'active' : 'not-configured',
+        endpoint: process.env.RUNPOD_QWEN_ENDPOINT ? 'runpod' : 'hf-inference',
+        handlers: 7
+      }
+    },
     environment: {
       ragBackendUrl: process.env.RAG_BACKEND_URL || 'not-set',
       nodeEnv: process.env.NODE_ENV || 'development'
@@ -85,7 +98,7 @@ app.get('/config/flags', (req, res) => {
 });
 
 // Metrics endpoint for detailed monitoring
-app.get('/metrics', async (req, res) => {
+app.get('/metrics', async (_req, res) => {
   const healthData = await getHealthMetrics();
   return res.json({
     ok: true,
@@ -94,7 +107,7 @@ app.get('/metrics', async (req, res) => {
 });
 
 // Alert status endpoint
-app.get('/alerts/status', async (req, res) => {
+app.get('/alerts/status', async (_req, res) => {
   const alertStatus = getAlertStatus();
   return res.json({
     ok: true,
@@ -190,7 +203,7 @@ app.use('/static', express.static(path.resolve(__dirname, '..', 'static')));
 // ZANTARA AI Proxy (Unified)
 app.post('/proxy/zantara', async (req, res) => {
   try {
-    const { message, temperature = 0.7, max_tokens = 2000 } = req.body;
+    const { message } = req.body;
 
     if (!process.env.ZANTARA_API_KEY) {
       return res.status(500).json({
@@ -219,7 +232,7 @@ app.post('/proxy/zantara', async (req, res) => {
 // ZANTARA AI Proxy (Unified)
 app.post('/proxy/zantara', async (req, res) => {
   try {
-    const { message, temperature = 0.7, max_tokens = 2000 } = req.body;
+    const { message } = req.body;
 
     if (!process.env.ZANTARA_API_KEY) {
       return res.status(500).json({
@@ -248,7 +261,7 @@ app.post('/proxy/zantara', async (req, res) => {
 // ZANTARA AI Proxy (Unified)
 app.post('/proxy/zantara', async (req, res) => {
   try {
-    const { message, temperature = 0.7, max_tokens = 2000 } = req.body;
+    const { message } = req.body;
 
     if (!process.env.ZANTARA_API_KEY) {
       return res.status(500).json({

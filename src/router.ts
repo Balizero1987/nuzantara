@@ -26,6 +26,7 @@ import { contactsList, contactsCreate } from "./handlers/google-workspace/contac
 import { aiChat } from "./handlers/ai-services/ai.js";
 import { aiAnticipate, aiLearn, xaiExplain } from "./handlers/ai-services/advanced-ai.js";
 import { creativeHandlers } from "./handlers/ai-services/creative.js";
+import { devaiHandlers } from "./handlers/devai/registry.js";
 
 // Bali Zero Business Services
 import { oracleSimulate, oracleAnalyze, oraclePredict } from "./handlers/bali-zero/oracle.js";
@@ -203,8 +204,8 @@ const handlers: Record<string, Handler> = {
 
   // Team Authentication
   "team.login": teamLogin,
-  "team.members": getTeamMembers,
-  "team.logout": logoutSession,
+  "team.members": async () => getTeamMembers(),
+  "team.logout": async (params: any) => logoutSession(params.sessionId),
 
   // Custom GPT Business Handlers
   "contact.info": async () => ok({
@@ -228,7 +229,7 @@ const handlers: Record<string, Handler> = {
   }),
 
   "lead.save": async (params: any) => {
-    const { name = '', email = '', service = '', details = '', nationality = '', urgency = 'normal' } = params;
+    const { service = '' } = params;
 
     if (!service) {
       throw new BadRequestError('Service type required: visa, company, tax, or real-estate');
@@ -683,6 +684,9 @@ const handlers: Record<string, Handler> = {
 
   // Creative & Artistic AI handlers - NEW!
   ...creativeHandlers,
+
+  // DevAI (Qwen 2.5 Coder) - Internal Developer AI  
+  ...devaiHandlers,
 
   // Google Analytics handlers - NEW!
   ...analyticsHandlers,

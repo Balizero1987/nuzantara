@@ -143,37 +143,40 @@ function updateSummaryCounters(content: string, activityType: string): string {
   let inSummary = false;
 
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].includes('📋 SOMMARIO GIORNATA')) {
+    const line = lines[i];
+    if (!line) continue;
+
+    if (line.includes('📋 SOMMARIO GIORNATA')) {
       inSummary = true;
       continue;
     }
 
-    if (inSummary && lines[i].includes('🗨️ CONVERSAZIONI CHAT')) {
+    if (inSummary && line.includes('🗨️ CONVERSAZIONI CHAT')) {
       inSummary = false;
       break;
     }
 
-    if (inSummary && lines[i].includes('- Chat:') && activityType === 'chat') {
-      const match = lines[i].match(/- Chat: (\d+)/);
-      const count = match ? parseInt(match[1]) + 1 : 1;
+    if (inSummary && line.includes('- Chat:') && activityType === 'chat') {
+      const match = line.match(/- Chat: (\d+)/);
+      const count = match?.[1] ? parseInt(match[1]) + 1 : 1;
       lines[i] = `- Chat: ${count} conversazioni`;
     }
 
-    if (inSummary && lines[i].includes('- Ricerche:') && activityType === 'search') {
-      const match = lines[i].match(/- Ricerche: (\d+)/);
-      const count = match ? parseInt(match[1]) + 1 : 1;
+    if (inSummary && line.includes('- Ricerche:') && activityType === 'search') {
+      const match = line.match(/- Ricerche: (\d+)/);
+      const count = match?.[1] ? parseInt(match[1]) + 1 : 1;
       lines[i] = `- Ricerche: ${count} query`;
     }
 
-    if (inSummary && lines[i].includes('- Attività:') && activityType === 'task') {
-      const match = lines[i].match(/- Attività: (\d+)/);
-      const count = match ? parseInt(match[1]) + 1 : 1;
+    if (inSummary && line.includes('- Attività:') && activityType === 'task') {
+      const match = line.match(/- Attività: (\d+)/);
+      const count = match?.[1] ? parseInt(match[1]) + 1 : 1;
       lines[i] = `- Attività: ${count} task`;
     }
 
-    if (inSummary && lines[i].includes('- Memoria:') && activityType === 'memory') {
-      const match = lines[i].match(/- Memoria: (\d+)/);
-      const count = match ? parseInt(match[1]) + 1 : 1;
+    if (inSummary && line.includes('- Memoria:') && activityType === 'memory') {
+      const match = line.match(/- Memoria: (\d+)/);
+      const count = match?.[1] ? parseInt(match[1]) + 1 : 1;
       lines[i] = `- Memoria: ${count} salvataggi`;
     }
   }
@@ -205,15 +208,21 @@ function addActivityToSection(content: string, activityType: string, activityCon
   if (!targetHeader) return content;
 
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].includes(targetHeader)) {
+    const line = lines[i];
+    if (!line) continue;
+
+    if (line.includes(targetHeader)) {
       sectionFound = true;
       // Trova il posto per inserire (prima della prossima sezione)
       for (let j = i + 1; j < lines.length; j++) {
-        if (lines[j].includes('📈 INSIGHTS GIORNALIERI') ||
-            lines[j].includes('🗨️ CONVERSAZIONI CHAT') ||
-            lines[j].includes('🔍 RICERCHE & QUERY') ||
-            lines[j].includes('⚡ ATTIVITÀ & TASK') ||
-            lines[j].includes('🧠 MEMORIE SALVATE')) {
+        const nextLine = lines[j];
+        if (!nextLine) continue;
+
+        if (nextLine.includes('📈 INSIGHTS GIORNALIERI') ||
+            nextLine.includes('🗨️ CONVERSAZIONI CHAT') ||
+            nextLine.includes('🔍 RICERCHE & QUERY') ||
+            nextLine.includes('⚡ ATTIVITÀ & TASK') ||
+            nextLine.includes('🧠 MEMORIE SALVATE')) {
           insertIndex = j;
           break;
         }
