@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getFirestore } from "firebase-admin/firestore";
+// import { getFirestore } from "firebase-admin/firestore"; // Unused import
 import { ok } from "../../utils/response.js";
 
 // ZARA v2.0 Simplified - Advanced Emotional AI & Predictive Intelligence

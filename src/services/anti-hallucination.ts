@@ -140,7 +140,7 @@ export class AntiHallucinationSystem {
   async groundResponse(
     response: any,
     sources: string[],
-    context?: any
+    _context?: any
   ): Promise<GroundedResponse> {
     const warnings: string[] = [];
     let confidence = 1.0;

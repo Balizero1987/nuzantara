@@ -181,7 +181,7 @@ export class HandlerRegistry {
   getStats() {
     const modules = new Map<string, number>();
 
-    for (const metadata of this.handlers.values()) {
+    for (const metadata of Array.from(this.handlers.values())) {
       modules.set(metadata.module, (modules.get(metadata.module) || 0) + 1);
     }
 
@@ -201,7 +201,7 @@ export class HandlerRegistry {
   toHandlersMap(): Record<string, HandlerFunction> {
     const map: Record<string, HandlerFunction> = {};
 
-    for (const [key, metadata] of this.handlers.entries()) {
+    for (const [key, metadata] of Array.from(this.handlers.entries())) {
       map[key] = metadata.handler;
     }
 

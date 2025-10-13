@@ -34,7 +34,7 @@ function extractEntities(text: string, contextUserId?: string): string[] {
     entities.push(`people:${contextUserId}`);
   }
 
-  return [...new Set(entities)]; // Deduplicate
+  return Array.from(new Set(entities)); // Deduplicate
 }
 
 /**
@@ -118,7 +118,7 @@ class FirestoreMemoryStore {
       userId,
       profile_facts: uniq, // NO LIMIT - Unlimited memory for Bali Zero consciousness
       summary: summary,    // NO LIMIT - Full summary preserved
-      entities: [...new Set(entities)], // Unique entities extracted from facts
+      entities: Array.from(new Set(entities)), // Unique entities extracted from facts
       counters,
       updated_at: now,
     };
@@ -184,7 +184,7 @@ class FirestoreMemoryStore {
     }
 
     // Fallback to in-memory search
-    for (const [id, data] of this.fallbackStore.entries()) {
+    for (const [id, data] of Array.from(this.fallbackStore.entries())) {
       if (userId && id !== userId) continue;
 
       const facts = data.profile_facts || [];
@@ -253,7 +253,7 @@ export async function memorySave(params: any) {
     userId,
     profile_facts: [...(existing.profile_facts || []), newFact],
     summary: existing.summary || `Memory for ${userId}`,
-    entities: [...new Set([...(existing.entities || []), ...entities])], // Merge unique entities
+    entities: Array.from(new Set([...(existing.entities || []), ...entities])), // Merge unique entities
     counters: {
       ...(existing.counters || {}),
       saves: ((existing.counters?.saves || 0) + 1)
@@ -267,7 +267,7 @@ export async function memorySave(params: any) {
     userId,
     content: fact,
     type,
-    timestamp: (timestamp ?? new Date().toISOString()).split('T')[0],
+    timestamp: timestamp.split('T')[0],
     entities
   }).catch(err => {
     console.log('⚠️ Vector storage failed (non-blocking):', err?.message);
@@ -299,7 +299,7 @@ export async function memoryRetrieve(params: any) {
   // Helper: infer preferred language/tone by known collaborator id
   function inferPrefsForUser(uid: string | undefined): { lang?: string; tone?: string; dialect?: string; cultural?: string } {
     if (!uid) return {};
-    const base = (uid ?? '').toLowerCase().split('@')[0].replace(/[^a-z0-9]/g, '');
+    const base = uid!.toLowerCase().split('@')[0].replace(/[^a-z0-9]/g, '');
     const map: Record<string, { lang?: string; tone?: string; dialect?: string; cultural?: string }> = {
       zero: { lang: 'it', tone: 'napoletano_caloroso', cultural: 'cita_toto_spesso' },
       ari: { lang: 'su' },

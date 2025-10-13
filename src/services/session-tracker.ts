@@ -172,7 +172,7 @@ export function cleanupOldSessions(maxAgeHours = 168) { // 7 days default
   const cutoffTime = new Date(Date.now() - maxAgeHours * 60 * 60 * 1000);
 
   let cleaned = 0;
-  for (const [memberId, activity] of sessionStore.entries()) {
+  for (const [memberId, activity] of Array.from(sessionStore.entries())) {
     if (activity.lastActive < cutoffTime) {
       sessionStore.delete(memberId);
       cleaned++;

@@ -27,7 +27,7 @@ function generateRequestId(): string {
 }
 
 // Request tracking middleware
-export function requestTracker(req: Request, res: Response, next: NextFunction) {
+export function requestTracker(req: Request, res: Response, _next: NextFunction) {
   const requestId = generateRequestId();
   const startTime = Date.now();
 
@@ -35,7 +35,7 @@ export function requestTracker(req: Request, res: Response, next: NextFunction) 
   (req as any).requestId = requestId;
 
   // Track request start
-  const _requestMetrics: RequestMetrics = {
+  const requestMetrics: RequestMetrics = {
     startTime,
     path: req.path,
     method: req.method,
@@ -47,6 +47,9 @@ export function requestTracker(req: Request, res: Response, next: NextFunction) 
   metrics.requests++;
   metrics.activeRequests.add(requestId);
   metrics.requestsByPath.set(req.path, (metrics.requestsByPath.get(req.path) || 0) + 1);
+  
+  // Store request metrics for later use
+  (req as any).requestMetrics = requestMetrics;
 
   console.log(`🔍 [${requestId}] ${req.method} ${req.path} - Started`);
 
@@ -89,11 +92,11 @@ export function requestTracker(req: Request, res: Response, next: NextFunction) 
     return originalSend.call(this, data);
   };
 
-  next();
+  _next();
 }
 
 // Error tracking middleware
-export function errorTracker(err: any, req: Request, res: Response, next: NextFunction) {
+export function errorTracker(err: any, req: Request, _res: Response, next: NextFunction) {
   const requestId = (req as any).requestId || 'unknown';
   const errorType = err.name || err.constructor.name || 'UnknownError';
 

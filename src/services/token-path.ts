@@ -1,5 +1,5 @@
-import path from 'path';
-import fs from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
 
 // Preferred mount location for Cloud Run secret
 const SECRET_MOUNT_TOKENS_JSON = '/secrets/oauth2/tokens.json';
