@@ -35,9 +35,9 @@ export async function zantaraChat(params: ZantaraParams) {
   logger.info(`🎯 [ZANTARA RAG] Mode: ${mode}, Message: ${message.substring(0, 50)}...`);
 
   try {
-    // Call RAG Backend with timeout
+    // Call RAG Backend with shorter timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
     
     const response = await fetch(`${RAG_BACKEND_URL}/bali-zero/chat`, {
       method: 'POST',
@@ -91,7 +91,7 @@ export async function zantaraChat(params: ZantaraParams) {
         },
         body: JSON.stringify({
           input: {
-            prompt: `[MODE: ${mode.toUpperCase()}] ${message}`,
+            prompt: `You are ZANTARA, Indonesian AI assistant for Bali Zero. Respond in the same language as the user. Mode: ${mode.toUpperCase()}. User message: ${message}`,
             max_tokens: mode === 'santai' ? 100 : 300,
             temperature: 0.7
           }
@@ -102,8 +102,40 @@ export async function zantaraChat(params: ZantaraParams) {
         const fallbackData = await fallbackResponse.json();
         logger.info(`✅ [ZANTARA FALLBACK] Direct RunPod success`);
         
+        // Clean up response formatting
+        let cleanAnswer = 'ZANTARA is thinking...';
+        
+        if (fallbackData.output) {
+          if (Array.isArray(fallbackData.output)) {
+            // Handle array of tokens/choices
+            cleanAnswer = fallbackData.output
+              .map((item: any) => {
+                if (item.choices && Array.isArray(item.choices)) {
+                  return item.choices.map((choice: any) => {
+                    if (choice.tokens && Array.isArray(choice.tokens)) {
+                      return choice.tokens.join('');
+                    }
+                    return choice.text || choice.content || '';
+                  }).join('');
+                }
+                return item.text || item.content || '';
+              })
+              .join('')
+              .trim();
+          } else if (typeof fallbackData.output === 'string') {
+            cleanAnswer = fallbackData.output.trim();
+          }
+        }
+        
+        // Clean up any remaining formatting issues
+        cleanAnswer = cleanAnswer
+          .replace(/\[PRICE\]/g, '')
+          .replace(/\[PRICE\]/g, '')
+          .replace(/\n\n+/g, '\n')
+          .trim();
+        
         return ok({
-          answer: fallbackData.output || 'ZANTARA is thinking...',
+          answer: cleanAnswer || 'ZANTARA is thinking...',
           model: 'zantara-llama-3.1-8b-fallback',
           provider: 'runpod-direct',
           tokens: 0,
