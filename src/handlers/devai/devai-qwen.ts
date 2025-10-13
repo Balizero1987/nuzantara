@@ -9,7 +9,7 @@ import { BadRequestError } from "../../utils/errors.js";
 
 // Configuration
 const HF_API_KEY = process.env.HF_API_KEY || '';
-const DEVAI_MODEL = 'zeroai87/devai-qwen-2.5-coder-7b';
+const DEVAI_MODEL = 'microsoft/DialoGPT-medium';
 const RUNPOD_ENDPOINT = process.env.RUNPOD_QWEN_ENDPOINT || '';
 const RUNPOD_API_KEY = process.env.RUNPOD_API_KEY || '';
 
