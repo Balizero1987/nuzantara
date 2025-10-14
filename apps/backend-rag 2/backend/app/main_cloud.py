@@ -838,14 +838,13 @@ async def bali_zero_chat(request: BaliZeroRequest):
 
 
         # PHASE 1.5: Check for simple greetings BEFORE any RAG/AI processing
-        simple_greetings = ["ciao", "hello", "hi", "salve", "buongiorno", "buonasera"]
-        logger.info(f"🔍 DEBUG: request.query = {repr(request.query)}, type = {type(request.query)}")
-        if request.query.lower().strip() in simple_greetings:
-            logger.info(f"🎯 [Bali Zero Chat] GREETING DETECTED: {request.query}")
-            if "come stai" in request.query.lower() or "how are you" in request.query.lower():
-                response_text = "Sto benissimo, grazie! 😊 Pronta ad assisterti con visti, KITAS, PT PMA e business in Indonesia. Cosa ti serve?\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
-            else:
-                response_text = "Ciao! Come posso aiutarti oggi con Bali Zero? 😊\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+        query_clean = request.query.lower().strip()
+        logger.info(f"🔍 DEBUG: query_clean = '{query_clean}' (len={len(query_clean)})")
+        
+        # Check exact match first
+        if query_clean in ["ciao", "hello", "hi", "hey", "salve", "buongiorno", "buonasera", "halo"]:
+            logger.info(f"✅ EXACT GREETING MATCH: '{query_clean}'")
+            response_text = "Ciao! Come posso aiutarti oggi con Bali Zero? 😊\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
             
             return BaliZeroResponse(
                 success=True,
@@ -854,6 +853,23 @@ async def bali_zero_chat(request: BaliZeroRequest):
                 sources=[],
                 usage={"input_tokens": 0, "output_tokens": 0}
             )
+        
+        # Check casual questions
+        casual_phrases = ["come stai", "how are you", "come va", "tutto bene", "apa kabar"]
+        for phrase in casual_phrases:
+            if phrase in query_clean:
+                logger.info(f"✅ CASUAL QUESTION MATCH: '{phrase}' in '{query_clean}'")
+                response_text = "Sto benissimo, grazie! 😊 Pronta ad assisterti con visti, KITAS, PT PMA e business in Indonesia. Cosa ti serve?\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+                
+                return BaliZeroResponse(
+                    success=True,
+                    response=response_text,
+                    model_used="built-in-casual",
+                    sources=[],
+                    usage={"input_tokens": 0, "output_tokens": 0}
+                )
+        
+        logger.info(f"❌ NO GREETING MATCH - Proceeding to RAG/AI")
 
         # PHASE 2: Load user memory
         memory = None
