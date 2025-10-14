@@ -52,9 +52,9 @@ class ClaudeSonnetService:
         logger.info("   Cost: $3/$15 per 1M tokens (high quality)")
 
 
-    def _build_system_prompt(self) -> str:
+    def _build_system_prompt(self, memory_context: Optional[str] = None) -> str:
         """Build system prompt for Sonnet - optimized for professional, detailed responses"""
-        return """You are ZANTARA, the expert Indonesian business assistant for Bali Zero.
+        base_prompt = """You are ZANTARA, the expert Indonesian business assistant for Bali Zero.
 
 🎯 YOUR ROLE:
 - Expert on Indonesian business, visas, KITAS, PT PMA, taxes, regulations
@@ -132,6 +132,12 @@ Contattaci: WhatsApp +62 859 0436 9574 o info@balizero.com"
 
 Remember: You're the EXPERT. Be confident, accurate, and helpful."""
 
+        # Add memory context if available (PHASE 3)
+        if memory_context:
+            base_prompt += f"\n\n{memory_context}"
+
+        return base_prompt
+
 
     async def conversational(
         self,
@@ -139,6 +145,7 @@ Remember: You're the EXPERT. Be confident, accurate, and helpful."""
         user_id: str,
         context: Optional[str] = None,
         conversation_history: Optional[List[Dict[str, str]]] = None,
+        memory_context: Optional[str] = None,
         max_tokens: int = 300
     ) -> Dict:
         """
@@ -190,12 +197,12 @@ Please provide a detailed, accurate answer using the context above. Cite specifi
                 "content": user_content
             })
 
-            # Call Claude Sonnet
+            # Call Claude Sonnet (with optional memory context)
             response = await self.client.messages.create(
                 model=self.model,
                 max_tokens=max_tokens,
                 temperature=0.3,  # Lower temperature for accuracy
-                system=self._build_system_prompt(),
+                system=self._build_system_prompt(memory_context=memory_context),
                 messages=messages
             )
 
@@ -234,6 +241,7 @@ Please provide a detailed, accurate answer using the context above. Cite specifi
         user_id: str,
         context: Optional[str] = None,
         conversation_history: Optional[List[Dict[str, str]]] = None,
+        memory_context: Optional[str] = None,
         tools: Optional[List[Dict[str, Any]]] = None,
         tool_executor: Optional[Any] = None,
         max_tokens: int = 300,
@@ -306,12 +314,12 @@ Please provide a detailed, accurate answer using the context above. Cite specifi
                 iteration += 1
                 logger.info(f"🔄 [Sonnet+Tools] Iteration {iteration}/{max_tool_iterations}")
 
-                # Call Claude Sonnet (with or without tools)
+                # Call Claude Sonnet (with or without tools, with optional memory)
                 api_params = {
                     "model": self.model,
                     "max_tokens": max_tokens,
                     "temperature": 0.3,
-                    "system": self._build_system_prompt(),
+                    "system": self._build_system_prompt(memory_context=memory_context),
                     "messages": messages
                 }
 

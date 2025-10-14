@@ -43,7 +43,7 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy zantara-rag-backend \
-            --image gcr.io/involuted-box-469105-r0/zantara-rag-backend:${{ github.sha }} \
+            --image gcr.io/involuted-box-469105-r0/zantara-rag-backend@sha256:873ae2f438598d0cc93997bab07a9eddcf4182b7385f747641b55c8e1115c6bd \
             --region europe-west1 \
             --allow-unauthenticated
 
