@@ -35,7 +35,8 @@ class IntelligentRouter:
         haiku_service,
         sonnet_service,
         devai_endpoint=None,
-        search_service=None
+        search_service=None,
+        tool_executor=None
     ):
         """
         Initialize intelligent router
@@ -46,12 +47,19 @@ class IntelligentRouter:
             sonnet_service: ClaudeSonnetService for complex queries
             devai_endpoint: DevAI endpoint URL for code queries (optional)
             search_service: Optional SearchService for RAG
+            tool_executor: ToolExecutor for handler execution (optional)
         """
         self.llama = llama_client
         self.haiku = haiku_service
         self.sonnet = sonnet_service
         self.devai_endpoint = devai_endpoint
         self.search = search_service
+        self.tool_executor = tool_executor
+
+        # Available tools will be loaded on first use
+        self.all_tools = None
+        self.haiku_tools = None  # Limited subset for Haiku
+        self.tools_loaded = False
 
         logger.info("✅ IntelligentRouter initialized (QUADRUPLE-AI)")
         logger.info(f"   LLAMA (classifier): {'✅' if llama_client else '❌'}")
@@ -59,6 +67,54 @@ class IntelligentRouter:
         logger.info(f"   Sonnet (business): {'✅' if sonnet_service else '❌'}")
         logger.info(f"   DevAI (code): {'✅' if devai_endpoint else '❌'}")
         logger.info(f"   RAG (context): {'✅' if search_service else '❌'}")
+        logger.info(f"   Tool Use: {'✅' if tool_executor else '❌'}")
+
+
+    async def _load_tools(self):
+        """
+        Load available tools from ToolExecutor and filter for Haiku/Sonnet
+
+        Haiku gets LIMITED tools (fast, essential only):
+        - pricing.*
+        - team.recent_activity
+        - memory.* (fast read-only operations)
+
+        Sonnet gets ALL tools (full capability).
+        """
+        if self.tools_loaded or not self.tool_executor:
+            return
+
+        try:
+            logger.info("🔧 [Router] Loading available tools...")
+
+            # Get all available tools from ToolExecutor
+            self.all_tools = await self.tool_executor.get_available_tools()
+
+            logger.info(f"   Total tools available: {len(self.all_tools)}")
+
+            # Filter essential tools for Haiku (fast, read-only)
+            haiku_allowed_prefixes = [
+                "pricing_",           # Pricing queries (fast)
+                "team_recent",        # Recent activity (fast)
+                "memory_retrieve",    # Memory read (fast)
+                "memory_search"       # Memory search (fast)
+            ]
+
+            self.haiku_tools = [
+                tool for tool in self.all_tools
+                if any(tool["name"].startswith(prefix) for prefix in haiku_allowed_prefixes)
+            ]
+
+            logger.info(f"   Haiku tools (LIMITED): {len(self.haiku_tools)}")
+            logger.info(f"   Sonnet tools (FULL): {len(self.all_tools)}")
+
+            self.tools_loaded = True
+
+        except Exception as e:
+            logger.error(f"❌ [Router] Failed to load tools: {e}")
+            self.all_tools = []
+            self.haiku_tools = []
+            self.tools_loaded = True
 
 
     async def classify_intent(self, message: str) -> Dict:
@@ -235,16 +291,35 @@ Reply with ONLY the category name, nothing else."""
 
             logger.info(f"   Category: {category} → AI: {suggested_ai}")
 
-            # Step 2: Route to appropriate AI
+            # Step 2: Load tools if not already loaded
+            if not self.tools_loaded and self.tool_executor:
+                await self._load_tools()
+
+            # Step 3: Route to appropriate AI
             if suggested_ai == "haiku":
                 # ROUTE 1: Claude Haiku (Fast & Cheap)
                 logger.info("🏃 [Router] Using Claude Haiku (fast & cheap)")
-                result = await self.haiku.conversational(
-                    message=message,
-                    user_id=user_id,
-                    conversation_history=conversation_history,
-                    max_tokens=50  # Brief responses only
-                )
+
+                # Use tool-enabled method if tools available
+                if self.tool_executor and self.haiku_tools:
+                    logger.info(f"   Tool use: ENABLED (LIMITED - {len(self.haiku_tools)} tools)")
+                    result = await self.haiku.conversational_with_tools(
+                        message=message,
+                        user_id=user_id,
+                        conversation_history=conversation_history,
+                        tools=self.haiku_tools,
+                        tool_executor=self.tool_executor,
+                        max_tokens=50,  # Brief responses only
+                        max_tool_iterations=2  # LIMITED for speed
+                    )
+                else:
+                    logger.info("   Tool use: DISABLED")
+                    result = await self.haiku.conversational(
+                        message=message,
+                        user_id=user_id,
+                        conversation_history=conversation_history,
+                        max_tokens=50
+                    )
 
                 return {
                     "response": result["text"],
@@ -252,7 +327,9 @@ Reply with ONLY the category name, nothing else."""
                     "category": category,
                     "model": result["model"],
                     "tokens": result["tokens"],
-                    "used_rag": False
+                    "used_rag": False,
+                    "used_tools": result.get("used_tools", False),
+                    "tools_called": result.get("tools_called", [])
                 }
 
             elif suggested_ai == "sonnet":
@@ -277,13 +354,28 @@ Reply with ONLY the category name, nothing else."""
                     except Exception as e:
                         logger.warning(f"   RAG search failed: {e}")
 
-                result = await self.sonnet.conversational(
-                    message=message,
-                    user_id=user_id,
-                    context=context,
-                    conversation_history=conversation_history,
-                    max_tokens=300
-                )
+                # Use tool-enabled method if tools available
+                if self.tool_executor and self.all_tools:
+                    logger.info(f"   Tool use: ENABLED (FULL - {len(self.all_tools)} tools)")
+                    result = await self.sonnet.conversational_with_tools(
+                        message=message,
+                        user_id=user_id,
+                        context=context,
+                        conversation_history=conversation_history,
+                        tools=self.all_tools,
+                        tool_executor=self.tool_executor,
+                        max_tokens=300,
+                        max_tool_iterations=5
+                    )
+                else:
+                    logger.info("   Tool use: DISABLED")
+                    result = await self.sonnet.conversational(
+                        message=message,
+                        user_id=user_id,
+                        context=context,
+                        conversation_history=conversation_history,
+                        max_tokens=300
+                    )
 
                 return {
                     "response": result["text"],
@@ -291,7 +383,9 @@ Reply with ONLY the category name, nothing else."""
                     "category": category,
                     "model": result["model"],
                     "tokens": result["tokens"],
-                    "used_rag": result.get("used_rag", False)
+                    "used_rag": result.get("used_rag", False),
+                    "used_tools": result.get("used_tools", False),
+                    "tools_called": result.get("tools_called", [])
                 }
 
             elif suggested_ai == "devai":

@@ -327,6 +327,43 @@ If during this session you:
 ❌ Put code snippets in handovers (use diaries)
 ❌ Skip diary creation
 ❌ Update PROJECT_CONTEXT for small changes
+❌ **NEVER modify RunPod configs** (see critical warning below!) ⚠️⚠️⚠️
+
+---
+
+## 🚨 CRITICAL: RunPod Configuration Warning
+
+### ⛔ NEVER CHANGE THESE SETTINGS!
+
+**RunPod endpoints** (ZANTARA + DevAI):
+- ❌ **Idle Timeout** → Locked at 5s (DO NOT increase!)
+- ❌ **Max Workers** → Locked at 1 (DO NOT increase!)
+- ❌ **GPU Type** → Locked at 2× RTX 80GB Pro (DO NOT change!)
+
+### Why This Rule Exists
+
+**2025-10-14 Incident**: User increased idle timeout 5s → 120s
+- **Result**: Worker crashed → zombie state → €7 billing in 3.5 hours
+- **Root cause**: vLLM engine crash during config reload
+- **Lesson**: Config changes = crash risk = surprise costs
+
+### What to Do Instead
+
+If you think config needs changing:
+1. **STOP** - Don't change anything
+2. **READ**: `RUNPOD_OPTIMAL_CONFIG_2025-10-14.md` (understand why settings are locked)
+3. **ASK USER**: Explain why you think change is needed
+4. **DOCUMENT**: If approved, document in diary + PROJECT_CONTEXT
+
+### Current Approved Settings (2025-10-14)
+
+```
+ZANTARA (itz2q5gmid4cyt):  Idle=5s, MaxWorkers=1 → €2-8/month
+DevAI (5g2h6nbyls47i7):    Idle=5s, MaxWorkers=1 → €1-3/month
+Total Cost: €3-11/month (ultra-optimized for internal use)
+```
+
+**These settings are OPTIMAL** - do not "improve" them!
 
 ---
 
@@ -347,6 +384,6 @@ Ho finito, aggiorna tutto
 
 ---
 
-**System Version**: 1.1.0
+**System Version**: 1.2.0
 **Created**: 2025-10-01
-**Last Updated**: 2025-10-08 10:05 (Added LLAMA4 + Quick Starts + Exit alignment)
+**Last Updated**: 2025-10-14 12:30 (Added RunPod Configuration Warning - CRITICAL!)
