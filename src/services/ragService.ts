@@ -61,27 +61,7 @@ export class RAGService {
   }
 
   /**
-   * Get Cloud Run identity token for service-to-service authentication
-   */
-  private async getIdentityToken(): Promise<string | null> {
-    try {
-      // In Cloud Run, use metadata server to get identity token
-      if (process.env.K_SERVICE) {
-        const { GoogleAuth } = await import('google-auth-library');
-        const auth = new GoogleAuth();
-        const client = await auth.getIdTokenClient(this.baseURL);
-        const token = await client.idTokenProvider.fetchIdToken(this.baseURL);
-        return token;
-      }
-      return null; // Local development - no auth needed
-    } catch (error) {
-      logger.warn('Failed to get identity token:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Make authenticated request to RAG backend
+   * Make request to RAG backend (public endpoint - no auth needed)
    */
   private async makeAuthenticatedRequest<T>(
     method: 'get' | 'post',
@@ -89,20 +69,11 @@ export class RAGService {
     data?: any
   ): Promise<T> {
     try {
-      const token = await this.getIdentityToken();
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
+      // RAG backend is public (allUsers) - no authentication needed
       const response = await this.client.request<T>({
         method,
         url: path,
-        data,
-        headers
+        data
       });
 
       return response.data;
