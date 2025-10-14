@@ -1,6 +1,5 @@
 """LLM clients for Bali Zero"""
 
-from .anthropic_client import AnthropicClient
-from .bali_zero_router import BaliZeroRouter
+from .zantara_client import ZantaraClient
 
-__all__ = ["AnthropicClient", "BaliZeroRouter"]
+__all__ = ["ZantaraClient"]
