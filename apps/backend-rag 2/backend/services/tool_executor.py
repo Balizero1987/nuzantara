@@ -59,9 +59,17 @@ class ToolExecutor:
         results = []
 
         for tool_use in tool_uses:
-            tool_id = tool_use.get("id")
-            tool_name = tool_use.get("name")
-            tool_input = tool_use.get("input", {})
+            # Handle both dict and ToolUseBlock objects
+            if hasattr(tool_use, 'id'):
+                # Pydantic ToolUseBlock object from Anthropic SDK
+                tool_id = tool_use.id
+                tool_name = tool_use.name
+                tool_input = tool_use.input or {}
+            else:
+                # Dict format
+                tool_id = tool_use.get("id")
+                tool_name = tool_use.get("name")
+                tool_input = tool_use.get("input", {})
 
             try:
                 # Convert tool name back to handler key format
@@ -85,7 +93,7 @@ class ToolExecutor:
                         "type": "tool_result",
                         "tool_use_id": tool_id,
                         "is_error": True,
-                        "content": [{"type": "output_text", "text": error_message}]
+                        "content": error_message
                     })
                     continue
 
@@ -99,7 +107,7 @@ class ToolExecutor:
                 results.append({
                     "type": "tool_result",
                     "tool_use_id": tool_id,
-                    "content": [{"type": "output_text", "text": content_text}]
+                    "content": content_text
                 })
 
             except Exception as e:
@@ -108,7 +116,7 @@ class ToolExecutor:
                     "type": "tool_result",
                     "tool_use_id": tool_id,
                     "is_error": True,
-                    "content": [{"type": "output_text", "text": f"Tool execution error: {str(e)}"}]
+                    "content": f"Tool execution error: {str(e)}"
                 })
 
         return results

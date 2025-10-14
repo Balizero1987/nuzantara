@@ -592,6 +592,15 @@ async def startup_event():
         logger.error(f"❌ Claude Sonnet initialization failed: {e}")
         claude_sonnet = None
 
+    # Initialize Handler Proxy Service (Tool Use) - MUST be before Intelligent Router
+    try:
+        ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app")
+        handler_proxy_service = init_handler_proxy(ts_backend_url)
+        logger.info(f"✅ HandlerProxyService ready → {ts_backend_url}")
+    except Exception as e:
+        logger.error(f"❌ HandlerProxyService initialization failed: {e}")
+        handler_proxy_service = None
+
     # Initialize Intelligent Router (QUADRUPLE-AI system)
     try:
         devai_endpoint = os.getenv("DEVAI_ENDPOINT")
@@ -689,15 +698,6 @@ async def startup_event():
     else:
         logger.info("ℹ️ Re-ranker disabled (set ENABLE_RERANKER=true to enable)")
         reranker_service = None
-
-    # Initialize Handler Proxy Service (Tool Use)
-    try:
-        ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app")
-        handler_proxy_service = init_handler_proxy(ts_backend_url)
-        logger.info(f"✅ HandlerProxyService ready → {ts_backend_url}")
-    except Exception as e:
-        logger.error(f"❌ HandlerProxyService initialization failed: {e}")
-        handler_proxy_service = None
 
     logger.info("✅ ZANTARA RAG Backend ready on port 8000")
 
