@@ -839,6 +839,7 @@ async def bali_zero_chat(request: BaliZeroRequest):
 
         # PHASE 1.5: Check for simple greetings BEFORE any RAG/AI processing
         simple_greetings = ["ciao", "hello", "hi", "salve", "buongiorno", "buonasera"]
+        logger.info(f"🔍 DEBUG: request.query = {repr(request.query)}, type = {type(request.query)}")
         if request.query.lower().strip() in simple_greetings:
             logger.info(f"🎯 [Bali Zero Chat] GREETING DETECTED: {request.query}")
             if "come stai" in request.query.lower() or "how are you" in request.query.lower():
