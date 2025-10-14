@@ -5,30 +5,27 @@
  */
 
 /* ============================================
-   STRUCTURED RESPONSE STYLES
+   STRUCTURED RESPONSE STYLES - PROFESSIONAL
    ============================================ */
 
 .structured-response {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .section-header {
   font-weight: 600;
-  font-size: 15px;
-  color: rgba(139, 92, 246, 0.9);
-  margin-bottom: 8px;
-  padding: 8px 12px;
-  background: rgba(139, 92, 246, 0.08);
-  border-left: 3px solid rgba(139, 92, 246, 0.6);
-  border-radius: 4px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 11px;
 }
 
 body.day-mode .section-header {
-  color: rgba(99, 102, 241, 0.9);
-  background: rgba(99, 102, 241, 0.08);
-  border-left-color: rgba(99, 102, 241, 0.6);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .section-content {
@@ -85,127 +82,117 @@ body.day-mode .response-paragraph {
 }
 
 /* ============================================
-   CTA COMPONENT STYLES
+   CTA COMPONENT STYLES - PROFESSIONAL
    ============================================ */
 
 .message-cta {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 body.day-mode .message-cta {
-  border-top-color: rgba(0, 0, 0, 0.1);
+  border-top-color: rgba(0, 0, 0, 0.08);
 }
 
 .cta-divider {
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(139, 92, 246, 0.3) 50%,
-    transparent 100%
-  );
-  margin-bottom: 16px;
+  display: none;
 }
 
 .cta-text {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 12px;
-  font-weight: 500;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 10px;
+  font-weight: 400;
 }
 
 body.day-mode .cta-text {
-  color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .cta-buttons {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .cta-button {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  font-size: 13px;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.15s ease;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
   cursor: pointer;
 }
 
 .cta-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 body.day-mode .cta-button {
-  border-color: rgba(0, 0, 0, 0.15);
-  background: rgba(0, 0, 0, 0.03);
-  color: rgba(0, 0, 0, 0.8);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.65);
 }
 
 body.day-mode .cta-button:hover {
-  border-color: rgba(0, 0, 0, 0.25);
-  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.03);
+  color: rgba(0, 0, 0, 0.85);
 }
 
-/* WhatsApp button */
+/* WhatsApp button - subtle */
 .cta-whatsapp {
-  background: rgba(37, 211, 102, 0.1);
-  border-color: rgba(37, 211, 102, 0.3);
-  color: #25D366;
+  border-color: rgba(37, 211, 102, 0.15);
+  color: rgba(37, 211, 102, 0.8);
 }
 
 .cta-whatsapp:hover {
-  background: rgba(37, 211, 102, 0.2);
-  border-color: rgba(37, 211, 102, 0.5);
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  border-color: rgba(37, 211, 102, 0.3);
+  background: rgba(37, 211, 102, 0.05);
+  color: rgba(37, 211, 102, 1);
 }
 
 body.day-mode .cta-whatsapp {
-  background: rgba(37, 211, 102, 0.08);
-  border-color: rgba(37, 211, 102, 0.3);
-  color: #128C7E;
+  border-color: rgba(37, 211, 102, 0.2);
+  color: rgba(25, 135, 84, 0.85);
 }
 
 body.day-mode .cta-whatsapp:hover {
-  background: rgba(37, 211, 102, 0.15);
-  border-color: rgba(37, 211, 102, 0.5);
+  border-color: rgba(37, 211, 102, 0.35);
+  background: rgba(37, 211, 102, 0.05);
+  color: rgba(25, 135, 84, 1);
 }
 
-/* Email button */
+/* Email button - subtle */
 .cta-email {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: rgba(139, 92, 246, 0.3);
-  color: rgba(139, 92, 246, 0.9);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .cta-email:hover {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 body.day-mode .cta-email {
-  background: rgba(99, 102, 241, 0.08);
-  border-color: rgba(99, 102, 241, 0.3);
-  color: rgba(99, 102, 241, 0.9);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.65);
 }
 
 body.day-mode .cta-email:hover {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: rgba(99, 102, 241, 0.5);
+  border-color: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.03);
+  color: rgba(0, 0, 0, 0.85);
 }
 
 /* CTA Icons */
@@ -251,76 +238,59 @@ body.day-mode .cta-email:hover {
 }
 
 /* ============================================
-   ENHANCED MESSAGE BUBBLES
+   ENHANCED MESSAGE BUBBLES - MINIMAL & CLEAN
    ============================================ */
 
 .message.assistant .message-bubble {
-  background: rgba(42, 42, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 16px 18px;
-  backdrop-filter: blur(10px);
-  transition: all 0.2s ease;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  transition: none;
 }
 
 .message.assistant .message-bubble:hover {
-  background: rgba(42, 42, 42, 0.9);
-  border-color: rgba(139, 92, 246, 0.3);
-  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 body.day-mode .message.assistant .message-bubble {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: transparent;
+  border: none;
 }
 
 body.day-mode .message.assistant .message-bubble:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .message.user .message-bubble {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.9) 0%, rgba(99, 102, 241, 0.9) 100%);
-  border-radius: 16px;
-  padding: 12px 16px;
-  color: white;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: none;
 }
 
 body.day-mode .message.user .message-bubble {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.95) 0%, rgba(139, 92, 246, 0.95) 100%);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.9);
+  box-shadow: none;
 }
 
 /* ============================================
-   ANIMATIONS
+   ANIMATIONS - REMOVED FOR PROFESSIONAL LOOK
    ============================================ */
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .message {
-  animation: fadeInUp 0.3s ease-out;
+  animation: none;
 }
 
 .cta-button {
-  animation: fadeInUp 0.4s ease-out;
-}
-
-.cta-button:nth-child(1) {
-  animation-delay: 0.1s;
-}
-
-.cta-button:nth-child(2) {
-  animation-delay: 0.2s;
+  animation: none;
 }
 

@@ -86,3 +86,8 @@ dist/
 .env*
 
 ml/models/
+
+# Security - Never commit env setup scripts
+setup-env-test.sh
+.env.local
+.env.test

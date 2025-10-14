@@ -256,32 +256,7 @@ async def bali_zero_chat(request: QueryRequest):
         }
 
     try:
-        # STEP 1: Pre-filter for simple greetings (skip RAG)
-        query_lower = request.query.lower().strip()
-        
-        # Simple greetings - return immediately without RAG
-        simple_greetings = ['ciao', 'hello', 'hi', 'hey', 'buongiorno', 'buonasera', 'halo', 'salut']
-        if query_lower in simple_greetings:
-            return {
-                "success": True,
-                "response": "Ciao! Come posso aiutarti oggi con Bali Zero? 😊\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com",
-                "model_used": "built-in-greeting",
-                "sources": [],
-                "usage": {"input_tokens": 0, "output_tokens": 0}
-            }
-        
-        # Casual questions - return immediately without RAG
-        casual_patterns = ['come stai', 'how are you', 'tutto bene', 'come va', "how's it going", 'apa kabar']
-        if any(pattern in query_lower for pattern in casual_patterns):
-            return {
-                "success": True,
-                "response": "Sto benissimo, grazie! 😊 Pronta ad assisterti con visti, KITAS, PT PMA e business in Indonesia. Cosa ti serve?\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com",
-                "model_used": "built-in-casual",
-                "sources": [],
-                "usage": {"input_tokens": 0, "output_tokens": 0}
-            }
-        
-        # STEP 2: Detect if query is about pricing (IMPROVED DETECTOR)
+        # Detect if query is about pricing (IMPROVED DETECTOR)
         query_lower = request.query.lower()
 
         # Expanded keywords for better detection
