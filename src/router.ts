@@ -1205,6 +1205,48 @@ export function attachRoutes(app: import("express").Express) {
     }
   });
 
+  // === Handler Execution Endpoint ===
+  app.post("/handler", apiKeyAuth, selectiveRateLimiter, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const { handler, params = {} } = req.body;
+      
+      if (!handler) {
+        return res.status(400).json(err('Handler name required'));
+      }
+
+      // RBAC by API key
+      if (req.ctx?.role === "external" && FORBIDDEN_FOR_EXTERNAL.has(handler)) {
+        throw new ForbiddenError("Handler not allowed for external key");
+      }
+
+      let result: any;
+      
+      // Try static handlers map first
+      let handlerFunc = handlers[handler];
+      
+      if (!handlerFunc) {
+        // Check if handler exists in globalRegistry (dynamic auto-loaded handlers)
+        const { globalRegistry } = await import('./core/handler-registry.js');
+        if (globalRegistry.has(handler)) {
+          // Execute handler using globalRegistry
+          result = await globalRegistry.execute(handler, params, req);
+        } else {
+          return res.status(404).json(err(`Handler '${handler}' not found`));
+        }
+      } else {
+        result = await handlerFunc(params, req);
+      }
+
+      return res.status(200).json(ok(result?.data ?? result));
+      
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
+      if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
   // === Legacy RPC-style /call (for backwards compatibility) ===
   app.post("/call", apiKeyAuth, selectiveRateLimiter, async (req: RequestWithCtx, res: Response) => {
     let key = '';
