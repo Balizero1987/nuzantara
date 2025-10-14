@@ -11,7 +11,7 @@ Routing logic:
 
 import logging
 import re
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Any
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +151,10 @@ class IntelligentRouter:
                 }
 
             # Check casual questions
-            casual_patterns = ["come stai", "how are you", "come va", "tutto bene", "apa kabar", "what's up", "whats up"]
+            casual_patterns = [
+                "come stai", "how are you", "come va", "tutto bene", "apa kabar", "what's up", "whats up",
+                "sai chi sono", "do you know me", "know who i am", "recognize me", "remember me", "mi riconosci"
+            ]
             if any(pattern in message_lower for pattern in casual_patterns):
                 logger.info(f"🎯 [Router] Quick match: casual")
                 return {
@@ -261,7 +264,8 @@ Reply with ONLY the category name, nothing else."""
         self,
         message: str,
         user_id: str,
-        conversation_history: Optional[List[Dict]] = None
+        conversation_history: Optional[List[Dict]] = None,
+        memory: Optional[Any] = None  # ← NEW: Memory context
     ) -> Dict:
         """
         Main routing function - classifies intent and routes to appropriate AI
@@ -270,6 +274,7 @@ Reply with ONLY the category name, nothing else."""
             message: User message
             user_id: User identifier
             conversation_history: Optional chat history
+            memory: Optional memory context for user (NEW)
 
         Returns:
             {
@@ -283,6 +288,24 @@ Reply with ONLY the category name, nothing else."""
         """
         try:
             logger.info(f"🚦 [Router] Routing message for user {user_id}")
+
+            # PHASE 3: Build memory context if available
+            memory_context = None
+            if memory:
+                facts_count = len(memory.profile_facts) if hasattr(memory, 'profile_facts') else 0
+                logger.info(f"💾 [Router] Memory loaded: {facts_count} facts")
+
+                # Build memory context string
+                if facts_count > 0:
+                    memory_context = "--- USER MEMORY ---\n"
+                    memory_context += f"Known facts about {user_id}:\n"
+                    for fact in memory.profile_facts[:10]:  # Top 10 facts
+                        memory_context += f"- {fact}\n"
+
+                    if memory.summary:
+                        memory_context += f"\nSummary: {memory.summary[:500]}\n"
+
+                    logger.info(f"💾 [Router] Memory context built: {len(memory_context)} chars")
 
             # Step 1: Classify intent
             intent = await self.classify_intent(message)
@@ -307,6 +330,7 @@ Reply with ONLY the category name, nothing else."""
                         message=message,
                         user_id=user_id,
                         conversation_history=conversation_history,
+                        memory_context=memory_context,  # PHASE 3: Pass memory
                         tools=self.haiku_tools,
                         tool_executor=self.tool_executor,
                         max_tokens=50,  # Brief responses only
@@ -318,6 +342,7 @@ Reply with ONLY the category name, nothing else."""
                         message=message,
                         user_id=user_id,
                         conversation_history=conversation_history,
+                        memory_context=memory_context,  # PHASE 3: Pass memory
                         max_tokens=50
                     )
 
@@ -362,6 +387,7 @@ Reply with ONLY the category name, nothing else."""
                         user_id=user_id,
                         context=context,
                         conversation_history=conversation_history,
+                        memory_context=memory_context,  # PHASE 3: Pass memory
                         tools=self.all_tools,
                         tool_executor=self.tool_executor,
                         max_tokens=300,
@@ -374,6 +400,7 @@ Reply with ONLY the category name, nothing else."""
                         user_id=user_id,
                         context=context,
                         conversation_history=conversation_history,
+                        memory_context=memory_context,  # PHASE 3: Pass memory
                         max_tokens=300
                     )
 

@@ -52,9 +52,9 @@ class ClaudeHaikuService:
         logger.info("   Cost: $0.25/$1.25 per 1M tokens (12x cheaper than Sonnet)")
 
 
-    def _build_system_prompt(self) -> str:
+    def _build_system_prompt(self, memory_context: Optional[str] = None) -> str:
         """Build system prompt for Haiku - optimized for brief, friendly responses"""
-        return """You are ZANTARA's fast conversational mode - quick, friendly, and helpful!
+        base_prompt = """You are ZANTARA's fast conversational mode - quick, friendly, and helpful!
 
 🎯 YOUR ROLE:
 - Handle simple greetings and casual conversation
@@ -84,12 +84,19 @@ A: "Hello! How can I help you today with Bali Zero? 😊"
 
 Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
 
+        # Add memory context if available (PHASE 3)
+        if memory_context:
+            base_prompt += f"\n\n{memory_context}"
+
+        return base_prompt
+
 
     async def conversational(
         self,
         message: str,
         user_id: str,
         conversation_history: Optional[List[Dict[str, str]]] = None,
+        memory_context: Optional[str] = None,
         max_tokens: int = 50
     ) -> Dict:
         """
@@ -126,12 +133,12 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
                 "content": message
             })
 
-            # Call Claude Haiku
+            # Call Claude Haiku (with optional memory context)
             response = await self.client.messages.create(
                 model=self.model,
                 max_tokens=max_tokens,
                 temperature=0.7,  # Conversational tone
-                system=self._build_system_prompt(),
+                system=self._build_system_prompt(memory_context=memory_context),
                 messages=messages
             )
 
@@ -168,6 +175,7 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
         message: str,
         user_id: str,
         conversation_history: Optional[List[Dict[str, str]]] = None,
+        memory_context: Optional[str] = None,
         tools: Optional[List[Dict[str, Any]]] = None,
         tool_executor: Optional[Any] = None,
         max_tokens: int = 50,
@@ -228,12 +236,12 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
                 iteration += 1
                 logger.info(f"🔄 [Haiku+Tools] Iteration {iteration}/{max_tool_iterations}")
 
-                # Call Claude Haiku (with or without tools)
+                # Call Claude Haiku (with or without tools, with optional memory)
                 api_params = {
                     "model": self.model,
                     "max_tokens": max_tokens,
                     "temperature": 0.7,
-                    "system": self._build_system_prompt(),
+                    "system": self._build_system_prompt(memory_context=memory_context),
                     "messages": messages
                 }
 
