@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-download embedding model to avoid startup delays and rate limits
+RUN python -c "from sentence_transformers import SentenceTransformer; print('Downloading embedding model...'); SentenceTransformer('all-MiniLM-L6-v2'); print('Model cached successfully')"
+
 # Copy application code
 COPY . .
 
