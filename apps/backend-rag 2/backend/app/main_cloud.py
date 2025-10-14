@@ -36,6 +36,7 @@ from llm.zantara_client import ZantaraClient  # ONLY AI - ZANTARA Llama 3.1
 from services.claude_haiku_service import ClaudeHaikuService
 from services.claude_sonnet_service import ClaudeSonnetService
 from services.intelligent_router import IntelligentRouter
+from services.memory_fact_extractor import MemoryFactExtractor
 
 # Configure logging
 logging.basicConfig(
@@ -74,6 +75,7 @@ emotional_service: Optional[EmotionalAttunementService] = None
 capabilities_service: Optional[CollaborativeCapabilitiesService] = None
 reranker_service: Optional["RerankerService"] = None  # String annotation for lazy import
 handler_proxy_service: Optional[HandlerProxyService] = None
+fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
 
 # System prompt
 SYSTEM_PROMPT = """🎯 **IMMEDIATE UNDERSTANDING PROTOCOL**
@@ -519,7 +521,7 @@ def download_chromadb_from_gcs():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, zantara_client, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service
+    global search_service, zantara_client, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor
 
     logger.info("🚀 Starting ZANTARA RAG Backend (QUADRUPLE-AI: LLAMA Classifier + Claude Haiku + Claude Sonnet + DevAI)...")
 
@@ -699,6 +701,14 @@ async def startup_event():
         logger.info("ℹ️ Re-ranker disabled (set ENABLE_RERANKER=true to enable)")
         reranker_service = None
 
+    # Initialize Memory Fact Extractor (Always on)
+    try:
+        fact_extractor = MemoryFactExtractor()
+        logger.info("✅ Memory Fact Extractor ready (automatic key facts extraction)")
+    except Exception as e:
+        logger.error(f"❌ Fact Extractor initialization failed: {e}")
+        fact_extractor = None
+
     logger.info("✅ ZANTARA RAG Backend ready on port 8000")
 
 
@@ -870,7 +880,7 @@ async def search_endpoint(request: SearchRequest):
             messages = request.conversation_history or []
             messages.append({
                 "role": "user",
-                "content": f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}{GUIDELINE_APPENDIX}"
+                "content": f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
             })
 
             # 🎯 ZANTARA-ONLY: Use ZANTARA Llama 3.1 (no fallbacks)
@@ -975,11 +985,12 @@ async def bali_zero_chat(request: BaliZeroRequest):
             # Build conversation history with memory context if available
             messages = request.conversation_history or []
 
-            # Route through intelligent router
+            # Route through intelligent router (with memory context)
             routing_result = await intelligent_router.route_chat(
                 message=request.query,
                 user_id=user_id,
-                conversation_history=messages
+                conversation_history=messages,
+                memory=memory  # ← Pass memory to router
             )
 
             # Extract response from router
@@ -1223,6 +1234,33 @@ async def bali_zero_chat(request: BaliZeroRequest):
 
             if memory_service:
                 await memory_service.increment_counter(user_id, "conversations")
+
+            # PHASE 2: Extract and save key facts automatically
+            if fact_extractor and memory_service and user_id != "anonymous":
+                try:
+                    facts = fact_extractor.extract_facts_from_conversation(
+                        user_message=request.query,
+                        ai_response=answer,
+                        user_id=user_id
+                    )
+
+                    # Save high-confidence facts to memory
+                    saved_count = 0
+                    for fact in facts:
+                        if fact.get('confidence', 0) > 0.7:  # Only high-confidence facts
+                            await memory_service.save_fact(
+                                user_id=user_id,
+                                content=fact['content'],
+                                fact_type=fact.get('type', 'general')
+                            )
+                            saved_count += 1
+
+                    if saved_count > 0:
+                        logger.info(f"💎 [Memory] Saved {saved_count} key facts for {user_id}")
+
+                except Exception as e:
+                    logger.warning(f"⚠️ [Memory] Fact extraction failed: {e}")
+                    # Non-blocking - continue without facts
 
         return BaliZeroResponse(
             success=True,
