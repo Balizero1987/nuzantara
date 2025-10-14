@@ -32,6 +32,10 @@ from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_
 from services.tool_executor import ToolExecutor
 # from services.reranker_service import RerankerService  # Lazy import to avoid startup delay
 from llm.zantara_client import ZantaraClient  # ONLY AI - ZANTARA Llama 3.1
+# TRIPLE-AI SYSTEM: Claude Haiku + Sonnet + Intelligent Router
+from services.claude_haiku_service import ClaudeHaikuService
+from services.claude_sonnet_service import ClaudeSonnetService
+from services.intelligent_router import IntelligentRouter
 
 # Configure logging
 logging.basicConfig(
@@ -58,8 +62,11 @@ app.add_middleware(
 
 # Global clients
 search_service: Optional[SearchService] = None
-# ONLY AI: ZANTARA Llama 3.1 (custom trained model)
-zantara_client: Optional[ZantaraClient] = None
+# TRIPLE-AI SYSTEM: LLAMA classifier + Claude Haiku/Sonnet + Router
+zantara_client: Optional[ZantaraClient] = None  # LLAMA for classification + fallback
+claude_haiku: Optional[ClaudeHaikuService] = None  # Fast & cheap for greetings
+claude_sonnet: Optional[ClaudeSonnetService] = None  # Premium for business queries
+intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 collaborator_service: Optional[CollaboratorService] = None
 memory_service: Optional[MemoryService] = None
 conversation_service: Optional[ConversationService] = None
@@ -477,9 +484,9 @@ def download_chromadb_from_gcs():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, zantara_client, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service
+    global search_service, zantara_client, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service
 
-    logger.info("🚀 Starting ZANTARA RAG Backend (Cloud Run + GCS + ZANTARA Llama 3.1 ONLY + Re-ranker + Full Collaborative Intelligence + Tool Use)...")
+    logger.info("🚀 Starting ZANTARA RAG Backend (QUADRUPLE-AI: LLAMA Classifier + Claude Haiku + Claude Sonnet + DevAI)...")
 
     # Download ChromaDB from Cloud Storage
     try:
@@ -504,21 +511,78 @@ async def startup_event():
         logger.warning("⚠️ Continuing without ChromaDB (pure LLM mode)")
         search_service = None
 
-    # Initialize ZANTARA (ONLY AI - custom trained model)
+    # Initialize ZANTARA (LLAMA for classification + fallback)
     try:
         zantara_client = ZantaraClient(
             runpod_endpoint=os.getenv("RUNPOD_LLAMA_ENDPOINT"),
             runpod_api_key=os.getenv("RUNPOD_API_KEY"),
             hf_api_key=os.getenv("HF_API_KEY")
         )
-        logger.info("✅ ZANTARA Llama 3.1 client ready (ONLY AI - custom trained model)")
+        logger.info("✅ ZANTARA Llama 3.1 client ready (Classification + Fallback)")
         logger.info("   Model: zeroai87/zantara-llama-3.1-8b-merged")
         logger.info("   Training: 22,009 Indonesian business conversations, 98.74% accuracy")
-        logger.info("   Mode: ZANTARA-ONLY (no external AI fallbacks)")
+        logger.info("   Use: Intent classification + fallback responses")
     except Exception as e:
         logger.error(f"❌ ZANTARA initialization failed: {e}")
         logger.error("❌ CRITICAL: No AI available - system cannot start without ZANTARA")
         raise ValueError("ZANTARA initialization failed - cannot start backend")
+
+    # Initialize Claude Haiku (Fast & Cheap for greetings/casual)
+    try:
+        anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+        if anthropic_api_key:
+            claude_haiku = ClaudeHaikuService(api_key=anthropic_api_key)
+            logger.info("✅ Claude Haiku 3.5 ready (Fast & Cheap)")
+            logger.info("   Use case: Greetings, casual chat (60% traffic)")
+            logger.info("   Cost: $0.25/$1.25 per 1M tokens (12x cheaper than Sonnet)")
+        else:
+            logger.warning("⚠️ ANTHROPIC_API_KEY not set - Claude Haiku unavailable")
+            claude_haiku = None
+    except Exception as e:
+        logger.error(f"❌ Claude Haiku initialization failed: {e}")
+        claude_haiku = None
+
+    # Initialize Claude Sonnet (Premium for business queries)
+    try:
+        anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+        if anthropic_api_key:
+            claude_sonnet = ClaudeSonnetService(api_key=anthropic_api_key)
+            logger.info("✅ Claude Sonnet 4.5 ready (Premium Business AI)")
+            logger.info("   Use case: Business/complex queries with RAG (35% traffic)")
+            logger.info("   Cost: $3/$15 per 1M tokens (premium quality)")
+        else:
+            logger.warning("⚠️ ANTHROPIC_API_KEY not set - Claude Sonnet unavailable")
+            claude_sonnet = None
+    except Exception as e:
+        logger.error(f"❌ Claude Sonnet initialization failed: {e}")
+        claude_sonnet = None
+
+    # Initialize Intelligent Router (QUADRUPLE-AI system)
+    try:
+        devai_endpoint = os.getenv("DEVAI_ENDPOINT")
+        if claude_haiku and claude_sonnet and zantara_client:
+            intelligent_router = IntelligentRouter(
+                llama_client=zantara_client,
+                haiku_service=claude_haiku,
+                sonnet_service=claude_sonnet,
+                devai_endpoint=devai_endpoint,
+                search_service=search_service
+            )
+            logger.info("✅ Intelligent Router ready (QUADRUPLE-AI)")
+            logger.info("   AI 1: LLAMA (classification + fallback)")
+            logger.info("   AI 2: Claude Haiku (greetings, 60% traffic)")
+            logger.info("   AI 3: Claude Sonnet (business, 35% traffic)")
+            logger.info(f"   AI 4: DevAI (code, 5% traffic) - {'✅ configured' if devai_endpoint else '⚠️ not configured'}")
+            logger.info("   Cost optimization: 54% savings vs all-Sonnet")
+        else:
+            logger.warning("⚠️ Intelligent Router not initialized - missing AI services")
+            logger.warning(f"   LLAMA: {'✅' if zantara_client else '❌'}")
+            logger.warning(f"   Haiku: {'✅' if claude_haiku else '❌'}")
+            logger.warning(f"   Sonnet: {'✅' if claude_sonnet else '❌'}")
+            intelligent_router = None
+    except Exception as e:
+        logger.error(f"❌ Intelligent Router initialization failed: {e}")
+        intelligent_router = None
 
     # Initialize CollaboratorService (Phase 1)
     try:
@@ -636,6 +700,7 @@ class BaliZeroResponse(BaseModel):
     success: bool
     response: str
     model_used: str
+    ai_used: str  # "haiku" | "sonnet" | "devai" | "llama"
     sources: Optional[List[Dict[str, Any]]] = None
     usage: Optional[Dict[str, Any]] = None
 
@@ -797,13 +862,16 @@ async def search_endpoint(request: SearchRequest):
 @app.post("/bali-zero/chat", response_model=BaliZeroResponse)
 async def bali_zero_chat(request: BaliZeroRequest):
     """
-    Bali Zero chat endpoint with RAG + ZANTARA ONLY + Collaborative Intelligence
-    Uses ZANTARA Llama 3.1 as ONLY AI (no fallbacks)
-    Note: Tool use is not supported with ZANTARA (planned for future)
+    Bali Zero chat endpoint with QUADRUPLE-AI Routing + RAG + Collaborative Intelligence
+    Uses Intelligent Router (LLAMA classifier + Claude Haiku/Sonnet + DevAI)
     """
-    logger.info("🚀 BALI ZERO CHAT CALLED - version ea4af16 with greeting check at line 840")
-    if not zantara_client:
-        raise HTTPException(503, "ZANTARA AI not available")
+    logger.info("🚀 BALI ZERO CHAT - QUADRUPLE-AI with Intelligent Router")
+
+    # Check if intelligent router is available
+    if not intelligent_router:
+        logger.warning("⚠️ Intelligent Router not available, falling back to ZANTARA")
+        if not zantara_client:
+            raise HTTPException(503, "No AI available (router and ZANTARA both unavailable)")
 
     try:
         # PHASE 1: Identify collaborator
@@ -837,48 +905,13 @@ async def bali_zero_chat(request: BaliZeroRequest):
         else:
             logger.info("👤 Anonymous user - L0 (Public)")
 
-
-        # PHASE 1.5: Check for simple greetings BEFORE any RAG/AI processing
-        query_clean = request.query.lower().strip()
-        logger.info(f"🔍 DEBUG: query_clean = '{query_clean}' (len={len(query_clean)})")
-        
-        # Check exact match first
-        if query_clean in ["ciao", "hello", "hi", "hey", "salve", "buongiorno", "buonasera", "halo"]:
-            logger.info(f"✅ EXACT GREETING MATCH: '{query_clean}'")
-            response_text = "Ciao! Come posso aiutarti oggi con Bali Zero? 😊\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
-            
-            return BaliZeroResponse(
-                success=True,
-                response=response_text,
-                model_used="built-in-greeting",
-                sources=[],
-                usage={"input_tokens": 0, "output_tokens": 0}
-            )
-        
-        # Check casual questions
-        casual_phrases = ["come stai", "how are you", "come va", "tutto bene", "apa kabar"]
-        for phrase in casual_phrases:
-            if phrase in query_clean:
-                logger.info(f"✅ CASUAL QUESTION MATCH: '{phrase}' in '{query_clean}'")
-                response_text = "Sto benissimo, grazie! 😊 Pronta ad assisterti con visti, KITAS, PT PMA e business in Indonesia. Cosa ti serve?\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
-                
-                return BaliZeroResponse(
-                    success=True,
-                    response=response_text,
-                    model_used="built-in-casual",
-                    sources=[],
-                    usage={"input_tokens": 0, "output_tokens": 0}
-                )
-        
-        logger.info(f"❌ NO GREETING MATCH - Proceeding to RAG/AI")
-
         # PHASE 2: Load user memory
         memory = None
         if memory_service and user_id != "anonymous":
             memory = await memory_service.get_memory(user_id)
             logger.info(f"💾 Memory loaded for {user_id}: {len(memory.profile_facts)} facts, {len(memory.summary)} char summary")
 
-        # PHASE 4: Analyze emotional state
+        # PHASE 3: Analyze emotional state
         emotional_profile = None
         if emotional_service:
             collaborator_prefs = collaborator.emotional_preferences if collaborator else None
@@ -888,191 +921,85 @@ async def bali_zero_chat(request: BaliZeroRequest):
                 f"(conf: {emotional_profile.confidence:.2f}) → {emotional_profile.suggested_tone.value}"
             )
 
-        # Search ChromaDB for context (if available)
-        sources = []
-        context = ""
+        # PHASE 4: Route to appropriate AI using Intelligent Router
+        if intelligent_router:
+            logger.info("🚦 [Router] Using Intelligent Router for AI selection")
 
-        if search_service:
-            try:
-                # Standard single-collection search with re-ranking
-                search_results = await search_service.search(
-                    query=request.query,
-                    user_level=sub_rosa_level,
-                    limit=20  # Over-fetch for re-ranking
-                )
+            # Build conversation history with memory context if available
+            messages = request.conversation_history or []
 
-                if search_results.get("results"):
-                    # RE-RANK if reranker available
-                    if reranker_service:
-                        candidates = search_results["results"]
-                        reranked = reranker_service.rerank(
-                            query=request.query,
-                            documents=candidates,
-                            top_k=5
-                        )
-
-                        sources = [
-                            {
-                                "title": doc["metadata"].get("title", "Unknown"),
-                                "text": doc["text"][:200] + "...",
-                                "score": float(score),  # Ensure native Python float for JSON
-                                "reranked": True
-                            }
-                            for doc, score in reranked
-                        ]
-
-                        context = "\n\n".join([
-                            f"[{doc['metadata'].get('title', 'Unknown')}]\n{doc['text']}"
-                            for doc, score in reranked
-                        ])
-
-                        logger.info(f"✨ Re-ranked {len(candidates)} → top-5 (scores: {[f'{s:.2f}' for _, s in reranked[:3]]})")
-                    else:
-                        # No re-ranking: use top-3 from ChromaDB
-                        sources = [
-                            {
-                                "title": r["metadata"].get("title", "Unknown"),
-                                "text": r["text"][:200] + "...",
-                                "score": r["score"],
-                                "reranked": False
-                            }
-                            for r in search_results["results"][:3]
-                        ]
-
-                        context = "\n\n".join([
-                            f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
-                            for r in search_results["results"][:3]
-                        ])
-
-            except Exception as e:
-                logger.warning(f"ChromaDB search failed, continuing without context: {e}")
-
-        # Model routing: ZANTARA-ONLY (no model selection needed)
-        model_used = "zantara-llama-3.1-8b"
-
-        # Build enhanced system prompt with memory + emotional attunement
-        enhanced_prompt = SYSTEM_PROMPT
-
-        if memory and collaborator:
-            memory_context = f"\n\n--- USER CONTEXT ---\n"
-            memory_context += f"Collaborator: {collaborator.name} ({collaborator.ambaradam_name})\n"
-            memory_context += f"Role: {collaborator.role} | Department: {collaborator.department}\n"
-            memory_context += f"Language preference: {collaborator.language}\n"
-            memory_context += f"Expertise level: {collaborator.expertise_level}\n"
-
-            if memory.profile_facts:
-                memory_context += f"\nKnown facts about this user:\n"
-                for fact in memory.profile_facts:
-                    memory_context += f"- {fact}\n"
-
-            if memory.summary:
-                memory_context += f"\nConversation summary: {memory.summary}\n"
-
-            if memory.counters:
-                memory_context += f"\nActivity: {memory.counters.get('conversations', 0)} conversations, {memory.counters.get('searches', 0)} searches\n"
-
-            enhanced_prompt += memory_context
-
-        # PHASE 4: Add emotional attunement
-        if emotional_profile and emotional_service:
-            enhanced_prompt = emotional_service.build_enhanced_system_prompt(
-                base_prompt=enhanced_prompt,
-                emotional_profile=emotional_profile,
-                collaborator_name=collaborator.name if collaborator else None
+            # Route through intelligent router
+            routing_result = await intelligent_router.route_chat(
+                message=request.query,
+                user_id=user_id,
+                conversation_history=messages
             )
 
-        # Build messages
-        messages = request.conversation_history or []
+            # Extract response from router
+            answer = routing_result["response"]
+            model_used = routing_result["model"]
+            ai_used = routing_result["ai_used"]
+            tokens = routing_result.get("tokens", {})
+            used_rag = routing_result.get("used_rag", False)
 
-    # HARMONY BETWEEN SIMPLICITY & DEPTH: Advanced AI "sgrezzamento" techniques
-    simple_greetings = ["ciao", "hello", "hi", "salve", "buongiorno", "buonasera", "come stai", "how are you"]
-    casual_questions = ["come stai", "how are you", "come va", "how's it going", "tutto bene", "everything ok"]
-    business_terms = ["kitas", "visa", "pt pma", "business", "investimento", "lavoro", "company", "investment"]
-    
-    # Advanced context detection with harmony balance
-    is_simple_greeting = any(greeting in request.query.lower() for greeting in simple_greetings)
-    is_casual_question = any(question in request.query.lower() for question in casual_questions)
-    is_business_query = any(term in request.query.lower() for term in business_terms)
-    
-    # HARMONY APPROACH: Balance simplicity with depth
-    if is_simple_greeting or is_casual_question:
-        # IMMEDIATE RETURN: Skip RAG entirely for greetings
-        logger.info("🎯 [Bali Zero Chat] GREETING DETECTED - Returning built-in response")
-        if "come stai" in request.query.lower() or "how are you" in request.query.lower():
-            response_text = "Sto benissimo, grazie! 😊 Pronta ad assisterti con visti, KITAS, PT PMA e business in Indonesia. Cosa ti serve?\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
-        else:
-            response_text = "Ciao! Come posso aiutarti oggi con Bali Zero? 😊\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
-        
-        return BaliZeroResponse(
-            success=True,
-            response=response_text,
-            model_used="built-in-greeting",
-            sources=[],
-            usage={"input_tokens": 0, "output_tokens": 0}
-        )
-    elif is_business_query:
-        # DEPTH & PROFESSIONAL: Detailed analysis with RAG context
-        if context:
-            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
-        else:
-            user_message = f"{request.query}"
-        
-        mode = request.mode or "pikiran"  # Default to detailed for business
-        if mode == "pikiran":
-            user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
-        else:
-            user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
-        logger.info("🎯 [Bali Zero Chat] DEPTH MODE: Professional analysis with context")
-    else:
-        # BALANCED APPROACH: Adaptive based on query complexity
-        if context:
-            user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
-        else:
-            user_message = f"{request.query}"
-        
-        mode = request.mode or "santai"
-        if mode == "pikiran":
-            user_message += "\n\n[MODE: PIKIRAN - Provide detailed, comprehensive analysis with professional formatting]"
-        else:
-            user_message += "\n\n[MODE: SANTAI - Keep response brief and casual]"
-        logger.info("🎯 [Bali Zero Chat] BALANCED MODE: Adaptive response")
+            logger.info(f"✅ [Router] Response from {ai_used} (model: {model_used})")
 
-            messages.append({"role": "user", "content": user_message})
+            # Get sources if RAG was used
+            sources = []
+            if used_rag and search_service:
+                try:
+                    search_results = await search_service.search(
+                        query=request.query,
+                        user_level=sub_rosa_level,
+                        limit=20
+                    )
 
-            # Generate response using ZANTARA ONLY
-            # Note: Tool use is not supported with ZANTARA (planned for future)
+                    if search_results.get("results"):
+                        if reranker_service:
+                            candidates = search_results["results"]
+                            reranked = reranker_service.rerank(
+                                query=request.query,
+                                documents=candidates,
+                                top_k=5
+                            )
+                            sources = [
+                                {
+                                    "title": doc["metadata"].get("title", "Unknown"),
+                                    "text": doc["text"][:200] + "...",
+                                    "score": float(score),
+                                    "reranked": True
+                                }
+                                for doc, score in reranked
+                            ]
+                        else:
+                            sources = [
+                                {
+                                    "title": r["metadata"].get("title", "Unknown"),
+                                    "text": r["text"][:200] + "...",
+                                    "score": r["score"],
+                                    "reranked": False
+                                }
+                                for r in search_results["results"][:3]
+                            ]
+                except Exception as e:
+                    logger.warning(f"Source extraction failed: {e}")
+
+            # Personalize response with collaborator name if available
             try:
-                logger.info("🎯 [Bali Zero Chat] Using ZANTARA Llama 3.1 (ONLY AI)")
-                response = await zantara_client.chat_async(
-                    messages=messages,
-                    max_tokens=1500,
-                    system=enhanced_prompt
-                )
-                answer = format_zantara_answer(response.get("text", ""))
-            except Exception as e:
-                logger.error(f"❌ [Bali Zero Chat] ZANTARA failed: {e}")
-                raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
-
-            # Ensure explicit personalization when collaborator is recognized
-            try:
-                if collaborator:
+                if collaborator and answer:
                     is_it = (collaborator.language or "en").lower().startswith("it")
                     name = collaborator.ambaradam_name
                     if is_it:
-                        # If starts with a generic Italian greeting and doesn't include the name, inject it
                         if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
-                            # Replace initial 'Ciao' with 'Ciao <Name>, ' (handle incomplete responses)
                             parts = answer.lstrip().split(" ", 1)
                             if len(parts) > 1:
                                 answer = "Ciao " + name + ", " + parts[1]
                             else:
-                                # Response is just "Ciao" or "Ciao " - add greeting
                                 answer = f"Ciao {name}! Come posso aiutarti oggi?"
                         elif name.lower() not in answer[:100].lower():
                             answer = f"Ciao {name}, " + answer
                     else:
                         if answer.strip().lower().startswith(("hello", "hi")) and name.lower() not in answer[:100].lower():
-                            # Replace initial greeting with personalized one
                             parts = answer.lstrip().split(" ", 1) if " " in answer.lstrip() else [answer.lstrip()]
                             if len(parts) > 1:
                                 answer = f"Hello {name}, " + parts[1]
@@ -1081,51 +1008,190 @@ async def bali_zero_chat(request: BaliZeroRequest):
                         elif name.lower() not in answer[:100].lower():
                             answer = f"Hello {name}, " + answer
             except Exception as _e:
-                # Non-blocking: personalization failure should not break response
-                pass
+                pass  # Non-blocking
 
-            # Sanitize content for public/curious users (L0-L1): avoid explicit sensitive terminology
+            # Sanitize content for public users (L0-L1)
             if sub_rosa_level < 2:
                 answer = sanitize_public_answer(answer)
-            usage = response.get("usage", {})
 
-            # PHASE 2: Save conversation and update memory
-            if conversation_service and user_id != "anonymous":
-                # Save full conversation
-                full_messages = messages.copy()
-                full_messages.append({"role": "assistant", "content": answer})
+        else:
+            # FALLBACK: Use ZANTARA directly if router unavailable
+            logger.warning("⚠️ Router unavailable, using ZANTARA fallback")
 
-                metadata = {
-                    "collaborator_name": collaborator.name if collaborator else "Unknown",
-                    "collaborator_role": collaborator.role if collaborator else "guest",
-                    "sub_rosa_level": sub_rosa_level,
-                    "model_used": model_used,
-                    "input_tokens": usage.get("input_tokens", 0),
-                    "output_tokens": usage.get("output_tokens", 0),
-                    "sources_count": len(sources)
-                }
+            # Build enhanced system prompt with memory + emotional attunement
+            enhanced_prompt = SYSTEM_PROMPT
 
-                await conversation_service.save_conversation(user_id, full_messages, metadata)
-                logger.info(f"💬 Conversation saved for {user_id}")
+            if memory and collaborator:
+                memory_context = f"\n\n--- USER CONTEXT ---\n"
+                memory_context += f"Collaborator: {collaborator.name} ({collaborator.ambaradam_name})\n"
+                memory_context += f"Role: {collaborator.role} | Department: {collaborator.department}\n"
+                memory_context += f"Language preference: {collaborator.language}\n"
+                memory_context += f"Expertise level: {collaborator.expertise_level}\n"
 
-                # Increment conversation counter
-                if memory_service:
-                    await memory_service.increment_counter(user_id, "conversations")
+                if memory.profile_facts:
+                    memory_context += f"\nKnown facts about this user:\n"
+                    for fact in memory.profile_facts:
+                        memory_context += f"- {fact}\n"
 
-            return BaliZeroResponse(
-                success=True,
-                response=answer,
-                model_used=model_used,
-                sources=sources if sources else None,
-                usage={
-                    "input_tokens": usage.get("input_tokens", 0),
-                    "output_tokens": usage.get("output_tokens", 0)
-                }
-            )
+                if memory.summary:
+                    memory_context += f"\nConversation summary: {memory.summary}\n"
 
-        except Exception as e:
-            logger.error(f"Chat failed: {e}")
-            raise HTTPException(500, f"Chat failed: {str(e)}")
+                if memory.counters:
+                    memory_context += f"\nActivity: {memory.counters.get('conversations', 0)} conversations, {memory.counters.get('searches', 0)} searches\n"
+
+                enhanced_prompt += memory_context
+
+            if emotional_profile and emotional_service:
+                enhanced_prompt = emotional_service.build_enhanced_system_prompt(
+                    base_prompt=enhanced_prompt,
+                    emotional_profile=emotional_profile,
+                    collaborator_name=collaborator.name if collaborator else None
+                )
+
+            # Search for RAG context
+            sources = []
+            context = ""
+
+            if search_service:
+                try:
+                    search_results = await search_service.search(
+                        query=request.query,
+                        user_level=sub_rosa_level,
+                        limit=20
+                    )
+
+                    if search_results.get("results"):
+                        if reranker_service:
+                            candidates = search_results["results"]
+                            reranked = reranker_service.rerank(
+                                query=request.query,
+                                documents=candidates,
+                                top_k=5
+                            )
+                            sources = [
+                                {
+                                    "title": doc["metadata"].get("title", "Unknown"),
+                                    "text": doc["text"][:200] + "...",
+                                    "score": float(score),
+                                    "reranked": True
+                                }
+                                for doc, score in reranked
+                            ]
+                            context = "\n\n".join([
+                                f"[{doc['metadata'].get('title', 'Unknown')}]\n{doc['text']}"
+                                for doc, score in reranked
+                            ])
+                        else:
+                            sources = [
+                                {
+                                    "title": r["metadata"].get("title", "Unknown"),
+                                    "text": r["text"][:200] + "...",
+                                    "score": r["score"],
+                                    "reranked": False
+                                }
+                                for r in search_results["results"][:3]
+                            ]
+                            context = "\n\n".join([
+                                f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
+                                for r in search_results["results"][:3]
+                            ])
+                except Exception as e:
+                    logger.warning(f"ChromaDB search failed: {e}")
+
+            # Build messages
+            messages = request.conversation_history or []
+
+            if context:
+                user_message = f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
+            else:
+                user_message = request.query
+
+            messages.append({"role": "user", "content": user_message})
+
+            # Call ZANTARA
+            try:
+                logger.info("🦙 [Fallback] Using ZANTARA Llama 3.1")
+                response = await zantara_client.chat_async(
+                    messages=messages,
+                    max_tokens=1500,
+                    system=enhanced_prompt
+                )
+                answer = format_zantara_answer(response.get("text", ""))
+                model_used = "zantara-llama-3.1-8b"
+                ai_used = "llama"
+                tokens = response.get("usage", {})
+            except Exception as e:
+                logger.error(f"❌ ZANTARA fallback failed: {e}")
+                raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
+
+            # Personalize
+            try:
+                if collaborator:
+                    is_it = (collaborator.language or "en").lower().startswith("it")
+                    name = collaborator.ambaradam_name
+                    if is_it:
+                        if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
+                            parts = answer.lstrip().split(" ", 1)
+                            if len(parts) > 1:
+                                answer = "Ciao " + name + ", " + parts[1]
+                            else:
+                                answer = f"Ciao {name}! Come posso aiutarti oggi?"
+                        elif name.lower() not in answer[:100].lower():
+                            answer = f"Ciao {name}, " + answer
+                    else:
+                        if answer.strip().lower().startswith(("hello", "hi")) and name.lower() not in answer[:100].lower():
+                            parts = answer.lstrip().split(" ", 1) if " " in answer.lstrip() else [answer.lstrip()]
+                            if len(parts) > 1:
+                                answer = f"Hello {name}, " + parts[1]
+                            else:
+                                answer = f"Hello {name}! How can I help you today?"
+                        elif name.lower() not in answer[:100].lower():
+                            answer = f"Hello {name}, " + answer
+            except Exception as _e:
+                pass
+
+            # Sanitize for public users
+            if sub_rosa_level < 2:
+                answer = sanitize_public_answer(answer)
+
+        # PHASE 5: Save conversation and update memory
+        if conversation_service and user_id != "anonymous":
+            full_messages = (request.conversation_history or []).copy()
+            full_messages.append({"role": "user", "content": request.query})
+            full_messages.append({"role": "assistant", "content": answer})
+
+            metadata = {
+                "collaborator_name": collaborator.name if collaborator else "Unknown",
+                "collaborator_role": collaborator.role if collaborator else "guest",
+                "sub_rosa_level": sub_rosa_level,
+                "model_used": model_used,
+                "ai_used": ai_used,
+                "input_tokens": tokens.get("input", 0) or tokens.get("input_tokens", 0),
+                "output_tokens": tokens.get("output", 0) or tokens.get("output_tokens", 0),
+                "sources_count": len(sources)
+            }
+
+            await conversation_service.save_conversation(user_id, full_messages, metadata)
+            logger.info(f"💬 Conversation saved for {user_id}")
+
+            if memory_service:
+                await memory_service.increment_counter(user_id, "conversations")
+
+        return BaliZeroResponse(
+            success=True,
+            response=answer,
+            model_used=model_used,
+            ai_used=ai_used,
+            sources=sources if sources else None,
+            usage={
+                "input_tokens": tokens.get("input", 0) or tokens.get("input_tokens", 0),
+                "output_tokens": tokens.get("output", 0) or tokens.get("output_tokens", 0)
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"❌ Chat failed: {e}")
+        raise HTTPException(500, f"Chat failed: {str(e)}")
 
 
 # Include auth mock router

@@ -1,0 +1,416 @@
+"""
+Intelligent Router - QUADRUPLE-AI routing system
+Uses LLAMA 3.1 for intent classification, routes to appropriate AI
+
+Routing logic:
+- Greetings/Casual → Claude Haiku (fast & cheap)
+- Business/Complex → Claude Sonnet + RAG (premium quality)
+- Code/Development → DevAI Qwen 2.5 Coder (code specialist)
+- Fallback → LLAMA 3.1 (self-hosted)
+"""
+
+import logging
+import re
+from typing import Dict, Optional, List
+
+logger = logging.getLogger(__name__)
+
+
+class IntelligentRouter:
+    """
+    QUADRUPLE-AI intelligent routing system
+
+    Architecture:
+    1. LLAMA 3.1: Intent classification (self-hosted, no cost)
+    2. Claude Haiku: Simple/casual queries (12x cheaper)
+    3. Claude Sonnet: Business/complex queries (premium)
+    4. DevAI Qwen 2.5 Coder: Code/development queries (specialist)
+
+    Cost optimization: Routes 60% to Haiku, 35% to Sonnet, 5% to DevAI
+    """
+
+    def __init__(
+        self,
+        llama_client,
+        haiku_service,
+        sonnet_service,
+        devai_endpoint=None,
+        search_service=None
+    ):
+        """
+        Initialize intelligent router
+
+        Args:
+            llama_client: ZantaraClient for intent classification + fallback
+            haiku_service: ClaudeHaikuService for simple queries
+            sonnet_service: ClaudeSonnetService for complex queries
+            devai_endpoint: DevAI endpoint URL for code queries (optional)
+            search_service: Optional SearchService for RAG
+        """
+        self.llama = llama_client
+        self.haiku = haiku_service
+        self.sonnet = sonnet_service
+        self.devai_endpoint = devai_endpoint
+        self.search = search_service
+
+        logger.info("✅ IntelligentRouter initialized (QUADRUPLE-AI)")
+        logger.info(f"   LLAMA (classifier): {'✅' if llama_client else '❌'}")
+        logger.info(f"   Haiku (greetings): {'✅' if haiku_service else '❌'}")
+        logger.info(f"   Sonnet (business): {'✅' if sonnet_service else '❌'}")
+        logger.info(f"   DevAI (code): {'✅' if devai_endpoint else '❌'}")
+        logger.info(f"   RAG (context): {'✅' if search_service else '❌'}")
+
+
+    async def classify_intent(self, message: str) -> Dict:
+        """
+        Use LLAMA to classify user intent
+
+        Categories:
+        - greeting: Simple greetings (Ciao, Hello, Hi)
+        - casual: Casual questions (Come stai? How are you?)
+        - business_simple: Simple business questions
+        - business_complex: Complex business/legal questions
+        - devai_code: Development/code queries
+        - unknown: Fallback category
+
+        Returns:
+            {
+                "category": str,
+                "confidence": float,
+                "suggested_ai": "haiku"|"sonnet"|"devai"|"llama"
+            }
+        """
+        try:
+            # Fast pattern matching for obvious cases (saves LLAMA call)
+            message_lower = message.lower().strip()
+
+            # Check exact greetings first
+            simple_greetings = ["ciao", "hello", "hi", "hey", "salve", "buongiorno", "buonasera", "halo", "hallo"]
+            if message_lower in simple_greetings:
+                logger.info(f"🎯 [Router] Quick match: greeting")
+                return {
+                    "category": "greeting",
+                    "confidence": 1.0,
+                    "suggested_ai": "haiku"
+                }
+
+            # Check casual questions
+            casual_patterns = ["come stai", "how are you", "come va", "tutto bene", "apa kabar", "what's up", "whats up"]
+            if any(pattern in message_lower for pattern in casual_patterns):
+                logger.info(f"🎯 [Router] Quick match: casual")
+                return {
+                    "category": "casual",
+                    "confidence": 1.0,
+                    "suggested_ai": "haiku"
+                }
+
+            # Check business keywords
+            business_keywords = [
+                "kitas", "visa", "pt pma", "company", "business", "investimento", "investment",
+                "tax", "pajak", "immigration", "imigrasi", "permit", "license", "regulation",
+                "real estate", "property", "kbli", "nib", "oss", "work permit"
+            ]
+            has_business_term = any(keyword in message_lower for keyword in business_keywords)
+
+            if has_business_term:
+                # Business query - check if simple or complex
+                complex_indicators = ["how", "why", "explain", "detail", "process", "requirement", "step", "procedure"]
+                is_complex = any(indicator in message_lower for indicator in complex_indicators) or len(message) > 100
+
+                if is_complex:
+                    logger.info(f"🎯 [Router] Quick match: business_complex")
+                    return {
+                        "category": "business_complex",
+                        "confidence": 0.9,
+                        "suggested_ai": "sonnet"
+                    }
+                else:
+                    logger.info(f"🎯 [Router] Quick match: business_simple")
+                    return {
+                        "category": "business_simple",
+                        "confidence": 0.9,
+                        "suggested_ai": "sonnet"
+                    }
+
+            # Check DevAI keywords (code/development)
+            devai_keywords = [
+                "code", "coding", "programming", "debug", "error", "bug", "function",
+                "api", "devai", "typescript", "javascript", "python", "java", "react",
+                "algorithm", "refactor", "optimize", "test", "unit test"
+            ]
+            if any(keyword in message_lower for keyword in devai_keywords):
+                logger.info(f"🎯 [Router] Quick match: devai_code")
+                return {
+                    "category": "devai_code",
+                    "confidence": 0.9,
+                    "suggested_ai": "devai"
+                }
+
+            # For ambiguous cases, use LLAMA classification
+            logger.info(f"🤔 [Router] Using LLAMA classification for: '{message[:50]}...'")
+
+            classification_prompt = f"""Classify this user message into ONE category:
+
+Message: "{message}"
+
+Categories:
+1. greeting - Simple greetings (Ciao, Hello, Hi)
+2. casual - Casual questions (Come stai? How are you?)
+3. business_simple - Simple business questions
+4. business_complex - Complex business/legal questions
+5. devai_code - Development/programming/code questions
+6. unknown - Unclear/other
+
+Reply with ONLY the category name, nothing else."""
+
+            response = await self.llama.chat_async(
+                messages=[{"role": "user", "content": classification_prompt}],
+                max_tokens=20,
+                temperature=0.1  # Low temperature for consistent classification
+            )
+
+            category = response.get("text", "unknown").strip().lower()
+
+            # Map category to AI
+            ai_map = {
+                "greeting": "haiku",
+                "casual": "haiku",
+                "business_simple": "sonnet",
+                "business_complex": "sonnet",
+                "devai_code": "devai",
+                "unknown": "sonnet"  # Default to Sonnet for safety
+            }
+
+            suggested_ai = ai_map.get(category, "sonnet")
+
+            logger.info(f"🎯 [Router] LLAMA classified: {category} → {suggested_ai}")
+
+            return {
+                "category": category,
+                "confidence": 0.7,  # LLAMA classification confidence
+                "suggested_ai": suggested_ai
+            }
+
+        except Exception as e:
+            logger.error(f"❌ [Router] Classification error: {e}")
+            # Fallback: route to Sonnet (safest option)
+            return {
+                "category": "unknown",
+                "confidence": 0.0,
+                "suggested_ai": "sonnet"
+            }
+
+
+    async def route_chat(
+        self,
+        message: str,
+        user_id: str,
+        conversation_history: Optional[List[Dict]] = None
+    ) -> Dict:
+        """
+        Main routing function - classifies intent and routes to appropriate AI
+
+        Args:
+            message: User message
+            user_id: User identifier
+            conversation_history: Optional chat history
+
+        Returns:
+            {
+                "response": str,
+                "ai_used": "haiku"|"sonnet"|"llama",
+                "category": str,
+                "model": str,
+                "tokens": dict,
+                "used_rag": bool
+            }
+        """
+        try:
+            logger.info(f"🚦 [Router] Routing message for user {user_id}")
+
+            # Step 1: Classify intent
+            intent = await self.classify_intent(message)
+            category = intent["category"]
+            suggested_ai = intent["suggested_ai"]
+
+            logger.info(f"   Category: {category} → AI: {suggested_ai}")
+
+            # Step 2: Route to appropriate AI
+            if suggested_ai == "haiku":
+                # ROUTE 1: Claude Haiku (Fast & Cheap)
+                logger.info("🏃 [Router] Using Claude Haiku (fast & cheap)")
+                result = await self.haiku.conversational(
+                    message=message,
+                    user_id=user_id,
+                    conversation_history=conversation_history,
+                    max_tokens=50  # Brief responses only
+                )
+
+                return {
+                    "response": result["text"],
+                    "ai_used": "haiku",
+                    "category": category,
+                    "model": result["model"],
+                    "tokens": result["tokens"],
+                    "used_rag": False
+                }
+
+            elif suggested_ai == "sonnet":
+                # ROUTE 2: Claude Sonnet + RAG (Premium Quality)
+                logger.info("🎯 [Router] Using Claude Sonnet (premium + RAG)")
+
+                # Get RAG context if available
+                context = None
+                if self.search:
+                    try:
+                        search_results = await self.search.search(
+                            query=message,
+                            user_level=3,  # Full access
+                            limit=5
+                        )
+                        if search_results.get("results"):
+                            context = "\n\n".join([
+                                f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
+                                for r in search_results["results"][:3]
+                            ])
+                            logger.info(f"   RAG context: {len(context)} chars")
+                    except Exception as e:
+                        logger.warning(f"   RAG search failed: {e}")
+
+                result = await self.sonnet.conversational(
+                    message=message,
+                    user_id=user_id,
+                    context=context,
+                    conversation_history=conversation_history,
+                    max_tokens=300
+                )
+
+                return {
+                    "response": result["text"],
+                    "ai_used": "sonnet",
+                    "category": category,
+                    "model": result["model"],
+                    "tokens": result["tokens"],
+                    "used_rag": result.get("used_rag", False)
+                }
+
+            elif suggested_ai == "devai":
+                # ROUTE 3: DevAI Qwen 2.5 Coder (Code Specialist)
+                logger.info("👨‍💻 [Router] Using DevAI Qwen 2.5 Coder (code specialist)")
+
+                if not self.devai_endpoint:
+                    logger.warning("⚠️ DevAI not configured, falling back to Sonnet")
+                    # Fallback to Sonnet if DevAI unavailable
+                    result = await self.sonnet.conversational(
+                        message=message,
+                        user_id=user_id,
+                        conversation_history=conversation_history,
+                        max_tokens=500  # More tokens for code
+                    )
+                    return {
+                        "response": result["text"],
+                        "ai_used": "sonnet",  # Indicate fallback
+                        "category": category,
+                        "model": result["model"],
+                        "tokens": result["tokens"],
+                        "used_rag": False
+                    }
+
+                # Call DevAI endpoint
+                import httpx
+                try:
+                    async with httpx.AsyncClient(timeout=60.0) as client:
+                        devai_response = await client.post(
+                            f"{self.devai_endpoint}/chat",
+                            json={
+                                "message": message,
+                                "user_id": user_id,
+                                "conversation_history": conversation_history or []
+                            }
+                        )
+                        devai_response.raise_for_status()
+                        devai_data = devai_response.json()
+
+                    return {
+                        "response": devai_data.get("response", ""),
+                        "ai_used": "devai",
+                        "category": category,
+                        "model": "qwen-2.5-coder-7b",
+                        "tokens": devai_data.get("tokens", {}),
+                        "used_rag": False
+                    }
+                except Exception as e:
+                    logger.error(f"❌ DevAI call failed: {e}, falling back to Sonnet")
+                    # Fallback to Sonnet on DevAI error
+                    result = await self.sonnet.conversational(
+                        message=message,
+                        user_id=user_id,
+                        conversation_history=conversation_history,
+                        max_tokens=500
+                    )
+                    return {
+                        "response": result["text"],
+                        "ai_used": "sonnet",  # Indicate fallback
+                        "category": category,
+                        "model": result["model"],
+                        "tokens": result["tokens"],
+                        "used_rag": False
+                    }
+
+            else:
+                # ROUTE 4: LLAMA Fallback (Self-hosted, for unknown cases)
+                logger.info("🦙 [Router] Using LLAMA fallback")
+
+                result = await self.llama.chat_async(
+                    messages=[{"role": "user", "content": message}],
+                    max_tokens=300,
+                    temperature=0.7
+                )
+
+                return {
+                    "response": result["text"],
+                    "ai_used": "llama",
+                    "category": category,
+                    "model": result["model"],
+                    "tokens": result.get("tokens", {}),
+                    "used_rag": False
+                }
+
+        except Exception as e:
+            logger.error(f"❌ [Router] Routing error: {e}")
+            raise Exception(f"Routing failed: {str(e)}")
+
+
+    def get_stats(self) -> Dict:
+        """Get router statistics"""
+        return {
+            "router": "intelligent_quadruple_ai",
+            "ai_models": {
+                "haiku": {
+                    "available": self.haiku.is_available() if self.haiku else False,
+                    "use_case": "greetings, casual chat",
+                    "cost": "$0.25/$1.25 per 1M tokens",
+                    "traffic": "60%"
+                },
+                "sonnet": {
+                    "available": self.sonnet.is_available() if self.sonnet else False,
+                    "use_case": "business, complex queries",
+                    "cost": "$3/$15 per 1M tokens",
+                    "traffic": "35%"
+                },
+                "devai": {
+                    "available": bool(self.devai_endpoint),
+                    "use_case": "code, development, programming",
+                    "cost": "€3.78/month flat (RunPod)",
+                    "traffic": "5%"
+                },
+                "llama": {
+                    "available": self.llama.is_available() if self.llama else False,
+                    "use_case": "fallback, unknown queries",
+                    "cost": "€3.78/month flat (RunPod, shared with DevAI)",
+                    "traffic": "<1%"
+                }
+            },
+            "rag_available": self.search is not None,
+            "total_cost_monthly": "$25-55 (3,000 requests)"
+        }
