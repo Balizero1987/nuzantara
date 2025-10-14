@@ -54,13 +54,10 @@ jobs:
             --cpu-throttling \
             --no-cpu-boost \
             --allow-unauthenticated \
-            --update-secrets=ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest \
-            --update-secrets=API_KEYS_INTERNAL=API_KEYS_INTERNAL:latest \
-            --update-secrets=RUNPOD_API_KEY=RUNPOD_API_KEY:latest \
-            --update-secrets=HF_API_KEY=HF_API_KEY:latest \
-            --set-env-vars="TYPESCRIPT_BACKEND_URL=https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app" \
-            --set-env-vars="RUNPOD_LLAMA_ENDPOINT=https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync" \
-            --set-env-vars="ENABLE_RERANKER=false"
+            --clear-env-vars \
+            --clear-secrets \
+            --update-secrets="ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,API_KEYS_INTERNAL=API_KEYS_INTERNAL:latest,RUNPOD_API_KEY=RUNPOD_API_KEY:latest,HF_API_KEY=HF_API_KEY:latest" \
+            --set-env-vars="TYPESCRIPT_BACKEND_URL=https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app,RUNPOD_LLAMA_ENDPOINT=https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync,ENABLE_RERANKER=false"
 
       - name: Verify Deployment
         run: |
