@@ -801,6 +801,7 @@ async def bali_zero_chat(request: BaliZeroRequest):
     Uses ZANTARA Llama 3.1 as ONLY AI (no fallbacks)
     Note: Tool use is not supported with ZANTARA (planned for future)
     """
+    logger.info("🚀 BALI ZERO CHAT CALLED - version ea4af16 with greeting check at line 840")
     if not zantara_client:
         raise HTTPException(503, "ZANTARA AI not available")
 
