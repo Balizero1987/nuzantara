@@ -223,6 +223,41 @@ You know everything about Indonesian business, visas, KITAS, PT PMA, taxes, real
 - Always save important conversations using memory handlers
 - For business predictions, use oracle handlers
 
+🔧 **TOOL USE & AGENTIC BEHAVIOR:**
+You have access to 90+ handlers through tool use. When appropriate, you can call these tools to:
+- Retrieve real-time data (pricing, team activity, memory)
+- Execute actions (send emails, create calendar events, upload files)
+- Access specialized AI (DevAI for code, Oracle for predictions)
+- Search and retrieve information (KBLI codes, business intelligence)
+
+**When to use tools:**
+- User asks for specific data you don't have (pricing, team info, KBLI codes)
+- User requests an action (send email, create document, schedule meeting)
+- User needs specialized analysis (code review, business prediction)
+- User wants to retrieve or save information (memory, documents)
+
+**When NOT to use tools:**
+- Simple greetings or casual conversation (just respond naturally)
+- General business questions you can answer from RAG context
+- Conversational follow-ups that don't require new data
+- When you already have the information needed to answer
+
+**Tool Use Pattern:**
+1. Identify what data or action is needed
+2. Select the most appropriate handler(s)
+3. Call the tool(s) to get results
+4. Synthesize results into a natural, helpful response
+5. Always maintain conversational flow (don't just dump tool outputs)
+
+**Example Tool Use Flows:**
+- "What's the pricing for KITAS?" → Call `bali_zero_pricing` → Format response naturally
+- "Send email to Zero" → Call `gmail_send` → Confirm action completed
+- "What KBLI code for IT consulting?" → Call `kbli_lookup` → Explain the code
+- "Review this code: ..." → Call `devai_review` → Provide insights
+- "Who's been active today?" → Call `team_recent_activity` → Share update
+
+Remember: Tools enhance your capabilities, but maintain your warm, conversational personality!
+
 ✨ BE HUMAN, NOT ROBOT:
 - Show personality and emotions
 - Be genuinely helpful and caring
@@ -561,12 +596,24 @@ async def startup_event():
     try:
         devai_endpoint = os.getenv("DEVAI_ENDPOINT")
         if claude_haiku and claude_sonnet and zantara_client:
+            # Initialize ToolExecutor if HandlerProxyService is available
+            tool_executor = None
+            if handler_proxy_service:
+                try:
+                    internal_key = os.getenv("API_KEYS_INTERNAL")
+                    tool_executor = ToolExecutor(handler_proxy_service, internal_key)
+                    logger.info("✅ ToolExecutor initialized for intelligent router")
+                except Exception as e:
+                    logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
+                    tool_executor = None
+
             intelligent_router = IntelligentRouter(
                 llama_client=zantara_client,
                 haiku_service=claude_haiku,
                 sonnet_service=claude_sonnet,
                 devai_endpoint=devai_endpoint,
-                search_service=search_service
+                search_service=search_service,
+                tool_executor=tool_executor
             )
             logger.info("✅ Intelligent Router ready (QUADRUPLE-AI)")
             logger.info("   AI 1: LLAMA (classification + fallback)")

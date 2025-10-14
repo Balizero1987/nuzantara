@@ -1,7 +1,8 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-14 (GCP Cost Optimization: 88-99% savings achieved)
+> **Last Updated**: 2025-10-14 (GCP + RunPod Cost Optimization: 88-99% GCP savings, RunPod config locked)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
+> **🚨 CRITICAL**: DO NOT modify RunPod configs without asking! See "RunPod Configuration Rules" below
 
 ---
 
@@ -17,14 +18,16 @@
 
 ## 📚 Documentation Pointers
 
+- **🚨 RunPod Cost + Config**: `RUNPOD_OPTIMAL_CONFIG_2025-10-14.md` ⭐⭐⭐ CRITICAL - READ FIRST!
+  - Cost spike analysis: `RUNPOD_COST_ANALYSIS_2025-10-14.md`
+  - Root cause: `RUNPOD_COST_SPIKE_ROOT_CAUSE_2025-10-14.md`
 - **GCP Cost Optimization**: `.claude/handovers/gcp-cost-optimization.md` ⭐ NEW (2025-10-14)
 - **Security + Rate Limiting**: `.claude/handovers/security-rate-limiting-2025-10-10.md`
 - **Multi-Agent Architecture**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
 - **ZANTARA Llama 3.1 Integration**: `ZANTARA_INTEGRATION_COMPLETE_REPORT.md`, `apps/backend-rag 2/backend/README_LLM_INTEGRATION.md`
-- **Session Diaries (2025-10-10)**:
-  - m1: `.claude/diaries/2025-10-10_sonnet-4.5_m1.md` (Reranker fix)
-  - m2: `.claude/diaries/2025-10-10_sonnet-4.5_m2.md` (Multi-agent architecture)
-  - m3: `.claude/diaries/2025-10-10_sonnet-4.5_m3.md` (Security + rate limiting) ⭐ NEW
+- **Session Diaries (2025-10-14)**:
+  - m1: `.claude/diaries/2025-10-14_sonnet-4.5_m1.md` (GCP cost optimization)
+  - m7: `.claude/diaries/2025-10-14_sonnet-4.5_m7.md` (DevAI/Qwen analysis + RunPod cost spike)
 - Handovers Index: `.claude/handovers/INDEX.md`
 - System & Ops: `.claude/` (INIT, diaries, handovers)
 - WebSocket: `.claude/handovers/websocket-implementation-2025-10-03.md`
@@ -255,14 +258,17 @@ cd zantara_webapp
 
 | Model | Provider | Use Case | Cost |
 |-------|----------|----------|------|
-| **ZANTARA Llama 3.1** (8B) | Custom (RunPod vLLM) | ALL queries - ONLY model | ~$0.001/1K tokens |
+| **ZANTARA Llama 3.1** (8B) | RunPod vLLM (itz2q5gmid4cyt) | Internal testing - ALL queries | €2-8/month (optimized!) |
 | ZANTARA Llama 3.1 (HF) | HuggingFace Inference | Fallback if RunPod unavailable | Free (rate limited) |
+| **DevAI Qwen 2.5 Coder** (7B) | RunPod vLLM (5g2h6nbyls47i7) | Internal dev - Code analysis | €1-3/month (ultra-low!) |
 | Llama 3.2 (3B) | Ollama (local) | Intel scraping only | Free (local) |
-| Qwen/DevAI | Local | Development tools only | Free (local) |
 
-**AI Architecture**: ZANTARA-ONLY (no external AI dependencies)
-- Training: 22,009 Indonesian business conversations, 98.74% accuracy
-- No model routing needed - single model for all queries
+**AI Architecture**: Dual-AI (ZANTARA + DevAI) - INTERNAL USE ONLY
+- ZANTARA: 22,009 Indonesian business conversations, 98.74% accuracy
+- DevAI: Code analysis, bug detection, development assistant
+- **Total RunPod cost: €3-11/month for BOTH models** ✅ (single user, ultra-optimized)
+
+**🚨 RunPod Configuration Warning**: See "RunPod Configuration Rules" section below!
 
 ---
 
@@ -452,6 +458,64 @@ The SYSTEM_PROMPT is ZANTARA's "brain instructions". If we add new powers but do
 **Example**: Adding Gmail integration without updating SYSTEM_PROMPT means ZANTARA will say "I can't send emails" even though the capability exists.
 
 **Deployment**: After updating SYSTEM_PROMPT, RAG backend must be redeployed for changes to take effect
+
+---
+
+## 🚨 RunPod Configuration Rules
+
+> **CRITICAL**: Config changes caused €7 spike on 2025-10-14. Follow these rules STRICTLY!
+
+### ⚠️ DO NOT CHANGE (Without Asking)
+
+**NEVER modify these settings**:
+- ❌ **Idle Timeout** (caused €7 crash when increased to 120s)
+- ❌ **Max Workers** (risk of zombie billing multiplication)
+- ❌ **GPU Type** (causes OOM or wastes money)
+
+**If you think you need to change these → ASK FIRST!**
+
+---
+
+### ✅ Approved Configurations (2025-10-14)
+
+#### ZANTARA Endpoint (INTERNAL ONLY)
+```
+Endpoint: itz2q5gmid4cyt
+Idle Timeout: 5s     ← LOCKED (DO NOT CHANGE) - Ultra-optimized!
+Max Workers: 1       ← LOCKED (DO NOT CHANGE) - Single user only
+GPU: 2× RTX 80GB Pro ← LOCKED (DO NOT CHANGE)
+Expected Cost: €2-8/month ✅
+```
+
+#### DevAI Endpoint (INTERNAL ONLY)
+```
+Endpoint: 5g2h6nbyls47i7
+Idle Timeout: 5s     ← LOCKED (DO NOT CHANGE) - Ultra-optimized!
+Max Workers: 1       ← LOCKED (DO NOT CHANGE) - Single user only
+GPU: 2× RTX 80GB Pro ← LOCKED (DO NOT CHANGE)
+Expected Cost: €1-3/month ✅
+```
+
+**Combined Total**: €3-11/month for BOTH AI models (internal use)
+
+---
+
+### 📖 Full Documentation
+
+**READ BEFORE touching RunPod**: `RUNPOD_OPTIMAL_CONFIG_2025-10-14.md`
+
+**Cost Spike Analysis**:
+- Analysis: `RUNPOD_COST_ANALYSIS_2025-10-14.md`
+- Root Cause: `RUNPOD_COST_SPIKE_ROOT_CAUSE_2025-10-14.md`
+- Session Diary: `.claude/diaries/2025-10-14_sonnet-4.5_m7.md`
+
+**What Happened**:
+- 2025-10-14 03:25: User increased idle timeout 5s → 120s
+- 2025-10-14 03:40: Worker crashed during config reload
+- 2025-10-14 03:40-07:00: Zombie worker billing for 3.5 hours
+- **Total damage**: €7 in few hours
+
+**Lesson**: High idle timeout = crash risk = zombie billing = surprise costs
 
 ---
 
