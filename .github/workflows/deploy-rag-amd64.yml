@@ -42,33 +42,10 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          # First: Deploy with new image and clear old config
           gcloud run deploy zantara-rag-backend \
             --image gcr.io/involuted-box-469105-r0/zantara-rag-backend:${{ github.sha }} \
             --region europe-west1 \
-            --port 8000 \
-            --memory 2Gi \
-            --cpu 2 \
-            --min-instances 0 \
-            --max-instances 3 \
-            --concurrency 80 \
-            --cpu-throttling \
-            --no-cpu-boost \
-            --allow-unauthenticated \
-            --clear-env-vars \
-            --clear-secrets \
-            --no-traffic
-
-          # Second: Update with new environment configuration
-          gcloud run services update zantara-rag-backend \
-            --region europe-west1 \
-            --update-secrets="ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,API_KEYS_INTERNAL=API_KEYS_INTERNAL:latest,RUNPOD_API_KEY=RUNPOD_API_KEY:latest,HF_API_KEY=HF_API_KEY:latest" \
-            --set-env-vars="TYPESCRIPT_BACKEND_URL=https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app,RUNPOD_LLAMA_ENDPOINT=https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync,ENABLE_RERANKER=false"
-
-          # Third: Route traffic to latest revision
-          gcloud run services update-traffic zantara-rag-backend \
-            --region europe-west1 \
-            --to-latest
+            --allow-unauthenticated
 
       - name: Verify Deployment
         run: |
