@@ -53,7 +53,7 @@ export class RAGService {
 
     this.client = axios.create({
       baseURL: this.baseURL,
-      timeout: 30000, // 30 seconds
+      timeout: 90000, // 90 seconds (cold start tolerance)
       headers: {
         'Content-Type': 'application/json'
       }
