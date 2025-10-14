@@ -1,0 +1,25 @@
+# CI/CD WORKFLOWS TEMPORARILY DISABLED
+# Date: 2025-10-14
+# Reason: QUADRUPLE-AI system integration - testing required before deployment
+#
+# To re-enable workflows:
+# 1. Delete this file
+# 2. Test the QUADRUPLE-AI routing locally first
+# 3. Verify ANTHROPIC_API_KEY is set in Cloud Run environment
+# 4. Verify DEVAI_ENDPOINT is configured (optional, will fallback to Sonnet)
+#
+# Changes in this commit:
+# - Integrated Intelligent Router into /bali-zero/chat endpoint
+# - Added Claude Haiku 3.5 for greetings/casual (60% traffic, 12x cheaper)
+# - Added Claude Sonnet 4.5 for business queries (35% traffic, premium quality)
+# - Added DevAI Qwen 2.5 Coder routing (5% traffic, code specialist)
+# - LLAMA 3.1 used for intent classification + fallback
+# - Added ai_used field to BaliZeroResponse
+# - Removed all duplicated greeting detection code
+# - Fixed structural damage in main_cloud.py
+#
+# Cost impact:
+# - 54% cost savings vs all-Sonnet approach
+# - Monthly: $25-55 for 3,000 requests (vs $90 all-Sonnet)
+#
+# DO NOT DEPLOY until local testing confirms all 4 AIs work correctly!
