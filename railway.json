@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "dockerfile",
-    "dockerfilePath": "apps/backend-rag 2/backend/Dockerfile"
+    "dockerfilePath": "Dockerfile.rag"
   },
   "deploy": {
     "startCommand": null,
