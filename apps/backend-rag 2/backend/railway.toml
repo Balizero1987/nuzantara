@@ -1,8 +1,8 @@
 [build]
 # Use Dockerfile for build
 builder = "dockerfile"
-dockerfilePath = "apps/backend-rag 2/backend/Dockerfile"
-watchPaths = ["apps/backend-rag 2/backend/**"]
+dockerfilePath = "./Dockerfile"
+watchPaths = ["./**"]
 
 [deploy]
 # Health check configuration
