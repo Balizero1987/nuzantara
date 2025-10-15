@@ -78,6 +78,9 @@ reranker_service: Optional["RerankerService"] = None  # String annotation for la
 handler_proxy_service: Optional[HandlerProxyService] = None
 fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
 
+# Startup completion flag for Railway health checks
+_startup_complete: bool = False
+
 # System prompt
 SYSTEM_PROMPT = """🎯 **IMMEDIATE UNDERSTANDING PROTOCOL**
 
@@ -544,7 +547,7 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, zantara_client, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor
+    global search_service, zantara_client, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, _startup_complete
 
     logger.info("🚀 Starting ZANTARA RAG Backend (QUADRUPLE-AI: LLAMA Classifier + Claude Haiku + Claude Sonnet + DevAI)...")
 
@@ -736,6 +739,10 @@ async def startup_event():
 
     logger.info("✅ ZANTARA RAG Backend ready on port 8080 (Railway)")
 
+    # Mark startup as complete for health checks
+    _startup_complete = True
+    logger.info("🎯 Startup complete - health checks will now pass")
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -797,7 +804,18 @@ class BaliZeroResponse(BaseModel):
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint - Railway compatible"""
+    # Return 503 if startup not complete (Railway will retry)
+    if not _startup_complete:
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "starting",
+                "message": "Service is initializing, please retry in a few seconds"
+            }
+        )
+
     return {
         "status": "healthy",
         "service": "ZANTARA RAG",
