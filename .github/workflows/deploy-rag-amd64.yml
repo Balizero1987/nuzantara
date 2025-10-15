@@ -41,6 +41,10 @@ jobs:
           docker push gcr.io/involuted-box-469105-r0/zantara-rag-backend:latest
 
       - name: Deploy to Cloud Run
+        env:
+          RUNPOD_ENDPOINT: ${{ secrets.RUNPOD_LLAMA_ENDPOINT }}
+          RUNPOD_KEY: ${{ secrets.RUNPOD_API_KEY }}
+          HF_KEY: ${{ secrets.HF_API_KEY }}
         run: |
           gcloud run deploy zantara-rag-backend \
             --image gcr.io/involuted-box-469105-r0/zantara-rag-backend:${{ github.sha }} \
@@ -54,6 +58,7 @@ jobs:
             --max-instances=2 \
             --concurrency=80 \
             --cpu-throttling \
+            --set-env-vars="RUNPOD_LLAMA_ENDPOINT=$RUNPOD_ENDPOINT,RUNPOD_API_KEY=$RUNPOD_KEY,HF_API_KEY=$HF_KEY,ENABLE_RERANKER=true" \
             --port=8000 \
             --timeout=600
 
