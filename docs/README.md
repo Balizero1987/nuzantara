@@ -2,7 +2,7 @@
 
 Quick Links
 - Getting Started (#getting-started)
-- LLAMA 4 Fine-Tuning (#llama-4-fine-tuning)
+- AI Model Management (#ai-models)
 - Backend TypeScript (#backend-typescript)
 - RAG Backend (#rag-backend)
 - WebApp (#webapp)
@@ -16,11 +16,10 @@ Quick Links
 - Session INIT: `.claude/INIT.md`
 - Handovers Index: `.claude/handovers/INDEX.md`
 
-## LLAMA 4 Fine-Tuning
-- Directory: `docs/llama4/`
-- Quick Start: `docs/llama4/.INIT_LLAMA4_FINETUNING.md`
-- Full Guide: `docs/llama4/LLAMA4_FINETUNING_COMPLETE_GUIDE.md`
-- README: `docs/llama4/README_LLAMA4.md`
+## AI Model Management
+- Current: ZANTARA Llama 3.1 (RunPod vLLM)
+- Architecture: Single AI model approach
+- Documentation: See PROJECT_CONTEXT.md for current AI setup
 
 ## Backend TypeScript
 - Overview & hardening: `.claude/handovers/backend-typescript.md`

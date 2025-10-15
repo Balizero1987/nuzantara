@@ -9,10 +9,14 @@
 ## 📋 Executive Summary
 
 Sistema di routing intelligente a **4 AI specializzate** per ottimizzare qualità e costi:
+
+**FRONTEND (User-facing)**:
 - **60% traffico** → Claude Haiku (greetings/casual)
 - **35% traffico** → Claude Sonnet + RAG (business/complex)
-- **5% traffico** → DevAI Qwen (code/development)
-- **<1% traffico** → LLAMA (fallback)
+
+**BACKEND (Internal)**:
+- **LLAMA 3.1** → Grande architetto dei megadata nei RAG (classificatore silenzioso)
+- **DevAI Qwen** → Solo uso interno (sviluppo, code analysis)
 
 **Risparmio**: 54% vs sistema all-Sonnet
 **Costo totale**: $25-55/mese per 3,000 richieste
@@ -22,9 +26,9 @@ Sistema di routing intelligente a **4 AI specializzate** per ottimizzare qualit�
 
 ## 🏗️ Architettura Quadruple-AI
 
-### 1. LLAMA 3.1 8B - Classifier & Fallback
+### 1. LLAMA 3.1 8B - Grande Architetto dei Megadata nei RAG
 
-**Ruolo**: Intent classification + fallback per unknown queries
+**Ruolo**: Classificatore silenzioso + gestore megadata RAG (INVISIBILE agli utenti)
 
 **Specifiche**:
 - Model: `meta-llama/Llama-3.1-8B-Instruct`
@@ -37,7 +41,7 @@ Sistema di routing intelligente a **4 AI specializzate** per ottimizzare qualit�
 - €3.78/mese flat (GPU RunPod)
 - No costi per token (self-hosted)
 
-**Traffico**: <1% (solo fallback per casi ambigui)
+**Traffico**: 0% (mai esposto nel frontend - solo classificazione interna)
 
 **Responsabilità**:
 - Classificazione intent messaggi (quando pattern matching fallisce)

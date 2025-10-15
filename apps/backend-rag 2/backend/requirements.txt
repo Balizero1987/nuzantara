@@ -27,3 +27,6 @@ python-dotenv==1.0.1
 
 # AWS SDK for Cloudflare R2 (S3-compatible, for ChromaDB download)
 boto3==1.35.0
+
+# PostgreSQL async driver (Railway)
+asyncpg==0.30.0
