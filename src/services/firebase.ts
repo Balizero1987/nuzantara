@@ -21,6 +21,12 @@ export const firebaseStatus = {
 };
 
 async function fetchServiceAccountFromSecret(projectId: string) {
+  // Skip Secret Manager on Railway (no ADC available)
+  if (process.env.SKIP_SECRET_MANAGER === 'true') {
+    logger.info('⚠️ Secret Manager skipped (SKIP_SECRET_MANAGER=true)');
+    return null;
+  }
+
   try {
     const client = new SecretManagerServiceClient({ projectId });
     const secretName = `projects/${projectId}/secrets/${SERVICE_ACCOUNT_SECRET}/versions/latest`;

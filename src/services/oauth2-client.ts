@@ -37,6 +37,11 @@ const MIN_REFRESH_INTERVAL_MS = 30 * 1000; // Minimum 30 seconds between refresh
 
 // Initialize Secret Manager client for token persistence
 async function getSecretManagerClient() {
+  // Skip Secret Manager on Railway (no ADC available)
+  if (process.env.SKIP_SECRET_MANAGER === 'true') {
+    return null;
+  }
+
   if (secretManagerClient) return secretManagerClient;
 
   try {
