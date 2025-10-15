@@ -426,6 +426,7 @@ Reply with ONLY the category name, nothing else."""
                         message=message,
                         user_id=user_id,
                         conversation_history=conversation_history,
+                        memory_context=memory_context,  # PHASE 5: Pass memory to fallback
                         max_tokens=500  # More tokens for code
                     )
                     return {
@@ -440,14 +441,22 @@ Reply with ONLY the category name, nothing else."""
                 # Call DevAI endpoint
                 import httpx
                 try:
+                    # Build DevAI request with memory context
+                    devai_payload = {
+                        "message": message,
+                        "user_id": user_id,
+                        "conversation_history": conversation_history or []
+                    }
+
+                    # PHASE 5: Add memory context if available
+                    if memory_context:
+                        devai_payload["memory_context"] = memory_context
+                        logger.info(f"   Passing memory context to DevAI ({len(memory_context)} chars)")
+
                     async with httpx.AsyncClient(timeout=60.0) as client:
                         devai_response = await client.post(
                             f"{self.devai_endpoint}/chat",
-                            json={
-                                "message": message,
-                                "user_id": user_id,
-                                "conversation_history": conversation_history or []
-                            }
+                            json=devai_payload
                         )
                         devai_response.raise_for_status()
                         devai_data = devai_response.json()
@@ -467,6 +476,7 @@ Reply with ONLY the category name, nothing else."""
                         message=message,
                         user_id=user_id,
                         conversation_history=conversation_history,
+                        memory_context=memory_context,  # PHASE 5: Pass memory to fallback
                         max_tokens=500
                     )
                     return {
@@ -485,7 +495,8 @@ Reply with ONLY the category name, nothing else."""
                 result = await self.llama.chat_async(
                     messages=[{"role": "user", "content": message}],
                     max_tokens=300,
-                    temperature=0.7
+                    temperature=0.7,
+                    memory_context=memory_context  # PHASE 5: Memory in LLAMA
                 )
 
                 return {

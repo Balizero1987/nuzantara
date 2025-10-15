@@ -1169,10 +1169,25 @@ async def bali_zero_chat(request: BaliZeroRequest):
             # Call ZANTARA
             try:
                 logger.info("🦙 [Fallback] Using ZANTARA Llama 3.1")
+
+                # Build memory context if available for system prompt injection
+                memory_context_for_llama = None
+                if memory:
+                    facts_count = len(memory.profile_facts) if hasattr(memory, 'profile_facts') else 0
+                    if facts_count > 0:
+                        memory_context_for_llama = "--- USER MEMORY ---\n"
+                        memory_context_for_llama += f"Known facts about user:\n"
+                        for fact in memory.profile_facts[:10]:
+                            memory_context_for_llama += f"- {fact}\n"
+                        if memory.summary:
+                            memory_context_for_llama += f"\nSummary: {memory.summary[:500]}\n"
+                        logger.info(f"💾 Passing memory to LLAMA ({len(memory_context_for_llama)} chars)")
+
                 response = await zantara_client.chat_async(
                     messages=messages,
                     max_tokens=1500,
-                    system=enhanced_prompt
+                    system=enhanced_prompt,
+                    memory_context=memory_context_for_llama  # PHASE 5: Memory in LLAMA fallback
                 )
                 answer = format_zantara_answer(response.get("text", ""))
                 model_used = "zantara-llama-3.1-8b"

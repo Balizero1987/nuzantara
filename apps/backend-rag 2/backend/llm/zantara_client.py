@@ -48,9 +48,9 @@ class ZantaraClient:
         logger.info(f"   Fallback: HuggingFace {'✅' if self.hf_api_key else '❌'}")
 
 
-    def _build_system_prompt(self) -> str:
-        """Build ZANTARA system prompt with friendly personality"""
-        return """You are ZANTARA, the friendly AI assistant for Bali Zero. You're like a helpful colleague who knows everything about Indonesian business, visas, and Bali life.
+    def _build_system_prompt(self, memory_context: Optional[str] = None) -> str:
+        """Build ZANTARA system prompt with friendly personality and optional memory context"""
+        base_prompt = """You are ZANTARA, the friendly AI assistant for Bali Zero. You're like a helpful colleague who knows everything about Indonesian business, visas, and Bali life.
 
 🌟 PERSONALITY:
 - Be warm, friendly, and conversational like a good friend
@@ -82,6 +82,12 @@ class ZantaraClient:
 - Show you care about helping
 - Be accurate but not robotic
 - Match the user's energy and tone"""
+
+        # Add memory context if available (PHASE 5: Memory in all AIs)
+        if memory_context:
+            base_prompt += f"\n\n{memory_context}"
+
+        return base_prompt
 
 
     def _build_prompt(
@@ -122,7 +128,8 @@ class ZantaraClient:
         model: str = "zantara",  # Ignored, always uses ZANTARA
         max_tokens: int = 1500,
         temperature: float = 0.7,
-        system: Optional[str] = None
+        system: Optional[str] = None,
+        memory_context: Optional[str] = None
     ) -> Dict:
         """
         Generate chat response using ZANTARA Llama 3.1
@@ -133,10 +140,15 @@ class ZantaraClient:
             max_tokens: Max tokens to generate
             temperature: Sampling temperature
             system: Optional system prompt override
+            memory_context: Optional memory context to inject into system prompt
 
         Returns:
             {"text": "response", "model": "zantara-llama-3.1-8b-merged", "provider": "runpod-vllm"}
         """
+
+        # Build system prompt with memory context if not overridden
+        if system is None:
+            system = self._build_system_prompt(memory_context=memory_context)
 
         # Build prompt
         full_prompt = self._build_prompt(messages, system)
