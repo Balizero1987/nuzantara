@@ -25,9 +25,7 @@ ENV PORT=8080
 # Expose port
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8080/health', timeout=5)" || exit 1
+# Railway handles health checks via the /health endpoint, no Docker HEALTHCHECK needed
 
 # Run with main_cloud.py (uses ChromaDB from Cloudflare R2, PostgreSQL from Railway)
 # Note: we need to add parent dir to PYTHONPATH for imports to work
