@@ -17,7 +17,8 @@ from pathlib import Path
 import logging
 import shutil
 import re
-from google.cloud import storage
+import boto3
+from botocore.exceptions import ClientError
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -468,51 +469,73 @@ def sanitize_public_answer(text: str) -> str:
         return text
 
 
-def download_chromadb_from_gcs():
-    """Download ChromaDB from Cloud Storage to local /tmp"""
+def download_chromadb_from_r2():
+    """Download ChromaDB from Cloudflare R2 to local /tmp"""
     try:
-        bucket_name = "nuzantara-chromadb-2025"
+        # R2 Configuration from environment variables
+        r2_access_key = os.getenv("R2_ACCESS_KEY_ID")
+        r2_secret_key = os.getenv("R2_SECRET_ACCESS_KEY")
+        r2_endpoint = os.getenv("R2_ENDPOINT_URL")
+        bucket_name = "nuzantaradb"
         source_prefix = "chroma_db/"
         local_path = "/tmp/chroma_db"
 
-        logger.info(f"📥 Downloading ChromaDB from gs://{bucket_name}/{source_prefix}")
+        if not all([r2_access_key, r2_secret_key, r2_endpoint]):
+            raise ValueError("R2 credentials not configured (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT_URL)")
+
+        logger.info(f"📥 Downloading ChromaDB from Cloudflare R2: {bucket_name}/{source_prefix}")
 
         # Create local directory
         os.makedirs(local_path, exist_ok=True)
 
-        # Initialize GCS client
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(bucket_name)
+        # Initialize S3-compatible client for R2
+        s3_client = boto3.client(
+            's3',
+            endpoint_url=r2_endpoint,
+            aws_access_key_id=r2_access_key,
+            aws_secret_access_key=r2_secret_key,
+            region_name='auto'
+        )
 
         # List and download all files
-        blobs = bucket.list_blobs(prefix=source_prefix)
+        paginator = s3_client.get_paginator('list_objects_v2')
         file_count = 0
         total_size = 0
 
-        for blob in blobs:
-            if blob.name.endswith('/'):
-                continue  # Skip directories
+        for page in paginator.paginate(Bucket=bucket_name, Prefix=source_prefix):
+            if 'Contents' not in page:
+                continue
 
-            # Get relative path
-            relative_path = blob.name.replace(source_prefix, '')
-            local_file = os.path.join(local_path, relative_path)
+            for obj in page['Contents']:
+                key = obj['Key']
 
-            # Create parent directories
-            os.makedirs(os.path.dirname(local_file), exist_ok=True)
+                # Skip directories (keys ending with /)
+                if key.endswith('/'):
+                    continue
 
-            # Download file
-            blob.download_to_filename(local_file)
-            file_count += 1
-            total_size += blob.size
+                # Get relative path
+                relative_path = key.replace(source_prefix, '')
+                local_file = os.path.join(local_path, relative_path)
 
-            if file_count % 10 == 0:
-                logger.info(f"  Downloaded {file_count} files ({total_size / 1024 / 1024:.1f} MB)")
+                # Create parent directories
+                os.makedirs(os.path.dirname(local_file), exist_ok=True)
 
-        logger.info(f"✅ ChromaDB downloaded: {file_count} files ({total_size / 1024 / 1024:.1f} MB)")
+                # Download file
+                s3_client.download_file(bucket_name, key, local_file)
+                file_count += 1
+                total_size += obj['Size']
+
+                if file_count % 10 == 0:
+                    logger.info(f"  Downloaded {file_count} files ({total_size / 1024 / 1024:.1f} MB)")
+
+        logger.info(f"✅ ChromaDB downloaded from R2: {file_count} files ({total_size / 1024 / 1024:.1f} MB)")
         logger.info(f"📂 Location: {local_path}")
 
         return local_path
 
+    except ClientError as e:
+        logger.error(f"❌ Failed to download ChromaDB from R2: {e}")
+        raise
     except Exception as e:
         logger.error(f"❌ Failed to download ChromaDB: {e}")
         raise
@@ -525,16 +548,16 @@ async def startup_event():
 
     logger.info("🚀 Starting ZANTARA RAG Backend (QUADRUPLE-AI: LLAMA Classifier + Claude Haiku + Claude Sonnet + DevAI)...")
 
-    # Download ChromaDB from Cloud Storage
+    # Download ChromaDB from Cloudflare R2
     try:
-        chroma_path = download_chromadb_from_gcs()
+        chroma_path = download_chromadb_from_r2()
 
         # Set environment variable for SearchService
         os.environ['CHROMA_DB_PATH'] = chroma_path
 
         # Initialize Search Service
         search_service = SearchService()
-        logger.info("✅ ChromaDB search service ready (from GCS)")
+        logger.info("✅ ChromaDB search service ready (from Cloudflare R2)")
 
         try:
             initialize_memory_vector_db(chroma_path)

@@ -25,5 +25,5 @@ loguru==0.7.2
 # Environment variables
 python-dotenv==1.0.1
 
-# Google Cloud Storage (for ChromaDB download)
-google-cloud-storage==2.18.2
+# AWS SDK for Cloudflare R2 (S3-compatible, for ChromaDB download)
+boto3==1.35.0
