@@ -5,9 +5,6 @@
     "dockerfilePath": "Dockerfile.rag"
   },
   "deploy": {
-    "startCommand": null,
-    "healthcheckPath": null,
-    "healthcheckTimeout": null,
     "restartPolicyType": "on_failure",
     "restartPolicyMaxRetries": 3
   }
