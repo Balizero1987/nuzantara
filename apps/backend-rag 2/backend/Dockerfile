@@ -10,6 +10,11 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
+
+# Install PyTorch CPU-only first (avoid 700MB+ CUDA downloads)
+RUN pip install --no-cache-dir torch>=2.0.0 --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Pre-download embedding model to avoid startup delays and rate limits
