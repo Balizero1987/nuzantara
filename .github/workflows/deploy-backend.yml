@@ -78,6 +78,7 @@ jobs:
             --region=${{ env.REGION }} \
             --platform=managed \
             --allow-unauthenticated \
+            --service-account=compute-engine-default@involuted-box-469105-r0.iam.gserviceaccount.com \
             --memory=512Mi \
             --cpu=1 \
             --min-instances=0 \
