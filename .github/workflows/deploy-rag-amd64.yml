@@ -52,12 +52,13 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --service-account=compute-engine-default@involuted-box-469105-r0.iam.gserviceaccount.com \
-            --memory=1Gi \
-            --cpu=1 \
+            --memory=2Gi \
+            --cpu=2 \
             --min-instances=0 \
             --max-instances=2 \
             --concurrency=80 \
             --cpu-throttling \
+            --cpu-boost \
             --set-env-vars="RUNPOD_LLAMA_ENDPOINT=$RUNPOD_ENDPOINT,RUNPOD_API_KEY=$RUNPOD_KEY,HF_API_KEY=$HF_KEY,ENABLE_RERANKER=true" \
             --port=8000 \
             --timeout=600
