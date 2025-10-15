@@ -1,7 +1,7 @@
 """
-ZANTARA RAG Backend - Cloud Run Version
-Port 8000
-Uses ChromaDB from Cloud Storage + ZANTARA Llama 3.1 ONLY
+ZANTARA RAG Backend - Railway Version
+Port 8080 (Railway standard)
+Uses ChromaDB from Cloudflare R2 + PostgreSQL + ZANTARA Llama 3.1 ONLY
 
 AI MODEL: ZANTARA Llama 3.1 (22,009 Indonesian business conversations, 98.74% accuracy)
 NO FALLBACK: ZANTARA-only mode (no external AI dependencies)
@@ -734,7 +734,7 @@ async def startup_event():
         logger.error(f"❌ Fact Extractor initialization failed: {e}")
         fact_extractor = None
 
-    logger.info("✅ ZANTARA RAG Backend ready on port 8000")
+    logger.info("✅ ZANTARA RAG Backend ready on port 8080 (Railway)")
 
 
 @app.on_event("shutdown")
