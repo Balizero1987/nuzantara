@@ -2,6 +2,8 @@
 # Use Dockerfile for build
 builder = "dockerfile"
 dockerfilePath = "apps/backend-rag 2/backend/Dockerfile"
+# CRITICAL: Set build context to backend directory so COPY commands work
+buildContext = "apps/backend-rag 2/backend"
 watchPaths = ["apps/backend-rag 2/backend/**"]
 
 [deploy]
