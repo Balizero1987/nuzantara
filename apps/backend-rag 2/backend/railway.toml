@@ -10,7 +10,6 @@ healthcheckPath = "/health"
 healthcheckTimeout = 600  # 10 minutes (ChromaDB download 72MB + model loading takes time)
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
-startCommand = "uvicorn app.main_cloud:app --host 0.0.0.0 --port ${PORT:-8080}"
 
 # Resource allocation
 numReplicas = 1
