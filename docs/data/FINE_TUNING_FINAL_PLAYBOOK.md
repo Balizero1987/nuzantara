@@ -32,7 +32,7 @@ Campuran ini menjaga keseimbangan antara identitas Nusantara, tradisi lokal, per
    - Python 3.10+
    - `pip install -r requirements-finetune.txt` (buat daftar paket: `transformers`, `peft`, `accelerate`, `bitsandbytes`, `unsloth` bila digunakan).
 3. **Model dasar**
-   - Rekomendasi: `meta-llama/Llama-3.1-8B-Instruct` atau `meta-llama/Llama-4-17B-Scout` (sesuaikan kapasitas GPU).
+   - Rekomendasi: `meta-llama/Llama-3.1-8B-Instruct` (sesuaikan kapasitas GPU).
 4. **Token**
    - Pastikan access token Hugging Face diterapkan via `huggingface-cli login` jika model memerlukan autentikasi.
 

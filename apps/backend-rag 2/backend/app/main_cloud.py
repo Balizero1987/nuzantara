@@ -25,7 +25,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from services.search_service import SearchService
 from services.collaborator_service import CollaboratorService
-from services.memory_service import MemoryService
+from services.memory_service_postgres import MemoryServicePostgres
 from services.conversation_service import ConversationService
 from services.emotional_attunement import EmotionalAttunementService
 from services.collaborative_capabilities import CollaborativeCapabilitiesService
@@ -70,7 +70,7 @@ claude_haiku: Optional[ClaudeHaikuService] = None  # Fast & cheap for greetings
 claude_sonnet: Optional[ClaudeSonnetService] = None  # Premium for business queries
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 collaborator_service: Optional[CollaboratorService] = None
-memory_service: Optional[MemoryService] = None
+memory_service: Optional[MemoryServicePostgres] = None  # PostgreSQL backend
 conversation_service: Optional[ConversationService] = None
 emotional_service: Optional[EmotionalAttunementService] = None
 capabilities_service: Optional[CollaborativeCapabilitiesService] = None
@@ -675,12 +675,14 @@ async def startup_event():
         logger.error(f"❌ CollaboratorService initialization failed: {e}")
         collaborator_service = None
 
-    # Initialize MemoryService (Phase 2)
+    # Initialize MemoryServicePostgres (Phase 2 - Railway PostgreSQL)
     try:
-        memory_service = MemoryService(use_firestore=True)  # Enable Firestore persistence
-        logger.info("✅ MemoryService ready (Firestore enabled)")
+        database_url = os.getenv("DATABASE_URL")
+        memory_service = MemoryServicePostgres(database_url=database_url)
+        await memory_service.connect()  # Initialize connection pool
+        logger.info("✅ MemoryServicePostgres ready (PostgreSQL on Railway)")
     except Exception as e:
-        logger.error(f"❌ MemoryService initialization failed: {e}")
+        logger.error(f"❌ MemoryServicePostgres initialization failed: {e}")
         memory_service = None
 
     # Initialize ConversationService (Phase 2)
@@ -739,6 +741,14 @@ async def startup_event():
 async def shutdown_event():
     """Cleanup on shutdown"""
     logger.info("👋 ZANTARA RAG Backend shutdown")
+
+    # Close PostgreSQL connection pool
+    if memory_service:
+        try:
+            await memory_service.close()
+            logger.info("🔌 PostgreSQL connection pool closed")
+        except Exception as e:
+            logger.warning(f"⚠️ PostgreSQL cleanup warning: {e}")
 
     # Clean up /tmp/chroma_db
     try:
@@ -1333,8 +1343,7 @@ from app.routers.intel import router as intel_router
 app.include_router(intel_router)
 
 # Include Llama 4 Scout router - DISABLED (module not in production)
-# from routers.llama4 import router as llama4_router
-# app.include_router(llama4_router)
+# Future AI enhancements can be added here
 
 
 # ========================================
