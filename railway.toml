@@ -1,10 +1,8 @@
 [build]
-# Use Dockerfile for build
+# Use Dockerfile for build (at repo root with correct paths)
 builder = "dockerfile"
-dockerfilePath = "apps/backend-rag 2/backend/Dockerfile"
-# CRITICAL: Set build context to backend directory so COPY commands work
-buildContext = "apps/backend-rag 2/backend"
-watchPaths = ["apps/backend-rag 2/backend/**"]
+dockerfilePath = "Dockerfile.rag"
+watchPaths = ["apps/backend-rag 2/backend/**", "Dockerfile.rag"]
 
 [deploy]
 # Health check configuration
