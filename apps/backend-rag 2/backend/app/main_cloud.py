@@ -551,22 +551,35 @@ async def startup_event():
 
     logger.info("🚀 Starting ZANTARA RAG Backend (QUADRUPLE-AI: LLAMA Classifier + Claude Haiku + Claude Sonnet + DevAI)...")
 
-    # Download ChromaDB from Cloudflare R2
+    # Download ChromaDB from Cloudflare R2 (OPTIONAL - graceful degradation)
     try:
-        chroma_path = download_chromadb_from_r2()
+        # Check if R2 credentials are configured
+        r2_configured = all([
+            os.getenv("R2_ACCESS_KEY_ID"),
+            os.getenv("R2_SECRET_ACCESS_KEY"),
+            os.getenv("R2_ENDPOINT_URL")
+        ])
 
-        # Set environment variable for SearchService
-        os.environ['CHROMA_DB_PATH'] = chroma_path
+        if r2_configured:
+            chroma_path = download_chromadb_from_r2()
 
-        # Initialize Search Service
-        search_service = SearchService()
-        logger.info("✅ ChromaDB search service ready (from Cloudflare R2)")
+            # Set environment variable for SearchService
+            os.environ['CHROMA_DB_PATH'] = chroma_path
 
-        try:
-            initialize_memory_vector_db(chroma_path)
-            logger.info("✅ Memory vector collection prepared")
-        except Exception as memory_exc:
-            logger.error(f"❌ Memory vector initialization failed: {memory_exc}")
+            # Initialize Search Service
+            search_service = SearchService()
+            logger.info("✅ ChromaDB search service ready (from Cloudflare R2)")
+
+            try:
+                initialize_memory_vector_db(chroma_path)
+                logger.info("✅ Memory vector collection prepared")
+            except Exception as memory_exc:
+                logger.error(f"❌ Memory vector initialization failed: {memory_exc}")
+        else:
+            logger.warning("⚠️ R2 credentials not configured (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT_URL)")
+            logger.warning("⚠️ Starting in DEGRADED MODE without ChromaDB (pure LLM only)")
+            search_service = None
+
     except Exception as e:
         import traceback
         logger.error(f"❌ ChromaDB initialization failed: {e}")
@@ -574,21 +587,30 @@ async def startup_event():
         logger.warning("⚠️ Continuing without ChromaDB (pure LLM mode)")
         search_service = None
 
-    # Initialize ZANTARA (LLAMA for classification + fallback)
+    # Initialize ZANTARA (LLAMA for classification + fallback) - OPTIONAL
     try:
-        zantara_client = ZantaraClient(
-            runpod_endpoint=os.getenv("RUNPOD_LLAMA_ENDPOINT"),
-            runpod_api_key=os.getenv("RUNPOD_API_KEY"),
-            hf_api_key=os.getenv("HF_API_KEY")
-        )
-        logger.info("✅ ZANTARA Llama 3.1 client ready (Classification + Fallback)")
-        logger.info("   Model: zeroai87/zantara-llama-3.1-8b-merged")
-        logger.info("   Training: 22,009 Indonesian business conversations, 98.74% accuracy")
-        logger.info("   Use: Intent classification + fallback responses")
+        runpod_endpoint = os.getenv("RUNPOD_LLAMA_ENDPOINT")
+        runpod_api_key = os.getenv("RUNPOD_API_KEY")
+        hf_api_key = os.getenv("HF_API_KEY")
+
+        if runpod_endpoint and runpod_api_key:
+            zantara_client = ZantaraClient(
+                runpod_endpoint=runpod_endpoint,
+                runpod_api_key=runpod_api_key,
+                hf_api_key=hf_api_key
+            )
+            logger.info("✅ ZANTARA Llama 3.1 client ready (Classification + Fallback)")
+            logger.info("   Model: zeroai87/zantara-llama-3.1-8b-merged")
+            logger.info("   Training: 22,009 Indonesian business conversations, 98.74% accuracy")
+            logger.info("   Use: Intent classification + fallback responses")
+        else:
+            logger.warning("⚠️ ZANTARA credentials not configured (RUNPOD_LLAMA_ENDPOINT, RUNPOD_API_KEY)")
+            logger.warning("⚠️ ZANTARA unavailable - will rely on Claude AI only")
+            zantara_client = None
     except Exception as e:
         logger.error(f"❌ ZANTARA initialization failed: {e}")
-        logger.error("❌ CRITICAL: No AI available - system cannot start without ZANTARA")
-        raise ValueError("ZANTARA initialization failed - cannot start backend")
+        logger.warning("⚠️ Continuing without ZANTARA - will use Claude AI only")
+        zantara_client = None
 
     # Initialize Claude Haiku (Fast & Cheap for greetings/casual)
     try:
@@ -816,26 +838,49 @@ async def health_check():
             }
         )
 
+    # Determine if we're in degraded mode
+    degraded_mode = not all([search_service, zantara_client, claude_haiku, claude_sonnet])
+
+    # Check what services are available
+    available_services = []
+    if search_service:
+        available_services.append("chromadb")
+    if zantara_client:
+        available_services.append("zantara")
+    if claude_haiku:
+        available_services.append("claude_haiku")
+    if claude_sonnet:
+        available_services.append("claude_sonnet")
+    if memory_service:
+        available_services.append("postgresql")
+
+    # At least one AI must be available
+    has_ai = zantara_client is not None or claude_haiku is not None or claude_sonnet is not None
+
     return {
-        "status": "healthy",
+        "status": "healthy" if has_ai else "degraded",
         "service": "ZANTARA RAG",
-        "version": "3.0.0-zantara-only",
+        "version": "3.0.0-railway",
+        "mode": "degraded" if degraded_mode else "full",
+        "available_services": available_services,
         "chromadb": search_service is not None,
         "ai": {
-            "model": "ZANTARA Llama 3.1 ONLY",
-            "no_fallback": True,
             "zantara_available": zantara_client is not None,
-            "zantara_model": "zeroai87/zantara-llama-3.1-8b-merged",
-            "training": "22,009 Indonesian business conversations, 98.74% accuracy"
+            "claude_haiku_available": claude_haiku is not None,
+            "claude_sonnet_available": claude_sonnet is not None,
+            "has_ai": has_ai
+        },
+        "memory": {
+            "postgresql": memory_service is not None,
+            "vector_db": search_service is not None
         },
         "reranker": reranker_service is not None,
         "collaborative_intelligence": True,
-        "enhancements": {
-            "multi_collection_search": True,
-            "cross_encoder_reranking": reranker_service is not None,
-            "quality_boost": "+400% precision@5" if reranker_service else "standard",
-            "custom_trained_ai": True
-        }
+        "warnings": [
+            "R2/ChromaDB not configured - pure LLM mode" if not search_service else None,
+            "ZANTARA not configured - using Claude only" if not zantara_client else None,
+            "Claude not configured - limited functionality" if not claude_haiku and not claude_sonnet else None
+        ]
     }
 
 
