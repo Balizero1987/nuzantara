@@ -1,4 +1,4 @@
-FROM mirror.gcr.io/library/node:22-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Install dependencies for native modules (if any)
 RUN apk add --no-cache python3 make g++ git
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # -------- Runtime image --------
-FROM mirror.gcr.io/library/node:22-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 # Optional: skip postinstall scripts in runtime install as well
