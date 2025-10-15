@@ -43,13 +43,29 @@ jobs:
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy zantara-rag-backend \
-            --image gcr.io/involuted-box-469105-r0/zantara-rag-backend@sha256:873ae2f438598d0cc93997bab07a9eddcf4182b7385f747641b55c8e1115c6bd \
+            --image gcr.io/involuted-box-469105-r0/zantara-rag-backend:${{ github.sha }} \
             --region europe-west1 \
-            --allow-unauthenticated
+            --platform managed \
+            --allow-unauthenticated \
+            --service-account=compute-engine-default@involuted-box-469105-r0.iam.gserviceaccount.com \
+            --memory=1Gi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=2 \
+            --concurrency=80 \
+            --cpu-throttling \
+            --port=8000 \
+            --timeout=600
 
       - name: Verify Deployment
         run: |
           echo "Waiting for deployment to stabilize..."
           sleep 30
-          curl -f https://zantara-rag-backend-1064094238013.europe-west1.run.app/health || exit 1
-          echo "✅ RAG Backend deployed successfully with QUADRUPLE-AI + Tool Use"
+
+          SERVICE_URL=$(gcloud run services describe zantara-rag-backend \
+            --region=europe-west1 \
+            --format="value(status.url)")
+
+          echo "Testing health endpoint: $SERVICE_URL/health"
+          curl -f "$SERVICE_URL/health" || exit 1
+          echo "✅ RAG Backend deployed successfully with ZANTARA Llama 3.1 ONLY"
