@@ -5,11 +5,8 @@ dockerfilePath = "Dockerfile.rag"
 watchPaths = ["apps/backend-rag 2/backend/**", "Dockerfile.rag"]
 
 [deploy]
-# Disable HTTP healthcheck - Railway will monitor container process instead
+# No HTTP healthcheck configured - Railway will monitor container process
 # App takes 30-40s to start (ChromaDB download + model loading)
-# HTTP healthchecks fail during startup, causing false positives
-healthcheckPath = null
-healthcheckTimeout = null
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
