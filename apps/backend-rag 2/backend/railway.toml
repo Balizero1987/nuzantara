@@ -1,7 +1,7 @@
 [build]
-# Use Dockerfile for build
-builder = "dockerfile"
-dockerfilePath = "./Dockerfile"
+# Use Nixpacks for build (simpler than Dockerfile)
+builder = "nixpacks"
+nixpacksConfigPath = "./nixpacks.toml"
 watchPaths = ["./**"]
 
 [deploy]
