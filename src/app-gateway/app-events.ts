@@ -64,8 +64,17 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
       return { ok: false, code: 'action_unknown', message: `Unknown action: ${ev.action}` };
     }
 
+    // CRITICAL FIX: Enrich meta.user from session if not provided by webapp
+    // This ensures user identification works even if webapp doesn't send it
+    const enrichedMeta = {
+      ...ev.meta,
+      user: ev.meta?.user || sess.user  // Use session user if not in meta
+    };
+
+    logger.info(`🔐 [Event] Session user: ${sess.user}, Meta user: ${enrichedMeta.user}`);
+
     // Normalize parameters for handler
-    const params = normalizeParams(ev.action, ev.payload, ev.meta);
+    const params = normalizeParams(ev.action, ev.payload, enrichedMeta);
 
     // Special handling for chat_send - call bali.zero.chat
     if (ev.action === 'chat_send') {
