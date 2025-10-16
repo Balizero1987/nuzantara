@@ -68,10 +68,11 @@ export async function aiChat(params: any) {
     }
 
     // Use ZANTARA for all queries with mode support
-    return zantaraChat({ 
-      message: params.prompt || params.message, 
+    return zantaraChat({
+      message: params.prompt || params.message,
       mode: params.mode || 'santai', // Default to Santai mode
-      ...params 
+      user_email: params.user_email, // CRITICAL: Pass user_email for identification
+      ...params
     });
   } catch (error: any) {
     logger.error('❌ ZANTARA error:', error);
