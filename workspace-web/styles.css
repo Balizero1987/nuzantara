@@ -1097,6 +1097,9 @@ body {
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
+        position: fixed;
+        z-index: 999;
+        box-shadow: var(--shadow-xl);
     }
     
     .sidebar.open {
@@ -1127,5 +1130,288 @@ body {
     
     .projects-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .hamburger-menu {
+        display: flex !important;
+    }
+}
+
+/* ========================================
+   ADDITIONAL ANIMATIONS
+   ======================================== */
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(100px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.95); }
+}
+
+/* ========================================
+   NOTIFICATION SYSTEM
+   ======================================== */
+
+.notification-container {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.notification {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    animation: slideIn 0.3s ease;
+    pointer-events: all;
+}
+
+.notification-success {
+    border-left: 4px solid var(--color-success);
+}
+
+.notification-error {
+    border-left: 4px solid var(--color-danger);
+}
+
+.notification-warning {
+    border-left: 4px solid var(--color-warning);
+}
+
+.notification-info {
+    border-left: 4px solid var(--color-primary);
+}
+
+/* ========================================
+   USER DROPDOWN
+   ======================================== */
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-lg);
+    min-width: 200px;
+    padding: 8px;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+.user-menu-item {
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.user-menu-item:hover {
+    background: var(--bg-hover);
+}
+
+/* ========================================
+   LOADING OVERLAY
+   ======================================== */
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+}
+
+.loading-overlay svg {
+    width: 64px;
+    height: 64px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ========================================
+   ASSET INTEGRATION HELPERS
+   ======================================== */
+
+.asset-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.asset-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.project-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* ========================================
+   HAMBURGER MENU (MOBILE)
+   ======================================== */
+
+.hamburger-menu {
+    display: none;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.hamburger-menu:hover {
+    background: var(--bg-hover);
+}
+
+.hamburger-menu svg {
+    stroke-width: 2;
+}
+
+/* ========================================
+   FINAL POLISH & ENHANCEMENTS
+   ======================================== */
+
+/* Smooth transitions for all interactive elements */
+button, a, .nav-item, .project-card, .widget {
+    transition: all var(--transition-base);
+}
+
+/* Improved focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+/* Enhanced hover states */
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.project-card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.widget:hover {
+    border-color: var(--color-accent);
+}
+
+/* Lotus animation enhancement */
+.lotus-animate {
+    animation: float 3s ease-in-out infinite;
+}
+
+.chakra-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Empty state styling */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.empty-state img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    opacity: 0.5;
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-tertiary);
+}
+
+/* Selection styling */
+::selection {
+    background: var(--color-accent);
+    color: var(--white);
+}
+
+/* Print styles */
+@media print {
+    .header,
+    .sidebar,
+    .command-palette,
+    .notification-container {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
     }
 }
