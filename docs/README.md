@@ -1,53 +1,53 @@
-# ZANTARA Documentation Index
+# 📚 NUZANTARA Documentation
 
-Quick Links
-- Getting Started (#getting-started)
-- AI Model Management (#ai-models)
-- Backend TypeScript (#backend-typescript)
-- RAG Backend (#rag-backend)
-- WebApp (#webapp)
-- Deploy (#deploy)
-- WebSocket (#websocket)
-- Security (#security)
-- Handovers Index (#handovers-index)
+Organized documentation for deployment, debugging and best practices.
 
-## Getting Started
-- Project Context: `.claude/PROJECT_CONTEXT.md`
-- Session INIT: `.claude/INIT.md`
-- Handovers Index: `.claude/handovers/INDEX.md`
+---
 
-## AI Model Management
-- Current: ZANTARA Llama 3.1 (RunPod vLLM)
-- Architecture: Single AI model approach
-- Documentation: See PROJECT_CONTEXT.md for current AI setup
+## 📁 Structure
 
-## Backend TypeScript
-- Overview & hardening: `.claude/handovers/backend-typescript.md`
-- Handlers overview: `.claude/handovers/backend-handlers.md`
-- Testing: `.claude/handovers/backend-testing.md`
-- Bug fixes: `.claude/handovers/backend-bug-fixes-2025-10-03.md`
+```
+docs/
+├── README.md                    (this file)
+├── railway/                     (Railway deployment)
+│   ├── DEPLOYMENT_SUCCESS.md   (✅ complete deployment summary)
+│   ├── RAILWAY_ENV_SETUP.md    (🔧 environment variables setup guide)
+│   ├── RAILWAY_SERVICES_CONFIG.md (🏗️  services architecture)
+│   ├── RAILWAY_STEP_BY_STEP.txt (📋 quick setup reference)
+│   ├── RAILWAY_VARS_COPY_PASTE.txt (📝 variables to copy)
+│   └── .env.railway.template   (⚙️  variables template)
+│
+└── debugging/
+    └── DEBUGGING_DIARY_LESSONS_LEARNED.md (🎓 debugging best practices)
+```
 
-## RAG Backend
-- Deploy + tool use integration: `.claude/handovers/deploy-rag-backend.md`
-- General deploy: `.claude/handovers/deploy-rag.md`
-- Performance & KB: `.claude/handovers/rag-performance.md`
+---
 
-## WebApp
-- UI & flows: `.claude/handovers/frontend-ui.md`
-- Deploy to Pages: `.claude/handovers/deploy-webapp.md`
-- Performance: `.claude/handovers/webapp-performance.md`
+## 🚀 Quick Start
 
-## Deploy
-- Backend (TS): `.claude/handovers/deploy-backend.md`
-- RAG Backend (Py): `.claude/handovers/deploy-rag-backend.md`
-- WebApp: `.claude/handovers/deploy-webapp.md`
+### To deploy on Railway:
+1. Read: `railway/RAILWAY_STEP_BY_STEP.txt`
+2. Follow: `railway/RAILWAY_ENV_SETUP.md`
+3. Verify: `../scripts/check_railway_env.sh`
 
-## WebSocket
-- Implementation: `.claude/handovers/websocket-implementation-2025-10-03.md`
+### For future debugging:
+- **READ FIRST**: `debugging/DEBUGGING_DIARY_LESSONS_LEARNED.md`
+- It will save you hours!
 
-## Security
-- Policies & secrets: `.claude/handovers/security.md`
-- Audits: `.claude/handovers/security-audit.md`
+---
 
-## Handovers Index
-- All areas: `.claude/handovers/INDEX.md`
+## 🎓 Best Practices
+
+### ✅ DO:
+1. Read debugging diary BEFORE debugging deployment
+2. Use scripts/check_railway_env.sh for quick verification
+3. Follow step-by-step guide for setup
+
+### ❌ DON'T:
+1. Don't debug without logs
+2. Don't apply multiple fixes together
+3. Don't assume problems without verifying
+
+---
+
+**Last updated**: 2025-10-16

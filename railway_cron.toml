@@ -1,0 +1,19 @@
+# Railway Cron Jobs Configuration
+# https://docs.railway.app/reference/cron-jobs
+
+# Daily LLAMA Classification Job
+# Runs every day at 2 AM UTC (10 AM Jakarta time)
+[jobs.llama_classification]
+schedule = "0 2 * * *"  # Cron format: minute hour day month weekday
+command = "python3 scripts/llama_batch_classifier.py"
+timeout = 600  # 10 minutes max
+
+# Environment variables needed:
+# - RUNPOD_LLAMA_ENDPOINT
+# - RUNPOD_API_KEY
+# - ANTHROPIC_API_KEY (fallback)
+
+# Alternative schedules:
+# Every 6 hours: "0 */6 * * *"
+# Twice daily (2 AM, 2 PM): "0 2,14 * * *"
+# Weekdays only: "0 2 * * 1-5"
