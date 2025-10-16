@@ -1176,7 +1176,9 @@ async def bali_zero_chat(request: BaliZeroRequest):
         memory = None
         if memory_service and user_id != "anonymous":
             memory = await memory_service.get_memory(user_id)
-            logger.info(f"💾 Memory loaded for {user_id}: {len(memory.profile_facts)} facts, {len(memory.summary)} char summary")
+            facts_count = len(memory.profile_facts) if memory.profile_facts else 0
+            summary_len = len(memory.summary) if memory.summary else 0
+            logger.info(f"💾 Memory loaded for {user_id}: {facts_count} facts, {summary_len} char summary")
 
         # PHASE 3: Analyze emotional state
         emotional_profile = None
