@@ -444,10 +444,7 @@ window.addEventListener('load', () => {
         setTimeout(() => loader.remove(), 300);
     }
     
-    // Show welcome notification
-    setTimeout(() => {
-        showNotification('Welcome to Bali Zero Workspace! 🌸', 'success');
-    }, 500);
+    // Don't show welcome notification - too annoying
 });
 
 // ========================================
