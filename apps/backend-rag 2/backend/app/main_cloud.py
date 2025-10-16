@@ -43,11 +43,13 @@ from services.memory_fact_extractor import MemoryFactExtractor
 # LLAMA NIGHTLY WORKER SERVICES: Golden Answers + Cultural RAG
 from services.golden_answer_service import GoldenAnswerService
 from services.cultural_rag_service import CulturalRAGService
-# MODERN AI FEATURES: Context Window Management + Streaming + Status + Citations
+# MODERN AI FEATURES: Context Window Management + Streaming + Status + Citations + Follow-ups + Clarification
 from services.context_window_manager import ContextWindowManager
 from services.streaming_service import StreamingService
 from services.status_service import StatusService, ProcessingStage
 from services.citation_service import CitationService
+from services.followup_service import FollowupService
+from services.clarification_service import ClarificationService
 
 # Configure logging
 logging.basicConfig(
@@ -95,6 +97,8 @@ context_window_manager: Optional[ContextWindowManager] = None  # Context window 
 streaming_service: Optional[StreamingService] = None  # Real-time streaming responses
 status_service: Optional[StatusService] = None  # Real-time status updates
 citation_service: Optional[CitationService] = None  # Response citations with sources
+followup_service: Optional[FollowupService] = None  # Suggested follow-up questions
+clarification_service: Optional[ClarificationService] = None  # Ambiguity detection & clarification
 
 # Startup completion flag for Railway health checks
 _startup_complete: bool = False
@@ -582,7 +586,7 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, zantara_client, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, golden_answer_service, cultural_rag_service, context_window_manager, streaming_service, status_service, citation_service, _startup_complete
+    global search_service, zantara_client, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, golden_answer_service, cultural_rag_service, context_window_manager, streaming_service, status_service, citation_service, followup_service, clarification_service, _startup_complete
 
     logger.info("🚀 Starting ZANTARA RAG Backend (QUADRUPLE-AI: LLAMA Classifier + Claude Haiku + Claude Sonnet + DevAI)...")
 
@@ -871,6 +875,23 @@ async def startup_event():
         logger.error(f"❌ CitationService initialization failed: {e}")
         citation_service = None
 
+    # Initialize Follow-up Service (Modern AI Feature - Suggested Questions)
+    try:
+        anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+        followup_service = FollowupService(anthropic_api_key=anthropic_api_key)
+        logger.info("✅ FollowupService ready (3-4 suggested follow-up questions)")
+    except Exception as e:
+        logger.error(f"❌ FollowupService initialization failed: {e}")
+        followup_service = None
+
+    # Initialize Clarification Service (Modern AI Feature - Ambiguity Detection)
+    try:
+        clarification_service = ClarificationService()
+        logger.info("✅ ClarificationService ready (ambiguity detection + clarification requests)")
+    except Exception as e:
+        logger.error(f"❌ ClarificationService initialization failed: {e}")
+        clarification_service = None
+
     logger.info("✅ ZANTARA RAG Backend ready on port 8080 (Railway)")
 
     # Mark startup as complete for health checks
@@ -934,6 +955,7 @@ class BaliZeroResponse(BaseModel):
     ai_used: str  # "haiku" | "sonnet" | "devai" | "llama"
     sources: Optional[List[Dict[str, Any]]] = None
     usage: Optional[Dict[str, Any]] = None
+    followup_questions: Optional[List[str]] = None  # MODERN AI FIX #5: Suggested follow-up questions
 
 
 @app.get("/health")
@@ -1494,6 +1516,48 @@ async def bali_zero_chat(request: BaliZeroRequest):
 
             logger.info(f"👤 Anonymous user - L0 (Public) - Language: {detected_language}")
 
+        # MODERN AI FIX #8: Check for ambiguous queries and request clarification FIRST
+        if clarification_service:
+            try:
+                ambiguity_info = clarification_service.detect_ambiguity(
+                    query=request.query,
+                    conversation_history=request.conversation_history
+                )
+
+                if ambiguity_info["clarification_needed"]:
+                    # Detect language for clarification
+                    detected_lang = "en"
+                    if collaborator:
+                        detected_lang = collaborator.language
+                    elif request.query:
+                        # Quick language detection
+                        q_lower = request.query.lower()
+                        if any(w in q_lower for w in ["ciao", "come", "cosa", "grazie"]):
+                            detected_lang = "it"
+                        elif any(w in q_lower for w in ["halo", "apa", "bagaimana", "terima"]):
+                            detected_lang = "id"
+
+                    # Generate clarification request
+                    clarification_msg = clarification_service.generate_clarification_request(
+                        query=request.query,
+                        ambiguity_info=ambiguity_info,
+                        language=detected_lang
+                    )
+
+                    logger.info(f"🤔 [Clarification] Ambiguous query detected, requesting clarification")
+
+                    # Return clarification request instead of attempting to answer
+                    return BaliZeroResponse(
+                        success=True,
+                        response=clarification_msg,
+                        model_used="clarification-service",
+                        ai_used="clarification",
+                        sources=None,
+                        usage={"input_tokens": 0, "output_tokens": 0}
+                    )
+            except Exception as e:
+                logger.warning(f"⚠️ [Clarification] Detection failed: {e}, continuing with normal flow")
+
         # PHASE 2: Load user memory (with graceful degradation)
         memory = None
         if memory_service and user_id != "anonymous":
@@ -1744,6 +1808,52 @@ async def bali_zero_chat(request: BaliZeroRequest):
                     logger.warning(f"⚠️ [RAG Sources] Extraction failed: {e}")
                     logger.info("   Continuing without source citations (answer still valid)")
 
+            # MODERN AI FIX #4: Process citations with Citation Service
+            if citation_service and sources and len(sources) > 0:
+                try:
+                    # Extract structured sources from RAG results for citation service
+                    rag_results = []
+                    if used_rag and search_service:
+                        try:
+                            search_results = await search_service.search(
+                                query=request.query,
+                                user_level=sub_rosa_level,
+                                limit=20
+                            )
+                            if search_results.get("results"):
+                                rag_results = search_results["results"]
+                        except:
+                            pass
+
+                    # Process response with citations if we have RAG results
+                    if rag_results:
+                        citation_result = citation_service.process_response_with_citations(
+                            response_text=answer,
+                            rag_results=rag_results,
+                            auto_append=True
+                        )
+
+                        # Update answer with citations
+                        if citation_result["has_citations"]:
+                            answer = citation_result["response"]
+                            logger.info(f"📚 [Citations] Added inline citations and sources section")
+                            logger.info(f"   Citations found: {citation_result['citation_stats']['citations_found']}")
+                            logger.info(f"   Sources appended: {len(citation_result['sources'])}")
+                        else:
+                            logger.info(f"📚 [Citations] No citations found in response, sources available but not referenced")
+                    else:
+                        # Fallback: Just format sources section if no RAG results but have sources
+                        extracted_sources = citation_service.extract_sources_from_rag(
+                            [{"metadata": {"title": s.get("title", "Unknown"), "url": ""}, "text": s.get("text", ""), "score": s.get("score", 0.0)} for s in sources]
+                        )
+                        sources_section = citation_service.format_sources_section(extracted_sources)
+                        if not sources_section in answer:
+                            answer = f"{answer}\n\n{sources_section}"
+                        logger.info(f"📚 [Citations] Appended sources section ({len(extracted_sources)} sources)")
+
+                except Exception as e:
+                    logger.warning(f"⚠️ [Citations] Processing failed: {e}, continuing without citations")
+
             # REMOVED: Automatic name injection was too robotic
             # AI should handle personalization naturally based on context and memory
             # The system prompt already instructs the AI to be personable and use names appropriately
@@ -1987,6 +2097,36 @@ async def bali_zero_chat(request: BaliZeroRequest):
                     logger.warning(f"⚠️ [Memory] Fact extraction failed: {e}")
                     # Non-blocking - continue without facts
 
+        # MODERN AI FIX #5: Generate follow-up questions
+        followup_questions = None
+        if followup_service:
+            try:
+                # Build conversation context for follow-up generation
+                conversation_context = None
+                if request.conversation_history and len(request.conversation_history) > 0:
+                    # Get last 2-3 exchanges for context
+                    recent = request.conversation_history[-6:]
+                    conversation_context = "\n".join([
+                        f"{msg.get('role', 'unknown')}: {msg.get('content', '')[:100]}..."
+                        for msg in recent
+                    ])
+
+                # Generate follow-up questions (use AI if available)
+                followup_questions = await followup_service.get_followups(
+                    query=request.query,
+                    response=answer,
+                    use_ai=True,  # Enable AI-powered follow-ups
+                    conversation_context=conversation_context
+                )
+
+                logger.info(f"💬 [Follow-ups] Generated {len(followup_questions)} suggested questions")
+                for i, q in enumerate(followup_questions, 1):
+                    logger.info(f"   {i}. {q}")
+
+            except Exception as e:
+                logger.warning(f"⚠️ [Follow-ups] Generation failed: {e}, continuing without follow-ups")
+                followup_questions = None
+
         return BaliZeroResponse(
             success=True,
             response=answer,
@@ -1996,7 +2136,8 @@ async def bali_zero_chat(request: BaliZeroRequest):
             usage={
                 "input_tokens": tokens.get("input", 0) or tokens.get("input_tokens", 0),
                 "output_tokens": tokens.get("output", 0) or tokens.get("output_tokens", 0)
-            }
+            },
+            followup_questions=followup_questions
         )
 
     except Exception as e:
