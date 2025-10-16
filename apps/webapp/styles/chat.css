@@ -545,7 +545,7 @@ body.day-mode .integration-group {
 }
 
 .integration-group-label {
-  font-size: 11px;
+  font-size: 12px; /* Uniform with base */
   font-weight: 600;
   color: rgba(255, 255, 255, 0.6);
   margin-right: 4px;
@@ -710,7 +710,7 @@ body.day-mode .date {
 .filter {
   padding: 4px 10px;
   border-radius: 12px;
-  font-size: 11px;
+  font-size: 12px; /* Uniform with base */
   font-weight: 600;
   cursor: pointer;
   border: 1px solid #3a3a3a;
@@ -774,7 +774,7 @@ body.day-mode .article-cat {
 }
 
 .article-title {
-  font-size: 13px;
+  font-size: 14px; /* Uniform with base */
   font-weight: 600;
   margin-bottom: 6px;
   line-height: 1.4;
@@ -786,7 +786,7 @@ body.day-mode .article-title {
 }
 
 .article-summary {
-  font-size: 11px;
+  font-size: 12px; /* Uniform with base */
   line-height: 1.5;
   margin-bottom: 8px;
   color: rgba(255, 255, 255, 0.7);
