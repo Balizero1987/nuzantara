@@ -1220,12 +1220,29 @@ async def bali_zero_chat(request: BaliZeroRequest):
             # Build conversation history with memory context if available
             messages = request.conversation_history or []
 
-            # Route through intelligent router (with memory context)
+            # PRE-ROUTING: Enrich memory context with collaborator profile if available
+            if collaborator and memory:
+                # Add collaborator information to memory context
+                collaborator_facts = [
+                    f"You are talking to {collaborator.name} ({collaborator.ambaradam_name})",
+                    f"Role: {collaborator.role} in {collaborator.department} department",
+                    f"Preferred language: {collaborator.language}",
+                    f"Expertise level: {collaborator.expertise_level}"
+                ]
+
+                # Add to profile_facts if not already there
+                for fact in collaborator_facts:
+                    if fact not in memory.profile_facts:
+                        memory.profile_facts.insert(0, fact)  # Add at beginning for priority
+
+                logger.info(f"👤 [Pre-routing] Enriched memory with collaborator profile: {collaborator.name}")
+
+            # Route through intelligent router (with enriched memory context)
             routing_result = await intelligent_router.route_chat(
                 message=request.query,
                 user_id=user_id,
                 conversation_history=messages,
-                memory=memory  # ← Pass memory to router
+                memory=memory  # ← Pass enriched memory to router
             )
 
             # Extract response from router
