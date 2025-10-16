@@ -205,22 +205,59 @@ class IntelligentRouter:
             has_business_term = any(keyword in message_lower for keyword in business_keywords)
 
             if has_business_term:
-                # Business query - check if simple or complex
-                complex_indicators = ["how", "why", "explain", "detail", "process", "requirement", "step", "procedure"]
-                is_complex = any(indicator in message_lower for indicator in complex_indicators) or len(message) > 100
+                # IMPROVED: Intent complexity detection for better routing
+                # Simple queries: "What is KITAS?" → Could be handled by Haiku + RAG (fast)
+                # Complex queries: "How to process KITAS step by step?" → Needs Sonnet (comprehensive)
 
-                if is_complex:
-                    logger.info(f"🎯 [Router] Quick match: business_complex")
+                # Complexity indicators
+                complex_indicators = [
+                    # Process-oriented
+                    "how to", "how do i", "come si", "bagaimana cara", "cara untuk",
+                    "step", "process", "procedure", "prosedur", "langkah",
+                    # Detail-oriented
+                    "explain", "spiegare", "jelaskan", "detail", "dettaglio", "rincian",
+                    # Requirement-oriented
+                    "requirement", "requisiti", "syarat", "what do i need", "cosa serve",
+                    # Multi-part questions
+                    " and ", " or ", " also ", " e ", " o ", " dan ", " atau "
+                ]
+
+                # Simple question patterns
+                simple_patterns = [
+                    "what is", "what's", "cos'è", "apa itu", "cosa è",
+                    "who is", "chi è", "siapa",
+                    "when is", "quando", "kapan",
+                    "where is", "dove", "dimana"
+                ]
+
+                has_complex_indicator = any(indicator in message_lower for indicator in complex_indicators)
+                is_simple_question = any(pattern in message_lower for pattern in simple_patterns)
+
+                # Decision logic:
+                # 1. If simple question pattern + short message (<50 chars) → Haiku can handle with RAG
+                # 2. If complex indicators OR long message (>100 chars) → Sonnet needed
+                # 3. Multiple questions (and/or) → Sonnet needed
+
+                if is_simple_question and len(message) < 50 and not has_complex_indicator:
+                    logger.info(f"🎯 [Router] Quick match: business_simple (definitionel) → Haiku + RAG")
+                    return {
+                        "category": "business_simple",
+                        "confidence": 0.9,
+                        "suggested_ai": "haiku"  # Haiku can handle simple definitions with RAG
+                    }
+                elif has_complex_indicator or len(message) > 100:
+                    logger.info(f"🎯 [Router] Quick match: business_complex (detailed) → Sonnet + RAG")
                     return {
                         "category": "business_complex",
                         "confidence": 0.9,
                         "suggested_ai": "sonnet"
                     }
                 else:
-                    logger.info(f"🎯 [Router] Quick match: business_simple")
+                    # Default: business query but not clearly simple/complex → Sonnet (safer)
+                    logger.info(f"🎯 [Router] Quick match: business_medium → Sonnet")
                     return {
                         "category": "business_simple",
-                        "confidence": 0.9,
+                        "confidence": 0.8,
                         "suggested_ai": "sonnet"
                     }
 
@@ -272,7 +309,9 @@ class IntelligentRouter:
         message: str,
         user_id: str,
         conversation_history: Optional[List[Dict]] = None,
-        memory: Optional[Any] = None  # ← NEW: Memory context
+        memory: Optional[Any] = None,  # ← Memory context
+        emotional_profile: Optional[Any] = None,  # ← Emotional profile for empathetic routing
+        last_ai_used: Optional[str] = None  # ← NEW: Last AI used (for follow-up continuity)
     ) -> Dict:
         """
         Main routing function - classifies intent and routes to appropriate AI
@@ -281,7 +320,9 @@ class IntelligentRouter:
             message: User message
             user_id: User identifier
             conversation_history: Optional chat history
-            memory: Optional memory context for user (NEW)
+            memory: Optional memory context for user
+            emotional_profile: Optional emotional profile from EmotionalAttunementService
+            last_ai_used: Optional last AI used (for follow-up detection)
 
         Returns:
             {
@@ -296,30 +337,156 @@ class IntelligentRouter:
         try:
             logger.info(f"🚦 [Router] Routing message for user {user_id}")
 
+            # PHASE 2: Follow-up detection - maintain AI continuity for conversational flow
+            if last_ai_used and conversation_history and len(conversation_history) > 0:
+                message_lower = message.lower().strip()
+
+                # Follow-up indicators (short, referential messages)
+                follow_up_patterns = [
+                    # Continuation
+                    "and then", "e poi", "dan kemudian", "lalu", "dopo", "setelah itu",
+                    # Clarification
+                    "what about", "how about", "e per", "dan untuk", "bagaimana dengan",
+                    # Confirmation
+                    "really", "davvero", "benarkah", "seriously", "sul serio",
+                    # Short referential
+                    "why", "perché", "mengapa", "kenapa",
+                    "when", "quando", "kapan",
+                    "where", "dove", "dimana", "di mana",
+                    # Affirmative continuers
+                    "ok", "okay", "yes", "si", "ya", "go on", "continua", "lanjut"
+                ]
+
+                is_follow_up = (
+                    # Short message (<30 chars) with follow-up pattern
+                    (len(message) < 30 and any(pattern in message_lower for pattern in follow_up_patterns))
+                    # OR very short question (<15 chars) after recent conversation
+                    or (len(message) < 15 and len(conversation_history) > 0)
+                )
+
+                if is_follow_up:
+                    logger.info(f"🔗 [Router] FOLLOW-UP detected → Continue with same AI: {last_ai_used}")
+
+                    # Use same AI as previous response for continuity
+                    suggested_ai = last_ai_used
+
+                    # Skip intent classification, proceed directly to routing
+                    # (This maintains conversational flow and context)
+
+            # PHASE 2.5: Check emotional state FIRST - override routing for empathetic needs
+            if emotional_profile and hasattr(emotional_profile, 'detected_state'):
+                emotional_states_needing_empathy = [
+                    "sad", "anxious", "stressed", "embarrassed", "lonely", "scared", "worried"
+                ]
+
+                detected_state = emotional_profile.detected_state.value if hasattr(emotional_profile.detected_state, 'value') else str(emotional_profile.detected_state)
+
+                if detected_state in emotional_states_needing_empathy:
+                    logger.info(f"🎭 [Router] EMOTIONAL OVERRIDE: {detected_state} → Force Haiku for empathy")
+                    logger.info(f"   Confidence: {emotional_profile.confidence:.2f}, Suggested tone: {emotional_profile.suggested_tone.value if hasattr(emotional_profile.suggested_tone, 'value') else emotional_profile.suggested_tone}")
+
+                    # Force Haiku routing for emotional support
+                    if self.haiku:
+                        # Build memory context if available (NATURAL FORMAT)
+                        memory_context = None
+                        if memory:
+                            facts_count = len(memory.profile_facts) if hasattr(memory, 'profile_facts') else 0
+                            if facts_count > 0:
+                                # Natural format - not bullet lists
+                                memory_context = "Context about this conversation:\n"
+                                top_facts = memory.profile_facts[:10]
+
+                                # Group facts naturally
+                                personal_facts = [f for f in top_facts if any(word in f.lower() for word in ["talking to", "role:", "level:", "language:", "colleague"])]
+                                other_facts = [f for f in top_facts if f not in personal_facts]
+
+                                if personal_facts:
+                                    memory_context += f"{'. '.join(personal_facts)}. "
+                                if other_facts:
+                                    memory_context += f"You also know that: {', '.join(other_facts[:5])}. "
+                                if memory.summary:
+                                    memory_context += f"\nPrevious conversation context: {memory.summary[:500]}"
+
+                        # Load tools if not already loaded
+                        if not self.tools_loaded and self.tool_executor:
+                            await self._load_tools()
+
+                        # Use Haiku with LIMITED tools for speed
+                        if self.tool_executor and self.haiku_tools:
+                            result = await self.haiku.conversational_with_tools(
+                                message=message,
+                                user_id=user_id,
+                                conversation_history=conversation_history,
+                                memory_context=memory_context,
+                                tools=self.haiku_tools,
+                                tool_executor=self.tool_executor,
+                                max_tokens=300,
+                                max_tool_iterations=2
+                            )
+                        else:
+                            result = await self.haiku.conversational(
+                                message=message,
+                                user_id=user_id,
+                                conversation_history=conversation_history,
+                                memory_context=memory_context,
+                                max_tokens=300
+                            )
+
+                        return {
+                            "response": result["text"],
+                            "ai_used": "haiku",
+                            "category": "emotional_support",
+                            "model": result["model"],
+                            "tokens": result["tokens"],
+                            "used_rag": False,
+                            "used_tools": result.get("used_tools", False),
+                            "tools_called": result.get("tools_called", [])
+                        }
+
             # PHASE 3: Build memory context if available
             memory_context = None
             if memory:
                 facts_count = len(memory.profile_facts) if hasattr(memory, 'profile_facts') else 0
                 logger.info(f"💾 [Router] Memory loaded: {facts_count} facts")
 
-                # Build memory context string
+                # Build memory context string (NATURAL FORMAT - not bullet lists)
                 if facts_count > 0:
-                    memory_context = "--- USER MEMORY ---\n"
-                    memory_context += f"Known facts about {user_id}:\n"
-                    for fact in memory.profile_facts[:10]:  # Top 10 facts
-                        memory_context += f"- {fact}\n"
+                    # Restructure memory context as natural sentences
+                    memory_context = "Context about this conversation:\n"
+
+                    # Get top relevant facts (max 10)
+                    top_facts = memory.profile_facts[:10]
+
+                    # Group facts by type if possible
+                    personal_facts = [f for f in top_facts if any(word in f.lower() for word in ["talking to", "role:", "level:", "language:", "colleague"])]
+                    other_facts = [f for f in top_facts if f not in personal_facts]
+
+                    # Build natural narrative
+                    if personal_facts:
+                        # Join personal facts into natural sentence
+                        memory_context += f"{'. '.join(personal_facts)}. "
+
+                    if other_facts:
+                        # Add remaining facts naturally
+                        memory_context += f"You also know that: {', '.join(other_facts[:5])}. "
 
                     if memory.summary:
-                        memory_context += f"\nSummary: {memory.summary[:500]}\n"
+                        # Add summary naturally
+                        memory_context += f"\nPrevious conversation context: {memory.summary[:500]}"
 
-                    logger.info(f"💾 [Router] Memory context built: {len(memory_context)} chars")
+                    logger.info(f"💾 [Router] Memory context built (natural format): {len(memory_context)} chars")
 
-            # Step 1: Classify intent
-            intent = await self.classify_intent(message)
-            category = intent["category"]
-            suggested_ai = intent["suggested_ai"]
+            # Step 1: Classify intent (unless follow-up override already set)
+            if 'suggested_ai' not in locals():  # Only classify if not already set by follow-up detection
+                intent = await self.classify_intent(message)
+                category = intent["category"]
+                suggested_ai = intent["suggested_ai"]
 
-            logger.info(f"   Category: {category} → AI: {suggested_ai}")
+                logger.info(f"   Category: {category} → AI: {suggested_ai}")
+            else:
+                # Follow-up detected, already set suggested_ai
+                category = "follow_up"
+                logger.info(f"   Category: follow_up → AI: {suggested_ai} (continuity)")
 
             # Step 2: Load tools if not already loaded
             if not self.tools_loaded and self.tool_executor:
