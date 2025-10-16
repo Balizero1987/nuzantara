@@ -155,15 +155,43 @@ class IntelligentRouter:
                     "suggested_ai": "haiku"
                 }
 
-            # Check casual questions
+            # Check casual questions (including emotional/empathetic queries)
             casual_patterns = [
                 "come stai", "how are you", "come va", "tutto bene", "apa kabar", "what's up", "whats up",
                 "sai chi sono", "do you know me", "know who i am", "recognize me", "remember me", "mi riconosci"
             ]
+
+            # EMOTIONAL/EMPATHETIC patterns (should get warm, supportive responses from Haiku)
+            emotional_patterns = [
+                # Embarrassment / Shyness
+                "aku malu", "saya malu", "i'm embarrassed", "i feel embarrassed", "sono imbarazzato",
+                # Sadness / Upset
+                "aku sedih", "saya sedih", "i'm sad", "i feel sad", "sono triste", "mi sento giù",
+                # Anxiety / Worry
+                "aku khawatir", "saya khawatir", "i'm worried", "i worry", "sono preoccupato", "mi preoccupa",
+                # Loneliness
+                "aku kesepian", "saya kesepian", "i'm lonely", "i feel lonely", "mi sento solo",
+                # Stress / Overwhelm
+                "aku stress", "saya stress", "i'm stressed", "sono stressato", "mi sento sopraffatto",
+                # Fear
+                "aku takut", "saya takut", "i'm scared", "i'm afraid", "ho paura",
+                # Happiness / Excitement (positive emotions need warm responses too!)
+                "aku senang", "saya senang", "i'm happy", "sono felice", "che bello"
+            ]
+
+            # Combined check: casual OR emotional
             if any(pattern in message_lower for pattern in casual_patterns):
                 logger.info(f"🎯 [Router] Quick match: casual")
                 return {
                     "category": "casual",
+                    "confidence": 1.0,
+                    "suggested_ai": "haiku"
+                }
+
+            if any(pattern in message_lower for pattern in emotional_patterns):
+                logger.info(f"🎯 [Router] Quick match: emotional/empathetic → Haiku")
+                return {
+                    "category": "casual",  # Treat emotional as casual for warm, personal response
                     "confidence": 1.0,
                     "suggested_ai": "haiku"
                 }
@@ -400,7 +428,7 @@ class IntelligentRouter:
                         memory_context=memory_context,  # PHASE 3: Pass memory
                         tools=self.all_tools,
                         tool_executor=self.tool_executor,
-                        max_tokens=600,  # INCREASED from 300 for detailed business answers
+                        max_tokens=1000,  # INCREASED from 600 to prevent truncated business answers
                         max_tool_iterations=5
                     )
                 else:
@@ -411,7 +439,7 @@ class IntelligentRouter:
                         context=context,
                         conversation_history=conversation_history,
                         memory_context=memory_context,  # PHASE 3: Pass memory
-                        max_tokens=600  # INCREASED from 300 for detailed business answers
+                        max_tokens=1000  # INCREASED from 600 to prevent truncated business answers
                     )
 
                 return {
