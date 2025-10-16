@@ -34,3 +34,6 @@ boto3==1.35.0
 
 # PostgreSQL async driver (Railway)
 asyncpg==0.30.0
+
+# Server-Sent Events for streaming responses
+sse-starlette==1.8.2
