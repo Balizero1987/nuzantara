@@ -36,7 +36,8 @@ class IntelligentRouter:
         sonnet_service,
         devai_endpoint=None,
         search_service=None,
-        tool_executor=None
+        tool_executor=None,
+        cultural_rag_service=None  # NEW: Cultural RAG for Haiku enrichment
     ):
         """
         Initialize intelligent router
@@ -48,6 +49,7 @@ class IntelligentRouter:
             devai_endpoint: DevAI endpoint URL for code queries (optional)
             search_service: Optional SearchService for RAG
             tool_executor: ToolExecutor for handler execution (optional)
+            cultural_rag_service: CulturalRAGService for Indonesian cultural context (optional)
         """
         self.llama = llama_client
         self.haiku = haiku_service
@@ -55,6 +57,7 @@ class IntelligentRouter:
         self.devai_endpoint = devai_endpoint
         self.search = search_service
         self.tool_executor = tool_executor
+        self.cultural_rag = cultural_rag_service  # NEW: Cultural enrichment
 
         # Available tools will be loaded on first use
         self.all_tools = None
@@ -68,6 +71,7 @@ class IntelligentRouter:
         logger.info(f"   DevAI (code): {'✅' if devai_endpoint else '❌'}")
         logger.info(f"   RAG (context): {'✅' if search_service else '❌'}")
         logger.info(f"   Tool Use: {'✅' if tool_executor else '❌'}")
+        logger.info(f"   Cultural RAG (Haiku): {'✅' if cultural_rag_service else '❌'}")
 
 
     async def _load_tools(self):
@@ -297,6 +301,35 @@ class IntelligentRouter:
                 # ROUTE 1: Claude Haiku (Fast & Cheap)
                 logger.info("🏃 [Router] Using Claude Haiku (fast & cheap)")
 
+                # PHASE 4.5: Inject Cultural RAG context for Haiku (Indonesian cultural enrichment)
+                cultural_context = None
+                if self.cultural_rag:
+                    try:
+                        # Build context for cultural knowledge retrieval
+                        context_params = {
+                            "query": message,
+                            "intent": category,  # greeting, casual, etc.
+                            "conversation_stage": "first_contact" if not conversation_history or len(conversation_history) < 3 else "ongoing"
+                        }
+
+                        # Retrieve cultural knowledge chunks
+                        cultural_chunks = await self.cultural_rag.get_cultural_context(context_params, limit=2)
+
+                        if cultural_chunks:
+                            logger.info(f"🌴 [Cultural RAG] Injecting {len(cultural_chunks)} Indonesian cultural insights for Haiku")
+
+                            # Build cultural injection text
+                            cultural_context = self.cultural_rag.build_cultural_prompt_injection(cultural_chunks)
+                            logger.info(f"   Cultural context: {len(cultural_context)} chars")
+                    except Exception as e:
+                        logger.warning(f"⚠️ [Cultural RAG] Failed to get cultural context: {e}")
+                        cultural_context = None
+
+                # Combine memory + cultural context
+                enhanced_context = memory_context or ""
+                if cultural_context:
+                    enhanced_context += f"\n\n{cultural_context}"
+
                 # Use tool-enabled method if tools available
                 if self.tool_executor and self.haiku_tools:
                     logger.info(f"   Tool use: ENABLED (LIMITED - {len(self.haiku_tools)} tools)")
@@ -304,10 +337,10 @@ class IntelligentRouter:
                         message=message,
                         user_id=user_id,
                         conversation_history=conversation_history,
-                        memory_context=memory_context,  # PHASE 3: Pass memory
+                        memory_context=enhanced_context,  # PHASE 3+4.5: Memory + Cultural RAG
                         tools=self.haiku_tools,
                         tool_executor=self.tool_executor,
-                        max_tokens=50,  # Brief responses only
+                        max_tokens=150,  # Increased for cultural richness
                         max_tool_iterations=2  # LIMITED for speed
                     )
                 else:
@@ -316,8 +349,8 @@ class IntelligentRouter:
                         message=message,
                         user_id=user_id,
                         conversation_history=conversation_history,
-                        memory_context=memory_context,  # PHASE 3: Pass memory
-                        max_tokens=50
+                        memory_context=enhanced_context,  # PHASE 3+4.5: Memory + Cultural RAG
+                        max_tokens=150  # Increased for cultural richness
                     )
 
                 return {
