@@ -1050,6 +1050,74 @@ async def search_endpoint(request: SearchRequest):
         raise HTTPException(500, f"Search failed: {str(e)}")
 
 
+# Webapp compatibility models
+class WebappCallRequest(BaseModel):
+    """Webapp format: {key: 'ai.chat', params: {message, provider, ...}}"""
+    key: str
+    params: Dict[str, Any]
+
+@app.post("/call")
+async def webapp_call_adapter(request: WebappCallRequest):
+    """
+    Webapp compatibility adapter - converts webapp format to BaliZeroRequest
+    Webapp sends: {key: 'ai.chat', params: {message, provider, system, ...}}
+    Backend expects: {query, user_email, conversation_history, ...}
+    """
+    logger.info(f"📡 [Webapp Adapter] Received call: key={request.key}")
+
+    # Extract params
+    params = request.params or {}
+    message = params.get("message", "")
+    user_email = params.get("user_email") or params.get("email")
+    provider = params.get("provider", "zantara")
+
+    # Handle ai.chat key
+    if request.key == "ai.chat":
+        # Convert to BaliZeroRequest format
+        bali_request = BaliZeroRequest(
+            query=message,
+            user_email=user_email,
+            conversation_history=[],
+            mode="santai" if len(message) < 50 else "pikiran"
+        )
+
+        # Call main chat endpoint
+        response = await bali_zero_chat(bali_request)
+
+        # Convert response to webapp format
+        return {
+            "ok": True,
+            "data": {
+                "response": response.response,
+                "model": response.model_used,
+                "ai_used": response.ai_used,
+                "sources": response.sources,
+                "usage": response.usage
+            }
+        }
+
+    # Handle other keys (pricing, handlers, etc.)
+    else:
+        # Pass through to handler proxy if available
+        if handler_proxy_service:
+            try:
+                internal_key = os.getenv("API_KEYS_INTERNAL", "zantara-internal-dev-key-2025")
+                result = await handler_proxy_service.execute_handler(
+                    handler_key=request.key,
+                    params=params,
+                    internal_key=internal_key
+                )
+                return {"ok": True, "data": result}
+            except Exception as e:
+                logger.error(f"❌ [Adapter] Handler proxy failed: {e}")
+                return {"ok": False, "error": str(e)}
+        else:
+            return {
+                "ok": False,
+                "error": f"Handler '{request.key}' not supported (handler proxy unavailable)"
+            }
+
+
 @app.post("/bali-zero/chat", response_model=BaliZeroResponse)
 async def bali_zero_chat(request: BaliZeroRequest):
     """
