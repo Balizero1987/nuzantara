@@ -7,8 +7,8 @@ const API_CONFIG = {
   // Proxy/BFF endpoints (server-side adds x-api-key, client sends x-user-id)
   proxy: {
     production: {
-      // CORRECTED 2025-10-15: Using ACTUAL deployed Cloud Run URL
-      base: (typeof window !== 'undefined' && (window.ZANTARA_PROXY_BASE || localStorage.getItem('zantara-proxy-base'))) || 'https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app',
+      // UPDATED 2025-10-16: Railway deployment (migrated from GCP Cloud Run)
+      base: (typeof window !== 'undefined' && (window.ZANTARA_PROXY_BASE || localStorage.getItem('zantara-proxy-base'))) || 'https://nuzantara-production.up.railway.app',
       call: '/call',
       ai: '/ai.chat',
       aiStream: '/ai.chat.stream',
@@ -17,9 +17,9 @@ const API_CONFIG = {
       health: '/health'
     }
   },
-  // Direct endpoints (Cloud Run) — used only when explicitly forced in dev
+  // Direct endpoints (Railway TS Backend) — used only when explicitly forced in dev
   production: {
-    base: (typeof window !== 'undefined' && (window.ZANTARA_PROXY_BASE || localStorage.getItem('zantara-proxy-base'))) || 'https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app',
+    base: (typeof window !== 'undefined' && (window.ZANTARA_PROXY_BASE || localStorage.getItem('zantara-proxy-base'))) || 'https://nuzantara-production.up.railway.app',
     call: '/call',
     health: '/health'
   },
