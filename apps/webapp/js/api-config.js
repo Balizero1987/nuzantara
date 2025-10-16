@@ -7,20 +7,17 @@ const API_CONFIG = {
   // Proxy/BFF endpoints (server-side adds x-api-key, client sends x-user-id)
   proxy: {
     production: {
-      // UPDATED 2025-10-16: Railway deployment (migrated from GCP Cloud Run)
-      base: (typeof window !== 'undefined' && (window.ZANTARA_PROXY_BASE || localStorage.getItem('zantara-proxy-base'))) || 'https://nuzantara-production.up.railway.app',
-      call: '/call',
-      ai: '/ai.chat',
-      aiStream: '/ai.chat.stream',
-      pricingOfficial: '/pricing.official',
-      priceLookup: '/price.lookup',
+      // UPDATED 2025-10-16: Railway RAG Backend (Python FastAPI with ChromaDB)
+      base: (typeof window !== 'undefined' && (window.ZANTARA_PROXY_BASE || localStorage.getItem('zantara-proxy-base'))) || 'https://scintillating-kindness-production-47e3.up.railway.app',
+      call: '/bali-zero/chat',
+      search: '/search',
       health: '/health'
     }
   },
-  // Direct endpoints (Railway TS Backend) — used only when explicitly forced in dev
+  // Direct endpoints (Railway RAG Backend) — used only when explicitly forced in dev
   production: {
-    base: (typeof window !== 'undefined' && (window.ZANTARA_PROXY_BASE || localStorage.getItem('zantara-proxy-base'))) || 'https://nuzantara-production.up.railway.app',
-    call: '/call',
+    base: (typeof window !== 'undefined' && (window.ZANTARA_PROXY_BASE || localStorage.getItem('zantara-proxy-base'))) || 'https://scintillating-kindness-production-47e3.up.railway.app',
+    call: '/bali-zero/chat',
     health: '/health'
   },
   // Streaming configuration
