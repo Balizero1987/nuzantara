@@ -449,8 +449,10 @@ def format_zantara_answer(text: str) -> str:
     # if len(cleaned) > max_chars:
     #     cleaned = cleaned[:max_chars].rsplit("\n", 1)[0].strip() + "..."
 
-    if "+62 859 0436 9574" not in cleaned and "info@balizero.com" not in cleaned:
-        cleaned += "\n\nPer assistenza diretta contattaci su WhatsApp +62 859 0436 9574 oppure info@balizero.com."
+    # REMOVED: Automatic CTA injection was repetitive
+    # System prompt already instructs AI to "End warmly" with contact info when appropriate
+    # if "+62 859 0436 9574" not in cleaned and "info@balizero.com" not in cleaned:
+    #     cleaned += "\n\nPer assistenza diretta contattaci su WhatsApp +62 859 0436 9574 oppure info@balizero.com."
 
     return cleaned
 

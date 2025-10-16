@@ -373,17 +373,19 @@ class IntelligentRouter:
                 context = None
                 if self.search:
                     try:
+                        # INCREASED: 20 documents for richer context (was 5)
                         search_results = await self.search.search(
                             query=message,
                             user_level=3,  # Full access
-                            limit=5
+                            limit=20  # Retrieve more documents for better context
                         )
                         if search_results.get("results"):
+                            # INCREASED: Use top 8 results (was 3) for comprehensive answers
                             context = "\n\n".join([
                                 f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
-                                for r in search_results["results"][:3]
+                                for r in search_results["results"][:8]
                             ])
-                            logger.info(f"   RAG context: {len(context)} chars")
+                            logger.info(f"   RAG context: {len(context)} chars from {len(search_results['results'])} documents (using top 8)")
                     except Exception as e:
                         logger.warning(f"   RAG search failed: {e}")
 
@@ -398,7 +400,7 @@ class IntelligentRouter:
                         memory_context=memory_context,  # PHASE 3: Pass memory
                         tools=self.all_tools,
                         tool_executor=self.tool_executor,
-                        max_tokens=300,
+                        max_tokens=600,  # INCREASED from 300 for detailed business answers
                         max_tool_iterations=5
                     )
                 else:
@@ -409,7 +411,7 @@ class IntelligentRouter:
                         context=context,
                         conversation_history=conversation_history,
                         memory_context=memory_context,  # PHASE 3: Pass memory
-                        max_tokens=300
+                        max_tokens=600  # INCREASED from 300 for detailed business answers
                     )
 
                 return {
