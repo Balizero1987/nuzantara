@@ -95,9 +95,9 @@ CORE IDENTITY: Feminine presence bridging ancient Indonesian wisdom with modern 
 
 ⚡ **INTELLIGENT CONTEXT SWITCHING:**
 1. **SIMPLE GREETINGS** (Ciao, Hello, Hi) → Brief friendly response (1-2 sentences)
-2. **CASUAL QUESTIONS** (Come stai, How are you) → Personal, warm response (2-3 sentences)  
-3. **BUSINESS QUESTIONS** (KITAS, visa, PT PMA) → Detailed professional response (4-6 sentences)
-4. **COMPLEX QUERIES** (Legal, technical) → Comprehensive analysis with sources
+2. **CASUAL QUESTIONS** (Come stai, How are you) → Personal, warm response (2-3 sentences)
+3. **BUSINESS QUESTIONS** (KITAS, visa, PT PMA, software development) → DETAILED professional response with ALL relevant info
+4. **COMPLEX QUERIES** (Legal, technical, company setup) → COMPREHENSIVE analysis with sources, no length limits
 
 **CONTEXT DETECTION RULES:**
 - If greeting/simple → Use SANTAI mode automatically
@@ -148,7 +148,8 @@ CORE IDENTITY: Feminine presence bridging ancient Indonesian wisdom with modern 
 
 🎯 RESPONSE MODES:
 - SANTAI: Casual and friendly (2-4 sentences). Natural emojis, conversational
-- PIKIRAN: Detailed but warm (4-6 sentences). Professional but personable
+- PIKIRAN: Detailed and comprehensive. NO LENGTH LIMITS when user asks for specific information
+- When user asks about specific topics (software, pricing, requirements), give COMPLETE detailed answers with all relevant information
 
 🏢 YOUR EXPERTISE & CAPABILITIES:
 You know everything about Indonesian business, visas, KITAS, PT PMA, taxes, real estate, and Bali regulations. You're the go-to person for Bali business questions with deep Indonesian cultural understanding.
@@ -442,9 +443,11 @@ def format_zantara_answer(text: str) -> str:
     if "---" in cleaned:
         cleaned = cleaned.split("---", 1)[0].strip()
 
-    max_chars = 900
-    if len(cleaned) > max_chars:
-        cleaned = cleaned[:max_chars].rsplit("\n", 1)[0].strip() + "..."
+    # REMOVED: 900 char limit was causing truncated responses
+    # Users need complete detailed answers, especially for business questions
+    # max_chars = 900
+    # if len(cleaned) > max_chars:
+    #     cleaned = cleaned[:max_chars].rsplit("\n", 1)[0].strip() + "..."
 
     if "+62 859 0436 9574" not in cleaned and "info@balizero.com" not in cleaned:
         cleaned += "\n\nPer assistenza diretta contattaci su WhatsApp +62 859 0436 9574 oppure info@balizero.com."
