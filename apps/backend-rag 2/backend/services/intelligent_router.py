@@ -205,44 +205,18 @@ class IntelligentRouter:
                     "suggested_ai": "devai"
                 }
 
-            # For ambiguous cases, use LLAMA classification
-            logger.info(f"🤔 [Router] Using LLAMA classification for: '{message[:50]}...'")
+            # For ambiguous cases, DEFAULT to Haiku (fast) for short messages, Sonnet for longer
+            logger.info(f"🤔 [Router] LLAMA DISABLED - Using fast pattern fallback for: '{message[:50]}...'")
 
-            classification_prompt = f"""Classify this user message into ONE category:
-
-Message: "{message}"
-
-Categories:
-1. greeting - Simple greetings (Ciao, Hello, Hi)
-2. casual - Casual questions (Come stai? How are you?)
-3. business_simple - Simple business questions
-4. business_complex - Complex business/legal questions
-5. devai_code - Development/programming/code questions
-6. unknown - Unclear/other
-
-Reply with ONLY the category name, nothing else."""
-
-            response = await self.llama.chat_async(
-                messages=[{"role": "user", "content": classification_prompt}],
-                max_tokens=20,
-                temperature=0.1  # Low temperature for consistent classification
-            )
-
-            category = response.get("text", "unknown").strip().lower()
-
-            # Map category to AI
-            ai_map = {
-                "greeting": "haiku",
-                "casual": "haiku",
-                "business_simple": "sonnet",
-                "business_complex": "sonnet",
-                "devai_code": "devai",
-                "unknown": "sonnet"  # Default to Sonnet for safety
-            }
-
-            suggested_ai = ai_map.get(category, "sonnet")
-
-            logger.info(f"🎯 [Router] LLAMA classified: {category} → {suggested_ai}")
+            # Fast heuristic: short messages → Haiku, longer → Sonnet
+            if len(message) < 50:
+                category = "casual"
+                suggested_ai = "haiku"
+                logger.info(f"🎯 [Router] Fast fallback: SHORT message → Haiku")
+            else:
+                category = "business_simple"
+                suggested_ai = "sonnet"
+                logger.info(f"🎯 [Router] Fast fallback: LONG message → Sonnet")
 
             return {
                 "category": category,
