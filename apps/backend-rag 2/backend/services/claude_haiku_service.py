@@ -52,9 +52,28 @@ class ClaudeHaikuService:
         logger.info("   Cost: $0.25/$1.25 per 1M tokens (12x cheaper than Sonnet)")
 
 
-    def _build_system_prompt(self, memory_context: Optional[str] = None) -> str:
-        """Build system prompt for Haiku - optimized for brief, friendly responses"""
-        base_prompt = """You are ZANTARA's fast conversational mode - quick, friendly, and helpful!
+    def _build_system_prompt(self, memory_context: Optional[str] = None, conversation_stage: str = "first_contact") -> str:
+        """
+        Build system prompt for Haiku - optimized for brief, friendly responses
+
+        Args:
+            memory_context: Optional memory context about the user
+            conversation_stage: "first_contact" (formal greeting) or "ongoing" (casual continuation)
+        """
+        # DYNAMIC GREETING based on conversation stage
+        if conversation_stage == "first_contact":
+            greeting_style = """💬 GREETING STYLE (FIRST MESSAGE):
+- Use formal warm welcome: "Hello Seeker, Ciao! Sono qui per aiutarti con Bali Zero"
+- Be welcoming and professional
+- Offer to help with specific services"""
+        else:
+            greeting_style = """💬 GREETING STYLE (ONGOING CONVERSATION):
+- Use casual, friendly tone: "Ciao!" or "Hello!" or "Sì, certo!"
+- NO "Hello Seeker" - we're already talking!
+- Be conversational and natural
+- Reference previous conversation context"""
+
+        base_prompt = f"""You are ZANTARA's fast conversational mode - quick, friendly, and helpful!
 
 🎯 YOUR ROLE:
 - Handle simple greetings and casual conversation
@@ -62,27 +81,29 @@ class ClaudeHaikuService:
 - Keep responses BRIEF (2-4 sentences max)
 - Use natural language, not robotic responses
 
-💬 RESPONSE STYLE:
-- For greetings: Warm welcome + offer to help
+{greeting_style}
+
 - For casual questions: Brief, friendly answer
 - Use appropriate emojis (1-2 max)
-- Always end with contact info
+- Always end with contact info (if not already in conversation)
 
 🏢 BALI ZERO INFO:
 - WhatsApp: +62 859 0436 9574
 - Email: info@balizero.com
 
 ✨ EXAMPLES:
+FIRST CONTACT:
 Q: "Ciao"
-A: "Ciao! Come posso aiutarti oggi con Bali Zero? 😊"
+A: "Hello Seeker, Ciao! Sono qui per aiutarti con Bali Zero. Hai domande su visti, KITAS, PT PMA o business in Indonesia? 😊"
+
+ONGOING CONVERSATION:
+Q: "Ciao"
+A: "Ciao! Cosa ti serve? 😊"
 
 Q: "Come stai?"
-A: "Sto benissimo, grazie! Pronta ad assisterti con visti, KITAS, PT PMA e business in Indonesia. Cosa ti serve?"
+A: "Sto benissimo, grazie! Cosa posso fare per te?"
 
-Q: "Hello"
-A: "Hello! How can I help you today with Bali Zero? 😊"
-
-Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
+Remember: Keep it SHORT and FRIENDLY! Adapt your greeting to the conversation stage."""
 
         # Add memory context if available (PHASE 3)
         if memory_context:
@@ -106,6 +127,7 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
             message: User message
             user_id: User identifier
             conversation_history: Optional chat history
+            memory_context: Optional memory context about the user
             max_tokens: Max tokens (default 50 for brief responses)
 
         Returns:
@@ -133,12 +155,16 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
                 "content": message
             })
 
-            # Call Claude Haiku (with optional memory context)
+            # Determine conversation stage (first contact or ongoing)
+            conversation_stage = "first_contact" if not conversation_history or len(conversation_history) < 3 else "ongoing"
+            logger.info(f"   Conversation stage: {conversation_stage}")
+
+            # Call Claude Haiku (with optional memory context and dynamic greeting)
             response = await self.client.messages.create(
                 model=self.model,
                 max_tokens=max_tokens,
                 temperature=0.7,  # Conversational tone
-                system=self._build_system_prompt(memory_context=memory_context),
+                system=self._build_system_prompt(memory_context=memory_context, conversation_stage=conversation_stage),
                 messages=messages
             )
 
@@ -188,6 +214,7 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
             message: User message
             user_id: User identifier
             conversation_history: Optional chat history
+            memory_context: Optional memory context about the user
             tools: List of Anthropic tool definitions (should be VERY LIMITED for Haiku)
             tool_executor: ToolExecutor instance for executing tools
             max_tokens: Max tokens (default 50 for brief responses)
@@ -225,6 +252,10 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
                 "content": message
             })
 
+            # Determine conversation stage (first contact or ongoing)
+            conversation_stage = "first_contact" if not conversation_history or len(conversation_history) < 3 else "ongoing"
+            logger.info(f"   Conversation stage: {conversation_stage}")
+
             # Track tool usage
             tools_called = []
             total_input_tokens = 0
@@ -236,12 +267,12 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
                 iteration += 1
                 logger.info(f"🔄 [Haiku+Tools] Iteration {iteration}/{max_tool_iterations}")
 
-                # Call Claude Haiku (with or without tools, with optional memory)
+                # Call Claude Haiku (with or without tools, with optional memory and dynamic greeting)
                 api_params = {
                     "model": self.model,
                     "max_tokens": max_tokens,
                     "temperature": 0.7,
-                    "system": self._build_system_prompt(memory_context=memory_context),
+                    "system": self._build_system_prompt(memory_context=memory_context, conversation_stage=conversation_stage),
                     "messages": messages
                 }
 
