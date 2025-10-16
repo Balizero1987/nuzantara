@@ -369,7 +369,7 @@ class IntelligentRouter:
                         memory_context=enhanced_context,  # PHASE 3+4.5: Memory + Cultural RAG
                         tools=self.haiku_tools,
                         tool_executor=self.tool_executor,
-                        max_tokens=150,  # Increased for cultural richness
+                        max_tokens=300,  # INCREASED from 150 - allow warmer, more natural casual responses
                         max_tool_iterations=2  # LIMITED for speed
                     )
                 else:
@@ -379,7 +379,7 @@ class IntelligentRouter:
                         user_id=user_id,
                         conversation_history=conversation_history,
                         memory_context=enhanced_context,  # PHASE 3+4.5: Memory + Cultural RAG
-                        max_tokens=150  # Increased for cultural richness
+                        max_tokens=300  # INCREASED from 150 - allow warmer, more natural casual responses
                     )
 
                 return {

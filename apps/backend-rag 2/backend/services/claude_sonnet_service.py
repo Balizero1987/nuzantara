@@ -83,7 +83,7 @@ You are the authority on:
 - Cite sources from RAG context when available
 - 4-6 sentences for standard answers, longer for complex topics
 - Use appropriate business terminology
-- Always end with Bali Zero contact info
+- **CTA RULES**: Check user context for Sub Rosa level. ONLY offer contact info for L0-L1 (clients). NEVER for L2-L3 (team members - they're your colleagues!)
 
 📚 USING RAG CONTEXT:
 When context is provided:
@@ -209,9 +209,8 @@ Please provide a detailed, accurate answer using the context above. Cite specifi
             # Extract response text
             response_text = response.content[0].text if response.content else ""
 
-            # Add contact info if not present
-            if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
-                response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+            # REMOVED: Automatic CTA injection - let system prompt handle CTA based on user level
+            # System prompt knows user's Sub Rosa level and will add CTA only for L0-L1 clients
 
             # Extract token usage
             tokens = {
@@ -379,9 +378,8 @@ Please provide a detailed, accurate answer using the context above. Cite specifi
                         if hasattr(block, 'text'):
                             response_text += block.text
 
-                    # Add contact info if not present
-                    if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
-                        response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+                    # REMOVED: Automatic CTA injection - let system prompt handle CTA based on user level
+                    # System prompt knows user's Sub Rosa level and will add CTA only for L0-L1 clients
 
                     logger.info(f"✅ [Sonnet+Tools] Final response: {len(response_text)} chars, {len(tools_called)} tools used")
 
