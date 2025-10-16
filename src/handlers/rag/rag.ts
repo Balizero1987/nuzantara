@@ -45,17 +45,20 @@ export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryRes
  * Specialized for immigration/visa queries
  */
 export async function baliZeroChat(params: any, _req?: Request): Promise<BaliZeroResponse> {
-  const { query, conversation_history, user_role = 'member' } = params;
+  const { query, conversation_history, user_role = 'member', user_email } = params;
 
   if (!query) {
     throw new Error('Query parameter is required');
   }
 
+  logger.info(`🔐 [baliZeroChat] Forwarding to backend with user_email: ${user_email || 'NONE'}`);
+
   try {
     const result = await ragService.baliZeroChat({
       query,
       conversation_history,
-      user_role
+      user_role,
+      user_email  // CRITICAL: Pass user_email to backend for collaborator identification
     });
 
     // Normalize empty responses to a safe, user‑visible fallback to avoid "blank" UI replies

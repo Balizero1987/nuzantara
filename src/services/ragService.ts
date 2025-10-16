@@ -30,6 +30,7 @@ interface BaliZeroRequest {
   query: string;
   conversation_history?: Array<{role: string; content: string}>;
   user_role?: 'member' | 'lead';
+  user_email?: string;  // CRITICAL: For collaborator identification
 }
 
 export interface BaliZeroResponse {
