@@ -1187,7 +1187,21 @@ async def bali_zero_chat(request: BaliZeroRequest):
             user_id = collaborator.id
             logger.info(f"👤 {collaborator.name} ({collaborator.ambaradam_name}) - L{sub_rosa_level} - {collaborator.language}")
         else:
-            logger.info("👤 Anonymous user - L0 (Public)")
+            # PHASE 1.5: Language detection for anonymous users
+            detected_language = "en"  # default
+            if request.query:
+                message_lower = request.query.lower()
+                # Italian detection
+                italian_keywords = ["ciao", "come stai", "come va", "grazie", "prego", "buongiorno", "buonasera", "sono", "vorrei", "cosa"]
+                if any(word in message_lower for word in italian_keywords):
+                    detected_language = "it"
+                # Indonesian detection
+                elif any(word in message_lower for word in ["halo", "apa kabar", "terima kasih", "selamat", "aku", "saya", "mau", "bisa"]):
+                    detected_language = "id"
+
+                logger.info(f"🌐 [Language] Detected for anonymous: {detected_language}")
+
+            logger.info(f"👤 Anonymous user - L0 (Public) - Language: {detected_language}")
 
         # PHASE 2: Load user memory
         memory = None
@@ -1253,6 +1267,15 @@ async def bali_zero_chat(request: BaliZeroRequest):
                 # CRITICAL: Add team relationship context for L2-L3 users
                 if sub_rosa_level >= 2:
                     collaborator_facts.append("RELATIONSHIP: COLLEAGUE - You work together at Bali Zero. NEVER offer WhatsApp/CTA to team members.")
+                    # Add team awareness note
+                    if collaborator.department == "setup":
+                        collaborator_facts.append("Team members in setup department: Amanda, Anton, Krisna, Ari, Vino, Adit, Dea, Surya, Damar (all colleagues)")
+                    elif collaborator.department == "tax":
+                        collaborator_facts.append("Team members in tax department: Veronika, Angel, Kadek, Dewa Ayu, Faisha (all colleagues)")
+                    elif collaborator.department == "management":
+                        collaborator_facts.append("Team members in management: Zero, Zainal, Ruslana (leadership team)")
+                    else:
+                        collaborator_facts.append("You can ask about other team members - they're your colleagues at Bali Zero")
 
                 # Add to profile_facts if not already there
                 for fact in collaborator_facts:
