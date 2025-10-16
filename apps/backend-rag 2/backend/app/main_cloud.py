@@ -1324,31 +1324,9 @@ async def bali_zero_chat(request: BaliZeroRequest):
                 except Exception as e:
                     logger.warning(f"Source extraction failed: {e}")
 
-            # Personalize response with collaborator name if available
-            try:
-                if collaborator and answer:
-                    is_it = (collaborator.language or "en").lower().startswith("it")
-                    name = collaborator.ambaradam_name
-                    if is_it:
-                        if answer.strip().lower().startswith("ciao") and name.lower() not in answer[:100].lower():
-                            parts = answer.lstrip().split(" ", 1)
-                            if len(parts) > 1:
-                                answer = "Ciao " + name + ", " + parts[1]
-                            else:
-                                answer = f"Ciao {name}! Come posso aiutarti oggi?"
-                        elif name.lower() not in answer[:100].lower():
-                            answer = f"Ciao {name}, " + answer
-                    else:
-                        if answer.strip().lower().startswith(("hello", "hi")) and name.lower() not in answer[:100].lower():
-                            parts = answer.lstrip().split(" ", 1) if " " in answer.lstrip() else [answer.lstrip()]
-                            if len(parts) > 1:
-                                answer = f"Hello {name}, " + parts[1]
-                            else:
-                                answer = f"Hello {name}! How can I help you today?"
-                        elif name.lower() not in answer[:100].lower():
-                            answer = f"Hello {name}, " + answer
-            except Exception as _e:
-                pass  # Non-blocking
+            # REMOVED: Automatic name injection was too robotic
+            # AI should handle personalization naturally based on context and memory
+            # The system prompt already instructs the AI to be personable and use names appropriately
 
             # Sanitize content for public users (L0-L1)
             if sub_rosa_level < 2:
