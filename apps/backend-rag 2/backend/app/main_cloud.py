@@ -672,13 +672,16 @@ async def startup_event():
                     logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
                     tool_executor = None
 
+            # Note: cultural_rag_service will be initialized later, so we pass None for now
+            # Router will be updated after cultural_rag_service initialization
             intelligent_router = IntelligentRouter(
                 llama_client=zantara_client,
                 haiku_service=claude_haiku,
                 sonnet_service=claude_sonnet,
                 devai_endpoint=devai_endpoint,
                 search_service=search_service,
-                tool_executor=tool_executor
+                tool_executor=tool_executor,
+                cultural_rag_service=None  # Will be set after initialization
             )
             logger.info("✅ Intelligent Router ready (QUADRUPLE-AI)")
             logger.info("   AI 1: LLAMA (classification + fallback)")
@@ -789,6 +792,11 @@ async def startup_event():
             await cultural_rag_service.connect()
             logger.info("✅ CulturalRAGService ready (Indonesian cultural context for Haiku)")
             logger.info("   Dynamic cultural knowledge injection based on conversation context")
+
+            # Update IntelligentRouter with CulturalRAGService
+            if intelligent_router:
+                intelligent_router.cultural_rag = cultural_rag_service
+                logger.info("✅ Intelligent Router updated with Cultural RAG service")
         else:
             logger.warning("⚠️ DATABASE_URL not set - Cultural RAG service unavailable")
             cultural_rag_service = None
