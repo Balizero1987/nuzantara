@@ -8,13 +8,14 @@ import { globalRegistry } from '../../core/handler-registry.js';
 import { aiChat } from './ai.js';
 import { aiAnticipate, aiLearn, xaiExplain } from './advanced-ai.js';
 import { creativeHandlers } from './creative.js';
-import { 
-  zantaraCallDevAI, 
-  zantaraOrchestrateWorkflow, 
-  zantaraGetConversationHistory, 
-  zantaraGetSharedContext, 
-  zantaraClearWorkflow 
+import {
+  zantaraCallDevAI,
+  zantaraOrchestrateWorkflow,
+  zantaraGetConversationHistory,
+  zantaraGetSharedContext,
+  zantaraClearWorkflow
 } from './ai-bridge.js';
+import { aiImageGenerate, aiImageUpscale, aiImageTest } from './imagine-art-handler.js';
 
 export function registerAIServicesHandlers() {
   // Single ZANTARA AI handler (no multi-provider complexity)
@@ -59,7 +60,17 @@ export function registerAIServicesHandlers() {
     }
   }
 
-  logger.info('✅ AI Services handlers registered');
+  // Imagine.art image generation handlers
+  globalRegistry.registerModule('ai-services', {
+    'image.generate': aiImageGenerate,
+    'image.upscale': aiImageUpscale,
+    'image.test': aiImageTest
+  }, {
+    requiresAuth: false, // Can be public or require auth based on use case
+    description: 'Imagine.art AI image generation'
+  });
+
+  logger.info('✅ AI Services handlers registered (including Imagine.art)');
 }
 
 registerAIServicesHandlers();
