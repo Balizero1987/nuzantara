@@ -83,21 +83,71 @@
 
 /* Dark Mode Variables */
 .dark-mode {
-    --bg-primary: var(--black);
+    --bg-primary: #0F0F0F;
     --bg-secondary: #1A1A1A;
     --bg-tertiary: #252525;
     --bg-hover: #2A2A2A;
     
-    --text-primary: var(--white);
+    --text-primary: #FFFFFF;
     --text-secondary: #A0A0A0;
     --text-tertiary: #6B6B6B;
     
     --border-color: #2A2A2A;
     
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.8);
+}
+
+/* Dark mode specific styles */
+.dark-mode .header {
+    background: #0F0F0F;
+    border-bottom-color: #2A2A2A;
+}
+
+.dark-mode .sidebar {
+    background: #0F0F0F;
+    border-right-color: #2A2A2A;
+}
+
+.dark-mode .project-card {
+    background: #1A1A1A;
+    border-color: #2A2A2A;
+}
+
+.dark-mode .project-card:hover {
+    background: #1F1F1F;
+    border-color: rgba(107, 79, 168, 0.5);
+}
+
+.dark-mode .widget {
+    background: #1A1A1A;
+    border-color: #2A2A2A;
+}
+
+.dark-mode .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.dark-mode .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .progress-bar {
+    background: #252525;
+}
+
+.dark-mode .project-card-add {
+    background: #1A1A1A;
+    border-color: #2A2A2A;
+}
+
+.dark-mode .project-card-add:hover {
+    background: #1F1F1F;
+    border-color: var(--color-primary);
 }
 
 /* ========================================

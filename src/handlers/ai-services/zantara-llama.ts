@@ -18,6 +18,7 @@ interface ZantaraParams {
   temperature?: number;
   context?: string;
   mode?: 'santai' | 'pikiran';
+  user_email?: string;  // CRITICAL: For collaborator identification
 }
 
 /**
@@ -31,14 +32,15 @@ export async function zantaraChat(params: ZantaraParams) {
 
   const message = String(params.message).trim();
   const mode = params.mode || 'santai'; // Default to Santai mode
+  const user_email = params.user_email || 'guest'; // Use provided email or default to guest
 
-  logger.info(`🎯 [ZANTARA RAG] Mode: ${mode}, Message: ${message.substring(0, 50)}...`);
+  logger.info(`🎯 [ZANTARA RAG] Mode: ${mode}, User: ${user_email}, Message: ${message.substring(0, 50)}...`);
 
   try {
     // Call RAG Backend with shorter timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
-    
+
     const response = await fetch(`${RAG_BACKEND_URL}/bali-zero/chat`, {
       method: 'POST',
       headers: {
@@ -47,7 +49,7 @@ export async function zantaraChat(params: ZantaraParams) {
       body: JSON.stringify({
         query: message,
         mode: mode,
-        user_email: 'guest', // Default user
+        user_email: user_email, // CRITICAL: Pass actual user email for identification
         user_role: 'member'
       }),
       signal: controller.signal
