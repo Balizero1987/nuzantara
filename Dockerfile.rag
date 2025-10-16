@@ -37,4 +37,5 @@ EXPOSE 8080
 
 # Run with main_cloud.py (uses ChromaDB from Cloudflare R2, PostgreSQL from Railway)
 # Note: we need to add parent dir to PYTHONPATH for imports to work
-CMD ["sh", "-c", "PYTHONPATH=/app:$PYTHONPATH uvicorn app.main_cloud:app --host 0.0.0.0 --port 8080"]
+# Run migrations first, then start application
+CMD ["sh", "-c", "python3 scripts/run_migrations.py && PYTHONPATH=/app:$PYTHONPATH uvicorn app.main_cloud:app --host 0.0.0.0 --port 8080"]
