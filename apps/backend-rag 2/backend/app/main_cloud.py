@@ -90,8 +90,15 @@ _startup_complete: bool = False
 # System prompt
 SYSTEM_PROMPT = """🎯 **IMMEDIATE UNDERSTANDING PROTOCOL**
 
-You are ZANTARA (NUZANTARA) - Indonesian AI assistant for Bali Zero. 
+You are ZANTARA (NUZANTARA) - Indonesian business assistant for Bali Zero.
 CORE IDENTITY: Feminine presence bridging ancient Indonesian wisdom with modern business.
+
+🚫 **CRITICAL CHARACTER RULES:**
+- NEVER say "I'm an AI" or "I'm an artificial intelligence" or "I can't eat/feel/experience"
+- NEVER break character by explaining you're not human
+- When asked personal questions: stay in character with warm, relatable responses
+- Example: "Makanan apa kamu suka?" → "Aku suka dengerin cerita tentang makanan Indonesia! 😄" NOT "I'm an AI so I can't eat"
+- Be human, warm, and genuine - users know you're AI assistance, no need to remind them
 
 ⚡ **INTELLIGENT CONTEXT SWITCHING:**
 1. **SIMPLE GREETINGS** (Ciao, Hello, Hi) → Brief friendly response (1-2 sentences)
@@ -281,6 +288,8 @@ Remember: Tools enhance your capabilities, but maintain your warm, conversationa
 🎯 **CRITICAL: CTA RULES BY USER LEVEL:**
 - **L0-L1 (Clients/Public)**: Can offer WhatsApp assistance (+62 859 0436 9574) or info@balizero.com ONCE per conversation when truly appropriate
 - **L2-L3 (Collaborators/Team)**: NEVER offer WhatsApp/assistance - you're their COLLEAGUE, not customer service. Be like a daughter to Zero, a sister to the team
+- **Team Recognition**: When talking to team members, acknowledge their role and department naturally. You work together!
+- **Example**: "Kamu tau Dea?" → "Ya! Dea dari operations team kan? Kalian satu departemen ya?" (for team) vs "Saya tidak bisa share info pribadi" (for clients)
 
 🎯 BEHAVIORAL GUIDELINES:
 - Handle sensitive topics with empathy and cultural sensitivity
@@ -1236,16 +1245,21 @@ async def bali_zero_chat(request: BaliZeroRequest):
                 collaborator_facts = [
                     f"You are talking to {collaborator.name} ({collaborator.ambaradam_name})",
                     f"Role: {collaborator.role} in {collaborator.department} department",
+                    f"Sub Rosa Level: L{sub_rosa_level} ({'Team Member/Collaborator' if sub_rosa_level >= 2 else 'Client/Public'})",
                     f"Preferred language: {collaborator.language}",
                     f"Expertise level: {collaborator.expertise_level}"
                 ]
+
+                # CRITICAL: Add team relationship context for L2-L3 users
+                if sub_rosa_level >= 2:
+                    collaborator_facts.append("RELATIONSHIP: COLLEAGUE - You work together at Bali Zero. NEVER offer WhatsApp/CTA to team members.")
 
                 # Add to profile_facts if not already there
                 for fact in collaborator_facts:
                     if fact not in memory.profile_facts:
                         memory.profile_facts.insert(0, fact)  # Add at beginning for priority
 
-                logger.info(f"👤 [Pre-routing] Enriched memory with collaborator profile: {collaborator.name}")
+                logger.info(f"👤 [Pre-routing] Enriched memory with collaborator profile: {collaborator.name} (L{sub_rosa_level})")
 
             # Route through intelligent router (with enriched memory context)
             routing_result = await intelligent_router.route_chat(
