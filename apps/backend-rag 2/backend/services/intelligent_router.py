@@ -100,6 +100,7 @@ class IntelligentRouter:
             haiku_allowed_prefixes = [
                 "pricing_",           # Pricing queries (fast)
                 "team_recent",        # Recent activity (fast)
+                "team_list",          # Team members list (fast)
                 "memory_retrieve",    # Memory read (fast)
                 "memory_search"       # Memory search (fast)
             ]
