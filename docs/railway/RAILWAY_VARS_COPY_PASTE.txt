@@ -1,0 +1,63 @@
+======================================
+RAILWAY ENV VARIABLES - COPY/PASTE
+======================================
+
+Go to: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+Service: scintillating-kindness
+Tab: Variables
+Click: "New Variable" for each one
+
+======================================
+VARIABLE 1: R2_ACCESS_KEY_ID
+======================================
+[Get from Cloudflare R2 dashboard]
+
+======================================
+VARIABLE 2: R2_SECRET_ACCESS_KEY
+======================================
+[Get from Cloudflare R2 dashboard]
+
+======================================
+VARIABLE 3: R2_ENDPOINT_URL
+======================================
+https://[your-account-id].r2.cloudflarestorage.com
+
+======================================
+VARIABLE 4: R2_BUCKET_NAME
+======================================
+nuzantaradb
+
+======================================
+VARIABLE 5: ANTHROPIC_API_KEY
+======================================
+sk-ant-api03-[your-anthropic-api-key]
+
+======================================
+VARIABLE 6: TYPESCRIPT_BACKEND_URL
+======================================
+https://nuzantara-production.up.railway.app
+
+======================================
+VARIABLE 7: ENABLE_RERANKER
+======================================
+false
+
+======================================
+VARIABLE 8: PORT
+======================================
+8080
+
+======================================
+
+✅ DONE!
+After adding these variables:
+1. Railway will auto-deploy (2-3 minutes)
+2. Verify with: ./scripts/check_railway_env.sh
+3. The app will start with ChromaDB + full Claude AI!
+
+⚠️ OPTIONAL (if you have RunPod):
+- RUNPOD_LLAMA_ENDPOINT
+- RUNPOD_API_KEY
+- HF_API_KEY
+
+Without RunPod it still works at 95% (uses Claude only)!
