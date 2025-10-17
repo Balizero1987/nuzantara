@@ -310,9 +310,11 @@ class SecureTeamLogin {
           pinInput.value = '';
           this.updatePinIndicator(0);
 
-          // Redirect to chat
+          // Redirect to chat or original destination
           setTimeout(() => {
-            window.location.href = 'chat.html';
+            const redirectUrl = sessionStorage.getItem('zantara-redirect-after-login') || 'chat.html';
+            sessionStorage.removeItem('zantara-redirect-after-login'); // Clean up
+            window.location.href = redirectUrl;
           }, 1500);
         } else {
           // Feature #3: Parse remaining attempts from error message
