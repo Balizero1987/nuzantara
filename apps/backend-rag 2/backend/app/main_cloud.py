@@ -1118,12 +1118,12 @@ async def search_endpoint(request: SearchRequest):
             })
 
             # Use Claude Haiku for fast RAG search responses (LLAMA disabled)
-            if not claude_haiku_service:
+            if not claude_haiku:
                 raise HTTPException(503, "Claude AI not available")
 
             try:
                 logger.info("🎯 [RAG Search] Using Claude Haiku 3.5 (fast)")
-                response = await claude_haiku_service.chat(
+                response = await claude_haiku.chat(
                     message=f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}",
                     conversation_history=[],
                     system_prompt=SYSTEM_PROMPT
