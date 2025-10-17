@@ -1117,22 +1117,22 @@ async def search_endpoint(request: SearchRequest):
                 "content": f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
             })
 
-            # 🎯 ZANTARA-ONLY: Use ZANTARA Llama 3.1 (no fallbacks)
-            if not zantara_client:
-                raise HTTPException(503, "ZANTARA AI not available")
+            # Use Claude Haiku for fast RAG search responses (LLAMA disabled)
+            if not claude_haiku_service:
+                raise HTTPException(503, "Claude AI not available")
 
             try:
-                logger.info("🎯 [RAG Search] Using ZANTARA Llama 3.1 (ONLY AI)")
-                response = await zantara_client.chat_async(
-                    messages=messages,
-                    max_tokens=1500,
-                    system=SYSTEM_PROMPT
+                logger.info("🎯 [RAG Search] Using Claude Haiku 3.5 (fast)")
+                response = await claude_haiku_service.chat(
+                    message=f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}",
+                    conversation_history=[],
+                    system_prompt=SYSTEM_PROMPT
                 )
-                answer = format_zantara_answer(response.get("text", ""))
-                model_used = "zantara-llama-3.1-8b"
+                answer = response.get("content", "")
+                model_used = "claude-3-5-haiku"
             except Exception as e:
-                logger.error(f"❌ [RAG Search] ZANTARA failed: {e}")
-                raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
+                logger.error(f"❌ [RAG Search] Claude Haiku failed: {e}")
+                raise HTTPException(503, f"Claude AI error: {str(e)}")
 
         execution_time = (time.time() - start) * 1000
 
