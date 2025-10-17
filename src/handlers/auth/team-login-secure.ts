@@ -64,7 +64,7 @@ const TEAM_DATABASE = {
     email: 'amanda@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$rds5DKe7WyE1lsiiUu4R7.gB/nh0ke3TG55wnGSLMdDXYkjPouNj6',
+    pinHash: '$2b$10$aSbKt0B4axbmEMGlk8CjBeDsm37.shHvqtdiYDCCAz87bWk00taT2', // PIN: 180785
     badge: '📒'
   },
   'anton': {

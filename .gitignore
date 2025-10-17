@@ -91,3 +91,4 @@ ml/models/
 setup-env-test.sh
 .env.local
 .env.test
+.secrets/

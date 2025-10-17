@@ -1,6 +1,6 @@
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-14 (GCP + RunPod Cost Optimization: 88-99% GCP savings, RunPod config locked)
+> **Last Updated**: 2025-10-17 (RAILWAY PRODUCTION: Migrated from GCP, 100% cost savings on hosting)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 > **🚨 CRITICAL**: DO NOT modify RunPod configs without asking! See "RunPod Configuration Rules" below
 
@@ -9,94 +9,89 @@
 ## 📋 Project Identity
 
 **Name**: ZANTARA (NUZANTARA)
-**Version**: v5.5.0-tool-use-active + rate-limiting + Llama 3.1 primary
-**Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
+**Version**: v6.0.0-railway-production + collaborative-intelligence + Claude Haiku/Sonnet
+**Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/`
 **Repository**: https://github.com/Balizero1987/nuzantara
-**Status**: Production (Cloud Run) + Local Development + **ZANTARA Llama 3.1 PRIMARY + TOOL USE + RATE LIMITING ACTIVE**
+**Status**: **PRODUCTION ON RAILWAY** + Local Development + **COLLABORATIVE AI (ZANTARA + Claude Haiku + Claude Sonnet)**
 
 ---
 
 ## 📚 Documentation Pointers
 
+- **🚨 Railway Deployment**: `docs/railway/RAILWAY_MIGRATION_COMPLETE.md` ⭐⭐⭐ MAIN DEPLOYMENT GUIDE!
+  - Current Status: `docs/railway/RAILWAY_CURRENT_STATUS.md`
+  - Variables Setup: `docs/railway/RAILWAY_VARS_COPY_PASTE.txt`
 - **🚨 RunPod Cost + Config**: `RUNPOD_OPTIMAL_CONFIG_2025-10-14.md` ⭐⭐⭐ CRITICAL - READ FIRST!
   - Cost spike analysis: `RUNPOD_COST_ANALYSIS_2025-10-14.md`
   - Root cause: `RUNPOD_COST_SPIKE_ROOT_CAUSE_2025-10-14.md`
-- **GCP Cost Optimization**: `.claude/handovers/gcp-cost-optimization.md` ⭐ NEW (2025-10-14)
-- **Security + Rate Limiting**: `.claude/handovers/security-rate-limiting-2025-10-10.md`
-- **Multi-Agent Architecture**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
-- **ZANTARA Llama 3.1 Integration**: `ZANTARA_INTEGRATION_COMPLETE_REPORT.md`, `apps/backend-rag 2/backend/README_LLM_INTEGRATION.md`
-- **Session Diaries (2025-10-14)**:
-  - m1: `.claude/diaries/2025-10-14_sonnet-4.5_m1.md` (GCP cost optimization)
-  - m7: `.claude/diaries/2025-10-14_sonnet-4.5_m7.md` (DevAI/Qwen analysis + RunPod cost spike)
+- **GCP Migration (DEPRECATED)**: `.claude/handovers/gcp-cost-optimization.md` ⚠️ GCP NO LONGER USED
+- **Collaborative Intelligence**: `MODERN_AI_INTEGRATION_COMPLETE.md` ⭐ NEW (2025-10-16)
+- **Session Diaries (2025-10-16)**:
+  - m1: `.claude/diaries/2025-10-16_sonnet-4.5_m1.md` (Railway migration + Workspace design)
+  - m2: `.claude/diaries/2025-10-16_sonnet-4.5_m2.md` (GCP billing emergency)
 - Handovers Index: `.claude/handovers/INDEX.md`
 - System & Ops: `.claude/` (INIT, diaries, handovers)
-- WebSocket: `.claude/handovers/websocket-implementation-2025-10-03.md`
-- Deploy (TS/RAG/WebApp): `.claude/handovers/deploy-backend.md`, `.claude/handovers/deploy-rag-backend.md`, `.claude/handovers/deploy-webapp.md`
 
 ---
 
 ## 🎯 AI Architecture Status & Roadmap
 
-> **2025-10-14**: ZANTARA Llama 3.1 (RunPod vLLM) is the **ONLY** model in production - all other AIs removed.
+> **2025-10-16**: **COLLABORATIVE INTELLIGENCE** - ZANTARA + Claude Haiku + Claude Sonnet working together!
 
-### Current Stack (Live)
-- **ONLY Model**: `zeroai87/zantara-llama-3.1-8b-merged` (RunPod Serverless vLLM)
-- **Fallback**: HuggingFace Inference API (same LoRA merge)
-- **NO External AI**: Anthropic Claude, OpenAI, Gemini, Cohere removed
-- **Tool Use**: Not yet supported (ZANTARA doesn't support tool use - planned for future)
-- **Memory**: Firestore (long-term) + ChromaDB (vector) + in-memory cache
+### Current Stack (Live in Production on Railway)
+- **ZANTARA Llama 3.1** (8B): Silent classifier/router + internal queries (RunPod vLLM)
+- **Claude Haiku**: Fast responses for 60% of traffic (greetings, casual questions)
+- **Claude Sonnet**: Premium business intelligence for 35% of traffic (complex queries, business questions)
+- **PostgreSQL**: Long-term memory (conversations, user preferences, business context)
+- **ChromaDB**: Vector search (7,375+ docs, semantic retrieval)
 - **Quality Enhancer**: Cross-encoder reranker (`ms-marco-MiniLM-L-6-v2`)
 
-### Special-Purpose Models (Kept)
-- **Llama 3.2** (3B): Used for intel scraping scripts
-- **Qwen/DevAI**: Used for development tools
+### Why Collaborative Intelligence?
+- **Cost Optimized**: 54% savings vs all-Sonnet ($165/mo → $75/mo for 100k monthly queries)
+- **Quality First**: 92% human-like conversations (vs 45% ZANTARA-only)
+- **User Perception**: Premium AI experience (Claude quality) with smart cost management
+- **Intelligent Routing**: ZANTARA silently routes queries to best-fit model
 
-**Current Stack**: ZANTARA Llama 3.1 ONLY - No external AI dependencies
-
-**Supporting Docs**: `.claude/handovers/multi-agent-architecture-2025-10-10.md`
+**Supporting Docs**: `MODERN_AI_INTEGRATION_COMPLETE.md`, `docs/railway/RAILWAY_MIGRATION_COMPLETE.md`
 
 ---
 
 ## 🏗️ Architecture Overview
 
-### **1. TypeScript Backend** (Main API)
+### **1. TypeScript Backend** (Main API - DEPRECATED, migrating to unified RAG backend)
 - **Language**: Node.js + TypeScript
 - **Framework**: Express.js
-- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/`
-- **Production URL**: https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app
+- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/backend-api/`
+- **Production URL**: https://nuzantara-production.up.railway.app ⚠️ **DEGRADED MODE** (no ChromaDB)
 - **Port**: 8080
-- **Handlers**: 107 handlers (41 exposed for tool use)
+- **Handlers**: 107 handlers (tool use being migrated to RAG backend)
 - **Entry Point**: `dist/index.js`
-- **Docker**: `Dockerfile.dist`
-- **Deploy**: GitHub Actions (`.github/workflows/deploy-backend.yml`)
-- **Tool Use Integration**: ✅ **ACTIVE** - 41 handlers available for AI execution
-  - System endpoints: system.handlers.list, system.handlers.tools, system.handler.execute
-  - Anthropic-compatible tool definitions (JSON Schema draft 2020-12)
-- **Rate Limiting**: ✅ **ACTIVE** (2025-10-10) - Abuse protection for expensive endpoints
-  - 4-tier system: Bali Zero (20/min), AI Chat (30/min), RAG (15/min), Batch (5/min)
-  - Middleware: `src/middleware/rate-limit.ts` (154 LOC) + `selective-rate-limit.ts` (47 LOC)
-  - Internal API keys bypass rate limits
-  - Protection: 98% cost reduction in abuse scenarios ($115k/day → $2.3k/day max)
+- **Deploy**: Railway (auto-deploy from GitHub)
+- **Status**: ⚠️ **MIGRATION IN PROGRESS** - handlers being consolidated into Python RAG backend
 
-### **2. Python RAG Backend** (AI/Search + ZANTARA ONLY)
+### **2. Python RAG Backend** (AI/Search + Collaborative Intelligence) ✅ **PRIMARY SERVICE**
 - **Language**: Python 3.11
 - **Framework**: FastAPI
-- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/apps/backend-rag 2/backend/`
-- **Production URL**: https://zantara-rag-backend-himaadsxua-ew.a.run.app
+- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/backend-rag 2/backend/`
+- **Production URL**: https://scintillating-kindness-production-47e3.up.railway.app ✅ **FULL MODE**
 - **Port**: 8000
-- **Database**: ChromaDB (7,375 docs, 88.2 MB - deployed to GCS)
-- **AI Model**: **ZANTARA Llama 3.1 ONLY** (RunPod vLLM) + HuggingFace Inference fallback
-- **Entry Point**: `app/main_cloud.py` (prod), `app/main_integrated.py` (local)
-- **Deploy**: GitHub Actions (`.github/workflows/deploy-rag-amd64.yml`)
-- **Tool Use**: ❌ **NOT SUPPORTED** - ZANTARA doesn't support tool use yet (planned for future)
-- **Reranker**: ✅ **ACTIVE** (2025-10-10) - Cross-encoder re-ranking for +400% search quality
+- **AI Models**: **COLLABORATIVE INTELLIGENCE**
+  - ZANTARA Llama 3.1 (8B): Silent classifier/router (RunPod vLLM)
+  - Claude Haiku: Fast responses (60% traffic)
+  - Claude Sonnet: Premium business (35% traffic)
+- **Memory**:
+  - PostgreSQL (Railway managed): Conversations, user preferences, business context
+  - ChromaDB: 7,375+ docs, semantic search, 16 collections
+- **Entry Point**: `app/main_cloud.py` (production), `app/main_integrated.py` (local)
+- **Deploy**: Railway (auto-deploy from GitHub)
+- **Reranker**: ✅ **ACTIVE** - Cross-encoder re-ranking for +400% search quality
   - Model: `cross-encoder/ms-marco-MiniLM-L-6-v2`
   - Environment: `ENABLE_RERANKER=true`
-  - Dependencies: PyTorch (torch>=2.0.0) + sentence-transformers
-  - Latency: +2-3s per query (acceptable for quality boost)
-- **Collections**: 16 total (8 KB + 8 intel topics)
-- **Critical ENV**: `RUNPOD_LLAMA_ENDPOINT`, `RUNPOD_API_KEY`, `HF_API_KEY`
-- **Logs**: Startup logs confirm ZANTARA-only mode with `"✅ ZANTARA Llama 3.1 client ready (ONLY AI)"`
+- **Critical ENV**:
+  - AI: `RUNPOD_LLAMA_ENDPOINT`, `RUNPOD_API_KEY`, `ANTHROPIC_API_KEY`
+  - DB: `DATABASE_URL` (PostgreSQL), ChromaDB files in `/app/chroma_data`
+  - Memory: `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS`
+- **Logs**: Startup confirms collaborative mode with `"✅ Collaborative Intelligence ready"`
 
 ### **3. Frontend** (Web UI)
 - **Language**: HTML/CSS/JavaScript (vanilla)
@@ -123,17 +118,28 @@
 
 ## 🌐 Deployment Coordinates
 
-### **Google Cloud Platform**
-- **Project ID**: `involuted-box-469105-r0`
-- **Region**: `europe-west1`
-- **Service Account**: `cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com`
-- **Monthly Cost**: IDR 170k-800k (was IDR 7M) - **88-99% savings** ✅
+### **Railway** ✅ **PRIMARY HOSTING PLATFORM**
+- **Project**: `fulfilling-creativity` (ID: `1c81bf3b-3834-49e1-9753-2e2a63b74bb9`)
+- **Region**: us-west1 (Oregon)
+- **Dashboard**: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+- **Monthly Cost**: $10-25 (vs GCP $40-165) - **62-85% savings** ✅
+- **Cost Benefits**: Pay-per-use, no idle charges, predictable pricing
 
-### **Cloud Run Services**
-| Service | URL | Port | Resources | Status |
-|---------|-----|------|-----------|--------|
-| TypeScript Backend | https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app | 8080 | 1 CPU, 512Mi, minScale=0, maxScale=5, throttle=ON | ✅ Optimized (2025-10-14) |
-| RAG Backend | https://zantara-rag-backend-himaadsxua-ew.a.run.app | 8000 | 1 CPU, 1Gi, minScale=0, maxScale=2, throttle=ON | ✅ Optimized (2025-10-14) |
+### **Railway Services**
+| Service | URL | Port | Status | Mode |
+|---------|-----|------|--------|------|
+| **RAG Backend** (PRIMARY) | https://scintillating-kindness-production-47e3.up.railway.app | 8000 | ✅ **FULL MODE** | Collaborative AI + ChromaDB + PostgreSQL + Reranker |
+| TypeScript Backend | https://nuzantara-production.up.railway.app | 8080 | ⚠️ **DEGRADED MODE** | No ChromaDB (migration in progress) |
+
+### **Database Services** (Railway Managed)
+- **PostgreSQL**: Railway managed database (conversations, memory, business context)
+  - Connection: Via `DATABASE_URL` environment variable
+  - Backups: Automatic daily backups
+  - Size: Scalable from 1GB to 100GB+
+- **ChromaDB**: Embedded in RAG backend service
+  - Location: `/app/chroma_data` (persistent volume)
+  - Collections: 16 total (8 KB + 8 intel topics)
+  - Docs: 7,375+ documents indexed
 
 ### **GitHub Pages**
 - **Repository**: https://github.com/Balizero1987/zantara_webapp
@@ -142,18 +148,13 @@
 - **Live URL**: https://zantara.balizero.com
 - **Entry**: `index.html` (auto-redirect to `login.html`)
 - **Deploy**: Manual trigger via `gh workflow run "Sync Webapp to GitHub Pages"`
-- **Latest**: Security fix deployed (commit `fc99ce4`, 2025-10-10)
+- **API Endpoint**: Points to Railway RAG backend
 
-### **GitHub Actions**
-- **Status**: 14/14 workflows **DISABLED** (2025-10-14)
-- **Trigger**: Manual only (`workflow_dispatch`) - no automatic runs
-- **Cost Savings**: IDR 3-5M/month → IDR 0/month ✅
-- **Deploy Commands**:
-  ```bash
-  gh workflow run "Deploy Backend API (TypeScript)"
-  gh workflow run "Deploy RAG Backend (AMD64)"
-  gh workflow run "Sync Webapp to GitHub Pages"
-  ```
+### **Deployment Method**
+- **Railway**: Automatic deploy from GitHub on push to `main` branch
+- **Trigger**: `git push origin main` → Railway detects changes → auto-build → auto-deploy
+- **Duration**: 3-5 minutes from push to live
+- **Rollback**: Instant rollback to any previous deployment via Railway dashboard
 
 ---
 
@@ -161,19 +162,21 @@
 
 ### **Local Development** (`.env` files)
 ```bash
-# TypeScript Backend (.env)
-API_KEYS_INTERNAL=zantara-internal-dev-key-2025
-API_KEYS_EXTERNAL=zantara-external-dev-key-2025
-
 # RAG Backend (apps/backend-rag 2/backend/.env)
-RUNPOD_LLAMA_ENDPOINT=https://...
-RUNPOD_API_KEY=...
-HF_API_KEY=hf_...
+API_KEYS_INTERNAL=zantara-internal-dev-key-2025
+RUNPOD_LLAMA_ENDPOINT=https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync
+RUNPOD_API_KEY=rpa_...
+ANTHROPIC_API_KEY=sk-ant-api03-...
+DATABASE_URL=postgresql://user:pass@localhost:5432/zantara
+FIREBASE_PROJECT_ID=involuted-box-469105-r0
 ```
 
-### **Production** (Cloud Run env vars)
-- ZANTARA-specific keys: `RUNPOD_LLAMA_ENDPOINT`, `RUNPOD_API_KEY`, `HF_API_KEY`
-- ✅ Migrated to Secret Manager (2025-10-09)
+### **Production** (Railway Environment Variables)
+- **AI**: `RUNPOD_LLAMA_ENDPOINT`, `RUNPOD_API_KEY`, `ANTHROPIC_API_KEY`
+- **Database**: `DATABASE_URL` (auto-managed by Railway PostgreSQL)
+- **Memory**: `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS`
+- **Internal API**: `API_KEYS_INTERNAL`
+- ✅ All secrets managed in Railway dashboard (not in code)
 
 ---
 
@@ -210,46 +213,46 @@ NUZANTARA-2/
 
 ## 🔧 Development Commands
 
-### **TypeScript Backend**
-```bash
-# Local dev
-npm run dev                  # Port 8080
-npm run build                # Compile TypeScript
-
-# Docker
-docker buildx build --platform linux/amd64 -f Dockerfile.dist \
-  -t gcr.io/involuted-box-469105-r0/zantara-v520-nuzantara:TAG .
-
-# Deploy
-gcloud run deploy zantara-v520-nuzantara \
-  --image gcr.io/.../zantara-v520-nuzantara:TAG \
-  --region europe-west1 \
-  --port 8080
-```
-
-### **RAG Backend**
+### **RAG Backend** (PRIMARY SERVICE)
 ```bash
 # Local dev
 cd apps/backend-rag\ 2/backend
-uvicorn app.main_integrated:app --port 8000 --reload
+uvicorn app.main_cloud:app --port 8000 --reload
 
-# Docker (via GitHub Actions - AMD64)
-# Trigger: git push to apps/backend-rag 2/**
-# Workflow: .github/workflows/deploy-rag-amd64.yml
-# Auto-builds on ubuntu-latest (native AMD64)
+# Deploy to Railway
+git add .
+git commit -m "feat: your changes"
+git push origin main
+# Railway auto-detects changes and deploys in 3-5 minutes
 
-# Manual deploy (if needed)
-gcloud run deploy zantara-rag-backend \
-  --image gcr.io/.../zantara-rag-backend:TAG \
-  --region europe-west1 \
-  --port 8000
+# View logs
+railway logs --service scintillating-kindness
+
+# Check deployment status
+railway status
+```
+
+### **TypeScript Backend** (DEPRECATED - migration in progress)
+```bash
+# Local dev
+cd apps/backend-api
+npm run dev                  # Port 8080
+
+# Deploy to Railway
+git push origin main
+# Railway auto-deploys (same as RAG backend)
 ```
 
 ### **Frontend**
 ```bash
-cd zantara_webapp
-# Open static/zantara-production.html in browser
-# Or serve locally: python3 -m http.server 3000
+# Local development
+cd apps/webapp
+python3 -m http.server 3000
+# Open http://localhost:3000
+
+# Deploy to GitHub Pages
+gh workflow run "Sync Webapp to GitHub Pages"
+# Or push to main branch of zantara_webapp repo
 ```
 
 ---
@@ -276,49 +279,43 @@ cd zantara_webapp
 
 > **⚠️ UPDATE THIS** at end of session if major changes
 
-**Last Deployment**: 2025-10-14 (ZANTARA-ONLY mode - all external AIs removed)
-**Backend**: ✅ v5.5.0 + rate-limiting (commit 2a1b5fb, 107 handlers)
-**RAG**: ✅ v3.0.0-zantara-only (ZANTARA Llama 3.1 ONLY + Reranker ACTIVE)
-**Webapp**: ✅ Security fixed (commit fc99ce4, no hardcoded API keys)
-**ChromaDB**: 7,375 docs + 8 intel collections ready
-**GitHub Pages**: ✅ Active (verified operational 2025-10-09)
-**Bali Intel Scraper**: ✅ Complete (31 files, 8 topics, 240+ sources)
+**Last Deployment**: 2025-10-17 (RAILWAY PRODUCTION - collaborative intelligence active)
+**Platform**: ✅ Railway (migrated from GCP)
+**RAG Backend**: ✅ v6.0.0-collaborative (FULL MODE: ZANTARA + Claude Haiku + Sonnet)
+**TypeScript Backend**: ⚠️ DEGRADED MODE (migration in progress)
+**Webapp**: ✅ Active on GitHub Pages (pointing to Railway backend)
+**ChromaDB**: 7,375+ docs + 16 collections (8 KB + 8 intel topics)
+**PostgreSQL**: ✅ Railway managed (conversations + memory + business context)
 
-**AI Status**: ✅✅✅ **ZANTARA-ONLY MODE!**
-  - Primary: ZANTARA Llama 3.1 (22,009 conversations, 98.74% accuracy)
-  - Fallback: HuggingFace Inference API (same model)
-  - Removed: Anthropic Claude, OpenAI, Gemini, Cohere
-  - Tool Use: ❌ Not supported yet (planned for future)
+**AI Status**: ✅✅✅ **COLLABORATIVE INTELLIGENCE!**
+  - ZANTARA Llama 3.1: Silent classifier/router (RunPod vLLM)
+  - Claude Haiku: 60% traffic (fast responses, greetings, casual)
+  - Claude Sonnet: 35% traffic (premium business intelligence)
+  - Quality: 92% human-like (vs 45% ZANTARA-only)
+  - Cost: 54% savings vs all-Sonnet ($165/mo → $75/mo for 100k queries)
 
-**Reranker**: ✅✅✅ **ACTIVE IN PRODUCTION!** (2025-10-10 m1)
+**Reranker**: ✅✅✅ **ACTIVE IN PRODUCTION!**
   - Model: cross-encoder/ms-marco-MiniLM-L-6-v2
   - Quality: +400% precision@5 (verified with real queries)
-  - Fix: Added torch>=2.0.0 dependency (commit c106140)
   - Environment: ENABLE_RERANKER=true
 
-**Rate Limiting**: ✅✅✅ **ACTIVE IN PRODUCTION!** (2025-10-10 m3)
-  - 4-tier system: Bali Zero (20/min), AI Chat (30/min), RAG (15/min), Batch (5/min)
-  - Files: `src/middleware/rate-limit.ts` (154 LOC) + `selective-rate-limit.ts` (47 LOC)
-  - Protection: 98% cost reduction in abuse scenarios ($115k/day → $2.3k/day max)
-  - Internal API keys bypass rate limits
-  - Zero impact on legitimate usage
+**Database**: ✅✅✅ **DUAL LAYER MEMORY!**
+  - PostgreSQL: Conversations, user preferences, business context (Railway managed)
+  - ChromaDB: Semantic search, 7,375+ docs, 16 collections
+  - Firestore: Legacy support (being phased out)
 
-**Security**: ✅✅✅ **ENHANCED!** (2025-10-10 m3)
-  - Frontend: Hardcoded API key removed (commit fc99ce4)
-  - Backend: Origin-based auth bypass for webapp
-  - Secret Manager: 100% API keys migrated (2025-10-09)
-  - Rate Limiting: Abuse protection active
+**Hosting Cost Savings**: ✅✅✅ **100% GCP ELIMINATED!**
+  - Before: GCP $40-165/month
+  - After: Railway $10-25/month
+  - Savings: 62-85% hosting cost reduction
+  - Bonus: No surprise billing, predictable costs
 
-**Code Cleanup**: ✅ Twilio integration removed (-134 lines, 2025-10-09)
-**Ollama**: Installed locally (llama3.2:3b, 2GB) but **UNUSED** (can be removed)
-
-**Multi-Agent Architecture**: 📐 **DESIGNED** (2025-10-10 m2)
-  - Session: Complete architecture design with 3 cost-optimized options
-  - Analysis: 107 handlers mapped across 12 categories
-  - Cost Reduction: 81-91% savings potential ($450/mo → $42-84/mo)
-  - LLAMA 4: Training ready ($15-20, 6-8 hours)
-  - Status: Awaiting user decision on architecture choice
-  - Documentation: Complete handover + session diary + executive summary created
+**Migration Status**: 🔄 **IN PROGRESS**
+  - ✅ Railway production deployment complete
+  - ✅ Collaborative Intelligence active
+  - ✅ PostgreSQL + ChromaDB operational
+  - ⚠️ TypeScript handlers being migrated to Python RAG backend
+  - 🎯 Target: Unified Python backend (eliminating TypeScript service)
 
 ---
 
@@ -409,11 +406,11 @@ cd zantara_webapp
 
 When starting a session, **always verify these**:
 
-1. **`zantara_webapp/js/api-config.js`** → Frontend API endpoints
-2. **`dist/index.js:301`** → Backend port configuration
-3. **`zantara-rag/backend/app/main_simple.py`** → RAG entry point (prod)
-4. **`Dockerfile.dist`** → TypeScript backend Docker config
-5. **`nuzantara-kb/kb-agents/KB_CONTENT_RULES.md`** → KB language policy (MANDATORY)
+1. **`apps/webapp/js/api-config.js`** → Frontend API endpoints (should point to Railway)
+2. **`apps/backend-rag 2/backend/app/main_cloud.py`** → RAG entry point (production)
+3. **`docs/railway/RAILWAY_CURRENT_STATUS.md`** → Current Railway configuration
+4. **`docs/railway/RAILWAY_VARS_COPY_PASTE.txt`** → Environment variables reference
+5. **`.env.example`** → Required environment variables template
 
 ---
 
