@@ -3,8 +3,9 @@ Claude Haiku 3.5 Service - Fast & Cheap Conversational AI
 For greetings, casual chat, and simple questions
 
 Model: claude-3-5-haiku-20241022
-Cost: $0.25/$1.25 per 1M tokens (input/output) - 12x cheaper than Sonnet
-Speed: ~50ms response time
+Cost: $0.80/$4 per 1M tokens (input/output) - 5x cheaper than Sonnet 4.5
+Speed: Lightning-fast responses (~1.9s avg)
+Release: October 2024 cutoff
 Use case: Simple greetings, casual conversation, quick answers
 Tool Use: LIMITED (only fast, essential tools to maintain speed/cost benefits)
 """
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class ClaudeHaikuService:
     """
-    Claude Haiku 3.5 - Fast conversational AI for simple interactions
+    Claude Haiku 4.5 - Fast conversational AI for simple interactions
 
     Optimized for:
     - Greetings ("Ciao", "Hello", "Hi")
@@ -48,8 +49,8 @@ class ClaudeHaikuService:
         self.model = "claude-3-5-haiku-20241022"
 
         logger.info(f"✅ Claude Haiku 3.5 initialized (model: {self.model})")
-        logger.info("   Use case: Fast & cheap conversational AI")
-        logger.info("   Cost: $0.25/$1.25 per 1M tokens (12x cheaper than Sonnet)")
+        logger.info("   Use case: Lightning-fast conversational AI (~1.9s avg response)")
+        logger.info("   Cost: $0.80/$4 per 1M tokens (cheapest option)")
 
 
     def _build_system_prompt(self, memory_context: Optional[str] = None, conversation_stage: str = "first_contact") -> str:
@@ -133,7 +134,7 @@ Remember: Keep it SHORT and FRIENDLY! Adapt your greeting to the conversation st
         Returns:
             {
                 "text": "response",
-                "model": "claude-3-5-haiku-20241022",
+                "model": "claude-haiku-4-5-20251001",
                 "provider": "anthropic",
                 "ai_used": "haiku",
                 "tokens": {"input": X, "output": Y}
@@ -222,7 +223,7 @@ Remember: Keep it SHORT and FRIENDLY! Adapt your greeting to the conversation st
         Returns:
             {
                 "text": "response",
-                "model": "claude-3-5-haiku-20241022",
+                "model": "claude-haiku-4-5-20251001",
                 "provider": "anthropic",
                 "ai_used": "haiku",
                 "tokens": {"input": X, "output": Y},

@@ -41,7 +41,7 @@ from services.claude_sonnet_service import ClaudeSonnetService
 from services.intelligent_router import IntelligentRouter
 from services.memory_fact_extractor import MemoryFactExtractor
 # LLAMA NIGHTLY WORKER SERVICES: Golden Answers + Cultural RAG
-from services.golden_answer_service import GoldenAnswerService
+from services.golden_answer_service_firestore import GoldenAnswerServiceFirestore
 from services.cultural_rag_service import CulturalRAGService
 # MODERN AI FEATURES: Context Window Management + Streaming + Status + Citations + Follow-ups + Clarification
 from services.context_window_manager import ContextWindowManager
@@ -90,7 +90,7 @@ reranker_service: Optional["RerankerService"] = None  # String annotation for la
 handler_proxy_service: Optional[HandlerProxyService] = None
 fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
 # LLAMA NIGHTLY WORKER SERVICES
-golden_answer_service: Optional[GoldenAnswerService] = None  # Golden Answers cache (250x speedup)
+golden_answer_service: Optional[GoldenAnswerServiceFirestore] = None  # Golden Answers cache (250x speedup)
 cultural_rag_service: Optional[CulturalRAGService] = None  # Cultural context for Haiku
 # MODERN AI FEATURES
 context_window_manager: Optional[ContextWindowManager] = None  # Context window management
@@ -801,19 +801,19 @@ async def startup_event():
         logger.error(f"❌ Fact Extractor initialization failed: {e}")
         fact_extractor = None
 
-    # Initialize Golden Answer Service (LLAMA Nightly Worker - Phase 1)
+    # Initialize Golden Answer Service (LLAMA Nightly Worker - Phase 1) - FIRESTORE VERSION
     try:
-        database_url = os.getenv("DATABASE_URL")
-        if database_url:
-            golden_answer_service = GoldenAnswerService(database_url)
+        firebase_project_id = os.getenv("FIREBASE_PROJECT_ID")
+        if firebase_project_id:
+            golden_answer_service = GoldenAnswerServiceFirestore(firebase_project_id)
             await golden_answer_service.connect()
-            logger.info("✅ GoldenAnswerService ready (250x speedup for FAQ queries)")
-            logger.info("   Nightly worker generates golden answers from query clusters")
+            logger.info("✅ GoldenAnswerServiceFirestore ready (250x speedup for FAQ queries)")
+            logger.info("   Using Firestore for golden answers cache")
         else:
-            logger.warning("⚠️ DATABASE_URL not set - Golden Answer service unavailable")
+            logger.warning("⚠️ FIREBASE_PROJECT_ID not set - Golden Answer service unavailable")
             golden_answer_service = None
     except Exception as e:
-        logger.error(f"❌ GoldenAnswerService initialization failed: {e}")
+        logger.error(f"❌ GoldenAnswerServiceFirestore initialization failed: {e}")
         logger.warning("⚠️ Continuing without golden answers - full RAG will be used")
         golden_answer_service = None
 
