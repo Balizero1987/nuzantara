@@ -1,10 +1,14 @@
 """
-ZANTARA RAG Backend - Railway Version
-Port 8080 (Railway standard)
-Uses ChromaDB from Cloudflare R2 + PostgreSQL + ZANTARA Llama 3.1 ONLY
+ZANTARA RAG Backend - Railway Production
+Port 8000 (Railway standard)
+Uses ChromaDB + PostgreSQL + Collaborative Intelligence
 
-AI MODEL: ZANTARA Llama 3.1 (22,009 Indonesian business conversations, 98.74% accuracy)
-NO FALLBACK: ZANTARA-only mode (no external AI dependencies)
+AI ARCHITECTURE: Claude Haiku + Sonnet PRIMARY (pattern matching routing)
+- Claude Haiku 3.5: 60% traffic (greetings, casual)
+- Claude Sonnet 4.5: 35% traffic (business, complex)
+- ZANTARA Llama 3.1: DISABLED in routing (line 279), optional fallback only
+
+ROUTING: Pattern matching (keyword + message length heuristic)
 """
 
 from fastapi import FastAPI, HTTPException
@@ -40,8 +44,8 @@ from services.claude_haiku_service import ClaudeHaikuService
 from services.claude_sonnet_service import ClaudeSonnetService
 from services.intelligent_router import IntelligentRouter
 from services.memory_fact_extractor import MemoryFactExtractor
-# LLAMA NIGHTLY WORKER SERVICES: Golden Answers + Cultural RAG
-from services.golden_answer_service_firestore import GoldenAnswerServiceFirestore
+# POSTGRESQL SERVICES: Golden Answers + Cultural RAG
+from services.golden_answer_service import GoldenAnswerService
 from services.cultural_rag_service import CulturalRAGService
 # MODERN AI FEATURES: Context Window Management + Streaming + Status + Citations + Follow-ups + Clarification
 from services.context_window_manager import ContextWindowManager
@@ -90,7 +94,7 @@ reranker_service: Optional["RerankerService"] = None  # String annotation for la
 handler_proxy_service: Optional[HandlerProxyService] = None
 fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
 # LLAMA NIGHTLY WORKER SERVICES
-golden_answer_service: Optional[GoldenAnswerServiceFirestore] = None  # Golden Answers cache (250x speedup)
+golden_answer_service: Optional[GoldenAnswerService] = None  # Golden Answers cache (250x speedup)
 cultural_rag_service: Optional[CulturalRAGService] = None  # Cultural context for Haiku
 # MODERN AI FEATURES
 context_window_manager: Optional[ContextWindowManager] = None  # Context window management
@@ -801,19 +805,19 @@ async def startup_event():
         logger.error(f"❌ Fact Extractor initialization failed: {e}")
         fact_extractor = None
 
-    # Initialize Golden Answer Service (LLAMA Nightly Worker - Phase 1) - FIRESTORE VERSION
+    # Initialize Golden Answer Service - POSTGRESQL VERSION (Railway)
     try:
-        firebase_project_id = os.getenv("FIREBASE_PROJECT_ID")
-        if firebase_project_id:
-            golden_answer_service = GoldenAnswerServiceFirestore(firebase_project_id)
+        database_url = os.getenv("DATABASE_URL")
+        if database_url:
+            golden_answer_service = GoldenAnswerService(database_url)
             await golden_answer_service.connect()
-            logger.info("✅ GoldenAnswerServiceFirestore ready (250x speedup for FAQ queries)")
-            logger.info("   Using Firestore for golden answers cache")
+            logger.info("✅ GoldenAnswerService ready (250x speedup for FAQ queries)")
+            logger.info("   Using PostgreSQL for golden answers cache")
         else:
-            logger.warning("⚠️ FIREBASE_PROJECT_ID not set - Golden Answer service unavailable")
+            logger.warning("⚠️ DATABASE_URL not set - Golden Answer service unavailable")
             golden_answer_service = None
     except Exception as e:
-        logger.error(f"❌ GoldenAnswerServiceFirestore initialization failed: {e}")
+        logger.error(f"❌ GoldenAnswerService initialization failed: {e}")
         logger.warning("⚠️ Continuing without golden answers - full RAG will be used")
         golden_answer_service = None
 
