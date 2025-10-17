@@ -48,8 +48,7 @@ export class ImagineArtService {
       logger.info('🎨 Generating image with Imagine.art', { prompt: prompt.substring(0, 50) });
 
       // Build FormData for API request (multipart/form-data)
-      const FormData = (await import('node:buffer')).FormData || globalThis.FormData;
-      const formData = new FormData();
+      const formData = new globalThis.FormData();
       formData.append('prompt', prompt);
       formData.append('style', style);
       formData.append('aspect_ratio', aspect_ratio);
@@ -151,8 +150,7 @@ export class ImagineArtService {
 
       logger.info('🔍 Upscaling image with Imagine.art');
 
-      const FormData = (await import('node:buffer')).FormData || globalThis.FormData;
-      const formData = new FormData();
+      const formData = new globalThis.FormData();
       formData.append('image', image);
 
       const response = await fetch(`${this.baseUrl}/image/upscale`, {
