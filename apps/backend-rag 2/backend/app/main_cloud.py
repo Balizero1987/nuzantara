@@ -1123,12 +1123,14 @@ async def search_endpoint(request: SearchRequest):
 
             try:
                 logger.info("🎯 [RAG Search] Using Claude Haiku 3.5 (fast)")
-                response = await claude_haiku.chat(
+                response = await claude_haiku.conversational(
                     message=f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}",
+                    user_id="search-api",
                     conversation_history=[],
-                    system_prompt=SYSTEM_PROMPT
+                    memory_context=None,
+                    max_tokens=300
                 )
-                answer = response.get("content", "")
+                answer = response.get("text", "")
                 model_used = "claude-3-5-haiku"
             except Exception as e:
                 logger.error(f"❌ [RAG Search] Claude Haiku failed: {e}")
