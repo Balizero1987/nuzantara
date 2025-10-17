@@ -5,7 +5,8 @@
 
 class SecureTeamLogin {
   constructor() {
-    this.apiBase = 'https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app';
+    // Railway RAG Backend (PRIMARY) - supports team.login.secure via TypeScript proxy
+    this.apiBase = 'https://nuzantara-production.up.railway.app';
     this.apiKey = 'zantara-internal-dev-key-2025';
     this.currentUser = null;
     this.token = null;
