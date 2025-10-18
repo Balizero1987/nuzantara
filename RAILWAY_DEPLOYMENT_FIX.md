@@ -85,7 +85,7 @@ Dopo aver configurato le Root Directory:
    ```
 
 3. **Verifica gli endpoint**:
-   - TS Backend: https://nuzantara-production.up.railway.app/health
+   - TS Backend: https://ts-backend-production-568d.up.railway.app/health
    - RAG Backend: https://scintillating-kindness-production-47e3.up.railway.app/health
 
 ---
