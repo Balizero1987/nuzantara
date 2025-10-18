@@ -1,7 +1,8 @@
 [build]
 # Use nixpacks with Node.js detection
 builder = "nixpacks"
-buildCommand = "npm run build"
+# Install ALL dependencies (including devDependencies for TypeScript)
+buildCommand = "npm ci && npm run build"
 
 [deploy]
 # Start command
