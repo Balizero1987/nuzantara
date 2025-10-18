@@ -160,7 +160,7 @@ async function aiChatWithFallback(ctx: any, params: any) {
   for (const key of AI_FALLBACK_ORDER) {
     try {
       const res = await runHandler(key, params, ctx);
-      if (res && res.ok) return res;
+      if (res?.ok) return res;
       lastErr = new Error(res?.error || `model_failed: ${key}`);
     } catch (e: any) {
       lastErr = e;
@@ -925,17 +925,15 @@ const BRIDGE_ONLY_KEYS = [
   'workspace.create',
 ] as const;
 
-BRIDGE_ONLY_KEYS.forEach((key) => {
-  if (!handlers[key]) {
-    handlers[key] = async (params: any) => {
-      const bridged = await forwardToBridgeIfSupported(key, params);
-      if (bridged !== null) {
-        return bridged;
-      }
-      throw new BadRequestError(`Handler ${key} not available`);
-    };
-  }
-});
+for (const key of BRIDGE_ONLY_KEYS) {
+  handlers[key] ??= async (params: any) => {
+    const bridged = await forwardToBridgeIfSupported(key, params);
+    if (bridged !== null) {
+      return bridged;
+    }
+    throw new BadRequestError(`Handler ${key} not available`);
+  };
+}
 
 const FORBIDDEN_FOR_EXTERNAL = new Set<string>([
   "report.generate",
@@ -1180,36 +1178,6 @@ export function attachRoutes(app: import("express").Express) {
     }
   });
 
-  // Google Docs - REST endpoints
-  app.post("/docs.create", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
-    try {
-      const result = await docsCreate(req.body);
-      return res.status(200).json(result);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
-    }
-  });
-
-  app.post("/docs.read", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
-    try {
-      const result = await docsRead(req.body);
-      return res.status(200).json(result);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
-    }
-  });
-
-  app.post("/docs.update", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
-    try {
-      const result = await docsUpdate(req.body);
-      return res.status(200).json(result);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
-    }
-  });
 
   // === Handler Execution Endpoint ===
   app.post("/handler", apiKeyAuth, selectiveRateLimiter, async (req: RequestWithCtx, res: Response) => {
@@ -1228,9 +1196,11 @@ export function attachRoutes(app: import("express").Express) {
       let result: any;
       
       // Try static handlers map first
-      let handlerFunc = handlers[handler];
+      const handlerFunc = handlers[handler];
       
-      if (!handlerFunc) {
+      if (handlerFunc) {
+        result = await handlerFunc(params, req);
+      } else {
         // Check if handler exists in globalRegistry (dynamic auto-loaded handlers)
         const { globalRegistry } = await import('../core/handler-registry.js');
         if (globalRegistry.has(handler)) {
@@ -1239,8 +1209,6 @@ export function attachRoutes(app: import("express").Express) {
         } else {
           return res.status(404).json(err(`Handler '${handler}' not found`));
         }
-      } else {
-        result = await handlerFunc(params, req);
       }
 
       return res.status(200).json(ok(result?.data ?? result));
@@ -1319,9 +1287,11 @@ export function attachRoutes(app: import("express").Express) {
         result = await aiChatWithFallback({ req, res }, params);
       } else {
         // Try static handlers map first
-        let handler = handlers[key];
+        const handler = handlers[key];
 
-        if (!handler) {
+        if (handler) {
+          result = await handler(params, req);
+        } else {
           // Check if handler exists in globalRegistry (dynamic auto-loaded handlers)
           const { globalRegistry } = await import('../core/handler-registry.js');
           if (globalRegistry.has(key)) {
@@ -1336,8 +1306,6 @@ export function attachRoutes(app: import("express").Express) {
           } else {
             return res.status(404).json(err('handler_not_found'));
           }
-        } else {
-          result = await handler(params, req);
         }
       }
 
@@ -1361,27 +1329,13 @@ export function attachRoutes(app: import("express").Express) {
           response.substring(0, 10000), // Limit size
           key,
           {
-            responseTime: Date.now() - Date.now(), // Will be updated properly
+            responseTime: 0, // Will be updated properly
             model: result?.data?.model || key
           }
         ).catch(err => logger.info('⚠️ Auto-save failed:', err.message));
       }
 
       return res.status(200).json(ok(result?.data ?? result));
-
-      // Bridge fallback for critical JS handlers (AI + Google Workspace OAuth2)
-      const bridged = await forwardToBridgeIfSupported(key, params);
-      if (bridged !== null) {
-        return res.status(200).json(bridged);
-      }
-
-      // Stub if totally unknown
-      const stub = ok({
-        stub: key,
-        params,
-        message: `Handler ${key} not implemented yet`
-      });
-      return res.status(200).json(stub);
     } catch (e: any) {
       // Enhanced error logging with context
       const requestId = (req as any).requestId || 'unknown';

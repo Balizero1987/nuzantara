@@ -1,349 +1,268 @@
-# 📁 .claude/ System Documentation
+# 📁 .claude/ - Session Tracking System
 
-> **Sistema di gestione sessioni multi-CLI per ZANTARA**
+> **Sistema semplificato di gestione sessioni per NUZANTARA**
 
 ---
 
-## 📋 Struttura
+## 🚀 Quick Start (Nuovi Dev AI)
+
+### 1️⃣ Prima Volta Qui?
+**Leggi SOLO**: [`START_HERE.md`](START_HERE.md)
+
+Quel file ti spiega tutto in 2 minuti. Non leggere altro finché non hai letto quello.
+
+### 2️⃣ Hai già letto START_HERE?
+Segui il workflow:
+
+```bash
+1. Leggi PROJECT_CONTEXT.md (5 min)
+2. Apri CURRENT_SESSION.md (sovrascrivi per la tua sessione)
+3. Lavora e aggiorna CURRENT_SESSION.md progressivamente
+4. A fine sessione: appendi a ARCHIVE_SESSIONS.md
+```
+
+---
+
+## 📁 Struttura File Core (SOLO 4 FILE!)
 
 ```
 .claude/
-├── PROJECT_CONTEXT.md          # Chi siamo, architettura, coordinate
-├── README.md                   # Questa guida
-├── handovers/                  # Micro-categorie (create on-demand)
-│   ├── backend-routes.md
-│   ├── deploy-backend.md
-│   ├── rag-chromadb.md
-│   └── ... (created when needed)
-└── diaries/                    # Session logs (1 per CLI per giorno)
-    ├── 2025-10-01_sonnet-4.5_m1.md
-    ├── 2025-10-01_opus-4.1_m2.md
-    └── 2025-10-02_sonnet-4.5_m1.md
+├── START_HERE.md              # ★ Entry point obbligatorio
+├── PROJECT_CONTEXT.md          # ★ Contesto tecnico progetto
+├── CURRENT_SESSION.md          # ★ Sessione corrente (sovrascrivibile)
+├── CURRENT_SESSION.template.md # Template per reset
+└── ARCHIVE_SESSIONS.md         # ★ Storico append-only
+
+# File legacy (non toccare, solo consultazione)
+├── diaries/                   # Vecchie sessioni (archivio)
+├── handovers/                 # Vecchi handover (archivio)
+└── [altri file].md            # Report storici (read-only)
 ```
 
 ---
 
-## 🚀 Entry Protocol (Nuova CLI)
+## 🎯 Workflow Sessione
 
-Quando una nuova CLI parte:
+### 🟢 Inizio Sessione
 
-### **Step 1: Auto-detect**
-```
-Model: claude-sonnet-4-5-20250929 (from API)
-Date: 2025-10-01 (from system)
-Matricola: 3 (count existing diaries today + 1)
-```
+1. **Leggi** (in quest'ordine):
+   ```bash
+   START_HERE.md → PROJECT_CONTEXT.md → CURRENT_SESSION.md
+   ```
 
-### **Step 2: Read Context**
-```
-1. PROJECT_CONTEXT.md → Overview progetto
-2. All diaries from today (2025-10-01_*.md)
-3. All diaries from yesterday (2025-09-30_*.md)
-```
+2. **Apri** `CURRENT_SESSION.md`:
+   - Sovrascrivi completamente
+   - Compila Session Info (data, model, task)
+   - Inizia a lavorare
 
-### **Step 3: Ask User**
-```
-🎯 Su cosa lavori?
-> [user input: "fix websocket bug"]
-```
+### 🟡 Durante Sessione
 
-### **Step 4: Auto-detect Categories**
-```
-Keywords: "fix" + "websocket"
-→ Categories: backend-routes, backend-handlers, debug
+1. **Aggiorna** `CURRENT_SESSION.md` progressivamente:
+   - ✅ Task completati
+   - 🚧 Task in progress
+   - 📝 Note tecniche
+   - 🔗 File rilevanti
 
-Read relevant handovers:
-  - handovers/backend-routes.md
-  - handovers/backend-handlers.md
-  - handovers/debug.md (create if doesn't exist)
-```
+2. **NON creare** nuovi file MD!
 
-### **Step 5: Start Work**
-```
-Create: diaries/2025-10-01_sonnet-4.5_m3.md
-Log all actions in real-time
-```
+### 🔴 Fine Sessione
 
----
+1. **Completa** `CURRENT_SESSION.md`:
+   ```markdown
+   ## 🏁 Chiusura Sessione
+   - Risultato finale
+   - Stato del sistema (Build/Tests/Deploy)
+   - Handover al prossimo Dev AI
+   ```
 
-## ✅ Exit Protocol (Fine Sessione)
+2. **Archivia**:
+   ```bash
+   # Appendi a storico
+   cat CURRENT_SESSION.md >> ARCHIVE_SESSIONS.md
+   echo "\n---\n" >> ARCHIVE_SESSIONS.md
 
-### **Step 1: Complete Diary**
-```
-Update diary with:
-- End time, duration
-- Files modified
-- Problems encountered & solutions
-- Deployments (if any)
-- Tests results
-- Next steps
-```
+   # Resetta per prossimo
+   cp CURRENT_SESSION.template.md CURRENT_SESSION.md
+   ```
 
-### **Step 2: Update Handovers**
-```
-For each category touched:
-  - Append entry to handovers/[category].md
-  - Create handover if doesn't exist
-  - Add cross-reference to diary
-```
-
-### **Step 3: Check PROJECT_CONTEXT**
-```
-If major changes (URL, architecture, ports):
-  - Update PROJECT_CONTEXT.md
-  - Update "Last Updated" timestamp
-```
-
-### **Step 4: Show Summary**
-```
-Display:
-- Session duration
-- Files modified
-- Categories updated
-- Deployments
-- Pending tasks
-```
+3. **Verifica**:
+   - ✅ ARCHIVE_SESSIONS.md contiene la tua sessione
+   - ✅ CURRENT_SESSION.md è resettato al template
 
 ---
 
-## 📔 Diary Format
+## 📋 Template Sessione
 
-### **Naming Convention**
-```
-YYYY-MM-DD_MODEL_mMATRICOLA.md
+Usa sempre questo formato in `CURRENT_SESSION.md`:
 
-Examples:
-2025-10-01_sonnet-4.5_m1.md    # First CLI today, Sonnet
-2025-10-01_opus-4.1_m2.md      # Second CLI today, Opus
-2025-10-01_sonnet-4.5_m3.md    # Third CLI today, Sonnet
-2025-10-02_sonnet-4.5_m1.md    # Next day, reset matricola
-```
-
-### **Model Detection**
-```
-claude-sonnet-4-5-* → "sonnet-4.5"
-claude-opus-4-* → "opus-4.1"
-gpt-4-* → "gpt-4"
-```
-
-### **Template Structure**
 ```markdown
-# Session Diary: YYYY-MM-DD | Model Name | Matricola N
+## 📅 Session Info
+- Date: YYYY-MM-DD
+- Time: HH:MM UTC
+- Model: [model-name]
+- User: antonellosiano
 
-> **⚠️ SNAPSHOT CIRCOSTANZIATO**
-> Questo report descrive lo stato **al momento della sessione**.
+## 🎯 Task Ricevuto
+[Descrizione task]
 
-## Session Info
-- Start: HH:MM
-- End: HH:MM
-- Duration: Xh Ym
-- Task: [description]
+## ✅ Task Completati
+### 1. [Nome Task]
+- Status: ✅/🚧/❌
+- Files Modified: [lista]
+- Changes: [descrizione]
+- Result: [risultato]
 
-## Lavoro Svolto
-[chronological log with timestamps]
+## 📝 Note Tecniche
+### Scoperte Importanti
+### Problemi Risolti
+### TODO per Prossima Sessione
 
-## Codice Implementato
-[code snippets with file paths and line numbers]
+## 🔗 Files Rilevanti
+[Lista file importanti]
 
-## Problemi Incontrati
-[errors, root causes, solutions, time lost]
+## 📊 Metriche Sessione
+- Durata: ~X ore
+- File Modificati: X
+- Test Status: ✅/❌
 
-## Categories Updated
-- [link to handover]#anchor
-
-## Snapshot Circostanziato
-[state at end of session: URLs, versions, pending tasks]
+## 🏁 Chiusura Sessione
+### Risultato Finale
+### Stato del Sistema
+### Handover al Prossimo Dev AI
 ```
 
 ---
 
-## 📝 Handover Format
+## 🔍 Cercare Sessioni Passate
 
-### **Naming Convention**
-```
-[area]-[component].md
+### Cerca in ARCHIVE_SESSIONS.md
 
-Examples:
-backend-routes.md       # API routes
-backend-handlers.md     # Business logic handlers
-deploy-backend.md       # Backend deployments
-deploy-rag.md          # RAG deployments
-frontend-api-client.md # Frontend API integration
-rag-chromadb.md        # ChromaDB operations
-infra-gcp.md           # GCP infrastructure
-```
-
-### **Template Structure**
-```markdown
-# [Category Name] Handover
-
-> **What This Tracks**: [description]
-> **Created**: YYYY-MM-DD by [model_matricola]
-
-## Current State
-[current status, last known good state]
-
----
-## History
-
-### YYYY-MM-DD HH:MM ([task-id]) [model_matricola]
-
-**Changed**:
-- [file:line] - [description]
-
-**Related**:
-→ Full session: [diary link]#anchor
-
----
-```
-
-### **Auto-Creation**
-```
-If handover doesn't exist when needed:
-1. Create from template
-2. Add "Created" timestamp
-3. Add first entry
-```
-
----
-
-## 🔍 Category Auto-Detection
-
-### **Keywords Map**
-```javascript
-const CATEGORY_KEYWORDS = {
-  'backend-routes': ['routes', 'endpoint', 'api'],
-  'backend-handlers': ['handlers', 'business logic'],
-  'backend-middleware': ['middleware', 'auth', 'validation'],
-  'deploy-backend': ['deploy', 'cloud run', 'gcloud', 'docker'],
-  'deploy-rag': ['deploy rag', 'rag backend'],
-  'frontend-ui': ['html', 'css', 'ui', 'interface'],
-  'frontend-api-client': ['api-config', 'fetch', 'api call'],
-  'rag-chromadb': ['chromadb', 'embeddings', 'vector'],
-  'rag-search': ['search', 'rag', 'query'],
-  'rag-ingestion': ['ingest', 'pdf', 'kb'],
-  'infra-gcp': ['gcp', 'cloud', 'project'],
-  'infra-secrets': ['secret', 'api key', 'env'],
-  'config-docker': ['dockerfile', 'docker', 'container'],
-  'config-env': ['.env', 'environment'],
-  'debug': ['fix', 'bug', 'error']
-};
-```
-
-### **File Path Map**
-```javascript
-const FILE_TO_CATEGORIES = {
-  'routes/*.ts': ['backend-routes'],
-  'handlers/*.js': ['backend-handlers'],
-  'middleware/*.js': ['backend-middleware'],
-  'Dockerfile*': ['config-docker', 'deploy-backend'],
-  'zantara_webapp/js/api-config.js': ['frontend-api-client'],
-  'backend/app/main*.py': ['deploy-rag'],
-  'backend/services/search*.py': ['rag-search']
-};
-```
-
----
-
-## 🎯 Best Practices
-
-### **DO**
-✅ Read PROJECT_CONTEXT first (always)
-✅ Read today + yesterday diaries (complete context)
-✅ Create handovers on-demand (not upfront)
-✅ Log problems + solutions in diary (help future sessions)
-✅ Update PROJECT_CONTEXT when URLs/architecture change
-✅ Cross-reference diary ↔ handover (bidirectional links)
-
-### **DON'T**
-❌ Read all handovers at start (waste of time)
-❌ Create handovers you don't need (clutter)
-❌ Put code snippets in handovers (use diaries instead)
-❌ Update PROJECT_CONTEXT for small changes (use handovers)
-❌ Skip diary creation (lose session knowledge)
-
----
-
-## 🔧 Maintenance
-
-### **Archive Old Diaries**
 ```bash
-# Keep last 30 days, archive older
-find .claude/diaries/ -name "*.md" -mtime +30 -exec mv {} archive/diaries/ \;
+# Per data
+grep -A 50 "Date: 2025-10-18" ARCHIVE_SESSIONS.md
+
+# Per keyword
+grep -A 20 "Railway" ARCHIVE_SESSIONS.md
+grep -A 20 "WebSocket" ARCHIVE_SESSIONS.md
+
+# Ultime 3 sessioni
+tail -n 300 ARCHIVE_SESSIONS.md
+
+# Sessioni di oggi
+grep -A 50 "Date: $(date +%Y-%m-%d)" ARCHIVE_SESSIONS.md
 ```
 
-### **Clean Empty Handovers**
+### Consulta diaries/ (se necessario)
+
 ```bash
-# Remove handovers with no history entries
-# (manual review recommended)
-```
-
-### **Update PROJECT_CONTEXT**
-```
-Frequency: When major changes occur
-Who: Any session that makes architectural changes
-How: Edit file + update timestamp
+# Cerca nei vecchi diaries solo se ARCHIVE_SESSIONS non basta
+ls -lt diaries/ | head -10
+grep -r "keyword" diaries/
 ```
 
 ---
 
-## 📊 Example Multi-CLI Session
+## ✅ Regole d'Oro
 
+### DO ✅
+- ✅ Leggi START_HERE.md prima di tutto
+- ✅ Usa CURRENT_SESSION.md come unico file attivo
+- ✅ Sovrascrivi, non creare nuovi file
+- ✅ Archivia a fine sessione
+- ✅ Segui il template standard
+
+### DON'T ❌
+- ❌ Creare nuovi file MD in .claude/
+- ❌ Modificare diaries/ o handovers/
+- ❌ Leggere tutti i file all'inizio
+- ❌ Saltare l'archiviazione a fine sessione
+- ❌ Deviare dal template standard
+
+---
+
+## 📚 File di Riferimento
+
+| File | Scopo | Quando Leggerlo |
+|------|-------|-----------------|
+| `START_HERE.md` | Onboarding | Prima volta qui |
+| `PROJECT_CONTEXT.md` | Contesto tecnico | Ogni sessione |
+| `CURRENT_SESSION.md` | Sessione attiva | Sempre (tuo file di lavoro) |
+| `ARCHIVE_SESSIONS.md` | Storico | Quando cerchi qualcosa |
+| `diaries/` | Vecchie sessioni | Solo se necessario |
+| `handovers/` | Vecchi handover | Solo se necessario |
+
+---
+
+## 🔧 Comandi Utili
+
+### Setup Sessione
+```bash
+# Copia template
+cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION.md
+
+# Apri per editing
+code .claude/CURRENT_SESSION.md
 ```
-Day: 2025-10-01
 
-16:30 → CLI 1 (Sonnet 4.5, m1)
-        Task: Deploy RAG backend
-        Diary: 2025-10-01_sonnet-4.5_m1.md
-        Handovers: deploy-rag.md, config-docker.md
+### Archiviazione
+```bash
+# Appendi a archivio
+cat .claude/CURRENT_SESSION.md >> .claude/ARCHIVE_SESSIONS.md
+echo "\n---\n" >> .claude/ARCHIVE_SESSIONS.md
 
-17:00 → CLI 2 (Opus 4.1, m2)
-        Task: Fix CORS in frontend
-        Reads: diaries from m1 (context)
-        Diary: 2025-10-01_opus-4.1_m2.md
-        Handovers: frontend-api-client.md, debug.md
+# Resetta
+cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION.md
+```
 
-18:30 → CLI 3 (Sonnet 4.5, m3)
-        Task: Add WebSocket support
-        Reads: diaries from m1 + m2 (full context)
-        Diary: 2025-10-01_sonnet-4.5_m3.md
-        Handovers: backend-routes.md, backend-handlers.md
+### Ricerca
+```bash
+# Cerca per data
+grep -A 50 "Date: 2025-10" .claude/ARCHIVE_SESSIONS.md
 
-Next Day: 2025-10-02
+# Cerca per keyword
+grep -i -A 20 "railway" .claude/ARCHIVE_SESSIONS.md
 
-10:00 → CLI 1 (Sonnet 4.5, m1)
-        Reads: All diaries from 2025-10-01 + 2025-09-30
-        Matricola: Reset to 1 (new day)
+# Ultime sessioni
+tail -n 500 .claude/ARCHIVE_SESSIONS.md
 ```
 
 ---
 
----
+## 🌐 KB Content Language Rules
 
-## 🌐 KB CONTENT LANGUAGE RULES (PERMANENT)
-
-> **🔴 MANDATORY POLICY FOR ALL KB UPDATES**
+> **Regola permanente per contenuti Knowledge Base**
 
 **Rule**: Indonesian for LAW, English for PRACTICE
 
-### Quick Reference:
-- ✅ **Indonesian**: Legal regulations, official procedures, legal terms
-  - Permenkumham, Undang-Undang, RPTKA procedures, LKPM requirements
-  - File location: `nuzantara-kb/kb-agents/visa/regulations/indonesian/`
+- ✅ **Indonesian**: Legal regulations, official procedures
+- ✅ **English**: Case studies, guides, FAQ
 
-- ✅ **English**: Case studies, practical guides, FAQ, examples
-  - User-facing content, how-to guides, troubleshooting
-  - File location: `nuzantara-kb/kb-agents/visa/cases/` or `/guides/`
-
-### Full Policy:
-📄 **See**: `nuzantara-kb/kb-agents/KB_CONTENT_RULES.md` (detailed rules + examples)
-📄 **See**: `nuzantara-kb/kb-agents/visa/KB_BILINGUAL_STRUCTURE_GUIDE.md` (implementation guide)
-
-**Enforcement**: This rule applies to ALL immigration/VISA content forever. DO NOT violate.
+📄 **Full Policy**: `nuzantara-kb/kb-agents/KB_CONTENT_RULES.md`
 
 ---
 
-**System Version**: 1.0.1
+## 🆘 Help
+
+### Problemi Comuni
+
+**Q: Dove trovo il contesto del progetto?**
+A: `PROJECT_CONTEXT.md`
+
+**Q: Come traccio la mia sessione?**
+A: Usa `CURRENT_SESSION.md`, sovrascrivi il contenuto
+
+**Q: Devo creare un nuovo file per la mia sessione?**
+A: NO! Usa sempre `CURRENT_SESSION.md`
+
+**Q: Come cerco sessioni passate?**
+A: `grep` in `ARCHIVE_SESSIONS.md`
+
+**Q: Posso modificare i file in diaries/?**
+A: NO, sono read-only (archivio storico)
+
+---
+
+**System Version**: 2.0.0 (Simplified)
 **Created**: 2025-10-01
-**Last Updated**: 2025-10-03 (added KB language rules)
-**Maintained by**: All Claude Code sessions
+**Updated**: 2025-10-18 (sistema semplificato)
+**Maintained by**: All Dev AI sessions

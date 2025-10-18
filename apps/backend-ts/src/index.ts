@@ -2,10 +2,8 @@ import 'dotenv/config';
 import logger from './services/logger.js';
 import express from "express";
 import { attachRoutes } from "./routing/index.js";
-import path from 'path';
-import { fileURLToPath } from 'url';
-// import swaggerUi from 'swagger-ui-express';
-// import yaml from 'js-yaml';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { ensureFirebaseInitialized } from './services/firebase.js';
 import { correlationId } from './middleware/correlationId.js';
@@ -25,14 +23,16 @@ app.use(correlationId());
 
 // === CORS for GitHub Pages + dev (Cloud Run) ===
 // Configure allowed origins via env or use defaults
-const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || 'https://zantara.balizero.com,https://balizero1987.github.io,http://localhost:3000,http://127.0.0.1:3000')
-  .split(',')
-  .map(s => s.trim())
-  .filter(Boolean);
+const ALLOWED_ORIGINS = new Set(
+  (process.env.CORS_ORIGINS || 'https://zantara.balizero.com,https://balizero1987.github.io,http://localhost:3000,http://127.0.0.1:3000')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+);
 
 app.use((req, res, next) => {
-  const origin = req.headers.origin as string | undefined;
-  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   // Vary ensures proper caching per Origin
@@ -123,24 +123,24 @@ const __dirname = path.dirname(__filename);
 
 // v1 - Legacy RPC-style for backwards compatibility (NO CUSTOM GPT - Direct API use only)
 app.get('/openapi.yaml', (_req, res) => {
-  try {
-    const specPath = path.resolve(__dirname, '..', 'openapi-v520-legacy.yaml');
-    res.setHeader('Content-Type', 'text/yaml');
-    return res.sendFile(specPath);
-  } catch (_e) {
-    return res.status(404).json({ ok: false, error: 'OPENAPI_NOT_FOUND' });
-  }
+  const specPath = path.resolve(__dirname, '..', 'openapi-v520-legacy.yaml');
+  res.setHeader('Content-Type', 'text/yaml');
+  return res.sendFile(specPath, (error_) => {
+    if (error_) {
+      return res.status(404).json({ ok: false, error: 'OPENAPI_NOT_FOUND' });
+    }
+  });
 });
 
 // v2 - Modern RESTful with proper operations (recommended for Actions/clients)
 app.get('/openapi-v2.yaml', (_req, res) => {
-  try {
-    const specPath = path.resolve(__dirname, '..', 'static', 'openapi-v2.yaml');
-    res.setHeader('Content-Type', 'text/yaml');
-    return res.sendFile(specPath);
-  } catch (_e) {
-    return res.status(404).json({ ok: false, error: 'OPENAPI_V2_NOT_FOUND' });
-  }
+  const specPath = path.resolve(__dirname, '..', 'static', 'openapi-v2.yaml');
+  res.setHeader('Content-Type', 'text/yaml');
+  return res.sendFile(specPath, (error_) => {
+    if (error_) {
+      return res.status(404).json({ ok: false, error: 'OPENAPI_V2_NOT_FOUND' });
+    }
+  });
 });
 
 // Simple documentation placeholder (Swagger UI disabled for now)
@@ -226,40 +226,12 @@ app.post('/proxy/zantara', async (req, res) => {
     });
 
     return res.json({ ok: true, data: result });
-  } catch (error: any) {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'ZANTARA AI proxy failed';
     logger.error('ZANTARA AI proxy error:', error);
     return res.status(500).json({
       ok: false,
-      error: error.message || 'ZANTARA AI proxy failed'
-    });
-  }
-});
-
-// ZANTARA AI Proxy (Unified)
-app.post('/proxy/zantara', async (req, res) => {
-  try {
-    const { message } = req.body;
-
-    if (!process.env.ZANTARA_API_KEY) {
-      return res.status(500).json({
-        ok: false,
-        error: 'ZANTARA API key not configured'
-      });
-    }
-
-    // Forward to ZANTARA AI handler (simplified - only one AI system)
-    const { aiChat } = await import('./handlers/ai-services/ai.js');
-    const result = await aiChat({
-      prompt: message,
-      model: 'zantara-llama'
-    });
-
-    return res.json({ ok: true, data: result });
-  } catch (error: any) {
-    logger.error('ZANTARA AI proxy error:', error);
-    return res.status(500).json({
-      ok: false,
-      error: error.message || 'ZANTARA AI proxy failed'
+      error: errorMessage
     });
   }
 });
@@ -297,8 +269,9 @@ app.use('/app', flagGate('ENABLE_APP_GATEWAY'));
 
 app.post('/app/bootstrap', async (req, res) => {
   try {
-    const origin = req.headers.origin as string | undefined;
-    const user = (req.headers['x-user-id'] as string) || undefined;
+    const origin = req.headers.origin;
+    const userId = req.headers['x-user-id'];
+    const user = Array.isArray(userId) ? userId[0] : userId;
     const result = await buildBootstrapResponse({ user, origin });
     return res.json(result);
   } catch (e: any) {
