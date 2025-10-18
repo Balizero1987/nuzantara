@@ -1,268 +1,284 @@
-# 📁 .claude/ - Session Tracking System
+# 📁 .claude/ - AI Session Tracking
 
-> **Sistema semplificato di gestione sessioni per NUZANTARA**
+> **Sistema per gestire 4 istanze AI concorrenti su NUZANTARA**
 
 ---
 
-## 🚀 Quick Start (Nuovi Dev AI)
+## 🚀 Per Nuove Istanze AI
 
-### 1️⃣ Prima Volta Qui?
-**Leggi SOLO**: [`START_HERE.md`](START_HERE.md)
+**Prima volta qui?** Leggi SOLO [`START_HERE.md`](START_HERE.md) (2 minuti)
 
-Quel file ti spiega tutto in 2 minuti. Non leggere altro finché non hai letto quello.
-
-### 2️⃣ Hai già letto START_HERE?
-Segui il workflow:
-
+**Già operativo?** Workflow:
 ```bash
-1. Leggi PROJECT_CONTEXT.md (5 min)
-2. Apri CURRENT_SESSION.md (sovrascrivi per la tua sessione)
-3. Lavora e aggiorna CURRENT_SESSION.md progressivamente
-4. A fine sessione: appendi a ARCHIVE_SESSIONS.md
+1. User ti dice quale window sei (W1/W2/W3/W4)
+2. Leggi PROJECT_CONTEXT.md (context sistema)
+3. Apri il tuo CURRENT_SESSION_WX.md
+4. Lavora e aggiorna progressivamente
+5. Fine: appendi a ARCHIVE_SESSIONS.md
 ```
 
 ---
 
-## 📁 Struttura File Core (SOLO 4 FILE!)
+## 📁 File Structure
 
 ```
 .claude/
-├── START_HERE.md              # ★ Entry point obbligatorio
-├── PROJECT_CONTEXT.md          # ★ Contesto tecnico progetto
-├── CURRENT_SESSION.md          # ★ Sessione corrente (sovrascrivibile)
+├── START_HERE.md               # ★ Entry point per nuove AI
+├── PROJECT_CONTEXT.md          # ★ Context tecnico NUZANTARA
+├── CURRENT_SESSION_W1.md       # ★ Window 1 (max 4 concurrent)
+├── CURRENT_SESSION_W2.md       # ★ Window 2
+├── CURRENT_SESSION_W3.md       # ★ Window 3
+├── CURRENT_SESSION_W4.md       # ★ Window 4
 ├── CURRENT_SESSION.template.md # Template per reset
-└── ARCHIVE_SESSIONS.md         # ★ Storico append-only
+└── ARCHIVE_SESSIONS.md         # ★ Log globale append-only
 
-# File legacy (non toccare, solo consultazione)
-├── diaries/                   # Vecchie sessioni (archivio)
-├── handovers/                 # Vecchi handover (archivio)
-└── [altri file].md            # Report storici (read-only)
+# Legacy (read-only, non modificare)
+├── diaries/                    # Vecchie sessioni
+├── handovers/                  # Vecchi handover
+└── [altri].md                  # Report storici
+```
+
+**Regola**: Usa SOLO i 4 file core (W1-W4 + ARCHIVE). Zero nuovi file.
+
+---
+
+## ⚡ Workflow AI Session
+
+### 🟢 Start
+```bash
+# User assegna window
+User: "Sei W2, implementa feature X"
+
+# Carica context
+1. PROJECT_CONTEXT.md (5 min)
+2. CURRENT_SESSION_W2.md (stato attuale)
+3. tail -100 ARCHIVE_SESSIONS.md (ultime sessioni, opzionale)
+
+# Sovrascrivi il tuo file
+cp CURRENT_SESSION.template.md CURRENT_SESSION_W2.md
+# Compila: Window, Date, Model, Task
+```
+
+### 🟡 Work
+```bash
+# Aggiorna SOLO il tuo CURRENT_SESSION_WX.md
+- Task completati
+- File modificati
+- Problemi risolti
+- Note tecniche
+
+# Regole
+- NON creare nuovi file MD
+- NON toccare altre window (W1-W4)
+- Sovrascrivi progressivamente
+```
+
+### 🔴 End
+```bash
+# Completa sezione finale
+## 🏁 Chiusura Sessione
+- Risultato: [summary]
+- Build/Tests: ✅/❌
+- Handover: [info per prossima AI]
+
+# Archivia
+cat CURRENT_SESSION_W2.md >> ARCHIVE_SESSIONS.md
+echo "\n---\n" >> ARCHIVE_SESSIONS.md
+
+# Reset
+cp CURRENT_SESSION.template.md CURRENT_SESSION_W2.md
 ```
 
 ---
 
-## 🎯 Workflow Sessione
-
-### 🟢 Inizio Sessione
-
-1. **Leggi** (in quest'ordine):
-   ```bash
-   START_HERE.md → PROJECT_CONTEXT.md → CURRENT_SESSION.md
-   ```
-
-2. **Apri** `CURRENT_SESSION.md`:
-   - Sovrascrivi completamente
-   - Compila Session Info (data, model, task)
-   - Inizia a lavorare
-
-### 🟡 Durante Sessione
-
-1. **Aggiorna** `CURRENT_SESSION.md` progressivamente:
-   - ✅ Task completati
-   - 🚧 Task in progress
-   - 📝 Note tecniche
-   - 🔗 File rilevanti
-
-2. **NON creare** nuovi file MD!
-
-### 🔴 Fine Sessione
-
-1. **Completa** `CURRENT_SESSION.md`:
-   ```markdown
-   ## 🏁 Chiusura Sessione
-   - Risultato finale
-   - Stato del sistema (Build/Tests/Deploy)
-   - Handover al prossimo Dev AI
-   ```
-
-2. **Archivia**:
-   ```bash
-   # Appendi a storico
-   cat CURRENT_SESSION.md >> ARCHIVE_SESSIONS.md
-   echo "\n---\n" >> ARCHIVE_SESSIONS.md
-
-   # Resetta per prossimo
-   cp CURRENT_SESSION.template.md CURRENT_SESSION.md
-   ```
-
-3. **Verifica**:
-   - ✅ ARCHIVE_SESSIONS.md contiene la tua sessione
-   - ✅ CURRENT_SESSION.md è resettato al template
-
----
-
-## 📋 Template Sessione
-
-Usa sempre questo formato in `CURRENT_SESSION.md`:
+## 📋 Template Standard
 
 ```markdown
 ## 📅 Session Info
-- Date: YYYY-MM-DD
-- Time: HH:MM UTC
-- Model: [model-name]
+- Window: WX (W1/W2/W3/W4)
+- Date: YYYY-MM-DD HH:MM UTC
+- Model: [model-id]
 - User: antonellosiano
-
-## 🎯 Task Ricevuto
-[Descrizione task]
+- Task: [user request]
 
 ## ✅ Task Completati
-### 1. [Nome Task]
+### 1. [Task Name]
 - Status: ✅/🚧/❌
-- Files Modified: [lista]
-- Changes: [descrizione]
-- Result: [risultato]
+- Files: path/to/file.ts
+- Changes: [what changed]
+- Result: [outcome]
 
 ## 📝 Note Tecniche
-### Scoperte Importanti
+### Scoperte
+- [important findings]
+
 ### Problemi Risolti
-### TODO per Prossima Sessione
+- [issue] → [solution]
+
+### TODO Next
+- [ ] Item
 
 ## 🔗 Files Rilevanti
-[Lista file importanti]
+- path/to/file - description
 
-## 📊 Metriche Sessione
-- Durata: ~X ore
-- File Modificati: X
-- Test Status: ✅/❌
+## 📊 Metrics
+- Duration: ~X hours
+- Files modified: X
+- Tests: ✅/❌
 
-## 🏁 Chiusura Sessione
-### Risultato Finale
-### Stato del Sistema
-### Handover al Prossimo Dev AI
+## 🏁 Chiusura
+### Risultato
+[summary]
+
+### System Status
+- Build: ✅/❌
+- Tests: ✅/❌
+- Deploy: ✅/❌
+
+### Handover
+[what next AI needs to know]
 ```
 
 ---
 
-## 🔍 Cercare Sessioni Passate
+## 🔍 Search Previous Sessions
 
-### Cerca in ARCHIVE_SESSIONS.md
-
+### ARCHIVE_SESSIONS.md
 ```bash
-# Per data
+# By date
 grep -A 50 "Date: 2025-10-18" ARCHIVE_SESSIONS.md
 
-# Per keyword
+# By keyword
 grep -A 20 "Railway" ARCHIVE_SESSIONS.md
-grep -A 20 "WebSocket" ARCHIVE_SESSIONS.md
 
-# Ultime 3 sessioni
+# Last 3 sessions
 tail -n 300 ARCHIVE_SESSIONS.md
 
-# Sessioni di oggi
+# Today
 grep -A 50 "Date: $(date +%Y-%m-%d)" ARCHIVE_SESSIONS.md
 ```
 
-### Consulta diaries/ (se necessario)
-
+### Legacy diaries/ (if needed)
 ```bash
-# Cerca nei vecchi diaries solo se ARCHIVE_SESSIONS non basta
-ls -lt diaries/ | head -10
+# Only if ARCHIVE_SESSIONS doesn't have what you need
 grep -r "keyword" diaries/
+ls -lt diaries/ | head -10
 ```
 
 ---
 
-## ✅ Regole d'Oro
+## ✅ Rules
 
-### DO ✅
-- ✅ Leggi START_HERE.md prima di tutto
-- ✅ Usa CURRENT_SESSION.md come unico file attivo
-- ✅ Sovrascrivi, non creare nuovi file
-- ✅ Archivia a fine sessione
-- ✅ Segui il template standard
+### DO
+- ✅ Ask user which window (if not told)
+- ✅ Use your CURRENT_SESSION_WX.md only
+- ✅ Overwrite, don't create new files
+- ✅ Archive at end of session
+- ✅ Follow template structure
 
-### DON'T ❌
-- ❌ Creare nuovi file MD in .claude/
-- ❌ Modificare diaries/ o handovers/
-- ❌ Leggere tutti i file all'inizio
-- ❌ Saltare l'archiviazione a fine sessione
-- ❌ Deviare dal template standard
-
----
-
-## 📚 File di Riferimento
-
-| File | Scopo | Quando Leggerlo |
-|------|-------|-----------------|
-| `START_HERE.md` | Onboarding | Prima volta qui |
-| `PROJECT_CONTEXT.md` | Contesto tecnico | Ogni sessione |
-| `CURRENT_SESSION.md` | Sessione attiva | Sempre (tuo file di lavoro) |
-| `ARCHIVE_SESSIONS.md` | Storico | Quando cerchi qualcosa |
-| `diaries/` | Vecchie sessioni | Solo se necessario |
-| `handovers/` | Vecchi handover | Solo se necessario |
+### DON'T
+- ❌ Create new MD files in .claude/
+- ❌ Modify diaries/ or handovers/ (legacy archive)
+- ❌ Touch other windows (W1-W4)
+- ❌ Read all files upfront (load only what needed)
+- ❌ Skip archiving at end
 
 ---
 
-## 🔧 Comandi Utili
+## 📚 Reference Files
 
-### Setup Sessione
+| File | Purpose | When to Read |
+|------|---------|--------------|
+| `START_HERE.md` | Quick start | First time |
+| `PROJECT_CONTEXT.md` | System context | Every session |
+| `CURRENT_SESSION_W1-4.md` | Active sessions | Your working file |
+| `ARCHIVE_SESSIONS.md` | History | Search past work |
+| `ARCHITECTURE.md` | Full architecture | Deep dive needed |
+| `diaries/` | Legacy sessions | Specific history needed |
+
+---
+
+## 🔧 Commands
+
+### Session Setup
 ```bash
-# Copia template
-cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION.md
-
-# Apri per editing
-code .claude/CURRENT_SESSION.md
+# User tells you: "You're W2"
+cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION_W2.md
+code .claude/CURRENT_SESSION_W2.md
 ```
 
-### Archiviazione
+### Archive
 ```bash
-# Appendi a archivio
-cat .claude/CURRENT_SESSION.md >> .claude/ARCHIVE_SESSIONS.md
+# Replace W2 with your window number
+cat .claude/CURRENT_SESSION_W2.md >> .claude/ARCHIVE_SESSIONS.md
 echo "\n---\n" >> .claude/ARCHIVE_SESSIONS.md
-
-# Resetta
-cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION.md
+cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION_W2.md
 ```
 
-### Ricerca
+### Search
 ```bash
-# Cerca per data
+# Date
 grep -A 50 "Date: 2025-10" .claude/ARCHIVE_SESSIONS.md
 
-# Cerca per keyword
+# Keyword
 grep -i -A 20 "railway" .claude/ARCHIVE_SESSIONS.md
 
-# Ultime sessioni
+# Recent
 tail -n 500 .claude/ARCHIVE_SESSIONS.md
 ```
 
 ---
 
-## 🌐 KB Content Language Rules
+## 🎯 Multi-Window Concurrency
 
-> **Regola permanente per contenuti Knowledge Base**
+**User runs 4 AI instances simultaneously:**
+```
+Window 1 → AI #1 (task A) → CURRENT_SESSION_W1.md
+Window 2 → AI #2 (task B) → CURRENT_SESSION_W2.md
+Window 3 → AI #3 (task C) → CURRENT_SESSION_W3.md
+Window 4 → AI #4 (task D) → CURRENT_SESSION_W4.md
+```
+
+**Rules:**
+- Each AI works on separate file
+- No file conflicts (W1-W4 isolated)
+- Archiving is sequential (append-only safe)
+- Only user knows which AI is in which window
+
+---
+
+## 🆘 FAQ
+
+**Q: How do I know which window I am?**
+A: User tells you at start. If unclear, ask: "Which window am I? (W1/W2/W3/W4)"
+
+**Q: Where do I track my session?**
+A: Your assigned CURRENT_SESSION_WX.md file
+
+**Q: Can I create new files?**
+A: NO. Use only your assigned WX file
+
+**Q: How many concurrent AI instances?**
+A: Max 4 (W1, W2, W3, W4)
+
+**Q: What if I need context from other windows?**
+A: Read their CURRENT_SESSION_WX.md files (read-only)
+
+---
+
+## 🌐 KB Content Rules
+
+> **For NUZANTARA KB updates only**
 
 **Rule**: Indonesian for LAW, English for PRACTICE
+- Indonesian: Legal regulations, procedures
+- English: Guides, examples, FAQ
 
-- ✅ **Indonesian**: Legal regulations, official procedures
-- ✅ **English**: Case studies, guides, FAQ
-
-📄 **Full Policy**: `nuzantara-kb/kb-agents/KB_CONTENT_RULES.md`
-
----
-
-## 🆘 Help
-
-### Problemi Comuni
-
-**Q: Dove trovo il contesto del progetto?**
-A: `PROJECT_CONTEXT.md`
-
-**Q: Come traccio la mia sessione?**
-A: Usa `CURRENT_SESSION.md`, sovrascrivi il contenuto
-
-**Q: Devo creare un nuovo file per la mia sessione?**
-A: NO! Usa sempre `CURRENT_SESSION.md`
-
-**Q: Come cerco sessioni passate?**
-A: `grep` in `ARCHIVE_SESSIONS.md`
-
-**Q: Posso modificare i file in diaries/?**
-A: NO, sono read-only (archivio storico)
+See: `nuzantara-kb/kb-agents/KB_CONTENT_RULES.md`
 
 ---
 
-**System Version**: 2.0.0 (Simplified)
+**System Version**: 2.1.0 (AI-optimized)
 **Created**: 2025-10-01
-**Updated**: 2025-10-18 (sistema semplificato)
-**Maintained by**: All Dev AI sessions
+**Updated**: 2025-10-18 (AI instance focus)
+**Maintained by**: All AI instances
