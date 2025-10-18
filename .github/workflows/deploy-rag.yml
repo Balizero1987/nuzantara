@@ -1,0 +1,32 @@
+name: Deploy RAG Backend (Python)
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'apps/backend-rag/**' ]
+  workflow_dispatch:
+
+jobs:
+  deploy-rag:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        cd apps/backend-rag/backend
+        pip install -r requirements.txt
+        
+    - name: Deploy to Railway
+      uses: railwayapp/railway-deploy@v1
+      with:
+        railway-token: ${{ secrets.RAILWAY_TOKEN }}
+        service: rag-backend
+        working-directory: apps/backend-rag/backend
