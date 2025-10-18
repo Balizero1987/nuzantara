@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>ZANTARA – Complete (Option 2: Icon + Label Toggle)</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#8B5CF6">
+  <style>
+    /* Critical inline override (cache-safe): always show chat */
+    #splash-screen{display:none!important}
+    #welcome-screen{display:none!important}
+    #chat-interface{display:flex!important}
+  </style>
+  <link rel="stylesheet" href="styles/design-system.css">
+  <link rel="stylesheet" href="styles/theme-indonesia.css">
+  <link rel="stylesheet" href="styles/design-enhancements.css">
+  <link rel="stylesheet" href="styles/logo-animations.css">
+  <link rel="stylesheet" href="styles/premium-ui.css">
+  <link rel="stylesheet" href="styles/streaming-toggle.css">
+  <link rel="stylesheet" href="styles/virtualization-config.css">
+  <link rel="stylesheet" href="styles/test-console.css">
+  <link rel="stylesheet" href="styles/zantara-theme.css">
+  <link rel="stylesheet" href="styles/zantara-theme-day.css?v=prod11">
+  <link rel="stylesheet" href="styles/zantara-theme-night-enhanced.css?v=prod11">
+  <link rel="stylesheet" href="styles/components.css?v=prod11">
+  <link rel="stylesheet" href="styles/syncra-night-effects.css">
+  <style>
+    /* THREE-COLUMN LAYOUT */
+    .main-content {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      gap: 16px;
+      height: calc(100vh - 180px);
+      padding: 16px;
+    }
+
+    /* Left Sidebar: Chat History */
+    .chat-history {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: var(--glass-border);
+      border-radius: 20px;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .chat-history h3 {
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .history-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--text-secondary, rgba(255, 255, 255, 0.2));
+    }
+
+    .history-item-title {
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item-time {
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    /* Center: Chat Interface */
+    .chat-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    /* Right Sidebar: Articles Panel */
+    .articles-panel {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      border: var(--glass-border);
+      border-radius: 20px;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: var(--glass-shadow);
+    }
+
+    .articles-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .articles-header h3 {
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .articles-date {
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .category-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .category-filter {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid;
+    }
+
+    [data-theme="day"] .category-filter {
+      background: rgba(255, 0, 64, 0.1);
+      border-color: rgba(255, 0, 64, 0.3);
+      color: #FF0040;
+    }
+
+    [data-theme="night"] .category-filter {
+      background: rgba(189, 0, 255, 0.1);
+      border-color: rgba(189, 0, 255, 0.3);
+      color: #BD00FF;
+    }
+
+    .category-filter.active {
+      background: linear-gradient(135deg, #FF0040, #FFA500);
+      border-color: transparent;
+      color: white;
+    }
+
+    [data-theme="night"] .category-filter.active {
+      background: linear-gradient(135deg, #BD00FF, #00D9FF);
+    }
+
+    .article-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .article-card:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--text-secondary, rgba(255, 255, 255, 0.2));
+      transform: translateY(-2px);
+    }
+
+    .article-category {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    [data-theme="day"] .article-category {
+      color: #FF0040;
+    }
+
+    [data-theme="night"] .article-category {
+      color: #BD00FF;
+    }
+
+    .article-title {
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .article-summary {
+      color: var(--text-secondary);
+      font-size: 11px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .article-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+    }
+
+    .article-time {
+      color: var(--text-secondary);
+    }
+
+    .article-badge {
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 9px;
+    }
+
+    .badge-urgent {
+      background: rgba(255, 0, 64, 0.2);
+      color: #FF0040;
+    }
+
+    [data-theme="night"] .badge-urgent {
+      background: rgba(189, 0, 255, 0.2);
+      color: #BD00FF;
+    }
+
+    .badge-high {
+      background: rgba(255, 165, 0, 0.2);
+      color: #FFA500;
+    }
+
+    /* OPTION 2: Icon + Label Toggle */
+    .theme-toggle-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--bg-glass);
+      backdrop-filter: blur(10px);
+      border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.2));
+      box-shadow: var(--glass-shadow);
+      margin-left: auto;
+      margin-right: 8px;
+    }
+
+    .theme-icon {
+      font-size: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .theme-label {
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    /* Day Mode Styling */
+    [data-theme="day"] .theme-toggle-header .theme-icon {
+      filter: grayscale(0);
+    }
+
+    [data-theme="day"] .theme-toggle-header .theme-label {
+      color: #FF0040;
+    }
+
+    [data-theme="day"] .theme-toggle-header:hover {
+      background: linear-gradient(135deg,
+        rgba(255, 0, 64, 0.1) 0%,
+        rgba(255, 165, 0, 0.1) 100%
+      );
+    }
+
+    /* Night Mode Styling */
+    [data-theme="night"] .theme-toggle-header .theme-icon {
+      filter: grayscale(0);
+    }
+
+    [data-theme="night"] .theme-toggle-header .theme-label {
+      background: linear-gradient(135deg, #BD00FF, #00D9FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    [data-theme="night"] .theme-toggle-header:hover {
+      background: linear-gradient(135deg,
+        rgba(189, 0, 255, 0.15) 0%,
+        rgba(0, 217, 255, 0.15) 100%
+      );
+      box-shadow: 0 0 20px rgba(189, 0, 255, 0.3);
+    }
+
+    /* Hide FAB if theme-switcher.js creates one */
+    .theme-toggle-fab {
+      display: none !important;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1200px) {
+      .main-content {
+        grid-template-columns: 240px 1fr 280px;
+      }
+    }
+
+    @media (max-width: 968px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .chat-history,
+      .articles-panel {
+        display: none; /* Hide on mobile, can add toggle later */
+      }
+
+      .theme-toggle-header {
+        padding: 6px 10px;
+      }
+
+      .theme-label {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Splash Screen -->
+  <div id="splash-screen" class="splash-screen" role="status" aria-live="polite" style="display:none">
+    <img src="assets/lotus-day.svg" class="lotus-splash" alt="ZANTARA">
+    <h1 class="splash-title">ZANTARA</h1>
+    <div class="splash-loader" aria-hidden="true"></div>
+  </div>
+
+  <!-- Syncra Glow Orb (Night Mode) -->
+  <div class="syncra-glow-orb"></div>
+  <div class="syncra-rings"></div>
+
+  <!-- Red Particles Background -->
+  <div class="red-particles">
+    <span class="red-particle"></span>
+    <span class="red-particle"></span>
+    <span class="red-particle"></span>
+    <span class="red-particle"></span>
+    <span class="red-particle"></span>
+    <span class="red-particle"></span>
+    <span class="red-particle"></span>
+    <span class="red-particle"></span>
+    <span class="red-particle"></span>
+    <span class="red-particle"></span>
+  </div>
+
+  <!-- Background Wave -->
+  <div class="bg-wave"></div>
+
+  <!-- Logo Breakout Animation -->
+  <div class="logo-breakout">
+    <img src="assets/logo-day.jpeg" alt="ZANTARA Logo" class="logo-glitch">
+  </div>
+
+  <!-- Parallax Logo -->
+  <div class="parallax-logo">
+    <img src="assets/logo-day.jpeg" alt="ZANTARA" class="logo-magnetic">
+  </div>
+
+  <!-- Main App Container -->
+  <div id="app" class="app-container" aria-label="ZANTARA App">
+    <header class="app-header glass-card">
+      <div class="header-content">
+        <img src="assets/logo-day.jpeg" class="logo-3d" alt="ZANTARA" style="width: 45px; height: 45px; border-radius: 50%;">
+        <span class="app-title">ZANTARA</span>
+
+        <!-- OPTION 2: Icon + Label Toggle (replaces conn-badge) -->
+        <button class="theme-toggle-header"
+                id="theme-toggle-header"
+                data-theme="day"
+                aria-label="Switch to night mode">
+          <span class="theme-icon">🌙</span>
+          <span class="theme-label">Night</span>
+        </button>
+
+        <button class="menu-toggle" aria-label="Open menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- LEFT SIDEBAR: Chat History -->
+      <aside class="chat-history">
+        <h3>💬 Chat History</h3>
+        <div class="history-item">
+          <div class="history-item-title">Immigration regulations Bali</div>
+          <div class="history-item-time">2 hours ago</div>
+        </div>
+        <div class="history-item">
+          <div class="history-item-title">KITAS renewal process 2025</div>
+          <div class="history-item-time">Yesterday</div>
+        </div>
+        <div class="history-item">
+          <div class="history-item-title">Banking requirements foreigners</div>
+          <div class="history-item-time">2 days ago</div>
+        </div>
+        <div class="history-item">
+          <div class="history-item-title">Company registration Indonesia</div>
+          <div class="history-item-time">3 days ago</div>
+        </div>
+        <div class="history-item">
+          <div class="history-item-title">Tax obligations digital nomads</div>
+          <div class="history-item-time">1 week ago</div>
+        </div>
+      </aside>
+
+      <!-- CENTER: Chat Interface -->
+      <div class="chat-wrapper">
+        <div id="welcome-screen" class="welcome-screen" style="display:none">
+          <div class="welcome-card glass-card">
+            <h2>Hi there,</h2>
+            <p>Give any command naturally, from generating content to managing your tasks</p>
+            <div class="quick-actions" role="list">
+              <button class="action-card glass-card" data-action="generate" role="listitem"><div class="action-icon">📝</div><span>Generating Content</span></button>
+              <button class="action-card glass-card" data-action="document" role="listitem"><div class="action-icon">📄</div><span>Creating Document</span></button>
+              <button class="action-card glass-card" data-action="schedule" role="listitem"><div class="action-icon">📅</div><span>Scheduling Meeting</span></button>
+              <button class="action-card glass-card" data-action="note" role="listitem"><div class="action-icon">📝</div><span>Writing Note</span></button>
+            </div>
+            <button id="voice-button" class="voice-button">
+              <div class="voice-button-inner">
+                <svg class="microphone-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <path d="M12 19v4m-4 0h8"/>
+                </svg>
+              </div>
+              <span class="voice-label">Tap here to start with ZANTARA</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="chat-interface" class="chat-interface" aria-live="polite" aria-label="Chat interface" style="display:flex">
+          <div class="messages-container"></div>
+          <div class="input-area glass-card">
+            <button class="attach-button" aria-label="Attach file">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+            <input type="text" id="message-input" class="message-input" placeholder="Type a message or use voice..." aria-label="Message input">
+            <button id="voice-input" class="voice-input-button" aria-label="Start voice input">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+            </button>
+            <button id="send-button" class="send-button" aria-label="Send message">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="voice-overlay" class="voice-overlay" aria-hidden="true">
+          <div class="voice-recording-card glass-card">
+            <div class="voice-visualizer"><canvas id="voice-canvas"></canvas></div>
+            <p class="listening-text">Listening...</p>
+            <button class="stop-recording" aria-label="Stop recording"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR: Articles Panel -->
+      <aside class="articles-panel">
+        <div class="articles-header">
+          <h3>📰 Daily Intel</h3>
+          <div class="articles-date">Oct 8, 2025</div>
+        </div>
+
+        <div class="category-filters">
+          <button class="category-filter active">All</button>
+          <button class="category-filter">Immigration</button>
+          <button class="category-filter">Business</button>
+          <button class="category-filter">Legal</button>
+          <button class="category-filter">Finance</button>
+          <button class="category-filter">Property</button>
+        </div>
+
+        <!-- Article Cards -->
+        <div class="article-card">
+          <div class="article-category">Immigration</div>
+          <div class="article-title">New KITAS regulations effective January 2026</div>
+          <div class="article-summary">The Indonesian government announced significant changes to KITAS renewal procedures, affecting digital nomads and entrepreneurs.</div>
+          <div class="article-meta">
+            <span class="article-time">2h ago</span>
+            <span class="article-badge badge-urgent">URGENT</span>
+          </div>
+        </div>
+
+        <div class="article-card">
+          <div class="article-category">Business</div>
+          <div class="article-title">PT PMA capital requirements updated</div>
+          <div class="article-summary">New minimum capital requirements for foreign-owned companies in Bali announced by the Investment Coordinating Board.</div>
+          <div class="article-meta">
+            <span class="article-time">4h ago</span>
+            <span class="article-badge badge-high">HIGH</span>
+          </div>
+        </div>
+
+        <div class="article-card">
+          <div class="article-category">Legal</div>
+          <div class="article-title">Land ownership rules clarified for foreigners</div>
+          <div class="article-summary">Supreme Court issues new guidelines on leasehold vs freehold property ownership for non-Indonesian citizens.</div>
+          <div class="article-meta">
+            <span class="article-time">6h ago</span>
+            <span class="article-badge badge-high">HIGH</span>
+          </div>
+        </div>
+
+        <div class="article-card">
+          <div class="article-category">Finance</div>
+          <div class="article-title">Bank Indonesia updates forex regulations</div>
+          <div class="article-summary">Changes to foreign currency transactions and offshore account requirements for expat business owners.</div>
+          <div class="article-meta">
+            <span class="article-time">8h ago</span>
+          </div>
+        </div>
+
+        <div class="article-card">
+          <div class="article-category">Property</div>
+          <div class="article-title">Canggu zoning laws revised</div>
+          <div class="article-summary">Local authorities announce new zoning restrictions affecting villa construction and rental businesses in Canggu area.</div>
+          <div class="article-meta">
+            <span class="article-time">12h ago</span>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <nav class="bottom-nav glass-card" aria-label="Primary">
+      <button class="nav-item active" data-view="chat"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2"/></svg><span>Chat</span></button>
+      <button class="nav-item" data-view="tools"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3h6l6 6h6v6l-6 6H9l-6-6z" stroke="currentColor" stroke-width="2"/></svg><span>Tools</span></button>
+      <button class="nav-item" data-view="files"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" stroke="currentColor" stroke-width="2"/></svg><span>Files</span></button>
+      <button class="nav-item" data-view="settings"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 1v6m0 6v6m4.22-13.22l-4.24 4.24m0 3.96l4.24 4.24M20 12h-6m-6 0H2" stroke="currentColor" stroke-width="2"/></svg><span>Settings</span></button>
+    </nav>
+  </div>
+
+  <script src="js/api-config.js?v=prod11"></script>
+  <script src="js/app.js?v=prod11" type="module"></script>
+  <script src="js/streaming-toggle.js"></script>
+  <script src="js/streaming-client.js"></script>
+  <script src="js/streaming-ui.js"></script>
+  <script src="js/streaming-toggle-ui.js"></script>
+  <script src="js/message-virtualization.js"></script>
+  <script src="js/test-console.js?v=prod11"></script>
+  <script src="js/logo-interactions.js"></script>
+  <script>
+    // OPTION 2: Icon + Label Toggle Implementation
+    (function(){
+      const toggle = document.getElementById('theme-toggle-header');
+      const html = document.documentElement;
+      const body = document.body;
+      const icon = toggle.querySelector('.theme-icon');
+      const label = toggle.querySelector('.theme-label');
+
+      // Get saved theme or default to day
+      let currentTheme = localStorage.getItem('zantara-theme') || 'day';
+
+      // Apply theme
+      function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        body.setAttribute('data-theme', theme);
+        toggle.setAttribute('data-theme', theme);
+
+        // Update all themeable elements
+        document.querySelectorAll('.glass-card, .voice-button, .action-card, .message-bubble, .tool-card, .typing-dot, .input-area, .action-chip')
+          .forEach(el => el.setAttribute('data-theme', theme));
+
+        // Update toggle appearance
+        if (theme === 'day') {
+          icon.textContent = '🌙';
+          label.textContent = 'Night';
+          toggle.setAttribute('aria-label', 'Switch to night mode');
+        } else {
+          icon.textContent = '☀️';
+          label.textContent = 'Day';
+          toggle.setAttribute('aria-label', 'Switch to day mode');
+        }
+
+        currentTheme = theme;
+        localStorage.setItem('zantara-theme', theme);
+      }
+
+      // Apply saved theme on load
+      applyTheme(currentTheme);
+
+      // Toggle click handler
+      toggle.addEventListener('click', () => {
+        const nextTheme = currentTheme === 'day' ? 'night' : 'day';
+        applyTheme(nextTheme);
+      });
+
+      // Keyboard shortcut: Ctrl/Cmd + T
+      document.addEventListener('keydown', (e) => {
+        if ((e.key === 't' || e.key === 'T') && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          const nextTheme = currentTheme === 'day' ? 'night' : 'day';
+          applyTheme(nextTheme);
+        }
+      });
+    })();
+
+    // Category filter functionality
+    document.querySelectorAll('.category-filter').forEach(filter => {
+      filter.addEventListener('click', () => {
+        document.querySelectorAll('.category-filter').forEach(f => f.classList.remove('active'));
+        filter.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

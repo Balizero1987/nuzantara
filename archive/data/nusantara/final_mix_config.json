@@ -1,0 +1,18 @@
+{
+  "seed": 42,
+  "output": "../FINE_TUNING/zantara_finetune_final_v1.jsonl",
+  "datasets": [
+    {"id": "ultimate_20k", "max_examples": 8000},
+    {"id": "supreme_15k", "max_examples": 4000},
+    {"id": "complete_nusantara_identity", "max_examples": 2000},
+    {"id": "nusantara_identity_v2", "max_examples": 2000},
+    {"id": "bahasa_indonesia_core", "max_examples": 2000},
+    {"id": "traditions_knowledge", "max_examples": 500},
+    {"id": "training_final_3000", "max_examples": 1500},
+    {"id": "combined_training", "max_examples": 664},
+    {"id": "nusantara_multilingual_700", "max_examples": 2000},
+    {"id": "deep_spiritual_layer", "max_examples": 1500},
+    {"id": "eternal_foundations", "max_examples": 1500},
+    {"id": "kb_training", "max_examples": 1200}
+  ]
+}

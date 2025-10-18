@@ -1,0 +1,11 @@
+{
+  "domain": "visa",
+  "content_type": "case-study",
+  "sources": "",
+  "tags": "visa",
+  "title": "C22B Cases",
+  "last_updated": "2025-10-03",
+  "collection": "visa_oracle",
+  "filename": "c22b_cases.json",
+  "version": "1.0"
+}

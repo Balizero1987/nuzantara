@@ -1,0 +1,19 @@
+{
+  "category": "employment_law",
+  "timestamp": "2025-10-09T10:50:30.872567",
+  "total_documents": 2,
+  "sources": [
+    {
+      "name": "Ministry of Manpower",
+      "tier": 1,
+      "word_count": 673,
+      "title": "Beranda : Kementerian Ketenagakerjaan RI"
+    },
+    {
+      "name": "BPJS Employment",
+      "tier": 1,
+      "word_count": 1482,
+      "title": "Program Jaminan Sosial Tenaga Kerja - BPJS Ketenagakerjaan"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/zantara-v520-chatgpt-patch:latest', '-f', 'Dockerfile.v520', '.']
+images:
+- 'gcr.io/$PROJECT_ID/zantara-v520-chatgpt-patch:latest'
+timeout: 600s

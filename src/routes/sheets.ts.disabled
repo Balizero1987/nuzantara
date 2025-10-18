@@ -1,0 +1,252 @@
+import { Router } from 'express';
+import { BridgeError } from '../utils/errors.js';
+import { 
+  createSpreadsheet, 
+  appendData, 
+  readData, 
+  _getSpreadsheetInfo,
+  exportConversationData,
+  _CreateSheetParams,
+  AppendDataParams
+} from '../services/sheets.js';
+
+const router = Router();
+
+/**
+ * GET /api/sheets/status
+ * Check Google Sheets API status
+ */
+router.get('/status', async (req, res) => {
+  try {
+    const bridge = (req as any).bridge;
+    if (!bridge) {
+      throw new BridgeError(500, 'BRIDGE_NOT_INITIALIZED', 'Bridge instance not found');
+    }
+
+    res.json({
+      ok: true,
+      service: 'google-sheets',
+      status: 'available',
+      timestamp: new Date().toISOString(),
+      capabilities: [
+        'create_spreadsheet',
+        'read_data', 
+        'append_data',
+        'export_conversations'
+      ]
+    });
+  } catch (error: any) {
+    const err = error as BridgeError;
+    res.status(err.statusCode || 500).json({
+      ok: false,
+      error: err.code || 'SHEETS_STATUS_ERROR',
+      message: err.message
+    });
+  }
+});
+
+/**
+ * POST /api/sheets/create
+ * Create a new spreadsheet
+ */
+router.post('/create', async (req, res) => {
+  try {
+    const bridge = (req as any).bridge;
+    if (!bridge) {
+      throw new BridgeError(500, 'BRIDGE_NOT_INITIALIZED', 'Bridge instance not found');
+    }
+
+    const { title, headers, data } = req.body;
+    
+    if (!title) {
+      throw new BridgeError(400, 'MISSING_TITLE', 'Spreadsheet title is required');
+    }
+
+    const result = await createSpreadsheet(bridge.auth, {
+      title,
+      headers,
+      data
+    });
+
+    res.json({
+      ok: true,
+      ...result
+    });
+  } catch (error: any) {
+    const err = error as BridgeError;
+    res.status(err.statusCode || 500).json({
+      ok: false,
+      error: err.code || 'SHEETS_CREATE_ERROR',
+      message: err.message
+    });
+  }
+});
+
+/**
+ * GET /api/sheets/:id/data
+ * Read data from spreadsheet
+ */
+router.get('/:id/data', async (req, res) => {
+  try {
+    const bridge = (req as any).bridge;
+    if (!bridge) {
+      throw new BridgeError(500, 'BRIDGE_NOT_INITIALIZED', 'Bridge instance not found');
+    }
+
+    const { id } = req.params;
+    const range = (req.query.range as string) || 'Sheet1!A:Z';
+
+    if (!id) {
+      throw new BridgeError(400, 'MISSING_SPREADSHEET_ID', 'Spreadsheet ID is required');
+    }
+
+    const result = await readData(bridge.auth, id, range);
+
+    res.json({
+      ok: true,
+      spreadsheetId: id,
+      ...result
+    });
+  } catch (error: any) {
+    const err = error as BridgeError;
+    res.status(err.statusCode || 500).json({
+      ok: false,
+      error: err.code || 'SHEETS_READ_ERROR',
+      message: err.message
+    });
+  }
+});
+
+/**
+ * POST /api/sheets/:id/append
+ * Append data to spreadsheet
+ */
+router.post('/:id/append', async (req, res) => {
+  try {
+    const bridge = (req as any).bridge;
+    if (!bridge) {
+      throw new BridgeError(500, 'BRIDGE_NOT_INITIALIZED', 'Bridge instance not found');
+    }
+
+    const { id } = req.params;
+    const { range = 'Sheet1!A:A', values, valueInputOption = 'USER_ENTERED' } = req.body;
+
+    if (!id) {
+      throw new BridgeError(400, 'MISSING_SPREADSHEET_ID', 'Spreadsheet ID is required');
+    }
+
+    if (!values || !Array.isArray(values)) {
+      throw new BridgeError(400, 'MISSING_VALUES', 'Values array is required');
+    }
+
+    const result = await appendData(bridge.auth, {
+      spreadsheetId: id,
+      range,
+      values,
+      valueInputOption
+    });
+
+    res.json({
+      ok: true,
+      ...result
+    });
+  } catch (error: any) {
+    const err = error as BridgeError;
+    res.status(err.statusCode || 500).json({
+      ok: false,
+      error: err.code || 'SHEETS_APPEND_ERROR',
+      message: err.message
+    });
+  }
+});
+
+/**
+ * POST /api/sheets/export/conversations
+ * Export conversation data to new spreadsheet
+ */
+router.post('/export/conversations', async (req, res) => {
+  try {
+    const bridge = (req as any).bridge;
+    if (!bridge) {
+      throw new BridgeError(500, 'BRIDGE_NOT_INITIALIZED', 'Bridge instance not found');
+    }
+
+    const { conversations = [] } = req.body;
+
+    if (!Array.isArray(conversations)) {
+      throw new BridgeError(400, 'INVALID_CONVERSATIONS_DATA', 'Conversations must be an array');
+    }
+
+    // Sample data if none provided
+    const conversationData = conversations.length > 0 ? conversations : [
+      {
+        timestamp: new Date().toISOString(),
+        userId: 'sample-user-1',
+        userMessage: 'Hello, how are you?',
+        assistantResponse: 'Hello! I\'m doing well, thank you for asking.',
+        profileFacts: ['greeting_friendly'],
+        summaryUpdated: true,
+        sessionDuration: 45
+      }
+    ];
+
+    const result = await exportConversationData(bridge.auth, conversationData);
+
+    res.json({
+      ok: true,
+      ...result
+    });
+  } catch (error: any) {
+    const err = error as BridgeError;
+    res.status(err.statusCode || 500).json({
+      ok: false,
+      error: err.code || 'CONVERSATION_EXPORT_ERROR',
+      message: err.message
+    });
+  }
+});
+
+/**
+ * POST /api/sheets/quick-test
+ * Quick test endpoint to create a simple spreadsheet
+ */
+router.post('/quick-test', async (req, res) => {
+  try {
+    const bridge = (req as any).bridge;
+    if (!bridge) {
+      throw new BridgeError(500, 'BRIDGE_NOT_INITIALIZED', 'Bridge instance not found');
+    }
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const title = `Zantara Sheets Test - ${timestamp}`;
+    
+    const headers = ['Name', 'Value', 'Timestamp'];
+    const data = [
+      ['Test Entry 1', '42', new Date().toISOString()],
+      ['Test Entry 2', '100', new Date().toISOString()],
+      ['Test Entry 3', '256', new Date().toISOString()]
+    ];
+
+    const result = await createSpreadsheet(bridge.auth, {
+      title,
+      headers,
+      data
+    });
+
+    res.json({
+      ok: true,
+      testResult: 'success',
+      message: 'Google Sheets integration is working!',
+      ...result
+    });
+  } catch (error: any) {
+    const err = error as BridgeError;
+    res.status(err.statusCode || 500).json({
+      ok: false,
+      error: err.code || 'SHEETS_TEST_ERROR',
+      message: err.message
+    });
+  }
+});
+
+export default router;

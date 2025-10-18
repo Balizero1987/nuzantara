@@ -1,0 +1,84 @@
+{
+  "id": "c22a-visa-academy-internship",
+  "code": "C22A",
+  "name": "Academy Internship Visa (Single Entry)",
+  "jurisdiction": "ID",
+  "category": "student",
+  "entry_type": "single",
+  "validity": {
+    "min_months": 2,
+    "max_months": 6,
+    "notes": "60 or 180 days, not extendable"
+  },
+  "can_work": false,
+  "work_scope": "Academic internship activities only; not employment",
+  "sponsor": {
+    "required": true,
+    "types": [
+      "Academic institution"
+    ]
+  },
+  "eligibility": [
+    "Overseas education academic requirement"
+  ],
+  "requirements": [
+    "Institution letter",
+    "Internship plan",
+    "Photos",
+    "Passport"
+  ],
+  "documents": [
+    {
+      "title": "INDONESIA_VISA_PRACTICAL_GUIDE_2025",
+      "path": "INDONESIA_VISA_PRACTICAL_GUIDE_2025.md"
+    }
+  ],
+  "process": [
+    {
+      "id": "docs",
+      "name": "Prepare documents"
+    },
+    {
+      "id": "apply",
+      "name": "Apply (C22A)"
+    },
+    {
+      "id": "enter",
+      "name": "Enter Indonesia"
+    }
+  ],
+  "biometrics": {
+    "required": false
+  },
+  "merp": {
+    "required": false
+  },
+  "costs": {
+    "currency": "IDR"
+  },
+  "bali_zero_pricing_ref": {
+    "section": "single_entry",
+    "code": "C22A"
+  },
+  "service_prices_idr": {
+    "60_days": 4800000,
+    "180_days": 5800000
+  },
+  "legal_basis": [
+    {
+      "ref_id": "C22A-2024",
+      "title": "Internship Visas 2024-2025",
+      "citation": "Immigration",
+      "path": "INDONESIA_VISA_REGULATIONS_2025_COMPLETE.md"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "institution-letter",
+      "text": "Obtain institution letter"
+    }
+  ],
+  "effective_date": "2024-01-01",
+  "last_updated": "2025-10-02",
+  "sources": []
+}

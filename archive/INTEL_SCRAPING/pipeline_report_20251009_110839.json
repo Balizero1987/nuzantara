@@ -1,0 +1,15 @@
+{
+  "start_time": "2025-10-09T11:08:39.457541",
+  "end_time": "2025-10-09T11:20:01.680853",
+  "duration_seconds": 682.223312,
+  "stages": {
+    "rag_processing": {
+      "status": "success",
+      "completed_at": "2025-10-09T11:20:00.871068"
+    },
+    "email_consolidated": {
+      "status": "success",
+      "completed_at": "2025-10-09T11:20:01.680660"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "domain": "tax",
+  "content_type": "reference",
+  "title": "Sector Specific Tax Rules",
+  "sources": "",
+  "filename": "SECTOR_SPECIFIC_TAX_RULES.json",
+  "version": "1.0",
+  "last_updated": "2025-10-03",
+  "tags": "income-tax,tax,vat",
+  "collection": "tax_genius"
+}

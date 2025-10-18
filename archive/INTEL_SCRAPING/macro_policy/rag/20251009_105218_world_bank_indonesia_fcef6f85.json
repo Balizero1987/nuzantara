@@ -1,0 +1,46 @@
+{
+  "title": "Countdown to the 2025 World Bank Annual Meetings",
+  "summary": "Leaders, experts, and voices from around the world come together for critical conversations on the global economy and development.",
+  "category": "event",
+  "sub_category": "macro_policy",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "World Bank Group"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "World Bank Annual Meetings",
+    "global economy",
+    "development"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": "2025-10-13"
+  },
+  "impact": {
+    "level": "critical",
+    "affected_groups": [],
+    "action_required": true,
+    "urgency": "immediate"
+  },
+  "language": {
+    "primary": "en",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Sign up now to receive updates and be the first to know what’s happening throughout the week.",
+    "From live discussions to special events, there’s something for everyone to follow online."
+  ],
+  "regulatory_changes": [],
+  "business_implications": null,
+  "source_url": "https://www.worldbank.org/en/country/indonesia",
+  "source_name": "World Bank Indonesia",
+  "scraped_at": "2025-10-09T10:52:17.942631",
+  "content_hash": "fcef6f855088cb06",
+  "word_count": 2346
+}
