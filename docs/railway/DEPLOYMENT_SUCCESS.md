@@ -178,7 +178,7 @@ curl -X POST https://scintillating-kindness-production-47e3.up.railway.app/searc
   -H "Content-Type: application/json" \
   -d '{"query":"KITAS requirements","k":3,"use_llm":true}' | jq '.'
 ```
-
+n
 ---
 
 ## 📝 Files Created
