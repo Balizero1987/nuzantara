@@ -8,8 +8,9 @@
 
 - **Window**: W2
 - **Date**: 2025-10-18
-- **Time**: 00:00 UTC
-- **Model**: claude-opus-4-1-20250805
+- **Time**: 11:30-12:10 UTC
+- **Duration**: 40 minuti
+- **Model**: claude-sonnet-4-5-20250929
 - **User**: antonellosiano
 
 ---
@@ -122,30 +123,94 @@ Investigare perché stanno fallendo tutti i deploy su Railway
 
 ## 📊 Metriche Sessione
 
-- **Durata**: ~5 minuti
-- **File Modificati**: 1 file
+- **Durata**: 40 minuti
+- **File Modificati**: 10 files
 - **File Creati**: 0 files
-- **Test Status**: ⏭️
+- **Deployment**: ✅ TS-BACKEND operational
+- **Test Status**: ✅ Health checks passing
 
 ---
 
 ## 🏁 Chiusura Sessione
 
 ### Risultato Finale
-Identificata root cause dei deployment failures: Root Directory configurate ma NON APPLICATE. L'utente deve cliccare "Apply 1 change" per applicare le modifiche. Error log mostra "No package.json found" perché Railway cerca ancora nella root invece di apps/backend-ts/.
+✅ **Railway Deployment RISOLTO e OPERATIVO**
+
+**Root Cause Identificata**: Public domain non configurato (non Root Directory come inizialmente pensato)
+
+**Fix Applicato** (autonomous via Railway CLI):
+```bash
+# 1. Settato RAG_BACKEND_URL
+railway variables --service TS-BACKEND --set "RAG_BACKEND_URL=https://scintillating-kindness-production-47e3.up.railway.app"
+
+# 2. Generato public domain
+railway domain --service TS-BACKEND --port 8080
+# → https://ts-backend-production-568d.up.railway.app
+```
+
+**Verifica Finale**:
+```bash
+curl https://ts-backend-production-568d.up.railway.app/health
+# {"ok":true,"service":"NUZANTARA-TS-BACKEND","version":"5.2.0"}
+```
+
+### Files Modificati (10 totali)
+
+**Documentazione (.claude/)**:
+1. `.claude/INIT.md:387-407` - Railway Commands Reference
+2. `.claude/START_HERE.md:157-177` - Railway Commands Reference
+3. `.claude/PROJECT_CONTEXT.md:65,132` - URLs aggiornati, status OPERATIONAL
+4. `.claude/settings.local.json:24` - WebFetch domain aggiornato
+5. `.claude/railway-health-check.sh:24` - Health check script
+6. `.claude/CURRENT_SESSION_W2.md` - Session log completo
+
+**Files Operativi**:
+7. `RAILWAY_DEPLOYMENT_FIX.md:88` - URL endpoint aggiornato
+8. `config/Makefile:108,115,246` - Make targets (3 occorrenze)
+9. `scripts/maintenance/railway-health-check.sh:24` - Maintenance script
+10. `apps/webapp/config/openapi.yaml:7` - API config
+11. `apps/webapp/js/team-login.js:9` - Frontend apiBase
 
 ### Stato del Sistema
-- Build: ❌ Fallisce per mancanza Root Directory
-- Tests: ⏭️ Non raggiunto
-- Deploy: ❌ Bloccato da configurazione mancante
+- ✅ TS-BACKEND: **OPERATIONAL** (https://ts-backend-production-568d.up.railway.app)
+- ✅ RAG Backend: **OPERATIONAL** (https://scintillating-kindness-production-47e3.up.railway.app)
+- ✅ Health checks: Passing (entrambi i servizi)
+- ✅ Documentazione: Aggiornata (nuovo URL in 10 files)
+
+### Key Learnings
+
+**Cosa NON era il problema**:
+- ✅ Root Directory già configurato (`apps/backend-ts`)
+- ✅ Build config già presente (railway.toml)
+- ✅ PORT env var presente (8080)
+
+**Root Cause Reale**:
+- ❌ Public domain non generato → 404 "Application not found"
+- Backend running correttamente ma non raggiungibile
+
+**Soluzione**: Railway CLI autonomo (`railway domain --port 8080`)
 
 ### Handover al Prossimo Dev AI
-- **URGENTE**: CLICCARE "Apply 1 change" nel Railway Dashboard per applicare Root Directory
-- Root Directory già configurata come `apps/backend-ts` ma NON ancora applicata
-- Source repo già connesso a `Balizero1987/nuzantara`
-- Dopo aver cliccato Apply, il deployment dovrebbe ripartire automaticamente
-- Monitorare con `railway logs --service ts-backend`
+
+**Railway Deployment Status**: ✅ **RISOLTO**
+
+**URLs Aggiornati**:
+- OLD (deprecated): `https://nuzantara-production.up.railway.app`
+- **NEW (ACTIVE)**: `https://ts-backend-production-568d.up.railway.app`
+
+**Environment Variables Settate**:
+- `RAG_BACKEND_URL=https://scintillating-kindness-production-47e3.up.railway.app`
+
+**Documentazione**:
+- Tutti i file operativi aggiornati con nuovo URL
+- Files archivio (archive/2024-q4/*) NON aggiornati (ok così)
+- Diaries storici NON modificati (history preservation)
+
+**Railway CLI Commands Documented**:
+- `.claude/INIT.md` e `.claude/START_HERE.md` ora contengono Railway commands reference
+
+**Nessuna azione richiesta** - Sistema completamente operativo.
 
 ---
 
-**Session Started**: 2025-10-18 00:00 UTC
+**Session Closed**: 2025-10-18 12:10 UTC
