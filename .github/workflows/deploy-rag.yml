@@ -28,5 +28,4 @@ jobs:
       uses: railwayapp/railway-deploy@v1
       with:
         railway-token: ${{ secrets.RAILWAY_TOKEN }}
-        service: rag-backend
         working-directory: apps/backend-rag/backend
