@@ -12,7 +12,7 @@ export const driveUploadMultipart = upload.single('file');
 export async function handleDriveUploadMultipart(req: Request, res: Response) {
   try {
     // Type assertion for multer file (multer adds 'file' property at runtime)
-    const file = (req as any).file as Express.Multer.File | undefined;
+    const file = (req as any).file as any;
 
     if (!file) {
       return res.status(400).json({ ok: false, error: 'No file uploaded' });

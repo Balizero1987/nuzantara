@@ -7,9 +7,9 @@
 
 - **Port**: 8080
 - **Tech**: Express.js, Firebase, Google Workspace APIs
-- **Deploy**: Cloud Run (AMD64)
+- **Deploy**: Railway
 - **Handlers**: AI services, Google Workspace, Memory, Analytics, Bali Zero
-- **URL**: https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app
+- **URL**: TBD (Railway deployment)
 
 ```bash
 cd apps/backend-api
@@ -22,14 +22,14 @@ npm run dev
 
 - **Port**: 8000
 - **Tech**: FastAPI, ChromaDB, Cohere re-ranker
-- **Deploy**: Cloud Run (AMD64) ← **PRIORITY**
+- **Deploy**: Railway
 - **Features**: 229 docs, pricing service, query routing
-- **URL**: https://zantara-rag-backend-himaadsxua-ew.a.run.app
+- **URL**: TBD (Railway deployment)
 
 ```bash
 cd apps/backend-rag/backend
 pip install -r requirements.txt
-uvicorn app.main_cloud:app --reload
+uvicorn app.main:app --reload
 ```
 
 ### webapp

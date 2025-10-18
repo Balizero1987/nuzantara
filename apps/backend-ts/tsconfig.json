@@ -27,6 +27,7 @@
     "src/**/__tests__/**/*",
     "src/**/*.test.ts",
     "src/routes/**/*",
-    "src/services/imagine-art-service.ts"
+    "src/services/imagine-art-service.ts",
+    "src/tests/**/*"
   ]
 }

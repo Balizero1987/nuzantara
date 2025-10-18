@@ -122,3 +122,10 @@ test_*.py
 # Backend-rag specific
 backend_clean/
 LOW_PRIORITY/
+
+# Scraped data and archives
+scripts/intel/
+*.tar.gz
+docs/archive/
+*_metadata.json
+*_training_*.json
