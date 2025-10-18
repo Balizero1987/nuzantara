@@ -344,17 +344,20 @@ gh workflow run "Sync Webapp to GitHub Pages"
    - Status: Verified working with real queries (+400% quality boost)
 
 ### **NEW High Priority** (From Code Analysis 2025-10-10)
-5. ⚠️ **TypeScript Strict Mode Disabled** - PENDING
-   - File: `tsconfig.json` ("strict": false)
-   - Impact: ~50+ potential runtime errors, compromised type safety
-   - Effort: 2-3 hours to enable and fix errors
-   - Recommendation: Enable gradually per module
+5. ✅ **TypeScript Strict Mode** - VERIFIED ACTIVE (2025-10-18 W2)
+   - File: `tsconfig.json:12` ("strict": true)
+   - Status: Already enabled and working, build passes without errors
+   - Note: PROJECT_CONTEXT.md was outdated, strict mode was already active
 
-6. ⚠️ **Jest ESM Tests Disabled in CI/CD** - PENDING
-   - File: `.github/workflows/deploy-backend.yml:56-59`
-   - Impact: No automated test coverage (446 test files unused)
-   - Effort: 1-2 hours to fix Jest config
-   - Recommendation: Fix before next major deployment
+6. ✅ **Jest ESM Tests Enabled in CI/CD** - FIXED (2025-10-18 W1)
+   - Files:
+     - `apps/backend-ts/jest.config.js` (created)
+     - `apps/backend-ts/package.json` (test scripts added)
+     - `.github/workflows/deploy-backend.yml` (test step added)
+   - Status: Jest configured with @swc/jest for ESM support
+   - Test Coverage: 32/36 tests passing (89%)
+   - CI/CD: Tests run before build, deploy blocked if tests fail
+   - Session: `.claude/CURRENT_SESSION_W1.md` (2025-10-18 19:30)
 
 7. ✅ **Hardcoded API Keys in Frontend** - FIXED (2025-10-10 m3)
    - File: `apps/webapp/js/api-config.js:166`
@@ -363,14 +366,26 @@ gh workflow run "Sync Webapp to GitHub Pages"
    - Status: Deployed to GitHub Pages
 
 ### **Medium Priority**
-4. Add unit tests for pricing validation
+4. ✅ **Unit tests for pricing validation** - COMPLETE (2025-10-18 W3)
+   - File: `apps/backend-rag/backend/tests/test_pricing_service.py` (600 righe)
+   - Coverage: 50/50 tests passing (100% success)
+   - Test areas: load, search, validation, format, dates, errors, anti-hallucination
+   - Session: `.claude/CURRENT_SESSION_W3.md` (2025-10-18 20:30)
 5. ✅ **Twilio WhatsApp removed** - DONE (2025-10-09 m1)
    - WhatsApp connection is direct with Meta, not via Twilio
    - Code cleanup: -134 lines removed
 6. ✅ **Deploy ChromaDB to production** - DONE (2025-10-03 m23)
    - 229 docs in visa_oracle, 5 collections total
    - Location: `gs://nuzantara-chromadb-2025/chroma_db/`
-7. Set up monitoring alerts for 4xx/5xx errors
+7. ✅ **Monitoring alerts for 4xx/5xx errors** - COMPLETE (2025-10-18 W3)
+   - Files:
+     - `apps/backend-rag/backend/services/alert_service.py` (AlertService)
+     - `apps/backend-rag/backend/middleware/error_monitoring.py` (Middleware)
+     - `apps/backend-rag/backend/app/main_cloud.py` (integration)
+   - Features: Auto-alerts for 5xx, 429, 403 errors via Slack/Discord/Logging
+   - Request tracking: UUID-based request_id for debugging
+   - Environment: SLACK_WEBHOOK_URL, DISCORD_WEBHOOK_URL (optional)
+   - Session: `.claude/CURRENT_SESSION_W3.md` (2025-10-18 20:30)
 8. ✅ **Slack/Discord webhooks for alerts** - FIXED (2025-10-03 m24)
    - WhatsApp/Instagram alert integration complete
    - Requires env vars: SLACK_WEBHOOK_URL, DISCORD_WEBHOOK_URL

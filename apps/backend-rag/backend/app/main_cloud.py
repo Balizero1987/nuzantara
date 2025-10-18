@@ -39,6 +39,8 @@ from services.claude_haiku_service import ClaudeHaikuService
 from services.claude_sonnet_service import ClaudeSonnetService
 from services.intelligent_router import IntelligentRouter
 from services.memory_fact_extractor import MemoryFactExtractor
+from services.alert_service import AlertService, get_alert_service
+from middleware.error_monitoring import ErrorMonitoringMiddleware
 
 # Configure logging
 logging.basicConfig(
@@ -63,6 +65,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Error Monitoring Middleware (added after CORS)
+# Will be initialized with AlertService in startup event
+app.add_middleware(ErrorMonitoringMiddleware, alert_service=None)  # Placeholder, updated in startup
+
 # Global clients
 search_service: Optional[SearchService] = None
 # DUAL-AI SYSTEM: Claude Haiku/Sonnet + Router
@@ -77,6 +83,7 @@ capabilities_service: Optional[CollaborativeCapabilitiesService] = None
 reranker_service: Optional["RerankerService"] = None  # String annotation for lazy import
 handler_proxy_service: Optional[HandlerProxyService] = None
 fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
+alert_service: Optional[AlertService] = None  # Error monitoring and alerts
 
 # System prompt
 SYSTEM_PROMPT = """🎯 **IMMEDIATE UNDERSTANDING PROTOCOL**
@@ -544,9 +551,24 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor
+    global search_service, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (DUAL-AI: Claude Haiku + Claude Sonnet + DevAI)...")
+
+    # Initialize Alert Service (for error monitoring)
+    try:
+        alert_service = get_alert_service()
+        logger.info("✅ AlertService ready (4xx/5xx error monitoring enabled)")
+
+        # Update middleware with alert service
+        for middleware in app.user_middleware:
+            if isinstance(middleware.cls, type) and middleware.cls.__name__ == "ErrorMonitoringMiddleware":
+                middleware.kwargs["alert_service"] = alert_service
+                logger.info("✅ ErrorMonitoringMiddleware linked to AlertService")
+                break
+    except Exception as e:
+        logger.error(f"❌ AlertService initialization failed: {e}")
+        alert_service = None
 
     # Download ChromaDB from Cloudflare R2
     try:
