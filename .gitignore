@@ -92,3 +92,33 @@ setup-env-test.sh
 .env.local
 .env.test
 .secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.eggs/
+.tox/
+venv/
+env/
+
+# Python backup and test files
+*_backup.py
+*_broken.py
+*_old.py
+*_simple.py
+test_*.py
+*_test.py
+*.bak
+*.backup
+
+# Backend-rag specific
+backend_clean/
+LOW_PRIORITY/

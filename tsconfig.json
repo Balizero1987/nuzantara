@@ -6,7 +6,7 @@
     "moduleResolution": "bundler",
     "lib": ["ES2022", "DOM"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./apps/backend-ts/src",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -14,11 +14,11 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@handlers/*": ["src/handlers/*"],
-      "@services/*": ["src/services/*"],
-      "@middleware/*": ["src/middleware/*"],
-      "@utils/*": ["src/utils/*"]
+      "@/*": ["apps/backend-ts/src/*"],
+      "@handlers/*": ["apps/backend-ts/src/handlers/*"],
+      "@services/*": ["apps/backend-ts/src/services/*"],
+      "@middleware/*": ["apps/backend-ts/src/middleware/*"],
+      "@utils/*": ["apps/backend-ts/src/utils/*"]
     },
     "declaration": true,
     "sourceMap": true,
@@ -30,16 +30,16 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["src/**/*"],
+  "include": ["apps/backend-ts/src/**/*"],
   "exclude": [
     "node_modules",
     "dist",
-    "src/legacy-js/**/*",
-    "src/agents/**/*",
-    "src/core/zantara-orchestrator.ts",
-    
-    "src/handlers/zantara/zantara-brilliant.ts",
-    "src/router-v2.ts",
+    "apps/backend-ts/src/legacy-js/**/*",
+    "apps/backend-ts/src/agents/**/*",
+    "apps/backend-ts/src/core/zantara-orchestrator.ts",
+
+    "apps/backend-ts/src/handlers/zantara/zantara-brilliant.ts",
+    "apps/backend-ts/src/router-v2.ts",
     "**/__tests__/**",
     "**/*.test.ts",
     "tests/**",

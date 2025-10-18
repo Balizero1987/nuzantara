@@ -1,0 +1,15 @@
+[build]
+# Use Nixpacks for build (simpler than Dockerfile)
+builder = "nixpacks"
+nixpacksConfigPath = "./nixpacks.toml"
+watchPaths = ["./**"]
+
+[deploy]
+# Health check configuration
+healthcheckPath = "/health"
+healthcheckTimeout = 600  # 10 minutes (ChromaDB download 72MB + model loading takes time)
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+# Resource allocation
+numReplicas = 1
