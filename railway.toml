@@ -1,35 +1,19 @@
-# Monorepo configuration for Nuzantara Railway
-# Each service has its own root directory
-
-# TypeScript Backend Service
-[[services]]
-name = "backend-ts"
-root = "apps/backend-ts"
-
-[services.build]
-builder = "nixpacks"
-buildCommand = "npm run build"
-
-[services.deploy]
-startCommand = "npm start"
-healthcheckPath = "/health"
-healthcheckTimeout = 30
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
-numReplicas = 1
-
-# RAG Backend Service
-[[services]]
-name = "backend-rag"
-root = "apps/backend-rag/backend"
-
-[services.build]
-builder = "dockerfile"
-dockerfilePath = "Dockerfile"
-
-[services.deploy]
-healthcheckPath = "/health"
-healthcheckTimeout = 600
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
-numReplicas = 1
+# NOTE: This file is not used by Railway for monorepo configuration.
+# Each service must be configured separately in the Railway dashboard.
+#
+# TO FIX DEPLOYMENT FAILURES:
+# 1. Go to: https://railway.com/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+# 2. Click on "backend-ts" service (TypeScript backend)
+# 3. Go to "Settings" tab
+# 4. Find "Root Directory" setting
+# 5. Set it to: apps/backend-ts
+# 6. Click "Save"
+# 7. Railway will auto-redeploy
+#
+# For RAG backend:
+# - Root Directory should be: apps/backend-rag/backend
+# - Should already be configured (it's working)
+#
+# Build configuration is in:
+# - apps/backend-ts/railway.toml (TypeScript backend)
+# - apps/backend-rag/backend/railway.toml (RAG backend)
