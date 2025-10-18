@@ -49,6 +49,7 @@ class SecureTeamLogin {
         localStorage.setItem('zantara-permissions', JSON.stringify(data.data.permissions));
 
         // Legacy compatibility
+        localStorage.setItem('zantara-user-email', this.currentUser.email);
         localStorage.setItem('zantara-user-name', this.currentUser.name);
         localStorage.setItem('zantara-user-role', this.currentUser.role);
         localStorage.setItem('zantara-user-department', this.currentUser.department);
