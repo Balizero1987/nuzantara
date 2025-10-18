@@ -1,0 +1,389 @@
+{
+  "dashboard": {
+    "name": "Zantara Bridge v4.1.0 - Executive Business Dashboard",
+    "description": "Enterprise analytics and business intelligence for Zantara Bridge",
+    "theme": "corporate",
+    "refreshInterval": "5m",
+    "timeRange": {
+      "default": "LAST_30_DAYS",
+      "available": ["LAST_7_DAYS", "LAST_30_DAYS", "LAST_90_DAYS", "LAST_12_MONTHS"]
+    },
+    "dataSources": [
+      {
+        "id": "bigquery_analytics",
+        "name": "Zantara Analytics Warehouse",
+        "type": "BIGQUERY",
+        "config": {
+          "projectId": "involuted-box-469105-r0",
+          "datasetId": "zantara_analytics",
+          "billing_project": "involuted-box-469105-r0"
+        }
+      }
+    ],
+    "pages": [
+      {
+        "name": "Executive Overview",
+        "layout": "grid",
+        "components": [
+          {
+            "type": "SCORECARD",
+            "title": "Monthly Recurring Revenue",
+            "position": {"x": 0, "y": 0, "width": 3, "height": 2},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT SUM(metric_value) as mrr FROM `involuted-box-469105-r0.zantara_analytics.business_metrics` WHERE metric_name = 'hourly_revenue' AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)",
+              "metrics": ["mrr"],
+              "format": {
+                "type": "CURRENCY",
+                "currency": "USD"
+              }
+            },
+            "style": {
+              "backgroundColor": "#1a73e8",
+              "textColor": "#ffffff",
+              "fontSize": "2.5em"
+            },
+            "comparison": {
+              "enabled": true,
+              "period": "PREVIOUS_PERIOD",
+              "format": "PERCENTAGE"
+            }
+          },
+          {
+            "type": "SCORECARD",
+            "title": "Active Users (30D)",
+            "position": {"x": 3, "y": 0, "width": 3, "height": 2},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT COUNT(DISTINCT user_id) as active_users FROM `involuted-box-469105-r0.zantara_analytics.user_analytics` WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)",
+              "metrics": ["active_users"],
+              "format": {
+                "type": "NUMBER",
+                "notation": "COMPACT"
+              }
+            },
+            "style": {
+              "backgroundColor": "#34a853",
+              "textColor": "#ffffff",
+              "fontSize": "2.5em"
+            }
+          },
+          {
+            "type": "SCORECARD",
+            "title": "API Calls (Billable)",
+            "position": {"x": 6, "y": 0, "width": 3, "height": 2},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT SUM(metric_value) as api_calls FROM `involuted-box-469105-r0.zantara_analytics.business_metrics` WHERE metric_name = 'api_calls_billable' AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)",
+              "metrics": ["api_calls"],
+              "format": {
+                "type": "NUMBER",
+                "notation": "COMPACT"
+              }
+            },
+            "style": {
+              "backgroundColor": "#ff6d01",
+              "textColor": "#ffffff",
+              "fontSize": "2.5em"
+            }
+          },
+          {
+            "type": "SCORECARD",
+            "title": "System Uptime",
+            "position": {"x": 9, "y": 0, "width": 3, "height": 2},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT (1 - SAFE_DIVIDE(COUNTIF(status_code >= 500), COUNT(*))) * 100 as uptime FROM `involuted-box-469105-r0.zantara_analytics.bridge_performance` WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)",
+              "metrics": ["uptime"],
+              "format": {
+                "type": "PERCENTAGE",
+                "decimals": 3
+              }
+            },
+            "style": {
+              "backgroundColor": "#9aa0a6",
+              "textColor": "#ffffff",
+              "fontSize": "2.5em"
+            }
+          },
+          {
+            "type": "TIME_SERIES",
+            "title": "Revenue Trend (Last 30 Days)",
+            "position": {"x": 0, "y": 2, "width": 6, "height": 4},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT DATE(timestamp) as date, SUM(metric_value) as daily_revenue FROM `involuted-box-469105-r0.zantara_analytics.business_metrics` WHERE metric_name = 'hourly_revenue' AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY) GROUP BY DATE(timestamp) ORDER BY date",
+              "timeDimension": "date",
+              "metrics": ["daily_revenue"]
+            },
+            "style": {
+              "lineColor": "#1a73e8",
+              "lineWidth": 3,
+              "showDataPoints": true,
+              "fillArea": true,
+              "fillOpacity": 0.2
+            }
+          },
+          {
+            "type": "BAR_CHART",
+            "title": "Revenue by Customer Segment",
+            "position": {"x": 6, "y": 2, "width": 6, "height": 4},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT dimensions.customer_segment, SUM(metric_value) as revenue FROM `involuted-box-469105-r0.zantara_analytics.business_metrics` WHERE metric_name = 'hourly_revenue' AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY) GROUP BY dimensions.customer_segment ORDER BY revenue DESC",
+              "dimension": "customer_segment",
+              "metrics": ["revenue"]
+            },
+            "style": {
+              "colors": ["#1a73e8", "#34a853", "#ff6d01"],
+              "showDataLabels": true
+            }
+          },
+          {
+            "type": "GEO_MAP",
+            "title": "Global User Distribution",
+            "position": {"x": 0, "y": 6, "width": 6, "height": 4},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT country, COUNT(DISTINCT user_id) as users, SUM(data_transferred_bytes) as data_usage FROM `involuted-box-469105-r0.zantara_analytics.user_analytics` WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY) GROUP BY country",
+              "geoDimension": "country",
+              "metrics": ["users", "data_usage"]
+            },
+            "style": {
+              "colorScale": "BLUE_TO_RED",
+              "showTooltips": true
+            }
+          },
+          {
+            "type": "TABLE",
+            "title": "Top Performing Endpoints",
+            "position": {"x": 6, "y": 6, "width": 6, "height": 4},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT endpoint, COUNT(*) as requests, AVG(response_time_ms) as avg_response_time, SUM(CASE WHEN status_code >= 500 THEN 1 ELSE 0 END) as errors FROM `involuted-box-469105-r0.zantara_analytics.bridge_performance` WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY) GROUP BY endpoint ORDER BY requests DESC LIMIT 10",
+              "dimensions": ["endpoint"],
+              "metrics": ["requests", "avg_response_time", "errors"]
+            },
+            "style": {
+              "alternateRowColors": true,
+              "showRowNumbers": true,
+              "headerBackgroundColor": "#f8f9fa"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Performance Analytics",
+        "layout": "grid",
+        "components": [
+          {
+            "type": "TIME_SERIES",
+            "title": "Response Time Trends (P95)",
+            "position": {"x": 0, "y": 0, "width": 12, "height": 3},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT TIMESTAMP_TRUNC(timestamp, HOUR) as hour, PERCENTILE_CONT(response_time_ms, 0.95) OVER(PARTITION BY TIMESTAMP_TRUNC(timestamp, HOUR)) as p95_response_time FROM `involuted-box-469105-r0.zantara_analytics.bridge_performance` WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY) GROUP BY TIMESTAMP_TRUNC(timestamp, HOUR) ORDER BY hour",
+              "timeDimension": "hour",
+              "metrics": ["p95_response_time"]
+            },
+            "alerts": [
+              {
+                "condition": "p95_response_time > 2000",
+                "severity": "WARNING",
+                "message": "P95 response time exceeds 2 seconds"
+              }
+            ]
+          },
+          {
+            "type": "HEATMAP",
+            "title": "Traffic Patterns (Hour vs Day)",
+            "position": {"x": 0, "y": 3, "width": 6, "height": 4},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT EXTRACT(HOUR FROM timestamp) as hour, EXTRACT(DAYOFWEEK FROM timestamp) as day_of_week, COUNT(*) as request_count FROM `involuted-box-469105-r0.zantara_analytics.bridge_performance` WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY) GROUP BY EXTRACT(HOUR FROM timestamp), EXTRACT(DAYOFWEEK FROM timestamp)",
+              "xDimension": "hour",
+              "yDimension": "day_of_week",
+              "metrics": ["request_count"]
+            }
+          },
+          {
+            "type": "GAUGE",
+            "title": "Cache Hit Rate",
+            "position": {"x": 6, "y": 3, "width": 3, "height": 4},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT AVG(CASE WHEN cache_hit THEN 1.0 ELSE 0.0 END) * 100 as cache_hit_rate FROM `involuted-box-469105-r0.zantara_analytics.bridge_performance` WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR)",
+              "metrics": ["cache_hit_rate"]
+            },
+            "style": {
+              "minValue": 0,
+              "maxValue": 100,
+              "greenRange": {"min": 85, "max": 100},
+              "yellowRange": {"min": 70, "max": 85},
+              "redRange": {"min": 0, "max": 70}
+            }
+          },
+          {
+            "type": "PIE_CHART",
+            "title": "Status Code Distribution",
+            "position": {"x": 9, "y": 3, "width": 3, "height": 4},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT CASE WHEN status_code < 400 THEN 'Success' WHEN status_code < 500 THEN 'Client Error' ELSE 'Server Error' END as status_category, COUNT(*) as count FROM `involuted-box-469105-r0.zantara_analytics.bridge_performance` WHERE timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 24 HOUR) GROUP BY status_category",
+              "dimension": "status_category",
+              "metrics": ["count"]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Predictive Analytics",
+        "layout": "grid",
+        "components": [
+          {
+            "type": "TIME_SERIES",
+            "title": "Traffic Forecast (Next 24 Hours)",
+            "position": {"x": 0, "y": 0, "width": 12, "height": 4},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT forecast_timestamp, predicted_request_count, prediction_interval_lower_bound, prediction_interval_upper_bound FROM `involuted-box-469105-r0.zantara_analytics.forecast_traffic`(24)",
+              "timeDimension": "forecast_timestamp",
+              "metrics": ["predicted_request_count", "prediction_interval_lower_bound", "prediction_interval_upper_bound"]
+            },
+            "style": {
+              "showConfidenceInterval": true,
+              "confidenceIntervalOpacity": 0.2
+            }
+          },
+          {
+            "type": "TABLE",
+            "title": "Anomaly Detection Results",
+            "position": {"x": 0, "y": 4, "width": 6, "height": 4},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT timestamp, endpoint, response_time_ms, anomaly_level, reconstruction_loss FROM `involuted-box-469105-r0.zantara_analytics.detect_anomalies`(TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR), CURRENT_TIMESTAMP()) WHERE anomaly_level != 'NORMAL' ORDER BY reconstruction_loss DESC LIMIT 20",
+              "dimensions": ["timestamp", "endpoint", "anomaly_level"],
+              "metrics": ["response_time_ms", "reconstruction_loss"]
+            },
+            "conditionalFormatting": [
+              {
+                "condition": "anomaly_level = 'HIGH_ANOMALY'",
+                "backgroundColor": "#ea4335",
+                "textColor": "#ffffff"
+              },
+              {
+                "condition": "anomaly_level = 'MEDIUM_ANOMALY'",
+                "backgroundColor": "#fbbc04",
+                "textColor": "#000000"
+              }
+            ]
+          },
+          {
+            "type": "SCORECARD",
+            "title": "Predicted Error Rate (Next Hour)",
+            "position": {"x": 6, "y": 4, "width": 3, "height": 2},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT AVG(predicted_is_error) * 100 as predicted_error_rate FROM ML.PREDICT(MODEL `involuted-box-469105-r0.zantara_analytics.error_rate_predictor`, (SELECT EXTRACT(HOUR FROM TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR)) as hour_of_day, EXTRACT(DAYOFWEEK FROM TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR)) as day_of_week, '/api/v1/bridge' as endpoint, 'POST' as method, 'asia-southeast' as region, 1024 as request_size_bytes, 1000.0 as response_time_ms, 1 as cache_hit_flag, 0 as prev_error, 0.01 as recent_error_rate))",
+              "metrics": ["predicted_error_rate"]
+            },
+            "alerts": [
+              {
+                "condition": "predicted_error_rate > 5",
+                "severity": "CRITICAL",
+                "message": "High error rate predicted for next hour"
+              }
+            ]
+          },
+          {
+            "type": "GAUGE",
+            "title": "System Health Score",
+            "position": {"x": 9, "y": 4, "width": 3, "height": 2},
+            "dataSource": "bigquery_analytics",
+            "query": {
+              "sql": "SELECT CASE system_status WHEN 'HEALTHY' THEN 95 WHEN 'PERFORMANCE_DEGRADED' THEN 70 WHEN 'HIGH_ERROR_RATE' THEN 40 WHEN 'LOW_CACHE_EFFICIENCY' THEN 60 ELSE 50 END as health_score FROM `involuted-box-469105-r0.zantara_analytics.realtime_insights`",
+              "metrics": ["health_score"]
+            },
+            "style": {
+              "minValue": 0,
+              "maxValue": 100,
+              "greenRange": {"min": 80, "max": 100},
+              "yellowRange": {"min": 60, "max": 80},
+              "redRange": {"min": 0, "max": 60}
+            }
+          }
+        ]
+      }
+    ],
+    "filters": [
+      {
+        "name": "Region Filter",
+        "type": "DROPDOWN",
+        "field": "region",
+        "options": ["asia-southeast", "us-central", "europe-west", "global"],
+        "defaultValue": "ALL"
+      },
+      {
+        "name": "Customer Segment",
+        "type": "DROPDOWN",
+        "field": "customer_segment",
+        "options": ["enterprise", "sme", "startup"],
+        "defaultValue": "ALL"
+      },
+      {
+        "name": "Time Range",
+        "type": "DATE_RANGE",
+        "defaultValue": "LAST_7_DAYS"
+      }
+    ],
+    "alerts": [
+      {
+        "name": "Revenue Drop Alert",
+        "condition": "daily_revenue < previous_day_revenue * 0.8",
+        "channels": ["email", "slack"],
+        "recipients": ["finance@company.com", "#revenue-alerts"]
+      },
+      {
+        "name": "Performance Degradation",
+        "condition": "p95_response_time > 2000",
+        "channels": ["slack", "pagerduty"],
+        "recipients": ["#ops-alerts", "oncall@company.com"]
+      },
+      {
+        "name": "User Churn Risk",
+        "condition": "predicted_churn_rate > 10",
+        "channels": ["email"],
+        "recipients": ["customer-success@company.com"]
+      }
+    ],
+    "sharing": {
+      "visibility": "ORGANIZATION",
+      "embedEnabled": true,
+      "exportEnabled": true,
+      "scheduledReports": [
+        {
+          "name": "Weekly Executive Summary",
+          "frequency": "WEEKLY",
+          "day": "MONDAY",
+          "time": "09:00",
+          "recipients": ["executives@company.com"],
+          "format": "PDF"
+        },
+        {
+          "name": "Daily Operations Report",
+          "frequency": "DAILY",
+          "time": "08:00",
+          "recipients": ["ops-team@company.com"],
+          "format": "EMAIL"
+        }
+      ]
+    },
+    "metadata": {
+      "version": "4.1.0",
+      "created": "2025-01-21",
+      "lastModified": "2025-01-21",
+      "owner": "analytics-team@company.com",
+      "tags": ["zantara", "bridge", "analytics", "executive", "performance"]
+    }
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "version": "2.0",
+  "updated": "2025-10-10",
+  "total_categories": 20,
+  "regular_categories": 17,
+  "llama_categories": 3,
+  "categories": {
+    "1_immigration": {
+      "id": 1,
+      "key": "immigration",
+      "name": "Immigration & Visas",
+      "type": "regular",
+      "collaborator": "Adit",
+      "email": "consulting@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "2_business": {
+      "id": 2,
+      "key": "business",
+      "name": "Business (BKPM/OSS/Political)",
+      "type": "regular",
+      "collaborator": "Dea",
+      "email": "Dea@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "3_realestate": {
+      "id": 3,
+      "key": "realestate",
+      "name": "Real Estate",
+      "type": "regular",
+      "collaborator": "Krisna",
+      "email": "Krisna@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "4_events": {
+      "id": 4,
+      "key": "events",
+      "name": "Events & Culture",
+      "type": "regular",
+      "collaborator": "Sahira",
+      "email": "sahira@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "5_social": {
+      "id": 5,
+      "key": "social",
+      "name": "Social Media Trends",
+      "type": "regular",
+      "collaborator": "Sahira",
+      "email": "sahira@balizero.com",
+      "min_sites": "AI-powered",
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "6_competitors": {
+      "id": 6,
+      "key": "competitors",
+      "name": "Competitors",
+      "type": "regular",
+      "collaborator": "Ari",
+      "email": "ari.firda@balizero.com",
+      "min_sites": "ALL (global)",
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "7_news": {
+      "id": 7,
+      "key": "news",
+      "name": "General News",
+      "type": "regular",
+      "collaborator": "Damar",
+      "email": "damar@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "8_health": {
+      "id": 8,
+      "key": "health",
+      "name": "Health & Wellness",
+      "type": "regular",
+      "collaborator": "Surya",
+      "email": "surya@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "9_tax": {
+      "id": 9,
+      "key": "tax",
+      "name": "Tax (DJP)",
+      "type": "regular",
+      "collaborator": "Faisha",
+      "email": "faisha@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "10_jobs": {
+      "id": 10,
+      "key": "jobs",
+      "name": "Jobs & Employment Law",
+      "type": "regular",
+      "collaborator": "Anton",
+      "email": "Anton@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "11_lifestyle": {
+      "id": 11,
+      "key": "lifestyle",
+      "name": "Lifestyle",
+      "type": "regular",
+      "collaborator": "Dewa Ayu",
+      "email": "dea.au.tax@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "12_banking": {
+      "id": 12,
+      "key": "banking",
+      "name": "Banking & Finance",
+      "type": "regular",
+      "collaborator": "Surya",
+      "email": "surya@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "13_transport": {
+      "id": 13,
+      "key": "transport",
+      "name": "Transportation & Connectivity",
+      "type": "regular",
+      "collaborator": "Surya",
+      "email": "surya@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "14_employment_law": {
+      "id": 14,
+      "key": "employment_law",
+      "name": "Employment Law (Detailed)",
+      "type": "regular",
+      "collaborator": "Amanda",
+      "email": "amanda@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "15_macro": {
+      "id": 15,
+      "key": "macro",
+      "name": "Macro Policy",
+      "type": "regular",
+      "collaborator": "Dea",
+      "email": "dea@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "16_regulatory": {
+      "id": 16,
+      "key": "regulatory",
+      "name": "Regulatory Changes",
+      "type": "regular",
+      "collaborator": "Adit",
+      "email": "consulting@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "17_business_setup": {
+      "id": 17,
+      "key": "business_setup",
+      "name": "Business Setup",
+      "type": "regular",
+      "collaborator": "Krisna",
+      "email": "krisna@balizero.com",
+      "min_sites": 50,
+      "social_media": true,
+      "workflow": ["scraping", "rag", "content_creation", "email_collaborator", "social_media_standby"]
+    },
+    "18_ai_tech": {
+      "id": 18,
+      "key": "ai_tech",
+      "name": "AI & New Technologies (Global)",
+      "type": "llama",
+      "recipient": "Antonio (LLAMA)",
+      "email": "zero@balizero.com",
+      "min_sites": 110,
+      "social_media": false,
+      "workflow": ["scraping", "rag", "content_creation", "llama_review", "email_antonio"],
+      "notes": "NO social media - Internal AI research only"
+    },
+    "19_dev_code": {
+      "id": 19,
+      "key": "dev_code",
+      "name": "Dev Code Library (Planetary Best Practices)",
+      "type": "llama",
+      "recipient": "Antonio (LLAMA)",
+      "email": "zero@balizero.com",
+      "min_sites": 111,
+      "social_media": false,
+      "workflow": ["scraping", "rag", "content_creation", "llama_review", "email_antonio"],
+      "notes": "NO social media - Enrich NUZANTARA dev library"
+    },
+    "20_future_trends": {
+      "id": 20,
+      "key": "future_trends",
+      "name": "Future Trends (Avant-Garde Ideas)",
+      "type": "llama",
+      "recipient": "Antonio (LLAMA)",
+      "email": "zero@balizero.com",
+      "min_sites": 110,
+      "social_media": false,
+      "workflow": ["scraping", "rag", "content_creation", "llama_review", "email_antonio"],
+      "notes": "NO social media - Internal strategic research"
+    }
+  },
+  "workflow_stages": {
+    "stage_1": {
+      "name": "Scraping",
+      "status": "active",
+      "trigger": "GitHub Actions cron 0 22 * * * (06:00 AM Bali)",
+      "output": "INTEL_SCRAPING/{category}/raw/*.md"
+    },
+    "stage_2a": {
+      "name": "RAG Processing",
+      "status": "active",
+      "timing": "IN CONTEMPORANEA with Stage 2B (parallel)",
+      "output": "INTEL_SCRAPING/{category}/rag/*.json"
+    },
+    "stage_2b": {
+      "name": "Content Creation",
+      "status": "active",
+      "timing": "IN CONTEMPORANEA with Stage 2A (parallel)",
+      "format": "YYYYMMDD_HHMMSS_{category}.md",
+      "output": "Email to collaborator/LLAMA"
+    },
+    "stage_3": {
+      "name": "Editorial Review",
+      "status": "standby",
+      "notes": "Not in production - future activation"
+    },
+    "stage_4": {
+      "name": "Multi-Channel Publishing",
+      "status": "standby",
+      "notes": "Not in production - future activation"
+    }
+  }
+}
