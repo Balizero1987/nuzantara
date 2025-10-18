@@ -21,7 +21,7 @@ echo ""
 
 # TS Backend
 echo "📦 TS Backend (nuzantara):"
-TS_RESPONSE=$(curl -s https://nuzantara-production.up.railway.app/health)
+TS_RESPONSE=$(curl -s https://ts-backend-production-568d.up.railway.app/health)
 if echo "$TS_RESPONSE" | grep -q '"status":"healthy"'; then
     echo "✅ HEALTHY"
     echo "$TS_RESPONSE" | python3 -m json.tool 2>/dev/null | head -15

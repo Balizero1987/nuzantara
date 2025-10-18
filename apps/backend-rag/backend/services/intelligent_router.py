@@ -567,19 +567,19 @@ class IntelligentRouter:
                 context = None
                 if self.search:
                     try:
-                        # INCREASED: 20 documents for richer context (was 5)
+                        # OPTIMIZATION: Reduced to 10 documents for faster response (was 20)
                         search_results = await self.search.search(
                             query=message,
                             user_level=3,  # Full access
-                            limit=20  # Retrieve more documents for better context
+                            limit=10  # OPTIMIZED: Reduced from 20 for performance
                         )
                         if search_results.get("results"):
-                            # INCREASED: Use top 8 results (was 3) for comprehensive answers
+                            # OPTIMIZATION: Use top 5 results (was 8) for faster processing
                             context = "\n\n".join([
                                 f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
-                                for r in search_results["results"][:8]
+                                for r in search_results["results"][:5]
                             ])
-                            logger.info(f"   RAG context: {len(context)} chars from {len(search_results['results'])} documents (using top 8)")
+                            logger.info(f"   RAG context: {len(context)} chars from {len(search_results['results'])} documents (using top 5)")
                     except Exception as e:
                         logger.warning(f"   RAG search failed: {e}")
 

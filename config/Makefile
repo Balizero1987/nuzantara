@@ -105,14 +105,14 @@ status: ## Show status of all Railway services
 health-prod: ## Check production services health
 	@echo "🏥 Checking production health..."
 	@echo "\n📱 TypeScript Backend:"
-	@curl -s https://nuzantara-production.up.railway.app/health | jq '.' || echo "❌ Backend unhealthy"
+	@curl -s https://ts-backend-production-568d.up.railway.app/health | jq '.' || echo "❌ Backend unhealthy"
 	@echo "\n🧠 Python RAG Backend:"
 	@curl -s https://scintillating-kindness-production-47e3.up.railway.app/health | jq '.' || echo "❌ RAG unhealthy"
 
 .PHONY: metrics
 metrics: ## Show production metrics
 	@echo "📊 Backend Metrics:"
-	@curl -s https://nuzantara-production.up.railway.app/metrics | jq '.'
+	@curl -s https://ts-backend-production-568d.up.railway.app/metrics | jq '.'
 
 # ==========================================
 # 🔧 MAINTENANCE
@@ -243,7 +243,7 @@ info: ## Show project information
 	@echo "🔗 Repository: https://github.com/Balizero1987/nuzantara"
 	@echo ""
 	@echo "🌐 Production URLs (Railway):"
-	@echo "  TypeScript Backend: https://nuzantara-production.up.railway.app"
+	@echo "  TypeScript Backend: https://ts-backend-production-568d.up.railway.app"
 	@echo "  Python RAG Backend: https://scintillating-kindness-production-47e3.up.railway.app"
 	@echo "  Web UI (GitHub Pages): https://balizero1987.github.io/zantara_webapp"
 	@echo ""

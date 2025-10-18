@@ -61,13 +61,13 @@
 ### **1. TypeScript Backend** (Main API - DEPRECATED, migrating to unified RAG backend)
 - **Language**: Node.js + TypeScript
 - **Framework**: Express.js
-- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/backend-api/`
-- **Production URL**: https://nuzantara-production.up.railway.app ⚠️ **DEGRADED MODE** (no ChromaDB)
+- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/backend-ts/`
+- **Production URL**: https://ts-backend-production-568d.up.railway.app ✅ **OPERATIONAL**
 - **Port**: 8080
 - **Handlers**: 107 handlers (tool use being migrated to RAG backend)
 - **Entry Point**: `dist/index.js`
 - **Deploy**: Railway (auto-deploy from GitHub)
-- **Status**: ⚠️ **MIGRATION IN PROGRESS** - handlers being consolidated into Python RAG backend
+- **Status**: ✅ **OPERATIONAL** - Migration to RAG backend in progress
 
 ### **2. Python RAG Backend** (AI/Search + Collaborative Intelligence) ✅ **PRIMARY SERVICE**
 - **Language**: Python 3.11
@@ -129,7 +129,7 @@
 | Service | URL | Port | Status | Mode |
 |---------|-----|------|--------|------|
 | **RAG Backend** (PRIMARY) | https://scintillating-kindness-production-47e3.up.railway.app | 8000 | ✅ **FULL MODE** | Collaborative AI + ChromaDB + PostgreSQL + Reranker |
-| TypeScript Backend | https://nuzantara-production.up.railway.app | 8080 | ⚠️ **DEGRADED MODE** | No ChromaDB (migration in progress) |
+| TypeScript Backend | https://ts-backend-production-568d.up.railway.app | 8080 | ✅ **OPERATIONAL** | Express API (migration in progress) |
 
 ### **Database Services** (Railway Managed)
 - **PostgreSQL**: Railway managed database (conversations, memory, business context)
@@ -261,10 +261,9 @@ gh workflow run "Sync Webapp to GitHub Pages"
 
 | Model | Provider | Use Case | Cost |
 |-------|----------|----------|------|
-| **ZANTARA Llama 3.1** (8B) | RunPod vLLM (itz2q5gmid4cyt) | Internal testing - ALL queries | €2-8/month (optimized!) |
+| **ZANTARA Llama 3.1** (8B) | RunPod vLLM (itz2q5gmid4cyt) | Internal testing + Intel scraping | €2-8/month (optimized!) |
 | ZANTARA Llama 3.1 (HF) | HuggingFace Inference | Fallback if RunPod unavailable | Free (rate limited) |
 | **DevAI Qwen 2.5 Coder** (7B) | RunPod vLLM (5g2h6nbyls47i7) | Internal dev - Code analysis | €1-3/month (ultra-low!) |
-| Llama 3.2 (3B) | Ollama (local) | Intel scraping only | Free (local) |
 
 **AI Architecture**: Dual-AI (ZANTARA + DevAI) - INTERNAL USE ONLY
 - ZANTARA: 22,009 Indonesian business conversations, 98.74% accuracy
@@ -391,7 +390,11 @@ gh workflow run "Sync Webapp to GitHub Pages"
    - Requires env vars: SLACK_WEBHOOK_URL, DISCORD_WEBHOOK_URL
 
 ### **Low Priority**
-9. Remove Ollama (unused, frees 2GB)
+9. ✅ **Remove Ollama** - COMPLETE (2025-10-18 W1)
+   - Status: Migrated to ZANTARA Llama 3.1 for intel scraping
+   - Removed files: ollama_client.py, test scripts, intel scraping scripts
+   - Uninstalled: Homebrew package + ~/.ollama directory (freed 11GB)
+   - Session: `.claude/CURRENT_SESSION_W1.md`
 10. Update OpenAPI specs for new endpoints
 11. ✅ **WebSocket support** - IMPLEMENTED (2025-10-03 m24)
     - Full bidirectional server, channel pub/sub

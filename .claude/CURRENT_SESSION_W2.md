@@ -86,8 +86,29 @@ Investigare perché stanno fallendo tutti i deploy su Railway
   - Aggiornato PROJECT_CONTEXT.md: issue #5 marcato come ✅ VERIFIED ACTIVE
 - **Result**: Strict mode già abilitato e funzionante. PROJECT_CONTEXT.md era obsoleto.
 
+### 5. Fix Railway Deployment TS-BACKEND
+- **Status**: ✅ Completato
+- **Root Cause Identificata**: Public domain non configurato
+- **Diagnosi**:
+  - Root Directory: ✅ Già configurato (`apps/backend-ts`)
+  - Build config: ✅ Già configurato (railway.toml)
+  - PORT env var: ✅ Presente (8080)
+  - Backend running: ✅ Logs mostrano "running on port 8080"
+  - **PROBLEMA**: Public domain `nuzantara-production.up.railway.app` non configurato/attivo
+- **Fix Applicato**:
+  - Settata env var: `RAG_BACKEND_URL=https://scintillating-kindness-production-47e3.up.railway.app`
+  - Generato nuovo Railway domain: `railway domain --service TS-BACKEND --port 8080`
+  - **New URL**: `https://ts-backend-production-568d.up.railway.app`
+- **Verifica**:
+  ```bash
+  curl https://ts-backend-production-568d.up.railway.app/health
+  # {"ok":true,"service":"NUZANTARA-TS-BACKEND","version":"5.2.0","timestamp":"2025-10-18T11:49:29.416Z"}
+  ```
+- **Result**: ✅ TS-BACKEND deployment RISOLTO e OPERATIVO
+
 ### TODO per Prossima Sessione
-- [ ] Attendere task specifico dall'utente
+- [ ] Aggiornare frontend per puntare al nuovo URL TS-Backend (se necessario)
+- [ ] Verificare se vecchio domain può essere eliminato
 
 ---
 
