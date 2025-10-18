@@ -1055,29 +1055,36 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
 
         effective_email = request.user_email or inferred_email
 
-        # OPTIMIZATION: Parallel execution of PHASES 1-3 (Independent operations)
-        async def identify_collaborator():
-            """PHASE 1: Identify collaborator"""
-            if collaborator_service and effective_email:
-                collab = await collaborator_service.identify(effective_email)
-                logger.info(f"👤 {collab.name} ({collab.ambaradam_name}) - L{collab.sub_rosa_level} - {collab.language}")
-                return collab, collab.sub_rosa_level, collab.id
-            else:
-                logger.info("👤 Anonymous user - L0 (Public)")
-                return None, 0, "anonymous"
+        # PHASE 1: Identify collaborator (MUST be first - others depend on it)
+        collaborator = None
+        sub_rosa_level = 0
+        user_id = "anonymous"
 
-        async def load_memory(uid):
+        if collaborator_service and effective_email:
+            try:
+                collaborator = await collaborator_service.identify(effective_email)
+                sub_rosa_level = collaborator.sub_rosa_level
+                user_id = collaborator.id
+                logger.info(f"👤 {collaborator.name} ({collaborator.ambaradam_name}) - L{sub_rosa_level} - {collaborator.language}")
+            except Exception as e:
+                logger.warning(f"⚠️ Collaborator identification failed: {e}")
+                collaborator, sub_rosa_level, user_id = None, 0, "anonymous"
+        else:
+            logger.info("👤 Anonymous user - L0 (Public)")
+
+        # OPTIMIZATION: Parallel execution of PHASES 2-3 (NOW that we have collaborator)
+        async def load_memory():
             """PHASE 2: Load user memory"""
-            if memory_service and uid != "anonymous":
-                mem = await memory_service.get_memory(uid)
-                logger.info(f"💾 Memory loaded for {uid}: {len(mem.profile_facts)} facts, {len(mem.summary)} char summary")
+            if memory_service and user_id != "anonymous":
+                mem = await memory_service.get_memory(user_id)
+                logger.info(f"💾 Memory loaded for {user_id}: {len(mem.profile_facts)} facts, {len(mem.summary)} char summary")
                 return mem
             return None
 
-        async def analyze_emotion(collab):
+        async def analyze_emotion():
             """PHASE 3: Analyze emotional state"""
             if emotional_service:
-                prefs = collab.emotional_preferences if collab else None
+                prefs = collaborator.emotional_preferences if collaborator else None
                 profile = emotional_service.analyze_message(request.query, prefs)
                 logger.info(
                     f"🎭 Emotional: {profile.detected_state.value} "
@@ -1086,37 +1093,21 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 return profile
             return None
 
-        # Execute PHASES 1-3 in parallel
-        logger.info("⚡ [Optimization] Running collaborator + memory + emotional analysis in parallel")
-        (collaborator, sub_rosa_level, user_id), memory_result, emotional_result = await asyncio.gather(
-            identify_collaborator(),
-            load_memory("temp"),  # Will be corrected below
-            analyze_emotion(None),  # Will be updated after collaborator identified
+        # Execute PHASES 2-3 in parallel (both can run independently now)
+        logger.info("⚡ [Optimization] Running memory + emotional analysis in parallel")
+        memory, emotional_profile = await asyncio.gather(
+            load_memory(),
+            analyze_emotion(),
             return_exceptions=True
         )
 
-        # Handle exceptions from parallel execution
-        if isinstance(collaborator, Exception):
-            logger.warning(f"⚠️ Collaborator identification failed: {collaborator}")
-            collaborator, sub_rosa_level, user_id = None, 0, "anonymous"
-
-        # Reload memory with correct user_id if needed
-        if user_id != "anonymous" and user_id != "temp":
-            if isinstance(memory_result, Exception):
-                logger.warning(f"⚠️ Memory load failed: {memory_result}")
-                memory = None
-            else:
-                memory = await load_memory(user_id)
-        else:
+        # Handle exceptions
+        if isinstance(memory, Exception):
+            logger.warning(f"⚠️ Memory load failed: {memory}")
             memory = None
-
-        # Update emotional analysis with correct collaborator if needed
-        if collaborator and (isinstance(emotional_result, Exception) or emotional_result is None):
-            if isinstance(emotional_result, Exception):
-                logger.warning(f"⚠️ Emotional analysis failed: {emotional_result}")
-            emotional_profile = await analyze_emotion(collaborator)
-        else:
-            emotional_profile = emotional_result if not isinstance(emotional_result, Exception) else None
+        if isinstance(emotional_profile, Exception):
+            logger.warning(f"⚠️ Emotional analysis failed: {emotional_profile}")
+            emotional_profile = None
 
         # PHASE 4: Route to appropriate AI using Intelligent Router
         if intelligent_router:
