@@ -162,3 +162,239 @@ Sistema di session tracking semplificato e disciplinato implementato:
 **Session Closed**: 2025-10-18 14:45 UTC
 
 ---
+
+---
+
+## 📅 Session Info
+
+- **Window**: Sistema (creazione tracking)
+- **Date**: 2025-10-18
+- **Time**: Continuazione sessione
+- **Model**: claude-sonnet-4-5-20250929
+- **User**: antonellosiano
+- **Task**: Evoluzione sistema tracking per multi-window (W1-W4)
+
+---
+
+## ✅ Task Completati
+
+### 1. Evoluzione Sistema Multi-Window
+- **Status**: ✅ Completato
+- **Files Created**:
+  - `.claude/CURRENT_SESSION_W1.md`
+  - `.claude/CURRENT_SESSION_W2.md`
+  - `.claude/CURRENT_SESSION_W3.md`
+  - `.claude/CURRENT_SESSION_W4.md`
+- **Changes**: Sistema evoluto da singolo CURRENT_SESSION.md a 4 window isolate
+
+### 2. Aggiornamento Documentazione
+- **Status**: ✅ Completato
+- **Files Modified**:
+  - `.claude/START_HERE.md` - Aggiunto pattern window assignment
+  - `.claude/README.md` - Aggiunta sezione multi-window concurrency
+  - `.claude/CURRENT_SESSION.template.md` - Aggiunto campo Window
+
+### 3. Script Automatizzazione Window
+- **Status**: ✅ Completato
+- **Files Created**:
+  - `.claude/set-window-W1.sh`
+  - `.claude/set-window-W2.sh`
+  - `.claude/set-window-W3.sh`
+  - `.claude/set-window-W4.sh`
+- **Features**:
+  - Imposta titolo window con ANSI escape codes
+  - Banner ASCII personalizzato
+  - Quick context (30 sec)
+  - Last session summary
+  - Auto-creazione file sessione
+
+### 4. Definizione Comando Attivazione
+- **Status**: ✅ Completato
+- **Comando Standard**: "Sei W1, leggi .claude/START_HERE.md"
+- **Workflow**:
+  1. `source .claude/set-window-W1.sh`
+  2. "Sei W1, leggi .claude/START_HERE.md"
+  3. AI si sincronizza e lavora
+
+---
+
+## 📝 Note Tecniche
+
+### Pattern Multi-Window
+- **Isolamento**: Ogni AI ha il proprio CURRENT_SESSION_WX.md
+- **Concorrenza**: Fino a 4 AI simultane (W1-W4)
+- **User-Assignment**: User assegna esplicitamente window number
+- **Append-only**: ARCHIVE_SESSIONS.md sicuro per concurrent writes
+
+### ANSI Escape Codes
+```bash
+echo -ne "\033]0;W1 - NUZANTARA\007"  # Imposta titolo window
+```
+
+### Ottimizzazione Context Loading
+- START_HERE.md: 2 minuti
+- PROJECT_CONTEXT.md: 5 minuti
+- tail ARCHIVE_SESSIONS.md: opzionale
+- **Totale**: ~7 minuti vs precedenti ~20+ minuti
+
+---
+
+## 🔗 Files Rilevanti
+
+- `.claude/set-window-W1.sh` through `W4.sh` - Window setup scripts
+- `.claude/CURRENT_SESSION_W1-4.md` - 4 isolated session files
+- `.claude/START_HERE.md` - Updated with multi-window pattern
+- `.claude/README.md` - Complete system documentation
+
+---
+
+## 📊 Metriche Sessione
+
+- **Durata**: ~20 min (continuazione)
+- **File Modificati**: 3 files
+- **File Creati**: 8 files (4 session + 4 scripts)
+- **Test Status**: ⏭️ N/A (documentazione + scripts)
+
+---
+
+## 🏁 Chiusura Sessione
+
+### Risultato Finale
+Sistema multi-window completamente operativo:
+- ✅ 4 window isolate (W1-W4)
+- ✅ Script automatizzazione setup
+- ✅ Comando attivazione standardizzato
+- ✅ Documentazione completa
+
+### Stato del Sistema
+- ✅ Build: Not affected
+- ✅ Tests: Not affected
+- ✅ Deploy: Not affected
+- ✅ Sistema tracking: Pronto per uso produzione
+
+### Handover
+**Per nuove AI instance**:
+1. `source .claude/set-window-W1.sh` (o W2/W3/W4)
+2. "Sei W1, leggi .claude/START_HERE.md"
+3. Sistema completamente configurato e pronto
+
+**Comando universale**: "Sei WX, leggi .claude/START_HERE.md"
+
+---
+
+**Session Closed**: 2025-10-18 15:20 UTC
+
+---
+
+
+---
+
+## 📅 Session Info
+
+- **Window**: Sistema (fix documentazione)
+- **Date**: 2025-10-18
+- **Time**: Continuazione sessione
+- **Model**: claude-sonnet-4-5-20250929
+- **User**: antonellosiano
+- **Task**: Fix regole critiche - chiarire che AI può modificare TUTTO nel progetto
+
+---
+
+## ✅ Task Completati
+
+### 1. Fix Regole Critiche START_HERE.md
+- **Status**: ✅ Completato
+- **File**: `.claude/START_HERE.md`
+- **Changes**: 
+  - Espansa sezione "COSA Modificare" con esempi specifici
+  - Chiarito: In .claude/ solo CURRENT_SESSION_WX.md
+  - Chiarito: Nel progetto QUALSIASI file (code, docs, config, package.json, README.md, etc.)
+
+### 2. Fix Script Window Setup
+- **Status**: ✅ Completato
+- **Files**:
+  - `.claude/set-window-W1.sh`
+  - `.claude/set-window-W2.sh`
+  - `.claude/set-window-W3.sh`
+  - `.claude/set-window-W4.sh`
+- **Changes**: Aggiornato messaggio CRITICAL RULES da "modify all code files needed" a "modify ANY file needed (code, docs, config, package.json, etc.)"
+
+### 3. Fix README.md
+- **Status**: ✅ Completato
+- **File**: `.claude/README.md`
+- **Changes**: Aggiunta sezione "WHAT TO MODIFY" con chiarimento su cosa può essere modificato
+
+### 4. Correzione Working Directory
+- **Status**: ✅ Completato
+- **Problema**: Uso di path assoluti quando si archivia in ARCHIVE_SESSIONS.md
+- **Soluzione**: Documentato che bisogna usare `cd .claude/` e poi path relativi
+
+---
+
+## 📝 Note Tecniche
+
+### Problema Risolto
+User frustrato perché le regole sembravano limitare l'AI a modificare SOLO CURRENT_SESSION_WX.md, quando invece deve modificare TUTTO il progetto necessario per completare il task.
+
+### Soluzione
+Resa esplicita la distinzione:
+- **In .claude/**: SOLO il tuo CURRENT_SESSION_WX.md (no nuovi file)
+- **Nel progetto**: QUALSIASI file necessario (code, docs, config, dependencies, etc.)
+
+### Esempi Aggiunti
+```
+apps/*/           ✅ codice
+packages/*/       ✅ codice
+docs/             ✅ documentazione
+config/           ✅ configurazione
+README.md         ✅ documentazione generale
+package.json      ✅ dipendenze
+tsconfig.json     ✅ config TypeScript
+.env.example      ✅ env template
+```
+
+---
+
+## 🔗 Files Modificati
+
+- `.claude/START_HERE.md` - Espansa sezione COSA Modificare
+- `.claude/README.md` - Aggiunta sezione WHAT TO MODIFY
+- `.claude/set-window-W1.sh` - Fix CRITICAL RULES message
+- `.claude/set-window-W2.sh` - Fix CRITICAL RULES message
+- `.claude/set-window-W3.sh` - Fix CRITICAL RULES message
+- `.claude/set-window-W4.sh` - Fix CRITICAL RULES message
+
+---
+
+## 📊 Metriche Sessione
+
+- **Durata**: ~15 min
+- **File Modificati**: 6 files
+- **Problemi Risolti**: 1 (ambiguità regole modifiche file)
+
+---
+
+## 🏁 Chiusura Sessione
+
+### Risultato Finale
+Regole critiche ora chiare e non ambigue:
+- ✅ In .claude/: solo CURRENT_SESSION_WX.md
+- ✅ Nel progetto: QUALSIASI file necessario per il task
+- ✅ Esempi specifici in tutti i file di documentazione
+- ✅ Script window setup aggiornati
+
+### Stato del Sistema
+- ✅ Build: Not affected
+- ✅ Tests: Not affected
+- ✅ Deploy: Not affected
+- ✅ Documentazione: Corretta e chiara
+
+### Handover
+Le AI ora vedono chiaramente che possono modificare qualsiasi file del progetto (code, docs, config, dependencies) ma NON devono creare nuovi file in .claude/.
+
+---
+
+**Session Closed**: 2025-10-18 15:45 UTC
+
+---
+

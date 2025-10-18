@@ -175,13 +175,34 @@ ls -lt diaries/ | head -10
 - ✅ Overwrite, don't create new files
 - ✅ Archive at end of session
 - ✅ Follow template structure
+- ✅ Work from .claude/ directory when using bash commands
 
 ### DON'T
-- ❌ Create new MD files in .claude/
-- ❌ Modify diaries/ or handovers/ (legacy archive)
+- ❌ **Create ANY new files in .claude/** (no .md, .txt, .log, .json)
+- ❌ Modify diaries/ or handovers/ (legacy archive, read-only)
 - ❌ Touch other windows (W1-W4)
 - ❌ Read all files upfront (load only what needed)
 - ❌ Skip archiving at end
+- ❌ Use absolute paths when appending to ARCHIVE_SESSIONS.md
+
+### ✅ WHAT TO MODIFY
+```bash
+# In .claude/: ONLY your session file
+.claude/CURRENT_SESSION_WX.md  # ✅
+
+# In project: ALL files needed for the task
+apps/*/, packages/*/, docs/, config/, etc.  # ✅
+```
+
+### ✅ CORRECT Working Directory
+```bash
+# When archiving, work from .claude/ directory:
+cd /path/to/NUZANTARA-RAILWAY/.claude
+cat CURRENT_SESSION_W1.md >> ARCHIVE_SESSIONS.md  # ✅
+
+# NOT from root:
+cat .claude/CURRENT_SESSION_W1.md >> .claude/ARCHIVE_SESSIONS.md  # ❌ works but unnecessary
+```
 
 ---
 
