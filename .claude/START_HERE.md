@@ -154,4 +154,28 @@ echo "\n---\n" >> ARCHIVE_SESSIONS.md
 
 ---
 
+## 🚂 Railway Commands Reference
+
+### Status & Monitoring
+```bash
+railway status                           # Stato generale progetto
+railway logs --service TS-BACKEND        # Logs live TypeScript backend
+railway logs --service "RAG BACKEND"     # Logs live RAG backend
+```
+
+### Deploy
+```bash
+railway up --service TS-BACKEND          # Deploy manuale TS backend
+```
+
+### Configuration
+```bash
+railway variables --service TS-BACKEND   # Visualizza env vars TS backend
+railway variables --service "RAG BACKEND" # Visualizza env vars RAG backend
+```
+
+**Railway Dashboard**: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+
+---
+
 **Pronto?** → Apri `PROJECT_CONTEXT.md` e inizia! 🚀

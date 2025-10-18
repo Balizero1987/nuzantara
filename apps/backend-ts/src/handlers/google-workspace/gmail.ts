@@ -1,6 +1,6 @@
 // Gmail Handlers (typed & standardized)
 import logger from '../../services/logger.js';
-import { google } from 'googleapis';
+import { google } from 'googleapis'; // Disabled GCP
 import { getOAuth2Client } from '../../services/oauth2-client.js';
 import { getGmail } from '../../services/google-auth-service.js';
 import { ok } from '../../utils/response.js';

@@ -26,11 +26,16 @@ jobs:
         cd apps/backend-ts
         npm ci
         
+    - name: Run Tests
+      run: |
+        cd apps/backend-ts
+        npm test
+
     - name: Build TypeScript
       run: |
         cd apps/backend-ts
         npm run build
-        
+
     - name: Deploy to Railway
       uses: railwayapp/railway-deploy@v1
       with:

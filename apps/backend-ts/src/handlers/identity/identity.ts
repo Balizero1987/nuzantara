@@ -1,6 +1,6 @@
 import logger from '../../services/logger.js';
 import { z } from "zod";
-import { getFirestore } from "firebase-admin/firestore";
+import { getFirestore } from "firebase-admin/firestore"; // Disabled GCP
 import { ok } from "../../utils/response.js";
 import { getCachedIdentity, setCachedIdentity } from "../../services/cacheProxy.js";
 import { logSlowQuery } from "../../middleware/monitoring.js";
