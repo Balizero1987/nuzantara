@@ -3,7 +3,12 @@
 import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
-import { getTranslate } from "../../services/google-auth-service.js";
+// import { getTranslate } from "../../services/google-auth-service.js";
+
+// Temporary stub - replace with REST API call when needed
+const getTranslate = () => {
+  throw new Error("Google Translate not configured - use REST API instead");
+};
 
 // Language mappings for Bali Zero business
 const SUPPORTED_LANGUAGES = {

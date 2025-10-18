@@ -129,3 +129,11 @@ scripts/intel/
 docs/archive/
 *_metadata.json
 *_training_*.json
+
+# GCP - NEVER commit GCP files
+.gcloudignore
+cloudbuild.yaml
+cloudbuild*.yaml
+*cloud-run*.sh
+*gcloud*.sh
+deploy_cloud_run.sh

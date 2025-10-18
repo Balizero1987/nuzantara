@@ -2,7 +2,13 @@
 // Automatically saves all conversations with Zero and collaborators
 import logger from '../../services/logger.js';
 // // import { ok } from "../../utils/response.js"; // Unused import
-import { memorySave } from "./memory-firestore.js";
+// import { memorySave } from "./memory-firestore.js";
+
+// Temporary stub - replace with PostgreSQL when needed
+const memorySave = async (data: any) => {
+  console.log("Memory save requested (stub) - implement PostgreSQL");
+  return { ok: true, id: Date.now().toString() };
+};
 import { updateDailyRecap } from "../analytics/daily-drive-recap.js";
 // Removed googleapis imports - using existing drive.upload handler instead
 

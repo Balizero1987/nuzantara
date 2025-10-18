@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./src-clean",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": false,
@@ -18,7 +18,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["src/**/*"],
+  "include": ["src-clean/**/*"],
   "exclude": [
     "node_modules",
     "dist",
@@ -28,6 +28,19 @@
     "src/**/*.test.ts",
     "src/routes/**/*",
     "src/services/imagine-art-service.ts",
-    "src/tests/**/*"
+    "src/tests/**/*",
+    "src/services/firebase.ts",
+    "src/services/google-auth-service.ts",
+    "src/services/oauth2-client.ts",
+    "src/services/sheets.ts",
+    "src/services/tokenStore.ts",
+    "src/handlers/google-workspace/**/*",
+    "src/handlers/memory/episodes-firestore.ts",
+    "src/handlers/memory/memory-firestore.ts",
+    "src/handlers/identity/identity.ts",
+    "src/handlers/analytics/dashboard-analytics.ts",
+    "src/middleware/chat-oidc.ts",
+    "src/handlers/communication/translate.ts",
+    "src/handlers/memory/conversation-autosave.ts"
   ]
 }

@@ -1,140 +1,129 @@
-# 🚀 START HERE - NUZANTARA Dev AI Onboarding
+# 🤖 AI Quick Start - NUZANTARA
 
-> **Per nuovi Dev AI**: Leggi SOLO questo file prima di iniziare. Tutto il resto dopo.
+> **Per nuove istanze AI**: Leggi SOLO questo file. 2 minuti.
 
 ---
 
-## 📋 Workflow Obbligatorio
+## ⚡ Setup Immediato
 
-### 1️⃣ All'Inizio della Sessione
+### Step 1: L'utente ti dirà quale window sei
+```
+User: "Sei W2, [task description]"
+```
+**Il tuo numero window**: W1, W2, W3, o W4
 
+### Step 2: Carica context (5 min)
 ```bash
-# Leggi in quest'ordine:
-1. START_HERE.md (questo file) ← SEI QUI
-2. PROJECT_CONTEXT.md (contesto tecnico, 5 min)
-3. CURRENT_SESSION.md (cosa sta facendo l'AI corrente)
+1. PROJECT_CONTEXT.md        # Architettura sistema (5 min)
+2. CURRENT_SESSION_WX.md      # Cosa sta facendo l'AI nella tua window
+3. tail ARCHIVE_SESSIONS.md   # Ultime 3 sessioni (opzionale)
 ```
 
-**IMPORTANTE**: NON leggere diaries/, handovers/, sessions/ o altri file a meno che non ti serva qualcosa di specifico.
-
-### 2️⃣ Durante la Sessione
-
-**AGGIORNA SOLO** il tuo `CURRENT_SESSION_WX.md`:
-- X = numero window (1-4) che l'utente ti indica
-- Esempi: `CURRENT_SESSION_W1.md`, `CURRENT_SESSION_W2.md`, etc.
-- Sovrascrivi il contenuto esistente
-- Usa il template fornito
-- Aggiungi progressivamente task e risultati
-- NON creare nuovi file MD (mai!)
-
-### 3️⃣ Alla Fine della Sessione
-
+### Step 3: Sovrascrivi il tuo file
 ```bash
-# 1. Appendi il tuo CURRENT_SESSION_WX.md a ARCHIVE_SESSIONS.md
+# Apri il tuo CURRENT_SESSION_WX.md (X = tuo numero)
+# Sovrascrivi completamente con il template
+# Aggiungi: Window, Date, Model, Task
+```
+
+### Step 4: Lavora
+- Aggiorna SOLO il tuo `CURRENT_SESSION_WX.md`
+- Traccia task completati, file modificati, problemi risolti
+- NON creare nuovi file MD
+- NON toccare le altre window (W1-W4)
+
+### Step 5: Fine sessione
+```bash
+# Appendi al log globale
 cat CURRENT_SESSION_WX.md >> ARCHIVE_SESSIONS.md
 echo "\n---\n" >> ARCHIVE_SESSIONS.md
 
-# 2. Pulisci il tuo file per la prossima sessione
+# Resetta per prossima AI
 cp CURRENT_SESSION.template.md CURRENT_SESSION_WX.md
 ```
 
-**IMPORTANTE**: L'utente lavora con max 4 window contemporaneamente (W1, W2, W3, W4). Chiedi sempre quale window stai usando!
+---
+
+## 🎯 Sistema NUZANTARA (60 sec)
+
+**Cosa è**: Monorepo multi-AI su Railway
+- Backend TypeScript (96 handlers) → :8080
+- Backend RAG Python (ChromaDB) → :8000
+- Webapp vanilla JS → GitHub Pages
+
+**AI Systems**:
+- ZANTARA (Llama 3.1 8B) → Customer-facing
+- DevAI (Qwen 2.5 Coder 7B) → Internal dev (tu)
+
+**Stack**: TypeScript 5.9 + Express 5.1 + Python FastAPI + ChromaDB
 
 ---
 
-## 🎯 Sistema NUZANTARA in 60 secondi
-
-### Cos'è
-Monorepo multi-AI deployato su **Railway**:
-- **Backend TypeScript** (96 handler) → Port 8080
-- **Backend RAG Python** (ChromaDB + FastAPI) → Port 8000
-- **Webapp** (vanilla JS) → GitHub Pages
-
-### AI Systems
-- **ZANTARA** (Llama 3.1 8B): Customer-facing AI
-- **DevAI** (Qwen 2.5 Coder 7B): Internal dev AI (tu sei qui!)
-
-### Tech Stack
-- TypeScript 5.9.3 + Express 5.1.0
-- Python + FastAPI + ChromaDB
-- Firebase (Firestore), Redis (optional)
-- Railway (deployment), GitHub Actions (CI/CD)
-
----
-
-## 📁 Struttura Rapida
+## 📁 File Structure
 
 ```
 NUZANTARA-RAILWAY/
 ├── apps/
-│   ├── backend-ts/         # API TypeScript (96 handlers)
-│   ├── backend-rag/        # RAG Python (ChromaDB)
-│   └── webapp/             # Frontend vanilla JS
-├── config/                 # Railway configs
-├── docs/                   # Documentazione
-│   └── ARCHITECTURE.md     # ★ Architettura dettagliata
-└── .claude/                # Session tracking
-    ├── START_HERE.md       # ★ Questo file
-    ├── PROJECT_CONTEXT.md  # ★ Contesto tecnico
-    ├── CURRENT_SESSION.md  # ★ Sessione corrente (TU)
-    └── ARCHIVE_SESSIONS.md # Storico sessioni
+│   ├── backend-ts/         # API TypeScript
+│   ├── backend-rag/        # RAG Python
+│   └── webapp/             # Frontend
+├── docs/ARCHITECTURE.md    # Full architecture
+└── .claude/
+    ├── CURRENT_SESSION_W1-4.md  # 4 window files (TU)
+    └── ARCHIVE_SESSIONS.md      # Global log
 ```
 
 ---
 
-## ✅ Cosa Fare Adesso
+## 🚫 Regole
 
-1. **Chiedi all'utente**: "Quale window sto usando? (W1/W2/W3/W4)"
-2. **Apri** `PROJECT_CONTEXT.md` e leggilo (5 min)
-3. **Apri** `CURRENT_SESSION_WX.md` (dove X è il numero window) e aggiorna con:
-   - Data/ora inizio sessione
-   - Window number
-   - Tuo model (es. claude-sonnet-4.5)
-   - Task ricevuto dall'utente
-4. **Inizia a lavorare** seguendo il workflow sopra
-
----
-
-## 🚫 Cosa NON Fare
-
-- ❌ NON creare nuovi file `.md` in `.claude/`
-- ❌ NON leggere tutti i file in `diaries/` (sono archivio)
-- ❌ NON creare handover separati (usa `CURRENT_SESSION.md`)
-- ❌ NON modificare `ARCHIVE_SESSIONS.md` se non a fine sessione
-- ❌ NON creare report multipli (uno solo: `CURRENT_SESSION.md`)
+- ❌ NON creare nuovi file MD in .claude/
+- ❌ NON modificare diaries/ o handovers/ (archivio legacy)
+- ❌ NON toccare altre window (solo la tua WX)
+- ❌ NON leggere tutti i file (solo necessari)
+- ✅ Chiedi all'utente se non sai quale window sei
+- ✅ Sovrascrivi il tuo CURRENT_SESSION_WX.md
+- ✅ Archivia sempre a fine sessione
 
 ---
 
-## 📖 File di Riferimento (on-demand)
+## 📖 Se Serve Approfondire
 
-Leggi solo se ti serve qualcosa di specifico:
-
-| File | Quando Leggerlo |
-|------|-----------------|
-| `ARCHITECTURE.md` | Architettura dettagliata del sistema |
-| `WORKFLOW_DEPLOY.md` | Deploy su Railway |
-| `diaries/2025-10-*` | Cerca problemi specifici del passato |
-| `handovers/*.md` | Approfondisci un componente specifico |
+| File | Quando |
+|------|--------|
+| `PROJECT_CONTEXT.md` | Sempre (context base) |
+| `ARCHITECTURE.md` | Architettura dettagliata |
+| `ARCHIVE_SESSIONS.md` | Cerca sessioni passate |
+| `diaries/` | Solo se serve storia specifica |
 
 ---
 
-## 🎯 Regole d'Oro
+## 🔧 Template Sessione
 
-1. **Un file alla volta**: `CURRENT_SESSION.md` è il tuo unico file di lavoro
-2. **Sovrascrivi, non creare**: Aggiorna `CURRENT_SESSION.md`, non creare nuovi file
-3. **Archivia a fine sessione**: Appendi a `ARCHIVE_SESSIONS.md`, poi pulisci
-4. **Leggi solo il necessario**: START_HERE → PROJECT_CONTEXT → lavora
-5. **Segui il template**: Usa sempre il formato in `CURRENT_SESSION.md`
+```markdown
+## 📅 Session Info
+- Window: WX
+- Date: YYYY-MM-DD HH:MM UTC
+- Model: claude-sonnet-4.5-20250929
+- User: antonellosiano
+- Task: [what user asked]
+
+## ✅ Task Completati
+### 1. [Nome Task]
+- Status: ✅/🚧/❌
+- Files: [lista]
+- Changes: [cosa fatto]
+
+## 📝 Note
+- Scoperte importanti
+- Problemi risolti
+
+## 🏁 Chiusura
+- Risultato: [summary]
+- Build/Tests: ✅/❌
+- Handover: [info per prossima AI]
+```
 
 ---
 
-## 🆘 In Caso di Dubbi
-
-1. Rileggi questo file
-2. Chiedi all'utente direttamente
-3. Cerca in `ARCHIVE_SESSIONS.md` (ultimi 3 mesi)
-4. Solo se proprio necessario: `diaries/` o `handovers/`
-
----
-
-**Pronti?** → Apri `PROJECT_CONTEXT.md` e inizia! 🚀
+**Pronto?** → Apri `PROJECT_CONTEXT.md` e inizia! 🚀
