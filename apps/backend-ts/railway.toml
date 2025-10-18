@@ -1,0 +1,14 @@
+[build]
+# Use npm build for TypeScript backend
+builder = "nixpacks"
+buildCommand = "npm run build"
+
+[deploy]
+# Health check configuration
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+# Resource allocation
+numReplicas = 1

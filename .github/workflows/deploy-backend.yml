@@ -1,0 +1,39 @@
+name: Deploy Backend API (TypeScript)
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'apps/backend-ts/**' ]
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: apps/backend-ts/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd apps/backend-ts
+        npm ci
+        
+    - name: Build TypeScript
+      run: |
+        cd apps/backend-ts
+        npm run build
+        
+    - name: Deploy to Railway
+      uses: railwayapp/railway-deploy@v1
+      with:
+        railway-token: ${{ secrets.RAILWAY_TOKEN }}
+        service: nuzantara-backend
+        working-directory: apps/backend-ts
