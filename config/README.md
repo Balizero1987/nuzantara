@@ -12,16 +12,6 @@ Application configurations
 - `openapi-v520-custom-gpt.yaml` - Custom GPT OpenAPI spec
 - `openapi.yaml` - Main OpenAPI specification
 
-### cloud/
-Cloud infrastructure configs
-
-- `cloud-run-config.yaml` - Cloud Run service config
-- `cloudbuild.yaml` - Main Cloud Build config
-- `cloudbuild-v520.yaml` - v5.2.0 build config
-- `cloudbuild-custom.yaml` - Custom build config
-- `cloudbuild-rebuild.yaml` - Rebuild config
-- `scheduler-config.yaml` - Cloud Scheduler jobs
-
 ### misc/
 Miscellaneous configurations
 
@@ -36,9 +26,10 @@ Miscellaneous configurations
 - `tsconfig.json` - Main TypeScript config
 - `tsconfig.build.json` - Build-specific config
 
-**Cloud Build**:
-- `cloudbuild-m13.yaml` - M13 build config
-- `cloudbuild-rag.yaml` - RAG backend build
+**Railway**:
+- `railway.toml` - Python RAG backend config
+- `railway.typescript.toml` - TypeScript backend config
+- `railway_cron.toml` - Scheduled tasks config
 
 **Testing**:
 - `jest.config.js` - Jest test configuration
@@ -53,9 +44,10 @@ Miscellaneous configurations
 }
 ```
 
-### Cloud Build
+### Railway Deploy
 ```bash
-gcloud builds submit --config=configs/cloud/cloudbuild.yaml
+# Railway auto-deploys on git push
+railway up
 ```
 
 ### App configs
@@ -64,9 +56,10 @@ Referenced by apps via relative paths or environment variables.
 ## 📝 Notes
 
 - `.env.example` remains in root (security best practice)
-- `.dockerignore`, `.gcloudignore` remain in root (tool requirements)
+- `.dockerignore` remains in root (Docker requirements)
 - App-specific configs should go in `apps/{app-name}/`
+- GCP configs archived to `archive/config-gcp/` (2025-10-17)
 
 ---
 
-**Last Updated**: 2025-10-04
+**Last Updated**: 2025-10-18 (Railway migration)

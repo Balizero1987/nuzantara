@@ -1,8 +1,8 @@
 # NUZANTARA - System Architecture
 
-> **Last Updated**: 2025-10-13 19:50 (DevAI Qwen 2.5 Coder integrated!)
+> **Last Updated**: 2025-10-18 (Migration to Railway)
 > **Version**: 5.6.0 (tools: 41 exposed + DevAI 7 handlers)
-> **Status**: Production (Cloud Run) + Local Development + ZANTARA Llama 3.1 + DevAI Qwen 2.5
+> **Status**: Production (Railway) + Local Development + ZANTARA Llama 3.1 + DevAI Qwen 2.5
 
 ---
 
@@ -23,7 +23,7 @@ graph TB
         API_Clients[API Clients<br/>Custom GPT, Zapier]
     end
 
-    subgraph "Cloud Run - TypeScript Backend :8080"
+    subgraph "Railway - TypeScript Backend :8080"
         Express[Express Server]
         Router[RPC Router<br/>/call endpoint]
         MW[Middleware Stack]
@@ -46,7 +46,7 @@ graph TB
         OAuth[OAuth2 Client]
     end
 
-    subgraph "Cloud Run - RAG Backend :8000"
+    subgraph "Railway - RAG Backend :8000"
         FastAPI[FastAPI App]
 
         subgraph "RAG Pipeline"
@@ -66,8 +66,8 @@ graph TB
     subgraph "Data Layer"
         Firestore[(Firestore<br/>Memory, Users)]
         Redis[(Redis<br/>Cache<br/>optional)]
-        GCS[(Cloud Storage<br/>ChromaDB 28MB)]
-        SecretMgr[Secret Manager<br/>API Keys]
+        Storage[(Railway Storage<br/>ChromaDB)]
+        EnvVars[Railway Variables<br/>API Keys]
     end
 
     WebUI --> Express
@@ -89,8 +89,8 @@ graph TB
 
     H_Memory --> Firestore
     H_Memory -.fallback.-> Redis
-    FastAPI --> GCS
-    Express --> SecretMgr
+    FastAPI --> Storage
+    Express --> EnvVars
 ```
 
 ---
@@ -104,8 +104,7 @@ graph TB
 **Initialization Sequence**:
 ```typescript
 Line 1-92:   Firebase Admin init
-             ├─ Try: Secret Manager (GCP)
-             ├─ Fallback: GOOGLE_SERVICE_ACCOUNT env var
+             ├─ Try: GOOGLE_SERVICE_ACCOUNT env var (Railway)
              ├─ Fallback: GOOGLE_APPLICATION_CREDENTIALS file
              └─ Fallback: ADC (Application Default Credentials)
 
@@ -143,7 +142,7 @@ Line 351-388: Graceful shutdown
 **Configuration**:
 - **Port**: 8080 (default, override with `PORT` env var)
 - **CORS**: Configurable via `CORS_ORIGINS` (comma-separated)
-- **Memory**: 2Gi (Cloud Run)
+- **Memory**: 2Gi (Railway)
 - **CPU**: 2 vCPU
 
 **Performance Targets**:
@@ -321,7 +320,7 @@ graph LR
 
 **Storage**:
 - **Development**: Local ChromaDB (`data/chroma_db/`, 325MB)
-- **Production**: Cloud Storage (`gs://nuzantara-chromadb-2025/`, 28MB compressed)
+- **Production**: Railway persistent volumes or local storage
 - **Collections**: 5 active (visa_oracle, kbli, tax, legal, books)
 
 #### LLM Routing (BaliZeroRouter)
@@ -478,7 +477,7 @@ graph TB
 
 ## 🚀 Deployment Architecture
 
-### Build & Deploy Pipeline
+### Build & Deploy Pipeline (Railway)
 
 ```mermaid
 graph TB
@@ -489,122 +488,51 @@ graph TB
 
     subgraph "TypeScript Backend Deploy"
         Build1[npm run build<br/>→ dist/]
-        Docker1[docker build<br/>Dockerfile.dist<br/>AMD64]
-        GCR1[Push to GCR]
-        CR1[Deploy to<br/>Cloud Run<br/>europe-west1]
+        Push1[git push<br/>Railway auto-deploy]
+        Railway1[Railway Build<br/>& Deploy]
     end
 
-    subgraph "RAG Backend Deploy (AMD64)"
-        Push[git push<br/>apps/backend-rag 2/**]
-        GHA[GitHub Actions<br/>ubuntu-latest<br/>AMD64 native!]
-        Docker2[docker build<br/>--platform linux/amd64]
-        GCR2[Push to GCR]
-        CR2[Deploy to<br/>Cloud Run<br/>ENABLE_RERANKER=true]
+    subgraph "RAG Backend Deploy"
+        Push2[git push<br/>apps/backend-rag/**]
+        Railway2[Railway Build<br/>ENABLE_RERANKER=true]
         Verify[Verify<br/>curl /health]
     end
 
     Dev --> Code
     Code --> Build1
-    Build1 --> Docker1
-    Docker1 --> GCR1
-    GCR1 --> CR1
+    Build1 --> Push1
+    Push1 --> Railway1
 
-    Code --> Push
-    Push --> GHA
-    GHA --> Docker2
-    Docker2 --> GCR2
-    GCR2 --> CR2
-    CR2 --> Verify
+    Code --> Push2
+    Push2 --> Railway2
+    Railway2 --> Verify
 ```
 
 ### TypeScript Backend Deploy
 
-**Method 1: Production Script** (`scripts/deploy/deploy-production.sh`)
+**Railway Auto-Deploy**:
 ```bash
-# Full production deployment
-make deploy-backend
+# Railway automatically deploys on git push
+git add .
+git commit -m "Update backend"
+git push
 
-# What it does:
-# 1. npm test (run tests)
+# Railway will:
+# 1. Detect changes
 # 2. npm run build (compile TypeScript)
-# 3. docker build -f Dockerfile.dist --platform linux/amd64
-# 4. docker push to GCR
-# 5. gcloud run deploy (2Gi RAM, 2 CPU)
-# 6. Smoke tests (curl /health)
+# 3. Deploy to Railway
+# 4. Run health checks
 
-# Runtime: ~8-10 minutes
+# Runtime: ~3-5 minutes
 ```
 
-**Method 2: Quick Deploy** (`scripts/deploy/deploy-code-only.sh`)
-```bash
-# Code-only (skip tests, faster)
-make deploy-backend-quick
+### RAG Backend Deploy
 
-# Runtime: ~5 minutes
-```
-
-**Dockerfile.dist** (Production Image):
-```dockerfile
-FROM node:20-alpine (AMD64)
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production --no-audit
-
-COPY dist/ ./dist/  # Pre-compiled TypeScript
-
-ENV NODE_ENV=production
-ENV PORT=8080
-
-EXPOSE 8080
-HEALTHCHECK --interval=30s CMD [health check]
-
-CMD ["node", "dist/index.js"]
-```
-
-### RAG Backend Deploy (AMD64 via GitHub Actions)
-
-**Why GitHub Actions?**
-> "Re-ranker requires AMD64. Mac ARM64 build fails (60 min + errors).
-> GitHub Actions ubuntu-latest = AMD64 native → 10 min build."
-> — Diary 2025-10-04_m2
-
-**Workflow** (`.github/workflows/deploy-rag-amd64.yml`):
-```yaml
-name: Deploy RAG Backend (AMD64)
-
-on:
-  workflow_dispatch:                 # Manual trigger
-  push:
-    paths:
-      - 'apps/backend-rag 2/**'      # Auto-trigger on changes
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest           # ← AMD64 native!
-
-    steps:
-      - Checkout code
-      - Auth to GCP (credentials_json secret)
-      - Build Docker AMD64
-      - Push to GCR
-      - Deploy to Cloud Run
-        --set-env-vars ENABLE_RERANKER=true
-        --memory 2Gi --cpu 2
-        --min-instances 1
-      - Verify deployment (curl /health)
-```
-
-**Trigger Deploy**:
-```bash
-# Manual trigger
-make deploy-rag
-
-# Or via GitHub UI
-gh workflow run deploy-rag-amd64.yml
-```
-
-**Runtime**: ~8-10 minutes (build 6 min + deploy 2 min)
+**Railway Configuration**:
+- Auto-deploy enabled on push to `apps/backend-rag/**`
+- Environment variables set via Railway dashboard
+- `ENABLE_RERANKER=true` configured
+- Memory: 2Gi, CPU: 2 vCPU
 
 ---
 
@@ -663,12 +591,12 @@ gh workflow run deploy-rag-amd64.yml
   }
   ```
 
-**Cloud Run Metrics** (via gcloud/console):
+**Railway Metrics** (via Railway dashboard):
 - Request count
 - Request latency (P50, P95, P99)
-- Container CPU utilization
-- Container memory utilization
-- Billable container time
+- CPU utilization
+- Memory utilization
+- Build times and deploy status
 
 ---
 
@@ -676,18 +604,14 @@ gh workflow run deploy-rag-amd64.yml
 
 ### Secret Management
 
-**Strategy**: Multi-layer fallback
+**Strategy**: Railway Variables
 
-1. **Secret Manager** (preferred)
-   - Service account: `zantara-service-account-2025`
-   - Access: `cloud-run-deployer@` service account
-   - Region: `europe-west1`
+1. **Railway Variables** (primary)
+   - Set via: Railway dashboard or CLI
+   - Scope: Per-service
+   - Automatic injection at runtime
 
-2. **Environment Variables** (fallback)
-   - Set via: `gcloud run deploy --set-env-vars`
-   - Scope: Per-service, per-revision
-
-3. **Local Development** (`.env`)
+2. **Local Development** (`.env`)
    - Not committed to git (`.gitignore`)
    - Template: `.env.example`
 
@@ -700,10 +624,10 @@ ANTHROPIC_API_KEY=sk-ant-...
 GEMINI_API_KEY=...
 COHERE_API_KEY=...
 
-# Google Cloud
+# Google Cloud (Firebase only)
 FIREBASE_PROJECT_ID=involuted-box-469105-r0
 GOOGLE_APPLICATION_CREDENTIALS=path/to/sa.json  # OR
-GOOGLE_SERVICE_ACCOUNT={...}                    # OR use Secret Manager
+GOOGLE_SERVICE_ACCOUNT={...}                    # Set via Railway Variables
 
 # Internal/External API access
 API_KEYS_INTERNAL=zantara-internal-dev-key-2025
@@ -716,15 +640,16 @@ ANTHROPIC_API_KEY=sk-ant-...
 ENABLE_RERANKER=true  # Set to false to disable AMD64-only re-ranker
 ```
 
-### IAM Roles
+### Railway Configuration
 
-**Service Account**: `cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com`
+**Project ID**: `1c81bf3b-3834-49e1-9753-2e2a63b74bb9`
+**Environment ID**: `d865a00b-034a-4f3b-9fdc-df2ab4c9d573`
 
-**Roles**:
-- `roles/run.admin` → Deploy to Cloud Run
-- `roles/storage.admin` → Access GCS (ChromaDB)
-- `roles/secretmanager.secretAccessor` → Read secrets
-- `roles/datastore.user` → Firestore read/write (added in m24)
+**Service Configuration**:
+- Auto-deploy: Enabled
+- Build command: `npm run build`
+- Start command: `npm start`
+- Health check: `/health` endpoint
 
 ---
 
