@@ -1,9 +1,12 @@
 [build]
-# Use npm build for TypeScript backend
+# Use nixpacks with Node.js detection
 builder = "nixpacks"
 buildCommand = "npm run build"
 
 [deploy]
+# Start command
+startCommand = "npm start"
+
 # Health check configuration
 healthcheckPath = "/health"
 healthcheckTimeout = 30
