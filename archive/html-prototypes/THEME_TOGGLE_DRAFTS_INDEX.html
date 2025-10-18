@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZANTARA Theme Toggle - 4 Design Options</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 48px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.95;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .option-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .option-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .option-number {
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 36px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .option-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .option-card .subtitle {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    .specs {
+      background: #f5f5f5;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+    }
+
+    .specs div {
+      margin-bottom: 6px;
+    }
+
+    .specs strong {
+      color: #333;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .tag {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .recommended-badge {
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 12px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .view-button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .view-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .footer {
+      text-align: center;
+      color: white;
+      margin-top: 48px;
+      opacity: 0.9;
+    }
+
+    .comparison-table {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin-bottom: 32px;
+      overflow-x: auto;
+    }
+
+    .comparison-table h2 {
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-weight: 600;
+    }
+
+    td {
+      color: #333;
+    }
+
+    .star {
+      color: #FFC107;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 1.8rem;
+      }
+
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🎨 ZANTARA Theme Toggle</h1>
+      <p>4 Design Options - Choose Your Favorite</p>
+    </div>
+
+    <!-- Options Grid -->
+    <div class="options-grid">
+      <!-- Option 1 -->
+      <a href="draft_option1_icon_only.html" class="option-card">
+        <div class="option-number">1</div>
+        <h2>Icon-Only Toggle</h2>
+        <p class="subtitle">Minimal design with just emoji</p>
+
+        <div class="specs">
+          <div><strong>Width:</strong> 40px</div>
+          <div><strong>Best for:</strong> Mobile-first, minimal aesthetic</div>
+        </div>
+
+        <div class="tags">
+          <span class="tag">Minimal</span>
+          <span class="tag">Compact</span>
+          <span class="tag">Mobile-Friendly</span>
+        </div>
+
+        <button class="view-button">View Demo →</button>
+      </a>
+
+      <!-- Option 2 -->
+      <a href="draft_option2_icon_label.html" class="option-card">
+        <span class="recommended-badge">⭐ RECOMMENDED</span>
+        <div class="option-number">2</div>
+        <h2>Icon + Label Toggle</h2>
+        <p class="subtitle">Icon with text label for clarity</p>
+
+        <div class="specs">
+          <div><strong>Width:</strong> ~80px (desktop), 40px (mobile)</div>
+          <div><strong>Best for:</strong> Clarity + elegance</div>
+        </div>
+
+        <div class="tags">
+          <span class="tag">Clear</span>
+          <span class="tag">Elegant</span>
+          <span class="tag">Responsive</span>
+          <span class="tag">Best Balance</span>
+        </div>
+
+        <button class="view-button">View Demo →</button>
+      </a>
+
+      <!-- Option 3 -->
+      <a href="draft_option3_segmented.html" class="option-card">
+        <div class="option-number">3</div>
+        <h2>Segmented Control</h2>
+        <p class="subtitle">iOS-style dual-option control</p>
+
+        <div class="specs">
+          <div><strong>Width:</strong> ~100px</div>
+          <div><strong>Best for:</strong> Visual state clarity</div>
+        </div>
+
+        <div class="tags">
+          <span class="tag">iOS-Style</span>
+          <span class="tag">Clear State</span>
+          <span class="tag">Both Options Visible</span>
+        </div>
+
+        <button class="view-button">View Demo →</button>
+      </a>
+
+      <!-- Option 4 -->
+      <a href="draft_option4_switch.html" class="option-card">
+        <div class="option-number">4</div>
+        <h2>Animated Switch</h2>
+        <p class="subtitle">Classic toggle switch with animation</p>
+
+        <div class="specs">
+          <div><strong>Width:</strong> 50px</div>
+          <div><strong>Best for:</strong> Standard UI pattern</div>
+        </div>
+
+        <div class="tags">
+          <span class="tag">Animated</span>
+          <span class="tag">Compact</span>
+          <span class="tag">Standard Pattern</span>
+        </div>
+
+        <button class="view-button">View Demo →</button>
+      </a>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="comparison-table">
+      <h2>📊 Quick Comparison</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Option 1 (Icon)</th>
+            <th>Option 2 (Icon+Label)</th>
+            <th>Option 3 (Segmented)</th>
+            <th>Option 4 (Switch)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Width</strong></td>
+            <td>40px</td>
+            <td>~80px</td>
+            <td>~100px</td>
+            <td>50px</td>
+          </tr>
+          <tr>
+            <td><strong>Clarity</strong></td>
+            <td><span class="star">★★★</span></td>
+            <td><span class="star">★★★★★</span></td>
+            <td><span class="star">★★★★★</span></td>
+            <td><span class="star">★★★</span></td>
+          </tr>
+          <tr>
+            <td><strong>Mobile UX</strong></td>
+            <td><span class="star">★★★★★</span></td>
+            <td><span class="star">★★★★</span></td>
+            <td><span class="star">★★★</span></td>
+            <td><span class="star">★★★★</span></td>
+          </tr>
+          <tr>
+            <td><strong>Desktop UX</strong></td>
+            <td><span class="star">★★★</span></td>
+            <td><span class="star">★★★★★</span></td>
+            <td><span class="star">★★★★</span></td>
+            <td><span class="star">★★★★</span></td>
+          </tr>
+          <tr>
+            <td><strong>Implementation</strong></td>
+            <td>Easy</td>
+            <td>Easy</td>
+            <td>Medium</td>
+            <td>Medium</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>✨ All drafts are fully interactive - click to try them!</p>
+      <p style="margin-top: 12px; opacity: 0.8;">Created: 2025-10-07 | Design drafts for zantara.balizero.com</p>
+    </div>
+  </div>
+</body>
+</html>

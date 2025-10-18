@@ -1,0 +1,68 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: zantara-v520-prod
+  namespace: '1064094238013'
+  labels:
+    cloud.googleapis.com/location: europe-west1
+  annotations:
+    run.googleapis.com/description: "ZANTARA v5.2.0 Production - Zero-Risk Optimized"
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"     # Always warm (no cold starts)
+        autoscaling.knative.dev/maxScale: "10"    # Auto-scale to 10 instances
+        run.googleapis.com/cpu-throttling: "false" # No CPU throttling
+        run.googleapis.com/startup-cpu-boost: "true" # Faster startup
+    spec:
+      containerConcurrency: 100  # Safe default
+      timeoutSeconds: 300        # 5 min timeout
+      serviceAccountName: zantara-bridge-v2@involuted-box-469105-r0.iam.gserviceaccount.com
+      containers:
+      - image: gcr.io/involuted-box-469105-r0/zantara-bridge:v520-prod
+        ports:
+        - name: http1
+          containerPort: 8080
+        resources:
+          limits:
+            cpu: "1"       # Full CPU core
+            memory: "1Gi"  # 1GB RAM with safety margin
+          requests:
+            cpu: "0.5"     # Guaranteed 0.5 CPU
+            memory: "512Mi" # Guaranteed 512MB
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "8080"
+        - name: CACHE_MODE
+          value: "conservative"
+        - name: MIN_INSTANCES
+          value: "1"
+        startupProbe:
+          httpGet:
+            path: /health
+          initialDelaySeconds: 0
+          periodSeconds: 1
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 30
+        livenessProbe:
+          httpGet:
+            path: /health
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+  traffic:
+  - percent: 100
+    latestRevision: true

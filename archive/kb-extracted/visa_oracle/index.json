@@ -1,0 +1,610 @@
+{
+  "kb": {
+    "name": "Visa Oracle Knowledge Base",
+    "jurisdiction": "ID",
+    "version": "1.0.0",
+    "last_updated": "2025-10-02"
+  },
+  "documents": [
+    {
+      "path": "Sintesi_SE_IMI-453_2025.pdf",
+      "slug": "sintesi-se-imi-453-2025-pdf",
+      "format": "pdf",
+      "category": "official",
+      "size_bytes": 1608,
+      "last_modified": "2025-07-27 18:09:38"
+    },
+    {
+      "path": "INDONESIA_VISA_ADVANCED_PROCEDURES_2025.md",
+      "slug": "indonesia-visa-advanced-procedures-2025-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 47175,
+      "last_modified": "2025-10-02 05:52:46"
+    },
+    {
+      "path": "INDONESIA_VISA_IMMIGRATION_COMPLETE_GUIDE_2025.md",
+      "slug": "indonesia-visa-immigration-complete-guide-2025-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 35057,
+      "last_modified": "2025-10-02 05:53:03"
+    },
+    {
+      "path": ".DS_Store",
+      "slug": "ds-store",
+      "format": "",
+      "category": "kb",
+      "size_bytes": 10244,
+      "last_modified": "2025-10-02 06:13:48"
+    },
+    {
+      "path": "VISA_ORACLE_INTEGRATION_READY.md",
+      "slug": "visa-oracle-integration-ready-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 28272,
+      "last_modified": "2025-10-02 05:53:08"
+    },
+    {
+      "path": "KITAS_WORK_PERMIT_2025.json",
+      "slug": "kitas-work-permit-2025-json",
+      "format": "json",
+      "category": "kb",
+      "size_bytes": 18743,
+      "last_modified": "2025-10-02 01:38:11"
+    },
+    {
+      "path": "SE_IMI‑417_FotoInterviewExtension_Maggio2025.pdf.pdf",
+      "slug": "se-imi-417-fotointerviewextension-maggio2025-pdf-pdf",
+      "format": "pdf",
+      "category": "official",
+      "size_bytes": 339148,
+      "last_modified": "2025-07-27 18:02:36"
+    },
+    {
+      "path": "BalizeroPricelist2025.txt",
+      "slug": "balizeropricelist2025-txt",
+      "format": "txt",
+      "category": "kb",
+      "size_bytes": 10574,
+      "last_modified": "2025-10-02 01:47:40"
+    },
+    {
+      "path": "Permenkumham Nomor 10 Tahun 2017.pdf",
+      "slug": "permenkumham-nomor-10-tahun-2017-pdf",
+      "format": "pdf",
+      "category": "official",
+      "size_bytes": 190997,
+      "last_modified": "2025-07-26 16:20:38"
+    },
+    {
+      "path": "INDONESIA_VISA_PRACTICAL_GUIDE_2025.md",
+      "slug": "indonesia-visa-practical-guide-2025-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 45993,
+      "last_modified": "2025-10-02 05:53:26"
+    },
+    {
+      "path": "VISA_CASE_STUDIES_2025.json",
+      "slug": "visa-case-studies-2025-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 33525,
+      "last_modified": "2025-10-02 05:49:57"
+    },
+    {
+      "path": "INDONESIA_VISA_COMPLIANCE_ENFORCEMENT_2025.md",
+      "slug": "indonesia-visa-compliance-enforcement-2025-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 40450,
+      "last_modified": "2025-10-02 05:53:43"
+    },
+    {
+      "path": "README.md",
+      "slug": "readme-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 10954,
+      "last_modified": "2025-10-02 05:53:48"
+    },
+    {
+      "path": "INDONESIA_VISA_REGULATIONS_2025_COMPLETE.md",
+      "slug": "indonesia-visa-regulations-2025-complete-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 53058,
+      "last_modified": "2025-10-02 05:53:54"
+    },
+    {
+      "path": "Nomor 26 Tahun 2022.pdf",
+      "slug": "nomor-26-tahun-2022-pdf",
+      "format": "pdf",
+      "category": "official",
+      "size_bytes": 1555124,
+      "last_modified": "2025-07-26 16:19:58"
+    },
+    {
+      "path": "immigration.rtf",
+      "slug": "immigration-rtf",
+      "format": "rtf",
+      "category": "kb",
+      "size_bytes": 81367,
+      "last_modified": "2025-09-23 14:38:37"
+    },
+    {
+      "path": "index.json",
+      "slug": "index-json",
+      "format": "json",
+      "category": "kb",
+      "size_bytes": 15564,
+      "last_modified": "2025-10-02 06:05:39"
+    },
+    {
+      "path": "PRICING_POLICY.md",
+      "slug": "pricing-policy-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 1657,
+      "last_modified": "2025-10-02 05:48:11"
+    },
+    {
+      "path": "INDONESIA_VISA_TYPES_DETAILED_REQUIREMENTS_2025.md",
+      "slug": "indonesia-visa-types-detailed-requirements-2025-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 49793,
+      "last_modified": "2025-10-02 05:57:13"
+    },
+    {
+      "path": "GOLDEN_VISA_SECOND_HOME_2025.json",
+      "slug": "golden-visa-second-home-2025-json",
+      "format": "json",
+      "category": "kb",
+      "size_bytes": 17282,
+      "last_modified": "2025-10-02 01:49:00"
+    },
+    {
+      "path": "cases/e33g_cases.json",
+      "slug": "cases-e33g-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 2252,
+      "last_modified": "2025-10-02 06:04:35"
+    },
+    {
+      "path": "cases/family_cases.json",
+      "slug": "cases-family-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 1232,
+      "last_modified": "2025-10-02 06:05:16"
+    },
+    {
+      "path": "cases/d12_cases.json",
+      "slug": "cases-d12-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 907,
+      "last_modified": "2025-10-02 06:13:33"
+    },
+    {
+      "path": "cases/c2_cases.json",
+      "slug": "cases-c2-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 1076,
+      "last_modified": "2025-10-02 06:12:14"
+    },
+    {
+      "path": "cases/c22b_cases.json",
+      "slug": "cases-c22b-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 866,
+      "last_modified": "2025-10-02 06:13:03"
+    },
+    {
+      "path": "cases/d1_cases.json",
+      "slug": "cases-d1-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 886,
+      "last_modified": "2025-10-02 06:13:14"
+    },
+    {
+      "path": "cases/e23_work_cases.json",
+      "slug": "cases-e23-work-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 2060,
+      "last_modified": "2025-10-02 06:04:56"
+    },
+    {
+      "path": "cases/c7ab_cases.json",
+      "slug": "cases-c7ab-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 835,
+      "last_modified": "2025-10-02 06:12:36"
+    },
+    {
+      "path": "cases/e33_e33f_cases.json",
+      "slug": "cases-e33-e33f-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 1545,
+      "last_modified": "2025-10-02 06:05:30"
+    },
+    {
+      "path": "cases/c7_cases.json",
+      "slug": "cases-c7-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 923,
+      "last_modified": "2025-10-02 06:12:27"
+    },
+    {
+      "path": "cases/c1_cases.json",
+      "slug": "cases-c1-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 1267,
+      "last_modified": "2025-10-02 06:11:56"
+    },
+    {
+      "path": "cases/d2_cases.json",
+      "slug": "cases-d2-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 837,
+      "last_modified": "2025-10-02 06:13:24"
+    },
+    {
+      "path": "cases/c22a_cases.json",
+      "slug": "cases-c22a-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 905,
+      "last_modified": "2025-10-02 06:12:48"
+    },
+    {
+      "path": "cases/e28a_investor_cases.json",
+      "slug": "cases-e28a-investor-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 1239,
+      "last_modified": "2025-10-02 06:05:06"
+    },
+    {
+      "path": "cases/e23_freelance_cases.json",
+      "slug": "cases-e23-freelance-cases-json",
+      "format": "json",
+      "category": "cases",
+      "size_bytes": 973,
+      "last_modified": "2025-10-02 06:13:48"
+    },
+    {
+      "path": "schema/visa_type.schema.json",
+      "slug": "schema-visa-type-schema-json",
+      "format": "json",
+      "category": "schema",
+      "size_bytes": 5287,
+      "last_modified": "2025-10-02 05:20:08"
+    },
+    {
+      "path": "schema/case_study.schema.json",
+      "slug": "schema-case-study-schema-json",
+      "format": "json",
+      "category": "schema",
+      "size_bytes": 2041,
+      "last_modified": "2025-10-02 05:20:22"
+    },
+    {
+      "path": "official/MANPOWER_DOCS.md",
+      "slug": "official-manpower-docs-md",
+      "format": "markdown",
+      "category": "official",
+      "size_bytes": 775,
+      "last_modified": "2025-10-02 05:59:08"
+    },
+    {
+      "path": "official/registry.json",
+      "slug": "official-registry-json",
+      "format": "json",
+      "category": "official",
+      "size_bytes": 1812,
+      "last_modified": "2025-10-02 05:59:23"
+    },
+    {
+      "path": "official/IMMIGRATION_DOCS.md",
+      "slug": "official-immigration-docs-md",
+      "format": "markdown",
+      "category": "official",
+      "size_bytes": 1152,
+      "last_modified": "2025-10-02 05:58:59"
+    },
+    {
+      "path": "official/EXTRACTION_GUIDE.md",
+      "slug": "official-extraction-guide-md",
+      "format": "markdown",
+      "category": "official",
+      "size_bytes": 970,
+      "last_modified": "2025-10-02 05:59:33"
+    },
+    {
+      "path": "examples/C1_business.examples.jsonl",
+      "slug": "examples-c1-business-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 1915,
+      "last_modified": "2025-10-02 05:43:05"
+    },
+    {
+      "path": "examples/_price_overlay.json",
+      "slug": "examples-price-overlay-json",
+      "format": "json",
+      "category": "kb",
+      "size_bytes": 1403,
+      "last_modified": "2025-10-02 05:38:41"
+    },
+    {
+      "path": "examples/KITAS_work.examples.jsonl",
+      "slug": "examples-kitas-work-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 4914,
+      "last_modified": "2025-10-02 05:39:12"
+    },
+    {
+      "path": "examples/KITAS_student.examples.jsonl",
+      "slug": "examples-kitas-student-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 1850,
+      "last_modified": "2025-10-02 05:40:39"
+    },
+    {
+      "path": "examples/E33G_digital_nomad.examples.jsonl",
+      "slug": "examples-e33g-digital-nomad-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 2816,
+      "last_modified": "2025-10-02 05:41:04"
+    },
+    {
+      "path": "examples/KITAS_retirement.examples.jsonl",
+      "slug": "examples-kitas-retirement-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 2654,
+      "last_modified": "2025-10-02 05:40:17"
+    },
+    {
+      "path": "examples/README.md",
+      "slug": "examples-readme-md",
+      "format": "markdown",
+      "category": "kb",
+      "size_bytes": 1098,
+      "last_modified": "2025-10-02 05:38:46"
+    },
+    {
+      "path": "examples/GOLDEN_passive.examples.jsonl",
+      "slug": "examples-golden-passive-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 1969,
+      "last_modified": "2025-10-02 05:42:50"
+    },
+    {
+      "path": "examples/schema.json",
+      "slug": "examples-schema-json",
+      "format": "json",
+      "category": "kb",
+      "size_bytes": 1969,
+      "last_modified": "2025-10-02 04:48:51"
+    },
+    {
+      "path": "examples/KITAS_investor.examples.jsonl",
+      "slug": "examples-kitas-investor-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 3655,
+      "last_modified": "2025-10-02 05:39:34"
+    },
+    {
+      "path": "examples/KITAS_practical_mix.examples.jsonl",
+      "slug": "examples-kitas-practical-mix-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 3108,
+      "last_modified": "2025-10-02 05:43:26"
+    },
+    {
+      "path": "examples/GOLDEN_establish.examples.jsonl",
+      "slug": "examples-golden-establish-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 2808,
+      "last_modified": "2025-10-02 05:42:00"
+    },
+    {
+      "path": "examples/E33_second_home.examples.jsonl",
+      "slug": "examples-e33-second-home-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 2741,
+      "last_modified": "2025-10-02 05:41:38"
+    },
+    {
+      "path": "examples/KITAS_family.examples.jsonl",
+      "slug": "examples-kitas-family-examples-jsonl",
+      "format": "jsonl",
+      "category": "kb",
+      "size_bytes": 3458,
+      "last_modified": "2025-10-02 05:39:58"
+    },
+    {
+      "path": "visa_types/c22a-visa-academy-internship.json",
+      "slug": "visa-types-c22a-visa-academy-internship-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1454,
+      "last_modified": "2025-10-02 05:52:06"
+    },
+    {
+      "path": "visa_types/e31a-spouse-kitas.json",
+      "slug": "visa-types-e31a-spouse-kitas-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1598,
+      "last_modified": "2025-10-02 05:53:32"
+    },
+    {
+      "path": "visa_types/c1-visa-tourism.json",
+      "slug": "visa-types-c1-visa-tourism-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1573,
+      "last_modified": "2025-10-02 05:51:18"
+    },
+    {
+      "path": "visa_types/d1-visa-multiple-entry-visits.json",
+      "slug": "visa-types-d1-visa-multiple-entry-visits-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1460,
+      "last_modified": "2025-10-02 05:52:27"
+    },
+    {
+      "path": "visa_types/e31b_e31e-dependent-kitas.json",
+      "slug": "visa-types-e31b-e31e-dependent-kitas-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1654,
+      "last_modified": "2025-10-02 05:53:09"
+    },
+    {
+      "path": "visa_types/c22b-visa-company-internship.json",
+      "slug": "visa-types-c22b-visa-company-internship-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1470,
+      "last_modified": "2025-10-02 05:52:16"
+    },
+    {
+      "path": "visa_types/d12-visa-business-investigation.json",
+      "slug": "visa-types-d12-visa-business-investigation-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1537,
+      "last_modified": "2025-10-02 05:52:47"
+    },
+    {
+      "path": "visa_types/d2-visa-multiple-entry-business.json",
+      "slug": "visa-types-d2-visa-multiple-entry-business-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1468,
+      "last_modified": "2025-10-02 05:52:37"
+    },
+    {
+      "path": "visa_types/e28a-investor-kitas.json",
+      "slug": "visa-types-e28a-investor-kitas-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 2873,
+      "last_modified": "2025-10-02 05:47:58"
+    },
+    {
+      "path": "visa_types/e33g-digital-nomad-kitas.json",
+      "slug": "visa-types-e33g-digital-nomad-kitas-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 2596,
+      "last_modified": "2025-10-02 05:47:44"
+    },
+    {
+      "path": "visa_types/c7ab-visa-music-performance.json",
+      "slug": "visa-types-c7ab-visa-music-performance-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1470,
+      "last_modified": "2025-10-02 05:51:56"
+    },
+    {
+      "path": "visa_types/c2-visa-business.json",
+      "slug": "visa-types-c2-visa-business-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1539,
+      "last_modified": "2025-10-02 05:51:29"
+    },
+    {
+      "path": "visa_types/e23-working-kitas.json",
+      "slug": "visa-types-e23-working-kitas-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 3487,
+      "last_modified": "2025-10-02 05:47:50"
+    },
+    {
+      "path": "visa_types/e33f-retirement-kitas.json",
+      "slug": "visa-types-e33f-retirement-kitas-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1476,
+      "last_modified": "2025-10-02 05:53:21"
+    },
+    {
+      "path": "visa_types/e33-second-home.json",
+      "slug": "visa-types-e33-second-home-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 2653,
+      "last_modified": "2025-10-02 05:44:23"
+    },
+    {
+      "path": "visa_types/e23-freelance-kitas.json",
+      "slug": "visa-types-e23-freelance-kitas-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1517,
+      "last_modified": "2025-10-02 05:52:58"
+    },
+    {
+      "path": "visa_types/c7-visa-professional-event.json",
+      "slug": "visa-types-c7-visa-professional-event-json",
+      "format": "json",
+      "category": "visa_type",
+      "size_bytes": 1466,
+      "last_modified": "2025-10-02 05:51:45"
+    },
+    {
+      "path": "pricing/2025.json",
+      "slug": "pricing-2025-json",
+      "format": "json",
+      "category": "pricing",
+      "size_bytes": 4302,
+      "last_modified": "2025-10-02 05:20:41"
+    },
+    {
+      "path": "pricing/normalized.json",
+      "slug": "pricing-normalized-json",
+      "format": "json",
+      "category": "pricing",
+      "size_bytes": 1546,
+      "last_modified": "2025-10-02 05:38:30"
+    },
+    {
+      "path": "pricing/README.md",
+      "slug": "pricing-readme-md",
+      "format": "markdown",
+      "category": "pricing",
+      "size_bytes": 1035,
+      "last_modified": "2025-10-02 05:43:41"
+    }
+  ]
+}

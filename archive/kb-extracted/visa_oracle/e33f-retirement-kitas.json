@@ -1,0 +1,100 @@
+{
+  "id": "e33f-retirement-kitas",
+  "code": "E33F",
+  "name": "Retirement KITAS",
+  "jurisdiction": "ID",
+  "category": "kitas",
+  "entry_type": "multiple",
+  "validity": {
+    "min_months": 12,
+    "max_months": 12,
+    "notes": "1-year, renewable"
+  },
+  "can_work": false,
+  "work_scope": "No employment",
+  "sponsor": {
+    "required": true,
+    "types": [
+      "Registered sponsor/agent"
+    ]
+  },
+  "eligibility": [
+    "Age ≥ 55",
+    "Income requirements",
+    "Domestic worker condition (per rules)"
+  ],
+  "requirements": [
+    "Income proof",
+    "Accommodation",
+    "Insurance",
+    "Sponsor letter"
+  ],
+  "documents": [
+    {
+      "title": "INDONESIA_VISA_TYPES_DETAILED_REQUIREMENTS_2025",
+      "path": "INDONESIA_VISA_TYPES_DETAILED_REQUIREMENTS_2025.md"
+    }
+  ],
+  "process": [
+    {
+      "id": "docs",
+      "name": "Prepare documents"
+    },
+    {
+      "id": "apply",
+      "name": "Apply E33F"
+    },
+    {
+      "id": "issue",
+      "name": "KITAS issuance"
+    }
+  ],
+  "biometrics": {
+    "required": true,
+    "effective_date": "2025-06-01"
+  },
+  "merp": {
+    "required": true
+  },
+  "costs": {
+    "currency": "IDR"
+  },
+  "bali_zero_pricing_ref": {
+    "section": "kitas",
+    "code": "E33F_RETIREMENT"
+  },
+  "service_prices_idr": {
+    "offshore": 14000000,
+    "onshore": 16000000,
+    "extension": 10000000
+  },
+  "legal_basis": [
+    {
+      "ref_id": "E33F-2025",
+      "title": "Retirement KITAS",
+      "citation": "Overview",
+      "path": "INDONESIA_VISA_REGULATIONS_2025_COMPLETE.md"
+    },
+    {
+      "ref_id": "UU-6-2011",
+      "title": "UU 6/2011 — Immigration Law",
+      "citation": "Stay permits",
+      "path": "official/extracts/UU_6_2011.md#visa-stay"
+    },
+    {
+      "ref_id": "PP-31-2013",
+      "title": "PP 31/2013 — Implementing Regulation",
+      "citation": "Procedures",
+      "path": "official/extracts/PP_31_2013.md#proc"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "income-proof",
+      "text": "Provide income proof"
+    }
+  ],
+  "effective_date": "2024-01-01",
+  "last_updated": "2025-10-02",
+  "sources": []
+}

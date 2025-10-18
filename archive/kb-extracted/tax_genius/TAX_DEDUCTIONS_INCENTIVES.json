@@ -1,0 +1,333 @@
+{
+  "metadata": {
+    "title": "Indonesian Tax Deductions & Incentives",
+    "source": "PMK 153/2020, PP 23/2018, tax-analyzer.ts",
+    "lastUpdated": "2025-10-01",
+    "applicableTo": "PT PMA, PT, CV"
+  },
+  "superDeduction": {
+    "description": "200% deduction for approved activities (PMK 153/2020)",
+    "legalBasis": "PMK 153/2020",
+    "rdExpenses": {
+      "name": "Research & Development (R&D)",
+      "deduction": 2.0,
+      "deductionPercent": "200%",
+      "formula": "Tax savings = R&D expense × 2.0 × 22% corporate rate",
+      "qualifyingActivities": [
+        "Product development",
+        "Process improvement",
+        "Technology innovation",
+        "Scientific research",
+        "Prototype development",
+        "Market research for new products"
+      ],
+      "requirements": [
+        "Approved by Ministry of Research & Technology",
+        "Proper documentation (project plan, budget, results)",
+        "Expenses must be capitalized",
+        "Annual reporting to tax office"
+      ],
+      "example": {
+        "rdExpense": 100000000,
+        "normalDeduction": 100000000,
+        "superDeduction": 200000000,
+        "corporateTax": 0.22,
+        "normalTaxSavings": 22000000,
+        "superTaxSavings": 44000000,
+        "additionalSaving": 22000000,
+        "savingPercent": "100% more tax savings"
+      },
+      "commonIndustries": [
+        "Software development",
+        "Pharmaceutical",
+        "Food & beverage (new products)",
+        "Manufacturing (automation)",
+        "Consulting (methodology development)"
+      ]
+    },
+    "vocationalTraining": {
+      "name": "Vocational Training",
+      "deduction": 2.0,
+      "deductionPercent": "200%",
+      "formula": "Tax savings = Training expense × 2.0 × 22% corporate rate",
+      "qualifyingActivities": [
+        "Technical skills training",
+        "Certification programs",
+        "On-the-job training programs",
+        "Apprenticeship programs",
+        "Skills upgrade courses"
+      ],
+      "requirements": [
+        "Approved by Ministry of Manpower",
+        "Training conducted at approved institutions",
+        "Minimum training hours (typically 80 hours/year)",
+        "Documentation (curriculum, attendance, certificates)",
+        "Annual reporting"
+      ],
+      "example": {
+        "trainingExpense": 50000000,
+        "normalDeduction": 50000000,
+        "superDeduction": 100000000,
+        "corporateTax": 0.22,
+        "normalTaxSavings": 11000000,
+        "superTaxSavings": 22000000,
+        "additionalSaving": 11000000,
+        "savingPercent": "100% more tax savings"
+      },
+      "commonIndustries": [
+        "Hospitality (chef training, barista courses)",
+        "Manufacturing (technical certifications)",
+        "IT (programming bootcamps)",
+        "Healthcare (nursing training)"
+      ]
+    }
+  },
+  "taxHoliday": {
+    "description": "Corporate income tax exemption for pioneer industries",
+    "legalBasis": "PP 78/2019",
+    "duration": {
+      "minimum": "5 years",
+      "maximum": "20 years",
+      "extension": "Possible if criteria maintained"
+    },
+    "requirements": {
+      "minimumInvestment": 500000000000,
+      "minimumInvestmentUSD": "~USD 32 million",
+      "pioneerSectors": [
+        "Automotive (electric vehicles)",
+        "Pharmaceutical (active ingredients)",
+        "Petrochemical (refining)",
+        "Steel (integrated mills)",
+        "Electronics (semiconductors)",
+        "Renewable energy",
+        "Digital economy infrastructure"
+      ],
+      "employmentTarget": "Minimum local employment quotas",
+      "technologyTransfer": "Required for foreign investors"
+    },
+    "schedule": {
+      "years1-5": "100% exemption",
+      "years6-10": "50% exemption (if extended)",
+      "years11-15": "25% exemption (if extended)",
+      "years16-20": "10% exemption (if extended)"
+    },
+    "example": {
+      "investment": 600000000000,
+      "sector": "Electric vehicle manufacturing",
+      "annualProfit": 50000000000,
+      "normalTax": 11000000000,
+      "taxHoliday5years": 0,
+      "totalSavings5years": 55000000000,
+      "totalSavingsUSD": "~USD 3.5 million"
+    },
+    "note": "Not applicable to most Bali businesses (too high investment threshold)"
+  },
+  "taxAllowance": {
+    "description": "Investment tax allowances for certain sectors",
+    "legalBasis": "PP 94/2010",
+    "investmentAllowance": {
+      "name": "30% Investment Reduction",
+      "benefit": "30% of investment deducted over 6 years (5% per year)",
+      "formula": "Tax savings = (Investment × 30%) × 22% / 6 years"
+    },
+    "acceleratedDepreciation": {
+      "name": "Double Declining Balance",
+      "benefit": "Depreciate assets 2x faster than straight-line",
+      "effect": "Front-load deductions, improve cash flow"
+    },
+    "lossCarryForward": {
+      "name": "Extended Loss Carry Forward",
+      "standard": "5 years",
+      "withTaxAllowance": "10 years",
+      "benefit": "Offset future profits with past losses for 10 years"
+    },
+    "eligibleSectors": [
+      "Manufacturing (non-pioneer)",
+      "Agriculture",
+      "Forestry",
+      "Mining (non-oil/gas)",
+      "Tourism infrastructure",
+      "Renewable energy"
+    ],
+    "requirements": [
+      "Minimum investment thresholds (varies by sector)",
+      "Local content requirements",
+      "Export quotas (for manufacturing)",
+      "Apply before investment"
+    ],
+    "example": {
+      "investment": 1000000000,
+      "investmentAllowance": 300000000,
+      "annualDeduction": 50000000,
+      "years": 6,
+      "corporateTax": 0.22,
+      "annualTaxSavings": 11000000,
+      "totalSavings6years": 66000000
+    }
+  },
+  "standardDeductions": {
+    "description": "Common deductible expenses (not incentives, but important to maximize)",
+    "fullyDeductible": {
+      "operationalExpenses": {
+        "description": "Day-to-day business costs",
+        "examples": [
+          "Salaries & wages (including PPh 21 paid)",
+          "Rent",
+          "Utilities (electricity, water, internet)",
+          "Office supplies",
+          "Marketing & advertising",
+          "Professional fees (legal, accounting)",
+          "Insurance premiums",
+          "Maintenance & repairs",
+          "Transportation",
+          "Communication expenses"
+        ],
+        "requirement": "Proper invoices/receipts, business purpose documented"
+      },
+      "depreciation": {
+        "description": "Asset depreciation over useful life",
+        "categories": [
+          "Group 1 (4 years): Computers, furniture",
+          "Group 2 (8 years): Vehicles",
+          "Group 3 (16 years): Machinery",
+          "Group 4 (20 years): Buildings"
+        ],
+        "method": "Straight-line or declining balance"
+      },
+      "interestExpense": {
+        "description": "Interest on business loans",
+        "limitation": "Subject to debt-to-equity ratio rules (4:1)",
+        "exceeds4to1": "Interest not deductible if D/E > 4:1"
+      },
+      "badDebts": {
+        "description": "Uncollectible receivables",
+        "requirements": [
+          "Included in revenue",
+          "Genuine business debt",
+          "Efforts to collect documented",
+          "Written off in accounting"
+        ]
+      }
+    },
+    "limitedDeductible": {
+      "entertainment": {
+        "description": "Entertainment & representation expenses",
+        "deductible": 0.5,
+        "deductiblePercent": "50%",
+        "note": "Only 50% deductible (rest non-deductible)",
+        "auditTrigger": "> 1% of revenue attracts audit attention",
+        "example": {
+          "expense": 10000000,
+          "deductible": 5000000,
+          "taxImpact": "Only IDR 5M reduces taxable income"
+        }
+      },
+      "donations": {
+        "description": "Charitable donations",
+        "requirement": "To approved institutions only",
+        "limitation": "Limited to certain percentage of income",
+        "approved": [
+          "Disaster relief organizations",
+          "Education institutions",
+          "Religious organizations (approved list)",
+          "Social foundations"
+        ]
+      }
+    },
+    "nonDeductible": {
+      "description": "Expenses that cannot reduce taxable income",
+      "list": [
+        "Income tax payments (PPh)",
+        "Fines & penalties",
+        "Personal expenses",
+        "Capital expenditures (must depreciate)",
+        "Dividends paid",
+        "Reserves & provisions (except bad debts)",
+        "Entertainment > 50%",
+        "Donations to non-approved institutions"
+      ]
+    }
+  },
+  "optimizationStrategies": {
+    "smallBusiness": {
+      "name": "PP 23/2018 - 0.5% Final Tax",
+      "eligibility": "Revenue < IDR 4.8B/year",
+      "benefit": "Pay 0.5% of revenue instead of 22% of profit",
+      "saving": "Massive (up to 97.7% reduction)",
+      "example": {
+        "revenue": 3600000000,
+        "profitMargin": 0.2,
+        "profit": 720000000,
+        "standardTax": 158400000,
+        "pp23Tax": 18000000,
+        "saving": 140400000,
+        "savingPercent": "88.6%"
+      },
+      "strategy": "Keep revenue under IDR 4.8B if close to threshold"
+    },
+    "expenseMaximization": {
+      "name": "Maximize Deductible Expenses",
+      "strategies": [
+        "Claim all operational expenses (proper invoices)",
+        "Accelerate repairs before year-end",
+        "Pay bonuses before year-end (if deductible)",
+        "Write off bad debts annually",
+        "Depreciate all eligible assets",
+        "Document all business travel/entertainment"
+      ],
+      "effect": "Reduce taxable income legally"
+    },
+    "timingStrategy": {
+      "name": "Income/Expense Timing",
+      "strategies": [
+        "Defer revenue to next year if beneficial",
+        "Accelerate expenses to current year",
+        "Time asset purchases for max depreciation",
+        "Coordinate with fiscal year-end"
+      ],
+      "note": "Must follow accounting standards"
+    },
+    "structureOptimization": {
+      "name": "Business Structure Planning",
+      "strategies": [
+        "Use treaty benefits for foreign shareholders",
+        "Transfer pricing (arms-length, documented)",
+        "Separate high-margin vs low-margin activities",
+        "Consider PT PMA vs PT vs CV structure"
+      ],
+      "riskLevel": "Medium (requires professional advice)"
+    }
+  },
+  "baliZeroAdvice": {
+    "forClients": {
+      "restaurants": [
+        "Claim all F&B supplies (invoices required)",
+        "Depreciate kitchen equipment properly",
+        "Entertainment max 50% deductible - keep under 1% revenue",
+        "Training for chefs = super deduction potential",
+        "If revenue < 4.8B/year, use PP 23/2018 (0.5%)"
+      ],
+      "consulting": [
+        "Maximize professional development expenses",
+        "R&D for methodology = super deduction potential",
+        "Home office deduction if applicable",
+        "Software subscriptions fully deductible",
+        "PP 23/2018 saves huge amounts (0.5% vs 22%)"
+      ],
+      "villas": [
+        "Depreciate property improvements",
+        "Maintenance fully deductible",
+        "Marketing expenses fully deductible",
+        "Property management fees deductible",
+        "PP 23/2018 if revenue < 4.8B/year"
+      ]
+    },
+    "common Mistakes": [
+      "Not claiming all deductible expenses (leaving money on table)",
+      "Entertainment > 1% of revenue (audit trigger)",
+      "Missing invoices/receipts (expense rejected)",
+      "Not using PP 23/2018 when eligible (paying 22% vs 0.5%!)",
+      "Not documenting R&D for super deduction"
+    ]
+  }
+}

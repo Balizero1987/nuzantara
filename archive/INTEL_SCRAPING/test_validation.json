@@ -1,0 +1,12 @@
+{
+  "title": "CI Validation Test - Intel Scraping V2",
+  "source_url": "https://example.com/test",
+  "source_name": "Test Source",
+  "category": "visa_immigration",
+  "scraped_at": "2025-10-09T12:00:00Z",
+  "word_count": 250,
+  "tier": 1,
+  "summary": "This is a test file to trigger the GitHub Actions CI validation workflow for Intel Scraping V2.",
+  "keywords": ["visa", "test", "ci", "validation"],
+  "content_hash": "test_ci_validation_hash"
+}

@@ -1,0 +1,291 @@
+# Cloud Scheduler configuration for automated backups
+apiVersion: cloudscheduler.cnrm.cloud.google.com/v1beta1
+kind: CloudSchedulerJob
+metadata:
+  name: zantara-daily-backup
+  namespace: zantara-system
+spec:
+  projectRef:
+    external: "involuted-box-469105-r0"
+  region: "asia-southeast2"
+  schedule: "0 2 * * *"  # Daily at 2 AM Asia/Jakarta time
+  timeZone: "Asia/Jakarta"
+  description: "Daily automated backup for Zantara Bridge"
+  
+  httpTarget:
+    uri: "https://zantara-backup-service-himaadsxua-et.a.run.app/trigger-backup"
+    httpMethod: "POST"
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "Bearer ${BACKUP_SERVICE_TOKEN}"
+    body: |
+      {
+        "backup_type": "daily",
+        "retention_days": 30,
+        "components": [
+          "firestore",
+          "secrets",
+          "configurations",
+          "metadata"
+        ]
+      }
+    
+  retryConfig:
+    retryCount: 3
+    maxRetryDuration: "300s"
+    minBackoffDuration: "30s"
+    maxBackoffDuration: "120s"
+
+---
+# Weekly comprehensive backup
+apiVersion: cloudscheduler.cnrm.cloud.google.com/v1beta1
+kind: CloudSchedulerJob
+metadata:
+  name: zantara-weekly-backup
+  namespace: zantara-system
+spec:
+  projectRef:
+    external: "involuted-box-469105-r0"
+  region: "asia-southeast2"
+  schedule: "0 1 * * 0"  # Weekly on Sunday at 1 AM
+  timeZone: "Asia/Jakarta"
+  description: "Weekly comprehensive backup with additional components"
+  
+  httpTarget:
+    uri: "https://zantara-backup-service-himaadsxua-et.a.run.app/trigger-backup"
+    httpMethod: "POST"
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "Bearer ${BACKUP_SERVICE_TOKEN}"
+    body: |
+      {
+        "backup_type": "weekly",
+        "retention_days": 90,
+        "components": [
+          "firestore",
+          "secrets",
+          "configurations",
+          "metadata",
+          "container_images",
+          "logs_archive",
+          "analytics_data"
+        ],
+        "comprehensive": true
+      }
+    
+  retryConfig:
+    retryCount: 5
+    maxRetryDuration: "600s"
+    minBackoffDuration: "60s"
+    maxBackoffDuration: "300s"
+
+---
+# Backup verification job
+apiVersion: cloudscheduler.cnrm.cloud.google.com/v1beta1
+kind: CloudSchedulerJob
+metadata:
+  name: zantara-backup-verification
+  namespace: zantara-system
+spec:
+  projectRef:
+    external: "involuted-box-469105-r0"
+  region: "asia-southeast2"
+  schedule: "0 6 * * *"  # Daily at 6 AM (4 hours after backup)
+  timeZone: "Asia/Jakarta"
+  description: "Verify daily backup integrity and send status report"
+  
+  httpTarget:
+    uri: "https://zantara-backup-service-himaadsxua-et.a.run.app/verify-backup"
+    httpMethod: "POST"
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "Bearer ${BACKUP_SERVICE_TOKEN}"
+    body: |
+      {
+        "action": "verify",
+        "check_integrity": true,
+        "send_report": true,
+        "alert_on_failure": true
+      }
+
+---
+# Backup cleanup job
+apiVersion: cloudscheduler.cnrm.cloud.google.com/v1beta1
+kind: CloudSchedulerJob
+metadata:
+  name: zantara-backup-cleanup
+  namespace: zantara-system
+spec:
+  projectRef:
+    external: "involuted-box-469105-r0"
+  region: "asia-southeast2"
+  schedule: "0 0 1 * *"  # Monthly on the 1st at midnight
+  timeZone: "Asia/Jakarta"
+  description: "Monthly cleanup of old backups beyond retention period"
+  
+  httpTarget:
+    uri: "https://zantara-backup-service-himaadsxua-et.a.run.app/cleanup-backups"
+    httpMethod: "POST"
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "Bearer ${BACKUP_SERVICE_TOKEN}"
+    body: |
+      {
+        "action": "cleanup",
+        "force_cleanup": false,
+        "dry_run": false,
+        "retention_policies": {
+          "daily": 30,
+          "weekly": 90,
+          "monthly": 365
+        }
+      }
+
+---
+# Disaster Recovery Test (Quarterly)
+apiVersion: cloudscheduler.cnrm.cloud.google.com/v1beta1
+kind: CloudSchedulerJob
+metadata:
+  name: zantara-dr-test
+  namespace: zantara-system
+spec:
+  projectRef:
+    external: "involuted-box-469105-r0"
+  region: "asia-southeast2"
+  schedule: "0 10 1 1,4,7,10 *"  # Quarterly on 1st at 10 AM
+  timeZone: "Asia/Jakarta"
+  description: "Quarterly disaster recovery test"
+  
+  httpTarget:
+    uri: "https://zantara-backup-service-himaadsxua-et.a.run.app/test-disaster-recovery"
+    httpMethod: "POST"
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "Bearer ${BACKUP_SERVICE_TOKEN}"
+    body: |
+      {
+        "action": "dr_test",
+        "test_mode": "dry_run",
+        "restore_after_test": true,
+        "notify_team": true,
+        "generate_report": true
+      }
+
+---
+# Cloud Function for backup service (if needed)
+apiVersion: cloudfunctions.cnrm.cloud.google.com/v1beta1
+kind: CloudFunctionsFunction
+metadata:
+  name: zantara-backup-trigger
+  namespace: zantara-system
+spec:
+  projectRef:
+    external: "involuted-box-469105-r0"
+  region: "asia-southeast2"
+  description: "Backup trigger function for scheduled operations"
+  
+  sourceArchiveUrl: "gs://zantara-functions-source/backup-trigger.zip"
+  entryPoint: "triggerBackup"
+  runtime: "nodejs18"
+  
+  httpsTrigger: {}
+  
+  timeout: "540s"
+  availableMemoryMb: 1024
+  
+  environmentVariables:
+    PROJECT_ID: "involuted-box-469105-r0"
+    BACKUP_BUCKET: "zantara-secure-backups-2025"
+    NOTIFICATION_WEBHOOK: "${SLACK_WEBHOOK_URL}"
+    LOG_LEVEL: "info"
+  
+  serviceAccountEmail: "zantara@involuted-box-469105-r0.iam.gserviceaccount.com"
+
+---
+# Monitoring and alerting for backup jobs
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: backup-monitoring
+  namespace: zantara-system
+spec:
+  groups:
+  - name: backup-alerts
+    rules:
+    - alert: BackupJobFailed
+      expr: increase(cloudscheduler_job_failures_total{job_name=~"zantara.*backup"}[1h]) > 0
+      for: 5m
+      labels:
+        severity: critical
+        component: backup
+      annotations:
+        summary: "Backup job failed"
+        description: "Backup job {{ $labels.job_name }} has failed"
+        runbook_url: "https://docs.zantara.com/backup-troubleshooting"
+        
+    - alert: BackupJobMissed
+      expr: time() - cloudscheduler_job_last_success_time{job_name=~"zantara.*backup"} > 86400
+      for: 10m
+      labels:
+        severity: warning
+        component: backup
+      annotations:
+        summary: "Backup job not executed in 24 hours"
+        description: "Backup job {{ $labels.job_name }} has not run successfully in the last 24 hours"
+        
+    - alert: BackupStorageQuotaLow
+      expr: gcs_bucket_size_bytes{bucket="zantara-secure-backups-2025"} / gcs_bucket_quota_bytes{bucket="zantara-secure-backups-2025"} > 0.8
+      for: 5m
+      labels:
+        severity: warning
+        component: storage
+      annotations:
+        summary: "Backup storage quota low"
+        description: "Backup storage is {{ $value | humanizePercentage }} full"
+
+---
+# Service Account for backup operations
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: zantara-backup-sa
+  namespace: zantara-system
+spec:
+  projectRef:
+    external: "involuted-box-469105-r0"
+  displayName: "Zantara Backup Service Account"
+  description: "Service account for automated backup operations"
+
+---
+# IAM Policy Binding for backup service account
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: backup-sa-permissions
+  namespace: zantara-system
+spec:
+  memberFrom:
+    serviceAccountRef:
+      name: zantara-backup-sa
+  role: roles/storage.admin
+  resourceRef:
+    apiVersion: storage.cnrm.cloud.google.com/v1beta1
+    kind: StorageBucket
+    external: "zantara-secure-backups-2025"
+
+---
+# Additional permissions for Firestore export
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: backup-sa-firestore-permissions
+  namespace: zantara-system
+spec:
+  memberFrom:
+    serviceAccountRef:
+      name: zantara-backup-sa
+  role: roles/datastore.importExportAdmin
+  resourceRef:
+    apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+    kind: Project
+    external: "involuted-box-469105-r0"

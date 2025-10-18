@@ -1,0 +1,11 @@
+{
+  "domain": "visa",
+  "title": "C2 Visa Business",
+  "tags": "visa",
+  "content_type": "reference",
+  "version": "1.0",
+  "filename": "c2-visa-business.json",
+  "last_updated": "2025-10-03",
+  "sources": "",
+  "collection": "visa_oracle"
+}

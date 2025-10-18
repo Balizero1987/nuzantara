@@ -1,0 +1,270 @@
+================================================================================
+                    BALI ZERO SERVICES - PRICE LIST 2025
+                        PT. BALI NOL IMPERSARIAT
+================================================================================
+
+================================ SINGLE ENTRY VISA =============================
+
+1. C1 VISA - TOURISM
+   Description: The perfect visa to stay up to 180 days if you want to spend time 
+   in Indonesia for tourism, visiting friends or family, and transit. Also as a 
+   participant at meetings, incentives, conventions, and exhibitions. The initial 
+   e-visa is valid 60 days and can be extended twice, each time adding 60 days, 
+   for a total stay of up to 180 days.
+   
+   PUBLIC PRICE: 2,300,000 IDR
+   Extension: 1,700,000 IDR
+
+2. C2 VISA - BUSINESS
+   Description: The ideal visa to stay up to 180 days if you want to carry out 
+   activities related to business, meetings, or shopping including but not limited 
+   to checking goods at the office, factory, or production site of goods.
+   
+   PUBLIC PRICE: 3,600,000 IDR 
+   Extension: 1,700,000 IDR
+
+3. C7 VISA 
+   Description: Single entry visa designed for professionals like chefs, yoga 
+   instructors, bartenders, and photographers who are invited to take part in 
+   events throughout Indonesia. This visa allows you to stay 30 days from your 
+   arrival in Indonesia (not extendable).
+   
+   PUBLIC PRICE: 5,000,000 IDR
+
+4. C7 A&B VISA
+   Description: Single entry visa designed for foreigners who want to show, display, 
+   or perform work related to music. Supporting foreigners carrying out musical 
+   performance activities. This visa allows you to stay 30 days from your arrival 
+   in Indonesia (not extendable).
+   
+   PUBLIC PRICE: 4,500,000 IDR
+
+6. C22A VISA - ACADEMY INTERNSHIP
+   Description: Single entry visa crafted for individuals looking to engage in 
+   internship activities to fulfill the academic requirements of their overseas 
+   education. This visa allows you to stay 60 days or 180 days straight from 
+   your arrival in Indonesia (not extendable).
+   
+   PUBLIC PRICE:
+   60 Days: 4,800,000 IDR 
+   180 Days: 5,800,000 IDR
+
+7. C22B VISA - COMPANY INTERNSHIP
+   Description: Single entry visa tailored for individuals eager to undertake 
+   internship activities aimed at developing skills and talent within a company, 
+   office, or workplace. This visa allows you to stay 60 days or 180 days 
+   straight from your arrival in Indonesia (not extendable).
+   
+   PUBLIC PRICE:
+   60 Days: 4,800,000 IDR 
+   180 Days: 5,800,000 IDR
+
+=============================== MULTIPLE ENTRY VISA ============================
+
+8. D1 VISA
+   Description: The ideal choice to attend as a participant at meetings, incentives, 
+   conventions, and exhibitions. Also for conducting activities related to tourism 
+   and visiting friends or family. This visa allows you to stay 60 days and offers 
+   the flexibility of two extensions, each adding 60 days, for up to 180 days in 
+   a single visit.
+   
+   PUBLIC PRICE:
+   D1 VISA 1 Year: 5,000,000 IDR 
+   D1 VISA 2 Years: 7,000,000 IDR
+
+9. D2 VISA
+   Description: The perfect choice to carry out activities related to business, 
+   meetings, or shopping including but not limited to checking goods at the office, 
+   factory, or production site of goods. Allows 60-day stays with flexibility of 
+   two extensions, each adding 60 days.
+   
+   PUBLIC PRICE:
+   D2 VISA 1 Year: 6,000,000 IDR 
+   D2 VISA 2 Years: 8,000,000 IDR
+
+10. D12 VISA
+    Description: The perfect choice visa for investigating starting business in 
+    Indonesia, permitting activities such as site visits, field surveys and/or 
+    feasibility studies. D12 Multiple entry visa allows you to stay for up to 
+    180 days and can be extended once.
+    
+    PUBLIC PRICE:
+    1 Year Re Entry Permit: 7,500,000 IDR 
+    2 Years Re Entry Permit: 10,000,000 IDR 
+    Extension: 3,500,000 IDR
+
+======================= WORK & LONGER STAY PERMIT (KITAS) ======================
+
+11. FREELANCE KITAS / IMPRESARIO (E23)
+    Description: The Freelance KITAS is linked with the working permit (IMTA). This 
+    permit allows foreigners to live and work in Indonesia for up to 6 months 
+    without the need for a specific employer. Ideal for professions such as DJs, 
+    marketing managers, and more.
+    
+    PUBLIC PRICE:
+    Offshore KITAS: 26,000,000 IDR 
+    Onshore KITAS: 28,000,000 IDR
+
+12. WORKING KITAS (E23)
+    Description: Working Kitas is a longer stay permit in Indonesia granted to 
+    foreign nationals who work in Indonesia for 1 Year under a company in Indonesia 
+    with one type of work. This is a multiple entry permit.
+    
+    PUBLIC PRICE:
+    Offshore KITAS: 34,500,000 IDR
+    Onshore KITAS: 36,000,000 IDR 
+    Extension KITAS: 31,000,000 IDR
+
+13. INVESTOR KITAS (E28A)
+    Description: The Investor KITAS is available for foreign investors who have 
+    invested in Indonesia through a PT PMA (foreign investment company). It allows 
+    them to reside in the country for 2 years.
+    
+    PUBLIC PRICE:
+    Offshore KITAS: 17,000,000 IDR 
+    Onshore KITAS: 19,000,000 IDR 
+    Extension KITAS: 18,000,000 IDR
+
+14. DEPENDENT KITAS (E31B & E31E)
+    Description: This visa is intended for dependent family members of KITAS and 
+    long-stay visa holders (including Golden Visa, Working, Investor and Kitap).
+    
+    PUBLIC PRICE:
+    DEPENDENT KITAS 1 Year:
+    - Offshore KITAS: 11,000,000 IDR 
+    - Onshore KITAS: 13,500,000 IDR 
+    - Extension KITAS: 9,000,000 IDR 
+    
+    DEPENDENT KITAS 2 Years:
+    - Offshore KITAS: 15,000,000 IDR 
+    - Onshore KITAS: 18,000,000 IDR 
+    - Extension KITAS: 15,000,000 IDR
+
+15. RETIREMENT KITAS (E33F)
+    Description: The Retirement KITAS is available for foreign nationals aged 55 
+    and want to enjoy retirement in this country. You are allowed to stay for 
+    1 year and get multiple entry permit.
+    
+    PUBLIC PRICE:
+    Offshore KITAS: 14,000,000 IDR
+    Onshore KITAS: 16,000,000 IDR
+    Extension KITAS: 10,000,000 IDR
+
+16. SPOUSE KITAS (E31A)
+    Description: The Spouse KITAS is available for foreign citizens who are married 
+    to Indonesian citizens. You are allowed to stay for 1/2 years and get multiple 
+    entry permit.
+    
+    PUBLIC PRICE:
+    SPOUSE KITAS 1 Year:
+    - Offshore KITAS: 11,000,000 IDR 
+    - Onshore KITAS: 13,500,000 IDR 
+    - Extension KITAS: 9,000,000 IDR 
+    
+    SPOUSE KITAS 2 Years:
+    - Offshore KITAS: 15,000,000 IDR 
+    - Onshore KITAS: 18,000,000 IDR 
+    - Extension KITAS: 15,000,000 IDR
+
+17. REMOTE WORKER KITAS (E33G)
+    Description: The Remote Worker KITAS is for workers who work remotely (digital 
+    nomads). You are allowed to stay for 1 year and get multiple entry permit.
+    
+    PUBLIC PRICE:
+    Offshore KITAS: 12,500,000 IDR 
+    Onshore KITAS: 14,000,000 IDR 
+    Extension KITAS: 10,000,000 IDR
+
+====================== PERMANENT RESIDENCE PERMIT (KITAP) ======================
+
+18. INVESTOR KITAP
+    Description: The KITAP is suitable for foreign investors who have held shares 
+    in an Indonesian company for a minimum of 3 years. It is valid for 5 years 
+    and can be extended indefinitely.
+    
+    PUBLIC PRICE: Contact for quote
+
+19. WORKING KITAP
+    Description: The KITAP is accessible to foreigners who have served as a Board 
+    of Directors (BOD) or Commissioner (BOC) in an Indonesian company under a 
+    Working KITAS for a minimum of 3 years. The permit is valid for 5 years.
+    
+    PUBLIC PRICE: Contact for quote
+
+20. FAMILY KITAP
+    Description: The KITAP is ideal for foreigners married to Indonesian citizens 
+    or children from mixed-nationality marriages. The permit is valid for 5 years 
+    and can be extended indefinitely.
+    
+    PUBLIC PRICE: Contact for quote
+
+21. RETIREMENT KITAP
+    Description: The KITAP is perfect for foreigners who have held a Retirement 
+    KITAS for a minimum of 4 years. It is issued with a validity of 5 years.
+    
+    PUBLIC PRICE: Contact for quote
+
+========================== BUSINESS & LEGAL SERVICES ===========================
+
+22. SET UP COMPANY (PT PMA)
+    Description: Complete service for setting up a company in Indonesia. Includes 
+    choosing the right business entity, meeting eligibility criteria, PT PMA 
+    registration, obtaining business permits and licenses.
+    
+    PUBLIC PRICE: Starting from 20,000,000 IDR
+
+23. ALCOHOL LICENSE
+    Description: Businesses involved in the production, distribution, or sale of 
+    alcoholic beverages in Indonesia must obtain an Alcohol License. Necessary 
+    for businesses that manufacture, distribute, or sell alcoholic beverages in 
+    Indonesia (Class A, B, C) & NPPBKC License.
+    
+    PUBLIC PRICE: Starting from 15,000,000 IDR
+
+REVISION COMPANY 
+     
+    PUBLIC PRICE: Starting from 7,000,000 IDR
+
+================================   LEGAL REAL ESTATE     ====================================
+
+24. LEGAL REAL ESTATE
+    Description: Complete assistance with the legalities of property purchase in 
+    Bali. Includes due diligence on property, assistance dealing with sellers, 
+    feasibility checks, contracting, and full transaction assistance.
+    
+    PUBLIC PRICE: Contact for quote
+
+25. BUILDING PERMIT PBG & SLF
+    Description: Permits for Building Construction (PBG) and Certificates of Usage 
+    Worthiness (SLF) are mandatory for constructing and occupying buildings in 
+    Indonesia.
+    
+    PUBLIC PRICE: Contact for quote
+
+============================== TAXATION SERVICES ===============================
+
+26. ACCOUNTING & TAXATION SERVICES
+    Description: Complete accounting and taxation services tailored to your 
+    business needs in Indonesia. Includes Tax Planning, monthly Accounting, 
+    Tax Compliance, and other consultations.
+    
+    PUBLIC PRICES:
+    
+    BPJS / Insurance:
+    - Health Insurance: 1,500,000 IDR / Company (min 2 people) 
+    - Employment Insurance: 1,500,000 IDR / Company (min 2 people) 
+    
+    SPT/Annual Tax Report:
+    - Annual Tax Company & Personal (Operational): Starting from 4,000,000 IDR 
+    - Annual Tax Company & Personal (Zero): Starting from 3,000,000 IDR 
+    - Annual Personal (Amount): 2,000,000 IDR
+    
+    Monthly Tax Report: Starting from 1,500,000 IDR 
+    
+    NPWP:
+    - NPWP Personal + Coretax: 1,000,000 IDR / Person 
+    - NPWPD: 2,500,000 IDR / Company
+    
+    LKPM: 1,000,000 IDR / Report (3 months)
+
+================================================================================

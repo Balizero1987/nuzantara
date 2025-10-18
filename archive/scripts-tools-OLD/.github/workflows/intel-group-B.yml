@@ -1,0 +1,55 @@
+name: Intel Automation - Group B
+
+on:
+  # Schedule: Every day at 6:00 AM Bali time (WIB = UTC+8)
+  schedule:
+    - cron: '0 22 * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  intel-group-b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40  # ~5 categories * 60 sites * 20s = ~20min + buffer
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r scripts/requirements.txt
+
+      - name: Install Playwright browsers
+        run: |
+          playwright install chromium
+
+      - name: Run Intel Automation Pipeline (Group B)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RAG_BACKEND_URL: ${{ secrets.RAG_BACKEND_URL }}
+          SKIP_EMAILS: true  # Emails sent from local machine instead (avoid Gmail rate limit)
+        run: |
+          python3 scripts/run_intel_automation.py --categories business,macro,lifestyle,tax,business_setup
+
+      - name: Upload artifacts (Group B)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: intel-group-b-${{ github.run_number }}
+          path: |
+            scripts/INTEL_SCRAPING/*/raw/*.md
+            scripts/INTEL_SCRAPING/*/articles/*.md
+          retention-days: 30
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Intel Automation Group B failed at $(date)"

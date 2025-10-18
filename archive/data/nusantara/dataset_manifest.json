@@ -1,0 +1,113 @@
+{
+  "description": "Registry of Nusantara identity datasets used for multilingual fine-tuning",
+  "datasets": [
+    {
+      "id": "complete_nusantara_identity",
+      "path": "../FINE_TUNING/zantara_complete_nusantara.jsonl",
+      "category": "identity",
+      "region_scope": "nationwide",
+      "target_examples": 2431,
+      "priority": "high",
+      "notes": "Curated Nusantara identity mini-corpus (800 core prompts)"
+    },
+    {
+      "id": "training_final_3000",
+      "path": "../FINE_TUNING/zantara_training_final_3000.jsonl",
+      "category": "business",
+      "region_scope": "nationwide",
+      "target_examples": 3000,
+      "priority": "high",
+      "notes": "Production-ready WhatsApp + KB blended dataset"
+    },
+    {
+      "id": "combined_training",
+      "path": "../FINE_TUNING/zantara_combined_training.jsonl",
+      "category": "business",
+      "region_scope": "nationwide",
+      "target_examples": 664,
+      "priority": "medium",
+      "notes": "Legacy combined dataset (664 gold examples)"
+    },
+    {
+      "id": "bahasa_indonesia_core",
+      "path": "../FINE_TUNING/zantara_bahasa_indonesia.jsonl",
+      "category": "bahasa_indonesia",
+      "region_scope": "nationwide",
+      "target_examples": 3000,
+      "priority": "medium",
+      "notes": "Bahasa Indonesia canonical voice (Pancasila, peribahasa, adat)"
+    },
+    {
+      "id": "nusantara_multilingual_700",
+      "path": "../FINE_TUNING/zantara_700_languages.jsonl",
+      "category": "regional_languages",
+      "region_scope": "archipelago",
+      "target_examples": 5000,
+      "priority": "high",
+      "notes": "700+ regional language greetings, wisdom, business, emergencies"
+    },
+    {
+      "id": "nusantara_identity_v2",
+      "path": "../FINE_TUNING/zantara_nusantara_identity.jsonl",
+      "category": "identity",
+      "region_scope": "archipelago",
+      "target_examples": 2431,
+      "priority": "high",
+      "notes": "Extended Nusantara identity set emphasising islands and religions"
+    },
+    {
+      "id": "deep_spiritual_layer",
+      "path": "../FINE_TUNING/zantara_deep_spiritual.jsonl",
+      "category": "spiritual",
+      "region_scope": "archipelago",
+      "target_examples": 2000,
+      "priority": "medium",
+      "notes": "Syncretic spiritual + mythological foundations"
+    },
+    {
+      "id": "eternal_foundations",
+      "path": "../FINE_TUNING/zantara_eternal_foundations.jsonl",
+      "category": "eternal_fundamentals",
+      "region_scope": "archipelago",
+      "target_examples": 2000,
+      "priority": "medium",
+      "notes": "Immutable legal, historical, philosophical anchors"
+    },
+    {
+      "id": "kb_training",
+      "path": "../FINE_TUNING/zantara_kb_training.jsonl",
+      "category": "knowledge_base",
+      "region_scope": "nationwide",
+      "target_examples": 1200,
+      "priority": "medium",
+      "notes": "Structured Q&A derived from ChromaDB knowledge base"
+    },
+    {
+      "id": "supreme_15k",
+      "path": "../FINE_TUNING/zantara_supreme_15k.jsonl",
+      "category": "composite",
+      "region_scope": "archipelago",
+      "target_examples": 15000,
+      "priority": "high",
+      "notes": "Supreme blend (business + eternal foundations + bahasa core)"
+    },
+    {
+      "id": "ultimate_20k",
+      "path": "../FINE_TUNING/zantara_ultimate_20k.jsonl",
+      "category": "composite",
+      "region_scope": "archipelago",
+      "target_examples": 20000,
+      "priority": "critical",
+      "notes": "Ultimate blend hitting 20k polyglot examples"
+    },
+    {
+      "id": "traditions_knowledge",
+      "path": "../FINE_TUNING/zantara_traditions_knowledge.jsonl",
+      "category": "tradisi_budaya",
+      "region_scope": "archipelago",
+      "target_examples": 500,
+      "priority": "high",
+      "notes": "Dataset hasil konversi tradisi nasional dan lokal dari CSV"
+    }
+  ]
+}

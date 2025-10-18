@@ -1,0 +1,181 @@
+{
+  "metadata": {
+    "title": "E23 Working KITAS — Case Studies",
+    "description": "Scenarios for employees sponsored by PT/PT PMA",
+    "visaCode": "E23",
+    "lastUpdated": "2025-10-02"
+  },
+  "case1_project_manager_ptpma": {
+    "title": "Project Manager — PT PMA (2 years)",
+    "clientProfile": {
+      "nationality": "Australia",
+      "position": "Project Manager",
+      "experienceYears": 10,
+      "contract": "24 mesi"
+    },
+    "selectedOption": "E23 Working KITAS 24 mesi (sponsor PT PMA)",
+    "process": [
+      "RPTKA",
+      "HPK/Pengesahan RPTKA",
+      "VITAS",
+      "KITAS",
+      "Biometria",
+      "MERP"
+    ],
+    "costs": {
+      "employer": {
+        "DKP_TKA_USD": 2400,
+        "rptka_processing_USD": 500,
+        "kitas_processing_USD": 1000
+      },
+      "employee": {
+        "VITAS_USD": 100,
+        "MERP_USD": 50
+      },
+      "baliZeroServiceIDR": {
+        "offshore": 34500000,
+        "onshore": 36000000,
+        "extension": 31000000
+      }
+    },
+    "timeline": {
+      "weeks": "10–12",
+      "milestones": [
+        "RPTKA 2–4",
+        "HPK/Pengesahan 2–3",
+        "VITAS 1–2",
+        "Conversion 1–2"
+      ]
+    }
+  },
+  "case2_senior_engineer_high_level": {
+    "title": "Senior Engineer — High‑level position (12 months)",
+    "clientProfile": {
+      "nationality": "India",
+      "position": "Senior Engineer",
+      "experienceYears": 7
+    },
+    "selectedOption": "E23 12 mesi",
+    "notes": "Posizione senior conforme richieste di alto profilo per permessi 12 mesi",
+    "costs": {
+      "baliZeroServiceIDR": {
+        "offshore": 34500000
+      },
+      "employer": {
+        "DKP_TKA_USD": 1200
+      }
+    }
+  },
+  "case3_mid_level_adjust_scope": {
+    "title": "Mid‑Level Analyst — Profile adjustment",
+    "clientProfile": {
+      "nationality": "Philippines",
+      "position": "Analyst",
+      "experienceYears": 3
+    },
+    "selectedOption": "Consider role/responsibility upgrade or training to meet RPTKA expectations",
+    "pitfalls": [
+      "Role too junior for 12–24 month permits",
+      "Must justify need for foreign expertise"
+    ],
+    "tips": [
+      "Increase seniority in job description",
+      "Attach achievements and certifications"
+    ]
+  },
+  "quickSummary": {
+    "service": "Bali Zero E23: off 34.5M / on 36M / ext 31M IDR",
+    "dkp": "DKP‑TKA: USD 100/month"
+  }
+}
+
+{
+  "metadata": {
+    "title": "E23 Working KITAS — Case Studies",
+    "description": "Scenarios for employees sponsored by PT/PT PMA",
+    "visaCode": "E23",
+    "lastUpdated": "2025-10-02"
+  },
+  "case1_project_manager_ptpma": {
+    "title": "Project Manager — PT PMA (2 years)",
+    "clientProfile": {
+      "nationality": "Australia",
+      "position": "Project Manager",
+      "experienceYears": 10,
+      "contract": "24 mesi"
+    },
+    "selectedOption": "E23 Working KITAS 24 mesi (sponsor PT PMA)",
+    "process": [
+      "RPTKA",
+      "HPK/Pengesahan RPTKA",
+      "VITAS",
+      "KITAS",
+      "Biometria",
+      "MERP"
+    ],
+    "costs": {
+      "employer": {
+        "DKP_TKA_USD": 2400,
+        "rptka_processing_USD": 500,
+        "kitas_processing_USD": 1000
+      },
+      "employee": {
+        "VITAS_USD": 100,
+        "MERP_USD": 50
+      },
+      "baliZeroServiceIDR": {
+        "offshore": 34500000,
+        "onshore": 36000000,
+        "extension": 31000000
+      }
+    },
+    "timeline": {
+      "weeks": "10–12",
+      "milestones": [
+        "RPTKA 2–4",
+        "HPK/Pengesahan 2–3",
+        "VITAS 1–2",
+        "Conversion 1–2"
+      ]
+    }
+  },
+  "case2_senior_engineer_high_level": {
+    "title": "Senior Engineer — High‑level position (12 months)",
+    "clientProfile": {
+      "nationality": "India",
+      "position": "Senior Engineer",
+      "experienceYears": 7
+    },
+    "selectedOption": "E23 12 mesi",
+    "notes": "Posizione senior conforme richieste di alto profilo per permessi 12 mesi",
+    "costs": {
+      "baliZeroServiceIDR": {
+        "offshore": 34500000
+      },
+      "employer": {
+        "DKP_TKA_USD": 1200
+      }
+    }
+  },
+  "case3_mid_level_adjust_scope": {
+    "title": "Mid‑Level Analyst — Profile adjustment",
+    "clientProfile": {
+      "nationality": "Philippines",
+      "position": "Analyst",
+      "experienceYears": 3
+    },
+    "selectedOption": "Consider role/responsibility upgrade or training to meet RPTKA expectations",
+    "pitfalls": [
+      "Role too junior for 12–24 month permits",
+      "Must justify need for foreign expertise"
+    ],
+    "tips": [
+      "Increase seniority in job description",
+      "Attach achievements and certifications"
+    ]
+  },
+  "quickSummary": {
+    "service": "Bali Zero E23: off 34.5M / on 36M / ext 31M IDR",
+    "dkp": "DKP‑TKA: USD 100/month"
+  }
+}
