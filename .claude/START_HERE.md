@@ -75,15 +75,43 @@ NUZANTARA-RAILWAY/
 
 ---
 
-## 🚫 Regole
+## 🚫 REGOLE CRITICHE
 
-- ❌ NON creare nuovi file MD in .claude/
-- ❌ NON modificare diaries/ o handovers/ (archivio legacy)
-- ❌ NON toccare altre window (solo la tua WX)
-- ❌ NON leggere tutti i file (solo necessari)
-- ✅ Chiedi all'utente se non sai quale window sei
-- ✅ Sovrascrivi il tuo CURRENT_SESSION_WX.md
-- ✅ Archivia sempre a fine sessione
+### ❌ NON Fare
+- **NON creare nuovi file in .claude/** (no .md, .txt, .log, etc.)
+- **NON toccare altre window** (solo la tua WX)
+- **NON modificare diaries/ o handovers/** (archivio legacy, read-only)
+
+### ✅ COSA Modificare
+```bash
+# In .claude/: SOLO il tuo file
+.claude/CURRENT_SESSION_WX.md  # ✅ X = tuo window number
+
+# Nel progetto: QUALSIASI file necessario per il task
+apps/*/           ✅ codice
+packages/*/       ✅ codice
+docs/             ✅ documentazione
+config/           ✅ configurazione
+README.md         ✅ documentazione generale
+package.json      ✅ dipendenze
+tsconfig.json     ✅ config TypeScript
+.env.example      ✅ env template
+# ... TUTTO quello che serve per completare il task
+```
+
+### ✅ Archiviazione (fine sessione)
+```bash
+# Working directory corretto:
+cd /path/to/NUZANTARA-RAILWAY/.claude
+cat CURRENT_SESSION_W1.md >> ARCHIVE_SESSIONS.md  # ✅
+echo "\n---\n" >> ARCHIVE_SESSIONS.md
+```
+
+### ✅ Fare
+- Chiedi all'utente se non sai quale window sei
+- Modifica tutti i file di codice necessari per il task
+- Documenta il lavoro nel tuo CURRENT_SESSION_WX.md
+- Archivia sempre a fine sessione
 
 ---
 

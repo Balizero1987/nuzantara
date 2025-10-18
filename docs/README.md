@@ -11,8 +11,8 @@
 | **Get Started** | [QUICK_START.md](QUICK_START.md) |
 | **System Overview** | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | **API Reference** | [api/API_DOCUMENTATION.md](api/API_DOCUMENTATION.md) |
-| **Deploy to Railway** | [railway/RAILWAY_STEP_BY_STEP.txt](railway/RAILWAY_STEP_BY_STEP.txt) |
-| **Debug Issues** | [guides/DEBUGGING_GUIDE.md](guides/DEBUGGING_GUIDE.md) |
+| **Deploy to Railway** | [guides/RAILWAY_DEPLOYMENT_GUIDE.md](guides/RAILWAY_DEPLOYMENT_GUIDE.md) |
+| **Project Structure** | [../STRUCTURE.md](../STRUCTURE.md) |
 
 ---
 
@@ -24,25 +24,19 @@ docs/
 ├── QUICK_START.md          # 5-minute overview
 ├── ARCHITECTURE.md          # System architecture
 │
-├── architecture/            # Detailed architecture docs
-│   ├── AI_ROUTING.md       # How AI routing works
-│   ├── BACKEND_TS.md       # TypeScript backend
-│   ├── BACKEND_RAG.md      # Python RAG backend
-│   └── ...
-│
 ├── api/                     # API documentation
 │   ├── API_DOCUMENTATION.md
-│   └── ...
+│   ├── ENDPOINTS_DOCUMENTATION.md
+│   └── openapi-rag-pricing.yaml
 │
-├── railway/                 # Railway deployment
-│   ├── RAILWAY_STEP_BY_STEP.txt
-│   ├── RAILWAY_ENV_SETUP.md
-│   └── ...
+├── guides/                  # How-to guides
+│   ├── RAILWAY_DEPLOYMENT_GUIDE.md
+│   ├── RUNPOD_DEVAI_SETUP.md
+│   └── README.md
 │
-└── guides/                  # How-to guides
-    ├── DEBUGGING_GUIDE.md
-    ├── RUNPOD_SETUP.md
-    └── ...
+└── reports/                 # Project reports
+    ├── cleanup-2024/       # Dependency cleanup reports
+    └── CLEANUP_SESSION_COMPLETE_2025-10-18.md
 ```
 
 ---
@@ -54,33 +48,40 @@ docs/
 # 1. Read the quick start
 cat docs/QUICK_START.md
 
-# 2. Follow Railway deployment guide
-cat docs/railway/RAILWAY_STEP_BY_STEP.txt
+# 2. Understand project structure
+cat STRUCTURE.md
 
-# 3. Configure environment variables
-# See: docs/railway/RAILWAY_ENV_SETUP.md
+# 3. Follow Railway deployment guide
+cat docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md
 ```
 
-### Debugging Deployment Issues
+### Working with the Project
 ```bash
-# Read debugging guide first!
-cat docs/guides/DEBUGGING_GUIDE.md
+# Check project structure
+cat STRUCTURE.md
 
-# Check health
-curl https://your-service.railway.app/health
+# Backend TypeScript (API)
+cd apps/backend-ts
+npm install
+npm run build
+npm start
+
+# Backend Python (RAG)
+cd apps/backend-rag/backend
+pip install -r requirements.txt
+python -m app.main
 ```
 
 ### Understanding the System
 ```bash
-# System overview
+# System architecture
 cat docs/ARCHITECTURE.md
 
-# AI routing details
-cat docs/architecture/AI_ROUTING.md
+# API documentation
+cat docs/api/API_DOCUMENTATION.md
 
-# Backend architecture
-cat docs/architecture/BACKEND_TS.md
-cat docs/architecture/BACKEND_RAG.md
+# Project reports
+ls docs/reports/
 ```
 
 ---
@@ -96,9 +97,10 @@ cat docs/architecture/BACKEND_RAG.md
 ## 💡 Tips
 
 - **New to the project?** Start with [QUICK_START.md](QUICK_START.md)
-- **Deploy failing?** Read [guides/DEBUGGING_GUIDE.md](guides/DEBUGGING_GUIDE.md) first
-- **Understanding AI?** Check [architecture/AI_ROUTING.md](architecture/AI_ROUTING.md)
+- **Understanding structure?** See [../STRUCTURE.md](../STRUCTURE.md)
+- **Deploying?** Read [guides/RAILWAY_DEPLOYMENT_GUIDE.md](guides/RAILWAY_DEPLOYMENT_GUIDE.md)
 - **Need API help?** See [api/API_DOCUMENTATION.md](api/API_DOCUMENTATION.md)
+- **Project cleanup?** Check [reports/cleanup-2024/](reports/cleanup-2024/)
 
 ---
 

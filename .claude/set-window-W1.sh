@@ -48,6 +48,11 @@ echo "   1. Read: .claude/PROJECT_CONTEXT.md (5 min)"
 echo "   2. Open: .claude/CURRENT_SESSION_W1.md"
 echo "   3. Check: tail -100 .claude/ARCHIVE_SESSIONS.md (recent work)"
 echo ""
+echo "⚠️  CRITICAL RULES:"
+echo "   - ❌ DO NOT create new files in .claude/"
+echo "   - ✅ In .claude/: modify ONLY CURRENT_SESSION_W1.md"
+echo "   - ✅ In project: modify ANY file needed (code, docs, config, package.json, etc.)"
+echo ""
 
 # Show last session summary if exists
 if [ -f ".claude/ARCHIVE_SESSIONS.md" ]; then

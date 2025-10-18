@@ -1,0 +1,174 @@
+// Memory Vector Service for ZANTARA v5.2.0
+// Integrates with Python RAG backend for semantic memory search via embeddings
+import logger from './logger.js';
+import axios from 'axios';
+import { getCachedEmbedding, getCachedSearch } from './memory-cache.js';
+const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'http://localhost:8000';
+/**
+ * Generate embedding for text using Python RAG backend
+ * Uses existing EmbeddingsGenerator (sentence-transformers or OpenAI)
+ * WITH CACHING for performance optimization
+ */
+export async function generateEmbedding(text) {
+    try {
+        // Use cache wrapper
+        const { embedding, cached } = await getCachedEmbedding(text, async () => {
+            // Call Python RAG backend to generate embedding
+            const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/embed`, {
+                text,
+                model: 'sentence-transformers' // Use FREE local embeddings
+            });
+            return response.data.embedding;
+        });
+        if (cached) {
+            logger.info(`⚡ Embedding cache HIT for: "${text.substring(0, 40)}..."`);
+        }
+        return embedding;
+    }
+    catch (error) {
+        logger.error(`⚠️ Embedding generation failed (${RAG_BACKEND_URL}/api/memory/embed):`, error?.message);
+        // Fallback: return zero vector (won't work for search but won't crash)
+        return new Array(384).fill(0); // sentence-transformers dimension
+    }
+}
+/**
+ * Store memory in ChromaDB for semantic search
+ * Creates a new collection "zantara_memories" alongside existing "zantara_books"
+ */
+export async function storeMemoryVector(params) {
+    try {
+        const { memoryId, userId, content, type, timestamp, entities } = params;
+        // Generate embedding
+        const embedding = await generateEmbedding(content);
+        // Store in ChromaDB via Python backend
+        await axios.post(`${RAG_BACKEND_URL}/api/memory/store`, {
+            id: memoryId,
+            document: content,
+            embedding,
+            metadata: {
+                userId,
+                type,
+                timestamp,
+                entities: entities.join(','), // ChromaDB metadata must be strings
+                created_at: new Date().toISOString()
+            }
+        });
+        logger.info(`✅ Memory vector stored: ${memoryId} for ${userId}`);
+        return true;
+    }
+    catch (error) {
+        logger.error(`⚠️ Vector storage failed (${RAG_BACKEND_URL}/api/memory/store):`, error?.response?.data || error?.message);
+        return false;
+    }
+}
+/**
+ * Semantic search across all memories using vector similarity
+ * WITH CACHING for performance optimization
+ */
+export async function searchMemoriesSemantica(params) {
+    try {
+        const { query, userId, limit = 10, entityFilter } = params;
+        // Try cache first (ignore entityFilter for simplicity)
+        const cacheKey = `${query}|${userId || 'all'}`;
+        const { results: cachedResults, cached } = await getCachedSearch(cacheKey, userId, limit, async () => {
+            // Generate query embedding (also cached)
+            const queryEmbedding = await generateEmbedding(query);
+            // Search ChromaDB
+            const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/search`, {
+                query_embedding: queryEmbedding,
+                limit,
+                metadata_filter: {
+                    ...(userId && { userId }),
+                    ...(entityFilter && { entities: { $contains: entityFilter } })
+                }
+            });
+            // Transform results
+            return response.data.results.map((r, idx) => ({
+                id: response.data.ids[idx],
+                userId: r.metadata.userId,
+                content: r.document,
+                type: r.metadata.type,
+                timestamp: r.metadata.timestamp,
+                entities: r.metadata.entities ? r.metadata.entities.split(',') : [],
+                similarity: 1 / (1 + response.data.distances[idx]) // Convert distance to similarity
+            }));
+        });
+        if (cached) {
+            logger.info(`⚡ Search cache HIT for: "${query.substring(0, 40)}..."`);
+        }
+        return cachedResults;
+    }
+    catch (error) {
+        logger.info('⚠️ Semantic search failed:', error?.message);
+        return [];
+    }
+}
+/**
+ * Hybrid search: Combine keyword + semantic search
+ * Returns best results from both approaches
+ */
+export async function hybridMemorySearch(params) {
+    const { query, userId, limit = 10 } = params;
+    // Run semantic search
+    const vectorResults = await searchMemoriesSemantica({ query, userId, limit: limit * 2 });
+    // TODO: Combine with keyword search from Firestore (memory-firestore.ts)
+    // For now, just return semantic results
+    return vectorResults.slice(0, limit);
+}
+/**
+ * Get similar memories (find memories similar to given memory)
+ */
+export async function findSimilarMemories(params) {
+    try {
+        const { memoryId, limit = 5 } = params;
+        // Get the memory's embedding from ChromaDB
+        const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/similar`, {
+            memory_id: memoryId,
+            limit
+        });
+        return response.data.results.map((r, idx) => ({
+            id: response.data.ids[idx],
+            userId: r.metadata.userId,
+            content: r.document,
+            type: r.metadata.type,
+            timestamp: r.metadata.timestamp,
+            entities: r.metadata.entities ? r.metadata.entities.split(',') : [],
+            similarity: 1 / (1 + response.data.distances[idx])
+        }));
+    }
+    catch (error) {
+        logger.info('⚠️ Similar memory search failed:', error?.message);
+        return [];
+    }
+}
+/**
+ * Delete memory from vector store
+ */
+export async function deleteMemoryVector(memoryId) {
+    try {
+        await axios.delete(`${RAG_BACKEND_URL}/api/memory/${memoryId}`);
+        logger.info(`✅ Memory vector deleted: ${memoryId}`);
+        return true;
+    }
+    catch (error) {
+        logger.info('⚠️ Vector deletion failed:', error?.message);
+        return false;
+    }
+}
+/**
+ * Get collection stats for memory vectors
+ */
+export async function getMemoryVectorStats() {
+    try {
+        const response = await axios.get(`${RAG_BACKEND_URL}/api/memory/stats`);
+        return response.data;
+    }
+    catch (error) {
+        logger.info('⚠️ Stats retrieval failed:', error?.message);
+        return {
+            total_memories: 0,
+            users: 0,
+            collection_size_mb: 0
+        };
+    }
+}
