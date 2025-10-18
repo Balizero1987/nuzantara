@@ -1,0 +1,35 @@
+# Monorepo configuration for Nuzantara Railway
+# Each service has its own root directory
+
+# TypeScript Backend Service
+[[services]]
+name = "backend-ts"
+root = "apps/backend-ts"
+
+[services.build]
+builder = "nixpacks"
+buildCommand = "npm run build"
+
+[services.deploy]
+startCommand = "npm start"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+numReplicas = 1
+
+# RAG Backend Service
+[[services]]
+name = "backend-rag"
+root = "apps/backend-rag/backend"
+
+[services.build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[services.deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 600
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+numReplicas = 1
