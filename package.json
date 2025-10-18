@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "apps/*",
+    "apps/backend-ts",
+    "apps/backend-rag",
+    "apps/dashboard",
     "packages/*"
   ],
   "scripts": {
