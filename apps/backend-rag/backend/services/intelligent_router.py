@@ -561,31 +561,46 @@ class IntelligentRouter:
 
             elif suggested_ai == "sonnet":
                 # ROUTE 2: Claude Sonnet + RAG (Premium Quality)
+                import time
                 logger.info("🎯 [Router] Using Claude Sonnet (premium + RAG)")
+                sonnet_start = time.time()
 
                 # Get RAG context if available
                 context = None
                 if self.search:
                     try:
+                        rag_start = time.time()
+                        logger.info("   [DEBUG] Starting ChromaDB search...")
+
                         # OPTIMIZATION: Reduced to 10 documents for faster response (was 20)
                         search_results = await self.search.search(
                             query=message,
                             user_level=3,  # Full access
                             limit=10  # OPTIMIZED: Reduced from 20 for performance
                         )
+
+                        rag_time = (time.time() - rag_start) * 1000
+                        logger.info(f"   [DEBUG] ChromaDB search completed in {rag_time:.0f}ms")
+
                         if search_results.get("results"):
+                            context_start = time.time()
                             # OPTIMIZATION: Use top 5 results (was 8) for faster processing
                             context = "\n\n".join([
                                 f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
                                 for r in search_results["results"][:5]
                             ])
-                            logger.info(f"   RAG context: {len(context)} chars from {len(search_results['results'])} documents (using top 5)")
+                            context_time = (time.time() - context_start) * 1000
+                            logger.info(f"   [DEBUG] Context built in {context_time:.0f}ms: {len(context)} chars from {len(search_results['results'])} documents (using top 5)")
                     except Exception as e:
+                        logger.error(f"   [DEBUG] RAG search FAILED: {e}")
                         logger.warning(f"   RAG search failed: {e}")
 
                 # Use tool-enabled method if tools available
                 if self.tool_executor and self.all_tools:
-                    logger.info(f"   Tool use: ENABLED (FULL - {len(self.all_tools)} tools)")
+                    logger.info(f"   [DEBUG] Tool use: ENABLED (FULL - {len(self.all_tools)} tools)")
+                    ai_start = time.time()
+                    logger.info("   [DEBUG] Calling Sonnet WITH tools...")
+
                     result = await self.sonnet.conversational_with_tools(
                         message=message,
                         user_id=user_id,
@@ -597,8 +612,14 @@ class IntelligentRouter:
                         max_tokens=1000,  # INCREASED from 600 to prevent truncated business answers
                         max_tool_iterations=5
                     )
+
+                    ai_time = (time.time() - ai_start) * 1000
+                    logger.info(f"   [DEBUG] Sonnet WITH tools completed in {ai_time:.0f}ms")
                 else:
-                    logger.info("   Tool use: DISABLED")
+                    logger.info("   [DEBUG] Tool use: DISABLED")
+                    ai_start = time.time()
+                    logger.info("   [DEBUG] Calling Sonnet WITHOUT tools...")
+
                     result = await self.sonnet.conversational(
                         message=message,
                         user_id=user_id,
@@ -607,6 +628,12 @@ class IntelligentRouter:
                         memory_context=memory_context,  # PHASE 3: Pass memory
                         max_tokens=1000  # INCREASED from 600 to prevent truncated business answers
                     )
+
+                    ai_time = (time.time() - ai_start) * 1000
+                    logger.info(f"   [DEBUG] Sonnet WITHOUT tools completed in {ai_time:.0f}ms")
+
+                sonnet_total = (time.time() - sonnet_start) * 1000
+                logger.info(f"   [DEBUG] ⏱️  TOTAL Sonnet path: {sonnet_total:.0f}ms")
 
                 return {
                     "response": result["text"],
