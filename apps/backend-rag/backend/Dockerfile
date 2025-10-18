@@ -25,9 +25,8 @@ ENV PORT=8000
 # Expose port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=5)" || exit 1
+# Note: Health check handled by Railway via railway.toml healthcheckPath="/health"
+# Docker HEALTHCHECK removed to avoid dependency issues (requests/curl not in slim image)
 
 # Run with main_cloud.py (ChromaDB from GCS)
 # Note: we need to add parent dir to PYTHONPATH for imports to work
