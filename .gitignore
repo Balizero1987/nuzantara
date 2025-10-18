@@ -137,3 +137,20 @@ cloudbuild*.yaml
 *cloud-run*.sh
 *gcloud*.sh
 deploy_cloud_run.sh
+
+# Build outputs - compiled files
+apps/backend-ts/src/**/*.js
+apps/backend-ts/src/**/*.js.map
+apps/backend-ts/dist/
+
+# Backup and temporary files
+.backup/
+*.backup
+*.bak
+*.old
+*_old.*
+Dockerfile.old
+
+# Log files
+*.log
+ingestion_log.txt
