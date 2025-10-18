@@ -1,0 +1,50 @@
+# Railway Cron Jobs Configuration
+# https://docs.railway.app/reference/cron-jobs
+
+# =============================================================================
+# JOB 1: Intel Classification
+# Runs every day at 2 AM UTC (10 AM Jakarta time)
+# =============================================================================
+[jobs.llama_classification]
+schedule = "0 2 * * *"  # Daily at 2 AM UTC
+command = "python3 apps/backend-rag/scripts/llama_batch_classifier.py"
+timeout = 600  # 10 minutes max
+
+# Environment variables needed:
+# - RUNPOD_LLAMA_ENDPOINT
+# - RUNPOD_API_KEY
+# - ANTHROPIC_API_KEY (fallback)
+
+# =============================================================================
+# JOB 2: LLAMA Nightly Worker (Golden Answers + Cultural RAG)
+# Runs every day at 3 AM UTC (11 AM Jakarta time)
+# Runs AFTER intel classification to process fresh data
+# =============================================================================
+[jobs.llama_nightly_worker]
+schedule = "0 3 * * *"  # Daily at 3 AM UTC (1 hour after classification)
+command = "python3 apps/backend-rag/scripts/llama_nightly_worker.py --days 7 --max-golden 50"
+timeout = 1200  # 20 minutes max (allows for LLAMA generation time)
+
+# What this job does:
+# 1. Analyzes last 7 days of user queries from conversations table
+# 2. Clusters similar queries semantically
+# 3. Generates golden answers for top 50 clusters (LLAMA + RAG)
+# 4. Updates cultural knowledge chunks (if --regenerate-cultural flag)
+# 5. Tracks execution in nightly_worker_runs table
+
+# Environment variables needed:
+# - DATABASE_URL (automatically provided by Railway)
+# - RUNPOD_LLAMA_ENDPOINT
+# - RUNPOD_API_KEY
+# - RAG_BACKEND_URL (optional, defaults to production URL)
+
+# To regenerate cultural chunks monthly:
+# command = "python3 apps/backend-rag/scripts/llama_nightly_worker.py --days 30 --max-golden 100 --regenerate-cultural"
+
+# =============================================================================
+# Alternative Schedules (commented out)
+# =============================================================================
+# Every 6 hours: "0 */6 * * *"
+# Twice daily (2 AM, 2 PM): "0 2,14 * * *"
+# Weekdays only: "0 2 * * 1-5"
+# Every Sunday at 4 AM: "0 4 * * 0"

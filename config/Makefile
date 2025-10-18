@@ -20,7 +20,7 @@ dev: ## Start backend in dev mode (port 8080, hot reload)
 
 .PHONY: dev-rag
 dev-rag: ## Start RAG backend locally (port 8000)
-	cd "apps/backend-rag 2/backend" && uvicorn app.main_integrated:app --port 8000 --reload
+	cd "apps/backend-rag/backend" && uvicorn app.main_integrated:app --port 8000 --reload
 
 .PHONY: install
 install: ## Install all dependencies
@@ -60,44 +60,43 @@ health-check: ## Check local server health (port 8080)
 # ==========================================
 
 .PHONY: deploy-backend
-deploy-backend: ## Deploy TypeScript backend to Cloud Run (production)
-	@echo "🚀 Deploying backend to Cloud Run..."
-	./scripts/deploy/deploy-production.sh
+deploy-backend: ## Deploy TypeScript backend to Railway (production)
+	@echo "🚀 Deploying backend to Railway..."
+	@railway up || echo "❌ Not linked. Run: railway link"
 
 .PHONY: deploy-backend-quick
-deploy-backend-quick: ## Quick deploy (code only, no rebuild)
-	@echo "⚡ Quick deploy (code only)..."
-	./scripts/deploy/deploy-code-only.sh
+deploy-backend-quick: ## Quick deploy (Railway auto-detects changes)
+	@echo "⚡ Railway auto-deploys on git push"
+	@echo "To force deploy: railway up"
 
 .PHONY: deploy-rag
-deploy-rag: ## Deploy RAG backend via GitHub Actions (AMD64)
-	@echo "🚀 Triggering RAG backend deploy (GitHub Actions)..."
-	@echo "This will build on AMD64 (ubuntu-latest) for re-ranker compatibility"
-	gh workflow run deploy-rag-amd64.yml
+deploy-rag: ## Deploy RAG backend to Railway
+	@echo "🚀 Deploying RAG backend to Railway..."
+	@railway up --service scintillating-kindness || echo "❌ Service not found"
 
 .PHONY: deploy-full
-deploy-full: ## Deploy full stack (backend + RAG + verification)
-	@echo "🚀 Deploying full stack..."
-	./scripts/deploy/deploy-full-stack.sh
+deploy-full: ## Deploy full stack (both services)
+	@echo "🚀 Deploying full stack to Railway..."
+	@railway up
 
 # ==========================================
 # 📊 MONITORING & LOGS
 # ==========================================
 
 .PHONY: logs
-logs: ## Tail backend logs (Cloud Run)
+logs: ## Tail backend logs (Railway)
 	@echo "📋 Tailing backend logs..."
-	gcloud run services logs read zantara-v520-nuzantara --region europe-west1 --follow
+	@railway logs || echo "❌ Not linked. Run: railway link"
 
 .PHONY: logs-rag
-logs-rag: ## Tail RAG backend logs (Cloud Run)
+logs-rag: ## Tail RAG backend logs (Railway - scintillating-kindness)
 	@echo "📋 Tailing RAG backend logs..."
-	gcloud run services logs read zantara-rag-backend --region europe-west1 --follow
+	@railway logs --service scintillating-kindness || echo "❌ Service not found"
 
 .PHONY: status
-status: ## Show status of all services
-	@echo "=== 🌐 Cloud Run Services ==="
-	@gcloud run services list --region=europe-west1 --format="table(name,status,url)"
+status: ## Show status of all Railway services
+	@echo "=== 🚂 Railway Services ==="
+	@railway status || echo "❌ Not linked. Run: railway link"
 	@echo ""
 	@echo "=== 🔄 Recent GitHub Actions ==="
 	@gh run list --limit 5 || echo "Install gh CLI: brew install gh"
@@ -105,15 +104,15 @@ status: ## Show status of all services
 .PHONY: health-prod
 health-prod: ## Check production services health
 	@echo "🏥 Checking production health..."
-	@echo "\n📱 Backend API:"
-	@curl -s https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app/health | jq '.' || echo "❌ Backend unhealthy"
-	@echo "\n🧠 RAG Backend:"
-	@curl -s https://zantara-rag-backend-himaadsxua-ew.a.run.app/health | jq '.' || echo "❌ RAG unhealthy"
+	@echo "\n📱 TypeScript Backend:"
+	@curl -s https://nuzantara-production.up.railway.app/health | jq '.' || echo "❌ Backend unhealthy"
+	@echo "\n🧠 Python RAG Backend:"
+	@curl -s https://scintillating-kindness-production-47e3.up.railway.app/health | jq '.' || echo "❌ RAG unhealthy"
 
 .PHONY: metrics
 metrics: ## Show production metrics
 	@echo "📊 Backend Metrics:"
-	@curl -s https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app/metrics | jq '.'
+	@curl -s https://nuzantara-production.up.railway.app/metrics | jq '.'
 
 # ==========================================
 # 🔧 MAINTENANCE
@@ -207,28 +206,14 @@ debug-env: ## Show environment configuration
 # ==========================================
 
 .PHONY: rollback
-rollback: ## Rollback to previous Cloud Run revision
-	@echo "⚠️  Rolling back to previous revision..."
-	@echo "Services:"
-	@echo "1. Backend API (zantara-v520-nuzantara)"
-	@echo "2. RAG Backend (zantara-rag-backend)"
-	@read -p "Which service? [1/2]: " service; \
-	if [ "$$service" = "1" ]; then \
-		gcloud run services update-traffic zantara-v520-nuzantara \
-			--region europe-west1 \
-			--to-revisions PREVIOUS=100; \
-	else \
-		gcloud run services update-traffic zantara-rag-backend \
-			--region europe-west1 \
-			--to-revisions PREVIOUS=100; \
-	fi
+rollback: ## Rollback to previous Railway deployment
+	@echo "⚠️  Rolling back to previous deployment..."
+	@railway rollback || echo "❌ Not available. Check Railway dashboard for manual rollback"
 
 .PHONY: emergency-restart
-emergency-restart: ## Emergency: Restart Cloud Run service
-	@echo "🚨 Restarting backend service..."
-	gcloud run services update zantara-v520-nuzantara \
-		--region europe-west1 \
-		--update-env-vars "RESTART_TIMESTAMP=$$(date +%s)"
+emergency-restart: ## Emergency: Restart Railway service
+	@echo "🚨 Restarting Railway service..."
+	@railway restart || echo "❌ Not linked. Run: railway link"
 
 # ==========================================
 # 🎯 QUICK SHORTCUTS
@@ -254,13 +239,13 @@ log: logs ## Alias for 'make logs'
 info: ## Show project information
 	@echo "🌸 NUZANTARA v5.2.0"
 	@echo ""
-	@echo "📍 Location: /Users/antonellosiano/Desktop/NUZANTARA 2/"
+	@echo "📍 Location: /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/"
 	@echo "🔗 Repository: https://github.com/Balizero1987/nuzantara"
 	@echo ""
-	@echo "🌐 Production URLs:"
-	@echo "  Backend: https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app"
-	@echo "  RAG:     https://zantara-rag-backend-himaadsxua-ew.a.run.app"
-	@echo "  Web UI:  https://balizero1987.github.io/zantara_webapp"
+	@echo "🌐 Production URLs (Railway):"
+	@echo "  TypeScript Backend: https://nuzantara-production.up.railway.app"
+	@echo "  Python RAG Backend: https://scintillating-kindness-production-47e3.up.railway.app"
+	@echo "  Web UI (GitHub Pages): https://balizero1987.github.io/zantara_webapp"
 	@echo ""
 	@echo "📚 Documentation:"
 	@echo "  Architecture: ARCHITECTURE.md"
