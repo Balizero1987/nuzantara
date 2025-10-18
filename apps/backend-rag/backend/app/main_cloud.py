@@ -65,9 +65,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Error Monitoring Middleware (added after CORS)
-# Will be initialized with AlertService in startup event
-app.add_middleware(ErrorMonitoringMiddleware, alert_service=None)  # Placeholder, updated in startup
+# Error Monitoring Middleware will be added in startup event after AlertService is initialized
 
 # Global clients
 search_service: Optional[SearchService] = None
@@ -560,12 +558,9 @@ async def startup_event():
         alert_service = get_alert_service()
         logger.info("✅ AlertService ready (4xx/5xx error monitoring enabled)")
 
-        # Update middleware with alert service
-        for middleware in app.user_middleware:
-            if isinstance(middleware.cls, type) and middleware.cls.__name__ == "ErrorMonitoringMiddleware":
-                middleware.kwargs["alert_service"] = alert_service
-                logger.info("✅ ErrorMonitoringMiddleware linked to AlertService")
-                break
+        # Add Error Monitoring Middleware with initialized AlertService
+        app.add_middleware(ErrorMonitoringMiddleware, alert_service=alert_service)
+        logger.info("✅ ErrorMonitoringMiddleware added to app")
     except Exception as e:
         logger.error(f"❌ AlertService initialization failed: {e}")
         alert_service = None
