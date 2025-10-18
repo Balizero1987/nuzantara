@@ -1,0 +1,286 @@
+{
+  "agent": "VISA_ORACLE",
+  "lastUpdated": "2025-09-24",
+  "version": "1.0.0",
+  "visaTypes": {
+    "B211A": {
+      "name": "Tourism Visa",
+      "duration": "60 days",
+      "extensions": "2x60 days",
+      "totalStay": "180 days max",
+      "requirements": [
+        "Valid passport (6+ months)",
+        "Return ticket",
+        "Hotel booking/accommodation proof",
+        "Bank statement ($2000 USD minimum)",
+        "Travel insurance"
+      ],
+      "processingTime": {
+        "normal": "5-7 working days",
+        "express": "2-3 working days"
+      },
+      "cost": {
+        "visa": "$100 USD",
+        "extension": "$50 USD per extension"
+      },
+      "restrictions": [
+        "No work permitted",
+        "No business activities",
+        "Cannot open bank account"
+      ],
+      "tips": [
+        "Apply through official e-visa site",
+        "Tuesday/Wednesday best for immigration visits",
+        "Avoid Mondays and Fridays"
+      ]
+    },
+    "B211B": {
+      "name": "Business Visa",
+      "duration": "60 days",
+      "extensions": "2x60 days",
+      "totalStay": "180 days max",
+      "requirements": [
+        "Valid passport (6+ months)",
+        "Sponsor letter from Indonesian company",
+        "Director recommendation letter",
+        "Company documents",
+        "Business purpose statement"
+      ],
+      "processingTime": {
+        "normal": "7-10 working days",
+        "express": "3-5 working days"
+      },
+      "cost": {
+        "visa": "$150 USD",
+        "extension": "$100 USD per extension"
+      },
+      "allowedActivities": [
+        "Business meetings",
+        "Conference attendance",
+        "Market research",
+        "Training sessions"
+      ],
+      "restrictions": [
+        "No Indonesian sourced income",
+        "Cannot be employed locally"
+      ]
+    },
+    "C1": {
+      "name": "Tourist Multiple Entry",
+      "duration": "60 days per entry",
+      "validity": "1 year",
+      "entries": "Multiple",
+      "requirements": [
+        "Valid passport",
+        "Proof of frequent travel to Indonesia",
+        "Financial proof ($5000 USD)",
+        "Travel itinerary"
+      ],
+      "processingTime": "10-15 working days",
+      "cost": "$300 USD",
+      "benefits": [
+        "Multiple entries in 1 year",
+        "No need for extensions",
+        "Flexibility for frequent visitors"
+      ]
+    },
+    "KITAS_INVESTOR": {
+      "name": "Investor KITAS",
+      "duration": "1-2 years",
+      "renewable": "Yes",
+      "requirements": [
+        "PT PMA established",
+        "Minimum investment 1B IDR (shareholder)",
+        "Director/Commissioner position",
+        "RPTKA approval",
+        "IMTA work permit",
+        "Health insurance",
+        "Tax registration (NPWP)"
+      ],
+      "processingTime": {
+        "RPTKA": "7-14 days",
+        "Visa": "5-7 days",
+        "KITAS": "14-21 days",
+        "total": "30-45 days"
+      },
+      "cost": {
+        "RPTKA": "$100 USD",
+        "Visa": "$150 USD",
+        "KITAS": "$1200 USD/year"
+      },
+      "benefits": [
+        "Can work as director",
+        "Open bank accounts",
+        "Get driver license",
+        "Sponsor family"
+      ],
+      "process": [
+        "1. Establish PT PMA",
+        "2. Apply for RPTKA (work permit approval)",
+        "3. Get Telex visa from abroad",
+        "4. Enter Indonesia",
+        "5. Convert to KITAS"
+      ]
+    },
+    "KITAS_WORKING": {
+      "name": "Working KITAS",
+      "duration": "1-2 years",
+      "renewable": "Yes",
+      "requirements": [
+        "Employment contract",
+        "Company sponsor",
+        "University degree",
+        "5 years experience",
+        "RPTKA approval",
+        "Skills transfer plan"
+      ],
+      "processingTime": "30-45 days total",
+      "cost": "$1200 USD/year",
+      "restrictions": [
+        "Tied to employer",
+        "Specific position only",
+        "Cannot freelance"
+      ]
+    },
+    "KITAP": {
+      "name": "Permanent Stay Permit",
+      "duration": "5 years",
+      "renewable": "Yes, indefinitely",
+      "eligibility": [
+        "After 3+ years continuous KITAS",
+        "Marriage to Indonesian",
+        "Retirement (55+ years)",
+        "Ex-Indonesian citizen"
+      ],
+      "requirements": [
+        "3 years KITAS history",
+        "Tax compliance proof",
+        "Health insurance",
+        "Statement letter",
+        "Police clearance"
+      ],
+      "processingTime": "3-6 months",
+      "cost": "$3000 USD",
+      "benefits": [
+        "No sponsor needed",
+        "Work anywhere",
+        "Almost citizen rights",
+        "Easier renewals"
+      ]
+    }
+  },
+  "immigrationOffices": {
+    "DENPASAR": {
+      "address": "Jl. Panjaitan, Renon",
+      "hours": "08:00-16:00 Mon-Thu, 08:00-15:00 Fri",
+      "bestTime": "Tuesday 08:00-10:00",
+      "avoidTime": "Monday all day, Friday afternoon",
+      "parking": "Limited, use Grab",
+      "tips": [
+        "Online queue system available",
+        "Bring exact change for fees",
+        "Dress code enforced"
+      ]
+    },
+    "SINGARAJA": {
+      "address": "Jl. Seririt-Gilimanuk",
+      "hours": "08:00-15:00 Mon-Fri",
+      "bestTime": "Wednesday morning",
+      "lessCredits": true,
+      "tips": "Less crowded than Denpasar"
+    },
+    "AIRPORT": {
+      "location": "Ngurah Rai International",
+      "services": "VOA, emergency extensions",
+      "hours": "24/7",
+      "tips": "Only for arrivals/emergencies"
+    }
+  },
+  "processingTimes": {
+    "current": {
+      "B211A": "3-5 days",
+      "B211B": "5-7 days",
+      "KITAS": "21-30 days",
+      "KITAP": "3-6 months"
+    },
+    "factors": {
+      "delays": [
+        "Public holidays",
+        "System maintenance (usually Monday)",
+        "High season (July-August, December)",
+        "Document completeness"
+      ],
+      "expedite": [
+        "Express service available",
+        "Agent assistance",
+        "Morning submissions",
+        "Complete documents"
+      ]
+    }
+  },
+  "commonIssues": {
+    "rejections": [
+      {
+        "reason": "Photo background not white",
+        "solution": "Use professional photo service",
+        "frequency": "30% of rejections"
+      },
+      {
+        "reason": "Sponsor letter format",
+        "solution": "Use exact template from immigration",
+        "frequency": "20% of rejections"
+      },
+      {
+        "reason": "Bank statement insufficient",
+        "solution": "Show $2000+ for tourist, $5000+ for business",
+        "frequency": "15% of rejections"
+      }
+    ],
+    "delays": [
+      {
+        "cause": "Incomplete documents",
+        "prevention": "Double-check checklist",
+        "impact": "7-14 days delay"
+      },
+      {
+        "cause": "System errors",
+        "prevention": "Apply Tuesday-Thursday",
+        "impact": "2-3 days delay"
+      }
+    ]
+  },
+  "recentUpdates": [
+    {
+      "date": "2024-10-01",
+      "update": "E-visa system launched for 90 countries",
+      "impact": "Faster processing for eligible nationals"
+    },
+    {
+      "date": "2024-07-01",
+      "update": "VOA fee increased to $50 USD",
+      "impact": "Budget adjustment needed"
+    },
+    {
+      "date": "2024-05-01",
+      "update": "Digital nomad visa announced (pending)",
+      "impact": "New opportunity for remote workers"
+    }
+  ],
+  "emergencyProcedures": {
+    "overstay": {
+      "fine": "1M IDR per day",
+      "maxFine": "60M IDR",
+      "process": "Pay at immigration before departure",
+      "consequences": "Possible blacklist if >60 days"
+    },
+    "lostPassport": {
+      "steps": [
+        "1. Police report",
+        "2. Embassy letter",
+        "3. Immigration emergency travel document",
+        "4. Exit permit"
+      ],
+      "timeline": "3-5 days minimum"
+    }
+  }
+}
