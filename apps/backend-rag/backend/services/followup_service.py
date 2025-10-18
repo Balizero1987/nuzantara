@@ -205,7 +205,7 @@ class FollowupService:
 
             # Call Claude Haiku for fast follow-up generation
             haiku_response = await self.claude_client.messages.create(
-                model="claude-haiku-3-5-20241022",  # Fast & cheap
+                model="claude-3-5-haiku-20241022",  # Fast & cheap
                 max_tokens=200,
                 messages=[{"role": "user", "content": prompt}]
             )
