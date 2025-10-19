@@ -13,7 +13,7 @@ import { identityResolve, onboardingStart } from "../handlers/identity/identity.
 
 // Team Authentication
 import { teamLogin, getTeamMembers, logoutSession } from "../handlers/auth/team-login.js";
-import { teamLoginSecure, verifyToken, getTeamMemberList } from "../handlers/auth/team-login-secure.js";
+import { teamLoginSecure, verifyToken, getTeamMemberList, resetLoginAttempts } from "../handlers/auth/team-login-secure.js";
 
 // Google Workspace
 import { driveUpload, driveList, driveSearch, driveRead } from "../handlers/google-workspace/drive.js";
@@ -209,6 +209,7 @@ const handlers: Record<string, Handler> = {
   // Team Authentication
   "team.login": teamLogin, // Legacy (deprecated - no PIN)
   "team.login.secure": teamLoginSecure, // NEW: PIN-based secure login
+  "team.login.reset": resetLoginAttempts, // Admin: Reset login attempts (unblock account)
   "team.members": async () => getTeamMemberList(), // NEW: Safe list (no emails exposed)
   "team.members.legacy": async () => getTeamMembers(), // Legacy full list
   "team.logout": async (params: any) => logoutSession(params.sessionId),
