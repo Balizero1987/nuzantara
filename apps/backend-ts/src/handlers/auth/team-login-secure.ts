@@ -54,7 +54,7 @@ const TEAM_DATABASE = {
     email: 'zero@balizero.com',
     department: 'technology',
     language: 'Italian',
-    pinHash: '$2b$10$rutWaozCCzoYFeavGHcK.urGxi/Y9Td/1qq20K0nwMY412fzWlCS.',
+    pinHash: '$2b$10$sjaM6AcuTgFZM0/8tRDX5.L8vRXBr7cKeJyWojrDCZFZR5Lm8LbLq', // PIN: 010719
     badge: '🤖'
   },
   'amanda': {
