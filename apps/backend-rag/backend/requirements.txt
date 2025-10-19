@@ -32,8 +32,9 @@ python-dotenv==1.0.1
 # AWS SDK for Cloudflare R2 (S3-compatible, for ChromaDB download)
 boto3==1.35.0
 
-# PostgreSQL async driver (Railway)
+# PostgreSQL drivers (Railway)
 asyncpg==0.30.0
+psycopg2-binary==2.9.10  # For migrations (sync driver)
 
 # Server-Sent Events for streaming responses
 sse-starlette==1.8.2
