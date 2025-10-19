@@ -214,3 +214,67 @@ curl https://ts-backend-production-568d.up.railway.app/health
 ---
 
 **Session Closed**: 2025-10-18 12:10 UTC
+
+---
+
+## 📦 Session Continued: PIN Deployment Investigation (2025-10-19 00:00-00:30 UTC)
+
+### Task: Deploy new PIN (630020) for user zero@balizero.com
+
+**Objective**: Get the new PIN hash deployed to production Railway TS-BACKEND
+
+### ✅ Investigation Completata
+
+1. **Endpoint Analysis**
+   - ✅ Verified /call endpoint exists in code (`apps/backend-ts/src/routing/router.ts:1224`)
+   - ✅ Code is correct and up-to-date locally
+   - ✅ Handler `team.login.secure` properly registered at line 211
+
+2. **Railway Deployment Status Check**
+   - ❌ Railway deployment list shows: **ALL SKIPPED or FAILED**
+   - Latest deployment: `7fb066d7` - **SKIPPED** at 2025-10-19 06:50:27 +07:00
+   - No successful deployment in recent history
+   - Production backend running **OUTDATED CODE**
+
+3. **Root Cause Identified**
+   - Railway is **NOT deploying** new commits
+   - Auto-deploy from GitHub appears broken
+   - All recent deployments are either SKIPPED or FAILED
+   - Empty commit (d9d7f29) did NOT trigger successful deploy
+
+### 📊 Railway Deployment List (TS-BACKEND)
+```
+7fb066d7 | SKIPPED | 2025-10-19 06:50:27 (most recent)
+7f3df4ea | SKIPPED | 2025-10-18 20:59:27
+d85d91aa | SKIPPED | 2025-10-18 20:56:05
+3adbe850 | FAILED  | 2025-10-18 20:49:05
+0526f40b | FAILED  | 2025-10-18 20:46:24
+```
+
+### 🔍 Findings
+
+**Problem**: Production backend at `https://ts-backend-production-568d.up.railway.app`
+- ✅ /health endpoint works (returns v5.2.0)
+- ❌ /call endpoint returns "Cannot POST /call"
+- **Root Cause**: Running old code without updated routes
+
+**Attempted Fixes**:
+1. `railway up --service TS-BACKEND` → FAILED (operation timed out)
+2. Empty commit to trigger auto-deploy → SKIPPED (no deployment triggered)
+
+### 🚧 Status
+
+**PIN NOT DEPLOYED** - Railway deployment system appears broken
+
+**Next Steps** (for next session):
+1. Investigate WHY Railway is skipping all deployments
+2. Check Railway build logs for most recent FAILED deployment
+3. Possibly need to manually trigger deployment via Railway Dashboard
+4. Or investigate Railway GitHub integration (may be disconnected)
+
+### 🏁 Chiusura Sessione
+
+**Risultato**: Root cause identified - Railway auto-deploy NOT working
+**User Request**: "chiudi sessione" - session closed as requested
+
+**Session Closed**: 2025-10-19 00:30 UTC
