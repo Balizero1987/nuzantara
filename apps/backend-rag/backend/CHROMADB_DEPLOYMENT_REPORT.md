@@ -432,7 +432,7 @@ CHROMA_PERSIST_DIR: /tmp/chroma_db
   "chromadb_error": "couldn't connect to 'https://huggingface.co'",
   "anthropic": true,
   "anthropic_models": {
-    "haiku": "claude-3-5-haiku-20241022",
+    "haiku": "claude-3-haiku-20240307",
     "sonnet": "claude-3-7-sonnet-20250219"
   }
 }
