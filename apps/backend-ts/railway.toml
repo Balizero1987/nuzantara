@@ -10,7 +10,7 @@ startCommand = "npm start"
 
 # Health check configuration
 healthcheckPath = "/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 300  # 5 minutes (increased from 30s to prevent timeout failures)
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
