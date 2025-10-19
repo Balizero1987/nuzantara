@@ -409,8 +409,19 @@
       scrollToBottom();
 
       try {
-        // Get user session
-        const userEmail = localStorage.getItem('zantara-user-email') || 'guest';
+        // Get user session (support both team login and legacy login)
+        let userEmail = 'guest';
+        try {
+          const userStr = localStorage.getItem('zantara-user');
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            userEmail = user.email;
+          } else {
+            userEmail = localStorage.getItem('zantara-user-email') || 'guest';
+          }
+        } catch (e) {
+          userEmail = localStorage.getItem('zantara-user-email') || 'guest';
+        }
 
         // Call ZANTARA AI API (RAG + Tool Use enabled)
         const response = await window.ZANTARA_API.call('/bali-zero/chat', {
@@ -484,8 +495,24 @@
     });
     // Check if user is logged in and initialize session
     document.addEventListener('DOMContentLoaded', () => {
-      const userEmail = localStorage.getItem('zantara-user-email');
-      const userName = localStorage.getItem('zantara-user-name');
+      // Get user info (support both team login and legacy login)
+      let userEmail = null;
+      let userName = null;
+      try {
+        const userStr = localStorage.getItem('zantara-user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          userEmail = user.email;
+          userName = user.name;
+        } else {
+          userEmail = localStorage.getItem('zantara-user-email');
+          userName = localStorage.getItem('zantara-user-name');
+        }
+      } catch (e) {
+        userEmail = localStorage.getItem('zantara-user-email');
+        userName = localStorage.getItem('zantara-user-name');
+      }
+
       const hasIntroduced = sessionStorage.getItem('zantara-introduced');
 
       // Update UI based on login status
