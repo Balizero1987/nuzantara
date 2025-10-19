@@ -2,7 +2,7 @@
 Claude Haiku 3.5 Service - Fast & Cheap Conversational AI
 For greetings, casual chat, and simple questions
 
-Model: claude-3-5-haiku-20241022
+Model: claude-3-haiku-20240307
 Cost: $0.25/$1.25 per 1M tokens (input/output) - 12x cheaper than Sonnet
 Speed: ~50ms response time
 Use case: Simple greetings, casual conversation, quick answers
@@ -45,7 +45,7 @@ class ClaudeHaikuService:
             )
 
         self.client = AsyncAnthropic(api_key=self.api_key)
-        self.model = "claude-3-5-haiku-20241022"
+        self.model = "claude-3-haiku-20240307"
 
         logger.info(f"✅ Claude Haiku 3.5 initialized (model: {self.model})")
         logger.info("   Use case: Fast & cheap conversational AI")
@@ -111,7 +111,7 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
         Returns:
             {
                 "text": "response",
-                "model": "claude-3-5-haiku-20241022",
+                "model": "claude-3-haiku-20240307",
                 "provider": "anthropic",
                 "ai_used": "haiku",
                 "tokens": {"input": X, "output": Y}
@@ -196,7 +196,7 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
         Returns:
             {
                 "text": "response",
-                "model": "claude-3-5-haiku-20241022",
+                "model": "claude-3-haiku-20240307",
                 "provider": "anthropic",
                 "ai_used": "haiku",
                 "tokens": {"input": X, "output": Y},

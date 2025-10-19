@@ -28,6 +28,6 @@ EXPOSE 8000
 # Note: Health check handled by Railway via railway.toml healthcheckPath="/health"
 # Docker HEALTHCHECK removed to avoid dependency issues (requests/curl not in slim image)
 
-# Run with main_cloud.py (ChromaDB from GCS)
+# Run migrations then start server
 # Note: we need to add parent dir to PYTHONPATH for imports to work
-CMD ["sh", "-c", "PYTHONPATH=/app:$PYTHONPATH uvicorn app.main_cloud:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "python migrations/001_fix_missing_tables.py && PYTHONPATH=/app:$PYTHONPATH uvicorn app.main_cloud:app --host 0.0.0.0 --port 8000"]
