@@ -238,7 +238,7 @@ Update the summary to include both the previous context and new messages."""
             logger.info(f"📝 [Summary] Generating summary for {len(messages)} messages...")
 
             response = await self.claude_client.messages.create(
-                model="claude-3-5-haiku-20241022",  # Fast & cheap
+                model="claude-3-haiku-20240307",  # Fast & cheap
                 max_tokens=150,
                 messages=[{"role": "user", "content": prompt}]
             )

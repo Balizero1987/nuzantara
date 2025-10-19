@@ -270,7 +270,7 @@ class StreamingService:
             test_messages = [{"role": "user", "content": "test"}]
 
             async with self.claude_client.messages.stream(
-                model="claude-3-5-haiku-20241022",  # Fastest model
+                model="claude-3-haiku-20240307",  # Fastest model
                 messages=test_messages,
                 max_tokens=5
             ) as stream:
