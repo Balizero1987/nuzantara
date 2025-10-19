@@ -300,6 +300,25 @@ function clearLoginAttempts(email: string) {
 }
 
 /**
+ * 🔓 Admin: Reset login attempts (for debugging/unblocking users)
+ */
+export async function resetLoginAttempts(params: any) {
+  const { email } = params || {};
+
+  if (!email) {
+    throw new BadRequestError('Email is required');
+  }
+
+  loginAttempts.delete(email);
+  logger.info(`🔓 Login attempts reset for ${email}`);
+
+  return ok({
+    success: true,
+    message: `Login attempts cleared for ${email}. User can try again.`
+  });
+}
+
+/**
  * 🔐 Secure Team Login with PIN
  */
 export async function teamLoginSecure(params: any) {
