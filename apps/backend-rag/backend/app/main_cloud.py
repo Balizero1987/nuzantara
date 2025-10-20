@@ -2409,6 +2409,7 @@ async def get_all_analytics(user_email: Optional[str] = None, days: int = 7):
 
     try:
         import asyncio
+        from datetime import datetime
 
         # Run all analytics in parallel for speed
         results = await asyncio.gather(
