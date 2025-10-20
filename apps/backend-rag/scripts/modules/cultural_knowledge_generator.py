@@ -304,7 +304,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
         prompt = prompts.get(topic, f"Write a 100-150 word cultural knowledge chunk about {topic} in Indonesian business context.")
 
         try:
-            async with httpx.AsyncClient(timeout=90.0) as client:
+            async with httpx.AsyncClient(timeout=300.0) as client:  # Increased to 300s (5min) for pod initialization
                 response = await client.post(
                     self.runpod_endpoint,  # Fixed: removed duplicate /runsync
                     headers={
@@ -323,10 +323,35 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                 response.raise_for_status()
                 data = response.json()
 
-                content = data.get("output", {}).get("text", "")
+                # Handle RunPod response format
+                # If IN_QUEUE, the job is still processing (worker overloaded)
+                if data.get("status") == "IN_QUEUE":
+                    logger.warning(f"⚠️ RunPod worker queue full, job in queue")
+                    return None
+
+                # Extract content from completed job
+                # RunPod vLLM format: {"output": {"text": "..."}}
+                # or {"output": {"choices": [{"text": "..."}]}}
+                output = data.get("output", {})
+
+                # Try multiple response formats
+                content = None
+                if isinstance(output, dict):
+                    # Format 1: {"output": {"text": "..."}}
+                    content = output.get("text", "")
+
+                    # Format 2: {"output": {"choices": [{"text": "..."}]}}
+                    if not content and "choices" in output:
+                        choices = output.get("choices", [])
+                        if choices and len(choices) > 0:
+                            content = choices[0].get("text", "")
+
+                    # Format 3: {"output": "direct string"}
+                elif isinstance(output, str):
+                    content = output
 
                 if not content:
-                    logger.error("❌ LLAMA returned empty response")
+                    logger.error(f"❌ LLAMA returned empty response. Data: {data}")
                     return None
 
                 logger.info(f"✅ LLAMA generated cultural chunk ({len(content)} chars)")
@@ -334,7 +359,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                 return content.strip()
 
         except httpx.TimeoutException:
-            logger.error("❌ LLAMA timeout (>90s)")
+            logger.error("❌ LLAMA timeout (>300s)")
             return None
         except Exception as e:
             logger.error(f"❌ LLAMA generation failed: {e}")
