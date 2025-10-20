@@ -413,15 +413,19 @@
         let userEmail = 'guest';
         try {
           const userStr = localStorage.getItem('zantara-user');
-          if (userStr) {
+          if (userStr && userStr !== 'undefined' && userStr !== 'null') {
             const user = JSON.parse(userStr);
-            userEmail = user.email;
+            userEmail = user.email || localStorage.getItem('zantara-user-email') || 'guest';
           } else {
             userEmail = localStorage.getItem('zantara-user-email') || 'guest';
           }
         } catch (e) {
+          console.warn('Failed to parse user session, using fallback:', e);
           userEmail = localStorage.getItem('zantara-user-email') || 'guest';
         }
+
+        // DEBUG: Log email being sent (remove in production)
+        console.log('🔍 Sending message with user_email:', userEmail);
 
         // Call ZANTARA AI API (RAG + Tool Use enabled)
         const response = await window.ZANTARA_API.call('/bali-zero/chat', {
