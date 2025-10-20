@@ -11,7 +11,7 @@ COST OPTIMIZATION: ~50% savings vs all-Sonnet
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
@@ -2024,3 +2024,57 @@ async def get_daily_report(date: Optional[str] = None):
     except Exception as e:
         logger.error(f"Failed to generate daily report: {e}")
         raise HTTPException(500, f"Failed to generate report: {str(e)}")
+
+
+@app.get("/team/report/weekly")
+async def get_weekly_report():
+    """
+    Get weekly team report
+    For ZERO dashboard only
+
+    Returns summary of all team members' work for the past 7 days
+    """
+    if not work_session_service:
+        raise HTTPException(503, "Work session service not available")
+
+    try:
+        report = await work_session_service.get_week_summary()
+        return {
+            "success": True,
+            **report
+        }
+    except Exception as e:
+        logger.error(f"Failed to generate weekly report: {e}")
+        raise HTTPException(500, f"Failed to generate report: {str(e)}")
+
+
+@app.get("/admin/zero/dashboard", response_class=HTMLResponse)
+async def zero_dashboard():
+    """
+    ZERO Dashboard - Team Work Sessions Monitoring
+    Real-time view of team activity, sessions, and reports
+
+    Features:
+    - Active sessions (who's working now)
+    - Completed sessions today
+    - Daily statistics
+    - Weekly summary
+    - Auto-refresh every 30 seconds
+    """
+    try:
+        # Read HTML template
+        template_path = Path(__file__).parent / "templates" / "zero_dashboard.html"
+
+        if not template_path.exists():
+            raise HTTPException(404, "Dashboard template not found")
+
+        with open(template_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+
+        return HTMLResponse(content=html_content)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to load dashboard: {e}")
+        raise HTTPException(500, f"Dashboard error: {str(e)}")
