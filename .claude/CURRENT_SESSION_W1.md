@@ -590,3 +590,86 @@ curl https://ts-backend-production-568d.up.railway.app/health
 ---
 
 **Session Closed**: 2025-10-19 08:00 UTC
+
+---
+
+## 📦 Session 6: Railway Deployment Deep Investigation (2025-10-19 14:40-15:10 UTC)
+
+### Task: Investigate deployment failures + apply fixes
+
+**Objective**: Capire perché Railway deployments falliscono e applicare fix.
+
+### ✅ Completato
+
+#### 1. Deep Investigation Deployment Status
+- **Analisi deployment recenti**:
+  - RAG BACKEND: 100% FAILED dal 2025-10-18 20:43
+  - TS-BACKEND: SKIPPED (no changes) o BUILDING (stuck)
+- **Test servizi live**: ✅ Entrambi operativi (vecchi deployment)
+- **Problema**: Nuovi deployment non vanno in produzione
+
+#### 2. Root Cause Analysis
+Identificati 3 problemi critici:
+
+**#1 PyTorch Mancante** ❌:
+- `requirements.txt` aveva commento "Install via Dockerfile"
+- Ma Dockerfile NON installava PyTorch
+- `sentence-transformers` richiede PyTorch
+- Build falliva alla riga 16 (download embedding model)
+
+**#2 Model Download Timeout** (sospetto):
+- Download 72MB embedding model durante build
+- Nessun error handling
+- Possibile timeout Railway
+
+**#3 ChromaDB R2 Download** (sospetto):
+- Download ChromaDB da R2 durante startup
+- Health check potrebbe timeout
+
+#### 3. Fix Applicato
+**PyTorch Fix**:
+```dockerfile
+# Install PyTorch CPU-only first (required for sentence-transformers)
+# This fixes deployment failures caused by missing PyTorch dependency
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+```
+
+**Status**: ✅ Già committato in `c16f39a` dall'utente
+
+#### 4. Verifica Commits
+- `5784405`: DB migration + model downgrade (Haiku 3.0)
+- `c16f39a`: PyTorch fix + model name update
+- Tutti i fix già su GitHub ✅
+
+### 📊 Files Verificati
+
+1. **Dockerfile**: PyTorch install presente (c16f39a)
+2. **requirements.txt**: psycopg2-binary aggiunto (user)
+3. **Migration script**: 001_fix_missing_tables.py presente
+4. **Model names**: Tutti aggiornati a Haiku 3.0
+
+### 🎯 Situazione Attuale
+
+**Commits pronti**:
+- ✅ PyTorch fix (c16f39a)
+- ✅ DB migration (5784405)
+- ✅ Model downgrade (5784405)
+
+**Railway status**:
+- ❌ Deployment FAILED continues
+- ⚠️ Possibile GitHub sync issue (da W2 session notes)
+
+**Next steps** (da eseguire manualmente):
+1. Verificare Railway GitHub integration
+2. Force redeploy via Railway Dashboard
+3. Monitorare build logs per confermare fix
+
+### 🏁 Chiusura Sessione
+
+**Risultato**: Investigation completa, fix già committati
+**Status**: Tutti i code fix pronti, deployment richiede intervento Railway
+**Handover**: Codice pronto, Railway deve pullare latest commits
+
+---
+
+**Session Closed**: 2025-10-19 15:10 UTC

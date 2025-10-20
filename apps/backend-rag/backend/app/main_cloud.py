@@ -1192,9 +1192,16 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
         raise HTTPException(503, "Intelligent Router not available - Claude AI required")
 
     try:
+        # OPTIMIZATION: Sanitize user_email (frontend might send "undefined" or "null" as strings)
+        sanitized_email = None
+        if request.user_email:
+            email_str = request.user_email.strip().lower()
+            if email_str not in ["undefined", "null", "none", ""]:
+                sanitized_email = request.user_email  # Use original (preserve case)
+
         # OPTIMIZATION: Prepare email identification first
         inferred_email = None
-        if not request.user_email and request.query:
+        if not sanitized_email and request.query:
             ql = request.query.lower().strip()
             zero_triggers = [
                 "sono zero", "io sono zero", "this is zero",
