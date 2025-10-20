@@ -244,14 +244,14 @@ export async function teamTestRecognition(req: Request, res: Response) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Unknown RAG error' }));
+      const errorData = await response.json().catch(() => ({ message: 'Unknown RAG error' })) as any;
       return res.status(response.status).json({
         ok: false,
         error: errorData.message || `RAG Backend Error: ${response.status}`
       });
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
     return res.json({
       ok: data.success,
       status: response.status,
