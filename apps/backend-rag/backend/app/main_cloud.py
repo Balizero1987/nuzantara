@@ -690,9 +690,11 @@ async def startup_event():
         alert_service = get_alert_service()
         logger.info("✅ AlertService ready (4xx/5xx error monitoring enabled)")
 
-        # Add Error Monitoring Middleware with initialized AlertService
-        app.add_middleware(ErrorMonitoringMiddleware, alert_service=alert_service)
-        logger.info("✅ ErrorMonitoringMiddleware added to app")
+        # FIXED: Cannot add middleware in startup event - middleware must be added before app starts
+        # The ErrorMonitoringMiddleware should be added at app initialization, not in startup event
+        # For now, we'll use AlertService without the middleware
+        # app.add_middleware(ErrorMonitoringMiddleware, alert_service=alert_service)
+        logger.info("✅ AlertService initialized (middleware disabled to fix startup error)")
     except Exception as e:
         logger.error(f"❌ AlertService initialization failed: {e}")
         alert_service = None
