@@ -345,6 +345,9 @@ Session ID: {session['id']}
 
         subject = f"🏁 {user_name} finished work - {hours}h {minutes}m"
 
+        # Prepare notes section (avoid nested f-strings)
+        notes_section = f"📝 NOTES FROM TEAM MEMBER:\n{notes}\n\n" if notes else ""
+
         message = f"""
 TEAM MEMBER WORK SESSION COMPLETED
 
@@ -360,9 +363,7 @@ TEAM MEMBER WORK SESSION COMPLETED
 • {conversations} conversations handled
 • {activities} total activities
 
-{f'📝 NOTES FROM TEAM MEMBER:\n{notes}\n' if notes else ''}
-
----
+{notes_section}---
 View full dashboard: /admin/zero/dashboard
 """
 
