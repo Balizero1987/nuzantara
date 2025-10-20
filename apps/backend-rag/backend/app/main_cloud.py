@@ -752,7 +752,7 @@ async def startup_event():
 
     # Initialize Handler Proxy Service (Tool Use) - MUST be before Intelligent Router
     try:
-        ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app")
+        ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://ts-backend-production-568d.up.railway.app")
         handler_proxy_service = init_handler_proxy(ts_backend_url)
         logger.info(f"✅ HandlerProxyService ready → {ts_backend_url}")
     except Exception as e:
