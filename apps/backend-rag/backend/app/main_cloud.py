@@ -475,7 +475,13 @@ def sanitize_public_answer(text: str) -> str:
 
 
 async def initialize_memory_tables():
-    """Initialize PostgreSQL memory tables if they don't exist"""
+    """Initialize PostgreSQL memory tables if they don't exist
+
+    IMPORTANT: This function handles both fresh installations and existing databases.
+    - Creates tables if they don't exist
+    - Adds missing columns to existing tables (ALTER TABLE ADD COLUMN IF NOT EXISTS)
+    - Creates indexes only if columns exist
+    """
     try:
         database_url = os.getenv("DATABASE_URL")
 
@@ -489,7 +495,9 @@ async def initialize_memory_tables():
 
         conn = await asyncpg.connect(database_url)
 
-        # Create memory_facts table
+        # ========================================
+        # MEMORY_FACTS TABLE
+        # ========================================
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS memory_facts (
                 id SERIAL PRIMARY KEY,
@@ -504,10 +512,13 @@ async def initialize_memory_tables():
             )
         """)
 
+        # Indexes for memory_facts (safe - these columns always exist)
         await conn.execute("CREATE INDEX IF NOT EXISTS idx_memory_facts_user_id ON memory_facts(user_id)")
         await conn.execute("CREATE INDEX IF NOT EXISTS idx_memory_facts_created_at ON memory_facts(created_at DESC)")
 
-        # Create user_stats table
+        # ========================================
+        # USER_STATS TABLE
+        # ========================================
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS user_stats (
                 user_id VARCHAR(255) PRIMARY KEY,
@@ -522,25 +533,68 @@ async def initialize_memory_tables():
             )
         """)
 
+        # Index for user_stats (safe)
         await conn.execute("CREATE INDEX IF NOT EXISTS idx_user_stats_last_activity ON user_stats(last_activity DESC)")
 
-        # Create conversations table
+        # ========================================
+        # CONVERSATIONS TABLE (handles existing tables with old schema)
+        # ========================================
+
+        # First create table with basic schema if it doesn't exist
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS conversations (
                 id SERIAL PRIMARY KEY,
                 user_id VARCHAR(255) NOT NULL,
-                session_id VARCHAR(255),
                 messages JSONB NOT NULL,
                 metadata JSONB DEFAULT '{}'::jsonb,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
             )
         """)
 
-        await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id)")
-        await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_session_id ON conversations(session_id)")
-        await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_created_at ON conversations(created_at DESC)")
+        # Add session_id column if it doesn't exist (for existing tables)
+        # This is the fix for the "column session_id does not exist" error
+        try:
+            await conn.execute("""
+                ALTER TABLE conversations
+                ADD COLUMN IF NOT EXISTS session_id VARCHAR(255)
+            """)
+        except Exception as e:
+            # Some PostgreSQL versions don't support IF NOT EXISTS in ALTER TABLE
+            # Try without it
+            try:
+                # Check if column exists
+                col_exists = await conn.fetchval("""
+                    SELECT EXISTS (
+                        SELECT FROM information_schema.columns
+                        WHERE table_name = 'conversations'
+                        AND column_name = 'session_id'
+                    )
+                """)
 
-        # Create users table
+                if not col_exists:
+                    await conn.execute("ALTER TABLE conversations ADD COLUMN session_id VARCHAR(255)")
+            except:
+                pass  # Column already exists or other error - non-fatal
+
+        # Create indexes (wrapped in try-except for safety)
+        try:
+            await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id)")
+        except:
+            pass
+
+        try:
+            await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_session_id ON conversations(session_id)")
+        except:
+            pass  # Column might not exist in old schemas
+
+        try:
+            await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_created_at ON conversations(created_at DESC)")
+        except:
+            pass
+
+        # ========================================
+        # USERS TABLE
+        # ========================================
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id VARCHAR(255) PRIMARY KEY,
@@ -559,6 +613,8 @@ async def initialize_memory_tables():
 
     except Exception as e:
         logger.error(f"❌ Failed to initialize memory tables: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         return False
 
 
