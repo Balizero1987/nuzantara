@@ -16,13 +16,11 @@ RUN apt-get update && apt-get install -y \
 # Copy only requirements first (better caching)
 COPY requirements.txt .
 
-# Install PyTorch CPU-only with cache mount (Railway requires explicit ID)
-RUN --mount=type=cache,id=pip-cache,target=/root/.cache/pip \
-    pip install torch --index-url https://download.pytorch.org/whl/cpu
+# Install PyTorch CPU-only (cache mounts removed for Railway compatibility)
+RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
 
-# Install all other dependencies with cache mount
-RUN --mount=type=cache,id=pip-cache,target=/root/.cache/pip \
-    pip install -r requirements.txt
+# Install all other dependencies
+RUN pip install -r requirements.txt
 
 # ========================================
 # Stage 2: Model Downloader (separate for caching)
