@@ -35,7 +35,7 @@ import { oracleSimulate, oracleAnalyze, oraclePredict } from "../handlers/bali-z
 import { documentPrepare, assistantRoute } from "../handlers/bali-zero/advisory.js";
 import { kbliLookup, kbliRequirements } from "../handlers/bali-zero/kbli.js";
 import { baliZeroPricing, baliZeroQuickPrice } from "../handlers/bali-zero/bali-zero-pricing.js";
-import { teamList, teamGet, teamDepartments } from "../handlers/bali-zero/team.js";
+import { teamList, teamGet, teamDepartments, teamTestRecognition } from "../handlers/bali-zero/team.js";
 import { teamRecentActivity } from "../handlers/bali-zero/team-activity.js";
 
 // ZANTARA Collaborative Intelligence
@@ -381,6 +381,14 @@ const handlers: Record<string, Handler> = {
       status: () => mockRes
     } as any;
     return await teamDepartments(mockReq, mockRes);
+  },
+  "team.test.recognition": async (params: any) => {
+    const mockReq = { body: params, headers: { 'x-api-key': 'zantara-internal-dev-key-2025' } } as any;
+    const mockRes = {
+      json: (data: any) => data,
+      status: (code: number) => ({ json: (data: any) => ({ ...data, statusCode: code }) })
+    } as any;
+    return await teamTestRecognition(mockReq, mockRes);
   },
 
   /**

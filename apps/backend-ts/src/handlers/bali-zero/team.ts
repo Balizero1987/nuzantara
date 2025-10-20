@@ -217,3 +217,54 @@ export async function teamDepartments(req: Request, res: Response) {
     });
   }
 }
+
+// Test handler for collaborator recognition
+export async function teamTestRecognition(req: Request, res: Response) {
+  try {
+    const { email, prompt = "Ciao, sono un collega. Confermi il mio profilo?" } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Email is required'
+      });
+    }
+
+    const ragBackendUrl = process.env.RAG_BACKEND_URL || 'https://scintillating-kindness-production-47e3.up.railway.app';
+    const response = await fetch(`${ragBackendUrl}/bali-zero/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': req.headers['x-api-key'] as string,
+        'x-user-id': email, // Pass email as x-user-id header
+      },
+      body: JSON.stringify({
+        query: prompt,
+        user_email: email, // Pass email in body for RAG backend
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Unknown RAG error' }));
+      return res.status(response.status).json({
+        ok: false,
+        error: errorData.message || `RAG Backend Error: ${response.status}`
+      });
+    }
+
+    const data = await response.json();
+    return res.json({
+      ok: data.success,
+      status: response.status,
+      ms: Date.now() - (req as any).ctx?.startTime || 0,
+      model: data.model_used,
+      snippet: data.response ? data.response.substring(0, 100) : null,
+      full_response: data
+    });
+  } catch (error: any) {
+    logger.error('team.test.recognition error:', error);
+    return res.status(500).json({
+      ok: false,
+      error: error?.message || 'Internal Error'
+    });
+  }
+}
