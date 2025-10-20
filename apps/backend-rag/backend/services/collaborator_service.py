@@ -136,7 +136,7 @@ class CollaboratorService:
         },
 
         # Tax Department (L1-L2)
-        "veronika@balizero.com": {
+        "tax@balizero.com": {
             "id": "veronika",
             "name": "Veronika",
             "ambaradam_name": "Vero Tax Lead",
@@ -151,7 +151,7 @@ class CollaboratorService:
                 "humor": "minimal"
             }
         },
-        "angel@balizero.com": {
+        "angel.tax@balizero.com": {
             "id": "angel",
             "name": "Angel",
             "ambaradam_name": "Angel Numbers",
@@ -179,7 +179,7 @@ class CollaboratorService:
             "expertise_level": "intermediate",
             "emotional_preferences": {"tone": "professional", "formality": "medium", "humor": "light"}
         },
-        "vino@balizero.com": {
+        "info@balizero.com": {
             "id": "vino",
             "name": "Vino",
             "ambaradam_name": "Vino Junior",
@@ -190,7 +190,7 @@ class CollaboratorService:
             "expertise_level": "beginner",
             "emotional_preferences": {"tone": "eager_learning", "formality": "medium", "humor": "light"}
         },
-        "adit@balizero.com": {
+        "consulting@balizero.com": {
             "id": "adit",
             "name": "Adit",
             "ambaradam_name": "Adit Crew",
@@ -236,7 +236,7 @@ class CollaboratorService:
         },
 
         # Tax Department Consultants (L1)
-        "kadek@balizero.com": {
+        "kadek.tax@balizero.com": {
             "id": "kadek",
             "name": "Kadek",
             "ambaradam_name": "Kadek Tax",
@@ -247,7 +247,7 @@ class CollaboratorService:
             "expertise_level": "intermediate",
             "emotional_preferences": {"tone": "precise", "formality": "high", "humor": "minimal"}
         },
-        "dewa.ayu@balizero.com": {
+        "dewa.ayu.tax@balizero.com": {
             "id": "dewa_ayu",
             "name": "Dewa Ayu",
             "ambaradam_name": "Dewa Tax",
@@ -258,7 +258,7 @@ class CollaboratorService:
             "expertise_level": "intermediate",
             "emotional_preferences": {"tone": "helpful_clear", "formality": "high", "humor": "minimal"}
         },
-        "faisha@balizero.com": {
+        "faisha.tax@balizero.com": {
             "id": "faisha",
             "name": "Faisha",
             "ambaradam_name": "Faisha Care",
