@@ -40,8 +40,10 @@ from services.tool_executor import ToolExecutor
 from services.claude_haiku_service import ClaudeHaikuService
 from services.claude_sonnet_service import ClaudeSonnetService
 from services.intelligent_router import IntelligentRouter
+from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultural intelligence
 from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
+from services.work_session_service import WorkSessionService
 from middleware.error_monitoring import ErrorMonitoringMiddleware
 
 # Configure logging
@@ -75,6 +77,7 @@ search_service: Optional[SearchService] = None
 claude_haiku: Optional[ClaudeHaikuService] = None  # Fast & cheap for greetings
 claude_sonnet: Optional[ClaudeSonnetService] = None  # Premium for business queries
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
+cultural_rag_service: Optional[CulturalRAGService] = None  # NEW: LLAMA cultural RAG
 collaborator_service: Optional[CollaboratorService] = None
 memory_service: Optional[MemoryServicePostgres] = None
 conversation_service: Optional[ConversationService] = None
@@ -84,6 +87,7 @@ reranker_service: Optional["RerankerService"] = None  # String annotation for la
 handler_proxy_service: Optional[HandlerProxyService] = None
 fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
 alert_service: Optional[AlertService] = None  # Error monitoring and alerts
+work_session_service: Optional[WorkSessionService] = None  # Team work session tracking
 
 # System prompt
 SYSTEM_PROMPT = """🎯 **IMMEDIATE UNDERSTANDING PROTOCOL**
@@ -597,6 +601,56 @@ async def initialize_memory_tables():
             )
         """)
 
+        # ========================================
+        # WORK SESSIONS TABLES (Migration 003)
+        # ========================================
+        logger.info("📊 Applying migration 003: Work Sessions Schema...")
+
+        # Table: team_work_sessions
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS team_work_sessions (
+                id SERIAL PRIMARY KEY,
+                user_id VARCHAR(255) NOT NULL,
+                user_name VARCHAR(255) NOT NULL,
+                user_email VARCHAR(255) NOT NULL,
+                session_start TIMESTAMP WITH TIME ZONE NOT NULL,
+                session_end TIMESTAMP WITH TIME ZONE,
+                duration_minutes INTEGER,
+                activities_count INTEGER DEFAULT 0,
+                conversations_count INTEGER DEFAULT 0,
+                last_activity TIMESTAMP WITH TIME ZONE,
+                status VARCHAR(50) DEFAULT 'active',
+                notes TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """)
+
+        # Indexes for team_work_sessions
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_work_sessions_user_id ON team_work_sessions(user_id)")
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_work_sessions_date ON team_work_sessions(session_start)")
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_work_sessions_status ON team_work_sessions(status)")
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_work_sessions_user_date ON team_work_sessions(user_id, session_start)")
+
+        # Table: team_daily_reports
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS team_daily_reports (
+                id SERIAL PRIMARY KEY,
+                report_date DATE NOT NULL UNIQUE,
+                team_summary JSONB NOT NULL,
+                total_hours FLOAT NOT NULL,
+                total_conversations INTEGER DEFAULT 0,
+                sent_to_zero BOOLEAN DEFAULT FALSE,
+                sent_at TIMESTAMP WITH TIME ZONE,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """)
+
+        # Index for team_daily_reports
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_daily_reports_date ON team_daily_reports(report_date DESC)")
+
+        logger.info("✅ Migration 003 applied: Work Sessions tables ready")
+
         await conn.close()
 
         logger.info("✅ Memory tables initialized successfully")
@@ -696,7 +750,7 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, claude_haiku, claude_sonnet, intelligent_router, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service
+    global search_service, claude_haiku, claude_sonnet, intelligent_router, cultural_rag_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (DUAL-AI: Claude Haiku + Claude Sonnet + DevAI)...")
 
@@ -791,18 +845,30 @@ async def startup_event():
                     logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
                     tool_executor = None
 
+            # Initialize Cultural RAG Service (LLAMA-generated cultural intelligence)
+            cultural_rag_service = None
+            if search_service:
+                try:
+                    cultural_rag_service = CulturalRAGService(search_service)
+                    logger.info("✅ Cultural RAG Service ready (LLAMA's Indonesian soul)")
+                except Exception as e:
+                    logger.warning(f"⚠️ Cultural RAG Service initialization failed: {e}")
+                    cultural_rag_service = None
+
             intelligent_router = IntelligentRouter(
                 llama_client=None,  # No LLAMA - pure Claude routing
                 haiku_service=claude_haiku,
                 sonnet_service=claude_sonnet,
                 devai_endpoint=devai_endpoint,
                 search_service=search_service,
-                tool_executor=tool_executor
+                tool_executor=tool_executor,
+                cultural_rag_service=cultural_rag_service  # NEW: LLAMA cultural intelligence
             )
-            logger.info("✅ Intelligent Router ready (TRIPLE-AI)")
+            logger.info("✅ Intelligent Router ready (TRIPLE-AI + Cultural RAG)")
             logger.info("   AI 1: Claude Haiku (greetings, 60% traffic)")
             logger.info("   AI 2: Claude Sonnet (business, 35% traffic)")
             logger.info(f"   AI 3: DevAI (code, 5% traffic) - {'✅ configured' if devai_endpoint else '⚠️ not configured'}")
+            logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
             logger.info("   Cost optimization: ~50% savings vs all-Sonnet")
         else:
             logger.warning("⚠️ Intelligent Router not initialized - missing Claude AI services")
@@ -887,6 +953,15 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ Fact Extractor initialization failed: {e}")
         fact_extractor = None
+
+    # Initialize Work Session Service (Team tracking - all reports to ZERO)
+    try:
+        work_session_service = WorkSessionService()
+        await work_session_service.connect()
+        logger.info("✅ WorkSessionService ready (team activity tracking → ZERO only)")
+    except Exception as e:
+        logger.error(f"❌ WorkSessionService initialization failed: {e}")
+        work_session_service = None
 
     logger.info("✅ ZANTARA RAG Backend ready on port 8000")
 
@@ -1230,11 +1305,76 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 sub_rosa_level = collaborator.sub_rosa_level
                 user_id = collaborator.id
                 logger.info(f"👤 {collaborator.name} ({collaborator.ambaradam_name}) - L{sub_rosa_level} - {collaborator.language}")
+
+                # WORK SESSION TRACKING: Auto-start session on first activity
+                if work_session_service:
+                    try:
+                        await work_session_service.start_session(
+                            user_id=user_id,
+                            user_name=collaborator.name,
+                            user_email=effective_email
+                        )
+                    except Exception as ws_error:
+                        logger.warning(f"⚠️ Work session start failed: {ws_error}")
+
             except Exception as e:
                 logger.warning(f"⚠️ Collaborator identification failed: {e}")
                 collaborator, sub_rosa_level, user_id = None, 0, "anonymous"
         else:
             logger.info("👤 Anonymous user - L0 (Public)")
+
+        # SPECIAL COMMAND: "logout today" - End work session
+        query_lower = request.query.lower().strip()
+        logout_triggers = [
+            "logout today", "fine giornata", "chiudo oggi", "end work today",
+            "logout", "fine lavoro", "chiudo per oggi", "ho finito oggi"
+        ]
+
+        if user_id != "anonymous" and any(trigger in query_lower for trigger in logout_triggers):
+            if work_session_service:
+                try:
+                    session_result = await work_session_service.end_session(user_id, notes=None)
+
+                    if session_result.get("status") == "completed":
+                        # Extract session info for response
+                        duration_hours = session_result.get("duration_hours", 0)
+                        conversations = session_result.get("conversations", 0)
+
+                        # Language-specific response
+                        is_italian = collaborator and (collaborator.language or "").lower().startswith("it")
+
+                        if is_italian:
+                            response_text = f"Perfetto! Ho chiuso la tua sessione di lavoro.\n\n⏱️ Durata: {duration_hours}h\n💬 Conversazioni: {conversations}\n\nBuon riposo! Il report è stato inviato a ZERO."
+                        else:
+                            response_text = f"Perfect! I've closed your work session.\n\n⏱️ Duration: {duration_hours}h\n💬 Conversations: {conversations}\n\nHave a great rest! Report sent to ZERO."
+
+                        return BaliZeroResponse(
+                            success=True,
+                            response=response_text,
+                            model_used="logout-command",
+                            ai_used="system",
+                            sources=None,
+                            usage={"input_tokens": 0, "output_tokens": 0}
+                        )
+                    elif session_result.get("status") == "no_active_session":
+                        is_italian = collaborator and (collaborator.language or "").lower().startswith("it")
+
+                        if is_italian:
+                            response_text = "Non ho trovato una sessione attiva per oggi. Forse l'hai già chiusa?"
+                        else:
+                            response_text = "I couldn't find an active session for today. Maybe you already closed it?"
+
+                        return BaliZeroResponse(
+                            success=True,
+                            response=response_text,
+                            model_used="logout-command",
+                            ai_used="system",
+                            sources=None,
+                            usage={"input_tokens": 0, "output_tokens": 0}
+                        )
+                except Exception as logout_error:
+                    logger.error(f"❌ Logout command failed: {logout_error}")
+                    # Continue with normal chat if logout fails
 
         # OPTIMIZATION: Parallel execution of PHASES 2-3 (NOW that we have collaborator)
         async def load_memory():
@@ -1304,6 +1444,14 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
             used_rag = routing_result.get("used_rag", False)
 
             logger.info(f"✅ [Router] Response from {ai_used} (model: {model_used})")
+
+            # WORK SESSION TRACKING: Update activity and increment conversations
+            if work_session_service and user_id != "anonymous":
+                try:
+                    await work_session_service.update_activity(user_id)
+                    await work_session_service.increment_conversations(user_id)
+                except Exception as ws_error:
+                    logger.warning(f"⚠️ Work session tracking failed: {ws_error}")
 
             # OPTIMIZATION: Get sources in parallel (non-blocking for main response)
             # Only fetch sources if RAG was used - reduced complexity
@@ -1758,3 +1906,121 @@ async def get_memory_frontend(userId: str):
     except Exception as e:
         logger.error(f"Memory retrieval failed for {userId}: {e}")
         raise HTTPException(500, f"Memory retrieval failed: {str(e)}")
+
+
+# ========================================
+# TEAM WORK SESSION TRACKING ENDPOINTS
+# All reports sent to ZERO only
+# ========================================
+
+class SessionStartRequest(BaseModel):
+    user_id: str
+    user_name: str
+    user_email: str
+
+
+@app.post("/team/session/start")
+async def start_work_session(request: SessionStartRequest):
+    """
+    Start work session for team member
+    Auto-called on first activity of the day
+
+    Sends notification to ZERO only
+    """
+    if not work_session_service:
+        raise HTTPException(503, "Work session service not available")
+
+    try:
+        result = await work_session_service.start_session(
+            user_id=request.user_id,
+            user_name=request.user_name,
+            user_email=request.user_email
+        )
+        return result
+    except Exception as e:
+        logger.error(f"Failed to start session: {e}")
+        raise HTTPException(500, f"Failed to start session: {str(e)}")
+
+
+class SessionEndRequest(BaseModel):
+    user_id: str
+    notes: Optional[str] = None
+
+
+@app.post("/team/session/end")
+async def end_work_session(request: SessionEndRequest):
+    """
+    End work session for team member
+    Triggered by "logout today" command in chat
+
+    Sends detailed report to ZERO only
+    """
+    if not work_session_service:
+        raise HTTPException(503, "Work session service not available")
+
+    try:
+        result = await work_session_service.end_session(
+            user_id=request.user_id,
+            notes=request.notes
+        )
+        return result
+    except Exception as e:
+        logger.error(f"Failed to end session: {e}")
+        raise HTTPException(500, f"Failed to end session: {str(e)}")
+
+
+@app.get("/team/sessions/today")
+async def get_today_sessions():
+    """
+    Get all work sessions for today
+    For ZERO dashboard only
+    """
+    if not work_session_service:
+        raise HTTPException(503, "Work session service not available")
+
+    try:
+        sessions = await work_session_service.get_today_sessions()
+        return {
+            "success": True,
+            "date": "today",
+            "sessions_count": len(sessions),
+            "sessions": sessions
+        }
+    except Exception as e:
+        logger.error(f"Failed to get today's sessions: {e}")
+        raise HTTPException(500, f"Failed to get sessions: {str(e)}")
+
+
+@app.get("/team/report/daily")
+async def get_daily_report(date: Optional[str] = None):
+    """
+    Get daily team report
+    For ZERO dashboard only
+
+    Query params:
+        date: Optional date in YYYY-MM-DD format (defaults to today)
+    """
+    if not work_session_service:
+        raise HTTPException(503, "Work session service not available")
+
+    try:
+        from datetime import datetime
+
+        # Parse date if provided
+        report_date = None
+        if date:
+            try:
+                report_date = datetime.strptime(date, "%Y-%m-%d")
+            except ValueError:
+                raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD")
+
+        report = await work_session_service.generate_daily_report(report_date)
+        return {
+            "success": True,
+            **report
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to generate daily report: {e}")
+        raise HTTPException(500, f"Failed to generate report: {str(e)}")
