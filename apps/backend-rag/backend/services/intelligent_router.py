@@ -7,11 +7,29 @@ Routing logic:
 - Business/Complex → Claude Sonnet + RAG (premium quality)
 - Code/Development → DevAI Qwen 2.5 Coder (code specialist)
 - Fallback → Claude Sonnet (safest)
+
+PHASE 1 & 2 FIXES (2025-10-21):
+- Response sanitization (removes training data artifacts)
+- Length enforcement (SANTAI mode max 30 words)
+- Conditional contact info (not for greetings)
+- Query classification for RAG skip (NO RAG for greetings/casual)
 """
 
 import logging
 import re
 from typing import Dict, Optional, List, Any
+import sys
+from pathlib import Path
+
+# Add utils to path for response_sanitizer import
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.response_sanitizer import (
+    process_zantara_response,
+    classify_query_type as classify_query_for_rag,
+    sanitize_zantara_response,
+    enforce_santai_mode,
+    add_contact_if_appropriate
+)
 
 logger = logging.getLogger(__name__)
 
@@ -338,6 +356,10 @@ class IntelligentRouter:
         try:
             logger.info(f"🚦 [Router] Routing message for user {user_id}")
 
+            # PHASE 1 & 2: Classify query type FIRST (for RAG skip and response sanitization)
+            query_type = classify_query_for_rag(message)
+            logger.info(f"📋 [Router] Query type: {query_type} (for RAG and sanitization)")
+
             # PHASE 2: Follow-up detection - maintain AI continuity for conversational flow
             if last_ai_used and conversation_history and len(conversation_history) > 0:
                 message_lower = message.lower().strip()
@@ -640,8 +662,17 @@ class IntelligentRouter:
                         max_tokens=300  # INCREASED from 150 - allow warmer, more natural casual responses
                     )
 
+                # PHASE 1 & 2: Apply response sanitization
+                sanitized_response = process_zantara_response(
+                    result["text"],
+                    query_type,
+                    apply_santai=True,  # Enforce length for greetings/casual
+                    add_contact=True    # Conditionally add contact (not for greetings)
+                )
+                logger.info(f"   ✨ [Phase 1&2] Response sanitized (type: {query_type})")
+
                 return {
-                    "response": result["text"],
+                    "response": sanitized_response,
                     "ai_used": "haiku",
                     "category": category,
                     "model": result["model"],
@@ -657,9 +688,14 @@ class IntelligentRouter:
                 logger.info("🎯 [Router] Using Claude Sonnet (premium + RAG)")
                 sonnet_start = time.time()
 
-                # Get RAG context if available
+                # PHASE 1 & 2: Skip RAG for greetings/casual (no business context needed)
+                skip_rag = query_type in ["greeting", "casual"]
+                if skip_rag:
+                    logger.info(f"   ⏭️  [Phase 1&2] SKIPPING RAG for {query_type} query (not needed)")
+
+                # Get RAG context if available AND not skipped
                 context = None
-                if self.search:
+                if self.search and not skip_rag:
                     try:
                         rag_start = time.time()
                         logger.info("   [DEBUG] Starting ChromaDB search...")
@@ -727,8 +763,17 @@ class IntelligentRouter:
                 sonnet_total = (time.time() - sonnet_start) * 1000
                 logger.info(f"   [DEBUG] ⏱️  TOTAL Sonnet path: {sonnet_total:.0f}ms")
 
+                # PHASE 1 & 2: Apply response sanitization
+                sanitized_response = process_zantara_response(
+                    result["text"],
+                    query_type,
+                    apply_santai=(query_type in ["greeting", "casual"]),  # Only enforce length for casual
+                    add_contact=True  # Conditionally add contact (not for greetings/casual)
+                )
+                logger.info(f"   ✨ [Phase 1&2] Response sanitized (type: {query_type})")
+
                 return {
-                    "response": result["text"],
+                    "response": sanitized_response,
                     "ai_used": "sonnet",
                     "category": category,
                     "model": result["model"],
@@ -752,8 +797,17 @@ class IntelligentRouter:
                         memory_context=memory_context,  # PHASE 5: Pass memory to fallback
                         max_tokens=500  # More tokens for code
                     )
+
+                    # PHASE 1 & 2: Apply response sanitization
+                    sanitized_response = process_zantara_response(
+                        result["text"],
+                        query_type,
+                        apply_santai=False,  # Don't truncate code responses
+                        add_contact=True
+                    )
+
                     return {
-                        "response": result["text"],
+                        "response": sanitized_response,
                         "ai_used": "sonnet",  # Indicate fallback
                         "category": category,
                         "model": result["model"],
@@ -784,8 +838,16 @@ class IntelligentRouter:
                         devai_response.raise_for_status()
                         devai_data = devai_response.json()
 
+                    # PHASE 1 & 2: Apply response sanitization (no length enforcement for code)
+                    sanitized_response = process_zantara_response(
+                        devai_data.get("response", ""),
+                        query_type,
+                        apply_santai=False,  # Don't truncate code responses
+                        add_contact=True
+                    )
+
                     return {
-                        "response": devai_data.get("response", ""),
+                        "response": sanitized_response,
                         "ai_used": "devai",
                         "category": category,
                         "model": "qwen-2.5-coder-7b",
@@ -802,8 +864,17 @@ class IntelligentRouter:
                         memory_context=memory_context,  # PHASE 5: Pass memory to fallback
                         max_tokens=500
                     )
+
+                    # PHASE 1 & 2: Apply response sanitization
+                    sanitized_response = process_zantara_response(
+                        result["text"],
+                        query_type,
+                        apply_santai=False,  # Don't truncate code responses
+                        add_contact=True
+                    )
+
                     return {
-                        "response": result["text"],
+                        "response": sanitized_response,
                         "ai_used": "sonnet",  # Indicate fallback
                         "category": category,
                         "model": result["model"],
@@ -823,8 +894,16 @@ class IntelligentRouter:
                     max_tokens=800
                 )
 
+                # PHASE 1 & 2: Apply response sanitization
+                sanitized_response = process_zantara_response(
+                    result["text"],
+                    query_type,
+                    apply_santai=(query_type in ["greeting", "casual"]),  # Enforce length for casual
+                    add_contact=True
+                )
+
                 return {
-                    "response": result["text"],
+                    "response": sanitized_response,
                     "ai_used": "sonnet",
                     "category": category,
                     "model": result["model"],
@@ -862,6 +941,10 @@ class IntelligentRouter:
         """
         try:
             logger.info(f"🚦 [Router Stream] Starting stream for user {user_id}")
+
+            # PHASE 1 & 2: Classify query type for RAG skip
+            query_type = classify_query_for_rag(message)
+            logger.info(f"📋 [Router Stream] Query type: {query_type}")
 
             # Build memory context (same logic as route_chat)
             memory_context = None
@@ -919,9 +1002,14 @@ class IntelligentRouter:
                 # Stream from Sonnet with RAG (business, complex)
                 logger.info("🎯 [Router Stream] Using Claude Sonnet + RAG")
 
-                # Get RAG context
+                # PHASE 1 & 2: Skip RAG for greetings/casual
+                skip_rag = query_type in ["greeting", "casual"]
+                if skip_rag:
+                    logger.info(f"   ⏭️  [Phase 1&2] SKIPPING RAG for {query_type} query (not needed)")
+
+                # Get RAG context if available AND not skipped
                 context = None
-                if self.search:
+                if self.search and not skip_rag:
                     try:
                         search_results = await self.search.search(
                             query=message,

@@ -1,0 +1,33 @@
+{
+  "timestamp": "2025-10-21T02:37:45.434164",
+  "backend": "https://scintillating-kindness-production-47e3.up.railway.app",
+  "tests": [
+    {
+      "test": "Italian greeting",
+      "message": "Ciao!",
+      "response": "Ciao! Come posso aiutarti oggi con Bali Zero? 😊",
+      "ai_used": "haiku",
+      "model_used": "claude-3-haiku-20240307",
+      "word_count": 9,
+      "used_rag": false
+    },
+    {
+      "test": "Casual 'How are you'",
+      "message": "Come stai?",
+      "response": "Ciao! Sto benissimo, grazie per aver chiesto. Come posso esserti utile oggi? 😊",
+      "ai_used": "haiku",
+      "model_used": "claude-3-haiku-20240307",
+      "word_count": 13,
+      "used_rag": false
+    },
+    {
+      "test": "Business - What is KITAS",
+      "message": "What is KITAS?",
+      "response": "Ciao! KITAS is the Indonesian Temporary Residence Permit. It's a document that allows foreigners to live and work in Indonesia for a certain period of time. The KITAS is an important document for expats living in Indonesia, as it grants them legal status and the right to work in the country. Let me know if you need any other information about KITAS!",
+      "ai_used": "haiku",
+      "model_used": "claude-3-haiku-20240307",
+      "word_count": 62,
+      "used_rag": false
+    }
+  ]
+}
