@@ -435,6 +435,76 @@ Please provide a detailed, accurate answer using the context above. Cite specifi
             raise Exception(f"Claude Sonnet tool use error: {str(e)}")
 
 
+    async def stream(
+        self,
+        message: str,
+        user_id: str,
+        context: Optional[str] = None,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        memory_context: Optional[str] = None,
+        max_tokens: int = 500
+    ):
+        """
+        Stream expert response token by token for SSE
+
+        Args:
+            message: User message/question
+            user_id: User identifier
+            context: Optional RAG context from ChromaDB
+            conversation_history: Optional chat history
+            memory_context: Optional memory context
+            max_tokens: Max tokens (default 500 for streaming)
+
+        Yields:
+            str: Text chunks as they arrive
+        """
+        try:
+            logger.info(f"🎯 [Sonnet Stream] Starting stream for user {user_id}")
+            if context:
+                logger.info(f"   RAG context: {len(context)} chars")
+
+            # Build messages
+            messages = []
+
+            # Add conversation history if provided
+            if conversation_history:
+                messages.extend(conversation_history)
+
+            # Build user message with optional RAG context
+            if context:
+                user_content = f"""Context from Bali Zero knowledge base:
+
+{context}
+
+Question: {message}
+
+Please provide a detailed, accurate answer using the context above. Cite specific sources when relevant."""
+            else:
+                user_content = message
+
+            messages.append({
+                "role": "user",
+                "content": user_content
+            })
+
+            # Stream response from Claude Sonnet
+            async with self.client.messages.stream(
+                model=self.model,
+                max_tokens=max_tokens,
+                temperature=0.3,
+                system=self._build_system_prompt(memory_context=memory_context),
+                messages=messages
+            ) as stream:
+                async for text in stream.text_stream:
+                    yield text
+
+            logger.info(f"✅ [Sonnet Stream] Stream completed for user {user_id}")
+
+        except Exception as e:
+            logger.error(f"❌ [Sonnet Stream] Error: {e}")
+            raise Exception(f"Claude Sonnet stream error: {str(e)}")
+
+
     def is_available(self) -> bool:
         """Check if Claude Sonnet is configured and available"""
         return bool(self.api_key)

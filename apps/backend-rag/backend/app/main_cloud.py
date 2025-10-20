@@ -11,11 +11,13 @@ COST OPTIMIZATION: ~50% savings vs all-Sonnet
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import sys
 import os
+import json
 from pathlib import Path
 import logging
 import shutil
@@ -1401,6 +1403,96 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
     except Exception as e:
         logger.error(f"❌ Chat failed: {e}")
         raise HTTPException(500, f"Chat failed: {str(e)}")
+
+
+@app.get("/bali-zero/chat-stream")
+async def bali_zero_chat_stream(
+    query: str,
+    user_email: Optional[str] = None
+):
+    """
+    SSE streaming endpoint for real-time chat responses
+
+    Returns Server-Sent Events (SSE) stream with text chunks as they arrive from AI
+
+    Args:
+        query: User message/question
+        user_email: Optional user email for personalization
+
+    Returns:
+        StreamingResponse: SSE stream with text chunks
+
+    Example:
+        curl -N "http://localhost:8000/bali-zero/chat-stream?query=Ciao"
+    """
+    logger.info(f"🌊 [Stream] SSE request: '{query[:50]}...'")
+
+    # Check if intelligent router is available
+    if not intelligent_router:
+        raise HTTPException(503, "Intelligent Router not available - Claude AI required")
+
+    async def generate():
+        """Generator function for SSE stream"""
+        try:
+            # Sanitize user email (same logic as regular chat)
+            sanitized_email = None
+            if user_email:
+                email_str = user_email.strip().lower()
+                if email_str not in ["undefined", "null", "none", ""]:
+                    sanitized_email = user_email
+
+            # Identify collaborator
+            collaborator = None
+            user_id = "anonymous"
+
+            if collaborator_service and sanitized_email:
+                try:
+                    collaborator = await collaborator_service.identify(sanitized_email)
+                    user_id = collaborator.id
+                    logger.info(f"👤 [Stream] {collaborator.name} ({collaborator.ambaradam_name})")
+                except Exception as e:
+                    logger.warning(f"⚠️ [Stream] Collaborator identification failed: {e}")
+
+            # Load memory if available
+            memory = None
+            if memory_service and user_id != "anonymous":
+                try:
+                    memory = await memory_service.get_memory(user_id)
+                    logger.info(f"💾 [Stream] Memory loaded: {len(memory.profile_facts)} facts")
+                except Exception as e:
+                    logger.warning(f"⚠️ [Stream] Memory load failed: {e}")
+
+            # Stream response chunks from intelligent router
+            async for chunk in intelligent_router.stream_chat(
+                message=query,
+                user_id=user_id,
+                conversation_history=None,  # No history for SSE (stateless)
+                memory=memory,
+                collaborator=collaborator
+            ):
+                # SSE format: data: {json}\n\n
+                sse_data = json.dumps({"text": chunk})
+                yield f"data: {sse_data}\n\n"
+
+            # Send done signal
+            yield f"data: {json.dumps({'done': True})}\n\n"
+            logger.info(f"✅ [Stream] Stream completed for user {user_id}")
+
+        except Exception as e:
+            logger.error(f"❌ [Stream] Error: {e}")
+            # Send error to client
+            error_data = json.dumps({"error": str(e), "done": True})
+            yield f"data: {error_data}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"  # Disable nginx buffering for immediate streaming
+        }
+    )
 
 
 # Include auth mock router

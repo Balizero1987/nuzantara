@@ -837,6 +837,137 @@ class IntelligentRouter:
             raise Exception(f"Routing failed: {str(e)}")
 
 
+    async def stream_chat(
+        self,
+        message: str,
+        user_id: str,
+        conversation_history: Optional[List[Dict]] = None,
+        memory: Optional[Any] = None,
+        collaborator: Optional[Any] = None
+    ):
+        """
+        Stream chat response token by token for SSE
+
+        Similar to route_chat but yields text chunks instead of complete response
+
+        Args:
+            message: User message
+            user_id: User identifier
+            conversation_history: Optional chat history
+            memory: Optional memory context
+            collaborator: Optional collaborator profile
+
+        Yields:
+            str: Text chunks as they arrive from AI
+        """
+        try:
+            logger.info(f"🚦 [Router Stream] Starting stream for user {user_id}")
+
+            # Build memory context (same logic as route_chat)
+            memory_context = None
+            if memory:
+                facts_count = len(memory.profile_facts) if hasattr(memory, 'profile_facts') else 0
+                if facts_count > 0:
+                    memory_context = "Context about this conversation:\n"
+                    top_facts = memory.profile_facts[:10]
+                    personal_facts = [f for f in top_facts if any(word in f.lower() for word in ["talking to", "role:", "level:", "language:", "colleague"])]
+                    other_facts = [f for f in top_facts if f not in personal_facts]
+
+                    if personal_facts:
+                        memory_context += f"{'. '.join(personal_facts)}. "
+                    if other_facts:
+                        memory_context += f"You also know that: {', '.join(other_facts[:5])}. "
+                    if memory.summary:
+                        memory_context += f"\nPrevious conversation context: {memory.summary[:500]}"
+
+            # Build team context (same logic as route_chat)
+            if collaborator and hasattr(collaborator, 'id') and collaborator.id != "anonymous":
+                team_parts = []
+                language_map = {"it": "Italian", "id": "Indonesian", "en": "English"}
+                lang_full = language_map.get(collaborator.language, collaborator.language.upper())
+                team_parts.append(f"IMPORTANT: You MUST respond ONLY in {lang_full} language")
+                team_parts.append(f"You're talking to {collaborator.name} ({collaborator.ambaradam_name}), {collaborator.role} in the {collaborator.department} department")
+
+                team_context = ". ".join(team_parts) + "."
+                if memory_context:
+                    memory_context = f"{team_context}\n\n{memory_context}"
+                else:
+                    memory_context = team_context
+
+            # Classify intent
+            intent = await self.classify_intent(message)
+            category = intent["category"]
+            suggested_ai = intent["suggested_ai"]
+
+            logger.info(f"   Category: {category} → AI: {suggested_ai}")
+
+            # Route to appropriate AI for streaming
+            if suggested_ai == "haiku":
+                # Stream from Haiku (fast, casual)
+                logger.info("🏃 [Router Stream] Using Claude Haiku")
+
+                async for chunk in self.haiku.stream(
+                    message=message,
+                    user_id=user_id,
+                    conversation_history=conversation_history,
+                    memory_context=memory_context,
+                    max_tokens=300
+                ):
+                    yield chunk
+
+            elif suggested_ai == "sonnet":
+                # Stream from Sonnet with RAG (business, complex)
+                logger.info("🎯 [Router Stream] Using Claude Sonnet + RAG")
+
+                # Get RAG context
+                context = None
+                if self.search:
+                    try:
+                        search_results = await self.search.search(
+                            query=message,
+                            user_level=3,
+                            limit=10
+                        )
+
+                        if search_results.get("results"):
+                            context = "\n\n".join([
+                                f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
+                                for r in search_results["results"][:5]
+                            ])
+                            logger.info(f"   RAG context: {len(context)} chars")
+                    except Exception as e:
+                        logger.warning(f"   RAG search failed: {e}")
+
+                async for chunk in self.sonnet.stream(
+                    message=message,
+                    user_id=user_id,
+                    context=context,
+                    conversation_history=conversation_history,
+                    memory_context=memory_context,
+                    max_tokens=1000
+                ):
+                    yield chunk
+
+            else:
+                # Fallback to Sonnet
+                logger.warning(f"⚠️ [Router Stream] Unknown AI: {suggested_ai}, fallback to Sonnet")
+
+                async for chunk in self.sonnet.stream(
+                    message=message,
+                    user_id=user_id,
+                    conversation_history=conversation_history,
+                    memory_context=memory_context,
+                    max_tokens=800
+                ):
+                    yield chunk
+
+            logger.info(f"✅ [Router Stream] Stream completed for user {user_id}")
+
+        except Exception as e:
+            logger.error(f"❌ [Router Stream] Error: {e}")
+            raise Exception(f"Streaming failed: {str(e)}")
+
+
     def get_stats(self) -> Dict:
         """Get router statistics"""
         return {
