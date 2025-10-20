@@ -165,6 +165,42 @@ class NightlyWorker:
                 error_message
             )
 
+    async def _warmup_llama(self):
+        """
+        Send warm-up request to RunPod to initialize worker
+        This avoids cold start delays during batch generation
+        """
+        if not self.runpod_endpoint or not self.runpod_api_key:
+            return
+
+        logger.info("🔥 Warming up LLAMA worker...")
+
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(
+                    self.runpod_endpoint,
+                    headers={
+                        "Authorization": f"Bearer {self.runpod_api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "input": {
+                            "prompt": "Hello",
+                            "max_tokens": 5,
+                            "temperature": 0.1
+                        }
+                    }
+                )
+
+                if response.status_code == 200:
+                    logger.info("✅ LLAMA worker warmed up (ready for batch)")
+                else:
+                    logger.warning(f"⚠️ Warm-up returned {response.status_code}")
+
+        except Exception as e:
+            logger.warning(f"⚠️ Warm-up failed (will retry during generation): {e}")
+
     async def run(
         self,
         days_lookback: int = 7,
@@ -203,6 +239,9 @@ class NightlyWorker:
         }
 
         try:
+            # Warm up LLAMA worker before batch (avoid cold start)
+            await self._warmup_llama()
+
             # Start run tracking
             self.run_id = await self._start_run()
 
