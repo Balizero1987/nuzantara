@@ -498,8 +498,12 @@ async def initialize_memory_tables():
         # ========================================
         # MEMORY_FACTS TABLE
         # ========================================
+        # Drop and recreate to ensure correct schema (SERIAL id)
+        # This is safe because we're in early development
+        await conn.execute("DROP TABLE IF EXISTS memory_facts CASCADE")
+
         await conn.execute("""
-            CREATE TABLE IF NOT EXISTS memory_facts (
+            CREATE TABLE memory_facts (
                 id SERIAL PRIMARY KEY,
                 user_id VARCHAR(255) NOT NULL,
                 content TEXT NOT NULL,
