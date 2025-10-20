@@ -44,6 +44,7 @@ from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultu
 from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
 from services.work_session_service import WorkSessionService
+from services.team_analytics_service import TeamAnalyticsService
 from middleware.error_monitoring import ErrorMonitoringMiddleware
 
 # Configure logging
@@ -88,6 +89,7 @@ handler_proxy_service: Optional[HandlerProxyService] = None
 fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
 alert_service: Optional[AlertService] = None  # Error monitoring and alerts
 work_session_service: Optional[WorkSessionService] = None  # Team work session tracking
+team_analytics_service: Optional["TeamAnalyticsService"] = None  # Advanced team analytics (7 techniques)
 
 # System prompt
 SYSTEM_PROMPT = """🎯 **IMMEDIATE UNDERSTANDING PROTOCOL**
@@ -750,7 +752,7 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, claude_haiku, claude_sonnet, intelligent_router, cultural_rag_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service
+    global search_service, claude_haiku, claude_sonnet, intelligent_router, cultural_rag_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (DUAL-AI: Claude Haiku + Claude Sonnet + DevAI)...")
 
@@ -962,6 +964,25 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ WorkSessionService initialization failed: {e}")
         work_session_service = None
+
+    # Initialize Team Analytics Service (7 Advanced Analytics Techniques)
+    try:
+        if work_session_service and work_session_service.pool:
+            team_analytics_service = TeamAnalyticsService(db_pool=work_session_service.pool)
+            logger.info("✅ TeamAnalyticsService ready (7 advanced analytics techniques)")
+            logger.info("   1. Pattern Recognition - Work hour patterns")
+            logger.info("   2. Productivity Scoring - Performance metrics")
+            logger.info("   3. Burnout Detection - Early warning system")
+            logger.info("   4. Performance Trends - Long-term analysis")
+            logger.info("   5. Workload Balance - Team distribution")
+            logger.info("   6. Optimal Hours - Peak productivity windows")
+            logger.info("   7. Team Insights - Collaboration intelligence")
+        else:
+            logger.warning("⚠️ TeamAnalyticsService disabled - requires WorkSessionService")
+            team_analytics_service = None
+    except Exception as e:
+        logger.error(f"❌ TeamAnalyticsService initialization failed: {e}")
+        team_analytics_service = None
 
     logger.info("✅ ZANTARA RAG Backend ready on port 8000")
 
@@ -2102,3 +2123,330 @@ async def zero_dashboard():
     except Exception as e:
         logger.error(f"Failed to load dashboard: {e}")
         raise HTTPException(500, f"Dashboard error: {str(e)}")
+
+
+# ========================================
+# ADVANCED TEAM ANALYTICS ENDPOINTS
+# 7 Advanced Techniques for Team Intelligence
+# ========================================
+
+# Global analytics service
+team_analytics_service: Optional["TeamAnalyticsService"] = None
+
+
+@app.get("/team/analytics/patterns")
+async def analyze_work_patterns(user_email: Optional[str] = None, days: int = 30):
+    """
+    🔍 TECHNIQUE 1: Pattern Recognition
+
+    Analyzes work hour patterns and habits:
+    - Preferred start times
+    - Typical session duration
+    - Work day patterns (weekday vs weekend)
+    - Consistency score
+
+    Query params:
+        user_email: Optional - analyze specific team member (if None, team average)
+        days: Analysis period in days (default: 30)
+
+    Returns:
+        - Patterns: avg start hour, duration, consistency
+        - Day distribution: weekdays vs weekends
+        - Consistency rating: Excellent/Good/Fair/Variable
+    """
+    if not team_analytics_service:
+        raise HTTPException(503, "Analytics service not available")
+
+    try:
+        analysis = await team_analytics_service.analyze_work_patterns(user_email, days)
+        return {
+            "success": True,
+            "technique": "Pattern Recognition",
+            "user_email": user_email or "team_average",
+            **analysis
+        }
+    except Exception as e:
+        logger.error(f"Pattern analysis failed: {e}")
+        raise HTTPException(500, f"Pattern analysis failed: {str(e)}")
+
+
+@app.get("/team/analytics/productivity")
+async def calculate_productivity_scores(days: int = 7):
+    """
+    📊 TECHNIQUE 2: Productivity Scoring
+
+    Calculates productivity score for each team member based on:
+    - Conversations per hour
+    - Activities per hour
+    - Session consistency
+    - Work time efficiency
+
+    Query params:
+        days: Analysis period (default: 7)
+
+    Returns:
+        - Productivity score (0-100) for each team member
+        - Rating: Excellent/Good/Fair/Needs Attention
+        - Detailed metrics breakdown
+    """
+    if not team_analytics_service:
+        raise HTTPException(503, "Analytics service not available")
+
+    try:
+        scores = await team_analytics_service.calculate_productivity_scores(days)
+        return {
+            "success": True,
+            "technique": "Productivity Scoring",
+            "period_days": days,
+            "team_scores": scores
+        }
+    except Exception as e:
+        logger.error(f"Productivity analysis failed: {e}")
+        raise HTTPException(500, f"Productivity analysis failed: {str(e)}")
+
+
+@app.get("/team/analytics/burnout")
+async def detect_burnout_signals(user_email: Optional[str] = None):
+    """
+    ⚠️ TECHNIQUE 3: Burnout Detection
+
+    Detects early warning signs of burnout:
+    - Increasing work hours trend
+    - Decreasing efficiency
+    - Working on weekends frequently
+    - Very long sessions (>10 hours)
+    - Inconsistent work patterns
+
+    Query params:
+        user_email: Optional - check specific user (if None, analyze entire team)
+
+    Returns:
+        - Risk score (0-100)
+        - Risk level: High Risk/Medium Risk/Low Risk
+        - Warning signals list
+        - Recommended actions
+    """
+    if not team_analytics_service:
+        raise HTTPException(503, "Analytics service not available")
+
+    try:
+        warnings = await team_analytics_service.detect_burnout_signals(user_email)
+        return {
+            "success": True,
+            "technique": "Burnout Detection",
+            "user_email": user_email or "team_analysis",
+            "warnings": warnings,
+            "total_at_risk": sum(1 for w in warnings if w['burnout_risk_score'] >= 40)
+        }
+    except Exception as e:
+        logger.error(f"Burnout detection failed: {e}")
+        raise HTTPException(500, f"Burnout detection failed: {str(e)}")
+
+
+@app.get("/team/analytics/trends")
+async def analyze_performance_trends(user_email: str, weeks: int = 4):
+    """
+    📈 TECHNIQUE 4: Performance Trends
+
+    Analyzes performance trends over time (week-by-week):
+    - Hours worked per week
+    - Conversations per week
+    - Activities per week
+    - Trend direction (increasing/decreasing/stable)
+
+    Query params:
+        user_email: Required - team member to analyze
+        weeks: Number of weeks to analyze (default: 4)
+
+    Returns:
+        - Weekly breakdown
+        - Trend direction
+        - Average metrics
+    """
+    if not team_analytics_service:
+        raise HTTPException(503, "Analytics service not available")
+
+    try:
+        trends = await team_analytics_service.analyze_performance_trends(user_email, weeks)
+        return {
+            "success": True,
+            "technique": "Performance Trends",
+            "user_email": user_email,
+            **trends
+        }
+    except Exception as e:
+        logger.error(f"Trend analysis failed: {e}")
+        raise HTTPException(500, f"Trend analysis failed: {str(e)}")
+
+
+@app.get("/team/analytics/workload-balance")
+async def analyze_workload_balance(days: int = 7):
+    """
+    ⚖️ TECHNIQUE 5: Workload Balance
+
+    Analyzes workload distribution across team:
+    - Hours share per team member
+    - Conversations distribution
+    - Balance score (0-100)
+    - Recommendations for redistribution
+
+    Query params:
+        days: Analysis period (default: 7)
+
+    Returns:
+        - Team distribution stats
+        - Balance score and rating
+        - Workload recommendations
+    """
+    if not team_analytics_service:
+        raise HTTPException(503, "Analytics service not available")
+
+    try:
+        balance = await team_analytics_service.analyze_workload_balance(days)
+        return {
+            "success": True,
+            "technique": "Workload Balance",
+            **balance
+        }
+    except Exception as e:
+        logger.error(f"Workload balance analysis failed: {e}")
+        raise HTTPException(500, f"Workload balance failed: {str(e)}")
+
+
+@app.get("/team/analytics/optimal-hours")
+async def identify_optimal_hours(user_email: Optional[str] = None, days: int = 30):
+    """
+    ⏰ TECHNIQUE 6: Optimal Hours
+
+    Identifies most productive time windows based on conversations-per-hour:
+    - Peak productivity hours
+    - Productivity by hour of day
+    - Recommended work windows
+
+    Query params:
+        user_email: Optional - analyze specific user (if None, team average)
+        days: Analysis period (default: 30)
+
+    Returns:
+        - Top 3 optimal time windows
+        - Productivity by hour breakdown
+        - Recommendations
+    """
+    if not team_analytics_service:
+        raise HTTPException(503, "Analytics service not available")
+
+    try:
+        optimal = await team_analytics_service.identify_optimal_hours(user_email, days)
+        return {
+            "success": True,
+            "technique": "Optimal Hours",
+            "user_email": user_email or "team_average",
+            **optimal
+        }
+    except Exception as e:
+        logger.error(f"Optimal hours analysis failed: {e}")
+        raise HTTPException(500, f"Optimal hours failed: {str(e)}")
+
+
+@app.get("/team/analytics/insights")
+async def generate_team_insights(days: int = 7):
+    """
+    🧠 TECHNIQUE 7: Team Insights
+
+    Generates comprehensive team collaboration insights:
+    - Team sync patterns (who works when)
+    - Collaboration opportunities
+    - Team health score
+    - Key metrics and insights
+
+    Query params:
+        days: Analysis period (default: 7)
+
+    Returns:
+        - Team summary metrics
+        - Team health score
+        - Best collaboration windows
+        - Human-readable insights
+    """
+    if not team_analytics_service:
+        raise HTTPException(503, "Analytics service not available")
+
+    try:
+        insights = await team_analytics_service.generate_team_insights(days)
+        return {
+            "success": True,
+            "technique": "Team Insights",
+            **insights
+        }
+    except Exception as e:
+        logger.error(f"Team insights generation failed: {e}")
+        raise HTTPException(500, f"Team insights failed: {str(e)}")
+
+
+@app.get("/team/analytics/all")
+async def get_all_analytics(user_email: Optional[str] = None, days: int = 7):
+    """
+    🎯 COMPREHENSIVE ANALYTICS DASHBOARD
+
+    Returns all 7 advanced analytics techniques in one call:
+    1. Work patterns
+    2. Productivity scores
+    3. Burnout detection
+    4. Performance trends (if user_email provided)
+    5. Workload balance
+    6. Optimal hours
+    7. Team insights
+
+    Query params:
+        user_email: Optional - for user-specific analysis
+        days: Analysis period (default: 7)
+
+    Returns:
+        Comprehensive analytics report with all 7 techniques
+    """
+    if not team_analytics_service:
+        raise HTTPException(503, "Analytics service not available")
+
+    try:
+        import asyncio
+
+        # Run all analytics in parallel for speed
+        results = await asyncio.gather(
+            team_analytics_service.analyze_work_patterns(user_email, days),
+            team_analytics_service.calculate_productivity_scores(days),
+            team_analytics_service.detect_burnout_signals(user_email),
+            team_analytics_service.analyze_workload_balance(days),
+            team_analytics_service.identify_optimal_hours(user_email, days),
+            team_analytics_service.generate_team_insights(days),
+            return_exceptions=True
+        )
+
+        # Build comprehensive report
+        analytics_report = {
+            "success": True,
+            "user_email": user_email or "team_analysis",
+            "period_days": days,
+            "generated_at": datetime.now().isoformat(),
+            "analytics": {
+                "1_work_patterns": results[0] if not isinstance(results[0], Exception) else {"error": str(results[0])},
+                "2_productivity_scores": results[1] if not isinstance(results[1], Exception) else {"error": str(results[1])},
+                "3_burnout_detection": results[2] if not isinstance(results[2], Exception) else {"error": str(results[2])},
+                "4_workload_balance": results[3] if not isinstance(results[3], Exception) else {"error": str(results[3])},
+                "5_optimal_hours": results[4] if not isinstance(results[4], Exception) else {"error": str(results[4])},
+                "6_team_insights": results[5] if not isinstance(results[5], Exception) else {"error": str(results[5])}
+            }
+        }
+
+        # Add trends if user_email provided
+        if user_email:
+            try:
+                trends = await team_analytics_service.analyze_performance_trends(user_email, weeks=4)
+                analytics_report["analytics"]["7_performance_trends"] = trends
+            except Exception as e:
+                analytics_report["analytics"]["7_performance_trends"] = {"error": str(e)}
+
+        return analytics_report
+
+    except Exception as e:
+        logger.error(f"Comprehensive analytics failed: {e}")
+        raise HTTPException(500, f"Comprehensive analytics failed: {str(e)}")
