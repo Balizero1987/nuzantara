@@ -1553,8 +1553,9 @@ async def get_user_memory(user_id: str):
             "facts_count": len(memory.profile_facts),
             "facts": memory.profile_facts,
             "summary": memory.summary,
-            "preferences": memory.preferences,
-            "total_conversations": memory.total_conversations
+            "counters": memory.counters,  # Fixed: was memory.preferences
+            "total_conversations": memory.counters.get('conversations', 0),  # Fixed: get from counters
+            "updated_at": memory.updated_at.isoformat() if hasattr(memory, 'updated_at') and memory.updated_at else None
         }
     except Exception as e:
         raise HTTPException(500, f"Memory retrieval failed: {str(e)}")
