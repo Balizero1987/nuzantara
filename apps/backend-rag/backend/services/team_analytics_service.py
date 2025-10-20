@@ -73,8 +73,8 @@ class TeamAnalyticsService:
             return {"error": "No sessions found"}
 
         # Analyze patterns
-        start_hours = [s['start_hour'] for s in sessions]
-        durations = [s['duration_minutes'] for s in sessions if s['duration_minutes']]
+        start_hours = [float(s['start_hour']) for s in sessions]
+        durations = [float(s['duration_minutes']) for s in sessions if s['duration_minutes']]
         days_of_week = [s['day_of_week'] for s in sessions]
 
         # Calculate statistics
