@@ -145,7 +145,7 @@ const TEAM_DATABASE = {
     role: 'Tax Manager',
     email: 'tax@balizero.com',
     department: 'tax',
-    language: 'Ukrainian',
+    language: 'Indonesian',
     pinHash: '$2b$10$6zgojExYqDPAR0saMWDm7.M9P72iCANnCccoEkvoiS9vr.6515pKu', // PIN: 650817
     badge: '💰'
   },
@@ -155,7 +155,7 @@ const TEAM_DATABASE = {
     role: 'External Tax Advisory',
     email: 'olena@balizero.com',
     department: 'tax',
-    language: 'Ukrainian',
+    language: 'English',
     pinHash: '$2b$10$YpO3AMrLQg8kSac02M7m8eOqUlotHvC8EZYV6nWaa6BwdRu10Qn7G' // PIN: 840319
   },
   'angel': {
