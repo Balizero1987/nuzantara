@@ -1385,3 +1385,25 @@ async def get_collaborator_profile(email: str):
         }
     except Exception as e:
         raise HTTPException(500, f"Lookup failed: {str(e)}")
+
+
+@app.get("/admin/memory/{user_id}")
+async def get_user_memory(user_id: str):
+    """
+    Admin endpoint: View user memory facts saved in PostgreSQL
+    """
+    if not memory_service:
+        raise HTTPException(503, "Memory service not available")
+
+    try:
+        memory = await memory_service.get_memory(user_id)
+        return {
+            "user_id": user_id,
+            "facts_count": len(memory.profile_facts),
+            "facts": memory.profile_facts,
+            "summary": memory.summary,
+            "preferences": memory.preferences,
+            "total_conversations": memory.total_conversations
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Memory retrieval failed: {str(e)}")
