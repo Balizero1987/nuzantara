@@ -471,6 +471,10 @@
     const sendBtn = document.querySelectorAll('.btn')[2]; // ➤ button
     const attachBtn = document.querySelectorAll('.btn')[0]; // 📎 button
 
+    // Conversation state (FIX: track history for context)
+    let conversationHistory = [];
+    let lastAiUsed = null;
+
     // Send message
     async function sendMessage() {
       const message = inputField.value.trim();
@@ -489,6 +493,17 @@
       userMsg.className = 'user-message';
       userMsg.textContent = message;
       messagesDiv.appendChild(userMsg);
+
+      // FIX: Add to conversation history
+      conversationHistory.push({
+        role: 'user',
+        content: message
+      });
+
+      // Limit history to last 20 messages for performance
+      if (conversationHistory.length > 20) {
+        conversationHistory = conversationHistory.slice(-20);
+      }
 
       // Clear input
       inputField.value = '';
@@ -510,11 +525,13 @@
 
         // DEBUG: Log email being sent
         console.log('🔍 Sending message with user_email:', userEmail || 'null (anonymous)');
+        console.log('📝 Conversation history length:', conversationHistory.length);
 
-        // Call ZANTARA AI API (RAG + Tool Use enabled)
+        // FIX: Call ZANTARA AI API with conversation history
         const response = await window.ZANTARA_API.call('/bali-zero/chat', {
           query: message,
-          user_email: userEmail  // For user recognition
+          user_email: userEmail,
+          conversation_history: conversationHistory  // FIX: Send history for context!
         }, true);
 
         // Remove loading indicator
@@ -527,6 +544,23 @@
 
         // Extract response from API (supports multiple formats)
         const aiResponse = response?.response || response?.data?.response || response?.reply || response?.message || response?.text || 'Response received from Zantara AI.';
+
+        // FIX: Save ai_used for next request (follow-up continuity)
+        if (response?.ai_used) {
+          lastAiUsed = response.ai_used;
+          console.log('🤖 AI used:', lastAiUsed);
+        }
+
+        // FIX: Add to conversation history
+        conversationHistory.push({
+          role: 'assistant',
+          content: aiResponse
+        });
+
+        // Limit history again
+        if (conversationHistory.length > 20) {
+          conversationHistory = conversationHistory.slice(-20);
+        }
 
         // Format message with MessageFormatter (supports markdown, lists, bold, etc.)
         if (window.MessageFormatter) {
@@ -645,6 +679,10 @@
         document.getElementById('logoutBtn').onclick = () => {
           userDropdown.classList.remove('show');
           if (confirm('Vuoi fare logout?')) {
+            // FIX: Clear conversation history on logout
+            conversationHistory = [];
+            lastAiUsed = null;
+
             // Use teamLogin.logout() if available (clears ALL auth data)
             if (window.teamLogin && typeof window.teamLogin.logout === 'function') {
               window.teamLogin.logout();
