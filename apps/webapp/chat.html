@@ -223,6 +223,102 @@
   </div>
 
   <script>
+    /**
+     * 🛡️ LOCALSTORAGE HEALTH CHECK
+     * Validates and repairs corrupted localStorage at app startup
+     * Prevents "Seeker" issue when user is actually logged in
+     */
+    (function validateAndRepairStorage() {
+      console.log('🔍 [Storage Validator] Checking localStorage health...');
+
+      let needsRepair = false;
+      const issues = [];
+
+      // 1. Check 'zantara-user' (should be valid JSON)
+      const userStr = localStorage.getItem('zantara-user');
+      if (userStr) {
+        if (userStr === 'undefined' || userStr === 'null' || userStr === '') {
+          issues.push('zantara-user contains invalid literal');
+          localStorage.removeItem('zantara-user');
+          needsRepair = true;
+        } else {
+          try {
+            const user = JSON.parse(userStr);
+            if (!user || !user.email || typeof user.email !== 'string') {
+              issues.push('zantara-user JSON is invalid (missing email)');
+              localStorage.removeItem('zantara-user');
+              needsRepair = true;
+            }
+          } catch (e) {
+            issues.push('zantara-user JSON parse failed');
+            localStorage.removeItem('zantara-user');
+            needsRepair = true;
+          }
+        }
+      }
+
+      // 2. Check 'zantara-user-email' (legacy - should be valid email or null)
+      const email = localStorage.getItem('zantara-user-email');
+      if (email) {
+        if (email === 'undefined' || email === 'null' || email === 'guest' || email === '') {
+          issues.push('zantara-user-email contains invalid value');
+          localStorage.removeItem('zantara-user-email');
+          needsRepair = true;
+        }
+      }
+
+      // 3. Check consistency: if token exists, user must exist
+      const token = localStorage.getItem('zantara-auth-token');
+      const user = localStorage.getItem('zantara-user');
+      if (token && !user) {
+        issues.push('token exists but user data missing');
+        localStorage.removeItem('zantara-auth-token');
+        localStorage.removeItem('zantara-permissions');
+        needsRepair = true;
+      }
+
+      // 4. Report results
+      if (needsRepair) {
+        console.warn('⚠️ [Storage Validator] Found issues:', issues);
+        console.log('✅ [Storage Validator] Corrupted data removed. Please login again if needed.');
+      } else {
+        console.log('✅ [Storage Validator] localStorage is healthy');
+      }
+    })();
+
+    /**
+     * 📧 GET USER EMAIL (Robust Helper)
+     * Safely retrieves user email from localStorage with multiple fallbacks
+     * Returns null if no valid email found
+     */
+    function getUserEmail() {
+      // Try primary source: zantara-user (JSON)
+      try {
+        const userStr = localStorage.getItem('zantara-user');
+        if (userStr && userStr !== 'undefined' && userStr !== 'null') {
+          const user = JSON.parse(userStr);
+          if (user && user.email && user.email !== 'undefined') {
+            return user.email;
+          }
+        }
+      } catch (e) {
+        console.warn('[getUserEmail] Failed to parse zantara-user, using fallback:', e);
+      }
+
+      // Fallback: legacy storage
+      const legacyEmail = localStorage.getItem('zantara-user-email');
+      if (legacyEmail &&
+          legacyEmail !== 'undefined' &&
+          legacyEmail !== 'null' &&
+          legacyEmail !== 'guest' &&
+          legacyEmail !== '') {
+        return legacyEmail;
+      }
+
+      // No valid email found
+      return null;
+    }
+
     // Filter functionality
     document.querySelectorAll('.filter').forEach(filter => {
       filter.addEventListener('click', () => {
@@ -409,23 +505,11 @@
       scrollToBottom();
 
       try {
-        // Get user session (support both team login and legacy login)
-        let userEmail = 'guest';
-        try {
-          const userStr = localStorage.getItem('zantara-user');
-          if (userStr && userStr !== 'undefined' && userStr !== 'null') {
-            const user = JSON.parse(userStr);
-            userEmail = user.email || localStorage.getItem('zantara-user-email') || 'guest';
-          } else {
-            userEmail = localStorage.getItem('zantara-user-email') || 'guest';
-          }
-        } catch (e) {
-          console.warn('Failed to parse user session, using fallback:', e);
-          userEmail = localStorage.getItem('zantara-user-email') || 'guest';
-        }
+        // Get user email using robust helper function
+        const userEmail = getUserEmail();
 
-        // DEBUG: Log email being sent (remove in production)
-        console.log('🔍 Sending message with user_email:', userEmail);
+        // DEBUG: Log email being sent
+        console.log('🔍 Sending message with user_email:', userEmail || 'null (anonymous)');
 
         // Call ZANTARA AI API (RAG + Tool Use enabled)
         const response = await window.ZANTARA_API.call('/bali-zero/chat', {
@@ -557,12 +641,27 @@
           alert(`👤 Profilo: ${userEmail}\n\n(Funzionalità in arrivo)`);
         };
 
-        // Logout button
+        // Logout button - use teamLogin.logout() for complete cleanup
         document.getElementById('logoutBtn').onclick = () => {
           userDropdown.classList.remove('show');
           if (confirm('Vuoi fare logout?')) {
-            localStorage.removeItem('zantara-user-email');
-            localStorage.removeItem('zantara-user-name');
+            // Use teamLogin.logout() if available (clears ALL auth data)
+            if (window.teamLogin && typeof window.teamLogin.logout === 'function') {
+              window.teamLogin.logout();
+            } else {
+              // Fallback: manual cleanup
+              const keysToRemove = [
+                'zantara-auth-token',
+                'zantara-user',
+                'zantara-permissions',
+                'zantara-user-email',
+                'zantara-user-name',
+                'zantara-user-role',
+                'zantara-user-department',
+                'zantara-session'
+              ];
+              keysToRemove.forEach(key => localStorage.removeItem(key));
+            }
             sessionStorage.removeItem('zantara-introduced');
             window.location.reload();
           }
