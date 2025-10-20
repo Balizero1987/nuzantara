@@ -522,15 +522,21 @@
         // Get user email using robust helper function
         const userEmail = getUserEmail();
 
+        // Get JWT token for authentication
+        const authToken = window.ZantaraStorage?.getToken() || localStorage.getItem('zantara-auth-token');
+
         // DEBUG: Log email being sent
         console.log('🔍 Sending message with user_email:', userEmail || 'null (anonymous)');
+        console.log('🔐 Using auth token:', authToken ? 'Present' : 'Missing');
         console.log('📝 Conversation history length:', conversationHistory.length);
 
-        // FIX: Call ZANTARA AI API with conversation history
+        // FIX: Call ZANTARA AI API with conversation history AND authentication
         const response = await window.ZANTARA_API.call('/bali-zero/chat', {
           query: message,
           user_email: userEmail,
-          conversation_history: conversationHistory  // FIX: Send history for context!
+          auth_token: authToken,  // Pass JWT token for user authentication
+          conversation_history: conversationHistory,  // Send history for context!
+          session_id: sessionStorage.getItem('zantara-session-id') || Date.now().toString()
         }, true);
 
         // Remove loading indicator
