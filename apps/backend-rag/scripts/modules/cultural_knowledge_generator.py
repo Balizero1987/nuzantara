@@ -324,10 +324,35 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                 data = response.json()
 
                 # Handle RunPod response format
-                # If IN_QUEUE, the job is still processing (worker overloaded)
+                # If IN_QUEUE with /runsync, worker is cold starting - wait and retry
                 if data.get("status") == "IN_QUEUE":
-                    logger.warning(f"⚠️ RunPod worker queue full, job in queue")
-                    return None
+                    logger.warning(f"⚠️ Worker cold start detected (IN_QUEUE), waiting 90s for initialization...")
+                    import asyncio
+                    await asyncio.sleep(90)  # Wait for worker to initialize
+
+                    # Retry request after cold start
+                    response = await client.post(
+                        self.runpod_endpoint,
+                        headers={
+                            "Authorization": f"Bearer {self.runpod_api_key}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "input": {
+                                "prompt": prompt,
+                                "max_tokens": 300,
+                                "temperature": 0.4,
+                                "top_p": 0.9
+                            }
+                        }
+                    )
+                    response.raise_for_status()
+                    data = response.json()
+
+                    # If still IN_QUEUE after retry, fail
+                    if data.get("status") == "IN_QUEUE":
+                        logger.error(f"❌ Worker still IN_QUEUE after 90s wait - endpoint may be paused")
+                        return None
 
                 # Extract content from completed job
                 # RunPod vLLM format: {"output": {"text": "..."}}
