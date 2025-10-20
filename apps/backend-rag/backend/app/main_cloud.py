@@ -1270,10 +1270,10 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                         memory=memory,  # ← Pass memory to router
                         collaborator=collaborator  # ← NEW: Pass collaborator for team personalization
                     ),
-                    timeout=25.0  # 25 second timeout for AI response
+                    timeout=60.0  # 60 second timeout for AI response (ChromaDB + Sonnet can take time)
                 )
             except asyncio.TimeoutError:
-                logger.error("❌ AI routing timed out after 25 seconds")
+                logger.error("❌ AI routing timed out after 60 seconds")
                 raise HTTPException(504, "AI response timeout - please try again")
 
             # Extract response from router
