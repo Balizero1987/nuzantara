@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, List
 import os
 import logging
+import json
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -17,12 +19,47 @@ class WorkSessionService:
     """
     Track team work sessions and send reports to ZERO
     ZERO decides what to share with team
+
+    Data persistence:
+    - PostgreSQL: Primary storage (Railway cloud database)
+    - JSONL file: Local backup log (work_sessions_log.jsonl)
     """
 
     def __init__(self):
         self.db_url = os.getenv("DATABASE_URL")
         self.pool = None
         self.zero_email = "zero@balizero.com"  # All notifications go here
+
+        # Setup local backup file
+        self.data_dir = Path(__file__).parent.parent / "data"
+        self.log_file = self.data_dir / "work_sessions_log.jsonl"
+        self._ensure_data_dir()
+
+    def _ensure_data_dir(self):
+        """Ensure data directory exists"""
+        try:
+            self.data_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"📁 Work sessions log: {self.log_file}")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not create data directory: {e}")
+
+    def _write_to_log(self, event_type: str, data: Dict):
+        """
+        Write event to JSONL backup file
+        Each line is a JSON object with timestamp
+        """
+        try:
+            event = {
+                "timestamp": datetime.now().isoformat(),
+                "event_type": event_type,
+                **data
+            }
+
+            with open(self.log_file, 'a') as f:
+                f.write(json.dumps(event) + '\n')
+
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to write to log file: {e}")
 
     async def connect(self):
         """Initialize connection pool"""
@@ -70,6 +107,15 @@ class WorkSessionService:
             """, user_id, user_name, user_email)
 
             logger.info(f"✅ Work session started: {user_name} at {session['session_start']}")
+
+            # Write to backup log file
+            self._write_to_log("session_start", {
+                "session_id": session['id'],
+                "user_id": user_id,
+                "user_name": user_name,
+                "user_email": user_email,
+                "session_start": session['session_start'].isoformat()
+            })
 
             # Notify ZERO
             await self._notify_zero(
@@ -168,6 +214,21 @@ Session ID: {session['id']}
             """, session_end, duration_minutes, notes, session['id'])
 
             logger.info(f"✅ Session ended: {session['user_name']} ({duration_minutes} min)")
+
+            # Write to backup log file
+            self._write_to_log("session_end", {
+                "session_id": session['id'],
+                "user_id": user_id,
+                "user_name": session['user_name'],
+                "user_email": session['user_email'],
+                "session_start": session_start.isoformat(),
+                "session_end": session_end.isoformat(),
+                "duration_minutes": duration_minutes,
+                "duration_hours": round(duration_minutes / 60, 2),
+                "activities_count": session['activities_count'],
+                "conversations_count": session['conversations_count'],
+                "notes": notes
+            })
 
             # Send detailed report to ZERO
             await self._notify_zero_session_end(
