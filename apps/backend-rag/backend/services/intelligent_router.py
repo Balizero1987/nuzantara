@@ -310,7 +310,8 @@ class IntelligentRouter:
         conversation_history: Optional[List[Dict]] = None,
         memory: Optional[Any] = None,  # ← Memory context
         emotional_profile: Optional[Any] = None,  # ← Emotional profile for empathetic routing
-        last_ai_used: Optional[str] = None  # ← NEW: Last AI used (for follow-up continuity)
+        last_ai_used: Optional[str] = None,  # ← Last AI used (for follow-up continuity)
+        collaborator: Optional[Any] = None  # ← NEW: Collaborator profile for team personalization
     ) -> Dict:
         """
         Main routing function - classifies intent and routes to appropriate AI
@@ -322,6 +323,7 @@ class IntelligentRouter:
             memory: Optional memory context for user
             emotional_profile: Optional emotional profile from EmotionalAttunementService
             last_ai_used: Optional last AI used (for follow-up detection)
+            collaborator: Optional collaborator profile for enhanced team personalization
 
         Returns:
             {
@@ -474,6 +476,45 @@ class IntelligentRouter:
                         memory_context += f"\nPrevious conversation context: {memory.summary[:500]}"
 
                     logger.info(f"💾 [Router] Memory context built (natural format): {len(memory_context)} chars")
+
+            # PHASE 3.5: Build team context if collaborator is present (ENHANCED PERSONALIZATION)
+            team_context = None
+            if collaborator and hasattr(collaborator, 'id') and collaborator.id != "anonymous":
+                logger.info(f"👥 [Router] Building team context for {collaborator.name}")
+
+                # Build rich team context with role, department, and communication preferences
+                team_parts = []
+
+                # Identity and role
+                team_parts.append(f"You're talking to {collaborator.name} ({collaborator.ambaradam_name})")
+                team_parts.append(f"a {collaborator.role} in the {collaborator.department} department at Bali Zero")
+
+                # Expertise and language
+                team_parts.append(f"Their expertise level is {collaborator.expertise_level}")
+                team_parts.append(f"and they prefer communication in {collaborator.language.upper()}")
+
+                # Emotional preferences (tone, formality, humor)
+                if hasattr(collaborator, 'emotional_preferences') and collaborator.emotional_preferences:
+                    prefs = collaborator.emotional_preferences
+                    tone = prefs.get('tone', 'professional')
+                    formality = prefs.get('formality', 'medium')
+                    humor = prefs.get('humor', 'light')
+
+                    team_parts.append(f"They appreciate a {tone} tone with {formality} formality and {humor} humor")
+
+                # Sub Rosa level (access level)
+                team_parts.append(f"They have Level {collaborator.sub_rosa_level} access (confidentiality clearance)")
+
+                # Build natural sentence
+                team_context = ". ".join(team_parts) + "."
+
+                # Combine with memory context if available
+                if memory_context:
+                    memory_context = f"{team_context}\n\n{memory_context}"
+                else:
+                    memory_context = team_context
+
+                logger.info(f"👥 [Router] Team context built: {len(team_context)} chars")
 
             # Step 1: Classify intent (unless follow-up override already set)
             if 'suggested_ai' not in locals():  # Only classify if not already set by follow-up detection
