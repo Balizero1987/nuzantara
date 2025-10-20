@@ -474,6 +474,94 @@ def sanitize_public_answer(text: str) -> str:
         return text
 
 
+async def initialize_memory_tables():
+    """Initialize PostgreSQL memory tables if they don't exist"""
+    database_url = os.getenv("DATABASE_URL")
+
+    if not database_url:
+        logger.warning("⚠️ DATABASE_URL not found - skipping memory table initialization")
+        return False
+
+    try:
+        import asyncpg
+
+        logger.info("📊 Initializing memory tables in PostgreSQL...")
+
+        conn = await asyncpg.connect(database_url)
+
+        # Create memory_facts table
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS memory_facts (
+                id SERIAL PRIMARY KEY,
+                user_id VARCHAR(255) NOT NULL,
+                content TEXT NOT NULL,
+                fact_type VARCHAR(100) DEFAULT 'general',
+                confidence FLOAT DEFAULT 1.0,
+                source VARCHAR(50) DEFAULT 'user',
+                metadata JSONB DEFAULT '{}'::jsonb,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """)
+
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_memory_facts_user_id ON memory_facts(user_id)")
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_memory_facts_created_at ON memory_facts(created_at DESC)")
+
+        # Create user_stats table
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS user_stats (
+                user_id VARCHAR(255) PRIMARY KEY,
+                conversations_count INTEGER DEFAULT 0,
+                searches_count INTEGER DEFAULT 0,
+                tasks_count INTEGER DEFAULT 0,
+                summary TEXT DEFAULT '',
+                preferences JSONB DEFAULT '{}'::jsonb,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                last_activity TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """)
+
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_user_stats_last_activity ON user_stats(last_activity DESC)")
+
+        # Create conversations table
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS conversations (
+                id SERIAL PRIMARY KEY,
+                user_id VARCHAR(255) NOT NULL,
+                session_id VARCHAR(255),
+                messages JSONB NOT NULL,
+                metadata JSONB DEFAULT '{}'::jsonb,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """)
+
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id)")
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_session_id ON conversations(session_id)")
+        await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_created_at ON conversations(created_at DESC)")
+
+        # Create users table
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id VARCHAR(255) PRIMARY KEY,
+                email VARCHAR(255) UNIQUE,
+                name VARCHAR(255),
+                metadata JSONB DEFAULT '{}'::jsonb,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """)
+
+        await conn.close()
+
+        logger.info("✅ Memory tables initialized successfully")
+        return True
+
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize memory tables: {e}")
+        return False
+
+
 def download_chromadb_from_r2():
     """Download ChromaDB from Cloudflare R2 to local /tmp"""
     try:
@@ -673,6 +761,12 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ CollaboratorService initialization failed: {e}")
         collaborator_service = None
+
+    # Initialize Memory Tables (PostgreSQL schema)
+    try:
+        await initialize_memory_tables()
+    except Exception as e:
+        logger.error(f"❌ Memory tables initialization failed: {e}")
 
     # Initialize MemoryService (PostgreSQL)
     try:
