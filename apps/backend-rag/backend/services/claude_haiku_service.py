@@ -355,6 +355,61 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
             raise Exception(f"Claude Haiku tool use error: {str(e)}")
 
 
+    async def stream(
+        self,
+        message: str,
+        user_id: str,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        memory_context: Optional[str] = None,
+        max_tokens: int = 150
+    ):
+        """
+        Stream conversational response token by token for SSE
+
+        Args:
+            message: User message
+            user_id: User identifier
+            conversation_history: Optional chat history
+            memory_context: Optional memory context
+            max_tokens: Max tokens (default 150 for streaming)
+
+        Yields:
+            str: Text chunks as they arrive
+        """
+        try:
+            logger.info(f"🏃 [Haiku Stream] Starting stream for user {user_id}")
+
+            # Build messages
+            messages = []
+
+            # Add conversation history if provided
+            if conversation_history:
+                messages.extend(conversation_history)
+
+            # Add current message
+            messages.append({
+                "role": "user",
+                "content": message
+            })
+
+            # Stream response from Claude Haiku
+            async with self.client.messages.stream(
+                model=self.model,
+                max_tokens=max_tokens,
+                temperature=0.7,
+                system=self._build_system_prompt(memory_context=memory_context),
+                messages=messages
+            ) as stream:
+                async for text in stream.text_stream:
+                    yield text
+
+            logger.info(f"✅ [Haiku Stream] Stream completed for user {user_id}")
+
+        except Exception as e:
+            logger.error(f"❌ [Haiku Stream] Error: {e}")
+            raise Exception(f"Claude Haiku stream error: {str(e)}")
+
+
     def is_available(self) -> bool:
         """Check if Claude Haiku is configured and available"""
         return bool(self.api_key)
