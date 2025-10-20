@@ -92,7 +92,7 @@ const TEAM_DATABASE = {
     email: 'krisna@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$B9J2sIRSUgQDSOYmh0ETS..CW8vUe9ffrJJstiXzFEGeHU9oQm8Kq'
+    pinHash: '$2b$10$DkVlZDUVDGAVJZtzAUSfneAN5RIVBr.pFNvlgaakGyzZy93iqvCNe' // PIN: 705802
   },
   'adit': {
     id: 'adit',
