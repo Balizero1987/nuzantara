@@ -1264,7 +1264,8 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                         message=request.query,
                         user_id=user_id,
                         conversation_history=messages,
-                        memory=memory  # ← Pass memory to router
+                        memory=memory,  # ← Pass memory to router
+                        collaborator=collaborator  # ← NEW: Pass collaborator for team personalization
                     ),
                     timeout=25.0  # 25 second timeout for AI response
                 )
