@@ -476,13 +476,13 @@ def sanitize_public_answer(text: str) -> str:
 
 async def initialize_memory_tables():
     """Initialize PostgreSQL memory tables if they don't exist"""
-    database_url = os.getenv("DATABASE_URL")
-
-    if not database_url:
-        logger.warning("⚠️ DATABASE_URL not found - skipping memory table initialization")
-        return False
-
     try:
+        database_url = os.getenv("DATABASE_URL")
+
+        if not database_url:
+            logger.warning("⚠️ DATABASE_URL not found - skipping memory table initialization")
+            return False
+
         import asyncpg
 
         logger.info("📊 Initializing memory tables in PostgreSQL...")
@@ -766,7 +766,8 @@ async def startup_event():
     try:
         await initialize_memory_tables()
     except Exception as e:
-        logger.error(f"❌ Memory tables initialization failed: {e}")
+        logger.warning(f"⚠️ Memory tables initialization skipped: {e}")
+        # Non-fatal: continue without PostgreSQL tables (will use in-memory fallback)
 
     # Initialize MemoryService (PostgreSQL)
     try:
