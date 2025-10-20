@@ -34,7 +34,7 @@ const TEAM_DATABASE = {
     email: 'zainal@balizero.com',
     department: 'management',
     language: 'Indonesian',
-    pinHash: '$2b$10$6Ydh5k6U3OZMB5WVRx4Jn.pQYZxpwbtXjSZYtnhBAaQZfD/wXHLrq',
+    pinHash: '$2b$10$k6h0w/bvQ0QIYklzfVjtPOYDQBI3gGbvdQSKgfAkFF8oWkISwVZ7a', // PIN: 521209
     badge: '👑'
   },
   'ruslana': {
@@ -44,7 +44,7 @@ const TEAM_DATABASE = {
     email: 'ruslana@balizero.com',
     department: 'management',
     language: 'English',
-    pinHash: '$2b$10$1Ft/5C5l6vZKBxRtFUVIIeknCk3zPoF5eBXE69VThgEa/GM.9MrLW',
+    pinHash: '$2b$10$kdpkOuiRaK1h3EI/K88ojOmLpY1StOYxy1UWe0PLmQ58rKP5RJFIK', // PIN: 544835
     badge: '💼'
   },
   'zero': {
@@ -74,16 +74,16 @@ const TEAM_DATABASE = {
     email: 'anton@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$hy..Cg5PDeZivJpTsxbzCuNeIC25dF18u/SLpNPj/4ktn1th/g6qO'
+    pinHash: '$2b$10$0JgQgucmWVMkD7/hj.eJA.o2yywL.TrUw5DhrqVG7Ne9UikJALhB6' // PIN: 717657
   },
   'vino': {
     id: 'vino',
     name: 'Vino',
     role: 'Junior Consultant',
-    email: 'vino@balizero.com',
+    email: 'info@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$O.mPYkHTMomhTvu1i3odGerFKc3uQZcWHgFeizNS6uZayUbhWP6Wa'
+    pinHash: '$2b$10$R/6z/RYXwi.hYEetHaMbMeUeoZfrupMJQSslMKMnWMnMLBIlzETDC' // PIN: 630443
   },
   'krisna': {
     id: 'krisna',
@@ -98,19 +98,19 @@ const TEAM_DATABASE = {
     id: 'adit',
     name: 'Adit',
     role: 'Crew Lead',
-    email: 'adit@balizero.com',
+    email: 'consulting@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$Bfi.tqrydp.0Sd5t823wT.sCQbkvy7jh3RH4dfyvslaOCucMlGE06'
+    pinHash: '$2b$10$coHPnjVQ9VEsQc4EaLh8IuLcI3dtBmcHVIrMIgsqfyZgSju10X2oC' // PIN: 897634
   },
   'ari': {
     id: 'ari',
     name: 'Ari',
     role: 'Specialist Consultant',
-    email: 'ari@balizero.com',
+    email: 'ari.firda@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$Vs6npRYdlYr3MT.xAwRJIOZ5UKsS24oDmmzhDcDZd7TP70x.TTn62'
+    pinHash: '$2b$10$BOU0p5xsvKREicXNv.IOeObdFeDV36PahfywB7PVQOLTxzNwV8e7e' // PIN: 679880
   },
   'dea': {
     id: 'dea',
@@ -119,7 +119,7 @@ const TEAM_DATABASE = {
     email: 'dea@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$Ueq7X.40DA6vZxhLrZvgJORm8MLyiTdYLviw/444bWiECRS12xhsG'
+    pinHash: '$2b$10$6AeF62P9TMQglzIP0xyNXOESF7qH.0xxaxpem9det4GQzreFdS0RK' // PIN: 865622
   },
   'surya': {
     id: 'surya',
@@ -128,7 +128,7 @@ const TEAM_DATABASE = {
     email: 'surya@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$FeUqCsEoclWCtUwkNyhTtetdraYcGR3mJWh4sQTVYPFTATMBqJl8.'
+    pinHash: '$2b$10$HnaMEldDMI1xmhj2RUSe5uYHUT1diTebIeIq3BrdV5FpcpLe8G9am' // PIN: 981689
   },
   'damar': {
     id: 'damar',
@@ -137,16 +137,16 @@ const TEAM_DATABASE = {
     email: 'damar@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$4KiaIDNBGt28DztFgp985eGP7yQ/bEqfHuifvkQwqvFtd9PJ.RGPm'
+    pinHash: '$2b$10$TYuGHJrTatNzy.iENr9lRu9vFPmE5ivX6N81w6qA4ExSu1i8Ymg8W' // PIN: 180453
   },
   'veronika': {
     id: 'veronika',
     name: 'Veronika',
     role: 'Tax Manager',
-    email: 'veronika@balizero.com',
+    email: 'tax@balizero.com',
     department: 'tax',
     language: 'Ukrainian',
-    pinHash: '$2b$10$cSWe.4BUZB1FwUG/J7mKtuv26GvmVCTpJ5d6fHf7J1O92q2t12naq',
+    pinHash: '$2b$10$6zgojExYqDPAR0saMWDm7.M9P72iCANnCccoEkvoiS9vr.6515pKu', // PIN: 650817
     badge: '💰'
   },
   'olena': {
@@ -156,43 +156,43 @@ const TEAM_DATABASE = {
     email: 'olena@balizero.com',
     department: 'tax',
     language: 'Ukrainian',
-    pinHash: '$2b$10$6OtzdXSN0g2n.Lr9HmN/BeoZeI6yCw81fMCJp9kCjNiEP2yUiVLTS'
+    pinHash: '$2b$10$YpO3AMrLQg8kSac02M7m8eOqUlotHvC8EZYV6nWaa6BwdRu10Qn7G' // PIN: 840319
   },
   'angel': {
     id: 'angel',
     name: 'Angel',
     role: 'Tax Expert',
-    email: 'angel@balizero.com',
+    email: 'angel.tax@balizero.com',
     department: 'tax',
     language: 'English',
-    pinHash: '$2b$10$WKJpmD7NEztOzwI.MMubnuGSmqMIi//7dECxJW2fgwjnlsQohqkEq'
+    pinHash: '$2b$10$8he.rxJDMr.AsrISm5uylONLBNEfnotCdUhVk3PVl1YZ.DHTZB9va' // PIN: 429097
   },
   'kadek': {
     id: 'kadek',
     name: 'Kadek',
     role: 'Tax Consultant',
-    email: 'kadek@balizero.com',
+    email: 'kadek.tax@balizero.com',
     department: 'tax',
     language: 'Indonesian',
-    pinHash: '$2b$10$i1vPTNYeYQZhkzOqsla2UeARAhC0TMOfWUnlD2DfPozlEHOYl.2sO'
+    pinHash: '$2b$10$zL/SxlmZpHj503Ihq0gsze1JH0wX7shLFWkmPLEKpmOFHHYVb7.Vi' // PIN: 489327
   },
   'dewaayu': {
     id: 'dewaayu',
     name: 'Dewa Ayu',
     role: 'Tax Consultant',
-    email: 'dewaayu@balizero.com',
+    email: 'dewa.ayu.tax@balizero.com',
     department: 'tax',
     language: 'Indonesian',
-    pinHash: '$2b$10$7R8ISmrUHDXYmBXhjVwol.VFMFEwa5yR8PTdhA4XSAOSIRJ/VMXIe'
+    pinHash: '$2b$10$7uN8RaomgZjgo8yohUMbpOlHm217/YlTKjW2mEjr2a1yxLBLWy38O' // PIN: 976468
   },
   'faisha': {
     id: 'faisha',
     name: 'Faisha',
     role: 'Tax Care',
-    email: 'faisha@balizero.com',
+    email: 'faisha.tax@balizero.com',
     department: 'tax',
     language: 'Indonesian',
-    pinHash: '$2b$10$Nz6U3IniefjQWYUIScD4ke0J/diQyG8jZYTIiQqEW8q1Ik5ZjLlpe'
+    pinHash: '$2b$10$e1mLBGAlrvODZpgNUGEfDO8X46XNBWry6JCqOghdp9Wph3LEGR5Mq' // PIN: 185324
   },
   'rina': {
     id: 'rina',
@@ -201,7 +201,7 @@ const TEAM_DATABASE = {
     email: 'rina@balizero.com',
     department: 'reception',
     language: 'Indonesian',
-    pinHash: '$2b$10$VI.3LJSFK8QZquhq819Y/uMvYukDlvBLLS0Da9R/SIbVJ7rF8tNBC',
+    pinHash: '$2b$10$3HafTOBoHXrIgfFAFQlmBeFjCyYOLsAqisWVR2chai59NkxjNNjJe', // PIN: 253479
     badge: '📞'
   },
   'nina': {
@@ -211,7 +211,7 @@ const TEAM_DATABASE = {
     email: 'nina@balizero.com',
     department: 'marketing',
     language: 'English',
-    pinHash: '$2b$10$ygt54IjN4eU3.LMq7bZKUekTfXk5g1eZcNbiOlvcke45yULjXHUIy',
+    pinHash: '$2b$10$pwHdnITRpz/gxbbBA1GQd./Gei13k..IYs6o2tSJyKix0MW2AzVE2', // PIN: 581480
     badge: '📢'
   },
   'sahira': {
@@ -221,7 +221,7 @@ const TEAM_DATABASE = {
     email: 'sahira@balizero.com',
     department: 'marketing',
     language: 'Indonesian',
-    pinHash: '$2b$10$LCqrsa0q9z8IGymcJyp2/efy8w7x/CgNhujkL61PoiR52pAWmm6nW'
+    pinHash: '$2b$10$Cbc3f.ls3hktpBcyP23KMeFoYfFVivkqVhzoSQzrW0/cEMtGqGi92' // PIN: 810949
   },
   'marta': {
     id: 'marta',
@@ -230,7 +230,7 @@ const TEAM_DATABASE = {
     email: 'marta@balizero.com',
     department: 'advisory',
     language: 'Italian',
-    pinHash: '$2b$10$v2LQf9BbOwj0UzWn/obXYOBi//pU5R6bb6p4eCUYfRVLVrEYnhGBC',
+    pinHash: '$2b$10$cNBdYxMYzSxJU1.I8F3VQuOarxdKq..hWeqZnGAiaFOGm6RL2.lM2', // PIN: 166272
     badge: '💼'
   }
 };
