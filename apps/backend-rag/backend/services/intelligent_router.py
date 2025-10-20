@@ -485,25 +485,76 @@ class IntelligentRouter:
                 # Build rich team context with role, department, and communication preferences
                 team_parts = []
 
+                # LANGUAGE REQUIREMENT (ABSOLUTE - MUST BE FIRST)
+                language_map = {
+                    "it": "Italian",
+                    "id": "Indonesian",
+                    "en": "English"
+                }
+                lang_full = language_map.get(collaborator.language, collaborator.language.upper())
+                team_parts.append(f"IMPORTANT: You MUST respond ONLY in {lang_full} language")
+
                 # Identity and role
-                team_parts.append(f"You're talking to {collaborator.name} ({collaborator.ambaradam_name})")
-                team_parts.append(f"a {collaborator.role} in the {collaborator.department} department at Bali Zero")
+                team_parts.append(f"You're talking to {collaborator.name} ({collaborator.ambaradam_name}), {collaborator.role} in the {collaborator.department} department")
 
-                # Expertise and language
-                team_parts.append(f"Their expertise level is {collaborator.expertise_level}")
-                team_parts.append(f"and they prefer communication in {collaborator.language.upper()}")
+                # Expertise level (affects depth of response)
+                expertise_instructions = {
+                    "beginner": "Explain concepts simply and clearly",
+                    "intermediate": "Balance clarity with detail",
+                    "advanced": "You can use technical language",
+                    "expert": "Discuss at a sophisticated level"
+                }
+                if collaborator.expertise_level in expertise_instructions:
+                    team_parts.append(expertise_instructions[collaborator.expertise_level])
 
-                # Emotional preferences (tone, formality, humor)
+                # Emotional preferences (IMPERATIVE - how YOU must respond)
                 if hasattr(collaborator, 'emotional_preferences') and collaborator.emotional_preferences:
                     prefs = collaborator.emotional_preferences
                     tone = prefs.get('tone', 'professional')
                     formality = prefs.get('formality', 'medium')
                     humor = prefs.get('humor', 'light')
 
-                    team_parts.append(f"They appreciate a {tone} tone with {formality} formality and {humor} humor")
+                    # Translate tone to DIRECT instructions
+                    tone_instructions = {
+                        "professional_warm": "Be professional but warm and approachable",
+                        "direct_with_depth": "Be direct and insightful",
+                        "respectful_collaborative": "Be respectful and collaborative",
+                        "precise_methodical": "Be precise and methodical",
+                        "efficient_focused": "Be efficient and focused",
+                        "detail_oriented": "Be detail-oriented and thorough",
+                        "helpful_clear": "Be helpful and clear",
+                        "collaborative": "Be collaborative and supportive",
+                        "eager_learning": "Be encouraging and educational",
+                        "strategic_visionary": "Be strategic and forward-thinking",
+                        "sacred_semar_energy": "Be playful, wise, and deeply intuitive"
+                    }
+
+                    formality_instructions = {
+                        "casual": "Use casual, friendly language",
+                        "medium": "Use balanced professional language",
+                        "high": "Use formal, polished language"
+                    }
+
+                    humor_instructions = {
+                        "minimal": "Keep humor minimal",
+                        "light": "Light humor is welcome",
+                        "intelligent": "Use intelligent, subtle humor",
+                        "sacred_semar_energy": "Use profound, playful wisdom"
+                    }
+
+                    instruction_parts = []
+                    if tone in tone_instructions:
+                        instruction_parts.append(tone_instructions[tone])
+                    if formality in formality_instructions:
+                        instruction_parts.append(formality_instructions[formality].lower())
+                    if humor in humor_instructions:
+                        instruction_parts.append(humor_instructions[humor].lower())
+
+                    if instruction_parts:
+                        team_parts.append(". ".join(instruction_parts))
 
                 # Sub Rosa level (access level)
-                team_parts.append(f"They have Level {collaborator.sub_rosa_level} access (confidentiality clearance)")
+                team_parts.append(f"Security clearance: Level {collaborator.sub_rosa_level}")
 
                 # Build natural sentence
                 team_context = ". ".join(team_parts) + "."
