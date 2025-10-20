@@ -209,9 +209,9 @@ Please provide a detailed, accurate answer using the context above. Cite specifi
             # Extract response text
             response_text = response.content[0].text if response.content else ""
 
-            # Add contact info if not present
-            if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
-                response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+            # NOTE: Contact info removed - let AI decide naturally (already in system prompt)
+            # if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
+            #     response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
 
             # Extract token usage
             tokens = {
@@ -379,9 +379,9 @@ Please provide a detailed, accurate answer using the context above. Cite specifi
                         if hasattr(block, 'text'):
                             response_text += block.text
 
-                    # Add contact info if not present
-                    if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
-                        response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+                    # NOTE: Contact info removed - let AI decide naturally (already in system prompt)
+                    # if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
+                    #     response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
 
                     logger.info(f"✅ [Sonnet+Tools] Final response: {len(response_text)} chars, {len(tools_called)} tools used")
 
@@ -413,7 +413,7 @@ Please provide a detailed, accurate answer using the context above. Cite specifi
                     response_text += block.text
 
             if not response_text:
-                response_text = "Mi dispiace, ho avuto difficoltà a completare la richiesta. Per assistenza: WhatsApp +62 859 0436 9574 o info@balizero.com"
+                response_text = "Mi dispiace, ho avuto difficoltà a completare la richiesta. Riprova per favore."  # Removed auto WhatsApp
 
             return {
                 "text": response_text,

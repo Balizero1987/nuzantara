@@ -25,6 +25,21 @@
 - **ChromaDB**: ✅ Operativo (7,375+ docs)
 - **AI Models**: ✅ Claude Haiku + Sonnet operativi
 
+### 3. Claude Haiku Model 404 Fix
+- **Status**: 🔧 In Progress (Deploy Pending)
+- **Problem**: Model `claude-3-5-haiku-20241022` returns 404 (not found)
+- **Root Cause**: Incorrect model name - should be `claude-3-haiku-20240307`
+- **Files Fixed**:
+  - `apps/backend-rag/backend/services/claude_haiku_service.py`
+  - `apps/backend-rag/backend/services/context_window_manager.py`
+  - `apps/backend-rag/backend/services/streaming_service.py`
+  - `apps/backend-rag/backend/services/followup_service.py`
+  - `apps/backend-rag/backend/CHROMADB_DEPLOYMENT_REPORT.md`
+- **Deploy Status**: Code updated, committed, and pushed to GitHub
+- **Railway Deploy**: Multiple `railway up` commands executed, deploy in progress
+- **Current Status**: RAG Backend healthy, but old model still in logs (deploy pending)
+- **Result**: Model name corrected in code, Railway deploy completion pending
+
 ## 📝 Note Tecniche
 
 ### Problemi Identificati e Risolti:
@@ -73,6 +88,7 @@ git add . && git commit -m "feat: changes" && git push origin main
 
 ### Risultato Finale
 **Deploy Method Semplificato**: ✅ COMPLETATO
+**Claude Haiku Model Fix**: 🔧 IN PROGRESS (Deploy Pending)
 
 **Metodo Raccomandato**:
 ```bash
@@ -100,30 +116,40 @@ curl -s https://scintillating-kindness-production-47e3.up.railway.app/health
 - **ChromaDB**: ✅ 7,375+ docs, 16 collections
 - **AI Models**: ✅ Claude Haiku + Sonnet operativi
 - **Collaborative Intelligence**: ✅ Attivo
+- **Claude Haiku Model**: 🔧 Fixed in code, deploy pending
 
 ### Handover al Prossimo Dev AI
 
-**Context**: W3 ha risolto i problemi di deploy Railway:
+**Context**: W3 ha risolto i problemi di deploy Railway + Claude Haiku model fix:
 
 **Completato**:
 1. ✅ Analisi problemi deploy (deploy interrotti, database errors, model errors)
 2. ✅ Esecuzione `railway up` per entrambi i servizi
 3. ✅ Verifica health checks: tutti i servizi operativi
 4. ✅ Creazione DEPLOY_SOLUTION.md con metodo semplificato
+5. ✅ Claude Haiku model fix (404 error resolved in code)
+
+**In Progress**:
+- 🔧 Railway deploy completion for Claude Haiku model fix
 
 **Deploy Method Definitivo**:
 - **Railway CLI**: `railway up --service SERVICE_NAME` (immediato)
 - **GitHub Push**: `git push origin main` (auto-deploy 3-7 min)
 - **Dashboard**: Manual redeploy via Railway dashboard
 
-**Files Creati**:
-- `DEPLOY_SOLUTION.md` - Comprehensive deploy guide
+**Files Creati/Modificati**:
+- `DEPLOY_SOLUTION.md` - Comprehensive deploy guide (deleted, moved to docs/deploy/)
+- `docs/deploy/DEPLOY.md` - Final deploy guide
+- `apps/backend-rag/backend/services/claude_haiku_service.py` - Model name fixed
+- `apps/backend-rag/backend/services/context_window_manager.py` - Model name fixed
+- `apps/backend-rag/backend/services/streaming_service.py` - Model name fixed
+- `apps/backend-rag/backend/services/followup_service.py` - Model name fixed
 
 **Next Steps** (optional):
-- Monitor deploy status con `railway status`
-- Fix database table issues se necessario
-- Configurare webhook Slack/Discord per monitoring
+- Monitor Railway deploy completion for Claude Haiku model fix
+- Verify logs show `claude-3-haiku-20240307` instead of `claude-3-5-haiku-20241022`
+- Fix database table issues se necessario (cultural_knowledge, query_clusters, memory_facts)
 
 ---
 
-**Session Closed**: 2025-01-27 08:00 UTC
+**Session Closed**: 2025-01-27 08:45 UTC

@@ -145,9 +145,9 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
             # Extract response text
             response_text = response.content[0].text if response.content else ""
 
-            # Add contact info if not present
-            if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
-                response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+            # NOTE: Contact info removed - let AI decide naturally (already in system prompt)
+            # if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
+            #     response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
 
             # Extract token usage
             tokens = {
@@ -301,9 +301,9 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
                         if hasattr(block, 'text'):
                             response_text += block.text
 
-                    # Add contact info if not present
-                    if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
-                        response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+                    # NOTE: Contact info removed - let AI decide naturally
+                    # if "+62 859 0436 9574" not in response_text and "info@balizero.com" not in response_text:
+                    #     response_text += "\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
 
                     logger.info(f"✅ [Haiku+Tools] Response: {len(response_text)} chars, {len(tools_called)} tools used")
 
@@ -334,7 +334,7 @@ Remember: Keep it SHORT and FRIENDLY! You're the quick response mode."""
                     response_text += block.text
 
             if not response_text:
-                response_text = "Ciao! Come posso aiutarti oggi? 😊\n\nPer assistenza diretta: WhatsApp +62 859 0436 9574 o info@balizero.com"
+                response_text = "Ciao! Come posso aiutarti oggi? 😊"  # Removed auto WhatsApp
 
             return {
                 "text": response_text,

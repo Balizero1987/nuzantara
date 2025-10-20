@@ -1,0 +1,1110 @@
+{
+  "input_file": "ml/datasets/training/devai_generated_architected_deduped.jsonl",
+  "output_file": "ml/datasets/training/devai_generated_architected_validated.jsonl",
+  "strict_mode": false,
+  "summary": {
+    "total_input": 1000,
+    "total_output": 539,
+    "errors": 461,
+    "warnings": 978
+  },
+  "distribution_checks": {
+    "token_distribution": {
+      "passed": false,
+      "details": {
+        "short (100-300)": {
+          "target": "20.0%",
+          "actual": "11.5%",
+          "diff": "8.5%",
+          "passed": true
+        },
+        "medium (500-1.5K)": {
+          "target": "35.0%",
+          "actual": "55.7%",
+          "diff": "20.7%",
+          "passed": false
+        },
+        "long (2-4K)": {
+          "target": "25.0%",
+          "actual": "32.8%",
+          "diff": "7.8%",
+          "passed": true
+        },
+        "code_context (800-2K)": {
+          "target": "15.0%",
+          "actual": "0.0%",
+          "diff": "15.0%",
+          "passed": false
+        },
+        "extra_long (6-8K)": {
+          "target": "5.0%",
+          "actual": "0.0%",
+          "diff": "5.0%",
+          "passed": true
+        }
+      }
+    },
+    "domain_balance": {
+      "passed": false,
+      "details": {
+        "backend": {
+          "count": 477,
+          "percentage": "88.5%",
+          "passed": false
+        },
+        "architecture": {
+          "count": 102,
+          "percentage": "18.9%",
+          "passed": true
+        },
+        "handlers": {
+          "count": 84,
+          "percentage": "15.6%",
+          "passed": true
+        },
+        "debugging": {
+          "count": 80,
+          "percentage": "14.8%",
+          "passed": true
+        },
+        "integration": {
+          "count": 68,
+          "percentage": "12.6%",
+          "passed": true
+        },
+        "testing": {
+          "count": 67,
+          "percentage": "12.4%",
+          "passed": true
+        },
+        "performance": {
+          "count": 58,
+          "percentage": "10.8%",
+          "passed": true
+        },
+        "security": {
+          "count": 51,
+          "percentage": "9.5%",
+          "passed": true
+        },
+        "identity": {
+          "count": 29,
+          "percentage": "5.4%",
+          "passed": true
+        }
+      }
+    },
+    "difficulty_balance": {
+      "passed": true,
+      "details": {
+        "easy": {
+          "target": "20.0%",
+          "actual": "11.5%",
+          "diff": "8.5%",
+          "passed": true
+        },
+        "medium": {
+          "target": "50.0%",
+          "actual": "55.7%",
+          "diff": "5.7%",
+          "passed": true
+        },
+        "hard": {
+          "target": "30.0%",
+          "actual": "32.8%",
+          "diff": "2.8%",
+          "passed": true
+        }
+      }
+    },
+    "axiom_coverage": {
+      "passed": true,
+      "details": {
+        "total_axioms": 12,
+        "referenced_axioms": 12,
+        "missing_axioms": [],
+        "axiom_counts": {
+          "measure_before_optimize": 210,
+          "fail_safe": 150,
+          "deploy_reversible": 140,
+          "defense_in_depth": 126,
+          "handlers_over_frameworks": 88,
+          "single_source_of_truth": 87,
+          "explicit_over_implicit": 12,
+          "tests_as_documentation": 10,
+          "immutable_history": 5,
+          "test_the_behavior": 5,
+          "readable_code": 4,
+          "no_premature_abstraction": 3
+        },
+        "passed": true
+      }
+    }
+  },
+  "validation_errors": [
+    {
+      "id": "nuz-glossary-0000-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (127) differs significantly from actual (~67)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0004-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (227) differs significantly from actual (~63)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0011-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (188) differs significantly from actual (~96)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0012-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (217) differs significantly from actual (~62)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0017-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (165) differs significantly from actual (~93)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0019-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (177) differs significantly from actual (~91)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0022-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (172) differs significantly from actual (~88)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0027-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (186) differs significantly from actual (~61)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0028-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (135) differs significantly from actual (~58)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0029-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (296) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0030-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (156) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0032-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (127) differs significantly from actual (~61)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0033-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (226) differs significantly from actual (~96)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0034-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (282) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0035-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (189) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0039-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (241) differs significantly from actual (~58)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0041-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (148) differs significantly from actual (~92)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0044-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (227) differs significantly from actual (~96)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0045-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (185) differs significantly from actual (~83)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0046-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (188) differs significantly from actual (~61)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0050-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (221) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0055-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (171) differs significantly from actual (~94)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0057-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (163) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0058-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (132) differs significantly from actual (~66)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0059-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (162) differs significantly from actual (~66)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0060-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (119) differs significantly from actual (~58)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0061-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (266) differs significantly from actual (~93)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0062-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (212) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0063-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (152) differs significantly from actual (~61)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0066-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (145) differs significantly from actual (~58)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0067-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (154) differs significantly from actual (~67)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0071-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (179) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0074-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (226) differs significantly from actual (~61)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0082-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (115) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0084-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (198) differs significantly from actual (~93)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0089-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (129) differs significantly from actual (~58)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0090-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": []
+    },
+    {
+      "id": "nuz-axiom-0095-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (222) differs significantly from actual (~94)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0001-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (2612) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0003-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (3444) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0012-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (3052) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0021-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (3182) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0026-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (2796) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0033-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (2931) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0037-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (2923) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0041-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (2788) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0042-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (3048) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0043-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (2766) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0045-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (2757) differs significantly from actual (~41)"
+      ]
+    },
+    {
+      "id": "nuz-feature-0047-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: [] is too short"
+      ],
+      "warnings": [
+        "Contains placeholder text matching '\\[.*would go here.*\\]'",
+        "Token estimate (2863) differs significantly from actual (~41)"
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "id": "nuz-glossary-0000-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (127) differs significantly from actual (~67)"
+      ]
+    },
+    {
+      "id": "nuz-identity-0001-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (100) differs significantly from actual (~182)"
+      ]
+    },
+    {
+      "id": "nuz-service-0003-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (236) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0004-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (227) differs significantly from actual (~63)"
+      ]
+    },
+    {
+      "id": "nuz-service-0005-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (227) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-service-0008-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (262) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-service-0009-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (282) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-service-0010-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (253) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0011-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (188) differs significantly from actual (~96)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0012-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (217) differs significantly from actual (~62)"
+      ]
+    },
+    {
+      "id": "nuz-service-0013-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (241) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-service-0014-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (246) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-identity-0015-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (291) differs significantly from actual (~182)"
+      ]
+    },
+    {
+      "id": "nuz-identity-0016-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (283) differs significantly from actual (~182)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0017-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (165) differs significantly from actual (~93)"
+      ]
+    },
+    {
+      "id": "nuz-service-0018-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (202) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0019-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (177) differs significantly from actual (~91)"
+      ]
+    },
+    {
+      "id": "nuz-service-0020-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (246) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-service-0021-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (239) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0022-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (172) differs significantly from actual (~88)"
+      ]
+    },
+    {
+      "id": "nuz-service-0023-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (285) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-service-0025-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (233) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-service-0026-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (243) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0027-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (186) differs significantly from actual (~61)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0028-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (135) differs significantly from actual (~58)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0029-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (296) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0030-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (156) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0032-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (127) differs significantly from actual (~61)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0033-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (226) differs significantly from actual (~96)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0034-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (282) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0035-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (189) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-service-0037-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (254) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-identity-0038-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (279) differs significantly from actual (~182)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0039-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (241) differs significantly from actual (~58)"
+      ]
+    },
+    {
+      "id": "nuz-service-0040-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (266) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0041-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (148) differs significantly from actual (~92)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0044-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (227) differs significantly from actual (~96)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0045-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (185) differs significantly from actual (~83)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0046-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (188) differs significantly from actual (~61)"
+      ]
+    },
+    {
+      "id": "nuz-identity-0047-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (273) differs significantly from actual (~182)"
+      ]
+    },
+    {
+      "id": "nuz-identity-0049-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (290) differs significantly from actual (~182)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0050-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (221) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-service-0053-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (231) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-service-0054-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (211) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0055-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (171) differs significantly from actual (~94)"
+      ]
+    },
+    {
+      "id": "nuz-service-0056-2025-10-12",
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "Token estimate (216) differs significantly from actual (~59)"
+      ]
+    },
+    {
+      "id": "nuz-axiom-0057-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'ethos' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (163) differs significantly from actual (~85)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0058-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (132) differs significantly from actual (~66)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0059-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (162) differs significantly from actual (~66)"
+      ]
+    },
+    {
+      "id": "nuz-glossary-0060-2025-10-12",
+      "passed": false,
+      "errors": [
+        "Schema validation failed: 'glossary' is not one of ['architecture', 'handlers', 'testing', 'debugging', 'performance', 'security', 'infra', 'devops', 'ci-cd', 'database', 'frontend', 'backend', 'rag', 'ai-services', 'communication', 'analytics', 'memory', 'identity', 'middleware', 'integration']"
+      ],
+      "warnings": [
+        "Token estimate (119) differs significantly from actual (~58)"
+      ]
+    }
+  ]
+}
