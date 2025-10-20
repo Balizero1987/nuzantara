@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node dist/index.js",
-    "build": "tsc && npm run copy:static",
-    "copy:static": "node -e \"const fs=require('fs'); const path=require('path'); try { fs.mkdirSync('dist/static', {recursive:true}); const files = fs.readdirSync('src/interfaces').filter(f=>f.endsWith('.html')); console.log('Copying files:', files); files.forEach(f=>{ const src=path.join('src/interfaces',f); const dest=path.join('dist/static',f); console.log('Copying', src, 'to', dest); fs.copyFileSync(src, dest); }); console.log('Static files copied successfully'); } catch(e) { console.error('Error copying static files:', e); process.exit(1); }\"",
+    "build": "npx tsc",
     "dev": "tsx watch src/index.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
