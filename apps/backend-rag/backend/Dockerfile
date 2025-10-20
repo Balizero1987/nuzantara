@@ -67,5 +67,5 @@ ENV SENTENCE_TRANSFORMERS_HOME=/root/.cache/sentence_transformers
 # Expose port
 EXPOSE 8000
 
-# Run migrations then start server
-CMD ["sh", "-c", "python migrations/001_fix_missing_tables.py && PYTHONPATH=/app:$PYTHONPATH uvicorn app.main_cloud:app --host 0.0.0.0 --port 8000"]
+# Run migrations then start server (use python -m uvicorn for proper path)
+CMD ["sh", "-c", "python migrations/001_fix_missing_tables.py && PYTHONPATH=/app:$PYTHONPATH python -m uvicorn app.main_cloud:app --host 0.0.0.0 --port 8000"]
