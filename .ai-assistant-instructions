@@ -1,0 +1,45 @@
+# QUICK REFERENCE FOR AI ASSISTANTS
+
+## Build Decision in 5 Seconds
+
+Ask yourself these questions in order:
+
+1. **Did I change Dockerfile?** → YES = Full rebuild (3-4 min) | NO = Continue ↓
+2. **Did I change requirements.txt?** → YES = Partial rebuild (2-3 min) | NO = Continue ↓
+3. **Did I only change .py files?** → YES = Fast build (~1 min) | NO = Check guide
+
+## Most Common Scenarios (90% of cases)
+
+| You changed... | Build time | Just push? |
+|---------------|------------|------------|
+| main_cloud.py | ~45s | ✅ YES |
+| Fixed a bug in services/ | ~45s | ✅ YES |
+| Added 'import openai' | ~120s | ⚠️ Update requirements.txt first |
+| Updated SYSTEM_PROMPT | ~45s | ✅ YES |
+| Fixed typo in response | ~45s | ✅ YES |
+
+## Red Flags 🚨 (Need full rebuild)
+
+- Changed Python version (3.11 → 3.12)
+- Modified Docker stages
+- Added apt-get packages
+- Changed model download
+
+## Golden Rules
+
+1. **When in doubt, just push** - Railway is smart
+2. **Don't force rebuilds** unless builds fail
+3. **Python changes = fast** (this is 90% of work)
+4. **Test locally first** if unsure
+
+## The One Command You Need
+
+```bash
+git add . && git commit -m "your message" && git push
+```
+
+Railway handles the rest! 🚀
+
+---
+*Full guide: AI_BUILD_DECISION_GUIDE.md*
+*Last update: 2025-10-20*
