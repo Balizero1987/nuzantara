@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["python311", "python311Packages.pip"]
+
+[phases.install]
+cmds = ["pip install -r requirements-worker.txt"]
+
+[start]
+cmd = "python3 scripts/llama_nightly_worker.py --days 3 --max-golden 50 --regenerate-cultural"
