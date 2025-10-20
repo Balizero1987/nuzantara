@@ -49,12 +49,12 @@ class CollaboratorService:
     Service for collaborator identification and management.
 
     Uses:
-    1. Hardcoded mapping (fast path) for 23 team members
+    1. Hardcoded mapping (fast path) for 22 team members
     2. Firestore (slow path) for dynamic collaborators
     3. In-memory cache (5 min TTL) for performance
     """
 
-    # Bali Zero Team Database (22 members)
+    # Bali Zero Team Database (22 members with login credentials)
     TEAM_DATABASE = {
         # C-Level & Leadership (L3 - Initiated)
         "zero@balizero.com": {
@@ -191,17 +191,6 @@ class CollaboratorService:
             "emotional_preferences": {"tone": "eager_learning", "formality": "medium", "humor": "light"}
         },
         "consulting@balizero.com": {
-            "id": "adit",
-            "name": "Adit",
-            "ambaradam_name": "Adit Crew",
-            "role": "crew_lead",
-            "department": "setup",
-            "sub_rosa_level": 1,
-            "language": "id",
-            "expertise_level": "intermediate",
-            "emotional_preferences": {"tone": "collaborative", "formality": "medium", "humor": "light"}
-        },
-        "adit@balizero.com": {  # Alias for Adit (same as consulting@balizero.com)
             "id": "adit",
             "name": "Adit",
             "ambaradam_name": "Adit Crew",
@@ -349,40 +338,6 @@ class CollaboratorService:
             "language": "id",
             "expertise_level": "intermediate",
             "emotional_preferences": {"tone": "creative_strategic", "formality": "low", "humor": "playful"}
-        },
-
-        # Generic team members (L1 - Curious Seeker)
-        "team@balizero.com": {
-            "id": "team_member",
-            "name": "Team Member",
-            "ambaradam_name": "Bali Zero Warrior",
-            "role": "team_member",
-            "department": "general",
-            "sub_rosa_level": 1,
-            "language": "id",
-            "expertise_level": "intermediate",
-            "emotional_preferences": {
-                "tone": "encouraging_supportive",
-                "formality": "medium",
-                "humor": "friendly"
-            }
-        },
-
-        # Demo/Test accounts
-        "demo@zantara.com": {
-            "id": "demo",
-            "name": "Demo User",
-            "ambaradam_name": "Explorer",
-            "role": "demo",
-            "department": "demo",
-            "sub_rosa_level": 1,
-            "language": "en",
-            "expertise_level": "beginner",
-            "emotional_preferences": {
-                "tone": "welcoming_educational",
-                "formality": "low",
-                "humor": "friendly"
-            }
         }
     }
 
