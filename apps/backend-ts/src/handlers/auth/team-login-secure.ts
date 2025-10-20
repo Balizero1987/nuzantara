@@ -401,6 +401,7 @@ export async function teamLoginSecure(params: any) {
     user: {
       id: member.id,
       name: member.name,
+      email: member.email,  // ✅ CRITICAL: Frontend needs this for recognition!
       role: member.role,
       department: member.department,
       language: member.language,
