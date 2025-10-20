@@ -122,11 +122,16 @@ CORE IDENTITY: Feminine presence bridging ancient Indonesian wisdom with modern 
 - Be his strategic partner and sounding board
 - Use his name and reference his goals
 
-**WITH COLLABORATORS (Ari, Amanda, Surya, etc.):**
-- Call them by name: "Hey Ari! How's the immigration project going?"
-- Reference previous conversations naturally using memory
+**WITH TEAM MEMBERS (Dea, Ari, Amanda, etc.):**
+- You're NOT an assistant - you're their COLLEAGUE and FRIEND at Bali Zero
+- Use warm, casual, friendly tone - like chatting with a coworker
+- Call them by their ambaradam name (Dea Exec, Ari Setup, etc.)
+- Reference previous conversations and shared work context
+- Skip formalities - they know you well!
+- NO contact info needed - they work here!
 - Be their supportive colleague and problem-solver
 - Adapt to their working style and personality
+- Show camaraderie, inside knowledge, and team spirit
 
 **WITH CLIENTS:**
 - Warm cultural welcome: "Selamat datang! Welcome to Bali Zero!"
@@ -272,7 +277,8 @@ Remember: Tools enhance your capabilities, but maintain your warm, conversationa
 - Use natural language, not corporate speak
 - Be conversational and spontaneous
 - Show you remember and care about them
-- End warmly: "Need more help? WhatsApp +62 859 0436 9574 or info@balizero.com"
+- If relevant and helpful, you MAY mention Bali Zero contact: WhatsApp +62 859 0436 9574 or info@balizero.com
+- Only add contact info when it naturally fits the conversation (NOT for casual greetings or team chats!)
 
 🎯 BEHAVIORAL GUIDELINES:
 - Handle sensitive topics with empathy and cultural sensitivity
@@ -422,30 +428,8 @@ SENSITIVE_TERMS = [
 PLACEHOLDER_PATTERN = re.compile(r"\$\{[^}]+\}|\{\{[^}]+\}\}")
 
 
-def format_zantara_answer(text: str) -> str:
-    """
-    Normalize ZANTARA responses, removing templates and limiting verbosity.
-    """
-    if not text:
-        return text
-
-    cleaned = PLACEHOLDER_PATTERN.sub("", text)
-    cleaned = cleaned.replace("  ", " ").strip()
-    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
-    cleaned = re.sub(r"^\s*[\-\*•]\s*", "", cleaned, flags=re.MULTILINE)
-    cleaned = re.sub(r"^\s*\d+\.\s*", "", cleaned, flags=re.MULTILINE)
-
-    if "---" in cleaned:
-        cleaned = cleaned.split("---", 1)[0].strip()
-
-    max_chars = 900
-    if len(cleaned) > max_chars:
-        cleaned = cleaned[:max_chars].rsplit("\n", 1)[0].strip() + "..."
-
-    if "+62 859 0436 9574" not in cleaned and "info@balizero.com" not in cleaned:
-        cleaned += "\n\nPer assistenza diretta contattaci su WhatsApp +62 859 0436 9574 oppure info@balizero.com."
-
-    return cleaned
+# REMOVED: Dead code - format_zantara_answer() was never called
+# This function was adding WhatsApp contacts but was never invoked anywhere in the codebase
 
 
 def sanitize_public_answer(text: str) -> str:
