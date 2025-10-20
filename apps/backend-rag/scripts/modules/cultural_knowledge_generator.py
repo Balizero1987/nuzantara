@@ -34,7 +34,8 @@ class CulturalKnowledgeGenerator:
         self,
         database_url: str,
         runpod_endpoint: Optional[str] = None,
-        runpod_api_key: Optional[str] = None
+        runpod_api_key: Optional[str] = None,
+        search_service=None  # NEW: SearchService for ChromaDB integration
     ):
         """
         Initialize generator
@@ -43,10 +44,12 @@ class CulturalKnowledgeGenerator:
             database_url: PostgreSQL connection string
             runpod_endpoint: RunPod LLAMA endpoint
             runpod_api_key: RunPod API key
+            search_service: SearchService instance for ChromaDB integration (optional)
         """
         self.database_url = database_url
         self.runpod_endpoint = runpod_endpoint
         self.runpod_api_key = runpod_api_key
+        self.search_service = search_service
         self.pool: Optional[asyncpg.Pool] = None
 
     async def connect(self):
@@ -95,13 +98,22 @@ class CulturalKnowledgeGenerator:
                 logger.error(f"❌ Generation failed for: {topic}")
                 return None
 
-            # Save to cultural_knowledge table
+            # Save to PostgreSQL cultural_knowledge table
             await self._save_cultural_chunk(
                 topic=topic,
                 content=content,
                 when_to_use=when_to_use,
                 tone=tone
             )
+
+            # Save to ChromaDB for fast retrieval (if SearchService available)
+            if self.search_service:
+                await self._save_to_chromadb(
+                    topic=topic,
+                    content=content,
+                    when_to_use=when_to_use,
+                    tone=tone
+                )
 
             logger.info(f"✅ Cultural chunk generated: {topic}")
 
@@ -294,7 +306,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
         try:
             async with httpx.AsyncClient(timeout=90.0) as client:
                 response = await client.post(
-                    f"{self.runpod_endpoint}/runsync",
+                    self.runpod_endpoint,  # Fixed: removed duplicate /runsync
                     headers={
                         "Authorization": f"Bearer {self.runpod_api_key}",
                         "Content-Type": "application/json"
@@ -379,6 +391,50 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
         except Exception as e:
             logger.error(f"❌ Failed to save cultural chunk: {e}")
             raise
+
+    async def _save_to_chromadb(
+        self,
+        topic: str,
+        content: str,
+        when_to_use: List[str],
+        tone: str
+    ):
+        """
+        Save cultural chunk to ChromaDB for fast retrieval
+
+        Args:
+            topic: Topic identifier
+            content: Generated content
+            when_to_use: Usage contexts
+            tone: Tone identifier
+        """
+        if not self.search_service:
+            logger.warning("⚠️ SearchService not available, skipping ChromaDB save")
+            return
+
+        try:
+            metadata = {
+                "type": "cultural_insight",
+                "source": "llama_zantara",
+                "topic": topic,
+                "when_to_use": when_to_use,
+                "tone": tone,
+                "language": "multi"  # Cultural insights work across IT/EN/ID
+            }
+
+            success = await self.search_service.add_cultural_insight(
+                text=content,
+                metadata=metadata
+            )
+
+            if success:
+                logger.info(f"✅ Saved to ChromaDB: {topic}")
+            else:
+                logger.warning(f"⚠️ ChromaDB save failed for: {topic}")
+
+        except Exception as e:
+            logger.error(f"❌ Failed to save to ChromaDB: {e}")
+            # Don't raise - ChromaDB save is optional, PostgreSQL is primary
 
     async def batch_generate_cultural_chunks(self) -> Dict:
         """

@@ -30,7 +30,7 @@ class SearchService:
         # Use CHROMA_DB_PATH from environment (set by main_cloud.py after download)
         chroma_path = os.environ.get('CHROMA_DB_PATH', '/tmp/chroma_db')
 
-        # Initialize 8 collections (multi-domain + pricing)
+        # Initialize 9 collections (multi-domain + pricing + cultural)
         self.collections = {
             "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing"),
             "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="visa_oracle"),
@@ -39,7 +39,8 @@ class SearchService:
             "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_architect"),
             "kb_indonesian": ChromaDBClient(persist_directory=chroma_path, collection_name="kb_indonesian"),
             "kbli_comprehensive": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_comprehensive"),
-            "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_books")
+            "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_books"),
+            "cultural_insights": ChromaDBClient(persist_directory=chroma_path, collection_name="cultural_insights")  # NEW: LLAMA-generated Indonesian cultural knowledge
         }
 
         # Initialize query router
@@ -52,8 +53,8 @@ class SearchService:
         ]
 
         logger.info(f"SearchService initialized with ChromaDB path: {chroma_path}")
-        logger.info(f"✅ Collections: 8 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books)")
-        logger.info(f"✅ Query routing enabled (8-way intelligent routing with pricing priority)")
+        logger.info(f"✅ Collections: 9 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books, cultural_insights [JIWA])")
+        logger.info(f"✅ Query routing enabled (8-way intelligent routing with pricing priority + cultural RAG)")
 
     async def search(
         self,
@@ -154,3 +155,105 @@ class SearchService:
         except Exception as e:
             logger.error(f"Search error: {e}")
             raise
+
+    async def add_cultural_insight(
+        self,
+        text: str,
+        metadata: Dict[str, Any]
+    ) -> bool:
+        """
+        Add cultural insight to ChromaDB (called by CulturalKnowledgeGenerator)
+
+        Args:
+            text: Cultural insight content
+            metadata: Metadata dict with topic, language, when_to_use, tone, etc.
+
+        Returns:
+            bool: Success status
+        """
+        try:
+            import hashlib
+            import uuid
+
+            # Generate unique ID from content hash
+            content_hash = hashlib.md5(text.encode('utf-8')).hexdigest()
+            doc_id = f"cultural_{metadata.get('topic', 'unknown')}_{content_hash[:8]}"
+
+            # Generate embedding
+            embedding = self.embedder.generate_query_embedding(text)
+
+            # Add to cultural_insights collection
+            cultural_db = self.collections["cultural_insights"]
+
+            # Convert list fields to strings for ChromaDB compatibility
+            chroma_metadata = {**metadata}
+            if 'when_to_use' in chroma_metadata and isinstance(chroma_metadata['when_to_use'], list):
+                chroma_metadata['when_to_use'] = ','.join(chroma_metadata['when_to_use'])
+
+            cultural_db.collection.add(
+                ids=[doc_id],
+                embeddings=[embedding],
+                documents=[text],
+                metadatas=[chroma_metadata]
+            )
+
+            logger.info(f"✅ Added cultural insight: {metadata.get('topic')} (ID: {doc_id})")
+            return True
+
+        except Exception as e:
+            logger.error(f"❌ Failed to add cultural insight: {e}")
+            return False
+
+    async def query_cultural_insights(
+        self,
+        query: str,
+        when_to_use: Optional[str] = None,
+        limit: int = 3
+    ) -> List[Dict[str, Any]]:
+        """
+        Query cultural insights from ChromaDB
+
+        Args:
+            query: Search query (user message)
+            when_to_use: Optional filter by usage context (e.g., "first_contact", "greeting")
+            limit: Max results
+
+        Returns:
+            List of cultural insight dicts with content and metadata
+        """
+        try:
+            # Generate query embedding
+            query_embedding = self.embedder.generate_query_embedding(query)
+
+            # NOTE: ChromaDB filtering is limited - we rely on semantic search instead
+            # The when_to_use metadata is stored as comma-separated string, but ChromaDB
+            # doesn't support substring matching. Semantic search will naturally rank
+            # relevant cultural insights higher based on the query content.
+            chroma_filter = None
+
+            # Search cultural_insights collection
+            cultural_db = self.collections["cultural_insights"]
+            raw_results = cultural_db.search(
+                query_embedding=query_embedding,
+                filter=chroma_filter,
+                limit=limit
+            )
+
+            # Format results
+            formatted_results = []
+            for i in range(len(raw_results.get("documents", []))):
+                distance = raw_results["distances"][i] if i < len(raw_results.get("distances", [])) else 1.0
+                score = 1 / (1 + distance)
+
+                formatted_results.append({
+                    "content": raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else "",
+                    "metadata": raw_results["metadatas"][i] if i < len(raw_results.get("metadatas", [])) else {},
+                    "score": round(score, 4)
+                })
+
+            logger.info(f"🌴 Retrieved {len(formatted_results)} cultural insights for query")
+            return formatted_results
+
+        except Exception as e:
+            logger.error(f"❌ Cultural insights query failed: {e}")
+            return []
