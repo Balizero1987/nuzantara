@@ -201,6 +201,17 @@ class CollaboratorService:
             "expertise_level": "intermediate",
             "emotional_preferences": {"tone": "collaborative", "formality": "medium", "humor": "light"}
         },
+        "adit@balizero.com": {  # Alias for Adit (same as consulting@balizero.com)
+            "id": "adit",
+            "name": "Adit",
+            "ambaradam_name": "Adit Crew",
+            "role": "crew_lead",
+            "department": "setup",
+            "sub_rosa_level": 1,
+            "language": "id",
+            "expertise_level": "intermediate",
+            "emotional_preferences": {"tone": "collaborative", "formality": "medium", "humor": "light"}
+        },
         "dea@balizero.com": {
             "id": "dea",
             "name": "Dea",
