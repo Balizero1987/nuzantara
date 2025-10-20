@@ -1,6 +1,0 @@
-[build]
-builder = "NIXPACKS"
-buildCommand = "pip install -r requirements-worker.txt"
-
-[deploy]
-startCommand = "python3 scripts/llama_nightly_worker.py --days 3 --max-golden 50 --regenerate-cultural"
