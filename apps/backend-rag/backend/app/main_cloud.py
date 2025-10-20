@@ -1678,3 +1678,83 @@ async def get_user_memory(user_id: str):
         }
     except Exception as e:
         raise HTTPException(500, f"Memory retrieval failed: {str(e)}")
+
+
+# ========================================
+# FRONTEND SDK MEMORY ENDPOINTS
+# ========================================
+
+class MemorySaveRequest(BaseModel):
+    userId: str
+    profile_facts: Optional[List[str]] = []
+    summary: Optional[str] = ""
+
+
+@app.post("/memory/save")
+async def save_memory_frontend(request: MemorySaveRequest):
+    """
+    Frontend SDK endpoint: Save user memory (facts + summary)
+    Compatible with zantara-sdk.js saveMemory() method
+    """
+    if not memory_service:
+        raise HTTPException(503, "Memory service not available")
+
+    try:
+        # Save each fact
+        saved_count = 0
+        for fact in request.profile_facts:
+            if fact and fact.strip():
+                await memory_service.save_fact(
+                    user_id=request.userId,
+                    content=fact.strip(),
+                    fact_type='user_provided'
+                )
+                saved_count += 1
+
+        # Update summary if provided
+        if request.summary and request.summary.strip():
+            await memory_service.update_summary(
+                user_id=request.userId,
+                summary=request.summary.strip()
+            )
+
+        return {
+            "success": True,
+            "user_id": request.userId,
+            "facts_saved": saved_count,
+            "summary_updated": bool(request.summary)
+        }
+
+    except Exception as e:
+        logger.error(f"Memory save failed for {request.userId}: {e}")
+        raise HTTPException(500, f"Memory save failed: {str(e)}")
+
+
+@app.get("/memory/get")
+async def get_memory_frontend(userId: str):
+    """
+    Frontend SDK endpoint: Retrieve user memory
+    Compatible with zantara-sdk.js getMemory() method
+
+    Query params:
+        userId: User identifier
+    """
+    if not memory_service:
+        raise HTTPException(503, "Memory service not available")
+
+    try:
+        memory = await memory_service.get_memory(userId)
+        return {
+            "success": True,
+            "userId": userId,
+            "profile_facts": memory.profile_facts,
+            "summary": memory.summary,
+            "counters": memory.counters,
+            "total_conversations": memory.counters.get('conversations', 0),
+            "created_at": memory.created_at.isoformat() if hasattr(memory, 'created_at') and memory.created_at else None,
+            "updated_at": memory.updated_at.isoformat() if hasattr(memory, 'updated_at') and memory.updated_at else None
+        }
+
+    except Exception as e:
+        logger.error(f"Memory retrieval failed for {userId}: {e}")
+        raise HTTPException(500, f"Memory retrieval failed: {str(e)}")
