@@ -1,26 +1,68 @@
-.git
-.gitignore
+# Docker build context optimization - exclude unnecessary files
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+env/
 venv/
-ENV/
-.venv
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+*.cover
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+*.egg-info/
+.eggs/
+
+# Development
 .env
-.DS_Store
+.env.local
 *.log
-data/
-logs/
-tests/
+*.pid
+*.seed
+*.pid.lock
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Documentation
 *.md
+docs/
 README*
-PHASE*
-DEPLOY*
-QUICK*
-SETUP*
-TEST*
-backend_clean/
-scripts/
-*.sh
+
+# Tests
+tests/
+test_*.py
+*_test.py
+
+# Build artifacts
+build/
+dist/
+*.whl
+
+# Data files (don't include in build context)
+*.db
+*.sqlite
+*.csv
+data/
+chroma_db/
+tmp/
+
+# Notebooks
+*.ipynb
+.ipynb_checkpoints/
