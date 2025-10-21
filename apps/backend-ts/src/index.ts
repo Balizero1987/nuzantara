@@ -287,12 +287,9 @@ logger.info('✅ WebSocket server initialized on /ws');
 
 // Initialize RAG Backend Warmup Service
 import { startRAGWarmup, getRAGWarmupStats, getRAGHealthStatus, triggerRAGPing } from './services/rag-warmup.js';
-if (process.env.RAG_BACKEND_URL) {
-  startRAGWarmup();
-  logger.info('✅ RAG warmup service initialized');
-} else {
-  logger.warn('⚠️ RAG_BACKEND_URL not set, warmup service disabled');
-}
+// Always start warmup service - it has hardcoded fallback URL
+startRAGWarmup();
+logger.info(`✅ RAG warmup service initialized (URL: ${process.env.RAG_BACKEND_URL || 'hardcoded fallback'})`);
 
 // === App-Gateway (feature gated) ===
 app.use('/app', flagGate('ENABLE_APP_GATEWAY'));
