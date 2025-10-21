@@ -117,6 +117,27 @@ app.get('/alerts/status', async (_req, res) => {
   });
 });
 
+// RAG Warmup endpoints
+app.get('/warmup/stats', async (_req, res) => {
+  const { getRAGWarmupStats, getRAGHealthStatus } = await import('./services/rag-warmup.js');
+  return res.json({
+    ok: true,
+    data: {
+      stats: getRAGWarmupStats(),
+      health: getRAGHealthStatus()
+    }
+  });
+});
+
+app.post('/warmup/trigger', async (_req, res) => {
+  const { triggerRAGPing } = await import('./services/rag-warmup.js');
+  const result = await triggerRAGPing();
+  return res.json({
+    ok: result.success,
+    data: result
+  });
+});
+
 // Serve OpenAPI specifications
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -263,6 +284,15 @@ const server = app.listen(port, () => {
 import { initializeWebSocketServer } from './services/websocket-server.js';
 const wsServer = initializeWebSocketServer(server);
 logger.info('✅ WebSocket server initialized on /ws');
+
+// Initialize RAG Backend Warmup Service
+import { startRAGWarmup, getRAGWarmupStats, getRAGHealthStatus, triggerRAGPing } from './services/rag-warmup.js';
+if (process.env.RAG_BACKEND_URL) {
+  startRAGWarmup();
+  logger.info('✅ RAG warmup service initialized');
+} else {
+  logger.warn('⚠️ RAG_BACKEND_URL not set, warmup service disabled');
+}
 
 // === App-Gateway (feature gated) ===
 app.use('/app', flagGate('ENABLE_APP_GATEWAY'));
