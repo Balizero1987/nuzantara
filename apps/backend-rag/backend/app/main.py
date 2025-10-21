@@ -21,6 +21,7 @@ from services.rag_generator import RAGGenerator
 from services.search_service import SearchService
 from llm.anthropic_client import AnthropicClient
 from llm.bali_zero_router import BaliZeroRouter
+from app.routers import conversations
 
 # Configure logging
 logging.basicConfig(
@@ -49,6 +50,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(conversations.router)
 
 # Global clients
 ollama_client: Optional[OllamaClient] = None
