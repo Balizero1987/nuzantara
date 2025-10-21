@@ -7,7 +7,9 @@
 
 import logger from './logger.js';
 
+// Fallback to hardcoded URL if env var not set (Railway sometimes doesn't pass it immediately)
 const RAG_URL = process.env.RAG_BACKEND_URL || 
+  process.env.RAILWAY_SERVICE_RAG_BACKEND_URL ||
   'https://scintillating-kindness-production-47e3.up.railway.app';
 
 const WARMUP_INTERVAL = 10 * 60 * 1000; // 10 minutes
