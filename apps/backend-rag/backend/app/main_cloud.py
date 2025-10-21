@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI
 app = FastAPI(
     title="ZANTARA RAG API",
-    version="3.1.0-perf-fix",
+    version="3.2.0-crm",
     description="RAG + LLM backend for NUZANTARA (ChromaDB from R2 + Claude AI Haiku/Sonnet with Intelligent Routing)"
 )
 
@@ -244,6 +244,40 @@ You know everything about Indonesian business, visas, KITAS, PT PMA, taxes, real
 - `maps.search` - Location search
 - `maps.directions` - Route planning
 - `maps.places` - Places information
+
+📊 **CRM & ORGANIZATIONAL MEMORY (41 API endpoints):**
+You have access to a complete CRM system that automatically tracks clients, practices, and interactions:
+
+**Auto-CRM Features (Background - Happens Automatically):**
+- Client database: Automatically extracts and saves client info (name, email, phone) from conversations
+- Practice tracking: Auto-detects service inquiries (KITAS, PT PMA, visas, etc.) and creates practice records
+- Interaction logging: All conversations automatically saved with AI-generated summaries
+- Shared memory: Team-wide access to client history and practice status
+- Renewal alerts: Automatic tracking of expiry dates (KITAS, visas, permits)
+
+**CRM Practice Types:**
+- KITAS: Limited Stay Permit (IDR 15M, 90 days processing)
+- PT_PMA: Foreign Investment Company (IDR 25M, 120 days)
+- INVESTOR_VISA: Investor Visa (IDR 12M, 60 days)
+- RETIREMENT_VISA: Retirement Visa 55+ (IDR 10M, 45 days)
+- NPWP: Tax ID Number (IDR 500K, 14 days)
+- BPJS: Health Insurance (IDR 300K, 7 days)
+- IMTA: Work Permit (IDR 8M, 60 days)
+
+**When Users Ask About Clients/Practices:**
+- "Do you remember John Smith?" → YES! Search CRM database via `/crm/clients?search=John`
+- "What services has Maria requested?" → Check `/crm/practices` for client's practice history
+- "When does my KITAS expire?" → Check `/crm/practices/renewals/upcoming`
+- "Who else is waiting for KITAS?" → Query `/crm/practices/stats/overview`
+
+**Auto-CRM Workflow (Behind the Scenes):**
+When a client mentions their name + service in conversation:
+1. AI extracts: name, email, phone (confidence scoring)
+2. System auto-creates client record if confidence ≥ 0.5
+3. System auto-detects practice intent (KITAS, PT PMA, etc.)
+4. System auto-creates practice record if confidence ≥ 0.7
+5. System logs interaction with summary and sentiment
+ALL AUTOMATIC - no manual input needed!
 
 **INTEGRATION GUIDELINES:**
 - When users ask about business codes, use `kbli.lookup` handler
@@ -1057,13 +1091,14 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "ZANTARA RAG",
-        "version": "3.1.0-perf-fix",
+        "version": "3.2.0-crm",
         "mode": "full",
         "available_services": [
             "chromadb",
             "claude_haiku",
             "claude_sonnet",
-            "postgresql"
+            "postgresql",
+            "crm_system"
         ],
         "chromadb": search_service is not None,
         "ai": {
@@ -1074,6 +1109,11 @@ async def health_check():
         "memory": {
             "postgresql": memory_service is not None,
             "vector_db": search_service is not None
+        },
+        "crm": {
+            "enabled": True,
+            "endpoints": 41,
+            "features": ["auto_extraction", "client_tracking", "practice_management", "shared_memory"]
         },
         "reranker": reranker_service is not None,
         "collaborative_intelligence": True
@@ -1704,6 +1744,14 @@ app.include_router(memory_vector_router)
 # Include intel news router (Bali Intel Scraper)
 from app.routers.intel import router as intel_router
 app.include_router(intel_router)
+
+# Include CRM routers (Full Organizational Memory System)
+from app.routers import crm_clients, crm_practices, crm_interactions, crm_shared_memory, admin_migration
+app.include_router(crm_clients.router)
+app.include_router(crm_practices.router)
+app.include_router(crm_interactions.router)
+app.include_router(crm_shared_memory.router)
+app.include_router(admin_migration.router)
 
 # Include Llama 4 Scout router - DISABLED (module not in production)
 # from routers.llama4 import router as llama4_router
