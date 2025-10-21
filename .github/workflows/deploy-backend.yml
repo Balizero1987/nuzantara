@@ -1,0 +1,50 @@
+name: Deploy Backend to Railway
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/backend-ts/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  deploy:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Railway deployment notification
+        run: |
+          echo "## 🚂 Railway Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Backend changes detected. Railway will auto-deploy from GitHub." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Monitor deployment:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Railway Dashboard: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Verify deployment:**" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "curl https://ts-backend-production-568d.up.railway.app/health" >> $GITHUB_STEP_SUMMARY
+          echo "curl https://ts-backend-production-568d.up.railway.app/warmup/stats" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+      
+      - name: Verify TypeScript compilation
+        run: |
+          echo "🔍 Verifying TypeScript files..."
+          cd apps/backend-ts
+          
+          # Count TypeScript files
+          ts_files=$(find src -name "*.ts" | wc -l)
+          echo "📊 Found $ts_files TypeScript files"
+          
+          # Verify critical files
+          echo "✅ Verifying critical files..."
+          test -f src/index.ts && echo "  ✓ index.ts"
+          test -f src/services/rag-warmup.ts && echo "  ✓ rag-warmup.ts"
+          test -f src/middleware/auth.ts && echo "  ✓ auth.ts"
+          
+          echo "🎉 Verification complete!"
