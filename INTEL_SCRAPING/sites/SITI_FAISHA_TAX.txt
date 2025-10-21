@@ -198,15 +198,15 @@
     📝 Tax registration procedures
 
 48. 👥 Tax Amnesty Programs
-    🔗 DJP amnesty announcements
+    🔗 https://www.pajak.go.id/id/berita
     📝 Tax amnesty opportunities
 
 49. 👥 Annual Tax Return (SPT Tahunan)
-    🔗 DJP e-filing
+    🔗 https://djponline.pajak.go.id
     📝 Tax filing deadlines
 
 50. 👥 Expat Tax Regulations
-    🔗 DJP foreign taxpayer section
+    🔗 https://www.pajak.go.id/id/wajib-pajak
     📝 Expat taxation rules
 
 🎯 COSA CERCARE:
