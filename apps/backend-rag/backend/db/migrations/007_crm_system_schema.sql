@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS interactions (
     -- Relations
     client_id INT REFERENCES clients(id) ON DELETE CASCADE,
     practice_id INT REFERENCES practices(id) ON DELETE SET NULL,
-    conversation_id INT REFERENCES conversations(id) ON DELETE SET NULL,
+    conversation_id VARCHAR REFERENCES conversations(id) ON DELETE SET NULL,
 
     -- Interaction Details
     interaction_type VARCHAR(50) NOT NULL, -- 'chat', 'email', 'whatsapp', 'call', 'meeting', 'note'
