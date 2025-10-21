@@ -1305,9 +1305,20 @@
                 chatToggle.classList.remove('hide');
             });
 
-            // Send message on Enter
+            // Send message on Enter (robust implementation)
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    sendChatMessage();
+                }
+            });
+
+            // Fallback for keypress
             chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     sendChatMessage();
                 }
             });

@@ -809,12 +809,14 @@
     // Send on button click
     sendBtn.addEventListener('click', sendMessage);
 
-    // Send on Enter key (using keydown for better compatibility)
+    // Send on Enter key (robust implementation)
     inputField.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault(); // Prevent default behavior
+        e.stopPropagation(); // Stop event bubbling
         console.log('✅ [Enter Key] Detected - sending message');
         sendMessage();
+        return false;
       }
     });
 
@@ -822,8 +824,10 @@
     inputField.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
+        e.stopPropagation(); // Stop event bubbling
         console.log('✅ [Enter Key Fallback] Detected via keypress - sending message');
         sendMessage();
+        return false;
       }
     });
 
@@ -885,12 +889,28 @@
         clearInterval(progressInterval);
         progressBar.style.width = '100%';
 
+        // Get response text first for better error handling
+        const responseText = await response.text();
+        console.log('🔍 Raw response:', responseText);
+
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          let errorMsg = `HTTP ${response.status}: ${response.statusText}`;
+          try {
+            const errorData = JSON.parse(responseText);
+            if (errorData.error) {
+              errorMsg += ` - ${errorData.error}`;
+            }
+          } catch (e) {
+            // If not JSON, use text
+            if (responseText) {
+              errorMsg += ` - ${responseText.substring(0, 200)}`;
+            }
+          }
+          throw new Error(errorMsg);
         }
 
-        const result = await response.json();
-        console.log('✅ Image generated:', result);
+        const result = JSON.parse(responseText);
+        console.log('✅ Image generation response:', result);
 
         // Backend returns: {ok: true, data: {image_url: "..."}}
         if (result.ok && result.data && result.data.image_url) {
@@ -905,13 +925,26 @@
           window._generatedImagePrompt = prompt;
         } else {
           console.error('❌ Invalid response structure:', result);
-          throw new Error('No image URL in response');
+          const errDetail = result.error || result.message || 'No image URL in response';
+          throw new Error(errDetail);
         }
       } catch (error) {
         console.error('❌ Image generation failed:', error);
         clearInterval(progressInterval);
-        alert('Failed to generate image: ' + error.message);
         document.getElementById('imageGenProgress').style.display = 'none';
+        
+        // Show user-friendly error message
+        const errorContainer = document.createElement('div');
+        errorContainer.style.cssText = 'color: #ef4444; padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; margin: 10px 0;';
+        errorContainer.innerHTML = `
+          <strong>⚠️ Image Generation Failed</strong><br>
+          ${error.message}<br>
+          <small>Please try again or contact support if the problem persists.</small>
+        `;
+        document.querySelector('#imageGenModal .modal-body').appendChild(errorContainer);
+        
+        // Remove error message after 5 seconds
+        setTimeout(() => errorContainer.remove(), 5000);
       } finally {
         document.getElementById('generateImageBtn').disabled = false;
       }
