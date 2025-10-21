@@ -21,7 +21,7 @@ from services.rag_generator import RAGGenerator
 from services.search_service import SearchService
 from llm.anthropic_client import AnthropicClient
 from llm.bali_zero_router import BaliZeroRouter
-from app.routers import conversations, crm_clients, crm_practices, crm_interactions, crm_shared_memory
+from app.routers import conversations, crm_clients, crm_practices, crm_interactions, crm_shared_memory, admin_migration
 
 # Configure logging
 logging.basicConfig(
@@ -59,6 +59,9 @@ app.include_router(crm_clients.router)
 app.include_router(crm_practices.router)
 app.include_router(crm_interactions.router)
 app.include_router(crm_shared_memory.router)
+
+# Admin router (temporary - for migrations)
+app.include_router(admin_migration.router)
 
 # Global clients
 ollama_client: Optional[OllamaClient] = None
