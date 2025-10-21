@@ -96,13 +96,32 @@ try:
 except:
     run_stage2_parallel = None
 
-try:
-    from scripts.scrape_all_categories import CATEGORY_MAPPING, LLAMA_CATEGORIES
-    SITES_DIR = PROJECT_ROOT / "sites"
-except:
-    SITES_DIR = PROJECT_ROOT / "sites"
-    CATEGORY_MAPPING = {}
-    LLAMA_CATEGORIES = []
+# Category mapping: filename → category_key
+CATEGORY_MAPPING = {
+    'SITI_VINO_NEWS.txt': 'news',
+    'SITI_ADIT_IMMIGRATION.txt': 'visa_immigration',
+    'SITI_ADIT_REGULATORY.txt': 'regulatory_changes',
+    'SITI_AMANDA_EMPLOYMENT.txt': 'employment_law',
+    'SITI_ANTON_JOBS.txt': 'jobs',
+    'SITI_DAMAR_COMPETITORS.txt': 'competitor_intel',
+    'SITI_DEA_BUSINESS.txt': 'business_setup',
+    'SITI_DEA_MACRO.txt': 'macro_policy',
+    'SITI_DEWAYU_LIFESTYLE.txt': 'lifestyle',
+    'SITI_FAISHA_TAX.txt': 'tax',
+    'SITI_KRISNA_BUSINESS_SETUP.txt': 'business_setup',
+    'SITI_KRISNA_REALESTATE.txt': 'property_law',
+    'SITI_LLAMA_AI_TECH.txt': 'ai_tech',
+    'SITI_LLAMA_DEV_CODE.txt': 'dev_code',
+    'SITI_LLAMA_FUTURE_TRENDS.txt': 'future_trends',
+    'SITI_SAHIRA_SOCIAL.txt': 'social_media',
+    'SITI_SURYA_BANKING.txt': 'banking_finance',
+    'SITI_SURYA_EVENTS.txt': 'events_networking',
+    'SITI_SURYA_HEALTH.txt': 'health_safety',
+    'SITI_SURYA_TRANSPORT.txt': 'transport_connectivity',
+}
+
+LLAMA_CATEGORIES = ['ai_tech', 'dev_code', 'future_trends', 'news']  # Categories with NewsIntelligentFilter
+SITES_DIR = PROJECT_ROOT / "sites"
 
 # Config
 OUTPUT_BASE = PROJECT_ROOT / "data" / "INTEL_SCRAPING"
