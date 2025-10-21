@@ -126,7 +126,8 @@ CATEGORY_MAPPING = {
     'SITI_SURYA_TRANSPORT.txt': 'transport_connectivity',
 }
 
-LLAMA_CATEGORIES = ['ai_tech', 'dev_code', 'future_trends', 'news']  # Categories with NewsIntelligentFilter
+LLAMA_CATEGORIES = ['dev_code', 'future_trends', 'news']  # Categories with NewsIntelligentFilter
+# ai_tech removed: use regular LLAMAFilter for technical content (tutorials, papers, code)
 SITES_DIR = PROJECT_ROOT / "sites"
 
 # Config
