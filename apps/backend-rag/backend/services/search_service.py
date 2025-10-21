@@ -30,7 +30,7 @@ class SearchService:
         # Use CHROMA_DB_PATH from environment (set by main_cloud.py after download)
         chroma_path = os.environ.get('CHROMA_DB_PATH', '/tmp/chroma_db')
 
-        # Initialize 9 collections (multi-domain + pricing + cultural)
+        # Initialize 14 collections (multi-domain + pricing + cultural + Oracle)
         self.collections = {
             "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing"),
             "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="visa_oracle"),
@@ -40,7 +40,13 @@ class SearchService:
             "kb_indonesian": ChromaDBClient(persist_directory=chroma_path, collection_name="kb_indonesian"),
             "kbli_comprehensive": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_comprehensive"),
             "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_books"),
-            "cultural_insights": ChromaDBClient(persist_directory=chroma_path, collection_name="cultural_insights")  # NEW: LLAMA-generated Indonesian cultural knowledge
+            "cultural_insights": ChromaDBClient(persist_directory=chroma_path, collection_name="cultural_insights"),  # LLAMA-generated Indonesian cultural knowledge
+            # Oracle System Collections (Phase 1 - Dependency Injection)
+            "tax_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_updates"),
+            "tax_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_knowledge"),
+            "property_listings": ChromaDBClient(persist_directory=chroma_path, collection_name="property_listings"),
+            "property_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="property_knowledge"),
+            "legal_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_updates")
         }
 
         # Initialize query router
@@ -53,8 +59,8 @@ class SearchService:
         ]
 
         logger.info(f"SearchService initialized with ChromaDB path: {chroma_path}")
-        logger.info(f"✅ Collections: 9 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books, cultural_insights [JIWA])")
-        logger.info(f"✅ Query routing enabled (8-way intelligent routing with pricing priority + cultural RAG)")
+        logger.info("✅ Collections: 14 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books, cultural_insights [JIWA], tax_updates, tax_knowledge, property_listings, property_knowledge, legal_updates)")
+        logger.info("✅ Query routing enabled (8-way intelligent routing with pricing priority + cultural RAG + Oracle collections)")
 
     async def search(
         self,
