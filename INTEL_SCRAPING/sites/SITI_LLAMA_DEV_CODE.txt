@@ -1,0 +1,154 @@
+💻 SITI DEV CODE LIBRARY (Planetary Best Practices) - LLAMA → zero@balizero.com
+
+⚠️ QUESTA CATEGORIA È SOLO PER ANTONIO (zero@balizero.com)
+📧 Email workflow: LLAMA Review → Diretto a zero@balizero.com
+🚫 NO social media | NO collaboratori esterni
+⭐ Qualità richiesta: PERLE GIORNALISTICHE (codice verificato, pattern testati, best practices validate)
+
+===== GITHUB & OPEN SOURCE (20 siti) =====
+1. GitHub Trending - https://github.com/trending
+2. GitHub Topics (TypeScript) - https://github.com/topics/typescript
+3. GitHub Topics (Python) - https://github.com/topics/python
+4. GitHub Topics (React) - https://github.com/topics/react
+5. GitHub Topics (Node.js) - https://github.com/topics/nodejs
+6. Awesome Lists - https://github.com/sindresorhus/awesome
+7. Best of JS - https://bestofjs.org
+8. NPM Trending - https://www.npmtrends.com
+9. PyPI Stats - https://pypistats.org
+10. Libraries.io - https://libraries.io
+11. Open Source Insights - https://deps.dev
+12. State of JS - https://stateofjs.com
+13. State of CSS - https://stateofcss.com
+14. JamStack - https://jamstack.org
+15. Awesome React - https://github.com/enaqx/awesome-react
+16. Awesome Node.js - https://github.com/sindresorhus/awesome-nodejs
+17. Awesome Python - https://github.com/vinta/awesome-python
+18. Awesome Go - https://github.com/avelino/awesome-go
+19. Awesome Rust - https://github.com/rust-unofficial/awesome-rust
+20. Awesome TypeScript - https://github.com/dzharii/awesome-typescript
+
+===== STACK OVERFLOW & DEV Q&A (15 siti) =====
+21. Stack Overflow - https://stackoverflow.com/questions/tagged
+22. Stack Overflow Trending - https://stackoverflow.com/?tab=interesting
+23. Dev.to Top Posts - https://dev.to/top/week
+24. Hashnode Trending - https://hashnode.com/trending
+25. Reddit r/programming - https://www.reddit.com/r/programming
+26. Reddit r/webdev - https://www.reddit.com/r/webdev
+27. Reddit r/node - https://www.reddit.com/r/node
+28. Reddit r/reactjs - https://www.reddit.com/r/reactjs
+29. Reddit r/Python - https://www.reddit.com/r/Python
+30. Reddit r/javascript - https://www.reddit.com/r/javascript
+31. Hacker News - https://news.ycombinator.com
+32. Lobsters - https://lobste.rs
+33. CodeProject - https://www.codeproject.com
+34. DZone - https://dzone.com
+35. InfoQ - https://www.infoq.com
+
+===== ENGINEERING BLOGS - FAANG (15 siti) =====
+36. Netflix Tech Blog - https://netflixtechblog.com
+37. Uber Engineering - https://www.uber.com/blog/engineering
+38. Airbnb Engineering - https://medium.com/airbnb-engineering
+39. Spotify Engineering - https://engineering.atspotify.com
+40. Pinterest Engineering - https://medium.com/pinterest-engineering
+41. LinkedIn Engineering - https://engineering.linkedin.com/blog
+42. Twitter Engineering - https://blog.twitter.com/engineering
+43. Meta Engineering - https://engineering.fb.com
+44. Google Developers Blog - https://developers.googleblog.com
+45. AWS Architecture Blog - https://aws.amazon.com/blogs/architecture
+46. Microsoft DevBlogs - https://devblogs.microsoft.com
+47. GitHub Engineering - https://github.blog/category/engineering
+48. Stripe Engineering - https://stripe.com/blog/engineering
+49. Shopify Engineering - https://shopify.engineering
+50. Dropbox Tech Blog - https://dropbox.tech
+
+===== ARCHITECTURE & DESIGN PATTERNS (15 siti) =====
+51. Martin Fowler - https://martinfowler.com
+52. Microsoft Architecture Center - https://docs.microsoft.com/azure/architecture
+53. AWS Well-Architected - https://aws.amazon.com/architecture/well-architected
+54. Microservices.io - https://microservices.io
+55. The Twelve-Factor App - https://12factor.net
+56. Refactoring Guru - https://refactoring.guru
+57. SourceMaking - https://sourcemaking.com
+58. Patterns.dev - https://www.patterns.dev
+59. System Design Primer - https://github.com/donnemartin/system-design-primer
+60. Cloud Design Patterns - https://docs.microsoft.com/azure/architecture/patterns
+61. DDD Community - https://www.domainlanguage.com
+62. Event Sourcing - https://eventstore.com/blog
+63. CQRS Journey - https://docs.microsoft.com/previous-versions/msp-n-p/jj554200(v=pandp.10)
+64. Clean Architecture - Uncle Bob's blog
+65. Hexagonal Architecture - Alistair Cockburn
+
+===== PERFORMANCE & OPTIMIZATION (10 siti) =====
+66. Web.dev (Google) - https://web.dev
+67. Chrome Developers - https://developer.chrome.com/blog
+68. V8 JavaScript Engine - https://v8.dev/blog
+69. WebPageTest - https://www.webpagetest.org/blog
+70. High Scalability - http://highscalability.com
+71. Performance Calendar - https://calendar.perfplanet.com
+72. Smashing Magazine Performance - https://www.smashingmagazine.com/category/performance
+73. CSS-Tricks Performance - https://css-tricks.com/tag/performance
+74. Real Python Performance - https://realpython.com/tutorials/performance
+75. Go Performance Wiki - https://github.com/golang/go/wiki/Performance
+
+===== SECURITY & BEST PRACTICES (10 siti) =====
+76. OWASP - https://owasp.org
+77. Snyk Blog - https://snyk.io/blog
+78. GitHub Security Lab - https://securitylab.github.com/research
+79. Troy Hunt - https://www.troyhunt.com
+80. Krebs on Security - https://krebsonsecurity.com
+81. Cloudflare Blog Security - https://blog.cloudflare.com/tag/security
+82. Auth0 Blog - https://auth0.com/blog
+83. Okta Developer Blog - https://developer.okta.com/blog
+84. Scott Helme - https://scotthelme.co.uk
+85. Tanya Janca - https://shehackspurple.ca
+
+===== TESTING & QA (8 siti) =====
+86. Kent C. Dodds Testing - https://kentcdodds.com/blog
+87. Testing Library Docs - https://testing-library.com
+88. Cypress Blog - https://www.cypress.io/blog
+89. Jest Documentation - https://jestjs.io/blog
+90. Playwright Blog - https://playwright.dev/community/welcome
+91. Selenium Blog - https://www.selenium.dev/blog
+92. TestProject Blog - https://blog.testproject.io
+93. Martin Fowler Testing - https://martinfowler.com/tags/testing.html
+
+===== CI/CD & DEVOPS (10 siti) =====
+94. GitLab Blog - https://about.gitlab.com/blog
+95. CircleCI Blog - https://circleci.com/blog
+96. GitHub Actions - https://github.blog/category/actions
+97. Jenkins Blog - https://www.jenkins.io/node
+98. Docker Blog - https://www.docker.com/blog
+99. Kubernetes Blog - https://kubernetes.io/blog
+100. HashiCorp Blog - https://www.hashicorp.com/blog
+101. ArgoCD Blog - https://argo-cd.readthedocs.io
+102. Tekton Blog - https://tekton.dev/blog
+103. Spinnaker Blog - https://spinnaker.io/community/articles
+
+===== DATABASE & DATA (8 siti) =====
+104. Postgres Weekly - https://postgresweekly.com
+105. MongoDB Blog - https://www.mongodb.com/blog
+106. Redis Blog - https://redis.com/blog
+107. Cassandra Blog - https://cassandra.apache.org/blog
+108. Elasticsearch Blog - https://www.elastic.co/blog
+109. PlanetScale Blog - https://planetscale.com/blog
+110. Supabase Blog - https://supabase.com/blog
+111. Prisma Blog - https://www.prisma.io/blog
+
+🎯 COSA CERCARE:
+✅ Exceptional code snippets con spiegazioni
+✅ Design pattern examples con use cases
+✅ Performance optimization techniques misurabili
+✅ Security best practices verificate
+✅ Testing strategies con coverage >80%
+✅ CI/CD pipeline esempi production-ready
+✅ Database optimization con query real-world
+✅ API design patterns con versioning
+✅ Scalability solutions testate in produzione
+✅ Error handling patterns robusti
+
+❌ NON INCLUDERE:
+❌ Codice non testato o esempi toy
+❌ Anti-patterns senza spiegazione
+❌ Soluzioni obsolete (tech debt)
+❌ Tutorial base senza insights
+❌ Code senza context o documentation
