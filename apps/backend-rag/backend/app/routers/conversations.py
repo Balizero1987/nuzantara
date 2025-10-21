@@ -1,6 +1,7 @@
 """
 ZANTARA Conversations Router
 Endpoints for persistent conversation history with PostgreSQL
++ Auto-CRM population from conversations
 """
 
 from fastapi import APIRouter, HTTPException
@@ -8,13 +9,35 @@ from pydantic import BaseModel
 from typing import List, Dict, Optional
 import logging
 import os
+import sys
+from pathlib import Path
 import psycopg2
 from psycopg2.extras import RealDictCursor, Json
 from datetime import datetime
 
+# Add parent directory to path for services
+sys.path.append(str(Path(__file__).parent.parent.parent))
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/bali-zero/conversations", tags=["conversations"])
+
+# Import auto-CRM service (lazy import to avoid circular dependencies)
+_auto_crm_service = None
+
+
+def get_auto_crm():
+    """Lazy import of auto-CRM service"""
+    global _auto_crm_service
+    if _auto_crm_service is None:
+        try:
+            from services.auto_crm_service import get_auto_crm_service
+            _auto_crm_service = get_auto_crm_service()
+            logger.info("✅ Auto-CRM service loaded")
+        except Exception as e:
+            logger.warning(f"⚠️  Auto-CRM service not available: {e}")
+            _auto_crm_service = False  # Mark as unavailable
+    return _auto_crm_service if _auto_crm_service else None
 
 
 # Pydantic models
@@ -47,6 +70,7 @@ def get_db_connection():
 async def save_conversation(request: SaveConversationRequest):
     """
     Save conversation messages to PostgreSQL
+    + Auto-populate CRM with client/practice data
 
     Body:
     {
@@ -54,6 +78,22 @@ async def save_conversation(request: SaveConversationRequest):
         "messages": [{"role": "user", "content": "..."}, ...],
         "session_id": "optional-session-id",
         "metadata": {"key": "value"}
+    }
+
+    Returns:
+    {
+        "success": true,
+        "conversation_id": 123,
+        "messages_saved": 10,
+        "crm": {
+            "processed": true,
+            "client_id": 42,
+            "client_created": false,
+            "client_updated": true,
+            "practice_id": 15,
+            "practice_created": true,
+            "interaction_id": 88
+        }
     }
     """
     try:
@@ -81,10 +121,37 @@ async def save_conversation(request: SaveConversationRequest):
 
         logger.info(f"✅ Saved conversation for {request.user_email} (ID: {conversation_id}, {len(request.messages)} messages)")
 
+        # Auto-populate CRM (don't fail if this fails)
+        crm_result = {}
+        auto_crm = get_auto_crm()
+
+        if auto_crm and len(request.messages) > 0:
+            try:
+                logger.info(f"🧠 Processing conversation {conversation_id} for CRM auto-population...")
+
+                crm_result = await auto_crm.process_conversation(
+                    conversation_id=conversation_id,
+                    messages=request.messages,
+                    user_email=request.user_email,
+                    team_member=request.metadata.get("team_member", "system") if request.metadata else "system"
+                )
+
+                if crm_result.get("success"):
+                    logger.info(f"✅ Auto-CRM: client_id={crm_result.get('client_id')}, practice_id={crm_result.get('practice_id')}")
+                else:
+                    logger.warning(f"⚠️  Auto-CRM failed: {crm_result.get('error')}")
+
+            except Exception as crm_error:
+                logger.error(f"❌ Auto-CRM processing error: {crm_error}")
+                crm_result = {"processed": False, "error": str(crm_error)}
+        else:
+            crm_result = {"processed": False, "reason": "auto-crm not available"}
+
         return {
             "success": True,
             "conversation_id": conversation_id,
-            "messages_saved": len(request.messages)
+            "messages_saved": len(request.messages),
+            "crm": crm_result
         }
 
     except Exception as e:

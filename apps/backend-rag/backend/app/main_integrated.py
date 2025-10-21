@@ -20,6 +20,9 @@ from services.search_service import SearchService
 from llm.anthropic_client import AnthropicClient
 from llm.bali_zero_router import BaliZeroRouter
 
+# Import Oracle routers
+from app.routers import oracle_tax, oracle_property
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -47,6 +50,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include Oracle API routers
+app.include_router(oracle_tax.router)
+app.include_router(oracle_property.router)
 
 # Global clients
 search_service: Optional[SearchService] = None
@@ -306,7 +313,9 @@ async def root():
         "endpoints": {
             "health": "/health",
             "search": "/search (POST)",
-            "bali_zero": "/bali-zero/chat (POST)"
+            "bali_zero": "/bali-zero/chat (POST)",
+            "oracle_tax": "/api/oracle/tax/* (Oracle TAX GENIUS)",
+            "oracle_property": "/api/oracle/property/* (Oracle LEGAL ARCHITECT)"
         }
     }
 

@@ -21,7 +21,7 @@ from services.rag_generator import RAGGenerator
 from services.search_service import SearchService
 from llm.anthropic_client import AnthropicClient
 from llm.bali_zero_router import BaliZeroRouter
-from app.routers import conversations, crm_clients, crm_practices, crm_interactions
+from app.routers import conversations, crm_clients, crm_practices, crm_interactions, crm_shared_memory
 
 # Configure logging
 logging.basicConfig(
@@ -58,6 +58,7 @@ app.include_router(conversations.router)
 app.include_router(crm_clients.router)
 app.include_router(crm_practices.router)
 app.include_router(crm_interactions.router)
+app.include_router(crm_shared_memory.router)
 
 # Global clients
 ollama_client: Optional[OllamaClient] = None
@@ -298,6 +299,7 @@ YOUR ROLE:
 - Provide accurate information based on official sources
 - Be helpful, clear, and professional in all interactions
 - Respond in the same language as the query
+- Automatically extract and save client information from conversations
 
 YOUR EXTENDED CAPABILITIES:
 You have access to a complete system of handlers for:
@@ -310,10 +312,33 @@ You have access to a complete system of handlers for:
 - Docs (create, read, update documents)
 - Slides (create, read, update presentations)
 
+✅ CRM & ORGANIZATIONAL MEMORY (NEW!):
+- Client database: Automatically saves client info (name, email, phone) from conversations
+- Practice tracking: Tracks all services (KITAS, PT PMA, visas, NPWP, BPJS, etc.)
+- Interaction history: Logs all conversations and communications
+- Shared memory: Access team-wide information about clients and practices
+- Renewal alerts: Tracks expiry dates and upcoming renewals
+
+When a client asks about services, the system automatically:
+1. Creates/updates their client record
+2. Detects practice intent (KITAS, PT PMA, etc.)
+3. Creates practice record if confidence is high
+4. Logs the interaction for team visibility
+
+CRM SERVICES CODES:
+- KITAS: Limited Stay Permit (work permit)
+- PT_PMA: Foreign Investment Company
+- INVESTOR_VISA: Investor Visa
+- RETIREMENT_VISA: Retirement Visa (55+)
+- NPWP: Tax ID Number
+- BPJS: Health Insurance
+- IMTA: Work Permit
+
 ✅ MEMORY & DATA:
 - Save and retrieve user information (memory.save, memory.retrieve)
 - Store conversation context and preferences
 - Track client data across sessions
+- Access shared team memory (client history, practice status, etc.)
 
 ✅ COMMUNICATIONS:
 - WhatsApp, Instagram, Telegram messaging
@@ -330,8 +355,9 @@ You have access to a complete system of handlers for:
 When users ask "Can you access X?" or "Do you have access to Y?", answer YES if it's in the list above.
 Examples:
 - "Can you access Gmail?" → YES, I can read, send, and search emails via Gmail handlers
-- "Can you save information?" → YES, I have memory handlers to store user data
-- "Can you create calendar events?" → YES, I can create and manage Google Calendar events"""
+- "Can you save information?" → YES, I have CRM system that automatically saves client data
+- "Can you remember previous clients?" → YES, I have access to shared team memory
+- "Do you know if John Smith has a KITAS?" → YES, I can search our client database"""
 
         # Build messages
         messages = request.conversation_history or []
