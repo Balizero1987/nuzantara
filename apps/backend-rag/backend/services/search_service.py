@@ -60,7 +60,7 @@ class SearchService:
 
         logger.info(f"SearchService initialized with ChromaDB path: {chroma_path}")
         logger.info("✅ Collections: 14 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books, cultural_insights [JIWA], tax_updates, tax_knowledge, property_listings, property_knowledge, legal_updates)")
-        logger.info("✅ Query routing enabled (8-way intelligent routing with pricing priority + cultural RAG + Oracle collections)")
+        logger.info("✅ Query routing enabled (Phase 2: 9-way intelligent routing with pricing priority + cultural RAG + Oracle collections)")
 
     async def search(
         self,

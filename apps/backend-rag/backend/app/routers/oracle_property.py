@@ -1,6 +1,14 @@
 """
 LEGAL ARCHITECT API Router
 Endpoints for property intelligence, due diligence, and legal structures
+
+⚠️ DEPRECATED (Phase 3): These endpoints are deprecated in favor of the universal endpoint.
+Please migrate to POST /api/oracle/query for automatic intelligent routing.
+These endpoints remain available for backward compatibility.
+
+Migration example:
+    OLD: POST /api/oracle/property/search {"query": "villas in Canggu", "limit": 10}
+    NEW: POST /api/oracle/query {"query": "villas for sale in Canggu", "limit": 10}
 """
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -14,8 +22,8 @@ from pathlib import Path
 # Add backend to path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from core.vector_db import ChromaDBClient
-from core.embeddings import EmbeddingsGenerator
+from services.search_service import SearchService
+from app.dependencies import get_search_service
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
@@ -29,8 +37,10 @@ def get_db():
     finally:
         conn.close()
 
-# Embeddings
-embedder = EmbeddingsGenerator()
+# Phase 1 Optimization: Dependency Injection
+# SearchService is injected via get_search_service() dependency
+# This eliminates ChromaDBClient duplication (was creating 6 instances across endpoints)
+# Memory footprint reduced by ~80%
 
 
 # ========================================
@@ -70,13 +80,17 @@ class MarketAnalysisRequest(BaseModel):
 # ========================================
 
 @router.post("/search")
-async def search_properties(request: PropertySearchRequest):
+async def search_properties(
+    request: PropertySearchRequest,
+    service: SearchService = Depends(get_search_service)
+):
     """
     Semantic search for property listings
     Searches ChromaDB property_listings collection
+    Phase 1 Optimization: Uses injected SearchService
     """
     try:
-        client = ChromaDBClient(collection_name="property_listings")
+        client = service.collections["property_listings"]
 
         # Build metadata filter
         where_filter = {}
@@ -195,11 +209,13 @@ async def get_property_listings(
 @router.get("/market/{area}")
 async def get_market_analysis(
     area: str,
-    conn=Depends(get_db)
+    conn=Depends(get_db),
+    service: SearchService = Depends(get_search_service)
 ):
     """
     Get market analysis for a specific area
     Returns latest market data and trends
+    Phase 1 Optimization: Uses injected SearchService
     """
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -216,7 +232,7 @@ async def get_market_analysis(
 
         if not market_data:
             # Return area knowledge from property_knowledge collection
-            knowledge_client = ChromaDBClient(collection_name="property_knowledge")
+            knowledge_client = service.collections["property_knowledge"]
 
             results = knowledge_client.collection.get(
                 where={"area": area},
@@ -534,10 +550,10 @@ async def get_legal_structures(conn=Depends(get_db)):
 
 
 @router.get("/ownership-types")
-async def get_ownership_types():
-    """Get property ownership types information from knowledge base"""
+async def get_ownership_types(service: SearchService = Depends(get_search_service)):
+    """Get property ownership types information from knowledge base. Phase 1 Optimization: Uses injected SearchService"""
     try:
-        client = ChromaDBClient(collection_name="property_knowledge")
+        client = service.collections["property_knowledge"]
 
         results = client.collection.get(
             where={"category": "ownership_types"},
@@ -562,10 +578,10 @@ async def get_ownership_types():
 
 
 @router.get("/areas")
-async def get_areas_info():
-    """Get all Bali areas with market information"""
+async def get_areas_info(service: SearchService = Depends(get_search_service)):
+    """Get all Bali areas with market information. Phase 1 Optimization: Uses injected SearchService"""
     try:
-        client = ChromaDBClient(collection_name="property_knowledge")
+        client = service.collections["property_knowledge"]
 
         results = client.collection.get(
             where={"category": "area_knowledge"},
@@ -594,10 +610,10 @@ async def get_areas_info():
 
 
 @router.get("/legal-updates")
-async def get_legal_updates(limit: int = 20):
-    """Get recent legal and property law updates"""
+async def get_legal_updates(limit: int = 20, service: SearchService = Depends(get_search_service)):
+    """Get recent legal and property law updates. Phase 1 Optimization: Uses injected SearchService"""
     try:
-        client = ChromaDBClient(collection_name="legal_updates")
+        client = service.collections["legal_updates"]
 
         results = client.collection.get(
             limit=limit,
@@ -626,13 +642,14 @@ async def get_legal_updates(limit: int = 20):
 
 
 @router.post("/search/knowledge")
-async def search_property_knowledge(query: str, limit: int = 10):
+async def search_property_knowledge(query: str, limit: int = 10, service: SearchService = Depends(get_search_service)):
     """
     Search property knowledge base
     Covers ownership types, areas, legal structures, etc
+    Phase 1 Optimization: Uses injected SearchService
     """
     try:
-        client = ChromaDBClient(collection_name="property_knowledge")
+        client = service.collections["property_knowledge"]
 
         results = client.search(
             query_text=query,

@@ -4,7 +4,7 @@ Port 8000
 Integrates: ChromaDB + Bali Zero (Haiku/Sonnet) + Immigration Scraper
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict
@@ -20,8 +20,11 @@ from services.search_service import SearchService
 from llm.anthropic_client import AnthropicClient
 from llm.bali_zero_router import BaliZeroRouter
 
+# Import dependencies module (Phase 1 Optimization)
+import app.dependencies as deps
+
 # Import Oracle routers
-from app.routers import oracle_tax, oracle_property
+from app.routers import oracle_tax, oracle_property, oracle_universal
 
 # Configure logging
 logging.basicConfig(
@@ -52,26 +55,24 @@ app.add_middleware(
 )
 
 # Include Oracle API routers
+# Phase 3: Universal Oracle endpoint (recommended)
+app.include_router(oracle_universal.router)
+
+# Legacy Oracle endpoints (deprecated but kept for backward compatibility)
 app.include_router(oracle_tax.router)
 app.include_router(oracle_property.router)
-
-# Global clients
-search_service: Optional[SearchService] = None
-anthropic_client: Optional[AnthropicClient] = None
-bali_zero_router: Optional[BaliZeroRouter] = None
 
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize services on startup"""
-    global search_service, anthropic_client, bali_zero_router
+    """Initialize services on startup and inject into dependencies module"""
 
     logger.info("🚀 Starting ZANTARA RAG Backend (ChromaDB + Anthropic)...")
 
     # Initialize Search Service
     try:
-        search_service = SearchService()
-        logger.info("✅ ChromaDB search service ready")
+        deps.search_service = SearchService()
+        logger.info("✅ ChromaDB search service ready (14 collections)")
     except Exception as e:
         logger.error(f"❌ Search service failed: {e}")
         raise
@@ -82,14 +83,14 @@ async def startup_event():
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY environment variable is required")
 
-        anthropic_client = AnthropicClient(api_key=api_key)
-        bali_zero_router = BaliZeroRouter()
+        deps.anthropic_client = AnthropicClient(api_key=api_key)
+        deps.bali_zero_router = BaliZeroRouter()
         logger.info("✅ Anthropic client ready (Haiku/Sonnet routing)")
     except Exception as e:
         logger.error(f"❌ Anthropic initialization failed: {e}")
         raise
 
-    logger.info("✅ ZANTARA RAG Backend ready on port 8000")
+    logger.info("✅ ZANTARA RAG Backend ready on port 8000 (Phase 1 Optimization Active)")
 
 
 @app.on_event("shutdown")

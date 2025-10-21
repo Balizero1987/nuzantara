@@ -9,7 +9,11 @@ import re
 
 logger = logging.getLogger(__name__)
 
-CollectionName = Literal["visa_oracle", "kbli_eye", "tax_genius", "legal_architect", "zantara_books"]
+# Phase 2: Extended collection support (5 → 9 collections with Oracle)
+CollectionName = Literal[
+    "visa_oracle", "kbli_eye", "tax_genius", "legal_architect", "zantara_books",
+    "tax_updates", "tax_knowledge", "property_listings", "property_knowledge", "legal_updates"
+]
 
 
 class QueryRouter:
@@ -57,6 +61,26 @@ class QueryRouter:
         "contract", "perjanjian", "property law", "marriage law"
     ]
 
+    # Phase 2: Property-related keywords (for property_listings & property_knowledge)
+    PROPERTY_KEYWORDS = [
+        "property", "properti", "villa", "land", "tanah", "house", "rumah",
+        "apartment", "apartemen", "real estate", "listing", "for sale", "dijual",
+        "lease", "sewa", "rent", "rental", "leasehold", "freehold", "hak milik",
+        "hak pakai", "hak guna bangunan", "hgb", "strata title", "imb",
+        "building permit", "beachfront", "ocean view", "canggu", "seminyak",
+        "ubud", "sanur", "nusa dua", "jimbaran", "uluwatu", "pererenan",
+        "investment property", "development", "land bank", "zoning", "setback",
+        "due diligence", "title deed", "sertipikat", "ownership structure"
+    ]
+
+    # Phase 2: Update/news keywords (for tax_updates & legal_updates)
+    UPDATE_KEYWORDS = [
+        "update", "updates", "pembaruan", "recent", "terbaru", "latest", "new",
+        "news", "berita", "announcement", "pengumuman", "change", "perubahan",
+        "amendment", "revisi", "revision", "effective date", "berlaku",
+        "regulation update", "policy change", "what's new", "latest news"
+    ]
+
     # Consolidated high-signal keywords frequently used by Bali Zero users
     # Used for lightweight diagnostics in get_routing_stats()
     BALI_ZERO_KEYWORDS = [
@@ -101,72 +125,156 @@ class QueryRouter:
 
     def __init__(self):
         """Initialize the router"""
-        logger.info("QueryRouter initialized (Layer 1: keyword-based)")
+        logger.info("QueryRouter initialized (Layer 1: keyword-based, Phase 2: 9-way routing with Oracle)")
 
     def route(self, query: str) -> CollectionName:
         """
-        Route query to appropriate collection (5-way routing).
+        Route query to appropriate collection (9-way intelligent routing - Phase 2).
+
+        Routing Logic:
+        1. Calculate domain scores (visa, kbli, tax, legal, property, books)
+        2. Calculate modifier scores (updates)
+        3. Intelligent sub-routing:
+           - tax + updates → tax_updates
+           - tax + no updates → tax_knowledge
+           - legal + updates → legal_updates
+           - legal + no updates → legal_architect
+           - property + listing keywords → property_listings
+           - property + no listing → property_knowledge
+           - visa → visa_oracle
+           - kbli → kbli_eye
+           - books → zantara_books
 
         Args:
             query: User query text
 
         Returns:
-            Collection name: visa_oracle, kbli_eye, tax_genius, legal_architect, or zantara_books
+            Collection name from 9 available collections
         """
         query_lower = query.lower()
 
-        # Calculate scores for each domain
+        # Calculate domain scores
         visa_score = sum(1 for kw in self.VISA_KEYWORDS if kw in query_lower)
         kbli_score = sum(1 for kw in self.KBLI_KEYWORDS if kw in query_lower)
         tax_score = sum(1 for kw in self.TAX_KEYWORDS if kw in query_lower)
         legal_score = sum(1 for kw in self.LEGAL_KEYWORDS if kw in query_lower)
+        property_score = sum(1 for kw in self.PROPERTY_KEYWORDS if kw in query_lower)
         books_score = sum(1 for kw in self.BOOKS_KEYWORDS if kw in query_lower)
 
-        # Find highest scoring domain
-        scores = {
-            "visa_oracle": visa_score,
-            "kbli_eye": kbli_score,
-            "tax_genius": tax_score,
-            "legal_architect": legal_score,
-            "zantara_books": books_score
+        # Calculate modifier scores
+        update_score = sum(1 for kw in self.UPDATE_KEYWORDS if kw in query_lower)
+
+        # Determine primary domain
+        domain_scores = {
+            "visa": visa_score,
+            "kbli": kbli_score,
+            "tax": tax_score,
+            "legal": legal_score,
+            "property": property_score,
+            "books": books_score
         }
 
-        collection = max(scores, key=scores.get)
+        primary_domain = max(domain_scores, key=domain_scores.get)
+        primary_score = domain_scores[primary_domain]
 
-        # If no clear winner (all zeros), default to visa_oracle (most common query type)
-        if scores[collection] == 0:
+        # Intelligent sub-routing based on primary domain + modifiers
+        if primary_score == 0:
+            # No matches - default to visa_oracle
             collection = "visa_oracle"
             logger.info(f"🧭 Route: {collection} (default - no keyword matches)")
-        else:
-            logger.info(f"🧭 Route: {collection} (scores: visa={visa_score}, kbli={kbli_score}, tax={tax_score}, legal={legal_score}, books={books_score})")
+        elif primary_domain == "tax":
+            # Tax domain: route to updates vs knowledge
+            if update_score > 0:
+                collection = "tax_updates"
+                logger.info(f"🧭 Route: {collection} (tax + updates: tax={tax_score}, update={update_score})")
+            else:
+                collection = "tax_knowledge"
+                logger.info(f"🧭 Route: {collection} (tax knowledge: tax={tax_score})")
+        elif primary_domain == "legal":
+            # Legal domain: route to updates vs general legal_architect
+            if update_score > 0:
+                collection = "legal_updates"
+                logger.info(f"🧭 Route: {collection} (legal + updates: legal={legal_score}, update={update_score})")
+            else:
+                collection = "legal_architect"
+                logger.info(f"🧭 Route: {collection} (legal general: legal={legal_score})")
+        elif primary_domain == "property":
+            # Property domain: route to listings vs knowledge
+            listing_keywords = ["for sale", "dijual", "listing", "available", "rent", "sewa", "lease"]
+            has_listing_intent = any(kw in query_lower for kw in listing_keywords)
+            if has_listing_intent:
+                collection = "property_listings"
+                logger.info(f"🧭 Route: {collection} (property listings: property={property_score})")
+            else:
+                collection = "property_knowledge"
+                logger.info(f"🧭 Route: {collection} (property knowledge: property={property_score})")
+        elif primary_domain == "visa":
+            collection = "visa_oracle"
+            logger.info(f"🧭 Route: {collection} (visa: score={visa_score})")
+        elif primary_domain == "kbli":
+            collection = "kbli_eye"
+            logger.info(f"🧭 Route: {collection} (kbli: score={kbli_score})")
+        else:  # books
+            collection = "zantara_books"
+            logger.info(f"🧭 Route: {collection} (books: score={books_score})")
 
         return collection
 
     def get_routing_stats(self, query: str) -> dict:
         """
-        Get detailed routing analysis for debugging.
+        Get detailed routing analysis for debugging (Phase 2: extended with Oracle domains).
 
         Args:
             query: User query text
 
         Returns:
-            Dictionary with routing analysis
+            Dictionary with routing analysis including all domain scores
         """
         query_lower = query.lower()
 
+        # Calculate all domain scores
+        visa_score = sum(1 for kw in self.VISA_KEYWORDS if kw in query_lower)
+        kbli_score = sum(1 for kw in self.KBLI_KEYWORDS if kw in query_lower)
+        tax_score = sum(1 for kw in self.TAX_KEYWORDS if kw in query_lower)
+        legal_score = sum(1 for kw in self.LEGAL_KEYWORDS if kw in query_lower)
+        property_score = sum(1 for kw in self.PROPERTY_KEYWORDS if kw in query_lower)
+        books_score = sum(1 for kw in self.BOOKS_KEYWORDS if kw in query_lower)
+        update_score = sum(1 for kw in self.UPDATE_KEYWORDS if kw in query_lower)
+
         # Find matching keywords
-        # Diagnostic matches: Bali Zero + Books
-        bali_zero_matches = [kw for kw in self.BALI_ZERO_KEYWORDS if kw in query_lower]
+        visa_matches = [kw for kw in self.VISA_KEYWORDS if kw in query_lower]
+        kbli_matches = [kw for kw in self.KBLI_KEYWORDS if kw in query_lower]
+        tax_matches = [kw for kw in self.TAX_KEYWORDS if kw in query_lower]
+        legal_matches = [kw for kw in self.LEGAL_KEYWORDS if kw in query_lower]
+        property_matches = [kw for kw in self.PROPERTY_KEYWORDS if kw in query_lower]
         books_matches = [kw for kw in self.BOOKS_KEYWORDS if kw in query_lower]
+        update_matches = [kw for kw in self.UPDATE_KEYWORDS if kw in query_lower]
 
         collection = self.route(query)
 
         return {
             "query": query,
             "selected_collection": collection,
-            "bali_zero_score": len(bali_zero_matches),
-            "books_score": len(books_matches),
-            "bali_zero_matches": bali_zero_matches,
-            "books_matches": books_matches,
-            "routing_method": "keyword_layer_1"
+            "domain_scores": {
+                "visa": visa_score,
+                "kbli": kbli_score,
+                "tax": tax_score,
+                "legal": legal_score,
+                "property": property_score,
+                "books": books_score
+            },
+            "modifier_scores": {
+                "updates": update_score
+            },
+            "matched_keywords": {
+                "visa": visa_matches,
+                "kbli": kbli_matches,
+                "tax": tax_matches,
+                "legal": legal_matches,
+                "property": property_matches,
+                "books": books_matches,
+                "updates": update_matches
+            },
+            "routing_method": "keyword_layer_1_phase_2",
+            "total_matches": visa_score + kbli_score + tax_score + legal_score + property_score + books_score
         }
