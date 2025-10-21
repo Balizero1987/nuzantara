@@ -169,7 +169,29 @@ class IntelligentRouter:
                 return {
                     "category": "greeting",
                     "confidence": 1.0,
-                    "suggested_ai": "haiku"
+                    "suggested_ai": "haiku",
+                    "require_memory": True  # Always use memory for personalized greetings
+                }
+
+            # Check session state patterns (login/logout/identity queries)
+            session_patterns = [
+                # Login intents
+                "login", "log in", "sign in", "signin", "masuk", "accedi",
+                # Logout intents  
+                "logout", "log out", "sign out", "signout", "keluar", "esci",
+                # Identity queries
+                "who am i", "siapa aku", "siapa saya", "chi sono", "who is this",
+                "do you know me", "recognize me", "mi riconosci", "kenal saya",
+                "chi sono io", "sai chi sono"
+            ]
+            
+            if any(pattern in message_lower for pattern in session_patterns):
+                logger.info(f"🎯 [Router] Quick match: session_state → Haiku with memory")
+                return {
+                    "category": "session_state",
+                    "confidence": 1.0,
+                    "suggested_ai": "haiku",
+                    "require_memory": True  # Critical: need user identity for these queries
                 }
 
             # Check casual questions (including emotional/empathetic queries)
