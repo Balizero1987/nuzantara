@@ -763,8 +763,8 @@
             scrollToBottom();
           });
 
-        // Start streaming
-        await window.ZANTARA_SSE.stream(message, userEmail);
+        // Start streaming with conversation history for context
+        await window.ZANTARA_SSE.stream(message, userEmail, conversationHistory);
 
       } catch (error) {
         console.error('AI chat error:', error);
