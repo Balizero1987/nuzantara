@@ -29,6 +29,12 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Set
 from urllib.parse import urlparse, urljoin
 import random
+import warnings
+
+# Suppress SSL warnings for gov sites
+warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Paths
 SCRIPT_DIR = Path(__file__).parent
@@ -129,10 +135,15 @@ METRICS_DIR = OUTPUT_BASE / "metrics"
 METRICS_DIR.mkdir(parents=True, exist_ok=True)
 
 DELAY_MIN, DELAY_MAX = 1, 3  # Faster with parallelization
-TIMEOUT = 30
+TIMEOUT = 45  # Increased for slow gov sites
 MAX_ARTICLES_PER_SOURCE = 15
 MAX_CONCURRENT_SITES = 5  # P6: Parallelization
 MAX_CONTENT_AGE_DAYS = 14  # P5: Skip old content
+
+# Best practices: DNS and SSL handling
+VERIFY_SSL = False  # Some gov sites have SSL issues
+DNS_TIMEOUT = 10  # DNS resolution timeout
+RETRY_ATTEMPTS = 2  # Retry failed requests
 
 # P3: Rotating User Agents
 USER_AGENTS = [
@@ -142,6 +153,25 @@ USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
 ]
+
+# Best practice: Alternative URLs for known problematic gov sites
+URL_ALTERNATIVES = {
+    'https://www.imigrasi.go.id/id/': [
+        'https://imigrasi.go.id/',
+        'https://www.imigrasi.go.id/',
+    ],
+    'https://www.indonesia.go.id/': [
+        'https://indonesia.go.id/',
+    ],
+    'https://kemlu.go.id/portal/id': [
+        'https://kemlu.go.id/',
+        'https://www.kemlu.go.id/',
+    ],
+    'https://www.kemenkumham.go.id/berita': [
+        'https://www.kemenkumham.go.id/',
+        'https://kemenkumham.go.id/',
+    ],
+}
 
 # P2: Extended custom selectors (20+ sites)
 CUSTOM_SELECTORS = {
@@ -591,7 +621,7 @@ class AdvancedScraper:
         return None
     
     async def _render_with_playwright(self, url: str) -> str:
-        """Render page with Playwright + stealth mode (P3)"""
+        """Render page with Playwright + stealth mode + best practices (P3)"""
         if not _has_playwright:
             return ''
         
@@ -601,19 +631,54 @@ class AdvancedScraper:
             ua = random.choice(USER_AGENTS)
             
             async with async_playwright() as p:
-                browser = await p.chromium.launch(headless=True)
-                context = await browser.new_context(user_agent=ua)
+                # Best practice: launch with args for gov sites
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=[
+                        '--disable-blink-features=AutomationControlled',
+                        '--disable-dev-shm-usage',
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-web-security',  # For gov sites with CORS
+                        '--disable-features=IsolateOrigins,site-per-process',
+                    ]
+                )
+                
+                # Best practice: context with more realistic settings
+                context = await browser.new_context(
+                    user_agent=ua,
+                    viewport={'width': 1920, 'height': 1080},
+                    locale='en-US',
+                    timezone_id='Asia/Jakarta',
+                    ignore_https_errors=True,  # Gov sites SSL issues
+                )
+                
                 page = await context.new_page()
                 
                 # P3: Apply stealth mode
                 if _has_stealth:
                     await stealth_async(page)
                 
+                # Best practice: longer timeout for slow gov sites
                 page.set_default_timeout(TIMEOUT * 1000)
-                await page.goto(url, wait_until='domcontentloaded')
                 
-                # Wait a bit for dynamic content
-                await asyncio.sleep(1)
+                # Try different wait strategies
+                try:
+                    await page.goto(url, wait_until='domcontentloaded', timeout=TIMEOUT * 1000)
+                except Exception:
+                    # Fallback: try networkidle
+                    try:
+                        await page.goto(url, wait_until='networkidle', timeout=TIMEOUT * 1000)
+                    except Exception:
+                        # Last resort: load
+                        await page.goto(url, wait_until='load', timeout=TIMEOUT * 1000)
+                
+                # Wait for dynamic content (adaptive)
+                await asyncio.sleep(2 if 'go.id' in url or '.gov' in url else 1)
+                
+                # Best practice: scroll to trigger lazy loading
+                await page.evaluate('window.scrollTo(0, document.body.scrollHeight / 2)')
+                await asyncio.sleep(0.5)
                 
                 html = await page.content()
                 await browser.close()
@@ -622,31 +687,92 @@ class AdvancedScraper:
         return html
     
     def _fetch_with_requests(self, url: str) -> str:
-        """Fetch with requests + rotating UA"""
-        try:
-            headers = {'User-Agent': random.choice(USER_AGENTS)}
-            r = requests.get(url, headers=headers, timeout=TIMEOUT)
-            if r.status_code == 200:
-                return r.text
-            logger.warning(f"HTTP {r.status_code} for {url}")
-        except Exception as e:
-            logger.warning(f"Requests failed for {url}: {str(e)[:50]}")
+        """Fetch with requests + rotating UA + retries + SSL handling"""
+        headers = {
+            'User-Agent': random.choice(USER_AGENTS),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9,id;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1'
+        }
+        
+        for attempt in range(RETRY_ATTEMPTS):
+            try:
+                # Best practice: session for connection pooling
+                session = requests.Session()
+                session.headers.update(headers)
+                
+                # Handle SSL verification (some gov sites have issues)
+                r = session.get(
+                    url, 
+                    timeout=(DNS_TIMEOUT, TIMEOUT),  # (connect, read) timeouts
+                    verify=VERIFY_SSL,
+                    allow_redirects=True,
+                    stream=False
+                )
+                
+                if r.status_code == 200:
+                    return r.text
+                elif r.status_code in [301, 302, 307, 308]:  # Redirects
+                    logger.debug(f"Following redirect for {url}")
+                    continue
+                elif r.status_code == 403 and attempt < RETRY_ATTEMPTS - 1:
+                    # Retry with different UA
+                    headers['User-Agent'] = random.choice(USER_AGENTS)
+                    time.sleep(2)
+                    continue
+                else:
+                    logger.warning(f"HTTP {r.status_code} for {url}")
+                    
+            except requests.exceptions.SSLError as e:
+                # Common for gov sites - try without verification
+                logger.debug(f"SSL error for {url}, retrying without verification")
+                if attempt < RETRY_ATTEMPTS - 1:
+                    continue
+            except requests.exceptions.Timeout as e:
+                logger.debug(f"Timeout for {url} (attempt {attempt+1}/{RETRY_ATTEMPTS})")
+                if attempt < RETRY_ATTEMPTS - 1:
+                    time.sleep(3)
+                    continue
+            except requests.exceptions.ConnectionError as e:
+                logger.debug(f"Connection error for {url}: DNS or network issue")
+                if attempt < RETRY_ATTEMPTS - 1:
+                    time.sleep(5)
+                    continue
+            except Exception as e:
+                logger.warning(f"Requests failed for {url}: {str(e)[:50]}")
+                if attempt < RETRY_ATTEMPTS - 1:
+                    continue
+        
         return ''
     
     async def _crawl_page(self, url: str) -> str:
-        """Crawl page with 3-tier fallback"""
-        if _has_crawl4ai:
-            try:
-                if hasattr(crawl4ai, 'crawl'):
-                    return crawl4ai.crawl(url, timeout=TIMEOUT)
-            except Exception as e:
-                logger.warning(f"Crawl4AI failed, falling back: {str(e)[:50]}")
+        """Crawl page with 3-tier fallback + URL alternatives"""
+        # Best practice: Try alternative URLs if known problematic site
+        urls_to_try = [url]
+        if url in URL_ALTERNATIVES:
+            urls_to_try.extend(URL_ALTERNATIVES[url])
         
-        html = await self._render_with_playwright(url)
-        if html:
-            return html
+        for attempt_url in urls_to_try:
+            if _has_crawl4ai:
+                try:
+                    if hasattr(crawl4ai, 'crawl'):
+                        html = crawl4ai.crawl(attempt_url, timeout=TIMEOUT)
+                        if html:
+                            return html
+                except Exception as e:
+                    logger.debug(f"Crawl4AI failed for {attempt_url}: {str(e)[:50]}")
+            
+            html = await self._render_with_playwright(attempt_url)
+            if html and len(html) > 500:  # Minimum viable HTML
+                return html
+            
+            html = self._fetch_with_requests(attempt_url)
+            if html and len(html) > 500:
+                return html
         
-        return self._fetch_with_requests(url)
+        return ''
     
     async def scrape_site(self, site: Dict, category: str) -> List[Dict]:
         """Scrape site with full article content and all enhancements"""
