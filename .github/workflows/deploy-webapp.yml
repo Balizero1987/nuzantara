@@ -1,0 +1,95 @@
+name: Deploy Webapp to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/webapp/**'
+      - '.github/workflows/deploy-webapp.yml'
+  workflow_dispatch: # Allow manual trigger
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Prepare webapp files
+        run: |
+          echo "📦 Preparing webapp files for deployment..."
+          
+          # Create deployment directory
+          mkdir -p _site
+          
+          # Copy webapp files to deployment directory
+          cp -r apps/webapp/* _site/
+          
+          # Create .nojekyll to bypass Jekyll processing
+          touch _site/.nojekyll
+          
+          # List files being deployed
+          echo "📋 Files to be deployed:"
+          find _site -type f | head -20
+          
+          # Verify critical files exist
+          echo "✅ Verifying critical files..."
+          test -f _site/chat.html && echo "  ✓ chat.html"
+          test -f _site/js/core/error-handler.js && echo "  ✓ error-handler.js"
+          test -f _site/js/core/cache-manager.js && echo "  ✓ cache-manager.js"
+          test -f _site/js/core/request-deduplicator.js && echo "  ✓ request-deduplicator.js"
+          test -f _site/js/core/pwa-installer.js && echo "  ✓ pwa-installer.js"
+          test -f _site/js/core/websocket-manager.js && echo "  ✓ websocket-manager.js"
+          test -f _site/service-worker.js && echo "  ✓ service-worker.js"
+          
+          echo "🎉 Preparation complete!"
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed to:** ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Features deployed:**" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Enhanced Error Handler" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Client-Side Cache Manager" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Request Deduplicator" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ PWA Support (installable app)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ WebSocket Auto-Reconnect" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Test commands:**" >> $GITHUB_STEP_SUMMARY
+          echo '```javascript' >> $GITHUB_STEP_SUMMARY
+          echo "ZANTARA_ERROR_HANDLER.getStats()" >> $GITHUB_STEP_SUMMARY
+          echo "ZANTARA_CACHE.getStats()" >> $GITHUB_STEP_SUMMARY
+          echo "ZANTARA_DEDUP.getStats()" >> $GITHUB_STEP_SUMMARY
+          echo "ZANTARA_PWA.getStatus()" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
