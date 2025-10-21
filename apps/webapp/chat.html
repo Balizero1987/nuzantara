@@ -797,9 +797,10 @@
     // Send on button click
     sendBtn.addEventListener('click', sendMessage);
 
-    // Send on Enter key
-    inputField.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
+    // Send on Enter key (using keydown for better compatibility)
+    inputField.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault(); // Prevent default behavior
         sendMessage();
       }
     });
