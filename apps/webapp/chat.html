@@ -823,7 +823,7 @@
         console.log('🎨 Generating image with Imagine.art...', { prompt, style, aspectRatio });
 
         // Call Imagine.art API via backend TS
-        const response = await fetch('https://ts-backend-production-568d.up.railway.app/api/call', {
+        const response = await fetch('https://ts-backend-production-568d.up.railway.app/call', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
