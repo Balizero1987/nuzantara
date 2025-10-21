@@ -1,0 +1,20 @@
+{
+  "start_time": "2025-10-22T00:18:36.493646",
+  "end_time": "2025-10-22T00:22:14.714731",
+  "duration_seconds": 218.221057,
+  "categories_processed": 1,
+  "total_scraped": 165,
+  "total_filtered": 53,
+  "filter_efficiency": 0.3212121212121212,
+  "category_stats": [
+    {
+      "category": "news",
+      "total_scraped": 165,
+      "total_filtered": 53,
+      "filter_rate": 0.3212121212121212,
+      "raw_file": "/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/projects/bali-intel-scraper/data/INTEL_SCRAPING/news/raw/20251022_002214_raw.json",
+      "filtered_file": "/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/projects/bali-intel-scraper/data/INTEL_SCRAPING/news/filtered/20251022_002214_filtered.json"
+    }
+  ],
+  "errors": []
+}
