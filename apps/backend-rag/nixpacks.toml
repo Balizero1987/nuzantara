@@ -7,5 +7,7 @@ cmds = [
   ". /opt/venv/bin/activate && pip install -r requirements-worker.txt"
 ]
 
+# Start command disabled - run manually instead
+# Manual command: python3 scripts/llama_nightly_worker.py --days 3 --max-golden 50 --regenerate-cultural
 [start]
-cmd = ". /opt/venv/bin/activate && python3 scripts/llama_nightly_worker.py --days 3 --max-golden 50 --regenerate-cultural"
+cmd = "echo 'LLAMA Nightly Worker: Run manually (see README for command)' && sleep infinity"
