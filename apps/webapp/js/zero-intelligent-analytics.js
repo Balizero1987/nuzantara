@@ -23,9 +23,10 @@ class ZeroIntelligentAnalytics {
     this.isZero = this.checkIfZero();
 
     if (this.isZero) {
-      console.log('🎯 [ZeroIntelligent] ZERO access detected - enabling full analytics');
+      console.log('🎯 [ZeroIntelligent] ZERO access detected - enabling analytics (natural language only)');
       this.setupNaturalLanguageHandler();
-      this.setupVisualDashboard();
+      // ❌ DISABLED: Visual dashboard causing duplicate widgets
+      // this.setupVisualDashboard();
     } else {
       console.log('[ZeroIntelligent] Not ZERO - analytics disabled');
     }
