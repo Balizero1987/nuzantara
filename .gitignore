@@ -50,3 +50,4 @@ fix_*.sql
 data/chroma_db/
 *.sqlite3
 *.bin
+*.old
