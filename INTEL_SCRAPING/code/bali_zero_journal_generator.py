@@ -268,9 +268,31 @@ Respond ONLY with valid JSON. Be professional, concise, and focus on business re
         """Use local Ollama LLAMA 3.2 as intelligent fallback"""
         logger.info("🦙 Using Ollama LLAMA 3.2 (local) for journal curation...")
 
-        # Filter quality articles (minimum 150 words) - OUTSIDE try block
-        quality_articles = [a for a in articles if isinstance(a.word_count, int) and a.word_count >= 150]
-        logger.info(f"Filtered to {len(quality_articles)} quality articles (from {len(articles)} total)")
+        # Filter quality articles - OUTSIDE try block
+        # 1. Minimum 1000 words (substantial articles only)
+        # 2. Maximum 7 days old (recent news only)
+        from datetime import datetime, timedelta
+
+        cutoff_date = datetime.now() - timedelta(days=7)
+
+        quality_articles = []
+        for a in articles:
+            # Word count check
+            if not isinstance(a.word_count, int) or a.word_count < 1000:
+                continue
+
+            # Date check (if available)
+            try:
+                if a.date:
+                    article_date = datetime.strptime(a.date, '%Y-%m-%d')
+                    if article_date < cutoff_date:
+                        continue  # Too old
+            except:
+                pass  # If date parsing fails, keep article
+
+            quality_articles.append(a)
+
+        logger.info(f"Filtered to {len(quality_articles)} quality articles (≥1000 words, ≤7 days old, from {len(articles)} total)")
 
         if len(quality_articles) == 0:
             logger.warning("No quality articles found, using all articles")
@@ -350,6 +372,10 @@ Respond ONLY with JSON."""
                     ollama_data['sections'] = self._create_sections_from_articles(quality_articles)
                     ollama_data['total_articles'] = len(quality_articles)
 
+                    # Count total articles across all sections
+                    total_in_sections = sum(len(s['articles']) for s in ollama_data['sections'])
+                    ollama_data['articles_in_journal'] = total_in_sections
+
                     logger.info("✅ Ollama LLAMA 3.2 created journal structure!")
                     return ollama_data
 
@@ -379,10 +405,12 @@ Respond ONLY with JSON."""
 
             section_articles = []
             for article in top_articles:
-                content_preview = article.content[:800] if len(article.content) > 800 else article.content
-                if len(article.content) > 800:
+                # Use MORE content for substantial articles (2000 chars)
+                content_preview = article.content[:2000] if len(article.content) > 2000 else article.content
+                if len(article.content) > 2000:
+                    # Try to end at a sentence
                     last_period = content_preview.rfind('.')
-                    if last_period > 400:
+                    if last_period > 1000:  # At least 1000 chars
                         content_preview = content_preview[:last_period + 1]
                     else:
                         content_preview = content_preview + "..."
@@ -391,10 +419,11 @@ Respond ONLY with JSON."""
                     "original_title": article.title,
                     "polished_title": article.title,
                     "summary": content_preview,
-                    "importance": min(10, article.word_count // 100),  # Score based on length
+                    "importance": min(10, article.word_count // 200),  # Score based on length
                     "category": category,
                     "word_count": article.word_count,
-                    "source": article.source
+                    "source": article.source,
+                    "date": article.date
                 })
 
             sections.append({
@@ -406,11 +435,27 @@ Respond ONLY with JSON."""
 
     def _get_static_fallback(self, articles: List[ArticleMetadata]) -> Dict[str, Any]:
         """Fallback journal structure if LLAMA fails"""
-        logger.info("Using fallback journal structure")
+        logger.info("Using static fallback structure")
 
-        # Filter quality articles (minimum 150 words)
-        quality_articles = [a for a in articles if a.word_count >= 150]
-        logger.info(f"Filtered to {len(quality_articles)} quality articles (>= 150 words)")
+        # Filter quality articles (minimum 1000 words, max 7 days old)
+        from datetime import datetime, timedelta
+
+        cutoff_date = datetime.now() - timedelta(days=7)
+        quality_articles = []
+
+        for a in articles:
+            if not isinstance(a.word_count, int) or a.word_count < 1000:
+                continue
+            try:
+                if a.date:
+                    article_date = datetime.strptime(a.date, '%Y-%m-%d')
+                    if article_date < cutoff_date:
+                        continue
+            except:
+                pass
+            quality_articles.append(a)
+
+        logger.info(f"Filtered to {len(quality_articles)} quality articles (≥1000 words, ≤7 days)")
 
         # Group by category
         by_category = {}
@@ -453,10 +498,11 @@ Respond ONLY with JSON."""
                     "original_title": article.title,
                     "polished_title": article.title,
                     "summary": content_preview,
-                    "importance": 7,
+                    "importance": min(10, article.word_count // 200),
                     "category": category,
                     "word_count": article.word_count,
-                    "source": article.source
+                    "source": article.source,
+                    "date": article.date
                 })
 
             sections.append({
