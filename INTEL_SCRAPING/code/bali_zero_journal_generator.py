@@ -519,27 +519,102 @@ Respond ONLY with JSON."""
 
 
 class ImagineArtService:
-    """Service to generate cover images using ImagineArt"""
+    """Service to generate cover images using ImagineArt API"""
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, output_dir: Optional[Path] = None):
         self.api_key = api_key or os.getenv("IMAGINEART_API_KEY")
-        self.base_url = "https://api.imagineart.io/v1"  # Placeholder - verify actual API
+        self.base_url = "https://api.vyro.ai/v2"
+        self.output_dir = output_dir or Path("INTEL_SCRAPING/data/JOURNAL/images")
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def generate_cover_image(self, prompt: str, style: str = "realistic") -> Optional[str]:
+        if not self.api_key:
+            logger.warning("⚠️ IMAGINEART_API_KEY not configured - will use placeholder images")
+
+    def generate_cover_image(self, prompt: str, style: str = "realistic", index: int = 0) -> Optional[str]:
         """
-        Generate cover image from prompt
+        Generate cover image from prompt using ImagineArt API
 
-        Returns: URL to generated image or None
+        Returns: Local file path to generated image or placeholder URL
         """
-        logger.info(f"Generating cover image: {prompt[:100]}...")
+        logger.info(f"🎨 Generating cover image {index + 1}: {prompt[:80]}...")
 
-        # For now, return placeholder - will integrate with actual ImagineArt API
-        # TODO: Integrate with apps/backend-ts/src/handlers/ai-services/imagine-art-handler.ts
+        if not self.api_key:
+            logger.warning("No API key - using placeholder")
+            return self._get_placeholder()
 
-        placeholder_url = f"https://via.placeholder.com/1200x600/1a1a1a/ffffff?text=BALI+ZERO+JOURNAL"
-        logger.info(f"Using placeholder image (ImagineArt integration pending)")
+        try:
+            # Prepare FormData request (multipart/form-data)
+            form_data = {
+                'prompt': (None, prompt),
+                'style': (None, style),
+                'aspect_ratio': (None, '16:9'),
+                'high_res_results': (None, '1')
+            }
 
-        return placeholder_url
+            headers = {
+                'Authorization': f'Bearer {self.api_key}'
+            }
+
+            # Make API request
+            response = requests.post(
+                f"{self.base_url}/image/generations",
+                headers=headers,
+                files=form_data,
+                timeout=60
+            )
+
+            if not response.ok:
+                logger.error(f"ImagineArt API error: {response.status_code} - {response.text[:200]}")
+                return self._get_placeholder()
+
+            # Check if response is binary image or JSON
+            content_type = response.headers.get('content-type', '')
+
+            if 'image/' in content_type:
+                # Binary image response - save directly
+                logger.info("📦 Received binary image, saving...")
+
+                image_format = content_type.split('/')[1] or 'jpeg'
+                image_filename = f"cover_{index}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{image_format}"
+                image_path = self.output_dir / image_filename
+
+                image_path.write_bytes(response.content)
+                logger.info(f"✅ Cover image saved: {image_path} ({len(response.content)} bytes)")
+
+                return str(image_path.absolute())
+
+            else:
+                # JSON response - extract URL and download
+                result = response.json()
+                image_url = result.get('data', [{}])[0].get('url') or result.get('image_url') or result.get('url')
+
+                if not image_url:
+                    logger.error(f"No image URL in response: {result}")
+                    return self._get_placeholder()
+
+                logger.info(f"📥 Downloading image from URL: {image_url[:50]}...")
+
+                # Download image
+                img_response = requests.get(image_url, timeout=30)
+                if img_response.ok:
+                    image_filename = f"cover_{index}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+                    image_path = self.output_dir / image_filename
+
+                    image_path.write_bytes(img_response.content)
+                    logger.info(f"✅ Cover image saved: {image_path} ({len(img_response.content)} bytes)")
+
+                    return str(image_path.absolute())
+                else:
+                    logger.error(f"Failed to download image: {img_response.status_code}")
+                    return self._get_placeholder()
+
+        except Exception as e:
+            logger.error(f"❌ ImagineArt generation failed: {e}")
+            return self._get_placeholder()
+
+    def _get_placeholder(self) -> str:
+        """Return placeholder image URL"""
+        return "https://via.placeholder.com/1200x600/1a1a1a/ffffff?text=BALI+ZERO+JOURNAL"
 
 
 class BaliZeroJournalGenerator:
@@ -650,12 +725,13 @@ class BaliZeroJournalGenerator:
         # Step 1: LLAMA processes all articles
         journal_structure = self.llama_service.process_articles_for_journal(articles)
 
-        # Step 2: Generate cover images
+        # Step 2: Generate cover images with ImagineArt
         cover_images = []
-        for story in journal_structure.get("cover_stories", [])[:3]:
+        for i, story in enumerate(journal_structure.get("cover_stories", [])[:3]):
             image_prompt = story.get("image_prompt", "Professional business illustration")
-            image_url = self.imagineart_service.generate_cover_image(image_prompt)
-            cover_images.append(image_url)
+            image_path = self.imagineart_service.generate_cover_image(image_prompt, index=i)
+            cover_images.append(image_path)
+            story['generated_image'] = image_path  # Add to story data
 
         journal_structure['cover_images'] = cover_images
         journal_structure['generated_at'] = datetime.now().isoformat()

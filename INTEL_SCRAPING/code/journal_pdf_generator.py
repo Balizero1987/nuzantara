@@ -64,6 +64,9 @@ class BaliZeroJournalPDF:
             <h2 class="section-title">TODAY'S TOP STORIES</h2>
             {% for story in cover_stories[:3] %}
             <div class="cover-story">
+                {% if story.generated_image and 'placeholder' not in story.generated_image.lower() %}
+                <img src="file://{{ story.generated_image }}" alt="{{ story.title }}" class="story-image">
+                {% endif %}
                 <h3 class="story-title">{{ loop.index }}. {{ story.title }}</h3>
                 <p class="story-summary">{{ story.summary }}</p>
                 <span class="story-category">{{ story.category | upper }}</span>
@@ -223,6 +226,15 @@ body {
     margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 1px solid #444;
+}
+
+.story-image {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 2px solid #ff6d01;
 }
 
 .story-title {
