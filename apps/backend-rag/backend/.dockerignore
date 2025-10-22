@@ -1,68 +1,63 @@
-# Docker build context optimization - exclude unnecessary files
-
 # Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+__pycache__
+*.pyc
+*.pyo
+*.pyd
 .Python
-env/
-venv/
-.venv/
+env
 pip-log.txt
 pip-delete-this-directory.txt
-.pytest_cache/
-*.cover
+.tox
 .coverage
 .coverage.*
-htmlcov/
-.tox/
-*.egg-info/
-.eggs/
-
-# Development
-.env
-.env.local
+.cache
+nosetests.xml
+coverage.xml
+*.cover
 *.log
-*.pid
-*.seed
-*.pid.lock
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
 
-# IDEs
-.vscode/
-.idea/
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode
+.idea
 *.swp
 *.swo
-*~
-.DS_Store
 
-# Git
-.git/
-.gitignore
+# OS
+.DS_Store
+Thumbs.db
 
 # Documentation
+README.md
 *.md
-docs/
-README*
 
-# Tests
-tests/
-test_*.py
+# Test files
+tests
+test
+__tests__
 *_test.py
+test_*.py
 
-# Build artifacts
-build/
-dist/
-*.whl
+# Logs
+logs
+*.log
 
-# Data files (don't include in build context)
+# Data files (too large for Docker)
+data/
 *.db
 *.sqlite
-*.csv
-data/
-chroma_db/
-tmp/
+*.sqlite3
 
-# Notebooks
-*.ipynb
-.ipynb_checkpoints/
+# Model files (downloaded at runtime)
+models/
+*.bin
+*.safetensors
