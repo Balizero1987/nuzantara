@@ -33,7 +33,7 @@ class IntelSearchRequest(BaseModel):
     query: str
     category: Optional[str] = None
     date_range: str = "last_7_days"
-    tier: List[str] = ["1", "2", "3"]
+    tier: List[str] = ["T1", "T2", "T3"]  # Fixed: Changed from "1","2","3" to match ChromaDB storage
     impact_level: Optional[str] = None
     limit: int = 20
 
