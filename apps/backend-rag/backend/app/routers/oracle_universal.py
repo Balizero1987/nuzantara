@@ -355,3 +355,88 @@ async def test_routing(
         },
         "total_matches": routing_stats["total_matches"]
     }
+
+
+@router.post("/populate-now")
+async def populate_oracle_collections():
+    """
+    ONE-TIME ENDPOINT: Populate Oracle collections with sample data
+
+    This endpoint populates tax_updates, legal_updates, and property_listings
+    with 17 documents total. Should be called once then removed.
+    """
+    try:
+        import sys
+        from pathlib import Path
+        sys.path.append(str(Path(__file__).parent.parent.parent))
+
+        from core.embeddings import EmbeddingsGenerator
+        from core.vector_db import ChromaDBClient
+
+        embedder = EmbeddingsGenerator()
+        results = {}
+
+        # Tax updates
+        tax_texts = [
+            "Tax: PPh 21 rate reduced 25% to 22% for high earners",
+            "Tax: VAT increased 11% to 12% April 2025",
+            "Tax: Carbon tax IDR 30,000/ton for coal power",
+            "Tax: E-invoicing mandatory all PKP July 2025",
+            "Tax: Tax amnesty extended until June 2025",
+            "Tax: Transfer pricing CbCR threshold IDR 10T"
+        ]
+        tax_emb = [embedder.generate_single_embedding(t) for t in tax_texts]
+        ChromaDBClient(collection_name="tax_updates").upsert_documents(
+            chunks=tax_texts, embeddings=tax_emb,
+            metadatas=[{"id": f"tax_{i}"} for i in range(len(tax_texts))],
+            ids=[f"tax_{i}" for i in range(len(tax_texts))]
+        )
+        results['tax_updates'] = len(tax_texts)
+
+        # Legal updates
+        legal_texts = [
+            "Legal: PT PMA capital IDR 10B to 5B tech sectors",
+            "Legal: Minimum wage +6.5% Jakarta IDR 5.3M",
+            "Legal: OSS biometric required new licenses",
+            "Legal: AMDAL required projects >2 hectares",
+            "Legal: IMB digital 7-day processing",
+            "Legal: Leasehold extension 30 days",
+            "Legal: Expat quotas IT 50% healthcare 40%"
+        ]
+        legal_emb = [embedder.generate_single_embedding(t) for t in legal_texts]
+        ChromaDBClient(collection_name="legal_updates").upsert_documents(
+            chunks=legal_texts, embeddings=legal_emb,
+            metadatas=[{"id": f"legal_{i}"} for i in range(len(legal_texts))],
+            ids=[f"legal_{i}" for i in range(len(legal_texts))]
+        )
+        results['legal_updates'] = len(legal_texts)
+
+        # Property listings
+        prop_texts = [
+            "Property: Canggu Villa 4BR ocean view IDR 15B pool",
+            "Property: Seminyak Beachfront 6BR IDR 25B beach access",
+            "Property: Ubud Rice Field 3BR IDR 8.5B eco yoga",
+            "Property: Sanur Commercial IDR 45B 1200m2 hotel zoning"
+        ]
+        prop_emb = [embedder.generate_single_embedding(t) for t in prop_texts]
+        ChromaDBClient(collection_name="property_listings").upsert_documents(
+            chunks=prop_texts, embeddings=prop_emb,
+            metadatas=[{"id": f"prop_{i}"} for i in range(len(prop_texts))],
+            ids=[f"prop_{i}" for i in range(len(prop_texts))]
+        )
+        results['property_listings'] = len(prop_texts)
+
+        return {
+            "success": True,
+            "message": "Oracle collections populated",
+            "results": results,
+            "total_documents": sum(results.values())
+        }
+
+    except Exception as e:
+        import traceback
+        return {
+            "success": False,
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }
