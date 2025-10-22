@@ -47,6 +47,7 @@ class ToolExecutor:
             'get_team_member_stats',
             'get_team_overview',
             'get_session_details',
+            'end_user_session',
             'retrieve_user_memory',
             'search_memory',
             'get_pricing'

@@ -195,6 +195,24 @@ class ZantaraTools:
                             },
                             "required": ["session_id"]
                         }
+                    },
+                    {
+                        "name": "end_user_session",
+                        "description": "End/logout a user's current session (admin use only)",
+                        "input_schema": {
+                            "type": "object",
+                            "properties": {
+                                "user_email": {
+                                    "type": "string",
+                                    "description": "Email of user to logout"
+                                },
+                                "notes": {
+                                    "type": "string",
+                                    "description": "Optional notes about why session was ended"
+                                }
+                            },
+                            "required": ["user_email"]
+                        }
                     }
                 ])
 
@@ -240,6 +258,12 @@ class ZantaraTools:
 
             elif tool_name == "get_session_details":
                 return await self._get_session_details(tool_input.get("session_id"))
+
+            elif tool_name == "end_user_session":
+                return await self._end_user_session(
+                    tool_input.get("user_email"),
+                    tool_input.get("notes")
+                )
 
             # MEMORY TOOLS
             elif tool_name == "retrieve_user_memory":
@@ -400,6 +424,35 @@ class ZantaraTools:
                 "success": True,
                 "data": details
             }
+
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+
+    async def _end_user_session(self, user_email: str, notes: Optional[str] = None) -> Dict[str, Any]:
+        """End/logout a user's current session"""
+        if not self.work_session:
+            return {"success": False, "error": "Work session service not available"}
+
+        try:
+            # Find user's active session
+            result = await self.work_session.end_session(user_email, notes)
+
+            if result.get("success"):
+                return {
+                    "success": True,
+                    "data": {
+                        "message": f"Session ended for {user_email}",
+                        "user_email": user_email,
+                        "ended_at": datetime.now().isoformat(),
+                        "notes": notes
+                    }
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": result.get("error", "Failed to end session")
+                }
 
         except Exception as e:
             return {"success": False, "error": str(e)}
