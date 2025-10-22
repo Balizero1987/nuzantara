@@ -4,14 +4,21 @@
 
 ```bash
 # Dalla root del progetto
+export IMAGINEART_API_KEY="vk-3zVt3g8xJ7dSg6KZ3pbpPRUPDwtSAQDlJssPQrKZTp7Kp"
+python3 INTEL_SCRAPING/code/bali_zero_journal_generator.py
+```
+
+O carica le variabili d'ambiente:
+```bash
+export $(cat INTEL_SCRAPING/.env.imagineart | xargs)
 python3 INTEL_SCRAPING/code/bali_zero_journal_generator.py
 ```
 
 Questo comando:
 1. ✅ Raccoglie tutti gli articoli di oggi (676 files)
 2. ⏳ Invia a LLAMA 3.1 8B su Runpod per curation
-3. 🎨 Genera immagini copertina con ImagineArt (placeholder per ora)
-4. 📄 Crea PDF professionale
+3. 🎨 Genera immagini copertina con ImagineArt (AI-generated images)
+4. 📄 Crea PDF professionale con immagini
 5. 📧 Invia email a tutto il team Bali Zero
 
 ---
