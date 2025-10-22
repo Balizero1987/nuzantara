@@ -1,6 +1,6 @@
 # Optimized Dockerfile for ZANTARA RAG - Faster builds with better caching
 # Build time target: < 2 minutes for code changes
-# CACHE BUST: 2025-10-22-20:35 - Force rebuild to use main_cloud not main_integrated
+# CACHE BUST: 2025-10-23-14:47 - Force complete rebuild - Deploy version 3.2.0-crm
 
 # ========================================
 # Stage 1: Dependencies Builder
