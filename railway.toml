@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd apps/backend-rag/backend && pip install -r requirements.txt"
+
+[deploy]
+startCommand = "cd apps/backend-rag/backend && uvicorn app.main_cloud:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
