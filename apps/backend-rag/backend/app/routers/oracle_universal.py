@@ -176,9 +176,14 @@ async def universal_oracle_query(
         # SearchService.search() already uses QueryRouter, but we override here for control
         vector_db = service.collections[collection_used]
 
+        # Generate query embedding
+        from core.embeddings import EmbeddingsGenerator
+        embedder = EmbeddingsGenerator()
+        query_embedding = embedder.generate_single_embedding(request.query)
+
         # Search the collection
         search_results = vector_db.search(
-            query_text=request.query,
+            query_embedding=query_embedding,
             limit=request.limit
         )
 
