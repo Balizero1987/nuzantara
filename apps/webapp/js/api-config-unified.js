@@ -144,13 +144,14 @@ function getEndpointPath(endpoint, backendType = 'auto') {
 }
 
 /**
- * Make API call with intelligent backend routing
+ * Make API call with intelligent backend routing and JWT support
  */
 async function callZantaraAPI(endpoint, data, options = {}) {
   const {
     useProxy = true,
     useStreaming = false,
-    timeout = 30000
+    timeout = 30000,
+    useJWT = true
   } = options;
   
   try {
@@ -173,20 +174,8 @@ async function callZantaraAPI(endpoint, data, options = {}) {
     
     const apiUrl = `${baseUrl}${endpointPath}`;
     
-    // Build headers
-    const userId = localStorage.getItem('zantara-user-email') || '';
-    const authToken = localStorage.getItem('zantara-auth-token') || '';
-    
-    const headers = {
-      ...API_CONFIG.headers,
-      ...(userId ? { 'x-user-id': userId } : {}),
-      ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
-    };
-    
-    // Add API key for direct calls (not for proxy)
-    if (!useProxy && !forceDirect) {
-      headers['x-api-key'] = 'zantara-internal-dev-key-2025';
-    }
+    // Build headers with JWT support
+    const headers = await buildHeaders(useJWT, useProxy, forceDirect);
     
     console.log(`[API] Calling ${endpoint} via ${useProxy ? 'proxy' : 'direct'}: ${apiUrl}`);
     
@@ -199,6 +188,28 @@ async function callZantaraAPI(endpoint, data, options = {}) {
     });
     
     if (!response.ok) {
+      // Handle JWT token expiration
+      if (response.status === 401 && useJWT) {
+        console.log('[API] Token expired, attempting refresh...');
+        const refreshed = await refreshJWTToken();
+        if (refreshed) {
+          // Retry with new token
+          const newHeaders = await buildHeaders(useJWT, useProxy, forceDirect);
+          const retryResponse = await makeRequestWithRetry(apiUrl, {
+            method: 'POST',
+            headers: newHeaders,
+            body: JSON.stringify(data),
+            timeout
+          });
+          
+          if (retryResponse.ok) {
+            const result = await retryResponse.json();
+            console.log(`[API] ✅ ${endpoint} success (after refresh)`);
+            return result;
+          }
+        }
+      }
+      
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     
@@ -212,6 +223,101 @@ async function callZantaraAPI(endpoint, data, options = {}) {
   } catch (error) {
     console.error(`[API] ❌ ${endpoint} failed:`, error);
     throw error;
+  }
+}
+
+/**
+ * Build headers with JWT support
+ */
+async function buildHeaders(useJWT, useProxy, forceDirect) {
+  const headers = { ...API_CONFIG.headers };
+  
+  if (useJWT) {
+    // Try to get JWT token
+    const jwtToken = await getJWTToken();
+    if (jwtToken) {
+      headers['Authorization'] = `Bearer ${jwtToken}`;
+    }
+  }
+  
+  // Add user ID for tracking
+  const userId = localStorage.getItem('zantara-user-email') || 
+                 localStorage.getItem('zantara-user') || '';
+  if (userId) {
+    headers['x-user-id'] = userId;
+  }
+  
+  // Add API key for direct calls (not for proxy) when not using JWT
+  if (!useProxy && !forceDirect && !useJWT) {
+    headers['x-api-key'] = 'zantara-internal-dev-key-2025';
+  }
+  
+  return headers;
+}
+
+/**
+ * Get JWT token with auto-refresh
+ */
+async function getJWTToken() {
+  const token = localStorage.getItem('zantara-auth-token');
+  if (!token) return null;
+  
+  // Check if token is expired
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const now = Date.now() / 1000;
+    
+    // If token expires in less than 5 minutes, refresh it
+    if (payload.exp < (now + 300)) {
+      console.log('[JWT] Token expiring soon, refreshing...');
+      await refreshJWTToken();
+      return localStorage.getItem('zantara-auth-token');
+    }
+    
+    return token;
+  } catch (e) {
+    console.error('[JWT] Invalid token:', e);
+    return null;
+  }
+}
+
+/**
+ * Refresh JWT token
+ */
+async function refreshJWTToken() {
+  try {
+    const refreshToken = localStorage.getItem('zantara-refresh-token');
+    if (!refreshToken) {
+      console.log('[JWT] No refresh token available');
+      return false;
+    }
+    
+    const response = await fetch(`${API_CONFIG.backends.ts.base}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken })
+    });
+    
+    if (!response.ok) {
+      console.error('[JWT] Refresh failed:', response.status);
+      return false;
+    }
+    
+    const data = await response.json();
+    
+    if (data.ok && data.data) {
+      localStorage.setItem('zantara-auth-token', data.data.accessToken);
+      if (data.data.user) {
+        localStorage.setItem('zantara-user', JSON.stringify(data.data.user));
+      }
+      console.log('[JWT] Token refreshed successfully');
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('[JWT] Refresh error:', error);
+    return false;
   }
 }
 
