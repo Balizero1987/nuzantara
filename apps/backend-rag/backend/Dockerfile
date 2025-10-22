@@ -68,4 +68,5 @@ ENV SENTENCE_TRANSFORMERS_HOME=/root/.cache/sentence_transformers
 EXPOSE 8000
 
 # Run migrations then start server (use python -m uvicorn for proper path)
-CMD ["sh", "-c", "python migrations/001_fix_missing_tables.py && PYTHONPATH=/app:$PYTHONPATH python -m uvicorn app.main_cloud:app --host 0.0.0.0 --port 8000"]
+# Using main_integrated.py (includes Oracle optimization Phase 1+2+3)
+CMD ["sh", "-c", "python migrations/001_fix_missing_tables.py && PYTHONPATH=/app:$PYTHONPATH python -m uvicorn app.main_integrated:app --host 0.0.0.0 --port 8000"]
