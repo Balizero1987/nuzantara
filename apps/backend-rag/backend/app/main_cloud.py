@@ -45,6 +45,7 @@ from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
 from services.work_session_service import WorkSessionService
 from services.team_analytics_service import TeamAnalyticsService
+from services.zantara_tools import ZantaraTools
 from middleware.error_monitoring import ErrorMonitoringMiddleware
 
 # Configure logging
@@ -79,6 +80,7 @@ claude_haiku: Optional[ClaudeHaikuService] = None  # Fast & cheap for greetings
 claude_sonnet: Optional[ClaudeSonnetService] = None  # Premium for business queries
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 cultural_rag_service: Optional[CulturalRAGService] = None  # NEW: LLAMA cultural RAG
+zantara_tools: Optional[ZantaraTools] = None  # NEW: Tool calling for team data
 collaborator_service: Optional[CollaboratorService] = None
 memory_service: Optional[MemoryServicePostgres] = None
 conversation_service: Optional[ConversationService] = None
@@ -922,6 +924,19 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ Intelligent Router initialization failed: {e}")
         intelligent_router = None
+
+    # Initialize ZantaraTools (for tool calling - team data, memory, pricing)
+    try:
+        zantara_tools = ZantaraTools(
+            team_analytics_service=team_analytics_service,
+            work_session_service=work_session_service,
+            memory_service=memory_service,
+            pricing_service=None  # TODO: Add pricing service when available
+        )
+        logger.info("✅ ZantaraTools initialized (tool calling enabled)")
+    except Exception as e:
+        logger.warning(f"⚠️ ZantaraTools initialization failed: {e}")
+        zantara_tools = None
 
     # Initialize CollaboratorService (Phase 1)
     try:
