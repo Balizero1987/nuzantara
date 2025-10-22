@@ -876,17 +876,34 @@ async def startup_event():
         logger.error(f"❌ HandlerProxyService initialization failed: {e}")
         handler_proxy_service = None
 
+    # Initialize ZantaraTools FIRST (needed by ToolExecutor)
+    try:
+        zantara_tools = ZantaraTools(
+            team_analytics_service=team_analytics_service,
+            work_session_service=work_session_service,
+            memory_service=memory_service,
+            pricing_service=None  # TODO: Add pricing service when available
+        )
+        logger.info("✅ ZantaraTools initialized (tool calling enabled)")
+    except Exception as e:
+        logger.warning(f"⚠️ ZantaraTools initialization failed: {e}")
+        zantara_tools = None
+
     # Initialize Intelligent Router (TRIPLE-AI system: Haiku + Sonnet + DevAI)
     try:
         devai_endpoint = os.getenv("DEVAI_ENDPOINT")
         if claude_haiku and claude_sonnet:
-            # Initialize ToolExecutor if HandlerProxyService is available
+            # Initialize ToolExecutor with ZantaraTools
             tool_executor = None
             if handler_proxy_service:
                 try:
                     internal_key = os.getenv("API_KEYS_INTERNAL")
-                    tool_executor = ToolExecutor(handler_proxy_service, internal_key)
-                    logger.info("✅ ToolExecutor initialized for intelligent router")
+                    tool_executor = ToolExecutor(
+                        handler_proxy_service,
+                        internal_key,
+                        zantara_tools  # Pass ZantaraTools for direct Python tool execution
+                    )
+                    logger.info("✅ ToolExecutor initialized (Python + TypeScript tools)")
                 except Exception as e:
                     logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
                     tool_executor = None
@@ -924,19 +941,6 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ Intelligent Router initialization failed: {e}")
         intelligent_router = None
-
-    # Initialize ZantaraTools (for tool calling - team data, memory, pricing)
-    try:
-        zantara_tools = ZantaraTools(
-            team_analytics_service=team_analytics_service,
-            work_session_service=work_session_service,
-            memory_service=memory_service,
-            pricing_service=None  # TODO: Add pricing service when available
-        )
-        logger.info("✅ ZantaraTools initialized (tool calling enabled)")
-    except Exception as e:
-        logger.warning(f"⚠️ ZantaraTools initialization failed: {e}")
-        zantara_tools = None
 
     # Initialize CollaboratorService (Phase 1)
     try:
@@ -1159,7 +1163,7 @@ async def verify_tools():
         # Load tools for verification
         from services.tool_executor import ToolExecutor
         internal_key = os.getenv("API_KEYS_INTERNAL")
-        executor = ToolExecutor(handler_proxy_service, internal_key)
+        executor = ToolExecutor(handler_proxy_service, internal_key, zantara_tools)
         tools = await executor.get_available_tools()
         names = [t.get("name") for t in (tools or []) if isinstance(t, dict) and t.get("name")]
         first5 = names[:5]

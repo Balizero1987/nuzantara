@@ -1,31 +1,58 @@
 """
 TOOL EXECUTOR SERVICE
 Handles Anthropic tool use execution via handler proxy
+Supports both TypeScript handlers (HTTP) and Python ZantaraTools (direct)
 """
 
 import json
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, TYPE_CHECKING
 from services.handler_proxy import HandlerProxyService
+
+if TYPE_CHECKING:
+    from services.zantara_tools import ZantaraTools
 
 logger = logging.getLogger(__name__)
 
 
 class ToolExecutor:
     """
-    Executes tools (TypeScript handlers) during AI conversations
+    Executes tools during AI conversations
+    - ZantaraTools (Python): team data, memory, pricing - direct execution
+    - TypeScript handlers: Gmail, calendar, etc. - via HTTP proxy
     """
 
-    def __init__(self, handler_proxy: HandlerProxyService, internal_key: Optional[str] = None):
+    def __init__(
+        self,
+        handler_proxy: HandlerProxyService,
+        internal_key: Optional[str] = None,
+        zantara_tools: Optional['ZantaraTools'] = None
+    ):
         """
         Initialize tool executor
 
         Args:
             handler_proxy: Handler proxy service instance
             internal_key: Internal API key for authentication
+            zantara_tools: ZantaraTools instance for direct Python tool execution
         """
         self.handler_proxy = handler_proxy
         self.internal_key = internal_key
+        self.zantara_tools = zantara_tools
+
+        # ZantaraTools function names (Python - executed directly)
+        self.zantara_tool_names = {
+            'get_team_logins_today',
+            'get_team_active_sessions',
+            'get_team_member_stats',
+            'get_team_overview',
+            'get_session_details',
+            'retrieve_user_memory',
+            'search_memory',
+            'get_pricing'
+        }
+
+        logger.info(f"🔧 ToolExecutor initialized (ZantaraTools: {'✅' if zantara_tools else '❌'})")
 
     async def execute_tool_calls(self, tool_uses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
@@ -72,43 +99,78 @@ class ToolExecutor:
                 tool_input = tool_use.get("input", {})
 
             try:
-                # Convert tool name back to handler key format
-                # Anthropic: gmail_send → TypeScript: gmail.send
-                handler_key = tool_name.replace('_', '.')
+                # Check if this is a ZantaraTools function (Python - direct execution)
+                if tool_name in self.zantara_tool_names and self.zantara_tools:
+                    logger.info(f"🔧 [ZantaraTools] Executing: {tool_name} (Python)")
 
-                logger.info(f"🔧 Executing tool: {tool_name} → {handler_key}")
+                    # Execute ZantaraTools directly
+                    result = await self.zantara_tools.execute_tool(
+                        tool_name=tool_name,
+                        tool_input=tool_input,
+                        user_id="system"
+                    )
 
-                # Execute handler via proxy
-                result = await self.handler_proxy.execute_handler(
-                    handler_key=handler_key,
-                    params=tool_input,
-                    internal_key=self.internal_key
-                )
+                    if not result.get("success"):
+                        error_message = result.get("error", "Unknown error")
+                        logger.error(f"❌ [ZantaraTools] {tool_name} failed: {error_message}")
+                        results.append({
+                            "type": "tool_result",
+                            "tool_use_id": tool_id,
+                            "is_error": True,
+                            "content": f"Error: {error_message}"
+                        })
+                        continue
 
-                # Format result for Anthropic
-                if result.get("error"):
-                    error_message = f"Error executing {handler_key}: {result['error']}"
-                    logger.error(f"❌ Tool {tool_name} failed: {result['error']}")
+                    # Extract data from ZantaraTools result
+                    payload = result.get('data', result)
+                    if isinstance(payload, (dict, list)):
+                        content_text = json.dumps(payload, ensure_ascii=False)
+                    else:
+                        content_text = str(payload)
+
+                    logger.info(f"✅ [ZantaraTools] {tool_name} executed successfully")
                     results.append({
                         "type": "tool_result",
                         "tool_use_id": tool_id,
-                        "is_error": True,
-                        "content": error_message
+                        "content": content_text
                     })
-                    continue
 
-                payload = result.get('result', result)
-                if isinstance(payload, (dict, list)):
-                    content_text = json.dumps(payload)
                 else:
-                    content_text = str(payload)
+                    # TypeScript handler via HTTP proxy
+                    handler_key = tool_name.replace('_', '.')
+                    logger.info(f"🔧 [TypeScript] Executing: {tool_name} → {handler_key} (HTTP)")
 
-                logger.info(f"✅ Tool {tool_name} executed successfully")
-                results.append({
-                    "type": "tool_result",
-                    "tool_use_id": tool_id,
-                    "content": content_text
-                })
+                    # Execute handler via proxy
+                    result = await self.handler_proxy.execute_handler(
+                        handler_key=handler_key,
+                        params=tool_input,
+                        internal_key=self.internal_key
+                    )
+
+                    # Format result for Anthropic
+                    if result.get("error"):
+                        error_message = f"Error executing {handler_key}: {result['error']}"
+                        logger.error(f"❌ [TypeScript] {tool_name} failed: {result['error']}")
+                        results.append({
+                            "type": "tool_result",
+                            "tool_use_id": tool_id,
+                            "is_error": True,
+                            "content": error_message
+                        })
+                        continue
+
+                    payload = result.get('result', result)
+                    if isinstance(payload, (dict, list)):
+                        content_text = json.dumps(payload)
+                    else:
+                        content_text = str(payload)
+
+                    logger.info(f"✅ [TypeScript] {tool_name} executed successfully")
+                    results.append({
+                        "type": "tool_result",
+                        "tool_use_id": tool_id,
+                        "content": content_text
+                    })
 
             except Exception as e:
                 logger.error(f"❌ Tool execution failed for {tool_name}: {e}")
