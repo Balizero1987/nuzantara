@@ -17,8 +17,6 @@ import logging
 sys.path.append(str(Path(__file__).parent.parent))
 
 from services.search_service import SearchService
-from llm.anthropic_client import AnthropicClient
-from llm.bali_zero_router import BaliZeroRouter
 
 # Import dependencies module (Phase 1 Optimization)
 import app.dependencies as deps
@@ -77,20 +75,14 @@ async def startup_event():
         logger.error(f"❌ Search service failed: {e}")
         raise
 
-    # Initialize Anthropic (required)
-    try:
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable is required")
-
-        deps.anthropic_client = AnthropicClient(api_key=api_key)
-        deps.bali_zero_router = BaliZeroRouter()
-        logger.info("✅ Anthropic client ready (Haiku/Sonnet routing)")
-    except Exception as e:
-        logger.error(f"❌ Anthropic initialization failed: {e}")
-        raise
+    # Anthropic client not available in this minimal RAG version
+    # Oracle endpoints will work in search-only mode (no AI generation)
+    deps.anthropic_client = None
+    deps.bali_zero_router = None
+    logger.info("ℹ️  AI generation disabled (Oracle endpoints: search-only mode)")
 
     logger.info("✅ ZANTARA RAG Backend ready on port 8000 (Phase 1 Optimization Active)")
+    logger.info("✅ Oracle Universal Endpoint: POST /api/oracle/query")
 
 
 @app.on_event("shutdown")

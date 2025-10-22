@@ -14,7 +14,7 @@ Benefits:
 
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any, Literal
+from typing import List, Optional, Dict, Any, Literal, TYPE_CHECKING
 from datetime import datetime
 import sys
 from pathlib import Path
@@ -24,7 +24,12 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from services.search_service import SearchService
 from app.dependencies import get_search_service, get_anthropic_client
-from llm.anthropic_client import AnthropicClient
+
+# Type checking only - anthropic_client not available at runtime
+if TYPE_CHECKING:
+    from typing import Any as AnthropicClient
+else:
+    AnthropicClient = Any
 
 router = APIRouter(prefix="/api/oracle", tags=["Oracle UNIVERSAL"])
 
