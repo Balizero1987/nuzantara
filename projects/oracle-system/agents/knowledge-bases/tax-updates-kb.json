@@ -1,0 +1,128 @@
+{
+  "name": "Tax Updates Knowledge Base",
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-22",
+  "description": "Recent tax regulation updates and announcements from Indonesian tax authorities (DJP, Ministry of Finance)",
+
+  "taxUpdates": [
+    {
+      "id": "tax_update_2025_001",
+      "date": "2025-01-15",
+      "source": "Direktorat Jenderal Pajak (DJP)",
+      "title": "New PPh 21 Regulation 2025",
+      "category": "income_tax",
+      "impact": "high",
+      "summary": "Income tax rates updated for employees. Annual income tax reduced from 25% to 22% for annual income above IDR 500 million. Effective from January 1, 2025.",
+      "details": "The Directorate General of Taxation announced new progressive tax rates for PPh 21 (employee income tax). New brackets: 5% (up to IDR 60M annually), 15% (IDR 60M-250M), 22% (IDR 250M-500M), 30% (above IDR 500M). This replaces the previous 25% rate for the third bracket.",
+      "affectedParties": ["employees", "employers", "tax_withholding_agents"],
+      "implementationDate": "2025-01-01",
+      "reference": "PMK No. 168/PMK.03/2024"
+    },
+    {
+      "id": "tax_update_2025_002",
+      "date": "2025-02-01",
+      "source": "Ministry of Finance",
+      "title": "VAT Increase to 12%",
+      "category": "vat",
+      "impact": "high",
+      "summary": "Value Added Tax (PPN) will increase from 11% to 12% starting April 1, 2025. Applies to all goods and services subject to VAT.",
+      "details": "Following the Tax Law Harmonization (UU HPP), VAT rate increases to 12%. This is part of a gradual increase plan (10% → 11% → 12%). Businesses must update pricing, invoicing systems, and tax reporting by April 1, 2025.",
+      "affectedParties": ["all_businesses", "consumers", "pkp_registered"],
+      "implementationDate": "2025-04-01",
+      "reference": "UU No. 7/2021 (UU HPP)"
+    },
+    {
+      "id": "tax_update_2025_003",
+      "date": "2025-03-10",
+      "source": "DJP",
+      "title": "Tax Amnesty Extension",
+      "category": "tax_amnesty",
+      "impact": "medium",
+      "summary": "Tax amnesty program extended until December 31, 2025. Reduced penalties for voluntary disclosure of unreported income and assets.",
+      "details": "Program allows taxpayers to report previously undeclared assets and income with reduced penalties. Penalty rates: 6% (domestic assets), 8% (foreign assets repatriated), 11% (foreign assets not repatriated). Available until December 2025.",
+      "affectedParties": ["individual_taxpayers", "corporate_taxpayers"],
+      "implementationDate": "2025-03-15",
+      "expiryDate": "2025-12-31",
+      "reference": "PMK No. 42/PMK.03/2025"
+    },
+    {
+      "id": "tax_update_2025_004",
+      "date": "2025-02-20",
+      "source": "DJP",
+      "title": "Carbon Tax Implementation",
+      "category": "environmental_tax",
+      "impact": "medium",
+      "summary": "Carbon tax of IDR 30 per kg CO2 to be implemented for coal power plants starting July 2025.",
+      "details": "Indonesia's first carbon tax targets coal-fired power plants. Rate: IDR 30/kg CO2 equivalent emissions. Covers plants with capacity above 100 MW. Revenue allocated to environmental programs and renewable energy development.",
+      "affectedParties": ["power_plants", "coal_companies", "energy_sector"],
+      "implementationDate": "2025-07-01",
+      "reference": "UU No. 7/2021 Article 44B"
+    },
+    {
+      "id": "tax_update_2025_005",
+      "date": "2025-01-25",
+      "source": "DJP",
+      "title": "E-Invoicing Mandatory for Large Taxpayers",
+      "category": "tax_administration",
+      "impact": "high",
+      "summary": "E-faktur (electronic invoicing) becomes mandatory for all large taxpayers (turnover > IDR 4.8B) starting March 2025.",
+      "details": "All VAT-registered businesses with annual turnover above IDR 4.8 billion must use e-faktur system for all tax invoices. Manual/paper invoices no longer accepted. Integration with DJP's online system required. Penalties for non-compliance: fines up to IDR 1 million per invoice.",
+      "affectedParties": ["large_businesses", "pkp_registered", "accounting_departments"],
+      "implementationDate": "2025-03-01",
+      "reference": "PER-03/PJ/2025"
+    },
+    {
+      "id": "tax_update_2024_006",
+      "date": "2024-12-15",
+      "source": "Ministry of Finance",
+      "title": "Transfer Pricing Documentation Threshold Lowered",
+      "category": "transfer_pricing",
+      "impact": "medium",
+      "summary": "Transfer pricing documentation now required for related party transactions above IDR 20 billion (previously IDR 50 billion).",
+      "details": "Lower threshold means more companies must maintain transfer pricing documentation. Applies to: goods/services transactions, loans, royalties, management fees with related parties. Documentation must follow OECD standards. Penalties for non-compliance: up to 200% of tax underpayment.",
+      "affectedParties": ["multinational_companies", "pt_pma", "related_party_transactions"],
+      "implementationDate": "2025-01-01",
+      "reference": "PMK No. 172/PMK.03/2024"
+    }
+  ],
+
+  "categories": {
+    "income_tax": {
+      "name": "Income Tax (PPh)",
+      "description": "Personal and corporate income tax updates"
+    },
+    "vat": {
+      "name": "Value Added Tax (PPN)",
+      "description": "VAT rate changes and procedures"
+    },
+    "tax_amnesty": {
+      "name": "Tax Amnesty",
+      "description": "Voluntary disclosure programs"
+    },
+    "environmental_tax": {
+      "name": "Environmental Tax",
+      "description": "Carbon tax and environmental levies"
+    },
+    "tax_administration": {
+      "name": "Tax Administration",
+      "description": "Filing, reporting, and compliance procedures"
+    },
+    "transfer_pricing": {
+      "name": "Transfer Pricing",
+      "description": "Related party transaction regulations"
+    }
+  },
+
+  "sources": {
+    "DJP": {
+      "name": "Direktorat Jenderal Pajak",
+      "url": "https://www.pajak.go.id",
+      "description": "Indonesian Tax Authority"
+    },
+    "Ministry of Finance": {
+      "name": "Kementerian Keuangan",
+      "url": "https://www.kemenkeu.go.id",
+      "description": "Indonesian Ministry of Finance"
+    }
+  }
+}

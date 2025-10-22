@@ -1,0 +1,193 @@
+{
+  "name": "Legal Updates Knowledge Base",
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-22",
+  "description": "Recent legal and regulatory updates in Indonesia - company law, labor law, environmental regulations, licensing",
+
+  "legalUpdates": [
+    {
+      "id": "legal_2025_001",
+      "date": "2025-01-20",
+      "source": "Ministry of Law and Human Rights",
+      "category": "company_law",
+      "title": "PT PMA Minimum Capital Reduced",
+      "impact": "high",
+      "summary": "Minimum capital requirement for PT PMA reduced from IDR 10 billion to IDR 5 billion for technology and creative industry sectors.",
+      "details": "The government reduced barriers to foreign investment in priority sectors. Eligible sectors: technology, creative industries, education technology, healthcare technology. Other sectors remain at IDR 10B minimum. Existing PT PMAs not affected. New applications only.",
+      "affected_parties": ["foreign_investors", "tech_startups", "creative_companies"],
+      "effective_date": "2025-03-01",
+      "sectors": ["technology", "creative_industries", "edtech", "healthtech"],
+      "reference": "Perpres No. 10/2025"
+    },
+    {
+      "id": "legal_2025_002",
+      "date": "2025-01-05",
+      "source": "Ministry of Manpower",
+      "category": "labor_law",
+      "title": "Bali Minimum Wage Increase 2025",
+      "impact": "high",
+      "summary": "Minimum wage (UMK) in Bali increased to IDR 3.2 million per month, up 8% from 2024 (IDR 2.96M).",
+      "details": "All companies in Bali must adjust employee salaries by February 1, 2025. Applies to all workers with less than 1 year experience. Penalties for non-compliance: fines up to IDR 400 million or imprisonment. Provincial review conducted annually based on inflation and economic growth.",
+      "affected_parties": ["all_employers", "employees"],
+      "effective_date": "2025-02-01",
+      "previous_rate": "IDR 2,960,000/month",
+      "new_rate": "IDR 3,200,000/month",
+      "increase_percent": "8.1%",
+      "reference": "Gubernur Bali Keputusan No. 47/2024"
+    },
+    {
+      "id": "legal_2025_003",
+      "date": "2025-02-15",
+      "source": "OSS (Online Single Submission)",
+      "category": "licensing",
+      "title": "OSS Face Recognition Verification Mandatory",
+      "impact": "medium",
+      "summary": "OSS system now requires face recognition verification for company directors in all new NIB applications.",
+      "details": "Biometric verification aims to reduce fraud and nominee director issues. All new business license applications (NIB) require directors to complete face recognition verification via OSS mobile app. Existing businesses not affected unless renewing licenses.",
+      "affected_parties": ["new_businesses", "company_directors", "pt_pma_applicants"],
+      "effective_date": "2025-04-01",
+      "implementation": "OSS mobile app updated with face recognition feature",
+      "exemptions": ["Renewals of existing licenses (for now)"],
+      "reference": "BKPM Regulation No. 3/2025"
+    },
+    {
+      "id": "legal_2025_004",
+      "date": "2025-03-01",
+      "source": "Ministry of Environment",
+      "category": "environmental",
+      "title": "Stricter AMDAL Requirements for Bali",
+      "impact": "high",
+      "summary": "Environmental Impact Assessment (AMDAL) now required for all developments above 5000 sqm in Bali (previously 10000 sqm).",
+      "details": "Bali-specific regulation to protect environment and cultural heritage. Threshold lowered: developments >5000 sqm now require full AMDAL study. Coastal zones have even stricter rules (>2000 sqm). Processing time 6-12 months. Cost IDR 100-500 million depending on project size.",
+      "affected_parties": ["developers", "hotels", "resorts", "large_villas"],
+      "effective_date": "2025-04-01",
+      "previous_threshold": "10,000 sqm",
+      "new_threshold": "5,000 sqm (general), 2,000 sqm (coastal)",
+      "coastal_protection": "Enhanced restrictions in 50m from high tide line",
+      "reference": "Perda Bali No. 2/2025"
+    },
+    {
+      "id": "legal_2025_005",
+      "date": "2025-01-10",
+      "source": "Ministry of Law",
+      "category": "immigration",
+      "title": "Second Home Visa Extended to 10 Years",
+      "impact": "medium",
+      "summary": "Second Home Visa for wealthy foreigners extended from 5 to 10 years validity. Investment requirement increased to USD 250,000.",
+      "details": "Program targets high-net-worth individuals. Requirements: minimum USD 250k investment in Indonesian property or business, health insurance, proof of funds USD 130k. Benefits: 10-year stay permit, multiple entry, can own property via Hak Pakai, family members included.",
+      "affected_parties": ["wealthy_foreigners", "retirees", "property_investors"],
+      "effective_date": "2025-02-01",
+      "previous_duration": "5 years",
+      "new_duration": "10 years",
+      "investment_required": "USD 250,000",
+      "reference": "Perpres No. 8/2025"
+    },
+    {
+      "id": "legal_2025_006",
+      "date": "2024-12-20",
+      "source": "Ministry of Tourism",
+      "category": "tourism",
+      "title": "Bali Tourism Levy Implementation",
+      "impact": "medium",
+      "summary": "IDR 150,000 tourism levy per foreign visitor implemented for Bali entry.",
+      "details": "Revenue allocated to cultural preservation and environmental protection. Collected upon arrival at Ngurah Rai Airport or seaports. Indonesian citizens and residents exempt. KITAS/KITAP holders exempt. Payment via online platform or airport counter.",
+      "affected_parties": ["foreign_tourists", "tourism_businesses"],
+      "effective_date": "2025-02-14",
+      "fee_amount": "IDR 150,000 per person per entry",
+      "exemptions": ["Indonesian citizens", "KITAS/KITAP holders", "Children under 12"],
+      "reference": "Perda Bali No. 1/2025"
+    },
+    {
+      "id": "legal_2024_007",
+      "date": "2024-11-15",
+      "source": "BPJS Ketenagakerjaan",
+      "category": "social_security",
+      "title": "BPJS Contribution Rates Updated",
+      "impact": "medium",
+      "summary": "BPJS employment insurance contribution rates adjusted for 2025.",
+      "details": "New rates effective January 2025: Old Age Savings (JHT) 5.7% (employer 3.7%, employee 2%), Pension 3% (employer 2%, employee 1%), Work Accident 0.24-1.74% (employer only), Death 0.3% (employer only), Healthcare 5% (employer 4%, employee 1%). All employers must register employees within 30 days of hire.",
+      "affected_parties": ["all_employers", "all_employees"],
+      "effective_date": "2025-01-01",
+      "mandatory_for": ["All companies with 1+ employees", "All foreign workers"],
+      "penalties": "Administrative sanctions and fines for non-compliance",
+      "reference": "Perpres No. 82/2024"
+    }
+  ],
+
+  "categories": {
+    "company_law": {
+      "name": "Company Law",
+      "description": "PT PMA, business structures, corporate governance"
+    },
+    "labor_law": {
+      "name": "Labor Law",
+      "description": "Employment, minimum wage, BPJS, termination"
+    },
+    "licensing": {
+      "name": "Licensing & Permits",
+      "description": "NIB, OSS, business licenses"
+    },
+    "environmental": {
+      "name": "Environmental Regulations",
+      "description": "AMDAL, coastal protection, conservation"
+    },
+    "immigration": {
+      "name": "Immigration",
+      "description": "Visas, work permits, stay permits"
+    },
+    "tourism": {
+      "name": "Tourism Regulations",
+      "description": "Tourism levies, hotel regulations"
+    },
+    "social_security": {
+      "name": "Social Security",
+      "description": "BPJS, worker protections"
+    }
+  },
+
+  "impactLevels": {
+    "high": "Affects most businesses/individuals, significant compliance required",
+    "medium": "Affects specific sectors or situations",
+    "low": "Minor changes, limited scope"
+  },
+
+  "sources": {
+    "Ministry of Law": {
+      "url": "https://www.kemenkumham.go.id",
+      "description": "Ministry of Law and Human Rights"
+    },
+    "Ministry of Manpower": {
+      "url": "https://www.kemnaker.go.id",
+      "description": "Ministry of Manpower"
+    },
+    "BKPM": {
+      "url": "https://www.bkpm.go.id",
+      "description": "Investment Coordinating Board"
+    },
+    "OSS": {
+      "url": "https://oss.go.id",
+      "description": "Online Single Submission"
+    }
+  },
+
+  "complianceReminders": [
+    {
+      "topic": "Company Annual Reporting",
+      "deadline": "June 30 annually",
+      "description": "All PT/PT PMA must file annual reports (LKPM) via AHU Online",
+      "penalty": "IDR 5 million fine, potential company dissolution"
+    },
+    {
+      "topic": "Work Permit Renewal",
+      "deadline": "30 days before expiry",
+      "description": "IMTA (work permit) renewal must be initiated minimum 30 days before expiration",
+      "penalty": "Late fees, potential deportation"
+    },
+    {
+      "topic": "NIB Validity Check",
+      "deadline": "Check every 3 years",
+      "description": "Business licenses (NIB) require revalidation every 3-5 years depending on risk category",
+      "penalty": "License suspension or revocation"
+    }
+  ]
+}
