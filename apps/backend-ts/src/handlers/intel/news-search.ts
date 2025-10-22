@@ -12,7 +12,7 @@ interface IntelSearchParams {
   query: string;
   category?: 'immigration' | 'bkpm_tax' | 'realestate' | 'events' | 'social' | 'competitors' | 'bali_news' | 'roundup';
   date_range?: 'today' | 'last_7_days' | 'last_30_days' | 'last_90_days';
-  tier?: '1' | '2' | '3' | '1,2' | '1,2,3';
+  tier?: '1' | '2' | '3' | '1,2' | '1,2,3' | 'T1' | 'T2' | 'T3' | 'T1,T2' | 'T1,T2,T3';  // Support both legacy and new formats
   impact_level?: 'critical' | 'high' | 'medium' | 'low';
   limit?: number;
 }
@@ -40,17 +40,23 @@ export async function intelNewsSearch(params: IntelSearchParams) {
       query,
       category,
       date_range = 'last_7_days',
-      tier = '1,2,3',
+      tier = 'T1,T2,T3',  // Changed default to new format
       impact_level,
       limit = 20
     } = params;
+
+    // Normalize tier format: support both '1,2,3' (legacy) and 'T1,T2,T3' (new)
+    const tierArray = tier.split(',').map(t => {
+      const trimmed = t.trim();
+      return trimmed.startsWith('T') ? trimmed : `T${trimmed}`;
+    });
 
     // Call Python RAG backend
     const response = await axios.post(`${RAG_BACKEND_URL}/api/intel/search`, {
       query,
       category,
       date_range,
-      tier: tier.split(','),
+      tier: tierArray,  // Now sends ['T1','T2','T3']
       impact_level,
       limit
     }, {
