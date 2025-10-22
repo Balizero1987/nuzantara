@@ -1,4 +1,5 @@
-#!/bin/bash
+             
+             #! /bin/bash
 
 # Railway Dockerfile Fix Script
 # Forza Railway a usare Dockerfile invece di cercare railway.toml
