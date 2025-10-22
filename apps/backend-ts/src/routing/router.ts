@@ -3,6 +3,7 @@ import { z, ZodError } from "zod";
 import type { Request, Response } from "express";
 import { ok, err } from "../utils/response.js";
 import { apiKeyAuth, RequestWithCtx } from "../middleware/auth.js";
+import { jwtAuth, RequestWithJWT } from "../middleware/jwt-auth.js";
 import { ForbiddenError, BadRequestError, UnauthorizedError } from "../utils/errors.js";
 import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
 
@@ -998,8 +999,148 @@ export function attachRoutes(app: import("express").Express) {
     }
   });
 
-  // AI Chat
-  app.post("/ai.chat", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  // ========================================
+  // JWT AUTHENTICATION ENDPOINTS
+  // ========================================
+
+  // JWT Login endpoint
+  app.post("/auth/login", async (req: RequestWithCtx, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json(err("Email and password are required"));
+      }
+
+      // Validate credentials (integrate with existing team login)
+      const loginResult = await teamLogin({ email, pin: password });
+      
+      if (!loginResult.data.success) {
+        return res.status(401).json(err("Invalid credentials"));
+      }
+
+      // Generate JWT tokens
+      const jwt = require('jsonwebtoken');
+      const jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
+      
+      const accessToken = jwt.sign(
+        { 
+          userId: loginResult.data.user.id,
+          email: loginResult.data.user.email,
+          role: loginResult.data.user.role 
+        },
+        jwtSecret,
+        { expiresIn: '15m' }
+      );
+
+      const refreshToken = jwt.sign(
+        { 
+          userId: loginResult.data.user.id,
+          type: 'refresh' 
+        },
+        jwtSecret,
+        { expiresIn: '7d' }
+      );
+
+      return res.status(200).json(ok({
+        accessToken,
+        refreshToken,
+        user: {
+          id: loginResult.data.user.id,
+          email: loginResult.data.user.email,
+          name: loginResult.data.user.name,
+          role: loginResult.data.user.role,
+          department: loginResult.data.user.department
+        },
+        expiresIn: 900 // 15 minutes
+      }));
+
+    } catch (e: any) {
+      console.error('JWT Login error:', e);
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  // JWT Refresh endpoint
+  app.post("/auth/refresh", async (req: RequestWithCtx, res: Response) => {
+    try {
+      const { refreshToken } = req.body;
+      
+      if (!refreshToken) {
+        return res.status(400).json(err("Refresh token is required"));
+      }
+
+      const jwt = require('jsonwebtoken');
+      const jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
+      
+      // Verify refresh token
+      const decoded = jwt.verify(refreshToken, jwtSecret);
+      
+      if (decoded.type !== 'refresh') {
+        return res.status(401).json(err("Invalid token type"));
+      }
+
+      // Get user data
+      const teamMembers = getTeamMembers();
+      const user = teamMembers.find(m => m.id === decoded.userId);
+      
+      if (!user) {
+        return res.status(401).json(err("User not found"));
+      }
+
+      // Generate new access token
+      const newAccessToken = jwt.sign(
+        { 
+          userId: user.id,
+          email: user.email,
+          role: user.role 
+        },
+        jwtSecret,
+        { expiresIn: '15m' }
+      );
+
+      return res.status(200).json(ok({
+        accessToken: newAccessToken,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          department: user.department
+        },
+        expiresIn: 900 // 15 minutes
+      }));
+
+    } catch (e: any) {
+      console.error('JWT Refresh error:', e);
+      if (e.name === 'JsonWebTokenError' || e.name === 'TokenExpiredError') {
+        return res.status(401).json(err("Invalid or expired refresh token"));
+      }
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  // JWT Logout endpoint
+  app.post("/auth/logout", async (req: RequestWithCtx, res: Response) => {
+    try {
+      const { refreshToken } = req.body;
+      
+      // In a production system, you would blacklist the refresh token
+      // For now, we just return success
+      
+      return res.status(200).json(ok({
+        success: true,
+        message: "Logged out successfully"
+      }));
+
+    } catch (e: any) {
+      console.error('JWT Logout error:', e);
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  // AI Chat (JWT protected)
+  app.post("/ai.chat", jwtAuth, async (req: RequestWithJWT, res: Response) => {
     try {
       const result = await aiChat(req.body);
       return res.status(200).json(ok(result?.data ?? result));

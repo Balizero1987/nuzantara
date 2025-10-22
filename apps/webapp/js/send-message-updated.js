@@ -102,13 +102,13 @@ async function sendMessageUpdated() {
 
     // Check if unified API is available
     if (window.ZANTARA_API && window.ZANTARA_API.call) {
-      console.log('🌊 [sendMessageUpdated] Using unified API');
+      console.log('🌊 [sendMessageUpdated] Using unified API with JWT');
       
       // Try streaming first
       if (window.ZANTARA_SSE && window.ZANTARA_SSE.stream) {
         await handleStreamingResponse(requestData, aiMsg, thinkingIndicator);
       } else {
-        // Fallback to regular API call
+        // Fallback to regular API call with JWT
         await handleRegularResponse(requestData, aiMsg, thinkingIndicator);
       }
     } else {
