@@ -1,11 +1,11 @@
-# Railway Configuration - FORCE DOCKERFILE USAGE
+# Railway Configuration - RAG BACKEND ONLY
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "apps/backend-rag/backend/Dockerfile"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "python migrations/001_fix_missing_tables.py && uvicorn app.main_cloud:app --host 0.0.0.0 --port $PORT"
 healthcheckPath = "/health"
-healthcheckTimeout = 300
+healthcheckTimeout = 600
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
