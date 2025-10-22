@@ -1666,6 +1666,43 @@ export function attachRoutes(app: import("express").Express) {
     }
   });
 
+  // ========================================
+  // ZANTARA KNOWLEDGE SYSTEM
+  // ========================================
+
+  // Get Zantara knowledge (GET) - Complete system knowledge
+  app.get('/zantara/knowledge', async (req: RequestWithCtx, res) => {
+    try {
+      const { getZantaraKnowledge } = await import('../handlers/zantara/knowledge.js');
+      const result = await getZantaraKnowledge();
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  // Get system health (GET) - System status
+  app.get('/zantara/health', async (req: RequestWithCtx, res) => {
+    try {
+      const { getSystemHealth } = await import('../handlers/zantara/knowledge.js');
+      const result = await getSystemHealth();
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  // Get Zantara system prompt (GET) - Complete system prompt with knowledge
+  app.get('/zantara/system-prompt', async (req: RequestWithCtx, res) => {
+    try {
+      const { getZantaraSystemPrompt } = await import('../handlers/zantara/knowledge.js');
+      const result = await getZantaraSystemPrompt();
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
   // ZANTARA Personality Info (GET) - Get system personality details
   app.get('/zantara/personality', async (req, res) => {
     try {
