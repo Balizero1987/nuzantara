@@ -34,6 +34,7 @@
   <script src="js/user-badges.js"></script>
   <script src="js/chat-enhancements.js"></script>
   <script src="js/zero-intelligent-analytics.js"></script>
+  <script src="js/zantara-thinking-indicator.js?v=2025102104"></script>
 
   <!-- 🔒 AUTH GUARD - Redirect to login if not authenticated -->
   <script>
@@ -698,8 +699,18 @@
       const aiMsg = document.createElement('div');
       aiMsg.className = 'ai-message streaming';
       aiMsg.id = 'streaming-msg';
-      aiMsg.textContent = '⏳ Zantara is thinking...';
       messagesDiv.appendChild(aiMsg);
+
+      // 🎨 NEW: Use elegant thinking indicator (ChatGPT/Claude style)
+      let thinkingIndicator = null;
+      if (window.ZantaraThinkingIndicator) {
+        thinkingIndicator = new window.ZantaraThinkingIndicator(aiMsg);
+        thinkingIndicator.start();
+      } else {
+        // Fallback to simple text if script not loaded
+        aiMsg.textContent = '⏳ Zantara is thinking...';
+      }
+
       scrollToBottom();
 
       try {
@@ -725,7 +736,12 @@
         window.ZANTARA_SSE
           .on('start', () => {
             console.log('🌊 [SSE Stream] Connected');
-            aiMsg.textContent = '';  // Clear "thinking" message
+            // Stop thinking animation and clear message
+            if (thinkingIndicator) {
+              thinkingIndicator.stop();
+            }
+            aiMsg.innerHTML = '';  // Clear thinking indicator
+            aiMsg.className = 'ai-message streaming';  // Reset class
           })
           .on('delta', ({chunk, message}) => {
             // ⚡ PERFORMANCE: Show plain text during streaming (fast!)
