@@ -1773,13 +1773,53 @@ app.include_router(crm_shared_memory.router)
 app.include_router(admin_migration.router)
 
 # Include Oracle routers (Universal Query System - Phase 3)
-from app.routers import oracle_universal, oracle_populate
+from app.routers import oracle_universal
 app.include_router(oracle_universal.router)
-app.include_router(oracle_populate.router)  # TEMPORARY - remove after calling once
 
 # Include Llama 4 Scout router - DISABLED (module not in production)
 # from routers.llama4 import router as llama4_router
 # app.include_router(llama4_router)
+
+
+# ========================================
+# ORACLE POPULATION ENDPOINT (TEMPORARY)
+# ========================================
+
+@app.post("/admin/populate-oracle-inline")
+async def populate_oracle_inline():
+    """ONE-TIME: Populate Oracle collections. Remove after calling."""
+    try:
+        from core.embeddings import EmbeddingsGenerator
+        from core.vector_db import ChromaDBClient
+
+        embedder = EmbeddingsGenerator()
+        results = {}
+
+        # Tax
+        tax_texts = ["Tax: PPh 21 Rate reduced 25% to 22%", "Tax: VAT increased 11% to 12% April 2025"]
+        tax_emb = [embedder.generate_single_embedding(t) for t in tax_texts]
+        tax_coll = ChromaDBClient(collection_name="tax_updates")
+        tax_coll.upsert_documents(tax_texts, tax_emb, [{"id": f"tax_{i}"} for i in range(len(tax_texts))], [f"tax_{i}" for i in range(len(tax_texts))])
+        results['tax'] = len(tax_texts)
+
+        # Legal
+        legal_texts = ["Legal: PT PMA capital reduced to IDR 5B", "Legal: Minimum wage +6.5% Jakarta IDR 5.3M"]
+        legal_emb = [embedder.generate_single_embedding(t) for t in legal_texts]
+        legal_coll = ChromaDBClient(collection_name="legal_updates")
+        legal_coll.upsert_documents(legal_texts, legal_emb, [{"id": f"legal_{i}"} for i in range(len(legal_texts))], [f"legal_{i}" for i in range(len(legal_texts))])
+        results['legal'] = len(legal_texts)
+
+        # Property
+        prop_texts = ["Property: Canggu Villa 4BR IDR 15B ocean view", "Property: Seminyak Villa 6BR IDR 25B beachfront"]
+        prop_emb = [embedder.generate_single_embedding(t) for t in prop_texts]
+        prop_coll = ChromaDBClient(collection_name="property_listings")
+        prop_coll.upsert_documents(prop_texts, prop_emb, [{"id": f"prop_{i}"} for i in range(len(prop_texts))], [f"prop_{i}" for i in range(len(prop_texts))])
+        results['property'] = len(prop_texts)
+
+        return {"success": True, "results": results, "total": sum(results.values())}
+    except Exception as e:
+        import traceback
+        return {"success": False, "error": str(e), "trace": traceback.format_exc()}
 
 
 # ========================================
