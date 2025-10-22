@@ -5,7 +5,7 @@ Phase 1 Optimization: Eliminates ChromaDB client duplication.
 """
 
 from fastapi import HTTPException
-from typing import Optional
+from typing import Optional, Any, TYPE_CHECKING
 import sys
 from pathlib import Path
 
@@ -13,13 +13,18 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from services.search_service import SearchService
-from llm.anthropic_client import AnthropicClient
-from llm.bali_zero_router import BaliZeroRouter
+
+# Type hints only - these modules don't exist in production
+if TYPE_CHECKING:
+    from typing import Any as AnthropicClient, Any as BaliZeroRouter
+else:
+    AnthropicClient = Any
+    BaliZeroRouter = Any
 
 # Global service instances (initialized by main_integrated.py at startup)
 search_service: Optional[SearchService] = None
-anthropic_client: Optional[AnthropicClient] = None
-bali_zero_router: Optional[BaliZeroRouter] = None
+anthropic_client: Optional[Any] = None
+bali_zero_router: Optional[Any] = None
 
 
 def get_search_service() -> SearchService:
@@ -42,21 +47,17 @@ def get_search_service() -> SearchService:
     return search_service
 
 
-def get_anthropic_client() -> AnthropicClient:
-    """Dependency injection for Anthropic client"""
-    if anthropic_client is None:
-        raise HTTPException(
-            status_code=503,
-            detail="Anthropic client not initialized."
-        )
+def get_anthropic_client() -> Optional[Any]:
+    """
+    Dependency injection for Anthropic client.
+    Returns None in production (AI generation disabled for Oracle endpoints).
+    """
     return anthropic_client
 
 
-def get_bali_zero_router() -> BaliZeroRouter:
-    """Dependency injection for Bali Zero router"""
-    if bali_zero_router is None:
-        raise HTTPException(
-            status_code=503,
-            detail="Bali Zero router not initialized."
-        )
+def get_bali_zero_router() -> Optional[Any]:
+    """
+    Dependency injection for Bali Zero router.
+    Returns None in production.
+    """
     return bali_zero_router
