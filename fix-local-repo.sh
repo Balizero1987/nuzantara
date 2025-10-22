@@ -7,20 +7,37 @@ set -e
 echo "🔧 FIXING LOCAL REPOSITORY..."
 echo ""
 
-# Salva directory corrente
-ORIGINAL_DIR=$(pwd)
+# Trova la directory del repo (cerca in vari posti comuni)
+REPO_DIR=""
 
-# Trova la directory del repo
+# Controlla se siamo già nel repo
 if [ -d ".git" ]; then
     REPO_DIR=$(pwd)
-elif [ -d "nuzantara/.git" ]; then
-    REPO_DIR="$(pwd)/nuzantara"
-    cd "$REPO_DIR"
+# Cerca in Desktop/NUZANTARA RAILWAY
+elif [ -d "$HOME/Desktop/NUZANTARA RAILWAY/.git" ]; then
+    REPO_DIR="$HOME/Desktop/NUZANTARA RAILWAY"
+# Cerca in Desktop/nuzantara
+elif [ -d "$HOME/Desktop/nuzantara/.git" ]; then
+    REPO_DIR="$HOME/Desktop/nuzantara"
+# Cerca nella home
+elif [ -d "$HOME/nuzantara/.git" ]; then
+    REPO_DIR="$HOME/nuzantara"
+# Cerca in Documents
+elif [ -d "$HOME/Documents/nuzantara/.git" ]; then
+    REPO_DIR="$HOME/Documents/nuzantara"
 else
-    echo "❌ Repository non trovato. Assicurati di essere nella directory giusta."
+    echo "❌ Repository nuzantara non trovato."
+    echo "   Cercato in:"
+    echo "   - ~/Desktop/NUZANTARA RAILWAY"
+    echo "   - ~/Desktop/nuzantara"
+    echo "   - ~/nuzantara"
+    echo "   - ~/Documents/nuzantara"
+    echo ""
+    echo "💡 Vai nella directory del repository ed esegui lo script da lì"
     exit 1
 fi
 
+cd "$REPO_DIR"
 echo "📁 Repository trovato: $REPO_DIR"
 echo ""
 
