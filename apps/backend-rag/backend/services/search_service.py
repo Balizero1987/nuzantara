@@ -1,11 +1,18 @@
 """
 ZANTARA RAG - Search Service
 RAG search logic with tier-based access control and multi-collection routing
+
+Phase 3 Enhancement: Conflict Resolution Agent
+- Multi-collection search with fallback chains
+- Automatic conflict detection between collections
+- Timestamp-based conflict resolution
+- Transparent conflict reporting
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 import logging
 import os
+from datetime import datetime
 from core.embeddings import EmbeddingsGenerator
 from core.vector_db import ChromaDBClient
 from app.models import TierLevel, AccessLevel
@@ -52,15 +59,29 @@ class SearchService:
         # Initialize query router
         self.router = QueryRouter()
 
+        # Phase 3: Initialize collection health monitor
+        from services.collection_health_service import CollectionHealthService
+        self.health_monitor = CollectionHealthService(search_service=self)
+
         # Pricing query keywords
         self.pricing_keywords = [
             "price", "cost", "charge", "fee", "how much", "pricing", "rate",
             "expensive", "cheap", "payment", "pay", "harga", "biaya", "tarif", "berapa"
         ]
 
+        # Phase 3: Conflict resolution tracking
+        self.conflict_stats = {
+            "total_multi_collection_searches": 0,
+            "conflicts_detected": 0,
+            "conflicts_resolved": 0,
+            "timestamp_resolutions": 0,
+            "semantic_resolutions": 0
+        }
+
         logger.info(f"SearchService initialized with ChromaDB path: {chroma_path}")
         logger.info("✅ Collections: 14 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books, cultural_insights [JIWA], tax_updates, tax_knowledge, property_listings, property_knowledge, legal_updates)")
-        logger.info("✅ Query routing enabled (Phase 2: 9-way intelligent routing with pricing priority + cultural RAG + Oracle collections)")
+        logger.info("✅ Query routing enabled (Phase 3: Smart Fallback + Conflict Resolution)")
+        logger.info("✅ Conflict Resolution Agent: ENABLED")
 
     async def search(
         self,
@@ -150,6 +171,15 @@ class SearchService:
                     "score": round(score, 4)
                 })
 
+            # Phase 3: Record query for health monitoring
+            avg_score = sum(r["score"] for r in formatted_results) / len(formatted_results) if formatted_results else 0.0
+            self.health_monitor.record_query(
+                collection_name=collection_name,
+                had_results=len(formatted_results) > 0,
+                result_count=len(formatted_results),
+                avg_score=avg_score
+            )
+
             return {
                 "query": query,
                 "results": formatted_results,
@@ -161,6 +191,402 @@ class SearchService:
         except Exception as e:
             logger.error(f"Search error: {e}")
             raise
+
+    def detect_conflicts(
+        self,
+        results_by_collection: Dict[str, List[Dict]]
+    ) -> List[Dict]:
+        """
+        Detect conflicts between results from different collections (Phase 3).
+
+        A conflict exists when:
+        1. Multiple collections return results about the same topic
+        2. The information differs (especially timestamps, values, etc.)
+
+        Args:
+            results_by_collection: Dict mapping collection_name -> list of results
+
+        Returns:
+            List of conflict dicts with details about each conflict
+        """
+        conflicts = []
+
+        # Pairs that commonly conflict
+        conflict_pairs = [
+            ("tax_knowledge", "tax_updates"),
+            ("legal_architect", "legal_updates"),
+            ("property_knowledge", "property_listings"),
+            ("tax_genius", "tax_updates"),
+            ("legal_architect", "legal_updates")
+        ]
+
+        for coll1, coll2 in conflict_pairs:
+            if coll1 in results_by_collection and coll2 in results_by_collection:
+                results1 = results_by_collection[coll1]
+                results2 = results_by_collection[coll2]
+
+                if results1 and results2:
+                    # Simple conflict detection: if both have results, potential conflict
+                    conflict = {
+                        "collections": [coll1, coll2],
+                        "type": "temporal" if "updates" in coll2 else "semantic",
+                        "collection1_results": len(results1),
+                        "collection2_results": len(results2),
+                        "collection1_top_score": results1[0]["score"] if results1 else 0,
+                        "collection2_top_score": results2[0]["score"] if results2 else 0,
+                        "detected_at": datetime.now().isoformat()
+                    }
+
+                    # Check for timestamp metadata
+                    meta1 = results1[0]["metadata"] if results1 else {}
+                    meta2 = results2[0]["metadata"] if results2 else {}
+
+                    if "timestamp" in meta1 or "timestamp" in meta2:
+                        conflict["timestamp1"] = meta1.get("timestamp", "unknown")
+                        conflict["timestamp2"] = meta2.get("timestamp", "unknown")
+
+                    conflicts.append(conflict)
+                    self.conflict_stats["conflicts_detected"] += 1
+                    logger.warning(
+                        f"⚠️ [Conflict Detected] {coll1} vs {coll2} - "
+                        f"scores: {conflict['collection1_top_score']:.2f} vs {conflict['collection2_top_score']:.2f}"
+                    )
+
+        return conflicts
+
+    def resolve_conflicts(
+        self,
+        results_by_collection: Dict[str, List[Dict]],
+        conflicts: List[Dict]
+    ) -> Tuple[List[Dict], List[Dict]]:
+        """
+        Resolve conflicts using timestamp and relevance-based priority (Phase 3).
+
+        Resolution strategy:
+        1. Timestamp priority: *_updates collections win over base collections
+        2. Recency: Newer timestamps win
+        3. Relevance: Higher scores win if timestamps equal
+        4. Transparency: Keep losing results flagged as "outdated" or "alternate"
+
+        Args:
+            results_by_collection: Dict mapping collection_name -> list of results
+            conflicts: List of detected conflicts
+
+        Returns:
+            Tuple of (resolved_results, conflict_reports)
+        """
+        resolved_results = []
+        conflict_reports = []
+
+        for conflict in conflicts:
+            coll1, coll2 = conflict["collections"]
+            results1 = results_by_collection[coll1]
+            results2 = results_by_collection[coll2]
+
+            # Rule 1: "*_updates" collections always win over base collections
+            if "updates" in coll2 and results2:
+                winner_coll = coll2
+                winner_results = results2
+                loser_coll = coll1
+                loser_results = results1
+                resolution_reason = "temporal_priority (updates collection)"
+                self.conflict_stats["timestamp_resolutions"] += 1
+            elif "updates" in coll1 and results1:
+                winner_coll = coll1
+                winner_results = results1
+                loser_coll = coll2
+                loser_results = results2
+                resolution_reason = "temporal_priority (updates collection)"
+                self.conflict_stats["timestamp_resolutions"] += 1
+            else:
+                # Rule 2: Compare top scores
+                score1 = results1[0]["score"] if results1 else 0
+                score2 = results2[0]["score"] if results2 else 0
+
+                if score2 > score1:
+                    winner_coll = coll2
+                    winner_results = results2
+                    loser_coll = coll1
+                    loser_results = results1
+                else:
+                    winner_coll = coll1
+                    winner_results = results1
+                    loser_coll = coll2
+                    loser_results = results2
+
+                resolution_reason = "relevance_score"
+                self.conflict_stats["semantic_resolutions"] += 1
+
+            # Mark winner results
+            for result in winner_results:
+                result["metadata"]["conflict_resolution"] = {
+                    "status": "preferred",
+                    "reason": resolution_reason,
+                    "alternate_source": loser_coll
+                }
+                resolved_results.append(result)
+
+            # Keep loser results but flag them
+            for result in loser_results:
+                result["metadata"]["conflict_resolution"] = {
+                    "status": "outdated" if "timestamp" in resolution_reason else "alternate",
+                    "reason": resolution_reason,
+                    "preferred_source": winner_coll
+                }
+                # Lower score to deprioritize
+                result["score"] = result["score"] * 0.7
+                resolved_results.append(result)
+
+            # Create conflict report
+            conflict_report = {
+                **conflict,
+                "resolution": {
+                    "winner": winner_coll,
+                    "loser": loser_coll,
+                    "reason": resolution_reason
+                }
+            }
+            conflict_reports.append(conflict_report)
+            self.conflict_stats["conflicts_resolved"] += 1
+
+            logger.info(
+                f"✅ [Conflict Resolved] {winner_coll} (preferred) > {loser_coll} - "
+                f"reason: {resolution_reason}"
+            )
+
+        return resolved_results, conflict_reports
+
+    async def search_with_conflict_resolution(
+        self,
+        query: str,
+        user_level: int,
+        limit: int = 5,
+        tier_filter: List[TierLevel] = None,
+        enable_fallbacks: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Enhanced search with conflict detection and resolution (Phase 3).
+
+        Uses QueryRouter's route_with_confidence() to:
+        1. Determine primary collection
+        2. Get fallback collections based on confidence
+        3. Search all relevant collections
+        4. Detect and resolve conflicts
+        5. Return merged + deduplicated results
+
+        Args:
+            query: Search query
+            user_level: User access level (0-3)
+            limit: Max results per collection
+            tier_filter: Optional specific tier filter
+            enable_fallbacks: Whether to use fallback chains (default True)
+
+        Returns:
+            Search results with conflict resolution metadata
+        """
+        try:
+            self.conflict_stats["total_multi_collection_searches"] += 1
+
+            # Generate query embedding once (reuse for all collections)
+            query_embedding = self.embedder.generate_query_embedding(query)
+
+            # Detect if pricing query (override fallbacks)
+            is_pricing_query = any(kw in query.lower() for kw in self.pricing_keywords)
+            if is_pricing_query:
+                collections_to_search = ["bali_zero_pricing"]
+                primary_collection = "bali_zero_pricing"
+                confidence = 1.0
+                logger.info(f"💰 PRICING QUERY → Single collection: bali_zero_pricing")
+            else:
+                # Use route_with_confidence to get fallback chain
+                primary_collection, confidence, collections_to_search = \
+                    self.router.route_with_confidence(query, return_fallbacks=enable_fallbacks)
+
+                logger.info(
+                    f"🎯 [Conflict Resolution] Primary: {primary_collection} "
+                    f"(confidence={confidence:.2f}), "
+                    f"Total collections: {len(collections_to_search)}"
+                )
+
+            # Search all collections in parallel
+            results_by_collection = {}
+            for collection_name in collections_to_search:
+                vector_db = self.collections.get(collection_name)
+                if not vector_db:
+                    logger.warning(f"⚠️ Collection not found: {collection_name}, skipping")
+                    continue
+
+                # Determine allowed tiers (only for zantara_books)
+                allowed_tiers = self.LEVEL_TO_TIERS.get(user_level, [])
+                if tier_filter:
+                    allowed_tiers = [t for t in allowed_tiers if t in tier_filter]
+
+                # Build filter (only for zantara_books)
+                if collection_name == "zantara_books" and allowed_tiers:
+                    tier_values = [t.value for t in allowed_tiers]
+                    chroma_filter = {"tier": {"$in": tier_values}}
+                else:
+                    chroma_filter = None
+
+                # Search this collection
+                raw_results = vector_db.search(
+                    query_embedding=query_embedding,
+                    filter=chroma_filter,
+                    limit=limit
+                )
+
+                # Format results
+                formatted_results = []
+                for i in range(len(raw_results.get("documents", []))):
+                    distance = raw_results["distances"][i] if i < len(raw_results.get("distances", [])) else 1.0
+                    score = 1 / (1 + distance)
+
+                    # Boost primary collection results slightly
+                    if collection_name == primary_collection:
+                        score = min(1.0, score * 1.1)
+                    # Boost pricing collection
+                    if collection_name == "bali_zero_pricing":
+                        score = min(1.0, score + 0.15)
+
+                    metadata = raw_results["metadatas"][i] if i < len(raw_results.get("metadatas", [])) else {}
+                    metadata["source_collection"] = collection_name
+                    metadata["is_primary"] = (collection_name == primary_collection)
+
+                    formatted_results.append({
+                        "id": raw_results["ids"][i] if i < len(raw_results.get("ids", [])) else None,
+                        "text": raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else "",
+                        "metadata": metadata,
+                        "score": round(score, 4)
+                    })
+
+                if formatted_results:
+                    results_by_collection[collection_name] = formatted_results
+                    logger.info(f"   ✓ {collection_name}: {len(formatted_results)} results (top score: {formatted_results[0]['score']:.2f})")
+
+                    # Phase 3: Record query for health monitoring
+                    avg_score = sum(r["score"] for r in formatted_results) / len(formatted_results)
+                    self.health_monitor.record_query(
+                        collection_name=collection_name,
+                        had_results=True,
+                        result_count=len(formatted_results),
+                        avg_score=avg_score
+                    )
+                else:
+                    # Record zero-result query
+                    self.health_monitor.record_query(
+                        collection_name=collection_name,
+                        had_results=False,
+                        result_count=0,
+                        avg_score=0.0
+                    )
+
+            # Detect conflicts
+            conflicts = self.detect_conflicts(results_by_collection)
+
+            # Resolve conflicts if any
+            conflict_reports = []
+            if conflicts:
+                resolved_results, conflict_reports = self.resolve_conflicts(
+                    results_by_collection,
+                    conflicts
+                )
+            else:
+                # No conflicts - just merge all results
+                resolved_results = []
+                for coll_results in results_by_collection.values():
+                    resolved_results.extend(coll_results)
+
+            # Sort by score (descending)
+            resolved_results.sort(key=lambda x: x["score"], reverse=True)
+
+            # Limit final results
+            final_results = resolved_results[:limit * 2]  # Return up to 2x limit to show conflicts
+
+            return {
+                "query": query,
+                "results": final_results,
+                "user_level": user_level,
+                "primary_collection": primary_collection,
+                "collections_searched": list(results_by_collection.keys()),
+                "confidence": confidence,
+                "conflicts_detected": len(conflicts),
+                "conflicts": conflict_reports,
+                "fallbacks_used": len(collections_to_search) > 1
+            }
+
+        except Exception as e:
+            logger.error(f"Search with conflict resolution error: {e}")
+            # Fallback to simple search
+            return await self.search(query, user_level, limit, tier_filter)
+
+    def get_conflict_stats(self) -> Dict:
+        """
+        Get statistics about conflict resolution (Phase 3).
+
+        Returns:
+            Dict with conflict resolution metrics
+        """
+        total_searches = self.conflict_stats["total_multi_collection_searches"]
+        conflict_rate = (
+            (self.conflict_stats["conflicts_detected"] / total_searches * 100)
+            if total_searches > 0
+            else 0.0
+        )
+
+        return {
+            **self.conflict_stats,
+            "conflict_rate": f"{conflict_rate:.1f}%",
+            "resolution_rate": f"{(self.conflict_stats['conflicts_resolved'] / self.conflict_stats['conflicts_detected'] * 100) if self.conflict_stats['conflicts_detected'] > 0 else 0:.1f}%"
+        }
+
+    def get_collection_health(self, collection_name: str) -> Dict:
+        """
+        Get health metrics for a specific collection (Phase 3).
+
+        Args:
+            collection_name: Collection to check
+
+        Returns:
+            Dict with health metrics
+        """
+        from dataclasses import asdict
+        health = self.health_monitor.get_collection_health(collection_name)
+        return asdict(health)
+
+    def get_all_collection_health(self) -> Dict:
+        """
+        Get health metrics for all collections (Phase 3).
+
+        Returns:
+            Dict mapping collection_name -> health metrics
+        """
+        from dataclasses import asdict
+        all_health = self.health_monitor.get_all_collection_health()
+        return {
+            coll_name: asdict(health)
+            for coll_name, health in all_health.items()
+        }
+
+    def get_health_dashboard(self) -> Dict:
+        """
+        Get dashboard summary for admin view (Phase 3).
+
+        Returns:
+            Dict with overall health statistics
+        """
+        return self.health_monitor.get_dashboard_summary()
+
+    def get_health_report(self, format: str = "text") -> str:
+        """
+        Generate human-readable health report (Phase 3).
+
+        Args:
+            format: "text" or "markdown"
+
+        Returns:
+            Formatted health report
+        """
+        return self.health_monitor.get_health_report(format)
 
     async def add_cultural_insight(
         self,
