@@ -1,21 +1,27 @@
-# NOTE: This file is not used by Railway for monorepo configuration.
-# Each service must be configured separately in the Railway dashboard.
+# NUZANTARA-RAILWAY Configuration Guide
+# 
+# This file provides configuration guidance for the monorepo deployment.
+# The main railway.toml is in the root directory.
+
+# SERVICE CONFIGURATION:
+# 
+# 1. TypeScript Backend (ts-backend-production-568d)
+#    - Root Directory: apps/backend-ts
+#    - Config File: apps/backend-ts/railway.toml
+#    - URL: https://ts-backend-production-568d.up.railway.app
 #
-# TO FIX DEPLOYMENT FAILURES:
-# 1. Go to: https://railway.com/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
-# 2. Click on "backend-ts" service (TypeScript backend)
-# 3. Go to "Settings" tab
-# 4. Find "Root Directory" setting
-# 5. Set it to: apps/backend-ts
-# 6. Click "Save"
-# 7. Railway will auto-redeploy
+# 2. RAG Backend (scintillating-kindness-production-47e3)  
+#    - Root Directory: apps/backend-rag/backend
+#    - Config File: apps/backend-rag/backend/railway.toml
+#    - URL: https://scintillating-kindness-production-47e3.up.railway.app
 #
-# For RAG backend:
-# - Root Directory should be: apps/backend-rag/backend
-# - Should already be configured (it's working)
+# 3. Frontend Webapp
+#    - Static files served from apps/webapp/
+#    - No separate Railway service needed
 #
-# Build configuration is in:
-# - apps/backend-ts/railway.toml (TypeScript backend)
-# - apps/backend-rag/backend/railway.toml (RAG backend)
+# DEPLOYMENT STATUS:
+# ✅ Main railway.toml created in root
+# ✅ Backend-specific configs exist
+# ✅ Services should auto-deploy on git push
 
 

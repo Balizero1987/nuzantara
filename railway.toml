@@ -1,0 +1,34 @@
+# NUZANTARA-RAILWAY Main Configuration
+# This file defines the monorepo structure for Railway deployment
+
+[build]
+# Use nixpacks for automatic detection
+builder = "nixpacks"
+
+# Watch all relevant paths for changes
+watchPaths = [
+  "apps/backend-ts/**",
+  "apps/backend-rag/**", 
+  "apps/webapp/**",
+  "shared/**"
+]
+
+[deploy]
+# Default health check
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+# Resource allocation
+numReplicas = 1
+
+# Environment configuration
+[env]
+# Set default environment
+NODE_ENV = "production"
+PYTHON_ENV = "production"
+
+# Services configuration
+# Note: Each service (backend-ts, backend-rag) should have its own railway.toml
+# in their respective directories for service-specific configuration
