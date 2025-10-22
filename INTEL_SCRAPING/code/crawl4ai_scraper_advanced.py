@@ -781,10 +781,14 @@ class AdvancedScraper:
         url = site.get('url')
         if not url:
             return []
-        
+
         # P7: Track metrics
         site_name = site['name']
         self.site_metrics[site_name]['total_attempts'] += 1
+
+        # Track date filtering
+        skipped_old = 0
+        skipped_no_date = 0
         
         try:
             html = await self._crawl_page(url)
@@ -818,11 +822,63 @@ class AdvancedScraper:
                     if self.normalize_url(link) in self.seen_urls:
                         continue
                     
-                    # Extract date
-                    date_str = datetime.now().strftime("%Y-%m-%d")
+                    # 🔥 FIX: Extract date more robustly
+                    date_str = None
+                    article_date = None
+
+                    # Try 1: <time> element
                     date_elem = item.find('time')
                     if date_elem:
                         date_str = date_elem.get('datetime', date_elem.get_text(strip=True))
+
+                    # Try 2: Look for custom date selector
+                    if not date_str and custom_config and 'date' in custom_config:
+                        date_elem = item.select_one(custom_config['date'])
+                        if date_elem:
+                            date_str = date_elem.get('datetime', date_elem.get_text(strip=True))
+
+                    # Try 3: Common date patterns in text
+                    if not date_str:
+                        import re
+                        # Look for ISO dates (YYYY-MM-DD) or other patterns
+                        text = item.get_text()
+                        iso_match = re.search(r'\b(\d{4}-\d{2}-\d{2})\b', text)
+                        if iso_match:
+                            date_str = iso_match.group(1)
+
+                    # Parse and validate date
+                    if date_str:
+                        try:
+                            # Try parsing various formats
+                            for fmt in ['%Y-%m-%d', '%Y/%m/%d', '%d-%m-%Y', '%d/%m/%Y', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%SZ']:
+                                try:
+                                    article_date = datetime.strptime(date_str.strip()[:19], fmt)
+                                    break
+                                except:
+                                    continue
+
+                            if not article_date:
+                                # Try parsing just the date part if it has time
+                                date_part = date_str.split('T')[0].split(' ')[0]
+                                article_date = datetime.strptime(date_part, '%Y-%m-%d')
+
+                        except Exception as e:
+                            logger.debug(f"Failed to parse date '{date_str}': {e}")
+                            article_date = None
+
+                    # 🔥 FIX: Apply MAX_CONTENT_AGE_DAYS filter
+                    if article_date:
+                        age_days = (datetime.now() - article_date).days
+                        if age_days > MAX_CONTENT_AGE_DAYS:
+                            logger.debug(f"Skipping old article ({age_days} days old): {title[:50]}")
+                            skipped_old += 1
+                            continue
+                        date_str = article_date.strftime("%Y-%m-%d")
+                    else:
+                        # ⚠️  If no valid date found, SKIP the article (don't assume it's recent!)
+                        logger.debug(f"No valid date found, skipping: {title[:50]}")
+                        skipped_no_date += 1
+                        continue
                     
                     # P1: Fetch full article content
                     full_content, word_count = await self.fetch_full_article(link, custom_config)
@@ -884,9 +940,12 @@ class AdvancedScraper:
                 self.site_metrics[site_name]['successes'] += 1
                 self.site_metrics[site_name]['articles_found'] += len(articles)
                 self.site_metrics[site_name]['last_success'] = datetime.now().isoformat()
-                logger.info(f"    ✅ {site['name']}: {len(articles)} articles (Full content: {sum(1 for a in articles if a['word_count'] > 500)})")
+                filter_msg = f" [Filtered: {skipped_old} old, {skipped_no_date} no-date]" if (skipped_old + skipped_no_date) > 0 else ""
+                logger.info(f"    ✅ {site['name']}: {len(articles)} articles (Full content: {sum(1 for a in articles if a['word_count'] > 500)}){filter_msg}")
             else:
                 self.site_metrics[site_name]['failures'] += 1
+                if skipped_old + skipped_no_date > 0:
+                    logger.info(f"    ⚠️  {site['name']}: No recent articles (Filtered: {skipped_old} old, {skipped_no_date} no-date)")
             
             return articles
         

@@ -109,16 +109,65 @@ class RunpodLLAMAService:
             "editorial_note": "..."
         }
         """
-        logger.info(f"Sending {len(articles)} articles to LLAMA 3.1 8B for journal creation...")
+        logger.info(f"Received {len(articles)} articles for journal creation")
+
+        # 🔥 FIX: Pre-filter aggressively to avoid RunPod timeout
+        # 1. Filter by date (≤7 days old)
+        # 2. Filter by quality (≥1000 words, valid tier)
+        # 3. Reduce to TOP 100 articles maximum
+
+        cutoff_date = datetime.now() - timedelta(days=7)
+        quality_articles = []
+
+        for article in articles:
+            # Skip if too short
+            if not isinstance(article.word_count, int) or article.word_count < 1000:
+                continue
+
+            # Skip if too old
+            try:
+                if article.date and article.date != datetime.now().strftime('%Y%m%d'):
+                    # Parse date (could be YYYYMMDD or YYYY-MM-DD)
+                    if '-' in article.date:
+                        article_date = datetime.strptime(article.date, '%Y-%m-%d')
+                    else:
+                        article_date = datetime.strptime(article.date, '%Y%m%d')
+
+                    if article_date < cutoff_date:
+                        logger.debug(f"Skipping old article: {article.title[:50]} ({article.date})")
+                        continue
+            except Exception as e:
+                logger.debug(f"Date parsing failed for {article.title[:50]}: {e}")
+                # If date parsing fails, assume it's recent (keep it)
+                pass
+
+            quality_articles.append(article)
+
+        logger.info(f"✅ Pre-filtered to {len(quality_articles)} quality articles (≥1000 words, ≤7 days old)")
+
+        if len(quality_articles) == 0:
+            logger.warning("❌ No quality articles found after filtering, using fallback")
+            return self._get_fallback_journal(articles)
+
+        # 🔥 FIX: Limit to TOP 100 articles to avoid RunPod payload size issues
+        # Sort by: Tier (T1 > T2 > T3), then word_count (longer = better)
+        tier_priority = {'T1': 3, 'T2': 2, 'T3': 1}
+        quality_articles.sort(
+            key=lambda a: (tier_priority.get(a.tier, 0), a.word_count if isinstance(a.word_count, int) else 0),
+            reverse=True
+        )
+
+        top_articles = quality_articles[:100]  # Maximum 100 articles
+        logger.info(f"📊 Sending TOP {len(top_articles)} articles to RunPod LLAMA")
 
         # Prepare articles data for LLAMA
         articles_data = []
-        for article in articles:
+        for article in top_articles:
             articles_data.append({
                 "title": article.title,
                 "category": article.category,
                 "source": article.source,
-                "content": article.content[:1000],  # First 1000 chars
+                "content": article.content[:800],  # Reduced from 1000 to 800 chars
                 "word_count": article.word_count,
                 "tier": article.tier,
                 "impact": article.impact_level,
@@ -127,7 +176,7 @@ class RunpodLLAMAService:
 
         prompt = f"""You are the Chief Editor of BALI ZERO JOURNAL, a daily magazine for business professionals in Indonesia.
 
-Today you have {len(articles)} articles to curate into a beautiful daily magazine.
+Today you have {len(top_articles)} carefully pre-selected TOP QUALITY articles to curate into a beautiful daily magazine.
 
 YOUR TASK:
 1. Select the 3-5 MOST IMPORTANT stories for the COVER (front page)
@@ -210,25 +259,44 @@ Respond ONLY with valid JSON. Be professional, concise, and focus on business re
 
             logger.info(f"LLAMA job submitted: {job_id}")
 
-            # Poll for results (max 5 minutes)
-            max_attempts = 60
+            # 🔥 FIX: Increased timeout for fine-tuned model (8 minutes instead of 5)
+            # Fine-tuned models may take longer to process on RunPod
+            max_attempts = 96  # 8 minutes at 5 seconds per check
             attempt = 0
 
             while attempt < max_attempts:
                 time.sleep(5)
                 attempt += 1
 
-                status_response = requests.get(
-                    f"{self.endpoint}/status/{job_id}",
-                    headers=self.headers,
-                    timeout=10
-                )
-                status_response.raise_for_status()
+                try:
+                    status_response = requests.get(
+                        f"{self.endpoint}/status/{job_id}",
+                        headers=self.headers,
+                        timeout=15  # Increased from 10 to 15 seconds
+                    )
+                    status_response.raise_for_status()
 
-                status_data = status_response.json()
-                status = status_data.get("status")
+                    status_data = status_response.json()
+                    status = status_data.get("status")
 
-                logger.info(f"Job status ({attempt}/{max_attempts}): {status}")
+                    logger.info(f"Job status ({attempt}/{max_attempts}): {status}")
+                except requests.exceptions.HTTPError as e:
+                    if e.response.status_code == 404:
+                        logger.error(f"Job {job_id} not found (404) - may have been cancelled by RunPod")
+                        logger.info("This usually means the job exceeded RunPod's internal limits")
+                        return self._get_ollama_fallback(top_articles)
+                    else:
+                        logger.warning(f"HTTP error checking job status: {e}")
+                        if attempt < max_attempts:
+                            continue
+                        else:
+                            return self._get_ollama_fallback(top_articles)
+                except Exception as e:
+                    logger.warning(f"Error checking job status: {e}")
+                    if attempt < max_attempts:
+                        continue
+                    else:
+                        return self._get_ollama_fallback(top_articles)
 
                 if status == "COMPLETED":
                     output = status_data.get("output", {})
@@ -257,12 +325,12 @@ Respond ONLY with valid JSON. Be professional, concise, and focus on business re
                     return self._get_fallback_journal(articles)
 
             logger.warning("LLAMA job timeout - using fallback")
-            return self._get_fallback_journal(articles)
+            return self._get_ollama_fallback(top_articles)
 
         except Exception as e:
             logger.error(f"Error communicating with Runpod LLAMA: {e}")
             logger.info("Trying Ollama LLAMA 3.2 as fallback...")
-            return self._get_ollama_fallback(articles)
+            return self._get_ollama_fallback(top_articles)
 
     def _get_ollama_fallback(self, articles: List[ArticleMetadata]) -> Dict[str, Any]:
         """Use local Ollama LLAMA 3.2 as intelligent fallback"""
