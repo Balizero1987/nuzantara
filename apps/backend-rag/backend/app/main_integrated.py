@@ -142,9 +142,9 @@ async def health_check():
         "version": "2.0.0",
         "backend": "ChromaDB + Anthropic",
         "components": {
-            "chromadb": search_service is not None,
-            "anthropic": anthropic_client is not None,
-            "router": bali_zero_router is not None
+            "chromadb": deps.search_service is not None,
+            "anthropic": deps.anthropic_client is not None,
+            "router": deps.bali_zero_router is not None
         }
     }
 
@@ -158,12 +158,12 @@ async def search_endpoint(request: SearchRequest):
     - use_llm=false: Search only (return sources)
     """
 
-    if not search_service:
+    if not deps.search_service:
         raise HTTPException(status_code=503, detail="ChromaDB search service not available")
 
     try:
         # Perform ChromaDB search
-        results = await search_service.search(
+        results = await deps.search_service.search(
             query=request.query,
             user_level=request.user_level,
             limit=request.k
@@ -191,7 +191,7 @@ async def search_endpoint(request: SearchRequest):
             )
 
         # RAG mode - use Anthropic to generate answer from sources
-        if not anthropic_client:
+        if not deps.anthropic_client:
             raise HTTPException(status_code=503, detail="Anthropic client not available")
 
         # Build context from top sources
@@ -218,13 +218,13 @@ Provide a clear, concise answer based on the context above."""
         ]
 
         # Use router to decide Haiku vs Sonnet
-        model = bali_zero_router.route(
+        model = deps.bali_zero_router.route(
             query=request.query,
             conversation_history=request.conversation_history,
             user_role="member"
-        ) if bali_zero_router else "haiku"
+        ) if deps.bali_zero_router else "haiku"
 
-        response = await anthropic_client.chat_async(
+        response = await deps.anthropic_client.chat_async(
             messages=messages,
             model=model,
             max_tokens=1000
@@ -261,7 +261,7 @@ async def bali_zero_chat(request: BaliZeroRequest):
     Specialized for immigration/visa queries
     """
 
-    if not anthropic_client or not bali_zero_router:
+    if not deps.anthropic_client or not deps.bali_zero_router:
         raise HTTPException(
             status_code=503,
             detail="Bali Zero not available. Set ANTHROPIC_API_KEY environment variable."
@@ -269,7 +269,7 @@ async def bali_zero_chat(request: BaliZeroRequest):
 
     try:
         # Router decides model based on complexity
-        model = bali_zero_router.route(
+        model = deps.bali_zero_router.route(
             query=request.query,
             conversation_history=request.conversation_history,
             user_role=request.user_role
@@ -280,7 +280,7 @@ async def bali_zero_chat(request: BaliZeroRequest):
         messages.append({"role": "user", "content": request.query})
 
         # Generate response
-        result = await anthropic_client.chat_async(
+        result = await deps.anthropic_client.chat_async(
             messages=messages,
             model=model,
             max_tokens=1500
