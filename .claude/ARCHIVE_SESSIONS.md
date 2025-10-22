@@ -852,3 +852,39 @@ https://scintillating-kindness-production-47e3.up.railway.app/health
 
 
  main
+
+---
+
+## Session: Oracle Knowledge Bases Implementation
+- Date: 2025-10-22 19:00-22:40 UTC
+- Model: claude-sonnet-4.5
+- Task: Create TAX/PROPERTY/LEGAL knowledge bases, migrate to ChromaDB, deploy to Railway
+
+### Completed ✅
+1. Created 4 knowledge base JSON files (33 documents total)
+2. Migrated all to ChromaDB with embeddings locally
+3. Created MLEB documentation (+28% accuracy with Kanon 2)
+4. Fixed Oracle universal endpoint bug (embedding generation)
+5. Fixed Railway config (removed 3 conflicting railway.toml files)
+6. Registered oracle_universal router in main_cloud.py
+7. Implemented auto-populate logic in query endpoint
+8. 11 commits pushed to main branch
+
+### Blocked 🔴
+- Railway deploying cached/old code (version mismatch: 1.0.0/2.0.0 vs 3.2.0-crm)
+- New endpoints return 404 (not deployed)
+- Oracle collections empty on production (0 documents)
+
+### Action Required
+- Verify Railway Root Directory: `apps/backend-rag/backend`
+- Trigger manual redeploy on Railway Dashboard
+- Call populate endpoint after successful deployment
+
+### Files Modified
+- Knowledge bases: `projects/oracle-system/agents/knowledge-bases/*.json`
+- Oracle router: `apps/backend-rag/backend/app/routers/oracle_universal.py`
+- Main app: `apps/backend-rag/backend/app/main_cloud.py`
+- Railway config: `apps/backend-rag/backend/railway.toml`
+
+---
+
