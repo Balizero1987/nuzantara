@@ -1,8 +1,9 @@
 {
   "status": "commited",
-  "type": "frontend",
+  "type": "backend",
   "scope": "codebase",
   "localEndpoint": "http://localhost:3000",
-  "loginUser": "zero@balizero.coom",
-  "loginPassword": "Balizero2020!"
+  "backendAuthType": "API key",
+  "backendApiKey": "TESTSPRITE_API_KEY",
+  "backendApiValue": "sk-user--jijPFtSAYlC-TpplsyM27w3-RSE94diiSnKrGALqujwTEb_OOcCTMcXVlw3bq059WgcL3fkaxLVT2ABb57F46-m1JFe_56lJ7HcONKx93nYMKC-widr6Yrm5tCYCY2c"
 }
