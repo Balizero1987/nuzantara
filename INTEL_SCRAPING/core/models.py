@@ -133,7 +133,7 @@ class Article(BaseModel):
             return len(values['content'].split())
         return v
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def generate_content_hash(cls, values):
         """Auto-generate content hash for deduplication"""
         if not values.get('content_hash') and values.get('content'):
