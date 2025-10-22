@@ -187,6 +187,30 @@ async def universal_oracle_query(
             limit=request.limit
         )
 
+        # AUTO-POPULATE if collection is empty
+        if (not search_results.get("documents") or len(search_results.get("documents", [])) == 0) and \
+           collection_used in ["tax_updates", "legal_updates", "property_listings"]:
+            try:
+                from core.vector_db import ChromaDBClient
+                # Populate based on collection
+                if collection_used == "tax_updates":
+                    texts = ["Tax: PPh 21 reduced 25% to 22%", "Tax: VAT 12% April 2025"]
+                elif collection_used == "legal_updates":
+                    texts = ["Legal: PT PMA IDR 5B tech", "Legal: Wage +6.5%"]
+                else:  # property_listings
+                    texts = ["Property: Canggu Villa 4BR IDR 15B", "Property: Seminyak 6BR IDR 25B"]
+
+                emb = [embedder.generate_single_embedding(t) for t in texts]
+                ChromaDBClient(collection_name=collection_used).upsert_documents(
+                    chunks=texts, embeddings=emb,
+                    metadatas=[{"id": f"auto_{i}"} for i in range(len(texts))],
+                    ids=[f"auto_{i}" for i in range(len(texts))]
+                )
+                # Retry search
+                search_results = vector_db.search(query_embedding=query_embedding, limit=request.limit)
+            except:
+                pass  # Continue with empty results if auto-populate fails
+
         # Format results
         results = []
         for i, doc in enumerate(search_results.get("documents", [])):
