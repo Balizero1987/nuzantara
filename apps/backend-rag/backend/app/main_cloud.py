@@ -1773,8 +1773,9 @@ app.include_router(crm_shared_memory.router)
 app.include_router(admin_migration.router)
 
 # Include Oracle routers (Universal Query System - Phase 3)
-from app.routers import oracle_universal
+from app.routers import oracle_universal, admin_oracle_populate
 app.include_router(oracle_universal.router)
+app.include_router(admin_oracle_populate.router)  # TEMPORARY - one-time population
 
 # Include Llama 4 Scout router - DISABLED (module not in production)
 # from routers.llama4 import router as llama4_router
