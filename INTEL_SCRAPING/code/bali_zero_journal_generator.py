@@ -261,25 +261,170 @@ Respond ONLY with valid JSON. Be professional, concise, and focus on business re
 
         except Exception as e:
             logger.error(f"Error communicating with Runpod LLAMA: {e}")
-            return self._get_fallback_journal(articles)
+            logger.info("Trying Ollama LLAMA 3.2 as fallback...")
+            return self._get_ollama_fallback(articles)
 
-    def _get_fallback_journal(self, articles: List[ArticleMetadata]) -> Dict[str, Any]:
+    def _get_ollama_fallback(self, articles: List[ArticleMetadata]) -> Dict[str, Any]:
+        """Use local Ollama LLAMA 3.2 as intelligent fallback"""
+        logger.info("🦙 Using Ollama LLAMA 3.2 (local) for journal curation...")
+
+        # Filter quality articles (minimum 150 words) - OUTSIDE try block
+        quality_articles = [a for a in articles if isinstance(a.word_count, int) and a.word_count >= 150]
+        logger.info(f"Filtered to {len(quality_articles)} quality articles (from {len(articles)} total)")
+
+        if len(quality_articles) == 0:
+            logger.warning("No quality articles found, using all articles")
+            quality_articles = articles
+
+        try:
+            import requests
+
+            # Sample articles for Ollama (limit to avoid token overflow)
+            # Take top 50 by word count
+            sampled = sorted(quality_articles, key=lambda a: a.word_count if isinstance(a.word_count, int) else 0, reverse=True)[:50]
+
+            # Prepare prompt
+            articles_data = []
+            for article in sampled:
+                articles_data.append({
+                    "title": article.title,
+                    "category": article.category,
+                    "source": article.source,
+                    "words": article.word_count,
+                    "preview": article.content[:300]
+                })
+
+            prompt = f"""You are the Chief Editor of BALI ZERO JOURNAL, a daily business magazine.
+
+You have {len(sampled)} quality articles to curate.
+
+YOUR TASK:
+1. Select the 5 MOST IMPORTANT stories for the COVER
+2. Organize articles into sections: Business, Immigration, Tax, Technology, Real Estate, Legal
+3. Write a brief editorial note (2-3 sentences)
+
+RESPOND ONLY WITH VALID JSON:
+{{
+  "cover_stories": [
+    {{"title": "...", "summary": "2 sentences", "category": "...", "importance": 9}}
+  ],
+  "editorial_note": "Today's highlights...",
+  "date": "{datetime.now().strftime('%Y-%m-%d')}"
+}}
+
+ARTICLES:
+{json.dumps(articles_data[:30], indent=1)}
+
+Respond ONLY with JSON."""
+
+            # Call Ollama
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": "llama3.2",
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.7,
+                        "num_predict": 2000
+                    }
+                },
+                timeout=60
+            )
+
+            if response.status_code == 200:
+                result = response.json()
+                response_text = result.get("response", "")
+
+                # Parse JSON
+                try:
+                    # Extract JSON if wrapped
+                    if "```json" in response_text:
+                        response_text = response_text.split("```json")[1].split("```")[0].strip()
+                    elif "```" in response_text:
+                        response_text = response_text.split("```")[1].split("```")[0].strip()
+
+                    ollama_data = json.loads(response_text)
+
+                    # Add missing sections from full article list
+                    ollama_data['sections'] = self._create_sections_from_articles(quality_articles)
+                    ollama_data['total_articles'] = len(quality_articles)
+
+                    logger.info("✅ Ollama LLAMA 3.2 created journal structure!")
+                    return ollama_data
+
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Ollama JSON parse failed: {e}")
+                    logger.warning(f"Raw response: {response_text[:200]}")
+
+        except Exception as e:
+            logger.warning(f"Ollama fallback failed: {e}")
+
+        # Final fallback: static structure
+        logger.info("Using static fallback structure")
+        return self._get_static_fallback(quality_articles)
+
+    def _create_sections_from_articles(self, articles: List[ArticleMetadata]) -> List[Dict]:
+        """Create sections from articles"""
+        by_category = {}
+        for article in articles:
+            if article.category not in by_category:
+                by_category[article.category] = []
+            by_category[article.category].append(article)
+
+        sections = []
+        for category, cat_articles in by_category.items():
+            # Sort by word count, take top 20 per category
+            top_articles = sorted(cat_articles, key=lambda a: a.word_count, reverse=True)[:20]
+
+            section_articles = []
+            for article in top_articles:
+                content_preview = article.content[:800] if len(article.content) > 800 else article.content
+                if len(article.content) > 800:
+                    last_period = content_preview.rfind('.')
+                    if last_period > 400:
+                        content_preview = content_preview[:last_period + 1]
+                    else:
+                        content_preview = content_preview + "..."
+
+                section_articles.append({
+                    "original_title": article.title,
+                    "polished_title": article.title,
+                    "summary": content_preview,
+                    "importance": min(10, article.word_count // 100),  # Score based on length
+                    "category": category,
+                    "word_count": article.word_count,
+                    "source": article.source
+                })
+
+            sections.append({
+                "section_title": category.replace("_", " ").title(),
+                "articles": section_articles
+            })
+
+        return sections
+
+    def _get_static_fallback(self, articles: List[ArticleMetadata]) -> Dict[str, Any]:
         """Fallback journal structure if LLAMA fails"""
         logger.info("Using fallback journal structure")
 
+        # Filter quality articles (minimum 150 words)
+        quality_articles = [a for a in articles if a.word_count >= 150]
+        logger.info(f"Filtered to {len(quality_articles)} quality articles (>= 150 words)")
+
         # Group by category
         by_category = {}
-        for article in articles:
+        for article in quality_articles:
             category = article.category
             if category not in by_category:
                 by_category[category] = []
             by_category[category].append(article)
 
-        # Pick top 3 articles for cover (by word count as proxy for importance)
-        sorted_articles = sorted(articles, key=lambda a: a.word_count, reverse=True)
+        # Pick top 5 articles for cover (by word count as proxy for importance)
+        sorted_articles = sorted(quality_articles, key=lambda a: a.word_count, reverse=True)
         cover_stories = []
 
-        for article in sorted_articles[:3]:
+        for article in sorted_articles[:5]:
             cover_stories.append({
                 "title": article.title,
                 "summary": f"{article.source} reports on {article.category}",
@@ -293,12 +438,25 @@ Respond ONLY with valid JSON. Be professional, concise, and focus on business re
         for category, cat_articles in by_category.items():
             section_articles = []
             for article in cat_articles:
+                # Use more content - up to 800 chars or full content
+                content_preview = article.content[:800] if len(article.content) > 800 else article.content
+                # Clean up if truncated
+                if len(article.content) > 800:
+                    # Try to end at a sentence
+                    last_period = content_preview.rfind('.')
+                    if last_period > 400:  # At least 400 chars
+                        content_preview = content_preview[:last_period + 1]
+                    else:
+                        content_preview = content_preview + "..."
+
                 section_articles.append({
                     "original_title": article.title,
                     "polished_title": article.title,
-                    "summary": article.content[:200] + "..." if len(article.content) > 200 else article.content,
+                    "summary": content_preview,
                     "importance": 7,
-                    "category": category
+                    "category": category,
+                    "word_count": article.word_count,
+                    "source": article.source
                 })
 
             sections.append({
@@ -375,13 +533,17 @@ class BaliZeroJournalGenerator:
                     # Parse markdown metadata
                     metadata = self._parse_article_metadata(content)
 
+                    # Parse word_count as int (might be string in metadata)
+                    word_count_raw = metadata.get("words", len(content.split()))
+                    word_count = int(word_count_raw) if isinstance(word_count_raw, (int, str)) and str(word_count_raw).isdigit() else len(content.split())
+
                     article = ArticleMetadata(
                         title=metadata.get("title", article_file.stem),
                         category=category_name,
                         source=metadata.get("source", "Unknown"),
                         url=metadata.get("url", ""),
                         date=metadata.get("date", date),
-                        word_count=metadata.get("words", len(content.split())),
+                        word_count=word_count,
                         tier=metadata.get("tier", "T3"),
                         impact_level=metadata.get("impact_level", "medium"),
                         content=metadata.get("content", content),
