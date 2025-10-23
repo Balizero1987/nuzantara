@@ -594,3 +594,45 @@ class ProactiveComplianceMonitor:
                 for severity in AlertSeverity
             }
         }
+
+    def generate_alerts(self) -> List[Dict]:
+        """Generate compliance alerts for all monitored items"""
+        try:
+            alerts = []
+            
+            # Get all compliance items
+            for item_id, item in self.compliance_items.items():
+                # Calculate days until deadline
+                days_until = (item.deadline - datetime.now()).days
+                
+                # Determine severity
+                if days_until < 0:
+                    severity = AlertSeverity.CRITICAL
+                elif days_until <= 7:
+                    severity = AlertSeverity.URGENT
+                elif days_until <= 30:
+                    severity = AlertSeverity.WARNING
+                else:
+                    severity = AlertSeverity.INFO
+                
+                # Create alert
+                alert = {
+                    "alert_id": f"alert_{item_id}",
+                    "client_id": item.client_id,
+                    "compliance_type": item.compliance_type.value,
+                    "title": item.title,
+                    "description": item.description,
+                    "deadline": item.deadline.isoformat(),
+                    "days_until": days_until,
+                    "severity": severity.value,
+                    "status": "active",
+                    "created_at": datetime.now().isoformat()
+                }
+                alerts.append(alert)
+            
+            logger.info(f"Generated {len(alerts)} compliance alerts")
+            return alerts
+            
+        except Exception as e:
+            logger.error(f"Error generating alerts: {e}")
+            return []
