@@ -7,7 +7,7 @@ const DEFAULT_EXTERNAL_API_KEY = 'zantara-external-dev-key-2025';
 const envSchema = z.object({
   PORT: z.string().default("8080"),
   NODE_ENV: z.string().default("production"),
-  OWNER_EMAIL: z.string().email().default("zero@balizero.com"),
+  OWNER_EMAIL: z.string().default("zero@balizero.com"),
   API_KEYS_INTERNAL: z.string().default(DEFAULT_INTERNAL_API_KEY), // comma-separated
   API_KEYS_EXTERNAL: z.string().default(DEFAULT_EXTERNAL_API_KEY), // comma-separated
   RAG_BACKEND_URL: z.string().default("https://scintillating-kindness-production-47e3.up.railway.app"),

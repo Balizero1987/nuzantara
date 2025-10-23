@@ -3,31 +3,31 @@
 const pillars = [
   {
     id: "1",
-    title: "Visa Journey",
-    description: "From Tourist to Resident: Your gateway to Indonesian community. KITAS, visas, and cultural integrationrud.",
-    icon: "/images/generated/icon-visa-gold.jpg",
-    bgImage: "/images/generated/journey-threshold.jpg",
+    title: "🛂 Visa Journey",
+    description: "From Tourist to Resident: Your gateway to Indonesian community. KITAS, visas, and cultural integration guidance.",
+    icon: "🛂",
+    image: "/images/generated/journey-visa-gateway.jpg",
   },
   {
     id: "2",
-    title: "Business Journey",
+    title: "🏢 Business Journey",
     description: "From Dream to Reality: PT PMA formation, Indonesian business culture, and building with JIWA foundation.",
-    icon: "/images/generated/icon-business-gold.jpg",
-    bgImage: "/images/generated/journey-foundation.jpg",
+    icon: "🏢",
+    image: "/images/generated/journey-business-foundation.jpg",
   },
   {
     id: "3",
-    title: "Home Journey",
+    title: "🏠 Home Journey",
     description: "From Visitor to Belonging: Finding your place in Bali, real estate wisdom, and community integration.",
-    icon: "/images/generated/icon-home-gold.jpg",
-    bgImage: "/images/generated/journey-belonging.jpg",
+    icon: "🏠",
+    image: "/images/generated/journey-home-belonging.jpg",
   },
   {
     id: "4",
-    title: "Cultural Wisdom",
+    title: "🕉️ Cultural Wisdom",
     description: "From Outsider to Insider: Indonesian philosophy, Balinese traditions, and understanding JIWA deeply.",
-    icon: "/images/generated/icon-culture-gold.jpg",
-    bgImage: "/images/generated/journey-wisdom.jpg",
+    icon: "🕉️",
+    image: "/images/generated/journey-culture-wisdom.jpg",
   },
 ];
 ---
@@ -46,37 +46,22 @@ const pillars = [
     <!-- Pillars Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {pillars.map((pillar) => (
-        <div class="group relative overflow-hidden rounded-lg border border-bz-gray/20 hover:border-bz-red transition-all duration-500 hover:shadow-2xl hover:shadow-bz-red/20 cursor-pointer h-96">
-          <!-- Background Image -->
-          <div class="absolute inset-0">
-            <img 
-              src={pillar.bgImage} 
-              alt={pillar.title}
-              class="w-full h-full object-cover opacity-30 group-hover:opacity-40 group-hover:scale-110 transition-all duration-500"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-bz-black via-bz-black/80 to-transparent"></div>
+        <div class="group p-6 bg-bz-black/30 rounded-lg border border-bz-gray/20 hover:border-bz-red transition-all duration-300 hover:shadow-lg hover:shadow-bz-red/20 cursor-pointer">
+          <!-- Icon -->
+          <div class="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+            {pillar.icon}
           </div>
 
-          <!-- Content -->
-          <div class="relative h-full p-6 flex flex-col justify-between">
-            <!-- Icon -->
-            <div class="w-16 h-16 group-hover:scale-110 transition-transform duration-300">
-              <img src={pillar.icon} alt="" class="w-full h-full object-contain" />
-            </div>
+          <!-- Title -->
+          <h3 class="text-bz-cream font-display font-bold text-xl mb-3 group-hover:text-bz-red transition-colors">
+            {pillar.title}
+          </h3>
 
-            <div>
-              <!-- Title -->
-              <h3 class="text-bz-cream font-display font-bold text-xl mb-3 group-hover:text-bz-red transition-colors">
-                {pillar.title}
-              </h3>
+          <!-- Description -->
+          <p class="text-bz-white/70 font-body text-sm leading-relaxed">{pillar.description}</p>
 
-              <!-- Description -->
-              <p class="text-bz-white/70 font-body text-sm leading-relaxed">{pillar.description}</p>
-
-              <!-- Bottom accent line -->
-              <div class="mt-4 h-1 w-0 bg-bz-red group-hover:w-full transition-all duration-500"></div>
-            </div>
-          </div>
+          <!-- Bottom accent line -->
+          <div class="mt-4 h-1 w-0 bg-bz-red group-hover:w-full transition-all duration-300"></div>
         </div>
       ))}
     </div>
