@@ -42,13 +42,55 @@ MIN_WORD_COUNT = 100
 TIER_WEIGHTS = {"t1": 1.0, "t2": 0.7, "t3": 0.4}
 
 
+class OllamaClient:
+    """Ollama Local client for intel processing (Llama 3.1 8B, Mistral 7B, Mixtral 8x7B)"""
+
+    def __init__(self, model: str = "llama3.1:8b", base_url: str = "http://localhost:11434"):
+        self.model = model
+        self.base_url = base_url
+        self.timeout = aiohttp.ClientTimeout(total=120)  # Longer timeout for local
+        logger.info(f"Initialized Ollama client: {model} @ {base_url}")
+
+    async def generate(self, prompt: str, max_tokens: int = 2000) -> Optional[str]:
+        """Generate text using Ollama local model"""
+
+        payload = {
+            "model": self.model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "num_predict": max_tokens,
+                "temperature": 0.7,
+                "top_p": 0.9,
+            }
+        }
+
+        try:
+            async with aiohttp.ClientSession(timeout=self.timeout) as session:
+                async with session.post(f"{self.base_url}/api/generate", json=payload) as resp:
+                    if resp.status != 200:
+                        logger.error(f"Ollama error: {resp.status}")
+                        return None
+
+                    data = await resp.json()
+                    return data.get("response")
+
+        except asyncio.TimeoutError:
+            logger.error(f"Ollama timeout for model {self.model}")
+            return None
+        except Exception as e:
+            logger.error(f"Ollama error: {e}")
+            return None
+
+
 class ZantaraLlamaClient:
-    """ZANTARA Llama 3.1 client for intel processing"""
+    """ZANTARA Llama 3.1 client for intel processing (RunPod vLLM)"""
 
     def __init__(self):
         self.endpoint = RUNPOD_LLAMA_ENDPOINT
         self.api_key = RUNPOD_API_KEY
         self.timeout = aiohttp.ClientTimeout(total=60)
+        logger.info(f"Initialized ZANTARA Llama client @ RunPod")
 
     async def generate(self, prompt: str, max_tokens: int = 2000) -> Optional[str]:
         """Generate text using ZANTARA Llama"""
@@ -177,7 +219,14 @@ class Stage2AProcessor:
     """Stage 2A: RAG Processing (Raw → ChromaDB JSON)"""
 
     def __init__(self, chroma_path: str = "./data/chroma_intel"):
-        self.llama = ZantaraLlamaClient()
+        # Auto-detect AI backend
+        if AI_BACKEND == "ollama":
+            self.llama = OllamaClient(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL)
+            logger.info(f"Stage 2A using Ollama: {OLLAMA_MODEL}")
+        else:
+            self.llama = ZantaraLlamaClient()
+            logger.info("Stage 2A using ZANTARA Llama (RunPod)")
+
         self.chroma_client = chromadb.PersistentClient(path=chroma_path)
         self.quality_filter = QualityFilter()
 
@@ -312,7 +361,13 @@ class Stage2BProcessor:
     """Stage 2B: Content Creation (Raw → Markdown articles)"""
 
     def __init__(self):
-        self.llama = ZantaraLlamaClient()
+        # Auto-detect AI backend
+        if AI_BACKEND == "ollama":
+            self.llama = OllamaClient(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL)
+            logger.info(f"Stage 2B using Ollama: {OLLAMA_MODEL}")
+        else:
+            self.llama = ZantaraLlamaClient()
+            logger.info("Stage 2B using ZANTARA Llama (RunPod)")
 
     async def create_article(self, raw_file: Path, category: str) -> Optional[str]:
         """Create markdown article from raw content"""
@@ -358,15 +413,93 @@ Write in Italian language."""
         return article
 
 
-async def run_stage2_parallel(raw_files: List[Path]) -> Dict[str, Any]:
-    """Run Stage 2A and 2B in parallel for all raw files"""
+class Stage2CProcessor:
+    """Stage 2C: Bali Zero Journal (Raw → SEO-optimized blog posts)"""
 
-    logger.info(f"Starting Stage 2 parallel processing for {len(raw_files)} files")
+    def __init__(self):
+        # Auto-detect AI backend
+        if AI_BACKEND == "ollama":
+            self.llama = OllamaClient(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL)
+            logger.info(f"Stage 2C (Bali Zero Journal) using Ollama: {OLLAMA_MODEL}")
+        else:
+            self.llama = ZantaraLlamaClient()
+            logger.info("Stage 2C (Bali Zero Journal) using ZANTARA Llama (RunPod)")
+
+    async def create_journal_post(self, raw_file: Path, category: str) -> Optional[str]:
+        """Create SEO-optimized blog post for Bali Zero Journal"""
+
+        logger.info(f"Processing Bali Zero Journal: {raw_file.name} (category: {category})")
+
+        # Read raw content
+        try:
+            with open(raw_file, 'r', encoding='utf-8') as f:
+                raw_content = f.read()
+        except Exception as e:
+            logger.error(f"Failed to read {raw_file}: {e}")
+            return None
+
+        # Generate SEO-optimized blog post
+        prompt = f"""You are a professional content writer for Bali Zero Journal, a premium publication for expats and digital nomads in Indonesia.
+
+Create an SEO-optimized, engaging blog post from this regulatory/business content.
+
+Category: {category}
+Source Content: {raw_content[:3000]}
+
+Write a comprehensive blog post in ITALIAN with:
+
+# [Catchy SEO-optimized title]
+
+**Pubblicato il**: [YYYY-MM-DD]
+**Categoria**: {category}
+**Tempo di lettura**: [X minuti]
+
+## TL;DR (Executive Summary)
+[2-3 frasi chiave - cosa devono sapere i lettori]
+
+## Introduzione
+[Paragrafo coinvolgente che spiega perché questo è importante per expats/digital nomads a Bali]
+
+## Cosa è cambiato
+[Sezione dettagliata con bullet points dei cambiamenti chiave]
+
+## Chi è interessato
+[Chi deve preoccuparsi di questi cambiamenti]
+
+## Azioni da intraprendere
+[Checklist chiara di cosa fare]
+
+## Conclusione
+[Riassunto + call to action]
+
+---
+**Fonte**: [citazione fonte originale]
+**Tag**: #{category} #Bali #Indonesia #DigitalNomad
+
+Use markdown formatting. Be engaging, informative, and SEO-optimized. Focus on practical value for readers.
+Write in Italian language."""
+
+        journal_post = await self.llama.generate(prompt, max_tokens=2500)
+
+        if not journal_post:
+            logger.error(f"Llama failed for Bali Zero Journal: {raw_file.name}")
+            return None
+
+        logger.info(f"✅ Bali Zero Journal post created: {raw_file.name}")
+
+        return journal_post
+
+
+async def run_stage2_parallel(raw_files: List[Path]) -> Dict[str, Any]:
+    """Run Stage 2A, 2B, and 2C in parallel for all raw files"""
+
+    logger.info(f"Starting Stage 2 parallel processing (2A + 2B + 2C) for {len(raw_files)} files")
 
     start_time = datetime.now()
 
     stage_2a = Stage2AProcessor()
     stage_2b = Stage2BProcessor()
+    stage_2c = Stage2CProcessor()
 
     # Organize files by category
     files_by_category = {}
@@ -391,28 +524,37 @@ async def run_stage2_parallel(raw_files: List[Path]) -> Dict[str, Any]:
         "stage_2b": {
             "created": 0,
             "failed": 0,
-            "emails_sent": 0,
+        },
+        "stage_2c": {
+            "created": 0,
+            "failed": 0,
         },
         "total_files": len(raw_files),
         "duration": 0,
     }
 
-    # Process all files in parallel (2A and 2B together)
+    # Process all files in parallel (2A, 2B, and 2C together!)
     tasks = []
 
     for category, files in files_by_category.items():
         for raw_file in files:
-            # Stage 2A task
+            # Stage 2A task (RAG Processing)
             task_2a = asyncio.create_task(
                 process_stage_2a(stage_2a, raw_file, category, results)
             )
             tasks.append(task_2a)
 
-            # Stage 2B task (in parallel!)
+            # Stage 2B task (Content Creation - in parallel!)
             task_2b = asyncio.create_task(
                 process_stage_2b(stage_2b, raw_file, category, results)
             )
             tasks.append(task_2b)
+
+            # Stage 2C task (Bali Zero Journal - in parallel!)
+            task_2c = asyncio.create_task(
+                process_stage_2c(stage_2c, raw_file, category, results)
+            )
+            tasks.append(task_2c)
 
     # Wait for all tasks to complete
     await asyncio.gather(*tasks, return_exceptions=True)
@@ -422,8 +564,9 @@ async def run_stage2_parallel(raw_files: List[Path]) -> Dict[str, Any]:
     results["duration"] = duration
 
     logger.info(f"✅ Stage 2 parallel complete: {duration:.1f}s")
-    logger.info(f"   RAG: {results['stage_2a']['processed']} processed, {results['stage_2a']['filtered']} filtered")
-    logger.info(f"   Content: {results['stage_2b']['created']} articles created")
+    logger.info(f"   2A RAG: {results['stage_2a']['processed']} processed, {results['stage_2a']['filtered']} filtered")
+    logger.info(f"   2B Content: {results['stage_2b']['created']} articles created")
+    logger.info(f"   2C Bali Zero Journal: {results['stage_2c']['created']} posts created")
 
     return results
 
@@ -479,6 +622,32 @@ async def process_stage_2b(processor: Stage2BProcessor, raw_file: Path, category
     except Exception as e:
         logger.error(f"Stage 2B error for {raw_file.name}: {e}")
         results["stage_2b"]["failed"] += 1
+
+
+async def process_stage_2c(processor: Stage2CProcessor, raw_file: Path, category: str, results: Dict):
+    """Process single file for Stage 2C (Bali Zero Journal)"""
+
+    try:
+        journal_post = await processor.create_journal_post(raw_file, category)
+
+        if journal_post:
+            # Save Bali Zero Journal post
+            journal_dir = Path("scripts/INTEL_SCRAPING/bali_zero_journal")
+            journal_dir.mkdir(parents=True, exist_ok=True)
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            journal_file = journal_dir / f"{timestamp}_{category}_{raw_file.stem}.md"
+
+            with open(journal_file, 'w', encoding='utf-8') as f:
+                f.write(journal_post)
+
+            results["stage_2c"]["created"] += 1
+        else:
+            results["stage_2c"]["failed"] += 1
+
+    except Exception as e:
+        logger.error(f"Stage 2C error for {raw_file.name}: {e}")
+        results["stage_2c"]["failed"] += 1
 
 
 if __name__ == "__main__":

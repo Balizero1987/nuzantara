@@ -22,7 +22,34 @@ This runs:
 
 Before running, ensure these are set:
 
+### Option A: Ollama Local (Mac M4 16GB - RECOMMENDED)
+
 ```bash
+# Install Ollama for Mac
+brew install ollama
+
+# Pull Llama 3.1 8B (optimized for Apple Silicon)
+ollama pull llama3.1:8b
+
+# Start Ollama server (run in separate terminal)
+ollama serve
+
+# Configure Intel Scraping
+export AI_BACKEND="ollama"
+export OLLAMA_MODEL="llama3.1:8b"
+export OLLAMA_BASE_URL="http://localhost:11434"
+export DATABASE_URL="postgresql://user:pass@host:5432/dbname"
+```
+
+**Performance on Mac M4 Air 16GB**:
+- Speed: 25-35 token/s
+- Memory: ~8GB (leaves 8GB for system)
+- Quality: ⭐⭐⭐⭐ Editorial quality
+
+### Option B: RunPod Cloud (ZANTARA Llama)
+
+```bash
+export AI_BACKEND="runpod"
 export RUNPOD_LLAMA_ENDPOINT="https://api.runpod.ai/v2/YOUR_ENDPOINT/runsync"
 export RUNPOD_API_KEY="YOUR_RUNPOD_API_KEY"
 export ANTHROPIC_API_KEY="YOUR_ANTHROPIC_KEY"  # For fallback
@@ -90,9 +117,10 @@ Process raw files with ZANTARA Llama:
 python3 scripts/stage2_parallel_processor.py scripts/INTEL_SCRAPING/visa_immigration/raw/
 ```
 
-**What it does**:
+**What it does** (ALL 3 STAGES RUN IN PARALLEL):
 - **Stage 2A** (RAG): Extract structured data → ChromaDB JSON
-- **Stage 2B** (Content): Generate markdown articles → Email-ready
+- **Stage 2B** (Content): Generate markdown articles for team
+- **Stage 2C** (Bali Zero Journal): SEO-optimized blog posts
 
 **Quality filters**:
 - Max 5 days old (news freshness)
@@ -103,8 +131,11 @@ python3 scripts/stage2_parallel_processor.py scripts/INTEL_SCRAPING/visa_immigra
 **Output**:
 - `scripts/INTEL_SCRAPING/{category}/rag/*.json`
 - `scripts/INTEL_SCRAPING/markdown_articles/*.md`
+- `scripts/INTEL_SCRAPING/bali_zero_journal/*.md`
 
-**AI Model**: ZANTARA Llama 3.1 via RunPod vLLM
+**AI Model**:
+- Ollama Local (Llama 3.1 8B - RECOMMENDED for Mac M4)
+- OR RunPod Cloud (ZANTARA Llama via vLLM)
 
 ---
 
@@ -228,6 +259,9 @@ scripts/INTEL_SCRAPING/
 ├── markdown_articles/
 │   └── 20251023_visa_immigration_article.md  # Stage 2B output
 │
+├── bali_zero_journal/
+│   └── 20251023_visa_immigration_journal.md  # Stage 2C output (SEO blog)
+│
 └── ... (20 categories)
 ```
 
@@ -269,6 +303,9 @@ find scripts/INTEL_SCRAPING/*/rag/ -name "*.json" | wc -l
 
 # Count articles
 ls scripts/INTEL_SCRAPING/markdown_articles/*.md | wc -l
+
+# Count Bali Zero Journal posts
+ls scripts/INTEL_SCRAPING/bali_zero_journal/*.md | wc -l
 ```
 
 ---
