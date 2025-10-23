@@ -119,7 +119,53 @@ Monitoring completo dello stato del sistema.
 
 ### 🔍 Code Quality & Documentation
 
-#### 6. **code-review**
+#### 6. **architecture-mapper**
+Aggiornamento automatico della documentazione architecture quando il codice cambia.
+
+**Quando viene usato**:
+- Aggiungi/rimuovi handlers, services, middleware, agents
+- Chiedi "update docs", "refresh architecture"
+- Dopo feature significative che cambiano architettura
+- Claude rileva automaticamente cambiamenti architetturali
+
+**Cosa fa**:
+- Rigenera dependency graph completo (madge)
+- Conta componenti reali (handlers, services, middleware)
+- Estrae API endpoints dal codice
+- Aggiorna **TUTTI** i documenti in `docs/architecture/`
+- Rigenera diagrammi Mermaid con nuove dipendenze
+- Valida accuratezza (file paths, counts, syntax)
+- Committa automaticamente le modifiche
+
+**File Aggiornati**:
+- `docs/architecture/01-overview.md` - Statistiche sistema
+- `docs/architecture/02-backend-ts-components.md` - Handler/service counts
+- `docs/architecture/03-oracle-system.md` - Se agents cambiano
+- `docs/architecture/04-data-flow.md` - Se nuovi flussi
+- `docs/architecture/README.md` - Indice e statistiche
+
+**Output**:
+- Report dettagliato dei cambiamenti
+- Component counts: prima → dopo
+- Lista nuovi componenti aggiunti
+- Diagrammi rigenerati
+- Validazione completa
+
+**Esempio**:
+```
+User: "Ho aggiunto payment-handler.ts"
+Claude: [architecture-mapper si attiva]
+        ✅ Handlers: 96 → 97 (+1)
+        ✅ Aggiunto payments/ module
+        ✅ Diagrammi aggiornati
+        ✅ Documentazione committata
+```
+
+**Zero Effort** - Documentazione sempre sincronizzata con codice! 🎯
+
+---
+
+#### 7. **code-review**
 Code review completo specifico per nuzantara.
 
 **Quando viene usato**: Dopo scrittura codice significativo, prima di merge PR.
@@ -140,7 +186,7 @@ Code review completo specifico per nuzantara.
 
 ---
 
-#### 7. **api-docs**
+#### 8. **api-docs**
 Generazione/aggiornamento documentazione API completa.
 
 **Quando viene usato**: Nuovi endpoints, aggiornamenti API, richiesta documentazione.
@@ -165,7 +211,7 @@ Generazione/aggiornamento documentazione API completa.
 
 ### 🐛 Debugging & Optimization
 
-#### 8. **debug-assistant**
+#### 9. **debug-assistant**
 Supporto completo per debugging e troubleshooting.
 
 **Quando viene usato**: Errori, servizi non funzionanti, problemi production.
@@ -193,7 +239,7 @@ Supporto completo per debugging e troubleshooting.
 
 ---
 
-#### 9. **performance-analyzer**
+#### 10. **performance-analyzer**
 Analisi e ottimizzazione performance del sistema.
 
 **Quando viene usato**: Lentezza, ottimizzazione, analisi bottlenecks.
@@ -261,6 +307,7 @@ Claude **decide autonomamente** quando usare una Skill basandosi su:
 ├── test-suite.md                # Complete test suite
 ├── deploy.md                    # Deployment automation
 ├── health-check.md              # System monitoring
+├── architecture-mapper.md       # Architecture docs auto-update
 ├── code-review.md               # Code review
 ├── api-docs.md                  # API documentation
 ├── debug-assistant.md           # Debugging support
@@ -298,6 +345,7 @@ Con queste Skills, Claude può:
 ✅ Validare Oracle agents con scenari realistici
 ✅ Fare deploy completo con health checks
 ✅ Monitorare system health proattivamente
+✅ **Mantenere documentazione architecture sempre sincronizzata** (NEW!)
 ✅ Fare code review con standard nuzantara
 ✅ Generare API docs sempre aggiornata
 ✅ Debuggare problemi sistematicamente
