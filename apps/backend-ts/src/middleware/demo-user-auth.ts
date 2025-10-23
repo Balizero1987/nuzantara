@@ -263,8 +263,13 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
         console.log('🔍 [DEBUG] Final user role:', req.user.role);
         
         // Check handler permissions for authenticated user
-        const { handler, key } = req.body;
+        const { handler, key } = req.body || {};
         const handlerKey = handler || key;
+        
+        // For SSE streaming endpoints (GET requests), skip handler check
+        if (req.method === 'GET' && req.path.includes('stream')) {
+          return next();
+        }
         
         if (handlerKey && !isHandlerAllowed(handlerKey, req.user.role)) {
           return res.status(403).json({
