@@ -20,9 +20,6 @@ COPY src/ ./src/
 # Build the application
 RUN npm run build
 
-# Remove dev dependencies after build
-RUN npm prune --production
-
 # Expose port (Railway uses PORT env var)
 EXPOSE $PORT
 
