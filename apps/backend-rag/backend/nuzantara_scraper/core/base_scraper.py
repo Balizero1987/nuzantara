@@ -213,6 +213,28 @@ class BaseScraper(ABC):
 
         return filtered
 
+    def filter_by_date(self, items: List[ScrapedContent]) -> List[ScrapedContent]:
+        """
+        Filter items by publication date (5 day cutoff)
+
+        Args:
+            items: List of scraped items
+
+        Returns:
+            Filtered list of recent items only
+        """
+        if not items:
+            return items
+
+        from ..processors.date_filter import DateFilter
+
+        date_filter = DateFilter(max_age_days=5)
+        filtered = date_filter.filter_items(items)
+
+        logger.info(f"Date filter: {len(filtered)}/{len(items)} items within 5-day cutoff ({len(filtered)/len(items)*100:.1f}%)")
+
+        return filtered
+
     def save_items(self, items: List[ScrapedContent]):
         """
         Save items to database
@@ -318,8 +340,11 @@ Content:
             # Delay between sources
             time.sleep(self.config.engine.delay_between_sources)
 
-        # Filter items
-        filtered_items = self.filter_items(all_items)
+        # Filter by date (5 day cutoff for all content)
+        date_filtered_items = self.filter_by_date(all_items)
+
+        # Filter by quality
+        filtered_items = self.filter_items(date_filtered_items)
 
         # Analyze with AI (if enabled)
         if self.config.ai and hasattr(self, 'analyze_with_ai'):
