@@ -7,7 +7,7 @@ import express from 'express';
 import cors from 'cors';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
-import { createRouter } from './routing/router.js';
+import { attachRoutes } from './routing/router.js';
 import { attachModularRoutes } from './routes/index.js';
 
 // Create Express app
@@ -56,8 +56,7 @@ app.get('/', (req, res) => {
 attachModularRoutes(app);
 
 // Load main router with all handlers
-const mainRouter = createRouter();
-app.use('/', mainRouter);
+attachRoutes(app);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
