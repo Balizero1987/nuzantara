@@ -250,6 +250,12 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
           isDemo: decoded.email === DEMO_USER.email
         };
         
+        // Special case: Zero is always admin
+        if (decoded.email === 'zero@balizero.com' || decoded.userId === 'zero') {
+          req.user.role = 'admin';
+          req.user.isDemo = false;
+        }
+        
         // Check handler permissions for authenticated user
         const { handler, key } = req.body;
         const handlerKey = handler || key;

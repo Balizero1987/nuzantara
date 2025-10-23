@@ -1,0 +1,65 @@
+---
+// HeroSection component - Bali Zero "From Zero to Infinity" concept
+---
+
+<section class="pt-32 pb-20 px-4 md:px-6 lg:px-8 bg-bz-black">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <!-- Left Content -->
+      <div class="space-y-6 fade-in">
+        <div class="inline-block">
+          <span class="text-bz-red font-display font-bold text-sm tracking-widest">BALI ZERO INSIGHTS</span>
+        </div>
+
+        <h1 class="text-bz-cream font-display font-bold text-5xl md:text-6xl lg:text-7xl leading-tight">
+          <span class="text-balance">From Zero to</span>
+          <br />
+          <span class="text-bz-red">Infinity ∞</span>
+        </h1>
+
+        <p class="text-bz-white/80 font-body text-lg md:text-xl leading-relaxed max-w-lg">
+          Selamat Datang 🙏 Powered by ZANTARA Intelligence, we accompany your Indonesia journey with cultural wisdom and premium business insights.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+          <a href="#insights" class="bg-bz-red text-white px-8 py-3 font-display font-bold hover:bg-bz-red/90 transition-colors text-center rounded-lg">
+            Begin Your Journey
+          </a>
+          <a href="#about" class="border-2 border-bz-cream text-bz-cream px-8 py-3 font-display font-bold hover:bg-bz-cream/10 transition-colors text-center rounded-lg">
+            Explore Wisdom
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Visual -->
+      <div class="relative h-96 md:h-full min-h-96">
+        <div class="absolute inset-0 bg-gradient-to-br from-bz-red/20 to-transparent rounded-lg overflow-hidden">
+          <img
+            src="/images/balizero-3d.png"
+            alt="Bali Zero - From Zero to Infinity"
+            class="w-full h-full object-cover opacity-80"
+          />
+          <div class="absolute inset-0 bg-bz-black/40"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.8s ease-out;
+  }
+</style>
+
