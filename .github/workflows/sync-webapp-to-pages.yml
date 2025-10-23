@@ -1,6 +1,10 @@
 name: Sync Webapp to GitHub Pages
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/webapp/**'
   workflow_dispatch:
 
 env:
