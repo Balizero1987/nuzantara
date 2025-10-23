@@ -242,6 +242,8 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
       try {
         const decoded = jwt.verify(token, jwtSecret) as any;
         
+        console.log('🔍 [DEBUG] JWT decoded:', { userId: decoded.userId, email: decoded.email, role: decoded.role });
+        
         // Set user from JWT
         req.user = {
           userId: decoded.userId || 'unknown',
@@ -254,7 +256,10 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
         if (decoded.email === 'zero@balizero.com' || decoded.userId === 'zero') {
           req.user.role = 'admin';
           req.user.isDemo = false;
+          console.log('🔍 [DEBUG] Zero detected - set to admin');
         }
+        
+        console.log('🔍 [DEBUG] Final user role:', req.user.role);
         
         // Check handler permissions for authenticated user
         const { handler, key } = req.body;
