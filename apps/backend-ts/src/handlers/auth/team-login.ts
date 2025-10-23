@@ -6,6 +6,7 @@
 import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
+import * as jwt from 'jsonwebtoken';
 
 // Team member database (same as ai.ts)
 const TEAM_RECOGNITION = {
@@ -279,12 +280,27 @@ export async function teamLogin(params: any) {
 
   activeSessions.set(sessionId, session);
 
+  // Generate JWT token for API authentication
+  const jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
+  const token = jwt.sign(
+    {
+      userId: member.id,
+      email: member.email,
+      role: member.role,
+      department: member.department,
+      sessionId: sessionId
+    },
+    jwtSecret,
+    { expiresIn: '7d' }
+  );
+
   // Log successful login
   logger.info(`🔐 Team login successful: ${member.name} (${member.role}) - Session: ${sessionId}`);
 
   return ok({
     success: true,
     sessionId,
+    token, // JWT token for API calls
     user: {
       id: member.id,
       name: member.name,
