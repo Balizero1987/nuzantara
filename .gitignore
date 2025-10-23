@@ -30,6 +30,13 @@ venv/
 .idea/
 *.sublime-*
 
+# Obsidian (workspace è personale, config è committata)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/plugins/*/
+.obsidian/themes/*/
+.obsidian/*.bak
+
 # Railway
 .railway
 

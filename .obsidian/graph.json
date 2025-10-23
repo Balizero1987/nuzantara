@@ -1,0 +1,53 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "localBacklinks": true,
+  "localForelinks": true,
+  "localInterlinks": false,
+  "showTags": true,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "collapse-color-groups": true,
+  "colorGroups": [
+    {
+      "query": "path:docs/galaxy-map",
+      "color": {
+        "a": 1,
+        "rgb": 14701138
+      }
+    },
+    {
+      "query": "path:.claude/skills",
+      "color": {
+        "a": 1,
+        "rgb": 14725458
+      }
+    },
+    {
+      "query": "path:apps/backend-ts",
+      "color": {
+        "a": 1,
+        "rgb": 11657298
+      }
+    },
+    {
+      "query": "path:agents",
+      "color": {
+        "a": 1,
+        "rgb": 5431378
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1.2,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": false,
+  "centerStrength": 0.5,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "scale": 1.5,
+  "close": false
+}

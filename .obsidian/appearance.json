@@ -1,0 +1,9 @@
+{
+  "baseFontSize": 16,
+  "theme": "moonstone",
+  "cssTheme": "Minimal",
+  "enabledCssSnippets": [],
+  "translucency": false,
+  "accentColor": "#7c3aed",
+  "nativeMenus": true
+}
