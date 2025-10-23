@@ -1,10 +1,11 @@
 """
 Unified AI Analyzer
-Supports Gemini, Claude, LLAMA with automatic fallback
+Supports LLAMA (local Ollama) and Zantara with automatic fallback
 """
 
 import json
 import os
+import requests
 from typing import Optional, Dict, Any, List
 from loguru import logger
 
@@ -19,107 +20,6 @@ class AIProvider:
         raise NotImplementedError
 
 
-class GeminiProvider(AIProvider):
-    """Google Gemini provider"""
-
-    def __init__(self, api_key: Optional[str], model: str = "gemini-2.0-flash-exp"):
-        self.api_key = api_key
-        self.model = model
-        self._client = None
-
-    def _ensure_client(self):
-        if self._client or not self.api_key:
-            return
-
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=self.api_key)
-            self._client = genai.GenerativeModel(self.model)
-            logger.debug(f"Gemini client initialized ({self.model})")
-        except Exception as e:
-            logger.warning(f"Gemini initialization failed: {e}")
-
-    def analyze(self, content: str, prompt: str) -> Optional[Dict[str, Any]]:
-        self._ensure_client()
-
-        if not self._client:
-            return None
-
-        try:
-            full_prompt = f"{prompt}\n\nContent: {content[:2000]}"
-            response = self._client.generate_content(full_prompt)
-            text = response.text.strip()
-
-            # Clean markdown code blocks
-            if text.startswith("```"):
-                text = text.split("```")[1]
-                if text.startswith("json"):
-                    text = text[4:]
-                text = text.strip()
-
-            result = json.loads(text)
-            result["ai_provider"] = "gemini"
-            result["model_used"] = self.model
-            return result
-
-        except Exception as e:
-            logger.error(f"Gemini analysis failed: {e}")
-            return None
-
-
-class ClaudeProvider(AIProvider):
-    """Anthropic Claude provider"""
-
-    def __init__(self, api_key: Optional[str], model: str = "claude-3-haiku-20240307"):
-        self.api_key = api_key
-        self.model = model
-        self._client = None
-
-    def _ensure_client(self):
-        if self._client or not self.api_key:
-            return
-
-        try:
-            from anthropic import Anthropic
-            self._client = Anthropic(api_key=self.api_key)
-            logger.debug(f"Claude client initialized ({self.model})")
-        except Exception as e:
-            logger.warning(f"Claude initialization failed: {e}")
-
-    def analyze(self, content: str, prompt: str) -> Optional[Dict[str, Any]]:
-        self._ensure_client()
-
-        if not self._client:
-            return None
-
-        try:
-            full_prompt = f"{prompt}\n\nContent: {content[:2000]}"
-
-            message = self._client.messages.create(
-                model=self.model,
-                max_tokens=1024,
-                messages=[{"role": "user", "content": full_prompt}]
-            )
-
-            text = message.content[0].text.strip()
-
-            # Clean markdown
-            if text.startswith("```"):
-                text = text.split("```")[1]
-                if text.startswith("json"):
-                    text = text[4:]
-                text = text.strip()
-
-            result = json.loads(text)
-            result["ai_provider"] = "claude"
-            result["model_used"] = self.model
-            return result
-
-        except Exception as e:
-            logger.error(f"Claude analysis failed: {e}")
-            return None
-
-
 class LLAMAProvider(AIProvider):
     """Ollama LLAMA provider (local)"""
 
@@ -129,8 +29,6 @@ class LLAMAProvider(AIProvider):
 
     def analyze(self, content: str, prompt: str) -> Optional[Dict[str, Any]]:
         try:
-            import requests
-
             full_prompt = f"{prompt}\n\nContent: {content[:2000]}"
 
             response = requests.post(
@@ -144,6 +42,7 @@ class LLAMAProvider(AIProvider):
             )
 
             if response.status_code != 200:
+                logger.error(f"LLAMA error: HTTP {response.status_code}")
                 return None
 
             text = response.json().get("response", "").strip()
@@ -160,41 +59,108 @@ class LLAMAProvider(AIProvider):
             result["model_used"] = self.model
             return result
 
+        except requests.exceptions.RequestException as e:
+            logger.error(f"LLAMA connection error: {e}")
+            return None
+        except json.JSONDecodeError as e:
+            logger.error(f"LLAMA JSON parse error: {e}")
+            return None
         except Exception as e:
             logger.error(f"LLAMA analysis failed: {e}")
             return None
 
 
+class ZantaraProvider(AIProvider):
+    """
+    Zantara/LLAMA provider via backend API
+    Uses the existing Zantara backend when commanded
+    """
+
+    def __init__(self, zantara_url: str = "http://localhost:8000", api_key: Optional[str] = None):
+        self.zantara_url = zantara_url
+        self.api_key = api_key or os.getenv("ZANTARA_API_KEY")
+
+    def analyze(self, content: str, prompt: str) -> Optional[Dict[str, Any]]:
+        try:
+            full_prompt = f"{prompt}\n\nContent: {content[:2000]}"
+
+            headers = {}
+            if self.api_key:
+                headers["Authorization"] = f"Bearer {self.api_key}"
+
+            # Call Zantara API endpoint for analysis
+            response = requests.post(
+                f"{self.zantara_url}/api/analyze",
+                json={
+                    "content": full_prompt,
+                    "mode": "structured_extraction"
+                },
+                headers=headers,
+                timeout=60
+            )
+
+            if response.status_code != 200:
+                logger.error(f"Zantara error: HTTP {response.status_code}")
+                return None
+
+            data = response.json()
+
+            # Extract structured result from Zantara response
+            if "result" in data:
+                result = data["result"]
+            elif "analysis" in data:
+                result = data["analysis"]
+            else:
+                result = data
+
+            result["ai_provider"] = "zantara"
+            result["model_used"] = "zantara-llama"
+            return result
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Zantara connection error: {e}")
+            return None
+        except json.JSONDecodeError as e:
+            logger.error(f"Zantara JSON parse error: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"Zantara analysis failed: {e}")
+            return None
+
+
 class AIAnalyzer:
     """
-    Unified AI analyzer with automatic provider fallback
-    Tries providers in order until one succeeds
+    Unified AI analyzer with LLAMA and Zantara support
+    Automatically falls back: Zantara → Local LLAMA
     """
 
     def __init__(
         self,
-        gemini_key: Optional[str] = None,
-        anthropic_key: Optional[str] = None,
         ollama_url: str = "http://localhost:11434",
+        llama_model: str = "llama3.2",
+        zantara_url: str = "http://localhost:8000",
+        zantara_api_key: Optional[str] = None,
         provider_order: List[str] = None
     ):
         """
-        Initialize AI Analyzer
+        Initialize AI Analyzer with LLAMA providers
 
         Args:
-            gemini_key: Gemini API key
-            anthropic_key: Anthropic API key
-            ollama_url: Ollama API URL
-            provider_order: Order of providers to try
+            ollama_url: Ollama API URL for local LLAMA
+            llama_model: LLAMA model name
+            zantara_url: Zantara backend URL
+            zantara_api_key: API key for Zantara (optional)
+            provider_order: Order to try providers ["zantara", "llama"]
         """
-        self.provider_order = provider_order or ["gemini", "claude", "llama"]
+        self.provider_order = provider_order or ["zantara", "llama"]
 
         # Initialize providers
         self.providers = {
-            "gemini": GeminiProvider(gemini_key or os.getenv("GEMINI_API_KEY")),
-            "claude": ClaudeProvider(anthropic_key or os.getenv("ANTHROPIC_API_KEY")),
-            "llama": LLAMAProvider(ollama_url)
+            "llama": LLAMAProvider(ollama_url, llama_model),
+            "zantara": ZantaraProvider(zantara_url, zantara_api_key)
         }
+
+        logger.info(f"AIAnalyzer initialized with providers: {self.provider_order}")
 
     def analyze(
         self,
@@ -360,3 +326,17 @@ Output ONLY valid JSON, no other text."""
         }
 
         return prompts.get(category, prompts["news"])
+
+    def set_provider_order(self, order: List[str]):
+        """
+        Change provider order at runtime
+
+        Args:
+            order: New provider order e.g. ["llama", "zantara"]
+        """
+        valid_providers = [p for p in order if p in self.providers]
+        if not valid_providers:
+            raise ValueError(f"No valid providers in order: {order}")
+
+        self.provider_order = valid_providers
+        logger.info(f"Provider order changed to: {self.provider_order}")
