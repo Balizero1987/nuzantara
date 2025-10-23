@@ -1529,7 +1529,7 @@ export function attachRoutes(app: import("express").Express) {
   });
 
   // GET/POST /ai.chat.stream – optional SSE streaming (pseudo streaming)
-  app.get('/ai.chat.stream', apiKeyAuth, async (req: RequestWithCtx, res) => {
+  app.get('/ai.chat.stream', demoUserAuth, async (req: RequestWithDemo, res) => {
     try {
       const prompt = (req.query.prompt as string) || '';
       if (!prompt) {
@@ -1563,7 +1563,7 @@ export function attachRoutes(app: import("express").Express) {
     }
   });
 
-  app.post('/ai.chat.stream', apiKeyAuth, async (req: RequestWithCtx, res) => {
+  app.post('/ai.chat.stream', demoUserAuth, async (req: RequestWithDemo, res) => {
     // same as GET but read prompt from body
     (req as any).query.prompt = (req.body?.prompt || '');
     return (app as any)._router.handle(req, res, () => void 0);
