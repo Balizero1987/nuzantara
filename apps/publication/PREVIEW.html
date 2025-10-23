@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bali Zero Publication - Preview</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Brand Colors (from Bali Zero logo) */
+    :root {
+      --bz-black: #0a0e27;
+      --bz-red: #FF0000;
+      --bz-white: #f5f5f5;
+      --bz-cream: #e8d5b7;
+      --bz-gray: #444444;
+    }
+
+    /* Base Styles */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--bz-black);
+      color: var(--bz-white);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: 4rem;
+      line-height: 1.1;
+    }
+
+    h2 {
+      font-size: 3rem;
+      line-height: 1.1;
+    }
+
+    h3 {
+      font-size: 1.875rem;
+      line-height: 1.2;
+    }
+
+    a {
+      color: var(--bz-red);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    a:hover {
+      color: rgba(255, 0, 0, 0.8);
+    }
+
+    ::selection {
+      background-color: var(--bz-red);
+      color: white;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 3rem;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background-color: rgba(10, 14, 39, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(68, 68, 68, 0.1);
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo img {
+      height: 48px;
+      width: 48px;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--bz-white);
+    }
+
+    .logo-subtitle {
+      font-size: 0.875rem;
+      color: var(--bz-gray);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: rgba(245, 245, 245, 0.8);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--bz-red);
+    }
+
+    .cta-button {
+      display: inline-block;
+      background-color: transparent;
+      border: 2px solid var(--bz-red);
+      color: var(--bz-red);
+      font-weight: 600;
+      padding: 0.5rem 1.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .cta-button:hover {
+      background-color: var(--bz-red);
+      color: white;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 12rem 3rem 6rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      border-radius: 999px;
+      padding: 0.5rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--bz-red);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .hero-badge span {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--bz-red);
+    }
+
+    .hero h1 {
+      margin-bottom: 1.5rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: rgba(245, 245, 245, 0.7);
+      max-width: 700px;
+      margin: 0 auto 3rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-primary {
+      background-color: var(--bz-red);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .cta-primary:hover {
+      background-color: rgba(255, 0, 0, 0.9);
+      transform: scale(1.05);
+    }
+
+    /* Featured Section */
+    .section {
+      padding: 6rem 3rem;
+    }
+
+    .section-header {
+      margin-bottom: 3rem;
+    }
+
+    .section-header h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .section-header p {
+      font-size: 1.125rem;
+      color: rgba(245, 245, 245, 0.7);
+    }
+
+    /* Article Grid */
+    .article-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+
+    .article-card {
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(68, 68, 68, 0.2);
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .article-card:hover {
+      border-color: rgba(255, 0, 0, 0.5);
+      transform: translateY(-4px);
+    }
+
+    .article-image {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(232, 213, 183, 0.1));
+      position: relative;
+    }
+
+    .article-content {
+      padding: 2rem;
+    }
+
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .pillar {
+      color: var(--bz-red);
+      font-weight: 600;
+    }
+
+    .meta-separator {
+      color: var(--bz-gray);
+    }
+
+    .meta-text {
+      color: var(--bz-gray);
+    }
+
+    .article-title {
+      margin-bottom: 1rem;
+      color: var(--bz-white);
+      transition: color 0.2s;
+    }
+
+    .article-card:hover .article-title {
+      color: var(--bz-red);
+    }
+
+    .article-description {
+      color: rgba(245, 245, 245, 0.7);
+      margin-bottom: 1.5rem;
+    }
+
+    .read-more {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--bz-red);
+      font-weight: 600;
+      transition: gap 0.2s;
+    }
+
+    .article-card:hover .read-more {
+      gap: 1rem;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(10, 14, 39, 1));
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      border-radius: 1.5rem;
+      padding: 4rem;
+      text-align: center;
+      margin: 6rem 3rem;
+    }
+
+    .cta-section h2 {
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-section p {
+      font-size: 1.25rem;
+      color: rgba(245, 245, 245, 0.8);
+      max-width: 700px;
+      margin: 0 auto 2rem;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--bz-black);
+      border-top: 1px solid rgba(68, 68, 68, 0.2);
+      padding: 4rem 3rem 2rem;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-brand img {
+      height: 64px;
+      width: 64px;
+    }
+
+    .footer-text {
+      color: rgba(245, 245, 245, 0.7);
+      margin-bottom: 1.5rem;
+      max-width: 400px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .social-link {
+      color: var(--bz-gray);
+      transition: color 0.2s;
+    }
+
+    .social-link:hover {
+      color: var(--bz-red);
+    }
+
+    .footer-section h4 {
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 1rem;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links a {
+      color: rgba(245, 245, 245, 0.7);
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--bz-red);
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(68, 68, 68, 0.2);
+      font-size: 0.875rem;
+      color: var(--bz-gray);
+    }
+
+    .powered-by {
+      color: var(--bz-gray);
+    }
+
+    .powered-by span {
+      color: var(--bz-red);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        padding: 8rem 1.5rem 4rem;
+      }
+
+      .section {
+        padding: 4rem 1.5rem;
+      }
+
+      .article-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+
+    /* Preview Notice */
+    .preview-notice {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--bz-red);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Preview Notice -->
+  <div class="preview-notice">
+    📸 STATIC PREVIEW
+  </div>
+
+  <!-- Header -->
+  <header>
+    <nav class="container">
+      <a href="/" class="logo">
+        <img src="data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='24' cy='24' r='24' fill='%230a0e27'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23FF0000' font-size='20' font-weight='bold' font-family='Arial'%3E3%3C/text%3E%3C/svg%3E" alt="Bali Zero">
+        <div class="logo-text">
+          <span class="logo-title">Bali Zero</span>
+          <span class="logo-subtitle">Insights</span>
+        </div>
+      </a>
+
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/analysis">Analysis</a>
+        <a href="/pillars">Topics</a>
+        <a href="/about">About</a>
+        <a href="https://zantara.balizero.com" class="cta-button">Ask ZANTARA</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">
+      <div class="pulse-dot"></div>
+      <span>Bali Zero Insights</span>
+    </div>
+
+    <h1>What's Really Happening in Bali</h1>
+
+    <p>Deep analysis of trends shaping Balinese business & expat economy. By Zero, powered by ZANTARA Intelligence.</p>
+
+    <div class="hero-cta">
+      <a href="#featured" class="cta-primary">Explore Latest Insights</a>
+      <a href="https://zantara.balizero.com" class="cta-button">Ask ZANTARA</a>
+    </div>
+  </section>
+
+  <!-- Featured Articles -->
+  <section id="featured" class="section container">
+    <div class="section-header">
+      <h2>Featured Analysis</h2>
+    </div>
+
+    <div class="article-grid">
+      <!-- Article 1 -->
+      <article class="article-card">
+        <div class="article-image"></div>
+        <div class="article-content">
+          <div class="article-meta">
+            <span class="pillar">Bali Reality</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-text">12 min</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-text">Jan 15, 2025</span>
+          </div>
+          <h3 class="article-title">Bali Tourism Collapse & Real Estate Surge</h3>
+          <p class="article-description">Understanding the dramatic shift in Bali's economic landscape and what it means for expats and investors.</p>
+          <div class="read-more">
+            <span>Read Analysis</span>
+            <span>→</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Article 2 -->
+      <article class="article-card">
+        <div class="article-image"></div>
+        <div class="article-content">
+          <div class="article-meta">
+            <span class="pillar">Expat Economy</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-text">10 min</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-text">Jan 10, 2025</span>
+          </div>
+          <h3 class="article-title">FIRE in Bali: Is $2000/month Realistic in 2025?</h3>
+          <p class="article-description">A deep dive into the real costs of living in Bali for digital nomads and retirees.</p>
+          <div class="read-more">
+            <span>Read Analysis</span>
+            <span>→</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Article 3 -->
+      <article class="article-card">
+        <div class="article-image"></div>
+        <div class="article-content">
+          <div class="article-meta">
+            <span class="pillar">AI & Tech</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-text">8 min</span>
+            <span class="meta-separator">•</span>
+            <span class="meta-text">Jan 8, 2025</span>
+          </div>
+          <h3 class="article-title">How AI Changes Indonesian Immigration Systems</h3>
+          <p class="article-description">The quiet revolution happening in visa processing and what it means for expats.</p>
+          <div class="read-more">
+            <span>Read Analysis</span>
+            <span>→</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <div class="cta-section container">
+    <h2>Need Strategic Advice?</h2>
+    <p>Beyond analysis, we help you navigate the complexities of doing business in Bali. From visa processing to company formation, we've got you covered.</p>
+    <div class="hero-cta">
+      <a href="https://zantara.balizero.com" class="cta-primary">Ask ZANTARA AI</a>
+      <a href="https://welcome.balizero.com" class="cta-button">Explore Services</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content container">
+      <div>
+        <div class="footer-brand">
+          <img src="data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='32' cy='32' r='32' fill='%230a0e27'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23FF0000' font-size='28' font-weight='bold' font-family='Arial'%3E3%3C/text%3E%3C/svg%3E" alt="Bali Zero">
+          <div class="logo-text">
+            <span class="logo-title" style="font-size: 1.5rem;">Bali Zero</span>
+            <span class="logo-subtitle">Insights</span>
+          </div>
+        </div>
+        <p class="footer-text">Deep analysis of trends shaping Balinese business & expat economy. Powered by ZANTARA Intelligence.</p>
+        <div class="social-links">
+          <a href="https://instagram.com/balizero0" class="social-link">📱 Instagram</a>
+          <a href="mailto:info@balizero.com" class="social-link">✉️ Email</a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Topics</h4>
+        <ul class="footer-links">
+          <li><a href="/pillars/bali-reality">Bali Reality</a></li>
+          <li><a href="/pillars/expat-economy">Expat Economy</a></li>
+          <li><a href="/pillars/business">Business Formation</a></li>
+          <li><a href="/pillars/ai-tech">AI & Tech</a></li>
+          <li><a href="/pillars/trends">Trends & Analysis</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Bali Zero</h4>
+        <ul class="footer-links">
+          <li><a href="https://welcome.balizero.com">Main Website</a></li>
+          <li><a href="https://zantara.balizero.com">ZANTARA AI</a></li>
+          <li><a href="/about">About Publication</a></li>
+          <li><a href="mailto:info@balizero.com">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom container">
+      <p>© 2025 PT. Bali Nol Impersariat. All rights reserved.</p>
+      <p class="powered-by">Powered by <span>ZANTARA Intelligence</span></p>
+    </div>
+  </footer>
+
+</body>
+</html>
