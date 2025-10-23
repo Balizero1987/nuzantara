@@ -449,4 +449,32 @@ python3 scripts/run_intel_automation.py --categories visa_immigration
 - Mac M4 documentation
 - +220 lines added
 
+**Commit ff1f796** - Set Llama 3.1 8B as default
+- Changed default from Mistral 7B → Llama 3.1 8B
+- Created verify_llama_config.py
+- All stages (2A, 2B, 2C) use Llama 3.1
+
+**Commit b5c4568** - Complete Ollama Local setup (Mac M4 optimized)
+- setup_ollama_local.sh (automated one-command setup)
+- .env.example (configuration template)
+- INTEL_SCRAPING_README.md (complete guide)
+- +471 lines documentation
+
+### 🎯 Ready for Production
+
+**One-Command Setup**:
+```bash
+./scripts/setup_ollama_local.sh
+```
+
+**Verify**:
+```bash
+python3 scripts/verify_llama_config.py
+```
+
+**Test Run**:
+```bash
+python3 scripts/run_intel_automation.py --categories visa_immigration
+```
+
 🚀 **W4 Intel Scraping FULLY IMPLEMENTED and PRODUCTION READY!**
