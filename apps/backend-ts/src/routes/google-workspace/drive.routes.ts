@@ -57,7 +57,7 @@ const DriveSearchSchema = z.object({
 );
 
 const DriveReadSchema = z.object({
-  fileId: z.string(),
+  fileId: z.string().optional(),
 });
 
 /**
@@ -129,7 +129,7 @@ router.post('/search', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/read', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = DriveReadSchema.parse(req.body);
-    const result = await driveRead(params);
+    const result = await driveRead(params as any);
     return res.json(ok(result));
   } catch (error: any) {
     return res.status(400).json(err(error.message));
