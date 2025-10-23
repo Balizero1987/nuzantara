@@ -1,12 +1,10 @@
 """
-Intelligent Router - TRIPLE-AI routing system
-Uses pattern matching for intent classification, routes to appropriate AI
+Intelligent Router - HAIKU-ONLY routing system
+Uses pattern matching for intent classification, routes to Haiku 4.5 ONLY
 
 Routing logic:
-- Greetings/Casual → Claude Haiku (fast & cheap)
-- Business/Complex → Claude Sonnet + RAG (premium quality)
-- Code/Development → DevAI Qwen 2.5 Coder (code specialist)
-- Fallback → Claude Sonnet (safest)
+- ALL queries → Claude Haiku 4.5 (fast, efficient, RAG-enhanced)
+- Fallback → Claude Haiku 4.5 (consistent experience)
 
 PHASE 1 & 2 FIXES (2025-10-21):
 - Response sanitization (removes training data artifacts)
@@ -36,23 +34,21 @@ logger = logging.getLogger(__name__)
 
 class IntelligentRouter:
     """
-    TRIPLE-AI intelligent routing system
+    HAIKU-ONLY intelligent routing system
 
     Architecture:
     1. Pattern Matching: Fast intent classification (no AI cost)
-    2. Claude Haiku: Simple/casual queries (12x cheaper than Sonnet)
-    3. Claude Sonnet: Business/complex queries (premium quality)
-    4. DevAI Qwen 2.5 Coder: Code/development queries (specialist)
+    2. Claude Haiku 4.5: ALL queries (fast, efficient, RAG-enhanced)
+    3. RAG Integration: Enhanced context for all business queries
+    4. Tool Use: Full access to all 164 tools
 
-    Cost optimization: Routes 60% to Haiku, 35% to Sonnet, 5% to DevAI
+    Cost optimization: Routes 100% to Haiku 4.5 (3x cheaper than Sonnet)
     """
 
     def __init__(
         self,
         llama_client,
         haiku_service,
-        sonnet_service,
-        devai_endpoint=None,
         search_service=None,
         tool_executor=None,
         cultural_rag_service=None  # NEW: Cultural RAG for Haiku enrichment
@@ -62,30 +58,23 @@ class IntelligentRouter:
 
         Args:
             llama_client: Optional (not used - kept for backward compatibility)
-            haiku_service: ClaudeHaikuService for simple queries
-            sonnet_service: ClaudeSonnetService for complex queries
-            devai_endpoint: DevAI endpoint URL for code queries (optional)
+            haiku_service: ClaudeHaikuService for ALL queries
             search_service: Optional SearchService for RAG
             tool_executor: ToolExecutor for handler execution (optional)
             cultural_rag_service: CulturalRAGService for Indonesian cultural context (optional)
         """
         self.haiku = haiku_service
-        self.sonnet = sonnet_service
-        self.devai_endpoint = devai_endpoint
         self.search = search_service
         self.tool_executor = tool_executor
         self.cultural_rag = cultural_rag_service  # NEW: Cultural enrichment
 
         # Available tools will be loaded on first use
         self.all_tools = None
-        self.haiku_tools = None  # Limited subset for Haiku
         self.tools_loaded = False
 
-        logger.info("✅ IntelligentRouter initialized (TRIPLE-AI)")
+        logger.info("✅ IntelligentRouter initialized (HAIKU-ONLY)")
         logger.info(f"   Classification: Pattern Matching (fast, no AI cost)")
-        logger.info(f"   Haiku (greetings): {'✅' if haiku_service else '❌'}")
-        logger.info(f"   Sonnet (business): {'✅' if sonnet_service else '❌'}")
-        logger.info(f"   DevAI (code): {'✅' if devai_endpoint else '❌'}")
+        logger.info(f"   Haiku 4.5 (ALL queries): {'✅' if haiku_service else '❌'}")
         logger.info(f"   RAG (context): {'✅' if search_service else '❌'}")
         logger.info(f"   Tool Use: {'✅' if tool_executor else '❌'}")
         logger.info(f"   Cultural RAG (Haiku): {'✅' if cultural_rag_service else '❌'}")
@@ -324,8 +313,8 @@ class IntelligentRouter:
                 logger.info(f"🎯 [Router] Fast fallback: SHORT message → Haiku")
             else:
                 category = "business_simple"
-                suggested_ai = "sonnet"
-                logger.info(f"🎯 [Router] Fast fallback: LONG message → Sonnet")
+                suggested_ai = "haiku"
+                logger.info(f"🎯 [Router] Fast fallback: LONG message → Haiku")
 
             return {
                 "category": category,
@@ -335,11 +324,11 @@ class IntelligentRouter:
 
         except Exception as e:
             logger.error(f"❌ [Router] Classification error: {e}")
-            # Fallback: route to Sonnet (safest option)
+            # Fallback: route to Haiku (ONLY AI)
             return {
                 "category": "unknown",
                 "confidence": 0.0,
-                "suggested_ai": "sonnet"
+                "suggested_ai": "haiku"
             }
 
 
@@ -458,35 +447,35 @@ class IntelligentRouter:
 
                 # Use Haiku with ALL tools (Haiku IS Zantara, full system access)
                 if self.tool_executor and self.all_tools:
-                    result = await self.haiku.conversational_with_tools(
-                        message=message,
-                        user_id=user_id,
-                        conversation_history=conversation_history,
-                        memory_context=memory_context,
+                            result = await self.haiku.conversational_with_tools(
+                                message=message,
+                                user_id=user_id,
+                                conversation_history=conversation_history,
+                                memory_context=memory_context,
                         tools=self.all_tools,  # ALL tools, not limited
-                        tool_executor=self.tool_executor,
+                                tool_executor=self.tool_executor,
                         max_tokens=8000,  # Full response capacity
                         max_tool_iterations=5  # More iterations for complex tasks
-                    )
-                else:
-                    result = await self.haiku.conversational(
-                        message=message,
-                        user_id=user_id,
-                        conversation_history=conversation_history,
-                        memory_context=memory_context,
+                            )
+                        else:
+                            result = await self.haiku.conversational(
+                                message=message,
+                                user_id=user_id,
+                                conversation_history=conversation_history,
+                                memory_context=memory_context,
                         max_tokens=8000  # Full capacity
-                    )
+                            )
 
-                return {
-                    "response": result["text"],
-                    "ai_used": "haiku",
-                    "category": "emotional_support",
-                    "model": result["model"],
-                    "tokens": result["tokens"],
-                    "used_rag": False,
-                    "used_tools": result.get("used_tools", False),
-                    "tools_called": result.get("tools_called", [])
-                }
+                        return {
+                            "response": result["text"],
+                            "ai_used": "haiku",
+                            "category": "emotional_support",
+                            "model": result["model"],
+                            "tokens": result["tokens"],
+                            "used_rag": False,
+                            "used_tools": result.get("used_tools", False),
+                            "tools_called": result.get("tools_called", [])
+                        }
 
             # PHASE 3: Build memory context if available
             memory_context = None
@@ -709,234 +698,10 @@ class IntelligentRouter:
                     "tools_called": result.get("tools_called", [])
                 }
 
-            elif suggested_ai == "sonnet":
-                # ROUTE 2: Claude Sonnet + RAG (Premium Quality)
-                import time
-                logger.info("🎯 [Router] Using Claude Sonnet (premium + RAG)")
-                sonnet_start = time.time()
+            # Sonnet and DevAI routes removed - Haiku 4.5 is the ONLY AI
 
-                # PHASE 1 & 2: Skip RAG for greetings/casual (no business context needed)
-                skip_rag = query_type in ["greeting", "casual"]
-                if skip_rag:
-                    logger.info(f"   ⏭️  [Phase 1&2] SKIPPING RAG for {query_type} query (not needed)")
-
-                # Get RAG context if available AND not skipped
-                context = None
-                if self.search and not skip_rag:
-                    try:
-                        rag_start = time.time()
-                        logger.info("   [DEBUG] Starting ChromaDB search...")
-
-                        # OPTIMIZATION: Reduced to 10 documents for faster response (was 20)
-                        search_results = await self.search.search(
-                            query=message,
-                            user_level=3,  # Full access
-                            limit=10  # OPTIMIZED: Reduced from 20 for performance
-                        )
-
-                        rag_time = (time.time() - rag_start) * 1000
-                        logger.info(f"   [DEBUG] ChromaDB search completed in {rag_time:.0f}ms")
-
-                        if search_results.get("results"):
-                            context_start = time.time()
-                            # OPTIMIZATION: Use top 5 results (was 8) for faster processing
-                            context = "\n\n".join([
-                                f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
-                                for r in search_results["results"][:5]
-                            ])
-                            context_time = (time.time() - context_start) * 1000
-                            logger.info(f"   [DEBUG] Context built in {context_time:.0f}ms: {len(context)} chars from {len(search_results['results'])} documents (using top 5)")
-                    except Exception as e:
-                        logger.error(f"   [DEBUG] RAG search FAILED: {e}")
-                        logger.warning(f"   RAG search failed: {e}")
-
-                # Use tool-enabled method if tools available
-                if self.tool_executor and self.all_tools:
-                    logger.info(f"   [DEBUG] Tool use: ENABLED (FULL - {len(self.all_tools)} tools)")
-                    ai_start = time.time()
-                    logger.info("   [DEBUG] Calling Sonnet WITH tools...")
-
-                    result = await self.sonnet.conversational_with_tools(
-                        message=message,
-                        user_id=user_id,
-                        context=context,
-                        conversation_history=conversation_history,
-                        memory_context=memory_context,  # PHASE 3: Pass memory
-                        tools=self.all_tools,
-                        tool_executor=self.tool_executor,
-                        max_tokens=1000,  # INCREASED from 600 to prevent truncated business answers
-                        max_tool_iterations=5
-                    )
-
-                    ai_time = (time.time() - ai_start) * 1000
-                    logger.info(f"   [DEBUG] Sonnet WITH tools completed in {ai_time:.0f}ms")
-                else:
-                    logger.info("   [DEBUG] Tool use: DISABLED")
-                    ai_start = time.time()
-                    logger.info("   [DEBUG] Calling Sonnet WITHOUT tools...")
-
-                    result = await self.sonnet.conversational(
-                        message=message,
-                        user_id=user_id,
-                        context=context,
-                        conversation_history=conversation_history,
-                        memory_context=memory_context,  # PHASE 3: Pass memory
-                        max_tokens=1000  # INCREASED from 600 to prevent truncated business answers
-                    )
-
-                    ai_time = (time.time() - ai_start) * 1000
-                    logger.info(f"   [DEBUG] Sonnet WITHOUT tools completed in {ai_time:.0f}ms")
-
-                sonnet_total = (time.time() - sonnet_start) * 1000
-                logger.info(f"   [DEBUG] ⏱️  TOTAL Sonnet path: {sonnet_total:.0f}ms")
-
-                # PHASE 1 & 2: Apply response sanitization
-                sanitized_response = process_zantara_response(
-                    result["text"],
-                    query_type,
-                    apply_santai=(query_type in ["greeting", "casual"]),  # Only enforce length for casual
-                    add_contact=True  # Conditionally add contact (not for greetings/casual)
-                )
-                logger.info(f"   ✨ [Phase 1&2] Response sanitized (type: {query_type})")
-
-                return {
-                    "response": sanitized_response,
-                    "ai_used": "sonnet",
-                    "category": category,
-                    "model": result["model"],
-                    "tokens": result["tokens"],
-                    "used_rag": result.get("used_rag", False),
-                    "used_tools": result.get("used_tools", False),
-                    "tools_called": result.get("tools_called", [])
-                }
-
-            elif suggested_ai == "devai":
-                # ROUTE 3: DevAI Qwen 2.5 Coder (Code Specialist)
-                logger.info("👨‍💻 [Router] Using DevAI Qwen 2.5 Coder (code specialist)")
-
-                if not self.devai_endpoint:
-                    logger.warning("⚠️ DevAI not configured, falling back to Sonnet")
-                    # Fallback to Sonnet if DevAI unavailable
-                    result = await self.sonnet.conversational(
-                        message=message,
-                        user_id=user_id,
-                        conversation_history=conversation_history,
-                        memory_context=memory_context,  # PHASE 5: Pass memory to fallback
-                        max_tokens=500  # More tokens for code
-                    )
-
-                    # PHASE 1 & 2: Apply response sanitization
-                    sanitized_response = process_zantara_response(
-                        result["text"],
-                        query_type,
-                        apply_santai=False,  # Don't truncate code responses
-                        add_contact=True
-                    )
-
-                    return {
-                        "response": sanitized_response,
-                        "ai_used": "sonnet",  # Indicate fallback
-                        "category": category,
-                        "model": result["model"],
-                        "tokens": result["tokens"],
-                        "used_rag": False
-                    }
-
-                # Call DevAI endpoint
-                import httpx
-                try:
-                    # Build DevAI request with memory context
-                    devai_payload = {
-                        "message": message,
-                        "user_id": user_id,
-                        "conversation_history": conversation_history or []
-                    }
-
-                    # PHASE 5: Add memory context if available
-                    if memory_context:
-                        devai_payload["memory_context"] = memory_context
-                        logger.info(f"   Passing memory context to DevAI ({len(memory_context)} chars)")
-
-                    async with httpx.AsyncClient(timeout=60.0) as client:
-                        devai_response = await client.post(
-                            f"{self.devai_endpoint}/chat",
-                            json=devai_payload
-                        )
-                        devai_response.raise_for_status()
-                        devai_data = devai_response.json()
-
-                    # PHASE 1 & 2: Apply response sanitization (no length enforcement for code)
-                    sanitized_response = process_zantara_response(
-                        devai_data.get("response", ""),
-                        query_type,
-                        apply_santai=False,  # Don't truncate code responses
-                        add_contact=True
-                    )
-
-                    return {
-                        "response": sanitized_response,
-                        "ai_used": "devai",
-                        "category": category,
-                        "model": "qwen-2.5-coder-7b",
-                        "tokens": devai_data.get("tokens", {}),
-                        "used_rag": False
-                    }
-                except Exception as e:
-                    logger.error(f"❌ DevAI call failed: {e}, falling back to Sonnet")
-                    # Fallback to Sonnet on DevAI error
-                    result = await self.sonnet.conversational(
-                        message=message,
-                        user_id=user_id,
-                        conversation_history=conversation_history,
-                        memory_context=memory_context,  # PHASE 5: Pass memory to fallback
-                        max_tokens=500
-                    )
-
-                    # PHASE 1 & 2: Apply response sanitization
-                    sanitized_response = process_zantara_response(
-                        result["text"],
-                        query_type,
-                        apply_santai=False,  # Don't truncate code responses
-                        add_contact=True
-                    )
-
-                    return {
-                        "response": sanitized_response,
-                        "ai_used": "sonnet",  # Indicate fallback
-                        "category": category,
-                        "model": result["model"],
-                        "tokens": result["tokens"],
-                        "used_rag": False
-                    }
-
-            else:
-                # FALLBACK: Unknown routing case - use Sonnet (safest)
-                logger.warning(f"⚠️ [Router] Unknown suggested_ai: {suggested_ai}, falling back to Sonnet")
-
-                result = await self.sonnet.conversational(
-                    message=message,
-                    user_id=user_id,
-                    conversation_history=conversation_history,
-                    memory_context=memory_context,
-                    max_tokens=800
-                )
-
-                # PHASE 1 & 2: Apply response sanitization
-                sanitized_response = process_zantara_response(
-                    result["text"],
-                    query_type,
-                    apply_santai=(query_type in ["greeting", "casual"]),  # Enforce length for casual
-                    add_contact=True
-                )
-
-                return {
-                    "response": sanitized_response,
-                    "ai_used": "sonnet",
-                    "category": category,
-                    "model": result["model"],
-                    "tokens": result["tokens"],
-                    "used_rag": False
-                }
+            # DevAI route removed - Haiku 4.5 is the ONLY AI
+            # All queries are handled by Haiku 4.5 above
 
         except Exception as e:
             logger.error(f"❌ [Router] Routing error: {e}")
@@ -1025,56 +790,8 @@ class IntelligentRouter:
                 ):
                     yield chunk
 
-            elif suggested_ai == "sonnet":
-                # Stream from Sonnet with RAG (business, complex)
-                logger.info("🎯 [Router Stream] Using Claude Sonnet + RAG")
-
-                # PHASE 1 & 2: Skip RAG for greetings/casual
-                skip_rag = query_type in ["greeting", "casual"]
-                if skip_rag:
-                    logger.info(f"   ⏭️  [Phase 1&2] SKIPPING RAG for {query_type} query (not needed)")
-
-                # Get RAG context if available AND not skipped
-                context = None
-                if self.search and not skip_rag:
-                    try:
-                        search_results = await self.search.search(
-                            query=message,
-                            user_level=3,
-                            limit=10
-                        )
-
-                        if search_results.get("results"):
-                            context = "\n\n".join([
-                                f"[{r['metadata'].get('title', 'Unknown')}]\n{r['text']}"
-                                for r in search_results["results"][:5]
-                            ])
-                            logger.info(f"   RAG context: {len(context)} chars")
-                    except Exception as e:
-                        logger.warning(f"   RAG search failed: {e}")
-
-                async for chunk in self.sonnet.stream(
-                    message=message,
-                    user_id=user_id,
-                    context=context,
-                    conversation_history=conversation_history,
-                    memory_context=memory_context,
-                    max_tokens=1000
-                ):
-                    yield chunk
-
-            else:
-                # Fallback to Sonnet
-                logger.warning(f"⚠️ [Router Stream] Unknown AI: {suggested_ai}, fallback to Sonnet")
-
-                async for chunk in self.sonnet.stream(
-                    message=message,
-                    user_id=user_id,
-                    conversation_history=conversation_history,
-                    memory_context=memory_context,
-                    max_tokens=800
-                ):
-                    yield chunk
+            # Sonnet streaming removed - Haiku 4.5 is the ONLY AI
+            # All streaming is handled by Haiku 4.5 above
 
             logger.info(f"✅ [Router Stream] Stream completed for user {user_id}")
 
@@ -1086,28 +803,16 @@ class IntelligentRouter:
     def get_stats(self) -> Dict:
         """Get router statistics"""
         return {
-            "router": "intelligent_triple_ai",
+            "router": "haiku_only",
             "classification": "pattern_matching",
             "ai_models": {
                 "haiku": {
                     "available": self.haiku.is_available() if self.haiku else False,
-                    "use_case": "greetings, casual chat",
+                    "use_case": "ALL queries (greetings, casual, business, complex)",
                     "cost": "$0.25/$1.25 per 1M tokens",
-                    "traffic": "60%"
-                },
-                "sonnet": {
-                    "available": self.sonnet.is_available() if self.sonnet else False,
-                    "use_case": "business, complex queries",
-                    "cost": "$3/$15 per 1M tokens",
-                    "traffic": "35%"
-                },
-                "devai": {
-                    "available": bool(self.devai_endpoint),
-                    "use_case": "code, development, programming",
-                    "cost": "€3.78/month flat (RunPod)",
-                    "traffic": "5%"
+                    "traffic": "100%"
                 }
             },
             "rag_available": self.search is not None,
-            "total_cost_monthly": "$25-55 (3,000 requests)"
+            "total_cost_monthly": "$8-15 (3,000 requests) - 3x cheaper than Sonnet"
         }

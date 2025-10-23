@@ -2,7 +2,7 @@
   "status": "commited",
   "type": "frontend",
   "scope": "codebase",
-  "localEndpoint": "http://localhost:4173",
+  "localEndpoint": "http://localhost:8080",
   "loginUser": "zero@balizero.coom",
-  "loginPassword": "Balizero2020!"
+  "loginPassword": "010719"
 }

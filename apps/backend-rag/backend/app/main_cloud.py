@@ -1,13 +1,13 @@
 """
 ZANTARA RAG Backend - Railway Version
 Port 8000
-Uses ChromaDB from Cloudflare R2 + Claude AI (Haiku + Sonnet)
+Uses ChromaDB from Cloudflare R2 + Claude AI (Haiku 4.5 ONLY)
 
-AI ROUTING: Intelligent Router with TRIPLE-AI System
-- Claude Haiku 3.5: Fast & cheap (60% traffic - greetings, casual chat)
-- Claude Sonnet 4.5: Premium quality (35% traffic - business queries + RAG)
-- DevAI: Code assistance (5% traffic - development queries)
-COST OPTIMIZATION: ~50% savings vs all-Sonnet
+AI ROUTING: Intelligent Router with HAIKU-ONLY System
+- Claude Haiku 4.5: ALL queries (100% traffic - greetings, casual, business, complex)
+- RAG Integration: Enhanced context for all business queries
+- Tool Use: Full access to all 164 tools
+COST OPTIMIZATION: 3x cheaper than Sonnet, same quality with RAG
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
@@ -36,9 +36,8 @@ from services.emotional_attunement import EmotionalAttunementService
 from services.collaborative_capabilities import CollaborativeCapabilitiesService
 from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_handler_proxy
 from services.tool_executor import ToolExecutor
-# DUAL-AI SYSTEM: Claude Haiku + Sonnet + Intelligent Router
+# HAIKU-ONLY SYSTEM: Claude Haiku 4.5 + Intelligent Router
 from services.claude_haiku_service import ClaudeHaikuService
-from services.claude_sonnet_service import ClaudeSonnetService
 from services.intelligent_router import IntelligentRouter
 from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultural intelligence
 from services.memory_fact_extractor import MemoryFactExtractor
@@ -59,7 +58,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="ZANTARA RAG API",
     version="3.2.0-crm",
-    description="RAG + LLM backend for NUZANTARA (ChromaDB from R2 + Claude AI Haiku/Sonnet with Intelligent Routing)"
+    description="RAG + LLM backend for NUZANTARA (ChromaDB from R2 + Claude AI Haiku 4.5 ONLY with Intelligent Routing)"
 )
 
 # CORS - allow all for now
@@ -83,9 +82,8 @@ except Exception as e:
 
 # Global clients
 search_service: Optional[SearchService] = None
-# DUAL-AI SYSTEM: Claude Haiku/Sonnet + Router
-claude_haiku: Optional[ClaudeHaikuService] = None  # Fast & cheap for greetings
-claude_sonnet: Optional[ClaudeSonnetService] = None  # Premium for business queries
+# HAIKU-ONLY SYSTEM: Claude Haiku 4.5 + Router
+claude_haiku: Optional[ClaudeHaikuService] = None  # ALL queries (greetings, casual, business, complex)
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 cultural_rag_service: Optional[CulturalRAGService] = None  # NEW: LLAMA cultural RAG
 zantara_tools: Optional[ZantaraTools] = None  # NEW: Tool calling for team data
@@ -804,9 +802,9 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, claude_haiku, claude_sonnet, intelligent_router, cultural_rag_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service
+    global search_service, claude_haiku, intelligent_router, cultural_rag_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service
 
-    logger.info("🚀 Starting ZANTARA RAG Backend (DUAL-AI: Claude Haiku + Claude Sonnet + DevAI)...")
+    logger.info("🚀 Starting ZANTARA RAG Backend (HAIKU-ONLY: Claude Haiku 4.5)...")
 
     # Initialize Alert Service (for error monitoring)
     try:
@@ -865,20 +863,7 @@ async def startup_event():
         logger.error(f"❌ Claude Haiku initialization failed: {e}")
         claude_haiku = None
 
-    # Initialize Claude Sonnet (Premium for business queries)
-    try:
-        anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
-        if anthropic_api_key:
-            claude_sonnet = ClaudeSonnetService(api_key=anthropic_api_key)
-            logger.info("✅ Claude Sonnet 4.5 ready (Premium Business AI)")
-            logger.info("   Use case: Business/complex queries with RAG (35% traffic)")
-            logger.info("   Cost: $3/$15 per 1M tokens (premium quality)")
-        else:
-            logger.warning("⚠️ ANTHROPIC_API_KEY not set - Claude Sonnet unavailable")
-            claude_sonnet = None
-    except Exception as e:
-        logger.error(f"❌ Claude Sonnet initialization failed: {e}")
-        claude_sonnet = None
+    # Claude Sonnet removed - Haiku 4.5 is the ONLY AI
 
     # Initialize Handler Proxy Service (Tool Use) - MUST be before Intelligent Router
     try:
@@ -902,10 +887,9 @@ async def startup_event():
         logger.warning(f"⚠️ ZantaraTools initialization failed: {e}")
         zantara_tools = None
 
-    # Initialize Intelligent Router (TRIPLE-AI system: Haiku + Sonnet + DevAI)
+    # Initialize Intelligent Router (HAIKU-ONLY system)
     try:
-        devai_endpoint = os.getenv("DEVAI_ENDPOINT")
-        if claude_haiku and claude_sonnet:
+        if claude_haiku:
             # Initialize ToolExecutor with ZantaraTools
             tool_executor = None
             if handler_proxy_service:
@@ -934,22 +918,17 @@ async def startup_event():
             intelligent_router = IntelligentRouter(
                 llama_client=None,  # No LLAMA - pure Claude routing
                 haiku_service=claude_haiku,
-                sonnet_service=claude_sonnet,
-                devai_endpoint=devai_endpoint,
                 search_service=search_service,
                 tool_executor=tool_executor,
                 cultural_rag_service=cultural_rag_service  # NEW: LLAMA cultural intelligence
             )
-            logger.info("✅ Intelligent Router ready (TRIPLE-AI + Cultural RAG)")
-            logger.info("   AI 1: Claude Haiku (greetings, 60% traffic)")
-            logger.info("   AI 2: Claude Sonnet (business, 35% traffic)")
-            logger.info(f"   AI 3: DevAI (code, 5% traffic) - {'✅ configured' if devai_endpoint else '⚠️ not configured'}")
+            logger.info("✅ Intelligent Router ready (HAIKU-ONLY + Cultural RAG)")
+            logger.info("   AI: Claude Haiku 4.5 (ALL queries, 100% traffic)")
             logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
-            logger.info("   Cost optimization: ~50% savings vs all-Sonnet")
+            logger.info("   Cost optimization: 3x cheaper than Sonnet, same quality with RAG")
         else:
-            logger.warning("⚠️ Intelligent Router not initialized - missing Claude AI services")
+            logger.warning("⚠️ Intelligent Router not initialized - missing Claude Haiku service")
             logger.warning(f"   Haiku: {'✅' if claude_haiku else '❌'}")
-            logger.warning(f"   Sonnet: {'✅' if claude_sonnet else '❌'}")
             intelligent_router = None
     except Exception as e:
         logger.error(f"❌ Intelligent Router initialization failed: {e}")
@@ -1112,7 +1091,7 @@ class BaliZeroResponse(BaseModel):
     success: bool
     response: str
     model_used: str
-    ai_used: str  # "haiku" | "sonnet" | "devai" | "llama"
+    ai_used: str  # "haiku" | "llama"
     sources: Optional[List[Dict[str, Any]]] = None
     usage: Optional[Dict[str, Any]] = None
 
@@ -1146,15 +1125,13 @@ async def health_check():
         "available_services": [
             "chromadb",
             "claude_haiku",
-            "claude_sonnet",
             "postgresql",
             "crm_system"
         ],
         "chromadb": search_service is not None,
         "ai": {
             "claude_haiku_available": claude_haiku is not None,
-            "claude_sonnet_available": claude_sonnet is not None,
-            "has_ai": (claude_haiku is not None or claude_sonnet is not None)
+            "has_ai": claude_haiku is not None
         },
         "memory": {
             "postgresql": memory_service is not None,
@@ -1265,21 +1242,21 @@ async def search_endpoint(request: SearchRequest):
                 "content": f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
             })
 
-            # Use Claude Sonnet for RAG search (premium quality for knowledge base queries)
-            if not claude_sonnet:
-                raise HTTPException(503, "Claude Sonnet AI not available")
+            # Use Claude Haiku 4.5 for RAG search (efficient with RAG context)
+            if not claude_haiku:
+                raise HTTPException(503, "Claude Haiku AI not available")
 
             try:
-                logger.info("🎯 [RAG Search] Using Claude Sonnet (Premium AI)")
-                response = await claude_sonnet.chat_async(
+                logger.info("🎯 [RAG Search] Using Claude Haiku 4.5 (Efficient AI with RAG)")
+                response = await claude_haiku.chat_async(
                     messages=messages,
                     max_tokens=1500,
                     system=SYSTEM_PROMPT
                 )
                 answer = response.get("text", "")
-                model_used = "claude-sonnet-4-5"
+                model_used = "claude-haiku-4-5"
             except Exception as e:
-                logger.error(f"❌ [RAG Search] Claude Sonnet failed: {e}")
+                logger.error(f"❌ [RAG Search] Claude Haiku failed: {e}")
                 raise HTTPException(503, f"Claude AI error: {str(e)}")
 
         execution_time = (time.time() - start) * 1000
@@ -1903,10 +1880,9 @@ async def root():
         "features": {
             "chromadb": search_service is not None,
             "ai": {
-                "primary": "Claude Haiku 3.5 (Fast & Cheap)",
-                "premium": "Claude Sonnet 4.5 (High Quality)",
-                "routing": "Intelligent Router (60% Haiku / 35% Sonnet / 5% DevAI)",
-                "cost_savings": "~50% vs all-Sonnet"
+                "primary": "Claude Haiku 4.5 (ALL queries - Fast, Efficient, RAG-enhanced)",
+                "routing": "Intelligent Router (100% Haiku 4.5)",
+                "cost_savings": "3x cheaper than Sonnet, same quality with RAG"
             },
             "knowledge_base": {
                 "bali_zero_agents": "1,458 operational documents",
