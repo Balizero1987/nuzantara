@@ -71,6 +71,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Rate Limiting Middleware
+try:
+    from middleware.rate_limiter import RateLimitMiddleware
+    app.add_middleware(RateLimitMiddleware)
+    logger.info("✅ Rate limiting middleware enabled")
+except Exception as e:
+    logger.warning(f"⚠️ Rate limiting disabled: {e}")
+
 # Error Monitoring Middleware will be added in startup event after AlertService is initialized
 
 # Global clients
@@ -1104,6 +1112,23 @@ class BaliZeroResponse(BaseModel):
     usage: Optional[Dict[str, Any]] = None
 
 
+@app.get("/cache/stats")
+async def cache_stats():
+    """Get cache statistics"""
+    try:
+        from core.cache import cache
+        from middleware.rate_limiter import get_rate_limit_stats
+        
+        return {
+            "success": True,
+            "cache": cache.get_stats(),
+            "rate_limiting": get_rate_limit_stats(),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -1775,8 +1800,10 @@ app.include_router(admin_migration.router)
 # Include Oracle routers (Universal Query System - Phase 3)
 from app.routers import oracle_universal
 from app.routers import agents
+from app.routers import notifications
 app.include_router(oracle_universal.router)
 app.include_router(agents.router)
+app.include_router(notifications.router)
 # NOTE: admin_oracle_populate router removed - using inline endpoint instead
 
 # Include Llama 4 Scout router - DISABLED (module not in production)

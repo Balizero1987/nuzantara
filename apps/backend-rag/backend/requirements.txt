@@ -39,3 +39,10 @@ psycopg2-binary==2.9.10  # For migrations (sync driver)
 
 # Server-Sent Events for streaming responses
 sse-starlette==1.8.2
+
+# Redis for caching and rate limiting (optional, falls back to in-memory)
+redis==5.0.1
+
+# Notification providers (optional)
+# sendgrid==6.11.0  # Uncomment when SENDGRID_API_KEY is available
+# twilio==8.10.0    # Uncomment when TWILIO credentials are available
