@@ -1,0 +1,13 @@
+{
+  "name": "@nuzantara/content-generator",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Automated content generation for Bali Zero Publication",
+  "main": "generate-article.js",
+  "scripts": {
+    "generate": "node generate-article.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}
