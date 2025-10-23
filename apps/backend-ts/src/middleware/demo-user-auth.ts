@@ -51,6 +51,11 @@ const DEMO_ALLOWED_HANDLERS = new Set([
   // Bali Zero chat (safe)
   'bali.zero.chat',
   
+  // Bali Zero pricing (read-only, safe)
+  'bali.zero.pricing',        // FIX: Add pricing handler
+  'bali.zero.price',          // FIX: Add price lookup
+  'price.lookup',             // FIX: Add price lookup alias
+  
   // Team authentication (public)
   'team.list',
   'team.members',
