@@ -4,9 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Bali Zero Brand Colors (from logo)
+        // Bali Zero Brand Colors (McKinsey dark aesthetic)
         'bz': {
-          black: '#0a0e27',     // Dark navy (McKinsey-style)
+          black: '#000000',     // Pure black (McKinsey-style)
+          navy: '#0a0e27',      // Dark navy layer (5% opacity)
+          midnight: '#1a1f3a',  // Midnight blue (subtle cards)
           red: '#FF0000',       // Logo red (accent)
           white: '#f5f5f5',     // Off-white (text)
           cream: '#e8d5b7',     // Logo cream (secondary)
