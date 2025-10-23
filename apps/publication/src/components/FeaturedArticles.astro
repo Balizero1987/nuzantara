@@ -1,12 +1,12 @@
 ---
-// FeaturedArticles component - Asymmetric McKinsey-style grid
+// FeaturedArticles component - McKinsey-style 4-card asymmetric grid
 const articles = [
   {
     id: "1",
     title: "Your KITAS Journey: From Zero to Belonging",
     category: "Visa Journey",
     excerpt: "How to navigate Indonesian immigration with cultural grace and practical wisdom.",
-    image: "/images/generated/journey-threshold.jpg",
+    image: "/images/generated/journey-visa-gateway.jpg",
     size: "large",
     href: "/articles/kitas-journey",
   },
@@ -15,7 +15,7 @@ const articles = [
     title: "PT PMA Formation Guide 2025",
     category: "Business",
     excerpt: "Building your Indonesian company with cultural foundation.",
-    image: "/images/generated/journey-foundation.jpg",
+    image: "/images/generated/journey-business-foundation.jpg",
     size: "small",
     href: "/articles/pt-pma-guide",
   },
@@ -24,7 +24,7 @@ const articles = [
     title: "Understanding Tri Hita Karana",
     category: "Cultural Wisdom",
     excerpt: "Balinese harmony philosophy for business and life.",
-    image: "/images/generated/article-transcendence.jpg",
+    image: "/images/generated/article-cultural-insight.jpg",
     size: "small",
     href: "/articles/tri-hita-karana",
   },
@@ -33,28 +33,10 @@ const articles = [
     title: "Finding Home in Bali",
     category: "Home Journey",
     excerpt: "Real estate, community, and belonging in Indonesian culture.",
-    image: "/images/generated/journey-belonging.jpg",
+    image: "/images/generated/journey-home-belonging.jpg",
     size: "medium",
     href: "/articles/finding-home-bali",
-  },
-  {
-    id: "5",
-    title: "Gotong Royong in Modern Business",
-    category: "Business",
-    excerpt: "Indonesian cooperation principles for entrepreneurs.",
-    image: "/images/generated/article-contemplation.jpg",
-    size: "small",
-    href: "/articles/gotong-royong",
-  },
-  {
-    id: "6",
-    title: "ZANTARA: AI with Indonesian Soul",
-    category: "Technology",
-    excerpt: "How cultural intelligence transforms business automation.",
-    image: "/images/generated/article-fusion.jpg",
-    size: "medium",
-    href: "/articles/zantara-ai-soul",
-  },
+  }
 ];
 
 const sizeClasses = {
@@ -65,7 +47,7 @@ const sizeClasses = {
 ---
 
 <section id="insights" class="py-20 px-4 md:px-6 lg:px-8 bg-bz-black">
-  <div class="max-w-7xl mx-auto">
+  <div class="max-w-6xl mx-auto">
     <!-- Section Header -->
     <div class="mb-12">
       <span class="text-bz-red font-display font-bold text-sm tracking-widest">FEATURED WISDOM</span>
@@ -84,7 +66,9 @@ const sizeClasses = {
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <!-- Dark overlay -->
-            <div class="absolute inset-0 bg-gradient-to-t from-bz-black via-bz-black/50 to-transparent opacity-80 group-hover:opacity-70 transition-opacity"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-bz-black via-bz-black/60 to-transparent opacity-85 group-hover:opacity-75 transition-opacity"></div>
+            <!-- Red shimmer edge -->
+            <div class="absolute inset-x-0 bottom-0 h-0.5" style="background: linear-gradient(90deg, rgba(255,0,0,0) 0%, rgba(255,0,0,0.35) 50%, rgba(255,0,0,0) 100%);"></div>
           </div>
 
           <!-- Content -->
