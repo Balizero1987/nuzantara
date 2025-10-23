@@ -179,9 +179,15 @@ graph LR
 
 ## 📚 For More Details
 
+**Galaxy Map:**
 - **AI Intelligence**: [03-ai-intelligence.md](./03-ai-intelligence.md)
 - **Data Flows**: [04-data-flows.md](./04-data-flows.md)
 - **Database Schema**: [05-database-schema.md](./05-database-schema.md)
+
+**Operational Docs:**
+- **API Reference**: [API Documentation](../api/API_DOCUMENTATION.md)
+- **Deployment**: [Railway Deployment Guide](../guides/RAILWAY_DEPLOYMENT_GUIDE.md)
+- **Testing**: [Testing Instructions](../testing/TESTING_INSTRUCTIONS.md)
 
 ---
 

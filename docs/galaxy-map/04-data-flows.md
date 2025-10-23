@@ -232,9 +232,14 @@ Expected Flow:
 
 ## 📚 For More Details
 
+**Galaxy Map:**
 - **AI Intelligence**: [03-ai-intelligence.md](./03-ai-intelligence.md)
 - **Database Schema**: [05-database-schema.md](./05-database-schema.md)
 - **Technical Architecture**: [02-technical-architecture.md](./02-technical-architecture.md)
+
+**Operations:**
+- **Testing Flows**: [Testing Instructions](../testing/TESTING_INSTRUCTIONS.md)
+- **API Endpoints**: [API Documentation](../api/API_DOCUMENTATION.md)
 
 ---
 

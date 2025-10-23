@@ -291,9 +291,14 @@ sequenceDiagram
 
 ## 📚 For More Details
 
+**Galaxy Map:**
 - **AI Intelligence**: [03-ai-intelligence.md](./03-ai-intelligence.md)
 - **Data Flows**: [04-data-flows.md](./04-data-flows.md)
 - **System Overview**: [01-system-overview.md](./01-system-overview.md)
+
+**Operations:**
+- **Database Migrations**: See `/apps/backend-rag/backend/db/migrations/`
+- **Deployment**: [Oracle Deployment Checklist](../deployment/ORACLE_DEPLOYMENT_CHECKLIST.md)
 
 ---
 

@@ -306,15 +306,51 @@ Last Updated: 23 Oct 2025
 
 ## 🔗 Related Documentation
 
-**In `/docs`:**
-- `ARCHITECTURE.md` - Original architecture doc
-- `JIWA_ARCHITECTURE.md` - JIWA cultural intelligence
-- `LLAMA_EXISTING_ARCHITECTURE_AUDIT.md` - ZANTARA Llama analysis
+### 🚀 Operational Documentation
 
-**External:**
-- GitHub: https://github.com/Balizero1987/nuzantara
-- Railway Dashboard: https://railway.app
-- Production: https://zantara.balizero.com
+**Deployment Guides** (`/docs/deployment/`):
+- [Railway Deployment Guide](../guides/RAILWAY_DEPLOYMENT_GUIDE.md) - Deploy to Railway platform
+- [Oracle Deployment Checklist](../deployment/ORACLE_DEPLOYMENT_CHECKLIST.md) - Oracle agents deployment
+- [CRM Deployment Guide](../deployment/CRM_DEPLOYMENT_GUIDE.md) - CRM system deployment
+- [Webapp Deploy Process](../deployment/WEBAPP_DEPLOY_PROCESS.md) - Frontend deployment to GitHub Pages
+- [Deployment Success Guide](../deployment/DEPLOYMENT_SUCCESS_IT.md) - Post-deployment verification
+
+**Testing & Quality** (`/docs/testing/`):
+- [Testing Instructions](../testing/TESTING_INSTRUCTIONS.md) - Complete testing procedures
+
+**Setup Guides** (`/docs/guides/`):
+- [Quick Start](../guides/QUICK_START.md) - Get started in 5 minutes
+- [RunPod DevAI Setup](../guides/RUNPOD_DEVAI_SETUP.md) - DevAI configuration
+- [AI Build Decision Guide](../guides/AI_BUILD_DECISION_GUIDE.md) - AI architecture decisions
+
+**API Documentation** (`/docs/api/`):
+- [API Documentation](../api/API_DOCUMENTATION.md) - Complete API reference
+- [Endpoints Documentation](../api/ENDPOINTS_DOCUMENTATION.md) - All endpoints detailed
+- [Endpoint Summary](../api/endpoint-summary.md) - Quick endpoint reference
+
+### 📚 Architecture Documentation
+
+**Architecture** (`/docs/architecture/`):
+- [Architecture](../architecture/ARCHITECTURE.md) - Original architecture doc
+- [JIWA Architecture](../architecture/JIWA_ARCHITECTURE.md) - JIWA cultural intelligence
+- [System Complete Vision](../architecture/SYSTEM_COMPLETE_VISION.md) - Complete system vision
+- [Perfect System Architecture Map](../architecture/PERFECT_SYSTEM_ARCHITECTURE_MAP.md) - Detailed architecture
+- [Structure](../architecture/STRUCTURE.md) - Code structure overview
+
+**AI & Intelligence** (`/docs/ai/`):
+- [Llama Live Architecture](../ai/LLAMA_LIVE_ARCHITECTURE.md) - ZANTARA Llama architecture
+- [ZANTARA Activation Map](../ai/ZANTARA_ACTIVATION_MAP.md) - ZANTARA activation guide
+- [ZANTARA Llama Code Map](../ai/ZANTARA_LLAMA_CODE_MAP.md) - Llama codebase map
+- [Cultural RAG Implementation](../ai/CULTURAL_RAG_IMPLEMENTATION_SUMMARY.md) - Cultural intelligence
+- [Offline AI Setup](../ai/OFFLINE_AI_SETUP.md) - Local AI development
+
+### 🌐 External Resources
+
+- **GitHub**: https://github.com/Balizero1987/nuzantara
+- **Railway Dashboard**: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+- **Production**: https://zantara.balizero.com
+- **TS Backend**: https://ts-backend-production-568d.up.railway.app
+- **RAG Backend**: https://scintillating-kindness-production-47e3.up.railway.app
 
 ---
 
@@ -331,6 +367,12 @@ A: Depends on your role! See "Quick Navigation" above.
 
 **Q: Can I generate diagrams from this?**
 A: Yes! All Mermaid diagrams render automatically on GitHub.
+
+**Q: Where are the deployment runbooks and operational guides?**
+A: Galaxy Map focuses on architecture and system understanding. For operations, see "Related Documentation" section above - we have 5+ deployment guides, testing procedures, API docs, and setup guides covering all operational aspects.
+
+**Q: Is there performance benchmarking documentation?**
+A: Current performance metrics (10-20ms golden answers, 1-2s Haiku+RAG) are based on production observations. Formal load testing and benchmark reports are planned for future documentation iterations.
 
 ---
 

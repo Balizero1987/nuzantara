@@ -310,6 +310,10 @@ ZANTARA adapts to who you are:
 2. **Understand Code** → [02-technical-architecture.md](./02-technical-architecture.md)
 3. **Understand Flows** → [04-data-flows.md](./04-data-flows.md)
 4. **Understand Data** → [05-database-schema.md](./05-database-schema.md)
+5. **Deploy & Operate** → [Railway Deployment Guide](../guides/RAILWAY_DEPLOYMENT_GUIDE.md), [Testing](../testing/TESTING_INSTRUCTIONS.md), [API Docs](../api/API_DOCUMENTATION.md)
+
+**For complete documentation index:**
+→ See [Related Documentation](./README.md#-related-documentation) in Galaxy Map README
 
 ---
 

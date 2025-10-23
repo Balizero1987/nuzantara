@@ -335,9 +335,15 @@ sequenceDiagram
 
 ## 📚 For More Details
 
+**Galaxy Map:**
 - **Data Flows**: [04-data-flows.md](./04-data-flows.md)
 - **Database Schema**: [05-database-schema.md](./05-database-schema.md)
 - **Technical Architecture**: [02-technical-architecture.md](./02-technical-architecture.md)
+
+**AI Deep Dives:**
+- **JIWA Architecture**: [JIWA Architecture](../architecture/JIWA_ARCHITECTURE.md)
+- **ZANTARA Llama**: [Llama Live Architecture](../ai/LLAMA_LIVE_ARCHITECTURE.md)
+- **Cultural RAG**: [Cultural RAG Implementation](../ai/CULTURAL_RAG_IMPLEMENTATION_SUMMARY.md)
 
 ---
 
