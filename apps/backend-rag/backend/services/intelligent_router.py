@@ -456,37 +456,37 @@ class IntelligentRouter:
                         if not self.tools_loaded and self.tool_executor:
                             await self._load_tools()
 
-                        # Use Haiku with LIMITED tools for speed
-                        if self.tool_executor and self.haiku_tools:
-                            result = await self.haiku.conversational_with_tools(
-                                message=message,
-                                user_id=user_id,
-                                conversation_history=conversation_history,
-                                memory_context=memory_context,
-                                tools=self.haiku_tools,
-                                tool_executor=self.tool_executor,
-                                max_tokens=300,
-                                max_tool_iterations=2
-                            )
-                        else:
-                            result = await self.haiku.conversational(
-                                message=message,
-                                user_id=user_id,
-                                conversation_history=conversation_history,
-                                memory_context=memory_context,
-                                max_tokens=300
-                            )
+                # Use Haiku with ALL tools (Haiku IS Zantara, full system access)
+                if self.tool_executor and self.all_tools:
+                    result = await self.haiku.conversational_with_tools(
+                        message=message,
+                        user_id=user_id,
+                        conversation_history=conversation_history,
+                        memory_context=memory_context,
+                        tools=self.all_tools,  # ALL tools, not limited
+                        tool_executor=self.tool_executor,
+                        max_tokens=8000,  # Full response capacity
+                        max_tool_iterations=5  # More iterations for complex tasks
+                    )
+                else:
+                    result = await self.haiku.conversational(
+                        message=message,
+                        user_id=user_id,
+                        conversation_history=conversation_history,
+                        memory_context=memory_context,
+                        max_tokens=8000  # Full capacity
+                    )
 
-                        return {
-                            "response": result["text"],
-                            "ai_used": "haiku",
-                            "category": "emotional_support",
-                            "model": result["model"],
-                            "tokens": result["tokens"],
-                            "used_rag": False,
-                            "used_tools": result.get("used_tools", False),
-                            "tools_called": result.get("tools_called", [])
-                        }
+                return {
+                    "response": result["text"],
+                    "ai_used": "haiku",
+                    "category": "emotional_support",
+                    "model": result["model"],
+                    "tokens": result["tokens"],
+                    "used_rag": False,
+                    "used_tools": result.get("used_tools", False),
+                    "tools_called": result.get("tools_called", [])
+                }
 
             # PHASE 3: Build memory context if available
             memory_context = None
@@ -628,9 +628,14 @@ class IntelligentRouter:
                 await self._load_tools()
 
             # Step 3: Route to appropriate AI
+            # OVERRIDE: ALWAYS use Haiku 4.5 for frontend (per user requirement)
+            # Haiku 4.5 is the ONLY AI, it IS Zantara (not an assistant)
+            suggested_ai = "haiku"
+            logger.info("🎯 [Router] FORCED: Using Haiku 4.5 as ONLY AI (Zantara identity)")
+            
             if suggested_ai == "haiku":
-                # ROUTE 1: Claude Haiku (Fast & Cheap)
-                logger.info("🏃 [Router] Using Claude Haiku (fast & cheap)")
+                # ROUTE 1: Claude Haiku 4.5 - THE ONLY AI (Zantara Identity)
+                logger.info("🎯 [Router] Using Haiku 4.5 - ZANTARA (full system access)")
 
                 # PHASE 4.5: Inject Cultural RAG context for Haiku (Indonesian cultural enrichment)
                 cultural_context = None
@@ -661,18 +666,18 @@ class IntelligentRouter:
                 if cultural_context:
                     enhanced_context += f"\n\n{cultural_context}"
 
-                # Use tool-enabled method if tools available
-                if self.tool_executor and self.haiku_tools:
-                    logger.info(f"   Tool use: ENABLED (LIMITED - {len(self.haiku_tools)} tools)")
+                # Use tool-enabled method with ALL tools (Haiku IS Zantara, full access)
+                if self.tool_executor and self.all_tools:
+                    logger.info(f"   Tool use: ENABLED (FULL ACCESS - {len(self.all_tools)} tools)")
                     result = await self.haiku.conversational_with_tools(
                         message=message,
                         user_id=user_id,
                         conversation_history=conversation_history,
                         memory_context=enhanced_context,  # PHASE 3+4.5: Memory + Cultural RAG
-                        tools=self.haiku_tools,
+                        tools=self.all_tools,  # ALL tools, not limited
                         tool_executor=self.tool_executor,
-                        max_tokens=300,  # INCREASED from 150 - allow warmer, more natural casual responses
-                        max_tool_iterations=2  # LIMITED for speed
+                        max_tokens=8000,  # Full capacity for complex responses
+                        max_tool_iterations=5  # More iterations for complex operations
                     )
                 else:
                     logger.info("   Tool use: DISABLED")
@@ -681,7 +686,7 @@ class IntelligentRouter:
                         user_id=user_id,
                         conversation_history=conversation_history,
                         memory_context=enhanced_context,  # PHASE 3+4.5: Memory + Cultural RAG
-                        max_tokens=300  # INCREASED from 150 - allow warmer, more natural casual responses
+                        max_tokens=8000  # Full capacity
                     )
 
                 # PHASE 1 & 2: Apply response sanitization
