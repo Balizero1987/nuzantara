@@ -832,6 +832,11 @@ async def startup_event():
         # Initialize Search Service
         search_service = SearchService()
         logger.info("✅ ChromaDB search service ready (from Cloudflare R2)")
+        
+        # Set global search_service for dependency injection
+        import app.dependencies as deps
+        deps.search_service = search_service
+        logger.info("✅ SearchService registered in dependencies")
 
         try:
             initialize_memory_vector_db(chroma_path)
@@ -1118,6 +1123,7 @@ async def cache_stats():
     try:
         from core.cache import cache
         from middleware.rate_limiter import get_rate_limit_stats
+        from datetime import datetime
         
         return {
             "success": True,
