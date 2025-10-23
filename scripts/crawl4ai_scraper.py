@@ -146,6 +146,53 @@ async def scrape_site(site: Dict[str, str], category: str, browser: Browser) -> 
         # Get page title
         title = await page.title()
 
+        # Extract publication date from metadata (HTML meta tags, Schema.org, <time> tags)
+        published_date = await page.evaluate('''() => {
+            // Try meta tags (Open Graph, Article, Twitter, etc.)
+            const metaSelectors = [
+                'meta[property="article:published_time"]',
+                'meta[property="og:published_time"]',
+                'meta[name="publish-date"]',
+                'meta[name="publishdate"]',
+                'meta[name="date"]',
+                'meta[name="publication-date"]',
+                'meta[name="DC.date.issued"]',
+                'meta[property="article:published"]',
+                'meta[name="twitter:published_time"]'
+            ];
+
+            for (const selector of metaSelectors) {
+                const meta = document.querySelector(selector);
+                if (meta && meta.content) {
+                    return meta.content;
+                }
+            }
+
+            // Try <time> tags with datetime attribute
+            const timeEl = document.querySelector('time[datetime]');
+            if (timeEl && timeEl.getAttribute('datetime')) {
+                return timeEl.getAttribute('datetime');
+            }
+
+            // Try Schema.org JSON-LD structured data
+            const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+            for (const script of scripts) {
+                try {
+                    const data = JSON.parse(script.textContent);
+                    if (data.datePublished) return data.datePublished;
+                    if (data['@graph']) {
+                        for (const item of data['@graph']) {
+                            if (item.datePublished) return item.datePublished;
+                        }
+                    }
+                } catch (e) {
+                    // Invalid JSON, skip
+                }
+            }
+
+            return null;
+        }''')
+
         await context.close()
 
         # Clean content
@@ -155,7 +202,11 @@ async def scrape_site(site: Dict[str, str], category: str, browser: Browser) -> 
             logger.warning(f"[{category.upper()}] {name}: Content too short ({len(content)} chars)")
             return None
 
-        logger.info(f"[{category.upper()}] ✓ {name}: {len(content)} chars")
+        # Log date extraction status
+        if published_date:
+            logger.info(f"[{category.upper()}] ✓ {name}: {len(content)} chars, date: {published_date}")
+        else:
+            logger.info(f"[{category.upper()}] ✓ {name}: {len(content)} chars, date: NOT FOUND")
 
         return {
             'site': name,
@@ -163,6 +214,7 @@ async def scrape_site(site: Dict[str, str], category: str, browser: Browser) -> 
             'url': url,
             'title': title,
             'content': content,
+            'published_date': published_date,  # NEW: Extracted publication date
             'timestamp': datetime.now().isoformat(),
             'success': True
         }
@@ -207,10 +259,12 @@ def save_results(results: List[Dict], category: str):
         filepath = output_dir / filename
 
         # Create markdown content
+        published_date_str = result.get('published_date', 'Not found')
         md_content = f"""# {result['title']}
 
 **Source**: {result['site']}
 **URL**: {result['url']}
+**Published**: {published_date_str}
 **Scraped**: {result['timestamp']}
 **Category**: {category}
 
