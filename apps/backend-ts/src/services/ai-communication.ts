@@ -90,15 +90,11 @@ class AICommunicationService {
           timestamp: new Date()
         };
       } else if (request.to === 'devai') {
-        const result: any = await devaiChat({
-          message: this.buildDevAIPrompt(request, context),
-          max_tokens: 1000,
-          temperature: 0.7
-        });
-        response = result.response || result.answer || 'No response';
+        // DevAI no longer available - fallback to ZANTARA
+        response = 'DevAI service is no longer available. Using ZANTARA instead.';
         metadata = {
-          model: result.model || 'devai-qwen',
-          tokens: result.usage?.total_tokens || 0,
+          model: 'zantara-fallback',
+          tokens: 0,
           timestamp: new Date()
         };
       } else {

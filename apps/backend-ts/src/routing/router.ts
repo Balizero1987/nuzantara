@@ -704,7 +704,7 @@ const handlers: Record<string, Handler> = {
   ...creativeHandlers,
 
   // DevAI (Qwen 2.5 Coder) - Internal Developer AI  
-  ...devaiHandlers,
+  // ...devaiHandlers, // REMOVED - DevAI no longer used
 
   // Google Analytics handlers - NEW!
   ...analyticsHandlers,
