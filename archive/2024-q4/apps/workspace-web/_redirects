@@ -1,7 +1,0 @@
-# Redirect root to login
-/ /login.html 200
-
-# SPA fallback
-/* /index.html 200
-
-
