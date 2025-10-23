@@ -51,3 +51,35 @@ data/chroma_db/
 *.sqlite3
 *.bin
 *.old
+
+# ======================================
+# PRODUCTION ONLY - Exclude from GitHub
+# ======================================
+
+# Archive - keep local only
+archive/
+
+# Tests - keep local only
+testsprite_tests/
+tests/
+
+# Intel Scraping - keep local only
+INTEL_SCRAPING/
+
+# Development projects - keep local only
+projects/devai/
+projects/orchestrator/
+
+# Generated files
+dist/
+logs/
+*.log
+madge*.json
+ts-*.txt
+
+# Documentation archives
+docs/archive/
+docs/reports/cleanup-*/
+
+# Temporary
+*.tmp
