@@ -6,7 +6,7 @@
 import logger from '../../services/logger.js';
 import { ok } from "../../utils/response.js";
 import { BadRequestError } from "../../utils/errors.js";
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 // Team member database (same as ai.ts)
 const TEAM_RECOGNITION = {
