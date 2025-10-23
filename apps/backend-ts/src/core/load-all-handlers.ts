@@ -46,8 +46,7 @@ export async function loadAllHandlers() {
     // Maps (3 handlers)
     await import('../handlers/maps/registry.js');
 
-    // DevAI (7+ handlers)
-    await import('../handlers/devai/registry.js');
+    // DevAI removed - now using ZANTARA-ONLY mode
 
     const stats = globalRegistry.getStats();
     logger.info('✅ Handler loading complete:');

@@ -11,6 +11,8 @@ interface RAGQueryRequest {
   k?: number;
   use_llm?: boolean;
   conversation_history?: Array<{role: string; content: string}>;
+  user_id?: string;       // User identifier for RAG backend
+  user_email?: string;    // User email for RAG backend
 }
 
 export interface RAGQueryResponse {

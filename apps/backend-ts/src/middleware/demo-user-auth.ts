@@ -29,47 +29,118 @@ const DEMO_USER = {
 };
 
 /**
- * Handlers allowed for demo user (read-only, safe operations)
+ * Handlers allowed for TEAM MEMBERS (expanded access for internal team)
+ * Demo users get basic access, team members get full operational access
+ */
+const TEAM_MEMBER_HANDLERS = new Set([
+  // === SYSTEM & INTROSPECTION ===
+  'system.handlers.list',
+  'system.handlers.category',
+  'system.handlers.get',
+  'system.handlers.tools',
+  'system.handler.execute',
+  
+  // === AI SERVICES ===
+  'ai.chat',
+  'ai.chat.stream',
+  'ai-services.chat',
+  'ai-services.anticipate',
+  'ai-services.learn',
+  
+  // === RAG & SEARCH ===
+  'rag.query',
+  'rag.search',
+  'rag.health',
+  'bali.zero.chat',
+  
+  // === PRICING (Read-only) ===
+  'bali.zero.pricing',
+  'bali.zero.price',
+  'pricing.official',
+  'pricing.search',
+  'price.lookup',
+  
+  // === TEAM MANAGEMENT ===
+  'team.list',
+  'team.members',
+  'team.login',
+  'team.logout',
+  'team.token.verify',
+  
+  // === ORACLE SYSTEM ===
+  'oracle.query',
+  'oracle.search',
+  'oracle.simulate',
+  'oracle.analyze',
+  'oracle.predict',
+  
+  // === MEMORY (Read & Write own data) ===
+  'memory.retrieve',
+  'memory.search',
+  'memory.save',
+  'memory.search.semantic',
+  'memory.search.hybrid',
+  'user.memory.retrieve',
+  'user.memory.search',
+  'user.memory.save',
+  
+  // === IDENTITY & ONBOARDING ===
+  'identity.resolve',
+  'onboarding.start',
+  
+  // === BUSINESS OPERATIONS ===
+  'kbli.lookup',
+  'kbli.requirements',
+  'kbli.search',
+  
+  // === ANALYTICS (Read-only) ===
+  'analytics.overview',
+  'analytics.weekly',
+  'activity.track',
+  
+  // === COMMUNICATION (Send messages) ===
+  'whatsapp.send.text',
+  'email.send',
+  
+  // === INTEL & NEWS ===
+  'intel.news.search',
+  'intel.news.latest',
+  
+  // === LOCATION & MAPS ===
+  'location.geocode',
+  'location.reverse',
+  'maps.search',
+  'maps.directions',
+  'maps.distance'
+]);
+
+/**
+ * Handlers allowed for DEMO/PUBLIC users (very limited access)
  */
 const DEMO_ALLOWED_HANDLERS = new Set([
   // System info (safe)
   'system.handlers.list',
   'system.handlers.category',
   'system.handlers.get',
-  'system.handlers.tools',
+  
+  // Basic AI chat
+  'ai.chat',
+  'bali.zero.chat',
   
   // Search & RAG (read-only)
   'rag.query',
   'rag.search',
+  
+  // Pricing (read-only)
+  'bali.zero.pricing',
   'pricing.official',
-  'pricing.search',
   
-  // AI Chat (safe, rate-limited)
-  'ai.chat',
-  'ai.chat.stream',
+  // Team authentication
+  'team.login',
+  'team.logout',
   
-  // Bali Zero chat (safe)
-  'bali.zero.chat',
-  
-  // Bali Zero pricing (read-only, safe)
-  'bali.zero.pricing',        // FIX: Add pricing handler
-  'bali.zero.price',          // FIX: Add price lookup
-  'price.lookup',             // FIX: Add price lookup alias
-  
-  // Team authentication (public)
-  'team.list',
-  'team.members',
-  'team.login',   // Allow team login for authentication
-  'team.logout',  // Allow logout
-  
-  // Oracle queries (read-only)
-  'oracle.query',
-  
-  // Memory read (own data only)
-  'memory.retrieve',
-  
-  // Intel search (read-only)
-  'intel.news.search'
+  // Basic memory read
+  'memory.retrieve'
 ]);
 
 /**
@@ -108,10 +179,22 @@ const DEMO_FORBIDDEN_HANDLERS = new Set([
 ]);
 
 /**
- * Check if demo user can access handler
+ * Check if user can access handler based on role
  */
-export function isDemoAllowed(handlerKey: string): boolean {
-  // Check explicit allow list
+export function isHandlerAllowed(handlerKey: string, role: string = 'demo'): boolean {
+  // Admin has full access (role = 'admin' or 'AI Bridge/Tech Lead')
+  if (role === 'admin' || role === 'AI Bridge/Tech Lead' || role === 'tech') {
+    return true;
+  }
+  
+  // Team members get expanded access
+  if (role === 'member' || role === 'collaborator' || role === 'developer') {
+    if (TEAM_MEMBER_HANDLERS.has(handlerKey)) {
+      return true;
+    }
+  }
+  
+  // Demo users get basic access
   if (DEMO_ALLOWED_HANDLERS.has(handlerKey)) {
     return true;
   }
@@ -131,6 +214,13 @@ export function isDemoAllowed(handlerKey: string): boolean {
   
   // Default: deny (safe by default)
   return false;
+}
+
+/**
+ * Legacy function for backwards compatibility
+ */
+export function isDemoAllowed(handlerKey: string): boolean {
+  return isHandlerAllowed(handlerKey, 'demo');
 }
 
 /**

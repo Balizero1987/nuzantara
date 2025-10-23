@@ -30,7 +30,7 @@ import { contactsList, contactsCreate } from "../handlers/google-workspace/conta
 import { aiChat } from "../handlers/ai-services/ai.js";
 import { aiAnticipate, aiLearn, xaiExplain } from "../handlers/ai-services/advanced-ai.js";
 import { creativeHandlers } from "../handlers/ai-services/creative.js";
-import { devaiHandlers } from "../handlers/devai/registry.js";
+// DevAI removed - using ZANTARA-ONLY mode
 
 // Bali Zero Business Services
 import { oracleSimulate, oracleAnalyze, oraclePredict } from "../handlers/bali-zero/oracle.js";
