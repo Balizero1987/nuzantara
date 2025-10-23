@@ -970,7 +970,7 @@ export function attachRoutes(app: import("express").Express) {
   });
 
   // Team Authentication Routes
-  app.post("/team.login", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post("/team.login", demoUserAuth, async (req: RequestWithDemo, res: Response) => {
     try {
       const result = await teamLogin(req.body);
       return res.status(200).json(result?.data ?? result);
@@ -990,7 +990,7 @@ export function attachRoutes(app: import("express").Express) {
     }
   });
 
-  app.post("/team.logout", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post("/team.logout", demoUserAuth, async (req: RequestWithDemo, res: Response) => {
     try {
       const { sessionId } = req.body;
       const result = logoutSession(sessionId);
@@ -1382,9 +1382,9 @@ export function attachRoutes(app: import("express").Express) {
       key = parsed.key;
       params = parsed.params;
 
-      // RBAC by API key
-      if (req.ctx?.role === "external" && FORBIDDEN_FOR_EXTERNAL.has(key)) {
-        throw new ForbiddenError("Action not allowed for external key");
+      // RBAC by user role
+      if (req.user?.isDemo && FORBIDDEN_FOR_EXTERNAL.has(key)) {
+        throw new ForbiddenError("Action not allowed for demo user");
       }
 
       // Prefer explicit TS AI routing for ai.chat
