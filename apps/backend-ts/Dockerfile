@@ -29,4 +29,4 @@ EXPOSE $PORT
 # Health check removed - using Railway's built-in health monitoring
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]
