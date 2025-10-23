@@ -96,10 +96,16 @@ app.use((req, res) => {
 // Start server
 const PORT = parseInt(process.env.PORT || ENV.PORT || '8080');
 
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info(`🚀 ZANTARA TS-BACKEND started on port ${PORT}`);
   logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);
   logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
 });
 
-export default app;
+// Handle shutdown gracefully
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM signal received: closing HTTP server');
+  server.close(() => {
+    logger.info('HTTP server closed');
+  });
+});
