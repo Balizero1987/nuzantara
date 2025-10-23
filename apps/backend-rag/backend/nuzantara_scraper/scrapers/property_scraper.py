@@ -11,6 +11,7 @@ from loguru import logger
 
 from ..core.base_scraper import BaseScraper
 from ..models.scraped_content import Source, ScrapedContent, SourceTier, ContentType
+from ..core.source_registry import get_registry, SourcePriority
 
 
 class PropertyScraper(BaseScraper):
@@ -22,41 +23,48 @@ class PropertyScraper(BaseScraper):
     """
 
     def get_sources(self) -> List[Source]:
-        """Define property and legal sources"""
+        """
+        Load property and legal sources dynamically from Source Registry
 
-        # Property listing sources
-        property_sources = [
-            Source(
-                name="Rumah.com Bali",
-                url="https://www.rumah.com/properti-dijual/bali",
-                tier=SourceTier.ACCREDITED,
-                category=ContentType.PROPERTY,
-                selectors=["div[data-testid='listing-card']", "div.listing-card"],
-                requires_js=True
-            ),
-        ]
+        Focus on legal/regulatory news only (not commercial property listings)
+        Sources from 457-source database in all_sources.json
+        """
+        registry = get_registry()
 
-        # Legal update sources
-        legal_sources = [
-            Source(
-                name="ATR/BPN (Land Agency)",
-                url="https://www.atrbpn.go.id/Berita",
-                tier=SourceTier.OFFICIAL,
-                category=ContentType.PROPERTY,
-                selectors=["article", "div.news-item"],
-                requires_js=False
-            ),
-            Source(
-                name="Hukumonline Property Law",
-                url="https://www.hukumonline.com/search?q=properti",
-                tier=SourceTier.ACCREDITED,
-                category=ContentType.PROPERTY,
-                selectors=["article.post", "div.content-item"],
-                requires_js=False
-            ),
-        ]
+        # Get all real estate sources (44 sources from SITI_REALESTATE.txt)
+        # Priority order: OFFICIAL (government) > ACCREDITED (legal news) > COMMUNITY
+        all_sources = []
 
-        return property_sources + legal_sources
+        # 1. Get official government sources (highest priority)
+        official_sources = registry.get_sources(
+            category='realestate',
+            tier=SourceTier.OFFICIAL,
+            enabled_only=True
+        )
+        all_sources.extend(official_sources)
+        logger.info(f"Loaded {len(official_sources)} official property sources")
+
+        # 2. Get accredited legal news sources (excluding commercial listings)
+        accredited_sources = registry.get_sources(
+            category='realestate',
+            tier=SourceTier.ACCREDITED,
+            enabled_only=True
+        )
+        all_sources.extend(accredited_sources)
+        logger.info(f"Loaded {len(accredited_sources)} accredited property sources")
+
+        # 3. Optionally get community sources (only high priority)
+        community_sources = registry.get_sources(
+            category='realestate',
+            tier=SourceTier.COMMUNITY,
+            priority=SourcePriority.HIGH,
+            enabled_only=True
+        )
+        all_sources.extend(community_sources)
+        logger.info(f"Loaded {len(community_sources)} high-priority community sources")
+
+        logger.info(f"Total property sources loaded: {len(all_sources)}")
+        return all_sources
 
     def parse_content(self, raw_html: str, source: Source) -> List[ScrapedContent]:
         """Extract property data from HTML"""

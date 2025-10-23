@@ -9,6 +9,7 @@ from loguru import logger
 
 from ..core.base_scraper import BaseScraper
 from ..models.scraped_content import Source, ScrapedContent, SourceTier, ContentType
+from ..core.source_registry import get_registry, SourcePriority
 
 
 class ImmigrationScraper(BaseScraper):
@@ -20,69 +21,47 @@ class ImmigrationScraper(BaseScraper):
     """
 
     def get_sources(self) -> List[Source]:
-        """Define immigration sources by tier"""
+        """
+        Load immigration sources dynamically from Source Registry
 
-        # TIER 1: Official sources (highest reliability)
-        t1_sources = [
-            Source(
-                name="Imigrasi Indonesia",
-                url="https://www.imigrasi.go.id/",
-                tier=SourceTier.OFFICIAL,
-                category=ContentType.IMMIGRATION,
-                selectors=["div.content", "article"],
-                requires_js=False
-            ),
-            Source(
-                name="Kemnaker",
-                url="https://kemnaker.go.id/",
-                tier=SourceTier.OFFICIAL,
-                category=ContentType.IMMIGRATION,
-                selectors=["div.content", "article"],
-                requires_js=False
-            ),
-            Source(
-                name="BKPM",
-                url="https://www.bkpm.go.id/",
-                tier=SourceTier.OFFICIAL,
-                category=ContentType.IMMIGRATION,
-                selectors=["div.content", "article"],
-                requires_js=False
-            ),
-        ]
+        Multi-tier approach: T1 (official) > T2 (accredited) > T3 (community)
+        Sources from 457-source database in all_sources.json
+        """
+        registry = get_registry()
 
-        # TIER 2: Accredited sources (medium reliability)
-        t2_sources = [
-            Source(
-                name="Jakarta Post",
-                url="https://www.thejakartapost.com/search?q=visa",
-                tier=SourceTier.ACCREDITED,
-                category=ContentType.IMMIGRATION,
-                selectors=["article.post"],
-                requires_js=False
-            ),
-            Source(
-                name="Hukumonline",
-                url="https://www.hukumonline.com/",
-                tier=SourceTier.ACCREDITED,
-                category=ContentType.IMMIGRATION,
-                selectors=["article"],
-                requires_js=False
-            ),
-        ]
+        # Get all immigration sources (37 sources from SITI_IMMIGRATION.txt)
+        all_sources = []
 
-        # TIER 3: Community sources (for sentiment/trends)
-        t3_sources = [
-            Source(
-                name="Expat Forum",
-                url="https://www.expatindo.org/",
-                tier=SourceTier.COMMUNITY,
-                category=ContentType.IMMIGRATION,
-                selectors=["div.post-content"],
-                requires_js=False
-            ),
-        ]
+        # TIER 1: Official government sources (highest reliability)
+        t1_sources = registry.get_sources(
+            category='immigration',
+            tier=SourceTier.OFFICIAL,
+            enabled_only=True
+        )
+        all_sources.extend(t1_sources)
+        logger.info(f"Loaded {len(t1_sources)} T1 (official) immigration sources")
 
-        return t1_sources + t2_sources + t3_sources
+        # TIER 2: Accredited news/legal sources (medium reliability)
+        t2_sources = registry.get_sources(
+            category='immigration',
+            tier=SourceTier.ACCREDITED,
+            enabled_only=True
+        )
+        all_sources.extend(t2_sources)
+        logger.info(f"Loaded {len(t2_sources)} T2 (accredited) immigration sources")
+
+        # TIER 3: Community sources (for sentiment/trends, only high priority)
+        t3_sources = registry.get_sources(
+            category='immigration',
+            tier=SourceTier.COMMUNITY,
+            priority=SourcePriority.HIGH,
+            enabled_only=True
+        )
+        all_sources.extend(t3_sources)
+        logger.info(f"Loaded {len(t3_sources)} T3 (community) immigration sources")
+
+        logger.info(f"Total immigration sources loaded: {len(all_sources)}")
+        return all_sources
 
     def parse_content(self, raw_html: str, source: Source) -> List[ScrapedContent]:
         """Extract immigration/visa updates from HTML"""

@@ -9,6 +9,7 @@ from loguru import logger
 
 from ..core.base_scraper import BaseScraper
 from ..models.scraped_content import Source, ScrapedContent, SourceTier, ContentType
+from ..core.source_registry import get_registry, SourcePriority
 
 
 class TaxScraper(BaseScraper):
@@ -20,34 +21,47 @@ class TaxScraper(BaseScraper):
     """
 
     def get_sources(self) -> List[Source]:
-        """Define official tax sources"""
+        """
+        Load tax sources dynamically from Source Registry
 
-        return [
-            Source(
-                name="DJP (Directorate General of Taxation)",
-                url="https://www.pajak.go.id/id/berita",
-                tier=SourceTier.OFFICIAL,
-                category=ContentType.TAX,
-                selectors=["article", "div.news-item"],
-                requires_js=False
-            ),
-            Source(
-                name="DJP Regulations",
-                url="https://www.pajak.go.id/id/peraturan",
-                tier=SourceTier.OFFICIAL,
-                category=ContentType.TAX,
-                selectors=["div.regulation-item", "article"],
-                requires_js=False
-            ),
-            Source(
-                name="Kemenkeu (Ministry of Finance)",
-                url="https://www.kemenkeu.go.id/informasi-publik/publikasi/berita-pajak",
-                tier=SourceTier.OFFICIAL,
-                category=ContentType.TAX,
-                selectors=["div.content-item", "article"],
-                requires_js=False
-            ),
-        ]
+        Priority: Official government sources (DJP, Kemenkeu) > Accredited news
+        Sources from 457-source database in all_sources.json
+        """
+        registry = get_registry()
+
+        # Get all tax sources (30 sources from SITI_TAX.txt)
+        all_sources = []
+
+        # 1. Official government sources (highest priority)
+        official_sources = registry.get_sources(
+            category='tax',
+            tier=SourceTier.OFFICIAL,
+            enabled_only=True
+        )
+        all_sources.extend(official_sources)
+        logger.info(f"Loaded {len(official_sources)} official tax sources")
+
+        # 2. Accredited legal/news sources (secondary priority)
+        accredited_sources = registry.get_sources(
+            category='tax',
+            tier=SourceTier.ACCREDITED,
+            enabled_only=True
+        )
+        all_sources.extend(accredited_sources)
+        logger.info(f"Loaded {len(accredited_sources)} accredited tax sources")
+
+        # 3. Community sources (only high priority)
+        community_sources = registry.get_sources(
+            category='tax',
+            tier=SourceTier.COMMUNITY,
+            priority=SourcePriority.HIGH,
+            enabled_only=True
+        )
+        all_sources.extend(community_sources)
+        logger.info(f"Loaded {len(community_sources)} high-priority community tax sources")
+
+        logger.info(f"Total tax sources loaded: {len(all_sources)}")
+        return all_sources
 
     def parse_content(self, raw_html: str, source: Source) -> List[ScrapedContent]:
         """Extract tax updates from HTML"""

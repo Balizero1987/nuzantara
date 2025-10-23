@@ -10,6 +10,7 @@ from loguru import logger
 
 from ..core.base_scraper import BaseScraper
 from ..models.scraped_content import Source, ScrapedContent, SourceTier, ContentType
+from ..core.source_registry import get_registry, SourcePriority
 
 
 class NewsScraper(BaseScraper):
@@ -32,59 +33,64 @@ class NewsScraper(BaseScraper):
 
     def get_sources(self) -> List[Source]:
         """
-        Define news sources
+        Load news sources dynamically from Source Registry
 
-        Note: In production, load from config/sources.yaml
-        This is a simplified example with major sources
+        Loads from 457-source database (52 news sources from SITI_NEWS.txt)
+        Priority: Critical > High > Medium > Low
+        Tier: Official > Accredited > Community
         """
+        registry = get_registry()
 
-        return [
-            # General News
-            Source(
-                name="Jakarta Post",
-                url="https://www.thejakartapost.com/",
-                tier=SourceTier.ACCREDITED,
-                category=ContentType.NEWS,
-                selectors=["article", "div.latest-news"],
-                requires_js=False
-            ),
-            Source(
-                name="Tempo.co",
-                url="https://en.tempo.co/",
-                tier=SourceTier.ACCREDITED,
-                category=ContentType.NEWS,
-                selectors=["article.card", "div.news-item"],
-                requires_js=True
-            ),
-            Source(
-                name="Detik",
-                url="https://www.detik.com/",
-                tier=SourceTier.ACCREDITED,
-                category=ContentType.NEWS,
-                selectors=["article", "div.list-content__item"],
-                requires_js=True
-            ),
+        # Get all news sources (52 sources from SITI_NEWS.txt)
+        all_sources = []
 
-            # Business/Regulatory
-            Source(
-                name="Indonesia Investments",
-                url="https://www.indonesia-investments.com/",
-                tier=SourceTier.ACCREDITED,
-                category=ContentType.NEWS,
-                selectors=["article", "div.content"],
-                requires_js=False
-            ),
+        # 1. Get all CRITICAL priority sources (highest priority, any tier)
+        critical_sources = registry.get_sources(
+            category='news',
+            priority=SourcePriority.CRITICAL,
+            enabled_only=True
+        )
+        all_sources.extend(critical_sources)
+        logger.info(f"Loaded {len(critical_sources)} CRITICAL news sources")
 
-            # Community
-            Source(
-                name="Reddit Indonesia",
-                url="https://www.reddit.com/r/indonesia/",
-                tier=SourceTier.COMMUNITY,
-                category=ContentType.NEWS,
-                selectors=["div.Post"],
-                requires_js=True
-            ),
-        ]
+        # 2. Get HIGH priority sources (any tier)
+        high_sources = registry.get_sources(
+            category='news',
+            priority=SourcePriority.HIGH,
+            enabled_only=True
+        )
+        all_sources.extend(high_sources)
+        logger.info(f"Loaded {len(high_sources)} HIGH priority news sources")
+
+        # 3. Get MEDIUM priority OFFICIAL and ACCREDITED sources
+        medium_official = registry.get_sources(
+            category='news',
+            tier=SourceTier.OFFICIAL,
+            priority=SourcePriority.MEDIUM,
+            enabled_only=True
+        )
+        medium_accredited = registry.get_sources(
+            category='news',
+            tier=SourceTier.ACCREDITED,
+            priority=SourcePriority.MEDIUM,
+            enabled_only=True
+        )
+        all_sources.extend(medium_official)
+        all_sources.extend(medium_accredited)
+        logger.info(f"Loaded {len(medium_official) + len(medium_accredited)} MEDIUM priority news sources")
+
+        # 4. Optionally get LOW priority OFFICIAL sources only
+        low_official = registry.get_sources(
+            category='news',
+            tier=SourceTier.OFFICIAL,
+            priority=SourcePriority.LOW,
+            enabled_only=True
+        )
+        all_sources.extend(low_official)
+        logger.info(f"Loaded {len(low_official)} LOW priority official news sources")
+
+        logger.info(f"Total news sources loaded: {len(all_sources)}")
+        return all_sources
 
     def parse_content(self, raw_html: str, source: Source) -> List[ScrapedContent]:
         """Extract news articles from HTML"""
