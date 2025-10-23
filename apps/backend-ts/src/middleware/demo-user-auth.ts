@@ -240,9 +240,10 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
       const jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
       
       try {
+        console.log('🔍 [DEBUG] Attempting JWT verify with token:', token.substring(0, 50));
         const decoded = jwt.verify(token, jwtSecret) as any;
         
-        console.log('🔍 [DEBUG] JWT decoded:', { userId: decoded.userId, email: decoded.email, role: decoded.role });
+        console.log('🔍 [DEBUG] JWT decoded successfully:', { userId: decoded.userId, email: decoded.email, role: decoded.role });
         
         // Set user from JWT
         req.user = {
@@ -276,8 +277,9 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
         }
         
         return next();
-      } catch (jwtError) {
+      } catch (jwtError: any) {
         // Invalid JWT, fall through to demo user check
+        console.log('🔍 [DEBUG] JWT verification failed:', jwtError.message);
       }
     }
     
