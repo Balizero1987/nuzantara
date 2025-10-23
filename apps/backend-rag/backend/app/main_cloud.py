@@ -1250,7 +1250,7 @@ async def search_endpoint(request: SearchRequest):
                 logger.info("🎯 [RAG Search] Using Claude Haiku 4.5 (Efficient AI with RAG)")
                 response = await claude_haiku.conversational(
                     message=messages[-1]["content"],
-                    user_id=request.user_id or "search_user",
+                    user_id="search_user",
                     max_tokens=1500
                 )
                 answer = response.get("text", "")
