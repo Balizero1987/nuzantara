@@ -1,0 +1,570 @@
+{
+  "agents/eye-kbli.ts": [],
+  "agents/legal-architect.ts": [],
+  "agents/property-sage.ts": [],
+  "agents/tax-genius.ts": [],
+  "agents/visa-oracle.ts": [],
+  "app-gateway/app-bootstrap.ts": [
+    "app-gateway/session-store.ts",
+    "app-gateway/types.ts",
+    "config/flags.ts"
+  ],
+  "app-gateway/app-events.ts": [
+    "app-gateway/capability-map.ts",
+    "app-gateway/param-normalizer.ts",
+    "app-gateway/session-store.ts",
+    "app-gateway/types.ts",
+    "core/handler-registry.ts",
+    "services/logger.ts"
+  ],
+  "app-gateway/capability-map.ts": [
+    "app-gateway/types.ts"
+  ],
+  "app-gateway/param-normalizer.ts": [
+    "app-gateway/types.ts"
+  ],
+  "app-gateway/session-store.ts": [
+    "services/firebase.ts",
+    "services/logger.ts"
+  ],
+  "app-gateway/types.ts": [
+    "config/flags.ts"
+  ],
+  "config/flags.ts": [],
+  "config/index.ts": [
+    "services/logger.ts"
+  ],
+  "core/handler-registry.ts": [
+    "services/logger.ts"
+  ],
+  "core/load-all-handlers.ts": [
+    "core/handler-registry.ts",
+    "handlers/ai-services/registry.ts",
+    "handlers/analytics/registry.ts",
+    "handlers/bali-zero/registry.ts",
+    "handlers/communication/registry.ts",
+    "handlers/devai/registry.ts",
+    "handlers/google-workspace/registry.ts",
+    "handlers/identity/registry.ts",
+    "handlers/maps/registry.ts",
+    "handlers/memory/registry.ts",
+    "handlers/rag/registry.ts",
+    "handlers/zantara/registry.ts",
+    "services/logger.ts"
+  ],
+  "core/zantara-orchestrator.ts": [
+    "agents/eye-kbli.ts",
+    "agents/legal-architect.ts",
+    "agents/property-sage.ts",
+    "agents/tax-genius.ts",
+    "agents/visa-oracle.ts",
+    "handlers/memory/memory-firestore.ts",
+    "services/logger.ts"
+  ],
+  "handlers/admin/websocket-admin.ts": [
+    "services/websocket-server.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/ai-services/advanced-ai.ts": [
+    "handlers/ai-services/ai.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/ai-services/ai-bridge.ts": [
+    "services/ai-communication.ts",
+    "services/logger.ts"
+  ],
+  "handlers/ai-services/ai.ts": [
+    "handlers/ai-services/zantara-llama.ts",
+    "services/logger.ts",
+    "utils/response.ts"
+  ],
+  "handlers/ai-services/creative.ts": [
+    "services/google-auth-service.ts",
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/ai-services/imagine-art-handler.ts": [
+    "services/imagine-art-service.ts",
+    "services/logger.ts",
+    "types/imagine-art-types.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/ai-services/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/ai-services/advanced-ai.ts",
+    "handlers/ai-services/ai-bridge.ts",
+    "handlers/ai-services/ai.ts",
+    "handlers/ai-services/creative.ts",
+    "handlers/ai-services/imagine-art-handler.ts",
+    "services/logger.ts"
+  ],
+  "handlers/ai-services/zantara-llama.ts": [
+    "config/index.ts",
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/analytics/analytics.ts": [
+    "utils/response.ts"
+  ],
+  "handlers/analytics/daily-drive-recap.ts": [
+    "services/google-auth-service.ts",
+    "services/logger.ts",
+    "utils/response.ts"
+  ],
+  "handlers/analytics/dashboard-analytics.ts": [
+    "services/firebase.ts",
+    "services/logger.ts",
+    "utils/response.ts"
+  ],
+  "handlers/analytics/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/analytics/analytics.ts",
+    "handlers/analytics/daily-drive-recap.ts",
+    "handlers/analytics/dashboard-analytics.ts",
+    "handlers/analytics/weekly-report.ts",
+    "services/logger.ts"
+  ],
+  "handlers/analytics/weekly-report.ts": [
+    "services/firebase.ts",
+    "services/google-auth-service.ts",
+    "services/logger.ts",
+    "utils/response.ts"
+  ],
+  "handlers/auth/team-login-secure.ts": [
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/auth/team-login.ts": [
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/bali-zero/advisory.ts": [
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/bali-zero/bali-zero-pricing.ts": [
+    "utils/response.ts"
+  ],
+  "handlers/bali-zero/kbli.ts": [
+    "services/logger.ts"
+  ],
+  "handlers/bali-zero/oracle.ts": [
+    "services/bridgeProxy.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/bali-zero/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/bali-zero/advisory.ts",
+    "handlers/bali-zero/bali-zero-pricing.ts",
+    "handlers/bali-zero/kbli.ts",
+    "handlers/bali-zero/oracle.ts",
+    "handlers/bali-zero/team-activity.ts",
+    "handlers/bali-zero/team.ts",
+    "services/logger.ts"
+  ],
+  "handlers/bali-zero/team-activity.ts": [
+    "services/logger.ts",
+    "services/session-tracker.ts"
+  ],
+  "handlers/bali-zero/team.ts": [
+    "services/logger.ts"
+  ],
+  "handlers/communication/communication.ts": [
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/communication/instagram.ts": [
+    "handlers/ai-services/ai.ts",
+    "handlers/memory/memory-firestore.ts",
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/communication/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/communication/communication.ts",
+    "handlers/communication/instagram.ts",
+    "handlers/communication/translate.ts",
+    "handlers/communication/whatsapp.ts",
+    "services/logger.ts"
+  ],
+  "handlers/communication/translate.ts": [
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/communication/twilio-whatsapp.ts": [
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/communication/whatsapp.ts": [
+    "handlers/ai-services/ai.ts",
+    "handlers/memory/memory-firestore.ts",
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/devai/devai-bridge.ts": [
+    "services/ai-communication.ts",
+    "services/logger.ts"
+  ],
+  "handlers/devai/devai-qwen.ts": [
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/devai/devai-warmup.ts": [
+    "utils/response.ts"
+  ],
+  "handlers/devai/registry.ts": [
+    "handlers/devai/devai-bridge.ts",
+    "handlers/devai/devai-qwen.ts",
+    "handlers/devai/devai-warmup.ts"
+  ],
+  "handlers/google-workspace/calendar.ts": [
+    "services/bridgeProxy.ts",
+    "services/google-auth-service.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/google-workspace/contacts.ts": [
+    "services/bridgeProxy.ts",
+    "services/google-auth-service.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/google-workspace/docs.ts": [
+    "services/bridgeProxy.ts",
+    "services/google-auth-service.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/google-workspace/drive.ts": [
+    "services/bridgeProxy.ts",
+    "services/google-auth-service.ts",
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/google-workspace/gmail.ts": [
+    "services/google-auth-service.ts",
+    "services/logger.ts",
+    "services/oauth2-client.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/google-workspace/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/google-workspace/calendar.ts",
+    "handlers/google-workspace/contacts.ts",
+    "handlers/google-workspace/docs.ts",
+    "handlers/google-workspace/drive.ts",
+    "handlers/google-workspace/gmail.ts",
+    "handlers/google-workspace/sheets.ts",
+    "handlers/google-workspace/slides.ts",
+    "services/logger.ts"
+  ],
+  "handlers/google-workspace/sheets.ts": [
+    "services/bridgeProxy.ts",
+    "services/google-auth-service.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/google-workspace/slides.ts": [
+    "services/bridgeProxy.ts",
+    "services/google-auth-service.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/identity/identity.ts": [
+    "middleware/monitoring.ts",
+    "services/cacheProxy.ts",
+    "services/logger.ts",
+    "utils/response.ts"
+  ],
+  "handlers/identity/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/identity/identity.ts",
+    "services/logger.ts"
+  ],
+  "handlers/intel/news-search.ts": [
+    "services/logger.ts"
+  ],
+  "handlers/intel/scraper.ts": [
+    "services/logger.ts"
+  ],
+  "handlers/maps/maps.ts": [
+    "services/bridgeProxy.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/maps/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/maps/maps.ts",
+    "services/logger.ts"
+  ],
+  "handlers/memory/conversation-autosave.ts": [
+    "handlers/analytics/daily-drive-recap.ts",
+    "handlers/google-workspace/drive.ts",
+    "services/logger.ts"
+  ],
+  "handlers/memory/episodes-firestore.ts": [
+    "services/firebase.ts",
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/memory/memory-cache-stats.ts": [
+    "services/memory-cache.ts",
+    "utils/response.ts"
+  ],
+  "handlers/memory/memory-firestore.ts": [
+    "services/firebase.ts",
+    "services/logger.ts",
+    "services/memory-vector.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/memory/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/memory/conversation-autosave.ts",
+    "handlers/memory/memory-firestore.ts",
+    "handlers/memory/user-memory.ts",
+    "services/logger.ts"
+  ],
+  "handlers/memory/user-memory.ts": [
+    "core/handler-registry.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/rag/rag.ts": [
+    "services/logger.ts",
+    "services/ragService.ts"
+  ],
+  "handlers/rag/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/rag/rag.ts",
+    "services/logger.ts"
+  ],
+  "handlers/system/handler-metadata.ts": [],
+  "handlers/system/handler-proxy.ts": [
+    "routing/router.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/system/handlers-introspection.ts": [
+    "core/handler-registry.ts",
+    "handlers/system/handler-metadata.ts",
+    "utils/response.ts"
+  ],
+  "handlers/zantara/knowledge.ts": [
+    "utils/response.ts"
+  ],
+  "handlers/zantara/registry.ts": [
+    "core/handler-registry.ts",
+    "handlers/zantara/zantara-dashboard.ts",
+    "handlers/zantara/zantara-test.ts",
+    "handlers/zantara/zantara-v2-simple.ts",
+    "services/logger.ts"
+  ],
+  "handlers/zantara/zantara-brilliant.ts": [
+    "core/zantara-orchestrator.ts",
+    "utils/response.ts"
+  ],
+  "handlers/zantara/zantara-dashboard.ts": [
+    "utils/response.ts"
+  ],
+  "handlers/zantara/zantara-test.ts": [
+    "utils/response.ts"
+  ],
+  "handlers/zantara/zantara-v2-simple.ts": [
+    "utils/response.ts"
+  ],
+  "handlers/zero/chat-simple.ts": [
+    "handlers/ai-services/ai.ts",
+    "services/logger.ts"
+  ],
+  "handlers/zero/chat.ts": [
+    "handlers/ai-services/ai.ts",
+    "services/logger.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "handlers/zero/index.ts": [
+    "handlers/zero/chat-simple.ts",
+    "handlers/zero/chat.ts"
+  ],
+  "index.ts": [
+    "app-gateway/app-bootstrap.ts",
+    "app-gateway/app-events.ts",
+    "config/flags.ts",
+    "core/load-all-handlers.ts",
+    "handlers/ai-services/ai.ts",
+    "interfaces/index.ts",
+    "middleware/correlationId.ts",
+    "middleware/flagGate.ts",
+    "middleware/monitoring.ts",
+    "middleware/reality-check.ts",
+    "middleware/validation.ts",
+    "routing/index.ts",
+    "services/firebase.ts",
+    "services/logger.ts",
+    "services/oauth2-client.ts",
+    "services/rag-warmup.ts",
+    "services/websocket-server.ts"
+  ],
+  "interfaces/index.ts": [],
+  "middleware/auth.ts": [
+    "config/index.ts",
+    "services/logger.ts"
+  ],
+  "middleware/correlationId.ts": [],
+  "middleware/demo-user-auth.ts": [],
+  "middleware/flagGate.ts": [
+    "config/flags.ts"
+  ],
+  "middleware/jwt-auth.ts": [],
+  "middleware/monitoring.ts": [
+    "handlers/communication/whatsapp.ts",
+    "services/firebase.ts",
+    "services/logger.ts",
+    "services/session-tracker.ts"
+  ],
+  "middleware/rate-limit.ts": [
+    "services/logger.ts"
+  ],
+  "middleware/reality-check.ts": [
+    "services/anti-hallucination.ts",
+    "services/logger.ts",
+    "services/reality-anchor.ts"
+  ],
+  "middleware/selective-rate-limit.ts": [
+    "middleware/rate-limit.ts"
+  ],
+  "middleware/validation.ts": [
+    "services/anti-hallucination.ts",
+    "services/logger.ts"
+  ],
+  "routing/index.ts": [
+    "routing/router.ts"
+  ],
+  "routing/router.ts": [
+    "core/handler-registry.ts",
+    "handlers/admin/websocket-admin.ts",
+    "handlers/ai-services/advanced-ai.ts",
+    "handlers/ai-services/ai.ts",
+    "handlers/ai-services/creative.ts",
+    "handlers/analytics/analytics.ts",
+    "handlers/analytics/daily-drive-recap.ts",
+    "handlers/analytics/dashboard-analytics.ts",
+    "handlers/analytics/weekly-report.ts",
+    "handlers/auth/team-login-secure.ts",
+    "handlers/auth/team-login.ts",
+    "handlers/bali-zero/advisory.ts",
+    "handlers/bali-zero/bali-zero-pricing.ts",
+    "handlers/bali-zero/kbli.ts",
+    "handlers/bali-zero/oracle.ts",
+    "handlers/bali-zero/team-activity.ts",
+    "handlers/bali-zero/team.ts",
+    "handlers/communication/communication.ts",
+    "handlers/communication/instagram.ts",
+    "handlers/communication/translate.ts",
+    "handlers/communication/twilio-whatsapp.ts",
+    "handlers/communication/whatsapp.ts",
+    "handlers/devai/registry.ts",
+    "handlers/google-workspace/calendar.ts",
+    "handlers/google-workspace/contacts.ts",
+    "handlers/google-workspace/docs.ts",
+    "handlers/google-workspace/drive.ts",
+    "handlers/google-workspace/gmail.ts",
+    "handlers/google-workspace/sheets.ts",
+    "handlers/google-workspace/slides.ts",
+    "handlers/identity/identity.ts",
+    "handlers/intel/news-search.ts",
+    "handlers/intel/scraper.ts",
+    "handlers/maps/maps.ts",
+    "handlers/memory/conversation-autosave.ts",
+    "handlers/memory/episodes-firestore.ts",
+    "handlers/memory/memory-cache-stats.ts",
+    "handlers/memory/memory-firestore.ts",
+    "handlers/memory/user-memory.ts",
+    "handlers/rag/rag.ts",
+    "handlers/system/handler-proxy.ts",
+    "handlers/system/handlers-introspection.ts",
+    "handlers/zantara/knowledge.ts",
+    "handlers/zantara/zantara-brilliant.ts",
+    "handlers/zantara/zantara-dashboard.ts",
+    "handlers/zantara/zantara-test.ts",
+    "handlers/zantara/zantara-v2-simple.ts",
+    "handlers/zero/index.ts",
+    "middleware/auth.ts",
+    "middleware/demo-user-auth.ts",
+    "middleware/jwt-auth.ts",
+    "middleware/selective-rate-limit.ts",
+    "services/bridgeProxy.ts",
+    "services/logger.ts",
+    "services/oauth2-client.ts",
+    "utils/errors.ts",
+    "utils/response.ts"
+  ],
+  "services/ai-communication.ts": [
+    "handlers/ai-services/ai.ts",
+    "handlers/devai/devai-qwen.ts",
+    "services/logger.ts"
+  ],
+  "services/anti-hallucination.ts": [
+    "services/firebase.ts",
+    "services/logger.ts"
+  ],
+  "services/bridgeProxy.ts": [],
+  "services/cacheProxy.ts": [],
+  "services/firebase.ts": [
+    "services/logger.ts"
+  ],
+  "services/google-auth-service.ts": [
+    "services/logger.ts",
+    "services/oauth2-client.ts"
+  ],
+  "services/imagine-art-service.ts": [
+    "services/logger.ts",
+    "types/imagine-art-types.ts"
+  ],
+  "services/logger.ts": [],
+  "services/memory-cache.ts": [],
+  "services/memory-vector.ts": [
+    "services/logger.ts",
+    "services/memory-cache.ts"
+  ],
+  "services/oauth2-client.ts": [
+    "services/logger.ts",
+    "services/token-path.ts"
+  ],
+  "services/rag-warmup.ts": [
+    "services/logger.ts"
+  ],
+  "services/ragService.ts": [
+    "services/logger.ts"
+  ],
+  "services/reality-anchor.ts": [
+    "services/firebase.ts",
+    "services/logger.ts"
+  ],
+  "services/session-tracker.ts": [
+    "services/logger.ts"
+  ],
+  "services/token-path.ts": [],
+  "services/websocket-server.ts": [
+    "services/logger.ts"
+  ],
+  "types/imagine-art-types.ts": [],
+  "utils/errors.ts": [],
+  "utils/response.ts": []
+}
