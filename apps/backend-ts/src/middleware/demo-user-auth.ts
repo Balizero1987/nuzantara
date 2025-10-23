@@ -131,9 +131,11 @@ const DEMO_ALLOWED_HANDLERS = new Set([
   'rag.query',
   'rag.search',
   
-  // Pricing (read-only)
-  'bali.zero.pricing',
-  'pricing.official',
+  // Pricing (PUBLIC - tutti devono avere accesso ai prezzi ufficiali Bali Zero)
+  'bali.zero.pricing',        // Prezzi ufficiali Bali Zero
+  'bali.zero.price',           // Quick price lookup Bali Zero
+  'pricing.official',          // Official pricelist
+  'price.lookup',              // Price lookup
   
   // Team authentication
   'team.login',
