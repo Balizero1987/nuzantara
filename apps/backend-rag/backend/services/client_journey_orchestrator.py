@@ -283,7 +283,8 @@ class ClientJourneyOrchestrator:
         self,
         journey_type: str,
         client_id: str,
-        custom_metadata: Optional[Dict] = None
+        custom_metadata: Optional[Dict] = None,
+        custom_steps: Optional[List[Dict[str, Any]]] = None
     ) -> ClientJourney:
         """
         Create a new client journey from template.
@@ -292,6 +293,7 @@ class ClientJourneyOrchestrator:
             journey_type: Journey template key
             client_id: Client identifier
             custom_metadata: Optional custom data
+            custom_steps: Optional custom steps to override template
 
         Returns:
             ClientJourney instance
@@ -304,19 +306,34 @@ class ClientJourneyOrchestrator:
         # Generate journey ID
         journey_id = f"{journey_type}_{client_id}_{int(datetime.now().timestamp())}"
 
-        # Create steps from template
+        # Create steps from template or custom steps
         steps = []
-        for i, step_template in enumerate(template["steps"], 1):
-            step = JourneyStep(
-                step_id=step_template["step_id"],
-                step_number=i,
-                title=step_template["title"],
-                description=step_template["description"],
-                prerequisites=step_template["prerequisites"],
-                required_documents=step_template["required_documents"],
-                estimated_duration_days=step_template["estimated_duration_days"]
-            )
-            steps.append(step)
+        if custom_steps:
+            # Use custom steps if provided
+            for i, step_data in enumerate(custom_steps, 1):
+                step = JourneyStep(
+                    step_id=step_data.get("step_id", f"custom_step_{i}"),
+                    step_number=i,
+                    title=step_data.get("title", f"Custom Step {i}"),
+                    description=step_data.get("description", ""),
+                    prerequisites=step_data.get("prerequisites", []),
+                    required_documents=step_data.get("required_documents", []),
+                    estimated_duration_days=step_data.get("estimated_duration_days", 1)
+                )
+                steps.append(step)
+        else:
+            # Use template steps
+            for i, step_template in enumerate(template["steps"], 1):
+                step = JourneyStep(
+                    step_id=step_template["step_id"],
+                    step_number=i,
+                    title=step_template["title"],
+                    description=step_template["description"],
+                    prerequisites=step_template["prerequisites"],
+                    required_documents=step_template["required_documents"],
+                    estimated_duration_days=step_template["estimated_duration_days"]
+                )
+                steps.append(step)
 
         # Calculate estimated completion
         total_days = sum(s.estimated_duration_days for s in steps)
