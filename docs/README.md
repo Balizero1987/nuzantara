@@ -1,109 +1,55 @@
-# 📚 NUZANTARA Railway - Documentation
+# 📚 NUZANTARA Documentation
 
-**Production-ready AI platform for Indonesian business services**
+## 🎯 Quick Navigation
 
----
+### 🏗️ System Architecture
+- **[Galaxy Map](galaxy-map/README.md)** - Complete system overview
+- **[Architecture](architecture/ARCHITECTURE.md)** - Technical architecture
+- **[JIWA Architecture](architecture/JIWA_ARCHITECTURE.md)** - Cultural intelligence system
+- **[System Vision](architecture/SYSTEM_COMPLETE_VISION.md)** - Complete system vision
+- **[Architecture Map](architecture/PERFECT_SYSTEM_ARCHITECTURE_MAP.md)** - System architecture map
 
-## 🚀 Quick Links
+### 🤖 AI & LLAMA
+- **[LLAMA Architecture](ai/LLAMA_LIVE_ARCHITECTURE.md)** - LLAMA integration
+- **[LLAMA Manual Run](ai/LLAMA_MANUAL_RUN.md)** - Manual LLAMA operations
+- **[Offline AI Setup](ai/OFFLINE_AI_SETUP.md)** - Offline AI configuration
+- **[ZANTARA Activation](ai/ZANTARA_ACTIVATION_MAP.md)** - ZANTARA activation guide
+- **[ZANTARA Code Map](ai/ZANTARA_LLAMA_CODE_MAP.md)** - Code mapping
+- **[Cultural RAG](ai/CULTURAL_RAG_IMPLEMENTATION_SUMMARY.md)** - Cultural RAG implementation
 
-| What do you need? | Go here |
-|-------------------|---------|
-| **Get Started** | [QUICK_START.md](QUICK_START.md) |
-| **System Overview** | [ARCHITECTURE.md](ARCHITECTURE.md) |
-| **API Reference** | [api/API_DOCUMENTATION.md](api/API_DOCUMENTATION.md) |
-| **Deploy to Railway** | [guides/RAILWAY_DEPLOYMENT_GUIDE.md](guides/RAILWAY_DEPLOYMENT_GUIDE.md) |
-| **Project Structure** | [../STRUCTURE.md](../STRUCTURE.md) |
+### 🔌 API Documentation
+- **[API Docs](api/API_DOCUMENTATION.md)** - Complete API reference
+- **[Endpoints](api/endpoint-summary.md)** - Endpoint summary
 
----
+### 🚀 Deployment
+- **[Railway Deployment](guides/RAILWAY_DEPLOYMENT_GUIDE.md)** - Production deployment
+- **[RunPod Setup](guides/RUNPOD_DEVAI_SETUP.md)** - AI model setup
+- **[Webapp Deploy](deployment/WEBAPP_DEPLOY_PROCESS.md)** - Webapp deployment
 
-## 📁 Documentation Structure
+### 📊 System Status
+- **[Oracle Agents](status/ORACLE_AGENTS_COMPLETE_IMPLEMENTATION.md)** - Oracle system status
+- **[Oracle Status](status/ORACLE_IMPLEMENTATION_STATUS.md)** - Implementation status
 
-```
-docs/
-├── README.md (you are here)
-├── QUICK_START.md          # 5-minute overview
-├── ARCHITECTURE.md          # System architecture
-│
-├── api/                     # API documentation
-│   ├── API_DOCUMENTATION.md
-│   ├── ENDPOINTS_DOCUMENTATION.md
-│   └── openapi-rag-pricing.yaml
-│
-├── guides/                  # How-to guides
-│   ├── RAILWAY_DEPLOYMENT_GUIDE.md
-│   ├── RUNPOD_DEVAI_SETUP.md
-│   └── README.md
-│
-└── reports/                 # Project reports
-    ├── cleanup-2024/       # Dependency cleanup reports
-    └── CLEANUP_SESSION_COMPLETE_2025-10-18.md
-```
+### 🧪 Testing
+- **[Testing Instructions](testing/TESTING_INSTRUCTIONS.md)** - How to test the system
+
+### 🔧 Quick References
+- **[Quick Start](guides/QUICK_START.md)** - Get started quickly
+- **[AI Build Guide](guides/AI_BUILD_DECISION_GUIDE.md)** - AI build decisions
 
 ---
 
-## 🎯 Common Tasks
-
-### First Time Setup
-```bash
-# 1. Read the quick start
-cat docs/QUICK_START.md
-
-# 2. Understand project structure
-cat STRUCTURE.md
-
-# 3. Follow Railway deployment guide
-cat docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md
-```
-
-### Working with the Project
-```bash
-# Check project structure
-cat STRUCTURE.md
-
-# Backend TypeScript (API)
-cd apps/backend-ts
-npm install
-npm run build
-npm start
-
-# Backend Python (RAG)
-cd apps/backend-rag/backend
-pip install -r requirements.txt
-python -m app.main
-```
-
-### Understanding the System
-```bash
-# System architecture
-cat docs/ARCHITECTURE.md
-
-# API documentation
-cat docs/api/API_DOCUMENTATION.md
-
-# Project reports
-ls docs/reports/
-```
+## 📁 Archive
+- **[Old Reports](archive/reports/)** - Historical reports and session logs
+- **[Duplicates](archive/duplicates/)** - Duplicate documentation files
 
 ---
 
-## 🔗 External Links
+## 🎯 For Developers
+Start with [Galaxy Map](galaxy-map/README.md) for system overview, then check [API Documentation](api/API_DOCUMENTATION.md) for integration.
 
-- **Railway Dashboard**: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
-- **GitHub**: https://github.com/Balizero1987/nuzantara
-- **Production API**: https://zantara-rag-backend-1064094238013.europe-west1.run.app
+## 🎯 For Deployment
+Follow [Railway Deployment Guide](guides/RAILWAY_DEPLOYMENT_GUIDE.md) for production setup.
 
----
-
-## 💡 Tips
-
-- **New to the project?** Start with [QUICK_START.md](QUICK_START.md)
-- **Understanding structure?** See [../STRUCTURE.md](../STRUCTURE.md)
-- **Deploying?** Read [guides/RAILWAY_DEPLOYMENT_GUIDE.md](guides/RAILWAY_DEPLOYMENT_GUIDE.md)
-- **Need API help?** See [api/API_DOCUMENTATION.md](api/API_DOCUMENTATION.md)
-- **Project cleanup?** Check [reports/cleanup-2024/](reports/cleanup-2024/)
-
----
-
-**Last Updated**: 2025-10-18
-**Maintainer**: Bali Zero Team
-**Status**: ✅ Production Ready
+## 🎯 For Testing
+Use [Testing Instructions](testing/TESTING_INSTRUCTIONS.md) to verify system functionality.

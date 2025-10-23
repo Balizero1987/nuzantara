@@ -13,7 +13,7 @@ import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragServi
  * Handler: rag.query
  */
 export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryResponse> {
-  const { query, k = 5, use_llm = true, conversation_history } = params;
+  const { query, k = 5, use_llm = true, conversation_history, user_id = 'guest', user_email = 'guest@demo.com' } = params;
 
   if (!query) {
     throw new Error('Query parameter is required');
@@ -24,7 +24,9 @@ export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryRes
       query,
       k,
       use_llm,
-      conversation_history
+      conversation_history,
+      user_id,       // Fix: Add user_id for RAG backend
+      user_email     // Fix: Add user_email for RAG backend
     });
 
     return result;
