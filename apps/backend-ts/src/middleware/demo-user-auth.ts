@@ -248,6 +248,20 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
           isDemo: decoded.email === DEMO_USER.email
         };
         
+        // Check handler permissions for authenticated user
+        const { handler, key } = req.body;
+        const handlerKey = handler || key;
+        
+        if (handlerKey && !isHandlerAllowed(handlerKey, req.user.role)) {
+          return res.status(403).json({
+            ok: false,
+            error: 'Access denied',
+            handler: handlerKey,
+            message: `Your role (${req.user.role}) does not have permission to access this handler.`,
+            contact: 'Contact admin for elevated permissions'
+          });
+        }
+        
         return next();
       } catch (jwtError) {
         // Invalid JWT, fall through to demo user check
