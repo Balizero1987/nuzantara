@@ -6,7 +6,7 @@
 
 import logger from './logger.js';
 import { aiChat } from '../handlers/ai-services/ai.js';
-import { devaiChat } from '../handlers/devai/devai-qwen.js';
+// DevAI removed - using ZANTARA-ONLY mode
 
 export interface AICommunicationContext {
   sessionId: string;
