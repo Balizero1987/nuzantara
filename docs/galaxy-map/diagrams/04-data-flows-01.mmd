@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    
+    User->>WebApp: Type message + Enter
+    WebApp->>TS Backend: POST /call
+    TS Backend->>TS Backend: Demo Auth (25 public tools)
+    TS Backend->>RAG Backend: Proxy to /bali-zero/chat
+    RAG Backend->>PostgreSQL: Check Golden Answer
+    
+    alt Golden Answer Found (50-60%)
+        PostgreSQL-->>User: ⚡ Instant (10-20ms)
+    else No Golden Answer (40-50%)
+        RAG Backend->>ChromaDB: Search cultural_insights
+        ChromaDB-->>RAG Backend: Cultural context (<5ms)
+        RAG Backend->>ChromaDB: Search 14 collections
+        ChromaDB-->>RAG Backend: Top 5-10 docs (2000-3000 words)
+        RAG Backend->>Haiku 4.5: Generate with context
+        Haiku 4.5->>Haiku 4.5: Tool calling (if needed)
+        Haiku 4.5-->>RAG Backend: Response
+        RAG Backend->>PostgreSQL: Save conversation
+        RAG Backend-->>User: 🤖 Stream (SSE) 1-2s
+    end

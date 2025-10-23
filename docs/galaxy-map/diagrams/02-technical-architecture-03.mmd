@@ -1,0 +1,18 @@
+graph LR
+    subgraph "NUZANTARA"
+        TS[TS Backend]
+        RAG[RAG Backend]
+    end
+    
+    subgraph "External APIs"
+        Anthropic[Anthropic<br/>Claude API]
+        RunPod[RunPod<br/>ZANTARA + DevAI]
+        Google[Google<br/>Workspace]
+        Twilio[Twilio<br/>Communications]
+    end
+    
+    RAG --> Anthropic
+    RAG --> RunPod
+    TS --> RunPod
+    TS --> Google
+    TS --> Twilio

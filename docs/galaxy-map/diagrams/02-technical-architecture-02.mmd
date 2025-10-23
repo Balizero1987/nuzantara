@@ -1,0 +1,16 @@
+flowchart LR
+    Request[Incoming<br/>Request]
+    
+    Request --> Auth{Auth}
+    Auth -->|Demo| Demo[Demo User Auth<br/>25 public tools]
+    Auth -->|Team| JWT[JWT Auth<br/>120 team tools]
+    Auth -->|Admin| Full[Full Access<br/>164 all tools]
+    
+    Demo --> Rate[Rate Limiter]
+    JWT --> Rate
+    Full --> Rate
+    
+    Rate --> Log[Logger<br/>Correlation ID]
+    Log --> Handler[Handler<br/>Execution]
+    
+    style Demo fill:#e1f5ff,stroke:#0366d6,stroke-width:2px

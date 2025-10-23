@@ -1,0 +1,6 @@
+graph LR
+    Redis[(Redis)]
+    
+    Redis --> Cache[API Response<br/>Cache<br/>TTL 5min]
+    Redis --> RateLimit[Rate Limiting<br/>Sliding window]
+    Redis --> Metrics[Performance<br/>Metrics]

@@ -1,0 +1,19 @@
+graph TB
+    Haiku[Haiku 4.5<br/>Needs Tool]
+    
+    Haiku --> ToolExec{Tool Executor<br/>Check Type}
+    
+    ToolExec -->|Python| Python[ZantaraTools<br/>9 functions]
+    ToolExec -->|TypeScript| Proxy[Handler Proxy<br/>HTTP Bridge]
+    
+    Python --> DB1[(PostgreSQL<br/>Direct Access)]
+    Proxy --> TS[TS Backend<br/>122 Handlers]
+    
+    DB1 --> Result[Tool Result]
+    TS --> Result
+    
+    Result --> Continue[Haiku Continues<br/>Reasoning]
+    Continue --> Final[Final Response]
+    
+    style Python fill:#fff3cd,stroke:#ffc107,stroke-width:2px
+    style TS fill:#e1f5ff,stroke:#0366d6,stroke-width:2px

@@ -1,0 +1,19 @@
+graph LR
+    subgraph "FRONTEND - 100%"
+        H[Claude Haiku 4.5<br/>──────────────<br/>✅ ALL user queries<br/>✅ 164 tools access<br/>✅ 10 agents orchestration<br/>✅ $0.25/$1.25 per 1M<br/>✅ 1-2s response<br/>✅ ZANTARA Identity]
+    end
+    
+    subgraph "BACKGROUND"
+        Z[ZANTARA Llama 3.1<br/>──────────────<br/>🌟 Golden Answers<br/>🎭 Cultural Knowledge<br/>🔬 Shadow Mode<br/>📊 Batch Classification<br/>€3-11/month<br/>Nightly 4-6h]
+    end
+    
+    subgraph "DEVELOPMENT"
+        D[DevAI Qwen 2.5<br/>──────────────<br/>💻 Code analysis<br/>🐛 Bug fixing<br/>📝 Code review<br/>€1-3/month<br/>Backend only]
+    end
+    
+    H -.Uses.-> Output[Cultural Intelligence<br/>Golden Answers]
+    Z -.Generates.-> Output
+    
+    style H fill:#d4edda,stroke:#28a745,stroke-width:4px
+    style Z fill:#fff3cd,stroke:#ffc107,stroke-width:4px
+    style D fill:#f8d7da,stroke:#dc3545,stroke-width:2px

@@ -1,0 +1,25 @@
+flowchart TD
+    Query[User Query]
+    
+    Query --> Hash[Generate MD5 Hash]
+    Hash --> Redis{Redis<br/>Cache?}
+    
+    Redis -->|Hit| Instant[⚡ Return<br/>2ms]
+    Redis -->|Miss| PG{PostgreSQL<br/>Exact Match?}
+    
+    PG -->|Yes| Fast[⚡ Return<br/>10ms]
+    PG -->|No| Semantic{Semantic<br/>Match?}
+    
+    Semantic -->|>80%| Similar[⚡ Return<br/>20ms]
+    Semantic -->|<80%| RAG[🔍 Haiku + RAG<br/>1-2s]
+    
+    Instant --> Cache[Cache 5min]
+    Fast --> Cache
+    Similar --> Cache
+    
+    Cache --> User[User]
+    RAG --> User
+    
+    style Instant fill:#d4edda,stroke:#28a745,stroke-width:3px
+    style Fast fill:#d4edda,stroke:#28a745,stroke-width:3px
+    style Similar fill:#fff3cd,stroke:#ffc107,stroke-width:2px

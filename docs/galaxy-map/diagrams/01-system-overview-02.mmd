@@ -1,0 +1,36 @@
+graph TB
+    subgraph "Railway Platform"
+        direction TB
+        
+        TS_Service[TS Backend<br/>──────────────<br/>Port: 8080<br/>Memory: 2Gi<br/>CPU: 2 vCPU<br/>Dockerfile]
+        
+        RAG_Service[RAG Backend<br/>──────────────<br/>Port: 8000<br/>Memory: 2Gi<br/>CPU: 2 vCPU<br/>Dockerfile]
+        
+        DB_Service[(PostgreSQL<br/>──────────────<br/>Managed<br/>34 tables<br/>~100MB)]
+    end
+    
+    subgraph "GitHub"
+        Pages[GitHub Pages<br/>──────────────<br/>Static CDN<br/>Auto-deploy<br/>zantara.balizero.com]
+    end
+    
+    subgraph "External Services"
+        API1[Anthropic<br/>Haiku 4.5]
+        API2[RunPod<br/>ZANTARA + DevAI]
+        API3[Google<br/>Workspace]
+        API4[Twilio<br/>WhatsApp/SMS]
+    end
+    
+    Pages --> TS_Service
+    TS_Service --> RAG_Service
+    TS_Service --> DB_Service
+    RAG_Service --> DB_Service
+    
+    RAG_Service --> API1
+    RAG_Service --> API2
+    TS_Service --> API2
+    TS_Service --> API3
+    TS_Service --> API4
+    
+    style TS_Service fill:#e1f5ff,stroke:#0366d6,stroke-width:2px
+    style RAG_Service fill:#fff3cd,stroke:#ffc107,stroke-width:2px
+    style Pages fill:#d4edda,stroke:#28a745,stroke-width:2px

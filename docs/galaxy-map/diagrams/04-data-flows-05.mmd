@@ -1,0 +1,10 @@
+graph LR
+    subgraph "100% Queries"
+        Golden[Golden Answer<br/>50-60%<br/>10-20ms]
+        RAG[Haiku + RAG<br/>40-50%<br/>1-2s]
+    end
+    
+    Golden --> Avg[Average<br/>Response Time<br/>600-800ms]
+    RAG --> Avg
+    
+    style Golden fill:#d4edda,stroke:#28a745,stroke-width:3px

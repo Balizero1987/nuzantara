@@ -1,0 +1,17 @@
+flowchart LR
+    Cron[⏰ 2 AM UTC]
+    
+    Cron --> Worker[🌙 Nightly Worker]
+    
+    Worker --> Task1[📊 Query Analysis<br/>Extract & Cluster<br/>30-60 min]
+    
+    Task1 --> Task2[🌟 Golden Answers<br/>100-200 FAQ<br/>3-5 hours]
+    
+    Task2 --> Task3[🎭 Cultural Knowledge<br/>10 chunks<br/>30-60 min]
+    
+    Task3 --> Save[(💾 Save<br/>PostgreSQL<br/>ChromaDB)]
+    
+    Save --> Done[✅ Complete]
+    
+    style Worker fill:#e7e7ff,stroke:#6f42c1,stroke-width:3px
+    style Task2 fill:#fff3cd,stroke:#ffc107,stroke-width:3px

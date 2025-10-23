@@ -1,0 +1,34 @@
+stateDiagram-v2
+    [*] --> Trigger: 2 AM UTC
+    
+    Trigger --> QueryExtraction
+    
+    state QueryExtraction {
+        [*] --> ReadLogs
+        ReadLogs --> Filter
+        Filter --> Cluster
+        Cluster --> [*]: 127 queries, 23 clusters
+    }
+    
+    QueryExtraction --> GoldenGeneration
+    
+    state GoldenGeneration {
+        [*] --> Loop
+        Loop --> RAGSearch: For each cluster
+        RAGSearch --> LlamaGenerate
+        LlamaGenerate --> SaveDB
+        SaveDB --> Loop
+        Loop --> [*]: 45 answers
+    }
+    
+    GoldenGeneration --> CulturalGen
+    
+    state CulturalGen {
+        [*] --> Topics: 10 topics
+        Topics --> Generate
+        Generate --> SaveBoth: PostgreSQL + ChromaDB
+        SaveBoth --> [*]: 10 chunks
+    }
+    
+    CulturalGen --> Log
+    Log --> [*]: Complete (4-6h)

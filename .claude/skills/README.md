@@ -209,9 +209,55 @@ Generazione/aggiornamento documentazione API completa.
 
 ---
 
+### 📐 Documentation & Architecture
+
+#### 8. **architecture-mapper**
+Auto-update architecture documentation when codebase changes.
+
+**Quando viene usato**: Quando si aggiungono handlers, services, middleware, o quando l'utente chiede "update docs" o "refresh architecture".
+
+**Cosa fa**:
+- Rigenera dependency analysis (madge)
+- Conta componenti (handlers, services, middleware, agents)
+- Estrae API endpoints
+- Aggiorna documenti in `docs/galaxy_map/`
+- Rigenera diagrammi Mermaid
+- Valida accuratezza (file paths, counts)
+- Commit automatico dei cambiamenti
+
+**Trigger Automatici**:
+- Nuovi file in `apps/backend-ts/src/handlers/`
+- Nuovi file in `apps/backend-ts/src/services/`
+- Nuovi agents in `agents/`
+- Major refactoring
+
+**Output**: Documentazione sempre sincronizzata con codebase reale (100% accuracy)
+
+---
+
+#### 9. **diagram-manager**
+Gestione completa dei diagrammi Mermaid - estrazione, generazione PNG, visualizzazione locale.
+
+**Quando viene usato**: Quando si modificano docs, si aggiungono diagrammi, o l'utente chiede "view diagrams" o "generate diagrams".
+
+**Cosa fa**:
+- Estrae tutti i blocchi Mermaid da file `.md`
+- Salva come file `.mmd` individuali in `docs/galaxy_map/diagrams/`
+- Genera PNG ad alta qualità (trasparenti)
+- Apre nel viewer di default
+- Fornisce guida su VS Code/Obsidian per viewing locale
+
+**Integrazioni**:
+- Dopo `architecture-mapper`: auto-estrae nuovi diagrammi
+- Generazione incrementale: solo diagrammi modificati
+
+**Output**: 24 diagrammi Mermaid estratti + opzionali PNG
+
+---
+
 ### 🐛 Debugging & Optimization
 
-#### 9. **debug-assistant**
+#### 10. **debug-assistant**
 Supporto completo per debugging e troubleshooting.
 
 **Quando viene usato**: Errori, servizi non funzionanti, problemi production.
@@ -239,7 +285,7 @@ Supporto completo per debugging e troubleshooting.
 
 ---
 
-#### 10. **performance-analyzer**
+#### 11. **performance-analyzer**
 Analisi e ottimizzazione performance del sistema.
 
 **Quando viene usato**: Lentezza, ottimizzazione, analisi bottlenecks.
@@ -307,12 +353,15 @@ Claude **decide autonomamente** quando usare una Skill basandosi su:
 ├── test-suite.md                # Complete test suite
 ├── deploy.md                    # Deployment automation
 ├── health-check.md              # System monitoring
-├── architecture-mapper.md       # Architecture docs auto-update
 ├── code-review.md               # Code review
 ├── api-docs.md                  # API documentation
+├── architecture-mapper.md       # Architecture docs auto-update
+├── diagram-manager.md           # Mermaid diagrams management
 ├── debug-assistant.md           # Debugging support
 └── performance-analyzer.md      # Performance optimization
 ```
+
+**Totale: 12 Skills** (11 workflow + 1 README)
 
 ## 🔧 Formato File Skill
 
@@ -345,7 +394,8 @@ Con queste Skills, Claude può:
 ✅ Validare Oracle agents con scenari realistici
 ✅ Fare deploy completo con health checks
 ✅ Monitorare system health proattivamente
-✅ **Mantenere documentazione architecture sempre sincronizzata** (NEW!)
+✅ **Mantenere documentazione architecture sempre sincronizzata** 🎯
+✅ **Gestire e visualizzare diagrammi Mermaid localmente** 🎨
 ✅ Fare code review con standard nuzantara
 ✅ Generare API docs sempre aggiornata
 ✅ Debuggare problemi sistematicamente

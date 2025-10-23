@@ -1,0 +1,16 @@
+graph TB
+    subgraph "PostgreSQL - 34 Tables"
+        Core[Core - 4<br/>users<br/>conversations<br/>memory_facts<br/>memory_entities]
+        
+        Business[Business - 3<br/>clients<br/>projects<br/>work_sessions]
+        
+        Analytics[Analytics - 3<br/>team_analytics<br/>performance_metrics<br/>handler_executions]
+        
+        Oracle[Oracle - 19<br/>VISA: 5 tables<br/>KBLI: 6 tables<br/>TAX: 4 tables<br/>PROPERTY: 4 tables]
+        
+        ZANTARA[ZANTARA - 4<br/>golden_answers<br/>query_clusters<br/>cultural_knowledge<br/>nightly_worker_runs]
+    end
+    
+    ZANTARA -.Generates via.-> Worker[🌙 Nightly Worker]
+    
+    style ZANTARA fill:#fff3cd,stroke:#ffc107,stroke-width:3px

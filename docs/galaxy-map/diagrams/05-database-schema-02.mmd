@@ -1,0 +1,16 @@
+graph TB
+    subgraph "ChromaDB - 14 Collections"
+        Biz[Business - 4<br/>bali_zero_pricing<br/>visa_oracle<br/>kbli_eye<br/>tax_genius]
+        
+        Know[Knowledge - 2<br/>zantara_books<br/>12,907 embeddings<br/>kb_indonesian]
+        
+        Legal[Legal - 2<br/>legal_architect<br/>legal_updates]
+        
+        PropTax[Property + Tax - 4<br/>property_listings<br/>property_knowledge<br/>tax_updates<br/>tax_knowledge]
+        
+        Cultural[Cultural - 2<br/>cultural_insights<br/>oracle_kbli_knowledge]
+    end
+    
+    Worker[🌙 ZANTARA<br/>Nightly Worker] -.Generates.-> Cultural
+    
+    style Cultural fill:#fff3cd,stroke:#ffc107,stroke-width:3px

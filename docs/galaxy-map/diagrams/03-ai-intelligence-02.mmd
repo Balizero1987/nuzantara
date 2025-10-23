@@ -1,0 +1,23 @@
+sequenceDiagram
+    autonumber
+    participant Cron
+    participant Worker
+    participant PostgreSQL
+    participant ChromaDB
+    participant ZANTARA
+    
+    Cron->>Worker: 2 AM UTC Daily
+    Worker->>PostgreSQL: Extract queries (last 3-7 days)
+    PostgreSQL-->>Worker: 127 queries
+    Worker->>Worker: Semantic clustering
+    Worker->>Worker: Top 100-200 clusters
+    
+    loop Each cluster
+        Worker->>ChromaDB: Search legal docs
+        ChromaDB-->>Worker: RAG context (2000-3000 words)
+        Worker->>ZANTARA: Generate answer
+        ZANTARA-->>Worker: 300-500 word answer + citations
+        Worker->>PostgreSQL: Save to golden_answers
+    end
+    
+    Worker->>PostgreSQL: Log completion

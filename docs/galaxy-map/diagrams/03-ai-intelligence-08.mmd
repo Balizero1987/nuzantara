@@ -1,0 +1,9 @@
+sequenceDiagram
+    User->>RAG Backend: Query
+    RAG Backend->>Haiku: Generate (user-facing)
+    Haiku-->>User: Response (200ms)
+    
+    Note over RAG Backend,ZANTARA: Background (non-blocking)
+    RAG Backend->>ZANTARA: Shadow generate
+    ZANTARA-->>RAG Backend: Response (1.5s)
+    RAG Backend->>PostgreSQL: Log comparison

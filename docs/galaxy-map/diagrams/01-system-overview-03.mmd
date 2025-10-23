@@ -1,0 +1,12 @@
+graph LR
+    Query[User Query]
+    
+    Query --> Golden{Golden<br/>Answer?}
+    
+    Golden -->|Hit 50-60%| Fast[⚡ 10-20ms<br/>250x speedup]
+    Golden -->|Miss 40-50%| RAG[🔍 RAG + Haiku<br/>1-2s]
+    
+    Fast --> User[User]
+    RAG --> User
+    
+    style Fast fill:#d4edda,stroke:#28a745,stroke-width:3px

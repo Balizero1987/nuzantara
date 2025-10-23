@@ -1,0 +1,43 @@
+graph TB
+    subgraph "🌐 CLIENT LAYER"
+        User[👤 User<br/>Browser/Mobile]
+    end
+    
+    subgraph "FRONTEND - GitHub Pages"
+        WebApp[🌐 WebApp<br/>zantara.balizero.com<br/>65 JS files + PWA]
+    end
+    
+    subgraph "BACKEND - Railway"
+        TS[⚙️ TS Backend :8080<br/>122 Handlers<br/>Express + TypeScript]
+        RAG[🧠 RAG Backend :8000<br/>FastAPI + Python<br/>AI + RAG + Agents]
+    end
+    
+    subgraph "AI MODELS"
+        Haiku[🤖 Haiku 4.5<br/>Frontend 100%<br/>$8-15/month]
+        Llama[🧠 ZANTARA Llama<br/>Background Worker<br/>€3-11/month]
+        DevAI[💻 DevAI Qwen<br/>Backend Only<br/>€1-3/month]
+    end
+    
+    subgraph "DATA"
+        PG[(🗄️ PostgreSQL<br/>34 tables)]
+        Chroma[(🔍 ChromaDB<br/>14 collections<br/>14,365 docs)]
+        Redis[(⚡ Redis<br/>Cache + Limits)]
+    end
+    
+    User --> WebApp
+    WebApp --> TS
+    TS --> RAG
+    RAG --> Haiku
+    RAG --> Llama
+    TS --> DevAI
+    
+    Haiku --> Chroma
+    Haiku --> PG
+    Haiku --> Redis
+    
+    Llama --> Chroma
+    Llama --> PG
+    
+    style Haiku fill:#d4edda,stroke:#28a745,stroke-width:3px
+    style Llama fill:#fff3cd,stroke:#ffc107,stroke-width:3px
+    style WebApp fill:#e1f5ff,stroke:#0366d6,stroke-width:2px

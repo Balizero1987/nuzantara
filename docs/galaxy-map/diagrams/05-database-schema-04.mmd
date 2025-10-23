@@ -1,0 +1,13 @@
+sequenceDiagram
+    User->>RAG Backend: Chat message
+    RAG Backend->>Haiku: Generate response
+    Haiku-->>RAG Backend: Response
+    
+    RAG Backend->>PostgreSQL: Save conversation
+    RAG Backend->>PostgreSQL: Extract memory facts
+    RAG Backend->>PostgreSQL: Update analytics
+    
+    Note over RAG Backend,ZANTARA: Background (async)
+    RAG Backend->>ZANTARA: Post-conversation analysis
+    ZANTARA-->>RAG Backend: JIWA insights
+    RAG Backend->>PostgreSQL: Enrich memory with JIWA
