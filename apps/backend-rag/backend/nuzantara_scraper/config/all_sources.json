@@ -1,0 +1,4612 @@
+{
+  "sources": [
+    {
+      "name": "Imigrasi Indonesia",
+      "url": "https://www.imigrasi.go.id/id/",
+      "description": "Official Directorate General of Immigration",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenkumham (Ministry of Law)",
+      "url": "https://www.kemenkumham.go.id/berita",
+      "description": "Ministry of Law and Human Rights - legal updates",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kementerian Luar Negeri (Foreign Ministry)",
+      "url": "https://kemlu.go.id/portal/id",
+      "description": "Ministry of Foreign Affairs - visa policy",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesia.go.id Immigration",
+      "url": "https://www.indonesia.go.id/kategori/indonesia-dalam-angka/2322/imigrasi",
+      "description": "Official government portal immigration section",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Immigration Office Jakarta",
+      "url": "https://jakarta.imigrasi.go.id",
+      "description": "Jakarta immigration office announcements",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Immigration Office Bali",
+      "url": "https://bali.imigrasi.go.id",
+      "description": "Bali Ngurah Rai immigration announcements",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Immigration Office Denpasar",
+      "url": "https://denpasar.imigrasi.go.id",
+      "description": "Denpasar city immigration office",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "JDIH Kemenkumham (Legal Database)",
+      "url": "https://peraturan.go.id",
+      "description": "Immigration regulation database",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kompas Immigration",
+      "url": "https://kompas.com/tag/imigrasi",
+      "description": "Major national news - immigration section",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Detik Immigration",
+      "url": "https://news.detik.com/tag/imigrasi",
+      "description": "Fast news updates on immigration",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "Tempo Immigration",
+      "url": "https://www.tempo.co/tag/imigrasi",
+      "description": "In-depth immigration reporting",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "CNN Indonesia Immigration",
+      "url": "https://www.cnnindonesia.com/tag/imigrasi",
+      "description": "Breaking immigration news",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Antara News Immigration",
+      "url": "https://www.antaranews.com/tag/imigrasi",
+      "description": "Official state news agency",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tribun News Immigration",
+      "url": "https://www.tribunnews.com/tag/imigrasi",
+      "description": "Regional network immigration updates",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bisnis.com Immigration",
+      "url": "https://ekonomi.bisnis.com/tag/imigrasi",
+      "description": "Business perspective on immigration",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kontan Immigration",
+      "url": "https://nasional.kontan.co.id/tag/imigrasi",
+      "description": "Economic impact of immigration policies",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Jakarta Post Immigration",
+      "url": "https://www.thejakartapost.com/tag/immigration",
+      "description": "English-language national news",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Jakarta Globe Immigration",
+      "url": "https://jakartaglobe.id/?s=immigration",
+      "description": "English news on immigration policies",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesia Expat",
+      "url": "https://indonesiaexpat.id/tag/visa",
+      "description": "Expat-focused visa and immigration news",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Expat.com Indonesia",
+      "url": "https://www.expat.com/en/guide/asia/indonesia/",
+      "description": "Expat community immigration guides",
+      "category": "immigration",
+      "tier": "community",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Living in Indonesia",
+      "url": "https://www.livinginindonesiaforum.org",
+      "description": "Forum discussions on visa updates",
+      "category": "immigration",
+      "tier": "community",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Expat Facebook Group",
+      "url": "https://www.facebook.com/groups/baliexpat",
+      "description": "Community updates on immigration",
+      "category": "immigration",
+      "tier": "community",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesia Expat Facebook",
+      "url": "https://www.facebook.com/groups/indonesiaexpat",
+      "description": "National expat group immigration discussions",
+      "category": "immigration",
+      "tier": "community",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Reddit r/Indonesia Immigration",
+      "url": "https://www.reddit.com/r/indonesia/search/?q=visa",
+      "description": "Reddit community visa discussions",
+      "category": "immigration",
+      "tier": "community",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "Bali Forum Immigration",
+      "url": "https://www.baliforum.com/forums/visa-immigration.91/",
+      "description": "Bali-specific visa forum",
+      "category": "immigration",
+      "tier": "community",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "The Bali Bubble",
+      "url": "https://www.thebalibubble.com/category/visa-news",
+      "description": "Bali expat news and visa updates",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Nowbali Visa News",
+      "url": "https://nowbali.co.id/category/visa-immigration",
+      "description": "Bali visa and immigration updates",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Discovery",
+      "url": "https://www.balidiscovery.com/category/immigration",
+      "description": "Bali tourism and immigration news",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "US Embassy Jakarta",
+      "url": "https://id.usembassy.gov",
+      "description": "US visa policies for Indonesians",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Australian Embassy Jakarta",
+      "url": "https://indonesia.embassy.gov.au",
+      "description": "Australian visa updates",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "UK Embassy Jakarta",
+      "url": "https://www.gov.uk/world/indonesia",
+      "description": "UK visa information",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Singapore Embassy Jakarta",
+      "url": "https://www.mfa.gov.sg/jakarta",
+      "description": "Singapore visa updates",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Malaysian Embassy Jakarta",
+      "url": "https://www.kln.gov.my/web/idn_jakarta",
+      "description": "Malaysian visa information",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Japanese Embassy Jakarta",
+      "url": "https://www.id.emb-japan.go.jp/itprtop_id/index.html",
+      "description": "Japanese visa updates",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Korean Embassy Jakarta",
+      "url": "https://overseas.mofa.go.kr/id-en/index.do",
+      "description": "Korean visa information",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Chinese Embassy Jakarta",
+      "url": "http://id.china-embassy.gov.cn/indo/",
+      "description": "Chinese visa updates",
+      "category": "immigration",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "IOM Indonesia (Migration)",
+      "url": "https://indonesia.iom.int",
+      "description": "International Organization for Migration",
+      "category": "immigration",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NEWS MEDIA - NATIONAL (10 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Database Peraturan Nasional",
+      "url": "https://peraturan.go.id",
+      "description": "Official regulation repository",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Berita Negara (State Gazette)",
+      "url": "https://peraturan.go.id/common/beritanegara",
+      "description": "Official government gazette",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "JDIH (Legal Documentation Network)",
+      "url": "https://jdih.go.id",
+      "description": "Legal information system",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Lembaran Negara (State Sheet)\n   \ud83d\udd17 Official law publication\n   \ud83d\udcdd Formal law gazette\n\n5. \ud83d\udcdc Hukumonline Peraturan",
+      "url": "https://www.hukumonline.com/pusatdata",
+      "description": "Legal database",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Perpustakaan Kemenkeu (Finance Reg)",
+      "url": "https://jdih.kemenkeu.go.id",
+      "description": "Ministry of Finance regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Ministry of Law Legal Database",
+      "url": "https://peraturan.bphn.go.id",
+      "description": "Law and regulation center",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Undang-Undang (Laws)\n   \ud83d\udd17 DPR legislative output\n   \ud83d\udcdd National laws passed by Parliament\n\n9. \ud83d\udcdc Peraturan Pemerintah (Gov Regulations)\n   \ud83d\udd17 Presidential regulations\n   \ud83d\udcdd PP implementing laws\n\n10. \ud83d\udcdc Peraturan Presiden (Presidential Regs)\n    \ud83d\udd17 Presidential decrees\n    \ud83d\udcdd Perpres policy implementation\n\n11. \ud83d\udcdc Peraturan Menteri (Ministerial Regs)\n    \ud83d\udd17 Ministry-level regulations\n    \ud83d\udcdd Permen sector-specific rules\n\n12. \ud83d\udcdc Keputusan Menteri (Ministerial Decrees)\n    \ud83d\udd17 Ministry decisions\n    \ud83d\udcdd Kepmen administrative decisions\n\n13. \ud83d\udcdc Surat Edaran (Circulars)\n    \ud83d\udd17 Official letters and circulars\n    \ud83d\udcdd SE implementation guidance\n\n14. \ud83d\udcdc Peraturan Daerah (Local Regulations)\n    \ud83d\udd17 Provincial and district regulations\n    \ud83d\udcdd Perda regional rules\n\n15. \ud83d\udcdc Keputusan Presiden (Presidential Decrees)\n    \ud83d\udd17 Presidential decisions\n    \ud83d\udcdd Keppres executive orders\n\n\ud83d\udcbc MINISTRY REGULATIONS:\n16. \ud83c\udfdb\ufe0f Kemnaker Regulations",
+      "url": "https://jdih.kemnaker.go.id",
+      "description": "Manpower ministry regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenkeu Regulations",
+      "url": "https://jdih.kemenkeu.go.id",
+      "description": "Finance ministry regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenkumham Regulations",
+      "url": "https://peraturan.go.id",
+      "description": "Law and human rights regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BKPM Regulations",
+      "url": "https://jdih.bkpm.go.id",
+      "description": "Investment regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemendag Regulations",
+      "url": "https://jdih.kemendag.go.id",
+      "description": "Trade ministry regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenperin Regulations",
+      "url": "https://jdih.kemenperin.go.id",
+      "description": "Industry ministry regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "ESDM Regulations",
+      "url": "https://jdih.esdm.go.id",
+      "description": "Energy and mineral resources",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kementan Regulations",
+      "url": "https://peraturan.pertanian.go.id",
+      "description": "Agriculture ministry regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "PUPR Regulations",
+      "url": "https://jdih.pu.go.id",
+      "description": "Public works and housing",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenhub Regulations",
+      "url": "https://jdih.dephub.go.id",
+      "description": "Transportation ministry regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Civil Service Regulations (ASN)",
+      "url": "https://jdih.menpan.go.id",
+      "description": "Government employee regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Procurement Regulations (LKPP)",
+      "url": "https://www.lkpp.go.id",
+      "description": "Government procurement rules",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "State Asset Regulations\n    \ud83d\udd17 Ministry of Finance asset management\n    \ud83d\udcdd State property regulations\n\n41. \ud83c\udfdb\ufe0f Regional Autonomy Regulations\n    \ud83d\udd17 Ministry of Home Affairs\n    \ud83d\udcdd Decentralization framework\n\n42. \ud83c\udfdb\ufe0f Public Service Standards\n    \ud83d\udd17 Menpan RB service quality\n    \ud83d\udcdd Government service regulations\n\n43. \ud83c\udfdb\ufe0f Information Disclosure\n    \ud83d\udd17 Public information commission\n    \ud83d\udcdd Freedom of information regulations\n\n\ud83c\udf0d ENVIRONMENT & LAND:\n44. \ud83c\udf0d Environmental Regulations (KLHK)",
+      "url": "https://jdih.menlhk.go.id",
+      "description": "Environment and forestry regulations",
+      "category": "regulatory",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemnaker Detailed Regulations",
+      "url": "https://kemnaker.go.id/regulasi",
+      "description": "Complete labor law database",
+      "category": "employment",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Labor Court (Pengadilan PHI)",
+      "url": "https://www.mahkamahagung.go.id",
+      "description": "Industrial relations court decisions",
+      "category": "employment",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "UU Ketenagakerjaan Database",
+      "url": "https://peraturan.go.id",
+      "description": "Employment law repository",
+      "category": "employment",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "UU Cipta Kerja - Labor Cluster\n   \ud83d\udd17 Omnibus Law official text\n   \ud83d\udcdd Job Creation Law labor provisions\n\n5. \ud83d\udcdc PP 35/2021 (PKWT Detailed)\n   \ud83d\udd17 Government regulation\n   \ud83d\udcdd Fixed-term contracts detailed rules\n\n6. \ud83d\udcdc PP 36/2021 (Wage System)\n   \ud83d\udd17 Government regulation\n   \ud83d\udcdd Wage structure regulations\n\n7. \ud83c\udfdb\ufe0f BPJS Ketenagakerjaan Legal",
+      "url": "https://www.bpjsketenagakerjaan.go.id/peraturan",
+      "description": "Employment insurance regulations",
+      "category": "employment",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "SSEK Labor Law Blog",
+      "url": "https://blog.ssek.com/category/labor",
+      "description": "Legal analysis of labor regulations",
+      "category": "employment",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Hadiputranto Labor Practice\n    \ud83d\udd17 Labor law updates\n    \ud83d\udcdd Employment law advisory\n\n15. \ud83d\udcbc Abnr Labor & Employment\n    \ud83d\udd17 Legal firm labor updates\n    \ud83d\udcdd Employment regulation analysis\n\n16. \ud83d\udcbc Makarim & Taira S.\n    \ud83d\udd17 Labor practice updates\n    \ud83d\udcdd Employment law insights\n\n17. \ud83d\udcbc Soemadipradja & Taher\n    \ud83d\udd17 Employment law section\n    \ud83d\udcdd Labor law developments\n\n18. \ud83d\udcda Indonesian Labor Law Journal\n    \ud83d\udd17 Academic publications\n    \ud83d\udcdd Scholarly labor law analysis\n\n19. \ud83d\udcda UI Faculty of Law",
+      "url": "https://law.ui.ac.id",
+      "description": "Academic labor law research",
+      "category": "employment",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemnaker (Ministry of Manpower)",
+      "url": "https://www.kemnaker.go.id",
+      "description": "Official employment regulations",
+      "category": "jobs",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Disnaker Jakarta",
+      "url": "https://disnaker.jakarta.go.id",
+      "description": "Jakarta employment office",
+      "category": "jobs",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Disnaker Bali",
+      "url": "https://disnaker.baliprov.go.id",
+      "description": "Bali employment office",
+      "category": "jobs",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "IMTA/RPTKA Portal\n   \ud83d\udd17 Kemnaker online systems\n   \ud83d\udcdd Foreign worker permits\n\n5. \ud83d\udcbc JobStreet Indonesia",
+      "url": "https://www.jobstreet.co.id/career-resources",
+      "description": "Job market trends and insights",
+      "category": "jobs",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "LinkedIn Indonesia",
+      "url": "https://www.linkedin.com/company/linkedin-indonesia",
+      "description": "Employment trends and news",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Glints Indonesia",
+      "url": "https://glints.com/id/lowongan",
+      "description": "Job market and career insights",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "UU Ketenagakerjaan (Labor Law)",
+      "url": "https://peraturan.go.id",
+      "description": "Search \"ketenagakerjaan\" for updates",
+      "category": "jobs",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "UU Cipta Kerja (Omnibus Law)\n   \ud83d\udd17 Official government sources\n   \ud83d\udcdd Job Creation Law updates\n\n10. \ud83d\udcdc PP 35/2021 (PKWT Regulation)\n    \ud83d\udd17 Government regulation database\n    \ud83d\udcdd Fixed-term employment contracts\n\n11. \ud83d\udcdc Minimum Wage Regulations\n    \ud83d\udd17 Kemnaker wage section\n    \ud83d\udcdd UMK/UMP updates per region\n\n12. \ud83d\udcdc Severance Pay Regulations\n    \ud83d\udd17 Labor law databases\n    \ud83d\udcdd PHK and compensation rules\n\n13. \ud83c\udfdb\ufe0f Labor Court (PHI)",
+      "url": "https://www.mahkamahagung.go.id",
+      "description": "Labor dispute court decisions",
+      "category": "jobs",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BPJS Ketenagakerjaan Regulations",
+      "url": "https://www.bpjsketenagakerjaan.go.id",
+      "description": "Employment social security",
+      "category": "jobs",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Outsourcing Regulations\n    \ud83d\udd17 Kemnaker outsourcing section\n    \ud83d\udcdd Alih daya (outsourcing) rules\n\n\ud83d\udcf0 NEWS & MEDIA:\n16. \ud83d\udcf0 Bisnis.com - Employment",
+      "url": "https://bisnis.com/tag/ketenagakerjaan",
+      "description": "Employment business news",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kontan - Labor",
+      "url": "https://nasional.kontan.co.id/tag/ketenagakerjaan",
+      "description": "Labor news updates",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Detik Finance - Employment",
+      "url": "https://finance.detik.com/berita-ekonomi-bisnis",
+      "description": "Search \"ketenagakerjaan\"",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": true
+    },
+    {
+      "name": "Tempo - Labor",
+      "url": "https://bisnis.tempo.co",
+      "description": "Labor affairs coverage",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": true
+    },
+    {
+      "name": "Jakarta Post - Employment",
+      "url": "https://www.thejakartapost.com",
+      "description": "English employment news",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Indeed Indonesia",
+      "url": "https://id.indeed.com",
+      "description": "Job market trends",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kalibrr Indonesia",
+      "url": "https://www.kalibrr.com/id-ID",
+      "description": "Recruitment insights",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Jobs.id",
+      "url": "https://www.jobs.id",
+      "description": "Indonesian job portal",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Karir.com",
+      "url": "https://www.karir.com",
+      "description": "Career resources",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Urbanhire",
+      "url": "https://www.urbanhire.com",
+      "description": "Recruitment platform updates",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "TopKarir",
+      "url": "https://www.topkarir.com",
+      "description": "Job market news",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Jobplanet Indonesia",
+      "url": "https://www.jobplanet.com/id",
+      "description": "Company reviews and trends",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "TalentHub",
+      "url": "https://talenthub.id",
+      "description": "Tech recruitment trends",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Tech in Asia Jobs",
+      "url": "https://www.techinasia.com/jobs",
+      "description": "Startup job market",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "StartupJobs.asia",
+      "url": "https://startup.jobs.id",
+      "description": "Startup employment trends",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "IMTA Online System\n    \ud83d\udd17 Kemnaker IMTA portal\n    \ud83d\udcdd Foreign worker permit updates\n\n32. \ud83c\udf10 RPTKA Regulations\n    \ud83d\udd17 Kemnaker RPTKA section\n    \ud83d\udcdd Foreign worker plan requirements\n\n33. \ud83c\udf10 TKA Quota Regulations\n    \ud83d\udd17 Government announcements\n    \ud83d\udcdd Foreign worker quotas by sector\n\n34. \ud83c\udf10 KITAS/KITAP Employment\n    \ud83d\udd17 Immigration + Kemnaker\n    \ud83d\udcdd Work permit residence permits\n\n35. \ud83c\udf10 Expat Employment Services\n    \ud83d\udd17 Industry associations\n    \ud83d\udcdd Expat hiring regulations\n\n\ud83c\udfed INDUSTRY ASSOCIATIONS:\n36. \ud83c\udfe2 APINDO (Employers Association)",
+      "url": "https://www.apindo.or.id",
+      "description": "Employer perspectives on labor",
+      "category": "jobs",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "KSPI (Indonesian Labor Union)",
+      "url": "https://kspi.or.id",
+      "description": "Union perspectives and strikes",
+      "category": "jobs",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "KSPSI\n    \ud83d\udd17 Labor union announcements\n    \ud83d\udcdd Union regulations\n\n43. \ud83d\udc65 KSBSI\n    \ud83d\udd17 Union federation updates\n    \ud83d\udcdd Worker rights advocacy\n\n44. \ud83d\udc65 Labor Union Strikes\n    \ud83d\udd17 News monitoring\n    \ud83d\udcdd Strike notifications and impacts\n\n45. \ud83d\udc65 Collective Bargaining Agreements\n    \ud83d\udd17 Industry CBAs\n    \ud83d\udcdd PKB regulations\n\n\ud83d\udcda TRAINING & DEVELOPMENT:\n46. \ud83d\udcda Balai Latihan Kerja (BLK)\n    \ud83d\udd17 Kemnaker training centers\n    \ud83d\udcdd Vocational training programs\n\n47. \ud83d\udcda Kartu Prakerja",
+      "url": "https://www.prakerja.go.id",
+      "description": "Pre-employment card program",
+      "category": "jobs",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesia Business Law",
+      "url": "https://www.indonesiabusinesslaw.com",
+      "description": "Legal industry news",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "SSEK Legal Blog",
+      "url": "https://blog.ssek.com",
+      "description": "Law firm updates",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Legal Era Indonesia",
+      "url": "https://legaleraindonesia.com",
+      "description": "Legal industry news",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Business Law Indonesia",
+      "url": "https://businesslaw-indonesia.com",
+      "description": "Business law updates",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesia Law Review",
+      "url": "https://scholarhub.ui.ac.id/ilrev",
+      "description": "Academic legal analysis",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Hukumonline",
+      "url": "https://www.hukumonline.com",
+      "description": "Legal news and analysis",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Lexology Indonesia",
+      "url": "https://www.lexology.com/search/?q=indonesia",
+      "description": "International legal news",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Mondaq Indonesia",
+      "url": "https://www.mondaq.com/Home/Redirect/1970372",
+      "description": "Professional articles",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Asia Law Portal Indonesia",
+      "url": "https://www.asialawportal.com/countries/indonesia",
+      "description": "Asian legal perspectives",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Legal 500 Indonesia",
+      "url": "https://www.legal500.com/c/indonesia",
+      "description": "Law firm rankings and news",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "AmCham Indonesia",
+      "url": "https://www.amcham.or.id",
+      "description": "American business community",
+      "category": "competitors",
+      "tier": "community",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "EuroCham Indonesia",
+      "url": "https://eurocham.id",
+      "description": "European business chamber",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BritCham Indonesia",
+      "url": "https://www.britcham.or.id",
+      "description": "British business community",
+      "category": "competitors",
+      "tier": "community",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "AustCham Indonesia",
+      "url": "https://austcham.or.id",
+      "description": "Australian business chamber",
+      "category": "competitors",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "LEGAL & CONSULTING COMPETITORS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BKPM (Investment Coordinating Board)",
+      "url": "https://www.bkpm.go.id/id",
+      "description": "Official investment authority",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "OSS Indonesia",
+      "url": "https://oss.go.id",
+      "description": "Online Single Submission system",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "OSS News & Updates",
+      "url": "https://oss.go.id/portal/berita",
+      "description": "Official OSS announcements",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kementerian Investasi",
+      "url": "https://www.investindonesia.go.id",
+      "description": "Ministry of Investment",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenkeu (Ministry of Finance)",
+      "url": "https://www.kemenkeu.go.id",
+      "description": "Fiscal policy and business regulations",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kementerian BUMN",
+      "url": "https://www.bumn.go.id",
+      "description": "State-owned enterprises ministry",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenperin (Ministry of Industry)",
+      "url": "https://kemenperin.go.id",
+      "description": "Industrial policy updates",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemendag (Ministry of Trade)",
+      "url": "https://www.kemendag.go.id",
+      "description": "Trade regulations",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Bisnis.com",
+      "url": "https://bisnis.com",
+      "description": "Leading business daily",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kontan",
+      "url": "https://www.kontan.co.id",
+      "description": "Business and economy news",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Jakarta Post Business",
+      "url": "https://www.thejakartapost.com/business",
+      "description": "English-language business news",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Reuters Indonesia Business",
+      "url": "https://www.reuters.com/world/asia-pacific/indonesia/",
+      "description": "International business coverage",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bloomberg Indonesia",
+      "url": "https://www.bloomberg.com/asia",
+      "description": "Financial and business news",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "CNBC Indonesia",
+      "url": "https://www.cnbcindonesia.com",
+      "description": "Business news and analysis",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Ekonomi Bisnis",
+      "url": "https://ekonomi.bisnis.com",
+      "description": "Economic policy coverage",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Investor Daily",
+      "url": "https://investor.id",
+      "description": "Investment and business news",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "InfoKomputer Business",
+      "url": "https://infokomputer.grid.id",
+      "description": "Tech business news",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "DailySocial Business",
+      "url": "https://dailysocial.id",
+      "description": "Startup and digital business",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tech in Asia Indonesia",
+      "url": "https://www.techinasia.com/indonesia",
+      "description": "Tech startup ecosystem",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "KrASIA Indonesia",
+      "url": "https://kr-asia.com/category/indonesia",
+      "description": "Startup and investment news",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kadin Indonesia",
+      "url": "https://kadin.id",
+      "description": "Chamber of Commerce and Industry",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "APINDO",
+      "url": "https://apindo.or.id",
+      "description": "Indonesian Employers Association",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Hipmi (Young Entrepreneurs)",
+      "url": "https://hipmi.id",
+      "description": "Young entrepreneurs association",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "AmCham Indonesia",
+      "url": "https://www.amcham.or.id",
+      "description": "American Chamber of Commerce",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "EuroCham Indonesia",
+      "url": "https://eurocham.id",
+      "description": "European Business Chamber",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BritCham Indonesia",
+      "url": "https://www.britcham.or.id",
+      "description": "British Chamber of Commerce",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "AustCham Indonesia",
+      "url": "https://austcham.or.id",
+      "description": "Australian Business Chamber",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "JCCI (Japan)",
+      "url": "https://jcc.or.id",
+      "description": "Jakarta Japan Club",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "KORCHAM (Korea)",
+      "url": "https://korcham.or.id",
+      "description": "Korean Chamber of Commerce",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "SICC (Singapore)",
+      "url": "https://sicc.co.id",
+      "description": "Singapore Business Chamber",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Presidential Palace (Istana)",
+      "url": "https://www.presidenri.go.id",
+      "description": "Presidential decrees affecting business",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "DPR RI (Parliament)",
+      "url": "https://www.dpr.go.id",
+      "description": "Legislative updates",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Sekretariat Kabinet",
+      "url": "https://setkab.go.id",
+      "description": "Cabinet secretariat announcements",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kompas Politik",
+      "url": "https://nasional.kompas.com/politik",
+      "description": "Political developments affecting business",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tempo Politik",
+      "url": "https://www.tempo.co/tag/politik",
+      "description": "Political analysis",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "CNN Indonesia Politik",
+      "url": "https://www.cnnindonesia.com/nasional",
+      "description": "National politics coverage",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "CSIS Indonesia",
+      "url": "https://www.csis.or.id",
+      "description": "Policy think tank",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "INDEF",
+      "url": "https://indef.or.id",
+      "description": "Economic research institute",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "LPEM FEB UI",
+      "url": "https://www.lpem.org",
+      "description": "University economic institute",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BI Institute",
+      "url": "https://www.bi.go.id/id/bi-institute",
+      "description": "Central bank research",
+      "category": "business",
+      "tier": "official",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "World Bank Indonesia",
+      "url": "https://www.worldbank.org/en/country/indonesia",
+      "description": "Economic development insights",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "ADB Indonesia",
+      "url": "https://www.adb.org/countries/indonesia/main",
+      "description": "Asian Development Bank updates",
+      "category": "business",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "BUSINESS NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Istana Negara (Presidential Palace)",
+      "url": "https://www.presidenri.go.id",
+      "description": "Presidential announcements and decrees",
+      "category": "macro",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Sekretariat Kabinet",
+      "url": "https://setkab.go.id",
+      "description": "Cabinet secretariat official statements",
+      "category": "macro",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "DPR RI (Parliament)",
+      "url": "https://www.dpr.go.id",
+      "description": "Legislative updates and new laws",
+      "category": "macro",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "MPR RI",
+      "url": "https://www.mpr.go.id",
+      "description": "People's Consultative Assembly",
+      "category": "macro",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenko Perekonomian",
+      "url": "https://www.ekon.go.id",
+      "description": "Coordinating Ministry for Economic Affairs",
+      "category": "macro",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenko Polhukam",
+      "url": "https://www.polkam.go.id",
+      "description": "Politics, Law, and Security coordination",
+      "category": "macro",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenko PMK",
+      "url": "https://www.kemenkopmk.go.id",
+      "description": "Human Development and Cultural Affairs",
+      "category": "macro",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Ministry of Foreign Affairs",
+      "url": "https://kemlu.go.id/portal/id/kebijakan",
+      "description": "Foreign policy announcements",
+      "category": "macro",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "G20 Indonesia\n    \ud83d\udd17 G20 presidency updates\n    \ud83d\udcdd International cooperation\n\n18. \ud83c\udf10 ASEAN Economic Community",
+      "url": "https://asean.org",
+      "description": "Regional integration policy",
+      "category": "macro",
+      "tier": "community",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Trade Agreements\n    \ud83d\udd17 Ministry of Trade international\n    \ud83d\udcdd FTA and bilateral agreements\n\n20. \ud83c\udf10 Foreign Direct Investment Policy\n    \ud83d\udd17 BKPM FDI framework\n    \ud83d\udcdd Foreign investment regulations\n\n21. \ud83c\udf10 Diplomatic Relations\n    \ud83d\udd17 Kemlu bilateral relations\n    \ud83d\udcdd Embassy and consulate announcements\n\n22. \ud83c\udf10 International Aid and Cooperation\n    \ud83d\udd17 Government development cooperation\n    \ud83d\udcdd Foreign aid and grants\n\n23. \ud83c\udf10 UN and Multilateral Engagement\n    \ud83d\udd17 Indonesia UN mission\n    \ud83d\udcdd International organization participation\n\n\ud83d\udcca REGULATORY REFORM:\n24. \ud83d\udcdc Omnibus Law Implementation\n    \ud83d\udd17 UU Cipta Kerja progress\n    \ud83d\udcdd Job Creation Law rollout\n\n25. \ud83d\udcdc Regulatory Simplification\n    \ud83d\udd17 Government deregulation efforts\n    \ud83d\udcdd Bureaucracy reduction initiatives\n\n26. \ud83d\udcdc Ease of Doing Business\n    \ud83d\udd17 BKPM and OSS improvements\n    \ud83d\udcdd Business climate reforms\n\n27. \ud83d\udcdc Legal Reform Agenda\n    \ud83d\udd17 Ministry of Law legislative program\n    \ud83d\udcdd Legal system modernization\n\n28. \ud83d\udcdc Decentralization Policy\n    \ud83d\udd17 Regional autonomy framework\n    \ud83d\udcdd Central-local government relations\n\n29. \ud83d\udcdc Anti-Corruption Policy\n    \ud83d\udd17 KPK (Corruption Eradication Commission)\n    \ud83d\udcdd Anti-corruption measures\n\n30. \ud83d\udcdc Judicial Reform\n    \ud83d\udd17 Supreme Court and judiciary\n    \ud83d\udcdd Legal system improvements\n\n\ud83c\udfed INDUSTRIAL & TRADE POLICY:\n31. \ud83c\udfed Ministry of Industry Policy",
+      "url": "https://www.kemenperin.go.id",
+      "description": "Industrial development strategy",
+      "category": "macro",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Times",
+      "url": "https://www.bali-times.com",
+      "description": "Bali lifestyle and expat news",
+      "category": "lifestyle",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Now Bali",
+      "url": "https://www.nowbali.co.id",
+      "description": "Bali lifestyle magazine",
+      "category": "lifestyle",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Advertiser",
+      "url": "https://www.baliadvertiser.biz",
+      "description": "Bali community news",
+      "category": "lifestyle",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "The Beat Bali",
+      "url": "https://www.thebeat.co.id",
+      "description": "Bali entertainment and lifestyle",
+      "category": "lifestyle",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Hello Bali",
+      "url": "https://www.hellobali.id",
+      "description": "Bali expat lifestyle",
+      "category": "lifestyle",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Ubud Now & Then",
+      "url": "https://www.ubudnowandthen.com",
+      "description": "Ubud lifestyle and culture",
+      "category": "lifestyle",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Canggu Community\n   \ud83d\udd17 https://www.canggucommun\n\nity.com\n   \ud83d\udcdd Canggu area lifestyle\n\n\ud83d\udd0d COST OF LIVING:\n8. \ud83d\udcb0 Numbeo Bali",
+      "url": "https://www.numbeo.com/cost-of-living/in/Bali",
+      "description": "Cost of living statistics",
+      "category": "lifestyle",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Ditjen Pajak (DJP)",
+      "url": "https://www.pajak.go.id",
+      "description": "Directorate General of Taxation - official source",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "DJP Online (e-Filing)",
+      "url": "https://djponline.pajak.go.id",
+      "description": "Online tax system updates",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kring Pajak (Tax Call Center)",
+      "url": "https://pajak.go.id/kring-pajak",
+      "description": "Tax announcements and help",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "PwC Indonesia Tax",
+      "url": "https://www.pwc.com/id/en/tax",
+      "description": "Tax alerts and updates",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Deloitte Indonesia Tax",
+      "url": "https://www2.deloitte.com/id/en/services/tax.html",
+      "description": "Tax regulatory updates",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "KPMG Indonesia Tax",
+      "url": "https://home.kpmg/id/en/home/services/tax.html",
+      "description": "Tax news and insights",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "EY Indonesia Tax",
+      "url": "https://www.ey.com/id_id/tax",
+      "description": "Tax advisory updates",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesian Tax Law Database\n   \ud83d\udd17 https://peraturan.go.id (search \"pajak\")\n   \ud83d\udcdd Official tax regulations\n\n9. \ud83d\udcdc DDTC (Danny Darussalam Tax Center)",
+      "url": "https://news.ddtc.co.id",
+      "description": "Tax news and analysis",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Ortax (Online Resource Taxation)",
+      "url": "https://www.ortax.org",
+      "description": "Tax community and updates",
+      "category": "tax",
+      "tier": "community",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "RSM Indonesia",
+      "url": "https://www.rsm.global/indonesia",
+      "description": "Tax consulting updates",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Grant Thornton Indonesia",
+      "url": "https://www.grantthornton.co.id",
+      "description": "Tax advisory news",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BDO Indonesia",
+      "url": "https://www.bdo.co.id",
+      "description": "Tax services updates",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenkeu (Ministry of Finance)",
+      "url": "https://www.kemenkeu.go.id",
+      "description": "Fiscal policy updates",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Tax Court (Pengadilan Pajak)",
+      "url": "https://setpp.kemenkeu.go.id",
+      "description": "Tax court decisions",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Bisnis.com - Tax Section",
+      "url": "https://bisnis.com/tag/pajak",
+      "description": "Tax business news",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kontan - Tax News",
+      "url": "https://nasional.kontan.co.id/news/pajak",
+      "description": "Tax policy updates",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Tempo - Tax",
+      "url": "https://bisnis.tempo.co/pajak",
+      "description": "Tax current affairs",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": true
+    },
+    {
+      "name": "Jakarta Post - Tax\n    \ud83d\udd17 https://www.thejakartapost.com (search \"tax\")\n    \ud83d\udcdd English tax news\n\n20. \ud83d\udcf0 Detik Finance - Tax",
+      "url": "https://finance.detik.com/berita-ekonomi-bisnis/pajak",
+      "description": "Tax updates",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": true
+    },
+    {
+      "name": "OECD Tax - Indonesia",
+      "url": "https://www.oecd.org/tax",
+      "description": "International tax standards",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Tax Treaties Database",
+      "url": "https://pajak.go.id/id/internasional",
+      "description": "Tax treaty updates",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "World Bank - Indonesia Taxation",
+      "url": "https://www.worldbank.org/en/country/indonesia",
+      "description": "Tax policy research",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "IMF - Indonesia Tax",
+      "url": "https://www.imf.org/en/Countries/IDN",
+      "description": "Fiscal policy analysis",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Asian Development Bank - Indonesia",
+      "url": "https://www.adb.org/countries/indonesia",
+      "description": "Tax development projects",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Hukumonline - Tax\n    \ud83d\udd17 https://www.hukumonline.com (search \"pajak\")\n    \ud83d\udcdd Legal tax analysis\n\n34. \ud83d\udcdc Indonesian Tax Journal\n    \ud83d\udd17 Academic publications\n    \ud83d\udcdd Tax scholarly articles\n\n35. \ud83d\udcdc IBFD (International Bureau Fiscal Documentation)",
+      "url": "https://www.ibfd.org",
+      "description": "International tax research",
+      "category": "tax",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "e-Faktur System",
+      "url": "https://efaktur.pajak.go.id",
+      "description": "VAT e-invoicing updates",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "e-Bupot System\n    \ud83d\udd17 DJP online platforms\n    \ud83d\udcdd Withholding tax e-reporting\n\n38. \ud83d\udcbb Coretax System",
+      "url": "https://pajak.go.id/coretax",
+      "description": "New core tax administration system",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Digital Economy Tax\n    \ud83d\udd17 DJP announcements\n    \ud83d\udcdd E-commerce and digital tax\n\n40. \ud83d\udcbb Cryptocurrency Tax\n    \ud83d\udd17 DJP crypto guidelines\n    \ud83d\udcdd Digital asset taxation\n\n\ud83c\udfe6 VAT & INDIRECT TAX:\n41. \ud83c\udfe6 VAT Regulations\n    \ud83d\udd17 DJP VAT section\n    \ud83d\udcdd PPN/PPnBM updates\n\n42. \ud83c\udfe6 Luxury Tax\n    \ud83d\udd17 PPnBM updates\n    \ud83d\udcdd Luxury goods tax\n\n43. \ud83c\udfe6 Import/Export Tax\n    \ud83d\udd17 Customs and excise\n    \ud83d\udcdd Import duties and taxes\n\n44. \ud83c\udfe6 Excise Tax",
+      "url": "https://www.beacukai.go.id",
+      "description": "Excise regulations",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Land and Building Tax (PBB)\n    \ud83d\udd17 Local tax offices\n    \ud83d\udcdd Property tax updates\n\n\ud83d\udc65 PERSONAL TAX:\n46. \ud83d\udc65 Individual Income Tax (PPh 21)\n    \ud83d\udd17 DJP PPh section\n    \ud83d\udcdd Personal income tax\n\n47. \ud83d\udc65 NPWP Registration\n    \ud83d\udd17 Tax ID registration updates\n    \ud83d\udcdd Tax registration procedures\n\n48. \ud83d\udc65 Tax Amnesty Programs",
+      "url": "https://www.pajak.go.id/id/berita",
+      "description": "Tax amnesty opportunities",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Annual Tax Return (SPT Tahunan)",
+      "url": "https://djponline.pajak.go.id",
+      "description": "Tax filing deadlines",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Expat Tax Regulations",
+      "url": "https://www.pajak.go.id/id/wajib-pajak",
+      "description": "Expat taxation rules",
+      "category": "tax",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "OSS Indonesia (Online Single Submission)",
+      "url": "https://oss.go.id",
+      "description": "One-stop business licensing",
+      "category": "business_setup",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BKPM (Investment Coordinating Board)",
+      "url": "https://www.bkpm.go.id/id/panduan-investasi",
+      "description": "Investment guides and procedures",
+      "category": "business_setup",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "AHU Online (Kemenkumham)",
+      "url": "https://ahu.go.id",
+      "description": "Company registration system",
+      "category": "business_setup",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Notaris Indonesia (Notary Association)",
+      "url": "https://www.ino.or.id",
+      "description": "Notary requirements and regulations",
+      "category": "business_setup",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "LKPM (Investment Services)\n   \ud83d\udd17 BKPM service centers\n   \ud83d\udcdd Investment facilitation services\n\n6. \ud83c\udfdb\ufe0f DPMPTSP (One-Stop Service)\n   \ud83d\udd17 Provincial investment offices\n   \ud83d\udcdd Local business licensing\n\n7. \ud83c\udfdb\ufe0f Kemenkumham Company Registration",
+      "url": "https://www.kemenkumham.go.id",
+      "description": "Legal entity registration",
+      "category": "business_setup",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BPN (Badan Pertanahan Nasional)",
+      "url": "https://www.bpn.go.id",
+      "description": "Land and property authority",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kementerian PUPR",
+      "url": "https://www.pu.go.id",
+      "description": "Public Works and Housing Ministry",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BPS Real Estate",
+      "url": "https://www.bps.go.id",
+      "description": "Statistics office, property data",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BPN Bali",
+      "url": "https://bali.bpn.go.id",
+      "description": "Bali land and property office",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "ATR/BPN News",
+      "url": "https://www.atrbpn.go.id/Berita",
+      "description": "Land affairs ministry announcements",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kementerian PUPR Perumahan",
+      "url": "https://perumahan.pu.go.id",
+      "description": "Housing directorate updates",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BPN Badung",
+      "url": "https://badung.bpn.go.id",
+      "description": "Badung regency land office",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BPN Denpasar",
+      "url": "https://denpasar.bpn.go.id",
+      "description": "Denpasar city land office",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Rumah.com News",
+      "url": "https://www.rumah.com/berita-properti",
+      "description": "Property news and trends",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Lamudi Indonesia",
+      "url": "https://www.lamudi.co.id/journal",
+      "description": "Property market insights",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "PropertyGuru Indonesia",
+      "url": "https://www.propertyguru.co.id/panduan-properti",
+      "description": "Property news and guides",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kompas Properti",
+      "url": "https://properti.kompas.com",
+      "description": "National property section",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Detik Properti",
+      "url": "https://properti.detik.com",
+      "description": "Property news updates",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "Bisnis.com Properti",
+      "url": "https://ekonomi.bisnis.com/properti",
+      "description": "Business property coverage",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kontan Properti",
+      "url": "https://keuangan.kontan.co.id/properti",
+      "description": "Property investment news",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Jakarta Post Property",
+      "url": "https://www.thejakartapost.com/life/property",
+      "description": "English property news",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tribun Properti",
+      "url": "https://www.tribunnews.com/properti",
+      "description": "Regional property updates",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tempo Properti",
+      "url": "https://www.tempo.co/tag/properti",
+      "description": "Property market analysis",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "CNN Indonesia Properti",
+      "url": "https://www.cnnindonesia.com/ekonomi/indeks/10-properti",
+      "description": "Property economic news",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Liputan6 Properti",
+      "url": "https://www.liputan6.com/properti",
+      "description": "Property news and tips",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "REI (Real Estate Indonesia)",
+      "url": "https://www.rei.or.id",
+      "description": "Real estate association",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "REI Bali",
+      "url": "https://www.reibali.org",
+      "description": "Bali real estate association",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "DPD REI Bali News",
+      "url": "https://www.reibali.org/berita",
+      "description": "Bali REI announcements",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "AREBI (Asosiasi Real Estate Broker Indonesia)",
+      "url": "https://www.arebi.or.id",
+      "description": "Real estate brokers association",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Apersi (Asosiasi Pengembang Perumahan)",
+      "url": "https://apersi.or.id",
+      "description": "Housing developers association",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Appraisal Indonesia",
+      "url": "https://www.appraisal-indonesia.com",
+      "description": "Property appraisers association",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "FIABCI Indonesia",
+      "url": "https://www.fiabci-indonesia.org",
+      "description": "International real estate federation",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "PPPSRS",
+      "url": "https://pppsrs.or.id",
+      "description": "Strata title association",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bank Indonesia Property",
+      "url": "https://www.bi.go.id",
+      "description": "Central bank property policies",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "OJK Property Finance",
+      "url": "https://www.ojk.go.id",
+      "description": "Financial services authority",
+      "category": "realestate",
+      "tier": "official",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BTN (Bank Tabungan Negara)",
+      "url": "https://www.btn.co.id/id/Newsroom",
+      "description": "Housing bank news",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bank Mandiri Property",
+      "url": "https://www.bankmandiri.co.id/kpr",
+      "description": "Property financing updates",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BCA Property Financing",
+      "url": "https://www.bca.co.id/id/Individu/Pinjaman/KPR",
+      "description": "Mortgage product updates",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BRI Property Loan",
+      "url": "https://bri.co.id/kpr",
+      "description": "Housing loan information",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Post Properti",
+      "url": "https://www.balipost.com/tag/properti",
+      "description": "Local Bali property news",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tribun Bali Properti",
+      "url": "https://bali.tribunnews.com/tag/properti",
+      "description": "Bali regional property",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Express Property",
+      "url": "https://baliexpress.jawapos.com/tag/properti",
+      "description": "Bali property updates",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Radar Bali Property",
+      "url": "https://radarbali.jawapos.com/tag/properti",
+      "description": "Local property coverage",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Nusa Bali",
+      "url": "https://nusabali.com/tag/properti",
+      "description": "Bali newspaper property section",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Sun Property",
+      "url": "https://balisun.co.id/category/property",
+      "description": "Bali property news",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesia Expat Property",
+      "url": "https://indonesiaexpat.id/tag/property",
+      "description": "Expat property news",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Property Report Indonesia",
+      "url": "https://www.propertyreport.com/indonesia",
+      "description": "International property analysis",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Southeast Asia Property",
+      "url": "https://sea-property.com/indonesia",
+      "description": "Regional property insights",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Global Property Guide Indonesia",
+      "url": "https://www.globalpropertyguide.com/Asia/Indonesia",
+      "description": "International buyers guide",
+      "category": "realestate",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "PROPERTY NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "TechCrunch AI",
+      "url": "https://techcrunch.com/category/artificial-intelligence",
+      "description": "AI startup and tech news",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "The Verge AI",
+      "url": "https://www.theverge.com/ai-artificial-intelligence",
+      "description": "Consumer AI news",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Wired AI",
+      "url": "https://www.wired.com/tag/artificial-intelligence",
+      "description": "AI culture and technology",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "MIT Technology Review AI",
+      "url": "https://www.technologyreview.com/topic/artificial-intelligence",
+      "description": "Deep AI analysis",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "VentureBeat AI",
+      "url": "https://venturebeat.com/category/ai",
+      "description": "Enterprise AI news",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "The Information AI",
+      "url": "https://www.theinformation.com/ai",
+      "description": "AI industry insider news",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Ars Technica AI",
+      "url": "https://arstechnica.com/tag/artificial-intelligence",
+      "description": "Technical AI coverage",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "IEEE Spectrum AI",
+      "url": "https://spectrum.ieee.org/topic/artificial-intelligence",
+      "description": "Engineering AI news",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "AI Business",
+      "url": "https://aibusiness.com",
+      "description": "Enterprise AI news",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "SyncedReview",
+      "url": "https://syncedreview.com",
+      "description": "AI research news",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Analytics India Magazine",
+      "url": "https://analyticsindiamag.com",
+      "description": "AI developments",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "KDnuggets",
+      "url": "https://www.kdnuggets.com",
+      "description": "AI and data science news",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Towards Data Science",
+      "url": "https://towardsdatascience.com",
+      "description": "AI tutorials and insights",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Papers with Code",
+      "url": "https://paperswithcode.com",
+      "description": "Latest ML papers with code",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "AI Trends",
+      "url": "https://www.aitrends.com",
+      "description": "AI industry trends",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Import AI Newsletter",
+      "url": "https://jack-clark.net",
+      "description": "Weekly AI insights",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "The Batch (DeepLearning.AI)",
+      "url": "https://www.deeplearning.ai/the-batch",
+      "description": "Andrew Ng's AI newsletter",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Last Week in AI",
+      "url": "https://lastweekin.ai",
+      "description": "Weekly AI roundup",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "The Algorithm (MIT Tech Review)\n    \ud83d\udd17 Newsletter\n    \ud83d\udcdd AI news digest\n\n65. \ud83d\udcf0 AI Alignment Newsletter",
+      "url": "https://rohinshah.com/alignment-newsletter",
+      "description": "AI safety news",
+      "category": "ai_tech",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "EU AI Act Updates",
+      "url": "https://ec.europa.eu/digital-strategy/ai",
+      "description": "European AI regulation",
+      "category": "ai_tech",
+      "tier": "official",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "US AI Policy (White House)",
+      "url": "https://www.whitehouse.gov/ai",
+      "description": "US AI governance",
+      "category": "ai_tech",
+      "tier": "official",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "UK AI Regulation",
+      "url": "https://www.gov.uk/ai-regulation",
+      "description": "British AI policy",
+      "category": "ai_tech",
+      "tier": "official",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "OECD AI Policy Observatory",
+      "url": "https://oecd.ai",
+      "description": "International AI policy",
+      "category": "ai_tech",
+      "tier": "official",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "UNESCO AI Ethics",
+      "url": "https://www.unesco.org/en/artificial-intelligence",
+      "description": "Global AI ethics",
+      "category": "ai_tech",
+      "tier": "official",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "NIST AI Standards",
+      "url": "https://www.nist.gov/artificial-intelligence",
+      "description": "US AI standards",
+      "category": "ai_tech",
+      "tier": "official",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Singapore AI Governance",
+      "url": "https://www.pdpc.gov.sg/help-and-resources/2020/01/model-ai-governance-framework",
+      "description": "ASEAN AI regulation",
+      "category": "ai_tech",
+      "tier": "official",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "China AI Policy\n    \ud83d\udd17 Monitor official announcements\n    \ud83d\udcdd Chinese AI regulation\n\n99. \ud83c\udfdb\ufe0f FTC AI Regulation",
+      "url": "https://www.ftc.gov/ai",
+      "description": "US consumer protection in AI",
+      "category": "ai_tech",
+      "tier": "official",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "European Data Protection Board - AI",
+      "url": "https://edpb.europa.eu/ai_en",
+      "description": "GDPR and AI",
+      "category": "ai_tech",
+      "tier": "official",
+      "priority": "critical",
+      "section": "AI COMPANIES & RESEARCH LABS (20 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Reddit r/Indonesia",
+      "url": "https://www.reddit.com/r/indonesia",
+      "description": "Indonesian community discussions",
+      "category": "social",
+      "tier": "community",
+      "priority": "critical",
+      "section": "",
+      "requires_js": true
+    },
+    {
+      "name": "Reddit r/Bali",
+      "url": "https://www.reddit.com/r/bali",
+      "description": "Bali community discussions",
+      "category": "social",
+      "tier": "community",
+      "priority": "critical",
+      "section": "",
+      "requires_js": true
+    },
+    {
+      "name": "YouTube Trending Indonesia",
+      "url": "https://www.youtube.com/feed/trending?gl=ID",
+      "description": "Trending Indonesian videos",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "DailySocial.id",
+      "url": "https://dailysocial.id",
+      "description": "Social media and tech news Indonesia",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Marketing.co.id",
+      "url": "https://marketing.co.id",
+      "description": "Marketing and social media trends",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tech in Asia Indonesia",
+      "url": "https://www.techinasia.com/id",
+      "description": "Tech and social media updates",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "KrASIA Indonesia",
+      "url": "https://kr-asia.com/category/indonesia",
+      "description": "Tech and social trends",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kompas Tekno",
+      "url": "https://tekno.kompas.com",
+      "description": "Technology news",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Detik Inet",
+      "url": "https://inet.detik.com",
+      "description": "Internet and social media news",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "Liputan6 Tekno",
+      "url": "https://www.liputan6.com/tekno",
+      "description": "Tech coverage",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "CNN Indonesia Teknologi",
+      "url": "https://www.cnnindonesia.com/teknologi",
+      "description": "Technology news",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tempo Tekno",
+      "url": "https://tekno.tempo.co",
+      "description": "Technology reporting",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "Katadata Digital",
+      "url": "https://katadata.co.id/teknologi",
+      "description": "Digital economy news",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Jakpat Social Trends",
+      "url": "https://blog.jakpat.net",
+      "description": "Social media research",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Social Media Week Jakarta",
+      "url": "https://socialmediaweek.org/jakarta",
+      "description": "Social media industry events",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Influencer Marketing Hub",
+      "url": "https://influencermarketinghub.com",
+      "description": "Global influencer trends",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Social Blade Indonesia",
+      "url": "https://socialblade.com",
+      "description": "Creator analytics and tracking",
+      "category": "social",
+      "tier": "community",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Hypestat Indonesia",
+      "url": "https://hypestat.com",
+      "description": "Website and social stats",
+      "category": "social",
+      "tier": "community",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Female Daily Network",
+      "url": "https://femaledaily.com",
+      "description": "Beauty and lifestyle influencers",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "IDN Media",
+      "url": "https://www.idntimes.com/trending",
+      "description": "Millennial and Gen-Z trends",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Popbela",
+      "url": "https://www.popbela.com",
+      "description": "Women's lifestyle trends",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Hipwee",
+      "url": "https://www.hipwee.com",
+      "description": "Viral content and trends",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Brilio.net",
+      "url": "https://www.brilio.net",
+      "description": "Youth-focused viral content",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kominfo (Ministry of Communications)",
+      "url": "https://www.kominfo.go.id",
+      "description": "Digital regulations and policies",
+      "category": "social",
+      "tier": "official",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kominfo Social Media",
+      "url": "https://www.kominfo.go.id/kategori/media-sosial",
+      "description": "Social media regulations",
+      "category": "social",
+      "tier": "official",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BSSN (Cyber Security Agency)",
+      "url": "https://bssn.go.id",
+      "description": "Cybersecurity and data protection",
+      "category": "social",
+      "tier": "official",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "UU ITE Updates",
+      "url": "https://www.kominfo.go.id/content/detail/3415/uu-ite/0/regulasi",
+      "description": "Electronic information law",
+      "category": "social",
+      "tier": "official",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Meta Newsroom Indonesia",
+      "url": "https://about.fb.com/news/category/asia-pacific",
+      "description": "Facebook/Instagram policy updates",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "TikTok Newsroom Indonesia",
+      "url": "https://newsroom.tiktok.com/id-id",
+      "description": "TikTok policy and features",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Twitter Indonesia Blog",
+      "url": "https://blog.twitter.com",
+      "description": "X/Twitter updates",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Google Indonesia Blog",
+      "url": "https://indonesia.googleblog.com",
+      "description": "YouTube and platform updates",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "LinkedIn Indonesia News",
+      "url": "https://www.linkedin.com/company/linkedin/posts",
+      "description": "Professional platform updates",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Snapchat Indonesia",
+      "url": "https://newsroom.snap.com",
+      "description": "Snapchat features and policies",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "We Are Social Indonesia",
+      "url": "https://wearesocial.com/id",
+      "description": "Social media statistics",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Hootsuite Indonesia",
+      "url": "https://blog.hootsuite.com",
+      "description": "Social media marketing insights",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Digimind Indonesia",
+      "url": "https://www.digimind.com/blog",
+      "description": "Social listening insights",
+      "category": "social",
+      "tier": "community",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Netray Indonesia",
+      "url": "https://netray.id",
+      "description": "Social media monitoring",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Drone Emprit",
+      "url": "https://pers.droneemprit.id",
+      "description": "Twitter analytics Indonesia",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Isentia Indonesia",
+      "url": "https://www.isentia.com/id",
+      "description": "Media intelligence",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BuzzSumo",
+      "url": "https://buzzsumo.com",
+      "description": "Content performance tracking",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Twitonomy Indonesia",
+      "url": "https://www.twitonomy.com",
+      "description": "Twitter analytics",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tokopedia Blog",
+      "url": "https://www.tokopedia.com/blog",
+      "description": "Social commerce trends",
+      "category": "social",
+      "tier": "community",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Shopee News Indonesia",
+      "url": "https://shopee.co.id/m/shopee-news",
+      "description": "E-commerce social features",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bukalapak Stories",
+      "url": "https://blog.bukalapak.com",
+      "description": "Social shopping updates",
+      "category": "social",
+      "tier": "community",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "TikTok Shop Indonesia",
+      "url": "https://seller.tiktokglobalshop.com/id",
+      "description": "TikTok commerce updates",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Instagram Shopping Updates",
+      "url": "https://business.instagram.com",
+      "description": "Social commerce features",
+      "category": "social",
+      "tier": "community",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "WhatsApp Business Indonesia",
+      "url": "https://business.whatsapp.com",
+      "description": "Business messaging updates",
+      "category": "social",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "SOCIAL MEDIA NEWS & TECH (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bank Indonesia",
+      "url": "https://www.bi.go.id",
+      "description": "Central bank regulations",
+      "category": "banking",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "OJK (Otoritas Jasa Keuangan)",
+      "url": "https://www.ojk.go.id",
+      "description": "Financial Services Authority",
+      "category": "banking",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BCA (Bank Central Asia)",
+      "url": "https://www.bca.co.id",
+      "description": "Major bank updates",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Bank Mandiri",
+      "url": "https://www.bankmandiri.co.id",
+      "description": "State bank regulations",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BNI (Bank Negara Indonesia)",
+      "url": "https://www.bni.co.id",
+      "description": "National bank updates",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BRI (Bank Rakyat Indonesia)",
+      "url": "https://www.bri.co.id",
+      "description": "People's bank news",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "CIMB Niaga",
+      "url": "https://www.cimbniaga.co.id",
+      "description": "Foreign bank operations",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Foreign Account Opening Rules\n   \ud83d\udd17 BI and OJK regulations\n   \ud83d\udcdd KITAS holder banking rights\n\n9. \ud83c\udf10 Currency Exchange Regulations\n   \ud83d\udd17 Bank Indonesia forex\n   \ud83d\udcdd Foreign exchange controls\n\n10. \ud83c\udf10 International Money Transfer\n    \ud83d\udd17 BI cross-border regulations\n    \ud83d\udcdd Remittance rules\n\n11. \ud83c\udf10 SWIFT Regulations\n    \ud83d\udd17 Banking international transfer\n    \ud83d\udcdd International payment systems\n\n12. \ud83c\udf10 Multi-Currency Accounts\n    \ud83d\udd17 Bank offerings for expats\n    \ud83d\udcdd Foreign currency account rules\n\n\ud83d\udcb3 FINTECH & DIGITAL BANKING:\n13. \ud83d\udcbb Fintech Licensing (OJK)",
+      "url": "https://www.ojk.go.id/id/kanal/iknb/fintech",
+      "description": "Fintech regulations",
+      "category": "banking",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "E-Wallet Regulations\n    \ud83d\udd17 OJK digital payment\n    \ud83d\udcdd GoPay, OVO, Dana, LinkAja rules\n\n15. \ud83d\udcbb P2P Lending Regulations\n    \ud83d\udd17 OJK P2P section\n    \ud83d\udcdd Peer-to-peer lending rules\n\n16. \ud83d\udcbb Digital Bank Licensing\n    \ud83d\udd17 OJK digital bank\n    \ud83d\udcdd Neobank regulations\n\n17. \ud83d\udcbb QRIS (QR Payment Standard)\n    \ud83d\udd17 Bank Indonesia QRIS\n    \ud83d\udcdd QR code payment system\n\n18. \ud83d\udcbb Open Banking Regulations\n    \ud83d\udd17 BI and OJK\n    \ud83d\udcdd API banking standards\n\n19. \ud83d\udcbb Cryptocurrency Regulations\n    \ud83d\udd17 Bappebti and OJK\n    \ud83d\udcdd Digital asset rules\n\n20. \ud83d\udcbb Blockchain/DLT Regulations\n    \ud83d\udd17 BI innovation\n    \ud83d\udcdd Distributed ledger technology\n\n\ud83d\udcca BANKING REGULATIONS:\n21. \ud83d\udcdc Banking Law Updates\n    \ud83d\udd17 UU Perbankan\n    \ud83d\udcdd Banking legislation changes\n\n22. \ud83d\udcdc Credit Card Regulations\n    \ud83d\udd17 BI credit card rules\n    \ud83d\udcdd Credit facility regulations\n\n23. \ud83d\udcdc Loan Regulations\n    \ud83d\udd17 OJK lending rules\n    \ud83d\udcdd KPR, KTA, KKB regulations\n\n24. \ud83d\udcdc Interest Rate Policies\n    \ud83d\udd17 BI policy rate\n    \ud83d\udcdd BI 7-Day Reverse Repo Rate\n\n25. \ud83d\udcdc Reserve Requirement\n    \ud83d\udd17 BI GWM (Giro Wajib Minimum)\n    \ud83d\udcdd Bank reserve regulations\n\n26. \ud83d\udcdc Capital Adequacy Ratio\n    \ud83d\udd17 OJK CAR requirements\n    \ud83d\udcdd Bank capital regulations\n\n27. \ud83d\udcdc Non-Performing Loan Regulations\n    \ud83d\udd17 OJK NPL management\n    \ud83d\udcdd Bad debt regulations\n\n28. \ud83d\udcdc Banking License Updates\n    \ud83d\udd17 OJK licensing\n    \ud83d\udcdd New bank approvals\n\n\ud83d\udee1\ufe0f ANTI-MONEY LAUNDERING:\n29. \ud83d\udee1\ufe0f PPATK (Financial Intelligence Unit)",
+      "url": "https://www.ppatk.go.id",
+      "description": "AML/CFT regulations",
+      "category": "banking",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "IDX (Indonesia Stock Exchange)",
+      "url": "https://www.idx.co.id",
+      "description": "Capital market regulations",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Securities Regulations\n    \ud83d\udd17 OJK pasar modal\n    \ud83d\udcdd Investment product rules\n\n35. \ud83d\udcbc Mutual Fund Regulations\n    \ud83d\udd17 OJK reksa dana\n    \ud83d\udcdd Investment fund rules\n\n36. \ud83d\udcbc Foreign Investment Regulations\n    \ud83d\udd17 OJK foreign investor rules\n    \ud83d\udcdd Capital market access for expats\n\n37. \ud83d\udcbc Robo-Advisor Regulations\n    \ud83d\udd17 OJK digital investment\n    \ud83d\udcdd Automated investment platforms\n\n\ud83c\udfe6 INTERNATIONAL BANKS:\n38. \ud83c\udf10 HSBC Indonesia",
+      "url": "https://www.hsbc.co.id",
+      "description": "International bank services",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Citibank Indonesia",
+      "url": "https://www.citibank.co.id",
+      "description": "Foreign bank operations",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Standard Chartered Indonesia",
+      "url": "https://www.sc.com/id",
+      "description": "International banking",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "ANZ Indonesia",
+      "url": "https://www.anz.com/indonesia",
+      "description": "Australian bank services",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Deutsche Bank Indonesia",
+      "url": "https://www.db.com/indonesia",
+      "description": "European bank operations",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Bisnis Indonesia - Banking",
+      "url": "https://finansial.bisnis.com/perbankan",
+      "description": "Banking industry news",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kontan - Banking",
+      "url": "https://keuangan.kontan.co.id/news/perbankan",
+      "description": "Financial sector updates",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesia Financial Times",
+      "url": "https://www.financialtimes.co.id",
+      "description": "Financial news",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "InfoBank",
+      "url": "https://infobanknews.com",
+      "description": "Banking industry magazine",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "DailySocial - Fintech",
+      "url": "https://dailysocial.id/topic/fintech",
+      "description": "Fintech industry news",
+      "category": "banking",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenparekraf",
+      "url": "https://kemenparekraf.go.id",
+      "description": "Ministry of Tourism and Creative Economy",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Provincial Government",
+      "url": "https://www.baliprov.go.id",
+      "description": "Official Bali government site",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Ministry of Education and Culture",
+      "url": "https://kebudayaan.kemdikbud.go.id",
+      "description": "Culture and education ministry",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Disparda Bali (Tourism Office)",
+      "url": "https://disparda.baliprov.go.id",
+      "description": "Bali tourism department",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Culture Agency",
+      "url": "https://budaya.baliprov.go.id",
+      "description": "Bali cultural affairs office",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenparekraf Events",
+      "url": "https://kemenparekraf.go.id/ragam-pariwisata/event",
+      "description": "National tourism events",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesia.go.id Culture",
+      "url": "https://www.indonesia.go.id/kategori/indonesia-heritage",
+      "description": "Indonesian heritage portal",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemendikbudristek",
+      "url": "https://www.kemdikbud.go.id",
+      "description": "Education, culture, research ministry",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Detik Travel",
+      "url": "https://travel.detik.com",
+      "description": "Travel and tourism news",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "Kompas Travel",
+      "url": "https://travel.kompas.com",
+      "description": "Travel section",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Post",
+      "url": "https://www.balipost.com",
+      "description": "Local Bali newspaper",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Wonderful Indonesia",
+      "url": "https://www.indonesia.travel",
+      "description": "Official tourism site",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tribun Bali",
+      "url": "https://bali.tribunnews.com",
+      "description": "Bali regional news",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tempo Travel",
+      "url": "https://travel.tempo.co",
+      "description": "Travel reporting",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "CNN Travel Indonesia",
+      "url": "https://www.cnnindonesia.com/gaya-hidup/travel",
+      "description": "Travel lifestyle",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Liputan6 Travel",
+      "url": "https://www.liputan6.com/lifestyle/travel",
+      "description": "Travel coverage",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Antara Bali",
+      "url": "https://bali.antaranews.com",
+      "description": "Bali news agency",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bisnis Bali",
+      "url": "https://bali.bisnis.com",
+      "description": "Bali business news",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Berita Bali",
+      "url": "https://beritabali.com",
+      "description": "Local Bali focus",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Nusa Bali",
+      "url": "https://nusabali.com",
+      "description": "Bali newspaper",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Eventbrite Indonesia",
+      "url": "https://www.eventbrite.com/d/indonesia/events",
+      "description": "Event discovery platform",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Loket.com Events",
+      "url": "https://www.loket.com/event",
+      "description": "Indonesian event ticketing",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "GoTix Events",
+      "url": "https://www.gotix.id",
+      "description": "Event tickets and listings",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tiket.com Events",
+      "url": "https://www.tiket.com/event",
+      "description": "Event calendar",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Event Calendar",
+      "url": "https://www.balieventcalendar.com",
+      "description": "Comprehensive Bali events",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Now Bali Events",
+      "url": "https://nowbali.co.id/events",
+      "description": "Bali event listings",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "The Bali Bubble Events",
+      "url": "https://www.thebalibubble.com/events",
+      "description": "Expat event calendar",
+      "category": "events",
+      "tier": "community",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Plus Events",
+      "url": "https://www.baliplus.com/events",
+      "description": "Bali event guide",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Ubud Now & Then",
+      "url": "https://ubudnowandthen.com/events",
+      "description": "Ubud events calendar",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Seminyak Times Events",
+      "url": "https://www.seminyaktimes.com/events",
+      "description": "Seminyak event listings",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "ISI Denpasar (Arts Institute)",
+      "url": "https://www.isi-dps.ac.id",
+      "description": "Bali arts university",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Taman Budaya Bali",
+      "url": "https://tamanbudayabali.com",
+      "description": "Bali cultural center",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Museum Bali",
+      "url": "https://museumbali.baliprov.go.id",
+      "description": "Bali provincial museum",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Gedung Kirti",
+      "url": "https://gedungkirti.baliprov.go.id",
+      "description": "Cultural building events",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Puri Lukisan Museum",
+      "url": "https://www.museumpurilukisan.com",
+      "description": "Fine arts museum Ubud",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "ARMA Museum",
+      "url": "https://www.armabali.com",
+      "description": "Agung Rai Museum of Art",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Neka Art Museum",
+      "url": "https://www.museumneka.com",
+      "description": "Ubud art museum",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Blanco Renaissance Museum",
+      "url": "https://www.blancomuseum.com",
+      "description": "Art museum Ubud",
+      "category": "events",
+      "tier": "official",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Ubud Writers Festival",
+      "url": "https://www.ubudwritersfestival.com",
+      "description": "Annual literary festival",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Arts Festival",
+      "url": "https://pesta-kesenian-bali.com",
+      "description": "Annual arts festival",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BaliSpirit Festival",
+      "url": "https://www.balispiritfestival.com",
+      "description": "Yoga and music festival",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Sanur Village Festival",
+      "url": "https://sanurvillagefestival.com",
+      "description": "Cultural festival Sanur",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Nusa Dua Fiesta",
+      "url": "https://nusaduafiesta.com",
+      "description": "Tourism and culture festival",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Mandara Mahotsava",
+      "url": "https://www.balimandara.id",
+      "description": "Grand cultural festival",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Buleleng Festival",
+      "url": "https://bulelengfestival.com",
+      "description": "North Bali festival",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Ubud Food Festival",
+      "url": "https://www.ubudfoodfestival.com",
+      "description": "Culinary festival",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Hindu Calendar",
+      "url": "https://www.balinese-calendar.com",
+      "description": "Balinese calendar system",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kalender Bali",
+      "url": "https://kalenderbali.org",
+      "description": "Traditional calendar",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Hindu Bali Info",
+      "url": "https://hindubali.com",
+      "description": "Hindu ceremonies and dates",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Odalan Bali",
+      "url": "https://odalanbali.com",
+      "description": "Temple ceremony schedules",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Parisada Hindu Dharma",
+      "url": "https://phdi.or.id",
+      "description": "Hindu council Indonesia",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Majelis Madya Desa Pakraman",
+      "url": "https://www.mdpbali.or.id",
+      "description": "Traditional village council",
+      "category": "events",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "TOURISM & TRAVEL NEWS (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kementerian Kesehatan",
+      "url": "https://www.kemkes.go.id",
+      "description": "Ministry of Health - official announcements",
+      "category": "health",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "WHO Indonesia",
+      "url": "https://www.who.int/indonesia",
+      "description": "World Health Organization Indonesia",
+      "category": "health",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BPJS Kesehatan",
+      "url": "https://bpjs-kesehatan.go.id",
+      "description": "National Health Insurance updates",
+      "category": "health",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Detik Health",
+      "url": "https://health.detik.com",
+      "description": "Health news section",
+      "category": "health",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": true
+    },
+    {
+      "name": "Kompas Health",
+      "url": "https://health.kompas.com",
+      "description": "Health updates",
+      "category": "health",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Alodokter",
+      "url": "https://www.alodokter.com",
+      "description": "Medical information platform",
+      "category": "health",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Halodoc",
+      "url": "https://www.halodoc.com/artikel",
+      "description": "Telemedicine platform articles",
+      "category": "health",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kemenkes PATEN (Pharmacy)",
+      "url": "https://e-paten.kemkes.go.id",
+      "description": "Pharmacy regulations",
+      "category": "health",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "BPOM (Food & Drug)",
+      "url": "https://www.pom.go.id",
+      "description": "Drug and food safety regulations",
+      "category": "health",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Dinkes Bali (Health Office)",
+      "url": "https://www.diskes.baliprov.go.id",
+      "description": "Bali Provincial Health Office",
+      "category": "health",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "SehatQ",
+      "url": "https://www.sehatq.com",
+      "description": "Health information portal",
+      "category": "health",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesian Nursing Association",
+      "url": "https://inna-ppni.or.id",
+      "description": "Nursing regulations",
+      "category": "health",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "International SOS Indonesia",
+      "url": "https://www.internationalsos.com",
+      "description": "Expat medical services",
+      "category": "health",
+      "tier": "community",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Mediclinic Indonesia\n    \ud83d\udd17 Search for updates\n    \ud83d\udcdd Expat medical clinics\n\n23. \ud83c\udfe5 Jakarta International Hospital",
+      "url": "https://www.jih.co.id",
+      "description": "International standard hospital",
+      "category": "health",
+      "tier": "community",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Medical Tourism Indonesia",
+      "url": "https://www.medicaltourismindonesia.com",
+      "description": "Medical tourism updates",
+      "category": "health",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Riliv (Mental Health App)",
+      "url": "https://riliv.co",
+      "description": "Mental health services",
+      "category": "health",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Ministry of Transportation",
+      "url": "https://www.dephub.go.id",
+      "description": "National transport regulations",
+      "category": "transport",
+      "tier": "official",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Kompas",
+      "url": "https://kompas.com",
+      "description": "Major Indonesian news site",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Detik",
+      "url": "https://detik.com",
+      "description": "Popular news portal",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": true
+    },
+    {
+      "name": "Tempo",
+      "url": "https://tempo.co",
+      "description": "News magazine",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": true
+    },
+    {
+      "name": "CNN Indonesia",
+      "url": "https://cnnindonesia.com",
+      "description": "International news perspective",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Antara News",
+      "url": "https://antaranews.com",
+      "description": "National news agency",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Tribun Bali",
+      "url": "https://bali.tribunnews.com",
+      "description": "Local Bali news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Berita Bali",
+      "url": "https://beritabali.com",
+      "description": "Local Bali focus",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Liputan6",
+      "url": "https://www.liputan6.com",
+      "description": "National news portal",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "",
+      "requires_js": false
+    },
+    {
+      "name": "Jakarta Post",
+      "url": "https://www.thejakartapost.com",
+      "description": "English-language daily",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Jakarta Globe",
+      "url": "https://jakartaglobe.id",
+      "description": "English news coverage",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Republika",
+      "url": "https://www.republika.co.id",
+      "description": "National daily newspaper",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Media Indonesia",
+      "url": "https://mediaindonesia.com",
+      "description": "National news daily",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Suara.com",
+      "url": "https://www.suara.com",
+      "description": "Online news portal",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kumparan",
+      "url": "https://kumparan.com",
+      "description": "Digital news platform",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Merdeka.com",
+      "url": "https://www.merdeka.com",
+      "description": "Online news site",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Sindonews",
+      "url": "https://nasional.sindonews.com",
+      "description": "National news coverage",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Okezone",
+      "url": "https://nasional.okezone.com",
+      "description": "National news section",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Viva.co.id",
+      "url": "https://www.viva.co.id/nasional",
+      "description": "National news portal",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Inews.id",
+      "url": "https://www.inews.id",
+      "description": "Breaking news platform",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "IDN Times",
+      "url": "https://www.idntimes.com",
+      "description": "Millennial news platform",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Post",
+      "url": "https://www.balipost.com",
+      "description": "Bali's leading newspaper",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Nusa Bali",
+      "url": "https://nusabali.com",
+      "description": "Bali regional newspaper",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Radar Bali",
+      "url": "https://radarbali.jawapos.com",
+      "description": "Jawa Pos network Bali",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Express",
+      "url": "https://baliexpress.jawapos.com",
+      "description": "Bali daily news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bali Sun",
+      "url": "https://balisun.co.id",
+      "description": "Bali online news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Antara Bali",
+      "url": "https://bali.antaranews.com",
+      "description": "Official news agency Bali",
+      "category": "news",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bisnis Bali",
+      "url": "https://bali.bisnis.com",
+      "description": "Business news Bali",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Tribun Bali Network",
+      "url": "https://www.tribunnews.com/tag/bali",
+      "description": "Tribun Bali coverage",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kompas Bali",
+      "url": "https://regional.kompas.com/bali",
+      "description": "Kompas regional Bali",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Detik Bali",
+      "url": "https://news.detik.com/tag/bali",
+      "description": "Detik Bali section",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": true
+    },
+    {
+      "name": "Bisnis.com",
+      "url": "https://bisnis.com",
+      "description": "Leading business daily",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Kontan",
+      "url": "https://www.kontan.co.id",
+      "description": "Business and economy news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "CNBC Indonesia",
+      "url": "https://www.cnbcindonesia.com",
+      "description": "Business news and analysis",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Katadata",
+      "url": "https://katadata.co.id",
+      "description": "Data-driven news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Investor Daily",
+      "url": "https://investor.id",
+      "description": "Investment news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "InfoBanknews",
+      "url": "https://infobanknews.com",
+      "description": "Banking and finance",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bareksa",
+      "url": "https://www.bareksa.com/berita",
+      "description": "Financial markets news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "DailySocial Economic",
+      "url": "https://dailysocial.id",
+      "description": "Digital economy news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Reuters Indonesia",
+      "url": "https://www.reuters.com/world/asia-pacific/indonesia",
+      "description": "International wire service",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Bloomberg Indonesia",
+      "url": "https://www.bloomberg.com/asia",
+      "description": "Global business news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "BBC Indonesia",
+      "url": "https://www.bbc.com/indonesia",
+      "description": "BBC Indonesian service",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Al Jazeera Indonesia",
+      "url": "https://www.aljazeera.com/where/indonesia",
+      "description": "International perspective",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "South China Morning Post SEA",
+      "url": "https://www.scmp.com/topics/indonesia",
+      "description": "Regional coverage",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "The Straits Times Indonesia",
+      "url": "https://www.straitstimes.com/asia/se-asia/indonesia",
+      "description": "Singapore perspective",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Channel NewsAsia Indonesia",
+      "url": "https://www.channelnewsasia.com/asia/indonesia",
+      "description": "Regional broadcaster",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Nikkei Asia Indonesia",
+      "url": "https://asia.nikkei.com/Location/Southeast-Asia/Indonesia",
+      "description": "Asian business perspective",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Setkab.go.id",
+      "url": "https://setkab.go.id",
+      "description": "Cabinet secretariat",
+      "category": "news",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Indonesia.go.id",
+      "url": "https://www.indonesia.go.id",
+      "description": "Official government portal",
+      "category": "news",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Presidenri.go.id",
+      "url": "https://www.presidenri.go.id",
+      "description": "Presidential palace",
+      "category": "news",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "DPR RI News",
+      "url": "https://www.dpr.go.id/berita",
+      "description": "Parliament news",
+      "category": "news",
+      "tier": "official",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "The Bali Times",
+      "url": "https://thebalitimes.com",
+      "description": "English Bali news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    },
+    {
+      "name": "Coconuts Bali",
+      "url": "https://coconuts.co/bali",
+      "description": "Expat-focused news",
+      "category": "news",
+      "tier": "accredited",
+      "priority": "critical",
+      "section": "NATIONAL NEWS MEDIA (12 siti)",
+      "requires_js": false
+    }
+  ],
+  "stats": {
+    "total_sources": 457,
+    "by_tier": {
+      "official": 148,
+      "accredited": 288,
+      "community": 21
+    },
+    "by_priority": {
+      "critical": 457,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "by_category": {
+      "employment": 6,
+      "realestate": 44,
+      "health": 16,
+      "lifestyle": 7,
+      "tax": 30,
+      "business_setup": 5,
+      "social": 47,
+      "competitors": 14,
+      "ai_tech": 28,
+      "news": 52,
+      "events": 52,
+      "business": 42,
+      "immigration": 37,
+      "jobs": 27,
+      "regulatory": 19,
+      "banking": 20,
+      "transport": 1,
+      "macro": 10
+    }
+  },
+  "metadata": {
+    "total_sources": 457,
+    "siti_files_parsed": 20
+  }
+}
