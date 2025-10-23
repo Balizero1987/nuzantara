@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """
 Stage 2 Parallel Processor - Intel Automation Pipeline
-Runs Stage 2A (RAG Processing) and Stage 2B (Content Creation) IN PARALLEL
+Runs Stage 2A (RAG Processing), Stage 2B (Content Creation), and Stage 2C (Bali Zero Journal) IN PARALLEL
 
-Uses ZANTARA Llama 3.1 for ALL AI processing
+Supports:
+- Ollama Local (Mistral 7B, Mixtral 8x7B, Llama 3.1, Qwen 2.5)
+- RunPod Cloud (ZANTARA Llama via vLLM)
+
 Quality filters: 5-day max age, quality score, tier validation
 """
 
@@ -23,13 +26,14 @@ import chromadb
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-# ZANTARA Llama configuration
+# AI Configuration - Detect which backend to use
+AI_BACKEND = os.environ.get("AI_BACKEND", "ollama")  # "ollama" or "runpod"
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "mistral:7b")  # mistral:7b, mixtral:8x7b, llama3.1:8b, qwen2.5:7b
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+
+# RunPod configuration (if using cloud)
 RUNPOD_LLAMA_ENDPOINT = os.environ.get("RUNPOD_LLAMA_ENDPOINT")
 RUNPOD_API_KEY = os.environ.get("RUNPOD_API_KEY")
-
-if not RUNPOD_LLAMA_ENDPOINT or not RUNPOD_API_KEY:
-    logger.error("RUNPOD_LLAMA_ENDPOINT and RUNPOD_API_KEY must be set")
-    sys.exit(1)
 
 # Quality thresholds
 MAX_NEWS_AGE_DAYS = 5
