@@ -30,6 +30,10 @@ import {
   zantaraPerformanceAnalytics,
   zantaraSystemDiagnostics
 } from './zantara-dashboard.js';
+import {
+  getZantaraKnowledge,
+  getSystemHealth
+} from './knowledge.js';
 
 export function registerZantaraHandlers() {
   // ZANTARA Test Framework
@@ -63,6 +67,12 @@ export function registerZantaraHandlers() {
     'performance.analytics': zantaraPerformanceAnalytics,
     'system.diagnostics': zantaraSystemDiagnostics
   }, { requiresAuth: true, description: 'Real-time Monitoring' });
+
+  // ZANTARA Knowledge & Health
+  globalRegistry.registerModule('zantara', {
+    'knowledge': getZantaraKnowledge,
+    'health': getSystemHealth
+  }, { requiresAuth: false, description: 'System Knowledge & Health' });
 
   logger.info('✅ ZANTARA handlers registered');
 }
