@@ -68,3 +68,12 @@ export async function loadAllHandlers() {
 export function getAllHandlers() {
   return globalRegistry.toHandlersMap();
 }
+
+/**
+ * Auto-execute handler loading when this module is imported
+ * This ensures all handlers are registered at app startup
+ */
+loadAllHandlers().catch(err => {
+  logger.error('❌ Critical: Handler loading failed:', err);
+  process.exit(1);
+});
