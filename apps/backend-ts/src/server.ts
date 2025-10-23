@@ -94,7 +94,7 @@ app.use((req, res) => {
 });
 
 // Start server
-const PORT = parseInt(ENV.PORT) || 8080;
+const PORT = parseInt(process.env.PORT || ENV.PORT || '8080');
 
 app.listen(PORT, '0.0.0.0', () => {
   logger.info(`🚀 ZANTARA TS-BACKEND started on port ${PORT}`);
