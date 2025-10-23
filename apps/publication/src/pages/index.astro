@@ -1,0 +1,166 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import Hero from '@/components/Hero.astro';
+import ArticleCard from '@/components/ArticleCard.astro';
+import Newsletter from '@/components/Newsletter.astro';
+
+// TODO: Import from content collections when we have articles
+// For now, using placeholder data
+const featuredArticles = [
+  {
+    title: "Bali Tourism Collapse & Real Estate Surge",
+    description: "Understanding the dramatic shift in Bali's economic landscape and what it means for expats and investors.",
+    slug: "bali-tourism-collapse",
+    pillar: "Bali Reality",
+    readTime: "12 min",
+    date: "2025-01-15",
+    image: "/images/articles/tourism-collapse.jpg"
+  },
+  {
+    title: "FIRE in Bali: Is $2000/month Realistic in 2025?",
+    description: "A deep dive into the real costs of living in Bali for digital nomads and retirees.",
+    slug: "fire-bali-2025",
+    pillar: "Expat Economy",
+    readTime: "10 min",
+    date: "2025-01-10",
+    image: "/images/articles/fire-bali.jpg"
+  },
+  {
+    title: "How AI Changes Indonesian Immigration Systems",
+    description: "The quiet revolution happening in visa processing and what it means for expats.",
+    slug: "ai-immigration-indonesia",
+    pillar: "AI & Tech",
+    readTime: "8 min",
+    date: "2025-01-08",
+    image: "/images/articles/ai-immigration.jpg"
+  },
+];
+---
+
+<BaseLayout>
+  <Header />
+
+  <main>
+    <!-- Hero Section -->
+    <Hero
+      title="What's Really Happening in Bali"
+      subtitle="Deep analysis of trends shaping Balinese business & expat economy"
+      cta={{
+        text: "Explore Latest Insights",
+        href: "#featured"
+      }}
+    />
+
+    <!-- Featured Articles -->
+    <section id="featured" class="container-custom breathing-room">
+      <h2 class="text-display-lg font-display font-bold text-bz-white mb-12">
+        Featured Analysis
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {featuredArticles.map((article) => (
+          <ArticleCard {...article} />
+        ))}
+      </div>
+    </section>
+
+    <!-- Bali Reality Section -->
+    <section class="container-custom breathing-room">
+      <div class="flex items-center justify-between mb-12">
+        <div>
+          <h2 class="text-display-lg font-display font-bold text-bz-white mb-2">
+            Bali Reality
+          </h2>
+          <p class="text-body text-bz-white/70">
+            Current events, economy, visa changes
+          </p>
+        </div>
+        <a href="/pillars/bali-reality" class="text-bz-red hover:text-bz-red/80 font-semibold">
+          View All →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Placeholder cards -->
+        <div class="card">
+          <p class="text-bz-gray text-sm mb-2">Coming Soon</p>
+          <h3 class="text-display-sm font-display mb-4">Why Visa Rules Changed</h3>
+          <p class="text-body text-bz-white/70">Deep dive into the political and economic forces behind recent immigration policy shifts...</p>
+        </div>
+        <div class="card">
+          <p class="text-bz-gray text-sm mb-2">Coming Soon</p>
+          <h3 class="text-display-sm font-display mb-4">Land Ownership Crisis</h3>
+          <p class="text-body text-bz-white/70">Indonesia's silent crisis that nobody talks about and how it affects expat investors...</p>
+        </div>
+        <div class="card">
+          <p class="text-bz-gray text-sm mb-2">Coming Soon</p>
+          <h3 class="text-display-sm font-display mb-4">The Inflation Story</h3>
+          <p class="text-body text-bz-white/70">What the official numbers don't tell you about Bali's real cost of living...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Expat Economy Section -->
+    <section class="container-custom breathing-room">
+      <div class="flex items-center justify-between mb-12">
+        <div>
+          <h2 class="text-display-lg font-display font-bold text-bz-white mb-2">
+            Expat Economy
+          </h2>
+          <p class="text-body text-bz-white/70">
+            Tax, business, lifestyle strategies
+          </p>
+        </div>
+        <a href="/pillars/expat-economy" class="text-bz-red hover:text-bz-red/80 font-semibold">
+          View All →
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="card">
+          <p class="text-bz-gray text-sm mb-2">Coming Soon</p>
+          <h3 class="text-display-sm font-display mb-4">Tax Residency Mistakes</h3>
+          <p class="text-body text-bz-white/70">The biggest mistake expats make and how it can cost you thousands...</p>
+        </div>
+        <div class="card">
+          <p class="text-bz-gray text-sm mb-2">Coming Soon</p>
+          <h3 class="text-display-sm font-display mb-4">Banking as Foreigner</h3>
+          <p class="text-body text-bz-white/70">2025 reality of opening and maintaining bank accounts in Indonesia...</p>
+        </div>
+        <div class="card">
+          <p class="text-bz-gray text-sm mb-2">Coming Soon</p>
+          <h3 class="text-display-sm font-display mb-4">Remittance Strategy</h3>
+          <p class="text-body text-bz-white/70">Optimizing your money flow between countries while staying compliant...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="container-custom breathing-room">
+      <div class="bg-gradient-to-br from-bz-red/10 to-bz-black border border-bz-red/30 rounded-2xl p-12 md:p-16 text-center">
+        <h2 class="text-display-lg font-display font-bold text-bz-white mb-6">
+          Need Strategic Advice?
+        </h2>
+        <p class="text-body-xl text-bz-white/80 max-w-2xl mx-auto mb-8">
+          Beyond analysis, we help you navigate the complexities of doing business in Bali.
+          From visa processing to company formation, we've got you covered.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="https://zantara.balizero.com" target="_blank" class="cta-button">
+            Ask ZANTARA AI
+          </a>
+          <a href="https://welcome.balizero.com" target="_blank" class="cta-button-outline">
+            Explore Services
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <Newsletter />
+  </main>
+
+  <Footer />
+</BaseLayout>
