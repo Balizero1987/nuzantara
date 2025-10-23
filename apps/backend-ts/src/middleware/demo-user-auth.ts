@@ -51,9 +51,11 @@ const DEMO_ALLOWED_HANDLERS = new Set([
   // Bali Zero chat (safe)
   'bali.zero.chat',
   
-  // Team list (public info)
+  // Team authentication (public)
   'team.list',
   'team.members',
+  'team.login',   // Allow team login for authentication
+  'team.logout',  // Allow logout
   
   // Oracle queries (read-only)
   'oracle.query',
