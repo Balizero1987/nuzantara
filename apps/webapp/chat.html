@@ -826,27 +826,32 @@
     // Send on button click
     sendBtn.addEventListener('click', sendMessageUpdated);
 
-    // Send on Enter key (robust implementation)
+    // Send on Enter key (ULTRA-ROBUST implementation)
+    // Using capture phase to intercept before any other handlers
     inputField.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault(); // Prevent default behavior
         e.stopPropagation(); // Stop event bubbling
+        e.stopImmediatePropagation(); // Stop ALL other handlers
         console.log('✅ [Enter Key] Detected - sending message');
-        sendMessageUpdated();
+        
+        // Execute sendMessageUpdated in next tick to avoid conflicts
+        setTimeout(() => sendMessageUpdated(), 0);
         return false;
       }
-    });
+    }, true); // TRUE = capture phase (runs FIRST)
 
     // Fallback for keypress event (in case keydown doesn't work on some browsers)
     inputField.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        e.stopPropagation(); // Stop event bubbling
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         console.log('✅ [Enter Key Fallback] Detected via keypress - sending message');
-        sendMessageUpdated();
+        setTimeout(() => sendMessageUpdated(), 0);
         return false;
       }
-    });
+    }, true); // TRUE = capture phase
 
     // 🎨 IMAGE GENERATION - Imagine.art Integration
     imageGenBtn.addEventListener('click', () => {
