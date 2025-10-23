@@ -453,29 +453,29 @@ class IntelligentRouter:
                                 conversation_history=conversation_history,
                                 memory_context=memory_context,
                         tools=self.all_tools,  # ALL tools, not limited
-                                tool_executor=self.tool_executor,
+                        tool_executor=self.tool_executor,
                         max_tokens=8000,  # Full response capacity
                         max_tool_iterations=5  # More iterations for complex tasks
-                            )
-                        else:
-                            result = await self.haiku.conversational(
-                                message=message,
-                                user_id=user_id,
-                                conversation_history=conversation_history,
-                                memory_context=memory_context,
+                    )
+                else:
+                    result = await self.haiku.conversational(
+                        message=message,
+                        user_id=user_id,
+                        conversation_history=conversation_history,
+                        memory_context=memory_context,
                         max_tokens=8000  # Full capacity
-                            )
+                    )
 
-                        return {
-                            "response": result["text"],
-                            "ai_used": "haiku",
-                            "category": "emotional_support",
-                            "model": result["model"],
-                            "tokens": result["tokens"],
-                            "used_rag": False,
-                            "used_tools": result.get("used_tools", False),
-                            "tools_called": result.get("tools_called", [])
-                        }
+                return {
+                    "response": result["text"],
+                    "ai_used": "haiku",
+                    "category": "emotional_support",
+                    "model": result["model"],
+                    "tokens": result["tokens"],
+                    "used_rag": False,
+                    "used_tools": result.get("used_tools", False),
+                    "tools_called": result.get("tools_called", [])
+                }
 
             # PHASE 3: Build memory context if available
             memory_context = None
