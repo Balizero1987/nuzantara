@@ -111,7 +111,12 @@ const TEAM_MEMBER_HANDLERS = new Set([
   'location.reverse',
   'maps.search',
   'maps.directions',
-  'maps.distance'
+  'maps.distance',
+
+  // === IMAGE GENERATION (ImagineArt) ===
+  'ai-services.image.generate',
+  'ai-services.image.upscale',
+  'ai-services.image.test'
 ]);
 
 /**
@@ -140,9 +145,14 @@ const DEMO_ALLOWED_HANDLERS = new Set([
   // Team authentication
   'team.login',
   'team.logout',
-  
+
   // Basic memory read
-  'memory.retrieve'
+  'memory.retrieve',
+
+  // === IMAGE GENERATION (ImagineArt) - For website assets ===
+  'ai-services.image.generate',
+  'ai-services.image.upscale',
+  'ai-services.image.test'
 ]);
 
 /**

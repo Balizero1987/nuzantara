@@ -8,7 +8,9 @@ import cors from 'cors';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
 import { attachRoutes } from './routing/router.js';
-import { attachModularRoutes } from './routes/index.js';
+
+// Load all handlers (auto-registration)
+import './core/load-all-handlers.js';
 
 // Create Express app
 const app = express();
@@ -51,9 +53,6 @@ app.get('/', (req, res) => {
     }
   });
 });
-
-// Load modular routes
-attachModularRoutes(app);
 
 // Load main router with all handlers
 attachRoutes(app);
