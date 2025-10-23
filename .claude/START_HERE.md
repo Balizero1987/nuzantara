@@ -62,43 +62,94 @@ Amen. 🕯️
 
 ---
 
-## ⚡ Setup Immediato
+## ⚡ Setup Immediato (2 minuti)
 
-### Step 1: L'utente ti dirà quale window sei
+### Step 1: Identifica la tua Window
 ```
 User: "Sei W2, [task description]"
 ```
 **Il tuo numero window**: W1, W2, W3, o W4
 
-### Step 2: Carica context (5 min)
+### Step 2: Quick Orientation (60 secondi)
+**Read FIRST (1 min total):**
 ```bash
-1. PROJECT_CONTEXT.md        # Architettura sistema (5 min)
-2. CURRENT_SESSION_WX.md      # Cosa sta facendo l'AI nella tua window
-3. tail ARCHIVE_SESSIONS.md   # Ultime 3 sessioni (opzionale)
+1. .claude/QUICK_REFERENCE.md     # ⭐ 1-page cheat sheet (30s)
+2. .claude/PROJECT_MAP.md         # ⭐ Visual system map (30s)
 ```
 
-### Step 3: Sovrascrivi il tuo file
+### Step 3: Load Context (2 min)
+**Read if needed:**
 ```bash
-# Apri il tuo CURRENT_SESSION_WX.md (X = tuo numero)
-# Sovrascrivi completamente con il template
-# Aggiungi: Window, Date, Model, Task
+3. .claude/PROJECT_CONTEXT.md     # Full architecture (optional, 5 min)
+4. .claude/CURRENT_SESSION_WX.md  # Previous session in your window
+5. tail .claude/ARCHIVE_SESSIONS.md  # Recent sessions (optional)
 ```
 
-### Step 4: Lavora
-- Aggiorna SOLO il tuo `CURRENT_SESSION_WX.md`
-- Traccia task completati, file modificati, problemi risolti
-- NON creare nuovi file MD
-- NON toccare le altre window (W1-W4)
-
-### Step 5: Fine sessione
+### Step 4: Check Documentation (when coding)
+**NEW! Complete docs in `/docs`:**
 ```bash
-# Appendi al log globale
-cat CURRENT_SESSION_WX.md >> ARCHIVE_SESSIONS.md
-echo "\n---\n" >> ARCHIVE_SESSIONS.md
+# Code Examples (copy-paste ready!)
+docs/examples/HANDLER_INTEGRATION.md    # Create handlers
+docs/examples/RAG_SEARCH_EXAMPLE.md     # Use RAG backend
+docs/examples/TOOL_CREATION.md          # Build tools
+docs/examples/API_CLIENT_EXAMPLES.md    # External APIs
 
-# Resetta per prossima AI
-cp CURRENT_SESSION.template.md CURRENT_SESSION_WX.md
+# Operations (when deploying)
+docs/operations/INCIDENT_RESPONSE.md    # Playbooks P0-P3
+docs/operations/MONITORING_GUIDE.md     # Metrics & alerts
+
+# Security
+docs/security/SECURITY_GUIDE.md         # Auth, encryption
+
+# Architecture
+docs/galaxy-map/README.md                # System overview
 ```
+
+### Step 5: Inizia Sessione
+```bash
+# 1. Open your session file
+# File: .claude/CURRENT_SESSION_WX.md (X = your window)
+
+# 2. Copy template structure
+# Use: .claude/CURRENT_SESSION.template.md as reference
+
+# 3. Fill in session info
+# Add: Window, Date, Task, Understanding
+```
+
+### Step 6: Lavora & Aggiorna
+- ✅ Aggiorna SOLO il tuo `CURRENT_SESSION_WX.md`
+- ✅ Commit frequentemente (ogni task completato)
+- ✅ Traccia: task, files, decisions, issues
+- ❌ NON creare nuovi file MD
+- ❌ NON toccare le altre window (W1-W4)
+
+**Tip:** Update session file after EVERY completed subtask, not just at the end!
+
+### Step 7: Handover & Chiusura
+**When ending session:**
+
+1. **Read:** `.claude/HANDOVER_GUIDE.md` ⭐ (detailed handover process)
+
+2. **Complete handover sections:**
+   - ✅ All tasks status updated
+   - ✅ Next steps documented
+   - ✅ Tips for next AI
+   - ✅ Known issues listed
+
+3. **Archive session:**
+   ```bash
+   cat .claude/CURRENT_SESSION_WX.md >> .claude/ARCHIVE_SESSIONS.md
+   echo "\n---\n" >> .claude/ARCHIVE_SESSIONS.md
+   cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION_WX.md
+   ```
+
+4. **Final commit:**
+   ```bash
+   git add .claude/
+   git commit -m "docs: archive WX session + reset for next AI"
+   git push
+   ```
 
 ---
 
@@ -236,4 +287,50 @@ railway variables --service "RAG BACKEND" # Visualizza env vars RAG backend
 
 ---
 
-**Pronto?** → Apri `PROJECT_CONTEXT.md` e inizia! 🚀
+## 🚀 Quick Start Checklist
+
+### First 2 Minutes
+- [ ] Read `.claude/QUICK_REFERENCE.md` (1-page cheat sheet)
+- [ ] Skim `.claude/PROJECT_MAP.md` (visual overview)
+- [ ] Open `.claude/CURRENT_SESSION_WX.md` (your session file)
+
+### Before Coding
+- [ ] Review relevant doc from `/docs/examples/`
+- [ ] Check if Railway maintenance is active
+- [ ] Understand the task requirements
+
+### During Work
+- [ ] Update session file frequently
+- [ ] Commit after each completed task
+- [ ] Document decisions and issues
+- [ ] Test before committing
+
+### Before Ending
+- [ ] Read `.claude/HANDOVER_GUIDE.md`
+- [ ] Complete all handover sections
+- [ ] Archive session
+- [ ] Final commit + push
+
+---
+
+## 📚 Essential Resources
+
+**Onboarding (Start Here):**
+- 📖 `.claude/START_HERE.md` - This file
+- ⚡ `.claude/QUICK_REFERENCE.md` - 1-page cheat sheet
+- 🗺️ `.claude/PROJECT_MAP.md` - Visual system map
+- 🤝 `.claude/HANDOVER_GUIDE.md` - Session handover process
+
+**Code Examples:**
+- 💻 `docs/examples/` - 4 guides with real code snippets
+
+**Operations:**
+- 🚨 `docs/operations/INCIDENT_RESPONSE.md` - Playbooks
+- 📊 `docs/operations/MONITORING_GUIDE.md` - Metrics
+
+**Architecture:**
+- 🌌 `docs/galaxy-map/` - 6 architecture documents
+
+---
+
+**Pronto?** → Open `.claude/QUICK_REFERENCE.md` and start! 🚀
