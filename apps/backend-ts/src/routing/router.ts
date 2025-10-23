@@ -1,3 +1,4 @@
+import express from 'express';
 import logger from '../services/logger.js';
 import { z, ZodError } from "zod";
 import type { Request, Response } from "express";
@@ -7,6 +8,9 @@ import { jwtAuth, RequestWithJWT } from "../middleware/jwt-auth.js";
 import { demoUserAuth, RequestWithDemo } from "../middleware/demo-user-auth.js";
 import { ForbiddenError, BadRequestError, UnauthorizedError } from "../utils/errors.js";
 import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
+
+// Create Express router
+const router = express.Router();
 
 // === MODULE-FUNCTIONAL IMPORTS (Auto-organized by domain) ===
 
@@ -1806,4 +1810,9 @@ export function attachRoutes(app: import("express").Express) {
     }
   });
 
+}
+
+// Export router creation function
+export function createRouter() {
+  return router;
 }

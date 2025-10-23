@@ -26,9 +26,7 @@ RUN npm prune --production
 # Expose port (Railway uses PORT env var)
 EXPOSE $PORT
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:$PORT/health || exit 1
+# Health check removed - using Railway's built-in health monitoring
 
 # Start the application
 CMD ["npm", "start"]
