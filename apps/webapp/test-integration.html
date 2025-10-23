@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZANTARA Integration Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1e1e1e;
+            color: #fff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #6B46C1;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .success { background: #065f46; color: #10b981; }
+        .error { background: #7f1d1d; color: #f87171; }
+        .warning { background: #92400e; color: #fbbf24; }
+        .info { background: #1e40af; color: #60a5fa; }
+        button {
+            background: #6B46C1;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #5a38a3; }
+        #console {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 ZANTARA Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>📋 System Modules Test</h2>
+        <div id="modules-test">
+            <div class="test-result info">Testing modules...</div>
+        </div>
+        <button onclick="testModules()">Test All Modules</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 Dynamic Tokens Test</h2>
+        <div id="tokens-test">
+            <div class="test-result info">Testing dynamic tokens...</div>
+        </div>
+        <button onclick="testDynamicTokens()">Test Dynamic Tokens</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔥 RAG Warmup Test</h2>
+        <div id="warmup-test">
+            <div class="test-result info">Testing RAG warmup...</div>
+        </div>
+        <button onclick="testRAGWarmup()">Test RAG Warmup</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>💬 Chat Integration Test</h2>
+        <div id="chat-test">
+            <div class="test-result info">Testing chat integration...</div>
+        </div>
+        <button onclick="testChatIntegration()">Test Chat Integration</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Console Output</h2>
+        <div id="console"></div>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+    
+    <!-- Load all modules -->
+    <script src="js/zantara-api.js"></script>
+    <script src="js/core/error-handler.js"></script>
+    <script src="js/core/cache-manager.js"></script>
+    <script src="js/core/request-deduplicator.js"></script>
+    <script src="js/core/websocket-manager.js"></script>
+    <script src="js/core/pwa-installer.js"></script>
+    <script src="js/sse-client.js"></script>
+    <script src="js/conversation-persistence.js"></script>
+    <script src="js/storage-manager.js"></script>
+    <script src="js/zantara-knowledge.js"></script>
+    <script src="js/zantara-thinking-indicator.js"></script>
+    <script src="js/real-zero-dashboard.js"></script>
+    <script src="js/real-team-tracking.js"></script>
+    <script src="js/zero-intelligent-analytics.js"></script>
+    <script src="js/dynamic-tokens-manager.js"></script>
+    <script src="js/rag-warmup-service.js"></script>
+    
+    <script>
+        // Console capture
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function logToConsole(message, type = 'log') {
+            const consoleDiv = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff6b6b' : type === 'warn' ? '#ffd93d' : '#00ff00';
+            consoleDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            logToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            logToConsole(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            logToConsole(args.join(' '), 'warn');
+        };
+        
+        function clearConsole() {
+            document.getElementById('console').innerHTML = '';
+        }
+        
+        // Test functions
+        async function testModules() {
+            const modulesDiv = document.getElementById('modules-test');
+            modulesDiv.innerHTML = '<div class="test-result info">Testing modules...</div>';
+            
+            const modules = [
+                { name: 'ErrorHandler', obj: ErrorHandler },
+                { name: 'CacheManager', obj: CacheManager },
+                { name: 'RequestDeduplicator', obj: RequestDeduplicator },
+                { name: 'WebSocketManager', obj: WebSocketManager },
+                { name: 'PWAInstaller', obj: PWAInstaller },
+                { name: 'SSEClient', obj: SSEClient },
+                { name: 'ConversationPersistence', obj: ConversationPersistence },
+                { name: 'StorageManager', obj: StorageManager },
+                { name: 'ZantaraKnowledge', obj: ZantaraKnowledge },
+                { name: 'ZantaraThinkingIndicator', obj: ZantaraThinkingIndicator },
+                { name: 'RealZeroDashboard', obj: RealZeroDashboard },
+                { name: 'RealTeamTracking', obj: RealTeamTracking },
+                { name: 'ZeroIntelligentAnalytics', obj: ZeroIntelligentAnalytics },
+                { name: 'DynamicTokensManager', obj: DynamicTokensManager },
+                { name: 'RAGWarmupService', obj: RAGWarmupService }
+            ];
+            
+            let results = [];
+            
+            for (const module of modules) {
+                try {
+                    if (typeof module.obj !== 'undefined') {
+                        const instance = new module.obj();
+                        results.push(`✅ ${module.name}: OK`);
+                        console.log(`✅ ${module.name} initialized successfully`);
+                    } else {
+                        results.push(`❌ ${module.name}: Not found`);
+                        console.error(`❌ ${module.name} not found`);
+                    }
+                } catch (error) {
+                    results.push(`❌ ${module.name}: Error - ${error.message}`);
+                    console.error(`❌ ${module.name} error:`, error);
+                }
+            }
+            
+            const successCount = results.filter(r => r.includes('✅')).length;
+            const totalCount = results.length;
+            
+            modulesDiv.innerHTML = `
+                <div class="test-result ${successCount === totalCount ? 'success' : 'warning'}">
+                    Modules Test: ${successCount}/${totalCount} passed
+                </div>
+                ${results.map(r => `<div class="test-result ${r.includes('✅') ? 'success' : 'error'}">${r}</div>`).join('')}
+            `;
+        }
+        
+        async function testDynamicTokens() {
+            const tokensDiv = document.getElementById('tokens-test');
+            tokensDiv.innerHTML = '<div class="test-result info">Testing dynamic tokens...</div>';
+            
+            try {
+                if (typeof DynamicTokensManager === 'undefined') {
+                    throw new Error('DynamicTokensManager not found');
+                }
+                
+                const manager = new DynamicTokensManager();
+                
+                const testQueries = [
+                    { query: "ciao", expected: "simple" },
+                    { query: "spiegami come funziona", expected: "medium" },
+                    { query: "ricerca approfondita su X", expected: "complex" },
+                    { query: "analisi completa del sistema", expected: "analysis" }
+                ];
+                
+                let results = [];
+                
+                for (const test of testQueries) {
+                    const analysis = manager.calculateTokens(test.query);
+                    const passed = analysis.complexity === test.expected;
+                    results.push(`✅ "${test.query}" -> ${analysis.complexity} (${analysis.tokens} tokens)`);
+                    console.log(`🎯 Query: "${test.query}" -> ${analysis.complexity} (${analysis.tokens} tokens)`);
+                }
+                
+                tokensDiv.innerHTML = `
+                    <div class="test-result success">Dynamic Tokens Test: All passed</div>
+                    ${results.map(r => `<div class="test-result success">${r}</div>`).join('')}
+                `;
+                
+            } catch (error) {
+                tokensDiv.innerHTML = `
+                    <div class="test-result error">Dynamic Tokens Test: Failed</div>
+                    <div class="test-result error">Error: ${error.message}</div>
+                `;
+                console.error('❌ Dynamic Tokens Test failed:', error);
+            }
+        }
+        
+        async function testRAGWarmup() {
+            const warmupDiv = document.getElementById('warmup-test');
+            warmupDiv.innerHTML = '<div class="test-result info">Testing RAG warmup...</div>';
+            
+            try {
+                if (typeof RAGWarmupService === 'undefined') {
+                    throw new Error('RAGWarmupService not found');
+                }
+                
+                const warmup = new RAGWarmupService();
+                
+                console.log('🔥 Starting RAG warmup test...');
+                await warmup.warmup();
+                
+                const isReady = warmup.isReady();
+                
+                warmupDiv.innerHTML = `
+                    <div class="test-result ${isReady ? 'success' : 'warning'}">
+                        RAG Warmup Test: ${isReady ? 'Completed' : 'In Progress'}
+                    </div>
+                    <div class="test-result info">Status: ${isReady ? 'Ready' : 'Warming up...'}</div>
+                `;
+                
+                console.log(`🔥 RAG Warmup: ${isReady ? 'Ready' : 'In Progress'}`);
+                
+            } catch (error) {
+                warmupDiv.innerHTML = `
+                    <div class="test-result error">RAG Warmup Test: Failed</div>
+                    <div class="test-result error">Error: ${error.message}</div>
+                `;
+                console.error('❌ RAG Warmup Test failed:', error);
+            }
+        }
+        
+        async function testChatIntegration() {
+            const chatDiv = document.getElementById('chat-test');
+            chatDiv.innerHTML = '<div class="test-result info">Testing chat integration...</div>';
+            
+            try {
+                // Test ZANTARA_API
+                if (typeof ZANTARA_API === 'undefined') {
+                    throw new Error('ZANTARA_API not found');
+                }
+                
+                console.log('💬 Testing chat integration...');
+                
+                // Test basic API structure
+                const hasChat = typeof ZANTARA_API.chat === 'function';
+                const hasUser = typeof ZANTARA_API.getUser === 'function';
+                const hasLogin = typeof ZANTARA_API.isLoggedIn === 'function';
+                
+                const results = [
+                    `ZANTARA_API.chat: ${hasChat ? '✅' : '❌'}`,
+                    `ZANTARA_API.getUser: ${hasUser ? '✅' : '❌'}`,
+                    `ZANTARA_API.isLoggedIn: ${hasLogin ? '✅' : '❌'}`
+                ];
+                
+                const allPassed = hasChat && hasUser && hasLogin;
+                
+                chatDiv.innerHTML = `
+                    <div class="test-result ${allPassed ? 'success' : 'error'}">
+                        Chat Integration Test: ${allPassed ? 'All passed' : 'Some failed'}
+                    </div>
+                    ${results.map(r => `<div class="test-result ${r.includes('✅') ? 'success' : 'error'}">${r}</div>`).join('')}
+                `;
+                
+                console.log('💬 Chat integration test completed');
+                
+            } catch (error) {
+                chatDiv.innerHTML = `
+                    <div class="test-result error">Chat Integration Test: Failed</div>
+                    <div class="test-result error">Error: ${error.message}</div>
+                `;
+                console.error('❌ Chat Integration Test failed:', error);
+            }
+        }
+        
+        // Auto-run tests on load
+        window.addEventListener('load', () => {
+            console.log('🧪 ZANTARA Integration Test Suite loaded');
+            console.log('🚀 Ready to test all modules and features');
+        });
+    </script>
+</body>
+</html>

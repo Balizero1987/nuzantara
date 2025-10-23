@@ -13,6 +13,29 @@
     <!-- API Layer -->
     <script src="js/zantara-api.js"></script>
     
+    <!-- Core System Modules -->
+    <script src="js/core/error-handler.js"></script>
+    <script src="js/core/cache-manager.js"></script>
+    <script src="js/core/request-deduplicator.js"></script>
+    <script src="js/core/websocket-manager.js"></script>
+    <script src="js/core/pwa-installer.js"></script>
+    
+    <!-- Advanced Features -->
+    <script src="js/sse-client.js"></script>
+    <script src="js/conversation-persistence.js"></script>
+    <script src="js/storage-manager.js"></script>
+    <script src="js/zantara-knowledge.js"></script>
+    <script src="js/zantara-thinking-indicator.js"></script>
+    
+    <!-- Dashboard & Analytics -->
+    <script src="js/real-zero-dashboard.js"></script>
+    <script src="js/real-team-tracking.js"></script>
+    <script src="js/zero-intelligent-analytics.js"></script>
+    
+    <!-- New Features -->
+    <script src="js/dynamic-tokens-manager.js"></script>
+    <script src="js/rag-warmup-service.js"></script>
+    
     <!-- Auth Guard -->
     <script>
         if (!ZANTARA_API.isLoggedIn()) {
@@ -232,6 +255,93 @@
     </div>
 
     <script>
+        // Initialize all system modules
+        console.log('🚀 Initializing ZANTARA System...');
+        
+        // Initialize core modules
+        if (typeof ErrorHandler !== 'undefined') {
+            window.errorHandler = new ErrorHandler();
+            console.log('✅ Error Handler initialized');
+        }
+        
+        if (typeof CacheManager !== 'undefined') {
+            window.cacheManager = new CacheManager();
+            console.log('✅ Cache Manager initialized');
+        }
+        
+        if (typeof RequestDeduplicator !== 'undefined') {
+            window.requestDeduplicator = new RequestDeduplicator();
+            console.log('✅ Request Deduplicator initialized');
+        }
+        
+        if (typeof WebSocketManager !== 'undefined') {
+            window.websocketManager = new WebSocketManager();
+            console.log('✅ WebSocket Manager initialized');
+        }
+        
+        if (typeof PWAInstaller !== 'undefined') {
+            window.pwaInstaller = new PWAInstaller();
+            console.log('✅ PWA Installer initialized');
+        }
+        
+        // Initialize advanced features
+        if (typeof SSEClient !== 'undefined') {
+            window.sseClient = new SSEClient();
+            console.log('✅ SSE Client initialized');
+        }
+        
+        if (typeof ConversationPersistence !== 'undefined') {
+            window.conversationPersistence = new ConversationPersistence();
+            console.log('✅ Conversation Persistence initialized');
+        }
+        
+        if (typeof StorageManager !== 'undefined') {
+            window.storageManager = new StorageManager();
+            console.log('✅ Storage Manager initialized');
+        }
+        
+        if (typeof ZantaraKnowledge !== 'undefined') {
+            window.zantaraKnowledge = new ZantaraKnowledge();
+            console.log('✅ ZANTARA Knowledge initialized');
+        }
+        
+        if (typeof ZantaraThinkingIndicator !== 'undefined') {
+            window.zantaraThinkingIndicator = new ZantaraThinkingIndicator();
+            console.log('✅ ZANTARA Thinking Indicator initialized');
+        }
+        
+        // Initialize dashboard & analytics
+        if (typeof RealZeroDashboard !== 'undefined') {
+            window.realZeroDashboard = new RealZeroDashboard();
+            console.log('✅ Real Zero Dashboard initialized');
+        }
+        
+        if (typeof RealTeamTracking !== 'undefined') {
+            window.realTeamTracking = new RealTeamTracking();
+            console.log('✅ Real Team Tracking initialized');
+        }
+        
+        if (typeof ZeroIntelligentAnalytics !== 'undefined') {
+            window.zeroIntelligentAnalytics = new ZeroIntelligentAnalytics();
+            console.log('✅ Zero Intelligent Analytics initialized');
+        }
+        
+        // Initialize new features
+        if (typeof DynamicTokensManager !== 'undefined') {
+            window.dynamicTokensManager = new DynamicTokensManager();
+            console.log('✅ Dynamic Tokens Manager initialized');
+        }
+        
+        if (typeof RAGWarmupService !== 'undefined') {
+            window.ragWarmupService = new RAGWarmupService();
+            console.log('✅ RAG Warmup Service initialized');
+            
+            // Auto-warmup in background
+            window.ragWarmupService.warmup();
+        }
+        
+        console.log('🎉 ZANTARA System fully initialized!');
+        
         // Load user info
         const user = ZANTARA_API.getUser();
         if (user) {
@@ -254,7 +364,7 @@
             }
         }
         
-        // Send message function
+        // Send message function with full system integration
         async function sendMessage() {
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
@@ -286,9 +396,54 @@
             sendBtn.disabled = true;
             sendBtn.innerHTML = '<div class="loading"></div>';
             
+            // Show thinking indicator
+            if (window.zantaraThinkingIndicator) {
+                window.zantaraThinkingIndicator.show();
+            }
+            
             try {
-                // Call Zantara
-                const result = await ZANTARA_API.chat(message);
+                // Check cache first
+                let result;
+                if (window.cacheManager) {
+                    const cached = await window.cacheManager.get(message);
+                    if (cached) {
+                        console.log('💾 Using cached response');
+                        result = cached;
+                    }
+                }
+                
+                // If not cached, make API call
+                if (!result) {
+                    // Check for duplicate requests
+                    if (window.requestDeduplicator) {
+                        const isDuplicate = await window.requestDeduplicator.checkDuplicate(message);
+                        if (isDuplicate) {
+                            console.log('🔄 Duplicate request detected, waiting...');
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+                    }
+                    
+                    // Get dynamic tokens configuration
+                    let apiConfig = {};
+                    if (window.dynamicTokensManager) {
+                        apiConfig = window.dynamicTokensManager.getConfig(message);
+                        console.log('🎯 Using dynamic tokens:', apiConfig.max_tokens);
+                    }
+                    
+                    // Call Zantara with SSE streaming if available
+                    if (window.sseClient) {
+                        console.log('🌊 Using SSE streaming...');
+                        result = await window.sseClient.streamChat(message, apiConfig);
+                    } else {
+                        console.log('📡 Using standard API call...');
+                        result = await ZANTARA_API.chat(message, apiConfig);
+                    }
+                    
+                    // Cache the result
+                    if (window.cacheManager && result.success) {
+                        await window.cacheManager.set(message, result);
+                    }
+                }
                 
                 if (result.success) {
                     // Add AI response
@@ -298,25 +453,47 @@
                     messagesDiv.appendChild(aiMsg);
                     
                     console.log('✅ Response received from:', result.ai, result.model);
+                    
+                    // Persist conversation
+                    if (window.conversationPersistence) {
+                        await window.conversationPersistence.saveMessage('user', message);
+                        await window.conversationPersistence.saveMessage('ai', result.response);
+                    }
+                    
+                    // Update analytics
+                    if (window.zeroIntelligentAnalytics) {
+                        window.zeroIntelligentAnalytics.trackMessage(message, result.response);
+                    }
+                    
                 } else {
                     throw new Error(result.error);
                 }
             } catch (error) {
                 console.error('❌ Chat error:', error);
                 
+                // Handle error with error handler
+                if (window.errorHandler) {
+                    window.errorHandler.handleChatError(error);
+                }
+                
                 // Show error message
                 const errorMsg = document.createElement('div');
                 errorMsg.className = 'message ai-message';
                 errorMsg.innerHTML = `<strong>Errore</strong>Non riesco a rispondere. Riprova tra poco.`;
                 messagesDiv.appendChild(errorMsg);
+            } finally {
+                // Hide thinking indicator
+                if (window.zantaraThinkingIndicator) {
+                    window.zantaraThinkingIndicator.hide();
+                }
+                
+                // Re-enable send button
+                sendBtn.disabled = false;
+                sendBtn.textContent = '→';
+                
+                // Scroll to bottom
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }
-            
-            // Re-enable send button
-            sendBtn.disabled = false;
-            sendBtn.textContent = '→';
-            
-            // Scroll to bottom
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
         
         // Send button click
