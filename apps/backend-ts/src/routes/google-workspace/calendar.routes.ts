@@ -29,7 +29,7 @@ const CalendarCreateSchema = z.object({
   end: z.any().optional(),
   description: z.string().optional(),
   attendees: z.array(z.object({
-    email: z.string().email(),
+    email: z.string().email().optional(),
     displayName: z.string().optional(),
   })).optional(),
   location: z.string().optional(),
@@ -40,7 +40,7 @@ const CalendarCreateSchema = z.object({
 
 const CalendarGetSchema = z.object({
   calendarId: z.string().optional(),
-  eventId: z.string(),
+  eventId: z.string().optional(),
 });
 
 /**
@@ -64,7 +64,7 @@ router.post('/list', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/create', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = CalendarCreateSchema.parse(req.body);
-    const result = await calendarCreate(params);
+    const result = await calendarCreate(params as any);
     return res.json(ok(result));
   } catch (error: any) {
     return res.status(400).json(err(error.message));
@@ -78,7 +78,7 @@ router.post('/create', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/get', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = CalendarGetSchema.parse(req.body);
-    const result = await calendarGet(params);
+    const result = await calendarGet(params as any);
     return res.json(ok(result));
   } catch (error: any) {
     return res.status(400).json(err(error.message));

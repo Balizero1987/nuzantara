@@ -13,19 +13,19 @@ const router = Router();
 
 // Sheets schemas
 const SheetsReadSchema = z.object({
-  spreadsheetId: z.string(),
-  range: z.string(),
+  spreadsheetId: z.string().optional(),
+  range: z.string().optional(),
 });
 
 const SheetsAppendSchema = z.object({
-  spreadsheetId: z.string(),
-  range: z.string(),
-  values: z.array(z.array(z.any())),
+  spreadsheetId: z.string().optional(),
+  range: z.string().optional(),
+  values: z.array(z.array(z.any())).optional(),
   valueInputOption: z.enum(['RAW', 'USER_ENTERED']).optional().default('RAW'),
 });
 
 const SheetsCreateSchema = z.object({
-  title: z.string(),
+  title: z.string().optional(),
   data: z.array(z.array(z.any())).optional(),
 });
 
@@ -36,7 +36,7 @@ const SheetsCreateSchema = z.object({
 router.post('/read', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = SheetsReadSchema.parse(req.body);
-    const result = await sheetsRead(params);
+    const result = await sheetsRead(params as any);
     return res.json(ok(result));
   } catch (error: any) {
     return res.status(400).json(err(error.message));
@@ -50,7 +50,7 @@ router.post('/read', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/append', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = SheetsAppendSchema.parse(req.body);
-    const result = await sheetsAppend(params);
+    const result = await sheetsAppend(params as any);
     return res.json(ok(result));
   } catch (error: any) {
     return res.status(400).json(err(error.message));
@@ -64,7 +64,7 @@ router.post('/append', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/create', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = SheetsCreateSchema.parse(req.body);
-    const result = await sheetsCreate(params);
+    const result = await sheetsCreate(params as any);
     return res.json(ok(result));
   } catch (error: any) {
     return res.status(400).json(err(error.message));

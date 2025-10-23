@@ -7,6 +7,8 @@ import express from 'express';
 import cors from 'cors';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
+import { createRouter } from './routing/router.js';
+import { attachModularRoutes } from './routes/index.js';
 
 // Create Express app
 const app = express();
@@ -50,29 +52,12 @@ app.get('/', (req, res) => {
   });
 });
 
-// Basic API endpoint
-app.post('/call', (req, res) => {
-  res.json({
-    ok: true,
-    message: 'TS-BACKEND is working!',
-    timestamp: new Date().toISOString()
-  });
-});
+// Load modular routes
+attachModularRoutes(app);
 
-// Team login endpoint
-app.post('/team.login', (req, res) => {
-  res.json({
-    success: true,
-    user: {
-      id: 'zero',
-      email: 'zero@balizero.com',
-      role: 'AI Bridge/Tech Lead',
-      permissions: ['all', 'tech', 'admin', 'finance']
-    },
-    sessionId: 'session_' + Date.now() + '_zero',
-    message: 'Login successful'
-  });
-});
+// Load main router with all handlers
+const mainRouter = createRouter();
+app.use('/', mainRouter);
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

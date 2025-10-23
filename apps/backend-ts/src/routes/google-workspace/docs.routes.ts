@@ -18,11 +18,11 @@ const DocsCreateSchema = z.object({
 });
 
 const DocsReadSchema = z.object({
-  documentId: z.string(),
+  documentId: z.string().optional(),
 });
 
 const DocsUpdateSchema = z.object({
-  documentId: z.string(),
+  documentId: z.string().optional(),
   requests: z.array(z.any()).optional(),
   content: z.string().optional(),
 }).refine(
@@ -51,7 +51,7 @@ router.post('/create', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/read', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = DocsReadSchema.parse(req.body);
-    const result = await docsRead(params);
+    const result = await docsRead(params as any);
     return res.json(ok(result));
   } catch (error: any) {
     return res.status(400).json(err(error.message));
@@ -65,7 +65,7 @@ router.post('/read', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/update', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = DocsUpdateSchema.parse(req.body);
-    const result = await docsUpdate(params);
+    const result = await docsUpdate(params as any);
     return res.json(ok(result));
   } catch (error: any) {
     return res.status(400).json(err(error.message));

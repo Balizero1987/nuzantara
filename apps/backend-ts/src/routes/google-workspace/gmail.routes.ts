@@ -13,9 +13,9 @@ const router = Router();
 
 // Gmail schemas
 const GmailSendSchema = z.object({
-  to: z.string().email(),
-  subject: z.string(),
-  body: z.string(),
+  to: z.string().email().optional(),
+  subject: z.string().optional(),
+  body: z.string().optional(),
   cc: z.string().email().optional(),
   bcc: z.string().email().optional(),
 });
@@ -27,7 +27,7 @@ const GmailListSchema = z.object({
 });
 
 const GmailReadSchema = z.object({
-  messageId: z.string(),
+  messageId: z.string().optional(),
 });
 
 /**
@@ -37,7 +37,7 @@ const GmailReadSchema = z.object({
 router.post('/send', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = GmailSendSchema.parse(req.body);
-    const result = await gmailHandlers['gmail.send'](params);
+    const result = await gmailHandlers['gmail.send'](params as any);
     return res.json(result);
   } catch (error: any) {
     return res.status(400).json(err(error.message));
@@ -65,7 +65,7 @@ router.post('/list', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/read', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = GmailReadSchema.parse(req.body);
-    const result = await gmailHandlers['gmail.read'](params);
+    const result = await gmailHandlers['gmail.read'](params as any);
     return res.json(result);
   } catch (error: any) {
     return res.status(400).json(err(error.message));
@@ -79,11 +79,11 @@ router.post('/read', apiKeyAuth, async (req: RequestWithCtx, res) => {
 router.post('/search', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
     const params = z.object({
-      query: z.string(),
+      query: z.string().optional(),
       maxResults: z.number().optional().default(20),
     }).parse(req.body);
 
-    const result = await gmailHandlers['gmail.search'](params);
+    const result = await gmailHandlers['gmail.search'](params as any);
     return res.json(result);
   } catch (error: any) {
     return res.status(400).json(err(error.message));
