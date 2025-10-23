@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  /* Base styles */
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-bz-black text-bz-white font-body antialiased;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* Typography reset */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold text-bz-white;
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    @apply text-display-xl;
+  }
+
+  h2 {
+    @apply text-display-lg;
+  }
+
+  h3 {
+    @apply text-display-md;
+  }
+
+  p {
+    @apply text-body text-bz-white/90 mb-6;
+  }
+
+  a {
+    @apply text-bz-red hover:text-bz-red/80 transition-colors duration-200;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-bz-red text-white;
+  }
+}
+
+@layer components {
+  /* Article content styles (McKinsey-inspired) */
+  .article-content {
+    @apply max-w-article mx-auto;
+  }
+
+  .article-content h2 {
+    @apply text-display-md mt-16 mb-6 text-bz-white;
+  }
+
+  .article-content h3 {
+    @apply text-display-sm mt-12 mb-4 text-bz-white;
+  }
+
+  .article-content p {
+    @apply text-body-lg text-bz-white/90 mb-6 leading-relaxed;
+  }
+
+  .article-content ul,
+  .article-content ol {
+    @apply mb-8 ml-6;
+  }
+
+  .article-content li {
+    @apply text-body-lg text-bz-white/90 mb-3;
+  }
+
+  .article-content blockquote {
+    @apply border-l-4 border-bz-red pl-6 py-4 my-8 italic text-body-xl text-bz-white/95;
+  }
+
+  .article-content code {
+    @apply bg-bz-black/50 px-2 py-1 rounded text-bz-cream text-sm;
+  }
+
+  .article-content pre {
+    @apply bg-bz-black/50 p-6 rounded-lg overflow-x-auto my-8;
+  }
+
+  .article-content pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .article-content img {
+    @apply w-full rounded-lg my-12;
+  }
+
+  /* CTA Styles */
+  .cta-button {
+    @apply inline-block bg-bz-red hover:bg-bz-red/90 text-white font-semibold px-8 py-4 rounded-lg transition-all duration-200 hover:scale-105;
+  }
+
+  .cta-button-outline {
+    @apply inline-block border-2 border-bz-red text-bz-red hover:bg-bz-red hover:text-white font-semibold px-8 py-4 rounded-lg transition-all duration-200;
+  }
+
+  /* Card component */
+  .card {
+    @apply bg-bz-black/30 border border-bz-gray/20 rounded-xl p-8 hover:border-bz-red/50 transition-all duration-300;
+  }
+
+  /* Container */
+  .container-custom {
+    @apply max-w-container mx-auto px-6 lg:px-12;
+  }
+}
+
+@layer utilities {
+  /* Custom utilities */
+  .text-gradient {
+    @apply bg-gradient-to-r from-bz-red to-bz-cream bg-clip-text text-transparent;
+  }
+
+  .breathing-room {
+    @apply my-24 lg:my-32;
+  }
+}

@@ -1,0 +1,96 @@
+---
+// Header component - McKinsey-inspired minimal navigation
+---
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-bz-black/90 backdrop-blur-md border-b border-bz-gray/10">
+  <nav class="container-custom py-6">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3 group">
+        <img
+          src="/images/balizero-logo.png"
+          alt="Bali Zero"
+          class="h-12 w-12 transition-transform group-hover:scale-105"
+        />
+        <div class="flex flex-col">
+          <span class="font-display text-xl font-bold text-bz-white">
+            Bali Zero
+          </span>
+          <span class="text-sm text-bz-gray">
+            Insights
+          </span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/" class="text-body text-bz-white/80 hover:text-bz-red transition-colors">
+          Home
+        </a>
+        <a href="/analysis" class="text-body text-bz-white/80 hover:text-bz-red transition-colors">
+          Analysis
+        </a>
+        <a href="/pillars" class="text-body text-bz-white/80 hover:text-bz-red transition-colors">
+          Topics
+        </a>
+        <a href="/about" class="text-body text-bz-white/80 hover:text-bz-red transition-colors">
+          About
+        </a>
+        <a
+          href="https://zantara.balizero.com"
+          target="_blank"
+          class="cta-button-outline text-sm px-6 py-2"
+        >
+          Ask ZANTARA
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="mobile-menu-toggle"
+        class="md:hidden text-bz-white p-2"
+        aria-label="Toggle menu"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Menu (hidden by default) -->
+    <div id="mobile-menu" class="hidden md:hidden mt-6 pb-4 space-y-4">
+      <a href="/" class="block text-body text-bz-white/80 hover:text-bz-red transition-colors">
+        Home
+      </a>
+      <a href="/analysis" class="block text-body text-bz-white/80 hover:text-bz-red transition-colors">
+        Analysis
+      </a>
+      <a href="/pillars" class="block text-body text-bz-white/80 hover:text-bz-red transition-colors">
+        Topics
+      </a>
+      <a href="/about" class="block text-body text-bz-white/80 hover:text-bz-red transition-colors">
+        About
+      </a>
+      <a
+        href="https://zantara.balizero.com"
+        target="_blank"
+        class="block cta-button text-sm text-center"
+      >
+        Ask ZANTARA
+      </a>
+    </div>
+  </nav>
+</header>
+
+<!-- Spacer for fixed header -->
+<div class="h-24"></div>
+
+<script>
+  // Mobile menu toggle
+  const toggle = document.getElementById('mobile-menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+
+  toggle?.addEventListener('click', () => {
+    menu?.classList.toggle('hidden');
+  });
+</script>
