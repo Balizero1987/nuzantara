@@ -1,0 +1,94 @@
+# Property Intelligence Scraper Configuration
+
+scraper_name: property_intel
+category: property
+
+# Data sources for property scraping
+sources:
+  - name: "Rumah.com Bali"
+    url: "https://www.rumah.com/properti-dijual/bali"
+    tier: accredited
+    category: property
+    selectors:
+      - "div[data-testid='listing-card']"
+      - "div.listing-card"
+    requires_js: true
+
+  - name: "ATR/BPN (Land Agency)"
+    url: "https://www.atrbpn.go.id/Berita"
+    tier: official
+    category: property
+    selectors:
+      - "article"
+      - "div.news-item"
+    requires_js: false
+
+  - name: "Hukumonline Property Law"
+    url: "https://www.hukumonline.com/search?q=properti"
+    tier: accredited
+    category: property
+    selectors:
+      - "article.post"
+      - "div.content-item"
+    requires_js: false
+
+# Database configuration
+database:
+  chromadb_path: "./data/chromadb"
+  postgres_url: null  # Optional: set to DATABASE_URL env var
+  collections_prefix: "nuzantara"
+
+# AI configuration
+ai:
+  gemini_key: null  # Will use GEMINI_API_KEY env var
+  gemini_model: "gemini-2.0-flash-exp"
+
+  anthropic_key: null  # Will use ANTHROPIC_API_KEY env var
+  claude_model: "claude-3-haiku-20240307"
+
+  ollama_url: "http://localhost:11434"
+  llama_model: "llama3.2"
+
+  provider_order: ["gemini", "claude", "llama"]
+
+# Engine configuration
+engine:
+  engine_preference: ["crawl4ai", "playwright", "requests"]
+  request_timeout: 30
+  page_load_timeout: 60000
+  delay_between_requests: 2
+  delay_between_sources: 5
+  max_retries: 3
+  retry_delay: 5
+
+# Cache configuration
+cache:
+  enabled: true
+  cache_dir: "./data/cache"
+  ttl_days: 7
+
+# Filter configuration
+filter:
+  min_word_count: 50
+  min_quality_score: 0.3
+  enable_ai_filtering: true
+  enable_deduplication: true
+
+# Scheduling
+schedule_enabled: false
+schedule_interval_hours: 24
+
+# Monitoring
+enable_metrics: true
+log_level: "INFO"
+
+# Custom settings for property scraper
+custom:
+  extract_prices: true
+  extract_locations: true
+  areas:
+    - Canggu
+    - Seminyak
+    - Ubud
+    - Uluwatu
+    - Sanur
