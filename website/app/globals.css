@@ -4,38 +4,52 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Bali Zero Dark Mode Color Palette */
+  /* Bali Zero McKinsey-Inspired Dark Mode Palette */
   --background: #000000;
-  --foreground: #f5f1e8;
-  --card: #0a0a0a;
-  --card-foreground: #f5f1e8;
-  --popover: #0a0a0a;
-  --popover-foreground: #f5f1e8;
-  --primary: #1a1a1a;
-  --primary-foreground: #f5f1e8;
-  --secondary: #1a1a1a;
-  --secondary-foreground: #f5f1e8;
-  --muted: #2a2a2a;
-  --muted-foreground: #8b8b8b;
-  --accent: #dc2626;
-  --accent-foreground: #f5f1e8;
-  --destructive: #dc2626;
-  --destructive-foreground: #f5f1e8;
+  --foreground: #f5f5f5;
+  --card: #1a1f3a;
+  --card-foreground: #f5f5f5;
+  --popover: #0a0e27;
+  --popover-foreground: #f5f5f5;
+  --primary: #FF0000;
+  --primary-foreground: #000000;
+  --secondary: #e8d5b7;
+  --secondary-foreground: #000000;
+  --muted: #444444;
+  --muted-foreground: #b3b3b3;
+  --accent: #FF0000;
+  --accent-foreground: #000000;
+  --destructive: #FF0000;
+  --destructive-foreground: #f5f5f5;
   --border: #2a2a2a;
   --input: #1a1a1a;
-  --ring: #dc2626;
-  --chart-1: #dc2626;
-  --chart-2: #1a1a1a;
-  --chart-3: #2a2a2a;
-  --chart-4: #3a3a3a;
-  --chart-5: #4a4a4a;
-  --radius: 0.625rem;
+  --ring: #FF0000;
+  --chart-1: #FF0000;
+  --chart-2: #e8d5b7;
+  --chart-3: #1a1f3a;
+  --chart-4: #0a0e27;
+  --chart-5: #444444;
+  --radius: 0.5rem;
 
-  /* Custom tokens for Bali Zero */
-  --cream: #f5f1e8;
-  --red: #dc2626;
-  --navy: #1a1a1a;
-  --dark-navy: #0f0f0f;
+  /* Custom Bali Zero Brand Tokens */
+  --black: #000000;
+  --cream: #e8d5b7;
+  --red: #FF0000;
+  --navy: #1a1f3a;
+  --dark-navy: #0a0e27;
+  --charcoal: #444444;
+  --off-white: #f5f5f5;
+
+  /* Glow effects */
+  --red-glow: rgba(255, 0, 0, 0.03);
+  --red-glow-medium: rgba(255, 0, 0, 0.1);
+  --red-glow-strong: rgba(255, 0, 0, 0.2);
+
+  /* Gold accent (Indonesian luxury) */
+  --gold: #D4AF37;
+  --gold-muted: #a68829;
+
+  /* Sidebar */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -48,29 +62,29 @@
 
 .dark {
   --background: #000000;
-  --foreground: #f5f1e8;
-  --card: #0a0a0a;
-  --card-foreground: #f5f1e8;
-  --popover: #0a0a0a;
-  --popover-foreground: #f5f1e8;
-  --primary: #1a1a1a;
-  --primary-foreground: #f5f1e8;
-  --secondary: #1a1a1a;
-  --secondary-foreground: #f5f1e8;
-  --muted: #2a2a2a;
-  --muted-foreground: #8b8b8b;
-  --accent: #dc2626;
-  --accent-foreground: #f5f1e8;
-  --destructive: #dc2626;
-  --destructive-foreground: #f5f1e8;
+  --foreground: #f5f5f5;
+  --card: #1a1f3a;
+  --card-foreground: #f5f5f5;
+  --popover: #0a0e27;
+  --popover-foreground: #f5f5f5;
+  --primary: #FF0000;
+  --primary-foreground: #000000;
+  --secondary: #e8d5b7;
+  --secondary-foreground: #000000;
+  --muted: #444444;
+  --muted-foreground: #b3b3b3;
+  --accent: #FF0000;
+  --accent-foreground: #000000;
+  --destructive: #FF0000;
+  --destructive-foreground: #f5f5f5;
   --border: #2a2a2a;
   --input: #1a1a1a;
-  --ring: #dc2626;
-  --chart-1: #dc2626;
-  --chart-2: #1a1a1a;
-  --chart-3: #2a2a2a;
-  --chart-4: #3a3a3a;
-  --chart-5: #4a4a4a;
+  --ring: #FF0000;
+  --chart-1: #FF0000;
+  --chart-2: #e8d5b7;
+  --chart-3: #1a1f3a;
+  --chart-4: #0a0e27;
+  --chart-5: #444444;
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -119,6 +133,17 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Bali Zero Custom Colors */
+  --color-black: var(--black);
+  --color-cream: var(--cream);
+  --color-red: var(--red);
+  --color-navy: var(--navy);
+  --color-dark-navy: var(--dark-navy);
+  --color-charcoal: var(--charcoal);
+  --color-off-white: var(--off-white);
+  --color-gold: var(--gold);
+  --color-gold-muted: var(--gold-muted);
 }
 
 @layer base {
@@ -156,7 +181,7 @@
   }
 }
 
-/* Shimmer effect for images */
+/* McKinsey-inspired shimmer effect with red/purple edge glow */
 @keyframes shimmer {
   0% {
     background-position: -1000px 0;
@@ -170,9 +195,47 @@
   animation: shimmer 3s infinite;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(255, 0, 0, 0) 0%,
+    rgba(255, 0, 0, 0.05) 30%,
+    rgba(138, 43, 226, 0.05) 50%,
+    rgba(255, 0, 0, 0.05) 70%,
+    rgba(255, 0, 0, 0) 100%
   );
   background-size: 1000px 100%;
+}
+
+/* Red glow effects */
+.glow-red-subtle {
+  box-shadow: 0 0 20px var(--red-glow);
+}
+
+.glow-red-medium {
+  box-shadow: 0 0 30px var(--red-glow-medium);
+}
+
+.glow-red-strong {
+  box-shadow: 0 0 40px var(--red-glow-strong);
+}
+
+/* Gradient overlays for depth */
+.gradient-overlay-navy {
+  background: linear-gradient(180deg, rgba(10, 14, 39, 0.05) 0%, transparent 100%);
+}
+
+.gradient-overlay-dark {
+  background: linear-gradient(180deg, #000000 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+/* Indonesian-inspired decorative elements */
+.batik-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%23ffffff' fill-opacity='0.02'/%3E%3C/svg%3E");
+}
+
+/* Gold accent line (Indonesian luxury) */
+.gold-accent::after {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
+  margin-top: 1rem;
 }
