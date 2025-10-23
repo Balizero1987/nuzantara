@@ -247,10 +247,9 @@ async function buildHeaders(useJWT, useProxy, forceDirect) {
     headers['x-user-id'] = userId;
   }
   
-  // Add API key for direct calls (not for proxy) when not using JWT
-  if (!useProxy && !forceDirect && !useJWT) {
-    headers['x-api-key'] = 'zantara-internal-dev-key-2025';
-  }
+  // API key no longer needed - using demo auth middleware on backend
+  // JWT token will be added if available (from login)
+  // Demo auth allows calls without API key for safe handlers
   
   return headers;
 }
