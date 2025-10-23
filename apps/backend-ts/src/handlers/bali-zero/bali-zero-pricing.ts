@@ -1,5 +1,17 @@
-// Bali Zero Official Pricing Handler 2025
-// ONLY OFFICIAL PRICES - NO AI GENERATION ALLOWED
+/**
+ * Bali Zero Official Pricing Handler 2025
+ * 
+ * 🔒 CRITICAL RULES:
+ * - ONLY official Bali Zero prices (hardcoded below)
+ * - NO AI generation allowed
+ * - NO competitor prices
+ * - NO immigration office prices
+ * - ONLY Bali Zero service pricing
+ * 
+ * ✅ PUBLIC ACCESS: Everyone can access (demo, team, admin)
+ * ✅ READ-ONLY: No price modifications allowed
+ * ✅ OFFICIAL: Prezzi verificati e approvati da Bali Zero
+ */
 import { z } from "zod";
 import { ok } from "../../utils/response.js";
 
