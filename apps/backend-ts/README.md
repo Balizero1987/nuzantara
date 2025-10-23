@@ -50,3 +50,4 @@ Railway rileva automaticamente questo workspace e usa le configurazioni in `tsco
 ## Note
 
 Questo backend è parte di un monorepo. Per info sul backend RAG Python, vedi `apps/backend-rag/`.
+# Trigger redeploy
