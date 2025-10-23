@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 import { ok, err } from "../utils/response.js";
 import { apiKeyAuth, RequestWithCtx } from "../middleware/auth.js";
 import { jwtAuth, RequestWithJWT } from "../middleware/jwt-auth.js";
+import { demoUserAuth, RequestWithDemo } from "../middleware/demo-user-auth.js";
 import { ForbiddenError, BadRequestError, UnauthorizedError } from "../utils/errors.js";
 import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
 
@@ -1372,7 +1373,7 @@ export function attachRoutes(app: import("express").Express) {
   });
 
   // === Legacy RPC-style /call (for backwards compatibility) ===
-  app.post("/call", apiKeyAuth, selectiveRateLimiter, async (req: RequestWithCtx, res: Response) => {
+  app.post("/call", demoUserAuth, selectiveRateLimiter, async (req: RequestWithDemo, res: Response) => {
     let key = '';
     let params = {};
 

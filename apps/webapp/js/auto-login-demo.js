@@ -134,7 +134,8 @@ class AutoLoginDemo {
   }
 
   /**
-   * Create mock JWT token
+   * Create mock JWT token (for development only)
+   * Note: Real JWT requires server-side signing, this is a placeholder
    */
   createMockJWT(payload) {
     const header = {
@@ -144,7 +145,10 @@ class AutoLoginDemo {
     
     const encodedHeader = btoa(JSON.stringify(header));
     const encodedPayload = btoa(JSON.stringify(payload));
-    const signature = btoa('mock-signature');
+    
+    // Create a deterministic signature for demo consistency
+    const signatureData = JSON.stringify(payload) + 'zantara-jwt-secret-2025';
+    const signature = btoa(signatureData).substring(0, 43);
     
     return `${encodedHeader}.${encodedPayload}.${signature}`;
   }
