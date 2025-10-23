@@ -6,12 +6,14 @@ Output: Raw markdown files in INTEL_SCRAPING/{category}/raw/{timestamp}_{site}.m
 """
 
 import asyncio
+import hashlib
+import json
 import logging
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 from urllib.parse import urlparse
 
 # Try to import playwright
@@ -31,13 +33,77 @@ logger = logging.getLogger(__name__)
 
 # Paths
 SCRIPT_DIR = Path(__file__).parent
-SITES_DIR = SCRIPT_DIR.parent / "apps" / "bali-intel-scraper" / "sites"
+SITES_DIR = SCRIPT_DIR / "INTEL_SCRAPING" / "config"  # FIXED: Correct path for SITI_*.txt files
 OUTPUT_BASE = SCRIPT_DIR / "INTEL_SCRAPING"
 
 # Scraping settings
 MAX_CONCURRENT = 12  # Concurrent scrapes per category (increased for speed)
 TIMEOUT_MS = 20000   # 20 seconds per page (reduced to avoid slow sites)
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+
+# Quality filters
+MAX_NEWS_AGE_DAYS = 5  # Max age for news articles
+MIN_WORD_COUNT = 100   # Minimum word count
+MIN_CONTENT_CHARS = 200  # Minimum character count
+
+
+# Deduplication cache
+CACHE_FILE = SCRIPT_DIR / "scraper_cache.json"
+
+
+class ContentDeduplicator:
+    """Deduplication cache to avoid processing same content twice"""
+
+    def __init__(self):
+        self.seen_hashes: Set[str] = set()
+
+        # Load cache
+        if CACHE_FILE.exists():
+            try:
+                with open(CACHE_FILE, 'r') as f:
+                    data = json.load(f)
+                    self.seen_hashes = set(data.get("seen_hashes", []))
+                logger.info(f"Loaded {len(self.seen_hashes)} cached hashes")
+            except Exception as e:
+                logger.warning(f"Failed to load cache: {e}")
+
+    def is_duplicate(self, content: str) -> bool:
+        """Check if content has been seen before"""
+        content_hash = hashlib.sha256(content.encode()).hexdigest()
+        return content_hash in self.seen_hashes
+
+    def add(self, content: str):
+        """Mark content as seen"""
+        content_hash = hashlib.sha256(content.encode()).hexdigest()
+        self.seen_hashes.add(content_hash)
+
+    def save(self):
+        """Save cache to disk"""
+        try:
+            with open(CACHE_FILE, 'w') as f:
+                json.dump({"seen_hashes": list(self.seen_hashes)}, f)
+            logger.info(f"Saved {len(self.seen_hashes)} hashes to cache")
+        except Exception as e:
+            logger.error(f"Failed to save cache: {e}")
+
+
+def passes_quality_filters(content: str, title: str = "") -> tuple[bool, str]:
+    """Check if content passes quality filters"""
+
+    # Character count check
+    if len(content) < MIN_CONTENT_CHARS:
+        return False, f"Too short: {len(content)} < {MIN_CONTENT_CHARS} chars"
+
+    # Word count check
+    word_count = len(content.split())
+    if word_count < MIN_WORD_COUNT:
+        return False, f"Word count too low: {word_count} < {MIN_WORD_COUNT}"
+
+    # Check for meaningful content (not just navigation/boilerplate)
+    if content.count('\n') / max(len(content), 1) > 0.1:  # Too many newlines = menu/nav
+        return False, "Too fragmented (likely navigation)"
+
+    return True, "OK"
 
 
 def parse_siti_file(siti_file: Path) -> List[Dict[str, str]]:
@@ -151,11 +217,13 @@ async def scrape_site(site: Dict[str, str], category: str, browser: Browser) -> 
         # Clean content
         content = content.strip()
 
-        if not content or len(content) < 100:
-            logger.warning(f"[{category.upper()}] {name}: Content too short ({len(content)} chars)")
+        # Quality filter check
+        passes, reason = passes_quality_filters(content, title)
+        if not passes:
+            logger.warning(f"[{category.upper()}] {name}: FILTERED - {reason}")
             return None
 
-        logger.info(f"[{category.upper()}] ✓ {name}: {len(content)} chars")
+        logger.info(f"[{category.upper()}] ✓ {name}: {len(content)} chars, {len(content.split())} words")
 
         return {
             'site': name,
@@ -172,8 +240,8 @@ async def scrape_site(site: Dict[str, str], category: str, browser: Browser) -> 
         return None
 
 
-async def scrape_category(category_key: str, sites: List[Dict], browser: Browser) -> List[Dict]:
-    """Scrape all sites for a category with concurrency control."""
+async def scrape_category(category_key: str, sites: List[Dict], browser: Browser, dedup: ContentDeduplicator) -> List[Dict]:
+    """Scrape all sites for a category with concurrency control and deduplication."""
     results = []
 
     # Process in batches
@@ -181,7 +249,19 @@ async def scrape_category(category_key: str, sites: List[Dict], browser: Browser
         batch = sites[i:i + MAX_CONCURRENT]
         tasks = [scrape_site(site, category_key, browser) for site in batch]
         batch_results = await asyncio.gather(*tasks)
-        results.extend([r for r in batch_results if r is not None])
+
+        # Filter duplicates and add to results
+        for result in batch_results:
+            if result is not None:
+                content = result.get('content', '')
+
+                # Deduplication check
+                if dedup.is_duplicate(content):
+                    logger.info(f"[{category_key.upper()}] DUPLICATE skipped: {result['site']}")
+                    continue
+
+                dedup.add(content)
+                results.append(result)
 
         # No delay between batches - speed up scraping
 
@@ -236,13 +316,18 @@ async def main(category_filter: Optional[List[str]] = None):
     logger.info(f"Starting at: {datetime.now()}")
     if category_filter:
         logger.info(f"Category filter: {', '.join(category_filter)}")
+    logger.info(f"Quality filters: MAX_AGE={MAX_NEWS_AGE_DAYS}d, MIN_WORDS={MIN_WORD_COUNT}, MIN_CHARS={MIN_CONTENT_CHARS}")
     logger.info("=" * 70)
+
+    # Initialize deduplicator
+    dedup = ContentDeduplicator()
 
     # Find all SITI_*.txt files
     siti_files = sorted(SITES_DIR.glob("SITI_*.txt"))
 
     if not siti_files:
         logger.error(f"No SITI_*.txt files found in {SITES_DIR}")
+        logger.info(f"Please run: python3 scripts/generate_siti_files.py")
         return 1
 
     logger.info(f"Found {len(siti_files)} category files")
@@ -279,7 +364,7 @@ async def main(category_filter: Optional[List[str]] = None):
                 continue
 
             # Scrape category
-            results = await scrape_category(category, sites, browser)
+            results = await scrape_category(category, sites, browser, dedup)
 
             # Save results
             save_results(results, category)
@@ -293,6 +378,9 @@ async def main(category_filter: Optional[List[str]] = None):
             logger.info(f"[{category.upper()}] Complete: {successful} success, {failed} failed")
 
         await browser.close()
+
+    # Save deduplication cache
+    dedup.save()
 
     # Final report
     logger.info("")

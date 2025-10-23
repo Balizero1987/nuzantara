@@ -189,7 +189,7 @@ class IntelAutomationPipeline:
             try:
                 import asyncio
                 import sys
-                sys.path.insert(0, str(PROJECT_ROOT / 'apps' / 'bali-intel-scraper' / 'scripts'))
+                sys.path.insert(0, str(SCRIPT_DIR))  # Add scripts/ to path
 
                 from stage2_parallel_processor import run_stage2_parallel
 

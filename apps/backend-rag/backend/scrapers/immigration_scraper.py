@@ -1,7 +1,7 @@
 """
 Immigration Scraper for Indonesia
 Tiers: T1 (official), T2 (accredited), T3 (community)
-Uses Gemini Flash for analysis
+Uses ZANTARA Llama 3.1 for analysis (via RunPod vLLM)
 """
 
 import os
@@ -15,17 +15,21 @@ import hashlib
 from pathlib import Path
 import chromadb
 from loguru import logger
-import google.generativeai as genai
 
-# Configure Gemini
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+# Configure ZANTARA Llama (RunPod)
+RUNPOD_LLAMA_ENDPOINT = os.environ.get("RUNPOD_LLAMA_ENDPOINT")
+RUNPOD_API_KEY = os.environ.get("RUNPOD_API_KEY")
 
 
-class GeminiClient:
-    """Gemini Flash client for content analysis"""
+class ZantaraLlamaClient:
+    """ZANTARA Llama 3.1 client for content analysis (via RunPod vLLM)"""
 
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        if not RUNPOD_LLAMA_ENDPOINT or not RUNPOD_API_KEY:
+            raise ValueError("RUNPOD_LLAMA_ENDPOINT and RUNPOD_API_KEY must be set")
+
+        self.endpoint = RUNPOD_LLAMA_ENDPOINT
+        self.api_key = RUNPOD_API_KEY
 
     def analyze(self, content: str, source_tier: str) -> Dict[str, Any]:
         """Analyze scraped content and extract structured data"""
@@ -52,8 +56,38 @@ Extract as JSON:
 Output ONLY valid JSON, no other text."""
 
         try:
-            response = self.model.generate_content(prompt)
-            text = response.text.strip()
+            # Call ZANTARA Llama via RunPod
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+
+            payload = {
+                "input": {
+                    "prompt": prompt,
+                    "max_tokens": 1500,
+                    "temperature": 0.5,
+                }
+            }
+
+            response = requests.post(self.endpoint, json=payload, headers=headers, timeout=60)
+
+            if response.status_code != 200:
+                logger.error(f"ZANTARA Llama API error: {response.status_code}")
+                return None
+
+            data = response.json()
+
+            # Extract text from RunPod response
+            if "output" in data:
+                text = data["output"]
+            elif "result" in data:
+                text = data["result"]
+            else:
+                logger.error(f"Unexpected response format: {data}")
+                return None
+
+            text = text.strip()
 
             # Clean markdown if present
             if text.startswith("```"):
@@ -65,15 +99,15 @@ Output ONLY valid JSON, no other text."""
             return json.loads(text)
 
         except Exception as e:
-            logger.error(f"Gemini analysis failed: {e}")
+            logger.error(f"ZANTARA Llama analysis failed: {e}")
             return None
 
 
 class ImmigrationScraper:
-    """Multi-tier immigration scraper for Indonesia"""
+    """Multi-tier immigration scraper for Indonesia (ZANTARA Llama powered)"""
 
     def __init__(self, chroma_path: str = "./data/immigration_kb"):
-        self.gemini = GeminiClient()
+        self.llama = ZantaraLlamaClient()
         self.chroma_client = chromadb.PersistentClient(path=chroma_path)
 
         # Create collections for each tier
