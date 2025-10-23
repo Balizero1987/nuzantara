@@ -1,146 +1,107 @@
 {
   "tech_stack": [
-    "JavaScript",
+    "TypeScript",
     "Node.js",
-    "Express.js",
-    "FastAPI",
+    "Express",
     "Python",
+    "FastAPI",
     "PostgreSQL",
     "ChromaDB",
-    "Claude AI",
-    "GitHub Pages",
-    "Railway",
+    "Redis",
+    "JWT",
     "WebSocket",
-    "SSE"
+    "HTML/CSS/JavaScript",
+    "Docker",
+    "Railway"
   ],
   "features": [
     {
-      "name": "ZANTARA Core System",
-      "description": "Main AI orchestration platform with 122 handlers across 10 modules",
-      "files": [
-        "dist/index.js",
-        "src/index.js",
-        "package.json"
-      ]
-    },
-    {
-      "name": "Team Tracking System",
-      "description": "Real-time team monitoring with work sessions, login/logout tracking, and performance analytics",
-      "files": [
-        "apps/webapp/js/team-tracking.js",
-        "apps/webapp/js/zero-dashboard.js",
-        "apps/webapp/js/zero-analytics.js",
-        "apps/backend-rag/backend/services/work_session_service.py",
-        "apps/backend-rag/backend/db/migrations/003_work_sessions_schema.sql"
-      ]
-    },
-    {
-      "name": "Chat Interface",
-      "description": "Web-based chat interface with avatar system, message persistence, and real-time streaming",
+      "name": "Zantara AI Assistant",
+      "description": "Core AI assistant with chat interface, JWT authentication, and knowledge management",
       "files": [
         "apps/webapp/chat.html",
-        "apps/webapp/js/app.js",
-        "apps/webapp/js/user-badges.js",
-        "apps/webapp/js/message-formatter.js",
-        "apps/webapp/js/chat-enhancements.js"
+        "apps/webapp/js/send-message-updated.js",
+        "apps/webapp/js/api-config-unified.js",
+        "apps/webapp/js/jwt-login.js",
+        "apps/webapp/js/zantara-knowledge.js"
       ]
     },
     {
-      "name": "RAG Backend",
-      "description": "Python FastAPI backend with ChromaDB vector database, Claude AI integration, and PostgreSQL persistence",
+      "name": "JWT Authentication System",
+      "description": "Complete JWT authentication with login, refresh, and logout endpoints",
       "files": [
-        "apps/backend-rag/backend/app/main_cloud.py",
-        "apps/backend-rag/backend/services/work_session_service.py",
-        "apps/backend-rag/backend/services/team_analytics_service.py",
-        "apps/backend-rag/backend/services/collaborator_service.py"
+        "apps/backend-ts/src/middleware/jwt-auth.ts",
+        "apps/backend-ts/src/routing/router.ts",
+        "apps/webapp/js/jwt-login.js"
       ]
     },
     {
-      "name": "Avatar System",
-      "description": "User profile photo upload, localStorage persistence, and display in chat messages",
+      "name": "TS Backend API",
+      "description": "TypeScript backend with Express, health checks, and Zantara knowledge endpoints",
       "files": [
-        "apps/webapp/js/user-badges.js",
-        "apps/webapp/js/app.js"
+        "apps/backend-ts/src/index.ts",
+        "apps/backend-ts/src/routing/router.ts",
+        "apps/backend-ts/src/handlers/zantara/knowledge.ts",
+        "apps/backend-ts/Dockerfile"
       ]
     },
     {
-      "name": "Zero Dashboard",
-      "description": "Real-time dashboard for ZERO with ASCII art formatting and team analytics",
+      "name": "RAG Backend System",
+      "description": "Python RAG backend with ChromaDB, knowledge retrieval, and AI processing",
       "files": [
-        "apps/webapp/js/zero-dashboard.js",
-        "apps/webapp/js/zero-analytics.js"
+        "apps/backend-rag/backend/main.py",
+        "apps/backend-rag/backend/Dockerfile"
       ]
     },
     {
-      "name": "Analytics System",
-      "description": "Comprehensive analytics with 17 handlers for reporting, real-time data, and performance monitoring",
+      "name": "Frontend Chat Interface",
+      "description": "Web-based chat interface with Enter key support, streaming responses, and PWA features",
       "files": [
-        "src/modules/analytics/",
-        "apps/backend-rag/backend/services/team_analytics_service.py"
+        "apps/webapp/chat.html",
+        "apps/webapp/js/chat-input-fix.js",
+        "apps/webapp/js/send-message-updated.js",
+        "apps/webapp/dashboard.html"
       ]
     },
     {
-      "name": "Communication Module",
-      "description": "Multi-channel communication with Slack, Discord, WhatsApp, Instagram integration",
+      "name": "API Configuration",
+      "description": "Unified API configuration with intelligent routing between RAG and TS backends",
       "files": [
-        "src/modules/communication/",
-        "apps/backend-rag/backend/app/main_cloud.py"
+        "apps/webapp/js/api-config-unified.js"
       ]
     },
     {
-      "name": "Memory System",
-      "description": "User memory management with conversation autosave and retrieval",
+      "name": "Knowledge Management",
+      "description": "Zantara knowledge system with system prompts, health monitoring, and project awareness",
       "files": [
-        "src/modules/memory/",
-        "apps/backend-rag/backend/services/work_session_service.py"
+        "apps/backend-ts/src/handlers/zantara/knowledge.ts",
+        "apps/webapp/js/zantara-knowledge.js"
       ]
     },
     {
-      "name": "Identity Management",
-      "description": "User identity resolution and onboarding system",
+      "name": "Docker Deployment",
+      "description": "Docker containerization for both backends with Railway deployment",
       "files": [
-        "src/modules/identity/",
-        "apps/webapp/js/app.js"
+        "apps/backend-ts/Dockerfile",
+        "apps/backend-rag/backend/Dockerfile",
+        "apps/backend-ts/.dockerignore",
+        "apps/backend-rag/backend/.dockerignore"
       ]
     },
     {
-      "name": "RAG Query System",
-      "description": "Knowledge retrieval with ChromaDB and Claude AI for intelligent responses",
+      "name": "Health Monitoring",
+      "description": "Comprehensive health checks and monitoring for all services",
       "files": [
-        "src/modules/rag/",
-        "apps/backend-rag/backend/app/main_cloud.py"
+        "apps/backend-ts/src/routing/router.ts",
+        "apps/backend-rag/backend/main.py"
       ]
     },
     {
-      "name": "Maps Integration",
-      "description": "Google Maps integration for directions, places, and location services",
+      "name": "Database Integration",
+      "description": "PostgreSQL and ChromaDB integration for data persistence and vector storage",
       "files": [
-        "src/modules/maps/",
-        "apps/backend-rag/backend/app/main_cloud.py"
-      ]
-    },
-    {
-      "name": "Google Workspace Integration",
-      "description": "22 handlers for Google Workspace services including Gmail, Drive, Calendar, Sheets",
-      "files": [
-        "src/modules/google-workspace/",
-        "apps/backend-rag/backend/app/main_cloud.py"
-      ]
-    },
-    {
-      "name": "Bali Zero Services",
-      "description": "13 specialized handlers for Bali Zero business operations",
-      "files": [
-        "src/modules/bali-zero/",
-        "apps/backend-rag/backend/app/main_cloud.py"
-      ]
-    },
-    {
-      "name": "AI Services",
-      "description": "17 AI service handlers for various AI operations and integrations",
-      "files": [
-        "src/modules/ai-services/",
-        "apps/backend-rag/backend/app/main_cloud.py"
+        "apps/backend-rag/backend/data/chroma/",
+        "data/chroma/"
       ]
     }
   ]
