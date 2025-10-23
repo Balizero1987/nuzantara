@@ -28,7 +28,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 # AI Configuration - Detect which backend to use
 AI_BACKEND = os.environ.get("AI_BACKEND", "ollama")  # "ollama" or "runpod"
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "mistral:7b")  # mistral:7b, mixtral:8x7b, llama3.1:8b, qwen2.5:7b
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.1:8b")  # ⭐ Default: llama3.1:8b (also: mistral:7b, mixtral:8x7b, qwen2.5:7b)
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
 
 # RunPod configuration (if using cloud)
