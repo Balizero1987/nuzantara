@@ -1,21 +1,29 @@
-# 📁 .claude/ - AI Session Tracking
+# 📁 .claude/ - DevAI Onboarding & Session Management
 
-> **Sistema per gestire 4 istanze AI concorrenti su NUZANTARA**
+> **2-minute instant orientation for new AI developers on NUZANTARA**
 
 ---
 
-## 🚀 Per Nuove Istanze AI
+## 🚀 For New DevAI Instances
 
-**Prima volta qui?** Leggi SOLO [`START_HERE.md`](START_HERE.md) (2 minuti)
+**First time here?** Follow this sequence:
 
-**Già operativo?** Workflow:
-```bash
-1. User ti dice quale window sei (W1/W2/W3/W4)
-2. Leggi PROJECT_CONTEXT.md (context sistema)
-3. Apri il tuo CURRENT_SESSION_WX.md
-4. Lavora e aggiorna progressivamente
-5. Fine: appendi a ARCHIVE_SESSIONS.md
-```
+1. **Read [`START_HERE.md`](START_HERE.md)** (60 seconds)
+   - Sant'Antonio prayer for alignment
+   - 7-step workflow overview
+   - Quick commands reference
+
+2. **Scan [`QUICK_REFERENCE.md`](QUICK_REFERENCE.md)** (30 seconds)
+   - One-page system cheat sheet
+   - Key stats, URLs, commands
+   - Instant orientation
+
+3. **Review [`PROJECT_MAP.md`](PROJECT_MAP.md)** (30 seconds)
+   - Visual architecture diagrams
+   - Complete codebase tree
+   - All 122 handlers mapped
+
+**Total time: 2 minutes** → You're ready to code!
 
 ---
 
@@ -23,267 +31,235 @@
 
 ```
 .claude/
-├── START_HERE.md               # ★ Entry point per nuove AI
-├── PROJECT_CONTEXT.md          # ★ Context tecnico NUZANTARA
-├── CURRENT_SESSION_W1.md       # ★ Window 1 (max 4 concurrent)
-├── CURRENT_SESSION_W2.md       # ★ Window 2
-├── CURRENT_SESSION_W3.md       # ★ Window 3
-├── CURRENT_SESSION_W4.md       # ★ Window 4
-├── CURRENT_SESSION.template.md # Template per reset
-└── ARCHIVE_SESSIONS.md         # ★ Log globale append-only
-
-# Legacy (read-only, non modificare)
-├── diaries/                    # Vecchie sessioni
-├── handovers/                  # Vecchi handover
-└── [altri].md                  # Report storici
+├── START_HERE.md               ⭐ Entry point (60s)
+├── QUICK_REFERENCE.md          ⭐ System cheat sheet (30s)
+├── PROJECT_MAP.md              ⭐ Visual architecture (30s)
+├── HANDOVER_GUIDE.md           ⭐ Session management procedures
+├── CURRENT_SESSION.template.md ⭐ Session tracking template
+├── CURRENT_SESSION_WX.md       🚧 Active session files (W1-W4)
+├── README.md                   📖 This file
+└── legacy/                     📦 Archived old reports (read-only)
 ```
-
-**Regola**: Usa SOLO i 4 file core (W1-W4 + ARCHIVE). Zero nuovi file.
 
 ---
 
-## ⚡ Workflow AI Session
+## 🎯 Multi-Window System
 
-### 🟢 Start
+**User runs 4 concurrent AI instances:**
+```
+Window 1 → DevAI #1 (task A) → CURRENT_SESSION_W1.md
+Window 2 → DevAI #2 (task B) → CURRENT_SESSION_W2.md
+Window 3 → DevAI #3 (task C) → CURRENT_SESSION_W3.md
+Window 4 → DevAI #4 (task D) → CURRENT_SESSION_W4.md
+```
+
+**Rules:**
+- User assigns window: "Sei W2"
+- Each AI works on separate session file
+- No file conflicts (W1-W4 isolated)
+- Follow HANDOVER_GUIDE.md for session management
+
+---
+
+## ⚡ Quick Workflow
+
+### 🟢 Session Start
 ```bash
-# User assegna window
+# User assigns window
 User: "Sei W2, implementa feature X"
 
-# Carica context
-1. PROJECT_CONTEXT.md (5 min)
-2. CURRENT_SESSION_W2.md (stato attuale)
-3. tail -100 ARCHIVE_SESSIONS.md (ultime sessioni, opzionale)
+# Load context (2 minutes)
+1. START_HERE.md         # Workflow overview
+2. QUICK_REFERENCE.md    # System stats
+3. PROJECT_MAP.md        # Architecture
 
-# Sovrascrivi il tuo file
+# Initialize session
 cp CURRENT_SESSION.template.md CURRENT_SESSION_W2.md
-# Compila: Window, Date, Model, Task
+# Fill in: Window, Date, Model, Task
 ```
 
-### 🟡 Work
+### 🟡 During Work
 ```bash
-# Aggiorna SOLO il tuo CURRENT_SESSION_WX.md
-- Task completati
-- File modificati
-- Problemi risolti
-- Note tecniche
+# Update YOUR session file only
+CURRENT_SESSION_WX.md:
+- Tasks completed ✅
+- Files modified 📝
+- Problems solved 🔧
+- Decisions made 💡
 
-# Regole
-- NON creare nuovi file MD
-- NON toccare altre window (W1-W4)
-- Sovrascrivi progressivamente
+# Use TodoWrite tool for task tracking
+# Commit and push as you go
 ```
 
-### 🔴 End
+### 🔴 Session End
 ```bash
-# Completa sezione finale
-## 🏁 Chiusura Sessione
-- Risultato: [summary]
-- Build/Tests: ✅/❌
-- Handover: [info per prossima AI]
-
-# Archivia
-cat CURRENT_SESSION_W2.md >> ARCHIVE_SESSIONS.md
-echo "\n---\n" >> ARCHIVE_SESSIONS.md
-
-# Reset
-cp CURRENT_SESSION.template.md CURRENT_SESSION_W2.md
+# Follow HANDOVER_GUIDE.md checklist
+1. Complete session file
+2. Document decisions & issues
+3. Add tips for next AI
+4. Quality check
+5. Commit & push
+6. Reset session file
 ```
 
 ---
 
-## 📋 Template Standard
+## 📚 Documentation Reference
 
-```markdown
-## 📅 Session Info
-- Window: WX (W1/W2/W3/W4)
-- Date: YYYY-MM-DD HH:MM UTC
-- Model: [model-id]
-- User: antonellosiano
-- Task: [user request]
+### Core Onboarding (Read First)
+- [`START_HERE.md`](START_HERE.md) - 7-step workflow
+- [`QUICK_REFERENCE.md`](QUICK_REFERENCE.md) - System cheat sheet
+- [`PROJECT_MAP.md`](PROJECT_MAP.md) - Architecture diagrams
+- [`HANDOVER_GUIDE.md`](HANDOVER_GUIDE.md) - Session procedures
 
-## ✅ Task Completati
-### 1. [Task Name]
-- Status: ✅/🚧/❌
-- Files: path/to/file.ts
-- Changes: [what changed]
-- Result: [outcome]
+### Architecture (Deep Dive)
+- [`docs/galaxy-map/`](../docs/galaxy-map/) - Complete system architecture
+  - 01-system-overview.md
+  - 02-technical-architecture.md
+  - 03-ai-intelligence.md
+  - 04-data-flows.md
+  - 05-database-schema.md
 
-## 📝 Note Tecniche
-### Scoperte
-- [important findings]
+### Code Examples
+- [`docs/examples/`](../docs/examples/)
+  - HANDLER_INTEGRATION.md - Create TypeScript handlers
+  - RAG_SEARCH_EXAMPLE.md - RAG backend integration
+  - TOOL_CREATION.md - Add new AI tools
+  - API_CLIENT_EXAMPLES.md - External API clients
 
-### Problemi Risolti
-- [issue] → [solution]
+### Operations
+- [`docs/operations/`](../docs/operations/)
+  - INCIDENT_RESPONSE.md - P0-P3 incident playbooks
+  - MONITORING_GUIDE.md - Metrics & alerts
 
-### TODO Next
-- [ ] Item
+### Security
+- [`docs/security/`](../docs/security/)
+  - SECURITY_GUIDE.md - Auth, encryption, audit logging
 
-## 🔗 Files Rilevanti
-- path/to/file - description
+### Deployment
+- [`docs/guides/`](../docs/guides/)
+  - RAILWAY_DEPLOYMENT_GUIDE.md - Railway setup & deploy
 
-## 📊 Metrics
-- Duration: ~X hours
-- Files modified: X
-- Tests: ✅/❌
+---
 
-## 🏁 Chiusura
-### Risultato
-[summary]
+## 🔧 Essential Commands
 
-### System Status
-- Build: ✅/❌
-- Tests: ✅/❌
-- Deploy: ✅/❌
+### Git
+```bash
+git status                    # Check status
+git add .                     # Stage changes
+git commit -m "message"       # Commit
+git push -u origin claude/branch-name  # Push
 
-### Handover
-[what next AI needs to know]
+# Branch format: claude/{description}-{session-id}
+```
+
+### Railway
+```bash
+railway status                # Service status
+railway logs --service TS-BACKEND --tail 100
+railway logs --service "RAG BACKEND" --tail 100
+```
+
+### Local Development
+```bash
+# TS Backend
+cd apps/backend-ts
+npm install
+npm run dev                   # Port 8080
+
+# RAG Backend
+cd apps/backend-rag/backend
+pip install -r requirements.txt
+python main.py                # Port 8000
+```
+
+### Testing
+```bash
+# TS Backend
+cd apps/backend-ts
+npm test
+
+# Health checks
+curl http://localhost:8080/health
+curl http://localhost:8000/health
 ```
 
 ---
 
-## 🔍 Search Previous Sessions
+## 🎯 Key System Stats
 
-### ARCHIVE_SESSIONS.md
-```bash
-# By date
-grep -A 50 "Date: 2025-10-18" ARCHIVE_SESSIONS.md
+**Current Status:**
+- 122 handlers across 19 categories
+- 34 PostgreSQL tables (~100MB)
+- 14 ChromaDB collections (14,365 documents)
+- 164 AI-callable tools
+- 3 AI models: Claude Haiku 4.5, ZANTARA Llama, DevAI Qwen
 
-# By keyword
-grep -A 20 "Railway" ARCHIVE_SESSIONS.md
+**Performance:**
+- Golden Answer: 10-20ms (50-60% hit rate)
+- Haiku + RAG: 1-2s average
+- API Cost: $8-15/month (production)
 
-# Last 3 sessions
-tail -n 300 ARCHIVE_SESSIONS.md
-
-# Today
-grep -A 50 "Date: $(date +%Y-%m-%d)" ARCHIVE_SESSIONS.md
-```
-
-### Legacy diaries/ (if needed)
-```bash
-# Only if ARCHIVE_SESSIONS doesn't have what you need
-grep -r "keyword" diaries/
-ls -lt diaries/ | head -10
-```
+**Production URLs:**
+- TS Backend: https://ts-backend-production-568d.up.railway.app
+- RAG Backend: https://scintillating-kindness-production-47e3.up.railway.app
+- Frontend: https://zantara.balizero.com
 
 ---
 
 ## ✅ Rules
 
 ### DO
-- ✅ Ask user which window (if not told)
-- ✅ Use your CURRENT_SESSION_WX.md only
-- ✅ Overwrite, don't create new files
-- ✅ Archive at end of session
-- ✅ Follow template structure
-- ✅ Work from .claude/ directory when using bash commands
+- ✅ Ask user which window if not told: "Quale window? (W1/W2/W3/W4)"
+- ✅ Use YOUR assigned CURRENT_SESSION_WX.md only
+- ✅ Follow TodoWrite task tracking
+- ✅ Commit and push frequently
+- ✅ Follow HANDOVER_GUIDE.md at session end
+- ✅ Read QUICK_REFERENCE + PROJECT_MAP first (2 min total)
 
 ### DON'T
-- ❌ **Create ANY new files in .claude/** (no .md, .txt, .log, .json)
-- ❌ Modify diaries/ or handovers/ (legacy archive, read-only)
-- ❌ Touch other windows (W1-W4)
-- ❌ Read all files upfront (load only what needed)
-- ❌ Skip archiving at end
-- ❌ Use absolute paths when appending to ARCHIVE_SESSIONS.md
-
-### ✅ WHAT TO MODIFY
-```bash
-# In .claude/: ONLY your session file
-.claude/CURRENT_SESSION_WX.md  # ✅
-
-# In project: ALL files needed for the task
-apps/*/, packages/*/, docs/, config/, etc.  # ✅
-```
-
-### ✅ CORRECT Working Directory
-```bash
-# When archiving, work from .claude/ directory:
-cd /path/to/NUZANTARA-RAILWAY/.claude
-cat CURRENT_SESSION_W1.md >> ARCHIVE_SESSIONS.md  # ✅
-
-# NOT from root:
-cat .claude/CURRENT_SESSION_W1.md >> .claude/ARCHIVE_SESSIONS.md  # ❌ works but unnecessary
-```
-
----
-
-## 📚 Reference Files
-
-| File | Purpose | When to Read |
-|------|---------|--------------|
-| `START_HERE.md` | Quick start | First time |
-| `PROJECT_CONTEXT.md` | System context | Every session |
-| `CURRENT_SESSION_W1-4.md` | Active sessions | Your working file |
-| `ARCHIVE_SESSIONS.md` | History | Search past work |
-| `ARCHITECTURE.md` | Full architecture | Deep dive needed |
-| `diaries/` | Legacy sessions | Specific history needed |
-
----
-
-## 🔧 Commands
-
-### Session Setup
-```bash
-# User tells you: "You're W2"
-cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION_W2.md
-code .claude/CURRENT_SESSION_W2.md
-```
-
-### Archive
-```bash
-# Replace W2 with your window number
-cat .claude/CURRENT_SESSION_W2.md >> .claude/ARCHIVE_SESSIONS.md
-echo "\n---\n" >> .claude/ARCHIVE_SESSIONS.md
-cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION_W2.md
-```
-
-### Search
-```bash
-# Date
-grep -A 50 "Date: 2025-10" .claude/ARCHIVE_SESSIONS.md
-
-# Keyword
-grep -i -A 20 "railway" .claude/ARCHIVE_SESSIONS.md
-
-# Recent
-tail -n 500 .claude/ARCHIVE_SESSIONS.md
-```
-
----
-
-## 🎯 Multi-Window Concurrency
-
-**User runs 4 AI instances simultaneously:**
-```
-Window 1 → AI #1 (task A) → CURRENT_SESSION_W1.md
-Window 2 → AI #2 (task B) → CURRENT_SESSION_W2.md
-Window 3 → AI #3 (task C) → CURRENT_SESSION_W3.md
-Window 4 → AI #4 (task D) → CURRENT_SESSION_W4.md
-```
-
-**Rules:**
-- Each AI works on separate file
-- No file conflicts (W1-W4 isolated)
-- Archiving is sequential (append-only safe)
-- Only user knows which AI is in which window
+- ❌ Create new .md files in .claude/ (use templates only)
+- ❌ Modify legacy/ directory (read-only archive)
+- ❌ Touch other windows' session files
+- ❌ Skip handover procedures
+- ❌ Commit secrets or .env files
 
 ---
 
 ## 🆘 FAQ
 
 **Q: How do I know which window I am?**
-A: User tells you at start. If unclear, ask: "Which window am I? (W1/W2/W3/W4)"
+A: User tells you at start. If unclear, ask: "Quale window? (W1/W2/W3/W4)"
 
 **Q: Where do I track my session?**
-A: Your assigned CURRENT_SESSION_WX.md file
+A: Your assigned `CURRENT_SESSION_WX.md` file
 
-**Q: Can I create new files?**
-A: NO. Use only your assigned WX file
+**Q: How long to get oriented?**
+A: 2 minutes (START_HERE 60s + QUICK_REFERENCE 30s + PROJECT_MAP 30s)
 
-**Q: How many concurrent AI instances?**
-A: Max 4 (W1, W2, W3, W4)
+**Q: What if I need to handover to next AI?**
+A: Follow complete checklist in `HANDOVER_GUIDE.md`
 
-**Q: What if I need context from other windows?**
-A: Read their CURRENT_SESSION_WX.md files (read-only)
+**Q: Where are deployment procedures?**
+A: `docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md`
+
+**Q: Where are incident playbooks?**
+A: `docs/operations/INCIDENT_RESPONSE.md`
+
+**Q: How do I create a new handler?**
+A: Follow `docs/examples/HANDLER_INTEGRATION.md`
+
+**Q: Where's the database schema?**
+A: `docs/galaxy-map/05-database-schema.md` + `PROJECT_MAP.md`
+
+---
+
+## 📦 Legacy Files
+
+The `legacy/` directory contains archived session reports and old documentation files that are now superseded by the new onboarding system. These files are read-only and kept for historical reference only.
+
+See `legacy/README.md` for details on archived files.
 
 ---
 
@@ -299,7 +275,7 @@ See: `nuzantara-kb/kb-agents/KB_CONTENT_RULES.md`
 
 ---
 
-**System Version**: 2.1.0 (AI-optimized)
+**System Version**: 3.0.0 (New onboarding system)
 **Created**: 2025-10-01
-**Updated**: 2025-10-18 (AI instance focus)
-**Maintained by**: All AI instances
+**Updated**: 2025-10-23 (Complete documentation overhaul)
+**Maintained by**: All DevAI instances
