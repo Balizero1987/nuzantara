@@ -16,7 +16,7 @@ const articles: Article[] = [
     title: "Your Journey to Indonesian Residency: A Complete KITAS Guide",
     category: "Immigration",
     excerpt: "",
-    image: "/Bali_Zero_HQ_generate_a_colorful_galungan_ceremony,_make_bright,_under_sun_and_cb79a747-390f-4f3f-a2bd-950a437a4eb0.jpg",
+    image: "/leadership-executive-management.jpg",
     size: "large",
     featured: true,
   },
@@ -25,7 +25,7 @@ const articles: Article[] = [
     title: "ZANTARA Meets AI: Indonesia's Cultural Intelligence Revolution",
     category: "AI Insights",
     excerpt: "",
-    image: "/Bali_Zero_HQ_generate_a_futuristic_image_of_a_batik_Indonesian_bd69f7e8-34df-44c7-9f63-a694fe72f0f6.jpg",
+    image: "/ai-southeast-asia-market-analysis.jpg",
     size: "small",
   },
   {
