@@ -874,13 +874,22 @@ async def startup_event():
         logger.error(f"❌ HandlerProxyService initialization failed: {e}")
         handler_proxy_service = None
 
+    # Initialize Pricing Service
+    try:
+        from services.pricing_service import PricingService
+        pricing_service = PricingService()
+        logger.info("✅ PricingService initialized (official Bali Zero prices)")
+    except Exception as e:
+        logger.warning(f"⚠️ PricingService initialization failed: {e}")
+        pricing_service = None
+
     # Initialize ZantaraTools FIRST (needed by ToolExecutor)
     try:
         zantara_tools = ZantaraTools(
             team_analytics_service=team_analytics_service,
             work_session_service=work_session_service,
             memory_service=memory_service,
-            pricing_service=None  # TODO: Add pricing service when available
+            pricing_service=pricing_service  # FIXED: Now properly initialized
         )
         logger.info("✅ ZantaraTools initialized (tool calling enabled)")
     except Exception as e:
