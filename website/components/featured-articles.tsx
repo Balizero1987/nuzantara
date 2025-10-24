@@ -81,10 +81,13 @@ function ArticleCard({ article }: { article: Article }) {
 
       {/* Content - Only Title */}
       <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end z-20">
-        <h3 className="text-white font-serif font-bold text-2xl md:text-3xl lg:text-4xl leading-tight group-hover:text-red transition-colors duration-300">
+        {/* Dark background for text readability */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black via-black/80 to-transparent"></div>
+
+        <h3 className="text-white font-serif font-bold text-2xl md:text-3xl lg:text-4xl leading-tight group-hover:text-red transition-colors duration-300 relative z-10" style={{textShadow: '0 2px 8px rgba(0,0,0,0.9), 0 4px 16px rgba(0,0,0,0.7)'}}>
           {article.title}
         </h3>
-        <div className="flex items-center gap-2 text-red font-sans font-bold text-sm mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-2 text-red font-sans font-bold text-sm mt-4 opacity-0 group-hover:opacity-100 transition-opacity relative z-10" style={{textShadow: '0 2px 4px rgba(0,0,0,0.9)'}}>
           Read More <ArrowRight size={18} />
         </div>
       </div>
