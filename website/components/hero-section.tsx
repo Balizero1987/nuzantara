@@ -35,6 +35,9 @@ export function HeroSection() {
                 className="w-full h-full object-cover vibrant-image"
               />
               <div className="absolute inset-0 bg-black/30"></div>
+
+              {/* Watermark cover */}
+              <div className="absolute bottom-0 right-0 w-32 h-12 bg-gradient-to-tl from-black via-black/90 to-transparent z-10"></div>
             </div>
           </div>
         </div>
