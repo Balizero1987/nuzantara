@@ -96,34 +96,37 @@ export function FeaturedArticles() {
   return (
     <section className="py-12 px-4 md:px-6 lg:px-8 bg-black">
       <div className="max-w-7xl mx-auto">
-        {/* Articles Grid - Asymmetric McKinsey Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[350px] md:auto-rows-[400px]">
-          {/* Large featured article */}
-          <div className="col-span-1 md:col-span-2 row-span-2">
-            <ArticleCard article={articles[0]} />
+        {/* McKinsey-style Overlapping Layout */}
+        <div className="relative">
+          {/* Top Row - Large hero left + stacked right */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            {/* Large hero article - left side */}
+            <div className="md:col-span-2 h-[500px] md:h-[600px]">
+              <ArticleCard article={articles[0]} />
+            </div>
+
+            {/* Right column - two stacked articles */}
+            <div className="flex flex-col gap-6">
+              <div className="h-[250px] md:h-[292px]">
+                <ArticleCard article={articles[1]} />
+              </div>
+              <div className="h-[250px] md:h-[292px]">
+                <ArticleCard article={articles[2]} />
+              </div>
+            </div>
           </div>
 
-          {/* Small articles */}
-          <div className="col-span-1 row-span-1">
-            <ArticleCard article={articles[1]} />
-          </div>
-          <div className="col-span-1 row-span-1">
-            <ArticleCard article={articles[2]} />
-          </div>
-
-          {/* Medium article */}
-          <div className="col-span-1 md:col-span-2 row-span-1">
-            <ArticleCard article={articles[3]} />
-          </div>
-
-          {/* Small article */}
-          <div className="col-span-1 row-span-1">
-            <ArticleCard article={articles[4]} />
-          </div>
-
-          {/* Medium article */}
-          <div className="col-span-1 md:col-span-2 row-span-1">
-            <ArticleCard article={articles[5]} />
+          {/* Bottom Row - Three equal sized articles */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="h-[300px] md:h-[350px]">
+              <ArticleCard article={articles[3]} />
+            </div>
+            <div className="h-[300px] md:h-[350px]">
+              <ArticleCard article={articles[4]} />
+            </div>
+            <div className="h-[300px] md:h-[350px]">
+              <ArticleCard article={articles[5]} />
+            </div>
           </div>
         </div>
 
