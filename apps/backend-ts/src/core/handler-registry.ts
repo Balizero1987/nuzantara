@@ -212,7 +212,7 @@ export class HandlerRegistry {
 
 // Global registry instance
 export const globalRegistry = new HandlerRegistry({
-  enableLogging: process.env.NODE_ENV !== 'production',
+  enableLogging: true, // ALWAYS enable logging for debugging
   enableMetrics: true
 });
 

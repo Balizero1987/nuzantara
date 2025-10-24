@@ -46,6 +46,9 @@ export async function loadAllHandlers() {
     // Maps (3 handlers)
     await import('../handlers/maps/registry.js');
 
+    // Intel (5 handlers - news & scraping)
+    await import('../handlers/intel/registry.js');
+
     // DevAI removed - now using ZANTARA-ONLY mode
 
     const stats = globalRegistry.getStats();

@@ -22,7 +22,12 @@ async function startServer() {
 
   // Middleware
   app.use(cors({
-    origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'https://zantara.balizero.com', 'http://localhost:8080'],
+    origin: process.env.CORS_ORIGINS?.split(',') || [
+      'http://localhost:3000',
+      'http://localhost:8080',
+      'https://zantara.balizero.com',
+      'https://balizero1987.github.io'
+    ],
     credentials: true
   }));
 
