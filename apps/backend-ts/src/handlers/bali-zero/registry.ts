@@ -6,6 +6,7 @@
 import logger from '../../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import { oracleSimulate, oracleAnalyze, oraclePredict } from './oracle.js';
+import { oracleUniversalQuery, oracleCollections } from './oracle-universal.js';
 import { documentPrepare, assistantRoute } from './advisory.js';
 import { kbliLookup, kbliRequirements } from './kbli.js';
 import { baliZeroPricing, baliZeroQuickPrice } from './bali-zero-pricing.js';
@@ -13,7 +14,7 @@ import { teamList, teamGet, teamDepartments } from './team.js';
 import { teamRecentActivity } from './team-activity.js';
 
 export function registerBaliZeroHandlers() {
-  // Oracle handlers
+  // Oracle handlers (basic simulation)
   globalRegistry.registerModule('bali-zero', {
     'oracle.simulate': oracleSimulate as any,
     'oracle.analyze': oracleAnalyze as any,
@@ -21,6 +22,15 @@ export function registerBaliZeroHandlers() {
   } as any, {
     requiresAuth: true,
     description: 'Business simulation and prediction'
+  });
+
+  // Oracle Universal Query (RAG-powered intelligent routing)
+  globalRegistry.registerModule('oracle', {
+    'query': oracleUniversalQuery as any,
+    'collections': oracleCollections as any
+  } as any, {
+    requiresAuth: false, // Public access to knowledge
+    description: 'Universal Oracle Query System - Intelligent routing to tax/legal/property/visa/kbli collections'
   });
 
   // Advisory handlers
