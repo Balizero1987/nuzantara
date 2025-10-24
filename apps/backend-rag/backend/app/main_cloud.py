@@ -885,52 +885,10 @@ async def startup_event():
 
     # ZantaraTools will be initialized AFTER TeamAnalyticsService (FIXED ORDER)
 
-    # Initialize Intelligent Router (HAIKU-ONLY system)
-    try:
-        if claude_haiku:
-            # Initialize ToolExecutor with ZantaraTools
-            tool_executor = None
-            if handler_proxy_service:
-                try:
-                    internal_key = os.getenv("API_KEYS_INTERNAL")
-                    tool_executor = ToolExecutor(
-                        handler_proxy_service,
-                        internal_key,
-                        zantara_tools  # Pass ZantaraTools for direct Python tool execution
-                    )
-                    logger.info("✅ ToolExecutor initialized (Python + TypeScript tools)")
-                except Exception as e:
-                    logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
-                    tool_executor = None
+    # ZantaraTools will be initialized AFTER all dependencies (FIXED ORDER)
+    # ToolExecutor will be initialized AFTER ZantaraTools
 
-            # Initialize Cultural RAG Service (LLAMA-generated cultural intelligence)
-            cultural_rag_service = None
-            if search_service:
-                try:
-                    cultural_rag_service = CulturalRAGService(search_service)
-                    logger.info("✅ Cultural RAG Service ready (LLAMA's Indonesian soul)")
-                except Exception as e:
-                    logger.warning(f"⚠️ Cultural RAG Service initialization failed: {e}")
-                    cultural_rag_service = None
-
-            intelligent_router = IntelligentRouter(
-                llama_client=None,  # No LLAMA - pure Claude routing
-                haiku_service=claude_haiku,
-                search_service=search_service,
-                tool_executor=tool_executor,
-                cultural_rag_service=cultural_rag_service  # NEW: LLAMA cultural intelligence
-            )
-            logger.info("✅ Intelligent Router ready (HAIKU-ONLY + Cultural RAG)")
-            logger.info("   AI: Claude Haiku 4.5 (ALL queries, 100% traffic)")
-            logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
-            logger.info("   Cost optimization: 3x cheaper than Sonnet, same quality with RAG")
-        else:
-            logger.warning("⚠️ Intelligent Router not initialized - missing Claude Haiku service")
-            logger.warning(f"   Haiku: {'✅' if claude_haiku else '❌'}")
-            intelligent_router = None
-    except Exception as e:
-        logger.error(f"❌ Intelligent Router initialization failed: {e}")
-        intelligent_router = None
+    # IntelligentRouter moved to after ToolExecutor initialization
 
     # Initialize CollaboratorService (Phase 1)
     try:
@@ -1047,6 +1005,57 @@ async def startup_event():
     except Exception as e:
         logger.warning(f"⚠️ ZantaraTools initialization failed: {e}")
         zantara_tools = None
+
+    # Initialize ToolExecutor AFTER ZantaraTools (FIXED ORDER)
+    tool_executor = None
+    if handler_proxy_service and zantara_tools:
+        try:
+            internal_key = os.getenv("API_KEYS_INTERNAL")
+            tool_executor = ToolExecutor(
+                handler_proxy_service,
+                internal_key,
+                zantara_tools  # Now ZantaraTools is properly initialized
+            )
+            logger.info("✅ ToolExecutor initialized (Python + TypeScript tools)")
+        except Exception as e:
+            logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
+            tool_executor = None
+    else:
+        logger.warning("⚠️ ToolExecutor not initialized - missing dependencies")
+        logger.warning(f"   HandlerProxy: {'✅' if handler_proxy_service else '❌'}")
+        logger.warning(f"   ZantaraTools: {'✅' if zantara_tools else '❌'}")
+
+    # Initialize Intelligent Router (HAIKU-ONLY system)
+    try:
+        if claude_haiku:
+            # Initialize Cultural RAG Service (LLAMA-generated cultural intelligence)
+            cultural_rag_service = None
+            if search_service:
+                try:
+                    cultural_rag_service = CulturalRAGService(search_service)
+                    logger.info("✅ Cultural RAG Service ready (LLAMA's Indonesian soul)")
+                except Exception as e:
+                    logger.warning(f"⚠️ Cultural RAG Service initialization failed: {e}")
+                    cultural_rag_service = None
+
+            intelligent_router = IntelligentRouter(
+                llama_client=None,  # No LLAMA - pure Claude routing
+                haiku_service=claude_haiku,
+                search_service=search_service,
+                tool_executor=tool_executor,  # Now properly initialized
+                cultural_rag_service=cultural_rag_service  # NEW: LLAMA cultural intelligence
+            )
+            logger.info("✅ Intelligent Router ready (HAIKU-ONLY + Cultural RAG)")
+            logger.info("   AI: Claude Haiku 4.5 (ALL queries, 100% traffic)")
+            logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
+            logger.info("   Cost optimization: 3x cheaper than Sonnet, same quality with RAG")
+        else:
+            logger.warning("⚠️ Intelligent Router not initialized - missing Claude Haiku service")
+            logger.warning(f"   Haiku: {'✅' if claude_haiku else '❌'}")
+            intelligent_router = None
+    except Exception as e:
+        logger.error(f"❌ Intelligent Router initialization failed: {e}")
+        intelligent_router = None
 
     logger.info("✅ ZANTARA RAG Backend ready on port 8000")
 
