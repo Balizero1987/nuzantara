@@ -883,18 +883,7 @@ async def startup_event():
         logger.warning(f"⚠️ PricingService initialization failed: {e}")
         pricing_service = None
 
-    # Initialize ZantaraTools FIRST (needed by ToolExecutor)
-    try:
-        zantara_tools = ZantaraTools(
-            team_analytics_service=team_analytics_service,
-            work_session_service=work_session_service,
-            memory_service=memory_service,
-            pricing_service=pricing_service  # FIXED: Now properly initialized
-        )
-        logger.info("✅ ZantaraTools initialized (tool calling enabled)")
-    except Exception as e:
-        logger.warning(f"⚠️ ZantaraTools initialization failed: {e}")
-        zantara_tools = None
+    # ZantaraTools will be initialized AFTER TeamAnalyticsService (FIXED ORDER)
 
     # Initialize Intelligent Router (HAIKU-ONLY system)
     try:
@@ -1045,6 +1034,19 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ TeamAnalyticsService initialization failed: {e}")
         team_analytics_service = None
+
+    # Initialize ZantaraTools AFTER all dependencies (FIXED ORDER)
+    try:
+        zantara_tools = ZantaraTools(
+            team_analytics_service=team_analytics_service,
+            work_session_service=work_session_service,
+            memory_service=memory_service,
+            pricing_service=pricing_service  # All services now available
+        )
+        logger.info("✅ ZantaraTools initialized (tool calling enabled)")
+    except Exception as e:
+        logger.warning(f"⚠️ ZantaraTools initialization failed: {e}")
+        zantara_tools = None
 
     logger.info("✅ ZANTARA RAG Backend ready on port 8000")
 
