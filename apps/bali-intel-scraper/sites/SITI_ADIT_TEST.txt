@@ -1,0 +1,5 @@
+# TEST CATEGORY - Single site for date extraction testing
+
+1. 📰 BBC Indonesia - Latest News
+   🔗 https://www.bbc.com/indonesia
+   📝 Test site for date extraction (has article:published_time meta tags)

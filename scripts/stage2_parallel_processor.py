@@ -48,7 +48,7 @@ class OllamaClient:
     def __init__(self, model: str = "llama3.1:8b", base_url: str = "http://localhost:11434"):
         self.model = model
         self.base_url = base_url
-        self.timeout = aiohttp.ClientTimeout(total=120)  # Longer timeout for local
+        self.timeout = aiohttp.ClientTimeout(total=300)  # 5 min timeout for parallel processing
         logger.info(f"Initialized Ollama client: {model} @ {base_url}")
 
     async def generate(self, prompt: str, max_tokens: int = 2000) -> Optional[str]:
