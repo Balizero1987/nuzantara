@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer"
 
 export default function Home() {
   return (
-    <main className="bg-black">
+    <main className="bg-black batik-pattern">
       <Header />
       <HeroSection />
       <FeaturedArticles />
