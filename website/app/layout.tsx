@@ -18,9 +18,9 @@ const _inter = Inter({
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Bali Zero Insights",
-  description: "Premium business intelligence and AI insights from Indonesia",
-  generator: "v0.app",
+  title: "Bali Zero | From Zero to Infinity ∞",
+  description: "Your guide to Indonesian immigration, business setup, tax compliance, property ownership, and AI-powered insights. Expert expat services in Bali and Indonesia.",
+  keywords: "Bali visa, KITAS, PT PMA Indonesia, Indonesian tax, Bali property, expat services, business Indonesia, ZANTARA",
 }
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${_playfairDisplay.variable} ${_inter.variable} font-sans antialiased bg-black text-cream`}>
+      <body className={`${_playfairDisplay.variable} ${_inter.variable} font-sans antialiased bg-black text-off-white`}>
         {children}
         <Analytics />
       </body>

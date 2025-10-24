@@ -4,38 +4,40 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Bali Zero Dark Mode Color Palette */
-  --background: #000000;
-  --foreground: #f5f1e8;
-  --card: #0a0a0a;
-  --card-foreground: #f5f1e8;
-  --popover: #0a0a0a;
-  --popover-foreground: #f5f1e8;
-  --primary: #1a1a1a;
-  --primary-foreground: #f5f1e8;
-  --secondary: #1a1a1a;
-  --secondary-foreground: #f5f1e8;
-  --muted: #2a2a2a;
-  --muted-foreground: #8b8b8b;
-  --accent: #dc2626;
-  --accent-foreground: #f5f1e8;
-  --destructive: #dc2626;
-  --destructive-foreground: #f5f1e8;
-  --border: #2a2a2a;
-  --input: #1a1a1a;
-  --ring: #dc2626;
-  --chart-1: #dc2626;
-  --chart-2: #1a1a1a;
-  --chart-3: #2a2a2a;
-  --chart-4: #3a3a3a;
-  --chart-5: #4a4a4a;
+  /* Bali Zero Official Color Palette */
+  --background: #000000;          /* Pure Black */
+  --foreground: #f5f5f5;          /* Off-white */
+  --card: #1a1f3a;                /* Navy */
+  --card-foreground: #f5f5f5;
+  --popover: #1a1f3a;
+  --popover-foreground: #f5f5f5;
+  --primary: #FF0000;             /* Bold Red */
+  --primary-foreground: #000000;
+  --secondary: #e8d5b7;           /* Cream */
+  --secondary-foreground: #000000;
+  --muted: #1a1f3a;
+  --muted-foreground: #e8d5b7;
+  --accent: #FF0000;              /* Bold Red */
+  --accent-foreground: #000000;
+  --destructive: #FF0000;
+  --destructive-foreground: #f5f5f5;
+  --border: #e8d5b7;              /* Cream borders */
+  --input: #1a1f3a;
+  --ring: #FF0000;
+  --chart-1: #FF0000;
+  --chart-2: #D4AF37;
+  --chart-3: #e8d5b7;
+  --chart-4: #1a1f3a;
+  --chart-5: #f5f5f5;
   --radius: 0.625rem;
 
-  /* Custom tokens for Bali Zero */
-  --cream: #f5f1e8;
-  --red: #dc2626;
-  --navy: #1a1a1a;
-  --dark-navy: #0f0f0f;
+  /* Bali Zero Brand Colors */
+  --black: #000000;               /* Pure Black */
+  --red: #FF0000;                 /* Bold Red */
+  --cream: #e8d5b7;               /* Cream */
+  --gold: #D4AF37;                /* Gold */
+  --navy: #1a1f3a;                /* Navy */
+  --off-white: #f5f5f5;           /* Off-white */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -48,29 +50,29 @@
 
 .dark {
   --background: #000000;
-  --foreground: #f5f1e8;
-  --card: #0a0a0a;
-  --card-foreground: #f5f1e8;
-  --popover: #0a0a0a;
-  --popover-foreground: #f5f1e8;
-  --primary: #1a1a1a;
-  --primary-foreground: #f5f1e8;
-  --secondary: #1a1a1a;
-  --secondary-foreground: #f5f1e8;
-  --muted: #2a2a2a;
-  --muted-foreground: #8b8b8b;
-  --accent: #dc2626;
-  --accent-foreground: #f5f1e8;
-  --destructive: #dc2626;
-  --destructive-foreground: #f5f1e8;
-  --border: #2a2a2a;
-  --input: #1a1a1a;
-  --ring: #dc2626;
-  --chart-1: #dc2626;
-  --chart-2: #1a1a1a;
-  --chart-3: #2a2a2a;
-  --chart-4: #3a3a3a;
-  --chart-5: #4a4a4a;
+  --foreground: #f5f5f5;
+  --card: #1a1f3a;
+  --card-foreground: #f5f5f5;
+  --popover: #1a1f3a;
+  --popover-foreground: #f5f5f5;
+  --primary: #FF0000;
+  --primary-foreground: #000000;
+  --secondary: #e8d5b7;
+  --secondary-foreground: #000000;
+  --muted: #1a1f3a;
+  --muted-foreground: #e8d5b7;
+  --accent: #FF0000;
+  --accent-foreground: #000000;
+  --destructive: #FF0000;
+  --destructive-foreground: #f5f5f5;
+  --border: #e8d5b7;
+  --input: #1a1f3a;
+  --ring: #FF0000;
+  --chart-1: #FF0000;
+  --chart-2: #D4AF37;
+  --chart-3: #e8d5b7;
+  --chart-4: #1a1f3a;
+  --chart-5: #f5f5f5;
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -82,7 +84,10 @@
 }
 
 @theme inline {
-  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
+  /* Typography - Playfair Display (serif) + Inter (sans) */
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -119,6 +124,14 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Bali Zero Brand Colors - Available as Tailwind classes */
+  --color-black: var(--black);
+  --color-red: var(--red);
+  --color-cream: var(--cream);
+  --color-gold: var(--gold);
+  --color-navy: var(--navy);
+  --color-off-white: var(--off-white);
 }
 
 @layer base {
@@ -170,9 +183,78 @@
   animation: shimmer 3s infinite;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(255, 0, 0, 0) 0%,
+    rgba(255, 0, 0, 0.1) 50%,
+    rgba(255, 0, 0, 0) 100%
   );
   background-size: 1000px 100%;
+}
+
+/* Batik Pattern Background */
+@keyframes batik-flow {
+  0%, 100% {
+    opacity: 0.03;
+  }
+  50% {
+    opacity: 0.06;
+  }
+}
+
+.batik-pattern {
+  position: relative;
+}
+
+.batik-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.05) 2%, transparent 0%),
+    radial-gradient(circle at 75% 75%, rgba(232, 213, 183, 0.05) 2%, transparent 0%),
+    radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.02) 1%, transparent 0%);
+  background-size: 60px 60px, 80px 80px, 40px 40px;
+  background-position: 0 0, 20px 20px, 40px 40px;
+  animation: batik-flow 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Red Glow Effect */
+@keyframes red-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+  }
+}
+
+.red-glow {
+  animation: red-glow-pulse 2s ease-in-out infinite;
+}
+
+/* Gold Accent Line Animation */
+@keyframes gold-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.gold-accent {
+  position: relative;
+  overflow: hidden;
+}
+
+.gold-accent::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+  animation: gold-shine 3s ease-in-out infinite;
 }

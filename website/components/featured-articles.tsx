@@ -13,51 +13,51 @@ interface Article {
 const articles: Article[] = [
   {
     id: "1",
-    title: "The Future of AI in Southeast Asian Markets",
-    category: "Intelligence",
-    excerpt: "How artificial intelligence is reshaping business landscapes across the region.",
-    image: "/ai-southeast-asia-market-analysis.jpg",
+    title: "Your Journey to Indonesian Residency: A Complete KITAS Guide",
+    category: "Immigration",
+    excerpt: "From tourist dreams to permanent residence—discover the pathway that transformed thousands of expats into Indonesian residents. Navigate visas, KITAS applications, and sponsorship with clarity and confidence.",
+    image: "/leadership-executive-management.jpg",
     size: "large",
     featured: true,
   },
   {
     id: "2",
-    title: "Digital Transformation Trends 2025",
-    category: "Research",
-    excerpt: "Key insights on enterprise modernization.",
-    image: "/digital-transformation.png",
+    title: "ZANTARA Meets AI: Indonesia's Cultural Intelligence Revolution",
+    category: "AI Insights",
+    excerpt: "Where gotong royong meets machine learning—the future of business in Bali.",
+    image: "/ai-southeast-asia-market-analysis.jpg",
     size: "small",
   },
   {
     id: "3",
-    title: "Sustainable Business Models",
-    category: "Insights",
-    excerpt: "Building profitable enterprises with environmental responsibility.",
+    title: "Building Your PT PMA: From Paperwork to Prosperity",
+    category: "Business",
+    excerpt: "The entrepreneur's roadmap to launching a foreign-owned company in Indonesia—legal structure, capital requirements, and the hidden secrets of successful setup.",
     image: "/sustainable-business-green-technology.jpg",
     size: "small",
   },
   {
     id: "4",
-    title: "Supply Chain Resilience in Crisis",
-    category: "Analysis",
-    excerpt: "Strategic approaches to building robust supply networks.",
+    title: "The Import-Export Playbook: Navigating Indonesian Trade Laws",
+    category: "Business",
+    excerpt: "Customs, permits, and logistics—master the art of moving goods across Indonesian borders while staying compliant and profitable.",
     image: "/supply-chain-logistics-network.jpg",
     size: "medium",
   },
   {
     id: "5",
-    title: "Emerging Markets Investment Guide",
-    category: "Intelligence",
-    excerpt: "Opportunities and risks in high-growth economies.",
+    title: "Property Ownership in Paradise: What Foreigners Can (and Can't) Buy",
+    category: "Property",
+    excerpt: "Leasehold vs. freehold, nominee structures, and the truth about owning Bali real estate—your complete guide to Indonesian property law.",
     image: "/emerging-markets-investment-finance.jpg",
     size: "small",
   },
   {
     id: "6",
-    title: "Leadership in the AI Era",
-    category: "Insights",
-    excerpt: "How executives are adapting to rapid technological change.",
-    image: "/leadership-executive-management.jpg",
+    title: "Indonesian Tax Decoded: Your Essential Guide to Compliance & Savings",
+    category: "Tax & Legal",
+    excerpt: "Understanding NPWP registration, corporate tax rates, and the strategies that keep your business compliant while maximizing deductions in Indonesia's evolving tax landscape.",
+    image: "/digital-transformation.png",
     size: "medium",
   },
 ]
@@ -71,7 +71,7 @@ function ArticleCard({ article }: { article: Article }) {
 
   return (
     <article
-      className={`${sizeClasses[article.size]} group relative overflow-hidden bg-navy rounded-lg cursor-pointer transition-all duration-300 hover:shadow-2xl`}
+      className={`${sizeClasses[article.size]} group relative overflow-hidden bg-navy rounded-lg cursor-pointer transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,0,0,0.4)] hover:scale-[1.02] border border-cream/10 hover:border-red/50`}
     >
       {/* Image */}
       <div className="absolute inset-0">
@@ -87,11 +87,13 @@ function ArticleCard({ article }: { article: Article }) {
       {/* Content */}
       <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-between">
         <div>
-          <span className="inline-block text-red text-xs font-bold tracking-widest mb-3">{article.category}</span>
+          <span className="inline-block text-red text-xs font-bold tracking-widest mb-3 border-l-2 border-gold pl-3">
+            {article.category.toUpperCase()}
+          </span>
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-cream font-serif font-bold text-lg md:text-2xl leading-tight group-hover:text-red transition-colors">
+          <h3 className="text-off-white font-serif font-bold text-lg md:text-2xl leading-tight group-hover:text-gold transition-colors duration-300">
             {article.title}
           </h3>
           {article.size !== "small" && (
@@ -117,8 +119,13 @@ export function FeaturedArticles() {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="mb-12">
-          <span className="text-red font-serif font-bold text-sm tracking-widest">FEATURED CONTENT</span>
-          <h2 className="text-cream font-serif font-bold text-4xl md:text-5xl mt-2">Latest Insights</h2>
+          <span className="text-red font-serif font-bold text-sm tracking-widest">FEATURED STORIES</span>
+          <h2 className="text-off-white font-serif font-bold text-4xl md:text-5xl mt-2">
+            Your Path to <span className="text-gold">Indonesian Success</span>
+          </h2>
+          <p className="text-cream/80 font-sans text-lg mt-4 max-w-3xl">
+            Real insights from the Bali Zero community—immigration, business, tax, property, and AI innovation in Indonesia.
+          </p>
         </div>
 
         {/* Articles Grid - Asymmetric Layout */}
@@ -130,8 +137,8 @@ export function FeaturedArticles() {
 
         {/* View All Button */}
         <div className="mt-12 flex justify-center">
-          <button className="border border-cream text-cream px-8 py-3 font-serif font-bold hover:bg-cream hover:text-black transition-colors">
-            View All Articles
+          <button className="border-2 border-gold text-gold px-8 py-3 font-serif font-bold hover:bg-red hover:text-black hover:border-red transition-all duration-300 hover:shadow-[0_0_25px_rgba(255,0,0,0.6)]">
+            Explore All Stories
           </button>
         </div>
       </div>
