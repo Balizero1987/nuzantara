@@ -175,18 +175,28 @@ class QualityFilter:
 
     @staticmethod
     def is_too_old(published_date: Optional[str]) -> bool:
-        """Check if news is older than MAX_NEWS_AGE_DAYS"""
+        """Check if news is older than MAX_NEWS_AGE_DAYS
+
+        STRICT MODE: Missing or invalid dates are REJECTED (assumed too old).
+        With Stage 1 date extraction + filename fallback, ~95% of articles should have valid dates.
+        """
 
         if not published_date:
-            return False  # No date = can't filter
+            logger.warning(f"No published_date found - REJECTING (strict mode)")
+            return True  # STRICT: No date = REJECT (assume too old)
 
         try:
             pub_date = datetime.fromisoformat(published_date.replace('Z', '+00:00'))
             age = datetime.now(pub_date.tzinfo) - pub_date
-            return age.days > MAX_NEWS_AGE_DAYS
+            is_old = age.days > MAX_NEWS_AGE_DAYS
+
+            if is_old:
+                logger.info(f"Article too old: {age.days} days > {MAX_NEWS_AGE_DAYS} days")
+
+            return is_old
         except Exception as e:
-            logger.warning(f"Invalid date format: {published_date} - {e}")
-            return False
+            logger.warning(f"Invalid date format: {published_date} - REJECTING (strict mode) - {e}")
+            return True  # STRICT: Invalid date = REJECT (can't verify freshness)
 
     @staticmethod
     def passes_filters(item: Dict[str, Any]) -> tuple[bool, str]:
@@ -262,11 +272,39 @@ class Stage2AProcessor:
             logger.error(f"Failed to read {raw_file}: {e}")
             return None
 
+        # Extract published_date from markdown header (Stage 1 extraction)
+        published_date = None
+        try:
+            # Parse markdown header for "**Published**: DATE"
+            import re
+            match = re.search(r'\*\*Published\*\*:\s*(.+?)(?:\n|$)', raw_content)
+            if match:
+                date_str = match.group(1).strip()
+                if date_str and date_str != "Not found" and date_str != "null":
+                    published_date = date_str
+                    logger.info(f"Extracted date from markdown: {published_date}")
+        except Exception as e:
+            logger.warning(f"Failed to parse published_date from markdown: {e}")
+
+        # Fallback: Use scraping timestamp from filename if no date found
+        if not published_date:
+            try:
+                # Filename format: 20251024_HHMMSS_sitename.md
+                filename_match = re.match(r'(\d{8})_', raw_file.name)
+                if filename_match:
+                    date_str = filename_match.group(1)  # 20251024
+                    published_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}"
+                    logger.info(f"Using scraping date as fallback: {published_date}")
+            except Exception as e:
+                logger.warning(f"Failed to extract date from filename: {e}")
+
         # Extract with ZANTARA Llama
         prompt = f"""Analyze this Indonesian business/regulatory content and extract structured information.
 
 Category: {category}
 Content: {raw_content[:3000]}
+
+IMPORTANT: The published_date is "{published_date if published_date else 'unknown'}". Use this date in your response.
 
 Extract as JSON:
 {{
@@ -276,7 +314,7 @@ Extract as JSON:
   "tier": "t1|t2|t3",
   "impact_level": "critical|high|medium|low",
   "category": "{category}",
-  "published_date": "YYYY-MM-DD or null",
+  "published_date": "{published_date if published_date else 'null'}",
   "source_url": "URL of the source",
   "source_name": "Name of source",
   "key_changes": ["list of key changes or updates"],
