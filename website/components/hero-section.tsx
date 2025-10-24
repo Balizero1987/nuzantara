@@ -6,9 +6,20 @@ export function HeroSection() {
           {/* Left Content */}
           <div className="space-y-6">
             <h1 className="text-white font-serif font-bold text-5xl md:text-6xl lg:text-7xl leading-tight">
-              <span className="text-balance">Unlock Indonesia.</span>
+              <span className="text-balance">
+                Unlock{" "}
+                <span className="text-red">I</span>
+                <span className="text-white">n</span>
+                <span className="text-red">d</span>
+                <span className="text-white">o</span>
+                <span className="text-red">n</span>
+                <span className="text-white">e</span>
+                <span className="text-red">s</span>
+                <span className="text-white">i</span>
+                <span className="text-red">a</span>.
+              </span>
               <br />
-              <span className="text-red">Build Infinity.</span>
+              <span className="text-white">Unleash Potential.</span>
             </h1>
 
             <p className="text-white/80 font-sans text-lg md:text-xl leading-relaxed max-w-lg">
