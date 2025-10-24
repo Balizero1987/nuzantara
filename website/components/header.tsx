@@ -19,9 +19,9 @@ export function Header() {
           <Image
             src="/balizero-logo-3d.png"
             alt="Bali Zero"
-            width={144}
-            height={144}
-            className="h-24 w-24 md:h-32 md:w-32 lg:h-36 lg:w-36"
+            width={100}
+            height={100}
+            className="h-16 w-16 md:h-22 md:w-22 lg:h-24 lg:w-24"
             priority
           />
           <span className="font-serif font-bold text-xl md:text-2xl lg:text-3xl text-white hidden md:inline">
@@ -30,9 +30,9 @@ export function Header() {
           <Image
             src="/zantara_logo_transparent.png"
             alt="ZANTARA"
-            width={144}
-            height={144}
-            className="h-24 w-24 md:h-32 md:w-32 lg:h-36 lg:w-36 hidden md:block"
+            width={100}
+            height={100}
+            className="h-16 w-16 md:h-22 md:w-22 lg:h-24 lg:w-24 hidden md:block"
           />
         </Link>
 
