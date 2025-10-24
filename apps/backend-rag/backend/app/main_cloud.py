@@ -87,6 +87,8 @@ claude_haiku: Optional[ClaudeHaikuService] = None  # ALL queries (greetings, cas
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 cultural_rag_service: Optional[CulturalRAGService] = None  # NEW: LLAMA cultural RAG
 zantara_tools: Optional[ZantaraTools] = None  # NEW: Tool calling for team data
+tool_executor: Optional[ToolExecutor] = None  # NEW: Tool execution system
+pricing_service: Optional["PricingService"] = None  # NEW: Official pricing service
 collaborator_service: Optional[CollaboratorService] = None
 memory_service: Optional[MemoryServicePostgres] = None
 conversation_service: Optional[ConversationService] = None
@@ -802,7 +804,7 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, claude_haiku, intelligent_router, cultural_rag_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service
+    global search_service, claude_haiku, intelligent_router, cultural_rag_service, zantara_tools, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (HAIKU-ONLY: Claude Haiku 4.5)...")
 
