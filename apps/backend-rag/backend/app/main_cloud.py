@@ -1154,7 +1154,13 @@ async def health_check():
             "features": ["auto_extraction", "client_tracking", "practice_management", "shared_memory"]
         },
         "reranker": reranker_service is not None,
-        "collaborative_intelligence": True
+        "collaborative_intelligence": True,
+        "tools": {
+            "tool_executor_status": tool_executor is not None,
+            "zantara_tools_status": zantara_tools is not None,
+            "pricing_service_status": pricing_service is not None,
+            "handler_proxy_status": handler_proxy_service is not None
+        }
     }
 
 
