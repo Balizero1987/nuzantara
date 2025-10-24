@@ -28,13 +28,13 @@ export function HeroSection() {
 
           {/* Right Visual */}
           <div className="relative h-96 md:h-full min-h-96">
-            <div className="absolute inset-0 bg-gradient-to-br from-red/20 to-transparent rounded-lg overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-red/30 to-transparent rounded-lg overflow-hidden">
               <img
                 src="/abstract-business-intelligence-dashboard.jpg"
                 alt="Business Intelligence Dashboard"
-                className="w-full h-full object-cover opacity-80"
+                className="w-full h-full object-cover vibrant-image"
               />
-              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="absolute inset-0 bg-black/30"></div>
             </div>
           </div>
         </div>
