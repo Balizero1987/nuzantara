@@ -16,7 +16,7 @@ const articles: Article[] = [
     title: "Your Journey to Indonesian Residency: A Complete KITAS Guide",
     category: "Immigration",
     excerpt: "",
-    image: "/leadership-executive-management.jpg",
+    image: "/Bali_Zero_HQ_ultrarealistic_scene_of_a_modern_boardroom_in_Bali_overlooking_ju_42aa072f-fd9e-4f0f-9361-9bb38946516f.jpg",
     size: "large",
     featured: true,
   },
@@ -25,7 +25,7 @@ const articles: Article[] = [
     title: "ZANTARA Meets AI: Indonesia's Cultural Intelligence Revolution",
     category: "AI Insights",
     excerpt: "",
-    image: "/ai-southeast-asia-market-analysis.jpg",
+    image: "/Bali_Zero_HQ_macro_shot_of_an_AI_neural_core_made_of_glowing_Balinese_patterns_b354de34-e933-4ba1-940b-3b62a53bdf0c.jpg",
     size: "small",
   },
   {
@@ -33,7 +33,7 @@ const articles: Article[] = [
     title: "Building Your PT PMA: From Paperwork to Prosperity",
     category: "Business",
     excerpt: "",
-    image: "/sustainable-business-green-technology.jpg",
+    image: "/Bali_Zero_HQ_ultrarealistic_digital_art_of_a_futuristic_Indonesia_skyline_blen_af473dcd-feb2-4ebc-ad5b-5f0f9b5a051e.jpg",
     size: "small",
   },
   {
@@ -41,7 +41,7 @@ const articles: Article[] = [
     title: "The Import-Export Playbook: Navigating Indonesian Trade Laws",
     category: "Business",
     excerpt: "",
-    image: "/supply-chain-logistics-network.jpg",
+    image: "/Bali_Zero_HQ_ultrarealistic_digital_art_of_a_futuristic_Indonesia_skyline_blen_0adb2134-a40a-4613-827b-6c717a579629.png",
     size: "medium",
   },
   {
@@ -49,7 +49,7 @@ const articles: Article[] = [
     title: "Property Ownership in Paradise: What Foreigners Can (and Can't) Buy",
     category: "Property",
     excerpt: "",
-    image: "/emerging-markets-investment-finance.jpg",
+    image: "/Bali_Zero_HQ_ultrarealistic_scene_of_a_modern_boardroom_in_Bali_overlooking_ju_42aa072f-fd9e-4f0f-9361-9bb38946516f.jpg",
     size: "small",
   },
   {
@@ -57,7 +57,7 @@ const articles: Article[] = [
     title: "Indonesian Tax Decoded: Your Essential Guide to Compliance & Savings",
     category: "Tax & Legal",
     excerpt: "",
-    image: "/digital-transformation.png",
+    image: "/Bali_Zero_HQ_macro_shot_of_an_AI_neural_core_made_of_glowing_Balinese_patterns_b354de34-e933-4ba1-940b-3b62a53bdf0c.jpg",
     size: "medium",
   },
 ]

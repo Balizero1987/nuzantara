@@ -37,15 +37,18 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Visual */}
+          {/* Right Visual - Animated Video */}
           <div className="relative h-96 md:h-full min-h-96">
             <div className="absolute inset-0 bg-gradient-to-br from-red/30 to-transparent rounded-lg overflow-hidden">
-              <img
-                src="/abstract-business-intelligence-dashboard.jpg"
-                alt="Business Intelligence Dashboard"
+              <video
+                src="/ruota.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
                 className="w-full h-full object-cover vibrant-image"
               />
-              <div className="absolute inset-0 bg-black/30"></div>
+              <div className="absolute inset-0 bg-black/20"></div>
 
               {/* Watermark cover */}
               <div className="absolute bottom-0 right-0 w-32 h-12 bg-gradient-to-tl from-black via-black/90 to-transparent z-10"></div>
