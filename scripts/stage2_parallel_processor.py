@@ -484,38 +484,38 @@ Create an SEO-optimized, engaging blog post from this regulatory/business conten
 Category: {category}
 Source Content: {raw_content[:3000]}
 
-Write a comprehensive blog post in ITALIAN with:
+Write a comprehensive blog post in ENGLISH with:
 
 # [Catchy SEO-optimized title]
 
-**Pubblicato il**: [YYYY-MM-DD]
-**Categoria**: {category}
-**Tempo di lettura**: [X minuti]
+**Published on**: [YYYY-MM-DD]
+**Category**: {category}
+**Reading time**: [X minutes]
 
 ## TL;DR (Executive Summary)
-[2-3 frasi chiave - cosa devono sapere i lettori]
+[2-3 key sentences - what readers need to know]
 
-## Introduzione
-[Paragrafo coinvolgente che spiega perché questo è importante per expats/digital nomads a Bali]
+## Introduction
+[Engaging paragraph explaining why this is important for expats/digital nomads in Bali]
 
-## Cosa è cambiato
-[Sezione dettagliata con bullet points dei cambiamenti chiave]
+## What changed
+[Detailed section with bullet points of key changes]
 
-## Chi è interessato
-[Chi deve preoccuparsi di questi cambiamenti]
+## Who is affected
+[Who needs to be concerned about these changes]
 
-## Azioni da intraprendere
-[Checklist chiara di cosa fare]
+## Actions to take
+[Clear checklist of what to do]
 
-## Conclusione
-[Riassunto + call to action]
+## Conclusion
+[Summary + call to action]
 
 ---
-**Fonte**: [citazione fonte originale]
-**Tag**: #{category} #Bali #Indonesia #DigitalNomad
+**Source**: [original source citation]
+**Tags**: #{category} #Bali #Indonesia #DigitalNomad
 
 Use markdown formatting. Be engaging, informative, and SEO-optimized. Focus on practical value for readers.
-Write in Italian language."""
+Write in English language."""
 
         journal_post = await self.llama.generate(prompt, max_tokens=2500)
 
@@ -529,9 +529,15 @@ Write in Italian language."""
 
 
 async def run_stage2_parallel(raw_files: List[Path]) -> Dict[str, Any]:
-    """Run Stage 2A, 2B, and 2C in parallel for all raw files"""
+    """Run Stage 2A in parallel, then 2B sequentially, then 2C sequentially
 
-    logger.info(f"Starting Stage 2 parallel processing (2A + 2B + 2C) for {len(raw_files)} files")
+    Optimized for Ollama local which processes 1 request at a time:
+    - 2A (RAG): Parallel (less Llama-intensive, more I/O)
+    - 2B (Content): Sequential (one at a time to avoid timeouts)
+    - 2C (Bali Zero Journal): Sequential AFTER 2B completes (one at a time)
+    """
+
+    logger.info(f"Starting Stage 2 sequential processing (2A parallel → 2B sequential → 2C sequential) for {len(raw_files)} files")
 
     start_time = datetime.now()
 
@@ -571,37 +577,40 @@ async def run_stage2_parallel(raw_files: List[Path]) -> Dict[str, Any]:
         "duration": 0,
     }
 
-    # Process all files in parallel (2A, 2B, and 2C together!)
-    tasks = []
-
+    # PHASE 1: Run all Stage 2A (RAG) in parallel
+    logger.info("Phase 1: Running Stage 2A (RAG) in parallel...")
+    tasks_2a = []
     for category, files in files_by_category.items():
         for raw_file in files:
-            # Stage 2A task (RAG Processing)
             task_2a = asyncio.create_task(
                 process_stage_2a(stage_2a, raw_file, category, results)
             )
-            tasks.append(task_2a)
+            tasks_2a.append(task_2a)
 
-            # Stage 2B task (Content Creation - in parallel!)
-            task_2b = asyncio.create_task(
-                process_stage_2b(stage_2b, raw_file, category, results)
-            )
-            tasks.append(task_2b)
+    await asyncio.gather(*tasks_2a, return_exceptions=True)
+    logger.info(f"✅ Phase 1 complete: {results['stage_2a']['processed']} RAG processed, {results['stage_2a']['filtered']} filtered")
 
-            # Stage 2C task (Bali Zero Journal - in parallel!)
-            task_2c = asyncio.create_task(
-                process_stage_2c(stage_2c, raw_file, category, results)
-            )
-            tasks.append(task_2c)
+    # PHASE 2: Run all Stage 2B (Content) SEQUENTIALLY (one at a time for Ollama)
+    logger.info("Phase 2: Running Stage 2B (Content) sequentially...")
+    for category, files in files_by_category.items():
+        for raw_file in files:
+            await process_stage_2b(stage_2b, raw_file, category, results)
 
-    # Wait for all tasks to complete
-    await asyncio.gather(*tasks, return_exceptions=True)
+    logger.info(f"✅ Phase 2 complete: {results['stage_2b']['created']} articles created")
+
+    # PHASE 3: Run all Stage 2C (Bali Zero Journal) SEQUENTIALLY (one at a time for Ollama)
+    logger.info("Phase 3: Running Stage 2C (Bali Zero Journal) sequentially...")
+    for category, files in files_by_category.items():
+        for raw_file in files:
+            await process_stage_2c(stage_2c, raw_file, category, results)
+
+    logger.info(f"✅ Phase 3 complete: {results['stage_2c']['created']} blog posts created")
 
     # Calculate duration
     duration = (datetime.now() - start_time).total_seconds()
     results["duration"] = duration
 
-    logger.info(f"✅ Stage 2 parallel complete: {duration:.1f}s")
+    logger.info(f"✅ Stage 2 sequential complete: {duration:.1f}s")
     logger.info(f"   2A RAG: {results['stage_2a']['processed']} processed, {results['stage_2a']['filtered']} filtered")
     logger.info(f"   2B Content: {results['stage_2b']['created']} articles created")
     logger.info(f"   2C Bali Zero Journal: {results['stage_2c']['created']} posts created")
