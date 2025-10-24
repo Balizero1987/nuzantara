@@ -5,20 +5,20 @@
 
 :root {
   /* Bali Zero Official Color Palette */
-  --background: #08082a;          /* Vivid Black (INTENSE blue undertone) */
+  --background: #090920;          /* Vivid Black (balanced blue undertone) */
   --foreground: #f5f5f5;          /* Off-white */
   --card: #1a1f3a;                /* Navy */
   --card-foreground: #f5f5f5;
   --popover: #1a1f3a;
   --popover-foreground: #f5f5f5;
   --primary: #FF0000;             /* Bold Red */
-  --primary-foreground: #08082a;
+  --primary-foreground: #090920;
   --secondary: #e8d5b7;           /* Cream */
-  --secondary-foreground: #08082a;
+  --secondary-foreground: #090920;
   --muted: #1a1f3a;
   --muted-foreground: #e8d5b7;
   --accent: #FF0000;              /* Bold Red */
-  --accent-foreground: #08082a;
+  --accent-foreground: #090920;
   --destructive: #FF0000;
   --destructive-foreground: #f5f5f5;
   --border: #e8d5b7;              /* Cream borders */
@@ -32,7 +32,7 @@
   --radius: 0.625rem;
 
   /* Bali Zero Brand Colors */
-  --black: #08082a;               /* Vivid Black (INTENSE blue - ultra premium dark) */
+  --black: #090920;               /* Vivid Black (balanced blue - perfect premium dark) */
   --red: #FF0000;                 /* Bold Red */
   --cream: #e8d5b7;               /* Cream */
   --gold: #D4AF37;                /* Gold */
@@ -49,16 +49,16 @@
 }
 
 .dark {
-  --background: #08082a;
+  --background: #090920;
   --foreground: #f5f5f5;
   --card: #1a1f3a;
   --card-foreground: #f5f5f5;
   --popover: #1a1f3a;
   --popover-foreground: #f5f5f5;
   --primary: #FF0000;
-  --primary-foreground: #08082a;
+  --primary-foreground: #090920;
   --secondary: #e8d5b7;
-  --secondary-foreground: #08082a;
+  --secondary-foreground: #090920;
   --muted: #1a1f3a;
   --muted-foreground: #e8d5b7;
   --accent: #FF0000;
