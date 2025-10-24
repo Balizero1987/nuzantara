@@ -70,10 +70,10 @@ function ArticleCard({ article }: { article: Article }) {
         <img
           src={article.image || "/placeholder.svg"}
           alt={article.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 vibrant-image"
         />
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent opacity-90 group-hover:opacity-80 transition-opacity"></div>
+        {/* Lighter overlay for brightness */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-70 group-hover:opacity-60 transition-opacity"></div>
       </div>
 
       {/* Content - Only Title */}
