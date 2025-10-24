@@ -11,44 +11,62 @@ interface MagazineArticle {
   size: "hero" | "featured" | "standard"
 }
 
-// MANUAL CURATION: Update this array after each Intel Scraping run
-// Select max 4-5 most impactful articles from all categories
+// MANUAL CURATION: Updated 2025-10-24
+// Curated from 36 articles across 6 categories
 const magazineArticles: MagazineArticle[] = [
   {
-    id: "1",
-    title: "Indonesia's Free Meal Program",
-    subtitle: "Safety Crisis Threatens 90M Beneficiaries",
-    category: "Policy Alert",
-    image: "/bali-zero-journal-cover-1.jpg", // Generate with ImagineArt
+    id: "business-antaranews-oct24",
+    title: "Indonesia's AI-Driven Economic Revolution",
+    subtitle: "From 3M Housing Program to Digital Economy Leadership in Southeast Asia",
+    category: "Business Vision 2025",
+    image: "/bali-zero-journal-cover-2.jpg", // HERO - Image #2
     publishedDate: "2025-10-24",
-    size: "hero", // Large hero article - takes 60% width
+    size: "hero", // WINNER: Business expansion, AI efficiency, global partnerships
   },
   {
-    id: "2",
-    title: "New Immigration Reforms",
-    subtitle: "Simplified Visa Process Effective August 2025",
-    category: "Immigration",
-    image: "/bali-zero-journal-cover-2.jpg",
+    id: "immigration-jakartapost-oct24",
+    title: "Expat Security & Climate Risks Under Prabowo",
+    subtitle: "New Administration's Impact on Foreign Residents and Human Rights",
+    category: "Immigration Alert",
+    image: "/bali-zero-journal-cover-1.jpg",
     publishedDate: "2025-10-24",
-    size: "featured", // Medium featured - 40% width
+    size: "featured", // Health, safety, government changes affecting expats
   },
   {
-    id: "3",
-    title: "Military Tribunal Law Under Fire",
-    subtitle: "Concerns Over Lenient TNI Sentences",
-    category: "Legal",
+    id: "safety-jakartapost-oct24",
+    title: "B35 Biodiesel Mandate Reshapes Energy Security",
+    subtitle: "Automotive Crisis, Telecom Decline, and Economic Disruptions",
+    category: "Public Safety",
     image: "/bali-zero-journal-cover-3.jpg",
     publishedDate: "2025-10-24",
-    size: "standard", // Small standard - 50% width
+    size: "standard", // Systemic analysis: energy, infrastructure, economic safety
   },
   {
-    id: "4",
-    title: "Bali Tourism Safety Alert",
-    subtitle: "Russian Influencer Kidnapping Incident",
-    category: "Safety",
+    id: "property-jakartapost-oct24",
+    title: "Property Market Adapts to Energy Transition",
+    subtitle: "Real Estate Trends for Foreign Investors Amid Macro Shifts",
+    category: "Property Intel",
     image: "/bali-zero-journal-cover-4.jpg",
     publishedDate: "2025-10-24",
-    size: "standard", // Small standard - 50% width
+    size: "standard", // Macro dynamics: energy, automotive, palm oil → property
+  },
+  {
+    id: "legal-pajak-oct24",
+    title: "New Tax Landscape: EV Incentives & Digital Compliance",
+    subtitle: "DGT Announces Level Playing Field for Merchants, VDP Opportunities",
+    category: "Legal & Fiscal",
+    image: "/bali-zero-journal-cover-5.jpg",
+    publishedDate: "2025-10-24",
+    size: "standard", // Tax amnesty, digital marketplaces, EV tax incentives
+  },
+  {
+    id: "lifestyle-indonesia-travel-oct24",
+    title: "Javanese Batik: UNESCO Heritage Meets Modern Economy",
+    subtitle: "Cultural Identity, Artisan Collaboration, and Sustainable Tourism",
+    category: "Lifestyle & Culture",
+    image: "/bali-zero-journal-cover-6.jpg",
+    publishedDate: "2025-10-24",
+    size: "standard", // National identity, sustainability, local artisans
   },
 ]
 
@@ -138,17 +156,26 @@ export function BaliZeroJournal() {
         </div>
 
         {/* McKinsey-style Asymmetric Grid - Maximum breathing space */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10 auto-rows-auto mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10 auto-rows-auto mb-10">
           {/* First row: Hero (3 cols) + Featured (2 cols) */}
           {magazineArticles.slice(0, 2).map((article) => (
             <MagazineCoverArticle key={article.id} article={article} />
           ))}
         </div>
 
-        {/* Second row: Two standard articles (2.5 cols each) */}
+        {/* Second row: Two standard articles (2 cols each) */}
         {magazineArticles.length > 2 && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-10 mb-10">
             {magazineArticles.slice(2, 4).map((article) => (
+              <MagazineCoverArticle key={article.id} article={article} />
+            ))}
+          </div>
+        )}
+
+        {/* Third row: Two more standard articles (2 cols each) */}
+        {magazineArticles.length > 4 && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-10">
+            {magazineArticles.slice(4, 6).map((article) => (
               <MagazineCoverArticle key={article.id} article={article} />
             ))}
           </div>
