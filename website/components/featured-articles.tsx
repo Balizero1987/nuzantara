@@ -64,7 +64,7 @@ const articles: Article[] = [
 
 function ArticleCard({ article }: { article: Article }) {
   return (
-    <article className="group relative overflow-hidden rounded-lg cursor-pointer transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,0,0,0.6)] hover:scale-[1.03] border border-white/10 hover:border-red/70">
+    <article className="group relative overflow-hidden rounded-lg cursor-pointer transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,0,0,0.6)] hover:scale-[1.03] border border-white/10 hover:border-red/70 h-full">
       {/* Image */}
       <div className="absolute inset-0">
         <img
@@ -74,10 +74,13 @@ function ArticleCard({ article }: { article: Article }) {
         />
         {/* Lighter overlay for brightness */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-70 group-hover:opacity-60 transition-opacity"></div>
+
+        {/* Watermark cover - bottom right corner */}
+        <div className="absolute bottom-0 right-0 w-32 h-12 bg-gradient-to-tl from-black via-black/90 to-transparent z-10"></div>
       </div>
 
       {/* Content - Only Title */}
-      <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
+      <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end z-20">
         <h3 className="text-white font-serif font-bold text-2xl md:text-3xl lg:text-4xl leading-tight group-hover:text-red transition-colors duration-300">
           {article.title}
         </h3>
@@ -87,7 +90,7 @@ function ArticleCard({ article }: { article: Article }) {
       </div>
 
       {/* Shimmer effect on hover */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity shimmer"></div>
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity shimmer z-30"></div>
     </article>
   )
 }
