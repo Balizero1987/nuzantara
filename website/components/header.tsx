@@ -10,7 +10,7 @@ export function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-4">
           <Image
-            src="/balizero-logo.png"
+            src="/balizero-logo-3d.png"
             alt="Bali Zero"
             width={112}
             height={112}
