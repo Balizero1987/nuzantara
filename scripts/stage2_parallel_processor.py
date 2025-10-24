@@ -428,7 +428,7 @@ Create a professional markdown article from this Indonesian business/regulatory 
 Category: {category}
 Source Content: {raw_content[:3000]}
 
-Write a comprehensive article in ITALIAN (for Bali Zero team) with:
+Write a comprehensive article in ENGLISH (for Bali Zero team) with:
 - Clear title (## format)
 - Executive summary (2-3 sentences)
 - Key changes section
@@ -438,7 +438,7 @@ Write a comprehensive article in ITALIAN (for Bali Zero team) with:
 
 Use markdown formatting. Be concise but thorough. Focus on practical implications for expats/businesses in Indonesia.
 
-Write in Italian language."""
+Write in English language."""
 
         article = await self.llama.generate(prompt, max_tokens=2000)
 
