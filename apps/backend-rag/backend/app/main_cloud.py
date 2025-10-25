@@ -47,6 +47,7 @@ from services.team_analytics_service import TeamAnalyticsService
 from services.zantara_tools import ZantaraTools
 from services.query_router import QueryRouter  # PRIORITY 1: Query routing for autonomous research
 from services.autonomous_research_service import AutonomousResearchService  # PRIORITY 1: Self-directed research agent
+from services.cross_oracle_synthesis_service import CrossOracleSynthesisService  # PRIORITY 2: Multi-Oracle orchestrator
 from middleware.error_monitoring import ErrorMonitoringMiddleware
 
 # Configure logging
@@ -102,6 +103,7 @@ fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
 alert_service: Optional[AlertService] = None  # Error monitoring and alerts
 query_router: Optional[QueryRouter] = None  # PRIORITY 1: Collection routing for autonomous research
 autonomous_research_service: Optional[AutonomousResearchService] = None  # PRIORITY 1: Self-directed research agent
+cross_oracle_synthesis_service: Optional[CrossOracleSynthesisService] = None  # PRIORITY 2: Multi-Oracle orchestrator
 work_session_service: Optional[WorkSessionService] = None  # Team work session tracking
 team_analytics_service: Optional["TeamAnalyticsService"] = None  # Advanced team analytics (7 techniques)
 
@@ -827,7 +829,7 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, claude_haiku, intelligent_router, cultural_rag_service, zantara_tools, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service
+    global search_service, claude_haiku, intelligent_router, cultural_rag_service, zantara_tools, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (HAIKU-ONLY: Claude Haiku 4.5)...")
 
@@ -925,6 +927,26 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ AutonomousResearchService initialization failed: {e}")
         autonomous_research_service = None
+
+    # PRIORITY 2: Initialize Cross-Oracle Synthesis Service
+    try:
+        if search_service and claude_haiku:
+            cross_oracle_synthesis_service = CrossOracleSynthesisService(
+                search_service=search_service,
+                claude_sonnet_service=claude_haiku,  # Using Haiku as synthesis engine
+                golden_answer_service=None  # No cache for now
+            )
+            logger.info("✅ CrossOracleSynthesisService initialized (multi-Oracle orchestrator)")
+            logger.info(f"   Scenario patterns: {len(cross_oracle_synthesis_service.SCENARIO_PATTERNS)}")
+            logger.info("   Examples: business_setup, visa_application, property_investment, tax_optimization, compliance_check")
+        else:
+            logger.warning("⚠️ CrossOracleSynthesisService not initialized - missing dependencies")
+            logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
+            logger.warning(f"   Claude Haiku: {'✅' if claude_haiku else '❌'}")
+            cross_oracle_synthesis_service = None
+    except Exception as e:
+        logger.error(f"❌ CrossOracleSynthesisService initialization failed: {e}")
+        cross_oracle_synthesis_service = None
 
     # Initialize Handler Proxy Service (Tool Use) - MUST be before Intelligent Router
     try:
@@ -1106,12 +1128,14 @@ async def startup_event():
                 search_service=search_service,
                 tool_executor=tool_executor,  # Now properly initialized
                 cultural_rag_service=cultural_rag_service,  # NEW: LLAMA cultural intelligence
-                autonomous_research_service=autonomous_research_service  # PRIORITY 1: Self-directed research
+                autonomous_research_service=autonomous_research_service,  # PRIORITY 1: Self-directed research
+                cross_oracle_synthesis_service=cross_oracle_synthesis_service  # PRIORITY 2: Multi-Oracle orchestrator
             )
-            logger.info("✅ Intelligent Router ready (HAIKU-ONLY + Cultural RAG + Autonomous Research)")
+            logger.info("✅ Intelligent Router ready (HAIKU-ONLY + Cultural RAG + Advanced Services)")
             logger.info("   AI: Claude Haiku 4.5 (ALL queries, 100% traffic)")
             logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
             logger.info(f"   Autonomous Research: {'✅ enabled' if autonomous_research_service else '⚠️ disabled'}")
+            logger.info(f"   Cross-Oracle Synthesis: {'✅ enabled' if cross_oracle_synthesis_service else '⚠️ disabled'}")
             logger.info("   Cost optimization: 3x cheaper than Sonnet, same quality with RAG")
         else:
             logger.warning("⚠️ Intelligent Router not initialized - missing Claude Haiku service")

@@ -52,7 +52,8 @@ class IntelligentRouter:
         search_service=None,
         tool_executor=None,
         cultural_rag_service=None,  # NEW: Cultural RAG for Haiku enrichment
-        autonomous_research_service=None  # PRIORITY 1: Self-directed research agent
+        autonomous_research_service=None,  # PRIORITY 1: Self-directed research agent
+        cross_oracle_synthesis_service=None  # PRIORITY 2: Multi-Oracle orchestrator
     ):
         """
         Initialize intelligent router
@@ -64,12 +65,14 @@ class IntelligentRouter:
             tool_executor: ToolExecutor for handler execution (optional)
             cultural_rag_service: CulturalRAGService for Indonesian cultural context (optional)
             autonomous_research_service: AutonomousResearchService for complex queries (optional)
+            cross_oracle_synthesis_service: CrossOracleSynthesisService for business planning (optional)
         """
         self.haiku = haiku_service
         self.search = search_service
         self.tool_executor = tool_executor
         self.cultural_rag = cultural_rag_service  # NEW: Cultural enrichment
         self.autonomous_research = autonomous_research_service  # PRIORITY 1: Deep research
+        self.cross_oracle = cross_oracle_synthesis_service  # PRIORITY 2: Multi-Oracle synthesis
 
         # Available tools will be loaded on first use
         self.all_tools = None
@@ -82,6 +85,7 @@ class IntelligentRouter:
         logger.info(f"   Tool Use: {'✅' if tool_executor else '❌'}")
         logger.info(f"   Cultural RAG (Haiku): {'✅' if cultural_rag_service else '❌'}")
         logger.info(f"   Autonomous Research: {'✅' if autonomous_research_service else '❌'}")
+        logger.info(f"   Cross-Oracle Synthesis: {'✅' if cross_oracle_synthesis_service else '❌'}")
 
 
     async def _load_tools(self):
@@ -728,6 +732,81 @@ class IntelligentRouter:
                         }
                     except Exception as e:
                         logger.error(f"❌ [Autonomous Research] Failed: {e}")
+                        logger.info(f"   Falling back to regular Haiku routing")
+                        # Fall through to regular routing
+
+            # PRIORITY 2: Check if cross-Oracle synthesis is needed for business planning queries
+            if self.cross_oracle and category in ["business_complex", "business_simple"]:
+                message_lower = message.lower()
+
+                # Detect business setup scenarios (comprehensive multi-domain queries)
+                business_setup_keywords = [
+                    # Opening/starting
+                    "open", "start", "launch", "setup", "establish", "create",
+                    "aprire", "avviare", "lanciare", "creare",
+                    "buka", "mulai", "dirikan",
+                    # Business types
+                    "restaurant", "cafe", "shop", "store", "hotel", "villa",
+                    "ristorante", "negozio", "albergo",
+                    "restoran", "toko", "hotel",
+                    # Action-oriented
+                    "invest", "investire", "investasi",
+                    "business", "company", "azienda", "bisnis", "perusahaan"
+                ]
+
+                has_business_setup_term = any(kw in message_lower for kw in business_setup_keywords)
+
+                # Check for comprehensive queries (want full plan, not just one aspect)
+                comprehensive_indicators = [
+                    "everything", "tutto", "semua",
+                    "complete", "completo", "lengkap",
+                    "full", "penuh",
+                    "timeline", "cronologia",
+                    "investment", "investimento", "investasi",
+                    "requirements", "requisiti", "persyaratan"
+                ]
+
+                wants_comprehensive_plan = any(ind in message_lower for ind in comprehensive_indicators)
+
+                # Trigger: business setup term + (wants plan OR long query)
+                needs_cross_oracle = has_business_setup_term and (wants_comprehensive_plan or len(message.split()) > 10)
+
+                if needs_cross_oracle:
+                    logger.info(f"🎯 [Router] CROSS-ORACLE SYNTHESIS triggered (business planning query)")
+                    logger.info(f"   Business setup: {has_business_setup_term}, Comprehensive: {wants_comprehensive_plan}")
+
+                    try:
+                        # Perform cross-Oracle synthesis (parallel multi-collection queries)
+                        synthesis_result = await self.cross_oracle.synthesize(
+                            query=message,
+                            user_level=3,  # Default level
+                            use_cache=True
+                        )
+
+                        logger.info(f"✅ [Cross-Oracle Synthesis] Complete: {synthesis_result.scenario_type}, "
+                                   f"{len(synthesis_result.oracles_consulted)} Oracles consulted, "
+                                   f"confidence={synthesis_result.confidence:.2f}")
+
+                        # Return synthesis result directly
+                        return {
+                            "response": synthesis_result.synthesis,
+                            "ai_used": "haiku",  # Used Haiku for synthesis
+                            "category": "cross_oracle_synthesis",
+                            "model": "claude-haiku-4.5",
+                            "tokens": {"input": 0, "output": 0},  # Calculated internally
+                            "used_rag": True,  # Used multiple Oracle collections
+                            "cross_oracle_synthesis": {
+                                "scenario_type": synthesis_result.scenario_type,
+                                "oracles_consulted": synthesis_result.oracles_consulted,
+                                "confidence": synthesis_result.confidence,
+                                "timeline": synthesis_result.timeline,
+                                "investment": synthesis_result.investment,
+                                "key_requirements": synthesis_result.key_requirements,
+                                "risks": synthesis_result.risks
+                            }
+                        }
+                    except Exception as e:
+                        logger.error(f"❌ [Cross-Oracle Synthesis] Failed: {e}")
                         logger.info(f"   Falling back to regular Haiku routing")
                         # Fall through to regular routing
 
