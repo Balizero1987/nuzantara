@@ -514,7 +514,8 @@ class ZantaraTools:
             return {"success": False, "error": "Pricing service not available"}
 
         try:
-            pricing_data = await self.pricing.get_pricing(service_type)
+            # FIXED: get_pricing is not async, remove await
+            pricing_data = self.pricing.get_pricing(service_type)
 
             return {
                 "success": True,
