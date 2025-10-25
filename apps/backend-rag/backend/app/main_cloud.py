@@ -858,12 +858,11 @@ async def startup_event():
         logger.info("✅ SearchService registered in dependencies")
 
         # Warm up ChromaDB collections to eliminate cold-start latency
+        # Note: We await this directly - it only takes 2-3s and prevents cold-start issues
         try:
-            import asyncio
-            asyncio.create_task(search_service.warmup())
-            logger.info("🔥 ChromaDB warmup started (background)")
+            await search_service.warmup()
         except Exception as warmup_exc:
-            logger.warning(f"⚠️ ChromaDB warmup failed to start: {warmup_exc}")
+            logger.warning(f"⚠️ ChromaDB warmup failed: {warmup_exc}")
 
         try:
             initialize_memory_vector_db(chroma_path)
