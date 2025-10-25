@@ -97,8 +97,28 @@ class BaliZeroRAG:
             max_tokens: Response length
         """
 
+        # DETECTION: Comparison queries (need more tokens + context)
+        comparison_keywords = ["confronta", "compare", "vs", "differenza tra", "difference between", "confronto", "comparison"]
+        is_comparison = any(keyword in query.lower() for keyword in comparison_keywords)
+
+        # DETECTION: Cross-topic complex queries (long + multiple keywords)
+        cross_topic_keywords = ["timeline", "percorso completo", "tutti i costi", "step-by-step", "tutto", "complessivamente"]
+        is_cross_topic = any(keyword in query.lower() for keyword in cross_topic_keywords) or len(query.split()) > 20
+
+        # Adjust parameters for complex queries
+        if is_comparison:
+            max_tokens = max(max_tokens, 3000)  # Triple tokens for comparisons
+            k_chunks = 10  # More context
+            logger.info(f"🔍 COMPARISON query detected → max_tokens={max_tokens}, k={k_chunks}")
+        elif is_cross_topic:
+            max_tokens = max(max_tokens, 2500)  # More tokens for cross-topic
+            k_chunks = 8
+            logger.info(f"🌐 CROSS-TOPIC query detected → max_tokens={max_tokens}, k={k_chunks}")
+        else:
+            k_chunks = 5  # Default
+
         # 1. Retrieve context
-        context_chunks = self.retrieve_context(query)
+        context_chunks = self.retrieve_context(query, k=k_chunks)
 
         if not context_chunks:
             return {
@@ -131,6 +151,13 @@ CAPACITÀ:
 
 CONTATTI:
 📍 Kerobokan, Bali | 📱 +62 859 0436 9574 | 📧 info@balizero.com | 📸 @balizero0 | 🌐 welcome.balizero.com
+
+⚠️ CITATION OBBLIGATORIA:
+- SEMPRE termina la risposta con le fonti utilizzate
+- Formato: "Fonte: [Nome documento/fonte] (T1/T2/T3)"
+- Esempio: "Fonte: Immigration Regulation 2024 (T1)"
+- Se usi più fonti, elencale tutte
+- Non saltare MAI questa sezione
 
 Rispondi in modo conciso e utile. Se chiesto "puoi fare X?", rispondi SÌ se è nella lista capacità."""
 
