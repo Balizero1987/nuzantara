@@ -191,10 +191,24 @@ class ToolExecutor:
         Returns:
             List of tool definitions for Anthropic API
         """
+        tools = []
+
+        # CRITICAL FIX: Always load ZantaraTools first (Python - always available)
+        if self.zantara_tools:
+            try:
+                zantara_tool_defs = self.zantara_tools.get_tool_definitions(include_admin_tools=False)
+                tools.extend(zantara_tool_defs)
+                logger.info(f"📋 Loaded {len(zantara_tool_defs)} ZantaraTools (Python): {[t['name'] for t in zantara_tool_defs]}")
+            except Exception as e:
+                logger.error(f"❌ Failed to load ZantaraTools: {e}")
+
+        # Try to load TypeScript tools (may fail if backend is offline)
         try:
-            tools = await self.handler_proxy.get_anthropic_tools(self.internal_key)
-            logger.info(f"📋 Loaded {len(tools)} tools for AI")
-            return tools
+            ts_tools = await self.handler_proxy.get_anthropic_tools(self.internal_key)
+            tools.extend(ts_tools)
+            logger.info(f"📋 Loaded {len(ts_tools)} TypeScript tools")
         except Exception as e:
-            logger.error(f"❌ Failed to load tools: {e}")
-            return []
+            logger.warning(f"⚠️ TypeScript tools unavailable: {e}")
+
+        logger.info(f"📋 Total tools loaded for AI: {len(tools)}")
+        return tools
