@@ -57,7 +57,7 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI
 app = FastAPI(
     title="ZANTARA RAG API",
-    version="3.2.0-crm",
+    version="3.3.0-phase1",
     description="RAG + LLM backend for NUZANTARA (ChromaDB from R2 + Claude AI Haiku 4.5 ONLY with Intelligent Routing)"
 )
 
@@ -1161,7 +1161,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "ZANTARA RAG",
-        "version": "3.2.0-crm",
+        "version": "3.3.0-phase1",
         "mode": "full",
         "available_services": [
             "chromadb",
