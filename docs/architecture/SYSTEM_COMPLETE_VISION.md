@@ -313,7 +313,7 @@ Admin/Developer → POST /zantara/brilliant/chat
 📁 apps/backend-ts/
 ```
 
-**Handlers**: 122 total (19 categories)
+**Handlers**: 93 total (active modules)
 - Google Workspace (8+)
 - AI Services (10+)
 - Bali Zero Business (15+)
@@ -344,7 +344,7 @@ Admin/Developer → POST /zantara/brilliant/chat
 📁 apps/backend-rag/backend/
 ```
 
-**Services**: 48 files
+**Services**: 24 files
 - `search_service.py` - ChromaDB search
 - `intelligent_router.py` - AI routing (Haiku ONLY)
 - `claude_haiku_service.py` - Claude Haiku client
@@ -627,7 +627,7 @@ If no match → Proceed to Haiku + RAG (1-2s)
 - Projects: ~5,000 righe (TypeScript)
 
 ### **Functionality**:
-- **137 executable functions** (122 handlers + 10 agents + 5 Oracle)
+- **108 executable functions** (93 handlers + 10 agents + 5 Oracle)
 - **20 API endpoints** (8 TS + 12 RAG)
 - **164 tools** available to Haiku
 - **14,365+ documents** in ChromaDB

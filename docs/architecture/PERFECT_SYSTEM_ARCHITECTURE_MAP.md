@@ -72,7 +72,7 @@ NUZANTARA-RAILWAY/
 │   ├── main_cloud.py              # Main application
 │   ├── routers/                   # API routes
 │   └── middleware/                # Middleware
-├── 📁 services/                   # Core services (48 files)
+├── 📁 services/                   # Core services (24 files)
 │   ├── search_service.py          # ChromaDB search
 │   ├── intelligent_router.py      # AI routing
 │   ├── claude_haiku_service.py    # Claude Haiku
@@ -104,7 +104,7 @@ NUZANTARA-RAILWAY/
 ### **TS Backend** (Node.js/Express)
 ```
 📁 apps/backend-ts/src/
-├── 📁 handlers/                   # 122 handlers (19 categories)
+├── 📁 handlers/                   # 93 handlers (active modules)
 │   ├── 📁 google-workspace/       # Google Workspace (8+ handlers)
 │   ├── 📁 ai-services/            # AI Services (10+ handlers)
 │   ├── 📁 bali-zero/              # Bali Zero Business (15+ handlers)
@@ -125,7 +125,7 @@ NUZANTARA-RAILWAY/
 │   ├── jwt-auth.ts                # JWT authentication
 │   ├── demo-user-auth.ts          # Demo user auth
 │   └── selective-rate-limit.ts    # Rate limiting
-├── 📁 services/                   # Services (26 files)
+├── 📁 services/                   # Services (24 files)
 │   ├── logger.js                  # Logging
 │   ├── oauth2-client.js           # OAuth2
 │   └── redis-client.js            # Redis
@@ -329,10 +329,10 @@ NUZANTARA-RAILWAY/
 - **Total**: 20 API endpoints
 
 ### **Handlers & Agents**:
-- **TS Handlers**: 122 handlers (19 categories)
+- **TS Handlers**: 93 handlers (active modules)
 - **RAG Agents**: 10 agentic functions
 - **Oracle Agents**: 5 Oracle agents
-- **Total**: 137 executable functions
+- **Total**: 108 executable functions
 
 ### **AI Models**:
 - **ZANTARA Llama 3.1**: Primary AI (trained)

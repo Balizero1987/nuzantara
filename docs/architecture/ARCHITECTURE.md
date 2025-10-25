@@ -28,7 +28,7 @@ graph TB
         Router[RPC Router<br/>/call endpoint]
         MW[Middleware Stack]
 
-        subgraph "121 Handlers"
+        subgraph "93 Handlers"
             H_Identity[Identity 3]
             H_GWS[Google Workspace 22]
             H_AI[AI Services 9]
@@ -197,7 +197,7 @@ const handlers: Record<string, Handler> = {
 | **RAG Proxy** | 4 | `rag.query`, `rag.search`, `rag.health`, `bali.zero.chat` | `handlers/rag/` |
 | **WebSocket Admin** | 3 | `websocket.stats`, `websocket.broadcast`, `websocket.send` | `handlers/admin/` |
 
-**Total Handlers**: 121 (as of v5.6.0 with DevAI integration)
+**Total Handlers**: 93 (active modules, verified 2025-10-25)
 
 ---
 
