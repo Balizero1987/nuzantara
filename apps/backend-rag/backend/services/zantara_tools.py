@@ -142,6 +142,40 @@ class ZantaraTools:
                 }
             ])
 
+        # Team roster tools (PUBLIC - anyone can ask who team members are)
+        if self.collaborator:
+            tools.extend([
+                {
+                    "name": "get_team_members_list",
+                    "description": "Get complete list of all 22 Bali Zero team members with their roles, departments, and contact info. Use this when user asks about team composition, who works in a department, or to identify a team member by name.",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "department": {
+                                "type": "string",
+                                "description": "Optional filter by department (setup, tax, management, advisory, marketing, operations, leadership)",
+                                "enum": ["setup", "tax", "management", "advisory", "marketing", "operations", "leadership", "all"]
+                            }
+                        },
+                        "required": []
+                    }
+                },
+                {
+                    "name": "search_team_member",
+                    "description": "Search for a team member by name (supports partial matching). Returns matching team members with their info. Use this when user asks 'Chi è Adit?', 'Who is Ari?', or any team member name query.",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "type": "string",
+                                "description": "Name to search for (e.g., 'Adit', 'Ari', 'Surya', 'Krisna'). Supports partial matching."
+                            }
+                        },
+                        "required": ["query"]
+                    }
+                }
+            ])
+
         # ADMIN TOOLS (only for authorized users)
         if include_admin_tools:
             if self.team_analytics:
@@ -196,40 +230,6 @@ class ZantaraTools:
                                 }
                             },
                             "required": []
-                        }
-                    }
-                ])
-
-            # Team roster tools (available for admin)
-            if self.collaborator:
-                tools.extend([
-                    {
-                        "name": "get_team_members_list",
-                        "description": "Get complete list of all 22 Bali Zero team members with their roles, departments, and contact info. Use this when user asks about team composition, who works in a department, or to identify a team member by name.",
-                        "input_schema": {
-                            "type": "object",
-                            "properties": {
-                                "department": {
-                                    "type": "string",
-                                    "description": "Optional filter by department (setup, tax, management, advisory, marketing, operations, leadership)",
-                                    "enum": ["setup", "tax", "management", "advisory", "marketing", "operations", "leadership", "all"]
-                                }
-                            },
-                            "required": []
-                        }
-                    },
-                    {
-                        "name": "search_team_member",
-                        "description": "Search for a team member by name (supports partial matching). Returns matching team members with their info. Use this when user asks 'Chi è Adit?', 'Who is Ari?', or any team member name query.",
-                        "input_schema": {
-                            "type": "object",
-                            "properties": {
-                                "query": {
-                                    "type": "string",
-                                    "description": "Name to search for (e.g., 'Adit', 'Ari', 'Surya', 'Krisna'). Supports partial matching."
-                                }
-                            },
-                            "required": ["query"]
                         }
                     }
                 ])
