@@ -1,0 +1,43 @@
+# Intel Scraping - Ignore temporary and generated files
+
+# Raw scraped data (regenerated on each run)
+data/raw/*
+!data/raw/.gitkeep
+
+# ChromaDB vector database (local only)
+data/chromadb/*
+!data/chromadb/.gitkeep
+
+# Journal posts (optional manual curation)
+data/journal/*
+!data/journal/.gitkeep
+
+# Log files
+logs/*.log
+logs/*.txt
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keep processed reports (for deployment)
+!data/processed/*.md

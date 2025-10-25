@@ -229,7 +229,7 @@ class QualityFilter:
 class Stage2AProcessor:
     """Stage 2A: RAG Processing (Raw → ChromaDB JSON)"""
 
-    def __init__(self, chroma_path: str = "./data/chroma_intel"):
+    def __init__(self, chroma_path: str = "./data/chromadb"):
         # Auto-detect AI backend
         if AI_BACKEND == "ollama":
             self.llama = OllamaClient(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL)
@@ -842,7 +842,7 @@ async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = Fals
             consolidated_report = await stage_2b.create_consolidated_report(articles, category)
 
             # Save consolidated report
-            output_dir = PROJECT_ROOT / "output" / "articles"
+            output_dir = PROJECT_ROOT / "data" / "processed"
             output_dir.mkdir(parents=True, exist_ok=True)
 
             datestamp = datetime.now().strftime("%Y%m%d")
@@ -917,7 +917,7 @@ async def process_stage_2c(processor: Stage2CProcessor, raw_file: Path, category
 
         if journal_post:
             # Save Bali Zero Journal post
-            journal_dir = Path("scripts/INTEL_SCRAPING/bali_zero_journal")
+            journal_dir = PROJECT_ROOT / "data" / "journal"
             journal_dir.mkdir(parents=True, exist_ok=True)
 
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

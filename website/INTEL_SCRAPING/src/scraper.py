@@ -31,8 +31,8 @@ logger = logging.getLogger(__name__)
 
 # Paths
 SCRIPT_DIR = Path(__file__).parent
-SITES_DIR = SCRIPT_DIR.parent / "config" / "sites"
-OUTPUT_BASE = SCRIPT_DIR.parent / "raw"
+SITES_DIR = SCRIPT_DIR.parent / "config" / "sources"
+OUTPUT_BASE = SCRIPT_DIR.parent / "data" / "raw"
 
 # Scraping settings
 MAX_CONCURRENT = 12  # Concurrent scrapes per category (increased for speed)
@@ -276,11 +276,11 @@ async def main(category_filter: Optional[List[str]] = None):
         logger.info(f"Category filter: {', '.join(category_filter)}")
     logger.info("=" * 70)
 
-    # Find all SITI_*.txt files
-    siti_files = sorted(SITES_DIR.glob("SITI_*.txt"))
+    # Find all *.txt source files
+    siti_files = sorted(SITES_DIR.glob("*.txt"))
 
     if not siti_files:
-        logger.error(f"No SITI_*.txt files found in {SITES_DIR}")
+        logger.error(f"No *.txt source files found in {SITES_DIR}")
         return 1
 
     logger.info(f"Found {len(siti_files)} category files")
@@ -294,13 +294,8 @@ async def main(category_filter: Optional[List[str]] = None):
 
         # Process each category
         for siti_file in siti_files:
-            # Extract category key from filename
-            # SITI_ADIT_IMMIGRATION.txt -> immigration
-            category_match = re.search(r'SITI_[^_]+_(.+)\.txt', siti_file.name)
-            if category_match:
-                category = category_match.group(1).lower()
-            else:
-                category = siti_file.stem.replace('SITI_', '').lower()
+            # Extract category key from filename (e.g., business.txt -> business)
+            category = siti_file.stem.lower()
 
             # Skip if category filter is active and this category is not in it
             if category_filter and category not in category_filter:

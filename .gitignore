@@ -63,9 +63,6 @@ archive/
 testsprite_tests/
 tests/
 
-# Intel Scraping - keep local only
-INTEL_SCRAPING/
-
 # Development projects - keep local only
 projects/devai/
 projects/orchestrator/
