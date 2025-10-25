@@ -1,0 +1,81 @@
+# AI Tech - Cutting-Edge AI News & Research
+# Category: AI Technology, Machine Learning, LLMs, AI Products
+# Update Frequency: Daily
+# Last Updated: 2025-10-25
+
+# === RESEARCH LABS & COMPANIES ===
+
+# OpenAI - GPT, ChatGPT, O1, DALL-E updates
+https://openai.com/news/
+
+# Anthropic - Claude AI updates and research
+https://www.anthropic.com/news
+
+# Google DeepMind - AI research and breakthroughs
+https://deepmind.google/discover/blog/
+
+# Google AI Blog - Research and products
+https://blog.google/technology/ai/
+
+# Meta AI - Llama models and research
+https://ai.meta.com/blog/
+
+# Microsoft AI - Azure AI, Copilot updates
+https://blogs.microsoft.com/ai/
+
+# NVIDIA AI - GPU computing, AI infrastructure
+https://blogs.nvidia.com/blog/category/deep-learning/
+
+# Stability AI - Stable Diffusion updates
+https://stability.ai/news
+
+
+# === TECH MEDIA & ANALYSIS ===
+
+# TechCrunch AI - Latest AI startup news
+https://techcrunch.com/category/artificial-intelligence/
+
+# VentureBeat AI - Enterprise AI coverage
+https://venturebeat.com/category/ai/
+
+# MIT Technology Review AI - Deep analysis
+https://www.technologyreview.com/topic/artificial-intelligence/
+
+# The Verge AI - Consumer AI products
+https://www.theverge.com/ai-artificial-intelligence
+
+# Ars Technica AI - Technical deep dives
+https://arstechnica.com/tag/artificial-intelligence/
+
+# WIRED AI - AI ethics and society
+https://www.wired.com/tag/artificial-intelligence/
+
+
+# === COMMUNITY & RESEARCH ===
+
+# Hugging Face Blog - Open source AI models
+https://huggingface.co/blog
+
+# Papers with Code - Latest ML papers
+https://paperswithcode.com/
+
+# The Batch by Andrew Ng - Weekly AI insights
+https://www.deeplearning.ai/the-batch/
+
+# AI News - Aggregated AI updates
+https://www.artificialintelligence-news.com/
+
+
+# === SPECIALIZED SOURCES ===
+
+# LangChain Blog - LLM applications
+https://blog.langchain.dev/
+
+# Weights & Biases - MLOps and AI tools
+https://wandb.ai/site/articles
+
+# Scale AI Blog - AI data infrastructure
+https://scale.com/blog
+
+# AssemblyAI - Speech AI updates
+https://www.assemblyai.com/blog/
