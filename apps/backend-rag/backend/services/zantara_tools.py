@@ -516,6 +516,11 @@ class ZantaraTools:
         try:
             # FIXED: get_pricing is not async, remove await
             pricing_data = self.pricing.get_pricing(service_type)
+            
+            # DEBUG: Log the pricing data
+            logger.info(f"🔍 [PricingTool] Service: {service_type}")
+            logger.info(f"🔍 [PricingTool] Data keys: {list(pricing_data.keys()) if isinstance(pricing_data, dict) else 'Not a dict'}")
+            logger.info(f"🔍 [PricingTool] Data type: {type(pricing_data)}")
 
             return {
                 "success": True,
