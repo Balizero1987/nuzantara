@@ -46,6 +46,8 @@ class ToolExecutor:
             'get_team_active_sessions',
             'get_team_member_stats',
             'get_team_overview',
+            'get_team_members_list',    # Team roster (public)
+            'search_team_member',        # Team search (public)
             'get_session_details',
             'end_user_session',
             'retrieve_user_memory',
