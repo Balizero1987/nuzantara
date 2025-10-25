@@ -371,6 +371,42 @@ class IntelligentRouter:
             query_type = classify_query_for_rag(message)
             logger.info(f"📋 [Router] Query type: {query_type} (for RAG and sanitization)")
 
+            # PHASE 1.5: RAG retrieval (ONLY for business/emergency queries)
+            rag_context = None
+            used_rag = False
+            if query_type in ["business", "emergency"] and self.search:
+                try:
+                    logger.info(f"🔍 [Router] Fetching RAG context for {query_type} query...")
+
+                    # Retrieve relevant documents from ChromaDB
+                    search_results = await self.search.search(
+                        query=message,
+                        user_level=0,  # Default level (can be enhanced later with collaborator level)
+                        limit=5  # Top 5 most relevant documents
+                    )
+
+                    if search_results.get("results"):
+                        # Build RAG context from search results
+                        rag_docs = []
+                        for result in search_results["results"][:5]:
+                            doc_text = result["text"][:500]  # Limit each doc to 500 chars
+                            doc_title = result["metadata"].get("title", "Unknown")
+                            rag_docs.append(f"📄 {doc_title}: {doc_text}")
+
+                        rag_context = "\n\n".join(rag_docs)
+                        used_rag = True
+
+                        logger.info(f"✅ [Router] RAG context retrieved: {len(rag_docs)} documents, {len(rag_context)} chars")
+                    else:
+                        logger.info(f"⚠️ [Router] No RAG results found for query")
+
+                except Exception as e:
+                    logger.warning(f"⚠️ [Router] RAG retrieval failed: {e}")
+                    rag_context = None
+                    used_rag = False
+            else:
+                logger.info(f"⏭️ [Router] Skipping RAG for {query_type} query (greeting/casual)")
+
             # PHASE 2: Follow-up detection - maintain AI continuity for conversational flow
             if last_ai_used and conversation_history and len(conversation_history) > 0:
                 message_lower = message.lower().strip()
@@ -509,6 +545,15 @@ class IntelligentRouter:
                         memory_context += f"\nPrevious conversation context: {memory.summary[:500]}"
 
                     logger.info(f"💾 [Router] Memory context built (natural format): {len(memory_context)} chars")
+
+            # PHASE 3.1: Combine RAG context with memory context (if RAG was retrieved)
+            if rag_context:
+                rag_section = f"\n\n<relevant_knowledge>\n{rag_context}\n</relevant_knowledge>"
+                if memory_context:
+                    memory_context += rag_section
+                else:
+                    memory_context = rag_section
+                logger.info(f"📚 [Router] RAG context added to memory context")
 
             # PHASE 3.5: Build team context if collaborator is present (ENHANCED PERSONALIZATION)
             team_context = None
@@ -693,7 +738,7 @@ class IntelligentRouter:
                     "category": category,
                     "model": result["model"],
                     "tokens": result["tokens"],
-                    "used_rag": False,
+                    "used_rag": used_rag,  # ← PHASE 1 FIX: Report actual RAG usage
                     "used_tools": result.get("used_tools", False),
                     "tools_called": result.get("tools_called", [])
                 }
