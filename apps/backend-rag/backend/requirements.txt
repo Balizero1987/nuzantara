@@ -46,3 +46,5 @@ redis==5.0.1
 # Notification providers (optional)
 # sendgrid==6.11.0  # Uncomment when SENDGRID_API_KEY is available
 # twilio==8.10.0    # Uncomment when TWILIO credentials are available
+
+# Force rebuild: 2025-10-25-16:00 - Phase 1 deployment
