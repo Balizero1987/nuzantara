@@ -42,14 +42,14 @@ export function HeroSection() {
           <div className="relative h-96 md:h-full min-h-96">
             <div className="absolute inset-0 bg-gradient-to-br from-red/30 via-transparent to-blue-500/20 rounded-lg overflow-hidden">
               <video
-                key="hero-video"
-                src="/ruota.mp4"
+                key="hero-video-2"
+                src="/ruota2.mp4"
                 autoPlay
                 loop
                 muted
                 playsInline
                 preload="auto"
-                className="w-full h-full object-cover vibrant-image"
+                className="w-full h-full object-contain vibrant-image"
                 onLoadedData={(e) => {
                   const video = e.currentTarget;
                   video.play().catch(err => console.log("Video autoplay blocked:", err));

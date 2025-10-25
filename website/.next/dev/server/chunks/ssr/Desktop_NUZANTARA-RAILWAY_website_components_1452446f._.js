@@ -302,18 +302,18 @@ function HeroSection() {
                                 className: "absolute inset-0 bg-gradient-to-br from-red/30 via-transparent to-blue-500/20 rounded-lg overflow-hidden",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
-                                        src: "/ruota.mp4",
+                                        src: "/ruota2.mp4",
                                         autoPlay: true,
                                         loop: true,
                                         muted: true,
                                         playsInline: true,
                                         preload: "auto",
-                                        className: "w-full h-full object-cover vibrant-image",
+                                        className: "w-full h-full object-contain vibrant-image",
                                         onLoadedData: (e)=>{
                                             const video = e.currentTarget;
                                             video.play().catch((err)=>console.log("Video autoplay blocked:", err));
                                         }
-                                    }, "hero-video", false, {
+                                    }, "hero-video-2", false, {
                                         fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
                                         lineNumber: 44,
                                         columnNumber: 15
