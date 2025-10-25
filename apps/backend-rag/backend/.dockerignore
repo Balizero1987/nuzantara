@@ -53,6 +53,8 @@ logs
 
 # Data files (too large for Docker)
 data/
+# CRITICAL: Include pricing JSON for production
+!data/bali_zero_official_prices_2025.json
 *.db
 *.sqlite
 *.sqlite3
