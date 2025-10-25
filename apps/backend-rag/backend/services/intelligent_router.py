@@ -821,22 +821,47 @@ class IntelligentRouter:
 
             logger.info(f"   Category: {category} → AI: {suggested_ai}")
 
-            # Route to appropriate AI for streaming
-            if suggested_ai == "haiku":
-                # Stream from Haiku (fast, casual)
-                logger.info("🏃 [Router Stream] Using Claude Haiku")
+            # Load tools if not already loaded (CRITICAL FIX for tool calling in SSE)
+            if not self.tools_loaded and self.tool_executor:
+                await self._load_tools()
 
+            # Route to appropriate AI for streaming - ALWAYS Haiku with tools
+            logger.info("🎯 [Router Stream] Using Haiku 4.5 with FULL tool access")
+
+            # Use conversational_with_tools for complete response (includes tool calling)
+            if self.tool_executor and self.all_tools:
+                logger.info(f"   Tool use: ENABLED ({len(self.all_tools)} tools available)")
+                result = await self.haiku.conversational_with_tools(
+                    message=message,
+                    user_id=user_id,
+                    conversation_history=conversation_history,
+                    memory_context=memory_context,
+                    tools=self.all_tools,  # ALL tools for SSE streaming
+                    tool_executor=self.tool_executor,
+                    max_tokens=8000,  # Full capacity (was 300 - too small!)
+                    max_tool_iterations=5
+                )
+
+                # Stream the complete response word-by-word
+                response_text = result["text"]
+                words = response_text.split()
+
+                for i, word in enumerate(words):
+                    # Add space before word (except first)
+                    chunk = f" {word}" if i > 0 else word
+                    yield chunk
+
+            else:
+                # Fallback: streaming without tools (shouldn't happen)
+                logger.warning("⚠️ [Router Stream] Tool executor not available, using simple streaming")
                 async for chunk in self.haiku.stream(
                     message=message,
                     user_id=user_id,
                     conversation_history=conversation_history,
                     memory_context=memory_context,
-                    max_tokens=300
+                    max_tokens=8000
                 ):
                     yield chunk
-
-            # Sonnet streaming removed - Haiku 4.5 is the ONLY AI
-            # All streaming is handled by Haiku 4.5 above
 
             logger.info(f"✅ [Router Stream] Stream completed for user {user_id}")
 
