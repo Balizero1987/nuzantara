@@ -11,7 +11,7 @@ import logger from '../../services/logger.js';
 import axios from 'axios';
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
-import { memorySave, memorySearch } from '../memory/memory-firestore.js';
+import { memorySave, memorySearch } from '../memory/memory.js';
 import { aiChat } from '../ai-services/ai.js';
 
 // Instagram API Configuration (same Meta app as WhatsApp)

@@ -166,7 +166,7 @@ const userMemorySave = firestoreHandlerStub;
 const userMemoryRetrieve = firestoreHandlerStub;
 const userMemoryList = firestoreHandlerStub;
 const userMemoryLogin = firestoreHandlerStub;
-const autoSaveConversation = async () => { /* Deprecated: Firestore autosave disabled */ };
+const autoSaveConversation = async (_req: any, _prompt: string, _response: string, _handlerKey: string, _metadata: any) => { /* Deprecated: Firestore autosave disabled */ };
 
 async function runHandler(key: string, params: any, ctx: any) {
   const handler = handlers[key];
