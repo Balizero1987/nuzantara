@@ -1,191 +1,170 @@
 # Intel Scraping System - Bali Zero Intelligence
 
-Sistema completo di intelligence gathering, processing AI, e pubblicazione magazine per il team Bali Zero.
+Automated intelligence gathering, AI processing, and content generation system for the Bali Zero team.
 
 ---
 
-## 📁 Struttura Directory
+## 📁 Directory Structure
 
 ```
 INTEL_SCRAPING/
-├── raw/                          # Raw scraped content (Stage 1)
-│   ├── immigration/*.md
-│   ├── business/*.md
-│   ├── tax_legal/*.md
-│   ├── property/*.md
-│   └── ...
+├── config/
+│   └── sources/              # Source URL configurations
+│       ├── ai_tech.txt       # AI & Technology sources
+│       ├── business.txt      # Business & Economy sources
+│       ├── immigration.txt   # Visa & Immigration sources
+│       ├── lifestyle.txt     # Lifestyle & Culture sources
+│       ├── property.txt      # Real Estate sources
+│       ├── safety.txt        # Safety & Security sources
+│       └── tax_legal.txt     # Tax & Legal sources
 │
-├── output/                       # Processed output (Stage 2)
-│   └── articles/                 # Consolidated reports per category
-│       ├── immigration_20251024.md
-│       ├── business_20251024.md
+├── data/
+│   ├── chromadb/             # Vector database for RAG (Stage 2A)
+│   ├── processed/            # AI-generated consolidated articles
+│   │   ├── ai_tech_YYYYMMDD.md
+│   │   ├── business_YYYYMMDD.md
+│   │   └── ...
+│   └── raw/                  # Scraped content by category
+│       ├── ai_tech/*.md
+│       ├── business/*.md
+│       ├── immigration/*.md
 │       └── ...
 │
-├── scripts/                      # Processing scripts
-│   ├── crawl4ai_scraper.py      # Stage 1: Web scraping
-│   ├── stage2_parallel_processor.py  # Stage 2: AI processing
-│   └── run_intel_automation.py  # Orchestrator
+├── docs/                     # Documentation
+│   ├── MANUAL_CURATION_WORKFLOW.md
+│   └── ORCHESTRATOR_PRO.md
 │
-├── config/                       # Configuration files
-│   └── sites/
-│       └── SITI_*.txt           # Source URLs per category
+├── logs/                     # Execution logs
 │
-├── data/                         # Databases
-│   └── chroma/                  # ChromaDB for RAG (Stage 2A)
+├── src/                      # Source code
+│   ├── scraper.py           # Stage 1: Web scraping
+│   ├── processor.py         # Stage 2: AI processing
+│   ├── automation.py        # Standard orchestrator
+│   └── orchestrator_pro.py  # PRO orchestrator with retry & quality validation
 │
-├── MANUAL_CURATION_WORKFLOW.md  # Magazine curation guide
-└── README.md                     # This file
+├── .gitignore
+└── README.md                 # This file
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🎯 System Overview
 
-### 1. Run Complete Pipeline
-
-```bash
-cd /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/INTEL_SCRAPING
-
-# Stage 1: Scrape all sources
-python3 scripts/crawl4ai_scraper.py --categories all
-
-# Stage 2B: Generate consolidated articles (Journal disabled by default)
-python3 scripts/stage2_parallel_processor.py raw/
-```
-
-### 2. Run Specific Category
-
-```bash
-# Scrape only immigration
-python3 scripts/crawl4ai_scraper.py --categories immigration
-
-# Process immigration raw files
-python3 scripts/stage2_parallel_processor.py raw/immigration/
-```
-
-### 3. Enable Journal Generation (Optional)
-
-```bash
-# Run with magazine journal enabled (for testing)
-python3 scripts/stage2_parallel_processor.py raw/ --enable-journal
-```
-
----
-
-## 📊 Pipeline Stages
+The Intel Scraping System is a **3-stage pipeline** that transforms web content into intelligence reports:
 
 ### **Stage 1: Web Scraping** 🕷️
+- Scrapes configured sources using Playwright (JavaScript support)
+- Extracts content, metadata, publication dates
+- Quality filters (min word count, date validation)
+- Outputs raw markdown files by category
 
-**Script**: `scripts/crawl4ai_scraper.py`
-
-**What it does**:
-- Scrapes configured sources from `config/sites/SITI_*.txt`
-- Extracts content, publication dates, metadata
-- Applies quality filters (min word count, date validation)
-- Saves raw markdown files by category
-
-**Output**: `raw/{category}/*.md`
-
-**Performance**:
-- ~8 seconds per source
-- Playwright-based (JavaScript support)
-- Automatic date extraction from HTML metadata
-
----
-
-### **Stage 2A: RAG Processing** (Optional)
-
-**What it does**:
+### **Stage 2A: RAG Processing** 🧠 (Optional)
 - Extracts structured information from raw content
 - Stores embeddings in ChromaDB for semantic search
 - Quality scoring and filtering
 
-**Output**: `data/chroma/` (vector database)
-
-**Status**: Currently filtered (optional feature)
+### **Stage 2B: Content Generation** ✍️
+- Processes all raw files for a category
+- Generates consolidated markdown reports
+- Includes metadata, table of contents, structured sections
+- Uses local Llama (Ollama) or cloud LLMs (RunPod)
 
 ---
 
-### **Stage 2B: Consolidated Article Generation** ✍️
+## 🚀 Three Ways to Run
 
-**Script**: `scripts/stage2_parallel_processor.py`
+### **1. Individual Scripts** (Manual Control)
 
-**What it does**:
-- Processes ALL raw files for a category
-- Generates ONE consolidated markdown file per category
-- Each article includes metadata (original date, source, scraping timestamp)
-- Creates table of contents with anchor links
+```bash
+# Step 1: Scrape specific categories
+python3 src/scraper.py --categories business,immigration
 
-**Output Format**:
-```markdown
-# Intel Report - [CATEGORY]
-**Generated**: 2025-10-24
-**Total Articles**: 5
-**Sources**: Source1, Source2, Source3
-
-## TABLE OF CONTENTS
-1. [Article 1](#article-1)
-2. [Article 2](#article-2)
-...
-
-## Article 1: [Title] {#article-1}
-**Original Publication**: 2025-10-20
-**Source**: [URL]
-**Scraped**: 2025-10-24T10:05:37
-
-[Full article content...]
+# Step 2: Process the scraped content
+python3 src/processor.py data/raw/
 ```
 
-**Performance**:
-- ~2-3 minutes per article (Llama 3.1 8B local)
-- 800-1,100 words per article
-- Sequential processing (no timeouts)
+**When to use**: Testing, debugging, manual control over each stage
 
 ---
 
-### **Stage 2C: Bali Zero Journal Magazine** 📰 (Manual)
+### **2. Standard Orchestrator** (Automated Pipeline)
 
-**Status**: Disabled by default - Manual curation required
+```bash
+# Run complete pipeline for all categories
+python3 src/automation.py
 
-**Process**:
-1. Read all consolidated reports from `output/articles/`
-2. Manually select top 4-5 articles (see `MANUAL_CURATION_WORKFLOW.md`)
-3. Generate cover images with ImagineArt
-4. Update `/website/components/bali-zero-journal.tsx`
+# Run specific categories
+python3 src/automation.py --categories business,ai_tech,immigration
 
-**Why Manual**:
-- Quality control
-- Editorial oversight
-- Strategic content selection
-- Premium magazine feel
+# Skip stages (e.g., scraping already done)
+python3 src/automation.py --skip-stage1
+```
+
+**Features**:
+- Subprocess orchestration (Stage 1 → Stage 2)
+- Stage 2A (RAG) + Stage 2B (Content) run in parallel
+- Error handling and stats tracking
+- Category filtering
+- Skip stages for flexibility
+
+**When to use**: Regular automated updates, scheduled runs, CI/CD integration
 
 ---
 
-## 🎯 Key Features
+### **3. PRO Orchestrator** (Enterprise Features)
 
-### ✅ Consolidated Output
-- **ONE file per category** (no more scattered files)
-- Table of contents with anchor links
-- Metadata for each article (date, source, timestamp)
-- No redundancy or repetition
+```bash
+# Run PRO pipeline with all enhancements
+python3 src/orchestrator_pro.py
 
-### ✅ Quality Content
-- **800-1,100 words** per article (professional depth)
-- Structured sections: Executive Summary, Background, Impact Analysis, Action Items
-- SEO-optimized for journal posts
-- English language (Bali Zero team)
+# Custom quality threshold
+python3 src/orchestrator_pro.py --threshold 0.9
 
-### ✅ Scalable Architecture
-- Modular scripts (Stage 1, 2B separate)
-- Category-based organization
-- ChromaDB ready for RAG expansion
-- Ollama local (no API costs) or RunPod cloud
+# More retries for resilience
+python3 src/orchestrator_pro.py --retries 5
+
+# Specific categories
+python3 src/orchestrator_pro.py --categories business,ai_tech
+```
+
+**PRO Features**:
+- ✅ **Parallel scraping** - All 7 categories simultaneously (7x faster)
+- ✅ **Retry logic** - 3 automatic retries with exponential backoff
+- ✅ **Quality validation** - 80% threshold gate before deployment
+- ✅ **Real-time progress** - Visual progress bars per category
+- ✅ **Auto commit & deploy** - Automatic git push if quality passes
+- ✅ **Error resilience** - Continues on failures, comprehensive error tracking
+
+**When to use**: Production deployments, scheduled daily updates, zero-intervention automation
+
+**Slash Command**: `/intel-pro`
+
+**Documentation**: See `docs/ORCHESTRATOR_PRO.md` for detailed comparison and examples
 
 ---
 
 ## 🔧 Configuration
 
-### AI Backend
+### **Source URLs**
+
+Each category has a `.txt` file in `config/sources/` with source URLs:
+
+```txt
+# config/sources/business.txt
+# Business & Economy News
+# Update Frequency: Daily
+
+https://www.ft.com/world/asia-pacific
+https://www.economist.com/asia
+https://asia.nikkei.com/
+https://www.bloomberg.com/asia
+```
+
+**Format**: One URL per line, `#` for comments
+
+---
+
+### **AI Backend**
 
 **Ollama Local** (Default - Free):
 ```bash
@@ -201,114 +180,314 @@ export RUNPOD_LLAMA_ENDPOINT="https://..."
 export RUNPOD_API_KEY="your-key"
 ```
 
-### Quality Thresholds
+---
 
-Edit `scripts/stage2_parallel_processor.py`:
+### **Quality Thresholds**
+
+Edit `src/processor.py` or `src/orchestrator_pro.py`:
+
 ```python
-MAX_NEWS_AGE_DAYS = 5
-MIN_QUALITY_SCORE = 5.0
+# Scraper quality
 MIN_WORD_COUNT = 100
+MAX_NEWS_AGE_DAYS = 5
+
+# Orchestrator PRO quality gate
+QUALITY_THRESHOLD = 0.8  # 80% of files must pass validation
 ```
 
 ---
 
-## 📈 Performance Benchmarks
+## 📊 Data Flow
 
-**Immigration Category Test** (2 articles):
-- Stage 1 (Scraping): **8 seconds**
-- Stage 2B (AI Processing): **485 seconds** (~8 minutes)
-- Output: **1 consolidated file** (2,556 total words)
-
-**Expected Full Run** (6 categories, ~30 sources):
-- Stage 1: **~4 minutes**
-- Stage 2B: **~60 minutes** (sequential processing)
-- Output: **6 consolidated files** (~20,000+ words total)
+```
+1. Source URLs (config/sources/*.txt)
+   ↓
+2. Web Scraping (src/scraper.py)
+   ↓
+3. Raw Content (data/raw/{category}/*.md)
+   ↓
+4. RAG Processing (src/processor.py - Stage 2A)
+   ↓
+5. Vector DB (data/chromadb/)
+   ↓
+6. Content Generation (src/processor.py - Stage 2B)
+   ↓
+7. Consolidated Reports (data/processed/{category}_YYYYMMDD.md)
+   ↓
+8. Manual Curation (see docs/MANUAL_CURATION_WORKFLOW.md)
+   ↓
+9. Bali Zero Journal (website/components/bali-zero-journal.tsx)
+```
 
 ---
 
-## 🎨 Magazine Component
+## 📈 Performance
 
-**Location**: `/website/components/bali-zero-journal.tsx`
+### **Standard Pipeline** (automation.py)
+- **Stage 1** (Scraping): ~4-8 minutes for all categories
+- **Stage 2** (Processing): ~60-90 minutes (sequential)
+- **Output**: One consolidated file per category
 
-**Features**:
-- McKinsey-style asymmetric grid layout
-- Hero article (60% width)
-- Featured article (40% width)
-- Standard articles (50% width each)
-- Premium typography (text-5xl to text-8xl)
-- Breathing space design (gap-8, gap-10)
-- Maximum 4-5 curated articles
+### **PRO Pipeline** (orchestrator_pro.py)
+- **Stage 1** (Parallel Scraping): ~4-8 minutes (7 categories simultaneous)
+- **Stage 2** (Parallel Processing): ~60-90 minutes
+- **Retry logic**: Exponential backoff (1s, 2s, 4s)
+- **Quality validation**: ~5 seconds
+- **Auto deploy**: ~10-15 seconds
 
-**Integration**:
-```tsx
-import { BaliZeroJournal } from "@/components/bali-zero-journal"
+### **Benchmarks** (Immigration category, 2 articles)
+- Scraping: **8 seconds**
+- AI Processing: **8 minutes** (~240s per article)
+- Output: **1 file**, 2,556 words total
 
-export default function JournalPage() {
-  return <BaliZeroJournal />
-}
+---
+
+## 🛠️ Requirements
+
+### **System Dependencies**
+```bash
+# Python 3.11+
+python3 --version
+
+# Playwright for browser automation
+pip install playwright
+playwright install chromium
+
+# Ollama for local LLM
+brew install ollama
+ollama serve
+ollama pull llama3.1:8b
 ```
+
+### **Python Packages**
+```bash
+pip install -r requirements.txt
+```
+
+**Key packages**: `playwright`, `crawl4ai`, `chromadb`, `anthropic`, `beautifulsoup4`
 
 ---
 
 ## 🔄 Recommended Schedule
 
-**Daily** (Automated):
-- Run Stage 1 + 2B for all categories
-- Generate consolidated reports
+### **Daily** (Automated - Cron)
+```bash
+# 6 PM daily - PRO orchestrator
+0 18 * * * cd /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY && python3 website/INTEL_SCRAPING/src/orchestrator_pro.py
+```
 
-**Weekly** (Manual):
-- Review all category reports
-- Select top 4-5 articles for magazine
-- Generate cover images
-- Update magazine component
-- Deploy
+### **Weekly** (Manual)
+1. Review `data/processed/` consolidated reports
+2. Select top 4-5 articles for magazine
+3. Generate cover images (ImagineArt)
+4. Update `website/components/bali-zero-journal.tsx`
+5. Deploy
 
-**Emergency** (Ad-hoc):
-- For CRITICAL news: scrape + process + publish within 24h
+### **Emergency** (Ad-hoc)
+For critical breaking news: scrape → process → publish within 24h
 
 ---
 
-## 📚 Additional Documentation
+## 🎨 Integration with Bali Zero Journal
 
-- **Manual Curation**: See `MANUAL_CURATION_WORKFLOW.md`
-- **Source Configuration**: See `config/sites/SITI_*.txt` examples
-- **API Documentation**: See script headers in `scripts/`
+**Component**: `/website/components/bali-zero-journal.tsx`
+
+**Features**:
+- McKinsey-style asymmetric grid
+- Hero article (60% width), Featured (40%), Standard (50% each)
+- Premium typography (text-5xl to text-8xl)
+- Maximum 4-5 curated articles
+
+**Manual Curation**: See `docs/MANUAL_CURATION_WORKFLOW.md`
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Playwright Browser Not Installed
+### **Playwright Browser Not Installed**
 ```bash
 playwright install chromium
 ```
 
-### Ollama Not Running
+### **Ollama Not Running**
 ```bash
+# Start Ollama service
 ollama serve
+
+# Pull model
 ollama pull llama3.1:8b
+
+# Test
+curl http://localhost:11434/api/generate -d '{"model":"llama3.1:8b","prompt":"Hello","stream":false}'
 ```
 
-### Category Detection Issues
-Raw files must be organized: `raw/{category}/*.md`
+### **Quality Validation Failing**
+- Check `data/raw/{category}/*.md` files have:
+  - Title starting with `#`
+  - URL metadata
+  - Minimum 500 characters
+- Lower threshold: `--threshold 0.6` (60%)
 
-### Timeout Errors
-- Reduce `max_tokens` in `stage2_parallel_processor.py`
-- Use sequential processing (already default)
+### **Scraping Timeouts**
+- Increase timeout in `src/scraper.py`
+- Check source URLs are accessible
+- Verify Playwright is installed
+
+### **Processing Errors**
 - Check Ollama is running: `curl http://localhost:11434`
+- Verify AI backend environment variables
+- Check logs in `logs/` directory
 
 ---
 
-## 🎯 Next Steps
+## 📚 Documentation
 
-1. ✅ Setup SITI configuration files for all categories
-2. ✅ Schedule daily scraping (cron or GitHub Actions)
-3. ✅ Integrate ChromaDB RAG for semantic search
-4. ✅ Build magazine archive page (`/journal/archive`)
-5. ✅ Setup email distribution to Bali Zero team
+- **PRO Orchestrator**: `docs/ORCHESTRATOR_PRO.md` - Detailed feature comparison and usage
+- **Manual Curation**: `docs/MANUAL_CURATION_WORKFLOW.md` - Magazine publishing guide
+- **Source Configuration**: `config/sources/*.txt` - URL lists by category
+- **Slash Commands**: `.claude/commands/intel-pro.md` - Claude Code integration
 
 ---
 
-**Version**: 2.0
-**Last Updated**: 2025-10-24
-**Maintainer**: Bali Zero Intelligence Team
+## 🎯 Categories
+
+1. **AI & Technology** (`ai_tech`) - Latest AI news, LLM updates, tech breakthroughs
+2. **Business & Economy** (`business`) - Financial news, market trends, startups
+3. **Visa & Immigration** (`immigration`) - Visa types, requirements, regulations
+4. **Lifestyle & Culture** (`lifestyle`) - Expat life, culture, travel, dining
+5. **Real Estate** (`property`) - Property market, rentals, buying guides
+6. **Safety & Security** (`safety`) - Travel advisories, health, crime, emergencies
+7. **Tax & Legal** (`tax_legal`) - Tax compliance, legal requirements, regulations
+
+---
+
+## 🔐 Git Integration
+
+**Auto Commit** (PRO Orchestrator only):
+- Automatically commits `data/processed/` if quality passes
+- Message format:
+  ```
+  Intel Scraping: Auto-update 2025-10-25 18:00
+
+  Categories: business, immigration, ai_tech
+  Articles: 15
+
+  🤖 Generated with Claude Code
+  Co-Authored-By: Claude <noreply@anthropic.com>
+  ```
+
+**Auto Push**: Deploys to Railway after successful commit
+
+**Manual Git**:
+```bash
+git add website/INTEL_SCRAPING/data/processed/
+git commit -m "Intel update: business and immigration reports"
+git push
+```
+
+---
+
+## 📊 System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     INTEL SCRAPING SYSTEM                    │
+└─────────────────────────────────────────────────────────────┘
+
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   Mode 1:    │    │   Mode 2:    │    │   Mode 3:    │
+│  Individual  │    │   Standard   │    │     PRO      │
+│   Scripts    │    │ Orchestrator │    │ Orchestrator │
+└──────────────┘    └──────────────┘    └──────────────┘
+      │                    │                    │
+      │                    │                    │
+      ↓                    ↓                    ↓
+┌─────────────────────────────────────────────────────────┐
+│              STAGE 1: WEB SCRAPING                       │
+│  • Playwright browser automation                        │
+│  • JavaScript rendering support                         │
+│  • Quality filters (word count, date)                   │
+│  • Output: data/raw/{category}/*.md                     │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│         STAGE 2A: RAG PROCESSING (Optional)             │
+│  • Semantic extraction                                  │
+│  • ChromaDB embeddings                                  │
+│  • Quality scoring                                      │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│         STAGE 2B: CONTENT GENERATION                    │
+│  • Llama 3.1 8B (Ollama local or RunPod cloud)         │
+│  • Consolidated reports (one per category)             │
+│  • Structured sections, metadata, TOC                  │
+│  • Output: data/processed/{category}_YYYYMMDD.md       │
+└─────────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────┐
+│            MANUAL CURATION & PUBLISHING                 │
+│  • Review consolidated reports                          │
+│  • Select top 4-5 articles                              │
+│  • Generate cover images                                │
+│  • Update Bali Zero Journal component                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚦 Exit Codes
+
+**Standard Orchestrator** (`automation.py`):
+- `0` - Success (all stages completed)
+- `1` - Failure (any stage failed)
+
+**PRO Orchestrator** (`orchestrator_pro.py`):
+- `0` - Success (quality passed, deployed)
+- `1` - Failure (scraping failed OR quality below threshold)
+
+---
+
+## 📝 Version History
+
+**Version 3.0** (2025-10-25)
+- Reorganized directory structure (src/, docs/, config/sources/)
+- Added PRO orchestrator with retry logic and quality validation
+- Parallel scraping for all categories
+- Auto commit and deploy functionality
+- Real-time progress tracking
+
+**Version 2.0** (2025-10-24)
+- Consolidated output (one file per category)
+- Standard orchestrator with parallel Stage 2 processing
+- ChromaDB integration for RAG
+- Magazine component integration
+
+**Version 1.0** (2025-10-20)
+- Initial web scraping pipeline
+- Basic AI processing
+- Manual workflow
+
+---
+
+## 🤖 Claude Code Integration
+
+**Slash Commands**:
+- `/intel-pro` - Run PRO orchestrator with all enhancements
+
+**Hooks**: Auto-commit on successful runs (PRO mode only)
+
+**MCP Integration**: Browser automation via Puppeteer MCP server
+
+---
+
+## 👥 Maintainers
+
+**Bali Zero Intelligence Team**
+- Project: Nuzantara (Bali relocation intelligence platform)
+- Contact: zero@balizero.com
+
+---
+
+**Last Updated**: 2025-10-25
+**Version**: 3.0
