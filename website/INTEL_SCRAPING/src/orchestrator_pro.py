@@ -13,11 +13,13 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import json
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Import shared config
+from config import CATEGORY_ICONS, Colors, get_category_icon, get_colored_bar, validate_config, log_performance_metrics, setup_rotating_logger
+from health_check import generate_health_check
+from email_report import generate_html_report, save_html_report
+
+# Setup rotating logger (10MB max, 5 backups)
+logger = setup_rotating_logger('orchestrator_pro', max_bytes=10*1024*1024, backup_count=5)
 
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
@@ -45,19 +47,26 @@ class ProgressTracker:
             done = stats['completed']
             if total > 0:
                 pct = (done / total) * 100
-                bar_len = 10
-                filled = int(bar_len * done / total)
-                bar = '█' * filled + '░' * (bar_len - filled)
-                logger.info(f"{cat:15} [{bar}] {pct:5.1f}% ({done}/{total})")
+                # Use colored progress bar from config
+                bar = get_colored_bar(done, total, length=10)
+                # Add emoji icon
+                icon = get_category_icon(cat)
+                logger.info(f"{icon} {cat:15} [{bar}] {pct:5.1f}% ({done}/{total})")
 
 
 class QualityValidator:
     """Validate scraped content quality"""
 
     @staticmethod
-    def validate_files(category: str, threshold: float = 0.8) -> Tuple[float, Dict]:
-        """Check quality of scraped files"""
-        raw_dir = DATA_DIR / "raw" / category
+    def validate_files(category: str, run_date: str, threshold: float = 0.8) -> Tuple[float, Dict]:
+        """Check quality of scraped files
+
+        Args:
+            category: Category name
+            run_date: Date string in YYYY-MM-DD format
+            threshold: Quality threshold (0.0-1.0)
+        """
+        raw_dir = DATA_DIR / "raw" / run_date / category
 
         if not raw_dir.exists():
             return 0.0, {'error': 'Directory not found'}
@@ -96,14 +105,17 @@ class QualityValidator:
 class ProOrchestrator:
     """PRO orchestrator with enhanced features"""
 
-    def __init__(self, categories: Optional[List[str]] = None):
+    def __init__(self, categories: Optional[List[str]] = None, run_date: Optional[str] = None):
         self.categories = categories or self._discover_categories()
+        self.run_date = run_date or datetime.now().strftime('%Y-%m-%d')  # Default to today
         self.max_retries = 3
         self.quality_threshold = 0.8
         self.stats = {
             'start_time': datetime.now(),
+            'run_date': self.run_date,
             'categories': {},
             'total_articles': 0,
+            'category_durations': {},  # Track duration per category
             'errors': []
         }
 
@@ -123,14 +135,18 @@ class ProOrchestrator:
 
         async def scrape_with_retry(category: str) -> Dict:
             """Scrape with exponential backoff retry"""
+            icon = get_category_icon(category)
+            category_start = time.time()  # Track category duration
+
             for attempt in range(self.max_retries):
                 try:
-                    logger.info(f"[{category}] Attempt {attempt + 1}/{self.max_retries}")
+                    logger.info(f"{icon} [{category.upper()}] Attempt {attempt + 1}/{self.max_retries}")
 
                     cmd = [
                         sys.executable,
                         str(SCRIPT_DIR / "scraper.py"),
-                        "--categories", category
+                        "--categories", category,
+                        "--date", self.run_date
                     ]
 
                     result = await asyncio.create_subprocess_exec(
@@ -142,17 +158,22 @@ class ProOrchestrator:
                     stdout, stderr = await result.wait()
 
                     if result.returncode == 0:
-                        # Count scraped files
-                        raw_dir = DATA_DIR / "raw" / category
+                        # Count scraped files from dated directory
+                        raw_dir = DATA_DIR / "raw" / self.run_date / category
                         files = list(raw_dir.glob("*.md")) if raw_dir.exists() else []
 
                         tracker.update(category, completed=len(files))
+
+                        # Track duration
+                        duration = time.time() - category_start
+                        self.stats['category_durations'][category] = duration
 
                         return {
                             'category': category,
                             'success': True,
                             'files': len(files),
-                            'attempts': attempt + 1
+                            'attempts': attempt + 1,
+                            'duration': duration
                         }
 
                     # Retry with exponential backoff
@@ -166,10 +187,15 @@ class ProOrchestrator:
                     if attempt < self.max_retries - 1:
                         await asyncio.sleep(2 ** attempt)
 
+            # Track duration even on failure
+            duration = time.time() - category_start
+            self.stats['category_durations'][category] = duration
+
             return {
                 'category': category,
                 'success': False,
-                'error': 'Max retries exceeded'
+                'error': 'Max retries exceeded',
+                'duration': duration
             }
 
         # Run all categories in parallel
@@ -197,10 +223,21 @@ class ProOrchestrator:
         all_valid = True
 
         for category in self.categories:
-            quality, stats = QualityValidator.validate_files(category, self.quality_threshold)
+            quality, stats = QualityValidator.validate_files(category, self.run_date, self.quality_threshold)
 
             status = "✅" if quality >= self.quality_threshold else "❌"
-            logger.info(f"{status} {category:15} Quality: {quality:.1%} ({stats.get('valid_files', 0)}/{stats.get('total_files', 0)} files)")
+            icon = get_category_icon(category)
+            logger.info(f"{status} {icon} {category:15} Quality: {quality:.1%} ({stats.get('valid_files', 0)}/{stats.get('total_files', 0)} files)")
+
+            # Log performance metrics for this category
+            duration = self.stats.get('category_durations', {}).get(category, 0)
+            log_performance_metrics(
+                run_date=self.run_date,
+                category=category,
+                duration=duration,
+                articles=stats.get('valid_files', 0),
+                quality_score=quality
+            )
 
             if quality < self.quality_threshold:
                 all_valid = False
@@ -215,10 +252,13 @@ class ProOrchestrator:
         logger.info("=" * 80)
 
         try:
+            # Pass dated raw directory to processor
+            raw_dir = DATA_DIR / "raw" / self.run_date
             cmd = [
                 sys.executable,
                 str(SCRIPT_DIR / "processor.py"),
-                str(DATA_DIR / "raw")
+                str(raw_dir),
+                "--date", self.run_date
             ]
 
             process = await asyncio.create_subprocess_exec(
@@ -290,10 +330,18 @@ Co-Authored-By: Claude <noreply@anthropic.com>"""
         logger.info("=" * 80)
         logger.info("INTEL SCRAPING PRO ORCHESTRATOR")
         logger.info("=" * 80)
+        logger.info(f"Run date: {self.run_date}")
         logger.info(f"Categories: {', '.join(self.categories)}")
         logger.info(f"Quality threshold: {self.quality_threshold:.0%}")
         logger.info(f"Max retries: {self.max_retries}")
         logger.info("")
+
+        # Pre-flight configuration validation
+        logger.info("🔍 Validating configuration...")
+        if not validate_config(verbose=False):
+            logger.error("❌ Configuration validation failed. Aborting.")
+            return False
+        logger.info("✅ Configuration valid\n")
 
         # Step 1: Parallel scraping with retry
         scrape_results = await self.run_parallel_scraping()
@@ -332,6 +380,40 @@ Co-Authored-By: Claude <noreply@anthropic.com>"""
         logger.info(f"Deployment: {'✅ Success' if deploy_success else '❌ Failed'}")
         logger.info("=" * 80)
 
+        # Update stats for health check
+        self.stats['duration'] = duration
+        self.stats['total_articles'] = scrape_results['success_count']
+        self.stats['stages'] = {
+            'scraping': {
+                'success': scrape_results['success_count'] > 0,
+                'articles_scraped': scrape_results['success_count']
+            },
+            'processing': {
+                'success': process_result['success'],
+                'stage_2b_created': scrape_results['success_count']  # Approximate
+            }
+        }
+
+        # Generate health check file
+        generate_health_check(
+            run_date=self.run_date,
+            categories=self.categories,
+            stats=self.stats,
+            success=(quality_passed and deploy_success),
+            errors=self.stats.get('errors', [])
+        )
+
+        # Generate HTML email report
+        html_report = generate_html_report(
+            run_date=self.run_date,
+            categories=self.categories,
+            stats=self.stats,
+            success=(quality_passed and deploy_success),
+            errors=self.stats.get('errors', [])
+        )
+        report_file = save_html_report(html_report)
+        logger.info(f"✅ HTML report saved: {report_file}")
+
         return quality_passed and deploy_success
 
 
@@ -342,12 +424,13 @@ async def main():
     parser.add_argument('--categories', type=str, help='Comma-separated categories')
     parser.add_argument('--threshold', type=float, default=0.8, help='Quality threshold (default: 0.8)')
     parser.add_argument('--retries', type=int, default=3, help='Max retries (default: 3)')
+    parser.add_argument('--date', type=str, help='Run date in YYYY-MM-DD format (default: today)')
 
     args = parser.parse_args()
 
     categories = args.categories.split(',') if args.categories else None
 
-    orchestrator = ProOrchestrator(categories=categories)
+    orchestrator = ProOrchestrator(categories=categories, run_date=args.date)
     orchestrator.quality_threshold = args.threshold
     orchestrator.max_retries = args.retries
 

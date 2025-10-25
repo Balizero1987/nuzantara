@@ -1,8 +1,19 @@
 "use client"
 
+import { useEffect, useRef } from "react"
+
 export function HeroSection() {
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch((error) => {
+        console.log("Autoplay prevented:", error)
+      })
+    }
+  }, [])
   return (
-    <section className="pt-56 md:pt-64 lg:pt-72 pb-16 px-4 md:px-6 lg:px-8 bg-black">
+    <section className="pt-56 md:pt-64 lg:pt-72 pb-16 md:pb-20 lg:pb-24 px-4 md:px-6 lg:px-8 bg-black">
       <div className="max-w-7xl mx-auto lg:px-[8%]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
@@ -38,28 +49,25 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Visual - Animated Video */}
-          <div className="relative h-96 md:h-full min-h-96">
-            <div className="absolute inset-0 bg-gradient-to-br from-red/30 via-transparent to-blue-500/20 rounded-lg overflow-hidden">
-              <video
-                key="hero-video-2"
-                src="/ruota2.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-                className="w-full h-full object-contain vibrant-image"
-                onLoadedData={(e) => {
-                  const video = e.currentTarget;
-                  video.play().catch(err => console.log("Video autoplay blocked:", err));
-                }}
-              />
-              <div className="absolute inset-0 bg-black/20"></div>
+          {/* Right Visual - Garuda Video */}
+          <div className="relative h-96 md:h-full min-h-[500px] rounded-lg overflow-hidden">
+            {/* Vivid Black Background - Palette ufficiale */}
+            <div className="absolute inset-0 bg-[#090920]"></div>
 
-              {/* Watermark cover */}
-              <div className="absolute bottom-0 right-0 w-32 h-12 bg-gradient-to-tl from-black via-black/90 to-transparent z-10"></div>
-            </div>
+            {/* Video Garuda */}
+            <video
+              ref={videoRef}
+              className="absolute inset-0 w-full h-full object-contain"
+              autoPlay
+              loop
+              muted
+              playsInline
+            >
+              <source src="/garuda.mp4" type="video/mp4" />
+            </video>
+
+            {/* Overlay finale per profondità */}
+            <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
           </div>
         </div>
       </div>

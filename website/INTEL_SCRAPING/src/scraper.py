@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 # Paths
 SCRIPT_DIR = Path(__file__).parent
 SITES_DIR = SCRIPT_DIR.parent / "config" / "sources"
-OUTPUT_BASE = SCRIPT_DIR.parent / "data" / "raw"
+DATA_DIR = SCRIPT_DIR.parent / "data"
 
 # Scraping settings
 MAX_CONCURRENT = 12  # Concurrent scrapes per category (increased for speed)
@@ -224,9 +224,16 @@ async def scrape_category(category_key: str, sites: List[Dict], browser: Browser
     return results
 
 
-def save_results(results: List[Dict], category: str):
-    """Save scraping results as markdown files."""
-    output_dir = OUTPUT_BASE / category
+def save_results(results: List[Dict], category: str, run_date: str):
+    """Save scraping results as markdown files organized by date.
+
+    Args:
+        results: List of scraping results
+        category: Category name (e.g., 'business', 'immigration')
+        run_date: Date string in YYYY-MM-DD format
+    """
+    # Create dated directory structure: data/raw/YYYY-MM-DD/category/
+    output_dir = DATA_DIR / "raw" / run_date / category
     output_dir.mkdir(parents=True, exist_ok=True)
 
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -251,6 +258,7 @@ def save_results(results: List[Dict], category: str):
 **Published**: {published_date_str}
 **Scraped**: {result['timestamp']}
 **Category**: {category}
+**Run Date**: {run_date}
 
 ---
 
@@ -262,16 +270,22 @@ def save_results(results: List[Dict], category: str):
     logger.info(f"[{category.upper()}] Saved {len([r for r in results if r.get('success')])} files to {output_dir}")
 
 
-async def main(category_filter: Optional[List[str]] = None):
+async def main(category_filter: Optional[List[str]] = None, run_date: Optional[str] = None):
     """Main scraping orchestrator.
 
     Args:
         category_filter: Optional list of category keys to scrape (e.g. ['immigration', 'tax'])
                         If None, scrapes all categories.
+        run_date: Optional date string in YYYY-MM-DD format. If None, uses today's date.
     """
+    # Get run date (today by default)
+    if run_date is None:
+        run_date = datetime.now().strftime('%Y-%m-%d')
+
     logger.info("=" * 70)
     logger.info("INTEL AUTOMATION - STAGE 1: SCRAPING")
     logger.info(f"Starting at: {datetime.now()}")
+    logger.info(f"Run date: {run_date}")
     if category_filter:
         logger.info(f"Category filter: {', '.join(category_filter)}")
     logger.info("=" * 70)
@@ -314,8 +328,8 @@ async def main(category_filter: Optional[List[str]] = None):
             # Scrape category
             results = await scrape_category(category, sites, browser)
 
-            # Save results
-            save_results(results, category)
+            # Save results to dated directory
+            save_results(results, category, run_date)
 
             # Update stats
             successful = len([r for r in results if r.get('success')])
@@ -328,13 +342,15 @@ async def main(category_filter: Optional[List[str]] = None):
         await browser.close()
 
     # Final report
+    output_path = DATA_DIR / "raw" / run_date
     logger.info("")
     logger.info("=" * 70)
     logger.info("SCRAPING COMPLETE")
     logger.info("=" * 70)
+    logger.info(f"Run date: {run_date}")
     logger.info(f"Total successful: {total_scraped}")
     logger.info(f"Total failed: {total_failed}")
-    logger.info(f"Output directory: {OUTPUT_BASE}")
+    logger.info(f"Output directory: {output_path}")
     logger.info("=" * 70)
 
     return 0 if total_scraped > 0 else 1
@@ -349,6 +365,11 @@ if __name__ == '__main__':
         type=str,
         help='Comma-separated list of categories to scrape (e.g., "immigration,tax,business")'
     )
+    parser.add_argument(
+        '--date',
+        type=str,
+        help='Run date in YYYY-MM-DD format (default: today)'
+    )
 
     args = parser.parse_args()
 
@@ -356,5 +377,7 @@ if __name__ == '__main__':
     if args.categories:
         category_filter = [cat.strip().lower() for cat in args.categories.split(',')]
 
-    exit_code = asyncio.run(main(category_filter=category_filter))
+    run_date = args.date  # None if not specified (will use today)
+
+    exit_code = asyncio.run(main(category_filter=category_filter, run_date=run_date))
     sys.exit(exit_code)

@@ -307,3 +307,340 @@ body::before {
   opacity: 0;
   animation: fade-in 0.8s ease-out 0.3s forwards;
 }
+
+/* Animated Background - Particelle e Ingranaggi */
+.particles-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: float-particle linear infinite;
+}
+
+.particle-red {
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(255, 0, 0, 0.6) 0%, rgba(255, 0, 0, 0.1) 70%);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+}
+
+.particle-gold {
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.5) 0%, rgba(212, 175, 55, 0.1) 70%);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.particle-cream {
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba(232, 213, 183, 0.4) 0%, rgba(232, 213, 183, 0.1) 70%);
+  box-shadow: 0 0 10px rgba(232, 213, 183, 0.2);
+}
+
+@keyframes float-particle {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(
+      calc(var(--random-x, 50px) - 25px),
+      calc(var(--random-y, -100vh) - 50px)
+    ) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Ingranaggi animati */
+.gear-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+}
+
+.gear {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+}
+
+.gear-outer {
+  transform: translate(-50%, -50%);
+  animation: rotate-slow 60s linear infinite;
+}
+
+.gear-middle {
+  transform: translate(-50%, -50%);
+  animation: rotate-medium-reverse 40s linear infinite reverse;
+}
+
+.gear-inner {
+  transform: translate(-50%, -50%);
+  animation: rotate-fast 20s linear infinite;
+}
+
+@keyframes rotate-slow {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes rotate-medium-reverse {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+}
+
+@keyframes rotate-fast {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Linee connettive animate */
+.connecting-line {
+  animation: pulse-line 3s ease-in-out infinite;
+}
+
+@keyframes pulse-line {
+  0%, 100% {
+    stroke-opacity: 0.1;
+  }
+  50% {
+    stroke-opacity: 0.3;
+  }
+}
+
+/* Particelle Rainbow - cambiano colore continuamente */
+.particle-rainbow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(3px);
+  animation: rainbow-float 15s ease-in-out infinite, rainbow-color 5s linear infinite;
+}
+
+@keyframes rainbow-color {
+  0% {
+    background: radial-gradient(circle, rgba(255, 0, 0, 0.9) 0%, rgba(255, 0, 0, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.8), 0 0 50px rgba(255, 0, 0, 0.4);
+  }
+  14% {
+    background: radial-gradient(circle, rgba(255, 127, 0, 0.9) 0%, rgba(255, 127, 0, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(255, 127, 0, 0.8), 0 0 50px rgba(255, 127, 0, 0.4);
+  }
+  28% {
+    background: radial-gradient(circle, rgba(255, 255, 0, 0.9) 0%, rgba(255, 255, 0, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(255, 255, 0, 0.8), 0 0 50px rgba(255, 255, 0, 0.4);
+  }
+  42% {
+    background: radial-gradient(circle, rgba(0, 255, 0, 0.9) 0%, rgba(0, 255, 0, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.8), 0 0 50px rgba(0, 255, 0, 0.4);
+  }
+  57% {
+    background: radial-gradient(circle, rgba(0, 127, 255, 0.9) 0%, rgba(0, 127, 255, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(0, 127, 255, 0.8), 0 0 50px rgba(0, 127, 255, 0.4);
+  }
+  71% {
+    background: radial-gradient(circle, rgba(75, 0, 130, 0.9) 0%, rgba(75, 0, 130, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(75, 0, 130, 0.8), 0 0 50px rgba(75, 0, 130, 0.4);
+  }
+  85% {
+    background: radial-gradient(circle, rgba(148, 0, 211, 0.9) 0%, rgba(148, 0, 211, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(148, 0, 211, 0.8), 0 0 50px rgba(148, 0, 211, 0.4);
+  }
+  100% {
+    background: radial-gradient(circle, rgba(255, 0, 0, 0.9) 0%, rgba(255, 0, 0, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.8), 0 0 50px rgba(255, 0, 0, 0.4);
+  }
+}
+
+@keyframes rainbow-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -30px) scale(1.2);
+  }
+  50% {
+    transform: translate(-20px, -60px) scale(0.8);
+  }
+  75% {
+    transform: translate(40px, -90px) scale(1.1);
+  }
+}
+
+/* Rainbow stroke effect per ingranaggi */
+.rainbow-stroke {
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+}
+
+/* GARUDA ANIMATION - Spirale Armonica */
+.particle-spiral {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: spiral-motion 12s linear infinite;
+}
+
+.particle-spiral-red {
+  background: radial-gradient(circle, rgba(255, 0, 0, 1) 0%, rgba(255, 0, 0, 0.6) 70%);
+  box-shadow: 0 0 25px rgba(255, 0, 0, 1), 0 0 40px rgba(255, 0, 0, 0.6), 0 0 60px rgba(255, 0, 0, 0.3);
+}
+
+.particle-spiral-white {
+  background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 70%);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.6), 0 0 60px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes spiral-motion {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0.5);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(
+      calc(var(--spiral-x, 0px) * 2),
+      calc(var(--spiral-y, 0px) * 2)
+    ) rotate(360deg) scale(1.2);
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+      calc(var(--spiral-x, 0px) * 4),
+      calc(var(--spiral-y, 0px) * 4)
+    ) rotate(720deg) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* Garuda SVG Animations */
+.garuda-svg {
+  animation: garuda-float 8s ease-in-out infinite, garuda-glow 3s ease-in-out infinite;
+}
+
+@keyframes garuda-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+
+@keyframes garuda-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 40px rgba(255, 0, 0, 0.6)) drop-shadow(0 0 60px rgba(212, 175, 55, 0.4));
+  }
+}
+
+/* Ali del Garuda - Battito */
+.garuda-wing-right {
+  animation: wing-flap-right 3s ease-in-out infinite;
+  transform-origin: 350px 280px;
+}
+
+.garuda-wing-left {
+  animation: wing-flap-left 3s ease-in-out infinite;
+  transform-origin: 250px 280px;
+}
+
+@keyframes wing-flap-right {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes wing-flap-left {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-10deg);
+  }
+}
+
+/* Anelli di energia concentrici */
+.energy-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: ring-pulse 4s ease-out infinite;
+}
+
+.ring-1 {
+  width: 300px;
+  height: 300px;
+  border-color: rgba(255, 0, 0, 0.7);
+  border-width: 3px;
+  animation-delay: 0s;
+}
+
+.ring-2 {
+  width: 450px;
+  height: 450px;
+  border-color: rgba(255, 255, 255, 0.5);
+  border-width: 2px;
+  animation-delay: 1.3s;
+}
+
+.ring-3 {
+  width: 600px;
+  height: 600px;
+  border-color: rgba(212, 175, 55, 0.6);
+  border-width: 2px;
+  animation-delay: 2.6s;
+}
+
+@keyframes ring-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}

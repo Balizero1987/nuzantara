@@ -1,0 +1,36 @@
+{
+  "description": "Source priority and fallback configuration",
+  "categories": {
+    "business": {
+      "priority_order": ["primary", "secondary", "fallback"],
+      "sources": {
+        "primary": [
+          "https://example.com/business-feed-1",
+          "https://example.com/business-feed-2"
+        ],
+        "secondary": [
+          "https://example.com/business-backup"
+        ],
+        "fallback": [
+          "https://example.com/business-rss"
+        ]
+      }
+    },
+    "immigration": {
+      "priority_order": ["primary", "secondary"],
+      "sources": {
+        "primary": [
+          "https://example.com/immigration-news"
+        ],
+        "secondary": [
+          "https://example.com/visa-updates"
+        ]
+      }
+    }
+  },
+  "notes": [
+    "Primary sources are tried first",
+    "If primary fails, secondary sources are used",
+    "Fallback sources are used as last resort"
+  ]
+}

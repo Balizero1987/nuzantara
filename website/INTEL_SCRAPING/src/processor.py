@@ -729,15 +729,24 @@ IMPORTANT: Make this article engaging, informative, and genuinely helpful. Use a
         return journal_post
 
 
-async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = False) -> Dict[str, Any]:
+async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = False, run_date: Optional[str] = None) -> Dict[str, Any]:
     """Run Stage 2A in parallel, then 2B consolidated, optionally 2C
+
+    Args:
+        raw_files: List of raw markdown files to process
+        enable_journal: Enable Stage 2C journal generation
+        run_date: Date string in YYYY-MM-DD format for organizing output (default: today)
 
     - 2A (RAG): Parallel processing
     - 2B (Content): Consolidated markdown per category
     - 2C (Journal): Optional, only if enabled
     """
+    # Get run date (today by default)
+    if run_date is None:
+        run_date = datetime.now().strftime('%Y-%m-%d')
 
     logger.info(f"Starting Stage 2 processing for {len(raw_files)} files (Journal: {'Enabled' if enable_journal else 'Disabled'})")
+    logger.info(f"Run date: {run_date}")
 
     start_time = datetime.now()
 
@@ -841,8 +850,8 @@ async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = Fals
         if articles:
             consolidated_report = await stage_2b.create_consolidated_report(articles, category)
 
-            # Save consolidated report
-            output_dir = PROJECT_ROOT / "data" / "processed"
+            # Save consolidated report to dated directory: data/processed/YYYY-MM-DD/
+            output_dir = PROJECT_ROOT / "data" / "processed" / run_date
             output_dir.mkdir(parents=True, exist_ok=True)
 
             datestamp = datetime.now().strftime("%Y%m%d")
@@ -860,7 +869,7 @@ async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = Fals
         logger.info("Phase 3: Running Stage 2C (Bali Zero Journal)...")
         for category, files in files_by_category.items():
             for raw_file in files:
-                await process_stage_2c(stage_2c, raw_file, category, results)
+                await process_stage_2c(stage_2c, raw_file, category, results, run_date)
 
         logger.info(f"✅ Phase 3 complete: {results['stage_2c']['created']} blog posts created")
     else:
@@ -909,15 +918,23 @@ async def process_stage_2a(processor: Stage2AProcessor, raw_file: Path, category
 # as it creates consolidated reports per category
 
 
-async def process_stage_2c(processor: Stage2CProcessor, raw_file: Path, category: str, results: Dict):
-    """Process single file for Stage 2C (Bali Zero Journal)"""
+async def process_stage_2c(processor: Stage2CProcessor, raw_file: Path, category: str, results: Dict, run_date: str):
+    """Process single file for Stage 2C (Bali Zero Journal)
+
+    Args:
+        processor: Stage2CProcessor instance
+        raw_file: Path to raw markdown file
+        category: Category name
+        results: Results dictionary
+        run_date: Date string in YYYY-MM-DD format
+    """
 
     try:
         journal_post = await processor.create_journal_post(raw_file, category)
 
         if journal_post:
-            # Save Bali Zero Journal post
-            journal_dir = PROJECT_ROOT / "data" / "journal"
+            # Save Bali Zero Journal post to dated directory: data/journal/YYYY-MM-DD/
+            journal_dir = PROJECT_ROOT / "data" / "journal" / run_date
             journal_dir.mkdir(parents=True, exist_ok=True)
 
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -943,6 +960,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Stage 2 Intel Processor")
     parser.add_argument("raw_dir", nargs='?', help="Directory containing raw markdown files")
     parser.add_argument("--enable-journal", action="store_true", help="Enable Stage 2C Journal generation")
+    parser.add_argument("--date", type=str, help="Run date in YYYY-MM-DD format (default: today)")
 
     args = parser.parse_args()
 
@@ -950,13 +968,17 @@ if __name__ == "__main__":
         test_dir = Path(args.raw_dir)
         raw_files = list(test_dir.rglob("*.md"))
 
+        run_date = args.date  # None if not specified (will use today)
+
         print(f"Testing with {len(raw_files)} files from {test_dir}")
         print(f"Journal generation: {'Enabled' if args.enable_journal else 'Disabled'}")
+        print(f"Run date: {run_date or 'today'}")
 
-        results = asyncio.run(run_stage2_parallel(raw_files, enable_journal=args.enable_journal))
+        results = asyncio.run(run_stage2_parallel(raw_files, enable_journal=args.enable_journal, run_date=run_date))
 
         print(json.dumps(results, indent=2))
     else:
-        print("Usage: python3 stage2_parallel_processor.py <raw_files_dir> [--enable-journal]")
+        print("Usage: python3 stage2_parallel_processor.py <raw_files_dir> [--enable-journal] [--date YYYY-MM-DD]")
         print("Example: python3 stage2_parallel_processor.py INTEL_SCRAPING/raw/")
         print("         python3 stage2_parallel_processor.py INTEL_SCRAPING/raw/ --enable-journal")
+        print("         python3 stage2_parallel_processor.py INTEL_SCRAPING/raw/ --date 2025-10-25")

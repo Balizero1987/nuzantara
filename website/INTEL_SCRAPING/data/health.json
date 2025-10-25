@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-10-25 22:52:35",
+  "run_date": "2025-10-25",
+  "status": "OK",
+  "success": true,
+  "categories": [
+    "business",
+    "immigration",
+    "ai_tech"
+  ],
+  "stats": {
+    "total_articles": 45,
+    "articles_scraped": 45,
+    "articles_processed": 42,
+    "quality_score": 93.33333333333333,
+    "duration": 287.3
+  },
+  "errors": []
+}

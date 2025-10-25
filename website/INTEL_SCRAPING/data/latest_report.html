@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #28a745;
+        }
+        .status {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .stats {
+            margin: 20px 0;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .stat-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .stat-value {
+            color: #333;
+        }
+        .categories {
+            margin: 20px 0;
+        }
+        .category-item {
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #f8f9fa;
+            border-left: 3px solid #28a745;
+            border-radius: 3px;
+        }
+        .errors {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+        }
+        .error-item {
+            padding: 5px 0;
+            color: #856404;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 12px;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #28a745;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            line-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Intel Scraping Report</h1>
+            <div class="status">SUCCESS ✅</div>
+        </div>
+
+        <div class="stats">
+            <h2>📊 Run Statistics</h2>
+
+            <div class="stat-row">
+                <span class="stat-label">Run Date</span>
+                <span class="stat-value">2025-10-25</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">Completed At</span>
+                <span class="stat-value">2025-10-25 22:52:39</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">Duration</span>
+                <span class="stat-value">287.3s (4.8 min)</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">Articles Scraped</span>
+                <span class="stat-value">45</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">Articles Processed</span>
+                <span class="stat-value">42</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">Quality Score</span>
+                <span class="stat-value">93.3%</span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 93.33333333333333%">93%</div>
+            </div>
+        </div>
+
+        <div class="categories">
+            <h2>📁 Categories Processed</h2>
+            <div class="category-item">✅ business</div>
+            <div class="category-item">✅ immigration</div>
+            <div class="category-item">✅ ai_tech</div>
+        </div>
+
+        <div class="footer">
+            <p>Generated automatically by Intel Scraping PRO</p>
+            <p>Last successful run: 2025-10-25 22:52:39</p>
+        </div>
+    </div>
+</body>
+</html>

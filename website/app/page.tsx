@@ -11,7 +11,7 @@ export default function Home() {
     <main className="bg-black batik-pattern">
       <Header />
       <HeroSection />
-      <BaliZeroJournal />
+      {/* <BaliZeroJournal /> - Rimosso */}
       <FeaturedArticles />
       <ContentPillars />
       <CTASection />

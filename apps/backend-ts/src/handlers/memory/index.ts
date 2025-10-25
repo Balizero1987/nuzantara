@@ -1,6 +1,6 @@
 /**
  * MEMORY Module
- * Auto-generated module index
+ * PRIORITY 5: Firestore handlers removed - using Python memory system
+ * Only mock memory.ts remains for fallback
  */
-export * from './memory-firestore.js';
-export * from './conversation-autosave.js';
+export * from './memory.js';

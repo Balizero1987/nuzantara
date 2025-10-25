@@ -48,6 +48,15 @@ INTEL_SCRAPING/
 
 ---
 
+## 🎬 Demo
+
+![Intel Scraping Demo](docs/demo.gif)
+
+> **Note**: GIF demo shows PRO orchestrator with parallel scraping, real-time progress bars, and quality validation.
+> To record your own demo: `asciinema rec demo.cast && agg demo.cast demo.gif`
+
+---
+
 ## 🎯 System Overview
 
 The Intel Scraping System is a **3-stage pipeline** that transforms web content into intelligence reports:
@@ -131,9 +140,21 @@ python3 src/orchestrator_pro.py --categories business,ai_tech
 - ✅ **Parallel scraping** - All 7 categories simultaneously (7x faster)
 - ✅ **Retry logic** - 3 automatic retries with exponential backoff
 - ✅ **Quality validation** - 80% threshold gate before deployment
-- ✅ **Real-time progress** - Visual progress bars per category
+- ✅ **Real-time progress** - Visual progress bars per category with emoji icons
 - ✅ **Auto commit & deploy** - Automatic git push if quality passes
 - ✅ **Error resilience** - Continues on failures, comprehensive error tracking
+
+**Enhanced Features** (v3.1):
+- 🎨 **Colored progress bars** - Green (>80%), Yellow (>50%), Red (<50%)
+- 📊 **Health monitoring** - Auto-generated HEALTH.md and health.json
+- 📧 **HTML email reports** - Beautiful summary emails with statistics
+- 📈 **Performance metrics** - CSV logging for trend analysis
+- 🔄 **Log rotation** - Automatic log rotation (10MB max, 5 backups)
+- 🗑️ **Data retention** - Cleanup script with configurable retention policies
+- 🔍 **Duplicate detection** - Hash-based URL tracking to avoid re-scraping
+- 📅 **Source freshness** - Track when sources were last scraped
+- 🎯 **Source priority** - Primary/secondary/fallback source configuration
+- 📁 **Dated structure** - All data organized by date (YYYY-MM-DD)
 
 **When to use**: Production deployments, scheduled daily updates, zero-intervention automation
 
@@ -450,6 +471,26 @@ git push
 
 ## 📝 Version History
 
+**Version 3.1** (2025-10-25)
+- **Sprint 1: Quick Wins (6 improvements)**
+  - Emoji icons for categories (💼 🛂 🤖 🏠 🌴 🛡️ ⚖️)
+  - Health check file generator (HEALTH.md + health.json)
+  - Slash command `/intel-status` for quick status checks
+  - Config validation on startup
+  - Performance metrics CSV auto-logging
+  - Colored progress bars (green/yellow/red)
+- **Sprint 2: Fundamentals (5 improvements)**
+  - Data migration to dated structure (YYYY-MM-DD)
+  - Log rotation (10MB max, 5 backups)
+  - Duplicate detection (hash-based URL tracking)
+  - Source freshness tracking
+  - Cleanup script with retention policy (30/60/90 days)
+- **Sprint 3: Professional (4 improvements)**
+  - Source priority/fallback configuration system
+  - HTML email report generator
+  - README with demo section
+  - Smart category tagging (keyword-based auto-detection)
+
 **Version 3.0** (2025-10-25)
 - Reorganized directory structure (src/, docs/, config/sources/)
 - Added PRO orchestrator with retry logic and quality validation
@@ -490,4 +531,4 @@ git push
 ---
 
 **Last Updated**: 2025-10-25
-**Version**: 3.0
+**Version**: 3.1

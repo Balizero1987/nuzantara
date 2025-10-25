@@ -42,11 +42,11 @@ function Header() {
                     className: "flex items-center gap-4",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                            src: "/balizero-logo-3d.png",
+                            src: "/logo/balizero-logo-3d.png",
                             alt: "Bali Zero",
                             width: 100,
                             height: 100,
-                            className: "h-16 w-16 md:h-22 md:w-22 lg:h-24 lg:w-24",
+                            className: "h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24",
                             priority: true
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/header.tsx",
@@ -62,11 +62,12 @@ function Header() {
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                            src: "/zantara_logo_transparent.png",
+                            src: "/logo/zantara_logo_transparent.png",
                             alt: "ZANTARA",
                             width: 100,
                             height: 100,
-                            className: "h-16 w-16 md:h-22 md:w-22 lg:h-24 lg:w-24 hidden md:block"
+                            className: "h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 hidden md:block",
+                            priority: true
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/header.tsx",
                             lineNumber: 30,
@@ -86,12 +87,12 @@ function Header() {
                             children: item.label
                         }, item.href, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/header.tsx",
-                            lineNumber: 42,
+                            lineNumber: 43,
                             columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/header.tsx",
-                    lineNumber: 40,
+                    lineNumber: 41,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -108,17 +109,17 @@ function Header() {
                             d: "M4 6h16M4 12h16M4 18h16"
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/header.tsx",
-                            lineNumber: 55,
+                            lineNumber: 56,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/header.tsx",
-                        lineNumber: 54,
+                        lineNumber: 55,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/header.tsx",
-                    lineNumber: 53,
+                    lineNumber: 54,
                     columnNumber: 9
                 }, this)
             ]
@@ -148,11 +149,27 @@ __turbopack_context__.s([
     ()=>HeroSection
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Desktop/NUZANTARA-RAILWAY/website/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Desktop/NUZANTARA-RAILWAY/website/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
 "use client";
 ;
 function HeroSection() {
+    _s();
+    const videoRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "HeroSection.useEffect": ()=>{
+            if (videoRef.current) {
+                videoRef.current.play().catch({
+                    "HeroSection.useEffect": (error)=>{
+                        console.log("Autoplay prevented:", error);
+                    }
+                }["HeroSection.useEffect"]);
+            }
+        }
+    }["HeroSection.useEffect"], []);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
-        className: "pt-56 md:pt-64 lg:pt-72 pb-16 px-4 md:px-6 lg:px-8 bg-black",
+        className: "pt-56 md:pt-64 lg:pt-72 pb-16 md:pb-20 lg:pb-24 px-4 md:px-6 lg:px-8 bg-black",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "max-w-7xl mx-auto lg:px-[8%]",
@@ -175,7 +192,7 @@ function HeroSection() {
                                                     children: "I"
                                                 }, void 0, false, {
                                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                                    lineNumber: 13,
+                                                    lineNumber: 24,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -183,7 +200,7 @@ function HeroSection() {
                                                     children: "n"
                                                 }, void 0, false, {
                                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                                    lineNumber: 14,
+                                                    lineNumber: 25,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -191,7 +208,7 @@ function HeroSection() {
                                                     children: "d"
                                                 }, void 0, false, {
                                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                                    lineNumber: 15,
+                                                    lineNumber: 26,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -199,7 +216,7 @@ function HeroSection() {
                                                     children: "o"
                                                 }, void 0, false, {
                                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                                    lineNumber: 16,
+                                                    lineNumber: 27,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -207,7 +224,7 @@ function HeroSection() {
                                                     children: "n"
                                                 }, void 0, false, {
                                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                                    lineNumber: 17,
+                                                    lineNumber: 28,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -215,7 +232,7 @@ function HeroSection() {
                                                     children: "e"
                                                 }, void 0, false, {
                                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                                    lineNumber: 18,
+                                                    lineNumber: 29,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -223,7 +240,7 @@ function HeroSection() {
                                                     children: "s"
                                                 }, void 0, false, {
                                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                                    lineNumber: 19,
+                                                    lineNumber: 30,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -231,7 +248,7 @@ function HeroSection() {
                                                     children: "i"
                                                 }, void 0, false, {
                                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                                    lineNumber: 20,
+                                                    lineNumber: 31,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -239,14 +256,14 @@ function HeroSection() {
                                                     children: "a"
                                                 }, void 0, false, {
                                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                                    lineNumber: 21,
+                                                    lineNumber: 32,
                                                     columnNumber: 17
                                                 }, this),
                                                 "."
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                            lineNumber: 11,
+                                            lineNumber: 22,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -254,13 +271,13 @@ function HeroSection() {
                                             children: "Unleash Potential."
                                         }, void 0, false, {
                                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                            lineNumber: 23,
+                                            lineNumber: 34,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                    lineNumber: 10,
+                                    lineNumber: 21,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -268,7 +285,7 @@ function HeroSection() {
                                     children: "Powered by ZANTARA Intelligence, we deliver premium business insights and AI-driven analysis for leaders who shape tomorrow."
                                 }, void 0, false, {
                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                    lineNumber: 26,
+                                    lineNumber: 37,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -279,7 +296,7 @@ function HeroSection() {
                                             children: "Explore Insights"
                                         }, void 0, false, {
                                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                            lineNumber: 32,
+                                            lineNumber: 43,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -287,93 +304,90 @@ function HeroSection() {
                                             children: "Learn More"
                                         }, void 0, false, {
                                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                            lineNumber: 35,
+                                            lineNumber: 46,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                    lineNumber: 31,
+                                    lineNumber: 42,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                            lineNumber: 9,
+                            lineNumber: 20,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "relative h-96 md:h-full min-h-96",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "absolute inset-0 bg-gradient-to-br from-red/30 via-transparent to-blue-500/20 rounded-lg overflow-hidden",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
-                                        src: "/ruota2.mp4",
-                                        autoPlay: true,
-                                        loop: true,
-                                        muted: true,
-                                        playsInline: true,
-                                        preload: "auto",
-                                        className: "w-full h-full object-contain vibrant-image",
-                                        onLoadedData: (e)=>{
-                                            const video = e.currentTarget;
-                                            video.play().catch((err)=>console.log("Video autoplay blocked:", err));
-                                        }
-                                    }, "hero-video-2", false, {
-                                        fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                        lineNumber: 44,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "absolute inset-0 bg-black/20"
+                            className: "relative h-96 md:h-full min-h-[500px] rounded-lg overflow-hidden",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "absolute inset-0 bg-[#090920]"
+                                }, void 0, false, {
+                                    fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
+                                    lineNumber: 55,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("video", {
+                                    ref: videoRef,
+                                    className: "absolute inset-0 w-full h-full object-contain",
+                                    autoPlay: true,
+                                    loop: true,
+                                    muted: true,
+                                    playsInline: true,
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("source", {
+                                        src: "/garuda.mp4",
+                                        type: "video/mp4"
                                     }, void 0, false, {
                                         fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                        lineNumber: 58,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "absolute bottom-0 right-0 w-32 h-12 bg-gradient-to-tl from-black via-black/90 to-transparent z-10"
-                                    }, void 0, false, {
-                                        fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                        lineNumber: 61,
+                                        lineNumber: 66,
                                         columnNumber: 15
                                     }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                                lineNumber: 43,
-                                columnNumber: 13
-                            }, this)
-                        }, void 0, false, {
+                                }, void 0, false, {
+                                    fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
+                                    lineNumber: 58,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "absolute inset-0 bg-black/5 pointer-events-none"
+                                }, void 0, false, {
+                                    fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
+                                    lineNumber: 70,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                            lineNumber: 42,
+                            lineNumber: 53,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                    lineNumber: 7,
+                    lineNumber: 18,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                lineNumber: 6,
+                lineNumber: 17,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-black/50 to-black pointer-events-none"
             }, void 0, false, {
                 fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-                lineNumber: 68,
+                lineNumber: 76,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/hero-section.tsx",
-        lineNumber: 5,
+        lineNumber: 16,
         columnNumber: 5
     }, this);
 }
+_s(HeroSection, "PdMsmLAy5JKU3vCrhAlqGYQfKuA=");
 _c = HeroSection;
 var _c;
 __turbopack_context__.k.register(_c, "HeroSection");

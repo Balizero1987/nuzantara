@@ -44,12 +44,14 @@ OUTPUT_BASE = SCRIPT_DIR / "INTEL_SCRAPING"
 class IntelAutomationPipeline:
     """Main orchestrator for intel automation pipeline."""
 
-    def __init__(self, skip_stages: List[str] = None, categories: List[str] = None):
+    def __init__(self, skip_stages: List[str] = None, categories: List[str] = None, run_date: Optional[str] = None):
         self.skip_stages = skip_stages or []
         self.categories = categories  # None = all categories
+        self.run_date = run_date or datetime.now().strftime('%Y-%m-%d')  # Default to today
         self.config = self._load_config()
         self.stats = {
             "start_time": datetime.now(),
+            "run_date": self.run_date,
             "stages": {},
             "total_articles": 0,
             "errors": []
@@ -69,6 +71,7 @@ class IntelAutomationPipeline:
         logger.info("=" * 80)
         logger.info("INTEL AUTOMATION PIPELINE - START")
         logger.info("=" * 80)
+        logger.info(f"Run date: {self.run_date}")
         logger.info(f"Skip stages: {self.skip_stages or 'None'}")
         logger.info(f"Categories: {self.categories or 'All'}")
         logger.info("")
@@ -128,6 +131,8 @@ class IntelAutomationPipeline:
                 # Pass categories filter to scraper
                 cmd.extend(['--categories', ','.join(self.categories)])
                 logger.info(f"Category filter: {', '.join(self.categories)}")
+            # Pass run_date to scraper
+            cmd.extend(['--date', self.run_date])
 
             # Run scraper as subprocess
             result = subprocess.run(
@@ -193,8 +198,8 @@ class IntelAutomationPipeline:
 
                 from stage2_parallel_processor import run_stage2_parallel
 
-                # Run parallel processing
-                results = asyncio.run(run_stage2_parallel(raw_files))
+                # Run parallel processing with run_date
+                results = asyncio.run(run_stage2_parallel(raw_files, run_date=self.run_date))
 
                 self.stats['stages']['processing'] = {
                     'duration': results.get('duration', 0),
@@ -338,6 +343,11 @@ def main():
         type=str,
         help='Categories to process (comma-separated). Default: all'
     )
+    parser.add_argument(
+        '--date',
+        type=str,
+        help='Run date in YYYY-MM-DD format (default: today)'
+    )
 
     args = parser.parse_args()
 
@@ -346,7 +356,8 @@ def main():
 
     pipeline = IntelAutomationPipeline(
         skip_stages=skip_stages,
-        categories=categories
+        categories=categories,
+        run_date=args.date
     )
 
     success = pipeline.run()

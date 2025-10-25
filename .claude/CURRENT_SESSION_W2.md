@@ -1656,3 +1656,25 @@ Response: HTTP/2 401 (Unauthorized)
 ---
 
 **Session Closed**: 2025-10-21 03:30 UTC
+
+---
+
+## 📦 Session Continued: Frontend ZANTARA Integration Analysis (2025-10-25 00:00 UTC)
+
+### Task: Analyze webapp ZANTARA integration and propose solutions for perfect AI speaker
+
+**User Request**: *"stiamo lavorando a conversare con Zantara nella webapp, ma Zantara allucina e non sembra connessa a tutte le funzioni. Come hai visto sono tante funzioni....164 handlers (abbiamo gia iniziato a creare degli API contracts tra backend e frontend) ci sono poi tutte le funzioni del Rag .... e' qualcosa di molto complesso e vasto. Vorrei da te una analisi dello stato attuale e quali potrebbere essere le soluzioni migliori per rendere Zantara nel frontend uno speaker perfetto che puo rispondere con agilita , qualita e precisione"*
+
+**Context**:
+- 164 handlers backend TS
+- API contracts già iniziati (backend ↔ frontend)
+- RAG functions (ChromaDB, 5 collections)
+- ZANTARA allucina e sembra disconnessa dalle funzioni
+
+### 📊 Analysis Tasks
+1. ✅ Aggiornare CURRENT_SESSION_W2.md
+2. 🚧 Analizzare integrazione ZANTARA nel frontend
+3. ⏳ Esaminare API contracts esistenti
+4. ⏳ Mappare handlers disponibili
+5. ⏳ Analizzare sistema routing e function calling
+6. ⏳ Proporre soluzioni architetturali

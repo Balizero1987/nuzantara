@@ -17,22 +17,23 @@ export function Header() {
         {/* Logo Section - Left */}
         <Link href="/" className="flex items-center gap-4">
           <Image
-            src="/balizero-logo-3d.png"
+            src="/logo/balizero-logo-3d.png"
             alt="Bali Zero"
             width={100}
             height={100}
-            className="h-16 w-16 md:h-22 md:w-22 lg:h-24 lg:w-24"
+            className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24"
             priority
           />
           <span className="font-serif font-bold text-xl md:text-2xl lg:text-3xl text-white hidden md:inline">
             From Zero to Infinity ∞
           </span>
           <Image
-            src="/zantara_logo_transparent.png"
+            src="/logo/zantara_logo_transparent.png"
             alt="ZANTARA"
             width={100}
             height={100}
-            className="h-16 w-16 md:h-22 md:w-22 lg:h-24 lg:w-24 hidden md:block"
+            className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 hidden md:block"
+            priority
           />
         </Link>
 

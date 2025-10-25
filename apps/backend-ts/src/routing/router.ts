@@ -107,11 +107,8 @@ import {
 } from "../handlers/analytics/daily-drive-recap.js";
 
 // Memory & Persistence
-import { memorySave, memorySearch, memoryRetrieve, memoryList, memorySearchByEntity, memoryGetEntities, memoryEntityInfo, memorySearchSemantic, memorySearchHybrid } from "../handlers/memory/memory-firestore.js";
-import { memoryCacheStats, memoryCacheClear } from "../handlers/memory/memory-cache-stats.js";
-import { memoryEventSave, memoryTimelineGet, memoryEntityEvents } from "../handlers/memory/episodes-firestore.js";
-import { autoSaveConversation } from "../handlers/memory/conversation-autosave.js";
-import { userMemorySave, userMemoryRetrieve, userMemoryList, userMemoryLogin } from "../handlers/memory/user-memory.js";
+// PRIORITY 5: Firestore handlers removed - using Python memory system only
+import { memorySave, memorySearch, memoryRetrieve } from "../handlers/memory/memory.js";
 
 // Maps
 import { mapsDirections, mapsPlaces, mapsPlaceDetails } from "../handlers/maps/maps.js";
@@ -147,6 +144,29 @@ const AI_FALLBACK_ORDER = (process.env.AI_FALLBACK_ORDER || 'ai.chat')
   .map(s => s.trim())
   .filter(Boolean);
 const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 30000);
+
+// PRIORITY 5: Firestore handler stubs (removed handlers - using Python memory system)
+const firestoreHandlerStub = async () => {
+  throw new BadRequestError("Firestore handlers have been deprecated. Use Python memory system via RAG backend.");
+};
+
+// Deprecated Firestore handlers
+const memoryList = firestoreHandlerStub;
+const memorySearchByEntity = firestoreHandlerStub;
+const memoryGetEntities = firestoreHandlerStub;
+const memoryEntityInfo = firestoreHandlerStub;
+const memoryEventSave = firestoreHandlerStub;
+const memoryTimelineGet = firestoreHandlerStub;
+const memoryEntityEvents = firestoreHandlerStub;
+const memorySearchSemantic = firestoreHandlerStub;
+const memorySearchHybrid = firestoreHandlerStub;
+const memoryCacheStats = firestoreHandlerStub;
+const memoryCacheClear = firestoreHandlerStub;
+const userMemorySave = firestoreHandlerStub;
+const userMemoryRetrieve = firestoreHandlerStub;
+const userMemoryList = firestoreHandlerStub;
+const userMemoryLogin = firestoreHandlerStub;
+const autoSaveConversation = async () => { /* Deprecated: Firestore autosave disabled */ };
 
 async function runHandler(key: string, params: any, ctx: any) {
   const handler = handlers[key];

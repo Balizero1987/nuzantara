@@ -1,47 +1,5 @@
-import type React from "react"
-import { TrendingUp, Zap, Globe, Brain } from "lucide-react"
-
-interface Pillar {
-  id: string
-  title: string
-  description: string
-  icon: React.ReactNode
-  color: string
-}
-
-const pillars: Pillar[] = [
-  {
-    id: "1",
-    title: "Market Intelligence",
-    description:
-      "Deep analysis of regional and global market trends, competitive landscapes, and emerging opportunities.",
-    icon: <TrendingUp size={32} />,
-    color: "text-red",
-  },
-  {
-    id: "2",
-    title: "AI & Innovation",
-    description: "Cutting-edge insights on artificial intelligence, machine learning, and transformative technologies.",
-    icon: <Brain size={32} />,
-    color: "text-red",
-  },
-  {
-    id: "3",
-    title: "Strategic Leadership",
-    description:
-      "Executive guidance on organizational transformation, digital strategy, and future-ready business models.",
-    icon: <Zap size={32} />,
-    color: "text-red",
-  },
-  {
-    id: "4",
-    title: "Global Perspectives",
-    description:
-      "International insights connecting Southeast Asian markets with global economic and geopolitical trends.",
-    icon: <Globe size={32} />,
-    color: "text-red",
-  },
-]
+import Link from "next/link"
+import { categories } from "@/lib/categories"
 
 export function ContentPillars() {
   return (
@@ -57,30 +15,34 @@ export function ContentPillars() {
           </p>
         </div>
 
-        {/* Pillars Grid */}
+        {/* Pillars Grid - First 4 categories */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {pillars.map((pillar) => (
-            <div
-              key={pillar.id}
-              className="group p-6 bg-black rounded-lg border border-white/10 hover:border-red transition-all duration-300 hover:shadow-lg hover:shadow-red/20 cursor-pointer"
-            >
-              {/* Icon */}
-              <div className={`${pillar.color} mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                {pillar.icon}
-              </div>
+          {categories.slice(0, 4).map((category) => {
+            const Icon = category.icon
+            return (
+              <Link
+                key={category.slug}
+                href={`/category/${category.slug}`}
+                className="group p-6 bg-black rounded-lg border border-white/10 hover:border-red transition-all duration-300 hover:shadow-lg hover:shadow-red/20 cursor-pointer"
+              >
+                {/* Icon */}
+                <div className="text-red mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Icon size={32} />
+                </div>
 
-              {/* Title */}
-              <h3 className="text-white font-serif font-bold text-xl mb-3 group-hover:text-red transition-colors">
-                {pillar.title}
-              </h3>
+                {/* Title */}
+                <h3 className="text-white font-serif font-bold text-xl mb-3 group-hover:text-red transition-colors">
+                  {category.name}
+                </h3>
 
-              {/* Description */}
-              <p className="text-white/70 font-sans text-sm leading-relaxed">{pillar.description}</p>
+                {/* Description */}
+                <p className="text-white/70 font-sans text-sm leading-relaxed">{category.description}</p>
 
-              {/* Bottom accent line */}
-              <div className="mt-4 h-1 w-0 bg-red group-hover:w-full transition-all duration-300"></div>
-            </div>
-          ))}
+                {/* Bottom accent line */}
+                <div className="mt-4 h-1 w-0 bg-red group-hover:w-full transition-all duration-300"></div>
+              </Link>
+            )
+          })}
         </div>
 
         {/* Bottom CTA */}
