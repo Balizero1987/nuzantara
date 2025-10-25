@@ -48,6 +48,42 @@ class PricingService:
             self.prices = {}
             self.loaded = False
 
+    def get_pricing(self, service_type: str = "all") -> Dict[str, Any]:
+        """
+        Get pricing for specific service type (FIXED: Added missing method)
+        
+        Args:
+            service_type: Type of service (visa, kitas, business_setup, tax_consulting, legal, all)
+            
+        Returns:
+            Pricing data for the requested service type
+        """
+        if not self.loaded:
+            return {
+                "error": "Official prices not loaded",
+                "fallback_contact": {
+                    "email": "info@balizero.com",
+                    "whatsapp": "+62 813 3805 1876"
+                }
+            }
+        
+        # Map service types to specific methods
+        if service_type == "visa":
+            return self.get_visa_prices()
+        elif service_type == "kitas":
+            return self.get_kitas_prices()
+        elif service_type == "business_setup":
+            return self.get_business_prices()
+        elif service_type == "tax_consulting":
+            return self.get_tax_prices()
+        elif service_type == "legal":
+            return self.get_business_prices()  # Legal services are in business
+        elif service_type == "all":
+            return self.get_all_prices()
+        else:
+            # Try to search for the service
+            return self.search_service(service_type)
+
     def get_all_prices(self) -> Dict[str, Any]:
         """Get all official prices"""
         if not self.loaded:
