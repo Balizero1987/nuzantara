@@ -2720,3 +2720,4 @@ async def get_all_analytics(user_email: Optional[str] = None, days: int = 7):
     except Exception as e:
         logger.error(f"Comprehensive analytics failed: {e}")
         raise HTTPException(500, f"Comprehensive analytics failed: {str(e)}")
+# Force Railway redeploy - Priority 1-5 active
