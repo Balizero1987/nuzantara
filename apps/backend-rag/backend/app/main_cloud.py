@@ -1135,6 +1135,7 @@ class BaliZeroResponse(BaseModel):
     ai_used: str  # "haiku" | "llama"
     sources: Optional[List[Dict[str, Any]]] = None
     usage: Optional[Dict[str, Any]] = None
+    used_rag: Optional[bool] = None  # PHASE 1: Track RAG usage
 
 
 @app.get("/cache/stats")
@@ -1706,7 +1707,8 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
             usage={
                 "input_tokens": tokens.get("input", 0) or tokens.get("input_tokens", 0),
                 "output_tokens": tokens.get("output", 0) or tokens.get("output_tokens", 0)
-            }
+            },
+            used_rag=used_rag  # PHASE 1: Return RAG usage flag
         )
 
     except Exception as e:
