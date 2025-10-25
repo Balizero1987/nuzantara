@@ -24,6 +24,13 @@ class EmotionalState(str, Enum):
     CURIOUS = "curious"
     GRATEFUL = "grateful"
     URGENT = "urgent"
+    # PRIORITY 4: Added missing states for router integration
+    SAD = "sad"
+    ANXIOUS = "anxious"
+    EMBARRASSED = "embarrassed"
+    LONELY = "lonely"
+    SCARED = "scared"
+    WORRIED = "worried"
 
 
 class ToneStyle(str, Enum):
@@ -94,6 +101,37 @@ class EmotionalAttunementService:
             "keywords": ["now", "immediately", "critical", "asap", "urgent"],
             "patterns": [r"right now", r"as soon as", r"immediately"],
             "caps_threshold": 0.4,
+        },
+        # PRIORITY 4: Added patterns for missing emotional states
+        EmotionalState.SAD: {
+            "keywords": ["sad", "depressed", "down", "unhappy", "triste", "sedih", "giù"],
+            "patterns": [r"feel.*sad", r"i'm.*sad", r"sono.*triste", r"aku.*sedih"],
+            "caps_threshold": 0.0,
+        },
+        EmotionalState.ANXIOUS: {
+            "keywords": ["anxious", "worried", "nervous", "scared", "afraid", "ansioso", "khawatir", "preoccupato"],
+            "patterns": [r"feel.*anxious", r"i'm.*worried", r"sono.*preoccupato", r"saya.*khawatir"],
+            "caps_threshold": 0.1,
+        },
+        EmotionalState.EMBARRASSED: {
+            "keywords": ["embarrassed", "ashamed", "shy", "awkward", "imbarazzato", "malu"],
+            "patterns": [r"feel.*embarrassed", r"i'm.*embarrassed", r"sono.*imbarazzato", r"aku.*malu"],
+            "caps_threshold": 0.0,
+        },
+        EmotionalState.LONELY: {
+            "keywords": ["lonely", "alone", "isolated", "solo", "kesepian", "sendirian"],
+            "patterns": [r"feel.*lonely", r"i'm.*alone", r"mi.*sento.*solo", r"aku.*kesepian"],
+            "caps_threshold": 0.0,
+        },
+        EmotionalState.SCARED: {
+            "keywords": ["scared", "frightened", "terrified", "afraid", "paura", "takut"],
+            "patterns": [r"i'm.*scared", r"i'm.*afraid", r"ho.*paura", r"aku.*takut"],
+            "caps_threshold": 0.2,
+        },
+        EmotionalState.WORRIED: {
+            "keywords": ["worried", "concern", "anxious", "trouble", "preoccupato", "khawatir"],
+            "patterns": [r"worried about", r"concerned about", r"preoccupato per", r"khawatir tentang"],
+            "caps_threshold": 0.1,
         }
     }
 
@@ -107,6 +145,13 @@ class EmotionalAttunementService:
         EmotionalState.GRATEFUL: ToneStyle.WARM,
         EmotionalState.URGENT: ToneStyle.DIRECT,
         EmotionalState.NEUTRAL: ToneStyle.PROFESSIONAL,
+        # PRIORITY 4: Tone mappings for new states (empathetic responses)
+        EmotionalState.SAD: ToneStyle.WARM,
+        EmotionalState.ANXIOUS: ToneStyle.ENCOURAGING,
+        EmotionalState.EMBARRASSED: ToneStyle.WARM,
+        EmotionalState.LONELY: ToneStyle.WARM,
+        EmotionalState.SCARED: ToneStyle.ENCOURAGING,
+        EmotionalState.WORRIED: ToneStyle.ENCOURAGING,
     }
 
     # Tone style prompts (to be injected into system prompt)
@@ -265,6 +310,19 @@ class EmotionalAttunementService:
             emotional_context += "\nNote: User appears confused. Break down your explanation into simple steps. Avoid jargon.\n"
         elif emotional_profile.detected_state == EmotionalState.URGENT:
             emotional_context += "\nNote: User has urgent need. Be direct and solution-focused. Skip preamble.\n"
+        # PRIORITY 4: Guidance for empathetic emotional states
+        elif emotional_profile.detected_state == EmotionalState.SAD:
+            emotional_context += "\nNote: User appears sad. Show warmth, empathy, and gentle support. Avoid being overly cheerful.\n"
+        elif emotional_profile.detected_state == EmotionalState.ANXIOUS:
+            emotional_context += "\nNote: User appears anxious. Be calm, reassuring, and provide clear structure. Break down overwhelming tasks.\n"
+        elif emotional_profile.detected_state == EmotionalState.EMBARRASSED:
+            emotional_context += "\nNote: User appears embarrassed. Be tactful, non-judgmental, and normalize their concerns.\n"
+        elif emotional_profile.detected_state == EmotionalState.LONELY:
+            emotional_context += "\nNote: User appears lonely. Be warm, present, and engage meaningfully. Show genuine interest.\n"
+        elif emotional_profile.detected_state == EmotionalState.SCARED:
+            emotional_context += "\nNote: User appears scared. Be gentle, reassuring, and provide safety. Address fears directly but kindly.\n"
+        elif emotional_profile.detected_state == EmotionalState.WORRIED:
+            emotional_context += "\nNote: User appears worried. Be supportive, practical, and help organize their concerns into manageable steps.\n"
 
         return base_prompt + emotional_context
 
