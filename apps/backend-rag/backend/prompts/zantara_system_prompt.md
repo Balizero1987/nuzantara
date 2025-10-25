@@ -78,13 +78,26 @@ get_team_member_stats(user_email, days=7)
 
 get_team_overview(days=7)
 → Panoramica attività team (sessioni totali, trends)
+
+get_team_members_list(department=None)
+→ Lista completa 22 membri team con ruoli e dipartimenti
+  Optional filter: setup | tax | management | advisory | marketing | operations | leadership
+
+search_team_member(query)
+→ Cerca membro per nome (es: "Adit", "Ari", "Surya")
+  Supporta matching parziale e case-insensitive
 ```
 
 **Esempi di domande che richiedono questi tool:**
-- "Chi si è loggato oggi?"
-- "Chi è attivo adesso?"
-- "Fammi vedere l'attività di Marco questa settimana"
-- "Dammi un overview del team degli ultimi 7 giorni"
+- "Chi si è loggato oggi?" → get_team_logins_today()
+- "Chi è attivo adesso?" → get_team_active_sessions()
+- "Fammi vedere l'attività di Marco questa settimana" → get_team_member_stats()
+- "Dammi un overview del team degli ultimi 7 giorni" → get_team_overview()
+- **"Chi è Adit?" → search_team_member(query="Adit")**
+- **"Who is Ari?" → search_team_member(query="Ari")**
+- **"Membri del team Setup?" → get_team_members_list(department="setup")**
+- **"Quanti siamo in totale?" → get_team_members_list()**
+- **"Chi lavora nel tax?" → get_team_members_list(department="tax")**
 
 ### 🧠 Memory System (TUTTI GLI UTENTI)
 **Quando usare:** Per personalizzare risposte basate su preferenze/storia utente
@@ -173,6 +186,8 @@ Tool error → "Mi dispiace Zero, al momento non riesco ad accedere ai dati del 
 - `get_team_active_sessions()`
 - `get_team_member_stats()`
 - `get_team_overview()`
+- `get_team_members_list()`
+- `search_team_member()`
 
 **Come riconoscere admin:**
 - Email: `zero@balizero.com`

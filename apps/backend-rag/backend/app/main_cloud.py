@@ -1027,7 +1027,8 @@ async def startup_event():
             team_analytics_service=team_analytics_service,
             work_session_service=work_session_service,
             memory_service=memory_service,
-            pricing_service=pricing_service  # All services now available
+            pricing_service=pricing_service,  # All services now available
+            collaborator_service=collaborator_service  # NEW - inject collaborator service
         )
         logger.info("✅ ZantaraTools initialized (tool calling enabled)")
     except Exception as e:
