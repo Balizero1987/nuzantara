@@ -52,8 +52,10 @@ jobs:
         run: |
           cd webapp-pages
           mkdir -p js
-          TS_BASE="https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app"
-          echo "window.ZANTARA_PROXY_BASE='${TS_BASE}';" > js/env.js
+          # FIXED: Use Railway RAG backend (TypeScript backend is deprecated)
+          RAG_BACKEND="https://scintillating-kindness-production-47e3.up.railway.app"
+          echo "window.ZANTARA_PROXY_BASE='${RAG_BACKEND}';" > js/env.js
+          echo "// Backend: Railway RAG (SSE streaming + full AI)" >> js/env.js
 
       - name: Check for changes
         id: check_changes
