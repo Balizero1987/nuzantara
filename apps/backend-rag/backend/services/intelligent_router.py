@@ -102,6 +102,15 @@ class IntelligentRouter:
 
             logger.info(f"   Total tools available: {len(self.all_tools)}")
 
+            # 🔍 DEBUG: Log all tool names to verify team roster tools are included
+            tool_names = [t["name"] for t in self.all_tools]
+            logger.info(f"🔍 DEBUG: All tool names: {tool_names}")
+
+            # Check specifically for team roster tools
+            has_team_list = "get_team_members_list" in tool_names
+            has_team_search = "search_team_member" in tool_names
+            logger.info(f"🔍 DEBUG: Team roster tools present: get_team_members_list={has_team_list}, search_team_member={has_team_search}")
+
             # Filter essential tools for Haiku (fast, read-only)
             haiku_allowed_prefixes = [
                 "pricing_",           # Pricing queries (fast)
