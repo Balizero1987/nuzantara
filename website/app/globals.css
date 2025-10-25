@@ -286,3 +286,24 @@ body::before {
   background: linear-gradient(90deg, transparent, #D4AF37, transparent);
   animation: gold-shine 3s ease-in-out infinite;
 }
+
+/* Fade-in Animation for Hero Title */
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+.animate-fade-in-delay {
+  opacity: 0;
+  animation: fade-in 0.8s ease-out 0.3s forwards;
+}

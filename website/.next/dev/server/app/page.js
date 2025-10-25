@@ -1,6 +1,6 @@
 var R=require("../chunks/ssr/[turbopack]_runtime.js")("server/app/page.js")
-R.c("server/chunks/ssr/6589b_9fed89c5._.js")
-R.c("server/chunks/ssr/[root-of-the-server]__8243c8ff._.js")
+R.c("server/chunks/ssr/6589b_0bb0e390._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__da0738d0._.js")
 R.c("server/chunks/ssr/Desktop_NUZANTARA-RAILWAY_3a9b3701._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__864ab248._.js")
 R.c("server/chunks/ssr/6589b_next_dist_client_components_builtin_global-error_1eb170ba.js")
