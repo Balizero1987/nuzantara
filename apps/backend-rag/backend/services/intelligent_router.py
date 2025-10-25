@@ -783,6 +783,23 @@ class IntelligentRouter:
             query_type = classify_query_for_rag(message)
             logger.info(f"📋 [Router Stream] Query type: {query_type}")
 
+            # BUSINESS QUESTIONS FIX: Detect comparison and cross-topic queries
+            comparison_keywords = ["confronta", "compare", "vs", "differenza tra", "difference between", "confronto", "comparison"]
+            is_comparison = any(keyword in message.lower() for keyword in comparison_keywords)
+
+            cross_topic_keywords = ["timeline", "percorso completo", "tutti i costi", "step-by-step", "tutto", "complessivamente"]
+            is_cross_topic = any(keyword in message.lower() for keyword in cross_topic_keywords) or len(message.split()) > 20
+
+            # Adjust max_tokens for complex queries
+            if is_comparison:
+                max_tokens_to_use = 12000  # Extra tokens for comparisons
+                logger.info(f"🔍 COMPARISON query detected → max_tokens={max_tokens_to_use}")
+            elif is_cross_topic:
+                max_tokens_to_use = 10000  # Extra tokens for cross-topic
+                logger.info(f"🌐 CROSS-TOPIC query detected → max_tokens={max_tokens_to_use}")
+            else:
+                max_tokens_to_use = 8000  # Default
+
             # Build memory context (same logic as route_chat)
             memory_context = None
             if memory:
@@ -838,7 +855,7 @@ class IntelligentRouter:
                     memory_context=memory_context,
                     tools=self.all_tools,  # ALL tools for SSE streaming
                     tool_executor=self.tool_executor,
-                    max_tokens=8000,  # Full capacity (was 300 - too small!)
+                    max_tokens=max_tokens_to_use,  # BUSINESS FIX: Dynamic based on query complexity
                     max_tool_iterations=5
                 )
 
