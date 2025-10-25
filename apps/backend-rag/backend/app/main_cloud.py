@@ -48,6 +48,7 @@ from services.zantara_tools import ZantaraTools
 from services.query_router import QueryRouter  # PRIORITY 1: Query routing for autonomous research
 from services.autonomous_research_service import AutonomousResearchService  # PRIORITY 1: Self-directed research agent
 from services.cross_oracle_synthesis_service import CrossOracleSynthesisService  # PRIORITY 2: Multi-Oracle orchestrator
+from services.dynamic_pricing_service import DynamicPricingService  # PRIORITY 3: Comprehensive pricing calculator
 from middleware.error_monitoring import ErrorMonitoringMiddleware
 
 # Configure logging
@@ -104,6 +105,7 @@ alert_service: Optional[AlertService] = None  # Error monitoring and alerts
 query_router: Optional[QueryRouter] = None  # PRIORITY 1: Collection routing for autonomous research
 autonomous_research_service: Optional[AutonomousResearchService] = None  # PRIORITY 1: Self-directed research agent
 cross_oracle_synthesis_service: Optional[CrossOracleSynthesisService] = None  # PRIORITY 2: Multi-Oracle orchestrator
+dynamic_pricing_service: Optional[DynamicPricingService] = None  # PRIORITY 3: Comprehensive pricing calculator
 work_session_service: Optional[WorkSessionService] = None  # Team work session tracking
 team_analytics_service: Optional["TeamAnalyticsService"] = None  # Advanced team analytics (7 techniques)
 
@@ -829,7 +831,7 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, claude_haiku, intelligent_router, cultural_rag_service, zantara_tools, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service
+    global search_service, claude_haiku, intelligent_router, cultural_rag_service, zantara_tools, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (HAIKU-ONLY: Claude Haiku 4.5)...")
 
@@ -947,6 +949,25 @@ async def startup_event():
     except Exception as e:
         logger.error(f"❌ CrossOracleSynthesisService initialization failed: {e}")
         cross_oracle_synthesis_service = None
+
+    # PRIORITY 3: Initialize Dynamic Pricing Service
+    try:
+        if cross_oracle_synthesis_service and search_service:
+            dynamic_pricing_service = DynamicPricingService(
+                cross_oracle_synthesis_service=cross_oracle_synthesis_service,
+                search_service=search_service
+            )
+            logger.info("✅ DynamicPricingService initialized (comprehensive pricing calculator)")
+            logger.info("   Integrates costs from: KBLI, Legal, Tax, Visa, Property, Bali Zero Pricing")
+            logger.info("   Features: Cost extraction, scenario pricing, detailed breakdowns")
+        else:
+            logger.warning("⚠️ DynamicPricingService not initialized - missing dependencies")
+            logger.warning(f"   CrossOracleSynthesis: {'✅' if cross_oracle_synthesis_service else '❌'}")
+            logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
+            dynamic_pricing_service = None
+    except Exception as e:
+        logger.error(f"❌ DynamicPricingService initialization failed: {e}")
+        dynamic_pricing_service = None
 
     # Initialize Handler Proxy Service (Tool Use) - MUST be before Intelligent Router
     try:
