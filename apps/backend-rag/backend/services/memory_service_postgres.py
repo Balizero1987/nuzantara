@@ -5,7 +5,7 @@ Manages user memory (profile facts, conversation summary, counters) with Postgre
 Replaces Firestore with PostgreSQL for Railway deployment.
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime
 import logging
@@ -348,6 +348,180 @@ class MemoryServicePostgres:
             True if saved successfully
         """
         return await self.add_fact(user_id, content)
+
+    async def retrieve(
+        self,
+        user_id: str,
+        category: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Retrieve user memory in format expected by ZantaraTools.
+
+        This method is called by ZantaraTools when Claude uses the
+        retrieve_user_memory tool. It provides a structured format
+        with all user memory data, optionally filtered by category.
+
+        Args:
+            user_id: User ID or email address
+            category: Optional category filter (e.g., 'visa_preferences', 'business_setup')
+                     Filters facts by keyword matching (case-insensitive)
+
+        Returns:
+            Dict containing:
+                - user_id: The user identifier
+                - profile_facts: List of facts (all or filtered by category)
+                - summary: User's conversation summary
+                - counters: Activity counters (conversations, searches, tasks)
+                - has_data: Boolean indicating if user has any stored data
+                - category_filter: The category used for filtering (if any)
+                - error: Error message if retrieval failed (optional)
+        """
+        try:
+            # Get user memory using existing method
+            memory = await self.get_memory(user_id)
+
+            # Filter facts by category if specified
+            facts = memory.profile_facts
+            if category and facts:
+                # Simple keyword matching (case-insensitive)
+                category_lower = category.lower()
+                facts = [f for f in facts if category_lower in f.lower()]
+                logger.info(f"Filtered {len(memory.profile_facts)} facts to {len(facts)} for category '{category}'")
+
+            # Determine if user has any data
+            has_data = bool(facts) or bool(memory.summary) or any(v > 0 for v in memory.counters.values())
+
+            result = {
+                'user_id': user_id,
+                'profile_facts': facts,
+                'summary': memory.summary or '',
+                'counters': memory.counters,
+                'has_data': has_data,
+                'category_filter': category
+            }
+
+            logger.info(f"✅ Retrieved memory for {user_id}: {len(facts)} facts, has_data={has_data}")
+            return result
+
+        except Exception as e:
+            logger.error(f"❌ Memory retrieve failed for {user_id}: {e}")
+            # Return empty structure on error - graceful degradation
+            return {
+                'user_id': user_id,
+                'profile_facts': [],
+                'summary': '',
+                'counters': {
+                    'conversations': 0,
+                    'searches': 0,
+                    'tasks': 0
+                },
+                'has_data': False,
+                'category_filter': category,
+                'error': str(e)
+            }
+
+    async def search(
+        self,
+        query: str,
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+        """
+        Search across all user memories for specific information.
+
+        This method searches through memory facts in PostgreSQL using
+        case-insensitive pattern matching. Falls back to in-memory cache
+        if PostgreSQL is unavailable.
+
+        Args:
+            query: Search query string (will be matched case-insensitively)
+            limit: Maximum number of results to return (default: 5)
+
+        Returns:
+            List of matching memory entries, each containing:
+                - user_id: The user who owns this memory
+                - fact: The matching fact content
+                - confidence: Confidence score (0.0 to 1.0)
+                - created_at: ISO format timestamp when fact was created
+
+            Returns empty list if search fails or no matches found.
+        """
+        if not query:
+            logger.warning("Search called with empty query")
+            return []
+
+        # Try PostgreSQL first if available
+        if self.use_postgres and self.pool:
+            try:
+                async with self.pool.acquire(timeout=10) as conn:
+                    # Search memory_facts table with ILIKE for case-insensitive matching
+                    rows = await conn.fetch(
+                        """
+                        SELECT user_id, content, confidence, created_at
+                        FROM memory_facts
+                        WHERE content ILIKE $1
+                        ORDER BY confidence DESC, created_at DESC
+                        LIMIT $2
+                        """,
+                        f"%{query}%",
+                        limit
+                    )
+
+                    results = []
+                    for row in rows:
+                        results.append({
+                            'user_id': row['user_id'],
+                            'fact': row['content'],
+                            'confidence': float(row['confidence']) if row['confidence'] else 1.0,
+                            'created_at': row['created_at'].isoformat() if row['created_at'] else datetime.now().isoformat()
+                        })
+
+                    logger.info(f"✅ PostgreSQL search for '{query}' found {len(results)} results")
+                    return results
+
+            except asyncpg.exceptions.PostgresConnectionError as e:
+                logger.error(f"❌ PostgreSQL connection error during search: {e}")
+            except asyncpg.exceptions.QueryCanceledError as e:
+                logger.error(f"❌ PostgreSQL query timeout during search: {e}")
+            except Exception as e:
+                logger.error(f"❌ PostgreSQL search failed: {e}")
+
+        # Fallback to in-memory cache search
+        logger.info(f"Falling back to in-memory cache search for '{query}'")
+        results = []
+        query_lower = query.lower()
+
+        try:
+            for user_id, memory in self.memory_cache.items():
+                # Search in profile facts
+                for fact in memory.profile_facts:
+                    if query_lower in fact.lower():
+                        results.append({
+                            'user_id': user_id,
+                            'fact': fact,
+                            'confidence': 1.0,  # Cache results have default confidence
+                            'created_at': memory.updated_at.isoformat() if isinstance(memory.updated_at, datetime) else memory.updated_at
+                        })
+                        if len(results) >= limit:
+                            break
+
+                # Also search in summary if not enough results
+                if len(results) < limit and memory.summary and query_lower in memory.summary.lower():
+                    results.append({
+                        'user_id': user_id,
+                        'fact': f"[Summary] {memory.summary[:100]}...",
+                        'confidence': 0.8,  # Lower confidence for summary matches
+                        'created_at': memory.updated_at.isoformat() if isinstance(memory.updated_at, datetime) else memory.updated_at
+                    })
+
+                if len(results) >= limit:
+                    break
+
+            logger.info(f"✅ Cache search for '{query}' found {len(results)} results")
+            return results[:limit]
+
+        except Exception as e:
+            logger.error(f"❌ Cache search failed: {e}")
+            return []
 
     async def get_stats(self) -> Dict:
         """Get memory system statistics"""
