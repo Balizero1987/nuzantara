@@ -11,7 +11,7 @@ import { EyeKBLI } from '../agents/eye-kbli.js';
 import { TaxGenius } from '../agents/tax-genius.js';
 import { LegalArchitect } from '../agents/legal-architect.js';
 import { PropertySage } from '../agents/property-sage.js';
-import { memorySave } from '../handlers/memory/memory-firestore.js';
+import { memorySave } from '../handlers/memory/memory.js';
 
 interface UserContext {
   userId: string;

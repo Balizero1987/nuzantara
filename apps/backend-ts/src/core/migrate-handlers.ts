@@ -96,7 +96,6 @@ export const MODULE_STRUCTURE: ModuleMapping[] = [
     module: 'memory',
     handlers: [
       'memory',
-      'memory-firestore',
       'conversation-autosave'
     ]
   },
