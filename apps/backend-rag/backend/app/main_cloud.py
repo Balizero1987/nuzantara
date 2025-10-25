@@ -45,6 +45,8 @@ from services.alert_service import AlertService, get_alert_service
 from services.work_session_service import WorkSessionService
 from services.team_analytics_service import TeamAnalyticsService
 from services.zantara_tools import ZantaraTools
+from services.query_router import QueryRouter  # PRIORITY 1: Query routing for autonomous research
+from services.autonomous_research_service import AutonomousResearchService  # PRIORITY 1: Self-directed research agent
 from middleware.error_monitoring import ErrorMonitoringMiddleware
 
 # Configure logging
@@ -98,6 +100,8 @@ reranker_service: Optional["RerankerService"] = None  # String annotation for la
 handler_proxy_service: Optional[HandlerProxyService] = None
 fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
 alert_service: Optional[AlertService] = None  # Error monitoring and alerts
+query_router: Optional[QueryRouter] = None  # PRIORITY 1: Collection routing for autonomous research
+autonomous_research_service: Optional[AutonomousResearchService] = None  # PRIORITY 1: Self-directed research agent
 work_session_service: Optional[WorkSessionService] = None  # Team work session tracking
 team_analytics_service: Optional["TeamAnalyticsService"] = None  # Advanced team analytics (7 techniques)
 
@@ -823,7 +827,7 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, claude_haiku, intelligent_router, cultural_rag_service, zantara_tools, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service
+    global search_service, claude_haiku, intelligent_router, cultural_rag_service, zantara_tools, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (HAIKU-ONLY: Claude Haiku 4.5)...")
 
@@ -892,6 +896,35 @@ async def startup_event():
         claude_haiku = None
 
     # Claude Sonnet removed - Haiku 4.5 is the ONLY AI
+
+    # PRIORITY 1: Initialize QueryRouter for autonomous research
+    try:
+        query_router = QueryRouter()
+        logger.info("✅ QueryRouter initialized (9-collection routing with fallback chains)")
+    except Exception as e:
+        logger.error(f"❌ QueryRouter initialization failed: {e}")
+        query_router = None
+
+    # PRIORITY 1: Initialize Autonomous Research Service
+    try:
+        if search_service and query_router and claude_haiku:
+            autonomous_research_service = AutonomousResearchService(
+                search_service=search_service,
+                query_router=query_router,
+                claude_sonnet_service=claude_haiku  # Using Haiku as synthesis engine
+            )
+            logger.info("✅ AutonomousResearchService initialized (self-directed iterative research)")
+            logger.info(f"   Max iterations: {autonomous_research_service.MAX_ITERATIONS}")
+            logger.info(f"   Confidence threshold: {autonomous_research_service.CONFIDENCE_THRESHOLD}")
+        else:
+            logger.warning("⚠️ AutonomousResearchService not initialized - missing dependencies")
+            logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
+            logger.warning(f"   QueryRouter: {'✅' if query_router else '❌'}")
+            logger.warning(f"   Claude Haiku: {'✅' if claude_haiku else '❌'}")
+            autonomous_research_service = None
+    except Exception as e:
+        logger.error(f"❌ AutonomousResearchService initialization failed: {e}")
+        autonomous_research_service = None
 
     # Initialize Handler Proxy Service (Tool Use) - MUST be before Intelligent Router
     try:
@@ -1072,11 +1105,13 @@ async def startup_event():
                 haiku_service=claude_haiku,
                 search_service=search_service,
                 tool_executor=tool_executor,  # Now properly initialized
-                cultural_rag_service=cultural_rag_service  # NEW: LLAMA cultural intelligence
+                cultural_rag_service=cultural_rag_service,  # NEW: LLAMA cultural intelligence
+                autonomous_research_service=autonomous_research_service  # PRIORITY 1: Self-directed research
             )
-            logger.info("✅ Intelligent Router ready (HAIKU-ONLY + Cultural RAG)")
+            logger.info("✅ Intelligent Router ready (HAIKU-ONLY + Cultural RAG + Autonomous Research)")
             logger.info("   AI: Claude Haiku 4.5 (ALL queries, 100% traffic)")
             logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
+            logger.info(f"   Autonomous Research: {'✅ enabled' if autonomous_research_service else '⚠️ disabled'}")
             logger.info("   Cost optimization: 3x cheaper than Sonnet, same quality with RAG")
         else:
             logger.warning("⚠️ Intelligent Router not initialized - missing Claude Haiku service")

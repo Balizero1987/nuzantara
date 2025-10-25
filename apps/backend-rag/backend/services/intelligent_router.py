@@ -51,7 +51,8 @@ class IntelligentRouter:
         haiku_service,
         search_service=None,
         tool_executor=None,
-        cultural_rag_service=None  # NEW: Cultural RAG for Haiku enrichment
+        cultural_rag_service=None,  # NEW: Cultural RAG for Haiku enrichment
+        autonomous_research_service=None  # PRIORITY 1: Self-directed research agent
     ):
         """
         Initialize intelligent router
@@ -62,11 +63,13 @@ class IntelligentRouter:
             search_service: Optional SearchService for RAG
             tool_executor: ToolExecutor for handler execution (optional)
             cultural_rag_service: CulturalRAGService for Indonesian cultural context (optional)
+            autonomous_research_service: AutonomousResearchService for complex queries (optional)
         """
         self.haiku = haiku_service
         self.search = search_service
         self.tool_executor = tool_executor
         self.cultural_rag = cultural_rag_service  # NEW: Cultural enrichment
+        self.autonomous_research = autonomous_research_service  # PRIORITY 1: Deep research
 
         # Available tools will be loaded on first use
         self.all_tools = None
@@ -78,6 +81,7 @@ class IntelligentRouter:
         logger.info(f"   RAG (context): {'✅' if search_service else '❌'}")
         logger.info(f"   Tool Use: {'✅' if tool_executor else '❌'}")
         logger.info(f"   Cultural RAG (Haiku): {'✅' if cultural_rag_service else '❌'}")
+        logger.info(f"   Autonomous Research: {'✅' if autonomous_research_service else '❌'}")
 
 
     async def _load_tools(self):
@@ -670,12 +674,69 @@ class IntelligentRouter:
             if not self.tools_loaded and self.tool_executor:
                 await self._load_tools()
 
+            # PRIORITY 1: Check if autonomous research is needed for complex/ambiguous queries
+            if self.autonomous_research and category in ["business_complex", "business_simple"]:
+                message_lower = message.lower()
+
+                # Detect ambiguous queries that need multi-collection research
+                ambiguous_keywords = [
+                    "crypto", "cryptocurrency", "blockchain", "nft", "web3",  # Not in standard KBLI
+                    "new type", "nuovo", "baru", "innovative", "innovativo",
+                    "non standard", "uncommon", "rare", "unusual",
+                    "multiple", "several", "various", "diversi", "beberapa",
+                    "complete process", "percorso completo", "proses lengkap",
+                    "all requirements", "tutti requisiti", "semua syarat"
+                ]
+
+                # Check if query has ambiguous keywords OR is long/complex
+                has_ambiguous_term = any(kw in message_lower for kw in ambiguous_keywords)
+                is_long_query = len(message.split()) > 15
+                has_how_to = any(pattern in message_lower for pattern in ["how to", "come si", "bagaimana cara"])
+
+                needs_deep_research = (has_ambiguous_term or (is_long_query and has_how_to))
+
+                if needs_deep_research:
+                    logger.info(f"🔬 [Router] AUTONOMOUS RESEARCH triggered (ambiguous/complex query)")
+                    logger.info(f"   Ambiguous terms: {has_ambiguous_term}, Long: {is_long_query}, How-to: {has_how_to}")
+
+                    try:
+                        # Perform autonomous research (iterative multi-collection search)
+                        research_result = await self.autonomous_research.research(
+                            query=message,
+                            user_level=3  # Default level
+                        )
+
+                        logger.info(f"✅ [Autonomous Research] Complete: {research_result.total_steps} steps, "
+                                   f"{len(research_result.collections_explored)} collections, "
+                                   f"confidence={research_result.confidence:.2f}")
+
+                        # Return research result directly (no additional AI processing needed)
+                        return {
+                            "response": research_result.final_answer,
+                            "ai_used": "haiku",  # Used Haiku for synthesis
+                            "category": "autonomous_research",
+                            "model": "claude-haiku-4.5",
+                            "tokens": {"input": 0, "output": 0},  # Calculated internally
+                            "used_rag": True,  # Used RAG extensively
+                            "autonomous_research": {
+                                "total_steps": research_result.total_steps,
+                                "collections_explored": research_result.collections_explored,
+                                "confidence": research_result.confidence,
+                                "sources_consulted": research_result.sources_consulted,
+                                "duration_ms": research_result.duration_ms
+                            }
+                        }
+                    except Exception as e:
+                        logger.error(f"❌ [Autonomous Research] Failed: {e}")
+                        logger.info(f"   Falling back to regular Haiku routing")
+                        # Fall through to regular routing
+
             # Step 3: Route to appropriate AI
             # OVERRIDE: ALWAYS use Haiku 4.5 for frontend (per user requirement)
             # Haiku 4.5 is the ONLY AI, it IS Zantara (not an assistant)
             suggested_ai = "haiku"
             logger.info("🎯 [Router] FORCED: Using Haiku 4.5 as ONLY AI (Zantara identity)")
-            
+
             if suggested_ai == "haiku":
                 # ROUTE 1: Claude Haiku 4.5 - THE ONLY AI (Zantara Identity)
                 logger.info("🎯 [Router] Using Haiku 4.5 - ZANTARA (full system access)")
