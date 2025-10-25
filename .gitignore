@@ -80,3 +80,8 @@ docs/reports/cleanup-*/
 
 # Temporary
 *.tmp
+
+# Large test artifacts
+.autofix/e2e-tests/**/*.zip
+.autofix/e2e-tests/test-results/**/trace.zip
+**/zantara_test_artifacts_*.zip
