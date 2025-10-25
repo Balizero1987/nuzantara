@@ -17,6 +17,7 @@ from core.embeddings import EmbeddingsGenerator
 from core.vector_db import ChromaDBClient
 from app.models import TierLevel, AccessLevel
 from services.query_router import QueryRouter
+from core.cache import cached
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,7 @@ class SearchService:
         logger.info("✅ Query routing enabled (Phase 3: Smart Fallback + Conflict Resolution)")
         logger.info("✅ Conflict Resolution Agent: ENABLED")
 
+    @cached(ttl=300, prefix="rag_search")
     async def search(
         self,
         query: str,
@@ -356,6 +358,7 @@ class SearchService:
 
         return resolved_results, conflict_reports
 
+    @cached(ttl=300, prefix="rag_multi_search")
     async def search_with_conflict_resolution(
         self,
         query: str,
