@@ -859,14 +859,39 @@ class IntelligentRouter:
                     max_tool_iterations=5
                 )
 
-                # Stream the complete response word-by-word
+                # Stream the complete response preserving newlines
                 response_text = result["text"]
-                words = response_text.split()
 
-                for i, word in enumerate(words):
-                    # Add space before word (except first)
-                    chunk = f" {word}" if i > 0 else word
-                    yield chunk
+                # Split while preserving newlines
+                # Strategy: Split on spaces but treat \n as special tokens
+                parts = []
+                current_part = ""
+
+                for char in response_text:
+                    if char == '\n':
+                        # Yield accumulated word if any
+                        if current_part:
+                            parts.append(current_part)
+                            current_part = ""
+                        # Yield newline as separate chunk
+                        parts.append('\n')
+                    elif char == ' ':
+                        # Yield accumulated word if any
+                        if current_part:
+                            parts.append(current_part)
+                            current_part = ""
+                        # Yield space
+                        parts.append(' ')
+                    else:
+                        current_part += char
+
+                # Yield last word if any
+                if current_part:
+                    parts.append(current_part)
+
+                # Stream all parts (words, spaces, newlines)
+                for part in parts:
+                    yield part
 
             else:
                 # Fallback: streaming without tools (shouldn't happen)
