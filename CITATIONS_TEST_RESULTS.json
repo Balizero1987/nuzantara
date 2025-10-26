@@ -1,0 +1,117 @@
+{
+  "timestamp": "2025-10-26T10:19:16.251791",
+  "feature": "Citations Module (TIER 2)",
+  "tests": [
+    {
+      "name": "Login successful",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Citations module loaded",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Method render() available",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Method extract() available",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Method hasCitations() available",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Method formatAsText() available",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Message 1 typed",
+      "status": "PASS",
+      "details": "How much does it cost to set up a PT com"
+    },
+    {
+      "name": "Message 1 sent",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Message 1 citations",
+      "status": "FAIL",
+      "reason": "Citations not found in DOM"
+    },
+    {
+      "name": "Message 2 typed",
+      "status": "PASS",
+      "details": "Come costituire una PT company?"
+    },
+    {
+      "name": "Message 2 sent",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Message 2 citations",
+      "status": "FAIL",
+      "reason": "Citations not found in DOM"
+    },
+    {
+      "name": "Message 3 typed",
+      "status": "PASS",
+      "details": "Bagaimana cara mendirikan PT?"
+    },
+    {
+      "name": "Message 3 sent",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "Message 3 citations",
+      "status": "FAIL",
+      "reason": "Citations not found in DOM"
+    },
+    {
+      "name": "Tier badges",
+      "status": "FAIL",
+      "reason": "No citations with tiers found (backend issue)"
+    },
+    {
+      "name": "Similarity scores",
+      "status": "FAIL",
+      "reason": "Not displayed"
+    },
+    {
+      "name": "Citations.hasCitations() working",
+      "status": "PASS",
+      "details": "Detects sources correctly"
+    },
+    {
+      "name": "Citations.extract() working",
+      "status": "PASS",
+      "details": "Extracted 2 citations"
+    },
+    {
+      "name": "Smart Suggestions + Citations loaded",
+      "status": "PASS",
+      "details": "Both modules coexist"
+    },
+    {
+      "name": "No console errors",
+      "status": "PASS",
+      "details": "Clean execution"
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "passed": 16,
+    "failed": 5,
+    "pass_rate": "76.2%"
+  }
+}

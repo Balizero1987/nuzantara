@@ -30,8 +30,8 @@ Between 2015 and 2025, **over 2,400 hectares of rice terraces were converted to 
 
 The problem isn't just tourism. It's **illegal building**. It's **unenforced regulations**. It's foreign investors who don't understand—or don't care—that those emerald rice terraces aren't decorative. They're Bali's kidneys.
 
-![Flooded rice terraces in Gianyar during September 2025 floods](/article-images/placeholder-1.jpg)
-*Flooded rice terraces in Gianyar during September 2025 floods*
+![Modern development pressure on Bali's traditional rice terraces](/flood-resized.jpg)
+*Stark contrast between Bali's traditional rice terraces and modern development - showing the pressure on agricultural areas*
 
 ---
 
@@ -45,8 +45,8 @@ The rice terraces aren't farmland. They're **flood control systems**. They're **
 
 Since 2012, when UNESCO declared Subak a World Heritage Cultural Landscape, Bali has lost **31% of its irrigated rice land**. The designation came with international prestige. It didn't come with enforcement.
 
-![Traditional Subak irrigation system in Tabanan](/article-images/placeholder-2.jpg)
-*Traditional Subak irrigation system in Tabanan*
+![Bali Development Impact Analysis - Data visualization](/flood2-resized.jpg)
+*Comprehensive data analysis showing the environmental impact of development on Bali's traditional agricultural systems*
 
 ---
 

@@ -1,11 +1,1 @@
-{
-  "version": 4,
-  "routes": {},
-  "dynamicRoutes": {},
-  "notFoundRoutes": [],
-  "preview": {
-    "previewModeId": "aebaeafa832cc09ec1a8fbbd9b1ecab6",
-    "previewModeSigningKey": "eb6a35602bd9c7fcf078bb375a6cebec1132d01c09794effe14d8fb945bed182",
-    "previewModeEncryptionKey": "a29493603e3296298181de46bd21ac6472d459753a2ab51d26edeaaecb78c9fd"
-  }
-}
+{"version":4,"routes":{"/article/skpl-alcohol-license-bali-complete-guide":{},"/article/north-bali-airport-decade-promises":{},"/article/d12-visa-indonesia-business-explorer":{},"/article/bali-floods-overtourism-reckoning":{},"/article/oss-2-migration-deadline-indonesia":{}},"dynamicRoutes":{"/article/[slug]":{"dataRoute":null,"dataRouteRegex":null,"fallback":null,"fallbackRevalidate":false,"fallbackSourceRoute":"/article/[slug]","routeRegex":"^\\/article\\/([^/]+?)(?:\\/)?$","allowHeader":[]}},"notFoundRoutes":[],"preview":{"previewModeId":"b5b93e966f1003c70e40b64bf9c55f88","previewModeSigningKey":"68c4d7a7c38088daaa1b35db00840e81e053223b9b3549e29294a20d196f4eea","previewModeEncryptionKey":"b5d00085d3ca54513e1984e1dcc848680362309b2ef01b52e03bbedbf5a1f39e"}}

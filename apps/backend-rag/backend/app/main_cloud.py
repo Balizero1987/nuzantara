@@ -11,7 +11,7 @@ COST OPTIMIZATION: 3x cheaper than Sonnet, same quality with RAG
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.responses import StreamingResponse, HTMLResponse
+from fastapi.responses import StreamingResponse, HTMLResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
@@ -1804,6 +1804,20 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
     except Exception as e:
         logger.error(f"❌ Chat failed: {e}")
         raise HTTPException(500, f"Chat failed: {str(e)}")
+
+
+@app.options("/bali-zero/chat-stream")
+async def bali_zero_chat_stream_options():
+    """Handle CORS preflight requests for SSE endpoint"""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Max-Age": "3600"
+        }
+    )
 
 
 @app.get("/bali-zero/chat-stream")
