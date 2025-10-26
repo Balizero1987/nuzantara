@@ -311,8 +311,8 @@ async def test_document_upload(page):
             if modal_visible:
                 print("✅ Document upload modal opened")
                 
-                # Close modal
-                await page.click('.close-btn')
+                # Close modal using specific ID to avoid ambiguity
+                await page.click('#docUploadCloseBtn')
                 await asyncio.sleep(2)
                 
                 test_results['features_tested']['document_upload'] = True
