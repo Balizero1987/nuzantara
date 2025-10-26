@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-26T10:38:47.037466",
+  "timestamp": "2025-10-26T12:34:08.368523",
   "feature": "Citations Module (TIER 2)",
   "tests": [
     {
@@ -43,9 +43,9 @@
       "details": ""
     },
     {
-      "name": "Message 1 citations",
-      "status": "FAIL",
-      "reason": "Citations not found in DOM"
+      "name": "Message 1 citations rendered",
+      "status": "PASS",
+      "details": "3 citations: unknown, unknown, unknown"
     },
     {
       "name": "Message 2 typed",
@@ -58,9 +58,9 @@
       "details": ""
     },
     {
-      "name": "Message 2 citations",
-      "status": "FAIL",
-      "reason": "Citations not found in DOM"
+      "name": "Message 2 citations rendered",
+      "status": "PASS",
+      "details": "6 citations: unknown, unknown, unknown"
     },
     {
       "name": "Message 3 typed",
@@ -73,19 +73,19 @@
       "details": ""
     },
     {
-      "name": "Message 3 citations",
-      "status": "FAIL",
-      "reason": "Citations not found in DOM"
+      "name": "Message 3 citations rendered",
+      "status": "PASS",
+      "details": "9 citations: unknown, unknown, unknown"
     },
     {
-      "name": "Tier badges",
-      "status": "FAIL",
-      "reason": "No citations with tiers found (backend issue)"
+      "name": "Tier badges present",
+      "status": "PASS",
+      "details": "9 citations with T1/T2/T3 badges"
     },
     {
-      "name": "Similarity scores",
-      "status": "FAIL",
-      "reason": "Not displayed"
+      "name": "Similarity scores visible",
+      "status": "PASS",
+      "details": "Relevance percentages shown"
     },
     {
       "name": "Citations.hasCitations() working",
@@ -110,8 +110,8 @@
   ],
   "summary": {
     "total": 21,
-    "passed": 16,
-    "failed": 5,
-    "pass_rate": "76.2%"
+    "passed": 21,
+    "failed": 0,
+    "pass_rate": "100.0%"
   }
 }
