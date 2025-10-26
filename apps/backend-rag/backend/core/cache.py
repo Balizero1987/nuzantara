@@ -54,8 +54,12 @@ class CacheService:
     
     def _generate_key(self, prefix: str, *args, **kwargs) -> str:
         """Generate cache key from function arguments"""
+        # Skip 'self' from args (first argument for instance methods)
+        # This prevents "Object not JSON serializable" errors
+        filtered_args = args[1:] if args and hasattr(args[0], '__dict__') else args
+
         # Create deterministic key from arguments
-        key_data = json.dumps({"args": args, "kwargs": kwargs}, sort_keys=True)
+        key_data = json.dumps({"args": filtered_args, "kwargs": kwargs}, sort_keys=True)
         key_hash = hashlib.md5(key_data.encode()).hexdigest()[:12]
         return f"zantara:{prefix}:{key_hash}"
     
