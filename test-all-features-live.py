@@ -36,9 +36,9 @@ CONFIG = {
     'timeout': 120000,  # 120 secondi timeout
     'viewport': {'width': 1920, 'height': 1080},
     'test_user': {
-        'name': 'zero',
-        'email': 'zero@balizero.com',
-        'pin': '010719'
+        'name': 'Krisna',
+        'email': 'krisna@balizero.com',
+        'pin': '705802'
     }
 }
 
@@ -261,11 +261,13 @@ async def test_memory_panel(page):
     
     try:
         # Look for memory panel button (floating button or Ctrl+H)
-        # Try keyboard shortcut (lowercase 'h')
-        print("   Pressing Ctrl+H...")
-        await page.keyboard.down('Control')
+        # Try keyboard shortcut (use Meta on Mac, Control on others)
+        print("   Pressing Cmd/Ctrl+H...")
+        import platform
+        modifier = 'Meta' if platform.system() == 'Darwin' else 'Control'
+        await page.keyboard.down(modifier)
         await page.keyboard.press('h')
-        await page.keyboard.up('Control')
+        await page.keyboard.up(modifier)
         await asyncio.sleep(4)
         
         # Check if panel opened (uses .active class)
