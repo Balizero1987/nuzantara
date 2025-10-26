@@ -1,5 +1,5 @@
 """
-ZANTARA RAG Backend - Railway Version
+ZANTARA RAG Backend - Railway Version (v3.3.1-cors-fix)
 Port 8000
 Uses ChromaDB from Cloudflare R2 + Claude AI (Haiku 4.5 ONLY)
 
@@ -8,6 +8,8 @@ AI ROUTING: Intelligent Router with HAIKU-ONLY System
 - RAG Integration: Enhanced context for all business queries
 - Tool Use: Full access to all 164 tools
 COST OPTIMIZATION: 3x cheaper than Sonnet, same quality with RAG
+
+CORS FIX: Explicit headers on /health and /bali-zero/chat-stream endpoints
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
@@ -61,7 +63,7 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI
 app = FastAPI(
     title="ZANTARA RAG API",
-    version="3.3.0-phase1",
+    version="3.3.1-cors-fix",
     description="RAG + LLM backend for NUZANTARA (ChromaDB from R2 + Claude AI Haiku 4.5 ONLY with Intelligent Routing)"
 )
 
@@ -1267,7 +1269,7 @@ async def health_check():
         content=json.dumps({
             "status": "healthy",
             "service": "ZANTARA RAG",
-            "version": "3.3.0-phase1",
+            "version": "3.3.1-cors-fix",
             "mode": "full",
             "available_services": [
                 "chromadb",

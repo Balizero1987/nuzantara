@@ -1,0 +1,28 @@
+{
+  "test_summary": {
+    "total_questions": 50,
+    "successful": 0,
+    "failed": 0,
+    "success_rate": "0.0%",
+    "duration": "0.9 minutes"
+  },
+  "response_times": {
+    "average": "N/A",
+    "min": "N/A",
+    "max": "N/A"
+  },
+  "features_tested": {
+    "citations": false,
+    "pricing_calculator": false,
+    "team_roster": false,
+    "clarification_prompts": false,
+    "memory_panel": false,
+    "image_creator": false,
+    "document_upload": false,
+    "language_selector": false,
+    "conversation_history": false
+  },
+  "features_working": 0,
+  "total_features": 9,
+  "errors": []
+}

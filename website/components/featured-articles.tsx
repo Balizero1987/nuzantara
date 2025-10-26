@@ -2,73 +2,73 @@ import { getFeaturedArticles } from "@/lib/api"
 import { ArticleCard } from "@/components/article/article-card"
 
 export async function FeaturedArticles() {
-  const articles = await getFeaturedArticles(6)
+  const allArticles = await getFeaturedArticles(6)
+
+  // Custom order: Bali Floods, Airport, Telkom, SKPL, OSS
+  const desiredOrder = [
+    'bali-floods-overtourism-reckoning',
+    'north-bali-airport-decade-promises',
+    'telkom-ai-campus',
+    'skpl-alcohol-license-bali-complete-guide',
+    'oss-2-migration-deadline-indonesia'
+  ]
+
+  const articles = desiredOrder
+    .map(slug => allArticles.find(a => a.slug === slug))
+    .filter(Boolean)
 
   return (
     <section className="py-16 px-4 md:px-6 lg:px-8 bg-black">
       <div className="max-w-7xl mx-auto lg:px-[6%]">
-        {/* Asymmetric Layout */}
-        <div className="space-y-8">
-          {/* Featured Article - Large Block */}
-          {articles.length > 0 && (
-            <div className="w-full">
-              <ArticleCard 
-                key={articles[0].slug} 
-                article={articles[0]} 
+        {/* Asymmetric Layout - Custom Design */}
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 auto-rows-[180px]">
+          {/* Yellow (Bali Floods) - esteso verso il basso */}
+          {articles[0] && (
+            <div className="lg:col-span-2 lg:row-span-8">
+              <ArticleCard
+                article={articles[0]}
+                variant="medium"
+              />
+            </div>
+          )}
+
+          {/* Blue (Airport) - più spazio immagine */}
+          {articles[1] && (
+            <div className="lg:col-span-2 lg:row-span-5 mt-[1.5cm]">
+              <ArticleCard
+                article={articles[1]}
                 variant="featured"
               />
             </div>
           )}
 
-          {/* Secondary Articles - Asymmetric Grid */}
-          {articles.length > 1 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Medium Block - Left */}
-              {articles[1] && (
-                <div className="md:col-span-1 lg:col-span-2">
-                  <ArticleCard 
-                    key={articles[1].slug} 
-                    article={articles[1]} 
-                    variant="medium"
-                  />
-                </div>
-              )}
-              
-              {/* Small Block - Right */}
-              {articles[2] && (
-                <div className="md:col-span-1 lg:col-span-1">
-                  <ArticleCard 
-                    key={articles[2].slug} 
-                    article={articles[2]} 
-                    variant="small"
-                  />
-                </div>
-              )}
-              
-              {/* Small Block - Right */}
-              {articles[3] && (
-                <div className="md:col-span-1 lg:col-span-1">
-                  <ArticleCard 
-                    key={articles[3].slug} 
-                    article={articles[3]} 
-                    variant="small"
-                  />
-                </div>
-              )}
+          {/* Red (Telkom) - più spazio immagine */}
+          {articles[2] && (
+            <div className="lg:col-span-2 lg:row-span-7">
+              <ArticleCard
+                article={articles[2]}
+                variant="featured"
+              />
             </div>
           )}
 
-          {/* Third Row - Mixed Sizes */}
-          {articles.length > 4 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {articles.slice(4, 6).map((article, index) => (
-                <div key={article.slug} className={index === 0 ? "md:col-span-2" : "md:col-span-1"}>
-                  <ArticleCard 
-                    article={article} 
-                    variant={index === 0 ? "medium" : "small"}
-                  />
-                </div>
-              ))}
+          {/* Green (SKPL/Alcohol) - spostato più in alto */}
+          {articles[3] && (
+            <div className="lg:col-span-4 lg:row-span-4 -mt-[10cm]">
+              <ArticleCard
+                article={articles[3]}
+                variant="large"
+              />
+            </div>
+          )}
+
+          {/* Azzurro (OSS) - spostato più in alto */}
+          {articles[4] && (
+            <div className="lg:col-span-2 lg:row-span-4 -mt-[10cm]">
+              <ArticleCard
+                article={articles[4]}
+                variant="small"
+              />
             </div>
           )}
         </div>

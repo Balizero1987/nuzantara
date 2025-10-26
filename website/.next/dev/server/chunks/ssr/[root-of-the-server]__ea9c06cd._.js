@@ -194,16 +194,40 @@ const mockArticles = [
         ]
     },
     {
+        slug: 'telkom-ai-campus',
+        title: "Telkom Indonesia Launches 'AI Campus' to Train 113,000 Future Tech Talents",
+        excerpt: "Telkom Indonesia has launched AI Campus, a national education program designed to train 113,000 young Indonesians in artificial intelligence, data, and digital technology.",
+        category: 'business',
+        image: '/cover_telkom.jpg',
+        publishedAt: '2025-10-23',
+        updatedAt: '2025-10-23',
+        readTime: 8,
+        author: 'ZANTARA Intelligence',
+        featured: true,
+        content: 'Full article in /content/articles/telkom-ai-campus.md',
+        tags: [
+            'AI',
+            'Education',
+            'Technology',
+            'Telkom',
+            'Indonesia'
+        ],
+        relatedArticles: [
+            'north-bali-airport-decade-promises',
+            'd12-visa-indonesia-business-explorer'
+        ]
+    },
+    {
         slug: 'skpl-alcohol-license-bali-complete-guide',
         title: 'When Inspectors Walk In: The Real Cost of Skipping Your SKPL',
         excerpt: "Your bar is packed. Music's loud. Drinks are flowing. Then you see them: two officials with clipboards, walking straight toward your manager. And you realize—nobody checked the alcohol license in six months.",
         category: 'business',
-        image: '/instagram/post_1_cover.jpg',
+        image: '/instagram/post_1/alcohol.jpg',
         publishedAt: '2025-10-24',
         updatedAt: '2025-10-24',
         readTime: 9,
         author: 'Bali Zero Legal Compliance',
-        featured: false,
+        featured: true,
         content: 'Full article in /content/articles/skpl-alcohol-license-bali-complete-guide.md',
         tags: [
             'SKPL',
@@ -326,15 +350,18 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAIL
 ;
 ;
 ;
-function ArticleCard({ article, variant = 'small' }) {
+function ArticleCard({ article, variant = 'small', colorBlock }) {
     // Define aspect ratios based on variant
     const getAspectRatio = ()=>{
         switch(variant){
             case 'featured':
-                return 'aspect-[16/9]' // Wide for featured
+                return 'aspect-[3/4]' // Vertical for featured too
+                ;
+            case 'large':
+                return 'aspect-[16/9]' // Horizontal for large
                 ;
             case 'medium':
-                return 'aspect-[4/3]' // Medium rectangle
+                return 'aspect-[3/4]' // Vertical for medium
                 ;
             case 'small':
             default:
@@ -347,11 +374,30 @@ function ArticleCard({ article, variant = 'small' }) {
         switch(variant){
             case 'featured':
                 return 'text-2xl md:text-3xl lg:text-4xl';
+            case 'large':
+                return 'text-xl md:text-2xl lg:text-3xl';
             case 'medium':
                 return 'text-xl md:text-2xl';
             case 'small':
             default:
                 return 'text-lg md:text-xl lg:text-2xl';
+        }
+    };
+    // Define text colors based on color block
+    const getTextColor = ()=>{
+        switch(colorBlock){
+            case 'marrone-rosso':
+                return 'text-white';
+            case 'giallo':
+                return 'text-black';
+            case 'blu-scuro':
+                return 'text-white';
+            case 'verde':
+                return 'text-black';
+            case 'blu-viola':
+                return 'text-white';
+            default:
+                return 'text-white';
         }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$react$2d$server$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"], {
@@ -368,7 +414,7 @@ function ArticleCard({ article, variant = 'small' }) {
                             className: "w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 vibrant-image"
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                            lineNumber: 42,
+                            lineNumber: 65,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -376,7 +422,7 @@ function ArticleCard({ article, variant = 'small' }) {
                             children: article.category.toUpperCase().replace('-', ' ')
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                            lineNumber: 49,
+                            lineNumber: 72,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -387,27 +433,27 @@ function ArticleCard({ article, variant = 'small' }) {
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                            lineNumber: 54,
+                            lineNumber: 77,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "absolute bottom-0 right-0 w-32 h-12 bg-gradient-to-tl from-black via-black/90 to-transparent z-10"
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                            lineNumber: 59,
+                            lineNumber: 82,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity shimmer"
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                            lineNumber: 62,
+                            lineNumber: 85,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                    lineNumber: 41,
+                    lineNumber: 64,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -418,7 +464,7 @@ function ArticleCard({ article, variant = 'small' }) {
                             children: article.title
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                            lineNumber: 68,
+                            lineNumber: 91,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -428,14 +474,14 @@ function ArticleCard({ article, variant = 'small' }) {
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$lib$2f$utils$2f$date$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["formatDate"])(article.publishedAt)
                                 }, void 0, false, {
                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                                    lineNumber: 74,
+                                    lineNumber: 97,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     children: "•"
                                 }, void 0, false, {
                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                                    lineNumber: 75,
+                                    lineNumber: 98,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -445,30 +491,30 @@ function ArticleCard({ article, variant = 'small' }) {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                                    lineNumber: 76,
+                                    lineNumber: 99,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                            lineNumber: 73,
+                            lineNumber: 96,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-                    lineNumber: 66,
+                    lineNumber: 89,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-            lineNumber: 39,
+            lineNumber: 62,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/article/article-card.tsx",
-        lineNumber: 38,
+        lineNumber: 61,
         columnNumber: 5
     }, this);
 }
@@ -487,110 +533,103 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAIL
 ;
 ;
 async function FeaturedArticles() {
-    const articles = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getFeaturedArticles"])(6);
+    const allArticles = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getFeaturedArticles"])(6);
+    // Custom order: Bali Floods, Airport, Telkom, SKPL, OSS
+    const desiredOrder = [
+        'bali-floods-overtourism-reckoning',
+        'north-bali-airport-decade-promises',
+        'telkom-ai-campus',
+        'skpl-alcohol-license-bali-complete-guide',
+        'oss-2-migration-deadline-indonesia'
+    ];
+    const articles = desiredOrder.map((slug)=>allArticles.find((a)=>a.slug === slug)).filter(Boolean);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
         className: "py-16 px-4 md:px-6 lg:px-8 bg-black",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "max-w-7xl mx-auto lg:px-[6%]",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "space-y-8",
+                    className: "grid grid-cols-1 lg:grid-cols-6 gap-6 auto-rows-[180px]",
                     children: [
-                        articles.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "w-full",
+                        articles[0] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "lg:col-span-2 lg:row-span-8",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
                                 article: articles[0],
-                                variant: "featured"
-                            }, articles[0].slug, false, {
+                                variant: "medium"
+                            }, void 0, false, {
                                 fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                                lineNumber: 15,
+                                lineNumber: 28,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                            lineNumber: 14,
+                            lineNumber: 27,
                             columnNumber: 13
                         }, this),
-                        articles.length > 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
-                            children: [
-                                articles[1] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "md:col-span-1 lg:col-span-2",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
-                                        article: articles[1],
-                                        variant: "medium"
-                                    }, articles[1].slug, false, {
-                                        fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                                        lineNumber: 29,
-                                        columnNumber: 19
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                                    lineNumber: 28,
-                                    columnNumber: 17
-                                }, this),
-                                articles[2] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "md:col-span-1 lg:col-span-1",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
-                                        article: articles[2],
-                                        variant: "small"
-                                    }, articles[2].slug, false, {
-                                        fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                                        lineNumber: 40,
-                                        columnNumber: 19
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                                    lineNumber: 39,
-                                    columnNumber: 17
-                                }, this),
-                                articles[3] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "md:col-span-1 lg:col-span-1",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
-                                        article: articles[3],
-                                        variant: "small"
-                                    }, articles[3].slug, false, {
-                                        fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                                        lineNumber: 51,
-                                        columnNumber: 19
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                                    lineNumber: 50,
-                                    columnNumber: 17
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                            lineNumber: 25,
-                            columnNumber: 13
-                        }, this),
-                        articles.length > 4 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "grid grid-cols-1 md:grid-cols-3 gap-6",
-                            children: articles.slice(4, 6).map((article, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: index === 0 ? "md:col-span-2" : "md:col-span-1",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
-                                        article: article,
-                                        variant: index === 0 ? "medium" : "small"
-                                    }, void 0, false, {
-                                        fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                                        lineNumber: 66,
-                                        columnNumber: 19
-                                    }, this)
-                                }, article.slug, false, {
-                                    fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                                    lineNumber: 65,
-                                    columnNumber: 17
-                                }, this))
+                        articles[1] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "lg:col-span-2 lg:row-span-5 mt-[1.5cm]",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
+                                article: articles[1],
+                                variant: "featured"
+                            }, void 0, false, {
+                                fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
+                                lineNumber: 38,
+                                columnNumber: 15
+                            }, this)
                         }, void 0, false, {
                             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                            lineNumber: 63,
+                            lineNumber: 37,
+                            columnNumber: 13
+                        }, this),
+                        articles[2] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "lg:col-span-2 lg:row-span-7",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
+                                article: articles[2],
+                                variant: "featured"
+                            }, void 0, false, {
+                                fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
+                                lineNumber: 48,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
+                            lineNumber: 47,
+                            columnNumber: 13
+                        }, this),
+                        articles[3] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "lg:col-span-4 lg:row-span-4 -mt-[10cm]",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
+                                article: articles[3],
+                                variant: "large"
+                            }, void 0, false, {
+                                fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
+                                lineNumber: 58,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
+                            lineNumber: 57,
+                            columnNumber: 13
+                        }, this),
+                        articles[4] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "lg:col-span-2 lg:row-span-4 -mt-[10cm]",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
+                                article: articles[4],
+                                variant: "small"
+                            }, void 0, false, {
+                                fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
+                                lineNumber: 68,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
+                            lineNumber: 67,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-                    lineNumber: 11,
+                    lineNumber: 24,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -611,12 +650,12 @@ async function FeaturedArticles() {
             ]
         }, void 0, true, {
             fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-            lineNumber: 9,
+            lineNumber: 22,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/Desktop/NUZANTARA-RAILWAY/website/components/featured-articles.tsx",
-        lineNumber: 8,
+        lineNumber: 21,
         columnNumber: 5
     }, this);
 }

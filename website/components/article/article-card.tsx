@@ -4,17 +4,20 @@ import { formatDate } from "@/lib/utils/date"
 
 interface ArticleCardProps {
   article: Article
-  variant?: 'featured' | 'medium' | 'small'
+  variant?: 'featured' | 'medium' | 'small' | 'large'
+  colorBlock?: 'marrone-rosso' | 'giallo' | 'blu-scuro' | 'verde' | 'blu-viola'
 }
 
-export function ArticleCard({ article, variant = 'small' }: ArticleCardProps) {
+export function ArticleCard({ article, variant = 'small', colorBlock }: ArticleCardProps) {
   // Define aspect ratios based on variant
   const getAspectRatio = () => {
     switch (variant) {
       case 'featured':
-        return 'aspect-[16/9]' // Wide for featured
+        return 'aspect-[3/4]' // Vertical for featured too
+      case 'large':
+        return 'aspect-[16/9]' // Horizontal for large
       case 'medium':
-        return 'aspect-[4/3]' // Medium rectangle
+        return 'aspect-[3/4]' // Vertical for medium
       case 'small':
       default:
         return 'aspect-[3/4]' // Vertical for small
@@ -26,11 +29,31 @@ export function ArticleCard({ article, variant = 'small' }: ArticleCardProps) {
     switch (variant) {
       case 'featured':
         return 'text-2xl md:text-3xl lg:text-4xl'
+      case 'large':
+        return 'text-xl md:text-2xl lg:text-3xl'
       case 'medium':
         return 'text-xl md:text-2xl'
       case 'small':
       default:
         return 'text-lg md:text-xl lg:text-2xl'
+    }
+  }
+
+  // Define text colors based on color block
+  const getTextColor = () => {
+    switch (colorBlock) {
+      case 'marrone-rosso':
+        return 'text-white'
+      case 'giallo':
+        return 'text-black'
+      case 'blu-scuro':
+        return 'text-white'
+      case 'verde':
+        return 'text-black'
+      case 'blu-viola':
+        return 'text-white'
+      default:
+        return 'text-white'
     }
   }
 

@@ -54,16 +54,31 @@ const mockArticles: Article[] = [
     relatedArticles: ['oss-2-migration-deadline-indonesia', 'skpl-alcohol-license-bali-complete-guide']
   },
   {
+    slug: 'telkom-ai-campus',
+    title: "Telkom Indonesia Launches 'AI Campus' to Train 113,000 Future Tech Talents",
+    excerpt: "Telkom Indonesia has launched AI Campus, a national education program designed to train 113,000 young Indonesians in artificial intelligence, data, and digital technology.",
+    category: 'business',
+    image: '/cover_telkom.jpg',
+    publishedAt: '2025-10-23',
+    updatedAt: '2025-10-23',
+    readTime: 8,
+    author: 'ZANTARA Intelligence',
+    featured: true,
+    content: 'Full article in /content/articles/telkom-ai-campus.md',
+    tags: ['AI', 'Education', 'Technology', 'Telkom', 'Indonesia'],
+    relatedArticles: ['north-bali-airport-decade-promises', 'd12-visa-indonesia-business-explorer']
+  },
+  {
     slug: 'skpl-alcohol-license-bali-complete-guide',
     title: 'When Inspectors Walk In: The Real Cost of Skipping Your SKPL',
     excerpt: "Your bar is packed. Music's loud. Drinks are flowing. Then you see them: two officials with clipboards, walking straight toward your manager. And you realize—nobody checked the alcohol license in six months.",
     category: 'business',
-    image: '/instagram/post_1_cover.jpg',
+    image: '/instagram/post_1/alcohol.jpg',
     publishedAt: '2025-10-24',
     updatedAt: '2025-10-24',
     readTime: 9,
     author: 'Bali Zero Legal Compliance',
-    featured: false,
+    featured: true,
     content: 'Full article in /content/articles/skpl-alcohol-license-bali-complete-guide.md',
     tags: ['SKPL', 'alcohol license', 'F&B compliance', 'bar license', 'Bali business'],
     relatedArticles: ['oss-2-migration-deadline-indonesia', 'd12-visa-indonesia-business-explorer']
