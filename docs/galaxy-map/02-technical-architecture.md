@@ -30,11 +30,11 @@ nuzantara-railway/
 
 ## ⚙️ TS Backend Architecture
 
-### Handler Categories (122 Total)
+### Handler Categories (138 Total)
 
 ```mermaid
 graph TB
-    subgraph "122 TS HANDLERS - 19 Categories"
+    subgraph "138 TS HANDLERS - 17 Categories"
         H1[Google Workspace - 8<br/>gmail, drive, calendar<br/>sheets, docs, slides]
         H2[AI Services - 10<br/>ai.chat, zantara.chat<br/>devai.*]
         H3[Bali Zero - 15<br/>pricing, kbli, oracle<br/>advisory]
@@ -49,7 +49,7 @@ graph TB
     end
 ```
 
-### Core Services (26 Files)
+### Core Services (24 Files)
 
 | Service | Purpose | Dependencies |
 |---------|---------|--------------|
@@ -60,7 +60,7 @@ graph TB
 | `load-all-handlers.ts` | Dynamic loading | Core |
 | **+21 more services** | Various | - |
 
-### Middleware Pipeline (16 Files)
+### Middleware Pipeline (14 Files)
 
 ```mermaid
 flowchart LR

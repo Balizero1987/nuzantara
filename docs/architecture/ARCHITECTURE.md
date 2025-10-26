@@ -1,14 +1,14 @@
 # NUZANTARA - System Architecture
 
-> **Last Updated**: 2025-10-18 (Migration to Railway)
-> **Version**: 5.6.0 (tools: 41 exposed + DevAI 7 handlers)
+> **Last Updated**: 2025-10-27 (Architecture Documentation Sync)
+> **Version**: 5.7.0 (handlers: 138 functions, services: 68 total)
 > **Status**: Production (Railway) + Local Development + ZANTARA Llama 3.1 + DevAI Qwen 2.5
 
 ---
 
 ## 🎯 System Overview
 
-NUZANTARA is a **multi-AI enterprise system** combining TypeScript (business logic) and Python (RAG/ML) with **121 handlers** for Google Workspace, AI services, Bali Zero business operations, and collaborative intelligence.
+NUZANTARA is a **multi-AI enterprise system** combining TypeScript (business logic) and Python (RAG/ML) with **138 handler functions** for Google Workspace, AI services, Bali Zero business operations, and collaborative intelligence.
 
 **Dual-AI Architecture**:
 - 🧠 **ZANTARA (Llama 3.1 8B)**: Customer-facing AI for business operations
@@ -28,7 +28,7 @@ graph TB
         Router[RPC Router<br/>/call endpoint]
         MW[Middleware Stack]
 
-        subgraph "93 Handlers"
+        subgraph "138 Handler Functions"
             H_Identity[Identity 3]
             H_GWS[Google Workspace 22]
             H_AI[AI Services 9]
@@ -197,7 +197,7 @@ const handlers: Record<string, Handler> = {
 | **RAG Proxy** | 4 | `rag.query`, `rag.search`, `rag.health`, `bali.zero.chat` | `handlers/rag/` |
 | **WebSocket Admin** | 3 | `websocket.stats`, `websocket.broadcast`, `websocket.send` | `handlers/admin/` |
 
-**Total Handlers**: 93 (active modules, verified 2025-10-25)
+**Total Handlers**: 138 (active functions, verified 2025-10-27)
 
 ---
 

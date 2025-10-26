@@ -1,7 +1,7 @@
 # 🌌 NUZANTARA GALAXY MAP
 
 **Version:** 5.2.0
-**Last Updated:** 23 October 2025
+**Last Updated:** 27 October 2025
 **Type:** Comprehensive System Documentation (Technical + Functional)
 
 Welcome to the **complete visual map** of the nuzantara platform - integrating **technical architecture** (code structure) with **functional behavior** (AI system, performance, costs).
@@ -139,9 +139,10 @@ graph TB
 Total: ~60,500 Lines of Code
 
 Backend TypeScript: 25,000 lines
-├── Handlers: 122 files (19 categories)
-├── Services: 26 files
-├── Middleware: 16 files
+├── Handlers: 138 functions (17 categories)
+├── Handler Files: 50 files
+├── Services: 24 files
+├── Middleware: 14 files
 └── Routes: 50+ API endpoints
 
 Backend Python (RAG): 15,000 lines
