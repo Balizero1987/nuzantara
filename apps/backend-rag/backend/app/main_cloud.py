@@ -1246,43 +1246,65 @@ async def cache_stats():
         return {"success": False, "error": str(e)}
 
 
+@app.options("/health")
+async def health_options():
+    """Handle CORS preflight for health endpoint"""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Max-Age": "3600"
+        }
+    )
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "service": "ZANTARA RAG",
-        "version": "3.3.0-phase1",
-        "mode": "full",
-        "available_services": [
-            "chromadb",
-            "claude_haiku",
-            "postgresql",
-            "crm_system"
-        ],
-        "chromadb": search_service is not None,
-        "ai": {
-            "claude_haiku_available": claude_haiku is not None,
-            "has_ai": claude_haiku is not None
-        },
-        "memory": {
-            "postgresql": memory_service is not None,
-            "vector_db": search_service is not None
-        },
-        "crm": {
-            "enabled": True,
-            "endpoints": 41,
-            "features": ["auto_extraction", "client_tracking", "practice_management", "shared_memory"]
-        },
-        "reranker": reranker_service is not None,
-        "collaborative_intelligence": True,
-        "tools": {
-            "tool_executor_status": tool_executor is not None,
-            "zantara_tools_status": zantara_tools is not None,
-            "pricing_service_status": pricing_service is not None,
-            "handler_proxy_status": handler_proxy_service is not None
+    return Response(
+        content=json.dumps({
+            "status": "healthy",
+            "service": "ZANTARA RAG",
+            "version": "3.3.0-phase1",
+            "mode": "full",
+            "available_services": [
+                "chromadb",
+                "claude_haiku",
+                "postgresql",
+                "crm_system"
+            ],
+            "chromadb": search_service is not None,
+            "ai": {
+                "claude_haiku_available": claude_haiku is not None,
+                "has_ai": claude_haiku is not None
+            },
+            "memory": {
+                "postgresql": memory_service is not None,
+                "vector_db": search_service is not None
+            },
+            "crm": {
+                "enabled": True,
+                "endpoints": 41,
+                "features": ["auto_extraction", "client_tracking", "practice_management", "shared_memory"]
+            },
+            "reranker": reranker_service is not None,
+            "collaborative_intelligence": True,
+            "tools": {
+                "tool_executor_status": tool_executor is not None,
+                "zantara_tools_status": zantara_tools is not None,
+                "pricing_service_status": pricing_service is not None,
+                "handler_proxy_status": handler_proxy_service is not None
+            }
+        }),
+        media_type="application/json",
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization"
         }
-    }
+    )
 
 
 @app.get("/api/tools/verify")
