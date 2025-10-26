@@ -1910,15 +1910,9 @@ async def bali_zero_chat_stream(
                         limit=3
                     )
 
-                    logger.info(f"🔍 [Stream] Search returned type: {type(search_results)}, value: {search_results}")
-
                     if search_results and search_results.get("results"):
                         sources = []
                         for idx, result in enumerate(search_results["results"][:3]):
-                            # Debug: Log metadata to understand what fields are available
-                            logger.info(f"📊 [Stream] Result {idx} metadata keys: {list(result.get('metadata', {}).keys())}")
-                            logger.info(f"📊 [Stream] Result {idx} metadata: {result.get('metadata', {})}")
-
                             metadata = result.get("metadata", {})
                             source_name = metadata.get("title") or metadata.get("book_title") or metadata.get("source") or "Document"
 
@@ -1929,7 +1923,6 @@ async def bali_zero_chat_stream(
                                 "tier": metadata.get("tier", "T2"),
                                 "dateLastCrawled": metadata.get("last_updated")
                             })
-                            logger.info(f"📚 [Stream] Source {idx}: '{source_name}' (tier: {metadata.get('tier', 'T2')})")
                         logger.info(f"📚 [Stream] Sources retrieved: {len(sources)} documents")
                     else:
                         logger.warning(f"⚠️ [Stream] No search results found - search_results is {search_results}")
