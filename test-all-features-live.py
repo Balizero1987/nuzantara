@@ -268,16 +268,20 @@ async def test_memory_panel(page):
         await page.keyboard.up('Control')
         await asyncio.sleep(4)
         
-        # Check if panel opened (it might be #memoryPanel, not .open class)
-        panel_visible = await page.is_visible('#memoryPanel')
+        # Check if panel opened (uses .active class)
+        panel_visible = await page.is_visible('#memoryPanel.active')
         if panel_visible:
             print("✅ Memory panel opened")
             
             # Wait a bit to see content
             await asyncio.sleep(3)
             
-            # Close panel
-            await page.keyboard.press('Escape')
+            # Close panel (ESC or click overlay)
+            close_btn = await page.query_selector('.memory-panel-close')
+            if close_btn:
+                await close_btn.click()
+                await asyncio.sleep(2)
+                print("✅ Memory panel closed")
             await asyncio.sleep(2)
             
             test_results['features_tested']['memory_panel'] = True

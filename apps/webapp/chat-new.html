@@ -3597,11 +3597,10 @@
             });
         });
 
-        // Price Calculator Button - Toggle existing pricing widget
+        // Price Calculator Button - Use public API
         document.getElementById('priceCalcBtn').addEventListener('click', () => {
-            const widget = document.querySelector('.pricing-calculator-widget');
-            if (widget) {
-                widget.classList.toggle('expanded');
+            if (window.PricingCalculator && typeof window.PricingCalculator.toggleWidget === 'function') {
+                window.PricingCalculator.toggleWidget();
             }
         });
 
