@@ -377,7 +377,7 @@ function ArticleCard({ article, variant = 'small', colorBlock }) {
             case 'large':
                 return 'text-xl md:text-2xl lg:text-3xl';
             case 'medium':
-                return 'text-xl md:text-2xl';
+                return 'text-xl md:text-2xl lg:text-[2.25rem]';
             case 'small':
             default:
                 return 'text-lg md:text-xl lg:text-2xl';
@@ -549,10 +549,10 @@ async function FeaturedArticles() {
             className: "max-w-7xl mx-auto lg:px-[6%]",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "grid grid-cols-1 lg:grid-cols-6 gap-6 auto-rows-[180px]",
+                    className: "grid grid-cols-1 lg:grid-cols-6 gap-0.5 auto-rows-[125px]",
                     children: [
                         articles[0] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "lg:col-span-2 lg:row-span-8",
+                            className: "lg:col-span-2 lg:col-start-1 lg:row-span-5 lg:row-start-2 lg:-mt-[62.5px]",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
                                 article: articles[0],
                                 variant: "medium"
@@ -567,7 +567,7 @@ async function FeaturedArticles() {
                             columnNumber: 13
                         }, this),
                         articles[1] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "lg:col-span-2 lg:row-span-5 mt-[1.5cm]",
+                            className: "lg:col-span-2 lg:col-start-3 lg:row-span-6 lg:row-start-2",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
                                 article: articles[1],
                                 variant: "featured"
@@ -582,7 +582,7 @@ async function FeaturedArticles() {
                             columnNumber: 13
                         }, this),
                         articles[2] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "lg:col-span-2 lg:row-span-7",
+                            className: "lg:col-span-2 lg:col-start-5 lg:row-span-7 lg:row-start-0 lg:-mt-[62.5px] lg:pb-[62.5px]",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
                                 article: articles[2],
                                 variant: "featured"
@@ -597,7 +597,7 @@ async function FeaturedArticles() {
                             columnNumber: 13
                         }, this),
                         articles[3] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "lg:col-span-4 lg:row-span-4 -mt-[10cm]",
+                            className: "lg:col-span-4 lg:col-start-1 lg:row-span-5 lg:row-start-8 lg:pr-[25px]",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
                                 article: articles[3],
                                 variant: "large"
@@ -612,7 +612,7 @@ async function FeaturedArticles() {
                             columnNumber: 13
                         }, this),
                         articles[4] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "lg:col-span-2 lg:row-span-4 -mt-[10cm]",
+                            className: "lg:col-span-2 lg:col-start-5 lg:row-span-5 lg:row-start-8 lg:-mt-[50px]",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$NUZANTARA$2d$RAILWAY$2f$website$2f$components$2f$article$2f$article$2d$card$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ArticleCard"], {
                                 article: articles[4],
                                 variant: "small"

@@ -138,12 +138,14 @@ export function ArticleContent({ content, excerpt, category }: ArticleContentPro
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.color = getCategoryColor(category)
-                  e.target.style.borderColor = getCategoryColor(category)
+                  const target = e.target as HTMLElement
+                  target.style.color = getCategoryColor(category)
+                  target.style.borderColor = getCategoryColor(category)
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.color = '#6b7280'
-                  e.target.style.borderColor = '#e5e7eb'
+                  const target = e.target as HTMLElement
+                  target.style.color = '#6b7280'
+                  target.style.borderColor = '#e5e7eb'
                 }}
               >
                 {tag}
@@ -169,7 +171,8 @@ export function ArticleContent({ content, excerpt, category }: ArticleContentPro
               objectFit: 'contain'
             }}
             onError={(e) => {
-              e.target.src = '/logo/balizero-logo.png'
+              const target = e.target as HTMLImageElement
+              target.src = '/logo/balizero-logo.png'
             }}
           />
           <p style={{

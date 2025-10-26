@@ -32,7 +32,7 @@ export function ArticleCard({ article, variant = 'small', colorBlock }: ArticleC
       case 'large':
         return 'text-xl md:text-2xl lg:text-3xl'
       case 'medium':
-        return 'text-xl md:text-2xl'
+        return 'text-xl md:text-2xl lg:text-[2.25rem]'
       case 'small':
       default:
         return 'text-lg md:text-xl lg:text-2xl'

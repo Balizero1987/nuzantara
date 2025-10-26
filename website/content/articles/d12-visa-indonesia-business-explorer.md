@@ -16,12 +16,8 @@ Indonesia's D12 Pre-Investment Visa is designed for serious entrepreneurs who ne
 
 Think of it as Indonesia's way of saying: "Take your time. Do it right."
 
-![D12 Visa Application Process](/article-images/placeholder-3.jpg)
-*Step-by-step guide to D12 visa application and approval process*
-
-## Who Actually Needs It
-
----
+![Business professionals working in modern office environment](/instagram/post_4/2025-10-01_09-45-00_UTC_1.jpg)
+*D12 visa enables serious business exploration and market research in Indonesia*
 
 ## Who Actually Needs It
 
@@ -57,12 +53,8 @@ The D12 grants specific freedoms—but also clear limits.
 
 Essentially, the D12 lets you explore—not execute. Once you're ready to launch, you'll need to convert to an investor KITAS tied to actual PT PMA company formation.
 
-![Indonesian Business Visa Comparison](/article-images/placeholder-4.jpg)
-*Comparison chart showing D12 visa benefits vs other Indonesian business visa options*
-
-## The Application Reality Check
-
----
+![Entrepreneurs collaborating on business development](/instagram/post_1/2025-10-24_09-45-10_UTC_1.jpg)
+*D12 visa provides flexibility for business exploration before making major investment commitments*
 
 ## The Application Reality Check
 

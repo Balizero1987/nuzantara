@@ -20,12 +20,8 @@ Companies that missed the deadline? Their OSS 1.0 accounts became read-only. The
 
 Essentially, their businesses were regulatory ghosts—existing on paper but unable to interact with the system.
 
-![OSS 2.0 Migration Deadline](/article-images/placeholder-7.jpg)
+![OSS 2.0 Migration Deadline](/instagram/oss-article-image.jpg)
 *OSS 2.0 migration deadline notification and system interface*
-
-## Why the Government Forced Migration
-
----
 
 ## Why the Government Forced Migration
 
@@ -136,12 +132,8 @@ The office never responded again. The license stood.
 
 Positif Fiktif isn't a loophole—it's Indonesian law. And it's one of the few regulations that actually works in favor of businesses instead of bureaucrats.
 
-![OSS 2.0 Positif Fiktif Process](/article-images/placeholder-8.jpg)
-*Visual explanation of the Positif Fiktif automatic approval process in OSS 2.0*
-
-## What Happened to Companies That Missed It
-
----
+![Business compliance and regulatory process documentation](/instagram/post_5/2025-09-20_09-45-00_UTC_1.jpg)
+*Professional business compliance work - OSS 2.0 represents Indonesia's shift toward automated regulatory processes*
 
 ## What Happened to Companies That Missed It
 

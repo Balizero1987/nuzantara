@@ -17,11 +17,11 @@ export function Header() {
         {/* Logo Section - Left */}
         <Link href="/" className="flex items-center gap-4">
           <Image
-            src="/logo/balizero-logo-3d.png"
+            src="/logo/balizero-logo.png"
             alt="Bali Zero"
-            width={100}
-            height={100}
-            className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24"
+            width={120}
+            height={120}
+            className="h-20 w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 object-contain brightness-125 hover:brightness-150 contrast-110 transition-all duration-300"
             priority
           />
           <span className="font-serif font-bold text-xl md:text-2xl lg:text-3xl text-white hidden md:inline">
@@ -30,9 +30,9 @@ export function Header() {
           <Image
             src="/logo/zantara_logo_transparent.png"
             alt="ZANTARA"
-            width={100}
-            height={100}
-            className="h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 hidden md:block"
+            width={120}
+            height={120}
+            className="h-20 w-20 md:h-24 md:w-24 lg:h-28 lg:w-28 object-contain brightness-125 hover:brightness-150 contrast-110 transition-all duration-300"
             priority
           />
         </Link>

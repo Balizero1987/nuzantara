@@ -14,12 +14,8 @@ That was a decade ago.
 
 Today, there's no airport. No land acquisition. No permits. No runway. Not even a confirmed site. What there is: mounting frustration, political finger-pointing, and the growing suspicion that North Bali's airport was never meant to be more than a campaign promise.
 
-![North Bali Airport Development Plan](/article-images/placeholder-1.jpg)
-*Conceptual rendering of the proposed North Bali Airport terminal and runway layout*
-
-## The Numbers Game
-
----
+![Modern airport terminal interior with innovative architectural design](/instagram/post_2/2025-10-21_09-45-00_UTC_1.jpg)
+*Vision of modern airport infrastructure - the kind of world-class facility North Bali was promised*
 
 ## The Numbers Game
 
@@ -36,12 +32,8 @@ Ministry projections estimated the airport could serve **7-10 million passengers
 
 But numbers only matter if you build the thing.
 
-![Bali Airport Capacity Analysis](/article-images/placeholder-2.jpg)
-*Data visualization showing current Ngurah Rai capacity vs projected North Bali Airport passenger volumes*
-
-## The Site Nobody Can Agree On
-
----
+![Aerial view of modern airport infrastructure and terminal design](/instagram/post_2/2025-10-21_09-45-00_UTC_7.jpg)
+*World-class airport infrastructure - the type of international standard facility North Bali deserves*
 
 ## The Site Nobody Can Agree On
 

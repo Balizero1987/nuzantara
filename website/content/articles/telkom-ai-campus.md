@@ -48,6 +48,9 @@ AI Campus will be built on **four main pillars:**
 
 Students will take part in courses, workshops, and internships, guided by mentors from Telkom and local businesses. The best projects will receive **incubation support** — funding, mentorship, and a chance to go commercial.
 
+![Students working at Telkom AI Campus facility](/telkom.jpg)
+*AI Campus students collaborating on technology projects in a modern learning environment*
+
 ---
 
 ## The Bigger Vision
