@@ -42,12 +42,14 @@ npm run test:working   # Quick handler verification
 - **Unit**: Jest with auto-generated test templates (`generate-tests.py`)
 - **E2E**: Playwright config in `.autofix/e2e-tests/`
 - **Handler verification**: `test-working.sh` tests core handlers via `/call` endpoint
+- **Live Feature Testing**: `test-all-features-live.py` - Playwright automation of production webapp
 
 ### Debug Commands
 ```bash
 npm run typecheck      # TypeScript validation only
 npm run lint           # ESLint (may not be installed)
 ./scripts/onboarding_smoke.sh  # Quick system verification
+python test-all-features-live.py  # Full frontend feature testing
 ```
 
 ## Handler Architecture (Critical Pattern)
