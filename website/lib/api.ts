@@ -1,83 +1,87 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+import { marked } from 'marked'
 import type { Article, ArticleMetadata, CategorySlug } from './articles'
 
 const articlesDirectory = path.join(process.cwd(), 'content/articles')
 
-// Mock articles data (sostituirà i file markdown inizialmente)
+// Real articles from Instagram @balizero0 (converted from top-performing posts)
 const mockArticles: Article[] = [
   {
-    slug: 'kitas-complete-guide-2025',
-    title: 'Your Journey to Indonesian Residency: A Complete KITAS Guide',
-    excerpt: "From tourist to resident: Navigate Indonesia's KITAS system with confidence. Understand requirements, timelines, and insider tips for a smooth application process.",
-    category: 'immigration',
-    image: '/Bali_Zero_HQ_ultrarealistic_scene_of_a_modern_boardroom_in_Bali_overlooking_ju_42aa072f-fd9e-4f0f-9361-9bb38946516f.jpg',
-    publishedAt: '2025-01-25',
-    readTime: 8,
-    featured: true,
-    content: '',
-    tags: ['KITAS', 'visa', 'residency']
-  },
-  {
-    slug: 'zantara-ai-revolution',
-    title: "ZANTARA Meets AI: Indonesia's Cultural Intelligence Revolution",
-    excerpt: "How ancient Indonesian wisdom converges with cutting-edge AI. Discover the cultural intelligence framework reshaping Southeast Asian tech innovation.",
-    category: 'ai',
-    image: '/Bali_Zero_HQ_macro_shot_of_an_AI_neural_core_made_of_glowing_Balinese_patterns_b354de34-e933-4ba1-940b-3b62a53bdf0c.jpg',
-    publishedAt: '2025-01-24',
-    readTime: 6,
-    featured: true,
-    content: '',
-    tags: ['AI', 'ZANTARA', 'innovation']
-  },
-  {
-    slug: 'pt-pma-setup-bali',
-    title: 'Building Your PT PMA: From Paperwork to Prosperity',
-    excerpt: "The definitive roadmap to establishing your foreign-owned company in Indonesia. Legal structures, capital requirements, and strategic considerations for success.",
-    category: 'business',
-    image: '/Bali_Zero_HQ_ultrarealistic_digital_art_of_a_futuristic_Indonesia_skyline_blen_af473dcd-feb2-4ebc-ad5b-5f0f9b5a051e.jpg',
-    publishedAt: '2025-01-23',
-    readTime: 12,
-    featured: true,
-    content: '',
-    tags: ['PT PMA', 'business', 'company formation']
-  },
-  {
-    slug: 'indonesia-import-export-playbook',
-    title: 'The Import-Export Playbook: Navigating Indonesian Trade Laws',
-    excerpt: "Master Indonesia's complex customs landscape. Essential regulations, tariff classifications, and compliance strategies for cross-border commerce.",
-    category: 'business',
-    image: '/Bali_Zero_HQ_ultrarealistic_digital_art_of_a_futuristic_Indonesia_skyline_blen_0adb2134-a40a-4613-827b-6c717a579629.png',
-    publishedAt: '2025-01-22',
-    readTime: 10,
-    featured: false,
-    content: '',
-    tags: ['trade', 'import', 'export']
-  },
-  {
-    slug: 'property-ownership-foreigners-indonesia',
-    title: "Property Ownership in Paradise: What Foreigners Can (and Can't) Buy",
-    excerpt: "Decode Indonesian property laws for foreign investors. Rights, restrictions, and smart strategies for securing real estate in the archipelago.",
+    slug: 'bali-floods-overtourism-reckoning',
+    title: "Bali's Reckoning: When Paradise Drowns, Who's to Blame?",
+    excerpt: "18 lives lost. 81 neighborhoods submerged. September's floods exposed the deadly cost of unchecked development. Did overtourism and illegal building kill Bali's rice terraces—and with them, the island's flood defenses?",
     category: 'property',
-    image: '/Bali_Zero_HQ_ultrarealistic_scene_of_a_modern_boardroom_in_Bali_overlooking_ju_42aa072f-fd9e-4f0f-9361-9bb38946516f.jpg',
-    publishedAt: '2025-01-21',
-    readTime: 9,
+    image: '/instagram/post_4_cover.jpg',
+    publishedAt: '2025-10-01',
+    updatedAt: '2025-10-01',
+    readTime: 12,
+    author: 'Bali Zero Research Team',
     featured: true,
-    content: '',
-    tags: ['property', 'real estate', 'leasehold']
+    content: 'Full article in /content/articles/bali-floods-overtourism-reckoning.md',
+    tags: ['Bali floods', 'overtourism', 'Subak', 'environmental crisis', 'property development'],
+    relatedArticles: ['north-bali-airport-decade-promises', 'd12-visa-indonesia-business-explorer']
   },
   {
-    slug: 'indonesian-tax-compliance-guide',
-    title: 'Indonesian Tax Decoded: Your Essential Guide to Compliance & Savings',
-    excerpt: "Demystify Indonesia's tax system. From NPWP registration to double taxation treaties—your complete guide to staying compliant and optimizing liabilities.",
-    category: 'tax-legal',
-    image: '/Bali_Zero_HQ_macro_shot_of_an_AI_neural_core_made_of_glowing_Balinese_patterns_b354de34-e933-4ba1-940b-3b62a53bdf0c.jpg',
-    publishedAt: '2025-01-20',
-    readTime: 11,
+    slug: 'north-bali-airport-decade-promises',
+    title: 'North Bali Airport: Ten Years of Promises, Still No Runway',
+    excerpt: "Billions discussed. Consultants hired. Studies commissioned. And Buleleng still waits for the airport that was supposed to change everything. After a decade of broken promises, is North Bali's airport just a political mirage?",
+    category: 'business',
+    image: '/instagram/post_2_cover.jpg',
+    publishedAt: '2025-10-21',
+    updatedAt: '2025-10-21',
+    readTime: 10,
+    author: 'Bali Zero Research Team',
     featured: true,
-    content: '',
-    tags: ['tax', 'NPWP', 'compliance']
+    content: 'Full article in /content/articles/north-bali-airport-decade-promises.md',
+    tags: ['North Bali airport', 'infrastructure', 'Buleleng', 'investment', 'government accountability'],
+    relatedArticles: ['bali-floods-overtourism-reckoning', 'oss-2-migration-deadline-indonesia']
+  },
+  {
+    slug: 'd12-visa-indonesia-business-explorer',
+    title: "The D12 Visa: Indonesia's 2-Year Business Exploration Gateway",
+    excerpt: "Imagine spending up to two years exploring Indonesia—meeting partners, scouting locations, testing business ideas—all on a completely legal visa. The D12 Pre-Investment Visa is your roadmap to informed Indonesian business entry.",
+    category: 'immigration',
+    image: '/instagram/post_3_cover.jpg',
+    publishedAt: '2025-10-15',
+    updatedAt: '2025-10-15',
+    readTime: 8,
+    author: 'Bali Zero Immigration Desk',
+    featured: true,
+    content: 'Full article in /content/articles/d12-visa-indonesia-business-explorer.md',
+    tags: ['D12 visa', 'business visa', 'pre-investment', 'immigration', 'entrepreneur visa'],
+    relatedArticles: ['oss-2-migration-deadline-indonesia', 'skpl-alcohol-license-bali-complete-guide']
+  },
+  {
+    slug: 'skpl-alcohol-license-bali-complete-guide',
+    title: 'When Inspectors Walk In: The Real Cost of Skipping Your SKPL',
+    excerpt: "Your bar is packed. Music's loud. Drinks are flowing. Then you see them: two officials with clipboards, walking straight toward your manager. And you realize—nobody checked the alcohol license in six months.",
+    category: 'business',
+    image: '/instagram/post_1_cover.jpg',
+    publishedAt: '2025-10-24',
+    updatedAt: '2025-10-24',
+    readTime: 9,
+    author: 'Bali Zero Legal Compliance',
+    featured: false,
+    content: 'Full article in /content/articles/skpl-alcohol-license-bali-complete-guide.md',
+    tags: ['SKPL', 'alcohol license', 'F&B compliance', 'bar license', 'Bali business'],
+    relatedArticles: ['oss-2-migration-deadline-indonesia', 'd12-visa-indonesia-business-explorer']
+  },
+  {
+    slug: 'oss-2-migration-deadline-indonesia',
+    title: 'OSS 2.0: The Migration Deadline That Locked Out Thousands',
+    excerpt: "October 5th, 2025 wasn't just another date. It was the day Indonesia's business licensing system fundamentally changed. 47,000 companies missed the migration—and found themselves frozen out. Learn about Positif Fiktif and the new compliance reality.",
+    category: 'business',
+    image: '/instagram/post_5_cover.jpg',
+    publishedAt: '2025-09-20',
+    updatedAt: '2025-10-05',
+    readTime: 11,
+    author: 'Bali Zero Corporate Services',
+    featured: true,
+    content: 'Full article in /content/articles/oss-2-migration-deadline-indonesia.md',
+    tags: ['OSS 2.0', 'NIB', 'LKPM', 'business licensing', 'Positif Fiktif', 'PT PMA compliance'],
+    relatedArticles: ['d12-visa-indonesia-business-explorer', 'north-bali-airport-decade-promises']
   }
 ]
 
@@ -89,7 +93,26 @@ export async function getAllArticles(): Promise<Article[]> {
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   const article = mockArticles.find(a => a.slug === slug)
-  return article || null
+  if (!article) return null
+
+  // Read the actual markdown file
+  try {
+    const fullPath = path.join(articlesDirectory, `${slug}.md`)
+    const fileContents = fs.readFileSync(fullPath, 'utf8')
+    const { content } = matter(fileContents)
+
+    // Convert markdown to HTML
+    const htmlContent = await marked.parse(content)
+
+    // Return article with actual HTML content
+    return {
+      ...article,
+      content: htmlContent
+    }
+  } catch (error) {
+    console.error(`Error reading article ${slug}:`, error)
+    return article // Return with placeholder content if file not found
+  }
 }
 
 export async function getArticlesByCategory(category: CategorySlug): Promise<Article[]> {

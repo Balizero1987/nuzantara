@@ -1,1 +1,11 @@
-{"version":4,"routes":{"/article/kitas-complete-guide-2025":{},"/article/zantara-ai-revolution":{},"/article/pt-pma-setup-bali":{},"/article/indonesia-import-export-playbook":{},"/article/property-ownership-foreigners-indonesia":{},"/article/indonesian-tax-compliance-guide":{}},"dynamicRoutes":{"/article/[slug]":{"dataRoute":null,"dataRouteRegex":null,"fallback":null,"fallbackRevalidate":false,"fallbackSourceRoute":"/article/[slug]","routeRegex":"^\\/article\\/([^/]+?)(?:\\/)?$","allowHeader":[]}},"notFoundRoutes":[],"preview":{"previewModeId":"6f74d09d07897bfa4ec4bc0055156513","previewModeSigningKey":"7c9c19e80d9f57d6821a3b716de4d84de77026408d4bb4f42e84bf3e32bec7a7","previewModeEncryptionKey":"8678d89cf9fb8f2e3853d1dc673f3f8139a80d3e61f189d951688abc39935052"}}
+{
+  "version": 4,
+  "routes": {},
+  "dynamicRoutes": {},
+  "notFoundRoutes": [],
+  "preview": {
+    "previewModeId": "aebaeafa832cc09ec1a8fbbd9b1ecab6",
+    "previewModeSigningKey": "eb6a35602bd9c7fcf078bb375a6cebec1132d01c09794effe14d8fb945bed182",
+    "previewModeEncryptionKey": "a29493603e3296298181de46bd21ac6472d459753a2ab51d26edeaaecb78c9fd"
+  }
+}
