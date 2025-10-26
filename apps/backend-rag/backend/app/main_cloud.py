@@ -1850,6 +1850,9 @@ async def bali_zero_chat_stream(
 
     async def generate():
         """Generator function for SSE stream"""
+        # Declare global services to ensure access in nested function
+        global search_service, collaborator_service, memory_service, intelligent_router
+
         try:
             # Sanitize user email (same logic as regular chat)
             sanitized_email = None
@@ -1897,15 +1900,17 @@ async def bali_zero_chat_stream(
 
             # SOURCES: Attempt to retrieve sources from search service (same logic as chat endpoint)
             try:
+                logger.info(f"🔍 [Stream] Sources retrieval starting - search_service: {type(search_service).__name__ if search_service else 'None'}, query: '{query[:50] if query else 'None'}...'")
+
                 if search_service and query:
-                    logger.info(f"🔍 [Stream] Searching for sources with query: '{query[:50]}...'")
+                    logger.info(f"🔍 [Stream] Calling search_service.search() with query: '{query[:50]}...'")
                     search_results = await search_service.search(
                         query=query,
                         user_level=0,
                         limit=3
                     )
 
-                    logger.info(f"🔍 [Stream] Search returned: {search_results}")
+                    logger.info(f"🔍 [Stream] Search returned type: {type(search_results)}, value: {search_results}")
 
                     if search_results and search_results.get("results"):
                         sources = []
@@ -1919,10 +1924,10 @@ async def bali_zero_chat_stream(
                             })
                         logger.info(f"📚 [Stream] Sources retrieved: {len(sources)} documents")
                     else:
-                        logger.warning(f"⚠️ [Stream] No search results found for query")
+                        logger.warning(f"⚠️ [Stream] No search results found - search_results is {search_results}")
                         sources = None
                 else:
-                    logger.warning(f"⚠️ [Stream] Cannot retrieve sources: search_service={'present' if search_service else 'missing'}, query={query}")
+                    logger.warning(f"⚠️ [Stream] Cannot retrieve sources: search_service={'present (' + type(search_service).__name__ + ')' if search_service else 'MISSING (None)'}, query={'present' if query else 'MISSING'}")
                     sources = None
             except Exception as e:
                 logger.error(f"❌ [Stream] Sources retrieval exception: {e}")
