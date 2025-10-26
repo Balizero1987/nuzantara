@@ -1707,10 +1707,11 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                             )
                             sources = [
                                 {
-                                    "title": doc["metadata"].get("title", "Unknown"),
-                                    "text": doc["text"][:200] + "...",
-                                    "score": float(score),
-                                    "reranked": True
+                                    "source": doc["metadata"].get("title") or doc["metadata"].get("book_title") or doc["metadata"].get("source") or "Document",
+                                    "snippet": doc["text"][:240] if isinstance(doc.get("text"), str) else str(doc)[:240],
+                                    "similarity": float(score),
+                                    "tier": doc["metadata"].get("tier") or doc["metadata"].get("pricing_priority") or "T2",
+                                    "dateLastCrawled": doc["metadata"].get("last_updated") or doc["metadata"].get("timestamp")
                                 }
                                 for doc, score in reranked
                             ]
@@ -1718,10 +1719,11 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                             # OPTIMIZATION: Use only top 3 sources
                             sources = [
                                 {
-                                    "title": r["metadata"].get("title", "Unknown"),
-                                    "text": r["text"][:200] + "...",
-                                    "score": r["score"],
-                                    "reranked": False
+                                    "source": r["metadata"].get("title") or r["metadata"].get("book_title") or r["metadata"].get("source") or "Document",
+                                    "snippet": r["text"][:240] if isinstance(r.get("text"), str) else str(r)[:240],
+                                    "similarity": float(r.get("score", 0)),
+                                    "tier": r["metadata"].get("tier") or r["metadata"].get("pricing_priority") or "T2",
+                                    "dateLastCrawled": r["metadata"].get("last_updated") or r["metadata"].get("timestamp")
                                 }
                                 for r in search_results["results"][:3]
                             ]
