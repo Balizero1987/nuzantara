@@ -68,7 +68,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     <main className="bg-black batik-pattern min-h-screen">
       <Header />
       <ArticleHero article={article} />
-      <ArticleContent content={article.content} excerpt={article.excerpt} />
+      <ArticleContent content={article.content} excerpt={article.excerpt} category={article.category} />
 
       {/* CTA to welcome.balizero.com */}
       <section className="border-t border-white/10 bg-black/50">

@@ -1879,7 +1879,10 @@ async def bali_zero_chat_stream(
                 except Exception as e:
                     logger.warning(f"⚠️ [Stream] Memory load failed: {e}")
 
-            # Stream response chunks from intelligent router
+            # Stream response chunks from intelligent router and collect full message + sources
+            full_message = ""
+            sources = None
+
             async for chunk in intelligent_router.stream_chat(
                 message=query,
                 user_id=user_id,
@@ -1888,8 +1891,39 @@ async def bali_zero_chat_stream(
                 collaborator=collaborator
             ):
                 # SSE format: data: {json}\n\n
+                full_message += chunk
                 sse_data = json.dumps({"text": chunk})
                 yield f"data: {sse_data}\n\n"
+
+            # SOURCES: Attempt to retrieve sources from search service (same logic as chat endpoint)
+            try:
+                if search_service and query:
+                    search_results = await search_service.search(
+                        query=query,
+                        user_level=0,
+                        limit=3
+                    )
+
+                    if search_results and search_results.get("results"):
+                        sources = []
+                        for result in search_results["results"][:3]:
+                            sources.append({
+                                "source": result["metadata"].get("title") or result["metadata"].get("book_title") or "Document",
+                                "snippet": result.get("text", "")[:240],
+                                "similarity": float(result.get("score", 0)),
+                                "tier": result["metadata"].get("tier", "T2"),
+                                "dateLastCrawled": result["metadata"].get("last_updated")
+                            })
+                        logger.info(f"📚 [Stream] Sources retrieved: {len(sources)} documents")
+            except Exception as e:
+                logger.warning(f"⚠️ [Stream] Sources retrieval failed: {e}")
+                sources = None
+
+            # Send sources as final message before done signal
+            if sources:
+                sources_data = json.dumps({"sources": sources})
+                yield f"data: {sources_data}\n\n"
+                logger.info(f"✅ [Stream] Sources sent to client: {len(sources)} citations")
 
             # Send done signal
             yield f"data: {json.dumps({'done': True})}\n\n"
