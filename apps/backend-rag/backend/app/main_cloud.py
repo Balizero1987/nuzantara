@@ -1891,7 +1891,12 @@ async def bali_zero_chat_stream(
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "X-Accel-Buffering": "no"  # Disable nginx buffering for immediate streaming
+            "X-Accel-Buffering": "no",  # Disable nginx buffering for immediate streaming
+            # CORS headers for browser SSE connections
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Max-Age": "3600"
         }
     )
 
