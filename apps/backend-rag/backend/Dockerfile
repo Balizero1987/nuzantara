@@ -1,6 +1,6 @@
 # Optimized Dockerfile for ZANTARA RAG - Faster builds with better caching
 # Build time target: < 2 minutes for code changes
-# CACHE BUST: 2025-10-25-15:30 - PHASE 1: RAG Skip & Query Classification - Deploy version 3.3.0-phase1
+# CACHE BUST: 2025-10-26-17:45 - CORS FIX DEPLOYMENT - Force rebuild for /health endpoint CORS headers
 
 # ========================================
 # Stage 1: Dependencies Builder
