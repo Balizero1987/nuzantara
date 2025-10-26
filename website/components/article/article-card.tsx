@@ -4,14 +4,41 @@ import { formatDate } from "@/lib/utils/date"
 
 interface ArticleCardProps {
   article: Article
+  variant?: 'featured' | 'medium' | 'small'
 }
 
-export function ArticleCard({ article }: ArticleCardProps) {
+export function ArticleCard({ article, variant = 'small' }: ArticleCardProps) {
+  // Define aspect ratios based on variant
+  const getAspectRatio = () => {
+    switch (variant) {
+      case 'featured':
+        return 'aspect-[16/9]' // Wide for featured
+      case 'medium':
+        return 'aspect-[4/3]' // Medium rectangle
+      case 'small':
+      default:
+        return 'aspect-[3/4]' // Vertical for small
+    }
+  }
+
+  // Define title sizes based on variant
+  const getTitleSize = () => {
+    switch (variant) {
+      case 'featured':
+        return 'text-2xl md:text-3xl lg:text-4xl'
+      case 'medium':
+        return 'text-xl md:text-2xl'
+      case 'small':
+      default:
+        return 'text-lg md:text-xl lg:text-2xl'
+    }
+  }
+
   return (
     <Link href={`/article/${article.slug}`}>
       <article className="group cursor-pointer transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,0,0,0.6)] hover:scale-[1.02] h-full flex flex-col">
-        {/* Image Container - Vertical Rectangle (3:4 Aspect Ratio) */}
-        <div className="relative w-full aspect-[3/4] overflow-hidden rounded-lg border border-white/10 group-hover:border-red/70 transition-colors duration-500">
+        {/* Image Container - Dynamic Aspect Ratio */}
+        <div className={`relative w-full ${getAspectRatio()} overflow-hidden rounded-lg border border-white/10 group-hover:border-red/70 transition-colors duration-500`}>
           <img
             src={article.image || "/placeholder.svg"}
             alt={article.title}
@@ -38,7 +65,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
         {/* Content */}
         <div className="mt-6 px-1 space-y-3">
           {/* Title */}
-          <h3 className="text-white font-serif font-bold text-lg md:text-xl lg:text-2xl leading-snug group-hover:text-red transition-colors duration-300">
+          <h3 className={`text-white font-serif font-bold ${getTitleSize()} leading-snug group-hover:text-red transition-colors duration-300`}>
             {article.title}
           </h3>
 

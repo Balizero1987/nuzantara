@@ -1898,11 +1898,14 @@ async def bali_zero_chat_stream(
             # SOURCES: Attempt to retrieve sources from search service (same logic as chat endpoint)
             try:
                 if search_service and query:
+                    logger.info(f"🔍 [Stream] Searching for sources with query: '{query[:50]}...'")
                     search_results = await search_service.search(
                         query=query,
                         user_level=0,
                         limit=3
                     )
+
+                    logger.info(f"🔍 [Stream] Search returned: {search_results}")
 
                     if search_results and search_results.get("results"):
                         sources = []
@@ -1915,8 +1918,16 @@ async def bali_zero_chat_stream(
                                 "dateLastCrawled": result["metadata"].get("last_updated")
                             })
                         logger.info(f"📚 [Stream] Sources retrieved: {len(sources)} documents")
+                    else:
+                        logger.warning(f"⚠️ [Stream] No search results found for query")
+                        sources = None
+                else:
+                    logger.warning(f"⚠️ [Stream] Cannot retrieve sources: search_service={'present' if search_service else 'missing'}, query={query}")
+                    sources = None
             except Exception as e:
-                logger.warning(f"⚠️ [Stream] Sources retrieval failed: {e}")
+                logger.error(f"❌ [Stream] Sources retrieval exception: {e}")
+                import traceback
+                logger.error(f"Traceback: {traceback.format_exc()}")
                 sources = None
 
             # Send sources as final message before done signal
