@@ -20,6 +20,11 @@ Companies that missed the deadline? Their OSS 1.0 accounts became read-only. The
 
 Essentially, their businesses were regulatory ghosts—existing on paper but unable to interact with the system.
 
+![OSS 2.0 Migration Deadline](/article-images/placeholder-7.jpg)
+*OSS 2.0 migration deadline notification and system interface*
+
+## Why the Government Forced Migration
+
 ---
 
 ## Why the Government Forced Migration
@@ -130,6 +135,11 @@ The office never responded again. The license stood.
 4. **Invoke it confidently**: If you're past the deadline, state explicitly: "This application is deemed approved under Positif Fiktif as of [date], per OSS 2.0 automated confirmation."
 
 Positif Fiktif isn't a loophole—it's Indonesian law. And it's one of the few regulations that actually works in favor of businesses instead of bureaucrats.
+
+![OSS 2.0 Positif Fiktif Process](/article-images/placeholder-8.jpg)
+*Visual explanation of the Positif Fiktif automatic approval process in OSS 2.0*
+
+## What Happened to Companies That Missed It
 
 ---
 

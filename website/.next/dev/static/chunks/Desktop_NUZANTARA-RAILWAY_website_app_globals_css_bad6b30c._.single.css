@@ -1763,6 +1763,10 @@
     overflow-y: auto;
   }
 
+  .rounded {
+    border-radius: .25rem;
+  }
+
   .rounded-\[2px\] {
     border-radius: 2px;
   }

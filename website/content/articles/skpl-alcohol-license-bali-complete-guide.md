@@ -21,6 +21,11 @@ If everything's in order? They note compliance and leave. If not?
 
 For a busy beach club in Seminyak pulling ₹200 million monthly revenue, a single week's closure is catastrophic.
 
+![SKPL Alcohol License Inspection](/article-images/placeholder-5.jpg)
+*Indonesian officials conducting alcohol compliance inspection at a Bali beach club*
+
+## The SKPL: What It Is and Why It Matters
+
 ---
 
 ## The SKPL: What It Is and Why It Matters
@@ -61,6 +66,11 @@ Proof you source alcohol from licensed distributors—not grey-market smugglers.
 - ID checking systems
 - Staff training records
 - Incident logbooks
+
+![SKPL License Requirements Checklist](/article-images/placeholder-6.jpg)
+*Complete checklist of documents and requirements for SKPL alcohol license application*
+
+## The Traps Nobody Warns You About
 
 ---
 

@@ -14,6 +14,11 @@ That was a decade ago.
 
 Today, there's no airport. No land acquisition. No permits. No runway. Not even a confirmed site. What there is: mounting frustration, political finger-pointing, and the growing suspicion that North Bali's airport was never meant to be more than a campaign promise.
 
+![North Bali Airport Development Plan](/article-images/placeholder-1.jpg)
+*Conceptual rendering of the proposed North Bali Airport terminal and runway layout*
+
+## The Numbers Game
+
 ---
 
 ## The Numbers Game
@@ -30,6 +35,11 @@ Ngurah Rai handles **97% of Bali's tourist arrivals**, channeling millions throu
 Ministry projections estimated the airport could serve **7-10 million passengers annually by 2035**, turning Buleleng from Bali's forgotten regency into a competitive tourism hub.
 
 But numbers only matter if you build the thing.
+
+![Bali Airport Capacity Analysis](/article-images/placeholder-2.jpg)
+*Data visualization showing current Ngurah Rai capacity vs projected North Bali Airport passenger volumes*
+
+## The Site Nobody Can Agree On
 
 ---
 
