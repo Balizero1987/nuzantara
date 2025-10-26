@@ -47,7 +47,7 @@ npm run test:working   # Quick handler verification
 ### Debug Commands
 ```bash
 npm run typecheck      # TypeScript validation only
-npm run lint           # ESLint (may not be installed)
+npm run lint           # ESLint (may not be installed) - run `npm install eslint` if needed
 ./scripts/onboarding_smoke.sh  # Quick system verification
 python test-all-features-live.py  # Full frontend feature testing
 ```
