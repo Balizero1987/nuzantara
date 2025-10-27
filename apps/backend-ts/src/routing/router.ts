@@ -106,6 +106,9 @@ import {
   getCurrentDailyRecap
 } from "../handlers/analytics/daily-drive-recap.js";
 
+// Admin auth middleware
+import { adminAuth } from "../middleware/admin-auth.js";
+
 // Memory & Persistence
 // PRIORITY 5: Firestore handlers removed - using Python memory system only
 import { memorySave, memorySearch, memoryRetrieve } from "../handlers/memory/memory.js";
@@ -1827,6 +1830,87 @@ export function attachRoutes(app: import("express").Express) {
       return res.status(200).json(result);
     } catch (e: any) {
       return res.status(500).json(err(e?.message || "Internal Error"));
+    }
+  });
+
+  // Protected Dashboard Routes
+  // ========================================
+  
+  // Main dashboard overview
+  router.get('/admin/dashboard/main', jwtAuth, adminAuth, async (req, res) => {
+    try {
+      const result = await dashboardMain({});
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        error: error.message || 'Internal server error'
+      });
+    }
+  });
+
+  // Conversation metrics
+  router.get('/admin/dashboard/conversations', jwtAuth, adminAuth, async (req, res) => {
+    try {
+      const result = await dashboardConversations({});
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        error: error.message || 'Internal server error'
+      });
+    }
+  });
+
+  // Service metrics
+  router.get('/admin/dashboard/services', jwtAuth, adminAuth, async (req, res) => {
+    try {
+      const result = await dashboardServices({});
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        error: error.message || 'Internal server error'
+      });
+    }
+  });
+
+  // Handler performance metrics
+  router.get('/admin/dashboard/handlers', jwtAuth, adminAuth, async (req, res) => {
+    try {
+      const result = await dashboardHandlers({});
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        error: error.message || 'Internal server error'
+      });
+    }
+  });
+
+  // System health metrics
+  router.get('/admin/dashboard/health', jwtAuth, adminAuth, async (req, res) => {
+    try {
+      const result = await dashboardHealth({});
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        error: error.message || 'Internal server error'
+      });
+    }
+  });
+
+  // User activity metrics
+  router.get('/admin/dashboard/users', jwtAuth, adminAuth, async (req, res) => {
+    try {
+      const result = await dashboardUsers({});
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({
+        ok: false,
+        error: error.message || 'Internal server error'
+      });
     }
   });
 

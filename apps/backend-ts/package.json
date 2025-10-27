@@ -12,7 +12,8 @@
     "dev": "tsx watch src/server.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage"
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "docs:generate": "typedoc src/"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.62.0",
@@ -39,15 +40,19 @@
     "openai": "^5.20.2",
     "winston": "^3.18.3",
     "ws": "^8.18.3",
-    "zod": "^3.25.76",
-    "typescript": "^5.9.3"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-typescript": "^7.26.0",
     "@jest/globals": "^30.2.0",
     "@swc/core": "^1.13.5",
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
     "jest": "^30.2.0",
-    "tsx": "^4.19.1"
+    "tsx": "^4.19.1",
+    "typedoc": "^0.27.9",
+    "typescript": "^5.9.3"
   }
 }
