@@ -322,7 +322,7 @@ test.describe('ZANTARA Integration Tests - Cycle 3: Backend Integration', () => 
 
   test('should answer COMPLEX business question using knowledge base', async ({ page }) => {
     // Complex question that requires deep knowledge
-    const question = 'I'm planning to establish a PT PMA (foreign-owned company) in Bali to run a co-working space. What are the key legal requirements, minimum capital requirements, and timeline I should expect?';
+    const question = "I'm planning to establish a PT PMA (foreign-owned company) in Bali to run a co-working space. What are the key legal requirements, minimum capital requirements, and timeline I should expect?";
 
     console.log(`📨 Complex question: "${question.substring(0, 100)}..."`);
 
