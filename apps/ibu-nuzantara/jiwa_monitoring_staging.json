@@ -1,0 +1,17 @@
+{
+  "environment": "staging",
+  "metrics_collection_interval": 60,
+  "health_check_interval": 300,
+  "alert_thresholds": {
+    "response_time_ms": 2000,
+    "error_rate_percent": 5,
+    "enhancement_rate_percent": 80
+  },
+  "enabled_metrics": [
+    "request_count",
+    "response_time",
+    "enhancement_rate",
+    "protection_activations",
+    "cultural_wisdom_applications"
+  ]
+}
