@@ -32,8 +32,8 @@ graph TB
     end
     
     subgraph "BACKEND - Railway"
-        TS[⚙️ TS Backend :8080<br/>122 Handlers<br/>Express + TypeScript]
-        RAG[🧠 RAG Backend :8000<br/>FastAPI + Python<br/>AI + RAG + Agents]
+        TS[⚙️ TS Backend :8080<br/>117 Handlers + 24 Services<br/>Express + TypeScript]
+        RAG[🧠 RAG Backend :8000<br/>FastAPI + Python<br/>44 Services + AI + RAG]
     end
     
     subgraph "AI MODELS"
@@ -71,14 +71,14 @@ graph TB
 
 ## 📊 System Statistics
 
-### Codebase
+### Codebase (Updated: 28 October 2025)
 
 | Component | Lines | Language | Description |
 |-----------|-------|----------|-------------|
-| **TS Backend** | 25,000 | TypeScript | Business logic, handlers, API |
-| **RAG Backend** | 15,000 | Python | AI, RAG, agents, ML |
-| **Frontend** | 7,500 | JavaScript | PWA, UI, client logic |
-| **Intel Scraping** | 8,000 | Python | Data collection |
+| **TS Backend** | 36,683 | TypeScript | Business logic, 117 handlers, 24 services |
+| **RAG Backend** | 36,166 | Python | AI, RAG, 44 services, agents, ML |
+| **Frontend** | ~12,000 | JavaScript | PWA, UI, 2064 files |
+| **Total** | **~85,000** | Multi | Production system |
 | **Projects** | 5,000 | TypeScript | Oracle, DevAI, Orchestrator |
 | **TOTAL** | **60,500** | - | Complete platform |
 

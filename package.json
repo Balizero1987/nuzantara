@@ -30,6 +30,9 @@
     "test:oracle-sim": "tsx oracle-system/tests/oracle-simulation.test.ts",
     "security:audit": "npm audit --audit-level=moderate",
     "security:fix": "npm audit fix",
+    "docs:generate": "npx tsx scripts/analysis/extract-handlers-docs.ts && npx tsx scripts/analysis/extract-project-context.ts",
+    "docs:handlers": "npx tsx scripts/analysis/extract-handlers-docs.ts",
+    "docs:context": "npx tsx scripts/analysis/extract-project-context.ts",
     "devai:test": "./test-devai.sh",
     "devai:analyze": "node -e \"console.log('Use: curl /call -d {key:devai.analyze,params:{code:...}}')\"",
     "devai:fix-typescript": "npm run typecheck 2>&1 | head -50"

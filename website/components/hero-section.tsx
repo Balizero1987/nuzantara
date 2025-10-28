@@ -25,15 +25,15 @@ export function HeroSection() {
             <h1 className="text-white font-serif font-bold leading-tight">
               <span className="text-balance block text-5xl md:text-6xl lg:text-7xl animate-fade-in">
                 {t.hero.title}{" "}
-                <span className="text-red">I</span>
+                <span className="text-white">I</span>
                 <span className="text-white">n</span>
-                <span className="text-red">d</span>
+                <span className="text-white">d</span>
                 <span className="text-white">o</span>
-                <span className="text-red">n</span>
+                <span className="text-white">n</span>
                 <span className="text-white">e</span>
-                <span className="text-red">s</span>
+                <span className="text-white">s</span>
                 <span className="text-white">i</span>
-                <span className="text-red">a</span>.
+                <span className="text-white">a</span>.
               </span>
               <span className="text-white block text-4xl md:text-5xl lg:text-6xl mt-2 animate-fade-in-delay">{t.hero.subtitle}</span>
             </h1>
@@ -43,7 +43,7 @@ export function HeroSection() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <button className="bg-red text-black px-8 py-3 font-serif font-bold tracking-tight hover:bg-gold transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.6)]">
+              <button className="bg-white text-black px-8 py-3 font-serif font-bold tracking-tight hover:bg-gold transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.6)]">
                 {t.hero.cta1}
               </button>
               <button className="border border-white text-white px-8 py-3 font-serif font-bold tracking-tight hover:bg-white/10 transition-colors">

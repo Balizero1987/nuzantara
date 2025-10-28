@@ -18,9 +18,9 @@ export function CTASection() {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 bg-black border border-white/20 text-white px-4 py-3 font-sans placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red"
+              className="flex-1 bg-black border border-white/20 text-white px-4 py-3 font-sans placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white"
             />
-            <button className="bg-red text-black px-6 py-3 font-serif font-bold hover:bg-red/90 transition-colors whitespace-nowrap hover:shadow-[0_0_30px_rgba(255,0,0,0.6)]">
+            <button className="bg-white text-black px-6 py-3 font-serif font-bold hover:bg-white/90 transition-colors whitespace-nowrap hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]">
               Subscribe
             </button>
           </div>

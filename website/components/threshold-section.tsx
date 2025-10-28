@@ -17,13 +17,13 @@ export function ThresholdSection() {
   return (
     <section className="py-16 md:py-24 px-4 md:px-6 lg:px-8 bg-black relative overflow-hidden border-t border-white/10">
       {/* Background Effect */}
-      <div className="absolute inset-0 bg-gradient-radial from-red/5 via-transparent to-transparent opacity-50" />
+      <div className="absolute inset-0 bg-gradient-radial from-white/5 via-transparent to-transparent opacity-50" />
       
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Title */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-white font-serif font-bold text-4xl md:text-5xl lg:text-6xl mb-4">
-            The <span className="text-red">Threshold</span>
+            The <span className="text-white">Threshold</span>
           </h2>
           <p className="text-white/70 font-sans text-lg md:text-xl max-w-2xl mx-auto">
             Cross into a world where expertise meets excellence. 
@@ -49,7 +49,7 @@ export function ThresholdSection() {
 
             {/* Ambient Glow Effect */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute inset-0 border-2 border-red/30 rounded-lg animate-pulse" />
+              <div className="absolute inset-0 border-2 border-white/30 rounded-lg animate-pulse" />
             </div>
           </div>
 
@@ -57,7 +57,7 @@ export function ThresholdSection() {
           <div className="text-center mt-12">
             <Link
               href="/services/home"
-              className="inline-block border-2 border-red text-red px-10 py-4 font-serif font-bold text-lg tracking-tight hover:bg-red hover:text-black transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,0,0,0.7)] rounded-sm"
+              className="inline-block border-2 border-white text-white px-10 py-4 font-serif font-bold text-lg tracking-tight hover:bg-white hover:text-black transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.7)] rounded-sm"
             >
               Enter The Threshold
             </Link>

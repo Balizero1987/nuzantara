@@ -1,237 +1,158 @@
-# ⚡ Quick Start - Bali Zero Publication
+# 🚀 Bali Zero Publication - Quick Start
 
-Get the publication running locally in **5 minutes**.
-
----
-
-## 🎯 Step 1: Install Dependencies
-
-```bash
-cd apps/publication
-npm install
-```
-
-**Wait:** 30-60 seconds for dependencies to install.
+**Updated:** October 24, 2025  
+**Status:** ✅ Production Ready  
 
 ---
 
-## 🚀 Step 2: Start Dev Server
+## ⚡ Immediate Start
 
 ```bash
+cd /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/publication/
+
+# Start dev server
 npm run dev
+
+# Open in browser
+# → http://localhost:4321
 ```
-
-**Output:**
-```
-🚀 astro v5.0.0 ready in 324 ms
-
-┃ Local    http://localhost:4321/
-┃ Network  use --host to expose
-
-watching for file changes...
-```
-
-**Open browser:** http://localhost:4321
 
 ---
 
-## ✍️ Step 3: Write Your First Article
+## 🎨 What's New (Oct 24, 2025)
 
-### Option A: Use Automation (Recommended)
+### ✅ Converted from Next.js to Astro
+- All React components → Astro components
+- Maintained McKinsey-inspired design
+- Applied Bali Zero brand (#FF0000, #e8d5b7)
+
+### ✅ Generated 9 Visual Assets (ImagineArt)
+- Hero: Lotus blooming from darkness
+- Journeys: 4 artistic images (Gateway/Foundation/Belonging/Wisdom)
+- Articles: 3 cinematic photos
+- ZANTARA: Enhanced portrait
+
+**Location:** `public/images/generated/` (6.3 MB total)
+
+### ✅ New Components
+1. `HeroSection.astro` - "From Zero to Infinity ∞"
+2. `ContentPillars.astro` - 4 Journey Themes
+3. `FeaturedArticles.astro` - Asymmetric grid
+4. `MeetZantara.astro` - AI introduction (NEW!)
+5. `CTASection.astro` - Email + WhatsApp
+
+---
+
+## 📁 Project Structure
+
+```
+apps/publication/
+├── src/
+│   ├── components/
+│   │   ├── HeroSection.astro
+│   │   ├── ContentPillars.astro
+│   │   ├── FeaturedArticles.astro
+│   │   ├── MeetZantara.astro ⭐ NEW
+│   │   ├── CTASection.astro
+│   │   ├── Header.astro
+│   │   └── Footer.astro
+│   ├── pages/
+│   │   └── index.astro (updated)
+│   └── styles/
+│       └── global.css (shimmer effect added)
+│
+├── public/images/generated/
+│   ├── hero-lotus-blooming.jpg
+│   ├── journey-visa-gateway.jpg
+│   ├── journey-business-foundation.jpg
+│   ├── journey-home-belonging.jpg
+│   ├── journey-culture-wisdom.jpg
+│   ├── zantara-portrait-enhanced.jpg
+│   ├── article-journey-story-1.jpg
+│   ├── article-cultural-insight.jpg
+│   └── article-tech-ai.jpg
+│
+├── scripts/
+│   └── generate-visuals.mjs ⭐ Image generation
+│
+└── VISUAL_ASSETS_GUIDE.md ⭐ Complete documentation
+```
+
+---
+
+## 🎯 Homepage Sections
+
+1. **Header** - Fixed navigation + ZANTARA logo
+2. **Hero** - "From Zero to Infinity ∞" with lotus blooming
+3. **Featured Articles** - 6 cards (asymmetric McKinsey grid)
+4. **Content Pillars** - 4 Journey Themes
+5. **Meet ZANTARA** - AI cultural companion introduction
+6. **CTA** - Email signup + WhatsApp contact
+7. **Footer** - Links + Indonesian proverb
+
+---
+
+## 🔧 Commands
 
 ```bash
-# From project root
-cd ../../scripts/content-generator
-npm install
-node generate-article.js --topic "Your Topic Here" --pillar bali-reality
-```
+# Development
+npm run dev          # Start dev server (port 4321)
+npm run build        # Build for production
+npm run preview      # Preview production build
 
-**What happens:**
-1. Queries RAG backend for context
-2. Generates article with Haiku 4.5
-3. Saves MDX file in `src/content/articles/[pillar]/`
-4. Includes frontmatter, RAG sources, cultural context
-
-**Time:** 3-5 minutes per article
-
-### Option B: Write Manually
-
-1. Create file: `src/content/articles/bali-reality/my-article.mdx`
-
-2. Add frontmatter:
-
-```mdx
----
-title: "My Article Title"
-description: "Short description for SEO"
-pubDate: 2025-01-15
-heroImage: "/images/articles/my-article.jpg"
-pillar: bali-reality
-tags: ["Bali", "Business"]
-author: "Zero"
-readTime: "10 min"
-featured: false
----
-
-# My Article Title
-
-Article content here...
-```
-
-3. Write content in markdown
-
-4. Save and dev server auto-reloads
-
----
-
-## 🎨 Step 4: Add Hero Image
-
-1. Generate with IMAGINEART or download from Unsplash
-
-2. Save to: `public/images/articles/my-article.jpg`
-
-3. Recommended size: 1200x700px, <200KB
-
-4. Update `heroImage` in frontmatter
-
----
-
-## 🔍 Step 5: Preview Article
-
-Dev server shows live preview at:
-```
-http://localhost:4321/articles/my-article
-```
-
-Changes auto-reload as you edit!
-
----
-
-## 🚢 Step 6: Deploy
-
-```bash
-# Build production version
-npm run build
-
-# Preview production build locally
-npm run preview
-```
-
-**For Cloudflare Pages:**
-```bash
-git add .
-git commit -m "Add new article"
-git push origin main
-```
-
-Auto-deploys in ~2 minutes! 🎉
-
----
-
-## 📂 Project Structure Reference
-
-```
-src/
-├── components/          # Reusable UI
-│   ├── Header.astro    # Navigation
-│   ├── Footer.astro    # Footer with links
-│   ├── Hero.astro      # Large title section
-│   ├── ArticleCard.astro  # Article preview
-│   └── Newsletter.astro   # Email signup
-├── content/
-│   ├── articles/       # Your MDX articles
-│   │   ├── bali-reality/
-│   │   ├── expat-economy/
-│   │   ├── business-formation/
-│   │   ├── ai-tech/
-│   │   └── trends-analysis/
-│   └── config.ts       # Content schema
-├── layouts/
-│   └── BaseLayout.astro  # Main layout
-├── pages/
-│   ├── index.astro     # Homepage
-│   └── articles/       # Article routes
-└── styles/
-    └── global.css      # Tailwind + custom styles
+# Generate new images (if needed)
+node scripts/generate-visuals.mjs
 ```
 
 ---
 
-## 🎯 Common Tasks
+## 🎨 Brand Colors
 
-### Add New Component
-
-```bash
-# Create file
-touch src/components/MyComponent.astro
-
-# Use in page
----
-import MyComponent from '@/components/MyComponent.astro';
----
-<MyComponent />
-```
-
-### Change Colors
-
-Edit `tailwind.config.mjs`:
-```js
-colors: {
-  'bz': {
-    black: '#0a0e27',
-    red: '#FF0000',
-    // ... add more
-  }
-}
-```
-
-### Add Google Analytics
-
-Edit `src/layouts/BaseLayout.astro`, add to `<head>`:
-```astro
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
+```css
+Black:  #0a0e27  /* Background */
+Red:    #FF0000  /* Accent (official logo) */
+Cream:  #e8d5b7  /* Text (official logo) */
+White:  #f5f5f5  /* Primary text */
+Gray:   #444444  /* Subtle */
 ```
 
 ---
 
-## 🆘 Troubleshooting
+## 📸 ImagineArt Integration
 
-**Port 4321 already in use?**
-```bash
-npm run dev -- --port 3000
-```
+**API Key:** Set in `scripts/generate-visuals.mjs`  
+**Service:** Uses existing `apps/backend-ts/src/services/imagine-art-service.ts`  
+**Style:** Realistic (cinema-quality)  
+**Resolution:** High-res 8K  
 
-**Styles not loading?**
-```bash
-# Rebuild Tailwind
-rm -rf .astro
-npm run dev
-```
-
-**Image not showing?**
-- Check file path: `public/images/...` → `/images/...` in code
-- Check file size: Should be <500KB
-- Check format: Use .jpg or .webp
+**Philosophy:** "Think Different" - NO stock photos, only artistic excellence
 
 ---
 
-## 🚀 Next Steps
+## 🚀 Deploy Ready
 
-1. ✅ Read [README.md](./README.md) for full docs
-2. ✅ Read [DEPLOYMENT.md](./DEPLOYMENT.md) for Cloudflare setup
-3. ✅ Write 3-5 flagship articles
-4. ✅ Generate hero images
-5. ✅ Deploy to production
-6. ✅ Set up custom domain
-7. ✅ Enable analytics
-8. ✅ Launch! 🎉
+**Platforms supported:**
+- Cloudflare Pages (recommended)
+- Vercel
+- Netlify
+- Railway
+- GitHub Pages
+
+**Build command:** `npm run build`  
+**Output directory:** `dist/`  
+**Site URL:** https://insights.balizero.com (to be configured)
 
 ---
 
-**Need help?** Ask ZANTARA or DevAI! They're trained on this codebase. 😉
+## 🌟 Design Philosophy
+
+✅ **McKinsey elegance** - Professional, sophisticated  
+✅ **Bali Zero soul** - Indonesian JIWA, cultural warmth  
+✅ **Think Different** - Artistic excellence, NO cliché  
+✅ **From Zero to Infinity** - Journey narrative focus  
+
+---
+
+**Selamat datang! 🙏**  
+**From Zero to Infinity ∞** 🌸
+

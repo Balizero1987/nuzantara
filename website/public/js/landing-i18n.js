@@ -1,6 +1,68 @@
-// Language Switcher for Static Landing Pages
-// Traduzioni per le pagine landing statiche
+// Language Switcher for Static Landing Pages - UNIFIED VERSION 2.0
+// Uses shared configuration for consistency with main site
+// Import shared config (in real implementation, would use ES6 modules)
 
+// For now, inline the shared config until module system is set up
+const LANGUAGE_CONFIG = {
+  SUPPORTED_LOCALES: ['en', 'id'],
+  DEFAULT_LOCALE: 'en',
+  STORAGE_KEYS: {
+    LOCALE: 'locale',
+    TIMESTAMP: 'locale_timestamp',
+    AUTO_DETECTED: 'locale_auto_detected',
+    USER_PREFERENCE: 'locale_user_preference'
+  },
+  GESTURE_THRESHOLD: 100,
+  ANIMATION: {
+    TRANSITION_DURATION: 300,
+    PRELOADER_DELAY: 200,
+    BLUR_DURATION: 300
+  },
+  SHORTCUTS: {
+    TOGGLE: 'l',
+    ESCAPE: 'Escape',
+    ARROW_DOWN: 'ArrowDown',
+    ARROW_UP: 'ArrowUp',
+    ENTER: 'Enter'
+  }
+};
+
+// Shared utility functions
+class LanguageSwitcherUtils {
+  static detectBrowserLanguage() {
+    const browserLang = navigator.language || navigator.userLanguage;
+    return browserLang.startsWith('id') ? 'id' : 'en';
+  }
+  
+  static loadLocale() {
+    const stored = localStorage.getItem(LANGUAGE_CONFIG.STORAGE_KEYS.LOCALE);
+    if (stored && LANGUAGE_CONFIG.SUPPORTED_LOCALES.includes(stored)) {
+      return stored;
+    }
+    return this.detectBrowserLanguage();
+  }
+  
+  static saveLocale(locale, isUserAction = true) {
+    localStorage.setItem(LANGUAGE_CONFIG.STORAGE_KEYS.LOCALE, locale);
+    localStorage.setItem(LANGUAGE_CONFIG.STORAGE_KEYS.TIMESTAMP, Date.now());
+    if (isUserAction) {
+      localStorage.setItem(LANGUAGE_CONFIG.STORAGE_KEYS.USER_PREFERENCE, 'true');
+    }
+  }
+  
+  static detectSwipeGesture(touchStartX, touchEndX, currentLocale, callback) {
+    const swipeDistance = touchEndX - touchStartX;
+    const threshold = LANGUAGE_CONFIG.GESTURE_THRESHOLD;
+    
+    if (swipeDistance > threshold && currentLocale === 'id') {
+      callback('en');
+    } else if (swipeDistance < -threshold && currentLocale === 'en') {
+      callback('id');
+    }
+  }
+}
+
+// Unified translations (matches shared config structure)
 const translations = {
   en: {
     // Navigation
@@ -124,31 +186,37 @@ const translations = {
 // Language switcher functionality
 class LanguageSwitcher {
   constructor() {
-    this.currentLocale = this.loadLocale();
+    // Use shared utilities for consistency
+    this.currentLocale = LanguageSwitcherUtils.loadLocale();
+    this.isTransitioning = false;
+    this.touchStartX = 0;
+    this.touchEndX = 0;
     this.init();
   }
   
-  loadLocale() {
-    return localStorage.getItem('locale') || 'en';
-  }
-  
-  saveLocale(locale) {
-    localStorage.setItem('locale', locale);
-  }
-  
   init() {
+    console.log('LanguageSwitcher initializing with locale:', this.currentLocale);
     this.createLanguageSwitcher();
+    this.setupLazyLoading();
+    this.setupGestureHandlers();
+    this.setupKeyboardShortcuts();
+    this.setupAccessibility();
     this.translatePage();
   }
   
   createLanguageSwitcher() {
-    // Find navigation element
-    const nav = document.querySelector('nav[role="navigation"]');
-    if (!nav) return;
+    // Find header or create fallback container
+    const headerContent = document.querySelector('.header-content');
+    const header = document.querySelector('header');
+    const body = document.body;
+    
+    console.log('Header content found:', !!headerContent);
+    console.log('Header found:', !!header);
     
     // Create language switcher HTML
     const languageSwitcher = document.createElement('div');
     languageSwitcher.className = 'language-switcher';
+    languageSwitcher.id = 'languageSwitcher';
     languageSwitcher.innerHTML = `
       <div class="language-dropdown">
         <button class="language-btn" id="languageBtn" aria-label="Select language">
@@ -169,31 +237,102 @@ class LanguageSwitcher {
       </div>
     `;
     
-    // Add CSS styles
+    // Add CSS styles with fixed positioning
     const style = document.createElement('style');
     style.textContent = `
-      .language-switcher {
-        position: relative;
-        margin-left: 1rem;
+      #languageSwitcher {
+        position: fixed !important;
+        top: 20px !important;
+        right: 20px !important;
+        z-index: 99999 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      }
+      
+      #languageSwitcher.transitioning {
+        opacity: 0.7 !important;
+        transform: scale(0.95) !important;
+      }
+      
+      body {
+        position: relative !important;
+        transition: filter 0.3s ease !important;
+      }
+      
+      body.lang-transitioning {
+        filter: blur(1px) !important;
+      }
+      
+      .header-content {
+        position: relative !important;
+      }
+      
+      /* Preloader for language change */
+      .lang-preloader {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        z-index: 999999 !important;
+        background: rgba(9, 9, 32, 0.9) !important;
+        color: var(--gold, #D4AF37) !important;
+        padding: 1rem 2rem !important;
+        border-radius: 0.5rem !important;
+        display: none !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        backdrop-filter: blur(10px) !important;
+      }
+      
+      .lang-preloader.show {
+        display: flex !important;
+        animation: fadeInScale 0.3s ease-out !important;
+      }
+      
+      .loader-spinner {
+        width: 16px !important;
+        height: 16px !important;
+        border: 2px solid transparent !important;
+        border-top: 2px solid currentColor !important;
+        border-radius: 50% !important;
+        animation: spin 1s linear infinite !important;
+      }
+      
+      @keyframes fadeInScale {
+        from {
+          opacity: 0 !important;
+          transform: translate(-50%, -50%) scale(0.8) !important;
+        }
+        to {
+          opacity: 1 !important;
+          transform: translate(-50%, -50%) scale(1) !important;
+        }
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg) !important; }
       }
       
       .language-btn {
-        display: flex;
+        display: flex !important;
         align-items: center;
         gap: 0.5rem;
         background: transparent;
-        border: 1px solid var(--gold);
-        color: var(--off-white);
+        border: 1px solid var(--gold, #D4AF37);
+        color: var(--off-white, #f5f5f5);
         padding: 0.5rem 0.75rem;
         border-radius: 0.375rem;
         cursor: pointer;
         font-size: 0.875rem;
         transition: all 0.3s ease;
+        white-space: nowrap;
       }
       
       .language-btn:hover {
-        background: var(--gold);
-        color: var(--vivid-black);
+        background: var(--gold, #D4AF37);
+        color: var(--vivid-black, #090920);
       }
       
       .dropdown-arrow {
@@ -209,16 +348,17 @@ class LanguageSwitcher {
         position: absolute;
         top: 100%;
         right: 0;
-        background: var(--vivid-black);
-        border: 1px solid var(--gold);
+        background: var(--vivid-black, #090920);
+        border: 1px solid var(--gold, #D4AF37);
         border-radius: 0.375rem;
         padding: 0.5rem 0;
         min-width: 200px;
-        z-index: 1000;
+        z-index: 10000 !important;
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
         transition: all 0.3s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
       }
       
       .language-menu.open {
@@ -250,21 +390,115 @@ class LanguageSwitcher {
         color: var(--gold);
       }
       
+      /* Make sure nav items are displayed inline */
+      nav[role="navigation"] {
+        display: flex !important;
+        align-items: center !important;
+        gap: 1rem !important;
+        flex-wrap: wrap !important;
+      }
+      
+      nav[role="navigation"] a {
+        display: inline-block !important;
+      }
+      
+      /* Accessibility Features */
+      .language-btn:focus {
+        outline: 3px solid var(--gold, #D4AF37) !important;
+        outline-offset: 2px !important;
+      }
+      
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+      
+      @media (prefers-contrast: high) {
+        .language-btn {
+          border-width: 3px !important;
+          background: #000 !important;
+          color: #fff !important;
+        }
+        .language-menu {
+          background: #000 !important;
+          border-width: 3px !important;
+        }
+      }
+      
+      /* Font size adjustment support */
+      @media (min-resolution: 2dppx) {
+        .language-btn {
+          font-size: 1rem !important;
+        }
+      }
+      
+      /* Touch feedback */
+      .language-btn:active {
+        transform: scale(0.95) !important;
+        background: var(--gold, #D4AF37) !important;
+        color: var(--vivid-black, #090920) !important;
+      }
+      
+      /* Mobile optimizations */
       @media (max-width: 768px) {
-        .language-switcher {
-          margin-left: 0;
-          margin-top: 1rem;
+        #languageSwitcher {
+          top: 15px !important;
+          right: 15px !important;
+        }
+        
+        .language-btn {
+          font-size: 0.875rem !important;
+          padding: 0.625rem 0.75rem !important;
+          min-height: 44px !important;
+          min-width: 44px !important;
         }
         
         .language-menu {
-          left: 0;
-          right: auto;
+          left: 0 !important;
+          right: auto !important;
+          min-width: 180px !important;
+        }
+        
+        .language-option {
+          min-height: 44px !important;
+          padding: 0.875rem 1rem !important;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        #languageSwitcher {
+          top: 10px !important;
+          right: 10px !important;
+        }
+        
+        .language-btn {
+          padding: 0.5rem !important;
+        }
+        
+        .language-btn .lang-code {
+          display: none !important;
+        }
+      }
+      
+      @media (min-width: 769px) {
+        nav[role="navigation"] {
+          flex-direction: row !important;
+          align-items: center !important;
         }
       }
     `;
     
     document.head.appendChild(style);
-    nav.appendChild(languageSwitcher);
+    
+    // Always append to body for fixed positioning
+    document.body.appendChild(languageSwitcher);
+    console.log('Language switcher appended to body');
+    
+    // Create preloader
+    this.createPreloader();
     
     // Add event listeners
     this.setupEventListeners();
@@ -298,15 +532,36 @@ class LanguageSwitcher {
     });
   }
   
-  changeLanguage(locale) {
+  async changeLanguage(locale) {
+    if (this.isTransitioning || locale === this.currentLocale) return;
+    
+    this.isTransitioning = true;
+    this.showPreloader();
+    
+    // Add transition effects
+    document.body.classList.add('lang-transitioning');
+    document.getElementById('languageSwitcher')?.classList.add('transitioning');
+    
+    // Wait for visual feedback - use shared config timing
+    await new Promise(resolve => setTimeout(resolve, LANGUAGE_CONFIG.ANIMATION.PRELOADER_DELAY));
+    
     this.currentLocale = locale;
-    this.saveLocale(locale);
+    // Use shared save logic with analytics
+    LanguageSwitcherUtils.saveLocale(locale, true);
     this.translatePage();
     this.updateLanguageButton();
     
     // Close dropdown
     document.getElementById('languageBtn')?.classList.remove('open');
     document.getElementById('languageMenu')?.classList.remove('open');
+    
+    // Complete transition - use shared config timing
+    await new Promise(resolve => setTimeout(resolve, LANGUAGE_CONFIG.ANIMATION.TRANSITION_DURATION));
+    this.hidePreloader();
+    document.body.classList.remove('lang-transitioning');
+    document.getElementById('languageSwitcher')?.classList.remove('transitioning');
+    
+    this.isTransitioning = false;
   }
   
   updateLanguageButton() {
@@ -324,13 +579,20 @@ class LanguageSwitcher {
   
   translatePage() {
     const t = translations[this.currentLocale];
-    if (!t) return;
+    if (!t) {
+      console.error('Translations not found for locale:', this.currentLocale);
+      return;
+    }
+    
+    console.log('Translating page with locale:', this.currentLocale);
     
     // Translate navigation
     this.translateNavigation(t.nav);
     
     // Translate page-specific content based on current page
     const pageType = this.detectPageType();
+    console.log('Detected page type:', pageType);
+    
     switch (pageType) {
       case 'visas':
         this.translateVisaPage(t.visas, t.common);
@@ -462,9 +724,183 @@ class LanguageSwitcher {
       }
     });
   }
+  
+  // ==================== NEW METHODS ====================
+  
+  createPreloader() {
+    const preloader = document.createElement('div');
+    preloader.className = 'lang-preloader';
+    preloader.id = 'langPreloader';
+    preloader.innerHTML = `
+      <div class="loader-spinner"></div>
+      <span>Switching language...</span>
+    `;
+    document.body.appendChild(preloader);
+  }
+  
+  showPreloader() {
+    const preloader = document.getElementById('langPreloader');
+    if (preloader) {
+      preloader.classList.add('show');
+    }
+  }
+  
+  hidePreloader() {
+    const preloader = document.getElementById('langPreloader');
+    if (preloader) {
+      preloader.classList.remove('show');
+    }
+  }
+  
+  setupLazyLoading() {
+    // Lazy load images when language changes
+    const images = document.querySelectorAll('img[data-src]');
+    if (images.length === 0) return;
+    
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.classList.remove('lazy');
+          observer.unobserve(img);
+        }
+      });
+    });
+    
+    images.forEach(img => imageObserver.observe(img));
+  }
+  
+  setupGestureHandlers() {
+    // Swipe gesture for language change (mobile)
+    document.addEventListener('touchstart', (e) => {
+      this.touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    document.addEventListener('touchend', (e) => {
+      this.touchEndX = e.changedTouches[0].screenX;
+      this.handleGesture();
+    }, { passive: true });
+  }
+  
+  handleGesture() {
+    // Use shared gesture detection utility for consistency
+    LanguageSwitcherUtils.detectSwipeGesture(
+      this.touchStartX,
+      this.touchEndX,
+      this.currentLocale,
+      (newLocale) => this.changeLanguage(newLocale)
+    );
+  }
+  
+  setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      // Use shared config for keyboard shortcuts
+      // Alt + L: Toggle language
+      if (e.altKey && e.key.toLowerCase() === LANGUAGE_CONFIG.SHORTCUTS.TOGGLE) {
+        e.preventDefault();
+        const newLocale = this.currentLocale === 'en' ? 'id' : 'en';
+        this.changeLanguage(newLocale);
+      }
+      
+      // Escape: Close language menu
+      if (e.key === LANGUAGE_CONFIG.SHORTCUTS.ESCAPE) {
+        const languageBtn = document.getElementById('languageBtn');
+        const languageMenu = document.getElementById('languageMenu');
+        languageBtn?.classList.remove('open');
+        languageMenu?.classList.remove('open');
+      }
+      
+      // Arrow keys navigation in dropdown
+      if (document.getElementById('languageMenu')?.classList.contains('open')) {
+        if (e.key === LANGUAGE_CONFIG.SHORTCUTS.ARROW_DOWN || e.key === LANGUAGE_CONFIG.SHORTCUTS.ARROW_UP) {
+          e.preventDefault();
+          this.navigateOptions(e.key === LANGUAGE_CONFIG.SHORTCUTS.ARROW_DOWN ? 1 : -1);
+        } else if (e.key === LANGUAGE_CONFIG.SHORTCUTS.ENTER) {
+          e.preventDefault();
+          const focused = document.querySelector('.language-option:focus');
+          if (focused) {
+            focused.click();
+          }
+        }
+      }
+    });
+  }
+  
+  navigateOptions(direction) {
+    const options = document.querySelectorAll('.language-option');
+    const currentFocus = document.querySelector('.language-option:focus');
+    let index = Array.from(options).indexOf(currentFocus);
+    
+    if (index === -1) {
+      index = direction > 0 ? 0 : options.length - 1;
+    } else {
+      index += direction;
+      if (index >= options.length) index = 0;
+      if (index < 0) index = options.length - 1;
+    }
+    
+    options[index]?.focus();
+  }
+  
+  setupAccessibility() {
+    // Add ARIA labels and screen reader support
+    const languageBtn = document.getElementById('languageBtn');
+    const languageMenu = document.getElementById('languageMenu');
+    
+    if (languageBtn) {
+      languageBtn.setAttribute('aria-expanded', 'false');
+      languageBtn.setAttribute('aria-haspopup', 'true');
+      languageBtn.setAttribute('aria-label', `Current language: ${this.currentLocale === 'en' ? 'English' : 'Bahasa Indonesia'}. Press to change language.`);
+    }
+    
+    if (languageMenu) {
+      languageMenu.setAttribute('role', 'menu');
+      languageMenu.setAttribute('aria-label', 'Language selection menu');
+    }
+    
+    // Update ARIA when menu opens/closes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          const isOpen = languageMenu?.classList.contains('open');
+          languageBtn?.setAttribute('aria-expanded', isOpen.toString());
+        }
+      });
+    });
+    
+    if (languageMenu) {
+      observer.observe(languageMenu, { attributes: true });
+    }
+    
+    // Add focus management
+    document.querySelectorAll('.language-option').forEach((option, index) => {
+      option.setAttribute('role', 'menuitem');
+      option.setAttribute('tabindex', '-1');
+    });
+  }
 }
 
 // Initialize language switcher when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  new LanguageSwitcher();
+  console.log('DOM loaded, initializing LanguageSwitcher...');
+  try {
+    new LanguageSwitcher();
+    console.log('LanguageSwitcher initialized successfully');
+  } catch (error) {
+    console.error('Error initializing LanguageSwitcher:', error);
+  }
 });
+
+// Fallback initialization if DOMContentLoaded already fired
+if (document.readyState === 'loading') {
+  // DOM is still loading, DOMContentLoaded will fire
+} else {
+  console.log('DOM already loaded, initializing LanguageSwitcher immediately...');
+  try {
+    new LanguageSwitcher();
+    console.log('LanguageSwitcher initialized successfully (immediate)');
+  } catch (error) {
+    console.error('Error initializing LanguageSwitcher (immediate):', error);
+  }
+}

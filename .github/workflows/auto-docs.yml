@@ -1,7 +1,18 @@
 name: Auto-Generate Documentation
 
 on:
-  workflow_dispatch: # Manual trigger only
+  workflow_dispatch: # Manual trigger
+  push:
+    branches: [main]
+    paths:
+      - 'apps/backend-ts/src/handlers/**'
+      - 'apps/backend-ts/src/routing/router.ts'
+      - 'apps/*/package.json'
+      - 'apps/*/README.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/backend-ts/src/handlers/**'
 
 jobs:
   generate-docs:

@@ -60,9 +60,9 @@ export function ArticleCard({ article, variant = 'small', colorBlock, className 
 
   return (
     <Link href={`/article/${article.slug}`}>
-      <article className={`group cursor-pointer transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,0,0,0.6)] md:hover:scale-[1.02] h-full flex flex-col article-card-mobile ${className || ''}`}>
+      <article className={`group cursor-pointer transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,255,255,0.6)] md:hover:scale-[1.02] h-full flex flex-col article-card-mobile ${className || ''}`}>
         {/* Image Container - Dynamic Aspect Ratio */}
-        <div className={`relative w-full ${getAspectRatio()} overflow-hidden rounded-lg border border-white/10 group-hover:border-red/70 transition-colors duration-500`}>
+        <div className={`relative w-full ${getAspectRatio()} overflow-hidden rounded-lg border border-white/10 group-hover:border-white/70 transition-colors duration-500`}>
           <img
             src={article.image || "/placeholder.svg"}
             alt={article.title}
@@ -70,7 +70,7 @@ export function ArticleCard({ article, variant = 'small', colorBlock, className 
           />
 
           {/* Category tag - Responsive sizing */}
-          <div className="absolute top-2 md:top-4 left-2 md:left-4 bg-black/80 border border-red/50 px-2 md:px-3 py-1 text-xs font-serif font-bold text-red tracking-wider">
+          <div className="absolute top-2 md:top-4 left-2 md:left-4 bg-black/80 border border-white/50 px-2 md:px-3 py-1 text-xs font-serif font-bold text-white tracking-wider">
             {article.category.toUpperCase().replace('-', ' ')}
           </div>
 
@@ -89,7 +89,7 @@ export function ArticleCard({ article, variant = 'small', colorBlock, className 
         {/* Content - Optimized spacing for mobile */}
         <div className="mt-3 md:mt-6 px-1 space-y-2 md:space-y-3">
           {/* Title - Better mobile line height */}
-          <h3 className={`text-white font-serif font-bold ${getTitleSize()} leading-tight md:leading-snug group-hover:text-red transition-colors duration-300 article-title-mobile`}>
+          <h3 className={`text-white font-serif font-bold ${getTitleSize()} leading-tight md:leading-snug group-hover:text-gold transition-colors duration-300 article-title-mobile`}>
             {article.title}
           </h3>
 

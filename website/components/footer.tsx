@@ -39,7 +39,7 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-red rounded-sm flex items-center justify-center">
+              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center">
                 <span className="text-black font-serif font-bold text-lg">Z</span>
               </div>
               <span className="font-serif font-bold text-white">Bali Zero</span>
@@ -56,7 +56,7 @@ export function Footer() {
               <ul className="space-y-2">
                 {links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="text-white/60 hover:text-red transition-colors font-sans text-sm">
+                    <Link href={link.href} className="text-white/60 hover:text-white transition-colors font-sans text-sm">
                       {link.label}
                     </Link>
                   </li>
@@ -76,13 +76,13 @@ export function Footer() {
 
           {/* Social Links */}
           <div className="flex items-center gap-4">
-            <a href="#" className="text-white/60 hover:text-red transition-colors" aria-label="Email">
+            <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Email">
               <Mail size={20} />
             </a>
-            <a href="#" className="text-white/60 hover:text-red transition-colors" aria-label="LinkedIn">
+            <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="LinkedIn">
               <Linkedin size={20} />
             </a>
-            <a href="#" className="text-white/60 hover:text-red transition-colors" aria-label="Twitter">
+            <a href="#" className="text-white/60 hover:text-white transition-colors" aria-label="Twitter">
               <Twitter size={20} />
             </a>
           </div>

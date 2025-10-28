@@ -1,0 +1,417 @@
+{
+  "test_date": "2025-10-28T15:17:51.338Z",
+  "test_duration_ms": 2434507,
+  "total_conversations": 50,
+  "passed": 50,
+  "failed": 0,
+  "pass_rate": "100.0%",
+  "average_score": "90.0",
+  "score_distribution": {
+    "perfetto": 50,
+    "ottimo": 0,
+    "buono": 0,
+    "fail": 0
+  },
+  "results": [
+    {
+      "id": 1,
+      "title": "Setup PT PMA Completo",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 2,
+      "title": "KITAS + IMTA Combined",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 3,
+      "title": "Visa Comparison Shopping",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 4,
+      "title": "Real Estate + Tax Package",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 5,
+      "title": "NPWP + BPJS Setup Urgente",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 6,
+      "title": "Multi-Service Package Pricing",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 7,
+      "title": "Property Leasehold vs PT PMA",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 8,
+      "title": "Emergency KITAS Renewal",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 9,
+      "title": "Accounting Package Comparison",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 10,
+      "title": "Tax Residency Certificate",
+      "category": "PRICING_SETUP",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 11,
+      "title": "Oracle Legal Multi-Domain",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 12,
+      "title": "Visa Overstay Penalty",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 13,
+      "title": "Company Audit Preparation",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 14,
+      "title": "BKPM Registration",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 15,
+      "title": "Environmental Permit (UKL-UPL)",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 16,
+      "title": "Trademark Registration",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 17,
+      "title": "Foreign Shareholder Changes",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 18,
+      "title": "Labor Law & Employment Contracts",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 19,
+      "title": "Contract Disputes & Arbitration",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 20,
+      "title": "Data Privacy & GDPR Compliance",
+      "category": "LEGAL_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 21,
+      "title": "CRM Client Intake Flow",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 22,
+      "title": "Team Performance Analytics",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 23,
+      "title": "Google Sheets Client Database",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 24,
+      "title": "Email Campaign to Clients",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 25,
+      "title": "Memory System for Repeat Client",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 26,
+      "title": "Client Journey Orchestrator Agent",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 27,
+      "title": "Document Collection Workflow",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 28,
+      "title": "WhatsApp Integration",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 29,
+      "title": "Team Calendar Coordination",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 30,
+      "title": "Client Satisfaction Survey",
+      "category": "TEAM_OPERATIONS",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 31,
+      "title": "Competitor Intelligence Scraping",
+      "category": "INTEL_AUTOMATION",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 32,
+      "title": "Real-Time Legal Updates Monitoring",
+      "category": "INTEL_AUTOMATION",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 33,
+      "title": "Multi-Language Document Translation",
+      "category": "TRANSLATION_SERVICES",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 34,
+      "title": "Real-Time Chat Translation",
+      "category": "TRANSLATION_SERVICES",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 35,
+      "title": "Instagram DM Lead Management",
+      "category": "INSTAGRAM_AUTOMATION",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 36,
+      "title": "Instagram Content Performance Analysis",
+      "category": "INSTAGRAM_AUTOMATION",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 37,
+      "title": "Team Workload Rebalancing",
+      "category": "TEAM_COLLABORATION",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 38,
+      "title": "Team Skills Matrix & Case Assignment",
+      "category": "TEAM_COLLABORATION",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 39,
+      "title": "Client History Deep Dive",
+      "category": "MEMORY_INTELLIGENCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 40,
+      "title": "Pattern Recognition Across Clients",
+      "category": "MEMORY_INTELLIGENCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 41,
+      "title": "Multi-Domain Synthesis: Restaurant + Property",
+      "category": "ADVANCED_ORACLE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 42,
+      "title": "Tax Optimization Multi-Entity",
+      "category": "ADVANCED_ORACLE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 43,
+      "title": "Contract Generation & Review",
+      "category": "DOCUMENT_AUTOMATION",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 44,
+      "title": "Visa Application Document Package",
+      "category": "DOCUMENT_AUTOMATION",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 45,
+      "title": "Deadline Management Automation",
+      "category": "PROACTIVE_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 46,
+      "title": "LKPM Quarterly Alert System",
+      "category": "PROACTIVE_COMPLIANCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 47,
+      "title": "Dynamic Pricing Analysis",
+      "category": "PRICING_INTELLIGENCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 48,
+      "title": "Bundle Package Optimization",
+      "category": "PRICING_INTELLIGENCE",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 49,
+      "title": "Visa Overstay Emergency",
+      "category": "CRISIS_MANAGEMENT",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    },
+    {
+      "id": 50,
+      "title": "License Revocation Risk",
+      "category": "CRISIS_MANAGEMENT",
+      "score": 90,
+      "rating": "⭐⭐⭐⭐⭐ PERFETTO",
+      "passed": true
+    }
+  ]
+}

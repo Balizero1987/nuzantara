@@ -5,4 +5,4 @@
 export * from './zantara-test.js';
 export * from './zantara-v2-simple.js';
 export * from './zantara-dashboard.js';
-export * from './zantaraKnowledgeHandler.js';
+export * from './knowledge.js';

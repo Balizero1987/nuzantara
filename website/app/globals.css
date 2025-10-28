@@ -140,6 +140,47 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition: filter 0.3s ease;
+  }
+
+  /* Language switching transitions */
+  body.lang-transitioning {
+    filter: blur(1px);
+  }
+
+  /* Accessibility - High contrast mode */
+  @media (prefers-contrast: high) {
+    .language-btn {
+      border-width: 3px !important;
+      background: #000 !important;
+      color: #fff !important;
+    }
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Touch targets for mobile accessibility */
+  button, [role="button"], [role="menuitem"] {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Keyboard shortcut styling */
+  kbd {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  /* Smooth focus transitions */
+  *:focus {
+    transition: outline 0.2s ease;
   }
 
   /* Typography */
@@ -193,9 +234,9 @@
   animation: shimmer 3s infinite;
   background: linear-gradient(
     90deg,
-    rgba(255, 0, 0, 0) 0%,
-    rgba(255, 0, 0, 0.1) 50%,
-    rgba(255, 0, 0, 0) 100%
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
   );
   background-size: 1000px 100%;
 }
@@ -229,7 +270,7 @@
     /* Enhanced batik pattern */
     radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.06) 2%, transparent 0%),
     radial-gradient(circle at 75% 75%, rgba(232, 213, 183, 0.06) 2%, transparent 0%),
-    radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.03) 1%, transparent 0%);
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 1%, transparent 0%);
   background-size: 200px 200px, 60px 60px, 80px 80px, 40px 40px;
   background-position: 0 0, 0 0, 20px 20px, 40px 40px;
   animation: batik-flow 8s ease-in-out infinite;
@@ -247,18 +288,18 @@ body::before {
   z-index: 100;
 }
 
-/* Red Glow Effect */
-@keyframes red-glow-pulse {
+/* White Glow Effect */
+@keyframes white-glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
   }
   50% {
-    box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
   }
 }
 
-.red-glow {
-  animation: red-glow-pulse 2s ease-in-out infinite;
+.white-glow {
+  animation: white-glow-pulse 2s ease-in-out infinite;
 }
 
 /* Gold Accent Line Animation */
@@ -322,11 +363,11 @@ body::before {
   animation: float-particle linear infinite;
 }
 
-.particle-red {
+.particle-white {
   width: 8px;
   height: 8px;
-  background: radial-gradient(circle, rgba(255, 0, 0, 0.6) 0%, rgba(255, 0, 0, 0.1) 70%);
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.1) 70%);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
 .particle-gold {
@@ -443,8 +484,8 @@ body::before {
 
 @keyframes rainbow-color {
   0% {
-    background: radial-gradient(circle, rgba(255, 0, 0, 0.9) 0%, rgba(255, 0, 0, 0.3) 70%);
-    box-shadow: 0 0 30px rgba(255, 0, 0, 0.8), 0 0 50px rgba(255, 0, 0, 0.4);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 50px rgba(255, 255, 255, 0.4);
   }
   14% {
     background: radial-gradient(circle, rgba(255, 127, 0, 0.9) 0%, rgba(255, 127, 0, 0.3) 70%);
@@ -471,8 +512,8 @@ body::before {
     box-shadow: 0 0 30px rgba(148, 0, 211, 0.8), 0 0 50px rgba(148, 0, 211, 0.4);
   }
   100% {
-    background: radial-gradient(circle, rgba(255, 0, 0, 0.9) 0%, rgba(255, 0, 0, 0.3) 70%);
-    box-shadow: 0 0 30px rgba(255, 0, 0, 0.8), 0 0 50px rgba(255, 0, 0, 0.4);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.3) 70%);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 50px rgba(255, 255, 255, 0.4);
   }
 }
 
@@ -596,9 +637,9 @@ body::before {
   animation: spiral-motion 12s linear infinite;
 }
 
-.particle-spiral-red {
-  background: radial-gradient(circle, rgba(255, 0, 0, 1) 0%, rgba(255, 0, 0, 0.6) 70%);
-  box-shadow: 0 0 25px rgba(255, 0, 0, 1), 0 0 40px rgba(255, 0, 0, 0.6), 0 0 60px rgba(255, 0, 0, 0.3);
+.particle-spiral-white {
+  background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 70%);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.6), 0 0 60px rgba(255, 255, 255, 0.3);
 }
 
 .particle-spiral-white {
@@ -649,10 +690,10 @@ body::before {
 
 @keyframes garuda-glow {
   0%, 100% {
-    filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.3));
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
   }
   50% {
-    filter: drop-shadow(0 0 40px rgba(255, 0, 0, 0.6)) drop-shadow(0 0 60px rgba(212, 175, 55, 0.4));
+    filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 60px rgba(212, 175, 55, 0.4));
   }
 }
 
@@ -700,7 +741,7 @@ body::before {
 .ring-1 {
   width: 300px;
   height: 300px;
-  border-color: rgba(255, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.7);
   border-width: 3px;
   animation-delay: 0s;
 }

@@ -33,7 +33,7 @@ export async function FeaturedArticles() {
                 {articles.map((_, index) => (
                   <div 
                     key={index} 
-                    className="w-2 h-2 rounded-full bg-white/30 first:bg-red transition-colors"
+                    className="w-2 h-2 rounded-full bg-white/30 first:bg-white transition-colors"
                   />
                 ))}
               </div>
@@ -121,7 +121,7 @@ export async function FeaturedArticles() {
 
         {/* View All Button */}
         <div className="mt-8 md:mt-16 flex justify-center px-4">
-          <button className="border-2 border-red text-red px-6 py-3 md:px-10 md:py-4 font-serif font-bold tracking-tight hover:bg-red hover:text-black transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,0,0,0.7)] text-sm md:text-base w-full max-w-xs md:w-auto">
+          <button className="border-2 border-white text-white px-6 py-3 md:px-10 md:py-4 font-serif font-bold tracking-tight hover:bg-white hover:text-black transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.7)] text-sm md:text-base w-full max-w-xs md:w-auto">
             Explore All Stories
           </button>
         </div>
