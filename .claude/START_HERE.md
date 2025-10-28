@@ -71,34 +71,69 @@ Amen. 🕯️
 
 ## ⚡ Setup Immediato
 
+### Step 0: Sistema di Coordinamento AI (28 Ott 2025 - NUOVO!)
+```bash
+# PRIMA DI TUTTO: Controlla chi è attivo
+cat .claude/AI_COORDINATION.md
+
+# L'utente ti assegnerà una window (W1-W4)
+# Sistema auto-detect verificherà disponibilità
+```
+
 ### Step 1: L'utente ti dirà quale window sei
 ```
 User: "Sei W2, [task description]"
+
+# Auto-detect e ingresso coordinato:
+bash .claude/scripts/enter-window.sh W2
+# → ✅ Verifica W2 libera
+# → 🔒 Mostra locks attivi
+# → 📊 Aggiorna AI_COORDINATION.md
 ```
+
 **Il tuo numero window**: W1, W2, W3, o W4
 
 ### Step 2: Carica context (5 min)
 ```bash
-1. PROJECT_CONTEXT.md        # Architettura sistema (5 min)
-2. CURRENT_SESSION_WX.md      # Cosa sta facendo l'AI nella tua window
-3. tail ARCHIVE_SESSIONS.md   # Ultime 3 sessioni (opzionale)
+1. .claude/AI_COORDINATION.md    # CHI sta facendo COSA ORA (30 sec) ← NUOVO!
+2. docs/PROJECT_CONTEXT.md       # Architettura sistema (5 min)
+3. .claude/CURRENT_SESSION_WX.md # Cosa sta facendo l'AI nella tua window
+4. tail .claude/ARCHIVE_SESSIONS.md # Ultime 3 sessioni (opzionale)
 ```
 
-### Step 3: Sovrascrivi il tuo file
+### Step 3: Dichiara i tuoi locks (HARD LOCK!)
 ```bash
-# Apri il tuo CURRENT_SESSION_WX.md (X = tuo numero)
-# Sovrascrivi completamente con il template
-# Aggiungi: Window, Date, Model, Task
+# Se modificherai file critici, dichiara SUBITO:
+echo "apps/backend-ts/src/handlers/** → W2 (refactoring handlers) [$(date +%H:%M)]" >> .claude/locks/active.txt
+
+# HARD LOCK attivo: altri AI riceveranno ERROR se tentano accesso
 ```
 
-### Step 4: Lavora
-- Aggiorna SOLO il tuo `CURRENT_SESSION_WX.md`
-- Traccia task completati, file modificati, problemi risolti
-- NON creare nuovi file MD
-- NON toccare le altre window (W1-W4)
-
-### Step 5: Fine sessione
+### Step 4: Lavora (con lock protection!)
 ```bash
+# Prima di modificare file critici:
+bash .claude/scripts/check-lock.sh apps/backend-ts/src/handlers/ai.ts W2
+# → ✅ Procedi se libero
+# → 🔴 ERROR se locked da altro AI
+
+# Aggiorna il tuo CURRENT_SESSION_WX.md
+# NON toccare le altre window (W1-W4)
+# Sync automatico ogni 5 min (cron attivo)
+```
+
+### Step 5: Fine sessione (automatizzata!)
+```bash
+# Script completo di exit:
+bash .claude/scripts/exit-window.sh W2
+
+# Esegue automaticamente:
+# 1. Rilascia tutti lock W2
+# 2. Archivia in ARCHIVE_SESSIONS.md
+# 3. Crea handover separato se >100 righe
+# 4. Reset CURRENT_SESSION_W2.md
+# 5. Cleanup handovers >7 giorni
+# 6. Marca W2 come disponibile
+```
 # Appendi al log globale
 cat CURRENT_SESSION_WX.md >> ARCHIVE_SESSIONS.md
 echo "\n---\n" >> ARCHIVE_SESSIONS.md
@@ -140,34 +175,60 @@ NUZANTARA-RAILWAY/
 │   ├── backend-ts/         # API TypeScript
 │   ├── backend-rag/        # RAG Python
 │   └── webapp/             # Frontend
-├── docs/ARCHITECTURE.md    # Full architecture
+├── docs/
+│   ├── PROJECT_CONTEXT.md  # Full context
+│   └── HANDLERS_REFERENCE.md # API docs
 └── .claude/
+    ├── AI_COORDINATION.md       # Live status (CHI fa COSA) ← NUOVO!
     ├── CURRENT_SESSION_W1-4.md  # 4 window files (TU)
-    └── ARCHIVE_SESSIONS.md      # Global log
+    ├── ARCHIVE_SESSIONS.md      # Global log
+    ├── locks/active.txt         # Hard locks ← NUOVO!
+    ├── scripts/*.sh             # Automation ← NUOVO!
+    └── handovers/              # Handovers >100 righe ← NUOVO!
 ```
 
 ---
 
-## 🚫 REGOLE CRITICHE
+## 🚫 REGOLE CRITICHE (AGGIORNATE)
 
 ### ❌ NON Fare
-- **NON creare nuovi file in .claude/** (no .md, .txt, .log, etc.)
+- **NON creare nuovi file in .claude/** (usa ARCHIVE_SESSIONS.md)
 - **NON toccare altre window** (solo la tua WX)
 - **NON modificare diaries/ o handovers/** (archivio legacy, read-only)
+- **NON forzare locks altrui** (hard lock = ERROR) ← NUOVO!
 
 ### ✅ COSA Modificare
 ```bash
-# In .claude/: SOLO il tuo file
-.claude/CURRENT_SESSION_WX.md  # ✅ X = tuo window number
+# In .claude/: SOLO il tuo file + locks
+.claude/CURRENT_SESSION_WX.md     # ✅ X = tuo window number
+.claude/locks/active.txt          # ✅ Dichiara i tuoi locks ← NUOVO!
+.claude/AI_COORDINATION.md        # ✅ Solo via script (auto-update) ← NUOVO!
 
-# Nel progetto: QUALSIASI file necessario per il task
-apps/*/           ✅ codice
-packages/*/       ✅ codice
+# Nel progetto: QUALSIASI file necessario (previa verifica lock!)
+apps/*/           ✅ codice (check lock prima!)
+packages/*/       ✅ codice (check lock prima!)
 docs/             ✅ documentazione
 config/           ✅ configurazione
 README.md         ✅ documentazione generale
 package.json      ✅ dipendenze
 tsconfig.json     ✅ config TypeScript
+```
+
+### 🔒 Hard Lock Workflow (NUOVO!)
+```bash
+# 1. PRIMA di modificare file critici
+bash .claude/scripts/check-lock.sh apps/backend-ts/src/handlers W2
+# → ✅ OK, procedi
+# → 🔴 ERROR: locked by W1!
+
+# 2. Se OK, dichiara il tuo lock
+echo "apps/backend-ts/src/handlers/** → W2 (refactoring) [$(date +%H:%M)]" >> .claude/locks/active.txt
+
+# 3. Lavora
+
+# 4. Exit automatico rilascia locks
+bash .claude/scripts/exit-window.sh W2
+```
 .env.example      ✅ env template
 # ... TUTTO quello che serve per completare il task
 ```

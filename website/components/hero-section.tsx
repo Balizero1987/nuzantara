@@ -25,15 +25,15 @@ export function HeroSection() {
             <h1 className="text-white font-serif font-bold leading-tight">
               <span className="text-balance block text-5xl md:text-6xl lg:text-7xl animate-fade-in">
                 {t.hero.title}{" "}
-                <span className="text-white">I</span>
-                <span className="text-white">n</span>
-                <span className="text-white">d</span>
-                <span className="text-white">o</span>
-                <span className="text-white">n</span>
-                <span className="text-white">e</span>
-                <span className="text-white">s</span>
-                <span className="text-white">i</span>
-                <span className="text-white">a</span>.
+                <span className="text-red">I</span>
+                <span className="text-red">n</span>
+                <span className="text-red">d</span>
+                <span className="text-red">o</span>
+                <span className="text-red">n</span>
+                <span className="text-red">e</span>
+                <span className="text-red">s</span>
+                <span className="text-red">i</span>
+                <span className="text-red">a</span>.
               </span>
               <span className="text-white block text-4xl md:text-5xl lg:text-6xl mt-2 animate-fade-in-delay">{t.hero.subtitle}</span>
             </h1>

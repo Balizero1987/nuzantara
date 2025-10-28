@@ -1,0 +1,8 @@
+# 🔒 Active Resource Locks
+# Formato: path/to/file|directory/** → WX (reason) [HH:MM]
+# Hard lock attivo - check-lock.sh restituirà ERROR se altro AI tenta accesso
+
+# Esempio:
+# apps/webapp/chat.html → W2 (UI redesign) [23:45]
+
+# Nessun lock attivo
