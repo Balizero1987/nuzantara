@@ -126,7 +126,7 @@ That's where expertise matters.
 **Need help navigating Indonesia's changing regulatory environment?**
 Bali Zero specializes in compliant, sustainable business setup for entrepreneurs who want to invest responsibly. From company formation to property advisory to visa solutions, we help you build in Bali the right way—legally, ethically, and for the long term.
 
-**📲 [Connect with Bali Zero's expert team](https://welcome.balizero.com)** and invest in Bali's future, not its destruction.
+**📲 [Connect with Bali Zero's expert team](https://balizero.com)** and invest in Bali's future, not its destruction.
 
 ---
 

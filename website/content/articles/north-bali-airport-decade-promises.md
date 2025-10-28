@@ -148,7 +148,7 @@ If you're considering business opportunities in North Bali based on the airport 
 **Thinking of investing in Bali or establishing a business in Indonesia?**
 Bali Zero provides expert guidance on company formation, property advisory, and regulatory compliance—helping you make informed decisions based on real data, not development dreams.
 
-**📲 [Connect with Bali Zero's team](https://welcome.balizero.com)** for investor-focused insights on Indonesia's actual infrastructure landscape.
+**📲 [Connect with Bali Zero's team](https://balizero.com)** for investor-focused insights on Indonesia's actual infrastructure landscape.
 
 ---
 

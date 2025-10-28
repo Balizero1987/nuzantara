@@ -176,7 +176,7 @@ Tutti i servizi Claude ora identificano chiaramente ZANTARA come "l'intelligenza
 • Servizi: Visti & KITAS • PT PMA • Tax & accounting • Real estate
 • Contatto: WhatsApp +62 859 0436 9574 • info@balizero.com
 • Sede: Kerobokan, Bali, Indonesia
-• Website: welcome.balizero.com | zantara.balizero.com
+• Website: balizero.com | zantara.balizero.com
 • Instagram: @balizero0
 • Motto: "From Zero to Infinity ∞"
 ```

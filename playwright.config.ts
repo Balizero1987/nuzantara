@@ -40,31 +40,32 @@ export default defineConfig({
     /* Video on failure */
     video: 'retain-on-failure',
 
-    /* Maximum time each action can take - INCREASED */
-    actionTimeout: 30000, // 30s (was 15s)
+    /* NO TIMEOUT - removed for 100-question test */
+    actionTimeout: 0, // No timeout
+    navigationTimeout: 0, // No timeout
 
-    /* Maximum navigation time - INCREASED */
-    navigationTimeout: 60000, // 60s (was 30s)
+    /* Human-like viewport for Mac screen visibility */
+    viewport: { width: 1400, height: 900 },
+
+    /* Headless false for full visibility */
+    headless: false,
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        /* Visible and slower for better readability */
+        slowMo: 1000, // 1s between actions - easy to watch
+      },
     },
   ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run dev',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
-
-  /* Test timeout - INCREASED */
-  timeout: 120000, // 120s per test (was 60s)
+  /* NO TEST TIMEOUT - removed for long test */
+  timeout: 0, // No timeout
   expect: {
-    timeout: 20000 // 20s for assertions (was 10s)
+    timeout: 0 // No timeout on assertions
   }
 });

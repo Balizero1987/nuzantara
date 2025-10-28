@@ -9,9 +9,9 @@ import { Footer } from "@/components/footer"
 import type { CategorySlug } from "@/lib/articles"
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 // Generate static paths for all categories

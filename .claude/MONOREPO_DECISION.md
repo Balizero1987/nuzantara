@@ -64,7 +64,7 @@ Size:     32KB
 Path:     ~/Desktop/zantara_landpage/
 Repo:     github.com/Balizero1987/zantara_landpage
 Status:   ✅ Production (GitHub Pages)
-URL:      https://welcome.balizero.com
+URL:      https://balizero.com
 ```
 
 ---

@@ -156,8 +156,8 @@ export default function AboutPage() {
           <div className="space-y-4 text-white/70 font-sans text-lg mb-8">
             <p>
               <strong className="text-white">For Professional Services:</strong><br />
-              <a href="https://welcome.balizero.com" className="text-red hover:text-gold transition-colors">
-                welcome.balizero.com
+              <a href="https://balizero.com" className="text-red hover:text-gold transition-colors">
+                balizero.com
               </a>
             </p>
             <p>

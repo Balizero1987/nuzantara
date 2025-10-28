@@ -496,6 +496,42 @@ body::before {
   filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
 }
 
+/* Horizontal scroll for articles (McKinsey-style) */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Safari and Chrome */
+}
+
+/* Smooth scroll with gentle snap points */
+.horizontal-scroll {
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.horizontal-scroll > * {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Enhanced touch scrolling */
+.touch-scroll {
+  touch-action: pan-x;
+  will-change: scroll-position;
+  scroll-padding-left: 16px;
+}
+
+/* Better momentum scrolling on iOS */
+@supports (-webkit-overflow-scrolling: touch) {
+  .horizontal-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Mobile optimizations for articles */
 @media (max-width: 768px) {
   /* Better touch targets on mobile */
@@ -522,6 +558,18 @@ body::before {
     margin: 16px 0;
   }
   
+  /* Enhanced horizontal scroll for mobile */
+  .horizontal-scroll {
+    padding-bottom: 8px;
+    margin-bottom: -8px;
+    scroll-snap-type: x proximity; /* Gentler snapping */
+  }
+  
+  /* Allow natural scrolling without text selection issues */
+  .horizontal-scroll {
+    overscroll-behavior-x: contain;
+  }
+  
   /* Reduced motion for mobile performance */
   @media (prefers-reduced-motion: reduce) {
     .group:hover img {
@@ -530,6 +578,10 @@ body::before {
     
     .shimmer {
       animation: none;
+    }
+    
+    .horizontal-scroll {
+      scroll-behavior: auto;
     }
   }
 }

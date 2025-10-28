@@ -247,7 +247,7 @@ graph LR
 - WhatsApp: +62 859 0436 9574
 - Email: info@balizero.com
 - Location: Kerobokan, Bali
-- Website: welcome.balizero.com
+- Website: balizero.com
 - Instagram: @balizero0
 - Motto: "From Zero to Infinity ∞"
 

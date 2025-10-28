@@ -9,9 +9,9 @@ import { CTASection } from "@/components/cta-section"
 import { Footer } from "@/components/footer"
 
 interface ArticlePageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 // Generate static paths for all articles
@@ -70,7 +70,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <ArticleHero article={article} />
       <ArticleContent content={article.content} excerpt={article.excerpt} category={article.category} />
 
-      {/* CTA to welcome.balizero.com */}
+      {/* CTA to balizero.com */}
       <section className="border-t border-white/10 bg-black/50">
         <div className="max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-16 text-center">
           <h3 className="text-white font-serif font-bold text-2xl md:text-3xl mb-4">
@@ -80,7 +80,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             Our team of experts can guide you through the complexities of Indonesian regulations and business setup.
           </p>
           <a
-            href="https://welcome.balizero.com"
+            href="https://balizero.com"
             className="inline-block bg-red text-black px-8 py-4 font-serif font-bold tracking-tight hover:bg-gold transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.6)]"
           >
             Explore Our Services

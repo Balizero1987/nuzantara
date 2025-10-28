@@ -1,0 +1,191 @@
+{
+  "config": {
+    "configFile": "/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/playwright.config.ts",
+    "rootDir": "/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/e2e-tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/e2e-tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 0
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "zantara-tools-verification.spec.ts",
+      "file": "zantara-tools-verification.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ZANTARA Tools Integration Verification",
+          "file": "zantara-tools-verification.spec.ts",
+          "line": 71,
+          "column": 6,
+          "specs": [
+            {
+              "title": "CRITICAL: Verify ZANTARA does NOT hallucinate visa codes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 0,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13881,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "\n🔍 CRITICAL TEST: Visa Code Hallucination Check\n\n"
+                        },
+                        {
+                          "text": "❓ Question: List all available visa types with prices\n"
+                        },
+                        {
+                          "text": "\n💬 Answer preview: \n                    \n                        \n                            \n                        \n                        ZANTARA Assistant\n                        •\n                        Today, 03:33 PM\n                    \n                    Halo Krisna! 👋\n\nMari saya ambil data harga visa t...\n"
+                        },
+                        {
+                          "text": "\n❌ Checking for HALLUCINATED codes (should NOT appear):\n"
+                        },
+                        {
+                          "text": "   ✅ Correctly avoided: \"B211A\"\n"
+                        },
+                        {
+                          "text": "   ✅ Correctly avoided: \"B211B\"\n"
+                        },
+                        {
+                          "text": "   ✅ Correctly avoided: \"B212\"\n"
+                        },
+                        {
+                          "text": "   ❌ FOUND HALLUCINATION: \"E31A\" - THIS IS A BUG!\n"
+                        },
+                        {
+                          "text": "\n✅ Checking for REAL codes (should appear):\n"
+                        },
+                        {
+                          "text": "   ✅ Found real code: \"C1\"\n"
+                        },
+                        {
+                          "text": "   ✅ Found real code: \"C2\"\n"
+                        },
+                        {
+                          "text": "   ✅ Found real code: \"C7\"\n"
+                        },
+                        {
+                          "text": "   ⚠️ Missing real code: \"D1\"\n"
+                        },
+                        {
+                          "text": "   ⚠️ Missing real code: \"D2\"\n"
+                        },
+                        {
+                          "text": "   ✅ Found real code: \"E23\"\n"
+                        },
+                        {
+                          "text": "   ✅ Found real code: \"E28A\"\n"
+                        },
+                        {
+                          "text": "\n📊 RESULTS:\n"
+                        },
+                        {
+                          "text": "   Real codes found: 5/7\n"
+                        },
+                        {
+                          "text": "   Hallucinations: ❌ YES - BUG DETECTED\n"
+                        },
+                        {
+                          "text": "\n🚨 CRITICAL: ZANTARA is hallucinating visa codes!\n"
+                        },
+                        {
+                          "text": "   This means pricing tool is NOT being called properly.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-10-28T07:33:18.348Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "35d9032f284bae7f61b2-3affc0ca98e3ba6ad6b5",
+              "file": "zantara-tools-verification.spec.ts",
+              "line": 151,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-10-28T07:33:18.099Z",
+    "duration": 15153.825,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -144,6 +144,22 @@
             text-align: center;
         }
 
+        .hero-sticker {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-sticker img {
+            filter: drop-shadow(0 10px 30px rgba(255, 0, 0, 0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
         .hero-icon {
             width: 180px;
             height: 180px;
@@ -413,8 +429,8 @@
     <!-- Hero -->
     <section class="hero">
         <div class="container">
-            <div class="hero-icon">
-                <img src="sticker/team-collaboration-sticker.png" alt="Team Collaboration" loading="lazy" width="300" height="200">
+            <div class="hero-sticker">
+                <img src="sticker/team-collaboration-sticker.png" alt="Team Collaboration 3D Sticker" loading="lazy" width="120" height="120">
             </div>
             <h1>Our Team</h1>
             <p class="subtitle">Meet the people behind Bali Zero — experienced professionals dedicated to making your Indonesian journey seamless and successful.</p>

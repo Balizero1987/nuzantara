@@ -44,7 +44,7 @@ Production: https://zantara.balizero.com ✅
 ```
 Path:       /Users/antonellosiano/Desktop/zantara_landpage/
 Repo:       https://github.com/Balizero1987/zantara_landpage
-Production: https://welcome.balizero.com ✅
+Production: https://balizero.com ✅
 ```
 
 ---

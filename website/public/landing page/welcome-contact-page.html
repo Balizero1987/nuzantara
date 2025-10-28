@@ -144,6 +144,22 @@
             text-align: center;
         }
 
+        .hero-sticker {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-sticker img {
+            filter: drop-shadow(0 10px 30px rgba(255, 0, 0, 0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
         .hero-icon {
             width: 180px;
             height: 180px;
@@ -599,8 +615,8 @@
     <!-- Hero -->
     <section class="hero">
         <div class="container">
-            <div class="hero-icon">
-                <img src="sticker/contact-communication-sticker.png" alt="Contact Communication" loading="lazy" width="200" height="150">
+            <div class="hero-sticker">
+                <img src="sticker/contact-communication-sticker.png" alt="Contact Communication 3D Sticker" loading="lazy" width="120" height="120">
             </div>
             <h1>Contact Us</h1>
             <p class="subtitle">Ready to start your journey in Bali? Get in touch with our team and we'll guide you through every step of the process.</p>

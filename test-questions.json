@@ -1,0 +1,161 @@
+{
+  "categories": [
+    {
+      "name": "Complex Business Scenarios - Multi Domain",
+      "questions": [
+        "Saya investor Singapura dengan budget USD 2 juta ingin membuka resort boutique 15 villa di Canggu. Analisis lengkap: struktur perusahaan optimal (PT PMA vs nominee), proyeksi pajak 5 tahun, timeline pengurusan izin dari awal hingga operasional termasuk IMB dan izin pariwisata, strategi kepemilikan tanah (leasehold vs hak pakai), perkiraan ROI dengan occupancy rate 70%, dan rekomendasikan apakah lebih baik satu entitas atau holding company dengan multiple subsidiaries untuk mitigasi risiko.",
+        "Bandingkan secara komprehensif tiga skenario berbeda untuk expat Australia yang ingin pindah ke Bali: (1) bekerja remote untuk perusahaan Australia sambil tinggal di Bali dengan visa social/tourist, (2) setup PT PMA konsultan IT dan sponsori KITAS sendiri, (3) beli existing business lokal dan convert ke PMA. Untuk masing-masing analisis: aspek legal dan risiko, total biaya setup dan maintenance tahunan, implikasi pajak Indonesia dan Australia, fleksibilitas jangka panjang, dan rekomendasikan opsi terbaik berdasarkan profile risk-averse dengan rencana tinggal permanent.",
+        "Klien saya punya PT PMA di sektor F&B (restaurant) yang sudah berjalan 2 tahun dengan omzet Rp 8 miliar/tahun tapi masih rugi operasional. Dia ingin ekspansi dengan model franchise dan tambah 2 outlet baru, tapi juga pertimbangkan untuk diversifikasi ke property management. Buatkan analisis: restrukturisasi finansial untuk keluar dari rugi, strategi ekspansi franchise (legal structure, franchise agreement essentials, KBLI requirements), proyeksi cash flow 18 bulan untuk 3 outlets, feasibility diversifikasi property management (perlu entitas terpisah atau cukup tambah KBLI?), dan tax planning strategy untuk minimize PPh Badan sambil maintain cash flow untuk ekspansi.",
+        "Saya akan menikah dengan WNI dan berencana pindah ke Indonesia dalam 6 bulan. Background: entrepreneur dengan 3 online businesses (e-commerce, SaaS, consulting) yang sudah jalan dengan revenue USD 300k/tahun, semua remote work. Pertanyaan kompleks: (1) visa options terbaik dan comparison KITAS spouse vs entrepreneur vs investor, (2) bagaimana struktur multiple businesses - perlu 3 PT terpisah atau bisa satu holding? (3) tax residency planning - kapan timing optimal untuk declare tax resident Indonesia untuk minimize worldwide taxation? (4) asset protection - bagaimana lindungi IP dan digital assets? (5) timeline dan checklist lengkap untuk relokasi termasuk persiapan dokumen, setup bank account, NPWP, dan regulatory compliance.",
+        "Analisis mendalam untuk grup investor yang ingin akuisisi hotel bintang 3 di Sanur (50 kamar, harga Rp 45 miliar): due diligence checklist lengkap mencakup legal (status tanah, izin operasional, employment contracts), financial (3 tahun P&L, occupancy trends, debt structure), operational (staff retention, vendor contracts, brand reputation), tax (outstanding liabilities, transfer pricing considerations jika ada related party transactions). Kemudian simulasikan 3 skenario financing: (1) 100% equity, (2) 60% equity + 40% bank loan, (3) investor consortium dengan profit sharing structure. Untuk masing-masing hitung IRR projection 7 tahun, tax efficiency, exit strategy options, dan risk factors."
+      ]
+    },
+    {
+      "name": "Oracle System",
+      "questions": [
+        "Berapa tarif pajak untuk PT PMA di sektor ekspor?",
+        "Apa kata hukum Indonesia tentang kepemilikan properti oleh warga asing?",
+        "Apa saja persyaratan untuk membuka restoran di Bali?",
+        "Bandingkan visa B211A dan B211B untuk bisnis",
+        "Cari kode KBLI untuk konsultan IT",
+        "Simulasikan skenario: buka PT PMA di sektor F&B dengan 2 karyawan asing",
+        "Analisis risiko pajak untuk perusahaan import-export",
+        "Prediksi total biaya setup PT PMA + KITAS untuk 3 orang",
+        "Apa perbedaan antara PT PMA dan PT Lokal dalam hal pajak?",
+        "Bagaimana cara mengurus izin usaha pariwisata di Bali?",
+        "Apa saja dokumen yang diperlukan untuk membeli tanah leasehold?",
+        "Berapa lama proses perpanjangan KITAS?",
+        "Kode KBLI apa yang cocok untuk coffee shop dengan live music?",
+        "Bagaimana cara menghitung PPh 21 untuk karyawan asing?",
+        "Apa saja kewajiban pelaporan pajak tahunan PT PMA?"
+      ]
+    },
+    {
+      "name": "Pricing & KBLI",
+      "questions": [
+        "Berapa harga KITAS untuk pekerja?",
+        "Berikan saya penawaran lengkap untuk setup PT PMA",
+        "Bandingkan harga semua layanan visa",
+        "Berapa biaya konsultasi pajak tahunan?",
+        "Harga pembuatan PT Lokal berapa?",
+        "Bandingkan biaya KITAS vs KITAP",
+        "Berapa biaya pengurusan IMB untuk bangunan komersial?",
+        "Apa saja paket layanan real estate yang tersedia?",
+        "Kode KBLI untuk hotel bintang 3 apa?",
+        "Apa persyaratan untuk kode KBLI 56101?",
+        "Berapa total biaya untuk visa keluarga (spouse + 2 anak)?",
+        "Bandingkan harga layanan accounting bulanan",
+        "Kode KBLI untuk spa dan wellness center?",
+        "Berapa biaya perpanjangan izin usaha tahunan?",
+        "Apa saja biaya tersembunyi saat setup PT PMA?"
+      ]
+    },
+    {
+      "name": "Memory & Context",
+      "questions": [
+        "Ingat bahwa saya berencana membuka coffee shop di Ubud tahun depan",
+        "Simpan informasi: budget saya maksimal 500 juta rupiah",
+        "Apa yang sudah saya bicarakan dengan kamu hari ini?",
+        "Cari di memori: kapan terakhir saya tanya tentang KITAS?",
+        "Berdasarkan rencana coffee shop saya, apa saran terbaik?",
+        "Ingat: saya lebih suka komunikasi dalam Bahasa Indonesia",
+        "Ambil semua fakta tentang rencana bisnis saya",
+        "Apa yang kamu tahu tentang preferensi saya?",
+        "Simpan: deadline setup perusahaan saya Maret 2026",
+        "Rangkum semua percakapan kita minggu ini"
+      ]
+    },
+    {
+      "name": "Analytics & Reports",
+      "questions": [
+        "Tampilkan dashboard utama",
+        "Berikan laporan percakapan minggu ini",
+        "Statistik penggunaan layanan apa yang populer?",
+        "Generate laporan mingguan",
+        "Buat laporan bulanan untuk Oktober 2025",
+        "Rekap harian saya hari ini",
+        "Track event: saya tertarik dengan layanan real estate",
+        "Berapa banyak pertanyaan yang sudah saya tanyakan?",
+        "Dashboard analytics untuk tim Bali Zero",
+        "Apa topik yang paling sering saya tanyakan?"
+      ]
+    },
+    {
+      "name": "Translation & Communication",
+      "questions": [
+        "Terjemahkan ke Inggris: Saya ingin membuka perusahaan di Bali",
+        "Translate to Indonesian: What are the requirements for a work permit?",
+        "Terjemahkan dokumen ini ke Bahasa Indonesia: PT PMA registration form",
+        "Kirim notifikasi ke Slack: Krisna bertanya tentang setup PT PMA",
+        "Notify Discord: New inquiry from Krisna about coffee shop",
+        "Terjemahkan batch: Hello, Thank you, See you soon",
+        "Translate legal terms: Force Majeure, Governing Law, Arbitration",
+        "Bagaimana cara mengirim pesan WhatsApp otomatis?",
+        "Terjemahkan kontrak sewa properti ke Indonesia",
+        "Send me a summary in English of our conversation"
+      ]
+    },
+    {
+      "name": "Maps & Location",
+      "questions": [
+        "Cari kantor Bali Zero di Canggu",
+        "Rute dari Ubud ke Sanur",
+        "Cari coffee shop terdekat di Seminyak",
+        "Detail lokasi: Pura Tanah Lot",
+        "Jarak dari Denpasar ke Nusa Dua berapa km?",
+        "Cari tempat meeting yang bagus di Canggu",
+        "Arah berkendara dari Kuta ke Uluwatu",
+        "Restoran Indonesia terbaik di Ubud",
+        "Lokasi kantor imigrasi terdekat",
+        "Bandingkan rute jalan kaki vs motor dari hotel ke pantai"
+      ]
+    },
+    {
+      "name": "Image Generation",
+      "questions": [
+        "Generate gambar: modern coffee shop di Bali dengan view sawah",
+        "Buat image: logo untuk perusahaan consulting bernama BaliPro",
+        "Generate photo: coworking space dengan desain tropical",
+        "Upscale gambar saya menjadi HD",
+        "Test image generation: sunset di pantai Canggu"
+      ]
+    },
+    {
+      "name": "Identity & Team",
+      "questions": [
+        "Siapa saya di sistem AMBARADAM?",
+        "Tampilkan profil tim Bali Zero",
+        "Siapa saja anggota tim yang tersedia?",
+        "Departemen apa saja yang ada di Bali Zero?",
+        "Aktivitas terbaru tim minggu ini"
+      ]
+    },
+    {
+      "name": "Complex Queries",
+      "questions": [
+        "Buatkan saya timeline lengkap dari awal hingga selesai untuk setup PT PMA",
+        "Bandingkan semua aspek: PT PMA vs PT Lokal (pajak, modal, kepemilikan, fleksibilitas)",
+        "Analisis kelayakan bisnis coffee shop di Ubud dengan budget 500 juta",
+        "Buatkan roadmap 6 bulan untuk buka restoran dari nol",
+        "Apa saja dokumen lengkap yang perlu disiapkan untuk investor asing?",
+        "Hitung ROI untuk investasi villa sewa jangka panjang vs pendek di Bali",
+        "Strategi terbaik untuk minimize pajak secara legal untuk PT PMA",
+        "Perbandingan komprehensif: Bali vs Lombok untuk investasi properti",
+        "Buat business plan outline untuk startup tech di Indonesia",
+        "Apa saja risiko legal dan cara mitigasinya untuk bisnis F&B?",
+        "Timeline dan biaya lengkap untuk naturalisasi kewarganegaraan Indonesia",
+        "Analisis pasar coworking space di Bali: demand, kompetisi, proyeksi",
+        "Bagaimana cara strukturisasi holding company untuk multiple bisnis?",
+        "Perbandingan visa investor vs entrepreneur vs retirement untuk expat",
+        "Buatkan comprehensive checklist untuk pindah dan kerja di Bali permanen"
+      ]
+    },
+    {
+      "name": "Multi-Turn Context",
+      "questions": [
+        "Saya mau buka resort kecil di Ubud, berapa modal minimal yang dibutuhkan?",
+        "Berdasarkan rencana resort tadi, buatkan timeline operasional 12 bulan"
+      ]
+    }
+  ]
+}

@@ -220,7 +220,7 @@ OSS 2.0 isn't something you "figure out later." It's mission-critical infrastruc
 
 **Bali Zero specializes in OSS 2.0 compliance for PT PMAs and local companies**—handling KBLI verification, document prep, SME partnership structuring, and LKPM filing. We ensure your business stays compliant, operable, and penalty-free.
 
-**📲 [Get your OSS 2.0 compliance audit with Bali Zero](https://welcome.balizero.com)** and stop worrying about regulatory blindsides.
+**📲 [Get your OSS 2.0 compliance audit with Bali Zero](https://balizero.com)** and stop worrying about regulatory blindsides.
 
 ---
 

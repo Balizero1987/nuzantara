@@ -150,7 +150,7 @@ CAPACITÀ:
 - Servizi Bali Zero (pricing, visti KITAS/C1/retirement/investor, PT PMA, KBLI, BPJS/SPT/NPWP, real estate)
 
 CONTATTI:
-📍 Kerobokan, Bali | 📱 +62 859 0436 9574 | 📧 info@balizero.com | 📸 @balizero0 | 🌐 welcome.balizero.com
+📍 Kerobokan, Bali | 📱 +62 859 0436 9574 | 📧 info@balizero.com | 📸 @balizero0 | 🌐 balizero.com
 
 ⚠️ CITATION OBBLIGATORIA:
 - SEMPRE termina la risposta con le fonti utilizzate

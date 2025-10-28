@@ -144,6 +144,22 @@
             text-align: center;
         }
 
+        .hero-sticker {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-sticker img {
+            filter: drop-shadow(0 10px 30px rgba(255, 0, 0, 0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
         h1 {
             font-family: 'Playfair Display', serif;
             font-size: 4.5rem;
@@ -476,6 +492,9 @@
     <!-- Hero -->
     <section class="hero">
         <div class="container">
+            <div class="hero-sticker">
+                <img src="sticker/realestate-indonesian-sticker.png" alt="Real Estate 3D Sticker" loading="lazy" width="120" height="120">
+            </div>
             <h1>Real Estate Services</h1>
             <p class="subtitle">Secure property with legal clarity and guidance. Navigate Indonesia's real estate market with expert support from acquisition to ownership.</p>
         </div>

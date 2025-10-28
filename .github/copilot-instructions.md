@@ -2,9 +2,9 @@
 
 NUZANTARA is a production Indonesian business services AI platform with TypeScript/Python backends, Oracle system for domain-specific queries, and comprehensive handler architecture.
 
-## Architecture Overview
+## Core Architecture 
 
-### Core Service Boundaries
+### Service Boundaries
 - **TS Backend** (`apps/backend-ts`): Express API, 164+ handlers, business logic, authentication
 - **RAG Backend** (`apps/backend-rag`): Python FastAPI, ChromaDB vector search, Oracle system, AI processing  
 - **Frontend** (`apps/webapp`): Vanilla JS SPA with BFF proxy server
@@ -12,47 +12,12 @@ NUZANTARA is a production Indonesian business services AI platform with TypeScri
 
 ### Data Flow Pattern
 ```
-User → Frontend → TS Backend → RAG Backend → [ChromaDB/PostgreSQL] → Claude Haiku/Llama → Response
+User → Frontend → TS Backend → RAG Backend → [ChromaDB/PostgreSQL] → Claude/Llama → Response
 ```
 
 Key integration: TS Backend proxies to RAG Backend via `/api/rag/*` routes for AI processing.
 
-## Essential Development Workflows
-
-### Build & Run Commands
-```bash
-# Root install (npm workspaces)
-npm install
-
-# Build TypeScript (uses shared/config/core/tsconfig.json)
-npm run build          # Outputs to dist/
-npm run build:fast     # Same but with echo confirmation
-
-# Development
-npm run dev            # tsx watch apps/backend-ts/src/index.ts
-npm start              # node dist/index.js (requires build first)
-
-# Health checks
-npm run health-check   # Curl both backends + jq format
-npm run test:working   # Quick handler verification
-```
-
-### Testing Patterns
-- **Integration**: `scripts/test/test-*.sh` - Production endpoint testing
-- **Unit**: Jest with auto-generated test templates (`generate-tests.py`)
-- **E2E**: Playwright config in `.autofix/e2e-tests/`
-- **Handler verification**: `test-working.sh` tests core handlers via `/call` endpoint
-- **Live Feature Testing**: `test-all-features-live.py` - Playwright automation of production webapp
-
-### Debug Commands
-```bash
-npm run typecheck      # TypeScript validation only
-npm run lint           # ESLint (may not be installed) - run `npm install eslint` if needed
-./scripts/onboarding_smoke.sh  # Quick system verification
-python test-all-features-live.py  # Full frontend feature testing
-```
-
-## Handler Architecture (Critical Pattern)
+## Critical Patterns
 
 ### Handler Response Format (ALWAYS use)
 ```typescript
@@ -93,7 +58,6 @@ const response = await fetch(`${RAG_BACKEND_URL}/api/oracle/query`, {
 ### Module System
 - **Strict ESM**: Use `.js` extensions in imports even for `.ts` files
 - **Shared config**: TypeScript builds with `shared/config/core/tsconfig.json`
-- **Bridge disabled**: Legacy bridge.js system removed - use direct implementations
 
 ### File Structure
 ```
@@ -150,7 +114,6 @@ const response = await fetch(`${RAG_BACKEND_URL}/api/endpoint`, {
 ### Authentication
 - **API Key**: `x-api-key` header for handler access
 - **JWT**: Team authentication for CRM features
-- **Demo user**: Built-in demo account for testing
 
 ## Project-Specific Gotchas
 

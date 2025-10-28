@@ -1,6 +1,6 @@
 # Bali Zero Blog Website
 
-**Live**: https://welcome.balizero.com  
+**Live**: https://balizero.com  
 **Stack**: Next.js 16.0.0 + TypeScript + Tailwind CSS  
 **Status**: Production Ready ✅
 
@@ -214,7 +214,7 @@ Place in `/public/instagram/` (optimized JPG, 1080x1346px, ~300KB)
 
 ## 🔗 Key Links
 
-- **Live Site**: [welcome.balizero.com](https://welcome.balizero.com)
+- **Live Site**: [balizero.com](https://balizero.com)
 - **Main Site**: [balizero.com](https://balizero.com)
 - **Instagram**: [@balizero0](https://instagram.com/balizero0)
 - **Vercel Dashboard**: [vercel.com/dashboard](https://vercel.com/dashboard)
@@ -257,7 +257,7 @@ npm start
 ### Production Testing
 ```bash
 # Check live site
-curl -I https://welcome.balizero.com
+curl -I https://balizero.com
 
 # Run Lighthouse audit
 # DevTools → Lighthouse → Generate Report

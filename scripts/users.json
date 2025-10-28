@@ -1,0 +1,22 @@
+[
+  { "email": "ruslana@balizero.com", "pin": "544835", "role": "Board Member" },
+  { "email": "zero@balizero.com", "pin": "010719", "role": "AI Bridge/Tech Lead" },
+
+  { "email": "amanda@balizero.com", "pin": "180785", "role": "Executive Consultant" },
+  { "email": "vino@balizero.com", "pin": "630443", "role": "Junior Consultant" },
+  { "email": "krisna@balizero.com", "pin": "705802", "role": "Executive Consultant" },
+  { "email": "consulting@balizero.com", "pin": "897634", "role": "Crew Lead" },
+  { "email": "ari.firda@balizero.com", "pin": "679880", "role": "Specialist Consultant" },
+  { "email": "dea@balizero.com", "pin": "865622", "role": "Executive Consultant" },
+  { "email": "surya@balizero.com", "pin": "981689", "role": "Specialist Consultant" },
+  { "email": "damar@balizero.com", "pin": "180453", "role": "Junior Consultant" },
+
+  { "email": "tax@balizero.com", "pin": "650817", "role": "Tax Manager" },
+  { "email": "angel.tax@balizero.com", "pin": "429097", "role": "Tax Expert" },
+  { "email": "kadek.tax@balizero.com", "pin": "489327", "role": "Tax Consultant" },
+  { "email": "dewa.ayu.tax@balizero.com", "pin": "976468", "role": "Tax Consultant" },
+  { "email": "faisha.tax@balizero.com", "pin": "185324", "role": "Tax Care" },
+
+  { "email": "nina.marketing@balizero.com", "pin": "581480", "role": "Marketing Advisory" },
+  { "email": "sahira@balizero.com", "pin": "810949", "role": "Marketing Specialist" }
+]

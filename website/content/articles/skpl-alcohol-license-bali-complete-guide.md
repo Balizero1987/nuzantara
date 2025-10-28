@@ -152,7 +152,7 @@ Alcohol licensing in Indonesia isn't optional, and it's not negotiable. The regu
 
 **Bali Zero specializes in F&B licensing compliance for bars, restaurants, and beach clubs**—from NIB registration to SKPL applications to supplier coordination. We ensure you're fully legal before you serve your first customer.
 
-**📲 [Get your SKPL compliance assessment with Bali Zero](https://welcome.balizero.com)** and operate with confidence, not anxiety.
+**📲 [Get your SKPL compliance assessment with Bali Zero](https://balizero.com)** and operate with confidence, not anxiety.
 
 ---
 

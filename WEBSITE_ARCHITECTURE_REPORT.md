@@ -281,7 +281,7 @@ interface Article {
 {/* <BaliZeroJournal /> */}  // Removed - was carousel
 <FeaturedArticles />         // Asymmetric grid (6 articles)
 <ContentPillars />           // Category showcase
-<CTASection />               // welcome.balizero.com link
+<CTASection />               // balizero.com link
 <Footer />                   // Social + copyright
 ```
 

@@ -5,7 +5,7 @@
 
 ## 📋 EXECUTIVE SUMMARY
 
-**Project**: Bali Zero Blog Website (welcome.balizero.com)  
+**Project**: Bali Zero Blog Website (balizero.com)  
 **Duration**: ~3 hours  
 **Status**: ✅ **PRODUCTION READY**  
 **Completion**: 100%
@@ -172,7 +172,7 @@ Complete overview:
 **Changes**:
 - `ignoreBuildErrors`: true → false (strict mode)
 - `unoptimized`: true → false (enable optimization)
-- Added domains: ['welcome.balizero.com']
+- Added domains: ['balizero.com']
 - Added formats: ['image/avif', 'image/webp']
 - Added security headers (5 headers)
 - Enabled swcMinify and compress
@@ -394,7 +394,7 @@ Start Here:
 
 2. **Remove from Netlify** (if using Cloudflare Pages):
    - Dashboard → Domain Management
-   - Remove welcome.balizero.com
+   - Remove balizero.com
    - Wait 5 minutes
 
 3. **Deploy**:
@@ -407,7 +407,7 @@ Start Here:
    - Vercel: Add CNAME (grey cloud)
 
 5. **Verify**:
-   - Test: https://welcome.balizero.com
+   - Test: https://balizero.com
    - Check SSL (green padlock)
    - Test all 6 articles
    - Mobile responsiveness

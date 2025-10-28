@@ -131,7 +131,7 @@ The D12 application process is straightforward—if you have the right documenta
 
 **Bali Zero specializes in D12 visa applications for serious entrepreneurs**, handling sponsor arrangements, documentation prep, and immigration liaison. We ensure your application reflects genuine business intent—and gets approved.
 
-**📲 [Start your D12 application with Bali Zero](https://welcome.balizero.com)** and explore Indonesia the right way: legally, strategically, and stress-free.
+**📲 [Start your D12 application with Bali Zero](https://balizero.com)** and explore Indonesia the right way: legally, strategically, and stress-free.
 
 ---
 
