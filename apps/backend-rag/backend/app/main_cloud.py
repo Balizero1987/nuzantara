@@ -904,39 +904,53 @@ async def startup_event():
         logger.error(f"❌ AlertService initialization failed: {e}")
         alert_service = None
 
-    # Download ChromaDB from Cloudflare R2
+    # Download ChromaDB from Cloudflare R2 (OR initialize empty)
     try:
         chroma_path = download_chromadb_from_r2()
+        logger.info("✅ ChromaDB loaded from Cloudflare R2")
+    except Exception as e:
+        import traceback
+        logger.warning(f"⚠️ R2 download failed: {e}")
+        logger.info("📂 Initializing empty ChromaDB for manual population...")
 
-        # Set environment variable for SearchService
-        os.environ['CHROMA_DB_PATH'] = chroma_path
+        # Fallback: Initialize empty ChromaDB in persistent volume (or /tmp)
+        chroma_path = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "/tmp/chroma_db")
+        os.makedirs(chroma_path, exist_ok=True)
+        logger.info(f"✅ Empty ChromaDB initialized: {chroma_path}")
+        logger.info("💡 Populate via: POST /api/oracle/populate-now")
 
-        # Initialize Search Service
+    # Set environment variable for SearchService
+    os.environ['CHROMA_DB_PATH'] = chroma_path
+
+    # Initialize Search Service (even if ChromaDB is empty)
+    try:
         search_service = SearchService()
-        logger.info("✅ ChromaDB search service ready (from Cloudflare R2)")
-        
+        logger.info("✅ ChromaDB search service ready")
+
         # Set global search_service for dependency injection
         import app.dependencies as deps
         deps.search_service = search_service
         logger.info("✅ SearchService registered in dependencies")
 
-        # Warm up ChromaDB collections to eliminate cold-start latency
-        # Note: We await this directly - it only takes 2-3s and prevents cold-start issues
+        # Warm up ChromaDB collections (will work even with empty collections)
         try:
             await search_service.warmup()
+            logger.info("✅ ChromaDB warmup complete")
         except Exception as warmup_exc:
-            logger.warning(f"⚠️ ChromaDB warmup failed: {warmup_exc}")
+            logger.warning(f"⚠️ ChromaDB warmup skipped: {warmup_exc}")
 
+        # Initialize memory vector DB
         try:
             initialize_memory_vector_db(chroma_path)
             logger.info("✅ Memory vector collection prepared")
         except Exception as memory_exc:
-            logger.error(f"❌ Memory vector initialization failed: {memory_exc}")
+            logger.warning(f"⚠️ Memory vector initialization skipped: {memory_exc}")
+
     except Exception as e:
         import traceback
-        logger.error(f"❌ ChromaDB initialization failed: {e}")
+        logger.error(f"❌ SearchService initialization failed: {e}")
         logger.error(f"Full traceback:\n{traceback.format_exc()}")
-        logger.warning("⚠️ Continuing without ChromaDB (pure LLM mode)")
+        logger.warning("⚠️ Continuing without SearchService (pure LLM mode)")
         search_service = None
 
     # Initialize Claude Haiku (Fast & Cheap for greetings/casual)
