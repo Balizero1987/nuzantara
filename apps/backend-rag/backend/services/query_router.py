@@ -15,10 +15,11 @@ import re
 
 logger = logging.getLogger(__name__)
 
-# Phase 2: Extended collection support (5 → 9 collections with Oracle)
+# Phase 2/3: Extended collection support (5 → 14 collections with Oracle + expanded KBLI/Legal/Tax)
 CollectionName = Literal[
-    "visa_oracle", "kbli_eye", "tax_genius", "legal_architect", "zantara_books",
-    "tax_updates", "tax_knowledge", "property_listings", "property_knowledge", "legal_updates"
+    "visa_oracle", "kbli_eye", "kbli_comprehensive", "tax_genius", "legal_architect", "zantara_books",
+    "tax_updates", "tax_knowledge", "property_listings", "property_knowledge", "legal_updates",
+    "bali_zero_pricing", "kb_indonesian", "cultural_insights"
 ]
 
 
@@ -56,6 +57,14 @@ class QueryRouter:
         "djp", "direktorat jenderal pajak", "tax compliance", "e-faktur",
         "coretax", "tax amnesty", "transfer pricing", "tax treaty",
         "dividend tax", "carbon tax"
+    ]
+
+    # Tax Genius specific keywords (for procedural/calculation queries)
+    TAX_GENIUS_KEYWORDS = [
+        "tax calculation", "calculate tax", "tax rate", "how to calculate",
+        "tax example", "example", "tax procedure", "step by step",
+        "menghitung pajak", "perhitungan pajak", "cara menghitung",
+        "tax service", "bali zero service", "pricelist", "tarif pajak"
     ]
 
     LEGAL_KEYWORDS = [
@@ -134,9 +143,11 @@ class QueryRouter:
     # Format: primary_collection -> [fallback1, fallback2, fallback3]
     FALLBACK_CHAINS = {
         "visa_oracle": ["legal_architect", "tax_genius", "property_knowledge"],
-        "kbli_eye": ["legal_architect", "tax_knowledge", "visa_oracle"],
-        "tax_knowledge": ["tax_updates", "legal_architect", "kbli_eye"],
-        "tax_updates": ["tax_knowledge", "legal_updates", "legal_architect"],
+        "kbli_eye": ["legal_architect", "tax_genius", "visa_oracle"],
+        "kbli_comprehensive": ["kbli_eye", "legal_architect", "tax_genius"],
+        "tax_genius": ["tax_knowledge", "tax_updates", "legal_architect"],  # NEW: Tax Genius fallback chain
+        "tax_knowledge": ["tax_genius", "tax_updates", "legal_architect"],
+        "tax_updates": ["tax_genius", "tax_knowledge", "legal_updates"],
         "legal_architect": ["legal_updates", "kbli_eye", "tax_genius"],
         "legal_updates": ["legal_architect", "tax_updates", "visa_oracle"],
         "property_knowledge": ["property_listings", "legal_architect", "visa_oracle"],
@@ -195,6 +206,7 @@ class QueryRouter:
 
         # Calculate modifier scores
         update_score = sum(1 for kw in self.UPDATE_KEYWORDS if kw in query_lower)
+        tax_genius_score = sum(1 for kw in self.TAX_GENIUS_KEYWORDS if kw in query_lower)
 
         # Determine primary domain
         domain_scores = {
@@ -215,8 +227,12 @@ class QueryRouter:
             collection = "visa_oracle"
             logger.info(f"🧭 Route: {collection} (default - no keyword matches)")
         elif primary_domain == "tax":
-            # Tax domain: route to updates vs knowledge
-            if update_score > 0:
+            # Tax domain: route to genius/updates/knowledge
+            # Priority: tax_genius (calculations/procedures) > tax_updates > tax_knowledge
+            if tax_genius_score > 0:
+                collection = "tax_genius"
+                logger.info(f"🧭 Route: {collection} (tax genius: tax={tax_score}, genius={tax_genius_score})")
+            elif update_score > 0:
                 collection = "tax_updates"
                 logger.info(f"🧭 Route: {collection} (tax + updates: tax={tax_score}, update={update_score})")
             else:
@@ -382,6 +398,7 @@ class QueryRouter:
         property_score = sum(1 for kw in self.PROPERTY_KEYWORDS if kw in query_lower)
         books_score = sum(1 for kw in self.BOOKS_KEYWORDS if kw in query_lower)
         update_score = sum(1 for kw in self.UPDATE_KEYWORDS if kw in query_lower)
+        tax_genius_score = sum(1 for kw in self.TAX_GENIUS_KEYWORDS if kw in query_lower)
 
         domain_scores = {
             "visa": visa_score,
@@ -399,7 +416,12 @@ class QueryRouter:
         if primary_score == 0:
             collection = "visa_oracle"
         elif primary_domain == "tax":
-            collection = "tax_updates" if update_score > 0 else "tax_knowledge"
+            if tax_genius_score > 0:
+                collection = "tax_genius"
+            elif update_score > 0:
+                collection = "tax_updates"
+            else:
+                collection = "tax_knowledge"
         elif primary_domain == "legal":
             collection = "legal_updates" if update_score > 0 else "legal_architect"
         elif primary_domain == "property":
@@ -465,6 +487,7 @@ class QueryRouter:
         property_score = sum(1 for kw in self.PROPERTY_KEYWORDS if kw in query_lower)
         books_score = sum(1 for kw in self.BOOKS_KEYWORDS if kw in query_lower)
         update_score = sum(1 for kw in self.UPDATE_KEYWORDS if kw in query_lower)
+        tax_genius_score = sum(1 for kw in self.TAX_GENIUS_KEYWORDS if kw in query_lower)
 
         # Find matching keywords
         visa_matches = [kw for kw in self.VISA_KEYWORDS if kw in query_lower]
