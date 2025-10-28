@@ -472,7 +472,7 @@
         <div class="container">
             <div class="header-content">
                 <a href="welcome-balizero-redesign.html" class="logo">
-                    <img src="logo/balizero-logo.png" alt="Bali Zero" width="120" height="60">
+                    <img src="/logo/balizero-logo.png" alt="Bali Zero" width="120" height="60">
                 </a>
                 <button class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="main-nav">
                     ☰
@@ -493,7 +493,7 @@
     <section class="hero">
         <div class="container">
             <div class="hero-sticker">
-                <img src="sticker/realestate-indonesian-sticker.png" alt="Real Estate 3D Sticker" loading="lazy" width="120" height="120">
+                <img src="/sticker/realestate-indonesian-sticker.png" alt="Real Estate 3D Sticker" loading="lazy" width="120" height="120">
             </div>
             <h1>Real Estate Services</h1>
             <p class="subtitle">Secure property with legal clarity and guidance. Navigate Indonesia's real estate market with expert support from acquisition to ownership.</p>
@@ -506,37 +506,37 @@
             <h2>Our Real Estate Services</h2>
             <div class="services-grid">
                 <div class="service-card">
-                    <span class="service-icon"><img src="sticker/property-search-sticker.png" alt="Property Search" loading="lazy" width="60" height="60"></span>
+                    <span class="service-icon"><img src="/sticker/property-search-sticker.png" alt="Property Search" loading="lazy" width="60" height="60"></span>
                     <h3>Property Search</h3>
                     <p>Find your ideal property in Bali. We connect you with trusted developers and property owners across the island.</p>
                 </div>
 
                 <div class="service-card">
-                    <span class="service-icon"><img src="sticker/legal-due-diligence-sticker.png" alt="Legal Due Diligence" loading="lazy" width="60" height="60"></span>
+                    <span class="service-icon"><img src="/sticker/legal-due-diligence-sticker.png" alt="Legal Due Diligence" loading="lazy" width="60" height="60"></span>
                     <h3>Legal Due Diligence</h3>
                     <p>Comprehensive property verification. Land certificate checks, ownership verification, and legal risk assessment.</p>
                 </div>
 
                 <div class="service-card">
-                    <span class="service-icon"><img src="sticker/transaction-support-sticker.png" alt="Transaction Support" loading="lazy" width="60" height="60"></span>
+                    <span class="service-icon"><img src="/sticker/transaction-support-sticker.png" alt="Transaction Support" loading="lazy" width="60" height="60"></span>
                     <h3>Transaction Support</h3>
                     <p>End-to-end support for property purchases. Negotiation, contract review, and notary coordination.</p>
                 </div>
 
                 <div class="service-card">
-                    <span class="service-icon"><img src="sticker/leasehold-agreements-sticker.png" alt="Leasehold Agreements" loading="lazy" width="60" height="60"></span>
+                    <span class="service-icon"><img src="/sticker/leasehold-agreements-sticker.png" alt="Leasehold Agreements" loading="lazy" width="60" height="60"></span>
                     <h3>Leasehold Agreements</h3>
                     <p>Structure and register long-term leasehold agreements (Hak Sewa) for villas, land, and commercial properties.</p>
                 </div>
 
                 <div class="service-card">
-                    <span class="service-icon"><img src="sticker/building-permits-sticker.png" alt="Building Permits" loading="lazy" width="60" height="60"></span>
+                    <span class="service-icon"><img src="/sticker/building-permits-sticker.png" alt="Building Permits" loading="lazy" width="60" height="60"></span>
                     <h3>IMB & Building Permits</h3>
                     <p>Obtain building permits (IMB) for construction and renovation projects. Compliance with local regulations.</p>
                 </div>
 
                 <div class="service-card">
-                    <span class="service-icon"><img src="sticker/property-management-sticker.png" alt="Property Management" loading="lazy" width="60" height="60"></span>
+                    <span class="service-icon"><img src="/sticker/property-management-sticker.png" alt="Property Management" loading="lazy" width="60" height="60"></span>
                     <h3>Property Management</h3>
                     <p>Ongoing property management, maintenance coordination, and rental management for investment properties.</p>
                 </div>
@@ -627,6 +627,26 @@
                 console.log('Service clicked:', this.querySelector('h3').textContent);
             });
         });
+    </script>
+    <!-- Live Chat Widget -->
+    <div id="live-chat-widget" style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;">
+        <div id="chat-bubble" style="background: #FF0000; border-radius: 50%; padding: 16px; cursor: pointer; box-shadow: 0 8px 32px rgba(255,0,0,0.3); animation: pulse 2s infinite;">
+            <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.531 3.588"/>
+            </svg>
+        </div>
+    </div>
+    <script>
+        document.getElementById("chat-bubble").addEventListener("click", function() {
+            const message = encodeURIComponent("Hi! I'm interested in your Indonesian business services. Could you help me get started?");
+            window.open("https://wa.me/6285904369574?text=" + message, "_blank");
+        });
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
     </script>
 </body>
 </html>

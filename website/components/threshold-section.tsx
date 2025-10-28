@@ -56,7 +56,7 @@ export function ThresholdSection() {
           {/* CTA Button */}
           <div className="text-center mt-12">
             <Link
-              href="/landing%20page/welcome-balizero-redesign.html"
+              href="/services/home"
               className="inline-block border-2 border-red text-red px-10 py-4 font-serif font-bold text-lg tracking-tight hover:bg-red hover:text-black transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,0,0,0.7)] rounded-sm"
             >
               Enter The Threshold

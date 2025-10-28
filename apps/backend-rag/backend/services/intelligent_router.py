@@ -140,9 +140,61 @@ class IntelligentRouter:
 
         except Exception as e:
             logger.error(f"❌ [Router] Failed to load tools: {e}")
-            self.all_tools = []
-            self.haiku_tools = []
-            self.tools_loaded = True
+            self.tools_loaded = False
+
+
+    def _detect_tool_needs(self, message: str) -> dict:
+        """
+        PHASE 2: Detect if query needs tool prefetching before streaming
+        
+        Returns dict with:
+        - should_prefetch: bool
+        - tool_name: str
+        - tool_input: dict
+        """
+        message_lower = message.lower()
+        
+        # Pricing keywords (multilingual)
+        pricing_keywords = [
+            'harga', 'price', 'berapa', 'cost', 'quanto costa', 'biaya', 
+            'tarif', 'fee', 'costo', 'cuánto cuesta', 'custo', 'how much'
+        ]
+        
+        # Service keywords that trigger pricing
+        service_keywords = [
+            'visa', 'kitas', 'kitap', 'c1', 'c2', 'd1', 'd2', 
+            'e23', 'e28a', 'e31a', 'pt pma', 'npww', 'bpjs',
+            'business setup', 'tax', 'setup perusahaan'
+        ]
+        
+        # Team keywords
+        team_keywords = [
+            'team', 'tim', 'squadra', 'equipo', 'chi è', 'who is', 
+            'siapa', 'quién es', 'members', 'membri', 'anggota'
+        ]
+        
+        # Check for pricing query
+        has_pricing_keyword = any(kw in message_lower for kw in pricing_keywords)
+        has_service_keyword = any(kw in message_lower for kw in service_keywords)
+        
+        if has_pricing_keyword or (has_service_keyword and len(message.split()) < 15):
+            logger.info("🎯 [Prefetch] PRICING query detected → Will prefetch pricing tool")
+            return {
+                "should_prefetch": True,
+                "tool_name": "get_pricing",
+                "tool_input": {"service_type": "all"}
+            }
+        
+        # Check for team query
+        if any(kw in message_lower for kw in team_keywords):
+            logger.info("🎯 [Prefetch] TEAM query detected → Will prefetch team tool")
+            return {
+                "should_prefetch": True,
+                "tool_name": "get_team_members_list",
+                "tool_input": {}
+            }
+        
+        return {"should_prefetch": False}
 
 
     async def classify_intent(self, message: str) -> Dict:
@@ -991,6 +1043,40 @@ class IntelligentRouter:
             if not self.tools_loaded and self.tool_executor:
                 await self._load_tools()
 
+            # PHASE 2: Detect if we need to prefetch tool data
+            tool_needs = self._detect_tool_needs(message)
+            prefetched_data = None
+            
+            if tool_needs["should_prefetch"] and self.tool_executor:
+                try:
+                    tool_name = tool_needs["tool_name"]
+                    tool_input = tool_needs["tool_input"]
+                    logger.info(f"🚀 [Prefetch] Executing {tool_name} before streaming...")
+                    
+                    # Execute tool synchronously before streaming
+                    tool_result = await self.tool_executor.execute_tool(
+                        tool_name=tool_name,
+                        tool_input=tool_input
+                    )
+                    
+                    if tool_result.get("success"):
+                        prefetched_data = tool_result.get("result")
+                        logger.info(f"✅ [Prefetch] Got data: {len(str(prefetched_data))} chars")
+                        
+                        # Wrap data in XML tags for citation enforcement
+                        prefetched_context = f"\n\n<official_data_from_{tool_name}>\n{prefetched_data}\n</official_data_from_{tool_name}>\n"
+                        
+                        # Inject into memory context
+                        if memory_context:
+                            memory_context += prefetched_context
+                        else:
+                            memory_context = prefetched_context
+                    else:
+                        logger.warning(f"⚠️ [Prefetch] Tool failed: {tool_result.get('error')}")
+                        
+                except Exception as e:
+                    logger.error(f"❌ [Prefetch] Failed to execute {tool_name}: {e}")
+
             # Route to appropriate AI for streaming - ALWAYS Haiku with REAL streaming
             logger.info("🎯 [Router Stream] Using Haiku 4.5 with REAL token-by-token streaming")
 
@@ -1003,8 +1089,8 @@ class IntelligentRouter:
                 message=message,
                 user_id=user_id,
                 conversation_history=conversation_history,
-                memory_context=memory_context,
-                max_tokens=max_tokens_to_use  # Dynamic tokens based on query complexity
+                memory_context=memory_context,  # Now includes prefetched data if available
+                max_tokens=max_tokens_to_use
             ):
                 yield chunk
 

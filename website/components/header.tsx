@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { LanguageSwitcher } from "./language-switcher"
 
 export function Header() {
   const navItems = [
@@ -48,6 +49,7 @@ export function Header() {
               {item.label}
             </Link>
           ))}
+          <LanguageSwitcher className="ml-4" />
         </div>
 
         {/* Mobile Menu Button - Right */}

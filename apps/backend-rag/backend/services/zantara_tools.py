@@ -86,7 +86,19 @@ class ZantaraTools:
             tools.extend([
                 {
                     "name": "get_pricing",
-                    "description": "Get Bali Zero pricing for services (KITAS, visa, business setup, etc.)",
+                    "description": """ALWAYS call this tool when user asks about prices, costs, or fees.
+
+TRIGGER KEYWORDS (any language):
+• Prices: "berapa harga", "quanto costa", "how much", "price for", "what's the price", "harga"
+• Costs: "biaya", "cost", "costo", "fee", "tarif", "cuánto cuesta", "custo"
+• Services: KITAS, visa, C1, C2, D1, D2, E23, E28A, E31A, PT PMA, tax, NPWP, business setup
+
+CRITICAL: Returns official Bali Zero 2025 pricing data. DO NOT estimate or generate prices from memory - ALWAYS call this tool for accurate pricing.
+
+Example queries:
+- "berapa harga D12 visa?" → Call get_pricing(service_type="visa")
+- "quanto costa KITAS E23?" → Call get_pricing(service_type="kitas")
+- "C1 Tourism price?" → Call get_pricing(service_type="visa")""",
                     "input_schema": {
                         "type": "object",
                         "properties": {
@@ -147,7 +159,22 @@ class ZantaraTools:
             tools.extend([
                 {
                     "name": "get_team_members_list",
-                    "description": "Get complete list of all 22 Bali Zero team members with their roles, departments, and contact info. Use this when user asks about team composition, who works in a department, or to identify a team member by name.",
+                    "description": """Get complete list of all 22 Bali Zero team members with roles and departments.
+
+TRIGGER KEYWORDS:
+• "team", "tim", "squadra", "equipo"
+• "who is", "chi è", "siapa", "quién es"
+• "members", "membri", "anggota", "miembros"
+• "department", "dipartimento", "departemen"
+• "list all", "elenco", "daftar"
+
+Use this when user asks:
+- "Who is in the Bali Zero team?"
+- "List all team members"
+- "Chi lavora nel Setup department?"
+- "Siapa yang ada di tim tax?"
+
+Returns: Name, role, department, email for all 22 team members.""",
                     "input_schema": {
                         "type": "object",
                         "properties": {
@@ -162,7 +189,19 @@ class ZantaraTools:
                 },
                 {
                     "name": "search_team_member",
-                    "description": "Search for a team member by name (supports partial matching). Returns matching team members with their info. Use this when user asks 'Chi è Adit?', 'Who is Ari?', or any team member name query.",
+                    "description": """Search for specific team member by name (supports partial matching).
+
+TRIGGER KEYWORDS:
+• "chi è [name]", "who is [name]", "siapa [name]"
+• "find", "cerca", "cari", "buscar"
+• Any team member name (Adit, Ari, Surya, Krisna, Amanda, etc.)
+
+Use this when user asks:
+- "Chi è Adit?" → search_team_member(query="Adit")
+- "Who is Krisna?" → search_team_member(query="Krisna")
+- "Siapa Ari?" → search_team_member(query="Ari")
+
+Returns: Matching team members with full details.""",
                     "input_schema": {
                         "type": "object",
                         "properties": {
