@@ -1,0 +1,87 @@
+{
+  "conversationId": 19,
+  "title": "Contract Disputes & Arbitration",
+  "category": "LEGAL_COMPLIANCE",
+  "difficulty": 4,
+  "expectedTools": [
+    "rag.query",
+    "oracle.query",
+    "autonomous_research",
+    "team.activity"
+  ],
+  "toolsUsed": [],
+  "oldScore": {
+    "tier1_correctness": 40,
+    "tier2_performance": 25,
+    "tier3_quality": 20,
+    "tier4_technical": 5,
+    "total": 90
+  },
+  "newScore": {
+    "tier1_correctness": 12,
+    "tier2_performance": 5,
+    "tier3_quality": 0,
+    "tier4_technical": 0,
+    "total": 17
+  },
+  "scoreDifference": -73,
+  "validation": {
+    "factualAccuracy": "No responses provided to evaluate against ground truth",
+    "citationQuality": "No citations present in any response",
+    "toolUsageCorrectness": "None of the expected tools were used despite being required for legal compliance queries",
+    "conversationFlow": "No conversation flow exists as all responses are empty",
+    "legalCompliance": "No legal information provided despite user asking about arbitration costs, timelines, and alternatives in Jakarta"
+  },
+  "toolValidation": {
+    "score": 0,
+    "summary": "0/4 expected tools called, 4 missing",
+    "missingTools": [
+      "rag.query",
+      "oracle.query",
+      "autonomous_research",
+      "team.activity"
+    ],
+    "unnecessaryTools": []
+  },
+  "groundTruthMatch": {
+    "accuracy": 10,
+    "prices": {
+      "found": [],
+      "missing": [],
+      "incorrect": [],
+      "accuracy": 100
+    },
+    "laws": {
+      "found": [],
+      "missing": [],
+      "wrong": [],
+      "accuracy": 100
+    },
+    "facts": {
+      "matched": [],
+      "missing": [],
+      "coverage": 100
+    }
+  },
+  "groundTruth": {
+    "laws": [],
+    "regulations": [],
+    "facts": [],
+    "prices": [],
+    "procedures": [],
+    "sources": []
+  },
+  "rating": "❌ FAIL",
+  "performanceMetrics": {
+    "averageResponseTime": 12028.6,
+    "responseTimes": [
+      12025,
+      12022,
+      12036,
+      12030,
+      12030
+    ],
+    "streamErrors": 0
+  },
+  "revalidatedAt": "2025-10-28T16:07:51.682Z"
+}

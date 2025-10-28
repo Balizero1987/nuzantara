@@ -1,0 +1,89 @@
+{
+  "conversationId": 50,
+  "title": "License Revocation Risk",
+  "category": "CRISIS_MANAGEMENT",
+  "difficulty": 5,
+  "expectedTools": [
+    "oracle.query",
+    "crm.client.get",
+    "autonomous_research",
+    "alert_service",
+    "team.availability"
+  ],
+  "toolsUsed": [],
+  "oldScore": {
+    "tier1_correctness": 40,
+    "tier2_performance": 25,
+    "tier3_quality": 20,
+    "tier4_technical": 5,
+    "total": 90
+  },
+  "newScore": {
+    "tier1_correctness": 12,
+    "tier2_performance": 5,
+    "tier3_quality": 0,
+    "tier4_technical": 0,
+    "total": 17
+  },
+  "scoreDifference": -73,
+  "validation": {
+    "factualAccuracy": "No responses provided to evaluate against ground truth",
+    "citationQuality": "No citations present as all responses are empty",
+    "toolUsageCorrectness": "None of the expected tools were used despite urgent crisis management scenario",
+    "conversationFlow": "No conversation flow exists as all responses are empty",
+    "legalCompliance": "No legal guidance provided for urgent LKPM compliance crisis"
+  },
+  "toolValidation": {
+    "score": 0,
+    "summary": "0/5 expected tools called, 5 missing",
+    "missingTools": [
+      "oracle.query",
+      "crm.client.get",
+      "autonomous_research",
+      "alert_service",
+      "team.availability"
+    ],
+    "unnecessaryTools": []
+  },
+  "groundTruthMatch": {
+    "accuracy": 10,
+    "prices": {
+      "found": [],
+      "missing": [],
+      "incorrect": [],
+      "accuracy": 100
+    },
+    "laws": {
+      "found": [],
+      "missing": [],
+      "wrong": [],
+      "accuracy": 100
+    },
+    "facts": {
+      "matched": [],
+      "missing": [],
+      "coverage": 100
+    }
+  },
+  "groundTruth": {
+    "laws": [],
+    "regulations": [],
+    "facts": [],
+    "prices": [],
+    "procedures": [],
+    "sources": []
+  },
+  "rating": "❌ FAIL",
+  "performanceMetrics": {
+    "averageResponseTime": 12036.2,
+    "responseTimes": [
+      12034,
+      12038,
+      12033,
+      12040,
+      12036
+    ],
+    "streamErrors": 0
+  },
+  "revalidatedAt": "2025-10-28T16:12:05.939Z"
+}

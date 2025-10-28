@@ -1,0 +1,84 @@
+{
+  "conversationId": 3,
+  "title": "Visa Comparison Shopping",
+  "category": "PRICING_SETUP",
+  "difficulty": 4,
+  "expectedTools": [
+    "get_pricing",
+    "oracle.simulate",
+    "dynamic_pricing"
+  ],
+  "toolsUsed": [],
+  "oldScore": {
+    "tier1_correctness": 40,
+    "tier2_performance": 25,
+    "tier3_quality": 20,
+    "tier4_technical": 5,
+    "total": 90
+  },
+  "newScore": {
+    "tier1_correctness": 12,
+    "tier2_performance": 5,
+    "tier3_quality": 0,
+    "tier4_technical": 0,
+    "total": 17
+  },
+  "scoreDifference": -73,
+  "validation": {
+    "factualAccuracy": "No responses provided to evaluate against ground truth",
+    "citationQuality": "No citations present as no responses were provided",
+    "toolUsageCorrectness": "None of the expected tools were used and no responses were provided",
+    "conversationFlow": "No conversation flow exists as no responses were provided",
+    "legalCompliance": "Cannot assess legal compliance without any responses to evaluate"
+  },
+  "toolValidation": {
+    "score": 0,
+    "summary": "0/3 expected tools called, 3 missing",
+    "missingTools": [
+      "get_pricing",
+      "oracle.simulate",
+      "dynamic_pricing"
+    ],
+    "unnecessaryTools": []
+  },
+  "groundTruthMatch": {
+    "accuracy": 10,
+    "prices": {
+      "found": [],
+      "missing": [],
+      "incorrect": [],
+      "accuracy": 100
+    },
+    "laws": {
+      "found": [],
+      "missing": [],
+      "wrong": [],
+      "accuracy": 100
+    },
+    "facts": {
+      "matched": [],
+      "missing": [],
+      "coverage": 100
+    }
+  },
+  "groundTruth": {
+    "laws": [],
+    "regulations": [],
+    "facts": [],
+    "prices": [],
+    "procedures": [],
+    "sources": []
+  },
+  "rating": "❌ FAIL",
+  "performanceMetrics": {
+    "averageResponseTime": 12026,
+    "responseTimes": [
+      12021,
+      12030,
+      12029,
+      12024
+    ],
+    "streamErrors": 0
+  },
+  "revalidatedAt": "2025-10-28T16:05:25.938Z"
+}

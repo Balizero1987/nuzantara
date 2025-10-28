@@ -1,0 +1,87 @@
+{
+  "conversationId": 32,
+  "title": "Real-Time Legal Updates Monitoring",
+  "category": "INTEL_AUTOMATION",
+  "difficulty": 5,
+  "expectedTools": [
+    "intel.scraper.run",
+    "oracle.query",
+    "rag.query",
+    "alert_service"
+  ],
+  "toolsUsed": [],
+  "oldScore": {
+    "tier1_correctness": 40,
+    "tier2_performance": 25,
+    "tier3_quality": 20,
+    "tier4_technical": 5,
+    "total": 90
+  },
+  "newScore": {
+    "tier1_correctness": 12,
+    "tier2_performance": 5,
+    "tier3_quality": 0,
+    "tier4_technical": 0,
+    "total": 17
+  },
+  "scoreDifference": -73,
+  "validation": {
+    "factualAccuracy": "No responses provided to evaluate against ground truth",
+    "citationQuality": "No citations present as all responses are empty",
+    "toolUsageCorrectness": "None of the expected tools were used despite being required for the intel automation task",
+    "conversationFlow": "No conversation flow exists as all responses are empty",
+    "legalCompliance": "Cannot assess legal compliance with empty responses for PT PMA and visa regulation updates"
+  },
+  "toolValidation": {
+    "score": 0,
+    "summary": "0/4 expected tools called, 4 missing",
+    "missingTools": [
+      "intel.scraper.run",
+      "oracle.query",
+      "rag.query",
+      "alert_service"
+    ],
+    "unnecessaryTools": []
+  },
+  "groundTruthMatch": {
+    "accuracy": 10,
+    "prices": {
+      "found": [],
+      "missing": [],
+      "incorrect": [],
+      "accuracy": 100
+    },
+    "laws": {
+      "found": [],
+      "missing": [],
+      "wrong": [],
+      "accuracy": 100
+    },
+    "facts": {
+      "matched": [],
+      "missing": [],
+      "coverage": 100
+    }
+  },
+  "groundTruth": {
+    "laws": [],
+    "regulations": [],
+    "facts": [],
+    "prices": [],
+    "procedures": [],
+    "sources": []
+  },
+  "rating": "❌ FAIL",
+  "performanceMetrics": {
+    "averageResponseTime": 12032.6,
+    "responseTimes": [
+      12031,
+      12030,
+      12042,
+      12032,
+      12028
+    ],
+    "streamErrors": 0
+  },
+  "revalidatedAt": "2025-10-28T16:09:36.668Z"
+}
