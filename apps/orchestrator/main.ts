@@ -16,7 +16,7 @@ app.use(cors());
 
 // Service configuration
 const SERVICES = {
-  FLAN_ROUTER: process.env.FLAN_ROUTER_URL || 'http://localhost:8000',
+  FLAN_ROUTER: process.env.FLAN_ROUTER_URL || 'https://nuzantara-flan-router.fly.dev',
   HAIKU_API: 'https://api.anthropic.com/v1',
   TS_BACKEND: process.env.TS_BACKEND_URL || 'http://localhost:8080',
   PYTHON_BACKEND: process.env.PYTHON_BACKEND_URL || 'http://localhost:8001'

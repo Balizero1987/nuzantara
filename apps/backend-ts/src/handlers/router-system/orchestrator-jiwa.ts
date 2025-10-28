@@ -8,7 +8,7 @@ import axios from 'axios';
 import { getJiwaClient } from '../../services/jiwa-client';
 
 // Configuration
-const ROUTER_URL = process.env.ROUTER_URL || 'http://localhost:8000';
+const ROUTER_URL = process.env.FLAN_ROUTER_URL || 'https://nuzantara-flan-router.fly.dev';
 const HAIKU_API_KEY = process.env.ANTHROPIC_API_KEY;
 const HAIKU_MODEL = 'claude-3-5-haiku-20241022';
 

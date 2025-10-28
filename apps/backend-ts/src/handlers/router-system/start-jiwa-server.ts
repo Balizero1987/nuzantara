@@ -11,6 +11,10 @@ import { jiwaMiddleware } from '../../services/jiwa-client';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Service URLs (Fly.io cloud or localhost fallback)
+const FLAN_ROUTER_URL = process.env.FLAN_ROUTER_URL || 'https://nuzantara-flan-router.fly.dev';
+const JIWA_SERVICE_URL = process.env.JIWA_SERVICE_URL || 'http://localhost:8001';
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -37,7 +41,7 @@ app.post('/api/query', async (req, res) => {
 
     // Use axios to call the router directly
     const axios = require('axios');
-    const routerResponse = await axios.post('http://localhost:8000/route', { query });
+    const routerResponse = await axios.post(`${FLAN_ROUTER_URL}/route`, { query });
 
     // Generate response with Haiku (simplified)
     const haikuResponse = await axios.post(
@@ -87,7 +91,7 @@ app.get('/api/metrics', async (req, res) => {
 
     // Router metrics
     try {
-      const routerHealth = await axios.get('http://localhost:8000/health');
+      const routerHealth = await axios.get(`${FLAN_ROUTER_URL}/health`);
       metrics.services.router = {
         status: 'online',
         model: routerHealth.data.model_loaded
@@ -98,7 +102,7 @@ app.get('/api/metrics', async (req, res) => {
 
     // JIWA metrics
     try {
-      const jiwaStatus = await axios.get('http://localhost:8001/jiwa-status');
+      const jiwaStatus = await axios.get(`${JIWA_SERVICE_URL}/jiwa-status`);
       metrics.services.jiwa = {
         status: 'online',
         heartbeats: jiwaStatus.data.heart.heartbeats,
@@ -131,8 +135,8 @@ app.listen(PORT, () => {
   console.log('═══════════════════════════════════════════════════════════════');
   console.log(`  Port:          ${PORT}`);
   console.log(`  JIWA:          Enabled`);
-  console.log(`  Router:        http://localhost:8000`);
-  console.log(`  Soul Service:  http://localhost:8001`);
+  console.log(`  Router:        ${FLAN_ROUTER_URL}`);
+  console.log(`  Soul Service:  ${JIWA_SERVICE_URL}`);
   console.log('═══════════════════════════════════════════════════════════════');
   console.log('  Endpoints:');
   console.log(`    POST /api/query-jiwa  - Query with JIWA enhancement`);
