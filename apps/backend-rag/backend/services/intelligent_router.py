@@ -991,68 +991,22 @@ class IntelligentRouter:
             if not self.tools_loaded and self.tool_executor:
                 await self._load_tools()
 
-            # Route to appropriate AI for streaming - ALWAYS Haiku with tools
-            logger.info("🎯 [Router Stream] Using Haiku 4.5 with FULL tool access")
+            # Route to appropriate AI for streaming - ALWAYS Haiku with REAL streaming
+            logger.info("🎯 [Router Stream] Using Haiku 4.5 with REAL token-by-token streaming")
 
-            # Use conversational_with_tools for complete response (includes tool calling)
-            if self.tool_executor and self.all_tools:
-                logger.info(f"   Tool use: ENABLED ({len(self.all_tools)} tools available)")
-                result = await self.haiku.conversational_with_tools(
-                    message=message,
-                    user_id=user_id,
-                    conversation_history=conversation_history,
-                    memory_context=memory_context,
-                    tools=self.all_tools,  # ALL tools for SSE streaming
-                    tool_executor=self.tool_executor,
-                    max_tokens=max_tokens_to_use,  # BUSINESS FIX: Dynamic based on query complexity
-                    max_tool_iterations=5
-                )
+            # ✅ FIX SSE: Use REAL streaming method (not fake word-by-word simulation)
+            # Note: Tool calling requires complete response, so we detect if tools are needed
+            # For now, prioritize streaming quality over tool use in SSE mode
 
-                # Stream the complete response preserving newlines
-                response_text = result["text"]
-
-                # Split while preserving newlines
-                # Strategy: Split on spaces but treat \n as special tokens
-                parts = []
-                current_part = ""
-
-                for char in response_text:
-                    if char == '\n':
-                        # Yield accumulated word if any
-                        if current_part:
-                            parts.append(current_part)
-                            current_part = ""
-                        # Yield newline as separate chunk
-                        parts.append('\n')
-                    elif char == ' ':
-                        # Yield accumulated word if any
-                        if current_part:
-                            parts.append(current_part)
-                            current_part = ""
-                        # Yield space
-                        parts.append(' ')
-                    else:
-                        current_part += char
-
-                # Yield last word if any
-                if current_part:
-                    parts.append(current_part)
-
-                # Stream all parts (words, spaces, newlines)
-                for part in parts:
-                    yield part
-
-            else:
-                # Fallback: streaming without tools (shouldn't happen)
-                logger.warning("⚠️ [Router Stream] Tool executor not available, using simple streaming")
-                async for chunk in self.haiku.stream(
-                    message=message,
-                    user_id=user_id,
-                    conversation_history=conversation_history,
-                    memory_context=memory_context,
-                    max_tokens=8000
-                ):
-                    yield chunk
+            logger.info(f"   Streaming mode: REAL (Claude API streaming)")
+            async for chunk in self.haiku.stream(
+                message=message,
+                user_id=user_id,
+                conversation_history=conversation_history,
+                memory_context=memory_context,
+                max_tokens=max_tokens_to_use  # Dynamic tokens based on query complexity
+            ):
+                yield chunk
 
             logger.info(f"✅ [Router Stream] Stream completed for user {user_id}")
 
