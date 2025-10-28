@@ -6,9 +6,10 @@ interface ArticleCardProps {
   article: Article
   variant?: 'featured' | 'medium' | 'small' | 'large'
   colorBlock?: 'marrone-rosso' | 'giallo' | 'blu-scuro' | 'verde' | 'blu-viola'
+  className?: string
 }
 
-export function ArticleCard({ article, variant = 'small', colorBlock }: ArticleCardProps) {
+export function ArticleCard({ article, variant = 'small', colorBlock, className }: ArticleCardProps) {
   // Define aspect ratios based on variant
   const getAspectRatio = () => {
     switch (variant) {
@@ -24,18 +25,18 @@ export function ArticleCard({ article, variant = 'small', colorBlock }: ArticleC
     }
   }
 
-  // Define title sizes based on variant
+  // Define title sizes based on variant - Optimized for mobile readability
   const getTitleSize = () => {
     switch (variant) {
       case 'featured':
-        return 'text-2xl md:text-3xl lg:text-4xl'
+        return 'text-xl md:text-2xl lg:text-3xl xl:text-4xl'
       case 'large':
-        return 'text-xl md:text-2xl lg:text-3xl'
+        return 'text-lg md:text-xl lg:text-2xl xl:text-3xl'
       case 'medium':
-        return 'text-xl md:text-2xl lg:text-[2.25rem]'
+        return 'text-base md:text-lg lg:text-xl xl:text-2xl'
       case 'small':
       default:
-        return 'text-lg md:text-xl lg:text-2xl'
+        return 'text-sm md:text-base lg:text-lg xl:text-xl'
     }
   }
 
@@ -59,7 +60,7 @@ export function ArticleCard({ article, variant = 'small', colorBlock }: ArticleC
 
   return (
     <Link href={`/article/${article.slug}`}>
-      <article className="group cursor-pointer transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,0,0,0.6)] hover:scale-[1.02] h-full flex flex-col">
+      <article className={`group cursor-pointer transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,0,0,0.6)] md:hover:scale-[1.02] h-full flex flex-col article-card-mobile ${className || ''}`}>
         {/* Image Container - Dynamic Aspect Ratio */}
         <div className={`relative w-full ${getAspectRatio()} overflow-hidden rounded-lg border border-white/10 group-hover:border-red/70 transition-colors duration-500`}>
           <img
@@ -68,13 +69,13 @@ export function ArticleCard({ article, variant = 'small', colorBlock }: ArticleC
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 vibrant-image"
           />
 
-          {/* Category tag */}
-          <div className="absolute top-4 left-4 bg-black/80 border border-red/50 px-3 py-1 text-xs font-serif font-bold text-red tracking-wider">
+          {/* Category tag - Responsive sizing */}
+          <div className="absolute top-2 md:top-4 left-2 md:left-4 bg-black/80 border border-red/50 px-2 md:px-3 py-1 text-xs font-serif font-bold text-red tracking-wider">
             {article.category.toUpperCase().replace('-', ' ')}
           </div>
 
-          {/* Read time badge */}
-          <div className="absolute bottom-4 right-4 bg-black/80 px-3 py-1 text-xs font-sans text-white/70">
+          {/* Read time badge - Responsive sizing */}
+          <div className="absolute bottom-2 md:bottom-4 right-2 md:right-4 bg-black/80 px-2 md:px-3 py-1 text-xs font-sans text-white/70">
             {article.readTime} min
           </div>
 
@@ -85,15 +86,15 @@ export function ArticleCard({ article, variant = 'small', colorBlock }: ArticleC
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity shimmer"></div>
         </div>
 
-        {/* Content */}
-        <div className="mt-6 px-1 space-y-3">
-          {/* Title */}
-          <h3 className={`text-white font-serif font-bold ${getTitleSize()} leading-snug group-hover:text-red transition-colors duration-300`}>
+        {/* Content - Optimized spacing for mobile */}
+        <div className="mt-3 md:mt-6 px-1 space-y-2 md:space-y-3">
+          {/* Title - Better mobile line height */}
+          <h3 className={`text-white font-serif font-bold ${getTitleSize()} leading-tight md:leading-snug group-hover:text-red transition-colors duration-300 article-title-mobile`}>
             {article.title}
           </h3>
 
-          {/* Metadata */}
-          <div className="flex items-center gap-2 text-white/50 font-sans text-sm">
+          {/* Metadata - Responsive text size */}
+          <div className="flex items-center gap-2 text-white/50 font-sans text-xs md:text-sm">
             <span>{formatDate(article.publishedAt)}</span>
             <span>•</span>
             <span>{article.readTime} min read</span>

@@ -18,64 +18,71 @@ export async function FeaturedArticles() {
     .filter(Boolean)
 
   return (
-    <section className="py-16 px-4 md:px-6 lg:px-8 bg-black">
+    <section className="py-8 md:py-16 px-4 md:px-6 lg:px-8 bg-black">
       <div className="max-w-7xl mx-auto lg:px-[6%]">
-        {/* Asymmetric Layout - Puzzle compatto con posizionamento esplicito */}
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-0.5 auto-rows-[125px]">
-          {/* Yellow (Bali Floods) - colonna 1-2, righe 2-6 (5 rows, spostato su di 0.5) */}
+        {/* Mobile-First: Stack layout for mobile, puzzle for desktop */}
+        <div className="grid grid-cols-1 gap-6 md:gap-4 lg:grid-cols-6 lg:gap-0.5 lg:auto-rows-[125px]">
+          {/* Mobile: Standard card layout, Desktop: Puzzle layout */}
+          
+          {/* Bali Floods - Hero article on mobile, yellow position on desktop */}
           {articles[0] && (
-            <div className="lg:col-span-2 lg:col-start-1 lg:row-span-5 lg:row-start-2 lg:-mt-[62.5px]">
+            <div className="md:col-span-2 lg:col-span-2 lg:col-start-1 lg:row-span-5 lg:row-start-2 lg:-mt-[62.5px]">
               <ArticleCard
                 article={articles[0]}
-                variant="medium"
+                variant="featured"
+                className="h-[300px] md:h-auto"
               />
             </div>
           )}
 
-          {/* Blue (Airport) - colonna 3-4, righe 2-7 (6 rows, spostato giù di 1) */}
+          {/* Airport - Featured on mobile, blue position on desktop */}
           {articles[1] && (
-            <div className="lg:col-span-2 lg:col-start-3 lg:row-span-6 lg:row-start-2">
+            <div className="md:col-span-2 lg:col-span-2 lg:col-start-3 lg:row-span-6 lg:row-start-2">
               <ArticleCard
                 article={articles[1]}
                 variant="featured"
+                className="h-[300px] md:h-auto"
               />
             </div>
           )}
 
-          {/* Red (Telkom) - colonna 5-6, righe 0-6, allungato verso alto, ridotto 0.5 in basso */}
+          {/* Telkom - Standard on mobile, red position on desktop */}
           {articles[2] && (
-            <div className="lg:col-span-2 lg:col-start-5 lg:row-span-7 lg:row-start-0 lg:-mt-[62.5px] lg:pb-[62.5px]">
+            <div className="md:col-span-2 lg:col-span-2 lg:col-start-5 lg:row-span-7 lg:row-start-0 lg:-mt-[62.5px] lg:pb-[62.5px]">
               <ArticleCard
                 article={articles[2]}
-                variant="featured"
+                variant="medium"
+                className="h-[250px] md:h-auto"
               />
             </div>
           )}
 
-          {/* Green (SKPL/Alcohol) - colonna 1-4, righe 8-12, ridotto 0.2 da destra */}
+          {/* SKPL/Alcohol - Wide on mobile, green position on desktop */}
           {articles[3] && (
-            <div className="lg:col-span-4 lg:col-start-1 lg:row-span-5 lg:row-start-8 lg:pr-[25px]">
+            <div className="md:col-span-3 lg:col-span-4 lg:col-start-1 lg:row-span-5 lg:row-start-8 lg:pr-[25px]">
               <ArticleCard
                 article={articles[3]}
                 variant="large"
+                className="h-[200px] md:h-auto"
               />
             </div>
           )}
 
-          {/* Azzurro (OSS) - colonna 5-6, righe 8-12, spostato 0.4 in alto totale */}
+          {/* OSS - Standard on mobile, azzurro position on desktop */}
           {articles[4] && (
-            <div className="lg:col-span-2 lg:col-start-5 lg:row-span-5 lg:row-start-8 lg:-mt-[50px]">
+            <div className="md:col-span-1 lg:col-span-2 lg:col-start-5 lg:row-span-5 lg:row-start-8 lg:-mt-[50px]">
               <ArticleCard
                 article={articles[4]}
                 variant="small"
+                className="h-[250px] md:h-auto"
               />
             </div>
           )}
         </div>
 
-        {/* View All Button */}
-        <div className="mt-16 flex justify-center">
-          <button className="border-2 border-red text-red px-10 py-4 font-serif font-bold tracking-tight hover:bg-red hover:text-black transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,0,0,0.7)]">
+        {/* View All Button - Mobile optimized */}
+        <div className="mt-8 md:mt-16 flex justify-center">
+          <button className="border-2 border-red text-red px-6 py-3 md:px-10 md:py-4 font-serif font-bold tracking-tight hover:bg-red hover:text-black transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,0,0,0.7)] text-sm md:text-base w-full max-w-xs md:w-auto">
             Explore All Stories
           </button>
         </div>
