@@ -219,9 +219,6 @@ memory.retrieve - Get past conversations
 identity.resolve - User identification via AMBARADAM
 oracle.query - Universal Oracle (5 domains: tax, legal, property, visa, kbli)
 maps.places - Location search in Bali
-gmail.send - Send emails (requires config)
-drive.upload - Upload documents (requires config)
-calendar.create - Schedule meetings (requires config)
 translate.text - Translate content
 analytics.track.event - Log events
 ai.chat - General AI conversation
@@ -236,11 +233,12 @@ team.activity.recent - Recent team activity
 
 Check ONLY when explicitly needed:
 - devai.* (20 handlers) - Code analysis, debugging, testing
-- google.* (28 handlers) - Gmail, Drive, Calendar, Sheets, Docs, Slides
 - zantara.* (20 handlers) - Personality profiling, synergy mapping, mediation
 - crm.* (41 endpoints) - Client management, practice tracking
 - oracle.* - Predictions, simulations, analysis
 - dashboard.* - Analytics, reports, monitoring
+
+NOTE: Google Workspace (30 tools), Slack/Discord, WhatsApp, Instagram tools are DISABLED (OAuth2 not configured)
 
 ═══════════════════════════════════════════════════════════════════════════════
 ⑤ 8 SPECIALIZED AGENTS - Background Enrichment

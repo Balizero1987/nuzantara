@@ -1,7 +1,8 @@
 # 🛠️ NUZANTARA - Complete Tools Inventory
 
-**Generated:** 28 October 2025  
-**Total Tools:** 164+ handlers (TypeScript) + 11 ZantaraTools (Python) = **175+ operational tools**
+**Generated:** 29 October 2025  
+**Total Tools:** 132 operational handlers (TypeScript) + 11 ZantaraTools (Python) = **143 active tools**  
+**Removed:** 43 tools (30 Google Workspace + 13 Communication tools) - OAuth2/integrations not configured
 
 ---
 
@@ -84,9 +85,12 @@ ToolExecutor (Python)
 | `team.logout` | Logout team member session | Demo User |
 | `team.token.verify` | Verify JWT authentication token | API Key |
 
-### 2️⃣ Google Workspace Integration (30+ tools)
+### 2️⃣ Google Workspace Integration (30+ tools) ⚠️ **DISABLED - OAuth2 Not Configured**
 
-#### Gmail (7 tools)
+⚠️ **STATUS:** All Google Workspace tools require OAuth2 configuration and are currently DISABLED.  
+To enable, configure: `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `oauth2-tokens.json`
+
+#### Gmail (7 tools) - DISABLED
 | Handler Key | Description |
 |-------------|-------------|
 | `gmail.send` | Send email via Gmail API |
@@ -230,7 +234,9 @@ ToolExecutor (Python)
 | `creative.image.style` | Apply artistic styles to images |
 | `creative.design.mockup` | Create design mockups |
 
-### 6️⃣ Communication (18 tools)
+### 6️⃣ Communication (3 tools - Translation only)
+
+⚠️ **REMOVED:** Slack, Discord, Google Chat, WhatsApp (Meta + Twilio), Instagram tools - Not configured/active
 
 #### Translation
 | Handler Key | Description |
@@ -238,35 +244,6 @@ ToolExecutor (Python)
 | `translate.text` | Translate text between languages |
 | `translate.batch` | Batch translate multiple texts |
 | `detect.language` | Detect language of text |
-
-#### Notifications
-| Handler Key | Description |
-|-------------|-------------|
-| `slack.notify` | Send Slack notification |
-| `discord.notify` | Send Discord notification |
-| `googlechat.notify` | Send Google Chat notification |
-
-#### WhatsApp Business
-| Handler Key | Description |
-|-------------|-------------|
-| `whatsapp.webhook.verify` | Verify WhatsApp webhook (Meta) |
-| `whatsapp.webhook.receiver` | Receive WhatsApp messages |
-| `whatsapp.analytics` | Get WhatsApp group analytics |
-| `whatsapp.send` | Send manual WhatsApp message |
-
-#### Twilio WhatsApp
-| Handler Key | Description |
-|-------------|-------------|
-| `twilio.whatsapp.webhook` | Twilio WhatsApp webhook receiver |
-| `twilio.whatsapp.send` | Send WhatsApp via Twilio |
-
-#### Instagram Business
-| Handler Key | Description |
-|-------------|-------------|
-| `instagram.webhook.verify` | Verify Instagram webhook (Meta) |
-| `instagram.webhook.receiver` | Receive Instagram messages |
-| `instagram.analytics` | Get Instagram user analytics |
-| `instagram.send` | Send manual Instagram message |
 
 ### 7️⃣ RAG & Knowledge Base (4 tools)
 
@@ -399,11 +376,11 @@ ToolExecutor (Python)
 | Category | Tool Count | Execution Method |
 |----------|------------|------------------|
 | **ZantaraTools (Python)** | 11 | Direct Python |
-| **Google Workspace** | 30 | HTTP Proxy |
+| **Google Workspace** | ~~30~~ 0 | ❌ DISABLED (OAuth2 required) |
 | **Bali Zero Business** | 15 | HTTP Proxy |
 | **Memory System** | 15 | HTTP Proxy |
 | **AI Services** | 10 | HTTP Proxy |
-| **Communication** | 18 | HTTP Proxy |
+| **Communication** | ~~18~~ 3 | HTTP Proxy (Translation only) |
 | **RAG & Knowledge** | 4 | HTTP Proxy |
 | **ZANTARA Intelligence** | 20 | HTTP Proxy |
 | **Analytics & Reports** | 12 | HTTP Proxy |
@@ -412,12 +389,14 @@ ToolExecutor (Python)
 | **System Administration** | 10 | HTTP Proxy |
 | **Business Logic** | 3 | HTTP Proxy |
 | **Identity & Auth** | 8 | HTTP Proxy |
-| **TOTAL** | **175+** | Mixed |
+| **TOTAL ACTIVE** | **143** | Mixed |
+| **TOTAL DISABLED** | **43** | Need configuration |
 
 ### By Execution Type
 
 - **Python Direct:** 11 tools (ZantaraTools)
-- **TypeScript HTTP:** 164+ tools (handlers)
+- **TypeScript HTTP:** 132 tools (handlers)
+- **Disabled:** 43 tools (Google Workspace + Communication integrations)
 
 ### By Authentication
 
