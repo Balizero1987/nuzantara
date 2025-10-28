@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist_Mono, Playfair_Display, Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
-import { LiveChatWidget } from "@/components/live-chat-widget"
+import { ClientLayout } from "./client-layout"
 import "./globals.css"
 
 const _playfairDisplay = Playfair_Display({
@@ -32,8 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${_playfairDisplay.variable} ${_inter.variable} font-sans antialiased bg-black text-off-white`}>
-        {children}
-        <LiveChatWidget />
+        <ClientLayout>
+          {children}
+        </ClientLayout>
         <Analytics />
       </body>
     </html>

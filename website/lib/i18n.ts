@@ -6,6 +6,10 @@ export interface Translations {
   // Navigation
   nav: {
     home: string
+    immigration: string
+    business: string
+    taxLegal: string
+    insights: string
     visas: string
     company: string
     tax: string
@@ -20,6 +24,9 @@ export interface Translations {
     tagline: string
     title: string
     subtitle: string
+    description: string
+    cta1: string
+    cta2: string
     cta: string
   }
   
@@ -33,7 +40,12 @@ export interface Translations {
   
   // Services
   services: {
+    expertise: string
     title: string
+    description: string
+    swipe: string
+    explore: string
+    browse: string
     visas: {
       title: string
       description: string
@@ -62,17 +74,43 @@ export interface Translations {
     instagram: string
     officeHours: string
     responseTime: string
+    company: string
+    about: string
+    careers: string
+    press: string
+    contact: string
+    resources: string
+    research: string
+    reports: string
+    webinars: string
+    blog: string
+    legal: string
+    privacy: string
+    terms: string
+    cookies: string
+    disclaimer: string
+    description: string
+    rights: string
   }
   
   // Chat Widget
   chat: {
     title: string
-    subtitle: string
+    support: string
+    replies: string
     welcome: string
+    quickActions: string
+    whatsappChat: string
+    whatsappMessage: string
+    instant: string
+    email: string
+    contactForm: string
+    detailed: string
+    officeHours: string
+    weekdays: string
+    saturday: string
     whatsapp: string
     emailUs: string
-    contactForm: string
-    officeHours: string
   }
   
   // Common
@@ -90,6 +128,10 @@ export const translations: Record<Locale, Translations> = {
   en: {
     nav: {
       home: "Home",
+      immigration: "Immigration",
+      business: "Business",
+      taxLegal: "Tax & Legal",
+      insights: "AI Insights",
       visas: "Visas",
       company: "Company",
       tax: "Tax",
@@ -100,8 +142,11 @@ export const translations: Record<Locale, Translations> = {
     },
     hero: {
       tagline: "FROM ZERO TO INFINITY ∞",
-      title: "Build Your Indonesian Dream with Confidence",
-      subtitle: "We simplify your journey in Bali: visas, business setup, taxes, and real estate — all under one roof.",
+      title: "Unlock",
+      subtitle: "Unleash Potential.",
+      description: "Powered by ZANTARA Intelligence, we deliver premium business insights and AI-driven analysis for leaders who shape tomorrow.",
+      cta1: "Explore Insights",
+      cta2: "Learn More",
       cta: "Enter The Threshold"
     },
     threshold: {
@@ -111,7 +156,12 @@ export const translations: Record<Locale, Translations> = {
       description: "Explore our comprehensive services"
     },
     services: {
-      title: "Our Services",
+      expertise: "OUR EXPERTISE",
+      title: "Content Pillars",
+      description: "Bali Zero Insights covers the most critical areas shaping business and innovation in Southeast Asia and beyond.",
+      swipe: "Swipe to explore all topics",
+      explore: "Explore our full range of research and analysis",
+      browse: "Browse All Topics",
       visas: {
         title: "Visas & Immigration",
         description: "Stay and work in Bali with the right permits. We handle all paperwork and government processes."
@@ -137,16 +187,42 @@ export const translations: Record<Locale, Translations> = {
       whatsapp: "WhatsApp",
       instagram: "Instagram",
       officeHours: "Office Hours",
-      responseTime: "We'll respond within 24 hours"
+      responseTime: "We'll respond within 24 hours",
+      company: "Company",
+      about: "About Us",
+      careers: "Careers",
+      press: "Press",
+      contact: "Contact",
+      resources: "Resources",
+      research: "Research",
+      reports: "Reports",
+      webinars: "Webinars",
+      blog: "Blog",
+      legal: "Legal",
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      cookies: "Cookie Policy",
+      disclaimer: "Disclaimer",
+      description: "Premium business intelligence and AI insights for Southeast Asia.",
+      rights: "All rights reserved."
     },
     chat: {
-      title: "Bali Zero Support",
-      subtitle: "Usually replies instantly",
-      welcome: "Hi! How can we help you with your Indonesian business journey?",
-      whatsapp: "WhatsApp Chat",
-      emailUs: "Email Us",
+      title: "Chat with us",
+      support: "Bali Zero Support",
+      replies: "Usually replies instantly",
+      welcome: "👋 Hi! How can we help you with your Indonesian business journey?",
+      quickActions: "Quick Actions",
+      whatsappChat: "WhatsApp Chat",
+      whatsappMessage: "Hi! I'm interested in your Indonesian business services. Could you help me get started?",
+      instant: "Instant messaging",
+      email: "Email Us",
       contactForm: "Contact Form",
-      officeHours: "Office Hours (WITA)"
+      detailed: "Detailed inquiry",
+      officeHours: "Office Hours (WITA)",
+      weekdays: "Mon-Fri: 9AM-5PM",
+      saturday: "Sat: 10AM-2PM",
+      whatsapp: "WhatsApp Chat",
+      emailUs: "Email Us"
     },
     common: {
       getStarted: "Get Started",
@@ -161,6 +237,10 @@ export const translations: Record<Locale, Translations> = {
   id: {
     nav: {
       home: "Beranda",
+      immigration: "Imigrasi",
+      business: "Bisnis",
+      taxLegal: "Pajak & Hukum",
+      insights: "Wawasan AI",
       visas: "Visa",
       company: "Perusahaan",
       tax: "Pajak",
@@ -171,8 +251,11 @@ export const translations: Record<Locale, Translations> = {
     },
     hero: {
       tagline: "DARI NOL MENUJU TAK TERBATAS ∞",
-      title: "Wujudkan Impian Indonesia Anda dengan Percaya Diri",
-      subtitle: "Kami menyederhanakan perjalanan Anda di Bali: visa, pendirian usaha, pajak, dan properti — semua dalam satu atap.",
+      title: "Buka",
+      subtitle: "Lepaskan Potensi.",
+      description: "Didukung oleh ZANTARA Intelligence, kami memberikan wawasan bisnis premium dan analisis berbasis AI untuk pemimpin yang membentuk masa depan.",
+      cta1: "Jelajahi Wawasan",
+      cta2: "Pelajari Lebih Lanjut",
       cta: "Masuki Ambang Batas"
     },
     threshold: {
@@ -182,7 +265,12 @@ export const translations: Record<Locale, Translations> = {
       description: "Jelajahi layanan komprehensif kami"
     },
     services: {
-      title: "Layanan Kami",
+      expertise: "KEAHLIAN KAMI",
+      title: "Pilar Konten",
+      description: "Bali Zero Insights mencakup area paling kritis yang membentuk bisnis dan inovasi di Asia Tenggara dan sekitarnya.",
+      swipe: "Geser untuk menjelajahi semua topik",
+      explore: "Jelajahi rangkaian lengkap penelitian dan analisis kami",
+      browse: "Jelajahi Semua Topik",
       visas: {
         title: "Visa & Imigrasi",
         description: "Tinggal dan bekerja di Bali dengan izin yang tepat. Kami menangani semua dokumen dan proses pemerintahan."
@@ -208,16 +296,42 @@ export const translations: Record<Locale, Translations> = {
       whatsapp: "WhatsApp",
       instagram: "Instagram",
       officeHours: "Jam Kantor",
-      responseTime: "Kami akan merespons dalam 24 jam"
+      responseTime: "Kami akan merespons dalam 24 jam",
+      company: "Perusahaan",
+      about: "Tentang Kami",
+      careers: "Karir",
+      press: "Pers",
+      contact: "Kontak",
+      resources: "Sumber Daya",
+      research: "Penelitian",
+      reports: "Laporan",
+      webinars: "Webinar",
+      blog: "Blog",
+      legal: "Hukum",
+      privacy: "Kebijakan Privasi",
+      terms: "Syarat Layanan",
+      cookies: "Kebijakan Cookie",
+      disclaimer: "Penafian",
+      description: "Intelijen bisnis premium dan wawasan AI untuk Asia Tenggara.",
+      rights: "Semua hak dilindungi."
     },
     chat: {
-      title: "Dukungan Bali Zero",
-      subtitle: "Biasanya membalas secara instan",
-      welcome: "Hai! Bagaimana kami bisa membantu perjalanan bisnis Indonesia Anda?",
-      whatsapp: "Chat WhatsApp",
-      emailUs: "Email Kami",
+      title: "Chat dengan kami",
+      support: "Dukungan Bali Zero",
+      replies: "Biasanya membalas secara instan",
+      welcome: "👋 Hai! Bagaimana kami bisa membantu perjalanan bisnis Indonesia Anda?",
+      quickActions: "Tindakan Cepat",
+      whatsappChat: "Chat WhatsApp",
+      whatsappMessage: "Hai! Saya tertarik dengan layanan bisnis Indonesia Anda. Bisakah Anda membantu saya memulai?",
+      instant: "Pesan instan",
+      email: "Email Kami",
       contactForm: "Formulir Kontak",
-      officeHours: "Jam Kantor (WITA)"
+      detailed: "Pertanyaan terperinci",
+      officeHours: "Jam Kantor (WITA)",
+      weekdays: "Sen-Jum: 9:00-17:00",
+      saturday: "Sab: 10:00-14:00",
+      whatsapp: "Chat WhatsApp",
+      emailUs: "Email Kami"
     },
     common: {
       getStarted: "Mulai",

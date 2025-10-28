@@ -2,14 +2,18 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { LanguageSwitcher } from "./language-switcher"
+import { LanguageSwitcher, useLocale } from "./language-switcher"
+import { getTranslations } from "@/lib/i18n"
 
 export function Header() {
+  const { locale } = useLocale()
+  const t = getTranslations(locale)
+  
   const navItems = [
-    { label: "Immigration", href: "#immigration" },
-    { label: "Business", href: "#business" },
-    { label: "Tax & Legal", href: "#tax-legal" },
-    { label: "AI Insights", href: "#ai" },
+    { label: t.nav.immigration, href: "#immigration" },
+    { label: t.nav.business, href: "#business" },
+    { label: t.nav.taxLegal, href: "#tax-legal" },
+    { label: t.nav.insights, href: "#ai" },
   ]
 
   return (

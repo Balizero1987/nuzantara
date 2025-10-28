@@ -110,24 +110,28 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   const article = mockArticles.find(a => a.slug === slug)
   if (!article) return null
 
-  // Read the actual markdown file
-  try {
-    const fullPath = path.join(articlesDirectory, `${slug}.md`)
-    const fileContents = fs.readFileSync(fullPath, 'utf8')
-    const { content } = matter(fileContents)
+  // Read the actual markdown file (server-side only)
+  if (typeof window === 'undefined') {
+    try {
+      const fullPath = path.join(articlesDirectory, `${slug}.md`)
+      const fileContents = fs.readFileSync(fullPath, 'utf8')
+      const { content } = matter(fileContents)
 
-    // Convert markdown to HTML
-    const htmlContent = await marked.parse(content)
+      // Convert markdown to HTML
+      const htmlContent = await marked.parse(content)
 
-    // Return article with actual HTML content
-    return {
-      ...article,
-      content: htmlContent
+      // Return article with actual HTML content
+      return {
+        ...article,
+        content: htmlContent
+      }
+    } catch (error) {
+      console.error(`Error reading article ${slug}:`, error)
+      return article // Return with placeholder content if file not found
     }
-  } catch (error) {
-    console.error(`Error reading article ${slug}:`, error)
-    return article // Return with placeholder content if file not found
   }
+  
+  return article // Return with placeholder content on client side
 }
 
 export async function getArticlesByCategory(category: CategorySlug): Promise<Article[]> {

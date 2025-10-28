@@ -14,25 +14,13 @@ export function LanguageSwitcher({
   onLocaleChange,
   className = ""
 }: LanguageSwitcherProps) {
-  const [selectedLocale, setSelectedLocale] = useState<Locale>(currentLocale)
+  const { locale, setLocale } = useLocale()
   const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
-    // Load saved locale from localStorage
-    const savedLocale = localStorage.getItem('locale') as Locale
-    if (savedLocale && (savedLocale === 'en' || savedLocale === 'id')) {
-      setSelectedLocale(savedLocale)
-      if (onLocaleChange) {
-        onLocaleChange(savedLocale)
-      }
-    }
-  }, [onLocaleChange])
-
-  const handleLocaleChange = (locale: Locale) => {
-    setSelectedLocale(locale)
-    localStorage.setItem('locale', locale)
+  const handleLocaleChange = (newLocale: Locale) => {
+    setLocale(newLocale)
     if (onLocaleChange) {
-      onLocaleChange(locale)
+      onLocaleChange(newLocale)
     }
     setIsOpen(false)
   }
@@ -42,7 +30,7 @@ export function LanguageSwitcher({
     { code: 'id' as Locale, name: 'Bahasa Indonesia', flag: '🇮🇩' }
   ]
 
-  const currentLanguage = languages.find(lang => lang.code === selectedLocale) || languages[0]
+  const currentLanguage = languages.find(lang => lang.code === locale) || languages[0]
 
   return (
     <div className={`relative ${className}`}>
@@ -79,14 +67,14 @@ export function LanguageSwitcher({
                 key={language.code}
                 onClick={() => handleLocaleChange(language.code)}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-sm text-left hover:bg-white/5 transition-colors ${
-                  selectedLocale === language.code 
+                  locale === language.code 
                     ? 'bg-red/10 text-red border-l-2 border-red' 
                     : 'text-off-white'
                 }`}
               >
                 <span className="text-lg">{language.flag}</span>
                 <span className="font-medium">{language.name}</span>
-                {selectedLocale === language.code && (
+                {locale === language.code && (
                   <svg className="w-4 h-4 ml-auto text-red" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
@@ -129,8 +117,21 @@ export function LocaleProvider({
 }) {
   const [locale, setLocale] = useState<Locale>(initialLocale)
 
+  useEffect(() => {
+    // Load saved locale from localStorage on mount
+    const savedLocale = localStorage.getItem('locale') as Locale
+    if (savedLocale && (savedLocale === 'en' || savedLocale === 'id')) {
+      setLocale(savedLocale)
+    }
+  }, [])
+
+  const handleSetLocale = (newLocale: Locale) => {
+    setLocale(newLocale)
+    localStorage.setItem('locale', newLocale)
+  }
+
   return (
-    <LocaleContext.Provider value={{ locale, setLocale }}>
+    <LocaleContext.Provider value={{ locale, setLocale: handleSetLocale }}>
       {children}
     </LocaleContext.Provider>
   )

@@ -1,27 +1,33 @@
+"use client"
+
 import Link from "next/link"
 import { Mail, Linkedin, Twitter } from "lucide-react"
+import { useLocale } from "./language-switcher"
+import { getTranslations } from "@/lib/i18n"
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
+  const { locale } = useLocale()
+  const t = getTranslations(locale)
 
   const footerLinks = {
-    Company: [
-      { label: "About Us", href: "#" },
-      { label: "Careers", href: "#" },
-      { label: "Press", href: "#" },
-      { label: "Contact", href: "#" },
+    [t.contact.company]: [
+      { label: t.contact.about, href: "#" },
+      { label: t.contact.careers, href: "#" },
+      { label: t.contact.press, href: "#" },
+      { label: t.contact.contact, href: "#" },
     ],
-    Resources: [
-      { label: "Research", href: "#" },
-      { label: "Reports", href: "#" },
-      { label: "Webinars", href: "#" },
-      { label: "Blog", href: "#" },
+    [t.contact.resources]: [
+      { label: t.contact.research, href: "#" },
+      { label: t.contact.reports, href: "#" },
+      { label: t.contact.webinars, href: "#" },
+      { label: t.contact.blog, href: "#" },
     ],
-    Legal: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
-      { label: "Cookie Policy", href: "#" },
-      { label: "Disclaimer", href: "#" },
+    [t.contact.legal]: [
+      { label: t.contact.privacy, href: "#" },
+      { label: t.contact.terms, href: "#" },
+      { label: t.contact.cookies, href: "#" },
+      { label: t.contact.disclaimer, href: "#" },
     ],
   }
 
@@ -39,7 +45,7 @@ export function Footer() {
               <span className="font-serif font-bold text-white">Bali Zero</span>
             </Link>
             <p className="text-white/60 font-sans text-sm leading-relaxed">
-              Premium business intelligence and AI insights for Southeast Asia.
+              {t.contact.description}
             </p>
           </div>
 
@@ -66,7 +72,7 @@ export function Footer() {
         {/* Bottom Footer */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           {/* Copyright */}
-          <p className="text-white/50 font-sans text-sm">© {currentYear} Bali Zero Insights. All rights reserved.</p>
+          <p className="text-white/50 font-sans text-sm">© {currentYear} Bali Zero Insights. {t.contact.rights}</p>
 
           {/* Social Links */}
           <div className="flex items-center gap-4">

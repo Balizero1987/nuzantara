@@ -1,17 +1,22 @@
+"use client"
+
 import Link from "next/link"
 import { categories } from "@/lib/categories"
+import { useLocale } from "./language-switcher"
+import { getTranslations } from "@/lib/i18n"
 
 export function ContentPillars() {
+  const { locale } = useLocale()
+  const t = getTranslations(locale)
   return (
     <section className="py-20 px-4 md:px-6 lg:px-8 bg-black border-t border-white/10">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="mb-16 text-center">
-          <span className="text-red font-serif font-bold text-sm tracking-widest">OUR EXPERTISE</span>
-          <h2 className="text-white font-serif font-bold text-4xl md:text-5xl mt-4">Content Pillars</h2>
+          <span className="text-red font-serif font-bold text-sm tracking-widest">{t.services.expertise}</span>
+          <h2 className="text-white font-serif font-bold text-4xl md:text-5xl mt-4">{t.services.title}</h2>
           <p className="text-white/70 font-sans text-lg mt-4 max-w-2xl mx-auto">
-            Bali Zero Insights covers the most critical areas shaping business and innovation in Southeast Asia and
-            beyond.
+            {t.services.description}
           </p>
         </div>
 
@@ -20,7 +25,7 @@ export function ContentPillars() {
           <div className="mb-6">
             <div className="flex items-center justify-between px-4">
               <div>
-                <p className="text-white/70 text-sm">Swipe to explore all topics</p>
+                <p className="text-white/70 text-sm">{t.services.swipe}</p>
               </div>
               <div className="flex items-center gap-1">
                 {categories.slice(0, 4).map((_, index) => (
@@ -99,9 +104,9 @@ export function ContentPillars() {
 
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
-          <p className="text-white/70 font-sans text-lg mb-6">Explore our full range of research and analysis</p>
+          <p className="text-white/70 font-sans text-lg mb-6">{t.services.explore}</p>
           <button className="bg-red text-black px-8 py-3 font-serif font-bold hover:bg-red/90 transition-colors hover:shadow-[0_0_30px_rgba(255,0,0,0.6)]">
-            Browse All Topics
+            {t.services.browse}
           </button>
         </div>
       </div>
