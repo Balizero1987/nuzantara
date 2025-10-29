@@ -74,7 +74,7 @@ class PrometheusCollector {
       
       if (values.length > 0) {
         const sorted = [...values].sort((a, b) => a - b);
-        const sum = values.reduce Rise(a, b) => a + b, 0);
+        const sum = values.reduce((a, b) => a + b, 0);
         const count = values.length;
         const positives = sorted.filter(v => v > 0);
         
