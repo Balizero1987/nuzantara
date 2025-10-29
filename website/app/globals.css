@@ -5,39 +5,39 @@
 
 :root {
   /* Bali Zero Official Color Palette */
-  --background: #090920;          /* Vivid Black (balanced blue undertone) */
-  --foreground: #f5f5f5;          /* Off-white */
-  --card: #1a1f3a;                /* Navy */
-  --card-foreground: #f5f5f5;
-  --popover: #1a1f3a;
-  --popover-foreground: #f5f5f5;
-  --primary: #FF0000;             /* Bold Red */
-  --primary-foreground: #090920;
-  --secondary: #e8d5b7;           /* Cream */
-  --secondary-foreground: #090920;
-  --muted: #1a1f3a;
-  --muted-foreground: #e8d5b7;
-  --accent: #FF0000;              /* Bold Red */
-  --accent-foreground: #090920;
-  --destructive: #FF0000;
-  --destructive-foreground: #f5f5f5;
-  --border: #e8d5b7;              /* Cream borders */
-  --input: #1a1f3a;
-  --ring: #FF0000;
-  --chart-1: #FF0000;
-  --chart-2: #D4AF37;
-  --chart-3: #e8d5b7;
-  --chart-4: #1a1f3a;
-  --chart-5: #f5f5f5;
-  --radius: 0.625rem;
+  --background: #0A0A12;          /* Landing page dark (perfect gradient start) */
+  --foreground: #D0D0D6;          /* Landing page text color */
+  --card: #1A1A26;                /* Landing page gradient end */
+  --card-foreground: #D0D0D6;
+  --popover: #1A1A26;
+  --popover-foreground: #D0D0D6;
+  --primary: #E94D35;             /* Landing page accent (warm red-orange) */
+  --primary-foreground: #FFFFFF;
+  --secondary: #C7A75E;           /* Gold accent */
+  --secondary-foreground: #0A0A12;
+  --muted: #20202C;
+  --muted-foreground: #B3B3B9;
+  --accent: #E94D35;              /* Landing page accent */
+  --accent-foreground: #FFFFFF;
+  --destructive: #E94D35;
+  --destructive-foreground: #FFFFFF;
+  --border: #20202C;              /* Subtle dark borders */
+  --input: #20202C;
+  --ring: #E94D35;
+  --chart-1: #E94D35;
+  --chart-2: #C7A75E;
+  --chart-3: #D0D0D6;
+  --chart-4: #1A1A26;
+  --chart-5: #FFFFFF;
+  --radius: 0.75rem;
 
   /* Bali Zero Brand Colors */
-  --black: #090920;               /* Vivid Black (balanced blue - perfect premium dark) */
-  --red: #FF0000;                 /* Bold Red */
-  --cream: #e8d5b7;               /* Cream */
-  --gold: #D4AF37;                /* Gold */
-  --navy: #1a1f3a;                /* Navy */
-  --off-white: #f5f5f5;           /* Off-white */
+  --black: #0A0A12;               /* Gradient start */
+  --red: #E94D35;                 /* Warm accent */
+  --cream: #D0D0D6;               /* Text color */
+  --gold: #C7A75E;                /* Gold accent */
+  --navy: #1A1A26;                /* Gradient end */
+  --off-white: #FFFFFF;           /* Pure white */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -49,30 +49,30 @@
 }
 
 .dark {
-  --background: #090920;
-  --foreground: #f5f5f5;
-  --card: #1a1f3a;
-  --card-foreground: #f5f5f5;
-  --popover: #1a1f3a;
-  --popover-foreground: #f5f5f5;
-  --primary: #FF0000;
-  --primary-foreground: #090920;
-  --secondary: #e8d5b7;
-  --secondary-foreground: #090920;
-  --muted: #1a1f3a;
-  --muted-foreground: #e8d5b7;
-  --accent: #FF0000;
-  --accent-foreground: #000000;
-  --destructive: #FF0000;
-  --destructive-foreground: #f5f5f5;
-  --border: #e8d5b7;
-  --input: #1a1f3a;
-  --ring: #FF0000;
-  --chart-1: #FF0000;
-  --chart-2: #D4AF37;
-  --chart-3: #e8d5b7;
-  --chart-4: #1a1f3a;
-  --chart-5: #f5f5f5;
+  --background: #0A0A12;
+  --foreground: #D0D0D6;
+  --card: #1A1A26;
+  --card-foreground: #D0D0D6;
+  --popover: #1A1A26;
+  --popover-foreground: #D0D0D6;
+  --primary: #E94D35;
+  --primary-foreground: #FFFFFF;
+  --secondary: #C7A75E;
+  --secondary-foreground: #0A0A12;
+  --muted: #20202C;
+  --muted-foreground: #B3B3B9;
+  --accent: #E94D35;
+  --accent-foreground: #FFFFFF;
+  --destructive: #E94D35;
+  --destructive-foreground: #FFFFFF;
+  --border: #20202C;
+  --input: #20202C;
+  --ring: #E94D35;
+  --chart-1: #E94D35;
+  --chart-2: #C7A75E;
+  --chart-3: #D0D0D6;
+  --chart-4: #1A1A26;
+  --chart-5: #FFFFFF;
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -139,7 +139,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background: linear-gradient(180deg, #0A0A12 0%, #1A1A26 100%);
+    color: var(--foreground);
     transition: filter 0.3s ease;
   }
 
