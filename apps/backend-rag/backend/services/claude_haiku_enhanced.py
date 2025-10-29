@@ -12,6 +12,7 @@ import re
 
 from anthropic import AsyncAnthropic
 from fastapi import HTTPException
+import httpx
 
 class UserLevel(Enum):
     LEVEL_0 = 0  # Public/Transactional
@@ -192,6 +193,46 @@ class EnhancedClaudeHaikuService:
         self.prompt_loader = DynamicPromptLoader()
         self.model = "claude-3-haiku-20240307"
 
+        # API configuration - works in all environments
+        self.api_base = os.getenv("INTERNAL_API_BASE", "http://localhost:8080")
+        self.api_key = os.getenv("INTERNAL_API_KEY", "demo-key-2024")
+        self.timeout = 5.0  # 5 second timeout
+
+    async def fetch_price_data(self, service: str = None) -> Optional[Dict]:
+        """Fetch price from internal API when needed"""
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                endpoint = f"{self.api_base}/api/pricing/quick" if service else f"{self.api_base}/api/pricing/official"
+                payload = {"service": service} if service else {"service_type": "all"}
+
+                response = await client.post(
+                    endpoint,
+                    json=payload,
+                    headers={"x-api-key": self.api_key}
+                )
+
+                if response.status_code == 200:
+                    return response.json()
+        except Exception as e:
+            print(f"API call failed: {e}")
+        return None
+
+    async def fetch_team_data(self, department: str = None) -> Optional[List]:
+        """Fetch team from internal API when needed"""
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.post(
+                    f"{self.api_base}/api/team/list",
+                    json={"department": department} if department else {},
+                    headers={"x-api-key": self.api_key}
+                )
+
+                if response.status_code == 200:
+                    return response.json()
+        except Exception as e:
+            print(f"API call failed: {e}")
+        return None
+
     async def generate_with_dynamic_prompt(
         self,
         query: str,
@@ -207,16 +248,31 @@ class EnhancedClaudeHaikuService:
         # Load appropriate prompt
         system_prompt = self.prompt_loader.load_prompt(level)
 
-        # Add technical context for optimized system
+        # Check if query needs API data
+        query_lower = query.lower()
+        additional_context = ""
+
+        # Fetch price data if needed
+        if any(word in query_lower for word in ['price', 'cost', 'quanto', 'berapa', 'visa', 'kitas', 'company']):
+            price_data = await self.fetch_price_data()
+            if price_data:
+                additional_context = f"\n\nCurrent pricing data: {json.dumps(price_data)}\n"
+
+        # Fetch team data if needed
+        if any(word in query_lower for word in ['team', 'member', 'staff', 'who', 'chi', 'siapa']):
+            team_data = await self.fetch_team_data()
+            if team_data:
+                additional_context += f"\n\nTeam data: {json.dumps(team_data)}\n"
+
+        # Add technical context
         technical_context = """
 TECHNICAL CONTEXT (v2.0):
 - Response latency: <400ms target
 - Cache available for common queries
 - Redis hit ratio: 60%+
-- Pinecone vectors for RAG search
-- GDPR compliant data handling"""
+- When asked about prices or team, use the data provided above."""
 
-        full_prompt = system_prompt + "\n\n" + technical_context
+        full_prompt = system_prompt + "\n\n" + technical_context + additional_context
 
         try:
             # Prepare messages
@@ -227,14 +283,13 @@ TECHNICAL CONTEXT (v2.0):
                 }
             ]
 
-            # Call Claude with dynamic prompt
+            # Call Claude with dynamic prompt (no tools needed!)
             response = await self.client.messages.create(
                 model=self.model,
                 system=full_prompt,
                 messages=messages,
                 max_tokens=2048,
-                temperature=temperature,
-                tools=tools if tools else None
+                temperature=temperature
             )
 
             # Extract response
@@ -248,7 +303,7 @@ TECHNICAL CONTEXT (v2.0):
                 "metadata": {
                     "prompt_length": len(full_prompt),
                     "user_level": level.name,
-                    "tools_provided": len(tools) if tools else 0,
+                    "api_data_fetched": bool(additional_context),
                     "cached": False  # Would check Redis here
                 }
             }
