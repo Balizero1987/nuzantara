@@ -308,13 +308,43 @@ async def route_query(request: QueryRequest):
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """
+    Health check endpoint - always responds 200 OK
+    Even during initialization to prevent Fly.io from killing the machine
+    """
+    if not router:
+        # Still initializing, but respond with 200 OK to keep Fly.io happy
+        return {
+            "status": "initializing",
+            "model": "loading...",
+            "mode": "router-only",
+            "total_tools": 5,
+            "device": "unknown",
+            "ready": False
+        }
+
     return {
-        "status": "healthy" if router else "initializing",
-        "model": router.model_name if router else "unknown",
+        "status": "healthy",
+        "model": router.model_name,
         "mode": "router-only",
         "total_tools": 5,
-        "device": str(router.device) if router else "unknown"
+        "device": str(router.device),
+        "ready": True
+    }
+
+@app.get("/ready")
+async def readiness_check():
+    """
+    Readiness check - returns 200 only when router is fully initialized
+    Use this if you need to check actual readiness vs just liveness
+    """
+    if not router:
+        raise HTTPException(status_code=503, detail="Router still initializing")
+
+    return {
+        "status": "ready",
+        "model": router.model_name,
+        "device": str(router.device)
     }
 
 @app.get("/tools")

@@ -763,7 +763,8 @@ async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = Fals
 
         category = None
 
-        # Find 'raw' in path and get the next directory as category
+        # Find 'raw' in path and get the category directory
+        # Structure: raw/YYYY-MM-DD/{category}/file.md or raw/{category}/file.md
         try:
             raw_idx = None
             for i, part in enumerate(parts):
@@ -771,13 +772,25 @@ async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = Fals
                     raw_idx = i
                     break
 
-            if raw_idx is not None and raw_idx + 1 < len(parts):
-                # The directory after 'raw' is the category
-                potential_category = parts[raw_idx + 1]
-
-                # Check if it's a directory name (not a .md file)
-                if not potential_category.endswith('.md'):
-                    category = potential_category
+            if raw_idx is not None:
+                # Check if next directory is a date (YYYY-MM-DD format)
+                if raw_idx + 2 < len(parts):
+                    potential_date = parts[raw_idx + 1]
+                    # If it's a date, skip it and get the next directory as category
+                    if re.match(r'^\d{4}-\d{2}-\d{2}$', potential_date):
+                        potential_category = parts[raw_idx + 2]
+                        if not potential_category.endswith('.md'):
+                            category = potential_category
+                    else:
+                        # No date directory, use next directory as category
+                        potential_category = parts[raw_idx + 1]
+                        if not potential_category.endswith('.md'):
+                            category = potential_category
+                elif raw_idx + 1 < len(parts):
+                    # Only one directory after 'raw'
+                    potential_category = parts[raw_idx + 1]
+                    if not potential_category.endswith('.md'):
+                        category = potential_category
 
             # Fallback: read category from file metadata
             if not category:
@@ -832,35 +845,109 @@ async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = Fals
     await asyncio.gather(*tasks_2a, return_exceptions=True)
     logger.info(f"✅ Phase 1 complete: {results['stage_2a']['processed']} RAG processed, {results['stage_2a']['filtered']} filtered")
 
-    # PHASE 2: Run Stage 2B (Consolidated Content)
+    # PHASE 2: Run Stage 2B (Consolidated Content) - CREATE 1 SINGLE FILE
     logger.info("Phase 2: Running Stage 2B (Consolidated Content Creation)...")
 
-    # Process articles for each category
+    # Collect ALL articles from ALL categories
+    all_articles_by_category = {}
+
     for category, files in files_by_category.items():
         articles = []
         for raw_file in files:
             article_data = await stage_2b.create_article(raw_file, category)
             if article_data:
+                # Add category to article data
+                article_data["category"] = category
                 articles.append(article_data)
                 results["stage_2b"]["created"] += 1
             else:
                 results["stage_2b"]["failed"] += 1
 
-        # Create consolidated report for this category
         if articles:
-            consolidated_report = await stage_2b.create_consolidated_report(articles, category)
+            all_articles_by_category[category] = articles
 
-            # Save consolidated report to dated directory: data/processed/YYYY-MM-DD/
-            output_dir = PROJECT_ROOT / "data" / "processed" / run_date
-            output_dir.mkdir(parents=True, exist_ok=True)
+    # Create 1 SINGLE consolidated report with ALL articles from ALL categories
+    if all_articles_by_category:
+        # Generate global consolidated report
+        report = []
 
-            datestamp = datetime.now().strftime("%Y%m%d")
-            output_file = output_dir / f"{category}_{datestamp}.md"
+        # Header
+        total_articles = sum(len(articles) for articles in all_articles_by_category.values())
+        all_sources = set()
+        for articles in all_articles_by_category.values():
+            for article in articles:
+                all_sources.add(article["metadata"]["source"])
 
-            with open(output_file, 'w', encoding='utf-8') as f:
-                f.write(consolidated_report)
+        report.append(f"# Intel Report - ALL CATEGORIES")
+        report.append(f"**Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        report.append(f"**Run Date**: {run_date}")
+        report.append(f"**Total Articles**: {total_articles}")
+        report.append(f"**Total Categories**: {len(all_articles_by_category)}")
+        report.append(f"**Sources**: {', '.join(sorted(all_sources))}")
+        report.append("")
+        report.append("---")
+        report.append("")
 
-            logger.info(f"✅ Consolidated report saved: {output_file}")
+        # Table of Contents by Category
+        report.append("## TABLE OF CONTENTS")
+        article_counter = 1
+        for category in sorted(all_articles_by_category.keys()):
+            articles = all_articles_by_category[category]
+            report.append(f"\n### {category.upper().replace('_', ' ')} ({len(articles)} articles)")
+            for article in sorted(articles, key=lambda x: x["metadata"].get("published_date", ""), reverse=True):
+                title = article["metadata"]["title"]
+                anchor = f"article-{article_counter}"
+                report.append(f"{article_counter}. [{title}](#{anchor})")
+                article_counter += 1
+
+        report.append("")
+        report.append("---")
+        report.append("")
+
+        # Articles organized by category
+        article_counter = 1
+        for category in sorted(all_articles_by_category.keys()):
+            articles = all_articles_by_category[category]
+
+            # Category header
+            report.append(f"\n# {category.upper().replace('_', ' ')}")
+            report.append(f"**Articles in this category**: {len(articles)}")
+            report.append("")
+            report.append("---")
+            report.append("")
+
+            # Sort articles by date (newest first)
+            sorted_articles = sorted(articles, key=lambda x: x["metadata"].get("published_date", ""), reverse=True)
+
+            for article in sorted_articles:
+                metadata = article["metadata"]
+                content = article["content"]
+
+                report.append(f"## Article {article_counter}: {metadata['title']} {{#article-{article_counter}}}")
+                report.append(f"**Category**: {category.upper().replace('_', ' ')}")
+                report.append(f"**Original Publication**: {metadata['published_date']}")
+                report.append(f"**Source**: [{metadata['source']}]({metadata['url']})")
+                report.append(f"**Scraped**: {metadata['scraped_date']}")
+                report.append("")
+                report.append(content)
+                report.append("")
+                report.append("---")
+                report.append("")
+
+                article_counter += 1
+
+        # Save 1 SINGLE consolidated report
+        output_dir = PROJECT_ROOT / "data" / "processed" / run_date
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        datestamp = datetime.now().strftime("%Y_%m_%d_%Y%m%d")
+        output_file = output_dir / f"{datestamp}.md"
+
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write("\n".join(report))
+
+        logger.info(f"✅ Consolidated report saved: {output_file}")
+        logger.info(f"   Total articles: {total_articles} across {len(all_articles_by_category)} categories")
 
     logger.info(f"✅ Phase 2 complete: {results['stage_2b']['created']} articles processed")
 
