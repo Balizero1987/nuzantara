@@ -16,6 +16,7 @@ import {
 } from './middleware/security.middleware.js';
 import { globalErrorHandler, asyncHandler } from './utils/error-handler.js';
 import { requestTracker, errorTracker } from './middleware/monitoring.js';
+import { handlerValidation } from './middleware/input-validation.js';
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
@@ -37,6 +38,9 @@ async function startServer() {
   
   // Request tracking and monitoring
   app.use(requestTracker);
+  
+  // Input validation (for handler calls)
+  app.use('/call', handlerValidation);
   
   // Request logging
   app.use((req, res, next) => {
@@ -81,12 +85,24 @@ async function startServer() {
     });
   });
 
+  // Prometheus metrics endpoint (for Grafana integration)
+  app.get('/metrics', async (req, res) => {
+    const { prometheusMetricsHandler } = await import('./services/prometheus-metrics.js');
+    return prometheusMetricsHandler(req, res);
+  });
+
   // 404 handler
   app.use((req, res) => {
     res.status(404).json({
-      status: 'error',
-      message: 'Endpoint not found',
-      path: req.originalUrl
+      ok: false,
+      error: {
+        code: 'NOT_FOUND',
+        message: 'Endpoint not found',
+        type: 'USER_ERROR',
+        details: { path: req.originalUrl },
+        requestId: (req as any).requestId,
+        timestamp: new Date().toISOString(),
+      }
     });
   });
 
