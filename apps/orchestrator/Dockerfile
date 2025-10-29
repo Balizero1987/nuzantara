@@ -13,6 +13,7 @@ RUN npm install
 # Copy source code
 COPY main.ts ./
 COPY lib ./lib
+COPY SYSTEM_PROMPT.txt ./
 
 # Expose port
 EXPOSE 3000
