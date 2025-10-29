@@ -7,16 +7,16 @@ import express, { Request, Response } from 'express';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
-import { SuperToolHandlers } from './lib/super-tools';
+import { cacheMiddleware } from './lib/cache.middleware';
+import { cacheService } from './lib/cache.service';
 
 dotenv.config();
-
-// Initialize super-tool handlers
-const toolHandlers = new SuperToolHandlers();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// PATCH-1: Redis cache middleware for performance optimization
 
 // Service configuration
 const SERVICES = {
@@ -65,7 +65,7 @@ interface RouterResponse {
 /**
  * Main query endpoint - ALL queries come here
  */
-app.post('/api/query', async (req: Request, res: Response) => {
+app.post('/api/query', cacheMiddleware, async (req: Request, res: Response) => {
   const startTime = Date.now();
   metrics.totalRequests++;
 
@@ -112,23 +112,13 @@ app.post('/api/query', async (req: Request, res: Response) => {
 
     console.log(`✅ Haiku responded (${haikuLatency}ms)`);
 
-    // ========== STEP 3: Extract text response ==========
-    // Extract text from content blocks
-    let responseText = '';
-    if (haikuResponse.content && Array.isArray(haikuResponse.content)) {
-      const textBlocks = haikuResponse.content.filter((block: any) => block.type === 'text');
-      responseText = textBlocks.map((block: any) => block.text).join('\n');
-    } else if (typeof haikuResponse.content === 'string') {
-      responseText = haikuResponse.content;
-    }
-
-    // ========== STEP 4: Return response ==========
+    // ========== STEP 3: Return response ==========
     const totalLatency = Date.now() - startTime;
     metrics.totalLatency.push(totalLatency);
     metrics.successRate = ((metrics.totalRequests - metrics.errors) / metrics.totalRequests) * 100;
 
     res.json({
-      response: responseText,
+      response: haikuResponse.content,
       metadata: {
         routing: {
           tools: routing.tools,
@@ -213,133 +203,40 @@ Respond to the user's query:`;
 }
 
 /**
- * Call Haiku with selected tools and execute tool-use loop
+ * Call Haiku with selected tools
  */
 async function callHaiku(prompt: string, tools: string[]): Promise<any> {
+  // Prepare tool schemas for Haiku
+  const toolSchemas = prepareToolSchemas(tools);
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     throw new Error('ANTHROPIC_API_KEY not set');
   }
 
-  // Prepare tool schemas for Haiku
-  const toolSchemas = prepareToolSchemas(tools);
-
-  // Initialize conversation with user query
-  const messages: any[] = [{
-    role: 'user',
-    content: prompt
-  }];
-
-  // Tool-use loop: Keep calling until we get a final text response
-  let iterations = 0;
-  const maxIterations = 5; // Prevent infinite loops
-
-  while (iterations < maxIterations) {
-    iterations++;
-
-    console.log(`🔄 Haiku iteration ${iterations}...`);
-
-    // Call Haiku API
-    const response = await axios.post(
-      `${SERVICES.HAIKU_API}/messages`,
-      {
-        model: 'claude-3-haiku-20240307',
-        messages,
-        tools: toolSchemas.length > 0 ? toolSchemas : undefined,
-        max_tokens: 1000,
-        temperature: 0.7
+  const response = await axios.post(
+    `${SERVICES.HAIKU_API}/messages`,
+    {
+      model: 'claude-3-haiku-20240307',
+      messages: [{
+        role: 'user',
+        content: prompt
+      }],
+      tools: toolSchemas.length > 0 ? toolSchemas : undefined,
+      max_tokens: 1000,
+      temperature: 0.7
+    },
+    {
+      headers: {
+        'X-API-Key': apiKey,
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01'
       },
-      {
-        headers: {
-          'X-API-Key': apiKey,
-          'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01'
-        },
-        timeout: 30000 // 30s timeout
-      }
-    );
-
-    const assistantMessage = response.data;
-
-    // Check if response contains tool_use blocks
-    const toolUseBlocks = assistantMessage.content.filter((block: any) => block.type === 'tool_use');
-
-    // If no tool use, we have the final response
-    if (toolUseBlocks.length === 0) {
-      console.log(`✅ Final response received (no tools used)`);
-      return assistantMessage;
+      timeout: 30000 // 30s timeout
     }
+  );
 
-    console.log(`🔧 Executing ${toolUseBlocks.length} tool(s)...`);
-
-    // Add assistant's response to conversation
-    messages.push({
-      role: 'assistant',
-      content: assistantMessage.content
-    });
-
-    // Execute each tool and collect results
-    const toolResults: any[] = [];
-
-    for (const toolUse of toolUseBlocks) {
-      console.log(`  → Executing: ${toolUse.name}`);
-
-      try {
-        // Map tool names (universal_query → universal.query)
-        const toolName = toolUse.name.replace('_', '.');
-        const toolInput = toolUse.input;
-
-        // Execute tool via SuperToolHandlers
-        const result = await toolHandlers.execute({
-          tool: toolName,
-          action: toolInput.action || toolInput.query || 'query',
-          source: toolInput.source || 'knowledge',
-          data: toolInput,
-          filters: toolInput.filters
-        });
-
-        // Format tool result for Claude
-        toolResults.push({
-          type: 'tool_result',
-          tool_use_id: toolUse.id,
-          content: JSON.stringify(result)
-        });
-
-        console.log(`  ✅ Tool executed: ${result.success ? 'success' : 'failed'}`);
-      } catch (error: any) {
-        console.error(`  ❌ Tool execution error:`, error.message);
-
-        // Return error as tool result
-        toolResults.push({
-          type: 'tool_result',
-          tool_use_id: toolUse.id,
-          content: JSON.stringify({
-            success: false,
-            error: error.message
-          }),
-          is_error: true
-        });
-      }
-    }
-
-    // Add tool results to conversation
-    messages.push({
-      role: 'user',
-      content: toolResults
-    });
-
-    // Continue loop to get final response from Haiku
-  }
-
-  // If we hit max iterations, return last response
-  console.warn(`⚠️  Max iterations (${maxIterations}) reached`);
-  return {
-    content: [{
-      type: 'text',
-      text: 'I apologize, but I reached the maximum number of processing steps. Please try rephrasing your question.'
-    }],
-    model: 'claude-3-haiku-20240307'
-  };
+  return response.data;
 }
 
 /**
@@ -567,7 +464,8 @@ app.get('/health', async (req: Request, res: Response) => {
   const checks: Record<string, string> = {
     orchestrator: 'healthy',
     flanRouter: 'unknown',
-    haiku: 'unknown'
+    haiku: 'unknown',
+    redis: 'unknown'
   };
 
   // Check FLAN router
@@ -581,8 +479,16 @@ app.get('/health', async (req: Request, res: Response) => {
   // Check Haiku (just verify API key exists)
   checks.haiku = process.env.ANTHROPIC_API_KEY ? 'configured' : 'not_configured';
 
+  // PATCH-1: Check Redis connection
+  try {
+    const redisHealthy = await cacheService.ping();
+    checks.redis = redisHealthy ? 'healthy' : 'unhealthy';
+  } catch (e) {
+    checks.redis = 'unhealthy';
+  }
+
   // Overall status
-  const allHealthy = checks.flanRouter === 'healthy' && checks.haiku === 'configured';
+  const allHealthy = checks.flanRouter === 'healthy' && checks.haiku === 'configured' && checks.redis === 'healthy';
 
   res.status(allHealthy ? 200 : 503).json({
     status: allHealthy ? 'healthy' : 'degraded',
