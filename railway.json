@@ -2,13 +2,31 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "apps/backend-rag/backend/Dockerfile"
+    "dockerfilePath": "apps/backend-rag/backend/Dockerfile",
+    "buildArgs": {
+      "NODE_ENV": "production"
+    }
   },
   "deploy": {
-    "startCommand": "python migrations/001_fix_missing_tables.py && uvicorn app.main_cloud:app --host 0.0.0.0 --port $PORT",
+    "startCommand": "python migrations/001_fix_missing_tables.py && gunicorn app.main_cloud:app --host 0.0.0.0 --port $PORT --workers 1 --worker-class gevent --worker-connections 1000 --max-requests 1000 --max-requests-jitter 100 --timeout 300 --keep-alive 5 --preload",
     "healthcheckPath": "/health",
-    "healthcheckTimeout": 600,
+    "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 3
+    "restartPolicyMaxRetries": 3,
+    "sleepApplication": false,
+    "cronSchedule": null
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "PYTHONUNBUFFERED": "1",
+        "WORKERS": "1",
+        "WORKER_CLASS": "gevent",
+        "WORKER_CONNECTIONS": "1000",
+        "MAX_REQUESTS": "1000",
+        "TIMEOUT": "300",
+        "KEEP_ALIVE": "5"
+      }
+    }
   }
 }

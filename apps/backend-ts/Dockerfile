@@ -1,30 +1,84 @@
-# TypeScript Backend Dockerfile for Railway
-FROM node:18-alpine
+# Optimized TypeScript Backend Dockerfile for Railway
+# Multi-stage build for smaller production image and faster builds
+
+# ========================================
+# Stage 1: Dependencies Builder
+# ========================================
+FROM node:18-alpine AS deps
 
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files first (better caching)
+# Copy package files for dependency installation
+COPY package*.json ./
+COPY tsconfig*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production --frozen-lockfile && \
+    npm cache clean --force
+
+# ========================================
+# Stage 2: Build Stage
+# ========================================
+FROM node:18-alpine AS builder
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+WORKDIR /app
+
+# Copy package files
 COPY package*.json ./
 COPY tsconfig*.json ./
 
 # Install ALL dependencies (including devDependencies for build)
-RUN npm install
+RUN npm ci --frozen-lockfile
 
 # Copy source code
 COPY src/ ./src/
 
-# Build the application
-RUN npm run build
+# Build the application with optimizations
+RUN npm run build && \
+    # Remove source maps and dev files to reduce size
+    find dist -name "*.map" -delete && \
+    find dist -name "*.d.ts" -delete
+
+# ========================================
+# Stage 3: Production Runtime
+# ========================================
+FROM node:18-alpine AS runtime
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Copy production dependencies from deps stage
+COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
+
+# Copy built application from builder stage
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/package*.json ./
+
+# Switch to non-root user
+USER nodejs
 
 # Expose port (Railway uses PORT env var)
-EXPOSE $PORT
+EXPOSE 8080
 
-# Health check removed - using Railway's built-in health monitoring
+# Environment variables
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=256"
+
+# Health check for Railway
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
 
 # Start the application
 CMD ["node", "dist/server.js"]
-# Build 1761271374
