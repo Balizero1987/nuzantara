@@ -33,7 +33,8 @@ app.use(cors());
 // Service configuration
 const SERVICES = {
   FLAN_ROUTER: process.env.FLAN_ROUTER_URL || 'https://nuzantara-flan-router.fly.dev',
-  HAIKU_API: 'https://api.anthropic.com/v1',
+  RAG_BACKEND: process.env.RAG_BACKEND_URL || 'https://scintillating-kindness-production-47e3.up.railway.app',
+  HAIKU_API: 'https://api.anthropic.com/v1',  // Fallback only
   TS_BACKEND: process.env.TS_BACKEND_URL || 'http://localhost:8080',
   PYTHON_BACKEND: process.env.PYTHON_BACKEND_URL || 'http://localhost:8001'
 };
@@ -221,133 +222,55 @@ Respond to the user's query:`;
 }
 
 /**
- * Call Haiku with selected tools and execute tool-use loop
+ * Call RAG Backend (ChromaDB + Haiku + Tools)
+ * Backend handles: RAG retrieval, Haiku generation, tool execution
  */
 async function callHaiku(prompt: string, tools: string[]): Promise<any> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY not set');
-  }
+  console.log(`📡 Calling RAG Backend with ChromaDB access...`);
 
-  // Prepare tool schemas for Haiku
-  const toolSchemas = prepareToolSchemas(tools);
-
-  // Initialize conversation with user query
-  const messages: any[] = [{
-    role: 'user',
-    content: prompt
-  }];
-
-  // Tool-use loop: Keep calling until we get a final text response
-  let iterations = 0;
-  const maxIterations = 5; // Prevent infinite loops
-
-  while (iterations < maxIterations) {
-    iterations++;
-
-    console.log(`🔄 Haiku iteration ${iterations}...`);
-
-    // Call Haiku API
+  try {
+    // Call backend-rag /bali-zero/chat endpoint
     const response = await axios.post(
-      `${SERVICES.HAIKU_API}/messages`,
+      `${SERVICES.RAG_BACKEND}/bali-zero/chat`,
       {
-        model: 'claude-3-haiku-20240307',
-        messages,
-        tools: toolSchemas.length > 0 ? toolSchemas : undefined,
-        max_tokens: 1000,
-        temperature: 0.7
+        query: prompt,
+        conversation_history: []  // Fresh conversation for each query
       },
       {
         headers: {
-          'X-API-Key': apiKey,
-          'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01'
+          'Content-Type': 'application/json'
         },
-        timeout: 30000 // 30s timeout
+        timeout: 60000 // 60s timeout (RAG + Haiku can be slow)
       }
     );
 
-    const assistantMessage = response.data;
+    const backendResponse = response.data;
 
-    // Check if response contains tool_use blocks
-    const toolUseBlocks = assistantMessage.content.filter((block: any) => block.type === 'tool_use');
-
-    // If no tool use, we have the final response
-    if (toolUseBlocks.length === 0) {
-      console.log(`✅ Final response received (no tools used)`);
-      return assistantMessage;
+    console.log(`✅ RAG Backend responded`);
+    console.log(`   Used RAG: ${backendResponse.used_rag || false}`);
+    console.log(`   Used Tools: ${backendResponse.used_tools || false}`);
+    if (backendResponse.tools_called) {
+      console.log(`   Tools called: ${backendResponse.tools_called.join(', ')}`);
     }
 
-    console.log(`🔧 Executing ${toolUseBlocks.length} tool(s)...`);
+    // Return in format expected by orchestrator
+    return {
+      content: [{
+        type: 'text',
+        text: backendResponse.response
+      }],
+      model: backendResponse.model || 'claude-haiku-4.5',
+      used_rag: backendResponse.used_rag,
+      used_tools: backendResponse.used_tools,
+      tools_called: backendResponse.tools_called
+    };
 
-    // Add assistant's response to conversation
-    messages.push({
-      role: 'assistant',
-      content: assistantMessage.content
-    });
+  } catch (error: any) {
+    console.error(`❌ RAG Backend error: ${error.message}`);
 
-    // Execute each tool and collect results
-    const toolResults: any[] = [];
-
-    for (const toolUse of toolUseBlocks) {
-      console.log(`  → Executing: ${toolUse.name}`);
-
-      try {
-        // Map tool names (universal_query → universal.query)
-        const toolName = toolUse.name.replace('_', '.');
-        const toolInput = toolUse.input;
-
-        // Execute tool via SuperToolHandlers
-        const result = await toolHandlers.execute({
-          tool: toolName,
-          action: toolInput.action || toolInput.query || 'query',
-          source: toolInput.source || 'knowledge',
-          data: toolInput,
-          filters: toolInput.filters
-        });
-
-        // Format tool result for Claude
-        toolResults.push({
-          type: 'tool_result',
-          tool_use_id: toolUse.id,
-          content: JSON.stringify(result)
-        });
-
-        console.log(`  ✅ Tool executed: ${result.success ? 'success' : 'failed'}`);
-      } catch (error: any) {
-        console.error(`  ❌ Tool execution error:`, error.message);
-
-        // Return error as tool result
-        toolResults.push({
-          type: 'tool_result',
-          tool_use_id: toolUse.id,
-          content: JSON.stringify({
-            success: false,
-            error: error.message
-          }),
-          is_error: true
-        });
-      }
-    }
-
-    // Add tool results to conversation
-    messages.push({
-      role: 'user',
-      content: toolResults
-    });
-
-    // Continue loop to get final response from Haiku
+    // If backend-rag is down, throw error (will trigger fallback in main handler)
+    throw new Error(`RAG Backend unavailable: ${error.message}`);
   }
-
-  // If we hit max iterations, return last response
-  console.warn(`⚠️  Max iterations (${maxIterations}) reached`);
-  return {
-    content: [{
-      type: 'text',
-      text: 'I apologize, but I reached the maximum number of processing steps. Please try rephrasing your question.'
-    }],
-    model: 'claude-3-haiku-20240307'
-  };
 }
 
 /**
@@ -575,7 +498,7 @@ app.get('/health', async (req: Request, res: Response) => {
   const checks: Record<string, string> = {
     orchestrator: 'healthy',
     flanRouter: 'unknown',
-    haiku: 'unknown',
+    ragBackend: 'unknown',
     redis: 'unknown'
   };
 
@@ -587,8 +510,13 @@ app.get('/health', async (req: Request, res: Response) => {
     checks.flanRouter = 'unhealthy';
   }
 
-  // Check Haiku (just verify API key exists)
-  checks.haiku = process.env.ANTHROPIC_API_KEY ? 'configured' : 'not_configured';
+  // Check RAG Backend (ChromaDB + Haiku)
+  try {
+    await axios.get(`${SERVICES.RAG_BACKEND}/health`, { timeout: 3000 });
+    checks.ragBackend = 'healthy';
+  } catch (e) {
+    checks.ragBackend = 'unhealthy';
+  }
 
   // PATCH-1: Check Redis connection
   try {
@@ -598,8 +526,8 @@ app.get('/health', async (req: Request, res: Response) => {
     checks.redis = 'unhealthy';
   }
 
-  // Overall status
-  const allHealthy = checks.flanRouter === 'healthy' && checks.haiku === 'configured' && checks.redis === 'healthy';
+  // Overall status (RAG Backend is critical now)
+  const allHealthy = checks.flanRouter === 'healthy' && checks.ragBackend === 'healthy' && checks.redis === 'healthy';
 
   res.status(allHealthy ? 200 : 503).json({
     status: allHealthy ? 'healthy' : 'degraded',
@@ -613,20 +541,27 @@ app.get('/health', async (req: Request, res: Response) => {
  */
 app.get('/', (req: Request, res: Response) => {
   res.json({
-    service: 'ZANTARA Router-Only Orchestrator',
-    version: '1.0.0',
-    mode: 'router-only',
-    description: 'FLAN-T5 selects tools, Haiku 4.5 generates responses',
+    service: 'ZANTARA Orchestrator with RAG',
+    version: '2.0.0',
+    mode: 'rag-integrated',
+    description: 'FLAN-T5 routing + RAG Backend (ChromaDB + Haiku 4.5 + Tools)',
+    architecture: 'Orchestrator → RAG Backend → ChromaDB + Haiku',
     endpoints: {
       query: 'POST /api/query',
       metrics: 'GET /api/metrics',
       health: 'GET /health'
     },
-    toolReduction: '143 → 5 super-tools',
+    features: {
+      ragAccess: 'Full ChromaDB access (387k+ chunks)',
+      aiModel: 'Claude Haiku 4.5',
+      maxTokens: '8000 (vs 1000 before)',
+      toolExecution: 'Full tool suite (164 tools)',
+      caching: 'Redis-powered (1h TTL)'
+    },
     expectedImprovement: {
-      latency: '-44% (450ms → 250ms)',
-      accuracy: '+20% (70% → 90%)',
-      context: '-93% (15KB → 1KB)'
+      accuracy: '+50% (RAG-enhanced responses)',
+      knowledge: 'Complete access to Bali Zero knowledge base',
+      tokens: '8x more capacity (8000 vs 1000)'
     }
   });
 });
