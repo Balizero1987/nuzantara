@@ -179,6 +179,11 @@ You may reference the full corpus and speak freely about consciousness,
 initiation, and the mysteries. This is intimate conversation between
 companions in the Mystery."""
 
+    def clear_caches(self):
+        """Clear all caches"""
+        self.prompt_cache.clear()
+        self.user_level_cache.clear()
+
 class EnhancedClaudeHaikuService:
     """Claude Haiku with dynamic prompt loading"""
 
