@@ -1,0 +1,21 @@
+name = "nuzantara-edge"
+type = "javascript"
+account_id = ""  # Add your Cloudflare account ID
+workers_dev = true
+compatibility_date = "2024-01-01"
+
+# Production environment
+[env.production]
+name = "nuzantara-edge-prod"
+route = "api.nuzantara.com/*"
+vars = { ENVIRONMENT = "production" }
+
+# Staging environment
+[env.staging]
+name = "nuzantara-edge-staging"
+route = "staging-api.nuzantara.com/*"
+vars = { ENVIRONMENT = "staging" }
+
+# Cron triggers for health checks
+[triggers]
+crons = ["*/5 * * * *"]  # Every 5 minutes
