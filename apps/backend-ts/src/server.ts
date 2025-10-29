@@ -81,12 +81,24 @@ async function startServer() {
     });
   });
 
+  // Prometheus metrics endpoint (for Grafana integration)
+  app.get('/metrics', async (req, res) => {
+    const { prometheusMetricsHandler } = await import('./services/prometheus-metrics.js');
+    return prometheusMetricsHandler(req, res);
+  });
+
   // 404 handler
   app.use((req, res) => {
     res.status(404).json({
-      status: 'error',
-      message: 'Endpoint not found',
-      path: req.originalUrl
+      ok: false,
+      error: {
+        code: 'NOT_FOUND',
+        message: 'Endpoint not found',
+        type: 'USER_ERROR',
+        details: { path: req.originalUrl },
+        requestId: (req as any).requestId,
+        timestamp: new Date().toISOString(),
+      }
     });
   });
 
