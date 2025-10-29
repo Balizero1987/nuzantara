@@ -9,6 +9,7 @@ import { ENV } from './config/index.js';
 import logger from './services/logger.js';
 import { attachRoutes } from './routing/router.js';
 import { loadAllHandlers } from './core/load-all-handlers.js';
+import { applySecurity, globalRateLimiter, corsConfig } from './middleware/security.middleware.js';
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
@@ -20,25 +21,35 @@ async function startServer() {
   // Create Express app
   const app = express();
 
+  // PATCH-3: Apply security middleware FIRST
+  applySecurity.forEach(middleware => app.use(middleware));
+
   // Middleware
-  app.use(cors({
+  app.use(cors(corsConfig));
+  
+  // PATCH-3: Global rate limiter after body parsing
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.use(globalRateLimiter);
+
+  // Request logging (kept for compatibility)
+  app.use((req, res, next) => {
+    logger.info(`${req.method} ${req.path} - ${req.ip}`);
+    next();
+  });
+
+  // Skip old CORS config block
+  if (false) {
+    app.use(cors({
     origin: process.env.CORS_ORIGINS?.split(',') || [
       'http://localhost:3000',
       'http://localhost:8080',
       'https://zantara.balizero.com',
       'https://balizero1987.github.io'
     ],
-    credentials: true
-  }));
-
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-  // Request logging
-  app.use((req, res, next) => {
-    logger.info(`${req.method} ${req.path} - ${req.ip}`);
-    next();
-  });
+      credentials: true
+    }));
+  }
 
   // Health check endpoint
   app.get('/health', (req, res) => {

@@ -99,6 +99,12 @@ flyctl info
 
 **URL finale**: `https://nuzantara-orchestrator.fly.dev`
 
+**ATTUALMENTE DEPLOYATO**: ✅ **LIVE**
+- Orchestrator: https://nuzantara-orchestrator.fly.dev
+- FLAN Router: https://nuzantara-flan-router.fly.dev
+- Health Check: https://nuzantara-orchestrator.fly.dev/health
+- Metrics: https://nuzantara-orchestrator.fly.dev/api/metrics
+
 **Pro**:
 - ✅ **GRATIS permanente** (tier generoso)
 - ✅ Global edge network
