@@ -33,13 +33,13 @@ export default {
     '!src/**/index.ts',
   ],
 
-  // Coverage thresholds (optional - can adjust based on project needs)
+  // Coverage thresholds - Q1 2025 Target: 80%+ (from ANALISI_STRATEGICA_ARCHITETTURA.md)
   coverageThreshold: {
     global: {
-      statements: 50,
-      branches: 40,
-      functions: 50,
-      lines: 50,
+      statements: 80,
+      branches: 70,
+      functions: 80,
+      lines: 80,
     },
   },
 
