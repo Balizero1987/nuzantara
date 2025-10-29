@@ -4,7 +4,7 @@
  * Tests edge routing, caching effectiveness, and latency across regions
  */
 
-const https = require('https');
+import https from 'https';
 
 const TEST_ENDPOINTS = [
   '/health',
