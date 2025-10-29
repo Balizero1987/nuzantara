@@ -1,0 +1,51 @@
+server:
+  http_listen_port: 12345
+
+metrics:
+  global:
+    scrape_interval: 30s
+    external_labels:
+      environment: production
+      app: nuzantara
+  configs:
+    - name: default
+      remote_write:
+        - url: https://prometheus-prod-us-central.grafana.net/api/prom/push
+          basic_auth:
+            username: ${GRAFANA_USERNAME}
+            password: ${GRAFANA_API_KEY}
+      scrape_configs:
+        - job_name: nodejs
+          static_configs:
+            - targets: ['localhost:8080']
+        - job_name: python
+          static_configs:
+            - targets: ['localhost:8000']
+
+logs:
+  configs:
+    - name: default
+      positions:
+        filename: /tmp/positions.yaml
+      clients:
+        - url: https://logs-prod-us-central.grafana.net/loki/api/v1/push
+          basic_auth:
+            username: ${GRAFANA_USERNAME}
+            password: ${GRAFANA_API_KEY}
+      scrape_configs:
+        - job_name: system
+          static_configs:
+            - targets:
+                - localhost
+              labels:
+                job: syslogs
+                __path__: /var/log/*.log
+
+traces:
+  configs:
+    - name: default
+      remote_write:
+        - endpoint: tempo-us-central.grafana.net:443
+          basic_auth:
+            username: ${GRAFANA_USERNAME}
+            password: ${GRAFANA_API_KEY}
