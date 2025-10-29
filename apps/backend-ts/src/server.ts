@@ -16,6 +16,7 @@ import {
 } from './middleware/security.middleware.js';
 import { globalErrorHandler, asyncHandler } from './utils/error-handler.js';
 import { requestTracker, errorTracker } from './middleware/monitoring.js';
+import { handlerValidation } from './middleware/input-validation.js';
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
@@ -37,6 +38,9 @@ async function startServer() {
   
   // Request tracking and monitoring
   app.use(requestTracker);
+  
+  // Input validation (for handler calls)
+  app.use('/call', handlerValidation);
   
   // Request logging
   app.use((req, res, next) => {
