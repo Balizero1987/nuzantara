@@ -1,0 +1,10 @@
+# PATCH-5 Migration Requirements
+
+# Python dependencies for migration
+pinecone-client>=3.0.0
+chromadb>=0.4.0
+tqdm>=4.65.0
+python-dotenv>=1.0.0
+
+# Optional: for progress monitoring
+rich>=13.0.0

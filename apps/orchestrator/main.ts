@@ -8,6 +8,8 @@ import axios from 'axios';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
 import { SuperToolHandlers } from './lib/super-tools';
+import { cacheMiddleware } from './lib/cache.middleware';
+import { cacheService } from './lib/cache.service';
 
 dotenv.config();
 
@@ -65,7 +67,7 @@ interface RouterResponse {
 /**
  * Main query endpoint - ALL queries come here
  */
-app.post('/api/query', async (req: Request, res: Response) => {
+app.post('/api/query', cacheMiddleware, async (req: Request, res: Response) => {
   const startTime = Date.now();
   metrics.totalRequests++;
 
@@ -567,7 +569,8 @@ app.get('/health', async (req: Request, res: Response) => {
   const checks: Record<string, string> = {
     orchestrator: 'healthy',
     flanRouter: 'unknown',
-    haiku: 'unknown'
+    haiku: 'unknown',
+    redis: 'unknown'
   };
 
   // Check FLAN router
@@ -580,6 +583,14 @@ app.get('/health', async (req: Request, res: Response) => {
 
   // Check Haiku (just verify API key exists)
   checks.haiku = process.env.ANTHROPIC_API_KEY ? 'configured' : 'not_configured';
+
+  // Check Redis cache
+  try {
+    const redisHealthy = await cacheService.ping();
+    checks.redis = redisHealthy ? 'healthy' : 'unhealthy';
+  } catch (e) {
+    checks.redis = 'unhealthy';
+  }
 
   // Overall status
   const allHealthy = checks.flanRouter === 'healthy' && checks.haiku === 'configured';
