@@ -1,78 +1,17 @@
-server:
-  http_listen_port: 12345
-  log_level: info
+# Minimal Grafana Agent configuration for local deployment
+# For production with Grafana Cloud, update with proper credentials
 
 metrics:
-  global:
-    scrape_interval: 30s
-    external_labels:
-      environment: production
-      app: nuzantara
-      cluster: main
-
   configs:
     - name: default
-      remote_write:
-        - url: https://prometheus-prod-us-central.grafana.net/api/prom/push
-          basic_auth:
-            username: ${GRAFANA_USERNAME}
-            password: ${GRAFANA_API_KEY}
-
       scrape_configs:
-        - job_name: 'nodejs-backend'
-          scrape_interval: 15s
+        - job_name: 'prometheus'
           static_configs:
-            - targets: ['host.docker.internal:8080']
-              labels:
-                service: 'backend-ts'
-
-        - job_name: 'python-backend'
-          scrape_interval: 15s
-          static_configs:
-            - targets: ['host.docker.internal:8000']
-              labels:
-                service: 'backend-rag'
-
-        - job_name: 'orchestrator'
-          scrape_interval: 15s
-          static_configs:
-            - targets: ['host.docker.internal:3000']
-              labels:
-                service: 'orchestrator'
+            - targets: ['prometheus:9090']
 
 logs:
   configs:
     - name: default
       positions:
         filename: /tmp/positions.yaml
-
-      clients:
-        - url: https://logs-prod-us-central.grafana.net/loki/api/v1/push
-          basic_auth:
-            username: ${GRAFANA_USERNAME}
-            password: ${GRAFANA_API_KEY}
-
-      scrape_configs:
-        - job_name: system
-          static_configs:
-            - targets: [localhost]
-              labels:
-                job: syslogs
-                __path__: /var/log/*.log
-
-traces:
-  configs:
-    - name: default
-      remote_write:
-        - endpoint: tempo-us-central.grafana.net:443
-          basic_auth:
-            username: ${GRAFANA_USERNAME}
-            password: ${GRAFANA_API_KEY}
-
-      receivers:
-        otlp:
-          protocols:
-            grpc:
-              endpoint: 0.0.0.0:4317
-            http:
-              endpoint: 0.0.0.0:4318
+      scrape_configs: []

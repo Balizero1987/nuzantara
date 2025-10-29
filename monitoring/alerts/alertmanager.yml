@@ -1,6 +1,5 @@
 global:
   resolve_timeout: 5m
-  slack_api_url: '${SLACK_WEBHOOK_URL}'
 
 route:
   group_by: ['alertname', 'service']
@@ -26,28 +25,13 @@ receivers:
         send_resolved: true
 
   - name: 'critical-alerts'
-    slack_configs:
-      - channel: '#nuzantara-alerts-critical'
-        title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
-        text: |
-          {{ range .Alerts }}
-          *Service:* {{ .Labels.service }}
-          *Alert:* {{ .Labels.alertname }}
-          *Summary:* {{ .Annotations.summary }}
-          *Description:* {{ .Annotations.description }}
-          {{ end }}
+    webhook_configs:
+      - url: 'http://localhost:9999/webhook/critical'
         send_resolved: true
 
   - name: 'warning-alerts'
-    slack_configs:
-      - channel: '#nuzantara-alerts'
-        title: '⚠️ WARNING: {{ .GroupLabels.alertname }}'
-        text: |
-          {{ range .Alerts }}
-          *Service:* {{ .Labels.service }}
-          *Alert:* {{ .Labels.alertname }}
-          *Summary:* {{ .Annotations.summary }}
-          {{ end }}
+    webhook_configs:
+      - url: 'http://localhost:9999/webhook/warning'
         send_resolved: true
 
 inhibit_rules:
