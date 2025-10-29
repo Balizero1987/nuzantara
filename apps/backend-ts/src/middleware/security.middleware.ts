@@ -1,123 +1,152 @@
 /**
- * Security Middleware - PATCH-3
- * Enhanced security with headers, rate limiting, API validation
+ * PATCH-3: Security & Secrets Management
+ * Comprehensive security middleware for NUZANTARA platform
  */
 
-import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
+import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import logger from '../services/logger.js';
 import { err } from '../utils/response.js';
 
-// Security headers middleware
-export const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
+// Security Headers Middleware
+export const securityHeaders: RequestHandler = (_req: Request, res: Response, next: NextFunction): void => {
+  // HSTS - Force HTTPS for 1 year
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;");
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  res.removeHeader('X-Powered-By');
-  next();
-};
-
-// Global rate limiter
-export const globalRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (req, res) => {
-    logger.warn(`Global rate limit exceeded from IP: ${req.ip}`);
-    res.status(429).json(err('Too many requests'));
-  },
-  skip: (req) => req.path === '/health' || req.path === '/metrics'
-});
-
-// API rate limiter
-export const apiRateLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (req, res) => {
-    logger.warn(`API rate limit exceeded from IP: ${req.ip}`);
-    res.status(429).json(err('API rate limit exceeded'));
-  }
-});
-
-// Strict rate limiter for sensitive operations
-export const strictRateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: (req, res) => {
-    logger.error(`Strict rate limit exceeded from IP: ${req.ip}`);
-    res.status(429).json(err('Too many attempts'));
-  }
-});
-
-// API key validation
-export const validateApiKey = (req: Request, res: Response, next: NextFunction) => {
-  const apiKey = req.header('x-api-key');
-  if (!apiKey) return res.status(401).json(err('API key required'));
   
-  const validKeys = (process.env.API_KEYS || '').split(',').filter(Boolean);
-  const internalKeys = (process.env.API_KEYS_INTERNAL || '').split(',').filter(Boolean);
-  if (![ ...validKeys, ...internalKeys].some(key => key === apiKey)) {
-    return res.status(401).json(err('Invalid API key'));
-  }
-  (req as any).authenticated = true;
+  // CSP - Content Security Policy
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.anthropic.com https://api.openai.com;"
+  );
+  
+  // XFO - Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+  
+  // XCTO - Prevent MIME sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  
+  // XXP - XSS Protection (legacy but still useful)
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  
+  // Referrer Policy
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Permissions Policy (Feature-Policy successor)
+  res.setHeader(
+    'Permissions-Policy',
+    'geolocation=(), microphone=(), camera=(), payment=()'
+  );
+  
   next();
 };
 
-// Request sanitization
-export const sanitizeRequest = (req: Request, res: Response, next: NextFunction) => {
-  if (req.query) {
-    Object.keys(req.query).forEach(key => {
-      if (typeof req.query[key] === 'string') {
-        req.query[key] = (req.query[key] as string).replace(/<script>/gi, '').replace(/javascript:/gi, '');
-      }
-    });
+// Global Rate Limiter (100 req/15min per IP)
+export const globalRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { ok: false, error: 'Troppi tentativi. Riprova tra 15 minuti.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req: Request, res: Response) => {
+    logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
+    res.status(429).json(err('Troppi tentativi. Riprova tra 15 minuti.'));
   }
-  if (req.body && typeof req.body === 'object') {
-    Object.keys(req.body).forEach(key => {
-      if (typeof req.body[key] === 'string') {
-        req.body[key] = req.body[key].replace(/<script>/gi, '').replace(/javascript:/gi, '');
-      }
-    });
+});
+
+// API Rate Limiter (20 req/min per IP)
+export const apiRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20,
+  message: { ok: false, error: 'Troppi tentativi API. Riprova tra 1 minuto.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Strict Rate Limiter for sensitive operations (5 req/hour)
+export const strictRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: { ok: false, error: 'Troppi tentativi per operazione sensibile. Riprova tra 1 ora.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// API Key Validation Middleware
+export const validateApiKey: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
+  const apiKey = req.headers['x-api-key'] as string;
+  const validApiKey = process.env.API_KEY;
+
+  if (!validApiKey) {
+    logger.error('API_KEY non configurata nel server');
+    res.status(500).json(err('Errore di configurazione server'));
+    return;
   }
+
+  if (!apiKey || apiKey !== validApiKey) {
+    logger.warn(`Tentativo accesso con API key invalida: ${req.ip}`);
+    res.status(401).json(err('API key non valida'));
+    return;
+  }
+
   next();
 };
 
-// CORS config
+// Request Sanitization Middleware
+export const sanitizeRequest: RequestHandler = (req: Request, _res: Response, next: NextFunction): void => {
+  // Remove potentially dangerous properties
+  if (req.body) {
+    delete (req.body as any).__proto__;
+    delete (req.body as any).constructor;
+    delete (req.body as any).prototype;
+  }
+
+  // Log suspicious requests
+  const suspiciousPatterns = /<script|javascript:|onerror=|onclick=/i;
+  const bodyString = JSON.stringify(req.body);
+  
+  if (suspiciousPatterns.test(bodyString)) {
+    logger.warn(`Richiesta sospetta rilevata da IP: ${req.ip}`, {
+      path: req.path,
+      body: req.body
+    });
+  }
+
+  next();
+};
+
+// CORS Configuration
 export const corsConfig = {
-  origin: (origin: string | undefined, callback: Function) => {
-    const allowed = (process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean).concat(['http://localhost:3000']);
-    if (!origin || allowed.includes(origin) || allowed.includes('*')) {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'];
+    
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      logger.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error('Non consentito da CORS'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
-  maxAge: 86400
+  maxAge: 86400 // 24 hours
 };
 
-// Security logger
-export const securityLogger = (req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    if (res.statusCode >= 400) {
-      logger.warn(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
-    }
+// Security Logger Middleware
+export const securityLogger: RequestHandler = (req: Request, _res: Response, next: NextFunction): void => {
+  logger.info('Security check', {
+    ip: req.ip,
+    method: req.method,
+    path: req.path,
+    userAgent: req.get('user-agent')
   });
   next();
 };
 
-// Apply all security
-export const applySecurity = [securityHeaders, sanitizeRequest, securityLogger];
+// Combined Security Middleware Stack
+export const applySecurity: RequestHandler[] = [
+  securityHeaders,
+  sanitizeRequest,
+  securityLogger
+];

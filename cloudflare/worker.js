@@ -7,10 +7,10 @@
 
 // Regional backend URLs
 const BACKEND_URLS = {
-  asia: 'https://asia-backend.nuzantara.com',
-  europe: 'https://europe-backend.nuzantara.com',
-  americas: 'https://americas-backend.nuzantara.com',
-  default: 'https://api.nuzantara.com'
+  asia: 'https://ts-backend-production-568d.up.railway.app',
+  europe: 'https://ts-backend-production-568d.up.railway.app',
+  americas: 'https://ts-backend-production-568d.up.railway.app',
+  default: 'https://ts-backend-production-568d.up.railway.app'
 };
 
 // Cache TTL in seconds
