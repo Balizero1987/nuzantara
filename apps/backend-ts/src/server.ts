@@ -14,6 +14,8 @@ import {
   globalRateLimiter, 
   corsConfig 
 } from './middleware/security.middleware.js';
+import { globalErrorHandler, asyncHandler } from './utils/error-handler.js';
+import { requestTracker, errorTracker } from './middleware/monitoring.js';
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
@@ -32,6 +34,10 @@ async function startServer() {
 
   // PATCH-3: Global rate limiting
   app.use(globalRateLimiter);
+  
+  // Request tracking and monitoring
+  app.use(requestTracker);
+  
   // Request logging
   app.use((req, res, next) => {
     logger.info(`${req.method} ${req.path} - ${req.ip}`);
