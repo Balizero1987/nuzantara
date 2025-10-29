@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${_playfairDisplay.variable} ${_inter.variable} font-sans antialiased bg-black text-off-white`}>
+      <body className={`${_playfairDisplay.variable} ${_inter.variable} font-sans antialiased text-off-white`}>
         <ClientLayout>
           {children}
         </ClientLayout>
