@@ -6,12 +6,22 @@ export default function HomePage() {
   return (
     <div className="min-h-screen" style={{
       fontFamily: 'Inter, sans-serif',
-      background: '#090920',
+      background: 'linear-gradient(180deg, #0A0A12 0%, #12121A 40%, #1A1A26 100%)',
       color: '#f5f5f5',
       lineHeight: '1.6',
       position: 'relative',
       overflowX: 'hidden'
     }}>
+      {/* Gold Radial Overlay */}
+      <div style={{
+        content: '""',
+        position: 'fixed',
+        inset: 0,
+        background: 'radial-gradient(circle at 50% 30%, rgba(199,167,94,0.1) 0%, transparent 70%)',
+        pointerEvents: 'none',
+        zIndex: 100
+      }} />
+
       {/* Batik Pattern Background */}
       <div style={{
         content: '""',
@@ -150,7 +160,7 @@ export default function HomePage() {
             marginBottom: '2rem',
             color: '#f5f5f5'
           }}>
-            Build Your <span style={{ color: '#FF0000' }}>Indonesian</span><br />
+            Build Your <span style={{ color: '#E94D35' }}>Indonesian</span><br />
             Dream with Confidence
           </h1>
           
@@ -189,7 +199,7 @@ export default function HomePage() {
               <div style={{
                 background: 'linear-gradient(135deg, rgba(26, 31, 58, 0.4) 0%, rgba(9, 9, 32, 0.6) 100%)',
                 border: '1px solid rgba(232, 213, 183, 0.1)',
-                borderTop: '3px solid #FF0000',
+                borderTop: '3px solid #E94D35',
                 borderRadius: '8px',
                 padding: '3rem 2rem',
                 transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -327,7 +337,7 @@ export default function HomePage() {
               <div style={{
                 background: 'linear-gradient(135deg, rgba(26, 31, 58, 0.4) 0%, rgba(9, 9, 32, 0.6) 100%)',
                 border: '1px solid rgba(232, 213, 183, 0.1)',
-                borderTop: '3px solid #FF0000',
+                borderTop: '3px solid #E94D35',
                 borderRadius: '8px',
                 padding: '3rem 2rem',
                 transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -392,7 +402,7 @@ export default function HomePage() {
             }}>Our team combines local knowledge with international experience.</p>
             <Link href="/landing%20page/welcome-team-page.html" style={{
               display: 'inline-block',
-              background: '#FF0000',
+              background: '#E94D35',
               color: '#090920',
               padding: '1rem 3rem',
               fontFamily: 'Playfair Display, serif',
@@ -522,7 +532,7 @@ export default function HomePage() {
           box-shadow: 0 20px 60px rgba(255, 0, 0, 0.2);
         }
 
-        a[style*="background: #FF0000"]:hover {
+        a[style*="background: #E94D35"]:hover {
           background: #D4AF37 !important;
           box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
           transform: translateY(-2px);

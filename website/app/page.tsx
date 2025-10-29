@@ -9,7 +9,7 @@ import { Footer } from "@/components/footer"
 
 export default function Home() {
   return (
-    <main className="bg-black batik-pattern">
+    <main className="batik-pattern">
       <Header />
       <HeroSection />
       {/* <BaliZeroJournal /> - Rimosso */}

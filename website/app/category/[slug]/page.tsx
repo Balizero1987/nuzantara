@@ -54,7 +54,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const articles = await getArticlesByCategory(slug as CategorySlug)
 
   return (
-    <main className="bg-black batik-pattern min-h-screen">
+    <main className="batik-pattern min-h-screen">
       <Header />
       <CategoryHeader category={category} />
       <CategoryGrid articles={articles} />

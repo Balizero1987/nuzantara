@@ -33,6 +33,7 @@
 
   /* Bali Zero Brand Colors */
   --black: #0A0A12;               /* Gradient start */
+  --mid-charcoal: #12121A;        /* Mid-tone for gradient */
   --red: #E94D35;                 /* Warm accent */
   --cream: #D0D0D6;               /* Text color */
   --gold: #C7A75E;                /* Gold accent */
@@ -127,6 +128,7 @@
 
   /* Bali Zero Brand Colors - Available as Tailwind classes */
   --color-black: var(--black);
+  --color-mid-charcoal: var(--mid-charcoal);
   --color-red: var(--red);
   --color-cream: var(--cream);
   --color-gold: var(--gold);
@@ -139,9 +141,22 @@
     @apply border-border outline-ring/50;
   }
   body {
-    background: linear-gradient(180deg, #0A0A12 0%, #1A1A26 100%);
+    background: linear-gradient(180deg, #0A0A12 0%, #12121A 40%, #1A1A26 100%);
     color: var(--foreground);
     transition: filter 0.3s ease;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+      circle at 50% 30%,
+      rgba(199,167,94,0.1) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: 100;
   }
 
   /* Language switching transitions */
@@ -257,8 +272,8 @@
   background:
     /* Radial gradient - subtle center spotlight */
     radial-gradient(ellipse at 50% 0%, rgba(233, 77, 53, 0.15) 0%, transparent 50%),
-    /* Bali Zero Landing Page Gradient */
-    linear-gradient(180deg, #0A0A12 0%, #1A1A26 100%);
+    /* Bali Zero Landing Page Gradient (3-step) */
+    linear-gradient(180deg, #0A0A12 0%, #12121A 40%, #1A1A26 100%);
 }
 
 .batik-pattern::before {
@@ -279,15 +294,6 @@
   z-index: 0;
 }
 
-/* Vignette effect on body */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
-  pointer-events: none;
-  z-index: 100;
-}
 
 /* White Glow Effect */
 @keyframes white-glow-pulse {

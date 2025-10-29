@@ -122,8 +122,21 @@
     @apply border-border outline-ring/50;
   }
   body {
-    background: linear-gradient(180deg, #0A0A12 0%, #1A1A26 100%);
+    background: linear-gradient(180deg, #0A0A12 0%, #12121A 40%, #1A1A26 100%);
     color: var(--foreground);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+      circle at 50% 30%,
+      rgba(199,167,94,0.1) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: 100;
   }
 
   h1, h2, h3, h4, h5, h6 {

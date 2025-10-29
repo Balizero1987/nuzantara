@@ -4,7 +4,7 @@ import Link from "next/link"
 
 export default function RealEstatePage() {
   return (
-    <main className="bg-black batik-pattern min-h-screen">
+    <main className="batik-pattern min-h-screen">
       <Header />
       
       {/* Hero Section */}

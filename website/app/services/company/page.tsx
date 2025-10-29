@@ -126,7 +126,7 @@ export default function CompanyPage() {
   const activeService = services.find(s => s.id === selectedService)
 
   return (
-    <main className="bg-black batik-pattern min-h-screen">
+    <main className="batik-pattern min-h-screen">
       <Header />
       
       {/* Hero Section */}

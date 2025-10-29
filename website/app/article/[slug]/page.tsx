@@ -65,7 +65,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const relatedArticles = await getRelatedArticles(slug, 3)
 
   return (
-    <main className="bg-black batik-pattern min-h-screen">
+    <main className="batik-pattern min-h-screen">
       <Header />
       <ArticleHero article={article} />
       <ArticleContent content={article.content} excerpt={article.excerpt} category={article.category} />

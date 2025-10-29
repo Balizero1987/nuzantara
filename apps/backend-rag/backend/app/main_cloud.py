@@ -46,7 +46,6 @@ from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
 from services.work_session_service import WorkSessionService
 from services.team_analytics_service import TeamAnalyticsService
-from services.zantara_tools import ZantaraTools
 from services.query_router import QueryRouter  # PRIORITY 1: Query routing for autonomous research
 from services.autonomous_research_service import AutonomousResearchService  # PRIORITY 1: Self-directed research agent
 from services.cross_oracle_synthesis_service import CrossOracleSynthesisService  # PRIORITY 2: Multi-Oracle orchestrator
@@ -94,7 +93,6 @@ search_service: Optional[SearchService] = None
 claude_haiku: Optional[ClaudeHaikuService] = None  # ALL queries (greetings, casual, business, complex)
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 cultural_rag_service: Optional[CulturalRAGService] = None  # NEW: LLAMA cultural RAG
-zantara_tools: Optional[ZantaraTools] = None  # NEW: Tool calling for team data
 tool_executor: Optional[ToolExecutor] = None  # NEW: Tool execution system
 pricing_service: Optional["PricingService"] = None  # NEW: Official pricing service
 collaborator_service: Optional[CollaboratorService] = None
@@ -734,7 +732,7 @@ def download_chromadb_from_r2():
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    global search_service, claude_haiku, intelligent_router, cultural_rag_service, zantara_tools, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service
+    global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (HAIKU-ONLY: Claude Haiku 4.5)...")
 
@@ -904,11 +902,6 @@ async def startup_event():
         logger.warning(f"⚠️ PricingService initialization failed: {e}")
         pricing_service = None
 
-    # ZantaraTools will be initialized AFTER TeamAnalyticsService (FIXED ORDER)
-
-    # ZantaraTools will be initialized AFTER all dependencies (FIXED ORDER)
-    # ToolExecutor will be initialized AFTER ZantaraTools
-
     # IntelligentRouter moved to after ToolExecutor initialization
 
     # Initialize CollaboratorService (Phase 1)
@@ -1014,38 +1007,23 @@ async def startup_event():
         logger.error(f"❌ TeamAnalyticsService initialization failed: {e}")
         team_analytics_service = None
 
-    # Initialize ZantaraTools AFTER all dependencies (FIXED ORDER)
-    try:
-        zantara_tools = ZantaraTools(
-            team_analytics_service=team_analytics_service,
-            work_session_service=work_session_service,
-            memory_service=memory_service,
-            pricing_service=pricing_service,  # All services now available
-            collaborator_service=collaborator_service  # NEW - inject collaborator service
-        )
-        logger.info("✅ ZantaraTools initialized (tool calling enabled)")
-    except Exception as e:
-        logger.warning(f"⚠️ ZantaraTools initialization failed: {e}")
-        zantara_tools = None
-
-    # Initialize ToolExecutor AFTER ZantaraTools (FIXED ORDER)
+    # Initialize ToolExecutor (simplified without ZantaraTools)
     tool_executor = None
-    if handler_proxy_service and zantara_tools:
+    if handler_proxy_service:
         try:
             internal_key = os.getenv("API_KEYS_INTERNAL")
             tool_executor = ToolExecutor(
                 handler_proxy_service,
                 internal_key,
-                zantara_tools  # Now ZantaraTools is properly initialized
+                None  # No ZantaraTools anymore
             )
-            logger.info("✅ ToolExecutor initialized (Python + TypeScript tools)")
+            logger.info("✅ ToolExecutor initialized (TypeScript tools only)")
         except Exception as e:
             logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
             tool_executor = None
     else:
         logger.warning("⚠️ ToolExecutor not initialized - missing dependencies")
         logger.warning(f"   HandlerProxy: {'✅' if handler_proxy_service else '❌'}")
-        logger.warning(f"   ZantaraTools: {'✅' if zantara_tools else '❌'}")
 
     # Initialize Intelligent Router (HAIKU-ONLY system)
     try:
@@ -1208,7 +1186,6 @@ async def health_check():
             "collaborative_intelligence": True,
             "tools": {
                 "tool_executor_status": tool_executor is not None,
-                "zantara_tools_status": zantara_tools is not None,
                 "pricing_service_status": pricing_service is not None,
                 "handler_proxy_status": handler_proxy_service is not None
             }
@@ -1246,7 +1223,7 @@ async def verify_tools():
         # Load tools for verification
         from services.tool_executor import ToolExecutor
         internal_key = os.getenv("API_KEYS_INTERNAL")
-        executor = ToolExecutor(handler_proxy_service, internal_key, zantara_tools)
+        executor = ToolExecutor(handler_proxy_service, internal_key, None)
         tools = await executor.get_available_tools()
         names = [t.get("name") for t in (tools or []) if isinstance(t, dict) and t.get("name")]
         first5 = names[:5]

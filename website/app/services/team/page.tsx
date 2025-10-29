@@ -67,7 +67,7 @@ const teamData: Department[] = [
 
 export default function TeamPage() {
   return (
-    <main className="bg-black batik-pattern min-h-screen">
+    <main className="batik-pattern min-h-screen">
       <Header />
       
       {/* Hero Section */}
