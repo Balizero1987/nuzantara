@@ -117,8 +117,12 @@ export const sanitizeRequest: RequestHandler = (req: Request, _res: Response, ne
 // CORS Configuration
 export const corsConfig = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'];
-    
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+      'http://localhost:3000',
+      'http://localhost:8888',
+      'https://zantara.balizero.com'
+    ];
+
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
