@@ -1039,6 +1039,51 @@ class IntelligentRouter:
 
             logger.info(f"   Category: {category} → AI: {suggested_ai}")
 
+            # PHASE 1.5: RAG retrieval (ONLY for business/emergency queries)
+            rag_context = None
+            used_rag = False
+            if query_type in ["business", "emergency"] and self.search:
+                try:
+                    logger.info(f"🔍 [Router Stream] Fetching RAG context for {query_type} query...")
+
+                    # Retrieve relevant documents from ChromaDB
+                    search_results = await self.search.search(
+                        query=message,
+                        user_level=0,  # Default level (can be enhanced with collaborator level)
+                        limit=5  # Top 5 most relevant documents
+                    )
+
+                    if search_results.get("results"):
+                        # Build RAG context from search results
+                        rag_docs = []
+                        for result in search_results["results"][:5]:
+                            doc_text = result["text"][:500]  # Limit each doc to 500 chars
+                            doc_title = result.get("metadata", {}).get("title", "Unknown")
+                            rag_docs.append(f"📄 {doc_title}: {doc_text}")
+
+                        rag_context = "\n\n".join(rag_docs)
+                        used_rag = True
+
+                        logger.info(f"✅ [Router Stream] RAG context retrieved: {len(rag_docs)} documents, {len(rag_context)} chars")
+                    else:
+                        logger.info(f"⚠️ [Router Stream] No RAG results found for query")
+
+                except Exception as e:
+                    logger.warning(f"⚠️ [Router Stream] RAG retrieval failed: {e}")
+                    rag_context = None
+                    used_rag = False
+            else:
+                logger.info(f"⏭️ [Router Stream] Skipping RAG for {query_type} query (greeting/casual)")
+
+            # PHASE 1.6: Combine RAG context with memory context (if RAG was retrieved)
+            if rag_context:
+                rag_section = f"\n\n<relevant_knowledge>\n{rag_context}\n</relevant_knowledge>"
+                if memory_context:
+                    memory_context += rag_section
+                else:
+                    memory_context = rag_section
+                logger.info(f"📚 [Router Stream] RAG context added to memory context")
+
             # Load tools if not already loaded (CRITICAL FIX for tool calling in SSE)
             if not self.tools_loaded and self.tool_executor:
                 await self._load_tools()
