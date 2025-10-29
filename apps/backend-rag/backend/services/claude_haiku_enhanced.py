@@ -194,8 +194,8 @@ class EnhancedClaudeHaikuService:
         self.model = "claude-3-haiku-20240307"
 
         # API configuration - works in all environments
-        # Use deployed backend on Fly.io as default
-        self.api_base = os.getenv("INTERNAL_API_BASE", "https://nuzantara-backend.fly.dev")
+        # Use custom domain as default
+        self.api_base = os.getenv("INTERNAL_API_BASE", "https://zantara.balizero.com")
         self.api_key = os.getenv("INTERNAL_API_KEY", "demo-key-2024")
         self.timeout = 5.0  # 5 second timeout
 

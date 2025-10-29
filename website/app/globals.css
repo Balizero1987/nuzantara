@@ -256,9 +256,9 @@
   position: relative;
   background:
     /* Radial gradient - subtle center spotlight */
-    radial-gradient(ellipse at 50% 0%, rgba(20, 20, 50, 0.4) 0%, transparent 50%),
-    /* Base vivid black */
-    #090920;
+    radial-gradient(ellipse at 50% 0%, rgba(233, 77, 53, 0.15) 0%, transparent 50%),
+    /* Bali Zero Landing Page Gradient */
+    linear-gradient(180deg, #0A0A12 0%, #1A1A26 100%);
 }
 
 .batik-pattern::before {
