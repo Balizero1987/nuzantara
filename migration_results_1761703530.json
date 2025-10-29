@@ -1,0 +1,16 @@
+{
+  "collections_migrated": 1,
+  "total_vectors": 11,
+  "failed_vectors": 0,
+  "start_time": 1761703515.906135,
+  "elapsed_time": 14.442455053329468,
+  "results": [
+    {
+      "collection": "property_knowledge",
+      "index": "property-knowledge",
+      "migrated": 11,
+      "failed": 0,
+      "total": 11
+    }
+  ]
+}
