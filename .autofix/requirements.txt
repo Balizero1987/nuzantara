@@ -1,5 +1,0 @@
-# ZANTARA AUTOFIX - Python Dependencies
-
-anthropic>=0.40.0    # Claude API (same version as Claude Code)
-requests>=2.31.0     # HTTP requests for health checks
-pytest>=8.0.0        # Test runner
