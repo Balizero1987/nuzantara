@@ -129,7 +129,7 @@ class TaskProcessor:
             return False
 
     def _process_with_claude(self, task: str, context: str, task_id: str):
-        """Process task using Claude Code CLI"""
+        """Process task using Claude Code CLI in a new iTerm2 window"""
         try:
             logger.info(f"Processing with Claude Code CLI...")
 
@@ -144,23 +144,68 @@ Task Description:
 
 Please analyze this task and execute it if appropriate. If you need clarification, explain what additional information is needed."""
 
-            # Call Claude Code CLI in non-interactive mode
-            # Note: This assumes claude CLI supports stdin input
-            result = subprocess.run(
-                ["claude", prompt],
+            # Create a temporary script to run in iTerm2
+            script_file = LOGS_DIR / f"claude_task_{task_id}.sh"
+            with open(script_file, 'w') as f:
+                f.write(f"""#!/bin/bash
+echo "╔════════════════════════════════════════════════════════════════════════════╗"
+echo "║  ZANTARA BRIDGE - Claude Code CLI Execution                                ║"
+echo "╚════════════════════════════════════════════════════════════════════════════╝"
+echo ""
+echo "Task ID:   {task_id}"
+echo "Context:   {context}"
+echo "Priority:  (from ChatGPT Atlas)"
+echo ""
+echo "Task Description:"
+echo "{task}"
+echo ""
+echo "════════════════════════════════════════════════════════════════════════════"
+echo ""
+echo "Starting Claude Code CLI..."
+echo ""
+
+cd /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY
+
+# Execute Claude
+claude "{prompt.replace('"', '\\"')}"
+
+EXITCODE=$?
+
+echo ""
+echo "════════════════════════════════════════════════════════════════════════════"
+if [ $EXITCODE -eq 0 ]; then
+    echo "✓ Task completed successfully!"
+else
+    echo "✗ Task failed with exit code $EXITCODE"
+fi
+echo ""
+echo "Press any key to close this window..."
+read -n 1
+""")
+
+            # Make script executable
+            script_file.chmod(0o755)
+
+            # Open new iTerm2 window with the script
+            applescript = f'''
+            tell application "iTerm"
+                activate
+                create window with default profile
+                tell current session of current window
+                    write text "bash {script_file}"
+                end tell
+            end tell
+            '''
+
+            subprocess.run(
+                ["osascript", "-e", applescript],
                 capture_output=True,
-                text=True,
-                timeout=300  # 5 minute timeout
+                text=True
             )
 
-            if result.returncode == 0:
-                logger.info(f"Claude execution successful for task {task_id}")
-                logger.debug(f"Output: {result.stdout[:500]}")
-            else:
-                logger.error(f"Claude execution failed: {result.stderr}")
+            logger.info(f"Claude execution started in new iTerm2 window for task {task_id}")
+            logger.info(f"Script location: {script_file}")
 
-        except subprocess.TimeoutExpired:
-            logger.error(f"Claude execution timed out for task {task_id}")
         except FileNotFoundError:
             logger.error("Claude CLI not found. Please ensure 'claude' command is available.")
             logger.info("Falling back to manual processing...")

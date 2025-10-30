@@ -48,6 +48,9 @@ processors:
       # Use interactive mode (requires user input)
       interactive: false
 
+      # Show execution in new iTerm2 window (live view)
+      show_in_iterm: true
+
       # Timeout for Claude execution (seconds)
       timeout: 300
 
