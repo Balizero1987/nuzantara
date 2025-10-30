@@ -85,4 +85,11 @@ docs/reports/cleanup-*/
 .autofix/e2e-tests/**/*.zip
 .autofix/e2e-tests/test-results/**/trace.zip
 **/zantara_test_artifacts_*.zip
+
+# ZANTARA Bridge - keep task data local only
+.zantara/bridge/inbox/*.yaml
+.zantara/bridge/executed/*.yaml
+.zantara/bridge/logs/*.log
+.zantara/bridge/logs/*.txt
+
 # Node modules (all locations)
