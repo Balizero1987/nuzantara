@@ -79,3 +79,18 @@ https://scale.com/blog
 
 # AssemblyAI - Speech AI updates
 https://www.assemblyai.com/blog/
+
+
+# === ADDITIONAL SOURCES (Updated 2025-10-31) ===
+
+# Synced Review - AI research and industry news
+https://syncedreview.com/
+
+# VentureBeat AI - AI news and analysis
+https://venturebeat.com/ai/
+
+# AI Business - Enterprise AI coverage
+https://aibusiness.com/
+
+# Analytics India Magazine - AI & data science
+https://analyticsindiamag.com/

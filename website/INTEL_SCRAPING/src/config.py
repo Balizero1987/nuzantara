@@ -24,7 +24,10 @@ CATEGORY_ICONS = {
     'property': '🏠',
     'lifestyle': '🌴',
     'safety': '🛡️',
-    'tax_legal': '⚖️'
+    'tax_legal': '⚖️',
+    'education_training': '🎓',
+    'sustainability': '🌱',
+    'events_community': '🎉'
 }
 
 # ANSI color codes for terminal output

@@ -22,3 +22,18 @@ https://en.tempo.co/tag/3/food
 # Arts & Entertainment
 https://www.thejakartapost.com/life/entertainment
 https://www.antaranews.com/en/tag/culture
+
+
+# === ADDITIONAL SOURCES (Updated 2025-10-31) ===
+
+# Time Out Bali - Events, dining, lifestyle
+https://timeoutbali.com/
+
+# The Bali Sun - Local lifestyle & culture
+https://thebalisun.com/
+
+# Bali Magazine - Culture & lifestyle
+https://balimagazine.com/
+
+# Honeycombers Bali - Lifestyle guide
+https://honeycombersbali.com/

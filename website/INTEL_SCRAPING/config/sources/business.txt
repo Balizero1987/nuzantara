@@ -20,3 +20,18 @@ https://www.thejakartapost.com/academia/business
 
 # Bali-Specific Business
 https://bali.biz/
+
+
+# === ADDITIONAL SOURCES (Updated 2025-10-31) ===
+
+# Tech in Asia - Southeast Asia tech & business
+https://techinasia.com/
+
+# Asia Times Business - Regional business coverage
+https://asiatimes.com/business/
+
+# Nikkei Business - Asian business news
+https://nikkei.com/business/
+
+# Jakarta Post Business - Local business news
+https://thejakartapost.com/business/
