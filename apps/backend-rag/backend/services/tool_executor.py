@@ -186,6 +186,89 @@ class ToolExecutor:
 
         return results
 
+    async def execute_tool(
+        self,
+        tool_name: str,
+        tool_input: Dict[str, Any],
+        user_id: str = "system"
+    ) -> Dict[str, Any]:
+        """
+        Execute a single tool (for prefetch system)
+
+        Args:
+            tool_name: Tool name to execute
+            tool_input: Tool parameters
+            user_id: User ID for context
+
+        Returns:
+            {
+                "success": bool,
+                "result": Any,
+                "error": str (if failed)
+            }
+        """
+        try:
+            # Check if this is a ZantaraTools function (Python - direct execution)
+            if tool_name in self.zantara_tool_names and self.zantara_tools:
+                logger.info(f"🔧 [ZantaraTools/Prefetch] Executing: {tool_name} (Python)")
+
+                # Execute ZantaraTools directly
+                result = await self.zantara_tools.execute_tool(
+                    tool_name=tool_name,
+                    tool_input=tool_input,
+                    user_id=user_id
+                )
+
+                if not result.get("success"):
+                    error_message = result.get("error", "Unknown error")
+                    logger.error(f"❌ [ZantaraTools/Prefetch] {tool_name} failed: {error_message}")
+                    return {
+                        "success": False,
+                        "error": error_message
+                    }
+
+                # Extract data from ZantaraTools result
+                payload = result.get('data', result)
+                logger.info(f"✅ [ZantaraTools/Prefetch] {tool_name} executed successfully")
+                return {
+                    "success": True,
+                    "result": payload
+                }
+
+            else:
+                # TypeScript handler via HTTP proxy
+                handler_key = tool_name.replace('_', '.')
+                logger.info(f"🔧 [TypeScript/Prefetch] Executing: {tool_name} → {handler_key} (HTTP)")
+
+                # Execute handler via proxy
+                result = await self.handler_proxy.execute_handler(
+                    handler_key=handler_key,
+                    params=tool_input,
+                    internal_key=self.internal_key
+                )
+
+                if result.get("error"):
+                    error_message = f"Error executing {handler_key}: {result['error']}"
+                    logger.error(f"❌ [TypeScript/Prefetch] {tool_name} failed: {result['error']}")
+                    return {
+                        "success": False,
+                        "error": error_message
+                    }
+
+                payload = result.get('result', result)
+                logger.info(f"✅ [TypeScript/Prefetch] {tool_name} executed successfully")
+                return {
+                    "success": True,
+                    "result": payload
+                }
+
+        except Exception as e:
+            logger.error(f"❌ [Prefetch] Tool execution failed for {tool_name}: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
     async def get_available_tools(self) -> List[Dict[str, Any]]:
         """
         Get Anthropic-compatible tool definitions

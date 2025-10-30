@@ -91,16 +91,18 @@
       "Freelance KITAS (E23)": {
         "offshore": "26.000.000 IDR",
         "onshore": "28.000.000 IDR",
-        "validity": "1 year (renewable)",
+        "validity": "6 months (180 days) - NOT renewable",
         "timeline": "30-45 days (offshore), 45-60 days (onshore)",
-        "notes": "Freelancer long stay permit - requires client contracts or sponsorship"
+        "notes": "⚠️ Freelancer long stay permit - 6 MONTHS ONLY, NOT 1 YEAR! Requires client contracts or sponsorship",
+        "bali_zero_margin": "Government fees: 18.000.000 IDR, Service fee: 8.000.000 IDR"
       },
       "Working KITAS (E23)": {
         "offshore": "34.500.000 IDR",
         "onshore": "36.000.000 IDR",
         "validity": "1 year (renewable)",
         "timeline": "45-60 days",
-        "notes": "Employment long stay permit - requires company sponsorship + work permit"
+        "notes": "Employment long stay permit - requires company sponsorship + work permit",
+        "bali_zero_margin": "Government fees: 24.000.000 IDR, Service fee: 10.500.000 IDR (offshore)"
       },
       "Investor KITAS (E28A)": {
         "offshore": "17.000.000 IDR",
@@ -180,7 +182,8 @@
         "timeline": "30-45 days",
         "includes": "Deed preparation, Minister approval, NIB, NPWP, domicile letter",
         "requirements": "Min 2 shareholders, min 10B IDR paid-up capital",
-        "notes": "Foreign investment company setup - complete package"
+        "notes": "Foreign investment company setup - complete package",
+        "bali_zero_margin": "Government/notary fees: 12.000.000 IDR, Service fee: 8.000.000 IDR"
       },
       "Company Revision": {
         "price": "Starting from 7.000.000 IDR",

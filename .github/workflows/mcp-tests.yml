@@ -1,0 +1,89 @@
+name: MCP Server Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'apps/backend-ts/src/mcp/**'
+      - 'apps/backend-ts/src/services/**'
+      - 'apps/backend-ts/package.json'
+      - '.github/workflows/mcp-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'apps/backend-ts/src/mcp/**'
+      - 'apps/backend-ts/src/services/**'
+      - 'apps/backend-ts/package.json'
+
+jobs:
+  test-mcp:
+    name: Test MCP Server
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: 'npm'
+          cache-dependency-path: apps/backend-ts/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: apps/backend-ts
+        run: npm ci
+      
+      - name: Run MCP unit tests
+        working-directory: apps/backend-ts
+        run: npm run test:mcp:unit
+        env:
+          NODE_ENV: test
+      
+      - name: Run MCP integration tests
+        working-directory: apps/backend-ts
+        run: npm run test:mcp:integration
+        env:
+          NODE_ENV: test
+      
+      - name: Generate coverage report
+        working-directory: apps/backend-ts
+        run: npm run test:mcp:coverage
+        env:
+          NODE_ENV: test
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./apps/backend-ts/coverage/coverage-final.json
+          flags: mcp-tests
+          name: mcp-coverage
+          fail_ci_if_error: false
+
+  lint-mcp:
+    name: Lint MCP Code
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: 'npm'
+          cache-dependency-path: apps/backend-ts/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: apps/backend-ts
+        run: npm ci
+      
+      - name: Build TypeScript
+        working-directory: apps/backend-ts
+        run: npm run build

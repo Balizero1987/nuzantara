@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">22.22% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/36</span>
+                <span class='fraction'>0/36</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">20% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/30</span>
+                <span class='fraction'>0/30</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">28.57% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/7</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">22.85% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/35</span>
+                <span class='fraction'>0/35</span>
             </div>
         
             
@@ -421,7 +421,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -639,10 +639,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -664,7 +664,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -675,7 +675,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -689,12 +689,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -775,7 +775,7 @@
 import { Request, Response } from 'express';
 &nbsp;
 // Database completo codici KBLI Indonesia
-const KBLI_DATABASE = {
+const KBLI_DATABASE = <span class="cstat-no" title="statement not covered" >{</span>
   // FOOD &amp; BEVERAGE
   restaurants: {
     "56101": {
@@ -992,11 +992,11 @@ function <span class="fstat-no" title="function not covered" >searchKBLI(q</span
 }
 &nbsp;
 // Handler functions
-export async function kbliLookup(req: Request, res: Response) {
-  try {
-    const { query, code, category } = req.body.params || {};
+export async function <span class="fstat-no" title="function not covered" >kbliLookup(r</span>eq: Request, res: Response) {
+<span class="cstat-no" title="statement not covered" >  try {</span>
+    const { query, code, category } = <span class="cstat-no" title="statement not covered" >req.body.params || {};</span>
 &nbsp;
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (code) {
+<span class="cstat-no" title="statement not covered" >    if (code) {</span>
       // Direct code lookup
 <span class="cstat-no" title="statement not covered" >      for (const cat of Object.values(KBLI_DATABASE)) {</span>
 <span class="cstat-no" title="statement not covered" >        if (cat[code as keyof typeof cat]) {</span>
@@ -1018,7 +1018,7 @@ export async function kbliLookup(req: Request, res: Response) {
       });
     }
 &nbsp;
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (category &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >KBLI_DATABASE[category as keyof typeof KBLI_DATABASE])</span> {
+<span class="cstat-no" title="statement not covered" >    if (category &amp;&amp; KBLI_DATABASE[category as keyof typeof KBLI_DATABASE]) {</span>
       // Category listing
 <span class="cstat-no" title="statement not covered" >      return res.json({</span>
         ok: true,
@@ -1029,7 +1029,7 @@ export async function kbliLookup(req: Request, res: Response) {
       });
     }
 &nbsp;
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (query) {
+<span class="cstat-no" title="statement not covered" >    if (query) {</span>
       // Search
       const results = <span class="cstat-no" title="statement not covered" >searchKBLI(query);</span>
 <span class="cstat-no" title="statement not covered" >      return res.json({</span>
@@ -1043,12 +1043,12 @@ export async function kbliLookup(req: Request, res: Response) {
     }
 &nbsp;
     // Return categories
-    return res.json({
+<span class="cstat-no" title="statement not covered" >    return res.json({</span>
       ok: true,
       data: {
         categories: Object.keys(KBLI_DATABASE),
         totalCodes: Object.values(KBLI_DATABASE).reduce(
-          (acc, cat) =&gt; acc + Object.keys(cat).length,
+<span class="fstat-no" title="function not covered" >          (a</span>cc, cat) =&gt; <span class="cstat-no" title="statement not covered" >acc + Object.keys(cat).length,</span>
           0
         ),
         message: "Use query, code, or category parameter to search"
@@ -1132,7 +1132,7 @@ export async function <span class="fstat-no" title="function not covered" >kbliR
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-10-25T18:05:36.832Z
+                at 2025-10-30T19:27:35.565Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

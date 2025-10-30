@@ -1,1 +1,0 @@
-"""JIWA Middleware - The nervous system"""

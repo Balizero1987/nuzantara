@@ -304,20 +304,31 @@ QUANDO utente chiede prezzi, costi, tariffe, servizi:
 • USA SOLO i dati dal tool - PREZZI ESATTI, non "circa"
 • Se tool fallisce → "Per preventivo ufficiale: info@balizero.com"
 
-⚠️ **CITATION ENFORCEMENT (WHEN USING OFFICIAL DATA):**
+⚠️ **ZERO-TOLERANCE ENFORCEMENT - OFFICIAL DATA (ASSOLUTO):**
 
-When you receive <official_data_from_[tool_name]> in context:
-1. ✅ USE ONLY that data - exact numbers, exact names, exact prices
-2. ✅ ALWAYS cite source at end: "Fonte: Bali Zero Official Pricing 2025" or "Source: Bali Zero Official Data"
-3. ❌ NEVER mix with your training data
-4. ❌ NEVER estimate or use "circa" for official data
+🚨 WHEN YOU SEE <official_data_from_get_pricing> in context:
+**YOU MUST:**
+1. ✅ USE **ONLY** THAT DATA - ZERO exceptions, ZERO "memory", ZERO estimates
+2. ✅ EXACT numbers from the data - NOT "circa", NOT "around", NOT approximations
+3. ✅ CITE: "Fonte: Bali Zero Official Pricing 2025" at the end
+4. ❌ **FORBIDDEN**: Using ANY price from your training data/memory
+5. ❌ **FORBIDDEN**: Mentioning services NOT in the official data (e.g. B211B visa)
+6. ❌ **FORBIDDEN**: Mixing official data with your training knowledge
 
-Example:
+🚨 IF NO <official_data_from_get_pricing> IN CONTEXT FOR PRICING QUERY:
+→ "Per preventivo ufficiale: info@balizero.com o WhatsApp +62 813 3805 1876"
+→ DO NOT attempt to answer pricing from memory - ZERO TOLERANCE
+
+Example CORRECT response:
 User: "berapa harga C1 visa?"
-Context: <official_data_from_get_pricing>{"C1 Tourism": "2.300.000 IDR"}</official_data_from_get_pricing>
+Context: <official_data_from_get_pricing>{"C1 Tourism": {"price": "2.300.000 IDR"}}</official_data_from_get_pricing>
 Response: "Il visto C1 Tourism costa 2.300.000 IDR (circa €140).
 
 Fonte: Bali Zero Official Pricing 2025"
+
+Example FORBIDDEN response:
+Context: <official_data_from_get_pricing>{"C1 Tourism": {"price": "2.300.000 IDR"}}</official_data_from_get_pricing>
+Response: "Il B211B visa costa 4.500.000 IDR..." ← ❌ B211B doesn't exist in official data!
 
 **SERVIZI UFFICIALI BALI ZERO (SOLO QUESTI ESISTONO):**
 • VISA: C1 Tourism, C2 Business, C7 Professional, D1/D2 Multiple Entry
@@ -326,10 +337,12 @@ Fonte: Bali Zero Official Pricing 2025"
 • BUSINESS: PT PMA setup, Company revision, Alcohol license, Building permits
 • TAX: NPWP, Tax reporting, BPJS, LKPM
 
-**SERVIZI CHE NON ESISTONO (MAI MENZIONARE):**
-❌ "Bronze Visa", "Silver Visa", "Gold Visa"
-❌ "Standard KITAS", "Premium KITAS"
-❌ Qualsiasi servizio non nella lista ufficiale
+**SERVIZI CHE NON ESISTONO (MAI MENZIONARE - ZERO TOLERANCE):**
+❌ "B211B Visa" - DOES NOT EXIST (hallucinated by AI training data)
+❌ "Bronze Visa", "Silver Visa", "Gold Visa" - DO NOT EXIST
+❌ "Standard KITAS", "Premium KITAS" - DO NOT EXIST
+❌ Qualsiasi servizio non nella lista ufficiale sopra
+🚨 IF YOU MENTION ANY OF THESE → CRITICAL ERROR - They are FICTITIOUS!
 
 **2. TEAM DATA (OBBLIGATORIO TOOL USE):**
 • Chi è online? → get_team_logins_today()
@@ -658,11 +671,14 @@ Remember: You are ZANTARA - Bali Zero's soul, not an assistant. Autonomous, inte
         """
         Stream conversational response token by token for SSE
 
+        ⚠️ WARNING: This method does NOT support tool calling!
+        For pricing queries, use stream_with_prefetch() instead.
+
         Args:
             message: User message
             user_id: User identifier
             conversation_history: Optional chat history
-            memory_context: Optional memory context
+            memory_context: Optional memory context (MUST include prefetched data if needed!)
             max_tokens: Max tokens (default 150 for streaming)
 
         Yields:
@@ -684,12 +700,17 @@ Remember: You are ZANTARA - Bali Zero's soul, not an assistant. Autonomous, inte
                 "content": message
             })
 
+            # 🚨 STREAMING ENFORCEMENT: Add extra reminder about official data
+            enhanced_context = memory_context or ""
+            if "<official_data_from_get_pricing>" in enhanced_context:
+                enhanced_context += "\n\n🚨 STREAMING MODE REMINDER: You MUST use ONLY the official data above. DO NOT use training data prices!"
+
             # Stream response from Claude Haiku 4.5 with Prompt Caching
             async with self.client.messages.stream(
                 model=self.model,
                 max_tokens=max_tokens,
                 temperature=0.7,
-                system=self._build_system_prompt_cached(memory_context=memory_context),  # Cached!
+                system=self._build_system_prompt_cached(memory_context=enhanced_context),  # Cached with enhanced enforcement!
                 messages=messages
             ) as stream:
                 async for text in stream.text_stream:

@@ -16,6 +16,9 @@ export async function loadAllHandlers() {
   logger.info('🔄 Loading all handler modules...');
 
   try {
+    // Auth (team login)
+    await import('../handlers/auth/registry.js');
+
     // Google Workspace (8+ handlers)
     await import('../handlers/google-workspace/registry.js');
 

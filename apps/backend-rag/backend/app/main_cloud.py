@@ -1007,17 +1007,22 @@ async def startup_event():
         logger.error(f"❌ TeamAnalyticsService initialization failed: {e}")
         team_analytics_service = None
 
-    # Initialize ToolExecutor (simplified without ZantaraTools)
+    # Initialize ToolExecutor WITH ZantaraTools (for get_pricing)
     tool_executor = None
     if handler_proxy_service:
         try:
+            # Import and initialize ZantaraTools
+            from services.zantara_tools import get_zantara_tools
+            zantara_tools_instance = get_zantara_tools()
+            logger.info("✅ ZantaraTools loaded (get_pricing, team tools)")
+
             internal_key = os.getenv("API_KEYS_INTERNAL")
             tool_executor = ToolExecutor(
                 handler_proxy_service,
                 internal_key,
-                None  # No ZantaraTools anymore
+                zantara_tools_instance  # ← PASS ZANTARA TOOLS!
             )
-            logger.info("✅ ToolExecutor initialized (TypeScript tools only)")
+            logger.info("✅ ToolExecutor initialized (TypeScript + ZantaraTools)")
         except Exception as e:
             logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
             tool_executor = None
