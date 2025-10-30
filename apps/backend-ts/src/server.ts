@@ -5,6 +5,7 @@
 
 import express from 'express';
 import cors from 'cors';
+import { createServer } from 'http';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
 import { attachRoutes } from './routing/router.js';
@@ -14,6 +15,7 @@ import {
   globalRateLimiter, 
   corsConfig 
 } from './middleware/security.middleware.js';
+import { setupWebSocket } from './websocket.js';
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
@@ -87,10 +89,18 @@ async function startServer() {
   // Start server
   const PORT = parseInt(process.env.PORT || ENV.PORT || '8080');
 
-  const server = app.listen(PORT, '0.0.0.0', () => {
+  // Create HTTP server (for WebSocket)
+  const httpServer = createServer(app);
+
+  // Setup WebSocket for real-time features (P0.4)
+  const io = setupWebSocket(httpServer);
+  logger.info('✅ WebSocket server initialized');
+
+  const server = httpServer.listen(PORT, '0.0.0.0', () => {
     logger.info(`🚀 ZANTARA TS-BACKEND started on port ${PORT}`);
     logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);
     logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
+    logger.info(`🔌 WebSocket ready for real-time features`);
   });
 
   // Handle shutdown gracefully
