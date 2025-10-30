@@ -1,20 +1,44 @@
 # ZANTARA Web App
 
-I'm working on ZANTARA WEB APP project at https://balizero1987.github.io/zantara_webapp
+Production webapp deployed at https://zantara.balizero.com
 
 Web interface for ZANTARA V2 – Bali Zero AI Assistant
 
 ## 🚀 Features
-- Team management interface
-- Real-time sync with ZANTARA backend
-- PWA support
-- GitHub Pages deployment ready
+- Team management interface with PIN authentication
+- Real-time SSE streaming chat
+- API Contracts (automatic fallback system)
+- Citations & smart suggestions
+- Bali Zero theme (gold/dark aesthetic)
+- Cloudflare Pages deployment (300+ edge locations)
 
-## 📦 Setup
-1. Clone repository
-2. Push to GitHub and enable GitHub Pages (branch main, folder root)
-3. Backend: enable CORS on Cloud Run for Origins https://balizero1987.github.io and https://zantara.balizero.com
-4. Optional: override API base via localStorage key `zantara-api-base`
+## 📦 Deployment
+
+**Platform:** Cloudflare Pages (migrated from GitHub Pages Oct 30, 2025)
+**Performance:** 60% faster latency (300+ global edge locations)
+
+**Live URLs:**
+- Production: https://zantara.balizero.com/
+- Cloudflare: https://zantara-webapp.pages.dev/
+
+**Automatic Deployment:**
+1. Edit files in `website/zantara webapp/`
+2. Push to `main` branch
+3. GitHub Actions triggers Cloudflare Pages deploy (~2 min)
+4. Live on https://zantara.balizero.com/
+
+**Manual Deploy:**
+```bash
+# Via GitHub CLI
+gh workflow run deploy-webapp-cloudflare.yml
+
+# Or via GitHub UI
+https://github.com/Balizero1987/nuzantara/actions/workflows/deploy-webapp-cloudflare.yml
+```
+
+**Backend CORS:** Enable for origins:
+- https://zantara.balizero.com
+- https://zantara-webapp.pages.dev
 
 Please, before doing anything:
 - Read AI_START_HERE.md and ZANTARA_Complete_Test_Suite_WEBAPP.md

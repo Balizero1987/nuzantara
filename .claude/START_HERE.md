@@ -146,10 +146,10 @@ cp CURRENT_SESSION.template.md CURRENT_SESSION_WX.md
 
 ## 🎯 Sistema NUZANTARA (60 sec)
 
-**Cosa è**: Monorepo multi-AI su Railway (Ultimo aggiornamento: 28 Ottobre 2025)
-- Backend TypeScript (117 handlers, 24 services) → :8080
-- Backend RAG Python (44 services, ChromaDB) → :8000
-- Webapp vanilla JS (2064 files) → GitHub Pages
+**Cosa è**: Monorepo multi-AI su Railway + Fly.io + Cloudflare (Aggiornamento: 30 Ottobre 2025)
+- Backend TypeScript (117 handlers, 24 services) → :8080 (Fly.io Orchestrator)
+- Backend RAG Python (44 services, ChromaDB) → :8000 (Railway + Fly.io)
+- Webapp vanilla JS (2064 files) → Cloudflare Pages (migrated from GitHub Pages)
 
 **Statistiche** (28 Ottobre 2025):
 - **LOC Totali**: ~73,000 linee (36,683 TS + 36,166 Python)

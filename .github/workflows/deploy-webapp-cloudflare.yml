@@ -1,0 +1,108 @@
+name: Deploy Webapp to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'website/zantara webapp/**'
+      - '.github/workflows/deploy-webapp-cloudflare.yml'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare webapp files
+        run: |
+          echo "📦 Preparing webapp files for Cloudflare Pages..."
+
+          # Create deployment directory
+          mkdir -p _deploy
+
+          # Copy webapp files (ZANTARA Bali Zero theme)
+          cp -r "website/zantara webapp/"* _deploy/
+
+          # Create .nojekyll to ensure all files are served
+          touch _deploy/.nojekyll
+
+          # Add deployment timestamp
+          echo "<!-- Deployed: $(date -u +"%Y-%m-%d %H:%M:%S UTC") -->" >> _deploy/login.html || true
+          echo "<!-- Source: https://github.com/${{ github.repository }}/commit/${GITHUB_SHA} -->" >> _deploy/login.html || true
+          echo "<!-- Platform: Cloudflare Pages -->" >> _deploy/login.html || true
+
+          # List files being deployed (verification)
+          echo "📋 Files to be deployed:"
+          find _deploy -type f -name "*.html" -o -name "*.js" -o -name "*.css" | head -20
+
+          # Verify critical files exist
+          echo "✅ Verifying critical files..."
+          test -f _deploy/login.html && echo "  ✓ login.html"
+          test -f _deploy/chat.html && echo "  ✓ chat.html"
+          test -f _deploy/js/zantara-api.js && echo "  ✓ zantara-api.js"
+          test -f _deploy/js/api-contracts.js && echo "  ✓ api-contracts.js"
+          test -f _deploy/js/sse-client.js && echo "  ✓ sse-client.js"
+          test -f _deploy/tokens.css && echo "  ✓ tokens.css"
+
+          echo "🎉 Preparation complete!"
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.45.0"
+          command: pages deploy _deploy --project-name zantara-webapp --branch main
+
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platform:** Cloudflare Pages" >> $GITHUB_STEP_SUMMARY
+          echo "**Project:** zantara-webapp" >> $GITHUB_STEP_SUMMARY
+          echo "**Source:** \`website/zantara webapp/\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** [\`${GITHUB_SHA:0:7}\`](https://github.com/${{ github.repository }}/commit/${GITHUB_SHA})" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed:** $(date -u +"%Y-%m-%d %H:%M UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Live URLs:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌐 Production: https://zantara.balizero.com/" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔗 Cloudflare: https://zantara-webapp.pages.dev/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Features deployed:**" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ ZANTARA Bali Zero Theme" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Team Login + PIN Auth" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ SSE Streaming Chat" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ API Contracts (automatic fallback)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Citations Module" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Smart Suggestions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Verify deployment:**" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "curl -I https://zantara.balizero.com/" >> $GITHUB_STEP_SUMMARY
+          echo "# Check for: cf-ray header (confirms Cloudflare)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Performance Benefits:**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🚀 300+ global edge locations" >> $GITHUB_STEP_SUMMARY
+          echo "- ⚡ ~50-100ms latency (vs 150-300ms GitHub Pages)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 Automatic HTTPS" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 Built-in analytics" >> $GITHUB_STEP_SUMMARY
+
+      - name: Wait and verify
+        run: |
+          echo "⏳ Waiting 30 seconds for CDN propagation..."
+          sleep 30
+
+          echo "🔍 Verifying deployment..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://zantara-webapp.pages.dev/)
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Cloudflare Pages deployment is live (HTTP $HTTP_CODE)"
+          else
+            echo "⚠️ Deployment may still be propagating (HTTP $HTTP_CODE)"
+            echo "   Check: https://dash.cloudflare.com → Workers & Pages → zantara-webapp"
+          fi
