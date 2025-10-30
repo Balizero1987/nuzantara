@@ -19,7 +19,7 @@ NUZANTARA is a **multi-AI enterprise system** combining TypeScript (business log
 ```mermaid
 graph TB
     subgraph "Client Layer"
-        WebUI[Web UI<br/>GitHub Pages]
+        WebUI[Web UI<br/>Cloudflare Pages]
         API_Clients[API Clients<br/>Custom GPT, Zapier]
     end
 
@@ -109,7 +109,7 @@ Line 1-92:   Firebase Admin init
              └─ Fallback: ADC (Application Default Credentials)
 
 Line 93-116: Express app setup + CORS
-             ├─ CORS Origins: GitHub Pages, localhost:3000
+             ├─ CORS Origins: Cloudflare Pages, localhost:3000
              ├─ JSON body parser (10MB limit)
              └─ Preflight OPTIONS fast-path
 

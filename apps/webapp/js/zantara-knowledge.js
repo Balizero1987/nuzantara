@@ -7,7 +7,7 @@
 
 class ZantaraKnowledge {
   constructor() {
-    this.apiBase = 'https://ts-backend-production-568d.up.railway.app';
+    this.apiBase = 'https://nuzantara-orchestrator.fly.dev';
     this.knowledge = null;
     this.systemPrompt = null;
     this.lastUpdated = null;
@@ -175,7 +175,7 @@ class ZantaraKnowledge {
           type: "Python/FastAPI"
         },
         ts: {
-          url: "https://ts-backend-production-568d.up.railway.app",
+          url: "https://nuzantara-orchestrator.fly.dev",
           type: "TypeScript/Express"
         }
       },

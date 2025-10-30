@@ -144,9 +144,9 @@ export default function VisasPage() {
 
             <div className="bg-navy/20 rounded-lg p-6 border border-white/10">
               <h3 className="text-white font-serif font-bold text-xl mb-3">Retirement KITAS (E33F)</h3>
-              <p className="text-white/70 mb-4">For foreign nationals aged 55 and want to enjoy retirement in this country.</p>
+              <p className="text-white/70 mb-4">For foreign nationals aged 60 and above who want to enjoy retirement in this country.</p>
               <ul className="text-white/60 text-sm mb-3 space-y-1">
-                <li>• Age 55 and above</li>
+                <li>• Age 60 and above</li>
                 <li>• 1 year validity</li>
                 <li>• Multiple entry permit</li>
               </ul>
@@ -226,7 +226,7 @@ export default function VisasPage() {
           <p className="text-white/70 mb-8">Our expert team can guide you through the entire visa process</p>
           <Link
             href="/services/contact"
-            className="inline-block bg-red text-black px-8 py-4 font-serif font-bold hover:bg-red/90 transition-colors hover:shadow-[0_0_30px_rgba(255,0,0,0.6)]"
+            className="inline-block bg-red text-black px-8 py-4 font-serif font-bold hover:bg-red/90 transition-colors hover:shadow-[0_0_30px_rgba(255,0,0,0.25)]"
           >
             Get Started with Visa Services
           </Link>

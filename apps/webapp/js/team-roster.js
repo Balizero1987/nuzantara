@@ -5,7 +5,7 @@
 
 const TeamRoster = (() => {
   // Backend API base URL
-  const API_BASE_URL = 'https://ts-backend-production-568d.up.railway.app';
+  const API_BASE_URL = 'https://nuzantara-orchestrator.fly.dev';
   
   // Department color mapping (from backend)
   const DEPARTMENT_COLORS = {

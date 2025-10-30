@@ -5,7 +5,7 @@
 
 class RocketChat {
   constructor() {
-    this.apiBase = 'https://ts-backend-production-568d.up.railway.app';
+    this.apiBase = 'https://nuzantara-orchestrator.fly.dev';
     this.messageHistory = [];
     this.currentContext = {};
   }

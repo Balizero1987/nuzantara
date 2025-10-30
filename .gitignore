@@ -85,3 +85,4 @@ docs/reports/cleanup-*/
 .autofix/e2e-tests/**/*.zip
 .autofix/e2e-tests/test-results/**/trace.zip
 **/zantara_test_artifacts_*.zip
+# Node modules (all locations)

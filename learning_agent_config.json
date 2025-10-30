@@ -1,0 +1,9 @@
+{
+  "model": "qwen2.5-72b-instruct",
+  "vector_store": "./.learning_agent/vector_store",
+  "repository": "Balizero1987/nuzantara",
+  "update_interval": "daily",
+  "learning_scope": ["src/", "apps/backend-ts/", "tests/"],
+  "output_dir": "./docs/learning_agent_reports",
+  "patterns_file": "./learning_patterns.json"
+}

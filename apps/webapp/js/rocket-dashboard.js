@@ -5,7 +5,7 @@
 
 class RocketDashboard {
   constructor() {
-    this.apiBase = 'https://ts-backend-production-568d.up.railway.app';
+    this.apiBase = 'https://nuzantara-orchestrator.fly.dev';
     this.updateInterval = 30000; // 30 seconds
     this.updateTimer = null;
   }

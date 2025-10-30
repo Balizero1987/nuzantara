@@ -95,7 +95,7 @@ graph TB
         direction TB
 
         subgraph "Frontend"
-            Web[WebApp<br/>zantara.balizero.com<br/>GitHub Pages]
+            Web[WebApp<br/>zantara.balizero.com<br/>Cloudflare Pages]
         end
 
         subgraph "Backend - Railway"

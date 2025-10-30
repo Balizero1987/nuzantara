@@ -12,7 +12,7 @@
 
 - 🤖 **3 AI Models** (Haiku 4.5 frontend, ZANTARA Llama background, DevAI backend)
 - ⚙️ **2 Backends** (TypeScript API + Python RAG)
-- 🌐 **1 Frontend** (PWA webapp on GitHub Pages)
+- 🌐 **1 Frontend** (PWA webapp on Cloudflare Pages)
 - 🗄️ **3 Databases** (PostgreSQL + ChromaDB + Redis)
 - 🤖 **15 AI Agents** (10 RAG + 5 Oracle)
 - 🔧 **164 Tools** (Google Workspace, CRM, Analytics, Communication)
@@ -27,7 +27,7 @@ graph TB
         User[👤 User<br/>Browser/Mobile]
     end
     
-    subgraph "FRONTEND - GitHub Pages"
+    subgraph "FRONTEND - Cloudflare Pages"
         WebApp[🌐 WebApp<br/>zantara.balizero.com<br/>65 JS files + PWA]
     end
     
@@ -127,8 +127,8 @@ graph TB
         DB_Service[(PostgreSQL<br/>──────────────<br/>Managed<br/>34 tables<br/>~100MB)]
     end
     
-    subgraph "GitHub"
-        Pages[GitHub Pages<br/>──────────────<br/>Static CDN<br/>Auto-deploy<br/>zantara.balizero.com]
+    subgraph "Cloudflare"
+        Pages[Cloudflare Pages<br/>──────────────<br/>Edge CDN (330+ locations)<br/>Auto-deploy (30-60s)<br/>zantara.balizero.com]
     end
     
     subgraph "External Services"
@@ -190,7 +190,7 @@ graph TB
 | **ZANTARA Llama** | €3-11 | RunPod vLLM flat rate |
 | **DevAI Qwen** | €1-3 | Backend development only |
 | **Railway Hosting** | $0 | Free tier / Starter |
-| **GitHub Pages** | $0 | Free static hosting |
+| **Cloudflare Pages** | $0 | Free static hosting (330+ edge locations) |
 | **External APIs** | Variable | Google, Twilio (usage-based) |
 | **TOTAL** | **$15-30** | Highly cost-optimized |
 

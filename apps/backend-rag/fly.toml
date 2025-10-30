@@ -1,0 +1,43 @@
+# ZANTARA RAG Backend - Fly.io Configuration
+app = 'nuzantara-rag'
+primary_region = 'sin'  # Singapore - closest to target users
+kill_signal = 'SIGTERM'
+kill_timeout = '30s'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[deploy]
+  strategy = 'rolling'
+
+[env]
+  PORT = '8000'
+  NODE_ENV = 'production'
+  CHROMA_DB_PATH = '/data/chroma_db'
+  EMBEDDING_PROVIDER = 'openai'
+  EMBEDDING_MODEL = 'text-embedding-3-small'
+  EMBEDDING_DIMENSIONS = '1536'
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = false  # Keep RAG backend always running
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+  [[http_service.checks]]
+    interval = '30s'
+    timeout = '10s'
+    grace_period = '30s'
+    method = 'GET'
+    path = '/health'
+
+[[vm]]
+  memory = '2gb'  # RAG with embeddings needs more RAM
+  cpu_kind = 'shared'
+  cpus = 2
+
+[mounts]
+  source = 'chroma_data'
+  destination = '/data'

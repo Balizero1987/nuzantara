@@ -203,7 +203,7 @@ NUZANTARA-RAILWAY/
 
 ## 🌐 LAYER 5: FRONTEND & INTEGRATION
 
-### **Webapp** (GitHub Pages)
+### **Webapp** (Cloudflare Pages)
 ```
 📁 apps/webapp/
 ├── 📁 js/                         # JavaScript (65 files)

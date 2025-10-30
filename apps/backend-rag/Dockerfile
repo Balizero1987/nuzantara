@@ -16,19 +16,19 @@ COPY requirements-minimal.txt .
 # Install Python dependencies (minimal - no torch/sentence-transformers)
 RUN pip install --no-cache-dir -r requirements-minimal.txt
 
-# Copy application code (Railway root is already in backend/)
-COPY . .
+# Copy application code
+COPY backend ./backend
+COPY .env.example ./.env
 
 # Set Python path
-ENV PYTHONPATH=/app
-ENV PORT=8000
+ENV PYTHONPATH=/app/backend
 
 # Expose port
 EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${PORT}/health || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Run migrations then start uvicorn (matching railway.json)
-CMD sh -c "python migrations/001_fix_missing_tables.py && uvicorn app.main_cloud:app --host 0.0.0.0 --port ${PORT}"
+# Start uvicorn
+CMD ["uvicorn", "app.main_cloud:app", "--host", "0.0.0.0", "--port", "8000"]

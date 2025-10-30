@@ -95,14 +95,15 @@
 
 ### **3. Frontend** (Web UI)
 - **Language**: HTML/CSS/JavaScript (vanilla)
-- **Source Location**: `/Users/antonellosiano/Desktop/NUZANTARA-2/apps/webapp/`
-- **Production URL**: https://zantara.balizero.com (GitHub Pages)
+- **Source Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/webapp/`
+- **Production URL**: https://zantara.balizero.com (Cloudflare Pages)
 - **Entry Point**: `index.html` → auto-redirect → `login.html`
-- **Deploy Method**: Auto-sync via GitHub Actions
+- **Deploy Method**: Direct to Cloudflare Pages via GitHub Actions
   - Source: `apps/webapp/` (monorepo)
-  - Target: `Balizero1987/zantara_webapp` repo
-  - Workflow: `.github/workflows/sync-webapp-to-pages.yml`
-  - Deploy time: 3-4 min (automatic on push)
+  - Target: Cloudflare Pages project `zantara-webapp`
+  - Workflow: `.github/workflows/deploy-webapp-cloudflare.yml`
+  - Deploy time: 30-60 seconds (automatic on push)
+  - Performance: 230ms TTFB (vs 498ms GitHub Pages) - 54% faster
 - **Security Fix** (2025-10-10): ✅ Removed hardcoded API key exposure
   - File: `apps/webapp/js/api-config.js:166`
   - Commit: `fc99ce4`
@@ -141,14 +142,15 @@
   - Collections: 16 total (8 KB + 8 intel topics)
   - Docs: 7,375+ documents indexed
 
-### **GitHub Pages**
-- **Repository**: https://github.com/Balizero1987/zantara_webapp
+### **Cloudflare Pages** (Webapp Hosting)
+- **Project**: `zantara-webapp`
 - **Branch**: `main`
-- **Status**: ✅ **ACTIVE** (manual deploy only)
+- **Status**: ✅ **ACTIVE** (auto-deploy from GitHub)
 - **Live URL**: https://zantara.balizero.com
 - **Entry**: `index.html` (auto-redirect to `login.html`)
-- **Deploy**: Manual trigger via `gh workflow run "Sync Webapp to GitHub Pages"`
-- **API Endpoint**: Points to Railway RAG backend
+- **Deploy**: Automatic on push via `.github/workflows/deploy-webapp-cloudflare.yml`
+- **Performance**: 230ms TTFB, 330+ edge locations, unlimited bandwidth
+- **API Endpoint**: Points to Railway RAG backend + Fly.io Orchestrator
 
 ### **Deployment Method**
 - **Railway**: Automatic deploy from GitHub on push to `main` branch
@@ -250,9 +252,11 @@ cd apps/webapp
 python3 -m http.server 3000
 # Open http://localhost:3000
 
-# Deploy to GitHub Pages
-gh workflow run "Sync Webapp to GitHub Pages"
-# Or push to main branch of zantara_webapp repo
+# Deploy to Cloudflare Pages
+git add apps/webapp/
+git commit -m "feat: update webapp"
+git push origin main
+# Cloudflare Pages auto-deploys in 30-60 seconds
 ```
 
 ---
@@ -278,11 +282,11 @@ gh workflow run "Sync Webapp to GitHub Pages"
 
 > **⚠️ UPDATE THIS** at end of session if major changes
 
-**Last Deployment**: 2025-10-17 (RAILWAY PRODUCTION - collaborative intelligence active)
-**Platform**: ✅ Railway (migrated from GCP)
+**Last Deployment**: 2025-10-30 (Webapp migrated to Cloudflare Pages)
+**Platform**: ✅ Railway (backends) + ✅ Cloudflare Pages (webapp)
 **RAG Backend**: ✅ v6.0.0-collaborative (FULL MODE: ZANTARA + Claude Haiku + Sonnet)
 **TypeScript Backend**: ⚠️ DEGRADED MODE (migration in progress)
-**Webapp**: ✅ Active on GitHub Pages (pointing to Railway backend)
+**Webapp**: ✅ Active on Cloudflare Pages (230ms TTFB, 54% faster than GitHub Pages)
 **ChromaDB**: 7,375+ docs + 16 collections (8 KB + 8 intel topics)
 **PostgreSQL**: ✅ Railway managed (conversations + memory + business context)
 

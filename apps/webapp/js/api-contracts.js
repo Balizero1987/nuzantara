@@ -22,7 +22,7 @@ class APIContracts {
     
     // Backend URLs with versioning
     this.backends = {
-      ts: 'https://ts-backend-production-568d.up.railway.app',
+      ts: 'https://nuzantara-orchestrator.fly.dev',
       rag: 'https://scintillating-kindness-production-47e3.up.railway.app'
     };
     

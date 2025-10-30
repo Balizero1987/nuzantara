@@ -4,7 +4,8 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'apps/webapp/**'
+      - 'website/zantara webapp/**'
+      - '.github/workflows/sync-webapp-to-pages.yml'
   workflow_dispatch:
 
 env:
@@ -41,8 +42,8 @@ jobs:
           cd webapp-pages
           find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
 
-          # Copy webapp files from monorepo
-          cp -r ../apps/webapp/* .
+          # Copy webapp files from monorepo (UPDATED: website/zantara webapp - Bali Zero theme)
+          cp -r "../website/zantara webapp/"* .
 
           # Add deployment timestamp to index.html
           echo "<!-- Deployed: $(date -u +"%Y-%m-%d %H:%M:%S UTC") -->" >> index.html
@@ -52,10 +53,20 @@ jobs:
         run: |
           cd webapp-pages
           mkdir -p js
-          # FIXED: Use Railway RAG backend (TypeScript backend is deprecated)
-          RAG_BACKEND="https://scintillating-kindness-production-47e3.up.railway.app"
+          # Fly.io RAG backend (Oct 29, 2025 migration)
+          RAG_BACKEND="https://nuzantara-rag.fly.dev"
           echo "window.ZANTARA_PROXY_BASE='${RAG_BACKEND}';" > js/env.js
-          echo "// Backend: Railway RAG (SSE streaming + full AI)" >> js/env.js
+          echo "// Backend: Fly.io RAG (SSE streaming + full AI)" >> js/env.js
+
+      - name: Remove broken submodules
+        run: |
+          cd webapp-pages
+          # Remove .gitmodules if exists (prevents submodule errors)
+          rm -f .gitmodules
+          # Remove any submodule directories
+          find . -type d -name "NUZANTARA-2" -exec rm -rf {} + 2>/dev/null || true
+          find . -type d -name ".git" ! -path "./.git" -exec rm -rf {} + 2>/dev/null || true
+          echo "✅ Cleaned up submodules"
 
       - name: Check for changes
         id: check_changes

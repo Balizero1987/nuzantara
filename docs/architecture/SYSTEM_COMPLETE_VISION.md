@@ -378,7 +378,7 @@ Admin/Developer → POST /zantara/brilliant/chat
 
 ## 🌐 FRONTEND LAYER
 
-### **Webapp (GitHub Pages)** - zantara.balizero.com
+### **Webapp (Cloudflare Pages)** - zantara.balizero.com
 ```
 📁 apps/webapp/
 ```
@@ -429,7 +429,7 @@ Admin/Developer → POST /zantara/brilliant/chat
 
 ### **1. USER-FACING FLOW (Frontend → Haiku 4.5)**
 ```
-Browser/PWA → GitHub Pages
+Browser/PWA → Cloudflare Pages
     ↓
 HTTPS Request → TS Backend (8080)
     ↓
@@ -816,7 +816,7 @@ User Response
 └─────────────────────────────────────────┘
 ```
 
-### **GitHub Pages** (CDN):
+### **Cloudflare Pages** (CDN):
 ```
 ┌─────────────────────────────────────────┐
 │  WEBAPP (Static)                        │

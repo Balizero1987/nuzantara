@@ -3,7 +3,7 @@
  * Allineato con backend Railway (Ottobre 2025)
  * 
  * Backend:
- * - TS-BACKEND: https://ts-backend-production-568d.up.railway.app
+ * - TS-BACKEND: https://nuzantara-orchestrator.fly.dev
  * - RAG-BACKEND: https://scintillating-kindness-production-47e3.up.railway.app
  * 
  * Auth: Demo auth middleware (no API key needed)
@@ -13,8 +13,8 @@
 const ZANTARA_API = {
   // Backend URLs (legacy - use API_CONTRACTS for new calls)
   backends: {
-    ts: 'https://ts-backend-production-568d.up.railway.app',
-    rag: 'https://scintillating-kindness-production-47e3.up.railway.app'
+    ts: 'https://nuzantara-orchestrator.fly.dev',
+    rag: 'https://nuzantara-orchestrator.fly.dev'
   },
   
   /**
