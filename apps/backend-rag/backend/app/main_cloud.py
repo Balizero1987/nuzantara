@@ -890,7 +890,7 @@ async def startup_event():
 
     # Initialize Handler Proxy Service (Tool Use) - MUST be before Intelligent Router
     try:
-        ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://ts-backend-production-568d.up.railway.app")
+        ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://nuzantara-backend.fly.dev")
         handler_proxy_service = init_handler_proxy(ts_backend_url)
         logger.info(f"✅ HandlerProxyService ready → {ts_backend_url}")
     except Exception as e:
@@ -2900,6 +2900,10 @@ async def get_prometheus_metrics():
             media_type="text/plain",
             status_code=500
         )
+
+@app.head("/metrics")
+async def metrics_head():
+    return Response(status_code=200)
 
 # Initialize metrics tracking
 app.start_time = time.time()
