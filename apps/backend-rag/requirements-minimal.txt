@@ -1,5 +1,5 @@
-# ZANTARA RAG System - Minimal Dependencies for Initial Deploy
-# Python 3.11+
+# ZANTARA RAG System - Minimal Dependencies for Railway Deploy
+# Python 3.11+ with Qdrant support
 
 # Web Framework (ESSENTIAL)
 fastapi==0.109.0
