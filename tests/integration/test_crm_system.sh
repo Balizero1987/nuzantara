@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # ZANTARA CRM System - Complete Test Script
-# Run this after Railway has deployed the latest code
+# Run this after Fly.io has deployed the latest code
 
-BASE_URL="https://scintillating-kindness-production-47e3.up.railway.app"
+BASE_URL="https://nuzantara-rag.fly.dev"
 API_KEY="zantara-internal-dev-key-2025"
 
 echo "=========================================="
@@ -36,7 +36,7 @@ if echo "$ADMIN_CHECK" | grep -q "exists"; then
     echo -e "${GREEN}✓${NC} Admin endpoint is deployed"
 else
     echo -e "${RED}✗${NC} Admin endpoint not found"
-    echo "Railway may not have deployed latest code yet."
+    echo "Fly.io may not have deployed latest code yet."
     echo "Please wait 5-10 minutes and try again."
     exit 1
 fi

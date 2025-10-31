@@ -37,8 +37,8 @@ sqlite3.OperationalError: no such column: collections.topic
 ```
 
 **Root Cause**:
-- Railway downloaded ChromaDB from R2 (119.3 MB, 115 files)
-- ChromaDB version on Railway: `0.4.22` (from requirements-minimal.txt)
+- Fly.io downloaded ChromaDB from R2 (119.3 MB, 115 files)
+- ChromaDB version on Fly.io: `0.4.22` (from requirements-minimal.txt)
 - ChromaDB data on R2: Created with **newer version** (0.5.x+)
 - SQLite schema evolution: `collections.topic` added in 0.5.0+
 
@@ -91,7 +91,7 @@ ERROR: failed to build: "/requirements-minimal.txt": not found
 **Root Cause**:
 - Dockerfile tries to `COPY requirements-minimal.txt .`
 - File doesn't exist in Qdrant service directory
-- Wrong Dockerfile path configured in Railway
+- Wrong Dockerfile path configured in Fly.io
 
 ---
 
@@ -108,7 +108,7 @@ RAG Backend
 ```
 
 **Problems**:
-- ❌ No persistence (Railway restarts = full re-download)
+- ❌ No persistence (Fly.io restarts = full re-download)
 - ❌ No version control (schema drift)
 - ❌ No backup/recovery mechanism
 - ❌ Single-tenant (no horizontal scaling)
@@ -116,7 +116,7 @@ RAG Backend
 
 **Opportunity**:
 - ✅ Migrate to **Qdrant** (production-grade vector DB)
-- ✅ Persistent storage on Railway Volume (survives restarts)
+- ✅ Persistent storage on Fly.io Volume (survives restarts)
 - ✅ Versioned API (no schema drift)
 - ✅ Distributed architecture ready
 - ✅ 10x faster queries (<100ms vs 3.7s)
@@ -176,7 +176,7 @@ ChromaDB (ephemeral)
    chromadb==0.5.18  # Latest stable with topic column
    ```
 
-2. **Force Railway rebuild** with correct version
+2. **Force Fly.io rebuild** with correct version
 3. **Verify SearchService starts** successfully
 4. **Test RAG queries** return proper context
 
@@ -191,7 +191,7 @@ ChromaDB (ephemeral)
 
 **Phase 1: Setup Qdrant (30 min)**
 1. ✅ Fix Qdrant Dockerfile
-2. ✅ Configure Railway Volume (persistent storage)
+2. ✅ Configure Fly.io Volume (persistent storage)
 3. ✅ Deploy Qdrant service
 4. ✅ Verify health endpoint
 
@@ -245,7 +245,7 @@ git add requirements-minimal.txt
 git commit -m "fix: upgrade ChromaDB to 0.5.18 (SQLite schema compatibility)"
 git push origin main
 
-# Wait for Railway auto-deploy (2-3 min)
+# Wait for Fly.io auto-deploy (2-3 min)
 # Monitor: railway logs --service "RAG BACKEND"
 ```
 
@@ -257,7 +257,7 @@ git push origin main
 ✅ 14 collections ready
 
 # Test query:
-curl -X POST https://scintillating-kindness-production-47e3.up.railway.app/api/chat \
+curl -X POST https://nuzantara-rag.fly.dev/api/chat \
   -H "Content-Type: application/json" \
   -d '{"query":"What are the tax obligations for PT companies?","stream":false}'
 
@@ -282,7 +282,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 # Expose ports
 EXPOSE 6333 6334
 
-# Default config (Railway Volume will be mounted at /qdrant/storage)
+# Default config (Fly.io Volume will be mounted at /qdrant/storage)
 ENV QDRANT__STORAGE__STORAGE_PATH=/qdrant/storage
 ENV QDRANT__SERVICE__HTTP_PORT=6333
 ENV QDRANT__SERVICE__GRPC_PORT=6334
@@ -293,7 +293,7 @@ EOF
 # Create railway.json for Qdrant service
 cat > railway.qdrant.json <<'EOF'
 {
-  "$schema": "https://railway.app/railway.schema.json",
+  "$schema": "https://fly.io/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
     "dockerfilePath": "Dockerfile.qdrant"
@@ -308,11 +308,11 @@ cat > railway.qdrant.json <<'EOF'
 EOF
 
 git add Dockerfile.qdrant railway.qdrant.json
-git commit -m "feat(qdrant): add proper Dockerfile and Railway config"
+git commit -m "feat(qdrant): add proper Dockerfile and Fly.io config"
 git push origin main
 ```
 
-**Manual Steps (Railway Dashboard)**:
+**Manual Steps (Fly.io Dashboard)**:
 1. Go to Qdrant service settings
 2. Root Directory: `apps/backend-rag`
 3. Start Command: `./qdrant` (default, can leave empty)
@@ -324,11 +324,11 @@ git push origin main
 **Success Criteria**:
 ```bash
 # Check Qdrant is running
-curl https://qdrant.railway.internal:6333/healthz
+curl https://nuzantara-qdrant.fly.dev/healthz
 # Should return: OK
 
 # Check collections (should be empty initially)
-curl https://qdrant.railway.internal:6333/collections
+curl https://nuzantara-qdrant.fly.dev/collections
 # Should return: {"result":{"collections":[]}}
 ```
 
@@ -366,7 +366,7 @@ EOF
 # Update railway.json for migration job
 cat > railway.migration.json <<'EOF'
 {
-  "$schema": "https://railway.app/railway.schema.json",
+  "$schema": "https://fly.io/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
     "dockerfilePath": "Dockerfile.migration"
@@ -382,7 +382,7 @@ git commit -m "fix(migration): proper Dockerfile with all dependencies"
 git push origin main
 ```
 
-**Manual Steps (Railway Dashboard - Migration Job)**:
+**Manual Steps (Fly.io Dashboard - Migration Job)**:
 1. Root Directory: `apps/backend-rag`
 2. Start Command: `python migrate_r2_to_qdrant.py`
 3. Add Environment Variables:
@@ -553,16 +553,16 @@ git push origin main
 
 ## 📞 SUPPORT CONTACTS
 
-### Railway Dashboard
-- Project: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+### Fly.io Dashboard
+- Project: https://fly.io/dashboard
 - RAG Backend: `scintillating-kindness`
 - Qdrant: `qdrant`
 - Migration: `migration-job`
 
 ### Environment URLs
-- RAG Backend: https://scintillating-kindness-production-47e3.up.railway.app
-- TS Backend: https://ts-backend-production-568d.up.railway.app
-- Qdrant (internal): `qdrant.railway.internal:6333`
+- RAG Backend: https://nuzantara-rag.fly.dev
+- TS Backend: https://nuzantara-backend.fly.dev
+- Qdrant (internal): `nuzantara-qdrant.fly.dev`
 
 ### Key Files
 - ChromaDB config: `apps/backend-rag/requirements-minimal.txt`

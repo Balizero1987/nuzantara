@@ -10,7 +10,7 @@ echo ""
 # Check env vars
 if [ -z "$QDRANT_URL" ]; then
     echo "⚠️  QDRANT_URL not set!"
-    echo "Set: export QDRANT_URL=http://qdrant.railway.internal:8080"
+    echo "Set: export QDRANT_URL=https://nuzantara-qdrant.fly.dev"
     exit 1
 fi
 

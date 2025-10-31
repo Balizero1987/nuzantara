@@ -5,11 +5,11 @@
 1. **Fixed ChromaDB Version** ✅
    - Upgraded from 0.4.22 → 0.5.18
    - Fixes: `sqlite3.OperationalError: no such column: collections.topic`
-   - **Status**: Committed & pushed (Railway auto-deploying now)
+   - **Status**: Committed & pushed (Fly.io auto-deploying now)
 
 2. **Created Qdrant Configuration** ✅
    - Dockerfile with persistent storage support
-   - Railway config with health checks
+   - Fly.io config with health checks
    - Volume mount for /qdrant/storage
    - **Status**: Ready to deploy
 
@@ -26,10 +26,10 @@
 
 ---
 
-## 🔴 WHAT YOU NEED TO DO (Manual - Railway Dashboard)
+## 🔴 WHAT YOU NEED TO DO (Manual - Fly.io Dashboard)
 
 ### PRIORITY 1: Wait for RAG Backend (5 min)
-**Go to**: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+**Go to**: https://fly.io/dashboard
 
 1. Click "RAG BACKEND" service
 2. Wait for deployment to finish (should be building now)
@@ -64,7 +64,7 @@
 4. Set **Dockerfile Path**: `Dockerfile.migration`
 5. Set **Start Command**: `python migrate_r2_to_qdrant.py`
 6. Go to "Variables" tab
-7. **Add variable**: `QDRANT_URL` = `http://qdrant.railway.internal:6333`
+7. **Add variable**: `QDRANT_URL` = `https://nuzantara-qdrant.fly.dev`
 8. Verify R2 credentials are set (copy from RAG BACKEND if needed):
    - `R2_ACCESS_KEY_ID`
    - `R2_SECRET_ACCESS_KEY`
@@ -106,7 +106,7 @@ ChromaDB:          ✅ Deprecated (replaced by Qdrant)
 
 ### Test 1: RAG Query Works
 ```bash
-curl -X POST https://scintillating-kindness-production-47e3.up.railway.app/api/chat \
+curl -X POST https://nuzantara-rag.fly.dev/api/chat \
   -H "Content-Type: application/json" \
   -d '{"query":"What are tax obligations for PT?","stream":false}'
 ```
@@ -184,7 +184,7 @@ Once all 3 priorities are done:
 
 ## 📞 NEED HELP?
 
-**Railway Dashboard**: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+**Fly.io Dashboard**: https://fly.io/dashboard
 
 **Guides**:
 - `DEPLOYMENT_GUIDE_STEP_BY_STEP.md` - Full instructions

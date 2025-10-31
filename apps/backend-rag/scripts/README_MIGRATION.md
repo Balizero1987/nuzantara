@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-1. **Qdrant Service Deployed** on Railway with Volume
+1. **Qdrant Service Deployed** on Fly.io with Volume
 2. **Environment Variables** set in backend-rag:
    ```env
-   QDRANT_URL=http://qdrant.railway.internal:8080
+   QDRANT_URL=https://nuzantara-qdrant.fly.dev
    QDRANT_API_KEY=your-secure-key
    ```
 3. **Python packages** installed:
@@ -58,12 +58,12 @@ Expected duration: **5-10 minutes** for 14,365 documents
 
 Check Qdrant dashboard:
 ```
-https://your-qdrant.railway.app/dashboard
+https://<your-qdrant-app>.fly.dev/dashboard
 ```
 
 Verify collections count:
 ```bash
-curl http://qdrant.railway.internal:8080/collections
+curl https://nuzantara-qdrant.fly.dev/collections
 ```
 
 ### Step 4: Update Application Code
@@ -104,14 +104,14 @@ curl -X POST http://localhost:8000/api/rag/query \
   -d '{"query": "test query", "collection": "zantara_books"}'
 ```
 
-### Step 6: Deploy to Railway
+### Step 6: Deploy to Fly.io
 
 ```bash
 git add apps/backend-rag/backend/core/vector_db.py
 git commit -m "Switch to Qdrant vector DB"
 git push
 
-# Railway auto-deploys
+# Fly.io auto-deploys
 ```
 
 ### Step 7: Monitor Production
@@ -161,7 +161,7 @@ cp -r data/chroma_db.backup data/chroma_db
 
 ### Error: "QDRANT_URL not set"
 ```bash
-# Check Railway service variables
+# Check Fly.io service variables
 railway variables --service backend-rag
 ```
 
@@ -171,7 +171,7 @@ railway variables --service backend-rag
 railway status --service qdrant
 
 # Check internal networking
-railway run --service backend-rag "curl http://qdrant.railway.internal:8080/healthz"
+railway run --service backend-rag "curl https://nuzantara-qdrant.fly.dev/healthz"
 ```
 
 ### Error: "Vector dimension mismatch"
@@ -212,7 +212,7 @@ Expected improvements:
 ## Support
 
 Issues? Check:
-1. Railway service logs
+1. Fly.io service logs
 2. Qdrant dashboard
 3. Grafana metrics
 4. This README

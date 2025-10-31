@@ -15,8 +15,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Backend URLs
-TS_BACKEND="https://ts-backend-production-568d.up.railway.app"
-RAG_BACKEND="https://scintillating-kindness-production-47e3.up.railway.app"
+TS_BACKEND="https://nuzantara-backend.fly.dev"
+RAG_BACKEND="https://nuzantara-rag.fly.dev"
 
 # Test results
 TOTAL_TESTS=0

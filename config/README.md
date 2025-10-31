@@ -26,7 +26,7 @@ Miscellaneous configurations
 - `tsconfig.json` - Main TypeScript config
 - `tsconfig.build.json` - Build-specific config
 
-**Railway**:
+**Fly.io**:
 - `railway.toml` - Python RAG backend config
 - `railway.typescript.toml` - TypeScript backend config
 - `railway_cron.toml` - Scheduled tasks config
@@ -44,9 +44,9 @@ Miscellaneous configurations
 }
 ```
 
-### Railway Deploy
+### Fly.io Deploy
 ```bash
-# Railway auto-deploys on git push
+# Fly.io auto-deploys on git push
 railway up
 ```
 
@@ -62,4 +62,4 @@ Referenced by apps via relative paths or environment variables.
 
 ---
 
-**Last Updated**: 2025-10-18 (Railway migration)
+**Last Updated**: 2025-10-18 (Fly.io migration)

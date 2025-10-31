@@ -8,7 +8,7 @@ import chromadb
 
 # Setup
 chroma_path = "backend/data/chroma"
-qdrant_url = "http://qdrant-production-e4f4.up.railway.app"
+qdrant_url = "https://nuzantara-qdrant.fly.dev"
 
 print(f"🚀 Connecting to Qdrant: {qdrant_url}")
 qdrant = QdrantClient(url=qdrant_url, timeout=60)  # 60 second timeout

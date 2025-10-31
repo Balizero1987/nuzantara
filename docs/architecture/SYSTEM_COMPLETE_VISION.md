@@ -151,7 +151,7 @@ Admin/Developer → POST /zantara/brilliant/chat
 
 ## 🗄️ DATA LAYER (3 DATABASE)
 
-### **1. PostgreSQL (Railway Managed)**
+### **1. PostgreSQL (Fly.io Managed)**
 **Tables**: 34 total
 
 **Core Tables**:
@@ -335,8 +335,8 @@ Admin/Developer → POST /zantara/brilliant/chat
 - Redis Client
 - OAuth2 Client
 
-**Deployment**: Railway (Dockerfile)
-- **URL**: https://ts-backend-production-568d.up.railway.app
+**Deployment**: Fly.io (Dockerfile)
+- **URL**: https://nuzantara-backend.fly.dev
 - **Health**: /health endpoint
 
 ### **RAG BACKEND (Python/FastAPI)** - Port 8000
@@ -370,8 +370,8 @@ Admin/Developer → POST /zantara/brilliant/chat
 - `/api/notifications/*` - Notification endpoints
 - `/cache/stats` - Cache statistics
 
-**Deployment**: Railway (Dockerfile)
-- **URL**: https://scintillating-kindness-production-47e3.up.railway.app
+**Deployment**: Fly.io (Dockerfile)
+- **URL**: https://nuzantara-rag.fly.dev
 - **Health**: /health endpoint
 
 ---
@@ -789,7 +789,7 @@ User Response
 
 ## 🚀 DEPLOYMENT ARCHITECTURE
 
-### **Railway (2 Services)**:
+### **Fly.io (2 Services)**:
 ```
 ┌─────────────────────────────────────────┐
 │  TS-BACKEND (Node.js)                   │

@@ -24,9 +24,9 @@ git commit -m "feat: Smart migration script (auto-detects and migrates)"
 git push origin main
 ```
 
-### Step 2: Modifica Railway (Dashboard)
+### Step 2: Modifica Fly.io (Dashboard)
 
-1. **Railway** → **RAG BACKEND** → **Settings**
+1. **Fly.io** → **RAG BACKEND** → **Settings**
 
 2. Cerca sezione **"Deploy"** → **Start Command**
 
@@ -124,7 +124,7 @@ Dopo la prima migration:
 
 Se qualcosa va storto:
 
-1. Railway → RAG BACKEND → Settings
+1. Fly.io → RAG BACKEND → Settings
 2. Start Command → cambia di nuovo a:
    ```
    uvicorn app.main_cloud:app --host 0.0.0.0 --port 8000

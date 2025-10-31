@@ -46,7 +46,7 @@ def main():
         sys.exit(1)
     
     # Get Qdrant URL
-    qdrant_url = os.getenv("QDRANT_URL", "http://qdrant.railway.internal:8080")
+    qdrant_url = os.getenv("QDRANT_URL", "https://nuzantara-qdrant.fly.dev")
     logger.info(f"📡 Qdrant URL: {qdrant_url}")
     
     print("\n" + "="*70)

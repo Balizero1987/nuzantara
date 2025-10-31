@@ -5,7 +5,7 @@
 
 const MemoryPanel = (() => {
   // Backend API base URLs
-  const RAG_BACKEND_URL = 'https://scintillating-kindness-production-47e3.up.railway.app';
+  const RAG_BACKEND_URL = 'https://nuzantara-rag.fly.dev';
   
   // State
   let isOpen = false;

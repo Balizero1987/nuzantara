@@ -1,12 +1,12 @@
 #!/bin/bash
-# Test Phase 1+2 in production (Railway)
+# Test Phase 1+2 in production (Fly.io)
 
 echo "=============================================================================="
 echo "🧪 PRODUCTION TEST - PHASE 1+2 Tool Prefetch"
 echo "=============================================================================="
 echo ""
 
-BASE_URL="https://scintillating-kindness-production-47e3.up.railway.app"
+BASE_URL="https://nuzantara-rag.fly.dev"
 
 echo "TEST 1: Pricing Query (berapa harga C1 visa?)"
 echo "------------------------------------------------------------------------------"
@@ -65,7 +65,7 @@ echo "✅ TEST 1+2: Should contain exact prices (2.300.000 IDR) with citation"
 echo "✅ TEST 3: Should contain team member info"
 echo "✅ TEST 4: Should stream normally without prefetch"
 echo ""
-echo "Check Railway logs for:"
+echo "Check Fly.io logs for:"
 echo "- '🎯 [Prefetch] PRICING query detected'"
 echo "- '🎯 [Prefetch] TEAM query detected'"
 echo "- '🚀 [Prefetch] Executing get_pricing before streaming'"

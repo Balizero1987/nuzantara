@@ -1,4 +1,4 @@
-name: Deploy Backend to Railway
+name: Deploy Backend to Fly.io
 
 on:
   push:
@@ -10,26 +10,26 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Railway
+    name: Deploy to Fly.io
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Railway deployment notification
+      - name: Fly.io deployment notification
         run: |
-          echo "## 🚂 Railway Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚂 Fly.io Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Backend changes detected. Railway will auto-deploy from GitHub." >> $GITHUB_STEP_SUMMARY
+          echo "Backend changes detected. Fly.io will auto-deploy from GitHub." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Monitor deployment:**" >> $GITHUB_STEP_SUMMARY
-          echo "- Railway Dashboard: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9" >> $GITHUB_STEP_SUMMARY
+          echo "- Fly.io Dashboard: https://fly.io/dashboard" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Verify deployment:**" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "curl https://ts-backend-production-568d.up.railway.app/health" >> $GITHUB_STEP_SUMMARY
-          echo "curl https://ts-backend-production-568d.up.railway.app/warmup/stats" >> $GITHUB_STEP_SUMMARY
+          echo "curl https://nuzantara-backend.fly.dev/health" >> $GITHUB_STEP_SUMMARY
+          echo "curl https://nuzantara-backend.fly.dev/warmup/stats" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
       
       - name: Verify TypeScript compilation

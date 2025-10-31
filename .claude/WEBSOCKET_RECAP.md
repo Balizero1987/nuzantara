@@ -84,7 +84,7 @@ node scripts/test/test-websocket.js
 
 ### WebSocket Server (Backend)
 - **Status**: ✅ **GIÀ ATTIVO IN PRODUCTION**
-- **URL**: `wss://ts-backend-production-568d.up.railway.app/ws`
+- **URL**: `wss://nuzantara-backend.fly.dev/ws`
 - **File**: `apps/backend-ts/src/services/websocket-server.ts` (319 righe)
 - **Deploy**: Già su Railway, nessuna azione necessaria
 - **Verifica**: ✅ Testato e funzionante (2025-10-19)

@@ -397,7 +397,7 @@ curl http://localhost:11434/api/generate -d '{"model":"llama3.1:8b","prompt":"He
   Co-Authored-By: Claude <noreply@anthropic.com>
   ```
 
-**Auto Push**: Deploys to Railway after successful commit
+**Auto Push**: Deploys to Fly.io after successful commit
 
 **Manual Git**:
 ```bash

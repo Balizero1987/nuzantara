@@ -1,4 +1,4 @@
-# NUZANTARA Railway - AI Coding Agent Instructions
+# NUZANTARA Fly.io - AI Coding Agent Instructions
 
 NUZANTARA is a production Indonesian business services AI platform with TypeScript/Python backends, Oracle system for domain-specific queries, and comprehensive handler architecture.
 

@@ -63,6 +63,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Background warmup task handle (set during startup)
+warmup_task: Optional[asyncio.Task] = None
+
 # Initialize FastAPI
 app = FastAPI(
     title="ZANTARA RAG API",
@@ -659,8 +662,8 @@ def download_chromadb_from_r2():
         bucket_name = "nuzantaradb"
         source_prefix = "chroma_db/"
 
-        # ✨ OPTIMIZATION: Use persistent volume (Railway) instead of /tmp
-        local_path = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "/tmp/chroma_db")
+        # ✨ OPTIMIZATION: Use persistent volume (Fly.io) instead of /tmp
+        local_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db")
 
         # ✨ OPTIMIZATION: Check if ChromaDB already exists in persistent volume
         # This reduces startup time from 3+ minutes to ~30 seconds on restarts
@@ -735,10 +738,28 @@ def download_chromadb_from_r2():
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize services on startup"""
+    """Lightweight startup hook to trigger async warmup without blocking binding."""
+    global warmup_task
+    logger.info("⚡ ZANTARA backend binding immediately, warmup async…")
+    warmup_task = asyncio.create_task(_initialize_backend_services())
+    warmup_task.add_done_callback(_log_warmup_result)
+
+
+def _log_warmup_result(task: asyncio.Task):
+    try:
+        task.result()
+        logger.info("✅ Async warmup completed")
+    except Exception as exc:
+        logger.error(f"❌ Async warmup failed: {exc}")
+
+
+async def _initialize_backend_services():
+    """Initialize heavy services asynchronously after binding."""
     global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (HAIKU-ONLY: Claude Haiku 4.5)...")
+    logger.info("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
+    await asyncio.sleep(0.1)
 
     # Initialize Alert Service (for error monitoring)
     try:
@@ -764,7 +785,7 @@ async def startup_event():
         logger.info("📂 Initializing empty ChromaDB for manual population...")
 
         # Fallback: Initialize empty ChromaDB in persistent volume (or /tmp)
-        chroma_path = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "/tmp/chroma_db")
+        chroma_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db")
         os.makedirs(chroma_path, exist_ok=True)
         logger.info(f"✅ Empty ChromaDB initialized: {chroma_path}")
         logger.info("💡 Populate via: POST /api/oracle/populate-now")
@@ -927,7 +948,7 @@ async def startup_event():
 
     # Initialize MemoryService (PostgreSQL)
     try:
-        memory_service = MemoryServicePostgres()  # PostgreSQL via Railway DATABASE_URL
+        memory_service = MemoryServicePostgres()  # PostgreSQL via Fly.io DATABASE_URL
         await memory_service.connect()  # Initialize connection pool
         logger.info("✅ MemoryServicePostgres ready (PostgreSQL enabled)")
     except Exception as e:
@@ -1079,10 +1100,10 @@ async def shutdown_event():
     logger.info("👋 ZANTARA RAG Backend shutdown")
 
     # ✨ OPTIMIZATION: No cleanup needed for persistent volume
-    # Railway persistent volumes are automatically managed and preserved across restarts
+    # Fly.io persistent volumes are automatically managed and preserved across restarts
     # Only clean up /tmp if it was used (fallback case)
     try:
-        volume_path = os.getenv("RAILWAY_VOLUME_MOUNT_PATH")
+        volume_path = os.getenv("FLY_VOLUME_MOUNT_PATH")
         if not volume_path:  # Only cleanup if no persistent volume configured
             chroma_path = "/tmp/chroma_db"
             if os.path.exists(chroma_path):
@@ -1137,7 +1158,7 @@ async def cache_stats():
         from core.cache import cache
         from middleware.rate_limiter import get_rate_limit_stats
         from datetime import datetime
-        
+
         return {
             "success": True,
             "cache": cache.get_stats(),
@@ -1146,6 +1167,40 @@ async def cache_stats():
         }
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+
+@app.get("/cache/health")
+async def cache_health():
+    """Check cache health status"""
+    try:
+        from core.cache import cache
+        from datetime import datetime
+
+        # Test cache connectivity
+        test_key = "health_check_test"
+        test_value = datetime.now().isoformat()
+
+        # Try to set a value
+        cache.set(test_key, test_value, ttl=10)
+
+        # Try to get the value back
+        retrieved = cache.get(test_key)
+
+        is_healthy = retrieved == test_value
+
+        return {
+            "status": "healthy" if is_healthy else "degraded",
+            "cache_type": cache.cache_type,
+            "backend": "redis" if hasattr(cache, 'redis_client') else "memory",
+            "test_passed": is_healthy,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
 
 
 @app.options("/health")

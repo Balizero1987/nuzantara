@@ -95,7 +95,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Files changed**: 16 files, +8,058 insertions" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Railway will auto-deploy:**" >> $GITHUB_STEP_SUMMARY
+          echo "**Fly.io will auto-deploy:**" >> $GITHUB_STEP_SUMMARY
           echo "- Monitor: https://railway.com/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Verify deployment (after 10 min):**" >> $GITHUB_STEP_SUMMARY

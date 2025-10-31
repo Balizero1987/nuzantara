@@ -9,7 +9,7 @@ from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
 
-# Path to log file (Railway or local)
+# Path to log file (Fly.io or local)
 log_file = Path(__file__).parent.parent / "apps/backend-rag/backend/data/work_sessions_log.jsonl"
 
 if not log_file.exists():

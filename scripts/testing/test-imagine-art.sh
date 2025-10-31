@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Test Imagine.art Integration - NUZANTARA Railway
+# Test Imagine.art Integration - NUZANTARA Fly.io
 # Usage: ./test-imagine-art.sh
 
-echo "🎨 Testing Imagine.art Integration on NUZANTARA Railway..."
+echo "🎨 Testing Imagine.art Integration on NUZANTARA Fly.io..."
 echo ""
 
 # Check if server is running

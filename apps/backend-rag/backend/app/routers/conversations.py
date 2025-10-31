@@ -62,7 +62,7 @@ def get_db_connection():
     if not database_url:
         raise Exception("DATABASE_URL environment variable not set")
 
-    # Parse Railway's DATABASE_URL format
+    # Parse Fly.io's DATABASE_URL format
     return psycopg2.connect(database_url, cursor_factory=RealDictCursor)
 
 

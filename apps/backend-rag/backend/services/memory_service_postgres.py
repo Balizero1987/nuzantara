@@ -1,8 +1,8 @@
 """
-ZANTARA Memory Service - PostgreSQL Backend (Railway)
+ZANTARA Memory Service - PostgreSQL Backend (Fly.io)
 
 Manages user memory (profile facts, conversation summary, counters) with PostgreSQL persistence.
-Replaces Firestore with PostgreSQL for Railway deployment.
+Replaces Firestore with PostgreSQL for Fly.io deployment.
 """
 
 from typing import Dict, List, Optional, Any
@@ -55,7 +55,7 @@ class MemoryServicePostgres:
         Initialize MemoryService with PostgreSQL.
 
         Args:
-            database_url: PostgreSQL connection string (from Railway DATABASE_URL)
+            database_url: PostgreSQL connection string (from Fly.io DATABASE_URL)
         """
         self.database_url = database_url or os.getenv("DATABASE_URL")
         self.pool: Optional[asyncpg.Pool] = None

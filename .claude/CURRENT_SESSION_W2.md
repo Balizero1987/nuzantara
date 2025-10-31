@@ -99,10 +99,10 @@ Investigare perché stanno fallendo tutti i deploy su Railway
 - **Fix Applicato**:
   - Settata env var: `RAG_BACKEND_URL=https://scintillating-kindness-production-47e3.up.railway.app`
   - Generato nuovo Railway domain: `railway domain --service TS-BACKEND --port 8080`
-  - **New URL**: `https://ts-backend-production-568d.up.railway.app`
+  - **New URL**: `https://nuzantara-backend.fly.dev`
 - **Verifica**:
   ```bash
-  curl https://ts-backend-production-568d.up.railway.app/health
+  curl https://nuzantara-backend.fly.dev/health
   # {"ok":true,"service":"NUZANTARA-TS-BACKEND","version":"5.2.0","timestamp":"2025-10-18T11:49:29.416Z"}
   ```
 - **Result**: ✅ TS-BACKEND deployment RISOLTO e OPERATIVO
@@ -145,12 +145,12 @@ railway variables --service TS-BACKEND --set "RAG_BACKEND_URL=https://scintillat
 
 # 2. Generato public domain
 railway domain --service TS-BACKEND --port 8080
-# → https://ts-backend-production-568d.up.railway.app
+# → https://nuzantara-backend.fly.dev
 ```
 
 **Verifica Finale**:
 ```bash
-curl https://ts-backend-production-568d.up.railway.app/health
+curl https://nuzantara-backend.fly.dev/health
 # {"ok":true,"service":"NUZANTARA-TS-BACKEND","version":"5.2.0"}
 ```
 
@@ -172,7 +172,7 @@ curl https://ts-backend-production-568d.up.railway.app/health
 11. `apps/webapp/js/team-login.js:9` - Frontend apiBase
 
 ### Stato del Sistema
-- ✅ TS-BACKEND: **OPERATIONAL** (https://ts-backend-production-568d.up.railway.app)
+- ✅ TS-BACKEND: **OPERATIONAL** (https://nuzantara-backend.fly.dev)
 - ✅ RAG Backend: **OPERATIONAL** (https://scintillating-kindness-production-47e3.up.railway.app)
 - ✅ Health checks: Passing (entrambi i servizi)
 - ✅ Documentazione: Aggiornata (nuovo URL in 10 files)
@@ -196,7 +196,7 @@ curl https://ts-backend-production-568d.up.railway.app/health
 
 **URLs Aggiornati**:
 - OLD (deprecated): `https://nuzantara-production.up.railway.app`
-- **NEW (ACTIVE)**: `https://ts-backend-production-568d.up.railway.app`
+- **NEW (ACTIVE)**: `https://nuzantara-backend.fly.dev`
 
 **Environment Variables Settate**:
 - `RAG_BACKEND_URL=https://scintillating-kindness-production-47e3.up.railway.app`
@@ -253,7 +253,7 @@ d85d91aa | SKIPPED | 2025-10-18 20:56:05
 
 ### 🔍 Findings
 
-**Problem**: Production backend at `https://ts-backend-production-568d.up.railway.app`
+**Problem**: Production backend at `https://nuzantara-backend.fly.dev`
 - ✅ /health endpoint works (returns v5.2.0)
 - ❌ /call endpoint returns "Cannot POST /call"
 - **Root Cause**: Running old code without updated routes
@@ -394,7 +394,7 @@ d85d91aa | SKIPPED | 2025-10-18 20:56:05
 - Result: Both backends deployed successfully at 22:14:07 (same timestamp = coordinated deploy)
 
 **System Status**:
-- **TS-BACKEND**: https://ts-backend-production-568d.up.railway.app (v5.2.0)
+- **TS-BACKEND**: https://nuzantara-backend.fly.dev (v5.2.0)
 - **RAG BACKEND**: https://scintillating-kindness-production-47e3.up.railway.app (v3.1.0-perf-fix)
 - **Collaborative Intelligence**: ACTIVE (ZANTARA + Claude Haiku + Sonnet)
 - **Database**: PostgreSQL + ChromaDB operational
@@ -425,7 +425,7 @@ d85d91aa | SKIPPED | 2025-10-18 20:56:05
   - Client ID assigned: `client_1760936394676_8vgi170kd`
   - Ping/pong working: 60ms roundtrip
   - Channel subscription: ✅ Working
-  - Server URL: `wss://ts-backend-production-568d.up.railway.app/ws`
+  - Server URL: `wss://nuzantara-backend.fly.dev/ws`
 - **Demo URL**: https://zantara.balizero.com/websocket-demo.html
 
 #### 2. GitHub Pages Deployment Verification
@@ -532,7 +532,7 @@ d85d91aa | SKIPPED | 2025-10-18 20:56:05
 
 #### 1. Railway Services Status
 - ✅ **TS-BACKEND**: Healthy (v5.2.0, uptime 22s)
-  - URL: https://ts-backend-production-568d.up.railway.app
+  - URL: https://nuzantara-backend.fly.dev
   - Port: 8080
   - Env vars: All configured correctly
   - `/health` endpoint: ✅ Working

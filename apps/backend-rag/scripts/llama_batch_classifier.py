@@ -11,7 +11,7 @@ Features:
 - Uses LLAMA 3.1 on RunPod (when available)
 - Falls back to Claude Sonnet if LLAMA unavailable
 - Saves classification results to JSON
-- Can be scheduled with Railway Cron Jobs
+- Can be scheduled with Fly.io Cron Jobs
 
 Classification Types:
 1. Topic Classification (immigration, tax, business setup, etc.)

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
  * WebSocket Connection Test
- * Tests the ZANTARA WebSocket server on Railway
+ * Tests the ZANTARA WebSocket server on Fly.io
  */
 
 import WebSocket from 'ws';
 
-const WS_URL = process.env.WS_URL || 'wss://ts-backend-production-568d.up.railway.app/ws';
+const WS_URL = process.env.WS_URL || 'wss://nuzantara-backend.fly.dev/ws';
 
 console.log('🔌 Testing WebSocket connection to:', WS_URL);
 console.log('⏱️  Timeout: 10 seconds\n');

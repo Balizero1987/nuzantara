@@ -181,7 +181,7 @@ Format: MDX with frontmatter."
 
 ```bash
 # Coming soon: Full automation
-curl -X POST https://ts-backend.railway.app/api/content/generate \
+curl -X POST https://nuzantara-backend.fly.dev/api/content/generate \
   -H "Content-Type: application/json" \
   -d '{
     "topic": "Bali Tourism Collapse",

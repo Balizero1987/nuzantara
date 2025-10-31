@@ -21,7 +21,7 @@
    - Proper script path
    - One-time execution configured
    
-4. ✅ **Railway configs created**
+4. ✅ **Fly.io configs created**
    - `railway.qdrant.json` - Qdrant service
    - `railway.migration.json` - Migration job
    
@@ -29,14 +29,14 @@
 
 ---
 
-## 📋 MANUAL STEPS REQUIRED (Railway Dashboard)
+## 📋 MANUAL STEPS REQUIRED (Fly.io Dashboard)
 
 ### Step 1: Wait for RAG Backend Deployment (5 min)
 
 **Action**: Monitor current RAG BACKEND deployment
 
 **How**:
-1. Go to: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+1. Go to: https://fly.io/dashboard
 2. Click on "RAG BACKEND" service
 3. Click "Deployments" tab
 4. Wait for deployment `cc142d9ad` to complete
@@ -66,7 +66,7 @@
 **Current Issue**: Qdrant is using wrong Dockerfile (missing requirements-minimal.txt)
 
 **How**:
-1. Go to Qdrant service in Railway dashboard
+1. Go to Qdrant service in Fly.io dashboard
 2. Click "Settings" tab
 3. Under "Build & Deploy":
    - **Root Directory**: `apps/backend-rag`
@@ -85,7 +85,7 @@
 
 **Success Criteria**:
 ```bash
-# Check Qdrant health (you can do this from Railway logs tab)
+# Check Qdrant health (you can do this from Fly.io logs tab)
 # Look for:
 Version: 1.15.5, build: 48203e41
 Qdrant gRPC listening on 6334
@@ -106,7 +106,7 @@ Qdrant HTTP listening on 8080
 **Current Issue**: Migration is using wrong Python executable (`pythonn` typo) and missing dependencies
 
 **How**:
-1. Go to migration-job service in Railway dashboard
+1. Go to migration-job service in Fly.io dashboard
 2. Click "Settings" tab
 3. Under "Build & Deploy":
    - **Root Directory**: `apps/backend-rag`
@@ -121,8 +121,8 @@ Qdrant HTTP listening on 8080
      - `R2_SECRET_ACCESS_KEY`
      - `R2_ENDPOINT_URL`
    - **Add new variable**:
-     - `QDRANT_URL` = `http://qdrant.railway.internal:6333`
-     (Use the internal Qdrant service URL - Railway will resolve it)
+     - `QDRANT_URL` = `https://nuzantara-qdrant.fly.dev`
+     (Use the internal Qdrant service URL - Fly.io will resolve it)
 6. Click "Deploy" at top right
 
 **Success Criteria**:
@@ -146,7 +146,7 @@ Qdrant HTTP listening on 8080
 **If Failed - Qdrant Connection Issue**:
 - Verify Qdrant service is running first (Step 2)
 - Check `QDRANT_URL` points to internal URL
-- Try: `http://qdrant:6333` or `http://qdrant.railway.internal:6333`
+- Try: `http://qdrant:6333` or `https://nuzantara-qdrant.fly.dev`
 
 ---
 
@@ -154,19 +154,19 @@ Qdrant HTTP listening on 8080
 
 **Action**: Test that Qdrant has all data
 
-**How** (using Railway CLI or logs):
+**How** (using Fly.io CLI or logs):
 
 **Option A: Via Qdrant Dashboard** (if exposed):
 ```bash
-# Get Qdrant public URL from Railway
-# Visit: https://qdrant-[your-deployment].up.railway.app/dashboard
+# Get Qdrant public URL from Fly.io
+# Visit: https://<your-qdrant-app>.fly.dev/dashboard
 # You should see 14 collections with documents
 ```
 
 **Option B: Via curl** (from migration job logs):
 ```bash
 # After migration completes, check logs for:
-curl http://qdrant.railway.internal:6333/collections
+curl https://nuzantara-qdrant.fly.dev/collections
 
 # Expected response:
 {
@@ -183,7 +183,7 @@ curl http://qdrant.railway.internal:6333/collections
 **Option C: Via RAG Backend** (best test):
 ```bash
 # Test a query that requires RAG:
-curl -X POST https://scintillating-kindness-production-47e3.up.railway.app/api/chat \
+curl -X POST https://nuzantara-rag.fly.dev/api/chat \
   -H "Content-Type: application/json" \
   -d '{
     "query": "What are the tax obligations for PT companies in Indonesia?",
@@ -270,7 +270,7 @@ ERROR: failed to build: "/requirements-minimal.txt": not found
 
 **Symptoms**:
 ```
-❌ Failed to connect to Qdrant at http://qdrant.railway.internal:6333
+❌ Failed to connect to Qdrant at https://nuzantara-qdrant.fly.dev
 ```
 
 **Causes**:
@@ -282,9 +282,9 @@ ERROR: failed to build: "/requirements-minimal.txt": not found
 1. Verify Qdrant is Active (Step 2)
 2. Try alternative URLs:
    - `http://qdrant:6333`
-   - `http://qdrant.railway.internal:6333`
+   - `https://nuzantara-qdrant.fly.dev`
    - `http://localhost:6333` (if same container)
-3. Check Railway network settings
+3. Check Fly.io network settings
 
 ---
 
@@ -358,7 +358,7 @@ Once migration is successful:
    - Create account at https://grafana.com/
    - Get API key
    - Configure Loki integration
-   - Add to Railway environment variables
+   - Add to Fly.io environment variables
 
 3. **Archive Experimental Apps** (cleanup)
    - Remove `apps/orchestrator`
@@ -367,7 +367,7 @@ Once migration is successful:
    - Remove `apps/ibu-nuzantara`
 
 4. **Enable Redis Pub/Sub** (real-time features)
-   - Add Redis service to Railway
+   - Add Redis service to Fly.io
    - Configure pub/sub channels
    - Update backend to use Redis
 
@@ -375,8 +375,8 @@ Once migration is successful:
 
 ## 📞 SUPPORT
 
-### Railway Dashboard
-- Project: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+### Fly.io Dashboard
+- Project: https://fly.io/dashboard
 - RAG Backend: `scintillating-kindness`
 - Qdrant: `qdrant`
 - Migration: `migration-job`
@@ -388,7 +388,7 @@ Once migration is successful:
 
 ### CLI Tools
 ```bash
-# Railway CLI
+# Fly.io CLI
 railway status
 railway logs --service "RAG BACKEND"
 railway logs --service qdrant

@@ -321,7 +321,7 @@ services:
 ## 🚀 SYSTEM CAPABILITIES SUMMARY
 
 ### Infrastructure Stack
-- **Cache**: Redis (Railway)
+- **Cache**: Redis (Fly.io)
 - **CDN**: Cloudflare Workers
 - **Gateway**: Kong 3.4
 - **Vector DB**: Pinecone

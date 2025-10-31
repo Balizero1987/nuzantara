@@ -4,18 +4,18 @@
 
 Quando torni da Grafana setup, faremo questi step:
 
-### Step 1: Deploy Qdrant Service on Railway (2 min)
+### Step 1: Deploy Qdrant Service on Fly.io (2 min)
 ```bash
-# Via Railway dashboard:
+# Via Fly.io dashboard:
 # 1. New Service → Empty Service
 # 2. Name: qdrant
 # 3. Root directory: apps/qdrant-service
 # 4. Auto-deploy from GitHub
 ```
 
-### Step 2: Add Railway Volume (1 min)
+### Step 2: Add Fly.io Volume (1 min)
 ```bash
-# In Railway:
+# In Fly.io:
 # qdrant service → Settings → Volumes
 # Add Volume:
 #   - Mount: /qdrant/storage
@@ -24,22 +24,22 @@ Quando torni da Grafana setup, faremo questi step:
 
 ### Step 3: Set Environment Variables (1 min)
 ```bash
-# Railway → qdrant service → Variables
+# Fly.io → qdrant service → Variables
 # (none needed, Dockerfile has defaults)
 ```
 
 ### Step 4: Get Qdrant URL (1 min)
 ```bash
-# Railway generates:
-# Internal: qdrant.railway.internal:8080
+# Fly.io generates:
+# Internal: nuzantara-qdrant.fly.dev
 # Public: qdrant-production-xxx.up.railway.app
 ```
 
 ### Step 5: Update backend-rag (1 min)
 ```bash
-# Railway → backend-rag service → Variables
+# Fly.io → backend-rag service → Variables
 # Add:
-QDRANT_URL=http://qdrant.railway.internal:8080
+QDRANT_URL=https://nuzantara-qdrant.fly.dev
 ```
 
 ### Step 6: Test Migration (Dry-Run) (2 min)
@@ -56,7 +56,7 @@ python scripts/migrate_chromadb_to_qdrant.py
 
 ### Step 8: Verify (1 min)
 ```bash
-curl http://qdrant.railway.internal:8080/collections
+curl https://nuzantara-qdrant.fly.dev/collections
 # Should show 14 collections
 ```
 

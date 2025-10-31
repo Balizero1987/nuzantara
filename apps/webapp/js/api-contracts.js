@@ -23,7 +23,7 @@ class APIContracts {
     // Backend URLs with versioning
     this.backends = {
       ts: 'https://nuzantara-orchestrator.fly.dev',
-      rag: 'https://scintillating-kindness-production-47e3.up.railway.app'
+      rag: 'https://nuzantara-rag.fly.dev'
     };
     
     // Health status cache

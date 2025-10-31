@@ -19,7 +19,7 @@ const DocumentUpload = (() => {
 
     // Configuration
     const CONFIG = {
-        ragBackendUrl: 'https://scintillating-kindness-production-47e3.up.railway.app',
+        ragBackendUrl: 'https://nuzantara-rag.fly.dev',
         maxFileSize: 50 * 1024 * 1024, // 50MB
         allowedTypes: {
             'application/pdf': '.pdf',

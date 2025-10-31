@@ -80,8 +80,8 @@ echo ""
 echo -e "${BLUE}2. Backend TypeScript Tests${NC}"
 echo "───────────────────────────────────────────────────────────"
 
-test_json_endpoint "Backend Health" "https://ts-backend-production-568d.up.railway.app/health" "status"
-test_json_endpoint "RAG Warmup Stats" "https://ts-backend-production-568d.up.railway.app/warmup/stats" "ok"
+test_json_endpoint "Backend Health" "https://nuzantara-backend.fly.dev/health" "status"
+test_json_endpoint "RAG Warmup Stats" "https://nuzantara-backend.fly.dev/warmup/stats" "ok"
 
 echo ""
 
@@ -89,8 +89,8 @@ echo ""
 echo -e "${BLUE}3. Backend RAG Tests${NC}"
 echo "───────────────────────────────────────────────────────────"
 
-test_json_endpoint "RAG Health" "https://scintillating-kindness-production-47e3.up.railway.app/health" "status"
-test_json_endpoint "RAG AI Services" "https://scintillating-kindness-production-47e3.up.railway.app/health" "ai"
+test_json_endpoint "RAG Health" "https://nuzantara-rag.fly.dev/health" "status"
+test_json_endpoint "RAG AI Services" "https://nuzantara-rag.fly.dev/health" "ai"
 
 echo ""
 
@@ -101,7 +101,7 @@ echo "────────────────────────�
 echo -n "Testing Bali Zero Identity... "
 
 # Test che ZANTARA menzioni Bali Zero nella risposta
-response=$(curl -s -X POST "https://ts-backend-production-568d.up.railway.app/call" \
+response=$(curl -s -X POST "https://nuzantara-backend.fly.dev/call" \
   -H "Content-Type: application/json" \
   -d '{
     "key": "chat.send",
@@ -181,7 +181,7 @@ echo "────────────────────────�
 
 # RAG Backend response time
 echo -n "RAG Backend Response Time... "
-if curl -s --max-time 5 "https://scintillating-kindness-production-47e3.up.railway.app/health" > /dev/null; then
+if curl -s --max-time 5 "https://nuzantara-rag.fly.dev/health" > /dev/null; then
     echo -e "${GREEN}✓ Fast${NC}"
     PASSED=$((PASSED + 1))
 else
@@ -191,7 +191,7 @@ fi
 
 # TS Backend response time
 echo -n "TS Backend Response Time... "
-if curl -s --max-time 5 "https://ts-backend-production-568d.up.railway.app/health" > /dev/null; then
+if curl -s --max-time 5 "https://nuzantara-backend.fly.dev/health" > /dev/null; then
     echo -e "${GREEN}✓ Fast${NC}"
     PASSED=$((PASSED + 1))
 else

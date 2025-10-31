@@ -1,6 +1,6 @@
 FROM qdrant/qdrant:v1.7.4
 
-# Railway port configuration
+# Fly.io port configuration
 ENV QDRANT__SERVICE__HTTP_PORT=8080
 ENV QDRANT__SERVICE__GRPC_PORT=6334
 ENV QDRANT__STORAGE__STORAGE_PATH=/qdrant/storage

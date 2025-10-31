@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Apply CRM System Schema Migration
-Connects to Railway PostgreSQL and applies migration 007
+Connects to Fly.io PostgreSQL and applies migration 007
 """
 
 import os
@@ -18,7 +18,7 @@ def apply_crm_migration():
         print("❌ DATABASE_URL environment variable not set")
         print()
         print("To run this migration:")
-        print("1. Get your DATABASE_URL from Railway dashboard")
+        print("1. Get your DATABASE_URL from Fly.io dashboard")
         print("2. Run: export DATABASE_URL='postgresql://...'")
         print("3. Run: python migrate_crm_schema.py")
         return False
@@ -35,7 +35,7 @@ def apply_crm_migration():
     print("=" * 70)
     print()
     print(f"📁 Migration file: {migration_file.name}")
-    print(f"🗄️  Target database: {database_url.split('@')[1] if '@' in database_url else 'Railway PostgreSQL'}")
+    print(f"🗄️  Target database: {database_url.split('@')[1] if '@' in database_url else 'Fly.io PostgreSQL'}")
     print()
 
     # Read SQL
@@ -120,7 +120,7 @@ def apply_crm_migration():
         print()
         print("Troubleshooting:")
         print("- Check that DATABASE_URL is correct")
-        print("- Verify PostgreSQL service is running on Railway")
+        print("- Verify PostgreSQL service is running on Fly.io")
         print("- Check network connection")
         return False
 

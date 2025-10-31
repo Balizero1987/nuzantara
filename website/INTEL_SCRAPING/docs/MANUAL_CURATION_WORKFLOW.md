@@ -139,7 +139,7 @@ git add .
 git commit -m "Update Bali Zero Journal - [Date]"
 git push
 
-# Railway auto-deploy
+# Fly.io auto-deploy
 ```
 
 ---

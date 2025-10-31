@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Apply migration 003: Work Sessions Schema
-Runs migration 003_work_sessions_schema.sql on Railway PostgreSQL
+Runs migration 003_work_sessions_schema.sql on Fly.io PostgreSQL
 """
 
 import asyncio
@@ -11,14 +11,14 @@ from pathlib import Path
 
 
 async def apply_migration():
-    """Apply migration 003 to Railway PostgreSQL database"""
+    """Apply migration 003 to Fly.io PostgreSQL database"""
 
     # Get DATABASE_URL from environment
     database_url = os.getenv("DATABASE_URL")
 
     if not database_url:
         print("❌ ERROR: DATABASE_URL environment variable not found")
-        print("   Please set DATABASE_URL to your Railway PostgreSQL connection string")
+        print("   Please set DATABASE_URL to your Fly.io PostgreSQL connection string")
         return False
 
     print("=" * 70)
@@ -102,7 +102,7 @@ async def apply_migration():
         print("=" * 70)
         print()
         print("Next steps:")
-        print("1. Deploy to Railway: git push")
+        print("1. Deploy to Fly.io: git push")
         print("2. Test work session tracking")
         print("3. Check ZERO notifications")
         print()

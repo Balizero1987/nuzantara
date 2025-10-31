@@ -45,7 +45,7 @@ npm run test:watch           # Test in watch mode
 
 ## Deploy
 
-Railway rileva automaticamente questo workspace e usa le configurazioni in `tsconfig.json` e `package.json`.
+Fly.io rileva automaticamente questo workspace e usa le configurazioni in `tsconfig.json` e `package.json`.
 
 ## Note
 

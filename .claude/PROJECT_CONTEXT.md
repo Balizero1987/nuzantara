@@ -62,7 +62,7 @@
 - **Language**: Node.js + TypeScript
 - **Framework**: Express.js
 - **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/backend-ts/`
-- **Production URL**: https://ts-backend-production-568d.up.railway.app ✅ **OPERATIONAL**
+- **Production URL**: https://nuzantara-backend.fly.dev ✅ **OPERATIONAL**
 - **Port**: 8080
 - **Handlers**: 107 handlers (tool use being migrated to RAG backend)
 - **Entry Point**: `dist/index.js`
@@ -130,7 +130,7 @@
 | Service | URL | Port | Status | Mode |
 |---------|-----|------|--------|------|
 | **RAG Backend** (PRIMARY) | https://scintillating-kindness-production-47e3.up.railway.app | 8000 | ✅ **FULL MODE** | Collaborative AI + ChromaDB + PostgreSQL + Reranker |
-| TypeScript Backend | https://ts-backend-production-568d.up.railway.app | 8080 | ✅ **OPERATIONAL** | Express API (migration in progress) |
+| TypeScript Backend | https://nuzantara-backend.fly.dev | 8080 | ✅ **OPERATIONAL** | Express API (migration in progress) |
 
 ### **Database Services** (Railway Managed)
 - **PostgreSQL**: Railway managed database (conversations, memory, business context)
@@ -403,7 +403,7 @@ git push origin main
 11. ✅ **WebSocket Real-Time Communication** - ACTIVE IN PRODUCTION (2025-10-19)
     - Implementation: `apps/backend-ts/src/services/websocket-server.ts` (319 lines)
     - Dependencies: `ws@8.18.3` + `@types/ws@8.18.1` (installed)
-    - Production URL: `wss://ts-backend-production-568d.up.railway.app/ws`
+    - Production URL: `wss://nuzantara-backend.fly.dev/ws`
     - Features: Bi-directional real-time, channel pub/sub (chat/notifications/analytics/documents), heartbeat (30s), graceful shutdown
     - Status: ✅ Fully operational (verified 2025-10-19 with live connection test)
     - Use Cases: Real-time chat with ZANTARA AI, team notifications, analytics dashboard live updates, document processing status

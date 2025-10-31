@@ -357,7 +357,7 @@ if __name__ == "__main__":
     import os
     import asyncio
 
-    # Test with Railway DATABASE_URL
+    # Test with Fly.io DATABASE_URL
     database_url = os.getenv("DATABASE_URL")
     if database_url:
         asyncio.run(test_query_analyzer(database_url))

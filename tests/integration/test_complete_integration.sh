@@ -16,8 +16,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-BACKEND_TS_URL="https://ts-backend-production-568d.up.railway.app"
-BACKEND_RAG_URL="https://scintillating-kindness-production-47e3.up.railway.app"
+BACKEND_TS_URL="https://nuzantara-backend.fly.dev"
+BACKEND_RAG_URL="https://nuzantara-rag.fly.dev"
 WEBAPP_URL="https://zantara.balizero.com"
 
 # Test counters

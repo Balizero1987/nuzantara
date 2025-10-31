@@ -108,7 +108,7 @@ await invalidateCache('oracle:*', 'KB updated');
 // apps/webapp/src/utils/realtime.js
 import io from 'socket.io-client';
 
-const socket = io('https://backend-ts.railway.app', {
+const socket = io('https://nuzantara-backend.fly.dev', {
   auth: {
     userId: currentUser.id
   }
@@ -322,7 +322,7 @@ Expected metrics:
 
 ## Deployment
 
-Railway auto-detects WebSocket support, no config needed.
+Fly.io auto-detects WebSocket support, no config needed.
 
 Just ensure `socket.io` is in dependencies:
 ```json

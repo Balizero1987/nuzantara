@@ -6,7 +6,7 @@ Consolidated configuration directory for NUZANTARA project.
 
 ### `/core/`
 Essential configuration files used across the entire project:
-- `railway*.toml` - Railway deployment configs
+- `railway*.toml` - Fly.io deployment configs
 - `tsconfig*.json` - TypeScript compilation settings
 - `eslint.config.js` - Code linting rules
 - `jest.config.js` - Test framework configuration
@@ -31,7 +31,7 @@ Configuration templates and examples:
 # Build configs
 npm run build # Uses shared/config/core/tsconfig.json
 
-# Railway deployment
+# Fly.io deployment
 railway up # Uses shared/config/core/railway.toml
 ```
 

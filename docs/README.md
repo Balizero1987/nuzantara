@@ -22,7 +22,7 @@
 - **[Endpoints](api/endpoint-summary.md)** - Endpoint summary
 
 ### 🚀 Deployment
-- **[Railway Deployment](guides/RAILWAY_DEPLOYMENT_GUIDE.md)** - Production deployment
+- **[Fly.io Deployment](guides/FLY_DEPLOYMENT_GUIDE.md)** - Production deployment
 - **[RunPod Setup](guides/RUNPOD_DEVAI_SETUP.md)** - AI model setup
 - **[Webapp Deploy](deployment/WEBAPP_DEPLOY_PROCESS.md)** - Webapp deployment
 
@@ -49,7 +49,7 @@
 Start with [Galaxy Map](galaxy-map/README.md) for system overview, then check [API Documentation](api/API_DOCUMENTATION.md) for integration.
 
 ## 🎯 For Deployment
-Follow [Railway Deployment Guide](guides/RAILWAY_DEPLOYMENT_GUIDE.md) for production setup.
+Follow [Fly.io Deployment Guide](guides/FLY_DEPLOYMENT_GUIDE.md) for production setup.
 
 ## 🎯 For Testing
 Use [Testing Instructions](testing/TESTING_INSTRUCTIONS.md) to verify system functionality.

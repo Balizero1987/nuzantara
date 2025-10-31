@@ -137,7 +137,7 @@ NUZANTARA-RAILWAY/
 
 ## 🗄️ LAYER 3: DATABASE LAYER
 
-### **PostgreSQL** (Railway Managed)
+### **PostgreSQL** (Fly.io Managed)
 ```
 📁 apps/backend-rag/backend/db/
 ├── migrations/                    # Database migrations
@@ -319,9 +319,9 @@ NUZANTARA-RAILWAY/
 - **Total**: ~60,500 righe di codice
 
 ### **Database Size**:
-- **PostgreSQL**: 34 tables (Railway managed)
+- **PostgreSQL**: 34 tables (Fly.io managed)
 - **ChromaDB**: 14 collections, 7,375+ documents
-- **Total Storage**: ~100MB+ (Railway managed)
+- **Total Storage**: ~100MB+ (Fly.io managed)
 
 ### **API Endpoints**:
 - **RAG Backend**: 12 endpoints

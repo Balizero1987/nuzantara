@@ -21,7 +21,7 @@ class WorkSessionService:
     ZERO decides what to share with team
 
     Data persistence:
-    - PostgreSQL: Primary storage (Railway cloud database)
+    - PostgreSQL: Primary storage (Fly.io cloud database)
     - JSONL file: Local backup log (work_sessions_log.jsonl)
     """
 

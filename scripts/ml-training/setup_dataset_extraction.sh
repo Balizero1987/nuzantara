@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # ZANTARA Dataset Extraction Setup
-# Step-by-step guide to extract production data from Railway PostgreSQL
+# Step-by-step guide to extract production data from Fly.io PostgreSQL
 #
 
 set -e
@@ -20,15 +20,15 @@ NC='\033[0m' # No Color
 if [ -z "$DATABASE_URL" ]; then
     echo -e "${YELLOW}⚠️  DATABASE_URL not found in environment${NC}"
     echo ""
-    echo "📋 To get your DATABASE_URL from Railway:"
+    echo "📋 To get your DATABASE_URL from Fly.io:"
     echo ""
-    echo "   Option 1 - Railway Dashboard:"
-    echo "   1. Go to: https://railway.app/project/fulfilling-creativity"
+    echo "   Option 1 - Fly.io Dashboard:"
+    echo "   1. Go to: https://fly.io/project/fulfilling-creativity"
     echo "   2. Click on 'backend-rag' or database service"
     echo "   3. Go to 'Variables' tab"
     echo "   4. Copy the DATABASE_URL value"
     echo ""
-    echo "   Option 2 - Railway CLI (from backend-rag directory):"
+    echo "   Option 2 - Fly.io CLI (from backend-rag directory):"
     echo "   $ cd apps/backend-rag"
     echo "   $ railway variables"
     echo "   (Look for DATABASE_URL in the output)"

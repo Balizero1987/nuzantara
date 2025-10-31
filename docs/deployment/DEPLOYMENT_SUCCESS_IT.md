@@ -140,10 +140,10 @@ ZANTARA_ERROR_HANDLER.clear()     // Pulisci log
 **Endpoints:**
 ```bash
 # Visualizza statistiche
-curl https://ts-backend-production-568d.up.railway.app/warmup/stats
+curl https://nuzantara-backend.fly.dev/warmup/stats
 
 # Trigger manuale
-curl -X POST https://ts-backend-production-568d.up.railway.app/warmup/trigger
+curl -X POST https://nuzantara-backend.fly.dev/warmup/trigger
 ```
 
 **Status Corrente (Just Verified):**
@@ -223,12 +223,12 @@ Risposta: "Hey! I'm ZANTARA, Bali Zero's cultural AI. I help with
 - **PWA Manifest:** https://zantara.balizero.com/manifest.json
 
 ### Backend TypeScript (Proxy/BFF)
-- **Health Check:** https://ts-backend-production-568d.up.railway.app/health
-- **Warmup Stats:** https://ts-backend-production-568d.up.railway.app/warmup/stats
+- **Health Check:** https://nuzantara-backend.fly.dev/health
+- **Warmup Stats:** https://nuzantara-backend.fly.dev/warmup/stats
 - **Status:** ✅ Healthy (uptime 100%)
 
 ### Backend RAG (AI Services)
-- **Health Check:** https://scintillating-kindness-production-47e3.up.railway.app/health
+- **Health Check:** https://nuzantara-rag.fly.dev/health
 - **Status:** ✅ Healthy (256ms avg response time)
 - **AI Models:** Claude Haiku 3.5, Claude Sonnet 3.5
 
@@ -397,16 +397,16 @@ navigator.serviceWorker.getRegistration()
 ./test_complete_system.sh
 
 # 2. Check backend TypeScript
-curl https://ts-backend-production-568d.up.railway.app/health | jq .
+curl https://nuzantara-backend.fly.dev/health | jq .
 
 # 3. Check RAG warmup
-curl https://ts-backend-production-568d.up.railway.app/warmup/stats | jq .
+curl https://nuzantara-backend.fly.dev/warmup/stats | jq .
 
 # 4. Check backend RAG
-curl https://scintillating-kindness-production-47e3.up.railway.app/health | jq .
+curl https://nuzantara-rag.fly.dev/health | jq .
 
 # 5. Trigger warmup manuale
-curl -X POST https://ts-backend-production-568d.up.railway.app/warmup/trigger | jq .
+curl -X POST https://nuzantara-backend.fly.dev/warmup/trigger | jq .
 ```
 
 ---

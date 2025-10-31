@@ -9,17 +9,17 @@ echo ""
 echo "🏥 TEST 1: Health Check"
 echo "-----------------------------------"
 echo "TS-BACKEND Health:"
-curl -s "https://ts-backend-production-568d.up.railway.app/health" | jq -r '.status // "❌ Failed"'
+curl -s "https://nuzantara-backend.fly.dev/health" | jq -r '.status // "❌ Failed"'
 echo ""
 echo "RAG-BACKEND Health:"
-curl -s "https://scintillating-kindness-production-47e3.up.railway.app/health" | jq -r '.status // "❌ Failed"'
+curl -s "https://nuzantara-rag.fly.dev/health" | jq -r '.status // "❌ Failed"'
 echo ""
 
 # Test 2: Login with Contracts
 echo "🔐 TEST 2: Login with API Contracts"
 echo "-----------------------------------"
 echo "Testing login endpoint with fallback..."
-TOKEN=$(curl -X POST "https://ts-backend-production-568d.up.railway.app/team.login" \
+TOKEN=$(curl -X POST "https://nuzantara-backend.fly.dev/team.login" \
   -H "Content-Type: application/json" \
   -d '{"email": "zero@balizero.com", "pin": "010719", "name": "Zero"}' \
   -s | jq -r '.token // "❌ Failed"')
@@ -35,7 +35,7 @@ echo ""
 echo "💬 TEST 3: Chat with API Contracts"
 echo "-----------------------------------"
 echo "Testing chat endpoint with fallback..."
-RESPONSE=$(curl -X POST "https://scintillating-kindness-production-47e3.up.railway.app/bali-zero/chat" \
+RESPONSE=$(curl -X POST "https://nuzantara-rag.fly.dev/bali-zero/chat" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"query": "Ciao ZANTARA, test API contracts", "user_email": "zero@balizero.com", "user_role": "member"}' \
@@ -62,7 +62,7 @@ echo ""
 echo "🚨 TEST 5: Error Simulation"
 echo "-----------------------------------"
 echo "Testing non-existent endpoint (should fail gracefully)..."
-ERROR_RESPONSE=$(curl -s "https://ts-backend-production-568d.up.railway.app/non-existent" | jq -r '.error // "404 Not Found"')
+ERROR_RESPONSE=$(curl -s "https://nuzantara-backend.fly.dev/non-existent" | jq -r '.error // "404 Not Found"')
 echo "Error handling: $ERROR_RESPONSE"
 echo ""
 

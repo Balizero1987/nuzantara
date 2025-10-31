@@ -572,7 +572,7 @@ Examples:
 ### Via `/call` Endpoint
 
 ```bash
-curl -X POST https://nuzantara.up.railway.app/call \
+curl -X POST https://nuzantara-backend.fly.dev/call \
   -H "x-api-key: zantara-internal-dev-key-2025" \
   -H "Content-Type: application/json" \
   -d '{
@@ -587,7 +587,7 @@ curl -X POST https://nuzantara.up.railway.app/call \
 ### Via `/handler` Endpoint
 
 ```bash
-curl -X POST https://nuzantara.up.railway.app/handler \
+curl -X POST https://nuzantara-backend.fly.dev/handler \
   -H "x-api-key: zantara-internal-dev-key-2025" \
   -H "Content-Type: application/json" \
   -d '{
@@ -655,7 +655,7 @@ e2e-tests/
 - [ ] Test via `/call` endpoint
 - [ ] Test via ZANTARA chat
 - [ ] Verify tool appears in `system.handlers.tools`
-- [ ] Check Railway logs for tool execution
+- [ ] Check Fly.io logs for tool execution
 
 ---
 
@@ -681,7 +681,7 @@ e2e-tests/
 ## 📞 Contact
 
 **For Tool Issues:**
-- Check Railway logs: `https://railway.app/project/.../deployments`
+- Check Fly.io logs: `https://fly.io/project/.../deployments`
 - Review test results: `e2e-tests/*.spec.ts`
 - Check Copilot Instructions: `.github/copilot-instructions.md`
 

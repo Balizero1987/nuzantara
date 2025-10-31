@@ -50,7 +50,7 @@ else
     echo "   1. Verifica che https://zantara.balizero.com sia online"
     echo "   2. Controlla che le credenziali Krisna siano corrette"
     echo "   3. Verifica SSE streaming funzionante"
-    echo "   4. Controlla Railway backend status"
+    echo "   4. Controlla Fly.io backend status"
 fi
 
 echo ""

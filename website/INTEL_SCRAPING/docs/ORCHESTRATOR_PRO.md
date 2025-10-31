@@ -25,7 +25,7 @@ Enhanced automation orchestrator with advanced features.
 
 ### 🚀 Auto Commit & Deploy
 - Automatic git commit if quality passes
-- Auto-push to Railway
+- Auto-push to Fly.io
 - Skips if no changes or low quality
 
 ## Usage
@@ -103,7 +103,7 @@ PARALLEL PROCESSING (STAGE 2)
 ================================================================================
 AUTO COMMIT & DEPLOY
 ================================================================================
-✅ Committed and deployed to Railway
+✅ Committed and deployed to Fly.io
 
 ================================================================================
 PIPELINE COMPLETE

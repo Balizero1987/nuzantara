@@ -6,3 +6,4 @@
 # apps/webapp/chat.html → W2 (UI redesign) [23:45]
 
 # Nessun lock attivo
+repository/** → W4 (Railway cleanup to Fly.io) [01:39]

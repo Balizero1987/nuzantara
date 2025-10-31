@@ -1,3 +1,5 @@
+As of November 2025, all active deployments use Fly.io.
+
 # 🌸 ZANTARA Project - Complete Context
 
 > **Auto-generated**: 2025-10-28T15:29:18.000Z
@@ -194,7 +196,7 @@ including architecture, code structure, and available capabilities.
 │       ├── 📃 test_phase1_live.py
 │       ├── 📃 test_phase1_rag_skip.py
 │       ├── 📃 test_phase1_sanitization.py
-│       ├── 📃 test_railway_phase1.py
+│       ├── 📃 test_(Legacy: see /docs/archive/railway/)_phase1.py
 │       └── 📃 verify_memory_fix.py
 ├── 📁 backend-ts/
 │   ├── 📃 .DS_Store
@@ -729,7 +731,7 @@ Automated workflow that:
 2. 🔍 Analyzes failures with Claude AI
 3. 🔧 Generates and applies fixes
 4. 💾 Commits and pushes to GitHub
-5. 🚀 Monitors Railway deployment
+5. 🚀 Monitors Fly.io deployment
 6. ✅ Verifies production
 7. 🔄 Repeats up to 3 times
 
@@ -767,7 +769,7 @@ python orchestrator.py --max-iter 5
 ## 📊 What It Tests
 
 ### Production Tests (ONLY)
-- ✅ Health check (`https://scintillating-kindness-production-47e3.up.railway.app/health`)
+- ✅ Health check (`https://nuzantara-rag.fly.dev/health`)
 - ✅ **Pricing test**: Verifies "Quanto costa KITAS E23?" returns real prices (26M/28M IDR)
 
 **Note**: AutoFix tests ONLY production, not localhost.
@@ -868,7 +870,7 @@ Contains:
 **Time**: ~10 minutes (vs 1.5 hours manual)
 
 ### Bug 3: Missing Pricing Data
-**Symptom**: Railway logs "Pricing file not found"
+**Symptom**: Fly.io logs "Pricing file not found"
 **AutoFix**: Detected via production pricing test, analyzed `.dockerignore`, added exception, deployed, verified real prices
 **Time**: ~8 minutes (vs 1.5 hours manual)
 
@@ -901,7 +903,7 @@ AutoFix will **stop and alert** if:
 export ANTHROPIC_API_KEY="sk-ant-..."
 
 # Optional
-export PRODUCTION_URL="https://your-app.railway.app"
+export PRODUCTION_URL="https://<your-app>.fly.dev"
 export MAX_ITERATIONS=3
 export DEPLOY_TIMEOUT=300  # seconds
 ```
@@ -943,7 +945,7 @@ python -c "import json; cycles = json.load(open('.autofix/autofix_state.json'))[
 ```bash
 # crontab -e
 # Run every night at 2 AM
-0 2 * * * cd /path/to/NUZANTARA-RAILWAY/.autofix && python orchestrator.py >> autofix.log 2>&1
+0 2 * * * cd /path/to/NUZANTARA-(Legacy: see /docs/archive/railway/)/.autofix && python orchestrator.py >> autofix.log 2>&1
 ```
 
 ### Run After Deploy (GitHub Action)
@@ -1709,7 +1711,7 @@ Target: 100% test pass rate (21/21)
 ## Navigation
 
 ```
-NUZANTARA-RAILWAY/
+NUZANTARA-(Legacy: see /docs/archive/railway/)/
 ├── .claude/handovers/
 │   ├── README.md (this file - navigation guide)
 │   ├── cors-sse-citations-fix.md ← START HERE for debugging
@@ -1794,7 +1796,7 @@ Welcome! Here's what you need to know:
 1. **CORS is fixed** ✅ - Don't waste time on CORS errors, they're solved
 2. **SSE streaming works** ✅ - Text flows perfectly to the browser
 3. **Sources are the issue** ⏳ - Backend isn't sending them yet
-4. **Debug logging is in place** ✅ - Check Railway logs for "🔍 [Stream]"
+4. **Debug logging is in place** ✅ - Check Fly.io logs for "🔍 [Stream]"
 5. **Frontend is ready** ✅ - Just waiting for sources from backend
 
 **Your job**: Find why `SearchService.search()` returns null and fix it.
@@ -2118,7 +2120,7 @@ POST /call {"key":"team.skills"}
 ```markdown
 # 🌸 ZANTARA Project Context
 
-> **Last Updated**: 2025-10-17 (RAILWAY PRODUCTION: Migrated from GCP, 100% cost savings on hosting)
+> **Last Updated**: 2025-10-17 ((Legacy: see /docs/archive/railway/) PRODUCTION: Migrated from GCP, 100% cost savings on hosting)
 > **⚠️ UPDATE THIS**: When URLs/architecture/deployment change
 > **🚨 CRITICAL**: DO NOT modify RunPod configs without asking! See "RunPod Configuration Rules" below
 
@@ -2127,25 +2129,25 @@ POST /call {"key":"team.skills"}
 ## 📋 Project Identity
 
 **Name**: ZANTARA (NUZANTARA)
-**Version**: v6.0.0-railway-production + collaborative-intelligence + Claude Haiku/Sonnet
-**Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/`
+**Version**: v6.0.0-fly-production + collaborative-intelligence + Claude Haiku/Sonnet
+**Location**: `/Users/antonellosiano/Desktop/NUZANTARA-(Legacy: see /docs/archive/railway/)/`
 **Repository**: https://github.com/Balizero1987/nuzantara
-**Status**: **PRODUCTION ON RAILWAY** + Local Development + **COLLABORATIVE AI (ZANTARA + Claude Haiku + Claude Sonnet)**
+**Status**: **PRODUCTION ON FLY.IO** + Local Development + **COLLABORATIVE AI (ZANTARA + Claude Haiku + Claude Sonnet)**
 
 ---
 
 ## 📚 Documentation Pointers
 
-- **🚨 Railway Deployment**: `docs/railway/RAILWAY_MIGRATION_COMPLETE.md` ⭐⭐⭐ MAIN DEPLOYMENT GUIDE!
-  - Current Status: `docs/railway/RAILWAY_CURRENT_STATUS.md`
-  - Variables Setup: `docs/railway/RAILWAY_VARS_COPY_PASTE.txt`
+- **🚨 Fly.io Deployment**: `docs/guides/FLY_DEPLOYMENT_GUIDE.md` ⭐⭐⭐ MAIN DEPLOYMENT GUIDE!
+  - Current Status: `docs/DEPLOYMENT_AUDIT.md`
+  - Variables Setup: `DEPLOYMENT_GUIDE_STEP_BY_STEP.md`
 - **🚨 RunPod Cost + Config**: `RUNPOD_OPTIMAL_CONFIG_2025-10-14.md` ⭐⭐⭐ CRITICAL - READ FIRST!
   - Cost spike analysis: `RUNPOD_COST_ANALYSIS_2025-10-14.md`
   - Root cause: `RUNPOD_COST_SPIKE_ROOT_CAUSE_2025-10-14.md`
 - **GCP Migration (DEPRECATED)**: `.claude/handovers/gcp-cost-optimization.md` ⚠️ GCP NO LONGER USED
 - **Collaborative Intelligence**: `MODERN_AI_INTEGRATION_COMPLETE.md` ⭐ NEW (2025-10-16)
 - **Session Diaries (2025-10-16)**:
-  - m1: `.claude/diaries/2025-10-16_sonnet-4.5_m1.md` (Railway migration + Workspace design)
+  - m1: `.claude/diaries/2025-10-16_sonnet-4.5_m1.md` (Fly.io migration + Workspace design)
   - m2: `.claude/diaries/2025-10-16_sonnet-4.5_m2.md` (GCP billing emergency)
 - Handovers Index: `.claude/handovers/INDEX.md`
 - System & Ops: `.claude/` (INIT, diaries, handovers)
@@ -2156,7 +2158,7 @@ POST /call {"key":"team.skills"}
 
 > **2025-10-16**: **COLLABORATIVE INTELLIGENCE** - ZANTARA + Claude Haiku + Claude Sonnet working together!
 
-### Current Stack (Live in Production on Railway)
+### Current Stack (Live in Production on Fly.io)
 - **ZANTARA Llama 3.1** (8B): Silent classifier/router + internal queries (RunPod vLLM)
 - **Claude Haiku**: Fast responses for 60% of traffic (greetings, casual questions)
 - **Claude Sonnet**: Premium business intelligence for 35% of traffic (complex queries, business questions)
@@ -2170,7 +2172,7 @@ POST /call {"key":"team.skills"}
 - **User Perception**: Premium AI experience (Claude quality) with smart cost management
 - **Intelligent Routing**: ZANTARA silently routes queries to best-fit model
 
-**Supporting Docs**: `MODERN_AI_INTEGRATION_COMPLETE.md`, `docs/railway/RAILWAY_MIGRATION_COMPLETE.md`
+**Supporting Docs**: `MODERN_AI_INTEGRATION_COMPLETE.md`, `docs/guides/FLY_DEPLOYMENT_GUIDE.md`
 
 ---
 
@@ -2179,29 +2181,29 @@ POST /call {"key":"team.skills"}
 ### **1. TypeScript Backend** (Main API - DEPRECATED, migrating to unified RAG backend)
 - **Language**: Node.js + TypeScript
 - **Framework**: Express.js
-- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/backend-ts/`
-- **Production URL**: https://ts-backend-production-568d.up.railway.app ✅ **OPERATIONAL**
+- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-(Legacy: see /docs/archive/railway/)/apps/backend-ts/`
+- **Production URL**: https://nuzantara-backend.fly.dev ✅ **OPERATIONAL**
 - **Port**: 8080
 - **Handlers**: 107 handlers (tool use being migrated to RAG backend)
 - **Entry Point**: `dist/index.js`
-- **Deploy**: Railway (auto-deploy from GitHub)
+- **Deploy**: Fly.io (auto-deploy from GitHub)
 - **Status**: ✅ **OPERATIONAL** - Migration to RAG backend in progress
 
 ### **2. Python RAG Backend** (AI/Search + Collaborative Intelligence) ✅ **PRIMARY SERVICE**
 - **Language**: Python 3.11
 - **Framework**: FastAPI
-- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/backend-rag 2/backend/`
-- **Production URL**: https://scintillating-kindness-production-47e3.up.railway.app ✅ **FULL MODE**
+- **Location**: `/Users/antonellosiano/Desktop/NUZANTARA-(Legacy: see /docs/archive/railway/)/apps/backend-rag 2/backend/`
+- **Production URL**: https://nuzantara-rag.fly.dev ✅ **FULL MODE**
 - **Port**: 8000
 - **AI Models**: **COLLABORATIVE INTELLIGENCE**
   - ZANTARA Llama 3.1 (8B): Silent classifier/router (RunPod vLLM)
   - Claude Haiku: Fast responses (60% traffic)
   - Claude Sonnet: Premium business (35% traffic)
 - **Memory**:
-  - PostgreSQL (Railway managed): Conversations, user preferences, business context
+  - PostgreSQL (Fly.io managed): Conversations, user preferences, business context
   - ChromaDB: 7,375+ docs, semantic search, 16 collections
 - **Entry Point**: `app/main_cloud.py` (production), `app/main_integrated.py` (local)
-- **Deploy**: Railway (auto-deploy from GitHub)
+- **Deploy**: Fly.io (auto-deploy from GitHub)
 - **Reranker**: ✅ **ACTIVE** - Cross-encoder re-ranking for +400% search quality
   - Model: `cross-encoder/ms-marco-MiniLM-L-6-v2`
   - Environment: `ENABLE_RERANKER=true`
@@ -2236,21 +2238,21 @@ POST /call {"key":"team.skills"}
 
 ## 🌐 Deployment Coordinates
 
-### **Railway** ✅ **PRIMARY HOSTING PLATFORM**
+### **Fly.io** ✅ **PRIMARY HOSTING PLATFORM**
 - **Project**: `fulfilling-creativity` (ID: `1c81bf3b-3834-49e1-9753-2e2a63b74bb9`)
 - **Region**: us-west1 (Oregon)
-- **Dashboard**: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+- **Dashboard**: https://fly.io/dashboard
 - **Monthly Cost**: $10-25 (vs GCP $40-165) - **62-85% savings** ✅
 - **Cost Benefits**: Pay-per-use, no idle charges, predictable pricing
 
-### **Railway Services**
+### **Fly.io Services**
 | Service | URL | Port | Status | Mode |
 |---------|-----|------|--------|------|
-| **RAG Backend** (PRIMARY) | https://scintillating-kindness-production-47e3.up.railway.app | 8000 | ✅ **FULL MODE** | Collaborative AI + ChromaDB + PostgreSQL + Reranker |
-| TypeScript Backend | https://ts-backend-production-568d.up.railway.app | 8080 | ✅ **OPERATIONAL** | Express API (migration in progress) |
+| **RAG Backend** (PRIMARY) | https://nuzantara-rag.fly.dev | 8000 | ✅ **FULL MODE** | Collaborative AI + ChromaDB + PostgreSQL + Reranker |
+| TypeScript Backend | https://nuzantara-backend.fly.dev | 8080 | ✅ **OPERATIONAL** | Express API (migration in progress) |
 
-### **Database Services** (Railway Managed)
-- **PostgreSQL**: Railway managed database (conversations, memory, business context)
+### **Database Services** (Fly.io Managed)
+- **PostgreSQL**: Fly.io managed database (conversations, memory, business context)
   - Connection: Via `DATABASE_URL` environment variable
   - Backups: Automatic daily backups
   - Size: Scalable from 1GB to 100GB+
@@ -2266,13 +2268,13 @@ POST /call {"key":"team.skills"}
 - **Live URL**: https://zantara.balizero.com
 - **Entry**: `index.html` (auto-redirect to `login.html`)
 - **Deploy**: Manual trigger via `gh workflow run "Sync Webapp to GitHub Pages"`
-- **API Endpoint**: Points to Railway RAG backend
+- **API Endpoint**: Points to Fly.io RAG backend
 
 ### **Deployment Method**
-- **Railway**: Automatic deploy from GitHub on push to `main` branch
-- **Trigger**: `git push origin main` → Railway detects changes → auto-build → auto-deploy
+- **Fly.io**: Automatic deploy from GitHub on push to `main` branch
+- **Trigger**: `git push origin main` → Fly.io detects changes → auto-build → auto-deploy
 - **Duration**: 3-5 minutes from push to live
-- **Rollback**: Instant rollback to any previous deployment via Railway dashboard
+- **Rollback**: Instant rollback to any previous deployment via Fly.io dashboard
 
 ---
 
@@ -2289,12 +2291,12 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/zantara
 FIREBASE_PROJECT_ID=involuted-box-469105-r0
 ```
 
-### **Production** (Railway Environment Variables)
+### **Production** (Fly.io Environment Variables)
 - **AI**: `RUNPOD_LLAMA_ENDPOINT`, `RUNPOD_API_KEY`, `ANTHROPIC_API_KEY`
-- **Database**: `DATABASE_URL` (auto-managed by Railway PostgreSQL)
+- **Database**: `DATABASE_URL` (auto-managed by Fly.io PostgreSQL)
 - **Memory**: `FIREBASE_PROJECT_ID`, `GOOGLE_APPLICATION_CREDENTIALS`
 - **Internal API**: `API_KEYS_INTERNAL`
-- ✅ All secrets managed in Railway dashboard (not in code)
+- ✅ All secrets managed in Fly.io dashboard (not in code)
 
 ---
 
@@ -2494,7 +2496,7 @@ cp CURRENT_SESSION.template.md CURRENT_SESSION_W2.md
 grep -A 50 "Date: 2025-10-18" ARCHIVE_SESSIONS.md
 
 # By keyword
-grep -A 20 "Railway" ARCHIVE_SESSIONS.md
+grep -A 20 "Fly.io" ARCHIVE_SESSIONS.md
 
 # Last 3 sessions
 tail -n 300 ARCHIVE_SESSIONS.md
@@ -2542,7 +2544,7 @@ apps/*/, packages/*/, docs/, config/, etc.  # ✅
 ### ✅ CORRECT Working Directory
 ```bash
 # When archiving, work from .claude/ directory:
-cd /path/to/NUZANTARA-RAILWAY/.claude
+cd /path/to/NUZANTARA-(Legacy: see /docs/archive/railway/)/.claude
 cat CURRENT_SESSION_W1.md >> ARCHIVE_SESSIONS.md  # ✅
 
 # NOT from root:
@@ -2587,7 +2589,7 @@ cp .claude/CURRENT_SESSION.template.md .claude/CURRENT_SESSION_W2.md
 grep -A 50 "Date: 2025-10" .claude/ARCHIVE_SESSIONS.md
 
 # Keyword
-grep -i -A 20 "railway" .claude/ARCHIVE_SESSIONS.md
+grep -i -A 20 "(Legacy: see /docs/archive/railway/)" .claude/ARCHIVE_SESSIONS.md
 
 # Recent
 tail -n 500 .claude/ARCHIVE_SESSIONS.md
@@ -3668,15 +3670,15 @@ Esecuzione completa di tutti i test (unit, integration, system).
 ### 🚀 Deployment & Operations
 
 #### 4. **deploy**
-Deploy full-stack su Railway con health checks e rollback automatico.
+Deploy full-stack su Fly.io con health checks e rollback automatico.
 
-**Quando viene usato**: Deploy a production, push su Railway/Cloud.
+**Quando viene usato**: Deploy a production, push su Fly.io/Cloud.
 
 **Processo**:
 1. Pre-deployment checks (build, tests, lint)
 2. Environment variables validation
 3. Git operations (commit, push)
-4. Railway/Docker deployment
+4. Fly.io/Docker deployment
 5. Health checks (60-90s wait)
 6. Smoke tests
 7. Rollback su failure
@@ -3703,7 +3705,7 @@ Monitoring completo dello stato del sistema.
 - Cloudflare R2 storage
 - Response times e performance metrics
 - Log analysis per errori
-- Railway/Cloud deployment status
+- Fly.io/Cloud deployment status
 - Resource usage (CPU, memory, disk)
 
 **Alert Thresholds**:
@@ -3889,7 +3891,7 @@ Claude **decide autonomamente** quando usare una Skill basandosi su:
 **Claude**: *Invoca automaticamente `deploy` skill*
 - Pre-checks
 - Build & test
-- Deploy to Railway
+- Deploy to Fly.io
 - Health checks
 - Report status
 
@@ -4303,7 +4305,7 @@ Copy the prompt content and paste it in Cursor's AI chat.
 
 ### Step 3: Verify Tests
 ```bash
-cd /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY
+cd /Users/antonellosiano/Desktop/NUZANTARA-(Legacy: see /docs/archive/railway/)
 npm test -- example-modern-handler.test
 ```
 
@@ -4386,7 +4388,7 @@ Check status with:
 ### Tests Not Found
 ```bash
 # Check if test files exist
-find /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/src/handlers -name "*.test.ts"
+find /Users/antonellosiano/Desktop/NUZANTARA-(Legacy: see /docs/archive/railway/)/src/handlers -name "*.test.ts"
 ```
 
 ### Import Errors
@@ -4850,7 +4852,7 @@ This document describes the complete implementation of **10 advanced agentic fun
 - **10 specialized agents** across 5 phases
 - **100% test coverage** for critical functions
 - **Zero breaking changes** - fully backward compatible
-- **Production ready** - deployed on Railway
+- **Production ready** - deployed on Fly.io
 
 ---
 
@@ -5822,7 +5824,7 @@ npm run test:watch           # Test in watch mode
 
 ## Deploy
 
-Railway rileva automaticamente questo workspace e usa le configurazioni in `tsconfig.json` e `package.json`.
+Fly.io rileva automaticamente questo workspace e usa le configurazioni in `tsconfig.json` e `package.json`.
 
 ## Note
 
@@ -6050,7 +6052,7 @@ JWT_SECRET=your_jwt_secret
 - Security middleware stack
 
 **🚀 DEPLOYMENT:**
-- **Platform**: Railway + Google Cloud Run
+- **Platform**: Fly.io + Google Cloud Run
 - **Scaling**: Auto-scaling enabled
 - **Monitoring**: Winston logging + performance metrics
 - **Security**: OAuth2 + rate limiting + CORS
@@ -6485,7 +6487,7 @@ Format: MDX with frontmatter."
 
 ```bash
 # Coming soon: Full automation
-curl -X POST https://ts-backend.railway.app/api/content/generate \
+curl -X POST https://nuzantara-backend.fly.dev/api/content/generate \
   -H "Content-Type: application/json" \
   -d '{
     "topic": "Bali Tourism Collapse",
@@ -6599,9 +6601,9 @@ This is a private publication for Bali Zero. Content generated by:
 
 - **Port**: 8080
 - **Tech**: Express.js, Firebase, Google Workspace APIs
-- **Deploy**: Railway
+- **Deploy**: Fly.io
 - **Handlers**: AI services, Google Workspace, Memory, Analytics, Bali Zero
-- **URL**: TBD (Railway deployment)
+- **URL**: TBD (Fly.io deployment)
 
 ```bash
 cd apps/backend-api
@@ -6614,9 +6616,9 @@ npm run dev
 
 - **Port**: 8000
 - **Tech**: FastAPI, ChromaDB, Cohere re-ranker
-- **Deploy**: Railway
+- **Deploy**: Fly.io
 - **Features**: 229 docs, pricing service, query routing
-- **URL**: TBD (Railway deployment)
+- **URL**: TBD (Fly.io deployment)
 
 ```bash
 cd apps/backend-rag/backend
@@ -8541,7 +8543,7 @@ git push origin main
 # Settings → Pages → Source: main branch → Save
 
 # 3. Configure backend CORS
-# Add https://balizero1987.github.io to CORS_ORIGINS on Railway
+# Add https://balizero1987.github.io to CORS_ORIGINS on Fly.io
 ```
 
 ### Custom Domain
@@ -8564,7 +8566,7 @@ User clicks "Send"
     ↓
 js/api-client.js → POST /bali-zero/chat
     ↓
-Backend (Railway): https://scintillating-kindness-production-47e3.up.railway.app
+Backend (Fly.io): https://nuzantara-rag.fly.dev
     ↓
 IntelligentRouter detects: "berapa harga" → PRICING query
     ↓
@@ -8623,7 +8625,7 @@ http://localhost:8081/test-api.html
 
 ```javascript
 // Check backend health
-fetch('https://scintillating-kindness-production-47e3.up.railway.app/health')
+fetch('https://nuzantara-rag.fly.dev/health')
   .then(r => r.json())
   .then(console.log);
 
@@ -8735,13 +8737,13 @@ git push origin feature/your-feature
 **Check:**
 ```javascript
 // In browser console
-fetch('https://scintillating-kindness-production-47e3.up.railway.app/health')
+fetch('https://nuzantara-rag.fly.dev/health')
   .then(r => r.json())
   .then(console.log);
 ```
 
 **Solution:**
-- Verify Railway deployment is running
+- Verify Fly.io deployment is running
 - Check CORS_ORIGINS includes your domain
 - Confirm API base URL is correct
 
@@ -8761,8 +8763,8 @@ fetch('https://scintillating-kindness-production-47e3.up.railway.app/health')
 
 **Verify Tool Prefetch:**
 ```bash
-# Check Railway logs
-railway logs --tail
+# Check Fly.io logs
+(Legacy: see /docs/archive/railway/) logs --tail
 
 # Should see:
 # "🎯 [Prefetch] PRICING query detected"
@@ -9007,12 +9009,12 @@ echo "✅ Deployment complete! Check Admin Console to install."
 
 ---
 
-### 📄 archive/docs-old/duplicates/deploy/RAILWAY_DEPLOY_GUIDE.md
+### 📄 archive/docs-old/duplicates/deploy/FLY_DEPLOYMENT_GUIDE.md
 
 ```markdown
-# 🚀 Railway Deploy Guide - NUZANTARA Project
+# 🚀 Fly.io Deploy Guide - NUZANTARA Project
 
-**Complete guide for deploying TS-BACKEND and RAG BACKEND on Railway**
+**Complete guide for deploying TS-BACKEND and RAG BACKEND on Fly.io**
 
 ---
 
@@ -9031,7 +9033,7 @@ Guida i nostri deployment verso il successo!
 Veglia sui nostri container mentre buildano,
 Benedici i nostri healthcheck affinché passino,
 Proteggi le nostre API dalle 502 Bad Gateway,
-E fa' che Railway riconosca il codice giusto da deployare.
+E fa' che Fly.io riconosca il codice giusto da deployare.
 
 O Santo, che conosci i misteri del Cloud,
 Concedici timeout generosi e build cache veloci,
@@ -9063,7 +9065,7 @@ In questo giorno benedetto, dopo ore di battaglia contro:
 - ❌ PostgreSQL tables mancanti (migration script added)
 - ❌ Firebase ADC errors (`SKIP_SECRET_MANAGER=true`)
 - ❌ ChromaDB download 72MB (healthcheck disabled)
-- ❌ Railway GitHub integration stale (disconnect/reconnect)
+- ❌ Fly.io GitHub integration stale (disconnect/reconnect)
 
 **Sant'Antonio ha ascoltato le nostre preghiere! 🙏**
 
@@ -9101,25 +9103,25 @@ Questa vittoria è dedicata a tutti i developer che verranno dopo di noi. Che po
 
 ```bash
 # From project root
-cd /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY
+cd /Users/antonellosiano/Desktop/NUZANTARA-(Legacy: see /docs/archive/railway/)
 
 # Deploy TS-BACKEND
 cd apps/backend-ts
-railway up --service TS-BACKEND
+(Legacy: see /docs/archive/railway/) up --service TS-BACKEND
 
 # Deploy RAG BACKEND
 cd ../backend-rag/backend
-railway up --service "RAG BACKEND"
+(Legacy: see /docs/archive/railway/) up --service "RAG BACKEND"
 ```
 
 ### Verify deployments:
 
 ```bash
 # Check TS-BACKEND health
-curl https://ts-backend-production-568d.up.railway.app/health
+curl https://nuzantara-backend.fly.dev/health
 
 # Check RAG BACKEND health
-curl https://scintillating-kindness-production-47e3.up.railway.app/health
+curl https://nuzantara-rag.fly.dev/health
 ```
 
 **Expected response**: Both should return `200 OK` with status "healthy"
@@ -9131,12 +9133,12 @@ curl https://scintillating-kindness-production-47e3.up.railway.app/health
 ### Monorepo Structure
 
 ```
-NUZANTARA-RAILWAY/
+NUZANTARA-(Legacy: see /docs/archive/railway/)/
 ├── apps/
 │   ├── backend-ts/              # TypeScript Backend (Express)
 │   │   ├── src/
 │   │   ├── package.json
-│   │   └── railway.toml
+│   │   └── (Legacy: see /docs/archive/railway/).toml
 │   │
 │   └── backend-rag/
 │       └── backend/             # Python RAG Backend (FastAPI)
@@ -9144,12 +9146,12 @@ NUZANTARA-RAILWAY/
 │           ├── services/
 │           ├── requirements.txt
 │           ├── Dockerfile
-│           └── railway.toml
+│           └── (Legacy: see /docs/archive/railway/).toml
 │
 ├── docs/
 │   └── deploy/                  # Deploy documentation
 │
-└── RAILWAY_DEPLOY_GUIDE.md     # This file
+└── FLY_DEPLOYMENT_GUIDE.md     # This file
 ```
 
 ### Services Overview
@@ -9158,24 +9160,24 @@ NUZANTARA-RAILWAY/
 |---------|-----------|------|---------|-------------|
 | **TS-BACKEND** | Node.js (Express) | 8080 | API Gateway, handlers, integrations | 2-3 min |
 | **RAG BACKEND** | Python (FastAPI) | 8000 | AI/RAG, ChromaDB, Claude APIs | 5-7 min |
-| **PostgreSQL** | Managed DB | 5432 | Persistent storage (Railway managed) | N/A |
+| **PostgreSQL** | Managed DB | 5432 | Persistent storage (Fly.io managed) | N/A |
 
 ---
 
 ## 📋 Prerequisites
 
-### 1. Railway CLI
+### 1. Fly.io CLI
 
 ```bash
-# Install Railway CLI
-npm i -g @railway/cli
+# Install Fly.io CLI
+npm i -g @(Legacy: see /docs/archive/railway/)/cli
 
-# Login to Railway
-railway login
+# Login to Fly.io
+(Legacy: see /docs/archive/railway/) login
 
 # Link to project (one-time setup)
-cd /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY
-railway link
+cd /Users/antonellosiano/Desktop/NUZANTARA-(Legacy: see /docs/archive/railway/)
+(Legacy: see /docs/archive/railway/) link
 # Select: fulfilling-creativity
 # Environment: production
 ```
@@ -9184,34 +9186,34 @@ railway link
 
 - **Repo**: `Balizero1987/nuzantara`
 - **Branch**: `main`
-- **GitHub Integration**: Connected to Railway (auto-deploy on push)
+- **GitHub Integration**: Connected to Fly.io (auto-deploy on push)
 
 ### 3. Required Environment Variables
 
-Both services automatically read from Railway environment variables. No manual setup needed if using Railway CLI.
+Both services automatically read from Fly.io environment variables. No manual setup needed if using Fly.io CLI.
 
 **Key variables**:
 - `ANTHROPIC_API_KEY` - For Claude AI APIs
-- `DATABASE_URL` - PostgreSQL connection (auto-provided by Railway)
+- `DATABASE_URL` - PostgreSQL connection (auto-provided by Fly.io)
 - `R2_*` - Cloudflare R2 credentials (for ChromaDB storage)
 
 ---
 
 ## 🚀 Deploy Methods
 
-### Method 1: Railway CLI (⭐ RECOMMENDED)
+### Method 1: Fly.io CLI (⭐ RECOMMENDED)
 
 **Best for**: Development, quick iterations, immediate feedback
 
 ```bash
 # Deploy specific service
-railway up --service TS-BACKEND
+(Legacy: see /docs/archive/railway/) up --service TS-BACKEND
 
 # Deploy with logs
-railway up --service "RAG BACKEND" && railway logs --tail 50
+(Legacy: see /docs/archive/railway/) up --service "RAG BACKEND" && (Legacy: see /docs/archive/railway/) logs --tail 50
 
 # Check deployment status
-railway deployment list --service TS-BACKEND | head -5
+(Legacy: see /docs/archive/railway/) deployment list --service TS-BACKEND | head -5
 ```
 
 **Pros**:
@@ -9236,9 +9238,9 @@ git add .
 git commit -m "feat: your changes"
 git push origin main
 
-# Railway auto-deploys within 3-7 minutes
+# Fly.io auto-deploys within 3-7 minutes
 # Monitor progress:
-railway logs --service TS-BACKEND --tail 50
+(Legacy: see /docs/archive/railway/) logs --service TS-BACKEND --tail 50
 ```
 
 **Pros**:
@@ -9251,15 +9253,15 @@ railway logs --service TS-BACKEND --tail 50
 - ⚠️ Slower (3-7 min vs 30-60 sec)
 - ⚠️ Requires commit + push
 
-**Important**: Railway auto-deploys on push to `main` branch. Both services deploy independently based on their `Root Directory` configuration.
+**Important**: Fly.io auto-deploys on push to `main` branch. Both services deploy independently based on their `Root Directory` configuration.
 
 ---
 
-### Method 3: Railway Dashboard (Manual)
+### Method 3: Fly.io Dashboard (Manual)
 
 **Best for**: Emergency redeploys, rollbacks, one-off deploys
 
-1. Go to https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+1. Go to https://fly.io/dashboard
 2. Select service (TS-BACKEND or RAG BACKEND)
 3. Go to **Deployments** tab
 4. Click **Deploy** or **Redeploy** on a previous deployment
@@ -9279,7 +9281,7 @@ railway logs --service TS-BACKEND --tail 50
 
 ### TS-BACKEND Configuration
 
-**File**: `apps/backend-ts/railway.toml`
+**File**: `apps/backend-ts/(Legacy: see /docs/archive/railway/).toml`
 
 ```toml
 [build]
@@ -9294,7 +9296,7 @@ restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 ```
 
-**Railway Dashboard Settings** (override railway.toml):
+**Fly.io Dashboard Settings** (override (Legacy: see /docs/archive/railway/).toml):
 - **Root Directory**: `apps/backend-ts`
 - **Port**: `8080` (auto-detected from $PORT env var)
 - **Resources**: 2 vCPU, 2 GB RAM
@@ -9313,7 +9315,7 @@ restartPolicyMaxRetries = 3
 
 ### RAG BACKEND Configuration
 
-**File**: `apps/backend-rag/backend/railway.toml`
+**File**: `apps/backend-rag/backend/(Legacy: see /docs/archive/railway/).toml`
 
 ```toml
 [build]
@@ -9327,7 +9329,7 @@ restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 ```
 
-**Railway Dashboard Settings** (override railway.toml):
+**Fly.io Dashboard Settings** (override (Legacy: see /docs/archive/railway/).toml):
 - **Root Directory**: `apps/backend-rag/backend`
 - **Port**: `8000` (auto-detected from $PORT env var)
 - **Resources**: 2 vCPU, 2 GB RAM
@@ -9342,7 +9344,7 @@ restartPolicyMaxRetries = 3
    - Pre-download sentence-transformers model (~80MB)
    - Copy application code
 
-2. **Push image to Railway registry** - ~1-2 min (image size: ~2GB)
+2. **Push image to Fly.io registry** - ~1-2 min (image size: ~2GB)
 
 3. **Start container & initialize** - ~4-5 min
    - Run database migration (create PostgreSQL tables)
@@ -9361,21 +9363,21 @@ restartPolicyMaxRetries = 3
 
 ### 🔥 Critical Issue: RAG BACKEND Healthcheck
 
-**Problem**: Railway's default healthcheck timeout (30s) is too short for RAG BACKEND startup.
+**Problem**: Fly.io's default healthcheck timeout (30s) is too short for RAG BACKEND startup.
 
 **Why**: RAG BACKEND downloads 72MB of ChromaDB data from Cloudflare R2 on every container start, which takes 3-4 minutes.
 
 **Solution**: **HEALTHCHECK DISABLED**
 
 ```
-Railway Dashboard → RAG BACKEND → Settings → Deploy → Healthcheck
+Fly.io Dashboard → RAG BACKEND → Settings → Deploy → Healthcheck
 ✅ Disable "Health Check Path" (remove /health)
 ```
 
 **Result**: Container starts without healthcheck pressure, allowing full 5-7 min startup time.
 
 **Alternative solution** (future optimization):
-- Use Railway Volume to persist ChromaDB data between deploys
+- Use Fly.io Volume to persist ChromaDB data between deploys
 - Or: Include ChromaDB data in Docker image (increases image size to ~2GB but eliminates download time)
 
 ---
@@ -9483,17 +9485,17 @@ File: backend/app/routers/crm_shared_memory.py
 
 ### **Step 1: Verify Backend Deployment**
 
-Railway dovrebbe fare auto-deploy da GitHub, ma verifica che sia up to date:
+Fly.io dovrebbe fare auto-deploy da GitHub, ma verifica che sia up to date:
 
 ```bash
 # Check backend version
-curl https://scintillating-kindness-production-47e3.up.railway.app/
+curl https://nuzantara-rag.fly.dev/
 
 # Should show updated version with CRM endpoints
 ```
 
 Se la versione è ancora vecchia:
-1. Vai su Railway Dashboard
+1. Vai su Fly.io Dashboard
 2. Seleziona il servizio backend-rag
 3. Click "Deploy" → "Redeploy"
 
@@ -9509,12 +9511,12 @@ Una volta che il backend è deployato con l'ultimo codice:
 
 ```bash
 # Check if CRM tables exist
-curl https://scintillating-kindness-production-47e3.up.railway.app/admin/check-crm-tables
+curl https://nuzantara-rag.fly.dev/admin/check-crm-tables
 
 # If returns {"exists": false}, apply migration:
 curl -X POST \
   -H "x-api-key: zantara-internal-dev-key-2025" \
-  https://scintillating-kindness-production-47e3.up.railway.app/admin/apply-migration-007
+  https://nuzantara-rag.fly.dev/admin/apply-migration-007
 
 # Expected response:
 {
@@ -9534,9 +9536,9 @@ curl -X POST \
 }
 ```
 
-#### **Opzione B: Via Railway Dashboard**
+#### **Opzione B: Via Fly.io Dashboard**
 
-1. Apri Railway Dashboard
+1. Apri Fly.io Dashboard
 2. Vai al servizio PostgreSQL
 3. Click "Query" tab
 4. Copia e incolla il contenuto di: `apps/backend-rag/backend/db/migrations/007_crm_system_schema.sql`
@@ -9548,7 +9550,7 @@ curl -X POST \
 
 ```bash
 # Check tables exist
-curl https://scintillating-kindness-production-47e3.up.railway.app/admin/check-crm-tables
+curl https://nuzantara-rag.fly.dev/admin/check-crm-tables
 
 # Should return:
 {
@@ -9575,7 +9577,7 @@ curl -X POST \
     "phone": "+62 859 1234 5678",
     "nationality": "Indonesian"
   }' \
-  "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients?created_by=system"
+  "https://nuzantara-rag.fly.dev/crm/clients?created_by=system"
 
 # Expected: Returns client with ID
 ```
@@ -9591,7 +9593,7 @@ curl -X POST \
     "quoted_price": 15000000,
     "assigned_to": "test@balizero.com"
   }' \
-  "https://scintillating-kindness-production-47e3.up.railway.app/crm/practices?created_by=system"
+  "https://nuzantara-rag.fly.dev/crm/practices?created_by=system"
 
 # Expected: Returns practice with ID
 ```
@@ -9599,7 +9601,7 @@ curl -X POST \
 #### **Test 3: List Clients**
 
 ```bash
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients"
+curl "https://nuzantara-rag.fly.dev/crm/clients"
 
 # Expected: Returns array of clients
 ```
@@ -9607,7 +9609,7 @@ curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients"
 #### **Test 4: Shared Memory Search**
 
 ```bash
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/shared-memory/search?q=active+practices"
+curl "https://nuzantara-rag.fly.dev/crm/shared-memory/search?q=active+practices"
 
 # Expected: Returns practices matching query
 ```
@@ -9633,7 +9635,7 @@ curl -X POST \
       "team_member": "antonello@balizero.com"
     }
   }' \
-  "https://scintillating-kindness-production-47e3.up.railway.app/bali-zero/conversations/save"
+  "https://nuzantara-rag.fly.dev/bali-zero/conversations/save"
 
 # Expected Response:
 {
@@ -9655,7 +9657,7 @@ curl -X POST \
 
 ```bash
 # Get the client
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients/by-email/john.smith@email.com"
+curl "https://nuzantara-rag.fly.dev/crm/clients/by-email/john.smith@email.com"
 
 # Should show:
 {
@@ -9667,7 +9669,7 @@ curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients/
 }
 
 # Get client's practices
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/practices?client_id=2"
+curl "https://nuzantara-rag.fly.dev/crm/practices?client_id=2"
 
 # Should show PT_PMA practice!
 ```
@@ -9858,7 +9860,7 @@ Start: [05-database-schema.md](./05-database-schema.md)
 | **14 ChromaDB Collections** | [05-database-schema.md](./05-database-schema.md) | ChromaDB Schema |
 | **Performance** (10-20ms golden) | [04-data-flows.md](./04-data-flows.md) | Performance Analysis |
 | **Costs** ($15-30/month) | [03-ai-intelligence.md](./03-ai-intelligence.md) | Cost Analysis |
-| **Deployment** (Railway) | [01-system-overview.md](./01-system-overview.md) | Deployment |
+| **Deployment** (Fly.io) | [01-system-overview.md](./01-system-overview.md) | Deployment |
 
 ---
 
@@ -9873,7 +9875,7 @@ graph TB
             Web[WebApp<br/>zantara.balizero.com<br/>GitHub Pages]
         end
 
-        subgraph "Backend - Railway"
+        subgraph "Backend - Fly.io"
             TS[TS Backend :8080<br/>186 TS files<br/>96 handlers]
             RAG[RAG Backend :8000<br/>FastAPI + Python<br/>ZANTARA Intelligence]
         end
@@ -10147,7 +10149,7 @@ python apps/backend-rag/scripts/llama_nightly_worker.py \
     --max-golden 50 \
     --regenerate-cultural
 
-# Scheduled by Railway Cron
+# Scheduled by Fly.io Cron
 # Runs automatically every night
 ```
 
@@ -10293,12 +10295,12 @@ python apps/backend-rag/scripts/llama_nightly_worker.py \
 
 ---
 
-### **Missing 4: Railway Cron Job Configuration**
+### **Missing 4: Fly.io Cron Job Configuration**
 **Need:** Schedule nightly worker to run automatically
 
 **What to configure:**
-- Railway Cron Jobs (or external scheduler)
-- Environment variables on Railway
+- Fly.io Cron Jobs (or external scheduler)
+- Environment variables on Fly.io
 - Monitoring/alerting for failures
 
 **Estimated work:** 1 day
@@ -10412,9 +10414,9 @@ async def route_chat(self, message: str, user_id: str, ...):
 
 ---
 
-### **Priority 5: Railway Cron Scheduling** (Week 3)
+### **Priority 5: Fly.io Cron Scheduling** (Week 3)
 ```bash
-# Configure Railway Cron Job
+# Configure Fly.io Cron Job
 # Set environment variables
 # Monitor first automatic runs
 ```
@@ -10431,7 +10433,7 @@ async def route_chat(self, message: str, user_id: str, ...):
 **With new integrations:**
 - Same: €3.78/mese
 - Memory JIWA enrichment: Included (async, background)
-- ChromaDB retrieval: Free (self-hosted or Railway)
+- ChromaDB retrieval: Free (self-hosted or Fly.io)
 
 **Total: €3.78/mese for complete JIWA architecture!** ✨
 
@@ -10452,7 +10454,7 @@ async def route_chat(self, message: str, user_id: str, ...):
 **Next Week:**
 1. Build Memory JIWA enricher
 2. Test on real conversations
-3. Schedule with Railway Cron
+3. Schedule with Fly.io Cron
 
 ---
 
@@ -11207,26 +11209,26 @@ ZANTARA Team Hub can now be installed as a native-like Progressive Web App on de
 
 **Errore:**
 ```
-Access to fetch at 'https://ts-backend-production-568d.up.railway.app/call' 
+Access to fetch at 'https://nuzantara-backend.fly.dev/call' 
 from origin 'https://example.com' has been blocked by CORS policy
 ```
 
 **Fix Immediato:**
 ```bash
 # 1. Verificare origin corrente
-railway variables --service backend-ts | grep CORS_ORIGINS
+(Legacy: see /docs/archive/railway/) variables --service backend-ts | grep CORS_ORIGINS
 
 # 2. Aggiungere origin mancante
-railway variables set CORS_ORIGINS="https://zantara.balizero.com,https://balizero1987.github.io,http://localhost:3000,https://example.com" --service backend-ts
+(Legacy: see /docs/archive/railway/) variables set CORS_ORIGINS="https://zantara.balizero.com,https://balizero1987.github.io,http://localhost:3000,https://example.com" --service backend-ts
 
 # 3. Redeploy backend
-railway up --service backend-ts
+(Legacy: see /docs/archive/railway/) up --service backend-ts
 ```
 
 **Verifica:**
 ```bash
 # Test CORS con curl
-curl -X OPTIONS https://ts-backend-production-568d.up.railway.app/health \
+curl -X OPTIONS https://nuzantara-backend.fly.dev/health \
   -H "Origin: https://example.com" \
   -H "Access-Control-Request-Method: POST" \
   -v
@@ -11275,7 +11277,7 @@ headers: {
 {"status":"error","code":502,"message":"Application failed to respond"}
 ```
 
-**Causa:** Backend RAG in sleep (Railway cold start)
+**Causa:** Backend RAG in sleep (Fly.io cold start)
 
 **Fix Immediato (Webapp):**
 ```javascript
@@ -11311,7 +11313,7 @@ async function callWithColdStartRetry(url, options) {
 
 import fetch from 'node-fetch';
 
-const RAG_URL = process.env.RAG_BACKEND_URL || 'https://scintillating-kindness-production-47e3.up.railway.app';
+const RAG_URL = process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
 
 export function startRAGWarmup() {
   setInterval(async () => {
@@ -11344,7 +11346,7 @@ startRAGWarmup();
 // apps/backend-ts/src/routing/router.ts (linee 173-924)
 
 // 2. Lista handler disponibili:
-fetch('https://ts-backend-production-568d.up.railway.app/call', {
+fetch('https://nuzantara-backend.fly.dev/call', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ 
@@ -11443,7 +11445,7 @@ if (isDevelopment) {
   console.log('Using local proxy for development');
 } else {
   // PRODUCTION: sempre HTTPS
-  apiUrl = 'https://ts-backend-production-568d.up.railway.app' + endpoint;
+  apiUrl = 'https://nuzantara-backend.fly.dev' + endpoint;
 }
 ```
 
@@ -11468,7 +11470,7 @@ getAPIBase() {
   }
 
   // PRODUCTION: endpoint streaming
-  return 'https://ts-backend-production-568d.up.railway.app/chat'; // ← Verificare
+  return 'https://nuzantara-backend.fly.dev/chat'; // ← Verificare
 }
 
 // Backend: verificare endpoint /chat esista
@@ -11503,36 +11505,36 @@ console.log(localStorage.getItem('zantara-auth-token'));
 console.log(localStorage.getItem('zantara-user-email'));
 ```
 
-### 2. Railway CLI Commands
+### 2. Fly.io CLI Commands
 
 ```bash
 # Logs in tempo reale
-railway logs --service backend-ts --tail 50
+(Legacy: see /docs/archive/railway/) logs --service backend-ts --tail 50
 
 # Verificare env variables
-railway variables --service backend-ts
+(Legacy: see /docs/archive/railway/) variables --service backend-ts
 
 # Redeploy
-railway up --service backend-ts
+(Legacy: see /docs/archive/railway/) up --service backend-ts
 
 # Status deployment
-railway status
+(Legacy: see /docs/archive/railway/) status
 ```
 
 ### 3. cURL Tests
 
 ```bash
 # Test health
-curl https://ts-backend-production-568d.up.railway.app/health | jq .
+curl https://nuzantara-backend.fly.dev/health | jq .
 
 # Test /call endpoint
-curl -X POST https://ts-backend-production-568d.up.railway.app/call \
+curl -X POST https://nuzantara-backend.fly.dev/call \
   -H "Content-Type: application/json" \
   -H "Origin: https://zantara.balizero.com" \
   -d '{"key":"contact.info","params":{}}' | jq .
 
 # Test CORS preflight
-curl -X OPTIONS https://ts-backend-production-568d.up.railway.app/health \
+curl -X OPTIONS https://nuzantara-backend.fly.dev/health \
   -H "Origin: https://zantara.balizero.com" \
   -H "Access-Control-Request-Method: POST" \
   -v
@@ -11555,7 +11557,7 @@ Prima di deployare modifiche:
 - [ ] **API URLs** corretti in webapp config
 - [ ] **Test locale** con `npm run dev`
 - [ ] **Build success** con `npm run build`
-- [ ] **Railway health check** passa
+- [ ] **Fly.io health check** passa
 - [ ] **Browser console** senza errori CORS
 - [ ] **Test /call endpoint** con curl
 - [ ] **Integration test** passa: `node test-integration-errors.cjs`
@@ -11566,9 +11568,9 @@ Prima di deployare modifiche:
 
 Se problema persiste dopo quick fix:
 
-1. **Check Railway logs:**
+1. **Check Fly.io logs:**
    ```bash
-   railway logs --service backend-ts --tail 100 > backend-logs.txt
+   (Legacy: see /docs/archive/railway/) logs --service backend-ts --tail 100 > backend-logs.txt
    ```
 
 2. **Browser console log:**
@@ -11582,7 +11584,7 @@ Se problema persiste dopo quick fix:
 
 4. **Environment snapshot:**
    ```bash
-   railway variables --service backend-ts > env-vars.txt
+   (Legacy: see /docs/archive/railway/) variables --service backend-ts > env-vars.txt
    ```
 
 5. **Condividi:** Invia file a team per analisi approfondita
@@ -11761,7 +11763,7 @@ All features tested and working:
 
 **GET /warmup/stats** - Visualizza statistiche warmup
 ```bash
-curl https://ts-backend-production-568d.up.railway.app/warmup/stats
+curl https://nuzantara-backend.fly.dev/warmup/stats
 ```
 
 Response:
@@ -11793,7 +11795,7 @@ Response:
 
 **POST /warmup/trigger** - Trigger manuale ping
 ```bash
-curl -X POST https://ts-backend-production-568d.up.railway.app/warmup/trigger
+curl -X POST https://nuzantara-backend.fly.dev/warmup/trigger
 ```
 
 Response:
@@ -11811,8 +11813,8 @@ Response:
 
 Il servizio legge la variabile environment `RAG_BACKEND_URL`:
 ```bash
-# Railway
-railway variables set RAG_BACKEND_URL="https://scintillating-kindness-production-47e3.up.railway.app" --service backend-ts
+# Fly.io
+(Legacy: see /docs/archive/railway/) variables set RAG_BACKEND_URL="https://nuzantara-rag.fly.dev" --service backend-ts
 ```
 
 Se la variabile non è impostata, il servizio è disabilitato (log warning).
@@ -11820,8 +11822,8 @@ Se la variabile non è impostata, il servizio è disabilitato (log warning).
 #### Monitoring in Logs
 
 ```bash
-# Railway logs
-railway logs --service backend-ts --tail 50 | grep RAG
+# Fly.io logs
+(Legacy: see /docs/archive/railway/) logs --service backend-ts --tail 50 | grep RAG
 
 # Output examples:
 # ✅ RAG backend warmed up (450ms, success rate: 98.5%)
@@ -11993,13 +11995,13 @@ Payload:
 
 ```bash
 # 1. Check service is running
-curl https://ts-backend-production-568d.up.railway.app/warmup/stats
+curl https://nuzantara-backend.fly.dev/warmup/stats
 
 # 2. Trigger manual ping
-curl -X POST https://ts-backend-production-568d.up.railway.app/warmup/trigger
+curl -X POST https://nuzantara-backend.fly.dev/warmup/trigger
 
-# 3. Check Railway logs
-railway logs --service backend-ts --tail 20 | grep RAG
+# 3. Check Fly.io logs
+(Legacy: see /docs/archive/railway/) logs --service backend-ts --tail 20 | grep RAG
 
 # Expected output:
 # ✅ RAG warmup service initialized
@@ -12061,10 +12063,10 @@ try {
 **Dashboard Commands:**
 ```bash
 # Watch logs in real-time
-railway logs --service backend-ts --tail 100 | grep RAG
+(Legacy: see /docs/archive/railway/) logs --service backend-ts --tail 100 | grep RAG
 
 # Check stats endpoint
-watch -n 30 'curl -s https://ts-backend-production-568d.up.railway.app/warmup/stats | jq .data.health'
+watch -n 30 'curl -s https://nuzantara-backend.fly.dev/warmup/stats | jq .data.health'
 ```
 
 ### Error Handler Monitoring
@@ -12097,7 +12099,7 @@ setInterval(() => {
 **Problem:** Service not starting
 ```bash
 # Check logs
-railway logs --service backend-ts | grep "RAG warmup"
+(Legacy: see /docs/archive/railway/) logs --service backend-ts | grep "RAG warmup"
 
 # Expected: "✅ RAG warmup service initialized"
 # If not found: Check RAG_BACKEND_URL environment variable
@@ -12106,16 +12108,16 @@ railway logs --service backend-ts | grep "RAG warmup"
 **Problem:** High failure rate
 ```bash
 # Check RAG backend directly
-curl https://scintillating-kindness-production-47e3.up.railway.app/health
+curl https://nuzantara-rag.fly.dev/health
 
-# If 502: Backend is sleeping (normal on Railway free tier)
-# Solution: Upgrade to Railway Pro or accept occasional cold starts
+# If 502: Backend is sleeping (normal on Fly.io free tier)
+# Solution: Upgrade to Fly.io Pro or accept occasional cold starts
 ```
 
 **Problem:** Service stopped
 ```bash
 # Restart backend
-railway up --service backend-ts
+(Legacy: see /docs/archive/railway/) up --service backend-ts
 ```
 
 ### Error Handler Issues
@@ -12153,7 +12155,7 @@ console.log(stats.byCategory);
 - **Bandwidth:** ~5KB/request (~720KB/day)
 - **CPU:** Negligible
 - **Memory:** <1MB
-- **Cost:** Free (Railway includes this in normal usage)
+- **Cost:** Free (Fly.io includes this in normal usage)
 
 ### Error Handler
 - **Initial Load:** +13KB (one-time)
@@ -12248,7 +12250,7 @@ async def _warmup_llama(self):
 **RunPod API** (chiamata 5 minuti prima del batch):
 
 ```python
-# Railway Cron: 01:55 UTC (5 min prima del batch)
+# Fly.io Cron: 01:55 UTC (5 min prima del batch)
 import httpx
 
 async def scale_up_runpod():
@@ -12260,7 +12262,7 @@ async def scale_up_runpod():
             json={"minWorkers": 1}
         )
 
-# Railway Cron: 02:15 UTC (dopo il batch)
+# Fly.io Cron: 02:15 UTC (dopo il batch)
 async def scale_down_runpod():
     """Scale down to min=0 after batch"""
     # ... (same con minWorkers: 0)
@@ -12374,7 +12376,7 @@ Il code già gestisce tutti questi casi (cultural_knowledge_generator.py:326-359
 
 ## 📊 Accesso Dashboard
 
-**URL**: https://scintillating-kindness-production-47e3.up.railway.app/admin/zero/dashboard
+**URL**: https://nuzantara-rag.fly.dev/admin/zero/dashboard
 
 **Accesso**: Aperto (nessuna autenticazione richiesta per ora)
 
@@ -12555,7 +12557,7 @@ Colonne:
 1. **PostgreSQL (Primario)**
    - Tabella: `team_work_sessions`
    - Tabella: `team_daily_reports`
-   - Cloud persistente su Railway
+   - Cloud persistente su Fly.io
 
 2. **JSONL (Backup locale)**
    - File: `apps/backend-rag/backend/data/work_sessions_log.jsonl`
@@ -12606,7 +12608,7 @@ python3 scripts/read_work_sessions_log.py
 ## 📞 Support
 
 **Per problemi tecnici:**
-- Controlla logs Railway
+- Controlla logs Fly.io
 - Verifica health endpoint: `/health`
 - Testa API endpoints singolarmente
 
@@ -12634,7 +12636,7 @@ python3 scripts/read_work_sessions_log.py
 
 **Dashboard creato**: 21 Ottobre 2025
 **Versione**: 1.0
-**Status**: ✅ Operativo su Railway
+**Status**: ✅ Operativo su Fly.io
 
 ```
 
@@ -13606,7 +13608,7 @@ For questions or issues with the Oracle System, contact the development team.
 - **Status**: ✅ PRODUCTION READY (codice completo)
 - **Potential**: 8/10
 - **ROI**: Risolve tutti i problemi async jobs
-- **Effort**: 30 min (deploy Railway)
+- **Effort**: 30 min (deploy Fly.io)
 - **What It Does**:
   - Async job processing con retry logic
   - Post-processors: Slack + Google Drive
@@ -13695,7 +13697,7 @@ Query: "American vuole aprire ristorante a Canggu"
 
 ## 🎯 QUICK WINS (<1h)
 
-1. **orchestrator/** - 30 min deploy Railway
+1. **orchestrator/** - 30 min deploy Fly.io
 2. **bali-intel-scraper/** - 30 min deploy endpoint /api/embed
 
 **Combined Impact**: Async jobs risolti + ChromaDB alimentato con intel fresh
@@ -13714,7 +13716,7 @@ Query: "American vuole aprire ristorante a Canggu"
 ## 🚀 ACTIVATION PRIORITY
 
 ### Week 1 (Quick Wins):
-1. Deploy `orchestrator/` su Railway (30 min)
+1. Deploy `orchestrator/` su Fly.io (30 min)
 2. Deploy endpoint `/api/embed` per `bali-intel-scraper/` (30 min)
 3. Test prima esecuzione scraper (1h)
 
@@ -13915,7 +13917,7 @@ apps/HIGH_PRIORITY/
 8. **Conversation History UI** (3 giorni) - UI cronologia conversazioni
 
 ### **Testing Produzione**:
-- Deploy su Railway
+- Deploy su Fly.io
 - Test end-to-end con utenti reali
 - Monitoraggio performance
 - Ottimizzazioni basate su feedback
@@ -13967,7 +13969,7 @@ Il **ZANTARA Perfect Speaker System** è stato implementato con successo complet
 
 **ZANTARA è ora un "Perfect Speaker" che può rispondere con agilità, qualità e precisione, accedendo all'intera gamma di 164 handlers backend.**
 
-Il sistema è pronto per l'uso in produzione e rappresenta un salto qualitativo significativo nell'integrazione frontend-backend del progetto Nuzantara Railway.
+Il sistema è pronto per l'uso in produzione e rappresenta un salto qualitativo significativo nell'integrazione frontend-backend del progetto Nuzantara Fly.io.
 
 ---
 
@@ -14392,7 +14394,7 @@ graph TB
         WebApp[🌐 WebApp<br/>zantara.balizero.com<br/>65 JS files + PWA]
     end
     
-    subgraph "BACKEND - Railway"
+    subgraph "BACKEND - Fly.io"
         TS[⚙️ TS Backend :8080<br/>122 Handlers]
         RAG[🧠 RAG Backend :8000<br/>AI + RAG + Agents]
     end
@@ -14608,7 +14610,7 @@ graph LR
 
 ```markdown
 # TECHNICAL HANDOVER - 2025-10-26
-**Project**: NUZANTARA-RAILWAY (Zantara AI Chat + Website)
+**Project**: NUZANTARA-(Legacy: see /docs/archive/railway/) (Zantara AI Chat + Website)
 **Component**: Webapp Login & i18n System
 **Session**: Final continuation session
 
@@ -14810,13 +14812,13 @@ vi apps/webapp/login-new.html
 git add apps/webapp/login-new.html
 git commit -m "fix(login): remove auto-redirect to allow manual login page access"
 
-# Push to Railway
+# Push to Fly.io
 git push origin main
 ```
 
-### Railway Auto-Deploy
+### Fly.io Auto-Deploy
 - **Trigger**: Push to main branch
-- **Service**: scintillating-kindness-production-47e3.up.railway.app
+- **Service**: nuzantara-rag.fly.dev
 - **Region**: asia-southeast1
 - **Deploy Time**: ~2-3 minutes
 - **Status**: ✅ Active
@@ -15272,7 +15274,7 @@ interface Article {
 **👤 User:** Zero (Bali Zero)  
 **🤖 Assistant:** Claude Sonnet 4  
 **🎯 Objective:** Complete System Optimization A B C D  
-**📍 Project:** NUZANTARA RAILWAY  
+**📍 Project:** NUZANTARA (Legacy: see /docs/archive/railway/)  
 
 ---
 
@@ -15442,7 +15444,7 @@ Dammi un secondo che chiamo il tool per le tariffe aggiornate"
 
 ### 🏗️ **Backend Architecture**
 ```
-RAG Backend (Railway):
+RAG Backend (Fly.io):
 ├── Claude Haiku 4.5 (AI Processing) ✅
 ├── Tool System (164 tools) ⚠️ (Execution issue)
 ├── Pricing Service (Official Bali Zero prices) ✅
@@ -15450,7 +15452,7 @@ RAG Backend (Railway):
 ├── ChromaDB (Vector search) ✅
 └── SSE Streaming (/bali-zero/chat-stream) ✅
 
-TS Backend (Railway):
+TS Backend (Fly.io):
 ├── 164 Handlers (Business logic) ✅
 ├── JWT Authentication ✅
 ├── Demo User Auth ✅
@@ -15520,7 +15522,7 @@ Webapp (GitHub Pages):
 - ✅ Role-based Access Control: ACTIVE
 
 ### 🌐 **Production Deployment**
-- ✅ Backend: Railway (ACTIVE)
+- ✅ Backend: Fly.io (ACTIVE)
 - ✅ Frontend: GitHub Pages (ACTIVE)
 - ✅ Database: PostgreSQL + ChromaDB (HEALTHY)
 - ✅ SSL/HTTPS: ENABLED
@@ -15621,7 +15623,7 @@ Webapp (GitHub Pages):
 ### ✅ **MAJOR ACHIEVEMENTS**
 
 1. **✅ OPTION C - FULL PACKAGE COMPLETED**
-   - All 6 priorities implemented and deployed to Railway
+   - All 6 priorities implemented and deployed to Fly.io
    - Priority 1: Autonomous Research Service
    - Priority 2: Cross-Oracle Synthesis Service
    - Priority 3: Dynamic Pricing Service
@@ -15629,7 +15631,7 @@ Webapp (GitHub Pages):
    - Priority 5: Firestore handlers removal
    - Priority 6: Deploy & testing
 
-2. **✅ RAILWAY DEPLOYMENT SUCCESSFUL**
+2. **✅ (Legacy: see /docs/archive/railway/) DEPLOYMENT SUCCESSFUL**
    - TS-BACKEND: Build passing (TypeScript compilation fixed)
    - RAG-BACKEND: All services initialized and running
    - Commit: `c2d05fa` deployed successfully
@@ -15663,7 +15665,7 @@ Webapp (GitHub Pages):
 - Auto-activated for complex research queries
 - Logs show: `✅ AutonomousResearchService initialized`
 
-**Status:** LIVE on Railway ✅
+**Status:** LIVE on Fly.io ✅
 
 ---
 
@@ -15683,7 +15685,7 @@ Webapp (GitHub Pages):
 - Patterns detected automatically
 - Logs show: `✅ CrossOracleSynthesisService initialized`
 
-**Status:** LIVE on Railway ✅
+**Status:** LIVE on Fly.io ✅
 
 ---
 
@@ -15703,7 +15705,7 @@ Webapp (GitHub Pages):
 - Auto-activated for pricing queries
 - Logs show: `✅ DynamicPricingService initialized`
 
-**Status:** LIVE on Railway ✅
+**Status:** LIVE on Fly.io ✅
 
 ---
 
@@ -15738,7 +15740,7 @@ Webapp (GitHub Pages):
 - Active in conversation flow
 - Logs show: `✅ EmotionalAttunementService ready`
 
-**Status:** LIVE on Railway ✅
+**Status:** LIVE on Fly.io ✅
 
 ---
 
@@ -15774,17 +15776,17 @@ error TS2554: Expected 0 arguments, but got 5
 
 ### **Priority 6: Deploy & Testing** ✅
 
-**Railway Deployment Status:**
+**Fly.io Deployment Status:**
 
 **TS-BACKEND:**
-- URL: `https://ts-backend-production-568d.up.railway.app`
+- URL: `https://nuzantara-backend.fly.dev`
 - Commit: `79d2b698` (latest)
 - Status: ✅ Active
 - Build: ✅ Passing (69.75 seconds)
 - Runtime: ✅ No errors
 
 **RAG-BACKEND:**
-- URL: `https://scintillating-kindness-production-47e3.up.railway.app`
+- URL: `https://nuzantara-rag.fly.dev`
 - Commit: `b8a4101c` (latest)
 - Status: ✅ Active
 - Services initialized:
@@ -15802,10 +15804,10 @@ error TS2554: Expected 0 arguments, but got 5
 **Git Status:**
 ```bash
 Latest commits:
-c2d05fa 🚀 FORCE Railway redeploy - Priority 1-5 + Firestore fixes
+c2d05fa 🚀 FORCE Fly.io redeploy - Priority 1-5 + Firestore fixes
 60fa8cc 🔧 Fix CRITICAL runtime error - zantara-orchestrator
 388ce63 🔧 Fix TypeScript compilation errors from Priority 5
-da75d59 🚀 Force Railway redeploy - Priority 1-5 services active
+da75d59 🚀 Force Fly.io redeploy - Priority 1-5 services active
 ```
 
 **Testing:**
@@ -16027,10 +16029,10 @@ Miscellaneous configurations
 - `tsconfig.json` - Main TypeScript config
 - `tsconfig.build.json` - Build-specific config
 
-**Railway**:
-- `railway.toml` - Python RAG backend config
-- `railway.typescript.toml` - TypeScript backend config
-- `railway_cron.toml` - Scheduled tasks config
+**Fly.io**:
+- `(Legacy: see /docs/archive/railway/).toml` - Python RAG backend config
+- `(Legacy: see /docs/archive/railway/).typescript.toml` - TypeScript backend config
+- `(Legacy: see /docs/archive/railway/)_cron.toml` - Scheduled tasks config
 
 **Testing**:
 - `jest.config.js` - Jest test configuration
@@ -16045,10 +16047,10 @@ Miscellaneous configurations
 }
 ```
 
-### Railway Deploy
+### Fly.io Deploy
 ```bash
-# Railway auto-deploys on git push
-railway up
+# Fly.io auto-deploys on git push
+(Legacy: see /docs/archive/railway/) up
 ```
 
 ### App configs
@@ -16063,7 +16065,7 @@ Referenced by apps via relative paths or environment variables.
 
 ---
 
-**Last Updated**: 2025-10-18 (Railway migration)
+**Last Updated**: 2025-10-18 (Fly.io migration)
 
 ```
 
@@ -16390,7 +16392,7 @@ They're showing vulnerability by admitting this feeling. Response should:
 
 > **Last Updated**: 2025-10-27 (Architecture Documentation Sync)
 > **Version**: 5.7.0 (handlers: 138 functions, services: 68 total)
-> **Status**: Production (Railway) + Local Development + ZANTARA Llama 3.1 + DevAI Qwen 2.5
+> **Status**: Production (Fly.io) + Local Development + ZANTARA Llama 3.1 + DevAI Qwen 2.5
 
 ---
 
@@ -16411,7 +16413,7 @@ graph TB
         API_Clients[API Clients<br/>Custom GPT, Zapier]
     end
 
-    subgraph "Railway - TypeScript Backend :8080"
+    subgraph "Fly.io - TypeScript Backend :8080"
         Express[Express Server]
         Router[RPC Router<br/>/call endpoint]
         MW[Middleware Stack]
@@ -16434,7 +16436,7 @@ graph TB
         OAuth[OAuth2 Client]
     end
 
-    subgraph "Railway - RAG Backend :8000"
+    subgraph "Fly.io - RAG Backend :8000"
         FastAPI[FastAPI App]
 
         subgraph "RAG Pipeline"
@@ -16454,8 +16456,8 @@ graph TB
     subgraph "Data Layer"
         Firestore[(Firestore<br/>Memory, Users)]
         Redis[(Redis<br/>Cache<br/>optional)]
-        Storage[(Railway Storage<br/>ChromaDB)]
-        EnvVars[Railway Variables<br/>API Keys]
+        Storage[(Fly.io Storage<br/>ChromaDB)]
+        EnvVars[Fly.io Variables<br/>API Keys]
     end
 
     WebUI --> Express
@@ -16492,7 +16494,7 @@ graph TB
 **Initialization Sequence**:
 ```typescript
 Line 1-92:   Firebase Admin init
-             ├─ Try: GOOGLE_SERVICE_ACCOUNT env var (Railway)
+             ├─ Try: GOOGLE_SERVICE_ACCOUNT env var (Fly.io)
              ├─ Fallback: GOOGLE_APPLICATION_CREDENTIALS file
              └─ Fallback: ADC (Application Default Credentials)
 
@@ -16530,7 +16532,7 @@ Line 351-388: Graceful shutdown
 **Configuration**:
 - **Port**: 8080 (default, override with `PORT` env var)
 - **CORS**: Configurable via `CORS_ORIGINS` (comma-separated)
-- **Memory**: 2Gi (Railway)
+- **Memory**: 2Gi (Fly.io)
 - **CPU**: 2 vCPU
 
 **Performance Targets**:
@@ -16998,14 +17000,14 @@ async def route_chat(self, message: str, user_id: str, ...):
 
 **Data**: 23 Ottobre 2025, 19:15
 **Metodologia**: Analisi sistematica cartella per cartella
-**Repository**: `/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY`
+**Repository**: `/Users/antonellosiano/Desktop/NUZANTARA-(Legacy: see /docs/archive/railway/)`
 
 ---
 
 ## 🏗️ STRUTTURA COMPLETA DEL REPOSITORY
 
 ```
-NUZANTARA-RAILWAY/
+NUZANTARA-(Legacy: see /docs/archive/railway/)/
 ├── 📁 apps/                          # APPLICAZIONI PRINCIPALI
 │   ├── 📁 backend-rag/              # RAG Backend (Python)
 │   ├── 📁 backend-ts/               # TS Backend (Node.js)
@@ -17133,7 +17135,7 @@ NUZANTARA-RAILWAY/
 
 ## 🗄️ LAYER 3: DATABASE LAYER
 
-### **PostgreSQL** (Railway Managed)
+### **PostgreSQL** (Fly.io Managed)
 ```
 📁 apps/backend-rag/backend/db/
 ├── migrations/                    # Database migrations
@@ -17340,17 +17342,17 @@ File: backend/app/routers/crm_shared_memory.py
 
 ### **Step 1: Verify Backend Deployment**
 
-Railway dovrebbe fare auto-deploy da GitHub, ma verifica che sia up to date:
+Fly.io dovrebbe fare auto-deploy da GitHub, ma verifica che sia up to date:
 
 ```bash
 # Check backend version
-curl https://scintillating-kindness-production-47e3.up.railway.app/
+curl https://nuzantara-rag.fly.dev/
 
 # Should show updated version with CRM endpoints
 ```
 
 Se la versione è ancora vecchia:
-1. Vai su Railway Dashboard
+1. Vai su Fly.io Dashboard
 2. Seleziona il servizio backend-rag
 3. Click "Deploy" → "Redeploy"
 
@@ -17366,12 +17368,12 @@ Una volta che il backend è deployato con l'ultimo codice:
 
 ```bash
 # Check if CRM tables exist
-curl https://scintillating-kindness-production-47e3.up.railway.app/admin/check-crm-tables
+curl https://nuzantara-rag.fly.dev/admin/check-crm-tables
 
 # If returns {"exists": false}, apply migration:
 curl -X POST \
   -H "x-api-key: zantara-internal-dev-key-2025" \
-  https://scintillating-kindness-production-47e3.up.railway.app/admin/apply-migration-007
+  https://nuzantara-rag.fly.dev/admin/apply-migration-007
 
 # Expected response:
 {
@@ -17391,9 +17393,9 @@ curl -X POST \
 }
 ```
 
-#### **Opzione B: Via Railway Dashboard**
+#### **Opzione B: Via Fly.io Dashboard**
 
-1. Apri Railway Dashboard
+1. Apri Fly.io Dashboard
 2. Vai al servizio PostgreSQL
 3. Click "Query" tab
 4. Copia e incolla il contenuto di: `apps/backend-rag/backend/db/migrations/007_crm_system_schema.sql`
@@ -17405,7 +17407,7 @@ curl -X POST \
 
 ```bash
 # Check tables exist
-curl https://scintillating-kindness-production-47e3.up.railway.app/admin/check-crm-tables
+curl https://nuzantara-rag.fly.dev/admin/check-crm-tables
 
 # Should return:
 {
@@ -17432,7 +17434,7 @@ curl -X POST \
     "phone": "+62 859 1234 5678",
     "nationality": "Indonesian"
   }' \
-  "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients?created_by=system"
+  "https://nuzantara-rag.fly.dev/crm/clients?created_by=system"
 
 # Expected: Returns client with ID
 ```
@@ -17448,7 +17450,7 @@ curl -X POST \
     "quoted_price": 15000000,
     "assigned_to": "test@balizero.com"
   }' \
-  "https://scintillating-kindness-production-47e3.up.railway.app/crm/practices?created_by=system"
+  "https://nuzantara-rag.fly.dev/crm/practices?created_by=system"
 
 # Expected: Returns practice with ID
 ```
@@ -17456,7 +17458,7 @@ curl -X POST \
 #### **Test 3: List Clients**
 
 ```bash
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients"
+curl "https://nuzantara-rag.fly.dev/crm/clients"
 
 # Expected: Returns array of clients
 ```
@@ -17464,7 +17466,7 @@ curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients"
 #### **Test 4: Shared Memory Search**
 
 ```bash
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/shared-memory/search?q=active+practices"
+curl "https://nuzantara-rag.fly.dev/crm/shared-memory/search?q=active+practices"
 
 # Expected: Returns practices matching query
 ```
@@ -17490,7 +17492,7 @@ curl -X POST \
       "team_member": "antonello@balizero.com"
     }
   }' \
-  "https://scintillating-kindness-production-47e3.up.railway.app/bali-zero/conversations/save"
+  "https://nuzantara-rag.fly.dev/bali-zero/conversations/save"
 
 # Expected Response:
 {
@@ -17512,7 +17514,7 @@ curl -X POST \
 
 ```bash
 # Get the client
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients/by-email/john.smith@email.com"
+curl "https://nuzantara-rag.fly.dev/crm/clients/by-email/john.smith@email.com"
 
 # Should show:
 {
@@ -17524,7 +17526,7 @@ curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients/
 }
 
 # Get client's practices
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/practices?client_id=2"
+curl "https://nuzantara-rag.fly.dev/crm/practices?client_id=2"
 
 # Should show PT_PMA practice!
 ```
@@ -17641,7 +17643,7 @@ Manager chiede: "Quante pratiche attive ha Antonello?"
 ## 📁 Project Structure
 
 ```
-nuzantara-railway/
+nuzantara-(Legacy: see /docs/archive/railway/)/
 ├── apps/              # Deployable applications
 │   ├── backend-ts/   # TypeScript API (122 handlers)
 │   ├── backend-rag/  # Python RAG system (48 services)
@@ -17911,7 +17913,7 @@ Start: [05-database-schema.md](./05-database-schema.md)
 | **14 ChromaDB Collections** | [05-database-schema.md](./05-database-schema.md) | ChromaDB Schema |
 | **Performance** (10-20ms golden) | [04-data-flows.md](./04-data-flows.md) | Performance Analysis |
 | **Costs** ($15-30/month) | [03-ai-intelligence.md](./03-ai-intelligence.md) | Cost Analysis |
-| **Deployment** (Railway) | [01-system-overview.md](./01-system-overview.md) | Deployment |
+| **Deployment** (Fly.io) | [01-system-overview.md](./01-system-overview.md) | Deployment |
 
 ---
 
@@ -17926,7 +17928,7 @@ graph TB
             Web[WebApp<br/>zantara.balizero.com<br/>GitHub Pages]
         end
 
-        subgraph "Backend - Railway"
+        subgraph "Backend - Fly.io"
             TS[TS Backend :8080<br/>25,000 lines<br/>122 handlers]
             RAG[RAG Backend :8000<br/>15,000 lines<br/>ZANTARA Intelligence]
         end
@@ -18142,7 +18144,7 @@ Last Updated: 23 Oct 2025
 
 **External:**
 - GitHub: https://github.com/Balizero1987/nuzantara
-- Railway Dashboard: https://railway.app
+- Fly.io Dashboard: https://fly.io
 - Production: https://zantara.balizero.com
 
 ---
@@ -18197,7 +18199,7 @@ Use when you've ONLY changed:
 - Static assets
 - .dockerignore file
 
-**Railway does this automatically when you:**
+**Fly.io does this automatically when you:**
 ```bash
 git push origin main
 ```
@@ -18208,7 +18210,7 @@ Required when you've changed:
 - Python package versions
 - Minor dependency updates
 
-**Railway handles this automatically, but you can verify:**
+**Fly.io handles this automatically, but you can verify:**
 ```bash
 # Check if requirements changed
 git diff HEAD~1 requirements.txt
@@ -18223,13 +18225,13 @@ Required when you've changed:
 - Model configurations
 - First deployment to new environment
 
-**How to force full rebuild on Railway:**
+**How to force full rebuild on Fly.io:**
 ```bash
 # Option 1: Add a dummy build arg to Dockerfile
 echo "# Force rebuild: $(date)" >> Dockerfile
 git add Dockerfile && git commit -m "Force full rebuild" && git push
 
-# Option 2: Clear Railway build cache (from Railway dashboard)
+# Option 2: Clear Fly.io build cache (from Fly.io dashboard)
 # Settings → Build → Clear Cache
 ```
 
@@ -18290,9 +18292,9 @@ git push
 
 ## 🔍 How to Check What's Happening
 
-### Check Railway Build Logs
+### Check Fly.io Build Logs
 ```bash
-# Look for these messages in Railway logs:
+# Look for these messages in Fly.io logs:
 
 "Using cache" → Good! Layer is cached
 "Downloading" → Rebuilding this layer
@@ -18337,22 +18339,22 @@ DOCKER_BUILDKIT=1 docker build -t test .
 docker run -p 8000:8000 test
 ```
 
-### 3. **Use Railway Dev Environment**
+### 3. **Use Fly.io Dev Environment**
 ```bash
 # Create dev branch for experiments
 git checkout -b dev/test-feature
 git push origin dev/test-feature
-# Railway can build this separately
+# Fly.io can build this separately
 ```
 
-## ⚠️ Railway-Specific Requirements
+## ⚠️ Fly.io-Specific Requirements
 
 ### Cache Mounts MUST Have IDs
 ```dockerfile
-# ❌ WRONG - Works locally but fails on Railway
+# ❌ WRONG - Works locally but fails on Fly.io
 RUN --mount=type=cache,target=/root/.cache/pip
 
-# ✅ CORRECT - Railway requires explicit cache ID
+# ✅ CORRECT - Fly.io requires explicit cache ID
 RUN --mount=type=cache,id=pip-cache,target=/root/.cache/pip
 ```
 
@@ -18377,8 +18379,8 @@ echo "# force" >> Dockerfile  # Don't do this for .py changes!
 # WRONG - Use environment variables
 RUN echo "API_KEY=xxx" >> .env  # Don't hardcode!
 
-# RIGHT - Use Railway variables
-# Set in Railway dashboard → Variables
+# RIGHT - Use Fly.io variables
+# Set in Fly.io dashboard → Variables
 ```
 
 ## 📊 Build Time Expectations
@@ -18395,7 +18397,7 @@ RUN echo "API_KEY=xxx" >> .env  # Don't hardcode!
 
 ### Build taking longer than expected?
 
-1. **Check Railway logs for "Using cache"**
+1. **Check Fly.io logs for "Using cache"**
    - Missing? Cache might be invalidated
 
 2. **Check git diff**
@@ -18420,7 +18422,7 @@ RUN echo "API_KEY=xxx" >> .env  # Don't hardcode!
 ## 📝 For Human Developers
 
 This guide is primarily for AI assistants, but humans should know:
-- Railway handles most optimization automatically
+- Fly.io handles most optimization automatically
 - Trust the caching system
 - Only intervene when builds are unexpectedly slow
 - Monitor the first build after Dockerfile changes
@@ -18429,23 +18431,23 @@ This guide is primarily for AI assistants, but humans should know:
 
 If builds are still slow, consider:
 1. **Pre-built base images** with dependencies
-2. **Railway persistent cache volumes**
+2. **Fly.io persistent cache volumes**
 3. **Separate services** for different components
 4. **GitHub Actions** for CI/CD pre-building
 
 ---
 
 **Last Updated**: 2025-10-20
-**Applies to**: NUZANTARA Railway Deployment
+**Applies to**: NUZANTARA Fly.io Deployment
 **Dockerfile Type**: Multi-stage with BuildKit optimizations
 ```
 
 ---
 
-### 📄 docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md
+### 📄 docs/guides/FLY_DEPLOYMENT_GUIDE.md
 
 ```markdown
-# 🚂 Railway Deployment Guide - Imagine.art Integration
+# 🚂 Fly.io Deployment Guide - Imagine.art Integration
 
 **Date:** 2025-10-16 15:15 CET  
 **Commit:** e519349  
@@ -18462,7 +18464,7 @@ If builds are still slow, consider:
 - ✓ Local testing passed 100%
 
 ### ⚠️ Critical Discovery
-Railway project **"fulfilling-creativity"** likely has **MULTIPLE services**:
+Fly.io project **"fulfilling-creativity"** likely has **MULTIPLE services**:
 
 1. **Main Backend Service** (Node.js/TypeScript)
    - Your Imagine.art handlers are HERE
@@ -18479,13 +18481,13 @@ Railway project **"fulfilling-creativity"** likely has **MULTIPLE services**:
 
 ## 📋 Action Required: Identify Correct Service
 
-### Step 1: Open Railway Dashboard
+### Step 1: Open Fly.io Dashboard
 ```bash
 # Open in browser
-open https://railway.app/dashboard
+open https://fly.io/dashboard
 
 # Or visit manually:
-https://railway.app/dashboard
+https://fly.io/dashboard
 ```
 
 ### Step 2: Find Your Project
@@ -18565,7 +18567,7 @@ Variable Value: [paste your API key from imagine.art]
 3. Copy your key
 
 ### Step 3: Redeploy (if needed)
-- Railway should auto-redeploy when you add variable
+- Fly.io should auto-redeploy when you add variable
 - If not, click "Redeploy" button
 - Wait 2-3 minutes for deployment
 
@@ -18574,18 +18576,18 @@ Variable Value: [paste your API key from imagine.art]
 ## 🧪 Test Production Endpoint
 
 ### Step 1: Get Service URL
-In Railway dashboard:
+In Fly.io dashboard:
 - Go to your service
 - Click "Domains" or "Settings"
-- Copy the public URL (e.g., `https://nuzantara-backend.railway.app`)
+- Copy the public URL (e.g., `https://nuzantara-backend.fly.dev`)
 
 ### Step 2: Test Connection
 ```bash
-# Set your Railway URL
-RAILWAY_URL="https://your-service.railway.app"
+# Set your Fly.io URL
+FLY_APP_URL="https://<your-service>.fly.dev"
 
 # Test 1: Connection Test
-curl -X POST "$RAILWAY_URL/call" \
+curl -X POST "$FLY_APP_URL/call" \
   -H "Content-Type: application/json" \
   -H "x-api-key: zantara-internal-dev-key-2025" \
   -d '{"key":"ai-services.image.test"}' | jq '.'
@@ -18604,7 +18606,7 @@ curl -X POST "$RAILWAY_URL/call" \
 ### Step 3: Test Image Generation
 ```bash
 # Test 2: Generate Image
-curl -X POST "$RAILWAY_URL/call" \
+curl -X POST "$FLY_APP_URL/call" \
   -H "Content-Type: application/json" \
   -H "x-api-key: zantara-internal-dev-key-2025" \
   -d '{
@@ -18632,7 +18634,7 @@ curl -X POST "$RAILWAY_URL/call" \
 
 ### Issue 2: "handler_not_found"
 **Solution:** Service might not have deployed yet
-- Check deployment status in Railway
+- Check deployment status in Fly.io
 - Wait for build to complete (2-3 minutes)
 - Check build logs for errors
 
@@ -18652,7 +18654,7 @@ curl -X POST "$RAILWAY_URL/call" \
 
 ## 📊 Deployment Checklist
 
-- [ ] Opened Railway Dashboard
+- [ ] Opened Fly.io Dashboard
 - [ ] Found project "fulfilling-creativity"
 - [ ] Identified correct service (Node.js backend)
 - [ ] Checked deployment status (should show e519349)
@@ -18680,10 +18682,10 @@ curl -X POST "$RAILWAY_URL/call" \
 
 ## 📞 Support
 
-**Railway Issues:**
-- Dashboard: https://railway.app/dashboard
-- Docs: https://docs.railway.app/
-- Support: https://help.railway.app/
+**Fly.io Issues:**
+- Dashboard: https://fly.io/dashboard
+- Docs: https://fly.io/docs/
+- Support: https://community.fly.io/
 
 **Imagine.art Issues:**
 - Dashboard: https://platform.imagine.art/
@@ -18694,7 +18696,7 @@ curl -X POST "$RAILWAY_URL/call" \
 ## 📝 Summary
 
 **What You Need to Do:**
-1. ✅ Open Railway Dashboard
+1. ✅ Open Fly.io Dashboard
 2. ✅ Find "fulfilling-creativity" project
 3. ✅ Select Node.js backend service (port 8080)
 4. ✅ Verify deployment of commit e519349
@@ -18703,18 +18705,18 @@ curl -X POST "$RAILWAY_URL/call" \
 
 **Current Status:**
 - Code is pushed ✓
-- Railway will auto-deploy ✓
+- Fly.io will auto-deploy ✓
 - Need to add API key ⚠️
 - Need to test production ⚠️
 
 **Next Step:** 
-Open Railway Dashboard and follow this guide!
+Open Fly.io Dashboard and follow this guide!
 
 ---
 
 **Created:** 2025-10-16 15:15 CET  
 **Commit:** e519349  
-**Action:** Open https://railway.app/dashboard
+**Action:** Open https://fly.io/dashboard
 
 ```
 
@@ -19081,7 +19083,7 @@ including architecture, code structure, and available capabilities.
 │       ├── 📃 test_phase1_live.py
 │       ├── 📃 test_phase1_rag_skip.py
 │       ├── 📃 test_phase1_sanitization.py
-│       ├── 📃 test_railway_phase1.py
+│       ├── 📃 test_(Legacy: see /docs/archive/railway/)_phase1.py
 │       └── 📃 verify_memory_fix.py
 ├── 📁 backend-ts/
 │   ├── 📃 .DS_Store
@@ -19205,13 +19207,13 @@ including architecture, code structure, and available capabilities.
 
 ---
 
-### 📄 docs/RAILWAY_R2_SETUP_GUIDE.md
+### 📄 QDRANT_DEPLOY_INSTRUCTIONS.md
 
 ```markdown
-# 🚀 Railway R2 Credentials Setup Guide
+# 🚀 Fly.io R2 Credentials Setup Guide
 
 **Date**: 2025-10-28
-**Task**: Configure Cloudflare R2 credentials for ChromaDB on Railway
+**Task**: Configure Cloudflare R2 credentials for ChromaDB on Fly.io
 **Status**: ⏳ Ready to Configure
 
 ---
@@ -19227,19 +19229,19 @@ R2_ENDPOINT_URL=https://a079a34fb9f45d0c6c7b6c182f3dc2cc.r2.cloudflarestorage.co
 R2_BUCKET_NAME=nuzantaradb
 ```
 
-### 🗄️ Railway Persistent Volume
+### 🗄️ Fly.io Persistent Volume
 
 ```bash
-RAILWAY_VOLUME_MOUNT_PATH=/data/chroma_db
+FLY_VOLUME_MOUNT_PATH=/data/chroma_db
 ```
 
 ---
 
 ## 🎯 Step-by-Step Setup Instructions
 
-### Step 1: Open Railway Dashboard
+### Step 1: Open Fly.io Dashboard
 
-1. Go to: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+1. Go to: https://fly.io/dashboard
 2. Click on **"RAG BACKEND"** service
 3. Go to **"Variables"** tab
 
@@ -19271,9 +19273,9 @@ Name: R2_BUCKET_NAME
 Value: nuzantaradb
 ```
 
-#### Variable 5: RAILWAY_VOLUME_MOUNT_PATH
+#### Variable 5: FLY_VOLUME_MOUNT_PATH
 ```
-Name: RAILWAY_VOLUME_MOUNT_PATH
+Name: FLY_VOLUME_MOUNT_PATH
 Value: /data/chroma_db
 ```
 
@@ -19291,7 +19293,7 @@ Value: /data/chroma_db
 ### Step 4: Redeploy Service
 
 1. After adding all variables and volume
-2. Railway will automatically trigger a redeploy
+2. Fly.io will automatically trigger a redeploy
 3. **OR** manually trigger:
    - Go to **"Deployments"** tab
    - Click **"Deploy Latest"**
@@ -19321,7 +19323,7 @@ Watch the **Build Logs** for these success messages:
 ### 1. Check Service Health
 
 ```bash
-curl https://scintillating-kindness-production-47e3.up.railway.app/health
+curl https://nuzantara-rag.fly.dev/health
 ```
 
 Expected response:
@@ -19338,7 +19340,7 @@ Expected response:
 ### 2. Test Oracle Collections
 
 ```bash
-curl https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/collections
+curl https://nuzantara-rag.fly.dev/api/oracle/collections
 ```
 
 Expected response:
@@ -19366,7 +19368,7 @@ Expected response:
 ### 3. Test Oracle Query Endpoint
 
 ```bash
-curl -X POST https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/query \
+curl -X POST https://nuzantara-rag.fly.dev/api/oracle/query \
   -H "Content-Type: application/json" \
   -d '{
     "query": "What is KITAS?",
@@ -19394,7 +19396,7 @@ Expected response:
 
 **Check logs**:
 ```bash
-railway logs --service "RAG BACKEND" --tail 100 | grep -i "chroma\|r2"
+(Legacy: see /docs/archive/railway/) logs --service "RAG BACKEND" --tail 100 | grep -i "chroma\|r2"
 ```
 
 **Possible causes**:
@@ -19409,7 +19411,7 @@ railway logs --service "RAG BACKEND" --tail 100 | grep -i "chroma\|r2"
 **Subsequent deploys**: Should be fast (<30s) if persistent volume is working
 
 If still slow:
-- Check `RAILWAY_VOLUME_MOUNT_PATH` is set correctly
+- Check `FLY_VOLUME_MOUNT_PATH` is set correctly
 - Verify volume is actually mounted at `/data/chroma_db`
 
 ### Issue 3: Search Service Not Initialized
@@ -19449,26 +19451,26 @@ If still slow:
 
 1. **Populate Oracle KB** (if empty):
    ```bash
-   curl -X POST https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/populate-now
+   curl -X POST https://nuzantara-rag.fly.dev/api/oracle/populate-now
    ```
 
 2. **Test Multi-Oracle Synthesis**:
    ```bash
-   curl -X POST https://scintillating-kindness-production-47e3.up.railway.app/api/agents/synthesis/cross-oracle \
+   curl -X POST https://nuzantara-rag.fly.dev/api/agents/synthesis/cross-oracle \
      -H "Content-Type: application/json" \
      -d '{"query": "Open PT PMA for IT consulting in Bali", "domains": ["kbli", "legal", "tax", "visa"]}'
    ```
 
 3. **Test Dynamic Pricing**:
    ```bash
-   curl https://scintillating-kindness-production-47e3.up.railway.app/pricing/all?business_type=restaurant&location=canggu
+   curl https://nuzantara-rag.fly.dev/pricing/all?business_type=restaurant&location=canggu
    ```
 
 ---
 
 ## 🔐 Security Notes
 
-- ✅ Credentials stored securely in Railway (encrypted at rest)
+- ✅ Credentials stored securely in Fly.io (encrypted at rest)
 - ✅ Environment variables not exposed in logs
 - ✅ R2 bucket accessible only with these credentials
 - ⚠️ Do NOT commit these credentials to GitHub
@@ -19500,28 +19502,28 @@ nuzantaradb/
 
 ```bash
 # Check health
-curl https://scintillating-kindness-production-47e3.up.railway.app/health
+curl https://nuzantara-rag.fly.dev/health
 
 # List collections
-curl https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/collections
+curl https://nuzantara-rag.fly.dev/api/oracle/collections
 
 # Test query
-curl -X POST https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/query \
+curl -X POST https://nuzantara-rag.fly.dev/api/oracle/query \
   -H "Content-Type: application/json" \
   -d '{"query":"tax updates 2025","limit":3,"use_ai":false}'
 
 # Populate Oracle KB (if empty)
-curl -X POST https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/populate-now
+curl -X POST https://nuzantara-rag.fly.dev/api/oracle/populate-now
 
 # Check routing stats
-curl "https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/routing/test?query=KITAS%20requirements"
+curl "https://nuzantara-rag.fly.dev/api/oracle/routing/test?query=KITAS%20requirements"
 ```
 
 ---
 
 ## ✅ Completion Checklist
 
-- [ ] All 5 environment variables added to Railway
+- [ ] All 5 environment variables added to Fly.io
 - [ ] Persistent volume configured (5 GB at `/data/chroma_db`)
 - [ ] Service redeployed successfully
 - [ ] Health check shows `"chromadb": true`
@@ -19567,7 +19569,7 @@ curl "https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/r
 - **[Endpoints](api/endpoint-summary.md)** - Endpoint summary
 
 ### 🚀 Deployment
-- **[Railway Deployment](guides/RAILWAY_DEPLOYMENT_GUIDE.md)** - Production deployment
+- **[Fly.io Deployment](guides/FLY_DEPLOYMENT_GUIDE.md)** - Production deployment
 - **[RunPod Setup](guides/RUNPOD_DEVAI_SETUP.md)** - AI model setup
 - **[Webapp Deploy](deployment/WEBAPP_DEPLOY_PROCESS.md)** - Webapp deployment
 
@@ -19594,7 +19596,7 @@ curl "https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/r
 Start with [Galaxy Map](galaxy-map/README.md) for system overview, then check [API Documentation](api/API_DOCUMENTATION.md) for integration.
 
 ## 🎯 For Deployment
-Follow [Railway Deployment Guide](guides/RAILWAY_DEPLOYMENT_GUIDE.md) for production setup.
+Follow [Fly.io Deployment Guide](guides/FLY_DEPLOYMENT_GUIDE.md) for production setup.
 
 ## 🎯 For Testing
 Use [Testing Instructions](testing/TESTING_INSTRUCTIONS.md) to verify system functionality.
@@ -19605,12 +19607,12 @@ Use [Testing Instructions](testing/TESTING_INSTRUCTIONS.md) to verify system fun
 ### 📄 README.md
 
 ```markdown
-# 🚂 NUZANTARA Railway
+# 🚂 NUZANTARA Fly.io
 
 **Production-ready AI platform powered by ZANTARA - Bali Zero's intelligent business assistant**
 
 [![Version](https://img.shields.io/badge/version-5.2.1-blue.svg)](https://github.com/Balizero1987/nuzantara)
-[![Status](https://img.shields.io/badge/status-production-green.svg)](https://scintillating-kindness-production-47e3.up.railway.app/health)
+[![Status](https://img.shields.io/badge/status-production-green.svg)](https://nuzantara-rag.fly.dev/health)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![AI](https://img.shields.io/badge/AI-Claude_4.5_Haiku-purple.svg)](https://www.anthropic.com/)
@@ -19690,7 +19692,7 @@ npm run dev
 ## 📁 Project Structure
 
 ```
-nuzantara-railway/
+nuzantara-(Legacy: see /docs/archive/railway/)/
 ├── apps/                     # Deployable applications
 │   ├── backend-ts/          # TypeScript API (164+ handlers)
 │   │   ├── src/handlers/   # Business logic handlers
@@ -19770,7 +19772,7 @@ python -m app.main_cloud
   - Memory system with PostgreSQL
   - Tool execution (175+ tools)
   - SSE streaming with citations
-- **Production:** https://scintillating-kindness-production-47e3.up.railway.app
+- **Production:** https://nuzantara-rag.fly.dev
 - **Docs:** [apps/backend-rag/README.md](apps/backend-rag/README.md)
 
 ### ⚡ Backend TypeScript API
@@ -19788,7 +19790,7 @@ npm start
   - Auto-discovery routing system
   - Handler registry with `/call` endpoint
   - JWT authentication
-- **Production:** https://ts-backend-production-568d.up.railway.app
+- **Production:** https://nuzantara-backend.fly.dev
 - **Docs:** [apps/backend-ts/README.md](apps/backend-ts/README.md)
 
 ---
@@ -19832,7 +19834,7 @@ npm start
 cp .env.example .env
 
 # Configure your variables
-# See: docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md
+# See: docs/guides/FLY_DEPLOYMENT_GUIDE.md
 ```
 
 ### Testing
@@ -19850,17 +19852,17 @@ pytest
 
 ## 🚢 Deployment
 
-### Railway (Recommended)
+### Fly.io (Recommended)
 ```bash
 # Follow the deployment guide
-cat docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md
+cat docs/guides/FLY_DEPLOYMENT_GUIDE.md
 
 # Or use deploy script
 ./scripts/deploy/deploy-backend.sh
 ```
 
 ### Manual Deployment
-See: [docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md](docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md)
+See: [docs/guides/FLY_DEPLOYMENT_GUIDE.md](docs/guides/FLY_DEPLOYMENT_GUIDE.md)
 
 ---
 
@@ -20266,7 +20268,7 @@ Consolidated configuration directory for NUZANTARA project.
 
 ### `/core/`
 Essential configuration files used across the entire project:
-- `railway*.toml` - Railway deployment configs
+- `(Legacy: see /docs/archive/railway/)*.toml` - Fly.io deployment configs
 - `tsconfig*.json` - TypeScript compilation settings
 - `eslint.config.js` - Code linting rules
 - `jest.config.js` - Test framework configuration
@@ -20291,8 +20293,8 @@ Configuration templates and examples:
 # Build configs
 npm run build # Uses shared/config/core/tsconfig.json
 
-# Railway deployment
-railway up # Uses shared/config/core/railway.toml
+# Fly.io deployment
+(Legacy: see /docs/archive/railway/) up # Uses shared/config/core/(Legacy: see /docs/archive/railway/).toml
 ```
 
 ### From Apps
@@ -22345,7 +22347,7 @@ pip install -r requirements.txt
 ### **Daily** (Automated - Cron)
 ```bash
 # 6 PM daily - PRO orchestrator
-0 18 * * * cd /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY && python3 website/INTEL_SCRAPING/src/orchestrator_pro.py
+0 18 * * * cd /Users/antonellosiano/Desktop/NUZANTARA-(Legacy: see /docs/archive/railway/) && python3 website/INTEL_SCRAPING/src/orchestrator_pro.py
 ```
 
 ### **Weekly** (Manual)

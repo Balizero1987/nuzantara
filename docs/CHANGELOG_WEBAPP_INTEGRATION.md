@@ -87,13 +87,13 @@
 
 ### **✅ COMPLETATO**
 - [x] GitHub Pages deployment
-- [x] Railway backend deployment  
+- [x] Fly.io backend deployment  
 - [x] Domain configuration (zantara.balizero.com)
 - [x] SSL certificates
 - [x] CDN optimization
 
 ### **⏳ IN ATTESA**
-- [ ] Railway maintenance completion (8:00 AM)
+- [ ] Fly.io maintenance completion (8:00 AM)
 - [ ] Full system testing
 - [ ] Production validation
 
@@ -119,7 +119,7 @@
 
 **Lead Developer**: Claude Haiku 4.5  
 **System Architect**: ZANTARA  
-**Backend**: Railway + PostgreSQL  
+**Backend**: Fly.io + PostgreSQL  
 **Frontend**: GitHub Pages + CDN  
 **AI Models**: Anthropic + RunPod + HuggingFace
 

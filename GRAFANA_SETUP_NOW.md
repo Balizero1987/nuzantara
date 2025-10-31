@@ -6,7 +6,7 @@
 2. Sign up with your email
 3. Select **Free Forever** plan
 4. Create stack name: `nuzantara-prod`
-5. Region: `us-east-1` (or closest to Railway)
+5. Region: `us-east-1` (or closest to Fly.io)
 
 ## Step 2: Get Loki Credentials (2 min)
 
@@ -24,9 +24,9 @@ Once logged in:
 6. Click **Generate now** for API Key
 7. Copy all 3 values
 
-## Step 3: Add to Railway (3 min)
+## Step 3: Add to Fly.io (3 min)
 
-In Railway dashboard:
+In Fly.io dashboard:
 
 1. Select **backend-ts** service
 2. Go to **Variables**
@@ -42,7 +42,7 @@ In Railway dashboard:
 
 Wait 2-3 minutes for deploy, then:
 
-1. Railway logs should show: `✅ Grafana Loki transport enabled`
+1. Fly.io logs should show: `✅ Grafana Loki transport enabled`
 2. In Grafana Cloud → **Explore** → Select **Loki**
 3. Query: `{service="backend-ts"}`
 4. You should see logs appear!

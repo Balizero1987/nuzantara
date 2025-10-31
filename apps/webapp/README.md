@@ -146,7 +146,7 @@ git push origin main
 # Settings → Pages → Source: main branch → Save
 
 # 3. Configure backend CORS
-# Add https://balizero1987.github.io to CORS_ORIGINS on Railway
+# Add https://balizero1987.github.io to CORS_ORIGINS on Fly.io
 ```
 
 ### Custom Domain
@@ -169,7 +169,7 @@ User clicks "Send"
     ↓
 js/api-client.js → POST /bali-zero/chat
     ↓
-Backend (Railway): https://scintillating-kindness-production-47e3.up.railway.app
+Backend (Fly.io): https://nuzantara-rag.fly.dev
     ↓
 IntelligentRouter detects: "berapa harga" → PRICING query
     ↓
@@ -228,7 +228,7 @@ http://localhost:8081/test-api.html
 
 ```javascript
 // Check backend health
-fetch('https://scintillating-kindness-production-47e3.up.railway.app/health')
+fetch('https://nuzantara-rag.fly.dev/health')
   .then(r => r.json())
   .then(console.log);
 
@@ -340,13 +340,13 @@ git push origin feature/your-feature
 **Check:**
 ```javascript
 // In browser console
-fetch('https://scintillating-kindness-production-47e3.up.railway.app/health')
+fetch('https://nuzantara-rag.fly.dev/health')
   .then(r => r.json())
   .then(console.log);
 ```
 
 **Solution:**
-- Verify Railway deployment is running
+- Verify Fly.io deployment is running
 - Check CORS_ORIGINS includes your domain
 - Confirm API base URL is correct
 
@@ -366,7 +366,7 @@ fetch('https://scintillating-kindness-production-47e3.up.railway.app/health')
 
 **Verify Tool Prefetch:**
 ```bash
-# Check Railway logs
+# Check Fly.io logs
 railway logs --tail
 
 # Should see:

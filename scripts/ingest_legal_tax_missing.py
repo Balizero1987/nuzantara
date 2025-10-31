@@ -269,8 +269,8 @@ def main():
     print("1. Sync to R2:")
     print("   ./scripts/sync_chromadb_to_r2.sh")
     print("")
-    print("2. Verify Railway:")
-    print("   curl https://scintillating-kindness-production-47e3.up.railway.app/api/oracle/collections")
+    print("2. Verify Fly.io:")
+    print("   curl https://nuzantara-rag.fly.dev/api/oracle/collections")
 
 if __name__ == "__main__":
     main()

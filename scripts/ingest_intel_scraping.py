@@ -194,7 +194,7 @@ def main():
     print("\nNext steps:")
     print("1. Verify collections: python -c 'from core.vector_db import ChromaDBClient; ...'")
     print("2. Sync to R2: AWS_ACCESS_KEY_ID=... aws s3 sync ...")
-    print("3. Trigger Railway redeploy")
+    print("3. Trigger Fly.io redeploy")
 
 if __name__ == "__main__":
     main()

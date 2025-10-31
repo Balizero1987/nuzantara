@@ -66,15 +66,15 @@ Message: "feat: Enhance ZANTARA conversation quality with session state awarenes
 Status: ✅ Pushed successfully
 ```
 
-### Railway Auto-Deploy
+### Fly.io Auto-Deploy
 - **Service:** RAG Backend Production
-- **URL:** https://rag-backend-production.up.railway.app
+- **URL:** https://nuzantara-rag.fly.dev
 - **Trigger:** Automatic (on push to main)
 - **Status:** 🔄 Deploying (estimated 2-3 minutes)
 
 ### Expected Timeline
 - **04:15 AM** - Code pushed to GitHub
-- **04:16 AM** - Railway detects changes and starts build
+- **04:16 AM** - Fly.io detects changes and starts build
 - **04:18 AM** - Build completes, deployment starts
 - **04:19 AM** - New version live on production
 - **04:20 AM** - Ready for testing on zantara.balizero.com
@@ -139,9 +139,9 @@ ZANTARA: Ciao, Dea! Come va? Hai qualche nuovo cliente oggi?
 
 ## 🧪 Post-Deployment Testing Plan
 
-### Step 1: Wait for Railway Deployment
+### Step 1: Wait for Fly.io Deployment
 ```bash
-# Monitor Railway logs
+# Monitor Fly.io logs
 # Expected: "✅ IntelligentRouter initialized (TRIPLE-AI)"
 # Expected: "✅ Claude Haiku 3.5 initialized"
 # Expected: "✅ Claude Sonnet 4.5 initialized"
@@ -279,8 +279,8 @@ git revert 0e2ac0e
 git push origin main
 ```
 
-### Option 2: Railway Rollback
-1. Go to Railway dashboard
+### Option 2: Fly.io Rollback
+1. Go to Fly.io dashboard
 2. Navigate to RAG Backend service
 3. Click "Deployments"
 4. Select previous deployment (before 0e2ac0e)
@@ -293,8 +293,8 @@ All original code is in git history at commit `0732731`
 
 ## 📞 Post-Deployment Checklist
 
-- [ ] Wait for Railway deployment to complete (2-3 min)
-- [ ] Check Railway logs for errors
+- [ ] Wait for Fly.io deployment to complete (2-3 min)
+- [ ] Check Fly.io logs for errors
 - [ ] Test login detection on production
 - [ ] Test identity queries on production
 - [ ] Test personalized greetings on production
@@ -328,7 +328,7 @@ All original code is in git history at commit `0732731`
 ## 🎯 Next Steps After Deploy
 
 1. **Immediate (0-2 hours)**
-   - ✅ Monitor Railway deployment
+   - ✅ Monitor Fly.io deployment
    - ✅ Test on production
    - ✅ Verify all scenarios work
 
@@ -355,7 +355,7 @@ All original code is in git history at commit `0732731`
 
 **Commit:** `0e2ac0e`  
 **Branch:** `main`  
-**Railway:** Auto-deploying  
+**Fly.io:** Auto-deploying  
 **Production URL:** https://zantara.balizero.com
 
 **Test Results:** 8/8 local tests passed ✅  
@@ -368,4 +368,4 @@ All original code is in git history at commit `0732731`
 ---
 
 _Deployed by AI Agent - October 22, 2025, 04:15 AM_
-_Status: Awaiting Railway deployment completion and production verification_
+_Status: Awaiting Fly.io deployment completion and production verification_

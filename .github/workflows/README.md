@@ -28,12 +28,12 @@ This directory contains automated workflows for NUZANTARA project.
 
 **What it does:**
 - Verifies TypeScript files
-- Notifies about Railway auto-deployment
+- Notifies about Fly.io auto-deployment
 - Provides monitoring links
 
-**Status:** ℹ️ Informational (Railway handles actual deployment)
+**Status:** ℹ️ Informational (Fly.io handles actual deployment)
 
-**URL:** https://ts-backend-production-568d.up.railway.app
+**URL:** https://nuzantara-backend.fly.dev
 
 ### 3. Integration Tests (`test-integration.yml`)
 

@@ -8,7 +8,7 @@ echo ""
 # Test 1: Health Check
 echo "🏥 TEST 1: Backend Health"
 echo "-----------------------------------"
-HEALTH=$(curl -s "https://scintillating-kindness-production-47e3.up.railway.app/health")
+HEALTH=$(curl -s "https://nuzantara-rag.fly.dev/health")
 echo "Status: $(echo $HEALTH | jq -r '.status // "Unknown"')"
 echo ""
 
@@ -22,7 +22,7 @@ echo ""
 # Test 3: Available Tools
 echo "🛠️ TEST 3: Available Tools"
 echo "-----------------------------------"
-TOOLS=$(curl -s "https://scintillating-kindness-production-47e3.up.railway.app/api/tools")
+TOOLS=$(curl -s "https://nuzantara-rag.fly.dev/api/tools")
 if [ "$TOOLS" != "null" ] && [ "$TOOLS" != "" ]; then
     echo "Total tools: $(echo $TOOLS | jq -r '.tools | length // 0')"
     echo "Pricing tools: $(echo $TOOLS | jq -r '.tools[] | select(.name | contains("pricing")) | .name' | wc -l)"
@@ -36,9 +36,9 @@ echo ""
 echo "🧪 TEST 4: Tool Execution Test"
 echo "-----------------------------------"
 echo "Testing get_pricing tool execution..."
-RESULT=$(curl -X POST "https://scintillating-kindness-production-47e3.up.railway.app/bali-zero/chat" \
+RESULT=$(curl -X POST "https://nuzantara-rag.fly.dev/bali-zero/chat" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $(curl -X POST "https://ts-backend-production-568d.up.railway.app/team.login" -H "Content-Type: application/json" -d '{"email": "zero@balizero.com", "pin": "010719", "name": "Zero"}' -s | jq -r '.token')" \
+  -H "Authorization: Bearer $(curl -X POST "https://nuzantara-backend.fly.dev/team.login" -H "Content-Type: application/json" -d '{"email": "zero@balizero.com", "pin": "010719", "name": "Zero"}' -s | jq -r '.token')" \
   -d '{"query": "Usa il tool get_pricing per darmi il prezzo KITAS E23", "user_email": "zero@balizero.com", "user_role": "member"}' \
   -s | jq -r '.response' | head -3)
 

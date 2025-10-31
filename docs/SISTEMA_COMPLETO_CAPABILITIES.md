@@ -2,7 +2,7 @@
 
 ## 📊 BACKEND CAPABILITIES VERIFICATE
 
-### **TS-BACKEND** (https://ts-backend-production-568d.up.railway.app)
+### **TS-BACKEND** (https://nuzantara-backend.fly.dev)
 **Version**: 5.2.0
 **Status**: Healthy
 **Uptime**: 46 minuti
@@ -23,7 +23,7 @@
 - Zantara: llama-3.1-8b (not-configured)
 - DevAI: qwen-2.5-coder-7b (7 handlers, not-configured)
 
-### **RAG-BACKEND** (https://scintillating-kindness-production-47e3.up.railway.app)
+### **RAG-BACKEND** (https://nuzantara-rag.fly.dev)
 **Version**: 3.2.0-crm
 **Status**: Healthy
 **Mode**: Full
@@ -155,7 +155,7 @@
 ```
 
 ### **GET /bali-zero/chat-stream** (SSE) ✅ DISPONIBILE!
-**URL**: `https://...railway.app/bali-zero/chat-stream?query=Ciao&user_email=zero@balizero.com`
+**URL**: `https://nuzantara-rag.fly.dev/bali-zero/chat-stream?query=Ciao&user_email=zero@balizero.com`
 
 **Response** (Server-Sent Events):
 ```

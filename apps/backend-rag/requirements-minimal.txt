@@ -1,4 +1,4 @@
-# ZANTARA RAG System - Minimal Dependencies for Railway Deploy
+# ZANTARA RAG System - Minimal Dependencies for Fly.io Deploy
 # Python 3.11+ with Qdrant support
 
 # Web Framework (ESSENTIAL)

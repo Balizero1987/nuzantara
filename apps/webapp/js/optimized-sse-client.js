@@ -53,7 +53,7 @@ class OptimizedZantaraSSEClient {
 
   // Get API base URL for SSE streaming
   getAPIBase() {
-    const RAG_BACKEND = 'https://scintillating-kindness-production-47e3.up.railway.app';
+    const RAG_BACKEND = 'https://nuzantara-rag.fly.dev';
     
     if (window.ZANTARA_API?.config?.sse_backend) {
       console.log('[OptimizedSSE] Using custom SSE backend:', window.ZANTARA_API.config.sse_backend);

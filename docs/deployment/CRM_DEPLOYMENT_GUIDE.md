@@ -89,17 +89,17 @@ File: backend/app/routers/crm_shared_memory.py
 
 ### **Step 1: Verify Backend Deployment**
 
-Railway dovrebbe fare auto-deploy da GitHub, ma verifica che sia up to date:
+Fly.io dovrebbe fare auto-deploy da GitHub, ma verifica che sia up to date:
 
 ```bash
 # Check backend version
-curl https://scintillating-kindness-production-47e3.up.railway.app/
+curl https://nuzantara-rag.fly.dev/
 
 # Should show updated version with CRM endpoints
 ```
 
 Se la versione è ancora vecchia:
-1. Vai su Railway Dashboard
+1. Vai su Fly.io Dashboard
 2. Seleziona il servizio backend-rag
 3. Click "Deploy" → "Redeploy"
 
@@ -115,12 +115,12 @@ Una volta che il backend è deployato con l'ultimo codice:
 
 ```bash
 # Check if CRM tables exist
-curl https://scintillating-kindness-production-47e3.up.railway.app/admin/check-crm-tables
+curl https://nuzantara-rag.fly.dev/admin/check-crm-tables
 
 # If returns {"exists": false}, apply migration:
 curl -X POST \
   -H "x-api-key: zantara-internal-dev-key-2025" \
-  https://scintillating-kindness-production-47e3.up.railway.app/admin/apply-migration-007
+  https://nuzantara-rag.fly.dev/admin/apply-migration-007
 
 # Expected response:
 {
@@ -140,9 +140,9 @@ curl -X POST \
 }
 ```
 
-#### **Opzione B: Via Railway Dashboard**
+#### **Opzione B: Via Fly.io Dashboard**
 
-1. Apri Railway Dashboard
+1. Apri Fly.io Dashboard
 2. Vai al servizio PostgreSQL
 3. Click "Query" tab
 4. Copia e incolla il contenuto di: `apps/backend-rag/backend/db/migrations/007_crm_system_schema.sql`
@@ -154,7 +154,7 @@ curl -X POST \
 
 ```bash
 # Check tables exist
-curl https://scintillating-kindness-production-47e3.up.railway.app/admin/check-crm-tables
+curl https://nuzantara-rag.fly.dev/admin/check-crm-tables
 
 # Should return:
 {
@@ -181,7 +181,7 @@ curl -X POST \
     "phone": "+62 859 1234 5678",
     "nationality": "Indonesian"
   }' \
-  "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients?created_by=system"
+  "https://nuzantara-rag.fly.dev/crm/clients?created_by=system"
 
 # Expected: Returns client with ID
 ```
@@ -197,7 +197,7 @@ curl -X POST \
     "quoted_price": 15000000,
     "assigned_to": "test@balizero.com"
   }' \
-  "https://scintillating-kindness-production-47e3.up.railway.app/crm/practices?created_by=system"
+  "https://nuzantara-rag.fly.dev/crm/practices?created_by=system"
 
 # Expected: Returns practice with ID
 ```
@@ -205,7 +205,7 @@ curl -X POST \
 #### **Test 3: List Clients**
 
 ```bash
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients"
+curl "https://nuzantara-rag.fly.dev/crm/clients"
 
 # Expected: Returns array of clients
 ```
@@ -213,7 +213,7 @@ curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients"
 #### **Test 4: Shared Memory Search**
 
 ```bash
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/shared-memory/search?q=active+practices"
+curl "https://nuzantara-rag.fly.dev/crm/shared-memory/search?q=active+practices"
 
 # Expected: Returns practices matching query
 ```
@@ -239,7 +239,7 @@ curl -X POST \
       "team_member": "antonello@balizero.com"
     }
   }' \
-  "https://scintillating-kindness-production-47e3.up.railway.app/bali-zero/conversations/save"
+  "https://nuzantara-rag.fly.dev/bali-zero/conversations/save"
 
 # Expected Response:
 {
@@ -261,7 +261,7 @@ curl -X POST \
 
 ```bash
 # Get the client
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients/by-email/john.smith@email.com"
+curl "https://nuzantara-rag.fly.dev/crm/clients/by-email/john.smith@email.com"
 
 # Should show:
 {
@@ -273,7 +273,7 @@ curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/clients/
 }
 
 # Get client's practices
-curl "https://scintillating-kindness-production-47e3.up.railway.app/crm/practices?client_id=2"
+curl "https://nuzantara-rag.fly.dev/crm/practices?client_id=2"
 
 # Should show PT_PMA practice!
 ```
@@ -428,7 +428,7 @@ System check giornaliero:
 
 ### Issue: "Auto-CRM not populating"
 **Check:**
-1. ANTHROPIC_API_KEY is set on Railway
+1. ANTHROPIC_API_KEY is set on Fly.io
 2. Logs show "Auto-CRM service loaded"
 3. Conversation has >0 messages
 
@@ -471,7 +471,7 @@ TOTALE: ~3,800 linee di codice production-ready!
 
 ## 🎉 NEXT STEPS
 
-1. **Deploy Backend** - Verify Railway has latest code
+1. **Deploy Backend** - Verify Fly.io has latest code
 2. **Apply Migration** - Run migration endpoint or via dashboard
 3. **Test APIs** - Use curl commands above
 4. **Test Auto-CRM** - Send test conversation
@@ -483,7 +483,7 @@ TOTALE: ~3,800 linee di codice production-ready!
 ## 💬 SUPPORT
 
 **Issues?**
-- Check Railway logs for errors
+- Check Fly.io logs for errors
 - Verify ANTHROPIC_API_KEY is set
 - Ensure DATABASE_URL is valid
 - Test endpoints with curl first
@@ -496,7 +496,7 @@ Contact Antonello or check:
 
 ---
 
-**Status:** ✅ Code Ready | ⏳ Awaiting Railway Deploy | 🔧 Migration Pending
+**Status:** ✅ Code Ready | ⏳ Awaiting Fly.io Deploy | 🔧 Migration Pending
 
 **Last Updated:** 2025-10-21
 

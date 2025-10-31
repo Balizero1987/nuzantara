@@ -221,7 +221,7 @@ async def main():
         print("✅ ALL TESTS PASSED!")
         print()
         print("Next steps:")
-        print("1. Deploy changes to Railway")
+        print("1. Deploy changes to Fly.io")
         print("2. Test online at zantara.balizero.com")
         print("3. Verify with real user (Dea)")
         return 0

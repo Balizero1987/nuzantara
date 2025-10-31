@@ -2,11 +2,11 @@
 
 Production vector database for NUZANTARA, replacing ChromaDB.
 
-## Railway Deployment
+## Fly.io Deployment
 
 ### Step 1: Create Service
 ```bash
-# Via Railway dashboard:
+# Via Fly.io dashboard:
 # 1. New Service → Empty Service
 # 2. Name: "qdrant"
 # 3. Link to this directory: apps/qdrant-service
@@ -14,7 +14,7 @@ Production vector database for NUZANTARA, replacing ChromaDB.
 
 ### Step 2: Add Volume (CRITICAL!)
 ```bash
-# In Railway dashboard:
+# In Fly.io dashboard:
 # 1. qdrant service → Settings → Volumes
 # 2. Click "Add Volume"
 # 3. Mount Path: /qdrant/storage
@@ -27,26 +27,26 @@ railway up --service qdrant
 ```
 
 ### Step 4: Get Internal URL
-Railway generates internal hostname:
+Fly.io generates internal hostname:
 ```
-qdrant.railway.internal:8080
+nuzantara-qdrant.fly.dev
 ```
 
 Update backend-rag environment:
 ```env
-QDRANT_URL=http://qdrant.railway.internal:8080
+QDRANT_URL=https://nuzantara-qdrant.fly.dev
 QDRANT_API_KEY=your-secure-key-here
 ```
 
 ## Access Qdrant Dashboard
 
-Public URL (Railway generates):
-- https://qdrant-production-xxxx.up.railway.app/dashboard
+Public URL (Fly.io generates):
+- https://nuzantara-qdrant.fly.dev/dashboard
 
 ## Health Check
 
 ```bash
-curl https://your-qdrant.railway.app/healthz
+curl https://<your-qdrant-app>.fly.dev/healthz
 # Response: {"status":"ok"}
 ```
 
@@ -62,12 +62,12 @@ curl https://your-qdrant.railway.app/healthz
 
 Metrics endpoint for Grafana:
 ```bash
-curl http://qdrant.railway.internal:8080/metrics
+curl https://nuzantara-qdrant.fly.dev/metrics
 ```
 
 ## Backup Strategy
 
-1. **Railway Volume Snapshots** (automatic)
+1. **Fly.io Volume Snapshots** (automatic)
 2. **Qdrant API Snapshots**:
 ```bash
 curl -X POST http://qdrant:8080/collections/{collection}/snapshots

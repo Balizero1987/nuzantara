@@ -7,7 +7,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 # Expose ports
 EXPOSE 6333 6334
 
-# Default config (Railway Volume will be mounted at /qdrant/storage)
+# Default config (Fly.io volume mounted at /qdrant/storage)
 ENV QDRANT__STORAGE__STORAGE_PATH=/qdrant/storage
 ENV QDRANT__SERVICE__HTTP_PORT=6333
 ENV QDRANT__SERVICE__GRPC_PORT=6334

@@ -501,7 +501,7 @@ import logger from './logger.js';
 // Fallback to hardcoded URL if env var not set (Railway sometimes doesn't pass it immediately)
 const RAG_URL = <span class="cstat-no" title="statement not covered" >process.env.RAG_BACKEND_URL || </span>
   process.env.RAILWAY_SERVICE_RAG_BACKEND_URL ||
-  'https://scintillating-kindness-production-47e3.up.railway.app';
+  'https://nuzantara-rag.fly.dev';
 &nbsp;
 const WARMUP_INTERVAL = <span class="cstat-no" title="statement not covered" >10 * 60 * 1000; /</span>/ 10 minutes
 const WARMUP_TIMEOUT = <span class="cstat-no" title="statement not covered" >5000; /</span>/ 5 seconds

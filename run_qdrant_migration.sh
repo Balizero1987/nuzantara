@@ -20,7 +20,7 @@ echo "📍 Location: $(pwd)"
 echo ""
 
 # Set Qdrant URL
-export QDRANT_URL="http://qdrant.railway.internal:8080"
+export QDRANT_URL="https://nuzantara-qdrant.fly.dev"
 echo "✅ QDRANT_URL: $QDRANT_URL"
 echo ""
 
@@ -96,7 +96,7 @@ echo "1. Verify collections in Qdrant dashboard"
 echo "2. Test RAG queries"
 echo "3. Monitor performance"
 echo ""
-echo "Qdrant Dashboard: Check Railway logs for dashboard URL"
+echo "Qdrant Dashboard: Check Fly.io logs for dashboard URL"
 echo ""
 echo "🎉 P0.3 COMPLETE! ChromaDB SPOF eliminated!"
 echo ""

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Railway startup script with proper PORT handling
+# Fly.io startup script with proper PORT handling
 
 echo "🔍 [start.sh] PORT environment variable: ${PORT:-'NOT SET'}"
 echo "🔍 [start.sh] All env vars:"

@@ -1,17 +1,17 @@
 """
 Apply database migrations
 Use this script when psql is not available locally
-Migrations will be applied on Railway deployment
+Migrations will be applied on Fly.io deployment
 """
 
 import os
 import sys
 from pathlib import Path
 
-# Check if this should run locally or on Railway
-if os.getenv("RAILWAY_ENVIRONMENT"):
-    print("Running on Railway - migrations will be applied automatically")
-    print("Use Railway CLI or dashboard to apply migrations")
+# Check if this should run locally or on Fly.io
+if os.getenv("FLY_APP_NAME"):
+    print("Running on Fly.io - migrations are handled through release commands")
+    print("Use Fly.io CLI or dashboard to apply migrations when needed")
     sys.exit(0)
 
 print("=" * 70)
@@ -23,25 +23,23 @@ print("   - apps/backend-rag/backend/db/migrations/005_oracle_knowledge_bases.sq
 print("   - apps/backend-rag/backend/db/migrations/006_property_and_tax_tables.sql")
 print()
 print("📝 These migrations will be applied automatically when you:")
-print("   1. Deploy to Railway")
+print("   1. Deploy to Fly.io")
 print("   2. Run backend with DATABASE_URL configured")
 print()
 print("💡 For local development without PostgreSQL:")
 print("   - The scrapers will work with ChromaDB only (file-based)")
 print("   - API endpoints requiring PostgreSQL will show appropriate errors")
-print("   - Full functionality requires Railway deployment with PostgreSQL")
+print("   - Full functionality requires Fly.io deployment with PostgreSQL")
 print()
 print("🚀 To deploy and apply migrations:")
 print()
-print("   # Option 1: Railway CLI")
-print("   railway up")
-print("   railway run 'psql $DATABASE_URL -f apps/backend-rag/backend/db/migrations/005_oracle_knowledge_bases.sql'")
-print("   railway run 'psql $DATABASE_URL -f apps/backend-rag/backend/db/migrations/006_property_and_tax_tables.sql'")
+print("   # Option 1: Fly.io CLI")
+print("   fly ssh console --app nuzantara-rag --command \"psql $DATABASE_URL -f apps/backend-rag/backend/db/migrations/005_oracle_knowledge_bases.sql\"")
+print("   fly ssh console --app nuzantara-rag --command \"psql $DATABASE_URL -f apps/backend-rag/backend/db/migrations/006_property_and_tax_tables.sql\"")
 print()
-print("   # Option 2: Railway Dashboard")
-print("   - Go to your Railway project")
-print("   - Open the PostgreSQL service")
-print("   - Use the 'Query' tab to run the SQL files")
+print("   # Option 2: Fly.io Dashboard")
+print("   - Open the PostgreSQL application in Fly.io")
+print("   - Use the SQL console to run the migration files in order")
 print()
 print("=" * 70)
 
@@ -73,5 +71,5 @@ print()
 print("2. Run scrapers locally: python backend/scrapers/tax_scraper.py --mode once")
 print("   (Will save to ChromaDB only)")
 print()
-print("3. For full PostgreSQL integration, deploy to Railway")
+print("3. For full PostgreSQL integration, deploy to Fly.io")
 print()

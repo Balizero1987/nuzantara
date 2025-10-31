@@ -38,7 +38,7 @@ class CacheService:
             "errors": 0
         }
         
-        # Try to connect to Redis (Railway provides REDIS_URL)
+        # Try to connect to Redis (Fly.io provides REDIS_URL)
         redis_url = os.getenv("REDIS_URL")
         if redis_url:
             try:

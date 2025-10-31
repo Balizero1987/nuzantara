@@ -1,6 +1,6 @@
 """
 Optimized Streaming Service - High-performance SSE streaming
-Implements advanced optimizations for Railway deployment
+Implements advanced optimizations for Fly.io deployment
 
 Performance improvements:
 - Connection pooling and reuse

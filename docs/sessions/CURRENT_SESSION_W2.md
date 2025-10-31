@@ -59,8 +59,8 @@ The frontend uses a **resilient RPC-style architecture** with three main layers:
 ```javascript
 class APIContracts {
   backends = {
-    ts: 'https://ts-backend-production-568d.up.railway.app',
-    rag: 'https://scintillating-kindness-production-47e3.up.railway.app'
+    ts: 'https://nuzantara-backend.fly.dev',
+    rag: 'https://nuzantara-rag.fly.dev'
   }
 
   // Features:
@@ -432,7 +432,7 @@ class ZantaraToolManager {
 
   async fetchTools() {
     const response = await fetch(
-      'https://ts-backend-production-568d.up.railway.app/system.handlers.tools'
+      'https://nuzantara-backend.fly.dev/system.handlers.tools'
     );
     return response.json();
   }
@@ -596,7 +596,7 @@ class HandlerRegistry {
 
   async initialize() {
     const response = await fetch(
-      'https://ts-backend-production-568d.up.railway.app/call',
+      'https://nuzantara-backend.fly.dev/call',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -713,7 +713,7 @@ class ZantaraToolManager {
 
   async initialize() {
     const response = await fetch(
-      'https://ts-backend-production-568d.up.railway.app/call',
+      'https://nuzantara-backend.fly.dev/call',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1462,13 +1462,13 @@ async def bali_zero_chat(request: ChatRequest):
 1. Implement Solution 4: Query Classification (2 hours)
    - Add `QueryClassifier` to RAG backend
    - Skip RAG for greetings/casual queries
-   - Deploy to Railway
+   - Deploy to Fly.io
 
 2. Implement Solution 5: Response Sanitization (2 hours)
    - Add `ResponseSanitizer` to RAG backend
    - Remove training markers
    - Enforce SANTAI mode
-   - Deploy to Railway
+   - Deploy to Fly.io
 
 3. Testing (2 hours)
    - Run test suite (8 test queries)

@@ -8,7 +8,7 @@ import time
 
 # Production endpoints
 WEBAPP_URL = "https://zantara.balizero.com"
-RAG_BACKEND_URL = "https://rag-backend-production.up.railway.app"
+RAG_BACKEND_URL = "https://nuzantara-rag.fly.dev"
 
 def test_bali_zero_identity():
     """Test that ZANTARA mentions Bali Zero in greetings"""
@@ -175,7 +175,7 @@ def test_bali_zero_identity():
     return passed_tests == total_tests
 
 if __name__ == "__main__":
-    print("\n⏳ Waiting for Railway deployment to complete...")
+    print("\n⏳ Waiting for Fly.io deployment to complete...")
     print("   (This may take 2-3 minutes)\n")
     
     # Wait for deployment

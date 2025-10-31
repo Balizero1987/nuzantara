@@ -210,7 +210,7 @@ JWT_SECRET=your_jwt_secret
 - Security middleware stack
 
 **🚀 DEPLOYMENT:**
-- **Platform**: Railway + Google Cloud Run
+- **Platform**: Fly.io + Google Cloud Run
 - **Scaling**: Auto-scaling enabled
 - **Monitoring**: Winston logging + performance metrics
 - **Security**: OAuth2 + rate limiting + CORS

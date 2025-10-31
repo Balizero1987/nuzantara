@@ -229,7 +229,7 @@ export async function teamTestRecognition(req: Request, res: Response) {
       });
     }
 
-    const ragBackendUrl = process.env.RAG_BACKEND_URL || 'https://scintillating-kindness-production-47e3.up.railway.app';
+    const ragBackendUrl = process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
     const response = await fetch(`${ragBackendUrl}/bali-zero/chat`, {
       method: 'POST',
       headers: {

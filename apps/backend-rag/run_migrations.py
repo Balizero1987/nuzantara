@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Run database migrations for ZANTARA Memory System
-Applies SQL schemas to Railway PostgreSQL database
+Applies SQL schemas to Fly.io PostgreSQL database
 """
 
 import os
@@ -17,13 +17,13 @@ async def run_migrations():
 
     if not database_url:
         print("❌ DATABASE_URL not found in environment")
-        print("   Please set DATABASE_URL from Railway dashboard")
+        print("   Please set DATABASE_URL from Fly.io dashboard")
         return False
 
     print("=" * 80)
     print("🚀 ZANTARA MEMORY SYSTEM - DATABASE MIGRATIONS")
     print("=" * 80)
-    print(f"\n📊 Database: {database_url.split('@')[1] if '@' in database_url else 'Railway PostgreSQL'}")
+    print(f"\n📊 Database: {database_url.split('@')[1] if '@' in database_url else 'Fly.io PostgreSQL'}")
 
     try:
         # Connect to database
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     if not os.getenv("DATABASE_URL"):
         print("\n⚠️  DATABASE_URL not set. Please export it first:")
         print("   export DATABASE_URL='postgresql://...'")
-        print("\n   Get it from Railway dashboard:")
+        print("\n   Get it from Fly.io dashboard:")
         print("   railway variables | grep DATABASE_URL")
         exit(1)
 

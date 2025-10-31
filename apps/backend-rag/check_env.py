@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Quick environment variable checker for Railway debugging
+Quick environment variable checker for Fly.io debugging
 """
 import os
 import sys

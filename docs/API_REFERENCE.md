@@ -40,7 +40,7 @@ SSE streaming endpoint for real-time responses
 ---
 
 ## TS Backend (Node.js/Express)
-**Base URL**: `https://nuzantara-backend-ts.up.railway.app`
+**Base URL**: `https://nuzantara-backend.fly.dev`
 
 ### Endpoints
 

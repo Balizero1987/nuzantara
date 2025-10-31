@@ -617,7 +617,7 @@ print(f"Status: {health['health_status']}, Staleness: {health['staleness']}")
 
 ## 🚀 Deployment
 
-### Railway Deployment
+### Fly.io Deployment
 
 All new services are production-ready and integrated into the existing backend:
 

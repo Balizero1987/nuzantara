@@ -1,6 +1,6 @@
 """
 Oracle Populate Endpoint - ONE-TIME USE
-Simple endpoint to populate Oracle collections on Railway
+Simple endpoint to populate Oracle collections on Fly.io
 
 Call this endpoint ONCE, then remove this file
 """
@@ -24,7 +24,7 @@ async def populate_oracle():
     """
     ONE-TIME ENDPOINT: Populate Oracle collections
 
-    This endpoint should be called once on Railway production, then removed.
+    This endpoint should be called once on Fly.io production, then removed.
     """
 
     try:

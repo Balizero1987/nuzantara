@@ -7,9 +7,9 @@
 
 - **Port**: 8080
 - **Tech**: Express.js, Firebase, Google Workspace APIs
-- **Deploy**: Railway
+- **Deploy**: Fly.io
 - **Handlers**: AI services, Google Workspace, Memory, Analytics, Bali Zero
-- **URL**: TBD (Railway deployment)
+- **URL**: TBD (Fly.io deployment)
 
 ```bash
 cd apps/backend-api
@@ -22,9 +22,9 @@ npm run dev
 
 - **Port**: 8000
 - **Tech**: FastAPI, ChromaDB, Cohere re-ranker
-- **Deploy**: Railway
+- **Deploy**: Fly.io
 - **Features**: 229 docs, pricing service, query routing
-- **URL**: TBD (Railway deployment)
+- **URL**: TBD (Fly.io deployment)
 
 ```bash
 cd apps/backend-rag/backend

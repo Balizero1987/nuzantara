@@ -46,14 +46,14 @@ class StreamingClient {
     const config = window.ZANTARA_API?.config;
     if (!config) {
       console.warn('[StreamingClient] No ZANTARA_API config found');
-      return 'https://ts-backend-production-568d.up.railway.app/api/chat';
+      return 'https://nuzantara-backend.fly.dev/api/chat';
     }
 
     const isProxy = config.mode === 'proxy';
     if (isProxy && config.proxy?.production?.base) {
       return `${config.proxy.production.base}/chat`;
     }
-    return `${config.production?.base || 'https://ts-backend-production-568d.up.railway.app'}/api/chat`;
+    return `${config.production?.base || 'https://nuzantara-backend.fly.dev'}/api/chat`;
   }
 
   // Main streaming function

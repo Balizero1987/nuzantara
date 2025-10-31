@@ -6,7 +6,7 @@ asyncpg==0.29.0
 
 # AI & Embeddings (for query clustering)
 sentence-transformers==2.3.1
-torch>=2.0.0,<2.2.0  # Required by sentence-transformers, pinned for Railway compatibility
+torch>=2.0.0,<2.2.0  # Required by sentence-transformers, pinned for Fly.io compatibility
 
 # HTTP Client (for RunPod API)
 httpx==0.26.0

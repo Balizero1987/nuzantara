@@ -87,7 +87,7 @@ echo "✅ Changes committed!"
 echo ""
 
 # Step 3: Push to production
-echo "📋 Step 3: Deploying to Railway..."
+echo "📋 Step 3: Deploying to Fly.io..."
 read -p "Push to production? (y/n) " -n 1 -r
 echo ""
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -99,14 +99,14 @@ fi
 git push origin main
 
 echo ""
-echo "✅ Deployed to Railway!"
+echo "✅ Deployed to Fly.io!"
 echo ""
 echo "========================================"
 echo "🎉 DEPLOYMENT COMPLETE!"
 echo "========================================"
 echo ""
 echo "Next steps:"
-echo "1. Monitor Railway logs: railway logs -f"
+echo "1. Monitor Fly.io logs: railway logs -f"
 echo "2. Test with a real user conversation"
 echo "3. Check for personalized greetings"
 echo "4. Verify no AttributeErrors in logs"

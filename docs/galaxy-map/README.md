@@ -83,7 +83,7 @@ Start: [05-database-schema.md](./05-database-schema.md)
 | **14 ChromaDB Collections** | [05-database-schema.md](./05-database-schema.md) | ChromaDB Schema |
 | **Performance** (10-20ms golden) | [04-data-flows.md](./04-data-flows.md) | Performance Analysis |
 | **Costs** ($15-30/month) | [03-ai-intelligence.md](./03-ai-intelligence.md) | Cost Analysis |
-| **Deployment** (Railway) | [01-system-overview.md](./01-system-overview.md) | Deployment |
+| **Deployment** (Fly.io) | [01-system-overview.md](./01-system-overview.md) | Deployment |
 
 ---
 
@@ -98,7 +98,7 @@ graph TB
             Web[WebApp<br/>zantara.balizero.com<br/>Cloudflare Pages]
         end
 
-        subgraph "Backend - Railway"
+        subgraph "Backend - Fly.io"
             TS[TS Backend :8080<br/>25,000 lines<br/>122 handlers]
             RAG[RAG Backend :8000<br/>15,000 lines<br/>ZANTARA Intelligence]
         end
@@ -314,7 +314,7 @@ Last Updated: 23 Oct 2025
 
 **External:**
 - GitHub: https://github.com/Balizero1987/nuzantara
-- Railway Dashboard: https://railway.app
+- Fly.io Dashboard: https://fly.io
 - Production: https://zantara.balizero.com
 
 ---

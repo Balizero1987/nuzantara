@@ -203,7 +203,7 @@ Citations (Backend Integration):
 | smart-suggestions.js | GitHub Pages | ✅ Live | 2025-10-26 | 8.98 KB |
 | citations-module.js | GitHub Pages | ✅ Live | 2025-10-26 | 5.2 KB |
 | chat-new.html (updated) | GitHub Pages | ✅ Live | 2025-10-26 | Integrated |
-| Backend sources field | Railway | ❌ Pending | TBD | Needed |
+| Backend sources field | Fly.io | ❌ Pending | TBD | Needed |
 
 ### Deployment Method
 
@@ -216,7 +216,7 @@ Citations (Backend Integration):
 
 **Backend** (Sources field):
 - Needs implementation in RAG service
-- Push to Railway (deployment TBD)
+- Push to Fly.io (deployment TBD)
 - Estimated: 1-2 hours work
 - After implementation: Run Citations tests again for 100% pass rate
 
@@ -403,7 +403,7 @@ Total User Wait: ~6-8 seconds (unchanged)
 - [ ] Identify source extraction point
 - [ ] Implement sources field return
 - [ ] Test locally with Citations automation test
-- [ ] Deploy to production (Railway)
+- [ ] Deploy to production (Fly.io)
 - [ ] Verify 21/21 Citations tests pass
 
 **DevOps/Monitoring**:

@@ -92,7 +92,7 @@ async def test_api_integration():
     print("- No complex tools needed ✅")
     print("- No hardcoded data in prompt ✅")
     print("- Uses existing /api/pricing and /api/team endpoints ✅")
-    print("- Works in all environments (local/Railway/Fly.io) ✅")
+    print("- Works in all environments (local/Fly.io/Fly.io) ✅")
     print("\n🚀 Ready for production!")
 
 

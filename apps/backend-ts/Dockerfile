@@ -1,4 +1,4 @@
-# TypeScript Backend Dockerfile for Railway
+# TypeScript Backend Dockerfile for Fly.io
 FROM node:18-alpine
 
 # Install curl for health checks
@@ -20,10 +20,10 @@ COPY src/ ./src/
 # Build the application
 RUN npm run build
 
-# Expose port (Railway uses PORT env var)
+# Expose port (Fly.io uses PORT env var)
 EXPOSE $PORT
 
-# Health check removed - using Railway's built-in health monitoring
+# Health check removed - using Fly.io's built-in health monitoring
 
 # Start the application
 CMD ["node", "dist/server.js"]

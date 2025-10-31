@@ -264,7 +264,7 @@ temperature = 0.7
 ### **ZANTARA Handler Configuration**:
 ```typescript
 // RAG Backend URL
-const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || "https://scintillating-kindness-production-47e3.up.railway.app";
+const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || "https://nuzantara-rag.fly.dev";
 
 // Timeout Configuration
 const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds

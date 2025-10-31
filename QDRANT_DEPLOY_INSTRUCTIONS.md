@@ -1,16 +1,16 @@
 # 🚀 Qdrant Deployment - Final Step (P0.3)
 
-**Status**: Code ready, needs Railway service creation
+**Status**: Code ready, needs Fly.io service creation
 **Time**: 5 minutes (manual) + 10 minutes (migration)
 **Cost**: +$7/month
 
 ---
 
-## 🎯 Quick Deploy (5 clicks in Railway)
+## 🎯 Quick Deploy (5 clicks in Fly.io)
 
 ### Step 1: Create Qdrant Service (2 min)
 
-1. Open Railway dashboard: https://railway.app
+1. Open Fly.io dashboard: https://fly.io
 2. Select project: **NUZANTARA**
 3. Click **"+ New"** button
 4. Select **"Empty Service"**
@@ -18,7 +18,7 @@
 6. Root directory: **apps/qdrant-service**
 7. Click **"Deploy"**
 
-Railway auto-detects Dockerfile and builds!
+Fly.io auto-detects Dockerfile and builds!
 
 ---
 
@@ -41,9 +41,9 @@ Railway auto-detects Dockerfile and builds!
 
 ### Step 3: Get Qdrant URL (30 sec)
 
-Railway generates URLs automatically:
+Fly.io generates URLs automatically:
 
-- **Internal**: `qdrant.railway.internal:8080`
+- **Internal**: `nuzantara-qdrant.fly.dev`
 - **Public**: `qdrant-production-xxxx.up.railway.app`
 
 Use internal URL for backend-rag connection.
@@ -57,22 +57,22 @@ Use internal URL for backend-rag connection.
 3. Add new variable:
    ```
    Name:  QDRANT_URL
-   Value: http://qdrant.railway.internal:8080
+   Value: https://nuzantara-qdrant.fly.dev
    ```
-4. Railway redeploys backend-rag automatically
+4. Fly.io redeploys backend-rag automatically
 
 ---
 
 ### Step 5: Verify Qdrant is Running (30 sec)
 
-Check Qdrant logs in Railway:
+Check Qdrant logs in Fly.io:
 ```
 Expected: "Qdrant is ready to serve requests"
 ```
 
 Test endpoint (use public URL):
 ```bash
-curl https://qdrant-production-xxxx.up.railway.app/
+curl https://nuzantara-qdrant.fly.dev/
 # Should return: {"title":"qdrant - vector search engine","version":"..."}
 ```
 
@@ -96,9 +96,9 @@ And I'll guide you through the migration:
 ## 📊 Expected Results
 
 After deployment:
-- ✅ Qdrant dashboard: https://your-qdrant.railway.app/dashboard
+- ✅ Qdrant dashboard: https://<your-qdrant-app>.fly.dev/dashboard
 - ✅ 14 empty collections ready for migration
-- ✅ Persistent storage (Railway Volume)
+- ✅ Persistent storage (Fly.io Volume)
 - ✅ Auto-restart safe
 - ✅ Production-grade vector DB
 
@@ -117,12 +117,12 @@ After deployment:
 - Redeploy service
 
 **Can't connect from backend-rag?**
-- Use internal URL: qdrant.railway.internal:8080
+- Use internal URL: nuzantara-qdrant.fly.dev
 - Check both services are in same project
 - Verify QDRANT_URL env var is set
 
 ---
 
-**Ready?** Create the service in Railway (5 min), then tell me "qdrant deployed"!
+**Ready?** Create the service in Fly.io (5 min), then tell me "qdrant deployed"!
 
 ⏱️ Total time: 5 min manual + 10 min migration = 15 min to eliminate SPOF!

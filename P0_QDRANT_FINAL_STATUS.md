@@ -8,16 +8,16 @@
 ## ✅ Completato
 
 ### Qdrant Service Deployed
-- Service: **qdrant** su Railway
+- Service: **qdrant** su Fly.io
 - Status: **Active** ✅
 - Port: 8080
 - Volume: 50GB montato su `/qdrant/storage`
-- URL interno: `qdrant.railway.internal:8080`
+- URL interno: `nuzantara-qdrant.fly.dev`
 - URL pubblico: `qdrant-production-e4f4.up.railway.app`
 
 **Verifica**:
 ```bash
-curl https://qdrant-production-e4f4.up.railway.app/collections
+curl https://nuzantara-qdrant.fly.dev/collections
 # Risponde: {"result":{"collections":[]},"status":"ok"}
 ```
 
@@ -35,10 +35,10 @@ curl https://qdrant-production-e4f4.up.railway.app/collections
 - Location: `apps/backend-rag/backend/data/chroma`
 - Status: Backup creato ✅
 
-**Dati Production** (su Railway):
+**Dati Production** (su Fly.io):
 - 14 collections (stimate)
 - 14,365 documenti (stimati)
-- Location: Railway volume backend-rag
+- Location: Fly.io volume backend-rag
 - Status: Non migrate
 
 ### Problema Riscontrato
@@ -46,17 +46,17 @@ curl https://qdrant-production-e4f4.up.railway.app/collections
 Migration da locale a Qdrant pubblico **timeout**:
 - `curl` GET funziona ✅
 - `qdrant-client` POST timeout ❌
-- Causa: API pubblica di Qdrant non accetta scritture (firewall/limits Railway)
+- Causa: API pubblica di Qdrant non accetta scritture (firewall/limits Fly.io)
 
 ---
 
 ## 🎯 Soluzioni Migration
 
-### Opzione A: Migration da Railway Container (RACCOMANDATO)
+### Opzione A: Migration da Fly.io Container (RACCOMANDATO)
 
 Eseguire migration **dentro** backend-rag container (ha accesso interno):
 
-**Step 1**: Deploy migration script su Railway
+**Step 1**: Deploy migration script su Fly.io
 
 ```bash
 cd ~/Desktop/NUZANTARA-RAILWAY
@@ -65,19 +65,19 @@ git commit -m "Add Qdrant migration script"
 git push origin main
 ```
 
-**Step 2**: Accedi al container Railway
+**Step 2**: Accedi al container Fly.io
 
 ```bash
-# Via Railway CLI
+# Via Fly.io CLI
 railway run python scripts/migrate_chromadb_to_qdrant.py
 
-# O via Railway dashboard → Shell
+# O via Fly.io dashboard → Shell
 ```
 
 **Step 3**: Run migration
 
 ```bash
-export QDRANT_URL=http://qdrant.railway.internal:8080
+export QDRANT_URL=https://nuzantara-qdrant.fly.dev
 export CHROMA_PERSIST_DIR=/app/data/chroma
 python scripts/migrate_chromadb_to_qdrant.py
 ```
@@ -104,9 +104,9 @@ Se i dati production sono poco critici o vuoi iniziare fresh:
 
 ---
 
-### Opzione C: Attendere Fix Railway
+### Opzione C: Attendere Fix Fly.io
 
-Railway potrebbe fixare il problema API pubblica.
+Fly.io potrebbe fixare il problema API pubblica.
 
 ---
 
@@ -134,7 +134,7 @@ Railway potrebbe fixare il problema API pubblica.
 4. P0 chiuso! 🎉
 
 **OPZIONE A** (completo - 30 minuti):
-1. Deploy migration script su Railway
+1. Deploy migration script su Fly.io
 2. SSH in backend-rag container
 3. Run migration da dentro
 4. Verifica 14K docs migrati
@@ -147,7 +147,7 @@ Railway potrebbe fixare il problema API pubblica.
 Dimmi:
 
 1️⃣ **"opzione B"** → Rimuovo public domain, chiudiamo P0!  
-2️⃣ **"opzione A"** → Guido deploy migration su Railway  
+2️⃣ **"opzione A"** → Guido deploy migration su Fly.io  
 3️⃣ **"pausa"** → Decidi dopo, tutto pronto
 
 **Il mio consiglio**: **Opzione B** per chiudere P0 ora!

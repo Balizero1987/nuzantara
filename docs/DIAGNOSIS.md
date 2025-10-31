@@ -35,9 +35,9 @@ The backend IS receiving queries and responding, but Claude Haiku is stuck retur
 
 ## Quick Test Commands
 
-To test Railway backend directly:
+To test Fly.io backend directly:
 ```bash
-curl -X POST "https://scintillating-kindness-production-47e3.up.railway.app/bali-zero/chat" \
+curl -X POST "https://nuzantara-rag.fly.dev/bali-zero/chat" \
   -H "Content-Type: application/json" \
   -d '{"query":"What is 2+2?","user_email":"test@test.com"}' \
   --max-time 30
@@ -48,7 +48,7 @@ Actual: Welcome message
 
 ## Next Steps
 
-1. Check Railway logs for errors
+1. Check Fly.io logs for errors
 2. Verify conversation_history parameter is being used
 3. Test with simple queries to isolate issue
 4. Fix Claude Haiku system prompt if needed

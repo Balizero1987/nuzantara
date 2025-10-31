@@ -1,5 +1,5 @@
 #!/bin/bash
-# Deploy Database Migration to Railway PostgreSQL
+# Deploy Database Migration to Fly.io PostgreSQL
 
 set -e
 
@@ -18,15 +18,15 @@ fi
 echo "📄 Migration file: $MIGRATION_FILE"
 echo ""
 
-# Get DATABASE_URL from Railway
-echo "🔍 Getting DATABASE_URL from Railway..."
+# Get DATABASE_URL from Fly.io
+echo "🔍 Getting DATABASE_URL from Fly.io..."
 export DATABASE_URL=$(railway variables --service scintillating-kindness | grep DATABASE_URL | cut -d'=' -f2-)
 
 if [ -z "$DATABASE_URL" ]; then
     echo "❌ DATABASE_URL not found"
     echo ""
     echo "Please run manually:"
-    echo "  1. Get DATABASE_URL from Railway dashboard"
+    echo "  1. Get DATABASE_URL from Fly.io dashboard"
     echo "  2. export DATABASE_URL='postgresql://...'"
     echo "  3. psql \$DATABASE_URL -f \"$MIGRATION_FILE\""
     exit 1

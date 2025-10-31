@@ -318,7 +318,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"""
             # Push
             subprocess.run(['git', 'push'], cwd=PROJECT_ROOT.parent)
 
-            logger.info("✅ Committed and deployed to Railway")
+            logger.info("✅ Committed and deployed to Fly.io")
             return True
 
         except Exception as e:

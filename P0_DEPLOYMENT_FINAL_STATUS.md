@@ -16,7 +16,7 @@
 - **Impact**: Cleaner codebase, faster builds
 
 ### P0.4: Redis Pub/Sub + WebSocket ✅ DONE
-- Status: **Deployed to Railway (auto-deploying now)**
+- Status: **Deployed to Fly.io (auto-deploying now)**
 - WebSocket server integrated
 - Redis pub/sub bridge active
 - 7 real-time channels ready
@@ -43,7 +43,7 @@ ce2e29fdd  deps: Install winston-loki + socket.io
 - **Blocker**: No (system works, but no centralized logs)
 
 ### P0.3: Qdrant Vector DB ⏳ WAITING
-- Status: **Code ready, needs Railway service**
+- Status: **Code ready, needs Fly.io service**
 - Dockerfile: ✅ Ready
 - Migration script: ✅ Ready
 - **Action**: See `QDRANT_DEPLOY_INSTRUCTIONS.md`
@@ -101,7 +101,7 @@ Real-time Features:     100% ✅
 ## 🎯 Next Steps
 
 ### Immediate (5-15 min):
-1. **Create Qdrant service on Railway**
+1. **Create Qdrant service on Fly.io**
    - Follow: `QDRANT_DEPLOY_INSTRUCTIONS.md`
    - 5 clicks, 2 minutes
 2. **Run Qdrant migration**
@@ -159,16 +159,16 @@ Real-time Features:     100% ✅
 
 ---
 
-## 🚀 Railway Auto-Deploy Status
+## 🚀 Fly.io Auto-Deploy Status
 
 **Currently deploying**:
 - backend-ts (with WebSocket) - ETA: 2-3 minutes
-- Check: https://railway.app
+- Check: https://fly.io
 
 **Verify deployment**:
 ```bash
-# When Railway finishes:
-curl https://backend-ts.railway.app/health
+# When Fly.io finishes:
+curl https://nuzantara-backend.fly.dev/health
 # Should show: version 5.2.1 + WebSocket ready
 ```
 
@@ -179,7 +179,7 @@ curl https://backend-ts.railway.app/health
 Tell me one of:
 - **"qdrant deployed"** → Guide you through migration
 - **"grafana fatto"** → Verify integration
-- **"status"** → Check Railway deployment
+- **"status"** → Check Fly.io deployment
 - **"help"** → Troubleshoot issues
 
 ---

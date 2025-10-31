@@ -31,7 +31,7 @@ graph TB
         WebApp[🌐 WebApp<br/>zantara.balizero.com<br/>65 JS files + PWA]
     end
     
-    subgraph "BACKEND - Railway"
+    subgraph "BACKEND - Fly.io"
         TS[⚙️ TS Backend :8080<br/>117 Handlers + 24 Services<br/>Express + TypeScript]
         RAG[🧠 RAG Backend :8000<br/>FastAPI + Python<br/>44 Services + AI + RAG]
     end
@@ -117,7 +117,7 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph "Railway Platform"
+    subgraph "Fly.io Platform"
         direction TB
         
         TS_Service[TS Backend<br/>──────────────<br/>Port: 8080<br/>Memory: 2Gi<br/>CPU: 2 vCPU<br/>Dockerfile]
@@ -156,8 +156,8 @@ graph TB
 
 **URLs**:
 - **Frontend**: https://zantara.balizero.com
-- **TS Backend**: https://ts-backend-production-568d.up.railway.app
-- **RAG Backend**: https://scintillating-kindness-production-47e3.up.railway.app
+- **TS Backend**: https://nuzantara-backend.fly.dev
+- **RAG Backend**: https://nuzantara-rag.fly.dev
 
 ---
 
@@ -189,7 +189,7 @@ graph TB
 | **Claude Haiku 4.5** | $8-15 | 100% user traffic, 3x cheaper than Sonnet |
 | **ZANTARA Llama** | €3-11 | RunPod vLLM flat rate |
 | **DevAI Qwen** | €1-3 | Backend development only |
-| **Railway Hosting** | $0 | Free tier / Starter |
+| **Fly.io Hosting** | $0 | Free tier / Starter |
 | **Cloudflare Pages** | $0 | Free static hosting (330+ edge locations) |
 | **External APIs** | Variable | Google, Twilio (usage-based) |
 | **TOTAL** | **$15-30** | Highly cost-optimized |

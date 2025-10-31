@@ -60,23 +60,23 @@ health-check: ## Check local server health (port 8080)
 # ==========================================
 
 .PHONY: deploy-backend
-deploy-backend: ## Deploy TypeScript backend to Railway (production)
-	@echo "🚀 Deploying backend to Railway..."
+deploy-backend: ## Deploy TypeScript backend to Fly.io (production)
+	@echo "🚀 Deploying backend to Fly.io..."
 	@railway up || echo "❌ Not linked. Run: railway link"
 
 .PHONY: deploy-backend-quick
-deploy-backend-quick: ## Quick deploy (Railway auto-detects changes)
-	@echo "⚡ Railway auto-deploys on git push"
+deploy-backend-quick: ## Quick deploy (Fly.io auto-detects changes)
+	@echo "⚡ Fly.io auto-deploys on git push"
 	@echo "To force deploy: railway up"
 
 .PHONY: deploy-rag
-deploy-rag: ## Deploy RAG backend to Railway
-	@echo "🚀 Deploying RAG backend to Railway..."
+deploy-rag: ## Deploy RAG backend to Fly.io
+	@echo "🚀 Deploying RAG backend to Fly.io..."
 	@railway up --service scintillating-kindness || echo "❌ Service not found"
 
 .PHONY: deploy-full
 deploy-full: ## Deploy full stack (both services)
-	@echo "🚀 Deploying full stack to Railway..."
+	@echo "🚀 Deploying full stack to Fly.io..."
 	@railway up
 
 # ==========================================
@@ -84,18 +84,18 @@ deploy-full: ## Deploy full stack (both services)
 # ==========================================
 
 .PHONY: logs
-logs: ## Tail backend logs (Railway)
+logs: ## Tail backend logs (Fly.io)
 	@echo "📋 Tailing backend logs..."
 	@railway logs || echo "❌ Not linked. Run: railway link"
 
 .PHONY: logs-rag
-logs-rag: ## Tail RAG backend logs (Railway - scintillating-kindness)
+logs-rag: ## Tail RAG backend logs (Fly.io - scintillating-kindness)
 	@echo "📋 Tailing RAG backend logs..."
 	@railway logs --service scintillating-kindness || echo "❌ Service not found"
 
 .PHONY: status
-status: ## Show status of all Railway services
-	@echo "=== 🚂 Railway Services ==="
+status: ## Show status of all Fly.io services
+	@echo "=== 🚂 Fly.io Services ==="
 	@railway status || echo "❌ Not linked. Run: railway link"
 	@echo ""
 	@echo "=== 🔄 Recent GitHub Actions ==="
@@ -105,14 +105,14 @@ status: ## Show status of all Railway services
 health-prod: ## Check production services health
 	@echo "🏥 Checking production health..."
 	@echo "\n📱 TypeScript Backend:"
-	@curl -s https://ts-backend-production-568d.up.railway.app/health | jq '.' || echo "❌ Backend unhealthy"
+	@curl -s https://nuzantara-backend.fly.dev/health | jq '.' || echo "❌ Backend unhealthy"
 	@echo "\n🧠 Python RAG Backend:"
-	@curl -s https://scintillating-kindness-production-47e3.up.railway.app/health | jq '.' || echo "❌ RAG unhealthy"
+	@curl -s https://nuzantara-rag.fly.dev/health | jq '.' || echo "❌ RAG unhealthy"
 
 .PHONY: metrics
 metrics: ## Show production metrics
 	@echo "📊 Backend Metrics:"
-	@curl -s https://ts-backend-production-568d.up.railway.app/metrics | jq '.'
+	@curl -s https://nuzantara-backend.fly.dev/metrics | jq '.'
 
 # ==========================================
 # 🔧 MAINTENANCE
@@ -206,13 +206,13 @@ debug-env: ## Show environment configuration
 # ==========================================
 
 .PHONY: rollback
-rollback: ## Rollback to previous Railway deployment
+rollback: ## Rollback to previous Fly.io deployment
 	@echo "⚠️  Rolling back to previous deployment..."
-	@railway rollback || echo "❌ Not available. Check Railway dashboard for manual rollback"
+	@railway rollback || echo "❌ Not available. Check Fly.io dashboard for manual rollback"
 
 .PHONY: emergency-restart
-emergency-restart: ## Emergency: Restart Railway service
-	@echo "🚨 Restarting Railway service..."
+emergency-restart: ## Emergency: Restart Fly.io service
+	@echo "🚨 Restarting Fly.io service..."
 	@railway restart || echo "❌ Not linked. Run: railway link"
 
 # ==========================================
@@ -242,9 +242,9 @@ info: ## Show project information
 	@echo "📍 Location: /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/"
 	@echo "🔗 Repository: https://github.com/Balizero1987/nuzantara"
 	@echo ""
-	@echo "🌐 Production URLs (Railway):"
-	@echo "  TypeScript Backend: https://ts-backend-production-568d.up.railway.app"
-	@echo "  Python RAG Backend: https://scintillating-kindness-production-47e3.up.railway.app"
+	@echo "🌐 Production URLs (Fly.io):"
+	@echo "  TypeScript Backend: https://nuzantara-backend.fly.dev"
+	@echo "  Python RAG Backend: https://nuzantara-rag.fly.dev"
 	@echo "  Web UI (GitHub Pages): https://balizero1987.github.io/zantara_webapp"
 	@echo ""
 	@echo "📚 Documentation:"

@@ -135,7 +135,7 @@ Gray:   #444444  /* Subtle */
 - Cloudflare Pages (recommended)
 - Vercel
 - Netlify
-- Railway
+- Fly.io
 - GitHub Pages
 
 **Build command:** `npm run build`  

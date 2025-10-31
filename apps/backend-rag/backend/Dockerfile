@@ -16,7 +16,7 @@ COPY requirements-minimal.txt .
 # Install Python dependencies (minimal - no torch/sentence-transformers)
 RUN pip install --no-cache-dir -r requirements-minimal.txt
 
-# Copy application code (Railway root is already in backend/)
+# Copy application code (Fly.io root is already in backend/)
 COPY . .
 
 # Set Python path

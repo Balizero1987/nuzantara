@@ -25,7 +25,7 @@ Use when you've ONLY changed:
 - Static assets
 - .dockerignore file
 
-**Railway does this automatically when you:**
+**Fly.io does this automatically when you:**
 ```bash
 git push origin main
 ```
@@ -36,7 +36,7 @@ Required when you've changed:
 - Python package versions
 - Minor dependency updates
 
-**Railway handles this automatically, but you can verify:**
+**Fly.io handles this automatically, but you can verify:**
 ```bash
 # Check if requirements changed
 git diff HEAD~1 requirements.txt
@@ -51,13 +51,13 @@ Required when you've changed:
 - Model configurations
 - First deployment to new environment
 
-**How to force full rebuild on Railway:**
+**How to force full rebuild on Fly.io:**
 ```bash
 # Option 1: Add a dummy build arg to Dockerfile
 echo "# Force rebuild: $(date)" >> Dockerfile
 git add Dockerfile && git commit -m "Force full rebuild" && git push
 
-# Option 2: Clear Railway build cache (from Railway dashboard)
+# Option 2: Clear Fly.io build cache (from Fly.io dashboard)
 # Settings → Build → Clear Cache
 ```
 
@@ -118,9 +118,9 @@ git push
 
 ## 🔍 How to Check What's Happening
 
-### Check Railway Build Logs
+### Check Fly.io Build Logs
 ```bash
-# Look for these messages in Railway logs:
+# Look for these messages in Fly.io logs:
 
 "Using cache" → Good! Layer is cached
 "Downloading" → Rebuilding this layer
@@ -165,22 +165,22 @@ DOCKER_BUILDKIT=1 docker build -t test .
 docker run -p 8000:8000 test
 ```
 
-### 3. **Use Railway Dev Environment**
+### 3. **Use Fly.io Dev Environment**
 ```bash
 # Create dev branch for experiments
 git checkout -b dev/test-feature
 git push origin dev/test-feature
-# Railway can build this separately
+# Fly.io can build this separately
 ```
 
-## ⚠️ Railway-Specific Requirements
+## ⚠️ Fly.io-Specific Requirements
 
 ### Cache Mounts MUST Have IDs
 ```dockerfile
-# ❌ WRONG - Works locally but fails on Railway
+# ❌ WRONG - Works locally but fails on Fly.io
 RUN --mount=type=cache,target=/root/.cache/pip
 
-# ✅ CORRECT - Railway requires explicit cache ID
+# ✅ CORRECT - Fly.io requires explicit cache ID
 RUN --mount=type=cache,id=pip-cache,target=/root/.cache/pip
 ```
 
@@ -205,8 +205,8 @@ echo "# force" >> Dockerfile  # Don't do this for .py changes!
 # WRONG - Use environment variables
 RUN echo "API_KEY=xxx" >> .env  # Don't hardcode!
 
-# RIGHT - Use Railway variables
-# Set in Railway dashboard → Variables
+# RIGHT - Use Fly.io variables
+# Set in Fly.io dashboard → Variables
 ```
 
 ## 📊 Build Time Expectations
@@ -223,7 +223,7 @@ RUN echo "API_KEY=xxx" >> .env  # Don't hardcode!
 
 ### Build taking longer than expected?
 
-1. **Check Railway logs for "Using cache"**
+1. **Check Fly.io logs for "Using cache"**
    - Missing? Cache might be invalidated
 
 2. **Check git diff**
@@ -248,7 +248,7 @@ RUN echo "API_KEY=xxx" >> .env  # Don't hardcode!
 ## 📝 For Human Developers
 
 This guide is primarily for AI assistants, but humans should know:
-- Railway handles most optimization automatically
+- Fly.io handles most optimization automatically
 - Trust the caching system
 - Only intervene when builds are unexpectedly slow
 - Monitor the first build after Dockerfile changes
@@ -257,12 +257,12 @@ This guide is primarily for AI assistants, but humans should know:
 
 If builds are still slow, consider:
 1. **Pre-built base images** with dependencies
-2. **Railway persistent cache volumes**
+2. **Fly.io persistent cache volumes**
 3. **Separate services** for different components
 4. **GitHub Actions** for CI/CD pre-building
 
 ---
 
 **Last Updated**: 2025-10-20
-**Applies to**: NUZANTARA Railway Deployment
+**Applies to**: NUZANTARA Fly.io Deployment
 **Dockerfile Type**: Multi-stage with BuildKit optimizations

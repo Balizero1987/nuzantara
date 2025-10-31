@@ -53,7 +53,7 @@ if (process.env.GRAFANA_LOKI_URL) {
 }
 ```
 
-### Step 4: Railway Environment
+### Step 4: Fly.io Environment
 
 ```env
 GRAFANA_LOKI_URL=https://logs-xxx.grafana.net

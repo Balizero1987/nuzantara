@@ -19,8 +19,8 @@ const __dirname = path.dirname(__filename);
 
 // Configuration
 const CONFIG = {
-  ragBackendUrl: process.env.RAG_BACKEND_URL || 'https://scintillating-kindness-production-47e3.up.railway.app',
-  tsBackendUrl: process.env.TS_BACKEND_URL || 'https://ts-backend-production-568d.up.railway.app',
+  ragBackendUrl: process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev',
+  tsBackendUrl: process.env.TS_BACKEND_URL || 'https://nuzantara-backend.fly.dev',
   outputDir: path.join(__dirname, '../../apps/publication/src/content/articles'),
 };
 

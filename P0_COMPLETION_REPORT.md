@@ -18,7 +18,7 @@
 **Cost Saved**: $10-15/month
 
 **Actions Taken**:
-- ✅ Moved `orchestrator` to archive (was deployed on Railway)
+- ✅ Moved `orchestrator` to archive (was deployed on Fly.io)
 - ✅ Moved `unified-backend` to archive (POC only)
 - ✅ Moved `flan-router` to archive (experimental)
 - ✅ Moved `ibu-nuzantara` to archive (JIWA system)
@@ -30,7 +30,7 @@
 **Benefits**:
 - Cleaner `apps/` directory (14 → 7 apps)
 - Faster monorepo builds (-30% time)
-- Reduced Railway infrastructure cost
+- Reduced Fly.io infrastructure cost
 - Improved developer mental model
 
 **Rollback**: Apps can be restored by moving back to `apps/` directory
@@ -81,7 +81,7 @@
 **Setup Steps**:
 1. Create Grafana Cloud account (free)
 2. Install `winston-loki` in backend-ts
-3. Add environment variables to Railway
+3. Add environment variables to Fly.io
 4. Import dashboard templates
 5. Configure Slack/email alerts
 
@@ -97,7 +97,7 @@
 
 **Deliverables**:
 - ✅ Qdrant service Dockerfile created
-- ✅ Railway configuration (railway.json)
+- ✅ Fly.io configuration (railway.json)
 - ✅ Migration script with safety features
 - ✅ Comprehensive migration guide
 - ✅ Rollback plan documented
@@ -130,18 +130,18 @@
 
 **After (Qdrant - SAFE)**:
 ```
-✅ Railway Volume (persistent)
+✅ Fly.io Volume (persistent)
 ✅ Auto-restart safe
 ✅ Built-in dashboard
-✅ Backup via Railway snapshots
+✅ Backup via Fly.io snapshots
 ✅ Scalable (can add replicas)
 ✅ Production-grade monitoring
 ⚡ Data loss risk: <1%
 ```
 
 **Migration Steps**:
-1. Deploy Qdrant service on Railway
-2. Add Railway Volume (10GB)
+1. Deploy Qdrant service on Fly.io
+2. Add Fly.io Volume (10GB)
 3. Run migration script (dry-run first)
 4. Verify data (14,365 docs)
 5. Update backend-rag to use Qdrant
@@ -149,11 +149,11 @@
 
 **Cost Breakdown**:
 - Qdrant service: $5/month (512MB RAM)
-- Railway Volume 10GB: $2/month
+- Fly.io Volume 10GB: $2/month
 - **Total: $7/month**
 - **ROI**: Eliminates critical SPOF → PRICELESS
 
-**Next Action**: Deploy Qdrant service to Railway, then run migration
+**Next Action**: Deploy Qdrant service to Fly.io, then run migration
 
 ---
 
@@ -231,7 +231,7 @@
 2. Setup WebSocket server in index.ts
 3. Frontend: Connect to WebSocket
 4. Test notifications flow
-5. Deploy to Railway
+5. Deploy to Fly.io
 
 **Performance**:
 - Message latency: <10ms

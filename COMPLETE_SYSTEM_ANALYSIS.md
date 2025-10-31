@@ -3,7 +3,7 @@
 ## 🎯 SUMMARY
 
 **Status**: ✅ All automated fixes deployed  
-**Manual Actions Required**: 3 steps in Railway Dashboard  
+**Manual Actions Required**: 3 steps in Fly.io Dashboard  
 **Time Required**: 25 minutes  
 **Risk Level**: 🟡 Low (rollback available)
 
@@ -16,14 +16,14 @@
 **Root Cause**: SQLite schema mismatch between v0.4.22 and v0.5.x  
 **Error**: `sqlite3.OperationalError: no such column: collections.topic`  
 **Fix**: ✅ Upgraded to ChromaDB 0.5.18  
-**Status**: Deployed, Railway auto-deploying now
+**Status**: Deployed, Fly.io auto-deploying now
 
 ### 2. Qdrant Service Build Failure (READY TO FIX)
 **Impact**: No persistent vector storage  
-**Root Cause**: Wrong Dockerfile path in Railway config  
+**Root Cause**: Wrong Dockerfile path in Fly.io config  
 **Error**: `"/requirements-minimal.txt": not found`  
 **Fix**: ✅ Created proper Dockerfile.qdrant  
-**Status**: Needs manual Railway configuration
+**Status**: Needs manual Fly.io configuration
 
 ### 3. Migration Job Failures (READY TO FIX)
 **Impact**: Cannot migrate 14,365 docs to Qdrant  
@@ -32,7 +32,7 @@
 - Missing dependencies in Dockerfile
 - R2 credentials not visible to container
 **Fix**: ✅ Created proper Dockerfile.migration  
-**Status**: Needs manual Railway configuration
+**Status**: Needs manual Fly.io configuration
 
 ---
 
@@ -49,7 +49,7 @@ RAG Backend (slow cold starts)
 
 **Problems**:
 - ❌ 3-5 minute cold start on every deploy
-- ❌ No persistence (Railway restart = full re-download)
+- ❌ No persistence (Fly.io restart = full re-download)
 - ❌ Version drift (schema incompatibility)
 - ❌ Single point of failure
 - ❌ No horizontal scaling capability
@@ -59,7 +59,7 @@ RAG Backend (slow cold starts)
 ```
 Cloudflare R2 (backup/archive)
      ↓ one-time migration
-Qdrant (persistent, Railway Volume)
+Qdrant (persistent, Fly.io Volume)
      ↓ fast queries (<100ms)
 RAG Backend (instant startup)
 ```
@@ -118,7 +118,7 @@ New file:
 ## 📋 MANUAL ACTIONS CHECKLIST
 
 ### Priority 1: RAG Backend (Just Wait)
-- [ ] Go to Railway Dashboard
+- [ ] Go to Fly.io Dashboard
 - [ ] Check RAG BACKEND deployment status
 - [ ] Wait for deployment `07200d7f8` to complete
 - [ ] Verify logs show `✅ SearchService initialized`
@@ -130,7 +130,7 @@ New file:
 ---
 
 ### Priority 2: Qdrant Service (Configure & Deploy)
-- [ ] Click "qdrant" service in Railway
+- [ ] Click "qdrant" service in Fly.io
 - [ ] Settings → Build & Deploy:
   - [ ] Root Directory: `apps/backend-rag`
   - [ ] Dockerfile Path: `Dockerfile.qdrant`
@@ -149,13 +149,13 @@ New file:
 ---
 
 ### Priority 3: Migration Job (Configure & Run)
-- [ ] Click "migration-job" service in Railway
+- [ ] Click "migration-job" service in Fly.io
 - [ ] Settings → Build & Deploy:
   - [ ] Root Directory: `apps/backend-rag`
   - [ ] Dockerfile Path: `Dockerfile.migration`
   - [ ] Start Command: `python migrate_r2_to_qdrant.py`
 - [ ] Variables tab:
-  - [ ] Add `QDRANT_URL` = `http://qdrant.railway.internal:6333`
+  - [ ] Add `QDRANT_URL` = `https://nuzantara-qdrant.fly.dev`
   - [ ] Verify `R2_ACCESS_KEY_ID` exists
   - [ ] Verify `R2_SECRET_ACCESS_KEY` exists
   - [ ] Verify `R2_ENDPOINT_URL` exists
@@ -241,11 +241,11 @@ New file:
 ### 2. Fly.io API Key Found (Legacy)
 **Location**: User mentioned `FLY_API_KEY=FlyV1...`  
 **Status**: ⚠️ Legacy deployment system  
-**Current**: System now on Railway only  
+**Current**: System now on Fly.io only  
 **Recommendation**: 
 - Keep key for historical reference
-- Document migration from Fly.io → Railway
-- Potential rollback if Railway issues
+- Document migration from Fly.io → Fly.io
+- Potential rollback if Fly.io issues
 
 ### 3. Grafana Setup Pending
 **Status**: ⏳ Waiting for manual setup (requires browser)  
@@ -253,7 +253,7 @@ New file:
 **Steps**:
 1. Create Grafana Cloud account
 2. Get API key and endpoint
-3. Add to Railway env variables
+3. Add to Fly.io env variables
 4. Configure Loki for log aggregation
 5. Create dashboards and alerts
 
@@ -264,7 +264,7 @@ New file:
 - `apps/flan-router/` (deprecated)
 - `apps/ibu-nuzantara/` (experimental)
 
-**Status**: No active Railway services (based on coordination docs)  
+**Status**: No active Fly.io services (based on coordination docs)  
 **Recommendation**: Archive after P0 complete
 
 ---
@@ -293,7 +293,7 @@ New file:
 **Mitigation**:
 - Migration job has retry logic
 - Can monitor progress in logs
-- Railway has good network stability
+- Fly.io has good network stability
 
 ---
 
@@ -372,7 +372,7 @@ class UnifiedVectorDB:
 2. Remove unused dependencies
 3. Enable Redis pub/sub (if needed)
 4. Optimize Docker images (multi-stage builds)
-5. Review Railway pricing (optimize resources)
+5. Review Fly.io pricing (optimize resources)
 
 **Timeline**: 1 week  
 **Risk**: Low (non-critical path)
@@ -381,13 +381,13 @@ class UnifiedVectorDB:
 
 ## 📞 SUPPORT & REFERENCES
 
-### Railway Dashboard
-**Main Project**: https://railway.app/project/1c81bf3b-3834-49e1-9753-2e2a63b74bb9
+### Fly.io Dashboard
+**Main Project**: https://fly.io/dashboard
 
 **Services**:
 - RAG BACKEND: `scintillating-kindness-production-47e3.up.railway.app`
-- TS BACKEND: `ts-backend-production-568d.up.railway.app`
-- Qdrant: `qdrant` (internal: `qdrant.railway.internal:6333`)
+- TS BACKEND: `nuzantara-backend.fly.dev`
+- Qdrant: `qdrant` (internal: `nuzantara-qdrant.fly.dev`)
 - Migration: `migration-job` (one-time execution)
 
 ### Documentation Files
@@ -401,7 +401,7 @@ class UnifiedVectorDB:
 
 ### CLI Commands
 ```bash
-# Railway status
+# Fly.io status
 railway status
 railway logs --service "RAG BACKEND"
 railway logs --service qdrant
@@ -412,8 +412,8 @@ git log --oneline -10
 git show 07200d7f8
 
 # Test endpoints
-curl https://scintillating-kindness-production-47e3.up.railway.app/
-curl https://scintillating-kindness-production-47e3.up.railway.app/api/health
+curl https://nuzantara-rag.fly.dev/
+curl https://nuzantara-rag.fly.dev/api/health
 ```
 
 ---
@@ -469,5 +469,5 @@ curl https://scintillating-kindness-production-47e3.up.railway.app/api/health
 
 ---
 
-**Session complete** - Handover to user for manual Railway configuration.
+**Session complete** - Handover to user for manual Fly.io configuration.
 

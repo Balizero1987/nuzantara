@@ -2,7 +2,7 @@
 
 > **Last Updated**: 2025-10-27 (Architecture Documentation Sync)
 > **Version**: 5.7.0 (handlers: 138 functions, services: 68 total)
-> **Status**: Production (Railway) + Local Development + ZANTARA Llama 3.1 + DevAI Qwen 2.5
+> **Status**: Production (Fly.io) + Local Development + ZANTARA Llama 3.1 + DevAI Qwen 2.5
 
 ---
 
@@ -23,7 +23,7 @@ graph TB
         API_Clients[API Clients<br/>Custom GPT, Zapier]
     end
 
-    subgraph "Railway - TypeScript Backend :8080"
+    subgraph "Fly.io - TypeScript Backend :8080"
         Express[Express Server]
         Router[RPC Router<br/>/call endpoint]
         MW[Middleware Stack]
@@ -46,7 +46,7 @@ graph TB
         OAuth[OAuth2 Client]
     end
 
-    subgraph "Railway - RAG Backend :8000"
+    subgraph "Fly.io - RAG Backend :8000"
         FastAPI[FastAPI App]
 
         subgraph "RAG Pipeline"
@@ -66,8 +66,8 @@ graph TB
     subgraph "Data Layer"
         Firestore[(Firestore<br/>Memory, Users)]
         Redis[(Redis<br/>Cache<br/>optional)]
-        Storage[(Railway Storage<br/>ChromaDB)]
-        EnvVars[Railway Variables<br/>API Keys]
+        Storage[(Fly.io Storage<br/>ChromaDB)]
+        EnvVars[Fly.io Variables<br/>API Keys]
     end
 
     WebUI --> Express
@@ -104,7 +104,7 @@ graph TB
 **Initialization Sequence**:
 ```typescript
 Line 1-92:   Firebase Admin init
-             ├─ Try: GOOGLE_SERVICE_ACCOUNT env var (Railway)
+             ├─ Try: GOOGLE_SERVICE_ACCOUNT env var (Fly.io)
              ├─ Fallback: GOOGLE_APPLICATION_CREDENTIALS file
              └─ Fallback: ADC (Application Default Credentials)
 
@@ -142,7 +142,7 @@ Line 351-388: Graceful shutdown
 **Configuration**:
 - **Port**: 8080 (default, override with `PORT` env var)
 - **CORS**: Configurable via `CORS_ORIGINS` (comma-separated)
-- **Memory**: 2Gi (Railway)
+- **Memory**: 2Gi (Fly.io)
 - **CPU**: 2 vCPU
 
 **Performance Targets**:
@@ -320,7 +320,7 @@ graph LR
 
 **Storage**:
 - **Development**: Local ChromaDB (`data/chroma_db/`, 325MB)
-- **Production**: Railway persistent volumes or local storage
+- **Production**: Fly.io persistent volumes or local storage
 - **Collections**: 5 active (visa_oracle, kbli, tax, legal, books)
 
 #### LLM Routing (BaliZeroRouter)
@@ -477,7 +477,7 @@ graph TB
 
 ## 🚀 Deployment Architecture
 
-### Build & Deploy Pipeline (Railway)
+### Build & Deploy Pipeline (Fly.io)
 
 ```mermaid
 graph TB
@@ -488,39 +488,39 @@ graph TB
 
     subgraph "TypeScript Backend Deploy"
         Build1[npm run build<br/>→ dist/]
-        Push1[git push<br/>Railway auto-deploy]
-        Railway1[Railway Build<br/>& Deploy]
+        Push1[git push<br/>Fly.io auto-deploy]
+        Fly.io1[Fly.io Build<br/>& Deploy]
     end
 
     subgraph "RAG Backend Deploy"
         Push2[git push<br/>apps/backend-rag/**]
-        Railway2[Railway Build<br/>ENABLE_RERANKER=true]
+        Fly.io2[Fly.io Build<br/>ENABLE_RERANKER=true]
         Verify[Verify<br/>curl /health]
     end
 
     Dev --> Code
     Code --> Build1
     Build1 --> Push1
-    Push1 --> Railway1
+    Push1 --> Fly.io1
 
     Code --> Push2
-    Push2 --> Railway2
-    Railway2 --> Verify
+    Push2 --> Fly.io2
+    Fly.io2 --> Verify
 ```
 
 ### TypeScript Backend Deploy
 
-**Railway Auto-Deploy**:
+**Fly.io Auto-Deploy**:
 ```bash
-# Railway automatically deploys on git push
+# Fly.io automatically deploys on git push
 git add .
 git commit -m "Update backend"
 git push
 
-# Railway will:
+# Fly.io will:
 # 1. Detect changes
 # 2. npm run build (compile TypeScript)
-# 3. Deploy to Railway
+# 3. Deploy to Fly.io
 # 4. Run health checks
 
 # Runtime: ~3-5 minutes
@@ -528,9 +528,9 @@ git push
 
 ### RAG Backend Deploy
 
-**Railway Configuration**:
+**Fly.io Configuration**:
 - Auto-deploy enabled on push to `apps/backend-rag/**`
-- Environment variables set via Railway dashboard
+- Environment variables set via Fly.io dashboard
 - `ENABLE_RERANKER=true` configured
 - Memory: 2Gi, CPU: 2 vCPU
 
@@ -591,7 +591,7 @@ git push
   }
   ```
 
-**Railway Metrics** (via Railway dashboard):
+**Fly.io Metrics** (via Fly.io dashboard):
 - Request count
 - Request latency (P50, P95, P99)
 - CPU utilization
@@ -604,10 +604,10 @@ git push
 
 ### Secret Management
 
-**Strategy**: Railway Variables
+**Strategy**: Fly.io Variables
 
-1. **Railway Variables** (primary)
-   - Set via: Railway dashboard or CLI
+1. **Fly.io Variables** (primary)
+   - Set via: Fly.io dashboard or CLI
    - Scope: Per-service
    - Automatic injection at runtime
 
@@ -627,7 +627,7 @@ COHERE_API_KEY=...
 # Google Cloud (Firebase only)
 FIREBASE_PROJECT_ID=involuted-box-469105-r0
 GOOGLE_APPLICATION_CREDENTIALS=path/to/sa.json  # OR
-GOOGLE_SERVICE_ACCOUNT={...}                    # Set via Railway Variables
+GOOGLE_SERVICE_ACCOUNT={...}                    # Set via Fly.io Variables
 
 # Internal/External API access
 API_KEYS_INTERNAL=zantara-internal-dev-key-2025
@@ -640,7 +640,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 ENABLE_RERANKER=true  # Set to false to disable AMD64-only re-ranker
 ```
 
-### Railway Configuration
+### Fly.io Configuration
 
 **Project ID**: `1c81bf3b-3834-49e1-9753-2e2a63b74bb9`
 **Environment ID**: `d865a00b-034a-4f3b-9fdc-df2ab4c9d573`

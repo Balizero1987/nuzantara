@@ -16,7 +16,7 @@ This document describes the complete implementation of **10 advanced agentic fun
 - **10 specialized agents** across 5 phases
 - **100% test coverage** for critical functions
 - **Zero breaking changes** - fully backward compatible
-- **Production ready** - deployed on Railway
+- **Production ready** - deployed on Fly.io
 
 ---
 
@@ -717,7 +717,7 @@ job_status = orchestrator.get_job_status(job_id)
 stats = orchestrator.get_orchestrator_stats()
 ```
 
-**Cron Schedule** (Railway):
+**Cron Schedule** (Fly.io):
 ```bash
 # Daily at 6 AM
 0 6 * * * python -c "from services.auto_ingestion_orchestrator import run_scheduled; run_scheduled()"
@@ -1040,7 +1040,7 @@ async def test_complete_business_setup_flow():
 
 ## 🚀 Deployment
 
-### Railway Deployment
+### Fly.io Deployment
 
 **Status**: ✅ Production Ready
 

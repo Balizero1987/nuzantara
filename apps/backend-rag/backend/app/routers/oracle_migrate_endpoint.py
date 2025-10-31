@@ -1,6 +1,6 @@
 """
 Oracle Migration Endpoint - TEMPORARY
-Single-use endpoint to populate Oracle collections on Railway production
+Single-use endpoint to populate Oracle collections on Fly.io production
 
 DELETE THIS FILE AFTER MIGRATION COMPLETE
 """
@@ -39,7 +39,7 @@ async def migrate_oracle_data():
         embedder = EmbeddingsGenerator()
         results = {}
 
-        # 1. Tax Updates (embedded data to avoid path issues on Railway)
+        # 1. Tax Updates (embedded data to avoid path issues on Fly.io)
         tax_data = {
             "taxUpdates": [
                 {

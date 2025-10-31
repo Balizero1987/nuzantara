@@ -1,5 +1,5 @@
 #!/bin/bash
-# Smart Migration + Start Script for Railway
+# Smart Migration + Start Script for Fly.io
 # Automatically migrates ChromaDB to Qdrant if needed, then starts server
 
 set -e
@@ -21,7 +21,7 @@ else
     echo ""
     
     # Check if Qdrant has collections
-    QDRANT_URL="${QDRANT_URL:-http://qdrant.railway.internal:8080}"
+    QDRANT_URL="${QDRANT_URL:-https://nuzantara-qdrant.fly.dev}"
     
     if curl -s -f "$QDRANT_URL/collections" > /tmp/qdrant_check.json 2>&1; then
         COLLECTION_COUNT=$(cat /tmp/qdrant_check.json | python3 -c "import sys, json; print(len(json.load(sys.stdin)['result']['collections']))" 2>/dev/null || echo "0")

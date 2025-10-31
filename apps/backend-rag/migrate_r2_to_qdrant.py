@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Migrate ChromaDB from Cloudflare R2 to Qdrant on Railway
+Migrate ChromaDB from Cloudflare R2 to Qdrant on Fly.io
 
 This script:
 1. Downloads ChromaDB from R2 (nuzantaradb/chroma_db/)
-2. Connects to Qdrant (Railway internal network)
+2. Connects to Qdrant (Fly.io internal network)
 3. Migrates all 14 collections (~14,365 documents)
 4. Verifies data integrity
 
@@ -12,7 +12,7 @@ Usage:
     export R2_ACCESS_KEY_ID=xxx
     export R2_SECRET_ACCESS_KEY=xxx
     export R2_ENDPOINT_URL=https://xxx.r2.cloudflarestorage.com
-    export QDRANT_URL=http://qdrant.railway.internal:8080
+    export QDRANT_URL=https://nuzantara-qdrant.fly.dev
     
     python scripts/migrate_r2_to_qdrant.py [--dry-run]
 """

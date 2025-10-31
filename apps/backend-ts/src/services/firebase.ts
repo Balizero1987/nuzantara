@@ -21,7 +21,7 @@ export const firebaseStatus = {
 };
 
 async function fetchServiceAccountFromSecret(projectId: string) {
-  // Skip Secret Manager on Railway (no ADC available)
+  // Skip Secret Manager on Fly.io (no ADC available)
   if (process.env.SKIP_SECRET_MANAGER === 'true') {
     logger.info('⚠️ Secret Manager skipped (SKIP_SECRET_MANAGER=true)');
     return null;

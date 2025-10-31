@@ -64,18 +64,18 @@ docker build -t zantara-rag:optimized .
 docker build --no-cache -t zantara-rag:optimized .
 ```
 
-### Railway Deployment
-Railway automatically uses BuildKit when available. The optimizations will work automatically on push.
+### Fly.io Deployment
+Fly.io automatically uses BuildKit when available. The optimizations will work automatically on push.
 
 ## Monitoring Build Performance
 
-1. Check Railway build logs for timing
+1. Check Fly.io build logs for timing
 2. Look for "Using cache" messages in build output
 3. Monitor which layers are rebuilt vs cached
 
 ## Further Optimizations (if needed)
 
-1. **Use Railway's build cache** - Configure persistent cache
+1. **Use Fly.io's build cache** - Configure persistent cache
 2. **Pre-built base image** - Create custom base with all dependencies
 3. **Slim down dependencies** - Review if all packages are needed
 4. **Use distroless images** - Even smaller final image

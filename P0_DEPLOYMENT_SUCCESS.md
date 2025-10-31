@@ -67,7 +67,7 @@ https://grafana.com/auth/sign-up
 cd apps/backend-ts
 npm install winston-loki
 
-# Step 4: Add env vars to Railway
+# Step 4: Add env vars to Fly.io
 GRAFANA_LOKI_URL=https://logs-xxx.grafana.net
 GRAFANA_LOKI_USER=xxxxx
 GRAFANA_API_KEY=glc_xxx
@@ -78,16 +78,16 @@ railway up --service backend-ts
 
 #### 2. Qdrant Migration (4-6 hours)
 ```bash
-# Step 1: Create Qdrant service on Railway
+# Step 1: Create Qdrant service on Fly.io
 railway service create --name qdrant
 railway up --service qdrant
 
-# Step 2: Add Railway Volume
-# Via Railway dashboard: qdrant service → Volumes → Add Volume
+# Step 2: Add Fly.io Volume
+# Via Fly.io dashboard: qdrant service → Volumes → Add Volume
 # Mount: /qdrant/storage, Size: 10GB
 
 # Step 3: Set env vars
-railway variables set QDRANT_URL=http://qdrant.railway.internal:8080
+railway variables set QDRANT_URL=https://nuzantara-qdrant.fly.dev
 
 # Step 4: Test migration (dry-run)
 cd apps/backend-rag
@@ -97,7 +97,7 @@ python scripts/migrate_chromadb_to_qdrant.py --dry-run
 python scripts/migrate_chromadb_to_qdrant.py
 
 # Step 6: Verify
-curl http://qdrant.railway.internal:8080/collections
+curl https://nuzantara-qdrant.fly.dev/collections
 ```
 
 #### 3. Redis Pub/Sub (2 hours)
@@ -114,7 +114,7 @@ npm install socket.io
 railway up --service backend-ts
 
 # Step 4: Test
-wscat -c "ws://backend-ts.railway.app"
+wscat -c "ws://nuzantara-backend.fly.dev"
 ```
 
 ---
@@ -204,7 +204,7 @@ P0 considered **100% complete** when:
 
 **For Next AI Window**:
 1. Assist with Grafana Cloud setup
-2. Guide Qdrant Railway deployment
+2. Guide Qdrant Fly.io deployment
 3. Help with migration script execution
 4. Test Redis pub/sub integration
 5. Monitor production for 24h

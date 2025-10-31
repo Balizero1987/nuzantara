@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-One-time script to apply migration 007 via Railway
+One-time script to apply migration 007 via Fly.io
 """
 
 import os

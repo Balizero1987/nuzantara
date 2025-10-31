@@ -394,3 +394,8 @@ Private - Bali Zero Team
 **Made with ❤️ by Bali Zero Team**
 
 # Force Fly.io rebuild - 2025-11-01
+
+## 🏗️ Infrastructure Evolution
+
+Bali Zero and ZANTARA migrated from Railway to Fly.io in late 2025. Legacy instructions are archived under /docs/archive/railway/.
+

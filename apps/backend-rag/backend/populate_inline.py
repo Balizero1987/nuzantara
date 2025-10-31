@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal Oracle population script - run in Railway shell"""
+"""Minimal Oracle population script - run in Fly.io shell"""
 import sys
 sys.path.insert(0, '.')
 

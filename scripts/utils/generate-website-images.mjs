@@ -8,7 +8,7 @@
  *   node scripts/generate-website-images.mjs [--production]
  *
  * Options:
- *   --production    Use Railway production backend (default: localhost:8080)
+ *   --production    Use Fly.io production backend (default: localhost:8080)
  */
 
 import fs from 'fs/promises';
@@ -20,7 +20,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Configuration
 const USE_PRODUCTION = process.argv.includes('--production');
 const BACKEND_URL = USE_PRODUCTION
-  ? 'https://ts-backend-production-568d.up.railway.app'
+  ? 'https://nuzantara-backend.fly.dev'
   : 'http://localhost:8080';
 const API_KEY = 'zantara-internal-dev-key-2025';
 const OUTPUT_DIR = path.join(__dirname, '../website/public');

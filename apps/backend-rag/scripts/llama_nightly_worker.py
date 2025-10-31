@@ -9,7 +9,7 @@ Runs daily at 2 AM UTC (10 AM Jakarta) to:
 4. Generate/update cultural knowledge chunks for Haiku
 5. Track execution in nightly_worker_runs table
 
-This is the main entry point scheduled by Railway Cron Jobs.
+This is the main entry point scheduled by Fly.io Cron Jobs.
 """
 
 import os

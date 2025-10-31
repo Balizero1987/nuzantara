@@ -70,7 +70,7 @@ class SSEPerformanceMetrics:
 @dataclass
 class LoadTestConfig:
     """Configuration for load testing"""
-    base_url: str = "https://scintillating-kindness-production-47e3.up.railway.app"
+    base_url: str = "https://nuzantara-rag.fly.dev"
     endpoint: str = "/bali-zero/chat-stream"
     concurrent_connections: int = 10
     test_duration: int = 60  # seconds
@@ -366,7 +366,7 @@ class SSEPerformanceAuditor:
 async def main():
     """Main function to run SSE performance audit"""
     parser = argparse.ArgumentParser(description="SSE Performance Audit Tool")
-    parser.add_argument("--url", default="https://scintillating-kindness-production-47e3.up.railway.app", 
+    parser.add_argument("--url", default="https://nuzantara-rag.fly.dev", 
                        help="Base URL for the SSE endpoint")
     parser.add_argument("--connections", type=int, default=10, 
                        help="Number of concurrent connections")

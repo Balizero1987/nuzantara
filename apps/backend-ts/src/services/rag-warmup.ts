@@ -2,15 +2,15 @@
  * RAG Backend Warmup Service
  * 
  * Keeps RAG backend alive by pinging health endpoint every 10 minutes.
- * Prevents 502 errors caused by Railway cold starts.
+ * Prevents 502 errors caused by Fly.io cold starts.
  */
 
 import logger from './logger.js';
 
-// Fallback to hardcoded URL if env var not set (Railway sometimes doesn't pass it immediately)
+// Fallback to hardcoded URL if env var not set (Fly.io sometimes doesn't pass it immediately)
 const RAG_URL = process.env.RAG_BACKEND_URL || 
-  process.env.RAILWAY_SERVICE_RAG_BACKEND_URL ||
-  'https://scintillating-kindness-production-47e3.up.railway.app';
+  process.env.FLY_RAG_BACKEND_URL ||
+  'https://nuzantara-rag.fly.dev';
 
 const WARMUP_INTERVAL = 10 * 60 * 1000; // 10 minutes
 const WARMUP_TIMEOUT = 5000; // 5 seconds

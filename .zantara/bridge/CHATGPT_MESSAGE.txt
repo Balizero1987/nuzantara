@@ -55,7 +55,7 @@ Executed Directory (archive)
 
 **Tu generi comandi come questo:**
 ```bash
-./bridge_client.sh "Implement logging module for Railway backend" "nuzantara" "high"
+./bridge_client.sh "Implement logging module for Fly.io backend" "nuzantara" "high"
 ```
 
 **Io lo copio e lo eseguo sul Mac**
@@ -67,14 +67,14 @@ author: chatgpt-atlas
 timestamp: 2025-10-30T23:00:00Z
 context: nuzantara
 priority: high
-task: Implement logging module for Railway backend
+task: Implement logging module for Fly.io backend
 status: pending
 sha1: a1b2c3d4...
 ```
 
 **Il watcher lo rileva e processa:**
 - Legge YAML
-- Chiama: `claude "Implement logging module for Railway backend"`
+- Chiama: `claude "Implement logging module for Fly.io backend"`
 - Claude esegue il task
 - Sposta YAML in executed/
 

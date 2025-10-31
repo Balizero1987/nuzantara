@@ -145,7 +145,7 @@ You (ChatGPT Atlas) cannot directly execute code or modify files on Antonello's 
 
 1. **You (ChatGPT Atlas) generate a task command:**
    ```bash
-   ./bridge_client.sh "Implement logging module for Railway backend" "nuzantara" "high"
+   ./bridge_client.sh "Implement logging module for Fly.io backend" "nuzantara" "high"
    ```
 
 2. **Antonello copies and runs it on his Mac**
@@ -157,14 +157,14 @@ You (ChatGPT Atlas) cannot directly execute code or modify files on Antonello's 
    timestamp: 2025-10-30T23:00:00Z
    context: nuzantara
    priority: high
-   task: Implement logging module for Railway backend
+   task: Implement logging module for Fly.io backend
    status: pending
    sha1: a1b2c3d4e5f6...
    ```
 
 4. **Bridge watcher detects new file and processes it:**
    - Reads YAML
-   - Calls Claude Code CLI: `claude "Implement logging module for Railway backend"`
+   - Calls Claude Code CLI: `claude "Implement logging module for Fly.io backend"`
    - Claude executes the task
    - Moves YAML to `/executed/`
 
@@ -200,14 +200,14 @@ You (ChatGPT Atlas) cannot directly execute code or modify files on Antonello's 
 
 ### From ChatGPT Atlas (You)
 
-**Task**: "Add error handling to Railway deployment script"
+**Task**: "Add error handling to Fly.io deployment script"
 
 **Command to generate**:
 ```bash
 curl -X POST http://127.0.0.1:5050/commit \
   -H "Content-Type: application/json" \
   -d '{
-    "task": "Add error handling to Railway deployment script in scripts/deployment/. Include try-catch blocks, error logging, and rollback mechanism.",
+    "task": "Add error handling to Fly.io deployment script in scripts/deployment/. Include try-catch blocks, error logging, and rollback mechanism.",
     "context": "nuzantara",
     "priority": "high",
     "author": "chatgpt-atlas",
@@ -318,11 +318,11 @@ curl -X POST http://127.0.0.1:5050/commit \
 
 # Task 2: Test changes
 curl -X POST http://127.0.0.1:5050/commit \
-  -d '{"task":"Run integration tests for Railway deployment","context":"nuzantara","priority":"high"}'
+  -d '{"task":"Run integration tests for Fly.io deployment","context":"nuzantara","priority":"high"}'
 
 # Task 3: Deploy
 curl -X POST http://127.0.0.1:5050/commit \
-  -d '{"task":"Deploy to Railway staging environment","context":"nuzantara","priority":"critical"}'
+  -d '{"task":"Deploy to Fly.io staging environment","context":"nuzantara","priority":"critical"}'
 ```
 
 ### 2. Task Chaining (with metadata)
@@ -397,7 +397,7 @@ Fix command:
 
 **You (ChatGPT Atlas)**:
 ```
-Please review the recent Railway deployment changes.
+Please review the recent Fly.io deployment changes.
 
 Review command:
 ```

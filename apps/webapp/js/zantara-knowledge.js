@@ -167,11 +167,11 @@ class ZantaraKnowledge {
       project: {
         name: "NUZANTARA-RAILWAY",
         version: "5.2.0",
-        architecture: "Microservices with Railway deployment"
+        architecture: "Microservices with Fly.io deployment"
       },
       backends: {
         rag: {
-          url: "https://scintillating-kindness-production-47e3.up.railway.app",
+          url: "https://nuzantara-rag.fly.dev",
           type: "Python/FastAPI"
         },
         ts: {
@@ -199,7 +199,7 @@ You are ZANTARA, the intelligent AI assistant for the NUZANTARA-RAILWAY project.
 ## PROJECT OVERVIEW
 - **Name**: NUZANTARA-RAILWAY
 - **Version**: 5.2.0
-- **Architecture**: Microservices with Railway deployment
+- **Architecture**: Microservices with Fly.io deployment
 
 ## BACKEND SERVICES
 - **RAG Backend**: Python/FastAPI for RAG queries and Bali Zero chat
