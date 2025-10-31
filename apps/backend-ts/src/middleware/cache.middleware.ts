@@ -24,14 +24,38 @@ export async function initializeRedis(): Promise<void> {
 
   try {
     // Parse the Redis URL to determine if we need TLS
-    const redisUrl = process.env.REDIS_URL;
-    const isUpstash = redisUrl.includes('upstash.io');
+    const rawUrl = process.env.REDIS_URL.trim();
+    let effectiveUrl = rawUrl;
+    let forceTls = false;
 
-    logger.info(`Attempting Redis connection to: ${redisUrl.replace(/:\/\/[^:]+:[^@]+@/, '://***:***@')}`);
+    try {
+      const parsed = new URL(rawUrl);
+      const isUpstash = parsed.hostname?.includes('upstash.io') ?? false;
+
+      if (isUpstash && parsed.protocol !== 'rediss:') {
+        parsed.protocol = 'rediss:';
+        effectiveUrl = parsed.toString();
+        logger.warn('Upstash Redis URL detected without TLS. Upgrading to rediss:// automatically.');
+      }
+
+      forceTls = parsed.protocol === 'rediss:' || isUpstash;
+    } catch (parseError: any) {
+      logger.error('Invalid REDIS_URL format. Unable to parse for TLS enforcement.', {
+        message: parseError.message
+      });
+      if (rawUrl.startsWith('rediss://')) {
+        forceTls = true;
+      }
+    }
+
+    process.env.REDIS_URL = effectiveUrl;
+
+    const maskedUrl = effectiveUrl.replace(/:\/\/[^:]+:[^@]+@/, '://***:***@');
+    logger.info(`Attempting Redis connection to: ${maskedUrl}`);
 
     redis = createClient({
-      url: redisUrl,
-      socket: isUpstash ? {
+      url: effectiveUrl,
+      socket: forceTls ? {
         tls: true,
         rejectUnauthorized: false,
         connectTimeout: 10000,

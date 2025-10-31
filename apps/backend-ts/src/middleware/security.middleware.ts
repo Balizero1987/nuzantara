@@ -64,7 +64,15 @@ export const apiRateLimiter = rateLimit({
   max: 20,
   message: { ok: false, error: 'Troppi tentativi API. Riprova tra 1 minuto.' },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: true,
+  handler: (req: Request, res: Response) => {
+    logger.warn(`API rate limit exceeded for IP: ${req.ip}`);
+    res.setHeader('Retry-After', '60');
+    res.setHeader('X-RateLimit-Limit', '20');
+    res.setHeader('X-RateLimit-Remaining', '0');
+    res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 60 * 1000) / 1000).toString());
+    res.status(429).json(err('Troppi tentativi API. Riprova tra 1 minuto.'));
+  }
 });
 
 // Strict Rate Limiter for sensitive operations (5 req/hour)
@@ -73,7 +81,15 @@ export const strictRateLimiter = rateLimit({
   max: 5,
   message: { ok: false, error: 'Troppi tentativi per operazione sensibile. Riprova tra 1 ora.' },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: true,
+  handler: (req: Request, res: Response) => {
+    logger.warn(`Strict rate limit exceeded for IP: ${req.ip}`);
+    res.setHeader('Retry-After', (60 * 60).toString());
+    res.setHeader('X-RateLimit-Limit', '5');
+    res.setHeader('X-RateLimit-Remaining', '0');
+    res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 60 * 60 * 1000) / 1000).toString());
+    res.status(429).json(err('Troppi tentativi per operazione sensibile. Riprova tra 1 ora.'));
+  }
 });
 
 // API Key Validation Middleware
