@@ -43,7 +43,7 @@ Il sito `zantara.balizero.com` è deployato tramite **GitHub Pages** con un proc
 ### **Step 1: Make changes locally**
 
 ```bash
-cd /Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/webapp
+cd /Users/antonellosiano/Desktop/NUZANTARA-FLY/apps/webapp
 
 # Edit files
 vim chat.html

@@ -30,8 +30,8 @@ venv/
 .idea/
 *.sublime-*
 
-# Railway
-.railway
+# Fly.io
+fly.toml
 
 # Temporary files
 *.tmp
