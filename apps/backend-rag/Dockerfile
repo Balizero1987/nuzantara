@@ -19,6 +19,7 @@ RUN pip install --no-cache-dir -r requirements-minimal.txt
 # Copy application code
 COPY backend ./backend
 COPY .env.example ./.env
+COPY *.py ./
 
 # Set Python path
 ENV PYTHONPATH=/app/backend
