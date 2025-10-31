@@ -1,9 +1,10 @@
-# 🚂 NUZANTARA Railway
+# ✈️ NUZANTARA Fly.io
 
 **Production-ready AI platform powered by ZANTARA - Bali Zero's intelligent business assistant**
 
 [![Version](https://img.shields.io/badge/version-5.2.1-blue.svg)](https://github.com/Balizero1987/nuzantara)
-[![Status](https://img.shields.io/badge/status-production-green.svg)](https://scintillating-kindness-production-47e3.up.railway.app/health)
+[![Status](https://img.shields.io/badge/status-production-green.svg)](https://nuzantara-rag.fly.dev/health)
+[![Platform](https://img.shields.io/badge/platform-Fly.io-blue.svg)](https://fly.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![AI](https://img.shields.io/badge/AI-Claude_4.5_Haiku-purple.svg)](https://www.anthropic.com/)
@@ -83,7 +84,7 @@ npm run dev
 ## 📁 Project Structure
 
 ```
-nuzantara-railway/
+nuzantara-flyio/
 ├── apps/                     # Deployable applications
 │   ├── backend-ts/          # TypeScript API (164+ handlers)
 │   │   ├── src/handlers/   # Business logic handlers
@@ -163,7 +164,7 @@ python -m app.main_cloud
   - Memory system with PostgreSQL
   - Tool execution (175+ tools)
   - SSE streaming with citations
-- **Production:** https://scintillating-kindness-production-47e3.up.railway.app
+- **Production:** https://nuzantara-rag.fly.dev
 - **Docs:** [apps/backend-rag/README.md](apps/backend-rag/README.md)
 
 ### ⚡ Backend TypeScript API
@@ -181,7 +182,7 @@ npm start
   - Auto-discovery routing system
   - Handler registry with `/call` endpoint
   - JWT authentication
-- **Production:** https://ts-backend-production-568d.up.railway.app
+- **Production:** https://nuzantara-backend.fly.dev (planned)
 - **Docs:** [apps/backend-ts/README.md](apps/backend-ts/README.md)
 
 ---
@@ -225,7 +226,7 @@ npm start
 cp .env.example .env
 
 # Configure your variables
-# See: docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md
+# See: docs/guides/FLY_DEPLOYMENT_GUIDE.md
 ```
 
 ### Testing
@@ -243,17 +244,21 @@ pytest
 
 ## 🚢 Deployment
 
-### Railway (Recommended)
+### Fly.io (Production Platform)
 ```bash
-# Follow the deployment guide
-cat docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md
+# Deploy RAG backend
+cd apps/backend-rag
+fly deploy --app nuzantara-rag
 
-# Or use deploy script
-./scripts/deploy/deploy-backend.sh
+# Deploy PostgreSQL (if needed)
+fly deploy --app nuzantara-postgres
+
+# Deploy Qdrant vector DB (if needed)
+fly deploy --app nuzantara-qdrant
 ```
 
 ### Manual Deployment
-See: [docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md](docs/guides/RAILWAY_DEPLOYMENT_GUIDE.md)
+See: [docs/guides/FLY_DEPLOYMENT_GUIDE.md](docs/guides/FLY_DEPLOYMENT_GUIDE.md)
 
 ---
 
@@ -371,9 +376,10 @@ Private - Bali Zero Team
 ### 📊 Monitoring & Operations
 - **Health Checks**: `/health` endpoint with service status
 - **Performance Metrics**: Token usage, response times, cache hits
+- **Prometheus Metrics**: `/metrics` endpoint for monitoring
 - **Error Tracking**: Comprehensive logging with context
-- **Production Ready**: Railway deployment with auto-scaling
-- **99.9% Uptime**: Verified in production since October 2025
+- **Production Ready**: Fly.io deployment with auto-scaling
+- **99.9% Uptime**: Verified in production since November 2025
 
 ### 🎨 User Experience
 - **Voice Input/Output**: Speech recognition and synthesis
@@ -387,4 +393,4 @@ Private - Bali Zero Team
 
 **Made with ❤️ by Bali Zero Team**
 
-# Force Railway rebuild - gio 23 ott 2025 03:01:03 WITA
+# Force Fly.io rebuild - 2025-11-01

@@ -1,5 +1,5 @@
 """
-ZANTARA RAG Backend - Railway Version (v3.3.1-cors-fix)
+ZANTARA RAG Backend - Fly.io Version (v3.3.1-cors-fix)
 Port 8000
 Uses ChromaDB from Cloudflare R2 + Claude AI (Haiku 4.5 ONLY)
 
@@ -10,6 +10,7 @@ AI ROUTING: Intelligent Router with HAIKU-ONLY System
 COST OPTIMIZATION: 3x cheaper than Sonnet, same quality with RAG
 
 CORS FIX: Explicit headers on /health and /bali-zero/chat-stream endpoints
+DEPLOYMENT: Fly.io Production Platform
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
@@ -2914,4 +2915,4 @@ async def add_request_count(request: Request, call_next):
     app.request_count += 1
     return await call_next(request)
 
-# Force Railway redeploy - Priority 1-5 active
+# Force Fly.io redeploy - Priority 1-5 active
