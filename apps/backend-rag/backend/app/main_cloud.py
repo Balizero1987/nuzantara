@@ -2798,4 +2798,120 @@ async def get_all_analytics(user_email: Optional[str] = None, days: int = 7):
     except Exception as e:
         logger.error(f"Comprehensive analytics failed: {e}")
         raise HTTPException(500, f"Comprehensive analytics failed: {str(e)}")
+# Prometheus metrics endpoint for SSE telemetry
+@app.get("/metrics")
+async def get_prometheus_metrics():
+    """
+    Prometheus metrics endpoint for SSE and system health monitoring
+    Returns metrics in Prometheus format for scraping
+    """
+    try:
+        import psutil
+        from datetime import datetime
+
+        # System metrics
+        cpu_percent = psutil.cpu_percent(interval=1)
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+
+        timestamp = int(time.time() * 1000)
+
+        # Base metrics
+        metrics = [
+            f"# HELP zantara_cpu_usage_percent CPU usage percentage",
+            f"# TYPE zantara_cpu_usage_percent gauge",
+            f"zantara_cpu_usage_percent {cpu_percent} {timestamp}",
+            "",
+            f"# HELP zantara_memory_usage_bytes Memory usage in bytes",
+            f"# TYPE zantara_memory_usage_bytes gauge",
+            f"zantara_memory_usage_bytes {memory.used} {timestamp}",
+            "",
+            f"# HELP zantara_memory_available_bytes Available memory in bytes",
+            f"# TYPE zantara_memory_available_bytes gauge",
+            f"zantara_memory_available_bytes {memory.available} {timestamp}",
+            "",
+            f"# HELP zantara_disk_usage_bytes Disk usage in bytes",
+            f"# TYPE zantara_disk_usage_bytes gauge",
+            f"zantara_disk_usage_bytes {disk.used} {timestamp}",
+            "",
+            f"# HELP zantara_process_uptime_seconds Process uptime in seconds",
+            f"# TYPE zantara_process_uptime_seconds counter",
+            f"zantara_process_uptime_seconds {time.time() - app.start_time if hasattr(app, 'start_time') else 0} {timestamp}",
+            "",
+            f"# HELP zantara_api_requests_total Total API requests",
+            f"# TYPE zantara_api_requests_total counter",
+            f"zantara_api_requests_total {getattr(app, 'request_count', 0)} {timestamp}",
+            "",
+            f"# HELP zantara_sse_connections_total Total SSE connections initiated",
+            f"# TYPE zantara_sse_connections_total counter",
+            f"zantara_sse_connections_total {getattr(app, 'sse_connections', 0)} {timestamp}",
+            "",
+            f"# HELP zantara_sse_active_connections Current active SSE connections",
+            f"# TYPE zantara_sse_active_connections gauge",
+            f"zantara_sse_active_connections {getattr(app, 'active_sse_connections', 0)} {timestamp}",
+            "",
+            f"# HELP zantara_rag_queries_total Total RAG queries processed",
+            f"# TYPE zantara_rag_queries_total counter",
+            f"zantara_rag_queries_total {getattr(app, 'rag_queries', 0)} {timestamp}",
+            "",
+            f"# HELP zantara_claude_requests_total Total Claude AI requests",
+            f"# TYPE zantara_claude_requests_total counter",
+            f"zantara_claude_requests_total {getattr(app, 'claude_requests', 0)} {timestamp}",
+        ]
+
+        # Service-specific metrics if available
+        if search_service:
+            metrics.extend([
+                "",
+                f"# HELP zantara_search_service_status Search service status (1=up, 0=down)",
+                f"# TYPE zantara_search_service_status gauge",
+                f"zantara_search_service_status 1 {timestamp}",
+            ])
+
+        if intelligent_router:
+            metrics.extend([
+                "",
+                f"# HELP zantara_intelligent_router_status Intelligent router status (1=up, 0=down)",
+                f"# TYPE zantara_intelligent_router_status gauge",
+                f"zantara_intelligent_router_status 1 {timestamp}",
+            ])
+
+            # Router metrics
+            try:
+                router_stats = intelligent_router.get_stats()
+                metrics.extend([
+                    f"zantara_router_total_queries {router_stats.get('total_queries', 0)} {timestamp}",
+                    f"zantara_router_cache_hits {router_stats.get('cache_hits', 0)} {timestamp}",
+                    f"zantara_router_cache_misses {router_stats.get('cache_misses', 0)} {timestamp}",
+                ])
+            except:
+                pass
+
+        return Response(
+            content="\n".join(metrics),
+            media_type="text/plain"
+        )
+
+    except Exception as e:
+        logger.error(f"Metrics endpoint error: {e}")
+        return Response(
+            content="# Error generating metrics",
+            media_type="text/plain",
+            status_code=500
+        )
+
+# Initialize metrics tracking
+app.start_time = time.time()
+app.request_count = 0
+app.sse_connections = 0
+app.active_sse_connections = 0
+app.rag_queries = 0
+app.claude_requests = 0
+
+# Request counting middleware
+@app.middleware("http")
+async def add_request_count(request: Request, call_next):
+    app.request_count += 1
+    return await call_next(request)
+
 # Force Railway redeploy - Priority 1-5 active
