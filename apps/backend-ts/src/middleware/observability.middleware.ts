@@ -58,6 +58,28 @@ const cacheMisses = new promClient.Counter({
   registers: [register]
 });
 
+// Process metrics
+const cpuUserSeconds = new promClient.Gauge({
+  name: 'nodejs_cpu_user_seconds_total',
+  help: 'Total user CPU time spent by the Node.js process in seconds',
+  registers: [register]
+});
+
+const residentMemoryBytes = new promClient.Gauge({
+  name: 'process_resident_memory_bytes',
+  help: 'Resident set size (RSS) memory used by the Node.js process in bytes',
+  registers: [register]
+});
+
+function updateProcessMetrics() {
+  const usage = process.cpuUsage();
+  cpuUserSeconds.set(usage.user / 1e6); // microseconds to seconds
+  residentMemoryBytes.set(process.memoryUsage().rss);
+}
+
+updateProcessMetrics();
+setInterval(updateProcessMetrics, 5000).unref();
+
 // Metrics middleware
 export function metricsMiddleware(req: Request, res: Response, next: NextFunction) {
   const start = Date.now();
@@ -103,4 +125,4 @@ export async function metricsHandler(req: Request, res: Response) {
 }
 
 // Export metrics objects for external use
-export { register, httpRequestsTotal, httpRequestDuration, cacheHits, cacheMisses };
+export { register, httpRequestsTotal, httpRequestDuration, cacheHits, cacheMisses, cpuUserSeconds, residentMemoryBytes };

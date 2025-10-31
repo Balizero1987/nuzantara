@@ -35,7 +35,7 @@ export const baliZeroChatLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 20, // 20 requests per minute
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
-  legacyHeaders: false, // Disable `X-RateLimit-*` headers
+  legacyHeaders: true, // Enable `X-RateLimit-*` headers for compatibility
 
   // Custom key generator
   keyGenerator: getRateLimitKey,
@@ -44,6 +44,10 @@ export const baliZeroChatLimiter = rateLimit({
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
     logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    res.setHeader('Retry-After', '60');
+    res.setHeader('X-RateLimit-Limit', '20');
+    res.setHeader('X-RateLimit-Remaining', '0');
+    res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 60 * 1000) / 1000).toString());
 
     res.status(429).json({
       ok: false,
@@ -71,12 +75,16 @@ export const aiChatLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 30, // 30 requests per minute
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: true,
   keyGenerator: getRateLimitKey,
 
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
     logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    res.setHeader('Retry-After', '60');
+    res.setHeader('X-RateLimit-Limit', '30');
+    res.setHeader('X-RateLimit-Remaining', '0');
+    res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 60 * 1000) / 1000).toString());
 
     res.status(429).json({
       ok: false,
@@ -103,12 +111,16 @@ export const ragQueryLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 15, // 15 requests per minute
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: true,
   keyGenerator: getRateLimitKey,
 
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
     logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    res.setHeader('Retry-After', '60');
+    res.setHeader('X-RateLimit-Limit', '15');
+    res.setHeader('X-RateLimit-Remaining', '0');
+    res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 60 * 1000) / 1000).toString());
 
     res.status(429).json({
       ok: false,
@@ -135,12 +147,16 @@ export const strictLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 5, // 5 requests per minute
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: true,
   keyGenerator: getRateLimitKey,
 
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
     logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    res.setHeader('Retry-After', '60');
+    res.setHeader('X-RateLimit-Limit', '5');
+    res.setHeader('X-RateLimit-Remaining', '0');
+    res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 60 * 1000) / 1000).toString());
 
     res.status(429).json({
       ok: false,

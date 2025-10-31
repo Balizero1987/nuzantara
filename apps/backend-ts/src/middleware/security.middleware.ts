@@ -11,12 +11,12 @@ import { err } from '../utils/response.js';
 // Security Headers Middleware
 export const securityHeaders: RequestHandler = (_req: Request, res: Response, next: NextFunction): void => {
   // HSTS - Force HTTPS for 1 year
-  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   
   // CSP - Content Security Policy
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.anthropic.com https://api.openai.com;"
+    "default-src 'self'"
   );
   
   // XFO - Prevent clickjacking
@@ -46,9 +46,14 @@ export const globalRateLimiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per windowMs
   message: { ok: false, error: 'Troppi tentativi. Riprova tra 15 minuti.' },
   standardHeaders: true,
-  legacyHeaders: false,
+  legacyHeaders: true,
+  skip: (req: Request) => req.path === '/health',
   handler: (req: Request, res: Response) => {
     logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
+    res.setHeader('Retry-After', Math.ceil(15 * 60).toString());
+    res.setHeader('X-RateLimit-Limit', '100');
+    res.setHeader('X-RateLimit-Remaining', '0');
+    res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 15 * 60 * 1000) / 1000).toString());
     res.status(429).json(err('Troppi tentativi. Riprova tra 15 minuti.'));
   }
 });
