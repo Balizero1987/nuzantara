@@ -1188,17 +1188,25 @@ async def cache_health():
 
         is_healthy = retrieved == test_value
 
+        # Determine cache backend type
+        cache_backend = "unknown"
+        if hasattr(cache, 'redis_client') and cache.redis_client:
+            cache_backend = "redis"
+        elif hasattr(cache, 'cache') and cache.cache:
+            cache_backend = "memory"
+
         return {
             "status": "healthy" if is_healthy else "degraded",
-            "cache_type": cache.cache_type,
-            "backend": "redis" if hasattr(cache, 'redis_client') else "memory",
+            "backend": cache_backend,
             "test_passed": is_healthy,
+            "connected": is_healthy,
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
         return {
             "status": "unhealthy",
             "error": str(e),
+            "backend": "unavailable",
             "timestamp": datetime.now().isoformat()
         }
 
