@@ -12,27 +12,38 @@
 import Redis from 'ioredis';
 import logger from '../services/logger.js';
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisUrl = process.env.REDIS_URL;
 
-// Publisher connection (reuse main connection)
-export const redis = new Redis(redisUrl, {
+// Only create Redis connections if REDIS_URL is configured
+export const redis = redisUrl ? new Redis(redisUrl, {
   retryStrategy: (times) => Math.min(times * 50, 2000),
   maxRetriesPerRequest: 3,
-  lazyConnect: false
-});
+  lazyConnect: false,
+  enableOfflineQueue: false
+}) : null;
 
 // Subscriber connection (dedicated)
-const subscriberRedis = new Redis(redisUrl, {
+const subscriberRedis = redisUrl ? new Redis(redisUrl, {
   retryStrategy: (times) => Math.min(times * 50, 2000),
   maxRetriesPerRequest: 3,
-  lazyConnect: false
-});
+  lazyConnect: false,
+  enableOfflineQueue: false
+}) : null;
 
-redis.on('connect', () => logger.info('Redis publisher connected'));
-redis.on('error', (error) => logger.error('Redis publisher error:', error));
+if (redis) {
+  redis.on('connect', () => logger.info('Redis publisher connected'));
+  redis.on('error', (error) => logger.error('Redis publisher error:', error));
+}
 
-subscriberRedis.on('connect', () => logger.info('Redis subscriber connected'));
-subscriberRedis.on('error', (error) => logger.error('Redis subscriber error:', error));
+if (subscriberRedis) {
+  subscriberRedis.on('connect', () => logger.info('Redis subscriber connected'));
+  subscriberRedis.on('error', (error) => logger.error('Redis subscriber error:', error));
+}
+
+// Log if Redis is disabled
+if (!redisUrl) {
+  logger.warn('⚠️  REDIS_URL not configured - pub/sub features disabled');
+}
 
 /**
  * Channel names (centralized)
@@ -115,6 +126,10 @@ export class PubSubService {
    * Publish a message to a channel
    */
   static async publish<T = any>(channel: string, data: T): Promise<number> {
+    if (!redis) {
+      logger.warn(`Pub/sub disabled - cannot publish to ${channel}`);
+      return 0;
+    }
     try {
       const payload = JSON.stringify(data);
       const receivers = await redis.publish(channel, payload);
@@ -133,6 +148,10 @@ export class PubSubService {
     channel: string,
     handler: (data: T) => void | Promise<void>
   ): void {
+    if (!subscriberRedis) {
+      logger.warn(`Pub/sub disabled - cannot subscribe to ${channel}`);
+      return;
+    }
     subscriberRedis.subscribe(channel, (err) => {
       if (err) {
         logger.error(`Failed to subscribe to ${channel}:`, err);
@@ -160,6 +179,10 @@ export class PubSubService {
     pattern: string,
     handler: (channel: string, data: T) => void | Promise<void>
   ): void {
+    if (!subscriberRedis) {
+      logger.warn(`Pub/sub disabled - cannot psubscribe to ${pattern}`);
+      return;
+    }
     subscriberRedis.psubscribe(pattern, (err) => {
       if (err) {
         logger.error(`Failed to psubscribe to ${pattern}:`, err);
@@ -182,6 +205,9 @@ export class PubSubService {
    * Unsubscribe from a channel
    */
   static async unsubscribe(channel: string): Promise<void> {
+    if (!subscriberRedis) {
+      return;
+    }
     await subscriberRedis.unsubscribe(channel);
     logger.info(`Unsubscribed from ${channel}`);
   }
@@ -190,9 +216,15 @@ export class PubSubService {
    * Graceful shutdown
    */
   static async disconnect(): Promise<void> {
-    await redis.quit();
-    await subscriberRedis.quit();
-    logger.info('Redis pub/sub connections closed');
+    if (redis) {
+      await redis.quit();
+    }
+    if (subscriberRedis) {
+      await subscriberRedis.quit();
+    }
+    if (redis || subscriberRedis) {
+      logger.info('Redis pub/sub connections closed');
+    }
   }
 }
 

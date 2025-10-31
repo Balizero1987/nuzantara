@@ -8,7 +8,7 @@
 import { Server, Socket } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 import logger from './services/logger.js';
-import { PubSubService, CHANNELS, UserNotification, AIResult } from './utils/pubsub';
+import { PubSubService, CHANNELS, UserNotification, AIResult } from './utils/pubsub.js';
 
 export function setupWebSocket(httpServer: HTTPServer) {
   const io = new Server(httpServer, {

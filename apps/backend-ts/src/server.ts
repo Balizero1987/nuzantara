@@ -92,15 +92,21 @@ async function startServer() {
   // Create HTTP server (for WebSocket)
   const httpServer = createServer(app);
 
-  // Setup WebSocket for real-time features (P0.4)
-  const io = setupWebSocket(httpServer);
-  logger.info('✅ WebSocket server initialized');
+  // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
+  if (process.env.REDIS_URL) {
+    const io = setupWebSocket(httpServer);
+    logger.info('✅ WebSocket server initialized');
+  } else {
+    logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
+  }
 
   const server = httpServer.listen(PORT, '0.0.0.0', () => {
     logger.info(`🚀 ZANTARA TS-BACKEND started on port ${PORT}`);
     logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);
     logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
-    logger.info(`🔌 WebSocket ready for real-time features`);
+    if (process.env.REDIS_URL) {
+      logger.info(`🔌 WebSocket ready for real-time features`);
+    }
   });
 
   // Handle shutdown gracefully
