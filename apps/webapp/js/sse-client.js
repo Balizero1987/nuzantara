@@ -12,6 +12,9 @@ class ZantaraSSEClient {
     this.currentMessage = '';
     this.listeners = new Map();
     this.baseUrl = this.getAPIBase();
+    this.currentSources = null;
+    this.retryTimeout = null;
+    this.lastStreamUrl = null;
   }
 
   // Get API base URL for SSE streaming
@@ -20,7 +23,7 @@ class ZantaraSSEClient {
     // The TypeScript backend doesn't have /bali-zero/chat-stream endpoint.
     // Always use RAG backend for SSE, regardless of api-config.js settings.
 
-    const RAG_BACKEND = 'https://scintillating-kindness-production-47e3.up.railway.app';
+    const RAG_BACKEND = 'https://nuzantara-rag.fly.dev';
 
     // Check if config explicitly overrides SSE endpoint
     if (window.ZANTARA_API?.config?.sse_backend) {
@@ -89,6 +92,7 @@ class ZantaraSSEClient {
       this.isStreaming = true;
       this.currentMessage = '';
       this.currentSources = null;  // ← CITATIONS: Collect sources from SSE
+      this.lastStreamUrl = null;
 
       // Build URL with query parameters
       const url = new URL(`${this.baseUrl}/bali-zero/chat-stream`);
@@ -111,88 +115,94 @@ class ZantaraSSEClient {
         console.log('[ZantaraSSE] Sending conversation history:', conversationHistory.length, 'messages');
       }
 
-      console.log('[ZantaraSSE] Connecting to:', url.toString());
+      const streamUrl = url.toString();
+      this.lastStreamUrl = streamUrl;
 
-      // Create EventSource connection
-      this.eventSource = new EventSource(url.toString());
-
-      // Emit start event
-      this.emit('start', { query, userEmail });
-
-      // Handle incoming messages
-      this.eventSource.onmessage = (event) => {
-        try {
-          console.log('[ZantaraSSE] RAW EVENT:', event.data.substring(0, 200)); // Debug
-          const data = JSON.parse(event.data);
-
-          // ← CITATIONS: Capture sources before done signal
-          if (data.sources) {
-            this.currentSources = data.sources;
-            console.log('[SSE] Received sources:', data.sources.length, 'documents');
-            this.emit('sources', { sources: data.sources });
-          }
-
-          // Check if stream is done
-          if (data.done) {
-            this.stop();
-            // ← CITATIONS: Include sources in complete event
-            console.log('[SSE] Complete event - currentSources:', this.currentSources ? this.currentSources.length : 'null/undefined');
-            this.emit('complete', {
-              message: this.currentMessage,
-              sources: this.currentSources
-            });
-            resolve(this.currentMessage);
-            return;
-          }
-
-          // Check for errors
-          if (data.error) {
-            this.stop();
-            this.emit('error', { error: data.error });
-            reject(new Error(data.error));
-            return;
-          }
-
-          // Process text chunk
-          if (data.text) {
-            this.currentMessage += data.text;
-
-            // Emit delta event for UI updates
-            this.emit('delta', {
-              chunk: data.text,
-              message: this.currentMessage
-            });
-          }
-
-        } catch (err) {
-          console.error('[ZantaraSSE] Failed to parse event data:', event.data, err);
-          this.emit('parse-error', { error: err.message, data: event.data });
+      const clearRetry = () => {
+        if (this.retryTimeout) {
+          clearTimeout(this.retryTimeout);
+          this.retryTimeout = null;
         }
       };
 
-      // Handle connection errors
-      this.eventSource.onerror = (error) => {
-        console.error('[ZantaraSSE] Connection error:', error);
-        this.stop();
+      const connect = () => {
+        console.log('[ZantaraSSE] Connecting to:', streamUrl);
+        this.eventSource = new EventSource(streamUrl, { withCredentials: false });
 
-        // Emit error with context
-        const errorMessage = this.currentMessage
-          ? 'Stream interrupted - partial message received'
-          : 'Failed to connect to streaming service';
+        // Emit start event on first connection
+        this.emit('start', { query, userEmail });
 
-        this.emit('error', {
-          error: errorMessage,
-          partial: this.currentMessage
-        });
+        this.eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
 
-        reject(new Error(errorMessage));
+            // ← CITATIONS: Capture sources before done signal
+            if (data.sources) {
+              this.currentSources = data.sources;
+              this.emit('sources', { sources: data.sources });
+            }
+
+            // Check if stream is done
+            if (data.done) {
+              this.stop();
+              this.emit('complete', {
+                message: this.currentMessage,
+                sources: this.currentSources
+              });
+              resolve(this.currentMessage);
+              return;
+            }
+
+            // Check for errors
+            if (data.error) {
+              this.stop();
+              this.emit('error', { error: data.error });
+              reject(new Error(data.error));
+              return;
+            }
+
+            // Process text chunk
+            if (data.text) {
+              this.currentMessage += data.text;
+
+              // Emit delta event for UI updates
+              this.emit('delta', {
+                chunk: data.text,
+                message: this.currentMessage
+              });
+            }
+          } catch (err) {
+            console.error('[ZantaraSSE] Failed to parse event data:', event.data, err);
+            this.emit('parse-error', { error: err.message, data: event.data });
+          }
+        };
+
+        this.eventSource.onerror = (error) => {
+          console.warn('[ZantaraSSE] Connection error:', error);
+          if (this.eventSource) {
+            this.eventSource.close();
+            this.eventSource = null;
+          }
+
+          this.emit('connection-error', { error });
+
+          if (this.isStreaming) {
+            clearRetry();
+            this.retryTimeout = setTimeout(() => {
+              console.warn('[ZantaraSSE] Attempting SSE reconnection…');
+              connect();
+            }, 2000);
+          }
+        };
+
+        this.eventSource.onopen = () => {
+          console.log('[ZantaraSSE] Connection established');
+          clearRetry();
+          this.emit('connected', {});
+        };
       };
 
-      // Handle connection open
-      this.eventSource.onopen = () => {
-        console.log('[ZantaraSSE] Connection established');
-        this.emit('connected', {});
-      };
+      connect();
     });
   }
 
@@ -204,6 +214,11 @@ class ZantaraSSEClient {
       this.eventSource.close();
       this.eventSource = null;
     }
+    if (this.retryTimeout) {
+      clearTimeout(this.retryTimeout);
+      this.retryTimeout = null;
+    }
+    this.lastStreamUrl = null;
     this.isStreaming = false;
     this.emit('stop', { message: this.currentMessage });
   }

@@ -4,7 +4,6 @@
  */
 
 import express from 'express';
-import cors from 'cors';
 import { createServer } from 'http';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
@@ -12,9 +11,9 @@ import { attachRoutes } from './routing/router.js';
 import { loadAllHandlers } from './core/load-all-handlers.js';
 import {
   applySecurity,
-  globalRateLimiter,
-  corsConfig
+  globalRateLimiter
 } from './middleware/security.middleware.js';
+import { corsMiddleware } from './middleware/cors.js';
 import { setupWebSocket } from './websocket.js';
 import { metricsMiddleware, metricsHandler } from './middleware/observability.middleware.js';
 import { initializeRedis, cacheMiddleware } from './middleware/cache.middleware.js';
@@ -31,7 +30,7 @@ async function startServer() {
   app.use(applySecurity);
 
   // PATCH-3: CORS with security configuration
-  app.use(cors(corsConfig));
+  app.use(corsMiddleware);
 
   // Body parsing
   app.use(express.json({ limit: '10mb' }));

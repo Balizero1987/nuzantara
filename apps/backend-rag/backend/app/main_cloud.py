@@ -12,7 +12,7 @@ COST OPTIMIZATION: 3x cheaper than Sonnet, same quality with RAG
 CORS FIX: Explicit headers on /health and /bali-zero/chat-stream endpoints
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
 from fastapi.responses import StreamingResponse, HTMLResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -26,6 +26,7 @@ import shutil
 import re
 import boto3
 from botocore.exceptions import ClientError
+import socket
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -1731,11 +1732,12 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
 async def bali_zero_chat_stream_options():
     """Handle CORS preflight requests for SSE endpoint"""
     return Response(
-        status_code=200,
+        status_code=204,
         headers={
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": "https://zantara.balizero.com",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Allow-Credentials": "false",
             "Access-Control-Max-Age": "3600"
         }
     )
@@ -1743,6 +1745,7 @@ async def bali_zero_chat_stream_options():
 
 @app.get("/bali-zero/chat-stream")
 async def bali_zero_chat_stream(
+    request: Request,
     query: str,
     user_email: Optional[str] = None,
     conversation_history: Optional[str] = None
@@ -1881,20 +1884,46 @@ async def bali_zero_chat_stream(
             # Send error to client
             error_data = json.dumps({"error": str(e), "done": True})
             yield f"data: {error_data}\n\n"
+        finally:
+            logger.info("🔁 [Stream] Generator cleanup triggered")
+
+        # Fallback final yield in case loop exits due to disconnect without done/error
+        logger.info("ℹ️ [Stream] Generator terminating")
+
+    # Enable TCP keep-alive when possible to keep the SSE socket open
+    transport = request.scope.get("transport")
+    socket_obj = None
+    if transport:
+        socket_obj = transport.get_extra_info("socket")
+    if socket_obj:
+        try:
+            socket_obj.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        except Exception as sock_err:
+            logger.debug(f"⚠️ [Stream] Unable to enable keep-alive: {sock_err}")
+
+    async def guarded_generate():
+        async for chunk in generate():
+            if await request.is_disconnected():
+                logger.info("🔌 [Stream] Client disconnected; stopping stream")
+                return
+            yield chunk
+
+    headers = {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",  # Disable nginx buffering for immediate streaming
+        # CORS headers for browser SSE connections
+        "Access-Control-Allow-Origin": "https://zantara.balizero.com",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Credentials": "false",
+        "Access-Control-Max-Age": "3600"
+    }
 
     return StreamingResponse(
-        generate(),
+        guarded_generate(),
         media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",  # Disable nginx buffering for immediate streaming
-            # CORS headers for browser SSE connections
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Max-Age": "3600"
-        }
+        headers=headers
     )
 
 
