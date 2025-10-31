@@ -1744,7 +1744,8 @@ async def bali_zero_chat_stream_options():
 @app.get("/bali-zero/chat-stream")
 async def bali_zero_chat_stream(
     query: str,
-    user_email: Optional[str] = None
+    user_email: Optional[str] = None,
+    conversation_history: Optional[str] = None
 ):
     """
     SSE streaming endpoint for real-time chat responses
@@ -1754,6 +1755,7 @@ async def bali_zero_chat_stream(
     Args:
         query: User message/question
         user_email: Optional user email for personalization
+        conversation_history: Optional JSON string of conversation history for context
 
     Returns:
         StreamingResponse: SSE stream with text chunks
@@ -1773,6 +1775,15 @@ async def bali_zero_chat_stream(
         global search_service, collaborator_service, memory_service, intelligent_router
 
         try:
+            # Parse conversation history if provided
+            parsed_history = None
+            if conversation_history:
+                try:
+                    parsed_history = json.loads(conversation_history)
+                    logger.info(f"📚 [Stream] Conversation history: {len(parsed_history)} messages")
+                except Exception as e:
+                    logger.warning(f"⚠️ [Stream] Failed to parse conversation_history: {e}")
+
             # Sanitize user email (same logic as regular chat)
             sanitized_email = None
             if user_email:
@@ -1808,7 +1819,7 @@ async def bali_zero_chat_stream(
             async for chunk in intelligent_router.stream_chat(
                 message=query,
                 user_id=user_id,
-                conversation_history=None,  # No history for SSE (stateless)
+                conversation_history=parsed_history,  # ✨ Pass conversation history for context
                 memory=memory,
                 collaborator=collaborator
             ):
