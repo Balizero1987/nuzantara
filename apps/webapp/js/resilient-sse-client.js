@@ -52,12 +52,15 @@ class ResilientSSEClient {
   }
 
   /**
-   * Establish SSE connection
+   * Establish SSE connection with performance monitoring
    */
   connect(queryParams = {}) {
     if (this.eventSource) {
       this.disconnect();
     }
+
+    // Performance tracking
+    const t0 = performance.now();
 
     // Generate connection ID for tracking
     this.connectionId = `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -73,7 +76,10 @@ class ResilientSSEClient {
     console.log(`[SSE] Connection ID: ${this.connectionId}`);
 
     try {
-      this.eventSource = new EventSource(url.toString());
+      this.eventSource = new EventSource(url.toString(), { withCredentials: false });
+
+      // Store connection start time
+      this.connectionStartTime = t0;
 
       // Set up event listeners
       this.eventSource.onopen = this.handleOpen;
@@ -113,11 +119,18 @@ class ResilientSSEClient {
    * Handle successful connection
    */
   handleOpen(event) {
-    console.log('[SSE] Connection opened');
+    const connectionTime = performance.now() - this.connectionStartTime;
+    console.log(`⚡ [SSE] Connected in ${connectionTime.toFixed(2)}ms`);
     this.isConnected = true;
     this.reconnectAttempts = 0;
     this.reconnectDelay = this.initialReconnectDelay;
     this.lastMessageTime = Date.now();
+
+    // Track connection metrics
+    if (this.metrics) {
+      this.metrics.lastConnectionTime = connectionTime;
+    }
+
     this.onConnect();
   }
 
@@ -155,7 +168,7 @@ class ResilientSSEClient {
   }
 
   /**
-   * Handle connection errors
+   * Handle connection errors with auto-reload fallback
    */
   handleError(event) {
     console.error('[SSE] Connection error:', event);
@@ -178,8 +191,14 @@ class ResilientSSEClient {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
           this.reconnect();
         } else {
-          console.error('[SSE] Max reconnection attempts reached');
+          console.error('[SSE] Max reconnection attempts reached - reloading page in 3s');
           this.onError(new Error('Max reconnection attempts reached'));
+
+          // Auto-reload page as last resort
+          setTimeout(() => {
+            console.log('[SSE] Reloading page to restore connection...');
+            location.reload();
+          }, 3000);
         }
       }
     }

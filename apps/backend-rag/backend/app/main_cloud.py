@@ -14,7 +14,7 @@ DEPLOYMENT: Fly.io Production Platform
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
-from fastapi.responses import StreamingResponse, HTMLResponse, Response
+from fastapi.responses import StreamingResponse, HTMLResponse, Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
@@ -753,12 +753,38 @@ def _log_warmup_result(task: asyncio.Task):
         logger.error(f"❌ Async warmup failed: {exc}")
 
 
+async def preload_redis_cache():
+    """Preload Redis cache with essential keys for faster warmup"""
+    logger.info("⚡ Preloading Redis cache keys...")
+    try:
+        from core.cache import cache
+        from datetime import datetime
+
+        # Set boot time
+        cache.set("system:boot_time", datetime.utcnow().isoformat(), ttl=3600)
+
+        # Pre-warm essential keys
+        essential_keys = ["agent_state", "pricing_rules", "capabilities", "system_config"]
+        for key in essential_keys:
+            cache.get(key)  # Triggers connection if not established
+
+        logger.info("✅ Redis warmup complete")
+        return True
+    except Exception as e:
+        logger.warning(f"⚠️ Redis preload incomplete: {e}")
+        return False
+
+
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
     global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (HAIKU-ONLY: Claude Haiku 4.5)...")
     logger.info("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
+
+    # Preload Redis cache first
+    redis_warmup = asyncio.create_task(preload_redis_cache())
+
     await asyncio.sleep(0.1)
 
     # Initialize Alert Service (for error monitoring)
@@ -1169,6 +1195,15 @@ async def cache_stats():
         return {"success": False, "error": str(e)}
 
 
+@app.get("/legacy-health")
+async def legacy_health():
+    """Deprecated endpoint - returns 410 Gone"""
+    return JSONResponse(
+        {"deprecated": True, "message": "Use /health instead"},
+        status_code=410
+    )
+
+
 @app.get("/cache/health")
 async def cache_health():
     """Check cache health status"""
@@ -1227,12 +1262,12 @@ async def health_options():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Optimized health check endpoint - v100"""
     return Response(
         content=json.dumps({
             "status": "healthy",
             "service": "ZANTARA RAG",
-            "version": "3.3.1-cors-fix",
+            "version": "v100-perfect",
             "mode": "full",
             "available_services": [
                 "chromadb",
@@ -2866,10 +2901,19 @@ async def get_all_analytics(user_email: Optional[str] = None, days: int = 7):
 @app.get("/metrics")
 async def get_prometheus_metrics():
     """
-    Prometheus metrics endpoint for SSE and system health monitoring
-    Returns metrics in Prometheus format for scraping
+    Enhanced Prometheus metrics endpoint for SSE and system health monitoring - v100
+    Returns expanded metrics in Prometheus format for comprehensive monitoring
     """
     try:
+        # Try to use enhanced metrics if available
+        try:
+            from app.metrics import collect_all_metrics, CONTENT_TYPE_LATEST
+            metrics_data = await collect_all_metrics()
+            return Response(content=metrics_data, media_type=CONTENT_TYPE_LATEST)
+        except ImportError:
+            pass
+
+        # Fallback to standard metrics
         import psutil
         from datetime import datetime
 
