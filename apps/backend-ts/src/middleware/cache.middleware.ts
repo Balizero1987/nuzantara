@@ -23,12 +23,27 @@ export async function initializeRedis(): Promise<void> {
   }
 
   try {
+    // Parse the Redis URL to determine if we need TLS
+    const redisUrl = process.env.REDIS_URL;
+    const isUpstash = redisUrl.includes('upstash.io');
+
+    logger.info(`Attempting Redis connection to: ${redisUrl.replace(/:\/\/[^:]+:[^@]+@/, '://***:***@')}`);
+
     redis = createClient({
-      url: process.env.REDIS_URL,
-      socket: {
+      url: redisUrl,
+      socket: isUpstash ? {
         tls: true,
         rejectUnauthorized: false,
-        connectTimeout: 5000,
+        connectTimeout: 10000,
+        reconnectStrategy: (retries) => {
+          if (retries > 3) {
+            logger.error('Redis reconnection failed after 3 attempts');
+            return false;
+          }
+          return Math.min(retries * 100, 1000);
+        }
+      } : {
+        connectTimeout: 10000,
         reconnectStrategy: (retries) => {
           if (retries > 3) {
             logger.error('Redis reconnection failed after 3 attempts');
@@ -55,8 +70,15 @@ export async function initializeRedis(): Promise<void> {
     });
 
     await redis.connect();
-  } catch (error) {
-    logger.error('Failed to initialize Redis:', error);
+    logger.info('Redis connection attempt completed');
+  } catch (error: any) {
+    logger.error('Failed to initialize Redis:', {
+      message: error.message,
+      code: error.code,
+      syscall: error.syscall,
+      address: error.address,
+      port: error.port
+    });
     redis = null;
     isConnected = false;
   }
