@@ -6,7 +6,7 @@
 
 A unified orchestration system that integrates:
 - 🤖 **5 AI Assistants** (Claude, Copilot, Codex, Gemini, Aider)
-- ☁️ **3 Cloud Platforms** (Fly.io, Railway, GitHub Pages)
+- ☁️ **2 Cloud Platforms** (Fly.io, GitHub Pages)
 - 🌐 **Browser Automation** (Playwright with stealth)
 - 📊 **Live Monitoring** (btop, logs aggregation)
 - 🚀 **One-Command Deployment** (multi-platform orchestrator)
@@ -96,7 +96,7 @@ Watches files and auto-restarts services on changes.
 ```bash
 ~/.claude/vibe-machine/deploy-orchestrator.sh all
 ```
-Deploys to Fly.io, Railway, and GitHub Pages simultaneously.
+Deploys to Fly.io and GitHub Pages simultaneously.
 
 ### Live Dashboard
 ```bash
@@ -177,7 +177,6 @@ export GEMINI_API_KEY="..."
 
 # Cloud Platforms
 export FLY_API_TOKEN="..."
-export RAILWAY_TOKEN="..."
 export GITHUB_TOKEN="..."
 ```
 
@@ -205,7 +204,7 @@ vibe-status  # Check what's missing
 
 ### Deployment Times
 - RAG Backend: ~2-3 minutes (Fly.io)
-- TS Backend: ~1-2 minutes (Railway)
+- TS Backend: ~1-2 minutes (Fly.io)
 - Webapp: ~30 seconds (GitHub Pages)
 
 ### API Latency
