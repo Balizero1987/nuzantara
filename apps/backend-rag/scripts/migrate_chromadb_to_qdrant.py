@@ -67,7 +67,8 @@ class ChromaToQdrantMigrator:
         
         self.qdrant_client = QdrantClient(
             url=qdrant_url,
-            api_key=os.getenv("QDRANT_API_KEY")
+            api_key=os.getenv("QDRANT_API_KEY"),
+            prefer_grpc=False  # Use REST API instead of gRPC
         )
         
         logger.info(f"ChromaDB path: {chroma_path}")
