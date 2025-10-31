@@ -217,7 +217,7 @@ router.get('/health', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Cache health check error:', error);
     res.status(503).json({
       status: 'unhealthy',
@@ -227,6 +227,24 @@ router.get('/health', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   }
+});
+
+/**
+ * GET /cache/debug
+ * Debug Redis connection details
+ */
+router.get('/debug', async (req: Request, res: Response) => {
+  const redisUrl = process.env.REDIS_URL;
+  const isConfigured = !!redisUrl;
+  const sanitizedUrl = redisUrl ? redisUrl.replace(/:\/\/[^:]+:[^@]+@/, '://***:***@') : 'Not configured';
+
+  res.json({
+    status: 'debug',
+    redis_configured: isConfigured,
+    redis_url_pattern: sanitizedUrl,
+    env_keys: Object.keys(process.env).filter(k => k.includes('REDIS')),
+    timestamp: new Date().toISOString()
+  });
 });
 
 export default router;
