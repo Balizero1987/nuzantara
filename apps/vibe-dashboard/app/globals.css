@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', system-ui, sans-serif;
+    --font-playfair: 'Playfair Display', serif;
+  }
+
+  body {
+    @apply bg-gradient-to-b from-zantara-bg-0 to-zantara-bg-1;
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .gold-glow {
+    box-shadow: 0 0 20px rgba(199, 167, 94, 0.3);
+  }
+
+  .gold-text-glow {
+    text-shadow: 0 0 10px rgba(199, 167, 94, 0.5);
+  }
+
+  .animate-breath {
+    animation: breath 14s ease-in-out infinite;
+  }
+
+  @keyframes breath {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.04;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.09;
+    }
+  }
+}

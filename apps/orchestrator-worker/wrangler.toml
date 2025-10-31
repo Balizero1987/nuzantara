@@ -1,0 +1,14 @@
+name = "vibe-orchestrator"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Environment variables (secrets via CLI: wrangler secret put)
+[vars]
+ENVIRONMENT = "production"
+
+# CORS for dashboard
+[env.production]
+name = "vibe-orchestrator"
+
+[env.development]
+name = "vibe-orchestrator-dev"

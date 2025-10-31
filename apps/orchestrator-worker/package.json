@@ -1,0 +1,19 @@
+{
+  "name": "vibe-orchestrator",
+  "version": "1.0.0",
+  "description": "Multi-Agent AI Orchestrator for VIBE Dashboard",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.4.0",
+    "wrangler": "^3.60.0"
+  }
+}

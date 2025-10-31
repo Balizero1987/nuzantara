@@ -10,12 +10,13 @@ import { ENV } from './config/index.js';
 import logger from './services/logger.js';
 import { attachRoutes } from './routing/router.js';
 import { loadAllHandlers } from './core/load-all-handlers.js';
-import { 
-  applySecurity, 
-  globalRateLimiter, 
-  corsConfig 
+import {
+  applySecurity,
+  globalRateLimiter,
+  corsConfig
 } from './middleware/security.middleware.js';
 import { setupWebSocket } from './websocket.js';
+import { metricsMiddleware, metricsHandler } from './middleware/observability.middleware.js';
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
@@ -34,6 +35,10 @@ async function startServer() {
 
   // PATCH-3: Global rate limiting
   app.use(globalRateLimiter);
+
+  // Observability: Metrics collection
+  app.use(metricsMiddleware);
+
   // Request logging
   app.use((req, res, next) => {
     logger.info(`${req.method} ${req.path} - ${req.ip}`);
@@ -50,6 +55,9 @@ async function startServer() {
       uptime: process.uptime()
     });
   });
+
+  // Metrics endpoint for Prometheus
+  app.get('/metrics', metricsHandler);
 
   // Root endpoint
   app.get('/', (req, res) => {
