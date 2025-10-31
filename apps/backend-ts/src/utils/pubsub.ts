@@ -10,7 +10,7 @@
  */
 
 import Redis from 'ioredis';
-import { logger } from './logger';
+import logger from '../services/logger.js';
 
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 
