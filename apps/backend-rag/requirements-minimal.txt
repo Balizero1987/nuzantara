@@ -11,10 +11,9 @@ chromadb==0.5.18
 qdrant-client==1.7.0
 
 # AI & Embeddings - OpenAI ONLY (no torch/sentence-transformers)
-openai==1.35.0
-# httpx 0.27+ removed the `proxies` parameter used internally by openai 1.35
-# Pin to <=0.26 to keep compatibility until we upgrade the SDK.
-httpx==0.26.0
+openai==2.6.1
+# HTTP client shared by OpenAI + Chroma. Keep >=0.27 for Chroma compatibility.
+httpx>=0.27.0
 anthropic>=0.18.0
 
 # Data Processing
