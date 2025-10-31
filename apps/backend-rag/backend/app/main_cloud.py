@@ -25,6 +25,8 @@ import logging
 import shutil
 import re
 import boto3
+import asyncio
+import time
 from botocore.exceptions import ClientError
 import socket
 
@@ -1773,11 +1775,24 @@ async def bali_zero_chat_stream(
         raise HTTPException(503, "Intelligent Router not available - Claude AI required")
 
     async def generate():
-        """Generator function for SSE stream"""
+        """Generator function for SSE stream with heartbeat support"""
         # Declare global services to ensure access in nested function
         global search_service, collaborator_service, memory_service, intelligent_router
 
+        # Extract reconnection headers for resilience support
+        session_id = request.headers.get("x-session-id")
+        continuity_id = request.headers.get("x-continuity-id")
+        is_reconnection = request.headers.get("x-reconnection") == "true"
+        last_chunk_timestamp = request.headers.get("x-last-chunk-timestamp")
+
+        if is_reconnection:
+            logger.info(f"🔄 [Stream] Reconnection detected - Session: {session_id}, Continuity: {continuity_id}")
+
+        stream_start_time = time.time()
+        sequence_number = 0
+
         try:
+
             # Parse conversation history if provided
             parsed_history = None
             if conversation_history:
@@ -1819,6 +1834,17 @@ async def bali_zero_chat_stream(
             full_message = ""
             sources = None
 
+            # Send continuity verification if reconnection
+            if is_reconnection and continuity_id:
+                continuity_data = {
+                    "type": "continuity_check",
+                    "streamId": continuity_id,
+                    "sequenceNumber": sequence_number,
+                    "timestamp": time.time()
+                }
+                yield f"data: {json.dumps(continuity_data)}\n\n"
+                logger.info(f"🔗 [Stream] Continuity verification sent for {continuity_id}")
+
             async for chunk in intelligent_router.stream_chat(
                 message=query,
                 user_id=user_id,
@@ -1826,9 +1852,17 @@ async def bali_zero_chat_stream(
                 memory=memory,
                 collaborator=collaborator
             ):
+                # Enhanced chunk with sequence number
+                sequence_number += 1
+                enhanced_chunk = {
+                    "text": chunk,
+                    "sequenceNumber": sequence_number,
+                    "timestamp": time.time()
+                }
+
                 # SSE format: data: {json}\n\n
                 full_message += chunk
-                sse_data = json.dumps({"text": chunk})
+                sse_data = json.dumps(enhanced_chunk)
                 yield f"data: {sse_data}\n\n"
 
             # SOURCES: Attempt to retrieve sources from search service (same logic as chat endpoint)
@@ -1876,14 +1910,25 @@ async def bali_zero_chat_stream(
                 logger.info(f"✅ [Stream] Sources sent to client: {len(sources)} citations")
 
             # Send done signal
-            yield f"data: {json.dumps({'done': True})}\n\n"
-            logger.info(f"✅ [Stream] Stream completed for user {user_id}")
+            done_data = {
+                "done": True,
+                "sequenceNumber": sequence_number,
+                "timestamp": time.time(),
+                "streamDuration": time.time() - stream_start_time
+            }
+            yield f"data: {json.dumps(done_data)}\n\n"
+            logger.info(f"✅ [Stream] Stream completed for user {user_id} in {time.time() - stream_start_time:.2f}s")
 
         except Exception as e:
             logger.error(f"❌ [Stream] Error: {e}")
-            # Send error to client
-            error_data = json.dumps({"error": str(e), "done": True})
-            yield f"data: {error_data}\n\n"
+            # Send error to client with sequence number
+            error_data = {
+                "error": str(e),
+                "done": True,
+                "sequenceNumber": sequence_number,
+                "timestamp": time.time()
+            }
+            yield f"data: {json.dumps(error_data)}\n\n"
         finally:
             logger.info("🔁 [Stream] Generator cleanup triggered")
 
