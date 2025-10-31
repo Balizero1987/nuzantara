@@ -17,9 +17,13 @@ import {
 } from './middleware/security.middleware.js';
 import { setupWebSocket } from './websocket.js';
 import { metricsMiddleware, metricsHandler } from './middleware/observability.middleware.js';
+import { initializeRedis, cacheMiddleware } from './middleware/cache.middleware.js';
+import cacheRoutes from './routes/cache.routes.js';
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
+  // Initialize Redis cache
+  await initializeRedis();
   // Create Express app
   const app = express();
 
@@ -59,6 +63,9 @@ async function startServer() {
   // Metrics endpoint for Prometheus
   app.get('/metrics', metricsHandler);
 
+  // Cache management routes
+  app.use('/cache', cacheRoutes);
+
   // Root endpoint
   app.get('/', (req, res) => {
     res.json({
@@ -71,6 +78,10 @@ async function startServer() {
       }
     });
   });
+
+  // Bali Zero routes with caching
+  const baliZeroRoutes = await import('./routes/api/v2/bali-zero.routes.js');
+  app.use('/api/v2/bali-zero', baliZeroRoutes.default);
 
   // Load main router with all handlers
   attachRoutes(app);
