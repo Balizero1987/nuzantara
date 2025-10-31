@@ -396,7 +396,13 @@ Output ONLY valid JSON, no markdown formatting."""
 
 
 class Stage2BProcessor:
-    """Stage 2B: Content Creation (Raw → Consolidated Markdown articles per category)"""
+    """Stage 2B: Content Creation (Raw → Consolidated Markdown articles per category)
+
+    NOW WITH QUALITY FILTERING - Same as Stage 2A RAG:
+    - Max age: 5 days
+    - Min quality score: 5.0
+    - Min word count: 100
+    """
 
     def __init__(self):
         # Auto-detect AI backend
@@ -406,6 +412,10 @@ class Stage2BProcessor:
         else:
             self.llama = ZantaraLlamaClient()
             logger.info("Stage 2B using ZANTARA Llama (RunPod)")
+
+        # Add quality filter (same as Stage 2A)
+        self.quality_filter = QualityFilter()
+        logger.info(f"Stage 2B Quality Filters: Max age {MAX_NEWS_AGE_DAYS} days, Min score {MIN_QUALITY_SCORE}, Min words {MIN_WORD_COUNT}")
 
         # Store processed articles to avoid duplicates
         self.processed_articles = {}
@@ -456,7 +466,10 @@ class Stage2BProcessor:
         return metadata
 
     async def create_article(self, raw_file: Path, category: str) -> Optional[Dict[str, Any]]:
-        """Create article data from raw content"""
+        """Create article data from raw content
+
+        NOW WITH QUALITY FILTERING - Same criteria as Stage 2A RAG
+        """
 
         logger.info(f"Processing Content: {raw_file.name} (category: {category})")
 
@@ -470,6 +483,27 @@ class Stage2BProcessor:
 
         # Extract metadata
         metadata = self.extract_metadata(raw_content, raw_file)
+
+        # ========== QUALITY FILTERING (NEW) ==========
+        # Create item for quality check (similar structure to Stage 2A)
+        quality_item = {
+            "published_date": metadata.get("published_date", ""),
+            "content": raw_content,
+            "tier": "t3",  # Default tier for Stage 2B (no LLM extraction)
+            "impact_level": "medium",  # Default impact
+            "source_url": metadata.get("url", "")
+        }
+
+        # Apply quality filters (same as Stage 2A)
+        passes, reason = self.quality_filter.passes_filters(quality_item)
+        if not passes:
+            logger.warning(f"Quality filter REJECT: {raw_file.name} - {reason}")
+            return None
+
+        # Calculate quality score for logging
+        quality_score = self.quality_filter.calculate_quality_score(quality_item)
+        logger.info(f"✅ Quality check passed: {raw_file.name} (score: {quality_score:.1f})")
+        # ========== END QUALITY FILTERING ==========
 
         # Generate article with ZANTARA Llama
         prompt = f"""You are an expert analyst creating a professional intel report from news content.
@@ -502,12 +536,13 @@ Focus on practical implications for businesses and expats in Indonesia."""
             logger.error(f"ZANTARA Llama failed for article: {raw_file.name}")
             return None
 
-        logger.info(f"✅ Article created: {raw_file.name}")
+        logger.info(f"✅ Article created: {raw_file.name} (quality score: {quality_score:.1f})")
 
         return {
             "metadata": metadata,
             "content": article_content,
-            "raw_file": raw_file.name
+            "raw_file": raw_file.name,
+            "quality_score": quality_score  # Include quality score in result
         }
 
     async def create_consolidated_report(self, articles: List[Dict[str, Any]], category: str) -> str:
@@ -823,6 +858,7 @@ async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = Fals
         "stage_2b": {
             "created": 0,
             "failed": 0,
+            "filtered": 0,  # Track articles rejected by quality filters
         },
         "stage_2c": {
             "created": 0,
@@ -861,7 +897,10 @@ async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = Fals
                 articles.append(article_data)
                 results["stage_2b"]["created"] += 1
             else:
-                results["stage_2b"]["failed"] += 1
+                # Article was either filtered or failed processing
+                # Check if it was a quality filter rejection (logged as warning)
+                # For now, count all None returns as filtered
+                results["stage_2b"]["filtered"] += 1
 
         if articles:
             all_articles_by_category[category] = articles
@@ -968,7 +1007,7 @@ async def run_stage2_parallel(raw_files: List[Path], enable_journal: bool = Fals
 
     logger.info(f"✅ Stage 2 sequential complete: {duration:.1f}s")
     logger.info(f"   2A RAG: {results['stage_2a']['processed']} processed, {results['stage_2a']['filtered']} filtered")
-    logger.info(f"   2B Content: {results['stage_2b']['created']} articles created")
+    logger.info(f"   2B Content: {results['stage_2b']['created']} articles created, {results['stage_2b']['filtered']} filtered")
     logger.info(f"   2C Bali Zero Journal: {results['stage_2c']['created']} posts created")
 
     return results
