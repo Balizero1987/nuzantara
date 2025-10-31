@@ -109,13 +109,13 @@ router.post('/kbli/requirements', async (req: Request, res: Response) => {
  * GET/POST /api/v2/bali-zero/pricing
  */
 router.get('/pricing', cacheMiddleware('pricing', 3600), async (req: Request, res: Response) => {
-  const params = { params: req.query };
-  const mockReq = { body: params } as any;
-  const mockRes = {
-    json: (data: any) => res.json(data),
-    status: (code: number) => res.status(code)
-  } as any;
-  return baliZeroPricing(mockReq, mockRes);
+  try {
+    const result = await baliZeroPricing(req.query);
+    return res.json(result);
+  } catch (error: any) {
+    logger.error('Pricing error:', error);
+    return res.status(500).json({ error: 'Pricing system error' });
+  }
 });
 
 router.post('/pricing', async (req: Request, res: Response) => {
@@ -130,17 +130,7 @@ router.post('/pricing', async (req: Request, res: Response) => {
     }
 
     // Execute handler
-    let result: any;
-    const mockRes = {
-      json: (data: any) => {
-        result = data;
-        return data;
-      },
-      status: (code: number) => mockRes
-    } as any;
-
-    const mockReq = { body: { params: req.body } } as any;
-    await baliZeroPricing(mockReq, mockRes);
+    const result = await baliZeroPricing(req.body);
 
     // Cache with long TTL (1 hour - prices don't change often)
     if (result) {
@@ -152,12 +142,13 @@ router.post('/pricing', async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'No result from handler' });
   } catch (error: any) {
     logger.error('Pricing cache error:', error);
-    const mockReq = { body: { params: req.body } } as any;
-    const mockRes = {
-      json: (data: any) => res.json(data),
-      status: (code: number) => res.status(code)
-    } as any;
-    return baliZeroPricing(mockReq, mockRes);
+    // Fallback to direct handler
+    try {
+      const result = await baliZeroPricing(req.body);
+      return res.json(result);
+    } catch (fallbackError: any) {
+      return res.status(500).json({ error: 'Pricing system error' });
+    }
   }
 });
 
@@ -175,17 +166,8 @@ router.post('/price', async (req: Request, res: Response) => {
       return res.json(JSON.parse(cached));
     }
 
-    let result: any;
-    const mockRes = {
-      json: (data: any) => {
-        result = data;
-        return data;
-      },
-      status: (code: number) => mockRes
-    } as any;
-
-    const mockReq = { body: { params: req.body } } as any;
-    await baliZeroQuickPrice(mockReq, mockRes);
+    // Execute handler
+    const result = await baliZeroQuickPrice(req.body);
 
     if (result) {
       await cacheSet(cacheKey, result, 3600); // 1 hour TTL
@@ -196,12 +178,13 @@ router.post('/price', async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'No result from handler' });
   } catch (error: any) {
     logger.error('Quick price cache error:', error);
-    const mockReq = { body: { params: req.body } } as any;
-    const mockRes = {
-      json: (data: any) => res.json(data),
-      status: (code: number) => res.status(code)
-    } as any;
-    return baliZeroQuickPrice(mockReq, mockRes);
+    // Fallback to direct handler
+    try {
+      const result = await baliZeroQuickPrice(req.body);
+      return res.json(result);
+    } catch (fallbackError: any) {
+      return res.status(500).json({ error: 'Price lookup error' });
+    }
   }
 });
 
