@@ -1,5 +1,5 @@
-# ZANTARA RAG Backend - Fly.io Deployment
-# Python 3.11 + FastAPI + ChromaDB + Sentence Transformers
+# ZANTARA RAG Backend - Railway Deployment
+# Python 3.11 + FastAPI + ChromaDB + Qdrant + Sentence Transformers
 FROM python:3.11-slim
 
 # Install system dependencies
