@@ -1309,6 +1309,37 @@ async def health_check():
     )
 
 
+@app.get("/warmup/stats")
+async def warmup_stats():
+    """Get warmup task status and system readiness"""
+    global warmup_task
+
+    is_running = warmup_task is not None and not warmup_task.done()
+    is_complete = warmup_task is not None and warmup_task.done() and not warmup_task.cancelled()
+
+    # Check if warmup completed successfully
+    warmup_error = None
+    if warmup_task and warmup_task.done():
+        try:
+            warmup_task.result()  # Will raise if there was an error
+        except Exception as e:
+            warmup_error = str(e)
+
+    return {
+        "isRunning": is_running,
+        "isComplete": is_complete,
+        "healthy": is_complete and warmup_error is None,
+        "error": warmup_error,
+        "services": {
+            "chromadb": search_service is not None,
+            "claude_haiku": claude_haiku is not None,
+            "memory": memory_service is not None,
+            "tool_executor": tool_executor is not None,
+            "intelligent_router": intelligent_router is not None
+        }
+    }
+
+
 @app.get("/api/tools/verify")
 async def verify_tools():
     """Diagnose tool-use bridge: list tools via TS and execute a simple handler.
