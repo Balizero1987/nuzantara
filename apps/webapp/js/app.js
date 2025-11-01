@@ -693,7 +693,7 @@ class ZantaraApp {
   switchView(view) { console.log('Switching to view:', view); }
   escape(s) { return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 
-  renderAssistantReply(text) {
+  renderAssistantReply(text, toolsUsed = null) {
     // Clean generic self-intros or assistant boilerplate
     text = this.sanitizeReply(text);
     // Coerce JSON-looking strings into human text
@@ -702,8 +702,13 @@ class ZantaraApp {
     }
     const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const streamingEnabled = !!(window.ZANTARA_STREAMING && window.ZANTARA_STREAMING.isEnabled && window.ZANTARA_STREAMING.isEnabled());
-    if (!streamingEnabled || prefersReduced) { this.addMessage('assistant', text); return; }
-    this.streamText(text);
+    if (!streamingEnabled || prefersReduced) { this.addMessage('assistant', text); }
+    else { this.streamText(text); }
+
+    // Display tool badges if tools were used
+    if (toolsUsed && toolsUsed.length > 0 && window.TOOL_BADGES_UI) {
+      window.TOOL_BADGES_UI.showTools(toolsUsed);
+    }
   }
 
   streamText(text) {

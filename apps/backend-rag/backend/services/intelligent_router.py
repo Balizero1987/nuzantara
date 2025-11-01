@@ -409,7 +409,8 @@ class IntelligentRouter:
         memory: Optional[Any] = None,  # ← Memory context
         emotional_profile: Optional[Any] = None,  # ← Emotional profile for empathetic routing
         last_ai_used: Optional[str] = None,  # ← Last AI used (for follow-up continuity)
-        collaborator: Optional[Any] = None  # ← NEW: Collaborator profile for team personalization
+        collaborator: Optional[Any] = None,  # ← NEW: Collaborator profile for team personalization
+        frontend_tools: Optional[List[Dict]] = None  # ← NEW: Tools provided by frontend (prioritize over backend)
     ) -> Dict:
         """
         Main routing function - classifies intent and routes to appropriate AI
@@ -422,6 +423,7 @@ class IntelligentRouter:
             emotional_profile: Optional emotional profile from EmotionalAttunementService
             last_ai_used: Optional last AI used (for follow-up detection)
             collaborator: Optional collaborator profile for enhanced team personalization
+            frontend_tools: Optional tools from frontend (if provided, use instead of backend tools)
 
         Returns:
             {
@@ -430,11 +432,28 @@ class IntelligentRouter:
                 "category": str,
                 "model": str,
                 "tokens": dict,
-                "used_rag": bool
+                "used_rag": bool,
+                "tools_called": List[str]
             }
         """
         try:
             logger.info(f"🚦 [Router] Routing message for user {user_id}")
+
+            # PRIORITY: Use frontend tools if provided, otherwise use backend tools
+            tools_to_use = None
+            if frontend_tools:
+                tools_to_use = frontend_tools
+                logger.info(f"🔧 [Router] Using {len(frontend_tools)} tools from FRONTEND")
+            elif not self.tools_loaded and self.tool_executor:
+                # Load backend tools if not already loaded
+                await self._load_tools()
+                tools_to_use = self.all_tools
+                logger.info(f"🔧 [Router] Using {len(self.all_tools) if self.all_tools else 0} tools from BACKEND")
+            elif self.all_tools:
+                tools_to_use = self.all_tools
+                logger.info(f"🔧 [Router] Using {len(self.all_tools)} cached tools from BACKEND")
+            else:
+                logger.warning("⚠️ [Router] No tools available (neither frontend nor backend)")
 
             # PHASE 1 & 2: Classify query type FIRST (for RAG skip and response sanitization)
             query_type = classify_query_for_rag(message)
@@ -550,14 +569,14 @@ class IntelligentRouter:
                         if not self.tools_loaded and self.tool_executor:
                             await self._load_tools()
 
-                # Use Haiku with ALL tools (Haiku IS Zantara, full system access)
-                if self.tool_executor and self.all_tools:
+                # Use Haiku with tools (frontend or backend)
+                if self.tool_executor and tools_to_use:
                             result = await self.haiku.conversational_with_tools(
                                 message=message,
                                 user_id=user_id,
                                 conversation_history=conversation_history,
                                 memory_context=memory_context,
-                        tools=self.all_tools,  # ALL tools, not limited
+                        tools=tools_to_use,  # Use frontend tools if provided, else backend tools
                         tool_executor=self.tool_executor,
                         max_tokens=8000,  # Full response capacity
                         max_tool_iterations=5  # More iterations for complex tasks
@@ -901,15 +920,15 @@ class IntelligentRouter:
                 if cultural_context:
                     enhanced_context += f"\n\n{cultural_context}"
 
-                # Use tool-enabled method with ALL tools (Haiku IS Zantara, full access)
-                if self.tool_executor and self.all_tools:
-                    logger.info(f"   Tool use: ENABLED (FULL ACCESS - {len(self.all_tools)} tools)")
+                # Use tool-enabled method with tools (frontend or backend)
+                if self.tool_executor and tools_to_use:
+                    logger.info(f"   Tool use: ENABLED ({len(tools_to_use)} tools - {'FRONTEND' if frontend_tools else 'BACKEND'})")
                     result = await self.haiku.conversational_with_tools(
                         message=message,
                         user_id=user_id,
                         conversation_history=conversation_history,
                         memory_context=enhanced_context,  # PHASE 3+4.5: Memory + Cultural RAG
-                        tools=self.all_tools,  # ALL tools, not limited
+                        tools=tools_to_use,  # Use frontend tools if provided, else backend tools
                         tool_executor=self.tool_executor,
                         max_tokens=8000,  # Full capacity for complex responses
                         max_tool_iterations=5  # More iterations for complex operations

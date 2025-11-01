@@ -1165,6 +1165,8 @@ class BaliZeroRequest(BaseModel):
     user_role: str = "member"
     user_email: Optional[str] = None  # ← PHASE 1: Collaborator identification
     mode: Optional[str] = "santai"  # ← ZANTARA mode: 'santai' or 'pikiran'
+    tools: Optional[List[Dict[str, Any]]] = None  # ← NEW: Tool definitions from frontend
+    tool_choice: Optional[Dict[str, Any]] = None  # ← NEW: Tool choice strategy
 
 
 class BaliZeroResponse(BaseModel):
@@ -1175,6 +1177,7 @@ class BaliZeroResponse(BaseModel):
     sources: Optional[List[Dict[str, Any]]] = None
     usage: Optional[Dict[str, Any]] = None
     used_rag: Optional[bool] = None  # PHASE 1: Track RAG usage
+    tools_used: Optional[List[str]] = None  # ← NEW: Which tools were called
 
 
 @app.get("/cache/stats")
@@ -1672,6 +1675,13 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
         if intelligent_router:
             logger.info("🚦 [Router] Using Intelligent Router for AI selection")
 
+            # Log tools info if provided by frontend
+            if request.tools:
+                logger.info(f"🔧 [Chat] Frontend provided {len(request.tools)} tools")
+                logger.info(f"   Tool names: {[t.get('name', 'unknown') for t in request.tools[:5]]}")
+            else:
+                logger.info("⚠️ [Chat] No tools provided by frontend - will use backend default")
+
             # Build conversation history with memory context if available
             messages = request.conversation_history or []
 
@@ -1683,7 +1693,8 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                         user_id=user_id,
                         conversation_history=messages,
                         memory=memory,  # ← Pass memory to router
-                        collaborator=collaborator  # ← NEW: Pass collaborator for team personalization
+                        collaborator=collaborator,  # ← NEW: Pass collaborator for team personalization
+                        frontend_tools=request.tools  # ← NEW: Pass tools from frontend
                     ),
                     timeout=60.0  # 60 second timeout for AI response (ChromaDB + Sonnet can take time)
                 )
@@ -1697,6 +1708,10 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
             ai_used = routing_result["ai_used"]
             tokens = routing_result.get("tokens", {})
             used_rag = routing_result.get("used_rag", False)
+            tools_called = routing_result.get("tools_called", [])  # ← NEW: Get which tools were called
+
+            if tools_called:
+                logger.info(f"✅ [Chat] Tools called by AI: {tools_called}")
 
             logger.info(f"✅ [Router] Response from {ai_used} (model: {model_used})")
 
@@ -1821,7 +1836,8 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 "input_tokens": tokens.get("input", 0) or tokens.get("input_tokens", 0),
                 "output_tokens": tokens.get("output", 0) or tokens.get("output_tokens", 0)
             },
-            used_rag=used_rag  # PHASE 1: Return RAG usage flag
+            used_rag=used_rag,  # PHASE 1: Return RAG usage flag
+            tools_used=tools_called if tools_called else None  # ← NEW: Return which tools were called
         )
 
     except Exception as e:

@@ -82,80 +82,109 @@ const ZANTARA_API = {
   /**
    * Chat with Zantara (Haiku 4.5)
    * Supports both regular and SSE streaming with API Contracts
+   * NOW WITH TOOLS SUPPORT - Zantara can see and use all 164 backend tools!
    */
   async chat(message, userEmail = null, useSSE = false) {
     try {
       const email = userEmail || localStorage.getItem('zantara-email') || 'guest@zantara.com';
       const token = localStorage.getItem('zantara-token');
-      
+
+      // Get relevant tools for this query (smart filtering)
+      let tools = [];
+      if (window.ZANTARA_TOOLS && window.ZANTARA_TOOLS.isLoaded()) {
+        tools = window.ZANTARA_TOOLS.getToolsForQuery(message);
+        console.log(`🔧 [Chat] Passing ${tools.length} tools to Zantara`);
+        if (tools.length > 0) {
+          console.log(`   Tools: ${tools.map(t => t.name).join(', ')}`);
+        }
+      } else {
+        console.warn('⚠️ [Chat] ZANTARA_TOOLS not loaded, tools will be empty');
+      }
+
       // If SSE requested and ZANTARA_SSE available, use streaming
       if (useSSE && window.ZANTARA_SSE) {
-        return await window.ZANTARA_SSE.stream(message, email);
+        return await window.ZANTARA_SSE.stream(message, email, tools);
       }
-      
+
       // Try with API Contracts first (resilient)
       if (window.API_CONTRACTS) {
         console.log('🔄 Using API Contracts for chat...');
-        
+
         const headers = { 'Content-Type': 'application/json' };
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
-        
+
         const data = await window.API_CONTRACTS.callWithFallback('rag', '/bali-zero/chat', {
           method: 'POST',
           headers: headers,
           body: JSON.stringify({
             query: message,
             user_email: email,
-            user_role: 'member'
+            user_role: 'member',
+            tools: tools,                      // ← NEW: Pass tools to backend
+            tool_choice: { type: 'auto' }      // ← Let Claude decide when to use tools
           })
         });
-        
+
         if (data.success) {
+          // Log which tools were used (if any)
+          if (data.tools_used && data.tools_used.length > 0) {
+            console.log(`✅ [Chat] Tools used: ${data.tools_used.join(', ')}`);
+          }
+
           return {
             success: true,
             response: data.response,
             model: data.model_used,
-            ai: data.ai_used
+            ai: data.ai_used,
+            tools_used: data.tools_used || []  // ← NEW: Return which tools were called
           };
         }
-        
+
         return { success: false, error: 'Chat failed' };
       }
-      
+
       // Fallback to direct call (legacy)
       console.log('⚠️ Using legacy API call (no contracts)');
       const headers = { 'Content-Type': 'application/json' };
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
-      
+
       const response = await fetch(`${this.backends.rag}/bali-zero/chat`, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({
           query: message,
           user_email: email,
-          user_role: 'member'
+          user_role: 'member',
+          tools: tools,                      // ← NEW: Pass tools to backend
+          tool_choice: { type: 'auto' }      // ← Let Claude decide when to use tools
         })
       });
-      
+
       if (!response.ok) {
         throw new Error(`Chat failed: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
+        // Log which tools were used (if any)
+        if (data.tools_used && data.tools_used.length > 0) {
+          console.log(`✅ [Chat] Tools used: ${data.tools_used.join(', ')}`);
+        }
+
         return {
           success: true,
           response: data.response,
           model: data.model_used,
-          ai: data.ai_used
+          ai: data.ai_used,
+          tools_used: data.tools_used || []  // ← NEW: Return which tools were called
         };
       }
-      
+
       return { success: false, error: 'Chat failed' };
     } catch (error) {
       console.error('Chat error:', error);
