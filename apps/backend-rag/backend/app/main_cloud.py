@@ -557,23 +557,23 @@ async def initialize_memory_tables():
 
                 if not col_exists:
                     await conn.execute("ALTER TABLE conversations ADD COLUMN session_id VARCHAR(255)")
-            except:
+            except Exception:
                 pass  # Column already exists or other error - non-fatal
 
         # Create indexes (wrapped in try-except for safety)
         try:
             await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id)")
-        except:
+        except Exception:
             pass
 
         try:
             await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_session_id ON conversations(session_id)")
-        except:
+        except Exception:
             pass  # Column might not exist in old schemas
 
         try:
             await conn.execute("CREATE INDEX IF NOT EXISTS idx_conversations_created_at ON conversations(created_at DESC)")
-        except:
+        except Exception:
             pass
 
         # ========================================
@@ -2992,7 +2992,7 @@ async def get_prometheus_metrics():
                     f"zantara_router_cache_hits {router_stats.get('cache_hits', 0)} {timestamp}",
                     f"zantara_router_cache_misses {router_stats.get('cache_misses', 0)} {timestamp}",
                 ])
-            except:
+            except Exception:
                 pass
 
         return Response(

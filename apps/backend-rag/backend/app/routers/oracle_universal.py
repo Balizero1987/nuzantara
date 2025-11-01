@@ -208,7 +208,7 @@ async def universal_oracle_query(
                 )
                 # Retry search
                 search_results = vector_db.search(query_embedding=query_embedding, limit=request.limit)
-            except:
+            except Exception:
                 pass  # Continue with empty results if auto-populate fails
 
         # Format results

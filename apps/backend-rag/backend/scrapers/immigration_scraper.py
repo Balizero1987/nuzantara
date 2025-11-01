@@ -81,7 +81,7 @@ class ImmigrationScraper:
         for tier in ["t1", "t2", "t3"]:
             try:
                 self.collections[tier] = self.chroma_client.get_collection(f"immigration_{tier}")
-            except:
+            except Exception:
                 self.collections[tier] = self.chroma_client.create_collection(f"immigration_{tier}")
 
         self.cache_file = Path("immigration_scraper_cache.json")

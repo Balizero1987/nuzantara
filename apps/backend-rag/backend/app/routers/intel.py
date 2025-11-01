@@ -208,7 +208,7 @@ async def get_critical_items(category: Optional[str] = None, days: int = 7):
                         "deadline_date": metadata.get("deadline_date")
                     })
 
-            except:
+            except Exception:
                 continue
 
         # Sort by date (newest first)
@@ -254,7 +254,7 @@ async def get_trends(category: Optional[str] = None, days: int = 30):
                     "total_items": stats.get("total_documents", 0)
                 })
 
-            except:
+            except Exception:
                 continue
 
         return {

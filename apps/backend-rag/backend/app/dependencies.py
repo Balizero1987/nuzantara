@@ -16,7 +16,8 @@ from services.search_service import SearchService
 
 # Type hints only - these modules don't exist in production
 if TYPE_CHECKING:
-    from typing import Any as AnthropicClient, Any as BaliZeroRouter
+    from typing import Any as AnthropicClient
+    from typing import Any as BaliZeroRouter
 else:
     AnthropicClient = Any
     BaliZeroRouter = Any

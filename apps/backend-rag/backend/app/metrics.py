@@ -91,7 +91,7 @@ class MetricsCollector:
         try:
             cpu_percent = psutil.cpu_percent(interval=0.1)
             cpu_usage.set(cpu_percent)
-        except:
+        except Exception:
             pass
 
         # Memory usage
@@ -99,7 +99,7 @@ class MetricsCollector:
             memory = psutil.virtual_memory()
             memory_mb = memory.used / 1024 / 1024
             memory_usage.set(memory_mb)
-        except:
+        except Exception:
             pass
 
     def record_request(self, method: str, endpoint: str, status: int, duration: float):

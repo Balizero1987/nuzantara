@@ -324,7 +324,7 @@ class LegalArchitect:
             elif 'juta' in price_text.lower() or 'm' in price_text.lower():
                 price = price * 1000000
             return price
-        except:
+        except Exception:
             return 0
 
     def extract_size(self, size_text: str) -> int:
@@ -737,7 +737,7 @@ if __name__ == "__main__":
 
     if args.search:
         results = scraper.search_properties(args.search)
-        print(f"\n🏠 Property search results for: {args.search}\n")
+        print(f"\n?? Property search results for: {args.search}\n")
         for i, result in enumerate(results, 1):
             print(f"{i}. {result['document'][:200]}...")
             print(f"   Relevance: {1 - result['distance']:.2f}\n")

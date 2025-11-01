@@ -147,7 +147,7 @@ Sources:
                     if isinstance(date, str) and len(date) >= 10:
                         date = date[:10]  # Take YYYY-MM-DD part
                     parts.append(date)
-                except:
+                except Exception:
                     pass
 
             line = " - ".join(parts)
