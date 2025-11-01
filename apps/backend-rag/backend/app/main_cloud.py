@@ -2392,6 +2392,69 @@ async def get_memory_frontend(userId: str):
 
 
 # ========================================
+# RAG SEARCH ENDPOINT (Direct KB Access)
+# ========================================
+
+class RAGSearchRequest(BaseModel):
+    query: str
+    collection: Optional[str] = None  # Specific collection or None for auto-detect
+    limit: int = 5
+    user_level: int = 0  # Access level (0=public, 3=admin)
+
+
+@app.post("/rag/search")
+async def rag_search(request: RAGSearchRequest):
+    """
+    Direct search in RAG knowledge base (14 ChromaDB collections)
+
+    Params:
+        query: Search query
+        collection: Optional specific collection (auto-detect if None)
+        limit: Number of results (default 5)
+        user_level: Access level 0-3 (default 0 = public)
+
+    Returns:
+        {
+            "ok": true,
+            "results": [...],
+            "collection": "collection_name",
+            "confidence": 0.85,
+            "sources": [...]
+        }
+    """
+    if not search_service:
+        raise HTTPException(503, "Search service not available")
+
+    try:
+        logger.info(f"🔍 RAG Search: '{request.query}' (collection: {request.collection or 'auto'})")
+
+        # Perform search
+        results = await search_service.search(
+            query=request.query,
+            user_level=request.user_level,
+            limit=request.limit,
+            collection_override=request.collection
+        )
+
+        # Extract collection info
+        collection_used = request.collection or results.get("primary_collection", "multi")
+
+        return {
+            "ok": True,
+            "success": True,
+            "results": results.get("results", []),
+            "collection": collection_used,
+            "confidence": results.get("confidence", 0.8),
+            "sources": results.get("sources", []),
+            "total": len(results.get("results", []))
+        }
+
+    except Exception as e:
+        logger.error(f"❌ RAG search failed: {e}")
+        raise HTTPException(500, f"RAG search failed: {str(e)}")
+
+
+# ========================================
 # TEAM WORK SESSION TRACKING ENDPOINTS
 # All reports sent to ZERO only
 # ========================================
