@@ -1,92 +1,130 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { BadRequestError } from '../../../utils/errors.js';
 
-// No external mocks required
+// Mock Google Docs service
+const mockDocs = {
+  documents: {
+    create: jest.fn().mockResolvedValue({
+      data: { documentId: 'test-doc-id' }
+    }),
+    get: jest.fn().mockResolvedValue({
+      data: {
+        documentId: 'test-doc-id',
+        title: 'Test Document',
+        revisionId: 'rev-1',
+        body: {
+          content: [{
+            paragraph: {
+              elements: [{
+                textRun: { content: 'Test content' }
+              }]
+            }
+          }]
+        }
+      }
+    }),
+    batchUpdate: jest.fn().mockResolvedValue({
+      data: { replies: [] }
+    })
+  }
+};
+
+jest.mock('../../../services/google-auth-service.js', () => ({
+  getDocs: jest.fn().mockResolvedValue(mockDocs)
+}), { virtual: true });
+
+// Mock bridge proxy
+jest.mock('../../../services/bridgeProxy.js', () => ({
+  forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null)
+}), { virtual: true });
 
 describe('Docs', () => {
   let handlers: any;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     handlers = await import('../docs.js');
   });
 
   describe('docsCreate', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.docsCreate({
-        // TODO: Add valid test params
+        title: 'Test Document',
+        content: 'Test content'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.documentId).toBeDefined();
+      expect(result.data.url).toBeDefined();
     });
 
-    it('should handle missing required params', async () => {
+    it('should handle missing required params (title optional)', async () => {
+      // title and content are optional, so this should work
       const result = await handlers.docsCreate({});
-
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
     });
 
-    it('should handle invalid params', async () => {
+    it('should handle params with defaults', async () => {
       const result = await handlers.docsCreate({
-        invalid: 'data'
+        title: 'My Document'
       });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data.title).toBe('My Document');
     });
   });
 
   describe('docsRead', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.docsRead({
-        // TODO: Add valid test params
+        documentId: 'test-doc-id'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.document).toBeDefined();
+      expect(result.data.content).toBeDefined();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.docsRead({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.docsRead({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.docsRead({})).rejects.toThrow('documentId is required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.docsRead({
+      await expect(handlers.docsRead({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 
   describe('docsUpdate', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.docsUpdate({
-        // TODO: Add valid test params
+        documentId: 'test-doc-id',
+        requests: [{
+          insertText: {
+            location: { index: 1 },
+            text: 'Updated content'
+          }
+        }]
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.documentId).toBe('test-doc-id');
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.docsUpdate({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.docsUpdate({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.docsUpdate({})).rejects.toThrow('documentId is required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.docsUpdate({
+      await expect(handlers.docsUpdate({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 

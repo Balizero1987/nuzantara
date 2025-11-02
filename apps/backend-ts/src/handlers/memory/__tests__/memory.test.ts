@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-
-// No external mocks required
+import { BadRequestError } from '../../../utils/errors.js';
 
 describe('Memory', () => {
   let handlers: any;
@@ -12,81 +11,76 @@ describe('Memory', () => {
   describe('memorySave', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.memorySave({
-        // TODO: Add valid test params
+        userId: 'test-user',
+        data: 'Test memory data'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.memorySave({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.memorySave({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.memorySave({})).rejects.toThrow('userId is required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.memorySave({
+      await expect(handlers.memorySave({
+        userId: 'test-user',
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 
   describe('memorySearch', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.memorySearch({
-        // TODO: Add valid test params
+        userId: 'test-user',
+        query: 'test query'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.memorySearch({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.memorySearch({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.memorySearch({})).rejects.toThrow('userId is required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.memorySearch({
+      await expect(handlers.memorySearch({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 
   describe('memoryRetrieve', () => {
     it('should handle success case with valid params', async () => {
+      // First save some memory
+      await handlers.memorySave({
+        userId: 'test-user-retrieve',
+        data: 'Test data'
+      });
+
       const result = await handlers.memoryRetrieve({
-        // TODO: Add valid test params
+        userId: 'test-user-retrieve'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.memory).toBeDefined();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.memoryRetrieve({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.memoryRetrieve({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.memoryRetrieve({})).rejects.toThrow('userId is required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.memoryRetrieve({
+      await expect(handlers.memoryRetrieve({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 
