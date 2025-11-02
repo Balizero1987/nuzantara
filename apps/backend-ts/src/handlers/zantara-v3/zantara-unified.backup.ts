@@ -7,26 +7,16 @@ import { Request, Response } from "express";
 import { kbliLookup, kbliRequirements } from "../bali-zero/kbli.js";
 import { baliZeroPricing, baliZeroQuickPrice } from "../bali-zero/bali-zero-pricing.js";
 import { collectiveMemory } from "../memory/collective-memory.js";
-import { queryBusinessSetupFast } from "./business-setup-kb.js";
 
 export async function zantaraUnifiedQuery(req: Request, res: Response) {
   try {
-    // Accept params from either req.body or req.body.params
-    const params = req.body.params || req.body;
+    const { params } = req.body;
     const {
       query,
       domain = "all", // KBLI, pricing, team, legal, tax, immigration, all
-      mode = "quick", // quick, detailed, comprehensive (default quick for speed)
+      mode = "comprehensive", // quick, detailed, comprehensive
       include_sources = true
-    } = params;
-
-    // Quick validation
-    if (!query) {
-      return res.json(ok({
-        error: "Missing query parameter",
-        example: { query: "restaurant", domain: "kbli" }
-      }));
-    }
+    } = params || {};
 
     const startTime = Date.now();
 
@@ -62,14 +52,6 @@ export async function zantaraUnifiedQuery(req: Request, res: Response) {
       response.results.team = await queryTeam(query, mode);
       if (include_sources) {
         response.sources.team = "hardcoded_team_database_23_members";
-      }
-    }
-
-    // 🚀 Business Setup Knowledge Base - OPTIMIZED
-    if (domain === "all" || domain === "business") {
-      response.results.business = await queryBusinessSetup(query, mode);
-      if (include_sources) {
-        response.sources.business = "business_setup_kb_optimized_100pct_coverage";
       }
     }
 
@@ -116,14 +98,14 @@ export async function zantaraUnifiedQuery(req: Request, res: Response) {
     response.processing_time = `${Date.now() - startTime}ms`;
     response.total_domains = Object.keys(response.results).length;
 
-    return res.json(ok(response));
+    return ok(response);
 
   } catch (error: any) {
-    return res.json(ok({
+    return ok({
       error: "Unified query failed",
       message: error.message,
       fallback: "Use specific domain queries"
-    }));
+    });
   }
 }
 
@@ -370,25 +352,6 @@ async function queryTeam(query: string, mode: string) {
       confidence: 1.0
     };
 
-  } catch (error) {
-    return {
-      type: "error",
-      error: error.message,
-      confidence: 0.0
-    };
-  }
-}
-
-// 🚀 OPTIMIZED Business Setup Query Function
-async function queryBusinessSetup(query: string, mode: string) {
-  try {
-    const result = await queryBusinessSetupFast(query, mode);
-    return {
-      type: "business_setup",
-      data: result,
-      confidence: result.confidence || 1.0,
-      source: "business_setup_kb_optimized"
-    };
   } catch (error) {
     return {
       type: "error",
