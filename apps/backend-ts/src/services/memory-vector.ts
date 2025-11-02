@@ -95,20 +95,29 @@ export async function storeMemoryVector(params: {
 }
 
 /**
- * Semantic search across all memories using vector similarity
- * WITH CACHING for performance optimization
+ * Enhanced semantic search across all memories using vector similarity
+ * WITH CACHING, filtering, and relevance scoring
  */
 export async function searchMemoriesSemantica(params: {
   query: string;
   userId?: string;
   limit?: number;
+  threshold?: number;
   entityFilter?: string;
+  typeFilter?: string;
 }): Promise<VectorSearchResult[]> {
   try {
-    const { query, userId, limit = 10, entityFilter } = params;
+    const { 
+      query, 
+      userId, 
+      limit = 10, 
+      threshold = 0.7,
+      entityFilter,
+      typeFilter
+    } = params;
 
-    // Try cache first (ignore entityFilter for simplicity)
-    const cacheKey = `${query}|${userId || 'all'}`;
+    // Enhanced cache key with all filters
+    const cacheKey = `${query}|${userId || 'all'}|${threshold}|${entityFilter || 'none'}|${typeFilter || 'none'}`;
     const { results: cachedResults, cached } = await getCachedSearch(
       cacheKey,
       userId,
@@ -117,26 +126,49 @@ export async function searchMemoriesSemantica(params: {
         // Generate query embedding (also cached)
         const queryEmbedding = await generateEmbedding(query);
 
-        // Search ChromaDB
+        // Build comprehensive metadata filter
+        const metadataFilter: any = {};
+        if (userId) metadataFilter.userId = userId;
+        if (entityFilter) metadataFilter.entities = { $contains: entityFilter };
+        if (typeFilter) metadataFilter.type = typeFilter;
+
+        // Search ChromaDB with enhanced parameters
         const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/search`, {
           query_embedding: queryEmbedding,
-          limit,
-          metadata_filter: {
-            ...(userId && { userId }),
-            ...(entityFilter && { entities: { $contains: entityFilter } })
-          }
+          limit: Math.ceil(limit * 1.5), // Get more results to filter by threshold
+          n_results: limit * 2, // Ensure we get enough results
+          metadata_filter: Object.keys(metadataFilter).length > 0 ? metadataFilter : undefined,
+          include_metadata: true,
+          include_documents: true,
+          include_distances: true
         });
 
-        // Transform results
-        return response.data.results.map((r: any, idx: number) => ({
-          id: response.data.ids[idx],
-          userId: r.metadata.userId,
-          content: r.document,
-          type: r.metadata.type,
-          timestamp: r.metadata.timestamp,
-          entities: r.metadata.entities ? r.metadata.entities.split(',') : [],
-          similarity: 1 / (1 + response.data.distances[idx]) // Convert distance to similarity
-        }));
+        // Transform and filter results
+        const results = response.data.results || [];
+        const transformedResults = results
+          .map((r: any, idx: number) => {
+            const similarity = 1 / (1 + (response.data.distances?.[idx] || 1));
+            
+            return {
+              id: response.data.ids?.[idx] || r.id,
+              userId: r.metadata?.userId || r.user_id,
+              content: r.document || r.content,
+              type: r.metadata?.type || r.type,
+              timestamp: r.metadata?.timestamp || r.created_at,
+              entities: r.metadata?.entities ? 
+                (Array.isArray(r.metadata.entities) ? r.metadata.entities : r.metadata.entities.split(',')) : 
+                [],
+              similarity,
+              score: similarity * (r.metadata?.importance || 5) / 10, // Boost by importance
+              metadata: r.metadata
+            };
+          })
+          .filter(result => result.similarity >= threshold) // Filter by threshold
+          .sort((a, b) => b.score - a.score) // Sort by relevance score
+          .slice(0, limit); // Limit results
+
+        logger.info(`🔍 Vector search: ${results.length} raw → ${transformedResults.length} filtered results`);
+        return transformedResults;
       }
     );
 
@@ -146,7 +178,7 @@ export async function searchMemoriesSemantica(params: {
 
     return cachedResults;
   } catch (error: any) {
-    logger.info('⚠️ Semantic search failed:', error?.message);
+    logger.info('⚠️ Enhanced semantic search failed:', error?.message);
     return [];
   }
 }

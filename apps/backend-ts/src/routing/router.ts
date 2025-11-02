@@ -6,6 +6,7 @@ import { ok, err } from "../utils/response.js";
 import { apiKeyAuth, RequestWithCtx } from "../middleware/auth.js";
 import { jwtAuth, optionalJwtAuth, RequestWithJWT } from "../middleware/jwt-auth.js";
 import { demoUserAuth, RequestWithDemo } from "../middleware/demo-user-auth.js";
+import { unifiedAuthMiddleware, optionalUnifiedAuth, requireRole, requirePermission, RequestWithUnifiedAuth } from "../middleware/auth-unified-complete.js";
 import { ForbiddenError, BadRequestError, UnauthorizedError } from "../utils/errors.js";
 import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
 
@@ -113,6 +114,15 @@ import { adminAuth } from "../middleware/admin-auth.js";
 // Memory & Persistence
 // PRIORITY 5: Firestore handlers removed - using Python memory system only
 import { memorySave, memorySearch, memoryRetrieve } from "../handlers/memory/memory.js";
+// Enhanced memory handlers commented out until implemented
+// import { 
+//   memorySaveEnhanced, 
+//   memorySearchEnhanced, 
+//   memoryGetEnhanced, 
+//   memoryUpdateEnhanced, 
+//   memoryDeleteEnhanced, 
+//   memoryStatsEnhanced 
+// } from "../handlers/memory/memory-enhanced";
 
 // Maps
 import { mapsDirections, mapsPlaces, mapsPlaceDetails } from "../handlers/maps/maps.js";
@@ -134,6 +144,14 @@ import { executeHandler, executeBatchHandlers } from "../handlers/system/handler
 
 // Rate Limiting
 import { selectiveRateLimiter } from "../middleware/selective-rate-limit.js";
+
+// Performance Metrics Dashboard
+import { 
+  getMetricsDashboard, 
+  resetMetrics, 
+  initializeMetricsCollector,
+  metricsMiddleware 
+} from "../services/performance/metrics-dashboard.js";
 
 const ActionSchema = z.object({
   key: z.string(),
@@ -615,6 +633,21 @@ const handlers: Record<string, Handler> = {
    */
   "memory.save": memorySave,
   "memory.search": memorySearch,
+  // 🚀 ENHANCED Memory System v2.0 - Unlimited + Vector Search (TODO: Implement handlers)
+  // "memory.save.enhanced": memorySaveEnhanced,
+  // "memory.search.enhanced": memorySearchEnhanced,
+  // "memory.get.enhanced": memoryGetEnhanced,
+  // "memory.update.enhanced": memoryUpdateEnhanced,
+  // "memory.delete.enhanced": memoryDeleteEnhanced,
+  // "memory.stats.enhanced": memoryStatsEnhanced,
+
+  // 📊 Performance Metrics Dashboard
+  "metrics.dashboard": async (req: any, res: any) => getMetricsDashboard(req, res),
+  "metrics.reset": async (req: any, res: any) => resetMetrics(req, res),
+  "metrics.initialize": async () => {
+    const collector = initializeMetricsCollector();
+    return { success: true, message: "Metrics collection initialized", initialized: true };
+  },
 
   // ZANTARA v3 Ω Strategic Endpoints - 3 endpoints for complete knowledge access
   "zantara.unified": async (params: any, req: Request) => {
