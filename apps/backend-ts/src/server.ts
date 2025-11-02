@@ -207,6 +207,9 @@ async function startServer() {
   // Create Express app
   const app = express();
 
+  // Fix for Fly.io proxy headers - configure trust proxy
+  app.set('trust proxy', true);
+
   // PATCH-3: Apply security middleware (headers, sanitization, logging)
   app.use(applySecurity);
 
