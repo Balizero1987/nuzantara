@@ -51,7 +51,7 @@ enum PermissionLevel {
 }
 
 // Enhanced user interface with extended properties
-interface EnhancedUser {
+export interface EnhancedUser {
   id: string;
   userId: string; // Compatibility with existing interfaces
   email: string;
@@ -442,8 +442,7 @@ export class EnhancedJWTAuth {
     return jwt.sign(payload, this.jwtSecret, {
       algorithm: 'HS256',
       issuer: 'nuzantara-backend',
-      audience: 'nuzantara-users',
-      expiresIn: '15m'
+      audience: 'nuzantara-users'
     });
   }
 

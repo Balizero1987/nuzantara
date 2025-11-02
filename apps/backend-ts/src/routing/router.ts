@@ -40,6 +40,7 @@ import { creativeHandlers } from "../handlers/ai-services/creative.js";
 import { oracleSimulate, oracleAnalyze, oraclePredict } from "../handlers/bali-zero/oracle.js";
 import { documentPrepare, assistantRoute } from "../handlers/bali-zero/advisory.js";
 import { kbliLookup, kbliRequirements } from "../handlers/bali-zero/kbli.js";
+import { kbliLookupComplete, kbliBusinessAnalysis } from "../handlers/bali-zero/kbli-complete.js";
 import { baliZeroPricing, baliZeroQuickPrice } from "../handlers/bali-zero/bali-zero-pricing.js";
 import { teamList, teamGet, teamDepartments, teamTestRecognition } from "../handlers/bali-zero/team.js";
 import { teamRecentActivity } from "../handlers/bali-zero/team-activity.js";
@@ -497,6 +498,23 @@ const handlers: Record<string, Handler> = {
       status: (_code: number) => ({ json: (data: any) => data })
     } as any;
     return await kbliRequirements(mockReq, mockRes);
+  },
+  // 🚀 KBLI COMPLETE DATABASE - Enhanced endpoints
+  "kbli.lookup.complete": async (params: any) => {
+    const mockReq = { body: { params } } as any;
+    const mockRes = {
+      json: (data: any) => data,
+      status: (_code: number) => ({ json: (data: any) => data })
+    } as any;
+    return await kbliLookupComplete(mockReq, mockRes);
+  },
+  "kbli.business.analysis": async (params: any) => {
+    const mockReq = { body: { params } } as any;
+    const mockRes = {
+      json: (data: any) => data,
+      status: (_code: number) => ({ json: (data: any) => data })
+    } as any;
+    return await kbliBusinessAnalysis(mockReq, mockRes);
   },
 
   // Communication handlers
@@ -2040,8 +2058,7 @@ export function attachRoutes(app: import("express").Express) {
   app.post("/zantara.unified", [optionalJwtAuth, demoUserAuth], async (req: RequestWithDemo, res: Response) => {
     try {
       const { zantaraUnifiedQuery } = await import('../handlers/zantara-v3/zantara-unified.js');
-      const result = await zantaraUnifiedQuery(req, res);
-      return res.status(200).json(result?.data ?? result);
+      await zantaraUnifiedQuery(req, res);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
@@ -2066,8 +2083,7 @@ export function attachRoutes(app: import("express").Express) {
   app.post("/zantara.collective", [optionalJwtAuth, demoUserAuth], async (req: RequestWithDemo, res: Response) => {
     try {
       const { zantaraCollectiveIntelligence } = await import('../handlers/zantara-v3/zantara-collective.js');
-      const result = await zantaraCollectiveIntelligence(req, res);
-      return res.status(200).json(result?.data ?? result);
+      await zantaraCollectiveIntelligence(req, res);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
@@ -2094,8 +2110,7 @@ export function attachRoutes(app: import("express").Express) {
   app.post("/zantara.ecosystem", [optionalJwtAuth, demoUserAuth], async (req: RequestWithDemo, res: Response) => {
     try {
       const { zantaraEcosystemAnalysis } = await import('../handlers/zantara-v3/zantara-ecosystem.js');
-      const result = await zantaraEcosystemAnalysis(req, res);
-      return res.status(200).json(result?.data ?? result);
+      await zantaraEcosystemAnalysis(req, res);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
