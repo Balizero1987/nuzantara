@@ -153,91 +153,102 @@ function getSourceName(domain: string): string {
 // Helper functions for each knowledge domain
 async function queryKBLI(query: string, mode: string) {
   try {
-    // Direct code lookup
+    // 🚀 PRIORITY: Use COMPLETE KBLI database first
+    if (mode === "comprehensive" || mode === "detailed") {
+      const mockReq = { body: { params: { query, business_type: query } } } as any;
+      const mockRes = { json: (data: any) => data } as any;
+      const result = await kbliLookupComplete(mockReq, mockRes);
+      
+      return {
+        type: "complete_database_search",
+        data: result,
+        confidence: 1.0,
+        source: "kbli_complete_v2",
+        features: ["foreign_ownership", "risk_classification", "capital_requirements", "sectoral_approvals"]
+      };
+    }
+
+    // Direct code lookup with complete database
     if (/^[0-9]{5}$/.test(query)) {
       const mockReq = { body: { params: { code: query } } } as any;
       const mockRes = { json: (data: any) => data } as any;
-      const result = await kbliLookup(mockReq, mockRes);
+      const result = await kbliLookupComplete(mockReq, mockRes);
+      
       return {
-        type: "direct_lookup",
+        type: "direct_lookup_complete",
         data: result,
-        confidence: 1.0
+        confidence: 1.0,
+        source: "kbli_complete_v2"
       };
     }
 
-    // Category search
-    const categories = ["restaurants", "accommodation", "retail", "services", "special"];
+    // Category search with complete database
+    const categories = ["agriculture", "mining", "manufacturing", "accommodation", "transportation", "information", "finance", "property"];
     if (categories.includes(query?.toLowerCase())) {
       const mockReq = { body: { params: { category: query } } } as any;
       const mockRes = { json: (data: any) => data } as any;
-      const result = await kbliLookup(mockReq, mockRes);
+      const result = await kbliLookupComplete(mockReq, mockRes);
+      
       return {
-        type: "category_search",
+        type: "category_search_complete",
         data: result,
-        confidence: 1.0
+        confidence: 1.0,
+        source: "kbli_complete_v2"
       };
     }
 
-    // General search
+    // Enhanced general search with complete database
     if (query) {
-      const mockReq = { body: { params: { query } } } as any;
+      const mockReq = { body: { params: { query, business_type: query } } } as any;
       const mockRes = { json: (data: any) => data } as any;
-      const result = await kbliLookup(mockReq, mockRes);
+      const result = await kbliLookupComplete(mockReq, mockRes);
+      
       return {
-        type: "text_search",
+        type: "enhanced_search_complete",
         data: result,
-        confidence: 0.8
+        confidence: 0.95,
+        source: "kbli_complete_v2",
+        capabilities: ["semantic_search", "foreign_ownership_analysis", "risk_assessment"]
       };
     }
 
-    // ChromaDB Vector Search - REAL DATABASE
-    if (query && mode !== "quick") {
-      try {
-        const chromaStore = require("../../services/vector/chroma.js")();
-        const client = chromaStore.client;
-
-        // Get kbli_eye collection with 10,000+ codes
-        const collection = await client.getCollection({ name: "kbli_eye" });
-
-        if (collection) {
-          const searchResults = await collection.query({
-            queryTexts: [query],
-            nResults: mode === "comprehensive" ? 10 : 5
-          });
-
-          return {
-            type: "chromadb_vector_search",
-            data: {
-              results: searchResults.ids?.map((id, index) => ({
-                id,
-                score: searchResults.distances?.[index] || 0,
-                metadata: searchResults.metadatas?.[index]
-              })) || [],
-              total_found: searchResults.ids?.length || 0
-            },
-            confidence: 0.95
-          };
-        }
-      } catch (error) {
-        console.log("ChromaDB search failed, using fallback:", error.message);
+    // Business Analysis for complex queries
+    if (mode === "comprehensive" && query && query.split(" ").length > 2) {
+      const businessTypes = query.split(",").map(t => t.trim()).filter(t => t);
+      if (businessTypes.length > 1) {
+        const mockReq = { body: { params: { businessTypes, location: "bali", investment_capacity: "high" } } } as any;
+        const mockRes = { json: (data: any) => data } as any;
+        const result = await kbliBusinessAnalysis(mockReq, mockRes);
+        
+        return {
+          type: "multi_business_analysis",
+          data: result,
+          confidence: 1.0,
+          source: "kbli_complete_v2",
+          features: ["combined_analysis", "investment_advice", "timeline_estimation"]
+        };
       }
     }
 
-    // Fallback to original implementation
-    const mockReq = { body: { params: {} } } as any;
+    // Fallback to original basic KBLI (legacy)
+    const mockReq = { body: { params: { query } } } as any;
     const mockRes = { json: (data: any) => data } as any;
     const result = await kbliLookup(mockReq, mockRes);
+    
     return {
-      type: "fallback_search",
+      type: "legacy_fallback",
       data: result,
-      confidence: 0.6
+      confidence: 0.6,
+      source: "kbli_basic_v1",
+      note: "Consider using comprehensive mode for complete database access"
     };
 
   } catch (error) {
     return {
       type: "error",
       error: error.message,
-      confidence: 0.0
+      confidence: 0.0,
+      source: "kbli_complete_v2"
     };
   }
 }

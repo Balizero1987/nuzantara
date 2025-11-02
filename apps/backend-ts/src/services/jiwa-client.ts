@@ -6,6 +6,7 @@
  */
 
 import axios, { AxiosInstance } from 'axios';
+import logger from './logger.js';
 
 // Types for JIWA service
 export interface SoulReading {
@@ -69,10 +70,10 @@ export class JiwaClient {
     try {
       const response = await this.client.get('/health');
       this.isHealthy = response.data.status === 'healthy';
-      console.log('💗 JIWA Service:', this.isHealthy ? 'Connected' : 'Not available');
+      logger.info(`💗 JIWA Service: ${this.isHealthy ? 'Connected' : 'Not available'}`);
       return this.isHealthy;
     } catch (error) {
-      console.warn('⚠️ JIWA Service not available:', error.message);
+      logger.warn(`⚠️ JIWA Service not available: ${error.message}`);
       this.isHealthy = false;
       return false;
     }
@@ -106,10 +107,10 @@ export class JiwaClient {
         language
       });
 
-      console.log(`📖 Soul read: ${response.data.emotional_tone} - Urgency ${response.data.urgency_level}/10`);
+      logger.info(`📖 Soul read: ${response.data.emotional_tone} - Urgency ${response.data.urgency_level}/10`);
       return response.data;
     } catch (error) {
-      console.error('❌ Soul reading failed:', error.message);
+      logger.error(`❌ Soul reading failed: ${error.message}`);
       return null;
     }
   }
@@ -142,10 +143,10 @@ export class JiwaClient {
         add_blessing: addBlessing
       });
 
-      console.log(`💫 Response infused with warmth: ${result.data.maternal_warmth}`);
+      logger.info(`💫 Response infused with warmth: ${result.data.maternal_warmth}`);
       return result.data;
     } catch (error) {
-      console.error('❌ Response infusion failed:', error.message);
+      logger.error(`❌ Response infusion failed: ${error.message}`);
       return null;
     }
   }

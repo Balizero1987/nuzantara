@@ -14,21 +14,34 @@ import logger from '../services/logger.js';
 
 const redisUrl = process.env.REDIS_URL;
 
+// Configure Redis with proper TLS support for Upstash
+function getRedisConfig(url: string) {
+  const config: any = {
+    retryStrategy: (times: number) => {
+      if (times > 3) return null; // Stop after 3 retries
+      return Math.min(times * 100, 2000);
+    },
+    maxRetriesPerRequest: 3,
+    lazyConnect: false,
+    enableOfflineQueue: false,
+    connectTimeout: 10000
+  };
+
+  // Check if URL requires TLS (Upstash or rediss://)
+  if (url.includes('upstash.io') || url.startsWith('rediss://')) {
+    config.tls = {
+      rejectUnauthorized: false // Required for Upstash Redis
+    };
+  }
+
+  return config;
+}
+
 // Only create Redis connections if REDIS_URL is configured
-export const redis = redisUrl ? new Redis(redisUrl, {
-  retryStrategy: (times) => Math.min(times * 50, 2000),
-  maxRetriesPerRequest: 3,
-  lazyConnect: false,
-  enableOfflineQueue: false
-}) : null;
+export const redis = redisUrl ? new Redis(redisUrl, getRedisConfig(redisUrl)) : null;
 
 // Subscriber connection (dedicated)
-const subscriberRedis = redisUrl ? new Redis(redisUrl, {
-  retryStrategy: (times) => Math.min(times * 50, 2000),
-  maxRetriesPerRequest: 3,
-  lazyConnect: false,
-  enableOfflineQueue: false
-}) : null;
+const subscriberRedis = redisUrl ? new Redis(redisUrl, getRedisConfig(redisUrl)) : null;
 
 if (redis) {
   redis.on('connect', () => logger.info('Redis publisher connected'));

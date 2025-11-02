@@ -113,15 +113,26 @@ class EnhancedRedisCache {
     }
 
     try {
-      this.redis = createClient({
-        url: process.env.REDIS_URL,
-        socket: {
-          connectTimeout: 5000,
-          reconnectStrategy: (retries) => {
-            if (retries > 3) return false;
-            return Math.min(retries * 100, 1000);
-          }
+      const redisUrl = process.env.REDIS_URL;
+      
+      // Configure TLS for Upstash
+      const socketOptions: any = {
+        connectTimeout: 5000,
+        reconnectStrategy: (retries: number) => {
+          if (retries > 3) return false;
+          return Math.min(retries * 100, 1000);
         }
+      };
+
+      // Add TLS config for Upstash or rediss://
+      if (redisUrl.includes('upstash.io') || redisUrl.startsWith('rediss://')) {
+        socketOptions.tls = true;
+        socketOptions.rejectUnauthorized = false;
+      }
+
+      this.redis = createClient({
+        url: redisUrl,
+        socket: socketOptions
       });
 
       this.redis.on('error', (err) => {

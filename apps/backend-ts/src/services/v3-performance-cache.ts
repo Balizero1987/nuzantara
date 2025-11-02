@@ -25,7 +25,8 @@ import crypto from 'crypto';
 
 // Domain-specific cache TTL configurations (in seconds)
 export const CACHE_TTL_CONFIG = {
-  kbli: 3600,           // 1 hour - static data
+  kbli: 7200,           // 2 hours - COMPLETE KBLI database (stable)
+  kbli_complete: 14400,  // 4 hours - Enhanced KBLI analysis (very stable)
   pricing: 14400,       // 4 hours - business-critical but stable
   team: 1800,           // 30 minutes - changes often
   legal: 21600,         // 6 hours - stable regulations
