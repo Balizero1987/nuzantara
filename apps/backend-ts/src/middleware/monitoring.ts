@@ -303,7 +303,7 @@ async function sendAlert(alertType: string, message: string, details: any) {
 
       logger.info('WhatsApp alert sent');
     } catch (error: any) {
-      logger.error('Failed to send WhatsApp alert', { error: error.message });
+      logger.error('Failed to send WhatsApp alert', new Error(error.message));
     }
   }
 }
@@ -381,7 +381,7 @@ export function trackErrorForAlert(statusCode: number) {
 
   // Check thresholds (async, non-blocking)
   checkAlertThresholds().catch(err => {
-    logger.error('Error checking alert thresholds', { error: err });
+    logger.error('Error checking alert thresholds', new Error(err));
   });
 }
 

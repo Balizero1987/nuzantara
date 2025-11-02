@@ -1,3 +1,4 @@
+// Local logger implementation - no external import
 import winston from 'winston';
 import { logger } from '../logging/unified-logger.js';
 import LokiTransport from 'winston-loki';
