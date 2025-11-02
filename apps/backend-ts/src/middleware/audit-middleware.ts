@@ -5,6 +5,7 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
+import { logger } from '../logging/unified-logger.js';
 import { auditTrail, AuditEventType } from '../services/audit-trail.js';
 import { featureFlags, FeatureFlag } from '../services/feature-flags.js';
 

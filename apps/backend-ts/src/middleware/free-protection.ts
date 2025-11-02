@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { logger } from '../logging/unified-logger.js';
 
 // Free application-level protection
 const requestCounts = new Map<string, { count: number; resetTime: number; blocked: boolean }>();

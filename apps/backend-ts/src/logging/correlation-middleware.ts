@@ -67,8 +67,8 @@ export function correlationMiddleware() {
     });
 
     // Override res.end to log response completion
-    const originalEnd = res.end;
-    res.end = function(this: Response, ...args: any[]) {
+    const originalEnd = res.end.bind(res);
+    (res as any).end = function(...args: any[]) {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
@@ -82,7 +82,7 @@ export function correlationMiddleware() {
       });
 
       // Call original end
-      originalEnd.apply(this, args);
+      return originalEnd(...args);
     };
 
     // Handle request errors

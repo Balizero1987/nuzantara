@@ -4,6 +4,7 @@
  */
 
 import { Request, Response } from 'express';
+import { logger } from '../../logging/unified-logger.js';
 import axios from 'axios';
 import { getJiwaClient } from '../../services/jiwa-client';
 

@@ -24,6 +24,8 @@
  *     kbli.ts
  */
 
+import { logger } from '../logging/unified-logger.js';
+
 export interface ModuleMapping {
   module: string;
   handlers: string[];  // handler file names

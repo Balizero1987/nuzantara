@@ -5,6 +5,7 @@
  */
 
 import { ok } from '../../utils/response.js';
+import { logger } from '../../logging/unified-logger.js';
 import { BadRequestError } from '../../utils/errors.js';
 
 // Twilio Configuration

@@ -1,6 +1,5 @@
 /**
- * ZANTARA 
-app.use(correlationMiddleware());TS-BACKEND Server
+ * ZANTARA TS-BACKEND Server
  * Main entry point for the TypeScript backend service
  */
 
@@ -19,6 +18,7 @@ import { setupWebSocket } from './websocket.js';
 import { metricsMiddleware, metricsHandler } from './middleware/observability.middleware.js';
 import { initializeRedis, cacheMiddleware } from './middleware/cache.middleware.js';
 import cacheRoutes from './routes/cache.routes.js';
+import correlationMiddleware from './logging/correlation-middleware.js';
 
 // Load balancing and high availability components
 import { featureFlags, FeatureFlag } from './services/feature-flags.js';
@@ -220,6 +220,9 @@ async function startServer() {
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+  // Correlation tracking for unified logging
+  app.use(correlationMiddleware());
 
   // PATCH-3: Global rate limiting (fallback)
   app.use(globalRateLimiter);
@@ -507,7 +510,6 @@ async function startServer() {
 
   // Cursor Ultra Auto Patch: Enhanced Code Quality Routes
   const codeQualityRoutes = await import('./routes/code-quality.routes.js');
-import correlationMiddleware from '../logging/correlation-middleware.js';
   app.use('/code-quality', codeQualityRoutes.default);
   logger.info('✅ Enhanced Code Quality Monitor loaded');
 

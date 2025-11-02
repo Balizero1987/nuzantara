@@ -4,10 +4,11 @@
  */
 
 import express from 'express';
+import { logger } from '../../logging/unified-logger.js';
 import cors from 'cors';
 import { jiwaOrchestratorRoutes } from './orchestrator-jiwa';
 import { jiwaMiddleware } from '../../services/jiwa-client';
-import correlationMiddleware from '../logging/correlation-middleware.js';
+import correlationMiddleware from '../../logging/correlation-middleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -152,7 +153,7 @@ app.listen(PORT, () => {
 });
 
 // Handle graceful shutdown
-process.on('SIGINT');
+process.on('SIGINT', () => {
   process.exit(0);
 });
 

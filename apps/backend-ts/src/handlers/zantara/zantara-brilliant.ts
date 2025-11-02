@@ -4,6 +4,7 @@
  */
 
 import { Request, Response } from 'express';
+import { logger } from '../../logging/unified-logger.js';
 import { ZantaraOrchestrator } from '../../core/zantara-orchestrator.js';
 import { ok, err } from '../../utils/response.js';
 

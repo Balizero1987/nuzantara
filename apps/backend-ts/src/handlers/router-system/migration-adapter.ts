@@ -1,5 +1,6 @@
 /**
  * Migration Adapter - Maps 143 old tools to 5 super-tools
+import { logger } from "../../logging/unified-logger.js";
  * CRITICAL: Maintains backward compatibility during migration
  */
 
