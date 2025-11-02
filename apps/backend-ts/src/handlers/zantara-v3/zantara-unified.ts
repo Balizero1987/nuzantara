@@ -33,7 +33,7 @@ export async function zantaraUnifiedQuery(req: Request, res: Response) {
 
     // KBLI Knowledge Base - REAL DATABASE INTEGRATION
     if (domain === "all" || domain === "kbli") {
-      response.results.kbli = await queryKBLIFull(query, mode);
+      response.results.kbli = await queryKBLI(query, mode);
       if (include_sources) {
         response.sources.kbli = "kbli_eye_collection_10000+_codes";
       }

@@ -8,6 +8,15 @@ export const ActionName = z.union([
   z.literal('memory_save'),
   z.literal('lead_save'),
   z.literal('set_language'),
+  // ZANTARA v3 Ω Strategic Endpoints
+  z.literal('zantara_unified'),
+  z.literal('zantara_collective'),
+  z.literal('zantara_ecosystem'),
+  // Additional capabilities
+  z.literal('kbli_lookup'),
+  z.literal('team_search'),
+  z.literal('pricing_query'),
+  z.literal('collective_memory'),
 ]);
 
 export type ActionName = z.infer<typeof ActionName>;
