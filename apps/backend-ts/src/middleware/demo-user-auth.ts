@@ -6,6 +6,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import { logger } from '../logging/unified-logger.js';
 import jwt from 'jsonwebtoken';
 
 export interface RequestWithDemo extends Request {

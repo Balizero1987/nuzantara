@@ -4,6 +4,7 @@
  */
 
 import { SuperToolCall } from './migration-adapter';
+import { logger } from '../../logging/unified-logger.js';
 import axios from 'axios';
 
 export interface SuperToolResult {

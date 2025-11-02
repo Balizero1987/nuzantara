@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { logger } from '../logging/unified-logger.js';
 
 // Advanced IP-based defense system
 interface IPDefenseOptions {

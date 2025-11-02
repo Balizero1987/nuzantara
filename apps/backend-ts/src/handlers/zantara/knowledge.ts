@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+import { logger } from '../../logging/unified-logger.js';
 import axios from "axios";
 import { ok, err } from "../../utils/response.js";
 

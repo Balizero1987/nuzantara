@@ -4,6 +4,7 @@
  */
 
 import fs from 'fs/promises';
+import { logger } from '../logging/unified-logger.js';
 import path from 'path';
 import crypto from 'crypto';
 

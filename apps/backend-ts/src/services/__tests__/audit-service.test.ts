@@ -3,13 +3,16 @@
  * Unit tests for GDPR-compliant audit service
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import { auditService } from '../audit-service.js';
 
 describe('AuditService', () => {
   beforeEach(() => {
-    // Clear audit log
-    (auditService as any).auditLog = [];
+    // Clear audit log by accessing private property
+    const service = auditService as any;
+    if (service.auditLog) {
+      service.auditLog = [];
+    }
   });
 
   describe('logStreamOperation', () => {
@@ -33,6 +36,7 @@ describe('AuditService', () => {
       expect(entries[0].success).toBe(true);
       expect(entries[0].gdprCompliant).toBe(true);
       expect(entries[0].metadata?.queryHash).toBeDefined();
+      expect(entries[0].metadata?.queryLength).toBe(10); // "test query".length
     });
 
     it('should hash query instead of storing full text', () => {
@@ -40,11 +44,14 @@ describe('AuditService', () => {
         connectionId: 'test-conn',
         query: 'sensitive personal information',
         endpoint: '/api/v2/bali-zero/chat-stream',
-        success: true
+        success: true,
+        ipAddress: '127.0.0.1'
       });
 
       const entries = auditService.getRecentEntries(1);
+      expect(entries.length).toBe(1);
       expect(entries[0].metadata?.queryHash).toBeDefined();
+      expect(typeof entries[0].metadata?.queryHash).toBe('string');
       expect(entries[0].metadata?.query).toBeUndefined(); // No full query stored
     });
   });
@@ -60,9 +67,11 @@ describe('AuditService', () => {
       });
 
       const entries = auditService.getRecentEntries(1);
+      expect(entries.length).toBe(1);
       expect(entries[0].operation).toBe('security.rate_limit_violation');
       expect(entries[0].success).toBe(false);
       expect(entries[0].metadata?.limit).toBe(20);
+      expect(entries[0].metadata?.window).toBe(60);
     });
   });
 
@@ -77,24 +86,28 @@ describe('AuditService', () => {
       });
 
       const entries = auditService.getRecentEntries(1);
+      expect(entries.length).toBe(1);
       expect(entries[0].operation).toBe('auth.login');
       expect(entries[0].success).toBe(true);
+      expect(entries[0].userId).toBe('user123');
     });
   });
 
   describe('GDPR Compliance', () => {
-    it('should not log email without userId', () => {
+    it('should mark entry as non-compliant when email without userId', () => {
       auditService.logStreamOperation({
         connectionId: 'test-conn',
         userEmail: 'user@example.com', // No userId
         query: 'test',
         endpoint: '/test',
-        success: true
+        success: true,
+        ipAddress: '127.0.0.1'
       });
 
       const entries = auditService.getRecentEntries(1);
-      // Entry should be marked non-compliant or email not stored
-      expect(entries[0].userEmail).toBeUndefined();
+      expect(entries.length).toBe(1);
+      // Entry should be marked non-compliant (email without userId violates GDPR)
+      expect(entries[0].gdprCompliant).toBe(false);
     });
   });
 });

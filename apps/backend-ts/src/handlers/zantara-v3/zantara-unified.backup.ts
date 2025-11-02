@@ -3,6 +3,7 @@
 // MINIMAL endpoints, MAXIMUM coverage
 
 import { ok } from "../../utils/response.js";
+import { logger } from '../../logging/unified-logger.js';
 import { Request, Response } from "express";
 import { kbliLookup, kbliRequirements } from "../bali-zero/kbli.js";
 import { baliZeroPricing, baliZeroQuickPrice } from "../bali-zero/bali-zero-pricing.js";
