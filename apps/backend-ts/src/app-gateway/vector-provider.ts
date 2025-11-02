@@ -6,7 +6,7 @@
  * Fallback: Memory (in-RAM)
  */
 
-import type { VectorStore, VectorBackend } from "../services/vector/types";
+import type { VectorStore, VectorBackend } from "../services/vector/vector-types";
 
 export function makeVectorStore(): VectorStore {
   const backend = (process.env.VECTOR_BACKEND ?? "chroma") as VectorBackend;

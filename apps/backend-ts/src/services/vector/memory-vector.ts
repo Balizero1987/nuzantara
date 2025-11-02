@@ -3,10 +3,10 @@
  * Local in-RAM vector store for offline/testing mode.
  */
 
-import { getLogger } from "../logger";
+import logger from "../logger";
 
 export default function memoryVectorStore() {
-  const logger = getLogger("vector:memory");
+  logger.info("✅ Memory vector store initialized");
   const vectors: Record<string, number[]> = {};
 
   logger.warn("⚠️ Using in-memory vector store — not persistent");
