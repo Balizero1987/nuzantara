@@ -1,92 +1,87 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { BadRequestError } from '../../../utils/errors.js';
 
-// No external mocks required
+// Mock WebSocket server
+const mockWebSocketServer = {
+  getStats: jest.fn().mockReturnValue({
+    totalConnections: 0,
+    channels: {},
+    clients: []
+  }),
+  broadcast: jest.fn(),
+  sendToUser: jest.fn()
+};
+
+jest.unstable_mockModule('../../services/websocket-server.js', () => ({
+  getWebSocketServer: jest.fn().mockReturnValue(mockWebSocketServer)
+}));
 
 describe('Websocket Admin', () => {
   let handlers: any;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     handlers = await import('../websocket-admin.js');
   });
 
   describe('websocketStats', () => {
-    it('should handle success case with valid params', async () => {
-      const result = await handlers.websocketStats({
-        // TODO: Add valid test params
-      });
-
-      expect(result).toBeDefined();
-      // TODO: Add more specific assertions
-    });
-
-    it('should handle missing required params', async () => {
+    it('should handle success case', async () => {
       const result = await handlers.websocketStats({});
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
-    });
-
-    it('should handle invalid params', async () => {
-      const result = await handlers.websocketStats({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data.enabled).toBe(true);
     });
   });
 
   describe('websocketBroadcast', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.websocketBroadcast({
-        // TODO: Add valid test params
+        channel: 'test-channel',
+        data: { message: 'Test broadcast' }
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.broadcast).toBe(true);
+      expect(mockWebSocketServer.broadcast).toHaveBeenCalled();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.websocketBroadcast({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.websocketBroadcast({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.websocketBroadcast({})).rejects.toThrow('channel and data are required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.websocketBroadcast({
+      await expect(handlers.websocketBroadcast({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 
   describe('websocketSendToUser', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.websocketSendToUser({
-        // TODO: Add valid test params
+        userId: 'test-user',
+        channel: 'test-channel',
+        data: { message: 'Test message' }
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.sent).toBe(true);
+      expect(mockWebSocketServer.sendToUser).toHaveBeenCalled();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.websocketSendToUser({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.websocketSendToUser({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.websocketSendToUser({})).rejects.toThrow('userId, channel, and data are required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.websocketSendToUser({
+      await expect(handlers.websocketSendToUser({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 

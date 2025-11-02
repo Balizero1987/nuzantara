@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
-// No external mocks required
-
 describe('Bali Zero Pricing', () => {
   let handlers: any;
 
@@ -12,55 +10,60 @@ describe('Bali Zero Pricing', () => {
   describe('baliZeroPricing', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.baliZeroPricing({
-        specific_service: 'Test String',
-        include_details: true,
+        service_type: 'visa',
+        include_details: true
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.single_entry_visas).toBeDefined();
     });
 
-    it('should handle missing required params', async () => {
+    it('should handle missing required params (all optional)', async () => {
       const result = await handlers.baliZeroPricing({});
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data).toBeDefined();
     });
 
-    it('should handle invalid params', async () => {
+    it('should handle invalid params gracefully', async () => {
       const result = await handlers.baliZeroPricing({
-        invalid: 'data'
+        service_type: 'invalid-service'
       });
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
     });
   });
 
   describe('baliZeroQuickPrice', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.baliZeroQuickPrice({
-        // TODO: Add valid test params
+        service: 'C1 Tourism'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data).toBeDefined();
     });
 
-    it('should handle missing required params', async () => {
+    it('should handle missing required params (all optional)', async () => {
       const result = await handlers.baliZeroQuickPrice({});
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data).toBeDefined();
     });
 
-    it('should handle invalid params', async () => {
+    it('should handle invalid params gracefully', async () => {
       const result = await handlers.baliZeroQuickPrice({
-        invalid: 'data'
+        service: 'NonExistentService'
       });
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
     });
   });
 

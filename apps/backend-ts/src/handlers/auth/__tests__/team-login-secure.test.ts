@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-
-// No external mocks required
+import { BadRequestError } from '../../../utils/errors.js';
 
 describe('Team Login Secure', () => {
   let handlers: any;
@@ -9,111 +8,84 @@ describe('Team Login Secure', () => {
     handlers = await import('../team-login-secure.js');
   });
 
-  describe('resetLoginAttempts', () => {
-    it('should handle success case with valid params', async () => {
-      const result = await handlers.resetLoginAttempts({
-        // TODO: Add valid test params
-      });
-
-      expect(result).toBeDefined();
-      // TODO: Add more specific assertions
-    });
-
-    it('should handle missing required params', async () => {
-      const result = await handlers.resetLoginAttempts({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
-    });
-
-    it('should handle invalid params', async () => {
-      const result = await handlers.resetLoginAttempts({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
-    });
-  });
-
   describe('teamLoginSecure', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.teamLoginSecure({
-        // TODO: Add valid test params
+        name: 'zero',
+        pin: '010719'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.token).toBeDefined();
+      expect(result.data.user).toBeDefined();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.teamLoginSecure({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.teamLoginSecure({})).rejects.toThrow(BadRequestError);
     });
 
-    it('should handle invalid params', async () => {
-      const result = await handlers.teamLoginSecure({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+    it('should handle wrong PIN', async () => {
+      await expect(handlers.teamLoginSecure({
+        name: 'zero',
+        pin: 'wrong-pin'
+      })).rejects.toThrow();
     });
   });
 
   describe('verifyToken', () => {
     it('should handle success case with valid params', async () => {
+      const loginResult = await handlers.teamLoginSecure({
+        name: 'zero',
+        pin: '010719'
+      });
+
       const result = await handlers.verifyToken({
-        // TODO: Add valid test params
+        token: loginResult.data.token
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.valid).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.verifyToken({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.verifyToken({})).rejects.toThrow(BadRequestError);
     });
 
-    it('should handle invalid params', async () => {
+    it('should handle invalid token', async () => {
       const result = await handlers.verifyToken({
-        invalid: 'data'
+        token: 'invalid-token'
       });
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(false);
     });
   });
 
   describe('getTeamMemberList', () => {
+    it('should handle success case', async () => {
+      const result = await handlers.getTeamMemberList();
+
+      expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data.members).toBeDefined();
+      expect(Array.isArray(result.data.members)).toBe(true);
+    });
+  });
+
+  describe('resetLoginAttempts', () => {
     it('should handle success case with valid params', async () => {
-      const result = await handlers.getTeamMemberList({
-        // TODO: Add valid test params
+      const result = await handlers.resetLoginAttempts({
+        name: 'zero'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.getTeamMemberList({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
-    });
-
-    it('should handle invalid params', async () => {
-      const result = await handlers.getTeamMemberList({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.resetLoginAttempts({})).rejects.toThrow(BadRequestError);
     });
   });
 
