@@ -1,0 +1,4 @@
+{
+  "/page": "app/page.js",
+  "/api/agent-status/route": "app/api/agent-status/route.js"
+}

@@ -1,0 +1,5 @@
+{
+  "/api/agent-status/route": "app/api/agent-status/route.js",
+  "/api/orchestrate/route": "app/api/orchestrate/route.js",
+  "/page": "app/page.js"
+}
