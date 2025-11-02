@@ -1,5 +1,5 @@
 # TypeScript Backend Dockerfile for Fly.io
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Install curl for health checks
 RUN apk add --no-cache curl
