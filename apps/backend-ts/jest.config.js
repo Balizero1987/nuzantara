@@ -53,7 +53,7 @@ export default {
     'handlers-introspection.test.ts',
     // Exclude Playwright E2E tests
     '\\.spec\\.js$',
-    '/e2e/',
+    // '/e2e/', // Allow E2E tests in __tests__/e2e/
     '/tests/e2e/',
     '/apps/webapp/tests/',
   ],
@@ -61,4 +61,17 @@ export default {
 
   // Verbose output for better debugging
   verbose: true,
+
+  // Global test setup and teardown (temporarily disabled due to jest globals import issue)
+  // globalSetup: '<rootDir>/tests/setup/global-setup.ts',
+  // globalTeardown: '<rootDir>/tests/setup/global-teardown.ts',
+  
+  // Setup files that run after Jest environment is installed
+  setupFilesAfterEnv: ['<rootDir>/tests/setup/enhanced-test-setup.ts'],
+
+  // Test timeout (30 seconds for integration tests)
+  testTimeout: 30000,
+
+  // Max workers for parallel test execution
+  maxWorkers: '50%',
 };

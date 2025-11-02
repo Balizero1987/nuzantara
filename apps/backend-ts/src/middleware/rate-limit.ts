@@ -44,6 +44,18 @@ export const baliZeroChatLimiter = rateLimit({
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
     logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
+    
+    // Audit log: Rate limit violation (async import to avoid circular dependency)
+    import('../services/audit-service.js').then(({ auditService }) => {
+      auditService.logRateLimitViolation({
+        userId: req.header('x-user-id') || undefined,
+        ipAddress: req.ip || req.socket.remoteAddress || 'unknown',
+        endpoint: req.path,
+        limit: 20,
+        window: 60
+      });
+    }).catch(err => logger.error('[RateLimit] Failed to log audit:', err));
+
     res.setHeader('Retry-After', '60');
     res.setHeader('X-RateLimit-Limit', '20');
     res.setHeader('X-RateLimit-Remaining', '0');

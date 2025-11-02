@@ -142,9 +142,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         "/api/agents/": (100, 60),  # 100 per minute
         
         # Generous limits for general endpoints
-        "/bali-zero/chat": (30, 60),  # 30 per minute
+        "/bali-zero/chat": (30, 60),  # 30 per minute (includes reranker usage)
         "/search": (60, 60),  # 60 per minute
         "/api/": (120, 60),  # 120 per minute
+        
+        # Reranker-specific endpoints (if any in future)
+        "/rerank": (100, 60),  # 100 per minute (anti-abuse)
         
         # Default for all other endpoints
         "*": (200, 60),  # 200 per minute

@@ -47,6 +47,20 @@ class Settings(BaseSettings):
     reranker_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
     reranker_top_k: int = 5  # Return top-K re-ranked results
     reranker_latency_target_ms: float = 50.0  # Target latency per query
+    
+    # Reranker Feature Flags (Zero-Downtime Deployment)
+    reranker_cache_enabled: bool = True  # Enable query similarity caching
+    reranker_cache_size: int = 1000  # Max cached query results
+    reranker_batch_enabled: bool = True  # Enable batch reranking for multi-query
+    reranker_audit_enabled: bool = True  # Enable audit trail for reranker operations
+    
+    # Reranker Rate Limiting (Anti-Abuse)
+    reranker_rate_limit_per_minute: int = 100  # Max rerank requests per user/IP per minute
+    reranker_rate_limit_per_hour: int = 1000  # Max rerank requests per user/IP per hour
+    
+    # Reranker Overfetch Strategy
+    reranker_overfetch_count: int = 20  # Fetch 20 candidates from ChromaDB
+    reranker_return_count: int = 5  # Return top-5 after reranking
 
     # Tier overrides (optional)
     tier_overrides: Optional[str] = None

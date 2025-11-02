@@ -374,13 +374,14 @@ export async function teamLoginSecure(params: any) {
   // Success! Clear attempts
   clearLoginAttempts(email);
 
-  // Generate JWT token
+  // Generate JWT token - BUG FIX: Use userId instead of id for consistency with jwtAuth middleware
   const token = jwt.sign(
     {
-      id: member.id,
+      userId: member.id, // Changed from 'id' to 'userId' for consistency
       email: member.email,
       role: member.role,
-      department: member.department
+      department: member.department,
+      name: member.name // Added for adminAuth compatibility
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRY }
