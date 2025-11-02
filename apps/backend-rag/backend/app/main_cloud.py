@@ -76,11 +76,13 @@ app = FastAPI(
     description="RAG + LLM backend for NUZANTARA (ChromaDB from R2 + Claude AI Haiku 4.5 ONLY with Intelligent Routing)"
 )
 
-# CORS - Production + Development (SSE streaming support)
+# CORS - Production + Development + Inter-Service (SSE streaming support)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://zantara.balizero.com",
+        "https://nuzantara-backend.fly.dev",
+        "https://nuzantara-core.fly.dev",
         "http://localhost:3000",
         "http://localhost:5173",
         "http://127.0.0.1:3000",
@@ -1015,14 +1017,40 @@ async def _initialize_backend_services():
         capabilities_service = None
 
     # Initialize RerankerService (Performance Enhancement - ENABLED by config)
-    # Use config setting but allow env override for production
+    # Use config setting but allow env override for production (backward compatibility)
     reranker_enabled = os.getenv("ENABLE_RERANKER", str(settings.enable_reranker)).lower() == "true"
     if reranker_enabled:
         try:
             logger.info(f"⏳ Loading RerankerService (enabled={settings.enable_reranker})...")
             from services.reranker_service import RerankerService
-            reranker_service = RerankerService(model_name=settings.reranker_model)
-            logger.info(f"✅ RerankerService ready ({settings.reranker_model}, +40% quality, target latency: {settings.reranker_latency_target_ms}ms)")
+            
+            # Initialize with feature flags from config (backward compatible defaults)
+            # Initialize reranker with feature flags
+            reranker_service = RerankerService(
+                model_name=settings.reranker_model,
+                cache_size=settings.reranker_cache_size if hasattr(settings, 'reranker_cache_size') else 1000,
+                enable_cache=settings.reranker_cache_enabled if hasattr(settings, 'reranker_cache_enabled') else True
+            )
+            
+            # Initialize audit service if enabled
+            if hasattr(settings, 'reranker_audit_enabled') and settings.reranker_audit_enabled:
+                try:
+                    from services.reranker_audit import initialize_audit_service
+                    audit_service = initialize_audit_service(
+                        enabled=True,
+                        log_file=None  # Use default path
+                    )
+                    logger.info("✅ RerankerAuditService initialized")
+                except Exception as e:
+                    logger.warning(f"⚠️ RerankerAuditService initialization failed: {e}")
+            
+            logger.info(
+                f"✅ RerankerService ready "
+                f"(model: {settings.reranker_model}, "
+                f"cache: {'enabled' if reranker_service.enable_cache else 'disabled'}, "
+                f"target latency: {settings.reranker_latency_target_ms}ms, "
+                f"+40% quality boost)"
+            )
         except Exception as e:
             logger.error(f"❌ RerankerService initialization failed: {e}")
             logger.warning("⚠️ Continuing without re-ranker - performance may be reduced")
@@ -1274,41 +1302,70 @@ async def health_options():
 
 @app.get("/health")
 async def health_check():
-    """Optimized health check endpoint - v100"""
+    """Optimized health check endpoint - v100 with reranker stats"""
+    health_data = {
+        "status": "healthy",
+        "service": "ZANTARA RAG",
+        "version": "v100-perfect",
+        "mode": "full",
+        "available_services": [
+            "chromadb",
+            "claude_haiku",
+            "postgresql",
+            "crm_system",
+            "reranker"
+        ],
+        "chromadb": search_service is not None,
+        "ai": {
+            "claude_haiku_available": claude_haiku is not None,
+            "has_ai": claude_haiku is not None
+        },
+        "memory": {
+            "postgresql": memory_service is not None,
+            "vector_db": search_service is not None
+        },
+        "crm": {
+            "enabled": True,
+            "endpoints": 41,
+            "features": ["auto_extraction", "client_tracking", "practice_management", "shared_memory"]
+        },
+        "reranker": {
+            "enabled": reranker_service is not None,
+            "status": "ready" if reranker_service is not None else "disabled"
+        },
+        "collaborative_intelligence": True,
+        "tools": {
+            "tool_executor_status": tool_executor is not None,
+            "pricing_service_status": pricing_service is not None,
+            "handler_proxy_status": handler_proxy_service is not None
+        }
+    }
+    
+    # Add detailed reranker stats if available
+    if reranker_service is not None:
+        try:
+            reranker_stats = reranker_service.get_stats()
+            health_data["reranker"].update({
+                "stats": {
+                    "total_reranks": reranker_stats.get("total_reranks", 0),
+                    "avg_latency_ms": round(reranker_stats.get("avg_latency_ms", 0), 2),
+                    "p95_latency_ms": round(reranker_stats.get("p95_latency_ms", 0), 2),
+                    "p99_latency_ms": round(reranker_stats.get("p99_latency_ms", 0), 2),
+                    "cache_hit_rate_percent": round(reranker_stats.get("cache_hit_rate_percent", 0), 1),
+                    "target_latency_met_rate_percent": round(reranker_stats.get("target_latency_met_rate_percent", 0), 1),
+                    "cache_enabled": reranker_stats.get("cache_enabled", False),
+                    "cache_size": reranker_stats.get("cache_size", 0),
+                    "cache_max_size": reranker_stats.get("cache_max_size", 0),
+                    "target_latency_ms": reranker_stats.get("target_latency_ms", 50.0)
+                },
+                "status": "healthy" if reranker_stats.get("avg_latency_ms", 0) < 100 else "degraded"
+            })
+        except Exception as e:
+            logger.warning(f"Failed to get reranker stats: {e}")
+            health_data["reranker"]["error"] = str(e)
+    
     return Response(
-        content=json.dumps({
-            "status": "healthy",
-            "service": "ZANTARA RAG",
-            "version": "v100-perfect",
-            "mode": "full",
-            "available_services": [
-                "chromadb",
-                "claude_haiku",
-                "postgresql",
-                "crm_system"
-            ],
-            "chromadb": search_service is not None,
-            "ai": {
-                "claude_haiku_available": claude_haiku is not None,
-                "has_ai": claude_haiku is not None
-            },
-            "memory": {
-                "postgresql": memory_service is not None,
-                "vector_db": search_service is not None
-            },
-            "crm": {
-                "enabled": True,
-                "endpoints": 41,
-                "features": ["auto_extraction", "client_tracking", "practice_management", "shared_memory"]
-            },
-            "reranker": reranker_service is not None,
-            "collaborative_intelligence": True,
-            "tools": {
-                "tool_executor_status": tool_executor is not None,
-                "pricing_service_status": pricing_service is not None,
-                "handler_proxy_status": handler_proxy_service is not None
-            }
-        }),
+        content=json.dumps(health_data),
         media_type="application/json",
         headers={
             "Access-Control-Allow-Origin": "*",
@@ -1768,11 +1825,23 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
             sources = []
             if used_rag and search_service:
                 try:
-                    # OPTIMIZATION: Reduced from 20 to 10 documents for faster response
+                    # OPTIMIZATION: Overfetch 20 → rerank top-5 for +40% relevance
+                    # Use config values with backward compatibility
+                    overfetch_count = (
+                        settings.reranker_overfetch_count 
+                        if hasattr(settings, 'reranker_overfetch_count') 
+                        else 20
+                    )
+                    return_count = (
+                        settings.reranker_return_count 
+                        if hasattr(settings, 'reranker_return_count') 
+                        else settings.reranker_top_k
+                    )
+                    
                     search_results = await search_service.search(
                         query=request.query,
                         user_level=sub_rosa_level,
-                        limit=10  # Reduced from 20
+                        limit=overfetch_count  # Overfetch candidates for reranking
                     )
 
                     if search_results.get("results"):
@@ -1781,7 +1850,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                             reranked = reranker_service.rerank(
                                 query=request.query,
                                 documents=candidates,
-                                top_k=3  # Reduced from 5
+                                top_k=return_count  # Return top-K after reranking
                             )
                             sources = [
                                 {

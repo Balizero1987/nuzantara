@@ -8,7 +8,10 @@ import { kbliLookup, kbliRequirements } from '../../../handlers/bali-zero/kbli.j
 import { baliZeroPricing, baliZeroQuickPrice } from '../../../handlers/bali-zero/bali-zero-pricing.js';
 import { baliZeroChat } from '../../../handlers/rag/rag.js';
 import { cacheMiddleware, generateCacheKey, cacheGet, cacheSet } from '../../../middleware/cache.middleware.js';
+import { baliZeroChatLimiter } from '../../../middleware/rate-limit.js';
+import { flagGate } from '../../../middleware/flagGate.js';
 import logger from '../../../services/logger.js';
+import { auditService } from '../../../services/audit-service.js';
 
 const router = Router();
 
@@ -228,5 +231,247 @@ router.post('/chat', async (req: Request, res: Response) => {
     return res.json(result);
   }
 });
+
+/**
+ * Bali Zero Chat Stream - SSE (Server-Sent Events)
+ * GET /api/v2/bali-zero/chat-stream
+ * 
+ * Real-time token streaming with:
+ * - <100ms first token latency
+ * - <50ms inter-token latency
+ * - Connection management (heartbeat, reconnect)
+ * - Back-pressure handling
+ * - Graceful error handling
+ * - Rate limiting
+ * - Audit trail
+ * - Feature flag protected
+ */
+router.get('/chat-stream', 
+  flagGate('ENABLE_SSE_STREAMING'), // Feature flag protection
+  baliZeroChatLimiter, // Rate limiting (20 req/min)
+  async (req: Request, res: Response) => {
+    const startTime = Date.now();
+    const connectionId = req.headers['x-connection-id'] as string || `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const userId = (req as any).user?.id || (req as any).user?.userId;
+    const userEmail = (req as any).user?.email || req.query.user_email as string;
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+
+    try {
+      const { query, user_email, user_role, conversation_history } = req.query;
+
+      if (!query || typeof query !== 'string') {
+        auditService.logStreamOperation({
+          connectionId,
+          userId,
+          userEmail,
+          ipAddress,
+          query: '',
+          endpoint: req.path,
+          success: false,
+          error: 'Missing query parameter'
+        });
+        return res.status(400).json({ error: 'query parameter is required' });
+      }
+
+      // Parse conversation history if provided
+      let parsedHistory: Array<{ role: string; content: string }> | undefined;
+      if (conversation_history && typeof conversation_history === 'string') {
+        try {
+          parsedHistory = JSON.parse(conversation_history);
+        } catch (error) {
+          logger.warn('[Stream] Failed to parse conversation_history:', error);
+        }
+      }
+
+      // Audit log: Stream started
+      auditService.logStreamOperation({
+        connectionId,
+        userId,
+        userEmail,
+        ipAddress,
+        query,
+        endpoint: req.path,
+        success: true
+      });
+
+      // Import streaming service
+      const { streamingService } = await import('../../../services/streaming-service.js');
+
+      // Track metrics for audit
+      let firstTokenLatency: number | undefined;
+      let tokensReceived = 0;
+
+      // Wrap response to track metrics
+      const originalWrite = res.write.bind(res);
+      let firstTokenSent = false;
+
+      res.write = function(chunk: any, encoding?: any) {
+        if (!firstTokenSent && chunk.toString().includes('"type":"token"')) {
+          firstTokenSent = true;
+          firstTokenLatency = Date.now() - startTime;
+        }
+        if (chunk.toString().includes('"type":"token"')) {
+          tokensReceived++;
+        }
+        return originalWrite(chunk, encoding);
+      } as any;
+
+      // Start streaming
+      await streamingService.streamChat(req, res, {
+        query,
+        user_email: (user_email as string) || userEmail,
+        user_role: user_role as string | undefined,
+        conversation_history: parsedHistory
+      });
+
+      // Audit log: Stream completed successfully
+      const duration = Date.now() - startTime;
+      auditService.logStreamOperation({
+        connectionId,
+        userId,
+        userEmail,
+        ipAddress,
+        query,
+        endpoint: req.path,
+        success: true,
+        firstTokenLatency,
+        tokensReceived,
+        duration
+      });
+
+    } catch (error: any) {
+      logger.error('[Stream] Chat stream error:', error);
+      
+      // Audit log: Stream failed
+      const duration = Date.now() - startTime;
+      auditService.logStreamOperation({
+        connectionId,
+        userId,
+        userEmail,
+        ipAddress,
+        query: req.query.query as string || '',
+        endpoint: req.path,
+        success: false,
+        duration,
+        error: error.message || 'Stream initialization failed'
+      });
+
+      if (!res.headersSent) {
+        res.status(500).json({ error: error.message || 'Stream initialization failed' });
+      }
+    }
+  }
+);
+
+/**
+ * POST /api/v2/bali-zero/chat-stream
+ * Alternative POST endpoint for SSE (supports larger payloads)
+ * Same security, rate limiting, and audit trail as GET endpoint
+ */
+router.post('/chat-stream',
+  flagGate('ENABLE_SSE_STREAMING'), // Feature flag protection
+  baliZeroChatLimiter, // Rate limiting (20 req/min)
+  async (req: Request, res: Response) => {
+    const startTime = Date.now();
+    const connectionId = req.headers['x-connection-id'] as string || `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const userId = (req as any).user?.id || (req as any).user?.userId;
+    const userEmail = (req as any).user?.email || req.body.user_email;
+    const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
+
+    try {
+      const { query, user_email, user_role, conversation_history } = req.body;
+
+      if (!query || typeof query !== 'string') {
+        auditService.logStreamOperation({
+          connectionId,
+          userId,
+          userEmail,
+          ipAddress,
+          query: '',
+          endpoint: req.path,
+          success: false,
+          error: 'Missing query parameter'
+        });
+        return res.status(400).json({ error: 'query is required' });
+      }
+
+      // Audit log: Stream started
+      auditService.logStreamOperation({
+        connectionId,
+        userId,
+        userEmail,
+        ipAddress,
+        query,
+        endpoint: req.path,
+        success: true
+      });
+
+      // Import streaming service
+      const { streamingService } = await import('../../../services/streaming-service.js');
+
+      // Track metrics for audit
+      let firstTokenLatency: number | undefined;
+      let tokensReceived = 0;
+      let firstTokenSent = false;
+
+      // Wrap response to track metrics
+      const originalWrite = res.write.bind(res);
+      res.write = function(chunk: any, encoding?: any) {
+        if (!firstTokenSent && chunk.toString().includes('"type":"token"')) {
+          firstTokenSent = true;
+          firstTokenLatency = Date.now() - startTime;
+        }
+        if (chunk.toString().includes('"type":"token"')) {
+          tokensReceived++;
+        }
+        return originalWrite(chunk, encoding);
+      } as any;
+
+      // Start streaming
+      await streamingService.streamChat(req, res, {
+        query,
+        user_email: user_email || userEmail,
+        user_role,
+        conversation_history: Array.isArray(conversation_history) ? conversation_history : undefined
+      });
+
+      // Audit log: Stream completed successfully
+      const duration = Date.now() - startTime;
+      auditService.logStreamOperation({
+        connectionId,
+        userId,
+        userEmail,
+        ipAddress,
+        query,
+        endpoint: req.path,
+        success: true,
+        firstTokenLatency,
+        tokensReceived,
+        duration
+      });
+
+    } catch (error: any) {
+      logger.error('[Stream] Chat stream error:', error);
+      
+      // Audit log: Stream failed
+      const duration = Date.now() - startTime;
+      auditService.logStreamOperation({
+        connectionId,
+        userId,
+        userEmail,
+        ipAddress,
+        query: req.body.query || '',
+        endpoint: req.path,
+        success: false,
+        duration,
+        error: error.message || 'Stream initialization failed'
+      });
+
+      if (!res.headersSent) {
+        res.status(500).json({ error: error.message || 'Stream initialization failed' });
+      }
+    }
+  }
+);
 
 export default router;
