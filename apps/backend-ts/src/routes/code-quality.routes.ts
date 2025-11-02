@@ -79,7 +79,7 @@ router.get('/metrics', (req: Request, res: Response) => {
  * GET /code-quality/analyze/:file
  * Analyze specific file
  */
-router.get('/analyze/:file(*)', (req: Request, res: Response) => {
+router.get('/analyze/:file', (req: Request, res: Response) => {
   try {
     const filePath = path.join(process.cwd(), req.params.file);
     const analysis = codeQualityMonitor.analyzeFile(filePath);

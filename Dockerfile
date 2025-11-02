@@ -31,8 +31,13 @@ RUN npm ci --include=dev --legacy-peer-deps
 # Copy application code
 COPY . .
 
-# Build application (use full build instead of build:fast)
+# Build only backend-ts workspace (main app)
+WORKDIR /app/apps/backend-ts
+RUN npm ci --legacy-peer-deps
 RUN npm run build
+
+# Return to app root
+WORKDIR /app
 
 # Remove development dependencies
 RUN npm prune --omit=dev
@@ -51,4 +56,4 @@ COPY --from=build /app /app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+CMD [ "node", "apps/backend-ts/dist/server.js" ]
