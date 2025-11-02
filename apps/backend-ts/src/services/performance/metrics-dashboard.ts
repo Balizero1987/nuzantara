@@ -505,7 +505,7 @@ export function metricsMiddleware(req: any, res: any, next: any) {
 }
 
 // Metrics API endpoint handlers
-export function getMetricsDashboard(req: any, res: any) {
+export function getMetricsDashboard(req: any, res?: any) {
   try {
     const collector = getMetricsCollector();
     const summary = collector.getMetricsSummary();
@@ -513,7 +513,7 @@ export function getMetricsDashboard(req: any, res: any) {
     const endpointBreakdown = collector.getEndpointBreakdown();
     const report = collector.generateReport();
     
-    res.json({
+    const response = {
       success: true,
       timestamp: new Date().toISOString(),
       summary,
@@ -521,32 +521,61 @@ export function getMetricsDashboard(req: any, res: any) {
       endpointBreakdown,
       report,
       lastUpdated: new Date().toISOString()
-    });
+    };
+
+    // Handle both Express response and direct return patterns
+    if (res && typeof res.json === 'function') {
+      res.json(response);
+      return;
+    }
+    
+    return response;
   } catch (error: any) {
     logger.error('Failed to get metrics dashboard:', error);
-    res.status(500).json({
+    const errorResponse = {
       success: false,
       error: 'Failed to retrieve metrics'
-    });
+    };
+    
+    if (res && typeof res.status === 'function') {
+      res.status(500).json(errorResponse);
+      return;
+    }
+    
+    return errorResponse;
   }
 }
 
-export function resetMetrics(req: any, res: any) {
+export function resetMetrics(req: any, res?: any) {
   try {
     const collector = getMetricsCollector();
     collector.resetMetrics();
     
-    res.json({
+    const response = {
       success: true,
       message: 'Metrics reset successfully',
       timestamp: new Date().toISOString()
-    });
+    };
+
+    if (res && typeof res.json === 'function') {
+      res.json(response);
+      return;
+    }
+    
+    return response;
   } catch (error: any) {
     logger.error('Failed to reset metrics:', error);
-    res.status(500).json({
+    const errorResponse = {
       success: false,
       error: 'Failed to reset metrics'
-    });
+    };
+    
+    if (res && typeof res.status === 'function') {
+      res.status(500).json(errorResponse);
+      return;
+    }
+    
+    return errorResponse;
   }
 }
 

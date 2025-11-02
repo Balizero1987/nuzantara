@@ -18,11 +18,14 @@ const redisUrl = process.env.REDIS_URL;
 function getRedisConfig(url: string) {
   const config: any = {
     retryStrategy: (times: number) => {
-      if (times > 3) return null; // Stop after 3 retries
+      if (times > 3) {
+        logger.warn(`Redis retry limit reached (${times} attempts) - disabling further retries`);
+        return null; // Stop after 3 retries
+      }
       return Math.min(times * 100, 2000);
     },
     maxRetriesPerRequest: 3,
-    lazyConnect: false,
+    lazyConnect: true, // ← CRITICAL: Don't connect immediately
     enableOfflineQueue: false,
     connectTimeout: 10000
   };
@@ -37,21 +40,42 @@ function getRedisConfig(url: string) {
   return config;
 }
 
+// Safely create Redis connections with error handling
+function createRedisClient(url: string, label: string): Redis | null {
+  try {
+    const client = new Redis(url, getRedisConfig(url));
+    
+    client.on('error', (err) => {
+      logger.error(`Redis ${label} error:`, err);
+      // Don't crash - just log
+    });
+
+    client.on('connect', () => {
+      logger.info(`Redis ${label} connected`);
+    });
+
+    client.on('close', () => {
+      logger.warn(`Redis ${label} connection closed`);
+    });
+
+    // Try to connect, but don't block startup
+    client.connect().catch((err) => {
+      logger.error(`Redis ${label} connection failed:`, err);
+      logger.warn(`Continuing without Redis ${label} - pub/sub features limited`);
+    });
+
+    return client;
+  } catch (error: any) {
+    logger.error(`Failed to create Redis ${label} client:`, error);
+    return null;
+  }
+}
+
 // Only create Redis connections if REDIS_URL is configured
-export const redis = redisUrl ? new Redis(redisUrl, getRedisConfig(redisUrl)) : null;
+export const redis = redisUrl ? createRedisClient(redisUrl, 'publisher') : null;
 
 // Subscriber connection (dedicated)
-const subscriberRedis = redisUrl ? new Redis(redisUrl, getRedisConfig(redisUrl)) : null;
-
-if (redis) {
-  redis.on('connect', () => logger.info('Redis publisher connected'));
-  redis.on('error', (error) => logger.error('Redis publisher error:', error));
-}
-
-if (subscriberRedis) {
-  subscriberRedis.on('connect', () => logger.info('Redis subscriber connected'));
-  subscriberRedis.on('error', (error) => logger.error('Redis subscriber error:', error));
-}
+const subscriberRedis = redisUrl ? createRedisClient(redisUrl, 'subscriber') : null;
 
 // Log if Redis is disabled
 if (!redisUrl) {
