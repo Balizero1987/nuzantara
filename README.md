@@ -1,49 +1,59 @@
-🔸 Overview
+# ZANTARA v3 Ω
 
-Nuzantara è l'infrastruttura operativa che alimenta ZANTARA, il sistema di intelligenza legale e gestionale di Bali Zero.
-Gestisce i flussi AI interni (immigrazione, licenze, tax, property, automazione) attraverso un'architettura modulare che integra:
+Sistema di intelligenza legale e gestionale per Indonesia - Architettura modulare completa.
 
-Layer    Descrizione    Tecnologie
-Frontend    Interfaccia chat e strumenti operativi    React + Tailwind + SSE
-Backend    API gateway e orchestratore AI    Node + TypeScript
-Vector Layer    Retrieval e RAG    ChromaDB (official) / Qdrant (standby)
-Model Layer    Reasoning + dialogo    Haiku (frontend) + Flan-T5 Base (locale, non ancora operativo)
-Data & Docs    Golden Answers, diari, knowledge base    JSONL + Markdown guardrails
+## 🚀 Quick Start
 
-⚙️ Nota: Flan-T5 è installato ma non ancora collegato all'orchestratore.
-Al momento, l'orchestratore gestisce le risposte autonomamente tramite Haiku.
-
-🔹 Setup rapido
-
+```bash
 git clone https://github.com/Balizero1987/nuzantara.git
 cd nuzantara
 cp .env.example .env
-docker compose -f docker-compose.chroma.yml up -d
-bash ./doctor.sh
+bash scripts/doctor.sh
+```
 
-🔹 Workflow sintetico
+## 📖 Documentazione
 
-Branch principali:
+- **[NUZANTARA_README.md](./NUZANTARA_README.md)** - Overview completo e setup dettagliato
+- **[INFRASTRUCTURE_OVERVIEW.md](./INFRASTRUCTURE_OVERVIEW.md)** - Architettura cloud e deployment
+- **[DIARIES/README.md](./DIARIES/README.md)** - Tracking sessioni AI
 
-main      → stabile (protetto)
-develop   → integrazione e test
-feat/*    → nuove funzionalità
-fix/*     → correzioni rapide
-docs/*    → documentazione
-ops/*     → CI / DevOps
+## 🔧 ZANTARA v3 Ω Features
 
-Esempio:
+### Unified Knowledge System
+- **zantara-unified**: Accesso a tutte le knowledge base (KBLI, pricing, legal, immigration)
+- **zantara-collective**: Memoria condivisa e apprendimento cross-user
+- **zantara-ecosystem**: Analisi completa ecosistema business
 
-git checkout develop
-git pull
-git checkout -b feat/<nome>
-git add .
-git commit -m "feat(ai): connect flan stub"
-git push origin feat/<nome>
+### Technology Stack
+- **Backend**: TypeScript + Node.js (Fly.io)
+- **Frontend**: React + Tailwind CSS (Cloudflare Pages)
+- **Vector DB**: ChromaDB (production) + Qdrant (standby)
+- **Cache**: Redis
+- **Monitoring**: GLM System Diagnostics
 
-🔹 Regole essenziali
-• Nessun .md fuori da docs/ e DIARIES/.
-• Lingue: ID → EN → IT.
-• Ogni PR passa doctor.sh e CI.
-• Nessun segreto nel repo.
-• main è protetto.
+## 🌐 Deployments
+
+### Production (Fly.io)
+- **Backend**: https://nuzantara-backend.fly.dev
+- **RAG**: https://nuzantara-rag.fly.dev
+- **Core**: https://nuzantara-core.fly.dev
+
+### Frontend (Cloudflare Pages)
+- **Webapp**: zantara.balizero.com (staging)
+- **Website**: balizero1987.github.io
+
+## 🔍 System Health
+
+```bash
+# Full system diagnostics
+bash scripts/doctor.sh
+
+# Vector layer status
+curl https://nuzantara-backend.fly.dev/health
+```
+
+---
+
+**Repository**: https://github.com/Balizero1987/nuzantara
+**Status**: Production Ready
+**Version**: v3 Ω
