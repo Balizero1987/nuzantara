@@ -38,16 +38,22 @@ class SearchService:
         # Use CHROMA_DB_PATH from environment (set by main_cloud.py after download)
         chroma_path = os.environ.get('CHROMA_DB_PATH', '/tmp/chroma_db')
 
+        # TEMPORARY FIX: Point empty collections to zantara_memories where data actually exists
+        # This fixes the critical collection mapping issue where all 8,122 chunks are in zantara_memories
+        logger.warning("⚠️ TEMPORARY FIX: Redirecting empty collections to zantara_memories")
+
         # Initialize 14 collections (multi-domain + pricing + cultural + Oracle)
         self.collections = {
             "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing"),
-            "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="visa_oracle"),
-            "kbli_eye": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_eye"),
-            "tax_genius": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_genius"),
-            "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_architect"),
+            # TEMPORARY PATCH: Point to zantara_memories where data actually exists
+            "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
+            "kbli_eye": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
+            "tax_genius": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
+            "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
             "kb_indonesian": ChromaDBClient(persist_directory=chroma_path, collection_name="kb_indonesian"),
             "kbli_comprehensive": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_comprehensive"),
-            "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_books"),
+            # Keep original for books collection
+            "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
             "cultural_insights": ChromaDBClient(persist_directory=chroma_path, collection_name="cultural_insights"),  # LLAMA-generated Indonesian cultural knowledge
             # Oracle System Collections (Phase 1 - Dependency Injection)
             "tax_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_updates"),

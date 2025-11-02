@@ -62,9 +62,9 @@ export default {
   // Verbose output for better debugging
   verbose: true,
 
-  // Global test setup and teardown (temporarily disabled due to jest globals import issue)
-  // globalSetup: '<rootDir>/tests/setup/global-setup.ts',
-  // globalTeardown: '<rootDir>/tests/setup/global-teardown.ts',
+  // Global test setup and teardown
+  globalSetup: '<rootDir>/tests/setup/global-setup.ts',
+  globalTeardown: '<rootDir>/tests/setup/global-teardown.ts',
   
   // Setup files that run after Jest environment is installed
   setupFilesAfterEnv: ['<rootDir>/tests/setup/enhanced-test-setup.ts'],
