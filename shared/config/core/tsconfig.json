@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "outDir": "../../../dist",
+    "rootDir": "../../../apps/backend-ts/src",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "sourceMap": false,
+    "noEmitOnError": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["../../../apps/backend-ts/src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../../../apps/backend-ts/src/agents/**/*",
+    "../../../apps/backend-ts/src/core/zantara-orchestrator.ts",
+    "../../../apps/backend-ts/src/**/__tests__/**/*",
+    "../../../apps/backend-ts/src/**/*.test.ts",
+    "../../../apps/backend-ts/src/routes/**/*",
+    "../../../apps/backend-ts/src/services/imagine-art-service.ts"
+  ]
+}

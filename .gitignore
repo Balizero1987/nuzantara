@@ -1,0 +1,95 @@
+# System files
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+.secrets/
+
+# Node
+node_modules/
+dist/
+*.log
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Fly.io
+fly.toml
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+fix_*.py
+fix_*.sql
+*_ANALYSIS.md
+*_COMPLETE.md
+*_OPTIMIZATION_*.md
+
+# Claude session files (local only)
+.claude/CURRENT_SESSION_*.md
+
+# ChromaDB local databases
+data/chroma_db/
+*.sqlite3
+*.bin
+*.old
+
+# ======================================
+# PRODUCTION ONLY - Exclude from GitHub
+# ======================================
+
+# Archive - keep local only
+archive/
+
+# Tests - keep local only
+testsprite_tests/
+tests/
+
+# Development projects - keep local only
+projects/devai/
+projects/orchestrator/
+
+# Generated files
+dist/
+logs/
+*.log
+madge*.json
+ts-*.txt
+
+# Documentation archives
+docs/archive/
+docs/reports/cleanup-*/
+
+# Temporary
+*.tmp
+
+# Large test artifacts
+.autofix/e2e-tests/**/*.zip
+.autofix/e2e-tests/test-results/**/trace.zip
+**/zantara_test_artifacts_*.zip
+
+# ZANTARA Bridge - keep task data local only
+.zantara/bridge/inbox/*.yaml
+.zantara/bridge/executed/*.yaml
+.zantara/bridge/logs/*.log
+.zantara/bridge/logs/*.txt
+
+# Node modules (all locations)

@@ -1,0 +1,322 @@
+{
+  "official_notice": "🔒 PREZZI UFFICIALI BALI ZERO 2025 - Non generati da AI",
+  "last_updated": "2025-01-01",
+  "currency": "IDR (Indonesian Rupiah)",
+  "disclaimer": {
+    "it": "⚠️ Questi sono i prezzi UFFICIALI di Bali Zero 2025. Per preventivi personalizzati contattare direttamente.",
+    "id": "⚠️ Ini adalah harga RESMI Bali Zero 2025. Untuk penawaran khusus hubungi langsung.",
+    "en": "⚠️ These are OFFICIAL Bali Zero 2025 prices. Contact directly for personalized quotes."
+  },
+  "contact_info": {
+    "email": "info@balizero.com",
+    "whatsapp": "+62 813 3805 1876",
+    "location": "Canggu, Bali, Indonesia",
+    "hours": "Mon-Fri 9AM-6PM, Sat 10AM-2PM",
+    "website": "https://ayo.balizero.com"
+  },
+  "services": {
+    "single_entry_visas": {
+      "C1 Tourism": {
+        "price": "2.300.000 IDR",
+        "extension": "1.700.000 IDR",
+        "duration": "60 days",
+        "extendable": "2x60 days (max 180 days total)",
+        "notes": "Single entry, extendable for tourism, visiting friends/family, meetings"
+      },
+      "C2 Business": {
+        "price": "3.600.000 IDR",
+        "extension": "1.700.000 IDR",
+        "duration": "60 days",
+        "extendable": "2x60 days (max 180 days total)",
+        "notes": "Single entry, extendable for business activities, meetings, shopping"
+      },
+      "C7 Professional": {
+        "price": "5.000.000 IDR",
+        "extension": "Not extendable",
+        "duration": "30 days",
+        "extendable": "No",
+        "notes": "Professional events: chefs, yoga instructors, bartenders, photographers"
+      },
+      "C7 A&B Music": {
+        "price": "4.500.000 IDR",
+        "extension": "Not extendable",
+        "duration": "30 days",
+        "extendable": "No",
+        "notes": "Musical performance activities"
+      },
+      "C18 Work Trial": {
+        "price": "Contact for quote",
+        "extension": "Not extendable",
+        "duration": "Max 90 days",
+        "extendable": "No",
+        "notes": "NEW 2025: Skill assessment only, cannot convert to working permit"
+      },
+      "C22A Academy Internship": {
+        "price_60d": "4.800.000 IDR",
+        "price_180d": "5.800.000 IDR",
+        "extension": "Not extendable",
+        "notes": "Academic internship from overseas education institution"
+      },
+      "C22B Company Internship": {
+        "price_60d": "4.800.000 IDR",
+        "price_180d": "5.800.000 IDR",
+        "extension": "Not extendable",
+        "notes": "Company internship for skill development"
+      }
+    },
+    "multiple_entry_visas": {
+      "D1 Tourism/Meetings": {
+        "price_1y": "5.000.000 IDR",
+        "price_2y": "7.000.000 IDR",
+        "validity": "1 or 2 years",
+        "stay_per_entry": "60 days per entry",
+        "notes": "Multiple entry tourist visa for tourism, meetings, conventions"
+      },
+      "D2 Business": {
+        "price_1y": "6.000.000 IDR",
+        "price_2y": "8.000.000 IDR",
+        "validity": "1 or 2 years",
+        "stay_per_entry": "60 days per entry",
+        "notes": "Multiple entry business visa"
+      },
+      "D12 Business Investigation": {
+        "price_1y": "7.500.000 IDR",
+        "price_2y": "10.000.000 IDR",
+        "validity": "1 or 2 years",
+        "stay_per_entry": "60 days per entry",
+        "notes": "Business investigation and market research purposes"
+      }
+    },
+    "kitas_permits": {
+      "Freelance KITAS (E23)": {
+        "offshore": "26.000.000 IDR",
+        "onshore": "28.000.000 IDR",
+        "validity": "6 months (180 days) - NOT renewable",
+        "timeline": "30-45 days (offshore), 45-60 days (onshore)",
+        "notes": "⚠️ Freelancer long stay permit - 6 MONTHS ONLY, NOT 1 YEAR! Requires client contracts or sponsorship",
+        "bali_zero_margin": "Government fees: 18.000.000 IDR, Service fee: 8.000.000 IDR"
+      },
+      "Working KITAS (E23)": {
+        "offshore": "34.500.000 IDR",
+        "onshore": "36.000.000 IDR",
+        "validity": "1 year (renewable)",
+        "timeline": "45-60 days",
+        "notes": "Employment long stay permit - requires company sponsorship + work permit",
+        "bali_zero_margin": "Government fees: 24.000.000 IDR, Service fee: 10.500.000 IDR (offshore)"
+      },
+      "Investor KITAS (E28A)": {
+        "offshore": "17.000.000 IDR",
+        "onshore": "19.000.000 IDR",
+        "validity": "1 or 2 years (renewable)",
+        "timeline": "30-45 days",
+        "notes": "Investment long stay permit - requires PT PMA with min 10B IDR capital"
+      },
+      "Retirement KITAS (E33F)": {
+        "offshore": "14.000.000 IDR",
+        "onshore": "16.000.000 IDR",
+        "validity": "1 or 2 years (renewable)",
+        "timeline": "30-45 days",
+        "requirements": "Age 55+, proof of pension/income USD 1,500/month",
+        "notes": "Retirement long stay permit"
+      },
+      "Remote Worker KITAS (E33G)": {
+        "offshore": "12.500.000 IDR",
+        "onshore": "14.000.000 IDR",
+        "validity": "1 year (renewable)",
+        "timeline": "30-45 days",
+        "requirements": "Proof of remote employment, USD 60,000/year income, health insurance",
+        "notes": "Digital nomad long stay permit - FASTEST VITAS approval (4 days!)"
+      },
+      "Spouse KITAS (E31A)": {
+        "price_1y_off": "11.000.000 IDR",
+        "price_2y_off": "15.000.000 IDR",
+        "price_1y_on": "13.000.000 IDR",
+        "price_2y_on": "17.000.000 IDR",
+        "validity": "1 or 2 years (renewable)",
+        "timeline": "30-45 days",
+        "notes": "Spouse of Indonesian citizen or foreigner with KITAS/KITAP"
+      },
+      "Dependent KITAS (E31B/E)": {
+        "price_1y_off": "11.000.000 IDR",
+        "price_2y_off": "15.000.000 IDR",
+        "price_1y_on": "13.000.000 IDR",
+        "price_2y_on": "17.000.000 IDR",
+        "validity": "1 or 2 years (renewable)",
+        "timeline": "30-45 days",
+        "notes": "Dependent family member (child, parent, stepchild)"
+      }
+    },
+    "kitap_permits": {
+      "Investor KITAP": {
+        "price": "Contact for quote",
+        "validity": "Permanent (5 years renewable)",
+        "timeline": "60-90 days",
+        "requirements": "3 years continuous KITAS E28A, significant investment",
+        "notes": "Permanent residence through investment"
+      },
+      "Working KITAP": {
+        "price": "Contact for quote",
+        "validity": "Permanent (5 years renewable)",
+        "timeline": "60-90 days",
+        "requirements": "3 years continuous KITAS E23, stable employment",
+        "notes": "Permanent residence through employment"
+      },
+      "Family KITAP": {
+        "price": "Contact for quote",
+        "validity": "Permanent (5 years renewable)",
+        "timeline": "60-90 days",
+        "requirements": "3 years continuous KITAS E31, family relationship proof",
+        "notes": "Permanent residence through family ties"
+      },
+      "Retirement KITAP": {
+        "price": "Contact for quote",
+        "validity": "Permanent (5 years renewable)",
+        "timeline": "60-90 days",
+        "requirements": "Age 55+, pension proof, 3 years KITAS E33F",
+        "notes": "Permanent residence for retirees"
+      }
+    },
+    "business_legal_services": {
+      "PT PMA Company Setup": {
+        "price": "Starting from 20.000.000 IDR",
+        "timeline": "30-45 days",
+        "includes": "Deed preparation, Minister approval, NIB, NPWP, domicile letter",
+        "requirements": "Min 2 shareholders, min 10B IDR paid-up capital",
+        "notes": "Foreign investment company setup - complete package",
+        "bali_zero_margin": "Government/notary fees: 12.000.000 IDR, Service fee: 8.000.000 IDR"
+      },
+      "Company Revision": {
+        "price": "Starting from 7.000.000 IDR",
+        "timeline": "21-30 days",
+        "includes": "Deed amendment, Minister approval notification",
+        "notes": "Company structure modifications (shareholders, directors, business scope)"
+      },
+      "Alcohol License": {
+        "price": "Starting from 15.000.000 IDR",
+        "timeline": "45-60 days",
+        "warning": "⚠️ MAJOR BOTTLENECK - Start this process EARLY!",
+        "notes": "Alcohol distribution/retail license - complex approval process"
+      },
+      "Legal Real Estate": {
+        "price": "Contact for quote",
+        "services": "Property due diligence, contract review, certificate verification",
+        "notes": "Property legal services - price depends on property value and complexity"
+      },
+      "Building Permit PBG & SLF": {
+        "price": "Contact for quote",
+        "timeline": "30-60 days (varies by project size)",
+        "includes": "IMB/PBG (building permit), SLF (safety certificate)",
+        "notes": "Construction permits and certificates - quote based on project"
+      }
+    },
+    "taxation_services": {
+      "NPWP Personal + Coretax": {
+        "price": "1.000.000 IDR per person",
+        "timeline": "7-14 days",
+        "includes": "NPWP registration, Coretax online tax system setup",
+        "notes": "Personal tax number + online tax system - MANDATORY for KITAS holders"
+      },
+      "NPWPD Company": {
+        "price": "2.500.000 IDR per company",
+        "timeline": "14-21 days",
+        "includes": "Regional tax number registration",
+        "notes": "Company regional tax number (Bali provincial tax)"
+      },
+      "Monthly Tax Report": {
+        "price": "Starting from 1.500.000 IDR",
+        "frequency": "Monthly (PPh21, PPh23, PPh25, PPN)",
+        "deadlines": "PPh21/23 by 10th, PPh25 by 15th, PPN by 30th",
+        "notes": "Monthly corporate tax reporting - price depends on transaction volume"
+      },
+      "Annual Tax Report (Operational)": {
+        "price": "Starting from 4.000.000 IDR",
+        "deadline": "March 31st (companies), March 31st (personal)",
+        "notes": "Annual operational company tax return"
+      },
+      "Annual Tax Report (Zero)": {
+        "price": "Starting from 3.000.000 IDR",
+        "deadline": "March 31st",
+        "notes": "Annual zero-activity company tax return (dormant company)"
+      },
+      "Annual Personal Tax": {
+        "price": "2.000.000 IDR",
+        "deadline": "March 31st",
+        "notes": "Annual individual tax return (SPT Tahunan)"
+      },
+      "BPJS Health Insurance": {
+        "price": "1.500.000 IDR per company (min 2 people)",
+        "monthly_premium": "~150.000 IDR per person (Class I)",
+        "notes": "⚠️ MANDATORY health insurance setup - cannot extend KITAS without BPJS!"
+      },
+      "BPJS Employment Insurance": {
+        "price": "1.500.000 IDR per company (min 2 people)",
+        "monthly_premium": "Varies by salary",
+        "notes": "Mandatory employment insurance setup (accident, pension)"
+      },
+      "LKPM Report": {
+        "price": "1.000.000 IDR per report (3 months)",
+        "frequency": "Quarterly",
+        "deadlines": "April 30, July 31, October 31, January 31",
+        "notes": "⚠️ MANDATORY quarterly foreign investment report for PT PMA"
+      }
+    },
+    "quick_quotes": {
+      "Remote Worker 1 Year Package": {
+        "total": "~14.500.000 IDR",
+        "breakdown": {
+          "E33G KITAS offshore": "12.500.000 IDR",
+          "NPWP Personal": "1.000.000 IDR",
+          "Annual Personal Tax": "2.000.000 IDR (first year)"
+        },
+        "timeline": "30-45 days",
+        "notes": "Complete package for digital nomad - 1 year stay"
+      },
+      "Investor Package (Full Setup)": {
+        "total": "~40.000.000 IDR",
+        "breakdown": {
+          "PT PMA Company Setup": "20.000.000 IDR",
+          "Investor KITAS E28A": "17.000.000 IDR",
+          "NPWP Company": "2.500.000 IDR",
+          "NPWP Personal": "1.000.000 IDR"
+        },
+        "timeline": "60-75 days",
+        "notes": "Complete investor package - company + visa"
+      },
+      "Beach Club Full Setup": {
+        "total": "~55.000.000 IDR minimum",
+        "breakdown": {
+          "PT PMA Setup": "20.000.000 IDR",
+          "Alcohol License": "15.000.000 IDR",
+          "Building Permits": "Variable (contact)",
+          "Investor KITAS": "17.000.000 IDR",
+          "Tax Setup": "3.500.000 IDR"
+        },
+        "timeline": "75-120 days",
+        "warning": "⚠️ Alcohol license = MAJOR bottleneck (45-60 days minimum)",
+        "notes": "Entertainment venue with F&B - most complex setup"
+      }
+    }
+  },
+  "important_warnings": {
+    "overstay": "⚠️ Overstaying even 1 day = 6-month ban minimum. 61+ days = deportation + 1-2 year ban.",
+    "bpjs_mandatory": "⚠️ BPJS health insurance is MANDATORY for KITAS 6+ months. Cannot extend without BPJS payment proof.",
+    "alcohol_license": "⚠️ Alcohol license takes 45-60 days MINIMUM and is a major bottleneck. Start this EARLY!",
+    "pt_pma_capital": "⚠️ PT PMA requires REAL capital (10B IDR minimum). Cannot use borrowed funds - notary verifies.",
+    "nominee_risk": "⚠️ Nominee structures are legally GREY AREA and HIGH RISK. Not recommended by Bali Zero.",
+    "work_permit": "⚠️ KITAS ≠ work permit. E23 Working KITAS requires separate IMTA (work permit) from Manpower Ministry.",
+    "tax_residency": "⚠️ 183+ days/year in Indonesia = Tax resident = Must file Indonesian tax return on worldwide income."
+  },
+  "cost_optimization_tips": {
+    "offshore_vs_onshore": "Apply OFFSHORE (from home country) to save 2-3 million IDR vs onshore application",
+    "bundled_services": "Bundle multiple services (company + visa + tax) for 10-15% discount - ask for package quote",
+    "early_planning": "Start visa process 60-90 days before needed date to avoid rush fees",
+    "tax_optimization": "Small business rate (11% vs 22%) available if revenue <50B IDR/year - plan accordingly",
+    "bpjs_timing": "Register BPJS at start of KITAS (not at extension) to avoid delays"
+  },
+  "contact_urgency_levels": {
+    "immediate": "Overstay risk, deportation threat, blacklist removal → WhatsApp +62 813 3805 1876 IMMEDIATELY",
+    "urgent": "KITAS expiring <30 days, rush visa needed, business license deadline → Email + WhatsApp same day",
+    "normal": "General quote, service inquiry, timeline question → Email info@balizero.com (response 24-48h)",
+    "planning": "Future visa needs, company setup research → Email + schedule consultation call"
+  }
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="0; url=login.html">
+    <title>ZANTARA - Redirecting...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(180deg, #0A0A12 0%, #12121A 40%, #1A1A26 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #F9F5F0;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 30%, rgba(199, 167, 94, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .loader {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .spinner {
+            border: 4px solid rgba(199, 167, 94, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid #C7A75E;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            color: #F9F5F0;
+        }
+        p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 10px 0 0;
+            color: #C7A75E;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="spinner"></div>
+        <h1>ZANTARA</h1>
+        <p>Caricamento in corso...</p>
+    </div>
+    
+    <script>
+        // Fallback redirect in case meta refresh doesn't work
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 100);
+    </script>
+</body>
+</html>

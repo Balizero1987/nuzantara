@@ -1,0 +1,51 @@
+---
+// HeroSection component - Bali Zero "From Zero to Infinity" concept
+---
+
+<section class="pt-32 pb-24 px-4 md:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto text-center">
+    <!-- Subtle gradient background strip -->
+    <div class="decor-line mb-8"></div>
+
+    <h1 class="font-display font-bold leading-tight text-bz-cream" style="font-size: clamp(48px, 6vw, 72px);">
+      From Zero to <span class="text-bz-red">Infinity ∞</span>
+    </h1>
+
+    <p class="mt-6 text-bz-white/90 text-body-xl max-w-3xl mx-auto">
+      Editorial intelligence for Indonesia journeys. Powered by ZANTARA.
+    </p>
+
+    <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="#insights" class="bg-bz-red text-white px-8 py-3 font-display font-bold hover:bg-bz-red/90 transition-colors rounded-lg">
+        Explore Insights
+      </a>
+      <a href="#about" class="border border-bz-cream/40 text-bz-cream px-8 py-3 font-display font-bold hover:bg-bz-cream/10 transition-colors rounded-lg">
+        Learn More
+      </a>
+    </div>
+
+    <!-- Background visual with gradient overlay -->
+    <div class="relative mt-14 h-72 rounded-lg overflow-hidden">
+      <img src="/images/generated/hero-awakening-light.jpg" alt="Hero" class="absolute inset-0 w-full h-full object-cover opacity-60" />
+      <div class="absolute inset-0" style="background: radial-gradient(80% 80% at 50% 100%, rgba(255,0,0,0.08) 0%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,1) 100%);"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.8s ease-out;
+  }
+</style>
+
