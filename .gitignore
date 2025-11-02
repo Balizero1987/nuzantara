@@ -8,6 +8,7 @@
 .env
 .env.local
 .env.*.local
+.env.backup
 .secrets/
 
 # Node
@@ -71,6 +72,12 @@ projects/orchestrator/
 dist/
 logs/
 *.log
+
+# Backup files (never commit!)
+backups/
+*.sql.gz
+*.tar.gz
+*.backup
 madge*.json
 ts-*.txt
 

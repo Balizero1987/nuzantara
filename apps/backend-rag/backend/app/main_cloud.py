@@ -28,6 +28,9 @@ import re
 import boto3
 import asyncio
 import time
+
+# Import ZANTARA RAG Configuration
+from app.config import settings
 from botocore.exceptions import ClientError
 import socket
 
@@ -73,14 +76,20 @@ app = FastAPI(
     description="RAG + LLM backend for NUZANTARA (ChromaDB from R2 + Claude AI Haiku 4.5 ONLY with Intelligent Routing)"
 )
 
-# CORS - allow all for now
+# CORS - Production + Development (SSE streaming support)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,  # Cannot use credentials with allow_origins=["*"]
-    allow_methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
-    allow_headers=["Content-Type", "Authorization", "Accept"],
-    expose_headers=["Content-Type", "Access-Control-Allow-Origin"],
+    allow_origins=[
+        "https://zantara.balizero.com",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "Cache-Control", "X-Session-Id", "X-Continuity-Id", "X-Reconnection", "X-Last-Chunk-Timestamp"],
+    expose_headers=["Content-Type", "Access-Control-Allow-Origin", "Cache-Control", "Connection", "X-Accel-Buffering"],
     max_age=3600
 )
 
@@ -1005,21 +1014,21 @@ async def _initialize_backend_services():
         logger.error(f"❌ CollaborativeCapabilitiesService initialization failed: {e}")
         capabilities_service = None
 
-    # Initialize RerankerService (Quality Enhancement)
-    # Controlled by ENABLE_RERANKER env var (default: disabled for stability)
-    reranker_enabled = os.getenv("ENABLE_RERANKER", "false").lower() == "true"
+    # Initialize RerankerService (Performance Enhancement - ENABLED by config)
+    # Use config setting but allow env override for production
+    reranker_enabled = os.getenv("ENABLE_RERANKER", str(settings.enable_reranker)).lower() == "true"
     if reranker_enabled:
         try:
-            logger.info("⏳ Loading RerankerService (ENABLE_RERANKER=true)...")
+            logger.info(f"⏳ Loading RerankerService (enabled={settings.enable_reranker})...")
             from services.reranker_service import RerankerService
-            reranker_service = RerankerService()
-            logger.info("✅ RerankerService ready (ms-marco-MiniLM-L-6-v2, +400% quality)")
+            reranker_service = RerankerService(model_name=settings.reranker_model)
+            logger.info(f"✅ RerankerService ready ({settings.reranker_model}, +40% quality, target latency: {settings.reranker_latency_target_ms}ms)")
         except Exception as e:
             logger.error(f"❌ RerankerService initialization failed: {e}")
-            logger.warning("⚠️ Continuing without re-ranker")
+            logger.warning("⚠️ Continuing without re-ranker - performance may be reduced")
             reranker_service = None
     else:
-        logger.info("ℹ️ Re-ranker disabled (set ENABLE_RERANKER=true to enable)")
+        logger.info("ℹ️ Re-ranker disabled for faster startup (set enable_reranker=True to enable)")
         reranker_service = None
 
     # Initialize Memory Fact Extractor (Always on)

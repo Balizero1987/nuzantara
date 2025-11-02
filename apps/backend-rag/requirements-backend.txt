@@ -11,10 +11,11 @@ chromadb==0.4.22
 
 # AI & Embeddings
 openai==1.10.0  # Optional - only if using OpenAI
-sentence-transformers==2.3.1  # FREE local embeddings
+sentence-transformers==2.3.1  # FREE local embeddings & CrossEncoder
 langchain==0.1.6
 langchain-openai==0.0.5  # Optional
 torch>=2.0.0  # Required by sentence-transformers
+transformers>=4.30.0  # CrossEncoder support for reranker
 
 # Document Parsing
 pypdf2==3.0.1

@@ -256,12 +256,57 @@ export function isDemoAllowed(handlerKey: string): boolean {
  * Demo user authentication middleware
  * 
  * Allows public demo access with limited permissions
+ * When used AFTER jwtAuth, respects existing authentication
  */
 export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunction) {
   try {
+    // CRITICAL FIX: If user is already authenticated by jwtAuth middleware, use that
+    // This happens when [jwtAuth, demoUserAuth] is used - jwtAuth sets req.user first
+    // jwtAuth sets req.user without isDemo, so check if user exists and has role but no isDemo flag
+    // OR if isDemo is explicitly false
+    if (req.user && req.user.role && (req.user.isDemo === undefined || req.user.isDemo === false)) {
+      // User is already authenticated with JWT, check if they have access to this endpoint
+      const path = req.path || req.route?.path || '';
+      
+      // v3 Ω endpoints are allowed for authenticated users
+      const v3Endpoints = ['/zantara.unified', '/zantara.collective', '/zantara.ecosystem'];
+      if (v3Endpoints.some(endpoint => path.includes(endpoint))) {
+        // Authenticated users have full access to v3 Ω endpoints
+        // Ensure isDemo is set correctly for downstream handlers
+        if (req.user.isDemo === undefined) {
+          req.user.isDemo = false;
+        }
+        return next();
+      }
+      
+      // For /call endpoint, check handler permissions
+      const { handler, key } = req.body || {};
+      const handlerKey = handler || key;
+      
+      if (handlerKey) {
+        if (!isHandlerAllowed(handlerKey, req.user.role)) {
+          return res.status(403).json({
+            ok: false,
+            error: 'Access denied',
+            handler: handlerKey,
+            message: `Your role (${req.user.role}) does not have permission to access this handler.`,
+            contact: 'Contact admin for elevated permissions'
+          });
+        }
+      }
+      
+      // Ensure isDemo is set correctly for downstream handlers
+      if (req.user.isDemo === undefined) {
+        req.user.isDemo = false;
+      }
+      
+      // Authenticated user with valid permissions - proceed
+      return next();
+    }
+    
     const authHeader = req.headers.authorization;
     
-    // Check for JWT token
+    // Check for JWT token (if not already authenticated)
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       const jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
@@ -283,7 +328,15 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
           req.user.isDemo = false;
         }
         
-        // Check handler permissions for authenticated user
+        // Check if this is a v3 Ω endpoint
+        const path = req.path || req.route?.path || '';
+        const v3Endpoints = ['/zantara.unified', '/zantara.collective', '/zantara.ecosystem'];
+        if (v3Endpoints.some(endpoint => path.includes(endpoint))) {
+          // Authenticated users have full access to v3 Ω endpoints
+          return next();
+        }
+        
+        // Check handler permissions for authenticated user (for /call endpoint)
         const { handler, key } = req.body || {};
         const handlerKey = handler || key;
         
@@ -310,8 +363,22 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
     }
     
     // No valid JWT - check for demo credentials in body
-    const { handler, key } = req.body;
+    const { handler, key } = req.body || {};
     const handlerKey = handler || key;
+    
+    // Check if this is a v3 Ω endpoint (allow demo access)
+    const path = req.path || req.route?.path || '';
+    const v3Endpoints = ['/zantara.unified', '/zantara.collective', '/zantara.ecosystem'];
+    if (v3Endpoints.some(endpoint => path.includes(endpoint))) {
+      // v3 Ω endpoints allow demo access (as per DEMO_ALLOWED_HANDLERS)
+      req.user = {
+        userId: DEMO_USER.userId,
+        email: DEMO_USER.email,
+        role: DEMO_USER.role,
+        isDemo: true
+      };
+      return next();
+    }
     
     // Create demo user context
     req.user = {
