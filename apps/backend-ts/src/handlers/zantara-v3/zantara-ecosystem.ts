@@ -10,14 +10,14 @@ import axios from "axios";
 
 export async function zantaraEcosystemAnalysis(req: Request, res: Response) {
   try {
-    const { params } = req.body;
+    const params = req.body.params || req.body;
     const {
       scenario = "business_setup", // business_setup, expansion, compliance, optimization
       business_type = "restaurant", // restaurant, hotel, retail, services, tech
       ownership = "foreign", // foreign, local, joint_venture
-      scope = "comprehensive", // quick, detailed, comprehensive
+      scope = "quick", // quick, detailed, comprehensive (default quick for speed)
       location = "bali"
-    } = params || {};
+    } = params;
 
     const startTime = Date.now();
 
@@ -95,14 +95,14 @@ export async function zantaraEcosystemAnalysis(req: Request, res: Response) {
 
     ecosystem.processing_time = `${Date.now() - startTime}ms`;
 
-    return ok(ecosystem);
+    return res.json(ok(ecosystem));
 
   } catch (error: any) {
-    return ok({
+    return res.json(ok({
       error: "Ecosystem analysis failed",
       message: error.message,
       fallback: "Use individual domain analysis"
-    });
+    }));
   }
 }
 

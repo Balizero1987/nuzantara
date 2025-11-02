@@ -15,6 +15,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../logger.js';
 import { serviceRegistry } from './service-registry.js';
+import { internalServiceRegistry } from './internal-service-registry.js';
 import { CircuitBreakerFactory, CircuitBreakerConfig } from './circuit-breaker.js';
 // Simple in-memory rate limiter (since rate-limiter-flexible is not installed)
 class SimpleRateLimiter {
@@ -223,15 +224,40 @@ class EnhancedRouter {
   }
 
   /**
-   * Call external service
+   * Call service -优先使用internal handlers消除self-recursion
    */
   private async callService(serviceInstance: any, data: any, config: RouteConfig): Promise<any> {
+    const serviceName = config.service;
+
+    // 🚀 FIX: Check for internal handler first (eliminates self-recursion)
+    if (internalServiceRegistry.hasHandler(serviceName)) {
+      logger.info(`🔧 Using internal handler for: ${serviceName}`);
+      try {
+        const result = await internalServiceRegistry.executeHandler(serviceName, data, {
+          requestId: Math.random().toString(36).substr(2, 9),
+          timestamp: new Date().toISOString()
+        });
+        return result;
+      } catch (error) {
+        logger.error(`❌ Internal handler failed: ${serviceName}`, error);
+        throw error;
+      }
+    }
+
+    // Fallback to external HTTP service (for truly external services)
     const url = `${serviceInstance.protocol}://${serviceInstance.host}:${serviceInstance.port}${config.path}`;
-    
+
+    // 🚨 WARNING: Detect potential self-recursion
+    if (url.includes('localhost:8080') || url.includes('127.0.0.1:8080')) {
+      logger.error(`🚨 SELF-RECURSION DETECTED: ${url} - This would cause infinite loop!`);
+      throw new Error(`Self-recursion detected: Cannot call localhost:8080 from within the same service`);
+    }
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), config.timeout);
 
     try {
+      logger.info(`🌐 Calling external service: ${url}`);
       const response = await fetch(url, {
         method: config.method,
         headers: {

@@ -33,7 +33,7 @@ COPY . .
 
 # Build only backend-ts workspace (main app)
 WORKDIR /app/apps/backend-ts
-RUN npm ci --legacy-peer-deps
+RUN npm ci --include=dev --legacy-peer-deps
 RUN npm run build
 
 # Return to app root

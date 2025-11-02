@@ -27,10 +27,18 @@ import { prioritizedRateLimiter } from './middleware/prioritized-rate-limit.js';
 import healthRoutes from './routes/health.js';
 import { auditTrail } from './services/audit-trail.js';
 
+// 🚀 PERFORMANCE MONITORING - Sonnet implementation
+import { performanceMiddleware, performanceHeaders, startMetricsCleanup } from './middleware/performance-middleware.js';
+import performanceRoutes from './routes/performance.routes.js';
+
 // GLM 4.6 Architect Patch - Enhanced Architecture
 import { enhancedJWTAuth, authenticate } from './middleware/enhanced-jwt-auth.js';
 import { serviceRegistry } from './services/architecture/service-registry.js';
 import { enhancedRouter } from './services/architecture/enhanced-router.js';
+import { registerV3InternalHandlers } from './handlers/zantara-v3/internal-handlers.js';
+
+// UNIFIED AUTHENTICATION - Strategy Pattern Implementation (Gemini Pro 2.5)
+import { unifiedAuth, authenticate as unifiedAuthenticate } from './services/auth/unified-auth-strategy.js';
 
 // GLM 4.6 Architect Patch: Register v3 Ω services
 async function registerV3OmegaServices(): Promise<void> {
@@ -87,6 +95,11 @@ async function registerV3OmegaServices(): Promise<void> {
     await serviceRegistry.registerService(service);
   }
 
+  // 🚀 FIX: Register internal handlers to eliminate self-recursion
+  logger.info('🔧 Registering internal v3 Ω handlers...');
+  registerV3InternalHandlers();
+  logger.info('✅ Self-recursion elimination activated - internal handlers registered');
+
   // Register enhanced routes
   enhancedRouter.registerRoute({
     path: '/zantara.unified',
@@ -131,6 +144,16 @@ async function registerV3OmegaServices(): Promise<void> {
 async function startServer() {
   // Initialize Redis cache
   await initializeRedis();
+
+  // 🚀 CRITICAL: Initialize V3 Performance Cache System
+  try {
+    const { initializeV3CacheSystem } = await import('./services/v3-cache-init.js');
+    await initializeV3CacheSystem();
+    logger.info('✅ V3 Performance Cache System initialized');
+  } catch (error: any) {
+    logger.warn(`⚠️ V3 Cache initialization failed: ${error.message}`);
+    logger.warn('⚠️ Continuing without V3 cache optimization');
+  }
 
   // GLM 4.6 Architect Patch: Initialize Enhanced Architecture
   try {
@@ -177,6 +200,10 @@ async function startServer() {
     } as any);
   }
 
+  // 🚀 Start performance monitoring cleanup scheduler
+  startMetricsCleanup();
+  logger.info('✅ Performance monitoring system initialized');
+
   // Create Express app
   const app = express();
 
@@ -199,6 +226,10 @@ async function startServer() {
     logger.info('✅ Prioritized rate limiting enabled');
   }
 
+  // 🚀 PERFORMANCE MONITORING: Add performance tracking middleware
+  app.use(performanceHeaders);
+  app.use(performanceMiddleware);
+
   // Observability: Metrics collection
   app.use(metricsMiddleware);
 
@@ -210,6 +241,10 @@ async function startServer() {
 
   // Enhanced health check routes (replaces old /health)
   app.use(healthRoutes);
+
+  // 🚀 PERFORMANCE MONITORING: Add performance monitoring routes
+  app.use('/performance', performanceRoutes);
+  logger.info('✅ Performance monitoring routes mounted');
 
   // Legacy health check (backward compatibility)
   app.get('/health', (req, res) => {
@@ -250,6 +285,188 @@ async function startServer() {
   app.post('/zantara.collective', enhancedRouter.getMiddleware());
   app.post('/zantara.ecosystem', enhancedRouter.getMiddleware());
 
+  // UNIFIED AUTHENTICATION ENDPOINTS (Gemini Pro 2.5)
+  app.get('/auth/strategies', (req, res) => {
+    res.json({
+      ok: true,
+      data: {
+        strategies: unifiedAuth.getStrategyStats(),
+        availableStrategies: unifiedAuth.getStrategies().map(s => ({
+          name: s.name,
+          priority: s.priority
+        })),
+        timestamp: new Date().toISOString()
+      },
+      meta: {
+        service: 'zantara-unified-auth',
+        version: '1.0.0'
+      }
+    });
+  });
+
+  app.post('/auth/validate', async (req, res) => {
+    try {
+      const { token, strategy } = req.body;
+
+      if (!token) {
+        return res.status(400).json({
+          ok: false,
+          error: 'Token is required'
+        });
+      }
+
+      const user = await unifiedAuth.validateToken(token, strategy);
+
+      if (user) {
+        res.json({
+          ok: true,
+          data: {
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              department: user.department,
+              authType: user.authType,
+              permissions: user.permissions,
+              isActive: user.isActive
+            },
+            tokenInfo: {
+              strategy: user.authType,
+              validatedAt: new Date().toISOString()
+            }
+          }
+        });
+      } else {
+        res.status(401).json({
+          ok: false,
+          error: 'Invalid or expired token',
+          code: 'INVALID_TOKEN'
+        });
+      }
+    } catch (error) {
+      logger.error('Token validation error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Token validation failed',
+        details: error.message
+      });
+    }
+  });
+
+  app.post('/auth/refresh', async (req, res) => {
+    try {
+      const { token } = req.body;
+
+      if (!token) {
+        return res.status(400).json({
+          ok: false,
+          error: 'Token is required'
+        });
+      }
+
+      const newToken = await unifiedAuth.refreshToken(token);
+
+      if (newToken) {
+        res.json({
+          ok: true,
+          data: {
+            token: newToken,
+            refreshedAt: new Date().toISOString()
+          }
+        });
+      } else {
+        res.status(401).json({
+          ok: false,
+          error: 'Token refresh failed',
+          code: 'REFRESH_FAILED'
+        });
+      }
+    } catch (error) {
+      logger.error('Token refresh error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Token refresh failed',
+        details: error.message
+      });
+    }
+  });
+
+  app.post('/auth/revoke', async (req, res) => {
+    try {
+      const { token } = req.body;
+
+      if (!token) {
+        return res.status(400).json({
+          ok: false,
+          error: 'Token is required'
+        });
+      }
+
+      const revoked = await unifiedAuth.revokeToken(token);
+
+      res.json({
+        ok: true,
+        data: {
+          revoked,
+          revokedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      logger.error('Token revocation error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Token revocation failed',
+        details: error.message
+      });
+    }
+  });
+
+  app.post('/auth/generate', async (req, res) => {
+    try {
+      const { user, strategy = 'enhanced' } = req.body;
+
+      if (!user || !user.id || !user.email) {
+        return res.status(400).json({
+          ok: false,
+          error: 'User data with id and email is required'
+        });
+      }
+
+      const unifiedUser = {
+        id: user.id,
+        userId: user.id,
+        email: user.email,
+        name: user.name || user.email?.split('@')[0],
+        role: user.role || 'User',
+        department: user.department || 'general',
+        permissions: user.permissions || ['read'],
+        isActive: true,
+        lastLogin: new Date(),
+        authType: strategy as any
+      };
+
+      const token = unifiedAuth.generateToken(unifiedUser, strategy);
+
+      res.json({
+        ok: true,
+        data: {
+          token,
+          strategy,
+          user: unifiedUser,
+          generatedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      logger.error('Token generation error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Token generation failed',
+        details: error.message
+      });
+    }
+  });
+
   // Root endpoint
   app.get('/', (req, res) => {
     res.json({
@@ -272,10 +489,17 @@ async function startServer() {
   app.use('/analytics', advancedAnalyticsRoutes.default);
   logger.info('✅ Advanced Analytics Engine loaded');
 
-  // ZANTARA v3 Ω: Strategic Knowledge Routes (Unified/Collective/Ecosystem)
+  // ========================================
+  // 🚀 ZANTARA v3 Ω ROUTES - PERFORMANCE OPTIMIZED
+  // ========================================
   const zantaraV3Routes = await import('./routes/api/v3/zantara-v3.routes.js');
   app.use('/api/v3/zantara', zantaraV3Routes.default);
   logger.info('✅ ZANTARA v3 Ω Strategic Routes loaded (unified/collective/ecosystem)');
+  
+  // V3 Performance Monitoring Routes
+  const v3PerformanceRoutes = await import('./routes/v3-performance.routes.js');
+  app.use('/api/v3/performance', v3PerformanceRoutes.default);
+  logger.info('✅ V3 Performance monitoring routes mounted');
 
   // Cursor Ultra Auto Patch: Enhanced Code Quality Routes
   const codeQualityRoutes = await import('./routes/code-quality.routes.js');

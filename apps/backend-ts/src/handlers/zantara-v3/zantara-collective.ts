@@ -8,13 +8,13 @@ import { searchMemoriesSemantica } from "../../services/memory-vector.js";
 
 export async function zantaraCollectiveIntelligence(req: Request, res: Response) {
   try {
-    const { params } = req.body;
+    const params = req.body.params || req.body;
     const {
       action = "query", // query, contribute, verify, stats, sync
       data = {},
       userId = "anonymous",
       confidence = 0.5
-    } = params || {};
+    } = params;
 
     const startTime = Date.now();
 
@@ -53,14 +53,14 @@ export async function zantaraCollectiveIntelligence(req: Request, res: Response)
 
     response.processing_time = `${Date.now() - startTime}ms`;
 
-    return ok(response);
+    return res.json(ok(response));
 
   } catch (error: any) {
-    return ok({
+    return res.json(ok({
       error: "Collective intelligence failed",
       message: error.message,
       fallback: "Individual memory systems still available"
-    });
+    }));
   }
 }
 
