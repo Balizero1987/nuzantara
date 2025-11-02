@@ -2,9 +2,9 @@
 // Minimal endpoints, maximum coverage
 
 import { Router } from 'express';
-import { zantaraUnifiedQuery } from '../../handlers/zantara-v3/zantara-unified.js';
-import { zantaraCollectiveIntelligence } from '../../handlers/zantara-v3/zantara-collective.js';
-import { zantaraEcosystemAnalysis } from '../../handlers/zantara-v3/zantara-ecosystem.js';
+import { zantaraUnifiedQuery } from '../../../handlers/zantara-v3/zantara-unified.js';
+import { zantaraCollectiveIntelligence } from '../../../handlers/zantara-v3/zantara-collective.js';
+import { zantaraEcosystemAnalysis } from '../../../handlers/zantara-v3/zantara-ecosystem.js';
 
 const router = Router();
 
