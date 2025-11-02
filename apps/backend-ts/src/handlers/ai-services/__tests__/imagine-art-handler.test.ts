@@ -1,6 +1,24 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { BadRequestError } from '../../../utils/errors.js';
 
-// No external mocks required
+// Mock Imagine Art Service
+jest.mock('../../../services/imagine-art-service.js', () => ({
+  getImagineArtService: jest.fn(() => ({
+    generateImage: jest.fn().mockResolvedValue({
+      image_url: 'https://example.com/image.jpg',
+      request_id: 'test-request-id',
+      prompt: 'test prompt',
+      style: 'realistic',
+      aspect_ratio: '16:9',
+      seed: 12345
+    }),
+    upscaleImage: jest.fn().mockResolvedValue({
+      upscaled_url: 'https://example.com/upscaled.jpg',
+      request_id: 'test-request-id',
+      original_image: 'https://example.com/original.jpg'
+    })
+  }))
+}));
 
 describe('Imagine Art Handler', () => {
   let handlers: any;
@@ -12,54 +30,46 @@ describe('Imagine Art Handler', () => {
   describe('aiImageGenerate', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.aiImageGenerate({
-        // TODO: Add valid test params
+        prompt: 'Beautiful landscape'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.image_url).toBeDefined();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.aiImageGenerate({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.aiImageGenerate({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.aiImageGenerate({})).rejects.toThrow('Prompt is required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.aiImageGenerate({
+      await expect(handlers.aiImageGenerate({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 
   describe('aiImageUpscale', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.aiImageUpscale({
-        // TODO: Add valid test params
+        image: 'https://example.com/image.jpg'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.upscaled_url).toBeDefined();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.aiImageUpscale({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.aiImageUpscale({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.aiImageUpscale({})).rejects.toThrow('Image URL or base64 is required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.aiImageUpscale({
+      await expect(handlers.aiImageUpscale({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 

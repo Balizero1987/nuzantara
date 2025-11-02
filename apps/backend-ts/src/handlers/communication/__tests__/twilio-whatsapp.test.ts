@@ -1,92 +1,122 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
-// No external mocks required
+// Mock Twilio
+jest.mock('twilio', () => {
+  return jest.fn(() => ({
+    messages: {
+      create: jest.fn().mockResolvedValue({
+        sid: 'test-sid',
+        status: 'sent'
+      })
+    }
+  }));
+});
 
 describe('Twilio Whatsapp', () => {
   let handlers: any;
 
   beforeEach(async () => {
     handlers = await import('../twilio-whatsapp.js');
+    // Setup env vars for tests
+    process.env.TWILIO_ACCOUNT_SID = 'test-account-sid';
+    process.env.TWILIO_AUTH_TOKEN = 'test-auth-token';
   });
+
+  // Helper to create mock req/res
+  function createMockReqRes(params: any = {}) {
+    const mockReq = {
+      body: params.body || {},
+      ...params
+    };
+    const mockRes = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis()
+    };
+    return { req: mockReq, res: mockRes };
+  }
 
   describe('twilioWhatsappWebhook', () => {
     it('should handle success case with valid params', async () => {
-      const result = await handlers.twilioWhatsappWebhook({
-        // TODO: Add valid test params
+      const { req, res } = createMockReqRes({
+        body: {
+          Body: 'Test message',
+          From: 'whatsapp:+1234567890',
+          To: 'whatsapp:+14155238886',
+          MessageSid: 'test-sid'
+        }
       });
 
-      expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      await handlers.twilioWhatsappWebhook(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalled();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.twilioWhatsappWebhook({});
+      const { req, res } = createMockReqRes({
+        body: {}
+      });
 
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await handlers.twilioWhatsappWebhook(req, res);
+
+      // Should still return 200 to Twilio
+      expect(res.status).toHaveBeenCalledWith(200);
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.twilioWhatsappWebhook({
-        invalid: 'data'
+      const { req, res } = createMockReqRes({
+        body: {
+          invalid: 'data'
+        }
       });
 
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await handlers.twilioWhatsappWebhook(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
     });
   });
 
   describe('sendTwilioWhatsapp', () => {
     it('should handle success case with valid params', async () => {
-      const result = await handlers.sendTwilioWhatsapp({
-        // TODO: Add valid test params
-      });
+      const result = await handlers.sendTwilioWhatsapp(
+        'whatsapp:+1234567890',
+        'Test message'
+      );
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.sendTwilioWhatsapp({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      // Function expects 2 string params
+      await expect(handlers.sendTwilioWhatsapp()).rejects.toThrow();
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.sendTwilioWhatsapp({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.sendTwilioWhatsapp('', '')).rejects.toThrow();
     });
   });
 
   describe('twilioSendWhatsapp', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.twilioSendWhatsapp({
-        // TODO: Add valid test params
+        to: 'whatsapp:+1234567890',
+        message: 'Test message'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.twilioSendWhatsapp({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.twilioSendWhatsapp({})).rejects.toThrow();
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.twilioSendWhatsapp({
+      await expect(handlers.twilioSendWhatsapp({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow();
     });
   });
 

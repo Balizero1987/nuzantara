@@ -37,13 +37,21 @@ function checkIdentityRecognition(prompt: string, _sessionId: string): string | 
   const text = prompt.toLowerCase();
   
   for (const [, member] of Object.entries(TEAM_RECOGNITION)) {
+    // Build comprehensive alias list: full name, name parts, role, department, and key
+    const nameParts = member.name.toLowerCase().split(/\s+/);
     const aliases = [
-      member.name.toLowerCase(),
-      member.role.toLowerCase(),
-      member.department.toLowerCase()
+      member.name.toLowerCase(), // Full name: "antonello siano"
+      ...nameParts, // Name parts: ["antonello", "siano"]
+      member.role.toLowerCase(), // Role: "founder"
+      member.department.toLowerCase(), // Department: "technology"
     ];
     
-    if (aliases.some(alias => text.includes(alias))) {
+    // Check if any alias matches (as substring or exact match)
+    if (aliases.some(alias => {
+      // Match if alias is contained in text OR text contains the alias as a word
+      return text.includes(alias) || 
+             new RegExp(`\\b${alias}\\b`, 'i').test(text);
+    })) {
       logger.info(`✅ [ZANTARA] Identity recognized: ${member.name} (${member.role})`);
       return member.personalizedResponse;
     }
@@ -68,12 +76,30 @@ export async function aiChat(params: any) {
     }
 
     // Use ZANTARA for all queries with mode support
-    return zantaraChat({
+    const zantaraResult = await zantaraChat({
       message: params.prompt || params.message,
       mode: params.mode || 'santai', // Default to Santai mode
       user_email: params.user_email, // CRITICAL: Pass user_email for identification
       ...params
     });
+    
+    // Normalize response format: zantaraChat returns 'answer', but tests expect 'response'
+    if (zantaraResult.ok && zantaraResult.data) {
+      const data = zantaraResult.data as any;
+      return ok({
+        response: data.answer || data.response || '',
+        answer: data.answer || data.response || '', // Keep for backward compatibility
+        model: data.model || 'zantara-llama',
+        provider: data.provider || 'rag-backend',
+        tokens: data.tokens || 0,
+        usage: data.usage || {},
+        mode: data.mode || params.mode || 'santai',
+        recognized: false, // Not an identity match
+        ts: Date.now()
+      });
+    }
+    
+    return zantaraResult;
   } catch (error: any) {
     logger.error('❌ ZANTARA error:', error);
     
@@ -86,6 +112,7 @@ export async function aiChat(params: any) {
         completion_tokens: 0,
         total_tokens: 0
       },
+      recognized: false,
       ts: Date.now()
     });
   }

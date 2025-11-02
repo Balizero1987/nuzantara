@@ -1,92 +1,136 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { BadRequestError } from '../../../utils/errors.js';
 
-// No external mocks required
+// Mock Google Slides service
+const mockSlides = {
+  presentations: {
+    create: jest.fn().mockResolvedValue({
+      data: {
+        presentationId: 'test-presentation-id',
+        slides: []
+      }
+    }),
+    get: jest.fn().mockResolvedValue({
+      data: {
+        presentationId: 'test-presentation-id',
+        title: 'Test Presentation',
+        revisionId: 'rev-1',
+        slides: [{
+          objectId: 'slide-1',
+          pageElements: [{
+            shape: {
+              text: {
+                textElements: [{
+                  textRun: { content: 'Slide content' }
+                }]
+              }
+            }
+          }]
+        }]
+      }
+    }),
+    batchUpdate: jest.fn().mockResolvedValue({
+      data: { replies: [] }
+    })
+  }
+};
+
+jest.mock('../../../services/google-auth-service.js', () => ({
+  getSlides: jest.fn().mockResolvedValue(mockSlides)
+}), { virtual: true });
+
+// Mock bridge proxy
+jest.mock('../../../services/bridgeProxy.js', () => ({
+  forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null)
+}), { virtual: true });
 
 describe('Slides', () => {
   let handlers: any;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     handlers = await import('../slides.js');
   });
 
   describe('slidesCreate', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.slidesCreate({
-        // TODO: Add valid test params
+        title: 'Test Presentation'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.presentationId).toBeDefined();
+      expect(result.data.url).toBeDefined();
     });
 
-    it('should handle missing required params', async () => {
+    it('should handle missing required params (title optional)', async () => {
+      // title is optional with default
       const result = await handlers.slidesCreate({});
-
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
     });
 
-    it('should handle invalid params', async () => {
+    it('should handle params with defaults', async () => {
       const result = await handlers.slidesCreate({
-        invalid: 'data'
+        title: 'My Presentation'
       });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data.title).toBe('My Presentation');
     });
   });
 
   describe('slidesRead', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.slidesRead({
-        // TODO: Add valid test params
+        presentationId: 'test-presentation-id'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.presentation).toBeDefined();
+      expect(result.data.slides).toBeDefined();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.slidesRead({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.slidesRead({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.slidesRead({})).rejects.toThrow('presentationId is required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.slidesRead({
+      await expect(handlers.slidesRead({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 
   describe('slidesUpdate', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.slidesUpdate({
-        // TODO: Add valid test params
+        presentationId: 'test-presentation-id',
+        requests: [{
+          insertText: {
+            objectId: 'slide-1',
+            insertionIndex: 1,
+            text: 'New text'
+          }
+        }]
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.presentationId).toBe('test-presentation-id');
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.slidesUpdate({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.slidesUpdate({})).rejects.toThrow(BadRequestError);
+      await expect(handlers.slidesUpdate({})).rejects.toThrow('presentationId is required');
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.slidesUpdate({
+      await expect(handlers.slidesUpdate({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow(BadRequestError);
     });
   });
 

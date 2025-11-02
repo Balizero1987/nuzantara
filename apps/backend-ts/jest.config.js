@@ -51,6 +51,11 @@ export default {
     'memory-firestore.test.ts',
     'alerts.test.ts',
     'handlers-introspection.test.ts',
+    // Exclude Playwright E2E tests
+    '\\.spec\\.js$',
+    '/e2e/',
+    '/tests/e2e/',
+    '/apps/webapp/tests/',
   ],
   coveragePathIgnorePatterns: ['/node_modules/', '/dist/'],
 
