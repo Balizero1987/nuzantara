@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-
-// No external mocks required
+import { BadRequestError } from '../../../utils/errors.js';
 
 describe('Team Login', () => {
   let handlers: any;
@@ -12,108 +11,73 @@ describe('Team Login', () => {
   describe('teamLogin', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.teamLogin({
-        // TODO: Add valid test params
+        name: 'zero',
+        email: 'zero@balizero.com'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.token).toBeDefined();
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.teamLogin({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.teamLogin({})).rejects.toThrow(BadRequestError);
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.teamLogin({
+      await expect(handlers.teamLogin({
         invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      })).rejects.toThrow();
     });
   });
 
   describe('validateSession', () => {
     it('should handle success case with valid params', async () => {
+      const loginResult = await handlers.teamLogin({
+        name: 'zero',
+        email: 'zero@balizero.com'
+      });
+
       const result = await handlers.validateSession({
-        // TODO: Add valid test params
+        token: loginResult.data.token
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.validateSession({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
-    });
-
-    it('should handle invalid params', async () => {
-      const result = await handlers.validateSession({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.validateSession({})).rejects.toThrow();
     });
   });
 
   describe('getTeamMembers', () => {
-    it('should handle success case with valid params', async () => {
-      const result = await handlers.getTeamMembers({
-        // TODO: Add valid test params
-      });
+    it('should handle success case', async () => {
+      const result = await handlers.getTeamMembers();
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
-    });
-
-    it('should handle missing required params', async () => {
-      const result = await handlers.getTeamMembers({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
-    });
-
-    it('should handle invalid params', async () => {
-      const result = await handlers.getTeamMembers({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data.members).toBeDefined();
     });
   });
 
   describe('logoutSession', () => {
     it('should handle success case with valid params', async () => {
+      const loginResult = await handlers.teamLogin({
+        name: 'zero',
+        email: 'zero@balizero.com'
+      });
+
       const result = await handlers.logoutSession({
-        // TODO: Add valid test params
+        token: loginResult.data.token
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.logoutSession({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
-    });
-
-    it('should handle invalid params', async () => {
-      const result = await handlers.logoutSession({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.logoutSession({})).rejects.toThrow();
     });
   });
 

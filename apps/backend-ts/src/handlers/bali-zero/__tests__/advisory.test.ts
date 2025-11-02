@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-
-// No external mocks required
+import { BadRequestError } from '../../../utils/errors.js';
 
 describe('Advisory', () => {
   let handlers: any;
@@ -12,54 +11,54 @@ describe('Advisory', () => {
   describe('documentPrepare', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.documentPrepare({
-        // TODO: Add valid test params
+        service: 'visa'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.checklist).toBeDefined();
+      expect(result.data.required).toBeDefined();
+      expect(Array.isArray(result.data.required)).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.documentPrepare({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.documentPrepare({})).rejects.toThrow();
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.documentPrepare({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.documentPrepare({
+        service: 'invalid-service'
+      })).rejects.toThrow();
     });
   });
 
   describe('assistantRoute', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.assistantRoute({
-        // TODO: Add valid test params
+        intent: 'visa',
+        inquiry: 'I need help with visa application'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
+      expect(result.data.intent).toBeDefined();
+      expect(result.data.message).toBeDefined();
     });
 
-    it('should handle missing required params', async () => {
+    it('should handle missing required params (all optional)', async () => {
       const result = await handlers.assistantRoute({});
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
     });
 
     it('should handle invalid params', async () => {
       const result = await handlers.assistantRoute({
-        invalid: 'data'
+        intent: 'invalid-intent'
       });
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
     });
   });
 

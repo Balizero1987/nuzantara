@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
-// No external mocks required
-
 describe('Registry Admin', () => {
   let handlers: any;
 
@@ -11,54 +9,35 @@ describe('Registry Admin', () => {
 
   describe('listAllHandlers', () => {
     it('should handle success case with valid params', async () => {
-      const result = await handlers.listAllHandlers({
-        // TODO: Add valid test params
-      });
-
-      expect(result).toBeDefined();
-      // TODO: Add more specific assertions
-    });
-
-    it('should handle missing required params', async () => {
       const result = await handlers.listAllHandlers({});
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.handlers).toBeDefined();
+      expect(Array.isArray(result.data.handlers)).toBe(true);
     });
 
-    it('should handle invalid params', async () => {
-      const result = await handlers.listAllHandlers({
-        invalid: 'data'
-      });
+    it('should handle missing required params (all optional)', async () => {
+      const result = await handlers.listAllHandlers({});
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
     });
   });
 
   describe('getHandlerStats', () => {
     it('should handle success case with valid params', async () => {
-      const result = await handlers.getHandlerStats({
-        // TODO: Add valid test params
-      });
-
-      expect(result).toBeDefined();
-      // TODO: Add more specific assertions
-    });
-
-    it('should handle missing required params', async () => {
       const result = await handlers.getHandlerStats({});
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data).toBeDefined();
     });
 
-    it('should handle invalid params', async () => {
-      const result = await handlers.getHandlerStats({
-        invalid: 'data'
-      });
+    it('should handle missing required params (all optional)', async () => {
+      const result = await handlers.getHandlerStats({});
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
     });
   });
@@ -66,26 +45,16 @@ describe('Registry Admin', () => {
   describe('listModuleHandlers', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.listModuleHandlers({
-        // TODO: Add valid test params
+        module: 'ai-services'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
-    it('should handle missing required params', async () => {
+    it('should handle missing required params (all optional)', async () => {
       const result = await handlers.listModuleHandlers({});
 
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
-    });
-
-    it('should handle invalid params', async () => {
-      const result = await handlers.listModuleHandlers({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
       expect(result).toBeDefined();
     });
   });
@@ -93,26 +62,16 @@ describe('Registry Admin', () => {
   describe('searchHandlers', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.searchHandlers({
-        // TODO: Add valid test params
+        query: 'chat'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
-    it('should handle missing required params', async () => {
+    it('should handle missing required params (all optional)', async () => {
       const result = await handlers.searchHandlers({});
 
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
-    });
-
-    it('should handle invalid params', async () => {
-      const result = await handlers.searchHandlers({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
       expect(result).toBeDefined();
     });
   });

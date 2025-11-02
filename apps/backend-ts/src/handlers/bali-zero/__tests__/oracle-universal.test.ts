@@ -1,29 +1,42 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { BadRequestError } from '../../../utils/errors.js';
 
-// No external mocks required
+global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 describe('Oracle Universal', () => {
   let handlers: any;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     handlers = await import('../oracle-universal.js');
   });
 
   describe('oracleUniversalQuery', () => {
     it('should handle success case with valid params', async () => {
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          query: 'test query',
+          results: []
+        })
+      } as Response);
+
       const result = await handlers.oracleUniversalQuery({
-        // TODO: Add valid test params
+        query: 'test query',
+        context: 'test context'
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
       const result = await handlers.oracleUniversalQuery({});
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(false);
     });
 
     it('should handle invalid params', async () => {
@@ -31,35 +44,28 @@ describe('Oracle Universal', () => {
         invalid: 'data'
       });
 
-      // TODO: Verify error handling
       expect(result).toBeDefined();
+      expect(result.ok).toBe(false);
     });
   });
 
   describe('oracleCollections', () => {
-    it('should handle success case with valid params', async () => {
-      const result = await handlers.oracleCollections({
-        // TODO: Add valid test params
-      });
+    it('should handle success case', async () => {
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          collections: ['collection1', 'collection2']
+        })
+      } as Response);
+
+      const result = await handlers.oracleCollections();
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
-    });
-
-    it('should handle missing required params', async () => {
-      const result = await handlers.oracleCollections({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
-    });
-
-    it('should handle invalid params', async () => {
-      const result = await handlers.oracleCollections({
-        invalid: 'data'
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      expect(result.data).toBeDefined();
+      expect(result.data.collections).toBeDefined();
+      expect(Array.isArray(result.data.collections)).toBe(true);
     });
   });
 
