@@ -2,7 +2,8 @@
  * ZANTARA Vector Provider
  * Centralized adapter for vector backends.
  * Default: ChromaDB (official)
- * Standby: Qdrant (disabled until wired)
+ * Standby: Qdrant
+ * Fallback: Memory (in-RAM)
  */
 
 import type { VectorStore, VectorBackend } from "../services/vector/types";
@@ -16,8 +17,13 @@ export function makeVectorStore(): VectorStore {
   }
 
   if (backend === "qdrant") {
-    // Placeholder — Qdrant in standby until wired
+    // Standby backend
     return require("../services/vector/qdrant").default();
+  }
+
+  if (backend === "memory") {
+    // Fallback local backend
+    return require("../services/vector/memory-vector").default();
   }
 
   throw new Error(`Unsupported VECTOR_BACKEND=${backend}`);
