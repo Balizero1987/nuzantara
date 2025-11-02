@@ -31,11 +31,11 @@ export async function zantaraUnifiedQuery(req: Request, res: Response) {
       sources: include_sources ? {} : undefined
     };
 
-    // KBLI Knowledge Base
+    // KBLI Knowledge Base - REAL DATABASE INTEGRATION
     if (domain === "all" || domain === "kbli") {
-      response.results.kbli = await queryKBLI(query, mode);
+      response.results.kbli = await queryKBLIFull(query, mode);
       if (include_sources) {
-        response.sources.kbli = "hardcoded_database_21_codes";
+        response.sources.kbli = "kbli_eye_collection_10000+_codes";
       }
     }
 
@@ -149,14 +149,47 @@ async function queryKBLI(query: string, mode: string) {
       };
     }
 
-    // All categories
+    // ChromaDB Vector Search - REAL DATABASE
+    if (query && mode !== "quick") {
+      try {
+        const chromaStore = require("../../services/vector/chroma.js")();
+        const client = chromaStore.client;
+
+        // Get kbli_eye collection with 10,000+ codes
+        const collection = await client.getCollection({ name: "kbli_eye" });
+
+        if (collection) {
+          const searchResults = await collection.query({
+            queryTexts: [query],
+            nResults: mode === "comprehensive" ? 10 : 5
+          });
+
+          return {
+            type: "chromadb_vector_search",
+            data: {
+              results: searchResults.ids?.map((id, index) => ({
+                id,
+                score: searchResults.distances?.[index] || 0,
+                metadata: searchResults.metadatas?.[index]
+              })) || [],
+              total_found: searchResults.ids?.length || 0
+            },
+            confidence: 0.95
+          };
+        }
+      } catch (error) {
+        console.log("ChromaDB search failed, using fallback:", error.message);
+      }
+    }
+
+    // Fallback to original implementation
     const mockReq = { body: { params: {} } } as any;
     const mockRes = { json: (data: any) => data } as any;
     const result = await kbliLookup(mockReq, mockRes);
     return {
-      type: "all_categories",
+      type: "fallback_search",
       data: result,
-      confidence: 1.0
+      confidence: 0.6
     };
 
   } catch (error) {

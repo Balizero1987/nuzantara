@@ -16,6 +16,7 @@ bash scripts/doctor.sh
 - **[NUZANTARA_README.md](./NUZANTARA_README.md)** - Overview completo e setup dettagliato
 - **[INFRASTRUCTURE_OVERVIEW.md](./INFRASTRUCTURE_OVERVIEW.md)** - Architettura cloud e deployment
 - **[DIARIES/README.md](./DIARIES/README.md)** - Tracking sessioni AI
+- **[CHROMADB_MIGRATION_GUIDE.md](./CHROMADB_MIGRATION_GUIDE.md)** - Migrazione knowledge base completa ✅
 
 ## 🔧 ZANTARA v3 Ω Features
 

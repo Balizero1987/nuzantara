@@ -4,7 +4,7 @@ import { z, ZodError } from "zod";
 import type { Request, Response } from "express";
 import { ok, err } from "../utils/response.js";
 import { apiKeyAuth, RequestWithCtx } from "../middleware/auth.js";
-import { jwtAuth, RequestWithJWT } from "../middleware/jwt-auth.js";
+import { jwtAuth, optionalJwtAuth, RequestWithJWT } from "../middleware/jwt-auth.js";
 import { demoUserAuth, RequestWithDemo } from "../middleware/demo-user-auth.js";
 import { ForbiddenError, BadRequestError, UnauthorizedError } from "../utils/errors.js";
 import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
@@ -1847,7 +1847,7 @@ export function attachRoutes(app: import("express").Express) {
    *   }
    * })
    */
-  app.post("/zantara.unified", demoUserAuth, async (req: RequestWithDemo, res: Response) => {
+  app.post("/zantara.unified", [optionalJwtAuth, demoUserAuth], async (req: RequestWithDemo, res: Response) => {
     try {
       const { zantaraUnifiedQuery } = await import('../handlers/zantara-v3/zantara-unified.js');
       const result = await zantaraUnifiedQuery(req, res);
@@ -1873,7 +1873,7 @@ export function attachRoutes(app: import("express").Express) {
    *   }
    * })
    */
-  app.post("/zantara.collective", demoUserAuth, async (req: RequestWithDemo, res: Response) => {
+  app.post("/zantara.collective", [optionalJwtAuth, demoUserAuth], async (req: RequestWithDemo, res: Response) => {
     try {
       const { zantaraCollectiveIntelligence } = await import('../handlers/zantara-v3/zantara-collective.js');
       const result = await zantaraCollectiveIntelligence(req, res);
@@ -1901,7 +1901,7 @@ export function attachRoutes(app: import("express").Express) {
    *   }
    * })
    */
-  app.post("/zantara.ecosystem", demoUserAuth, async (req: RequestWithDemo, res: Response) => {
+  app.post("/zantara.ecosystem", [optionalJwtAuth, demoUserAuth], async (req: RequestWithDemo, res: Response) => {
     try {
       const { zantaraEcosystemAnalysis } = await import('../handlers/zantara-v3/zantara-ecosystem.js');
       const result = await zantaraEcosystemAnalysis(req, res);

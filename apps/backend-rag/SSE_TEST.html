@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZANTARA SSE Streaming Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .response-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            min-height: 200px;
+            border-left: 4px solid #667eea;
+        }
+        .response-text {
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status.streaming {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #1976d2;
+        }
+        .status.complete {
+            background: #e8f5e9;
+            color: #388e3c;
+            border: 1px solid #388e3c;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #c62828;
+        }
+        .sources {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .sources h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .source-item {
+            padding: 10px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .metric-card {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .endpoint-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        .endpoint-info code {
+            background: #ffe082;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌊 ZANTARA SSE Streaming Test</h1>
+        <p class="subtitle">Real-time Server-Sent Events chat endpoint validation</p>
+
+        <div class="endpoint-info">
+            <strong>📡 Endpoint:</strong> <code>GET /bali-zero/chat-stream</code><br>
+            <strong>🌐 Production:</strong> <code>https://nuzantara-rag.fly.dev</code><br>
+            <strong>🔐 CORS:</strong> Production domain + localhost for testing
+        </div>
+
+        <div class="input-group">
+            <label for="query">💬 Your Message</label>
+            <textarea id="query" rows="3" placeholder="Ask me anything about Bali, business setup, tax, visa...">Hello! Tell me about PT PMA setup in Bali.</textarea>
+        </div>
+
+        <div class="input-group">
+            <label for="email">📧 Email (Optional)</label>
+            <input type="text" id="email" placeholder="user@example.com">
+        </div>
+
+        <button id="sendBtn" onclick="startStreaming()">🚀 Start Streaming</button>
+
+        <div class="response-container">
+            <h3>📨 Response</h3>
+            <div class="response-text" id="response"></div>
+            <div id="status" class="status" style="display: none;"></div>
+            
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-value" id="chunkCount">0</div>
+                    <div class="metric-label">Chunks Received</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="duration">0s</div>
+                    <div class="metric-label">Duration</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="speed">0</div>
+                    <div class="metric-label">Chars/second</div>
+                </div>
+            </div>
+
+            <div id="sources" class="sources" style="display: none;">
+                <h3>📚 Sources</h3>
+                <div id="sourcesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource = null;
+        let startTime = null;
+        let chunkCount = 0;
+        let totalChars = 0;
+
+        function startStreaming() {
+            const query = document.getElementById('query').value;
+            const email = document.getElementById('email').value;
+            const sendBtn = document.getElementById('sendBtn');
+            const responseDiv = document.getElementById('response');
+            const statusDiv = document.getElementById('status');
+            const sourcesDiv = document.getElementById('sources');
+
+            if (!query) {
+                alert('Please enter a message');
+                return;
+            }
+
+            // Reset UI
+            responseDiv.textContent = '';
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status streaming';
+            statusDiv.textContent = '🌊 Streaming...';
+            sourcesDiv.style.display = 'none';
+            chunkCount = 0;
+            totalChars = 0;
+            startTime = Date.now();
+            
+            // Reset metrics
+            document.getElementById('chunkCount').textContent = '0';
+            document.getElementById('duration').textContent = '0s';
+            document.getElementById('speed').textContent = '0';
+
+            // Disable button
+            sendBtn.disabled = true;
+
+            // Build URL
+            const baseUrl = 'https://nuzantara-rag.fly.dev/bali-zero/chat-stream';
+            const params = new URLSearchParams({ query });
+            if (email) params.append('user_email', email);
+
+            const url = `${baseUrl}?${params}`;
+            console.log('🔗 Connecting to:', url);
+
+            // Create EventSource
+            eventSource = new EventSource(url);
+
+            eventSource.onopen = () => {
+                console.log('✅ SSE connection opened');
+                statusDiv.textContent = '✅ Connected - Streaming...';
+            };
+
+            eventSource.onmessage = (event) => {
+                console.log('📦 Received:', event.data);
+
+                try {
+                    const data = JSON.parse(event.data);
+
+                    if (data.text) {
+                        // Text chunk
+                        responseDiv.textContent += data.text;
+                        chunkCount++;
+                        totalChars += data.text.length;
+                        updateMetrics();
+                    }
+
+                    if (data.sources) {
+                        // Sources received
+                        displaySources(data.sources);
+                    }
+
+                    if (data.done) {
+                        // Stream complete
+                        statusDiv.className = 'status complete';
+                        statusDiv.textContent = `✅ Complete in ${data.streamDuration.toFixed(2)}s`;
+                        sendBtn.disabled = false;
+                        eventSource.close();
+                    }
+
+                    if (data.error) {
+                        // Error received
+                        statusDiv.className = 'status error';
+                        statusDiv.textContent = `❌ Error: ${data.error}`;
+                        sendBtn.disabled = false;
+                        eventSource.close();
+                    }
+
+                } catch (e) {
+                    console.error('Parse error:', e, event.data);
+                }
+            };
+
+            eventSource.onerror = (error) => {
+                console.error('❌ SSE error:', error);
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Connection error';
+                sendBtn.disabled = false;
+                if (eventSource) {
+                    eventSource.close();
+                }
+            };
+        }
+
+        function updateMetrics() {
+            const elapsed = (Date.now() - startTime) / 1000;
+            const speed = Math.round(totalChars / elapsed);
+
+            document.getElementById('chunkCount').textContent = chunkCount;
+            document.getElementById('duration').textContent = elapsed.toFixed(1) + 's';
+            document.getElementById('speed').textContent = speed;
+        }
+
+        function displaySources(sources) {
+            const sourcesDiv = document.getElementById('sources');
+            const sourcesList = document.getElementById('sourcesList');
+
+            sourcesDiv.style.display = 'block';
+            sourcesList.innerHTML = '';
+
+            sources.forEach((source, idx) => {
+                const sourceItem = document.createElement('div');
+                sourceItem.className = 'source-item';
+                sourceItem.innerHTML = `
+                    <strong>${idx + 1}. ${source.source}</strong><br>
+                    <small style="color: #666;">${source.snippet}</small><br>
+                    <small style="color: #667eea;">Similarity: ${(source.similarity * 100).toFixed(1)}%</small>
+                `;
+                sourcesList.appendChild(sourceItem);
+            });
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (eventSource) {
+                eventSource.close();
+            }
+        });
+    </script>
+</body>
+</html>

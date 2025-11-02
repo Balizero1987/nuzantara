@@ -13,8 +13,8 @@
 const ZANTARA_API = {
   // Backend URLs (legacy - use API_CONTRACTS for new calls)
   backends: {
-    ts: 'https://nuzantara-orchestrator.fly.dev',
-    rag: 'https://nuzantara-orchestrator.fly.dev'
+    ts: 'https://nuzantara-backend.fly.dev',
+    rag: 'https://nuzantara-rag.fly.dev'
   },
   
   /**
@@ -240,8 +240,8 @@ const ZANTARA_API = {
         return { success: true, data };
       }
 
-      // Fallback to local backend
-      const response = await fetch('http://localhost:8080/zantara.unified', {
+      // Fallback to production backend
+      const response = await fetch('https://nuzantara-backend.fly.dev/zantara.unified', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -276,8 +276,8 @@ const ZANTARA_API = {
         return { success: true, data };
       }
 
-      // Fallback to local backend
-      const response = await fetch('http://localhost:8080/zantara.collective', {
+      // Fallback to production backend
+      const response = await fetch('https://nuzantara-backend.fly.dev/zantara.collective', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -318,8 +318,8 @@ const ZANTARA_API = {
         return { success: true, data };
       }
 
-      // Fallback to local backend
-      const response = await fetch('http://localhost:8080/zantara.ecosystem', {
+      // Fallback to production backend
+      const response = await fetch('https://nuzantara-backend.fly.dev/zantara.ecosystem', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
