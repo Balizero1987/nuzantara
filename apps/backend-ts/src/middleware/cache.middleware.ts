@@ -1,3 +1,4 @@
+import type { Error } from "express";
 /**
  * ZANTARA Redis Cache Middleware
  * Provides caching functionality with Upstash Redis

@@ -1,3 +1,4 @@
+import type { Error } from "express";
 /**
  * Admin Authentication Middleware
  * 

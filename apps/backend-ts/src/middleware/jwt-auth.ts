@@ -1,3 +1,4 @@
+import type { Error } from "express";
 /**
  * JWT Authentication Middleware - Enhanced Security Edition
  * 

@@ -1,3 +1,4 @@
+import type { Error } from "express";
 import express from 'express';
 import { logger } from '../logging/unified-logger.js';
 import { z, ZodError } from "zod";

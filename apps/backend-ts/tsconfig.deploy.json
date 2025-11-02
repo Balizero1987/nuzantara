@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "suppressImplicitAnyIndexErrors": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/handlers/router-system/migration-adapter.ts"]
+}
