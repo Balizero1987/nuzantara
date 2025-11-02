@@ -135,20 +135,28 @@ export class InfrastructureMonitor {
   private requestTimes: number[] = [];
   private readonly maxHistorySize = 1000;
   private readonly metricsInterval = 30000; // 30 seconds
+  private monitoringStarted: boolean = false;
 
   constructor() {
     this.initializeDefaultAlerts();
-    this.startMetricsCollection();
+    // Don't start monitoring automatically - will be started lazily
   }
 
   /**
-   * Start continuous metrics collection
+   * Start continuous metrics collection (lazy loading)
    */
-  private startMetricsCollection(): void {
+  startMetricsCollection(): void {
+    if (this.monitoringStarted) return;
+
+    this.monitoringStarted = true;
     setInterval(() => {
-      this.collectSystemMetrics();
-      this.collectApplicationMetrics();
-      this.checkAlertRules();
+      try {
+        this.collectSystemMetrics();
+        this.collectApplicationMetrics();
+        this.checkAlertRules();
+      } catch (error) {
+        logger.error('Metrics collection error:', error);
+      }
     }, this.metricsInterval);
 
     logger.info('Infrastructure monitoring started', { interval: this.metricsInterval });
@@ -504,47 +512,56 @@ export class InfrastructureMonitor {
    * Record request
    */
   recordRequest(endpoint: string, method: string, responseTime: number, success: boolean): void {
-    const key = `${method} ${endpoint}`;
+    try {
+      // Start monitoring if not already started
+      if (!this.monitoringStarted) {
+        this.startMetricsCollection();
+      }
 
-    // Update request count
-    this.requestCount++;
-    this.requestTimes.push(responseTime);
+      const key = `${method} ${endpoint}`;
 
-    // Update endpoint metrics
-    let metrics = this.endpointMetrics.get(key);
-    if (!metrics) {
-      metrics = {
-        path: endpoint,
-        method,
-        requests: 0,
-        averageResponseTime: 0,
-        successRate: 100,
-        lastAccess: Date.now(),
-        status: 'healthy'
-      };
-      this.endpointMetrics.set(key, metrics);
-    }
+      // Update request count
+      this.requestCount++;
+      this.requestTimes.push(responseTime);
 
-    metrics.requests++;
-    metrics.lastAccess = Date.now();
+      // Update endpoint metrics
+      let metrics = this.endpointMetrics.get(key);
+      if (!metrics) {
+        metrics = {
+          path: endpoint,
+          method,
+          requests: 0,
+          averageResponseTime: 0,
+          successRate: 100,
+          lastAccess: Date.now(),
+          status: 'healthy'
+        };
+        this.endpointMetrics.set(key, metrics);
+      }
 
-    // Update average response time
-    metrics.averageResponseTime = (metrics.averageResponseTime * (metrics.requests - 1) + responseTime) / metrics.requests;
+      metrics.requests++;
+      metrics.lastAccess = Date.now();
 
-    // Update success rate
-    if (success) {
-      metrics.successRate = ((metrics.successRate * (metrics.requests - 1)) + 100) / metrics.requests;
-    } else {
-      metrics.successRate = ((metrics.successRate * (metrics.requests - 1))) / metrics.requests;
-    }
+      // Update average response time
+      metrics.averageResponseTime = (metrics.averageResponseTime * (metrics.requests - 1) + responseTime) / metrics.requests;
 
-    // Update status based on performance
-    if (metrics.averageResponseTime > 5000 || metrics.successRate < 90) {
-      metrics.status = 'down';
-    } else if (metrics.averageResponseTime > 2000 || metrics.successRate < 95) {
-      metrics.status = 'degraded';
-    } else {
-      metrics.status = 'healthy';
+      // Update success rate
+      if (success) {
+        metrics.successRate = ((metrics.successRate * (metrics.requests - 1)) + 100) / metrics.requests;
+      } else {
+        metrics.successRate = ((metrics.successRate * (metrics.requests - 1))) / metrics.requests;
+      }
+
+      // Update status based on performance
+      if (metrics.averageResponseTime > 5000 || metrics.successRate < 90) {
+        metrics.status = 'down';
+      } else if (metrics.averageResponseTime > 2000 || metrics.successRate < 95) {
+        metrics.status = 'degraded';
+      } else {
+        metrics.status = 'healthy';
+      }
+    } catch (error) {
+      logger.error('Error recording request:', error);
     }
   }
 
