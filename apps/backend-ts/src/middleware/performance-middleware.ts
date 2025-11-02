@@ -7,7 +7,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { performanceMonitor, PerformanceMetrics } from '../services/monitoring/performance-monitor.js';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 
 interface ExtendedRequest extends Request {
   startTime?: number;

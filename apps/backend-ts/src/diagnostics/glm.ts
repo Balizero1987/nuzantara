@@ -123,7 +123,7 @@ export async function runGLM(): Promise<LayerStatus[]> {
   }
 
   // Output colorato
-  console.log("\n🧩 GLM — Global Layer Monitor\n");
+  logger.info("\n🧩 GLM — Global Layer Monitor\n");
   results.forEach(r => {
     const color =
       r.status === "ok"
@@ -139,7 +139,7 @@ export async function runGLM(): Promise<LayerStatus[]> {
         ? "⚠️"
         : "❌";
 
-    console.log(`${color}${r.status.toUpperCase()}${reset} ${icon} → ${r.name}: ${r.detail}`);
+    logger.info('${color}${r.status.toUpperCase()}${reset} ${icon} → ${r.name}: ${r.detail}', { type: 'debug_migration' });
   });
 
   // Summary for CI
@@ -147,7 +147,7 @@ export async function runGLM(): Promise<LayerStatus[]> {
   const warnCount = results.filter(r => r.status === "warn").length;
   const errorCount = results.filter(r => r.status === "error").length;
 
-  console.log(`\n📊 Summary: ${okCount} OK, ${warnCount} WARN, ${errorCount} ERROR`);
+  logger.info('\n📊 Summary: ${okCount} OK, ${warnCount} WARN, ${errorCount} ERROR', { type: 'debug_migration' });
 
   return results;
 }
@@ -159,6 +159,6 @@ runGLM()
     process.exit(hasErrors ? 1 : 0);
   })
   .catch((error) => {
-    console.error("GLM failed:", error);
+    logger.error("GLM failed:", error);
     process.exit(1);
   });

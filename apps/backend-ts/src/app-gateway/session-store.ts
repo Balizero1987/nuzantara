@@ -1,4 +1,4 @@
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { getFirestore } from '../services/firebase.js';
 
 interface SessionRecord { id: string; user?: string; origin?: string; channel?: string; csrfToken?: string; user_role?: string; createdAt: number; ttlMs: number }

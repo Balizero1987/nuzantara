@@ -5,7 +5,7 @@
  * Light, elegant, culturally aware - never pedantic
  */
 
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { VisaOracle } from '../agents/visa-oracle.js';
 import { EyeKBLI } from '../agents/eye-kbli.js';
 import { TaxGenius } from '../agents/tax-genius.js';

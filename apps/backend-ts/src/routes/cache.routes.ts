@@ -11,7 +11,7 @@ import {
   getCacheStats,
   invalidateCache
 } from '../middleware/cache.middleware.js';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 
 const router = Router();
 

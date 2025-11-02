@@ -44,7 +44,7 @@ export async function intelScraperRun(params: ScraperParams): Promise<ScraperRes
     } = params;
 
     const jobId = `scraper_${Date.now()}`;
-    logger.info(`Starting intel scraper job: ${jobId}`, { params });
+    logger.info('Starting intel scraper job: ${jobId}', { params });
 
     // Build Python command
     const scriptPath = path.join(SCRAPER_DIR, 'scripts', 'scrape_all_categories.py');

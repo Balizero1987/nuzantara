@@ -10,7 +10,7 @@
  * - Lazy loading support
  */
 
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { Express } from 'express';
 
 // Google Workspace Routes

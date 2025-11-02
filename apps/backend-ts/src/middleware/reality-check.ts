@@ -1,5 +1,5 @@
 // Reality Check Middleware - Advanced Anti-Hallucination Layer
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { Request, Response, NextFunction } from "express";
 import { RealityAnchorSystem } from "../services/reality-anchor.js";
 import { AntiHallucinationSystem } from "../services/anti-hallucination.js";

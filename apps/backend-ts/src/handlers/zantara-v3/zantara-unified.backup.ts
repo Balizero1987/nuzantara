@@ -178,7 +178,7 @@ async function queryKBLI(query: string, mode: string) {
           };
         }
       } catch (error) {
-        console.log("ChromaDB search failed, using fallback:", error.message);
+        logger.info("ChromaDB search failed, using fallback:", error.message);
       }
     }
 

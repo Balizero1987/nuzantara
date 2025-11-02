@@ -245,7 +245,7 @@ export function trackApiCall(
 ): void {
   const category = getPerformanceCategory(duration);
 
-  logger.info(`API call: ${service}${endpoint} - ${duration}ms (${success ? 'SUCCESS' : 'FAILED'})`, {
+  logger.info('API call: ${service}${endpoint} - ${duration}ms (${success ? \'SUCCESS\' : \'FAILED\'})', {
     ...context,
     type: 'api_call',
     service,

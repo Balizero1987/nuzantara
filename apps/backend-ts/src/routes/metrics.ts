@@ -89,7 +89,7 @@ router.get('/metrics', async (req: Request, res: Response) => {
     const metricsData = await register.metrics();
     res.send(metricsData);
   } catch (error) {
-    console.error('Error generating metrics:', error);
+    logger.error('Error generating metrics:', error);
     res.status(500).send('Error generating metrics');
   }
 });

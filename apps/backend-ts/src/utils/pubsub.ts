@@ -10,7 +10,7 @@
  */
 
 import Redis from 'ioredis';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 
 const redisUrl = process.env.REDIS_URL;
 

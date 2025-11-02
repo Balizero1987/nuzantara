@@ -165,7 +165,7 @@ export function logBusinessEvent(
   userId?: string,
   context?: LogContext
 ) {
-  logger.info(`Business event: ${event}`, {
+  logger.info('Business event: ${event}', {
     ...context,
     type: 'business_event',
     event,

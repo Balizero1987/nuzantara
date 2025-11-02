@@ -6,7 +6,7 @@
 import { createClient, RedisClientType } from 'redis';
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { cacheHits, cacheMisses } from './observability.middleware.js';
 
 // Redis client instance

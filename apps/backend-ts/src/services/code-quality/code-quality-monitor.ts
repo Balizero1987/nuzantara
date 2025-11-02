@@ -169,7 +169,7 @@ export class CodeQualityMonitor {
       this.metricsHistory.shift();
     }
 
-    logger.info(`Project analysis completed`, {
+    logger.info('Project analysis completed', {
       files: fileCount,
       lines: totalLines,
       qualityScore: qualityScore.toFixed(1),

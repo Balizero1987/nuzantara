@@ -189,7 +189,7 @@ export function generateRouterImports(): string {
  */
 export function printMigrationPlan() {
   const plan = generateMigrationPlan();
-  console.log(plan.join('\n'));
+  logger.info(plan.join('\n'));
 
   console.log('\n\n=== NEW ROUTER IMPORTS ===\n');
   console.log(generateRouterImports());

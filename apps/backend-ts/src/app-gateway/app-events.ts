@@ -1,4 +1,4 @@
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import type { Request } from 'express';
 import { EventRequestSchema, type EventRequest, type Patch } from './types.js';
 import { normalizeParams } from './param-normalizer.js';

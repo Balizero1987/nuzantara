@@ -5,7 +5,7 @@
 
 import rateLimit from 'express-rate-limit';
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { err } from '../utils/response.js';
 
 // Security Headers Middleware

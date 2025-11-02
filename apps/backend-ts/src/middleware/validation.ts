@@ -1,5 +1,5 @@
 // Validation Middleware for Anti-Hallucination
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { Request, Response, NextFunction } from "express";
 import { AntiHallucinationSystem } from "../services/anti-hallucination.js";
 

@@ -5,7 +5,7 @@
  * Call this once at app startup to register all 136+ handlers
  */
 
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { globalRegistry } from './handler-registry.js';
 
 /**

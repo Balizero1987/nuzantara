@@ -32,7 +32,7 @@ export function freeProtection(req: Request, res: Response, next: NextFunction):
 
   // 2. Check for attack patterns in URL
   if (ATTACK_PATTERNS.some(pattern => path.includes(pattern))) {
-    console.warn(`🚨 Attack pattern detected: ${clientIP} → ${path}`);
+    logger.warn('🚨 Attack pattern detected: ${clientIP} → ${path}');
     blockedIPs.add(clientIP);
     return res.status(403).json({
       error: 'Forbidden',
@@ -42,7 +42,7 @@ export function freeProtection(req: Request, res: Response, next: NextFunction):
 
   // 3. Check for bot user agents
   if (BOT_AGENTS.some(bot => userAgent.toLowerCase().includes(bot))) {
-    console.warn(`🤖 Bot detected: ${clientIP} → ${userAgent}`);
+    logger.warn('🤖 Bot detected: ${clientIP} → ${userAgent}');
     return res.status(403).json({
       error: 'Bot detected',
       message: 'Automated requests are not allowed'
@@ -61,7 +61,7 @@ export function freeProtection(req: Request, res: Response, next: NextFunction):
   // 5. Check rate limits
   if (entry.count > 60) { // Max 60 requests per minute
     entry.blocked = true;
-    console.warn(`⚠️ Rate limit exceeded: ${clientIP} (${entry.count} requests)`);
+    logger.warn('⚠️ Rate limit exceeded: ${clientIP} (${entry.count} requests)');
     return res.status(429).json({
       error: 'Rate limit exceeded',
       message: 'Too many requests. Please wait a minute.',
@@ -71,7 +71,7 @@ export function freeProtection(req: Request, res: Response, next: NextFunction):
 
   // 6. Special limits for admin endpoints
   if (path.includes('/admin/') && entry.count > 10) {
-    console.warn(`🔒 Admin rate limit: ${clientIP} → ${path}`);
+    logger.warn('🔒 Admin rate limit: ${clientIP} → ${path}');
     return res.status(429).json({
       error: 'Admin rate limit',
       message: 'Too many admin requests. Please wait.',
@@ -102,4 +102,4 @@ export function cleanupProtection() {
 // Auto-cleanup every 5 minutes
 setInterval(cleanupProtection, 5 * 60 * 1000);
 
-console.log('🛡️ Free protection middleware loaded');
+logger.info('🛡️ Free protection middleware loaded');

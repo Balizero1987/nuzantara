@@ -7,6 +7,7 @@ import express from 'express';
 import cors from 'cors';
 import { jiwaOrchestratorRoutes } from './orchestrator-jiwa';
 import { jiwaMiddleware } from '../../services/jiwa-client';
+import correlationMiddleware from '../logging/correlation-middleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ const JIWA_SERVICE_URL = process.env.JIWA_SERVICE_URL || 'http://localhost:8001'
 
 // Middleware
 app.use(cors());
+app.use(correlationMiddleware());
 app.use(express.json());
 app.use(jiwaMiddleware()); // Add JIWA to all requests
 
@@ -130,28 +132,27 @@ app.get('/api/metrics', async (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log('═══════════════════════════════════════════════════════════════');
+  logger.info('═══════════════════════════════════════════════════════════════');
   console.log('  🌺 ZANTARA COMPLETE ORCHESTRATOR');
   console.log('═══════════════════════════════════════════════════════════════');
-  console.log(`  Port:          ${PORT}`);
-  console.log(`  JIWA:          Enabled`);
-  console.log(`  Router:        ${FLAN_ROUTER_URL}`);
-  console.log(`  Soul Service:  ${JIWA_SERVICE_URL}`);
-  console.log('═══════════════════════════════════════════════════════════════');
+  logger.info('  Port:          ${PORT}', { type: 'debug_migration' });
+  logger.info('  JIWA:          Enabled', { type: 'debug_migration' });
+  logger.info('  Router:        ${FLAN_ROUTER_URL}', { type: 'debug_migration' });
+  logger.info('  Soul Service:  ${JIWA_SERVICE_URL}', { type: 'debug_migration' });
+  logger.info('═══════════════════════════════════════════════════════════════');
   console.log('  Endpoints:');
-  console.log(`    POST /api/query-jiwa  - Query with JIWA enhancement`);
-  console.log(`    POST /api/query       - Standard query (no JIWA)`);
-  console.log(`    GET  /api/jiwa/status - JIWA system status`);
-  console.log(`    GET  /api/metrics     - System metrics`);
-  console.log(`    GET  /health          - Health check`);
-  console.log('═══════════════════════════════════════════════════════════════');
+  logger.info('    POST /api/query-jiwa  - Query with JIWA enhancement', { type: 'debug_migration' });
+  logger.info('    POST /api/query       - Standard query (no JIWA)', { type: 'debug_migration' });
+  logger.info('    GET  /api/jiwa/status - JIWA system status', { type: 'debug_migration' });
+  logger.info('    GET  /api/metrics     - System metrics', { type: 'debug_migration' });
+  logger.info('    GET  /health          - Health check', { type: 'debug_migration' });
+  logger.info('═══════════════════════════════════════════════════════════════');
   console.log('  💗 Ibu Nuzantara is watching over the system');
   console.log('═══════════════════════════════════════════════════════════════');
 });
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
-  console.log('\n🌺 Shutting down ZANTARA Complete Orchestrator...');
+process.on('SIGINT');
   process.exit(0);
 });
 

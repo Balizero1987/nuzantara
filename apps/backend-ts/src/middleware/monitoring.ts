@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { trackActivity } from '../services/session-tracker.js';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 
 // Performance and error tracking
 interface RequestMetrics {
@@ -52,7 +52,7 @@ export function requestTracker(req: Request, res: Response, _next: NextFunction)
   // Store request metrics for later use
   (req as any).requestMetrics = requestMetrics;
 
-  logger.info(`Request started`, { requestId, method: req.method, path: req.path });
+  logger.info('Request started', { requestId, method: req.method, path: req.path });
 
   // Track team member activity (for team.recent_activity handler)
   try {
@@ -88,7 +88,7 @@ export function requestTracker(req: Request, res: Response, _next: NextFunction)
       trackErrorForAlert(statusCode);
     }
 
-    logger.info(`Request completed`, { requestId, statusCode, path: req.path, responseTime, isError });
+    logger.info('Request completed', { requestId, statusCode, path: req.path, responseTime, isError });
 
     return originalSend.call(this, data);
   };
@@ -104,7 +104,7 @@ export function errorTracker(err: any, req: Request, _res: Response, next: NextF
   metrics.errors++;
   metrics.errorsByType.set(errorType, (metrics.errorsByType.get(errorType) || 0) + 1);
 
-  logger.error(`Request error`, {
+  logger.error('Request error', undefined, {
     requestId,
     errorType,
     message: err.message,
@@ -275,7 +275,7 @@ async function sendAlert(alertType: string, message: string, details: any) {
 
   // Check cooldown
   if (timeSinceLastAlert < alertConfig.cooldown && alertMetrics.lastAlertType === alertType) {
-    logger.info(`Alert cooldown active`, { alertType, remainingSeconds: Math.round((alertConfig.cooldown - timeSinceLastAlert) / 1000) });
+    logger.info('Alert cooldown active', { alertType, remainingSeconds: Math.round((alertConfig.cooldown - timeSinceLastAlert) / 1000) });
     return;
   }
 
@@ -285,7 +285,7 @@ async function sendAlert(alertType: string, message: string, details: any) {
 
   // Console alert (always active)
   if (alertConfig.channels.console) {
-    logger.error(`ALERT`, { alertType, message, details });
+    logger.error('ALERT', undefined, { alertType, message, details });
   }
 
   // WhatsApp alert (if enabled)

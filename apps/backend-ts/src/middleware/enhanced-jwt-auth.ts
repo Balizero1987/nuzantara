@@ -18,7 +18,7 @@
 
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { redisClient } from '../services/redis-client.js';
 
 // Extended Request interface for enhanced authentication - making it compatible with existing interfaces

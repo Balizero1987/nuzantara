@@ -64,7 +64,7 @@ export function auditMiddleware(
 
         auditTrail.logRequest(req, eventType, result, metadata).catch((err) => {
           // Don't break the request if audit fails
-          console.error('Audit logging failed:', err);
+          logger.error('Audit logging failed:', err);
         });
       }
 
@@ -108,4 +108,5 @@ export const auditAdmin = auditMiddleware(AuditEventType.ADMIN_ACTION, {
   logFailure: true,
   includeBody: true,
 });
+
 

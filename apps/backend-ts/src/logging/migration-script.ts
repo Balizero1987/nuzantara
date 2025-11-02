@@ -151,12 +151,12 @@ class LoggingMigration {
   }
 
   async migrate(): Promise<void> {
-    console.log(`🚀 Starting ZANTARA logging migration...`);
-    console.log(`📁 Target path: ${this.options.targetPath}`);
-    console.log(`🔍 Dry run: ${this.options.dryRun ? 'YES' : 'NO'}`);
+    logger.info('🚀 Starting ZANTARA logging migration...', { type: 'debug_migration' });
+    logger.info('📁 Target path: ${this.options.targetPath}', { type: 'debug_migration' });
+    logger.info('🔍 Dry run: ${this.options.dryRun ? \'YES\' : \'NO\'}', { type: 'debug_migration' });
 
     const files = await this.findFiles();
-    console.log(`📄 Found ${files.length} TypeScript files to process`);
+    logger.info('📄 Found ${files.length} TypeScript files to process', { type: 'debug_migration' });
 
     for (const file of files) {
       await this.processFile(file);
@@ -183,7 +183,7 @@ class LoggingMigration {
         const matches = modifiedContent.match(pattern.pattern);
         if (matches) {
           if (this.options.verbose) {
-            console.log(`  📝 ${filePath}: Applying pattern "${pattern.description}" (${matches.length} matches)`);
+            logger.info('  📝 ${filePath}: Applying pattern "${pattern.description}" (${matches.length} matches)', { type: 'debug_migration' });
           }
 
           modifiedContent = modifiedContent.replace(pattern.pattern, pattern.replacement);
@@ -223,7 +223,7 @@ class LoggingMigration {
           this.stats.structuredLoggingAdded++;
 
           if (this.options.verbose) {
-            console.log(`  🔗 ${filePath}: Added correlation middleware`);
+            logger.info('  🔗 ${filePath}: Added correlation middleware', { type: 'debug_migration' });
           }
         }
       }
@@ -239,7 +239,7 @@ class LoggingMigration {
         fileModified = true;
 
         if (this.options.verbose) {
-          console.log(`  🛠️ ${filePath}: Enhanced ${errorMatches.length} error handlers`);
+          logger.info('  🛠️ ${filePath}: Enhanced ${errorMatches.length} error handlers', { type: 'debug_migration' });
         }
       }
 
@@ -252,35 +252,35 @@ class LoggingMigration {
             const backupPath = filePath + '.backup.' + Date.now();
             fs.writeFileSync(backupPath, content);
             if (this.options.verbose) {
-              console.log(`  💾 ${filePath}: Created backup`);
+              logger.info('  💾 ${filePath}: Created backup', { type: 'debug_migration' });
             }
           }
 
           // Write modified content
           fs.writeFileSync(filePath, modifiedContent);
-          console.log(`  ✅ ${filePath}: Migrated successfully`);
+          logger.info('  ✅ ${filePath}: Migrated successfully', { type: 'debug_migration' });
         } else {
-          console.log(`  🔍 ${filePath}: Would be modified (dry run)`);
+          logger.info('  🔍 ${filePath}: Would be modified (dry run)', { type: 'debug_migration' });
         }
       }
 
     } catch (error) {
-      console.error(`  ❌ ${filePath}: Error processing file - ${error}`);
+      logger.error('  ❌ ${filePath}: Error processing file - ${error}');
     }
   }
 
   private printSummary(): void {
-    console.log('\n📊 Migration Summary:');
-    console.log(`======================`);
-    console.log(`📁 Files processed: ${this.stats.filesProcessed}`);
-    console.log(`📝 Files modified: ${this.stats.filesModified}`);
-    console.log(`🔄 Console.log statements replaced: ${this.stats.consoleLogReplaced}`);
-    console.log(`📦 Logger imports fixed: ${this.stats.loggerImportFixed}`);
-    console.log(`🏗️ Structured logging added: ${this.stats.structuredLoggingAdded}`);
-    console.log(`🛠️ Error handlers enhanced: ${this.stats.errorsFixed}`);
+    logger.info('\n📊 Migration Summary:');
+    logger.info('======================', { type: 'debug_migration' });
+    logger.info('📁 Files processed: ${this.stats.filesProcessed}', { type: 'debug_migration' });
+    logger.info('📝 Files modified: ${this.stats.filesModified}', { type: 'debug_migration' });
+    logger.info('🔄 Console.log statements replaced: ${this.stats.consoleLogReplaced}', { type: 'debug_migration' });
+    logger.info('📦 Logger imports fixed: ${this.stats.loggerImportFixed}', { type: 'debug_migration' });
+    logger.info('🏗️ Structured logging added: ${this.stats.structuredLoggingAdded}', { type: 'debug_migration' });
+    logger.info('🛠️ Error handlers enhanced: ${this.stats.errorsFixed}', { type: 'debug_migration' });
 
     if (this.options.dryRun) {
-      console.log('\n⚠️  DRY RUN MODE - No files were actually modified');
+      logger.info('\n⚠️  DRY RUN MODE - No files were actually modified');
       console.log('💡 Run without --dry-run to apply changes');
     } else {
       console.log('\n✅ Migration completed successfully!');
@@ -331,7 +331,7 @@ function parseArguments(): MigrationOptions {
         options.verbose = true;
         break;
       case '--help':
-        console.log(`
+        logger.info('
 ZANTARA Logging Migration Script
 
 Usage: npx tsx src/logging/migration-script.ts [options]
@@ -339,7 +339,7 @@ Usage: npx tsx src/logging/migration-script.ts [options]
 Options:
   --dry-run        Show what would be changed without modifying files
   --path <path>    Target directory path (default: ./src)
-  --no-backup      Don't create backup files
+  --no-backup      Don\'t create backup files
   --verbose        Show detailed processing information
   --help           Show this help message
 
@@ -347,7 +347,7 @@ Examples:
   npx tsx src/logging/migration-script.ts --dry-run --verbose
   npx tsx src/logging/migration-script.ts --path ./src/handlers
   npx tsx src/logging/migration-script.ts --no-backup
-        `);
+        ', { type: 'debug_migration' });
         process.exit(0);
     }
   }
