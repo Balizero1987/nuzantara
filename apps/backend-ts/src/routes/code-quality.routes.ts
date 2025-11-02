@@ -16,7 +16,7 @@ import { Router, Request, Response } from 'express';
 import { enhancedTestSuite, TestMetrics } from '../services/code-quality/enhanced-test-suite.js';
 import { codeQualityMonitor, QualityMetrics } from '../services/code-quality/code-quality-monitor.js';
 import { loadAllHandlers } from '../core/load-all-handlers.js';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import path from 'path';
 
 const router = Router();

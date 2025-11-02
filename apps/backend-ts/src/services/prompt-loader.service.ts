@@ -175,7 +175,7 @@ export class PromptLoaderService {
     try {
       return await fs.readFile(promptPath, 'utf-8');
     } catch (error) {
-      console.error(`Failed to load prompt file ${filename}:`, error);
+      logger.error(`Failed to load prompt file ${filename}:`, error);
       // Fallback to basic prompt
       return this.getBasicPrompt();
     }
@@ -291,7 +291,7 @@ When uncertain, refer to the Bali Zero team.`;
   clearCaches(): void {
     this.promptCache.clear();
     this.userLevelCache.clear();
-    console.log('Prompt caches cleared');
+    logger.info('Prompt caches cleared');
   }
 
   /**

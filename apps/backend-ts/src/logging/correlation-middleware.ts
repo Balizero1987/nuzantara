@@ -127,7 +127,7 @@ export async function withRequestTracking<T>(
     return result;
   } catch (error) {
     const duration = Date.now() - startTime;
-    logger.error(`Failed operation: ${operation}`, error as Error, {
+    logger.error('Failed operation: ${operation}', error as Error, {
       ...req.logContext,
       operation,
       duration,

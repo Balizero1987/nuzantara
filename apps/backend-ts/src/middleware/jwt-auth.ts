@@ -13,7 +13,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 
 // Feature flags for gradual rollout
 const ENABLE_STRICT_VALIDATION = process.env.JWT_STRICT_VALIDATION === 'true';

@@ -57,7 +57,7 @@ class AICommunicationService {
    */
   async communicate(request: AIBridgeRequest): Promise<AIBridgeResponse> {
     try {
-      logger.info(`AI Communication: ${request.from} → ${request.to}`, {
+      logger.info('AI Communication: ${request.from} → ${request.to}', {
         workflowId: request.workflowId,
         message: request.message.substring(0, 100) + '...'
       });
@@ -114,7 +114,7 @@ class AICommunicationService {
         Object.assign(context.sharedContext, request.context);
       }
 
-      logger.info(`AI Communication successful: ${request.from} → ${request.to}`, {
+      logger.info('AI Communication successful: ${request.from} → ${request.to}', {
         responseLength: response.length,
         workflowId: request.workflowId
       });
@@ -161,7 +161,7 @@ class AICommunicationService {
     // Context creation for workflow (currently not used but may be needed for future state management)
     this.getOrCreateContext(workflowId, 'zantara');
 
-    logger.info(`Starting workflow orchestration: ${workflowId}`, {
+    logger.info('Starting workflow orchestration: ${workflowId}', {
       steps: steps.length
     });
 
@@ -180,7 +180,7 @@ class AICommunicationService {
 
         // If step failed, stop workflow
         if (!result.success) {
-          logger.error(`Workflow step failed: ${workflowId}`, {
+          logger.error('Workflow step failed: ${workflowId}', undefined, {
             step: index,
             error: result.response
           });
@@ -193,7 +193,7 @@ class AICommunicationService {
         }
 
       } catch (error: any) {
-        logger.error(`Workflow step error: ${workflowId}`, {
+        logger.error('Workflow step error: ${workflowId}', undefined, {
           step: index,
           error: error.message
         });
@@ -211,7 +211,7 @@ class AICommunicationService {
       }
     }
 
-    logger.info(`Workflow orchestration completed: ${workflowId}`, {
+    logger.info('Workflow orchestration completed: ${workflowId}', {
       totalSteps: steps.length,
       successfulSteps: results.filter(r => r.success).length
     });

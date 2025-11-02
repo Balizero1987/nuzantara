@@ -45,7 +45,7 @@ export async function zantaraBrilliantChat(req: Request, res: Response) {
     }));
 
   } catch (error: any) {
-    console.error('ZantaraBrilliant error:', error);
+    logger.error('ZantaraBrilliant error:', error);
     return res.status(500).json(err(error.message || 'ZANTARA encountered an issue'));
   }
 }
@@ -135,7 +135,7 @@ export async function queryAgent(req: Request, res: Response) {
     }));
 
   } catch (error: any) {
-    console.error('Agent query error:', error);
+    logger.error('Agent query error:', error);
     return res.status(500).json(err(error.message || 'Agent query failed'));
   }
 }
@@ -160,7 +160,7 @@ export async function getContext(req: Request, res: Response) {
     }));
 
   } catch (error: any) {
-    console.error('Get context error:', error);
+    logger.error('Get context error:', error);
     return res.status(500).json(err(error.message || 'Failed to get context'));
   }
 }

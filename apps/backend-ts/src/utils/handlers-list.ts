@@ -7,7 +7,7 @@
  * This gives ZANTARA awareness of what it can do.
  */
 
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';

@@ -8,7 +8,7 @@ import { Router } from 'express';
 import { ok } from '../utils/response.js';
 import { getV3Cache } from '../services/v3-performance-cache.js';
 import { isV3CacheInitialized } from '../services/v3-cache-init.js';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 
 const router = Router();
 

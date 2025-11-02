@@ -32,7 +32,7 @@ export async function twilioWhatsappWebhook(req: any, res: any) {
   try {
     const { Body, From, To, MessageSid } = req.body;
 
-    console.log('📞 Twilio WhatsApp Message Received:', {
+    logger.info('📞 Twilio WhatsApp Message Received:', {
       from: From,
       to: To,
       message: Body,
@@ -45,7 +45,7 @@ export async function twilioWhatsappWebhook(req: any, res: any) {
     // Process message asynchronously
     await handleTwilioMessage(From, Body, MessageSid);
   } catch (error) {
-    console.error('❌ Twilio Webhook Error:', error);
+    logger.error('❌ Twilio Webhook Error:', error);
     // Still return 200 to Twilio to avoid retries
     res.status(200).send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>');
   }
@@ -56,14 +56,14 @@ export async function twilioWhatsappWebhook(req: any, res: any) {
  */
 async function handleTwilioMessage(from: string, message: string, _messageSid: string) {
   try {
-    console.log(`💬 Processing message from ${from}: "${message}"`);
+    logger.info('💬 Processing message from ${from}: "${message}"', { type: 'debug_migration' });
 
     // Simple auto-reply for now
     const reply = `✅ Zantara ricevuto il tuo messaggio: "${message}"\n\nSto elaborando la risposta...`;
 
     await sendTwilioWhatsapp(from, reply);
   } catch (error) {
-    console.error('❌ Error handling Twilio message:', error);
+    logger.error('❌ Error handling Twilio message:', error);
   }
 }
 
@@ -80,10 +80,10 @@ export async function sendTwilioWhatsapp(to: string, message: string) {
       body: message,
     });
 
-    console.log(`✅ Twilio WhatsApp message sent to ${to}:`, result.sid);
+    logger.info(`✅ Twilio WhatsApp message sent to ${to}:`, result.sid);
     return result;
   } catch (error) {
-    console.error('❌ Error sending Twilio WhatsApp:', error);
+    logger.error('❌ Error sending Twilio WhatsApp:', error);
     throw error;
   }
 }
@@ -110,7 +110,7 @@ export async function twilioSendWhatsapp(req: any, _res?: any) {
       to: whatsappTo,
     });
   } catch (error: any) {
-    console.error('❌ Twilio send error:', error);
+    logger.error('❌ Twilio send error:', error);
     throw error;
   }
 }

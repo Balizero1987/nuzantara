@@ -1,5 +1,5 @@
 import express from 'express';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { z, ZodError } from "zod";
 import type { Request, Response } from "express";
 import { ok, err } from "../utils/response.js";
@@ -1419,7 +1419,7 @@ export function attachRoutes(app: import("express").Express) {
       }));
 
     } catch (e: any) {
-      console.error('JWT Logout error:', e);
+      logger.error('JWT Logout error:', e);
       return res.status(500).json(err(e?.message || "Internal Error"));
     }
   });
@@ -1784,7 +1784,7 @@ export function attachRoutes(app: import("express").Express) {
         timestamp: new Date().toISOString()
       };
 
-      logger.error(`🔥 Handler Error [${requestId}] ${key}:`, {
+      logger.error('🔥 Handler Error [${requestId}] ${key}:', undefined, {
         error: e.message,
         stack: e.stack?.split('\n').slice(0, 5).join('\n'),
         ...errorContext
@@ -1797,7 +1797,7 @@ export function attachRoutes(app: import("express").Express) {
 
       // Log critical errors for investigation
       if (key.includes('ai.') || key.includes('memory.') || key.includes('identity.')) {
-        logger.error(`🚨 Critical handler failure: ${key}`, {
+        logger.error('🚨 Critical handler failure: ${key}', undefined, {
           errorType: e.constructor.name,
           errorMessage: e.message,
           ...errorContext

@@ -5,7 +5,7 @@
  * Uses express-rate-limit with Redis-like in-memory store
  */
 
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import rateLimit from 'express-rate-limit';
 import type { Request } from 'express';
 

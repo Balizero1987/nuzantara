@@ -1,5 +1,6 @@
 /**
- * Test App Helper
+ * Test App
+app.use(correlationMiddleware()); Helper
  * Creates Express app instance for testing
  */
 
@@ -8,6 +9,7 @@ import { attachRoutes } from '../../routing/router.js';
 import { applySecurity } from '../../middleware/security.middleware.js';
 import { corsMiddleware } from '../../middleware/cors.js';
 import logger from '../../services/logger.js';
+import correlationMiddleware from '../logging/correlation-middleware.js';
 
 export async function createTestApp() {
   const app = express();

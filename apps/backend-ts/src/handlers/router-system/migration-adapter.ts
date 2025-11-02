@@ -341,7 +341,7 @@ export class ToolMigrationAdapter {
 
     if (!mapper) {
       // Unknown tool - default to universal.query
-      console.warn(`Unknown legacy tool: ${legacyCall.tool}, defaulting to universal.query`);
+      logger.warn('Unknown legacy tool: ${legacyCall.tool}, defaulting to universal.query');
       return {
         tool: 'universal.query',
         action: 'unknown',

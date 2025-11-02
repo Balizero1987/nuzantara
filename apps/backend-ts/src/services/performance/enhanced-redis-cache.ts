@@ -211,7 +211,7 @@ class EnhancedRedisCache {
         }
         this.stats.l2Misses++;
       } catch (error: any) {
-        logger.error(`Cache get error for key ${key}:`, error);
+        logger.error('Cache get error for key ${key}:', error);
       }
     }
 

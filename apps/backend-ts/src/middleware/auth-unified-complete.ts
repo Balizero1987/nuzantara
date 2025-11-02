@@ -2,7 +2,7 @@
 // Integrates all 4 auth methods + Firebase with intelligent routing
 
 import { Request, Response, NextFunction } from 'express';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import { jwtAuth } from './jwt-auth.js';
 import { apiKeyAuth } from './auth.js';
 import { demoUserAuth } from './demo-user-auth.js';

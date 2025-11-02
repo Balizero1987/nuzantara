@@ -5,7 +5,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 
 // List of users with admin access to the dashboard
 const ADMIN_USERS = ['Zero', 'Veronika', 'Ruslana'];

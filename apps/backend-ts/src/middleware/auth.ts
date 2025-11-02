@@ -1,4 +1,4 @@
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 import type { Request, Response, NextFunction } from "express";
 import { ENV } from "../config/index.js";
 export type ApiRole = "internal" | "external";

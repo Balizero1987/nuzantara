@@ -312,14 +312,14 @@ export class PerformanceMonitor {
   private checkAlerts(metrics: PerformanceMetrics): void {
     // Immediate critical alerts
     if (metrics.responseTime > 30000) {
-      logger.error(`🚨 CRITICAL: Extremely slow request: ${metrics.endpoint} - ${metrics.responseTime}ms`, {
+      logger.error('🚨 CRITICAL: Extremely slow request: ${metrics.endpoint} - ${metrics.responseTime}ms', undefined, {
         requestId: metrics.requestId,
         cached: metrics.cached
       });
     }
 
     if (metrics.statusCode >= 500) {
-      logger.error(`🚨 CRITICAL: Server error: ${metrics.endpoint} - ${metrics.statusCode}`, {
+      logger.error('🚨 CRITICAL: Server error: ${metrics.endpoint} - ${metrics.statusCode}', undefined, {
         requestId: metrics.requestId
       });
     }

@@ -22,15 +22,14 @@ if (process.env.GRAFANA_LOKI_URL) {
       batching: true,
       interval: 5,
       replaceTimestamp: true,
-      onConnectionError: (err) => console.error('⚠️  Loki connection error:', err)
+      onConnectionError: (err) => logger.error('⚠️  Loki connection error:', err)
     }) as any
   );
-  console.log('✅ Grafana Loki transport enabled');
+  logger.info('✅ Grafana Loki transport enabled');
 }
 
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
+  level: process.env.LOG_LEVEL || 'info', format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
     winston.format.json()

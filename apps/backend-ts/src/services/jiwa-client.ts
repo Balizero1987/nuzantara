@@ -169,10 +169,10 @@ export class JiwaClient {
         params: { user_id: userId, threat_type: threatType }
       });
 
-      console.warn(`🛡️ Protection activated for ${userId}: ${response.data.protection_id}`);
+      logger.warn('🛡️ Protection activated for ${userId}: ${response.data.protection_id}');
       return response.data;
     } catch (error) {
-      console.error('❌ Protection activation failed:', error.message);
+      logger.error('❌ Protection activation failed:', error.message);
       return null;
     }
   }
@@ -185,7 +185,7 @@ export class JiwaClient {
       const response = await this.client.get('/jiwa-status');
       return response.data;
     } catch (error) {
-      console.error('❌ Failed to get JIWA status:', error.message);
+      logger.error('❌ Failed to get JIWA status:', error.message);
       return null;
     }
   }
@@ -210,7 +210,7 @@ export class JiwaClient {
 
     if (!soulReading) {
       // JIWA not available, return original response
-      console.log('⚠️ JIWA not available, returning original response');
+      logger.info('⚠️ JIWA not available, returning original response');
       return response;
     }
 

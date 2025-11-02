@@ -1,5 +1,6 @@
 /**
- * ZANTARA TS-BACKEND Server
+ * ZANTARA 
+app.use(correlationMiddleware());TS-BACKEND Server
  * Main entry point for the TypeScript backend service
  */
 
@@ -506,6 +507,7 @@ async function startServer() {
 
   // Cursor Ultra Auto Patch: Enhanced Code Quality Routes
   const codeQualityRoutes = await import('./routes/code-quality.routes.js');
+import correlationMiddleware from '../logging/correlation-middleware.js';
   app.use('/code-quality', codeQualityRoutes.default);
   logger.info('✅ Enhanced Code Quality Monitor loaded');
 

@@ -885,7 +885,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
   }
 
   private async storeAnalysisResults(type: string, results: any): Promise<void> {
-    logger.info(`Analytics results stored: ${type}`, { count: results.insights?.length || 0 });
+    logger.info('Analytics results stored: ${type}', { count: results.insights?.length || 0 });
   }
 
   private async performPeriodicAnalysis(): Promise<void> {

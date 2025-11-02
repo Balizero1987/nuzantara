@@ -33,7 +33,7 @@ async function getAuthenticatedService<T>(
 ): Promise<T | null> {
 
   // Detailed auth configuration logging
-  logger.info(`🔍 Auth config for ${config.serviceName}:`, {
+  logger.info('🔍 Auth config for ${config.serviceName}:', {
     USE_OAUTH2: process.env.USE_OAUTH2 || 'not set',
     GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS ? 'set' : 'not set',
     GOOGLE_SERVICE_ACCOUNT_KEY: process.env.GOOGLE_SERVICE_ACCOUNT_KEY ? 'set' : 'not set',
@@ -45,7 +45,7 @@ async function getAuthenticatedService<T>(
   const useOAuth2 = process.env.USE_OAUTH2 === 'true';
   const oauth2Available = useOAuth2 ? await isOAuth2Available() : false;
 
-  logger.info(`🔐 Auth decision for ${config.serviceName}:`, {
+  logger.info('🔐 Auth decision for ${config.serviceName}:', {
     USE_OAUTH2_env: process.env.USE_OAUTH2,
     useOAuth2_parsed: useOAuth2,
     oauth2Available: oauth2Available,
@@ -106,8 +106,8 @@ async function getAuthenticatedService<T>(
       throw new Error('Service account JSON missing client_email/private_key');
     }
 
-    logger.info(`📋 Service Account config:`, {
-      keyFile: keyFile ? `✅ Set (${keyFile})` : '❌ Not set',
+    logger.info('📋 Service Account config:', {
+      keyFile: keyFile ? `✅ Set (${keyFile});` : '❌ Not set',
       credentialsKey: raw ? `✅ Set (length: ${raw.length})` : '❌ Not set',
       client_email: sa.client_email || 'missing',
       private_key: sa.private_key ? `✅ Set (length: ${sa.private_key.length})` : '❌ Missing',
@@ -128,7 +128,7 @@ async function getAuthenticatedService<T>(
     return service;
   } catch (error: any) {
     logger.error(`❌ ${config.serviceName} Service Account authentication failed:`, error?.message);
-    logger.error(`❌ Error details:`, {
+    logger.error('❌ Error details:', undefined, {
       name: error.name,
       code: error.code,
       status: error.status,

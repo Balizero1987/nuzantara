@@ -48,7 +48,7 @@ export class SuperToolHandlers {
           throw new Error(`Unknown super-tool: ${superTool.tool}`);
       }
     } catch (error) {
-      console.error(`Super-tool execution error:`, error);
+      logger.error(`Super-tool execution error:`, error);
       return {
         success: false,
         error: error.message || 'Unknown error'
@@ -246,7 +246,7 @@ export class SuperToolHandlers {
 
   private async queryPricing(data: any): Promise<SuperToolResult> {
     // This is a stub - connect to your actual pricing database
-    console.log('[SuperTool] Query Pricing:', data);
+    logger.info('[SuperTool] Query Pricing:', data);
 
     return {
       success: true,
@@ -263,7 +263,7 @@ export class SuperToolHandlers {
   }
 
   private async queryMemory(action: string, data: any, filters: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Query Memory:', { action, data, filters });
+    logger.info('[SuperTool] Query Memory:', { action, data, filters });
 
     // Route to Python RAG backend for memory operations
     try {
@@ -289,7 +289,7 @@ export class SuperToolHandlers {
   }
 
   private async queryKnowledge(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Query Knowledge:', data);
+    logger.info('[SuperTool] Query Knowledge:', data);
 
     // Route to Python RAG backend
     try {
@@ -315,7 +315,7 @@ export class SuperToolHandlers {
   }
 
   private async queryTeam(action: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Query Team:', { action, data });
+    logger.info('[SuperTool] Query Team:', { action, data });
 
     // Stub - integrate with your team management system
     return {
@@ -331,7 +331,7 @@ export class SuperToolHandlers {
   }
 
   private async queryKBLI(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Query KBLI:', data);
+    logger.info('[SuperTool] Query KBLI:', data);
 
     // Stub - integrate with KBLI lookup
     return {
@@ -346,7 +346,7 @@ export class SuperToolHandlers {
   }
 
   private async queryClient(action: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Query Client:', { action, data });
+    logger.info('[SuperTool] Query Client:', { action, data });
 
     // Stub - integrate with client DB
     return {
@@ -361,7 +361,7 @@ export class SuperToolHandlers {
   }
 
   private async queryProject(action: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Query Project:', { action, data });
+    logger.info('[SuperTool] Query Project:', { action, data });
 
     // Stub - integrate with project DB
     return {
@@ -376,7 +376,7 @@ export class SuperToolHandlers {
   }
 
   private async querySession(action: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Query Session:', { action, data });
+    logger.info('[SuperTool] Query Session:', { action, data });
 
     // Stub - integrate with session DB
     return {
@@ -391,7 +391,7 @@ export class SuperToolHandlers {
   }
 
   private async queryOracle(action: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Query Oracle:', { action, data });
+    logger.info('[SuperTool] Query Oracle:', { action, data });
 
     // Route to Python backend
     try {
@@ -414,7 +414,7 @@ export class SuperToolHandlers {
   }
 
   private async intelligentQuery(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Intelligent Query (fallback):', data);
+    logger.info('[SuperTool] Intelligent Query (fallback):', data);
 
     // Fallback for queries without explicit source
     return {
@@ -428,7 +428,7 @@ export class SuperToolHandlers {
   }
 
   private async saveData(source: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Save Data:', { source, data });
+    logger.info('[SuperTool] Save Data:', { source, data });
 
     // Stub - integrate with your data persistence layer
     return {
@@ -444,7 +444,7 @@ export class SuperToolHandlers {
   }
 
   private async updateData(source: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Update Data:', { source, data });
+    logger.info('[SuperTool] Update Data:', { source, data });
 
     return {
       success: true,
@@ -458,7 +458,7 @@ export class SuperToolHandlers {
   }
 
   private async deleteData(source: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Delete Data:', { source, data });
+    logger.info('[SuperTool] Delete Data:', { source, data });
 
     return {
       success: true,
@@ -472,7 +472,7 @@ export class SuperToolHandlers {
   }
 
   private async createData(source: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Create Data:', { source, data });
+    logger.info('[SuperTool] Create Data:', { source, data });
 
     return {
       success: true,
@@ -487,7 +487,7 @@ export class SuperToolHandlers {
   }
 
   private async sendNotification(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Send Notification:', data);
+    logger.info('[SuperTool] Send Notification:', data);
 
     // Stub - integrate with notification service
     return {
@@ -502,7 +502,7 @@ export class SuperToolHandlers {
   }
 
   private async generateQuote(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Generate Quote:', data);
+    logger.info('[SuperTool] Generate Quote:', data);
 
     return {
       success: true,
@@ -519,7 +519,7 @@ export class SuperToolHandlers {
   }
 
   private async generateDocument(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Generate Document:', data);
+    logger.info('[SuperTool] Generate Document:', data);
 
     return {
       success: true,
@@ -535,7 +535,7 @@ export class SuperToolHandlers {
   }
 
   private async generateReport(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Generate Report:', data);
+    logger.info('[SuperTool] Generate Report:', data);
 
     return {
       success: true,
@@ -551,7 +551,7 @@ export class SuperToolHandlers {
   }
 
   private async generateInvoice(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Generate Invoice:', data);
+    logger.info('[SuperTool] Generate Invoice:', data);
 
     return {
       success: true,
@@ -567,7 +567,7 @@ export class SuperToolHandlers {
   }
 
   private async generateGeneric(action: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Generate Generic:', { action, data });
+    logger.info('[SuperTool] Generate Generic:', { action, data });
 
     return {
       success: true,
@@ -581,7 +581,7 @@ export class SuperToolHandlers {
   }
 
   private async handleLogin(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Handle Login:', data);
+    logger.info('[SuperTool] Handle Login:', data);
 
     return {
       success: true,
@@ -595,7 +595,7 @@ export class SuperToolHandlers {
   }
 
   private async handleLogout(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Handle Logout:', data);
+    logger.info('[SuperTool] Handle Logout:', data);
 
     return {
       success: true,
@@ -608,7 +608,7 @@ export class SuperToolHandlers {
   }
 
   private async identifyUser(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Identify User:', data);
+    logger.info('[SuperTool] Identify User:', data);
 
     return {
       success: true,
@@ -621,7 +621,7 @@ export class SuperToolHandlers {
   }
 
   private async updateConfig(data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] Update Config:', data);
+    logger.info('[SuperTool] Update Config:', data);
 
     return {
       success: true,
@@ -634,7 +634,7 @@ export class SuperToolHandlers {
   }
 
   private async systemOperation(action: string, data: any): Promise<SuperToolResult> {
-    console.log('[SuperTool] System Operation:', { action, data });
+    logger.info('[SuperTool] System Operation:', { action, data });
 
     return {
       success: true,

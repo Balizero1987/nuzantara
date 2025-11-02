@@ -147,7 +147,7 @@ function blockRequest(res: Response, message: string, statusCode: number) {
 }
 
 function logSuspiciousActivity(ip: string, stats: IPStats, level: string) {
-  console.warn(`🚨 ${level} IP ACTIVITY: ${ip}`, {
+  logger.warn(`🚨 ${level} IP ACTIVITY: ${ip}`, {
     requests: stats.requestCount,
     timespan: new Date(stats.firstRequest).toISOString(),
     userAgents: Array.from(stats.userAgents),
@@ -171,7 +171,7 @@ function sendToMonitoring(ip: string, stats: IPStats, level: string) {
   };
   
   // Would send to webhook here
-  console.log('📊 Monitoring alert:', alertMessage);
+  logger.info('📊 Monitoring alert:', alertMessage);
 }
 
 // Cleanup old entries periodically
