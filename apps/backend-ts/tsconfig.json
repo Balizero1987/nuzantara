@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "declaration": false,
     "sourceMap": false,
-    "noEmitOnError": false,
+    "noEmitOnError": true,
     "noImplicitAny": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false
@@ -41,6 +41,7 @@
     "src/handlers/analytics/dashboard-analytics.ts",
     "src/middleware/chat-oidc.ts",
     "src/handlers/communication/translate.ts",
-    "src/handlers/memory/conversation-autosave.ts"
+    "src/handlers/memory/conversation-autosave.ts",
+    "src/logging/**/*"
   ]
 }
