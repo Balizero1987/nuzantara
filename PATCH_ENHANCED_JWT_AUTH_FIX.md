@@ -338,3 +338,4 @@ Se durante l'applicazione della patch si verificano problemi:
 **Deploy Status:** ⏳ In attesa (problema CLI Fly.io temporaneo)
 
 
+

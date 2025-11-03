@@ -1,0 +1,21 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-error.log*
+
+# Output
+.dist
+dist
+coverage
+
+# VCS
+.git
+.gitignore
+.github
+
+# Editor
+.vscode
+.idea
+
+# Misc
+.DS_Store
