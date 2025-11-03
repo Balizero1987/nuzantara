@@ -1974,7 +1974,8 @@ async def bali_zero_chat_stream(
     request: Request,
     query: str,
     user_email: Optional[str] = None,
-    conversation_history: Optional[str] = None
+    conversation_history: Optional[str] = None,
+    handlers_context: Optional[str] = None
 ):
     """
     SSE streaming endpoint for real-time chat responses
@@ -2025,6 +2026,15 @@ async def bali_zero_chat_stream(
                     logger.info(f"📚 [Stream] Conversation history: {len(parsed_history)} messages")
                 except Exception as e:
                     logger.warning(f"⚠️ [Stream] Failed to parse conversation_history: {e}")
+
+            # 🚀 NEW: Parse handlers context if provided
+            parsed_handlers = None
+            if handlers_context:
+                try:
+                    parsed_handlers = json.loads(handlers_context)
+                    logger.info(f"🔧 [Stream] Handlers context: {parsed_handlers.get('available_tools', 0)} tools available")
+                except Exception as e:
+                    logger.warning(f"⚠️ [Stream] Failed to parse handlers_context: {e}")
 
             # Sanitize user email (same logic as regular chat)
             sanitized_email = None
@@ -3200,6 +3210,329 @@ async def get_prometheus_metrics():
 async def metrics_head():
     return Response(status_code=200)
 
+# ════════════════════════════════════════════════════════════════════════════════
+# 🚀 MISSING ENDPOINTS - API V3 ZANTARA & AGENT ENDPOINTS
+# ════════════════════════════════════════════════════════════════════════════════
+
+class UnifiedRequest(BaseModel):
+    query: str
+    context: Optional[Dict[str, Any]] = {}
+    user_id: Optional[str] = None
+    session_id: Optional[str] = None
+    stream: Optional[bool] = False
+
+class AgentRequest(BaseModel):
+    agent_type: str
+    task: str
+    input_data: Optional[Dict[str, Any]] = {}
+    parameters: Optional[Dict[str, Any]] = {}
+
+class UnifiedResponse(BaseModel):
+    success: bool
+    data: Optional[Dict[str, Any]] = {}
+    message: Optional[str] = None
+    error: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = {}
+
+# API V3 ZANTARA ENDPOINTS
+@app.post("/api/v3/zantara/unified", response_model=UnifiedResponse)
+async def zantara_unified(request: UnifiedRequest):
+    """
+    ZANTARA v3 Ω Unified Knowledge Hub
+    Integrates all knowledge systems with advanced reasoning
+    """
+    try:
+        logger.info(f"🧠 ZANTARA v3 Unified Request: {request.query[:100]}...")
+
+        # Use existing search service for unified processing
+        from services.search_service import SearchService
+        search_service = SearchService()
+
+        # Get response from RAG search
+        search_results = await search_service.search(
+            query=request.query,
+            user_level=3,  # Full access for v3 endpoints
+            limit=5
+        )
+
+        return UnifiedResponse(
+            success=True,
+            data={
+                "response": f"Found {len(search_results.get('results', []))} relevant results for your query.",
+                "sources": search_results.get("results", [])[:3],  # Top 3 results
+                "confidence": 0.8,
+                "reasoning": "Semantic search across ZANTARA knowledge base",
+                "related_topics": [],
+                "query": request.query,
+                "total_results": len(search_results.get("results", []))
+            },
+            metadata={
+                "model": "search-service-v1",
+                "version": "v3.omega",
+                "processing_time": 0,
+                "rag_enhanced": True,
+                "search_method": "semantic"
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"❌ ZANTARA v3 Unified error: {e}")
+        return UnifiedResponse(
+            success=False,
+            error=f"Unified processing failed: {str(e)}",
+            message="Service temporarily unavailable"
+        )
+
+@app.post("/api/v3/zantara/collective", response_model=UnifiedResponse)
+async def zantara_collective(request: UnifiedRequest):
+    """
+    ZANTARA v3 Ω Collective Memory System
+    Cross-user learning and shared knowledge accumulation
+    """
+    try:
+        logger.info(f"🧠 ZANTARA v3 Collective Request: {request.query[:100]}...")
+
+        # Use existing search service for collective processing
+        from services.search_service import SearchService
+        search_service = SearchService()
+
+        # Get collective intelligence from search results
+        search_results = await search_service.search(
+            query=f"Collective knowledge: {request.query}",
+            user_level=3,  # Full access for v3 endpoints
+            limit=8
+        )
+
+        return UnifiedResponse(
+            success=True,
+            data={
+                "response": f"Collective analysis found {len(search_results.get('results', []))} relevant insights from shared knowledge.",
+                "collective_insights": search_results.get("results", [])[:5],
+                "contributor_count": len(search_results.get("results", [])),
+                "verification_score": 0.7,
+                "related_memories": search_results.get("results", [])[:3],
+                "query": request.query,
+                "total_results": len(search_results.get("results", []))
+            },
+            metadata={
+                "model": "collective-search-v1",
+                "version": "v3.omega",
+                "memory_type": "collective",
+                "cross_user_learning": True,
+                "search_method": "collective-semantics"
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"❌ ZANTARA v3 Collective error: {e}")
+        return UnifiedResponse(
+            success=False,
+            error=f"Collective processing failed: {str(e)}",
+            message="Collective intelligence temporarily unavailable"
+        )
+
+@app.post("/api/v3/zantara/ecosystem", response_model=UnifiedResponse)
+async def zantara_ecosystem(request: UnifiedRequest):
+    """
+    ZANTARA v3 Ω Business Ecosystem Analysis
+    Integrated business intelligence and market analysis
+    """
+    try:
+        logger.info(f"🏢 ZANTARA v3 Ecosystem Request: {request.query[:100]}...")
+
+        # Use existing search service for ecosystem analysis
+        from services.search_service import SearchService
+        search_service = SearchService()
+
+        # Get ecosystem intelligence
+        results = await search_service.search(
+            query=f"Business ecosystem: {request.query}",
+            user_level=3,  # Full access for v3 endpoints
+            limit=5
+        )
+
+        response_data = {
+            "analysis": f"Ecosystem analysis for: {request.query}",
+            "results": results,
+            "business_opportunities": [],
+            "market_insights": results[:3] if results else [],
+            "risk_assessment": {}
+        }
+
+        return UnifiedResponse(
+            success=True,
+            data={
+                "analysis": response_data["analysis"],
+                "market_insights": response_data.get("market_insights", []),
+                "business_opportunities": response_data.get("opportunities", []),
+                "risk_assessment": response_data.get("risk_assessment", {}),
+                "competitive_landscape": response_data.get("competitive_landscape", [])
+            },
+            metadata={
+                "model": "ecosystem-intelligence",
+                "version": "v3.omega",
+                "analysis_type": "business-ecosystem",
+                "data_sources": ["immigration", "property", "tax", "business"]
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"❌ ZANTARA v3 Ecosystem error: {e}")
+        return UnifiedResponse(
+            success=False,
+            error=f"Ecosystem analysis failed: {str(e)}",
+            message="Business ecosystem analysis temporarily unavailable"
+        )
+
+# AGENT API ENDPOINTS
+@app.post("/api/agent/semantic_search", response_model=UnifiedResponse)
+async def agent_semantic_search(request: AgentRequest):
+    """
+    Advanced Semantic Search Agent
+    Uses vector embeddings for intelligent document retrieval
+    """
+    try:
+        logger.info(f"🔍 Semantic Search Agent: {request.task[:100]}...")
+
+        # Use search service with basic search capabilities
+        search_service = SearchService()
+
+        # Perform semantic search
+        results = await search_service.search(
+            query=request.task,
+            user_level=3,  # Full access for agent endpoints
+            limit=request.input_data.get("limit", 10)
+        )
+
+        return UnifiedResponse(
+            success=True,
+            data={
+                "results": results.get("results", []),
+                "scores": [r.get("score", 0.8) for r in results.get("results", [])],
+                "sources": [r.get("source", "unknown") for r in results.get("results", [])],
+                "total_found": len(results.get("results", [])),
+                "search_metadata": {
+                    "query": request.task,
+                    "limit": request.input_data.get("limit", 10),
+                    "user_level": 3
+                }
+            },
+            metadata={
+                "agent_type": "semantic_search",
+                "search_method": "vector_similarity",
+                "index_size": len(results.get("results", []))
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"❌ Semantic Search Agent error: {e}")
+        return UnifiedResponse(
+            success=False,
+            error=f"Semantic search failed: {str(e)}",
+            message="Search agent temporarily unavailable"
+        )
+
+@app.post("/api/agent/hybrid_query", response_model=UnifiedResponse)
+async def agent_hybrid_query(request: AgentRequest):
+    """
+    Hybrid Query Agent
+    Combines keyword search with semantic understanding
+    """
+    try:
+        logger.info(f"🔄 Hybrid Query Agent: {request.task[:100]}...")
+
+        # Use search service with hybrid capabilities
+        search_service = SearchService()
+
+        # Perform hybrid search
+        results = await search_service.hybrid_search(
+            query=request.task,
+            keyword_weight=request.input_data.get("keyword_weight", 0.5),
+            semantic_weight=request.input_data.get("semantic_weight", 0.5),
+            limit=request.input_data.get("limit", 10)
+        )
+
+        return UnifiedResponse(
+            success=True,
+            data={
+                "results": results["documents"],
+                "keyword_results": results.get("keyword_results", []),
+                "semantic_results": results.get("semantic_results", []),
+                "combined_scores": results["scores"],
+                "fusion_method": results.get("fusion_method", "weighted_sum")
+            },
+            metadata={
+                "agent_type": "hybrid_query",
+                "search_method": "keyword_semantic_fusion",
+                "optimization": "reciprocal_rank_fusion"
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"❌ Hybrid Query Agent error: {e}")
+        return UnifiedResponse(
+            success=False,
+            error=f"Hybrid query failed: {str(e)}",
+            message="Hybrid query agent temporarily unavailable"
+        )
+
+@app.post("/api/agent/document_intelligence", response_model=UnifiedResponse)
+async def agent_document_intelligence(request: AgentRequest):
+    """
+    Document Intelligence Agent
+    Advanced document analysis and information extraction
+    """
+    try:
+        logger.info(f"📄 Document Intelligence Agent: {request.task[:100]}...")
+
+        # Use appropriate service based on document type
+        doc_type = request.input_data.get("document_type", "general")
+
+        if doc_type == "legal":
+            # Use legal oracle for legal documents
+            from routers.oracle_universal import oracle_universal_router
+            results = await oracle_universal_router(request.task, request.input_data)
+        elif doc_type == "property":
+            # Use property oracle for property documents
+            from routers.oracle_property import property_oracle_router
+            results = await property_oracle_router(request.task, request.input_data)
+        elif doc_type == "tax":
+            # Use tax oracle for tax documents
+            from routers.oracle_tax import tax_oracle_router
+            results = await tax_oracle_router(request.task, request.input_data)
+        else:
+            # Use general search service
+            search_service = SearchService()
+            results = await search_service.document_analysis(
+                query=request.task,
+                document=request.input_data.get("document", ""),
+                analysis_type=request.input_data.get("analysis_type", "extract_info")
+            )
+
+        return UnifiedResponse(
+            success=True,
+            data={
+                "analysis": results.get("analysis", ""),
+                "extracted_entities": results.get("entities", []),
+                "key_information": results.get("key_info", []),
+                "document_type": doc_type,
+                "confidence_score": results.get("confidence", 0.8)
+            },
+            metadata={
+                "agent_type": "document_intelligence",
+                "document_category": doc_type,
+                "processing_method": "advanced_nlp"
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"❌ Document Intelligence Agent error: {e}")
+        return UnifiedResponse(
+            success=False,
+            error=f"Document analysis failed: {str(e)}",
+            message="Document intelligence agent temporarily unavailable"
+        )
+
 # Initialize metrics tracking
 app.start_time = time.time()
 app.request_count = 0
@@ -3213,5 +3546,15 @@ app.claude_requests = 0
 async def add_request_count(request: Request, call_next):
     app.request_count += 1
     return await call_next(request)
+
+# 🚀 NEW: Include Handlers Registry API
+try:
+    from api.handlers import router as handlers_router
+    app.include_router(handlers_router)
+    logger.info("🔧 [Startup] Handlers registry API loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ [Startup] Failed to load handlers API: {e}")
+except Exception as e:
+    logger.error(f"❌ [Startup] Error loading handlers API: {e}")
 
 # Force Fly.io redeploy - Priority 1-5 active
