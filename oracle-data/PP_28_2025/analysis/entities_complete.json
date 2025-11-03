@@ -1,0 +1,483 @@
+{
+  "definitions": {
+    "PB": {
+      "full_term": "Perizinan Berusaha",
+      "acronym": "PB",
+      "definition": "legalitas yang diberikan kepada Pelaku Usaha untuk\nmemulai dan menjalankan usaha dan/atau kegiatannya.",
+      "article": "Pasal 1",
+      "number": "3"
+    },
+    "KEK": {
+      "full_term": "Kawasan Ekonomi Khusus",
+      "acronym": "KEK",
+      "definition": "Kawasan Ekonomi Khusus sebagaimana\ndiatur dalam peraturan perundang-undangan di bidang\nkawasan ekonomi khusus.",
+      "article": "Pasal 1",
+      "number": "7"
+    },
+    "KPBPB": {
+      "full_term": "Kawasan Perdagangan Bebas dan Pelabuhan Bebas",
+      "acronym": "KPBPB",
+      "definition": "Kawasan\nPerdagangan Bebas dan Pelabuhan Bebas sebagaimana\ndiatur dalam peraturan perundang-undangan di bidang\nkawasan perdagangan bebas dan pelabuhan bebas.",
+      "article": "Pasal 1",
+      "number": "8"
+    },
+    "NIB": {
+      "full_term": "Nomor Induk Berusaha",
+      "acronym": "NIB",
+      "definition": "bukti registrasi/pendaftaran Pelaku Usaha untuk\nmelakukan kegiatan usaha dan sebagai identitas bagi\nPelaku Usaha dalam pelaksanaan kegiatan usahanya.",
+      "article": "Pasal 1",
+      "number": "2"
+    },
+    "SPPL": {
+      "full_term": "Surat Pernyataan Kesanggupan Pengelolaan dan\nPemantauan Lingkungan Hidup",
+      "acronym": "SPPL",
+      "definition": "Surat Pernyataan Kesanggupan\nPengelolaan dan Pemantauan Lingkungan Hidup\nsebagaimana dimaksud dalam peraturan perundang-\nundangan di bidang perlindungan dan pengelolaan\nlingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "15"
+    },
+    "UMK": {
+      "full_term": "Usaha Mikro dan Kecil",
+      "acronym": "UMK",
+      "definition": "Usaha Mikro dan Usaha Kecil sebagaimana\ndimaksud dalam Undang-Undang mengenai Usaha Mikro,\nKecil, dan Menengah.",
+      "article": "Pasal 1",
+      "number": "18"
+    },
+    "KBLI": {
+      "full_term": "Klasifikasi Baku Lapangan Usaha Indonesia",
+      "acronym": "KBLI",
+      "definition": "kode klasifikasi yang\ndiatur oleh lembaga pemerintah nonkementerian yang\nmelaksanakan tugas pemerintahan di bidang statistik.",
+      "article": "Pasal 1",
+      "number": "20"
+    },
+    "DPMPTSP": {
+      "full_term": "Dinas Penanaman Modal dan Pelayanan Terpadu Satu\nPintu",
+      "acronym": "DPMPTSP",
+      "definition": "organisasi perangkat daerah pemerintah provinsi atau\npemerintah kabupatenlkota yang mempunyai tugas\nmenyelenggarakan urusan pemerintahan daerah di\nbidang Penanaman Modal.",
+      "article": "Pasal 1",
+      "number": "25"
+    },
+    "KKPR": {
+      "full_term": "Kesesuaian Kegiatan Pemanfaatan Ruang",
+      "acronym": "KKPR",
+      "definition": "kesesuaian antara\nrencana kegiatan pemanfaatan rllang dengan rencana\ntata ruang.",
+      "article": "Pasal 1",
+      "number": "27"
+    },
+    "KKPRL": {
+      "full_term": "Kesesuaian Kegiatan Pemanfaatan Ruang Laut",
+      "acronym": "KKPRL",
+      "definition": "kesesuaian antara\nrencana kegiatan pemanfaatan ruang dengan rencana\ntata ruang yang lokasi usahanya berada di laut.",
+      "article": "Pasal 1",
+      "number": "28"
+    },
+    "PL": {
+      "full_term": "Persetujuan Lingkungan",
+      "acronym": "PL",
+      "definition": "Persetujuan Lingkungan sebagaimana diatur\ndalam peraturan perundang-undangan di bidang\nperlindungan dan pengelolaan lingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "29"
+    },
+    "PBG": {
+      "full_term": "Persetujuan Bangunan Gedung",
+      "acronym": "PBG",
+      "definition": "Persetujuan Bangunan Gedung\nsebagaimana diatur dalam peraturan perundang-\nundangan di bidang bangunan gedung.",
+      "article": "Pasal 1",
+      "number": "30"
+    },
+    "RTR": {
+      "full_term": "Rencana Tata Ruang",
+      "acronym": "RTR",
+      "definition": "Rencana Tata Ruang sebagaimana diatur dalam\nperaturan perundang-undangan di bidang tata ruang.",
+      "article": "Pasal 1",
+      "number": "33"
+    },
+    "RDTR": {
+      "full_term": "Rencana Detail Tata Ruang",
+      "acronym": "RDTR",
+      "definition": "Rencana Detail Tata Ruang sebagaimana\ndiatur dalam peraturan perundang-undangan di bidang\ntata ruang.",
+      "article": "Pasal 1",
+      "number": "34"
+    },
+    "PNBP": {
+      "full_term": "Penerimaan Negara Bukan Pajak",
+      "acronym": "PNBP",
+      "definition": "Penerimaan Negara Bukan Pajak\nsebagaimana diatur dalam peraturan perundang-\nundangan di bidang penerimaan negara bukan pajak.",
+      "article": "Pasal 1",
+      "number": "40"
+    },
+    "Risiko": {
+      "full_term": "Risiko",
+      "definition": "potensi terjadinya cedera atau kerugian dari\nsuatu bahaya atau kombinasi kemungkinan dan akibat\nbahaya.",
+      "article": "Pasal 1",
+      "number": "2"
+    },
+    "Perizinan Berusaha yang selanjutnya disingkat PB": {
+      "full_term": "Perizinan Berusaha yang selanjutnya disingkat PB",
+      "definition": "legalitas yang diberikan kepada Pelaku Usaha untuk\nmemulai dan menjalankan usaha dan/atau kegiatannya.",
+      "article": "Pasal 1",
+      "number": "3"
+    },
+    "Perizinan Berusaha Untuk Menunjang Kegiatan Usaha\nyang selanjutnya disingkat PB UMKU": {
+      "full_term": "Perizinan Berusaha Untuk Menunjang Kegiatan Usaha\nyang selanjutnya disingkat PB UMKU",
+      "definition": "legalitas\nyang diberikan kepada Pelaku Usaha untuk menunjang\nkegiatan usaha.",
+      "article": "Pasal 1",
+      "number": "4"
+    },
+    "Pemerintah Pusat": {
+      "full_term": "Pemerintah Pusat",
+      "definition": "Presiden Republik Indonesia\nyang memegang kekuasaan pemerintahan negara\nRepublik Indonesia yang dibantu oleh Wakil Presiden dan\nmenteri sebagaimana dimaksud dalam Undang-Undang\nDasar Negara Republik Indonesia Tahun 1945.",
+      "article": "Pasal 1",
+      "number": "5"
+    },
+    "Pemerintah Daerah": {
+      "full_term": "Pemerintah Daerah",
+      "definition": "kepala daerah sebagai unsur\npenyelenggara pemerintahan daerah yang memimpin\npelaksanaan urusan pemerintahan yang menjadi\nkewenangan daerah otonom.",
+      "article": "Pasal 1",
+      "number": "6"
+    },
+    "Kawasan Ekonomi Khusus yang selanjutnya disingkat\nKEK": {
+      "full_term": "Kawasan Ekonomi Khusus yang selanjutnya disingkat\nKEK",
+      "definition": "Kawasan Ekonomi Khusus sebagaimana\ndiatur dalam peraturan perundang-undangan di bidang\nkawasan ekonomi khusus.",
+      "article": "Pasal 1",
+      "number": "7"
+    },
+    "Kawasan Perdagangan Bebas dan Pelabuhan Bebas yang\nselanjutnya disingkat KPBPB": {
+      "full_term": "Kawasan Perdagangan Bebas dan Pelabuhan Bebas yang\nselanjutnya disingkat KPBPB",
+      "definition": "Kawasan\nPerdagangan Bebas dan Pelabuhan Bebas sebagaimana\ndiatur dalam peraturan perundang-undangan di bidang\nkawasan perdagangan bebas dan pelabuhan bebas.",
+      "article": "Pasal 1",
+      "number": "8"
+    },
+    "Administrator Kawasan Ekonomi Khusus yang\nselanjutnya disebut Administrator KEK": {
+      "full_term": "Administrator Kawasan Ekonomi Khusus yang\nselanjutnya disebut Administrator KEK",
+      "definition": "Administrator KEK sebagaimana diatur dalam peraturan\nperundang-undangan di bidang kawasan ekonomi\nkhusus.",
+      "article": "Pasal 1",
+      "number": "9"
+    },
+    "Badan Pengusahaan Kawasan Perdagangan Bebas dan\nPelabuhan Bebas yang selanjutnya disebut Badan\nPengusahaan KPBPB": {
+      "full_term": "Badan Pengusahaan Kawasan Perdagangan Bebas dan\nPelabuhan Bebas yang selanjutnya disebut Badan\nPengusahaan KPBPB",
+      "definition": "Badan Pengusahaan KPBPB\nsebagaimana diatur dalam peraturan perundang-\nundangan di bidang kawasan perdagangan bebas dan\npelabuhan bebas.",
+      "article": "Pasal 1",
+      "number": "10"
+    },
+    "Pelaku Usaha": {
+      "full_term": "Pelaku Usaha",
+      "definition": "orang perseorangan atau badan\nusaha yang melakukan usaha dan/atau kegiatan pada\nbidang tertentu.",
+      "article": "Pasal 1",
+      "number": "11"
+    },
+    "Nomor Induk Berusaha yang selanjutnya disingkat NIB": {
+      "full_term": "Nomor Induk Berusaha yang selanjutnya disingkat NIB",
+      "definition": "bukti registrasi/pendaftaran Pelaku Usaha untuk\nmelakukan kegiatan usaha dan sebagai identitas bagi\nPelaku Usaha dalam pelaksanaan kegiatan usahanya.",
+      "article": "Pasal 1",
+      "number": "2"
+    },
+    "Sertifikat Standar": {
+      "full_term": "Sertifikat Standar",
+      "definition": "pernyataan dan/atau bukti\npemenuhan standar pelaksanaan kegiatan usaha.",
+      "article": "Pasal 1",
+      "number": "13"
+    },
+    "Izin": {
+      "full_term": "Izin",
+      "definition": "persetujuan Pemerintah Pusat atau\nPemerintah Daerah untuk pelaksanaan kegiatan usaha\nyang wajib dipenuhi oleh Pelaku Usaha sebelum\nmelaksanakan kegiatan usahanya.",
+      "article": "Pasal 1",
+      "number": "14"
+    },
+    "Surat Pernyataan Kesanggupan Pengelolaan dan\nPemantauan Lingkungan Hidup yang selanjutnya\ndisingkat SPPL": {
+      "full_term": "Surat Pernyataan Kesanggupan Pengelolaan dan\nPemantauan Lingkungan Hidup yang selanjutnya\ndisingkat SPPL",
+      "definition": "Surat Pernyataan Kesanggupan\nPengelolaan dan Pemantauan Lingkungan Hidup\nsebagaimana dimaksud dalam peraturan perundang-\nundangan di bidang perlindungan dan pengelolaan\nlingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "15"
+    },
+    "Upaya Pengelolaan Lingkungan Hidup dan Upaya\nPemantauan Lingkungan Hidup yang selanjutnya\ndisingkat UKL-UPL": {
+      "full_term": "Upaya Pengelolaan Lingkungan Hidup dan Upaya\nPemantauan Lingkungan Hidup yang selanjutnya\ndisingkat UKL-UPL",
+      "definition": "Upaya Pengelolaan Lingkungan\nHidup dan Upaya Pemantauan Lingkungan Hidup\nsebagaimana dimaksud dalam peraturan perundang-\nundangan di bidang perlindungan dan pengelolaan\nlingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "16"
+    },
+    "Pengawasan": {
+      "full_term": "Pengawasan",
+      "definition": "upaya untuk memastikan\npelaksanaan kegiatan usaha sesuai dengan standar\npelaksanaan kegiatan usaha yang dilakukan melalui\npendekatan berbasis Risiko dan kewajiban yang harus\ndipenuhi oleh Pelaku Usaha.",
+      "article": "Pasal 1",
+      "number": "7"
+    },
+    "Usaha Mikro dan Kecil yang selanjutnya disingkat UMK": {
+      "full_term": "Usaha Mikro dan Kecil yang selanjutnya disingkat UMK",
+      "definition": "Usaha Mikro dan Usaha Kecil sebagaimana\ndimaksud dalam Undang-Undang mengenai Usaha Mikro,\nKecil, dan Menengah.",
+      "article": "Pasal 1",
+      "number": "18"
+    },
+    "Usaha Mikro, Kecil, dan Menengah yang selanjutnya\ndisingkat UMK-M": {
+      "full_term": "Usaha Mikro, Kecil, dan Menengah yang selanjutnya\ndisingkat UMK-M",
+      "definition": "Usaha Mikro, Usaha Kecil, dan\nUsaha Menengah sebagaimana dimaksud dalam Undang-\nUndang mengenai Usaha Mikro, Kecil, dan Menengah.",
+      "article": "Pasal 1",
+      "number": "19"
+    },
+    "Klasifikasi Baku Lapangan Usaha Indonesia yang\nselanjutnya disingkat KBLI": {
+      "full_term": "Klasifikasi Baku Lapangan Usaha Indonesia yang\nselanjutnya disingkat KBLI",
+      "definition": "kode klasifikasi yang\ndiatur oleh lembaga pemerintah nonkementerian yang\nmelaksanakan tugas pemerintahan di bidang statistik.",
+      "article": "Pasal 1",
+      "number": "20"
+    },
+    "Sistem Perizinan Berusaha Terintegrasi Secara Elektronik\n(Online Single Submission) yang selanjutnya disebut\nSistem OSS": {
+      "full_term": "Sistem Perizinan Berusaha Terintegrasi Secara Elektronik\n(Online Single Submission) yang selanjutnya disebut\nSistem OSS",
+      "definition": "sistem elektronik terintegrasi yang\ndikelola dan diselenggarakan oleh lembaga OSS untuk\npenyelenggaraan PBBR.",
+      "article": "Pasal 1",
+      "number": "21"
+    },
+    "Lembaga Pengelola dan Penyelenggara OSS yang\nselanjutnya disebut Lembaga OSS": {
+      "full_term": "Lembaga Pengelola dan Penyelenggara OSS yang\nselanjutnya disebut Lembaga OSS",
+      "definition": "kementerian/badan yang menyelenggarakan urusan\npemerintahan di bidang investasi dan tugas pemerintahan\ndi bidang koordinasi penanaman modal.",
+      "article": "Pasal 1",
+      "number": "22"
+    },
+    "Penanaman Modal": {
+      "full_term": "Penanaman Modal",
+      "definition": "Penanaman\nModal\nsebagaimana diatur dalam peraturan perundang-\nundangan di bidang penanaman modal.",
+      "article": "Pasal 1",
+      "number": "23"
+    },
+    "Penanaman Modal Asing": {
+      "full_term": "Penanaman Modal Asing",
+      "definition": "Penanaman Modal Asing\nsebagaimana diatur dalam peraturan perundang-\nundangan di bidang penanaman modal.",
+      "article": "Pasal 1",
+      "number": "24"
+    },
+    "Dinas Penanaman Modal dan Pelayanan Terpadu Satu\nPintu yang selanjutnya disingkat DPMPTSP": {
+      "full_term": "Dinas Penanaman Modal dan Pelayanan Terpadu Satu\nPintu yang selanjutnya disingkat DPMPTSP",
+      "definition": "organisasi perangkat daerah pemerintah provinsi atau\npemerintah kabupatenlkota yang mempunyai tugas\nmenyelenggarakan urusan pemerintahan daerah di\nbidang Penanaman Modal.",
+      "article": "Pasal 1",
+      "number": "25"
+    },
+    "Hari": {
+      "full_term": "Hari",
+      "definition": "hari kerja sesuai dengan yang ditetapkan oleh\nPemerintah Pusat.",
+      "article": "Pasal 1",
+      "number": "26"
+    },
+    "Kesesuaian Kegiatan Pemanfaatan Ruang yang\nselanjutnya disingkat KKPR": {
+      "full_term": "Kesesuaian Kegiatan Pemanfaatan Ruang yang\nselanjutnya disingkat KKPR",
+      "definition": "kesesuaian antara\nrencana kegiatan pemanfaatan rllang dengan rencana\ntata ruang.",
+      "article": "Pasal 1",
+      "number": "27"
+    },
+    "Kesesuaian Kegiatan Pemanfaatan Ruang Laut yang\nselanjutnya disingkat KKPRL": {
+      "full_term": "Kesesuaian Kegiatan Pemanfaatan Ruang Laut yang\nselanjutnya disingkat KKPRL",
+      "definition": "kesesuaian antara\nrencana kegiatan pemanfaatan ruang dengan rencana\ntata ruang yang lokasi usahanya berada di laut.",
+      "article": "Pasal 1",
+      "number": "28"
+    },
+    "Persetujuan Lingkungan yang selanjutnya disingkat PL": {
+      "full_term": "Persetujuan Lingkungan yang selanjutnya disingkat PL",
+      "definition": "Persetujuan Lingkungan sebagaimana diatur\ndalam peraturan perundang-undangan di bidang\nperlindungan dan pengelolaan lingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "29"
+    },
+    "Persetujuan Bangunan Gedung yang selanjutnya\ndisingkat PBG": {
+      "full_term": "Persetujuan Bangunan Gedung yang selanjutnya\ndisingkat PBG",
+      "definition": "Persetujuan Bangunan Gedung\nsebagaimana diatur dalam peraturan perundang-\nundangan di bidang bangunan gedung.",
+      "article": "Pasal 1",
+      "number": "30"
+    },
+    "Bangunan Gedung": {
+      "full_term": "Bangunan Gedung",
+      "definition": "Bangunan\nGedung\nsebagaimana diatur dalam peraturan perundang-\nundangan di bidang bangunan gedung.",
+      "article": "Pasal 1",
+      "number": "31"
+    },
+    "Sertifikat Laik Fungsi Bangunan Gedung yang selanjutnya\ndisebut SLF": {
+      "full_term": "Sertifikat Laik Fungsi Bangunan Gedung yang selanjutnya\ndisebut SLF",
+      "definition": "Sertifikat Laik Fungsi Bangunan\nGedung sebagaimana diatur dalam peraturan perundang-\nundangan di bidang bangunan gedung.",
+      "article": "Pasal 1",
+      "number": "32"
+    },
+    "Rencana Tata Ruang yang selanjutnya disingkat RTR": {
+      "full_term": "Rencana Tata Ruang yang selanjutnya disingkat RTR",
+      "definition": "Rencana Tata Ruang sebagaimana diatur dalam\nperaturan perundang-undangan di bidang tata ruang.",
+      "article": "Pasal 1",
+      "number": "33"
+    },
+    "Rencana Detail Tata Ruang yang selanjutnya disingkat\nRDTR": {
+      "full_term": "Rencana Detail Tata Ruang yang selanjutnya disingkat\nRDTR",
+      "definition": "Rencana Detail Tata Ruang sebagaimana\ndiatur dalam peraturan perundang-undangan di bidang\ntata ruang.",
+      "article": "Pasal 1",
+      "number": "34"
+    },
+    "Analisis Mengenai Dampak Lingkungan Hidup yang\nselanjutnya disebut Amdal": {
+      "full_term": "Analisis Mengenai Dampak Lingkungan Hidup yang\nselanjutnya disebut Amdal",
+      "definition": "Analisis Mengenai\nDampak Lingkungan Hidup sebagaimana diatur dalam\nperaturan perundang-undangan di bidang perlindungan\ndan pengelolaan lingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "35"
+    },
+    "Analisis Dampak Lingkungan Hidup yang selanjutnya\ndisebut Andal": {
+      "full_term": "Analisis Dampak Lingkungan Hidup yang selanjutnya\ndisebut Andal",
+      "definition": "Analisis Dampak Lingkungan Hidup\nsebagaimana diatur dalam peraturan perundang-\nundangan di bidang perlindungan dan pengelolaan\nlingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "36"
+    },
+    "Rencana Pengelolaan Lingkungan Hidup yang selanjutnya\ndisebut RKL": {
+      "full_term": "Rencana Pengelolaan Lingkungan Hidup yang selanjutnya\ndisebut RKL",
+      "definition": "Rencana Pengelolaan Lingkungan\nHidup sebagaimana diatur dalam peraturan perundang-\nundangan di bidang perlindungan dan pengelolaan\nlingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "37"
+    },
+    "Rencana Pemantauan Lingkungan Hidup yang\nselanjutnya disebut RPL": {
+      "full_term": "Rencana Pemantauan Lingkungan Hidup yang\nselanjutnya disebut RPL",
+      "definition": "Rencana Pemantauan\nLingkungan Hidup sebagaimana diatur dalam peraturan\nperundang-undangan di bidang perlindungan dan\npengelolaan lingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "38"
+    },
+    "Tim Uji Kelayakan Lingkungan Hidup": {
+      "full_term": "Tim Uji Kelayakan Lingkungan Hidup",
+      "definition": "Tim Uji\nKelayakan Lingkungan Hidup sebagaimana diatur dalam\nperaturan perundang-undangan di bidang perlindungan\ndan pengelolaan lingkungan hidup.",
+      "article": "Pasal 1",
+      "number": "39"
+    },
+    "Penerimaan Negara Bukan Pajak yang selanjutnya\ndisingkat PNBP": {
+      "full_term": "Penerimaan Negara Bukan Pajak yang selanjutnya\ndisingkat PNBP",
+      "definition": "Penerimaan Negara Bukan Pajak\nsebagaimana diatur dalam peraturan perundang-\nundangan di bidang penerimaan negara bukan pajak.",
+      "article": "Pasal 1",
+      "number": "40"
+    }
+  },
+  "legal_entities": [
+    {
+      "entity": "Pemerintah Pusat",
+      "count": 49
+    },
+    {
+      "entity": "Pemerintah Daerah",
+      "count": 53
+    },
+    {
+      "entity": "Presiden",
+      "count": 208
+    },
+    {
+      "entity": "Lembaga OSS",
+      "count": 29
+    },
+    {
+      "entity": "DPMPTSP",
+      "count": 28
+    },
+    {
+      "entity": "Pelaku Usaha",
+      "count": 474
+    },
+    {
+      "entity": "Kementerian",
+      "count": 118
+    },
+    {
+      "entity": "Imigrasi",
+      "count": 1
+    }
+  ],
+  "law_references": [
+    {
+      "type": "UU",
+      "number": "6",
+      "year": "2023",
+      "full_ref": "UU 6/2023"
+    },
+    {
+      "type": "UU",
+      "number": "6",
+      "year": "2023",
+      "full_ref": "UU 6/2023"
+    },
+    {
+      "type": "UU",
+      "number": "2",
+      "year": "2022",
+      "full_ref": "UU 2/2022"
+    },
+    {
+      "type": "UU",
+      "number": "2",
+      "year": "2022",
+      "full_ref": "UU 2/2022"
+    },
+    {
+      "type": "UU",
+      "number": "6",
+      "year": "2023",
+      "full_ref": "UU 6/2023"
+    },
+    {
+      "type": "UU",
+      "number": "2",
+      "year": "2022",
+      "full_ref": "UU 2/2022"
+    },
+    {
+      "type": "UU",
+      "number": "2",
+      "year": "2022",
+      "full_ref": "UU 2/2022"
+    },
+    {
+      "type": "UU",
+      "number": "6",
+      "year": "2023",
+      "full_ref": "UU 6/2023"
+    },
+    {
+      "type": "UU",
+      "number": "2",
+      "year": "2022",
+      "full_ref": "UU 2/2022"
+    },
+    {
+      "type": "UU",
+      "number": "6",
+      "year": "2023",
+      "full_ref": "UU 6/2023"
+    },
+    {
+      "type": "UU",
+      "number": "2",
+      "year": "2022",
+      "full_ref": "UU 2/2022"
+    }
+  ],
+  "key_terms": [
+    {
+      "term": "PBBR",
+      "count": 50
+    },
+    {
+      "term": "NIB",
+      "count": 44
+    },
+    {
+      "term": "OSS",
+      "count": 245
+    },
+    {
+      "term": "KBLI",
+      "count": 24
+    },
+    {
+      "term": "KKPR",
+      "count": 67
+    },
+    {
+      "term": "PBG",
+      "count": 31
+    },
+    {
+      "term": "SLF",
+      "count": 14
+    },
+    {
+      "term": "SPPL",
+      "count": 9
+    },
+    {
+      "term": "UKL-UPL",
+      "count": 33
+    }
+  ]
+}

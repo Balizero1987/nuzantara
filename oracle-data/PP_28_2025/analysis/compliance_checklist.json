@@ -1,0 +1,162 @@
+{
+  "law_id": "PP_28_2025",
+  "title": "PP 28/2025 Compliance Checklist",
+  "categories": [
+    {
+      "category": "1. Registration & NIB",
+      "mandatory": true,
+      "steps": [
+        {
+          "step": "Register in OSS system",
+          "system": "OSS",
+          "document": "KTP/Passport"
+        },
+        {
+          "step": "Obtain NIB",
+          "system": "OSS",
+          "auto_issued": true
+        },
+        {
+          "step": "Input KBLI 5-digit code",
+          "system": "OSS",
+          "reference": "Pasal 211"
+        }
+      ],
+      "references": [
+        "Pasal 4",
+        "Pasal 211"
+      ]
+    },
+    {
+      "category": "2. Risk-Based Licensing",
+      "mandatory": true,
+      "steps": [
+        {
+          "step": "Determine business risk level",
+          "system": "OSS"
+        },
+        {
+          "step": "Low risk: Sertifikat Standar only"
+        },
+        {
+          "step": "Medium risk: Sertifikat Standar + compliance"
+        },
+        {
+          "step": "High risk: Izin required"
+        }
+      ],
+      "references": [
+        "Pasal 1",
+        "Pasal 2"
+      ]
+    },
+    {
+      "category": "3. Environmental Compliance",
+      "mandatory": "Depends on activity",
+      "steps": [
+        {
+          "step": "Check if AMDAL required"
+        },
+        {
+          "step": "If not AMDAL: prepare UKL-UPL"
+        },
+        {
+          "step": "If minimal: SPPL self-declaration"
+        },
+        {
+          "step": "Obtain Persetujuan Lingkungan (PL)"
+        }
+      ],
+      "references": [
+        "Pasal 15",
+        "Pasal 16"
+      ]
+    },
+    {
+      "category": "4. Location & Building",
+      "mandatory": "If physical location",
+      "steps": [
+        {
+          "step": "Obtain KKPR (location suitability)",
+          "system": "OSS"
+        },
+        {
+          "step": "If construction: obtain PBG"
+        },
+        {
+          "step": "After construction: obtain SLF",
+          "penalty": "Cannot operate without"
+        }
+      ],
+      "references": [
+        "Pasal 27",
+        "Pasal 28"
+      ]
+    },
+    {
+      "category": "5. Foreign Workers (TKA)",
+      "mandatory": "If hiring foreigners",
+      "steps": [
+        {
+          "step": "Submit RPTKA",
+          "system": "Sistem Ketenagakerjaan",
+          "reference": "Pasal 212"
+        },
+        {
+          "step": "System forwards to OSS and Imigrasi",
+          "automated": true
+        },
+        {
+          "step": "Obtain work permit approval"
+        }
+      ],
+      "references": [
+        "Pasal 212"
+      ]
+    },
+    {
+      "category": "6. Ongoing Compliance",
+      "mandatory": true,
+      "steps": [
+        {
+          "step": "Maintain licenses validity",
+          "ongoing": true
+        },
+        {
+          "step": "Submit periodic reports"
+        },
+        {
+          "step": "Allow government inspections"
+        },
+        {
+          "step": "Update data if changes",
+          "system": "OSS"
+        }
+      ],
+      "references": [
+        "BAB VII - Pengawasan"
+      ]
+    },
+    {
+      "category": "7. Penalties",
+      "type": "warning",
+      "penalties": [
+        {
+          "violation": "Operating without license",
+          "penalty": "Operations stopped"
+        },
+        {
+          "violation": "False information",
+          "penalty": "License revocation"
+        },
+        {
+          "violation": "No SLF",
+          "penalty": "Building closure"
+        }
+      ],
+      "references": [
+        "BAB XI - Sanksi"
+      ]
+    }
+  ]
+}
