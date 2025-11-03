@@ -37,6 +37,9 @@ import translateRoutes from './communication/translate.routes.js';
 // Analytics Routes
 import analyticsRoutes from './analytics/analytics.routes.js';
 
+// RAG Management Routes
+import ragRoutes from './rag.routes.js';
+
 /**
  * Attach all routes to Express app
  */
@@ -64,8 +67,11 @@ export function attachModularRoutes(app: Express) {
 
   // Analytics
   app.use('/api/analytics', analyticsRoutes);
+  
+  // RAG Management
+  app.use('/api/rag', ragRoutes);
 
-  logger.info('✅ Modular routes attached');
+  logger.info('✅ Modular routes attached (including RAG)');
 }
 
 /**

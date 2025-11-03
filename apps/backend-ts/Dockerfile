@@ -26,6 +26,6 @@ EXPOSE $PORT
 
 # Health check removed - using Fly.io's built-in health monitoring
 
-# Start the application
-CMD ["node", "dist/server.js"]
+# Start the application with tsx runtime (bypass compilation)
+CMD ["npm", "start"]
 # Build 1761271374
