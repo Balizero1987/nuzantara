@@ -80,9 +80,10 @@ class ZantaraSSEClient {
    * @param {string} query - User message/question
    * @param {string} userEmail - Optional user email for personalization
    * @param {Array} conversationHistory - Optional conversation history for context
+   * @param {Object} handlersContext - Optional handlers context for ZANTARA
    * @returns {Promise<string>} - Resolves with complete message when done
    */
-  async stream(query, userEmail = null, conversationHistory = null) {
+  async stream(query, userEmail = null, conversationHistory = null, handlersContext = null) {
     if (this.isStreaming) {
       console.warn('[ZantaraSSE] Already streaming, stopping previous stream');
       this.stop();
@@ -113,6 +114,19 @@ class ZantaraSSEClient {
       if (conversationHistory && Array.isArray(conversationHistory) && conversationHistory.length > 0) {
         url.searchParams.append('conversation_history', JSON.stringify(conversationHistory));
         console.log('[ZantaraSSE] Sending conversation history:', conversationHistory.length, 'messages');
+      }
+
+      // 🚀 NEW: Add handlers context for ZANTARA
+      if (handlersContext) {
+        url.searchParams.append('handlers_context', JSON.stringify(handlersContext));
+        console.log('[ZantaraSSE] Sending handlers context:', handlersContext.available_tools, 'tools available');
+      } else {
+        // Try to get handlers context from localStorage
+        const handlersFromCache = this.getHandlersContext();
+        if (handlersFromCache) {
+          url.searchParams.append('handlers_context', JSON.stringify(handlersFromCache));
+          console.log('[ZantaraSSE] Sending cached handlers context:', handlersFromCache.available_tools, 'tools available');
+        }
       }
 
       const streamUrl = url.toString();
@@ -242,6 +256,50 @@ class ZantaraSSEClient {
    */
   clearMessage() {
     this.currentMessage = '';
+  }
+
+  /**
+   * Get handlers context from localStorage cache
+   */
+  getHandlersContext() {
+    try {
+      const cached = localStorage.getItem('zantara_handlers_registry');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+
+        // Check TTL (1 hour)
+        if (Date.now() - parsed.timestamp < parsed.ttl) {
+          return {
+            available_tools: parsed.data.total,
+            tools_summary: parsed.data.handlers,
+            categories: parsed.data.categories,
+            statistics: parsed.data.statistics,
+            timestamp: parsed.timestamp
+          };
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('[ZantaraSSE] Error reading handlers cache:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Set handlers context in localStorage cache
+   */
+  setHandlersContext(handlersData) {
+    try {
+      const cacheData = {
+        data: handlersData,
+        timestamp: Date.now(),
+        ttl: 3600000 // 1 hour
+      };
+      localStorage.setItem('zantara_handlers_registry', JSON.stringify(cacheData));
+      console.log('[ZantaraSSE] Handlers context cached:', handlersData.total, 'handlers');
+    } catch (error) {
+      console.error('[ZantaraSSE] Error caching handlers context:', error);
+    }
   }
 }
 
