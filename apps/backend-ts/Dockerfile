@@ -18,8 +18,8 @@ RUN npm install --legacy-peer-deps
 # Copy source code
 COPY src/ ./src/
 
-# Build the application
-RUN npm run build
+# Build bypassed - running TypeScript directly with tsx
+# RUN npm run build
 
 # Expose port (Fly.io uses PORT env var)
 EXPOSE $PORT
@@ -27,5 +27,5 @@ EXPOSE $PORT
 # Health check removed - using Fly.io's built-in health monitoring
 
 # Start the application with tsx runtime (bypass compilation)
-CMD ["npm", "start"]
+CMD ["npx", "tsx", "src/server.ts"]
 # Build 1761271374
