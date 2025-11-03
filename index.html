@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redirecting to ZANTARA...</title>
+<meta http-equiv="refresh" content="0; url=/login">
+<script>
+  // Immediate redirect to login
+  window.location.href = '/login';
+</script>
+<style>
+body {
+  background: #0a0a0a;
+  color: #d4af37;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+.redirect-text {
+  text-align: center;
+}
+.infinite {
+  display: inline-block;
+  animation: glow 2s infinite ease-in-out;
+}
+@keyframes glow {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+</style>
+</head>
+<body>
+  <div class="redirect-text">
+    <h1>ZANTARA <span class="infinite">∞</span></h1>
+    <p>Redirecting to login...</p>
+  </div>
+</body>
+</html>
