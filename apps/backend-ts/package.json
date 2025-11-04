@@ -2,8 +2,7 @@
   "name": "nuzantara-ts-backend",
   "version": "5.2.0",
   "private": true,
-  "type": "module",
-  "engines": {
+    "engines": {
     "node": "20"
   },
   "scripts": {
