@@ -14,33 +14,36 @@ import { BadRequestError } from '../../utils/errors.js';
 const router = Router();
 
 // Vision schemas
-const VisionAnalyzeSchema = z.object({
-  imageUrl: z.string().url().optional(),
-  imageData: z.string().optional(),
-  prompt: z.string().optional(),
-}).refine(
-  (data) => data.imageUrl || data.imageData,
-  { message: 'Either imageUrl or imageData is required' }
-);
+const VisionAnalyzeSchema = z
+  .object({
+    imageUrl: z.string().url().optional(),
+    imageData: z.string().optional(),
+    prompt: z.string().optional(),
+  })
+  .refine((data) => data.imageUrl || data.imageData, {
+    message: 'Either imageUrl or imageData is required',
+  });
 
-const VisionExtractSchema = z.object({
-  imageUrl: z.string().url().optional(),
-  imageData: z.string().optional(),
-  documentType: z.enum(['invoice', 'receipt', 'form', 'general']).optional(),
-}).refine(
-  (data) => data.imageUrl || data.imageData,
-  { message: 'Either imageUrl or imageData is required' }
-);
+const VisionExtractSchema = z
+  .object({
+    imageUrl: z.string().url().optional(),
+    imageData: z.string().optional(),
+    documentType: z.enum(['invoice', 'receipt', 'form', 'general']).optional(),
+  })
+  .refine((data) => data.imageUrl || data.imageData, {
+    message: 'Either imageUrl or imageData is required',
+  });
 
 // Speech schemas
-const SpeechTranscribeSchema = z.object({
-  audioUrl: z.string().url().optional(),
-  audioData: z.string().optional(),
-  language: z.string().optional(),
-}).refine(
-  (data) => data.audioUrl || data.audioData,
-  { message: 'Either audioUrl or audioData is required' }
-);
+const SpeechTranscribeSchema = z
+  .object({
+    audioUrl: z.string().url().optional(),
+    audioData: z.string().optional(),
+    language: z.string().optional(),
+  })
+  .refine((data) => data.audioUrl || data.audioData, {
+    message: 'Either audioUrl or audioData is required',
+  });
 
 const SpeechSynthesizeSchema = z.object({
   text: z.string(),

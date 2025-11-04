@@ -51,9 +51,9 @@ class KBLIExternalService {
       const response = await axios.get(url, {
         headers: {
           'User-Agent': 'ZANTARA-System/3.0',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
-        timeout: 10000
+        timeout: 10000,
       });
 
       const kbliData = this.transformOSSData(response.data);
@@ -63,7 +63,6 @@ class KBLIExternalService {
 
       logger.info(`✅ Retrieved ${kbliData.length} KBLI entries from OSS API`);
       return kbliData;
-
     } catch (error: any) {
       logger.error('❌ OSS KBLI API call failed:', error.message);
 
@@ -97,10 +96,10 @@ class KBLIExternalService {
       const response = await axios.get(url, {
         headers: {
           'User-Agent': 'ZANTARA-System/3.0',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${process.env.BPS_API_KEY}`
+          Accept: 'application/json',
+          Authorization: `Bearer ${process.env.BPS_API_KEY}`,
         },
-        timeout: 15000
+        timeout: 15000,
       });
 
       const kbliData = this.transformBPSData(response.data);
@@ -110,7 +109,6 @@ class KBLIExternalService {
 
       logger.info(`✅ Retrieved ${kbliData.length} KBLI entries from BPS API`);
       return kbliData;
-
     } catch (error: any) {
       logger.error('❌ BPS KBLI API call failed:', error.message);
 
@@ -142,17 +140,17 @@ class KBLIExternalService {
       const response = await axios.get(`${this.BKPM_API_BASE}/v1/investment/${kbliCode}`, {
         headers: {
           'User-Agent': 'ZANTARA-System/3.0',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${process.env.BKPM_API_KEY}`
+          Accept: 'application/json',
+          Authorization: `Bearer ${process.env.BKPM_API_KEY}`,
         },
-        timeout: 12000
+        timeout: 12000,
       });
 
       const requirements = {
         foreignOwnership: response.data.foreign_ownership || 'Check latest regulations',
         capitalRequirement: response.data.capital_requirement || 'IDR 10,000,000,000',
         restrictions: response.data.restrictions || [],
-        specialPermits: response.data.special_permits || []
+        specialPermits: response.data.special_permits || [],
       };
 
       // Cache for 72 hours
@@ -160,7 +158,6 @@ class KBLIExternalService {
 
       logger.info(`✅ Retrieved BKPM requirements for ${kbliCode}`);
       return requirements;
-
     } catch (error: any) {
       logger.error(`❌ BKPM API call failed for ${kbliCode}:`, error.message);
 
@@ -169,7 +166,7 @@ class KBLIExternalService {
         foreignOwnership: 'Check latest DNI regulations',
         capitalRequirement: 'IDR 10,000,000,000',
         restrictions: ['Check latest regulations'],
-        specialPermits: ['May require additional permits']
+        specialPermits: ['May require additional permits'],
       };
     }
   }
@@ -195,16 +192,16 @@ class KBLIExternalService {
       const response = await axios.get(`${this.DEPKUMHAM_API_BASE}/v1/legal/${kbliCode}`, {
         headers: {
           'User-Agent': 'ZANTARA-System/3.0',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${process.env.DEPKUMHAM_API_KEY}`
+          Accept: 'application/json',
+          Authorization: `Bearer ${process.env.DEPKUMHAM_API_KEY}`,
         },
-        timeout: 12000
+        timeout: 12000,
       });
 
       const legalData = {
         requirements: response.data.requirements || [],
         processingTime: response.data.processing_time || 'Varies by type',
-        authority: response.data.authority || 'Relevant ministry'
+        authority: response.data.authority || 'Relevant ministry',
       };
 
       // Cache for 168 hours (1 week)
@@ -212,7 +209,6 @@ class KBLIExternalService {
 
       logger.info(`✅ Retrieved legal requirements for ${kbliCode}`);
       return legalData;
-
     } catch (error: any) {
       logger.error(`❌ Legal requirements API call failed for ${kbliCode}:`, error.message);
 
@@ -220,7 +216,7 @@ class KBLIExternalService {
       return {
         requirements: ['Standard business requirements apply'],
         processingTime: '14-30 business days',
-        authority: 'OSS system'
+        authority: 'OSS system',
       };
     }
   }
@@ -243,14 +239,15 @@ class KBLIExternalService {
       // Combine and deduplicate
       const combinedResults = this.combineResults(localResults, externalResults, query);
 
-      logger.info(`🔍 KBLI enhanced search: ${localResults.length} local, ${externalResults.length} external, ${combinedResults.length} total`);
+      logger.info(
+        `🔍 KBLI enhanced search: ${localResults.length} local, ${externalResults.length} external, ${combinedResults.length} total`
+      );
 
       return {
         local: localResults,
         external: externalResults,
-        combined: combinedResults
+        combined: combinedResults,
       };
-
     } catch (error: any) {
       logger.error('❌ Enhanced KBLI search failed:', error);
 
@@ -259,7 +256,7 @@ class KBLIExternalService {
       return {
         local: localResults,
         external: [],
-        combined: localResults
+        combined: localResults,
       };
     }
   }
@@ -288,7 +285,6 @@ class KBLIExternalService {
 
       // Fallback to BPS
       return await this.getBPSKBLI(undefined, query);
-
     } catch (error) {
       logger.error('❌ External KBLI search failed:', error);
       return [];
@@ -300,14 +296,14 @@ class KBLIExternalService {
    */
   private combineResults(local: any[], external: KBLIExternal[], query?: string): any[] {
     const combined = [...local];
-    const seenCodes = new Set(local.map(item => item.code || item.kbli_code));
+    const seenCodes = new Set(local.map((item) => item.code || item.kbli_code));
 
-    external.forEach(item => {
+    external.forEach((item) => {
       if (!seenCodes.has(item.code)) {
         combined.push({
           ...item,
           source: 'external',
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
         });
         seenCodes.add(item.code);
       }
@@ -333,7 +329,7 @@ class KBLIExternalService {
   private transformOSSData(data: any): KBLIExternal[] {
     if (!Array.isArray(data)) return [];
 
-    return data.map(item => ({
+    return data.map((item) => ({
       code: item.kode_kbli || '',
       name: item.nama || '',
       nameEn: item.nama_en || item.nama || '',
@@ -343,7 +339,7 @@ class KBLIExternalService {
       foreignOwnership: item.asing || 'Check regulations',
       requirements: item.persyaratan || [],
       lastUpdated: item.updated_at || new Date().toISOString(),
-      source: 'OSS API'
+      source: 'OSS API',
     }));
   }
 
@@ -353,7 +349,7 @@ class KBLIExternalService {
   private transformBPSData(data: any): KBLIExternal[] {
     if (!Array.isArray(data)) return [];
 
-    return data.map(item => ({
+    return data.map((item) => ({
       code: item.kode || '',
       name: item.uraian || '',
       nameEn: item.description || item.uraian || '',
@@ -363,7 +359,7 @@ class KBLIExternalService {
       foreignOwnership: 'Check latest regulations',
       requirements: [],
       lastUpdated: item.last_updated || new Date().toISOString(),
-      source: 'BPS API'
+      source: 'BPS API',
     }));
   }
 
@@ -380,7 +376,7 @@ class KBLIExternalService {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
-      ttl
+      ttl,
     });
   }
 }

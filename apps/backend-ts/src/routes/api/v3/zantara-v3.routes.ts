@@ -27,7 +27,7 @@ router.post('/unified', async (req, res) => {
     res.status(500).json({
       ok: false,
       error: error.message,
-      endpoint: '/api/v3/zantara/unified'
+      endpoint: '/api/v3/zantara/unified',
     });
   }
 });
@@ -53,7 +53,7 @@ router.post('/collective', async (req, res) => {
     res.status(500).json({
       ok: false,
       error: error.message,
-      endpoint: '/api/v3/zantara/collective'
+      endpoint: '/api/v3/zantara/collective',
     });
   }
 });
@@ -80,7 +80,7 @@ router.post('/ecosystem', async (req, res) => {
     res.status(500).json({
       ok: false,
       error: error.message,
-      endpoint: '/api/v3/zantara/ecosystem'
+      endpoint: '/api/v3/zantara/ecosystem',
     });
   }
 });
@@ -104,76 +104,76 @@ router.post('/ecosystem', async (req, res) => {
  */
 
 // API Documentation Route
-router.get('/', (req, res) => {
+router.get('/', (_req, res) => {
   res.json({
-    service: "ZANTARA v3 Ω API",
-    version: "3.0.0-omega",
-    description: "Complete knowledge access through 3 strategic endpoints",
+    service: 'ZANTARA v3 Ω API',
+    version: '3.0.0-omega',
+    description: 'Complete knowledge access through 3 strategic endpoints',
     endpoints: {
       unified: {
-        path: "/api/v3/zantara/unified",
-        method: "POST",
-        description: "Single entry point for ALL knowledge bases",
-        domains: ["kbli", "pricing", "team", "legal", "tax", "immigration", "property", "memory"],
-        coverage: "8 knowledge domains + 14,365 RAG documents",
+        path: '/api/v3/zantara/unified',
+        method: 'POST',
+        description: 'Single entry point for ALL knowledge bases',
+        domains: ['kbli', 'pricing', 'team', 'legal', 'tax', 'immigration', 'property', 'memory'],
+        coverage: '8 knowledge domains + 14,365 RAG documents',
         examples: [
-          { domain: "kbli", query: "restaurant" },
-          { domain: "pricing", query: "KITAS" },
-          { domain: "all", query: "Italian restaurant Bali" }
-        ]
+          { domain: 'kbli', query: 'restaurant' },
+          { domain: 'pricing', query: 'KITAS' },
+          { domain: 'all', query: 'Italian restaurant Bali' },
+        ],
       },
       collective: {
-        path: "/api/v3/zantara/collective",
-        method: "POST",
-        description: "Shared learning and memory across users",
-        actions: ["query", "contribute", "verify", "stats", "sync"],
-        benefits: ["Cross-user learning", "Knowledge verification", "Community insights"]
+        path: '/api/v3/zantara/collective',
+        method: 'POST',
+        description: 'Shared learning and memory across users',
+        actions: ['query', 'contribute', 'verify', 'stats', 'sync'],
+        benefits: ['Cross-user learning', 'Knowledge verification', 'Community insights'],
       },
       ecosystem: {
-        path: "/api/v3/zantara/ecosystem",
-        method: "POST",
-        description: "Complete business ecosystem analysis",
-        scenarios: ["business_setup", "expansion", "compliance", "optimization"],
-        business_types: ["restaurant", "hotel", "retail", "services", "tech"],
-        integration: ["KBLI + Pricing + Legal + Tax + Immigration + Property + Team"]
-      }
+        path: '/api/v3/zantara/ecosystem',
+        method: 'POST',
+        description: 'Complete business ecosystem analysis',
+        scenarios: ['business_setup', 'expansion', 'compliance', 'optimization'],
+        business_types: ['restaurant', 'hotel', 'retail', 'services', 'tech'],
+        integration: ['KBLI + Pricing + Legal + Tax + Immigration + Property + Team'],
+      },
     },
     knowledge_bases: {
       hardcoded: {
-        kbli: "21 business classification codes",
-        pricing: "Complete Bali Zero service pricing",
-        team: "23 team members with expertise",
-        legal: "442 lines Indonesian law",
-        immigration: "2,200 lines visa services",
-        tax: "516 lines tax regulations",
-        property: "447 lines property law"
+        kbli: '21 business classification codes',
+        pricing: 'Complete Bali Zero service pricing',
+        team: '23 team members with expertise',
+        legal: '442 lines Indonesian law',
+        immigration: '2,200 lines visa services',
+        tax: '516 lines tax regulations',
+        property: '447 lines property law',
       },
       rag: {
-        total_documents: "14,365",
-        bali_zero_agents: "1,458 operational documents",
-        books: "214 books (12,907 embeddings)",
-        vector_database: "ChromaDB + Qdrant"
+        total_documents: '14,365',
+        bali_zero_agents: '1,458 operational documents',
+        books: '214 books (12,907 embeddings)',
+        vector_database: 'ChromaDB + Qdrant',
       },
       collective: {
-        memory: "Cross-user learning system",
-        verification: "Community knowledge validation",
-        insights: "Shared business intelligence"
-      }
+        memory: 'Cross-user learning system',
+        verification: 'Community knowledge validation',
+        insights: 'Shared business intelligence',
+      },
     },
     performance: {
-      response_time: "~0.12s average",
-      success_rate: "95%+ for core domains",
-      coverage: "Complete Indonesia business ecosystem"
+      response_time: '~0.12s average',
+      success_rate: '95%+ for core domains',
+      coverage: 'Complete Indonesia business ecosystem',
     },
     changelog: {
-      "v3.0.0-omega": [
-        "Reduced from 20+ endpoints to 3 strategic endpoints",
-        "Unified all knowledge bases under single API",
-        "Added collective intelligence system",
-        "Complete ecosystem analysis capability",
-        "Integrated RAG with 14,365 documents"
-      ]
-    }
+      'v3.0.0-omega': [
+        'Reduced from 20+ endpoints to 3 strategic endpoints',
+        'Unified all knowledge bases under single API',
+        'Added collective intelligence system',
+        'Complete ecosystem analysis capability',
+        'Integrated RAG with 14,365 documents',
+      ],
+    },
   });
 });
 

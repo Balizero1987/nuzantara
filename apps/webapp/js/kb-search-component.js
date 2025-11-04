@@ -12,9 +12,10 @@
 
 class KBSearchComponent {
   constructor(containerSelector, options = {}) {
-    this.container = typeof containerSelector === 'string'
-      ? document.querySelector(containerSelector)
-      : containerSelector;
+    this.container =
+      typeof containerSelector === 'string'
+        ? document.querySelector(containerSelector)
+        : containerSelector;
 
     if (!this.container) {
       throw new Error(`KB Search container not found: ${containerSelector}`);
@@ -25,7 +26,7 @@ class KBSearchComponent {
       showSuggestions: options.showSuggestions !== false,
       maxResults: options.maxResults || 5,
       collections: options.collections || 'all',
-      ...options
+      ...options,
     };
 
     this.isSearching = false;
@@ -131,9 +132,9 @@ class KBSearchComponent {
     });
 
     // Collection selection
-    collectionBtns.forEach(btn => {
+    collectionBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
-        collectionBtns.forEach(b => b.classList.remove('active'));
+        collectionBtns.forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
         this.options.collections = btn.dataset.collection;
 
@@ -201,7 +202,7 @@ class KBSearchComponent {
       `;
     } else {
       const formattedResults = ZANTARA_KB.formatResults(results);
-      formattedResults.slice(0, this.options.maxResults).forEach(result => {
+      formattedResults.slice(0, this.options.maxResults).forEach((result) => {
         const resultItem = document.createElement('div');
         resultItem.className = 'kb-result-item';
         resultItem.innerHTML = `
@@ -238,11 +239,14 @@ class KBSearchComponent {
 
     if (suggestions.length > 0) {
       suggestionsList.innerHTML = suggestions
-        .map(suggestion => `<li><button class="kb-suggestion-btn">${this.escapeHtml(suggestion)}</button></li>`)
+        .map(
+          (suggestion) =>
+            `<li><button class="kb-suggestion-btn">${this.escapeHtml(suggestion)}</button></li>`
+        )
         .join('');
 
       // Bind suggestion click events
-      suggestionsList.querySelectorAll('.kb-suggestion-btn').forEach(btn => {
+      suggestionsList.querySelectorAll('.kb-suggestion-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
           const input = this.container.querySelector('.kb-search-input');
           input.value = btn.textContent;
@@ -613,9 +617,8 @@ class KBSearchComponent {
 
   static initAll() {
     const containers = document.querySelectorAll('[data-kb-search]');
-    containers.forEach(container => {
-      const options = container.dataset.kbSearch ?
-        JSON.parse(container.dataset.kbSearch) : {};
+    containers.forEach((container) => {
+      const options = container.dataset.kbSearch ? JSON.parse(container.dataset.kbSearch) : {};
       new KBSearchComponent(container, options);
     });
   }

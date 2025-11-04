@@ -12,7 +12,7 @@ describe('Team Login Secure', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.teamLoginSecure({
         name: 'zero',
-        pin: '010719'
+        pin: '010719',
       });
 
       expect(result).toBeDefined();
@@ -26,10 +26,12 @@ describe('Team Login Secure', () => {
     });
 
     it('should handle wrong PIN', async () => {
-      await expect(handlers.teamLoginSecure({
-        name: 'zero',
-        pin: 'wrong-pin'
-      })).rejects.toThrow();
+      await expect(
+        handlers.teamLoginSecure({
+          name: 'zero',
+          pin: 'wrong-pin',
+        })
+      ).rejects.toThrow();
     });
   });
 
@@ -37,11 +39,11 @@ describe('Team Login Secure', () => {
     it('should handle success case with valid params', async () => {
       const loginResult = await handlers.teamLoginSecure({
         name: 'zero',
-        pin: '010719'
+        pin: '010719',
       });
 
       const result = await handlers.verifyToken({
-        token: loginResult.data.token
+        token: loginResult.data.token,
       });
 
       expect(result).toBeDefined();
@@ -55,7 +57,7 @@ describe('Team Login Secure', () => {
 
     it('should handle invalid token', async () => {
       const result = await handlers.verifyToken({
-        token: 'invalid-token'
+        token: 'invalid-token',
       });
 
       expect(result).toBeDefined();
@@ -77,7 +79,7 @@ describe('Team Login Secure', () => {
   describe('resetLoginAttempts', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.resetLoginAttempts({
-        name: 'zero'
+        name: 'zero',
       });
 
       expect(result).toBeDefined();
@@ -88,5 +90,4 @@ describe('Team Login Secure', () => {
       await expect(handlers.resetLoginAttempts({})).rejects.toThrow(BadRequestError);
     });
   });
-
 });

@@ -1,19 +1,22 @@
 // Reality Check Middleware - Advanced Anti-Hallucination Layer
 import { logger } from '../logging/unified-logger.js';
-import { Request, Response, NextFunction } from "express";
-import { RealityAnchorSystem } from "../services/reality-anchor.js";
-import { AntiHallucinationSystem } from "../services/anti-hallucination.js";
+import { Request, Response, NextFunction } from 'express';
+import { RealityAnchorSystem } from '../services/reality-anchor.js';
+import { AntiHallucinationSystem } from '../services/anti-hallucination.js';
 
 const realityAnchor = RealityAnchorSystem.getInstance();
 const antiHallucination = AntiHallucinationSystem.getInstance();
 
 // Track handler performance
-const handlerMetrics = new Map<string, {
-  totalCalls: number;
-  realityScores: number[];
-  failures: number;
-  lastUpdate: Date;
-}>();
+const handlerMetrics = new Map<
+  string,
+  {
+    totalCalls: number;
+    realityScores: number[];
+    failures: number;
+    lastUpdate: Date;
+  }
+>();
 
 /**
  * Deep reality check middleware
@@ -28,14 +31,14 @@ export function deepRealityCheck() {
     const originalSend = res.send.bind(res);
 
     // Override json method
-    res.json = function(body: any) {
+    res.json = function (body: any) {
       // Perform async reality check
       performAsyncRealityCheck(handlerName, req.body, body, startTime);
       return originalJson(body);
     };
 
     // Override send method
-    res.send = function(body: any) {
+    res.send = function (body: any) {
       // Perform async reality check for non-JSON responses
       if (typeof body === 'object') {
         performAsyncRealityCheck(handlerName, req.body, body, startTime);
@@ -65,21 +68,13 @@ async function performAsyncRealityCheck(
     }
 
     // Perform reality anchor check
-    const anchoredResponse = await realityAnchor.generateAnchoredResponse(
-      output,
-      handler
-    );
+    const anchoredResponse = await realityAnchor.generateAnchoredResponse(output, handler);
 
     // Track metrics
     updateHandlerMetrics(handler, anchoredResponse.reality_anchor?.score || 0);
 
     // Learn from interaction
-    await realityAnchor.learnFromInteraction(
-      handler,
-      input,
-      anchoredResponse,
-      output.ok !== false
-    );
+    await realityAnchor.learnFromInteraction(handler, input, anchoredResponse, output.ok !== false);
 
     // Log warnings for low reality scores
     if (anchoredResponse.reality_anchor?.score < 0.7) {
@@ -100,7 +95,6 @@ async function performAsyncRealityCheck(
         output.critical_warning = 'This response has very low reality confidence. Please verify.';
       }
     }
-
   } catch (error) {
     logger.error('Reality check error:', error);
   }
@@ -114,7 +108,7 @@ function updateHandlerMetrics(handler: string, realityScore: number) {
     totalCalls: 0,
     realityScores: [],
     failures: 0,
-    lastUpdate: new Date()
+    lastUpdate: new Date(),
   };
 
   metrics.totalCalls++;
@@ -137,16 +131,17 @@ export async function getRealityMetrics(_req: Request, res: Response) {
   const metrics: any[] = [];
 
   for (const [handler, data] of handlerMetrics.entries()) {
-    const avgScore = data.realityScores.length > 0
-      ? data.realityScores.reduce((a, b) => a + b, 0) / data.realityScores.length
-      : 0;
+    const avgScore =
+      data.realityScores.length > 0
+        ? data.realityScores.reduce((a, b) => a + b, 0) / data.realityScores.length
+        : 0;
 
     metrics.push({
       handler,
       totalCalls: data.totalCalls,
       averageRealityScore: avgScore,
       failureRate: data.failures / data.totalCalls,
-      lastUpdate: data.lastUpdate
+      lastUpdate: data.lastUpdate,
     });
   }
 
@@ -163,8 +158,8 @@ export async function getRealityMetrics(_req: Request, res: Response) {
       realitySystem: realityReport,
       validationSystem: validationReport,
       recommendations: generateRecommendations(metrics),
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   });
 }
 
@@ -175,29 +170,34 @@ function generateRecommendations(metrics: any[]): string[] {
   const recommendations: string[] = [];
 
   // Find problematic handlers
-  const problematic = metrics.filter(m => m.averageRealityScore < 0.7);
+  const problematic = metrics.filter((m) => m.averageRealityScore < 0.7);
   if (problematic.length > 0) {
     recommendations.push(
-      `Review these handlers with low reality scores: ${problematic.map(p => p.handler).join(', ')}`
+      `Review these handlers with low reality scores: ${problematic.map((p) => p.handler).join(', ')}`
     );
   }
 
   // High failure rate handlers
-  const highFailure = metrics.filter(m => m.failureRate > 0.2);
+  const highFailure = metrics.filter((m) => m.failureRate > 0.2);
   if (highFailure.length > 0) {
     recommendations.push(
-      `These handlers have high failure rates: ${highFailure.map(h => h.handler).join(', ')}`
+      `These handlers have high failure rates: ${highFailure.map((h) => h.handler).join(', ')}`
     );
   }
 
   // General recommendations
-  const overallAvg = metrics.reduce((sum, m) => sum + m.averageRealityScore, 0) / (metrics.length || 1);
+  const overallAvg =
+    metrics.reduce((sum, m) => sum + m.averageRealityScore, 0) / (metrics.length || 1);
   if (overallAvg < 0.8) {
-    recommendations.push('Overall reality scores are below optimal. Consider reviewing response generation logic.');
+    recommendations.push(
+      'Overall reality scores are below optimal. Consider reviewing response generation logic.'
+    );
   }
 
   if (recommendations.length === 0) {
-    recommendations.push('System is operating within normal parameters. No immediate action required.');
+    recommendations.push(
+      'System is operating within normal parameters. No immediate action required.'
+    );
   }
 
   return recommendations;
@@ -212,7 +212,7 @@ export async function enforceReality(req: Request, res: Response) {
   if (!content) {
     return res.status(400).json({
       ok: false,
-      error: 'Content is required for reality enforcement'
+      error: 'Content is required for reality enforcement',
     });
   }
 
@@ -222,11 +222,9 @@ export async function enforceReality(req: Request, res: Response) {
       context || 'manual_check'
     );
 
-    const grounded = await antiHallucination.groundResponse(
-      { content },
-      ['manual_verification'],
-      { context }
-    );
+    const grounded = await antiHallucination.groundResponse({ content }, ['manual_verification'], {
+      context,
+    });
 
     return res.json({
       ok: true,
@@ -234,16 +232,17 @@ export async function enforceReality(req: Request, res: Response) {
         realityCheck,
         grounding: grounded,
         safe: realityCheck.realityScore > 0.7 && grounded.grounded,
-        recommendations: realityCheck.contradictions.length > 0
-          ? 'Review and correct contradictions before using this content'
-          : 'Content appears to be grounded in reality'
-      }
+        recommendations:
+          realityCheck.contradictions.length > 0
+            ? 'Review and correct contradictions before using this content'
+            : 'Content appears to be grounded in reality',
+      },
     });
   } catch (error: any) {
     return res.status(500).json({
       ok: false,
       error: 'Reality enforcement failed',
-      message: error.message
+      message: error.message,
     });
   }
 }
@@ -259,7 +258,7 @@ export async function clearRealityCache(_req: Request, res: Response) {
     ok: true,
     data: {
       message: 'Reality cache and unverified facts cleared',
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   });
 }

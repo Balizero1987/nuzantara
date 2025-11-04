@@ -14,7 +14,7 @@ const articles = defineCollection({
       'expat-economy',
       'business-formation',
       'ai-tech',
-      'trends-analysis'
+      'trends-analysis',
     ]),
     tags: z.array(z.string()).default([]),
     author: z.string().default('Zero'),

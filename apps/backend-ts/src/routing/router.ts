@@ -1,14 +1,19 @@
-import type { Error } from "express";
 import express from 'express';
 import { logger } from '../logging/unified-logger.js';
-import { z, ZodError } from "zod";
-import type { Request, Response } from "express";
-import { ok, err } from "../utils/response.js";
-import { apiKeyAuth, RequestWithCtx } from "../middleware/auth.js";
-import { jwtAuth, optionalJwtAuth, RequestWithJWT } from "../middleware/jwt-auth.js";
-import { demoUserAuth, RequestWithDemo } from "../middleware/demo-user-auth.js";
-import { unifiedAuthMiddleware, optionalUnifiedAuth, requireRole, requirePermission, RequestWithUnifiedAuth } from "../middleware/auth-unified-complete.js";
-import { ForbiddenError, BadRequestError, UnauthorizedError } from "../utils/errors.js";
+import { z, ZodError } from 'zod';
+import type { Request, Response } from 'express';
+import { ok, err } from '../utils/response.js';
+import { apiKeyAuth, RequestWithCtx } from '../middleware/auth.js';
+import { jwtAuth, optionalJwtAuth, RequestWithJWT } from '../middleware/jwt-auth.js';
+import { demoUserAuth, RequestWithDemo } from '../middleware/demo-user-auth.js';
+import {
+  unifiedAuthMiddleware,
+  optionalUnifiedAuth,
+  requireRole,
+  requirePermission,
+  RequestWithUnifiedAuth,
+} from '../middleware/auth-unified-complete.js';
+import { ForbiddenError, BadRequestError, UnauthorizedError } from '../utils/errors.js';
 import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
 
 // Create Express router
@@ -17,35 +22,54 @@ const router = express.Router();
 // === MODULE-FUNCTIONAL IMPORTS (Auto-organized by domain) ===
 
 // Identity & Onboarding
-import { identityResolve, onboardingStart } from "../handlers/identity/identity.js";
+import { identityResolve, onboardingStart } from '../handlers/identity/identity.js';
 
 // Team Authentication
-import { teamLogin, getTeamMembers, logoutSession } from "../handlers/auth/team-login.js";
-import { teamLoginSecure, verifyToken, getTeamMemberList, resetLoginAttempts } from "../handlers/auth/team-login-secure.js";
+import { teamLogin, getTeamMembers, logoutSession } from '../handlers/auth/team-login.js';
+import {
+  teamLoginSecure,
+  verifyToken,
+  getTeamMemberList,
+  resetLoginAttempts,
+} from '../handlers/auth/team-login-secure.js';
 
 // Google Workspace
-import { driveUpload, driveList, driveSearch, driveRead } from "../handlers/google-workspace/drive.js";
-import { calendarCreate, calendarList, calendarGet } from "../handlers/google-workspace/calendar.js";
-import { sheetsRead, sheetsAppend, sheetsCreate } from "../handlers/google-workspace/sheets.js";
-import { docsCreate, docsRead, docsUpdate } from "../handlers/google-workspace/docs.js";
-import { slidesCreate, slidesRead, slidesUpdate } from "../handlers/google-workspace/slides.js";
-import { gmailHandlers } from "../handlers/google-workspace/gmail.js";
-import { contactsList, contactsCreate } from "../handlers/google-workspace/contacts.js";
+import {
+  driveUpload,
+  driveList,
+  driveSearch,
+  driveRead,
+} from '../handlers/google-workspace/drive.js';
+import {
+  calendarCreate,
+  calendarList,
+  calendarGet,
+} from '../handlers/google-workspace/calendar.js';
+import { sheetsRead, sheetsAppend, sheetsCreate } from '../handlers/google-workspace/sheets.js';
+import { docsCreate, docsRead, docsUpdate } from '../handlers/google-workspace/docs.js';
+import { slidesCreate, slidesRead, slidesUpdate } from '../handlers/google-workspace/slides.js';
+import { gmailHandlers } from '../handlers/google-workspace/gmail.js';
+import { contactsList, contactsCreate } from '../handlers/google-workspace/contacts.js';
 
 // AI Services
-import { aiChat } from "../handlers/ai-services/ai.js";
-import { aiAnticipate, aiLearn, xaiExplain } from "../handlers/ai-services/advanced-ai.js";
-import { creativeHandlers } from "../handlers/ai-services/creative.js";
+import { aiChat } from '../handlers/ai-services/ai.js';
+import { aiAnticipate, aiLearn, xaiExplain } from '../handlers/ai-services/advanced-ai.js';
+import { creativeHandlers } from '../handlers/ai-services/creative.js';
 // DevAI removed - using ZANTARA-ONLY mode
 
 // Bali Zero Business Services
-import { oracleSimulate, oracleAnalyze, oraclePredict } from "../handlers/bali-zero/oracle.js";
-import { documentPrepare, assistantRoute } from "../handlers/bali-zero/advisory.js";
-import { kbliLookup, kbliRequirements } from "../handlers/bali-zero/kbli.js";
-import { kbliLookupComplete, kbliBusinessAnalysis } from "../handlers/bali-zero/kbli-complete.js";
-import { baliZeroPricing, baliZeroQuickPrice } from "../handlers/bali-zero/bali-zero-pricing.js";
-import { teamList, teamGet, teamDepartments, teamTestRecognition } from "../handlers/bali-zero/team.js";
-import { teamRecentActivity } from "../handlers/bali-zero/team-activity.js";
+import { oracleSimulate, oracleAnalyze, oraclePredict } from '../handlers/bali-zero/oracle.js';
+import { documentPrepare, assistantRoute } from '../handlers/bali-zero/advisory.js';
+import { kbliLookup, kbliRequirements } from '../handlers/bali-zero/kbli.js';
+import { kbliLookupComplete, kbliBusinessAnalysis } from '../handlers/bali-zero/kbli-complete.js';
+import { baliZeroPricing, baliZeroQuickPrice } from '../handlers/bali-zero/bali-zero-pricing.js';
+import {
+  teamList,
+  teamGet,
+  teamDepartments,
+  teamTestRecognition,
+} from '../handlers/bali-zero/team.js';
+import { teamRecentActivity } from '../handlers/bali-zero/team-activity.js';
 
 // ZANTARA Collaborative Intelligence
 import {
@@ -58,101 +82,110 @@ import {
   zantaraMoodSync,
   zantaraConflictMediate,
   zantaraGrowthTrack,
-  zantaraCelebrationOrchestrate
-} from "../handlers/zantara/zantara-test.js";
+  zantaraCelebrationOrchestrate,
+} from '../handlers/zantara/zantara-test.js';
 import {
   zantaraEmotionalProfileAdvanced,
   zantaraConflictPrediction,
   zantaraMultiProjectOrchestration,
   zantaraClientRelationshipIntelligence,
   zantaraCulturalIntelligenceAdaptation,
-  zantaraPerformanceOptimization
-} from "../handlers/zantara/zantara-v2-simple.js";
+  zantaraPerformanceOptimization,
+} from '../handlers/zantara/zantara-v2-simple.js';
 import {
   zantaraDashboardOverview,
   zantaraTeamHealthMonitor,
   zantaraPerformanceAnalytics,
-  zantaraSystemDiagnostics
-} from "../handlers/zantara/zantara-dashboard.js";
-import { zantaraBrilliantChat, zantaraPersonality, queryAgent, getContext } from "../handlers/zantara/zantara-brilliant.js";
+  zantaraSystemDiagnostics,
+} from '../handlers/zantara/zantara-dashboard.js';
+import {
+  zantaraBrilliantChat,
+  zantaraPersonality,
+  queryAgent,
+  getContext,
+} from '../handlers/zantara/zantara-brilliant.js';
 
 // Communication
-import { slackNotify, discordNotify, googleChatNotify } from "../handlers/communication/communication.js";
+import {
+  slackNotify,
+  discordNotify,
+  googleChatNotify,
+} from '../handlers/communication/communication.js';
 import {
   whatsappWebhookVerify,
   whatsappWebhookReceiver,
   getGroupAnalytics,
-  sendManualMessage
-} from "../handlers/communication/whatsapp.js";
+  sendManualMessage,
+} from '../handlers/communication/whatsapp.js';
 import {
   instagramWebhookVerify,
   instagramWebhookReceiver,
   getInstagramUserAnalytics,
-  sendManualInstagramMessage
-} from "../handlers/communication/instagram.js";
-import { translateHandlers } from "../handlers/communication/translate.js";
-import { twilioWhatsappWebhook, twilioSendWhatsapp } from "../handlers/communication/twilio-whatsapp.js";
+  sendManualInstagramMessage,
+} from '../handlers/communication/instagram.js';
+import { translateHandlers } from '../handlers/communication/translate.js';
+import {
+  twilioWhatsappWebhook,
+  twilioSendWhatsapp,
+} from '../handlers/communication/twilio-whatsapp.js';
 
 // Analytics & Monitoring
-import { analyticsHandlers } from "../handlers/analytics/analytics.js";
+import { analyticsHandlers } from '../handlers/analytics/analytics.js';
 import {
   dashboardMain,
   dashboardConversations,
   dashboardServices,
   dashboardHandlers,
   dashboardHealth,
-  dashboardUsers
-} from "../handlers/analytics/dashboard-analytics.js";
-import { weeklyReportHandlers } from "../handlers/analytics/weekly-report.js";
-import {
-  updateDailyRecap,
-  getCurrentDailyRecap
-} from "../handlers/analytics/daily-drive-recap.js";
+  dashboardUsers,
+} from '../handlers/analytics/dashboard-analytics.js';
+import { weeklyReportHandlers } from '../handlers/analytics/weekly-report.js';
+import { updateDailyRecap, getCurrentDailyRecap } from '../handlers/analytics/daily-drive-recap.js';
 
 // Admin auth middleware
-import { adminAuth } from "../middleware/admin-auth.js";
+import { adminAuth } from '../middleware/admin-auth.js';
 
 // Memory & Persistence
 // PRIORITY 5: Firestore handlers removed - using Python memory system only
-import { memorySave, memorySearch, memoryRetrieve } from "../handlers/memory/memory.js";
+import { memorySave, memorySearch, memoryRetrieve } from '../handlers/memory/memory.js';
 // Enhanced memory handlers commented out until implemented
-// import { 
-//   memorySaveEnhanced, 
-//   memorySearchEnhanced, 
-//   memoryGetEnhanced, 
-//   memoryUpdateEnhanced, 
-//   memoryDeleteEnhanced, 
-//   memoryStatsEnhanced 
+// import {
+//   memorySaveEnhanced,
+//   memorySearchEnhanced,
+//   memoryGetEnhanced,
+//   memoryUpdateEnhanced,
+//   memoryDeleteEnhanced,
+//   memoryStatsEnhanced
 // } from "../handlers/memory/memory-enhanced";
 
 // Maps
-import { mapsDirections, mapsPlaces, mapsPlaceDetails } from "../handlers/maps/maps.js";
+import { mapsDirections, mapsPlaces, mapsPlaceDetails } from '../handlers/maps/maps.js';
 
 // RAG System
-import {
-  ragQuery,
-  baliZeroChat,
-  ragSearch,
-  ragHealth
-} from "../handlers/rag/rag.js";
+import { ragQuery, baliZeroChat, ragSearch, ragHealth } from '../handlers/rag/rag.js';
 
 // Zero Mode - Development Tools (Zero-only access)
-import { handlers as zeroHandlers } from "../handlers/zero/index.js";
+import { handlers as zeroHandlers } from '../handlers/zero/index.js';
 
 // System Introspection & Proxy
-import { getAllHandlers, getHandlersByCategory, getHandlerDetails, getAnthropicToolDefinitions } from "../handlers/system/handlers-introspection.js";
-import { executeHandler, executeBatchHandlers } from "../handlers/system/handler-proxy.js";
+import {
+  getAllHandlers,
+  getHandlersByCategory,
+  getHandlerDetails,
+  getAnthropicToolDefinitions,
+} from '../handlers/system/handlers-introspection.js';
+import { executeHandler, executeBatchHandlers } from '../handlers/system/handler-proxy.js';
 
 // Rate Limiting
-import { selectiveRateLimiter } from "../middleware/selective-rate-limit.js";
+import { selectiveRateLimiter } from '../middleware/selective-rate-limit.js';
 
 // Performance Metrics Dashboard
-import { 
-  getMetricsDashboard, 
-  resetMetrics, 
+import {
+  getMetricsDashboard,
+  resetMetrics,
   initializeMetricsCollector,
-  metricsMiddleware 
-} from "../services/performance/metrics-dashboard.js";
+  // metricsMiddleware,
+} from '../services/performance/metrics-dashboard.js';
 
 const ActionSchema = z.object({
   key: z.string(),
@@ -164,13 +197,15 @@ type Handler = (params: any, req?: Request) => Promise<any>;
 // === AI fallback settings ===
 const AI_FALLBACK_ORDER = (process.env.AI_FALLBACK_ORDER || 'ai.chat')
   .split(',')
-  .map(s => s.trim())
+  .map((s) => s.trim())
   .filter(Boolean);
 const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 30000);
 
 // PRIORITY 5: Firestore handler stubs (removed handlers - using Python memory system)
 const firestoreHandlerStub = async () => {
-  throw new BadRequestError("Firestore handlers have been deprecated. Use Python memory system via RAG backend.");
+  throw new BadRequestError(
+    'Firestore handlers have been deprecated. Use Python memory system via RAG backend.'
+  );
 };
 
 // Deprecated Firestore handlers
@@ -189,7 +224,15 @@ const userMemorySave = firestoreHandlerStub;
 const userMemoryRetrieve = firestoreHandlerStub;
 const userMemoryList = firestoreHandlerStub;
 const userMemoryLogin = firestoreHandlerStub;
-const autoSaveConversation = async (_req: any, _prompt: string, _response: string, _handlerKey: string, _metadata: any) => { /* Deprecated: Firestore autosave disabled */ };
+const autoSaveConversation = async (
+  _req: any,
+  _prompt: string,
+  _response: string,
+  _handlerKey: string,
+  _metadata: any
+) => {
+  /* Deprecated: Firestore autosave disabled */
+};
 
 async function runHandler(key: string, params: any, ctx: any) {
   const handler = handlers[key];
@@ -251,41 +294,42 @@ const handlers: Record<string, Handler> = {
    *   identity_hint: 'client@business.com'
    * })
    */
-  "identity.resolve": identityResolve,
-  "onboarding.start": onboardingStart,
-  "onboarding.ambaradam.start": onboardingStart, // Alias
+  'identity.resolve': identityResolve,
+  'onboarding.start': onboardingStart,
+  'onboarding.ambaradam.start': onboardingStart, // Alias
 
   // Team Authentication
-  "team.login": teamLogin, // Legacy (deprecated - no PIN)
-  "team.login.secure": teamLoginSecure, // NEW: PIN-based secure login
-  "team.login.reset": resetLoginAttempts, // Admin: Reset login attempts (unblock account)
-  "team.members": async () => getTeamMemberList(), // NEW: Safe list (no emails exposed)
-  "team.members.legacy": async () => getTeamMembers(), // Legacy full list
-  "team.logout": async (params: any) => logoutSession(params.sessionId),
-  "team.token.verify": async (params: any) => verifyToken(params.token),
+  'team.login': teamLogin, // Legacy (deprecated - no PIN)
+  'team.login.secure': teamLoginSecure, // NEW: PIN-based secure login
+  'team.login.reset': resetLoginAttempts, // Admin: Reset login attempts (unblock account)
+  'team.members': async () => getTeamMemberList(), // NEW: Safe list (no emails exposed)
+  'team.members.legacy': async () => getTeamMembers(), // Legacy full list
+  'team.logout': async (params: any) => logoutSession(params.sessionId),
+  'team.token.verify': async (params: any) => verifyToken(params.token),
 
   // Custom GPT Business Handlers
-  "contact.info": async () => ok({
-    company: "Bali Zero",
-    tagline: "From Zero to Infinity ∞",
-    services: ["Visas", "Company Setup", "Tax Consulting", "Real Estate Legal"],
-    office: {
-      location: "Kerobokan, Bali, Indonesia",
-      mapUrl: "https://maps.app.goo.gl/i6DbEmfCtn1VJ3G58"
-    },
-    communication: {
-      email: "info@balizero.com",
-      whatsapp: "+62 859 0436 9574",
-      instagram: "@balizero0"
-    },
-    team: {
-      ceo: "Zainal Abidin",
-      departments: ["Setup Team", "Tax Department", "Marketing", "Reception", "Board"]
-    },
-    availability: "24/7 via WhatsApp, Office hours 9AM-6PM Bali time"
-  }),
+  'contact.info': async () =>
+    ok({
+      company: 'Bali Zero',
+      tagline: 'From Zero to Infinity ∞',
+      services: ['Visas', 'Company Setup', 'Tax Consulting', 'Real Estate Legal'],
+      office: {
+        location: 'Kerobokan, Bali, Indonesia',
+        mapUrl: 'https://maps.app.goo.gl/i6DbEmfCtn1VJ3G58',
+      },
+      communication: {
+        email: 'info@balizero.com',
+        whatsapp: '+62 859 0436 9574',
+        instagram: '@balizero0',
+      },
+      team: {
+        ceo: 'Zainal Abidin',
+        departments: ['Setup Team', 'Tax Department', 'Marketing', 'Reception', 'Board'],
+      },
+      availability: '24/7 via WhatsApp, Office hours 9AM-6PM Bali time',
+    }),
 
-  "lead.save": async (params: any) => {
+  'lead.save': async (params: any) => {
     const { service = '' } = params;
 
     if (!service) {
@@ -299,20 +343,22 @@ const handlers: Record<string, Handler> = {
       nextSteps: [
         'Team notification sent',
         'Follow-up scheduled',
-        'Documents preparation initiated'
+        'Documents preparation initiated',
       ],
       contact: {
-        email: "info@balizero.com",
-        whatsapp: "+62 859 0436 9574"
-      }
+        email: 'info@balizero.com',
+        whatsapp: '+62 859 0436 9574',
+      },
     });
   },
 
-  "quote.generate": async (params: any) => {
+  'quote.generate': async (params: any) => {
     const { service = '' } = params;
 
     if (!service) {
-      throw new BadRequestError('Service type required for quote generation: visa, company, tax, real-estate');
+      throw new BadRequestError(
+        'Service type required for quote generation: visa, company, tax, real-estate'
+      );
     }
 
     const quotes = {
@@ -320,26 +366,26 @@ const handlers: Record<string, Handler> = {
         'B211A (Visit Visa)': { price: '150', timeline: '3-5 days' },
         'B211B (Business Visa)': { price: '200', timeline: '5-7 days' },
         'B213 (Investor Visa)': { price: '500', timeline: '10-14 days' },
-        'Kitas (Stay Permit)': { price: '800', timeline: '30-45 days' }
+        'Kitas (Stay Permit)': { price: '800', timeline: '30-45 days' },
       },
       company: {
         'PT PMA (Foreign Investment)': { price: '2500', timeline: '30-45 days' },
         'Local PT': { price: '1200', timeline: '21-30 days' },
         'CV (Partnership)': { price: '800', timeline: '14-21 days' },
-        'Foundation (Yayasan)': { price: '1000', timeline: '21-30 days' }
+        'Foundation (Yayasan)': { price: '1000', timeline: '21-30 days' },
       },
       tax: {
         'Tax Registration (NPWP)': { price: '100', timeline: '5-7 days' },
         'Monthly Tax Reporting': { price: '200', timeline: 'Ongoing' },
         'Annual Tax Filing': { price: '500', timeline: '30 days' },
-        'Tax Consultation': { price: '150', timeline: 'Same day' }
+        'Tax Consultation': { price: '150', timeline: 'Same day' },
       },
       'real-estate': {
         'Property Legal Check': { price: '300', timeline: '7-10 days' },
         'Lease Agreement': { price: '200', timeline: '3-5 days' },
         'Property Purchase Support': { price: '1000', timeline: '30-60 days' },
-        'Land Certificate (SHM)': { price: '1500', timeline: '60-90 days' }
-      }
+        'Land Certificate (SHM)': { price: '1500', timeline: '60-90 days' },
+      },
     };
 
     const serviceQuotes = quotes[service as keyof typeof quotes] || {};
@@ -347,7 +393,7 @@ const handlers: Record<string, Handler> = {
       name,
       price: `€${info.price}`,
       timeline: info.timeline,
-      currency: 'EUR'
+      currency: 'EUR',
     }));
 
     return ok({
@@ -359,25 +405,25 @@ const handlers: Record<string, Handler> = {
         'Professional consultation',
         'Document preparation',
         'Government liaison',
-        'Follow-up support'
+        'Follow-up support',
       ],
       nextSteps: [
         'Contact our team to proceed',
         'Provide required documents',
         'Process payment',
-        'Begin application'
+        'Begin application',
       ],
       contact: {
         email: 'info@balizero.com',
         whatsapp: '+62 859 0436 9574',
-        office: 'Kerobokan, Bali'
-      }
+        office: 'Kerobokan, Bali',
+      },
     });
   },
 
-  "document.prepare": async (params: any) => documentPrepare(params),
+  'document.prepare': async (params: any) => documentPrepare(params),
 
-  "assistant.route": async (params: any) => assistantRoute(params),
+  'assistant.route': async (params: any) => assistantRoute(params),
 
   // Team Management - Real Bali Zero team data
   /**
@@ -407,35 +453,38 @@ const handlers: Record<string, Handler> = {
    *   role: 'Lead Executive'
    * })
    */
-  "team.list": async (params: any) => {
+  'team.list': async (params: any) => {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: () => mockRes
+      status: () => mockRes,
     } as any;
     return await teamList(mockReq, mockRes);
   },
-  "team.get": async (params: any) => {
+  'team.get': async (params: any) => {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: () => mockRes
+      status: () => mockRes,
     } as any;
     return await teamGet(mockReq, mockRes);
   },
-  "team.departments": async (params: any) => {
+  'team.departments': async (params: any) => {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: () => mockRes
+      status: () => mockRes,
     } as any;
     return await teamDepartments(mockReq, mockRes);
   },
-  "team.test.recognition": async (params: any) => {
-    const mockReq = { body: params, headers: { 'x-api-key': 'zantara-internal-dev-key-2025' } } as any;
+  'team.test.recognition': async (params: any) => {
+    const mockReq = {
+      body: params,
+      headers: { 'x-api-key': 'zantara-internal-dev-key-2025' },
+    } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: (code: number) => ({ json: (data: any) => ({ ...data, statusCode: code }) })
+      status: (code: number) => ({ json: (data: any) => ({ ...data, statusCode: code }) }),
     } as any;
     return await teamTestRecognition(mockReq, mockRes);
   },
@@ -457,19 +506,19 @@ const handlers: Record<string, Handler> = {
    *   department: 'setup'
    * })
    */
-  "team.recent_activity": async (params: any) => {
+  'team.recent_activity': async (params: any) => {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: (_code: number) => mockRes
+      status: (_code: number) => mockRes,
     } as any;
     return await teamRecentActivity(mockReq, mockRes);
   },
 
   // Oracle simulations & planning
-  "oracle.simulate": oracleSimulate,
-  "oracle.analyze": oracleAnalyze,
-  "oracle.predict": oraclePredict,
+  'oracle.simulate': oracleSimulate,
+  'oracle.analyze': oracleAnalyze,
+  'oracle.predict': oraclePredict,
 
   /**
    * @handler ai.chat
@@ -497,61 +546,61 @@ const handlers: Record<string, Handler> = {
    *
    * // NOTE: Price-related queries are automatically blocked and redirected to bali.zero.pricing
    */
-  "ai.chat": aiChat,
+  'ai.chat': aiChat,
   // Real AI handlers (TS). Router prefers these; bridgeProxy is used inside if keys missing.
   // ARCHIVED: Other AI providers removed - ZANTARA-ONLY mode
 
   // 🏢 KBLI Business Codes (NEW)
-  "kbli.lookup": async (params: any) => {
+  'kbli.lookup': async (params: any) => {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: (_code: number) => ({ json: (data: any) => data })
+      status: (_code: number) => ({ json: (data: any) => data }),
     } as any;
     return await kbliLookup(mockReq, mockRes);
   },
-  "kbli.requirements": async (params: any) => {
+  'kbli.requirements': async (params: any) => {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: (_code: number) => ({ json: (data: any) => data })
+      status: (_code: number) => ({ json: (data: any) => data }),
     } as any;
     return await kbliRequirements(mockReq, mockRes);
   },
   // 🚀 KBLI COMPLETE DATABASE - Enhanced endpoints
-  "kbli.lookup.complete": async (params: any) => {
+  'kbli.lookup.complete': async (params: any) => {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: (_code: number) => ({ json: (data: any) => data })
+      status: (_code: number) => ({ json: (data: any) => data }),
     } as any;
     return await kbliLookupComplete(mockReq, mockRes);
   },
-  "kbli.business.analysis": async (params: any) => {
+  'kbli.business.analysis': async (params: any) => {
     const mockReq = { body: { params } } as any;
     const mockRes = {
       json: (data: any) => data,
-      status: (_code: number) => ({ json: (data: any) => data })
+      status: (_code: number) => ({ json: (data: any) => data }),
     } as any;
     return await kbliBusinessAnalysis(mockReq, mockRes);
   },
 
   // Communication handlers
-  "slack.notify": slackNotify,
-  "discord.notify": discordNotify,
-  "googlechat.notify": googleChatNotify,
+  'slack.notify': slackNotify,
+  'discord.notify': discordNotify,
+  'googlechat.notify': googleChatNotify,
 
   // Advanced AI handlers
-  "ai.anticipate": aiAnticipate,
-  "ai.learn": aiLearn,
-  "xai.explain": xaiExplain,
+  'ai.anticipate': aiAnticipate,
+  'ai.learn': aiLearn,
+  'xai.explain': xaiExplain,
 
   // Google Workspace handlers
-  "drive.upload": driveUpload,
-  "drive.list": driveList,
-  "drive.search": driveSearch,
-  "drive.read": driveRead,
-  "calendar.create": calendarCreate,
+  'drive.upload': driveUpload,
+  'drive.list': driveList,
+  'drive.search': driveSearch,
+  'drive.read': driveRead,
+  'calendar.create': calendarCreate,
   /**
    * @handler calendar.list
    * @description List Google Calendar events with optional filtering. Uses OAuth2 or Service Account impersonation for authentication.
@@ -578,29 +627,29 @@ const handlers: Record<string, Handler> = {
    *   timeMax: '2025-12-31T23:59:59Z'
    * })
    */
-  "calendar.list": calendarList,
-  "calendar.get": calendarGet,
-  "sheets.read": sheetsRead,
-  "sheets.append": sheetsAppend,
-  "sheets.create": sheetsCreate,
-  "docs.create": docsCreate,
-  "docs.read": docsRead,
-  "docs.update": docsUpdate,
-  "slides.create": slidesCreate,
-  "slides.read": slidesRead,
-  "slides.update": slidesUpdate,
+  'calendar.list': calendarList,
+  'calendar.get': calendarGet,
+  'sheets.read': sheetsRead,
+  'sheets.append': sheetsAppend,
+  'sheets.create': sheetsCreate,
+  'docs.create': docsCreate,
+  'docs.read': docsRead,
+  'docs.update': docsUpdate,
+  'slides.create': slidesCreate,
+  'slides.read': slidesRead,
+  'slides.update': slidesUpdate,
 
   // Gmail handlers
   ...gmailHandlers,
 
   // Google Contacts handlers
-  "contacts.list": contactsList,
-  "contacts.create": contactsCreate,
+  'contacts.list': contactsList,
+  'contacts.create': contactsCreate,
 
   // Google Maps handlers
-  "maps.directions": mapsDirections,
-  "maps.places": mapsPlaces,
-  "maps.placeDetails": mapsPlaceDetails,
+  'maps.directions': mapsDirections,
+  'maps.places': mapsPlaces,
+  'maps.placeDetails': mapsPlaceDetails,
 
   // Memory System handlers
   /**
@@ -632,8 +681,8 @@ const handlers: Record<string, Handler> = {
    *   type: 'service_interest'
    * })
    */
-  "memory.save": memorySave,
-  "memory.search": memorySearch,
+  'memory.save': memorySave,
+  'memory.search': memorySearch,
   // 🚀 ENHANCED Memory System v2.0 - Unlimited + Vector Search (TODO: Implement handlers)
   // "memory.save.enhanced": memorySaveEnhanced,
   // "memory.search.enhanced": memorySearchEnhanced,
@@ -643,26 +692,30 @@ const handlers: Record<string, Handler> = {
   // "memory.stats.enhanced": memoryStatsEnhanced,
 
   // 📊 Performance Metrics Dashboard
-  "metrics.dashboard": async (req: any, res: any) => getMetricsDashboard(req, res),
-  "metrics.reset": async (req: any, res: any) => resetMetrics(req, res),
-  "metrics.initialize": async () => {
-    const collector = initializeMetricsCollector();
-    return { success: true, message: "Metrics collection initialized", initialized: true };
+  'metrics.dashboard': async (req: any, res: any) => getMetricsDashboard(req, res),
+  'metrics.reset': async (req: any, res: any) => resetMetrics(req, res),
+  'metrics.initialize': async () => {
+    const _collector = initializeMetricsCollector();
+    return { success: true, message: 'Metrics collection initialized', initialized: true };
   },
 
   // ZANTARA v3 Ω Strategic Endpoints - 3 endpoints for complete knowledge access
-  "zantara.unified": async (params: any, req: Request) => {
+  'zantara.unified': async (_params: any, req: Request) => {
     const { zantaraUnifiedQuery } = await import('../handlers/zantara-v3/zantara-unified.js');
     return await zantaraUnifiedQuery(req, { json: (data: any) => data } as any);
   },
 
-  "zantara.collective": async (params: any, req: Request) => {
-    const { zantaraCollectiveIntelligence } = await import('../handlers/zantara-v3/zantara-collective.js');
+  'zantara.collective': async (_params: any, req: Request) => {
+    const { zantaraCollectiveIntelligence } = await import(
+      '../handlers/zantara-v3/zantara-collective.js'
+    );
     return await zantaraCollectiveIntelligence(req, { json: (data: any) => data } as any);
   },
 
-  "zantara.ecosystem": async (params: any, req: Request) => {
-    const { zantaraEcosystemAnalysis } = await import('../handlers/zantara-v3/zantara-ecosystem.js');
+  'zantara.ecosystem': async (_params: any, req: Request) => {
+    const { zantaraEcosystemAnalysis } = await import(
+      '../handlers/zantara-v3/zantara-ecosystem.js'
+    );
     return await zantaraEcosystemAnalysis(req, { json: (data: any) => data } as any);
   },
   /**
@@ -684,8 +737,8 @@ const handlers: Record<string, Handler> = {
    *   key: 'visa_type'
    * })
    */
-  "memory.retrieve": memoryRetrieve,
-  "memory.list": memoryList,
+  'memory.retrieve': memoryRetrieve,
+  'memory.list': memoryList,
 
   /**
    * @handler memory.search.entity (NEW Quick Win)
@@ -697,7 +750,7 @@ const handlers: Record<string, Handler> = {
    * @example
    * await call('memory.search.entity', { entity: 'zero' })
    */
-  "memory.search.entity": memorySearchByEntity,
+  'memory.search.entity': memorySearchByEntity,
 
   /**
    * @handler memory.entities (NEW Quick Win)
@@ -707,7 +760,7 @@ const handlers: Record<string, Handler> = {
    * @example
    * await call('memory.entities', { userId: 'zero' })
    */
-  "memory.entities": memoryGetEntities,
+  'memory.entities': memoryGetEntities,
 
   /**
    * @handler memory.entity.info (NEW Phase 1)
@@ -718,7 +771,7 @@ const handlers: Record<string, Handler> = {
    * @example
    * await call('memory.entity.info', { entity: 'zero' })
    */
-  "memory.entity.info": memoryEntityInfo,
+  'memory.entity.info': memoryEntityInfo,
 
   /**
    * @handler memory.event.save (NEW Phase 1)
@@ -732,7 +785,7 @@ const handlers: Record<string, Handler> = {
    * @example
    * await call('memory.event.save', { userId: 'zero', event: 'Deployed Google Workspace', type: 'deployment' })
    */
-  "memory.event.save": memoryEventSave,
+  'memory.event.save': memoryEventSave,
 
   /**
    * @handler memory.timeline.get (NEW Phase 1)
@@ -745,7 +798,7 @@ const handlers: Record<string, Handler> = {
    * @example
    * await call('memory.timeline.get', { userId: 'zero', startDate: '2025-10-01', endDate: '2025-10-05' })
    */
-  "memory.timeline.get": memoryTimelineGet,
+  'memory.timeline.get': memoryTimelineGet,
 
   /**
    * @handler memory.entity.events (NEW Phase 1)
@@ -757,7 +810,7 @@ const handlers: Record<string, Handler> = {
    * @example
    * await call('memory.entity.events', { entity: 'google_workspace', category: 'projects' })
    */
-  "memory.entity.events": memoryEntityEvents,
+  'memory.entity.events': memoryEntityEvents,
 
   /**
    * @handler memory.search.semantic (NEW Phase 2)
@@ -770,7 +823,7 @@ const handlers: Record<string, Handler> = {
    * await call('memory.search.semantic', { query: 'chi aiuta con KITAS?' })
    * // Returns: Krisna (KITAS specialist) even if exact keywords don't match
    */
-  "memory.search.semantic": memorySearchSemantic,
+  'memory.search.semantic': memorySearchSemantic,
 
   /**
    * @handler memory.search.hybrid (NEW Phase 2)
@@ -782,9 +835,9 @@ const handlers: Record<string, Handler> = {
    * @example
    * await call('memory.search.hybrid', { query: 'tax expert' })
    */
-  "memory.search.hybrid": memorySearchHybrid,
-  "memory.cache.stats": memoryCacheStats,
-  "memory.cache.clear": memoryCacheClear,
+  'memory.search.hybrid': memorySearchHybrid,
+  'memory.cache.stats': memoryCacheStats,
+  'memory.cache.clear': memoryCacheClear,
 
   // User Memory handlers (team members) - TS implementation
   'user.memory.save': userMemorySave,
@@ -798,37 +851,37 @@ const handlers: Record<string, Handler> = {
   // Creative & Artistic AI handlers - NEW!
   ...creativeHandlers,
 
-  // DevAI (Qwen 2.5 Coder) - Internal Developer AI  
+  // DevAI (Qwen 2.5 Coder) - Internal Developer AI
   // ...devaiHandlers, // REMOVED - DevAI no longer used
 
   // Google Analytics handlers - NEW!
   ...analyticsHandlers,
 
   // 🧠 ZANTARA - Collaborative Intelligence Framework v1.0
-  "zantara.personality.profile": zantaraPersonalityProfile,
-  "zantara.attune": zantaraAttune,
-  "zantara.synergy.map": zantaraSynergyMap,
-  "zantara.anticipate.needs": zantaraAnticipateNeeds,
-  "zantara.communication.adapt": zantaraCommunicationAdapt,
-  "zantara.learn.together": zantaraLearnTogether,
-  "zantara.mood.sync": zantaraMoodSync,
-  "zantara.conflict.mediate": zantaraConflictMediate,
-  "zantara.growth.track": zantaraGrowthTrack,
-  "zantara.celebration.orchestrate": zantaraCelebrationOrchestrate,
+  'zantara.personality.profile': zantaraPersonalityProfile,
+  'zantara.attune': zantaraAttune,
+  'zantara.synergy.map': zantaraSynergyMap,
+  'zantara.anticipate.needs': zantaraAnticipateNeeds,
+  'zantara.communication.adapt': zantaraCommunicationAdapt,
+  'zantara.learn.together': zantaraLearnTogether,
+  'zantara.mood.sync': zantaraMoodSync,
+  'zantara.conflict.mediate': zantaraConflictMediate,
+  'zantara.growth.track': zantaraGrowthTrack,
+  'zantara.celebration.orchestrate': zantaraCelebrationOrchestrate,
 
   // 🧠 ZANTARA v2.0 - Advanced Emotional AI & Predictive Intelligence
-  "zantara.emotional.profile.advanced": zantaraEmotionalProfileAdvanced,
-  "zantara.conflict.prediction": zantaraConflictPrediction,
-  "zantara.multi.project.orchestration": zantaraMultiProjectOrchestration,
-  "zantara.client.relationship.intelligence": zantaraClientRelationshipIntelligence,
-  "zantara.cultural.intelligence.adaptation": zantaraCulturalIntelligenceAdaptation,
-  "zantara.performance.optimization": zantaraPerformanceOptimization,
+  'zantara.emotional.profile.advanced': zantaraEmotionalProfileAdvanced,
+  'zantara.conflict.prediction': zantaraConflictPrediction,
+  'zantara.multi.project.orchestration': zantaraMultiProjectOrchestration,
+  'zantara.client.relationship.intelligence': zantaraClientRelationshipIntelligence,
+  'zantara.cultural.intelligence.adaptation': zantaraCulturalIntelligenceAdaptation,
+  'zantara.performance.optimization': zantaraPerformanceOptimization,
 
   // 📊 ZANTARA Dashboard - Real-Time Monitoring & Analytics
-  "zantara.dashboard.overview": zantaraDashboardOverview,
-  "zantara.team.health.monitor": zantaraTeamHealthMonitor,
-  "zantara.performance.analytics": zantaraPerformanceAnalytics,
-  "zantara.system.diagnostics": zantaraSystemDiagnostics,
+  'zantara.dashboard.overview': zantaraDashboardOverview,
+  'zantara.team.health.monitor': zantaraTeamHealthMonitor,
+  'zantara.performance.analytics': zantaraPerformanceAnalytics,
+  'zantara.system.diagnostics': zantaraSystemDiagnostics,
 
   // 💰 BALI ZERO OFFICIAL PRICING - HARDCODED ONLY
   /**
@@ -857,16 +910,16 @@ const handlers: Record<string, Handler> = {
    *   service_type: 'all'
    * })
    */
-  "bali.zero.pricing": baliZeroPricing,
-  "bali.zero.price": baliZeroQuickPrice,
-  "pricing.official": baliZeroPricing,
-  "price.lookup": baliZeroQuickPrice,
+  'bali.zero.pricing': baliZeroPricing,
+  'bali.zero.price': baliZeroQuickPrice,
+  'pricing.official': baliZeroPricing,
+  'price.lookup': baliZeroQuickPrice,
 
   // 📅 DAILY DRIVE RECAP - COLLABORATOR ACTIVITY TRACKING
-  "daily.recap.update": updateDailyRecap,
-  "daily.recap.current": getCurrentDailyRecap,
-  "collaborator.daily": getCurrentDailyRecap,
-  "activity.track": updateDailyRecap,
+  'daily.recap.update': updateDailyRecap,
+  'daily.recap.current': getCurrentDailyRecap,
+  'collaborator.daily': getCurrentDailyRecap,
+  'activity.track': updateDailyRecap,
 
   // 📊 Report System - Weekly & Monthly
   ...weeklyReportHandlers,
@@ -900,9 +953,9 @@ const handlers: Record<string, Handler> = {
    *   use_llm: false
    * })
    */
-  "rag.query": ragQuery,
-  "rag.search": ragSearch,
-  "rag.health": ragHealth,
+  'rag.query': ragQuery,
+  'rag.search': ragSearch,
+  'rag.health': ragHealth,
   /**
    * @handler bali.zero.chat
    * @description Bali Zero chatbot with intelligent Haiku/Sonnet routing based on query complexity. Specialized for immigration, visa, and business setup queries with RAG context.
@@ -928,21 +981,21 @@ const handlers: Record<string, Handler> = {
    *   user_role: 'admin'
    * })
    */
-  "bali.zero.chat": baliZeroChat,
+  'bali.zero.chat': baliZeroChat,
 
   // 🔧 ZERO MODE - Development Tools (Zero-only access)
   ...zeroHandlers,
 
   // 📈 Analytics Dashboard - Real-time Metrics
-  "dashboard.main": dashboardMain,
-  "dashboard.conversations": dashboardConversations,
-  "dashboard.services": dashboardServices,
-  "dashboard.handlers": dashboardHandlers,
-  "dashboard.health": dashboardHealth,
-  "dashboard.users": dashboardUsers,
+  'dashboard.main': dashboardMain,
+  'dashboard.conversations': dashboardConversations,
+  'dashboard.services': dashboardServices,
+  'dashboard.handlers': dashboardHandlers,
+  'dashboard.health': dashboardHealth,
+  'dashboard.users': dashboardUsers,
 
   // 🔌 WebSocket Admin - Connection Management
-  "websocket.stats": async () => {
+  'websocket.stats': async () => {
     const { websocketStats } = await import('../handlers/admin/websocket-admin.js');
     return await websocketStats({});
   },
@@ -972,17 +1025,17 @@ const handlers: Record<string, Handler> = {
    *   excludeClientId: 'client_abc'
    * })
    */
-  "websocket.broadcast": async (params: any) => {
+  'websocket.broadcast': async (params: any) => {
     const { websocketBroadcast } = await import('../handlers/admin/websocket-admin.js');
     return await websocketBroadcast(params);
   },
-  "websocket.send": async (params: any) => {
+  'websocket.send': async (params: any) => {
     const { websocketSendToUser } = await import('../handlers/admin/websocket-admin.js');
     return await websocketSendToUser(params);
   },
 
   // 🔐 OAuth2 Token Management
-  "oauth2.status": async () => {
+  'oauth2.status': async () => {
     try {
       const { getTokenStatus } = await import('../services/oauth2-client.js');
       return ok(getTokenStatus());
@@ -991,17 +1044,20 @@ const handlers: Record<string, Handler> = {
     }
   },
 
-  "oauth2.refresh": async () => {
+  'oauth2.refresh': async () => {
     try {
       const { forceTokenRefresh } = await import('../services/oauth2-client.js');
       const success = await forceTokenRefresh();
-      return ok({ success, message: success ? 'Token refreshed successfully' : 'Token refresh failed' });
+      return ok({
+        success,
+        message: success ? 'Token refreshed successfully' : 'Token refresh failed',
+      });
     } catch (error: any) {
       throw new BadRequestError(`OAuth2 refresh failed: ${error.message}`);
     }
   },
 
-  "oauth2.available": async () => {
+  'oauth2.available': async () => {
     try {
       const { isOAuth2Available } = await import('../services/oauth2-client.js');
       const available = await isOAuth2Available();
@@ -1012,21 +1068,27 @@ const handlers: Record<string, Handler> = {
   },
 
   // === SYSTEM INTROSPECTION & PROXY ===
-  "system.handlers.list": getAllHandlers,
-  "system.handlers.category": getHandlersByCategory,
-  "system.handlers.get": getHandlerDetails,
-  "system.handlers.tools": getAnthropicToolDefinitions,
-  "system.handler.execute": executeHandler,
-  "system.handlers.batch": executeBatchHandlers,
+  'system.handlers.list': getAllHandlers,
+  'system.handlers.category': getHandlersByCategory,
+  'system.handlers.get': getHandlerDetails,
+  'system.handlers.tools': getAnthropicToolDefinitions,
+  'system.handler.execute': executeHandler,
+  'system.handlers.batch': executeBatchHandlers,
 };
 
 const BRIDGE_ONLY_KEYS = [
-  'ambaradam.profile.upsert', 'ambaradam.folder.ensure',
+  'ambaradam.profile.upsert',
+  'ambaradam.folder.ensure',
   'document.analyze',
   'drive.download',
-  'drive.upload.enhanced', 'docs.create.enhanced', 'calendar.create.enhanced',
-  'drive.upload.simple', 'sheets.append.simple',
-  'memory.save.enhanced', 'memory.search.enhanced', 'memory.retrieve.enhanced',
+  'drive.upload.enhanced',
+  'docs.create.enhanced',
+  'calendar.create.enhanced',
+  'drive.upload.simple',
+  'sheets.append.simple',
+  'memory.save.enhanced',
+  'memory.search.enhanced',
+  'memory.retrieve.enhanced',
   // user.memory.* handlers now registered directly in handlers map (see line 372)
   'workspace.create',
 ] as const;
@@ -1041,15 +1103,13 @@ for (const key of BRIDGE_ONLY_KEYS) {
   };
 }
 
-const FORBIDDEN_FOR_EXTERNAL = new Set<string>([
-  "report.generate",
-]);
+const FORBIDDEN_FOR_EXTERNAL = new Set<string>(['report.generate']);
 
-export function attachRoutes(app: import("express").Express) {
+export function attachRoutes(app: import('express').Express) {
   // === NEW v2 RESTful Operations (for OpenAPI v2) ===
 
   // Identity Management
-  app.post("/identity.resolve", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/identity.resolve', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await identityResolve(req.body);
       return res.status(200).json(result?.data ?? result);
@@ -1060,38 +1120,38 @@ export function attachRoutes(app: import("express").Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
       if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // Team Authentication Routes
-  app.post("/team.login", demoUserAuth, async (req: RequestWithDemo, res: Response) => {
+  app.post('/team.login', demoUserAuth, async (req: RequestWithDemo, res: Response) => {
     try {
       const result = await teamLogin(req.body);
       return res.status(200).json(result?.data ?? result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.get("/team.members", apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
+  app.get('/team.members', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = getTeamMembers();
       return res.status(200).json(ok(result));
     } catch (e: any) {
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/team.logout", demoUserAuth, async (req: RequestWithDemo, res: Response) => {
+  app.post('/team.logout', demoUserAuth, async (req: RequestWithDemo, res: Response) => {
     try {
       const { sessionId } = req.body;
       const result = logoutSession(sessionId);
       return res.status(200).json(ok({ success: result }));
     } catch (e: any) {
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -1100,54 +1160,52 @@ export function attachRoutes(app: import("express").Express) {
   // ========================================
 
   // JWT Login endpoint - BUG FIX
-  app.post("/auth/login", async (req: RequestWithCtx, res: Response) => {
+  app.post('/auth/login', async (req: RequestWithCtx, res: Response) => {
     const startTime = Date.now();
     const clientIP = req.header('x-forwarded-for') || req.ip || 'unknown';
-    const userAgent = req.header('user-agent') || 'unknown';
-    
+    const _userAgent = req.header('user-agent') || 'unknown';
+
     try {
       const { email, password } = req.body;
-      
+
       if (!email || !password) {
         logger.warn('JWT Login: Missing credentials', { ip: clientIP });
-        return res.status(400).json(err("Email and password are required"));
+        return res.status(400).json(err('Email and password are required'));
       }
 
       // BUG FIX: teamLogin requires { name, email }, not { email, pin }
       // Solution: Find user by email first, then use name for teamLogin
       const teamMembers = getTeamMembers();
-      const member = teamMembers.find((m: any) => 
-        m.email?.toLowerCase() === email.toLowerCase()
-      );
-      
+      const member = teamMembers.find((m: any) => m.email?.toLowerCase() === email.toLowerCase());
+
       if (!member) {
-        logger.warn('JWT Login: User not found', { 
+        logger.warn('JWT Login: User not found', {
           email: email.substring(0, 3) + '***',
-          ip: clientIP 
+          ip: clientIP,
         });
-        
+
         // Audit log (GDPR compliant - no password)
         logger.info('JWT_LOGIN_AUDIT', {
           event: 'login_failure',
           email: email.substring(0, 3) + '***',
           reason: 'user_not_found',
           ip: clientIP,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
-        return res.status(401).json(err("Invalid credentials"));
+        return res.status(401).json(err('Invalid credentials'));
       }
 
       // Use teamLogin with name
-      const loginResult = await teamLogin({ 
-        name: member.name, 
-        email: member.email 
+      const loginResult = await teamLogin({
+        name: member.name,
+        email: member.email,
       });
-      
+
       if (!loginResult.data.success) {
-        logger.warn('JWT Login: Team login failed', { 
+        logger.warn('JWT Login: Team login failed', {
           email: email.substring(0, 3) + '***',
-          ip: clientIP 
+          ip: clientIP,
         });
 
         logger.info('JWT_LOGIN_AUDIT', {
@@ -1156,50 +1214,50 @@ export function attachRoutes(app: import("express").Express) {
           email: email.substring(0, 3) + '***',
           reason: 'team_login_failed',
           ip: clientIP,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
-        return res.status(401).json(err("Invalid credentials"));
+        return res.status(401).json(err('Invalid credentials'));
       }
 
       // BUG FIX: Check JWT_SECRET (NO HARDCODED FALLBACK)
       const jwtSecret = process.env.JWT_SECRET;
       if (!jwtSecret) {
         logger.error('JWT_SECRET not configured');
-        
+
         logger.info('JWT_LOGIN_AUDIT', {
           event: 'login_error',
           userId: member.id,
           email: email.substring(0, 3) + '***',
           reason: 'misconfiguration',
           ip: clientIP,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
-        return res.status(500).json(err("Authentication service misconfigured"));
+        return res.status(500).json(err('Authentication service misconfigured'));
       }
-      
+
       // BUG FIX: Import jwt at top instead of require
       const jwt = await import('jsonwebtoken');
       const jwtDefault = jwt.default;
-      
+
       // BUG FIX: Include name in token for adminAuth compatibility
       const accessToken = jwtDefault.sign(
-        { 
+        {
           userId: loginResult.data.user.id,
           email: loginResult.data.user.email,
           role: loginResult.data.user.role,
           name: loginResult.data.user.name, // Added for adminAuth
-          department: loginResult.data.user.department // Added for consistency
+          department: loginResult.data.user.department, // Added for consistency
         },
         jwtSecret,
         { expiresIn: '15m' }
       );
 
       const refreshToken = jwtDefault.sign(
-        { 
+        {
           userId: loginResult.data.user.id,
-          type: 'refresh' 
+          type: 'refresh',
         },
         jwtSecret,
         { expiresIn: '7d' }
@@ -1214,109 +1272,110 @@ export function attachRoutes(app: import("express").Express) {
         email: loginResult.data.user.email.substring(0, 3) + '***',
         role: loginResult.data.user.role,
         ip: clientIP,
-        userAgent: userAgent.substring(0, 50),
+        userAgent: _userAgent.substring(0, 50),
         processingTime: `${processingTime}ms`,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
-      return res.status(200).json(ok({
-        accessToken,
-        refreshToken,
-        user: {
-          id: loginResult.data.user.id,
-          email: loginResult.data.user.email,
-          name: loginResult.data.user.name,
-          role: loginResult.data.user.role,
-          department: loginResult.data.user.department
-        },
-        expiresIn: 900 // 15 minutes
-      }));
-
+      return res.status(200).json(
+        ok({
+          accessToken,
+          refreshToken,
+          user: {
+            id: loginResult.data.user.id,
+            email: loginResult.data.user.email,
+            name: loginResult.data.user.name,
+            role: loginResult.data.user.role,
+            department: loginResult.data.user.department,
+          },
+          expiresIn: 900, // 15 minutes
+        })
+      );
     } catch (e: any) {
-      logger.error('JWT Login error:', { 
+      logger.error('JWT Login error:', {
         error: e.message,
         stack: e.stack,
-        ip: clientIP
+        ip: clientIP,
       });
-      
+
       logger.info('JWT_LOGIN_AUDIT', {
         event: 'login_error',
         reason: e.name || 'unexpected_error',
         ip: clientIP,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // JWT Refresh endpoint - BUG FIX
-  app.post("/auth/refresh", async (req: RequestWithCtx, res: Response) => {
+  app.post('/auth/refresh', async (req: RequestWithCtx, res: Response) => {
     const clientIP = req.header('x-forwarded-for') || req.ip || 'unknown';
-    const userAgent = req.header('user-agent') || 'unknown';
-    
+    const _userAgent = req.header('user-agent') || 'unknown';
+
     try {
       const { refreshToken } = req.body;
-      
+
       if (!refreshToken) {
-        return res.status(400).json(err("Refresh token is required"));
+        return res.status(400).json(err('Refresh token is required'));
       }
 
       // BUG FIX: Check JWT_SECRET
       const jwtSecret = process.env.JWT_SECRET;
       if (!jwtSecret) {
         logger.error('JWT_SECRET not configured');
-        return res.status(500).json(err("Authentication service misconfigured"));
+        return res.status(500).json(err('Authentication service misconfigured'));
       }
-      
+
       // BUG FIX: Import jwt instead of require
       const jwt = await import('jsonwebtoken');
       const jwtDefault = jwt.default;
-      
+
       // BUG FIX: Validate decoded before accessing properties
       let decoded: any;
       try {
         decoded = jwtDefault.verify(refreshToken, jwtSecret);
       } catch (verifyError: any) {
-        logger.warn('JWT Refresh: Invalid token', { 
+        logger.warn('JWT Refresh: Invalid token', {
           error: verifyError.name,
-          ip: clientIP 
+          ip: clientIP,
         });
 
         logger.info('JWT_REFRESH_AUDIT', {
           event: 'refresh_failure',
           reason: verifyError.name,
           ip: clientIP,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
         if (verifyError.name === 'JsonWebTokenError' || verifyError.name === 'TokenExpiredError') {
-          return res.status(401).json(err("Invalid or expired refresh token"));
+          return res.status(401).json(err('Invalid or expired refresh token'));
         }
         throw verifyError;
       }
-      
+
       // BUG FIX: Validate decoded structure
       if (!decoded || typeof decoded !== 'object') {
         logger.info('JWT_REFRESH_AUDIT', {
           event: 'refresh_failure',
           reason: 'invalid_payload',
           ip: clientIP,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
-        return res.status(401).json(err("Invalid refresh token payload"));
+        return res.status(401).json(err('Invalid refresh token payload'));
       }
-      
+
       if (decoded.type !== 'refresh') {
         logger.info('JWT_REFRESH_AUDIT', {
           event: 'refresh_failure',
           reason: 'invalid_token_type',
           ip: clientIP,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
-        return res.status(401).json(err("Invalid token type"));
+        return res.status(401).json(err('Invalid token type'));
       }
 
       // BUG FIX: Handle both userId and id fields
@@ -1326,18 +1385,16 @@ export function attachRoutes(app: import("express").Express) {
           event: 'refresh_failure',
           reason: 'missing_user_id',
           ip: clientIP,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
-        return res.status(401).json(err("Token missing user ID"));
+        return res.status(401).json(err('Token missing user ID'));
       }
 
       // Get user data
       const teamMembers = getTeamMembers();
-      const user = teamMembers.find((m: any) => 
-        m.id === userId || m.userId === userId
-      );
-      
+      const user = teamMembers.find((m: any) => m.id === userId || m.userId === userId);
+
       if (!user) {
         logger.warn('JWT Refresh: User not found', { userId, ip: clientIP });
 
@@ -1346,20 +1403,20 @@ export function attachRoutes(app: import("express").Express) {
           userId,
           reason: 'user_not_found',
           ip: clientIP,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
-        return res.status(401).json(err("User not found"));
+        return res.status(401).json(err('User not found'));
       }
 
       // Generate new access token
       const newAccessToken = jwtDefault.sign(
-        { 
+        {
           userId: user.id,
           email: user.email,
           role: user.role,
           name: user.name, // Added for adminAuth
-          department: user.department // Added for consistency
+          department: user.department, // Added for consistency
         },
         jwtSecret,
         { expiresIn: '15m' }
@@ -1370,74 +1427,76 @@ export function attachRoutes(app: import("express").Express) {
         userId: user.id,
         email: user.email.substring(0, 3) + '***',
         ip: clientIP,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
-      return res.status(200).json(ok({
-        accessToken: newAccessToken,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          department: user.department
-        },
-        expiresIn: 900 // 15 minutes
-      }));
-
+      return res.status(200).json(
+        ok({
+          accessToken: newAccessToken,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            department: user.department,
+          },
+          expiresIn: 900, // 15 minutes
+        })
+      );
     } catch (e: any) {
-      logger.error('JWT Refresh error:', { 
+      logger.error('JWT Refresh error:', {
         error: e.message,
         stack: e.stack,
-        ip: clientIP
+        ip: clientIP,
       });
 
       logger.info('JWT_REFRESH_AUDIT', {
         event: 'refresh_error',
         reason: e.name || 'unexpected_error',
         ip: clientIP,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       if (e.name === 'JsonWebTokenError' || e.name === 'TokenExpiredError') {
-        return res.status(401).json(err("Invalid or expired refresh token"));
+        return res.status(401).json(err('Invalid or expired refresh token'));
       }
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // JWT Logout endpoint
-  app.post("/auth/logout", async (req: RequestWithCtx, res: Response) => {
+  app.post('/auth/logout', async (req: RequestWithCtx, res: Response) => {
     try {
-      const { refreshToken } = req.body;
-      
+      const { refreshToken: _refreshToken } = req.body;
+
       // In a production system, you would blacklist the refresh token
       // For now, we just return success
-      
-      return res.status(200).json(ok({
-        success: true,
-        message: "Logged out successfully"
-      }));
 
+      return res.status(200).json(
+        ok({
+          success: true,
+          message: 'Logged out successfully',
+        })
+      );
     } catch (e: any) {
       logger.error('JWT Logout error:', e);
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // AI Chat (JWT protected)
-  app.post("/ai.chat", jwtAuth, async (req: RequestWithJWT, res: Response) => {
+  app.post('/ai.chat', jwtAuth, async (req: RequestWithJWT, res: Response) => {
     try {
       const result = await aiChat(req.body);
       return res.status(200).json(ok(result?.data ?? result));
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // Memory Search
-  app.post("/memory.search", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/memory.search', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await memorySearch(req.body);
       return res.status(200).json(result);
@@ -1451,363 +1510,414 @@ export function attachRoutes(app: import("express").Express) {
         return res.status(200).json(bridged);
       }
 
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // Business Logic
-  app.get("/contact.info", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/contact.info', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
-      const handler = handlers["contact.info"];
+      const handler = handlers['contact.info'];
       if (handler) {
         const result = await handler({}, req);
         return res.status(200).json(result?.data ?? result);
       }
-      return res.status(404).json(err("Handler not found"));
+      return res.status(404).json(err('Handler not found'));
     } catch (e: any) {
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/lead.save", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/lead.save', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
-      const handler = handlers["lead.save"];
+      const handler = handlers['lead.save'];
       if (handler) {
         const result = await handler(req.body, req);
         return res.status(200).json(result?.data ?? result);
       }
-      return res.status(404).json(err("Handler not found"));
+      return res.status(404).json(err('Handler not found'));
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // Google Workspace - Native TypeScript implementations
-  app.get("/drive.list", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/drive.list', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await driveList(req.query);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/drive.search", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/drive.search', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await driveSearch(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/drive.read", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/drive.read', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await driveRead(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/calendar.create", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/calendar.create', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await calendarCreate(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/calendar.get", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/calendar.get', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await calendarGet(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/sheets.read", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/sheets.read', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await sheetsRead(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/sheets.append", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/sheets.append', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await sheetsAppend(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/docs.create", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/docs.create', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await docsCreate(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/docs.read", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/docs.read', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await docsRead(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/docs.update", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/docs.update', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await docsUpdate(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/slides.create", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/slides.create', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await slidesCreate(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/slides.read", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/slides.read', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await slidesRead(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/slides.update", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/slides.update', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await slidesUpdate(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
-
 
   // === Handler Execution Endpoint ===
-  app.post("/handler", apiKeyAuth, selectiveRateLimiter, async (req: RequestWithCtx, res: Response) => {
-    try {
-      const { handler, params = {} } = req.body;
-      
-      if (!handler) {
-        return res.status(400).json(err('Handler name required'));
-      }
+  app.post(
+    '/handler',
+    apiKeyAuth,
+    selectiveRateLimiter,
+    async (req: RequestWithCtx, res: Response) => {
+      try {
+        const { handler, params = {} } = req.body;
 
-      // RBAC by API key
-      if (req.ctx?.role === "external" && FORBIDDEN_FOR_EXTERNAL.has(handler)) {
-        throw new ForbiddenError("Handler not allowed for external key");
-      }
-
-      let result: any;
-      
-      // Try static handlers map first
-      const handlerFunc = handlers[handler];
-      
-      if (handlerFunc) {
-        result = await handlerFunc(params, req);
-      } else {
-        // Check if handler exists in globalRegistry (dynamic auto-loaded handlers)
-        const { globalRegistry } = await import('../core/handler-registry.js');
-        if (globalRegistry.has(handler)) {
-          // Execute handler using globalRegistry
-          result = await globalRegistry.execute(handler, params, req);
-        } else {
-          return res.status(404).json(err(`Handler '${handler}' not found`));
-        }
-      }
-
-      return res.status(200).json(ok(result?.data ?? result));
-      
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-      if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
-    }
-  });
-
-  // === Legacy RPC-style /call (for backwards compatibility) ===
-  app.post("/call", demoUserAuth, selectiveRateLimiter, async (req: RequestWithDemo, res: Response) => {
-    let key = '';
-    let params = {};
-
-    try {
-      const parsed = ActionSchema.parse(req.body);
-      key = parsed.key;
-      params = parsed.params;
-
-      // RBAC by user role
-      if (req.user?.isDemo && FORBIDDEN_FOR_EXTERNAL.has(key)) {
-        throw new ForbiddenError("Action not allowed for demo user");
-      }
-
-      // Prefer explicit TS AI routing for ai.chat
-      if (key === 'ai.chat') {
-        // BLOCK AI from generating fake prices - redirect to official pricing
-        const query = JSON.stringify(params).toLowerCase();
-        const priceKeywords = ['harga', 'biaya', 'berapa', 'price', 'cost', 'jual', 'tarif', 'fee'];
-        const serviceKeywords = ['visa', 'kitas', 'kitap', 'pt', 'pma', 'npwp', 'bpjs', 'company', 'tax', 'pajak'];
-
-        const hasPriceQuery = priceKeywords.some(word => query.includes(word));
-        const hasServiceQuery = serviceKeywords.some(word => query.includes(word));
-
-        if (hasPriceQuery && hasServiceQuery) {
-          // Redirect to official pricing instead of AI
-          return res.status(200).json(ok({
-            official_pricing_notice: "🔒 PREZZI UFFICIALI BALI ZERO 2025",
-            message: "Per prezzi UFFICIALI, usa il handler: bali.zero.pricing",
-            redirect_to: "bali.zero.pricing",
-            reason: "AI NON può fornire prezzi - solo handler ufficiali",
-            contact: "info@balizero.com per preventivi personalizzati"
-          }));
+        if (!handler) {
+          return res.status(400).json(err('Handler name required'));
         }
 
-        // Use ZANTARA-ONLY mode for consistency
-        const startTime = Date.now();
-        const r = await aiChat(params);
+        // RBAC by API key
+        if (req.ctx?.role === 'external' && FORBIDDEN_FOR_EXTERNAL.has(handler)) {
+          throw new ForbiddenError('Handler not allowed for external key');
+        }
 
-        // Auto-save AI conversation
-        const responseData: any = r?.data || r;
-        await autoSaveConversation(
-          req,
-          (params as any).prompt || (params as any).message || '',
-          responseData?.response || responseData?.answer || '',
-          'ai.chat',
-          {
-            responseTime: Date.now() - startTime,
-            model: responseData?.model || 'zantara'
-          }
-        );
+        let result: any;
 
-        return res.status(200).json(ok(r?.data ?? r));
-      }
-
-      // identity.resolve: accetta { email } come parametro standard
-      if (key === 'identity.resolve' && params && (params as any).identity_hint && !(params as any).email) {
-        (params as any).email = (params as any).identity_hint;
-      }
-
-      let result: any;
-      if (key === 'ai.chat') {
-        result = await aiChatWithFallback({ req, res }, params);
-      } else {
         // Try static handlers map first
-        const handler = handlers[key];
+        const handlerFunc = handlers[handler];
 
-        if (handler) {
-          result = await handler(params, req);
+        if (handlerFunc) {
+          result = await handlerFunc(params, req);
         } else {
           // Check if handler exists in globalRegistry (dynamic auto-loaded handlers)
           const { globalRegistry } = await import('../core/handler-registry.js');
-          if (globalRegistry.has(key)) {
-            // Get the handler function from registry
-            const handlerMetadata = globalRegistry.get(key);
-            if (handlerMetadata) {
-              // Execute handler using globalRegistry (correct signature: params, req)
-              result = await globalRegistry.execute(key, params, req);
+          if (globalRegistry.has(handler)) {
+            // Execute handler using globalRegistry
+            result = await globalRegistry.execute(handler, params, req);
+          } else {
+            return res.status(404).json(err(`Handler '${handler}' not found`));
+          }
+        }
+
+        return res.status(200).json(ok(result?.data ?? result));
+      } catch (e: any) {
+        if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+        if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
+        if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
+        return res.status(500).json(err(e?.message || 'Internal Error'));
+      }
+    }
+  );
+
+  // === Legacy RPC-style /call (for backwards compatibility) ===
+  app.post(
+    '/call',
+    demoUserAuth,
+    selectiveRateLimiter,
+    async (req: RequestWithDemo, res: Response) => {
+      let key = '';
+      let params = {};
+
+      try {
+        const parsed = ActionSchema.parse(req.body);
+        key = parsed.key;
+        params = parsed.params;
+
+        // RBAC by user role
+        if (req.user?.isDemo && FORBIDDEN_FOR_EXTERNAL.has(key)) {
+          throw new ForbiddenError('Action not allowed for demo user');
+        }
+
+        // Prefer explicit TS AI routing for ai.chat
+        if (key === 'ai.chat') {
+          // BLOCK AI from generating fake prices - redirect to official pricing
+          const query = JSON.stringify(params).toLowerCase();
+          const priceKeywords = [
+            'harga',
+            'biaya',
+            'berapa',
+            'price',
+            'cost',
+            'jual',
+            'tarif',
+            'fee',
+          ];
+          const serviceKeywords = [
+            'visa',
+            'kitas',
+            'kitap',
+            'pt',
+            'pma',
+            'npwp',
+            'bpjs',
+            'company',
+            'tax',
+            'pajak',
+          ];
+
+          const hasPriceQuery = priceKeywords.some((word) => query.includes(word));
+          const hasServiceQuery = serviceKeywords.some((word) => query.includes(word));
+
+          if (hasPriceQuery && hasServiceQuery) {
+            // Redirect to official pricing instead of AI
+            return res.status(200).json(
+              ok({
+                official_pricing_notice: '🔒 PREZZI UFFICIALI BALI ZERO 2025',
+                message: 'Per prezzi UFFICIALI, usa il handler: bali.zero.pricing',
+                redirect_to: 'bali.zero.pricing',
+                reason: 'AI NON può fornire prezzi - solo handler ufficiali',
+                contact: 'info@balizero.com per preventivi personalizzati',
+              })
+            );
+          }
+
+          // Use ZANTARA-ONLY mode for consistency
+          const startTime = Date.now();
+          const r = await aiChat(params);
+
+          // Auto-save AI conversation
+          const responseData: any = r?.data || r;
+          await autoSaveConversation(
+            req,
+            (params as any).prompt || (params as any).message || '',
+            responseData?.response || responseData?.answer || '',
+            'ai.chat',
+            {
+              responseTime: Date.now() - startTime,
+              model: responseData?.model || 'zantara',
+            }
+          );
+
+          return res.status(200).json(ok(r?.data ?? r));
+        }
+
+        // identity.resolve: accetta { email } come parametro standard
+        if (
+          key === 'identity.resolve' &&
+          params &&
+          (params as any).identity_hint &&
+          !(params as any).email
+        ) {
+          (params as any).email = (params as any).identity_hint;
+        }
+
+        let result: any;
+        if (key === 'ai.chat') {
+          result = await aiChatWithFallback({ req, res }, params);
+        } else {
+          // Try static handlers map first
+          const handler = handlers[key];
+
+          if (handler) {
+            result = await handler(params, req);
+          } else {
+            // Check if handler exists in globalRegistry (dynamic auto-loaded handlers)
+            const { globalRegistry } = await import('../core/handler-registry.js');
+            if (globalRegistry.has(key)) {
+              // Get the handler function from registry
+              const handlerMetadata = globalRegistry.get(key);
+              if (handlerMetadata) {
+                // Execute handler using globalRegistry (correct signature: params, req)
+                result = await globalRegistry.execute(key, params, req);
+              } else {
+                return res.status(404).json(err('handler_not_found'));
+              }
             } else {
               return res.status(404).json(err('handler_not_found'));
             }
-          } else {
-            return res.status(404).json(err('handler_not_found'));
           }
         }
-      }
 
-      // Auto-save conversations for ALL important handlers
-      const autoSaveKeys = [
-        'ai.', '.chat', 'translate.text',
-        'memory.save', 'memory.retrieve', 'memory.search',
-        'user.memory.save', 'user.memory.retrieve'
-      ];
+        // Auto-save conversations for ALL important handlers
+        const autoSaveKeys = [
+          'ai.',
+          '.chat',
+          'translate.text',
+          'memory.save',
+          'memory.retrieve',
+          'memory.search',
+          'user.memory.save',
+          'user.memory.retrieve',
+        ];
 
-      const shouldAutoSave = autoSaveKeys.some(k => key.includes(k) || key === k);
+        const shouldAutoSave = autoSaveKeys.some((k) => key.includes(k) || key === k);
 
-      if (shouldAutoSave) {
-        const prompt = (params as any).prompt || (params as any).message || (params as any).text || (params as any).query || (params as any).content || JSON.stringify(params);
-        const response = result?.data?.response || result?.response || result?.data?.translatedText || result?.data?.content || JSON.stringify(result?.data || result);
+        if (shouldAutoSave) {
+          const prompt =
+            (params as any).prompt ||
+            (params as any).message ||
+            (params as any).text ||
+            (params as any).query ||
+            (params as any).content ||
+            JSON.stringify(params);
+          const response =
+            result?.data?.response ||
+            result?.response ||
+            result?.data?.translatedText ||
+            result?.data?.content ||
+            JSON.stringify(result?.data || result);
 
-        // Don't await (fire and forget to avoid slowing down response)
-        autoSaveConversation(
-          req,
-          prompt.substring(0, 5000), // Limit size
-          response.substring(0, 10000), // Limit size
-          key,
-          {
-            responseTime: 0, // Will be updated properly
-            model: result?.data?.model || key
-          }
-        ).catch(err => logger.info('⚠️ Auto-save failed:', err.message));
-      }
+          // Don't await (fire and forget to avoid slowing down response)
+          autoSaveConversation(
+            req,
+            prompt.substring(0, 5000), // Limit size
+            response.substring(0, 10000), // Limit size
+            key,
+            {
+              responseTime: 0, // Will be updated properly
+              model: result?.data?.model || key,
+            }
+          ).catch((err) => logger.info('⚠️ Auto-save failed:', err.message));
+        }
 
-      return res.status(200).json(ok(result?.data ?? result));
-    } catch (e: any) {
-      // Enhanced error logging with context
-      const requestId = (req as any).requestId || 'unknown';
-      const errorContext = {
-        requestId,
-        key: key,
-        params: JSON.stringify(params).substring(0, 500), // Limit params for logging
-        userAgent: req.get('user-agent'),
-        ip: req.ip,
-        apiKey: req.get('x-api-key')?.substring(0, 8) + '...' || 'none',
-        timestamp: new Date().toISOString()
-      };
+        return res.status(200).json(ok(result?.data ?? result));
+      } catch (e: any) {
+        // Enhanced error logging with context
+        const requestId = (req as any).requestId || 'unknown';
+        const errorContext = {
+          requestId,
+          key: key,
+          params: JSON.stringify(params).substring(0, 500), // Limit params for logging
+          userAgent: req.get('user-agent'),
+          ip: req.ip,
+          apiKey: req.get('x-api-key')?.substring(0, 8) + '...' || 'none',
+          timestamp: new Date().toISOString(),
+        };
 
-      logger.error('🔥 Handler Error [${requestId}] ${key}:', undefined, {
-        error: e.message,
-        stack: e.stack?.split('\n').slice(0, 5).join('\n'),
-        ...errorContext
-      });
-
-      if (e instanceof ZodError) return res.status(400).json(err('INVALID_PAYLOAD'));
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-      if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-
-      // Log critical errors for investigation
-      if (key.includes('ai.') || key.includes('memory.') || key.includes('identity.')) {
-        logger.error('🚨 Critical handler failure: ${key}', undefined, {
-          errorType: e.constructor.name,
-          errorMessage: e.message,
-          ...errorContext
+        logger.error('🔥 Handler Error [${requestId}] ${key}:', undefined, {
+          error: e.message,
+          stack: e.stack?.split('\n').slice(0, 5).join('\n'),
+          ...errorContext,
         });
-      }
 
-      return res.status(500).json(err(e?.message || "Internal Error"));
+        if (e instanceof ZodError) return res.status(400).json(err('INVALID_PAYLOAD'));
+        if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+        if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
+        if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
+
+        // Log critical errors for investigation
+        if (key.includes('ai.') || key.includes('memory.') || key.includes('identity.')) {
+          logger.error('🚨 Critical handler failure: ${key}', undefined, {
+            errorType: e.constructor.name,
+            errorMessage: e.message,
+            ...errorContext,
+          });
+        }
+
+        return res.status(500).json(err(e?.message || 'Internal Error'));
+      }
     }
-  });
+  );
 
   // GET/POST /ai.chat.stream – optional SSE streaming (pseudo streaming)
   app.get('/ai.chat.stream', demoUserAuth, async (req: RequestWithDemo, res) => {
@@ -1829,14 +1939,16 @@ export function attachRoutes(app: import("express").Express) {
       const chunks = (text || '').split(/\s+/);
       for (const c of chunks) {
         res.write(`data: ${c}\n\n`);
-        await new Promise(r => setTimeout(r, 15));
+        await new Promise((r) => setTimeout(r, 15));
       }
       res.write('event: done\ndata: [END]\n\n');
       res.end();
       return;
     } catch (err: any) {
       try {
-        res.write(`event: error\ndata: ${JSON.stringify({ error: err.message || 'stream_failed' })}\n\n`);
+        res.write(
+          `event: error\ndata: ${JSON.stringify({ error: err.message || 'stream_failed' })}\n\n`
+        );
       } finally {
         res.end();
       }
@@ -1846,7 +1958,7 @@ export function attachRoutes(app: import("express").Express) {
 
   app.post('/ai.chat.stream', demoUserAuth, async (req: RequestWithDemo, res) => {
     // same as GET but read prompt from body
-    (req as any).query.prompt = (req.body?.prompt || '');
+    (req as any).query.prompt = req.body?.prompt || '';
     return (app as any)._router.handle(req, res, () => void 0);
   });
 
@@ -1869,7 +1981,7 @@ export function attachRoutes(app: import("express").Express) {
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -1880,7 +1992,7 @@ export function attachRoutes(app: import("express").Express) {
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -1903,7 +2015,7 @@ export function attachRoutes(app: import("express").Express) {
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -1914,7 +2026,7 @@ export function attachRoutes(app: import("express").Express) {
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -1934,7 +2046,7 @@ export function attachRoutes(app: import("express").Express) {
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -1948,7 +2060,7 @@ export function attachRoutes(app: import("express").Express) {
       return await zantaraBrilliantChat(req, res);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -1957,35 +2069,35 @@ export function attachRoutes(app: import("express").Express) {
   // ========================================
 
   // Get Zantara knowledge (GET) - Complete system knowledge
-  app.get('/zantara/knowledge', async (req: RequestWithCtx, res) => {
+  app.get('/zantara/knowledge', async (_req: RequestWithCtx, res) => {
     try {
       const { getZantaraKnowledge } = await import('../handlers/zantara/knowledge.js');
       const result = await getZantaraKnowledge();
       return res.status(200).json(result);
     } catch (e: any) {
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // Get system health (GET) - System status
-  app.get('/zantara/health', async (req: RequestWithCtx, res) => {
+  app.get('/zantara/health', async (_req: RequestWithCtx, res) => {
     try {
       const { getSystemHealth } = await import('../handlers/zantara/knowledge.js');
       const result = await getSystemHealth();
       return res.status(200).json(result);
     } catch (e: any) {
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // Get Zantara system prompt (GET) - Complete system prompt with knowledge
-  app.get('/zantara/system-prompt', async (req: RequestWithCtx, res) => {
+  app.get('/zantara/system-prompt', async (_req: RequestWithCtx, res) => {
     try {
       const { getZantaraSystemPrompt } = await import('../handlers/zantara/knowledge.js');
       const result = await getZantaraSystemPrompt();
       return res.status(200).json(result);
     } catch (e: any) {
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -1994,7 +2106,7 @@ export function attachRoutes(app: import("express").Express) {
     try {
       return await zantaraPersonality(req, res);
     } catch (e: any) {
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -2004,7 +2116,7 @@ export function attachRoutes(app: import("express").Express) {
       return await queryAgent(req, res);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -2014,7 +2126,7 @@ export function attachRoutes(app: import("express").Express) {
       return await getContext(req, res);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -2022,36 +2134,36 @@ export function attachRoutes(app: import("express").Express) {
   // INTEL NEWS SEARCH (Bali Intelligence)
   // ========================================
 
-  app.post("/intel.news.search", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.news.search', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
-      const { intelNewsSearch } = await import("../handlers/intel/news-search.js");
+      const { intelNewsSearch } = await import('../handlers/intel/news-search.js');
       const result = await intelNewsSearch(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/intel.news.critical", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.news.critical', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
-      const { intelNewsGetCritical } = await import("../handlers/intel/news-search.js");
+      const { intelNewsGetCritical } = await import('../handlers/intel/news-search.js');
       const result = await intelNewsGetCritical(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.post("/intel.news.trends", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.news.trends', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
-      const { intelNewsGetTrends } = await import("../handlers/intel/news-search.js");
+      const { intelNewsGetTrends } = await import('../handlers/intel/news-search.js');
       const result = await intelNewsGetTrends(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -2059,14 +2171,14 @@ export function attachRoutes(app: import("express").Express) {
   // INTEL SCRAPER (Bali Intelligence Scraping System)
   // ========================================
 
-  app.post("/intel.scraper.run", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.scraper.run', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
-      const { intelScraperRun } = await import("../handlers/intel/scraper.js");
+      const { intelScraperRun } = await import('../handlers/intel/scraper.js');
       const result = await intelScraperRun(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
@@ -2089,17 +2201,21 @@ export function attachRoutes(app: import("express").Express) {
    *   }
    * })
    */
-  app.post("/zantara.unified", [optionalJwtAuth, demoUserAuth], async (req: RequestWithDemo, res: Response) => {
-    try {
-      const { zantaraUnifiedQuery } = await import('../handlers/zantara-v3/zantara-unified.js');
-      await zantaraUnifiedQuery(req, res);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-      if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+  app.post(
+    '/zantara.unified',
+    [optionalJwtAuth, demoUserAuth],
+    async (req: RequestWithDemo, res: Response) => {
+      try {
+        const { zantaraUnifiedQuery } = await import('../handlers/zantara-v3/zantara-unified.js');
+        await zantaraUnifiedQuery(req, res);
+      } catch (e: any) {
+        if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+        if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
+        if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
+        return res.status(500).json(err(e?.message || 'Internal Error'));
+      }
     }
-  });
+  );
 
   /**
    * @endpoint POST /zantara.collective
@@ -2114,17 +2230,23 @@ export function attachRoutes(app: import("express").Express) {
    *   }
    * })
    */
-  app.post("/zantara.collective", [optionalJwtAuth, demoUserAuth], async (req: RequestWithDemo, res: Response) => {
-    try {
-      const { zantaraCollectiveIntelligence } = await import('../handlers/zantara-v3/zantara-collective.js');
-      await zantaraCollectiveIntelligence(req, res);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-      if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+  app.post(
+    '/zantara.collective',
+    [optionalJwtAuth, demoUserAuth],
+    async (req: RequestWithDemo, res: Response) => {
+      try {
+        const { zantaraCollectiveIntelligence } = await import(
+          '../handlers/zantara-v3/zantara-collective.js'
+        );
+        await zantaraCollectiveIntelligence(req, res);
+      } catch (e: any) {
+        if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+        if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
+        if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
+        return res.status(500).json(err(e?.message || 'Internal Error'));
+      }
     }
-  });
+  );
 
   /**
    * @endpoint POST /zantara.ecosystem
@@ -2141,120 +2263,125 @@ export function attachRoutes(app: import("express").Express) {
    *   }
    * })
    */
-  app.post("/zantara.ecosystem", [optionalJwtAuth, demoUserAuth], async (req: RequestWithDemo, res: Response) => {
-    try {
-      const { zantaraEcosystemAnalysis } = await import('../handlers/zantara-v3/zantara-ecosystem.js');
-      await zantaraEcosystemAnalysis(req, res);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-      if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+  app.post(
+    '/zantara.ecosystem',
+    [optionalJwtAuth, demoUserAuth],
+    async (req: RequestWithDemo, res: Response) => {
+      try {
+        const { zantaraEcosystemAnalysis } = await import(
+          '../handlers/zantara-v3/zantara-ecosystem.js'
+        );
+        await zantaraEcosystemAnalysis(req, res);
+      } catch (e: any) {
+        if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+        if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
+        if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
+        return res.status(500).json(err(e?.message || 'Internal Error'));
+      }
     }
-  });
+  );
 
-  app.post("/intel.scraper.status", apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.scraper.status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
-      const { intelScraperStatus } = await import("../handlers/intel/scraper.js");
+      const { intelScraperStatus } = await import('../handlers/intel/scraper.js');
       const result = await intelScraperStatus(req.body);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
-  app.get("/intel.scraper.categories", apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
+  app.get('/intel.scraper.categories', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
-      const { intelScraperCategories } = await import("../handlers/intel/scraper.js");
+      const { intelScraperCategories } = await import('../handlers/intel/scraper.js');
       const result = await intelScraperCategories();
       return res.status(200).json(result);
     } catch (e: any) {
-      return res.status(500).json(err(e?.message || "Internal Error"));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });
 
   // Protected Dashboard Routes
   // ========================================
-  
+
   // Main dashboard overview
-  router.get('/admin/dashboard/main', jwtAuth, adminAuth, async (req, res) => {
+  router.get('/admin/dashboard/main', jwtAuth, adminAuth, async (_req, res) => {
     try {
       const result = await dashboardMain({});
       res.json(result);
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        error: error.message || 'Internal server error'
+        error: error.message || 'Internal server error',
       });
     }
   });
 
   // Conversation metrics
-  router.get('/admin/dashboard/conversations', jwtAuth, adminAuth, async (req, res) => {
+  router.get('/admin/dashboard/conversations', jwtAuth, adminAuth, async (_req, res) => {
     try {
       const result = await dashboardConversations({});
       res.json(result);
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        error: error.message || 'Internal server error'
+        error: error.message || 'Internal server error',
       });
     }
   });
 
   // Service metrics
-  router.get('/admin/dashboard/services', jwtAuth, adminAuth, async (req, res) => {
+  router.get('/admin/dashboard/services', jwtAuth, adminAuth, async (_req, res) => {
     try {
       const result = await dashboardServices({});
       res.json(result);
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        error: error.message || 'Internal server error'
+        error: error.message || 'Internal server error',
       });
     }
   });
 
   // Handler performance metrics
-  router.get('/admin/dashboard/handlers', jwtAuth, adminAuth, async (req, res) => {
+  router.get('/admin/dashboard/handlers', jwtAuth, adminAuth, async (_req, res) => {
     try {
       const result = await dashboardHandlers({});
       res.json(result);
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        error: error.message || 'Internal server error'
+        error: error.message || 'Internal server error',
       });
     }
   });
 
   // System health metrics
-  router.get('/admin/dashboard/health', jwtAuth, adminAuth, async (req, res) => {
+  router.get('/admin/dashboard/health', jwtAuth, adminAuth, async (_req, res) => {
     try {
       const result = await dashboardHealth({});
       res.json(result);
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        error: error.message || 'Internal server error'
+        error: error.message || 'Internal server error',
       });
     }
   });
 
   // User activity metrics
-  router.get('/admin/dashboard/users', jwtAuth, adminAuth, async (req, res) => {
+  router.get('/admin/dashboard/users', jwtAuth, adminAuth, async (_req, res) => {
     try {
       const result = await dashboardUsers({});
       res.json(result);
     } catch (error: any) {
       res.status(500).json({
         ok: false,
-        error: error.message || 'Internal server error'
+        error: error.message || 'Internal server error',
       });
     }
   });
-
 }
 
 // Export router creation function

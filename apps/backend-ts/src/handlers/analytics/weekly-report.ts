@@ -1,9 +1,9 @@
 // Weekly Report System for ZANTARA v5.2.0
 // Automatic Sunday analysis and reporting to Zero
 import logger from '../../services/logger.js';
-import { getFirestore } from "../../services/firebase.js";
-import { getGmail, getDrive } from "../../services/google-auth-service.js";
-import { ok } from "../../utils/response.js";
+import { getFirestore } from '../../services/firebase.js';
+import { getGmail, getDrive } from '../../services/google-auth-service.js';
+import { ok } from '../../utils/response.js';
 
 // Configuration
 const ZERO_EMAIL = 'zero@balizero.com';
@@ -11,9 +11,7 @@ const REPORT_DAY = 0; // Sunday = 0
 const BATCH_SIZE = 100; // Max conversations to process at once
 
 // Team members for analysis
-const TEAM_MEMBERS = [
-  'zero', 'zainal', 'setup', 'tax', 'marketing', 'reception', 'board'
-];
+const TEAM_MEMBERS = ['zero', 'zainal', 'setup', 'tax', 'marketing', 'reception', 'board'];
 
 // Initialize Gmail for sending reports using centralized service
 async function getGmailService() {
@@ -34,9 +32,9 @@ async function getUserConversations(userId: string, startDate: Date, endDate: Da
       .limit(BATCH_SIZE)
       .get();
 
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
   } catch (error: any) {
     logger.error(`Failed to get conversations for ${userId}:`, error.message);
@@ -48,7 +46,7 @@ async function getUserConversations(userId: string, startDate: Date, endDate: Da
 function aggregateDailyConversations(conversations: any[]): Record<string, any[]> {
   const dailyGroups: Record<string, any[]> = {};
 
-  conversations.forEach(conv => {
+  conversations.forEach((conv) => {
     const date = conv.timestamp.split('T')[0]; // YYYY-MM-DD
     if (!dailyGroups[date]) {
       dailyGroups[date] = [];
@@ -68,7 +66,7 @@ async function generateQualitativeAnalysis(userId: string, conversations: any[])
   const handlers = new Map<string, number>();
   const timePatterns = new Map<number, number>(); // hour of day
 
-  conversations.forEach(conv => {
+  conversations.forEach((conv) => {
     // Track handlers used
     handlers.set(conv.handler, (handlers.get(conv.handler) || 0) + 1);
 
@@ -79,10 +77,14 @@ async function generateQualitativeAnalysis(userId: string, conversations: any[])
     // Extract topics from prompts
     const prompt = (conv.prompt || '').toLowerCase();
     if (prompt.includes('visa')) topics.set('visa', (topics.get('visa') || 0) + 1);
-    if (prompt.includes('company') || prompt.includes('pt')) topics.set('company', (topics.get('company') || 0) + 1);
-    if (prompt.includes('tax') || prompt.includes('pajak')) topics.set('tax', (topics.get('tax') || 0) + 1);
-    if (prompt.includes('property') || prompt.includes('real estate')) topics.set('property', (topics.get('property') || 0) + 1);
-    if (prompt.includes('help') || prompt.includes('urgent')) topics.set('urgent', (topics.get('urgent') || 0) + 1);
+    if (prompt.includes('company') || prompt.includes('pt'))
+      topics.set('company', (topics.get('company') || 0) + 1);
+    if (prompt.includes('tax') || prompt.includes('pajak'))
+      topics.set('tax', (topics.get('tax') || 0) + 1);
+    if (prompt.includes('property') || prompt.includes('real estate'))
+      topics.set('property', (topics.get('property') || 0) + 1);
+    if (prompt.includes('help') || prompt.includes('urgent'))
+      topics.set('urgent', (topics.get('urgent') || 0) + 1);
   });
 
   // Find peak activity hours
@@ -116,7 +118,7 @@ async function generateQualitativeAnalysis(userId: string, conversations: any[])
       peakActivityTime: `${peakHour}:00-${peakHour + 1}:00`,
       averageConversationsPerDay: Math.round(totalConversations / 7),
       preferredServices: topHandlers,
-      mainInterests: mainTopics
+      mainInterests: mainTopics,
     },
 
     // ZANTARA's perspective
@@ -132,15 +134,20 @@ async function generateQualitativeAnalysis(userId: string, conversations: any[])
     efficiency: {
       averageResponseTime: calculateAverageResponseTime(conversations),
       successfulResolutions: countSuccessfulResolutions(conversations),
-      followUpNeeded: identifyFollowUps(conversations)
-    }
+      followUpNeeded: identifyFollowUps(conversations),
+    },
   };
 
   return analysis;
 }
 
 // Generate ZANTARA's perspective on the user
-function generatePerspective(userId: string, conversations: any[], topics: Map<string, number>, timePatterns: Map<number, number>): string {
+function generatePerspective(
+  userId: string,
+  conversations: any[],
+  topics: Map<string, number>,
+  timePatterns: Map<number, number>
+): string {
   let perspective = `Based on this week's interactions with ${userId}, I observe: `;
 
   // Activity pattern analysis
@@ -160,8 +167,8 @@ function generatePerspective(userId: string, conversations: any[], topics: Map<s
   }
 
   // Time pattern insight
-  const earlyBird = Array.from(timePatterns.keys()).some(h => h < 9 && timePatterns.get(h)! > 2);
-  const nightOwl = Array.from(timePatterns.keys()).some(h => h > 21 && timePatterns.get(h)! > 2);
+  const earlyBird = Array.from(timePatterns.keys()).some((h) => h < 9 && timePatterns.get(h)! > 2);
+  const nightOwl = Array.from(timePatterns.keys()).some((h) => h > 21 && timePatterns.get(h)! > 2);
 
   if (earlyBird) {
     perspective += `Early starter, often begins work before 9 AM. `;
@@ -187,7 +194,11 @@ function generatePerspective(userId: string, conversations: any[], topics: Map<s
 }
 
 // Generate recommendations based on patterns
-function generateRecommendations(userId: string, topics: Map<string, number>, handlers: Map<string, number>): string[] {
+function generateRecommendations(
+  userId: string,
+  topics: Map<string, number>,
+  handlers: Map<string, number>
+): string[] {
   const recommendations: string[] = [];
 
   // Service-specific recommendations
@@ -224,7 +235,7 @@ function generateRecommendations(userId: string, topics: Map<string, number>, ha
 function extractKeyHighlights(conversations: any[]): string[] {
   const highlights: string[] = [];
 
-  conversations.forEach(conv => {
+  conversations.forEach((conv) => {
     const prompt = (conv.prompt || '').toLowerCase();
 
     // Important keywords that indicate key conversations
@@ -247,9 +258,7 @@ function extractKeyHighlights(conversations: any[]): string[] {
 
 // Calculate average response time
 function calculateAverageResponseTime(conversations: any[]): string {
-  const times = conversations
-    .map(c => c.responseTime || 0)
-    .filter(t => t > 0);
+  const times = conversations.map((c) => c.responseTime || 0).filter((t) => t > 0);
 
   if (times.length === 0) return 'N/A';
 
@@ -259,10 +268,8 @@ function calculateAverageResponseTime(conversations: any[]): string {
 
 // Count successful resolutions
 function countSuccessfulResolutions(conversations: any[]): number {
-  return conversations.filter(c =>
-    c.response &&
-    !c.response.includes('error') &&
-    !c.response.includes('failed')
+  return conversations.filter(
+    (c) => c.response && !c.response.includes('error') && !c.response.includes('failed')
   ).length;
 }
 
@@ -270,12 +277,14 @@ function countSuccessfulResolutions(conversations: any[]): number {
 function identifyFollowUps(conversations: any[]): string[] {
   const followUps: string[] = [];
 
-  conversations.forEach(conv => {
+  conversations.forEach((conv) => {
     const response = (conv.response || '').toLowerCase();
-    if (response.includes('follow up') ||
-        response.includes('will get back') ||
-        response.includes('pending') ||
-        response.includes('waiting for')) {
+    if (
+      response.includes('follow up') ||
+      response.includes('will get back') ||
+      response.includes('pending') ||
+      response.includes('waiting for')
+    ) {
       followUps.push(`${conv.timestamp.split('T')[0]}: ${conv.prompt.substring(0, 50)}...`);
     }
   });
@@ -347,23 +356,31 @@ function formatEmailReport(weeklyAnalysis: Record<string, any>): string {
         </ul>
       </div>
 
-      ${analysis.keyHighlights.length > 0 ? `
+      ${
+        analysis.keyHighlights.length > 0
+          ? `
       <div class="highlights">
         <strong>🌟 Key Highlights:</strong>
         <ul>
           ${analysis.keyHighlights.map((h: string) => `<li>${h}</li>`).join('')}
         </ul>
       </div>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${analysis.efficiency.followUpNeeded.length > 0 ? `
+      ${
+        analysis.efficiency.followUpNeeded.length > 0
+          ? `
       <div style="background: #f8d7da; padding: 15px; border-left: 4px solid #dc3545; margin: 20px 0;">
         <strong>⏰ Follow-ups Needed:</strong>
         <ul>
           ${analysis.efficiency.followUpNeeded.map((f: string) => `<li>${f}</li>`).join('')}
         </ul>
       </div>
-      ` : ''}
+      `
+          : ''
+      }
     </div>
     `;
   });
@@ -399,7 +416,7 @@ async function sendEmailToZero(htmlReport: string) {
       `From: ZANTARA <noreply@balizero.com>`,
       `Subject: ${subject}`,
       '',
-      htmlReport
+      htmlReport,
     ].join('\n');
 
     const encodedMessage = Buffer.from(message)
@@ -411,13 +428,12 @@ async function sendEmailToZero(htmlReport: string) {
     await gmail.users.messages.send({
       userId: 'me',
       requestBody: {
-        raw: encodedMessage
-      }
+        raw: encodedMessage,
+      },
     });
 
     logger.info(`✅ Weekly report sent to ${ZERO_EMAIL}`);
     return { success: true };
-
   } catch (error: any) {
     logger.error('Failed to send email:', error.message);
 
@@ -436,23 +452,22 @@ async function saveReportToDrive(htmlReport: string) {
 
     const fileMetadata = {
       name: `ZANTARA_Weekly_Report_${new Date().toISOString().split('T')[0]}.html`,
-      parents: [process.env.ZANTARA_REPORTS_FOLDER_ID || '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5']
+      parents: [process.env.ZANTARA_REPORTS_FOLDER_ID || '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5'],
     };
 
     const media = {
       mimeType: 'text/html',
-      body: htmlReport
+      body: htmlReport,
     };
 
     const response = await drive.files.create({
       requestBody: fileMetadata,
       media: media,
-      fields: 'id, name'
+      fields: 'id, name',
     });
 
     logger.info(`📁 Report saved to Drive: ${response.data.name}`);
     return { success: true, driveId: response.data.id };
-
   } catch (error: any) {
     logger.error('Failed to save report to Drive:', error.message);
     return { success: false, error: error.message };
@@ -500,13 +515,13 @@ export async function generateWeeklyReport() {
       message: 'Weekly report generated and sent',
       teamMembersProcessed: Object.keys(weeklyAnalysis).length,
       emailSent: result.success,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } else {
     logger.info('No conversations found for this week');
     return ok({
       message: 'No conversations to report this week',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 }
@@ -517,11 +532,11 @@ async function archiveProcessedConversations(conversations: any[]) {
     const db = getFirestore();
     const batch = db.batch();
 
-    conversations.forEach(conv => {
+    conversations.forEach((conv) => {
       const docRef = db.collection('conversations_archive').doc(conv.id);
       batch.set(docRef, {
         ...conv,
-        archivedAt: new Date().toISOString()
+        archivedAt: new Date().toISOString(),
       });
 
       // Delete from main collection
@@ -547,7 +562,7 @@ export async function scheduleWeeklyReport() {
   } else {
     return ok({
       message: `Weekly report scheduled for Sunday. Current day: ${now.getDay()}`,
-      nextRun: getNextSunday()
+      nextRun: getNextSunday(),
     });
   }
 }
@@ -599,14 +614,14 @@ export async function generateMonthlyReport() {
       year: now.getFullYear(),
       teamMembersAnalyzed: Object.keys(monthlyAnalysis).length,
       emailSent: result.success,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
   return ok({
     message: 'No data for monthly report',
     month: now.toLocaleString('default', { month: 'long' }),
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -640,9 +655,9 @@ async function generateMonthlyAnalysis(userId: string, conversations: any[], mon
     // Core metrics
     metrics: {
       totalConversations: conversations.length,
-      uniqueDays: new Set(conversations.map(c => c.timestamp.split('T')[0])).size,
+      uniqueDays: new Set(conversations.map((c) => c.timestamp.split('T')[0])).size,
       averageDaily: Math.round(conversations.length / 30),
-      growthRate: trends.growthPercentage
+      growthRate: trends.growthPercentage,
     },
 
     // Weekly evolution
@@ -650,7 +665,7 @@ async function generateMonthlyAnalysis(userId: string, conversations: any[], mon
       week: `Week ${idx + 1}`,
       conversations: week.length,
       topFocus: extractWeekFocus(week),
-      efficiency: calculateWeekEfficiency(week)
+      efficiency: calculateWeekEfficiency(week),
     })),
 
     // Service patterns
@@ -671,7 +686,7 @@ async function generateMonthlyAnalysis(userId: string, conversations: any[], mon
     ),
 
     // Next month priorities
-    nextMonthPriorities: generateNextMonthPriorities(userId, trends, clientPatterns)
+    nextMonthPriorities: generateNextMonthPriorities(userId, trends, clientPatterns),
   };
 }
 
@@ -679,7 +694,7 @@ async function generateMonthlyAnalysis(userId: string, conversations: any[], mon
 function getWeeklyBreakdown(conversations: any[]): any[][] {
   const weeks: any[][] = [[], [], [], []];
 
-  conversations.forEach(conv => {
+  conversations.forEach((conv) => {
     if (!conv.timestamp) return;
     const date = new Date(conv.timestamp);
     const weekOfMonth = Math.floor((date.getDate() - 1) / 7);
@@ -696,21 +711,23 @@ function calculateMonthlyTrends(_conversations: any[], weeklyBreakdown: any[][])
   const firstWeek = weeklyBreakdown[0]?.length || 0;
   const lastWeek = weeklyBreakdown[weeklyBreakdown.length - 1]?.length || 0;
 
-  const growthPercentage = firstWeek > 0 ?
-    Math.round(((lastWeek - firstWeek) / firstWeek) * 100) : 0;
+  const growthPercentage =
+    firstWeek > 0 ? Math.round(((lastWeek - firstWeek) / firstWeek) * 100) : 0;
 
-  const avgResponseTimes = weeklyBreakdown.map(week =>
-    week.reduce((sum, c) => sum + (c.responseTime || 0), 0) / (week.length || 1)
+  const avgResponseTimes = weeklyBreakdown.map(
+    (week) => week.reduce((sum, c) => sum + (c.responseTime || 0), 0) / (week.length || 1)
   );
 
-  const efficiencyTrend = (avgResponseTimes[0] || 0) > (avgResponseTimes[avgResponseTimes.length - 1] || 0) ?
-    'improving' : 'declining';
+  const efficiencyTrend =
+    (avgResponseTimes[0] || 0) > (avgResponseTimes[avgResponseTimes.length - 1] || 0)
+      ? 'improving'
+      : 'declining';
 
   return {
     growthPercentage,
     efficiencyTrend,
-    weeklyVolumes: weeklyBreakdown.map(w => w.length),
-    avgResponseTimes
+    weeklyVolumes: weeklyBreakdown.map((w) => w.length),
+    avgResponseTimes,
   };
 }
 
@@ -718,7 +735,7 @@ function calculateMonthlyTrends(_conversations: any[], weeklyBreakdown: any[][])
 function analyzeServiceEvolution(conversations: any[]) {
   const servicesByWeek: Map<number, Map<string, number>> = new Map();
 
-  conversations.forEach(conv => {
+  conversations.forEach((conv) => {
     const date = new Date(conv.timestamp);
     const weekOfMonth = Math.floor((date.getDate() - 1) / 7);
 
@@ -751,8 +768,9 @@ function analyzeServiceEvolution(conversations: any[]) {
   return {
     emerging,
     declining,
-    consistent: Array.from(new Set([...Array.from(firstWeek.keys()), ...Array.from(lastWeek.keys())]))
-      .filter(s => !emerging.includes(s) && !declining.includes(s))
+    consistent: Array.from(
+      new Set([...Array.from(firstWeek.keys()), ...Array.from(lastWeek.keys())])
+    ).filter((s) => !emerging.includes(s) && !declining.includes(s)),
   };
 }
 
@@ -762,7 +780,7 @@ function analyzeClientPatterns(conversations: any[]) {
   const urgentRequests: any[] = [];
   const completedProjects: any[] = [];
 
-  conversations.forEach(conv => {
+  conversations.forEach((conv) => {
     const prompt = (conv.prompt || '').toLowerCase();
 
     // Extract business topics
@@ -786,39 +804,38 @@ function analyzeClientPatterns(conversations: any[]) {
       .slice(0, 5),
     urgentRequests: urgentRequests.length,
     completedProjects: completedProjects.length,
-    satisfactionIndicators: completedProjects.length / (urgentRequests.length || 1)
+    satisfactionIndicators: completedProjects.length / (urgentRequests.length || 1),
   };
 }
 
 // Calculate monthly performance metrics
 function calculateMonthlyPerformance(conversations: any[]) {
-  const successfulResolutions = conversations.filter(c =>
-    c.response && !c.response.includes('error')
+  const successfulResolutions = conversations.filter(
+    (c) => c.response && !c.response.includes('error')
   ).length;
 
-  const avgResponseTime = conversations.reduce((sum, c) =>
-    sum + (c.responseTime || 0), 0) / (conversations.length || 1);
+  const avgResponseTime =
+    conversations.reduce((sum, c) => sum + (c.responseTime || 0), 0) / (conversations.length || 1);
 
   const peakDays = new Map<string, number>();
-  conversations.forEach(c => {
+  conversations.forEach((c) => {
     if (!c.timestamp) return;
     const day = new Date(c.timestamp).getDay();
-    const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day];
+    const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][
+      day
+    ];
     if (dayName) {
       peakDays.set(dayName, (peakDays.get(dayName) || 0) + 1);
     }
   });
 
-  const busiestDay = Array.from(peakDays.entries())
-    .sort((a, b) => b[1] - a[1])[0];
+  const busiestDay = Array.from(peakDays.entries()).sort((a, b) => b[1] - a[1])[0];
 
   return {
     successRate: Math.round((successfulResolutions / conversations.length) * 100),
     avgResponseTimeMs: Math.round(avgResponseTime),
     busiestDay: busiestDay ? busiestDay[0] : 'N/A',
-    totalActiveHours: new Set(conversations.map(c =>
-      new Date(c.timestamp).getHours()
-    )).size
+    totalActiveHours: new Set(conversations.map((c) => new Date(c.timestamp).getHours())).size,
   };
 }
 
@@ -863,13 +880,12 @@ function generateExecutiveSummary(
 function extractWeekFocus(weekConversations: any[]): string {
   const topics = new Map<string, number>();
 
-  weekConversations.forEach(conv => {
+  weekConversations.forEach((conv) => {
     const handler = conv.handler.split('.')[0];
     topics.set(handler, (topics.get(handler) || 0) + 1);
   });
 
-  const topTopic = Array.from(topics.entries())
-    .sort((a, b) => b[1] - a[1])[0];
+  const topTopic = Array.from(topics.entries()).sort((a, b) => b[1] - a[1])[0];
 
   return topTopic ? topTopic[0] : 'general';
 }
@@ -878,8 +894,8 @@ function extractWeekFocus(weekConversations: any[]): string {
 function calculateWeekEfficiency(weekConversations: any[]): number {
   if (weekConversations.length === 0) return 0;
 
-  const successful = weekConversations.filter(c =>
-    c.response && !c.response.includes('error')
+  const successful = weekConversations.filter(
+    (c) => c.response && !c.response.includes('error')
   ).length;
 
   return Math.round((successful / weekConversations.length) * 100);
@@ -919,16 +935,11 @@ function generateMonthlyStrategicRecommendations(
     recommendations.push('Consider automation for repetitive executive queries');
   }
 
-  return recommendations.length > 0 ? recommendations :
-    ['Maintain current operational excellence'];
+  return recommendations.length > 0 ? recommendations : ['Maintain current operational excellence'];
 }
 
 // Generate next month priorities
-function generateNextMonthPriorities(
-  _userId: string,
-  trends: any,
-  clientPatterns: any
-): string[] {
+function generateNextMonthPriorities(_userId: string, trends: any, clientPatterns: any): string[] {
   const priorities: string[] = [];
 
   // Based on client patterns
@@ -994,8 +1005,10 @@ function formatMonthlyExecutiveReport(monthlyAnalysis: Record<string, any>, date
 `;
 
   // Add team overview metrics
-  const totalConversations = Object.values(monthlyAnalysis)
-    .reduce((sum, analysis: any) => sum + analysis.metrics.totalConversations, 0);
+  const totalConversations = Object.values(monthlyAnalysis).reduce(
+    (sum, analysis: any) => sum + analysis.metrics.totalConversations,
+    0
+  );
 
   html += `
     <div class="executive-summary">
@@ -1007,8 +1020,8 @@ function formatMonthlyExecutiveReport(monthlyAnalysis: Record<string, any>, date
 
   // Process each team member's monthly analysis
   Object.entries(monthlyAnalysis).forEach(([userId, analysis]: [string, any]) => {
-    const growthIcon = analysis.metrics.growthRate > 0 ? '📈' :
-                       analysis.metrics.growthRate < 0 ? '📉' : '➡️';
+    const growthIcon =
+      analysis.metrics.growthRate > 0 ? '📈' : analysis.metrics.growthRate < 0 ? '📉' : '➡️';
 
     html += `
     <h2>👤 ${userId.toUpperCase()} - ${analysis.month} Analysis</h2>
@@ -1039,24 +1052,36 @@ function formatMonthlyExecutiveReport(monthlyAnalysis: Record<string, any>, date
 
     <div class="weekly-chart">
       <h3>📅 Weekly Progression</h3>
-      ${analysis.weeklyProgression.map((week: any) => `
+      ${analysis.weeklyProgression
+        .map(
+          (week: any) => `
         <div class="week-bar">
           <div class="week-label">${week.week}</div>
           <div class="week-progress" style="width: ${(week.conversations / 50) * 100}%">
             ${week.conversations} conversations (${week.efficiency}% efficiency)
           </div>
         </div>
-      `).join('')}
+      `
+        )
+        .join('')}
     </div>
 
     <div class="insights-section">
       <h3>🎯 Service Evolution</h3>
-      ${analysis.serviceInsights.emerging.length > 0 ? `
+      ${
+        analysis.serviceInsights.emerging.length > 0
+          ? `
         <p><strong>📈 Emerging Services:</strong> ${analysis.serviceInsights.emerging.join(', ')}</p>
-      ` : ''}
-      ${analysis.serviceInsights.declining.length > 0 ? `
+      `
+          : ''
+      }
+      ${
+        analysis.serviceInsights.declining.length > 0
+          ? `
         <p><strong>📉 Declining Services:</strong> ${analysis.serviceInsights.declining.join(', ')}</p>
-      ` : ''}
+      `
+          : ''
+      }
       <p><strong>✅ Consistent Services:</strong> ${analysis.serviceInsights.consistent.join(', ')}</p>
     </div>
 
@@ -1110,7 +1135,7 @@ async function sendMonthlyReportToZero(htmlReport: string) {
       `From: ZANTARA Executive Reports <reports@balizero.com>`,
       `Subject: ${subject}`,
       '',
-      htmlReport
+      htmlReport,
     ].join('\n');
 
     const encodedMessage = Buffer.from(message)
@@ -1122,13 +1147,12 @@ async function sendMonthlyReportToZero(htmlReport: string) {
     await gmail.users.messages.send({
       userId: 'me',
       requestBody: {
-        raw: encodedMessage
-      }
+        raw: encodedMessage,
+      },
     });
 
     logger.info(`✅ Monthly executive report sent to ${ZERO_EMAIL}`);
     return { success: true };
-
   } catch (error: any) {
     logger.error('Failed to send monthly email:', error.message);
     return await saveReportToDrive(htmlReport);
@@ -1147,7 +1171,7 @@ export async function scheduleMonthlyReport() {
     const daysUntilEnd = lastDayOfMonth - now.getDate();
     return ok({
       message: `Monthly report scheduled for ${lastDayOfMonth}. Days remaining: ${daysUntilEnd}`,
-      nextRun: new Date(now.getFullYear(), now.getMonth(), lastDayOfMonth, 9, 0, 0).toISOString()
+      nextRun: new Date(now.getFullYear(), now.getMonth(), lastDayOfMonth, 9, 0, 0).toISOString(),
     });
   }
 }
@@ -1157,5 +1181,5 @@ export const weeklyReportHandlers = {
   'report.weekly.generate': generateWeeklyReport,
   'report.weekly.schedule': scheduleWeeklyReport,
   'report.monthly.generate': generateMonthlyReport,
-  'report.monthly.schedule': scheduleMonthlyReport
+  'report.monthly.schedule': scheduleMonthlyReport,
 };

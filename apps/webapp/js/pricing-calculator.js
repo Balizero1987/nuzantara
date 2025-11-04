@@ -4,7 +4,7 @@
  * Integrates with DynamicPricingService backend
  */
 
-window.PricingCalculator = (function() {
+window.PricingCalculator = (function () {
   'use strict';
 
   // Service categories and their base prices (IDR in millions)
@@ -15,7 +15,7 @@ window.PricingCalculator = (function() {
       description: 'Foreign-owned company registration',
       currency: 'IDR',
       timeline: '4 months',
-      icon: '🏢'
+      icon: '🏢',
     },
     'kitas-working': {
       name: 'Working KITAS',
@@ -23,7 +23,7 @@ window.PricingCalculator = (function() {
       description: 'Work permit for employees',
       currency: 'IDR',
       timeline: '3 months',
-      icon: '💼'
+      icon: '💼',
     },
     'kitas-investor': {
       name: 'Investor KITAS',
@@ -31,24 +31,24 @@ window.PricingCalculator = (function() {
       description: 'Investor visa & permit',
       currency: 'IDR',
       timeline: '3 months',
-      icon: '💰'
+      icon: '💰',
     },
-    'npwp': {
+    npwp: {
       name: 'NPWP Tax Registration',
       basePrice: 2,
       description: 'Tax ID registration',
       currency: 'IDR',
       timeline: '2 weeks',
-      icon: '📋'
+      icon: '📋',
     },
-    'accounting': {
+    accounting: {
       name: 'Monthly Accounting',
       basePrice: 2.5,
       description: 'Bookkeeping & tax compliance',
       currency: 'IDR',
       recurring: 'monthly',
-      icon: '📊'
-    }
+      icon: '📊',
+    },
   };
 
   let widget = null;
@@ -125,7 +125,9 @@ window.PricingCalculator = (function() {
    * Generate services checkboxes HTML
    */
   function generateServicesHTML() {
-    return Object.entries(SERVICES).map(([key, service]) => `
+    return Object.entries(SERVICES)
+      .map(
+        ([key, service]) => `
       <label class="service-item">
         <input 
           type="checkbox" 
@@ -149,7 +151,9 @@ window.PricingCalculator = (function() {
           </div>
         </div>
       </label>
-    `).join('');
+    `
+      )
+      .join('');
   }
 
   /**
@@ -170,7 +174,7 @@ window.PricingCalculator = (function() {
 
     // Service checkboxes
     const checkboxes = document.querySelectorAll('.service-checkbox');
-    checkboxes.forEach(cb => {
+    checkboxes.forEach((cb) => {
       cb.addEventListener('change', handleServiceToggle);
     });
 
@@ -196,7 +200,7 @@ window.PricingCalculator = (function() {
     if (!widget) return;
 
     const isCollapsed = widget.classList.contains('collapsed');
-    
+
     if (isCollapsed) {
       widget.classList.remove('collapsed');
       widget.classList.add('expanded');
@@ -261,7 +265,7 @@ window.PricingCalculator = (function() {
     let recurringTotal = 0;
     const selectedList = [];
 
-    selectedServices.forEach(key => {
+    selectedServices.forEach((key) => {
       const service = SERVICES[key];
       if (service.recurring) {
         recurringTotal += service.basePrice;
@@ -274,7 +278,9 @@ window.PricingCalculator = (function() {
     total = oneTimeTotal;
 
     // Generate summary HTML
-    const itemsHTML = selectedList.map(service => `
+    const itemsHTML = selectedList
+      .map(
+        (service) => `
       <div class="summary-item">
         <span class="item-icon">${service.icon}</span>
         <span class="item-name">${service.name}</span>
@@ -283,23 +289,31 @@ window.PricingCalculator = (function() {
           ${service.recurring ? `<span class="recurring-badge-small">/mese</span>` : ''}
         </span>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
 
     summaryContent.innerHTML = `
       <div class="summary-items">
         ${itemsHTML}
       </div>
-      ${recurringTotal > 0 ? `
+      ${
+        recurringTotal > 0
+          ? `
         <div class="recurring-info">
           💳 Ricorrente: IDR ${recurringTotal}M/mese
         </div>
-      ` : ''}
+      `
+          : ''
+      }
     `;
 
     // Update total
     totalElement.querySelector('.amount').textContent = `IDR ${total}M`;
 
-    console.log(`[PricingCalculator] Updated summary: ${selectedServices.size} services, Total: ${total}M IDR`);
+    console.log(
+      `[PricingCalculator] Updated summary: ${selectedServices.size} services, Total: ${total}M IDR`
+    );
   }
 
   /**
@@ -308,7 +322,7 @@ window.PricingCalculator = (function() {
   function resetCalculator() {
     // Uncheck all checkboxes
     const checkboxes = document.querySelectorAll('.service-checkbox');
-    checkboxes.forEach(cb => cb.checked = false);
+    checkboxes.forEach((cb) => (cb.checked = false));
 
     // Clear selection
     selectedServices.clear();
@@ -330,7 +344,7 @@ window.PricingCalculator = (function() {
     }
 
     // Build quote request message
-    const serviceNames = Array.from(selectedServices).map(key => SERVICES[key].name);
+    const serviceNames = Array.from(selectedServices).map((key) => SERVICES[key].name);
     const message = `Vorrei un preventivo dettagliato per i seguenti servizi: ${serviceNames.join(', ')}. Il totale stimato è IDR ${total}M.`;
 
     console.log('[PricingCalculator] Quote request:', message);
@@ -340,7 +354,7 @@ window.PricingCalculator = (function() {
       const messageInput = document.getElementById('messageInput');
       if (messageInput) {
         messageInput.value = message;
-        
+
         // Trigger send
         const sendBtn = document.getElementById('sendBtn');
         if (sendBtn) {
@@ -362,9 +376,8 @@ window.PricingCalculator = (function() {
     init,
     toggleWidget,
     closeWidget,
-    resetCalculator
+    resetCalculator,
   };
-
 })();
 
 // Auto-initialize on DOM ready

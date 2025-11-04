@@ -1,17 +1,36 @@
-import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
-import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
-import { getSheets } from "../../services/google-auth-service.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
+import { getSheets } from '../../services/google-auth-service.js';
 
 // Minimal param interfaces (Step 1 typing)
-export interface SheetsReadParams { spreadsheetId: string; range: string }
-export interface SheetsAppendParams { spreadsheetId: string; range: string; values: any[][]; valueInputOption?: 'RAW' | 'USER_ENTERED' }
-export interface SheetsCreateParams { title: string; data?: any[][] }
+export interface SheetsReadParams {
+  spreadsheetId: string;
+  range: string;
+}
+export interface SheetsAppendParams {
+  spreadsheetId: string;
+  range: string;
+  values: any[][];
+  valueInputOption?: 'RAW' | 'USER_ENTERED';
+}
+export interface SheetsCreateParams {
+  title: string;
+  data?: any[][];
+}
 
 // Result interfaces
-export interface SheetsReadResult { values: any[][]; range: string }
-export interface SheetsAppendResult { update: any | null }
-export interface SheetsCreateResult { spreadsheetId?: string; url: string }
+export interface SheetsReadResult {
+  values: any[][];
+  range: string;
+}
+export interface SheetsAppendResult {
+  update: any | null;
+}
+export interface SheetsCreateResult {
+  spreadsheetId?: string;
+  url: string;
+}
 
 export async function sheetsRead(params: SheetsReadParams) {
   const { spreadsheetId, range } = params || ({} as SheetsReadParams);
@@ -27,11 +46,22 @@ export async function sheetsRead(params: SheetsReadParams) {
 }
 
 export async function sheetsAppend(params: SheetsAppendParams) {
-  const { spreadsheetId, range, values, valueInputOption = 'RAW' } = params || ({} as SheetsAppendParams);
-  if (!spreadsheetId || !range || !values) throw new BadRequestError('spreadsheetId, range and values are required');
+  const {
+    spreadsheetId,
+    range,
+    values,
+    valueInputOption = 'RAW',
+  } = params || ({} as SheetsAppendParams);
+  if (!spreadsheetId || !range || !values)
+    throw new BadRequestError('spreadsheetId, range and values are required');
   const sheets = await getSheets();
   if (sheets) {
-    const res = await sheets.spreadsheets.values.append({ spreadsheetId, range, valueInputOption, requestBody: { values } });
+    const res = await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range,
+      valueInputOption,
+      requestBody: { values },
+    });
     return ok({ update: res.data.updates || null });
   }
   const bridged = await forwardToBridgeIfSupported('sheets.append', params as any);
@@ -49,10 +79,12 @@ export async function sheetsCreate(params: SheetsCreateParams) {
     const res = await sheets.spreadsheets.create({
       requestBody: {
         properties: { title },
-        sheets: [{
-          properties: { title: 'Sheet1' }
-        }]
-      }
+        sheets: [
+          {
+            properties: { title: 'Sheet1' },
+          },
+        ],
+      },
     });
 
     const spreadsheetId = res.data.spreadsheetId;
@@ -63,13 +95,13 @@ export async function sheetsCreate(params: SheetsCreateParams) {
         spreadsheetId: spreadsheetId!,
         range: 'Sheet1!A1',
         valueInputOption: 'RAW',
-        requestBody: { values: data }
+        requestBody: { values: data },
       });
     }
 
     return ok({
       spreadsheetId,
-      url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`
+      url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
     });
   }
 

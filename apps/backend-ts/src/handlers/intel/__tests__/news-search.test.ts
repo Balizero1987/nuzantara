@@ -5,11 +5,11 @@ const mockAxios = {
   get: jest.fn(),
   post: jest.fn(),
   put: jest.fn(),
-  delete: jest.fn()
+  delete: jest.fn(),
 };
 
 jest.unstable_mockModule('axios', () => ({
-  default: mockAxios
+  default: mockAxios,
 }));
 
 describe('News Search', () => {
@@ -36,11 +36,11 @@ describe('News Search', () => {
               category: 'immigration',
               impact_level: 'high',
               url: 'https://example.com',
-              similarity_score: 0.95
-            }
-          ]
+              similarity_score: 0.95,
+            },
+          ],
         },
-        status: 200
+        status: 200,
       });
 
       const result = await handlers.intelNewsSearch({
@@ -48,7 +48,7 @@ describe('News Search', () => {
         category: 'immigration',
         date_range: 'last_7_days',
         tier: 'T1,T2,T3',
-        limit: 20
+        limit: 20,
       });
 
       expect(result).toBeDefined();
@@ -63,9 +63,11 @@ describe('News Search', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.intelNewsSearch({
-        invalid: 'data'
-      })).rejects.toThrow();
+      await expect(
+        handlers.intelNewsSearch({
+          invalid: 'data',
+        })
+      ).rejects.toThrow();
     });
   });
 
@@ -78,15 +80,15 @@ describe('News Search', () => {
               id: 'critical-1',
               title: 'Critical News',
               impact_level: 'critical',
-              action_required: true
-            }
-          ]
+              action_required: true,
+            },
+          ],
         },
-        status: 200
+        status: 200,
       });
 
       const result = await handlers.intelNewsGetCritical({
-        limit: 10
+        limit: 10,
       });
 
       expect(result).toBeDefined();
@@ -96,7 +98,7 @@ describe('News Search', () => {
     it('should handle missing required params (all optional)', async () => {
       mockAxios.post.mockResolvedValueOnce({
         data: { results: [] },
-        status: 200
+        status: 200,
       });
 
       const result = await handlers.intelNewsGetCritical({});
@@ -112,15 +114,15 @@ describe('News Search', () => {
             {
               id: 'trend-1',
               title: 'Trending News',
-              category: 'events'
-            }
-          ]
+              category: 'events',
+            },
+          ],
         },
-        status: 200
+        status: 200,
       });
 
       const result = await handlers.intelNewsGetTrends({
-        days: 7
+        days: 7,
       });
 
       expect(result).toBeDefined();
@@ -130,12 +132,11 @@ describe('News Search', () => {
     it('should handle missing required params (all optional)', async () => {
       mockAxios.post.mockResolvedValueOnce({
         data: { results: [] },
-        status: 200
+        status: 200,
       });
 
       const result = await handlers.intelNewsGetTrends({});
       expect(result).toBeDefined();
     });
   });
-
 });

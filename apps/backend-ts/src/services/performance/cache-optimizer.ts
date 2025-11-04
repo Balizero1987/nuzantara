@@ -59,7 +59,7 @@ export class CacheOptimizer {
       return {
         data,
         cached: false,
-        queryTime: Date.now() - startTime
+        queryTime: Date.now() - startTime,
       };
     }
 
@@ -76,7 +76,7 @@ export class CacheOptimizer {
           data,
           cached: true,
           queryTime: Date.now() - startTime,
-          cacheKey
+          cacheKey,
         };
       }
 
@@ -92,9 +92,8 @@ export class CacheOptimizer {
         data,
         cached: false,
         queryTime: Date.now() - startTime,
-        cacheKey
+        cacheKey,
       };
-
     } catch (error) {
       logger.error(`Cache query failed for ${queryType}:${queryKey}`, error);
       // Fallback to direct execution
@@ -102,7 +101,7 @@ export class CacheOptimizer {
       return {
         data,
         cached: false,
-        queryTime: Date.now() - startTime
+        queryTime: Date.now() - startTime,
       };
     }
   }
@@ -124,15 +123,15 @@ export class CacheOptimizer {
 
     // Execute all queries in parallel
     const results = await Promise.all(
-      queries.map(query =>
-        this.cachedQuery(query.type, query.key, query.fn, query.ttl)
-      )
+      queries.map((query) => this.cachedQuery(query.type, query.key, query.fn, query.ttl))
     );
 
     const totalTime = Date.now() - startTime;
-    const cacheHits = results.filter(r => r.cached).length;
+    const cacheHits = results.filter((r) => r.cached).length;
 
-    logger.info(`✅ Parallel queries completed: ${totalTime}ms, ${cacheHits}/${queries.length} cache hits`);
+    logger.info(
+      `✅ Parallel queries completed: ${totalTime}ms, ${cacheHits}/${queries.length} cache hits`
+    );
 
     return results;
   }
@@ -145,9 +144,7 @@ export class CacheOptimizer {
     if (!config) return;
 
     try {
-      const searchPattern = pattern
-        ? `${config.keyPrefix}${pattern}*`
-        : `${config.keyPrefix}*`;
+      const searchPattern = pattern ? `${config.keyPrefix}${pattern}*` : `${config.keyPrefix}*`;
 
       const keys = await (redisClient as any).keys(searchPattern);
       if (keys.length > 0) {
@@ -172,7 +169,7 @@ export class CacheOptimizer {
           enabled: config.enabled,
           ttl: config.ttl,
           cachedKeys: keys.length,
-          prefix: config.keyPrefix
+          prefix: config.keyPrefix,
         };
       }
 
@@ -186,11 +183,13 @@ export class CacheOptimizer {
   /**
    * Warm up cache with common queries
    */
-  async warmupCache(queryWarmups: Array<{
-    type: string;
-    key: string;
-    fn: () => Promise<any>;
-  }>): Promise<void> {
+  async warmupCache(
+    queryWarmups: Array<{
+      type: string;
+      key: string;
+      fn: () => Promise<any>;
+    }>
+  ): Promise<void> {
     logger.info(`🔥 Warming up cache with ${queryWarmups.length} queries...`);
 
     for (const warmup of queryWarmups) {

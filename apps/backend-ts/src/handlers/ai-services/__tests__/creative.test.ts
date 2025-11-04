@@ -5,7 +5,7 @@ import { BadRequestError } from '../../../utils/errors.js';
 // @ts-expect-error - jest.fn type inference issues
 const mockGetAccessToken = jest.fn().mockResolvedValue({ token: 'mock-access-token' });
 const mockGoogleClient: any = {
-  getAccessToken: mockGetAccessToken
+  getAccessToken: mockGetAccessToken,
 };
 
 // @ts-expect-error - jest.fn type inference issues
@@ -13,7 +13,7 @@ const mockGetGoogleService = jest.fn().mockResolvedValue(mockGoogleClient);
 
 // Mock getGoogleService to always return a valid client
 jest.unstable_mockModule('../../../services/google-auth-service.js', () => ({
-  getGoogleService: mockGetGoogleService
+  getGoogleService: mockGetGoogleService,
 }));
 
 globalThis.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
@@ -37,16 +37,18 @@ describe('Creative', () => {
         ok: true,
         status: 200,
         json: async () => ({
-          responses: [{
-            textAnnotations: [{ description: 'Test text' }],
-            labelAnnotations: [{ description: 'Test label', score: 0.9 }]
-          }]
-        })
+          responses: [
+            {
+              textAnnotations: [{ description: 'Test text' }],
+              labelAnnotations: [{ description: 'Test label', score: 0.9 }],
+            },
+          ],
+        }),
       } as Response);
 
       const result = await handlers.visionAnalyzeImage({
         imageUrl: 'https://example.com/image.jpg',
-        features: ['TEXT_DETECTION']
+        features: ['TEXT_DETECTION'],
       });
 
       expect(result).toBeDefined();
@@ -56,13 +58,17 @@ describe('Creative', () => {
 
     it('should handle missing required params', async () => {
       await expect(handlers.visionAnalyzeImage({})).rejects.toThrow(BadRequestError);
-      await expect(handlers.visionAnalyzeImage({})).rejects.toThrow('Either imageBase64 or imageUrl is required');
+      await expect(handlers.visionAnalyzeImage({})).rejects.toThrow(
+        'Either imageBase64 or imageUrl is required'
+      );
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.visionAnalyzeImage({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.visionAnalyzeImage({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -73,15 +79,17 @@ describe('Creative', () => {
         ok: true,
         status: 200,
         json: async () => ({
-          responses: [{
-            textAnnotations: [{ description: 'PASSPORT\nName: John Doe' }]
-          }]
-        })
+          responses: [
+            {
+              textAnnotations: [{ description: 'PASSPORT\nName: John Doe' }],
+            },
+          ],
+        }),
       } as Response);
 
       const result = await handlers.visionExtractDocuments({
         imageUrl: 'https://example.com/passport.jpg',
-        documentType: 'PASSPORT'
+        documentType: 'PASSPORT',
       });
 
       expect(result).toBeDefined();
@@ -90,13 +98,17 @@ describe('Creative', () => {
 
     it('should handle missing required params', async () => {
       await expect(handlers.visionExtractDocuments({})).rejects.toThrow(BadRequestError);
-      await expect(handlers.visionExtractDocuments({})).rejects.toThrow('Either imageBase64 or imageUrl is required');
+      await expect(handlers.visionExtractDocuments({})).rejects.toThrow(
+        'Either imageBase64 or imageUrl is required'
+      );
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.visionExtractDocuments({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.visionExtractDocuments({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -106,16 +118,18 @@ describe('Creative', () => {
         ok: true,
         status: 200,
         json: async () => ({
-          results: [{
-            alternatives: [{ transcript: 'Test transcription', confidence: 0.95 }],
-            languageCode: 'en-US'
-          }]
-        })
+          results: [
+            {
+              alternatives: [{ transcript: 'Test transcription', confidence: 0.95 }],
+              languageCode: 'en-US',
+            },
+          ],
+        }),
       } as Response);
 
       const result = await handlers.speechTranscribe({
         audioUrl: 'https://example.com/audio.wav',
-        language: 'en-US'
+        language: 'en-US',
       });
 
       expect(result).toBeDefined();
@@ -125,13 +139,17 @@ describe('Creative', () => {
 
     it('should handle missing required params', async () => {
       await expect(handlers.speechTranscribe({})).rejects.toThrow(BadRequestError);
-      await expect(handlers.speechTranscribe({})).rejects.toThrow('Either audioBase64 or audioUrl is required');
+      await expect(handlers.speechTranscribe({})).rejects.toThrow(
+        'Either audioBase64 or audioUrl is required'
+      );
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.speechTranscribe({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.speechTranscribe({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -141,14 +159,14 @@ describe('Creative', () => {
         ok: true,
         status: 200,
         json: async () => ({
-          audioContent: 'base64-encoded-audio-data'
-        })
+          audioContent: 'base64-encoded-audio-data',
+        }),
       } as Response);
 
       const result = await handlers.speechSynthesize({
         text: 'Hello world',
         language: 'en-US',
-        voice: 'en-US-Standard-A'
+        voice: 'en-US-Standard-A',
       });
 
       expect(result).toBeDefined();
@@ -158,13 +176,17 @@ describe('Creative', () => {
 
     it('should handle missing required params', async () => {
       await expect(handlers.speechSynthesize({})).rejects.toThrow(BadRequestError);
-      await expect(handlers.speechSynthesize({})).rejects.toThrow('Text is required for speech synthesis');
+      await expect(handlers.speechSynthesize({})).rejects.toThrow(
+        'Text is required for speech synthesis'
+      );
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.speechSynthesize({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.speechSynthesize({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -176,13 +198,13 @@ describe('Creative', () => {
         json: async () => ({
           documentSentiment: {
             score: 0.8,
-            magnitude: 0.9
-          }
-        })
+            magnitude: 0.9,
+          },
+        }),
       } as Response);
 
       const result = await handlers.languageAnalyzeSentiment({
-        text: 'This is a positive message'
+        text: 'This is a positive message',
       });
 
       expect(result).toBeDefined();
@@ -192,14 +214,17 @@ describe('Creative', () => {
 
     it('should handle missing required params', async () => {
       await expect(handlers.languageAnalyzeSentiment({})).rejects.toThrow(BadRequestError);
-      await expect(handlers.languageAnalyzeSentiment({})).rejects.toThrow('Text is required for sentiment analysis');
+      await expect(handlers.languageAnalyzeSentiment({})).rejects.toThrow(
+        'Text is required for sentiment analysis'
+      );
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.languageAnalyzeSentiment({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.languageAnalyzeSentiment({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
-
 });

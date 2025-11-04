@@ -9,11 +9,15 @@ import { mapsDirections, mapsPlaces, mapsPlaceDetails } from './maps.js';
 
 export function registerMapsHandlers() {
   // Maps handlers
-  globalRegistry.registerModule('maps', {
-    'directions': mapsDirections,
-    'places': mapsPlaces,
-    'place.details': mapsPlaceDetails
-  }, { requiresAuth: true, description: 'Google Maps API' });
+  globalRegistry.registerModule(
+    'maps',
+    {
+      directions: mapsDirections,
+      places: mapsPlaces,
+      'place.details': mapsPlaceDetails,
+    },
+    { requiresAuth: true, description: 'Google Maps API' }
+  );
 
   logger.info('✅ Maps handlers registered');
 }

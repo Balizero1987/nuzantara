@@ -8,5 +8,5 @@ database:
 jwtSecret: 'your-development-secret'
 cors:
   allowedOrigins:
-    - "http://localhost:3000"
-    - "http://localhost:5173"
+    - 'http://localhost:3000'
+    - 'http://localhost:5173'

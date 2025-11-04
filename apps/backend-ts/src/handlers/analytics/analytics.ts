@@ -1,5 +1,5 @@
 // Google Analytics Handlers for ZANTARA v5.2.0
-import { ok } from "../../utils/response.js";
+import { ok } from '../../utils/response.js';
 
 // For now, let's create simplified Analytics handlers that can be extended
 // when proper GA4 credentials are configured
@@ -12,21 +12,29 @@ export const analyticsHandlers = {
     const {
       propertyId = '365284833', // Bali Zero property ID
       startDate = '7daysAgo',
-      endDate = 'today'
+      endDate = 'today',
     } = params;
 
     // For now, return mock data that represents typical Bali Zero traffic patterns
     // This can be replaced with real GA4 API calls when credentials are properly configured
     const generateMockData = () => {
       const data = [];
-      const days = ['2025-09-19', '2025-09-20', '2025-09-21', '2025-09-22', '2025-09-23', '2025-09-24', '2025-09-25'];
+      const days = [
+        '2025-09-19',
+        '2025-09-20',
+        '2025-09-21',
+        '2025-09-22',
+        '2025-09-23',
+        '2025-09-24',
+        '2025-09-25',
+      ];
 
       for (const date of days) {
         data.push({
           date,
           activeUsers: Math.floor(Math.random() * 50) + 20, // 20-70 users
-          sessions: Math.floor(Math.random() * 80) + 30,     // 30-110 sessions
-          pageviews: Math.floor(Math.random() * 200) + 50    // 50-250 pageviews
+          sessions: Math.floor(Math.random() * 80) + 30, // 30-110 sessions
+          pageviews: Math.floor(Math.random() * 200) + 50, // 50-250 pageviews
         });
       }
       return data;
@@ -42,9 +50,9 @@ export const analyticsHandlers = {
       summary: {
         totalUsers: data.reduce((sum, row) => sum + row.activeUsers, 0),
         totalSessions: data.reduce((sum, row) => sum + row.sessions, 0),
-        totalPageviews: data.reduce((sum, row) => sum + row.pageviews, 0)
+        totalPageviews: data.reduce((sum, row) => sum + row.pageviews, 0),
       },
-      note: "Demo data - replace with real GA4 API when credentials configured"
+      note: 'Demo data - replace with real GA4 API when credentials configured',
     });
   },
 
@@ -57,10 +65,26 @@ export const analyticsHandlers = {
     const currentActiveUsers = Math.floor(Math.random() * 15) + 5; // 5-20 active users
 
     const data = [
-      { country: 'Indonesia', deviceCategory: 'mobile', activeUsers: Math.floor(currentActiveUsers * 0.6) },
-      { country: 'Australia', deviceCategory: 'desktop', activeUsers: Math.floor(currentActiveUsers * 0.2) },
-      { country: 'Singapore', deviceCategory: 'mobile', activeUsers: Math.floor(currentActiveUsers * 0.1) },
-      { country: 'United States', deviceCategory: 'desktop', activeUsers: Math.floor(currentActiveUsers * 0.1) }
+      {
+        country: 'Indonesia',
+        deviceCategory: 'mobile',
+        activeUsers: Math.floor(currentActiveUsers * 0.6),
+      },
+      {
+        country: 'Australia',
+        deviceCategory: 'desktop',
+        activeUsers: Math.floor(currentActiveUsers * 0.2),
+      },
+      {
+        country: 'Singapore',
+        deviceCategory: 'mobile',
+        activeUsers: Math.floor(currentActiveUsers * 0.1),
+      },
+      {
+        country: 'United States',
+        deviceCategory: 'desktop',
+        activeUsers: Math.floor(currentActiveUsers * 0.1),
+      },
     ];
 
     return ok({
@@ -68,7 +92,7 @@ export const analyticsHandlers = {
       timestamp: new Date().toISOString(),
       activeUsers: currentActiveUsers,
       data,
-      note: "Demo data - replace with real GA4 Realtime API when credentials configured"
+      note: 'Demo data - replace with real GA4 Realtime API when credentials configured',
     });
   },
 
@@ -76,11 +100,7 @@ export const analyticsHandlers = {
    * Get top pages performance (mock)
    */
   'analytics.pages': async (params: any) => {
-    const {
-      propertyId = '365284833',
-      startDate = '30daysAgo',
-      endDate = 'today'
-    } = params;
+    const { propertyId = '365284833', startDate = '30daysAgo', endDate = 'today' } = params;
 
     const pages = [
       {
@@ -89,7 +109,7 @@ export const analyticsHandlers = {
         pageviews: Math.floor(Math.random() * 500) + 200,
         sessions: Math.floor(Math.random() * 300) + 150,
         bounceRate: 0.65,
-        avgSessionDuration: 125.5
+        avgSessionDuration: 125.5,
       },
       {
         path: '/services/visa',
@@ -97,7 +117,7 @@ export const analyticsHandlers = {
         pageviews: Math.floor(Math.random() * 300) + 100,
         sessions: Math.floor(Math.random() * 200) + 80,
         bounceRate: 0.45,
-        avgSessionDuration: 180.2
+        avgSessionDuration: 180.2,
       },
       {
         path: '/services/company-setup',
@@ -105,7 +125,7 @@ export const analyticsHandlers = {
         pageviews: Math.floor(Math.random() * 200) + 80,
         sessions: Math.floor(Math.random() * 150) + 60,
         bounceRate: 0.35,
-        avgSessionDuration: 210.8
+        avgSessionDuration: 210.8,
       },
       {
         path: '/contact',
@@ -113,8 +133,8 @@ export const analyticsHandlers = {
         pageviews: Math.floor(Math.random() * 150) + 50,
         sessions: Math.floor(Math.random() * 100) + 40,
         bounceRate: 0.55,
-        avgSessionDuration: 90.3
-      }
+        avgSessionDuration: 90.3,
+      },
     ];
 
     return ok({
@@ -123,7 +143,7 @@ export const analyticsHandlers = {
       totalPages: pages.length,
       pages,
       topPage: pages[0],
-      note: "Demo data - replace with real GA4 API when credentials configured"
+      note: 'Demo data - replace with real GA4 API when credentials configured',
     });
   },
 
@@ -131,11 +151,7 @@ export const analyticsHandlers = {
    * Get traffic sources (mock)
    */
   'analytics.sources': async (params: any) => {
-    const {
-      propertyId = '365284833',
-      startDate = '30daysAgo',
-      endDate = 'today'
-    } = params;
+    const { propertyId = '365284833', startDate = '30daysAgo', endDate = 'today' } = params;
 
     const sources = [
       {
@@ -144,7 +160,7 @@ export const analyticsHandlers = {
         campaign: '(not set)',
         sessions: Math.floor(Math.random() * 200) + 100,
         newUsers: Math.floor(Math.random() * 150) + 75,
-        conversions: Math.floor(Math.random() * 20) + 5
+        conversions: Math.floor(Math.random() * 20) + 5,
       },
       {
         source: 'direct',
@@ -152,7 +168,7 @@ export const analyticsHandlers = {
         campaign: '(not set)',
         sessions: Math.floor(Math.random() * 100) + 50,
         newUsers: Math.floor(Math.random() * 80) + 30,
-        conversions: Math.floor(Math.random() * 15) + 8
+        conversions: Math.floor(Math.random() * 15) + 8,
       },
       {
         source: 'instagram.com',
@@ -160,7 +176,7 @@ export const analyticsHandlers = {
         campaign: '(not set)',
         sessions: Math.floor(Math.random() * 80) + 30,
         newUsers: Math.floor(Math.random() * 60) + 25,
-        conversions: Math.floor(Math.random() * 10) + 3
+        conversions: Math.floor(Math.random() * 10) + 3,
       },
       {
         source: 'whatsapp',
@@ -168,8 +184,8 @@ export const analyticsHandlers = {
         campaign: '(not set)',
         sessions: Math.floor(Math.random() * 50) + 20,
         newUsers: Math.floor(Math.random() * 40) + 15,
-        conversions: Math.floor(Math.random() * 8) + 2
-      }
+        conversions: Math.floor(Math.random() * 8) + 2,
+      },
     ];
 
     return ok({
@@ -181,9 +197,9 @@ export const analyticsHandlers = {
       summary: {
         totalSessions: sources.reduce((sum, s) => sum + s.sessions, 0),
         totalNewUsers: sources.reduce((sum, s) => sum + s.newUsers, 0),
-        totalConversions: sources.reduce((sum, s) => sum + s.conversions, 0)
+        totalConversions: sources.reduce((sum, s) => sum + s.conversions, 0),
       },
-      note: "Demo data - replace with real GA4 API when credentials configured"
+      note: 'Demo data - replace with real GA4 API when credentials configured',
     });
   },
 
@@ -195,7 +211,7 @@ export const analyticsHandlers = {
       propertyId = '365284833',
       startDate = '30daysAgo',
       endDate = 'today',
-      dimension = 'country'
+      dimension = 'country',
     } = params;
 
     const locations = [
@@ -203,32 +219,32 @@ export const analyticsHandlers = {
         location: 'Indonesia',
         users: Math.floor(Math.random() * 300) + 150,
         sessions: Math.floor(Math.random() * 400) + 200,
-        avgSessionDuration: 180.5
+        avgSessionDuration: 180.5,
       },
       {
         location: 'Australia',
         users: Math.floor(Math.random() * 100) + 50,
         sessions: Math.floor(Math.random() * 150) + 75,
-        avgSessionDuration: 210.2
+        avgSessionDuration: 210.2,
       },
       {
         location: 'Singapore',
         users: Math.floor(Math.random() * 80) + 30,
         sessions: Math.floor(Math.random() * 120) + 50,
-        avgSessionDuration: 195.8
+        avgSessionDuration: 195.8,
       },
       {
         location: 'United States',
         users: Math.floor(Math.random() * 60) + 25,
         sessions: Math.floor(Math.random() * 90) + 40,
-        avgSessionDuration: 165.3
+        avgSessionDuration: 165.3,
       },
       {
         location: 'United Kingdom',
         users: Math.floor(Math.random() * 40) + 15,
         sessions: Math.floor(Math.random() * 60) + 25,
-        avgSessionDuration: 175.1
-      }
+        avgSessionDuration: 175.1,
+      },
     ];
 
     return ok({
@@ -238,7 +254,7 @@ export const analyticsHandlers = {
       totalLocations: locations.length,
       locations,
       topLocation: locations[0],
-      note: "Demo data - replace with real GA4 API when credentials configured"
+      note: 'Demo data - replace with real GA4 API when credentials configured',
     });
-  }
+  },
 };

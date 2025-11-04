@@ -16,9 +16,7 @@ const LEGACY_LOCAL_TOKENS = './oauth2-tokens.json';
 export function getOAuth2TokensPath(): string {
   const configured = process.env.OAUTH2_TOKENS_FILE?.trim();
   if (configured) {
-    return configured.startsWith('/')
-      ? configured
-      : path.resolve(process.cwd(), configured);
+    return configured.startsWith('/') ? configured : path.resolve(process.cwd(), configured);
   }
 
   if (fs.existsSync(SECRET_MOUNT_TOKENS_JSON)) return SECRET_MOUNT_TOKENS_JSON;

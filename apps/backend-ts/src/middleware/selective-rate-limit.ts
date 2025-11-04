@@ -5,7 +5,12 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { baliZeroChatLimiter, aiChatLimiter, ragQueryLimiter, strictLimiter } from './rate-limit.js';
+import {
+  baliZeroChatLimiter,
+  aiChatLimiter,
+  ragQueryLimiter,
+  strictLimiter,
+} from './rate-limit.js';
 
 // Map handler keys to their appropriate rate limiters
 const RATE_LIMIT_MAP: Record<string, any> = {
@@ -22,7 +27,7 @@ const RATE_LIMIT_MAP: Record<string, any> = {
   // Strict limit for batch/expensive operations
   'system.handlers.batch': strictLimiter,
   'memory.search.hybrid': strictLimiter,
-  'memory.search.semantic': strictLimiter
+  'memory.search.semantic': strictLimiter,
 };
 
 /**

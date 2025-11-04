@@ -5,7 +5,12 @@ import { registerRoutes } from './routing/unified-router.js';
 import { routes } from './routes.js';
 import { pathToFileURL } from 'node:url';
 import systemRoutes from './routing/system-routes.js';
-import { Laws, isEligibleForLandRight, validateEnvironmentalPermit, canWNAOwnHousing } from './laws/property-environment-laws.js';
+import {
+  Laws,
+  isEligibleForLandRight,
+  validateEnvironmentalPermit,
+  canWNAOwnHousing,
+} from './laws/property-environment-laws.js';
 
 export function buildApp() {
   const app = express();
@@ -17,10 +22,12 @@ export function buildApp() {
 
   // Basic error handler
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-    // In production you'd avoid leaking details
-    res.status(500).json({ error: 'InternalServerError' });
-  });
+  app.use(
+    (err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+      // In production you'd avoid leaking details
+      res.status(500).json({ error: 'InternalServerError' });
+    }
+  );
 
   return app;
 }
@@ -48,4 +55,7 @@ if (invokedAsMain) {
 console.log('Available Laws:', Laws);
 console.log('Eligibility for Land Right:', isEligibleForLandRight('Hak Milik', 'WNI'));
 console.log('Environmental Permit Validation:', validateEnvironmentalPermit('AMDAL', 'high'));
-console.log('Can WNA Own Housing:', canWNAOwnHousing('apartemen', 'allowed', 1000000000, 500000000));
+console.log(
+  'Can WNA Own Housing:',
+  canWNAOwnHousing('apartemen', 'allowed', 1000000000, 500000000)
+);

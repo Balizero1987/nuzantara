@@ -10,9 +10,9 @@ interface RAGQueryRequest {
   query: string;
   k?: number;
   use_llm?: boolean;
-  conversation_history?: Array<{role: string; content: string}>;
-  user_id?: string;       // User identifier for RAG backend
-  user_email?: string;    // User email for RAG backend
+  conversation_history?: Array<{ role: string; content: string }>;
+  user_id?: string; // User identifier for RAG backend
+  user_email?: string; // User email for RAG backend
 }
 
 export interface RAGQueryResponse {
@@ -30,9 +30,9 @@ export interface RAGQueryResponse {
 
 interface BaliZeroRequest {
   query: string;
-  conversation_history?: Array<{role: string; content: string}>;
+  conversation_history?: Array<{ role: string; content: string }>;
   user_role?: 'member' | 'lead';
-  user_email?: string;  // CRITICAL: For collaborator identification
+  user_email?: string; // CRITICAL: For collaborator identification
 }
 
 export interface BaliZeroResponse {
@@ -58,8 +58,8 @@ export class RAGService {
       baseURL: this.baseURL,
       timeout: 90000, // 90 seconds (cold start tolerance)
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
   }
 
@@ -76,7 +76,7 @@ export class RAGService {
       const response = await this.client.request<T>({
         method,
         url: path,
-        data
+        data,
       });
 
       return response.data;
@@ -86,9 +86,11 @@ export class RAGService {
         path,
         error: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
       });
-      throw new Error(error.response?.data?.detail || error.message || 'Search service unavailable');
+      throw new Error(
+        error.response?.data?.detail || error.message || 'Search service unavailable'
+      );
     }
   }
 
@@ -97,7 +99,7 @@ export class RAGService {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      const data = await this.makeAuthenticatedRequest<{status: string}>('get', '/health');
+      const data = await this.makeAuthenticatedRequest<{ status: string }>('get', '/health');
       return data.status === 'healthy';
     } catch (error) {
       logger.error('RAG backend health check failed:', error);
@@ -118,7 +120,7 @@ export class RAGService {
         success: false,
         query: request.query,
         sources: [],
-        error: error.message || 'RAG service unavailable'
+        error: error.message || 'RAG service unavailable',
       };
     }
   }
@@ -129,7 +131,11 @@ export class RAGService {
    */
   async baliZeroChat(request: BaliZeroRequest): Promise<BaliZeroResponse> {
     try {
-      return await this.makeAuthenticatedRequest<BaliZeroResponse>('post', '/bali-zero/chat', request);
+      return await this.makeAuthenticatedRequest<BaliZeroResponse>(
+        'post',
+        '/bali-zero/chat',
+        request
+      );
     } catch (error: any) {
       logger.error('Bali Zero error:', error);
       throw new Error(error.response?.data?.detail || 'Bali Zero service unavailable');
@@ -145,7 +151,7 @@ export class RAGService {
       return await this.makeAuthenticatedRequest('post', '/search', {
         query,
         k,
-        use_llm: false
+        use_llm: false,
       });
     } catch (error: any) {
       logger.error('Search error:', error);

@@ -20,7 +20,7 @@ export enum LogLevel {
   INFO = 2,
   HTTP = 3,
   DEBUG = 4,
-  TRACE = 5
+  TRACE = 5,
 }
 
 // Standard log context interface
@@ -113,18 +113,20 @@ class UnifiedLogger {
 
     // Console transport for development
     if (this.config.enableConsole) {
-      transports.push(new winston.transports.Console({
-        format: winston.format.combine(
-          winston.format.colorize(),
-          winston.format.timestamp(),
-          winston.format.errors({ stack: true }),
-          winston.format.printf(({ level, message, timestamp, ...meta }) => {
-            const correlationId = meta.correlationId ? `[${meta.correlationId}]` : '';
-            const duration = meta.duration ? ` (${meta.duration}ms)` : '';
-            return `${timestamp} ${level}: ${correlationId} ${message}${duration}`;
-          })
-        )
-      }));
+      transports.push(
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.colorize(),
+            winston.format.timestamp(),
+            winston.format.errors({ stack: true }),
+            winston.format.printf(({ level, message, timestamp, ...meta }) => {
+              const correlationId = meta.correlationId ? `[${meta.correlationId}]` : '';
+              const duration = meta.duration ? ` (${meta.duration}ms)` : '';
+              return `${timestamp} ${level}: ${correlationId} ${message}${duration}`;
+            })
+          ),
+        })
+      );
     }
 
     // File transports for production
@@ -137,7 +139,7 @@ class UnifiedLogger {
             winston.format.timestamp(),
             winston.format.errors({ stack: true }),
             winston.format.json()
-          )
+          ),
         }),
         new winston.transports.File({
           filename: 'logs/combined.log',
@@ -145,7 +147,7 @@ class UnifiedLogger {
             winston.format.timestamp(),
             winston.format.errors({ stack: true }),
             winston.format.json()
-          )
+          ),
         })
       );
     }
@@ -160,13 +162,14 @@ class UnifiedLogger {
             service: this.config.service,
             environment: this.config.environment,
             version: this.config.version,
-            app: 'nuzantara'
+            app: 'nuzantara',
           },
           json: true,
           batching: true,
           interval: 5,
           replaceTimestamp: true,
-          onConnectionError: (err) => this.error('Loki connection error', err as Error, { service: 'logging-system' })
+          onConnectionError: (err) =>
+            this.error('Loki connection error', err as Error, { service: 'logging-system' }),
         }) as any
       );
     }
@@ -181,10 +184,10 @@ class UnifiedLogger {
       defaultMeta: {
         service: this.config.service,
         version: this.config.version,
-        environment: this.config.environment
+        environment: this.config.environment,
       },
       transports,
-      exitOnError: false
+      exitOnError: false,
     });
   }
 
@@ -193,13 +196,20 @@ class UnifiedLogger {
    */
   private getWinstonLevel(level: LogLevel): string {
     switch (level) {
-      case LogLevel.ERROR: return 'error';
-      case LogLevel.WARN: return 'warn';
-      case LogLevel.INFO: return 'info';
-      case LogLevel.HTTP: return 'http';
-      case LogLevel.DEBUG: return 'debug';
-      case LogLevel.TRACE: return 'silly';
-      default: return 'info';
+      case LogLevel.ERROR:
+        return 'error';
+      case LogLevel.WARN:
+        return 'warn';
+      case LogLevel.INFO:
+        return 'info';
+      case LogLevel.HTTP:
+        return 'http';
+      case LogLevel.DEBUG:
+        return 'debug';
+      case LogLevel.TRACE:
+        return 'silly';
+      default:
+        return 'info';
     }
   }
 
@@ -224,7 +234,7 @@ class UnifiedLogger {
       url: req.url,
       userAgent: req.get('User-Agent'),
       ip: req.ip || req.connection.remoteAddress,
-      headers: this.sanitizeHeaders(req.headers)
+      headers: this.sanitizeHeaders(req.headers),
     };
   }
 
@@ -235,7 +245,7 @@ class UnifiedLogger {
     const sanitized = { ...headers };
     const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key'];
 
-    sensitiveHeaders.forEach(header => {
+    sensitiveHeaders.forEach((header) => {
       if (sanitized[header]) {
         sanitized[header] = '[REDACTED]';
       }
@@ -260,18 +270,20 @@ class UnifiedLogger {
       timestamp: new Date().toISOString(),
       context: {
         service: this.config.service,
-        ...context
+        ...context,
       },
       metrics: metrics || (this.config.metricsEnabled ? this.getMetrics() : undefined),
-      error: error ? {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-        code: (error as any).code
-      } : undefined,
+      error: error
+        ? {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            code: (error as any).code,
+          }
+        : undefined,
       service: this.config.service,
       version: this.config.version,
-      environment: this.config.environment
+      environment: this.config.environment,
     };
   }
 
@@ -288,8 +300,8 @@ class UnifiedLogger {
         heapTotal: memUsage.heapTotal,
         heapUsed: memUsage.heapUsed,
         external: memUsage.external,
-        arrayBuffers: memUsage.arrayBuffers
-      }
+        arrayBuffers: memUsage.arrayBuffers,
+      },
     };
   }
 
@@ -301,14 +313,16 @@ class UnifiedLogger {
     const winstonLevel = this.getWinstonLevel(level);
 
     // Add correlation ID to message for better visibility
-    const correlationPrefix = entry.context.correlationId ? `[${entry.context.correlationId}] ` : '';
+    const correlationPrefix = entry.context.correlationId
+      ? `[${entry.context.correlationId}] `
+      : '';
     const formattedMessage = `${correlationPrefix}${message}`;
 
     this.winston.log(winstonLevel, formattedMessage, {
       ...entry.context,
       error: entry.error,
       metrics: entry.metrics,
-      correlationId: entry.context.correlationId
+      correlationId: entry.context.correlationId,
     });
   }
 
@@ -350,7 +364,7 @@ class UnifiedLogger {
     this.http(`${req.method} ${req.url}`, {
       ...context,
       type: 'http_request',
-      statusCode: (req as any).statusCode
+      statusCode: (req as any).statusCode,
     });
   }
 
@@ -364,7 +378,7 @@ class UnifiedLogger {
       ...context,
       type: 'http_response',
       statusCode,
-      duration: responseTime
+      duration: responseTime,
     });
   }
 
@@ -377,7 +391,7 @@ class UnifiedLogger {
       type: 'api_call',
       service,
       operation,
-      duration
+      duration,
     });
   }
 
@@ -389,20 +403,24 @@ class UnifiedLogger {
       ...context,
       type: 'business_event',
       event,
-      data
+      data,
     });
   }
 
   /**
    * Log security event
    */
-  logSecurityEvent(event: string, severity: 'low' | 'medium' | 'high' | 'critical', context: LogContext = {}): void {
+  logSecurityEvent(
+    event: string,
+    severity: 'low' | 'medium' | 'high' | 'critical',
+    context: LogContext = {}
+  ): void {
     const level = severity === 'critical' || severity === 'high' ? LogLevel.ERROR : LogLevel.WARN;
     this.log(level, `Security event: ${event}`, {
       ...context,
       type: 'security_event',
       event,
-      severity
+      severity,
     });
   }
 
@@ -410,20 +428,21 @@ class UnifiedLogger {
    * Log performance event
    */
   logPerformance(operation: string, duration: number, context: LogContext = {}): void {
-    if (duration > 1000) { // Log as warning if over 1 second
+    if (duration > 1000) {
+      // Log as warning if over 1 second
       this.warn(`Slow operation: ${operation}`, {
         ...context,
         type: 'performance',
         operation,
         duration,
-        threshold: 1000
+        threshold: 1000,
       });
     } else {
       this.debug(`Performance: ${operation}`, {
         ...context,
         type: 'performance',
         operation,
-        duration
+        duration,
       });
     }
   }
@@ -469,7 +488,7 @@ export const defaultLoggerConfig: LoggerConfig = {
   lokiUser: process.env.GRAFANA_LOKI_USER,
   lokiApiKey: process.env.GRAFANA_API_KEY,
   metricsEnabled: process.env.ENABLE_METRICS === 'true',
-  structuredOutput: true
+  structuredOutput: true,
 };
 
 // Create and export default logger instance
@@ -477,7 +496,8 @@ export const logger = UnifiedLogger.getInstance(defaultLoggerConfig);
 
 // Export convenience functions for backward compatibility
 export const logInfo = (message: string, context?: LogContext) => logger.info(message, context);
-export const logError = (message: string, error?: Error, context?: LogContext) => logger.error(message, error, context);
+export const logError = (message: string, error?: Error, context?: LogContext) =>
+  logger.error(message, error, context);
 export const logWarn = (message: string, context?: LogContext) => logger.warn(message, context);
 export const logDebug = (message: string, context?: LogContext) => logger.debug(message, context);
 export const logTrace = (message: string, context?: LogContext) => logger.trace(message, context);

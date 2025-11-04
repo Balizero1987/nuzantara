@@ -1,7 +1,7 @@
 /**
  * Streaming Service - Server-Sent Events (SSE) Proxy
  * Proxies streaming requests to Python RAG backend with connection management
- * 
+ *
  * Features:
  * - Real-time token streaming with back-pressure handling
  * - Connection management (heartbeat, cleanup, reconnect support)
@@ -12,7 +12,8 @@
 import logger from './logger.js';
 import type { Request, Response } from 'express';
 
-const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'https://zantara-rag-backend-himaadsxua-ew.a.run.app';
+const RAG_BACKEND_URL =
+  process.env.RAG_BACKEND_URL || 'https://zantara-rag-backend-himaadsxua-ew.a.run.app';
 
 interface StreamChunk {
   type: 'token' | 'metadata' | 'done' | 'error' | 'heartbeat';
@@ -29,7 +30,10 @@ interface StreamMetrics {
 }
 
 export class StreamingService {
-  private activeConnections = new Map<string, { res: Response; metrics: StreamMetrics; heartbeat?: NodeJS.Timeout }>();
+  private activeConnections = new Map<
+    string,
+    { res: Response; metrics: StreamMetrics; heartbeat?: NodeJS.Timeout }
+  >();
   private readonly HEARTBEAT_INTERVAL = 30000; // 30 seconds
   private readonly MAX_CONNECTION_AGE = 300000; // 5 minutes
 
@@ -46,7 +50,9 @@ export class StreamingService {
       user_role?: string;
     }
   ): Promise<void> {
-    const connectionId = req.headers['x-connection-id'] as string || `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const connectionId =
+      (req.headers['x-connection-id'] as string) ||
+      `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const streamStartTime = Date.now();
     let firstTokenTime: number | undefined;
     let sequenceNumber = 0;
@@ -64,7 +70,7 @@ export class StreamingService {
     const metrics: StreamMetrics = {
       tokensReceived: 0,
       bytesReceived: 0,
-      startTime: streamStartTime
+      startTime: streamStartTime,
     };
 
     // Setup heartbeat to keep connection alive
@@ -94,27 +100,35 @@ export class StreamingService {
         ...(params.user_email && { user_email: params.user_email }),
         ...(params.user_role && { user_role: params.user_role }),
         ...(params.conversation_history && {
-          conversation_history: JSON.stringify(params.conversation_history)
-        })
+          conversation_history: JSON.stringify(params.conversation_history),
+        }),
       });
 
       const streamUrl = `${RAG_BACKEND_URL}/bali-zero/chat-stream?${queryParams.toString()}`;
 
-      logger.info(`[Stream] Starting stream: ${connectionId}, query: "${params.query.substring(0, 50)}..."`);
+      logger.info(
+        `[Stream] Starting stream: ${connectionId}, query: "${params.query.substring(0, 50)}..."`
+      );
 
       // Forward stream from Python backend
       const backendResponse = await fetch(streamUrl, {
         method: 'GET',
         headers: {
-          'Accept': 'text/event-stream',
+          Accept: 'text/event-stream',
           'Cache-Control': 'no-cache',
-          ...(req.headers['x-session-id'] && { 'x-session-id': req.headers['x-session-id'] as string }),
-          ...(req.headers['x-continuity-id'] && { 'x-continuity-id': req.headers['x-continuity-id'] as string })
-        }
+          ...(req.headers['x-session-id'] && {
+            'x-session-id': req.headers['x-session-id'] as string,
+          }),
+          ...(req.headers['x-continuity-id'] && {
+            'x-continuity-id': req.headers['x-continuity-id'] as string,
+          }),
+        },
       });
 
       if (!backendResponse.ok) {
-        throw new Error(`Backend stream failed: ${backendResponse.status} ${backendResponse.statusText}`);
+        throw new Error(
+          `Backend stream failed: ${backendResponse.status} ${backendResponse.statusText}`
+        );
       }
 
       if (!backendResponse.body) {
@@ -127,14 +141,18 @@ export class StreamingService {
       let buffer = '';
 
       // Send initial connection confirmation
-      this.sendSSE(res, {
-        type: 'metadata',
-        data: {
-          status: 'connected',
-          connectionId,
-          timestamp: Date.now()
-        }
-      }, sequenceNumber++);
+      this.sendSSE(
+        res,
+        {
+          type: 'metadata',
+          data: {
+            status: 'connected',
+            connectionId,
+            timestamp: Date.now(),
+          },
+        },
+        sequenceNumber++
+      );
 
       while (true) {
         const { done, value } = await reader.read();
@@ -156,13 +174,15 @@ export class StreamingService {
 
           try {
             const chunk = this.parseSSE(line);
-            
+
             if (chunk) {
               // Track first token
               if (chunk.type === 'token' && !firstTokenTime) {
                 firstTokenTime = Date.now();
                 metrics.firstTokenLatency = firstTokenTime - streamStartTime;
-                logger.info(`[Stream] First token latency: ${metrics.firstTokenLatency}ms for ${connectionId}`);
+                logger.info(
+                  `[Stream] First token latency: ${metrics.firstTokenLatency}ms for ${connectionId}`
+                );
               }
 
               // Update metrics
@@ -177,7 +197,9 @@ export class StreamingService {
 
               // Handle completion
               if (chunk.type === 'done') {
-                logger.info(`[Stream] Stream complete: ${connectionId}, tokens: ${metrics.tokensReceived}, latency: ${metrics.firstTokenLatency}ms`);
+                logger.info(
+                  `[Stream] Stream complete: ${connectionId}, tokens: ${metrics.tokensReceived}, latency: ${metrics.firstTokenLatency}ms`
+                );
                 this.cleanupConnection(connectionId);
                 clearInterval(heartbeatInterval);
                 return;
@@ -202,33 +224,40 @@ export class StreamingService {
         return; // Already cleaned up
       }
 
-      this.sendSSE(res, {
-        type: 'done',
-        data: {
-          metrics: {
-            firstTokenLatency: metrics.firstTokenLatency,
-            tokensReceived: metrics.tokensReceived,
-            bytesReceived: metrics.bytesReceived,
-            duration: Date.now() - streamStartTime
-          }
-        }
-      }, sequenceNumber++);
+      this.sendSSE(
+        res,
+        {
+          type: 'done',
+          data: {
+            metrics: {
+              firstTokenLatency: metrics.firstTokenLatency,
+              tokensReceived: metrics.tokensReceived,
+              bytesReceived: metrics.bytesReceived,
+              duration: Date.now() - streamStartTime,
+            },
+          },
+        },
+        sequenceNumber++
+      );
 
       this.cleanupConnection(connectionId);
       clearInterval(heartbeatInterval);
-
     } catch (error: any) {
       logger.error(`[Stream] Stream error for ${connectionId}:`, error);
 
       // Send error to client
       try {
-        this.sendSSE(res, {
-          type: 'error',
-          data: {
-            message: error.message || 'Stream error occurred',
-            connectionId
-          }
-        }, sequenceNumber++);
+        this.sendSSE(
+          res,
+          {
+            type: 'error',
+            data: {
+              message: error.message || 'Stream error occurred',
+              connectionId,
+            },
+          },
+          sequenceNumber++
+        );
       } catch (sendError) {
         logger.error(`[Stream] Failed to send error: ${sendError}`);
       }
@@ -264,7 +293,7 @@ export class StreamingService {
       }
     }
 
-    return chunk.type ? chunk as StreamChunk : null;
+    return chunk.type ? (chunk as StreamChunk) : null;
   }
 
   /**
@@ -277,7 +306,7 @@ export class StreamingService {
         type: chunk.type,
         data: chunk.data,
         sequence,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       res.write(`event: ${eventType}\n`);
@@ -320,8 +349,8 @@ export class StreamingService {
         id,
         tokensReceived: conn.metrics.tokensReceived,
         duration: Date.now() - conn.metrics.startTime,
-        firstTokenLatency: conn.metrics.firstTokenLatency
-      }))
+        firstTokenLatency: conn.metrics.firstTokenLatency,
+      })),
     };
   }
 
@@ -351,4 +380,3 @@ export const streamingService = new StreamingService();
 setInterval(() => {
   streamingService.cleanupOldConnections();
 }, 60000); // Every minute
-

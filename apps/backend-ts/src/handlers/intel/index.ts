@@ -4,15 +4,7 @@
  */
 
 // News search handlers (query ChromaDB)
-export {
-  intelNewsSearch,
-  intelNewsGetCritical,
-  intelNewsGetTrends
-} from './news-search.js';
+export { intelNewsSearch, intelNewsGetCritical, intelNewsGetTrends } from './news-search.js';
 
 // Scraper handlers (trigger Python scraping)
-export {
-  intelScraperRun,
-  intelScraperStatus,
-  intelScraperCategories
-} from './scraper.js';
+export { intelScraperRun, intelScraperStatus, intelScraperCategories } from './scraper.js';

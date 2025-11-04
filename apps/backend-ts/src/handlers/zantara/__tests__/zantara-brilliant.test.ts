@@ -5,7 +5,7 @@ import { createMockRequest, createMockResponse } from '../../../../tests/helpers
 const mockRespond = jest.fn().mockResolvedValue({
   message: 'Test brilliant response',
   intent: 'general',
-  agents: []
+  agents: [],
 });
 
 const mockSaveContext = jest.fn().mockResolvedValue(undefined);
@@ -13,15 +13,15 @@ const mockLoadContext = jest.fn().mockResolvedValue({
   userId: 'test-user',
   language: 'en',
   history: [],
-  preferences: {}
+  preferences: {},
 });
 
 jest.mock('../../../core/zantara-orchestrator.js', () => ({
   ZantaraOrchestrator: jest.fn().mockImplementation(() => ({
     respond: mockRespond,
     saveContext: mockSaveContext,
-    loadContext: mockLoadContext
-  }))
+    loadContext: mockLoadContext,
+  })),
 }));
 
 describe('Zantara Brilliant', () => {
@@ -47,11 +47,11 @@ describe('Zantara Brilliant', () => {
         message: 'What is ZANTARA?',
         userId: 'test-user',
         language: 'en',
-        sessionId: 'test-session'
+        sessionId: 'test-session',
       });
 
       await handlers.zantaraBrilliantChat(req as any, res);
-      
+
       expect(res.status).not.toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalled();
       const responseData = res.json.mock.calls[0][0];
@@ -75,7 +75,7 @@ describe('Zantara Brilliant', () => {
 
     it('should handle invalid params', async () => {
       const { req, res } = createMockReqRes({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       await handlers.zantaraBrilliantChat(req as any, res);
@@ -89,22 +89,22 @@ describe('Zantara Brilliant', () => {
     it('should handle success case with valid params', async () => {
       const { req, res } = createMockReqRes({});
 
-        await handlers.zantaraPersonality(req as any, res);
-      
-        expect(res.json).toHaveBeenCalled();
-        const responseData = res.json.mock.calls[0][0];
+      await handlers.zantaraPersonality(req as any, res);
+
+      expect(res.json).toHaveBeenCalled();
+      const responseData = res.json.mock.calls[0][0];
       expect(responseData.ok).toBe(true);
-          expect(responseData.data).toBeDefined();
-          expect(responseData.data.name).toBe('ZANTARA');
+      expect(responseData.data).toBeDefined();
+      expect(responseData.data.name).toBe('ZANTARA');
     });
 
     it('should handle missing required params', async () => {
       // zantaraPersonality doesn't require params, so it should succeed
       const { req, res } = createMockReqRes({});
 
-        await handlers.zantaraPersonality(req as any, res);
-      
-        expect(res.json).toHaveBeenCalled();
+      await handlers.zantaraPersonality(req as any, res);
+
+      expect(res.json).toHaveBeenCalled();
       const responseData = res.json.mock.calls[0][0];
       expect(responseData.ok).toBe(true);
     });
@@ -112,12 +112,12 @@ describe('Zantara Brilliant', () => {
     it('should handle invalid params', async () => {
       // zantaraPersonality doesn't use params, so it should succeed
       const { req, res } = createMockReqRes({
-        invalid: 'data'
+        invalid: 'data',
       });
 
-        await handlers.zantaraPersonality(req as any, res);
-      
-        expect(res.json).toHaveBeenCalled();
+      await handlers.zantaraPersonality(req as any, res);
+
+      expect(res.json).toHaveBeenCalled();
       const responseData = res.json.mock.calls[0][0];
       expect(responseData.ok).toBe(true);
     });
@@ -127,15 +127,15 @@ describe('Zantara Brilliant', () => {
     it('should handle success case with valid params', async () => {
       const { req, res } = createMockReqRes({
         agent: 'visa',
-        query: 'What documents are needed?'
+        query: 'What documents are needed?',
       });
 
-        await handlers.queryAgent(req as any, res);
-      
-        expect(res.json).toHaveBeenCalled();
-        const responseData = res.json.mock.calls[0][0];
+      await handlers.queryAgent(req as any, res);
+
+      expect(res.json).toHaveBeenCalled();
+      const responseData = res.json.mock.calls[0][0];
       expect(responseData.ok).toBe(true);
-          expect(responseData.data).toBeDefined();
+      expect(responseData.data).toBeDefined();
       expect(responseData.data.agent).toBe('visa');
       expect(responseData.data.query).toBe('What documents are needed?');
     });
@@ -154,7 +154,7 @@ describe('Zantara Brilliant', () => {
 
     it('should handle invalid params', async () => {
       const { req, res } = createMockReqRes({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       await handlers.queryAgent(req as any, res);
@@ -166,12 +166,15 @@ describe('Zantara Brilliant', () => {
 
   describe('getContext', () => {
     it('should handle success case with valid params', async () => {
-      const { req, res } = createMockReqRes({}, {
-        userId: 'test-user'
-      });
+      const { req, res } = createMockReqRes(
+        {},
+        {
+          userId: 'test-user',
+        }
+      );
 
       await handlers.getContext(req as any, res);
-      
+
       expect(res.json).toHaveBeenCalled();
       const responseData = res.json.mock.calls[0][0];
       expect(responseData.ok).toBe(true);
@@ -194,9 +197,12 @@ describe('Zantara Brilliant', () => {
     });
 
     it('should handle invalid params', async () => {
-      const { req, res } = createMockReqRes({}, {
-        invalid: 'data'
-      });
+      const { req, res } = createMockReqRes(
+        {},
+        {
+          invalid: 'data',
+        }
+      );
 
       await handlers.getContext(req as any, res);
 
@@ -204,5 +210,4 @@ describe('Zantara Brilliant', () => {
       expect(res.json).toHaveBeenCalled();
     });
   });
-
 });

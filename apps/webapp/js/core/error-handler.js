@@ -1,6 +1,6 @@
 /**
  * Enhanced Error Handler with Context
- * 
+ *
  * Provides detailed error information for debugging and user-friendly messages.
  * Automatically catches unhandled errors and promise rejections.
  */
@@ -10,7 +10,7 @@ class ErrorHandler {
     this.errorLog = [];
     this.maxLogSize = 50;
     this.listeners = [];
-    
+
     // Setup global error handlers
     this.setupGlobalHandlers();
   }
@@ -21,9 +21,9 @@ class ErrorHandler {
       this.handle({
         type: 'unhandled_promise',
         error: event.reason,
-        promise: event.promise
+        promise: event.promise,
       });
-      
+
       // Prevent default console error
       event.preventDefault();
     });
@@ -34,16 +34,16 @@ class ErrorHandler {
       if (event.target && (event.target.tagName === 'SCRIPT' || event.target.tagName === 'LINK')) {
         return;
       }
-      
+
       this.handle({
         type: 'global_error',
         error: event.error,
         message: event.message,
         filename: event.filename,
         lineno: event.lineno,
-        colno: event.colno
+        colno: event.colno,
       });
-      
+
       // Prevent default console error for handled errors
       event.preventDefault();
     });
@@ -51,7 +51,7 @@ class ErrorHandler {
 
   handle(errorContext) {
     const enrichedError = this.enrichError(errorContext);
-    
+
     // Log to console in dev mode
     if (this.isDevMode()) {
       console.group('❌ Error Caught by ZANTARA Error Handler');
@@ -76,7 +76,7 @@ class ErrorHandler {
 
     // Send to backend (only high severity in production)
     if (this.shouldReportToBackend(enrichedError)) {
-      this.reportToBackend(enrichedError).catch(e => {
+      this.reportToBackend(enrichedError).catch((e) => {
         console.warn('Failed to report error to backend:', e.message);
       });
     }
@@ -87,7 +87,7 @@ class ErrorHandler {
 
   enrichError(errorContext) {
     const error = errorContext.error || {};
-    
+
     return {
       id: `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date().toISOString(),
@@ -100,78 +100,85 @@ class ErrorHandler {
         userAgent: navigator.userAgent,
         viewport: {
           width: window.innerWidth,
-          height: window.innerHeight
+          height: window.innerHeight,
         },
         online: navigator.onLine,
         storage: {
           hasToken: !!localStorage.getItem('zantara-auth-token'),
           hasUser: !!localStorage.getItem('zantara-user'),
-          hasSessionId: !!localStorage.getItem('zantara-session-id')
+          hasSessionId: !!localStorage.getItem('zantara-session-id'),
         },
         api: {
           baseUrl: window.ZANTARA_API?.config?.production?.base,
           proxyUrl: window.ZANTARA_API?.config?.proxy?.production?.base,
-          mode: window.ZANTARA_API?.config?.mode
+          mode: window.ZANTARA_API?.config?.mode,
         },
         filename: errorContext.filename,
         lineno: errorContext.lineno,
-        colno: errorContext.colno
+        colno: errorContext.colno,
       },
       severity: this.determineSeverity(error),
       userImpact: this.determineUserImpact(error),
-      category: this.categorizeError(error)
+      category: this.categorizeError(error),
     };
   }
 
   determineSeverity(error) {
     if (!error) return 'low';
-    
+
     const message = (error.message || '').toLowerCase();
-    
+
     // Critical errors
-    if (message.includes('script error') || 
-        message.includes('chunk') || 
-        message.includes('module')) {
+    if (
+      message.includes('script error') ||
+      message.includes('chunk') ||
+      message.includes('module')
+    ) {
       return 'critical';
     }
-    
+
     // High severity
-    if (message.includes('network') || 
-        message.includes('fetch') ||
-        message.includes('502') ||
-        message.includes('503') ||
-        message.includes('500')) {
+    if (
+      message.includes('network') ||
+      message.includes('fetch') ||
+      message.includes('502') ||
+      message.includes('503') ||
+      message.includes('500')
+    ) {
       return 'high';
     }
-    
+
     // Medium severity
-    if (message.includes('not authenticated') || 
-        message.includes('unauthorized') ||
-        message.includes('401') ||
-        message.includes('timeout') ||
-        message.includes('403')) {
+    if (
+      message.includes('not authenticated') ||
+      message.includes('unauthorized') ||
+      message.includes('401') ||
+      message.includes('timeout') ||
+      message.includes('403')
+    ) {
       return 'medium';
     }
-    
+
     return 'low';
   }
 
   categorizeError(error) {
     const message = (error?.message || '').toLowerCase();
-    
+
     if (message.includes('network') || message.includes('fetch')) return 'network';
-    if (message.includes('auth') || message.includes('401') || message.includes('403')) return 'auth';
+    if (message.includes('auth') || message.includes('401') || message.includes('403'))
+      return 'auth';
     if (message.includes('timeout')) return 'timeout';
     if (message.includes('502') || message.includes('503')) return 'backend';
     if (message.includes('not found') || message.includes('404')) return 'not_found';
     if (message.includes('syntax') || message.includes('reference')) return 'code';
-    
+
     return 'unknown';
   }
 
   determineUserImpact(error) {
     const message = (error?.message || '').toLowerCase();
-    
+
     if (message.includes('network') || message.includes('failed to fetch')) {
       return 'Network connection issue. Please check your internet connection.';
     }
@@ -185,7 +192,7 @@ class ErrorHandler {
       return 'Your session has expired. Please log in again.';
     }
     if (message.includes('403')) {
-      return 'You don\'t have permission to perform this action.';
+      return "You don't have permission to perform this action.";
     }
     if (message.includes('timeout')) {
       return 'Request took too long. Please try again.';
@@ -193,14 +200,13 @@ class ErrorHandler {
     if (message.includes('handler_not_found') || message.includes('404')) {
       return 'Feature not available. Please contact support if this persists.';
     }
-    
+
     return 'Something went wrong. Please try again.';
   }
 
   shouldReportToBackend(error) {
     // Only report high/critical severity errors in production
-    return !this.isDevMode() && 
-           (error.severity === 'high' || error.severity === 'critical');
+    return !this.isDevMode() && (error.severity === 'high' || error.severity === 'critical');
   }
 
   async reportToBackend(error) {
@@ -210,7 +216,7 @@ class ErrorHandler {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Origin': window.location.origin
+          Origin: window.location.origin,
         },
         body: JSON.stringify({
           key: 'system.error.report',
@@ -227,11 +233,11 @@ class ErrorHandler {
                 pathname: error.context.pathname,
                 userAgent: error.context.userAgent,
                 viewport: error.context.viewport,
-                online: error.context.online
-              }
-            }
-          }
-        })
+                online: error.context.online,
+              },
+            },
+          },
+        }),
       });
 
       if (!response.ok) {
@@ -254,16 +260,16 @@ class ErrorHandler {
 
     const notification = document.createElement('div');
     notification.className = 'zantara-error-notification';
-    
+
     // Different styles based on severity
     const colors = {
       critical: { bg: 'rgba(220, 38, 38, 0.95)', icon: '🔴' },
       high: { bg: 'rgba(239, 68, 68, 0.95)', icon: '⚠️' },
-      medium: { bg: 'rgba(251, 146, 60, 0.95)', icon: '⚡' }
+      medium: { bg: 'rgba(251, 146, 60, 0.95)', icon: '⚡' },
     };
-    
+
     const style = colors[error.severity] || colors.high;
-    
+
     notification.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -285,17 +291,26 @@ class ErrorHandler {
         <div style="font-size: 24px; line-height: 1;">${style.icon}</div>
         <div style="flex: 1;">
           <div style="font-weight: 600; font-size: 15px; margin-bottom: 6px;">
-            ${error.severity === 'critical' ? 'Critical Error' : 
-              error.severity === 'high' ? 'Error' : 'Warning'}
+            ${
+              error.severity === 'critical'
+                ? 'Critical Error'
+                : error.severity === 'high'
+                  ? 'Error'
+                  : 'Warning'
+            }
           </div>
           <div style="font-size: 14px; opacity: 0.95; line-height: 1.4;">
             ${error.userImpact}
           </div>
-          ${this.isDevMode() ? `
+          ${
+            this.isDevMode()
+              ? `
             <div style="font-size: 11px; opacity: 0.7; margin-top: 8px; font-family: monospace;">
               ${error.category} • ${error.id}
             </div>
-          ` : ''}
+          `
+              : ''
+          }
         </div>
         <button onclick="this.parentElement.parentElement.remove()" 
                 style="background: none; border: none; color: white; cursor: pointer; 
@@ -311,9 +326,9 @@ class ErrorHandler {
     document.body.appendChild(notification);
 
     // Auto-remove after duration based on severity
-    const duration = error.severity === 'critical' ? 10000 : 
-                    error.severity === 'high' ? 7000 : 5000;
-    
+    const duration =
+      error.severity === 'critical' ? 10000 : error.severity === 'high' ? 7000 : 5000;
+
     setTimeout(() => {
       if (notification.parentElement) {
         notification.style.animation = 'slideOutRight 0.3s ease';
@@ -331,7 +346,7 @@ class ErrorHandler {
   }
 
   notifyListeners(error) {
-    this.listeners.forEach(callback => {
+    this.listeners.forEach((callback) => {
       try {
         callback(error);
       } catch (e) {
@@ -349,7 +364,7 @@ class ErrorHandler {
     const bySeverity = { low: 0, medium: 0, high: 0, critical: 0 };
     const byCategory = {};
 
-    this.errorLog.forEach(error => {
+    this.errorLog.forEach((error) => {
       byType[error.type] = (byType[error.type] || 0) + 1;
       bySeverity[error.severity]++;
       byCategory[error.category] = (byCategory[error.category] || 0) + 1;
@@ -360,14 +375,14 @@ class ErrorHandler {
       byType,
       bySeverity,
       byCategory,
-      recentErrors: this.errorLog.slice(-5).map(e => ({
+      recentErrors: this.errorLog.slice(-5).map((e) => ({
         id: e.id,
         type: e.type,
         message: e.message,
         severity: e.severity,
         category: e.category,
-        timestamp: e.timestamp
-      }))
+        timestamp: e.timestamp,
+      })),
     };
   }
 
@@ -377,9 +392,11 @@ class ErrorHandler {
   }
 
   isDevMode() {
-    return window.location.hostname === 'localhost' || 
-           window.location.hostname === '127.0.0.1' ||
-           new URLSearchParams(window.location.search).get('dev') === 'true';
+    return (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      new URLSearchParams(window.location.search).get('dev') === 'true'
+    );
   }
 
   // Manual error reporting (for try-catch blocks)
@@ -387,7 +404,7 @@ class ErrorHandler {
     this.handle({
       type: 'manual_report',
       error,
-      ...context
+      ...context,
     });
   }
 }
@@ -437,7 +454,7 @@ if (typeof window !== 'undefined') {
     getStats: () => errorHandler.getErrorStats(),
     clear: () => errorHandler.clearErrorLog(),
     report: (error, context) => errorHandler.report(error, context),
-    onError: (callback) => errorHandler.onError(callback)
+    onError: (callback) => errorHandler.onError(callback),
   };
 }
 

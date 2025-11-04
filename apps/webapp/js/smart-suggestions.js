@@ -20,134 +20,134 @@ const SmartSuggestions = {
   followups: {
     business: {
       en: [
-        "What are the costs involved?",
-        "How long does the process take?",
-        "What documents do I need?",
-        "Are there any requirements I should know about?",
-        "Can you help me with the application?",
-        "What are the next steps?"
+        'What are the costs involved?',
+        'How long does the process take?',
+        'What documents do I need?',
+        'Are there any requirements I should know about?',
+        'Can you help me with the application?',
+        'What are the next steps?',
       ],
       it: [
-        "Quali sono i costi?",
-        "Quanto tempo richiede il processo?",
-        "Quali documenti servono?",
-        "Ci sono requisiti da conoscere?",
-        "Puoi aiutarmi con la procedura?",
-        "Quali sono i prossimi passi?"
+        'Quali sono i costi?',
+        'Quanto tempo richiede il processo?',
+        'Quali documenti servono?',
+        'Ci sono requisiti da conoscere?',
+        'Puoi aiutarmi con la procedura?',
+        'Quali sono i prossimi passi?',
       ],
       id: [
-        "Berapa biayanya?",
-        "Berapa lama prosesnya?",
-        "Dokumen apa yang diperlukan?",
-        "Apa saja syaratnya?",
-        "Bisa bantu proses aplikasinya?",
-        "Apa langkah selanjutnya?"
-      ]
+        'Berapa biayanya?',
+        'Berapa lama prosesnya?',
+        'Dokumen apa yang diperlukan?',
+        'Apa saja syaratnya?',
+        'Bisa bantu proses aplikasinya?',
+        'Apa langkah selanjutnya?',
+      ],
     },
     immigration: {
       en: [
-        "What visa types are available?",
-        "How do I extend my visa?",
-        "What are the requirements for KITAS?",
-        "Can you help me with the application process?",
-        "What documents do I need for visa application?",
-        "How long does visa processing take?"
+        'What visa types are available?',
+        'How do I extend my visa?',
+        'What are the requirements for KITAS?',
+        'Can you help me with the application process?',
+        'What documents do I need for visa application?',
+        'How long does visa processing take?',
       ],
       it: [
-        "Quali tipi di visto sono disponibili?",
-        "Come posso estendere il mio visto?",
-        "Quali sono i requisiti per il KITAS?",
-        "Puoi aiutarmi con la procedura?",
-        "Quali documenti servono per il visto?",
-        "Quanto tempo richiede l'elaborazione?"
+        'Quali tipi di visto sono disponibili?',
+        'Come posso estendere il mio visto?',
+        'Quali sono i requisiti per il KITAS?',
+        'Puoi aiutarmi con la procedura?',
+        'Quali documenti servono per il visto?',
+        "Quanto tempo richiede l'elaborazione?",
       ],
       id: [
-        "Jenis visa apa yang tersedia?",
-        "Bagaimana cara memperpanjang visa?",
-        "Apa syarat untuk KITAS?",
-        "Bisakah bantu proses aplikasi?",
-        "Dokumen apa yang diperlukan untuk visa?",
-        "Berapa lama proses visa?"
-      ]
+        'Jenis visa apa yang tersedia?',
+        'Bagaimana cara memperpanjang visa?',
+        'Apa syarat untuk KITAS?',
+        'Bisakah bantu proses aplikasi?',
+        'Dokumen apa yang diperlukan untuk visa?',
+        'Berapa lama proses visa?',
+      ],
     },
     tax: {
       en: [
-        "What tax rates apply to my business?",
-        "How do I register for tax in Indonesia?",
-        "Are there any tax incentives?",
-        "When are tax filing deadlines?",
-        "What tax deductions are available?",
-        "How do I calculate my tax liability?"
+        'What tax rates apply to my business?',
+        'How do I register for tax in Indonesia?',
+        'Are there any tax incentives?',
+        'When are tax filing deadlines?',
+        'What tax deductions are available?',
+        'How do I calculate my tax liability?',
       ],
       it: [
-        "Quali aliquote fiscali si applicano?",
-        "Come mi registro per le tasse in Indonesia?",
-        "Ci sono incentivi fiscali?",
-        "Quando scadono le tasse?",
-        "Quali detrazioni fiscali sono disponibili?",
-        "Come calcolo l'imposta dovuta?"
+        'Quali aliquote fiscali si applicano?',
+        'Come mi registro per le tasse in Indonesia?',
+        'Ci sono incentivi fiscali?',
+        'Quando scadono le tasse?',
+        'Quali detrazioni fiscali sono disponibili?',
+        "Come calcolo l'imposta dovuta?",
       ],
       id: [
-        "Berapa tarif pajak untuk bisnis saya?",
-        "Bagaimana cara daftar pajak di Indonesia?",
-        "Ada insentif pajak?",
-        "Kapan batas waktu lapor pajak?",
-        "Apa saja potongan pajak yang tersedia?",
-        "Bagaimana cara hitung kewajiban pajak?"
-      ]
+        'Berapa tarif pajak untuk bisnis saya?',
+        'Bagaimana cara daftar pajak di Indonesia?',
+        'Ada insentif pajak?',
+        'Kapan batas waktu lapor pajak?',
+        'Apa saja potongan pajak yang tersedia?',
+        'Bagaimana cara hitung kewajiban pajak?',
+      ],
     },
     casual: {
       en: [
-        "Tell me more about this",
-        "Can you explain further?",
-        "What else should I know?",
-        "Any recommendations?",
-        "How does this work in practice?",
-        "What are the alternatives?"
+        'Tell me more about this',
+        'Can you explain further?',
+        'What else should I know?',
+        'Any recommendations?',
+        'How does this work in practice?',
+        'What are the alternatives?',
       ],
       it: [
-        "Dimmi di più",
-        "Puoi spiegare meglio?",
+        'Dimmi di più',
+        'Puoi spiegare meglio?',
         "Cos'altro dovrei sapere?",
-        "Qualche raccomandazione?",
-        "Come funziona in pratica?",
-        "Quali sono le alternative?"
+        'Qualche raccomandazione?',
+        'Come funziona in pratica?',
+        'Quali sono le alternative?',
       ],
       id: [
-        "Ceritakan lebih lanjut",
-        "Bisa jelaskan lebih detail?",
-        "Apa lagi yang perlu saya tahu?",
-        "Ada rekomendasi?",
-        "Bagaimana cara kerjanya?",
-        "Apa alternatifnya?"
-      ]
+        'Ceritakan lebih lanjut',
+        'Bisa jelaskan lebih detail?',
+        'Apa lagi yang perlu saya tahu?',
+        'Ada rekomendasi?',
+        'Bagaimana cara kerjanya?',
+        'Apa alternatifnya?',
+      ],
     },
     technical: {
       en: [
-        "Can you show me a code example?",
-        "What are the best practices?",
-        "How do I debug this?",
-        "Are there any alternatives?",
-        "What tools should I use?",
-        "How do I optimize performance?"
+        'Can you show me a code example?',
+        'What are the best practices?',
+        'How do I debug this?',
+        'Are there any alternatives?',
+        'What tools should I use?',
+        'How do I optimize performance?',
       ],
       it: [
-        "Puoi mostrarmi un esempio di codice?",
-        "Quali sono le best practice?",
-        "Come faccio il debug?",
-        "Ci sono alternative?",
-        "Quali strumenti dovrei usare?",
-        "Come ottimizzo le prestazioni?"
+        'Puoi mostrarmi un esempio di codice?',
+        'Quali sono le best practice?',
+        'Come faccio il debug?',
+        'Ci sono alternative?',
+        'Quali strumenti dovrei usare?',
+        'Come ottimizzo le prestazioni?',
       ],
       id: [
-        "Bisa tunjukkan contoh kode?",
-        "Apa best practice-nya?",
-        "Bagaimana cara debug?",
-        "Ada alternatif lain?",
-        "Tool apa yang harus digunakan?",
-        "Bagaimana cara optimasi performa?"
-      ]
-    }
+        'Bisa tunjukkan contoh kode?',
+        'Apa best practice-nya?',
+        'Bagaimana cara debug?',
+        'Ada alternatif lain?',
+        'Tool apa yang harus digunakan?',
+        'Bagaimana cara optimasi performa?',
+      ],
+    },
   },
 
   /**
@@ -304,7 +304,7 @@ const SmartSuggestions = {
       suggestions.remove();
       console.log('[SmartSuggestions] Removed suggestions');
     }
-  }
+  },
 };
 
 // Export for global use

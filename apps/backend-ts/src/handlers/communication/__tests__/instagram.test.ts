@@ -6,10 +6,10 @@ jest.mock('axios', () => ({
     get: jest.fn(),
     post: jest.fn(),
     put: jest.fn(),
-    delete: jest.fn()
+    delete: jest.fn(),
   },
   get: jest.fn(),
-  post: jest.fn()
+  post: jest.fn(),
 }));
 
 // Mock global fetch
@@ -25,18 +25,18 @@ describe('Instagram', () => {
     const axios = (await import('axios')).default;
     (axios.post as jest.MockedFunction<any>).mockReset();
   });
-  
+
   // Helper to create mock req/res
   function createMockReqRes(params: any = {}) {
     const mockReq = {
       query: params.query || {},
       body: params.body || {},
-      ...params
+      ...params,
     };
     const mockRes = {
       status: jest.fn().mockReturnThis(),
       send: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis()
+      json: jest.fn().mockReturnThis(),
     };
     return { req: mockReq, res: mockRes };
   }
@@ -44,13 +44,14 @@ describe('Instagram', () => {
   describe('instagramWebhookVerify', () => {
     it('should handle success case with valid params', async () => {
       // Set verify token that matches the default or env
-      const verifyToken = process.env.INSTAGRAM_VERIFY_TOKEN || 'zantara-balizero-2025-secure-token';
+      const verifyToken =
+        process.env.INSTAGRAM_VERIFY_TOKEN || 'zantara-balizero-2025-secure-token';
       const { req, res } = createMockReqRes({
         query: {
           'hub.mode': 'subscribe',
           'hub.verify_token': verifyToken,
-          'hub.challenge': 'test-challenge'
-        }
+          'hub.challenge': 'test-challenge',
+        },
       });
 
       await handlers.instagramWebhookVerify(req, res);
@@ -61,7 +62,7 @@ describe('Instagram', () => {
 
     it('should handle missing required params', async () => {
       const { req, res } = createMockReqRes({
-        query: {}
+        query: {},
       });
 
       await handlers.instagramWebhookVerify(req, res);
@@ -74,8 +75,8 @@ describe('Instagram', () => {
       const { req, res } = createMockReqRes({
         query: {
           'hub.mode': 'subscribe',
-          'hub.verify_token': 'wrong-token'
-        }
+          'hub.verify_token': 'wrong-token',
+        },
       });
 
       await handlers.instagramWebhookVerify(req, res);
@@ -89,11 +90,13 @@ describe('Instagram', () => {
       const { req, res } = createMockReqRes({
         body: {
           object: 'instagram',
-          entry: [{
-            id: 'test-page-id',
-            messaging: []
-          }]
-        }
+          entry: [
+            {
+              id: 'test-page-id',
+              messaging: [],
+            },
+          ],
+        },
       });
 
       await handlers.instagramWebhookReceiver(req, res);
@@ -104,7 +107,7 @@ describe('Instagram', () => {
 
     it('should handle missing required params', async () => {
       const { req, res } = createMockReqRes({
-        body: {}
+        body: {},
       });
 
       await handlers.instagramWebhookReceiver(req, res);
@@ -116,8 +119,8 @@ describe('Instagram', () => {
     it('should handle invalid params', async () => {
       const { req, res } = createMockReqRes({
         body: {
-          object: 'not-instagram'
-        }
+          object: 'not-instagram',
+        },
       });
 
       await handlers.instagramWebhookReceiver(req, res);
@@ -130,7 +133,7 @@ describe('Instagram', () => {
   describe('getInstagramUserAnalytics', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.getInstagramUserAnalytics({
-        userId: 'test-user-id'
+        userId: 'test-user-id',
       });
 
       expect(result).toBeDefined();
@@ -143,31 +146,33 @@ describe('Instagram', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.getInstagramUserAnalytics({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.getInstagramUserAnalytics({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
   describe('sendManualInstagramMessage', () => {
     it('should handle success case with valid params', async () => {
       process.env.INSTAGRAM_ACCESS_TOKEN = 'test-token';
-      
+
       // Mock axios.post (Instagram uses axios, not fetch)
       const axios = (await import('axios')).default;
       (axios.post as jest.MockedFunction<any>).mockResolvedValueOnce({
         data: { success: true, message_id: 'test-id' },
-        status: 200
+        status: 200,
       });
 
       const result = await handlers.sendManualInstagramMessage({
         to: 'test-user-id',
-        message: 'Test message'
+        message: 'Test message',
       });
 
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
-      
+
       delete process.env.INSTAGRAM_ACCESS_TOKEN;
     });
 
@@ -176,9 +181,11 @@ describe('Instagram', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.sendManualInstagramMessage({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.sendManualInstagramMessage({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -196,5 +203,4 @@ describe('Instagram', () => {
       // Function not exported
     });
   });
-
 });

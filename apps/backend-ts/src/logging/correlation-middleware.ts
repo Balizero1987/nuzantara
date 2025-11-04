@@ -51,7 +51,7 @@ export function correlationMiddleware() {
       method: req.method,
       url: req.url,
       userAgent: req.get('User-Agent'),
-      ip: req.ip || req.connection.remoteAddress || req.socket.remoteAddress
+      ip: req.ip || req.connection.remoteAddress || req.socket.remoteAddress,
     };
 
     // Set response headers for client-side tracking
@@ -63,12 +63,12 @@ export function correlationMiddleware() {
     logger.http(`Request started: ${req.method} ${req.url}`, {
       ...req.logContext,
       type: 'request_start',
-      timestamp: startTime
+      timestamp: startTime,
     });
 
     // Override res.end to log response completion
     const originalEnd = res.end.bind(res);
-    (res as any).end = function(...args: any[]) {
+    (res as any).end = function (...args: any[]) {
       const endTime = Date.now();
       const duration = endTime - startTime;
 
@@ -78,7 +78,7 @@ export function correlationMiddleware() {
         statusCode: res.statusCode,
         duration,
         timestamp: endTime,
-        contentLength: res.get('Content-Length')
+        contentLength: res.get('Content-Length'),
       });
 
       // Call original end
@@ -89,7 +89,7 @@ export function correlationMiddleware() {
     res.on('error', (error) => {
       logger.error('Response error', error, {
         ...req.logContext,
-        type: 'response_error'
+        type: 'response_error',
       });
     });
 
@@ -111,7 +111,7 @@ export async function withRequestTracking<T>(
     logger.debug(`Starting operation: ${operation}`, {
       ...req.logContext,
       operation,
-      type: 'operation_start'
+      type: 'operation_start',
     });
 
     const result = await fn();
@@ -121,7 +121,7 @@ export async function withRequestTracking<T>(
       ...req.logContext,
       operation,
       duration,
-      type: 'operation_success'
+      type: 'operation_success',
     });
 
     return result;
@@ -131,7 +131,7 @@ export async function withRequestTracking<T>(
       ...req.logContext,
       operation,
       duration,
-      type: 'operation_error'
+      type: 'operation_error',
     });
 
     throw error;
@@ -151,7 +151,7 @@ export function getCorrelationContext(req: Request): LogContext {
     method: req.method,
     url: req.url,
     userAgent: req.get('User-Agent'),
-    ip: req.ip
+    ip: req.ip,
   };
 }
 

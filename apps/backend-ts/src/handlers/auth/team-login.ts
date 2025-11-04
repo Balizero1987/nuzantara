@@ -4,14 +4,14 @@
  */
 
 import logger from '../../services/logger.js';
-import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
 import jwt from 'jsonwebtoken';
 
 // Team member database (same as ai.ts)
 const TEAM_RECOGNITION = {
   // Leadership
-  'zainal': {
+  zainal: {
     id: 'zainal',
     name: 'Zainal Abidin',
     role: 'CEO',
@@ -19,9 +19,10 @@ const TEAM_RECOGNITION = {
     department: 'management',
     language: 'Indonesian',
     aliases: ['zainal', 'saya zainal', 'halo saya zainal', 'sono zainal'],
-    personalizedResponse: "Selamat datang kembali Zainal! Sebagai CEO, Anda memiliki akses penuh ke semua sistem Bali Zero dan ZANTARA."
+    personalizedResponse:
+      'Selamat datang kembali Zainal! Sebagai CEO, Anda memiliki akses penuh ke semua sistem Bali Zero dan ZANTARA.',
   },
-  'ruslana': {
+  ruslana: {
     id: 'ruslana',
     name: 'Ruslana',
     role: 'Board Member',
@@ -29,11 +30,12 @@ const TEAM_RECOGNITION = {
     department: 'management',
     language: 'English',
     aliases: ['ruslana', 'i am ruslana', 'my name is ruslana', 'sono ruslana'],
-    personalizedResponse: "Welcome back Ruslana! As a Board Member, you have full access to all Bali Zero systems."
+    personalizedResponse:
+      'Welcome back Ruslana! As a Board Member, you have full access to all Bali Zero systems.',
   },
 
   // Technology & AI
-  'zero': {
+  zero: {
     id: 'zero',
     name: 'Zero',
     role: 'AI Bridge/Tech Lead',
@@ -41,11 +43,12 @@ const TEAM_RECOGNITION = {
     department: 'technology',
     language: 'Italian',
     aliases: ['zero', 'sono zero', "i'm zero", 'io sono zero', 'ciao sono zero'],
-    personalizedResponse: "Ciao Zero! Bentornato. Come capo del team tech, hai accesso completo a tutti i sistemi ZANTARA e Bali Zero."
+    personalizedResponse:
+      'Ciao Zero! Bentornato. Come capo del team tech, hai accesso completo a tutti i sistemi ZANTARA e Bali Zero.',
   },
 
   // Setup Team - Indonesian
-  'amanda': {
+  amanda: {
     id: 'amanda',
     name: 'Amanda',
     role: 'Executive Consultant',
@@ -53,9 +56,10 @@ const TEAM_RECOGNITION = {
     department: 'setup',
     language: 'Indonesian',
     aliases: ['amanda', 'saya amanda', 'halo saya amanda'],
-    personalizedResponse: "Selamat datang Amanda! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Amanda! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero.',
   },
-  'anton': {
+  anton: {
     id: 'anton',
     name: 'Anton',
     role: 'Executive Consultant',
@@ -63,9 +67,10 @@ const TEAM_RECOGNITION = {
     department: 'setup',
     language: 'Indonesian',
     aliases: ['anton', 'saya anton', 'halo saya anton'],
-    personalizedResponse: "Selamat datang Anton! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Anton! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero.',
   },
-  'vino': {
+  vino: {
     id: 'vino',
     name: 'Vino',
     role: 'Junior Consultant',
@@ -73,9 +78,10 @@ const TEAM_RECOGNITION = {
     department: 'setup',
     language: 'Indonesian',
     aliases: ['vino', 'saya vino', 'halo saya vino'],
-    personalizedResponse: "Selamat datang Vino! Sebagai Junior Consultant, Anda dapat mengakses sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Vino! Sebagai Junior Consultant, Anda dapat mengakses sistem Bali Zero.',
   },
-  'krisna': {
+  krisna: {
     id: 'krisna',
     name: 'Krisna',
     role: 'Executive Consultant',
@@ -83,9 +89,10 @@ const TEAM_RECOGNITION = {
     department: 'setup',
     language: 'Indonesian',
     aliases: ['krisna', 'saya krisna', 'halo saya krisna'],
-    personalizedResponse: "Selamat datang Krisna! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Krisna! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero.',
   },
-  'adit': {
+  adit: {
     id: 'adit',
     name: 'Adit',
     role: 'Crew Lead',
@@ -93,9 +100,10 @@ const TEAM_RECOGNITION = {
     department: 'setup',
     language: 'Indonesian',
     aliases: ['adit', 'saya adit', 'halo saya adit'],
-    personalizedResponse: "Selamat datang Adit! Sebagai Crew Lead, Anda dapat mengakses sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Adit! Sebagai Crew Lead, Anda dapat mengakses sistem Bali Zero.',
   },
-  'ari': {
+  ari: {
     id: 'ari',
     name: 'Ari',
     role: 'Specialist Consultant',
@@ -103,9 +111,10 @@ const TEAM_RECOGNITION = {
     department: 'setup',
     language: 'Indonesian',
     aliases: ['ari', 'saya ari', 'halo saya ari'],
-    personalizedResponse: "Selamat datang Ari! Sebagai Specialist Consultant, Anda dapat mengakses semua sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Ari! Sebagai Specialist Consultant, Anda dapat mengakses semua sistem Bali Zero.',
   },
-  'dea': {
+  dea: {
     id: 'dea',
     name: 'Dea',
     role: 'Executive Consultant',
@@ -113,9 +122,10 @@ const TEAM_RECOGNITION = {
     department: 'setup',
     language: 'Indonesian',
     aliases: ['dea', 'saya dea', 'halo saya dea'],
-    personalizedResponse: "Selamat datang Dea! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Dea! Sebagai Executive Consultant, Anda dapat mengakses semua sistem Bali Zero.',
   },
-  'surya': {
+  surya: {
     id: 'surya',
     name: 'Surya',
     role: 'Specialist Consultant',
@@ -123,9 +133,10 @@ const TEAM_RECOGNITION = {
     department: 'setup',
     language: 'Indonesian',
     aliases: ['surya', 'saya surya', 'halo saya surya'],
-    personalizedResponse: "Selamat datang Surya! Sebagai Specialist Consultant, Anda dapat mengakses semua sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Surya! Sebagai Specialist Consultant, Anda dapat mengakses semua sistem Bali Zero.',
   },
-  'damar': {
+  damar: {
     id: 'damar',
     name: 'Damar',
     role: 'Junior Consultant',
@@ -133,11 +144,12 @@ const TEAM_RECOGNITION = {
     department: 'setup',
     language: 'Indonesian',
     aliases: ['damar', 'saya damar', 'halo saya damar'],
-    personalizedResponse: "Selamat datang Damar! Sebagai Junior Consultant, Anda dapat mengakses sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Damar! Sebagai Junior Consultant, Anda dapat mengakses sistem Bali Zero.',
   },
 
   // Tax Department
-  'veronika': {
+  veronika: {
     id: 'veronika',
     name: 'Veronika',
     role: 'Tax Manager',
@@ -145,9 +157,10 @@ const TEAM_RECOGNITION = {
     department: 'tax',
     language: 'Ukrainian',
     aliases: ['veronika', 'я вероніка', 'i am veronika', 'sono veronika'],
-    personalizedResponse: "Ласкаво просимо Вероніка! Як Tax Manager, у вас є повний доступ до всіх систем Bali Zero."
+    personalizedResponse:
+      'Ласкаво просимо Вероніка! Як Tax Manager, у вас є повний доступ до всіх систем Bali Zero.',
   },
-  'olena': {
+  olena: {
     id: 'olena',
     name: 'Olena',
     role: 'External Tax Advisory',
@@ -155,9 +168,10 @@ const TEAM_RECOGNITION = {
     department: 'tax',
     language: 'Ukrainian',
     aliases: ['olena', 'я олена', 'i am olena', 'sono olena'],
-    personalizedResponse: "Ласкаво просимо Олена! Як External Tax Advisory, у вас є доступ до систем Bali Zero."
+    personalizedResponse:
+      'Ласкаво просимо Олена! Як External Tax Advisory, у вас є доступ до систем Bali Zero.',
   },
-  'angel': {
+  angel: {
     id: 'angel',
     name: 'Angel',
     role: 'Tax Expert',
@@ -165,9 +179,9 @@ const TEAM_RECOGNITION = {
     department: 'tax',
     language: 'English',
     aliases: ['angel', 'i am angel', 'my name is angel', 'sono angel'],
-    personalizedResponse: "Welcome Angel! As Tax Expert, you have access to all Bali Zero systems."
+    personalizedResponse: 'Welcome Angel! As Tax Expert, you have access to all Bali Zero systems.',
   },
-  'kadek': {
+  kadek: {
     id: 'kadek',
     name: 'Kadek',
     role: 'Tax Consultant',
@@ -175,9 +189,10 @@ const TEAM_RECOGNITION = {
     department: 'tax',
     language: 'Indonesian',
     aliases: ['kadek', 'saya kadek', 'halo saya kadek'],
-    personalizedResponse: "Selamat datang Kadek! Sebagai Tax Consultant, Anda dapat mengakses sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Kadek! Sebagai Tax Consultant, Anda dapat mengakses sistem Bali Zero.',
   },
-  'dewaayu': {
+  dewaayu: {
     id: 'dewaayu',
     name: 'Dewa Ayu',
     role: 'Tax Consultant',
@@ -185,9 +200,10 @@ const TEAM_RECOGNITION = {
     department: 'tax',
     language: 'Indonesian',
     aliases: ['dewa ayu', 'dewaayu', 'saya dewa ayu', 'halo saya dewa ayu'],
-    personalizedResponse: "Selamat datang Dewa Ayu! Sebagai Tax Consultant, Anda dapat mengakses sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Dewa Ayu! Sebagai Tax Consultant, Anda dapat mengakses sistem Bali Zero.',
   },
-  'faisha': {
+  faisha: {
     id: 'faisha',
     name: 'Faisha',
     role: 'Tax Care',
@@ -195,11 +211,12 @@ const TEAM_RECOGNITION = {
     department: 'tax',
     language: 'Indonesian',
     aliases: ['faisha', 'saya faisha', 'halo saya faisha'],
-    personalizedResponse: "Selamat datang Faisha! Sebagai Tax Care, Anda dapat mengakses sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Faisha! Sebagai Tax Care, Anda dapat mengakses sistem Bali Zero.',
   },
 
   // Reception & Marketing
-  'rina': {
+  rina: {
     id: 'rina',
     name: 'Rina',
     role: 'Reception',
@@ -207,9 +224,10 @@ const TEAM_RECOGNITION = {
     department: 'reception',
     language: 'Indonesian',
     aliases: ['rina', 'saya rina', 'halo saya rina'],
-    personalizedResponse: "Selamat datang Rina! Sebagai Reception, Anda dapat mengakses sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Rina! Sebagai Reception, Anda dapat mengakses sistem Bali Zero.',
   },
-  'nina': {
+  nina: {
     id: 'nina',
     name: 'Nina',
     role: 'Marketing Advisory',
@@ -217,9 +235,10 @@ const TEAM_RECOGNITION = {
     department: 'marketing',
     language: 'English',
     aliases: ['nina', 'i am nina', 'my name is nina', 'sono nina'],
-    personalizedResponse: "Welcome Nina! As Marketing Advisory, you have access to Bali Zero systems."
+    personalizedResponse:
+      'Welcome Nina! As Marketing Advisory, you have access to Bali Zero systems.',
   },
-  'sahira': {
+  sahira: {
     id: 'sahira',
     name: 'Sahira',
     role: 'Marketing Specialist',
@@ -227,9 +246,10 @@ const TEAM_RECOGNITION = {
     department: 'marketing',
     language: 'Indonesian',
     aliases: ['sahira', 'saya sahira', 'halo saya sahira'],
-    personalizedResponse: "Selamat datang Sahira! Sebagai Marketing Specialist, Anda dapat mengakses sistem Bali Zero."
+    personalizedResponse:
+      'Selamat datang Sahira! Sebagai Marketing Specialist, Anda dapat mengakses sistem Bali Zero.',
   },
-  'marta': {
+  marta: {
     id: 'marta',
     name: 'Marta',
     role: 'External Advisory',
@@ -237,8 +257,9 @@ const TEAM_RECOGNITION = {
     department: 'advisory',
     language: 'Italian',
     aliases: ['marta', 'sono marta', 'ciao sono marta', 'i am marta'],
-    personalizedResponse: "Ciao Marta! Benvenuta. Come External Advisory, hai accesso ai sistemi Bali Zero."
-  }
+    personalizedResponse:
+      'Ciao Marta! Benvenuta. Come External Advisory, hai accesso ai sistemi Bali Zero.',
+  },
 };
 
 // Session management
@@ -257,8 +278,10 @@ export async function teamLogin(params: any) {
   // Find team member by name or email
   let member = null;
   for (const [_key, teamMember] of Object.entries(TEAM_RECOGNITION)) {
-    if (teamMember.name.toLowerCase() === name.toLowerCase() || 
-        teamMember.email.toLowerCase() === email?.toLowerCase()) {
+    if (
+      teamMember.name.toLowerCase() === name.toLowerCase() ||
+      teamMember.email.toLowerCase() === email?.toLowerCase()
+    ) {
       member = teamMember;
       break;
     }
@@ -275,7 +298,7 @@ export async function teamLogin(params: any) {
     user: member,
     loginTime: new Date().toISOString(),
     lastActivity: new Date().toISOString(),
-    permissions: getPermissionsForRole(member.role)
+    permissions: getPermissionsForRole(member.role),
   };
 
   activeSessions.set(sessionId, session);
@@ -288,7 +311,7 @@ export async function teamLogin(params: any) {
       email: member.email,
       role: member.role,
       department: member.department,
-      sessionId: sessionId
+      sessionId: sessionId,
     },
     jwtSecret,
     { expiresIn: '7d' }
@@ -307,11 +330,11 @@ export async function teamLogin(params: any) {
       role: member.role,
       department: member.department,
       language: member.language,
-      email: member.email
+      email: member.email,
     },
     permissions: session.permissions,
     personalizedResponse: member.personalizedResponse,
-    loginTime: session.loginTime
+    loginTime: session.loginTime,
   });
 }
 
@@ -320,7 +343,7 @@ export async function teamLogin(params: any) {
  */
 function getPermissionsForRole(role: string): string[] {
   const permissions: { [key: string]: string[] } = {
-    'CEO': ['all', 'admin', 'finance', 'hr', 'tech', 'marketing'],
+    CEO: ['all', 'admin', 'finance', 'hr', 'tech', 'marketing'],
     'Board Member': ['all', 'finance', 'hr', 'tech', 'marketing'],
     'AI Bridge/Tech Lead': ['all', 'tech', 'admin', 'finance'],
     'Executive Consultant': ['setup', 'finance', 'clients', 'reports'],
@@ -333,8 +356,8 @@ function getPermissionsForRole(role: string): string[] {
     'Tax Care': ['tax', 'clients'],
     'Marketing Specialist': ['marketing', 'clients', 'reports'],
     'Marketing Advisory': ['marketing', 'clients'],
-    'Reception': ['clients', 'appointments'],
-    'External Advisory': ['clients', 'reports']
+    Reception: ['clients', 'appointments'],
+    'External Advisory': ['clients', 'reports'],
   };
 
   return permissions[role] || ['clients'];
@@ -360,12 +383,12 @@ export function validateSession(sessionId: string): any {
  * Get all team members for login form
  */
 export function getTeamMembers() {
-  return Object.values(TEAM_RECOGNITION).map(member => ({
+  return Object.values(TEAM_RECOGNITION).map((member) => ({
     id: member.id,
     name: member.name,
     role: member.role,
     department: member.department,
-    email: member.email
+    email: member.email,
   }));
 }
 

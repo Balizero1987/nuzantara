@@ -1,5 +1,5 @@
-import type { Request, Response, NextFunction } from "express";
-import { OAuth2Client, TokenPayload } from "google-auth-library";
+import type { Request, Response, NextFunction } from 'express';
+import { OAuth2Client, TokenPayload } from 'google-auth-library';
 
 // Minimal OIDC verification for Google Chat webhook
 // Enable with CHAT_VERIFY_OIDC=true and set CHAT_AUDIENCE to your webhook URL
@@ -10,8 +10,8 @@ function expectedAudience(req: Request): string | undefined {
   // Prefer explicit env value; fallback to computed URL
   const aud = process.env.CHAT_AUDIENCE;
   if (aud && aud.trim()) return aud.trim();
-  const proto = (req.headers["x-forwarded-proto"] as string) || req.protocol;
-  const host = req.get("host");
+  const proto = (req.headers['x-forwarded-proto'] as string) || req.protocol;
+  const host = req.get('host');
   if (!host) return undefined;
   return `${proto}://${host}${req.originalUrl}`;
 }
@@ -20,8 +20,8 @@ export async function verifyChatOIDC(req: Request, res: Response, next: NextFunc
   try {
     if (process.env.CHAT_VERIFY_OIDC !== 'true') return next();
 
-    const auth = req.headers.authorization || "";
-    if (!auth.startsWith("Bearer ")) {
+    const auth = req.headers.authorization || '';
+    if (!auth.startsWith('Bearer ')) {
       return res.status(401).json({ ok: false, error: 'missing_bearer_token' });
     }
 
@@ -45,7 +45,8 @@ export async function verifyChatOIDC(req: Request, res: Response, next: NextFunc
     (req as any).__chat_oidc = payload;
     return next();
   } catch (e: any) {
-    return res.status(401).json({ ok: false, error: 'oidc_failed', message: e?.message || 'verification_failed' });
+    return res
+      .status(401)
+      .json({ ok: false, error: 'oidc_failed', message: e?.message || 'verification_failed' });
   }
 }
-

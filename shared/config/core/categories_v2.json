@@ -681,7 +681,15 @@
         "required_fields": ["property_type", "change_type", "effective_date"],
         "property_types": ["land", "villa", "apartment", "commercial"],
         "property_rights": ["Hak_Milik", "HGB", "Hak_Pakai"],
-        "blacklist_keywords": ["machinery", "alat berat", "equipment", "shipping", "tug boat", "pupuk", "irigasi"]
+        "blacklist_keywords": [
+          "machinery",
+          "alat berat",
+          "equipment",
+          "shipping",
+          "tug boat",
+          "pupuk",
+          "irigasi"
+        ]
       }
     },
     {

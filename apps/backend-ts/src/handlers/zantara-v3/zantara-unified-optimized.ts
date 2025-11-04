@@ -5,22 +5,14 @@
  * Maintains compatibility with original interface
  */
 
-import { ok } from "../../utils/response.js";
-import { Request, Response } from "express";
-import { kbliLookup, kbliRequirements } from "../bali-zero/kbli.js";
-import { baliZeroPricing, baliZeroQuickPrice } from "../bali-zero/bali-zero-pricing.js";
-import { collectiveMemory } from "../memory/collective-memory.js";
-import { queryBusinessSetupFast } from "./business-setup-kb.js";
-import { cacheOptimizer } from "../../services/performance/cache-optimizer.js";
-import logger from "../../services/logger.js";
+import { ok } from '../../utils/response.js';
+import { Request, Response } from 'express';
+import { kbliLookup } from '../bali-zero/kbli.js';
+import { baliZeroPricing, baliZeroQuickPrice } from '../bali-zero/bali-zero-pricing.js';
+import { queryBusinessSetupFast } from './business-setup-kb.js';
+import { cacheOptimizer } from '../../services/performance/cache-optimizer.js';
+import logger from '../../services/logger.js';
 
-// Performance tracking
-interface PerformanceMetrics {
-  totalQueries: number;
-  cacheHits: number;
-  totalTime: number;
-  queryTimes: { [domain: string]: number };
-}
 
 async function zantaraUnifiedQueryOptimized(req: Request, res: Response) {
   const startTime = Date.now();
@@ -28,19 +20,16 @@ async function zantaraUnifiedQueryOptimized(req: Request, res: Response) {
   try {
     // Accept params from either req.body or req.body.params
     const params = req.body.params || req.body;
-    const {
-      query,
-      domain = "all",
-      mode = "quick",
-      include_sources = true
-    } = params;
+    const { query, domain = 'all', mode = 'quick', include_sources = true } = params;
 
     // Quick validation
     if (!query) {
-      return res.json(ok({
-        error: "Missing query parameter",
-        example: { query: "restaurant", domain: "kbli" }
-      }));
+      return res.json(
+        ok({
+          error: 'Missing query parameter',
+          example: { query: 'restaurant', domain: 'kbli' },
+        })
+      );
     }
 
     logger.info(`🚀 Optimized query: ${query}, domain: ${domain}, mode: ${mode}`);
@@ -63,32 +52,33 @@ async function zantaraUnifiedQueryOptimized(req: Request, res: Response) {
         totalTime: `${totalTime}ms`,
         cached: result.cached,
         queryTime: result.queryTime,
-        optimization: 'redis_cache_parallel_queries'
+        optimization: 'redis_cache_parallel_queries',
       },
       meta: {
         query,
         domain,
         mode,
         timestamp: new Date().toISOString(),
-        version: 'v3.0.0-optimized'
-      }
+        version: 'v3.0.0-optimized',
+      },
     };
 
     logger.info(`✅ Query completed: ${totalTime}ms (cached: ${result.cached})`);
     return res.json(ok(response));
-
   } catch (error) {
     const totalTime = Date.now() - startTime;
     logger.error(`❌ Optimized query failed after ${totalTime}ms:`, error);
 
-    return res.json(ok({
-      error: error.message,
-      performance: {
-        totalTime: `${totalTime}ms`,
-        cached: false,
-        error: true
-      }
-    }));
+    return res.json(
+      ok({
+        error: error.message,
+        performance: {
+          totalTime: `${totalTime}ms`,
+          cached: false,
+          error: true,
+        },
+      })
+    );
   }
 }
 
@@ -107,11 +97,11 @@ async function executeParallelQuery(
   const domainsToQuery = determineDomains(domain);
 
   // 🚀 PARALLEL EXECUTION: All queries run simultaneously
-  const queryFunctions = domainsToQuery.map(domain => ({
+  const queryFunctions = domainsToQuery.map((domain) => ({
     type: domain,
     key: `${domain}:${query}:${mode}`,
     fn: () => executeDomainQuery(domain, query, mode, include_sources),
-    ttl: getDomainTTL(domain)
+    ttl: getDomainTTL(domain),
   }));
 
   const results = await cacheOptimizer.parallelQueries(queryFunctions);
@@ -124,10 +114,10 @@ async function executeParallelQuery(
     sources: {},
     performance: {
       parallelQueries: results.length,
-      cacheHits: results.filter(r => r.cached).length,
+      cacheHits: results.filter((r) => r.cached).length,
       totalTime: Date.now() - startTime,
-      domainTimes: {}
-    }
+      domainTimes: {},
+    },
   };
 
   // Process each result
@@ -147,11 +137,20 @@ async function executeParallelQuery(
  * Determine which domains to query
  */
 function determineDomains(domain: string): string[] {
-  if (domain === "all") {
-    return ["kbli", "pricing", "team", "legal", "immigration", "tax", "property", "business_setup"];
+  if (domain === 'all') {
+    return ['kbli', 'pricing', 'team', 'legal', 'immigration', 'tax', 'property', 'business_setup'];
   }
 
-  const validDomains = ["kbli", "pricing", "team", "legal", "immigration", "tax", "property", "business_setup"];
+  const validDomains = [
+    'kbli',
+    'pricing',
+    'team',
+    'legal',
+    'immigration',
+    'tax',
+    'property',
+    'business_setup',
+  ];
   return validDomains.includes(domain) ? [domain] : [];
 }
 
@@ -160,14 +159,14 @@ function determineDomains(domain: string): string[] {
  */
 function getDomainTTL(domain: string): number {
   const ttlMap = {
-    kbli: 3600,        // 1 hour - business codes don't change often
-    pricing: 1800,      // 30 min - pricing may change
-    team: 7200,        // 2 hours - team info relatively stable
-    legal: 86400,      // 24 hours - legal info stable
+    kbli: 3600, // 1 hour - business codes don't change often
+    pricing: 1800, // 30 min - pricing may change
+    team: 7200, // 2 hours - team info relatively stable
+    legal: 86400, // 24 hours - legal info stable
     immigration: 14400, // 4 hours - immigration rules
-    tax: 14400,        // 4 hours - tax regulations
-    property: 7200,    // 2 hours - property info
-    business_setup: 1800 // 30 min - business setup info
+    tax: 14400, // 4 hours - tax regulations
+    property: 7200, // 2 hours - property info
+    business_setup: 1800, // 30 min - business setup info
   };
 
   return ttlMap[domain] || 1800;
@@ -186,24 +185,24 @@ async function executeDomainQuery(
 
   try {
     switch (domain) {
-      case "kbli":
+      case 'kbli':
         return await queryKBLIOptimized(query, mode, include_sources);
-      case "pricing":
+      case 'pricing':
         return await queryPricingOptimized(query, mode);
-      case "team":
+      case 'team':
         return await queryTeamOptimized(query);
-      case "legal":
+      case 'legal':
         return await queryLegalOptimized(query, mode);
-      case "immigration":
+      case 'immigration':
         return await queryImmigrationOptimized(query, mode);
-      case "tax":
+      case 'tax':
         return await queryTaxOptimized(query, mode);
-      case "property":
+      case 'property':
         return await queryPropertyOptimized(query, mode);
-      case "business_setup":
+      case 'business_setup':
         return await queryBusinessSetupOptimized(query, mode);
       default:
-        return { domain, error: "Unknown domain", query };
+        return { domain, error: 'Unknown domain', query };
     }
   } catch (error) {
     logger.error(`Domain query failed for ${domain}:`, error);
@@ -211,7 +210,7 @@ async function executeDomainQuery(
       domain,
       error: error.message,
       query,
-      queryTime: Date.now() - startTime
+      queryTime: Date.now() - startTime,
     };
   }
 }
@@ -228,10 +227,10 @@ async function queryKBLIOptimized(query: string, mode: string, includeSources: b
       const result = await kbliLookup(mockReq, mockRes);
 
       return {
-        domain: "kbli",
-        type: "business_classification",
+        domain: 'kbli',
+        type: 'business_classification',
         data: result,
-        sources: includeSources ? generateKBLISources(query) : undefined
+        sources: includeSources ? generateKBLISources(query) : undefined,
       };
     },
     getDomainTTL('kbli')
@@ -244,15 +243,13 @@ async function queryPricingOptimized(query: string, mode: string) {
     `${query}:${mode}`,
     async () => {
       const mockReq = { body: { params: { service: query, mode } } } as any;
-      const mockRes = { json: (data: any) => data } as any;
-      const result = mode === "quick"
-        ? await baliZeroQuickPrice(mockReq)
-        : await baliZeroPricing(mockReq);
+      const result =
+        mode === 'quick' ? await baliZeroQuickPrice(mockReq) : await baliZeroPricing(mockReq);
 
       return {
-        domain: "pricing",
-        type: "service_pricing",
-        data: result
+        domain: 'pricing',
+        type: 'service_pricing',
+        data: result,
       };
     },
     getDomainTTL('pricing')
@@ -266,13 +263,13 @@ async function queryTeamOptimized(query: string) {
     async () => {
       // Team member search - mock implementation
       return {
-        domain: "team",
-        type: "team_search",
+        domain: 'team',
+        type: 'team_search',
         data: {
           members: [],
           expertise: [],
-          availability: {}
-        }
+          availability: {},
+        },
       };
     },
     getDomainTTL('team')
@@ -286,13 +283,13 @@ async function queryLegalOptimized(query: string, mode: string) {
     async () => {
       // Legal information lookup
       return {
-        domain: "legal",
-        type: "legal_information",
+        domain: 'legal',
+        type: 'legal_information',
         data: {
           regulations: [],
           compliance: [],
-          requirements: []
-        }
+          requirements: [],
+        },
       };
     },
     getDomainTTL('legal')
@@ -306,13 +303,13 @@ async function queryImmigrationOptimized(query: string, mode: string) {
     async () => {
       // Immigration information
       return {
-        domain: "immigration",
-        type: "immigration_info",
+        domain: 'immigration',
+        type: 'immigration_info',
         data: {
           visas: [],
           requirements: [],
-          procedures: []
-        }
+          procedures: [],
+        },
       };
     },
     getDomainTTL('immigration')
@@ -326,13 +323,13 @@ async function queryTaxOptimized(query: string, mode: string) {
     async () => {
       // Tax information
       return {
-        domain: "tax",
-        type: "tax_information",
+        domain: 'tax',
+        type: 'tax_information',
         data: {
           regulations: [],
           rates: [],
-          compliance: []
-        }
+          compliance: [],
+        },
       };
     },
     getDomainTTL('tax')
@@ -346,13 +343,13 @@ async function queryPropertyOptimized(query: string, mode: string) {
     async () => {
       // Property information
       return {
-        domain: "property",
-        type: "property_info",
+        domain: 'property',
+        type: 'property_info',
         data: {
           regulations: [],
           values: [],
-          requirements: []
-        }
+          requirements: [],
+        },
       };
     },
     getDomainTTL('property')
@@ -370,9 +367,9 @@ async function queryBusinessSetupOptimized(query: string, mode: string) {
       const result = await queryBusinessSetupFast(mockReq, mockRes);
 
       return {
-        domain: "business_setup",
-        type: "business_setup_guide",
-        data: result
+        domain: 'business_setup',
+        type: 'business_setup_guide',
+        data: result,
       };
     },
     getDomainTTL('business_setup')
@@ -385,7 +382,7 @@ function generateKBLISources(query: string): string[] {
   return [
     `KBLI Classification 2025 - ${query}`,
     `Indonesian Business Code Registry`,
-    `Bali Zero Business Database`
+    `Bali Zero Business Database`,
   ];
 }
 

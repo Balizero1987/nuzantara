@@ -15,7 +15,7 @@ import {
   getDocsService,
   getSlidesService,
   getPeopleService,
-  isOAuth2Available
+  isOAuth2Available,
 } from './oauth2-client.js';
 
 interface AuthConfig {
@@ -31,14 +31,13 @@ async function getAuthenticatedService<T>(
   serviceFactory: (auth: any) => T,
   oauth2Service?: () => Promise<T>
 ): Promise<T | null> {
-
   // Detailed auth configuration logging
   logger.info('🔍 Auth config for ${config.serviceName}:', {
     USE_OAUTH2: process.env.USE_OAUTH2 || 'not set',
     GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS ? 'set' : 'not set',
     GOOGLE_SERVICE_ACCOUNT_KEY: process.env.GOOGLE_SERVICE_ACCOUNT_KEY ? 'set' : 'not set',
     IMPERSONATE_USER: process.env.IMPERSONATE_USER || 'not set',
-    Required_scopes: config.scopes
+    Required_scopes: config.scopes,
   });
 
   // Check if USE_OAUTH2 is explicitly enabled and OAuth2 is available
@@ -49,7 +48,7 @@ async function getAuthenticatedService<T>(
     USE_OAUTH2_env: process.env.USE_OAUTH2,
     useOAuth2_parsed: useOAuth2,
     oauth2Available: oauth2Available,
-    willUseOAuth2: oauth2Available && oauth2Service
+    willUseOAuth2: oauth2Available && oauth2Service,
   });
 
   if (oauth2Available && oauth2Service) {
@@ -63,7 +62,7 @@ async function getAuthenticatedService<T>(
         error: error?.message,
         name: error?.name,
         code: error?.code,
-        details: error?.response?.data || error?.errors
+        details: error?.response?.data || error?.errors,
       });
 
       // Log specific OAuth2 errors for debugging
@@ -80,9 +79,13 @@ async function getAuthenticatedService<T>(
       logger.info(`🔄 Falling back to Service Account for ${config.serviceName}`);
     }
   } else if (useOAuth2) {
-    logger.info(`⚠️ OAuth2 enabled but not available for ${config.serviceName}, using service account`);
+    logger.info(
+      `⚠️ OAuth2 enabled but not available for ${config.serviceName}, using service account`
+    );
   } else {
-    logger.info(`🔑 OAuth2 disabled (USE_OAUTH2=${process.env.USE_OAUTH2}), using Service Account for ${config.serviceName}`);
+    logger.info(
+      `🔑 OAuth2 disabled (USE_OAUTH2=${process.env.USE_OAUTH2}), using Service Account for ${config.serviceName}`
+    );
   }
 
   // Use service account authentication (Domain‑Wide Delegation via JWT)
@@ -94,13 +97,13 @@ async function getAuthenticatedService<T>(
 
     if (!keyFile && !raw) {
       logger.error('❌ No Google Service Account credentials found');
-      logger.error('💡 Set GOOGLE_APPLICATION_CREDENTIALS (file path) or GOOGLE_SERVICE_ACCOUNT_KEY (JSON string)');
+      logger.error(
+        '💡 Set GOOGLE_APPLICATION_CREDENTIALS (file path) or GOOGLE_SERVICE_ACCOUNT_KEY (JSON string)'
+      );
       return null;
     }
 
-    const sa = raw
-      ? JSON.parse(raw)
-      : JSON.parse(fs.readFileSync(keyFile, 'utf8'));
+    const sa = raw ? JSON.parse(raw) : JSON.parse(fs.readFileSync(keyFile, 'utf8'));
 
     if (!sa.client_email || !sa.private_key) {
       throw new Error('Service account JSON missing client_email/private_key');
@@ -112,7 +115,7 @@ async function getAuthenticatedService<T>(
       client_email: sa.client_email || 'missing',
       private_key: sa.private_key ? `✅ Set (length: ${sa.private_key.length})` : '❌ Missing',
       scopes: config.scopes,
-      impersonate: impersonate || 'none'
+      impersonate: impersonate || 'none',
     });
 
     const jwt = new google.auth.JWT({
@@ -132,12 +135,14 @@ async function getAuthenticatedService<T>(
       name: error.name,
       code: error.code,
       status: error.status,
-      stack: error.stack?.split('\n').slice(0, 3).join('\n')
+      stack: error.stack?.split('\n').slice(0, 3).join('\n'),
     });
 
     // Provide helpful error messages
     if (error.message?.includes('ENOENT')) {
-      logger.error('💡 Service account key file not found. Check GOOGLE_APPLICATION_CREDENTIALS path.');
+      logger.error(
+        '💡 Service account key file not found. Check GOOGLE_APPLICATION_CREDENTIALS path.'
+      );
     } else if (error.message?.includes('invalid_grant')) {
       logger.error('💡 Service account key is invalid or expired.');
     } else if (error.message?.includes('unregistered callers')) {
@@ -161,7 +166,7 @@ export async function getCalendar() {
         'https://www.googleapis.com/auth/calendar.events',
         'https://www.googleapis.com/auth/calendar.readonly',
       ],
-      serviceName: 'Calendar'
+      serviceName: 'Calendar',
     },
     (auth) => google.calendar({ version: 'v3', auth: auth as any }),
     async () => {
@@ -186,9 +191,9 @@ export async function getDrive() {
         'https://www.googleapis.com/auth/drive',
         'https://www.googleapis.com/auth/drive.file',
         'https://www.googleapis.com/auth/drive.readonly',
-        'https://www.googleapis.com/auth/drive.metadata.readonly'
+        'https://www.googleapis.com/auth/drive.metadata.readonly',
       ],
-      serviceName: 'Drive'
+      serviceName: 'Drive',
     },
     (auth) => google.drive({ version: 'v3', auth: auth as any }),
     async () => {
@@ -201,7 +206,7 @@ export async function getDrive() {
         logger.error('🔴 OAuth2 Drive service failed:', {
           error: error.message,
           code: error.code,
-          details: error?.response?.data || error?.errors
+          details: error?.response?.data || error?.errors,
         });
         throw error;
       }
@@ -219,7 +224,7 @@ export async function getSheets() {
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/spreadsheets.readonly',
       ],
-      serviceName: 'Sheets'
+      serviceName: 'Sheets',
     },
     (auth) => google.sheets({ version: 'v4', auth: auth as any }),
     async () => {
@@ -243,7 +248,7 @@ export async function getDocs() {
         'https://www.googleapis.com/auth/documents',
         'https://www.googleapis.com/auth/documents.readonly',
       ],
-      serviceName: 'Docs'
+      serviceName: 'Docs',
     },
     (auth) => google.docs({ version: 'v1', auth: auth as any }),
     async () => {
@@ -267,7 +272,7 @@ export async function getSlides() {
         'https://www.googleapis.com/auth/presentations',
         'https://www.googleapis.com/auth/presentations.readonly',
       ],
-      serviceName: 'Slides'
+      serviceName: 'Slides',
     },
     (auth) => google.slides({ version: 'v1', auth: auth as any }),
     async () => {
@@ -292,7 +297,7 @@ export async function getGmail() {
         'https://www.googleapis.com/auth/gmail.readonly',
         'https://www.googleapis.com/auth/gmail.modify',
       ],
-      serviceName: 'Gmail'
+      serviceName: 'Gmail',
     },
     (auth) => google.gmail({ version: 'v1', auth: auth as any })
     // No OAuth2 service for Gmail yet - only service account
@@ -309,7 +314,7 @@ export async function getContacts() {
         'https://www.googleapis.com/auth/contacts',
         'https://www.googleapis.com/auth/contacts.readonly',
       ],
-      serviceName: 'Contacts'
+      serviceName: 'Contacts',
     },
     (auth) => google.people({ version: 'v1', auth: auth as any }),
     async () => {
@@ -329,10 +334,8 @@ export async function getContacts() {
 export async function getTranslate() {
   return getAuthenticatedService(
     {
-      scopes: [
-        'https://www.googleapis.com/auth/cloud-translation',
-      ],
-      serviceName: 'Translate'
+      scopes: ['https://www.googleapis.com/auth/cloud-translation'],
+      serviceName: 'Translate',
     },
     (auth) => google.translate({ version: 'v2', auth: auth as any })
   );
@@ -346,8 +349,5 @@ export async function getGoogleService<T>(
   scopes: string[],
   serviceName: string = 'Google Service'
 ): Promise<T | null> {
-  return getAuthenticatedService(
-    { scopes, serviceName },
-    serviceFactory
-  );
+  return getAuthenticatedService({ scopes, serviceName }, serviceFactory);
 }

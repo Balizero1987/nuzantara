@@ -56,12 +56,9 @@ export class InMemoryStorage implements IMemoryStorage {
 
     // Handle TTL for episodic memories
     if (validated.type === MemoryType.EPISODIC && validated.ttl) {
-      setTimeout(
-        () => {
-          void this.delete(validated.id);
-        },
-        validated.ttl * 1000
-      );
+      setTimeout(() => {
+        void this.delete(validated.id);
+      }, validated.ttl * 1000);
     }
 
     return Promise.resolve();
@@ -197,11 +194,7 @@ export class InMemoryStorage implements IMemoryStorage {
     }
 
     // Category filtering for semantic memories
-    if (
-      category &&
-      memory.type === MemoryType.SEMANTIC &&
-      memory.metadata?.category !== category
-    ) {
+    if (category && memory.type === MemoryType.SEMANTIC && memory.metadata?.category !== category) {
       return false;
     }
 

@@ -7,35 +7,47 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { ok, err } from '../../utils/response.js';
 import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
-import { driveUpload, driveList, driveSearch, driveRead } from '../../handlers/google-workspace/drive.js';
+import {
+  driveUpload,
+  driveList,
+  driveSearch,
+  driveRead,
+} from '../../handlers/google-workspace/drive.js';
 
 const router = Router();
 
 // Drive schemas
-const DriveUploadSchema = z.object({
-  name: z.string().optional(),
-  fileName: z.string().optional(),
-  content: z.string().optional(),
-  body: z.union([z.string(), z.instanceof(Buffer)]).optional(),
-  mimeType: z.string().optional(),
-  parents: z.array(z.string()).optional(),
-  supportsAllDrives: z.boolean().optional(),
-  requestBody: z.object({
+const DriveUploadSchema = z
+  .object({
     name: z.string().optional(),
-    parents: z.array(z.string()).optional(),
-  }).optional(),
-  resource: z.object({
-    name: z.string().optional(),
-    parents: z.array(z.string()).optional(),
-  }).optional(),
-  media: z.object({
-    mimeType: z.string().optional(),
+    fileName: z.string().optional(),
+    content: z.string().optional(),
     body: z.union([z.string(), z.instanceof(Buffer)]).optional(),
-  }).optional(),
-}).refine(
-  (data) => data.content || data.body || data.media?.body,
-  { message: 'One of content, body, or media.body is required' }
-);
+    mimeType: z.string().optional(),
+    parents: z.array(z.string()).optional(),
+    supportsAllDrives: z.boolean().optional(),
+    requestBody: z
+      .object({
+        name: z.string().optional(),
+        parents: z.array(z.string()).optional(),
+      })
+      .optional(),
+    resource: z
+      .object({
+        name: z.string().optional(),
+        parents: z.array(z.string()).optional(),
+      })
+      .optional(),
+    media: z
+      .object({
+        mimeType: z.string().optional(),
+        body: z.union([z.string(), z.instanceof(Buffer)]).optional(),
+      })
+      .optional(),
+  })
+  .refine((data) => data.content || data.body || data.media?.body, {
+    message: 'One of content, body, or media.body is required',
+  });
 
 const DriveListSchema = z.object({
   q: z.string().optional(),
@@ -45,16 +57,17 @@ const DriveListSchema = z.object({
   fields: z.string().optional(),
 });
 
-const DriveSearchSchema = z.object({
-  query: z.string().optional(),
-  folderId: z.string().optional(),
-  mimeType: z.string().optional(),
-  pageSize: z.number().optional().default(25),
-  fields: z.string().optional(),
-}).refine(
-  (data) => data.query || data.folderId || data.mimeType,
-  { message: 'At least one of query, folderId, or mimeType is required' }
-);
+const DriveSearchSchema = z
+  .object({
+    query: z.string().optional(),
+    folderId: z.string().optional(),
+    mimeType: z.string().optional(),
+    pageSize: z.number().optional().default(25),
+    fields: z.string().optional(),
+  })
+  .refine((data) => data.query || data.folderId || data.mimeType, {
+    message: 'At least one of query, folderId, or mimeType is required',
+  });
 
 const DriveReadSchema = z.object({
   fileId: z.string().optional(),

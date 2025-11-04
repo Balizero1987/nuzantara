@@ -4,12 +4,12 @@ const mockAiChat = jest.fn().mockResolvedValue({
   ok: true,
   data: {
     response: 'Test response',
-    answer: 'Test answer'
-  }
+    answer: 'Test answer',
+  },
 });
 
 jest.unstable_mockModule('../../ai-services/ai.js', () => ({
-  aiChat: mockAiChat
+  aiChat: mockAiChat,
 }));
 
 describe('Chat Simple', () => {
@@ -21,8 +21,8 @@ describe('Chat Simple', () => {
       ok: true,
       data: {
         response: 'Test response',
-        answer: 'Test answer'
-      }
+        answer: 'Test answer',
+      },
     });
     handlers = await import('../chat-simple.js');
   });
@@ -31,7 +31,7 @@ describe('Chat Simple', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.zeroChatSimple({
         userId: 'zero',
-        message: 'Test message'
+        message: 'Test message',
       });
 
       expect(result).toBeDefined();
@@ -51,7 +51,7 @@ describe('Chat Simple', () => {
     it('should handle invalid userId', async () => {
       const result = await handlers.zeroChatSimple({
         userId: 'invalid-user',
-        message: 'Test message'
+        message: 'Test message',
       });
 
       expect(result).toBeDefined();
@@ -62,11 +62,10 @@ describe('Chat Simple', () => {
     it('should handle invalid params', async () => {
       const result = await handlers.zeroChatSimple({
         userId: 'zero',
-        invalid: 'data'
+        invalid: 'data',
       });
 
       expect(result).toBeDefined();
     });
   });
-
 });

@@ -32,7 +32,7 @@ class APIClient {
     const user = jwtService.getUser();
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': authHeader,
+      Authorization: authHeader,
       'x-user-id': user?.email || 'guest@zantara.io',
       'x-session-id': this._getSessionId(),
     };
@@ -90,10 +90,10 @@ class APIClient {
         }
 
         const data = await response.json();
-        
+
         // Cache successful response
         cacheManager.set(endpoint, params, data);
-        
+
         return data;
       } catch (error) {
         if (error.name === 'AbortError') {
@@ -160,7 +160,7 @@ class APIClient {
    * Sleep utility for retry delays
    */
   _sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

@@ -14,9 +14,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { glob } from 'glob';
+import logger from '../services/logger.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const _filename = fileURLToPath(import.meta.url);
 
 interface MigrationOptions {
   dryRun: boolean;
@@ -39,99 +39,100 @@ const migrationPatterns = [
   // Console logging patterns
   {
     pattern: /console\.log\(`([^`]+)`\);?/g,
-    replacement: (match: string, message: string) => {
+    replacement: (_match: string, message: string) => {
       return `logger.info('${message.replace(/'/g, "\\'")}', { type: 'debug_migration' });`;
     },
-    description: 'console.log template literals'
+    description: 'console.log template literals',
   },
   {
     pattern: /console\.log\(([^,]+),?\s*([^;]+)?\);?/g,
-    replacement: (match: string, message: string, context?: string) => {
+    replacement: (_match: string, message: string, context?: string) => {
       if (context && !context.includes('console')) {
         return `logger.info(${message}, ${context});`;
       }
       return `logger.info(${message});`;
     },
-    description: 'console.log with context'
+    description: 'console.log with context',
   },
   {
     pattern: /console\.error\(`([^`]+)`\);?/g,
-    replacement: (match: string, message: string) => {
+    replacement: (_match: string, message: string) => {
       return `logger.error('${message.replace(/'/g, "\\'")}');`;
     },
-    description: 'console.error template literals'
+    description: 'console.error template literals',
   },
   {
     pattern: /console\.error\(([^,]+),?\s*([^;]+)?\);?/g,
-    replacement: (match: string, message: string, error?: string) => {
+    replacement: (_match: string, message: string, error?: string) => {
       if (error && !error.includes('console')) {
         return `logger.error(${message}, ${error});`;
       }
       return `logger.error(${message});`;
     },
-    description: 'console.error with error'
+    description: 'console.error with error',
   },
   {
     pattern: /console\.warn\(`([^`]+)`\);?/g,
-    replacement: (match: string, message: string) => {
+    replacement: (_match: string, message: string) => {
       return `logger.warn('${message.replace(/'/g, "\\'")}');`;
     },
-    description: 'console.warn template literals'
+    description: 'console.warn template literals',
   },
   {
     pattern: /console\.warn\(([^;]+)\);?/g,
-    replacement: (match: string, message: string) => {
+    replacement: (_match: string, message: string) => {
       return `logger.warn(${message});`;
     },
-    description: 'console.warn statements'
+    description: 'console.warn statements',
   },
   {
     pattern: /console\.debug\(`([^`]+)`\);?/g,
-    replacement: (match: string, message: string) => {
+    replacement: (_match: string, message: string) => {
       return `logger.debug('${message.replace(/'/g, "\\'")}');`;
     },
-    description: 'console.debug template literals'
+    description: 'console.debug template literals',
   },
 
   // Old logger imports
   {
     pattern: /import\s+logger\s+from\s+['"]\.\.\/services\/logger\.js['"];?/g,
     replacement: "import { logger } from '../logging/unified-logger.js';",
-    description: 'Update logger import path'
+    description: 'Update logger import path',
   },
   {
     pattern: /import\s+{\s*logger\s*}\s+from\s+['"]\.\.\/services\/logger\.js['"];?/g,
     replacement: "import { logger } from '../logging/unified-logger.js';",
-    description: 'Update named logger import'
+    description: 'Update named logger import',
   },
   {
-    pattern: /import\s+{\s*logInfo,\s*logError,\s*logWarn,\s*logDebug\s*}\s+from\s+['"]\.\.\/utils\/logging\.js['"];?/g,
+    pattern:
+      /import\s+{\s*logInfo,\s*logError,\s*logWarn,\s*logDebug\s*}\s+from\s+['"]\.\.\/utils\/logging\.js['"];?/g,
     replacement: "import { logger } from '../logging/unified-logger.js';",
-    description: 'Replace utils logging imports'
+    description: 'Replace utils logging imports',
   },
 
   // Old logger usage with structured context
   {
     pattern: /logger\.info\(`([^`]+)`,\s*({[^}]+})\);?/g,
-    replacement: (match: string, message: string, context: string) => {
+    replacement: (_match: string, message: string, context: string) => {
       return `logger.info('${message.replace(/'/g, "\\'")}', ${context});`;
     },
-    description: 'Fix logger.info template literals with context'
+    description: 'Fix logger.info template literals with context',
   },
   {
     pattern: /logger\.error\(`([^`]+)`,\s*({[^}]+})\);?/g,
-    replacement: (match: string, message: string, context: string) => {
+    replacement: (_match: string, message: string, context: string) => {
       return `logger.error('${message.replace(/'/g, "\\'")}', undefined, ${context});`;
     },
-    description: 'Fix logger.error template literals with context'
+    description: 'Fix logger.error template literals with context',
   },
   {
     pattern: /logger\.error\(`([^`]+)`,\s*([^,]+),\s*({[^}]+})\);?/g,
-    replacement: (match: string, message: string, error: string, context: string) => {
+    replacement: (_match: string, message: string, error: string, context: string) => {
       return `logger.error('${message.replace(/'/g, "\\'")}', ${error}, ${context});`;
     },
-    description: 'Fix logger.error with error and context'
-  }
+    description: 'Fix logger.error with error and context',
+  },
 ];
 
 class LoggingMigration {
@@ -146,17 +147,19 @@ class LoggingMigration {
       consoleLogReplaced: 0,
       loggerImportFixed: 0,
       structuredLoggingAdded: 0,
-      errorsFixed: 0
+      errorsFixed: 0,
     };
   }
 
   async migrate(): Promise<void> {
     logger.info('🚀 Starting ZANTARA logging migration...', { type: 'debug_migration' });
     logger.info('📁 Target path: ${this.options.targetPath}', { type: 'debug_migration' });
-    logger.info('🔍 Dry run: ${this.options.dryRun ? \'YES\' : \'NO\'}', { type: 'debug_migration' });
+    logger.info("🔍 Dry run: ${this.options.dryRun ? 'YES' : 'NO'}", { type: 'debug_migration' });
 
     const files = await this.findFiles();
-    logger.info('📄 Found ${files.length} TypeScript files to process', { type: 'debug_migration' });
+    logger.info('📄 Found ${files.length} TypeScript files to process', {
+      type: 'debug_migration',
+    });
 
     for (const file of files) {
       await this.processFile(file);
@@ -183,10 +186,17 @@ class LoggingMigration {
         const matches = modifiedContent.match(pattern.pattern);
         if (matches) {
           if (this.options.verbose) {
-            logger.info('  📝 ${filePath}: Applying pattern "${pattern.description}" (${matches.length} matches)', { type: 'debug_migration' });
+            logger.info(
+              '  📝 ${filePath}: Applying pattern "${pattern.description}" (${matches.length} matches)',
+              { type: 'debug_migration' }
+            );
           }
 
-          modifiedContent = modifiedContent.replace(pattern.pattern, pattern.replacement);
+          if (typeof pattern.replacement === 'function') {
+            modifiedContent = modifiedContent.replace(pattern.pattern, pattern.replacement as any);
+          } else {
+            modifiedContent = modifiedContent.replace(pattern.pattern, pattern.replacement);
+          }
           fileModified = true;
 
           // Update stats
@@ -194,7 +204,10 @@ class LoggingMigration {
             this.stats.consoleLogReplaced += matches.length;
           } else if (pattern.description.includes('import')) {
             this.stats.loggerImportFixed += matches.length;
-          } else if (pattern.description.includes('structured') || pattern.description.includes('context')) {
+          } else if (
+            pattern.description.includes('structured') ||
+            pattern.description.includes('context')
+          ) {
             this.stats.structuredLoggingAdded += matches.length;
           } else if (pattern.description.includes('error')) {
             this.stats.errorsFixed += matches.length;
@@ -203,27 +216,38 @@ class LoggingMigration {
       }
 
       // Add correlation middleware import if Express routes are detected
-      if (content.includes('app.use(') && content.includes('cors') && !content.includes('correlationMiddleware')) {
-        const correlationImport = "import correlationMiddleware from '../logging/correlation-middleware.js';";
+      if (
+        content.includes('app.use(') &&
+        content.includes('cors') &&
+        !content.includes('correlationMiddleware')
+      ) {
+        const correlationImport =
+          "import correlationMiddleware from '../logging/correlation-middleware.js';";
         if (!modifiedContent.includes(correlationImport)) {
           // Add import after other imports
           const importInsertIndex = modifiedContent.lastIndexOf('import');
           const importEndIndex = modifiedContent.indexOf(';', importInsertIndex) + 1;
-          modifiedContent = modifiedContent.slice(0, importEndIndex) +
-                           '\n' + correlationImport +
-                           modifiedContent.slice(importEndIndex);
+          modifiedContent =
+            modifiedContent.slice(0, importEndIndex) +
+            '\n' +
+            correlationImport +
+            modifiedContent.slice(importEndIndex);
 
           // Add middleware usage
-          const middlewareInsertIndex = modifiedContent.indexOf('app.use(cors());') + 'app.use(cors());'.length;
-          modifiedContent = modifiedContent.slice(0, middlewareInsertIndex) +
-                           '\napp.use(correlationMiddleware());' +
-                           modifiedContent.slice(middlewareInsertIndex);
+          const middlewareInsertIndex =
+            modifiedContent.indexOf('app.use(cors());') + 'app.use(cors());'.length;
+          modifiedContent =
+            modifiedContent.slice(0, middlewareInsertIndex) +
+            '\napp.use(correlationMiddleware());' +
+            modifiedContent.slice(middlewareInsertIndex);
 
           fileModified = true;
           this.stats.structuredLoggingAdded++;
 
           if (this.options.verbose) {
-            logger.info('  🔗 ${filePath}: Added correlation middleware', { type: 'debug_migration' });
+            logger.info('  🔗 ${filePath}: Added correlation middleware', {
+              type: 'debug_migration',
+            });
           }
         }
       }
@@ -232,14 +256,19 @@ class LoggingMigration {
       const enhancedErrorPattern = /catch\s*\(\s*(\w+)\s*\)\s*{\s*console\.error\(([^;]+)\);\s*}/g;
       const errorMatches = content.match(enhancedErrorPattern);
       if (errorMatches) {
-        modifiedContent = modifiedContent.replace(enhancedErrorPattern, (match, errorVar, errorMsg) => {
-          this.stats.errorsFixed++;
-          return `catch (${errorVar}) {\n  logger.error('Error in operation', ${errorVar}, {\n    operation: 'unknown_operation',\n    type: 'error_handling'\n  });\n}`;
-        });
+        modifiedContent = modifiedContent.replace(
+          enhancedErrorPattern,
+          (_match, errorVar, _errorMsg) => {
+            this.stats.errorsFixed++;
+            return `catch (${errorVar}) {\n  logger.error('Error in operation', ${errorVar}, {\n    operation: 'unknown_operation',\n    type: 'error_handling'\n  });\n}`;
+          }
+        );
         fileModified = true;
 
         if (this.options.verbose) {
-          logger.info('  🛠️ ${filePath}: Enhanced ${errorMatches.length} error handlers', { type: 'debug_migration' });
+          logger.info('  🛠️ ${filePath}: Enhanced ${errorMatches.length} error handlers', {
+            type: 'debug_migration',
+          });
         }
       }
 
@@ -263,7 +292,6 @@ class LoggingMigration {
           logger.info('  🔍 ${filePath}: Would be modified (dry run)', { type: 'debug_migration' });
         }
       }
-
     } catch (error) {
       logger.error('  ❌ ${filePath}: Error processing file - ${error}');
     }
@@ -274,10 +302,18 @@ class LoggingMigration {
     logger.info('======================', { type: 'debug_migration' });
     logger.info('📁 Files processed: ${this.stats.filesProcessed}', { type: 'debug_migration' });
     logger.info('📝 Files modified: ${this.stats.filesModified}', { type: 'debug_migration' });
-    logger.info('🔄 Console.log statements replaced: ${this.stats.consoleLogReplaced}', { type: 'debug_migration' });
-    logger.info('📦 Logger imports fixed: ${this.stats.loggerImportFixed}', { type: 'debug_migration' });
-    logger.info('🏗️ Structured logging added: ${this.stats.structuredLoggingAdded}', { type: 'debug_migration' });
-    logger.info('🛠️ Error handlers enhanced: ${this.stats.errorsFixed}', { type: 'debug_migration' });
+    logger.info('🔄 Console.log statements replaced: ${this.stats.consoleLogReplaced}', {
+      type: 'debug_migration',
+    });
+    logger.info('📦 Logger imports fixed: ${this.stats.loggerImportFixed}', {
+      type: 'debug_migration',
+    });
+    logger.info('🏗️ Structured logging added: ${this.stats.structuredLoggingAdded}', {
+      type: 'debug_migration',
+    });
+    logger.info('🛠️ Error handlers enhanced: ${this.stats.errorsFixed}', {
+      type: 'debug_migration',
+    });
 
     if (this.options.dryRun) {
       logger.info('\n⚠️  DRY RUN MODE - No files were actually modified');
@@ -313,7 +349,7 @@ function parseArguments(): MigrationOptions {
     dryRun: false,
     targetPath: './src',
     backup: true,
-    verbose: false
+    verbose: false,
   };
 
   for (let i = 0; i < args.length; i++) {

@@ -18,13 +18,13 @@ class TeamCollaboration {
   async initialize() {
     // Load team data
     this.loadTeamData();
-    
+
     // Set up real-time communication
     this.setupRealTimeCommunication();
-    
+
     // Set up event listeners
     this.setupEventListeners();
-    
+
     console.log('[TeamCollaboration] System initialized');
   }
 
@@ -37,23 +37,23 @@ class TeamCollaboration {
       const savedTeamMembers = localStorage.getItem('zantara-team-members');
       if (savedTeamMembers) {
         const members = JSON.parse(savedTeamMembers);
-        members.forEach(member => {
+        members.forEach((member) => {
           this.teamMembers.set(member.id, member);
         });
       } else {
         // Add default team members if none exist
         this.addDefaultTeamMembers();
       }
-      
+
       // Load collaboration channels
       const savedChannels = localStorage.getItem('zantara-collaboration-channels');
       if (savedChannels) {
         const channels = JSON.parse(savedChannels);
-        channels.forEach(channel => {
+        channels.forEach((channel) => {
           this.collaborationChannels.set(channel.id, channel);
         });
       }
-      
+
       console.log('[TeamCollaboration] Team data loaded');
     } catch (error) {
       console.error('[TeamCollaboration] Error loading team data:', error);
@@ -68,11 +68,10 @@ class TeamCollaboration {
       // Save team members
       const membersArray = Array.from(this.teamMembers.values());
       localStorage.setItem('zantara-team-members', JSON.stringify(membersArray));
-      
+
       // Save collaboration channels
       const channelsArray = Array.from(this.collaborationChannels.values());
       localStorage.setItem('zantara-collaboration-channels', JSON.stringify(channelsArray));
-      
     } catch (error) {
       console.error('[TeamCollaboration] Error saving team data:', error);
     }
@@ -90,7 +89,7 @@ class TeamCollaboration {
         role: 'Administrator',
         avatar: '/public/images/avatar1.png',
         status: 'online',
-        lastActive: new Date().toISOString()
+        lastActive: new Date().toISOString(),
       },
       {
         id: 'user_2',
@@ -99,7 +98,7 @@ class TeamCollaboration {
         role: 'Developer',
         avatar: '/public/images/avatar2.png',
         status: 'away',
-        lastActive: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
+        lastActive: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
       },
       {
         id: 'user_3',
@@ -108,14 +107,14 @@ class TeamCollaboration {
         role: 'Analyst',
         avatar: '/public/images/avatar3.png',
         status: 'offline',
-        lastActive: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-      }
+        lastActive: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+      },
     ];
-    
-    defaultMembers.forEach(member => {
+
+    defaultMembers.forEach((member) => {
       this.teamMembers.set(member.id, member);
     });
-    
+
     this.saveTeamData();
   }
 
@@ -136,12 +135,12 @@ class TeamCollaboration {
     window.addEventListener('team-member-status-change', (event) => {
       this.updateTeamMemberStatus(event.detail.memberId, event.detail.status);
     });
-    
+
     // Listen for new messages
     window.addEventListener('new-collaboration-message', (event) => {
       this.handleNewMessage(event.detail);
     });
-    
+
     // Listen for shared resource updates
     window.addEventListener('shared-resource-update', (event) => {
       this.updateSharedResource(event.detail);
@@ -175,17 +174,19 @@ class TeamCollaboration {
       avatar: memberData.avatar || '/public/images/default-avatar.png',
       status: memberData.status || 'offline',
       lastActive: new Date().toISOString(),
-      ...memberData
+      ...memberData,
     };
-    
+
     this.teamMembers.set(memberId, member);
     this.saveTeamData();
-    
+
     // Notify about new member
-    window.dispatchEvent(new CustomEvent('team-member-added', {
-      detail: member
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('team-member-added', {
+        detail: member,
+      })
+    );
+
     console.log(`[TeamCollaboration] Added team member: ${member.name}`);
     return memberId;
   }
@@ -198,12 +199,14 @@ class TeamCollaboration {
     if (member) {
       this.teamMembers.delete(memberId);
       this.saveTeamData();
-      
+
       // Notify about removed member
-      window.dispatchEvent(new CustomEvent('team-member-removed', {
-        detail: { id: memberId, name: member.name }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('team-member-removed', {
+          detail: { id: memberId, name: member.name },
+        })
+      );
+
       console.log(`[TeamCollaboration] Removed team member: ${member.name}`);
       return true;
     }
@@ -220,12 +223,14 @@ class TeamCollaboration {
       member.lastActive = new Date().toISOString();
       this.teamMembers.set(memberId, member);
       this.saveTeamData();
-      
+
       // Notify about status change
-      window.dispatchEvent(new CustomEvent('team-member-status-updated', {
-        detail: { id: memberId, status, name: member.name }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('team-member-status-updated', {
+          detail: { id: memberId, status, name: member.name },
+        })
+      );
+
       console.log(`[TeamCollaboration] Updated status for ${member.name}: ${status}`);
       return true;
     }
@@ -236,7 +241,7 @@ class TeamCollaboration {
    * Get team members by status
    */
   getTeamMembersByStatus(status) {
-    return Array.from(this.teamMembers.values()).filter(member => member.status === status);
+    return Array.from(this.teamMembers.values()).filter((member) => member.status === status);
   }
 
   /**
@@ -252,17 +257,19 @@ class TeamCollaboration {
       members: channelData.members || [],
       createdAt: new Date().toISOString(),
       lastActivity: new Date().toISOString(),
-      messages: channelData.messages || []
+      messages: channelData.messages || [],
     };
-    
+
     this.collaborationChannels.set(channelId, channel);
     this.saveTeamData();
-    
+
     // Notify about new channel
-    window.dispatchEvent(new CustomEvent('collaboration-channel-created', {
-      detail: channel
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('collaboration-channel-created', {
+        detail: channel,
+      })
+    );
+
     console.log(`[TeamCollaboration] Created channel: ${channel.name}`);
     return channelId;
   }
@@ -291,7 +298,7 @@ class TeamCollaboration {
       channel.lastActivity = new Date().toISOString();
       this.collaborationChannels.set(channelId, channel);
       this.saveTeamData();
-      
+
       console.log(`[TeamCollaboration] Added member to channel: ${channel.name}`);
       return true;
     }
@@ -310,7 +317,7 @@ class TeamCollaboration {
         channel.lastActivity = new Date().toISOString();
         this.collaborationChannels.set(channelId, channel);
         this.saveTeamData();
-        
+
         console.log(`[TeamCollaboration] Removed member from channel: ${channel.name}`);
         return true;
       }
@@ -329,25 +336,27 @@ class TeamCollaboration {
         sender: messageData.sender,
         content: messageData.content,
         timestamp: new Date().toISOString(),
-        attachments: messageData.attachments || []
+        attachments: messageData.attachments || [],
       };
-      
+
       channel.messages.push(message);
       channel.lastActivity = new Date().toISOString();
-      
+
       // Keep only last 100 messages
       if (channel.messages.length > 100) {
         channel.messages.shift();
       }
-      
+
       this.collaborationChannels.set(channelId, channel);
       this.saveTeamData();
-      
+
       // Notify about new message
-      window.dispatchEvent(new CustomEvent('new-channel-message', {
-        detail: { channelId, message }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('new-channel-message', {
+          detail: { channelId, message },
+        })
+      );
+
       console.log(`[TeamCollaboration] Message sent to channel: ${channel.name}`);
       return message.id;
     }
@@ -380,16 +389,18 @@ class TeamCollaboration {
       owner: resourceData.owner,
       sharedWith: resourceData.sharedWith || [],
       createdAt: new Date().toISOString(),
-      lastAccessed: new Date().toISOString()
+      lastAccessed: new Date().toISOString(),
     };
-    
+
     this.sharedResources.set(resourceId, resource);
-    
+
     // Notify about shared resource
-    window.dispatchEvent(new CustomEvent('resource-shared', {
-      detail: resource
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('resource-shared', {
+        detail: resource,
+      })
+    );
+
     console.log(`[TeamCollaboration] Resource shared: ${resource.name}`);
     return resourceId;
   }
@@ -417,12 +428,14 @@ class TeamCollaboration {
       Object.assign(resource, resourceData);
       resource.lastAccessed = new Date().toISOString();
       this.sharedResources.set(resourceData.id, resource);
-      
+
       // Notify about resource update
-      window.dispatchEvent(new CustomEvent('resource-updated', {
-        detail: resource
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('resource-updated', {
+          detail: resource,
+        })
+      );
+
       console.log(`[TeamCollaboration] Resource updated: ${resource.name}`);
       return true;
     }
@@ -438,7 +451,7 @@ class TeamCollaboration {
       resource.sharedWith.push(userId);
       resource.lastAccessed = new Date().toISOString();
       this.sharedResources.set(resourceId, resource);
-      
+
       console.log(`[TeamCollaboration] Resource shared with user: ${resource.name}`);
       return true;
     }
@@ -462,7 +475,7 @@ class TeamCollaboration {
       onlineMembers: this.getTeamMembersByStatus('online').length,
       awayMembers: this.getTeamMembersByStatus('away').length,
       totalChannels: this.collaborationChannels.size,
-      totalResources: this.sharedResources.size
+      totalResources: this.sharedResources.size,
     };
   }
 
@@ -472,7 +485,7 @@ class TeamCollaboration {
   renderCollaborationPanel(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     // Create collaboration panel HTML
     container.innerHTML = `
       <div class="team-collaboration-panel">
@@ -511,21 +524,21 @@ class TeamCollaboration {
         </div>
       </div>
     `;
-    
+
     // Render components
     this.renderTeamMembers('team-members');
     this.renderChannels('collaboration-channels');
     this.renderSharedResources('shared-resources');
-    
+
     // Set up action buttons
     document.getElementById('add-team-member').addEventListener('click', () => {
       this.showAddMemberDialog();
     });
-    
+
     document.getElementById('create-channel').addEventListener('click', () => {
       this.showCreateChannelDialog();
     });
-    
+
     document.getElementById('share-resource').addEventListener('click', () => {
       this.showShareResourceDialog();
     });
@@ -537,15 +550,17 @@ class TeamCollaboration {
   renderTeamMembers(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const members = this.getTeamMembers();
-    
+
     if (members.length === 0) {
       container.innerHTML = '<p class="no-data">No team members</p>';
       return;
     }
-    
-    container.innerHTML = members.map(member => `
+
+    container.innerHTML = members
+      .map(
+        (member) => `
       <div class="member-card" data-member-id="${member.id}">
         <div class="member-avatar">
           <img src="${member.avatar}" alt="${member.name}" onerror="this.src='/public/images/default-avatar.png'">
@@ -556,7 +571,9 @@ class TeamCollaboration {
           <p class="member-status ${member.status}">${member.status}</p>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
   }
 
   /**
@@ -565,15 +582,17 @@ class TeamCollaboration {
   renderChannels(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const channels = this.getChannels();
-    
+
     if (channels.length === 0) {
       container.innerHTML = '<p class="no-data">No channels</p>';
       return;
     }
-    
-    container.innerHTML = channels.map(channel => `
+
+    container.innerHTML = channels
+      .map(
+        (channel) => `
       <div class="channel-card" data-channel-id="${channel.id}">
         <div class="channel-info">
           <h4>${channel.name}</h4>
@@ -581,7 +600,9 @@ class TeamCollaboration {
           <p class="channel-stats">${channel.members.length} members</p>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
   }
 
   /**
@@ -590,15 +611,17 @@ class TeamCollaboration {
   renderSharedResources(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const resources = this.getSharedResources();
-    
+
     if (resources.length === 0) {
       container.innerHTML = '<p class="no-data">No shared resources</p>';
       return;
     }
-    
-    container.innerHTML = resources.map(resource => `
+
+    container.innerHTML = resources
+      .map(
+        (resource) => `
       <div class="resource-card" data-resource-id="${resource.id}">
         <div class="resource-info">
           <h4>${resource.name}</h4>
@@ -606,7 +629,9 @@ class TeamCollaboration {
           <p class="resource-type">${resource.type}</p>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
   }
 
   /**
@@ -641,9 +666,9 @@ class TeamCollaboration {
 document.addEventListener('DOMContentLoaded', () => {
   window.TeamCollaboration = new TeamCollaboration();
   window.TeamCollaboration.initialize();
-  
+
   console.log('[TeamCollaboration] System ready');
-  
+
   // Mark enhancement as completed
   if (window.enhancementTracker) {
     window.enhancementTracker.markCompleted(26);

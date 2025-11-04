@@ -1,7 +1,7 @@
 import logger from '../../services/logger.js';
 // import { ok } from "../../utils/response.js";
 // import { BadRequestError } from "../../utils/errors.js";
-import { getDrive } from "../../services/google-auth-service.js";
+import { getDrive } from '../../services/google-auth-service.js';
 import multer from 'multer';
 import { Request, Response } from 'express';
 
@@ -62,7 +62,7 @@ export async function handleDriveUploadMultipart(req: Request, res: Response) {
       data: {
         file: result.data,
         message: `File uploaded successfully to ${parentFolder || 'root'}`,
-      }
+      },
     });
   } catch (error: any) {
     logger.error('Drive upload error:', error);

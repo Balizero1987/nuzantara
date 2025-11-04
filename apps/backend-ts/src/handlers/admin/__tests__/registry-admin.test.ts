@@ -45,7 +45,7 @@ describe('Registry Admin', () => {
   describe('listModuleHandlers', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.listModuleHandlers({
-        module: 'ai-services'
+        module: 'ai-services',
       });
 
       expect(result).toBeDefined();
@@ -62,7 +62,7 @@ describe('Registry Admin', () => {
   describe('searchHandlers', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.searchHandlers({
-        query: 'chat'
+        query: 'chat',
       });
 
       expect(result).toBeDefined();
@@ -75,5 +75,4 @@ describe('Registry Admin', () => {
       expect(result).toBeDefined();
     });
   });
-
 });

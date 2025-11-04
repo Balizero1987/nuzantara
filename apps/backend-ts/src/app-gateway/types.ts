@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const ActionName = z.union([
@@ -21,12 +20,14 @@ export const ActionName = z.union([
 
 export type ActionName = z.infer<typeof ActionName>;
 
-export const EventMeta = z.object({
-  channel: z.enum(['webapp','whatsapp','instagram','x','telegram']).optional(),
-  user: z.string().optional(),
-  origin: z.string().optional(),
-  conversation_history: z.array(z.any()).optional(),
-}).partial();
+export const EventMeta = z
+  .object({
+    channel: z.enum(['webapp', 'whatsapp', 'instagram', 'x', 'telegram']).optional(),
+    user: z.string().optional(),
+    origin: z.string().optional(),
+    conversation_history: z.array(z.any()).optional(),
+  })
+  .partial();
 
 export const EventRequestSchema = z.object({
   sessionId: z.string().min(1),
@@ -44,12 +45,15 @@ export type Patch =
   | { op: 'remove'; target: string }
   | { op: 'state'; key: string; value: any }
   | { op: 'set'; target: string; data: any }
-  | { op: 'notify'; level: 'info'|'warn'|'error'|'success'; message: string }
+  | { op: 'notify'; level: 'info' | 'warn' | 'error' | 'success'; message: string }
   | { op: 'navigate'; route: string }
   | { op: 'tool'; name: string; args: any }
   | { op: 'error'; code: string; message: string; details?: any };
 
-export interface BootstrapArgs { user?: string; origin?: string }
+export interface BootstrapArgs {
+  user?: string;
+  origin?: string;
+}
 
 export interface BootstrapResponse {
   ok: true;
@@ -58,7 +62,13 @@ export interface BootstrapResponse {
     csrfToken: string;
     schema: {
       version: string;
-      layout: { header: string[]; leftSidebar?: string[]; main: string[]; rightDrawer?: string[]; footer?: string[] };
+      layout: {
+        header: string[];
+        leftSidebar?: string[];
+        main: string[];
+        rightDrawer?: string[];
+        footer?: string[];
+      };
       views: Record<string, { components: string[]; data?: any }>;
       components: Record<string, { id: string; type: string; props?: Record<string, any> }>;
       designTokens: Record<string, any>;

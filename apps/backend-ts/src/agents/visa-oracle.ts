@@ -9,7 +9,7 @@ export class VisaOracle {
   private knowledgeBase = {
     // SINGLE ENTRY VISAS
     singleEntry: {
-      'C1': {
+      C1: {
         code: 'C1',
         name: 'Tourism Visa',
         nameId: 'Visa Turis',
@@ -17,13 +17,14 @@ export class VisaOracle {
         extensions: '2x60 days (max 180 days total)',
         price: {
           initial: 'IDR 2,300,000',
-          extension: 'IDR 1,700,000'
+          extension: 'IDR 1,700,000',
         },
-        description: 'Tourism, visiting friends/family, meetings, incentives, conventions, exhibitions',
+        description:
+          'Tourism, visiting friends/family, meetings, incentives, conventions, exhibitions',
         extendable: true,
-        multipleEntry: false
+        multipleEntry: false,
       },
-      'C2': {
+      C2: {
         code: 'C2',
         name: 'Business Visa',
         nameId: 'Visa Bisnis',
@@ -31,39 +32,39 @@ export class VisaOracle {
         extensions: '2x60 days (max 180 days total)',
         price: {
           initial: 'IDR 3,600,000',
-          extension: 'IDR 1,700,000'
+          extension: 'IDR 1,700,000',
         },
         description: 'Business activities, meetings, shopping, checking goods at office/factory',
         extendable: true,
-        multipleEntry: false
+        multipleEntry: false,
       },
-      'C7': {
+      C7: {
         code: 'C7',
         name: 'Professional Event Visa',
         nameId: 'Visa Profesional',
         duration: '30 days',
         extensions: 'Not extendable',
         price: {
-          initial: 'IDR 5,000,000'
+          initial: 'IDR 5,000,000',
         },
         description: 'Chefs, yoga instructors, bartenders, photographers invited for events',
         extendable: false,
-        multipleEntry: false
+        multipleEntry: false,
       },
-      'C7AB': {
+      C7AB: {
         code: 'C7 A&B',
         name: 'Music Performance Visa',
         nameId: 'Visa Pertunjukan Musik',
         duration: '30 days',
         extensions: 'Not extendable',
         price: {
-          initial: 'IDR 4,500,000'
+          initial: 'IDR 4,500,000',
         },
         description: 'Musical performance activities',
         extendable: false,
-        multipleEntry: false
+        multipleEntry: false,
       },
-      'C22A': {
+      C22A: {
         code: 'C22A',
         name: 'Academic Internship Visa',
         nameId: 'Visa Magang Akademik',
@@ -71,13 +72,13 @@ export class VisaOracle {
         extensions: 'Not extendable',
         price: {
           '60days': 'IDR 4,800,000',
-          '180days': 'IDR 5,800,000'
+          '180days': 'IDR 5,800,000',
         },
         description: 'Internship for academic requirements from overseas education',
         extendable: false,
-        multipleEntry: false
+        multipleEntry: false,
       },
-      'C22B': {
+      C22B: {
         code: 'C22B',
         name: 'Company Internship Visa',
         nameId: 'Visa Magang Perusahaan',
@@ -85,17 +86,17 @@ export class VisaOracle {
         extensions: 'Not extendable',
         price: {
           '60days': 'IDR 4,800,000',
-          '180days': 'IDR 5,800,000'
+          '180days': 'IDR 5,800,000',
         },
         description: 'Internship for skill development within company/office/workplace',
         extendable: false,
-        multipleEntry: false
-      }
+        multipleEntry: false,
+      },
     },
 
     // MULTIPLE ENTRY VISAS
     multipleEntry: {
-      'D1': {
+      D1: {
         code: 'D1',
         name: 'Multiple Entry Tourism',
         nameId: 'Visa Turis Multiple Entry',
@@ -104,12 +105,12 @@ export class VisaOracle {
         validity: '1 or 2 years',
         price: {
           '1year': 'IDR 5,000,000',
-          '2years': 'IDR 7,000,000'
+          '2years': 'IDR 7,000,000',
         },
         description: 'Meetings, incentives, conventions, exhibitions, tourism, visiting family',
-        multipleEntry: true
+        multipleEntry: true,
       },
-      'D2': {
+      D2: {
         code: 'D2',
         name: 'Multiple Entry Business',
         nameId: 'Visa Bisnis Multiple Entry',
@@ -118,12 +119,12 @@ export class VisaOracle {
         validity: '1 or 2 years',
         price: {
           '1year': 'IDR 6,000,000',
-          '2years': 'IDR 8,000,000'
+          '2years': 'IDR 8,000,000',
         },
         description: 'Business activities, meetings, shopping, checking goods',
-        multipleEntry: true
+        multipleEntry: true,
       },
-      'D12': {
+      D12: {
         code: 'D12',
         name: 'Pre-Investment Visa',
         nameId: 'Visa Pra-Investasi',
@@ -133,29 +134,30 @@ export class VisaOracle {
         price: {
           '1year': 'IDR 7,500,000',
           '2years': 'IDR 10,000,000',
-          extension: 'IDR 3,500,000'
+          extension: 'IDR 3,500,000',
         },
-        description: 'Investigating business opportunities: site visits, field surveys, feasibility studies',
-        multipleEntry: true
-      }
+        description:
+          'Investigating business opportunities: site visits, field surveys, feasibility studies',
+        multipleEntry: true,
+      },
     },
 
     // KITAS (Limited Stay Permit)
     kitas: {
-      'E23_FREELANCE': {
+      E23_FREELANCE: {
         code: 'E23 Freelance',
         name: 'Freelance KITAS / Impresario',
         nameId: 'KITAS Freelance',
         duration: '6 months',
         price: {
           offshore: 'IDR 26,000,000',
-          onshore: 'IDR 28,000,000'
+          onshore: 'IDR 28,000,000',
         },
         description: 'Work permit (IMTA) without specific employer - DJs, marketing managers, etc.',
         requirements: ['Working permit (IMTA)'],
-        multipleEntry: true
+        multipleEntry: true,
       },
-      'E23_WORKING': {
+      E23_WORKING: {
         code: 'E23 Working',
         name: 'Working KITAS',
         nameId: 'KITAS Kerja',
@@ -163,13 +165,13 @@ export class VisaOracle {
         price: {
           offshore: 'IDR 34,500,000',
           onshore: 'IDR 36,000,000',
-          extension: 'IDR 31,000,000'
+          extension: 'IDR 31,000,000',
         },
         description: 'Work for Indonesian company with one type of work',
         requirements: ['Sponsoring company', 'Work permit'],
-        multipleEntry: true
+        multipleEntry: true,
       },
-      'E28A': {
+      E28A: {
         code: 'E28A',
         name: 'Investor KITAS',
         nameId: 'KITAS Investor',
@@ -177,14 +179,14 @@ export class VisaOracle {
         price: {
           offshore: 'IDR 17,000,000',
           onshore: 'IDR 19,000,000',
-          extension: 'IDR 18,000,000'
+          extension: 'IDR 18,000,000',
         },
         description: 'Foreign investors with PT PMA (foreign investment company)',
         requirements: ['PT PMA ownership', 'Investment proof', 'BKPM approval'],
         multipleEntry: true,
-        bestFor: 'Business owners, investors in Indonesia'
+        bestFor: 'Business owners, investors in Indonesia',
       },
-      'E31A': {
+      E31A: {
         code: 'E31A',
         name: 'Spouse KITAS',
         nameId: 'KITAS Suami/Istri',
@@ -193,18 +195,18 @@ export class VisaOracle {
           '1year': {
             offshore: 'IDR 11,000,000',
             onshore: 'IDR 13,500,000',
-            extension: 'IDR 9,000,000'
+            extension: 'IDR 9,000,000',
           },
           '2years': {
             offshore: 'IDR 15,000,000',
             onshore: 'IDR 18,000,000',
-            extension: 'IDR 15,000,000'
-          }
+            extension: 'IDR 15,000,000',
+          },
         },
         description: 'Married to Indonesian citizen',
-        multipleEntry: true
+        multipleEntry: true,
       },
-      'E31B_E31E': {
+      E31B_E31E: {
         code: 'E31B & E31E',
         name: 'Dependent KITAS',
         nameId: 'KITAS Tanggungan',
@@ -213,18 +215,19 @@ export class VisaOracle {
           '1year': {
             offshore: 'IDR 11,000,000',
             onshore: 'IDR 13,500,000',
-            extension: 'IDR 9,000,000'
+            extension: 'IDR 9,000,000',
           },
           '2years': {
             offshore: 'IDR 15,000,000',
             onshore: 'IDR 18,000,000',
-            extension: 'IDR 15,000,000'
-          }
+            extension: 'IDR 15,000,000',
+          },
         },
-        description: 'Dependent family members of KITAS holders (Golden Visa, Working, Investor, KITAP)',
-        multipleEntry: true
+        description:
+          'Dependent family members of KITAS holders (Golden Visa, Working, Investor, KITAP)',
+        multipleEntry: true,
       },
-      'E33F': {
+      E33F: {
         code: 'E33F',
         name: 'Retirement KITAS',
         nameId: 'KITAS Pensiun',
@@ -232,13 +235,13 @@ export class VisaOracle {
         price: {
           offshore: 'IDR 14,000,000',
           onshore: 'IDR 16,000,000',
-          extension: 'IDR 10,000,000'
+          extension: 'IDR 10,000,000',
         },
         description: 'For foreign nationals aged 55+ who want to retire in Indonesia',
         requirements: ['Age 55+', 'Financial proof'],
-        multipleEntry: true
+        multipleEntry: true,
       },
-      'E33G': {
+      E33G: {
         code: 'E33G',
         name: 'Remote Worker KITAS (Digital Nomad)',
         nameId: 'KITAS Remote Worker',
@@ -246,53 +249,53 @@ export class VisaOracle {
         price: {
           offshore: 'IDR 12,500,000',
           onshore: 'IDR 14,000,000',
-          extension: 'IDR 10,000,000'
+          extension: 'IDR 10,000,000',
         },
         description: 'For remote workers and digital nomads',
         requirements: ['Proof of remote employment', 'Financial proof'],
         multipleEntry: true,
-        bestFor: 'Digital nomads, remote workers'
-      }
+        bestFor: 'Digital nomads, remote workers',
+      },
     },
 
     // KITAP (Permanent Residence Permit)
     kitap: {
-      'INVESTOR': {
+      INVESTOR: {
         code: 'Investor KITAP',
         name: 'Investor KITAP',
         nameId: 'KITAP Investor',
         duration: '5 years (renewable indefinitely)',
         price: 'Contact for quote',
         description: 'Minimum 3 years holding shares in Indonesian company',
-        requirements: ['3+ years as investor', 'PT PMA ownership']
+        requirements: ['3+ years as investor', 'PT PMA ownership'],
       },
-      'WORKING': {
+      WORKING: {
         code: 'Working KITAP',
         name: 'Working KITAP',
         nameId: 'KITAP Kerja',
         duration: '5 years',
         price: 'Contact for quote',
         description: 'Minimum 3 years as BOD/BOC in Indonesian company under Working KITAS',
-        requirements: ['3+ years as BOD/BOC', 'Working KITAS history']
+        requirements: ['3+ years as BOD/BOC', 'Working KITAS history'],
       },
-      'FAMILY': {
+      FAMILY: {
         code: 'Family KITAP',
         name: 'Family KITAP',
         nameId: 'KITAP Keluarga',
         duration: '5 years (renewable indefinitely)',
         price: 'Contact for quote',
         description: 'Married to Indonesian citizens or children from mixed-nationality marriages',
-        requirements: ['Marriage certificate', 'Indonesian spouse']
+        requirements: ['Marriage certificate', 'Indonesian spouse'],
       },
-      'RETIREMENT': {
+      RETIREMENT: {
         code: 'Retirement KITAP',
         name: 'Retirement KITAP',
         nameId: 'KITAP Pensiun',
         duration: '5 years',
         price: 'Contact for quote',
         description: 'Minimum 4 years holding Retirement KITAS',
-        requirements: ['4+ years Retirement KITAS']
-      }
+        requirements: ['4+ years Retirement KITAS'],
+      },
     },
 
     // Common mistakes and tips
@@ -301,7 +304,7 @@ export class VisaOracle {
       'Working on tourist visa = deportation + blacklist',
       'Wrong visa type for activity = application rejection',
       'Incomplete documents = process restart',
-      'Not reporting address within 24h of arrival'
+      'Not reporting address within 24h of arrival',
     ],
 
     insiderTips: [
@@ -310,7 +313,7 @@ export class VisaOracle {
       'Keep all payment receipts - often requested later',
       'Use professional agent for KITAS applications',
       'D12 visa perfect for exploring business before committing',
-      'E33G (Digital Nomad) allows bank account + long-term rent'
+      'E33G (Digital Nomad) allows bank account + long-term rent',
     ],
 
     legalBasis: {
@@ -322,14 +325,14 @@ export class VisaOracle {
         itasOnline: 'https://izintinggal-online.imigrasi.go.id/',
         ministry: 'https://kemenimipas.go.id/ (Ministry of Immigration & Correctional Services)',
         regulationsDatabase: 'https://peraturan.bpk.go.id/',
-        workPermits: 'https://tka-online.kemnaker.go.id/ (Ministry of Manpower)'
+        workPermits: 'https://tka-online.kemnaker.go.id/ (Ministry of Manpower)',
       },
 
       primaryLaws: [
         {
           law: 'UU No. 6/2011',
           title: 'Immigration Law (Undang-Undang Keimigrasian)',
-          url: 'https://www.imigrasi.go.id/uu_imigrasi'
+          url: 'https://www.imigrasi.go.id/uu_imigrasi',
         },
         {
           law: 'UU No. 63/2024',
@@ -340,9 +343,9 @@ export class VisaOracle {
             'Entry ban: 6mo → 10yr (renewable)',
             'Exit ban: max 6mo + 6mo extension',
             'Re-entry permits match ITAS/ITAP duration',
-            'Data sharing: Police + immigration + lodging'
-          ]
-        }
+            'Data sharing: Police + immigration + lodging',
+          ],
+        },
       ],
 
       ministerialRegulations2025: [
@@ -350,22 +353,22 @@ export class VisaOracle {
           regulation: 'Permenimipas No. 3/2025',
           effective: '06 May 2025',
           title: 'Diaspora Visa Framework',
-          url: 'https://peraturan.bpk.go.id/Details/316856/permen-imipas-no-3-tahun-2025'
+          url: 'https://peraturan.bpk.go.id/Details/316856/permen-imipas-no-3-tahun-2025',
         },
         {
           regulation: 'Permenkumham No. 11/2024',
           effective: '03 May 2024',
           title: 'Visa Amendments + Golden Visa',
-          url: 'https://peraturan.bpk.go.id/Details/285156/permenkumham-no-11-tahun-2024'
-        }
+          url: 'https://peraturan.bpk.go.id/Details/285156/permenkumham-no-11-tahun-2024',
+        },
       ],
 
       presidentialRegulations: [
         {
           regulation: 'Perpres No. 95/2024',
           signed: '29 Aug 2024',
-          title: 'Visa-Free Entry (16-18 countries, 30 days)'
-        }
+          title: 'Visa-Free Entry (16-18 countries, 30 days)',
+        },
       ],
 
       regulations: [
@@ -377,14 +380,14 @@ export class VisaOracle {
         'UU 13/2003 - Manpower Law (work permits)',
         'Perpres No. 21 Tahun 2016 (Visa-Free)',
         'Permenkumham No. 26 Tahun 2023 (KITAS)',
-        'SE Dirjen Imigrasi No. IMI-GR.01.01-0000 Tahun 2024'
+        'SE Dirjen Imigrasi No. IMI-GR.01.01-0000 Tahun 2024',
       ],
 
       officialWebsite: 'https://evisa.imigrasi.go.id',
 
       emergencyContact: {
         hotline: '081-1200-1-221 (24/7)',
-        purpose: 'Immigration emergencies, lost KITAS, urgent inquiries'
+        purpose: 'Immigration emergencies, lost KITAS, urgent inquiries',
       },
 
       // ===== CIRCULARS 2025 (Official) =====
@@ -400,19 +403,19 @@ export class VisaOracle {
             'Must be done within 2 working days after document approval',
             'Applicant domicile MUST match kantor imigrasi wilayah kerja',
             'Electronic OR manual/walk-in submission allowed',
-            'Exceptions: elderly, disabled, pregnant/nursing, emergency'
+            'Exceptions: elderly, disabled, pregnant/nursing, emergency',
           ],
 
           objective: [
             'Minimize immigration violations',
             'Map distribution of foreigners by region',
-            'Effective administrative monitoring'
+            'Effective administrative monitoring',
           ],
 
           smartImmigrationGovernance: {
             concept: 'SIG - Smart Immigration Governance',
             integration: 'Combines surveillance INTO service delivery',
-            purpose: 'Minimize violations, increase awareness, actual/factual monitoring'
+            purpose: 'Minimize violations, increase awareness, actual/factual monitoring',
           },
 
           impact: {
@@ -420,9 +423,9 @@ export class VisaOracle {
               '⚠️ MUST appear in person for foto + interview',
               '⚠️ Cannot skip this step (even for extensions)',
               '⚠️ Domicile verification strict',
-              '✅ 2-day window after docs approved'
-            ]
-          }
+              '✅ 2-day window after docs approved',
+            ],
+          },
         },
 
         seIMI453: {
@@ -436,15 +439,15 @@ export class VisaOracle {
             'NOT extendable',
             'PROHIBITED to reuse same sponsor for multiple consecutive C18 requests',
             'Allows ONLY skill assessment, not formal work activities',
-            'Objective: Prevent abuse and repeated use for disguised employment'
+            'Objective: Prevent abuse and repeated use for disguised employment',
           ],
 
           baliZeroAdvice: {
             warning: 'C18 must be used ONLY for highly specialized positions in evaluation phase',
             notSuitableFor: ['Standard operations', 'Medium-term contracts'],
-            alternative: 'For actual work: Use E23 Working KITAS instead'
-          }
-        }
+            alternative: 'For actual work: Use E23 Working KITAS instead',
+          },
+        },
       },
 
       // ===== 2025 COMPREHENSIVE REGULATIONS =====
@@ -460,10 +463,11 @@ export class VisaOracle {
             '🚫 Exit ban: max 6 months + 6 months extension (was indefinite)',
             '⛔ Entry ban: up to 10 years (was 6 months), renewable 10 years each time',
             '🔄 Re-entry permits: same validity as ITAS/ITAP (was shorter)',
-            '📊 Data sharing: Police + immigration can require lodging providers to share foreigner data'
+            '📊 Data sharing: Police + immigration can require lodging providers to share foreigner data',
           ],
 
-          significance: 'Stricter enforcement, longer bans, enhanced surveillance - Indonesia tightening immigration control in 2025'
+          significance:
+            'Stricter enforcement, longer bans, enhanced surveillance - Indonesia tightening immigration control in 2025',
         },
 
         goldenVisa: {
@@ -476,7 +480,7 @@ export class VisaOracle {
             'Family included (spouse, children, parents)',
             'Convert to KITAP after 3 years',
             'No work restrictions (if company established)',
-            'Simplified immigration procedures'
+            'Simplified immigration procedures',
           ],
 
           investmentTiers: {
@@ -486,14 +490,22 @@ export class VisaOracle {
                 {
                   duration: '5 years',
                   investment: 'USD 350,000',
-                  options: ['Indonesian government bonds', 'Public company shares', 'Bank deposits/time deposits']
+                  options: [
+                    'Indonesian government bonds',
+                    'Public company shares',
+                    'Bank deposits/time deposits',
+                  ],
                 },
                 {
                   duration: '10 years',
                   investment: 'USD 700,000',
-                  options: ['Indonesian government bonds', 'Public company shares', 'Bank deposits/time deposits']
-                }
-              ]
+                  options: [
+                    'Indonesian government bonds',
+                    'Public company shares',
+                    'Bank deposits/time deposits',
+                  ],
+                },
+              ],
             },
             individualWithCompany: {
               type: 'Individual Investor (establishing company)',
@@ -501,14 +513,22 @@ export class VisaOracle {
                 {
                   duration: '5 years',
                   investment: 'USD 2.5 million',
-                  options: ['Share purchases', 'Company establishment', 'Other investment activities']
+                  options: [
+                    'Share purchases',
+                    'Company establishment',
+                    'Other investment activities',
+                  ],
                 },
                 {
                   duration: '10 years',
                   investment: 'USD 5 million',
-                  options: ['Share purchases', 'Company establishment', 'Other investment activities']
-                }
-              ]
+                  options: [
+                    'Share purchases',
+                    'Company establishment',
+                    'Other investment activities',
+                  ],
+                },
+              ],
             },
             corporate: {
               type: 'Corporate Investors (directors/commissioners)',
@@ -516,15 +536,15 @@ export class VisaOracle {
                 {
                   duration: '5 years',
                   investment: 'USD 25 million (company investment)',
-                  eligibility: 'Directors and commissioners'
+                  eligibility: 'Directors and commissioners',
                 },
                 {
                   duration: '10 years',
                   investment: 'USD 50 million (company investment)',
-                  eligibility: 'Directors and commissioners'
-                }
-              ]
-            }
+                  eligibility: 'Directors and commissioners',
+                },
+              ],
+            },
           },
 
           process: [
@@ -533,8 +553,8 @@ export class VisaOracle {
             'Apply for Golden Visa via evisa.imigrasi.go.id',
             'Upload investment documents + passport + family docs',
             'Immigration review (30-45 business days)',
-            'Visa issuance (5 or 10 years)'
-          ]
+            'Visa issuance (5 or 10 years)',
+          ],
         },
 
         secondHomeVisa: {
@@ -546,28 +566,28 @@ export class VisaOracle {
               type: 'Bank Deposit',
               amount: 'IDR 2 billion (~USD 130,000)',
               requirements: [
-                'Maintained in applicant\'s own name',
+                "Maintained in applicant's own name",
                 'State-owned Indonesian bank',
                 'Frozen for visa duration',
-                'Cannot be withdrawn'
-              ]
+                'Cannot be withdrawn',
+              ],
             },
             {
               type: 'Property Investment',
               amount: 'USD 1 million minimum',
               requirements: [
                 'Residential properties (flats/apartments)',
-                'Must be registered in applicant\'s name',
-                'Proof of ownership required'
-              ]
-            }
+                "Must be registered in applicant's name",
+                'Proof of ownership required',
+              ],
+            },
           ],
 
           duration: '5 or 10 years',
           renewable: 'Yes (if issued for 5 years, can extend once for same duration)',
           familyIncluded: true,
           workRights: 'No (residence only)',
-          convertToKITAP: 'After 3 years of residence'
+          convertToKITAP: 'After 3 years of residence',
         },
 
         retirementVisa2025: {
@@ -577,27 +597,27 @@ export class VisaOracle {
               code: 'E33F',
               minimumAge: '55 years',
               duration: '1 year',
-              renewable: 'Annually up to 5 years'
+              renewable: 'Annually up to 5 years',
             },
             {
               name: 'Silver Hair Visa',
               code: 'E33F (5-year variant)',
               minimumAge: '60 years',
               duration: '5 years',
-              renewable: 'Yes'
-            }
+              renewable: 'Yes',
+            },
           ],
 
           requirements: {
             financial: [
               'Minimum pension: USD 18,000/year (some sources: USD 36,000/year)',
               'OR: Proof of income USD 3,000/month',
-              'Bank statements (6 months)'
+              'Bank statements (6 months)',
             ],
             insurance: 'IDR 25 million (~USD 1,600) - health + life insurance',
             accommodation: '1-year lease agreement required',
             age: 'Minimum 55 years (standard) or 60 years (Silver Hair)',
-            restrictions: 'No work allowed in Indonesia'
+            restrictions: 'No work allowed in Indonesia',
           },
 
           process: [
@@ -605,8 +625,8 @@ export class VisaOracle {
             'Upload pension proof + insurance + lease + passport',
             'Sponsor required (can be visa agent or Indonesian individual)',
             'Immigration review (2-3 weeks)',
-            'KITAS issued (1 or 5 years)'
-          ]
+            'KITAS issued (1 or 5 years)',
+          ],
         },
 
         digitalNomadVisa2025: {
@@ -622,7 +642,7 @@ export class VisaOracle {
               'Bank balance: USD 2,000 minimum',
               'Income proof: USD 60,000/year minimum',
               'Employment contract with company abroad',
-              'Outgoing flight ticket'
+              'Outgoing flight ticket',
             ],
 
             restrictions: [
@@ -630,20 +650,20 @@ export class VisaOracle {
               '❌ NO employment by Indonesian company',
               '❌ NO payment received in Indonesia',
               '✅ ONLY work for clients/employer outside Indonesia',
-              '✅ Payment to foreign bank account only'
+              '✅ Payment to foreign bank account only',
             ],
 
             benefits: [
               'NOT subject to Indonesian income tax',
               'Can extend twice (total 180 days)',
-              'No sponsor required'
+              'No sponsor required',
             ],
 
             limitations: [
               'Single-entry only (cannot re-enter without new visa)',
               'Cannot be converted to KITAS',
-              'Must leave after 180 days'
-            ]
+              'Must leave after 180 days',
+            ],
           },
 
           e33GRemoteWorkerVisa: {
@@ -658,27 +678,29 @@ export class VisaOracle {
               'Income statement (minimum threshold applies)',
               'Health insurance',
               'Accommodation proof',
-              'Sponsor (can be visa agent)'
+              'Sponsor (can be visa agent)',
             ],
 
             benefits: [
               'Longer duration (1 year vs 60 days)',
               'Renewable once',
               'More stable residence status',
-              'Can open Indonesian bank account'
+              'Can open Indonesian bank account',
             ],
 
             comparison: {
-              vsB211A: 'E33G better for long-term stays (1 year vs 180 days), but more expensive (USD 780 vs USD 205)',
-              recommendation: 'Use B211A for testing lifestyle (6 months), then upgrade to E33G if staying long-term'
-            }
-          }
+              vsB211A:
+                'E33G better for long-term stays (1 year vs 180 days), but more expensive (USD 780 vs USD 205)',
+              recommendation:
+                'Use B211A for testing lifestyle (6 months), then upgrade to E33G if staying long-term',
+            },
+          },
         },
 
         workPermits2025: {
           oldSystem: {
             imta: 'IMTA (Izin Mempekerjakan Tenaga Kerja Asing) - ABOLISHED 2018',
-            notification: 'Notification system - REPLACED 2021'
+            notification: 'Notification system - REPLACED 2021',
           },
 
           currentSystem2025: {
@@ -693,7 +715,7 @@ export class VisaOracle {
                 translation: 'Expatriate Placement Plan',
                 authority: 'Ministry of Manpower',
                 content: 'Justification for hiring foreign worker, position details, work location',
-                duration: '2-3 weeks'
+                duration: '2-3 weeks',
               },
               {
                 step: 2,
@@ -701,7 +723,7 @@ export class VisaOracle {
                 translation: 'Attestation of RPTKA',
                 authority: 'Ministry of Manpower (online system)',
                 content: 'Foreigner name, job title, work location, validity period',
-                duration: '1-2 weeks'
+                duration: '1-2 weeks',
               },
               {
                 step: 3,
@@ -710,7 +732,7 @@ export class VisaOracle {
                 authority: 'Directorate General of Immigration',
                 content: 'Visa for entry to Indonesia',
                 duration: '1-2 weeks',
-                note: 'Automatically converts to e-ITAS upon entry'
+                note: 'Automatically converts to e-ITAS upon entry',
               },
               {
                 step: 4,
@@ -718,8 +740,8 @@ export class VisaOracle {
                 translation: 'Electronic Limited Stay Permit',
                 authority: 'Immigration office',
                 content: 'Physical KITAS card issued after arrival',
-                duration: '1-2 weeks after arrival'
-              }
+                duration: '1-2 weeks after arrival',
+              },
             ],
 
             totalProcessingTime: '4-6 weeks (from RPTKA approval)',
@@ -731,19 +753,19 @@ export class VisaOracle {
                 amount: 'USD 100/month per foreign worker',
                 payableTo: 'Ministry of Manpower',
                 frequency: 'Monthly',
-                purpose: 'Manpower development fund'
-              }
+                purpose: 'Manpower development fund',
+              },
             },
 
             exceptions: {
               noRPTKARequired: [
                 'Foreign directors/commissioners with substantial shares (considered investors, not workers)',
-                'Emergency situations (approved by Ministry)'
-              ]
-            }
+                'Emergency situations (approved by Ministry)',
+              ],
+            },
           },
 
-          legalBasis: 'UU 13/2003 - Manpower Law (Law No. 13 of 2003 on Manpower)'
+          legalBasis: 'UU 13/2003 - Manpower Law (Law No. 13 of 2003 on Manpower)',
         },
 
         overstayAndDeportation2025: {
@@ -759,9 +781,9 @@ export class VisaOracle {
                 consequences: [
                   'Fine: IDR 1,000,000/day',
                   'Must leave Indonesia immediately after payment',
-                  'Possible re-entry ban (6 months - 2 years)'
+                  'Possible re-entry ban (6 months - 2 years)',
                 ],
-                deportation: 'Not mandatory (pay fine and leave)'
+                deportation: 'Not mandatory (pay fine and leave)',
               },
               {
                 duration: 'Over 60 days',
@@ -771,17 +793,17 @@ export class VisaOracle {
                   'Blacklist (permanent or long-term)',
                   'Re-entry ban: 6 months - 10 years',
                   'Possible detention during deportation process',
-                  'All costs borne by violator'
+                  'All costs borne by violator',
                 ],
-                deportation: 'Mandatory - no exceptions'
-              }
-            ]
+                deportation: 'Mandatory - no exceptions',
+              },
+            ],
           },
 
           reEntryBans: {
             under2024: {
               duration: '6 months maximum',
-              note: 'Old regulation (before UU 63/2024)'
+              note: 'Old regulation (before UU 63/2024)',
             },
             after2024: {
               duration: 'Up to 10 years (renewable 10 years each time)',
@@ -790,32 +812,32 @@ export class VisaOracle {
                 'Severity of violation',
                 'Number of previous violations',
                 'Type of offense (overstay, working illegally, criminal activity)',
-                'Cooperation during enforcement'
-              ]
-            }
+                'Cooperation during enforcement',
+              ],
+            },
           },
 
           commonViolationsLeadingToDeportation: [
             {
               violation: 'Working on tourist/business visa',
               outcome: 'Deportation + blacklist (almost always)',
-              detection: 'Office raids, neighbor reports, digital surveillance'
+              detection: 'Office raids, neighbor reports, digital surveillance',
             },
             {
               violation: 'Overstay over 60 days',
               outcome: 'Deportation + blacklist (mandatory)',
-              detection: 'Automatic biometric checks at departure'
+              detection: 'Automatic biometric checks at departure',
             },
             {
               violation: 'False documents',
               outcome: 'Deportation + criminal charges + blacklist',
-              detection: 'Document verification systems'
+              detection: 'Document verification systems',
             },
             {
               violation: 'Violating visa purpose',
               outcome: 'Deportation + re-entry ban',
-              example: 'Business visa used for tourism only, or vice versa'
-            }
+              example: 'Business visa used for tourism only, or vice versa',
+            },
           ],
 
           enforcementIntensity2025: {
@@ -829,10 +851,11 @@ export class VisaOracle {
               'Biometric checks (fingerprints, facial recognition)',
               'Real-time database matching',
               'Hotel/accommodation reporting integration',
-              'Police-immigration data sharing (UU 63/2024)'
+              'Police-immigration data sharing (UU 63/2024)',
             ],
 
-            detectability: 'Virtually impossible to avoid detection - all entry/exit points digitalized'
+            detectability:
+              'Virtually impossible to avoid detection - all entry/exit points digitalized',
           },
 
           adviceForClients: [
@@ -842,8 +865,8 @@ export class VisaOracle {
             '✅ Keep digital/physical copy of visa + passport',
             '✅ Report address within 24 hours of arrival',
             '✅ Use professional agent for complex cases',
-            '⚠️ Re-entry ban now up to 10 years (was 6 months) - one mistake can ban you for a decade'
-          ]
+            '⚠️ Re-entry ban now up to 10 years (was 6 months) - one mistake can ban you for a decade',
+          ],
         },
 
         spouseVisaKITAS2025: {
@@ -863,8 +886,8 @@ export class VisaOracle {
               'Report/registration at Indonesian Civil Registry (for foreign marriages)',
               'Application letter from Indonesian spouse',
               'Copy of Indonesian spouse KTP (ID card)',
-              'Copy of Family Register (Kartu Keluarga)'
-            ]
+              'Copy of Family Register (Kartu Keluarga)',
+            ],
           },
 
           process: [
@@ -874,7 +897,7 @@ export class VisaOracle {
             'Indonesian spouse submits application',
             'Upload documents to evisa.imigrasi.go.id',
             'Immigration review (4-8 weeks)',
-            'KITAS issued (1 year validity)'
+            'KITAS issued (1 year validity)',
           ],
 
           processingTime: '4-8 weeks',
@@ -882,20 +905,21 @@ export class VisaOracle {
           workRights: {
             allowed: false,
             note: 'E31A KITAS does NOT allow work',
-            toWork: 'Must apply separately for RPTKA (Expatriate Placement Plan) + IMTA from Ministry of Manpower'
+            toWork:
+              'Must apply separately for RPTKA (Expatriate Placement Plan) + IMTA from Ministry of Manpower',
           },
 
           pathToCitizenship: {
             step1: {
               after: '2 years of marriage',
               action: 'Apply for KITAP (Permanent Stay Permit)',
-              validity: '5 years'
+              validity: '5 years',
             },
             step2: {
               after: '2 KITAP renewals (10 years total)',
               action: 'Apply for Indonesian citizenship',
-              authority: 'Ministry of Law and Human Rights'
-            }
+              authority: 'Ministry of Law and Human Rights',
+            },
           },
 
           advantages: [
@@ -903,7 +927,7 @@ export class VisaOracle {
             'Can be extended annually without leaving Indonesia',
             'Path to permanent residence (KITAP) after 2 years',
             'Path to citizenship after 10 years total',
-            'Spouse and children can reside together'
+            'Spouse and children can reside together',
           ],
 
           importantNotes: [
@@ -911,8 +935,8 @@ export class VisaOracle {
             '⚠️ Foreign marriage requires legalization at Indonesian embassy',
             '⚠️ NO work rights - separate work permit required',
             '✅ Can apply for KITAP after 2 years of marriage',
-            '✅ After 2 KITAP renewals (10 years) → eligible for citizenship'
-          ]
+            '✅ After 2 KITAP renewals (10 years) → eligible for citizenship',
+          ],
         },
 
         studentVisaKITAS2025: {
@@ -930,15 +954,15 @@ export class VisaOracle {
             financial: [
               'Proof of sufficient funds (USD 1,500 - 2,000)',
               'Bank statements (6 months)',
-              'Financial guarantee letter'
+              'Financial guarantee letter',
             ],
-            sponsor: 'Educational institute registered with Ministry of Education and Culture'
+            sponsor: 'Educational institute registered with Ministry of Education and Culture',
           },
 
           costs: {
             processing: 'IDR 1,970,000 (~USD 135)',
             visaFee: 'USD 150 (at overseas Indonesian Embassy)',
-            biometrics: 'IDR 1,000,000 - 2,000,000 (depends on validity period)'
+            biometrics: 'IDR 1,000,000 - 2,000,000 (depends on validity period)',
           },
 
           process: [
@@ -948,14 +972,14 @@ export class VisaOracle {
             'Enter Indonesia with VITAS',
             'Within 30 days: Convert VITAS to KITAS at Immigration Department',
             'Complete biometrics (fingerprints + photo)',
-            'Receive KITAS card'
+            'Receive KITAS card',
           ],
 
           processingTime: 'Up to 2 months (total process)',
 
           workRights: {
             allowed: false,
-            note: 'Student KITAS does NOT allow work or employment in Indonesia'
+            note: 'Student KITAS does NOT allow work or employment in Indonesia',
           },
 
           extensionRules: [
@@ -963,7 +987,7 @@ export class VisaOracle {
             'If issued for 1 year: Renew annually',
             'Maximum 2 extensions, 2 years each time',
             'Must maintain enrollment status',
-            'Cannot exceed total study program duration'
+            'Cannot exceed total study program duration',
           ],
 
           importantNotes: [
@@ -971,8 +995,8 @@ export class VisaOracle {
             '⚠️ NO work allowed (violators face deportation)',
             '✅ Can be extended for entire study duration',
             '✅ Sponsored by educational institute (no personal sponsor needed)',
-            '⚠️ Must maintain full-time student status'
-          ]
+            '⚠️ Must maintain full-time student status',
+          ],
         },
 
         medicalTreatmentVisa2025: {
@@ -991,27 +1015,28 @@ export class VisaOracle {
               'Medical appointment records/confirmation',
               'Hospital invitation/treatment plan letter',
               'Confirmed Indonesian address (hotel/residence)',
-              'Return/onward flight tickets'
+              'Return/onward flight tickets',
             ],
-            account: 'Active evisa.imigrasi.go.id account'
+            account: 'Active evisa.imigrasi.go.id account',
           },
 
           stayDuration: {
             perVisit: '60 days',
             extensions: 'Can be extended at immigration office',
-            multipleEntries: 'Allowed during 1-5 year validity period'
+            multipleEntries: 'Allowed during 1-5 year validity period',
           },
 
           restrictions: [
             '❌ CANNOT be used for employment',
             '❌ CANNOT be used for project execution',
-            '✅ Only for medical treatment and related activities'
+            '✅ Only for medical treatment and related activities',
           ],
 
           importantProcedures: {
             borderInspection: 'May require: flight tickets, medical appointment records as proof',
-            duringHospitalization: '⚠️ CRITICAL: If visa will expire during hospitalization, contact immigration BEFORE expiry to avoid overstay fines',
-            overstay: 'IDR 1,000,000/day (~USD 65/day) - strictly enforced'
+            duringHospitalization:
+              '⚠️ CRITICAL: If visa will expire during hospitalization, contact immigration BEFORE expiry to avoid overstay fines',
+            overstay: 'IDR 1,000,000/day (~USD 65/day) - strictly enforced',
           },
 
           advantages: [
@@ -1019,7 +1044,7 @@ export class VisaOracle {
             'Multiple entries allowed',
             '60 days per visit (extendable)',
             'Suitable for ongoing treatment requiring multiple trips',
-            'Family members can accompany (separate dependent visas)'
+            'Family members can accompany (separate dependent visas)',
           ],
 
           medicalFacilitiesCovered: [
@@ -1027,7 +1052,7 @@ export class VisaOracle {
             'Specialist clinics',
             'Rehabilitation centers',
             'Long-term care facilities',
-            'Medical check-up centers'
+            'Medical check-up centers',
           ],
 
           importantNotes: [
@@ -1035,8 +1060,8 @@ export class VisaOracle {
             '⚠️ Contact immigration if hospitalized near visa expiry',
             '✅ Can bring family members (apply dependent visas)',
             '✅ Multiple entries over 1-5 years',
-            '⚠️ Overstay = IDR 1M/day (no exceptions, even if hospitalized)'
-          ]
+            '⚠️ Overstay = IDR 1M/day (no exceptions, even if hospitalized)',
+          ],
         },
 
         journalistVisa2025: {
@@ -1052,7 +1077,7 @@ export class VisaOracle {
             'Interviews',
             'News reporting',
             'Feature stories',
-            'Media production'
+            'Media production',
           ],
 
           requirements: {
@@ -1060,14 +1085,14 @@ export class VisaOracle {
             accreditation: [
               'Accreditation from Department of Foreign Affairs (Directorate of Information and Media)',
               'Approval from Directorate General of Immigration',
-              'Approval from Department of Labor Affairs'
+              'Approval from Department of Labor Affairs',
             ],
             documents: [
               'Letter from foreign media organization (newspaper, TV, journal, etc.)',
               'Assignment letter detailing coverage purpose',
               'Proof of journalist credentials',
-              'Portfolio/work samples (may be required)'
-            ]
+              'Portfolio/work samples (may be required)',
+            ],
           },
 
           applicationProcess: {
@@ -1079,18 +1104,19 @@ export class VisaOracle {
               'Embassy issues C5 journalist visa',
               'Enter Indonesia',
               'Report to Directorate of Information and Media within 24 hours',
-              'Receive press card/permit'
-            ]
+              'Receive press card/permit',
+            ],
           },
 
           uponArrival: {
-            mandatory: 'Report to Directorate of Information and Media - Department of Foreign Affairs',
+            mandatory:
+              'Report to Directorate of Information and Media - Department of Foreign Affairs',
             purpose: 'Obtain press card and permit for film production',
             permits: [
               'Press card (for news coverage)',
               'Permit for film production (if applicable)',
-              'Permit to visit other regions (if needed)'
-            ]
+              'Permit to visit other regions (if needed)',
+            ],
           },
 
           processingTime: 'Varies (depends on Department of Foreign Affairs approval)',
@@ -1099,7 +1125,7 @@ export class VisaOracle {
             '❌ CANNOT work for Indonesian media organizations',
             '❌ CANNOT receive payment from Indonesian entities',
             '✅ Only foreign media assignments allowed',
-            '⚠️ Must report filming locations to local authorities'
+            '⚠️ Must report filming locations to local authorities',
           ],
 
           importantNotes: [
@@ -1107,8 +1133,8 @@ export class VisaOracle {
             '⚠️ MUST report to Directorate of Information and Media within 24 hours of arrival',
             '✅ Online application (no embassy visit)',
             '✅ Extendable to 180 days total',
-            '⚠️ Using tourist visa (C1) for journalism = violation → deportation'
-          ]
+            '⚠️ Using tourist visa (C1) for journalism = violation → deportation',
+          ],
         },
 
         socialCulturalVisa2025: {
@@ -1125,7 +1151,7 @@ export class VisaOracle {
               'Environmental conservation',
               'Teaching (unpaid)',
               'Social work',
-              'Cultural exchange programs'
+              'Cultural exchange programs',
             ],
 
             requirements: {
@@ -1134,28 +1160,29 @@ export class VisaOracle {
               sponsor: [
                 'Invitation letter from Indonesian organization/NGO',
                 'Sponsor must be registered entity',
-                'Detailed work plan/project description'
+                'Detailed work plan/project description',
               ],
               documents: [
                 'Letter of invitation from host organization',
                 'Organization registration documents',
                 'Volunteer project details',
-                'Proof of accommodation'
-              ]
+                'Proof of accommodation',
+              ],
             },
 
             criticalRestrictions: [
               '❌ CANNOT receive salary, wages, rewards, or any payment',
               '❌ CANNOT receive compensation from individuals or corporations in Indonesia',
               '❌ CANNOT work for profit-making entities',
-              '✅ Only volunteer/unpaid activities allowed'
+              '✅ Only volunteer/unpaid activities allowed',
             ],
 
             applicationRules: {
               location: '⚠️ MUST apply OUTSIDE Indonesia',
               onshore: 'Onshore application (within Indonesia) NOT available',
-              process: 'Apply at Indonesian Embassy/Consulate in home country or neighboring country'
-            }
+              process:
+                'Apply at Indonesian Embassy/Consulate in home country or neighboring country',
+            },
           },
 
           c9: {
@@ -1171,7 +1198,7 @@ export class VisaOracle {
               'Scientific research',
               'Cultural research',
               'Field studies',
-              'Data collection'
+              'Data collection',
             ],
 
             requirements: {
@@ -1180,27 +1207,27 @@ export class VisaOracle {
               sponsor: [
                 'Invitation from Indonesian research institution/university',
                 'Research proposal/plan',
-                'Ethical clearance (if human subjects involved)'
+                'Ethical clearance (if human subjects involved)',
               ],
               documents: [
                 'Research permit from Indonesian authorities',
                 'Institution affiliation letter',
                 'Research proposal',
-                'CV and academic credentials'
-              ]
+                'CV and academic credentials',
+              ],
             },
 
             criticalRestrictions: [
               '❌ CANNOT receive payment or compensation',
               '❌ Using C1 (tourist) visa for research = VIOLATION → deportation',
-              '✅ Must have proper C9 visa for research activities'
+              '✅ Must have proper C9 visa for research activities',
             ],
 
             applicationRules: {
               location: '⚠️ MUST apply OUTSIDE Indonesia',
               onshore: 'Onshore application NOT available',
-              process: 'Apply at Indonesian Embassy/Consulate'
-            }
+              process: 'Apply at Indonesian Embassy/Consulate',
+            },
           },
 
           importantNotes: [
@@ -1208,15 +1235,15 @@ export class VisaOracle {
             '⚠️ MUST apply outside Indonesia (onshore not available)',
             '❌ NO payment/wages/rewards allowed (any form)',
             '✅ Can extend to 180 days total',
-            '⚠️ Sponsor must be registered entity (NGO/institution)'
-          ]
+            '⚠️ Sponsor must be registered entity (NGO/institution)',
+          ],
         },
 
         dependentKITAS2025: {
           code: 'E31 (Dependent)',
           name: 'Dependent KITAS (Family Reunion)',
           nameIndonesian: 'KITAS Tanggungan',
-          duration: 'Same as sponsor\'s KITAS duration',
+          duration: "Same as sponsor's KITAS duration",
           renewable: 'Yes (when sponsor renews)',
 
           eligiblePersons: [
@@ -1225,40 +1252,41 @@ export class VisaOracle {
             'Children born in Indonesia to KITAS holders',
             'Spouse of Indonesian citizen',
             'Children of Indonesian citizen',
-            'Dependent relatives (in special cases)'
+            'Dependent relatives (in special cases)',
           ],
 
           requirements: {
             sponsorDocuments: [
-              'Copy of sponsor\'s Indonesian ID (KTP) - if Indonesian citizen',
-              'Copy of sponsor\'s KITAS - if foreigner',
+              "Copy of sponsor's Indonesian ID (KTP) - if Indonesian citizen",
+              "Copy of sponsor's KITAS - if foreigner",
               'Family Register (Kartu Keluarga)',
-              'Birth certificate (Akte Kelahiran) of Indonesian sponsor'
+              'Birth certificate (Akte Kelahiran) of Indonesian sponsor',
             ],
             applicantDocuments: [
               'Valid passport',
               'Birth certificate (for children)',
               'Marriage certificate (for spouse)',
               'All certificates translated by sworn translator to Indonesian',
-              'Legalized documents (if issued abroad)'
+              'Legalized documents (if issued abroad)',
             ],
-            financial: 'Bank statement USD 1,500 - 2,000 (in sponsor\'s account)'
+            financial: "Bank statement USD 1,500 - 2,000 (in sponsor's account)",
           },
 
           processingTime: {
             eVisa: '3-5 working days',
-            note: 'Fastest KITAS processing time among all visa types'
+            note: 'Fastest KITAS processing time among all visa types',
           },
 
           workRights: {
             allowed: false,
             note: 'Dependent KITAS does NOT allow work or employment',
-            toWork: 'Must convert to Working KITAS (separate application with RPTKA)'
+            toWork: 'Must convert to Working KITAS (separate application with RPTKA)',
           },
 
           automaticEligibility: {
-            childrenBornInIndonesia: 'Children born in Indonesia to KITAS holders are automatically eligible for dependent KITAS',
-            process: 'Register birth at Civil Registry → apply dependent KITAS within 60 days'
+            childrenBornInIndonesia:
+              'Children born in Indonesia to KITAS holders are automatically eligible for dependent KITAS',
+            process: 'Register birth at Civil Registry → apply dependent KITAS within 60 days',
           },
 
           advantages: [
@@ -1266,7 +1294,7 @@ export class VisaOracle {
             'Family can stay together',
             'Duration matches sponsor KITAS',
             'Simple renewal (when sponsor renews)',
-            'No separate sponsor needed (sponsor is family member)'
+            'No separate sponsor needed (sponsor is family member)',
           ],
 
           importantNotes: [
@@ -1274,8 +1302,8 @@ export class VisaOracle {
             '✅ Fastest KITAS processing (3-5 days)',
             '✅ Children born in Indonesia automatically eligible',
             '⚠️ All certificates need sworn translation',
-            '✅ Renews automatically when sponsor renews KITAS'
-          ]
+            '✅ Renews automatically when sponsor renews KITAS',
+          ],
         },
 
         filmCrewVisa2025: {
@@ -1290,20 +1318,20 @@ export class VisaOracle {
             'Documentary filming',
             'TV/streaming content production',
             'Photography (commercial)',
-            'Music video production'
+            'Music video production',
           ],
 
           mandatoryRequirements: {
             fixerCompany: {
               requirement: '⚠️ MANDATORY: Licensed Indonesian fixer/production company',
               note: 'ONLY verified fixer companies can issue appropriate visas and permits',
-              role: 'Sponsor visa application, obtain permits, coordinate with authorities'
+              role: 'Sponsor visa application, obtain permits, coordinate with authorities',
             },
             nationalFilmPermit: {
               processingTime: '4-6 weeks',
               issuedBy: 'Ministry of Tourism and Creative Economy',
-              scope: 'Nationwide filming authorization'
-            }
+              scope: 'Nationwide filming authorization',
+            },
           },
 
           requirements: {
@@ -1318,36 +1346,38 @@ export class VisaOracle {
               'Crew list (names, roles, passport details)',
               'Cast list (if applicable)',
               'Equipment list (ATA Carnet for customs)',
-              'Flight itineraries (all crew members)'
+              'Flight itineraries (all crew members)',
             ],
             perCrewMember: [
               'Passport scan (valid 6 months)',
               'Passport photos (3x4 color)',
               'Completed visa application form',
               'Bank statement (USD 2,000+)',
-              'Flight itinerary'
-            ]
+              'Flight itinerary',
+            ],
           },
 
           processingTimeline: {
             nationalFilmPermit: '4-6 weeks',
             filmVisa: 'Varies (depends on crew size)',
             recommendedLeadTime: '8 weeks before shoot date',
-            note: 'Start application process minimum 8 weeks prior to filming'
+            note: 'Start application process minimum 8 weeks prior to filming',
           },
 
           additionalPermits: {
             provincial: 'Provincial filming permits (if shooting in specific provinces)',
             nationalPark: 'National park permits (if filming in conservation areas)',
             specialLocations: 'Specific location permits (monuments, government buildings, etc.)',
-            droneOperations: 'Ministry of Transportation drone registration (see drone restrictions below)'
+            droneOperations:
+              'Ministry of Transportation drone registration (see drone restrictions below)',
           },
 
           droneRegulations: {
             registration: '⚠️ ALL drones MUST be registered with Ministry of Transportation',
-            operators: '⚠️ Operators MUST be Indonesian citizens holding Indonesian Remote Pilot Certificates',
+            operators:
+              '⚠️ Operators MUST be Indonesian citizens holding Indonesian Remote Pilot Certificates',
             foreignCrew: 'Foreign crew CANNOT operate drones in Indonesia',
-            workaround: 'Hire Indonesian-certified drone operators via fixer company'
+            workaround: 'Hire Indonesian-certified drone operators via fixer company',
           },
 
           costs: {
@@ -1355,7 +1385,7 @@ export class VisaOracle {
             visaFee: 'Per crew member (standard C14 visa fee)',
             fixerServices: 'Negotiable (essential for smooth process)',
             locationPermits: 'Varies by location',
-            droneOperators: 'Daily rate for Indonesian-certified operators'
+            droneOperators: 'Daily rate for Indonesian-certified operators',
           },
 
           importantNotes: [
@@ -1365,8 +1395,8 @@ export class VisaOracle {
             '⚠️ National Film Permit required BEFORE visa application',
             '✅ ATA Carnet for equipment (avoid customs duties)',
             '⚠️ Additional permits for national parks, monuments, government sites',
-            '✅ Fixer company handles permits, visas, location coordination'
-          ]
+            '✅ Fixer company handles permits, visas, location coordination',
+          ],
         },
 
         voaVisaOnArrival2025: {
@@ -1380,16 +1410,47 @@ export class VisaOracle {
           eligibleCountries: {
             total: 97,
             majorCountries: [
-              'Australia', 'United States', 'United Kingdom', 'Canada',
-              'Japan', 'South Korea', 'Germany', 'France', 'Italy', 'Spain',
-              'Netherlands', 'Belgium', 'Switzerland', 'Norway', 'Sweden',
-              'Denmark', 'Finland', 'Austria', 'Portugal', 'Ireland',
-              'New Zealand', 'Singapore', 'Malaysia', 'Thailand', 'Philippines',
-              'Vietnam', 'India', 'China', 'Hong Kong', 'Taiwan',
-              'United Arab Emirates', 'Saudi Arabia', 'Qatar', 'Bahrain',
-              'South Africa', 'Brazil', 'Argentina', 'Mexico', 'Chile'
+              'Australia',
+              'United States',
+              'United Kingdom',
+              'Canada',
+              'Japan',
+              'South Korea',
+              'Germany',
+              'France',
+              'Italy',
+              'Spain',
+              'Netherlands',
+              'Belgium',
+              'Switzerland',
+              'Norway',
+              'Sweden',
+              'Denmark',
+              'Finland',
+              'Austria',
+              'Portugal',
+              'Ireland',
+              'New Zealand',
+              'Singapore',
+              'Malaysia',
+              'Thailand',
+              'Philippines',
+              'Vietnam',
+              'India',
+              'China',
+              'Hong Kong',
+              'Taiwan',
+              'United Arab Emirates',
+              'Saudi Arabia',
+              'Qatar',
+              'Bahrain',
+              'South Africa',
+              'Brazil',
+              'Argentina',
+              'Mexico',
+              'Chile',
             ],
-            note: 'Total 97 countries eligible - check evisa.imigrasi.go.id for complete list'
+            note: 'Total 97 countries eligible - check evisa.imigrasi.go.id for complete list',
           },
 
           applicationMethods: [
@@ -1397,14 +1458,18 @@ export class VisaOracle {
               method: 'e-VoA (Online)',
               url: 'https://evisa.imigrasi.go.id',
               timing: 'Before departure (recommended)',
-              advantages: ['Faster airport processing', 'Avoid queues', 'Guaranteed approval before travel']
+              advantages: [
+                'Faster airport processing',
+                'Avoid queues',
+                'Guaranteed approval before travel',
+              ],
             },
             {
               method: 'On Arrival',
               locations: 'Designated international airports, seaports, land border checkpoints',
               timing: 'Upon arrival in Indonesia',
-              note: 'May have queues during peak hours'
-            }
+              note: 'May have queues during peak hours',
+            },
           ],
 
           permittedActivities: [
@@ -1414,7 +1479,7 @@ export class VisaOracle {
             'Government duties (non-work)',
             'Business meetings (non-employment)',
             'Purchasing goods',
-            'Transit to other destinations'
+            'Transit to other destinations',
           ],
 
           extensionProcess2025: {
@@ -1425,14 +1490,14 @@ export class VisaOracle {
               {
                 requirement: '⚠️ MANDATORY in-person visit to immigration office',
                 effectiveDate: 'June 2025',
-                note: 'Online-only extensions NO LONGER AVAILABLE'
+                note: 'Online-only extensions NO LONGER AVAILABLE',
               },
               {
                 requirement: '⚠️ MANDATORY biometric data collection',
                 effectiveDate: 'May 21, 2025 (reinstated)',
                 data: 'Fingerprints + photograph',
-                location: 'Local immigration office'
-              }
+                location: 'Local immigration office',
+              },
             ],
 
             steps: [
@@ -1442,11 +1507,11 @@ export class VisaOracle {
               'Complete photo capture + biometric data collection',
               'Attend in-person interview',
               'Wait 3-4 working days',
-              'Extension granted (additional 30 days)'
+              'Extension granted (additional 30 days)',
             ],
 
             cost: 'IDR 500,000 (~USD 33)',
-            totalStay: 'Maximum 60 days (30 initial + 30 extension)'
+            totalStay: 'Maximum 60 days (30 initial + 30 extension)',
           },
 
           restrictions: [
@@ -1455,7 +1520,7 @@ export class VisaOracle {
             '❌ CANNOT conduct business activities (use business visa)',
             '⚠️ Extendable ONLY ONCE (max 60 days total)',
             '⚠️ Must leave Indonesia after 60 days (cannot convert to other visa types)',
-            '⚠️ Overstay = IDR 1,000,000/day fine'
+            '⚠️ Overstay = IDR 1,000,000/day fine',
           ],
 
           importantNotes: [
@@ -1465,8 +1530,8 @@ export class VisaOracle {
             '✅ Can apply online (e-VoA) or on arrival',
             '⚠️ One extension only (max 60 days total)',
             '⚠️ Cannot convert to KITAS (must leave and re-enter with proper visa)',
-            '✅ Fast processing (3-4 days for extension after biometrics)'
-          ]
+            '✅ Fast processing (3-4 days for extension after biometrics)',
+          ],
         },
 
         crewMemberVisa2025: {
@@ -1480,26 +1545,26 @@ export class VisaOracle {
               'Joining ship/vessel docked in Indonesian port',
               'Crew change operations',
               'Maritime crew activities',
-              'Sign-on procedures'
+              'Sign-on procedures',
             ],
 
             requirements: {
               passport: 'Valid for minimum 6 months',
-              seamanBook: 'Valid seaman\'s book or equivalent',
+              seamanBook: "Valid seaman's book or equivalent",
               shipDocuments: [
                 'Ship/vessel details',
                 'Port of call in Indonesia',
                 'Crew change documentation',
-                'Shipping agent letter'
+                'Shipping agent letter',
               ],
-              sponsor: 'Indonesian shipping agent or GAC (Gulf Agency Company)'
+              sponsor: 'Indonesian shipping agent or GAC (Gulf Agency Company)',
             },
 
             processingTime: {
               standard: '5-10 working days',
               express: '1 working day (if system operational)',
-              note: 'GAC can apply for e-Visa B211A online'
-            }
+              note: 'GAC can apply for e-Visa B211A online',
+            },
           },
 
           b211ACrewJoiner: {
@@ -1513,10 +1578,10 @@ export class VisaOracle {
               'e-Visa B211A issued electronically',
               'Crew member flies to Indonesia with e-Visa',
               'Show e-Visa at immigration upon arrival',
-              'Join vessel at Indonesian port'
+              'Join vessel at Indonesian port',
             ],
 
-            processingTime: '5-10 working days (1 day Express Mode)'
+            processingTime: '5-10 working days (1 day Express Mode)',
           },
 
           airportTransitProvisions: {
@@ -1526,8 +1591,8 @@ export class VisaOracle {
               conditions: [
                 'Not changing terminals',
                 'Transit duration up to 8 hours',
-                'Remain in international transit area'
-              ]
+                'Remain in international transit area',
+              ],
             },
             ngurahRaiBali: {
               airport: 'Ngurah Rai International Airport (DPS)',
@@ -1535,9 +1600,9 @@ export class VisaOracle {
               conditions: [
                 'Not staying after 2:00 AM',
                 'Transit duration up to 8 hours',
-                'Remain in international transit area'
-              ]
-            }
+                'Remain in international transit area',
+              ],
+            },
           },
 
           importantNotes: [
@@ -1546,8 +1611,8 @@ export class VisaOracle {
             '✅ Express processing available (1 day if system works)',
             '✅ Airport transit up to 8 hours visa-free (specific conditions)',
             '⚠️ Passport must be valid 6 months minimum',
-            '✅ GAC or shipping agent can sponsor/apply online'
-          ]
+            '✅ GAC or shipping agent can sponsor/apply online',
+          ],
         },
 
         diplomaticOfficialVisa2025: {
@@ -1558,20 +1623,20 @@ export class VisaOracle {
             eligiblePersons: [
               'Diplomatic passport holders',
               'Family members of diplomats',
-              'Officials on diplomatic missions'
+              'Officials on diplomatic missions',
             ],
 
             visaFreeEntry: {
               duration: '30 days (unless otherwise stated)',
               eligibility: 'Diplomatic passport holders from eligible countries',
-              note: 'Bilateral agreements vary by country'
+              note: 'Bilateral agreements vary by country',
             },
 
             issuance: {
               authority: 'Foreign service officials at Indonesian Representative',
               delegation: 'Authority from Minister of Foreign Affairs',
-              location: 'Indonesian Embassy/Consulate'
-            }
+              location: 'Indonesian Embassy/Consulate',
+            },
           },
 
           officialService: {
@@ -1581,7 +1646,7 @@ export class VisaOracle {
             eligiblePersons: [
               'Official/service passport holders',
               'Government officials (non-diplomatic)',
-              'International organization representatives'
+              'International organization representatives',
             ],
 
             purpose: 'Non-diplomatic official duties from government or international organization',
@@ -1589,17 +1654,23 @@ export class VisaOracle {
             visaFreeEntry: {
               duration: '30 days',
               eligibility: 'Official/service passport holders from eligible countries',
-              note: 'Bilateral agreements determine eligibility'
-            }
+              note: 'Bilateral agreements determine eligibility',
+            },
           },
 
           recentAgreements: {
             pending: 'Visa exemption agreements signed but NOT YET ratified',
             countries: [
-              'Algeria', 'Eswatini', 'Gambia', 'Nepal',
-              'Iraq', 'Rwanda', 'Somalia', 'Syria'
+              'Algeria',
+              'Eswatini',
+              'Gambia',
+              'Nepal',
+              'Iraq',
+              'Rwanda',
+              'Somalia',
+              'Syria',
             ],
-            note: 'Once ratified, diplomatic/service passport holders from these countries get visa-free entry'
+            note: 'Once ratified, diplomatic/service passport holders from these countries get visa-free entry',
           },
 
           importantNotes: [
@@ -1607,8 +1678,8 @@ export class VisaOracle {
             '⚠️ Bilateral agreements vary - check with Indonesian embassy',
             '✅ 8 new countries pending ratification (Algeria, Eswatini, etc.)',
             '✅ Issued by Indonesian Representative (Minister of Foreign Affairs authority)',
-            '⚠️ Regular passport holders NOT eligible (even if government employee)'
-          ]
+            '⚠️ Regular passport holders NOT eligible (even if government employee)',
+          ],
         },
 
         emergencyHumanitarianVisa2025: {
@@ -1624,8 +1695,8 @@ export class VisaOracle {
               'Investment',
               'Family unification',
               'Religious missions',
-              'Humanitarian missions'
-            ]
+              'Humanitarian missions',
+            ],
           },
 
           humanitarianMissionVisa: {
@@ -1638,21 +1709,22 @@ export class VisaOracle {
               'Humanitarian organization work',
               'Charity/NGO work',
               'Disaster relief operations',
-              'Development programs'
+              'Development programs',
             ],
 
-            note: '⚠️ This is for ORGANIZATIONAL humanitarian missions, NOT personal family emergencies'
+            note: '⚠️ This is for ORGANIZATIONAL humanitarian missions, NOT personal family emergencies',
           },
 
           personalEmergencies: {
             familyCrisis: 'NO specific visa category',
             recommendation: 'Contact Indonesian embassy/consulate directly',
-            discretion: 'Embassy may have discretionary provisions for urgent cases (not publicly documented)',
+            discretion:
+              'Embassy may have discretionary provisions for urgent cases (not publicly documented)',
             alternatives: [
               'Use existing visitor visa (if eligible)',
               'Apply for expedited C1/C2 visa with emergency documentation',
-              'Explain emergency circumstances to embassy'
-            ]
+              'Explain emergency circumstances to embassy',
+            ],
           },
 
           importantNotes: [
@@ -1660,8 +1732,8 @@ export class VisaOracle {
             '⚠️ NO specific "emergency visa" for personal family crisis',
             '✅ Contact embassy for discretionary emergency provisions',
             '✅ E23-E35 visa indexes cover employment, investment, family, humanitarian',
-            '⚠️ Sponsor required (company, organization, or family member)'
-          ]
+            '⚠️ Sponsor required (company, organization, or family member)',
+          ],
         },
 
         businessVisa2025: {
@@ -1680,14 +1752,14 @@ export class VisaOracle {
               'Purchasing goods (checking goods, discussing contracts)',
               'Signing business contracts',
               'Corporate engagements',
-              'Trade discussions'
+              'Trade discussions',
             ],
 
             restrictions: [
               '❌ CANNOT work in Indonesia',
               '❌ CANNOT receive salary, wages, or payment in Indonesia',
               '❌ CANNOT engage in sale of goods/services for payment',
-              '⚠️ Single entry - visa invalid after exiting Indonesia'
+              '⚠️ Single entry - visa invalid after exiting Indonesia',
             ],
 
             requirements: {
@@ -1698,12 +1770,13 @@ export class VisaOracle {
                 'Sponsor invitation letter',
                 'Company documents (proof of business relationship)',
                 'Passport-sized photos',
-                'Completed visa application form'
-              ]
+                'Completed visa application form',
+              ],
             },
 
-            applicationProcess: 'Online via evisa.imigrasi.go.id with Indonesian sponsor assistance',
-            processingTime: '5-7 working days'
+            applicationProcess:
+              'Online via evisa.imigrasi.go.id with Indonesian sponsor assistance',
+            processingTime: '5-7 working days',
           },
 
           d2MultipleEntry: {
@@ -1719,13 +1792,13 @@ export class VisaOracle {
               'Multiple exits and re-entries allowed',
               'No need to reapply for each visit',
               'Suitable for frequent business travelers',
-              'Same activities as C2 visa'
+              'Same activities as C2 visa',
             ],
 
             requirements: 'Same as C2, plus proof of frequent business travel needs',
             cost: 'Higher than C2 (varies by validity period)',
-            idealFor: 'Business people with ongoing Indonesia operations requiring frequent visits'
-          }
+            idealFor: 'Business people with ongoing Indonesia operations requiring frequent visits',
+          },
         },
 
         investorKITAS2025: {
@@ -1738,28 +1811,28 @@ export class VisaOracle {
           investmentRequirements: {
             standard: {
               minimumInvestment: 'IDR 1.25 billion in company shares',
-              eligibility: 'General investor (shareholder only)'
+              eligibility: 'General investor (shareholder only)',
             },
             directorPosition: {
               minimumInvestment: 'IDR 1 billion in company shares',
-              eligibility: 'Investor holding director/commissioner position'
+              eligibility: 'Investor holding director/commissioner position',
             },
             higherStandard: {
               minimumInvestment: 'IDR 10 billion in company shares',
-              note: 'Some sources indicate this higher requirement'
-            }
+              note: 'Some sources indicate this higher requirement',
+            },
           },
 
           companyRequirements: {
             authorizedCapital: 'Exceeds IDR 10 billion',
             paidUpCapital: 'Minimum 25% of authorized capital',
-            investorPersonalShares: 'Minimum IDR 1 billion (if Director/Commissioner)'
+            investorPersonalShares: 'Minimum IDR 1 billion (if Director/Commissioner)',
           },
 
           eligiblePositions: [
             'CEO/Director',
             'Commissioner',
-            'Shareholder (with minimum investment)'
+            'Shareholder (with minimum investment)',
           ],
 
           keyAdvantages: [
@@ -1767,12 +1840,12 @@ export class VisaOracle {
             '✅ NO DKP-TKA monthly contribution (saves USD 100/month)',
             '✅ Direct investment in PT PMA',
             '✅ Can work in invested company',
-            '✅ 2-year validity (renewable)'
+            '✅ 2-year validity (renewable)',
           ],
 
           sponsorshipTiming: {
             when: 'After company obtains NIB + Business License (Izin Usaha)',
-            note: 'Company must be operational before sponsoring investor KITAS'
+            note: 'Company must be operational before sponsoring investor KITAS',
           },
 
           importantNotes: [
@@ -1780,8 +1853,8 @@ export class VisaOracle {
             '✅ Exempted from work permit requirements',
             '✅ More flexible than E23 Working KITAS',
             '⚠️ Investment amount varies (IDR 1B - 10B depending on source)',
-            '✅ Suitable for business owners and major shareholders'
-          ]
+            '✅ Suitable for business owners and major shareholders',
+          ],
         },
 
         itasVsItap2025: {
@@ -1794,13 +1867,13 @@ export class VisaOracle {
             duration: {
               range: '6 months - 10 years',
               note: 'Depends on visa type and sponsor',
-              common: '1 year or 2 years for most types'
+              common: '1 year or 2 years for most types',
             },
 
             renewal: {
               required: true,
               frequency: 'Based on initial duration',
-              note: 'Not permanent - requires regular renewal'
+              note: 'Not permanent - requires regular renewal',
             },
 
             commonTypes: [
@@ -1808,8 +1881,8 @@ export class VisaOracle {
               'E28A (Investor KITAS) - 2 years',
               'E31A (Spouse KITAS) - 1 year',
               'C316 (Student KITAS) - 6 months to 2 years',
-              'E33F (Retirement KITAS) - 1-5 years'
-            ]
+              'E33F (Retirement KITAS) - 1-5 years',
+            ],
           },
 
           itap: {
@@ -1820,7 +1893,7 @@ export class VisaOracle {
             duration: {
               initial: '5 years',
               renewal: 'Indefinitely renewable',
-              status: 'Equivalent to permanent residency'
+              status: 'Equivalent to permanent residency',
             },
 
             eligibility: {
@@ -1829,24 +1902,24 @@ export class VisaOracle {
                 {
                   type: 'Marriage to Indonesian citizen',
                   requirement: '2 years married + 3 years continuous ITAS',
-                  note: 'After meeting both conditions, eligible for ITAP'
+                  note: 'After meeting both conditions, eligible for ITAP',
                 },
                 {
                   type: 'Investor/Expatriate',
                   requirement: '3 years continuous ITAS',
-                  note: 'Must maintain same visa category'
+                  note: 'Must maintain same visa category',
                 },
                 {
                   type: 'Retiree',
                   requirement: '3 years continuous retirement ITAS',
-                  note: 'Then eligible for ITAP'
+                  note: 'Then eligible for ITAP',
                 },
                 {
                   type: 'Child of ITAP holder',
                   requirement: 'Parent holds valid ITAP',
-                  note: 'Automatic eligibility'
-                }
-              ]
+                  note: 'Automatic eligibility',
+                },
+              ],
             },
 
             benefits: [
@@ -1854,8 +1927,8 @@ export class VisaOracle {
               'Renewable indefinitely (true permanent status)',
               'Less frequent renewals',
               'Pathway to Indonesian citizenship (after extended period)',
-              'Can sponsor family members'
-            ]
+              'Can sponsor family members',
+            ],
           },
 
           keyDifferences: [
@@ -1863,8 +1936,8 @@ export class VisaOracle {
             '📌 ITAS requires regular renewals, ITAP renews every 5 years only',
             '📌 NO direct to ITAP - must hold ITAS first',
             '📌 ITAP offers long-term stability and less bureaucracy',
-            '📌 Both use physical cards (KITAS/KITAP) or electronic (e-ITAS)'
-          ]
+            '📌 Both use physical cards (KITAS/KITAP) or electronic (e-ITAS)',
+          ],
         },
 
         visaExemption30Days2025: {
@@ -1878,26 +1951,32 @@ export class VisaOracle {
             asean: {
               total: 10,
               countries: [
-                'Brunei Darussalam', 'Cambodia', 'Laos', 'Malaysia', 'Myanmar',
-                'Philippines', 'Singapore', 'Thailand', 'Vietnam', 'Timor Leste'
-              ]
+                'Brunei Darussalam',
+                'Cambodia',
+                'Laos',
+                'Malaysia',
+                'Myanmar',
+                'Philippines',
+                'Singapore',
+                'Thailand',
+                'Vietnam',
+                'Timor Leste',
+              ],
             },
-            others: [
-              'Morocco', 'Chile', 'Serbia', 'Colombia', 'Suriname', 'Hong Kong SAR'
-            ],
+            others: ['Morocco', 'Chile', 'Serbia', 'Colombia', 'Suriname', 'Hong Kong SAR'],
             addedJuly2025: {
               announcement: 'Directorate General of Immigration, July 2, 2025',
               effectiveDate: 'July 3, 2025',
               countries: ['Brazil', 'Turkey'],
-              note: 'Visa-free entry resumed for these countries'
-            }
+              note: 'Visa-free entry resumed for these countries',
+            },
           },
 
           stayDuration: {
             days: 30,
             extension: 'NOT extendable',
             conversion: 'CANNOT be converted to any other visa type',
-            note: 'Strictly 30 days maximum - must leave Indonesia after'
+            note: 'Strictly 30 days maximum - must leave Indonesia after',
           },
 
           entryPoints: {
@@ -1905,13 +1984,13 @@ export class VisaOracle {
             seaports: 91,
             landBorderPosts: 12,
             total: 118,
-            note: 'Can enter through any designated border crossing'
+            note: 'Can enter through any designated border crossing',
           },
 
           entryProcess: {
             arrivalStamp: 'Entry permit/stamp granted at immigration',
             documentation: 'Passport + onward/return flight ticket',
-            noVisaRequired: 'Visa-free - no advance application needed'
+            noVisaRequired: 'Visa-free - no advance application needed',
           },
 
           importantRestrictions: [
@@ -1919,8 +1998,8 @@ export class VisaOracle {
             '⚠️ CANNOT convert to KITAS or other visa',
             '✅ Must leave Indonesia after 30 days',
             '⚠️ Re-entry requires new eligibility (check country-specific rules)',
-            '✅ Suitable for tourism, family visits, short business trips only'
-          ]
+            '✅ Suitable for tourism, family visits, short business trips only',
+          ],
         },
 
         extensionCostsOverstay2025: {
@@ -1929,14 +2008,14 @@ export class VisaOracle {
               visaType: 'Visa on Arrival (VOA)',
               extensionFee: 'IDR 500,000 (~USD 33)',
               duration: '30 days extension (one time only)',
-              totalStay: '60 days maximum (30 initial + 30 extension)'
+              totalStay: '60 days maximum (30 initial + 30 extension)',
             },
             process: {
               location: 'Immigration office (or licensed visa agent)',
               requirement: 'In-person visit MANDATORY (as of 2025)',
               timing: 'Apply 7+ days before visa expiry',
-              note: 'SE IMI-417 requires biometric collection for extensions'
-            }
+              note: 'SE IMI-417 requires biometric collection for extensions',
+            },
           },
 
           overstayFines: {
@@ -1945,7 +2024,7 @@ export class VisaOracle {
             payment: {
               location: 'Airport upon departure',
               method: 'Cash ONLY (Indonesian rupiah)',
-              noExceptions: 'Payment mandatory before boarding'
+              noExceptions: 'Payment mandatory before boarding',
             },
 
             consequences: {
@@ -1953,7 +2032,7 @@ export class VisaOracle {
                 classification: 'Administrative violation',
                 fine: 'IDR 1,000,000/day',
                 action: 'Pay fine + leave immediately',
-                reEntryBan: 'Possible 6 months - 2 years'
+                reEntryBan: 'Possible 6 months - 2 years',
               },
               over60Days: {
                 classification: 'Criminal violation',
@@ -1961,9 +2040,9 @@ export class VisaOracle {
                 blacklist: 'Permanent or long-term (6 months - 10 years)',
                 detention: 'Possible during deportation process',
                 costs: 'All deportation costs borne by violator',
-                imprisonment: 'Up to 5 years if unable to pay fine'
-              }
-            }
+                imprisonment: 'Up to 5 years if unable to pay fine',
+              },
+            },
           },
 
           enforcement2025: {
@@ -1971,10 +2050,10 @@ export class VisaOracle {
               'Digital records (all entry/exit tracked)',
               'Biometric verification (fingerprints, facial recognition)',
               'Real-time database matching',
-              'Immigration-police data sharing (UU 63/2024)'
+              'Immigration-police data sharing (UU 63/2024)',
             ],
             detectability: 'Virtually impossible to avoid detection',
-            strictness: 'Stricter enforcement in 2025 vs previous years'
+            strictness: 'Stricter enforcement in 2025 vs previous years',
           },
 
           criticalAdvice: [
@@ -1983,8 +2062,8 @@ export class VisaOracle {
             '⚠️ Over 60 days overstay = MANDATORY deportation + blacklist',
             '⚠️ Cash-only payment (prepare Indonesian rupiah)',
             '⚠️ Imprisonment possible if unable to pay (up to 5 years)',
-            '✅ Use licensed visa agent if unsure about extension process'
-          ]
+            '✅ Use licensed visa agent if unsure about extension process',
+          ],
         },
 
         multipleReEntryPermit2025: {
@@ -1994,8 +2073,9 @@ export class VisaOracle {
           majorUpdate2024: {
             regulation: 'New Immigration Law',
             effectiveDate: 'September 19, 2024',
-            keyChange: 'KITAS holders: Re-entry permit integrated into KITAS (NO separate MERP needed)',
-            impact: 'Only KITAP holders now require MERP'
+            keyChange:
+              'KITAS holders: Re-entry permit integrated into KITAS (NO separate MERP needed)',
+            impact: 'Only KITAP holders now require MERP',
           },
 
           kitas: {
@@ -2003,7 +2083,7 @@ export class VisaOracle {
             effectiveDate: 'September 19, 2024',
             integration: 'Re-entry permit integrated into KITAS itself',
             note: 'No separate MERP document needed for KITAS holders',
-            benefit: 'Simplified process - exit and re-enter freely with valid KITAS'
+            benefit: 'Simplified process - exit and re-enter freely with valid KITAS',
           },
 
           kitap: {
@@ -2018,8 +2098,8 @@ export class VisaOracle {
                 'Current KITAP card',
                 'Sponsor letter (if applicable)',
                 'Application form Perdim 25',
-                'Passport-sized photographs (4x6 cm, red background) - 2 photos'
-              ]
+                'Passport-sized photographs (4x6 cm, red background) - 2 photos',
+              ],
             },
 
             processingTime: '3-5 working days',
@@ -2028,11 +2108,12 @@ export class VisaOracle {
               familyReunionKITAP: {
                 type: 'Family Reunion KITAP (Indonesian spouse)',
                 merpValidity: 'Maximum 2 years only',
-                note: 'Cannot apply for longer than 2 years'
-              }
+                note: 'Cannot apply for longer than 2 years',
+              },
             },
 
-            criticalWarning: '⚠️ MUST have active MERP to exit and re-enter - without MERP, KITAP is automatically cancelled upon exit'
+            criticalWarning:
+              '⚠️ MUST have active MERP to exit and re-enter - without MERP, KITAP is automatically cancelled upon exit',
           },
 
           importantNotes: [
@@ -2041,11 +2122,11 @@ export class VisaOracle {
             '✅ MERP processing: 3-5 working days',
             '✅ Validity: 6 months, 1 year, or 2 years (choose based on travel needs)',
             '⚠️ Family Reunion KITAP: Max 2 years MERP only',
-            '✅ Apply for MERP before any international travel plans'
-          ]
-        }
-      }
-    }
+            '✅ Apply for MERP before any international travel plans',
+          ],
+        },
+      },
+    },
   };
 
   /**
@@ -2062,10 +2143,10 @@ export class VisaOracle {
       contact: {
         company: 'Bali Zero Services',
         whatsapp: '+62 859 0436 9574',
-        email: 'info@balizero.com'
+        email: 'info@balizero.com',
       },
       legalBasis: this.knowledgeBase.legalBasis,
-      confidence: 0.95
+      confidence: 0.95,
     };
   }
 
@@ -2108,40 +2189,44 @@ export class VisaOracle {
 
   private getRecommendations(purpose: string): any {
     const recommendations = {
-      'tourism': [
-        { primary: true, visa: this.knowledgeBase.singleEntry.C1 }
-      ],
-      'business_visa': [
+      tourism: [{ primary: true, visa: this.knowledgeBase.singleEntry.C1 }],
+      business_visa: [
         { primary: true, visa: this.knowledgeBase.singleEntry.C2 },
-        { alternative: true, visa: this.knowledgeBase.multipleEntry.D2, reason: 'If frequent travel needed' }
+        {
+          alternative: true,
+          visa: this.knowledgeBase.multipleEntry.D2,
+          reason: 'If frequent travel needed',
+        },
       ],
-      'multiple_tourism': [
-        { primary: true, visa: this.knowledgeBase.multipleEntry.D1 }
-      ],
-      'multiple_business': [
+      multiple_tourism: [{ primary: true, visa: this.knowledgeBase.multipleEntry.D1 }],
+      multiple_business: [
         { primary: true, visa: this.knowledgeBase.multipleEntry.D2 },
-        { alternative: true, visa: this.knowledgeBase.multipleEntry.D12, reason: 'If exploring investment opportunities' }
+        {
+          alternative: true,
+          visa: this.knowledgeBase.multipleEntry.D12,
+          reason: 'If exploring investment opportunities',
+        },
       ],
-      'investor_kitas': [
+      investor_kitas: [
         { primary: true, visa: this.knowledgeBase.kitas.E28A },
-        { step1: true, visa: this.knowledgeBase.multipleEntry.D12, reason: 'Start with D12 to explore before committing' }
+        {
+          step1: true,
+          visa: this.knowledgeBase.multipleEntry.D12,
+          reason: 'Start with D12 to explore before committing',
+        },
       ],
-      'working_kitas': [
-        { primary: true, visa: this.knowledgeBase.kitas.E23_WORKING }
-      ],
-      'digital_nomad': [
-        { primary: true, visa: this.knowledgeBase.kitas.E33G }
-      ],
-      'retirement': [
-        { primary: true, visa: this.knowledgeBase.kitas.E33F }
-      ],
-      'spouse': [
-        { primary: true, visa: this.knowledgeBase.kitas.E31A }
-      ],
-      'internship': [
+      working_kitas: [{ primary: true, visa: this.knowledgeBase.kitas.E23_WORKING }],
+      digital_nomad: [{ primary: true, visa: this.knowledgeBase.kitas.E33G }],
+      retirement: [{ primary: true, visa: this.knowledgeBase.kitas.E33F }],
+      spouse: [{ primary: true, visa: this.knowledgeBase.kitas.E31A }],
+      internship: [
         { primary: true, visa: this.knowledgeBase.singleEntry.C22A },
-        { alternative: true, visa: this.knowledgeBase.singleEntry.C22B, reason: 'If company-based internship' }
-      ]
+        {
+          alternative: true,
+          visa: this.knowledgeBase.singleEntry.C22B,
+          reason: 'If company-based internship',
+        },
+      ],
     };
 
     return recommendations[purpose] || recommendations.tourism;
@@ -2171,7 +2256,7 @@ export class VisaOracle {
       singleEntry: this.knowledgeBase.singleEntry,
       multipleEntry: this.knowledgeBase.multipleEntry,
       kitas: this.knowledgeBase.kitas,
-      kitap: this.knowledgeBase.kitap
+      kitap: this.knowledgeBase.kitap,
     };
   }
 
@@ -2184,7 +2269,7 @@ export class VisaOracle {
       this.knowledgeBase.singleEntry,
       this.knowledgeBase.multipleEntry,
       this.knowledgeBase.kitas,
-      this.knowledgeBase.kitap
+      this.knowledgeBase.kitap,
     ];
 
     for (const category of allCategories) {

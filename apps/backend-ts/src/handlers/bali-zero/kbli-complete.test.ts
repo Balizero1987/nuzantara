@@ -6,7 +6,7 @@ import { kbliLookupComplete, kbliBusinessAnalysis } from './kbli-complete.js';
 jest.mock('../../services/logger.js', () => ({
   info: jest.fn(),
   warn: jest.fn(),
-  error: jest.fn()
+  error: jest.fn(),
 }));
 
 describe('KBLI Complete Database', () => {
@@ -17,11 +17,11 @@ describe('KBLI Complete Database', () => {
   describe('kbliLookupComplete', () => {
     it('should lookup KBLI code directly', async () => {
       const mockReq = {
-        body: { params: { code: '01111' } }
+        body: { params: { code: '01111' } },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -39,21 +39,21 @@ describe('KBLI Complete Database', () => {
               additionalInfo: expect.objectContaining({
                 foreignOwnershipPercentage: 95,
                 riskLevelCategory: 'MT',
-                capitalBreakdown: expect.any(Object)
-              })
-            })
-          })
+                capitalBreakdown: expect.any(Object),
+              }),
+            }),
+          }),
         })
       );
     });
 
     it('should return not found for unknown code', async () => {
       const mockReq = {
-        body: { params: { code: '99999' } }
+        body: { params: { code: '99999' } },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -63,19 +63,19 @@ describe('KBLI Complete Database', () => {
           ok: true,
           data: expect.objectContaining({
             found: false,
-            message: 'KBLI code 99999 not found in complete database'
-          })
+            message: 'KBLI code 99999 not found in complete database',
+          }),
         })
       );
     });
 
     it('should search by category', async () => {
       const mockReq = {
-        body: { params: { category: 'agriculture' } }
+        body: { params: { category: 'agriculture' } },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -86,19 +86,19 @@ describe('KBLI Complete Database', () => {
           data: expect.objectContaining({
             category: 'agriculture',
             totalCodes: expect.any(Number),
-            codes: expect.any(Array)
-          })
+            codes: expect.any(Array),
+          }),
         })
       );
     });
 
     it('should search by business query', async () => {
       const mockReq = {
-        body: { params: { query: 'restaurant' } }
+        body: { params: { query: 'restaurant' } },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -112,20 +112,20 @@ describe('KBLI Complete Database', () => {
             totalFound: expect.any(Number),
             searchOptimization: expect.objectContaining({
               totalDatabaseSize: expect.any(Number),
-              searchMethod: 'enhanced_semantic_search'
-            })
-          })
+              searchMethod: 'enhanced_semantic_search',
+            }),
+          }),
         })
       );
     });
 
     it('should return database overview with no parameters', async () => {
       const mockReq = {
-        body: { params: {} }
+        body: { params: {} },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -144,21 +144,21 @@ describe('KBLI Complete Database', () => {
                 'Risk classification (R/MR/MT/T)',
                 'Capital requirements breakdown',
                 'Sectoral approvals mapping',
-                'Enhanced search capabilities'
-              ])
-            })
-          })
+                'Enhanced search capabilities',
+              ]),
+            }),
+          }),
         })
       );
     });
 
     it('should search with business_type parameter', async () => {
       const mockReq = {
-        body: { params: { business_type: 'hotel' } }
+        body: { params: { business_type: 'hotel' } },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -168,8 +168,8 @@ describe('KBLI Complete Database', () => {
           ok: true,
           data: expect.objectContaining({
             query: 'hotel',
-            results: expect.any(Array)
-          })
+            results: expect.any(Array),
+          }),
         })
       );
     });
@@ -178,17 +178,17 @@ describe('KBLI Complete Database', () => {
   describe('kbliBusinessAnalysis', () => {
     it('should analyze single business type', async () => {
       const mockReq = {
-        body: { 
+        body: {
           params: {
             businessTypes: ['restaurant'],
             location: 'bali',
-            investment_capacity: 'high'
-          }
-        }
+            investment_capacity: 'high',
+          },
+        },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliBusinessAnalysis(mockReq, mockRes);
@@ -200,7 +200,7 @@ describe('KBLI Complete Database', () => {
             query: {
               businessTypes: ['restaurant'],
               location: 'bali',
-              investment_capacity: 'high'
+              investment_capacity: 'high',
             },
             analysis: expect.arrayContaining([
               expect.objectContaining({
@@ -212,8 +212,8 @@ describe('KBLI Complete Database', () => {
                 riskLevel: expect.any(String),
                 capitalRequirement: expect.any(String),
                 licensingPath: expect.any(Array),
-                timeline: expect.any(String)
-              })
+                timeline: expect.any(String),
+              }),
             ]),
             combinedAnalysis: expect.any(Object),
             baliZeroServices: expect.objectContaining({
@@ -221,27 +221,27 @@ describe('KBLI Complete Database', () => {
               recommendedServices: expect.any(Array),
               contact: expect.objectContaining({
                 whatsapp: expect.any(String),
-                email: expect.any(String)
-              })
-            })
-          })
+                email: expect.any(String),
+              }),
+            }),
+          }),
         })
       );
     });
 
     it('should analyze multiple business types', async () => {
       const mockReq = {
-        body: { 
+        body: {
           params: {
             businessTypes: ['restaurant', 'hotel', 'villa'],
             location: 'bali',
-            investment_capacity: 'high'
-          }
-        }
+            investment_capacity: 'high',
+          },
+        },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliBusinessAnalysis(mockReq, mockRes);
@@ -258,25 +258,25 @@ describe('KBLI Complete Database', () => {
               foreignOwnershipAllowed: expect.any(Number),
               recommendedStructure: expect.any(String),
               estimatedTimeline: expect.any(String),
-              sectoralApprovals: expect.any(Array)
-            })
-          })
+              sectoralApprovals: expect.any(Array),
+            }),
+          }),
         })
       );
     });
 
     it('should handle unknown business types', async () => {
       const mockReq = {
-        body: { 
+        body: {
           params: {
             businessTypes: ['unknown-business-type'],
-            location: 'bali'
-          }
-        }
+            location: 'bali',
+          },
+        },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliBusinessAnalysis(mockReq, mockRes);
@@ -290,24 +290,24 @@ describe('KBLI Complete Database', () => {
                 businessType: 'unknown-business-type',
                 status: 'no_match',
                 suggestion: expect.stringContaining('No KBLI code found'),
-                alternatives: expect.any(Array)
-              })
-            ])
-          })
+                alternatives: expect.any(Array),
+              }),
+            ]),
+          }),
         })
       );
     });
 
     it('should return error without businessTypes', async () => {
       const mockReq = {
-        body: { 
-          params: {}
-        }
+        body: {
+          params: {},
+        },
       } as any;
-      
+
       const mockRes = {
         status: jest.fn().mockReturnThis(),
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliBusinessAnalysis(mockReq, mockRes);
@@ -316,23 +316,23 @@ describe('KBLI Complete Database', () => {
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
           ok: false,
-          error: 'businessTypes array is required'
+          error: 'businessTypes array is required',
         })
       );
     });
 
     it('should handle invalid businessTypes parameter', async () => {
       const mockReq = {
-        body: { 
+        body: {
           params: {
-            businessTypes: 'not-an-array'
-          }
-        }
+            businessTypes: 'not-an-array',
+          },
+        },
       } as any;
-      
+
       const mockRes = {
         status: jest.fn().mockReturnThis(),
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliBusinessAnalysis(mockReq, mockRes);
@@ -341,23 +341,23 @@ describe('KBLI Complete Database', () => {
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
           ok: false,
-          error: 'businessTypes array is required'
+          error: 'businessTypes array is required',
         })
       );
     });
 
     it('should provide location-specific requirements', async () => {
       const mockReq = {
-        body: { 
+        body: {
           params: {
             businessTypes: ['restaurant'],
-            location: 'bali'
-          }
-        }
+            location: 'bali',
+          },
+        },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliBusinessAnalysis(mockReq, mockRes);
@@ -370,16 +370,16 @@ describe('KBLI Complete Database', () => {
 
     it('should provide investment advice for high capacity', async () => {
       const mockReq = {
-        body: { 
+        body: {
           params: {
             businessTypes: ['restaurant'],
-            investment_capacity: 'high'
-          }
-        }
+            investment_capacity: 'high',
+          },
+        },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliBusinessAnalysis(mockReq, mockRes);
@@ -393,11 +393,11 @@ describe('KBLI Complete Database', () => {
   describe('Foreign Ownership Matrix', () => {
     it('should return correct foreign ownership for closed sectors', async () => {
       const mockReq = {
-        body: { params: { code: '58100' } } // Publishing - closed to foreigners
+        body: { params: { code: '58100' } }, // Publishing - closed to foreigners
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -409,11 +409,11 @@ describe('KBLI Complete Database', () => {
 
     it('should return correct foreign ownership for telecom', async () => {
       const mockReq = {
-        body: { params: { code: '61100' } } // Radio broadcasting - 67%
+        body: { params: { code: '61100' } }, // Radio broadcasting - 67%
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -425,11 +425,11 @@ describe('KBLI Complete Database', () => {
 
     it('should return correct foreign ownership for air transport', async () => {
       const mockReq = {
-        body: { params: { code: '51100' } } // Air transport - 49%
+        body: { params: { code: '51100' } }, // Air transport - 49%
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -443,11 +443,11 @@ describe('KBLI Complete Database', () => {
   describe('Risk Classification Matrix', () => {
     it('should return low risk for simple services', async () => {
       const mockReq = {
-        body: { params: { code: '62010' } } // Computer programming - Low risk
+        body: { params: { code: '62010' } }, // Computer programming - Low risk
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -459,11 +459,11 @@ describe('KBLI Complete Database', () => {
 
     it('should return high risk for manufacturing', async () => {
       const mockReq = {
-        body: { params: { code: '10101' } } // Meat processing - High risk
+        body: { params: { code: '10101' } }, // Meat processing - High risk
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -478,11 +478,11 @@ describe('KBLI Complete Database', () => {
   describe('Error Handling', () => {
     it('should handle malformed requests gracefully', async () => {
       const mockReq = {
-        body: null // Malformed request
+        body: null, // Malformed request
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -491,8 +491,8 @@ describe('KBLI Complete Database', () => {
         expect.objectContaining({
           ok: true,
           data: expect.objectContaining({
-            databaseInfo: expect.any(Object)
-          })
+            databaseInfo: expect.any(Object),
+          }),
         })
       );
     });
@@ -500,11 +500,11 @@ describe('KBLI Complete Database', () => {
     it('should handle service errors gracefully', async () => {
       // Mock a scenario where the database fails
       const mockReq = {
-        body: { params: { code: 'error-trigger' } }
+        body: { params: { code: 'error-trigger' } },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);
@@ -517,30 +517,30 @@ describe('KBLI Complete Database', () => {
   describe('Performance Tests', () => {
     it('should handle multiple concurrent lookups', async () => {
       const codes = ['01111', '01130', '03110', '10101', '11010', '62010'];
-      
-      const promises = codes.map(code => {
+
+      const promises = codes.map((code) => {
         const mockReq = { body: { params: { code } } } as any;
         const mockRes = { json: jest.fn() } as any;
         return kbliLookupComplete(mockReq, mockRes);
       });
 
       const results = await Promise.all(promises);
-      
+
       expect(results.length).toBe(codes.length);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.ok).toBe(true);
       });
     });
 
     it('should complete search within reasonable time', async () => {
       const startTime = Date.now();
-      
+
       const mockReq = {
-        body: { params: { query: 'complex business analysis search' } }
+        body: { params: { query: 'complex business analysis search' } },
       } as any;
-      
+
       const mockRes = {
-        json: jest.fn()
+        json: jest.fn(),
       } as any;
 
       await kbliLookupComplete(mockReq, mockRes);

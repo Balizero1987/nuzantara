@@ -96,7 +96,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
             if (enhancedReq.user) {
               const unifiedUser: UnifiedUser = {
                 ...enhancedReq.user,
-                authType: 'enhanced'
+                authType: 'enhanced',
               };
               resolve(unifiedUser);
             } else {
@@ -123,7 +123,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
       subscriptionTier: user.subscriptionTier,
       isActive: user.isActive,
       lastLogin: user.lastLogin,
-      metadata: user.metadata
+      metadata: user.metadata,
     };
 
     return enhancedJWTAuth.createEnhancedToken(enhancedUser);
@@ -148,7 +148,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
         isActive: userStatus.isActive,
         lastLogin: new Date(),
         metadata: userStatus.metadata,
-        authType: 'enhanced'
+        authType: 'enhanced',
       };
     } catch (error) {
       logger.error('Enhanced JWT token validation failed:', error);
@@ -228,7 +228,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
         sessionId: decoded.sessionId,
         language: teamMember.language,
         personalizedResponse: teamMember.personalizedResponse,
-        authType: 'team'
+        authType: 'team',
       };
     } catch (error) {
       logger.error('Team login JWT authentication failed:', error);
@@ -246,7 +246,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
         email: user.email,
         role: user.role,
         department: user.department,
-        sessionId: sessionId
+        sessionId: sessionId,
       },
       this.jwtSecret,
       { expiresIn: '7d' }
@@ -274,7 +274,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
         sessionId: decoded.sessionId,
         language: teamMember.language,
         personalizedResponse: teamMember.personalizedResponse,
-        authType: 'team'
+        authType: 'team',
       };
     } catch (error) {
       logger.error('Team login JWT validation failed:', error);
@@ -300,19 +300,19 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
     return {
       name: 'Team Member',
       language: 'English',
-      personalizedResponse: 'Welcome back!'
+      personalizedResponse: 'Welcome back!',
     };
   }
 
   private getPermissionsForRole(role: string): string[] {
     const permissions: { [key: string]: string[] } = {
-      'CEO': ['all', 'admin', 'finance', 'hr', 'tech', 'marketing'],
+      CEO: ['all', 'admin', 'finance', 'hr', 'tech', 'marketing'],
       'AI Bridge/Tech Lead': ['all', 'tech', 'admin', 'finance'],
       'Executive Consultant': ['setup', 'finance', 'clients', 'reports'],
       'Junior Consultant': ['setup', 'clients'],
       'Tax Manager': ['tax', 'finance', 'reports', 'clients'],
       'Marketing Specialist': ['marketing', 'clients', 'reports'],
-      'Reception': ['clients', 'appointments']
+      Reception: ['clients', 'appointments'],
     };
 
     return permissions[role] || ['clients'];
@@ -378,7 +378,7 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
         permissions: decoded.permissions || ['read'],
         isActive: true,
         lastLogin: new Date(),
-        authType: 'legacy'
+        authType: 'legacy',
       };
     } catch (error) {
       logger.error('Legacy JWT authentication failed:', error);
@@ -396,7 +396,7 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
         role: user.role,
         department: user.department,
         name: user.name,
-        permissions: user.permissions
+        permissions: user.permissions,
       },
       this.jwtSecret,
       { expiresIn: '24h' }
@@ -418,7 +418,7 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
         permissions: decoded.permissions || ['read'],
         isActive: true,
         lastLogin: new Date(),
-        authType: 'legacy'
+        authType: 'legacy',
       };
     } catch (error) {
       logger.error('Legacy JWT validation failed:', error);
@@ -446,14 +446,18 @@ export class UnifiedAuthenticationManager {
     this.registerStrategy(new FirebaseAuthStrategy());
     this.registerStrategy(new LegacyJWTStrategy());
 
-    logger.info('🔐 Unified Authentication Manager initialized with strategies:',
-      this.strategies.map(s => s.name).join(', '));
+    logger.info(
+      '🔐 Unified Authentication Manager initialized with strategies:',
+      this.strategies.map((s) => s.name).join(', ')
+    );
   }
 
   registerStrategy(strategy: AuthenticationStrategy): void {
     this.strategies.push(strategy);
     this.strategies.sort((a, b) => b.priority - a.priority);
-    logger.info(`✅ Registered authentication strategy: ${strategy.name} (priority: ${strategy.priority})`);
+    logger.info(
+      `✅ Registered authentication strategy: ${strategy.name} (priority: ${strategy.priority})`
+    );
   }
 
   async authenticate(req: Request): Promise<UnifiedUser | null> {
@@ -462,7 +466,9 @@ export class UnifiedAuthenticationManager {
         try {
           const user = await strategy.authenticate(req);
           if (user) {
-            logger.info(`🔐 Authentication successful using ${strategy.name} strategy for user: ${user.email}`);
+            logger.info(
+              `🔐 Authentication successful using ${strategy.name} strategy for user: ${user.email}`
+            );
             return user;
           }
         } catch (error) {
@@ -477,7 +483,7 @@ export class UnifiedAuthenticationManager {
 
   async validateToken(token: string, strategyName?: string): Promise<UnifiedUser | null> {
     if (strategyName) {
-      const strategy = this.strategies.find(s => s.name === strategyName);
+      const strategy = this.strategies.find((s) => s.name === strategyName);
       if (strategy) {
         return await strategy.validateToken(token);
       }
@@ -499,7 +505,7 @@ export class UnifiedAuthenticationManager {
   }
 
   generateToken(user: UnifiedUser, strategyName: string = 'enhanced'): string {
-    const strategy = this.strategies.find(s => s.name === strategyName);
+    const strategy = this.strategies.find((s) => s.name === strategyName);
     if (!strategy) {
       throw new Error(`Unknown authentication strategy: ${strategyName}`);
     }
@@ -509,7 +515,10 @@ export class UnifiedAuthenticationManager {
 
   async refreshToken(token: string): Promise<string | null> {
     for (const strategy of this.strategies) {
-      if (strategy.refreshToken && strategy.canHandle({ headers: { authorization: `Bearer ${token}` } } as Request)) {
+      if (
+        strategy.refreshToken &&
+        strategy.canHandle({ headers: { authorization: `Bearer ${token}` } } as Request)
+      ) {
         try {
           const newToken = await strategy.refreshToken(token);
           if (newToken) {
@@ -527,7 +536,10 @@ export class UnifiedAuthenticationManager {
 
   async revokeToken(token: string): Promise<boolean> {
     for (const strategy of this.strategies) {
-      if (strategy.revokeToken && strategy.canHandle({ headers: { authorization: `Bearer ${token}` } } as Request)) {
+      if (
+        strategy.revokeToken &&
+        strategy.canHandle({ headers: { authorization: `Bearer ${token}` } } as Request)
+      ) {
         try {
           const revoked = await strategy.revokeToken(token);
           if (revoked) {
@@ -550,10 +562,10 @@ export class UnifiedAuthenticationManager {
   getStrategyStats(): { [strategy: string]: { priority: number; canHandle: boolean } } {
     const stats: { [strategy: string]: { priority: number; canHandle: boolean } } = {};
 
-    this.strategies.forEach(strategy => {
+    this.strategies.forEach((strategy) => {
       stats[strategy.name] = {
         priority: strategy.priority,
-        canHandle: false // Would need a request to determine
+        canHandle: false, // Would need a request to determine
       };
     });
 
@@ -566,8 +578,9 @@ export const unifiedAuth = UnifiedAuthenticationManager.getInstance();
 
 // Unified authentication middleware
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
-  unifiedAuth.authenticate(req)
-    .then(user => {
+  unifiedAuth
+    .authenticate(req)
+    .then((user) => {
       if (user) {
         (req as any).user = user;
         next();
@@ -576,16 +589,16 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
           ok: false,
           error: 'Authentication failed',
           code: 'AUTH_REQUIRED',
-          strategies: unifiedAuth.getStrategies().map(s => s.name)
+          strategies: unifiedAuth.getStrategies().map((s) => s.name),
         });
       }
     })
-    .catch(error => {
+    .catch((error) => {
       logger.error('Unified authentication error:', error);
       res.status(500).json({
         ok: false,
         error: 'Authentication error',
-        code: 'AUTH_ERROR'
+        code: 'AUTH_ERROR',
       });
     });
 };

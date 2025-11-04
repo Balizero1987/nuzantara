@@ -1,4 +1,9 @@
-import { Laws, isEligibleForLandRight, validateEnvironmentalPermit, canWNAOwnHousing } from '../laws/property-environment-laws.js';
+import {
+  Laws,
+  isEligibleForLandRight,
+  validateEnvironmentalPermit,
+  canWNAOwnHousing,
+} from '../laws/property-environment-laws.js';
 
 describe('Property & Environment Laws Module', () => {
   test('Laws constants should be defined', () => {

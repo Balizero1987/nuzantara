@@ -12,7 +12,7 @@ describe('Memory', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.memorySave({
         userId: 'test-user',
-        data: 'Test memory data'
+        data: 'Test memory data',
       });
 
       expect(result).toBeDefined();
@@ -25,10 +25,12 @@ describe('Memory', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.memorySave({
-        userId: 'test-user',
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.memorySave({
+          userId: 'test-user',
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -36,7 +38,7 @@ describe('Memory', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.memorySearch({
         userId: 'test-user',
-        query: 'test query'
+        query: 'test query',
       });
 
       expect(result).toBeDefined();
@@ -49,9 +51,11 @@ describe('Memory', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.memorySearch({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.memorySearch({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -60,11 +64,11 @@ describe('Memory', () => {
       // First save some memory
       await handlers.memorySave({
         userId: 'test-user-retrieve',
-        data: 'Test data'
+        data: 'Test data',
       });
 
       const result = await handlers.memoryRetrieve({
-        userId: 'test-user-retrieve'
+        userId: 'test-user-retrieve',
       });
 
       expect(result).toBeDefined();
@@ -78,10 +82,11 @@ describe('Memory', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.memoryRetrieve({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.memoryRetrieve({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
-
 });

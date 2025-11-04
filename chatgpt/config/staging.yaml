@@ -8,4 +8,4 @@ database:
 jwtSecret: ${JWT_SECRET}
 cors:
   allowedOrigins:
-    - "https://staging.your-app.com"
+    - 'https://staging.your-app.com'

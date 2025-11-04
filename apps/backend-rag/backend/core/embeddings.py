@@ -38,37 +38,27 @@ class EmbeddingsGenerator:
             api_key: OpenAI API key (only needed if using OpenAI)
             model: Embedding model name (default from settings)
         """
+        # OpenAI-only configuration (sentence-transformers removed for deployment size)
+        from openai import OpenAI
+
         # Use settings if available, otherwise fallback to defaults
         if settings:
-            self.provider = settings.embedding_provider
+            self.provider = "openai"
             self.model = model or settings.embedding_model
             self.dimensions = settings.embedding_dimensions
         else:
             # Defaults when settings unavailable
-            self.provider = "sentence-transformers"
-            self.model = model or "all-MiniLM-L6-v2"
-            self.dimensions = 384
+            self.provider = "openai"
+            self.model = model or "text-embedding-3-small"
+            self.dimensions = 1536
 
-        if self.provider == "openai":
-            # OpenAI embeddings
-            from openai import OpenAI
-            self.api_key = api_key or (settings.openai_api_key if settings else None)
+        self.api_key = api_key or (settings.openai_api_key if settings else None)
 
-            if not self.api_key:
-                raise ValueError("OpenAI API key is required when using OpenAI provider")
+        if not self.api_key:
+            raise ValueError("OpenAI API key is required")
 
-            self.client = OpenAI(api_key=self.api_key)
-            logger.info(f"EmbeddingsGenerator initialized with OpenAI: {self.model}")
-
-        elif self.provider == "sentence-transformers":
-            # Local sentence transformers (FREE!)
-            from .embeddings_local import LocalEmbeddingsGenerator
-            self.client = LocalEmbeddingsGenerator(model_name=self.model)
-            self.dimensions = self.client.dimensions
-            logger.info(f"EmbeddingsGenerator initialized with Sentence Transformers (LOCAL, FREE): {self.model}")
-
-        else:
-            raise ValueError(f"Unknown embedding provider: {self.provider}")
+        self.client = OpenAI(api_key=self.api_key)
+        logger.info(f"EmbeddingsGenerator initialized with OpenAI: {self.model}")
 
     def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         """
@@ -88,27 +78,16 @@ class EmbeddingsGenerator:
             return []
 
         try:
-            logger.info(f"Generating embeddings for {len(texts)} texts using {self.provider}")
+            logger.info(f"Generating embeddings for {len(texts)} texts using OpenAI")
 
-            if self.provider == "openai":
-                # Call OpenAI API
-                from openai import OpenAI
-                client = OpenAI(api_key=self.api_key)
+            # Call OpenAI API
+            response = self.client.embeddings.create(
+                model=self.model,
+                input=texts,
+                dimensions=self.dimensions
+            )
 
-                response = client.embeddings.create(
-                    model=self.model,
-                    input=texts,
-                    dimensions=self.dimensions
-                )
-
-                embeddings = [item.embedding for item in response.data]
-
-            elif self.provider == "sentence-transformers":
-                # Use local model (already initialized in __init__)
-                embeddings = self.client.generate_embeddings(texts)
-
-            else:
-                raise ValueError(f"Unknown provider: {self.provider}")
+            embeddings = [item.embedding for item in response.data]
 
             logger.info(f"Successfully generated {len(embeddings)} embeddings")
             return embeddings
@@ -150,18 +129,12 @@ class EmbeddingsGenerator:
         Returns:
             Dictionary with model configuration
         """
-        info = {
+        return {
             "model": self.model,
             "dimensions": self.dimensions,
-            "provider": self.provider
+            "provider": "openai",
+            "cost": "Paid (OpenAI API)"
         }
-
-        if self.provider == "sentence-transformers":
-            info["cost"] = "FREE (local)"
-        elif self.provider == "openai":
-            info["cost"] = "Paid (OpenAI API)"
-
-        return info
 
 
 # Convenience function

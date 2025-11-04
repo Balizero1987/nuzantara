@@ -18,7 +18,7 @@ const ZANTARA_KB = {
     LEGAL: 'legal_architect',
     KBLI: 'kbli_eye',
     BOOKS: 'zantara_books',
-    ALL: 'all'
+    ALL: 'all',
   },
 
   /**
@@ -35,12 +35,12 @@ const ZANTARA_KB = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
+          'X-Requested-With': 'XMLHttpRequest',
         },
         body: JSON.stringify({
           query: query,
-          collections: Array.isArray(collections) ? collections : [collections]
-        })
+          collections: Array.isArray(collections) ? collections : [collections],
+        }),
       });
 
       if (!response.ok) {
@@ -59,16 +59,15 @@ const ZANTARA_KB = {
         collection: data.collection_used,
         routing: data.routing_reason,
         total: data.total_results || 0,
-        executionTime: data.execution_time_ms
+        executionTime: data.execution_time_ms,
       };
-
     } catch (error) {
       console.error('❌ KB Search failed:', error);
       return {
         success: false,
         error: error.message,
         query: query,
-        results: []
+        results: [],
       };
     }
   },
@@ -85,14 +84,14 @@ const ZANTARA_KB = {
       tax: ['tax', 'pajak', 'npwp', 'pph', 'ppn', 'corporate', 'income'],
       legal: ['legal', 'law', 'contract', 'court', 'regulation', 'compliance'],
       business: ['business', 'company', 'pt pma', 'investment', 'kbli', 'license'],
-      general: ['what', 'how', 'when', 'where', 'why']
+      general: ['what', 'how', 'when', 'where', 'why'],
     };
 
     const queryLower = query.toLowerCase();
     let detectedDomain = 'all';
 
     for (const [domain, keywords] of Object.entries(domainMap)) {
-      if (keywords.some(keyword => queryLower.includes(keyword))) {
+      if (keywords.some((keyword) => queryLower.includes(keyword))) {
         if (domain === 'visa') detectedDomain = this.COLLECTIONS.VISA;
         else if (domain === 'tax') detectedDomain = this.COLLECTIONS.TAX;
         else if (domain === 'legal') detectedDomain = this.COLLECTIONS.LEGAL;
@@ -115,8 +114,8 @@ const ZANTARA_KB = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
+          'X-Requested-With': 'XMLHttpRequest',
+        },
       });
 
       if (!response.ok) {
@@ -140,8 +139,8 @@ const ZANTARA_KB = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
+          'X-Requested-With': 'XMLHttpRequest',
+        },
       });
 
       if (!response.ok) {
@@ -172,7 +171,7 @@ const ZANTARA_KB = {
       score: doc.score || 0,
       source: doc.metadata?.source || 'Knowledge Base',
       collection: doc.metadata?.collection || results.collection,
-      metadata: doc.metadata || {}
+      metadata: doc.metadata || {},
     }));
   },
 
@@ -184,20 +183,20 @@ const ZANTARA_KB = {
   getSuggestedQuestions(query) {
     const suggestions = {
       visa: [
-        "What documents do I need for KITAS?",
-        "How long does visa processing take?",
-        "What are the requirements for business visa?"
+        'What documents do I need for KITAS?',
+        'How long does visa processing take?',
+        'What are the requirements for business visa?',
       ],
       tax: [
-        "What is corporate tax rate in Indonesia?",
-        "How do I register for NPWP?",
-        "When are tax filing deadlines?"
+        'What is corporate tax rate in Indonesia?',
+        'How do I register for NPWP?',
+        'When are tax filing deadlines?',
       ],
       business: [
-        "What KBLI code do I need for restaurant?",
-        "How much capital for PT PMA?",
-        "What licenses do I need for business?"
-      ]
+        'What KBLI code do I need for restaurant?',
+        'How much capital for PT PMA?',
+        'What licenses do I need for business?',
+      ],
     };
 
     const queryLower = query.toLowerCase();
@@ -211,11 +210,11 @@ const ZANTARA_KB = {
     }
 
     return [
-      "What are the visa requirements for Indonesia?",
-      "How to set up a business in Bali?",
-      "What are the tax obligations for foreigners?"
+      'What are the visa requirements for Indonesia?',
+      'How to set up a business in Bali?',
+      'What are the tax obligations for foreigners?',
     ];
-  }
+  },
 };
 
 // Export for global access

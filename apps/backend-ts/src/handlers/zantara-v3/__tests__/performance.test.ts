@@ -49,7 +49,11 @@ interface PerformanceMetrics {
   errors: any[];
 }
 
-function calculateMetrics(responseTimes: number[], totalTime: number, errors: any[]): PerformanceMetrics {
+function calculateMetrics(
+  responseTimes: number[],
+  totalTime: number,
+  errors: any[]
+): PerformanceMetrics {
   const sorted = [...responseTimes].sort((a, b) => a - b);
   const successful = responseTimes.length;
   const failed = errors.length;
@@ -197,7 +201,7 @@ describe('⚡ ZANTARA v3 Ω Performance & Load Tests', () => {
 
       expect(metrics.successfulRequests).toBeGreaterThanOrEqual(requestCount * 0.95); // 95% success rate
       expect(metrics.maxResponseTime).toBeLessThan(3000); // No request should exceed 3 seconds
-      
+
       // Sequential requests should have consistent response times
       const variance = metrics.maxResponseTime - metrics.minResponseTime;
       expect(variance).toBeLessThan(2000); // Variance under 2 seconds
@@ -281,7 +285,7 @@ describe('⚡ ZANTARA v3 Ω Performance & Load Tests', () => {
       }
 
       // Wait a bit for cleanup
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const finalMemory = process.memoryUsage().heapUsed;
       const memoryIncrease = finalMemory - initialMemory;
@@ -338,7 +342,7 @@ describe('⚡ ZANTARA v3 Ω Performance & Load Tests', () => {
         }
 
         // Small delay to prevent overwhelming
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
       const actualDuration = Date.now() - startTime;
@@ -374,7 +378,7 @@ describe('⚡ ZANTARA v3 Ω Performance & Load Tests', () => {
           },
         }) as Request;
         const res = createMockResponse() as Response;
-        
+
         // Should not throw, but handle gracefully
         try {
           await zantaraUnified.zantaraUnifiedQuery(req, res);

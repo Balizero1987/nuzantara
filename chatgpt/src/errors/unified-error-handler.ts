@@ -61,7 +61,7 @@ export interface ErrorMetrics {
 
 /**
  * Unified Error Handler - Centralized error processing for the application
- * 
+ *
  * Features:
  * - Automatic error classification and severity assignment
  * - Consistent error response formatting
@@ -139,9 +139,13 @@ export class UnifiedErrorHandler {
     }
 
     // Convert generic Error to ApplicationError with INTERNAL category
-    return new ApplicationError(error.message || 'An unexpected error occurred', ErrorCategory.INTERNAL, {
-      cause: error,
-    });
+    return new ApplicationError(
+      error.message || 'An unexpected error occurred',
+      ErrorCategory.INTERNAL,
+      {
+        cause: error,
+      }
+    );
   }
 
   /**
@@ -304,7 +308,7 @@ export class UnifiedErrorHandler {
     const windowMs = windowMinutes * 60 * 1000;
     const recentErrors = timestamps.filter((ts) => now - ts < windowMs);
 
-    return (recentErrors.length / windowMinutes) || 0;
+    return recentErrors.length / windowMinutes || 0;
   }
 
   /**
@@ -383,11 +387,7 @@ export class UnifiedErrorHandler {
   /**
    * Default metrics collector implementation
    */
-  private defaultMetricsCollector(
-    error: Error,
-    context: ErrorContext,
-    duration: number,
-  ): void {
+  private defaultMetricsCollector(error: Error, context: ErrorContext, duration: number): void {
     // This is a simple implementation - in production, you might send to a monitoring service
     // like Prometheus, DataDog, New Relic, etc.
     if (isCriticalError(error)) {

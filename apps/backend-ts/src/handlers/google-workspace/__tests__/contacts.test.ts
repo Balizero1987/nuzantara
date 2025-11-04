@@ -13,31 +13,39 @@ const mockContacts = {
               names: [{ displayName: 'John Doe' }],
               emailAddresses: [{ value: 'john@example.com' }],
               phoneNumbers: [{ value: '+1234567890' }],
-              organizations: [{ name: 'Test Corp', title: 'Developer' }]
-            }
+              organizations: [{ name: 'Test Corp', title: 'Developer' }],
+            },
           ],
-          nextPageToken: null
-        }
-      })
+          nextPageToken: null,
+        },
+      }),
     },
     createContact: jest.fn().mockResolvedValue({
       data: {
         resourceName: 'people/123',
         names: [{ displayName: 'Test User' }],
-        emailAddresses: [{ value: 'test@example.com' }]
-      }
-    })
-  }
+        emailAddresses: [{ value: 'test@example.com' }],
+      },
+    }),
+  },
 };
 
-jest.mock('../../../services/google-auth-service.js', () => ({
-  getContacts: jest.fn().mockResolvedValue(mockContacts)
-}), { virtual: true });
+jest.mock(
+  '../../../services/google-auth-service.js',
+  () => ({
+    getContacts: jest.fn().mockResolvedValue(mockContacts),
+  }),
+  { virtual: true }
+);
 
 // Mock bridge proxy
-jest.mock('../../../services/bridgeProxy.js', () => ({
-  forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null)
-}), { virtual: true });
+jest.mock(
+  '../../../services/bridgeProxy.js',
+  () => ({
+    forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null),
+  }),
+  { virtual: true }
+);
 
 describe('Contacts', () => {
   let handlers: any;
@@ -51,7 +59,7 @@ describe('Contacts', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.contactsList({
         pageSize: 50,
-        sortOrder: 'FIRST_NAME_ASCENDING'
+        sortOrder: 'FIRST_NAME_ASCENDING',
       });
 
       expect(result).toBeDefined();
@@ -69,7 +77,7 @@ describe('Contacts', () => {
 
     it('should handle params with defaults', async () => {
       const result = await handlers.contactsList({
-        pageSize: 100
+        pageSize: 100,
       });
       expect(result.ok).toBe(true);
     });
@@ -80,7 +88,7 @@ describe('Contacts', () => {
       const result = await handlers.contactsCreate({
         name: 'John Doe',
         email: 'john@example.com',
-        phone: '+1234567890'
+        phone: '+1234567890',
       });
 
       expect(result).toBeDefined();
@@ -95,10 +103,11 @@ describe('Contacts', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.contactsCreate({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.contactsCreate({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
-
 });

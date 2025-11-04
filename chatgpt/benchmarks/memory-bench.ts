@@ -223,9 +223,7 @@ async function main() {
 
     if (inMemoryCreate && redisCreate) {
       const speedup = inMemoryCreate.opsPerSecond / redisCreate.opsPerSecond;
-      console.log(
-        `In-Memory is ${speedup.toFixed(2)}x faster than Redis for createEpisodicMemory`
-      );
+      console.log(`In-Memory is ${speedup.toFixed(2)}x faster than Redis for createEpisodicMemory`);
     }
 
     const inMemoryQuery = inMemoryResults.find((r) => r.operation === 'queryMemories');

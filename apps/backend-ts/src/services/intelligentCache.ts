@@ -4,8 +4,8 @@ import NodeCache from 'node-cache';
 // Cache intelligente con TTL differenziati per tipo di richiesta
 const cacheInstances = {
   static: new NodeCache({ stdTTL: 3600, checkperiod: 600 }), // 1h per dati statici
-  dynamic: new NodeCache({ stdTTL: 300, checkperiod: 60 }),   // 5m per AI responses
-  critical: new NodeCache({ stdTTL: 0 })                       // No cache per dati critici
+  dynamic: new NodeCache({ stdTTL: 300, checkperiod: 60 }), // 5m per AI responses
+  critical: new NodeCache({ stdTTL: 0 }), // No cache per dati critici
 };
 
 // Configurazione TTL conservativa per handler
@@ -22,7 +22,7 @@ const CACHE_CONFIG: Record<string, { ttl: number; type: 'static' | 'dynamic' | '
   'quote.generate': { ttl: 0, type: 'critical' },
   'lead.save': { ttl: 0, type: 'critical' },
   'memory.save': { ttl: 0, type: 'critical' },
-  'drive.upload': { ttl: 0, type: 'critical' }
+  'drive.upload': { ttl: 0, type: 'critical' },
 };
 
 export function getCacheKey(handler: string, params: any): string {
@@ -69,9 +69,9 @@ export async function setInCache(handler: string, params: any, result: any): Pro
 export function invalidateCache(handler?: string): void {
   if (handler) {
     // Invalida cache specifica per handler
-    Object.values(cacheInstances).forEach(cache => {
+    Object.values(cacheInstances).forEach((cache) => {
       const keys = cache.keys();
-      keys.forEach(key => {
+      keys.forEach((key) => {
         if (key.startsWith(`${handler}:`)) {
           cache.del(key);
         }
@@ -80,7 +80,7 @@ export function invalidateCache(handler?: string): void {
     logger.info(`🗑️ Cache invalidated for: ${handler}`);
   } else {
     // Flush completo
-    Object.values(cacheInstances).forEach(cache => cache.flushAll());
+    Object.values(cacheInstances).forEach((cache) => cache.flushAll());
     logger.info('🗑️ All caches flushed');
   }
 }
@@ -93,7 +93,7 @@ export function getCacheStats() {
       keys: cache.keys().length,
       hits: cache.getStats().hits,
       misses: cache.getStats().misses,
-      hitRate: cache.getStats().hits / (cache.getStats().hits + cache.getStats().misses) || 0
+      hitRate: cache.getStats().hits / (cache.getStats().hits + cache.getStats().misses) || 0,
     };
   });
   return stats;

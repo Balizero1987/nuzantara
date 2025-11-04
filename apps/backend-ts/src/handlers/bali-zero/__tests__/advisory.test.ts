@@ -11,7 +11,7 @@ describe('Advisory', () => {
   describe('documentPrepare', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.documentPrepare({
-        service: 'visa'
+        service: 'visa',
       });
 
       expect(result).toBeDefined();
@@ -26,9 +26,11 @@ describe('Advisory', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.documentPrepare({
-        service: 'invalid-service'
-      })).rejects.toThrow();
+      await expect(
+        handlers.documentPrepare({
+          service: 'invalid-service',
+        })
+      ).rejects.toThrow();
     });
   });
 
@@ -36,7 +38,7 @@ describe('Advisory', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.assistantRoute({
         intent: 'visa',
-        inquiry: 'I need help with visa application'
+        inquiry: 'I need help with visa application',
       });
 
       expect(result).toBeDefined();
@@ -54,12 +56,11 @@ describe('Advisory', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.assistantRoute({
-        intent: 'invalid-intent'
+        intent: 'invalid-intent',
       });
 
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
     });
   });
-
 });

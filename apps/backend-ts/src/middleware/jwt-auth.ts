@@ -1,14 +1,13 @@
-import type { Error } from "express";
 /**
  * JWT Authentication Middleware - Enhanced Security Edition
- * 
+ *
  * Features:
  * - Enhanced token validation with multiple field support
  * - Rate limiting for failed attempts
  * - Audit trail for authentication events
  * - GDPR-compliant logging (no sensitive data)
  * - Backward compatibility with existing tokens
- * 
+ *
  * Version: 2.0 - Security Enhanced
  */
 
@@ -22,7 +21,10 @@ const ENABLE_AUDIT_LOGGING = process.env.JWT_AUDIT_LOGGING !== 'false'; // Defau
 const ENABLE_RATE_LIMITING = process.env.JWT_RATE_LIMITING !== 'false'; // Default true
 
 // Rate limiting for failed JWT attempts (anti-brute force)
-const failedAuthAttempts = new Map<string, { count: number; timestamp: number; blockedUntil?: number }>();
+const failedAuthAttempts = new Map<
+  string,
+  { count: number; timestamp: number; blockedUntil?: number }
+>();
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_FAILED_ATTEMPTS = 5;
 const BLOCK_DURATION_MS = 30 * 60 * 1000; // 30 minutes block
@@ -50,7 +52,7 @@ function auditLog(event: AuditEvent): void {
     ip: event.ip || 'unknown',
     userAgent: event.userAgent?.substring(0, 50) || 'unknown', // Truncated
     reason: event.reason,
-    timestamp: event.timestamp
+    timestamp: event.timestamp,
   });
 }
 
@@ -61,15 +63,15 @@ function checkRateLimit(identifier: string): { allowed: boolean; reason?: string
   if (!ENABLE_RATE_LIMITING) return { allowed: true };
 
   const attempts = failedAuthAttempts.get(identifier);
-  
+
   if (!attempts) return { allowed: true };
 
   // Check if blocked
   if (attempts.blockedUntil && Date.now() < attempts.blockedUntil) {
     const minutesLeft = Math.ceil((attempts.blockedUntil - Date.now()) / 60000);
-    return { 
-      allowed: false, 
-      reason: `Too many failed attempts. Blocked for ${minutesLeft} more minutes.` 
+    return {
+      allowed: false,
+      reason: `Too many failed attempts. Blocked for ${minutesLeft} more minutes.`,
     };
   }
 
@@ -79,16 +81,16 @@ function checkRateLimit(identifier: string): { allowed: boolean; reason?: string
     // Block user
     attempts.blockedUntil = Date.now() + BLOCK_DURATION_MS;
     failedAuthAttempts.set(identifier, attempts);
-    
+
     auditLog({
       event: 'auth_failure',
       reason: 'rate_limit_exceeded',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
-    return { 
-      allowed: false, 
-      reason: `Too many failed attempts. Blocked for ${Math.ceil(BLOCK_DURATION_MS / 60000)} minutes.` 
+    return {
+      allowed: false,
+      reason: `Too many failed attempts. Blocked for ${Math.ceil(BLOCK_DURATION_MS / 60000)} minutes.`,
     };
   }
 
@@ -138,29 +140,30 @@ export interface RequestWithJWT extends Request {
  */
 export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) {
   const startTime = Date.now();
-  const clientIP = req.header('x-forwarded-for') || req.ip || req.connection?.remoteAddress || 'unknown';
+  const clientIP =
+    req.header('x-forwarded-for') || req.ip || req.connection?.remoteAddress || 'unknown';
   const userAgent = req.header('user-agent') || 'unknown';
-  
+
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       auditLog({
         event: 'auth_failure',
         reason: 'missing_auth_header',
         ip: clientIP,
         userAgent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       return res.status(401).json({
         ok: false,
-        error: 'Authorization header missing or invalid'
+        error: 'Authorization header missing or invalid',
       });
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-    
+
     // Rate limiting check
     const rateCheck = checkRateLimit(clientIP);
     if (!rateCheck.allowed) {
@@ -169,34 +172,34 @@ export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) 
         reason: 'rate_limit',
         ip: clientIP,
         userAgent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       return res.status(429).json({
         ok: false,
-        error: rateCheck.reason || 'Too many authentication attempts'
+        error: rateCheck.reason || 'Too many authentication attempts',
       });
     }
-    
+
     // BUG FIX: Check for JWT_SECRET in environment (NO HARDCODED FALLBACK)
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       logger.error('JWT_SECRET not configured in environment variables');
-      
+
       auditLog({
         event: 'auth_error',
         reason: 'misconfiguration',
         ip: clientIP,
         userAgent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       return res.status(500).json({
         ok: false,
-        error: 'Authentication service misconfigured'
+        error: 'Authentication service misconfigured',
       });
     }
-    
+
     // Verify token
     let decoded: any;
     try {
@@ -212,34 +215,34 @@ export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) 
           reason: 'invalid_signature',
           ip: clientIP,
           userAgent,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
         return res.status(401).json({
           ok: false,
-          error: 'Invalid token'
+          error: 'Invalid token',
         });
       }
-      
+
       if (verifyError.name === 'TokenExpiredError') {
         auditLog({
           event: 'token_expired',
           ip: clientIP,
           userAgent,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
         return res.status(401).json({
           ok: false,
-          error: 'Token expired'
+          error: 'Token expired',
         });
       }
-      
+
       // Unexpected error
       logger.error('JWT verification unexpected error:', {
         name: verifyError.name,
         message: verifyError.message,
-        stack: verifyError.stack
+        stack: verifyError.stack,
       });
 
       auditLog({
@@ -247,40 +250,40 @@ export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) 
         reason: verifyError.name,
         ip: clientIP,
         userAgent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       return res.status(401).json({
         ok: false,
-        error: 'Token verification failed'
+        error: 'Token verification failed',
       });
     }
-    
+
     // BUG FIX: Validate decoded token structure
     if (!decoded || typeof decoded !== 'object') {
       recordFailedAttempt(clientIP);
-      
+
       auditLog({
         event: 'invalid_token',
         reason: 'invalid_payload_structure',
         ip: clientIP,
         userAgent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       return res.status(401).json({
         ok: false,
-        error: 'Invalid token payload'
+        error: 'Invalid token payload',
       });
     }
-    
+
     // BUG FIX: Handle multiple ID field names (userId, id, sub) for backward compatibility
     const userId = decoded.userId || decoded.id || decoded.sub;
-    
+
     // BUG FIX: Validate required fields are present
     if (ENABLE_STRICT_VALIDATION && (!userId || !decoded.email)) {
       recordFailedAttempt(clientIP);
-      
+
       auditLog({
         event: 'invalid_token',
         reason: 'missing_required_fields',
@@ -288,34 +291,34 @@ export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) 
         email: decoded.email ? decoded.email.substring(0, 3) + '***' : 'none',
         ip: clientIP,
         userAgent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       return res.status(401).json({
         ok: false,
-        error: 'Token missing required user information'
+        error: 'Token missing required user information',
       });
     }
-    
+
     // Extract user info from token (handle all possible field names for backward compatibility)
     const extractedEmail = decoded.email || decoded.email_address || '';
     const extractedUserId = userId || 'unknown';
-    
+
     // Final validation
     if (!extractedEmail || extractedUserId === 'unknown') {
       recordFailedAttempt(clientIP);
-      
+
       auditLog({
         event: 'invalid_token',
         reason: 'invalid_user_data',
         ip: clientIP,
         userAgent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       return res.status(401).json({
         ok: false,
-        error: 'Token contains invalid user data'
+        error: 'Token contains invalid user data',
       });
     }
 
@@ -327,9 +330,9 @@ export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) 
       name: decoded.name || decoded.username || extractedEmail.split('@')[0], // For adminAuth
       department: decoded.department, // Optional, for team login
       sessionId: decoded.sessionId, // Optional, for session tracking
-      isDemo: decoded.isDemo || false // Optional, default false
+      isDemo: decoded.isDemo || false, // Optional, default false
     };
-    
+
     // Clear failed attempts on successful authentication
     clearFailedAttempts(clientIP);
 
@@ -342,20 +345,17 @@ export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) 
       ip: clientIP,
       userAgent,
       reason: `authenticated in ${processingTime}ms`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     next();
-    
   } catch (error: any) {
     recordFailedAttempt(clientIP);
-    
+
     // Use logger instead of console.error
-    logger.error('JWT Auth unexpected error:', { 
-      error: error.message, 
+    logger.error('JWT Auth unexpected error:', error, {
       name: error.name,
-      stack: error.stack,
-      ip: clientIP
+      ip: clientIP,
     });
 
     auditLog({
@@ -363,13 +363,13 @@ export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) 
       reason: error.name || 'unexpected_error',
       ip: clientIP,
       userAgent,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     // Don't expose internal errors to client
     return res.status(500).json({
       ok: false,
-      error: 'Authentication error'
+      error: 'Authentication error',
     });
   }
 }
@@ -378,51 +378,51 @@ export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) 
  * Optional JWT Authentication Middleware
  * Doesn't fail if no token is provided
  */
-export function optionalJwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) {
+export function optionalJwtAuth(req: RequestWithJWT, _res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       // No token provided, continue without user
       return next();
     }
 
     const token = authHeader.substring(7);
-    
+
     // BUG FIX: Check for JWT_SECRET
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
       logger.warn('JWT_SECRET not configured, skipping optional JWT auth');
       return next();
     }
-    
+
     let decoded: any;
     try {
       decoded = jwt.verify(token, jwtSecret);
     } catch (verifyError: any) {
       // Token invalid, but continue without user (no rate limiting for optional)
-      logger.debug('Optional JWT Auth: Token verification failed', { 
-        error: verifyError.message 
+      logger.debug('Optional JWT Auth: Token verification failed', {
+        error: verifyError.message,
       });
       return next();
     }
-    
+
     // BUG FIX: Validate decoded token
     if (!decoded || typeof decoded !== 'object') {
       logger.debug('Optional JWT Auth: Invalid token payload');
       return next();
     }
-    
+
     // BUG FIX: Handle multiple ID field names
     const userId = decoded.userId || decoded.id || decoded.sub;
     const extractedEmail = decoded.email || decoded.email_address || '';
-    
+
     if (!userId || !extractedEmail) {
       logger.debug('Optional JWT Auth: Missing required fields');
       req.user = undefined;
       return next();
     }
-    
+
     req.user = {
       userId: userId,
       email: extractedEmail,
@@ -430,21 +430,20 @@ export function optionalJwtAuth(req: RequestWithJWT, res: Response, next: NextFu
       name: decoded.name || decoded.username || extractedEmail.split('@')[0],
       department: decoded.department,
       sessionId: decoded.sessionId,
-      isDemo: decoded.isDemo || false
+      isDemo: decoded.isDemo || false,
     };
-    
+
     // Only set user if we have valid data
     if (!req.user.email || req.user.userId === 'unknown') {
       req.user = undefined;
     }
-    
+
     next();
-    
   } catch (error: any) {
     // Token invalid, but continue without user
-    logger.debug('Optional JWT Auth warning:', { 
+    logger.debug('Optional JWT Auth warning:', {
       error: error.message,
-      name: error.name 
+      name: error.name,
     });
     next();
   }

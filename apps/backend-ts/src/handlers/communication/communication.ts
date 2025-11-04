@@ -1,5 +1,5 @@
-import { BadRequestError, InternalServerError } from "../../utils/errors.js";
-import { ok } from "../../utils/response.js";
+import { BadRequestError, InternalServerError } from '../../utils/errors.js';
+import { ok } from '../../utils/response.js';
 
 type SlackAttachment = {
   color?: string;
@@ -19,7 +19,7 @@ interface SlackParams {
  * Slack webhook notification handler
  */
 export async function slackNotify(params: SlackParams) {
-  const { text, channel, attachments, webhook_url } = params || {} as SlackParams;
+  const { text, channel, attachments, webhook_url } = params || ({} as SlackParams);
 
   if (!text && !attachments) {
     throw new BadRequestError('text or attachments required');
@@ -38,7 +38,7 @@ export async function slackNotify(params: SlackParams) {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -72,7 +72,7 @@ interface DiscordParams {
 }
 
 export async function discordNotify(params: DiscordParams) {
-  const { content, embeds, username, avatar_url, webhook_url } = params || {} as DiscordParams;
+  const { content, embeds, username, avatar_url, webhook_url } = params || ({} as DiscordParams);
 
   if (!content && !embeds) {
     throw new BadRequestError('content or embeds required');
@@ -83,7 +83,12 @@ export async function discordNotify(params: DiscordParams) {
     throw new InternalServerError('DISCORD_WEBHOOK_URL not configured');
   }
 
-  const payload: { content?: string; embeds?: DiscordEmbed[]; username?: string; avatar_url?: string } = {};
+  const payload: {
+    content?: string;
+    embeds?: DiscordEmbed[];
+    username?: string;
+    avatar_url?: string;
+  } = {};
   if (content) payload.content = content;
   if (embeds) payload.embeds = embeds;
   if (username) payload.username = username;
@@ -93,7 +98,7 @@ export async function discordNotify(params: DiscordParams) {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -127,7 +132,7 @@ interface GoogleChatParams {
 }
 
 export async function googleChatNotify(params: GoogleChatParams) {
-  const { text, space, thread: _thread, cards } = params || {} as GoogleChatParams;
+  const { text, space, thread: _thread, cards } = params || ({} as GoogleChatParams);
 
   if (!text && !cards) {
     throw new BadRequestError('text or cards required');
@@ -141,7 +146,9 @@ export async function googleChatNotify(params: GoogleChatParams) {
     if (!space) {
       throw new BadRequestError('Either webhook_url or space parameter required');
     }
-    throw new InternalServerError('Google Chat webhook not configured and API approach not yet implemented');
+    throw new InternalServerError(
+      'Google Chat webhook not configured and API approach not yet implemented'
+    );
   }
 
   const payload: { text?: string; cards?: GoogleChatCard[] } = { text };
@@ -151,7 +158,7 @@ export async function googleChatNotify(params: GoogleChatParams) {
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -161,7 +168,7 @@ export async function googleChatNotify(params: GoogleChatParams) {
     return ok({
       sent: true,
       method: 'webhook',
-      ts: Date.now()
+      ts: Date.now(),
     });
   } catch (error: any) {
     throw new InternalServerError(`Google Chat notification failed: ${error.message}`);

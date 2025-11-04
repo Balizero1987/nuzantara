@@ -1,6 +1,6 @@
 /**
  * Feature Flags System for Zero-Downtime Deployment
- * 
+ *
  * Enables gradual rollout of new features with backward compatibility
  */
 
@@ -13,12 +13,12 @@ export enum FeatureFlag {
   ENABLE_PRIORITIZED_RATE_LIMIT = 'enable_prioritized_rate_limit',
   ENABLE_AUTO_SCALING = 'enable_auto_scaling',
   ENABLE_SESSION_AFFINITY = 'enable_session_affinity',
-  
+
   // Monitoring features
   ENABLE_DETAILED_METRICS = 'enable_detailed_metrics',
   ENABLE_AUDIT_TRAIL = 'enable_audit_trail',
   ENABLE_PERFORMANCE_TRACKING = 'enable_performance_tracking',
-  
+
   // Safety features
   ENABLE_GRADUAL_ROLLOUT = 'enable_gradual_rollout',
   ENABLE_AUTO_ROLLBACK = 'enable_auto_rollback',
@@ -51,7 +51,7 @@ class FeatureFlagsService {
     Object.values(FeatureFlag).forEach((flag) => {
       const envKey = `FF_${flag.toUpperCase()}`;
       const envValue = process.env[envKey];
-      
+
       if (envValue) {
         try {
           const config: FeatureFlagConfig = {
@@ -76,10 +76,13 @@ class FeatureFlagsService {
   /**
    * Check if a feature flag is enabled
    */
-  isEnabled(flag: FeatureFlag, context?: {
-    userId?: string;
-    ip?: string;
-  }): boolean {
+  isEnabled(
+    flag: FeatureFlag,
+    context?: {
+      userId?: string;
+      ip?: string;
+    }
+  ): boolean {
     const config = this.flags.get(flag) || this.defaultConfig;
 
     if (!config.enabled) {
@@ -139,7 +142,7 @@ class FeatureFlagsService {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }
     return Math.abs(hash);
@@ -150,7 +153,9 @@ class FeatureFlagsService {
    */
   setFlag(flag: FeatureFlag, config: FeatureFlagConfig): void {
     this.flags.set(flag, config);
-    logger.info(`Feature flag ${flag} updated: enabled=${config.enabled}, rollout=${config.rolloutPercentage}%`);
+    logger.info(
+      `Feature flag ${flag} updated: enabled=${config.enabled}, rollout=${config.rolloutPercentage}%`
+    );
   }
 
   /**
@@ -174,4 +179,3 @@ class FeatureFlagsService {
 
 // Singleton instance
 export const featureFlags = new FeatureFlagsService();
-

@@ -12,8 +12,8 @@ services:
       - SPARK_SSL_ENABLED=no
       - SPARK_USER=spark
     ports:
-      - "8080:8080"  # Master Web UI
-      - "7077:7077"  # Master port
+      - '8080:8080' # Master Web UI
+      - '7077:7077' # Master port
     volumes:
       - ./data:/opt/bitnami/spark/data
       - ./src/spark:/opt/bitnami/spark/app
@@ -51,7 +51,7 @@ services:
       - SPARK_MODE=history
       - SPARK_HISTORY_FS_LOGDIR=hdfs://spark-master:8020/spark-logs
     ports:
-      - "18080:18080"  # History Server UI
+      - '18080:18080' # History Server UI
     networks:
       - zantara-network
 

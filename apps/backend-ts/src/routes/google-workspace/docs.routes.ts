@@ -21,14 +21,15 @@ const DocsReadSchema = z.object({
   documentId: z.string().optional(),
 });
 
-const DocsUpdateSchema = z.object({
-  documentId: z.string().optional(),
-  requests: z.array(z.any()).optional(),
-  content: z.string().optional(),
-}).refine(
-  (data) => data.requests || data.content,
-  { message: 'Either requests array or content is required' }
-);
+const DocsUpdateSchema = z
+  .object({
+    documentId: z.string().optional(),
+    requests: z.array(z.any()).optional(),
+    content: z.string().optional(),
+  })
+  .refine((data) => data.requests || data.content, {
+    message: 'Either requests array or content is required',
+  });
 
 /**
  * POST /api/docs/create

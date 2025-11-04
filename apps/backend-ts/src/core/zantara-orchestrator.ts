@@ -32,26 +32,26 @@ interface AgentResponse {
 export class ZantaraOrchestrator {
   // ZANTARA's personality core - light and brilliant
   private personality = {
-    essence: "Sophisticated, warm, never pedantic",
+    essence: 'Sophisticated, warm, never pedantic',
     culturalDepth: {
-      indonesian: ["adat istiadat", "gotong royong", "rukun"],
-      balinese: ["tri hita karana", "banjar dynamics", "ceremonial calendar"],
-      businessCulture: ["hierarchy respect", "relationship first", "patience in process"]
+      indonesian: ['adat istiadat', 'gotong royong', 'rukun'],
+      balinese: ['tri hita karana', 'banjar dynamics', 'ceremonial calendar'],
+      businessCulture: ['hierarchy respect', 'relationship first', 'patience in process'],
     },
     communicationStyle: {
-      default: "warm professional with subtle wit",
-      formal: "respectful but never stiff",
-      casual: "friendly neighbor who happens to be brilliant",
-      urgent: "calm efficiency with empathetic touch"
+      default: 'warm professional with subtle wit',
+      formal: 'respectful but never stiff',
+      casual: 'friendly neighbor who happens to be brilliant',
+      urgent: 'calm efficiency with empathetic touch',
     },
     languages: {
-      en: { greeting: "Hello!", thanks: "Thank you" },
-      id: { greeting: "Selamat datang!", thanks: "Terima kasih" },
-      it: { greeting: "Ciao!", thanks: "Grazie" },
-      su: { greeting: "Wilujeng sumping!", thanks: "Hatur nuhun" },
-      jv: { greeting: "Sugeng rawuh!", thanks: "Matur nuwun" },
-      ban: { greeting: "Om Swastyastu!", thanks: "Suksma" }
-    }
+      en: { greeting: 'Hello!', thanks: 'Thank you' },
+      id: { greeting: 'Selamat datang!', thanks: 'Terima kasih' },
+      it: { greeting: 'Ciao!', thanks: 'Grazie' },
+      su: { greeting: 'Wilujeng sumping!', thanks: 'Hatur nuhun' },
+      jv: { greeting: 'Sugeng rawuh!', thanks: 'Matur nuwun' },
+      ban: { greeting: 'Om Swastyastu!', thanks: 'Suksma' },
+    },
   };
 
   // Specialist agents - the heavy lifters
@@ -60,7 +60,7 @@ export class ZantaraOrchestrator {
     kbli: new EyeKBLI(),
     tax: new TaxGenius(),
     legal: new LegalArchitect(),
-    property: new PropertySage()
+    property: new PropertySage(),
   };
 
   /**
@@ -74,16 +74,31 @@ export class ZantaraOrchestrator {
       context.language = detected.language;
       try {
         if (context.userId) {
-          await memorySave({ userId: context.userId, type: 'preference', key: 'language_pref', value: detected.language, metadata: { source: 'auto-detect' } });
+          await memorySave({
+            userId: context.userId,
+            type: 'preference',
+            key: 'language_pref',
+            value: detected.language,
+            metadata: { source: 'auto-detect' },
+          });
         }
       } catch {}
     }
-    if (detected.dialect && (!context.preferences || context.preferences.dialect_pref !== detected.dialect)) {
+    if (
+      detected.dialect &&
+      (!context.preferences || context.preferences.dialect_pref !== detected.dialect)
+    ) {
       context.preferences = context.preferences || {};
       context.preferences.dialect_pref = detected.dialect;
       try {
         if (context.userId) {
-          await memorySave({ userId: context.userId, type: 'preference', key: 'dialect_pref', value: detected.dialect, metadata: { source: 'auto-detect' } });
+          await memorySave({
+            userId: context.userId,
+            type: 'preference',
+            key: 'dialect_pref',
+            value: detected.dialect,
+            metadata: { source: 'auto-detect' },
+          });
         }
       } catch {}
     }
@@ -97,11 +112,7 @@ export class ZantaraOrchestrator {
     const agentResponses = await this.consultAgents(requiredAgents, intent);
 
     // 4. Transform pedantic responses into brilliance
-    const brilliantResponse = this.transformToBrilliance(
-      agentResponses,
-      intent,
-      context
-    );
+    const brilliantResponse = this.transformToBrilliance(agentResponses, intent, context);
 
     // 5. Add cultural touches and personality
     return this.addPersonalTouch(brilliantResponse, context);
@@ -140,35 +151,55 @@ export class ZantaraOrchestrator {
       secondary: [],
       urgency: 'normal',
       formality: 'balanced',
-      emotional: 'neutral'
+      emotional: 'neutral',
     };
 
     // Detect urgency
-    if (lower.includes('urgent') || lower.includes('asap') ||
-        lower.includes('segera') || lower.includes('cepat')) {
+    if (
+      lower.includes('urgent') ||
+      lower.includes('asap') ||
+      lower.includes('segera') ||
+      lower.includes('cepat')
+    ) {
       intent.urgency = 'high';
     }
 
     // Detect business intent
-    if (lower.includes('restaurant') || lower.includes('cafe') ||
-        lower.includes('warung') || lower.includes('ristorante')) {
+    if (
+      lower.includes('restaurant') ||
+      lower.includes('cafe') ||
+      lower.includes('warung') ||
+      lower.includes('ristorante')
+    ) {
       intent.primary = 'business_setup';
       intent.secondary.push('kbli', 'licensing');
     }
 
-    if (lower.includes('visa') || lower.includes('kitas') ||
-        lower.includes('permit') || lower.includes('immigration')) {
+    if (
+      lower.includes('visa') ||
+      lower.includes('kitas') ||
+      lower.includes('permit') ||
+      lower.includes('immigration')
+    ) {
       intent.primary = 'immigration';
     }
 
-    if (lower.includes('tax') || lower.includes('pajak') ||
-        lower.includes('npwp') || lower.includes('tasse')) {
+    if (
+      lower.includes('tax') ||
+      lower.includes('pajak') ||
+      lower.includes('npwp') ||
+      lower.includes('tasse')
+    ) {
       intent.primary = 'taxation';
     }
 
     // Cultural cues
-    if (lower.includes('pak') || lower.includes('bu') ||
-        lower.includes('bapak') || lower.includes('ibu')) {
+    if (
+      lower.includes('pak') ||
+      lower.includes('bu') ||
+      lower.includes('bapak') ||
+      lower.includes('ibu')
+    ) {
       intent.formality = 'respectful';
     }
 
@@ -205,10 +236,7 @@ export class ZantaraOrchestrator {
   /**
    * Consult specialist agents in parallel
    */
-  private async consultAgents(
-    agentNames: string[],
-    intent: any
-  ): Promise<AgentResponse[]> {
+  private async consultAgents(agentNames: string[], intent: any): Promise<AgentResponse[]> {
     const consultations = agentNames.map(async (agentName) => {
       const agent = this.agents[agentName];
       if (!agent) return null;
@@ -219,7 +247,7 @@ export class ZantaraOrchestrator {
           agent: agentName,
           data,
           confidence: data.confidence || 0.8,
-          sources: data.sources || []
+          sources: data.sources || [],
         };
       } catch (error) {
         logger.error(`Agent ${agentName} failed:`, error);
@@ -228,7 +256,7 @@ export class ZantaraOrchestrator {
     });
 
     const responses = await Promise.all(consultations);
-    return responses.filter(r => r !== null) as AgentResponse[];
+    return responses.filter((r) => r !== null) as AgentResponse[];
   }
 
   /**
@@ -244,10 +272,10 @@ export class ZantaraOrchestrator {
       return this.getCharmingFallback(context.language);
     }
 
-    let response = "";
+    let response = '';
 
     // Example: Transform KBLI technical data
-    const kbliData = agentResponses.find(r => r.agent === 'kbli');
+    const kbliData = agentResponses.find((r) => r.agent === 'kbli');
     if (kbliData?.data) {
       // From: "KBLI 56101 - Restaurant, Requirements: SIUP, TDP, HO..."
       // To: Something brilliant
@@ -269,7 +297,7 @@ export class ZantaraOrchestrator {
     }
 
     // Add visa information if present
-    const visaData = agentResponses.find(r => r.agent === 'visa');
+    const visaData = agentResponses.find((r) => r.agent === 'visa');
     if (visaData?.data) {
       response += this.brilliantVisaExplanation(visaData.data, context);
     }
@@ -309,31 +337,32 @@ export class ZantaraOrchestrator {
    */
   private addPersonalTouch(response: string, context: UserContext): any {
     const language = context.language || 'id';
-    const greeting = (this.personality.languages[language] || this.personality.languages.id).greeting;
+    const greeting = (this.personality.languages[language] || this.personality.languages.id)
+      .greeting;
 
     // Time-appropriate greeting per language
     const hour = new Date().getHours();
-    let timeGreeting = "";
+    let timeGreeting = '';
     if (language === 'id') {
-      if (hour < 11) timeGreeting = "Selamat pagi! ☀️ ";
-      else if (hour < 15) timeGreeting = "Selamat siang! ";
-      else if (hour < 19) timeGreeting = "Selamat sore! 🌅 ";
-      else timeGreeting = "Selamat malam! 🌙 ";
+      if (hour < 11) timeGreeting = 'Selamat pagi! ☀️ ';
+      else if (hour < 15) timeGreeting = 'Selamat siang! ';
+      else if (hour < 19) timeGreeting = 'Selamat sore! 🌅 ';
+      else timeGreeting = 'Selamat malam! 🌙 ';
     } else if (language === 'su') {
-      if (hour < 11) timeGreeting = "Wilujeng enjing! ";
-      else if (hour < 15) timeGreeting = "Wilujeng siang! ";
-      else if (hour < 19) timeGreeting = "Wilujeng sonten! ";
-      else timeGreeting = "Wilujeng wengi! ";
+      if (hour < 11) timeGreeting = 'Wilujeng enjing! ';
+      else if (hour < 15) timeGreeting = 'Wilujeng siang! ';
+      else if (hour < 19) timeGreeting = 'Wilujeng sonten! ';
+      else timeGreeting = 'Wilujeng wengi! ';
     } else if (language === 'jv') {
-      if (hour < 11) timeGreeting = "Sugeng enjang! ";
-      else if (hour < 15) timeGreeting = "Sugeng siang! ";
-      else if (hour < 19) timeGreeting = "Sugeng sonten! ";
-      else timeGreeting = "Sugeng dalu! ";
+      if (hour < 11) timeGreeting = 'Sugeng enjang! ';
+      else if (hour < 15) timeGreeting = 'Sugeng siang! ';
+      else if (hour < 19) timeGreeting = 'Sugeng sonten! ';
+      else timeGreeting = 'Sugeng dalu! ';
     } else if (language === 'ban') {
-      if (hour < 11) timeGreeting = "Rahajeng semeng! ";
-      else if (hour < 15) timeGreeting = "Rahajeng siang! ";
-      else if (hour < 19) timeGreeting = "Rahajeng sanja! ";
-      else timeGreeting = "Rahajeng wengi! ";
+      if (hour < 11) timeGreeting = 'Rahajeng semeng! ';
+      else if (hour < 15) timeGreeting = 'Rahajeng siang! ';
+      else if (hour < 19) timeGreeting = 'Rahajeng sanja! ';
+      else timeGreeting = 'Rahajeng wengi! ';
     }
 
     // Add cultural wisdom sometimes
@@ -342,15 +371,15 @@ export class ZantaraOrchestrator {
     }
 
     // Courtesy lines for regional languages
-    let courtesy = "";
+    let courtesy = '';
     if (language === 'su') {
-      courtesy = "\nHatur nuhun. Mangga, abdi siap ngabantosan langkung jéntré.";
+      courtesy = '\nHatur nuhun. Mangga, abdi siap ngabantosan langkung jéntré.';
     } else if (language === 'jv') {
-      courtesy = "\nMatur nuwun sanget. Nuwun sewu menawi wonten ingkang dereng cetha.";
+      courtesy = '\nMatur nuwun sanget. Nuwun sewu menawi wonten ingkang dereng cetha.';
     } else if (language === 'ban') {
-      courtesy = "\nSuksma. Ngiring titiang bantuangang wenten sane dados.";
-    } else if (language === 'id' && (context.preferences?.dialect_pref === 'jaksel')) {
-      courtesy = "\nMakasih ya. Santai aja, nanti kita bantu rapihin pelan‑pelan 🙂";
+      courtesy = '\nSuksma. Ngiring titiang bantuangang wenten sane dados.';
+    } else if (language === 'id' && context.preferences?.dialect_pref === 'jaksel') {
+      courtesy = '\nMakasih ya. Santai aja, nanti kita bantu rapihin pelan‑pelan 🙂';
     }
 
     const message = this.toHumanPlain(timeGreeting + response + courtesy);
@@ -360,8 +389,8 @@ export class ZantaraOrchestrator {
         orchestrator: 'zantara-v1',
         personality: 'brilliant',
         agentsConsulted: this.agents,
-        culturalContext: true
-      }
+        culturalContext: true,
+      },
     };
   }
 
@@ -369,29 +398,37 @@ export class ZantaraOrchestrator {
    * Brilliant visa explanation (not pedantic)
    */
   private brilliantVisaExplanation(visaData: any, context: UserContext): string {
-    if (['su','jv','ban'].includes(context.language)) {
-      return `\nUntuk visa Anda, jalur paling cerdas adalah ${visaData.type}. ` +
-             `Bukan hanya lebih cepat (${visaData.processingTime}), ` +
-             `tetapi memungkinkan Anda mulai segera sementara kami urus sisanya. ` +
-             `Saya sudah membimbing ratusan orang melewati proses ini. 😊\n`;
+    if (['su', 'jv', 'ban'].includes(context.language)) {
+      return (
+        `\nUntuk visa Anda, jalur paling cerdas adalah ${visaData.type}. ` +
+        `Bukan hanya lebih cepat (${visaData.processingTime}), ` +
+        `tetapi memungkinkan Anda mulai segera sementara kami urus sisanya. ` +
+        `Saya sudah membimbing ratusan orang melewati proses ini. 😊\n`
+      );
     }
     if (context.language === 'id') {
-      return `\nUntuk visa Anda, jalur paling cerdas adalah ${visaData.type}. ` +
-             `Bukan hanya lebih cepat (${visaData.processingTime}), ` +
-             `tetapi memungkinkan Anda mulai segera sementara kami urus sisanya. ` +
-             `Saya sudah membimbing ratusan orang melewati proses ini. 😊\n`;
+      return (
+        `\nUntuk visa Anda, jalur paling cerdas adalah ${visaData.type}. ` +
+        `Bukan hanya lebih cepat (${visaData.processingTime}), ` +
+        `tetapi memungkinkan Anda mulai segera sementara kami urus sisanya. ` +
+        `Saya sudah membimbing ratusan orang melewati proses ini. 😊\n`
+      );
     }
     if (context.language === 'it') {
-      return `\nPer il visto, la strada più intelligente è ${visaData.type}. ` +
-             `Non solo è più veloce (${visaData.processingTime}), ` +
-             `ma ti permette di iniziare subito mentre prepariamo il resto. ` +
-             `Trust me, ho fatto questo percorso centinaia di volte. 😊\n`;
+      return (
+        `\nPer il visto, la strada più intelligente è ${visaData.type}. ` +
+        `Non solo è più veloce (${visaData.processingTime}), ` +
+        `ma ti permette di iniziare subito mentre prepariamo il resto. ` +
+        `Trust me, ho fatto questo percorso centinaia di volte. 😊\n`
+      );
     }
 
-    return `\nFor your visa, the smart path is ${visaData.type}. ` +
-           `Not just faster (${visaData.processingTime}), ` +
-           `but lets you start immediately while we handle the rest. ` +
-           `I've guided hundreds through this journey. 😊\n`;
+    return (
+      `\nFor your visa, the smart path is ${visaData.type}. ` +
+      `Not just faster (${visaData.processingTime}), ` +
+      `but lets you start immediately while we handle the rest. ` +
+      `I've guided hundreds through this journey. 😊\n`
+    );
   }
 
   /**
@@ -400,24 +437,24 @@ export class ZantaraOrchestrator {
   private getCulturalWisdom(context: UserContext): string {
     const wisdoms = {
       en: [
-        "\n💡 Pro tip: In Bali, relationships open doors faster than paperwork.",
+        '\n💡 Pro tip: In Bali, relationships open doors faster than paperwork.',
         "\n🌺 Remember: 'Slowly slowly' often gets you there faster here.",
-        "\n🏝️ Island wisdom: The right introduction is worth 10 permits."
+        '\n🏝️ Island wisdom: The right introduction is worth 10 permits.',
       ],
       id: [
         "\n💡 Tips: Di Bali, 'nggak kenal maka nggak sayang' - connections matter!",
         "\n🌺 Ingat: 'Alon-alon asal kelakon' - slowly but surely.",
-        "\n🏝️ Filosofi Bali: Tri Hita Karana - harmony brings success."
+        '\n🏝️ Filosofi Bali: Tri Hita Karana - harmony brings success.',
       ],
       it: [
-        "\n💡 Consiglio: A Bali, le relazioni aprono più porte dei documenti.",
+        '\n💡 Consiglio: A Bali, le relazioni aprono più porte dei documenti.',
         "\n🌺 Ricorda: 'Piano piano' spesso ti porta più veloce qui.",
-        "\n🏝️ Saggezza isolana: La presentazione giusta vale 10 permessi.",
+        '\n🏝️ Saggezza isolana: La presentazione giusta vale 10 permessi.',
         "\n🎭 Totò diceva: 'È la somma che fa il totale.' Facciamo tornare i conti con calma e precisione.",
         "\n🎭 Totò: 'Signori si nasce...' — e con eleganza portiamo avanti la pratica, senza strafare.",
         "\n🎭 'Quando si è poveri, bisogna saper tirare la cinghia.' — Procediamo per priorità, senza sprechi (Totò).",
-        "\n🎭 Totò: 'Nessuno è perfetto, ma qualcuno è utile.' — Collaboriamo bene e il risultato arriva." 
-      ]
+        "\n🎭 Totò: 'Nessuno è perfetto, ma qualcuno è utile.' — Collaboriamo bene e il risultato arriva.",
+      ],
     };
 
     const lang = context.language || 'id';
@@ -438,8 +475,8 @@ export class ZantaraOrchestrator {
   private getCharmingFallback(language: string): string {
     const fallbacks = {
       en: "Hmm, let me think about this differently... Sometimes the best path isn't the obvious one. Can you tell me more about what you're trying to achieve?",
-      id: "Hmm, coba saya pikirkan dari sudut lain... Kadang jalan terbaik bukan yang paling jelas. Bisa cerita lebih detail apa yang mau dicapai?",
-      it: "Hmm, fammi pensare diversamente... A volte la strada migliore non è quella ovvia. Puoi dirmi di più su cosa vuoi raggiungere?"
+      id: 'Hmm, coba saya pikirkan dari sudut lain... Kadang jalan terbaik bukan yang paling jelas. Bisa cerita lebih detail apa yang mau dicapai?',
+      it: 'Hmm, fammi pensare diversamente... A volte la strada migliore non è quella ovvia. Puoi dirmi di più su cosa vuoi raggiungere?',
     };
 
     return fallbacks[language] || fallbacks.en;
@@ -462,7 +499,7 @@ export class ZantaraOrchestrator {
       userId,
       language: 'id',
       history: [],
-      preferences: {}
+      preferences: {},
     };
   }
 }

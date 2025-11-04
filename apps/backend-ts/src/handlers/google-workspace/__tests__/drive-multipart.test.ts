@@ -5,14 +5,18 @@ import { BadRequestError } from '../../../utils/errors.js';
 const mockDrive = {
   files: {
     create: jest.fn().mockResolvedValue({
-      data: { id: 'test-file-id', name: 'test-file.txt' }
-    })
-  }
+      data: { id: 'test-file-id', name: 'test-file.txt' },
+    }),
+  },
 };
 
-jest.mock('../../../services/google-auth-service.js', () => ({
-  getDrive: jest.fn().mockResolvedValue(mockDrive)
-}), { virtual: true });
+jest.mock(
+  '../../../services/google-auth-service.js',
+  () => ({
+    getDrive: jest.fn().mockResolvedValue(mockDrive),
+  }),
+  { virtual: true }
+);
 
 describe('Drive Multipart', () => {
   let handlers: any;
@@ -28,17 +32,17 @@ describe('Drive Multipart', () => {
       const mockReq: any = {
         body: {
           name: 'test-file.txt',
-          parent: 'folder-id'
+          parent: 'folder-id',
         },
         file: {
           buffer: Buffer.from('test content'),
           originalname: 'test-file.txt',
-          mimetype: 'text/plain'
-        }
+          mimetype: 'text/plain',
+        },
       };
       const mockRes: any = {
         status: jest.fn().mockReturnThis(),
-        json: jest.fn().mockReturnThis()
+        json: jest.fn().mockReturnThis(),
       };
 
       await handlers.handleDriveUploadMultipart(mockReq, mockRes);
@@ -50,29 +54,27 @@ describe('Drive Multipart', () => {
     it('should handle missing required params', async () => {
       // Express handler - test with no file
       const mockReq: any = {
-        body: {}
+        body: {},
       };
       const mockRes: any = {
         status: jest.fn().mockReturnThis(),
-        json: jest.fn().mockReturnThis()
+        json: jest.fn().mockReturnThis(),
       };
 
       await handlers.handleDriveUploadMultipart(mockReq, mockRes);
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
-      expect(mockRes.json).toHaveBeenCalledWith(
-        expect.objectContaining({ ok: false })
-      );
+      expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({ ok: false }));
     });
 
     it('should handle invalid params', async () => {
       const mockReq: any = {
         body: { invalid: 'data' },
-        file: null
+        file: null,
       };
       const mockRes: any = {
         status: jest.fn().mockReturnThis(),
-        json: jest.fn().mockReturnThis()
+        json: jest.fn().mockReturnThis(),
       };
 
       await handlers.handleDriveUploadMultipart(mockReq, mockRes);
@@ -80,5 +82,4 @@ describe('Drive Multipart', () => {
       expect(mockRes.status).toHaveBeenCalledWith(400);
     });
   });
-
 });

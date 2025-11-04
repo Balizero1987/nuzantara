@@ -5,8 +5,8 @@
  */
 
 import logger from '../../services/logger.js';
-import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
 import { ENV } from '../../config/index.js';
 
 // RAG Backend Configuration
@@ -18,7 +18,7 @@ interface ZantaraParams {
   temperature?: number;
   context?: string;
   mode?: 'santai' | 'pikiran';
-  user_email?: string;  // CRITICAL: For collaborator identification
+  user_email?: string; // CRITICAL: For collaborator identification
 }
 
 /**
@@ -34,7 +34,9 @@ export async function zantaraChat(params: ZantaraParams) {
   const mode = params.mode || 'santai'; // Default to Santai mode
   const user_email = params.user_email || 'guest'; // Use provided email or default to guest
 
-  logger.info(`🎯 [ZANTARA RAG] Mode: ${mode}, User: ${user_email}, Message: ${message.substring(0, 50)}...`);
+  logger.info(
+    `🎯 [ZANTARA RAG] Mode: ${mode}, User: ${user_email}, Message: ${message.substring(0, 50)}...`
+  );
 
   try {
     // Call RAG Backend with shorter timeout
@@ -50,19 +52,19 @@ export async function zantaraChat(params: ZantaraParams) {
         query: message,
         mode: mode,
         user_email: user_email, // CRITICAL: Pass actual user email for identification
-        user_role: 'member'
+        user_role: 'member',
       }),
-      signal: controller.signal
+      signal: controller.signal,
     });
-    
+
     clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`RAG Backend error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json() as any;
-    
+    const data = (await response.json()) as any;
+
     if (!data.success) {
       throw new Error(`RAG Backend failed: ${data.response || 'Unknown error'}`);
     }
@@ -75,50 +77,51 @@ export async function zantaraChat(params: ZantaraParams) {
       provider: 'rag-backend',
       tokens: data.usage?.output_tokens || 0,
       executionTime: `${Date.now() - Date.now()}ms`,
-      mode: mode
+      mode: mode,
     });
-
   } catch (error: any) {
     logger.error(`❌ [ZANTARA RAG] Error: ${error.message}`);
-    
+
     // FALLBACK: Direct RunPod call if RAG backend fails
     logger.info(`🔄 [ZANTARA FALLBACK] Trying direct RunPod...`);
-    
+
     try {
       const fallbackResponse = await fetch('https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${ENV.RUNPOD_API_KEY}`
+          Authorization: `Bearer ${ENV.RUNPOD_API_KEY}`,
         },
         body: JSON.stringify({
           input: {
             prompt: `You are ZANTARA, Indonesian AI assistant for Bali Zero. Respond in the same language as the user. Mode: ${mode.toUpperCase()}. User message: ${message}`,
             max_tokens: mode === 'santai' ? 100 : 300,
-            temperature: 0.7
-          }
-        })
+            temperature: 0.7,
+          },
+        }),
       });
-      
+
       if (fallbackResponse.ok) {
-        const fallbackData = await fallbackResponse.json() as any;
+        const fallbackData = (await fallbackResponse.json()) as any;
         logger.info(`✅ [ZANTARA FALLBACK] Direct RunPod success`);
-        
+
         // Clean up response formatting
         let cleanAnswer = 'ZANTARA is thinking...';
-        
+
         if (fallbackData.output) {
           if (Array.isArray(fallbackData.output)) {
             // Handle array of tokens/choices
             cleanAnswer = fallbackData.output
               .map((item: any) => {
                 if (item.choices && Array.isArray(item.choices)) {
-                  return item.choices.map((choice: any) => {
-                    if (choice.tokens && Array.isArray(choice.tokens)) {
-                      return choice.tokens.join('');
-                    }
-                    return choice.text || choice.content || '';
-                  }).join('');
+                  return item.choices
+                    .map((choice: any) => {
+                      if (choice.tokens && Array.isArray(choice.tokens)) {
+                        return choice.tokens.join('');
+                      }
+                      return choice.text || choice.content || '';
+                    })
+                    .join('');
                 }
                 return item.text || item.content || '';
               })
@@ -128,27 +131,27 @@ export async function zantaraChat(params: ZantaraParams) {
             cleanAnswer = fallbackData.output.trim();
           }
         }
-        
+
         // Clean up any remaining formatting issues
         cleanAnswer = cleanAnswer
           .replace(/\[PRICE\]/g, '')
           .replace(/\[PRICE\]/g, '')
           .replace(/\n\n+/g, '\n')
           .trim();
-        
+
         return ok({
           answer: cleanAnswer || 'ZANTARA is thinking...',
           model: 'zantara-llama-3.1-8b-fallback',
           provider: 'runpod-direct',
           tokens: 0,
           executionTime: 'fallback',
-          mode: mode
+          mode: mode,
         });
       }
     } catch (fallbackError: any) {
       logger.error(`❌ [ZANTARA FALLBACK] Failed: ${fallbackError.message}`);
     }
-    
+
     throw new Error(`RAG Backend unavailable: ${error.message}`);
   }
 }

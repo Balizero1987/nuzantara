@@ -322,9 +322,9 @@ class StreamingUI {
 
   // Copy citations to clipboard
   async copyCitations(citations, button) {
-    const text = citations.map((c, i) =>
-      `[${i + 1}] ${c.title}\n${c.url}${c.snippet ? '\n' + c.snippet : ''}`
-    ).join('\n\n');
+    const text = citations
+      .map((c, i) => `[${i + 1}] ${c.title}\n${c.url}${c.snippet ? '\n' + c.snippet : ''}`)
+      .join('\n\n');
 
     try {
       await navigator.clipboard.writeText(text);

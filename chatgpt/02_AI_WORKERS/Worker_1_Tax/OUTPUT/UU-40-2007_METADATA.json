@@ -7,12 +7,7 @@
   "total_ayat": 0,
   "methodology": "PP 28/2025 gold standard",
   "chunking_unit": "1 Pasal = 1 chunk",
-  "target_users": [
-    "WNI",
-    "WNA",
-    "PT_Lokal",
-    "PT_PMA"
-  ],
+  "target_users": ["WNI", "WNA", "PT_Lokal", "PT_PMA"],
   "deliverables": [
     "UU-40-2007_READY_FOR_KB.jsonl",
     "UU-40-2007_PROCESSING_REPORT.md",

@@ -4,38 +4,44 @@
  */
 
 import logger from '../../services/logger.js';
-import { ok } from "../../utils/response.js";
-import { zantaraChat } from "./zantara-llama.js";
+import { ok } from '../../utils/response.js';
+import { zantaraChat } from './zantara-llama.js';
 
 // Team member recognition database
-const TEAM_RECOGNITION: Record<string, { name: string; role: string; department: string; language: string; personalizedResponse: string }> = {
-  'zero': {
+const TEAM_RECOGNITION: Record<
+  string,
+  { name: string; role: string; department: string; language: string; personalizedResponse: string }
+> = {
+  zero: {
     name: 'Zero',
     role: 'AI Bridge/Tech Lead',
     department: 'technology',
     language: 'Italian',
-    personalizedResponse: "Ciao Zero! Bentornato. Come capo del team tech, hai accesso completo a tutti i sistemi ZANTARA e Bali Zero."
+    personalizedResponse:
+      'Ciao Zero! Bentornato. Come capo del team tech, hai accesso completo a tutti i sistemi ZANTARA e Bali Zero.',
   },
-  'zainal': {
+  zainal: {
     name: 'Zainal Abidin',
     role: 'CEO',
     department: 'management',
     language: 'Indonesian',
-    personalizedResponse: "Selamat datang kembali Zainal! Sebagai CEO, Anda memiliki akses penuh ke semua sistem Bali Zero dan ZANTARA."
+    personalizedResponse:
+      'Selamat datang kembali Zainal! Sebagai CEO, Anda memiliki akses penuh ke semua sistem Bali Zero dan ZANTARA.',
   },
-  'antonello': {
+  antonello: {
     name: 'Antonello Siano',
     role: 'Founder',
     department: 'technology',
     language: 'Italian',
-    personalizedResponse: "Ciao Antonello! Bentornato. Come fondatore di Bali Zero, hai accesso completo a tutti i sistemi."
-  }
+    personalizedResponse:
+      'Ciao Antonello! Bentornato. Come fondatore di Bali Zero, hai accesso completo a tutti i sistemi.',
+  },
 };
 
 // Check for identity recognition
 function checkIdentityRecognition(prompt: string, _sessionId: string): string | null {
   const text = prompt.toLowerCase();
-  
+
   for (const [, member] of Object.entries(TEAM_RECOGNITION)) {
     // Build comprehensive alias list: full name, name parts, role, department, and key
     const nameParts = member.name.toLowerCase().split(/\s+/);
@@ -45,13 +51,14 @@ function checkIdentityRecognition(prompt: string, _sessionId: string): string | 
       member.role.toLowerCase(), // Role: "founder"
       member.department.toLowerCase(), // Department: "technology"
     ];
-    
+
     // Check if any alias matches (as substring or exact match)
-    if (aliases.some(alias => {
-      // Match if alias is contained in text OR text contains the alias as a word
-      return text.includes(alias) || 
-             new RegExp(`\\b${alias}\\b`, 'i').test(text);
-    })) {
+    if (
+      aliases.some((alias) => {
+        // Match if alias is contained in text OR text contains the alias as a word
+        return text.includes(alias) || new RegExp(`\\b${alias}\\b`, 'i').test(text);
+      })
+    ) {
       logger.info(`✅ [ZANTARA] Identity recognized: ${member.name} (${member.role})`);
       return member.personalizedResponse;
     }
@@ -69,7 +76,10 @@ export async function aiChat(params: any) {
 
   try {
     // Check for identity recognition FIRST
-    const identityResponse = checkIdentityRecognition(params.prompt || params.message, params.sessionId || 'default');
+    const identityResponse = checkIdentityRecognition(
+      params.prompt || params.message,
+      params.sessionId || 'default'
+    );
     if (identityResponse) {
       logger.info(`✅ [ZANTARA] Identity recognized - returning personalized response`);
       return ok({ response: identityResponse, recognized: true, ts: Date.now() });
@@ -80,9 +90,9 @@ export async function aiChat(params: any) {
       message: params.prompt || params.message,
       mode: params.mode || 'santai', // Default to Santai mode
       user_email: params.user_email, // CRITICAL: Pass user_email for identification
-      ...params
+      ...params,
     });
-    
+
     // Normalize response format: zantaraChat returns 'answer', but tests expect 'response'
     if (zantaraResult.ok && zantaraResult.data) {
       const data = zantaraResult.data as any;
@@ -95,14 +105,14 @@ export async function aiChat(params: any) {
         usage: data.usage || {},
         mode: data.mode || params.mode || 'santai',
         recognized: false, // Not an identity match
-        ts: Date.now()
+        ts: Date.now(),
       });
     }
-    
+
     return zantaraResult;
   } catch (error: any) {
     logger.error('❌ ZANTARA error:', error);
-    
+
     // Graceful fallback response instead of throwing error
     return ok({
       response: `Ciao! Sono ZANTARA, l'assistente AI di Bali Zero. Attualmente il mio modello personalizzato non è disponibile, ma posso comunque aiutarti con informazioni sui nostri servizi. Come posso esserti utile oggi?`,
@@ -110,10 +120,10 @@ export async function aiChat(params: any) {
       usage: {
         prompt_tokens: 0,
         completion_tokens: 0,
-        total_tokens: 0
+        total_tokens: 0,
       },
       recognized: false,
-      ts: Date.now()
+      ts: Date.now(),
     });
   }
 }

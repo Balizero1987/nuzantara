@@ -70,7 +70,7 @@ export function attachModularRoutes(app: Express) {
 
   // Analytics
   app.use('/api/analytics', analyticsRoutes);
-  
+
   // RAG Management
   app.use('/api/rag', ragRoutes);
 
@@ -87,16 +87,21 @@ export function getRouteStats() {
   return {
     totalModules: 13, // Update as routes are added
     implemented: [
-      'gmail', 'drive', 'calendar', 'sheets', 'docs',
-      'ai', 'creative',
-      'oracle', 'pricing', 'team',
+      'gmail',
+      'drive',
+      'calendar',
+      'sheets',
+      'docs',
+      'ai',
+      'creative',
+      'oracle',
+      'pricing',
+      'team',
       'translate',
       'analytics',
-      'persistent-memory'
+      'persistent-memory',
     ],
-    pending: [
-      'whatsapp', 'instagram'
-    ],
-    note: 'Webhook routes (WhatsApp, Instagram) remain in router.ts by design. Persistent Memory V4.0 now integrated!'
+    pending: ['whatsapp', 'instagram'],
+    note: 'Webhook routes (WhatsApp, Instagram) remain in router.ts by design. Persistent Memory V4.0 now integrated!',
   };
 }

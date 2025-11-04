@@ -14,21 +14,13 @@
     "total_articles": 534,
     "total_chapters": 14,
     "language": "Indonesian",
-    "primary_topics": [
-      "taxation",
-      "tax_rates",
-      "business_regulations"
-    ]
+    "primary_topics": ["taxation", "tax_rates", "business_regulations"]
   },
   "integration": {
     "added_date": "2025-11-03T07:24:47.545997",
     "processed_date": "2025-11-03T07:24:47.546021",
     "oracle_ready": true,
-    "domains": [
-      "legal",
-      "tax",
-      "business"
-    ],
+    "domains": ["legal", "tax", "business"],
     "priority": "high",
     "searchable": true
   },

@@ -1,6 +1,6 @@
 /**
  * ZANTARA Knowledge System Integration
- * 
+ *
  * Fetches and integrates comprehensive system knowledge for Zantara.
  * Provides complete project awareness and system status.
  */
@@ -20,19 +20,18 @@ class ZantaraKnowledge {
   async getKnowledge() {
     try {
       // Check cache first
-      if (this.knowledge && this.lastUpdated && 
-          (Date.now() - this.lastUpdated) < this.cacheTimeout) {
+      if (this.knowledge && this.lastUpdated && Date.now() - this.lastUpdated < this.cacheTimeout) {
         console.log('[ZantaraKnowledge] Using cached knowledge');
         return this.knowledge;
       }
 
       console.log('[ZantaraKnowledge] Fetching fresh knowledge...');
-      
+
       const response = await fetch(`${this.apiBase}/zantara/knowledge`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
@@ -40,20 +39,19 @@ class ZantaraKnowledge {
       }
 
       const data = await response.json();
-      
+
       if (data.ok && data.data) {
         this.knowledge = data.data;
         this.lastUpdated = Date.now();
-        
+
         console.log('[ZantaraKnowledge] ✅ Knowledge updated');
         return this.knowledge;
       } else {
         throw new Error(data.error || 'Failed to fetch knowledge');
       }
-      
     } catch (error) {
       console.error('[ZantaraKnowledge] ❌ Error:', error);
-      
+
       // Return fallback knowledge
       return this.getFallbackKnowledge();
     }
@@ -65,12 +63,12 @@ class ZantaraKnowledge {
   async getSystemPrompt() {
     try {
       console.log('[ZantaraKnowledge] Fetching system prompt...');
-      
+
       const response = await fetch(`${this.apiBase}/zantara/system-prompt`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
@@ -78,7 +76,7 @@ class ZantaraKnowledge {
       }
 
       const data = await response.json();
-      
+
       if (data.ok && data.data) {
         this.systemPrompt = data.data.systemPrompt;
         console.log('[ZantaraKnowledge] ✅ System prompt updated');
@@ -86,7 +84,6 @@ class ZantaraKnowledge {
       } else {
         throw new Error(data.error || 'Failed to fetch system prompt');
       }
-      
     } catch (error) {
       console.error('[ZantaraKnowledge] ❌ Error:', error);
       return this.getFallbackSystemPrompt();
@@ -99,12 +96,12 @@ class ZantaraKnowledge {
   async getSystemHealth() {
     try {
       console.log('[ZantaraKnowledge] Checking system health...');
-      
+
       const response = await fetch(`${this.apiBase}/zantara/health`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
@@ -112,14 +109,13 @@ class ZantaraKnowledge {
       }
 
       const data = await response.json();
-      
+
       if (data.ok && data.data) {
         console.log('[ZantaraKnowledge] ✅ Health status retrieved');
         return data.data;
       } else {
         throw new Error(data.error || 'Failed to fetch health status');
       }
-      
     } catch (error) {
       console.error('[ZantaraKnowledge] ❌ Error:', error);
       return { error: error.message };
@@ -133,26 +129,27 @@ class ZantaraKnowledge {
     try {
       const knowledge = await this.getKnowledge();
       const systemPrompt = await this.getSystemPrompt();
-      
+
       // Store in global context for Zantara
       if (typeof window !== 'undefined') {
         window.ZANTARA_KNOWLEDGE = {
           knowledge,
           systemPrompt: systemPrompt.systemPrompt,
           health: await this.getSystemHealth(),
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
         };
-        
+
         console.log('[ZantaraKnowledge] ✅ Knowledge injected into global context');
-        
+
         // Dispatch event for other components
-        window.dispatchEvent(new CustomEvent('zantara-knowledge-loaded', {
-          detail: { knowledge, systemPrompt }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('zantara-knowledge-loaded', {
+            detail: { knowledge, systemPrompt },
+          })
+        );
       }
-      
+
       return { knowledge, systemPrompt };
-      
     } catch (error) {
       console.error('[ZantaraKnowledge] ❌ Injection error:', error);
       return null;
@@ -165,25 +162,25 @@ class ZantaraKnowledge {
   getFallbackKnowledge() {
     return {
       project: {
-        name: "NUZANTARA-RAILWAY",
-        version: "5.2.0",
-        architecture: "Microservices with Fly.io deployment"
+        name: 'NUZANTARA-RAILWAY',
+        version: '5.2.0',
+        architecture: 'Microservices with Fly.io deployment',
       },
       backends: {
         rag: {
-          url: "https://nuzantara-rag.fly.dev",
-          type: "Python/FastAPI"
+          url: 'https://nuzantara-rag.fly.dev',
+          type: 'Python/FastAPI',
         },
         ts: {
-          url: "https://nuzantara-orchestrator.fly.dev",
-          type: "TypeScript/Express"
-        }
+          url: 'https://nuzantara-orchestrator.fly.dev',
+          type: 'TypeScript/Express',
+        },
       },
       status: {
         phase1: { completed: true },
         phase2: { completed: true },
-        phase3: { inProgress: true }
-      }
+        phase3: { inProgress: true },
+      },
     };
   }
 
@@ -212,7 +209,7 @@ You are ZANTARA, the intelligent AI assistant for the NUZANTARA-RAILWAY project.
 
 You have knowledge of the system architecture and can help users with any aspect of the platform.`,
       knowledge: this.getFallbackKnowledge(),
-      health: { error: "API unavailable" }
+      health: { error: 'API unavailable' },
     };
   }
 

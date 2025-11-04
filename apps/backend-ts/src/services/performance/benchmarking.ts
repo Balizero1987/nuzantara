@@ -1,8 +1,8 @@
 /**
  * Performance Benchmarking Utilities
- * 
+ *
  * Before/after comparison tools for performance optimization validation.
- * 
+ *
  * Features:
  * - Baseline metrics collection
  * - Comparison reporting
@@ -82,10 +82,10 @@ class PerformanceBenchmarking {
       memoryUsage: {
         heapUsed: memory.heapUsed,
         heapTotal: memory.heapTotal,
-        rss: memory.rss
+        rss: memory.rss,
       },
       throughput,
-      errorRate
+      errorRate,
     };
 
     this.metrics.push(metrics);
@@ -109,44 +109,44 @@ class PerformanceBenchmarking {
     const comparisons: BenchmarkComparison[] = [];
 
     // API Latency P95
-    comparisons.push(this.compareMetric(
-      'API Latency P95',
-      baseline.apiLatency.p95,
-      current.apiLatency.p95,
-      'lower'
-    ));
+    comparisons.push(
+      this.compareMetric(
+        'API Latency P95',
+        baseline.apiLatency.p95,
+        current.apiLatency.p95,
+        'lower'
+      )
+    );
 
     // Cache Hit Rate
-    comparisons.push(this.compareMetric(
-      'Cache Hit Rate',
-      baseline.cacheHitRate,
-      current.cacheHitRate,
-      'higher'
-    ));
+    comparisons.push(
+      this.compareMetric('Cache Hit Rate', baseline.cacheHitRate, current.cacheHitRate, 'higher')
+    );
 
     // Memory Usage
-    comparisons.push(this.compareMetric(
-      'Memory Usage (RSS)',
-      baseline.memoryUsage.rss,
-      current.memoryUsage.rss,
-      'lower'
-    ));
+    comparisons.push(
+      this.compareMetric(
+        'Memory Usage (RSS)',
+        baseline.memoryUsage.rss,
+        current.memoryUsage.rss,
+        'lower'
+      )
+    );
 
     // Throughput
-    comparisons.push(this.compareMetric(
-      'Throughput (req/sec)',
-      baseline.throughput.requestsPerSecond,
-      current.throughput.requestsPerSecond,
-      'higher'
-    ));
+    comparisons.push(
+      this.compareMetric(
+        'Throughput (req/sec)',
+        baseline.throughput.requestsPerSecond,
+        current.throughput.requestsPerSecond,
+        'higher'
+      )
+    );
 
     // Error Rate
-    comparisons.push(this.compareMetric(
-      'Error Rate',
-      baseline.errorRate,
-      current.errorRate,
-      'lower'
-    ));
+    comparisons.push(
+      this.compareMetric('Error Rate', baseline.errorRate, current.errorRate, 'lower')
+    );
 
     this.comparisonResults = comparisons;
     return comparisons;
@@ -161,13 +161,12 @@ class PerformanceBenchmarking {
     after: number,
     direction: 'higher' | 'lower'
   ): BenchmarkComparison {
-    const improvement = direction === 'lower' 
-      ? before - after  // Positive improvement = lower value
-      : after - before; // Positive improvement = higher value
+    const improvement =
+      direction === 'lower'
+        ? before - after // Positive improvement = lower value
+        : after - before; // Positive improvement = higher value
 
-    const improvementPercent = before !== 0
-      ? (improvement / before) * 100
-      : 0;
+    const improvementPercent = before !== 0 ? (improvement / before) * 100 : 0;
 
     let status: 'improved' | 'regressed' | 'unchanged';
     if (Math.abs(improvementPercent) < 1) {
@@ -184,7 +183,7 @@ class PerformanceBenchmarking {
       after,
       improvement,
       improvementPercent,
-      status
+      status,
     };
   }
 
@@ -193,7 +192,7 @@ class PerformanceBenchmarking {
    */
   generateReport(baselineLabel: string): string {
     const comparisons = this.compareWithBaseline(baselineLabel);
-    
+
     const report = [
       '='.repeat(60),
       'Performance Benchmarking Report',
@@ -203,27 +202,29 @@ class PerformanceBenchmarking {
       '',
       'Comparison Results:',
       '-'.repeat(60),
-      ''
+      '',
     ];
 
     for (const comp of comparisons) {
       const emoji = {
         improved: '✅',
         regressed: '❌',
-        unchanged: '➡️'
+        unchanged: '➡️',
       }[comp.status];
 
       report.push(`${emoji} ${comp.metric}:`);
       report.push(`   Before: ${comp.before.toFixed(2)}`);
       report.push(`   After:  ${comp.after.toFixed(2)}`);
-      report.push(`   Change: ${comp.improvement > 0 ? '+' : ''}${comp.improvementPercent.toFixed(2)}%`);
+      report.push(
+        `   Change: ${comp.improvement > 0 ? '+' : ''}${comp.improvementPercent.toFixed(2)}%`
+      );
       report.push('');
     }
 
     // Summary
-    const improved = comparisons.filter(c => c.status === 'improved').length;
-    const regressed = comparisons.filter(c => c.status === 'regressed').length;
-    const unchanged = comparisons.filter(c => c.status === 'unchanged').length;
+    const improved = comparisons.filter((c) => c.status === 'improved').length;
+    const regressed = comparisons.filter((c) => c.status === 'regressed').length;
+    const unchanged = comparisons.filter((c) => c.status === 'unchanged').length;
 
     report.push('-'.repeat(60));
     report.push(`Summary: ${improved} improved, ${unchanged} unchanged, ${regressed} regressed`);
@@ -241,7 +242,7 @@ class PerformanceBenchmarking {
       p50: 200,
       p95: 400,
       p99: 800,
-      avg: 250
+      avg: 250,
     };
   }
 
@@ -258,7 +259,7 @@ class PerformanceBenchmarking {
    */
   private extractThroughput(metricsText: string): BenchmarkMetrics['throughput'] {
     return {
-      requestsPerSecond: 100
+      requestsPerSecond: 100,
     };
   }
 
@@ -301,4 +302,3 @@ export function getBenchmarking(): PerformanceBenchmarking {
 
 export { PerformanceBenchmarking };
 export type { BenchmarkMetrics, BenchmarkComparison };
-

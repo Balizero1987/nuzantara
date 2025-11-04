@@ -56,7 +56,8 @@ function extractHandlers(): HandlerInfo[] {
   const handlers: HandlerInfo[] = [];
 
   // Extract handler blocks with JSDoc
-  const handlerBlockRegex = /\/\*\*[\s\S]*?@handler\s+([a-z.]+)[\s\S]*?@description\s+(.*?)(?=@|\*\/)/g;
+  const handlerBlockRegex =
+    /\/\*\*[\s\S]*?@handler\s+([a-z.]+)[\s\S]*?@description\s+(.*?)(?=@|\*\/)/g;
   let match;
 
   while ((match = handlerBlockRegex.exec(content)) !== null) {
@@ -71,7 +72,7 @@ function extractHandlers(): HandlerInfo[] {
   const simpleHandlerRegex = /"([a-z.]+)":\s*\w+/g;
   while ((match = simpleHandlerRegex.exec(content)) !== null) {
     const key = match[1];
-    if (key && !handlers.find(h => h.key === key)) {
+    if (key && !handlers.find((h) => h.key === key)) {
       const category = key.split('.')[0] || 'unknown';
       handlers.push({ key, category, description: '' });
     }
@@ -86,7 +87,7 @@ function extractHandlers(): HandlerInfo[] {
 export function getHandlersList(): string {
   // Check cache
   const now = Date.now();
-  if (cachedHandlersList && (now - cacheTimestamp) < CACHE_TTL) {
+  if (cachedHandlersList && now - cacheTimestamp < CACHE_TTL) {
     return cachedHandlersList;
   }
 
@@ -107,7 +108,7 @@ export function getHandlersList(): string {
 
     for (const [category, catHandlers] of Array.from(byCategory.entries()).sort()) {
       list += `**${category}** (${catHandlers.length}): `;
-      list += catHandlers.map(h => h.key).join(', ');
+      list += catHandlers.map((h) => h.key).join(', ');
       list += '\n\n';
     }
 
@@ -130,7 +131,7 @@ export function getHandlersList(): string {
 export function getHandlerInfo(handlerKey: string): string | null {
   try {
     const handlers = extractHandlers();
-    const handler = handlers.find(h => h.key === handlerKey);
+    const handler = handlers.find((h) => h.key === handlerKey);
 
     if (!handler) return null;
 
@@ -152,7 +153,7 @@ export function getHandlerInfo(handlerKey: string): string | null {
 export function handlerExists(handlerKey: string): boolean {
   try {
     const handlers = extractHandlers();
-    return handlers.some(h => h.key === handlerKey);
+    return handlers.some((h) => h.key === handlerKey);
   } catch (error) {
     return false;
   }

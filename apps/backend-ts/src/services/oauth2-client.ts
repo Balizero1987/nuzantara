@@ -27,7 +27,7 @@ let secretManagerClient: any = null;
 const OAUTH2_CONFIG = {
   client_id: process.env.GOOGLE_OAUTH_CLIENT_ID || '',
   client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || '',
-  redirect_uri: process.env.GOOGLE_OAUTH_REDIRECT_URI || 'http://localhost:8080/auth/callback'
+  redirect_uri: process.env.GOOGLE_OAUTH_REDIRECT_URI || 'http://localhost:8080/auth/callback',
 };
 
 // Constants for token management
@@ -47,7 +47,7 @@ async function getSecretManagerClient() {
   try {
     const { SecretManagerServiceClient } = await import('@google-cloud/secret-manager');
     secretManagerClient = new SecretManagerServiceClient({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'involuted-box-469105-r0'
+      projectId: process.env.FIREBASE_PROJECT_ID || 'involuted-box-469105-r0',
     });
     return secretManagerClient;
   } catch (error: any) {
@@ -68,8 +68,8 @@ async function saveTokensToSecretManager(tokens: OAuth2Tokens): Promise<boolean>
     await client.addSecretVersion({
       parent: secretName,
       payload: {
-        data: Buffer.from(JSON.stringify(tokens, null, 2))
-      }
+        data: Buffer.from(JSON.stringify(tokens, null, 2)),
+      },
     });
 
     logger.info('💾 OAuth2 tokens saved to Secret Manager');
@@ -104,7 +104,10 @@ async function persistTokens(tokens: OAuth2Tokens): Promise<void> {
 }
 
 // Async token refresh with proper error handling
-async function refreshTokensAsync(client: any, currentTokens: OAuth2Tokens): Promise<OAuth2Tokens | null> {
+async function refreshTokensAsync(
+  client: any,
+  currentTokens: OAuth2Tokens
+): Promise<OAuth2Tokens | null> {
   try {
     logger.info('🔄 Refreshing OAuth2 tokens...');
     const { credentials } = await client.refreshAccessToken();
@@ -113,13 +116,15 @@ async function refreshTokensAsync(client: any, currentTokens: OAuth2Tokens): Pro
       ...currentTokens,
       access_token: credentials.access_token!,
       expiry_date: credentials.expiry_date!,
-      ...(credentials.refresh_token && { refresh_token: credentials.refresh_token })
+      ...(credentials.refresh_token && { refresh_token: credentials.refresh_token }),
     };
 
     // Persist tokens immediately
     await persistTokens(newTokens);
 
-    logger.info(`✅ OAuth2 tokens refreshed successfully. Expires at: ${new Date(newTokens.expiry_date)}`);
+    logger.info(
+      `✅ OAuth2 tokens refreshed successfully. Expires at: ${new Date(newTokens.expiry_date)}`
+    );
     return newTokens;
   } catch (error: any) {
     logger.error('❌ Failed to refresh OAuth2 tokens:', error.message);
@@ -146,7 +151,9 @@ function scheduleTokenRefresh(state: OAuth2ClientState): void {
     MIN_REFRESH_INTERVAL_MS
   );
 
-  logger.info(`⏰ Scheduling OAuth2 token refresh in ${Math.round(timeUntilRefresh / 1000 / 60)} minutes`);
+  logger.info(
+    `⏰ Scheduling OAuth2 token refresh in ${Math.round(timeUntilRefresh / 1000 / 60)} minutes`
+  );
 
   state.refreshSchedule = setTimeout(async () => {
     if (state.refreshPromise) {
@@ -197,7 +204,10 @@ async function initializeOAuth2Client(): Promise<any> {
       if (!oauth2ClientState.refreshPromise) {
         oauth2ClientState.refreshPromise = (async () => {
           try {
-            const newTokens = await refreshTokensAsync(oauth2ClientState!.client, oauth2ClientState!.tokens);
+            const newTokens = await refreshTokensAsync(
+              oauth2ClientState!.client,
+              oauth2ClientState!.tokens
+            );
             if (newTokens) {
               oauth2ClientState!.tokens = newTokens;
               oauth2ClientState!.client.setCredentials(newTokens);
@@ -221,7 +231,11 @@ async function initializeOAuth2Client(): Promise<any> {
   try {
     // Check if USE_OAUTH2 is enabled
     if (!process.env.USE_OAUTH2 || process.env.USE_OAUTH2 !== 'true') {
-      logger.info('🔒 OAuth2 initialization skipped: USE_OAUTH2 is not "true" (current value: ' + (process.env.USE_OAUTH2 || 'not set') + ')');
+      logger.info(
+        '🔒 OAuth2 initialization skipped: USE_OAUTH2 is not "true" (current value: ' +
+          (process.env.USE_OAUTH2 || 'not set') +
+          ')'
+      );
       return null;
     }
 
@@ -239,7 +253,7 @@ async function initializeOAuth2Client(): Promise<any> {
       has_access_token: !!tokens.access_token,
       has_refresh_token: !!tokens.refresh_token,
       scopes: tokens.scope?.split(' ') || 'unknown',
-      expires_at: new Date(tokens.expiry_date).toISOString()
+      expires_at: new Date(tokens.expiry_date).toISOString(),
     });
 
     if (!tokens.refresh_token) {
@@ -261,7 +275,7 @@ async function initializeOAuth2Client(): Promise<any> {
       tokens,
       refreshPromise: null,
       lastRefresh: 0,
-      refreshSchedule: null
+      refreshSchedule: null,
     };
 
     // Setup automatic token refresh event handler
@@ -272,7 +286,7 @@ async function initializeOAuth2Client(): Promise<any> {
         ...oauth2ClientState!.tokens,
         access_token: newTokens.access_token,
         expiry_date: newTokens.expiry_date,
-        ...(newTokens.refresh_token && { refresh_token: newTokens.refresh_token })
+        ...(newTokens.refresh_token && { refresh_token: newTokens.refresh_token }),
       };
 
       oauth2ClientState!.tokens = updatedTokens;
@@ -320,7 +334,9 @@ async function initializeOAuth2Client(): Promise<any> {
 export async function getOAuth2Client() {
   const client = await initializeOAuth2Client();
   if (!client) {
-    const error = new Error('OAuth2 not configured. Set USE_OAUTH2=true and ensure oauth2 tokens file exists');
+    const error = new Error(
+      'OAuth2 not configured. Set USE_OAUTH2=true and ensure oauth2 tokens file exists'
+    );
     error.name = 'OAUTH2_NOT_CONFIGURED';
     throw error;
   }
@@ -353,7 +369,9 @@ export function getTokenStatus() {
     timeUntilExpiryMs: timeUntilExpiry,
     needsRefresh: needsImmediateRefresh(oauth2ClientState.tokens),
     refreshInProgress: oauth2ClientState.refreshPromise !== null,
-    lastRefresh: oauth2ClientState.lastRefresh ? new Date(oauth2ClientState.lastRefresh).toISOString() : null
+    lastRefresh: oauth2ClientState.lastRefresh
+      ? new Date(oauth2ClientState.lastRefresh).toISOString()
+      : null,
   };
 }
 
@@ -401,12 +419,14 @@ export async function getGoogleService(serviceName: string, version: string = 'v
 
       // Check for Drive-specific scopes if it's Drive service
       if (serviceName === 'drive') {
-        const hasDriveScope = scopes.some(scope =>
-          scope.includes('drive') || scope.includes('Drive')
+        const hasDriveScope = scopes.some(
+          (scope) => scope.includes('drive') || scope.includes('Drive')
         );
         if (!hasDriveScope) {
           logger.warn('⚠️ OAuth2 token may not have Drive scopes!');
-          logger.warn('📋 Required Drive scopes: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/drive.file');
+          logger.warn(
+            '📋 Required Drive scopes: https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/drive.file'
+          );
         }
       }
     }

@@ -57,7 +57,7 @@ class RealTeamTrackingService {
           user_email: this.userEmail,
           session_type: 'webapp',
           device_info: navigator.userAgent,
-          ip_address: 'unknown' // Will be filled by backend
+          ip_address: 'unknown', // Will be filled by backend
         }),
       });
 
@@ -66,7 +66,10 @@ class RealTeamTrackingService {
         this.sessionId = data.session_id;
         console.log(`[RealTeamTracking] Real session started: ${this.sessionId}`);
       } else {
-        console.error('[RealTeamTracking] Failed to start real session:', data.error || 'Unknown error');
+        console.error(
+          '[RealTeamTracking] Failed to start real session:',
+          data.error || 'Unknown error'
+        );
       }
     } catch (error) {
       console.error('[RealTeamTracking] Error starting real session:', error);
@@ -91,7 +94,7 @@ class RealTeamTrackingService {
         body: JSON.stringify({
           session_id: this.sessionId,
           last_activity: new Date(this.lastActivity).toISOString(),
-          activity_type: 'webapp_interaction'
+          activity_type: 'webapp_interaction',
         }),
       });
 
@@ -128,7 +131,7 @@ class RealTeamTrackingService {
         },
         body: JSON.stringify({
           session_id: this.sessionId,
-          end_reason: 'user_logout'
+          end_reason: 'user_logout',
         }),
       });
 
@@ -138,7 +141,10 @@ class RealTeamTrackingService {
         clearInterval(this.heartbeatInterval);
         this.sessionId = null;
       } else {
-        console.error('[RealTeamTracking] Failed to end real session:', data.error || 'Unknown error');
+        console.error(
+          '[RealTeamTracking] Failed to end real session:',
+          data.error || 'Unknown error'
+        );
       }
     } catch (error) {
       console.error('[RealTeamTracking] Error ending real session:', error);

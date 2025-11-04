@@ -1,9 +1,9 @@
 /**
  * WebSocket iOS Compatibility Layer
- * 
+ *
  * Provides automatic fallback to Server-Sent Events (SSE) or Long Polling
  * for iOS devices that have WebSocket connection issues.
- * 
+ *
  * Features:
  * - iOS user agent detection
  * - Automatic transport fallback (WebSocket → SSE → Long Polling)
@@ -46,7 +46,7 @@ class IOSWebSocketFallback {
       ssePath: config.ssePath || '/sse',
       pollingPath: config.pollingPath || '/socket.io',
       healthCheckInterval: config.healthCheckInterval || 30000, // 30 seconds
-      connectionTimeout: config.connectionTimeout || 60000 // 60 seconds
+      connectionTimeout: config.connectionTimeout || 60000, // 60 seconds
     };
 
     // Initialize Socket.IO with enhanced iOS support
@@ -54,7 +54,7 @@ class IOSWebSocketFallback {
       cors: {
         origin: process.env.WEBAPP_URL || 'https://zantara.balizero.com',
         methods: ['GET', 'POST'],
-        credentials: true
+        credentials: true,
       },
       // Prioritize polling for iOS compatibility
       transports: ['polling', 'websocket'],
@@ -68,8 +68,8 @@ class IOSWebSocketFallback {
       // Connection state recovery for iOS
       connectionStateRecovery: {
         maxDisconnectionDuration: 2 * 60 * 1000, // 2 minutes
-        skipMiddlewares: true
-      }
+        skipMiddlewares: true,
+      },
     });
 
     this.setupIOSHandlers();
@@ -80,14 +80,8 @@ class IOSWebSocketFallback {
    * Detect iOS user agent
    */
   private isIOSUserAgent(userAgent: string): boolean {
-    const iosPatterns = [
-      /iPhone/i,
-      /iPad/i,
-      /iPod/i,
-      /iOS/i,
-      /Mobile.*Safari/i
-    ];
-    return iosPatterns.some(pattern => pattern.test(userAgent));
+    const iosPatterns = [/iPhone/i, /iPad/i, /iPod/i, /iOS/i, /Mobile.*Safari/i];
+    return iosPatterns.some((pattern) => pattern.test(userAgent));
   }
 
   /**
@@ -122,7 +116,8 @@ class IOSWebSocketFallback {
       const isIOS = socket.data.isIOS;
       const userAgent = socket.data.userAgent;
       // Get transport from connection (socket.io v4+)
-      const transport = (socket as any).conn?.transport?.name || 'polling' as 'websocket' | 'polling';
+      const transport =
+        (socket as any).conn?.transport?.name || ('polling' as 'websocket' | 'polling');
 
       // Track connection
       const connection: ClientConnection = {
@@ -133,7 +128,7 @@ class IOSWebSocketFallback {
         transport,
         connectedAt: Date.now(),
         lastPing: Date.now(),
-        reconnectCount: 0
+        reconnectCount: 0,
       };
       this.connections.set(socket.id, connection);
 
@@ -149,15 +144,15 @@ class IOSWebSocketFallback {
         transport,
         isIOS,
         timestamp: Date.now(),
-        recommendedTransport: isIOS ? 'polling' : 'websocket'
+        recommendedTransport: isIOS ? 'polling' : 'websocket',
       });
 
       // Enhanced ping/pong for iOS
       socket.on('ping', () => {
         connection.lastPing = Date.now();
-        socket.emit('pong', { 
+        socket.emit('pong', {
           timestamp: Date.now(),
-          transport: (socket as any).conn?.transport?.name || 'polling'
+          transport: (socket as any).conn?.transport?.name || 'polling',
         });
       });
 
@@ -166,10 +161,10 @@ class IOSWebSocketFallback {
         const newTransport = (socket as any).conn?.transport?.name || 'polling';
         connection.transport = newTransport as 'websocket' | 'polling';
         logger.info(`User ${userId} upgraded to ${newTransport}`);
-        
+
         socket.emit('transport-upgraded', {
           transport: newTransport,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       });
 
@@ -194,10 +189,10 @@ class IOSWebSocketFallback {
       socket.on('join-room', (roomId: string) => {
         socket.join(`room:${roomId}`);
         logger.info(`User ${userId} joined room ${roomId}`);
-        
-        socket.emit('room-joined', { 
+
+        socket.emit('room-joined', {
           roomId,
-          transport: (socket as any).conn?.transport?.name || 'polling'
+          transport: (socket as any).conn?.transport?.name || 'polling',
         });
       });
 
@@ -222,7 +217,7 @@ class IOSWebSocketFallback {
 
       this.connections.forEach((conn, socketId) => {
         const socket = this.io.sockets.sockets.get(socketId);
-        
+
         if (!socket || !socket.connected) {
           this.connections.delete(socketId);
           return;
@@ -231,8 +226,10 @@ class IOSWebSocketFallback {
         // Check for stale connections
         const timeSinceLastPing = now - conn.lastPing;
         if (timeSinceLastPing > timeout) {
-          logger.warn(`Stale connection detected: ${conn.userId} (${timeSinceLastPing}ms since last ping)`);
-          
+          logger.warn(
+            `Stale connection detected: ${conn.userId} (${timeSinceLastPing}ms since last ping)`
+          );
+
           // Force disconnect if iOS and using WebSocket with issues
           if (conn.isIOS && conn.transport === 'websocket') {
             logger.info(`Forcing iOS WebSocket reconnection for ${conn.userId}`);
@@ -261,14 +258,14 @@ class IOSWebSocketFallback {
       ios: 0,
       websocket: 0,
       polling: 0,
-      byTransport: {} as Record<string, number>
+      byTransport: {} as Record<string, number>,
     };
 
-    this.connections.forEach(conn => {
+    this.connections.forEach((conn) => {
       if (conn.isIOS) stats.ios++;
       if (conn.transport === 'websocket') stats.websocket++;
       if (conn.transport === 'polling') stats.polling++;
-      
+
       stats.byTransport[conn.transport] = (stats.byTransport[conn.transport] || 0) + 1;
     });
 
@@ -278,22 +275,26 @@ class IOSWebSocketFallback {
   /**
    * Force transport upgrade/downgrade for a user
    */
-  async changeTransport(userId: string, preferredTransport: 'websocket' | 'polling'): Promise<boolean> {
-    const userSockets = Array.from(this.connections.values())
-      .filter(conn => conn.userId === userId);
+  async changeTransport(
+    userId: string,
+    preferredTransport: 'websocket' | 'polling'
+  ): Promise<boolean> {
+    const userSockets = Array.from(this.connections.values()).filter(
+      (conn) => conn.userId === userId
+    );
 
     if (userSockets.length === 0) {
       return false;
     }
 
-    userSockets.forEach(conn => {
+    userSockets.forEach((conn) => {
       const socket = this.io.sockets.sockets.get(conn.socketId);
       if (socket && socket.connected) {
         // Emit recommendation to client
         socket.emit('transport-recommendation', {
           preferredTransport,
           reason: 'server-optimization',
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
     });
@@ -333,4 +334,3 @@ export function setupIOSCompatibleWebSocket(
 
 export { IOSWebSocketFallback };
 export type { IOSFallbackConfig, ClientConnection };
-

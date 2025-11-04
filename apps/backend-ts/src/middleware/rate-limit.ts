@@ -44,17 +44,19 @@ export const baliZeroChatLimiter = rateLimit({
   handler: (req, res) => {
     const identifier = getRateLimitKey(req);
     logger.warn(`🚨 Rate limit exceeded for ${identifier} on ${req.path}`);
-    
+
     // Audit log: Rate limit violation (async import to avoid circular dependency)
-    import('../services/audit-service.js').then(({ auditService }) => {
-      auditService.logRateLimitViolation({
-        userId: req.header('x-user-id') || undefined,
-        ipAddress: req.ip || req.socket.remoteAddress || 'unknown',
-        endpoint: req.path,
-        limit: 20,
-        window: 60
-      });
-    }).catch(err => logger.error('[RateLimit] Failed to log audit:', err));
+    import('../services/audit-service.js')
+      .then(({ auditService }) => {
+        auditService.logRateLimitViolation({
+          userId: req.header('x-user-id') || undefined,
+          ipAddress: req.ip || req.socket.remoteAddress || 'unknown',
+          endpoint: req.path,
+          limit: 20,
+          window: 60,
+        });
+      })
+      .catch((err) => logger.error('[RateLimit] Failed to log audit:', err));
 
     res.setHeader('Retry-After', '60');
     res.setHeader('X-RateLimit-Limit', '20');
@@ -65,7 +67,7 @@ export const baliZeroChatLimiter = rateLimit({
       ok: false,
       error: 'RATE_LIMIT_EXCEEDED',
       message: 'Too many requests. Please wait 1 minute before trying again.',
-      retryAfter: 60
+      retryAfter: 60,
     });
   },
 
@@ -74,7 +76,7 @@ export const baliZeroChatLimiter = rateLimit({
     const apiKey = req.header('x-api-key');
     const internalKeys = (process.env.API_KEYS_INTERNAL || '').split(',').filter(Boolean);
     return internalKeys.includes(apiKey || '');
-  }
+  },
 });
 
 /**
@@ -102,7 +104,7 @@ export const aiChatLimiter = rateLimit({
       ok: false,
       error: 'RATE_LIMIT_EXCEEDED',
       message: 'Too many AI requests. Please wait 1 minute.',
-      retryAfter: 60
+      retryAfter: 60,
     });
   },
 
@@ -110,7 +112,7 @@ export const aiChatLimiter = rateLimit({
     const apiKey = req.header('x-api-key');
     const internalKeys = (process.env.API_KEYS_INTERNAL || '').split(',').filter(Boolean);
     return internalKeys.includes(apiKey || '');
-  }
+  },
 });
 
 /**
@@ -138,7 +140,7 @@ export const ragQueryLimiter = rateLimit({
       ok: false,
       error: 'RATE_LIMIT_EXCEEDED',
       message: 'Too many search requests. Please wait 1 minute.',
-      retryAfter: 60
+      retryAfter: 60,
     });
   },
 
@@ -146,7 +148,7 @@ export const ragQueryLimiter = rateLimit({
     const apiKey = req.header('x-api-key');
     const internalKeys = (process.env.API_KEYS_INTERNAL || '').split(',').filter(Boolean);
     return internalKeys.includes(apiKey || '');
-  }
+  },
 });
 
 /**
@@ -174,7 +176,7 @@ export const strictLimiter = rateLimit({
       ok: false,
       error: 'RATE_LIMIT_EXCEEDED',
       message: 'This endpoint has strict rate limits. Please wait 1 minute.',
-      retryAfter: 60
+      retryAfter: 60,
     });
   },
 
@@ -182,5 +184,5 @@ export const strictLimiter = rateLimit({
     const apiKey = req.header('x-api-key');
     const internalKeys = (process.env.API_KEYS_INTERNAL || '').split(',').filter(Boolean);
     return internalKeys.includes(apiKey || '');
-  }
+  },
 });

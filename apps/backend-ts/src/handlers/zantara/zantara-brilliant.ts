@@ -28,7 +28,7 @@ export async function zantaraBrilliantChat(req: Request, res: Response) {
       language,
       history: [],
       preferences: {},
-      sessionId
+      sessionId,
     };
 
     // Get brilliant response from orchestrator
@@ -39,12 +39,13 @@ export async function zantaraBrilliantChat(req: Request, res: Response) {
       await orchestrator.saveContext(userId, context);
     }
 
-    return res.json(ok({
-      ...response,
-      orchestrator: 'zantara-brilliant-v1',
-      timestamp: new Date().toISOString()
-    }));
-
+    return res.json(
+      ok({
+        ...response,
+        orchestrator: 'zantara-brilliant-v1',
+        timestamp: new Date().toISOString(),
+      })
+    );
   } catch (error: any) {
     logger.error('ZantaraBrilliant error:', error);
     return res.status(500).json(err(error.message || 'ZANTARA encountered an issue'));
@@ -55,28 +56,30 @@ export async function zantaraBrilliantChat(req: Request, res: Response) {
  * Get ZANTARA personality info
  */
 export async function zantaraPersonality(_req: Request, res: Response) {
-  return res.json(ok({
-    name: 'ZANTARA',
-    version: 'Brilliant v1.0',
-    essence: 'Sophisticated, warm, culturally aware, never pedantic',
-    languages: ['en', 'id', 'it'],
-    culturalDepth: {
-      indonesian: 'Deep understanding of adat, hierarchy, relationships',
-      balinese: 'Tri Hita Karana philosophy, ceremonial awareness',
-      business: 'Patience, relationship-first approach'
-    },
-    architecture: {
-      core: 'Light orchestrator with brilliant communication',
-      agents: [
-        'VISA ORACLE - Immigration expertise',
-        'EYE KBLI - Business code mastery',
-        'TAX GENIUS - Fiscal calculations',
-        'LEGAL ARCHITECT - Structure design',
-        'PROPERTY SAGE - Real estate wisdom'
-      ]
-    },
-    philosophy: 'Transform complexity into elegance'
-  }));
+  return res.json(
+    ok({
+      name: 'ZANTARA',
+      version: 'Brilliant v1.0',
+      essence: 'Sophisticated, warm, culturally aware, never pedantic',
+      languages: ['en', 'id', 'it'],
+      culturalDepth: {
+        indonesian: 'Deep understanding of adat, hierarchy, relationships',
+        balinese: 'Tri Hita Karana philosophy, ceremonial awareness',
+        business: 'Patience, relationship-first approach',
+      },
+      architecture: {
+        core: 'Light orchestrator with brilliant communication',
+        agents: [
+          'VISA ORACLE - Immigration expertise',
+          'EYE KBLI - Business code mastery',
+          'TAX GENIUS - Fiscal calculations',
+          'LEGAL ARCHITECT - Structure design',
+          'PROPERTY SAGE - Real estate wisdom',
+        ],
+      },
+      philosophy: 'Transform complexity into elegance',
+    })
+  );
 }
 
 /**
@@ -99,7 +102,7 @@ export async function queryAgent(req: Request, res: Response) {
       message: `Agent '${agent}' is not yet implemented`,
       query,
       availableAgents: ['visa', 'kbli', 'tax'],
-      note: 'Agent system is currently under development'
+      note: 'Agent system is currently under development',
     };
 
     /* AGENTS TEMPORARILY DISABLED - Uncomment when agents are implemented
@@ -128,13 +131,14 @@ export async function queryAgent(req: Request, res: Response) {
     }
     */
 
-    return res.json(ok({
-      agent,
-      query,
-      rawResponse: agentResponse,
-      note: 'Agent system under development. This is a mock response.'
-    }));
-
+    return res.json(
+      ok({
+        agent,
+        query,
+        rawResponse: agentResponse,
+        note: 'Agent system under development. This is a mock response.',
+      })
+    );
   } catch (error: any) {
     logger.error('Agent query error:', error);
     return res.status(500).json(err(error.message || 'Agent query failed'));
@@ -154,12 +158,13 @@ export async function getContext(req: Request, res: Response) {
 
     const context = await orchestrator.loadContext(userId);
 
-    return res.json(ok({
-      userId,
-      context,
-      hasHistory: context.history.length > 0
-    }));
-
+    return res.json(
+      ok({
+        userId,
+        context,
+        hasHistory: context.history.length > 0,
+      })
+    );
   } catch (error: any) {
     logger.error('Get context error:', error);
     return res.status(500).json(err(error.message || 'Failed to get context'));

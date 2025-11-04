@@ -5,22 +5,22 @@ import { BadRequestError } from '../../../utils/errors.js';
 const mockDrive = {
   files: {
     list: jest.fn().mockResolvedValue({
-      data: { files: [] }
+      data: { files: [] },
     }),
     create: jest.fn().mockResolvedValue({
-      data: { id: 'test-file-id', name: 'test.txt' }
+      data: { id: 'test-file-id', name: 'test.txt' },
     }),
     update: jest.fn().mockResolvedValue({
-      data: {}
+      data: {},
     }),
     get: jest.fn().mockResolvedValue({
-      data: {}
-    })
-  }
+      data: {},
+    }),
+  },
 };
 
 jest.unstable_mockModule('../../services/google-auth-service.js', () => ({
-  getDrive: jest.fn().mockResolvedValue(mockDrive)
+  getDrive: jest.fn().mockResolvedValue(mockDrive),
 }));
 
 describe('Daily Drive Recap', () => {
@@ -38,7 +38,7 @@ describe('Daily Drive Recap', () => {
         activityType: 'chat',
         content: 'Test activity content',
         timestamp: new Date().toISOString(),
-        metadata: { key: 'value' }
+        metadata: { key: 'value' },
       });
 
       expect(result).toBeDefined();
@@ -50,21 +50,22 @@ describe('Daily Drive Recap', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.updateDailyRecap({
-        invalid: 'data'
-      })).rejects.toThrow();
+      await expect(
+        handlers.updateDailyRecap({
+          invalid: 'data',
+        })
+      ).rejects.toThrow();
     });
   });
 
   describe('getCurrentDailyRecap', () => {
     it('should handle success case', async () => {
       const result = await handlers.getCurrentDailyRecap({
-        collaboratorId: 'zero'
+        collaboratorId: 'zero',
       });
 
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
     });
   });
-
 });

@@ -3,7 +3,7 @@ import { BadRequestError } from '../../../utils/errors.js';
 
 // Mock child_process.spawn
 jest.unstable_mockModule('child_process', () => ({
-  spawn: jest.fn()
+  spawn: jest.fn(),
 }));
 
 describe('Scraper', () => {
@@ -14,7 +14,7 @@ describe('Scraper', () => {
     const { spawn } = await import('child_process');
     spawnMock = spawn as jest.MockedFunction<any>;
     spawnMock.mockClear();
-    
+
     handlers = await import('../scraper.js');
   });
 
@@ -27,13 +27,13 @@ describe('Scraper', () => {
           if (event === 'close') {
             setTimeout(() => cb(0), 10);
           }
-        })
+        }),
       };
       spawnMock.mockReturnValue(mockProcess);
 
       const result = await handlers.intelScraperRun({
         categories: ['tech', 'business'],
-        limit: 5
+        limit: 5,
       });
 
       expect(result).toBeDefined();
@@ -49,7 +49,7 @@ describe('Scraper', () => {
           if (event === 'close') {
             setTimeout(() => cb(0), 10);
           }
-        })
+        }),
       };
       spawnMock.mockReturnValue(mockProcess);
 
@@ -62,7 +62,7 @@ describe('Scraper', () => {
   describe('intelScraperStatus', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.intelScraperStatus({
-        jobId: 'test-job-id'
+        jobId: 'test-job-id',
       });
 
       expect(result).toBeDefined();
@@ -79,5 +79,4 @@ describe('Scraper', () => {
       expect(result.categories).toBeDefined();
     });
   });
-
 });

@@ -228,9 +228,9 @@ export class UnifiedMemorySystem {
 
     // Filter by concept match and limit
     return results
-      .filter((m): m is SemanticMemory => 
-        m.type === MemoryType.SEMANTIC && 
-        m.concept.toLowerCase().includes(concept.toLowerCase())
+      .filter(
+        (m): m is SemanticMemory =>
+          m.type === MemoryType.SEMANTIC && m.concept.toLowerCase().includes(concept.toLowerCase())
       )
       .slice(0, limit);
   }

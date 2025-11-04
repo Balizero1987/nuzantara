@@ -9,7 +9,7 @@ import type {
   ImagineArtGenerateResponse,
   ImagineArtUpscaleRequest,
   ImagineArtUpscaleResponse,
-  ImagineArtServiceConfig
+  ImagineArtServiceConfig,
 } from '../types/imagine-art-types.js';
 
 export class ImagineArtService {
@@ -42,7 +42,7 @@ export class ImagineArtService {
         aspect_ratio = '16:9',
         seed,
         negative_prompt,
-        high_res_results = 1
+        high_res_results = 1,
       } = request;
 
       logger.info('🎨 Generating image with Imagine.art', { prompt: prompt.substring(0, 50) });
@@ -65,11 +65,11 @@ export class ImagineArtService {
       const response = await fetch(`${this.baseUrl}/image/generations`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`
+          Authorization: `Bearer ${this.apiKey}`,
           // Note: Don't set Content-Type - FormData sets it automatically with boundary
         },
         body: formData as any,
-        signal: AbortSignal.timeout(this.timeout)
+        signal: AbortSignal.timeout(this.timeout),
       });
 
       if (!response.ok) {
@@ -95,7 +95,7 @@ export class ImagineArtService {
 
         logger.info('✅ Image generated successfully (binary)', {
           size: buffer.length,
-          format: imageFormat
+          format: imageFormat,
         });
 
         return {
@@ -104,11 +104,11 @@ export class ImagineArtService {
           prompt,
           style,
           aspect_ratio,
-          seed
+          seed,
         };
       } else {
         // Response is JSON
-        const result = await response.json() as any;
+        const result = (await response.json()) as any;
 
         // Parse response (adjust based on actual API response format)
         const imageUrl = result.data?.[0]?.url || result.image_url || result.url;
@@ -119,7 +119,9 @@ export class ImagineArtService {
           throw new Error('No image URL returned from Imagine.art');
         }
 
-        logger.info('✅ Image generated successfully (JSON)', { imageUrl: imageUrl.substring(0, 50) });
+        logger.info('✅ Image generated successfully (JSON)', {
+          imageUrl: imageUrl.substring(0, 50),
+        });
 
         return {
           image_url: imageUrl,
@@ -127,10 +129,9 @@ export class ImagineArtService {
           prompt,
           style,
           aspect_ratio,
-          seed
+          seed,
         };
       }
-
     } catch (error: any) {
       logger.error('🔥 Imagine.art generation failed:', error.message);
       throw new Error(`Image generation failed: ${error.message}`);
@@ -156,16 +157,19 @@ export class ImagineArtService {
       const response = await fetch(`${this.baseUrl}/image/upscale`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`
+          Authorization: `Bearer ${this.apiKey}`,
           // Note: Don't set Content-Type - FormData sets it automatically with boundary
         },
         body: formData as any,
-        signal: AbortSignal.timeout(this.timeout)
+        signal: AbortSignal.timeout(this.timeout),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        logger.error('🔥 Imagine.art upscale error:', { status: response.status, error: errorText });
+        logger.error('🔥 Imagine.art upscale error:', {
+          status: response.status,
+          error: errorText,
+        });
         throw new Error(`Imagine.art upscale error: ${response.status} - ${errorText}`);
       }
 
@@ -188,11 +192,11 @@ export class ImagineArtService {
         return {
           upscaled_url: dataUri,
           request_id: `upscale_${Date.now()}`,
-          original_image: image
+          original_image: image,
         };
       } else {
         // Response is JSON
-        const result = await response.json() as any;
+        const result = (await response.json()) as any;
 
         const upscaledUrl = result.data?.[0]?.url || result.upscaled_url || result.url;
         const requestId = result.request_id || result.id || `upscale_${Date.now()}`;
@@ -207,10 +211,9 @@ export class ImagineArtService {
         return {
           upscaled_url: upscaledUrl,
           request_id: requestId,
-          original_image: image
+          original_image: image,
         };
       }
-
     } catch (error: any) {
       logger.error('🔥 Imagine.art upscale failed:', error.message);
       throw new Error(`Image upscale failed: ${error.message}`);
@@ -230,7 +233,7 @@ export class ImagineArtService {
       await this.generateImage({
         prompt: 'test',
         style: 'realistic',
-        aspect_ratio: '1:1'
+        aspect_ratio: '1:1',
       });
 
       return true;

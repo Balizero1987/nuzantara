@@ -13,9 +13,9 @@ groups:
           severity: critical
           team: platform
         annotations:
-          summary: "ZANTARA service {{ $labels.job }} is down"
-          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
-          runbook: "https://docs.zantara.com/runbooks/service-down"
+          summary: 'ZANTARA service {{ $labels.job }} is down'
+          description: 'Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute.'
+          runbook: 'https://docs.zantara.com/runbooks/service-down'
 
       # High Error Rate
       - alert: HighErrorRate
@@ -30,9 +30,9 @@ groups:
           severity: critical
           team: backend
         annotations:
-          summary: "High error rate on {{ $labels.job }}"
-          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.job }} (threshold: 5%)"
-          runbook: "https://docs.zantara.com/runbooks/high-error-rate"
+          summary: 'High error rate on {{ $labels.job }}'
+          description: 'Error rate is {{ $value | humanizePercentage }} on {{ $labels.job }} (threshold: 5%)'
+          runbook: 'https://docs.zantara.com/runbooks/high-error-rate'
 
       # AI Service Failure
       - alert: AIServiceFailure
@@ -42,9 +42,9 @@ groups:
           severity: critical
           team: ai
         annotations:
-          summary: "AI service not responding"
-          description: "No AI requests processed in last 5 minutes despite active traffic"
-          runbook: "https://docs.zantara.com/runbooks/ai-service-failure"
+          summary: 'AI service not responding'
+          description: 'No AI requests processed in last 5 minutes despite active traffic'
+          runbook: 'https://docs.zantara.com/runbooks/ai-service-failure'
 
       # Database Connection Pool Exhausted
       - alert: DatabaseConnectionPoolExhausted
@@ -54,9 +54,9 @@ groups:
           severity: critical
           team: database
         annotations:
-          summary: "Database connection pool nearly exhausted"
-          description: "Active connections: {{ $value }} (threshold: 95)"
-          runbook: "https://docs.zantara.com/runbooks/db-pool-exhausted"
+          summary: 'Database connection pool nearly exhausted'
+          description: 'Active connections: {{ $value }} (threshold: 95)'
+          runbook: 'https://docs.zantara.com/runbooks/db-pool-exhausted'
 
       # Memory Usage Critical
       - alert: MemoryUsageCritical
@@ -66,9 +66,9 @@ groups:
           severity: critical
           team: platform
         annotations:
-          summary: "Critical memory usage on {{ $labels.instance }}"
-          description: "Memory usage: {{ $value | humanize }}MB (threshold: 1800MB, limit: 2048MB)"
-          runbook: "https://docs.zantara.com/runbooks/memory-critical"
+          summary: 'Critical memory usage on {{ $labels.instance }}'
+          description: 'Memory usage: {{ $value | humanize }}MB (threshold: 1800MB, limit: 2048MB)'
+          runbook: 'https://docs.zantara.com/runbooks/memory-critical'
 
       # Response Time P95 Exceeds Target
       - alert: SlowResponseTime
@@ -81,9 +81,9 @@ groups:
           severity: warning
           team: performance
         annotations:
-          summary: "P95 response time exceeds 2s on {{ $labels.job }}"
-          description: "P95 latency: {{ $value | humanizeDuration }} (target: <2s)"
-          runbook: "https://docs.zantara.com/runbooks/slow-response"
+          summary: 'P95 response time exceeds 2s on {{ $labels.job }}'
+          description: 'P95 latency: {{ $value | humanizeDuration }} (target: <2s)'
+          runbook: 'https://docs.zantara.com/runbooks/slow-response'
 
       # Cache Hit Rate Too Low
       - alert: LowCacheHitRate
@@ -98,9 +98,9 @@ groups:
           severity: warning
           team: performance
         annotations:
-          summary: "Cache hit rate below 50%"
-          description: "Cache hit rate: {{ $value | humanizePercentage }} (target: >70%)"
-          runbook: "https://docs.zantara.com/runbooks/low-cache-hit-rate"
+          summary: 'Cache hit rate below 50%'
+          description: 'Cache hit rate: {{ $value | humanizePercentage }} (target: >70%)'
+          runbook: 'https://docs.zantara.com/runbooks/low-cache-hit-rate'
 
       # AI Token Usage Spike
       - alert: AITokenUsageSpike
@@ -111,9 +111,9 @@ groups:
           severity: warning
           team: ai
         annotations:
-          summary: "Unusual AI token usage spike"
-          description: "Token rate: {{ $value }}/s (threshold: 10000/5min)"
-          runbook: "https://docs.zantara.com/runbooks/token-spike"
+          summary: 'Unusual AI token usage spike'
+          description: 'Token rate: {{ $value }}/s (threshold: 10000/5min)'
+          runbook: 'https://docs.zantara.com/runbooks/token-spike'
 
       # Redis Latency High
       - alert: RedisLatencyHigh
@@ -123,9 +123,9 @@ groups:
           severity: warning
           team: infrastructure
         annotations:
-          summary: "Redis latency is high"
-          description: "Latency: {{ $value }}ms (threshold: 100ms)"
-          runbook: "https://docs.zantara.com/runbooks/redis-latency"
+          summary: 'Redis latency is high'
+          description: 'Latency: {{ $value }}ms (threshold: 100ms)'
+          runbook: 'https://docs.zantara.com/runbooks/redis-latency'
 
       # SSE Connection Latency
       - alert: SSELatencyHigh
@@ -135,9 +135,9 @@ groups:
           severity: warning
           team: backend
         annotations:
-          summary: "SSE connection latency is high"
-          description: "Latency: {{ $value }}ms (threshold: 500ms)"
-          runbook: "https://docs.zantara.com/runbooks/sse-latency"
+          summary: 'SSE connection latency is high'
+          description: 'Latency: {{ $value }}ms (threshold: 500ms)'
+          runbook: 'https://docs.zantara.com/runbooks/sse-latency'
 
       # Frontend Availability
       - alert: FrontendDown
@@ -147,6 +147,6 @@ groups:
           severity: critical
           team: frontend
         annotations:
-          summary: "Frontend is unreachable"
-          description: "https://zantara.balizero.com has been down for 2 minutes"
-          runbook: "https://docs.zantara.com/runbooks/frontend-down"
+          summary: 'Frontend is unreachable'
+          description: 'https://zantara.balizero.com has been down for 2 minutes'
+          runbook: 'https://docs.zantara.com/runbooks/frontend-down'

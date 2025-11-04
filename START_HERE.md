@@ -1,29 +1,31 @@
 # 🌟 ZANTARA v5.2.1 - PRODUCTION READY
 ## *Advanced Knowledge System for Business Intelligence*
 
-**Status**: 🟢 **FULLY OPERATIONAL** | **Deployed**: Fly.io Global
-**Last Updated**: 2025-11-03 | **Knowledge Base**: 8,122+ Documents
+**Status**: 🟢 **FULLY OPERATIONAL** | **Deployed**: Fly.io (Singapore + Cloudflare CDN)
+**Last Updated**: 2025-11-05 | **Knowledge Base**: 25,422 Documents (Verified ✅)
+**Features**: 9/38 Implemented (23.7%) | **Uptime**: 99%+
 
 ---
 
 ## 🎯 **MISSION STATEMENT**
 
 ZANTARA is an advanced **intelligent knowledge system** that provides:
-- 🧠 **Semantic Search** across 14 specialized knowledge domains
-- 🤖 **Multi-Agent Intelligence** for business and legal insights
-- 🌍 **Global Infrastructure** with 99.9% uptime
-- ⚡ **Real-time Processing** with sub-second response times
-- 🔒 **Enterprise Security** with production-grade protection
+- 🧠 **Semantic Search** across 8 specialized knowledge domains
+- 🤖 **AI-Powered Intelligence** (Claude Haiku 4.5) for business insights
+- 🌍 **Production Infrastructure** with 99%+ uptime
+- ⚡ **Real-time Processing** with ~120ms cached response times
+- 🔒 **Enterprise Security** with JWT authentication & rate limiting
 
 ---
 
 ## 🚀 **QUICK START**
 
 ### **🌐 Access Production System**
-- **Main Application**: https://nuzantara.fly.dev
+- **Frontend App**: https://zantara.balizero.com (Cloudflare Pages)
+- **TypeScript Backend**: https://nuzantara-backend.fly.dev
 - **RAG Backend API**: https://nuzantara-rag.fly.dev
 - **API Documentation**: https://nuzantara-rag.fly.dev/docs
-- **Health Check**: https://nuzantara-rag.fly.dev/health
+- **Health Check**: https://nuzantara-backend.fly.dev/health
 
 ### **🛠️ Local Development**
 ```bash
@@ -47,125 +49,243 @@ npm run dev
 ## 📊 **SYSTEM OVERVIEW**
 
 ### **✅ Production Services**
-| Service | Status | URL | Port |
-|---------|--------|-----|------|
-| **RAG Backend** | 🟢 Healthy | https://nuzantara-rag.fly.dev | 8000 |
-| **TypeScript Services** | 🟢 Healthy | https://nuzantara-backend.fly.dev | 8080 |
-| **Frontend App** | 🟢 Healthy | https://nuzantara.fly.dev | 3000 |
+| Service | Status | URL | Platform |
+|---------|--------|-----|----------|
+| **TypeScript Backend** | 🟢 Operational | https://nuzantara-backend.fly.dev | Fly.io (2GB RAM) |
+| **RAG Backend (Python)** | 🟢 Operational | https://nuzantara-rag.fly.dev | Fly.io (2GB RAM) |
+| **Frontend App** | 🟢 Operational | https://zantara.balizero.com | Cloudflare Pages |
 
-### **🧠 Knowledge Collections**
-- **zantara_memories** - Primary collection (8,122 chunks)
-- **visa_oracle** - Immigration & visa intelligence
-- **kbli_eye** - Business classification system
-- **cultural_rag** - Cultural context & practices
-- **bali_zero_pricing** - Pricing intelligence
-- **tax_genius** - Tax framework & calculations
-- **legal_intelligence** - Legal framework analysis
+### **🧠 Knowledge Collections (25,422 Documents)**
+- **knowledge_base** - Blockchain, Whitepaper, Satoshi (8,923 docs)
+- **kbli_unified** - KBLI 2020 Business Classification (8,887 docs)
+- **legal_unified** - Indonesian Laws & Regulations (5,041 docs)
+- **visa_oracle** - Immigration & Visa Intelligence (1,612 docs)
+- **tax_genius** - Tax Framework & Calculations (895 docs)
+- **property_unified** - Property Investment (29 docs)
+- **bali_zero_pricing** - Service Pricing (29 docs)
+- **property_listings** - Property Listings (2 docs)
+- **tax_updates** - Tax Updates (2 docs)
+- **legal_updates** - Legal Updates (2 docs)
 
 ---
 
 ## 🔧 **API ENDPOINTS**
 
-### **🎯 V3 Omega Unified System**
+### **🎯 V3 Ω Unified System** (Feature #8 - FIXED Nov 4, 2025)
 ```bash
-# Unified Knowledge Hub
-POST /api/v3/zantara/unified
+# Unified Knowledge Query (8 domains integrated)
+POST https://nuzantara-backend.fly.dev/api/v3/zantara/unified
 {
-  "query": "business registration requirements",
+  "query": "restaurant business setup requirements",
+  "user_id": "demo",
+  "mode": "comprehensive"  // quick | comprehensive | expert
+}
+
+# Collective Intelligence (Shared learning)
+POST https://nuzantara-backend.fly.dev/api/v3/zantara/collective
+{
+  "query": "successful visa applications patterns",
+  "action": "query",  // query | contribute | verify | stats | sync
   "user_id": "demo"
 }
 
-# Collective Intelligence
-POST /api/v3/zantara/collective
+# Business Ecosystem Analysis (Complete business analysis)
+POST https://nuzantara-backend.fly.dev/api/v3/zantara/ecosystem
 {
-  "query": "market analysis insights",
-  "user_id": "demo"
-}
-
-# Business Ecosystem Analysis
-POST /api/v3/zantara/ecosystem
-{
-  "query": "competitive landscape",
+  "query": "open a restaurant in Bali",
+  "scenario": "business_setup",  // business_setup | expansion | compliance | optimization
   "user_id": "demo"
 }
 ```
 
-### **🤖 Advanced Agent System**
+### **🔐 Team Authentication** (Feature #9 - NEW Nov 5, 2025)
 ```bash
-# Semantic Search Agent
-POST /api/agent/semantic_search
+# Team Member Login
+POST https://nuzantara-backend.fly.dev/api/auth/team/login
 {
-  "agent_type": "semantic_search",
-  "task": "find immigration requirements",
-  "input_data": {"limit": 10}
+  "name": "Zero",
+  "email": "zero@balizero.com"  // Optional
+}
+# Returns: JWT token + user profile
+
+# Get All Team Members
+GET https://nuzantara-backend.fly.dev/api/auth/team/members
+
+# Validate Session
+GET https://nuzantara-backend.fly.dev/api/auth/team/validate
+Headers: Authorization: Bearer <token>
+
+# Get User Profile
+GET https://nuzantara-backend.fly.dev/api/auth/team/profile
+Headers: Authorization: Bearer <token>
+
+# Logout
+POST https://nuzantara-backend.fly.dev/api/auth/team/logout
+Headers: Authorization: Bearer <token>
+```
+
+### **💰 Business Services** (Feature #7)
+```bash
+# KBLI Business Lookup
+GET https://nuzantara-backend.fly.dev/api/v2/bali-zero/kbli?query=restaurant
+
+# Pricing Calculator
+POST https://nuzantara-backend.fly.dev/api/v2/bali-zero/pricing
+{
+  "service": "kitas_working",
+  "type": "onshore"
 }
 
-# Hybrid Query Agent
-POST /api/agent/hybrid_query
+# Business Chat
+POST https://nuzantara-backend.fly.dev/api/v2/bali-zero/chat
 {
-  "agent_type": "hybrid_query",
-  "task": "comprehensive business analysis",
-  "input_data": {"depth": "detailed"}
+  "message": "I need to register a company",
+  "user_id": "demo"
+}
+```
+
+### **📊 System Health & Monitoring** (Features #2, #3, #6)
+```bash
+# Health Check
+GET https://nuzantara-backend.fly.dev/health
+
+# Prometheus Metrics
+GET https://nuzantara-backend.fly.dev/metrics
+
+# Performance Metrics
+GET https://nuzantara-backend.fly.dev/performance/metrics
+
+# Cache Statistics
+GET https://nuzantara-backend.fly.dev/cache/stats
+
+# Cache Health
+GET https://nuzantara-backend.fly.dev/cache/health
+```
+
+### **🗄️ Redis Cache Management** (Feature #4 - FIXED Nov 5, 2025)
+```bash
+# Get Cached Value
+GET https://nuzantara-backend.fly.dev/cache/get?key=test
+
+# Set Cache Value
+POST https://nuzantara-backend.fly.dev/cache/set
+{
+  "key": "test",
+  "value": "test value",
+  "ttl": 3600
 }
 
-# Document Intelligence Agent
-POST /api/agent/document_intelligence
+# Delete Cache Key
+DELETE https://nuzantara-backend.fly.dev/cache/clear/test
+
+# Invalidate Pattern
+POST https://nuzantara-backend.fly.dev/cache/invalidate
 {
-  "agent_type": "document_intelligence",
-  "task": "analyze legal documents",
-  "input_data": {"document_type": "contract"}
+  "pattern": "zantara:unified:*"
 }
+
+# Debug Cache
+GET https://nuzantara-backend.fly.dev/cache/debug
 ```
 
 ---
 
 ## 📚 **KNOWLEDGE DOMAINS**
 
-### **🏢 Business Intelligence**
-- **KBLI Classification**: 1,400+ business codes
-- **Company Registration**: OSS/NIB procedures
-- **Licensing Requirements**: Industry-specific permits
-- **Business Planning**: Market analysis frameworks
+### **Domain 1: Business Classification** (8,887 docs)
+- **KBLI 2020**: Complete 5-digit business codes
+- **Capital Requirements**: Minimum investment per sector
+- **Foreign Ownership**: Open/Conditional/Closed status
+- **Licensing**: Required permits per business type
+- **Coverage**: All 21 main categories (A-U)
 
-### **🛂 Legal & Immigration**
-- **Visa Processing**: All visa categories & requirements
-- **Work Permits**: KITAS/KITAP procedures
-- **Company Formation**: PT PMA establishment
-- **Compliance**: Regulatory frameworks
+### **Domain 2: Legal & Regulatory** (5,043 docs)
+- **Labor Law**: UU 13/2003 Ketenagakerjaan
+- **Investment Law**: UU 24/2007 + PP regulations
+- **Company Law**: UU 40/2007 Perseroan Terbatas
+- **Foreign Workers**: PP 34/2021 TKA regulations
+- **Updates**: Weekly monitoring of legal changes
 
-### **💰 Financial & Tax**
-- **Tax Planning**: Corporate & individual taxation
-- **Investment Analysis**: ROI calculations
-- **Pricing Strategy**: Market-based pricing
-- **Financial Modeling**: Business projections
+### **Domain 3: Immigration & Visa** (1,612 docs)
+- **KITAS**: Working, Investment, Retirement, Spouse
+- **KITAP**: Permanent stay permits
+- **Procedures**: Application, renewal, reporting
+- **Requirements**: Document checklists per visa type
+- **Processing**: Timeline and costs
 
-### **🏝️ Cultural & Regional**
-- **Indonesian Context**: Local business practices
-- **Bali Specific**: Tourism & hospitality insights
-- **Cross-cultural**: International business etiquette
-- **Regional Economics**: ASEAN integration
+### **Domain 4: Taxation** (897 docs)
+- **Personal Tax**: PPh 21 (Income tax)
+- **Corporate Tax**: PPh 25/29 (Company tax)
+- **VAT**: PPN 11% regulations
+- **Withholding**: PPh 23/26 procedures
+- **Scenarios**: 895+ real-world tax calculations
+
+### **Domain 5: Property & Real Estate** (31 docs)
+- **Ownership**: Hak Milik, Hak Pakai, Leasehold
+- **Foreign Rules**: Restrictions and legal structures
+- **Due Diligence**: Title verification procedures
+- **Transfers**: Tax calculations and notary requirements
+- **Investment**: ROI analysis and market data
+
+### **Domain 6: Service Pricing** (29 docs)
+- **KITAS Services**: IDR 28M - 38M
+- **Company Setup**: IDR 25M - 65M
+- **Tax Services**: IDR 2M - 25M+
+- **Consulting**: IDR 3M - 15M
+- **Packages**: Complete service bundles
+
+### **Domain 7: General Knowledge** (8,923 docs)
+- **Blockchain**: Technology fundamentals
+- **Cryptocurrency**: Bitcoin, whitepaper analysis
+- **Satoshi Nakamoto**: Original writings
+- **Business**: General business knowledge
+
+### **Domain 8: Collective Memory** (In Development)
+- **User Interactions**: Learning from queries
+- **Patterns**: Successful solution tracking
+- **Community**: Shared anonymized insights
+- **Improvement**: Continuous learning system
 
 ---
 
-## 🌍 **GLOBAL INFRASTRUCTURE**
+## 🌍 **PRODUCTION INFRASTRUCTURE**
 
-### **🚀 Deployment Regions**
+### **🚀 Deployment Architecture**
 ```
-🌍 Global Fly.io Distribution:
-   ├── Frankfurt (FRA) - European hub
-   ├── Singapore (SIN) - Asian hub
-   ├── San Jose (SJC) - American hub
-   ├── London (LHR) - UK hub
-   ├── Mumbai (BOM) - Indian hub
-   └── Sydney (SYD) - Australian hub
+Production Stack:
+├── Frontend (Cloudflare Pages)
+│   ├── React + TypeScript + Vite
+│   ├── Global CDN distribution
+│   └── URL: https://zantara.balizero.com
+│
+├── TypeScript Backend (Fly.io Singapore)
+│   ├── Node.js 20 + Express + ES Modules
+│   ├── 2 CPU cores, 2GB RAM
+│   ├── Machine: 78156d1c536918
+│   └── URL: https://nuzantara-backend.fly.dev
+│
+├── RAG Backend (Fly.io Singapore)
+│   ├── Python 3.11 + FastAPI + ChromaDB
+│   ├── 2 CPU cores, 2GB RAM
+│   ├── 10GB Volume (chroma_data)
+│   └── URL: https://nuzantara-rag.fly.dev
+│
+└── Redis Cache (AWS Singapore)
+    ├── Redis Cloud 8.0.2
+    ├── 60-80% hit rate
+    └── Domain-specific TTL
 ```
 
-### **⚡ Performance Metrics**
-- **Response Time**: < 500ms average
-- **Search Accuracy**: 94% relevance score
-- **System Uptime**: 99.9% SLA
-- **Concurrent Users**: 100+ supported
-- **Knowledge Base**: 8,122+ documents
+### **⚡ Performance Metrics (Verified)**
+- **Cached Response**: ~120ms average
+- **v3 Unified (quick)**: ~500ms
+- **v3 Comprehensive**: <2s
+- **v3 Ecosystem**: ~1800ms
+- **System Uptime**: 99%+
+- **Concurrent Requests**: 100+ supported
+- **Rate Limit**: 100 req/min per endpoint
+- **Knowledge Base**: 25,422 documents ✅
+- **Cache Hit Rate**: 60-80%
 
 ---
 
@@ -207,17 +327,18 @@ npm test
 
 ## 📖 **DOCUMENTATION MAP**
 
-### **🎯 Essential Reading**
-- **📊 Project Diary** → `PROJECT_DIARY_HISTORIAN_GEOGRAPHER.md`
-- **🗺️ System Architecture** → `GALAXY_MAP.md`
-- **🔗 API Reference** → `COLLECTIONS_GALAXY_MAPS.md`
-- **🏛️ Infrastructure** → `INFRASTRUCTURE_OVERVIEW.md`
+### **🎯 Essential Reading (Updated Nov 5, 2025)**
+- **🏛️ Infrastructure Overview** → `INFRASTRUCTURE_OVERVIEW.md` (424 lines) ✅
+- **📋 Complete Workflow Guide** → `WORKFLOW_COMPLETO.md` (460 lines) ✅
+- **📚 Knowledge Base Map** → `KNOWLEDGE_BASE_MAP.md` (610 lines) ✅
+- **🤖 System Prompt Reference** → `SYSTEM_PROMPT_REFERENCE.md` (424 lines) ✅
+- **🌟 Start Here** → `START_HERE.md` (This file) ✅
 
 ### **📚 Technical Guides**
-- **🤖 Agent System** → `agents/orchestra-guide.md`
-- **🔍 Search Integration** → `docs/RAG_INTEGRATION.md`
-- **🔐 Security** → `docs/SECURITY_ARCHITECTURE.md`
-- **📊 Performance** → `docs/PERFORMANCE_OPTIMIZATION.md`
+- **🔧 Deployment Workflows** → See WORKFLOW_COMPLETO.md
+- **🗄️ Database Architecture** → ChromaDB 25,422 docs (KNOWLEDGE_BASE_MAP.md)
+- **🎯 AI Configuration** → 8 domains, team profiles (SYSTEM_PROMPT_REFERENCE.md)
+- **📊 Feature Status** → 9/38 implemented (INFRASTRUCTURE_OVERVIEW.md)
 
 ---
 
@@ -241,72 +362,130 @@ npm test
 
 ## 🆘 **SUPPORT & TROUBLESHOOTING**
 
-### **🔍 System Health**
+### **🔍 System Health Checks**
 ```bash
-# Check all services status
-./doctor.sh
+# Backend Health
+curl https://nuzantara-backend.fly.dev/health
 
-# Monitor performance
-./monitor.sh
-
-# Check logs
-fly logs nuzantara-rag
-
-# Debug API
+# RAG Backend Health
 curl https://nuzantara-rag.fly.dev/health
+
+# Cache Status
+curl https://nuzantara-backend.fly.dev/cache/health
+
+# Prometheus Metrics
+curl https://nuzantara-backend.fly.dev/metrics
+
+# Performance Data
+curl https://nuzantara-backend.fly.dev/performance/metrics
+
+# Check Fly.io logs
+fly logs -a nuzantara-backend
+fly logs -a nuzantara-rag
 ```
 
-### **📞 Contact & Support**
-- **System Status**: https://nuzantara-rag.fly.dev/health
-- **API Documentation**: https://nuzantara-rag.fly.dev/docs
-- **Performance Metrics**: https://nuzantara-rag.fly.dev/metrics
-- **Emergency Support**: Check health endpoint status
+### **📞 Production Services**
+- **Backend Status**: https://nuzantara-backend.fly.dev/health
+- **RAG Status**: https://nuzantara-rag.fly.dev/health
+- **API Docs**: https://nuzantara-rag.fly.dev/docs
+- **Frontend**: https://zantara.balizero.com
+- **Metrics**: https://nuzantara-backend.fly.dev/metrics
 
 ---
 
-## 🎊 **CURRENT ACHIEVEMENTS**
+## 🎊 **CURRENT ACHIEVEMENTS (9/38 Features = 23.7%)**
 
-### **✅ Completed Features**
-- 🎯 **8 New API Endpoints** - Full V3 Omega system
-- 🧠 **Multi-Agent Architecture** - Intelligent orchestration
-- 🌍 **Global Deployment** - 6 regions worldwide
-- 📚 **Knowledge Integration** - 8,122+ documents processed
-- ⚡ **Performance Optimization** - Sub-second response times
-- 🔒 **Security Hardening** - Enterprise-grade protection
-- 🎨 **User Experience** - Intuitive interface design
+### **✅ Feature #1-6: Infrastructure & Monitoring**
+- 🔒 **CORS & Security** - Helmet, rate limiting (100 req/min)
+- 📊 **Prometheus Metrics** - CPU, memory, HTTP tracking
+- 💚 **Health Checks** - Advanced status monitoring
+- 🗄️ **Redis Cache** - 7/7 endpoints working (FIXED Nov 5)
+- 🔗 **Correlation Tracking** - X-Correlation-ID headers
+- ⚡ **Performance Routes** - Detailed metrics endpoints
 
-### **🔮 Next Evolution Phase**
-- 🤖 **Enhanced AI** - GPT-4/Claude-3 integration
-- 📱 **Mobile Applications** - Native iOS/Android apps
-- 🏢 **Enterprise Features** - SSO, RBAC, compliance
-- 🌐 **Multi-language** - Global language support
-- 🤝 **Partnership API** - Third-party integrations
+### **✅ Feature #7-9: Business & Authentication**
+- 💼 **Bali Zero Chat** - KBLI, pricing, business setup
+- 🎯 **ZANTARA v3 Ω** - 3 unified endpoints (FIXED Nov 4)
+- 🔐 **Team Authentication** - JWT + 22 team members (NEW Nov 5)
+
+### **✅ Production Infrastructure**
+- 🌍 **3 Services Operational** - Backend, RAG, Frontend
+- 📚 **25,422 Documents** - ChromaDB verified
+- ⚡ **~120ms Response** - Cached queries
+- 🎭 **Claude Haiku 4.5** - AI integration
+- 🔄 **Zero Downtime** - Rolling deployments
+
+### **📋 Next Priority Features (29 Missing)**
+- ❌ **User Authentication** - Registration, password reset, email verification
+- ❌ **RAG Direct Access** - Query, embeddings, completions endpoints
+- ❌ **Business Analysis** - Complete KBLI analysis, license checks
+- ❌ **Financial Features** - Pricing plans, subscriptions, invoicing
+- ❌ **Admin Tools** - User management, analytics, logs, backups
+- ❌ **File Operations** - Upload, download, validation
+
+### **🔮 Recent Updates**
+- **Nov 5, 2025**: Team Auth added, cache bugs fixed
+- **Nov 4, 2025**: v3 Ω endpoints fixed with defensive coding
+- **Nov 3, 2025**: Complete documentation suite created
+- **Status**: 76.3% of features still to be implemented
 
 ---
 
 ## 🌟 **GETTING STARTED**
 
-### **🎯 For Users**
-1. Visit https://nuzantara.fly.dev
-2. Search for business, legal, or immigration information
-3. Get instant, intelligent responses
+### **🎯 For End Users**
+1. Visit **https://zantara.balizero.com**
+2. Ask questions about business setup, visas, taxes, property
+3. Get AI-powered answers from 25,422 documents
+4. Available in English, Bahasa Indonesia, Italian
 
 ### **🛠️ For Developers**
-1. Clone this repository
-2. Run `./setup-zantara.sh`
-3. Check `./doctor.sh` for system health
-4. Start development with `npm run dev`
+1. Clone the repository
+2. Navigate to `apps/backend-ts` or `apps/backend-rag`
+3. Set up environment variables (`.env.local`)
+4. Run `npm install` and `npm run dev`
+5. Check health endpoints for verification
 
-### **🏢 For Business**
-1. Explore API documentation at `/docs`
-2. Test endpoints with example queries
-3. Integrate with your business systems
-4. Contact for enterprise features
+### **🏢 For Business Partners**
+1. **Test API**: Start with `/health` and `/api/v3/zantara/unified`
+2. **Documentation**: Read comprehensive docs in this folder
+3. **Team Access**: Use Team Authentication for secure access
+4. **Integration**: Follow WORKFLOW_COMPLETO.md for deployment
+
+### **🔧 Essential Commands**
+```bash
+# Test production backend
+curl https://nuzantara-backend.fly.dev/health
+
+# Test RAG system
+curl https://nuzantara-rag.fly.dev/health
+
+# Deploy backend
+cd apps/backend-ts
+flyctl deploy --app nuzantara-backend --remote-only
+
+# Deploy RAG
+cd apps/backend-rag
+flyctl deploy --app nuzantara-rag --remote-only
+
+# View logs
+fly logs -a nuzantara-backend
+fly logs -a nuzantara-rag
+```
 
 ---
 
-**🎉 WELCOME TO ZANTARA - WHERE KNOWLEDGE MEETS INTELLIGENCE!**
+**🎉 WELCOME TO ZANTARA - PRODUCTION READY WITH 25,422 DOCUMENTS!**
 
-*System Status: 🟢 PRODUCTION READY*
-*Last Update: 2025-11-03*
-*Version: v5.2.1 Omega*
+*System Status: 🟢 FULLY OPERATIONAL (3/3 Services)*
+*Last Update: 2025-11-05 (Documentation refresh)*
+*Version: v5.2.1 (incremental-v0.8)*
+*Progress: 9/38 Features Implemented (23.7%)*
+
+---
+
+**📚 Next Steps:**
+1. Read **INFRASTRUCTURE_OVERVIEW.md** for complete system details
+2. Read **WORKFLOW_COMPLETO.md** for deployment procedures
+3. Read **KNOWLEDGE_BASE_MAP.md** for knowledge domain breakdown
+4. Read **SYSTEM_PROMPT_REFERENCE.md** for AI configuration

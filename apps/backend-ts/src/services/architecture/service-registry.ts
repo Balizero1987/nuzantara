@@ -1,16 +1,16 @@
 /**
  * Service Registry Pattern Implementation
- * 
+ *
  * Centralized service registration and discovery for v3 Ω endpoints
  * with circuit breaker pattern and health monitoring.
- * 
+ *
  * Features:
  * - Dynamic service registration
  * - Health checking with circuit breakers
  * - Load balancing across service instances
  * - Service versioning
  * - Automatic failover
- * 
+ *
  * @author GLM 4.6 - System Architect
  * @version 1.0.0
  */
@@ -54,7 +54,7 @@ class ServiceRegistryImpl {
       loadBalancer: 'round-robin',
       healthCheckInterval: 30000, // 30 seconds
       circuitBreakerThreshold: 5, // 5 failures before opening
-      circuitBreakerTimeout: 60000 // 1 minute timeout
+      circuitBreakerTimeout: 60000, // 1 minute timeout
     };
   }
 
@@ -68,20 +68,20 @@ class ServiceRegistryImpl {
         failures: 0,
         lastFailure: 0,
         state: 'closed',
-        timeout: this.registry.circuitBreakerTimeout
-      }
+        timeout: this.registry.circuitBreakerTimeout,
+      },
     };
 
     const serviceName = service.name;
-    
+
     if (!this.registry.services.has(serviceName)) {
       this.registry.services.set(serviceName, []);
     }
 
     const instances = this.registry.services.get(serviceName)!;
-    
+
     // Remove existing instance with same ID
-    const existingIndex = instances.findIndex(inst => inst.id === service.id);
+    const existingIndex = instances.findIndex((inst) => inst.id === service.id);
     if (existingIndex >= 0) {
       instances[existingIndex] = serviceWithCircuitBreaker;
     } else {
@@ -99,10 +99,10 @@ class ServiceRegistryImpl {
    */
   async unregisterService(serviceId: string): Promise<void> {
     for (const [serviceName, instances] of this.registry.services.entries()) {
-      const index = instances.findIndex(inst => inst.id === serviceId);
+      const index = instances.findIndex((inst) => inst.id === serviceId);
       if (index >= 0) {
         instances.splice(index, 1);
-        
+
         // Remove empty service entries
         if (instances.length === 0) {
           this.registry.services.delete(serviceName);
@@ -125,9 +125,8 @@ class ServiceRegistryImpl {
     }
 
     // Filter healthy instances with closed circuit breakers
-    const healthyInstances = instances.filter(inst => 
-      inst.health === 'healthy' && 
-      inst.circuitBreaker.state === 'closed'
+    const healthyInstances = instances.filter(
+      (inst) => inst.health === 'healthy' && inst.circuitBreaker.state === 'closed'
     );
 
     if (healthyInstances.length === 0) {
@@ -153,7 +152,7 @@ class ServiceRegistryImpl {
    */
   getServiceInstanceById(serviceId: string): ServiceInstance | null {
     for (const instances of this.registry.services.values()) {
-      const instance = instances.find(inst => inst.id === serviceId);
+      const instance = instances.find((inst) => inst.id === serviceId);
       if (instance) {
         return instance;
       }
@@ -212,12 +211,12 @@ class ServiceRegistryImpl {
     circuitsOpen: number;
   } {
     const instances = this.registry.services.get(serviceName) || [];
-    
+
     return {
       total: instances.length,
-      healthy: instances.filter(inst => inst.health === 'healthy').length,
-      unhealthy: instances.filter(inst => inst.health === 'unhealthy').length,
-      circuitsOpen: instances.filter(inst => inst.circuitBreaker.state === 'open').length
+      healthy: instances.filter((inst) => inst.health === 'healthy').length,
+      unhealthy: instances.filter((inst) => inst.health === 'unhealthy').length,
+      circuitsOpen: instances.filter((inst) => inst.circuitBreaker.state === 'open').length,
     };
   }
 
@@ -259,10 +258,13 @@ class ServiceRegistryImpl {
             const controller = new AbortController();
             timeoutId = setTimeout(() => controller.abort(), 5000);
 
-            const response = await fetch(`${instance.protocol}://${instance.host}:${instance.port}/health`, {
-              method: 'GET',
-              signal: controller.signal
-            });
+            const response = await fetch(
+              `${instance.protocol}://${instance.host}:${instance.port}/health`,
+              {
+                method: 'GET',
+                signal: controller.signal,
+              }
+            );
 
             clearTimeout(timeoutId);
 
@@ -304,9 +306,9 @@ class ServiceRegistryImpl {
    */
   private getWeightedInstance(instances: ServiceInstance[]): ServiceInstance {
     // Simple weighted implementation
-    const weights = instances.map(inst => inst.metadata.weight || 1);
+    const weights = instances.map((inst) => inst.metadata.weight || 1);
     const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
-    
+
     let random = Math.random() * totalWeight;
     for (let i = 0; i < instances.length; i++) {
       random -= weights[i];
@@ -314,7 +316,7 @@ class ServiceRegistryImpl {
         return instances[i];
       }
     }
-    
+
     return instances[instances.length - 1];
   }
 
@@ -339,11 +341,11 @@ class ServiceRegistryImpl {
       if (cached) {
         const data = JSON.parse(cached);
         this.registry.services.clear();
-        
+
         for (const [serviceName, instances] of Object.entries(data)) {
           this.registry.services.set(serviceName, instances as ServiceInstance[]);
         }
-        
+
         logger.info('Service registry loaded from cache');
       }
     } catch (error) {

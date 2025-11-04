@@ -129,9 +129,11 @@ describe('Unified Router with Guardrails', () => {
       app.use(registerRoutes(routes));
 
       // Error handler
-      app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-        res.status(500).json({ error: err.message });
-      });
+      app.use(
+        (err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+          res.status(500).json({ error: err.message });
+        }
+      );
 
       await supertest(app).get('/error').expect(500);
 

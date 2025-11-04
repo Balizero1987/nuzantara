@@ -11,7 +11,7 @@ describe('Bali Zero Pricing', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.baliZeroPricing({
         service_type: 'visa',
-        include_details: true
+        include_details: true,
       });
 
       expect(result).toBeDefined();
@@ -30,7 +30,7 @@ describe('Bali Zero Pricing', () => {
 
     it('should handle invalid params gracefully', async () => {
       const result = await handlers.baliZeroPricing({
-        service_type: 'invalid-service'
+        service_type: 'invalid-service',
       });
 
       expect(result).toBeDefined();
@@ -41,7 +41,7 @@ describe('Bali Zero Pricing', () => {
   describe('baliZeroQuickPrice', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.baliZeroQuickPrice({
-        service: 'C1 Tourism'
+        service: 'C1 Tourism',
       });
 
       expect(result).toBeDefined();
@@ -59,12 +59,11 @@ describe('Bali Zero Pricing', () => {
 
     it('should handle invalid params gracefully', async () => {
       const result = await handlers.baliZeroQuickPrice({
-        service: 'NonExistentService'
+        service: 'NonExistentService',
       });
 
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
     });
   });
-
 });

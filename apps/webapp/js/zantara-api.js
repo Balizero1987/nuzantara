@@ -1,11 +1,11 @@
 /**
  * ZANTARA API Layer - Clean & Simple
  * Allineato con backend Fly.io (Ottobre 2025)
- * 
+ *
  * Backend:
  * - TS-BACKEND: https://nuzantara-orchestrator.fly.dev
  * - RAG-BACKEND: https://nuzantara-rag.fly.dev
- * 
+ *
  * Auth: Demo auth middleware (no API key needed)
  * Contracts: API versioning and fallback system
  */
@@ -14,9 +14,9 @@ const ZANTARA_API = {
   // Backend URLs (legacy - use API_CONTRACTS for new calls)
   backends: {
     ts: 'https://nuzantara-backend.fly.dev',
-    rag: 'https://nuzantara-rag.fly.dev'
+    rag: 'https://nuzantara-rag.fly.dev',
   },
-  
+
   /**
    * Team Login (with API Contracts fallback)
    */
@@ -25,46 +25,46 @@ const ZANTARA_API = {
       // Try with API Contracts first (resilient)
       if (window.API_CONTRACTS) {
         console.log('🔄 Using API Contracts for login...');
-        
+
         const data = await window.API_CONTRACTS.callWithFallback('ts', '/team.login', {
           method: 'POST',
-          body: JSON.stringify({ email, pin, name })
+          body: JSON.stringify({ email, pin, name }),
         });
-        
+
         if (data.success) {
           this._saveLoginData(data);
           return { success: true, user: data.user, message: data.personalizedResponse };
         }
-        
+
         return { success: false, error: 'Login failed' };
       }
-      
+
       // Fallback to direct call (legacy)
       console.log('⚠️ Using legacy API call (no contracts)');
       const response = await fetch(`${this.backends.ts}/team.login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, pin, name })
+        body: JSON.stringify({ email, pin, name }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Login failed: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         this._saveLoginData(data);
         return { success: true, user: data.user, message: data.personalizedResponse };
       }
-      
+
       return { success: false, error: 'Login failed' };
     } catch (error) {
       console.error('Login error:', error);
       return { success: false, error: error.message };
     }
   },
-  
+
   /**
    * Save login data to localStorage
    */
@@ -74,11 +74,11 @@ const ZANTARA_API = {
     localStorage.setItem('zantara-user', JSON.stringify(data.user));
     localStorage.setItem('zantara-email', data.user.email);
     localStorage.setItem('zantara-name', data.user.name);
-    
+
     console.log('✅ Login successful:', data.user.name);
     console.log('🔑 JWT Token saved');
   },
-  
+
   /**
    * Chat with Zantara (Haiku 4.5)
    * Supports both regular and SSE streaming with API Contracts
@@ -95,7 +95,7 @@ const ZANTARA_API = {
         tools = window.ZANTARA_TOOLS.getToolsForQuery(message);
         console.log(`🔧 [Chat] Passing ${tools.length} tools to Zantara`);
         if (tools.length > 0) {
-          console.log(`   Tools: ${tools.map(t => t.name).join(', ')}`);
+          console.log(`   Tools: ${tools.map((t) => t.name).join(', ')}`);
         }
       } else {
         console.warn('⚠️ [Chat] ZANTARA_TOOLS not loaded, tools will be empty');
@@ -122,9 +122,9 @@ const ZANTARA_API = {
             query: message,
             user_email: email,
             user_role: 'member',
-            tools: tools,                      // ← NEW: Pass tools to backend
-            tool_choice: { type: 'auto' }      // ← Let Claude decide when to use tools
-          })
+            tools: tools, // ← NEW: Pass tools to backend
+            tool_choice: { type: 'auto' }, // ← Let Claude decide when to use tools
+          }),
         });
 
         if (data.success) {
@@ -138,7 +138,7 @@ const ZANTARA_API = {
             response: data.response,
             model: data.model_used,
             ai: data.ai_used,
-            tools_used: data.tools_used || []  // ← NEW: Return which tools were called
+            tools_used: data.tools_used || [], // ← NEW: Return which tools were called
           };
         }
 
@@ -159,9 +159,9 @@ const ZANTARA_API = {
           query: message,
           user_email: email,
           user_role: 'member',
-          tools: tools,                      // ← NEW: Pass tools to backend
-          tool_choice: { type: 'auto' }      // ← Let Claude decide when to use tools
-        })
+          tools: tools, // ← NEW: Pass tools to backend
+          tool_choice: { type: 'auto' }, // ← Let Claude decide when to use tools
+        }),
       });
 
       if (!response.ok) {
@@ -181,7 +181,7 @@ const ZANTARA_API = {
           response: data.response,
           model: data.model_used,
           ai: data.ai_used,
-          tools_used: data.tools_used || []  // ← NEW: Return which tools were called
+          tools_used: data.tools_used || [], // ← NEW: Return which tools were called
         };
       }
 
@@ -191,7 +191,7 @@ const ZANTARA_API = {
       return { success: false, error: error.message };
     }
   },
-  
+
   /**
    * Check if user is logged in
    */
@@ -201,7 +201,7 @@ const ZANTARA_API = {
     const user = localStorage.getItem('zantara-user');
     return !!(session && token && user);
   },
-  
+
   /**
    * Get current user
    */
@@ -213,14 +213,14 @@ const ZANTARA_API = {
       return null;
     }
   },
-  
+
   /**
    * Get JWT token
    */
   getToken() {
     return localStorage.getItem('zantara-token');
   },
-  
+
   /**
    * ZANTARA v3 Ω Unified Knowledge Endpoint
    * Single entry point for ALL knowledge bases
@@ -233,8 +233,8 @@ const ZANTARA_API = {
         const data = await window.API_CONTRACTS.callWithFallback('ts', '/zantara.unified', {
           method: 'POST',
           body: JSON.stringify({
-            params: { query, domain, mode, include_sources }
-          })
+            params: { query, domain, mode, include_sources },
+          }),
         });
 
         return { success: true, data };
@@ -245,8 +245,8 @@ const ZANTARA_API = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          params: { query, domain, mode, include_sources }
-        })
+          params: { query, domain, mode, include_sources },
+        }),
       });
 
       const data = await response.json();
@@ -269,8 +269,8 @@ const ZANTARA_API = {
         const data = await window.API_CONTRACTS.callWithFallback('ts', '/zantara.collective', {
           method: 'POST',
           body: JSON.stringify({
-            params: { action, ...params }
-          })
+            params: { action, ...params },
+          }),
         });
 
         return { success: true, data };
@@ -281,8 +281,8 @@ const ZANTARA_API = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          params: { action, ...params }
-        })
+          params: { action, ...params },
+        }),
       });
 
       const data = await response.json();
@@ -297,7 +297,13 @@ const ZANTARA_API = {
    * ZANTARA v3 Ω Ecosystem Analysis Endpoint
    * Complete business ecosystem analysis
    */
-  async zantaraEcosystem(scenario, businessType, ownership = 'foreign', scope = 'comprehensive', location = 'bali') {
+  async zantaraEcosystem(
+    scenario,
+    businessType,
+    ownership = 'foreign',
+    scope = 'comprehensive',
+    location = 'bali'
+  ) {
     try {
       if (window.API_CONTRACTS) {
         console.log('🏗️ Using ZANTARA Ecosystem...');
@@ -310,9 +316,9 @@ const ZANTARA_API = {
               business_type: businessType,
               ownership,
               scope,
-              location
-            }
-          })
+              location,
+            },
+          }),
         });
 
         return { success: true, data };
@@ -328,9 +334,9 @@ const ZANTARA_API = {
             business_type: businessType,
             ownership,
             scope,
-            location
-          }
-        })
+            location,
+          },
+        }),
       });
 
       const data = await response.json();
@@ -351,9 +357,8 @@ const ZANTARA_API = {
     localStorage.removeItem('zantara-email');
     localStorage.removeItem('zantara-name');
     console.log('✅ Logged out');
-  }
+  },
 };
 
 // Make available globally
 window.ZANTARA_API = ZANTARA_API;
-

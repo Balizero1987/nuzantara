@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { PersistentTeamEngine, PersistentMemory } from './TeamKnowledgeEngine';
+import logger from '../logger.js';
 
 // =====================================================
 // ENHANCED TEAM HANDLER WITH PERSISTENT KNOWLEDGE
@@ -34,7 +35,7 @@ export class EnhancedTeamHandler {
 
   async initialize(): Promise<void> {
     await this.persistentEngine.initialize();
-    console.log('✅ Enhanced Team Handler initialized with persistent knowledge');
+    logger.info('✅ Enhanced Team Handler initialized with persistent knowledge');
   }
 
   // =====================================================
@@ -60,11 +61,7 @@ export class EnhancedTeamHandler {
 
         // 3. Learn from successful RAG results
         if (ragResult.confidence > 0.8) {
-          await this.persistentEngine.learnFromRAG(
-            query.text,
-            ragResult,
-            query.user_id
-          );
+          await this.persistentEngine.learnFromRAG(query.text, ragResult, query.user_id);
         }
 
         return this.buildRAGResponse(ragResult, query);
@@ -72,13 +69,13 @@ export class EnhancedTeamHandler {
 
       // 4. Generic team response
       return this.buildGenericResponse(query);
-
     } catch (error) {
-      console.error('Enhanced Team Handler error:', error);
+      logger.error('Enhanced Team Handler error:', error);
       return {
         success: false,
-        response: 'Mi dispiace, ho riscontrato un problema nell\'elaborare la tua richiesta sul team.',
-        confidence: 0
+        response:
+          "Mi dispiace, ho riscontrato un problema nell'elaborare la tua richiesta sul team.",
+        confidence: 0,
       };
     }
   }
@@ -87,7 +84,10 @@ export class EnhancedTeamHandler {
   // RESPONSE BUILDERS
   // =====================================================
 
-  private buildPersistentResponse(persistentResult: PersistentMemory, query: TeamQuery): TeamResponse {
+  private buildPersistentResponse(
+    persistentResult: PersistentMemory,
+    query: TeamQuery
+  ): TeamResponse {
     const { member_recognition, collective_context } = persistentResult;
 
     if (!member_recognition.member) {
@@ -95,7 +95,7 @@ export class EnhancedTeamHandler {
         success: false,
         response: 'Non ho trovato informazioni sul membro del team richiesto.',
         confidence: 0,
-        member_found: false
+        member_found: false,
       };
     }
 
@@ -136,7 +136,7 @@ export class EnhancedTeamHandler {
       member_info: member,
       context: collective_context,
       related_members: member_recognition.related_members,
-      learning_applied: true
+      learning_applied: true,
     };
   }
 
@@ -197,7 +197,7 @@ export class EnhancedTeamHandler {
   private buildRelationshipContext(relationships: string[]): string {
     let context = '\n🤝 **Relazioni Team**:\n';
 
-    relationships.slice(0, 3).forEach(rel => {
+    relationships.slice(0, 3).forEach((rel) => {
       context += `• ${rel}\n`;
     });
 
@@ -207,7 +207,7 @@ export class EnhancedTeamHandler {
   private buildRelatedTeamMembers(relatedMembers: any[]): string {
     let related = '\n👥 **Collaboratori Principali**:\n';
 
-    relatedMembers.slice(0, 3).forEach(member => {
+    relatedMembers.slice(0, 3).forEach((member) => {
       related += `• ${member.name} - ${member.role}\n`;
     });
 
@@ -221,7 +221,8 @@ export class EnhancedTeamHandler {
       contact += `• Email: ${member.email}\n`;
     }
 
-    contact += '\n*Per contattare direttamente ${member.name}, puoi scrivere all\'email indicata.*\n';
+    contact +=
+      "\n*Per contattare direttamente ${member.name}, puoi scrivere all'email indicata.*\n";
 
     return contact;
   }
@@ -239,7 +240,7 @@ export class EnhancedTeamHandler {
       response,
       confidence: ragResult.confidence || 0.5,
       member_found: ragResult.member_found || false,
-      learning_applied: ragResult.confidence > 0.8
+      learning_applied: ragResult.confidence > 0.8,
     };
   }
 
@@ -265,7 +266,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
       success: true,
       response,
       confidence: 0.3,
-      member_found: false
+      member_found: false,
     };
   }
 
@@ -275,13 +276,13 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
 
   private translateDepartment(department: string): string {
     const translations: { [key: string]: string } = {
-      'management': 'Management',
-      'tech': 'Tecnologia',
-      'setup_team': 'Team Setup',
-      'tax_department': 'Dipartimento Tax',
-      'marketing': 'Marketing',
-      'reception': 'Reception',
-      'advisory': 'Consulenza Esterna'
+      management: 'Management',
+      tech: 'Tecnologia',
+      setup_team: 'Team Setup',
+      tax_department: 'Dipartimento Tax',
+      marketing: 'Marketing',
+      reception: 'Reception',
+      advisory: 'Consulenza Esterna',
     };
 
     return translations[department] || department;
@@ -289,9 +290,9 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
 
   private translateAvailability(status: string): string {
     const translations: { [key: string]: string } = {
-      'online': '🟢 Online',
-      'offline': '⚪ Offline',
-      'busy': '🟡 Occupato'
+      online: '🟢 Online',
+      offline: '⚪ Offline',
+      busy: '🟡 Occupato',
     };
 
     return translations[status] || status;
@@ -308,7 +309,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
       if (!query || !user_id || !session_id) {
         res.status(400).json({
           success: false,
-          error: 'Missing required parameters: query, user_id, session_id'
+          error: 'Missing required parameters: query, user_id, session_id',
         });
         return;
       }
@@ -317,7 +318,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         text: query,
         user_id,
         session_id,
-        context: req.body.context
+        context: req.body.context,
       });
 
       res.json({
@@ -329,15 +330,14 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
           member_info: result.member_info,
           context: result.context,
           related_members: result.related_members,
-          learning_applied: result.learning_applied
-        }
+          learning_applied: result.learning_applied,
+        },
       });
-
     } catch (error) {
-      console.error('Team recognition error:', error);
+      logger.error('Team recognition error:', error);
       res.status(500).json({
         success: false,
-        error: 'Internal server error during team recognition'
+        error: 'Internal server error during team recognition',
       });
     }
   }
@@ -348,19 +348,21 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
 
       let teamMembers;
       if (department) {
-        teamMembers = await this.persistentEngine['database'].getTeamMembersByDepartment(department as string);
+        teamMembers = await this.persistentEngine['database'].getTeamMembersByDepartment(
+          department as string
+        );
       } else {
         teamMembers = await this.persistentEngine.getAllTeamMembers();
       }
 
-      const formattedMembers = teamMembers.map(member => ({
+      const formattedMembers = teamMembers.map((member) => ({
         id: member.id,
         name: member.name,
         role: member.role,
         department: member.department,
         email: member.email,
         availability_status: member.availability_status,
-        confidence_score: member.confidence_score
+        confidence_score: member.confidence_score,
       }));
 
       res.json({
@@ -368,15 +370,14 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         data: {
           team_members: formattedMembers,
           total_count: formattedMembers.length,
-          department: department || 'all'
-        }
+          department: department || 'all',
+        },
       });
-
     } catch (error) {
-      console.error('Team list error:', error);
+      logger.error('Team list error:', error);
       res.status(500).json({
         success: false,
-        error: 'Internal server error during team list retrieval'
+        error: 'Internal server error during team list retrieval',
       });
     }
   }
@@ -388,7 +389,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
       if (!searchTerm) {
         res.status(400).json({
           success: false,
-          error: 'Missing search term parameter: q'
+          error: 'Missing search term parameter: q',
         });
         return;
       }
@@ -398,14 +399,14 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         parseInt(limit as string)
       );
 
-      const formattedMembers = teamMembers.map(member => ({
+      const formattedMembers = teamMembers.map((member) => ({
         id: member.id,
         name: member.name,
         role: member.role,
         department: member.department,
         email: member.email,
         expertise_areas: member.expertise_areas,
-        confidence_score: member.confidence_score
+        confidence_score: member.confidence_score,
       }));
 
       res.json({
@@ -413,15 +414,14 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         data: {
           search_term: searchTerm,
           results: formattedMembers,
-          total_found: formattedMembers.length
-        }
+          total_found: formattedMembers.length,
+        },
       });
-
     } catch (error) {
-      console.error('Team search error:', error);
+      logger.error('Team search error:', error);
       res.status(500).json({
         success: false,
-        error: 'Internal server error during team search'
+        error: 'Internal server error during team search',
       });
     }
   }
@@ -432,14 +432,13 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
 
       res.json({
         success: true,
-        data: stats
+        data: stats,
       });
-
     } catch (error) {
-      console.error('Team statistics error:', error);
+      logger.error('Team statistics error:', error);
       res.status(500).json({
         success: false,
-        error: 'Internal server error during statistics retrieval'
+        error: 'Internal server error during statistics retrieval',
       });
     }
   }
@@ -455,7 +454,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
       if (!session_id || !user_id || !query || !response || rating === undefined) {
         res.status(400).json({
           success: false,
-          error: 'Missing required parameters'
+          error: 'Missing required parameters',
         });
         return;
       }
@@ -469,19 +468,18 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         query_type: 'team_inquiry',
         team_members_mentioned: [],
         topics_discussed: [],
-        user_satisfaction_rating: rating
+        user_satisfaction_rating: rating,
       });
 
       res.json({
         success: true,
-        message: 'Feedback recorded successfully'
+        message: 'Feedback recorded successfully',
       });
-
     } catch (error) {
-      console.error('Feedback recording error:', error);
+      logger.error('Feedback recording error:', error);
       res.status(500).json({
         success: false,
-        error: 'Internal server error during feedback recording'
+        error: 'Internal server error during feedback recording',
       });
     }
   }

@@ -1,6 +1,6 @@
 /**
  * Enhanced Jest Configuration for NUZANTARA Backend
- * 
+ *
  * Features:
  * - Advanced coverage reporting with multiple formats
  * - Parallel test execution optimization
@@ -23,10 +23,7 @@ export default {
   testEnvironment: 'node',
 
   // Test file patterns
-  testMatch: [
-    '**/__tests__/**/*.test.ts',
-    '**/?(*.)+(spec|test).ts',
-  ],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
 
   // Module paths
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
@@ -83,15 +80,7 @@ export default {
   },
 
   // Coverage reporters - multiple formats
-  coverageReporters: [
-    'text',
-    'text-summary',
-    'lcov',
-    'html',
-    'json',
-    'json-summary',
-    'clover',
-  ],
+  coverageReporters: ['text', 'text-summary', 'lcov', 'html', 'json', 'json-summary', 'clover'],
 
   // Coverage directory
   coverageDirectory: '<rootDir>/coverage',
@@ -111,7 +100,7 @@ export default {
     '/tests/e2e/',
     '/apps/webapp/tests/',
   ],
-  
+
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/dist/',
@@ -163,9 +152,7 @@ export default {
   },
 
   // Transform ignore patterns (if needed for external modules)
-  transformIgnorePatterns: [
-    String.raw`/node_modules/(?!(.*\.mjs$|@swc|@babel))`,
-  ],
+  transformIgnorePatterns: [String.raw`/node_modules/(?!(.*\.mjs$|@swc|@babel))`],
 
   // Module directories (helps with resolution)
   moduleDirectories: ['node_modules', '<rootDir>/src', '<rootDir>/tests'],
@@ -209,4 +196,3 @@ export default {
   // Silent mode (disable console logs during tests)
   silent: process.env.SILENT_TESTS === 'true',
 };
-

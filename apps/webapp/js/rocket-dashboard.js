@@ -15,20 +15,20 @@ class RocketDashboard {
    */
   async initialize() {
     console.log('[RocketDashboard] Initializing dashboard...');
-    
+
     // Render initial dashboard
     await this.renderDashboard();
-    
+
     // Set up periodic updates
     this.updateTimer = setInterval(() => {
       this.updateDashboard();
     }, this.updateInterval);
-    
+
     // Listen for handler updates
     window.addEventListener('handlers-loaded', () => {
       this.renderHandlerStats();
     });
-    
+
     console.log('[RocketDashboard] Dashboard initialized');
   }
 
@@ -38,7 +38,7 @@ class RocketDashboard {
   async renderDashboard() {
     const dashboardContainer = document.getElementById('rocket-dashboard');
     if (!dashboardContainer) return;
-    
+
     dashboardContainer.innerHTML = `
       <div class="rocket-dashboard">
         <header>
@@ -79,10 +79,10 @@ class RocketDashboard {
         </div>
       </div>
     `;
-    
+
     // Add event listeners
     this.attachEventListeners();
-    
+
     // Load initial data
     await this.loadSystemStatus();
     this.renderHandlerStats();
@@ -99,14 +99,14 @@ class RocketDashboard {
         this.updateDashboard();
       });
     }
-    
+
     const viewHandlersBtn = document.getElementById('view-all-handlers');
     if (viewHandlersBtn) {
       viewHandlersBtn.addEventListener('click', () => {
         this.showAllHandlers();
       });
     }
-    
+
     const healthCheckBtn = document.getElementById('system-health-check');
     if (healthCheckBtn) {
       healthCheckBtn.addEventListener('click', () => {
@@ -121,21 +121,21 @@ class RocketDashboard {
   async loadSystemStatus() {
     const statusContainer = document.getElementById('system-status-content');
     if (!statusContainer) return;
-    
+
     try {
       const response = await fetch(`${this.apiBase}/health`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      
+
       statusContainer.innerHTML = `
         <div class="status-grid">
           <div class="status-item">
@@ -173,11 +173,11 @@ class RocketDashboard {
   renderHandlerStats() {
     const statsContainer = document.getElementById('handler-stats-content');
     if (!statsContainer) return;
-    
+
     let totalHandlers = 122; // Default
     let integratedHandlers = 15; // Default from handover docs
     let integrationPercentage = 11; // Default from handover docs
-    
+
     // Use HandlerDiscovery data if available
     if (window.HandlerDiscovery && window.HandlerDiscovery.initialized) {
       totalHandlers = window.HandlerDiscovery.handlers.length;
@@ -185,7 +185,7 @@ class RocketDashboard {
       integratedHandlers = Math.min(25, Math.floor(totalHandlers * 0.2)); // Simulate progress
       integrationPercentage = Math.round((integratedHandlers / totalHandlers) * 100);
     }
-    
+
     statsContainer.innerHTML = `
       <div class="stats-visualization">
         <div class="progress-container">
@@ -231,7 +231,7 @@ class RocketDashboard {
   async loadAIInsights() {
     const insightsContainer = document.getElementById('ai-insights-content');
     if (!insightsContainer) return;
-    
+
     insightsContainer.innerHTML = `
       <div class="insights-content">
         <div class="insight-item">
@@ -280,16 +280,20 @@ class RocketDashboard {
   showAllHandlers() {
     if (window.HandlerDiscovery && window.HandlerDiscovery.initialized) {
       const handlers = window.HandlerDiscovery.handlers;
-      
+
       // Create modal or new page to display handlers
-      const handlerList = handlers.map(handler => `
+      const handlerList = handlers
+        .map(
+          (handler) => `
         <div class="handler-item">
           <h4>${handler.name}</h4>
           <p>${handler.description || 'No description available'}</p>
           <span class="handler-category">${handler.category || 'Uncategorized'}</span>
         </div>
-      `).join('');
-      
+      `
+        )
+        .join('');
+
       const modal = document.createElement('div');
       modal.className = 'handlers-modal';
       modal.innerHTML = `
@@ -303,15 +307,15 @@ class RocketDashboard {
           </div>
         </div>
       `;
-      
+
       document.body.appendChild(modal);
-      
+
       // Add close functionality
       const closeBtn = modal.querySelector('.close-modal');
       closeBtn.addEventListener('click', () => {
         document.body.removeChild(modal);
       });
-      
+
       modal.addEventListener('click', (e) => {
         if (e.target === modal) {
           document.body.removeChild(modal);
@@ -330,15 +334,15 @@ class RocketDashboard {
     const originalText = actionBtn.textContent;
     actionBtn.textContent = 'Checking...';
     actionBtn.disabled = true;
-    
+
     try {
       const response = await fetch(`${this.apiBase}/health`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
-      
+
       if (response.ok) {
         alert('✅ System health check passed! All services are operational.');
       } else {
@@ -368,7 +372,7 @@ class RocketDashboard {
 document.addEventListener('DOMContentLoaded', () => {
   window.rocketDashboard = new RocketDashboard();
   window.rocketDashboard.initialize();
-  
+
   console.log('[RocketDashboard] System ready');
 });
 

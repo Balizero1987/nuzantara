@@ -13,10 +13,10 @@ const SCRAPER_DIR = path.join(process.cwd(), 'apps', 'HIGH_PRIORITY', 'bali-inte
 const OUTPUT_DIR = path.join(SCRAPER_DIR, 'data', 'INTEL_SCRAPING');
 
 interface ScraperParams {
-  categories?: string[];  // Specific categories to scrape (default: all 20)
-  runStage2?: boolean;    // Run Claude content generation + ChromaDB upload
-  dryRun?: boolean;       // Test mode without actual scraping
-  limit?: number;         // Max articles per category (default: 10)
+  categories?: string[]; // Specific categories to scrape (default: all 20)
+  runStage2?: boolean; // Run Claude content generation + ChromaDB upload
+  dryRun?: boolean; // Test mode without actual scraping
+  limit?: number; // Max articles per category (default: 10)
 }
 
 interface ScraperResult {
@@ -36,12 +36,7 @@ interface ScraperResult {
  */
 export async function intelScraperRun(params: ScraperParams): Promise<ScraperResult> {
   try {
-    const {
-      categories = [],
-      runStage2 = false,
-      dryRun = false,
-      limit = 10
-    } = params;
+    const { categories = [], runStage2 = false, dryRun = false, limit = 10 } = params;
 
     const jobId = `scraper_${Date.now()}`;
     logger.info('Starting intel scraper job: ${jobId}', { params });
@@ -67,14 +62,14 @@ export async function intelScraperRun(params: ScraperParams): Promise<ScraperRes
       ...process.env,
       RUN_STAGE2: runStage2 ? 'true' : 'false',
       JOB_ID: jobId,
-      PYTHONUNBUFFERED: '1'  // Real-time output
+      PYTHONUNBUFFERED: '1', // Real-time output
     };
 
     return new Promise((resolve, reject) => {
       const pythonProcess = spawn('python3', [scriptPath, ...args], {
         cwd: SCRAPER_DIR,
         env,
-        stdio: ['ignore', 'pipe', 'pipe']
+        stdio: ['ignore', 'pipe', 'pipe'],
       });
 
       let stdout = '';
@@ -101,14 +96,14 @@ export async function intelScraperRun(params: ScraperParams): Promise<ScraperRes
             success: true,
             jobId,
             status: 'completed',
-            ...stats
+            ...stats,
           });
         } else {
           resolve({
             success: false,
             jobId,
             status: 'failed',
-            error: stderr || `Process exited with code ${code}`
+            error: stderr || `Process exited with code ${code}`,
           });
         }
       });
@@ -118,7 +113,7 @@ export async function intelScraperRun(params: ScraperParams): Promise<ScraperRes
           success: false,
           jobId,
           status: 'failed',
-          error: err.message
+          error: err.message,
         });
       });
 
@@ -128,18 +123,17 @@ export async function intelScraperRun(params: ScraperParams): Promise<ScraperRes
           success: true,
           jobId,
           status: 'started',
-          categories: categories.length > 0 ? categories : ['all']
+          categories: categories.length > 0 ? categories : ['all'],
         });
       }
     });
-
   } catch (error: any) {
     logger.error('Intel scraper error:', error);
     return {
       success: false,
       jobId: `error_${Date.now()}`,
       status: 'failed',
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -163,7 +157,7 @@ export async function intelScraperStatus(params: { jobId: string }) {
         success: true,
         jobId,
         status: 'completed',
-        report
+        report,
       };
     } catch (err) {
       // Report not found, job might still be running
@@ -171,14 +165,13 @@ export async function intelScraperStatus(params: { jobId: string }) {
         success: true,
         jobId,
         status: 'running',
-        message: 'Job in progress, report not yet available'
+        message: 'Job in progress, report not yet available',
       };
     }
-
   } catch (error: any) {
     return {
       success: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -197,7 +190,7 @@ export async function intelScraperCategories() {
       key: value.key,
       name: value.name,
       type: value.type,
-      collaborator: value.collaborator
+      collaborator: value.collaborator,
     }));
 
     return {
@@ -205,14 +198,13 @@ export async function intelScraperCategories() {
       total: config.total_categories,
       regularCategories: config.regular_categories,
       llamaCategories: config.llama_categories,
-      categories
+      categories,
     };
-
   } catch (error: any) {
     return {
       success: false,
       error: error.message,
-      categories: []
+      categories: [],
     };
   }
 }
@@ -224,7 +216,7 @@ function parseScraperOutput(output: string) {
   const stats = {
     articlesScraped: 0,
     articlesFiltered: 0,
-    filterEfficiency: '0%'
+    filterEfficiency: '0%',
   };
 
   try {
@@ -236,7 +228,6 @@ function parseScraperOutput(output: string) {
     if (scrapedMatch && scrapedMatch[1]) stats.articlesScraped = parseInt(scrapedMatch[1], 10);
     if (filteredMatch && filteredMatch[1]) stats.articlesFiltered = parseInt(filteredMatch[1], 10);
     if (efficiencyMatch && efficiencyMatch[1]) stats.filterEfficiency = `${efficiencyMatch[1]}%`;
-
   } catch (err) {
     logger.warn('Failed to parse scraper output stats', err);
   }

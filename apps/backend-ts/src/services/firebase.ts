@@ -9,7 +9,8 @@ type ServiceAccountSource = 'secret-manager' | 'env-var' | 'file' | 'adc' | 'non
 
 const DEFAULT_PROJECT_ID =
   process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_PROJECT_ID || 'involuted-box-469105-r0';
-const SERVICE_ACCOUNT_SECRET = process.env.FIREBASE_SERVICE_ACCOUNT_SECRET || 'zantara-service-account-2025';
+const SERVICE_ACCOUNT_SECRET =
+  process.env.FIREBASE_SERVICE_ACCOUNT_SECRET || 'zantara-service-account-2025';
 
 let initialized = false;
 let initializing: Promise<void> | null = null;
@@ -39,7 +40,10 @@ async function fetchServiceAccountFromSecret(projectId: string) {
       return JSON.parse(payload);
     }
   } catch (error: any) {
-    logger.info('⚠️ Secret Manager lookup failed, falling back to other credentials:', error?.message || error);
+    logger.info(
+      '⚠️ Secret Manager lookup failed, falling back to other credentials:',
+      error?.message || error
+    );
   }
 
   return null;
@@ -72,10 +76,15 @@ async function initializeFirebaseInternal(): Promise<void> {
         try {
           const fileAccount = JSON.parse(readFileSync(credentialsPath, 'utf8'));
           serviceAccount = fileAccount;
-          logger.info(`🔥 Firebase initialized with service account from file (${credentialsPath})`);
+          logger.info(
+            `🔥 Firebase initialized with service account from file (${credentialsPath})`
+          );
           firebaseStatus.serviceAccountSource = 'file';
         } catch (fileError: any) {
-          logger.info('⚠️ Could not read credentials file, falling back to ADC:', fileError?.message || fileError);
+          logger.info(
+            '⚠️ Could not read credentials file, falling back to ADC:',
+            fileError?.message || fileError
+          );
         }
       }
     }
@@ -91,7 +100,9 @@ async function initializeFirebaseInternal(): Promise<void> {
         projectId,
       });
       logger.info('🔥 Firebase initialized with ADC (Application Default Credentials)');
-      logger.info('   Service account: cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com');
+      logger.info(
+        '   Service account: cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com'
+      );
       firebaseStatus.serviceAccountSource = 'adc';
     }
 
@@ -123,7 +134,9 @@ export async function ensureFirebaseInitialized(): Promise<void> {
 
 export function getFirestore() {
   if (!initialized && getApps().length === 0) {
-    throw new Error('Firebase not initialized. Call ensureFirebaseInitialized() before accessing Firestore.');
+    throw new Error(
+      'Firebase not initialized. Call ensureFirebaseInitialized() before accessing Firestore.'
+    );
   }
   return getFirestoreAdmin();
 }

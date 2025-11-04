@@ -101,18 +101,18 @@ export class EnhancedTestSuite {
               duration,
               metrics: {
                 handlerType: typeof handler,
-                handlerLength: handlerStr.length
-              }
+                handlerLength: handlerStr.length,
+              },
             };
           } catch (error) {
             const duration = performance.now() - startTime;
             return {
               passed: false,
               duration,
-              error: error as Error
+              error: error as Error,
             };
           }
-        }
+        },
       });
 
       // Generate security test
@@ -144,7 +144,7 @@ export class EnhancedTestSuite {
             const secretPatterns = [
               /password\s*=\s*['"`][^'"`]+['"`]/i,
               /api_key\s*=\s*['"`][^'"`]+['"`]/i,
-              /secret\s*=\s*['"`][^'"`]+['"`]/i
+              /secret\s*=\s*['"`][^'"`]+['"`]/i,
             ];
 
             for (const pattern of secretPatterns) {
@@ -160,18 +160,18 @@ export class EnhancedTestSuite {
               duration,
               metrics: {
                 securityIssues,
-                securityScore: Math.max(0, 100 - (securityIssues.length * 25))
-              }
+                securityScore: Math.max(0, 100 - securityIssues.length * 25),
+              },
             };
           } catch (error) {
             const duration = performance.now() - startTime;
             return {
               passed: false,
               duration,
-              error: error as Error
+              error: error as Error,
             };
           }
-        }
+        },
       });
 
       // Generate performance test
@@ -200,7 +200,10 @@ export class EnhancedTestSuite {
             }
 
             // Check for lack of async/await in I/O operations
-            const hasIO = handlerStr.includes('fetch(') || handlerStr.includes('fs.') || handlerStr.includes('db.');
+            const hasIO =
+              handlerStr.includes('fetch(') ||
+              handlerStr.includes('fs.') ||
+              handlerStr.includes('db.');
             const hasAsync = handlerStr.includes('async ') || handlerStr.includes('await ');
 
             if (hasIO && !hasAsync) {
@@ -208,7 +211,7 @@ export class EnhancedTestSuite {
             }
 
             const duration = performance.now() - startTime;
-            const performanceScore = Math.max(0, 100 - (performanceIssues.length * 20));
+            const performanceScore = Math.max(0, 100 - performanceIssues.length * 20);
 
             return {
               passed: performanceScore >= 70,
@@ -216,18 +219,18 @@ export class EnhancedTestSuite {
               metrics: {
                 performanceIssues,
                 performanceScore,
-                handlerSize: handlerStr.length
-              }
+                handlerSize: handlerStr.length,
+              },
             };
           } catch (error) {
             const duration = performance.now() - startTime;
             return {
               passed: false,
               duration,
-              error: error as Error
+              error: error as Error,
             };
           }
-        }
+        },
       });
     }
   }
@@ -236,7 +239,7 @@ export class EnhancedTestSuite {
    * Generate integration tests for API endpoints
    */
   generateIntegrationTests(endpoints: string[]): void {
-    endpoints.forEach(endpoint => {
+    endpoints.forEach((endpoint) => {
       this.registerTest({
         id: `integration_${endpoint.replace(/[^a-zA-Z0-9]/g, '_')}`,
         name: `Integration test for ${endpoint}`,
@@ -252,7 +255,7 @@ export class EnhancedTestSuite {
             const mockResponse = {
               status: 200,
               responseTime: Math.random() * 1000,
-              data: { ok: true, data: 'mock response' }
+              data: { ok: true, data: 'mock response' },
             };
 
             // Test response time
@@ -268,18 +271,18 @@ export class EnhancedTestSuite {
               metrics: {
                 responseTime: mockResponse.responseTime,
                 status: mockResponse.status,
-                structureValid: hasCorrectStructure
-              }
+                structureValid: hasCorrectStructure,
+              },
             };
           } catch (error) {
             const duration = performance.now() - startTime;
             return {
               passed: false,
               duration,
-              error: error as Error
+              error: error as Error,
             };
           }
-        }
+        },
       });
     });
   }
@@ -304,18 +307,19 @@ export class EnhancedTestSuite {
             const requestStart = performance.now();
 
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+            await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000));
 
             return {
               userId: i,
               responseTime: performance.now() - requestStart,
-              status: Math.random() > 0.1 ? 200 : 500
+              status: Math.random() > 0.1 ? 200 : 500,
             };
           });
 
           const results = await Promise.all(requests);
-          const avgResponseTime = results.reduce((sum, r) => sum + r.responseTime, 0) / results.length;
-          const successRate = results.filter(r => r.status === 200).length / results.length;
+          const avgResponseTime =
+            results.reduce((sum, r) => sum + r.responseTime, 0) / results.length;
+          const successRate = results.filter((r) => r.status === 200).length / results.length;
 
           const duration = performance.now() - startTime;
           return {
@@ -325,18 +329,18 @@ export class EnhancedTestSuite {
               avgResponseTime,
               successRate,
               totalRequests: results.length,
-              failedRequests: results.filter(r => r.status !== 200).length
-            }
+              failedRequests: results.filter((r) => r.status !== 200).length,
+            },
           };
         } catch (error) {
           const duration = performance.now() - startTime;
           return {
             passed: false,
             duration,
-            error: error as Error
+            error: error as Error,
           };
         }
-      }
+      },
     });
   }
 
@@ -392,7 +396,6 @@ export class EnhancedTestSuite {
         if (test.teardown) {
           await test.teardown();
         }
-
       } catch (error) {
         totalTests++;
         failedTests++;
@@ -404,13 +407,15 @@ export class EnhancedTestSuite {
     const executionTime = this.endTime - this.startTime;
 
     // Calculate scores
-    const avgSecurityScore = securityScores.length > 0
-      ? securityScores.reduce((a, b) => a + b, 0) / securityScores.length
-      : 100;
+    const avgSecurityScore =
+      securityScores.length > 0
+        ? securityScores.reduce((a, b) => a + b, 0) / securityScores.length
+        : 100;
 
-    const avgPerformanceScore = performanceScores.length > 0
-      ? performanceScores.reduce((a, b) => a + b, 0) / performanceScores.length
-      : 100;
+    const avgPerformanceScore =
+      performanceScores.length > 0
+        ? performanceScores.reduce((a, b) => a + b, 0) / performanceScores.length
+        : 100;
 
     const qualityScore = (passedTests / totalTests) * 100;
     const coverage = this.calculateCoverage();
@@ -424,7 +429,7 @@ export class EnhancedTestSuite {
       performanceScore: Math.round(avgPerformanceScore),
       securityScore: Math.round(avgSecurityScore),
       qualityScore: Math.round(qualityScore),
-      executionTime: Math.round(executionTime)
+      executionTime: Math.round(executionTime),
     };
 
     logger.info(`Test suite completed`, metrics);
@@ -440,21 +445,22 @@ export class EnhancedTestSuite {
         resolve({
           passed: false,
           duration: test.timeout,
-          error: new Error(`Test timed out after ${test.timeout}ms`)
+          error: new Error(`Test timed out after ${test.timeout}ms`),
         });
       }, test.timeout);
 
-      test.test()
-        .then(result => {
+      test
+        .test()
+        .then((result) => {
           clearTimeout(timeout);
           resolve(result);
         })
-        .catch(error => {
+        .catch((error) => {
           clearTimeout(timeout);
           resolve({
             passed: false,
             duration: test.timeout,
-            error
+            error,
           });
         });
     });
@@ -474,7 +480,7 @@ export class EnhancedTestSuite {
    */
   generateReport(): string {
     const totalTests = this.tests.size;
-    const passedTests = Array.from(this.results.values()).filter(r => r.passed).length;
+    const passedTests = Array.from(this.results.values()).filter((r) => r.passed).length;
     const failedTests = totalTests - passedTests;
     const successRate = totalTests > 0 ? (passedTests / totalTests) * 100 : 0;
 
@@ -483,7 +489,7 @@ export class EnhancedTestSuite {
       integration: { passed: 0, total: 0 },
       security: { passed: 0, total: 0 },
       performance: { passed: 0, total: 0 },
-      load: { passed: 0, total: 0 }
+      load: { passed: 0, total: 0 },
     };
 
     for (const [testId, test] of this.tests) {
@@ -507,16 +513,21 @@ export class EnhancedTestSuite {
 - **Execution Time**: ${this.endTime - this.startTime}ms
 
 ## Results by Category
-${Object.entries(categoryResults).map(([category, results]) => `
+${Object.entries(categoryResults)
+  .map(
+    ([category, results]) => `
 - **${category.charAt(0).toUpperCase() + category.slice(1)}**: ${results.passed}/${results.total} (${((results.passed / results.total) * 100).toFixed(1)}%)`
-).join('')}
+  )
+  .join('')}
 
 ## Failed Tests
 ${Array.from(this.results.entries())
   .filter(([_, result]) => !result.passed)
-  .map(([testId, result]) => `
+  .map(
+    ([testId, result]) => `
 - **${this.tests.get(testId)?.name || testId}**: ${result.error?.message || 'Unknown error'}
-`)
+`
+  )
   .join('')}
 
 ## Recommendations
@@ -533,7 +544,9 @@ ${this.generateRecommendations(categoryResults)}
     Object.entries(categoryResults).forEach(([category, results]: [string, any]) => {
       const successRate = (results.passed / results.total) * 100;
       if (successRate < 80) {
-        recommendations.push(`- Improve ${category} testing (current: ${successRate.toFixed(1)}% success rate)`);
+        recommendations.push(
+          `- Improve ${category} testing (current: ${successRate.toFixed(1)}% success rate)`
+        );
       }
     });
 

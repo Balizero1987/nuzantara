@@ -4,71 +4,70 @@
  */
 
 class UIEnhancements {
-    constructor() {
-        this.isInitialized = false;
-        this.animations = new Map();
-        this.theme = 'day';
-        this.init();
-    }
+  constructor() {
+    this.isInitialized = false;
+    this.animations = new Map();
+    this.theme = 'day';
+    this.init();
+  }
 
-    async init() {
-        if (this.isInitialized) return;
-        
-        console.log('🎨 UI Enhancements initializing...');
-        
-        try {
-            // Initialize theme
-            this.initTheme();
-            
-            // Initialize animations
-            this.initAnimations();
-            
-            // Initialize smooth scrolling
-            this.initSmoothScrolling();
-            
-            // Initialize loading states
-            this.initLoadingStates();
-            
-            // Initialize hover effects
-            this.initHoverEffects();
-            
-            // Initialize responsive design
-            this.initResponsiveDesign();
-            
-            this.isInitialized = true;
-            console.log('✅ UI Enhancements initialized');
-            
-        } catch (error) {
-            console.error('❌ UI Enhancements error:', error);
-        }
-    }
+  async init() {
+    if (this.isInitialized) return;
 
-    initTheme() {
-        // Check for saved theme
-        const savedTheme = localStorage.getItem('zantara-theme') || 'day';
-        this.setTheme(savedTheme);
-        
-        // Create theme toggle
-        this.createThemeToggle();
-    }
+    console.log('🎨 UI Enhancements initializing...');
 
-    setTheme(theme) {
-        this.theme = theme;
-        document.body.setAttribute('data-theme', theme);
-        localStorage.setItem('zantara-theme', theme);
-        
-        // Update theme toggle button
-        const toggleBtn = document.querySelector('.theme-toggle');
-        if (toggleBtn) {
-            toggleBtn.textContent = theme === 'day' ? '🌙' : '☀️';
-        }
-    }
+    try {
+      // Initialize theme
+      this.initTheme();
 
-    createThemeToggle() {
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'theme-toggle';
-        toggleBtn.textContent = this.theme === 'day' ? '🌙' : '☀️';
-        toggleBtn.style.cssText = `
+      // Initialize animations
+      this.initAnimations();
+
+      // Initialize smooth scrolling
+      this.initSmoothScrolling();
+
+      // Initialize loading states
+      this.initLoadingStates();
+
+      // Initialize hover effects
+      this.initHoverEffects();
+
+      // Initialize responsive design
+      this.initResponsiveDesign();
+
+      this.isInitialized = true;
+      console.log('✅ UI Enhancements initialized');
+    } catch (error) {
+      console.error('❌ UI Enhancements error:', error);
+    }
+  }
+
+  initTheme() {
+    // Check for saved theme
+    const savedTheme = localStorage.getItem('zantara-theme') || 'day';
+    this.setTheme(savedTheme);
+
+    // Create theme toggle
+    this.createThemeToggle();
+  }
+
+  setTheme(theme) {
+    this.theme = theme;
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('zantara-theme', theme);
+
+    // Update theme toggle button
+    const toggleBtn = document.querySelector('.theme-toggle');
+    if (toggleBtn) {
+      toggleBtn.textContent = theme === 'day' ? '🌙' : '☀️';
+    }
+  }
+
+  createThemeToggle() {
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'theme-toggle';
+    toggleBtn.textContent = this.theme === 'day' ? '🌙' : '☀️';
+    toggleBtn.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -83,40 +82,40 @@ class UIEnhancements {
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         `;
-        
-        toggleBtn.addEventListener('click', () => {
-            const newTheme = this.theme === 'day' ? 'night' : 'day';
-            this.setTheme(newTheme);
-        });
-        
-        toggleBtn.addEventListener('mouseenter', () => {
-            toggleBtn.style.transform = 'scale(1.1)';
-        });
-        
-        toggleBtn.addEventListener('mouseleave', () => {
-            toggleBtn.style.transform = 'scale(1)';
-        });
-        
-        document.body.appendChild(toggleBtn);
-    }
 
-    initAnimations() {
-        // Fade in animation for elements
-        this.createFadeInAnimation();
-        
-        // Slide in animation
-        this.createSlideInAnimation();
-        
-        // Pulse animation for loading
-        this.createPulseAnimation();
-        
-        // Bounce animation for success
-        this.createBounceAnimation();
-    }
+    toggleBtn.addEventListener('click', () => {
+      const newTheme = this.theme === 'day' ? 'night' : 'day';
+      this.setTheme(newTheme);
+    });
 
-    createFadeInAnimation() {
-        const style = document.createElement('style');
-        style.textContent = `
+    toggleBtn.addEventListener('mouseenter', () => {
+      toggleBtn.style.transform = 'scale(1.1)';
+    });
+
+    toggleBtn.addEventListener('mouseleave', () => {
+      toggleBtn.style.transform = 'scale(1)';
+    });
+
+    document.body.appendChild(toggleBtn);
+  }
+
+  initAnimations() {
+    // Fade in animation for elements
+    this.createFadeInAnimation();
+
+    // Slide in animation
+    this.createSlideInAnimation();
+
+    // Pulse animation for loading
+    this.createPulseAnimation();
+
+    // Bounce animation for success
+    this.createBounceAnimation();
+  }
+
+  createFadeInAnimation() {
+    const style = document.createElement('style');
+    style.textContent = `
             .fade-in {
                 opacity: 0;
                 animation: fadeIn 0.6s ease-in-out forwards;
@@ -127,12 +126,12 @@ class UIEnhancements {
                 to { opacity: 1; }
             }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    createSlideInAnimation() {
-        const style = document.createElement('style');
-        style.textContent = `
+  createSlideInAnimation() {
+    const style = document.createElement('style');
+    style.textContent = `
             .slide-in {
                 transform: translateY(20px);
                 opacity: 0;
@@ -150,12 +149,12 @@ class UIEnhancements {
                 }
             }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    createPulseAnimation() {
-        const style = document.createElement('style');
-        style.textContent = `
+  createPulseAnimation() {
+    const style = document.createElement('style');
+    style.textContent = `
             .pulse {
                 animation: pulse 2s infinite;
             }
@@ -166,12 +165,12 @@ class UIEnhancements {
                 100% { transform: scale(1); }
             }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    createBounceAnimation() {
-        const style = document.createElement('style');
-        style.textContent = `
+  createBounceAnimation() {
+    const style = document.createElement('style');
+    style.textContent = `
             .bounce {
                 animation: bounce 0.6s ease-in-out;
             }
@@ -182,99 +181,99 @@ class UIEnhancements {
                 60% { transform: translateY(-5px); }
             }
         `;
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 
-    initSmoothScrolling() {
-        // Smooth scroll for anchor links
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('a[href^="#"]')) {
-                e.preventDefault();
-                const target = document.querySelector(e.target.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            }
-        });
-    }
-
-    initLoadingStates() {
-        // Add loading class to buttons when clicked
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('button, .btn')) {
-                e.target.classList.add('loading');
-                setTimeout(() => {
-                    e.target.classList.remove('loading');
-                }, 2000);
-            }
-        });
-    }
-
-    initHoverEffects() {
-        // Add hover effects to cards
-        const cards = document.querySelectorAll('.card, .metric-card, .team-member');
-        cards.forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-5px)';
-                card.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.2)';
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0)';
-                card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
-            });
-        });
-    }
-
-    initResponsiveDesign() {
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            this.handleResize();
-        });
-        
-        // Initial resize
-        this.handleResize();
-    }
-
-    handleResize() {
-        const width = window.innerWidth;
-        
-        // Mobile optimizations
-        if (width < 768) {
-            document.body.classList.add('mobile');
-            this.optimizeForMobile();
-        } else {
-            document.body.classList.remove('mobile');
-            this.optimizeForDesktop();
+  initSmoothScrolling() {
+    // Smooth scroll for anchor links
+    document.addEventListener('click', (e) => {
+      if (e.target.matches('a[href^="#"]')) {
+        e.preventDefault();
+        const target = document.querySelector(e.target.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
         }
-    }
+      }
+    });
+  }
 
-    optimizeForMobile() {
-        // Adjust font sizes for mobile
-        document.documentElement.style.fontSize = '14px';
-        
-        // Optimize touch targets
-        const buttons = document.querySelectorAll('button, .btn');
-        buttons.forEach(btn => {
-            btn.style.minHeight = '44px';
-            btn.style.minWidth = '44px';
-        });
-    }
+  initLoadingStates() {
+    // Add loading class to buttons when clicked
+    document.addEventListener('click', (e) => {
+      if (e.target.matches('button, .btn')) {
+        e.target.classList.add('loading');
+        setTimeout(() => {
+          e.target.classList.remove('loading');
+        }, 2000);
+      }
+    });
+  }
 
-    optimizeForDesktop() {
-        // Reset font sizes for desktop
-        document.documentElement.style.fontSize = '16px';
-    }
+  initHoverEffects() {
+    // Add hover effects to cards
+    const cards = document.querySelectorAll('.card, .metric-card, .team-member');
+    cards.forEach((card) => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-5px)';
+        card.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.2)';
+      });
 
-    // Public methods
-    showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(0)';
+        card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.1)';
+      });
+    });
+  }
+
+  initResponsiveDesign() {
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      this.handleResize();
+    });
+
+    // Initial resize
+    this.handleResize();
+  }
+
+  handleResize() {
+    const width = window.innerWidth;
+
+    // Mobile optimizations
+    if (width < 768) {
+      document.body.classList.add('mobile');
+      this.optimizeForMobile();
+    } else {
+      document.body.classList.remove('mobile');
+      this.optimizeForDesktop();
+    }
+  }
+
+  optimizeForMobile() {
+    // Adjust font sizes for mobile
+    document.documentElement.style.fontSize = '14px';
+
+    // Optimize touch targets
+    const buttons = document.querySelectorAll('button, .btn');
+    buttons.forEach((btn) => {
+      btn.style.minHeight = '44px';
+      btn.style.minWidth = '44px';
+    });
+  }
+
+  optimizeForDesktop() {
+    // Reset font sizes for desktop
+    document.documentElement.style.fontSize = '16px';
+  }
+
+  // Public methods
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -287,34 +286,34 @@ class UIEnhancements {
             max-width: 300px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         `;
-        
-        document.body.appendChild(notification);
-        
-        // Auto remove after 3 seconds
-        setTimeout(() => {
-            notification.style.animation = 'fadeOut 0.3s ease-out forwards';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
+
+    document.body.appendChild(notification);
+
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+      notification.style.animation = 'fadeOut 0.3s ease-out forwards';
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    }, 3000);
+  }
+
+  showLoading(element, text = 'Loading...') {
+    if (typeof element === 'string') {
+      element = document.querySelector(element);
     }
 
-    showLoading(element, text = 'Loading...') {
-        if (typeof element === 'string') {
-            element = document.querySelector(element);
-        }
-        
-        if (!element) return;
-        
-        const loading = document.createElement('div');
-        loading.className = 'loading-overlay';
-        loading.innerHTML = `
+    if (!element) return;
+
+    const loading = document.createElement('div');
+    loading.className = 'loading-overlay';
+    loading.innerHTML = `
             <div class="loading-spinner"></div>
             <div class="loading-text">${text}</div>
         `;
-        loading.style.cssText = `
+    loading.style.cssText = `
             position: absolute;
             top: 0;
             left: 0;
@@ -327,32 +326,32 @@ class UIEnhancements {
             justify-content: center;
             z-index: 100;
         `;
-        
-        element.style.position = 'relative';
-        element.appendChild(loading);
-        
-        return () => {
-            if (loading.parentNode) {
-                loading.parentNode.removeChild(loading);
-            }
-        };
+
+    element.style.position = 'relative';
+    element.appendChild(loading);
+
+    return () => {
+      if (loading.parentNode) {
+        loading.parentNode.removeChild(loading);
+      }
+    };
+  }
+
+  addRippleEffect(element) {
+    if (typeof element === 'string') {
+      element = document.querySelector(element);
     }
 
-    addRippleEffect(element) {
-        if (typeof element === 'string') {
-            element = document.querySelector(element);
-        }
-        
-        if (!element) return;
-        
-        element.addEventListener('click', (e) => {
-            const ripple = document.createElement('span');
-            const rect = element.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-            
-            ripple.style.cssText = `
+    if (!element) return;
+
+    element.addEventListener('click', (e) => {
+      const ripple = document.createElement('span');
+      const rect = element.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+
+      ripple.style.cssText = `
                 position: absolute;
                 width: ${size}px;
                 height: ${size}px;
@@ -364,75 +363,75 @@ class UIEnhancements {
                 animation: ripple 0.6s ease-out;
                 pointer-events: none;
             `;
-            
-            element.style.position = 'relative';
-            element.style.overflow = 'hidden';
-            element.appendChild(ripple);
-            
-            setTimeout(() => {
-                if (ripple.parentNode) {
-                    ripple.parentNode.removeChild(ripple);
-                }
-            }, 600);
-        });
+
+      element.style.position = 'relative';
+      element.style.overflow = 'hidden';
+      element.appendChild(ripple);
+
+      setTimeout(() => {
+        if (ripple.parentNode) {
+          ripple.parentNode.removeChild(ripple);
+        }
+      }, 600);
+    });
+  }
+
+  // Animation utilities
+  fadeIn(element, duration = 600) {
+    if (typeof element === 'string') {
+      element = document.querySelector(element);
     }
 
-    // Animation utilities
-    fadeIn(element, duration = 600) {
-        if (typeof element === 'string') {
-            element = document.querySelector(element);
-        }
-        
-        if (!element) return;
-        
-        element.style.opacity = '0';
-        element.style.transition = `opacity ${duration}ms ease-in-out`;
-        
-        requestAnimationFrame(() => {
-            element.style.opacity = '1';
-        });
+    if (!element) return;
+
+    element.style.opacity = '0';
+    element.style.transition = `opacity ${duration}ms ease-in-out`;
+
+    requestAnimationFrame(() => {
+      element.style.opacity = '1';
+    });
+  }
+
+  fadeOut(element, duration = 600) {
+    if (typeof element === 'string') {
+      element = document.querySelector(element);
     }
 
-    fadeOut(element, duration = 600) {
-        if (typeof element === 'string') {
-            element = document.querySelector(element);
-        }
-        
-        if (!element) return;
-        
-        element.style.transition = `opacity ${duration}ms ease-in-out`;
-        element.style.opacity = '0';
-        
-        setTimeout(() => {
-            if (element.parentNode) {
-                element.parentNode.removeChild(element);
-            }
-        }, duration);
+    if (!element) return;
+
+    element.style.transition = `opacity ${duration}ms ease-in-out`;
+    element.style.opacity = '0';
+
+    setTimeout(() => {
+      if (element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+    }, duration);
+  }
+
+  slideIn(element, direction = 'up', duration = 500) {
+    if (typeof element === 'string') {
+      element = document.querySelector(element);
     }
 
-    slideIn(element, direction = 'up', duration = 500) {
-        if (typeof element === 'string') {
-            element = document.querySelector(element);
-        }
-        
-        if (!element) return;
-        
-        const transforms = {
-            up: 'translateY(20px)',
-            down: 'translateY(-20px)',
-            left: 'translateX(20px)',
-            right: 'translateX(-20px)'
-        };
-        
-        element.style.transform = transforms[direction] || transforms.up;
-        element.style.opacity = '0';
-        element.style.transition = `all ${duration}ms ease-out`;
-        
-        requestAnimationFrame(() => {
-            element.style.transform = 'translate(0, 0)';
-            element.style.opacity = '1';
-        });
-    }
+    if (!element) return;
+
+    const transforms = {
+      up: 'translateY(20px)',
+      down: 'translateY(-20px)',
+      left: 'translateX(20px)',
+      right: 'translateX(-20px)',
+    };
+
+    element.style.transform = transforms[direction] || transforms.up;
+    element.style.opacity = '0';
+    element.style.transition = `all ${duration}ms ease-out`;
+
+    requestAnimationFrame(() => {
+      element.style.transform = 'translate(0, 0)';
+      element.style.opacity = '1';
+    });
+  }
 }
 
 // Initialize UI Enhancements
@@ -440,17 +439,17 @@ window.UIEnhancements = UIEnhancements;
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.uiEnhancements = new UIEnhancements();
+  window.uiEnhancements = new UIEnhancements();
 });
 
 // Add ripple effect to all buttons
 document.addEventListener('DOMContentLoaded', () => {
-    const buttons = document.querySelectorAll('button, .btn');
-    buttons.forEach(btn => {
-        if (window.uiEnhancements) {
-            window.uiEnhancements.addRippleEffect(btn);
-        }
-    });
+  const buttons = document.querySelectorAll('button, .btn');
+  buttons.forEach((btn) => {
+    if (window.uiEnhancements) {
+      window.uiEnhancements.addRippleEffect(btn);
+    }
+  });
 });
 
 // Add CSS for ripple effect

@@ -1,6 +1,6 @@
 /**
  * Performance Benchmarking Tool for SSE Streaming
- * 
+ *
  * Measures:
  * - First token latency (target: <100ms)
  * - Inter-token latency (target: <50ms)
@@ -27,7 +27,7 @@ async function benchmarkStream(baseUrl: string, query: string): Promise<Benchmar
     totalTokens: 0,
     totalDuration: 0,
     errors: 0,
-    connectionStable: true
+    connectionStable: true,
   };
 
   const startTime = Date.now();
@@ -41,10 +41,10 @@ async function benchmarkStream(baseUrl: string, query: string): Promise<Benchmar
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        
+
         if (data.type === 'token') {
           const now = Date.now();
-          
+
           if (!firstTokenTime) {
             firstTokenTime = now;
             result.firstTokenLatency = firstTokenTime - startTime;
@@ -52,16 +52,17 @@ async function benchmarkStream(baseUrl: string, query: string): Promise<Benchmar
             const interTokenLatency = now - lastTokenTime;
             interTokenLatencies.push(interTokenLatency);
           }
-          
+
           lastTokenTime = now;
           result.totalTokens++;
         }
 
         if (data.type === 'done') {
           result.totalDuration = Date.now() - startTime;
-          
+
           if (interTokenLatencies.length > 0) {
-            result.avgInterTokenLatency = interTokenLatencies.reduce((a, b) => a + b, 0) / interTokenLatencies.length;
+            result.avgInterTokenLatency =
+              interTokenLatencies.reduce((a, b) => a + b, 0) / interTokenLatencies.length;
           }
 
           eventSource.close();
@@ -106,20 +107,18 @@ async function runBenchmarks(baseUrl: string, iterations: number = 10) {
     try {
       const result = await benchmarkStream(baseUrl, query);
       results.push(result);
-      
-      const status = 
-        result.firstTokenLatency < 100 && result.avgInterTokenLatency < 50 
-          ? '✅' 
-          : '⚠️';
-      
+
+      const status =
+        result.firstTokenLatency < 100 && result.avgInterTokenLatency < 50 ? '✅' : '⚠️';
+
       console.log(`${status} Iteration ${i + 1}:`);
       console.log(`   First token: ${result.firstTokenLatency}ms`);
       console.log(`   Avg inter-token: ${result.avgInterTokenLatency.toFixed(2)}ms`);
       console.log(`   Tokens: ${result.totalTokens}`);
       console.log(`   Duration: ${result.totalDuration}ms`);
-      
+
       // Small delay between iterations
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     } catch (error: any) {
       console.error(`❌ Iteration ${i + 1} failed:`, error.message);
     }
@@ -127,15 +126,23 @@ async function runBenchmarks(baseUrl: string, iterations: number = 10) {
 
   // Calculate statistics
   if (results.length > 0) {
-    const firstTokenLatencies = results.map(r => r.firstTokenLatency);
-    const interTokenLatencies = results.map(r => r.avgInterTokenLatency);
-    
-    const avgFirstToken = firstTokenLatencies.reduce((a, b) => a + b, 0) / firstTokenLatencies.length;
-    const avgInterToken = interTokenLatencies.reduce((a, b) => a + b, 0) / interTokenLatencies.length;
-    
-    const p50FirstToken = firstTokenLatencies.sort((a, b) => a - b)[Math.floor(firstTokenLatencies.length * 0.5)];
-    const p95FirstToken = firstTokenLatencies.sort((a, b) => a - b)[Math.floor(firstTokenLatencies.length * 0.95)];
-    const p99FirstToken = firstTokenLatencies.sort((a, b) => a - b)[Math.floor(firstTokenLatencies.length * 0.99)];
+    const firstTokenLatencies = results.map((r) => r.firstTokenLatency);
+    const interTokenLatencies = results.map((r) => r.avgInterTokenLatency);
+
+    const avgFirstToken =
+      firstTokenLatencies.reduce((a, b) => a + b, 0) / firstTokenLatencies.length;
+    const avgInterToken =
+      interTokenLatencies.reduce((a, b) => a + b, 0) / interTokenLatencies.length;
+
+    const p50FirstToken = firstTokenLatencies.sort((a, b) => a - b)[
+      Math.floor(firstTokenLatencies.length * 0.5)
+    ];
+    const p95FirstToken = firstTokenLatencies.sort((a, b) => a - b)[
+      Math.floor(firstTokenLatencies.length * 0.95)
+    ];
+    const p99FirstToken = firstTokenLatencies.sort((a, b) => a - b)[
+      Math.floor(firstTokenLatencies.length * 0.99)
+    ];
 
     console.log(`\n📊 Benchmark Results:`);
     console.log(`   First Token Latency:`);
@@ -145,11 +152,15 @@ async function runBenchmarks(baseUrl: string, iterations: number = 10) {
     console.log(`     P99: ${p99FirstToken}ms`);
     console.log(`   Inter-Token Latency:`);
     console.log(`     Average: ${avgInterToken.toFixed(2)}ms`);
-    
+
     const targetMet = avgFirstToken < 100 && avgInterToken < 50;
-    console.log(`\n${targetMet ? '✅' : '⚠️'} Performance Targets: ${targetMet ? 'MET' : 'NOT MET'}`);
+    console.log(
+      `\n${targetMet ? '✅' : '⚠️'} Performance Targets: ${targetMet ? 'MET' : 'NOT MET'}`
+    );
     console.log(`   Target: First token <100ms, Inter-token <50ms`);
-    console.log(`   Actual: First token ${avgFirstToken.toFixed(2)}ms, Inter-token ${avgInterToken.toFixed(2)}ms`);
+    console.log(
+      `   Actual: First token ${avgFirstToken.toFixed(2)}ms, Inter-token ${avgInterToken.toFixed(2)}ms`
+    );
   }
 }
 
@@ -157,12 +168,11 @@ async function runBenchmarks(baseUrl: string, iterations: number = 10) {
 if (require.main === module) {
   const baseUrl = process.env.BENCHMARK_URL || 'http://localhost:8080/api/v2/bali-zero/chat-stream';
   const iterations = parseInt(process.env.BENCHMARK_ITERATIONS || '10', 10);
-  
-  runBenchmarks(baseUrl, iterations).catch(error => {
+
+  runBenchmarks(baseUrl, iterations).catch((error) => {
     console.error('Benchmark failed:', error);
     process.exit(1);
   });
 }
 
 export { benchmarkStream, runBenchmarks };
-

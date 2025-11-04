@@ -15,50 +15,70 @@ import { teamRecentActivity } from './team-activity.js';
 
 export function registerBaliZeroHandlers() {
   // Oracle handlers (basic)
-  globalRegistry.registerModule('bali-zero', {
-    'oracle.simulate': oracleSimulate as any,
-    'oracle.analyze': oracleAnalyze as any,
-    'oracle.predict': oraclePredict as any
-  } as any, {
-    requiresAuth: true,
-    description: 'Business simulation and prediction'
-  });
+  globalRegistry.registerModule(
+    'bali-zero',
+    {
+      'oracle.simulate': oracleSimulate as any,
+      'oracle.analyze': oracleAnalyze as any,
+      'oracle.predict': oraclePredict as any,
+    } as any,
+    {
+      requiresAuth: true,
+      description: 'Business simulation and prediction',
+    }
+  );
 
   // Oracle Universal (RAG-powered)
-  globalRegistry.registerModule('oracle', {
-    'query': oracleUniversalQuery as any,
-    'collections': oracleCollections as any
-  } as any, {
-    requiresAuth: false,
-    description: 'Universal Oracle Query - Intelligent routing to tax/legal/property/visa/kbli'
-  });
+  globalRegistry.registerModule(
+    'oracle',
+    {
+      query: oracleUniversalQuery as any,
+      collections: oracleCollections as any,
+    } as any,
+    {
+      requiresAuth: false,
+      description: 'Universal Oracle Query - Intelligent routing to tax/legal/property/visa/kbli',
+    }
+  );
 
   // Advisory handlers
-  globalRegistry.registerModule('bali-zero', {
-    'document.prepare': documentPrepare as any,
-    'assistant.route': assistantRoute as any
-  } as any, {
-    requiresAuth: true,
-    description: 'Business advisory services'
-  });
+  globalRegistry.registerModule(
+    'bali-zero',
+    {
+      'document.prepare': documentPrepare as any,
+      'assistant.route': assistantRoute as any,
+    } as any,
+    {
+      requiresAuth: true,
+      description: 'Business advisory services',
+    }
+  );
 
   // KBLI handlers
-  globalRegistry.registerModule('bali-zero', {
-    'kbli.lookup': kbliLookup as any,
-    'kbli.requirements': kbliRequirements as any
-  } as any, {
-    requiresAuth: false,
-    description: 'Indonesian business classification'
-  });
+  globalRegistry.registerModule(
+    'bali-zero',
+    {
+      'kbli.lookup': kbliLookup as any,
+      'kbli.requirements': kbliRequirements as any,
+    } as any,
+    {
+      requiresAuth: false,
+      description: 'Indonesian business classification',
+    }
+  );
 
   // Pricing handlers
-  globalRegistry.registerModule('bali-zero', {
-    'pricing.get': baliZeroPricing as any,
-    'pricing.quick': baliZeroQuickPrice as any
-  } as any, {
-    requiresAuth: false,
-    description: 'Official Bali Zero pricing'
-  });
+  globalRegistry.registerModule(
+    'bali-zero',
+    {
+      'pricing.get': baliZeroPricing as any,
+      'pricing.quick': baliZeroQuickPrice as any,
+    } as any,
+    {
+      requiresAuth: false,
+      description: 'Official Bali Zero pricing',
+    }
+  );
 
   // Team handlers (registered with direct keys to match router.ts expectations)
   globalRegistry.register({
@@ -66,7 +86,7 @@ export function registerBaliZeroHandlers() {
     handler: teamList as any,
     module: 'bali-zero',
     requiresAuth: true,
-    description: 'List all Bali Zero team members'
+    description: 'List all Bali Zero team members',
   });
 
   globalRegistry.register({
@@ -74,7 +94,7 @@ export function registerBaliZeroHandlers() {
     handler: teamGet as any,
     module: 'bali-zero',
     requiresAuth: true,
-    description: 'Get specific team member details'
+    description: 'Get specific team member details',
   });
 
   globalRegistry.register({
@@ -82,7 +102,7 @@ export function registerBaliZeroHandlers() {
     handler: teamDepartments as any,
     module: 'bali-zero',
     requiresAuth: true,
-    description: 'List team departments'
+    description: 'List team departments',
   });
 
   globalRegistry.register({
@@ -90,7 +110,7 @@ export function registerBaliZeroHandlers() {
     handler: teamRecentActivity as any,
     module: 'bali-zero',
     requiresAuth: true,
-    description: 'Get recent team activity with real-time session tracking'
+    description: 'Get recent team activity with real-time session tracking',
   });
 
   logger.info('✅ Bali Zero handlers registered');

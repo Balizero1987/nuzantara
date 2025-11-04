@@ -1,11 +1,7 @@
 // ZANTARA Multi-Agent Router Registry
 // Replaces GLM-4.6 single agent with local model routing
 
-import {
-  routeAgentQuery,
-  getRouterStatus,
-  testAgent
-} from './zantara-router-handler.js';
+import { routeAgentQuery, getRouterStatus, testAgent } from './zantara-router-handler.js';
 
 export const agentRouterHandlers = {
   // Main multi-agent routing endpoint
@@ -14,11 +10,11 @@ export const agentRouterHandlers = {
     description: 'Multi-agent routing with TinyLlama intent detection',
     parameters: {
       required: ['query'],
-      optional: ['domain', 'user_id', 'context']
+      optional: ['domain', 'user_id', 'context'],
     },
     agents: ['qwen', 'mistral', 'llama'],
     cost: '$0/month (local models)',
-    response_time: '~2.5-5.5s total'
+    response_time: '~2.5-5.5s total',
   },
 
   // Status and monitoring
@@ -27,7 +23,7 @@ export const agentRouterHandlers = {
     description: 'Router and agents status',
     parameters: {},
     cost: 'Free',
-    response_time: '<1s'
+    response_time: '<1s',
   },
 
   // Individual agent testing
@@ -36,12 +32,12 @@ export const agentRouterHandlers = {
     description: 'Test specific agent',
     parameters: {
       required: ['agent', 'query'],
-      optional: []
+      optional: [],
     },
     agents: ['qwen', 'mistral', 'llama'],
     cost: 'Free',
-    response_time: 'Agent-specific'
-  }
+    response_time: 'Agent-specific',
+  },
 };
 
 export default agentRouterHandlers;

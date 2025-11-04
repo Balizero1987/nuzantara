@@ -10,14 +10,14 @@ jest.mock('../../../services/imagine-art-service.js', () => ({
       prompt: 'test prompt',
       style: 'realistic',
       aspect_ratio: '16:9',
-      seed: 12345
+      seed: 12345,
     }),
     upscaleImage: jest.fn().mockResolvedValue({
       upscaled_url: 'https://example.com/upscaled.jpg',
       request_id: 'test-request-id',
-      original_image: 'https://example.com/original.jpg'
-    })
-  }))
+      original_image: 'https://example.com/original.jpg',
+    }),
+  })),
 }));
 
 describe('Imagine Art Handler', () => {
@@ -30,7 +30,7 @@ describe('Imagine Art Handler', () => {
   describe('aiImageGenerate', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.aiImageGenerate({
-        prompt: 'Beautiful landscape'
+        prompt: 'Beautiful landscape',
       });
 
       expect(result).toBeDefined();
@@ -44,16 +44,18 @@ describe('Imagine Art Handler', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.aiImageGenerate({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.aiImageGenerate({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
   describe('aiImageUpscale', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.aiImageUpscale({
-        image: 'https://example.com/image.jpg'
+        image: 'https://example.com/image.jpg',
       });
 
       expect(result).toBeDefined();
@@ -67,9 +69,11 @@ describe('Imagine Art Handler', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.aiImageUpscale({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.aiImageUpscale({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -92,12 +96,11 @@ describe('Imagine Art Handler', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.aiImageTest({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
       expect(result).toBeDefined();
     });
   });
-
 });

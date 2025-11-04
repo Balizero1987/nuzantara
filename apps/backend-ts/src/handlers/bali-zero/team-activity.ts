@@ -32,7 +32,7 @@ export async function teamRecentActivity(req: Request, res: Response) {
 
     // Calculate time ago for each activity
     const now = Date.now();
-    const enrichedActivities = activities.map(activity => {
+    const enrichedActivities = activities.map((activity) => {
       const lastActiveTime = activity.lastActive.getTime();
       const minutesAgo = Math.floor((now - lastActiveTime) / (1000 * 60));
 
@@ -59,7 +59,7 @@ export async function teamRecentActivity(req: Request, res: Response) {
         activityCount: activity.activityCount,
         lastHandler: activity.lastHandler,
         lastPath: activity.lastPath,
-        timeAgo
+        timeAgo,
       };
     });
 
@@ -74,22 +74,22 @@ export async function teamRecentActivity(req: Request, res: Response) {
         timeframe: {
           hours,
           from: new Date(Date.now() - hours * 60 * 60 * 1000).toISOString(),
-          to: new Date().toISOString()
+          to: new Date().toISOString(),
         },
         filters: {
           department: department || null,
-          limit
+          limit,
         },
         stats,
         timestamp: new Date().toISOString(),
-        tracking: 'real-time' // Indicate this is using real session tracking
-      }
+        tracking: 'real-time', // Indicate this is using real session tracking
+      },
     });
   } catch (error: any) {
     logger.error('team.recent_activity error:', error);
     return res.status(500).json({
       ok: false,
-      error: error.message || 'Failed to retrieve recent activity'
+      error: error.message || 'Failed to retrieve recent activity',
     });
   }
 }

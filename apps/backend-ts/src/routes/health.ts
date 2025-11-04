@@ -1,6 +1,6 @@
 /**
  * Enhanced Health Check Endpoints
- * 
+ *
  * Provides detailed health information for load balancer and monitoring
  */
 
@@ -20,12 +20,14 @@ const router = Router();
  */
 router.get('/health', async (_req: Request, res: Response) => {
   try {
-    res.status(200).json(ok({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      version: process.env.npm_package_version || 'unknown',
-    }));
+    res.status(200).json(
+      ok({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        version: process.env.npm_package_version || 'unknown',
+      })
+    );
   } catch (error: any) {
     logger.error(`Health check failed: ${error.message}`);
     res.status(503).json(err('Service unhealthy'));
@@ -65,7 +67,7 @@ router.get('/health/detailed', async (_req: Request, res: Response) => {
       const pool = getDatabasePool();
       const dbHealthy = await pool.healthCheck();
       const metrics = pool.getMetrics();
-      
+
       health.services.postgresql = {
         status: dbHealthy ? 'healthy' : 'unhealthy',
         metrics: metrics || null,
@@ -92,7 +94,7 @@ router.get('/health/detailed', async (_req: Request, res: Response) => {
     if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
       const chromaPool = getChromaDBPool();
       const chromaHealthy = await chromaPool.healthCheck();
-      
+
       health.services.chromadb = {
         status: chromaHealthy ? 'healthy' : 'unhealthy',
         lastHealthCheck: chromaPool.getLastHealthCheck(),
@@ -153,7 +155,7 @@ router.get('/health/ready', async (_req: Request, res: Response) => {
       checks.database = true; // Skip if disabled
     }
 
-    const ready = Object.values(checks).every(v => v === true);
+    const ready = Object.values(checks).every((v) => v === true);
 
     if (ready) {
       res.status(200).json(ok({ ready: true, checks }));
@@ -161,7 +163,7 @@ router.get('/health/ready', async (_req: Request, res: Response) => {
       res.status(503).json(err('Service not ready', checks));
     }
   } catch (error: any) {
-      res.status(503).json(err('Readiness check failed'));
+    res.status(503).json(err('Readiness check failed'));
   }
 });
 
@@ -169,11 +171,13 @@ router.get('/health/ready', async (_req: Request, res: Response) => {
  * Liveness probe - checks if service is alive
  */
 router.get('/health/live', (_req: Request, res: Response) => {
-  res.status(200).json(ok({
-    alive: true,
-    timestamp: new Date().toISOString(),
-    pid: process.pid,
-  }));
+  res.status(200).json(
+    ok({
+      alive: true,
+      timestamp: new Date().toISOString(),
+      pid: process.pid,
+    })
+  );
 });
 
 /**
@@ -231,9 +235,13 @@ router.get('/metrics', async (_req: Request, res: Response) => {
     // Circuit breaker metrics
     if (featureFlags.isEnabled(FeatureFlag.ENABLE_CIRCUIT_BREAKER)) {
       const dbStats = dbCircuitBreaker.getStats();
-      metrics.push(`# HELP circuit_breaker_state Circuit breaker state (0=CLOSED, 1=OPEN, 2=HALF_OPEN)`);
+      metrics.push(
+        `# HELP circuit_breaker_state Circuit breaker state (0=CLOSED, 1=OPEN, 2=HALF_OPEN)`
+      );
       metrics.push(`# TYPE circuit_breaker_state gauge`);
-      metrics.push(`circuit_breaker_state{service="database"} ${dbStats.state === 'CLOSED' ? 0 : dbStats.state === 'OPEN' ? 1 : 2}`);
+      metrics.push(
+        `circuit_breaker_state{service="database"} ${dbStats.state === 'CLOSED' ? 0 : dbStats.state === 'OPEN' ? 1 : 2}`
+      );
 
       metrics.push(`# HELP circuit_breaker_failures_total Total failures`);
       metrics.push(`# TYPE circuit_breaker_failures_total counter`);
@@ -249,4 +257,3 @@ router.get('/metrics', async (_req: Request, res: Response) => {
 });
 
 export default router;
-

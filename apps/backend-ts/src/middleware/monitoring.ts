@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from 'express';
 import { trackActivity } from '../services/session-tracker.js';
 import { logger } from '../logging/unified-logger.js';
 
@@ -42,13 +42,13 @@ export function requestTracker(req: Request, res: Response, _next: NextFunction)
     method: req.method,
     userAgent: req.get('user-agent'),
     ip: req.ip || req.connection.remoteAddress,
-    apiKey: req.get('x-api-key')?.substring(0, 8) + '...' || 'none'
+    apiKey: req.get('x-api-key')?.substring(0, 8) + '...' || 'none',
   };
 
   metrics.requests++;
   metrics.activeRequests.add(requestId);
   metrics.requestsByPath.set(req.path, (metrics.requestsByPath.get(req.path) || 0) + 1);
-  
+
   // Store request metrics for later use
   (req as any).requestMetrics = requestMetrics;
 
@@ -64,7 +64,7 @@ export function requestTracker(req: Request, res: Response, _next: NextFunction)
 
   // Track response
   const originalSend = res.send;
-  res.send = function(data: any) {
+  res.send = function (data: any) {
     const endTime = Date.now();
     const responseTime = endTime - startTime;
 
@@ -88,7 +88,13 @@ export function requestTracker(req: Request, res: Response, _next: NextFunction)
       trackErrorForAlert(statusCode);
     }
 
-    logger.info('Request completed', { requestId, statusCode, path: req.path, responseTime, isError });
+    logger.info('Request completed', {
+      requestId,
+      statusCode,
+      path: req.path,
+      responseTime,
+      isError,
+    });
 
     return originalSend.call(this, data);
   };
@@ -119,9 +125,12 @@ export function errorTracker(err: any, req: Request, _res: Response, next: NextF
 
 // Health metrics endpoint
 export async function getHealthMetrics() {
-  const avgResponseTime = metrics.responseTimeMs.length > 0
-    ? Math.round(metrics.responseTimeMs.reduce((a, b) => a + b, 0) / metrics.responseTimeMs.length)
-    : 0;
+  const avgResponseTime =
+    metrics.responseTimeMs.length > 0
+      ? Math.round(
+          metrics.responseTimeMs.reduce((a, b) => a + b, 0) / metrics.responseTimeMs.length
+        )
+      : 0;
 
   const uptime = process.uptime();
   const memUsage = process.memoryUsage();
@@ -136,21 +145,22 @@ export async function getHealthMetrics() {
       serviceAccountStatus = {
         available: true,
         source: firebaseStatus.serviceAccountSource,
-        message: firebaseStatus.serviceAccountSource === 'adc'
-          ? 'Using ADC (cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com)'
-          : firebaseStatus.serviceAccountSource === 'secret-manager'
-          ? 'Loaded from Secret Manager'
-          : `Loaded from ${firebaseStatus.serviceAccountSource}`
+        message:
+          firebaseStatus.serviceAccountSource === 'adc'
+            ? 'Using ADC (cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com)'
+            : firebaseStatus.serviceAccountSource === 'secret-manager'
+              ? 'Loaded from Secret Manager'
+              : `Loaded from ${firebaseStatus.serviceAccountSource}`,
       };
     } else if (firebaseStatus.error) {
       serviceAccountStatus = {
         available: false,
-        error: firebaseStatus.error
+        error: firebaseStatus.error,
       };
     } else {
       serviceAccountStatus = {
         available: false,
-        error: 'Firebase not initialized yet'
+        error: 'Firebase not initialized yet',
       };
     }
   } catch (error: any) {
@@ -177,15 +187,15 @@ export async function getHealthMetrics() {
       serviceAccount: serviceAccountStatus,
       popular: {
         paths: Array.from(metrics.requestsByPath.entries())
-          .sort(([,a], [,b]) => b - a)
+          .sort(([, a], [, b]) => b - a)
           .slice(0, 5)
           .map(([path, count]) => ({ path, count })),
         errors: Array.from(metrics.errorsByType.entries())
-          .sort(([,a], [,b]) => b - a)
+          .sort(([, a], [, b]) => b - a)
           .slice(0, 5)
           .map(([type, count]) => ({ type, count })),
-      }
-    }
+      },
+    },
   };
 }
 
@@ -203,12 +213,12 @@ export function logSlowQuery(operation: string, durationMs: number, threshold: n
 interface AlertConfig {
   enabled: boolean;
   thresholds: {
-    error4xx: number;        // Alert if 4xx errors exceed this count in window
-    error5xx: number;        // Alert if 5xx errors exceed this count in window
-    errorRate: number;       // Alert if error rate exceeds this % (e.g., 10 = 10%)
+    error4xx: number; // Alert if 4xx errors exceed this count in window
+    error5xx: number; // Alert if 5xx errors exceed this count in window
+    errorRate: number; // Alert if error rate exceeds this % (e.g., 10 = 10%)
   };
-  window: number;            // Time window in ms (default: 5 minutes)
-  cooldown: number;          // Min time between alerts in ms (default: 5 minutes)
+  window: number; // Time window in ms (default: 5 minutes)
+  cooldown: number; // Min time between alerts in ms (default: 5 minutes)
   channels: {
     whatsapp: boolean;
     console: boolean;
@@ -237,7 +247,7 @@ const alertConfig: AlertConfig = {
   channels: {
     whatsapp: process.env.ALERT_WHATSAPP === 'true',
     console: true, // Always log to console
-  }
+  },
 };
 
 // Alert metrics tracking
@@ -275,7 +285,10 @@ async function sendAlert(alertType: string, message: string, details: any) {
 
   // Check cooldown
   if (timeSinceLastAlert < alertConfig.cooldown && alertMetrics.lastAlertType === alertType) {
-    logger.info('Alert cooldown active', { alertType, remainingSeconds: Math.round((alertConfig.cooldown - timeSinceLastAlert) / 1000) });
+    logger.info('Alert cooldown active', {
+      alertType,
+      remainingSeconds: Math.round((alertConfig.cooldown - timeSinceLastAlert) / 1000),
+    });
     return;
   }
 
@@ -298,7 +311,7 @@ async function sendAlert(alertType: string, message: string, details: any) {
 
       await sendManualMessage({
         to: process.env.ALERT_WHATSAPP_NUMBER || '+6281338051876',
-        message: whatsappMessage
+        message: whatsappMessage,
       });
 
       logger.info('WhatsApp alert sent');
@@ -314,9 +327,12 @@ async function checkAlertThresholds() {
 
   checkWindowReset();
 
-  const errorRate = alertMetrics.totalRequests > 0
-    ? Math.round((alertMetrics.count4xx + alertMetrics.count5xx) / alertMetrics.totalRequests * 100)
-    : 0;
+  const errorRate =
+    alertMetrics.totalRequests > 0
+      ? Math.round(
+          ((alertMetrics.count4xx + alertMetrics.count5xx) / alertMetrics.totalRequests) * 100
+        )
+      : 0;
 
   // Check 4xx threshold
   if (alertMetrics.count4xx >= alertConfig.thresholds.error4xx) {
@@ -380,7 +396,7 @@ export function trackErrorForAlert(statusCode: number) {
   }
 
   // Check thresholds (async, non-blocking)
-  checkAlertThresholds().catch(err => {
+  checkAlertThresholds().catch((err) => {
     logger.error('Error checking alert thresholds', new Error(err));
   });
 }
@@ -389,9 +405,12 @@ export function trackErrorForAlert(statusCode: number) {
 export function getAlertStatus() {
   checkWindowReset();
 
-  const errorRate = alertMetrics.totalRequests > 0
-    ? Math.round((alertMetrics.count4xx + alertMetrics.count5xx) / alertMetrics.totalRequests * 100)
-    : 0;
+  const errorRate =
+    alertMetrics.totalRequests > 0
+      ? Math.round(
+          ((alertMetrics.count4xx + alertMetrics.count5xx) / alertMetrics.totalRequests) * 100
+        )
+      : 0;
 
   return {
     enabled: alertConfig.enabled,
@@ -404,11 +423,14 @@ export function getAlertStatus() {
       windowStarted: new Date(alertMetrics.windowStart).toISOString(),
       windowElapsedMs: Date.now() - alertMetrics.windowStart,
     },
-    lastAlert: alertMetrics.lastAlertTime > 0 ? {
-      type: alertMetrics.lastAlertType,
-      timestamp: new Date(alertMetrics.lastAlertTime).toISOString(),
-      timeSinceMs: Date.now() - alertMetrics.lastAlertTime,
-    } : null,
+    lastAlert:
+      alertMetrics.lastAlertTime > 0
+        ? {
+            type: alertMetrics.lastAlertType,
+            timestamp: new Date(alertMetrics.lastAlertTime).toISOString(),
+            timeSinceMs: Date.now() - alertMetrics.lastAlertTime,
+          }
+        : null,
   };
 }
 

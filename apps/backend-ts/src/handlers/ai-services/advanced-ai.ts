@@ -1,12 +1,12 @@
-import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
-import { aiChat } from "./ai.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { aiChat } from './ai.js';
 
 /**
  * AI Anticipate - Predictive analysis for proactive suggestions
  */
 export async function aiAnticipate(params: any) {
-  const { context, scenario, timeframe = "2_hours", metrics } = params;
+  const { context, scenario, timeframe = '2_hours', metrics } = params;
 
   if (!context && !scenario) {
     throw new BadRequestError('context or scenario required');
@@ -36,30 +36,32 @@ Format as structured JSON with: predictions, recommendations, optimizations, ris
     try {
       const responseData: any = result.data || result;
       const responseText = responseData.response || responseData.answer || '';
-      
+
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      predictions = jsonMatch ? JSON.parse(jsonMatch[0]) : {
-        predictions: [responseText],
-        recommendations: ["Monitor system closely"],
-        optimizations: ["Review current configuration"],
-        risks: ["Potential unexpected behavior"]
-      };
+      predictions = jsonMatch
+        ? JSON.parse(jsonMatch[0])
+        : {
+            predictions: [responseText],
+            recommendations: ['Monitor system closely'],
+            optimizations: ['Review current configuration'],
+            risks: ['Potential unexpected behavior'],
+          };
     } catch {
       // Fallback to text response
       const responseData: any = result.data || result;
       predictions = {
         analysis: responseData.response || responseData.answer || '',
-        confidence: "medium"
+        confidence: 'medium',
       };
     }
 
     const responseData: any = result.data || result;
-    
+
     return ok({
       anticipation: predictions,
       timeframe,
       ts: Date.now(),
-      model: responseData.model || "zantara"
+      model: responseData.model || 'zantara',
     });
   } catch (error: any) {
     throw new BadRequestError(`Anticipation failed: ${error.message}`);
@@ -70,7 +72,7 @@ Format as structured JSON with: predictions, recommendations, optimizations, ris
  * AI Learn - Adaptive learning from feedback and patterns
  */
 export async function aiLearn(params: any) {
-  const { feedback, pattern, performance_data, learning_type = "incremental" } = params;
+  const { feedback, pattern, performance_data, learning_type = 'incremental' } = params;
 
   if (!feedback && !pattern && !performance_data) {
     throw new BadRequestError('feedback, pattern, or performance_data required');
@@ -100,14 +102,14 @@ Format as structured recommendations for system optimization.`;
         type: learning_type,
         insights: responseData.response || responseData.answer || '',
         processed_at: Date.now(),
-        model: responseData.model || "zantara"
+        model: responseData.model || 'zantara',
       },
       recommendations: [
-        "Continue monitoring patterns",
-        "Implement suggested optimizations",
-        "Track success metrics"
+        'Continue monitoring patterns',
+        'Implement suggested optimizations',
+        'Track success metrics',
       ],
-      ts: Date.now()
+      ts: Date.now(),
     });
   } catch (error: any) {
     throw new BadRequestError(`Learning process failed: ${error.message}`);
@@ -130,26 +132,26 @@ export async function xaiExplain(params: any) {
   const explanation = {
     decisionId,
     decision,
-    model: model_used || "unknown",
+    model: model_used || 'unknown',
     reasoning: reasoning_path || {
-      step1: "Input received and validated",
-      step2: "Context analyzed",
-      step3: "Model selected based on task type",
-      step4: "Decision generated",
-      step5: "Confidence evaluated"
+      step1: 'Input received and validated',
+      step2: 'Context analyzed',
+      step3: 'Model selected based on task type',
+      step4: 'Decision generated',
+      step5: 'Confidence evaluated',
     },
     transparency: {
-      factors_considered: context ? Object.keys(context) : ["input", "history", "patterns"],
+      factors_considered: context ? Object.keys(context) : ['input', 'history', 'patterns'],
       confidence_score: 0.85,
       alternative_considered: true,
-      bias_check: "completed"
+      bias_check: 'completed',
     },
     metadata: {
       explained_at: Date.now(),
-      complexity: "medium",
-      interpretability: "high"
+      complexity: 'medium',
+      interpretability: 'high',
     },
-    human_explanation: null as string | null
+    human_explanation: null as string | null,
   };
 
   // If complex decision, get AI to provide deeper explanation
@@ -171,7 +173,7 @@ Provide a clear, human-readable explanation of:
       const responseData: any = result.data || result;
       explanation.human_explanation = responseData.response || responseData.answer || '';
     } catch {
-      explanation.human_explanation = "Decision based on standard operating parameters";
+      explanation.human_explanation = 'Decision based on standard operating parameters';
     }
   }
 

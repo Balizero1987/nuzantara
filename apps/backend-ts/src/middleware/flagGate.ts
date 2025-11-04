@@ -6,7 +6,9 @@ export function flagGate<K extends keyof Flags>(flagName: K) {
     const flags = getFlags();
     if (!flags[flagName]) {
       const origin = req.headers.origin as string | undefined;
-      return res.status(403).json({ ok: false, code: 'feature_flag_disabled', flag: flagName, origin });
+      return res
+        .status(403)
+        .json({ ok: false, code: 'feature_flag_disabled', flag: flagName, origin });
     }
     return next();
   };

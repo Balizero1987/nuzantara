@@ -7,27 +7,27 @@ const mockRagService = {
     query: 'test query',
     answer: 'test answer',
     sources: [],
-    conversation_history: []
+    conversation_history: [],
   }),
   baliZeroChat: jest.fn().mockResolvedValue({
     success: true,
     response: 'test response',
     sources: [],
-    conversation_history: []
+    conversation_history: [],
   }),
   search: jest.fn().mockResolvedValue({
     success: true,
     results: [],
-    query: 'test query'
+    query: 'test query',
   }),
   healthCheck: jest.fn().mockResolvedValue({
     status: 'healthy',
-    backend: 'connected'
-  })
+    backend: 'connected',
+  }),
 };
 
 jest.unstable_mockModule('../../services/ragService.js', () => ({
-  ragService: mockRagService
+  ragService: mockRagService,
 }));
 
 describe('RAG Handler', () => {
@@ -43,7 +43,7 @@ describe('RAG Handler', () => {
       const result = await handlers.ragQuery({
         query: 'test query',
         k: 5,
-        use_llm: true
+        use_llm: true,
       });
 
       expect(result).toBeDefined();
@@ -56,9 +56,11 @@ describe('RAG Handler', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.ragQuery({
-        invalid: 'data'
-      })).rejects.toThrow();
+      await expect(
+        handlers.ragQuery({
+          invalid: 'data',
+        })
+      ).rejects.toThrow();
     });
   });
 
@@ -67,7 +69,7 @@ describe('RAG Handler', () => {
       const result = await handlers.baliZeroChat({
         query: 'test query',
         user_role: 'member',
-        user_email: 'test@example.com'
+        user_email: 'test@example.com',
       });
 
       expect(result).toBeDefined();

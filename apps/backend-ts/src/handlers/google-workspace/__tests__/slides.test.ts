@@ -7,42 +7,56 @@ const mockSlides = {
     create: jest.fn().mockResolvedValue({
       data: {
         presentationId: 'test-presentation-id',
-        slides: []
-      }
+        slides: [],
+      },
     }),
     get: jest.fn().mockResolvedValue({
       data: {
         presentationId: 'test-presentation-id',
         title: 'Test Presentation',
         revisionId: 'rev-1',
-        slides: [{
-          objectId: 'slide-1',
-          pageElements: [{
-            shape: {
-              text: {
-                textElements: [{
-                  textRun: { content: 'Slide content' }
-                }]
-              }
-            }
-          }]
-        }]
-      }
+        slides: [
+          {
+            objectId: 'slide-1',
+            pageElements: [
+              {
+                shape: {
+                  text: {
+                    textElements: [
+                      {
+                        textRun: { content: 'Slide content' },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
     }),
     batchUpdate: jest.fn().mockResolvedValue({
-      data: { replies: [] }
-    })
-  }
+      data: { replies: [] },
+    }),
+  },
 };
 
-jest.mock('../../../services/google-auth-service.js', () => ({
-  getSlides: jest.fn().mockResolvedValue(mockSlides)
-}), { virtual: true });
+jest.mock(
+  '../../../services/google-auth-service.js',
+  () => ({
+    getSlides: jest.fn().mockResolvedValue(mockSlides),
+  }),
+  { virtual: true }
+);
 
 // Mock bridge proxy
-jest.mock('../../../services/bridgeProxy.js', () => ({
-  forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null)
-}), { virtual: true });
+jest.mock(
+  '../../../services/bridgeProxy.js',
+  () => ({
+    forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null),
+  }),
+  { virtual: true }
+);
 
 describe('Slides', () => {
   let handlers: any;
@@ -55,7 +69,7 @@ describe('Slides', () => {
   describe('slidesCreate', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.slidesCreate({
-        title: 'Test Presentation'
+        title: 'Test Presentation',
       });
 
       expect(result).toBeDefined();
@@ -73,7 +87,7 @@ describe('Slides', () => {
 
     it('should handle params with defaults', async () => {
       const result = await handlers.slidesCreate({
-        title: 'My Presentation'
+        title: 'My Presentation',
       });
       expect(result.ok).toBe(true);
       expect(result.data.title).toBe('My Presentation');
@@ -83,7 +97,7 @@ describe('Slides', () => {
   describe('slidesRead', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.slidesRead({
-        presentationId: 'test-presentation-id'
+        presentationId: 'test-presentation-id',
       });
 
       expect(result).toBeDefined();
@@ -98,9 +112,11 @@ describe('Slides', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.slidesRead({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.slidesRead({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -108,13 +124,15 @@ describe('Slides', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.slidesUpdate({
         presentationId: 'test-presentation-id',
-        requests: [{
-          insertText: {
-            objectId: 'slide-1',
-            insertionIndex: 1,
-            text: 'New text'
-          }
-        }]
+        requests: [
+          {
+            insertText: {
+              objectId: 'slide-1',
+              insertionIndex: 1,
+              text: 'New text',
+            },
+          },
+        ],
       });
 
       expect(result).toBeDefined();
@@ -128,10 +146,11 @@ describe('Slides', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.slidesUpdate({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.slidesUpdate({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
-
 });

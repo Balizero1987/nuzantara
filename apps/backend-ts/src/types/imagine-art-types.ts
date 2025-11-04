@@ -12,14 +12,7 @@ export type ImagineArtStyle =
   | 'sdxl-1.0'
   | 'imagine-turbo';
 
-export type ImagineArtAspectRatio =
-  | '1:1'
-  | '16:9'
-  | '9:16'
-  | '4:3'
-  | '3:4'
-  | '21:9'
-  | '9:21';
+export type ImagineArtAspectRatio = '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '21:9' | '9:21';
 
 export interface ImagineArtGenerateRequest {
   prompt: string;

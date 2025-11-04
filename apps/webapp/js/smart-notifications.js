@@ -11,7 +11,7 @@ class SmartNotifications {
       enabled: true,
       sound: true,
       desktop: true,
-      priorityThreshold: 'medium' // low, medium, high, critical
+      priorityThreshold: 'medium', // low, medium, high, critical
     };
     this.maxNotifications = 50;
   }
@@ -22,15 +22,15 @@ class SmartNotifications {
   initialize() {
     // Load preferences from localStorage
     this.loadPreferences();
-    
+
     // Request notification permission if needed
     this.requestNotificationPermission();
-    
+
     // Set up periodic cleanup
     setInterval(() => {
       this.cleanupOldNotifications();
     }, 300000); // Every 5 minutes
-    
+
     console.log('[SmartNotifications] System initialized');
   }
 
@@ -43,7 +43,7 @@ class SmartNotifications {
       if (savedPreferences) {
         this.notificationPreferences = {
           ...this.notificationPreferences,
-          ...JSON.parse(savedPreferences)
+          ...JSON.parse(savedPreferences),
         };
       }
     } catch (error) {
@@ -56,8 +56,10 @@ class SmartNotifications {
    */
   savePreferences() {
     try {
-      localStorage.setItem('zantara-notification-preferences', 
-        JSON.stringify(this.notificationPreferences));
+      localStorage.setItem(
+        'zantara-notification-preferences',
+        JSON.stringify(this.notificationPreferences)
+      );
     } catch (error) {
       console.error('[SmartNotifications] Error saving preferences:', error);
     }
@@ -71,12 +73,12 @@ class SmartNotifications {
       console.log('[SmartNotifications] This browser does not support desktop notification');
       return;
     }
-    
+
     if (Notification.permission === 'granted') {
       console.log('[SmartNotifications] Notification permission already granted');
       return;
     }
-    
+
     if (Notification.permission !== 'denied') {
       try {
         const permission = await Notification.requestPermission();
@@ -96,46 +98,48 @@ class SmartNotifications {
       console.log('[SmartNotifications] Notifications are disabled');
       return;
     }
-    
+
     // Check priority threshold
     const priority = options.priority || 'medium';
     if (!this.meetsPriorityThreshold(priority)) {
       console.log(`[SmartNotifications] Notification below priority threshold: ${priority}`);
       return;
     }
-    
+
     // Create notification object
     const notification = {
       id: this.generateId(),
       title,
       ...options,
       timestamp: new Date().toISOString(),
-      read: false
+      read: false,
     };
-    
+
     // Add to notifications list
     this.notifications.unshift(notification);
-    
+
     // Limit notifications
     if (this.notifications.length > this.maxNotifications) {
       this.notifications.pop();
     }
-    
+
     // Show desktop notification if enabled
     if (this.notificationPreferences.desktop && Notification.permission === 'granted') {
       this.showDesktopNotification(notification);
     }
-    
+
     // Play sound if enabled
     if (this.notificationPreferences.sound) {
       this.playNotificationSound(priority);
     }
-    
+
     // Dispatch event for UI updates
-    window.dispatchEvent(new CustomEvent('notification-received', {
-      detail: notification
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('notification-received', {
+        detail: notification,
+      })
+    );
+
     console.log(`[SmartNotifications] Notification shown: ${title}`);
     return notification.id;
   }
@@ -148,25 +152,26 @@ class SmartNotifications {
       const desktopNotification = new Notification(notification.title, {
         body: notification.body || '',
         icon: notification.icon || '/public/images/zantara-logo.jpeg',
-        timestamp: new Date(notification.timestamp).getTime()
+        timestamp: new Date(notification.timestamp).getTime(),
       });
-      
+
       // Handle click event
       desktopNotification.onclick = () => {
         window.focus();
         this.markAsRead(notification.id);
-        
+
         // Dispatch event for application-specific handling
-        window.dispatchEvent(new CustomEvent('notification-clicked', {
-          detail: notification
-        }));
+        window.dispatchEvent(
+          new CustomEvent('notification-clicked', {
+            detail: notification,
+          })
+        );
       };
-      
+
       // Auto-close after 10 seconds
       setTimeout(() => {
         desktopNotification.close();
       }, 10000);
-      
     } catch (error) {
       console.error('[SmartNotifications] Error showing desktop notification:', error);
     }
@@ -193,12 +198,12 @@ class SmartNotifications {
       low: 1,
       medium: 2,
       high: 3,
-      critical: 4
+      critical: 4,
     };
-    
+
     const threshold = priorityLevels[this.notificationPreferences.priorityThreshold] || 2;
     const notificationLevel = priorityLevels[priority] || 2;
-    
+
     return notificationLevel >= threshold;
   }
 
@@ -206,15 +211,17 @@ class SmartNotifications {
    * Mark notification as read
    */
   markAsRead(notificationId) {
-    const notification = this.notifications.find(n => n.id === notificationId);
+    const notification = this.notifications.find((n) => n.id === notificationId);
     if (notification) {
       notification.read = true;
       console.log(`[SmartNotifications] Marked notification ${notificationId} as read`);
-      
+
       // Dispatch event
-      window.dispatchEvent(new CustomEvent('notification-read', {
-        detail: notification
-      }));
+      window.dispatchEvent(
+        new CustomEvent('notification-read', {
+          detail: notification,
+        })
+      );
     }
   }
 
@@ -222,12 +229,12 @@ class SmartNotifications {
    * Mark all notifications as read
    */
   markAllAsRead() {
-    this.notifications.forEach(notification => {
+    this.notifications.forEach((notification) => {
       notification.read = true;
     });
-    
+
     console.log('[SmartNotifications] Marked all notifications as read');
-    
+
     // Dispatch event
     window.dispatchEvent(new CustomEvent('all-notifications-read'));
   }
@@ -236,7 +243,7 @@ class SmartNotifications {
    * Remove notification
    */
   removeNotification(notificationId) {
-    const index = this.notifications.findIndex(n => n.id === notificationId);
+    const index = this.notifications.findIndex((n) => n.id === notificationId);
     if (index !== -1) {
       this.notifications.splice(index, 1);
       console.log(`[SmartNotifications] Removed notification ${notificationId}`);
@@ -249,14 +256,14 @@ class SmartNotifications {
    * Get unread notifications count
    */
   getUnreadCount() {
-    return this.notifications.filter(n => !n.read).length;
+    return this.notifications.filter((n) => !n.read).length;
   }
 
   /**
    * Get notifications by priority
    */
   getNotificationsByPriority(priority) {
-    return this.notifications.filter(n => n.priority === priority);
+    return this.notifications.filter((n) => n.priority === priority);
   }
 
   /**
@@ -270,7 +277,7 @@ class SmartNotifications {
    * Get unread notifications
    */
   getUnreadNotifications() {
-    return this.notifications.filter(n => !n.read);
+    return this.notifications.filter((n) => !n.read);
   }
 
   /**
@@ -279,14 +286,14 @@ class SmartNotifications {
   cleanupOldNotifications() {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    
+
     const initialLength = this.notifications.length;
-    
-    this.notifications = this.notifications.filter(notification => {
+
+    this.notifications = this.notifications.filter((notification) => {
       const notificationDate = new Date(notification.timestamp);
       return notificationDate > weekAgo;
     });
-    
+
     const removedCount = initialLength - this.notifications.length;
     if (removedCount > 0) {
       console.log(`[SmartNotifications] Cleaned up ${removedCount} old notifications`);
@@ -299,9 +306,9 @@ class SmartNotifications {
   updatePreferences(newPreferences) {
     this.notificationPreferences = {
       ...this.notificationPreferences,
-      ...newPreferences
+      ...newPreferences,
     };
-    
+
     this.savePreferences();
     console.log('[SmartNotifications] Updated preferences:', this.notificationPreferences);
   }
@@ -321,25 +328,25 @@ class SmartNotifications {
       success: `✅ Handler Executed: ${handlerName}`,
       error: `❌ Handler Failed: ${handlerName}`,
       warning: `⚠️ Handler Warning: ${handlerName}`,
-      info: `ℹ️ Handler Update: ${handlerName}`
+      info: `ℹ️ Handler Update: ${handlerName}`,
     };
-    
+
     const priorities = {
       success: 'medium',
       error: 'high',
       warning: 'medium',
-      info: 'low'
+      info: 'low',
     };
-    
+
     const notificationOptions = {
       body: details.message || `Handler ${handlerName} completed with status: ${status}`,
       priority: priorities[status] || 'medium',
       category: 'handler',
       handler: handlerName,
       status: status,
-      ...details
+      ...details,
     };
-    
+
     return this.showNotification(titles[status], notificationOptions);
   }
 
@@ -353,16 +360,16 @@ class SmartNotifications {
       error: '❌ System Error',
       warning: '⚠️ System Warning',
       update: '⬆️ System Update',
-      maintenance: '🛠️ Maintenance Mode'
+      maintenance: '🛠️ Maintenance Mode',
     };
-    
+
     const notificationOptions = {
       body: message,
       priority: priority,
       category: 'system',
-      eventType: eventType
+      eventType: eventType,
     };
-    
+
     return this.showNotification(titles[eventType] || eventType, notificationOptions);
   }
 
@@ -374,18 +381,18 @@ class SmartNotifications {
       low: 0,
       medium: 0,
       high: 0,
-      critical: 0
+      critical: 0,
     };
-    
-    this.notifications.forEach(notification => {
+
+    this.notifications.forEach((notification) => {
       priorityCounts[notification.priority] = (priorityCounts[notification.priority] || 0) + 1;
     });
-    
+
     return {
       total: this.notifications.length,
       unread: this.getUnreadCount(),
       priorities: priorityCounts,
-      preferences: this.notificationPreferences
+      preferences: this.notificationPreferences,
     };
   }
 }
@@ -394,9 +401,9 @@ class SmartNotifications {
 document.addEventListener('DOMContentLoaded', () => {
   window.SmartNotifications = new SmartNotifications();
   window.SmartNotifications.initialize();
-  
+
   console.log('[SmartNotifications] System ready');
-  
+
   // Mark enhancement as completed
   if (window.enhancementTracker) {
     window.enhancementTracker.markCompleted(22);

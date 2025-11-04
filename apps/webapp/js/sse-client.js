@@ -65,7 +65,7 @@ class ZantaraSSEClient {
 
   emit(event, data) {
     if (!this.listeners.has(event)) return;
-    this.listeners.get(event).forEach(handler => {
+    this.listeners.get(event).forEach((handler) => {
       try {
         handler(data);
       } catch (err) {
@@ -92,7 +92,7 @@ class ZantaraSSEClient {
     return new Promise((resolve, reject) => {
       this.isStreaming = true;
       this.currentMessage = '';
-      this.currentSources = null;  // ← CITATIONS: Collect sources from SSE
+      this.currentSources = null; // ← CITATIONS: Collect sources from SSE
       this.lastStreamUrl = null;
 
       // Build URL with query parameters
@@ -104,28 +104,45 @@ class ZantaraSSEClient {
         url.searchParams.append('user_email', userEmail);
       } else {
         // Try to get from localStorage (FIX: use correct key 'zantara-email' not 'zantara-user-email')
-        const storedEmail = localStorage.getItem('zantara-email') || localStorage.getItem('zantara-user-email');
+        const storedEmail =
+          localStorage.getItem('zantara-email') || localStorage.getItem('zantara-user-email');
         if (storedEmail && storedEmail !== 'undefined' && storedEmail !== 'null') {
           url.searchParams.append('user_email', storedEmail);
         }
       }
 
       // ✨ Add conversation history for context (as JSON)
-      if (conversationHistory && Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+      if (
+        conversationHistory &&
+        Array.isArray(conversationHistory) &&
+        conversationHistory.length > 0
+      ) {
         url.searchParams.append('conversation_history', JSON.stringify(conversationHistory));
-        console.log('[ZantaraSSE] Sending conversation history:', conversationHistory.length, 'messages');
+        console.log(
+          '[ZantaraSSE] Sending conversation history:',
+          conversationHistory.length,
+          'messages'
+        );
       }
 
       // 🚀 NEW: Add handlers context for ZANTARA
       if (handlersContext) {
         url.searchParams.append('handlers_context', JSON.stringify(handlersContext));
-        console.log('[ZantaraSSE] Sending handlers context:', handlersContext.available_tools, 'tools available');
+        console.log(
+          '[ZantaraSSE] Sending handlers context:',
+          handlersContext.available_tools,
+          'tools available'
+        );
       } else {
         // Try to get handlers context from localStorage
         const handlersFromCache = this.getHandlersContext();
         if (handlersFromCache) {
           url.searchParams.append('handlers_context', JSON.stringify(handlersFromCache));
-          console.log('[ZantaraSSE] Sending cached handlers context:', handlersFromCache.available_tools, 'tools available');
+          console.log(
+            '[ZantaraSSE] Sending cached handlers context:',
+            handlersFromCache.available_tools,
+            'tools available'
+          );
         }
       }
 
@@ -161,7 +178,7 @@ class ZantaraSSEClient {
               this.stop();
               this.emit('complete', {
                 message: this.currentMessage,
-                sources: this.currentSources
+                sources: this.currentSources,
               });
               resolve(this.currentMessage);
               return;
@@ -182,7 +199,7 @@ class ZantaraSSEClient {
               // Emit delta event for UI updates
               this.emit('delta', {
                 chunk: data.text,
-                message: this.currentMessage
+                message: this.currentMessage,
               });
             }
           } catch (err) {
@@ -274,7 +291,7 @@ class ZantaraSSEClient {
             tools_summary: parsed.data.handlers,
             categories: parsed.data.categories,
             statistics: parsed.data.statistics,
-            timestamp: parsed.timestamp
+            timestamp: parsed.timestamp,
           };
         }
       }
@@ -293,7 +310,7 @@ class ZantaraSSEClient {
       const cacheData = {
         data: handlersData,
         timestamp: Date.now(),
-        ttl: 3600000 // 1 hour
+        ttl: 3600000, // 1 hour
       };
       localStorage.setItem('zantara_handlers_registry', JSON.stringify(cacheData));
       console.log('[ZantaraSSE] Handlers context cached:', handlersData.total, 'handlers');

@@ -31,9 +31,5 @@
     "Tarif": 12,
     "Pengusaha": 127
   },
-  "primary_topics": [
-    "taxation",
-    "tax_rates",
-    "business_regulations"
-  ]
+  "primary_topics": ["taxation", "tax_rates", "business_regulations"]
 }

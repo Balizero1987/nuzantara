@@ -5,14 +5,18 @@
 
 const INDONESIAN_BADGES = {
   // 🦅 GARUDA - Leadership
-  'CEO': { class: 'badge-garuda', label: 'Garuda', avatar: 'avatar-garuda' },
+  CEO: { class: 'badge-garuda', label: 'Garuda', avatar: 'avatar-garuda' },
   'Board Member': { class: 'badge-garuda', label: 'Garuda', avatar: 'avatar-garuda' },
 
   // 🎨 BATIK - Executive
   'Executive Consultant': { class: 'badge-batik', label: 'Batik', avatar: 'avatar-batik' },
 
   // ⚙️ TECHNOLOGY
-  'AI Bridge/Tech Lead': { class: 'badge-technology', label: 'Teknologi', avatar: 'avatar-technology' },
+  'AI Bridge/Tech Lead': {
+    class: 'badge-technology',
+    label: 'Teknologi',
+    avatar: 'avatar-technology',
+  },
 
   // 🎭 WAYANG - Specialist/Advisory
   'Specialist Consultant': { class: 'badge-wayang', label: 'Wayang', avatar: 'avatar-wayang' },
@@ -30,22 +34,32 @@ const INDONESIAN_BADGES = {
   'Tax Care': { class: 'badge-tax', label: 'Pajak', avatar: 'avatar-tax' },
 
   // 📢 MARKETING
-  'Marketing Advisory': { class: 'badge-marketing', label: 'Pemasaran', avatar: 'avatar-marketing' },
-  'Marketing Specialist': { class: 'badge-marketing', label: 'Pemasaran', avatar: 'avatar-marketing' },
+  'Marketing Advisory': {
+    class: 'badge-marketing',
+    label: 'Pemasaran',
+    avatar: 'avatar-marketing',
+  },
+  'Marketing Specialist': {
+    class: 'badge-marketing',
+    label: 'Pemasaran',
+    avatar: 'avatar-marketing',
+  },
 
   // 🏢 RECEPTION
-  'Reception': { class: 'badge-reception', label: 'Resepsi', avatar: 'avatar-reception' }
+  Reception: { class: 'badge-reception', label: 'Resepsi', avatar: 'avatar-reception' },
 };
 
 /**
  * Get badge configuration for a role
  */
 function getBadgeForRole(role) {
-  return INDONESIAN_BADGES[role] || {
-    class: 'badge-gamelan',
-    label: 'Tim',
-    avatar: 'avatar-gamelan'
-  };
+  return (
+    INDONESIAN_BADGES[role] || {
+      class: 'badge-gamelan',
+      label: 'Tim',
+      avatar: 'avatar-gamelan',
+    }
+  );
 }
 
 /**
@@ -227,5 +241,5 @@ window.IndonesianBadges = {
   createAvatarElement,
   openAvatarUpload,
   updateUserHeader,
-  showToast
+  showToast,
 };

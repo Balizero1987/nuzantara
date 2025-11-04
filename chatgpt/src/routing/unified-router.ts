@@ -10,7 +10,7 @@ export type Handler<
   Params = Record<string, unknown>,
   Query = Record<string, unknown>,
   Body = unknown,
-  Result = unknown
+  Result = unknown,
 > = (ctx: {
   req: Request<Params, unknown, Body, Query>;
   res: Response;
@@ -191,10 +191,7 @@ function responseValidationWrapper(
 /**
  * Process and log route conflicts
  */
-function processRouteConflicts(
-  registry: RouteRegistry,
-  strictMode: boolean
-): void {
+function processRouteConflicts(registry: RouteRegistry, strictMode: boolean): void {
   const conflicts = registry.getConflicts();
   if (conflicts.length === 0) return;
 
@@ -236,11 +233,7 @@ export function registerRoutes(
   defs: RouteDefinition[] | Record<string, RouteDefinition[]>,
   options: RouterOptions = {}
 ): Router {
-  const {
-    enableRegistry = true,
-    enableAnalytics = true,
-    strictMode = false,
-  } = options;
+  const { enableRegistry = true, enableAnalytics = true, strictMode = false } = options;
 
   const router = express.Router({ strict: true, caseSensitive: true, mergeParams: true });
   const list: RouteDefinition[] = Array.isArray(defs) ? defs : Object.values(defs).flat();

@@ -1,17 +1,40 @@
-import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
-import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
-import { getDocs } from "../../services/google-auth-service.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
+import { getDocs } from '../../services/google-auth-service.js';
 
 // Minimal param interfaces (Step 1 typing)
-export interface DocsCreateParams { title?: string; content?: string }
-export interface DocsReadParams { documentId: string }
-export interface DocsUpdateParams { documentId: string; requests?: any[]; content?: string }
+export interface DocsCreateParams {
+  title?: string;
+  content?: string;
+}
+export interface DocsReadParams {
+  documentId: string;
+}
+export interface DocsUpdateParams {
+  documentId: string;
+  requests?: any[];
+  content?: string;
+}
 
 // Result interfaces
-export interface DocsCreateResult { documentId: string; title: string; url: string; content: string; created: string }
-export interface DocsReadResult { document: { documentId?: string; title?: string; revisionId?: string; url: string }; content: string; contentLength: number }
-export interface DocsUpdateResult { documentId: string; replies: any[]; writeControl?: any }
+export interface DocsCreateResult {
+  documentId: string;
+  title: string;
+  url: string;
+  content: string;
+  created: string;
+}
+export interface DocsReadResult {
+  document: { documentId?: string; title?: string; revisionId?: string; url: string };
+  content: string;
+  contentLength: number;
+}
+export interface DocsUpdateResult {
+  documentId: string;
+  replies: any[];
+  writeControl?: any;
+}
 
 export async function docsCreate(params: DocsCreateParams) {
   const { title = 'Untitled Document', content = '' } = params || {};
@@ -20,7 +43,7 @@ export async function docsCreate(params: DocsCreateParams) {
   if (docs) {
     // Create document
     const createRes = await docs.documents.create({
-      requestBody: { title }
+      requestBody: { title },
     });
 
     const documentId = createRes.data.documentId!;
@@ -30,13 +53,15 @@ export async function docsCreate(params: DocsCreateParams) {
       await docs.documents.batchUpdate({
         documentId,
         requestBody: {
-          requests: [{
-            insertText: {
-              location: { index: 1 },
-              text: content
-            }
-          }]
-        }
+          requests: [
+            {
+              insertText: {
+                location: { index: 1 },
+                text: content,
+              },
+            },
+          ],
+        },
       });
     }
 
@@ -45,7 +70,7 @@ export async function docsCreate(params: DocsCreateParams) {
       title,
       url: `https://docs.google.com/document/d/${documentId}`,
       content: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
-      created: new Date().toISOString()
+      created: new Date().toISOString(),
     });
   }
   const bridged = await forwardToBridgeIfSupported('docs.create', params as any);
@@ -82,10 +107,10 @@ export async function docsRead(params: DocsReadParams) {
           documentId: doc.documentId,
           title: doc.title,
           revisionId: doc.revisionId,
-          url: `https://docs.google.com/document/d/${doc.documentId}`
+          url: `https://docs.google.com/document/d/${doc.documentId}`,
         },
         content,
-        contentLength: content.length
+        contentLength: content.length,
       });
     } catch (error: any) {
       if (error.code === 404) {
@@ -112,16 +137,16 @@ export async function docsUpdate(params: DocsUpdateParams) {
         deleteContentRange: {
           range: {
             startIndex: 1,
-            endIndex: 999999 // Delete all content
-          }
-        }
+            endIndex: 999999, // Delete all content
+          },
+        },
       },
       {
         insertText: {
           location: { index: 1 },
-          text: content
-        }
-      }
+          text: content,
+        },
+      },
     ];
   }
 
@@ -134,13 +159,13 @@ export async function docsUpdate(params: DocsUpdateParams) {
     try {
       const res = await docs.documents.batchUpdate({
         documentId,
-        requestBody: { requests: finalRequests }
+        requestBody: { requests: finalRequests },
       });
 
       return ok({
         documentId,
         replies: res.data.replies || [],
-        writeControl: res.data.writeControl
+        writeControl: res.data.writeControl,
       });
     } catch (error: any) {
       if (error.code === 404) {

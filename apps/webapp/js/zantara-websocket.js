@@ -35,14 +35,14 @@ class ZantaraWebSocket {
 
     // Event handlers
     this.eventHandlers = {
-      'connected': [],
-      'disconnected': [],
-      'error': [],
-      'message': [],
-      'chat': [],
-      'notifications': [],
-      'analytics': [],
-      'documents': []
+      connected: [],
+      disconnected: [],
+      error: [],
+      message: [],
+      chat: [],
+      notifications: [],
+      analytics: [],
+      documents: [],
     };
 
     // Heartbeat
@@ -158,7 +158,7 @@ class ZantaraWebSocket {
 
     this.sendRaw({
       type: 'subscribe',
-      channel
+      channel,
     });
 
     this.subscriptions.add(channel);
@@ -175,7 +175,7 @@ class ZantaraWebSocket {
 
     this.sendRaw({
       type: 'unsubscribe',
-      channel
+      channel,
     });
 
     this.subscriptions.delete(channel);
@@ -189,7 +189,7 @@ class ZantaraWebSocket {
     this.sendRaw({
       type: 'message',
       channel,
-      data
+      data,
     });
   }
 
@@ -253,7 +253,9 @@ class ZantaraWebSocket {
     this.reconnectAttempts++;
     const delay = this.reconnectInterval * Math.min(this.reconnectAttempts, 5); // Exponential backoff (max 5x)
 
-    this.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+    this.log(
+      `Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+    );
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
@@ -278,7 +280,7 @@ class ZantaraWebSocket {
     if (!this.eventHandlers[event]) {
       return;
     }
-    this.eventHandlers[event] = this.eventHandlers[event].filter(h => h !== handler);
+    this.eventHandlers[event] = this.eventHandlers[event].filter((h) => h !== handler);
   }
 
   /**
@@ -288,7 +290,7 @@ class ZantaraWebSocket {
     if (!this.eventHandlers[event]) {
       return;
     }
-    this.eventHandlers[event].forEach(handler => {
+    this.eventHandlers[event].forEach((handler) => {
       try {
         handler(data);
       } catch (error) {
@@ -303,7 +305,7 @@ class ZantaraWebSocket {
   handleError(message, error) {
     const errorData = {
       message,
-      error: error?.message || error
+      error: error?.message || error,
     };
     this.log(`❌ ${message}:`, error);
     this.emit('error', errorData);
@@ -347,7 +349,7 @@ class ZantaraWebSocket {
       userId: this.userId,
       subscriptions: Array.from(this.subscriptions),
       reconnectAttempts: this.reconnectAttempts,
-      lastPong: new Date(this.lastPong).toISOString()
+      lastPong: new Date(this.lastPong).toISOString(),
     };
   }
 

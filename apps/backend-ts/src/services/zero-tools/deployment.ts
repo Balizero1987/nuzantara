@@ -40,17 +40,17 @@ export async function deployBackendZero(): Promise<DeployResult> {
       owner: OWNER,
       repo: REPO,
       workflow_id: 'deploy-backend-api.yml',
-      ref: 'main'
+      ref: 'main',
     });
 
     // GitHub API doesn't return run ID immediately, need to poll
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const runs = await octokit.actions.listWorkflowRuns({
       owner: OWNER,
       repo: REPO,
       workflow_id: 'deploy-backend-api.yml',
-      per_page: 1
+      per_page: 1,
     });
 
     const latestRun = runs.data.workflow_runs[0];
@@ -68,7 +68,7 @@ export async function deployBackendZero(): Promise<DeployResult> {
   } catch (error: any) {
     return {
       ok: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -88,16 +88,16 @@ export async function deployRagZero(): Promise<DeployResult> {
       owner: OWNER,
       repo: REPO,
       workflow_id: 'deploy-rag-amd64.yml',
-      ref: 'main'
+      ref: 'main',
     });
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const runs = await octokit.actions.listWorkflowRuns({
       owner: OWNER,
       repo: REPO,
       workflow_id: 'deploy-rag-amd64.yml',
-      per_page: 1
+      per_page: 1,
     });
 
     const latestRun = runs.data.workflow_runs[0];
@@ -115,7 +115,7 @@ export async function deployRagZero(): Promise<DeployResult> {
   } catch (error: any) {
     return {
       ok: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -134,19 +134,19 @@ export async function checkWorkflowStatusZero(runId: number): Promise<WorkflowSt
     const { data } = await octokit.actions.getWorkflowRun({
       owner: OWNER,
       repo: REPO,
-      run_id: runId
+      run_id: runId,
     });
 
     return {
       ok: true,
       status: data.status as any,
       conclusion: data.conclusion as any,
-      url: data.html_url
+      url: data.html_url,
     };
   } catch (error: any) {
     return {
       ok: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -154,9 +154,7 @@ export async function checkWorkflowStatusZero(runId: number): Promise<WorkflowSt
 /**
  * List recent workflow runs
  */
-export async function listRecentDeploymentsZero(
-  limit: number = 5
-): Promise<{
+export async function listRecentDeploymentsZero(limit: number = 5): Promise<{
   ok: boolean;
   deployments?: Array<{
     id: number;
@@ -178,10 +176,10 @@ export async function listRecentDeploymentsZero(
     const { data } = await octokit.actions.listWorkflowRunsForRepo({
       owner: OWNER,
       repo: REPO,
-      per_page: limit
+      per_page: limit,
     });
 
-    const deployments = data.workflow_runs.map(run => {
+    const deployments = data.workflow_runs.map((run) => {
       const deployment: {
         id: number;
         name: string;
@@ -194,24 +192,24 @@ export async function listRecentDeploymentsZero(
         name: run.name || '',
         status: run.status || '',
         createdAt: run.created_at,
-        url: run.html_url
+        url: run.html_url,
       };
-      
+
       if (run.conclusion) {
         deployment.conclusion = run.conclusion;
       }
-      
+
       return deployment;
     });
 
     return {
       ok: true,
-      deployments
+      deployments,
     };
   } catch (error: any) {
     return {
       ok: false,
-      error: error.message
+      error: error.message,
     };
   }
 }

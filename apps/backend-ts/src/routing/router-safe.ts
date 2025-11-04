@@ -9,10 +9,10 @@ const router = express.Router();
 
 export async function attachRoutes(app: express.Application) {
   logger.info('🔄 Attaching main router (safe mode)...');
-  
+
   let loadedCount = 0;
   let failedCount = 0;
-  
+
   // ==================================================================
   // IDENTITY & ONBOARDING
   // ==================================================================
@@ -26,12 +26,14 @@ export async function attachRoutes(app: express.Application) {
     logger.warn(`  ⚠️ Identity routes skipped: ${error.message}`);
     failedCount += 2;
   }
-  
+
   // ==================================================================
   // TEAM AUTHENTICATION
   // ==================================================================
   try {
-    const { teamLogin, getTeamMembers, logoutSession } = await import('../handlers/auth/team-login.js');
+    const { teamLogin, getTeamMembers, logoutSession } = await import(
+      '../handlers/auth/team-login.js'
+    );
     router.post('/api/team/login', teamLogin as any);
     router.get('/api/team/members', getTeamMembers as any);
     router.post('/api/team/logout', logoutSession as any);
@@ -41,7 +43,7 @@ export async function attachRoutes(app: express.Application) {
     logger.warn(`  ⚠️ Team Auth routes skipped: ${error.message}`);
     failedCount += 3;
   }
-  
+
   // ==================================================================
   // BALI ZERO BUSINESS
   // ==================================================================
@@ -55,7 +57,7 @@ export async function attachRoutes(app: express.Application) {
     logger.warn(`  ⚠️ Bali Zero routes skipped: ${error.message}`);
     failedCount += 2;
   }
-  
+
   // ==================================================================
   // AI SERVICES
   // ==================================================================
@@ -68,12 +70,14 @@ export async function attachRoutes(app: express.Application) {
     logger.warn(`  ⚠️ AI routes skipped: ${error.message}`);
     failedCount += 1;
   }
-  
+
   // ==================================================================
   // ZANTARA COLLABORATIVE INTELLIGENCE
   // ==================================================================
   try {
-    const { zantaraPersonalityProfile, zantaraAttune } = await import('../handlers/zantara/zantara-test.js');
+    const { zantaraPersonalityProfile, zantaraAttune } = await import(
+      '../handlers/zantara/zantara-test.js'
+    );
     router.post('/api/zantara/personality', zantaraPersonalityProfile as any);
     router.post('/api/zantara/attune', zantaraAttune as any);
     loadedCount += 2;
@@ -82,10 +86,10 @@ export async function attachRoutes(app: express.Application) {
     logger.warn(`  ⚠️ ZANTARA routes skipped: ${error.message}`);
     failedCount += 2;
   }
-  
+
   // Mount router
   app.use(router);
-  
+
   logger.info(`✅ Main Router attached: ${loadedCount} routes loaded, ${failedCount} skipped`);
   return { loaded: loadedCount, failed: failedCount };
 }

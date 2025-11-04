@@ -19,13 +19,13 @@ describe('Oracle Universal', () => {
         json: async () => ({
           success: true,
           query: 'test query',
-          results: []
-        })
+          results: [],
+        }),
       } as Response);
 
       const result = await handlers.oracleUniversalQuery({
         query: 'test query',
-        context: 'test context'
+        context: 'test context',
       });
 
       expect(result).toBeDefined();
@@ -41,7 +41,7 @@ describe('Oracle Universal', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.oracleUniversalQuery({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       expect(result).toBeDefined();
@@ -55,8 +55,8 @@ describe('Oracle Universal', () => {
         ok: true,
         status: 200,
         json: async () => ({
-          collections: ['collection1', 'collection2']
-        })
+          collections: ['collection1', 'collection2'],
+        }),
       } as Response);
 
       const result = await handlers.oracleCollections();
@@ -68,5 +68,4 @@ describe('Oracle Universal', () => {
       expect(Array.isArray(result.data.collections)).toBe(true);
     });
   });
-
 });

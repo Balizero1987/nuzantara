@@ -109,10 +109,7 @@ describe('Google Calendar Handler', () => {
     it('should support attendees', async () => {
       const params = {
         summary: 'Team Meeting',
-        attendees: [
-          { email: 'amanda@balizero.com' },
-          { email: 'client@example.com' },
-        ],
+        attendees: [{ email: 'amanda@balizero.com' }, { email: 'client@example.com' }],
       };
 
       await mockCalendarEventsInsert(params);

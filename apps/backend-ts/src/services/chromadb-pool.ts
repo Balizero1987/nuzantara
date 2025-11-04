@@ -1,6 +1,6 @@
 /**
  * ChromaDB Connection Pooling
- * 
+ *
  * Manages ChromaDB client connections with health checks and circuit breakers
  */
 
@@ -163,6 +163,3 @@ export function getChromaDBPool(): ChromaDBPool {
   }
   return chromaPool;
 }
-
-
-

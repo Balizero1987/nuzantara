@@ -102,7 +102,7 @@ class JWTService {
       const payload = this.decodeToken(token);
       const now = Date.now() / 1000;
       const buffer = config.auth.expiryBuffer;
-      return payload.exp < (now + buffer);
+      return payload.exp < now + buffer;
     } catch (e) {
       return true;
     }
@@ -204,7 +204,7 @@ class JWTService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.getAccessToken()}`,
+            Authorization: `Bearer ${this.getAccessToken()}`,
           },
           body: JSON.stringify({ refreshToken }),
         });

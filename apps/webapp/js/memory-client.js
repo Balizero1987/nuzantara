@@ -31,13 +31,16 @@ class ZantaraMemoryClient {
     }
 
     try {
-      const response = await fetch(`${this.apiBase}/memory/get?userId=${encodeURIComponent(userId)}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': this._getAuthToken()
+      const response = await fetch(
+        `${this.apiBase}/memory/get?userId=${encodeURIComponent(userId)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: this._getAuthToken(),
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -55,7 +58,7 @@ class ZantaraMemoryClient {
           profile_facts: data.profile_facts || [],
           summary: data.summary || '',
           counters: data.counters || {},
-          updated_at: data.updated_at
+          updated_at: data.updated_at,
         };
 
         console.log(`✅ [MemoryClient] Memory loaded: ${memory.profile_facts.length} facts`);
@@ -86,13 +89,13 @@ class ZantaraMemoryClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this._getAuthToken()
+          Authorization: this._getAuthToken(),
         },
         body: JSON.stringify({
           userId: userId,
           profile_facts: [fact],
-          summary: ''
-        })
+          summary: '',
+        }),
       });
 
       if (!response.ok) {
@@ -128,13 +131,13 @@ class ZantaraMemoryClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this._getAuthToken()
+          Authorization: this._getAuthToken(),
         },
         body: JSON.stringify({
           userId: userId,
           profile_facts: [],
-          summary: summary
-        })
+          summary: summary,
+        }),
       });
 
       if (!response.ok) {
@@ -177,13 +180,13 @@ class ZantaraMemoryClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this._getAuthToken()
+          Authorization: this._getAuthToken(),
         },
         body: JSON.stringify({
           userId: userId,
           profile_facts: updatedFacts,
-          summary: memory.summary
-        })
+          summary: memory.summary,
+        }),
       });
 
       if (!response.ok) {
@@ -220,7 +223,7 @@ class ZantaraMemoryClient {
       conversations: memory.counters.conversations || 0,
       searches: memory.counters.searches || 0,
       tasks: memory.counters.tasks || 0,
-      last_updated: memory.updated_at
+      last_updated: memory.updated_at,
     };
   }
 
@@ -259,7 +262,7 @@ class ZantaraMemoryClient {
   _setCached(userId, data) {
     this.cache.set(userId, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -282,9 +285,9 @@ class ZantaraMemoryClient {
       counters: {
         conversations: 0,
         searches: 0,
-        tasks: 0
+        tasks: 0,
       },
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
   }
 

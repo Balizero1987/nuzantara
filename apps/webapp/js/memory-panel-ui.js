@@ -32,7 +32,8 @@ class MemoryPanelUI {
       this.container.className = 'memory-panel-container';
 
       // Add to page (after chat container if exists)
-      const chatContainer = document.querySelector('.chat-container') || document.querySelector('.messages-container');
+      const chatContainer =
+        document.querySelector('.chat-container') || document.querySelector('.messages-container');
       if (chatContainer && chatContainer.parentNode) {
         chatContainer.parentNode.insertBefore(this.container, chatContainer.nextSibling);
       } else {
@@ -86,7 +87,9 @@ class MemoryPanelUI {
           </button>
         </div>
 
-        ${this.isVisible ? `
+        ${
+          this.isVisible
+            ? `
           <div class="memory-panel-content">
             <!-- Stats -->
             <div class="memory-stats">
@@ -113,16 +116,22 @@ class MemoryPanelUI {
                 </button>
               </div>
               <div class="memory-facts-list">
-                ${this.memory.profile_facts.length > 0 ?
-                  this.memory.profile_facts.map((fact, index) => `
+                ${
+                  this.memory.profile_facts.length > 0
+                    ? this.memory.profile_facts
+                        .map(
+                          (fact, index) => `
                     <div class="memory-fact" data-index="${index}">
                       <div class="fact-text">${this.escapeHtml(fact)}</div>
                       <button class="btn-delete-fact" onclick="window.MEMORY_PANEL.deleteFact(${index})" title="Delete fact">
                         ×
                       </button>
                     </div>
-                  `).join('')
-                : '<div class="memory-empty">No facts yet. Add your first fact!</div>'}
+                  `
+                        )
+                        .join('')
+                    : '<div class="memory-empty">No facts yet. Add your first fact!</div>'
+                }
               </div>
             </div>
 
@@ -135,9 +144,11 @@ class MemoryPanelUI {
                 </button>
               </div>
               <div class="memory-summary">
-                ${this.memory.summary ?
-                  `<p>${this.escapeHtml(this.memory.summary)}</p>`
-                : '<p class="memory-empty">No summary yet.</p>'}
+                ${
+                  this.memory.summary
+                    ? `<p>${this.escapeHtml(this.memory.summary)}</p>`
+                    : '<p class="memory-empty">No summary yet.</p>'
+                }
               </div>
             </div>
 
@@ -146,7 +157,9 @@ class MemoryPanelUI {
               <small>Last updated: ${this.formatDate(this.memory.updated_at)}</small>
             </div>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
       </div>
     `;
 

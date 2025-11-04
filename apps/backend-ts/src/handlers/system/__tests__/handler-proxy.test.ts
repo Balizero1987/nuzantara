@@ -12,7 +12,7 @@ jest.mock('../../../routing/router.js', () => {
     ...actualRouter,
     getHandler: jest.fn().mockImplementation(async (key: string) => {
       return mockGetHandler(key);
-    })
+    }),
   };
 });
 
@@ -32,7 +32,7 @@ describe('Handler Proxy', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.executeHandler({
         handler_key: 'test.handler',
-        handler_params: { test: 'data' }
+        handler_params: { test: 'data' },
       });
 
       expect(result).toBeDefined();
@@ -49,17 +49,19 @@ describe('Handler Proxy', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.executeHandler({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.executeHandler({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
 
     it('should handle non-existent handler', async () => {
       mockGetHandler.mockResolvedValueOnce(null);
-      
+
       const result = await handlers.executeHandler({
         handler_key: 'nonexistent.handler',
-        handler_params: {}
+        handler_params: {},
       });
 
       expect(result).toBeDefined();
@@ -70,10 +72,10 @@ describe('Handler Proxy', () => {
     it('should handle handler execution errors', async () => {
       const errorHandler = jest.fn().mockRejectedValue(new Error('Handler error'));
       mockGetHandler.mockResolvedValueOnce(errorHandler);
-      
+
       const result = await handlers.executeHandler({
         handler_key: 'error.handler',
-        handler_params: {}
+        handler_params: {},
       });
 
       expect(result).toBeDefined();
@@ -87,8 +89,8 @@ describe('Handler Proxy', () => {
       const result = await handlers.executeBatchHandlers({
         handlers: [
           { key: 'test.handler1', params: { param1: 'value1' } },
-          { key: 'test.handler2', params: { param2: 'value2' } }
-        ]
+          { key: 'test.handler2', params: { param2: 'value2' } },
+        ],
       });
 
       expect(result).toBeDefined();
@@ -105,26 +107,28 @@ describe('Handler Proxy', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.executeBatchHandlers({
-        handlers: 'not-an-array'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.executeBatchHandlers({
+          handlers: 'not-an-array',
+        })
+      ).rejects.toThrow(BadRequestError);
 
-      await expect(handlers.executeBatchHandlers({
-        handlers: []
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.executeBatchHandlers({
+          handlers: [],
+        })
+      ).rejects.toThrow(BadRequestError);
     });
 
     it('should handle handler failures in batch', async () => {
       const errorHandler = jest.fn().mockRejectedValue(new Error('Handler error'));
-      mockGetHandler
-        .mockResolvedValueOnce(mockHandler)
-        .mockResolvedValueOnce(errorHandler);
-      
+      mockGetHandler.mockResolvedValueOnce(mockHandler).mockResolvedValueOnce(errorHandler);
+
       const result = await handlers.executeBatchHandlers({
         handlers: [
           { key: 'success.handler', params: {} },
-          { key: 'error.handler', params: {} }
-        ]
+          { key: 'error.handler', params: {} },
+        ],
       });
 
       expect(result).toBeDefined();
@@ -134,5 +138,4 @@ describe('Handler Proxy', () => {
       expect(result.data.results[1].ok).toBe(false);
     });
   });
-
 });

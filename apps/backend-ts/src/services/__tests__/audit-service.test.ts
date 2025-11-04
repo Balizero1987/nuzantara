@@ -27,7 +27,7 @@ describe('AuditService', () => {
         success: true,
         firstTokenLatency: 50,
         tokensReceived: 10,
-        duration: 1000
+        duration: 1000,
       });
 
       const entries = auditService.getRecentEntries(1);
@@ -45,7 +45,7 @@ describe('AuditService', () => {
         query: 'sensitive personal information',
         endpoint: '/api/v2/bali-zero/chat-stream',
         success: true,
-        ipAddress: '127.0.0.1'
+        ipAddress: '127.0.0.1',
       });
 
       const entries = auditService.getRecentEntries(1);
@@ -63,7 +63,7 @@ describe('AuditService', () => {
         ipAddress: '127.0.0.1',
         endpoint: '/api/v2/bali-zero/chat-stream',
         limit: 20,
-        window: 60
+        window: 60,
       });
 
       const entries = auditService.getRecentEntries(1);
@@ -82,7 +82,7 @@ describe('AuditService', () => {
         userId: 'user123',
         userEmail: 'user@example.com',
         ipAddress: '127.0.0.1',
-        success: true
+        success: true,
       });
 
       const entries = auditService.getRecentEntries(1);
@@ -101,7 +101,7 @@ describe('AuditService', () => {
         query: 'test',
         endpoint: '/test',
         success: true,
-        ipAddress: '127.0.0.1'
+        ipAddress: '127.0.0.1',
       });
 
       const entries = auditService.getRecentEntries(1);
@@ -111,4 +111,3 @@ describe('AuditService', () => {
     });
   });
 });
-

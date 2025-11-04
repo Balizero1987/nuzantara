@@ -14,11 +14,11 @@ describe('KBLI Handler', () => {
   describe('kbliLookup', () => {
     it('should return KBLI data successfully', async () => {
       const { kbliLookup } = await import('../kbli.js');
-      
+
       mockReq.body = { code: '12345' };
-      
+
       await kbliLookup(mockReq, mockRes);
-      
+
       // Just check that the handler was called
       expect(mockRes.status).toBeDefined();
       expect(mockRes.json).toBeDefined();
@@ -26,15 +26,15 @@ describe('KBLI Handler', () => {
 
     it('should handle errors gracefully', async () => {
       const { kbliLookup } = await import('../kbli.js');
-      
+
       // Mock an error scenario
       mockReq.body = { code: 'invalid' };
-      
+
       // Mock the handler to throw an error
       jest.spyOn(console, 'error').mockImplementation(() => {});
-      
+
       await kbliLookup(mockReq, mockRes);
-      
+
       // Just check that the handler was called
       expect(mockRes.status).toBeDefined();
       expect(mockRes.json).toBeDefined();
@@ -42,11 +42,11 @@ describe('KBLI Handler', () => {
 
     it('should validate required parameters', async () => {
       const { kbliLookup } = await import('../kbli.js');
-      
+
       mockReq.body = {}; // Missing code parameter
-      
+
       await kbliLookup(mockReq, mockRes);
-      
+
       // Just check that the handler was called
       expect(mockRes.status).toBeDefined();
       expect(mockRes.json).toBeDefined();

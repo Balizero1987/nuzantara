@@ -1,9 +1,9 @@
 /**
  * Enhanced Redis Caching Layer
- * 
+ *
  * Advanced caching strategies with intelligent cache invalidation,
  * multi-level caching, cache warming, and performance optimization.
- * 
+ *
  * Features:
  * - Multi-level caching (L1: in-memory, L2: Redis)
  * - Intelligent cache warming based on access patterns
@@ -11,7 +11,7 @@
  * - Cache compression for large values
  * - Cache statistics and hit rate monitoring
  * - Feature flag controlled for zero-downtime deployment
- * 
+ *
  * Backward Compatible: Falls back to existing cache if disabled
  */
 
@@ -67,7 +67,7 @@ class EnhancedRedisCache {
       maxL1Size: config.maxL1Size ?? 1000,
       enableCompression: config.enableCompression ?? true,
       enableWarming: config.enableWarming ?? true,
-      enableStats: config.enableStats ?? true
+      enableStats: config.enableStats ?? true,
     };
 
     // Initialize L1 cache (in-memory)
@@ -75,7 +75,7 @@ class EnhancedRedisCache {
       stdTTL: this.config.l1Ttl,
       maxKeys: this.config.maxL1Size,
       useClones: false, // Better performance
-      deleteOnExpire: true
+      deleteOnExpire: true,
     });
 
     // Initialize stats
@@ -88,7 +88,7 @@ class EnhancedRedisCache {
       hitRate: 0,
       averageResponseTime: 0,
       cacheSize: 0,
-      evictions: 0
+      evictions: 0,
     };
 
     // Track evictions
@@ -114,14 +114,14 @@ class EnhancedRedisCache {
 
     try {
       const redisUrl = process.env.REDIS_URL;
-      
+
       // Configure TLS for Upstash
       const socketOptions: any = {
         connectTimeout: 5000,
         reconnectStrategy: (retries: number) => {
           if (retries > 3) return false;
           return Math.min(retries * 100, 1000);
-        }
+        },
       };
 
       // Add TLS config for Upstash or rediss://
@@ -132,7 +132,7 @@ class EnhancedRedisCache {
 
       this.redis = createClient({
         url: redisUrl,
-        socket: socketOptions
+        socket: socketOptions,
       });
 
       this.redis.on('error', (err) => {
@@ -186,7 +186,7 @@ class EnhancedRedisCache {
         const cached = await this.redis!.get(key);
         if (cached) {
           const entry: CacheEntry<T> = JSON.parse(cached);
-          
+
           // Check expiration
           if (entry.expiresAt > Date.now()) {
             // Decompress if needed
@@ -198,7 +198,7 @@ class EnhancedRedisCache {
             this.l1Cache.set(key, {
               ...entry,
               value,
-              lastAccessed: Date.now()
+              lastAccessed: Date.now(),
             });
 
             this.stats.l2Hits++;
@@ -224,9 +224,9 @@ class EnhancedRedisCache {
           // Promote to L1
           this.l1Cache.set(key, {
             value: parsed,
-            expiresAt: Date.now() + (this.config.l1Ttl * 1000),
+            expiresAt: Date.now() + this.config.l1Ttl * 1000,
             hitCount: 1,
-            lastAccessed: Date.now()
+            lastAccessed: Date.now(),
           });
           this.updateStats(Date.now() - startTime);
           return parsed;
@@ -246,15 +246,10 @@ class EnhancedRedisCache {
   /**
    * Set value in cache (multi-level)
    */
-  async set<T = any>(
-    key: string,
-    value: T,
-    ttl?: number,
-    tags?: string[]
-  ): Promise<void> {
+  async set<T = any>(key: string, value: T, ttl?: number, tags?: string[]): Promise<void> {
     const l1Ttl = ttl || this.config.l1Ttl;
     const l2Ttl = ttl || this.config.l2Ttl;
-    const expiresAt = Date.now() + (l2Ttl * 1000);
+    const expiresAt = Date.now() + l2Ttl * 1000;
 
     // Check if compression is needed
     const valueStr = JSON.stringify(value);
@@ -262,7 +257,7 @@ class EnhancedRedisCache {
     let compressed = false;
 
     if (this.config.enableCompression && valueStr.length > 1024) {
-      finalValue = await this.compress(valueStr) as any;
+      finalValue = (await this.compress(valueStr)) as any;
       compressed = true;
     }
 
@@ -272,7 +267,7 @@ class EnhancedRedisCache {
       compressed,
       hitCount: 0,
       lastAccessed: Date.now(),
-      tags
+      tags,
     };
 
     // Set in L1 cache
@@ -375,7 +370,7 @@ class EnhancedRedisCache {
     const batchSize = 10;
     for (let i = 0; i < keys.length; i += batchSize) {
       const batch = keys.slice(i, i + batchSize);
-      
+
       await Promise.all(
         batch.map(async (key) => {
           try {
@@ -401,9 +396,10 @@ class EnhancedRedisCache {
    */
   getStats(): CacheStats {
     this.stats.cacheSize = this.l1Cache.keys().length;
-    this.stats.hitRate = this.stats.totalRequests > 0
-      ? ((this.stats.l1Hits + this.stats.l2Hits) / this.stats.totalRequests) * 100
-      : 0;
+    this.stats.hitRate =
+      this.stats.totalRequests > 0
+        ? ((this.stats.l1Hits + this.stats.l2Hits) / this.stats.totalRequests) * 100
+        : 0;
 
     return { ...this.stats };
   }
@@ -421,7 +417,7 @@ class EnhancedRedisCache {
       hitRate: 0,
       averageResponseTime: 0,
       cacheSize: 0,
-      evictions: 0
+      evictions: 0,
     };
   }
 
@@ -516,4 +512,3 @@ export async function initializeEnhancedCache(config?: CacheConfig): Promise<Enh
 
 export { EnhancedRedisCache };
 export type { CacheConfig, CacheStats };
-

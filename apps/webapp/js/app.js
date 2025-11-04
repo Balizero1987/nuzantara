@@ -12,10 +12,38 @@ class ZantaraApp {
     this.streamingClient = null;
     this.streamingUI = null;
     this.langChips = {
-      it: [ ['📋','Preventivo'], ["📞","Chiama 15'"], ['📄','Documenti'], ['▶️','Avvia Pratica'], ['💬','WhatsApp'], ['✉️','Email'] ],
-      en: [ ['📋','Quote'], ["📞","Call 15'"], ['📄','Documents'], ['▶️','Start Process'], ['💬','WhatsApp'], ['✉️','Email'] ],
-      id: [ ['📋','Penawaran'], ["📞","Telpon 15'"], ['📄','Dokumen'], ['▶️','Mulai Proses'], ['💬','WhatsApp'], ['✉️','Email'] ],
-      uk: [ ['📋','Кошторис'], ["📞","Дзвінок 15'"], ['📄','Документи'], ['▶️','Почати процес'], ['💬','WhatsApp'], ['✉️','Email'] ]
+      it: [
+        ['📋', 'Preventivo'],
+        ['📞', "Chiama 15'"],
+        ['📄', 'Documenti'],
+        ['▶️', 'Avvia Pratica'],
+        ['💬', 'WhatsApp'],
+        ['✉️', 'Email'],
+      ],
+      en: [
+        ['📋', 'Quote'],
+        ['📞', "Call 15'"],
+        ['📄', 'Documents'],
+        ['▶️', 'Start Process'],
+        ['💬', 'WhatsApp'],
+        ['✉️', 'Email'],
+      ],
+      id: [
+        ['📋', 'Penawaran'],
+        ['📞', "Telpon 15'"],
+        ['📄', 'Dokumen'],
+        ['▶️', 'Mulai Proses'],
+        ['💬', 'WhatsApp'],
+        ['✉️', 'Email'],
+      ],
+      uk: [
+        ['📋', 'Кошторис'],
+        ['📞', "Дзвінок 15'"],
+        ['📄', 'Документи'],
+        ['▶️', 'Почати процес'],
+        ['💬', 'WhatsApp'],
+        ['✉️', 'Email'],
+      ],
     };
     this.initStreaming();
     this.init();
@@ -61,7 +89,8 @@ class ZantaraApp {
       if (!messageEl) {
         // Create new streaming message
         const messageDiv = this.streamingUI.createStreamingMessage('assistant');
-        const avatarHtml = '<div class="message-avatar"><img src="zantara_logo_transparent.png" alt="ZANTARA"></div>';
+        const avatarHtml =
+          '<div class="message-avatar"><img src="zantara_logo_transparent.png" alt="ZANTARA"></div>';
         messageDiv.innerHTML = DOMPurify.sanitize(avatarHtml + messageDiv.innerHTML);
         container.appendChild(messageDiv);
         messageEl = messageDiv.querySelector('.message-content');
@@ -138,9 +167,7 @@ class ZantaraApp {
   async processWithStreaming(text) {
     try {
       // Build messages array
-      const messages = [
-        { role: 'user', content: text }
-      ];
+      const messages = [{ role: 'user', content: text }];
 
       // Get session ID
       const sessionId = localStorage.getItem('zantara-session-id') || `sess_${Date.now()}`;
@@ -148,7 +175,6 @@ class ZantaraApp {
 
       // Start streaming
       await this.streamingClient.streamChat(messages, sessionId);
-
     } catch (err) {
       console.error('[Streaming] Failed:', err);
       this.hideTypingIndicator();
@@ -168,7 +194,9 @@ class ZantaraApp {
       if (/(\bhello\b|hey\b|how\b|thanks|why|today|tomorrow|who am i)/.test(t)) return 'en';
       // codes like C1/C2/D12 etc. are neutral; default to Indonesian policy
       return 'id';
-    } catch (_) { return 'id'; }
+    } catch (_) {
+      return 'id';
+    }
   }
 
   resolveMessageLanguage(text, profile) {
@@ -176,20 +204,26 @@ class ZantaraApp {
       const forced = localStorage.getItem('zantara-forced-lang');
       if (forced) return forced;
       const detected = this.detectLanguage(text);
-      const base = (profile && profile.lang) ? profile.lang : 'id';
+      const base = profile && profile.lang ? profile.lang : 'id';
       // Prefer explicit detection from the current message; fallback to profile
       return detected || base;
-    } catch (_) { return (profile && profile.lang) ? profile.lang : 'id'; }
+    } catch (_) {
+      return profile && profile.lang ? profile.lang : 'id';
+    }
   }
 
   getUserEmail() {
-    try { return localStorage.getItem('zantara-user-email') || ''; } catch(_) { return ''; }
+    try {
+      return localStorage.getItem('zantara-user-email') || '';
+    } catch (_) {
+      return '';
+    }
   }
 
   getCounterpartProfile() {
     const email = (this.getUserEmail() || '').toLowerCase();
     const local = email.endsWith('@balizero.com');
-    const name = email ? (email.split('@')[0] || '').replace(/\W+/g,' ').trim() : '';
+    const name = email ? (email.split('@')[0] || '').replace(/\W+/g, ' ').trim() : '';
     // Language routing per counterpart
     // Rule: default is Indonesian; Zero=IT; Ruslana/Marta/Olena=UK; externals=EN; if unknown counterpart → Indonesian
     let lang = 'id';
@@ -214,14 +248,14 @@ class ZantaraApp {
     // Core instructions compressed for transport
     const core = [
       'You are ZANTARA, strategic brain of Bali Zero. Interact as a peer (not subordinate).',
-      'Never reveal logs or Boss Zero\'s private conversations. Never mention memory systems.',
+      "Never reveal logs or Boss Zero's private conversations. Never mention memory systems.",
       'Address the counterpart appropriately. Do not ask for identity in chat (already handled by login).',
       'Never introduce yourself (e.g., “I am ZANTARA” or “I am an AI assistant”). Start with the answer.',
       'Language: strictly use Target-Language for all output.',
       'Tone: calm, sharp, dry; business-driven; dry humor only if it builds trust. Avoid fillers.',
       'Anti-hallucination: never invent legal/numeric data. If not from official sources, output NOT AVAILABLE.',
       'Client-facing: clear text, short (2–5 sentences) + CTA. No JSON. No system chatter.',
-      'Compliance: follow OSS RBA, BKPM, DJP, Immigration for Indonesia-related outputs.'
+      'Compliance: follow OSS RBA, BKPM, DJP, Immigration for Indonesia-related outputs.',
     ].join(' ');
     return `${core}\nCounterpart: ${who}\nTarget-Language: ${langHint}`;
   }
@@ -230,7 +264,10 @@ class ZantaraApp {
     // Hide splash after a short delay
     setTimeout(() => {
       const splash = document.getElementById('splash-screen');
-      if (splash) { splash.classList.add('hidden'); setTimeout(() => splash.remove(), 500); }
+      if (splash) {
+        splash.classList.add('hidden');
+        setTimeout(() => splash.remove(), 500);
+      }
     }, 1200);
 
     this.initEventListeners();
@@ -243,21 +280,48 @@ class ZantaraApp {
     try {
       const api = window.ZANTARA_API;
       const email = localStorage.getItem('zantara-user-email') || '';
-      if (api?.call && email) api.call('/call', { key: 'identity.resolve', params: { email } }, true).catch(() => {});
+      if (api?.call && email)
+        api.call('/call', { key: 'identity.resolve', params: { email } }, true).catch(() => {});
     } catch (_) {}
 
-    window.addEventListener('zantaraVirtualizationChanged', () => { this.extraLoaded = 0; this.renderFromState(); });
+    window.addEventListener('zantaraVirtualizationChanged', () => {
+      this.extraLoaded = 0;
+      this.renderFromState();
+    });
   }
 
   initEventListeners() {
-    document.getElementById('voice-button')?.addEventListener('click', () => this.startVoiceRecording());
-    document.querySelectorAll('.action-card').forEach(card => card.addEventListener('click', (e) => this.handleQuickAction(e.currentTarget.dataset.action)));
+    document
+      .getElementById('voice-button')
+      ?.addEventListener('click', () => this.startVoiceRecording());
+    document
+      .querySelectorAll('.action-card')
+      .forEach((card) =>
+        card.addEventListener('click', (e) =>
+          this.handleQuickAction(e.currentTarget.dataset.action)
+        )
+      );
     document.getElementById('send-button')?.addEventListener('click', () => this.sendMessage());
     const input = document.getElementById('message-input');
-    input?.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } });
-    document.getElementById('voice-input')?.addEventListener('click', () => this.startVoiceRecording());
-    document.querySelector('.stop-recording')?.addEventListener('click', () => this.stopVoiceRecording());
-    document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', (e) => { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); e.currentTarget.classList.add('active'); this.switchView(e.currentTarget.dataset.view); }));
+    input?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        this.sendMessage();
+      }
+    });
+    document
+      .getElementById('voice-input')
+      ?.addEventListener('click', () => this.startVoiceRecording());
+    document
+      .querySelector('.stop-recording')
+      ?.addEventListener('click', () => this.stopVoiceRecording());
+    document.querySelectorAll('.nav-item').forEach((item) =>
+      item.addEventListener('click', (e) => {
+        document.querySelectorAll('.nav-item').forEach((i) => i.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        this.switchView(e.currentTarget.dataset.view);
+      })
+    );
   }
 
   initVoiceRecognition() {
@@ -267,24 +331,49 @@ class ZantaraApp {
       this.recognition.lang = 'en-US';
       this.recognition.continuous = false;
       this.recognition.interimResults = true;
-      this.recognition.onresult = (event) => { const res = event.results[event.results.length - 1]; if (res?.isFinal) this.processVoiceCommand(res[0].transcript); };
-      this.recognition.onerror = () => { this.stopVoiceRecording(); };
+      this.recognition.onresult = (event) => {
+        const res = event.results[event.results.length - 1];
+        if (res?.isFinal) this.processVoiceCommand(res[0].transcript);
+      };
+      this.recognition.onerror = () => {
+        this.stopVoiceRecording();
+      };
     }
   }
 
   startVoiceRecording() {
-    const o = document.getElementById('voice-overlay'); if (o) o.style.display = 'flex';
-    if (this.recognition) { this.recognition.start(); this.isListening = true; const t = document.querySelector('.listening-text'); if (t) t.textContent = 'Listening...'; }
+    const o = document.getElementById('voice-overlay');
+    if (o) o.style.display = 'flex';
+    if (this.recognition) {
+      this.recognition.start();
+      this.isListening = true;
+      const t = document.querySelector('.listening-text');
+      if (t) t.textContent = 'Listening...';
+    }
   }
   stopVoiceRecording() {
-    const o = document.getElementById('voice-overlay'); if (o) o.style.display = 'none';
-    if (this.recognition && this.isListening) { this.recognition.stop(); this.isListening = false; }
+    const o = document.getElementById('voice-overlay');
+    if (o) o.style.display = 'none';
+    if (this.recognition && this.isListening) {
+      this.recognition.stop();
+      this.isListening = false;
+    }
   }
 
-  processVoiceCommand(transcript) { this.stopVoiceRecording(); this.showChatInterface(); this.addMessage('user', transcript); this.processWithZantara(transcript); }
+  processVoiceCommand(transcript) {
+    this.stopVoiceRecording();
+    this.showChatInterface();
+    this.addMessage('user', transcript);
+    this.processWithZantara(transcript);
+  }
 
   handleQuickAction(action) {
-    const map = { generate: 'Generate content for me', document: 'Create a new document', schedule: 'Schedule a meeting', note: 'Create a note' };
+    const map = {
+      generate: 'Generate content for me',
+      document: 'Create a new document',
+      schedule: 'Schedule a meeting',
+      note: 'Create a note',
+    };
     this.showChatInterface();
     const command = map[action] || `Help me with ${action}`;
     this.addMessage('user', command);
@@ -296,22 +385,39 @@ class ZantaraApp {
     return this.processWithZantara(command);
   }
 
-  showChatInterface() { const w = document.getElementById('welcome-screen'); const c = document.getElementById('chat-interface'); if (w) w.style.display = 'none'; if (c) c.style.display = 'flex'; localStorage.setItem('zantara_user', 'true'); }
+  showChatInterface() {
+    const w = document.getElementById('welcome-screen');
+    const c = document.getElementById('chat-interface');
+    if (w) w.style.display = 'none';
+    if (c) c.style.display = 'flex';
+    localStorage.setItem('zantara_user', 'true');
+  }
 
-  sendMessage() { const input = document.getElementById('message-input'); const text = (input?.value || '').trim(); if (!text) return; this.addMessage('user', text); if (input) input.value = ''; this.processWithZantara(text); }
+  sendMessage() {
+    const input = document.getElementById('message-input');
+    const text = (input?.value || '').trim();
+    if (!text) return;
+    this.addMessage('user', text);
+    if (input) input.value = '';
+    this.processWithZantara(text);
+  }
 
   addMessage(sender, text, opts = { html: false }) {
-    const container = document.querySelector('.messages-container'); if (!container) return;
-    const div = document.createElement('div'); div.className = `message ${sender}`;
+    const container = document.querySelector('.messages-container');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = `message ${sender}`;
     const content = opts.html ? DOMPurify.sanitize(String(text)) : this.escape(text);
     if (sender === 'assistant') {
-      div.innerHTML = DOMPurify.sanitize(`<div class="message-avatar"><img src="zantara_logo_transparent.png" alt="ZANTARA"></div><div class="message-bubble">${content}</div>`);
+      div.innerHTML = DOMPurify.sanitize(
+        `<div class="message-avatar"><img src="zantara_logo_transparent.png" alt="ZANTARA"></div><div class="message-bubble">${content}</div>`
+      );
     } else {
       // Get user avatar from localStorage
       const user = JSON.parse(localStorage.getItem('zantara-user') || '{}');
       const userId = user.id || user.email || 'guest';
       const savedAvatar = localStorage.getItem(`zantara-avatar-${userId}`);
-      
+
       let avatarHtml = '';
       if (savedAvatar) {
         avatarHtml = `<div class="message-avatar"><img src="${savedAvatar}" alt="User Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"></div>`;
@@ -320,8 +426,10 @@ class ZantaraApp {
         const firstLetter = userName.charAt(0).toUpperCase();
         avatarHtml = `<div class="message-avatar" style="width: 32px; height: 32px; border-radius: 50%; background: #2f7bd6; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">${firstLetter}</div>`;
       }
-      
-      div.innerHTML = DOMPurify.sanitize(`${avatarHtml}<div class="message-bubble">${content}</div>`);
+
+      div.innerHTML = DOMPurify.sanitize(
+        `${avatarHtml}<div class="message-bubble">${content}</div>`
+      );
     }
 
     // Add click handler to copy message text
@@ -330,16 +438,22 @@ class ZantaraApp {
       bubble.style.cursor = 'pointer';
       bubble.addEventListener('click', () => {
         const textToCopy = text; // Use original text, not HTML
-        navigator.clipboard.writeText(textToCopy).then(() => {
-          // Show feedback
-          const originalBg = bubble.style.background;
-          bubble.style.background = 'rgba(139, 92, 246, 0.2)';
-          setTimeout(() => { bubble.style.background = originalBg; }, 200);
-        }).catch(err => console.error('Failed to copy:', err));
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            // Show feedback
+            const originalBg = bubble.style.background;
+            bubble.style.background = 'rgba(139, 92, 246, 0.2)';
+            setTimeout(() => {
+              bubble.style.background = originalBg;
+            }, 200);
+          })
+          .catch((err) => console.error('Failed to copy:', err));
       });
     }
 
-    container.appendChild(div); container.scrollTop = container.scrollHeight;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
     this.messages.push({ sender, text, timestamp: Date.now(), html: !!opts.html });
     this.applyVirtualizationTrim();
     return div;
@@ -347,7 +461,8 @@ class ZantaraApp {
 
   // Typing indicator bubble for assistant
   showTypingIndicator() {
-    const c = document.querySelector('.messages-container'); if (!c) return;
+    const c = document.querySelector('.messages-container');
+    if (!c) return;
     this.hideTypingIndicator();
     const d = document.createElement('div');
     d.className = 'message assistant typing-message';
@@ -364,7 +479,10 @@ class ZantaraApp {
     c.appendChild(d);
     c.scrollTop = c.scrollHeight;
   }
-  hideTypingIndicator() { const t = document.querySelector('.typing-message'); if (t) t.remove(); }
+  hideTypingIndicator() {
+    const t = document.querySelector('.typing-message');
+    if (t) t.remove();
+  }
 
   async processWithZantara(text) {
     // Check if we should use streaming
@@ -380,7 +498,10 @@ class ZantaraApp {
     try {
       this.showTypingIndicator();
       const api = window.ZANTARA_API;
-      if (!api || !api.call) { this.hideTypingIndicator(); return this.renderAssistantReply('API not available.'); }
+      if (!api || !api.call) {
+        this.hideTypingIndicator();
+        return this.renderAssistantReply('API not available.');
+      }
 
       // Optional: if a user types an email in a message, store it silently (no chat interruption)
       try {
@@ -396,26 +517,34 @@ class ZantaraApp {
 
       // Language switch intents (persist until changed)
       const intent = String(text || '').toLowerCase();
-      const wantId = /(bahasa indonesia|pakai bahasa indonesia|bicara bahasa indonesia)/.test(intent);
+      const wantId = /(bahasa indonesia|pakai bahasa indonesia|bicara bahasa indonesia)/.test(
+        intent
+      );
       const wantIt = /(in italiano|parla italiano|italiano per favore|italian please)/.test(intent);
       const wantEn = /(in english|speak english|english please)/.test(intent);
       const wantUk = /(українськ|по-українськ|ukrainian)/.test(intent);
       if (wantId || wantIt || wantEn || wantUk) {
         const chosen = wantId ? 'id' : wantIt ? 'it' : wantEn ? 'en' : 'uk';
-        try { localStorage.setItem('zantara-forced-lang', chosen); } catch(_) {}
+        try {
+          localStorage.setItem('zantara-forced-lang', chosen);
+        } catch (_) {}
         msgLang = chosen;
         this.hideTypingIndicator();
-        const ack = (
-          chosen === 'it' ? 'Ok, da ora rispondo in italiano.' :
-          chosen === 'uk' ? 'Гаразд, відтепер відповідаю українською.' :
-          chosen === 'en' ? 'Okay, I will reply in English from now on.' :
-                            'Baik, mulai sekarang saya akan membalas dalam Bahasa Indonesia.'
-        );
+        const ack =
+          chosen === 'it'
+            ? 'Ok, da ora rispondo in italiano.'
+            : chosen === 'uk'
+              ? 'Гаразд, відтепер відповідаю українською.'
+              : chosen === 'en'
+                ? 'Okay, I will reply in English from now on.'
+                : 'Baik, mulai sekarang saya akan membalas dalam Bahasa Indonesia.';
         return this.renderAssistantReply(ack);
       }
 
       // Friendly greeting handler (avoid irrelevant memory mentions)
-      const t = String(text || '').trim().toLowerCase();
+      const t = String(text || '')
+        .trim()
+        .toLowerCase();
       const greet = /^(hi|hello|hey|ciao|halo|hallo|hai|hola|salve)\b/.test(t);
       if (greet) {
         this.hideTypingIndicator();
@@ -424,68 +553,87 @@ class ZantaraApp {
           it: 'Benvenuto. Scegli un’area: Visa • Company • Tax • Real Estate. Oppure scrivi la richiesta in una frase.',
           uk: 'Вітаю. Оберіть напрям: Віза • Компанія • Податки • Нерухомість. Або напишіть запит одним реченням.',
           id: 'Selamat datang. Pilih area: Visa • Company • Pajak • Properti. Atau tulis perintah singkat.',
-          en: 'Welcome. Choose an area: Visa • Company • Tax • Real Estate. Or type your request in one sentence.'
+          en: 'Welcome. Choose an area: Visa • Company • Tax • Real Estate. Or type your request in one sentence.',
         };
-        const title = (
-          msgLang === 'it' ? 'Benvenuto — Scegli un’area' :
-          msgLang === 'uk' ? 'Вітаю — Оберіть напрям' :
-          msgLang === 'en' ? 'Welcome — Choose An Area' :
-                             'Selamat Datang — Pilih Area'
-        );
+        const title =
+          msgLang === 'it'
+            ? 'Benvenuto — Scegli un’area'
+            : msgLang === 'uk'
+              ? 'Вітаю — Оберіть напрям'
+              : msgLang === 'en'
+                ? 'Welcome — Choose An Area'
+                : 'Selamat Datang — Pilih Area';
         return this.renderStructured('landing', title, byLang[msgLang] || byLang.en, msgLang);
       }
 
       // "Who am I?" intent
-      const whoAmI = /(chi sono|io chi sono|siapa aku|aku siapa|who am i\??)/i.test(String(text || ''));
+      const whoAmI = /(chi sono|io chi sono|siapa aku|aku siapa|who am i\??)/i.test(
+        String(text || '')
+      );
       if (whoAmI) {
         this.hideTypingIndicator();
         const email = (localStorage.getItem('zantara-user-email') || '').trim();
         const name = email ? (email.split('@')[0] || '').replace(/\W+/g, ' ').trim() : '';
         let reply;
         if (email) {
-          reply = (
-            msgLang === 'it' ? `Sei ${name} (${email}).` :
-            msgLang === 'uk' ? `Ви ${name} (${email}).` :
-            msgLang === 'en' ? `You are ${name} (${email}).` :
-                                `Kamu ${name} (${email}).`
-          );
+          reply =
+            msgLang === 'it'
+              ? `Sei ${name} (${email}).`
+              : msgLang === 'uk'
+                ? `Ви ${name} (${email}).`
+                : msgLang === 'en'
+                  ? `You are ${name} (${email}).`
+                  : `Kamu ${name} (${email}).`;
         } else {
-          reply = (
-            msgLang === 'it' ? 'Non ho i tuoi dati in questa sessione.' :
-            msgLang === 'uk' ? 'У мене немає ваших даних у цій сесії.' :
-            msgLang === 'en' ? 'I do not have your details in this session.' :
-                                'Saya tidak memiliki datamu di sesi ini.'
-          );
+          reply =
+            msgLang === 'it'
+              ? 'Non ho i tuoi dati in questa sessione.'
+              : msgLang === 'uk'
+                ? 'У мене немає ваших даних у цій сесії.'
+                : msgLang === 'en'
+                  ? 'I do not have your details in this session.'
+                  : 'Saya tidak memiliki datamu di sesi ini.';
         }
         return this.renderAssistantReply(reply);
       }
 
       // "Who are you?" intent → succinct role (no self-intro as chatbot)
-      const whoAreYou = /(chi sei\??|siapa kamu\??|kamu siapa\??|who are you\??|хто ти\??)/i.test(String(text || ''));
+      const whoAreYou = /(chi sei\??|siapa kamu\??|kamu siapa\??|who are you\??|хто ти\??)/i.test(
+        String(text || '')
+      );
       if (whoAreYou) {
         this.hideTypingIndicator();
-        const reply = (
-          msgLang === 'it' ? 'Partner operativo di Bali Zero: cervello strategico, memoria e orchestrazione. Dimmi cosa vuoi fare.' :
-          msgLang === 'uk' ? 'Операційний партнер Bali Zero: стратегічний мозок, пам’ять і оркестрація. Скажіть, що потрібно зробити.' :
-          msgLang === 'en' ? 'Operational partner of Bali Zero: strategic brain, memory and orchestration. Tell me what you want to get done.' :
-                              'Mitra operasional Bali Zero: otak strategis, memori, dan orkestrasi. Jelaskan yang ingin Anda capai.'
-        );
+        const reply =
+          msgLang === 'it'
+            ? 'Partner operativo di Bali Zero: cervello strategico, memoria e orchestrazione. Dimmi cosa vuoi fare.'
+            : msgLang === 'uk'
+              ? 'Операційний партнер Bali Zero: стратегічний мозок, пам’ять і оркестрація. Скажіть, що потрібно зробити.'
+              : msgLang === 'en'
+                ? 'Operational partner of Bali Zero: strategic brain, memory and orchestration. Tell me what you want to get done.'
+                : 'Mitra operasional Bali Zero: otak strategis, memori, dan orkestrasi. Jelaskan yang ingin Anda capai.';
         return this.renderAssistantReply(reply);
       }
 
-      const wantsPricing = /\b(price|pricing|cost|fee|fees|prezzo|prezzi|costo|costi|harga|biaya)\b/i.test(text || '');
+      const wantsPricing =
+        /\b(price|pricing|cost|fee|fees|prezzo|prezzi|costo|costi|harga|biaya)\b/i.test(text || '');
       const codeMatch = /\b(?:[CDE]\d{1,2}[A-Z]?)\b/i.exec(text || '');
 
       if (wantsPricing || codeMatch) {
         // Official pricing only (policy)
         const key = codeMatch ? 'price.lookup' : 'pricing.official';
-        const params = codeMatch ? { service: codeMatch[0].toUpperCase() } : { service_type: 'all', include_details: true };
+        const params = codeMatch
+          ? { service: codeMatch[0].toUpperCase() }
+          : { service_type: 'all', include_details: true };
         const res = await api.call('/call', { key, params }, true);
         this.hideTypingIndicator();
         const blob = JSON.stringify(res || {});
         if (/PREZZI UFFICIALI 2025/i.test(blob)) {
           this.addMessage('assistant', 'Redirecting to official prices…');
-          const retry = await api.call('/call', { key: 'pricing.official', params: { service_type: 'all', include_details: true } }, true);
+          const retry = await api.call(
+            '/call',
+            { key: 'pricing.official', params: { service_type: 'all', include_details: true } },
+            true
+          );
           return this.renderAssistantReply(this.formatPricing(retry));
         }
         return this.renderAssistantReply(this.formatPricing(res));
@@ -496,16 +644,36 @@ class ZantaraApp {
       try {
         const system = this.buildSystemPrompt({ ...profile, lang: msgLang });
         // FIX: Use ZANTARA provider with auto-routing
-        res = await api.call('/call', { key: 'ai.chat', params: { message: text, provider: 'zantara', system, target_language: msgLang } }, true);
+        res = await api.call(
+          '/call',
+          {
+            key: 'ai.chat',
+            params: { message: text, provider: 'zantara', system, target_language: msgLang },
+          },
+          true
+        );
       } catch (e) {
         // FIX: Better fallback handling
-        const msg = String(e && e.message || e || '');
+        const msg = String((e && e.message) || e || '');
         console.warn('ZANTARA failed, trying fallback:', msg);
-        
+
         try {
           const system = this.buildSystemPrompt({ ...profile, lang: msgLang });
           // Fallback to GPT-4o-mini if ZANTARA completely fails
-          res = await api.call('/call', { key: 'ai.chat', params: { message: text, provider: 'openai', model: 'gpt-4o-mini', system, target_language: msgLang } }, true);
+          res = await api.call(
+            '/call',
+            {
+              key: 'ai.chat',
+              params: {
+                message: text,
+                provider: 'openai',
+                model: 'gpt-4o-mini',
+                system,
+                target_language: msgLang,
+              },
+            },
+            true
+          );
         } catch (fallbackError) {
           console.error('All AI providers failed:', fallbackError);
           throw new Error('AI service temporarily unavailable. Please try again.');
@@ -520,43 +688,83 @@ class ZantaraApp {
       const cat = this.detectCategory(text);
       const title = this.defaultTitle(cat, msgLang);
       return this.renderStructured(cat, title, out, msgLang);
-
     } catch (err) {
       this.hideTypingIndicator();
       console.error(err);
-      const msg = String(err && err.message || err || '');
+      const msg = String((err && err.message) || err || '');
       if (/OpenAI failed/i.test(msg)) {
-        return this.addMessage('assistant', 'AI chat is temporarily unavailable (backend config). Pricing and tools are available. Try asking for prices (e.g., "Price for D12").');
+        return this.addMessage(
+          'assistant',
+          'AI chat is temporarily unavailable (backend config). Pricing and tools are available. Try asking for prices (e.g., "Price for D12").'
+        );
       }
       return this.addMessage('assistant', 'Request failed. Please try again.');
     }
   }
 
-  detectCategory(text='') {
+  detectCategory(text = '') {
     const t = String(text).toLowerCase();
     if (/(\b[cd]\d{1,2}[a-z]?\b|visa|kitas|kitap|imigrasi|immigration)/i.test(t)) return 'visa';
     if (/(pt\s*pma|company|perseroan|izin usaha|license|oss\s*rba)/i.test(t)) return 'company';
     if (/(npwp|spt|pajak|tax|accounting|bpjs)/i.test(t)) return 'tax';
-    if (/(pbg|slf|notaris|freehold|leasehold|due diligence|properti|property|real\s*estate)/i.test(t)) return 'property';
+    if (
+      /(pbg|slf|notaris|freehold|leasehold|due diligence|properti|property|real\s*estate)/i.test(t)
+    )
+      return 'property';
     return 'general';
   }
 
-  defaultTitle(cat, lang='id') {
+  defaultTitle(cat, lang = 'id') {
     const map = {
-      visa: { id:'Visa — Langkah Berikutnya', it:'Visti — Prossimi Passi', en:'Visa — Next Steps', uk:'Віза — Наступні кроки' },
-      company: { id:'Company — Set Up', it:'Company — Set Up', en:'Company — Set Up', uk:'Компанія — Запуск' },
-      tax: { id:'Tax — Kepatuhan & Jadwal', it:'Tax — Compliance & Cadence', en:'Tax — Compliance & Cadence', uk:'Податки — Комплаєнс і графік' },
-      property: { id:'Property — Due Diligence', it:'Property — Due Diligence', en:'Property — Due Diligence', uk:'Нерухомість — Due Diligence' },
-      landing: { id:'Selamat Datang — Pilih Area', it:'Benvenuto — Scegli un’area', en:'Welcome — Choose An Area', uk:'Вітаю — Оберіть напрям' },
-      general: { id:'ZANTARA — Rangkuman', it:'ZANTARA — Sintesi', en:'ZANTARA — Summary', uk:'ZANTARA — Підсумок' }
+      visa: {
+        id: 'Visa — Langkah Berikutnya',
+        it: 'Visti — Prossimi Passi',
+        en: 'Visa — Next Steps',
+        uk: 'Віза — Наступні кроки',
+      },
+      company: {
+        id: 'Company — Set Up',
+        it: 'Company — Set Up',
+        en: 'Company — Set Up',
+        uk: 'Компанія — Запуск',
+      },
+      tax: {
+        id: 'Tax — Kepatuhan & Jadwal',
+        it: 'Tax — Compliance & Cadence',
+        en: 'Tax — Compliance & Cadence',
+        uk: 'Податки — Комплаєнс і графік',
+      },
+      property: {
+        id: 'Property — Due Diligence',
+        it: 'Property — Due Diligence',
+        en: 'Property — Due Diligence',
+        uk: 'Нерухомість — Due Diligence',
+      },
+      landing: {
+        id: 'Selamat Datang — Pilih Area',
+        it: 'Benvenuto — Scegli un’area',
+        en: 'Welcome — Choose An Area',
+        uk: 'Вітаю — Оберіть напрям',
+      },
+      general: {
+        id: 'ZANTARA — Rangkuman',
+        it: 'ZANTARA — Sintesi',
+        en: 'ZANTARA — Summary',
+        uk: 'ZANTARA — Підсумок',
+      },
     };
     return (map[cat] && (map[cat][lang] || map[cat].en)) || 'ZANTARA';
   }
 
-  renderStructured(category, title, body, lang='id') {
+  renderStructured(category, title, body, lang = 'id') {
     // Build a structured card + chips and append as assistant message (HTML mode)
     const chips = this.langChips[lang] || this.langChips.en;
-    const chipsHtml = chips.map(([icon,label]) => `<button class="action-chip" data-label="${this.escape(label)}">${this.escape(icon)} ${this.escape(label)}</button>`).join('');
+    const chipsHtml = chips
+      .map(
+        ([icon, label]) =>
+          `<button class="action-chip" data-label="${this.escape(label)}">${this.escape(icon)} ${this.escape(label)}</button>`
+      )
+      .join('');
     const html = DOMPurify.sanitize(`
       <div class="zantara-response">
         <h3 class="response-title">${this.escape(title)}</h3>
@@ -571,11 +779,14 @@ class ZantaraApp {
 
   bindChips(node) {
     try {
-      const wrap = node.querySelector('.action-chips'); if (!wrap) return;
+      const wrap = node.querySelector('.action-chips');
+      if (!wrap) return;
       const lang = wrap.getAttribute('data-lang') || 'id';
       const cat = wrap.getAttribute('data-cat') || 'general';
-      wrap.querySelectorAll('.action-chip').forEach(btn => {
-        btn.addEventListener('click', () => this.handleChipClick(btn.getAttribute('data-label') || '', lang, cat));
+      wrap.querySelectorAll('.action-chip').forEach((btn) => {
+        btn.addEventListener('click', () =>
+          this.handleChipClick(btn.getAttribute('data-label') || '', lang, cat)
+        );
       });
     } catch (_) {}
   }
@@ -590,60 +801,122 @@ class ZantaraApp {
     if (/email/.test(lower)) return this.actionEmail();
   }
 
-  actionWhatsApp() { window.open('https://wa.me/6285954241699','_blank','noopener'); }
-  actionEmail() { location.href = 'mailto:info@balizero.com?subject=ZANTARA%20Web%20App'; }
-  actionCall15(lang='id') { window.open('https://calendly.com/balizero/consultation','_blank','noopener'); this.addMessage('assistant', (lang==='it'?"Ti ho aperto il link per prenotare 15'":"I opened the link for a 15' consult."), { html:false }); }
-
-  async actionQuote(cat, lang='id') {
-    try {
-      const api = window.ZANTARA_API; if (!api) return;
-      const user = localStorage.getItem('zantara-user-email') || '';
-      await api.call('/call', { key:'lead.save', params:{ channel:'webapp', category:cat, email:user, note:'Quote requested from structured chips' } }, true);
-      this.addMessage('assistant', (lang==='it'?'Ok, preparo un preventivo e ti contatto via email.':'Baik, saya siapkan penawaran dan menghubungi via email.' ));
-    } catch (_) { this.addMessage('assistant', (lang==='it'?'Errore temporaneo, riprova.':'Gangguan sementara, coba lagi.')); }
+  actionWhatsApp() {
+    window.open('https://wa.me/6285954241699', '_blank', 'noopener');
+  }
+  actionEmail() {
+    location.href = 'mailto:info@balizero.com?subject=ZANTARA%20Web%20App';
+  }
+  actionCall15(lang = 'id') {
+    window.open('https://calendly.com/balizero/consultation', '_blank', 'noopener');
+    this.addMessage(
+      'assistant',
+      lang === 'it'
+        ? "Ti ho aperto il link per prenotare 15'"
+        : "I opened the link for a 15' consult.",
+      { html: false }
+    );
   }
 
-  async actionDocuments(cat, lang='id') {
+  async actionQuote(cat, lang = 'id') {
+    try {
+      const api = window.ZANTARA_API;
+      if (!api) return;
+      const user = localStorage.getItem('zantara-user-email') || '';
+      await api.call(
+        '/call',
+        {
+          key: 'lead.save',
+          params: {
+            channel: 'webapp',
+            category: cat,
+            email: user,
+            note: 'Quote requested from structured chips',
+          },
+        },
+        true
+      );
+      this.addMessage(
+        'assistant',
+        lang === 'it'
+          ? 'Ok, preparo un preventivo e ti contatto via email.'
+          : 'Baik, saya siapkan penawaran dan menghubungi via email.'
+      );
+    } catch (_) {
+      this.addMessage(
+        'assistant',
+        lang === 'it' ? 'Errore temporaneo, riprova.' : 'Gangguan sementara, coba lagi.'
+      );
+    }
+  }
+
+  async actionDocuments(cat, lang = 'id') {
     // Stub: in assenza di endpoint requirements.*, rispondi con breve checklist generica
-    const generic = (
-      lang==='it' ? 'Documenti tipici: passaporto/ID, dati contatto, info servizio. Se vuoi, ti mando la checklist dettagliata via email.' :
-      lang==='en' ? 'Typical docs: passport/ID, contact details, service info. I can send a detailed checklist by email.' :
-      lang==='uk' ? 'Типові документи: паспорт/ID, контакти, інформація про послугу. Можу надіслати детальний список на email.' :
-                    'Dokumen umum: paspor/ID, kontak, info layanan. Saya bisa kirim checklist rinci via email.'
-    );
+    const generic =
+      lang === 'it'
+        ? 'Documenti tipici: passaporto/ID, dati contatto, info servizio. Se vuoi, ti mando la checklist dettagliata via email.'
+        : lang === 'en'
+          ? 'Typical docs: passport/ID, contact details, service info. I can send a detailed checklist by email.'
+          : lang === 'uk'
+            ? 'Типові документи: паспорт/ID, контакти, інформація про послугу. Можу надіслати детальний список на email.'
+            : 'Dokumen umum: paspor/ID, kontak, info layanan. Saya bisa kirim checklist rinci via email.';
     this.addMessage('assistant', generic);
   }
 
-  async actionStartProcess(cat, lang='id') {
+  async actionStartProcess(cat, lang = 'id') {
     try {
-      const api = window.ZANTARA_API; if (!api) return;
+      const api = window.ZANTARA_API;
+      if (!api) return;
       const user = localStorage.getItem('zantara-user-email') || '';
-      await api.call('/call', { key:'lead.save', params:{ channel:'webapp', category:cat, email:user, intent:'start' } }, true);
-      this.addMessage('assistant', (lang==='it'?'Avvio registrato. Ti accompagno passo passo.':'Proses dimulai. Saya pandu langkah demi langkah.'));
-    } catch (_) { this.addMessage('assistant', (lang==='it'?'Errore temporaneo, riprova.':'Gangguan sementara, coba lagi.')); }
+      await api.call(
+        '/call',
+        {
+          key: 'lead.save',
+          params: { channel: 'webapp', category: cat, email: user, intent: 'start' },
+        },
+        true
+      );
+      this.addMessage(
+        'assistant',
+        lang === 'it'
+          ? 'Avvio registrato. Ti accompagno passo passo.'
+          : 'Proses dimulai. Saya pandu langkah demi langkah.'
+      );
+    } catch (_) {
+      this.addMessage(
+        'assistant',
+        lang === 'it' ? 'Errore temporaneo, riprova.' : 'Gangguan sementara, coba lagi.'
+      );
+    }
   }
 
   extractReply(res) {
     if (!res) return '';
     // If backend returned a JSON string, parse it
     if (typeof res === 'string') {
-      try { const p = JSON.parse(res); return this.extractReply(p); } catch(_) {}
+      try {
+        const p = JSON.parse(res);
+        return this.extractReply(p);
+      } catch (_) {}
     }
     if (typeof res.reply === 'string') return res.reply;
     if (typeof res.message === 'string') return res.message;
     if (typeof res.text === 'string') return res.text;
-    try { if (Array.isArray(res.choices) && res.choices[0]?.message?.content) return res.choices[0].message.content; } catch(_){}
+    try {
+      if (Array.isArray(res.choices) && res.choices[0]?.message?.content)
+        return res.choices[0].message.content;
+    } catch (_) {}
     try {
       if (res.data) {
         if (typeof res.data.response === 'string') return res.data.response; // openai.chat / ai.chat (wrapped)
         if (typeof res.data.reply === 'string') return res.data.reply;
         if (typeof res.data.text === 'string') return res.data.text;
       }
-    } catch(_){}
+    } catch (_) {}
     // Fallback: attempt to find a string under common keys deep inside the object
     try {
       const stack = [res];
-      const keys = new Set(['response','reply','text','content']);
+      const keys = new Set(['response', 'reply', 'text', 'content']);
       while (stack.length) {
         const cur = stack.pop();
         if (!cur || typeof cur !== 'object') continue;
@@ -653,7 +926,7 @@ class ZantaraApp {
           if (v && typeof v === 'object') stack.push(v);
         }
       }
-    } catch(_) {}
+    } catch (_) {}
     return JSON.stringify(res, null, 2);
   }
 
@@ -673,7 +946,7 @@ class ZantaraApp {
         whatsapp: '+62 859 5424 1699',
         website: 'https://balizero.com',
         app: 'https://zantara.balizero.com',
-        landing: 'https://balizero.com'
+        landing: 'https://balizero.com',
       };
       const contact = data.contact || {};
       const email = contact.email || CONTACT.email;
@@ -682,28 +955,47 @@ class ZantaraApp {
       const contactLine = `\nContact: ${[email, wa].filter(Boolean).join(' | ')}\nSites: ${sites}`;
       const lines = [
         `Official pricing – ${name}`,
-        [p1 && `• 1 Year: ${p1}`, p2 && `• 2 Years: ${p2}`, ext && `• Extension: ${ext}`].filter(Boolean).join('\n')
-      ].filter(Boolean).join('\n');
+        [p1 && `• 1 Year: ${p1}`, p2 && `• 2 Years: ${p2}`, ext && `• Extension: ${ext}`]
+          .filter(Boolean)
+          .join('\n'),
+      ]
+        .filter(Boolean)
+        .join('\n');
       return (lines + notes + contactLine).trim();
-    } catch(_) {
+    } catch (_) {
       return 'Official pricing available.';
     }
   }
 
-  switchView(view) { console.log('Switching to view:', view); }
-  escape(s) { return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  switchView(view) {
+    console.log('Switching to view:', view);
+  }
+  escape(s) {
+    return String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+  }
 
   renderAssistantReply(text, toolsUsed = null) {
     // Clean generic self-intros or assistant boilerplate
     text = this.sanitizeReply(text);
     // Coerce JSON-looking strings into human text
     if (typeof text === 'string' && text.trim().startsWith('{') && text.trim().endsWith('}')) {
-      try { const obj = JSON.parse(text); text = this.extractReply(obj) || text; } catch(_) {}
+      try {
+        const obj = JSON.parse(text);
+        text = this.extractReply(obj) || text;
+      } catch (_) {}
     }
-    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const streamingEnabled = !!(window.ZANTARA_STREAMING && window.ZANTARA_STREAMING.isEnabled && window.ZANTARA_STREAMING.isEnabled());
-    if (!streamingEnabled || prefersReduced) { this.addMessage('assistant', text); }
-    else { this.streamText(text); }
+    const prefersReduced =
+      window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const streamingEnabled = !!(
+      window.ZANTARA_STREAMING &&
+      window.ZANTARA_STREAMING.isEnabled &&
+      window.ZANTARA_STREAMING.isEnabled()
+    );
+    if (!streamingEnabled || prefersReduced) {
+      this.addMessage('assistant', text);
+    } else {
+      this.streamText(text);
+    }
 
     // Display tool badges if tools were used
     if (toolsUsed && toolsUsed.length > 0 && window.TOOL_BADGES_UI) {
@@ -712,9 +1004,20 @@ class ZantaraApp {
   }
 
   streamText(text) {
-    const node = this.addMessage('assistant', ''); const bubble = node?.querySelector('.message-bubble'); if (!bubble) return;
-    const words = String(text).split(/(\s+)/); let i = 0;
-    const step = () => { if (i >= words.length) { this.applyVirtualizationTrim(); return; } bubble.textContent += words[i++]; const delay = Math.min(80, 10 + Math.floor(text.length / 100)); setTimeout(step, delay); };
+    const node = this.addMessage('assistant', '');
+    const bubble = node?.querySelector('.message-bubble');
+    if (!bubble) return;
+    const words = String(text).split(/(\s+)/);
+    let i = 0;
+    const step = () => {
+      if (i >= words.length) {
+        this.applyVirtualizationTrim();
+        return;
+      }
+      bubble.textContent += words[i++];
+      const delay = Math.min(80, 10 + Math.floor(text.length / 100));
+      setTimeout(step, delay);
+    };
     step();
   }
 
@@ -727,39 +1030,57 @@ class ZantaraApp {
       t = t.replace(/^\s*i\s*am\s*zantara[,\.!]?\s*/i, '');
       t = t.replace(/^\s*я\s*зантара[,\.!]?\s*/i, '');
       // Remove “I can help you with …” boilerplate openers
-      t = t.replace(/^\s*(posso\s+aiutarti|saya\s+bisa\s+membantu|i\s+can\s+help|я\s+можу\s+допомогти)[^\n]*\n?/i, '');
+      t = t.replace(
+        /^\s*(posso\s+aiutarti|saya\s+bisa\s+membantu|i\s+can\s+help|я\s+можу\s+допомогти)[^\n]*\n?/i,
+        ''
+      );
       return t.trim();
-    } catch(_) { return text; }
+    } catch (_) {
+      return text;
+    }
   }
 
   applyVirtualizationTrim() {
-    const base = (window.ZANTARA_VIRTUALIZATION && window.ZANTARA_VIRTUALIZATION.getMaxMessages) ? window.ZANTARA_VIRTUALIZATION.getMaxMessages() : 50;
+    const base =
+      window.ZANTARA_VIRTUALIZATION && window.ZANTARA_VIRTUALIZATION.getMaxMessages
+        ? window.ZANTARA_VIRTUALIZATION.getMaxMessages()
+        : 50;
     const max = base + (this.extraLoaded || 0);
-    const container = document.querySelector('.messages-container'); if (!container) return;
-    const nodes = container.querySelectorAll('.message'); const extra = nodes.length - max;
+    const container = document.querySelector('.messages-container');
+    if (!container) return;
+    const nodes = container.querySelectorAll('.message');
+    const extra = nodes.length - max;
     for (let i = 0; i < extra; i++) container.removeChild(nodes[i]);
-    const hiddenCount = Math.max(0, this.messages.length - (base + (this.extraLoaded || 0))); this.updateLoadEarlierChip(hiddenCount);
+    const hiddenCount = Math.max(0, this.messages.length - (base + (this.extraLoaded || 0)));
+    this.updateLoadEarlierChip(hiddenCount);
   }
 
   renderFromState() {
-    const container = document.querySelector('.messages-container'); if (!container) return;
-    const base = (window.ZANTARA_VIRTUALIZATION && window.ZANTARA_VIRTUALIZATION.getMaxMessages) ? window.ZANTARA_VIRTUALIZATION.getMaxMessages() : 50;
+    const container = document.querySelector('.messages-container');
+    if (!container) return;
+    const base =
+      window.ZANTARA_VIRTUALIZATION && window.ZANTARA_VIRTUALIZATION.getMaxMessages
+        ? window.ZANTARA_VIRTUALIZATION.getMaxMessages()
+        : 50;
     const visibleCount = Math.min(this.messages.length, base + (this.extraLoaded || 0));
     const hiddenCount = Math.max(0, this.messages.length - visibleCount);
     container.innerHTML = '';
     if (hiddenCount > 0) container.appendChild(this.createLoadEarlierChip(hiddenCount));
     const visible = this.messages.slice(-visibleCount);
     for (const m of visible) {
-      const div = document.createElement('div'); div.className = `message ${m.sender}`;
+      const div = document.createElement('div');
+      div.className = `message ${m.sender}`;
       const content = m.html ? DOMPurify.sanitize(String(m.text)) : this.escape(m.text);
       if (m.sender === 'assistant') {
-        div.innerHTML = DOMPurify.sanitize(`<div class="message-avatar"><img src="zantara_logo_transparent.png" alt="ZANTARA"></div><div class="message-bubble">${content}</div>`);
+        div.innerHTML = DOMPurify.sanitize(
+          `<div class="message-avatar"><img src="zantara_logo_transparent.png" alt="ZANTARA"></div><div class="message-bubble">${content}</div>`
+        );
       } else {
         // Get user avatar from localStorage
         const user = JSON.parse(localStorage.getItem('zantara-user') || '{}');
         const userId = user.id || user.email || 'guest';
         const savedAvatar = localStorage.getItem(`zantara-avatar-${userId}`);
-        
+
         let avatarHtml = '';
         if (savedAvatar) {
           avatarHtml = `<div class="message-avatar"><img src="${savedAvatar}" alt="User Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;"></div>`;
@@ -768,8 +1089,10 @@ class ZantaraApp {
           const firstLetter = userName.charAt(0).toUpperCase();
           avatarHtml = `<div class="message-avatar" style="width: 32px; height: 32px; border-radius: 50%; background: #2f7bd6; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">${firstLetter}</div>`;
         }
-        
-        div.innerHTML = DOMPurify.sanitize(`${avatarHtml}<div class="message-bubble">${content}</div>`);
+
+        div.innerHTML = DOMPurify.sanitize(
+          `${avatarHtml}<div class="message-bubble">${content}</div>`
+        );
       }
 
       // Add click handler to copy message text
@@ -778,12 +1101,17 @@ class ZantaraApp {
         bubble.style.cursor = 'pointer';
         bubble.addEventListener('click', () => {
           const textToCopy = m.text; // Use original text
-          navigator.clipboard.writeText(textToCopy).then(() => {
-            // Show feedback
-            const originalBg = bubble.style.background;
-            bubble.style.background = 'rgba(139, 92, 246, 0.2)';
-            setTimeout(() => { bubble.style.background = originalBg; }, 200);
-          }).catch(err => console.error('Failed to copy:', err));
+          navigator.clipboard
+            .writeText(textToCopy)
+            .then(() => {
+              // Show feedback
+              const originalBg = bubble.style.background;
+              bubble.style.background = 'rgba(139, 92, 246, 0.2)';
+              setTimeout(() => {
+                bubble.style.background = originalBg;
+              }, 200);
+            })
+            .catch((err) => console.error('Failed to copy:', err));
         });
       }
 
@@ -793,12 +1121,42 @@ class ZantaraApp {
   }
 
   createLoadEarlierChip(count) {
-    const btn = document.createElement('button'); btn.id = 'load-earlier-chip'; btn.className = 'load-earlier-chip glass-card'; btn.type = 'button'; btn.setAttribute('aria-label', `Load earlier messages (${count})`); btn.textContent = `Load earlier (${count})`;
-    btn.addEventListener('click', () => { const step = 20; const base = (window.ZANTARA_VIRTUALIZATION && window.ZANTARA_VIRTUALIZATION.getMaxMessages) ? window.ZANTARA_VIRTUALIZATION.getMaxMessages() : 50; const hidden = Math.max(0, this.messages.length - (base + (this.extraLoaded || 0))); const inc = Math.min(step, hidden); this.extraLoaded = (this.extraLoaded || 0) + inc; this.renderFromState(); });
+    const btn = document.createElement('button');
+    btn.id = 'load-earlier-chip';
+    btn.className = 'load-earlier-chip glass-card';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', `Load earlier messages (${count})`);
+    btn.textContent = `Load earlier (${count})`;
+    btn.addEventListener('click', () => {
+      const step = 20;
+      const base =
+        window.ZANTARA_VIRTUALIZATION && window.ZANTARA_VIRTUALIZATION.getMaxMessages
+          ? window.ZANTARA_VIRTUALIZATION.getMaxMessages()
+          : 50;
+      const hidden = Math.max(0, this.messages.length - (base + (this.extraLoaded || 0)));
+      const inc = Math.min(step, hidden);
+      this.extraLoaded = (this.extraLoaded || 0) + inc;
+      this.renderFromState();
+    });
     return btn;
   }
 
-  updateLoadEarlierChip(count) { const container = document.querySelector('.messages-container'); if (!container) return; let chip = document.getElementById('load-earlier-chip'); if (count > 0) { if (!chip) { chip = this.createLoadEarlierChip(count); container.insertBefore(chip, container.firstChild); } else { chip.textContent = `Load earlier (${count})`; chip.setAttribute('aria-label', `Load earlier messages (${count})`); } } else if (chip) { chip.remove(); } }
+  updateLoadEarlierChip(count) {
+    const container = document.querySelector('.messages-container');
+    if (!container) return;
+    let chip = document.getElementById('load-earlier-chip');
+    if (count > 0) {
+      if (!chip) {
+        chip = this.createLoadEarlierChip(count);
+        container.insertBefore(chip, container.firstChild);
+      } else {
+        chip.textContent = `Load earlier (${count})`;
+        chip.setAttribute('aria-label', `Load earlier messages (${count})`);
+      }
+    } else if (chip) {
+      chip.remove();
+    }
+  }
 }
 
 // Initialize app when DOM is ready
@@ -826,5 +1184,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.zantaraApp = new ZantaraApp();
   window.zantaraApp.showChatInterface();
 });
-    // Default language: Indonesian unless user explicitly changes it
-    try { if (!localStorage.getItem('zantara-forced-lang')) localStorage.setItem('zantara-forced-lang', 'id'); } catch(_) {}
+// Default language: Indonesian unless user explicitly changes it
+try {
+  if (!localStorage.getItem('zantara-forced-lang'))
+    localStorage.setItem('zantara-forced-lang', 'id');
+} catch (_) {}

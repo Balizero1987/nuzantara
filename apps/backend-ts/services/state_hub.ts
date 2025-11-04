@@ -49,30 +49,30 @@ class ZantaraStateHub {
           name: 'ZANTARA Heartbeat System',
           status: 'unknown',
           last_update: '',
-          metrics: {}
+          metrics: {},
         },
         watcher: {
           name: 'ZANTARA Watcher Loop',
           status: 'unknown',
           last_update: '',
-          metrics: {}
+          metrics: {},
         },
         queue: {
           name: 'BullMQ Queue System',
           status: 'unknown',
           last_update: '',
-          metrics: {}
+          metrics: {},
         },
         codex: {
           name: 'ZANTARA Codex Layer',
           status: 'unknown',
           last_update: '',
-          metrics: {}
-        }
+          metrics: {},
+        },
       },
       fusion_index: 0,
       classification: 'Unknown',
-      alerts: []
+      alerts: [],
     };
   }
 
@@ -108,19 +108,21 @@ class ZantaraStateHub {
 
       try {
         const logContent = await fs.readFile(logPath, 'utf-8');
-        const lines = logContent.split('\n').filter(line => line.trim());
+        const lines = logContent.split('\n').filter((line) => line.trim());
         const lastLine = lines[lines.length - 1];
 
         if (lastLine) {
           // Parse heartbeat status from log
-          this.globalState.subsystems.heartbeat.last_update = lastLine.split(']')[0].replace('[', '');
+          this.globalState.subsystems.heartbeat.last_update = lastLine
+            .split(']')[0]
+            .replace('[', '');
           this.globalState.subsystems.heartbeat.status = 'operational';
           this.globalState.subsystems.heartbeat.uptime_pct = 80.0; // From Layer 11 results
           this.globalState.subsystems.heartbeat.success_rate = 100.0;
           this.globalState.subsystems.heartbeat.metrics = {
             interval: 31.0,
             active_modules: 4,
-            redis_status: 'inactive'
+            redis_status: 'inactive',
           };
         }
       } catch (error) {
@@ -128,7 +130,7 @@ class ZantaraStateHub {
         this.globalState.alerts.push({
           severity: 'warning',
           message: 'Heartbeat log file not accessible',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     } catch (error) {
@@ -143,7 +145,7 @@ class ZantaraStateHub {
 
       try {
         const logContent = await fs.readFile(logPath, 'utf-8');
-        const lines = logContent.split('\n').filter(line => line.trim());
+        const lines = logContent.split('\n').filter((line) => line.trim());
         const lastLine = lines[lines.length - 1];
 
         if (lastLine) {
@@ -155,7 +157,7 @@ class ZantaraStateHub {
             interval: 60.0,
             monitored_modules: 2,
             avg_response_time: 0.13,
-            classification: 'self_healer'
+            classification: 'self_healer',
           };
         }
       } catch (error) {
@@ -163,7 +165,7 @@ class ZantaraStateHub {
         this.globalState.alerts.push({
           severity: 'warning',
           message: 'Watcher log file not accessible',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     } catch (error) {
@@ -180,13 +182,13 @@ class ZantaraStateHub {
         throughput: 0.0,
         active_jobs: 0,
         failed_jobs: 0,
-        redis_connection: 'not_configured'
+        redis_connection: 'not_configured',
       };
 
       this.globalState.alerts.push({
         severity: 'critical',
         message: 'BullMQ queue system not deployed',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     } catch (error) {
       console.error('Error updating queue state:', error);
@@ -202,7 +204,7 @@ class ZantaraStateHub {
         layer: 15,
         state_hub_status: 'active',
         telemetry_status: 'initializing',
-        fusion_capability: 'partial'
+        fusion_capability: 'partial',
       };
     } catch (error) {
       console.error('Error updating codex state:', error);
@@ -211,8 +213,8 @@ class ZantaraStateHub {
 
   private calculateOverallHealth(): void {
     const subsystems = Object.values(this.globalState.subsystems);
-    const operationalCount = subsystems.filter(sub => sub.status === 'operational').length;
-    const offlineCount = subsystems.filter(sub => sub.status === 'offline').length;
+    const operationalCount = subsystems.filter((sub) => sub.status === 'operational').length;
+    const offlineCount = subsystems.filter((sub) => sub.status === 'offline').length;
 
     // Set fusion index from Layer 13 results
     this.globalState.fusion_index = 71.25;
@@ -229,8 +231,8 @@ class ZantaraStateHub {
 
   private generateAlerts(): void {
     // Clear previous alerts except persistent ones
-    this.globalState.alerts = this.globalState.alerts.filter(alert =>
-      alert.severity === 'critical' && alert.message.includes('BullMQ')
+    this.globalState.alerts = this.globalState.alerts.filter(
+      (alert) => alert.severity === 'critical' && alert.message.includes('BullMQ')
     );
 
     // Add new alerts based on subsystem status
@@ -239,15 +241,19 @@ class ZantaraStateHub {
         this.globalState.alerts.push({
           severity: 'warning',
           message: `${subsystem.name} is offline`,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
-      if (subsystem.metrics && subsystem.metrics.success_rate !== undefined && subsystem.metrics.success_rate < 95) {
+      if (
+        subsystem.metrics &&
+        subsystem.metrics.success_rate !== undefined &&
+        subsystem.metrics.success_rate < 95
+      ) {
         this.globalState.alerts.push({
           severity: 'warning',
           message: `${subsystem.name} success rate below 95%`,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     });
@@ -277,7 +283,10 @@ class ZantaraStateHub {
   private async persistState(): Promise<void> {
     try {
       const fs = await import('fs/promises');
-      await fs.writeFile('/tmp/zantara_state_global.json', JSON.stringify(this.globalState, null, 2));
+      await fs.writeFile(
+        '/tmp/zantara_state_global.json',
+        JSON.stringify(this.globalState, null, 2)
+      );
     } catch (error) {
       console.error('Error persisting global state:', error);
     }

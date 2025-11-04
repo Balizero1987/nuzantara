@@ -12,7 +12,7 @@ describe('AI Service', () => {
       it('should recognize "zero" and return personalized response', async () => {
         const result = await handlers.aiChat({
           prompt: 'Hi, this is zero',
-          sessionId: 'test-session'
+          sessionId: 'test-session',
         });
 
         expect(result.ok).toBe(true);
@@ -24,7 +24,7 @@ describe('AI Service', () => {
       it('should recognize "antonello" and return personalized response', async () => {
         const result = await handlers.aiChat({
           message: 'Hello, I am Antonello',
-          sessionId: 'test-session'
+          sessionId: 'test-session',
         });
 
         expect(result.ok).toBe(true);
@@ -35,7 +35,7 @@ describe('AI Service', () => {
       it('should recognize "zainal" and return Indonesian response', async () => {
         const result = await handlers.aiChat({
           prompt: 'This is Zainal speaking',
-          sessionId: 'test-session'
+          sessionId: 'test-session',
         });
 
         expect(result.ok).toBe(true);
@@ -46,7 +46,7 @@ describe('AI Service', () => {
       it('should recognize by role "founder"', async () => {
         const result = await handlers.aiChat({
           prompt: 'Im the founder of the company',
-          sessionId: 'test-session'
+          sessionId: 'test-session',
         });
 
         expect(result.ok).toBe(true);
@@ -56,7 +56,7 @@ describe('AI Service', () => {
       it('should recognize by role "CEO"', async () => {
         const result = await handlers.aiChat({
           prompt: 'I am the CEO',
-          sessionId: 'test-session'
+          sessionId: 'test-session',
         });
 
         expect(result.ok).toBe(true);
@@ -66,7 +66,7 @@ describe('AI Service', () => {
       it('should recognize by department "technology"', async () => {
         const result = await handlers.aiChat({
           prompt: 'I work in technology department',
-          sessionId: 'test-session'
+          sessionId: 'test-session',
         });
 
         expect(result.ok).toBe(true);
@@ -77,7 +77,7 @@ describe('AI Service', () => {
     describe('Response Structure', () => {
       it('should return ok=true for valid identity', async () => {
         const result = await handlers.aiChat({
-          prompt: 'Hello, zero here'
+          prompt: 'Hello, zero here',
         });
 
         expect(result.ok).toBe(true);
@@ -85,7 +85,7 @@ describe('AI Service', () => {
 
       it('should include response field', async () => {
         const result = await handlers.aiChat({
-          prompt: 'I am antonello'
+          prompt: 'I am antonello',
         });
 
         expect(result.data).toHaveProperty('response');
@@ -94,7 +94,7 @@ describe('AI Service', () => {
 
       it('should include timestamp in response', async () => {
         const result = await handlers.aiChat({
-          prompt: 'zainal speaking'
+          prompt: 'zainal speaking',
         });
 
         expect(result.data).toHaveProperty('ts');
@@ -103,7 +103,7 @@ describe('AI Service', () => {
 
       it('should include recognized flag for identity match', async () => {
         const result = await handlers.aiChat({
-          prompt: 'I am the founder'
+          prompt: 'I am the founder',
         });
 
         expect(result.data).toHaveProperty('recognized');
@@ -115,7 +115,7 @@ describe('AI Service', () => {
       it('should handle empty prompt with identity keyword', async () => {
         const result = await handlers.aiChat({
           prompt: 'zero',
-          sessionId: 'test'
+          sessionId: 'test',
         });
 
         expect(result.ok).toBe(true);
@@ -124,7 +124,7 @@ describe('AI Service', () => {
 
       it('should handle mixed case in identity recognition', async () => {
         const result = await handlers.aiChat({
-          prompt: 'ANTONELLO here'
+          prompt: 'ANTONELLO here',
         });
 
         expect(result.ok).toBe(true);
@@ -133,7 +133,7 @@ describe('AI Service', () => {
 
       it('should handle identity name with extra text', async () => {
         const result = await handlers.aiChat({
-          prompt: 'Good morning, this is Zainal Abidin from Bali Zero'
+          prompt: 'Good morning, this is Zainal Abidin from Bali Zero',
         });
 
         expect(result.ok).toBe(true);

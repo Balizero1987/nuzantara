@@ -83,11 +83,13 @@ export class CodeQualityMonitor {
         complexity,
         maintainability,
         issues,
-        suggestions
+        suggestions,
       };
 
       this.analyses.set(filePath, analysis);
-      logger.debug(`Analyzed ${filePath}: maintainability ${maintainability.toFixed(1)}, complexity ${complexity}`);
+      logger.debug(
+        `Analyzed ${filePath}: maintainability ${maintainability.toFixed(1)}, complexity ${complexity}`
+      );
 
       return analysis;
     } catch (error) {
@@ -109,7 +111,7 @@ export class CodeQualityMonitor {
     let allIssues: QualityIssue[] = [];
     let totalTestCoverage = 0;
 
-    files.forEach(file => {
+    files.forEach((file) => {
       try {
         const analysis = this.analyzeFile(file);
         totalLines += analysis.lines;
@@ -132,9 +134,10 @@ export class CodeQualityMonitor {
     const maintainabilityIndex = avgMaintainability;
 
     // Calculate technical debt (simplified)
-    const criticalIssues = allIssues.filter(i => i.severity === 'critical').length;
-    const highIssues = allIssues.filter(i => i.severity === 'high').length;
-    const technicalDebt = (criticalIssues * 8) + (highIssues * 4) + (allIssues.length - criticalIssues - highIssues);
+    const criticalIssues = allIssues.filter((i) => i.severity === 'critical').length;
+    const highIssues = allIssues.filter((i) => i.severity === 'high').length;
+    const technicalDebt =
+      criticalIssues * 8 + highIssues * 4 + (allIssues.length - criticalIssues - highIssues);
 
     // Calculate code duplication (mock - would use actual duplication detection)
     const codeDuplication = Math.random() * 15; // 0-15% duplication
@@ -149,7 +152,7 @@ export class CodeQualityMonitor {
       linesOfCode: totalLines,
       technicalDebt,
       codeDuplication,
-      testCoverage
+      testCoverage,
     });
 
     const metrics: QualityMetrics = {
@@ -160,7 +163,7 @@ export class CodeQualityMonitor {
       codeDuplication,
       testCoverage,
       qualityScore,
-      trends: this.calculateTrends()
+      trends: this.calculateTrends(),
     };
 
     // Store in history
@@ -173,7 +176,7 @@ export class CodeQualityMonitor {
       files: fileCount,
       lines: totalLines,
       qualityScore: qualityScore.toFixed(1),
-      maintainability: maintainabilityIndex.toFixed(1)
+      maintainability: maintainabilityIndex.toFixed(1),
     });
 
     return metrics;
@@ -223,12 +226,12 @@ export class CodeQualityMonitor {
       /catch\s*\(/g,
       /&&/g,
       /\|\|/g,
-      /\?[^:]*:/g
+      /\?[^:]*:/g,
     ];
 
     let complexity = 1; // Base complexity
 
-    complexityPatterns.forEach(pattern => {
+    complexityPatterns.forEach((pattern) => {
       const matches = content.match(pattern);
       if (matches) {
         complexity += matches.length;
@@ -247,10 +250,15 @@ export class CodeQualityMonitor {
   /**
    * Calculate maintainability index
    */
-  private calculateMaintainabilityIndex(content: string, complexity: number, lines: number): number {
+  private calculateMaintainabilityIndex(
+    content: string,
+    complexity: number,
+    lines: number
+  ): number {
     // Simplified maintainability index calculation
     const halsteadVolume = this.calculateHalsteadVolume(content);
-    const maintainabilityIndex = Math.max(0,
+    const maintainabilityIndex = Math.max(
+      0,
       171 - 5.2 * Math.log(halsteadVolume) - 0.23 * complexity - 16.2 * Math.log(lines)
     );
 
@@ -295,7 +303,7 @@ export class CodeQualityMonitor {
           severity: 'medium',
           line: lineNumber,
           message: 'Line too long (>120 characters)',
-          suggestion: 'Consider breaking this line into multiple lines'
+          suggestion: 'Consider breaking this line into multiple lines',
         });
       }
 
@@ -307,7 +315,7 @@ export class CodeQualityMonitor {
           severity: 'high',
           line: lineNumber,
           message: 'Deep nesting detected (>6 levels)',
-          suggestion: 'Consider extracting nested logic into separate functions'
+          suggestion: 'Consider extracting nested logic into separate functions',
         });
       }
 
@@ -319,18 +327,22 @@ export class CodeQualityMonitor {
           severity: 'low',
           line: lineNumber,
           message: 'Magic number detected',
-          suggestion: 'Replace with named constant'
+          suggestion: 'Replace with named constant',
         });
       }
 
       // Console.log in production code
-      if (line.includes('console.log') && !filePath.includes('.test.') && !filePath.includes('.spec.')) {
+      if (
+        line.includes('console.log') &&
+        !filePath.includes('.test.') &&
+        !filePath.includes('.spec.')
+      ) {
         issues.push({
           type: 'maintainability',
           severity: 'medium',
           line: lineNumber,
           message: 'console.log statement in production code',
-          suggestion: 'Remove or replace with proper logging'
+          suggestion: 'Remove or replace with proper logging',
         });
       }
 
@@ -341,7 +353,7 @@ export class CodeQualityMonitor {
           severity: 'low',
           line: lineNumber,
           message: 'TODO/FIXME comment found',
-          suggestion: 'Address the TODO item or create a ticket'
+          suggestion: 'Address the TODO item or create a ticket',
         });
       }
     });
@@ -352,7 +364,11 @@ export class CodeQualityMonitor {
   /**
    * Generate refactoring suggestions
    */
-  private generateRefactoringSuggestions(content: string, complexity: number, issues: QualityIssue[]): RefactoringSuggestion[] {
+  private generateRefactoringSuggestions(
+    content: string,
+    complexity: number,
+    issues: QualityIssue[]
+  ): RefactoringSuggestion[] {
     const suggestions: RefactoringSuggestion[] = [];
     const lines = content.split('\n');
 
@@ -362,7 +378,7 @@ export class CodeQualityMonitor {
         type: 'reduce_complexity',
         line: 1,
         description: 'Consider breaking this complex function into smaller functions',
-        impact: 'high'
+        impact: 'high',
       });
     }
 
@@ -375,13 +391,13 @@ export class CodeQualityMonitor {
     });
 
     // Simple suggestion generation based on issues
-    const complexityIssues = issues.filter(i => i.type === 'complexity');
+    const complexityIssues = issues.filter((i) => i.type === 'complexity');
     if (complexityIssues.length > 3) {
       suggestions.push({
         type: 'extract_method',
         line: complexityIssues[0].line,
         description: 'Extract complex logic into separate methods',
-        impact: 'medium'
+        impact: 'medium',
       });
     }
 
@@ -460,11 +476,15 @@ export class CodeQualityMonitor {
     }
 
     const totalFiles = this.analyses.size;
-    const totalIssues = Array.from(this.analyses.values())
-      .reduce((sum, analysis) => sum + analysis.issues.length, 0);
+    const totalIssues = Array.from(this.analyses.values()).reduce(
+      (sum, analysis) => sum + analysis.issues.length,
+      0
+    );
 
-    const criticalIssues = Array.from(this.analyses.values())
-      .reduce((sum, analysis) => sum + analysis.issues.filter(i => i.severity === 'critical').length, 0);
+    const criticalIssues = Array.from(this.analyses.values()).reduce(
+      (sum, analysis) => sum + analysis.issues.filter((i) => i.severity === 'critical').length,
+      0
+    );
 
     return `
 # Code Quality Report
@@ -484,14 +504,20 @@ export class CodeQualityMonitor {
 - **Critical Issues**: ${criticalIssues}
 
 ## Quality Trends
-${Object.entries(metrics.trends).map(([metric, trend]) =>
-  `- **${metric.charAt(0).toUpperCase() + metric.slice(1)}**: ${trend > 0 ? '+' : ''}${trend.toFixed(1)}`
-).join('\n')}
+${Object.entries(metrics.trends)
+  .map(
+    ([metric, trend]) =>
+      `- **${metric.charAt(0).toUpperCase() + metric.slice(1)}**: ${trend > 0 ? '+' : ''}${trend.toFixed(1)}`
+  )
+  .join('\n')}
 
 ## Top Refactoring Suggestions
-${this.getTopSuggestions().map(suggestion =>
-  `- **${suggestion.description}** (${suggestion.impact} impact) - Line ${suggestion.line}`
-).join('\n')}
+${this.getTopSuggestions()
+  .map(
+    (suggestion) =>
+      `- **${suggestion.description}** (${suggestion.impact} impact) - Line ${suggestion.line}`
+  )
+  .join('\n')}
 `;
   }
 

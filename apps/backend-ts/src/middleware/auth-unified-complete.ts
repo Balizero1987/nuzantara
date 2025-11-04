@@ -180,9 +180,9 @@ class UnifiedAuthenticationStrategy {
   private createJWTHandler() {
     return async (req: Request, _res: Response, next: NextFunction) => {
       try {
-        await jwtAuth(req, _res, next);
+        await jwtAuth(req as any, _res, next);
         if ((req as any).user) {
-          (req as RequestWithUnifiedAuth).user = {
+          (req as unknown as RequestWithUnifiedAuth).user = {
             id: (req as any).user.id,
             email: (req as any).user.email,
             name: (req as any).user.name,
@@ -191,7 +191,7 @@ class UnifiedAuthenticationStrategy {
             source: 'jwt',
             metadata: (req as any).user.metadata,
           };
-          (req as RequestWithUnifiedAuth).authMethod = 'jwt';
+          (req as unknown as RequestWithUnifiedAuth).authMethod = 'jwt';
         }
       } catch (error) {
         next(error);
@@ -204,7 +204,7 @@ class UnifiedAuthenticationStrategy {
       try {
         await apiKeyAuth(req, _res, next);
         if ((req as any).user) {
-          (req as RequestWithUnifiedAuth).user = {
+          (req as unknown as RequestWithUnifiedAuth).user = {
             id: (req as any).user.id,
             email: (req as any).user.email,
             name: (req as any).user.name,
@@ -213,7 +213,7 @@ class UnifiedAuthenticationStrategy {
             source: 'api_key',
             metadata: { apiKey: true },
           };
-          (req as RequestWithUnifiedAuth).authMethod = 'api_key';
+          (req as unknown as RequestWithUnifiedAuth).authMethod = 'api_key';
         }
       } catch (error) {
         next(error);
@@ -238,7 +238,7 @@ class UnifiedAuthenticationStrategy {
         const mockRes = {
           json: (data: any) => {
             if (data.ok && data.data && data.data.user) {
-              (req as RequestWithUnifiedAuth).user = {
+              (req as unknown as RequestWithUnifiedAuth).user = {
                 id: data.data.user.id,
                 email: data.data.user.email,
                 name: data.data.user.name,
@@ -251,7 +251,7 @@ class UnifiedAuthenticationStrategy {
                   badge: data.data.user.badge,
                 },
               };
-              (req as RequestWithUnifiedAuth).authMethod = 'team';
+              (req as unknown as RequestWithUnifiedAuth).authMethod = 'team';
             }
           },
           status: () => mockRes,
@@ -275,8 +275,8 @@ class UnifiedAuthenticationStrategy {
 
         const user = await this.firebaseAuth.verifyToken(firebaseToken);
         if (user) {
-          (req as RequestWithUnifiedAuth).user = user;
-          (req as RequestWithUnifiedAuth).authMethod = 'firebase';
+          (req as unknown as RequestWithUnifiedAuth).user = user;
+          (req as unknown as RequestWithUnifiedAuth).authMethod = 'firebase';
         }
       } catch (error) {
         logger.warn('Firebase auth failed:', error);
@@ -288,9 +288,9 @@ class UnifiedAuthenticationStrategy {
   private createDemoHandler() {
     return async (req: Request, _res: Response, next: NextFunction) => {
       try {
-        await demoUserAuth(req, _res, next);
+        await demoUserAuth(req as any, _res, next);
         if ((req as any).user) {
-          (req as RequestWithUnifiedAuth).user = {
+          (req as unknown as RequestWithUnifiedAuth).user = {
             id: (req as any).user.id,
             email: (req as any).user.email,
             name: (req as any).user.name,
@@ -299,7 +299,7 @@ class UnifiedAuthenticationStrategy {
             source: 'demo',
             metadata: { demo: true },
           };
-          (req as RequestWithUnifiedAuth).authMethod = 'demo';
+          (req as unknown as RequestWithUnifiedAuth).authMethod = 'demo';
         }
       } catch (error) {
         next(error);
@@ -316,10 +316,10 @@ class UnifiedAuthenticationStrategy {
       if (method.test(req)) {
         try {
           await method.handler(req, res, (error?: any) => {
-            if (!error && (req as RequestWithUnifiedAuth).user) {
+            if (!error && (req as unknown as RequestWithUnifiedAuth).user) {
               const elapsed = Date.now() - startTime;
               logger.info(
-                `🔐 ${method.name} auth success: ${(req as RequestWithUnifiedAuth).user?.email} (${elapsed}ms)`
+                `🔐 ${method.name} auth success: ${(req as unknown as RequestWithUnifiedAuth).user?.email} (${elapsed}ms)`
               );
               return next();
             }
@@ -352,7 +352,7 @@ class UnifiedAuthenticationStrategy {
     if (nextMethod && nextMethod.test(req)) {
       try {
         await nextMethod.handler(req, res, (error?: any) => {
-          if (!error && (req as RequestWithUnifiedAuth).user) {
+          if (!error && (req as unknown as RequestWithUnifiedAuth).user) {
             return next();
           }
           return this.tryNextAuthMethod(req, res, next, currentPriority + 1);
@@ -368,8 +368,8 @@ class UnifiedAuthenticationStrategy {
 
   // Get authentication info
   getAuthInfo(req: Request): UnifiedAuthResult | null {
-    const user = (req as RequestWithUnifiedAuth).user;
-    const method = (req as RequestWithUnifiedAuth).authMethod;
+    const user = (req as unknown as RequestWithUnifiedAuth).user;
+    const method = (req as unknown as RequestWithUnifiedAuth).authMethod;
 
     if (!user || !method) return null;
 
@@ -385,13 +385,13 @@ class UnifiedAuthenticationStrategy {
 
   // Check permissions
   hasPermission(req: Request, permission: string): boolean {
-    const user = (req as RequestWithUnifiedAuth).user;
+    const user = (req as unknown as RequestWithUnifiedAuth).user;
     return user?.permissions?.includes(permission) || false;
   }
 
   // Check role
   hasRole(req: Request, role: string): boolean {
-    const user = (req as RequestWithUnifiedAuth).user;
+    const user = (req as unknown as RequestWithUnifiedAuth).user;
     return user?.role === role;
   }
 
@@ -438,7 +438,7 @@ export const requireRole = (role: string) => {
       res.status(403).json({
         success: false,
         error: `Access denied. Role '${role}' required.`,
-        currentRole: (req as RequestWithUnifiedAuth).user?.role,
+        currentRole: (req as unknown as RequestWithUnifiedAuth).user?.role,
       });
     }
   };
@@ -453,7 +453,7 @@ export const requirePermission = (permission: string) => {
       res.status(403).json({
         success: false,
         error: `Access denied. Permission '${permission}' required.`,
-        permissions: (req as RequestWithUnifiedAuth).user?.permissions,
+        permissions: (req as unknown as RequestWithUnifiedAuth).user?.permissions,
       });
     }
   };
@@ -462,7 +462,7 @@ export const requirePermission = (permission: string) => {
 // Multiple roles/permissions
 export const requireAny = (requirements: Array<{ role?: string; permission?: string }>) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const _user = (req as RequestWithUnifiedAuth).user;
+    const _user = (req as unknown as RequestWithUnifiedAuth).user;
 
     const hasAccess = requirements.some((requirement) => {
       if (requirement.role && unifiedAuth.hasRole(req as any, requirement.role)) return true;
@@ -485,11 +485,11 @@ export const requireAny = (requirements: Array<{ role?: string; permission?: str
 
 // Utility functions
 export const getCurrentUser = (req: Request): UnifiedAuthUser | undefined => {
-  return (req as RequestWithUnifiedAuth).user;
+  return (req as unknown as RequestWithUnifiedAuth).user;
 };
 
 export const getAuthMethod = (req: Request): string | undefined => {
-  return (req as RequestWithUnifiedAuth).authMethod;
+  return (req as unknown as RequestWithUnifiedAuth).authMethod;
 };
 
 export const getAuthInfo = (req: Request): UnifiedAuthResult | null => {

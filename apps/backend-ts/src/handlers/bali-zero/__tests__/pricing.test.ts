@@ -65,7 +65,7 @@ describe('Bali Zero Pricing Handler', () => {
     it('should search for specific service by name', async () => {
       const params = {
         service_type: 'all',
-        specific_service: 'Working KITAS'
+        specific_service: 'Working KITAS',
       };
       const result = await baliZeroPricing(params);
 
@@ -78,7 +78,7 @@ describe('Bali Zero Pricing Handler', () => {
     it('should handle case-insensitive search', async () => {
       const params = {
         service_type: 'all',
-        specific_service: 'pt pma'
+        specific_service: 'pt pma',
       };
       const result = await baliZeroPricing(params);
 
@@ -90,7 +90,7 @@ describe('Bali Zero Pricing Handler', () => {
     it('should return fallback message when service not found', async () => {
       const params = {
         service_type: 'all',
-        specific_service: 'NonExistentService12345'
+        specific_service: 'NonExistentService12345',
       };
       const result = await baliZeroPricing(params);
 
@@ -253,7 +253,8 @@ describe('Bali Zero Pricing Handler', () => {
       const c1Tourism = result.data.single_entry_visas['C1 Tourism'];
 
       // Price should match format: "X.XXX.XXX IDR" or "Contact for quote"
-      const priceRegex = /^(\d{1,3}(\.\d{3})*\s*IDR|Contact for quote|Starting from \d{1,3}(\.\d{3})*\s*IDR)$/i;
+      const priceRegex =
+        /^(\d{1,3}(\.\d{3})*\s*IDR|Contact for quote|Starting from \d{1,3}(\.\d{3})*\s*IDR)$/i;
       expect(c1Tourism.price).toMatch(priceRegex);
       expect(c1Tourism.extension).toMatch(priceRegex);
     });
@@ -392,10 +393,11 @@ describe('Bali Zero Pricing Handler', () => {
         for (const [key, value] of Object.entries(obj)) {
           if (typeof value === 'string') {
             // Only check price-related fields, not dates
-            const isPriceField = key.toLowerCase().includes('price') ||
-                                 key.toLowerCase().includes('offshore') ||
-                                 key.toLowerCase().includes('onshore') ||
-                                 key.toLowerCase().includes('extension');
+            const isPriceField =
+              key.toLowerCase().includes('price') ||
+              key.toLowerCase().includes('offshore') ||
+              key.toLowerCase().includes('onshore') ||
+              key.toLowerCase().includes('extension');
 
             if (isPriceField) {
               // Check for negative numbers in price strings
@@ -419,10 +421,12 @@ describe('Bali Zero Pricing Handler', () => {
 
       const checkNoEmptyPrices = (obj: any, path = ''): void => {
         for (const [key, value] of Object.entries(obj)) {
-          if (key.toLowerCase().includes('price') ||
-              key.toLowerCase().includes('offshore') ||
-              key.toLowerCase().includes('onshore') ||
-              key.toLowerCase().includes('extension')) {
+          if (
+            key.toLowerCase().includes('price') ||
+            key.toLowerCase().includes('offshore') ||
+            key.toLowerCase().includes('onshore') ||
+            key.toLowerCase().includes('extension')
+          ) {
             if (typeof value === 'string') {
               expect(value.trim()).not.toBe('');
               expect(value.length).toBeGreaterThan(0);
@@ -454,7 +458,7 @@ describe('Bali Zero Pricing Handler', () => {
 
       // Should only contain IDR, not USD, EUR, etc.
       const invalidCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'AUD'];
-      invalidCurrencies.forEach(currency => {
+      invalidCurrencies.forEach((currency) => {
         const currencyRegex = new RegExp(`\\d+\\s*${currency}`, 'i');
         expect(responseStr).not.toMatch(currencyRegex);
       });
@@ -468,10 +472,12 @@ describe('Bali Zero Pricing Handler', () => {
 
       const checkPricesAreStrings = (obj: any): void => {
         for (const [key, value] of Object.entries(obj)) {
-          if (key.toLowerCase().includes('price') ||
-              key.toLowerCase().includes('offshore') ||
-              key.toLowerCase().includes('onshore') ||
-              key.toLowerCase().includes('extension')) {
+          if (
+            key.toLowerCase().includes('price') ||
+            key.toLowerCase().includes('offshore') ||
+            key.toLowerCase().includes('onshore') ||
+            key.toLowerCase().includes('extension')
+          ) {
             // Prices should be strings with IDR suffix, not raw numbers
             expect(typeof value).toBe('string');
             if (value !== 'Not extendable' && value !== 'Contact for quote') {

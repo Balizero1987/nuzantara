@@ -8,7 +8,7 @@ import {
   teamLogin,
   getTeamMembers,
   logoutSession,
-  validateSession
+  validateSession,
 } from '../../../handlers/auth/team-login.js';
 import { logger } from '../../../logging/unified-logger.js';
 
@@ -25,7 +25,7 @@ router.post('/login', async (req: Request, res: Response) => {
     if (!name) {
       return res.status(400).json({
         ok: false,
-        error: 'Name is required for login'
+        error: 'Name is required for login',
       });
     }
 
@@ -36,7 +36,7 @@ router.post('/login', async (req: Request, res: Response) => {
     logger.error('Team login error:', error);
     res.status(error.statusCode || 500).json({
       ok: false,
-      error: error.message || 'Login failed'
+      error: error.message || 'Login failed',
     });
   }
 });
@@ -45,7 +45,7 @@ router.post('/login', async (req: Request, res: Response) => {
  * GET /api/auth/team/members
  * Get list of all team members
  */
-router.get('/members', async (req: Request, res: Response) => {
+router.get('/members', async (_req: Request, res: Response) => {
   try {
     const members = getTeamMembers();
 
@@ -53,14 +53,14 @@ router.get('/members', async (req: Request, res: Response) => {
       ok: true,
       data: {
         members,
-        total: members.length
-      }
+        total: members.length,
+      },
     });
   } catch (error: any) {
     logger.error('Get team members error:', error);
     res.status(500).json({
       ok: false,
-      error: error?.message || 'Failed to get team members'
+      error: error?.message || 'Failed to get team members',
     });
   }
 });
@@ -76,7 +76,7 @@ router.post('/logout', async (req: Request, res: Response) => {
     if (!sessionId) {
       return res.status(400).json({
         ok: false,
-        error: 'Session ID required for logout'
+        error: 'Session ID required for logout',
       });
     }
 
@@ -86,14 +86,14 @@ router.post('/logout', async (req: Request, res: Response) => {
       ok: true,
       data: {
         success,
-        message: success ? 'Logged out successfully' : 'Session not found'
-      }
+        message: success ? 'Logged out successfully' : 'Session not found',
+      },
     });
   } catch (error: any) {
     logger.error('Team logout error:', error);
     res.status(500).json({
       ok: false,
-      error: error?.message || 'Logout failed'
+      error: error?.message || 'Logout failed',
     });
   }
 });
@@ -109,7 +109,7 @@ router.get('/validate', async (req: Request, res: Response) => {
     if (!sessionId) {
       return res.status(401).json({
         ok: false,
-        error: 'No session provided'
+        error: 'No session provided',
       });
     }
 
@@ -118,7 +118,7 @@ router.get('/validate', async (req: Request, res: Response) => {
     if (!session) {
       return res.status(401).json({
         ok: false,
-        error: 'Invalid or expired session'
+        error: 'Invalid or expired session',
       });
     }
 
@@ -131,15 +131,15 @@ router.get('/validate', async (req: Request, res: Response) => {
           user: session.user,
           permissions: session.permissions,
           loginTime: session.loginTime,
-          lastActivity: session.lastActivity
-        }
-      }
+          lastActivity: session.lastActivity,
+        },
+      },
     });
   } catch (error: any) {
     logger.error('Session validation error:', error);
     res.status(500).json({
       ok: false,
-      error: error?.message || 'Validation failed'
+      error: error?.message || 'Validation failed',
     });
   }
 });
@@ -155,7 +155,7 @@ router.get('/profile', async (req: Request, res: Response) => {
     if (!sessionId) {
       return res.status(401).json({
         ok: false,
-        error: 'No session provided'
+        error: 'No session provided',
       });
     }
 
@@ -164,7 +164,7 @@ router.get('/profile', async (req: Request, res: Response) => {
     if (!session) {
       return res.status(401).json({
         ok: false,
-        error: 'Invalid or expired session'
+        error: 'Invalid or expired session',
       });
     }
 
@@ -173,14 +173,14 @@ router.get('/profile', async (req: Request, res: Response) => {
       data: {
         user: session.user,
         permissions: session.permissions,
-        loginTime: session.loginTime
-      }
+        loginTime: session.loginTime,
+      },
     });
   } catch (error: any) {
     logger.error('Get profile error:', error);
     res.status(500).json({
       ok: false,
-      error: error?.message || 'Failed to get profile'
+      error: error?.message || 'Failed to get profile',
     });
   }
 });

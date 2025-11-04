@@ -21,7 +21,7 @@ const INSTAGRAM_CONFIG = {
   instagramAccountId: process.env.INSTAGRAM_ACCOUNT_ID || '', // Auto-detected
   verifyToken: process.env.INSTAGRAM_VERIFY_TOKEN || 'zantara-balizero-2025-secure-token',
   apiVersion: 'v21.0',
-  baseUrl: 'https://graph.facebook.com/v21.0'
+  baseUrl: 'https://graph.facebook.com/v21.0',
 };
 
 // User Intelligence (same as WhatsApp)
@@ -140,7 +140,7 @@ async function handleInstagramMessage(messaging: any) {
       username,
       message: messageText,
       userInfo,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     // 2. Analyze sentiment
@@ -155,7 +155,7 @@ async function handleInstagramMessage(messaging: any) {
       message: messageText,
       sentiment,
       userId: senderId,
-      userInfo
+      userInfo,
     });
 
     if (shouldRespond.respond) {
@@ -164,7 +164,7 @@ async function handleInstagramMessage(messaging: any) {
         username,
         sentiment,
         userInfo,
-        context: shouldRespond.context
+        context: shouldRespond.context,
       });
     } else {
       logger.info(`👁️ ZANTARA observing: ${shouldRespond.reason}`);
@@ -176,7 +176,7 @@ async function handleInstagramMessage(messaging: any) {
       username,
       message: messageText,
       sentiment,
-      userInfo
+      userInfo,
     });
   } catch (error) {
     logger.error('❌ Error handling Instagram message:', error);
@@ -239,10 +239,10 @@ async function saveInstagramMessageToMemory(data: any) {
         `Followers: ${data.userInfo.follower_count || 0}`,
         `Verified: ${data.userInfo.is_verified ? 'Yes' : 'No'}`,
         `Last message: ${data.message}`,
-        `Date: ${data.timestamp}`
+        `Date: ${data.timestamp}`,
       ],
       summary: data.message.substring(0, 140),
-      counters: { messages_sent: 1 }
+      counters: { messages_sent: 1 },
     });
 
     logger.info('💾 Instagram message saved to memory:', data.username);
@@ -254,7 +254,9 @@ async function saveInstagramMessageToMemory(data: any) {
 /**
  * Analyze sentiment (reuse WhatsApp function)
  */
-async function analyzeSentiment(text: string): Promise<{ score: number; label: string; urgency: string }> {
+async function analyzeSentiment(
+  text: string
+): Promise<{ score: number; label: string; urgency: string }> {
   try {
     const prompt = `Analyze sentiment of this Instagram DM. Return JSON only:
 {
@@ -268,11 +270,15 @@ Message: "${text}"`;
     const response = await aiChat({
       prompt,
       max_tokens: 100,
-      model: 'claude-3-5-haiku-20241022'
+      model: 'claude-3-5-haiku-20241022',
     });
 
     const responseData: any = response.data || response;
-    const result = JSON.parse(responseData.response || responseData.answer || '{"score":5,"label":"neutral","urgency":"low"}');
+    const result = JSON.parse(
+      responseData.response ||
+        responseData.answer ||
+        '{"score":5,"label":"neutral","urgency":"low"}'
+    );
     return result;
   } catch (error) {
     logger.error('❌ Sentiment analysis error:', error);
@@ -303,7 +309,7 @@ async function updateInstagramUserProfile(
         topicsAsked: [],
         engagementScore: 0,
         leadScore: calculateLeadScore(userInfo, message),
-        lastActive: new Date().toISOString()
+        lastActive: new Date().toISOString(),
       });
     }
 
@@ -311,7 +317,7 @@ async function updateInstagramUserProfile(
     user.sentimentHistory.push({
       date: new Date().toISOString(),
       score: sentiment.score,
-      message: message.substring(0, 100)
+      message: message.substring(0, 100),
     });
     user.lastActive = new Date().toISOString();
     user.engagementScore += 1;
@@ -344,8 +350,8 @@ function calculateLeadScore(userInfo: any, message: string, engagementScore: num
   const urgentKeywords = ['urgent', 'asap', 'now', 'today', 'subito', 'segera'];
   const buyingKeywords = ['price', 'cost', 'quanto', 'berapa', 'buy', 'purchase', 'payment'];
 
-  if (urgentKeywords.some(kw => message.toLowerCase().includes(kw))) score += 20;
-  if (buyingKeywords.some(kw => message.toLowerCase().includes(kw))) score += 15;
+  if (urgentKeywords.some((kw) => message.toLowerCase().includes(kw))) score += 20;
+  if (buyingKeywords.some((kw) => message.toLowerCase().includes(kw))) score += 15;
 
   // Engagement (repeat customer)
   if (engagementScore > 5) score += 10;
@@ -357,7 +363,9 @@ function calculateLeadScore(userInfo: any, message: string, engagementScore: num
 /**
  * Smart decision: Should ZANTARA respond on Instagram?
  */
-async function shouldZantaraRespondInstagram(params: any): Promise<{ respond: boolean; reason: string; context?: any }> {
+async function shouldZantaraRespondInstagram(
+  params: any
+): Promise<{ respond: boolean; reason: string; context?: any }> {
   const { message, sentiment, userInfo } = params;
 
   // Rule 1: Always respond to questions
@@ -376,8 +384,18 @@ async function shouldZantaraRespondInstagram(params: any): Promise<{ respond: bo
   }
 
   // Rule 4: Service keywords
-  const keywords = ['kbli', 'pt pma', 'visa', 'kitas', 'tax', 'npwp', 'company', 'business', 'bali'];
-  const hasKeyword = keywords.some(kw => message.toLowerCase().includes(kw));
+  const keywords = [
+    'kbli',
+    'pt pma',
+    'visa',
+    'kitas',
+    'tax',
+    'npwp',
+    'company',
+    'business',
+    'bali',
+  ];
+  const hasKeyword = keywords.some((kw) => message.toLowerCase().includes(kw));
 
   if (hasKeyword) {
     return { respond: true, reason: 'Service keyword detected' };
@@ -414,14 +432,22 @@ Respond professionally but friendly (Instagram style, max 2 short paragraphs). I
 async function sendIntelligentInstagramResponse(to: string, userMessage: string, context: any) {
   try {
     // Retrieve user memory
-    const memoryRes: { ok: boolean; data?: { memories?: Array<{ content?: string }>; count?: number; query?: string } } = await memorySearch({
+    const memoryRes: {
+      ok: boolean;
+      data?: { memories?: Array<{ content?: string }>; count?: number; query?: string };
+    } = await memorySearch({
       userId: `instagram_${to}`,
       query: userMessage,
-      limit: 3
+      limit: 3,
     });
-    const recentContext = Array.isArray(memoryRes?.data?.memories) && memoryRes.data!.memories!.length > 0
-      ? memoryRes.data!.memories!.map((m: any) => m?.content).filter(Boolean).slice(0, 3).join(' | ')
-      : 'First interaction';
+    const recentContext =
+      Array.isArray(memoryRes?.data?.memories) && memoryRes.data!.memories!.length > 0
+        ? memoryRes
+            .data!.memories!.map((m: any) => m?.content)
+            .filter(Boolean)
+            .slice(0, 3)
+            .join(' | ')
+        : 'First interaction';
 
     // Build context-aware prompt
     const prompt = buildInstagramPrompt(context, recentContext, userMessage);
@@ -429,11 +455,14 @@ async function sendIntelligentInstagramResponse(to: string, userMessage: string,
     const aiResponse = await aiChat({
       prompt,
       max_tokens: 250,
-      model: 'claude-3-5-haiku-20241022'
+      model: 'claude-3-5-haiku-20241022',
     });
 
     const responseData: any = aiResponse.data || aiResponse;
-    const responseText = responseData.response || responseData.answer || 'Ciao! Come posso aiutarti con i servizi Bali Zero? 🌴';
+    const responseText =
+      responseData.response ||
+      responseData.answer ||
+      'Ciao! Come posso aiutarti con i servizi Bali Zero? 🌴';
 
     // Send via Instagram API
     await sendInstagramMessage(to, responseText);
@@ -455,13 +484,13 @@ async function sendInstagramMessage(to: string, text: string) {
       url,
       {
         recipient: { id: to },
-        message: { text: text }
+        message: { text: text },
       },
       {
         headers: {
-          'Authorization': `Bearer ${INSTAGRAM_CONFIG.accessToken}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${INSTAGRAM_CONFIG.accessToken}`,
+          'Content-Type': 'application/json',
+        },
       }
     );
 
@@ -486,7 +515,7 @@ async function checkInstagramAlerts(params: any) {
     alerts.push({
       type: 'high_value_lead',
       severity: 'high',
-      message: `💎 VIP Lead: @${username} (${userInfo.follower_count} followers, ${userInfo.is_verified ? 'verified' : 'not verified'}): "${message}"`
+      message: `💎 VIP Lead: @${username} (${userInfo.follower_count} followers, ${userInfo.is_verified ? 'verified' : 'not verified'}): "${message}"`,
     });
   }
 
@@ -495,17 +524,17 @@ async function checkInstagramAlerts(params: any) {
     alerts.push({
       type: 'negative_sentiment',
       severity: 'medium',
-      message: `⚠️ @${username} has negative sentiment (${sentiment.score}/10): "${message}"`
+      message: `⚠️ @${username} has negative sentiment (${sentiment.score}/10): "${message}"`,
     });
   }
 
   // Alert 3: Buying intent
   const buyingKeywords = ['price', 'cost', 'quanto', 'berapa', 'payment', 'invoice', 'start'];
-  if (buyingKeywords.some(kw => message.toLowerCase().includes(kw))) {
+  if (buyingKeywords.some((kw) => message.toLowerCase().includes(kw))) {
     alerts.push({
       type: 'buying_intent',
       severity: 'high',
-      message: `💰 @${username} showing buying intent: "${message}"`
+      message: `💰 @${username} showing buying intent: "${message}"`,
     });
   }
 
@@ -536,15 +565,17 @@ async function sendTeamAlert(alert: any) {
 
   const message = {
     text: `📸 **INSTAGRAM ${alert.type.toUpperCase()}** [${alert.severity}]\n\n${alert.message}`,
-    attachments: [{
-      color: alert.severity === 'high' ? 'danger' : 'warning',
-      fields: [
-        { title: 'Platform', value: 'Instagram', short: true },
-        { title: 'Type', value: alert.type, short: true },
-        { title: 'Severity', value: alert.severity, short: true },
-        { title: 'Timestamp', value: new Date().toISOString(), short: false }
-      ]
-    }]
+    attachments: [
+      {
+        color: alert.severity === 'high' ? 'danger' : 'warning',
+        fields: [
+          { title: 'Platform', value: 'Instagram', short: true },
+          { title: 'Type', value: alert.type, short: true },
+          { title: 'Severity', value: alert.severity, short: true },
+          { title: 'Timestamp', value: new Date().toISOString(), short: false },
+        ],
+      },
+    ],
   };
 
   // Send to Slack
@@ -562,11 +593,13 @@ async function sendTeamAlert(alert: any) {
     try {
       const discordMessage = {
         content: `📸 **INSTAGRAM ${alert.type.toUpperCase()}** [${alert.severity}]`,
-        embeds: [{
-          description: alert.message,
-          color: alert.severity === 'high' ? 15158332 : 16776960,
-          timestamp: new Date().toISOString()
-        }]
+        embeds: [
+          {
+            description: alert.message,
+            color: alert.severity === 'high' ? 15158332 : 16776960,
+            timestamp: new Date().toISOString(),
+          },
+        ],
       };
       await axios.post(discordWebhook, discordMessage);
       logger.info('✅ Instagram alert sent to Discord');
@@ -591,13 +624,14 @@ export async function getInstagramUserAnalytics(params: any) {
   if (!user) {
     return ok({
       message: 'User not found or no data yet',
-      userId
+      userId,
     });
   }
 
-  const avgSentiment = user.sentimentHistory.length > 0
-    ? user.sentimentHistory.reduce((sum, h) => sum + h.score, 0) / user.sentimentHistory.length
-    : 0;
+  const avgSentiment =
+    user.sentimentHistory.length > 0
+      ? user.sentimentHistory.reduce((sum, h) => sum + h.score, 0) / user.sentimentHistory.length
+      : 0;
 
   return ok({
     userId: user.userId,
@@ -606,16 +640,16 @@ export async function getInstagramUserAnalytics(params: any) {
       name: user.name,
       followers: user.followerCount,
       verified: user.isVerified,
-      profilePic: user.profilePic
+      profilePic: user.profilePic,
     },
     engagement: {
       totalMessages: user.engagementScore,
       avgSentiment: avgSentiment.toFixed(1),
       leadScore: user.leadScore,
-      lastActive: user.lastActive
+      lastActive: user.lastActive,
     },
     sentimentHistory: user.sentimentHistory.slice(-10), // Last 10 messages
-    topicsAsked: user.topicsAsked
+    topicsAsked: user.topicsAsked,
   });
 }
 
@@ -636,6 +670,6 @@ export async function sendManualInstagramMessage(params: any) {
     to,
     message,
     platform: 'instagram',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }

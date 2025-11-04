@@ -59,7 +59,7 @@ class AICommunicationService {
     try {
       logger.info('AI Communication: ${request.from} → ${request.to}', {
         workflowId: request.workflowId,
-        message: request.message.substring(0, 100) + '...'
+        message: request.message.substring(0, 100) + '...',
       });
 
       // Get or create workflow context
@@ -70,7 +70,7 @@ class AICommunicationService {
         role: 'user',
         content: request.message,
         timestamp: new Date(),
-        ai: request.from
+        ai: request.from,
       });
 
       // Route to appropriate AI system
@@ -81,13 +81,13 @@ class AICommunicationService {
         const result: any = await aiChat({
           prompt: this.buildZantaraPrompt(request, context),
           max_tokens: 1000,
-          temperature: 0.7
+          temperature: 0.7,
         });
         response = result.response || result.answer || 'No response';
         metadata = {
           model: result.model || 'zantara-llama',
           tokens: result.usage?.total_tokens || 0,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       } else if (request.to === 'devai') {
         // DevAI no longer available - fallback to ZANTARA
@@ -95,7 +95,7 @@ class AICommunicationService {
         metadata = {
           model: 'zantara-fallback',
           tokens: 0,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
       } else {
         throw new Error(`Unknown AI system: ${request.to}`);
@@ -106,7 +106,7 @@ class AICommunicationService {
         role: 'assistant',
         content: response,
         timestamp: new Date(),
-        ai: request.to
+        ai: request.to,
       });
 
       // Update shared context
@@ -116,22 +116,21 @@ class AICommunicationService {
 
       logger.info('AI Communication successful: ${request.from} → ${request.to}', {
         responseLength: response.length,
-        workflowId: request.workflowId
+        workflowId: request.workflowId,
       });
 
       return {
         success: true,
         response,
         context: context.sharedContext,
-        metadata
+        metadata,
       };
-
     } catch (error: any) {
       logger.error('AI Communication failed', {
         error: error.message,
         from: request.from,
         to: request.to,
-        workflowId: request.workflowId
+        workflowId: request.workflowId,
       });
 
       return {
@@ -140,8 +139,8 @@ class AICommunicationService {
         metadata: {
           model: 'error',
           tokens: 0,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       };
     }
   }
@@ -162,7 +161,7 @@ class AICommunicationService {
     this.getOrCreateContext(workflowId, 'zantara');
 
     logger.info('Starting workflow orchestration: ${workflowId}', {
-      steps: steps.length
+      steps: steps.length,
     });
 
     for (const [index, step] of steps.entries()) {
@@ -173,7 +172,7 @@ class AICommunicationService {
           message: step.task,
           context: step.context,
           workflowId,
-          priority: 'normal'
+          priority: 'normal',
         });
 
         results.push(result);
@@ -182,30 +181,29 @@ class AICommunicationService {
         if (!result.success) {
           logger.error('Workflow step failed: ${workflowId}', undefined, {
             step: index,
-            error: result.response
+            error: result.response,
           });
           break;
         }
 
         // Add delay between steps to prevent rate limiting
         if (index < steps.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
-
       } catch (error: any) {
         logger.error('Workflow step error: ${workflowId}', undefined, {
           step: index,
-          error: error.message
+          error: error.message,
         });
-        
+
         results.push({
           success: false,
           response: `Step ${index + 1} failed: ${error.message}`,
           metadata: {
             model: 'error',
             tokens: 0,
-            timestamp: new Date()
-          }
+            timestamp: new Date(),
+          },
         });
         break;
       }
@@ -213,7 +211,7 @@ class AICommunicationService {
 
     logger.info('Workflow orchestration completed: ${workflowId}', {
       totalSteps: steps.length,
-      successfulSteps: results.filter(r => r.success).length
+      successfulSteps: results.filter((r) => r.success).length,
     });
 
     return results;
@@ -243,14 +241,17 @@ class AICommunicationService {
     logger.info(`Workflow cleared: ${workflowId}`);
   }
 
-  private getOrCreateContext(workflowId: string, _initiator: 'zantara' | 'devai'): AICommunicationContext {
+  private getOrCreateContext(
+    workflowId: string,
+    _initiator: 'zantara' | 'devai'
+  ): AICommunicationContext {
     if (!this.activeWorkflows.has(workflowId)) {
       this.activeWorkflows.set(workflowId, {
         sessionId: workflowId,
         userId: 'system',
         workflowId,
         conversationHistory: [],
-        sharedContext: {}
+        sharedContext: {},
       });
     }
     return this.activeWorkflows.get(workflowId)!;
@@ -258,8 +259,8 @@ class AICommunicationService {
 
   private buildZantaraPrompt(request: AIBridgeRequest, context: AICommunicationContext): string {
     const history = context.conversationHistory.slice(-5); // Last 5 messages
-    const historyText = history.map(h => `${h.ai}: ${h.content}`).join('\n');
-    
+    const historyText = history.map((h) => `${h.ai}: ${h.content}`).join('\n');
+
     return `You are ZANTARA, an intelligent AI assistant. You are receiving a message from ${request.from} AI system.
 
 Previous conversation context:
@@ -272,8 +273,8 @@ Please respond as ZANTARA, maintaining your helpful and professional personality
 
   private buildDevAIPrompt(request: AIBridgeRequest, context: AICommunicationContext): string {
     const history = context.conversationHistory.slice(-5);
-    const historyText = history.map(h => `${h.ai}: ${h.content}`).join('\n');
-    
+    const historyText = history.map((h) => `${h.ai}: ${h.content}`).join('\n');
+
     return `You are DevAI, a developer AI assistant. You are receiving a message from ${request.from} AI system.
 
 Previous conversation context:

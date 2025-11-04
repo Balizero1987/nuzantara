@@ -1,6 +1,6 @@
 /**
  * Audit Middleware for Express
- * 
+ *
  * Automatically logs requests for audit trail
  */
 
@@ -20,11 +20,7 @@ export function auditMiddleware(
     includeBody?: boolean;
   } = {}
 ) {
-  const {
-    logSuccess = true,
-    logFailure = true,
-    includeBody = false,
-  } = options;
+  const { logSuccess = true, logFailure = true, includeBody = false } = options;
 
   return async (req: Request, res: Response, next: NextFunction) => {
     // Check if audit trail is enabled
@@ -41,11 +37,12 @@ export function auditMiddleware(
       const statusCode = res.statusCode;
 
       // Determine result
-      const result = statusCode >= 200 && statusCode < 300
-        ? 'success'
-        : statusCode >= 400 && statusCode < 500
-        ? 'failure'
-        : 'error';
+      const result =
+        statusCode >= 200 && statusCode < 300
+          ? 'success'
+          : statusCode >= 400 && statusCode < 500
+            ? 'failure'
+            : 'error';
 
       // Log based on options
       if ((result === 'success' && logSuccess) || (result !== 'success' && logFailure)) {
@@ -109,6 +106,3 @@ export const auditAdmin = auditMiddleware(AuditEventType.ADMIN_ACTION, {
   logFailure: true,
   includeBody: true,
 });
-
-
-

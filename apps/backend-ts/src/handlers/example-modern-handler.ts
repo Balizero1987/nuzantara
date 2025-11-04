@@ -5,8 +5,8 @@
  * that auto-register without manual router.ts updates
  */
 
-import { globalRegistry } from "../core/handler-registry.js";
-import { ok, err } from "../utils/response.js";
+import { globalRegistry } from '../core/handler-registry.js';
+import { ok, err } from '../utils/response.js';
 
 /**
  * Handler: Send Email via Gmail
@@ -17,7 +17,7 @@ export async function sendEmailV2(params: any, _req?: any) {
   const { to, subject, body } = params;
 
   if (!to || !subject || !body) {
-    return err("missing_params: to, subject, and body are required");
+    return err('missing_params: to, subject, and body are required');
   }
 
   // TODO: Implement actual Gmail API call
@@ -26,8 +26,8 @@ export async function sendEmailV2(params: any, _req?: any) {
     messageId: `msg_${Date.now()}`,
     to,
     subject,
-    status: "sent",
-    timestamp: new Date().toISOString()
+    status: 'sent',
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -43,7 +43,7 @@ export async function listInboxV2(params: any, _req?: any) {
   return ok({
     messages: [],
     nextPageToken: null,
-    resultSizeEstimate: 0
+    resultSizeEstimate: 0,
   });
 }
 
@@ -62,31 +62,39 @@ export async function kbliLookupV2(params: any, _req?: any) {
   // TODO: Implement KBLI database lookup
   // For now, return mock data
   return ok({
-    code: code || "62010",
-    title: "Pemrograman Komputer",
-    risk: "low",
-    requirements: ["NIB", "OSS", "NPWP"],
-    category: "Information & Communication"
+    code: code || '62010',
+    title: 'Pemrograman Komputer',
+    risk: 'low',
+    requirements: ['NIB', 'OSS', 'NPWP'],
+    category: 'Information & Communication',
   });
 }
 
 // === AUTO-REGISTRATION ===
 // Register all handlers in this module
 
-globalRegistry.registerModule('gmail-v2', {
-  'send': sendEmailV2,
-  'list': listInboxV2
-}, {
-  requiresAuth: true,
-  version: '2.0'
-});
+globalRegistry.registerModule(
+  'gmail-v2',
+  {
+    send: sendEmailV2,
+    list: listInboxV2,
+  },
+  {
+    requiresAuth: true,
+    version: '2.0',
+  }
+);
 
-globalRegistry.registerModule('kbli-v2', {
-  'lookup': kbliLookupV2
-}, {
-  requiresAuth: false,
-  version: '2.0'
-});
+globalRegistry.registerModule(
+  'kbli-v2',
+  {
+    lookup: kbliLookupV2,
+  },
+  {
+    requiresAuth: false,
+    version: '2.0',
+  }
+);
 
 // Alternative: Individual registration
 // globalRegistry.register({

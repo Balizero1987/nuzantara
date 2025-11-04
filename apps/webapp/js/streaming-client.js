@@ -21,7 +21,7 @@ class StreamingClient {
       sessionId: null,
       messages: [],
       lastChunkTimestamp: null,
-      streamContinuityId: null
+      streamContinuityId: null,
     };
 
     // Telemetry
@@ -32,7 +32,7 @@ class StreamingClient {
       totalReconnectTime: 0,
       lastDisconnectReason: null,
       averageReconnectTime: 0,
-      uptimeStart: Date.now()
+      uptimeStart: Date.now(),
     };
 
     // Health monitoring
@@ -65,7 +65,7 @@ class StreamingClient {
 
   emit(event, data) {
     if (!this.listeners.has(event)) return;
-    this.listeners.get(event).forEach(handler => {
+    this.listeners.get(event).forEach((handler) => {
       try {
         handler(data);
       } catch (err) {
@@ -178,7 +178,7 @@ class StreamingClient {
         console.error('[StreamingClient] Max reconnection attempts reached');
         this.emit('reconnection_failed', {
           attempts: this.reconnectAttempts,
-          lastError: reason
+          lastError: reason,
         });
       }
     }
@@ -189,16 +189,18 @@ class StreamingClient {
     this.reconnectAttempts++;
     const delay = this.calculateReconnectDelay();
 
-    console.log(`[StreamingClient] Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`);
+    console.log(
+      `[StreamingClient] Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`
+    );
 
     this.emit('reconnection_attempt', {
       attempt: this.reconnectAttempts,
       delay,
-      maxAttempts: this.maxReconnectAttempts
+      maxAttempts: this.maxReconnectAttempts,
     });
 
     // Wait before reconnection
-    await new Promise(resolve => setTimeout(resolve, delay));
+    await new Promise((resolve) => setTimeout(resolve, delay));
 
     try {
       // Record reconnection start time for telemetry
@@ -215,7 +217,8 @@ class StreamingClient {
       const reconnectDuration = Date.now() - reconnectStartTime;
       this.telemetry.reconnections++;
       this.telemetry.totalReconnectTime += reconnectDuration;
-      this.telemetry.averageReconnectTime = this.telemetry.totalReconnectTime / this.telemetry.reconnections;
+      this.telemetry.averageReconnectTime =
+        this.telemetry.totalReconnectTime / this.telemetry.reconnections;
 
       // Reset reconnection state on success
       this.reconnectAttempts = 0;
@@ -223,11 +226,13 @@ class StreamingClient {
       console.log(`[StreamingClient] Reconnection successful in ${reconnectDuration}ms`);
       this.emit('reconnection_success', {
         duration: reconnectDuration,
-        attempt: this.reconnectAttempts
+        attempt: this.reconnectAttempts,
       });
-
     } catch (error) {
-      console.error(`[StreamingClient] Reconnection attempt ${this.reconnectAttempts} failed:`, error);
+      console.error(
+        `[StreamingClient] Reconnection attempt ${this.reconnectAttempts} failed:`,
+        error
+      );
 
       // Continue trying or give up
       if (this.reconnectAttempts < this.maxReconnectAttempts) {
@@ -235,7 +240,7 @@ class StreamingClient {
       } else {
         this.emit('reconnection_failed', {
           attempts: this.reconnectAttempts,
-          lastError: error.message
+          lastError: error.message,
         });
       }
     }
@@ -255,7 +260,7 @@ class StreamingClient {
         sessionId: sessionId || `sess_${Date.now()}`,
         messages: messages,
         lastChunkTimestamp: null,
-        streamContinuityId: this.generateContinuityId()
+        streamContinuityId: this.generateContinuityId(),
       };
       this.expectedSequenceNumber = 0;
       this.reconnectAttempts = 0;
@@ -282,8 +287,8 @@ class StreamingClient {
       // Enhanced headers for reconnection support
       const headers = {
         'Content-Type': 'application/json',
-        'Accept': 'application/x-ndjson',
-        'x-user-id': userId
+        Accept: 'application/x-ndjson',
+        'x-user-id': userId,
       };
 
       // Add reconnection-specific headers if resilient mode is enabled
@@ -305,9 +310,9 @@ class StreamingClient {
           messages: this.sessionContext.messages,
           continuityId: this.sessionContext.streamContinuityId,
           isReconnection: isReconnection,
-          lastChunkTimestamp: this.sessionContext.lastChunkTimestamp
+          lastChunkTimestamp: this.sessionContext.lastChunkTimestamp,
         }),
-        signal: this.abortController.signal
+        signal: this.abortController.signal,
       });
 
       if (!response.ok) {
@@ -353,7 +358,6 @@ class StreamingClient {
               }
 
               this.handleChunk(chunk);
-
             } catch (err) {
               console.error('[StreamingClient] Failed to parse chunk:', line, err);
               this.emit('chunk_error', { line, error: err.message });
@@ -387,7 +391,6 @@ class StreamingClient {
         this.stopHeartbeat();
       }
       this.emit('complete', {});
-
     } catch (err) {
       if (this.useResilientMode) {
         this.stopHeartbeat();
@@ -424,7 +427,7 @@ class StreamingClient {
     if (chunk.type === 'continuity_check') {
       this.emit('continuity_verified', {
         streamId: chunk.streamId,
-        sequenceNumber: chunk.sequenceNumber
+        sequenceNumber: chunk.sequenceNumber,
       });
       return;
     }
@@ -435,29 +438,26 @@ class StreamingClient {
       this.emit('delta', {
         content: chunk.content,
         buffer: this.currentBuffer,
-        sequenceNumber: chunk.sequenceNumber
+        sequenceNumber: chunk.sequenceNumber,
       });
-
     } else if (chunk.type === 'tool') {
       if (chunk.status === 'start') {
         this.emit('tool-start', {
           name: chunk.name,
-          args: chunk.args
+          args: chunk.args,
         });
       } else if (chunk.status === 'result') {
         this.emit('tool-result', {
           name: chunk.name,
-          data: chunk.data
+          data: chunk.data,
         });
       }
-
     } else if (chunk.type === 'final') {
       this.currentBuffer = chunk.content || '';
       this.emit('final', {
         content: chunk.content,
-        sequenceNumber: chunk.sequenceNumber
+        sequenceNumber: chunk.sequenceNumber,
       });
-
     } else if (chunk.event === 'done') {
       this.emit('done', {});
     }
@@ -488,8 +488,14 @@ class StreamingClient {
       maxReconnectAttempts: this.maxReconnectAttempts,
       isStreaming: this.isStreaming,
       lastHeartbeatAge: this.lastHeartbeat ? Date.now() - this.lastHeartbeat : null,
-      connectionSuccessRate: this.telemetry.connections > 0 ?
-        ((this.telemetry.connections - this.telemetry.disconnections) / this.telemetry.connections * 100).toFixed(2) + '%' : '0%'
+      connectionSuccessRate:
+        this.telemetry.connections > 0
+          ? (
+              ((this.telemetry.connections - this.telemetry.disconnections) /
+                this.telemetry.connections) *
+              100
+            ).toFixed(2) + '%'
+          : '0%',
     };
   }
 
@@ -546,7 +552,7 @@ zantara_sse_heartbeat_age_seconds ${telemetry.lastHeartbeatAge ? (telemetry.last
       sessionId: null,
       messages: [],
       lastChunkTimestamp: null,
-      streamContinuityId: null
+      streamContinuityId: null,
     };
     this.expectedSequenceNumber = 0;
     console.log('[StreamingClient] State reset');
@@ -567,7 +573,7 @@ if (typeof window !== 'undefined') {
   if (!window.ZANTARA_METRICS) {
     window.ZANTARA_METRICS = {
       getSSEMetrics: () => streamingClient.getPrometheusMetrics(),
-      getSSETelemetry: () => streamingClient.getTelemetry()
+      getSSETelemetry: () => streamingClient.getTelemetry(),
     };
   }
 }

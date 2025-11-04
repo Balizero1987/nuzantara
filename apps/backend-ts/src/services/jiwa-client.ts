@@ -55,8 +55,8 @@ export class JiwaClient {
       baseURL,
       timeout: 5000,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     // Check health on initialization
@@ -104,10 +104,12 @@ export class JiwaClient {
         query,
         user_id: userId,
         context,
-        language
+        language,
       });
 
-      logger.info(`📖 Soul read: ${response.data.emotional_tone} - Urgency ${response.data.urgency_level}/10`);
+      logger.info(
+        `📖 Soul read: ${response.data.emotional_tone} - Urgency ${response.data.urgency_level}/10`
+      );
       return response.data;
     } catch (error) {
       logger.error(`❌ Soul reading failed: ${error.message}`);
@@ -140,7 +142,7 @@ export class JiwaClient {
         response,
         soul_reading: soulReading,
         language,
-        add_blessing: addBlessing
+        add_blessing: addBlessing,
       });
 
       logger.info(`💫 Response infused with warmth: ${result.data.maternal_warmth}`);
@@ -166,7 +168,7 @@ export class JiwaClient {
 
     try {
       const response = await this.client.post('/protect-user', null, {
-        params: { user_id: userId, threat_type: threatType }
+        params: { user_id: userId, threat_type: threatType },
       });
 
       logger.warn('🛡️ Protection activated for ${userId}: ${response.data.protection_id}');
@@ -218,10 +220,13 @@ export class JiwaClient {
     if (soulReading.protection_needed && soulReading.urgency_level >= 8) {
       await this.activateProtection(
         userId,
-        soulReading.primary_need.includes('fraud') ? 'fraud' :
-        soulReading.primary_need.includes('legal') ? 'legal' :
-        soulReading.primary_need.includes('emergency') ? 'emergency' :
-        'emotional'
+        soulReading.primary_need.includes('fraud')
+          ? 'fraud'
+          : soulReading.primary_need.includes('legal')
+            ? 'legal'
+            : soulReading.primary_need.includes('emergency')
+              ? 'emergency'
+              : 'emotional'
       );
     }
 
@@ -230,8 +235,7 @@ export class JiwaClient {
       response,
       soulReading,
       language,
-      soulReading.emotional_tone === 'sad' ||
-      soulReading.emotional_tone === 'desperate'
+      soulReading.emotional_tone === 'sad' || soulReading.emotional_tone === 'desperate'
     );
 
     if (!infused) {

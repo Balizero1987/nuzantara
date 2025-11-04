@@ -38,7 +38,10 @@ class ZantaraStorageManager {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored && stored !== 'undefined' && stored !== 'null') {
         this.data = JSON.parse(stored);
-        console.log('✅ [Storage] Loaded from localStorage:', this.data?.user?.email || 'anonymous');
+        console.log(
+          '✅ [Storage] Loaded from localStorage:',
+          this.data?.user?.email || 'anonymous'
+        );
         return true;
       }
     } catch (e) {
@@ -50,7 +53,10 @@ class ZantaraStorageManager {
       const stored = sessionStorage.getItem(this.STORAGE_KEY);
       if (stored && stored !== 'undefined' && stored !== 'null') {
         this.data = JSON.parse(stored);
-        console.log('✅ [Storage] Loaded from sessionStorage (fallback):', this.data?.user?.email || 'anonymous');
+        console.log(
+          '✅ [Storage] Loaded from sessionStorage (fallback):',
+          this.data?.user?.email || 'anonymous'
+        );
         return true;
       }
     } catch (e) {
@@ -105,21 +111,21 @@ class ZantaraStorageManager {
         role: userData.role || null,
         department: userData.department || null,
         badge: userData.badge || null,
-        id: userData.id || null
+        id: userData.id || null,
       },
       auth: {
         token: userData.token || null,
         permissions: userData.permissions || [],
-        loginTime: new Date().toISOString()
+        loginTime: new Date().toISOString(),
       },
       preferences: {
         language: userData.language || 'en',
-        theme: userData.theme || 'dark'
+        theme: userData.theme || 'dark',
       },
       metadata: {
         lastActive: new Date().toISOString(),
-        version: '2.0'
-      }
+        version: '2.0',
+      },
     };
 
     this.save();
@@ -193,9 +199,9 @@ class ZantaraStorageManager {
         'zantara-user-name',
         'zantara-user-role',
         'zantara-user-department',
-        'zantara-session'
+        'zantara-session',
       ];
-      legacyKeys.forEach(key => localStorage.removeItem(key));
+      legacyKeys.forEach((key) => localStorage.removeItem(key));
     } catch (e) {
       console.warn('⚠️ [Storage] Failed to clear localStorage:', e);
     }
@@ -256,7 +262,7 @@ class ZantaraStorageManager {
       userEmail: this.getUserEmail(),
       localStorageWorks: false,
       sessionStorageWorks: false,
-      autoSaveRunning: !!this.autoSaveInterval
+      autoSaveRunning: !!this.autoSaveInterval,
     };
 
     // Test localStorage

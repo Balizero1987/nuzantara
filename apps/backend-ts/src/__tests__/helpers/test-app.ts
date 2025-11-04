@@ -17,7 +17,7 @@ export async function createTestApp() {
   // Minimal middleware for testing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-  
+
   // Skip security middleware in tests to avoid complications
   // app.use(applySecurity);
   // app.use(corsMiddleware);
@@ -36,7 +36,7 @@ export async function createTestApp() {
     logger.error('Test error:', err);
     res.status(err.status || 500).json({
       ok: false,
-      error: err.message || 'Internal server error'
+      error: err.message || 'Internal server error',
     });
   });
 
@@ -45,10 +45,9 @@ export async function createTestApp() {
     res.status(404).json({
       ok: false,
       error: 'Endpoint not found',
-      path: req.originalUrl
+      path: req.originalUrl,
     });
   });
 
   return app;
 }
-

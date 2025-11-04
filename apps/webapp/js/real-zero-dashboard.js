@@ -48,7 +48,10 @@ class RealZeroDashboardService {
       if (data.ok && data.data) {
         this.renderRealDashboard(data.data);
       } else {
-        console.error('[RealZeroDashboard] Failed to fetch real dashboard data:', data.error || 'Unknown error');
+        console.error(
+          '[RealZeroDashboard] Failed to fetch real dashboard data:',
+          data.error || 'Unknown error'
+        );
         this.showErrorMessage();
       }
     } catch (error) {
@@ -123,18 +126,24 @@ class RealZeroDashboardService {
 
     // Add CSS
     this.addRealDashboardCSS();
-    
+
     return widget;
   }
 
   updateRealDashboardContent(data) {
     if (!this.dashboardElement) return;
-    
-    this.dashboardElement.querySelector('.update-time').textContent = new Date().toLocaleTimeString();
-    this.dashboardElement.querySelector('.active-sessions .metric-value').textContent = data.active_sessions || 0;
-    this.dashboardElement.querySelector('.total-hours .metric-value').textContent = `${data.total_hours_today || 0}h`;
-    this.dashboardElement.querySelector('.conversations .metric-value').textContent = data.total_conversations || 0;
-    this.dashboardElement.querySelector('.members-grid').innerHTML = this.renderRealTeamMembers(data.team_members || []);
+
+    this.dashboardElement.querySelector('.update-time').textContent =
+      new Date().toLocaleTimeString();
+    this.dashboardElement.querySelector('.active-sessions .metric-value').textContent =
+      data.active_sessions || 0;
+    this.dashboardElement.querySelector('.total-hours .metric-value').textContent =
+      `${data.total_hours_today || 0}h`;
+    this.dashboardElement.querySelector('.conversations .metric-value').textContent =
+      data.total_conversations || 0;
+    this.dashboardElement.querySelector('.members-grid').innerHTML = this.renderRealTeamMembers(
+      data.team_members || []
+    );
   }
 
   renderRealTeamMembers(members) {
@@ -142,7 +151,9 @@ class RealZeroDashboardService {
       return '<div class="no-data">No real team data available</div>';
     }
 
-    return members.map(member => `
+    return members
+      .map(
+        (member) => `
       <div class="member-card ${member.status}">
         <div class="member-avatar">
           <div class="avatar-circle ${member.status}">
@@ -168,7 +179,9 @@ class RealZeroDashboardService {
           <div class="status-text">${member.status}</div>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
   }
 
   addRealDashboardCSS() {
@@ -455,7 +468,7 @@ class RealZeroDashboardService {
         border: 1px dashed #444;
       }
     `;
-    
+
     document.head.appendChild(style);
   }
 

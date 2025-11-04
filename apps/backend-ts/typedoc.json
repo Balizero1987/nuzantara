@@ -4,11 +4,7 @@
   "out": "docs/api",
   "name": "NUZANTARA TypeScript Backend API Documentation",
   "includeVersion": true,
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/tests/**/*",
-    "src/**/*.spec.ts"
-  ],
+  "exclude": ["src/**/*.test.ts", "src/tests/**/*", "src/**/*.spec.ts"],
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeExternals": true,

@@ -19,30 +19,30 @@ class ZantaraThinkingIndicator {
     // Progressive thinking messages (multilingual)
     this.messages = [
       {
-        it: "Sto pensando",
-        en: "Thinking",
-        id: "Sedang berpikir"
+        it: 'Sto pensando',
+        en: 'Thinking',
+        id: 'Sedang berpikir',
       },
       {
-        it: "Consultando la memoria culturale",
-        en: "Consulting cultural memory",
-        id: "Mengakses memori budaya"
+        it: 'Consultando la memoria culturale',
+        en: 'Consulting cultural memory',
+        id: 'Mengakses memori budaya',
       },
       {
-        it: "Analizzando la tua domanda",
-        en: "Analyzing your question",
-        id: "Menganalisis pertanyaan Anda"
+        it: 'Analizzando la tua domanda',
+        en: 'Analyzing your question',
+        id: 'Menganalisis pertanyaan Anda',
       },
       {
-        it: "Preparando la risposta",
-        en: "Preparing the response",
-        id: "Menyiapkan jawaban"
+        it: 'Preparando la risposta',
+        en: 'Preparing the response',
+        id: 'Menyiapkan jawaban',
       },
       {
-        it: "Formulando la risposta perfetta",
-        en: "Crafting the perfect answer",
-        id: "Merumuskan jawaban terbaik"
-      }
+        it: 'Formulando la risposta perfetta',
+        en: 'Crafting the perfect answer',
+        id: 'Merumuskan jawaban terbaik',
+      },
     ];
 
     // Detect language from previous messages or default to Italian

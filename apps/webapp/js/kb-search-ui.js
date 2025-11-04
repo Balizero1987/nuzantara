@@ -31,7 +31,8 @@ class KnowledgeBaseSearchUI {
       this.container.className = 'kb-search-container';
 
       // Add to page
-      const chatContainer = document.querySelector('.chat-container') || document.querySelector('.messages-container');
+      const chatContainer =
+        document.querySelector('.chat-container') || document.querySelector('.messages-container');
       if (chatContainer && chatContainer.parentNode) {
         chatContainer.parentNode.insertBefore(this.container, chatContainer);
       } else {
@@ -61,7 +62,9 @@ class KnowledgeBaseSearchUI {
           </button>
         </div>
 
-        ${this.isVisible ? `
+        ${
+          this.isVisible
+            ? `
           <div class="kb-search-content">
             <div class="kb-search-box">
               <input
@@ -74,9 +77,13 @@ class KnowledgeBaseSearchUI {
 
               <select id="kb-collection-select" class="kb-collection-select">
                 <option value="">Auto-detect collection</option>
-                ${collections.map(c => `
+                ${collections
+                  .map(
+                    (c) => `
                   <option value="${c.id}">${c.icon} ${c.name}</option>
-                `).join('')}
+                `
+                  )
+                  .join('')}
               </select>
 
               <button class="kb-search-btn" onclick="window.KB_SEARCH.performSearch()">
@@ -85,7 +92,10 @@ class KnowledgeBaseSearchUI {
             </div>
 
             <div id="kb-search-results" class="kb-search-results">
-              ${this.currentResults ? this.renderResults() : `
+              ${
+                this.currentResults
+                  ? this.renderResults()
+                  : `
                 <div class="kb-search-empty">
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <circle cx="11" cy="11" r="8"></circle>
@@ -94,10 +104,13 @@ class KnowledgeBaseSearchUI {
                   <p>Enter a query to search the knowledge base</p>
                   <small>14 collections • ${this.ragClient.getStats().cached_queries} cached queries</small>
                 </div>
-              `}
+              `
+              }
             </div>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
       </div>
     `;
 
@@ -135,7 +148,7 @@ class KnowledgeBaseSearchUI {
 
       this.currentResults = await this.ragClient.search(query, {
         collection: collection || null,
-        limit: 10
+        limit: 10,
       });
 
       this.render();
@@ -206,11 +219,15 @@ class KnowledgeBaseSearchUI {
         <div class="kb-result-content">
           ${this.escapeHtml(text.substring(0, 300))}${text.length > 300 ? '...' : ''}
         </div>
-        ${category ? `
+        ${
+          category
+            ? `
           <div class="kb-result-meta">
             <span class="kb-result-category">${this.escapeHtml(category)}</span>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
       </div>
     `;
   }

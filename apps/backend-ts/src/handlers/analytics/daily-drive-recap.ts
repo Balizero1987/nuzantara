@@ -1,34 +1,38 @@
 // Daily Drive Recap System for ZANTARA v5.2.0
 // Mantiene file giornalieri aggiornati per ogni collaboratore
 import logger from '../../services/logger.js';
-import { z } from "zod";
-import { ok } from "../../utils/response.js";
-import { getDrive } from "../../services/google-auth-service.js";
+import { z } from 'zod';
+import { ok } from '../../utils/response.js';
+import { getDrive } from '../../services/google-auth-service.js';
 
 const DailyRecapSchema = z.object({
   collaboratorId: z.string().min(1),
   activityType: z.enum(['chat', 'search', 'task', 'memory', 'general']),
   content: z.string().min(1),
   timestamp: z.string().optional(),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.any()).optional(),
 });
 
 // Collaboratori attivi con info per Drive
 const COLLABORATORS = {
-  zero: { name: "Zero", role: "Tech Lead", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" },
-  zainal: { name: "Zainal", role: "CEO", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" },
-  amanda: { name: "Amanda", role: "Lead Executive", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" },
-  anton: { name: "Anton", role: "Lead Executive", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" },
-  krisna: { name: "Krisna", role: "Lead Executive", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" },
-  dea: { name: "Dea", role: "Lead Executive", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" },
-  adit: { name: "Adit", role: "Lead Supervisor", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" },
-  veronika: { name: "Veronika", role: "Tax Manager", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" },
-  angel: { name: "Angel", role: "Tax Expert", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" },
-  sahira: { name: "Sahira", role: "Marketing", folderId: "1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5" }
+  zero: { name: 'Zero', role: 'Tech Lead', folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5' },
+  zainal: { name: 'Zainal', role: 'CEO', folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5' },
+  amanda: { name: 'Amanda', role: 'Lead Executive', folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5' },
+  anton: { name: 'Anton', role: 'Lead Executive', folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5' },
+  krisna: { name: 'Krisna', role: 'Lead Executive', folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5' },
+  dea: { name: 'Dea', role: 'Lead Executive', folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5' },
+  adit: { name: 'Adit', role: 'Lead Supervisor', folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5' },
+  veronika: {
+    name: 'Veronika',
+    role: 'Tax Manager',
+    folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5',
+  },
+  angel: { name: 'Angel', role: 'Tax Expert', folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5' },
+  sahira: { name: 'Sahira', role: 'Marketing', folderId: '1cR2BRhVx0fODIQxdLfRhQV_xJ9R9kWb5' },
 };
 
 // Cache dei file giornalieri per evitare ricerche multiple
-const dailyFileCache = new Map<string, { fileId: string, content: string, lastUpdate: number }>();
+const dailyFileCache = new Map<string, { fileId: string; content: string; lastUpdate: number }>();
 
 // Initialize Google Drive using centralized service
 async function initDrive() {
@@ -43,13 +47,18 @@ function getDailyFileName(collaboratorId: string, date: Date = new Date()): stri
 }
 
 // Cerca file giornaliero esistente
-async function findDailyFile(drive: any, collaboratorId: string, date: Date = new Date()): Promise<string | null> {
+async function findDailyFile(
+  drive: any,
+  collaboratorId: string,
+  date: Date = new Date()
+): Promise<string | null> {
   const fileName = getDailyFileName(collaboratorId, date);
   const cacheKey = `${collaboratorId}_${date.toISOString().split('T')[0]}`;
 
   // Check cache first
   const cached = dailyFileCache.get(cacheKey);
-  if (cached && Date.now() - cached.lastUpdate < 300000) { // 5 min cache
+  if (cached && Date.now() - cached.lastUpdate < 300000) {
+    // 5 min cache
     return cached.fileId;
   }
 
@@ -59,7 +68,7 @@ async function findDailyFile(drive: any, collaboratorId: string, date: Date = ne
 
     const response = await drive.files.list({
       q: `name='${fileName}' and parents in '${collaborator.folderId}' and trashed=false`,
-      fields: 'files(id, name)'
+      fields: 'files(id, name)',
     });
 
     if (response.data.files && response.data.files.length > 0) {
@@ -80,7 +89,7 @@ async function readDailyFileContent(drive: any, fileId: string): Promise<string>
   try {
     const response = await drive.files.get({
       fileId,
-      alt: 'media'
+      alt: 'media',
     });
 
     return response.data || '';
@@ -97,7 +106,7 @@ function createDailyTemplate(collaboratorId: string, date: Date = new Date()): s
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   });
 
   return `
@@ -186,12 +195,17 @@ function updateSummaryCounters(content: string, activityType: string): string {
 }
 
 // Aggiunge nuova attività alla sezione appropriata
-function addActivityToSection(content: string, activityType: string, activityContent: string, timestamp: string): string {
+function addActivityToSection(
+  content: string,
+  activityType: string,
+  activityContent: string,
+  timestamp: string
+): string {
   const lines = content.split('\n');
   const timeStr = new Date(timestamp || Date.now()).toLocaleTimeString('it-IT', {
     timeZone: 'Asia/Makassar',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 
   let sectionFound = false;
@@ -202,7 +216,7 @@ function addActivityToSection(content: string, activityType: string, activityCon
     chat: '🗨️ CONVERSAZIONI CHAT',
     search: '🔍 RICERCHE & QUERY',
     task: '⚡ ATTIVITÀ & TASK',
-    memory: '🧠 MEMORIE SALVATE'
+    memory: '🧠 MEMORIE SALVATE',
   };
 
   const targetHeader = sectionHeaders[activityType as keyof typeof sectionHeaders];
@@ -219,11 +233,13 @@ function addActivityToSection(content: string, activityType: string, activityCon
         const nextLine = lines[j];
         if (!nextLine) continue;
 
-        if (nextLine.includes('📈 INSIGHTS GIORNALIERI') ||
-            nextLine.includes('🗨️ CONVERSAZIONI CHAT') ||
-            nextLine.includes('🔍 RICERCHE & QUERY') ||
-            nextLine.includes('⚡ ATTIVITÀ & TASK') ||
-            nextLine.includes('🧠 MEMORIE SALVATE')) {
+        if (
+          nextLine.includes('📈 INSIGHTS GIORNALIERI') ||
+          nextLine.includes('🗨️ CONVERSAZIONI CHAT') ||
+          nextLine.includes('🔍 RICERCHE & QUERY') ||
+          nextLine.includes('⚡ ATTIVITÀ & TASK') ||
+          nextLine.includes('🧠 MEMORIE SALVATE')
+        ) {
           insertIndex = j;
           break;
         }
@@ -234,12 +250,14 @@ function addActivityToSection(content: string, activityType: string, activityCon
 
   if (sectionFound && insertIndex > 0) {
     // Rimuovi placeholder se presente
-    const placeholderIndex = lines.findIndex((line, idx) =>
-      idx > insertIndex - 10 && idx < insertIndex &&
-      (line.includes('(Nessuna conversazione registrata)') ||
-       line.includes('(Nessuna ricerca registrata)') ||
-       line.includes('(Nessuna attività registrata)') ||
-       line.includes('(Nessuna memoria registrata)'))
+    const placeholderIndex = lines.findIndex(
+      (line, idx) =>
+        idx > insertIndex - 10 &&
+        idx < insertIndex &&
+        (line.includes('(Nessuna conversazione registrata)') ||
+          line.includes('(Nessuna ricerca registrata)') ||
+          line.includes('(Nessuna attività registrata)') ||
+          line.includes('(Nessuna memoria registrata)'))
     );
 
     if (placeholderIndex > 0) {
@@ -253,16 +271,21 @@ function addActivityToSection(content: string, activityType: string, activityCon
   }
 
   // Aggiorna timestamp ultimo aggiornamento
-  const lastUpdateIndex = lines.findIndex(line => line.includes('Ultimo aggiornamento:'));
+  const lastUpdateIndex = lines.findIndex((line) => line.includes('Ultimo aggiornamento:'));
   if (lastUpdateIndex > 0) {
-    lines[lastUpdateIndex] = `Ultimo aggiornamento: ${new Date().toLocaleString('it-IT', { timeZone: 'Asia/Makassar' })}`;
+    lines[lastUpdateIndex] =
+      `Ultimo aggiornamento: ${new Date().toLocaleString('it-IT', { timeZone: 'Asia/Makassar' })}`;
   }
 
   return lines.join('\n');
 }
 
 // Crea o aggiorna file giornaliero
-async function createOrUpdateDailyFile(drive: any, collaboratorId: string, content: string): Promise<string | null> {
+async function createOrUpdateDailyFile(
+  drive: any,
+  collaboratorId: string,
+  content: string
+): Promise<string | null> {
   const collaborator = COLLABORATORS[collaboratorId as keyof typeof COLLABORATORS];
   if (!collaborator) return null;
 
@@ -276,8 +299,8 @@ async function createOrUpdateDailyFile(drive: any, collaboratorId: string, conte
         fileId: existingFileId,
         media: {
           mimeType: 'text/plain',
-          body: content
-        }
+          body: content,
+        },
       });
 
       logger.info(`✅ Updated daily file for ${collaborator.name}: ${fileName}`);
@@ -287,19 +310,21 @@ async function createOrUpdateDailyFile(drive: any, collaboratorId: string, conte
       const fileMetadata = {
         name: fileName,
         parents: [collaborator.folderId],
-        description: `Daily recap for ${collaborator.name} - ${new Date().toISOString().split('T')[0]}`
+        description: `Daily recap for ${collaborator.name} - ${new Date().toISOString().split('T')[0]}`,
       };
 
       const response = await drive.files.create({
         requestBody: fileMetadata,
         media: {
           mimeType: 'text/plain',
-          body: content
+          body: content,
         },
-        fields: 'id, name'
+        fields: 'id, name',
       });
 
-      logger.info(`✅ Created daily file for ${collaborator.name}: ${fileName} (${response.data.id})`);
+      logger.info(
+        `✅ Created daily file for ${collaborator.name}: ${fileName} (${response.data.id})`
+      );
       return response.data.id;
     }
   } catch (error: any) {
@@ -318,7 +343,7 @@ export async function updateDailyRecap(params: any) {
       return ok({
         updated: false,
         reason: `Collaborator ${p.collaboratorId} not found in system`,
-        available_collaborators: Object.keys(COLLABORATORS)
+        available_collaborators: Object.keys(COLLABORATORS),
       });
     }
 
@@ -353,7 +378,7 @@ export async function updateDailyRecap(params: any) {
       dailyFileCache.set(cacheKey, {
         fileId,
         content: finalContent,
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       });
 
       return ok({
@@ -362,27 +387,26 @@ export async function updateDailyRecap(params: any) {
         activity: {
           type: p.activityType,
           content: p.content,
-          timestamp: p.timestamp || new Date().toISOString()
+          timestamp: p.timestamp || new Date().toISOString(),
         },
         file: {
           id: fileId,
-          name: getDailyFileName(p.collaboratorId)
-        }
+          name: getDailyFileName(p.collaboratorId),
+        },
       });
     } else {
       return ok({
         updated: false,
         reason: 'Failed to create or update daily file',
-        error: 'Drive operation failed'
+        error: 'Drive operation failed',
       });
     }
-
   } catch (error: any) {
     logger.error('❌ Daily recap update error:', error.message);
     return ok({
       updated: false,
       reason: 'System error during daily recap update',
-      error: error.message
+      error: error.message,
     });
   }
 }
@@ -395,7 +419,7 @@ export async function getCurrentDailyRecap(params: any) {
     return ok({
       found: false,
       reason: 'Collaborator not found',
-      available_collaborators: Object.keys(COLLABORATORS)
+      available_collaborators: Object.keys(COLLABORATORS),
     });
   }
 
@@ -411,23 +435,23 @@ export async function getCurrentDailyRecap(params: any) {
         file: {
           id: existingFileId,
           name: getDailyFileName(collaboratorId),
-          content: content.substring(0, 1000) + '...' // First 1000 chars for preview
+          content: content.substring(0, 1000) + '...', // First 1000 chars for preview
         },
-        today: new Date().toISOString().split('T')[0]
+        today: new Date().toISOString().split('T')[0],
       });
     } else {
       return ok({
         found: false,
         reason: 'No daily file found for today',
         collaborator: COLLABORATORS[collaboratorId as keyof typeof COLLABORATORS],
-        suggested_action: 'File will be created on first activity'
+        suggested_action: 'File will be created on first activity',
       });
     }
   } catch (error: any) {
     return ok({
       found: false,
       reason: 'Error accessing daily file',
-      error: error.message
+      error: error.message,
     });
   }
 }

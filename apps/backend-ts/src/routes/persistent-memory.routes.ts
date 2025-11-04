@@ -16,8 +16,10 @@ const router = Router();
 
 // Database connection
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:password@nuzantara-postgres.internal:5432/zantara_db',
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  connectionString:
+    process.env.DATABASE_URL ||
+    'postgres://postgres:password@nuzantara-postgres.internal:5432/zantara_db',
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
 // Interface definitions
@@ -312,7 +314,7 @@ async function createIndexes() {
     'CREATE INDEX IF NOT EXISTS idx_collective_metadata_gin ON collective_memory USING GIN (metadata)',
     'CREATE INDEX IF NOT EXISTS idx_context_data_gin ON cross_session_context USING GIN (context_data)',
     'CREATE INDEX IF NOT EXISTS idx_knowledge_metadata_gin ON team_knowledge_sharing USING GIN (metadata)',
-    'CREATE INDEX IF NOT EXISTS idx_cache_value_gin ON memory_cache USING GIN (cache_value)'
+    'CREATE INDEX IF NOT EXISTS idx_cache_value_gin ON memory_cache USING GIN (cache_value)',
   ];
 
   for (const indexQuery of indexes) {
@@ -350,7 +352,7 @@ async function createTriggers() {
     'CREATE TRIGGER update_cross_session_context_updated_at BEFORE UPDATE ON cross_session_context FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()',
 
     'DROP TRIGGER IF EXISTS update_team_knowledge_sharing_updated_at ON team_knowledge_sharing',
-    'CREATE TRIGGER update_team_knowledge_sharing_updated_at BEFORE UPDATE ON team_knowledge_sharing FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()'
+    'CREATE TRIGGER update_team_knowledge_sharing_updated_at BEFORE UPDATE ON team_knowledge_sharing FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()',
   ];
 
   for (const triggerQuery of triggers) {
@@ -409,7 +411,7 @@ export class PersistentMemoryManager {
       session.member_name,
       session.language,
       session.expires_at,
-      JSON.stringify(session.metadata || {})
+      JSON.stringify(session.metadata || {}),
     ];
 
     const result = await pool.query(query, values);
@@ -437,7 +439,7 @@ export class PersistentMemoryManager {
       message.language_detected,
       JSON.stringify(message.context_metadata || {}),
       message.processing_time_ms,
-      message.tokens_used || 0
+      message.tokens_used || 0,
     ];
 
     const result = await pool.query(query, values);
@@ -447,7 +449,10 @@ export class PersistentMemoryManager {
   /**
    * Get conversation history for session
    */
-  async getConversationHistory(sessionId: string, limit: number = 50): Promise<ConversationMessage[]> {
+  async getConversationHistory(
+    sessionId: string,
+    limit: number = 50
+  ): Promise<ConversationMessage[]> {
     const query = `
       SELECT * FROM conversation_history
       WHERE session_id = $1
@@ -490,7 +495,7 @@ export class PersistentMemoryManager {
       memory.created_by,
       memory.tags,
       JSON.stringify(memory.metadata || {}),
-      memory.confidence_score || 1.0
+      memory.confidence_score || 1.0,
     ];
 
     const result = await pool.query(query, values);
@@ -565,7 +570,7 @@ export const persistentMemoryManager = new PersistentMemoryManager();
  */
 
 // Initialize database on route load
-initializeDatabase().catch(error => {
+initializeDatabase().catch((error) => {
   logger.error('Failed to initialize persistent memory database:', error);
 });
 
@@ -695,7 +700,7 @@ router.get('/status', async (req: Request, res: Response) => {
     const [sessionsCount, conversationsCount, memoryCount] = await Promise.all([
       pool.query('SELECT COUNT(*) as count FROM persistent_sessions WHERE is_active = true'),
       pool.query('SELECT COUNT(*) as count FROM conversation_history'),
-      pool.query('SELECT COUNT(*) as count FROM collective_memory')
+      pool.query('SELECT COUNT(*) as count FROM collective_memory'),
     ]);
 
     res.json({
@@ -704,28 +709,28 @@ router.get('/status', async (req: Request, res: Response) => {
         database: {
           connected: true,
           current_time: dbTest.rows[0].current_time,
-          database: dbTest.rows[0].database
+          database: dbTest.rows[0].database,
         },
         tables: {
           active_sessions: parseInt(sessionsCount.rows[0].count),
           total_conversations: parseInt(conversationsCount.rows[0].count),
-          collective_memories: parseInt(memoryCount.rows[0].count)
+          collective_memories: parseInt(memoryCount.rows[0].count),
         },
         version: '4.0.0',
         features: [
           'Database-backed session management',
           'Conversation history storage',
           'Collective intelligence sharing',
-          'Cross-session context retrieval'
-        ]
-      }
+          'Cross-session context retrieval',
+        ],
+      },
     });
   } catch (error) {
     logger.error('Error getting system status:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get system status',
-      database: { connected: false }
+      database: { connected: false },
     });
   }
 });

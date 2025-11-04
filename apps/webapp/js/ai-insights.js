@@ -20,16 +20,16 @@ class AIPoweredInsights {
   async initialize() {
     // Register insight models
     this.registerInsightModels();
-    
+
     // Load previous insights
     this.loadInsights();
-    
+
     // Set up periodic analysis
     this.setupPeriodicAnalysis();
-    
+
     // Set up event listeners
     this.setupEventListeners();
-    
+
     console.log('[AIPoweredInsights] System initialized');
   }
 
@@ -42,7 +42,7 @@ class AIPoweredInsights {
       name: 'User Behavior Analysis',
       description: 'Analyzes user patterns and behaviors',
       priority: 'high',
-      generate: this.generateUserBehaviorInsights.bind(this)
+      generate: this.generateUserBehaviorInsights.bind(this),
     });
 
     // Performance insights
@@ -50,7 +50,7 @@ class AIPoweredInsights {
       name: 'Performance Analysis',
       description: 'Analyzes system performance metrics',
       priority: 'high',
-      generate: this.generatePerformanceInsights.bind(this)
+      generate: this.generatePerformanceInsights.bind(this),
     });
 
     // Handler usage insights
@@ -58,7 +58,7 @@ class AIPoweredInsights {
       name: 'Handler Usage Analysis',
       description: 'Analyzes handler usage patterns',
       priority: 'medium',
-      generate: this.generateHandlerUsageInsights.bind(this)
+      generate: this.generateHandlerUsageInsights.bind(this),
     });
 
     // Conversation insights
@@ -66,7 +66,7 @@ class AIPoweredInsights {
       name: 'Conversation Analysis',
       description: 'Analyzes conversation patterns and topics',
       priority: 'medium',
-      generate: this.generateConversationInsights.bind(this)
+      generate: this.generateConversationInsights.bind(this),
     });
 
     // Productivity insights
@@ -74,7 +74,7 @@ class AIPoweredInsights {
       name: 'Productivity Analysis',
       description: 'Analyzes user productivity patterns',
       priority: 'medium',
-      generate: this.generateProductivityInsights.bind(this)
+      generate: this.generateProductivityInsights.bind(this),
     });
 
     console.log('[AIPoweredInsights] Insight models registered');
@@ -89,12 +89,12 @@ class AIPoweredInsights {
       if (savedInsights) {
         this.insights = JSON.parse(savedInsights);
       }
-      
+
       const savedHistory = localStorage.getItem('zantara-insight-history');
       if (savedHistory) {
         this.analysisHistory = JSON.parse(savedHistory);
       }
-      
+
       console.log('[AIPoweredInsights] Insights loaded');
     } catch (error) {
       console.error('[AIPoweredInsights] Error loading insights:', error);
@@ -119,7 +119,7 @@ class AIPoweredInsights {
   setupPeriodicAnalysis() {
     // Run initial analysis
     this.runPeriodicAnalysis();
-    
+
     // Set up interval based on frequency
     let intervalTime;
     switch (this.insightFrequency) {
@@ -135,11 +135,11 @@ class AIPoweredInsights {
       default:
         intervalTime = 86400000; // Default to daily
     }
-    
+
     setInterval(() => {
       this.runPeriodicAnalysis();
     }, intervalTime);
-    
+
     console.log('[AIPoweredInsights] Periodic analysis set up');
   }
 
@@ -148,9 +148,9 @@ class AIPoweredInsights {
    */
   async runPeriodicAnalysis() {
     if (!this.aiEnabled) return;
-    
+
     console.log('[AIPoweredInsights] Running periodic analysis');
-    
+
     // Generate insights from all models
     for (const [modelName, model] of this.insightModels) {
       try {
@@ -159,7 +159,7 @@ class AIPoweredInsights {
         console.error(`[AIPoweredInsights] Error generating insights from ${modelName}:`, error);
       }
     }
-    
+
     // Save insights
     this.saveInsights();
   }
@@ -170,12 +170,12 @@ class AIPoweredInsights {
   async generateUserBehaviorInsights() {
     // In a real implementation, this would analyze actual user behavior data
     // For now, we'll simulate insights based on mock data
-    
+
     const insights = [];
-    
+
     // Simulate user behavior analysis
     const userActivity = this.getMockUserActivity();
-    
+
     // Peak usage time insight
     const peakHour = this.analyzePeakUsageTime(userActivity);
     if (peakHour) {
@@ -188,10 +188,10 @@ class AIPoweredInsights {
         severity: 'info',
         recommendation: 'Consider scheduling important notifications during peak hours',
         timestamp: new Date().toISOString(),
-        data: { peakHour }
+        data: { peakHour },
       });
     }
-    
+
     // Activity trend insight
     const trend = this.analyzeActivityTrend(userActivity);
     if (trend) {
@@ -202,17 +202,18 @@ class AIPoweredInsights {
         title: `Activity Trend: ${trend.direction}`,
         description: `User activity has been ${trend.direction.toLowerCase()} by ${trend.percentage}% over the last period`,
         severity: trend.direction === 'Increasing' ? 'positive' : 'warning',
-        recommendation: trend.direction === 'Increasing' 
-          ? 'Great! Keep up the good work engaging users'
-          : 'Consider implementing new features to increase engagement',
+        recommendation:
+          trend.direction === 'Increasing'
+            ? 'Great! Keep up the good work engaging users'
+            : 'Consider implementing new features to increase engagement',
         timestamp: new Date().toISOString(),
-        data: { trend }
+        data: { trend },
       });
     }
-    
+
     // Add insights to system
     this.addInsights(insights);
-    
+
     console.log('[AIPoweredInsights] User behavior insights generated');
   }
 
@@ -222,12 +223,12 @@ class AIPoweredInsights {
   async generatePerformanceInsights() {
     // In a real implementation, this would analyze actual performance data
     // For now, we'll simulate insights based on mock data
-    
+
     const insights = [];
-    
+
     // Simulate performance analysis
     const performanceData = this.getMockPerformanceData();
-    
+
     // Response time insight
     if (performanceData.avgResponseTime > 200) {
       insights.push({
@@ -239,10 +240,10 @@ class AIPoweredInsights {
         severity: 'warning',
         recommendation: 'Consider optimizing database queries or implementing caching',
         timestamp: new Date().toISOString(),
-        data: { responseTime: performanceData.avgResponseTime }
+        data: { responseTime: performanceData.avgResponseTime },
       });
     }
-    
+
     // Error rate insight
     if (performanceData.errorRate > 2) {
       insights.push({
@@ -254,13 +255,13 @@ class AIPoweredInsights {
         severity: 'critical',
         recommendation: 'Investigate server logs and fix recurring errors',
         timestamp: new Date().toISOString(),
-        data: { errorRate: performanceData.errorRate }
+        data: { errorRate: performanceData.errorRate },
       });
     }
-    
+
     // Add insights to system
     this.addInsights(insights);
-    
+
     console.log('[AIPoweredInsights] Performance insights generated');
   }
 
@@ -270,14 +271,14 @@ class AIPoweredInsights {
   async generateHandlerUsageInsights() {
     // In a real implementation, this would analyze actual handler usage data
     // For now, we'll simulate insights based on mock data
-    
+
     const insights = [];
-    
+
     // Simulate handler usage analysis
     const handlerData = this.getMockHandlerUsageData();
-    
+
     // Popular handlers insight
-    const popularHandlers = handlerData.filter(h => h.usageCount > 50);
+    const popularHandlers = handlerData.filter((h) => h.usageCount > 50);
     if (popularHandlers.length > 0) {
       insights.push({
         id: `insight_${Date.now()}_5`,
@@ -288,12 +289,12 @@ class AIPoweredInsights {
         severity: 'info',
         recommendation: 'Consider optimizing these popular handlers for better performance',
         timestamp: new Date().toISOString(),
-        data: { popularHandlers: popularHandlers.map(h => h.name) }
+        data: { popularHandlers: popularHandlers.map((h) => h.name) },
       });
     }
-    
+
     // Underutilized handlers insight
-    const underutilizedHandlers = handlerData.filter(h => h.usageCount < 5);
+    const underutilizedHandlers = handlerData.filter((h) => h.usageCount < 5);
     if (underutilizedHandlers.length > 5) {
       insights.push({
         id: `insight_${Date.now()}_6`,
@@ -304,13 +305,13 @@ class AIPoweredInsights {
         severity: 'info',
         recommendation: 'Consider removing or repurposing underutilized handlers',
         timestamp: new Date().toISOString(),
-        data: { underutilizedHandlers: underutilizedHandlers.map(h => h.name) }
+        data: { underutilizedHandlers: underutilizedHandlers.map((h) => h.name) },
       });
     }
-    
+
     // Add insights to system
     this.addInsights(insights);
-    
+
     console.log('[AIPoweredInsights] Handler usage insights generated');
   }
 
@@ -320,12 +321,12 @@ class AIPoweredInsights {
   async generateConversationInsights() {
     // In a real implementation, this would analyze actual conversation data
     // For now, we'll simulate insights based on mock data
-    
+
     const insights = [];
-    
+
     // Simulate conversation analysis
     const conversationData = this.getMockConversationData();
-    
+
     // Conversation length insight
     if (conversationData.avgMessagesPerConversation > 10) {
       insights.push({
@@ -335,12 +336,13 @@ class AIPoweredInsights {
         title: 'Lengthy Conversations',
         description: `Average conversation length is ${conversationData.avgMessagesPerConversation} messages`,
         severity: 'info',
-        recommendation: 'Users are having in-depth conversations. Consider conversation summarization features',
+        recommendation:
+          'Users are having in-depth conversations. Consider conversation summarization features',
         timestamp: new Date().toISOString(),
-        data: { avgMessages: conversationData.avgMessagesPerConversation }
+        data: { avgMessages: conversationData.avgMessagesPerConversation },
       });
     }
-    
+
     // Common topics insight
     if (conversationData.commonTopics.length > 0) {
       insights.push({
@@ -352,13 +354,13 @@ class AIPoweredInsights {
         severity: 'info',
         recommendation: 'Consider creating dedicated handlers for these common topics',
         timestamp: new Date().toISOString(),
-        data: { topics: conversationData.commonTopics.slice(0, 5) }
+        data: { topics: conversationData.commonTopics.slice(0, 5) },
       });
     }
-    
+
     // Add insights to system
     this.addInsights(insights);
-    
+
     console.log('[AIPoweredInsights] Conversation insights generated');
   }
 
@@ -368,12 +370,12 @@ class AIPoweredInsights {
   async generateProductivityInsights() {
     // In a real implementation, this would analyze actual productivity data
     // For now, we'll simulate insights based on mock data
-    
+
     const insights = [];
-    
+
     // Simulate productivity analysis
     const productivityData = this.getMockProductivityData();
-    
+
     // Task completion insight
     if (productivityData.completionRate < 80) {
       insights.push({
@@ -383,14 +385,15 @@ class AIPoweredInsights {
         title: 'Task Completion Rate',
         description: `Task completion rate is ${productivityData.completionRate}%`,
         severity: productivityData.completionRate < 50 ? 'warning' : 'info',
-        recommendation: productivityData.completionRate < 50 
-          ? 'Identify barriers preventing task completion'
-          : 'Maintain current productivity levels',
+        recommendation:
+          productivityData.completionRate < 50
+            ? 'Identify barriers preventing task completion'
+            : 'Maintain current productivity levels',
         timestamp: new Date().toISOString(),
-        data: { completionRate: productivityData.completionRate }
+        data: { completionRate: productivityData.completionRate },
       });
     }
-    
+
     // Peak productivity insight
     if (productivityData.peakProductivityHour) {
       insights.push({
@@ -402,13 +405,13 @@ class AIPoweredInsights {
         severity: 'positive',
         recommendation: 'Schedule important tasks during peak productivity hours',
         timestamp: new Date().toISOString(),
-        data: { peakHour: productivityData.peakProductivityHour }
+        data: { peakHour: productivityData.peakProductivityHour },
       });
     }
-    
+
     // Add insights to system
     this.addInsights(insights);
-    
+
     console.log('[AIPoweredInsights] Productivity insights generated');
   }
 
@@ -419,36 +422,38 @@ class AIPoweredInsights {
     if (!Array.isArray(newInsights)) {
       newInsights = [newInsights];
     }
-    
-    newInsights.forEach(insight => {
+
+    newInsights.forEach((insight) => {
       this.insights.unshift(insight);
     });
-    
+
     // Limit insights array size
     if (this.insights.length > 100) {
       this.insights = this.insights.slice(0, 100);
     }
-    
+
     // Add to analysis history
     this.analysisHistory.unshift({
       id: `analysis_${Date.now()}`,
       timestamp: new Date().toISOString(),
       insightsCount: newInsights.length,
-      models: Array.from(this.insightModels.keys())
+      models: Array.from(this.insightModels.keys()),
     });
-    
+
     // Limit history size
     if (this.analysisHistory.length > this.maxHistoryItems) {
       this.analysisHistory.pop();
     }
-    
+
     // Save insights
     this.saveInsights();
-    
+
     // Notify about new insights
-    window.dispatchEvent(new CustomEvent('ai-insights-generated', {
-      detail: { insights: newInsights }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('ai-insights-generated', {
+        detail: { insights: newInsights },
+      })
+    );
   }
 
   /**
@@ -457,9 +462,15 @@ class AIPoweredInsights {
   getMockUserActivity() {
     // Simulate user activity data
     return {
-      hourlyActivity: Array(24).fill(0).map(() => Math.floor(Math.random() * 100)),
-      dailyActivity: Array(7).fill(0).map(() => Math.floor(Math.random() * 500)),
-      monthlyActivity: Array(30).fill(0).map(() => Math.floor(Math.random() * 200))
+      hourlyActivity: Array(24)
+        .fill(0)
+        .map(() => Math.floor(Math.random() * 100)),
+      dailyActivity: Array(7)
+        .fill(0)
+        .map(() => Math.floor(Math.random() * 500)),
+      monthlyActivity: Array(30)
+        .fill(0)
+        .map(() => Math.floor(Math.random() * 200)),
     };
   }
 
@@ -470,22 +481,22 @@ class AIPoweredInsights {
     const hourlyActivity = activityData.hourlyActivity;
     let maxActivity = 0;
     let peakHour = -1;
-    
+
     for (let i = 0; i < hourlyActivity.length; i++) {
       if (hourlyActivity[i] > maxActivity) {
         maxActivity = hourlyActivity[i];
         peakHour = i;
       }
     }
-    
+
     if (peakHour >= 0) {
       return {
         start: peakHour,
         end: (peakHour + 1) % 24,
-        activity: maxActivity
+        activity: maxActivity,
       };
     }
-    
+
     return null;
   }
 
@@ -495,19 +506,19 @@ class AIPoweredInsights {
   analyzeActivityTrend(activityData) {
     const dailyActivity = activityData.dailyActivity;
     if (dailyActivity.length < 2) return null;
-    
+
     const recentAvg = dailyActivity.slice(-7).reduce((a, b) => a + b, 0) / 7;
     const previousAvg = dailyActivity.slice(-14, -7).reduce((a, b) => a + b, 0) / 7;
-    
+
     if (previousAvg === 0) return null;
-    
+
     const percentageChange = ((recentAvg - previousAvg) / previousAvg) * 100;
-    
+
     return {
       direction: percentageChange > 0 ? 'Increasing' : 'Decreasing',
       percentage: Math.abs(percentageChange).toFixed(1),
       recentAverage: recentAvg.toFixed(1),
-      previousAverage: previousAvg.toFixed(1)
+      previousAverage: previousAvg.toFixed(1),
     };
   }
 
@@ -519,7 +530,7 @@ class AIPoweredInsights {
     return {
       avgResponseTime: Math.floor(Math.random() * 500) + 50, // 50-550ms
       errorRate: Math.floor(Math.random() * 5), // 0-5%
-      uptime: 99 + (Math.random() * 0.9) // 99-99.9%
+      uptime: 99 + Math.random() * 0.9, // 99-99.9%
     };
   }
 
@@ -529,15 +540,24 @@ class AIPoweredInsights {
   getMockHandlerUsageData() {
     // Simulate handler usage data
     const handlers = [
-      'team.create', 'team.list', 'project.create', 'project.list',
-      'task.create', 'task.assign', 'report.generate', 'user.profile',
-      'settings.update', 'notification.send', 'file.upload', 'search.query'
+      'team.create',
+      'team.list',
+      'project.create',
+      'project.list',
+      'task.create',
+      'task.assign',
+      'report.generate',
+      'user.profile',
+      'settings.update',
+      'notification.send',
+      'file.upload',
+      'search.query',
     ];
-    
-    return handlers.map(name => ({
+
+    return handlers.map((name) => ({
       name: name,
       usageCount: Math.floor(Math.random() * 100),
-      lastUsed: new Date(Date.now() - Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000)
+      lastUsed: new Date(Date.now() - Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000),
     }));
   }
 
@@ -548,12 +568,18 @@ class AIPoweredInsights {
     // Simulate conversation data
     return {
       avgMessagesPerConversation: Math.floor(Math.random() * 20) + 1,
-      commonTopics: ['project management', 'team collaboration', 'task assignment', 'reporting', 'scheduling'],
+      commonTopics: [
+        'project management',
+        'team collaboration',
+        'task assignment',
+        'reporting',
+        'scheduling',
+      ],
       sentimentDistribution: {
         positive: Math.floor(Math.random() * 50) + 30,
         neutral: Math.floor(Math.random() * 30) + 20,
-        negative: Math.floor(Math.random() * 20) + 10
-      }
+        negative: Math.floor(Math.random() * 20) + 10,
+      },
     };
   }
 
@@ -566,7 +592,7 @@ class AIPoweredInsights {
       completionRate: Math.floor(Math.random() * 100),
       tasksCompleted: Math.floor(Math.random() * 50),
       peakProductivityHour: Math.floor(Math.random() * 24),
-      avgTaskDuration: Math.floor(Math.random() * 120) + 10 // 10-130 minutes
+      avgTaskDuration: Math.floor(Math.random() * 120) + 10, // 10-130 minutes
     };
   }
 
@@ -575,20 +601,20 @@ class AIPoweredInsights {
    */
   getInsights(filter = {}) {
     let filteredInsights = [...this.insights];
-    
+
     // Apply filters
     if (filter.type) {
-      filteredInsights = filteredInsights.filter(insight => insight.type === filter.type);
+      filteredInsights = filteredInsights.filter((insight) => insight.type === filter.type);
     }
-    
+
     if (filter.category) {
-      filteredInsights = filteredInsights.filter(insight => insight.category === filter.category);
+      filteredInsights = filteredInsights.filter((insight) => insight.category === filter.category);
     }
-    
+
     if (filter.severity) {
-      filteredInsights = filteredInsights.filter(insight => insight.severity === filter.severity);
+      filteredInsights = filteredInsights.filter((insight) => insight.severity === filter.severity);
     }
-    
+
     return filteredInsights;
   }
 
@@ -603,14 +629,14 @@ class AIPoweredInsights {
    * Get insights by type
    */
   getInsightsByType(type) {
-    return this.insights.filter(insight => insight.type === type);
+    return this.insights.filter((insight) => insight.type === type);
   }
 
   /**
    * Get insights by severity
    */
   getInsightsBySeverity(severity) {
-    return this.insights.filter(insight => insight.severity === severity);
+    return this.insights.filter((insight) => insight.severity === severity);
   }
 
   /**
@@ -621,19 +647,20 @@ class AIPoweredInsights {
       totalInsights: this.insights.length,
       insightsByType: {},
       insightsBySeverity: {},
-      recentInsights: this.getRecentInsights(5)
+      recentInsights: this.getRecentInsights(5),
     };
-    
+
     // Count insights by type
-    this.insights.forEach(insight => {
+    this.insights.forEach((insight) => {
       stats.insightsByType[insight.type] = (stats.insightsByType[insight.type] || 0) + 1;
     });
-    
+
     // Count insights by severity
-    this.insights.forEach(insight => {
-      stats.insightsBySeverity[insight.severity] = (stats.insightsBySeverity[insight.severity] || 0) + 1;
+    this.insights.forEach((insight) => {
+      stats.insightsBySeverity[insight.severity] =
+        (stats.insightsBySeverity[insight.severity] || 0) + 1;
     });
-    
+
     return stats;
   }
 
@@ -641,9 +668,9 @@ class AIPoweredInsights {
    * Dismiss an insight
    */
   dismissInsight(insightId) {
-    this.insights = this.insights.filter(insight => insight.id !== insightId);
+    this.insights = this.insights.filter((insight) => insight.id !== insightId);
     this.saveInsights();
-    
+
     console.log(`[AIPoweredInsights] Insight dismissed: ${insightId}`);
   }
 
@@ -652,7 +679,7 @@ class AIPoweredInsights {
    */
   setAIEnabled(enabled) {
     this.aiEnabled = enabled;
-    
+
     if (enabled) {
       console.log('[AIPoweredInsights] AI insights enabled');
     } else {
@@ -676,7 +703,7 @@ class AIPoweredInsights {
     window.addEventListener('generate-ai-insights', () => {
       this.runPeriodicAnalysis();
     });
-    
+
     // Listen for insight dismissal
     window.addEventListener('dismiss-insight', (event) => {
       this.dismissInsight(event.detail.insightId);
@@ -689,7 +716,7 @@ class AIPoweredInsights {
   renderInsightsDashboard(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     // Create insights dashboard HTML
     container.innerHTML = `
       <div class="ai-insights-dashboard">
@@ -754,19 +781,19 @@ class AIPoweredInsights {
         </div>
       </div>
     `;
-    
+
     // Render components
     this.renderInsightStatistics('insight-statistics');
     this.renderRecentInsights('recent-insights');
     this.renderInsightsByType('insights-by-type');
     this.renderInsightsBySeverity('insights-by-severity');
-    
+
     // Set up action buttons
     document.getElementById('generate-insights').addEventListener('click', () => {
       this.runPeriodicAnalysis();
       alert('Generating insights... Check back in a moment.');
     });
-    
+
     document.getElementById('clear-insights').addEventListener('click', () => {
       if (confirm('Are you sure you want to clear all insights?')) {
         this.insights = [];
@@ -774,12 +801,12 @@ class AIPoweredInsights {
         this.renderInsightsDashboard(containerId); // Re-render
       }
     });
-    
+
     document.getElementById('toggle-ai').addEventListener('click', () => {
       this.setAIEnabled(!this.aiEnabled);
       this.renderInsightsDashboard(containerId); // Re-render
     });
-    
+
     // Set up frequency control
     document.getElementById('insight-frequency').addEventListener('change', (e) => {
       this.setInsightFrequency(e.target.value);
@@ -792,9 +819,9 @@ class AIPoweredInsights {
   renderInsightStatistics(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const stats = this.getInsightStatistics();
-    
+
     container.innerHTML = `
       <div class="metrics-grid">
         <div class="metric-card">
@@ -823,17 +850,19 @@ class AIPoweredInsights {
   renderRecentInsights(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const recentInsights = this.getRecentInsights(5);
-    
+
     if (recentInsights.length === 0) {
       container.innerHTML = '<p class="no-data">No insights available</p>';
       return;
     }
-    
+
     container.innerHTML = `
       <div class="insights-list">
-        ${recentInsights.map(insight => `
+        ${recentInsights
+          .map(
+            (insight) => `
           <div class="insight-card severity-${insight.severity}">
             <div class="insight-header">
               <h4>${insight.title}</h4>
@@ -848,12 +877,14 @@ class AIPoweredInsights {
               <button class="dismiss-insight" data-insight-id="${insight.id}">Dismiss</button>
             </div>
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     `;
-    
+
     // Set up dismiss buttons
-    container.querySelectorAll('.dismiss-insight').forEach(button => {
+    container.querySelectorAll('.dismiss-insight').forEach((button) => {
       button.addEventListener('click', (e) => {
         const insightId = e.target.getAttribute('data-insight-id');
         this.dismissInsight(insightId);
@@ -868,24 +899,28 @@ class AIPoweredInsights {
   renderInsightsByType(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const stats = this.getInsightStatistics();
     const types = Object.entries(stats.insightsByType);
-    
+
     if (types.length === 0) {
       container.innerHTML = '<p class="no-data">No insights by type</p>';
       return;
     }
-    
+
     container.innerHTML = `
       <div class="types-list">
         <ul>
-          ${types.map(([type, count]) => `
+          ${types
+            .map(
+              ([type, count]) => `
             <li class="type-item">
               <span class="type-name">${type.replace('_', ' ')}</span>
               <span class="type-count">${count} insights</span>
             </li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
     `;
@@ -897,24 +932,28 @@ class AIPoweredInsights {
   renderInsightsBySeverity(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const stats = this.getInsightStatistics();
     const severities = Object.entries(stats.insightsBySeverity);
-    
+
     if (severities.length === 0) {
       container.innerHTML = '<p class="no-data">No insights by severity</p>';
       return;
     }
-    
+
     container.innerHTML = `
       <div class="severities-list">
         <ul>
-          ${severities.map(([severity, count]) => `
+          ${severities
+            .map(
+              ([severity, count]) => `
             <li class="severity-item">
               <span class="severity-name">${severity}</span>
               <span class="severity-count">${count} insights</span>
             </li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
     `;
@@ -925,9 +964,9 @@ class AIPoweredInsights {
 document.addEventListener('DOMContentLoaded', () => {
   window.AIPoweredInsights = new AIPoweredInsights();
   window.AIPoweredInsights.initialize();
-  
+
   console.log('[AIPoweredInsights] System ready');
-  
+
   // Mark enhancement as completed
   if (window.enhancementTracker) {
     window.enhancementTracker.markCompleted(34);

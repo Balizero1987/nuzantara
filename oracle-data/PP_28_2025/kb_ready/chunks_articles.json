@@ -49,11 +49,7 @@
     "text": "Ayat (1)\nCukup jelas.\nAyat (21\nCukup jelas.\nAyat (3)\nCukup jelas.\nAyat (a)\nCukup jelas.\nAyat (5)\nYang dimaksud dengan \"terintegrasi secara elektronik dengan\nsistem di kementerian/lembaga\" adalah:\n1. Setiap permohonan persyaratan dasar, PB, dan/atau PB\nUMKU hanya diajukan oleh Pelaku Usaha melalui Sistem OSS\ndan kemudian permohonan tersebut dialirkan kepada sistem\nelektronik yang dimiliki oleh kementerian/lembaga sesuai\ndengan kewenangan masing-masing.\n2. Setiap penerbitan persyaratan dasar, PB, dan/atau PB UMKU\nharus disampaikan kepada Pelaku Usaha hanya melalui\nSistem OSS setelah melalui proses tahapan verifikasi oleh\nkementerian/lembaga sesuai dengan kewenangan masing-\nmasing.\nTerintegrasi secara elektronik dimaksud mencakup pula\npemrosesan dan penerbitan persyaratan dasar, PB, dan/atau PB\nUMKU yang dilakukan di Sistem OSS oleh kementerian/lembaga,\nPemerintah Daerah, Administrator KEK, dan/atau Badan\nPengusahaan KPBPB dengan menggunakan hak akses.\nPasal. . .\nSK No 2799648\n\n[PAGE 314]\nPRESIDEN\nR.EPUBLIK INDONESIA\n-4-",
     "ayat_count": 3,
     "signals": {
-      "systems": [
-        "OSS",
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["OSS", "KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -69,10 +65,7 @@
     "text": "Ayat (1)\nCukup jelas.\nAyat (2)\nCukup jelas.\nAyat (3)\nCukup jelas.\nAyat (a)\nYang dimaksud dengan 'Jangka waktu penerbitan\" adalah waktu\nyang dibutuhkan Pemerintah Pusat atau Pemerintah Daerah\nuntuk menerbitkan PB berdasarkan analisis Risiko, terhitung\nsejak dokumen lengkap dan benar.\nAyat (5)\nYang dimaksud dengan'Jangka waktu penerbitan\" adalah waktu\nyang dibutuhkan Pemerintah Pusat atau Pemerintah Daerahuntuk menerbitkan PB-UMKU dengan mempertimbangkan\ntingkat Risiko, terhitung sejak dokumen lengkap dan benar.\nAyat (6)\nCukup jelas.\nAyat (7)\nCukup jelas.\nAyat (8)\nStandar kegiatan usaha dan/atau standar produk/jasa serta\nmekanisme penerbitan yang menjadi pedoman bagi Administrator\nKEK dan Badan Pengusahaan KPBPB memperhatikan ketentuan\nperaturan perundang-undangan di bidang kawasan ekonomi\nkhusus dan kawasan perdagangan bebas dan pelabuhan bebas.\nAyat (9)\nCukup jelas.\nAyat (10)\nCukup jelas.\nAyat (1 1)\nCukup jelas.\nAyat (r2)\nCukup jelas.\nPasal. . .\nSK No 2799638\n\n[PAGE 315]\nPR.ESIDEN\nREPUBUK INDONESIA\n-5-",
     "ayat_count": 9,
     "signals": {
-      "systems": [
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -186,9 +179,7 @@
     "text": "Sistem OSS melaksanakan pemeriksaan lokasi usaha yang\ndiajukan oleh Pelaku Usaha terdiri atas:\na. darat; dan/atau\nb. laut.",
     "ayat_count": 0,
     "signals": {
-      "systems": [
-        "OSS"
-      ]
+      "systems": ["OSS"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -330,10 +321,7 @@
     "text": "Ayat (1)\nCukup jelas\nAyat (2)\nHuruf a\nBukti bahwa Pelaku Usaha dapat melakukan kegiatan usahadi KEK atau kawasan industri dapat berupa\nrekomendasi/surat keterangan atau perjanjian/kontrak\nkerja sama dari pengelola KEK atau kawasan industri.\nHuruf b\nCukup jelas\nHuruf c\nPengalihan KKPR kepada Pelaku Usaha yang baru\ndibuktikan dengan dokumen tertulis hubungan hukum yang\nmenyatakan pengalihan penguasaan tanah.\nSK No 2799598Huruf\n\n[PAGE 319]\nPRESIDEN\nREPUBUK INDONESIA\n-9-\nHuruf d\nPenerbitan KKPR kepada Pelaku Usaha dari Pelaku Usaha\nlain dibuktikan dengan dokumen perjanjian sewa menyewa\natau pinjam pakai yang masih berlaku, yang paling sedikitmemuat kesediaan pemegang KKPR sebelumnya\nmengalihkan kepada Pelaku Usaha.\nHuruf e\nDalam hal bentuk usaha tetap sudah memiliki kontrak kerja\nsama dengan pemerintah, poligon/koordinat wilayah kerja\nminyak dan gas bumi harus sudah ditanamkan dalam\nSistem OSS.\nHuruf f\nYang dimaksud dengan \"terintegrasi\" adalah sistem yang\nmenghubungkan fungsi dan/atau proses dalam sebuah\nentitas usaha yang saling terhubung dan bekerja sama\nuntuk mencapai tujuan.\nHuruf g\nCukup jelas.\nAyat (3)\nCukup jelas.\nAyat (4)\nCukup jelas.",
     "ayat_count": 4,
     "signals": {
-      "systems": [
-        "OSS",
-        "KEK"
-      ]
+      "systems": ["OSS", "KEK"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -531,9 +519,7 @@
     "text": "(1) Penelaahan dan penerbitan persetujuan penggunaan\nkawasan hutan sebagaimana dimaksud dalam Pasal 38\nayat (21 huruf c dilakukan paling lama 47 (ernpat puluh\ntujuh) Hari sejak dokumen permohonan persetujuan\npenggunaan kawasan hutan dinyatakan telah memenuhi\nkesesuaian dokumen dan persyaratan sebagaimana\ndimaksud dalam Pasal 40 ayat (8) oleh kementerian yang\nmenyelenggarakan urusan pemerintahan di bidang\nkehutanan.\n(21 Dalam hal berdasarkan penelaahan sebagaimana\ndimaksud pada ayat (1) permohonan tidak memenuhi\nketentuan peraturan perundang-undangan di bidang\nkehutanan, menteri yang menyelenggarakan urusan\npemerintahan di bidang kehutanan menyampaikannotifikasi penolakan permohonan persetujuan\npenggunaan kawasan hutan disertai alasan penolakan ke\nSistem OSS.\n(3) Dalam hal berdasarkan penelaahan sebagaimana\ndimaksud pada ayat (1) permohonan memenuhi ketentuan\nperaturan perundang-undangan di bidang kehutanan,\nmenteri yang menyelenggarakan urusan pemerintahan di\nbidang kehutanan menyampaikan notifikasi berupa\nkeputusan persetujuan penggunaan kawasan hutan dan\npeta lampiran ke Sistem OSS.\nPasal. . .\nSK No 251865 A\n\n[PAGE 30]\nPRESIDEN\nREPUBLIK INDONESIA\n-30-",
     "ayat_count": 5,
     "signals": {
-      "systems": [
-        "OSS"
-      ]
+      "systems": ["OSS"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -941,9 +927,7 @@
     "text": "(1) Apabila berdasarkan hasil penilaian sebagaimana\ndimaksud dalam Pasal 69 ayat (21 dokumen usulan\nkegiatan pemanfaatan ruang laut dinyatakan terdapat\ncatatan perbaikan, Sistem OSS mengembalikan dokumen\nusulan kegiatan pemanfaatan ruang laut kepada Pelaku\nUsaha disertai dengan catatan perbaikan.\n(21 Pelaku Usaha menyampaikan perbaikan paling lama 5\n(lima) Hari sejak pengembalian dokumen sebagaimana\ndimaksud pada ayat (1).\n(3) Penilaian kembali atas dokumen usulan kegiatan\npemanfaatan ruang laut yang dinyatakan terdapat catatan\nperbaikan dilakukan paling lama 5 (lima) Hari sejak\nditerimanya perbaikan sebagaimana dimaksud pada\nayat (21.\n(41 Jika berdasarkan hasil penilaian sebagaimana dimaksud\npada ayat (3) masih terdapat catatan perbaikan atas\ndokumen usulan kegiatan pemanfaatan ruang laut, Sistem\nOSS mengembalikan dokumen kepada Pelaku Usaha\ndisertai dengan catatan perbaikan.\n(5) Pelaku Usaha menyampaikan perbaikan paling lama 5\n(lima) Hari sejak pengembalian dokumen sebagaimana\ndimaksud pada ayat (41.\n(6) Penilaian kembali atas dokumen usulan kegiatan\npemanfaatan ruang laut yang dinyatakan terdapat catatan\nperbaikan dilakukan paling lama 5 (lima) Hari sejak\nditerimanya perbaikan sebagaimana dimaksud pada\nayat (5).\n(7) Permohonan persetujuan KKPRL dinyatakan ditolak\ndisertai dengan alasan penolakan melalui Sistem OSS,\napabila:\na. Pelaku Usaha tidak menyampaikan perbaikan dalam\njangka waktu yang ditentukan sebagaimana dimaksud\npada ayat (21atau ayat (5); atau\nb. berdasarkan hasil penilaian dokumen usulan kegiatan\npemanfaatan ruang laut sebagaimana dimaksud pada\nayat (3) atau ayat (6) dokumen usulan tidak disetujui.\nSK No251850A(8) Apabila .\n\n[PAGE 45]\nPRES IDEN\nREPUBLTK INOONESIA\n_45_\n(8) Apabila berdasarkan hasil penilaian sebagaimana\ndimaksud pada ayat (3) atau ayat (6) dokumen usulan\nkegiatan pemanfaatan ruang laut disetujui, Sistem OSS\nmenerbitkan surat perintah setor PNBP sesuai dengan\nketentuan peraturan perundang-undangan di bidang\npenerimaan negara bukan pajak paling lama 2 (dua) Hari\nsejak dokumen kegiatan pemanfaatan rLlang laut\ndisetujui.",
     "ayat_count": 12,
     "signals": {
-      "systems": [
-        "OSS"
-      ]
+      "systems": ["OSS"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -1029,10 +1013,7 @@
     "text": "Pasal 77\nAyat (1)\nCukup jelas.\nAyat (21\nCukup jelas.\nAyat (3)\nCukup jelas.\nAyat (a)\nCukup jelas.Ayat (1)\nYang dimaksud dengan \"kawasan yang ditetapkan oleh\nPemerintah Pusat\" antara lain kawasan industri, KEK, atau\nKPBPB.\nYang dimaksud dengan \"pengelola kawasan\" adalah pengelola\nkawasan industri administrator KEK atau Badan Pengusahaan\nKPBPB.\nAyat (21\nCukup jelas.\nAyat (3)\nCukup jelas.\nSK No 2799258Ayat\n\n[PAGE 326]\nFRESIDEN\nREPUBUK INDONESIA\n-L6-\nAyat (5)\nYang dimaksud dengan \"tidak diterbitkan\" adalah menteri yang\nmenyelenggarakan urusan pemerintahan di bidang kelautan dan\nperikanan tidak menerima tanggapan (berupa menyetujui atau\nmenolak) dari menteri yang menyelenggarakan urusan\npemerintahan di bidang kehutanan dalam batas waktu 15 (lima\nbelas) Hari.\nAyat (6)\nSesuai dengan asas umum pemerintahan yang baik, apabila\nmenteri yang menyelenggarakan urusan pemerintahan di bidang\nkehutanan menolak rekomendasi pemanfaatan kawasan suaka\nalam atau kawasan pelestarian alam, disertai dengan alasan\npenolakan.\nAyat (71\nCukup jelas.\nAyat (8)\nCukup jelas.",
     "ayat_count": 7,
     "signals": {
-      "systems": [
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -1062,9 +1043,7 @@
     "text": "Ayat (1)\nCukup jelas.\nAyat (2)\nCukup jelas.\nAyat (3)\nHuruf a\nCukup jelas.\nHuruf b\nCukup jelas.\nHuruf c\nDalam rangka memberikan kemudahan bagi Pelaku Usaha,\npenerbitan SPPL dilakukan bersamaan dengan penerbitan\nNIB melalui Sistem OSS.\nAyat. . .\nSK No 2799248\n\n[PAGE 327]\nPRESIDEN\nREPUBUK INDONESIA\n-17-\nAyat (a)\nCukup jelas\nAyat (5)\nCukup jelas\nAyat (6)\nCukup jelas",
     "ayat_count": 5,
     "signals": {
-      "systems": [
-        "OSS"
-      ]
+      "systems": ["OSS"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -1360,9 +1339,7 @@
     "text": "(1) Permohonan PL dengan formulir SPPL diajukan oleh\nPelaku Usaha kepada menteri/kepala badan yang\nmenyelenggarakan urusan pemerintahan di bidang\nperlindungan dan pengelolaan lingkungan hidup dan\ntugas pemerintahan di bidang pengendalian lingkungan\nhidup, gubernur, atau bupati/wali kota sesuai dengan\nkewenangan masing-masing melalui Sistem OSS.\nsK No zsrgzg A (2) Penerbitan ' ' '\n\n[PAGE 67]\nPRESIDEN\nREPUBLIK INDONESIA\n-67 -\n(21 Penerbitan PL dengan formulir SPPL dilakukan melalui\npernyataan mandiri oleh Pelaku Usaha melalui Sistem\nOSS yang diterbitkan secara otomatis bersamaan dengan\nNIB.\nParagraf 6\nPersetujuan Lingkungan Kawasan",
     "ayat_count": 2,
     "signals": {
-      "systems": [
-        "OSS"
-      ],
+      "systems": ["OSS"],
       "auto_approval": true
     },
     "metadata": {
@@ -1393,10 +1370,7 @@
     "text": "Pelaku Usaha dalam kawasan industri, KEK, atau KPBPB yang:\na. tidak melakukan pembuangan air limbah ke badan air; atau\nb. melakukan pembuangan air limbah melalui instalasi\npengolahan air limbah yang disediakan pengelola kawasan,\ntidak memerlukan persetujuan teknis.\nParagraf 7\nPendelegasian Kewenangan Persetuj uan Lingkungan dan\nPersetujuan Teknis",
     "ayat_count": 0,
     "signals": {
-      "systems": [
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -1468,9 +1442,7 @@
     "text": "ayat (1) dokumen rencana teknis dinyatakan perlu\ndilakukan perbaikan, Sistem OSS mengembalikan\ndokumen kepada Pelaku Usaha disertai dengan catatan\nperbaikan.\n(21 Berita acara pada pemeriksaan pemenuhan standar teknis\nyang terakhir harus dilengkapi dengan kesimpulan.\n(3) Kesimpulan sebagaimana dimaksud pada ayat (21berisi:\na. rekomendasi penerbitan surat pernyataan pemenuhan\nstandar teknis; atau\nb. rekomendasi pendaftaran ulang PBG.",
     "ayat_count": 2,
     "signals": {
-      "systems": [
-        "OSS"
-      ]
+      "systems": ["OSS"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -1486,9 +1458,7 @@
     "text": "ayat (2) diunggah ke dalam Sistem OSS.",
     "ayat_count": 1,
     "signals": {
-      "systems": [
-        "OSS"
-      ]
+      "systems": ["OSS"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -1686,10 +1656,7 @@
     "text": "(1) Verifikasi sebagaimana dimaksud dalam Pasal 132\ndilakukan oleh Pemerintah Pusat, Pemerintah Daerah,\nAdministrator KEK, dan/atau Badan Pengusahaan KPBPB\nsesuai dengan kewenangan masing-masing.\n(21 Verifikasi sebagaimana dimaksud pada ayat (1) dapat\ndilakukan dengan menugaskan lembaga atau profesi ahli\nyang bersertifikat atau terakreditasi.",
     "ayat_count": 2,
     "signals": {
-      "systems": [
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -1733,9 +1700,7 @@
     "text": "Ayat (1)\nCukup jelas.\nAyat (2)\nCukup jelas.\nAyat (3)\nPeraturan kepala daerah antara lain mengatur peran, tugas, dan\ntata kelola DPMPTSP serta organisasi perangkat daerah teknis\ndalam pemrosesan PBBR di daerah.\nAyat (a)\nCukup jelas.",
     "ayat_count": 3,
     "signals": {
-      "systems": [
-        "DPMPTSP"
-      ]
+      "systems": ["DPMPTSP"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -2115,10 +2080,7 @@
     "text": "Ayat (1)\nCukup jelas.\nAyat (2)\nYang dimaksud dengan \"usaha tertentu\" antara lain:\na. sebagian usaha (seperti parfum isi ulang) yang dilakukan oleh\nPelaku Usaha mikro;\nb. usaha yang dilakukan di tempat penimbunan berikat;\nc. usaha kemasan dan aktivitas pengepakan yang ditujukan untuk\ndiekspor kembali pada KEK atau KPBPB; atau\nd. fasilitas produksi obat penggunaan khusus,\nsesuai dengan ketentuan peraturan perundang-undangan.",
     "ayat_count": 2,
     "signals": {
-      "systems": [
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -2736,9 +2698,7 @@
     "text": "(1) Terhadap kegiatan usaha pendukung sebagaimana\ndimaksud dalam Pasal 2lO ayat (3), Pelaku Usaha yang\ntelah mengisi data sebagaimana dimaksud dalam Pasal\n2O7 ayat (1) wajib melanjutkan proses di Sistem OSS\nuntuk mendapatkan PBBR dengan memasukkan data\nkegiatan usaha pendukung untuk masing-masing kode\nKBLI 5 (lima) digit dan lokasi usaha paling sedikit memuat:\na. jenis produk yang dihasilkan;\nb. kapasitas produk;\nc. jumlah tenaga kerja; dan\nd. rencana nilai investasi.\n(21 Terhadap kegiatan usaha pendukung sebagaimana\ndimaksud dalam Pasal 2lO ayat (3), Pelaku Usaha wajib\nmemenuhi persyaratan sesuai dengan ketentuanperaturan perundang-undangan, termasuk\npengidentifikasian PBBR.\n(3) Untuk Penanaman Modal Asing, kegiatan usaha\npendukung dikecualikan dari proses pemeriksaan\nketentuan nilai permodalan dan minimum investasi\nsebagaimana dimaksud dalam Pasal 212 ayat (21 serta\nkewajiban pencantuman KBLI dalam maksud dan tujuan\npada legalitas Pelaku Usaha.\nSK No l93160APasal\n\n[PAGE 120]\nPRESIDEN\nREPUELIK INDONESIA\n-r20-",
     "ayat_count": 3,
     "signals": {
-      "systems": [
-        "OSS"
-      ]
+      "systems": ["OSS"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -2754,9 +2714,7 @@
     "text": "(1) Pelaku Usaha mendaftarkan kantor cabang administrasi\nsebagaimana dimaksud dalam Pasal 2lO ayat (4) pada\nSistem OSS dengan melengkapi data paling sedikit:\na. alamat kantor cabang administrasi;\nb. nomor pokok wajib pajak kantor cabang administrasi\natau nomor identitas tempat kegiatan usaha; dan\nc. penanggung jawab kantor cabang administrasi.\n(2) Dalam hal kantor cabang administrasi lebih dari 1 (satu)\nlokasi, Pelaku Usaha harus melengkapi data sebagaimana\ndimaksud pada ayat (1) untuk setiap lokasi kantor cabang\nadministrasi.\n(3) Pendaftaran kantor cabang administrasi sebagaimana\ndimaksud pada ayat (1) diterbitkan melalui Sistem OSS\nsebagai lampiran NIB.",
     "ayat_count": 6,
     "signals": {
-      "systems": [
-        "OSS"
-      ]
+      "systems": ["OSS"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -2786,12 +2744,7 @@
     "text": "(1) Subsistem perizinan berusaha sebagaimana dimaksud\ndalam Pasal 188 ayat (3) huruf c dapat diakses dengan\nmenggunakan hak akses.\n(21 Subsistem perizinan berusaha sebagaimana dimaksud\npada ayat (1) mencakup:\na. PB:\n1. Risiko rendah berupa NIB;\n2. Risiko menengah terdiri atas:\na) NIB; dan\nb) Sertifikat Standar.\n3. Risiko tinggi terdiri atas:\na) NIB; dan\nbl lzin.\nb. PB UMKU.\n(3) Subsistem perizinan berusaha diakses menggunakan hak\nakses oleh:\na. Pelaku Usaha;\nb. Lembaga OSS;\nc. kementerian/lembaga;\nd. DPMPTSP provinsi;\ne. DPMPTSP kabupaten/kota;\nf. Administrator KEK; dan\ng. Badan Pengusahaan KPBPB.\n(41 Kepala Lembaga OSS dapat memberikan hak akses\nterbatas selain kepada pihak sebagaimana dimaksud pada\nayat (3).\nParagraf. . .\nSK No 193157 A\n\n[PAGE 123]\nPRESIDEN\nREPUBLIK INDONESIA\n-t23-\nParagraf 2\nJenis Pelizinan Berusaha dan Perizinan Berusaha\nUntuk Menunjang Kegiatan Usaha",
     "ayat_count": 4,
     "signals": {
-      "systems": [
-        "OSS",
-        "DPMPTSP",
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["OSS", "DPMPTSP", "KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -3045,11 +2998,7 @@
     "text": "(1) Pemeriksaan laporan Pelaku Usaha sebagaimana\ndimaksud dalam Pasal239 huruf a dilakukan berdasarkan\nlaporan yang disampaikan oleh Pelaku Usaha kepada\nPemerintah Pusat, Pemerintah Daerah, Administrator\nKEK, dan/atau Badan Pengusahaan KPBPB sesuai dengan\nkewenangan masing-masing.\n(21 Laporan Pelaku Usaha sebagaimana dimaksud pada ayat\n(1) memuat:\na. kepatuhan pemenuhan persyaratan dasar, PB,\ndan/atau PB UMKU; dan\nb. perkembangan realisasi dan pemenuhan kewajiban\nPenanaman Modal.\n(3) Kepatuhan pemenuhan PB dan/atau PB UMKU\nsebagaimana dimaksud pada ayat (21 huruf a sebagaimana\ntercantum dalam Lampiran I dan Lampiran II yang\nmerupakan bagian tidak terpisahkan dari Peraturan\nPemerintah ini.\n(41 Laporan kepatuhan pemenuhan persyaratan dasar, PB,\ndan/atau PB UMKU sebagaimana dimaksud pada ayat (21\nhuruf a disampaikan sesuai dengan norma, standar,prosedur, dan kriteria yang ditetapkan oleh\nkementerian/lembaga sesuai dengan kewenangan masing-\nmasing.\n(5) Perkembangan...\nSK No 193145 A\n\n[PAGE 135]\nPRESIDEN\nREPUBLIK INDONESIA\n- 135-\n(5) Perkembangan realisasi dan pemenuhan kewajiban\nPenanaman Modal sebagaimana dimaksud pada ayat (21\nhuruf b disampaikan dalam laporan kegiatan Penanaman\nModal melalui Sistem OSS.\n(6) Laporan kegiatan Penanaman Modal sebagaimana\ndimaksud pada ayat (5) memuat:\na. realisasi Penanaman Modal;\nb. realisasi tenaga kerja;\nc. realisasi produksi;\nd. kewajiban Penanaman Modal; dan\ne. kendala yang dihadapi penanam modal.\nPasal241\n(1) Atas penyampaian laporan Pelaku Usaha sebagaimana\ndimaksud dalam Pasal 24O ayat (2), Pemerintah Pusat,\nPemerintah Daerah, Administrator KEK, dan/atau Badan\nPengusahaan KPBPB sesuai dengan kewenangan masing-\nmasing mempunyai tugas:\na. melakukan reviu; dan\nb. men5rusun laporan hasil reviu.\n(21 Hasil reviu sebagaimana dimaksud pada ayat (1),\ndilakukan penginputan oleh Pemerintah Pusat,\nPemerintah Daerah, Administrator KEK, dan/atau Badan\nPengusahaan KPBPB ke Sistem OSS dalam rangka\npemutakhiran profil Pelaku Usaha.\n(3) Profil Pelaku Usaha sebagaimana dimaksud pada ayat (21\nmeliputi kategori:\na. sangat baik;\nb. baik;\nc. kurang baik; atau\nd. tidak baik.\nSK No 193144 APasal\n\n[PAGE 136]\nPRESIDEN\nREPUBLIK INOONESIA,\n_136_",
     "ayat_count": 9,
     "signals": {
-      "systems": [
-        "OSS",
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["OSS", "KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -3079,10 +3028,7 @@
     "text": "Ayat (1)\nCukup jelas.\nAyat (21\nCukup jelas.\nSK No 194493 AAyat. . .\n\n[PAGE 349]\nPRESIDEN\nREPUBLIK INDONESIA\n-39-\nAyat (3)\nInspeksi lapangan rutin secara terkoordinasi dimaksudkan agar\nmasing-masing kementerian/lembaga, organisasi perangkat\ndaerah, Administrator KEK, dan KPBPB melakukan inspeksi\nlapangan secara terkoordinasi sehingga tidak menyulitkan Pelaku\nUsaha. Hal ini mengingat jika dilakukan secara sendiri-sendiri,\nPelaku Usaha akan kesulitan menyiapkan data dan informasi bagi\npejabat yang melakukan inspeksi lapangan.\nAyat (a)\nCukup jelas.\nAyat (5)\nCukup jelas.\nPasal244\nAyat (1)\nCukup jelas.\nAyat (21\nCukup jelas.\nAyat (3)\nCukup jelas.\nAyat (4)\nCukup jelas.\nAyat (5)\nCukup jelas.\nAyat (6)\nCukup jelas.\nAyat (7)\nCukup jelas.\nAyat (8)\nYang dimaksud dengan \"ketentuan peraturan perundang-\nundangan\" antara lain peraturan perundang-undangan di bidang\npemerintah daerah, kawasan ekonomi khusus, dan kawasan\nperdagangan dan pelabuhan bebas.\nSK No 194492 APasal\n\n[PAGE 350]\nFRESIDEN\nREPUBLIK INDONESIA\n-40-",
     "ayat_count": 10,
     "signals": {
-      "systems": [
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",
@@ -5380,10 +5326,7 @@
     "text": "(1) Pengenaan sanksi administratif sebagaimana dimaksud\ndalam Pasal 424 ayat (1) diberikan oleh menteri yang\nmenyelenggarakan urusan pemerintahan di bidang\nperdagangan, gubernur, bupatilwalt kota, kepala\nAdministrator KEK, atau kepala Badan Pengusahaan\nKPBPB sesuai dengan kewenangan masing-masing\nberdasarkan ketentuan peraturan perundang-undangan.\n(21 Ketentuan lebih lanjut mengenai tata cara pengenaan\nsanksi administratif, mekanisme, jangka waktu, upaya\nadministratif, dan pejabat yang berwenang diatur dengan\nperaturan menteri yang menyelenggarakan urusan\npemerintahan di bidang perdagangan.",
     "ayat_count": 2,
     "signals": {
-      "systems": [
-        "KEK",
-        "KPBPB"
-      ]
+      "systems": ["KEK", "KPBPB"]
     },
     "metadata": {
       "source": "PP-28-2025",

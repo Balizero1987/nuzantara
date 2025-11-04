@@ -16,7 +16,7 @@ const httpRequestsTotal = new Counter({
   name: 'zantara_http_requests_total',
   help: 'Total HTTP requests',
   labelNames: ['method', 'endpoint', 'status'],
-  registers: [register]
+  registers: [register],
 });
 
 const httpRequestDuration = new Histogram({
@@ -24,19 +24,19 @@ const httpRequestDuration = new Histogram({
   help: 'Request duration in seconds',
   labelNames: ['method', 'endpoint'],
   buckets: [0.1, 0.5, 1, 2, 5],
-  registers: [register]
+  registers: [register],
 });
 
 const activeConnections = new Gauge({
   name: 'zantara_active_connections',
   help: 'Number of active connections',
-  registers: [register]
+  registers: [register],
 });
 
 const websocketConnections = new Gauge({
   name: 'zantara_websocket_connections',
   help: 'Number of active WebSocket connections',
-  registers: [register]
+  registers: [register],
 });
 
 // Oracle Query Metrics
@@ -44,7 +44,7 @@ const oracleQueriesTotal = new Counter({
   name: 'zantara_oracle_queries_total',
   help: 'Total Oracle queries',
   labelNames: ['collection', 'status'],
-  registers: [register]
+  registers: [register],
 });
 
 const oracleQueryDuration = new Histogram({
@@ -52,20 +52,20 @@ const oracleQueryDuration = new Histogram({
   help: 'Oracle query duration in seconds',
   labelNames: ['collection'],
   buckets: [0.1, 0.5, 1, 2, 5, 10],
-  registers: [register]
+  registers: [register],
 });
 
 // Cache Metrics
 const cacheHits = new Counter({
   name: 'zantara_cache_hits_total',
   help: 'Total cache hits',
-  registers: [register]
+  registers: [register],
 });
 
 const cacheMisses = new Counter({
   name: 'zantara_cache_misses_total',
   help: 'Total cache misses',
-  registers: [register]
+  registers: [register],
 });
 
 // Export metrics
@@ -77,7 +77,7 @@ export const metrics = {
   oracleQueriesTotal,
   oracleQueryDuration,
   cacheHits,
-  cacheMisses
+  cacheMisses,
 };
 
 /**
@@ -103,7 +103,7 @@ router.get('/health', (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     memory: process.memoryUsage(),
-    version: process.env.npm_package_version || '1.0.0'
+    version: process.env.npm_package_version || '1.0.0',
   });
 });
 

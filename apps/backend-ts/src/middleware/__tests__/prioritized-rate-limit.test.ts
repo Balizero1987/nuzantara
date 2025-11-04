@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import request from 'supertest';
 import express from 'express';
-import { prioritizedRateLimiter, EndpointPriority, createEndpointRateLimiter } from '../prioritized-rate-limit.js';
+import {
+  prioritizedRateLimiter,
+  EndpointPriority,
+  createEndpointRateLimiter,
+} from '../prioritized-rate-limit.js';
 
 describe('Prioritized Rate Limiting', () => {
   let app: express.Application;
@@ -31,17 +35,13 @@ describe('Prioritized Rate Limiting', () => {
       // Make many requests to trigger rate limit
       const requests = [];
       for (let i = 0; i < 35; i++) {
-        requests.push(
-          request(app)
-            .post('/call')
-            .send({ key: 'ai.chat', prompt: 'test' })
-        );
+        requests.push(request(app).post('/call').send({ key: 'ai.chat', prompt: 'test' }));
       }
 
       const responses = await Promise.all(requests);
-      
+
       // Some should be rate limited (429)
-      const rateLimited = responses.filter(r => r.status === 429);
+      const rateLimited = responses.filter((r) => r.status === 429);
       expect(rateLimited.length).toBeGreaterThan(0);
     });
 
@@ -53,16 +53,14 @@ describe('Prioritized Rate Limiting', () => {
       const requests = [];
       for (let i = 0; i < 15; i++) {
         requests.push(
-          request(app)
-            .post('/call')
-            .send({ key: 'memory.search.hybrid', query: 'test' })
+          request(app).post('/call').send({ key: 'memory.search.hybrid', query: 'test' })
         );
       }
 
       const responses = await Promise.all(requests);
-      
+
       // Should have rate limited requests
-      const rateLimited = responses.filter(r => r.status === 429);
+      const rateLimited = responses.filter((r) => r.status === 429);
       expect(rateLimited.length).toBeGreaterThan(0);
     });
   });
@@ -70,14 +68,14 @@ describe('Prioritized Rate Limiting', () => {
   describe('createEndpointRateLimiter', () => {
     it('should create custom rate limiter with specified priority', () => {
       const limiter = createEndpointRateLimiter(EndpointPriority.MEDIUM, 50);
-      
+
       expect(limiter).toBeDefined();
       expect(typeof limiter).toBe('function');
     });
 
     it('should respect custom max value', async () => {
       const customLimiter = createEndpointRateLimiter(EndpointPriority.MEDIUM, 10);
-      
+
       app.post('/custom', customLimiter, (req, res) => {
         res.json({ ok: true });
       });
@@ -89,7 +87,7 @@ describe('Prioritized Rate Limiting', () => {
       }
 
       const responses = await Promise.all(requests);
-      const rateLimited = responses.filter(r => r.status === 429);
+      const rateLimited = responses.filter((r) => r.status === 429);
       expect(rateLimited.length).toBeGreaterThan(0);
     });
   });
@@ -101,14 +99,14 @@ describe('Prioritized Rate Limiting', () => {
       });
 
       const response = await request(app).get('/test');
-      
+
       expect(response.headers['x-ratelimit-limit']).toBeDefined();
       expect(response.headers['x-ratelimit-remaining']).toBeDefined();
     });
 
     it('should include retry-after header when rate limited', async () => {
       const strictLimiter = createEndpointRateLimiter(EndpointPriority.STRICT);
-      
+
       app.post('/strict', strictLimiter, (req, res) => {
         res.json({ ok: true });
       });
@@ -120,8 +118,8 @@ describe('Prioritized Rate Limiting', () => {
       }
 
       const responses = await Promise.all(requests);
-      const rateLimited = responses.find(r => r.status === 429);
-      
+      const rateLimited = responses.find((r) => r.status === 429);
+
       if (rateLimited) {
         expect(rateLimited.headers['retry-after']).toBeDefined();
         expect(rateLimited.body.retryAfter).toBeDefined();
@@ -129,6 +127,3 @@ describe('Prioritized Rate Limiting', () => {
     });
   });
 });
-
-
-

@@ -299,11 +299,7 @@ export class RedisMemoryStorage implements IMemoryStorage {
     }
 
     // Category filtering for semantic memories
-    if (
-      category &&
-      memory.type === MemoryType.SEMANTIC &&
-      memory.metadata?.category !== category
-    ) {
+    if (category && memory.type === MemoryType.SEMANTIC && memory.metadata?.category !== category) {
       return false;
     }
 

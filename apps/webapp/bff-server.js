@@ -28,11 +28,11 @@ const corsOptions = {
     'http://localhost:3000',
     'http://localhost:9999',
     'https://zantara.balizero.com',
-    'https://balizero1987.github.io'
+    'https://balizero1987.github.io',
   ],
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'x-user-id', 'x-session-id']
+  allowedHeaders: ['Content-Type', 'x-user-id', 'x-session-id'],
 };
 
 app.use(cors(corsOptions));
@@ -40,7 +40,9 @@ app.use(express.json({ limit: '10mb' }));
 
 // Request logging
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - User: ${req.headers['x-user-id'] || 'anonymous'}`);
+  console.log(
+    `[${new Date().toISOString()}] ${req.method} ${req.path} - User: ${req.headers['x-user-id'] || 'anonymous'}`
+  );
   next();
 });
 
@@ -53,15 +55,15 @@ app.get('/health', async (req, res) => {
       service: 'zantara-bff',
       backend: {
         status: backendHealth.data.status,
-        version: backendHealth.data.version
+        version: backendHealth.data.version,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     res.status(503).json({
       status: 'unhealthy',
       error: 'Backend unavailable',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -76,14 +78,14 @@ app.post('/call', async (req, res) => {
   if (!key) {
     return res.status(400).json({
       ok: false,
-      error: 'Missing "key" parameter'
+      error: 'Missing "key" parameter',
     });
   }
 
   // Add userId to params if provided
   const enhancedParams = {
     ...params,
-    userId: userId
+    userId: userId,
   };
 
   try {
@@ -92,16 +94,16 @@ app.post('/call', async (req, res) => {
       `${BACKEND_URL}/call`,
       {
         key: key,
-        params: enhancedParams
+        params: enhancedParams,
       },
       {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': API_KEY,
           'x-user-id': userId,
-          ...(sessionId && { 'x-session-id': sessionId })
+          ...(sessionId && { 'x-session-id': sessionId }),
         },
-        timeout: 60000 // 60s timeout
+        timeout: 60000, // 60s timeout
       }
     );
 
@@ -115,17 +117,17 @@ app.post('/call', async (req, res) => {
     } else if (error.code === 'ECONNREFUSED') {
       res.status(503).json({
         ok: false,
-        error: 'Backend service unavailable'
+        error: 'Backend service unavailable',
       });
     } else if (error.code === 'ETIMEDOUT') {
       res.status(504).json({
         ok: false,
-        error: 'Backend request timeout'
+        error: 'Backend request timeout',
       });
     } else {
       res.status(500).json({
         ok: false,
-        error: 'Internal server error'
+        error: 'Internal server error',
       });
     }
   }
@@ -139,7 +141,7 @@ app.get('/backend/health', async (req, res) => {
   } catch (error) {
     res.status(503).json({
       ok: false,
-      error: 'Backend unavailable'
+      error: 'Backend unavailable',
     });
   }
 });

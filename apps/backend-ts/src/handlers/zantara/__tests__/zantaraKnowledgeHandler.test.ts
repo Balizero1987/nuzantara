@@ -2,16 +2,20 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 // Mock axios for RAG backend calls
 const mockAxiosPost = jest.fn();
-jest.mock('axios', () => ({
-  default: {
+jest.mock(
+  'axios',
+  () => ({
+    default: {
+      get: jest.fn(),
+      post: (...args: any[]) => mockAxiosPost(...args),
+      put: jest.fn(),
+      delete: jest.fn(),
+    },
     get: jest.fn(),
     post: (...args: any[]) => mockAxiosPost(...args),
-    put: jest.fn(),
-    delete: jest.fn()
-  },
-  get: jest.fn(),
-  post: (...args: any[]) => mockAxiosPost(...args)
-}), { virtual: true });
+  }),
+  { virtual: true }
+);
 
 describe('Zantaraknowledgehandler', () => {
   let handlers: any;
@@ -34,18 +38,18 @@ describe('Zantaraknowledgehandler', () => {
                 filename: 'test.md',
                 chunk_index: 0,
                 total_chunks: 10,
-                priority: true
-              }
-            }
+                priority: true,
+              },
+            },
           ],
           kb_stats: { total_files: 238 },
-          query_time_ms: 150
-        }
+          query_time_ms: 150,
+        },
       });
 
       const result = await handlers.handleZantaraKnowledge({
         query: 'test query',
-        category: 'zantara-personal'
+        category: 'zantara-personal',
       });
 
       expect(result).toBeDefined();
@@ -68,7 +72,7 @@ describe('Zantaraknowledgehandler', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.handleZantaraKnowledge({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       expect(result).toBeDefined();
@@ -97,5 +101,4 @@ describe('Zantaraknowledgehandler', () => {
       expect(result).toBeNull();
     });
   });
-
 });

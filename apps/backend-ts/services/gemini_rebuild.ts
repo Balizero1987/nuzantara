@@ -1,18 +1,18 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 
-const TMP_PATH = "/tmp/ZANTARA_FUSION_INPUT_A.json";
+const TMP_PATH = '/tmp/ZANTARA_FUSION_INPUT_A.json';
 
 export async function runGeminiRebuild() {
-  console.log("⚙️  ZANTARA Layer 12 — Gemini Rebuild starting...");
+  console.log('⚙️  ZANTARA Layer 12 — Gemini Rebuild starting...');
 
   const data = {
-    component: "BullMQ_Queue",
+    component: 'BullMQ_Queue',
     metadata: {
       timestamp: new Date().toISOString(),
-      agent_version: "Gemini_2.5_Pro",
-      layer: "12A",
-      generator: "runGeminiRebuild()"
+      agent_version: 'Gemini_2.5_Pro',
+      layer: '12A',
+      generator: 'runGeminiRebuild()',
     },
     metrics: {
       jobs_total: 50,
@@ -21,9 +21,9 @@ export async function runGeminiRebuild() {
       avg_latency_ms: 55,
       max_latency_ms: 85,
       retries_success_rate: 1.0,
-      throughput_jobs_per_min: 40.0
+      throughput_jobs_per_min: 40.0,
     },
-    queue_health_status: "ok"
+    queue_health_status: 'ok',
   };
 
   fs.writeFileSync(TMP_PATH, JSON.stringify(data, null, 2));
@@ -35,7 +35,7 @@ export async function runGeminiRebuild() {
 - Excellent queue latency (55ms avg)
 - Robust resilience layer
 `;
-  fs.writeFileSync("/tmp/ZANTARA_QUEUE_FUSION_NOTE_REBUILD.md", note);
+  fs.writeFileSync('/tmp/ZANTARA_QUEUE_FUSION_NOTE_REBUILD.md', note);
 
-  console.log("ZANTARA LAYER 12 — PHASE A (REBUILD) COMPLETE — STATUS: success");
+  console.log('ZANTARA LAYER 12 — PHASE A (REBUILD) COMPLETE — STATUS: success');
 }

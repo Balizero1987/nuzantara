@@ -8,17 +8,8 @@
   "added_date": "2025-11-03T07:20:32.908347",
   "status": "new_regulation",
   "category": "legal",
-  "domains": [
-    "legal",
-    "tax",
-    "business"
-  ],
-  "keywords": [
-    "PP 28/2025",
-    "Peraturan Pemerintah",
-    "Indonesian Regulation",
-    "2025 Law"
-  ],
+  "domains": ["legal", "tax", "business"],
+  "keywords": ["PP 28/2025", "Peraturan Pemerintah", "Indonesian Regulation", "2025 Law"],
   "description": "PP Nomor 28 Tahun 2025 - New Indonesian Government Regulation",
   "source": "Desktop upload",
   "priority": "high",

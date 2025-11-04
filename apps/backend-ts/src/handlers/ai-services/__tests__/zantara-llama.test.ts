@@ -21,13 +21,13 @@ describe('Zantara Llama', () => {
           success: true,
           response: 'Test response from ZANTARA',
           model_used: 'zantara-llama-3.1-8b',
-          usage: { output_tokens: 50 }
-        })
+          usage: { output_tokens: 50 },
+        }),
       } as Response);
 
       const result = await handlers.zantaraChat({
         message: 'Test prompt',
-        mode: 'santai'
+        mode: 'santai',
       });
 
       expect(result).toBeDefined();
@@ -41,10 +41,11 @@ describe('Zantara Llama', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.zantaraChat({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.zantaraChat({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
-
 });

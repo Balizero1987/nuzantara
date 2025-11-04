@@ -11,10 +11,7 @@ export default {
   testEnvironment: 'node',
 
   // Test file patterns
-  testMatch: [
-    '**/__tests__/**/*.test.ts',
-    '**/?(*.)+(spec|test).ts',
-  ],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
 
   // Module paths
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
@@ -65,7 +62,7 @@ export default {
   // Global test setup and teardown
   globalSetup: '<rootDir>/tests/setup/global-setup.ts',
   globalTeardown: '<rootDir>/tests/setup/global-teardown.ts',
-  
+
   // Setup files that run after Jest environment is installed
   setupFilesAfterEnv: ['<rootDir>/tests/setup/enhanced-test-setup.ts'],
 

@@ -1,12 +1,12 @@
 /**
  * Oracle Universal Query Handler
  * Proxies to RAG Backend's Universal Oracle endpoint
- * 
+ *
  * Single intelligent endpoint that routes to appropriate Oracle collection automatically
  */
 
 import logger from '../../services/logger.js';
-import { ok, err } from "../../utils/response.js";
+import { ok, err } from '../../utils/response.js';
 import { ENV } from '../../config/index.js';
 
 const RAG_BACKEND_URL = ENV.RAG_BACKEND_URL;
@@ -38,8 +38,8 @@ export async function oracleUniversalQuery(params: OracleUniversalParams) {
         limit: params.limit || 5,
         generate_ai_answer: params.generate_ai_answer !== false,
         include_routing_info: true,
-        domain_hint: params.domain_hint
-      })
+        domain_hint: params.domain_hint,
+      }),
     });
 
     if (!response.ok) {
@@ -48,7 +48,9 @@ export async function oracleUniversalQuery(params: OracleUniversalParams) {
 
     const data: any = await response.json();
 
-    logger.info(`🔮 [Oracle Universal] Query: "${params.query}" → ${data.collection_used} (${data.total_results} results)`);
+    logger.info(
+      `🔮 [Oracle Universal] Query: "${params.query}" → ${data.collection_used} (${data.total_results} results)`
+    );
 
     return ok({
       success: data.success,
@@ -59,9 +61,8 @@ export async function oracleUniversalQuery(params: OracleUniversalParams) {
       total: data.total_results,
       answer: data.answer,
       model: data.model_used,
-      executionTime: data.execution_time_ms
+      executionTime: data.execution_time_ms,
     });
-
   } catch (error: any) {
     logger.error('❌ Oracle universal query error:', error);
     return err(`Oracle query failed: ${error.message}`);
@@ -77,7 +78,7 @@ export async function oracleCollections() {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     });
 
     if (!response.ok) {
@@ -89,12 +90,10 @@ export async function oracleCollections() {
     return ok({
       collections: data.collections,
       total: data.total,
-      descriptions: data.description
+      descriptions: data.description,
     });
-
   } catch (error: any) {
     logger.error('❌ Oracle collections error:', error);
     return err(`Failed to fetch collections: ${error.message}`);
   }
 }
-

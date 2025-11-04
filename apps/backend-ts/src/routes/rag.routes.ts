@@ -6,17 +6,18 @@
 import { Router, Request, Response } from 'express';
 import { ChromaClient } from 'chromadb';
 import { QdrantClient } from '@qdrant/js-client-rest';
+import logger from '../services/logger.js';
 
 const router = Router();
 
 // Initialize clients
 const chromaClient = new ChromaClient({
-  path: process.env.CHROMADB_URL || 'http://localhost:8000'
+  path: process.env.CHROMADB_URL || 'http://localhost:8000',
 });
 
 const qdrantClient = new QdrantClient({
   url: process.env.QDRANT_URL || 'http://localhost:6333',
-  apiKey: process.env.QDRANT_API_KEY
+  apiKey: process.env.QDRANT_API_KEY,
 });
 
 /**
@@ -26,16 +27,16 @@ const qdrantClient = new QdrantClient({
 router.post('/ingest', async (req: Request, res: Response) => {
   try {
     const { collection, chunks, metadata = {} } = req.body;
-    
+
     if (!collection || !chunks || !Array.isArray(chunks)) {
       return res.status(400).json({
         error: 'Invalid request',
-        message: 'collection and chunks[] are required'
+        message: 'collection and chunks[] are required',
       });
     }
-    
-    console.log(`📥 Ingesting ${chunks.length} chunks to ${collection}`);
-    
+
+    logger.info(`📥 Ingesting ${chunks.length} chunks to ${collection}`);
+
     // Get or create ChromaDB collection
     let chromaCollection;
     try {
@@ -44,12 +45,12 @@ router.post('/ingest', async (req: Request, res: Response) => {
       chromaCollection = await chromaClient.createCollection({
         name: collection,
         metadata: {
-          "hnsw:space": "cosine",
-          ...metadata
-        }
+          'hnsw:space': 'cosine',
+          ...metadata,
+        },
       });
     }
-    
+
     // Prepare batch data
     const ids = chunks.map((chunk: any) => chunk.chunk_id || chunk.id);
     const documents = chunks.map((chunk: any) => chunk.text || chunk.document);
@@ -57,31 +58,30 @@ router.post('/ingest', async (req: Request, res: Response) => {
       ...chunk.metadata,
       law_id: chunk.law_id || metadata.law_id,
       source: metadata.source,
-      ingested_at: new Date().toISOString()
+      ingested_at: new Date().toISOString(),
     }));
-    
+
     // Ingest to ChromaDB
     await chromaCollection.add({
       ids,
       documents,
-      metadatas
+      metadatas,
     });
-    
-    console.log(`✅ Successfully ingested ${chunks.length} chunks`);
-    
+
+    logger.info(`✅ Successfully ingested ${chunks.length} chunks`);
+
     res.json({
       success: true,
       collection,
       chunks_ingested: chunks.length,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
   } catch (error: any) {
-    console.error('❌ Ingestion error:', error);
+    logger.error('❌ Ingestion error:', error);
     res.status(500).json({
       error: 'Ingestion failed',
       message: error.message,
-      details: error.stack
+      details: error.stack,
     });
   }
 });
@@ -93,30 +93,29 @@ router.post('/ingest', async (req: Request, res: Response) => {
 router.get('/stats', async (req: Request, res: Response) => {
   try {
     const { collection } = req.query;
-    
+
     if (!collection) {
       return res.status(400).json({
-        error: 'collection parameter required'
+        error: 'collection parameter required',
       });
     }
-    
-    const chromaCollection = await chromaClient.getCollection({ 
-      name: collection as string 
+
+    const chromaCollection = await chromaClient.getCollection({
+      name: collection as string,
     });
-    
+
     const count = await chromaCollection.count();
-    
+
     res.json({
       collection,
       count,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
   } catch (error: any) {
-    console.error('❌ Stats error:', error);
+    logger.error('❌ Stats error:', error);
     res.status(500).json({
       error: 'Failed to get stats',
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -127,45 +126,39 @@ router.get('/stats', async (req: Request, res: Response) => {
  */
 router.post('/query', async (req: Request, res: Response) => {
   try {
-    const { 
-      collection, 
-      query, 
-      filters = {}, 
-      limit = 10 
-    } = req.body;
-    
+    const { collection, query, filters = {}, limit = 10 } = req.body;
+
     if (!collection || !query) {
       return res.status(400).json({
-        error: 'collection and query are required'
+        error: 'collection and query are required',
       });
     }
-    
-    const chromaCollection = await chromaClient.getCollection({ 
-      name: collection 
+
+    const chromaCollection = await chromaClient.getCollection({
+      name: collection,
     });
-    
+
     const results = await chromaCollection.query({
       queryTexts: [query],
       nResults: limit,
-      where: filters
+      where: filters,
     });
-    
+
     res.json({
       query,
       collection,
       results: results.documents[0].map((doc: string, idx: number) => ({
         document: doc,
         metadata: results.metadatas[0][idx],
-        distance: results.distances ? results.distances[0][idx] : null
+        distance: results.distances ? results.distances[0][idx] : null,
       })),
-      count: results.documents[0].length
+      count: results.documents[0].length,
     });
-    
   } catch (error: any) {
-    console.error('❌ Query error:', error);
+    logger.error('❌ Query error:', error);
     res.status(500).json({
       error: 'Query failed',
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -177,20 +170,19 @@ router.post('/query', async (req: Request, res: Response) => {
 router.get('/collections', async (req: Request, res: Response) => {
   try {
     const collections = await chromaClient.listCollections();
-    
+
     res.json({
-      collections: collections.map(c => ({
+      collections: collections.map((c) => ({
         name: c.name,
-        metadata: c.metadata
+        metadata: c.metadata,
       })),
-      count: collections.length
+      count: collections.length,
     });
-    
   } catch (error: any) {
-    console.error('❌ Collections list error:', error);
+    logger.error('❌ Collections list error:', error);
     res.status(500).json({
       error: 'Failed to list collections',
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -202,20 +194,19 @@ router.get('/collections', async (req: Request, res: Response) => {
 router.delete('/collection/:name', async (req: Request, res: Response) => {
   try {
     const { name } = req.params;
-    
+
     await chromaClient.deleteCollection({ name });
-    
+
     res.json({
       success: true,
       message: `Collection ${name} deleted`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
   } catch (error: any) {
-    console.error('❌ Delete collection error:', error);
+    logger.error('❌ Delete collection error:', error);
     res.status(500).json({
       error: 'Failed to delete collection',
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -228,21 +219,20 @@ router.get('/health', async (req: Request, res: Response) => {
   try {
     // Check ChromaDB
     const collections = await chromaClient.listCollections();
-    
+
     res.json({
       status: 'healthy',
       chromadb: {
         connected: true,
-        collections: collections.length
+        collections: collections.length,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
   } catch (error: any) {
     res.status(500).json({
       status: 'unhealthy',
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });

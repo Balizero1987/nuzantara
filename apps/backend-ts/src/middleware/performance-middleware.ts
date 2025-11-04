@@ -6,7 +6,10 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { performanceMonitor, PerformanceMetrics } from '../services/monitoring/performance-monitor.js';
+import {
+  performanceMonitor,
+  PerformanceMetrics,
+} from '../services/monitoring/performance-monitor.js';
 import { logger } from '../logging/unified-logger.js';
 
 interface ExtendedRequest extends Request {
@@ -17,7 +20,11 @@ interface ExtendedRequest extends Request {
 /**
  * Performance tracking middleware
  */
-export function performanceMiddleware(req: ExtendedRequest, res: Response, next: NextFunction): void {
+export function performanceMiddleware(
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction
+): void {
   // Skip monitoring for health endpoints and static assets
   if (shouldSkipMonitoring(req.path)) {
     return next();
@@ -36,21 +43,23 @@ export function performanceMiddleware(req: ExtendedRequest, res: Response, next:
   const originalJson = res.json;
 
   // Override res.json to capture response data
-  res.json = function(data: any) {
+  res.json = function (data: any) {
     // Store response data for analysis
     (res as any).responseData = data;
     return originalJson.call(this, data);
   };
 
   // Override res.end to capture metrics
-  res.end = function(chunk?: any, encoding?: any, cb?: any) {
+  res.end = function (chunk?: any, encoding?: any, _cb?: any) {
     // Calculate response time
     const responseTime = Date.now() - startTime;
 
     // Extract performance data from response if available
     const responseData = (res as any).responseData;
     const isCached = responseData?.performance?.cached || false;
-    const cacheHitTime = responseData?.performance?.cached ? responseData?.performance?.queryTime : undefined;
+    const cacheHitTime = responseData?.performance?.cached
+      ? responseData?.performance?.queryTime
+      : undefined;
     const domainTimes = responseData?.performance?.domainTimes;
 
     // Create metrics object
@@ -66,7 +75,7 @@ export function performanceMiddleware(req: ExtendedRequest, res: Response, next:
       timestamp: startTime,
       requestId,
       userAgent: req.get('User-Agent'),
-      ip: req.ip || req.connection.remoteAddress
+      ip: req.ip || req.connection.remoteAddress,
     };
 
     // Record metrics
@@ -77,7 +86,7 @@ export function performanceMiddleware(req: ExtendedRequest, res: Response, next:
       logger.warn(`🐌 Slow request: ${req.method} ${req.path} - ${responseTime}ms`, {
         requestId,
         statusCode: res.statusCode,
-        cached: isCached
+        cached: isCached,
       });
     }
 
@@ -85,7 +94,7 @@ export function performanceMiddleware(req: ExtendedRequest, res: Response, next:
     if (isCached && cacheHitTime && cacheHitTime < 100) {
       logger.debug(`🎯 Fast cache hit: ${req.path} - ${cacheHitTime}ms`, {
         requestId,
-        cacheRatio: cacheHitTime / responseTime
+        cacheRatio: cacheHitTime / responseTime,
       });
     }
 
@@ -99,22 +108,25 @@ export function performanceMiddleware(req: ExtendedRequest, res: Response, next:
 /**
  * Performance metrics endpoint
  */
-export function performanceMetricsRoute(req: Request, res: Response): void {
+export function performanceMetricsRoute(_req: Request, res: Response): void {
   try {
-    const { timeWindow = 60, endpoint } = req.query;
+    const { timeWindow = 60, endpoint } = _req.query;
     const timeWindowMinutes = parseInt(timeWindow as string) || 60;
 
     if (endpoint) {
       // Get metrics for specific endpoint
-      const metrics = performanceMonitor.getAggregatedMetrics(endpoint as string, timeWindowMinutes);
+      const metrics = performanceMonitor.getAggregatedMetrics(
+        endpoint as string,
+        timeWindowMinutes
+      );
       res.json({
         ok: true,
         data: metrics,
         meta: {
           endpoint,
           timeWindowMinutes,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       });
     } else {
       // Get comprehensive performance summary
@@ -124,8 +136,8 @@ export function performanceMetricsRoute(req: Request, res: Response): void {
         data: summary,
         meta: {
           timeWindowMinutes,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       });
     }
   } catch (error) {
@@ -133,7 +145,7 @@ export function performanceMetricsRoute(req: Request, res: Response): void {
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance metrics',
-      details: error.message
+      details: error.message,
     });
   }
 }
@@ -141,7 +153,7 @@ export function performanceMetricsRoute(req: Request, res: Response): void {
 /**
  * Prometheus metrics endpoint
  */
-export function prometheusMetricsRoute(req: Request, res: Response): void {
+export function prometheusMetricsRoute(_req: Request, res: Response): void {
   try {
     const metrics = performanceMonitor.getPrometheusMetrics();
 
@@ -156,7 +168,7 @@ export function prometheusMetricsRoute(req: Request, res: Response): void {
 /**
  * Health check with performance status
  */
-export function performanceHealthRoute(req: Request, res: Response): void {
+export function performanceHealthRoute(_req: Request, res: Response): void {
   try {
     const summary = performanceMonitor.getPerformanceSummary(5); // Last 5 minutes
     const alerts = performanceMonitor.getActiveAlerts();
@@ -168,15 +180,19 @@ export function performanceHealthRoute(req: Request, res: Response): void {
         response_time: summary.summary.averageResponseTime < 5000 ? 'pass' : 'fail',
         error_rate: summary.summary.errorRate < 0.05 ? 'pass' : 'fail',
         cache_hit_rate: summary.summary.cacheHitRate > 0.5 ? 'pass' : 'warn',
-        request_rate: summary.summary.requestsPerMinute > 0 ? 'pass' : 'warn'
+        request_rate: summary.summary.requestsPerMinute > 0 ? 'pass' : 'warn',
       },
       alerts: alerts.slice(0, 10), // Limit to 10 most recent alerts
       metrics: summary.summary,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     // Determine overall health status
-    if (health.score < 70 || health.checks.response_time === 'fail' || health.checks.error_rate === 'fail') {
+    if (
+      health.score < 70 ||
+      health.checks.response_time === 'fail' ||
+      health.checks.error_rate === 'fail'
+    ) {
       health.status = 'unhealthy';
       res.status(503);
     } else if (health.score < 85 || health.checks.cache_hit_rate === 'warn') {
@@ -190,16 +206,15 @@ export function performanceHealthRoute(req: Request, res: Response): void {
       meta: {
         service: 'zantara-performance-monitor',
         version: '1.0.0',
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
-
   } catch (error) {
     logger.error('Performance health check error:', error);
     res.status(500).json({
       ok: false,
       error: 'Performance health check failed',
-      status: 'error'
+      status: 'error',
     });
   }
 }
@@ -218,10 +233,10 @@ function shouldSkipMonitoring(path: string): boolean {
     '/images/',
     '/metrics',
     '/api-docs',
-    '/swagger'
+    '/swagger',
   ];
 
-  return skipPatterns.some(pattern => path.startsWith(pattern));
+  return skipPatterns.some((pattern) => path.startsWith(pattern));
 }
 
 /**
@@ -253,10 +268,13 @@ export function performanceHeaders(req: Request, res: Response, next: NextFuncti
  */
 export function startMetricsCleanup(): void {
   // Clean up metrics older than 24 hours every hour
-  setInterval(() => {
-    performanceMonitor.clearMetrics(1440); // 24 hours
-    logger.info('🧹 Scheduled metrics cleanup completed');
-  }, 60 * 60 * 1000); // 1 hour
+  setInterval(
+    () => {
+      performanceMonitor.clearMetrics(1440); // 24 hours
+      logger.info('🧹 Scheduled metrics cleanup completed');
+    },
+    60 * 60 * 1000
+  ); // 1 hour
 
   logger.info('📊 Performance metrics cleanup scheduler started');
 }

@@ -14,7 +14,9 @@
 
 import { Router, Request, Response } from 'express';
 import { enhancedTestSuite, TestMetrics } from '../services/code-quality/enhanced-test-suite.js';
-import { codeQualityMonitor, QualityMetrics } from '../services/code-quality/code-quality-monitor.js';
+import {
+  codeQualityMonitor,
+} from '../services/code-quality/code-quality-monitor.js';
 import { loadAllHandlers } from '../core/load-all-handlers.js';
 import { logger } from '../logging/unified-logger.js';
 import path from 'path';
@@ -25,7 +27,7 @@ const router = Router();
  * GET /code-quality/health
  * Health check for code quality service
  */
-router.get('/health', (req: Request, res: Response) => {
+router.get('/health', (_req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     service: 'Code Quality Monitor',
@@ -36,8 +38,8 @@ router.get('/health', (req: Request, res: Response) => {
       codeQualityMonitor: true,
       automatedAnalysis: true,
       refactoringSuggestions: true,
-      qualityReporting: true
-    }
+      qualityReporting: true,
+    },
   });
 });
 
@@ -45,7 +47,7 @@ router.get('/health', (req: Request, res: Response) => {
  * GET /code-quality/metrics
  * Get overall project quality metrics
  */
-router.get('/metrics', (req: Request, res: Response) => {
+router.get('/metrics', (_req: Request, res: Response) => {
   try {
     const projectRoot = process.cwd();
     const metrics = codeQualityMonitor.analyzeProject(projectRoot);
@@ -57,20 +59,20 @@ router.get('/metrics', (req: Request, res: Response) => {
         analysis: {
           maintainabilityLevel: getMaintainabilityLevel(metrics.maintainabilityIndex),
           complexityLevel: getComplexityLevel(metrics.cyclomaticComplexity),
-          qualityGrade: getQualityGrade(metrics.qualityScore)
-        }
+          qualityGrade: getQualityGrade(metrics.qualityScore),
+        },
       },
       meta: {
         timestamp: new Date().toISOString(),
-        service: 'code-quality-monitor'
-      }
+        service: 'code-quality-monitor',
+      },
     });
   } catch (error) {
     logger.error('Code quality metrics error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to analyze code quality',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 });
@@ -91,20 +93,20 @@ router.get('/analyze/:file', (req: Request, res: Response) => {
         recommendations: {
           priority: getPriorityIssues(analysis.issues),
           quickWins: getQuickWins(analysis.suggestions),
-          majorRefactoring: getMajorRefactoringSuggestions(analysis.suggestions)
-        }
+          majorRefactoring: getMajorRefactoringSuggestions(analysis.suggestions),
+        },
       },
       meta: {
         timestamp: new Date().toISOString(),
-        file: filePath
-      }
+        file: filePath,
+      },
     });
   } catch (error) {
     logger.error('File analysis error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to analyze file',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -133,7 +135,7 @@ router.post('/run-tests', async (req: Request, res: Response) => {
         '/zantara.collective',
         '/zantara.ecosystem',
         '/analytics/health',
-        '/architecture/status'
+        '/architecture/status',
       ];
       enhancedTestSuite.generateIntegrationTests(endpoints);
       logger.info(`Generated ${endpoints.length} integration tests`);
@@ -155,19 +157,19 @@ router.post('/run-tests', async (req: Request, res: Response) => {
         ...testMetrics,
         grade: getTestGrade(testMetrics),
         recommendations: getTestRecommendations(testMetrics),
-        report: enhancedTestSuite.generateReport()
+        report: enhancedTestSuite.generateReport(),
       },
       meta: {
         timestamp: new Date().toISOString(),
-        testSuite: 'enhanced-test-suite'
-      }
+        testSuite: 'enhanced-test-suite',
+      },
     });
   } catch (error) {
     logger.error('Test execution error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to run tests',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -176,33 +178,35 @@ router.post('/run-tests', async (req: Request, res: Response) => {
  * GET /code-quality/report
  * Get comprehensive quality report
  */
-router.get('/report', (req: Request, res: Response) => {
+router.get('/report', (_req: Request, res: Response) => {
   try {
     const report = codeQualityMonitor.getQualityReport();
     const analyses = codeQualityMonitor.getAllAnalyses();
 
     // Aggregate statistics
     const totalFiles = analyses.size;
-    const totalIssues = Array.from(analyses.values())
-      .reduce((sum, analysis) => sum + analysis.issues.length, 0);
+    const totalIssues = Array.from(analyses.values()).reduce(
+      (sum, analysis) => sum + analysis.issues.length,
+      0
+    );
 
     const issuesByType = {
       complexity: 0,
       duplication: 0,
       security: 0,
       performance: 0,
-      maintainability: 0
+      maintainability: 0,
     };
 
     const issuesBySeverity = {
       critical: 0,
       high: 0,
       medium: 0,
-      low: 0
+      low: 0,
     };
 
     for (const analysis of analyses.values()) {
-      analysis.issues.forEach(issue => {
+      analysis.issues.forEach((issue) => {
         issuesByType[issue.type]++;
         issuesBySeverity[issue.severity]++;
       });
@@ -217,21 +221,21 @@ router.get('/report', (req: Request, res: Response) => {
           totalIssues,
           issuesByType,
           issuesBySeverity,
-          avgIssuesPerFile: totalFiles > 0 ? totalIssues / totalFiles : 0
+          avgIssuesPerFile: totalFiles > 0 ? totalIssues / totalFiles : 0,
         },
-        trends: codeQualityMonitor.metricsHistory.slice(-10) // Last 10 measurements
+        trends: codeQualityMonitor.metricsHistory.slice(-10), // Last 10 measurements
       },
       meta: {
         timestamp: new Date().toISOString(),
-        generatedBy: 'cursor-ultra-auto-patch'
-      }
+        generatedBy: 'cursor-ultra-auto-patch',
+      },
     });
   } catch (error) {
     logger.error('Report generation error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to generate report',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -252,11 +256,11 @@ router.get('/suggestions', (req: Request, res: Response) => {
     }> = [];
 
     for (const [filePath, analysis] of analyses) {
-      analysis.suggestions.forEach(suggestion => {
+      analysis.suggestions.forEach((suggestion) => {
         allSuggestions.push({
           file: filePath,
           suggestion,
-          impact: suggestion.impact
+          impact: suggestion.impact,
         });
       });
     }
@@ -264,7 +268,7 @@ router.get('/suggestions', (req: Request, res: Response) => {
     // Filter by priority if specified
     let filteredSuggestions = allSuggestions;
     if (priority !== 'all') {
-      filteredSuggestions = allSuggestions.filter(s => s.impact === priority);
+      filteredSuggestions = allSuggestions.filter((s) => s.impact === priority);
     }
 
     // Sort by impact and limit
@@ -281,22 +285,22 @@ router.get('/suggestions', (req: Request, res: Response) => {
         suggestions: sortedSuggestions,
         summary: {
           total: allSuggestions.length,
-          high: allSuggestions.filter(s => s.impact === 'high').length,
-          medium: allSuggestions.filter(s => s.impact === 'medium').length,
-          low: allSuggestions.filter(s => s.impact === 'low').length
-        }
+          high: allSuggestions.filter((s) => s.impact === 'high').length,
+          medium: allSuggestions.filter((s) => s.impact === 'medium').length,
+          low: allSuggestions.filter((s) => s.impact === 'low').length,
+        },
       },
       meta: {
         timestamp: new Date().toISOString(),
-        filter: { priority, limit }
-      }
+        filter: { priority, limit },
+      },
     });
   } catch (error) {
     logger.error('Suggestions generation error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get suggestions',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -318,7 +322,7 @@ router.post('/benchmark', async (req: Request, res: Response) => {
 
       try {
         // Simulate HTTP request
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 100));
         const duration = performance.now() - requestStart;
         results.push({ duration, success: true });
       } catch (error) {
@@ -328,8 +332,8 @@ router.post('/benchmark', async (req: Request, res: Response) => {
     }
 
     const totalTime = performance.now() - startTime;
-    const successfulRequests = results.filter(r => r.success);
-    const durations = successfulRequests.map(r => r.duration);
+    const successfulRequests = results.filter((r) => r.success);
+    const durations = successfulRequests.map((r) => r.duration);
 
     const metrics = {
       endpoint,
@@ -340,15 +344,14 @@ router.post('/benchmark', async (req: Request, res: Response) => {
       successfulRequests: successfulRequests.length,
       failedRequests: results.length - successfulRequests.length,
       successRate: (successfulRequests.length / results.length) * 100,
-      avgResponseTime: durations.length > 0
-        ? durations.reduce((sum, d) => sum + d, 0) / durations.length
-        : 0,
+      avgResponseTime:
+        durations.length > 0 ? durations.reduce((sum, d) => sum + d, 0) / durations.length : 0,
       minResponseTime: durations.length > 0 ? Math.min(...durations) : 0,
       maxResponseTime: durations.length > 0 ? Math.max(...durations) : 0,
       requestsPerSecond: successfulRequests.length / (totalTime / 1000),
-      performanceGrade: getPerformanceGrade(durations.length > 0
-        ? durations.reduce((sum, d) => sum + d, 0) / durations.length
-        : 0)
+      performanceGrade: getPerformanceGrade(
+        durations.length > 0 ? durations.reduce((sum, d) => sum + d, 0) / durations.length : 0
+      ),
     };
 
     res.json({
@@ -356,15 +359,15 @@ router.post('/benchmark', async (req: Request, res: Response) => {
       data: metrics,
       meta: {
         timestamp: new Date().toISOString(),
-        benchmarkType: 'performance'
-      }
+        benchmarkType: 'performance',
+      },
     });
   } catch (error) {
     logger.error('Benchmark error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to run benchmark',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -408,20 +411,16 @@ function getPerformanceGrade(avgResponseTime: number): string {
 }
 
 function getPriorityIssues(issues: any[]): any[] {
-  return issues
-    .filter(i => i.severity === 'critical' || i.severity === 'high')
-    .slice(0, 10);
+  return issues.filter((i) => i.severity === 'critical' || i.severity === 'high').slice(0, 10);
 }
 
 function getQuickWins(suggestions: any[]): any[] {
-  return suggestions
-    .filter(s => s.impact === 'high' && s.type === 'rename_variable')
-    .slice(0, 5);
+  return suggestions.filter((s) => s.impact === 'high' && s.type === 'rename_variable').slice(0, 5);
 }
 
 function getMajorRefactoringSuggestions(suggestions: any[]): any[] {
   return suggestions
-    .filter(s => s.type === 'extract_method' || s.type === 'reduce_complexity')
+    .filter((s) => s.type === 'extract_method' || s.type === 'reduce_complexity')
     .slice(0, 5);
 }
 

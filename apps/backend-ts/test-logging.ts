@@ -10,7 +10,7 @@ import {
   performanceMiddleware,
   withPerformanceTracking,
   trackDatabaseQuery,
-  globalPerformanceMonitor
+  globalPerformanceMonitor,
 } from './src/logging/index.js';
 
 // Test basic logging functionality
@@ -19,17 +19,17 @@ function testBasicLogging() {
 
   logger.info('Test info message', {
     type: 'test',
-    component: 'test_logging'
+    component: 'test_logging',
   });
 
   logger.warn('Test warning message', {
     type: 'test',
-    severity: 'medium'
+    severity: 'medium',
   });
 
   logger.debug('Test debug message', {
     type: 'test',
-    debug_data: { sample: 'data' }
+    debug_data: { sample: 'data' },
   });
 
   console.log('✅ Basic logging test completed');
@@ -44,12 +44,12 @@ function testCorrelation() {
     correlationId: 'test-correlation-123',
     userId: 'test-user-456',
     method: 'POST',
-    url: '/api/test'
+    url: '/api/test',
   };
 
   logger.info('Test with correlation context', {
     ...mockContext,
-    type: 'correlation_test'
+    type: 'correlation_test',
   });
 
   console.log('✅ Correlation tracking test completed');
@@ -61,7 +61,7 @@ async function testPerformanceTracking() {
 
   const testContext = {
     correlationId: 'perf-test-789',
-    operation: 'test_operation'
+    operation: 'test_operation',
   };
 
   try {
@@ -70,7 +70,7 @@ async function testPerformanceTracking() {
       testContext,
       async () => {
         // Simulate some async work
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         return { success: true, data: 'test result' };
       },
       { testData: 'sample' }
@@ -89,7 +89,7 @@ function testDatabaseTracking() {
 
   const dbContext = {
     correlationId: 'db-test-123',
-    operation: 'test_query'
+    operation: 'test_query',
   };
 
   trackDatabaseQuery('SELECT * FROM test_table', dbContext, 45);
@@ -108,7 +108,7 @@ function testErrorLogging() {
     correlationId: 'error-test-123',
     type: 'error_test',
     errorCode: 'TEST_ERROR',
-    recoverable: true
+    recoverable: true,
   });
 
   console.log('✅ Error logging test completed');
@@ -118,13 +118,18 @@ function testErrorLogging() {
 function testSecurityLogging() {
   console.log('🧪 Testing security event logging...');
 
-  logger.logSecurityEvent('Test security event', 'medium', {
-    correlationId: 'security-test-123',
-    userId: 'test-user-456',
-    ip: '127.0.0.1'
-  }, {
-    details: 'Test security event details'
-  });
+  logger.logSecurityEvent(
+    'Test security event',
+    'medium',
+    {
+      correlationId: 'security-test-123',
+      userId: 'test-user-456',
+      ip: '127.0.0.1',
+    },
+    {
+      details: 'Test security event details',
+    }
+  );
 
   console.log('✅ Security logging test completed');
 }
@@ -147,7 +152,7 @@ function testPerformanceMonitor() {
 // Run all tests
 async function runAllTests() {
   console.log('🚀 Starting ZANTARA Unified Logging System Tests');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
 
   try {
     testBasicLogging();
@@ -158,7 +163,7 @@ async function runAllTests() {
     testSecurityLogging();
     testPerformanceMonitor();
 
-    console.log('=' .repeat(60));
+    console.log('='.repeat(60));
     console.log('✅ All logging tests completed successfully!');
     console.log('🎉 ZANTARA Unified Logging System is working correctly');
 
@@ -173,7 +178,6 @@ async function runAllTests() {
     console.log(`  File Logging: ${config.enableFile}`);
     console.log(`  Loki Integration: ${config.enableLoki}`);
     console.log(`  Metrics Enabled: ${config.metricsEnabled}`);
-
   } catch (error) {
     console.error('❌ Logging tests failed:', error);
     process.exit(1);
@@ -193,5 +197,5 @@ export {
   testErrorLogging,
   testSecurityLogging,
   testPerformanceMonitor,
-  runAllTests
+  runAllTests,
 };

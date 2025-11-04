@@ -18,7 +18,7 @@ const WHATSAPP_CONFIG = {
   phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '', // Will be auto-detected from webhook
   verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || 'zantara-balizero-2025-secure-token',
   apiVersion: 'v21.0',
-  baseUrl: 'https://graph.facebook.com/v21.0'
+  baseUrl: 'https://graph.facebook.com/v21.0',
 };
 
 // Group Intelligence Storage
@@ -145,7 +145,7 @@ async function handleIncomingMessage(value: any) {
         isGroup,
         groupId,
         groupName,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       // 2. Analyze sentiment
@@ -154,7 +154,14 @@ async function handleIncomingMessage(value: any) {
 
       // 3. Update group context if group message
       if (isGroup && groupId) {
-        await updateGroupContext(groupId, groupName, message.from, userName, messageText, sentiment);
+        await updateGroupContext(
+          groupId,
+          groupName,
+          message.from,
+          userName,
+          messageText,
+          sentiment
+        );
       }
 
       // 4. Decide if ZANTARA should respond
@@ -163,7 +170,7 @@ async function handleIncomingMessage(value: any) {
         isGroup,
         sentiment,
         userId: message.from,
-        groupId
+        groupId,
       });
 
       if (shouldRespond.respond) {
@@ -173,7 +180,7 @@ async function handleIncomingMessage(value: any) {
           isGroup,
           groupId,
           sentiment,
-          context: shouldRespond.context
+          context: shouldRespond.context,
         });
       } else {
         logger.info(`👁️ ZANTARA observing (no response): ${shouldRespond.reason}`);
@@ -186,7 +193,7 @@ async function handleIncomingMessage(value: any) {
         message: messageText,
         sentiment,
         isGroup,
-        groupId
+        groupId,
       });
     }
   } catch (error) {
@@ -222,10 +229,10 @@ async function saveMessageToMemory(data: any) {
         `Name: ${data.userName}`,
         `Last message: ${data.message}`,
         `Date: ${data.timestamp}`,
-        ...(data.isGroup ? [`Group: ${data.groupName}`] : [])
+        ...(data.isGroup ? [`Group: ${data.groupName}`] : []),
       ],
       summary: data.message.substring(0, 140),
-      counters: { messages_sent: 1 }
+      counters: { messages_sent: 1 },
     });
 
     logger.info('💾 Message saved to memory:', data.userId);
@@ -237,7 +244,9 @@ async function saveMessageToMemory(data: any) {
 /**
  * Analyze sentiment using Claude Haiku
  */
-async function analyzeSentiment(text: string): Promise<{ score: number; label: string; urgency: string }> {
+async function analyzeSentiment(
+  text: string
+): Promise<{ score: number; label: string; urgency: string }> {
   try {
     const prompt = `Analyze sentiment of this WhatsApp message. Return JSON only:
 {
@@ -251,11 +260,15 @@ Message: "${text}"`;
     const response = await aiChat({
       prompt,
       max_tokens: 100,
-      model: 'claude-3-5-haiku-20241022'
+      model: 'claude-3-5-haiku-20241022',
     });
 
     const responseData: any = response.data || response;
-    const result = JSON.parse(responseData.response || responseData.answer || '{"score":5,"label":"neutral","urgency":"low"}');
+    const result = JSON.parse(
+      responseData.response ||
+        responseData.answer ||
+        '{"score":5,"label":"neutral","urgency":"low"}'
+    );
     return result;
   } catch (error) {
     logger.error('❌ Sentiment analysis error:', error);
@@ -283,10 +296,10 @@ async function updateGroupContext(
         analytics: {
           topQuestions: [],
           sentimentTrend: [],
-          conversionSignals: []
+          conversionSignals: [],
         },
         createdAt: new Date().toISOString(),
-        lastAnalyzed: new Date().toISOString()
+        lastAnalyzed: new Date().toISOString(),
       });
     }
 
@@ -301,7 +314,7 @@ async function updateGroupContext(
         sentimentHistory: [],
         topicsAsked: [],
         engagementScore: 0,
-        lastActive: new Date().toISOString()
+        lastActive: new Date().toISOString(),
       });
     }
 
@@ -309,7 +322,7 @@ async function updateGroupContext(
     member.sentimentHistory.push({
       date: new Date().toISOString(),
       score: sentiment.score,
-      message: message.substring(0, 100)
+      message: message.substring(0, 100),
     });
     member.lastActive = new Date().toISOString();
     member.engagementScore += 1;
@@ -323,21 +336,36 @@ async function updateGroupContext(
 /**
  * Smart decision: Should ZANTARA respond?
  */
-async function shouldZantaraRespond(params: any): Promise<{ respond: boolean; reason: string; context?: any }> {
+async function shouldZantaraRespond(
+  params: any
+): Promise<{ respond: boolean; reason: string; context?: any }> {
   const { message, isGroup, sentiment } = params;
 
   // Rule 1: Always respond if directly mentioned
-  if (message.toLowerCase().includes('@bali zero') ||
-      message.toLowerCase().includes('@zantara') ||
-      message.toLowerCase().includes('bali zero')) {
+  if (
+    message.toLowerCase().includes('@bali zero') ||
+    message.toLowerCase().includes('@zantara') ||
+    message.toLowerCase().includes('bali zero')
+  ) {
     return { respond: true, reason: 'Direct mention' };
   }
 
   // Rule 2: In groups, be selective
   if (isGroup) {
     // Respond only to questions with keywords
-    const keywords = ['kbli', 'pt pma', 'visa', 'kitas', 'tax', 'npwp', 'quanto costa', 'berapa', 'how much', 'timeline'];
-    const hasKeyword = keywords.some(kw => message.toLowerCase().includes(kw));
+    const keywords = [
+      'kbli',
+      'pt pma',
+      'visa',
+      'kitas',
+      'tax',
+      'npwp',
+      'quanto costa',
+      'berapa',
+      'how much',
+      'timeline',
+    ];
+    const hasKeyword = keywords.some((kw) => message.toLowerCase().includes(kw));
 
     if (hasKeyword && message.includes('?')) {
       return { respond: true, reason: 'Question with keyword in group' };
@@ -356,7 +384,17 @@ async function shouldZantaraRespond(params: any): Promise<{ respond: boolean; re
   }
 
   // Rule 4: Don't respond to generic greetings
-  const greetings = ['hi', 'hello', 'ciao', 'halo', 'thanks', 'grazie', 'terima kasih', 'ok', 'oke'];
+  const greetings = [
+    'hi',
+    'hello',
+    'ciao',
+    'halo',
+    'thanks',
+    'grazie',
+    'terima kasih',
+    'ok',
+    'oke',
+  ];
   if (greetings.includes(message.toLowerCase().trim())) {
     return { respond: false, reason: 'Generic greeting' };
   }
@@ -364,7 +402,7 @@ async function shouldZantaraRespond(params: any): Promise<{ respond: boolean; re
   // Default: respond to 1-to-1, observe groups
   return {
     respond: !isGroup,
-    reason: isGroup ? 'Observer mode in group' : '1-to-1 message'
+    reason: isGroup ? 'Observer mode in group' : '1-to-1 message',
   };
 }
 
@@ -388,14 +426,22 @@ Respond professionally in the user's language (ID/EN/IT). Be concise for WhatsAp
 async function sendIntelligentResponse(to: string, userMessage: string, context: any) {
   try {
     // Retrieve user memory
-    const memoryRes: { ok: boolean; data?: { memories?: Array<{ content?: string }>; count?: number; query?: string } } = await memorySearch({
+    const memoryRes: {
+      ok: boolean;
+      data?: { memories?: Array<{ content?: string }>; count?: number; query?: string };
+    } = await memorySearch({
       userId: to,
       query: userMessage,
-      limit: 3
+      limit: 3,
     });
-    const recentContext = Array.isArray(memoryRes?.data?.memories) && memoryRes.data!.memories!.length > 0
-      ? memoryRes.data!.memories!.map((m: any) => m?.content).filter(Boolean).slice(0, 3).join(' | ')
-      : 'No previous context';
+    const recentContext =
+      Array.isArray(memoryRes?.data?.memories) && memoryRes.data!.memories!.length > 0
+        ? memoryRes
+            .data!.memories!.map((m: any) => m?.content)
+            .filter(Boolean)
+            .slice(0, 3)
+            .join(' | ')
+        : 'No previous context';
 
     // Build context-aware prompt
     const prompt = buildWhatsappPrompt(context, recentContext, userMessage);
@@ -403,11 +449,14 @@ async function sendIntelligentResponse(to: string, userMessage: string, context:
     const aiResponse = await aiChat({
       prompt,
       max_tokens: 300,
-      model: 'claude-3-5-haiku-20241022'
+      model: 'claude-3-5-haiku-20241022',
     });
 
     const responseData: any = aiResponse.data || aiResponse;
-    const responseText = responseData.response || responseData.answer || 'Mi dispiace, non ho capito. Puoi riformulare?';
+    const responseText =
+      responseData.response ||
+      responseData.answer ||
+      'Mi dispiace, non ho capito. Puoi riformulare?';
 
     // Send via WhatsApp API
     await sendWhatsAppMessage(to, responseText);
@@ -431,13 +480,13 @@ async function sendWhatsAppMessage(to: string, text: string) {
         messaging_product: 'whatsapp',
         to: to,
         type: 'text',
-        text: { body: text }
+        text: { body: text },
       },
       {
         headers: {
-          'Authorization': `Bearer ${WHATSAPP_CONFIG.accessToken}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${WHATSAPP_CONFIG.accessToken}`,
+          'Content-Type': 'application/json',
+        },
       }
     );
 
@@ -462,7 +511,7 @@ async function checkAndSendAlerts(params: any) {
     alerts.push({
       type: 'negative_sentiment',
       severity: 'medium',
-      message: `⚠️ ${userName} has negative sentiment (${sentiment.score}/10): "${message}"`
+      message: `⚠️ ${userName} has negative sentiment (${sentiment.score}/10): "${message}"`,
     });
   }
 
@@ -471,17 +520,17 @@ async function checkAndSendAlerts(params: any) {
     alerts.push({
       type: 'high_urgency',
       severity: 'high',
-      message: `🔥 ${userName} needs urgent attention: "${message}"`
+      message: `🔥 ${userName} needs urgent attention: "${message}"`,
     });
   }
 
   // Alert 3: Conversion signals
   const conversionKeywords = ['ready', 'proceed', 'start', 'payment', 'invoice', 'mulai', 'siap'];
-  if (conversionKeywords.some(kw => message.toLowerCase().includes(kw))) {
+  if (conversionKeywords.some((kw) => message.toLowerCase().includes(kw))) {
     alerts.push({
       type: 'conversion_signal',
       severity: 'high',
-      message: `💰 ${userName} showing conversion intent: "${message}"`
+      message: `💰 ${userName} showing conversion intent: "${message}"`,
     });
   }
 
@@ -512,14 +561,16 @@ async function sendTeamAlert(alert: any) {
 
   const message = {
     text: `🚨 **${alert.type.toUpperCase()}** [${alert.severity}]\n\n${alert.message}`,
-    attachments: [{
-      color: alert.severity === 'high' ? 'danger' : 'warning',
-      fields: [
-        { title: 'Type', value: alert.type, short: true },
-        { title: 'Severity', value: alert.severity, short: true },
-        { title: 'Timestamp', value: new Date().toISOString(), short: false }
-      ]
-    }]
+    attachments: [
+      {
+        color: alert.severity === 'high' ? 'danger' : 'warning',
+        fields: [
+          { title: 'Type', value: alert.type, short: true },
+          { title: 'Severity', value: alert.severity, short: true },
+          { title: 'Timestamp', value: new Date().toISOString(), short: false },
+        ],
+      },
+    ],
   };
 
   // Send to Slack
@@ -537,11 +588,13 @@ async function sendTeamAlert(alert: any) {
     try {
       const discordMessage = {
         content: `🚨 **${alert.type.toUpperCase()}** [${alert.severity}]`,
-        embeds: [{
-          description: alert.message,
-          color: alert.severity === 'high' ? 15158332 : 16776960, // Red or Yellow
-          timestamp: new Date().toISOString()
-        }]
+        embeds: [
+          {
+            description: alert.message,
+            color: alert.severity === 'high' ? 15158332 : 16776960, // Red or Yellow
+            timestamp: new Date().toISOString(),
+          },
+        ],
       };
       await axios.post(discordWebhook, discordMessage);
       logger.info('✅ Alert sent to Discord');
@@ -566,17 +619,18 @@ export async function getGroupAnalytics(params: any) {
   if (!context) {
     return ok({
       message: 'Group not found or no data yet',
-      groupId
+      groupId,
     });
   }
 
   // Calculate analytics
   const members = Array.from(context.members.values());
-  const avgSentiment = members.reduce((sum, m) => {
-    const recent = m.sentimentHistory.slice(-5);
-    const avg = recent.reduce((s, h) => s + h.score, 0) / (recent.length || 1);
-    return sum + avg;
-  }, 0) / (members.length || 1);
+  const avgSentiment =
+    members.reduce((sum, m) => {
+      const recent = m.sentimentHistory.slice(-5);
+      const avg = recent.reduce((s, h) => s + h.score, 0) / (recent.length || 1);
+      return sum + avg;
+    }, 0) / (members.length || 1);
 
   return ok({
     groupId: context.groupId,
@@ -588,10 +642,10 @@ export async function getGroupAnalytics(params: any) {
       topContributors: members
         .sort((a, b) => b.engagementScore - a.engagementScore)
         .slice(0, 5)
-        .map(m => ({ name: m.name, messages: m.engagementScore }))
+        .map((m) => ({ name: m.name, messages: m.engagementScore })),
     },
     analytics: context.analytics,
-    lastAnalyzed: context.lastAnalyzed
+    lastAnalyzed: context.lastAnalyzed,
   });
 }
 
@@ -611,6 +665,6 @@ export async function sendManualMessage(params: any) {
     sent: true,
     to,
     message,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }

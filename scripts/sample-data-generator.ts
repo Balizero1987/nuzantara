@@ -19,44 +19,45 @@ const KBLI_CATEGORIES = {
     {
       code: '69101',
       name: 'Pertambangan batu bara',
-      description: 'Kegiatan penambangan dan penggalian batu bara termasuk persiapan, pemurnian dan pengangkutan',
-      keywords: ['batubara', 'pertambangan', 'energi', 'mineral', 'eksplorasi']
+      description:
+        'Kegiatan penambangan dan penggalian batu bara termasuk persiapan, pemurnian dan pengangkutan',
+      keywords: ['batubara', 'pertambangan', 'energi', 'mineral', 'eksplorasi'],
     },
     {
       code: '64111',
       name: 'Perbankan',
       description: 'Kegiatan perbankan yang menerima simpanan dan memberikan kredit',
-      keywords: ['banking', 'kredit', 'simpanan', 'pinjaman', 'finansial']
+      keywords: ['banking', 'kredit', 'simpanan', 'pinjaman', 'finansial'],
     },
     {
       code: '85599',
       name: 'Pendidikan lainnya',
       description: 'Kegiatan pendidikan yang belum diklasifikasikan di tempat lain',
-      keywords: ['pendidikan', 'training', 'kursus', 'pelatihan', 'edukasi']
-    }
+      keywords: ['pendidikan', 'training', 'kursus', 'pelatihan', 'edukasi'],
+    },
   ],
   FINANCIAL: [
     {
       code: '64191',
       name: 'Perusahaan pembiayaan',
       description: 'Kegiatan pembiayaan konsumen, modal usaha, dan pembiayaan syariah',
-      keywords: ['leasing', 'pembiayaan', 'kredit', 'konsumen', 'syariah']
+      keywords: ['leasing', 'pembiayaan', 'kredit', 'konsumen', 'syariah'],
     },
     {
       code: '66192',
       name: 'Perusahaan asuransi jiwa',
       description: 'Kegiatan asuransi jiwa, asuransi kesehatan, dan asuransi dana pensiun',
-      keywords: ['asuransi', 'jiwa', 'kesehatan', 'pensiun', 'proteksi']
-    }
+      keywords: ['asuransi', 'jiwa', 'kesehatan', 'pensiun', 'proteksi'],
+    },
   ],
   TECHNICAL: [
     {
       code: '62020',
       name: 'Kegiatan teknologi informasi dan komputer',
       description: 'Pengembangan perangkat lunak, konsultasi IT, dan pengolahan data',
-      keywords: ['software', 'IT', 'programming', 'database', 'development']
-    }
-  ]
+      keywords: ['software', 'IT', 'programming', 'database', 'development'],
+    },
+  ],
 };
 
 // Document templates for realistic content
@@ -131,7 +132,7 @@ IMPLEMENTATION GUIDE
 
 Author: {AUTHOR}
 Team: {TEAM}
-`
+`,
 };
 
 // Company names for realistic data
@@ -145,7 +146,7 @@ const COMPANY_NAMES = [
   'PT Energi Terbarukan',
   'PT Asuransi Proteksi',
   'PT Software Development',
-  'PT Mining Resources'
+  'PT Mining Resources',
 ];
 
 interface GeneratedDocument {
@@ -198,7 +199,8 @@ class SampleDataGenerator {
   }
 
   private static generateLegalDocument(): GeneratedDocument {
-    const category = KBLI_CATEGORIES.LEGAL[Math.floor(Math.random() * KBLI_CATEGORIES.LEGAL.length)];
+    const category =
+      KBLI_CATEGORIES.LEGAL[Math.floor(Math.random() * KBLI_CATEGORIES.LEGAL.length)];
     const company = this.generateRandomCompany();
     const documentNumber = `${category.code}/${this.generateRandomNumber(1, 999)}/2024`;
 
@@ -217,7 +219,7 @@ class SampleDataGenerator {
       MAIN_CONTENT: `Perusahaan kami telah melakukan kegiatan ${category.name.toLowerCase()} sesuai dengan izin yang diberikan. Kami memastikan semua kegiatan mematuhi standar keselamatan dan lingkungan yang berlaku.`,
       SIGNATURE: 'Direktur Utama',
       CONTACT_INFO: `Jl. Jakarta No. 123, Jakarta\nTelp: (021) 1234-5678\nEmail: info@company.com`,
-      KEYWORDS: category.keywords.join(', ')
+      KEYWORDS: category.keywords.join(', '),
     };
 
     const content = this.fillTemplate(DOCUMENT_TEMPLATES.LEGAL, variables);
@@ -235,13 +237,14 @@ class SampleDataGenerator {
         file_size: content.length,
         keywords: this.generateKeywords(category.keywords),
         type: 'legal',
-        version: '1.0'
-      }
+        version: '1.0',
+      },
     };
   }
 
   private static generateFinancialDocument(): GeneratedDocument {
-    const category = KBLI_CATEGORIES.FINANCIAL[Math.floor(Math.random() * KBLI_CATEGORIES.FINANCIAL.length)];
+    const category =
+      KBLI_CATEGORIES.FINANCIAL[Math.floor(Math.random() * KBLI_CATEGORIES.FINANCIAL.length)];
     const company = this.generateRandomCompany();
 
     const variables = {
@@ -252,7 +255,7 @@ class SampleDataGenerator {
       PROJECTIONS: `Proyeksi untuk tahun depan memperkirakan pertumbuhan pendapatan sebesar 12-15% dengan margin yang stabil.`,
       KEYWORDS: category.keywords.join(', '),
       AUTHOR: 'Divisi Keuangan',
-      CURRENT_DATE: this.generateCurrentDate()
+      CURRENT_DATE: this.generateCurrentDate(),
     };
 
     const content = this.fillTemplate(DOCUMENT_TEMPLATES.FINANCIAL, variables);
@@ -270,26 +273,33 @@ class SampleDataGenerator {
         file_size: content.length,
         keywords: this.generateKeywords(category.keywords),
         type: 'financial',
-        version: '1.0'
-      }
+        version: '1.0',
+      },
     };
   }
 
   private static generateTechnicalDocument(): GeneratedDocument {
     const category = KBLI_CATEGORIES.TECHNICAL[0]; // Only one technical category
     const company = this.generateRandomCompany();
-    const projectNames = ['E-Commerce Platform', 'Banking System', 'Data Analytics Dashboard', 'Mobile Application'];
+    const projectNames = [
+      'E-Commerce Platform',
+      'Banking System',
+      'Data Analytics Dashboard',
+      'Mobile Application',
+    ];
 
     const variables = {
       PROJECT_NAME: projectNames[Math.floor(Math.random() * projectNames.length)],
       VERSION: '2.1.0',
       CURRENT_DATE: this.generateCurrentDate(),
-      OVERVIEW: 'Proyek pengembangan sistem aplikasi berbasis web dengan arsitektur microservices untuk mendukung operasional bisnis.',
+      OVERVIEW:
+        'Proyek pengembangan sistem aplikasi berbasis web dengan arsitektur microservices untuk mendukung operasional bisnis.',
       TECHNICAL_REQUIREMENTS: `- Backend: Node.js dengan framework Express.js\n- Database: PostgreSQL untuk data transaksional\n- Cache: Redis untuk performa\n- Frontend: React.js dengan TypeScript\n- Deployment: Docker di Google Cloud Platform`,
-      IMPLEMENTATION_GUIDE: '1. Setup development environment\n2. Install dependencies\n3. Configure database\n4. Run development server\n5. Run test suite',
+      IMPLEMENTATION_GUIDE:
+        '1. Setup development environment\n2. Install dependencies\n3. Configure database\n4. Run development server\n5. Run test suite',
       KEYWORDS: category.keywords.join(', '),
       AUTHOR: 'Tim Pengembangan',
-      TEAM: 'Software Development Team'
+      TEAM: 'Software Development Team',
     };
 
     const content = this.fillTemplate(DOCUMENT_TEMPLATES.TECHNICAL, variables);
@@ -307,8 +317,8 @@ class SampleDataGenerator {
         file_size: content.length,
         keywords: this.generateKeywords(category.keywords),
         type: 'technical',
-        version: variables.VERSION
-      }
+        version: variables.VERSION,
+      },
     };
   }
 
@@ -340,12 +350,15 @@ class SampleDataGenerator {
   static generateLargeDocuments(count: number, sizeMultiplier: number = 10): GeneratedDocument[] {
     const documents = this.generateDocuments(count);
 
-    return documents.map(doc => {
+    return documents.map((doc) => {
       const contentMultiplier = sizeMultiplier;
       const originalContent = doc.content;
-      const largeContent = originalContent + '\n\n' +
+      const largeContent =
+        originalContent +
+        '\n\n' +
         'ADDITIONAL CONTENT FOR SIZE TESTING. '.repeat(contentMultiplier * 20) +
-        '\n\n' + 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '.repeat(contentMultiplier * 30);
+        '\n\n' +
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '.repeat(contentMultiplier * 30);
 
       return {
         ...doc,
@@ -353,8 +366,8 @@ class SampleDataGenerator {
         metadata: {
           ...doc.metadata,
           file_size: largeContent.length,
-          type: 'large_document' as any
-        }
+          type: 'large_document' as any,
+        },
       };
     });
   }
@@ -366,7 +379,7 @@ class SampleDataGenerator {
       id: 'Halo',
       en: 'Hello',
       zh: '你好',
-      ar: 'مرحبا'
+      ar: 'مرحبا',
     };
 
     for (let i = 0; i < count; i++) {
@@ -396,15 +409,18 @@ ${'Additional content for testing purposes. '.repeat(10)}`;
           file_size: content.length,
           keywords: ['multilingual', 'test', 'i18n', 'international'],
           type: 'test' as any,
-          version: '1.0'
-        }
+          version: '1.0',
+        },
       });
     }
 
     return documents;
   }
 
-  static async saveDocumentsToFile(documents: GeneratedDocument[], filePath: string): Promise<void> {
+  static async saveDocumentsToFile(
+    documents: GeneratedDocument[],
+    filePath: string
+  ): Promise<void> {
     const dir = path.dirname(filePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -414,7 +430,10 @@ ${'Additional content for testing purposes. '.repeat(10)}`;
     fs.writeFileSync(filePath, jsonData, 'utf8');
   }
 
-  static async saveDocumentsAsTextFiles(documents: GeneratedDocument[], outputDir: string): Promise<string[]> {
+  static async saveDocumentsAsTextFiles(
+    documents: GeneratedDocument[],
+    outputDir: string
+  ): Promise<string[]> {
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
@@ -457,10 +476,10 @@ ${doc.content}`;
       byCategory: {} as Record<string, number>,
       byLanguage: {} as Record<string, number>,
       avgSize: 0,
-      totalSize: 0
+      totalSize: 0,
     };
 
-    documents.forEach(doc => {
+    documents.forEach((doc) => {
       // Count by category
       summary.byCategory[doc.metadata.category] =
         (summary.byCategory[doc.metadata.category] || 0) + 1;
@@ -508,7 +527,9 @@ async function main() {
 
       console.log(`✅ Generated ${documents.length} documents`);
       console.log(`📁 JSON file: ${path.join(outputDir, 'documents.json')}`);
-      console.log(`📄 Text files: ${textFiles.length} files in ${path.join(outputDir, 'text-files')}`);
+      console.log(
+        `📄 Text files: ${textFiles.length} files in ${path.join(outputDir, 'text-files')}`
+      );
       console.log('\n📊 Dataset Summary:');
       console.log(`   Total documents: ${summary.total}`);
       console.log(`   By category:`, summary.byCategory);

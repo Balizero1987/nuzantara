@@ -1,16 +1,16 @@
 /**
  * Circuit Breaker Pattern Implementation
- * 
+ *
  * Prevents cascading failures by monitoring service health
  * and automatically failing fast when services are down.
- * 
+ *
  * Features:
  * - Automatic failure detection
  * - Configurable thresholds
  * - State persistence
  * - Recovery mechanisms
  * - Metrics collection
- * 
+ *
  * @author GLM 4.6 - System Architect
  * @version 1.0.0
  */
@@ -21,7 +21,7 @@ import { redisClient } from '../redis-client.js';
 export enum CircuitBreakerState {
   CLOSED = 'closed',
   OPEN = 'open',
-  HALF_OPEN = 'half-open'
+  HALF_OPEN = 'half-open',
 }
 
 export interface CircuitBreakerConfig {
@@ -66,7 +66,7 @@ class CircuitBreakerImpl {
     this.name = options.name;
     this.config = options.config;
     this.options = options;
-    
+
     this.metrics = {
       totalCalls: 0,
       successfulCalls: 0,
@@ -76,8 +76,8 @@ class CircuitBreakerImpl {
         closedToOpen: 0,
         openToHalfOpen: 0,
         halfOpenToClosed: 0,
-        halfOpenToOpen: 0
-      }
+        halfOpenToOpen: 0,
+      },
     };
 
     // Load existing state from Redis if available
@@ -98,12 +98,12 @@ class CircuitBreakerImpl {
         const error = new Error(`Circuit breaker '${this.name}' is OPEN`);
         this.metrics.failedCalls++;
         this.metrics.totalCalls++;
-        
+
         if (fallback) {
           logger.warn(`Circuit breaker OPEN, using fallback for ${this.name}`);
           return await fallback();
         }
-        
+
         throw error;
       }
     }
@@ -112,19 +112,18 @@ class CircuitBreakerImpl {
       this.metrics.totalCalls++;
       const result = await operation();
       const duration = Date.now() - startTime;
-      
+
       this.onSuccess(duration);
       return result;
-      
     } catch (error) {
       const duration = Date.now() - startTime;
       this.onFailure(error as Error, duration);
-      
+
       if (fallback) {
         logger.warn(`Operation failed for ${this.name}, using fallback`, { error: error.message });
         return await fallback();
       }
-      
+
       throw error;
     }
   }
@@ -173,7 +172,7 @@ class CircuitBreakerImpl {
   private onSuccess(duration: number): void {
     this.metrics.successfulCalls++;
     this.metrics.lastSuccessTime = Date.now();
-    
+
     if (this.state === CircuitBreakerState.HALF_OPEN) {
       this.transitionTo(CircuitBreakerState.CLOSED);
       this.metrics.currentFailures = 0;
@@ -249,7 +248,7 @@ class CircuitBreakerImpl {
         state: this.state,
         metrics: this.metrics,
         lastStateChange: this.lastStateChange,
-        config: this.config
+        config: this.config,
       };
 
       await redisClient.setex(
@@ -270,11 +269,11 @@ class CircuitBreakerImpl {
       const cached = await redisClient.get(`circuit_breaker:${this.name}`);
       if (cached) {
         const stateData = JSON.parse(cached);
-        
+
         this.state = stateData.state || CircuitBreakerState.CLOSED;
         this.metrics = { ...this.metrics, ...stateData.metrics };
         this.lastStateChange = stateData.lastStateChange || Date.now();
-        
+
         logger.info(`Circuit breaker '${this.name}' state loaded from cache`);
       }
     } catch (error) {
@@ -302,8 +301,7 @@ class CircuitBreakerImpl {
    * Check if circuit breaker is healthy
    */
   isHealthy(): boolean {
-    return this.state === CircuitBreakerState.CLOSED && 
-           this.getSuccessRate() > 80; // Consider healthy if success rate > 80%
+    return this.state === CircuitBreakerState.CLOSED && this.getSuccessRate() > 80; // Consider healthy if success rate > 80%
   }
 
   /**
@@ -329,7 +327,7 @@ class CircuitBreakerImpl {
       currentFailures: this.metrics.currentFailures,
       isHealthy: this.isHealthy(),
       lastStateChange: this.lastStateChange,
-      timeInCurrentState: Date.now() - this.lastStateChange
+      timeInCurrentState: Date.now() - this.lastStateChange,
     };
   }
 }
@@ -353,11 +351,11 @@ class CircuitBreakerFactory {
   }
 
   static resetAll(): void {
-    this.instances.forEach(breaker => breaker.reset());
+    this.instances.forEach((breaker) => breaker.reset());
   }
 
   static getHealthSummary(): Array<ReturnType<CircuitBreakerImpl['getHealthSummary']>> {
-    return Array.from(this.instances.values()).map(breaker => breaker.getHealthSummary());
+    return Array.from(this.instances.values()).map((breaker) => breaker.getHealthSummary());
   }
 }
 

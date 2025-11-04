@@ -73,8 +73,8 @@ const SparkDashboard = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Apache Spark Dashboard</h1>
-        <Badge variant={sparkStatus.alive ? "default" : "destructive"}>
-          {sparkStatus.alive ? "Active" : "Inactive"}
+        <Badge variant={sparkStatus.alive ? 'default' : 'destructive'}>
+          {sparkStatus.alive ? 'Active' : 'Inactive'}
         </Badge>
       </div>
 
@@ -138,7 +138,10 @@ const SparkDashboard = () => {
             <CardContent>
               <div className="space-y-4">
                 {jobs.map((job, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
                     <div>
                       <h4 className="font-medium">{job.name}</h4>
                       <p className="text-sm text-muted-foreground">{job.description}</p>
@@ -147,8 +150,15 @@ const SparkDashboard = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <Badge variant={job.status === 'RUNNING' ? 'default' : 
-                                     job.status === 'SUCCEEDED' ? 'success' : 'destructive'}>
+                      <Badge
+                        variant={
+                          job.status === 'RUNNING'
+                            ? 'default'
+                            : job.status === 'SUCCEEDED'
+                              ? 'success'
+                              : 'destructive'
+                        }
+                      >
                         {job.status}
                       </Badge>
                       <div className="mt-2">
@@ -286,19 +296,22 @@ const SparkDashboard = () => {
             <CardContent>
               <div className="space-y-2 font-mono text-sm">
                 {metrics.logs?.map((log, index) => (
-                  <div key={index} className={`p-2 rounded ${
-                    log.level === 'ERROR' ? 'bg-red-100 text-red-800' :
-                    log.level === 'WARN' ? 'bg-yellow-100 text-yellow-800' :
-                    log.level === 'INFO' ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100'
-                  }`}>
+                  <div
+                    key={index}
+                    className={`p-2 rounded ${
+                      log.level === 'ERROR'
+                        ? 'bg-red-100 text-red-800'
+                        : log.level === 'WARN'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : log.level === 'INFO'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-gray-100'
+                    }`}
+                  >
                     <span className="text-xs text-muted-foreground">
                       {new Date(log.timestamp).toLocaleTimeString()}
-                    </span>
-                    {' '}
-                    <span className="font-medium">[{log.level}]</span>
-                    {' '}
-                    {log.message}
+                    </span>{' '}
+                    <span className="font-medium">[{log.level}]</span> {log.message}
                   </div>
                 )) || <div className="text-muted-foreground">No logs available</div>}
               </div>

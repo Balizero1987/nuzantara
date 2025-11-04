@@ -33,17 +33,6 @@
     "typeRoots": ["./node_modules/@types", "./types"],
     "types": ["node", "jest"]
   },
-  "include": [
-    "test-migration.ts",
-    "sample-data-generator.ts",
-    "*.ts",
-    "types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ]
+  "include": ["test-migration.ts", "sample-data-generator.ts", "*.ts", "types/**/*.ts"],
+  "exclude": ["node_modules", "dist", "coverage", "**/*.test.ts", "**/*.spec.ts"]
 }

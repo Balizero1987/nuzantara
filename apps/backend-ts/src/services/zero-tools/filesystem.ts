@@ -49,12 +49,12 @@ export async function readFileZero(relativePath: string): Promise<ReadFileResult
       ok: true,
       content,
       lines,
-      size: stats.size
+      size: stats.size,
     };
   } catch (error: any) {
     return {
       ok: false,
-      error: error.code === 'ENOENT' ? 'FILE_NOT_FOUND' : error.message
+      error: error.code === 'ENOENT' ? 'FILE_NOT_FOUND' : error.message,
     };
   }
 }
@@ -99,12 +99,12 @@ export async function editFileZero(
 
     return {
       ok: true,
-      changes: replaceAll ? occurrences : 1
+      changes: replaceAll ? occurrences : 1,
     };
   } catch (error: any) {
     return {
       ok: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -141,18 +141,18 @@ export async function globZero(pattern: string): Promise<GlobResult> {
     const files = await glob(pattern, {
       cwd: PROJECT_ROOT,
       absolute: false,
-      nodir: true
+      nodir: true,
     });
 
     return {
       ok: true,
       files,
-      count: files.length
+      count: files.length,
     };
   } catch (error: any) {
     return {
       ok: false,
-      error: error.message
+      error: error.message,
     };
   }
 }

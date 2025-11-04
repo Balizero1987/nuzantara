@@ -5,9 +5,17 @@
 
 import { Router, Request, Response } from 'express';
 import { kbliLookup, kbliRequirements } from '../../../handlers/bali-zero/kbli.js';
-import { baliZeroPricing, baliZeroQuickPrice } from '../../../handlers/bali-zero/bali-zero-pricing.js';
+import {
+  baliZeroPricing,
+  baliZeroQuickPrice,
+} from '../../../handlers/bali-zero/bali-zero-pricing.js';
 import { baliZeroChat } from '../../../handlers/rag/rag.js';
-import { cacheMiddleware, generateCacheKey, cacheGet, cacheSet } from '../../../middleware/cache.middleware.js';
+import {
+  cacheMiddleware,
+  generateCacheKey,
+  cacheGet,
+  cacheSet,
+} from '../../../middleware/cache.middleware.js';
 import { baliZeroChatLimiter } from '../../../middleware/rate-limit.js';
 import { flagGate } from '../../../middleware/flagGate.js';
 import logger from '../../../services/logger.js';
@@ -45,7 +53,7 @@ router.post('/kbli', async (req: Request, res: Response) => {
         result = data;
         return data;
       },
-      status: (code: number) => mockRes
+      status: (_code: number) => mockRes,
     } as any;
 
     // Execute handler
@@ -88,7 +96,7 @@ router.post('/kbli/requirements', async (req: Request, res: Response) => {
         result = data;
         return data;
       },
-      status: (code: number) => mockRes
+      status: (_code: number) => mockRes,
     } as any;
 
     await kbliRequirements(req, mockRes);
@@ -218,7 +226,11 @@ router.post('/chat', async (req: Request, res: Response) => {
     const result = await baliZeroChat(req.body);
 
     // Cache only successful responses without conversation context
-    if (result && result.success && (!req.body.conversation_history || req.body.conversation_history.length === 0)) {
+    if (
+      result &&
+      result.success &&
+      (!req.body.conversation_history || req.body.conversation_history.length === 0)
+    ) {
       await cacheSet(cacheKey, result, 300); // 5 minutes TTL for chat
       res.setHeader('X-Cache', 'MISS');
     }
@@ -235,7 +247,7 @@ router.post('/chat', async (req: Request, res: Response) => {
 /**
  * Bali Zero Chat Stream - SSE (Server-Sent Events)
  * GET /api/v2/bali-zero/chat-stream
- * 
+ *
  * Real-time token streaming with:
  * - <100ms first token latency
  * - <50ms inter-token latency
@@ -246,14 +258,17 @@ router.post('/chat', async (req: Request, res: Response) => {
  * - Audit trail
  * - Feature flag protected
  */
-router.get('/chat-stream', 
+router.get(
+  '/chat-stream',
   flagGate('ENABLE_SSE_STREAMING'), // Feature flag protection
   baliZeroChatLimiter, // Rate limiting (20 req/min)
   async (req: Request, res: Response) => {
     const startTime = Date.now();
-    const connectionId = req.headers['x-connection-id'] as string || `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const connectionId =
+      (req.headers['x-connection-id'] as string) ||
+      `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const userId = (req as any).user?.id || (req as any).user?.userId;
-    const userEmail = (req as any).user?.email || req.query.user_email as string;
+    const userEmail = (req as any).user?.email || (req.query.user_email as string);
     const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
 
     try {
@@ -268,7 +283,7 @@ router.get('/chat-stream',
           query: '',
           endpoint: req.path,
           success: false,
-          error: 'Missing query parameter'
+          error: 'Missing query parameter',
         });
         return res.status(400).json({ error: 'query parameter is required' });
       }
@@ -291,7 +306,7 @@ router.get('/chat-stream',
         ipAddress,
         query,
         endpoint: req.path,
-        success: true
+        success: true,
       });
 
       // Import streaming service
@@ -305,7 +320,7 @@ router.get('/chat-stream',
       const originalWrite = res.write.bind(res);
       let firstTokenSent = false;
 
-      res.write = function(chunk: any, encoding?: any) {
+      res.write = function (chunk: any, encoding?: any) {
         if (!firstTokenSent && chunk.toString().includes('"type":"token"')) {
           firstTokenSent = true;
           firstTokenLatency = Date.now() - startTime;
@@ -321,7 +336,7 @@ router.get('/chat-stream',
         query,
         user_email: (user_email as string) || userEmail,
         user_role: user_role as string | undefined,
-        conversation_history: parsedHistory
+        conversation_history: parsedHistory,
       });
 
       // Audit log: Stream completed successfully
@@ -336,12 +351,11 @@ router.get('/chat-stream',
         success: true,
         firstTokenLatency,
         tokensReceived,
-        duration
+        duration,
       });
-
     } catch (error: any) {
       logger.error('[Stream] Chat stream error:', error);
-      
+
       // Audit log: Stream failed
       const duration = Date.now() - startTime;
       auditService.logStreamOperation({
@@ -349,11 +363,11 @@ router.get('/chat-stream',
         userId,
         userEmail,
         ipAddress,
-        query: req.query.query as string || '',
+        query: (req.query.query as string) || '',
         endpoint: req.path,
         success: false,
         duration,
-        error: error.message || 'Stream initialization failed'
+        error: error.message || 'Stream initialization failed',
       });
 
       if (!res.headersSent) {
@@ -368,12 +382,15 @@ router.get('/chat-stream',
  * Alternative POST endpoint for SSE (supports larger payloads)
  * Same security, rate limiting, and audit trail as GET endpoint
  */
-router.post('/chat-stream',
+router.post(
+  '/chat-stream',
   flagGate('ENABLE_SSE_STREAMING'), // Feature flag protection
   baliZeroChatLimiter, // Rate limiting (20 req/min)
   async (req: Request, res: Response) => {
     const startTime = Date.now();
-    const connectionId = req.headers['x-connection-id'] as string || `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const connectionId =
+      (req.headers['x-connection-id'] as string) ||
+      `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const userId = (req as any).user?.id || (req as any).user?.userId;
     const userEmail = (req as any).user?.email || req.body.user_email;
     const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
@@ -390,7 +407,7 @@ router.post('/chat-stream',
           query: '',
           endpoint: req.path,
           success: false,
-          error: 'Missing query parameter'
+          error: 'Missing query parameter',
         });
         return res.status(400).json({ error: 'query is required' });
       }
@@ -403,7 +420,7 @@ router.post('/chat-stream',
         ipAddress,
         query,
         endpoint: req.path,
-        success: true
+        success: true,
       });
 
       // Import streaming service
@@ -416,7 +433,7 @@ router.post('/chat-stream',
 
       // Wrap response to track metrics
       const originalWrite = res.write.bind(res);
-      res.write = function(chunk: any, encoding?: any) {
+      res.write = function (chunk: any, encoding?: any) {
         if (!firstTokenSent && chunk.toString().includes('"type":"token"')) {
           firstTokenSent = true;
           firstTokenLatency = Date.now() - startTime;
@@ -432,7 +449,9 @@ router.post('/chat-stream',
         query,
         user_email: user_email || userEmail,
         user_role,
-        conversation_history: Array.isArray(conversation_history) ? conversation_history : undefined
+        conversation_history: Array.isArray(conversation_history)
+          ? conversation_history
+          : undefined,
       });
 
       // Audit log: Stream completed successfully
@@ -447,12 +466,11 @@ router.post('/chat-stream',
         success: true,
         firstTokenLatency,
         tokensReceived,
-        duration
+        duration,
       });
-
     } catch (error: any) {
       logger.error('[Stream] Chat stream error:', error);
-      
+
       // Audit log: Stream failed
       const duration = Date.now() - startTime;
       auditService.logStreamOperation({
@@ -464,7 +482,7 @@ router.post('/chat-stream',
         endpoint: req.path,
         success: false,
         duration,
-        error: error.message || 'Stream initialization failed'
+        error: error.message || 'Stream initialization failed',
       });
 
       if (!res.headersSent) {

@@ -1,5 +1,5 @@
 // Type declarations for JS modules
-declare module "*.js" {
+declare module '*.js' {
   const value: any;
   export = value;
 }

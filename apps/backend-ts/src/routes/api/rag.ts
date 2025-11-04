@@ -19,7 +19,7 @@ router.post('/query', async (req: Request, res: Response) => {
 
     if (!query) {
       return res.status(400).json({
-        error: 'Query is required'
+        error: 'Query is required',
       });
     }
 
@@ -27,15 +27,14 @@ router.post('/query', async (req: Request, res: Response) => {
       query,
       k: k || 5,
       use_llm: use_llm !== false,
-      conversation_history
+      conversation_history,
     });
 
     return res.json(result);
-
   } catch (error: any) {
     logger.error('RAG query error:', error);
     return res.status(500).json({
-      error: error.message || 'Internal server error'
+      error: error.message || 'Internal server error',
     });
   }
 });
@@ -51,7 +50,7 @@ router.post('/bali-zero', async (req: Request, res: Response) => {
 
     if (!query) {
       return res.status(400).json({
-        error: 'Query is required'
+        error: 'Query is required',
       });
     }
 
@@ -61,15 +60,14 @@ router.post('/bali-zero', async (req: Request, res: Response) => {
     const result = await ragService.baliZeroChat({
       query,
       conversation_history,
-      user_role: role
+      user_role: role,
     });
 
     return res.json(result);
-
   } catch (error: any) {
     logger.error('Bali Zero error:', error);
     return res.status(500).json({
-      error: error.message || 'Internal server error'
+      error: error.message || 'Internal server error',
     });
   }
 });
@@ -84,18 +82,17 @@ router.post('/search', async (req: Request, res: Response) => {
 
     if (!query) {
       return res.status(400).json({
-        error: 'Query is required'
+        error: 'Query is required',
       });
     }
 
     const result = await ragService.search(query, k);
 
     return res.json(result);
-
   } catch (error: any) {
     logger.error('Search error:', error);
     return res.status(500).json({
-      error: error.message || 'Internal server error'
+      error: error.message || 'Internal server error',
     });
   }
 });
@@ -110,15 +107,14 @@ router.get('/health', async (_req: Request, res: Response) => {
 
     return res.json({
       status: isHealthy ? 'healthy' : 'unhealthy',
-      rag_backend: isHealthy
+      rag_backend: isHealthy,
     });
-
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     logger.error('RAG health check failed', { error: errorMessage });
     return res.status(503).json({
       status: 'unhealthy',
-      error: 'RAG backend unavailable'
+      error: 'RAG backend unavailable',
     });
   }
 });

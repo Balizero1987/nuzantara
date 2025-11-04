@@ -1,8 +1,8 @@
 /**
  * End-to-End Tests: JWT Authentication Flow
- * 
+ *
  * Tests complete authentication flow using supertest
- * 
+ *
  * Prerequisites:
  * - supertest installed: npm install --save-dev supertest @types/supertest
  * - JWT_SECRET set in environment
@@ -24,8 +24,8 @@ jest.unstable_mockModule('../../services/logger.js', () => ({
     info: mockLoggerInfo,
     warn: mockLoggerWarn,
     error: mockLoggerError,
-    debug: mockLoggerDebug
-  }
+    debug: mockLoggerDebug,
+  },
 }));
 
 // Mock team login handler
@@ -34,28 +34,29 @@ const mockGetTeamMembers = jest.fn();
 
 jest.unstable_mockModule('../../handlers/auth/team-login.js', () => ({
   teamLogin: mockTeamLogin,
-  getTeamMembers: mockGetTeamMembers
+  getTeamMembers: mockGetTeamMembers,
 }));
 
 describe('JWT Authentication E2E Tests', () => {
   let app: any;
   let validJWTSecret: string;
-  
+
   const mockUser = {
     id: 'test-user-123',
     name: 'Test User',
     email: 'test@example.com',
     role: 'admin',
-    department: 'Engineering'
+    department: 'Engineering',
   };
 
   beforeAll(async () => {
     // Set required environment variables
-    process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-min-32-characters-long-for-testing';
+    process.env.JWT_SECRET =
+      process.env.JWT_SECRET || 'test-jwt-secret-min-32-characters-long-for-testing';
     process.env.JWT_AUDIT_LOGGING = 'true';
     process.env.JWT_RATE_LIMITING = 'true';
     process.env.JWT_STRICT_VALIDATION = 'false';
-    
+
     validJWTSecret = process.env.JWT_SECRET;
 
     // Setup mocks
@@ -63,8 +64,8 @@ describe('JWT Authentication E2E Tests', () => {
       ok: true,
       data: {
         success: true,
-        user: mockUser
-      }
+        user: mockUser,
+      },
     });
 
     mockGetTeamMembers.mockReturnValue([mockUser]);
@@ -83,7 +84,7 @@ describe('JWT Authentication E2E Tests', () => {
         .post('/auth/login')
         .send({
           email: 'test@example.com',
-          password: 'test123'
+          password: 'test123',
         })
         .expect(200);
 
@@ -107,7 +108,7 @@ describe('JWT Authentication E2E Tests', () => {
       const response = await request(app)
         .post('/auth/login')
         .send({
-          password: 'test123'
+          password: 'test123',
         })
         .expect(400);
 
@@ -119,7 +120,7 @@ describe('JWT Authentication E2E Tests', () => {
       const response = await request(app)
         .post('/auth/login')
         .send({
-          email: 'test@example.com'
+          email: 'test@example.com',
         })
         .expect(400);
 
@@ -130,15 +131,15 @@ describe('JWT Authentication E2E Tests', () => {
       mockTeamLogin.mockResolvedValueOnce({
         ok: true,
         data: {
-          success: false
-        }
+          success: false,
+        },
       });
 
       const response = await request(app)
         .post('/auth/login')
         .send({
           email: 'invalid@example.com',
-          password: 'wrong'
+          password: 'wrong',
         })
         .expect(401);
 
@@ -151,15 +152,15 @@ describe('JWT Authentication E2E Tests', () => {
       mockTeamLogin.mockResolvedValueOnce({
         ok: true,
         data: {
-          success: false
-        }
+          success: false,
+        },
       });
 
       const response = await request(app)
         .post('/auth/login')
         .send({
           email: 'notfound@example.com',
-          password: 'test123'
+          password: 'test123',
         })
         .expect(401);
     });
@@ -170,18 +171,16 @@ describe('JWT Authentication E2E Tests', () => {
 
     beforeAll(() => {
       // Create a valid refresh token for tests
-      refreshToken = jwt.sign(
-        { userId: mockUser.id, type: 'refresh' },
-        validJWTSecret,
-        { expiresIn: '7d' }
-      );
+      refreshToken = jwt.sign({ userId: mockUser.id, type: 'refresh' }, validJWTSecret, {
+        expiresIn: '7d',
+      });
     });
 
     it('should refresh access token successfully', async () => {
       const response = await request(app)
         .post('/auth/refresh')
         .send({
-          refreshToken
+          refreshToken,
         })
         .expect(200);
 
@@ -198,10 +197,7 @@ describe('JWT Authentication E2E Tests', () => {
     });
 
     it('should reject missing refresh token', async () => {
-      const response = await request(app)
-        .post('/auth/refresh')
-        .send({})
-        .expect(400);
+      const response = await request(app).post('/auth/refresh').send({}).expect(400);
 
       expect(response.body.ok).toBe(false);
       expect(response.body.error).toContain('required');
@@ -211,7 +207,7 @@ describe('JWT Authentication E2E Tests', () => {
       const response = await request(app)
         .post('/auth/refresh')
         .send({
-          refreshToken: 'invalid-token-123'
+          refreshToken: 'invalid-token-123',
         })
         .expect(401);
 
@@ -219,31 +215,25 @@ describe('JWT Authentication E2E Tests', () => {
     });
 
     it('should reject expired refresh token', async () => {
-      const expiredToken = jwt.sign(
-        { userId: mockUser.id, type: 'refresh' },
-        validJWTSecret,
-        { expiresIn: '-1h' }
-      );
+      const expiredToken = jwt.sign({ userId: mockUser.id, type: 'refresh' }, validJWTSecret, {
+        expiresIn: '-1h',
+      });
 
       const response = await request(app)
         .post('/auth/refresh')
         .send({
-          refreshToken: expiredToken
+          refreshToken: expiredToken,
         })
         .expect(401);
     });
 
     it('should reject non-refresh token type', async () => {
-      const accessToken = jwt.sign(
-        { userId: mockUser.id },
-        validJWTSecret,
-        { expiresIn: '15m' }
-      );
+      const accessToken = jwt.sign({ userId: mockUser.id }, validJWTSecret, { expiresIn: '15m' });
 
       const response = await request(app)
         .post('/auth/refresh')
         .send({
-          refreshToken: accessToken
+          refreshToken: accessToken,
         })
         .expect(401);
 
@@ -260,7 +250,7 @@ describe('JWT Authentication E2E Tests', () => {
           userId: mockUser.id,
           email: mockUser.email,
           role: mockUser.role,
-          name: mockUser.name
+          name: mockUser.name,
         },
         validJWTSecret,
         { expiresIn: '1h' }
@@ -274,16 +264,16 @@ describe('JWT Authentication E2E Tests', () => {
           ok: true,
           data: {
             response: 'Test AI response',
-            answer: 'Test answer'
-          }
-        })
+            answer: 'Test answer',
+          },
+        }),
       }));
 
       const response = await request(app)
         .post('/ai.chat')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
-          message: 'Hello'
+          message: 'Hello',
         })
         .expect(200);
 
@@ -294,7 +284,7 @@ describe('JWT Authentication E2E Tests', () => {
       const response = await request(app)
         .post('/ai.chat')
         .send({
-          message: 'Hello'
+          message: 'Hello',
         })
         .expect(401);
 
@@ -307,7 +297,7 @@ describe('JWT Authentication E2E Tests', () => {
         .post('/ai.chat')
         .set('Authorization', 'Bearer invalid-token-123')
         .send({
-          message: 'Hello'
+          message: 'Hello',
         })
         .expect(401);
 
@@ -319,7 +309,7 @@ describe('JWT Authentication E2E Tests', () => {
         {
           userId: mockUser.id,
           email: mockUser.email,
-          role: mockUser.role
+          role: mockUser.role,
         },
         validJWTSecret,
         { expiresIn: '-1h' }
@@ -329,7 +319,7 @@ describe('JWT Authentication E2E Tests', () => {
         .post('/ai.chat')
         .set('Authorization', `Bearer ${expiredToken}`)
         .send({
-          message: 'Hello'
+          message: 'Hello',
         })
         .expect(401);
 
@@ -349,7 +339,7 @@ describe('JWT Authentication E2E Tests', () => {
           userId: 'zero-123',
           email: 'zero@balizero.com',
           role: 'admin',
-          name: 'Zero'
+          name: 'Zero',
         },
         validJWTSecret,
         { expiresIn: '1h' }
@@ -361,7 +351,7 @@ describe('JWT Authentication E2E Tests', () => {
           userId: 'user-123',
           email: 'user@example.com',
           role: 'member',
-          name: 'Regular User'
+          name: 'Regular User',
         },
         validJWTSecret,
         { expiresIn: '1h' }
@@ -388,9 +378,7 @@ describe('JWT Authentication E2E Tests', () => {
     });
 
     it('should reject unauthenticated request', async () => {
-      const response = await request(app)
-        .get('/admin/dashboard/main')
-        .expect(401);
+      const response = await request(app).get('/admin/dashboard/main').expect(401);
 
       expect(response.body.ok).toBe(false);
     });
@@ -426,7 +414,7 @@ describe('JWT Authentication E2E Tests', () => {
         .post('/auth/login')
         .send({
           email: 'test@example.com',
-          password: 'test123'
+          password: 'test123',
         })
         .expect(200);
 
@@ -467,7 +455,7 @@ describe('JWT Authentication E2E Tests', () => {
         {
           id: mockUser.id,
           email: mockUser.email,
-          role: mockUser.role
+          role: mockUser.role,
         },
         validJWTSecret,
         { expiresIn: '1h' }
@@ -483,4 +471,3 @@ describe('JWT Authentication E2E Tests', () => {
     });
   });
 });
-

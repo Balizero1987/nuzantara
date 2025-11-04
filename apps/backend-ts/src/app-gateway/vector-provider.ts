@@ -6,24 +6,24 @@
  * Fallback: Memory (in-RAM)
  */
 
-import type { VectorStore, VectorBackend } from "../services/vector/vector-types";
+import type { VectorStore, VectorBackend } from '../services/vector/vector-types';
 
 export function makeVectorStore(): VectorStore {
-  const backend = (process.env.VECTOR_BACKEND ?? "chroma") as VectorBackend;
+  const backend = (process.env.VECTOR_BACKEND ?? 'chroma') as VectorBackend;
 
-  if (backend === "chroma") {
+  if (backend === 'chroma') {
     // Official vector backend
-    return require("../services/vector/chroma").default();
+    return require('../services/vector/chroma').default();
   }
 
-  if (backend === "qdrant") {
+  if (backend === 'qdrant') {
     // Standby backend
-    return require("../services/vector/qdrant").default();
+    return require('../services/vector/qdrant').default();
   }
 
-  if (backend === "memory") {
+  if (backend === 'memory') {
     // Fallback local backend
-    return require("../services/vector/memory-vector").default();
+    return require('../services/vector/memory-vector').default();
   }
 
   throw new Error(`Unsupported VECTOR_BACKEND=${backend}`);

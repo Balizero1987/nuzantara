@@ -3,7 +3,7 @@
  * Complete feature set for professional chat experience
  */
 
-(function() {
+(function () {
   'use strict';
 
   // ============================================================================
@@ -24,7 +24,7 @@
       breaks: true,
       gfm: true,
       headerIds: false,
-      mangle: false
+      mangle: false,
     });
 
     return marked.parse(text);
@@ -59,7 +59,7 @@
     }
 
     const codeBlocks = element.querySelectorAll('pre code');
-    codeBlocks.forEach(block => {
+    codeBlocks.forEach((block) => {
       hljs.highlightElement(block);
     });
   }
@@ -70,7 +70,7 @@
   function addCopyButtonsToCodeBlocks(element) {
     const codeBlocks = element.querySelectorAll('pre');
 
-    codeBlocks.forEach(pre => {
+    codeBlocks.forEach((pre) => {
       // Wrap in container if not already
       if (!pre.parentElement.classList.contains('code-block-wrapper')) {
         const wrapper = document.createElement('div');
@@ -96,26 +96,29 @@
     const code = pre.querySelector('code');
     const text = code ? code.textContent : pre.textContent;
 
-    navigator.clipboard.writeText(text).then(() => {
-      button.textContent = '✓ Copied!';
-      button.classList.add('copied');
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        button.textContent = '✓ Copied!';
+        button.classList.add('copied');
 
-      setTimeout(() => {
-        button.textContent = 'Copy';
-        button.classList.remove('copied');
-      }, 2000);
+        setTimeout(() => {
+          button.textContent = 'Copy';
+          button.classList.remove('copied');
+        }, 2000);
 
-      if (window.IndonesianBadges && window.IndonesianBadges.showToast) {
-        window.IndonesianBadges.showToast('✓ Code copied to clipboard', 'success');
-      }
-    }).catch(err => {
-      console.error('Failed to copy:', err);
-      button.textContent = '✗ Failed';
+        if (window.IndonesianBadges && window.IndonesianBadges.showToast) {
+          window.IndonesianBadges.showToast('✓ Code copied to clipboard', 'success');
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to copy:', err);
+        button.textContent = '✗ Failed';
 
-      setTimeout(() => {
-        button.textContent = 'Copy';
-      }, 2000);
-    });
+        setTimeout(() => {
+          button.textContent = 'Copy';
+        }, 2000);
+      });
   }
 
   // ============================================================================
@@ -180,7 +183,7 @@
 
     if (!urls || urls.length === 0) return;
 
-    urls.forEach(url => {
+    urls.forEach((url) => {
       // Simple preview card (full metadata would require backend)
       const previewCard = createSimpleLinkPreview(url);
       messageElement.appendChild(previewCard);
@@ -255,7 +258,7 @@
     document.body.appendChild(nav);
 
     // Add click handlers
-    nav.querySelectorAll('.nav-item').forEach(item => {
+    nav.querySelectorAll('.nav-item').forEach((item) => {
       item.addEventListener('click', () => handleMobileNavClick(item));
     });
   }
@@ -267,7 +270,7 @@
     const action = item.dataset.action;
 
     // Update active state
-    document.querySelectorAll('.nav-item').forEach(nav => {
+    document.querySelectorAll('.nav-item').forEach((nav) => {
       nav.classList.remove('active');
     });
     item.classList.add('active');
@@ -418,7 +421,7 @@
     try {
       gamelanSound.currentTime = 0; // Reset to start
       gamelanSound.volume = 0.3; // Gentle volume
-      gamelanSound.play().catch(err => {
+      gamelanSound.play().catch((err) => {
         console.warn('Could not play gamelan sound:', err);
       });
     } catch (err) {
@@ -536,11 +539,15 @@
     const messagesContainer = document.querySelector('.messages');
     if (!messagesContainer) return;
 
-    const observer = new MutationObserver(mutations => {
-      mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-          if (node.nodeType === 1) { // Element node
-            if (node.classList && (node.classList.contains('ai-message') || node.classList.contains('user-message'))) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) {
+            // Element node
+            if (
+              node.classList &&
+              (node.classList.contains('ai-message') || node.classList.contains('user-message'))
+            ) {
               enhanceMessage(node);
             }
           }
@@ -550,7 +557,7 @@
 
     observer.observe(messagesContainer, {
       childList: true,
-      subtree: true
+      subtree: true,
     });
   }
 
@@ -567,7 +574,7 @@
     playGamelanSound,
     createUploadProgress,
     updateUploadProgress,
-    enhanceMessage
+    enhanceMessage,
   };
 
   // Auto-initialize
@@ -576,5 +583,4 @@
   } else {
     initialize();
   }
-
 })();

@@ -49,9 +49,9 @@ export function addTeamContext(req: Request, res: Response, next: Function) {
   // Add team context to request for use in handlers
   req.teamContext = {
     timestamp: new Date().toISOString(),
-    session_id: req.headers['x-session-id'] as string || `session_${Date.now()}`,
-    user_id: req.headers['x-user-id'] as string || 'anonymous',
-    source: req.headers['x-source'] as string || 'api'
+    session_id: (req.headers['x-session-id'] as string) || `session_${Date.now()}`,
+    user_id: (req.headers['x-user-id'] as string) || 'anonymous',
+    source: (req.headers['x-source'] as string) || 'api',
   };
 
   next();
@@ -67,21 +67,21 @@ export function validateTeamRequest(req: Request, res: Response, next: Function)
   if (!query || typeof query !== 'string') {
     return res.status(400).json({
       success: false,
-      error: 'Query parameter is required and must be a string'
+      error: 'Query parameter is required and must be a string',
     });
   }
 
   if (!user_id || typeof user_id !== 'string') {
     return res.status(400).json({
       success: false,
-      error: 'User ID parameter is required and must be a string'
+      error: 'User ID parameter is required and must be a string',
     });
   }
 
   if (!session_id || typeof session_id !== 'string') {
     return res.status(400).json({
       success: false,
-      error: 'Session ID parameter is required and must be a string'
+      error: 'Session ID parameter is required and must be a string',
     });
   }
 
@@ -89,14 +89,14 @@ export function validateTeamRequest(req: Request, res: Response, next: Function)
   if (query.length > 1000) {
     return res.status(400).json({
       success: false,
-      error: 'Query length cannot exceed 1000 characters'
+      error: 'Query length cannot exceed 1000 characters',
     });
   }
 
   if (user_id.length > 100) {
     return res.status(400).json({
       success: false,
-      error: 'User ID length cannot exceed 100 characters'
+      error: 'User ID length cannot exceed 100 characters',
     });
   }
 

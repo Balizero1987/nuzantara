@@ -3,18 +3,18 @@
  * Local in-RAM vector store for offline/testing mode.
  */
 
-import logger from "../logger";
+import logger from '../logger';
 
 export default function memoryVectorStore() {
-  logger.info("✅ Memory vector store initialized");
+  logger.info('✅ Memory vector store initialized');
   const vectors: Record<string, number[]> = {};
 
-  logger.warn("⚠️ Using in-memory vector store — not persistent");
+  logger.warn('⚠️ Using in-memory vector store — not persistent');
 
   return {
-    name: "memory",
+    name: 'memory',
     async ping() {
-      logger.info("✅ Memory vector store active");
+      logger.info('✅ Memory vector store active');
       return true;
     },
 
@@ -42,7 +42,7 @@ export default function memoryVectorStore() {
 
     clear() {
       Object.keys(vectors).forEach((id) => delete vectors[id]);
-      logger.info("🧹 Cleared in-memory vector store");
+      logger.info('🧹 Cleared in-memory vector store');
     },
   };
 }

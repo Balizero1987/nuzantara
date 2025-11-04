@@ -1,7 +1,7 @@
 /**
  * ZANTARA - Document Upload Module
  * Drag & drop document upload to RAG system with ChromaDB ingestion
- * 
+ *
  * Features:
  * - Drag & drop interface
  * - File validation (PDF, EPUB, TXT, DOCX)
@@ -9,79 +9,79 @@
  * - Optional metadata (title, author, tier)
  * - Upload history with status
  * - ChromaDB ingestion integration
- * 
+ *
  * @module DocumentUpload
  * @version 1.0.0
  */
 
 const DocumentUpload = (() => {
-    'use strict';
+  'use strict';
 
-    // Configuration
-    const CONFIG = {
-        ragBackendUrl: 'https://nuzantara-rag.fly.dev',
-        maxFileSize: 50 * 1024 * 1024, // 50MB
-        allowedTypes: {
-            'application/pdf': '.pdf',
-            'application/epub+zip': '.epub',
-            'text/plain': '.txt',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-            'application/msword': '.doc'
-        },
-        tierLevels: ['S', 'A', 'B', 'C', 'D']
-    };
+  // Configuration
+  const CONFIG = {
+    ragBackendUrl: 'https://nuzantara-rag.fly.dev',
+    maxFileSize: 50 * 1024 * 1024, // 50MB
+    allowedTypes: {
+      'application/pdf': '.pdf',
+      'application/epub+zip': '.epub',
+      'text/plain': '.txt',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+      'application/msword': '.doc',
+    },
+    tierLevels: ['S', 'A', 'B', 'C', 'D'],
+  };
 
-    // State
-    let uploadHistory = [];
-    let currentUpload = null;
+  // State
+  let uploadHistory = [];
+  let currentUpload = null;
 
-    /**
-     * Initialize Document Upload module
-     */
-    function init() {
-        console.log('📄 Initializing Document Upload module...');
+  /**
+   * Initialize Document Upload module
+   */
+  function init() {
+    console.log('📄 Initializing Document Upload module...');
 
-        // Load upload history from localStorage
-        loadHistory();
+    // Load upload history from localStorage
+    loadHistory();
 
-        console.log('✅ Document Upload module ready');
+    console.log('✅ Document Upload module ready');
+  }
+
+  /**
+   * Show upload modal
+   */
+  function show() {
+    let modal = document.getElementById('document-upload-modal');
+
+    if (!modal) {
+      modal = createModal();
+      document.body.appendChild(modal);
+      attachEventListeners();
     }
 
-    /**
-     * Show upload modal
-     */
-    function show() {
-        let modal = document.getElementById('document-upload-modal');
+    modal.style.display = 'flex';
+    resetForm();
+  }
 
-        if (!modal) {
-            modal = createModal();
-            document.body.appendChild(modal);
-            attachEventListeners();
-        }
-
-        modal.style.display = 'flex';
-        resetForm();
+  /**
+   * Hide upload modal
+   */
+  function hide() {
+    const modal = document.getElementById('document-upload-modal');
+    if (modal) {
+      modal.style.display = 'none';
     }
+  }
 
-    /**
-     * Hide upload modal
-     */
-    function hide() {
-        const modal = document.getElementById('document-upload-modal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    }
+  /**
+   * Create modal HTML structure
+   */
+  function createModal() {
+    const modal = document.createElement('div');
+    modal.id = 'document-upload-modal';
+    modal.className = 'document-upload-modal';
 
-    /**
-     * Create modal HTML structure
-     */
-    function createModal() {
-        const modal = document.createElement('div');
-        modal.id = 'document-upload-modal';
-        modal.className = 'document-upload-modal';
-
-        modal.innerHTML = `
+    modal.innerHTML = `
             <div class="document-upload-content">
                 <div class="document-upload-header">
                     <h2>📄 Carica Documento</h2>
@@ -182,273 +182,276 @@ const DocumentUpload = (() => {
             </div>
         `;
 
-        return modal;
+    return modal;
+  }
+
+  /**
+   * Attach event listeners
+   */
+  function attachEventListeners() {
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    // Drag & Drop events
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileSelect(files[0]);
+      }
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+
+    // Click on drop zone to trigger file input
+    dropZone.addEventListener('click', (e) => {
+      if (
+        e.target === dropZone ||
+        e.target.classList.contains('drop-zone-icon') ||
+        e.target.classList.contains('drop-zone-text') ||
+        e.target.classList.contains('drop-zone-hint')
+      ) {
+        fileInput.click();
+      }
+    });
+  }
+
+  /**
+   * Handle file selection
+   */
+  function handleFileSelect(file) {
+    console.log('📄 File selected:', file.name);
+
+    // Validate file
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      alert(`❌ ${validation.error}`);
+      return;
     }
 
-    /**
-     * Attach event listeners
-     */
-    function attachEventListeners() {
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
+    // Store file
+    currentUpload = {
+      file: file,
+      filename: file.name,
+      size: file.size,
+      type: file.type,
+    };
 
-        // Drag & Drop events
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        });
+    // Show preview
+    showFilePreview(file);
+  }
 
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('drag-over');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFileSelect(files[0]);
-            }
-        });
-
-        // File input change
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileSelect(e.target.files[0]);
-            }
-        });
-
-        // Click on drop zone to trigger file input
-        dropZone.addEventListener('click', (e) => {
-            if (e.target === dropZone || e.target.classList.contains('drop-zone-icon') || 
-                e.target.classList.contains('drop-zone-text') || e.target.classList.contains('drop-zone-hint')) {
-                fileInput.click();
-            }
-        });
+  /**
+   * Validate file
+   */
+  function validateFile(file) {
+    // Check file size
+    if (file.size > CONFIG.maxFileSize) {
+      return {
+        valid: false,
+        error: `File troppo grande. Massimo ${CONFIG.maxFileSize / 1024 / 1024}MB`,
+      };
     }
 
-    /**
-     * Handle file selection
-     */
-    function handleFileSelect(file) {
-        console.log('📄 File selected:', file.name);
+    // Check file type
+    const extension = '.' + file.name.split('.').pop().toLowerCase();
+    const isValidType = Object.values(CONFIG.allowedTypes).includes(extension);
 
-        // Validate file
-        const validation = validateFile(file);
-        if (!validation.valid) {
-            alert(`❌ ${validation.error}`);
-            return;
-        }
-
-        // Store file
-        currentUpload = {
-            file: file,
-            filename: file.name,
-            size: file.size,
-            type: file.type
-        };
-
-        // Show preview
-        showFilePreview(file);
+    if (!isValidType) {
+      return {
+        valid: false,
+        error: `Formato non supportato. Usa: ${Object.values(CONFIG.allowedTypes).join(', ')}`,
+      };
     }
 
-    /**
-     * Validate file
-     */
-    function validateFile(file) {
-        // Check file size
-        if (file.size > CONFIG.maxFileSize) {
-            return {
-                valid: false,
-                error: `File troppo grande. Massimo ${CONFIG.maxFileSize / 1024 / 1024}MB`
-            };
-        }
+    return { valid: true };
+  }
 
-        // Check file type
-        const extension = '.' + file.name.split('.').pop().toLowerCase();
-        const isValidType = Object.values(CONFIG.allowedTypes).includes(extension);
+  /**
+   * Show file preview
+   */
+  function showFilePreview(file) {
+    const dropZone = document.getElementById('drop-zone');
+    const preview = document.getElementById('file-preview');
 
-        if (!isValidType) {
-            return {
-                valid: false,
-                error: `Formato non supportato. Usa: ${Object.values(CONFIG.allowedTypes).join(', ')}`
-            };
-        }
+    // Hide drop zone, show preview
+    dropZone.style.display = 'none';
+    preview.style.display = 'block';
 
-        return { valid: true };
+    // Update preview info
+    document.getElementById('preview-filename').textContent = file.name;
+    document.getElementById('preview-filesize').textContent = formatFileSize(file.size);
+
+    // Update history display
+    updateHistoryDisplay();
+  }
+
+  /**
+   * Remove selected file
+   */
+  function removeFile() {
+    currentUpload = null;
+
+    const dropZone = document.getElementById('drop-zone');
+    const preview = document.getElementById('file-preview');
+
+    preview.style.display = 'none';
+    dropZone.style.display = 'flex';
+
+    // Clear metadata inputs
+    document.getElementById('book-title').value = '';
+    document.getElementById('book-author').value = '';
+    document.getElementById('tier-override').value = '';
+  }
+
+  /**
+   * Upload file to RAG backend
+   */
+  async function uploadFile() {
+    if (!currentUpload) {
+      alert('⚠️ Seleziona prima un file');
+      return;
     }
 
-    /**
-     * Show file preview
-     */
-    function showFilePreview(file) {
-        const dropZone = document.getElementById('drop-zone');
-        const preview = document.getElementById('file-preview');
+    console.log('📤 Uploading file:', currentUpload.filename);
 
-        // Hide drop zone, show preview
-        dropZone.style.display = 'none';
-        preview.style.display = 'block';
+    // Show progress
+    const preview = document.getElementById('file-preview');
+    const progress = document.getElementById('upload-progress');
+    preview.style.display = 'none';
+    progress.style.display = 'block';
 
-        // Update preview info
-        document.getElementById('preview-filename').textContent = file.name;
-        document.getElementById('preview-filesize').textContent = formatFileSize(file.size);
+    // Get metadata
+    const title = document.getElementById('book-title').value.trim();
+    const author = document.getElementById('book-author').value.trim();
+    const tierOverride = document.getElementById('tier-override').value;
 
-        // Update history display
-        updateHistoryDisplay();
+    // Prepare FormData
+    const formData = new FormData();
+    formData.append('file', currentUpload.file);
+    if (title) formData.append('title', title);
+    if (author) formData.append('author', author);
+    if (tierOverride) formData.append('tier_override', tierOverride);
+
+    try {
+      // Simulate progress (since FastAPI doesn't send upload progress)
+      updateProgress(10, 'Caricamento file al server...');
+
+      const response = await fetch(`${CONFIG.ragBackendUrl}/ingest/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      updateProgress(60, 'Estrazione testo e analisi...');
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Upload fallito');
+      }
+
+      const result = await response.json();
+      console.log('✅ Upload successful:', result);
+
+      updateProgress(90, 'Indicizzazione nel database vettoriale...');
+
+      // Wait a bit for final progress
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      updateProgress(100, 'Completato!');
+
+      // Save to history
+      const uploadRecord = {
+        id: Date.now(),
+        filename: currentUpload.filename,
+        size: currentUpload.size,
+        title: result.book_title || title || currentUpload.filename,
+        author: result.book_author || author || 'Unknown',
+        tier: result.tier || 'Unknown',
+        chunksCreated: result.chunks_created || 0,
+        timestamp: new Date().toISOString(),
+        success: result.success,
+        message: result.message,
+      };
+
+      uploadHistory.unshift(uploadRecord);
+      saveHistory();
+
+      // Show result
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      showResult(uploadRecord);
+    } catch (error) {
+      console.error('❌ Upload error:', error);
+
+      // Save failed upload to history
+      const failedRecord = {
+        id: Date.now(),
+        filename: currentUpload.filename,
+        size: currentUpload.size,
+        title: title || currentUpload.filename,
+        author: author || 'Unknown',
+        tier: 'Error',
+        chunksCreated: 0,
+        timestamp: new Date().toISOString(),
+        success: false,
+        message: error.message,
+      };
+
+      uploadHistory.unshift(failedRecord);
+      saveHistory();
+
+      showResult(failedRecord);
     }
+  }
 
-    /**
-     * Remove selected file
-     */
-    function removeFile() {
-        currentUpload = null;
+  /**
+   * Update progress bar
+   */
+  function updateProgress(percentage, detail) {
+    const fill = document.getElementById('progress-fill');
+    const percentageText = document.getElementById('progress-percentage');
+    const detailText = document.getElementById('progress-detail');
 
-        const dropZone = document.getElementById('drop-zone');
-        const preview = document.getElementById('file-preview');
+    fill.style.width = `${percentage}%`;
+    percentageText.textContent = `${percentage}%`;
+    detailText.textContent = detail;
+  }
 
-        preview.style.display = 'none';
-        dropZone.style.display = 'flex';
+  /**
+   * Show upload result
+   */
+  function showResult(record) {
+    const progress = document.getElementById('upload-progress');
+    const result = document.getElementById('upload-result');
 
-        // Clear metadata inputs
-        document.getElementById('book-title').value = '';
-        document.getElementById('book-author').value = '';
-        document.getElementById('tier-override').value = '';
-    }
+    progress.style.display = 'none';
+    result.style.display = 'block';
 
-    /**
-     * Upload file to RAG backend
-     */
-    async function uploadFile() {
-        if (!currentUpload) {
-            alert('⚠️ Seleziona prima un file');
-            return;
-        }
+    const icon = document.getElementById('result-icon');
+    const title = document.getElementById('result-title');
+    const message = document.getElementById('result-message');
+    const details = document.getElementById('result-details');
 
-        console.log('📤 Uploading file:', currentUpload.filename);
+    if (record.success) {
+      icon.textContent = '✅';
+      title.textContent = 'Documento Caricato con Successo!';
+      message.textContent = `"${record.title}" è stato indicizzato nel RAG system.`;
 
-        // Show progress
-        const preview = document.getElementById('file-preview');
-        const progress = document.getElementById('upload-progress');
-        preview.style.display = 'none';
-        progress.style.display = 'block';
-
-        // Get metadata
-        const title = document.getElementById('book-title').value.trim();
-        const author = document.getElementById('book-author').value.trim();
-        const tierOverride = document.getElementById('tier-override').value;
-
-        // Prepare FormData
-        const formData = new FormData();
-        formData.append('file', currentUpload.file);
-        if (title) formData.append('title', title);
-        if (author) formData.append('author', author);
-        if (tierOverride) formData.append('tier_override', tierOverride);
-
-        try {
-            // Simulate progress (since FastAPI doesn't send upload progress)
-            updateProgress(10, 'Caricamento file al server...');
-
-            const response = await fetch(`${CONFIG.ragBackendUrl}/ingest/upload`, {
-                method: 'POST',
-                body: formData
-            });
-
-            updateProgress(60, 'Estrazione testo e analisi...');
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Upload fallito');
-            }
-
-            const result = await response.json();
-            console.log('✅ Upload successful:', result);
-
-            updateProgress(90, 'Indicizzazione nel database vettoriale...');
-
-            // Wait a bit for final progress
-            await new Promise(resolve => setTimeout(resolve, 500));
-            updateProgress(100, 'Completato!');
-
-            // Save to history
-            const uploadRecord = {
-                id: Date.now(),
-                filename: currentUpload.filename,
-                size: currentUpload.size,
-                title: result.book_title || title || currentUpload.filename,
-                author: result.book_author || author || 'Unknown',
-                tier: result.tier || 'Unknown',
-                chunksCreated: result.chunks_created || 0,
-                timestamp: new Date().toISOString(),
-                success: result.success,
-                message: result.message
-            };
-
-            uploadHistory.unshift(uploadRecord);
-            saveHistory();
-
-            // Show result
-            await new Promise(resolve => setTimeout(resolve, 500));
-            showResult(uploadRecord);
-
-        } catch (error) {
-            console.error('❌ Upload error:', error);
-
-            // Save failed upload to history
-            const failedRecord = {
-                id: Date.now(),
-                filename: currentUpload.filename,
-                size: currentUpload.size,
-                title: title || currentUpload.filename,
-                author: author || 'Unknown',
-                tier: 'Error',
-                chunksCreated: 0,
-                timestamp: new Date().toISOString(),
-                success: false,
-                message: error.message
-            };
-
-            uploadHistory.unshift(failedRecord);
-            saveHistory();
-
-            showResult(failedRecord);
-        }
-    }
-
-    /**
-     * Update progress bar
-     */
-    function updateProgress(percentage, detail) {
-        const fill = document.getElementById('progress-fill');
-        const percentageText = document.getElementById('progress-percentage');
-        const detailText = document.getElementById('progress-detail');
-
-        fill.style.width = `${percentage}%`;
-        percentageText.textContent = `${percentage}%`;
-        detailText.textContent = detail;
-    }
-
-    /**
-     * Show upload result
-     */
-    function showResult(record) {
-        const progress = document.getElementById('upload-progress');
-        const result = document.getElementById('upload-result');
-
-        progress.style.display = 'none';
-        result.style.display = 'block';
-
-        const icon = document.getElementById('result-icon');
-        const title = document.getElementById('result-title');
-        const message = document.getElementById('result-message');
-        const details = document.getElementById('result-details');
-
-        if (record.success) {
-            icon.textContent = '✅';
-            title.textContent = 'Documento Caricato con Successo!';
-            message.textContent = `"${record.title}" è stato indicizzato nel RAG system.`;
-
-            details.innerHTML = `
+      details.innerHTML = `
                 <div class="result-detail-item">
                     <strong>📚 Titolo:</strong> ${record.title}
                 </div>
@@ -465,12 +468,12 @@ const DocumentUpload = (() => {
                     <strong>⏰ Data:</strong> ${new Date(record.timestamp).toLocaleString('it-IT')}
                 </div>
             `;
-        } else {
-            icon.textContent = '❌';
-            title.textContent = 'Upload Fallito';
-            message.textContent = record.message || 'Si è verificato un errore durante il caricamento.';
+    } else {
+      icon.textContent = '❌';
+      title.textContent = 'Upload Fallito';
+      message.textContent = record.message || 'Si è verificato un errore durante il caricamento.';
 
-            details.innerHTML = `
+      details.innerHTML = `
                 <div class="result-detail-item">
                     <strong>📄 File:</strong> ${record.filename}
                 </div>
@@ -478,55 +481,58 @@ const DocumentUpload = (() => {
                     <strong>⏰ Data:</strong> ${new Date(record.timestamp).toLocaleString('it-IT')}
                 </div>
             `;
-        }
-
-        // Update history display
-        updateHistoryDisplay();
     }
 
-    /**
-     * Reset form to upload another document
-     */
-    function resetForm() {
-        currentUpload = null;
+    // Update history display
+    updateHistoryDisplay();
+  }
 
-        const dropZone = document.getElementById('drop-zone');
-        const preview = document.getElementById('file-preview');
-        const progress = document.getElementById('upload-progress');
-        const result = document.getElementById('upload-result');
+  /**
+   * Reset form to upload another document
+   */
+  function resetForm() {
+    currentUpload = null;
 
-        dropZone.style.display = 'flex';
-        preview.style.display = 'none';
-        progress.style.display = 'none';
-        result.style.display = 'none';
+    const dropZone = document.getElementById('drop-zone');
+    const preview = document.getElementById('file-preview');
+    const progress = document.getElementById('upload-progress');
+    const result = document.getElementById('upload-result');
 
-        // Clear inputs
-        document.getElementById('file-input').value = '';
-        document.getElementById('book-title').value = '';
-        document.getElementById('book-author').value = '';
-        document.getElementById('tier-override').value = '';
+    dropZone.style.display = 'flex';
+    preview.style.display = 'none';
+    progress.style.display = 'none';
+    result.style.display = 'none';
 
-        // Reset progress
-        updateProgress(0, 'Preparazione file...');
+    // Clear inputs
+    document.getElementById('file-input').value = '';
+    document.getElementById('book-title').value = '';
+    document.getElementById('book-author').value = '';
+    document.getElementById('tier-override').value = '';
 
-        // Update history
-        updateHistoryDisplay();
+    // Reset progress
+    updateProgress(0, 'Preparazione file...');
+
+    // Update history
+    updateHistoryDisplay();
+  }
+
+  /**
+   * Update history display
+   */
+  function updateHistoryDisplay() {
+    const historyList = document.getElementById('history-list');
+
+    if (!historyList) return;
+
+    if (uploadHistory.length === 0) {
+      historyList.innerHTML = '<p class="history-empty">Nessun documento caricato ancora</p>';
+      return;
     }
 
-    /**
-     * Update history display
-     */
-    function updateHistoryDisplay() {
-        const historyList = document.getElementById('history-list');
-
-        if (!historyList) return;
-
-        if (uploadHistory.length === 0) {
-            historyList.innerHTML = '<p class="history-empty">Nessun documento caricato ancora</p>';
-            return;
-        }
-
-        historyList.innerHTML = uploadHistory.slice(0, 5).map(record => `
+    historyList.innerHTML = uploadHistory
+      .slice(0, 5)
+      .map(
+        (record) => `
             <div class="history-item ${record.success ? 'success' : 'failed'}">
                 <div class="history-icon">${record.success ? '✅' : '❌'}</div>
                 <div class="history-info">
@@ -538,80 +544,82 @@ const DocumentUpload = (() => {
                     </p>
                 </div>
             </div>
-        `).join('');
+        `
+      )
+      .join('');
+  }
+
+  /**
+   * Load history from localStorage
+   */
+  function loadHistory() {
+    try {
+      const saved = localStorage.getItem('zantara_upload_history');
+      if (saved) {
+        uploadHistory = JSON.parse(saved);
+        console.log(`📋 Loaded ${uploadHistory.length} upload records`);
+      }
+    } catch (error) {
+      console.error('Error loading history:', error);
+      uploadHistory = [];
     }
+  }
 
-    /**
-     * Load history from localStorage
-     */
-    function loadHistory() {
-        try {
-            const saved = localStorage.getItem('zantara_upload_history');
-            if (saved) {
-                uploadHistory = JSON.parse(saved);
-                console.log(`📋 Loaded ${uploadHistory.length} upload records`);
-            }
-        } catch (error) {
-            console.error('Error loading history:', error);
-            uploadHistory = [];
-        }
+  /**
+   * Save history to localStorage
+   */
+  function saveHistory() {
+    try {
+      // Keep only last 50 records
+      const toSave = uploadHistory.slice(0, 50);
+      localStorage.setItem('zantara_upload_history', JSON.stringify(toSave));
+    } catch (error) {
+      console.error('Error saving history:', error);
     }
+  }
 
-    /**
-     * Save history to localStorage
-     */
-    function saveHistory() {
-        try {
-            // Keep only last 50 records
-            const toSave = uploadHistory.slice(0, 50);
-            localStorage.setItem('zantara_upload_history', JSON.stringify(toSave));
-        } catch (error) {
-            console.error('Error saving history:', error);
-        }
+  /**
+   * Format file size
+   */
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  /**
+   * Clear upload history
+   */
+  function clearHistory() {
+    if (confirm('Vuoi davvero cancellare tutta la cronologia degli upload?')) {
+      uploadHistory = [];
+      saveHistory();
+      updateHistoryDisplay();
+      console.log('🗑️ Upload history cleared');
     }
+  }
 
-    /**
-     * Format file size
-     */
-    function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-    }
-
-    /**
-     * Clear upload history
-     */
-    function clearHistory() {
-        if (confirm('Vuoi davvero cancellare tutta la cronologia degli upload?')) {
-            uploadHistory = [];
-            saveHistory();
-            updateHistoryDisplay();
-            console.log('🗑️ Upload history cleared');
-        }
-    }
-
-    // Public API
-    return {
-        init,
-        show,
-        hide,
-        uploadFile,
-        removeFile,
-        resetForm,
-        clearHistory
-    };
+  // Public API
+  return {
+    init,
+    show,
+    hide,
+    uploadFile,
+    removeFile,
+    resetForm,
+    clearHistory,
+  };
 })();
 
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', DocumentUpload.init);
+  document.addEventListener('DOMContentLoaded', DocumentUpload.init);
 } else {
-    DocumentUpload.init();
+  DocumentUpload.init();
 }
 
 // Export for global access

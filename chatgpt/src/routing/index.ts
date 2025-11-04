@@ -1,6 +1,6 @@
 /**
  * Unified Routing System with Guardrails and Analytics
- * 
+ *
  * @module routing
  */
 
@@ -29,11 +29,7 @@ export type {
 // Route Registry
 export { RouteRegistry, ConflictType } from './route-registry.js';
 
-export type {
-  RouteConflict,
-  RouteInfo,
-  RegistryStats,
-} from './route-registry.js';
+export type { RouteConflict, RouteInfo, RegistryStats } from './route-registry.js';
 
 // Route Analytics
 export { RouteAnalytics } from './route-analytics.js';

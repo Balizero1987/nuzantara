@@ -2,7 +2,7 @@
 // Cost: ~$0.40/mese | Performance: Enterprise-grade
 
 import axios from 'axios';
-import logger from '../logger.js';
+import logger from './logger.js';
 
 export interface ZANTARAArchitectConfig {
   apiKey: string;
@@ -37,16 +37,16 @@ export class ZANTARAArchitect {
     this.config = {
       baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
       timeout: 10000,
-      ...config
+      ...config,
     };
 
     this.glmaApi = axios.create({
       baseURL: this.config.baseUrl,
       timeout: this.config.timeout,
       headers: {
-        'Authorization': `Bearer ${this.config.apiKey}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${this.config.apiKey}`,
+        'Content-Type': 'application/json',
+      },
     });
   }
 
@@ -71,23 +71,23 @@ export class ZANTARAArchitect {
       `;
 
       const response = await this.glmaApi.post('/chat/completions', {
-        model: "glm-4.6",
+        model: 'glm-4.6',
         messages: [
           {
-            role: "system",
-            content: "You are ZANTARA Technical Architect, expert in knowledge base optimization and system architecture analysis."
+            role: 'system',
+            content:
+              'You are ZANTARA Technical Architect, expert in knowledge base optimization and system architecture analysis.',
           },
           {
-            role: "user",
-            content: prompt
-          }
+            role: 'user',
+            content: prompt,
+          },
         ],
         temperature: 0.1,
-        max_tokens: 2000
+        max_tokens: 2000,
       });
 
       return this.parseKnowledgeAnalysis(response.data.choices[0].message.content);
-
     } catch (error) {
       logger.error('Knowledge analysis failed:', error);
       throw new Error('Failed to analyze knowledge base');
@@ -106,7 +106,7 @@ export class ZANTARAArchitect {
         apiEndpoints: [] as any[],
         userGuides: [] as any[],
         technicalSpecs: [] as any[],
-        generated: new Date().toISOString()
+        generated: new Date().toISOString(),
       };
 
       // Generate documentation for each endpoint
@@ -122,7 +122,6 @@ export class ZANTARAArchitect {
       docs.technicalSpecs = await this.generateTechSpecs();
 
       return docs;
-
     } catch (error) {
       logger.error('Documentation generation failed:', error);
       throw new Error('Failed to generate documentation');
@@ -149,23 +148,22 @@ export class ZANTARAArchitect {
       `;
 
       const response = await this.glmaApi.post('/chat/completions', {
-        model: "glm-4.6",
+        model: 'glm-4.6',
         messages: [
           {
-            role: "system",
-            content: "You are a performance optimization expert for AI knowledge systems."
+            role: 'system',
+            content: 'You are a performance optimization expert for AI knowledge systems.',
           },
           {
-            role: "user",
-            content: prompt
-          }
+            role: 'user',
+            content: prompt,
+          },
         ],
         temperature: 0.2,
-        max_tokens: 3000
+        max_tokens: 3000,
       });
 
       return this.parseOptimizationReport(response.data.choices[0].message.content);
-
     } catch (error) {
       logger.error('System optimization failed:', error);
       throw new Error('Failed to optimize system');
@@ -181,7 +179,7 @@ export class ZANTARAArchitect {
       cacheHitRate: await this.calculateCacheHitRate(),
       errorRate: await this.calculateErrorRate(),
       throughput: await this.measureThroughput(),
-      recommendations: await this.generatePerformanceRecommendations()
+      recommendations: await this.generatePerformanceRecommendations(),
     };
   }
 
@@ -209,23 +207,22 @@ export class ZANTARAArchitect {
       `;
 
       const response = await this.glmaApi.post('/chat/completions', {
-        model: "glm-4.6",
+        model: 'glm-4.6',
         messages: [
           {
-            role: "system",
-            content: "You are an expert troubleshooter for AI-powered knowledge systems."
+            role: 'system',
+            content: 'You are an expert troubleshooter for AI-powered knowledge systems.',
           },
           {
-            role: "user",
-            content: prompt
-          }
+            role: 'user',
+            content: prompt,
+          },
         ],
         temperature: 0.1,
-        max_tokens: 2500
+        max_tokens: 2500,
       });
 
       return this.parseTroubleshootingReport(response.data.choices[0].message.content);
-
     } catch (error) {
       logger.error('Troubleshooting failed:', error);
       throw new Error('Failed to troubleshoot issue');
@@ -234,11 +231,7 @@ export class ZANTARAArchitect {
 
   // Private helper methods
   private async discoverEndpoints(): Promise<string[]> {
-    return [
-      '/api/v3/zantara/unified',
-      '/api/v3/zantara/collective',
-      '/api/v3/zantara/ecosystem'
-    ];
+    return ['/api/v3/zantara/unified', '/api/v3/zantara/collective', '/api/v3/zantara/ecosystem'];
   }
 
   private parseKnowledgeAnalysis(content: string): KnowledgeAnalysis {
@@ -251,8 +244,8 @@ export class ZANTARAArchitect {
       performance: {
         cacheHitRate: 65.2,
         avgResponseTime: 487,
-        recommendations: []
-      }
+        recommendations: [],
+      },
     };
   }
 
@@ -260,7 +253,7 @@ export class ZANTARAArchitect {
     return {
       optimizations: [],
       performanceGain: 0,
-      codeChanges: []
+      codeChanges: [],
     };
   }
 
@@ -269,7 +262,7 @@ export class ZANTARAArchitect {
       rootCause: '',
       steps: [],
       fixes: [],
-      prevention: []
+      prevention: [],
     };
   }
 
@@ -299,7 +292,7 @@ export class ZANTARAArchitect {
     return [
       'Implement domain-specific Redis TTL',
       'Optimize vector search embeddings',
-      'Add request deduplication layer'
+      'Add request deduplication layer',
     ];
   }
 
@@ -310,7 +303,7 @@ export class ZANTARAArchitect {
       description: '',
       parameters: [],
       responses: [],
-      examples: []
+      examples: [],
     };
   }
 

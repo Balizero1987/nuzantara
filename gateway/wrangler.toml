@@ -1,0 +1,15 @@
+name = "nuzantara-api-gateway"
+main = "src/index.ts"
+compatibility_date = "2024-11-04"
+account_id = "a079a34fb9f45d0c6c7b6c182f3dc2cc"
+
+[env.production]
+name = "nuzantara-api-gateway"
+routes = [
+  { pattern = "api.balizero.com/*", zone_name = "balizero.com" }
+]
+
+[env.production.vars]
+ENVIRONMENT = "production"
+TS_BACKEND = "https://nuzantara-backend.fly.dev"
+PYTHON_BACKEND = "https://nuzantara-rag.fly.dev"

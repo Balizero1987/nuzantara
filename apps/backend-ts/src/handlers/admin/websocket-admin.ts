@@ -16,7 +16,7 @@ export async function websocketStats(_params: any) {
   if (!wsServer) {
     return ok({
       enabled: false,
-      message: 'WebSocket server not initialized'
+      message: 'WebSocket server not initialized',
     });
   }
 
@@ -25,7 +25,7 @@ export async function websocketStats(_params: any) {
   return ok({
     enabled: true,
     ...stats,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -50,7 +50,7 @@ export async function websocketBroadcast(params: any) {
   return ok({
     broadcast: true,
     channel,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -76,6 +76,6 @@ export async function websocketSendToUser(params: any) {
     sent: true,
     userId,
     channel,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }

@@ -18,23 +18,27 @@ class HandlerDiscovery {
   async initialize() {
     try {
       console.log('[HandlerDiscovery] Initializing...');
-      
+
       // Fetch all available handlers
       await this.fetchHandlers();
-      
+
       // Categorize handlers
       this.categorizeHandlers();
-      
+
       // Mark as initialized
       this.initialized = true;
-      
-      console.log(`[HandlerDiscovery] Initialized with ${this.handlers.length} handlers across ${this.categories.length} categories`);
-      
+
+      console.log(
+        `[HandlerDiscovery] Initialized with ${this.handlers.length} handlers across ${this.categories.length} categories`
+      );
+
       // Dispatch event for other components
-      window.dispatchEvent(new CustomEvent('handlers-loaded', {
-        detail: { handlers: this.handlers, categories: this.categories }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('handlers-loaded', {
+          detail: { handlers: this.handlers, categories: this.categories },
+        })
+      );
+
       return true;
     } catch (error) {
       console.error('[HandlerDiscovery] Initialization failed:', error);
@@ -50,8 +54,8 @@ class HandlerDiscovery {
       const response = await fetch(`${this.apiBase}/system.handlers.list`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
@@ -59,7 +63,7 @@ class HandlerDiscovery {
       }
 
       const data = await response.json();
-      
+
       if (data.ok && data.data && data.data.handlers) {
         this.handlers = data.data.handlers;
         console.log(`[HandlerDiscovery] Fetched ${this.handlers.length} handlers`);
@@ -80,21 +84,21 @@ class HandlerDiscovery {
    */
   categorizeHandlers() {
     const categoryMap = {};
-    
-    this.handlers.forEach(handler => {
+
+    this.handlers.forEach((handler) => {
       const category = handler.category || 'Other';
       if (!categoryMap[category]) {
         categoryMap[category] = [];
       }
       categoryMap[category].push(handler);
     });
-    
-    this.categories = Object.keys(categoryMap).map(category => ({
+
+    this.categories = Object.keys(categoryMap).map((category) => ({
       name: category,
       handlers: categoryMap[category],
-      count: categoryMap[category].length
+      count: categoryMap[category].length,
     }));
-    
+
     console.log('[HandlerDiscovery] Categorized handlers:', this.categories);
   }
 
@@ -102,14 +106,14 @@ class HandlerDiscovery {
    * Get handler by name
    */
   getHandler(name) {
-    return this.handlers.find(handler => handler.name === name);
+    return this.handlers.find((handler) => handler.name === name);
   }
 
   /**
    * Get handlers by category
    */
   getHandlersByCategory(category) {
-    return this.categories.find(cat => cat.name === category) || { handlers: [] };
+    return this.categories.find((cat) => cat.name === category) || { handlers: [] };
   }
 
   /**
@@ -118,16 +122,16 @@ class HandlerDiscovery {
   async executeHandler(handlerName, params = {}) {
     try {
       console.log(`[HandlerDiscovery] Executing handler: ${handlerName}`, params);
-      
+
       const response = await fetch(`${this.apiBase}/system.handler.execute`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           handler: handlerName,
-          params: params
-        })
+          params: params,
+        }),
       });
 
       if (!response.ok) {
@@ -135,7 +139,7 @@ class HandlerDiscovery {
       }
 
       const data = await response.json();
-      
+
       if (data.ok) {
         console.log(`[HandlerDiscovery] Handler ${handlerName} executed successfully`);
         return data.data;
@@ -154,35 +158,35 @@ class HandlerDiscovery {
   getFallbackHandlers() {
     return [
       {
-        name: "team.list",
-        category: "Team Management",
-        description: "List all team members",
-        parameters: []
+        name: 'team.list',
+        category: 'Team Management',
+        description: 'List all team members',
+        parameters: [],
       },
       {
-        name: "team.login",
-        category: "Authentication",
-        description: "Team member login",
-        parameters: ["email", "pin", "name"]
+        name: 'team.login',
+        category: 'Authentication',
+        description: 'Team member login',
+        parameters: ['email', 'pin', 'name'],
       },
       {
-        name: "bali-zero.pricing.get",
-        category: "Pricing",
-        description: "Get service pricing information",
-        parameters: ["service_type"]
+        name: 'bali-zero.pricing.get',
+        category: 'Pricing',
+        description: 'Get service pricing information',
+        parameters: ['service_type'],
       },
       {
-        name: "ai.chat",
-        category: "AI Services",
-        description: "Chat with AI assistant",
-        parameters: ["message", "context"]
+        name: 'ai.chat',
+        category: 'AI Services',
+        description: 'Chat with AI assistant',
+        parameters: ['message', 'context'],
       },
       {
-        name: "analytics.dashboard",
-        category: "Analytics",
-        description: "Get dashboard analytics",
-        parameters: []
-      }
+        name: 'analytics.dashboard',
+        category: 'Analytics',
+        description: 'Get dashboard analytics',
+        parameters: [],
+      },
     ];
   }
 
@@ -191,10 +195,11 @@ class HandlerDiscovery {
    */
   searchHandlers(keyword) {
     const lowerKeyword = keyword.toLowerCase();
-    return this.handlers.filter(handler => 
-      handler.name.toLowerCase().includes(lowerKeyword) ||
-      handler.description.toLowerCase().includes(lowerKeyword) ||
-      handler.category.toLowerCase().includes(lowerKeyword)
+    return this.handlers.filter(
+      (handler) =>
+        handler.name.toLowerCase().includes(lowerKeyword) ||
+        handler.description.toLowerCase().includes(lowerKeyword) ||
+        handler.category.toLowerCase().includes(lowerKeyword)
     );
   }
 
@@ -205,7 +210,7 @@ class HandlerDiscovery {
     return {
       totalHandlers: this.handlers.length,
       categories: this.categories.length,
-      initialized: this.initialized
+      initialized: this.initialized,
     };
   }
 }
@@ -214,7 +219,7 @@ class HandlerDiscovery {
 document.addEventListener('DOMContentLoaded', async () => {
   window.HandlerDiscovery = new HandlerDiscovery();
   await window.HandlerDiscovery.initialize();
-  
+
   console.log('[HandlerDiscovery] System ready');
 });
 

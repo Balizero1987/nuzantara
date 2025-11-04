@@ -114,13 +114,7 @@
     },
     "property_law": {
       "description": "Property legal framework and land law",
-      "deny_keywords": [
-        "visa",
-        "immigration",
-        "kitas",
-        "work permit",
-        "passport renewal"
-      ],
+      "deny_keywords": ["visa", "immigration", "kitas", "work permit", "passport renewal"],
       "allow_keywords": [
         "property law",
         "real estate law",
@@ -140,13 +134,7 @@
     },
     "banking_finance": {
       "description": "Banking regulations and financial services",
-      "deny_keywords": [
-        "crypto scam",
-        "get rich quick",
-        "mlm",
-        "ponzi",
-        "gambling"
-      ],
+      "deny_keywords": ["crypto scam", "get rich quick", "mlm", "ponzi", "gambling"],
       "allow_keywords": [
         "bank",
         "banking",
@@ -168,12 +156,7 @@
     },
     "employment_law": {
       "description": "Labor law and employment regulations",
-      "deny_keywords": [
-        "job listing",
-        "hiring now",
-        "apply today",
-        "recruitment spam"
-      ],
+      "deny_keywords": ["job listing", "hiring now", "apply today", "recruitment spam"],
       "allow_keywords": [
         "employment",
         "labor law",
@@ -194,12 +177,7 @@
     },
     "cost_of_living": {
       "description": "Living costs and price trends (SEO magnet)",
-      "deny_keywords": [
-        "clickbait",
-        "you won't believe",
-        "shocking",
-        "secret trick"
-      ],
+      "deny_keywords": ["clickbait", "you won't believe", "shocking", "secret trick"],
       "allow_keywords": [
         "cost of living",
         "biaya hidup",
@@ -220,13 +198,7 @@
     },
     "bali_lifestyle": {
       "description": "Lifestyle and culture (brand building)",
-      "deny_keywords": [
-        "scam",
-        "fraud",
-        "illegal",
-        "drugs",
-        "prostitution"
-      ],
+      "deny_keywords": ["scam", "fraud", "illegal", "drugs", "prostitution"],
       "allow_keywords": [
         "bali",
         "lifestyle",
@@ -246,11 +218,7 @@
     },
     "events_networking": {
       "description": "Community events and networking",
-      "deny_keywords": [
-        "pyramid scheme",
-        "mlm recruitment",
-        "crypto pump"
-      ],
+      "deny_keywords": ["pyramid scheme", "mlm recruitment", "crypto pump"],
       "allow_keywords": [
         "event",
         "acara",
@@ -268,12 +236,7 @@
     },
     "health_safety": {
       "description": "Health services and safety information",
-      "deny_keywords": [
-        "miracle cure",
-        "weight loss secret",
-        "anti-aging miracle",
-        "medical scam"
-      ],
+      "deny_keywords": ["miracle cure", "weight loss secret", "anti-aging miracle", "medical scam"],
       "allow_keywords": [
         "health",
         "kesehatan",
@@ -294,11 +257,7 @@
     },
     "transport_connectivity": {
       "description": "Transportation and infrastructure",
-      "deny_keywords": [
-        "uber clone",
-        "fake taxi",
-        "scam driver"
-      ],
+      "deny_keywords": ["uber clone", "fake taxi", "scam driver"],
       "allow_keywords": [
         "transport",
         "transportasi",
@@ -319,11 +278,7 @@
     },
     "competitor_intel": {
       "description": "Competitor analysis (internal only)",
-      "deny_keywords": [
-        "clickbait",
-        "spam",
-        "scam"
-      ],
+      "deny_keywords": ["clickbait", "spam", "scam"],
       "allow_keywords": [
         "competitor",
         "kompetitor",
@@ -342,11 +297,7 @@
     },
     "macro_policy": {
       "description": "National economic and policy trends",
-      "deny_keywords": [
-        "conspiracy theory",
-        "fake news",
-        "hoax"
-      ],
+      "deny_keywords": ["conspiracy theory", "fake news", "hoax"],
       "allow_keywords": [
         "economic policy",
         "kebijakan ekonomi",

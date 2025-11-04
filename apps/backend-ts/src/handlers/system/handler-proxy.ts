@@ -3,8 +3,8 @@
  * Allows RAG backend to execute TypeScript handlers via HTTP
  */
 
-import { ok, err } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
+import { ok, err } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
 
 /**
  * Execute a handler by key with provided params
@@ -18,11 +18,11 @@ export async function executeHandler(params: any, req?: any) {
   const { handler_key, handler_params = {} } = params;
 
   if (!handler_key) {
-    throw new BadRequestError("handler_key is required");
+    throw new BadRequestError('handler_key is required');
   }
 
   // Dynamically import router to get handlers registry
-  const { getHandler } = await import("../../routing/router.js");
+  const { getHandler } = await import('../../routing/router.js');
 
   const handler = await getHandler(handler_key);
 
@@ -37,7 +37,7 @@ export async function executeHandler(params: any, req?: any) {
     return ok({
       handler: handler_key,
       executed: true,
-      result
+      result,
     });
   } catch (error: any) {
     return err(`Handler execution failed: ${error.message}`);
@@ -52,7 +52,7 @@ export async function executeBatchHandlers(params: any, req?: any) {
   const { handlers = [] } = params;
 
   if (!Array.isArray(handlers) || handlers.length === 0) {
-    throw new BadRequestError("handlers array is required");
+    throw new BadRequestError('handlers array is required');
   }
 
   const results = [];
@@ -62,7 +62,7 @@ export async function executeBatchHandlers(params: any, req?: any) {
       const result = await executeHandler(
         {
           handler_key: handlerDef.key,
-          handler_params: handlerDef.params || {}
+          handler_params: handlerDef.params || {},
         },
         req
       );
@@ -74,6 +74,6 @@ export async function executeBatchHandlers(params: any, req?: any) {
 
   return ok({
     executed: results.length,
-    results
+    results,
   });
 }

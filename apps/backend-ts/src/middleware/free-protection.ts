@@ -7,14 +7,31 @@ const blockedIPs = new Set<string>();
 
 // Known attack patterns
 const ATTACK_PATTERNS = [
-  'wp-admin', 'wp-content', '.php', '.asp', '.jsp',
-  'sql', 'exec', 'script', 'admin.php', 'login.php',
-  'phpmyadmin', 'xmlrpc.php', 'wp-login'
+  'wp-admin',
+  'wp-content',
+  '.php',
+  '.asp',
+  '.jsp',
+  'sql',
+  'exec',
+  'script',
+  'admin.php',
+  'login.php',
+  'phpmyadmin',
+  'xmlrpc.php',
+  'wp-login',
 ];
 
 const BOT_AGENTS = [
-  'bot', 'crawler', 'spider', 'scraper', 'scanner',
-  'curl', 'wget', 'python', 'go-http-client'
+  'bot',
+  'crawler',
+  'spider',
+  'scraper',
+  'scanner',
+  'curl',
+  'wget',
+  'python',
+  'go-http-client',
 ];
 
 export function freeProtection(req: Request, res: Response, next: NextFunction): void | Response {
@@ -27,26 +44,26 @@ export function freeProtection(req: Request, res: Response, next: NextFunction):
   if (blockedIPs.has(clientIP)) {
     return res.status(403).json({
       error: 'IP blocked',
-      message: 'Your IP has been blocked due to suspicious activity'
+      message: 'Your IP has been blocked due to suspicious activity',
     });
   }
 
   // 2. Check for attack patterns in URL
-  if (ATTACK_PATTERNS.some(pattern => path.includes(pattern))) {
+  if (ATTACK_PATTERNS.some((pattern) => path.includes(pattern))) {
     logger.warn('🚨 Attack pattern detected: ${clientIP} → ${path}');
     blockedIPs.add(clientIP);
     return res.status(403).json({
       error: 'Forbidden',
-      message: 'Access denied'
+      message: 'Access denied',
     });
   }
 
   // 3. Check for bot user agents
-  if (BOT_AGENTS.some(bot => userAgent.toLowerCase().includes(bot))) {
+  if (BOT_AGENTS.some((bot) => userAgent.toLowerCase().includes(bot))) {
     logger.warn('🤖 Bot detected: ${clientIP} → ${userAgent}');
     return res.status(403).json({
       error: 'Bot detected',
-      message: 'Automated requests are not allowed'
+      message: 'Automated requests are not allowed',
     });
   }
 
@@ -60,13 +77,14 @@ export function freeProtection(req: Request, res: Response, next: NextFunction):
   entry.count++;
 
   // 5. Check rate limits
-  if (entry.count > 60) { // Max 60 requests per minute
+  if (entry.count > 60) {
+    // Max 60 requests per minute
     entry.blocked = true;
     logger.warn('⚠️ Rate limit exceeded: ${clientIP} (${entry.count} requests)');
     return res.status(429).json({
       error: 'Rate limit exceeded',
       message: 'Too many requests. Please wait a minute.',
-      retryAfter: Math.ceil((entry.resetTime - now) / 1000)
+      retryAfter: Math.ceil((entry.resetTime - now) / 1000),
     });
   }
 
@@ -76,7 +94,7 @@ export function freeProtection(req: Request, res: Response, next: NextFunction):
     return res.status(429).json({
       error: 'Admin rate limit',
       message: 'Too many admin requests. Please wait.',
-      retryAfter: Math.ceil((entry.resetTime - now) / 1000)
+      retryAfter: Math.ceil((entry.resetTime - now) / 1000),
     });
   }
 
@@ -84,7 +102,7 @@ export function freeProtection(req: Request, res: Response, next: NextFunction):
   res.set({
     'X-Protection': 'active',
     'X-Rate-Limit': `${60 - entry.count}`,
-    'X-Rate-Reset': new Date(entry.resetTime).toISOString()
+    'X-Rate-Reset': new Date(entry.resetTime).toISOString(),
   });
 
   next();

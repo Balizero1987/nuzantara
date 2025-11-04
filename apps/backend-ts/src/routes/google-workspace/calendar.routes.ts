@@ -7,7 +7,11 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { ok, err } from '../../utils/response.js';
 import { apiKeyAuth, RequestWithCtx } from '../../middleware/auth.js';
-import { calendarList, calendarCreate, calendarGet } from '../../handlers/google-workspace/calendar.js';
+import {
+  calendarList,
+  calendarCreate,
+  calendarGet,
+} from '../../handlers/google-workspace/calendar.js';
 
 const router = Router();
 
@@ -21,22 +25,27 @@ const CalendarListSchema = z.object({
   orderBy: z.enum(['startTime', 'updated']).optional(),
 });
 
-const CalendarCreateSchema = z.object({
-  calendarId: z.string().optional(),
-  event: z.any().optional(),
-  summary: z.string().optional(),
-  start: z.any().optional(),
-  end: z.any().optional(),
-  description: z.string().optional(),
-  attendees: z.array(z.object({
-    email: z.string().email().optional(),
-    displayName: z.string().optional(),
-  })).optional(),
-  location: z.string().optional(),
-}).refine(
-  (data) => data.event || (data.summary && data.start && data.end),
-  { message: 'Either event object or summary/start/end fields are required' }
-);
+const CalendarCreateSchema = z
+  .object({
+    calendarId: z.string().optional(),
+    event: z.any().optional(),
+    summary: z.string().optional(),
+    start: z.any().optional(),
+    end: z.any().optional(),
+    description: z.string().optional(),
+    attendees: z
+      .array(
+        z.object({
+          email: z.string().email().optional(),
+          displayName: z.string().optional(),
+        })
+      )
+      .optional(),
+    location: z.string().optional(),
+  })
+  .refine((data) => data.event || (data.summary && data.start && data.end), {
+    message: 'Either event object or summary/start/end fields are required',
+  });
 
 const CalendarGetSchema = z.object({
   calendarId: z.string().optional(),

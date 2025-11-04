@@ -1,6 +1,6 @@
 /**
  * PWA Installer and Manager
- * 
+ *
  * Handles service worker registration and PWA install prompt.
  */
 
@@ -9,14 +9,14 @@ class PWAInstaller {
     this.deferredPrompt = null;
     this.isInstalled = false;
     this.swRegistration = null;
-    
+
     this.init();
   }
 
   async init() {
     // Check if already installed
     this.isInstalled = this.checkIfInstalled();
-    
+
     // Register service worker
     if ('serviceWorker' in navigator) {
       try {
@@ -29,20 +29,23 @@ class PWAInstaller {
 
     // Setup install prompt
     this.setupInstallPrompt();
-    
+
     // Listen for updates
     this.setupUpdateListener();
   }
 
   async registerServiceWorker() {
     const registration = await navigator.serviceWorker.register('/service-worker.js', {
-      scope: '/'
+      scope: '/',
     });
 
     // Check for updates every hour
-    setInterval(() => {
-      registration.update();
-    }, 60 * 60 * 1000);
+    setInterval(
+      () => {
+        registration.update();
+      },
+      60 * 60 * 1000
+    );
 
     return registration;
   }
@@ -51,13 +54,13 @@ class PWAInstaller {
     window.addEventListener('beforeinstallprompt', (event) => {
       // Prevent default install prompt
       event.preventDefault();
-      
+
       // Store for later use
       this.deferredPrompt = event;
-      
+
       // Show custom install button
       this.showInstallButton();
-      
+
       console.log('[PWA] Install prompt available');
     });
 
@@ -80,8 +83,10 @@ class PWAInstaller {
 
   checkIfInstalled() {
     // Check if running in standalone mode (PWA installed)
-    return window.matchMedia('(display-mode: standalone)').matches ||
-           window.navigator.standalone === true;
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true
+    );
   }
 
   async showInstallPrompt() {
@@ -95,7 +100,7 @@ class PWAInstaller {
 
     // Wait for user response
     const choiceResult = await this.deferredPrompt.userChoice;
-    
+
     if (choiceResult.outcome === 'accepted') {
       console.log('[PWA] User accepted install');
       this.isInstalled = true;
@@ -113,7 +118,7 @@ class PWAInstaller {
   showInstallButton() {
     // Create install button if not exists
     let installBtn = document.getElementById('pwa-install-btn');
-    
+
     if (!installBtn) {
       installBtn = document.createElement('button');
       installBtn.id = 'pwa-install-btn';
@@ -226,15 +231,12 @@ class PWAInstaller {
 
     return new Promise((resolve) => {
       const messageChannel = new MessageChannel();
-      
+
       messageChannel.port1.onmessage = (event) => {
         resolve(event.data.size);
       };
 
-      this.swRegistration.active.postMessage(
-        { type: 'GET_CACHE_SIZE' },
-        [messageChannel.port2]
-      );
+      this.swRegistration.active.postMessage({ type: 'GET_CACHE_SIZE' }, [messageChannel.port2]);
     });
   }
 
@@ -250,7 +252,7 @@ class PWAInstaller {
       installed: this.isInstalled,
       swRegistered: !!this.swRegistration,
       updateAvailable: false, // Would need more complex logic
-      canInstall: !!this.deferredPrompt
+      canInstall: !!this.deferredPrompt,
     };
   }
 }
@@ -291,7 +293,7 @@ if (typeof window !== 'undefined') {
     install: () => pwaInstaller.showInstallPrompt(),
     getStatus: () => pwaInstaller.getStatus(),
     getCacheSize: () => pwaInstaller.getCacheSize(),
-    clearCache: () => pwaInstaller.clearCache()
+    clearCache: () => pwaInstaller.clearCache(),
   };
 }
 

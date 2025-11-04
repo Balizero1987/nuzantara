@@ -57,10 +57,13 @@ export async function handleQueryWithJiwa(req: Request, res: Response) {
       // Activate protection if needed
       if (soulReading.protection_needed && soulReading.urgency_level >= 8) {
         logger.warn('🛡️ Activating maternal protection!');
-        await jiwaClient.activateProtection(userId,
-          soulReading.primary_need.includes('fraud') ? 'fraud' :
-          soulReading.primary_need.includes('legal') ? 'legal' :
-          'emergency'
+        await jiwaClient.activateProtection(
+          userId,
+          soulReading.primary_need.includes('fraud')
+            ? 'fraud'
+            : soulReading.primary_need.includes('legal')
+              ? 'legal'
+              : 'emergency'
         );
         protectionActivated = true;
       }
@@ -72,7 +75,9 @@ export async function handleQueryWithJiwa(req: Request, res: Response) {
 
     const { intent, confidence, tools } = routerResponse.data;
     logger.info('🎯 Intent: ${intent} (confidence: ${confidence})', { type: 'debug_migration' });
-    logger.info('🔧 Tools selected: ${tools.map((t: any) => t.name).join(\', \')}', { type: 'debug_migration' });
+    logger.info("🔧 Tools selected: ${tools.map((t: any) => t.name).join(', ')}", {
+      type: 'debug_migration',
+    });
 
     // Step 3: Build Haiku prompt with both router and soul context
     const systemPrompt = `You are ZANTARA, an Indonesian AI assistant with a warm, maternal personality.
@@ -87,24 +92,25 @@ ${protectionActivated ? 'IMPORTANT: The user needs urgent help and protection.' 
 
     const messages = [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: query }
+      { role: 'user', content: query },
     ];
 
     // Step 4: Generate response with Claude Haiku
     logger.info('\n💬 Generating response with Haiku + JIWA context...');
     const haikuResponse = await axios.post(
-      'https://api.anthropic.com/v1/messages', {
+      'https://api.anthropic.com/v1/messages',
+      {
         model: HAIKU_MODEL,
         messages,
         max_tokens: 2048,
-        temperature: 0.7
+        temperature: 0.7,
       },
       {
         headers: {
           'x-api-key': HAIKU_API_KEY,
           'anthropic-version': '2023-06-01',
-          'content-type': 'application/json'
-        }
+          'content-type': 'application/json',
+        },
       }
     );
 
@@ -116,17 +122,20 @@ ${protectionActivated ? 'IMPORTANT: The user needs urgent help and protection.' 
 
     if (soulReading) {
       const infused = await jiwaClient.infuseResponse(
-        technicalResponse, soulReading,
+        technicalResponse,
+        soulReading,
         language,
         soulReading.emotional_tone === 'sad' ||
-        soulReading.emotional_tone === 'desperate' ||
-        soulReading.urgency_level >= 7
+          soulReading.emotional_tone === 'desperate' ||
+          soulReading.urgency_level >= 7
       );
 
       if (infused) {
         finalResponse = infused.infused_response;
         logger.info('💗 Maternal warmth: ${infused.maternal_warmth}', { type: 'debug_migration' });
-        logger.info('🌺 Cultural elements: ${infused.cultural_elements.join(\', \')}', { type: 'debug_migration' });
+        logger.info("🌺 Cultural elements: ${infused.cultural_elements.join(', ')}", {
+          type: 'debug_migration',
+        });
       }
     }
 
@@ -137,19 +146,20 @@ ${protectionActivated ? 'IMPORTANT: The user needs urgent help and protection.' 
         intent,
         confidence,
         tools: tools.map((t: any) => t.name),
-        soul_reading: soulReading ? {
-          emotion: soulReading.emotional_tone,
-          need: soulReading.primary_need,
-          urgency: soulReading.urgency_level
-        } : null,
+        soul_reading: soulReading
+          ? {
+              emotion: soulReading.emotional_tone,
+              need: soulReading.primary_need,
+              urgency: soulReading.urgency_level,
+            }
+          : null,
         protection_activated: protectionActivated,
-        jiwa_enhanced: true
-      }
+        jiwa_enhanced: true,
+      },
     };
 
     logger.info('\n✅ Response ready with JIWA enhancement');
     res.json(response);
-
   } catch (error) {
     logger.error('❌ Orchestration error:', error);
 
@@ -158,13 +168,13 @@ ${protectionActivated ? 'IMPORTANT: The user needs urgent help and protection.' 
       res.status(429).json({
         error: 'Rate limit exceeded',
         message: 'Ibu sedang istirahat sebentar, coba lagi ya Nak.',
-        jiwa_enhanced: true
+        jiwa_enhanced: true,
       });
     } else {
       res.status(500).json({
         error: 'Internal error',
         message: 'Maaf Nak, ada masalah teknis. Ibu akan coba bantu.',
-        jiwa_enhanced: true
+        jiwa_enhanced: true,
       });
     }
   }
@@ -173,14 +183,14 @@ ${protectionActivated ? 'IMPORTANT: The user needs urgent help and protection.' 
 /**
  * Get JIWA system status
  */
-export async function getJiwaStatus(req: Request, res: Response) {
+export async function getJiwaStatus(_req: Request, res: Response) {
   try {
     const status = await jiwaClient.getStatus();
 
     if (!status) {
       return res.status(503).json({
         status: 'unavailable',
-        message: 'JIWA service not available'
+        message: 'JIWA service not available',
       });
     }
 
@@ -188,7 +198,7 @@ export async function getJiwaStatus(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       error: 'Failed to get JIWA status',
-      message: error.message
+      message: error.message,
     });
   }
 }
@@ -196,11 +206,11 @@ export async function getJiwaStatus(req: Request, res: Response) {
 /**
  * Health check for integrated system
  */
-export async function healthCheck(req: Request, res: Response) {
+export async function healthCheck(_req: Request, res: Response) {
   const checks = {
     router: false,
     jiwa: false,
-    haiku: false
+    haiku: false,
   };
 
   // Check router
@@ -224,7 +234,7 @@ export async function healthCheck(req: Request, res: Response) {
     checks,
     message: allHealthy
       ? 'All systems operational with JIWA enhancement'
-      : 'Some services unavailable'
+      : 'Some services unavailable',
   });
 }
 
@@ -245,12 +255,12 @@ export async function activateEmergencyProtection(req: Request, res: Response) {
       success: true,
       protection,
       message: `Protection activated for ${userId}`,
-      reason
+      reason,
     });
   } catch (error) {
     res.status(500).json({
       error: 'Failed to activate protection',
-      message: error.message
+      message: error.message,
     });
   }
 }

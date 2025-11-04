@@ -3,9 +3,17 @@
  * 5 parametric tools that replace 143 specific tools
  */
 
-import { SuperToolCall } from './migration-adapter';
 import { logger } from '../../logging/unified-logger.js';
 import axios from 'axios';
+
+export interface SuperToolCall {
+  tool: string;
+  params?: Record<string, unknown>;
+  action?: string;
+  source?: string;
+  data?: unknown;
+  filters?: Record<string, unknown>;
+}
 
 export interface SuperToolResult {
   success: boolean;
@@ -17,11 +25,11 @@ export interface SuperToolResult {
 
 export class SuperToolHandlers {
   private readonly pythonBackendUrl: string;
-  private readonly tsBackendUrl: string;
+  private readonly _tsBackendUrl: string;
 
   constructor() {
     this.pythonBackendUrl = process.env.PYTHON_BACKEND_URL || 'http://localhost:8001';
-    this.tsBackendUrl = process.env.TS_BACKEND_URL || 'http://localhost:8080';
+    this._tsBackendUrl = process.env.TS_BACKEND_URL || 'http://localhost:8080';
   }
 
   /**
@@ -52,7 +60,7 @@ export class SuperToolHandlers {
       logger.error(`Super-tool execution error:`, error);
       return {
         success: false,
-        error: error.message || 'Unknown error'
+        error: error.message || 'Unknown error',
       };
     }
   }
@@ -102,7 +110,7 @@ export class SuperToolHandlers {
         success: false,
         error: `Universal Query Error: ${error.message}`,
         source,
-        action
+        action,
       };
     }
   }
@@ -139,7 +147,7 @@ export class SuperToolHandlers {
         success: false,
         error: `Universal Action Error: ${error.message}`,
         action,
-        source
+        source,
       };
     }
   }
@@ -172,7 +180,7 @@ export class SuperToolHandlers {
       return {
         success: false,
         error: `Universal Generate Error: ${error.message}`,
-        action
+        action,
       };
     }
   }
@@ -186,26 +194,30 @@ export class SuperToolHandlers {
 
     try {
       // Route to Python backend for ML operations
-      const response = await axios.post(`${this.pythonBackendUrl}/analyze`, {
-        action,
-        source,
-        data
-      }, {
-        timeout: 10000 // 10s timeout for analysis
-      });
+      const response = await axios.post(
+        `${this.pythonBackendUrl}/analyze`,
+        {
+          action,
+          source,
+          data,
+        },
+        {
+          timeout: 10000, // 10s timeout for analysis
+        }
+      );
 
       return {
         success: true,
         data: response.data,
         source,
-        action
+        action,
       };
     } catch (error) {
       return {
         success: false,
         error: `Universal Analyze Error: ${error.message}`,
         source,
-        action
+        action,
       };
     }
   }
@@ -238,7 +250,7 @@ export class SuperToolHandlers {
       return {
         success: false,
         error: `Universal Admin Error: ${error.message}`,
-        action
+        action,
       };
     }
   }
@@ -256,10 +268,10 @@ export class SuperToolHandlers {
         price: 15000000, // IDR
         currency: data.currency || 'IDR',
         validity: '1 year',
-        note: 'Router-system stub - integrate with actual pricing DB'
+        note: 'Router-system stub - integrate with actual pricing DB',
       },
       source: 'pricing',
-      action: 'get'
+      action: 'get',
     };
   }
 
@@ -270,21 +282,21 @@ export class SuperToolHandlers {
     try {
       const response = await axios.post(`${this.pythonBackendUrl}/memory/${action}`, {
         data,
-        filters
+        filters,
       });
 
       return {
         success: true,
         data: response.data,
         source: 'memory',
-        action
+        action,
       };
     } catch (error) {
       return {
         success: false,
         error: error.message,
         source: 'memory',
-        action
+        action,
       };
     }
   }
@@ -297,20 +309,20 @@ export class SuperToolHandlers {
       const response = await axios.post(`${this.pythonBackendUrl}/query`, {
         source: 'knowledge',
         query: data.query || data.question,
-        filters: data.filters
+        filters: data.filters,
       });
 
       return {
         success: true,
         data: response.data,
         source: 'knowledge',
-        action: 'search'
+        action: 'search',
       };
     } catch (error) {
       return {
         success: false,
         error: error.message,
-        source: 'knowledge'
+        source: 'knowledge',
       };
     }
   }
@@ -324,10 +336,10 @@ export class SuperToolHandlers {
       data: {
         members: [],
         count: 0,
-        note: 'Router-system stub - integrate with team DB'
+        note: 'Router-system stub - integrate with team DB',
       },
       source: 'team',
-      action
+      action,
     };
   }
 
@@ -339,10 +351,10 @@ export class SuperToolHandlers {
       success: true,
       data: {
         code: data.code || 'unknown',
-        note: 'Router-system stub - integrate with KBLI DB'
+        note: 'Router-system stub - integrate with KBLI DB',
       },
       source: 'kbli',
-      action: 'lookup'
+      action: 'lookup',
     };
   }
 
@@ -354,10 +366,10 @@ export class SuperToolHandlers {
       success: true,
       data: {
         clients: [],
-        note: 'Router-system stub - integrate with client DB'
+        note: 'Router-system stub - integrate with client DB',
       },
       source: 'client',
-      action
+      action,
     };
   }
 
@@ -369,10 +381,10 @@ export class SuperToolHandlers {
       success: true,
       data: {
         projects: [],
-        note: 'Router-system stub - integrate with project DB'
+        note: 'Router-system stub - integrate with project DB',
       },
       source: 'project',
-      action
+      action,
     };
   }
 
@@ -384,10 +396,10 @@ export class SuperToolHandlers {
       success: true,
       data: {
         sessions: [],
-        note: 'Router-system stub - integrate with session DB'
+        note: 'Router-system stub - integrate with session DB',
       },
       source: 'session',
-      action
+      action,
     };
   }
 
@@ -402,14 +414,14 @@ export class SuperToolHandlers {
         success: true,
         data: response.data,
         source: 'oracle',
-        action
+        action,
       };
     } catch (error) {
       return {
         success: false,
         error: error.message,
         source: 'oracle',
-        action
+        action,
       };
     }
   }
@@ -422,9 +434,9 @@ export class SuperToolHandlers {
       success: true,
       data: {
         result: 'Query processed',
-        note: 'Intelligent routing used - specify source for better results'
+        note: 'Intelligent routing used - specify source for better results',
       },
-      action: 'intelligent_query'
+      action: 'intelligent_query',
     };
   }
 
@@ -437,10 +449,10 @@ export class SuperToolHandlers {
       data: {
         saved: true,
         id: 'stub-id-' + Date.now(),
-        note: 'Router-system stub - integrate with actual DB'
+        note: 'Router-system stub - integrate with actual DB',
       },
       source,
-      action: 'save'
+      action: 'save',
     };
   }
 
@@ -451,10 +463,10 @@ export class SuperToolHandlers {
       success: true,
       data: {
         updated: true,
-        note: 'Router-system stub - integrate with actual DB'
+        note: 'Router-system stub - integrate with actual DB',
       },
       source,
-      action: 'update'
+      action: 'update',
     };
   }
 
@@ -465,10 +477,10 @@ export class SuperToolHandlers {
       success: true,
       data: {
         deleted: true,
-        note: 'Router-system stub - integrate with actual DB'
+        note: 'Router-system stub - integrate with actual DB',
       },
       source,
-      action: 'delete'
+      action: 'delete',
     };
   }
 
@@ -480,10 +492,10 @@ export class SuperToolHandlers {
       data: {
         created: true,
         id: 'stub-id-' + Date.now(),
-        note: 'Router-system stub - integrate with actual DB'
+        note: 'Router-system stub - integrate with actual DB',
       },
       source,
-      action: 'create'
+      action: 'create',
     };
   }
 
@@ -496,9 +508,9 @@ export class SuperToolHandlers {
       data: {
         sent: true,
         channel: data.channel || 'email',
-        note: 'Router-system stub - integrate with notification service'
+        note: 'Router-system stub - integrate with notification service',
       },
-      action: 'notify'
+      action: 'notify',
     };
   }
 
@@ -511,11 +523,11 @@ export class SuperToolHandlers {
         quote: {
           items: data.items || [],
           total: 0,
-          currency: 'IDR'
+          currency: 'IDR',
         },
-        note: 'Router-system stub - integrate with quote generation'
+        note: 'Router-system stub - integrate with quote generation',
       },
-      action: 'quote'
+      action: 'quote',
     };
   }
 
@@ -527,11 +539,11 @@ export class SuperToolHandlers {
       data: {
         document: {
           type: data.type || 'generic',
-          url: 'stub-url'
+          url: 'stub-url',
         },
-        note: 'Router-system stub - integrate with document generation'
+        note: 'Router-system stub - integrate with document generation',
       },
-      action: 'document'
+      action: 'document',
     };
   }
 
@@ -543,11 +555,11 @@ export class SuperToolHandlers {
       data: {
         report: {
           type: data.type || 'generic',
-          url: 'stub-url'
+          url: 'stub-url',
         },
-        note: 'Router-system stub - integrate with report generation'
+        note: 'Router-system stub - integrate with report generation',
       },
-      action: 'report'
+      action: 'report',
     };
   }
 
@@ -559,11 +571,11 @@ export class SuperToolHandlers {
       data: {
         invoice: {
           number: 'INV-' + Date.now(),
-          url: 'stub-url'
+          url: 'stub-url',
         },
-        note: 'Router-system stub - integrate with invoice generation'
+        note: 'Router-system stub - integrate with invoice generation',
       },
-      action: 'invoice'
+      action: 'invoice',
     };
   }
 
@@ -575,9 +587,9 @@ export class SuperToolHandlers {
       data: {
         generated: true,
         action,
-        note: 'Router-system stub - integrate specific generator'
+        note: 'Router-system stub - integrate specific generator',
       },
-      action
+      action,
     };
   }
 
@@ -589,9 +601,9 @@ export class SuperToolHandlers {
       data: {
         authenticated: true,
         token: 'stub-token',
-        note: 'Router-system stub - integrate with auth system'
+        note: 'Router-system stub - integrate with auth system',
       },
-      action: 'login'
+      action: 'login',
     };
   }
 
@@ -602,9 +614,9 @@ export class SuperToolHandlers {
       success: true,
       data: {
         logged_out: true,
-        note: 'Router-system stub - integrate with auth system'
+        note: 'Router-system stub - integrate with auth system',
       },
-      action: 'logout'
+      action: 'logout',
     };
   }
 
@@ -615,9 +627,9 @@ export class SuperToolHandlers {
       success: true,
       data: {
         user_id: 'stub-user-id',
-        note: 'Router-system stub - integrate with user identity system'
+        note: 'Router-system stub - integrate with user identity system',
       },
-      action: 'identify'
+      action: 'identify',
     };
   }
 
@@ -628,9 +640,9 @@ export class SuperToolHandlers {
       success: true,
       data: {
         updated: true,
-        note: 'Router-system stub - integrate with config management'
+        note: 'Router-system stub - integrate with config management',
       },
-      action: 'configure'
+      action: 'configure',
     };
   }
 
@@ -641,9 +653,9 @@ export class SuperToolHandlers {
       success: true,
       data: {
         operation: action,
-        note: 'Router-system stub - implement specific system operation'
+        note: 'Router-system stub - implement specific system operation',
       },
-      action
+      action,
     };
   }
 }

@@ -1,15 +1,46 @@
-import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
-import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
-import { getContacts } from "../../services/google-auth-service.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
+import { getContacts } from '../../services/google-auth-service.js';
 
 // Param interfaces
-export interface ContactsListParams { pageSize?: number; sortOrder?: 'FIRST_NAME_ASCENDING' | 'LAST_NAME_ASCENDING' }
-export interface ContactsCreateParams { name?: string; email?: string; phone?: string; organization?: string; title?: string; address?: string; notes?: string }
+export interface ContactsListParams {
+  pageSize?: number;
+  sortOrder?: 'FIRST_NAME_ASCENDING' | 'LAST_NAME_ASCENDING';
+}
+export interface ContactsCreateParams {
+  name?: string;
+  email?: string;
+  phone?: string;
+  organization?: string;
+  title?: string;
+  address?: string;
+  notes?: string;
+}
 
 // Result interfaces
-export interface ContactsListResult { contacts: Array<{ resourceName?: string; name: string; email: string | null; phone: string | null; organization: string | null; title: string | null; hasPhoto: boolean }>; totalContacts: number; nextPageToken: string | null }
-export interface ContactsCreateResult { contact: { resourceName?: string; name?: string; email?: string; phone?: string; created: boolean } }
+export interface ContactsListResult {
+  contacts: Array<{
+    resourceName?: string;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    organization: string | null;
+    title: string | null;
+    hasPhoto: boolean;
+  }>;
+  totalContacts: number;
+  nextPageToken: string | null;
+}
+export interface ContactsCreateResult {
+  contact: {
+    resourceName?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    created: boolean;
+  };
+}
 
 export async function contactsList(params: ContactsListParams) {
   const { pageSize = 50, sortOrder = 'LAST_NAME_ASCENDING' } = params || ({} as ContactsListParams);
@@ -21,7 +52,7 @@ export async function contactsList(params: ContactsListParams) {
         resourceName: 'people/me',
         pageSize,
         personFields: 'names,emailAddresses,phoneNumbers,organizations,addresses,metadata,photos',
-        sortOrder
+        sortOrder,
       });
 
       const people = res.data.connections || [];
@@ -42,14 +73,14 @@ export async function contactsList(params: ContactsListParams) {
           phone,
           organization,
           title,
-          hasPhoto: !!person.photos?.[0]?.url
+          hasPhoto: !!person.photos?.[0]?.url,
         };
       });
 
       return ok({
         contacts: formattedContacts,
         totalContacts: people.length,
-        nextPageToken: res.data.nextPageToken || null
+        nextPageToken: res.data.nextPageToken || null,
       });
     } catch (error: any) {
       throw new BadRequestError(`Contacts list failed: ${error.message}`);
@@ -63,7 +94,8 @@ export async function contactsList(params: ContactsListParams) {
 }
 
 export async function contactsCreate(params: ContactsCreateParams) {
-  const { name, email, phone, organization, title, address, notes } = params || ({} as ContactsCreateParams);
+  const { name, email, phone, organization, title, address, notes } =
+    params || ({} as ContactsCreateParams);
 
   if (!name && !email) {
     throw new BadRequestError('Either name or email is required');
@@ -76,51 +108,63 @@ export async function contactsCreate(params: ContactsCreateParams) {
       const contact: any = {};
 
       if (name) {
-        contact.names = [{
-          displayName: name,
-          givenName: name.split(' ')[0] || name,
-          familyName: name.split(' ').slice(1).join(' ') || ''
-        }];
+        contact.names = [
+          {
+            displayName: name,
+            givenName: name.split(' ')[0] || name,
+            familyName: name.split(' ').slice(1).join(' ') || '',
+          },
+        ];
       }
 
       if (email) {
-        contact.emailAddresses = [{
-          value: email,
-          type: 'work'
-        }];
+        contact.emailAddresses = [
+          {
+            value: email,
+            type: 'work',
+          },
+        ];
       }
 
       if (phone) {
-        contact.phoneNumbers = [{
-          value: phone,
-          type: 'work'
-        }];
+        contact.phoneNumbers = [
+          {
+            value: phone,
+            type: 'work',
+          },
+        ];
       }
 
       if (organization || title) {
-        contact.organizations = [{
-          name: organization || '',
-          title: title || '',
-          type: 'work'
-        }];
+        contact.organizations = [
+          {
+            name: organization || '',
+            title: title || '',
+            type: 'work',
+          },
+        ];
       }
 
       if (address) {
-        contact.addresses = [{
-          formattedValue: address,
-          type: 'work'
-        }];
+        contact.addresses = [
+          {
+            formattedValue: address,
+            type: 'work',
+          },
+        ];
       }
 
       if (notes) {
-        contact.biographies = [{
-          value: notes,
-          contentType: 'TEXT_PLAIN'
-        }];
+        contact.biographies = [
+          {
+            value: notes,
+            contentType: 'TEXT_PLAIN',
+          },
+        ];
       }
 
       const res = await contacts.people.createContact({
-        requestBody: contact
+        requestBody: contact,
       });
 
       return ok({
@@ -129,8 +173,8 @@ export async function contactsCreate(params: ContactsCreateParams) {
           name: res.data.names?.[0]?.displayName,
           email: res.data.emailAddresses?.[0]?.value,
           phone: res.data.phoneNumbers?.[0]?.value,
-          created: true
-        }
+          created: true,
+        },
       });
     } catch (error: any) {
       throw new BadRequestError(`Contact creation failed: ${error.message}`);

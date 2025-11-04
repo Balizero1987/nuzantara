@@ -11,7 +11,7 @@ export const TEAM_MEMBERS = {
     badge: '👑',
     permissions: ['admin', 'all_dashboards', 'financial_data', 'team_management'],
     welcomeMessage: 'Welcome back Zero! Ready to scale Bali Zero to infinity? ∞',
-    dashboardWidgets: ['revenue_overview', 'team_performance', 'client_pipeline', 'ai_insights']
+    dashboardWidgets: ['revenue_overview', 'team_performance', 'client_pipeline', 'ai_insights'],
   },
 
   'boss@balizero.com': {
@@ -22,7 +22,7 @@ export const TEAM_MEMBERS = {
     badge: '🌀',
     permissions: ['admin', 'strategic_planning', 'team_coordination'],
     welcomeMessage: 'Benvenuto Boss! Quale visione strategica esploriamo oggi?',
-    dashboardWidgets: ['strategic_overview', 'team_synergy', 'innovation_tracker']
+    dashboardWidgets: ['strategic_overview', 'team_synergy', 'innovation_tracker'],
   },
 
   // Setup & Operations Team
@@ -34,7 +34,12 @@ export const TEAM_MEMBERS = {
     badge: '⚡',
     permissions: ['setup_management', 'client_applications', 'team_supervision'],
     welcomeMessage: 'Halo Adit! Ada aplikasi visa atau company yang perlu di-handle hari ini?',
-    dashboardWidgets: ['active_applications', 'team_workload', 'priority_cases', 'completion_rates']
+    dashboardWidgets: [
+      'active_applications',
+      'team_workload',
+      'priority_cases',
+      'completion_rates',
+    ],
   },
 
   'anton@balizero.com': {
@@ -45,7 +50,7 @@ export const TEAM_MEMBERS = {
     badge: '🎯',
     permissions: ['client_management', 'application_processing'],
     welcomeMessage: 'Ciao Anton! Quali decisioni strategiche prendiamo oggi per i client?',
-    dashboardWidgets: ['client_pipeline', 'application_status', 'urgent_tasks']
+    dashboardWidgets: ['client_pipeline', 'application_status', 'urgent_tasks'],
   },
 
   'krishna@balizero.com': {
@@ -56,7 +61,7 @@ export const TEAM_MEMBERS = {
     badge: '✅',
     permissions: ['checklist_management', 'quality_control'],
     welcomeMessage: 'Hi Krishna! Checklist master, cosa dobbiamo completare oggi?',
-    dashboardWidgets: ['checklist_overview', 'completion_tracker', 'quality_metrics']
+    dashboardWidgets: ['checklist_overview', 'completion_tracker', 'quality_metrics'],
   },
 
   'ari@balizero.com': {
@@ -67,7 +72,7 @@ export const TEAM_MEMBERS = {
     badge: '💍',
     permissions: ['team_leadership', 'milestone_tracking', 'project_coordination'],
     welcomeMessage: 'Selamat datang Ari! Milestone apa yang kita capai hari ini?',
-    dashboardWidgets: ['milestone_tracker', 'team_progress', 'project_timeline']
+    dashboardWidgets: ['milestone_tracker', 'team_progress', 'project_timeline'],
   },
 
   'surya@balizero.com': {
@@ -78,7 +83,7 @@ export const TEAM_MEMBERS = {
     badge: '📚',
     permissions: ['training', 'knowledge_management', 'process_optimization'],
     welcomeMessage: 'Namaste Surya! Pronto per una lezione di efficienza oggi?',
-    dashboardWidgets: ['knowledge_base', 'training_progress', 'process_efficiency']
+    dashboardWidgets: ['knowledge_base', 'training_progress', 'process_efficiency'],
   },
 
   // Tax Department
@@ -90,7 +95,7 @@ export const TEAM_MEMBERS = {
     badge: '🔎',
     permissions: ['tax_management', 'npwp_processing', 'compliance_oversight'],
     welcomeMessage: 'Hello Angel! Ready untuk handle urusan pajak dan NPWP hari ini?',
-    dashboardWidgets: ['tax_applications', 'compliance_status', 'npwp_tracker', 'deadline_alerts']
+    dashboardWidgets: ['tax_applications', 'compliance_status', 'npwp_tracker', 'deadline_alerts'],
   },
 
   'veronika@balizero.com': {
@@ -101,7 +106,12 @@ export const TEAM_MEMBERS = {
     badge: '📊',
     permissions: ['tax_strategy', 'client_consulting', 'regulatory_compliance'],
     welcomeMessage: 'Добро пожаловать Veronika! Які податкові питання вирішуємо сьогодні?',
-    dashboardWidgets: ['tax_consulting', 'client_portfolios', 'regulatory_updates', 'revenue_tracking']
+    dashboardWidgets: [
+      'tax_consulting',
+      'client_portfolios',
+      'regulatory_updates',
+      'revenue_tracking',
+    ],
   },
 
   'dewa_ayu@balizero.com': {
@@ -112,7 +122,7 @@ export const TEAM_MEMBERS = {
     badge: '🗂️',
     permissions: ['document_management', 'tax_filing', 'client_coordination'],
     welcomeMessage: 'Selamat pagi Dewa Ayu! Dokumen pajak apa yang perlu kita urus?',
-    dashboardWidgets: ['document_tracker', 'filing_deadlines', 'client_communications']
+    dashboardWidgets: ['document_tracker', 'filing_deadlines', 'client_communications'],
   },
 
   'faisha@balizero.com': {
@@ -123,7 +133,7 @@ export const TEAM_MEMBERS = {
     badge: '🧾',
     permissions: ['client_support', 'tax_calculations', 'document_preparation'],
     welcomeMessage: 'Assalamualaikum Faisha! Siap bantu client dengan perhitungan pajak?',
-    dashboardWidgets: ['client_support', 'tax_calculator', 'document_prep']
+    dashboardWidgets: ['client_support', 'tax_calculator', 'document_prep'],
   },
 
   'kadek@balizero.com': {
@@ -134,7 +144,7 @@ export const TEAM_MEMBERS = {
     badge: '📐',
     permissions: ['methodical_processing', 'systematic_analysis'],
     welcomeMessage: 'Om Swastiastu Kadek! Metode sistematis apa yang kita terapkan hari ini?',
-    dashboardWidgets: ['systematic_analysis', 'process_optimization', 'accuracy_metrics']
+    dashboardWidgets: ['systematic_analysis', 'process_optimization', 'accuracy_metrics'],
   },
 
   // Advisory & Consulting
@@ -146,7 +156,12 @@ export const TEAM_MEMBERS = {
     badge: '🧐',
     permissions: ['strategic_advisory', 'market_analysis', 'client_consulting'],
     welcomeMessage: 'Вітаю Marta! Готові до стратегічного аналізу та консультацій?',
-    dashboardWidgets: ['market_analysis', 'strategic_insights', 'client_advisory', 'trend_analysis']
+    dashboardWidgets: [
+      'market_analysis',
+      'strategic_insights',
+      'client_advisory',
+      'trend_analysis',
+    ],
   },
 
   'olena@balizero.com': {
@@ -157,7 +172,7 @@ export const TEAM_MEMBERS = {
     badge: '🌐',
     permissions: ['tax_strategy', 'international_compliance', 'strategic_planning'],
     welcomeMessage: 'Привіт Olena! Яку стратегію податкового планування розробляємо?',
-    dashboardWidgets: ['tax_strategy', 'international_compliance', 'strategic_planning']
+    dashboardWidgets: ['tax_strategy', 'international_compliance', 'strategic_planning'],
   },
 
   'ruslana@balizero.com': {
@@ -168,7 +183,7 @@ export const TEAM_MEMBERS = {
     badge: '👑',
     permissions: ['executive_decisions', 'team_motivation', 'cultural_leadership'],
     welcomeMessage: 'Слава Україні, Ruslana! Готові надихнути команду на нові звершення?',
-    dashboardWidgets: ['team_morale', 'cultural_initiatives', 'leadership_metrics']
+    dashboardWidgets: ['team_morale', 'cultural_initiatives', 'leadership_metrics'],
   },
 
   // Marketing & Communications
@@ -180,7 +195,12 @@ export const TEAM_MEMBERS = {
     badge: '🎤',
     permissions: ['marketing_campaigns', 'content_creation', 'brand_management'],
     welcomeMessage: 'Hello Nina! Ready to create inspiring content yang motivasi team dan client?',
-    dashboardWidgets: ['campaign_performance', 'content_calendar', 'brand_metrics', 'engagement_stats']
+    dashboardWidgets: [
+      'campaign_performance',
+      'content_calendar',
+      'brand_metrics',
+      'engagement_stats',
+    ],
   },
 
   'sahira@balizero.com': {
@@ -191,7 +211,12 @@ export const TEAM_MEMBERS = {
     badge: '🌟',
     permissions: ['content_support', 'social_media', 'creative_assistance'],
     welcomeMessage: 'Hai Sahira! Siap untuk creative collaboration dan positive vibes hari ini?',
-    dashboardWidgets: ['creative_projects', 'social_media_stats', 'learning_progress', 'support_needed']
+    dashboardWidgets: [
+      'creative_projects',
+      'social_media_stats',
+      'learning_progress',
+      'support_needed',
+    ],
   },
 
   // Reception & Client Relations
@@ -203,7 +228,12 @@ export const TEAM_MEMBERS = {
     badge: '🌸',
     permissions: ['client_relations', 'appointment_management', 'first_contact'],
     welcomeMessage: 'Selamat pagi Rina! Siap memberikan pelayanan terbaik untuk client hari ini?',
-    dashboardWidgets: ['appointment_calendar', 'client_inquiries', 'first_impressions', 'satisfaction_scores']
+    dashboardWidgets: [
+      'appointment_calendar',
+      'client_inquiries',
+      'first_impressions',
+      'satisfaction_scores',
+    ],
   },
 
   // Creative & Innovation
@@ -215,7 +245,12 @@ export const TEAM_MEMBERS = {
     badge: '🎨',
     permissions: ['creative_solutions', 'innovation_projects', 'out_of_box_thinking'],
     welcomeMessage: 'Hey Vino! Ide kreatif out-of-the-box apa yang kita explore hari ini?',
-    dashboardWidgets: ['creative_projects', 'innovation_tracker', 'idea_pipeline', 'experimentation']
+    dashboardWidgets: [
+      'creative_projects',
+      'innovation_tracker',
+      'idea_pipeline',
+      'experimentation',
+    ],
   },
 
   // Executive Support
@@ -227,7 +262,12 @@ export const TEAM_MEMBERS = {
     badge: '📒',
     permissions: ['executive_support', 'documentation', 'organization'],
     welcomeMessage: 'Hi Amanda! Siap organize dan dokumentasi semua dengan detail dan emoji? 📝',
-    dashboardWidgets: ['organization_tools', 'documentation_status', 'executive_calendar', 'task_lists']
+    dashboardWidgets: [
+      'organization_tools',
+      'documentation_status',
+      'executive_calendar',
+      'task_lists',
+    ],
   },
 
   'dea@balizero.com': {
@@ -238,8 +278,13 @@ export const TEAM_MEMBERS = {
     badge: '✨',
     permissions: ['positive_energy', 'team_motivation', 'client_happiness'],
     welcomeMessage: 'Ciao DEA! Ready to spread positive energy dan make everyone smile? ✨',
-    dashboardWidgets: ['team_happiness', 'positive_metrics', 'client_satisfaction', 'energy_tracker']
-  }
+    dashboardWidgets: [
+      'team_happiness',
+      'positive_metrics',
+      'client_satisfaction',
+      'energy_tracker',
+    ],
+  },
 };
 
 // Department Configurations
@@ -248,38 +293,38 @@ export const DEPARTMENTS = {
     name: 'Management & Leadership',
     color: '#6366f1',
     icon: '👑',
-    channels: ['#management', '#strategic-planning', '#leadership']
+    channels: ['#management', '#strategic-planning', '#leadership'],
   },
   setup: {
     name: 'Setup & Operations',
     color: '#10b981',
     icon: '⚡',
-    channels: ['#setup-team', '#operations', '#client-applications']
+    channels: ['#setup-team', '#operations', '#client-applications'],
   },
   tax: {
     name: 'Tax Department',
     color: '#f59e0b',
     icon: '📊',
-    channels: ['#tax-team', '#compliance', '#npwp-processing']
+    channels: ['#tax-team', '#compliance', '#npwp-processing'],
   },
   advisory: {
     name: 'Advisory & Consulting',
     color: '#8b5cf6',
     icon: '🧐',
-    channels: ['#advisory', '#consulting', '#strategy']
+    channels: ['#advisory', '#consulting', '#strategy'],
   },
   marketing: {
     name: 'Marketing & Communications',
     color: '#ef4444',
     icon: '🎤',
-    channels: ['#marketing', '#content-creation', '#campaigns']
+    channels: ['#marketing', '#content-creation', '#campaigns'],
   },
   reception: {
     name: 'Reception & Client Relations',
     color: '#06b6d4',
     icon: '🌸',
-    channels: ['#reception', '#client-relations', '#first-contact']
-  }
+    channels: ['#reception', '#client-relations', '#first-contact'],
+  },
 };
 
 // Role-based permissions
@@ -289,7 +334,7 @@ export const PERMISSIONS = {
   lead: ['project_management', 'team_coordination', 'quality_control'],
   executive: ['strategic_input', 'client_management', 'decision_making'],
   junior: ['task_execution', 'learning_access', 'collaboration_tools'],
-  reception: ['client_interface', 'scheduling', 'first_contact_management']
+  reception: ['client_interface', 'scheduling', 'first_contact_management'],
 };
 
 // Dashboard widgets per role
@@ -317,7 +362,7 @@ export const DASHBOARD_WIDGETS = {
   // Universal widgets
   ai_insights: { name: 'AI Insights', icon: '🧠', department: 'all' },
   team_chat: { name: 'Team Chat', icon: '💬', department: 'all' },
-  knowledge_base: { name: 'Knowledge Base', icon: '📚', department: 'all' }
+  knowledge_base: { name: 'Knowledge Base', icon: '📚', department: 'all' },
 };
 
 // Auto-detection function
@@ -343,7 +388,7 @@ export function generateWelcomeMessage(member, timeOfDay = 'morning') {
   const greetings = {
     morning: 'Good morning',
     afternoon: 'Good afternoon',
-    evening: 'Good evening'
+    evening: 'Good evening',
   };
 
   const greeting = greetings[timeOfDay] || 'Hello';
@@ -352,7 +397,7 @@ export function generateWelcomeMessage(member, timeOfDay = 'morning') {
 
 // Get department members
 export function getDepartmentMembers(department) {
-  return Object.values(TEAM_MEMBERS).filter(member => member.department === department);
+  return Object.values(TEAM_MEMBERS).filter((member) => member.department === department);
 }
 
 // Get user permissions
@@ -362,6 +407,7 @@ export function getUserPermissions(member) {
 
 // Check if user has permission
 export function hasPermission(member, permission) {
-  return getUserPermissions(member).includes(permission) ||
-         getUserPermissions(member).includes('admin');
+  return (
+    getUserPermissions(member).includes(permission) || getUserPermissions(member).includes('admin')
+  );
 }

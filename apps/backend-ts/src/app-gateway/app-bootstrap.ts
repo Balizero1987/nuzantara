@@ -12,22 +12,35 @@ export async function buildBootstrapResponse(args: BootstrapArgs): Promise<Boots
   const csrfToken = crypto.randomBytes(16).toString('hex');
   const schema = {
     version: '1.0',
-    layout: { header: ['app-header'], main: ['view:chat','drawer:tools'] },
+    layout: { header: ['app-header'], main: ['view:chat', 'drawer:tools'] },
     views: {
-      chat: { components: ['timeline','composer'] },
+      chat: { components: ['timeline', 'composer'] },
     },
     components: {
       'app-header': { id: 'app-header', type: 'header', props: { title: 'ZANTARA' } },
       timeline: { id: 'timeline', type: 'timeline' },
-      composer: { id: 'composer', type: 'composer', props: { actions: ['chat_send','tool_run'] } },
+      composer: { id: 'composer', type: 'composer', props: { actions: ['chat_send', 'tool_run'] } },
     },
     designTokens: {},
   } as const;
 
   // Persist session (best-effort in P0)
   try {
-    createSession(sessionId, { user: args.user, origin: args.origin, channel: 'webapp', csrfToken });
-    persistSessionFirestore({ id: sessionId, user: args.user, origin: args.origin, channel: 'webapp', csrfToken, createdAt: Date.now(), ttlMs: 24 * 60 * 60 * 1000 } as any);
+    createSession(sessionId, {
+      user: args.user,
+      origin: args.origin,
+      channel: 'webapp',
+      csrfToken,
+    });
+    persistSessionFirestore({
+      id: sessionId,
+      user: args.user,
+      origin: args.origin,
+      channel: 'webapp',
+      csrfToken,
+      createdAt: Date.now(),
+      ttlMs: 24 * 60 * 60 * 1000,
+    } as any);
   } catch {}
 
   return {

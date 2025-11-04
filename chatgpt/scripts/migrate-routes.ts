@@ -8,7 +8,7 @@
 import { promises as fs } from 'node:fs';
 import { resolve } from 'node:path';
 
-const METHODS = ['get','post','put','patch','delete','options','head','all'] as const;
+const METHODS = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'all'] as const;
 
 async function readFileSafe(path: string) {
   try {
@@ -22,7 +22,7 @@ function extractRoutes(source: string) {
   const results: Array<{ method: string; path: string } & { raw: string; index: number }> = [];
   const methodPattern = METHODS.join('|');
   // eslint-disable-next-line
-  const pattern = "\\bapp\\.(" + methodPattern + ")\\s*\\(\\s*['\\\"`]([^'\\\"`]*)['\\\"`]";
+  const pattern = '\\bapp\\.(' + methodPattern + ')\\s*\\(\\s*[\'\\"`]([^\'\\"`]*)[\'\\"`]';
   const regex = new RegExp(pattern, 'g');
   let m: RegExpExecArray | null;
   while ((m = regex.exec(source))) {
@@ -55,15 +55,18 @@ async function main() {
   const matches = extractRoutes(combined);
   if (!matches.length) {
     // eslint-disable-next-line no-console
-    console.log('No Express-style routes found via regex. Please review your code and migrate manually.');
+    console.log(
+      'No Express-style routes found via regex. Please review your code and migrate manually.'
+    );
     return;
   }
 
   const routeDefs = matches.map(toRouteDef).join(',\n');
-  const out = `// Auto-generated skeleton by scripts/migrate-routes.ts\n`+
-`import { defineRoutes } from '../src/routing/unified-router.js';\n`+
-`import { z } from 'zod';\n\n`+
-`export const migratedRoutes = defineRoutes(\n${routeDefs}\n);\n`;
+  const out =
+    `// Auto-generated skeleton by scripts/migrate-routes.ts\n` +
+    `import { defineRoutes } from '../src/routing/unified-router.js';\n` +
+    `import { z } from 'zod';\n\n` +
+    `export const migratedRoutes = defineRoutes(\n${routeDefs}\n);\n`;
 
   const outDir = resolve('scripts/.migrate');
   await fs.mkdir(outDir, { recursive: true });

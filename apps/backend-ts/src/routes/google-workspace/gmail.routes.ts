@@ -78,10 +78,12 @@ router.post('/read', apiKeyAuth, async (req: RequestWithCtx, res) => {
  */
 router.post('/search', apiKeyAuth, async (req: RequestWithCtx, res) => {
   try {
-    const params = z.object({
-      query: z.string().optional(),
-      maxResults: z.number().optional().default(20),
-    }).parse(req.body);
+    const params = z
+      .object({
+        query: z.string().optional(),
+        maxResults: z.number().optional().default(20),
+      })
+      .parse(req.body);
 
     const result = await gmailHandlers['gmail.search'](params as any);
     return res.json(result);

@@ -9,34 +9,34 @@
  * 4. Lo script partirà automaticamente
  */
 
-console.log("🏛️💰 EXECUTE ROUNDS 1 & 2 - FOUNDATION COMPLETE");
-console.log("📋 Round 1: 15 leggi costituzionali + Round 2: 25 leggi economiche");
-console.log("🎯 Target: Foundation legale ed economica completa (40 leggi)");
+console.log('🏛️💰 EXECUTE ROUNDS 1 & 2 - FOUNDATION COMPLETE');
+console.log('📋 Round 1: 15 leggi costituzionali + Round 2: 25 leggi economiche');
+console.log('🎯 Target: Foundation legale ed economica completa (40 leggi)');
 
 // Funzione per attendere
 function wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // Funzione per caricare script esterno
 function loadScript(scriptContent) {
-    return new Promise((resolve, reject) => {
-        try {
-            eval(scriptContent);
-            resolve();
-        } catch (error) {
-            reject(error);
-        }
-    });
+  return new Promise((resolve, reject) => {
+    try {
+      eval(scriptContent);
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 // Funzione per leggere contenuto file (simulato)
 async function getScriptContent(filename) {
-    console.log(`📖 Loading ${filename}...`);
+  console.log(`📖 Loading ${filename}...`);
 
-    // Round 1 Script Content
-    if (filename === 'ROUND_1') {
-        return `
+  // Round 1 Script Content
+  if (filename === 'ROUND_1') {
+    return `
 const CONSTITUTIONAL_LAWS = [
     { title: "UUD 1945", type: "UUD", keywords: ["UUD", "1945", "Undang-Undang Dasar"] },
     { title: "UU No. 39 Tahun 1999 Hak Asasi Manusia", type: "UU", keywords: ["39", "1999", "Hak Asasi Manusia", "HAM"] },
@@ -87,11 +87,11 @@ async function downloadConstitutionalLaws() {
     return results;
 }
         `;
-    }
+  }
 
-    // Round 2 Script Content
-    else if (filename === 'ROUND_2') {
-        return `
+  // Round 2 Script Content
+  else if (filename === 'ROUND_2') {
+    return `
 const ECONOMIC_CORE_LAWS = [
     { title: "UU No. 7 Tahun 2014 Perdagangan", type: "UU", keywords: ["7", "2014", "Perdagangan"] },
     { title: "UU No. 25 Tahun 2007 Penanaman Modal", type: "UU", keywords: ["25", "2007", "Penanaman Modal"] },
@@ -152,355 +152,355 @@ async function downloadEconomicCoreLaws() {
     return results;
 }
         `;
-    }
+  }
 
-    return '';
+  return '';
 }
 
 // Funzione generica per cercare e scaricare
 async function searchAndDownloadLaw(lawInfo, index, directory) {
-    try {
-        // Naviga alla pagina di ricerca
-        if (!window.location.href.includes('peraturan.bpk.go.id')) {
-            window.location.href = 'https://peraturan.bpk.go.id/Search';
-            await wait(3000);
-        }
-
-        // Cerca il campo di ricerca
-        const searchInput = document.querySelector('input[type="text"], input[name="q"], #search');
-        if (searchInput) {
-            searchInput.value = '';
-            searchInput.focus();
-            searchInput.value = lawInfo.title;
-            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-            await wait(500);
-
-            // Esegui ricerca
-            const searchButton = document.querySelector('button[type="submit"], input[type="submit"]');
-            if (searchButton) {
-                searchButton.click();
-            } else {
-                searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-            }
-            await wait(3000);
-        }
-
-        // Analizza risultati
-        const lawLinks = Array.from(document.querySelectorAll('a[href*="/Detail/"]'));
-
-        if (lawLinks.length === 0) {
-            return {
-                success: false,
-                error: 'Nessun risultato trovato',
-                law: lawInfo,
-                index: index
-            };
-        }
-
-        // Trova il link migliore
-        let bestMatch = null;
-        let bestScore = 0;
-
-        for (const link of lawLinks) {
-            const linkText = link.textContent.toLowerCase();
-            let score = 0;
-
-            for (const keyword of lawInfo.keywords) {
-                if (linkText.includes(keyword.toLowerCase())) {
-                    score += 10;
-                }
-            }
-
-            if (linkText.includes(lawInfo.type.toLowerCase())) {
-                score += 5;
-            }
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestMatch = link;
-            }
-        }
-
-        if (bestMatch && bestScore > 10) {
-            console.log(`   🔗 Trovato: ${bestMatch.textContent.trim()} (score: ${bestScore})`);
-
-            bestMatch.click();
-            await wait(3000);
-
-            const lawContent = extractLawContent(lawInfo, index, directory);
-            saveLawFile(lawContent, index, directory);
-
-            return {
-                success: true,
-                title: lawContent.title,
-                law: lawInfo,
-                index: index,
-                content: lawContent
-            };
-
-        } else {
-            return {
-                success: false,
-                error: `Nessun match trovato (best score: ${bestScore})`,
-                law: lawInfo,
-                index: index,
-                found_results: lawLinks.length
-            };
-        }
-
-    } catch (error) {
-        return {
-            success: false,
-            error: error.message,
-            law: lawInfo,
-            index: index
-        };
+  try {
+    // Naviga alla pagina di ricerca
+    if (!window.location.href.includes('peraturan.bpk.go.id')) {
+      window.location.href = 'https://peraturan.bpk.go.id/Search';
+      await wait(3000);
     }
+
+    // Cerca il campo di ricerca
+    const searchInput = document.querySelector('input[type="text"], input[name="q"], #search');
+    if (searchInput) {
+      searchInput.value = '';
+      searchInput.focus();
+      searchInput.value = lawInfo.title;
+      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+      await wait(500);
+
+      // Esegui ricerca
+      const searchButton = document.querySelector('button[type="submit"], input[type="submit"]');
+      if (searchButton) {
+        searchButton.click();
+      } else {
+        searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      }
+      await wait(3000);
+    }
+
+    // Analizza risultati
+    const lawLinks = Array.from(document.querySelectorAll('a[href*="/Detail/"]'));
+
+    if (lawLinks.length === 0) {
+      return {
+        success: false,
+        error: 'Nessun risultato trovato',
+        law: lawInfo,
+        index: index,
+      };
+    }
+
+    // Trova il link migliore
+    let bestMatch = null;
+    let bestScore = 0;
+
+    for (const link of lawLinks) {
+      const linkText = link.textContent.toLowerCase();
+      let score = 0;
+
+      for (const keyword of lawInfo.keywords) {
+        if (linkText.includes(keyword.toLowerCase())) {
+          score += 10;
+        }
+      }
+
+      if (linkText.includes(lawInfo.type.toLowerCase())) {
+        score += 5;
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = link;
+      }
+    }
+
+    if (bestMatch && bestScore > 10) {
+      console.log(`   🔗 Trovato: ${bestMatch.textContent.trim()} (score: ${bestScore})`);
+
+      bestMatch.click();
+      await wait(3000);
+
+      const lawContent = extractLawContent(lawInfo, index, directory);
+      saveLawFile(lawContent, index, directory);
+
+      return {
+        success: true,
+        title: lawContent.title,
+        law: lawInfo,
+        index: index,
+        content: lawContent,
+      };
+    } else {
+      return {
+        success: false,
+        error: `Nessun match trovato (best score: ${bestScore})`,
+        law: lawInfo,
+        index: index,
+        found_results: lawLinks.length,
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message,
+      law: lawInfo,
+      index: index,
+    };
+  }
 }
 
 // Estrai contenuto
 function extractLawContent(lawInfo, index, directory) {
-    const content = {
-        id: index,
-        title: '',
-        type: lawInfo.type,
-        number: '',
-        year: '',
-        status: '',
-        content: '',
-        url: window.location.href,
-        metadata: {},
-        scraped_at: new Date().toISOString(),
-        keywords: lawInfo.keywords,
-        search_info: lawInfo,
-        directory: directory
-    };
+  const content = {
+    id: index,
+    title: '',
+    type: lawInfo.type,
+    number: '',
+    year: '',
+    status: '',
+    content: '',
+    url: window.location.href,
+    metadata: {},
+    scraped_at: new Date().toISOString(),
+    keywords: lawInfo.keywords,
+    search_info: lawInfo,
+    directory: directory,
+  };
 
-    // Estrai titolo
-    const titleElements = document.querySelectorAll('h1, .title, .judul');
-    for (const element of titleElements) {
-        const text = element.textContent.trim();
-        if (text.length > 10) {
-            content.title = text;
-            break;
-        }
+  // Estrai titolo
+  const titleElements = document.querySelectorAll('h1, .title, .judul');
+  for (const element of titleElements) {
+    const text = element.textContent.trim();
+    if (text.length > 10) {
+      content.title = text;
+      break;
     }
+  }
 
-    // Estrai numero e anno
-    const pageText = document.body.textContent;
-    const numberMatch = pageText.match(/No\.?\s*(\d+)/i);
-    const yearMatch = pageText.match(/(19|20)\d{2}/);
+  // Estrai numero e anno
+  const pageText = document.body.textContent;
+  const numberMatch = pageText.match(/No\.?\s*(\d+)/i);
+  const yearMatch = pageText.match(/(19|20)\d{2}/);
 
-    if (numberMatch) content.number = numberMatch[1];
-    if (yearMatch) content.year = yearMatch[1];
+  if (numberMatch) content.number = numberMatch[1];
+  if (yearMatch) content.year = yearMatch[1];
 
-    // Estrai status
-    if (pageText.includes('Berlaku')) content.status = 'BERLAKU';
-    else if (pageText.includes('Dicabut')) content.status = 'DICABUT';
-    else if (pageText.includes('Tidak Berlaku')) content.status = 'TIDAK_BERLAKU';
-    else content.status = 'UNKNOWN';
+  // Estrai status
+  if (pageText.includes('Berlaku')) content.status = 'BERLAKU';
+  else if (pageText.includes('Dicabut')) content.status = 'DICABUT';
+  else if (pageText.includes('Tidak Berlaku')) content.status = 'TIDAK_BERLAKU';
+  else content.status = 'UNKNOWN';
 
-    // Estrai contenuto
-    const contentSelectors = [
-        'div[class*="content"]',
-        'div[class*="isi"]',
-        'div[class*="detail"]',
-        'main',
-        'article'
-    ];
+  // Estrai contenuto
+  const contentSelectors = [
+    'div[class*="content"]',
+    'div[class*="isi"]',
+    'div[class*="detail"]',
+    'main',
+    'article',
+  ];
 
-    let bestContent = '';
-    for (const selector of contentSelectors) {
-        const element = document.querySelector(selector);
-        if (element) {
-            const text = element.textContent.trim();
-            if (text.length > bestContent.length) {
-                bestContent = text;
-            }
-        }
+  let bestContent = '';
+  for (const selector of contentSelectors) {
+    const element = document.querySelector(selector);
+    if (element) {
+      const text = element.textContent.trim();
+      if (text.length > bestContent.length) {
+        bestContent = text;
+      }
     }
+  }
 
-    if (bestContent.length < 500) {
-        bestContent = document.body.textContent;
-    }
+  if (bestContent.length < 500) {
+    bestContent = document.body.textContent;
+  }
 
-    content.content = bestContent.substring(0, 10000);
+  content.content = bestContent.substring(0, 10000);
 
-    return content;
+  return content;
 }
 
 // Salva file
 function saveLawFile(lawContent, index, directory) {
-    const filename = `${directory}/UU_${lawContent.number || 'Unknown'}_${lawContent.year || 'Unknown'}_${index.toString().padStart(2, '0')}_${Date.now()}.json`;
+  const filename = `${directory}/UU_${lawContent.number || 'Unknown'}_${lawContent.year || 'Unknown'}_${index.toString().padStart(2, '0')}_${Date.now()}.json`;
 
-    const dataStr = JSON.stringify(lawContent, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+  const dataStr = JSON.stringify(lawContent, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 
-    URL.revokeObjectURL(url);
-    console.log(`   📁 Salvato: ${filename}`);
+  URL.revokeObjectURL(url);
+  console.log(`   📁 Salvato: ${filename}`);
 }
 
 // Salva riepilogo
 function saveRoundSummary(results, directory, description) {
-    const summaryFilename = `${directory}/SUMMARY_${Date.now()}.json`;
+  const summaryFilename = `${directory}/SUMMARY_${Date.now()}.json`;
 
-    const summaryData = {
-        ...results,
-        round_info: {
-            name: description,
-            directory: directory,
-            total_planned: results.laws.length,
-            success_rate: `${((results.success_count / results.laws.length) * 100).toFixed(1)}%`
-        }
-    };
+  const summaryData = {
+    ...results,
+    round_info: {
+      name: description,
+      directory: directory,
+      total_planned: results.laws.length,
+      success_rate: `${((results.success_count / results.laws.length) * 100).toFixed(1)}%`,
+    },
+  };
 
-    const dataStr = JSON.stringify(summaryData, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+  const dataStr = JSON.stringify(summaryData, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = summaryFilename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = summaryFilename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 
-    URL.revokeObjectURL(url);
+  URL.revokeObjectURL(url);
 }
 
 // Esecuzione principale
 async function executeRounds1and2() {
-    console.log("🚀 INIZIO EXECUTION ROUNDS 1 & 2");
-    console.log("📊 Target: 40 leggi fondamentali (15 costituzionali + 25 economiche)");
-    console.log("⏰ Orario inizio: " + new Date().toLocaleString());
+  console.log('🚀 INIZIO EXECUTION ROUNDS 1 & 2');
+  console.log('📊 Target: 40 leggi fondamentali (15 costituzionali + 25 economiche)');
+  console.log('⏰ Orario inizio: ' + new Date().toLocaleString());
 
-    const overallResults = {
-        started_at: new Date().toISOString(),
-        rounds: {},
-        total_success: 0,
-        total_error: 0
-    };
+  const overallResults = {
+    started_at: new Date().toISOString(),
+    rounds: {},
+    total_success: 0,
+    total_error: 0,
+  };
 
-    // ESEGUI ROUND 1
-    console.log("\n" + "=".repeat(60));
-    console.log("🏛️ ROUND 1: PILASTRI COSTITUZIONALI");
-    console.log("=".repeat(60));
+  // ESEGUI ROUND 1
+  console.log('\n' + '='.repeat(60));
+  console.log('🏛️ ROUND 1: PILASTRI COSTITUZIONALI');
+  console.log('='.repeat(60));
 
-    const round1Script = await getScriptContent('ROUND_1');
-    eval(round1Script);
+  const round1Script = await getScriptContent('ROUND_1');
+  eval(round1Script);
 
-    const round1Results = await downloadConstitutionalLaws();
-    overallResults.rounds.ROUND_1 = round1Results;
-    overallResults.total_success += round1Results.success_count;
-    overallResults.total_error += round1Results.error_count;
+  const round1Results = await downloadConstitutionalLaws();
+  overallResults.rounds.ROUND_1 = round1Results;
+  overallResults.total_success += round1Results.success_count;
+  overallResults.total_error += round1Results.error_count;
 
-    console.log(`\n🎉 ROUND 1 COMPLETATO!`);
-    console.log(`✅ Successi: ${round1Results.success_count}/15`);
-    console.log(`❌ Errori: ${round1Results.error_count}/15`);
+  console.log(`\n🎉 ROUND 1 COMPLETATO!`);
+  console.log(`✅ Successi: ${round1Results.success_count}/15`);
+  console.log(`❌ Errori: ${round1Results.error_count}/15`);
 
-    // Pausa tra i round
-    console.log("\n⏸️ Pausa di 10 secondi prima di Round 2...");
-    await wait(10000);
+  // Pausa tra i round
+  console.log('\n⏸️ Pausa di 10 secondi prima di Round 2...');
+  await wait(10000);
 
-    // ESEGUI ROUND 2
-    console.log("\n" + "=".repeat(60));
-    console.log("💰 ROUND 2: ECONOMIC CORE LEGISLATION");
-    console.log("=".repeat(60));
+  // ESEGUI ROUND 2
+  console.log('\n' + '='.repeat(60));
+  console.log('💰 ROUND 2: ECONOMIC CORE LEGISLATION');
+  console.log('='.repeat(60));
 
-    const round2Script = await getScriptContent('ROUND_2');
-    eval(round2Script);
+  const round2Script = await getScriptContent('ROUND_2');
+  eval(round2Script);
 
-    const round2Results = await downloadEconomicCoreLaws();
-    overallResults.rounds.ROUND_2 = round2Results;
-    overallResults.total_success += round2Results.success_count;
-    overallResults.total_error += round2Results.error_count;
+  const round2Results = await downloadEconomicCoreLaws();
+  overallResults.rounds.ROUND_2 = round2Results;
+  overallResults.total_success += round2Results.success_count;
+  overallResults.total_error += round2Results.error_count;
 
-    console.log(`\n🎉 ROUND 2 COMPLETATO!`);
-    console.log(`✅ Successi: ${round2Results.success_count}/25`);
-    console.log(`❌ Errori: ${round2Results.error_count}/25`);
+  console.log(`\n🎉 ROUND 2 COMPLETATO!`);
+  console.log(`✅ Successi: ${round2Results.success_count}/25`);
+  console.log(`❌ Errori: ${round2Results.error_count}/25`);
 
-    // RIEPILOGO FINALE
-    overallResults.completed_at = new Date().toISOString();
-    overallResults.total_duration = Math.round((new Date(overallResults.completed_at) - new Date(overallResults.started_at)) / 1000);
-    overallResults.total_laws = 40;
-    overallResults.overall_success_rate = `${((overallResults.total_success / overallResults.total_laws) * 100).toFixed(1)}%`;
+  // RIEPILOGO FINALE
+  overallResults.completed_at = new Date().toISOString();
+  overallResults.total_duration = Math.round(
+    (new Date(overallResults.completed_at) - new Date(overallResults.started_at)) / 1000
+  );
+  overallResults.total_laws = 40;
+  overallResults.overall_success_rate = `${((overallResults.total_success / overallResults.total_laws) * 100).toFixed(1)}%`;
 
-    // Salva riepilogo combinato
-    saveCombinedSummary(overallResults);
+  // Salva riepilogo combinato
+  saveCombinedSummary(overallResults);
 
-    console.log("\n" + "🎉".repeat(30));
-    console.log("🏆 ROUNDS 1 & 2 COMPLETATI!");
-    console.log("🎉".repeat(30));
-    console.log(`📊 Statistiche Finali:`);
-    console.log(`   ✅ Successi totali: ${overallResults.total_success}/40`);
-    console.log(`   ❌ Errori totali: ${overallResults.total_error}/40`);
-    console.log(`   📈 Success rate: ${overallResults.overall_success_rate}`);
-    console.log(`   ⏱️ Durata totale: ${overallResults.total_duration} secondi`);
-    console.log(`   📁 Directory: ROUND_1_Constitutional + ROUND_2_Economic_Core`);
-    console.log(`\n💡 Risultato:`);
-    console.log(`   🏛️ Foundation legale completa (costituzionale)`);
-    console.log(`   💰 Foundation economica completa (business)`);
-    console.log(`   🎯 Base solida per business in Indonesia!`);
-    console.log(`\n🚀 Prossimo passi consigliati:`);
-    console.log(`   1. Verifica i file scaricati`);
-    console.log(`   2. Procedi con Round 3 (Regulatory Framework)`);
-    console.log(`   3. Integra con sistema di ricerca`);
+  console.log('\n' + '🎉'.repeat(30));
+  console.log('🏆 ROUNDS 1 & 2 COMPLETATI!');
+  console.log('🎉'.repeat(30));
+  console.log(`📊 Statistiche Finali:`);
+  console.log(`   ✅ Successi totali: ${overallResults.total_success}/40`);
+  console.log(`   ❌ Errori totali: ${overallResults.total_error}/40`);
+  console.log(`   📈 Success rate: ${overallResults.overall_success_rate}`);
+  console.log(`   ⏱️ Durata totale: ${overallResults.total_duration} secondi`);
+  console.log(`   📁 Directory: ROUND_1_Constitutional + ROUND_2_Economic_Core`);
+  console.log(`\n💡 Risultato:`);
+  console.log(`   🏛️ Foundation legale completa (costituzionale)`);
+  console.log(`   💰 Foundation economica completa (business)`);
+  console.log(`   🎯 Base solida per business in Indonesia!`);
+  console.log(`\n🚀 Prossimo passi consigliati:`);
+  console.log(`   1. Verifica i file scaricati`);
+  console.log(`   2. Procedi con Round 3 (Regulatory Framework)`);
+  console.log(`   3. Integra con sistema di ricerca`);
 
-    return overallResults;
+  return overallResults;
 }
 
 // Salva riepilogo combinato
 function saveCombinedSummary(results) {
-    const filename = `FOUNDATION_COMPLETE_SUMMARY_${Date.now()}.json`;
+  const filename = `FOUNDATION_COMPLETE_SUMMARY_${Date.now()}.json`;
 
-    const summaryData = {
-        ...results,
-        foundation_summary: {
-            constitutional_laws: results.rounds.ROUND_1?.success_count || 0,
-            economic_laws: results.rounds.ROUND_2?.success_count || 0,
-            total_foundation: results.total_success,
-            foundation_type: "Complete Legal & Economic Foundation",
-            business_ready: results.total_success >= 30,
-            coverage_percentage: overallResults.overall_success_rate
-        },
-        next_steps: [
-            "Verifica tutti i file nella cartella Downloads",
-            "Procedi con Round 3: Regulatory Framework (30 leggi)",
-            "Integra sistema di ricerca avanzato",
-            "Considera aggiunta giurisprudenza"
-        ]
-    };
+  const summaryData = {
+    ...results,
+    foundation_summary: {
+      constitutional_laws: results.rounds.ROUND_1?.success_count || 0,
+      economic_laws: results.rounds.ROUND_2?.success_count || 0,
+      total_foundation: results.total_success,
+      foundation_type: 'Complete Legal & Economic Foundation',
+      business_ready: results.total_success >= 30,
+      coverage_percentage: overallResults.overall_success_rate,
+    },
+    next_steps: [
+      'Verifica tutti i file nella cartella Downloads',
+      'Procedi con Round 3: Regulatory Framework (30 leggi)',
+      'Integra sistema di ricerca avanzato',
+      'Considera aggiunta giurisprudenza',
+    ],
+  };
 
-    const dataStr = JSON.stringify(summaryData, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
+  const dataStr = JSON.stringify(summaryData, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 
-    URL.revokeObjectURL(url);
-    console.log(`📊 Riepilogo completo salvato: ${filename}`);
+  URL.revokeObjectURL(url);
+  console.log(`📊 Riepilogo completo salvato: ${filename}`);
 }
 
 // Avvio automatico
-console.log("\n⚡ Avvio automatico Rounds 1 & 2 tra 3 secondi...");
-console.log("📋 Saranno scaricate 40 leggi fondamentali");
-console.log("⏱️ Durata stimata: 15-25 minuti");
+console.log('\n⚡ Avvio automatico Rounds 1 & 2 tra 3 secondi...');
+console.log('📋 Saranno scaricate 40 leggi fondamentali');
+console.log('⏱️ Durata stimata: 15-25 minuti');
 
 setTimeout(() => {
-    executeRounds1and2().catch(error => {
-        console.error("❌ Errore fatale durante l'esecuzione:", error);
-    });
+  executeRounds1and2().catch((error) => {
+    console.error("❌ Errore fatale durante l'esecuzione:", error);
+  });
 }, 3000);

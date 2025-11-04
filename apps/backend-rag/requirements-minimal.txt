@@ -10,7 +10,7 @@ python-multipart==0.0.6
 chromadb==1.1.1
 qdrant-client==1.7.0
 
-# AI & Embeddings - OpenAI ONLY (no torch/sentence-transformers)
+# AI & Embeddings - OpenAI only (sentence-transformers too large for Fly.io 8GB limit)
 openai==2.6.1
 # HTTP client shared by OpenAI + Chroma. Keep >=0.27 for Chroma compatibility.
 httpx>=0.27.0

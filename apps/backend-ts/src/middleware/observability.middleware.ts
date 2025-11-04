@@ -13,7 +13,7 @@ const register = new promClient.Registry();
 promClient.collectDefaultMetrics({
   register,
   prefix: 'zantara_backend_',
-  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5]
+  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
 });
 
 // Custom metrics
@@ -21,7 +21,7 @@ const httpRequestsTotal = new promClient.Counter({
   name: 'zantara_backend_http_requests_total',
   help: 'Total number of HTTP requests',
   labelNames: ['method', 'route', 'status'],
-  registers: [register]
+  registers: [register],
 });
 
 const httpRequestDuration = new promClient.Histogram({
@@ -29,46 +29,46 @@ const httpRequestDuration = new promClient.Histogram({
   help: 'Duration of HTTP requests in seconds',
   labelNames: ['method', 'route', 'status'],
   buckets: [0.003, 0.01, 0.05, 0.1, 0.3, 0.5, 1, 2, 5],
-  registers: [register]
+  registers: [register],
 });
 
 const activeRequests = new promClient.Gauge({
   name: 'zantara_backend_active_requests',
   help: 'Number of active requests',
-  registers: [register]
+  registers: [register],
 });
 
 const httpResponseSize = new promClient.Summary({
   name: 'zantara_backend_http_response_size_bytes',
   help: 'Size of HTTP responses in bytes',
   labelNames: ['method', 'route'],
-  registers: [register]
+  registers: [register],
 });
 
 // Cache metrics
 const cacheHits = new promClient.Counter({
   name: 'zantara_backend_cache_hits_total',
   help: 'Total number of cache hits',
-  registers: [register]
+  registers: [register],
 });
 
 const cacheMisses = new promClient.Counter({
   name: 'zantara_backend_cache_misses_total',
   help: 'Total number of cache misses',
-  registers: [register]
+  registers: [register],
 });
 
 // Process metrics
 const cpuUserSeconds = new promClient.Gauge({
   name: 'nodejs_cpu_user_seconds_total',
   help: 'Total user CPU time spent by the Node.js process in seconds',
-  registers: [register]
+  registers: [register],
 });
 
 const residentMemoryBytes = new promClient.Gauge({
   name: 'process_resident_memory_bytes',
   help: 'Resident set size (RSS) memory used by the Node.js process in bytes',
-  registers: [register]
+  registers: [register],
 });
 
 function updateProcessMetrics() {
@@ -90,7 +90,7 @@ export function metricsMiddleware(req: Request, res: Response, next: NextFunctio
 
   // Hook into response
   const originalSend = res.send;
-  res.send = function(data: any) {
+  res.send = function (data: any) {
     const duration = (Date.now() - start) / 1000;
 
     // Track metrics
@@ -114,7 +114,7 @@ export function metricsMiddleware(req: Request, res: Response, next: NextFunctio
 }
 
 // Metrics endpoint handler
-export async function metricsHandler(req: Request, res: Response) {
+export async function metricsHandler(_req: Request, res: Response) {
   try {
     res.set('Content-Type', register.contentType);
     const metrics = await register.metrics();
@@ -125,4 +125,12 @@ export async function metricsHandler(req: Request, res: Response) {
 }
 
 // Export metrics objects for external use
-export { register, httpRequestsTotal, httpRequestDuration, cacheHits, cacheMisses, cpuUserSeconds, residentMemoryBytes };
+export {
+  register,
+  httpRequestsTotal,
+  httpRequestDuration,
+  cacheHits,
+  cacheMisses,
+  cpuUserSeconds,
+  residentMemoryBytes,
+};

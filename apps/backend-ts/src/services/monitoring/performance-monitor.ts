@@ -41,7 +41,7 @@ export class PerformanceMonitor {
   private alertThresholds = {
     responseTime: 5000, // 5 seconds
     errorRate: 0.05, // 5%
-    cacheHitRate: 0.5  // 50% minimum
+    cacheHitRate: 0.5, // 50% minimum
   };
 
   static getInstance(): PerformanceMonitor {
@@ -76,7 +76,7 @@ export class PerformanceMonitor {
       logger.warn(`🐌 Slow request detected: ${metrics.endpoint} - ${metrics.responseTime}ms`, {
         requestId: metrics.requestId,
         cached: metrics.cached,
-        domainTimes: metrics.domainTimes
+        domainTimes: metrics.domainTimes,
       });
     }
 
@@ -84,7 +84,7 @@ export class PerformanceMonitor {
     if (metrics.cached && metrics.cacheHitTime) {
       logger.debug(`🎯 Cache hit: ${metrics.endpoint} - ${metrics.cacheHitTime}ms`, {
         requestId: metrics.requestId,
-        cacheRatio: metrics.cacheHitTime / metrics.responseTime
+        cacheRatio: metrics.cacheHitTime / metrics.responseTime,
       });
     }
   }
@@ -96,9 +96,8 @@ export class PerformanceMonitor {
     const now = Date.now();
     const timeWindow = timeWindowMinutes * 60 * 1000;
 
-    const recentMetrics = this.metrics.filter(m =>
-      m.endpoint === endpoint &&
-      (now - m.timestamp) <= timeWindow
+    const recentMetrics = this.metrics.filter(
+      (m) => m.endpoint === endpoint && now - m.timestamp <= timeWindow
     );
 
     if (recentMetrics.length === 0) {
@@ -111,24 +110,25 @@ export class PerformanceMonitor {
         cacheHitRate: 0,
         errorRate: 0,
         requestsPerMinute: 0,
-        lastUpdated: now
+        lastUpdated: now,
       };
     }
 
-    const responseTimes = recentMetrics.map(m => m.responseTime).sort((a, b) => a - b);
-    const cacheHits = recentMetrics.filter(m => m.cached).length;
-    const errors = recentMetrics.filter(m => m.statusCode >= 400).length;
+    const responseTimes = recentMetrics.map((m) => m.responseTime).sort((a, b) => a - b);
+    const cacheHits = recentMetrics.filter((m) => m.cached).length;
+    const errors = recentMetrics.filter((m) => m.statusCode >= 400).length;
 
     return {
       endpoint,
       totalRequests: recentMetrics.length,
-      averageResponseTime: responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length,
+      averageResponseTime:
+        responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length,
       p95ResponseTime: responseTimes[Math.floor(responseTimes.length * 0.95)] || 0,
       p99ResponseTime: responseTimes[Math.floor(responseTimes.length * 0.99)] || 0,
       cacheHitRate: cacheHits / recentMetrics.length,
       errorRate: errors / recentMetrics.length,
       requestsPerMinute: recentMetrics.length / timeWindowMinutes,
-      lastUpdated: now
+      lastUpdated: now,
     };
   }
 
@@ -142,12 +142,12 @@ export class PerformanceMonitor {
       '/api/v3/zantara/ecosystem',
       '/zantara.unified',
       '/zantara.collective',
-      '/zantara.ecosystem'
+      '/zantara.ecosystem',
     ];
 
     const results: { [endpoint: string]: AggregatedMetrics } = {};
 
-    v3Endpoints.forEach(endpoint => {
+    v3Endpoints.forEach((endpoint) => {
       results[endpoint] = this.getAggregatedMetrics(endpoint, timeWindowMinutes);
     });
 
@@ -161,9 +161,16 @@ export class PerformanceMonitor {
     const v3Metrics = this.getV3Metrics(timeWindowMinutes);
 
     const totalRequests = Object.values(v3Metrics).reduce((sum, m) => sum + m.totalRequests, 0);
-    const avgResponseTime = Object.values(v3Metrics).reduce((sum, m) => sum + m.averageResponseTime, 0) / Object.keys(v3Metrics).length;
-    const avgCacheHitRate = Object.values(v3Metrics).reduce((sum, m) => sum + m.cacheHitRate, 0) / Object.keys(v3Metrics).length;
-    const totalErrors = Object.values(v3Metrics).reduce((sum, m) => sum + (m.errorRate * m.totalRequests), 0);
+    const avgResponseTime =
+      Object.values(v3Metrics).reduce((sum, m) => sum + m.averageResponseTime, 0) /
+      Object.keys(v3Metrics).length;
+    const avgCacheHitRate =
+      Object.values(v3Metrics).reduce((sum, m) => sum + m.cacheHitRate, 0) /
+      Object.keys(v3Metrics).length;
+    const totalErrors = Object.values(v3Metrics).reduce(
+      (sum, m) => sum + m.errorRate * m.totalRequests,
+      0
+    );
 
     // Get domain-specific performance
     const domainPerformance = this.getDomainPerformance(timeWindowMinutes);
@@ -174,13 +181,15 @@ export class PerformanceMonitor {
         averageResponseTime: Math.round(avgResponseTime),
         cacheHitRate: Math.round(avgCacheHitRate * 100) / 100,
         errorRate: totalRequests > 0 ? Math.round((totalErrors / totalRequests) * 100) / 100 : 0,
-        requestsPerMinute: Math.round(Object.values(v3Metrics).reduce((sum, m) => sum + m.requestsPerMinute, 0))
+        requestsPerMinute: Math.round(
+          Object.values(v3Metrics).reduce((sum, m) => sum + m.requestsPerMinute, 0)
+        ),
       },
       endpoints: v3Metrics,
       domainPerformance,
       alerts: this.getActiveAlerts(),
       health: this.calculateHealthScore(v3Metrics),
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 
@@ -191,13 +200,13 @@ export class PerformanceMonitor {
     const now = Date.now();
     const timeWindow = timeWindowMinutes * 60 * 1000;
 
-    const recentMetrics = this.metrics.filter(m =>
-      (now - m.timestamp) <= timeWindow && m.domainTimes
+    const recentMetrics = this.metrics.filter(
+      (m) => now - m.timestamp <= timeWindow && m.domainTimes
     );
 
     const domainTimes: { [domain: string]: number[] } = {};
 
-    recentMetrics.forEach(metric => {
+    recentMetrics.forEach((metric) => {
       if (metric.domainTimes) {
         Object.entries(metric.domainTimes).forEach(([domain, time]) => {
           if (!domainTimes[domain]) {
@@ -215,7 +224,7 @@ export class PerformanceMonitor {
         count: times.length,
         average: Math.round(times.reduce((sum, time) => sum + time, 0) / times.length),
         p95: times[Math.floor(times.length * 0.95)] || 0,
-        p99: times[Math.floor(times.length * 0.99)] || 0
+        p99: times[Math.floor(times.length * 0.99)] || 0,
       };
     });
 
@@ -239,7 +248,7 @@ export class PerformanceMonitor {
             endpoint,
             value: metrics.averageResponseTime,
             threshold: this.alertThresholds.responseTime,
-            message: `High response time: ${Math.round(metrics.averageResponseTime)}ms`
+            message: `High response time: ${Math.round(metrics.averageResponseTime)}ms`,
           });
         }
 
@@ -251,19 +260,22 @@ export class PerformanceMonitor {
             endpoint,
             value: Math.round(metrics.errorRate * 100),
             threshold: Math.round(this.alertThresholds.errorRate * 100),
-            message: `High error rate: ${Math.round(metrics.errorRate * 100)}%`
+            message: `High error rate: ${Math.round(metrics.errorRate * 100)}%`,
           });
         }
 
         // Cache hit rate alert
-        if (metrics.cacheHitRate < this.alertThresholds.cacheHitRate && metrics.totalRequests > 10) {
+        if (
+          metrics.cacheHitRate < this.alertThresholds.cacheHitRate &&
+          metrics.totalRequests > 10
+        ) {
           alerts.push({
             type: 'cache_hit_rate',
             severity: 'warning',
             endpoint,
             value: Math.round(metrics.cacheHitRate * 100),
             threshold: Math.round(this.alertThresholds.cacheHitRate * 100),
-            message: `Low cache hit rate: ${Math.round(metrics.cacheHitRate * 100)}%`
+            message: `Low cache hit rate: ${Math.round(metrics.cacheHitRate * 100)}%`,
           });
         }
       }
@@ -282,7 +294,8 @@ export class PerformanceMonitor {
     let score = 100;
 
     // Response time impact (40% weight)
-    const avgResponseTime = metrics.reduce((sum, m) => sum + m.averageResponseTime, 0) / metrics.length;
+    const avgResponseTime =
+      metrics.reduce((sum, m) => sum + m.averageResponseTime, 0) / metrics.length;
     if (avgResponseTime > 1000) score -= 40;
     else if (avgResponseTime > 500) score -= 20;
     else if (avgResponseTime > 200) score -= 10;
@@ -312,26 +325,35 @@ export class PerformanceMonitor {
   private checkAlerts(metrics: PerformanceMetrics): void {
     // Immediate critical alerts
     if (metrics.responseTime > 30000) {
-      logger.error('🚨 CRITICAL: Extremely slow request: ${metrics.endpoint} - ${metrics.responseTime}ms', undefined, {
-        requestId: metrics.requestId,
-        cached: metrics.cached
-      });
+      logger.error(
+        '🚨 CRITICAL: Extremely slow request: ${metrics.endpoint} - ${metrics.responseTime}ms',
+        undefined,
+        {
+          requestId: metrics.requestId,
+          cached: metrics.cached,
+        }
+      );
     }
 
     if (metrics.statusCode >= 500) {
-      logger.error('🚨 CRITICAL: Server error: ${metrics.endpoint} - ${metrics.statusCode}', undefined, {
-        requestId: metrics.requestId
-      });
+      logger.error(
+        '🚨 CRITICAL: Server error: ${metrics.endpoint} - ${metrics.statusCode}',
+        undefined,
+        {
+          requestId: metrics.requestId,
+        }
+      );
     }
   }
 
   /**
    * Clear old metrics
    */
-  clearMetrics(olderThanMinutes: number = 1440): void { // Default 24 hours
-    const cutoff = Date.now() - (olderThanMinutes * 60 * 1000);
+  clearMetrics(olderThanMinutes: number = 1440): void {
+    // Default 24 hours
+    const cutoff = Date.now() - olderThanMinutes * 60 * 1000;
     const beforeCount = this.metrics.length;
-    this.metrics = this.metrics.filter(m => m.timestamp > cutoff);
+    this.metrics = this.metrics.filter((m) => m.timestamp > cutoff);
     const cleared = beforeCount - this.metrics.length;
 
     if (cleared > 0) {

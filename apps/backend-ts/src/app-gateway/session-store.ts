@@ -1,7 +1,16 @@
 import { logger } from '../logging/unified-logger.js';
 import { getFirestore } from '../services/firebase.js';
 
-interface SessionRecord { id: string; user?: string; origin?: string; channel?: string; csrfToken?: string; user_role?: string; createdAt: number; ttlMs: number }
+interface SessionRecord {
+  id: string;
+  user?: string;
+  origin?: string;
+  channel?: string;
+  csrfToken?: string;
+  user_role?: string;
+  createdAt: number;
+  ttlMs: number;
+}
 
 const inMem = new Map<string, SessionRecord>();
 const CLEANUP_MS = 60_000;
@@ -21,8 +30,16 @@ export function createSession(id: string, opt: Partial<SessionRecord>) {
     instagram: 15 * 60 * 1000,
     telegram: 60 * 60 * 1000,
   };
-  const ttl = ttlDefaults[(opt.channel || 'webapp')] || ttlDefaults.webapp;
-  const rec: SessionRecord = { id, user: opt.user, origin: opt.origin, channel: opt.channel, csrfToken: opt.csrfToken, createdAt: Date.now(), ttlMs: ttl ?? 0 };
+  const ttl = ttlDefaults[opt.channel || 'webapp'] || ttlDefaults.webapp;
+  const rec: SessionRecord = {
+    id,
+    user: opt.user,
+    origin: opt.origin,
+    channel: opt.channel,
+    csrfToken: opt.csrfToken,
+    createdAt: Date.now(),
+    ttlMs: ttl ?? 0,
+  };
   inMem.set(id, rec);
   return rec;
 }

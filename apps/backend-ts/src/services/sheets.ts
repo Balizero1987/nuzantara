@@ -26,13 +26,13 @@ export interface AppendDataParams {
 export async function createSpreadsheet(auth: any, params: CreateSheetParams) {
   try {
     const sheets = google.sheets({ version: 'v4', auth });
-    
+
     const response = await sheets.spreadsheets.create({
       requestBody: {
         properties: {
-          title: params.title
-        }
-      }
+          title: params.title,
+        },
+      },
     });
 
     const spreadsheetId = response.data.spreadsheetId!;
@@ -44,8 +44,8 @@ export async function createSpreadsheet(auth: any, params: CreateSheetParams) {
         range: 'Sheet1!A1',
         valueInputOption: 'USER_ENTERED',
         requestBody: {
-          values: [params.headers]
-        }
+          values: [params.headers],
+        },
       });
     }
 
@@ -57,8 +57,8 @@ export async function createSpreadsheet(auth: any, params: CreateSheetParams) {
         range: `Sheet1!A${startRow}`,
         valueInputOption: 'USER_ENTERED',
         requestBody: {
-          values: params.data
-        }
+          values: params.data,
+        },
       });
     }
 
@@ -66,7 +66,7 @@ export async function createSpreadsheet(auth: any, params: CreateSheetParams) {
       spreadsheetId: response.data.spreadsheetId,
       spreadsheetUrl: response.data.spreadsheetUrl,
       title: response.data.properties?.title,
-      created: true
+      created: true,
     };
   } catch (error: any) {
     throw new BridgeError(`SHEETS_CREATE_ERROR: Failed to create spreadsheet: ${error.message}`);
@@ -85,8 +85,8 @@ export async function appendData(auth: any, params: AppendDataParams) {
       range: params.range,
       valueInputOption: params.valueInputOption || 'USER_ENTERED',
       requestBody: {
-        values: params.values
-      }
+        values: params.values,
+      },
     });
 
     return {
@@ -94,7 +94,7 @@ export async function appendData(auth: any, params: AppendDataParams) {
       updatedRange: response.data.updates?.updatedRange,
       updatedRows: response.data.updates?.updatedRows,
       updatedColumns: response.data.updates?.updatedColumns,
-      updatedCells: response.data.updates?.updatedCells
+      updatedCells: response.data.updates?.updatedCells,
     };
   } catch (error: any) {
     throw new BridgeError(`SHEETS_APPEND_ERROR: Failed to append data: ${error.message}`);
@@ -104,18 +104,22 @@ export async function appendData(auth: any, params: AppendDataParams) {
 /**
  * Read data from spreadsheet
  */
-export async function readData(auth: any, spreadsheetId: string, range: string): Promise<SheetData> {
+export async function readData(
+  auth: any,
+  spreadsheetId: string,
+  range: string
+): Promise<SheetData> {
   try {
     const sheets = google.sheets({ version: 'v4', auth });
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range
+      range,
     });
 
     return {
       range: response.data.range || range,
-      values: response.data.values || []
+      values: response.data.values || [],
     };
   } catch (error: any) {
     throw new BridgeError(`SHEETS_READ_ERROR: Failed to read data: ${error.message}`);
@@ -131,7 +135,7 @@ export async function getSpreadsheetInfo(auth: any, spreadsheetId: string) {
 
     const response = await sheets.spreadsheets.get({
       spreadsheetId,
-      fields: 'properties,sheets.properties'
+      fields: 'properties,sheets.properties',
     });
 
     return {
@@ -139,11 +143,11 @@ export async function getSpreadsheetInfo(auth: any, spreadsheetId: string) {
       title: response.data.properties?.title,
       locale: response.data.properties?.locale,
       timeZone: response.data.properties?.timeZone,
-      sheets: response.data.sheets?.map(sheet => ({
+      sheets: response.data.sheets?.map((sheet) => ({
         title: sheet.properties?.title,
         sheetId: sheet.properties?.sheetId,
-        index: sheet.properties?.index
-      }))
+        index: sheet.properties?.index,
+      })),
     };
   } catch (error: any) {
     throw new BridgeError(`SHEETS_INFO_ERROR: Failed to get spreadsheet info: ${error.message}`);
@@ -156,40 +160,42 @@ export async function getSpreadsheetInfo(auth: any, spreadsheetId: string) {
 export async function exportConversationData(auth: any, conversationData: any[]) {
   try {
     const title = `Zantara Conversations Export - ${new Date().toISOString().split('T')[0]}`;
-    
+
     const headers = [
       'Timestamp',
-      'User ID', 
+      'User ID',
       'Message',
       'Response',
       'Profile Facts',
       'Summary Updated',
-      'Session Duration'
+      'Session Duration',
     ];
 
-    const rows = conversationData.map(conv => [
+    const rows = conversationData.map((conv) => [
       conv.timestamp || new Date().toISOString(),
       conv.userId || 'unknown',
       conv.userMessage || '',
       conv.assistantResponse || '',
       JSON.stringify(conv.profileFacts || []),
       conv.summaryUpdated ? 'Yes' : 'No',
-      conv.sessionDuration || 0
+      conv.sessionDuration || 0,
     ]);
 
     const result = await createSpreadsheet(auth, {
       title,
       headers,
-      data: rows
+      data: rows,
     });
 
     return {
       ...result,
       exportType: 'conversation_data',
       recordCount: rows.length,
-      exportedAt: new Date().toISOString()
+      exportedAt: new Date().toISOString(),
     };
   } catch (error: any) {
-    throw new BridgeError(`CONVERSATION_EXPORT_ERROR: Failed to export conversation data: ${error.message}`);
+    throw new BridgeError(
+      `CONVERSATION_EXPORT_ERROR: Failed to export conversation data: ${error.message}`
+    );
   }
 }

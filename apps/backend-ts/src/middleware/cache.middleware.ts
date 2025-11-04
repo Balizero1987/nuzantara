@@ -1,4 +1,3 @@
-import type { Error } from "express";
 /**
  * ZANTARA Redis Cache Middleware
  * Provides caching functionality with Upstash Redis
@@ -36,13 +35,15 @@ export async function initializeRedis(): Promise<void> {
       if (isUpstash && parsed.protocol !== 'rediss:') {
         parsed.protocol = 'rediss:';
         effectiveUrl = parsed.toString();
-        logger.warn('Upstash Redis URL detected without TLS. Upgrading to rediss:// automatically.');
+        logger.warn(
+          'Upstash Redis URL detected without TLS. Upgrading to rediss:// automatically.'
+        );
       }
 
       forceTls = parsed.protocol === 'rediss:' || isUpstash;
     } catch (parseError: any) {
-      logger.error('Invalid REDIS_URL format. Unable to parse for TLS enforcement.', {
-        message: parseError.message
+      logger.error('Invalid REDIS_URL format. Unable to parse for TLS enforcement.', parseError, {
+        message: parseError.message,
       });
       if (rawUrl.startsWith('rediss://')) {
         forceTls = true;
@@ -56,27 +57,29 @@ export async function initializeRedis(): Promise<void> {
 
     redis = createClient({
       url: effectiveUrl,
-      socket: forceTls ? {
-        tls: true,
-        rejectUnauthorized: false,
-        connectTimeout: 10000,
-        reconnectStrategy: (retries) => {
-          if (retries > 3) {
-            logger.error('Redis reconnection failed after 3 attempts');
-            return false;
+      socket: forceTls
+        ? {
+            tls: true,
+            rejectUnauthorized: false,
+            connectTimeout: 10000,
+            reconnectStrategy: (retries) => {
+              if (retries > 3) {
+                logger.error('Redis reconnection failed after 3 attempts');
+                return false;
+              }
+              return Math.min(retries * 100, 1000);
+            },
           }
-          return Math.min(retries * 100, 1000);
-        }
-      } : {
-        connectTimeout: 10000,
-        reconnectStrategy: (retries) => {
-          if (retries > 3) {
-            logger.error('Redis reconnection failed after 3 attempts');
-            return false;
-          }
-          return Math.min(retries * 100, 1000);
-        }
-      }
+        : {
+            connectTimeout: 10000,
+            reconnectStrategy: (retries) => {
+              if (retries > 3) {
+                logger.error('Redis reconnection failed after 3 attempts');
+                return false;
+              }
+              return Math.min(retries * 100, 1000);
+            },
+          },
     });
 
     redis.on('error', (err) => {
@@ -97,12 +100,11 @@ export async function initializeRedis(): Promise<void> {
     await redis.connect();
     logger.info('Redis connection attempt completed');
   } catch (error: any) {
-    logger.error('Failed to initialize Redis:', {
-      message: error.message,
-      code: error.code,
-      syscall: error.syscall,
-      address: error.address,
-      port: error.port
+    logger.error('Failed to initialize Redis:', error, {
+      code: (error as any).code,
+      syscall: (error as any).syscall,
+      address: (error as any).address,
+      port: error.port,
     });
     redis = null;
     isConnected = false;
@@ -164,10 +166,7 @@ export async function cacheDel(key: string): Promise<void> {
  * Generate cache key from request
  */
 export function generateCacheKey(prefix: string, params: any): string {
-  const hash = crypto
-    .createHash('md5')
-    .update(JSON.stringify(params))
-    .digest('hex');
+  const hash = crypto.createHash('md5').update(JSON.stringify(params)).digest('hex');
   return `cache:${prefix}:${hash}`;
 }
 
@@ -184,7 +183,7 @@ export function cacheMiddleware(keyPrefix: string, ttl: number = 300) {
     const cacheKey = generateCacheKey(keyPrefix, {
       path: req.path,
       query: req.query,
-      params: req.params
+      params: req.params,
     });
 
     try {
@@ -207,9 +206,9 @@ export function cacheMiddleware(keyPrefix: string, ttl: number = 300) {
       res.setHeader('X-Cache-Key', cacheKey);
 
       const originalSend = res.send;
-      res.send = function(data: any) {
+      res.send = function (data: any) {
         // Store in cache before sending
-        cacheSet(cacheKey, data, ttl).catch(err =>
+        cacheSet(cacheKey, data, ttl).catch((err) =>
           logger.error('Failed to cache response:', err)
         );
 
@@ -265,7 +264,7 @@ export async function getCacheStats(): Promise<any> {
           acc[key.trim()] = value.trim();
         }
         return acc;
-      }, {})
+      }, {}),
     };
   } catch (error) {
     logger.error('Failed to get cache stats:', error);
@@ -274,6 +273,4 @@ export async function getCacheStats(): Promise<any> {
 }
 
 // Auto-initialize on module load
-initializeRedis().catch(err =>
-  logger.error('Failed to auto-initialize Redis:', err)
-);
+initializeRedis().catch((err) => logger.error('Failed to auto-initialize Redis:', err));

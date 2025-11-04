@@ -5,8 +5,8 @@
  * Useful for debugging and monitoring
  */
 
-import { globalRegistry } from "../../core/handler-registry.js";
-import { ok } from "../../utils/response.js";
+import { globalRegistry } from '../../core/handler-registry.js';
+import { ok } from '../../utils/response.js';
 
 /**
  * GET /admin/handlers/list
@@ -17,7 +17,7 @@ export async function listAllHandlers(_params: any, _req?: any) {
 
   return ok({
     total: handlers.length,
-    handlers: handlers
+    handlers: handlers,
   });
 }
 
@@ -30,7 +30,7 @@ export async function getHandlerStats(_params: any, _req?: any) {
 
   return ok({
     ...stats,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -43,8 +43,8 @@ export async function listModuleHandlers(params: any, _req?: any) {
 
   if (!module) {
     return ok({
-      error: "Module name required",
-      availableModules: Object.keys(globalRegistry.getStats().modules)
+      error: 'Module name required',
+      availableModules: Object.keys(globalRegistry.getStats().modules),
     });
   }
 
@@ -53,7 +53,7 @@ export async function listModuleHandlers(params: any, _req?: any) {
   return ok({
     module,
     total: handlers.length,
-    handlers
+    handlers,
   });
 }
 
@@ -66,28 +66,32 @@ export async function searchHandlers(params: any, _req?: any) {
 
   if (!query) {
     return ok({
-      error: "Search query required",
-      example: "/admin/handlers/search?query=gmail"
+      error: 'Search query required',
+      example: '/admin/handlers/search?query=gmail',
     });
   }
 
   const allHandlers = globalRegistry.list();
-  const matches = allHandlers.filter(h => h.toLowerCase().includes(query.toLowerCase()));
+  const matches = allHandlers.filter((h) => h.toLowerCase().includes(query.toLowerCase()));
 
   return ok({
     query,
     total: matches.length,
-    matches
+    matches,
   });
 }
 
 // Auto-register admin handlers
-globalRegistry.registerModule('admin', {
-  'list': listAllHandlers,
-  'stats': getHandlerStats,
-  'module': listModuleHandlers,
-  'search': searchHandlers
-}, {
-  requiresAuth: true,  // Admin only
-  version: '1.0'
-});
+globalRegistry.registerModule(
+  'admin',
+  {
+    list: listAllHandlers,
+    stats: getHandlerStats,
+    module: listModuleHandlers,
+    search: searchHandlers,
+  },
+  {
+    requiresAuth: true, // Admin only
+    version: '1.0',
+  }
+);

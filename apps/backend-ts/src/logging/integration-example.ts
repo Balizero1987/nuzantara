@@ -13,7 +13,7 @@ import {
   withPerformanceTracking,
   trackDatabaseQuery,
   trackApiCall,
-  LogContext
+  LogContext,
 } from './index.js';
 
 // Initialize Express app
@@ -32,14 +32,14 @@ export async function zantaraUnifiedQueryEnhanced(req: any, res: any) {
     userId: req.user?.id,
     handler: 'zantara-unified-enhanced',
     domain: req.body?.domain || 'all',
-    query: req.body?.query
+    query: req.body?.query,
   };
 
   // Log request start
   logger.info('Processing unified query request', {
     ...context,
     type: 'request_processing',
-    bodySize: JSON.stringify(req.body).length
+    bodySize: JSON.stringify(req.body).length,
   });
 
   try {
@@ -56,7 +56,7 @@ export async function zantaraUnifiedQueryEnhanced(req: any, res: any) {
           query: req.body?.query,
           domain: req.body?.domain,
           results: { data: 'sample data' },
-          processing_time: '< 2s'
+          processing_time: '< 2s',
         };
 
         const dbDuration = Date.now() - dbStartTime;
@@ -67,7 +67,7 @@ export async function zantaraUnifiedQueryEnhanced(req: any, res: any) {
       {
         domain: req.body?.domain,
         queryLength: req.body?.query?.length || 0,
-        operation: 'knowledge_base_search'
+        operation: 'knowledge_base_search',
       }
     );
 
@@ -76,11 +76,10 @@ export async function zantaraUnifiedQueryEnhanced(req: any, res: any) {
       ...context,
       type: 'request_success',
       resultCount: Object.keys(result.results || {}).length,
-      totalDuration: Date.now() - req.startTime
+      totalDuration: Date.now() - req.startTime,
     });
 
     res.json({ success: true, data: result });
-
   } catch (error) {
     // Enhanced error logging
     logger.error('Unified query failed', error as Error, {
@@ -88,13 +87,13 @@ export async function zantaraUnifiedQueryEnhanced(req: any, res: any) {
       type: 'request_error',
       errorCode: 'UNIFIED_QUERY_FAILED',
       recoverable: true,
-      duration: Date.now() - req.startTime
+      duration: Date.now() - req.startTime,
     });
 
     res.status(500).json({
       success: false,
       error: 'Query processing failed',
-      correlationId: req.correlationId
+      correlationId: req.correlationId,
     });
   }
 }
@@ -117,7 +116,7 @@ export async function callExternalServiceWithLogging(
         const response = await fetch(`https://${service}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: JSON.stringify(data),
         });
 
         const duration = Date.now() - startTime;
@@ -130,7 +129,6 @@ export async function callExternalServiceWithLogging(
         }
 
         return response.json();
-
       } catch (error) {
         const duration = Date.now() - startTime;
 
@@ -144,7 +142,7 @@ export async function callExternalServiceWithLogging(
           service,
           endpoint,
           duration,
-          errorCode: 'EXTERNAL_API_ERROR'
+          errorCode: 'EXTERNAL_API_ERROR',
         });
 
         throw error;
@@ -153,25 +151,20 @@ export async function callExternalServiceWithLogging(
     {
       service,
       endpoint,
-      requestSize: JSON.stringify(data).length
+      requestSize: JSON.stringify(data).length,
     }
   );
 }
 
 // Example: Business event logging
-export function logBusinessEvent(
-  event: string,
-  data: any,
-  userId?: string,
-  context?: LogContext
-) {
+export function logBusinessEvent(event: string, data: any, userId?: string, context?: LogContext) {
   logger.info('Business event: ${event}', {
     ...context,
     type: 'business_event',
     event,
     data,
     userId,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -186,7 +179,7 @@ export function logSecurityEvent(
     ...context,
     type: 'security_event',
     details,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 
@@ -208,7 +201,7 @@ export async function getCachedDataWithLogging(
       ...context,
       type: 'cache_hit',
       key,
-      duration
+      duration,
     });
 
     return cachedData;
@@ -226,7 +219,7 @@ export async function getCachedDataWithLogging(
     type: 'cache_miss',
     key,
     duration,
-    dataSize: JSON.stringify(data).length
+    dataSize: JSON.stringify(data).length,
   });
 
   return data;
@@ -243,7 +236,7 @@ export function authenticationMiddleware() {
       method: req.method,
       url: req.url,
       userAgent: req.get('User-Agent'),
-      ip: req.ip
+      ip: req.ip,
     };
 
     // Log authentication attempt
@@ -254,7 +247,7 @@ export function authenticationMiddleware() {
         ...context,
         type: 'authentication_attempt',
         hasToken: true,
-        tokenLength: token.length
+        tokenLength: token.length,
       });
 
       // Validate token (simulated)
@@ -265,13 +258,13 @@ export function authenticationMiddleware() {
         logger.info('Authentication successful', {
           ...context,
           type: 'authentication_success',
-          userId: user.id
+          userId: user.id,
         });
 
         next();
       } catch (error) {
         logSecurityEvent('Authentication failed', 'medium', context, {
-          reason: (error as Error).message
+          reason: (error as Error).message,
         });
 
         res.status(401).json({ error: 'Authentication failed' });
@@ -285,13 +278,13 @@ export function authenticationMiddleware() {
 
 // Example error handling middleware
 export function errorLoggingMiddleware() {
-  return (error: Error, req: any, res: any, next: any) => {
+  return (error: Error, req: any, res: any, _next: any) => {
     const context: LogContext = {
       correlationId: req.correlationId,
       userId: req.user?.id,
       method: req.method,
       url: req.url,
-      handler: 'error_handler'
+      handler: 'error_handler',
     };
 
     logger.error('Unhandled error in request', error, {
@@ -299,12 +292,12 @@ export function errorLoggingMiddleware() {
       type: 'unhandled_error',
       errorCode: 'UNHANDLED_EXCEPTION',
       userAgent: req.get('User-Agent'),
-      body: req.body
+      body: req.body,
     });
 
     res.status(500).json({
       error: 'Internal server error',
-      correlationId: req.correlationId
+      correlationId: req.correlationId,
     });
   };
 }
@@ -322,42 +315,47 @@ export function setupLoggingExample(app: express.Application) {
     const context: LogContext = {
       correlationId: req.correlationId,
       userId: req.user?.id,
-      handler: 'user_registration'
+      handler: 'user_registration',
     };
 
     try {
       const { email, name } = req.body;
 
       // Log registration attempt
-      logBusinessEvent('user_registration_started', {
-        email,
-        name
-      }, req.user?.id, context);
-
-      // Simulate user creation
-      const user = await withPerformanceTracking(
-        'user_creation',
-        context,
-        async () => {
-          // Your user creation logic here
-          return { id: 'user123', email, name, createdAt: new Date() };
-        }
+      logBusinessEvent(
+        'user_registration_started',
+        {
+          email,
+          name,
+        },
+        req.user?.id,
+        context
       );
 
+      // Simulate user creation
+      const user = await withPerformanceTracking('user_creation', context, async () => {
+        // Your user creation logic here
+        return { id: 'user123', email, name, createdAt: new Date() };
+      });
+
       // Log successful registration
-      logBusinessEvent('user_registration_completed', {
-        userId: user.id,
-        email: user.email
-      }, user.id, context);
+      logBusinessEvent(
+        'user_registration_completed',
+        {
+          userId: user.id,
+          email: user.email,
+        },
+        user.id,
+        context
+      );
 
       res.json({ success: true, user });
-
     } catch (error) {
       logger.error('User registration failed', error as Error, {
         ...context,
         type: 'registration_error',
         errorCode: 'USER_REGISTRATION_FAILED',
-        email: req.body.email
+        email: req.body.email,
       });
 
       res.status(400).json({ error: 'Registration failed' });

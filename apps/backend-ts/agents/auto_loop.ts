@@ -72,14 +72,13 @@ export class AutoLoopAgent {
         action,
         timestamp,
         reason,
-        execution
+        execution,
       };
 
       // Step 4: Log results
       await this.logResults(result);
 
       return result;
-
     } catch (error) {
       const errorResult: AutoLoopResult = {
         fusionIndex: 0,
@@ -89,8 +88,8 @@ export class AutoLoopAgent {
         execution: {
           command: 'monitor',
           success: false,
-          error: String(error)
-        }
+          error: String(error),
+        },
       };
 
       await this.logResults(errorResult);
@@ -108,11 +107,15 @@ export class AutoLoopAgent {
         connectivity: health.chromadb ? 100 : 50,
         performance: health.ai?.claude_haiku_available ? 90 : 45,
         memory: health.memory?.postgresql ? 85 : 40,
-        reasoning: 85 // Based on previous tests
+        reasoning: 85, // Based on previous tests
       };
 
       const index = Math.round(
-        (components.connectivity + components.performance + components.memory + components.reasoning) / 4
+        (components.connectivity +
+          components.performance +
+          components.memory +
+          components.reasoning) /
+          4
       );
 
       let status: 'optimal' | 'degraded' | 'critical' = 'optimal';
@@ -123,7 +126,7 @@ export class AutoLoopAgent {
         index,
         timestamp: new Date().toISOString(),
         components,
-        status
+        status,
       };
     } catch (error) {
       // Fallback data if endpoint fails
@@ -134,14 +137,17 @@ export class AutoLoopAgent {
           connectivity: 80,
           performance: 60,
           memory: 55,
-          reasoning: 70
+          reasoning: 70,
         },
-        status: 'degraded'
+        status: 'degraded',
       };
     }
   }
 
-  private async executeAction(action: string, command: string): Promise<{ command: string; success: boolean; output?: string; error?: string }> {
+  private async executeAction(
+    action: string,
+    command: string
+  ): Promise<{ command: string; success: boolean; output?: string; error?: string }> {
     try {
       console.log(`🚀 Executing action: ${action}`);
       console.log(`📝 Command: ${command}`);
@@ -151,7 +157,7 @@ export class AutoLoopAgent {
         return {
           command,
           success: true,
-          output: '✅ Gemini rebuild simulation completed - Fusion Index optimization applied'
+          output: '✅ Gemini rebuild simulation completed - Fusion Index optimization applied',
         };
       } else if (action === 'deploy') {
         // Execute the actual deploy command
@@ -164,13 +170,13 @@ export class AutoLoopAgent {
           return {
             command,
             success: true,
-            output: stdout
+            output: stdout,
           };
         } catch (error: any) {
           return {
             command,
             success: false,
-            error: `Deploy failed: ${error.message}`
+            error: `Deploy failed: ${error.message}`,
           };
         }
       }
@@ -178,13 +184,13 @@ export class AutoLoopAgent {
       return {
         command,
         success: true,
-        output: 'Monitor action completed'
+        output: 'Monitor action completed',
       };
     } catch (error) {
       return {
         command,
         success: false,
-        error: String(error)
+        error: String(error),
       };
     }
   }
@@ -214,7 +220,8 @@ ${result.execution.error ? `Error: ${result.execution.error}` : ''}
 // Export for direct execution
 if (import.meta.url === `file://${process.argv[1]}`) {
   const agent = new AutoLoopAgent();
-  agent.runAutoLoop()
+  agent
+    .runAutoLoop()
     .then((result) => {
       console.log('✅ AutoLoop completed:', result);
       process.exit(result.execution.success ? 0 : 1);

@@ -23,7 +23,7 @@ export default defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['list'],
-    ['json', { outputFile: 'test-results/results.json' }]
+    ['json', { outputFile: 'test-results/results.json' }],
   ],
 
   /* Shared settings for all the projects below */
@@ -55,7 +55,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         /* Visible and slower for better readability */
         slowMo: 1000, // 1s between actions - easy to watch
@@ -66,6 +66,6 @@ export default defineConfig({
   /* NO TEST TIMEOUT - removed for long test */
   timeout: 0, // No timeout
   expect: {
-    timeout: 0 // No timeout on assertions
-  }
+    timeout: 0, // No timeout on assertions
+  },
 });

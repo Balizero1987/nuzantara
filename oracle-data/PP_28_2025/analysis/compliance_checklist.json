@@ -22,10 +22,7 @@
           "reference": "Pasal 211"
         }
       ],
-      "references": [
-        "Pasal 4",
-        "Pasal 211"
-      ]
+      "references": ["Pasal 4", "Pasal 211"]
     },
     {
       "category": "2. Risk-Based Licensing",
@@ -45,10 +42,7 @@
           "step": "High risk: Izin required"
         }
       ],
-      "references": [
-        "Pasal 1",
-        "Pasal 2"
-      ]
+      "references": ["Pasal 1", "Pasal 2"]
     },
     {
       "category": "3. Environmental Compliance",
@@ -67,10 +61,7 @@
           "step": "Obtain Persetujuan Lingkungan (PL)"
         }
       ],
-      "references": [
-        "Pasal 15",
-        "Pasal 16"
-      ]
+      "references": ["Pasal 15", "Pasal 16"]
     },
     {
       "category": "4. Location & Building",
@@ -88,10 +79,7 @@
           "penalty": "Cannot operate without"
         }
       ],
-      "references": [
-        "Pasal 27",
-        "Pasal 28"
-      ]
+      "references": ["Pasal 27", "Pasal 28"]
     },
     {
       "category": "5. Foreign Workers (TKA)",
@@ -110,9 +98,7 @@
           "step": "Obtain work permit approval"
         }
       ],
-      "references": [
-        "Pasal 212"
-      ]
+      "references": ["Pasal 212"]
     },
     {
       "category": "6. Ongoing Compliance",
@@ -133,9 +119,7 @@
           "system": "OSS"
         }
       ],
-      "references": [
-        "BAB VII - Pengawasan"
-      ]
+      "references": ["BAB VII - Pengawasan"]
     },
     {
       "category": "7. Penalties",
@@ -154,9 +138,7 @@
           "penalty": "Building closure"
         }
       ],
-      "references": [
-        "BAB XI - Sanksi"
-      ]
+      "references": ["BAB XI - Sanksi"]
     }
   ]
 }

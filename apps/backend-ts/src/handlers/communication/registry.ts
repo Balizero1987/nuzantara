@@ -9,39 +9,51 @@ import {
   whatsappWebhookVerify,
   whatsappWebhookReceiver,
   getGroupAnalytics,
-  sendManualMessage
+  sendManualMessage,
 } from './whatsapp.js';
 import {
   instagramWebhookVerify,
   instagramWebhookReceiver,
   getInstagramUserAnalytics,
-  sendManualInstagramMessage
+  sendManualInstagramMessage,
 } from './instagram.js';
 import { translateHandlers } from './translate.js';
 
 export function registerCommunicationHandlers() {
   // Slack/Discord/Google Chat
-  globalRegistry.registerModule('communication', {
-    'slack.notify': slackNotify,
-    'discord.notify': discordNotify,
-    'google.chat.notify': googleChatNotify
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'communication',
+    {
+      'slack.notify': slackNotify,
+      'discord.notify': discordNotify,
+      'google.chat.notify': googleChatNotify,
+    },
+    { requiresAuth: true }
+  );
 
   // WhatsApp
-  globalRegistry.registerModule('communication', {
-    'whatsapp.webhook.verify': whatsappWebhookVerify,
-    'whatsapp.webhook.receiver': whatsappWebhookReceiver,
-    'whatsapp.analytics': getGroupAnalytics,
-    'whatsapp.send': sendManualMessage
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'communication',
+    {
+      'whatsapp.webhook.verify': whatsappWebhookVerify,
+      'whatsapp.webhook.receiver': whatsappWebhookReceiver,
+      'whatsapp.analytics': getGroupAnalytics,
+      'whatsapp.send': sendManualMessage,
+    },
+    { requiresAuth: true }
+  );
 
   // Instagram
-  globalRegistry.registerModule('communication', {
-    'instagram.webhook.verify': instagramWebhookVerify,
-    'instagram.webhook.receiver': instagramWebhookReceiver,
-    'instagram.analytics': getInstagramUserAnalytics,
-    'instagram.send': sendManualInstagramMessage
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'communication',
+    {
+      'instagram.webhook.verify': instagramWebhookVerify,
+      'instagram.webhook.receiver': instagramWebhookReceiver,
+      'instagram.analytics': getInstagramUserAnalytics,
+      'instagram.send': sendManualInstagramMessage,
+    },
+    { requiresAuth: true }
+  );
 
   // Translate handlers (object-based)
   if (translateHandlers && typeof translateHandlers === 'object') {
@@ -50,7 +62,7 @@ export function registerCommunicationHandlers() {
         key: `translate.${key}`,
         handler,
         module: 'communication',
-        requiresAuth: true
+        requiresAuth: true,
       });
     }
   }

@@ -26,7 +26,7 @@ class ConversationPersistence {
       const response = await fetch(`${this.apiBase}/bali-zero/conversations/save`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           user_email: userEmail,
@@ -34,9 +34,9 @@ class ConversationPersistence {
           session_id: this.getSessionId(),
           metadata: {
             saved_at: new Date().toISOString(),
-            user_agent: navigator.userAgent
-          }
-        })
+            user_agent: navigator.userAgent,
+          },
+        }),
       });
 
       if (!response.ok) {
@@ -44,9 +44,10 @@ class ConversationPersistence {
       }
 
       const result = await response.json();
-      console.log(`✅ [ConversationPersistence] Saved ${result.messages_saved} messages for ${userEmail}`);
+      console.log(
+        `✅ [ConversationPersistence] Saved ${result.messages_saved} messages for ${userEmail}`
+      );
       return true;
-
     } catch (error) {
       console.error('❌ [ConversationPersistence] Save failed:', error);
       return false;
@@ -91,8 +92,8 @@ class ConversationPersistence {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'zantara-internal-dev-key-2025'
-        }
+          'x-api-key': 'zantara-internal-dev-key-2025',
+        },
       });
 
       if (!response.ok) {
@@ -102,13 +103,14 @@ class ConversationPersistence {
       const result = await response.json();
 
       if (result.success && result.messages && result.messages.length > 0) {
-        console.log(`✅ [ConversationPersistence] Loaded ${result.messages.length} messages for ${userEmail}`);
+        console.log(
+          `✅ [ConversationPersistence] Loaded ${result.messages.length} messages for ${userEmail}`
+        );
         return result.messages;
       }
 
       console.log('[ConversationPersistence] No previous conversation found');
       return [];
-
     } catch (error) {
       console.error('❌ [ConversationPersistence] Load failed:', error);
       return [];
@@ -131,8 +133,8 @@ class ConversationPersistence {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'zantara-internal-dev-key-2025'
-        }
+          'x-api-key': 'zantara-internal-dev-key-2025',
+        },
       });
 
       if (!response.ok) {
@@ -142,7 +144,6 @@ class ConversationPersistence {
       const result = await response.json();
       console.log(`✅ [ConversationPersistence] Cleared ${result.deleted_count} conversations`);
       return true;
-
     } catch (error) {
       console.error('❌ [ConversationPersistence] Clear failed:', error);
       return false;
@@ -179,7 +180,7 @@ class ConversationPersistence {
     }
 
     // Render each message
-    messages.forEach(msg => {
+    messages.forEach((msg) => {
       const messageDiv = document.createElement('div');
       messageDiv.className = msg.role === 'user' ? 'user-message' : 'ai-message';
 
@@ -187,7 +188,7 @@ class ConversationPersistence {
       if (msg.role === 'assistant' && window.MessageFormatter) {
         messageDiv.innerHTML = MessageFormatter.formatStructuredMessage(msg.content, {
           showCTA: false,
-          language: MessageFormatter.detectLanguage(msg.content, 'it')
+          language: MessageFormatter.detectLanguage(msg.content, 'it'),
         });
       } else {
         messageDiv.textContent = msg.content;

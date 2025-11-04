@@ -20,11 +20,11 @@ class MemoryCache {
 
   // Cache TTLs (milliseconds) - Optimized for production
   private readonly EMBEDDING_TTL = 4 * 60 * 60 * 1000; // 4 hours (embeddings rarely change)
-  private readonly SEARCH_TTL = 15 * 60 * 1000;         // 15 minutes (balance freshness vs speed)
+  private readonly SEARCH_TTL = 15 * 60 * 1000; // 15 minutes (balance freshness vs speed)
 
   // Max cache sizes (LRU) - Increased for better hit rates
-  private readonly MAX_EMBEDDING_CACHE = 5000;  // ~20MB RAM
-  private readonly MAX_SEARCH_CACHE = 2000;      // ~10MB RAM
+  private readonly MAX_EMBEDDING_CACHE = 5000; // ~20MB RAM
+  private readonly MAX_SEARCH_CACHE = 2000; // ~10MB RAM
 
   /**
    * Get cached embedding for text
@@ -62,7 +62,7 @@ class MemoryCache {
     this.embeddingCache.set(key, {
       data: embedding,
       timestamp: Date.now(),
-      hits: 0
+      hits: 0,
     });
   }
 
@@ -100,7 +100,7 @@ class MemoryCache {
     this.searchCache.set(key, {
       data: results,
       timestamp: Date.now(),
-      hits: 0
+      hits: 0,
     });
   }
 
@@ -116,7 +116,10 @@ class MemoryCache {
    * Get cache statistics
    */
   getStats() {
-    const embeddingHits = Array.from(this.embeddingCache.values()).reduce((sum, e) => sum + e.hits, 0);
+    const embeddingHits = Array.from(this.embeddingCache.values()).reduce(
+      (sum, e) => sum + e.hits,
+      0
+    );
     const searchHits = Array.from(this.searchCache.values()).reduce((sum, e) => sum + e.hits, 0);
 
     return {
@@ -124,14 +127,14 @@ class MemoryCache {
         size: this.embeddingCache.size,
         maxSize: this.MAX_EMBEDDING_CACHE,
         totalHits: embeddingHits,
-        ttl: this.EMBEDDING_TTL / 1000 / 60 + ' minutes'
+        ttl: this.EMBEDDING_TTL / 1000 / 60 + ' minutes',
       },
       searches: {
         size: this.searchCache.size,
         maxSize: this.MAX_SEARCH_CACHE,
         totalHits: searchHits,
-        ttl: this.SEARCH_TTL / 1000 / 60 + ' minutes'
-      }
+        ttl: this.SEARCH_TTL / 1000 / 60 + ' minutes',
+      },
     };
   }
 

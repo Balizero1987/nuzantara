@@ -18,16 +18,16 @@ class ReportGenerator {
   async initialize() {
     // Load report templates
     this.loadReportTemplates();
-    
+
     // Load scheduled reports
     this.loadScheduledReports();
-    
+
     // Set up event listeners
     this.setupEventListeners();
-    
+
     // Set up periodic report generation
     this.setupPeriodicReports();
-    
+
     console.log('[ReportGenerator] System initialized');
   }
 
@@ -40,14 +40,14 @@ class ReportGenerator {
       const savedTemplates = localStorage.getItem('zantara-report-templates');
       if (savedTemplates) {
         const templates = JSON.parse(savedTemplates);
-        templates.forEach(template => {
+        templates.forEach((template) => {
           this.reportTemplates.set(template.id, template);
         });
       } else {
         // Add default templates if none exist
         this.addDefaultTemplates();
       }
-      
+
       console.log('[ReportGenerator] Report templates loaded');
     } catch (error) {
       console.error('[ReportGenerator] Error loading report templates:', error);
@@ -75,11 +75,11 @@ class ReportGenerator {
       const savedScheduledReports = localStorage.getItem('zantara-scheduled-reports');
       if (savedScheduledReports) {
         const scheduled = JSON.parse(savedScheduledReports);
-        scheduled.forEach(report => {
+        scheduled.forEach((report) => {
           this.scheduledReports.set(report.id, report);
         });
       }
-      
+
       console.log('[ReportGenerator] Scheduled reports loaded');
     } catch (error) {
       console.error('[ReportGenerator] Error loading scheduled reports:', error);
@@ -111,7 +111,7 @@ class ReportGenerator {
         frequency: 'daily',
         format: 'pdf',
         sections: ['overview', 'metrics', 'trends', 'recommendations'],
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       },
       {
         id: 'template_2',
@@ -121,7 +121,7 @@ class ReportGenerator {
         frequency: 'weekly',
         format: 'html',
         sections: ['overview', 'user_stats', 'activity_trends', 'top_features'],
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       },
       {
         id: 'template_3',
@@ -131,7 +131,7 @@ class ReportGenerator {
         frequency: 'weekly',
         format: 'pdf',
         sections: ['overview', 'model_usage', 'cache_stats', 'cost_analysis'],
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       },
       {
         id: 'template_4',
@@ -141,14 +141,14 @@ class ReportGenerator {
         frequency: 'weekly',
         format: 'html',
         sections: ['overview', 'integration_progress', 'pending_handlers', 'recommendations'],
-        createdAt: new Date().toISOString()
-      }
+        createdAt: new Date().toISOString(),
+      },
     ];
-    
-    defaultTemplates.forEach(template => {
+
+    defaultTemplates.forEach((template) => {
       this.reportTemplates.set(template.id, template);
     });
-    
+
     this.saveReportTemplates();
   }
 
@@ -160,7 +160,7 @@ class ReportGenerator {
     window.addEventListener('generate-report', (event) => {
       this.generateReport(event.detail.templateId, event.detail.options);
     });
-    
+
     // Listen for scheduled report updates
     window.addEventListener('update-scheduled-report', (event) => {
       this.updateScheduledReport(event.detail.reportId, event.detail.data);
@@ -175,7 +175,7 @@ class ReportGenerator {
     setInterval(() => {
       this.checkScheduledReports();
     }, 3600000); // 1 hour
-    
+
     console.log('[ReportGenerator] Periodic report generation set up');
   }
 
@@ -207,17 +207,19 @@ class ReportGenerator {
       format: templateData.format || 'pdf',
       sections: templateData.sections || [],
       createdAt: new Date().toISOString(),
-      ...templateData
+      ...templateData,
     };
-    
+
     this.reportTemplates.set(templateId, template);
     this.saveReportTemplates();
-    
+
     // Notify about new template
-    window.dispatchEvent(new CustomEvent('report-template-created', {
-      detail: template
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('report-template-created', {
+        detail: template,
+      })
+    );
+
     console.log(`[ReportGenerator] Report template created: ${template.name}`);
     return templateId;
   }
@@ -231,12 +233,14 @@ class ReportGenerator {
       Object.assign(template, templateData);
       this.reportTemplates.set(templateId, template);
       this.saveReportTemplates();
-      
+
       // Notify about updated template
-      window.dispatchEvent(new CustomEvent('report-template-updated', {
-        detail: { id: templateId, template }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('report-template-updated', {
+          detail: { id: templateId, template },
+        })
+      );
+
       console.log(`[ReportGenerator] Report template updated: ${template.name}`);
       return true;
     }
@@ -251,12 +255,14 @@ class ReportGenerator {
     if (template) {
       this.reportTemplates.delete(templateId);
       this.saveReportTemplates();
-      
+
       // Notify about deleted template
-      window.dispatchEvent(new CustomEvent('report-template-deleted', {
-        detail: { id: templateId, name: template.name }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('report-template-deleted', {
+          detail: { id: templateId, name: template.name },
+        })
+      );
+
       console.log(`[ReportGenerator] Report template deleted: ${template.name}`);
       return true;
     }
@@ -272,37 +278,41 @@ class ReportGenerator {
       if (!template) {
         throw new Error(`Report template ${templateId} not found`);
       }
-      
+
       console.log(`[ReportGenerator] Generating report: ${template.name}`);
-      
+
       // Simulate report generation process
       const reportData = await this.collectReportData(template, options);
       const formattedReport = await this.formatReport(reportData, template.format);
       const report = this.createReportObject(template, reportData, formattedReport, options);
-      
+
       // Add to generated reports
       this.generatedReports.unshift(report);
-      
+
       // Keep only last 100 reports
       if (this.generatedReports.length > 100) {
         this.generatedReports.pop();
       }
-      
+
       // Notify about generated report
-      window.dispatchEvent(new CustomEvent('report-generated', {
-        detail: report
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('report-generated', {
+          detail: report,
+        })
+      );
+
       console.log(`[ReportGenerator] Report generated: ${template.name}`);
       return report;
     } catch (error) {
       console.error('[ReportGenerator] Error generating report:', error);
-      
+
       // Notify about error
-      window.dispatchEvent(new CustomEvent('report-generation-error', {
-        detail: { templateId, error: error.message }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('report-generation-error', {
+          detail: { templateId, error: error.message },
+        })
+      );
+
       throw error;
     }
   }
@@ -316,9 +326,9 @@ class ReportGenerator {
     const data = {
       templateId: template.id,
       generatedAt: new Date().toISOString(),
-      period: options.period || 'last_7_days'
+      period: options.period || 'last_7_days',
     };
-    
+
     switch (template.type) {
       case 'performance':
         data.metrics = this.collectPerformanceMetrics();
@@ -335,7 +345,7 @@ class ReportGenerator {
       default:
         data.customData = this.collectCustomData(template, options);
     }
-    
+
     return data;
   }
 
@@ -349,11 +359,11 @@ class ReportGenerator {
         average: 127,
         min: 45,
         max: 320,
-        unit: 'ms'
+        unit: 'ms',
       },
       uptime: 99.2,
       requestsPerMinute: 1200,
-      errorRate: 0.3
+      errorRate: 0.3,
     };
   }
 
@@ -370,8 +380,8 @@ class ReportGenerator {
       topFeatures: [
         { name: 'Chat Interface', usage: 85 },
         { name: 'Handler Discovery', usage: 67 },
-        { name: 'Dashboard', usage: 52 }
-      ]
+        { name: 'Dashboard', usage: 52 },
+      ],
     };
   }
 
@@ -386,9 +396,9 @@ class ReportGenerator {
       modelUsage: {
         haiku: 1800,
         llama: 450,
-        devai: 200
+        devai: 200,
       },
-      costSavings: 75
+      costSavings: 75,
     };
   }
 
@@ -402,7 +412,7 @@ class ReportGenerator {
       integratedHandlers: 32,
       integrationPercentage: 26.2,
       pendingHandlers: 90,
-      nextPriorities: ['team.*', 'project.*', 'finance.*']
+      nextPriorities: ['team.*', 'project.*', 'finance.*'],
     };
   }
 
@@ -413,7 +423,7 @@ class ReportGenerator {
     // Placeholder for custom data collection
     return {
       message: 'Custom data collection would be implemented here',
-      templateType: template.type
+      templateType: template.type,
     };
   }
 
@@ -426,7 +436,7 @@ class ReportGenerator {
     return {
       format: format,
       content: `Report content in ${format} format would be generated here`,
-      size: Math.floor(Math.random() * 1000) + 500 // Simulate file size
+      size: Math.floor(Math.random() * 1000) + 500, // Simulate file size
     };
   }
 
@@ -435,7 +445,7 @@ class ReportGenerator {
    */
   createReportObject(template, reportData, formattedReport, options) {
     const reportId = `report_${Date.now()}`;
-    
+
     return {
       id: reportId,
       templateId: template.id,
@@ -446,7 +456,7 @@ class ReportGenerator {
       period: reportData.period,
       data: reportData,
       formatted: formattedReport,
-      options: options
+      options: options,
     };
   }
 
@@ -461,7 +471,7 @@ class ReportGenerator {
    * Get report by ID
    */
   getReport(reportId) {
-    return this.generatedReports.find(report => report.id === reportId);
+    return this.generatedReports.find((report) => report.id === reportId);
   }
 
   /**
@@ -472,12 +482,14 @@ class ReportGenerator {
     if (report) {
       // In a real implementation, this would download the actual report file
       console.log(`[ReportGenerator] Downloading report: ${report.name}`);
-      
+
       // Notify about download
-      window.dispatchEvent(new CustomEvent('report-downloaded', {
-        detail: report
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('report-downloaded', {
+          detail: report,
+        })
+      );
+
       return true;
     }
     return false;
@@ -499,17 +511,19 @@ class ReportGenerator {
       lastRun: null,
       nextRun: this.calculateNextRun(scheduleData.frequency, scheduleData.time),
       createdAt: new Date().toISOString(),
-      ...scheduleData
+      ...scheduleData,
     };
-    
+
     this.scheduledReports.set(scheduleId, schedule);
     this.saveScheduledReports();
-    
+
     // Notify about new schedule
-    window.dispatchEvent(new CustomEvent('report-scheduled', {
-      detail: schedule
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('report-scheduled', {
+        detail: schedule,
+      })
+    );
+
     console.log(`[ReportGenerator] Report scheduled: ${schedule.name}`);
     return scheduleId;
   }
@@ -520,7 +534,7 @@ class ReportGenerator {
   calculateNextRun(frequency, time) {
     const now = new Date();
     let nextRun;
-    
+
     switch (frequency) {
       case 'hourly':
         nextRun = new Date(now.getTime() + 3600000); // 1 hour
@@ -537,7 +551,7 @@ class ReportGenerator {
       default:
         nextRun = new Date(now.getTime() + 86400000); // Default to daily
     }
-    
+
     return nextRun.toISOString();
   }
 
@@ -548,7 +562,7 @@ class ReportGenerator {
     const schedule = this.scheduledReports.get(scheduleId);
     if (schedule) {
       Object.assign(schedule, scheduleData);
-      
+
       // Recalculate next run if frequency or time changed
       if (scheduleData.frequency || scheduleData.time) {
         schedule.nextRun = this.calculateNextRun(
@@ -556,15 +570,17 @@ class ReportGenerator {
           scheduleData.time || schedule.time
         );
       }
-      
+
       this.scheduledReports.set(scheduleId, schedule);
       this.saveScheduledReports();
-      
+
       // Notify about updated schedule
-      window.dispatchEvent(new CustomEvent('scheduled-report-updated', {
-        detail: { id: scheduleId, schedule }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('scheduled-report-updated', {
+          detail: { id: scheduleId, schedule },
+        })
+      );
+
       console.log(`[ReportGenerator] Scheduled report updated: ${schedule.name}`);
       return true;
     }
@@ -579,12 +595,14 @@ class ReportGenerator {
     if (schedule) {
       this.scheduledReports.delete(scheduleId);
       this.saveScheduledReports();
-      
+
       // Notify about deleted schedule
-      window.dispatchEvent(new CustomEvent('scheduled-report-deleted', {
-        detail: { id: scheduleId, name: schedule.name }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('scheduled-report-deleted', {
+          detail: { id: scheduleId, name: schedule.name },
+        })
+      );
+
       console.log(`[ReportGenerator] Scheduled report deleted: ${schedule.name}`);
       return true;
     }
@@ -603,28 +621,31 @@ class ReportGenerator {
    */
   async checkScheduledReports() {
     const now = new Date();
-    
+
     for (const [scheduleId, schedule] of this.scheduledReports) {
       if (!schedule.enabled) continue;
-      
+
       const nextRun = new Date(schedule.nextRun);
       if (now >= nextRun) {
         try {
           // Generate the report
           await this.generateReport(schedule.templateId, {
             scheduled: true,
-            scheduleId: scheduleId
+            scheduleId: scheduleId,
           });
-          
+
           // Update last run and calculate next run
           schedule.lastRun = now.toISOString();
           schedule.nextRun = this.calculateNextRun(schedule.frequency, schedule.time);
           this.scheduledReports.set(scheduleId, schedule);
           this.saveScheduledReports();
-          
+
           console.log(`[ReportGenerator] Scheduled report generated: ${schedule.name}`);
         } catch (error) {
-          console.error(`[ReportGenerator] Error generating scheduled report ${schedule.name}:`, error);
+          console.error(
+            `[ReportGenerator] Error generating scheduled report ${schedule.name}:`,
+            error
+          );
         }
       }
     }
@@ -638,12 +659,14 @@ class ReportGenerator {
     if (report) {
       // In a real implementation, this would send the report via email or other channels
       console.log(`[ReportGenerator] Sending report to ${recipients.length} recipients`);
-      
+
       // Notify about sent report
-      window.dispatchEvent(new CustomEvent('report-sent', {
-        detail: { reportId, recipients }
-      }));
-      
+      window.dispatchEvent(
+        new CustomEvent('report-sent', {
+          detail: { reportId, recipients },
+        })
+      );
+
       return true;
     }
     return false;
@@ -658,12 +681,12 @@ class ReportGenerator {
       totalScheduled: this.scheduledReports.size,
       totalGenerated: this.generatedReports.length,
       reportFormats: this.reportFormats,
-      recentReports: this.getGeneratedReports(5).map(report => ({
+      recentReports: this.getGeneratedReports(5).map((report) => ({
         id: report.id,
         name: report.name,
         type: report.type,
-        generatedAt: report.generatedAt
-      }))
+        generatedAt: report.generatedAt,
+      })),
     };
   }
 
@@ -673,7 +696,7 @@ class ReportGenerator {
   renderReportGenerator(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     // Create report generator HTML
     container.innerHTML = `
       <div class="report-generator">
@@ -726,21 +749,21 @@ class ReportGenerator {
         </div>
       </div>
     `;
-    
+
     // Render components
     this.renderRecentReports('recent-reports');
     this.renderScheduledReports('scheduled-reports');
     this.renderReportTemplates('report-templates');
-    
+
     // Set up action buttons
     document.getElementById('generate-report-btn').addEventListener('click', () => {
       this.showGenerateReportDialog();
     });
-    
+
     document.getElementById('schedule-report-btn').addEventListener('click', () => {
       this.showScheduleReportDialog();
     });
-    
+
     document.getElementById('view-templates-btn').addEventListener('click', () => {
       this.showReportTemplates();
     });
@@ -752,15 +775,17 @@ class ReportGenerator {
   renderRecentReports(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const recentReports = this.getGeneratedReports(5);
-    
+
     if (recentReports.length === 0) {
       container.innerHTML = '<p class="no-data">No recent reports</p>';
       return;
     }
-    
-    container.innerHTML = recentReports.map(report => `
+
+    container.innerHTML = recentReports
+      .map(
+        (report) => `
       <div class="report-card" data-report-id="${report.id}">
         <h4>${report.name}</h4>
         <p class="report-type">${report.type.replace('_', ' ')}</p>
@@ -770,18 +795,20 @@ class ReportGenerator {
           <button class="send-btn" data-report-id="${report.id}">Send</button>
         </div>
       </div>
-    `).join('');
-    
+    `
+      )
+      .join('');
+
     // Set up download buttons
-    container.querySelectorAll('.download-btn').forEach(button => {
+    container.querySelectorAll('.download-btn').forEach((button) => {
       button.addEventListener('click', (e) => {
         const reportId = e.target.getAttribute('data-report-id');
         this.downloadReport(reportId);
       });
     });
-    
+
     // Set up send buttons
-    container.querySelectorAll('.send-btn').forEach(button => {
+    container.querySelectorAll('.send-btn').forEach((button) => {
       button.addEventListener('click', (e) => {
         const reportId = e.target.getAttribute('data-report-id');
         this.showSendReportDialog(reportId);
@@ -795,15 +822,17 @@ class ReportGenerator {
   renderScheduledReports(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const scheduledReports = this.getScheduledReports();
-    
+
     if (scheduledReports.length === 0) {
       container.innerHTML = '<p class="no-data">No scheduled reports</p>';
       return;
     }
-    
-    container.innerHTML = scheduledReports.map(schedule => `
+
+    container.innerHTML = scheduledReports
+      .map(
+        (schedule) => `
       <div class="schedule-card" data-schedule-id="${schedule.id}">
         <h4>${schedule.name}</h4>
         <p class="schedule-frequency">${schedule.frequency}</p>
@@ -818,18 +847,20 @@ class ReportGenerator {
           </button>
         </div>
       </div>
-    `).join('');
-    
+    `
+      )
+      .join('');
+
     // Set up edit buttons
-    container.querySelectorAll('.edit-btn').forEach(button => {
+    container.querySelectorAll('.edit-btn').forEach((button) => {
       button.addEventListener('click', (e) => {
         const scheduleId = e.target.getAttribute('data-schedule-id');
         this.showEditScheduleDialog(scheduleId);
       });
     });
-    
+
     // Set up toggle buttons
-    container.querySelectorAll('.toggle-btn').forEach(button => {
+    container.querySelectorAll('.toggle-btn').forEach((button) => {
       button.addEventListener('click', (e) => {
         const scheduleId = e.target.getAttribute('data-schedule-id');
         const schedule = this.scheduledReports.get(scheduleId);
@@ -847,15 +878,17 @@ class ReportGenerator {
   renderReportTemplates(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const templates = this.getReportTemplates();
-    
+
     if (templates.length === 0) {
       container.innerHTML = '<p class="no-data">No report templates</p>';
       return;
     }
-    
-    container.innerHTML = templates.map(template => `
+
+    container.innerHTML = templates
+      .map(
+        (template) => `
       <div class="template-card" data-template-id="${template.id}">
         <h4>${template.name}</h4>
         <p class="template-description">${template.description}</p>
@@ -866,18 +899,20 @@ class ReportGenerator {
           <button class="edit-btn" data-template-id="${template.id}">Edit</button>
         </div>
       </div>
-    `).join('');
-    
+    `
+      )
+      .join('');
+
     // Set up generate buttons
-    container.querySelectorAll('.generate-btn').forEach(button => {
+    container.querySelectorAll('.generate-btn').forEach((button) => {
       button.addEventListener('click', (e) => {
         const templateId = e.target.getAttribute('data-template-id');
         this.generateReport(templateId);
       });
     });
-    
+
     // Set up edit buttons
-    container.querySelectorAll('.edit-btn').forEach(button => {
+    container.querySelectorAll('.edit-btn').forEach((button) => {
       button.addEventListener('click', (e) => {
         const templateId = e.target.getAttribute('data-template-id');
         this.showEditTemplateDialog(templateId);
@@ -944,9 +979,9 @@ class ReportGenerator {
 document.addEventListener('DOMContentLoaded', () => {
   window.ReportGenerator = new ReportGenerator();
   window.ReportGenerator.initialize();
-  
+
   console.log('[ReportGenerator] System ready');
-  
+
   // Mark enhancement as completed
   if (window.enhancementTracker) {
     window.enhancementTracker.markCompleted(28);

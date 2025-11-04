@@ -25,7 +25,7 @@ describe('StreamingService', () => {
       (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
         ok: false,
         status: 500,
-        statusText: 'Internal Server Error'
+        statusText: 'Internal Server Error',
       } as Response);
 
       const mockReq = {
@@ -33,7 +33,7 @@ describe('StreamingService', () => {
         ip: '127.0.0.1',
         socket: { remoteAddress: '127.0.0.1' },
         on: jest.fn(),
-        query: {}
+        query: {},
       } as any;
 
       const mockRes = {
@@ -42,12 +42,12 @@ describe('StreamingService', () => {
         end: jest.fn(),
         on: jest.fn(),
         headersSent: false,
-        flushHeaders: jest.fn()
+        flushHeaders: jest.fn(),
       } as any;
 
       await expect(
         streamingService.streamChat(mockReq, mockRes, {
-          query: 'test query'
+          query: 'test query',
         })
       ).rejects.toThrow('Backend stream failed');
     });
@@ -70,4 +70,3 @@ describe('StreamingService', () => {
     });
   });
 });
-

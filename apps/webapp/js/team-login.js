@@ -20,13 +20,13 @@ class SecureTeamLogin {
       const response = await fetch(`${this.apiBase}/team.login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email: email,
           pin: pin,
-          name: name || email.split('@')[0]  // Use email username if name not provided
-        })
+          name: name || email.split('@')[0], // Use email username if name not provided
+        }),
       });
 
       if (!response.ok) {
@@ -37,7 +37,7 @@ class SecureTeamLogin {
 
       if (data.success) {
         // Store session and user data (new format from team.login)
-        this.token = data.sessionId;  // Use sessionId as token
+        this.token = data.sessionId; // Use sessionId as token
         this.currentUser = data.user;
 
         // ALWAYS save to localStorage directly (critical for chat.html auth check)
@@ -46,13 +46,13 @@ class SecureTeamLogin {
         localStorage.setItem('zantara-user-email', this.currentUser.email);
         localStorage.setItem('zantara-user-name', this.currentUser.name);
         localStorage.setItem('zantara-permissions', JSON.stringify(data.permissions || ['all']));
-        
+
         console.log('✅ User data saved to localStorage:', {
           token: this.token,
           email: this.currentUser.email,
-          name: this.currentUser.name
+          name: this.currentUser.name,
         });
-        
+
         // Also use unified storage manager if available
         if (window.ZantaraStorage) {
           window.ZantaraStorage.setUser({
@@ -64,26 +64,26 @@ class SecureTeamLogin {
             id: this.currentUser.id,
             token: this.token,
             permissions: data.permissions || ['all'],
-            language: this.currentUser.language || 'it'
+            language: this.currentUser.language || 'it',
           });
         }
 
         return {
           success: true,
           user: this.currentUser,
-          message: data.personalizedResponse || 'Login successful'
+          message: data.personalizedResponse || 'Login successful',
         };
       } else {
         return {
           success: false,
-          error: data.error || 'Login failed'
+          error: data.error || 'Login failed',
         };
       }
     } catch (error) {
       console.error('Login error:', error);
       return {
         success: false,
-        error: error.message || 'Network error. Please try again.'
+        error: error.message || 'Network error. Please try again.',
       };
     }
   }
@@ -109,9 +109,9 @@ class SecureTeamLogin {
         'zantara-user-name',
         'zantara-user-role',
         'zantara-user-department',
-        'zantara-session'
+        'zantara-session',
       ];
-      keysToRemove.forEach(key => localStorage.removeItem(key));
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
     }
   }
 
@@ -351,7 +351,8 @@ class SecureTeamLogin {
 
           // Redirect to chat or original destination
           setTimeout(() => {
-            const redirectUrl = sessionStorage.getItem('zantara-redirect-after-login') || 'chat.html';
+            const redirectUrl =
+              sessionStorage.getItem('zantara-redirect-after-login') || 'chat.html';
             sessionStorage.removeItem('zantara-redirect-after-login'); // Clean up
             window.location.href = redirectUrl;
           }, 1500);

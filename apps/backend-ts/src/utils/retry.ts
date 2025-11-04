@@ -11,7 +11,7 @@ export async function withRetry<T>(
       if (attempt === retries) {
         throw error;
       }
-      await new Promise(resolve => setTimeout(resolve, delay * attempt));
+      await new Promise((resolve) => setTimeout(resolve, delay * attempt));
     }
   }
 

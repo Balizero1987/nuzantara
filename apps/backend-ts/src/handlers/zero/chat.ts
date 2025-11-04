@@ -12,9 +12,9 @@
  */
 
 import logger from '../../services/logger.js';
-import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
-import { aiChat } from "../ai-services/ai.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { aiChat } from '../ai-services/ai.js';
 
 /**
  * Zero Chat - ZANTARA-ONLY mode
@@ -23,7 +23,7 @@ import { aiChat } from "../ai-services/ai.js";
 export async function zeroChat(params: any) {
   const { prompt, message, context, userId } = params || {};
   const actualPrompt = prompt || message;
-  
+
   if (!actualPrompt) {
     throw new BadRequestError('prompt or message is required');
   }
@@ -39,16 +39,16 @@ export async function zeroChat(params: any) {
       prompt: actualPrompt,
       context: context || 'Zero administrative access',
       provider: 'zantara',
-      userId: 'zero'
+      userId: 'zero',
     });
 
     const responseData: any = result.data || result;
-    
+
     return ok({
       response: responseData.response || responseData.answer,
       model: 'zantara-zero',
       usage: responseData.usage || responseData.tokens,
-      ts: Date.now()
+      ts: Date.now(),
     });
   } catch (error: any) {
     logger.error('Zero chat error:', error);

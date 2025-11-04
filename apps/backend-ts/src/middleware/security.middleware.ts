@@ -9,34 +9,32 @@ import { logger } from '../logging/unified-logger.js';
 import { err } from '../utils/response.js';
 
 // Security Headers Middleware
-export const securityHeaders: RequestHandler = (_req: Request, res: Response, next: NextFunction): void => {
+export const securityHeaders: RequestHandler = (
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   // HSTS - Force HTTPS for 1 year
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  
+
   // CSP - Content Security Policy
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src 'self'"
-  );
-  
+  res.setHeader('Content-Security-Policy', "default-src 'self'");
+
   // XFO - Prevent clickjacking
   res.setHeader('X-Frame-Options', 'DENY');
-  
+
   // XCTO - Prevent MIME sniffing
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  
+
   // XXP - XSS Protection (legacy but still useful)
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  
+
   // Referrer Policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+
   // Permissions Policy (Feature-Policy successor)
-  res.setHeader(
-    'Permissions-Policy',
-    'geolocation=(), microphone=(), camera=(), payment=()'
-  );
-  
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
+
   next();
 };
 
@@ -55,7 +53,7 @@ export const globalRateLimiter = rateLimit({
     res.setHeader('X-RateLimit-Remaining', '0');
     res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 15 * 60 * 1000) / 1000).toString());
     res.status(429).json(err('Troppi tentativi. Riprova tra 15 minuti.'));
-  }
+  },
 });
 
 // API Rate Limiter (20 req/min per IP)
@@ -72,7 +70,7 @@ export const apiRateLimiter = rateLimit({
     res.setHeader('X-RateLimit-Remaining', '0');
     res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 60 * 1000) / 1000).toString());
     res.status(429).json(err('Troppi tentativi API. Riprova tra 1 minuto.'));
-  }
+  },
 });
 
 // Strict Rate Limiter for sensitive operations (5 req/hour)
@@ -89,11 +87,15 @@ export const strictRateLimiter = rateLimit({
     res.setHeader('X-RateLimit-Remaining', '0');
     res.setHeader('X-RateLimit-Reset', Math.ceil((Date.now() + 60 * 60 * 1000) / 1000).toString());
     res.status(429).json(err('Troppi tentativi per operazione sensibile. Riprova tra 1 ora.'));
-  }
+  },
 });
 
 // API Key Validation Middleware
-export const validateApiKey: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
+export const validateApiKey: RequestHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
   const apiKey = req.headers['x-api-key'] as string;
   const validApiKey = process.env.API_KEY;
 
@@ -113,7 +115,11 @@ export const validateApiKey: RequestHandler = (req: Request, res: Response, next
 };
 
 // Request Sanitization Middleware
-export const sanitizeRequest: RequestHandler = (req: Request, _res: Response, next: NextFunction): void => {
+export const sanitizeRequest: RequestHandler = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
   // Remove potentially dangerous properties
   if (req.body) {
     delete (req.body as any).__proto__;
@@ -124,11 +130,11 @@ export const sanitizeRequest: RequestHandler = (req: Request, _res: Response, ne
   // Log suspicious requests
   const suspiciousPatterns = /<script|javascript:|onerror=|onclick=/i;
   const bodyString = JSON.stringify(req.body);
-  
+
   if (suspiciousPatterns.test(bodyString)) {
     logger.warn(`Richiesta sospetta rilevata da IP: ${req.ip}`, {
       path: req.path,
-      body: req.body
+      body: req.body,
     });
   }
 
@@ -141,7 +147,7 @@ export const corsConfig = {
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
       'http://localhost:3000',
       'http://localhost:8888',
-      'https://zantara.balizero.com'
+      'https://zantara.balizero.com',
     ];
 
     // Allow requests with no origin (like mobile apps or Postman)
@@ -155,23 +161,23 @@ export const corsConfig = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
-  maxAge: 86400 // 24 hours
+  maxAge: 86400, // 24 hours
 };
 
 // Security Logger Middleware
-export const securityLogger: RequestHandler = (req: Request, _res: Response, next: NextFunction): void => {
+export const securityLogger: RequestHandler = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
   logger.info('Security check', {
     ip: req.ip,
     method: req.method,
     path: req.path,
-    userAgent: req.get('user-agent')
+    userAgent: req.get('user-agent'),
   });
   next();
 };
 
 // Combined Security Middleware Stack
-export const applySecurity: RequestHandler[] = [
-  securityHeaders,
-  sanitizeRequest,
-  securityLogger
-];
+export const applySecurity: RequestHandler[] = [securityHeaders, sanitizeRequest, securityLogger];

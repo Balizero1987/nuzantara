@@ -4,128 +4,128 @@
  */
 
 class TestConsole {
-    constructor() {
-        this.isActive = false;
-        this.testResults = [];
-        this.scenarios = this.defineScenarios();
-        this.currentScenario = null;
-        this.container = null;
-        this.mockServer = new MockServer();
-    }
+  constructor() {
+    this.isActive = false;
+    this.testResults = [];
+    this.scenarios = this.defineScenarios();
+    this.currentScenario = null;
+    this.container = null;
+    this.mockServer = new MockServer();
+  }
 
-    defineScenarios() {
-        return {
-            smokeTest: {
-                name: 'Smoke Test',
-                description: 'Quick validation of core functionality',
-                category: 'basic',
-                steps: [
-                    { action: 'checkPageLoad' },
-                    { action: 'checkAPIConfig' },
-                    { action: 'checkDesignSystem' },
-                    { action: 'checkLocalStorage' }
-                ]
-            },
+  defineScenarios() {
+    return {
+      smokeTest: {
+        name: 'Smoke Test',
+        description: 'Quick validation of core functionality',
+        category: 'basic',
+        steps: [
+          { action: 'checkPageLoad' },
+          { action: 'checkAPIConfig' },
+          { action: 'checkDesignSystem' },
+          { action: 'checkLocalStorage' },
+        ],
+      },
 
-            chatFlow: {
-                name: 'Chat Flow',
-                description: 'Test complete chat interaction',
-                category: 'chat',
-                steps: [
-                    { action: 'sendMessage', data: { text: 'Hello ZANTARA' } },
-                    { action: 'expectResponse', timeout: 8000 },
-                    { action: 'checkMessageCount', expected: 2 },
-                    { action: 'verifyMessageFormat' }
-                ]
-            },
+      chatFlow: {
+        name: 'Chat Flow',
+        description: 'Test complete chat interaction',
+        category: 'chat',
+        steps: [
+          { action: 'sendMessage', data: { text: 'Hello ZANTARA' } },
+          { action: 'expectResponse', timeout: 8000 },
+          { action: 'checkMessageCount', expected: 2 },
+          { action: 'verifyMessageFormat' },
+        ],
+      },
 
-            streamingBehavior: {
-                name: 'Streaming Behavior',
-                description: 'Test streaming vs non-streaming responses',
-                category: 'streaming',
-                steps: [
-                    { action: 'enableStreaming', value: true },
-                    { action: 'sendMessage', data: { text: 'Generate a detailed response about ZANTARA' } },
-                    { action: 'checkStreamingChunks', minChunks: 3 },
-                    { action: 'enableStreaming', value: false },
-                    { action: 'sendMessage', data: { text: 'Another test message' } },
-                    { action: 'checkBatchResponse' }
-                ]
-            },
+      streamingBehavior: {
+        name: 'Streaming Behavior',
+        description: 'Test streaming vs non-streaming responses',
+        category: 'streaming',
+        steps: [
+          { action: 'enableStreaming', value: true },
+          { action: 'sendMessage', data: { text: 'Generate a detailed response about ZANTARA' } },
+          { action: 'checkStreamingChunks', minChunks: 3 },
+          { action: 'enableStreaming', value: false },
+          { action: 'sendMessage', data: { text: 'Another test message' } },
+          { action: 'checkBatchResponse' },
+        ],
+      },
 
-            virtualizationTest: {
-                name: 'Message Virtualization',
-                description: 'Test configurable message limits',
-                category: 'performance',
-                steps: [
-                    { action: 'setMaxMessages', value: 15 },
-                    { action: 'generateTestMessages', count: 30 },
-                    { action: 'checkVisibleMessages', expected: 15 },
-                    { action: 'checkLoadEarlierButton', visible: true },
-                    { action: 'setMaxMessages', value: 40 },
-                    { action: 'checkVisibleMessages', expected: 30 }
-                ]
-            },
+      virtualizationTest: {
+        name: 'Message Virtualization',
+        description: 'Test configurable message limits',
+        category: 'performance',
+        steps: [
+          { action: 'setMaxMessages', value: 15 },
+          { action: 'generateTestMessages', count: 30 },
+          { action: 'checkVisibleMessages', expected: 15 },
+          { action: 'checkLoadEarlierButton', visible: true },
+          { action: 'setMaxMessages', value: 40 },
+          { action: 'checkVisibleMessages', expected: 30 },
+        ],
+      },
 
-            quickActionsTest: {
-                name: 'Quick Actions',
-                description: 'Test all Quick Action buttons',
-                category: 'zantara',
-                steps: [
-                    { action: 'clickQuickAction', button: 'attune' },
-                    { action: 'expectResponse', timeout: 5000 },
-                    { action: 'clickQuickAction', button: 'synergy' },
-                    { action: 'expectResponse', timeout: 5000 },
-                    { action: 'clickQuickAction', button: 'teamHealth' },
-                    { action: 'expectResponse', timeout: 5000 }
-                ]
-            },
+      quickActionsTest: {
+        name: 'Quick Actions',
+        description: 'Test all Quick Action buttons',
+        category: 'zantara',
+        steps: [
+          { action: 'clickQuickAction', button: 'attune' },
+          { action: 'expectResponse', timeout: 5000 },
+          { action: 'clickQuickAction', button: 'synergy' },
+          { action: 'expectResponse', timeout: 5000 },
+          { action: 'clickQuickAction', button: 'teamHealth' },
+          { action: 'expectResponse', timeout: 5000 },
+        ],
+      },
 
-            errorHandling: {
-                name: 'Error Handling',
-                description: 'Test error scenarios and recovery',
-                category: 'reliability',
-                steps: [
-                    { action: 'simulateNetworkError' },
-                    { action: 'sendMessage', data: { text: 'Test during error' } },
-                    { action: 'checkErrorUI', visible: true },
-                    { action: 'restoreNetwork' },
-                    { action: 'retryLastMessage' },
-                    { action: 'checkErrorUI', visible: false }
-                ]
-            },
+      errorHandling: {
+        name: 'Error Handling',
+        description: 'Test error scenarios and recovery',
+        category: 'reliability',
+        steps: [
+          { action: 'simulateNetworkError' },
+          { action: 'sendMessage', data: { text: 'Test during error' } },
+          { action: 'checkErrorUI', visible: true },
+          { action: 'restoreNetwork' },
+          { action: 'retryLastMessage' },
+          { action: 'checkErrorUI', visible: false },
+        ],
+      },
 
-            performanceMetrics: {
-                name: 'Performance Metrics',
-                description: 'Measure rendering and response performance',
-                category: 'performance',
-                steps: [
-                    { action: 'measureInitialLoad' },
-                    { action: 'measureRenderTime', threshold: 100 },
-                    { action: 'measureMemoryUsage' },
-                    { action: 'stressTestMessages', count: 50 },
-                    { action: 'measureFinalMetrics' }
-                ]
-            },
+      performanceMetrics: {
+        name: 'Performance Metrics',
+        description: 'Measure rendering and response performance',
+        category: 'performance',
+        steps: [
+          { action: 'measureInitialLoad' },
+          { action: 'measureRenderTime', threshold: 100 },
+          { action: 'measureMemoryUsage' },
+          { action: 'stressTestMessages', count: 50 },
+          { action: 'measureFinalMetrics' },
+        ],
+      },
 
-            accessibilityTest: {
-                name: 'Accessibility',
-                description: 'Test keyboard navigation and ARIA',
-                category: 'accessibility',
-                steps: [
-                    { action: 'checkARIALabels' },
-                    { action: 'testKeyboardNavigation' },
-                    { action: 'checkFocusStates' },
-                    { action: 'testScreenReaderSupport' }
-                ]
-            }
-        };
-    }
+      accessibilityTest: {
+        name: 'Accessibility',
+        description: 'Test keyboard navigation and ARIA',
+        category: 'accessibility',
+        steps: [
+          { action: 'checkARIALabels' },
+          { action: 'testKeyboardNavigation' },
+          { action: 'checkFocusStates' },
+          { action: 'testScreenReaderSupport' },
+        ],
+      },
+    };
+  }
 
-    createUI() {
-        const container = document.createElement('div');
-        container.className = 'z-test-console-container';
-        container.innerHTML = `
+  createUI() {
+    const container = document.createElement('div');
+    container.className = 'z-test-console-container';
+    container.innerHTML = `
             <div class="z-test-console-header">
                 <div class="header-left">
                     <h3>🧪 ZANTARA Test Console</h3>
@@ -224,12 +224,14 @@ class TestConsole {
             </div>
         `;
 
-        this.attachEventListeners(container);
-        return container;
-    }
+    this.attachEventListeners(container);
+    return container;
+  }
 
-    renderScenarios() {
-        return Object.entries(this.scenarios).map(([key, scenario]) => `
+  renderScenarios() {
+    return Object.entries(this.scenarios)
+      .map(
+        ([key, scenario]) => `
             <div class="scenario-item" data-scenario="${key}" data-category="${scenario.category}">
                 <div class="scenario-header">
                     <div class="scenario-name">${scenario.name}</div>
@@ -244,378 +246,385 @@ class TestConsole {
                     <span class="scenario-status"></span>
                 </div>
             </div>
-        `).join('');
-    }
+        `
+      )
+      .join('');
+  }
 
-    attachEventListeners(container) {
-        // Header controls
-        container.querySelector('.test-console-close').addEventListener('click', () => this.hide());
-        container.querySelector('.test-console-minimize').addEventListener('click', () => this.minimize());
+  attachEventListeners(container) {
+    // Header controls
+    container.querySelector('.test-console-close').addEventListener('click', () => this.hide());
+    container
+      .querySelector('.test-console-minimize')
+      .addEventListener('click', () => this.minimize());
 
-        // Category filters
-        container.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.filterByCategory(e.target.dataset.category);
-                container.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-            });
-        });
+    // Category filters
+    container.querySelectorAll('.category-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        this.filterByCategory(e.target.dataset.category);
+        container.querySelectorAll('.category-btn').forEach((b) => b.classList.remove('active'));
+        e.target.classList.add('active');
+      });
+    });
 
-        // Run buttons
-        container.querySelector('.run-all-btn').addEventListener('click', () => this.runAllScenarios());
-        container.querySelectorAll('.scenario-run-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const scenarioKey = e.target.dataset.scenario;
-                this.runScenario(scenarioKey);
-            });
-        });
+    // Run buttons
+    container.querySelector('.run-all-btn').addEventListener('click', () => this.runAllScenarios());
+    container.querySelectorAll('.scenario-run-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const scenarioKey = e.target.dataset.scenario;
+        this.runScenario(scenarioKey);
+      });
+    });
 
-        // Environment controls
-        const mockServerCheckbox = container.querySelector('#use-mock-server');
-        mockServerCheckbox.addEventListener('change', (e) => {
-            this.mockServer.enabled = e.target.checked;
-            window.ZANTARA_USE_MOCK = e.target.checked;
-        });
+    // Environment controls
+    const mockServerCheckbox = container.querySelector('#use-mock-server');
+    mockServerCheckbox.addEventListener('change', (e) => {
+      this.mockServer.enabled = e.target.checked;
+      window.ZANTARA_USE_MOCK = e.target.checked;
+    });
 
-        const latencySlider = container.querySelector('#latency-slider');
-        const latencyValue = container.querySelector('#latency-value');
-        latencySlider.addEventListener('input', (e) => {
-            this.mockServer.latency = parseInt(e.target.value);
-            latencyValue.textContent = `${e.target.value}ms`;
-        });
+    const latencySlider = container.querySelector('#latency-slider');
+    const latencyValue = container.querySelector('#latency-value');
+    latencySlider.addEventListener('input', (e) => {
+      this.mockServer.latency = parseInt(e.target.value);
+      latencyValue.textContent = `${e.target.value}ms`;
+    });
 
-        const errorRateSlider = container.querySelector('#error-rate-slider');
-        const errorRateValue = container.querySelector('#error-rate-value');
-        errorRateSlider.addEventListener('input', (e) => {
-            this.mockServer.errorRate = parseFloat(e.target.value) / 100;
-            errorRateValue.textContent = `${e.target.value}%`;
-        });
+    const errorRateSlider = container.querySelector('#error-rate-slider');
+    const errorRateValue = container.querySelector('#error-rate-value');
+    errorRateSlider.addEventListener('input', (e) => {
+      this.mockServer.errorRate = parseFloat(e.target.value) / 100;
+      errorRateValue.textContent = `${e.target.value}%`;
+    });
 
-        // Quick actions
-        this.attachQuickActions(container);
-    }
+    // Quick actions
+    this.attachQuickActions(container);
+  }
 
-    attachQuickActions(container) {
-        const actions = {
-            'test-clear-storage': () => this.clearStorage(),
-            'test-reset-state': () => this.resetState(),
-            'test-generate-data': () => this.generateTestData(),
-            'test-export-logs': () => this.exportResults(),
-            'test-clear-results': () => this.clearResults(),
-            'test-screenshot': () => this.takeScreenshot()
-        };
+  attachQuickActions(container) {
+    const actions = {
+      'test-clear-storage': () => this.clearStorage(),
+      'test-reset-state': () => this.resetState(),
+      'test-generate-data': () => this.generateTestData(),
+      'test-export-logs': () => this.exportResults(),
+      'test-clear-results': () => this.clearResults(),
+      'test-screenshot': () => this.takeScreenshot(),
+    };
 
-        Object.entries(actions).forEach(([id, action]) => {
-            const btn = container.querySelector(`#${id}`);
-            if (btn) btn.addEventListener('click', action);
-        });
-    }
+    Object.entries(actions).forEach(([id, action]) => {
+      const btn = container.querySelector(`#${id}`);
+      if (btn) btn.addEventListener('click', action);
+    });
+  }
 
-    async runScenario(scenarioKey) {
-        const scenario = this.scenarios[scenarioKey];
-        if (!scenario) return;
+  async runScenario(scenarioKey) {
+    const scenario = this.scenarios[scenarioKey];
+    if (!scenario) return;
 
-        this.currentScenario = scenario;
-        this.updateScenarioStatus(scenarioKey, 'running');
-        this.updateStatus('running', `Running: ${scenario.name}`);
+    this.currentScenario = scenario;
+    this.updateScenarioStatus(scenarioKey, 'running');
+    this.updateStatus('running', `Running: ${scenario.name}`);
 
-        const results = {
-            scenario: scenarioKey,
-            name: scenario.name,
-            category: scenario.category,
-            startTime: Date.now(),
-            steps: [],
-            logs: []
-        };
+    const results = {
+      scenario: scenarioKey,
+      name: scenario.name,
+      category: scenario.category,
+      startTime: Date.now(),
+      steps: [],
+      logs: [],
+    };
 
-        try {
-            for (let i = 0; i < scenario.steps.length; i++) {
-                const step = scenario.steps[i];
-                this.updateProgress(((i) / scenario.steps.length) * 100);
-                this.updateCurrentTest(`Step ${i + 1}: ${step.action}`);
+    try {
+      for (let i = 0; i < scenario.steps.length; i++) {
+        const step = scenario.steps[i];
+        this.updateProgress((i / scenario.steps.length) * 100);
+        this.updateCurrentTest(`Step ${i + 1}: ${step.action}`);
 
-                const stepResult = await this.executeStep(step);
-                results.steps.push(stepResult);
+        const stepResult = await this.executeStep(step);
+        results.steps.push(stepResult);
 
-                if (!stepResult.success) {
-                    this.log(`❌ Step failed: ${step.action} - ${stepResult.error}`);
-                    break;
-                } else {
-                    this.log(`✅ Step passed: ${step.action}`);
-                }
-
-                // Small delay between steps for better UX
-                await this.delay(100);
-            }
-        } catch (error) {
-            this.log(`💥 Scenario failed with error: ${error.message}`);
-            results.error = error.message;
+        if (!stepResult.success) {
+          this.log(`❌ Step failed: ${step.action} - ${stepResult.error}`);
+          break;
+        } else {
+          this.log(`✅ Step passed: ${step.action}`);
         }
 
-        results.endTime = Date.now();
-        results.duration = results.endTime - results.startTime;
-        results.success = results.steps.every(s => s.success) && !results.error;
-        results.logs = [...this.logs];
-
-        this.testResults.push(results);
-        this.displayResult(results);
-        this.updateScenarioStatus(scenarioKey, results.success ? 'success' : 'failed');
-        this.updateStatus(results.success ? 'success' : 'failed',
-                         results.success ? 'Completed successfully' : 'Failed');
-        this.updateProgress(100);
-        this.updateStats();
-
-        return results;
+        // Small delay between steps for better UX
+        await this.delay(100);
+      }
+    } catch (error) {
+      this.log(`💥 Scenario failed with error: ${error.message}`);
+      results.error = error.message;
     }
 
-    async executeStep(step) {
-        const startTime = performance.now();
-        let success = false;
-        let error = null;
-        let metadata = {};
+    results.endTime = Date.now();
+    results.duration = results.endTime - results.startTime;
+    results.success = results.steps.every((s) => s.success) && !results.error;
+    results.logs = [...this.logs];
 
-        try {
-            switch (step.action) {
-                case 'checkPageLoad':
-                    success = document.readyState === 'complete';
-                    if (!success) error = 'Page not fully loaded';
-                    break;
+    this.testResults.push(results);
+    this.displayResult(results);
+    this.updateScenarioStatus(scenarioKey, results.success ? 'success' : 'failed');
+    this.updateStatus(
+      results.success ? 'success' : 'failed',
+      results.success ? 'Completed successfully' : 'Failed'
+    );
+    this.updateProgress(100);
+    this.updateStats();
 
-                case 'checkAPIConfig':
-                    success = typeof window.ZANTARA_API !== 'undefined';
-                    if (!success) error = 'ZANTARA_API not initialized';
-                    break;
+    return results;
+  }
 
-                case 'checkDesignSystem':
-                    const designSystemLink = document.querySelector('link[href*="design-system.css"]');
-                    success = !!designSystemLink;
-                    if (!success) error = 'Design system CSS not loaded';
-                    break;
+  async executeStep(step) {
+    const startTime = performance.now();
+    let success = false;
+    let error = null;
+    let metadata = {};
 
-                case 'checkLocalStorage':
-                    try {
-                        localStorage.setItem('test', 'test');
-                        localStorage.removeItem('test');
-                        success = true;
-                    } catch (e) {
-                        error = 'localStorage not available';
-                    }
-                    break;
+    try {
+      switch (step.action) {
+        case 'checkPageLoad':
+          success = document.readyState === 'complete';
+          if (!success) error = 'Page not fully loaded';
+          break;
 
-                case 'sendMessage':
-                    success = await this.simulateSendMessage(step.data);
-                    break;
+        case 'checkAPIConfig':
+          success = typeof window.ZANTARA_API !== 'undefined';
+          if (!success) error = 'ZANTARA_API not initialized';
+          break;
 
-                case 'expectResponse':
-                    success = await this.waitForResponse(step.timeout || 5000);
-                    if (!success) error = `No response within ${step.timeout || 5000}ms`;
-                    break;
+        case 'checkDesignSystem':
+          const designSystemLink = document.querySelector('link[href*="design-system.css"]');
+          success = !!designSystemLink;
+          if (!success) error = 'Design system CSS not loaded';
+          break;
 
-                case 'checkMessageCount':
-                    const count = this.getMessageCount();
-                    success = count === step.expected;
-                    if (!success) error = `Expected ${step.expected} messages, got ${count}`;
-                    metadata.actualCount = count;
-                    break;
+        case 'checkLocalStorage':
+          try {
+            localStorage.setItem('test', 'test');
+            localStorage.removeItem('test');
+            success = true;
+          } catch (e) {
+            error = 'localStorage not available';
+          }
+          break;
 
-                case 'enableStreaming':
-                    if (window.ZANTARA_STREAMING && window.ZANTARA_STREAMING.setEnabled) {
-                        window.ZANTARA_STREAMING.setEnabled(step.value);
-                        success = true;
-                    } else {
-                        error = 'Streaming toggle not available';
-                    }
-                    break;
+        case 'sendMessage':
+          success = await this.simulateSendMessage(step.data);
+          break;
 
-                case 'setMaxMessages':
-                    if (window.ZANTARA_VIRTUALIZATION && window.ZANTARA_VIRTUALIZATION.setMaxMessages) {
-                        window.ZANTARA_VIRTUALIZATION.setMaxMessages(step.value);
-                        success = true;
-                    } else {
-                        error = 'Virtualization not available';
-                    }
-                    break;
+        case 'expectResponse':
+          success = await this.waitForResponse(step.timeout || 5000);
+          if (!success) error = `No response within ${step.timeout || 5000}ms`;
+          break;
 
-                case 'clickQuickAction':
-                    success = await this.simulateQuickAction(step.button);
-                    break;
+        case 'checkMessageCount':
+          const count = this.getMessageCount();
+          success = count === step.expected;
+          if (!success) error = `Expected ${step.expected} messages, got ${count}`;
+          metadata.actualCount = count;
+          break;
 
-                case 'measureRenderTime':
-                    const renderTime = await this.measureRenderTime();
-                    success = renderTime < (step.threshold || 100);
-                    if (!success) error = `Render time ${renderTime}ms exceeds threshold ${step.threshold}ms`;
-                    metadata.renderTime = renderTime;
-                    break;
+        case 'enableStreaming':
+          if (window.ZANTARA_STREAMING && window.ZANTARA_STREAMING.setEnabled) {
+            window.ZANTARA_STREAMING.setEnabled(step.value);
+            success = true;
+          } else {
+            error = 'Streaming toggle not available';
+          }
+          break;
 
-                case 'checkARIALabels':
-                    const ariaElements = document.querySelectorAll('[aria-label], [aria-labelledby], [role]');
-                    success = ariaElements.length > 0;
-                    if (!success) error = 'No ARIA labels found';
-                    metadata.ariaElementsCount = ariaElements.length;
-                    break;
+        case 'setMaxMessages':
+          if (window.ZANTARA_VIRTUALIZATION && window.ZANTARA_VIRTUALIZATION.setMaxMessages) {
+            window.ZANTARA_VIRTUALIZATION.setMaxMessages(step.value);
+            success = true;
+          } else {
+            error = 'Virtualization not available';
+          }
+          break;
 
-                default:
-                    success = true;
-                    this.log(`⚠️ Unknown test action: ${step.action}`);
-            }
-        } catch (e) {
-            error = e.message;
-            success = false;
+        case 'clickQuickAction':
+          success = await this.simulateQuickAction(step.button);
+          break;
+
+        case 'measureRenderTime':
+          const renderTime = await this.measureRenderTime();
+          success = renderTime < (step.threshold || 100);
+          if (!success) error = `Render time ${renderTime}ms exceeds threshold ${step.threshold}ms`;
+          metadata.renderTime = renderTime;
+          break;
+
+        case 'checkARIALabels':
+          const ariaElements = document.querySelectorAll('[aria-label], [aria-labelledby], [role]');
+          success = ariaElements.length > 0;
+          if (!success) error = 'No ARIA labels found';
+          metadata.ariaElementsCount = ariaElements.length;
+          break;
+
+        default:
+          success = true;
+          this.log(`⚠️ Unknown test action: ${step.action}`);
+      }
+    } catch (e) {
+      error = e.message;
+      success = false;
+    }
+
+    return {
+      action: step.action,
+      success,
+      error,
+      duration: performance.now() - startTime,
+      metadata,
+    };
+  }
+
+  // Helper Methods
+  async simulateSendMessage(data) {
+    const input =
+      document.getElementById('messageInput') ||
+      document.getElementById('message-input') ||
+      document.querySelector('#message-input, #messageInput, .message-input');
+    const sendBtn =
+      document.getElementById('sendBtn') ||
+      document.getElementById('send-button') ||
+      document.querySelector('#send-button, #sendBtn, .send-button');
+
+    if (input && sendBtn) {
+      input.value = data.text;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      sendBtn.click();
+      return true;
+    }
+    return false;
+  }
+
+  async waitForResponse(timeout) {
+    return new Promise((resolve) => {
+      let elapsed = 0;
+      const checkInterval = setInterval(() => {
+        const messages = document.querySelectorAll('.message');
+        const lastMessage = messages[messages.length - 1];
+
+        if (lastMessage && !lastMessage.classList.contains('user')) {
+          clearInterval(checkInterval);
+          resolve(true);
         }
 
-        return {
-            action: step.action,
-            success,
-            error,
-            duration: performance.now() - startTime,
-            metadata
-        };
-    }
-
-    // Helper Methods
-    async simulateSendMessage(data) {
-        const input = document.getElementById('messageInput') ||
-                      document.getElementById('message-input') ||
-                      document.querySelector('#message-input, #messageInput, .message-input');
-        const sendBtn = document.getElementById('sendBtn') ||
-                        document.getElementById('send-button') ||
-                        document.querySelector('#send-button, #sendBtn, .send-button');
-
-        if (input && sendBtn) {
-            input.value = data.text;
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            sendBtn.click();
-            return true;
+        elapsed += 100;
+        if (elapsed >= timeout) {
+          clearInterval(checkInterval);
+          resolve(false);
         }
-        return false;
+      }, 100);
+    });
+  }
+
+  async simulateQuickAction(buttonName) {
+    const button = document.querySelector(`[onclick*="${buttonName}"]`);
+    if (button) {
+      button.click();
+      return true;
     }
+    return false;
+  }
 
-    async waitForResponse(timeout) {
-        return new Promise((resolve) => {
-            let elapsed = 0;
-            const checkInterval = setInterval(() => {
-                const messages = document.querySelectorAll('.message');
-                const lastMessage = messages[messages.length - 1];
+  getMessageCount() {
+    return document.querySelectorAll('.message').length;
+  }
 
-                if (lastMessage && !lastMessage.classList.contains('user')) {
-                    clearInterval(checkInterval);
-                    resolve(true);
-                }
-
-                elapsed += 100;
-                if (elapsed >= timeout) {
-                    clearInterval(checkInterval);
-                    resolve(false);
-                }
-            }, 100);
-        });
+  async measureRenderTime() {
+    const start = performance.now();
+    const container = document.querySelector('.messages-container');
+    if (container) {
+      container.offsetHeight; // Force reflow
     }
+    return performance.now() - start;
+  }
 
-    async simulateQuickAction(buttonName) {
-        const button = document.querySelector(`[onclick*="${buttonName}"]`);
-        if (button) {
-            button.click();
-            return true;
-        }
-        return false;
+  delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  // UI Management
+  filterByCategory(category) {
+    const scenarios = this.container.querySelectorAll('.scenario-item');
+    scenarios.forEach((item) => {
+      const itemCategory = item.dataset.category;
+      if (category === 'all' || itemCategory === category) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  updateScenarioStatus(scenarioKey, status) {
+    const scenarioItem = this.container.querySelector(`[data-scenario="${scenarioKey}"]`);
+    if (scenarioItem) {
+      const statusElement = scenarioItem.querySelector('.scenario-status');
+      const runBtn = scenarioItem.querySelector('.scenario-run-btn');
+
+      statusElement.className = `scenario-status ${status}`;
+      statusElement.textContent =
+        status === 'running' ? '⏳' : status === 'success' ? '✅' : status === 'failed' ? '❌' : '';
+
+      if (status === 'running') {
+        runBtn.classList.add('running');
+      } else {
+        runBtn.classList.remove('running');
+      }
     }
+  }
 
-    getMessageCount() {
-        return document.querySelectorAll('.message').length;
+  updateStatus(status, message) {
+    const statusEl = this.container?.querySelector('.status-indicator');
+    if (statusEl) {
+      statusEl.className = `status-indicator ${status}`;
+      statusEl.textContent = message || status.charAt(0).toUpperCase() + status.slice(1);
     }
+  }
 
-    async measureRenderTime() {
-        const start = performance.now();
-        const container = document.querySelector('.messages-container');
-        if (container) {
-            container.offsetHeight; // Force reflow
-        }
-        return performance.now() - start;
+  updateProgress(percent) {
+    const progressEl = this.container?.querySelector('.progress-fill');
+    const progressText = this.container?.querySelector('.progress-text');
+    if (progressEl) {
+      progressEl.style.width = `${percent}%`;
     }
-
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+    if (progressText) {
+      progressText.textContent = `${Math.round(percent)}%`;
     }
+  }
 
-    // UI Management
-    filterByCategory(category) {
-        const scenarios = this.container.querySelectorAll('.scenario-item');
-        scenarios.forEach(item => {
-            const itemCategory = item.dataset.category;
-            if (category === 'all' || itemCategory === category) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
-        });
+  updateCurrentTest(text) {
+    const testInfo = this.container?.querySelector('.current-test-info');
+    if (testInfo) {
+      testInfo.textContent = text;
     }
+  }
 
-    updateScenarioStatus(scenarioKey, status) {
-        const scenarioItem = this.container.querySelector(`[data-scenario="${scenarioKey}"]`);
-        if (scenarioItem) {
-            const statusElement = scenarioItem.querySelector('.scenario-status');
-            const runBtn = scenarioItem.querySelector('.scenario-run-btn');
+  updateStats() {
+    const total = this.testResults.length;
+    const passed = this.testResults.filter((r) => r.success).length;
+    const failed = total - passed;
 
-            statusElement.className = `scenario-status ${status}`;
-            statusElement.textContent = status === 'running' ? '⏳' :
-                                      status === 'success' ? '✅' :
-                                      status === 'failed' ? '❌' : '';
+    const totalEl = this.container?.querySelector('#total-tests');
+    const passedEl = this.container?.querySelector('#passed-tests');
+    const failedEl = this.container?.querySelector('#failed-tests');
 
-            if (status === 'running') {
-                runBtn.classList.add('running');
-            } else {
-                runBtn.classList.remove('running');
-            }
-        }
-    }
+    if (totalEl) totalEl.textContent = total;
+    if (passedEl) passedEl.textContent = passed;
+    if (failedEl) failedEl.textContent = failed;
+  }
 
-    updateStatus(status, message) {
-        const statusEl = this.container?.querySelector('.status-indicator');
-        if (statusEl) {
-            statusEl.className = `status-indicator ${status}`;
-            statusEl.textContent = message || status.charAt(0).toUpperCase() + status.slice(1);
-        }
-    }
+  displayResult(result) {
+    const resultsContainer = this.container?.querySelector('.results-list');
+    if (!resultsContainer) return;
 
-    updateProgress(percent) {
-        const progressEl = this.container?.querySelector('.progress-fill');
-        const progressText = this.container?.querySelector('.progress-text');
-        if (progressEl) {
-            progressEl.style.width = `${percent}%`;
-        }
-        if (progressText) {
-            progressText.textContent = `${Math.round(percent)}%`;
-        }
-    }
-
-    updateCurrentTest(text) {
-        const testInfo = this.container?.querySelector('.current-test-info');
-        if (testInfo) {
-            testInfo.textContent = text;
-        }
-    }
-
-    updateStats() {
-        const total = this.testResults.length;
-        const passed = this.testResults.filter(r => r.success).length;
-        const failed = total - passed;
-
-        const totalEl = this.container?.querySelector('#total-tests');
-        const passedEl = this.container?.querySelector('#passed-tests');
-        const failedEl = this.container?.querySelector('#failed-tests');
-
-        if (totalEl) totalEl.textContent = total;
-        if (passedEl) passedEl.textContent = passed;
-        if (failedEl) failedEl.textContent = failed;
-    }
-
-    displayResult(result) {
-        const resultsContainer = this.container?.querySelector('.results-list');
-        if (!resultsContainer) return;
-
-        const resultEl = document.createElement('div');
-        resultEl.className = `result-item ${result.success ? 'success' : 'failed'}`;
-        resultEl.innerHTML = `
+    const resultEl = document.createElement('div');
+    resultEl.className = `result-item ${result.success ? 'success' : 'failed'}`;
+    resultEl.innerHTML = `
             <div class="result-header">
                 <div class="result-info">
                     <span class="result-name">${result.name}</span>
@@ -627,172 +636,177 @@ class TestConsole {
                 </div>
             </div>
             <div class="result-steps">
-                ${result.steps.map(step => `
+                ${result.steps
+                  .map(
+                    (step) => `
                     <div class="step-result ${step.success ? 'success' : 'failed'}">
                         <span class="step-action">${step.action}</span>
                         <span class="step-duration">${Math.round(step.duration)}ms</span>
                         ${step.error ? `<span class="step-error">${step.error}</span>` : ''}
                     </div>
-                `).join('')}
+                `
+                  )
+                  .join('')}
             </div>
         `;
 
-        resultsContainer.insertBefore(resultEl, resultsContainer.firstChild);
+    resultsContainer.insertBefore(resultEl, resultsContainer.firstChild);
+  }
+
+  // Quick Actions
+  clearStorage() {
+    const keys = [
+      'zantara_streaming_enabled',
+      'zantara_max_render_messages',
+      'zantara_dev_mode',
+      'zantara-user-email',
+      'zantara-persona',
+    ];
+    keys.forEach((key) => localStorage.removeItem(key));
+    this.log('🧹 Storage cleared');
+  }
+
+  resetState() {
+    this.log('🔄 Resetting application state...');
+    setTimeout(() => window.location.reload(), 500);
+  }
+
+  generateTestData() {
+    // Generate test messages
+    const testMessages = [
+      'Test message 1 for virtualization',
+      'Another test message',
+      'Testing streaming behavior',
+      'Quick action test',
+      'Performance test message',
+    ];
+
+    testMessages.forEach((msg, index) => {
+      setTimeout(() => {
+        this.simulateSendMessage({ text: `${msg} ${index + 1}` });
+      }, index * 1000);
+    });
+
+    this.log('🎯 Generated test data');
+  }
+
+  exportResults() {
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      version: '2.0',
+      testResults: this.testResults,
+      configuration: {
+        streaming: window.ZANTARA_STREAMING?.isEnabled(),
+        maxMessages: window.ZANTARA_VIRTUALIZATION?.getMaxMessages(),
+        devMode: window.ZANTARA_STREAMING?.isDevMode(),
+      },
+      environment: {
+        userAgent: navigator.userAgent,
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        url: window.location.href,
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `zantara-test-results-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    this.log('📁 Test results exported');
+  }
+
+  clearResults() {
+    this.testResults = [];
+    const resultsContainer = this.container?.querySelector('.results-list');
+    if (resultsContainer) {
+      resultsContainer.innerHTML = '';
     }
+    this.updateStats();
+    this.log('🗑️ Test results cleared');
+  }
 
-    // Quick Actions
-    clearStorage() {
-        const keys = [
-            'zantara_streaming_enabled',
-            'zantara_max_render_messages',
-            'zantara_dev_mode',
-            'zantara-user-email',
-            'zantara-persona'
-        ];
-        keys.forEach(key => localStorage.removeItem(key));
-        this.log('🧹 Storage cleared');
-    }
-
-    resetState() {
-        this.log('🔄 Resetting application state...');
-        setTimeout(() => window.location.reload(), 500);
-    }
-
-    generateTestData() {
-        // Generate test messages
-        const testMessages = [
-            'Test message 1 for virtualization',
-            'Another test message',
-            'Testing streaming behavior',
-            'Quick action test',
-            'Performance test message'
-        ];
-
-        testMessages.forEach((msg, index) => {
-            setTimeout(() => {
-                this.simulateSendMessage({ text: `${msg} ${index + 1}` });
-            }, index * 1000);
+  takeScreenshot() {
+    if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+      navigator.mediaDevices
+        .getDisplayMedia({ video: true })
+        .then((stream) => {
+          this.log('📸 Screenshot capability available');
+          stream.getTracks().forEach((track) => track.stop());
+        })
+        .catch(() => {
+          this.log('📸 Screenshot not supported in this browser');
         });
+    } else {
+      this.log('📸 Screenshot not supported in this browser');
+    }
+  }
 
-        this.log('🎯 Generated test data');
+  async runAllScenarios() {
+    const scenarios = Object.keys(this.scenarios);
+    this.log(`🚀 Running all ${scenarios.length} scenarios...`);
+
+    for (const scenario of scenarios) {
+      await this.runScenario(scenario);
+      await this.delay(500); // Pause between scenarios
     }
 
-    exportResults() {
-        const exportData = {
-            timestamp: new Date().toISOString(),
-            version: '2.0',
-            testResults: this.testResults,
-            configuration: {
-                streaming: window.ZANTARA_STREAMING?.isEnabled(),
-                maxMessages: window.ZANTARA_VIRTUALIZATION?.getMaxMessages(),
-                devMode: window.ZANTARA_STREAMING?.isDevMode()
-            },
-            environment: {
-                userAgent: navigator.userAgent,
-                viewport: `${window.innerWidth}x${window.innerHeight}`,
-                url: window.location.href
-            }
-        };
+    this.log('🏁 All scenarios completed');
+  }
 
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `zantara-test-results-${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+  // Logging
+  logs = [];
 
-        this.log('📁 Test results exported');
+  log(message) {
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = `[${timestamp}] ${message}`;
+    this.logs.push(logEntry);
+    console.log(`[Test Console] ${logEntry}`);
+  }
+
+  // Public API
+  show() {
+    if (!this.container) {
+      this.container = this.createUI();
+      document.body.appendChild(this.container);
     }
+    this.container.classList.add('visible');
+    this.isActive = true;
+    this.log('🧪 Test Console opened');
+  }
 
-    clearResults() {
-        this.testResults = [];
-        const resultsContainer = this.container?.querySelector('.results-list');
-        if (resultsContainer) {
-            resultsContainer.innerHTML = '';
-        }
-        this.updateStats();
-        this.log('🗑️ Test results cleared');
+  hide() {
+    if (this.container) {
+      this.container.classList.remove('visible');
     }
+    this.isActive = false;
+    this.log('👋 Test Console closed');
+  }
 
-    takeScreenshot() {
-        if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-            navigator.mediaDevices.getDisplayMedia({ video: true })
-                .then(stream => {
-                    this.log('📸 Screenshot capability available');
-                    stream.getTracks().forEach(track => track.stop());
-                })
-                .catch(() => {
-                    this.log('📸 Screenshot not supported in this browser');
-                });
-        } else {
-            this.log('📸 Screenshot not supported in this browser');
-        }
+  minimize() {
+    if (this.container) {
+      this.container.classList.toggle('minimized');
     }
+  }
 
-    async runAllScenarios() {
-        const scenarios = Object.keys(this.scenarios);
-        this.log(`🚀 Running all ${scenarios.length} scenarios...`);
-
-        for (const scenario of scenarios) {
-            await this.runScenario(scenario);
-            await this.delay(500); // Pause between scenarios
-        }
-
-        this.log('🏁 All scenarios completed');
+  toggle() {
+    if (this.isActive) {
+      this.hide();
+    } else {
+      this.show();
     }
-
-    // Logging
-    logs = [];
-
-    log(message) {
-        const timestamp = new Date().toLocaleTimeString();
-        const logEntry = `[${timestamp}] ${message}`;
-        this.logs.push(logEntry);
-        console.log(`[Test Console] ${logEntry}`);
-    }
-
-    // Public API
-    show() {
-        if (!this.container) {
-            this.container = this.createUI();
-            document.body.appendChild(this.container);
-        }
-        this.container.classList.add('visible');
-        this.isActive = true;
-        this.log('🧪 Test Console opened');
-    }
-
-    hide() {
-        if (this.container) {
-            this.container.classList.remove('visible');
-        }
-        this.isActive = false;
-        this.log('👋 Test Console closed');
-    }
-
-    minimize() {
-        if (this.container) {
-            this.container.classList.toggle('minimized');
-        }
-    }
-
-    toggle() {
-        if (this.isActive) {
-            this.hide();
-        } else {
-            this.show();
-        }
-    }
+  }
 }
 
 // Simple Mock Server
 class MockServer {
-    constructor() {
-        this.enabled = false;
-        this.latency = 500;
-        this.errorRate = 0;
-    }
+  constructor() {
+    this.enabled = false;
+    this.latency = 500;
+    this.errorRate = 0;
+  }
 }
 
 // Initialize Test Console
@@ -800,10 +814,10 @@ const zantaraTestConsole = new TestConsole();
 
 // Global keyboard shortcut: Ctrl+Shift+T
 document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.shiftKey && e.key === 'T') {
-        e.preventDefault();
-        zantaraTestConsole.toggle();
-    }
+  if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+    e.preventDefault();
+    zantaraTestConsole.toggle();
+  }
 });
 
 // Make globally accessible

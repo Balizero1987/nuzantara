@@ -1,9 +1,9 @@
 /**
  * High-Throughput Message Queue System
- * 
+ *
  * Provides reliable message queuing for chat and real-time communications
  * with Redis backend and graceful degradation.
- * 
+ *
  * Features:
  * - Redis-based message queue with persistence
  * - Priority queues for urgent messages
@@ -59,7 +59,7 @@ class MessageQueueService {
     totalDeadLetter: 0,
     averageProcessingTime: 0,
     queueDepth: 0,
-    activeWorkers: 0
+    activeWorkers: 0,
   };
   private config: Required<QueueConfig>;
   private rateLimitCache: Map<string, { count: number; resetAt: number }> = new Map();
@@ -71,7 +71,7 @@ class MessageQueueService {
       batchSize: config.batchSize ?? 10,
       rateLimitPerUser: config.rateLimitPerUser ?? 100,
       rateLimitWindow: config.rateLimitWindow ?? 60000, // 1 minute
-      enableDeadLetter: config.enableDeadLetter ?? true
+      enableDeadLetter: config.enableDeadLetter ?? true,
     };
   }
 
@@ -101,8 +101,8 @@ class MessageQueueService {
               return false;
             }
             return Math.min(retries * 100, 1000);
-          }
-        }
+          },
+        },
       });
 
       this.redis.on('error', (err) => {
@@ -157,22 +157,22 @@ class MessageQueueService {
       id: this.generateMessageId(),
       timestamp: Date.now(),
       retryCount: 0,
-      maxRetries: message.maxRetries ?? this.config.maxRetries
+      maxRetries: message.maxRetries ?? this.config.maxRetries,
     };
 
     try {
       const queueKey = this.getQueueKey(message.channel, message.priority);
       await this.redis!.rPush(queueKey, JSON.stringify(msg));
-      
+
       // Update stats
       await this.updateQueueDepth();
-      
+
       // Audit log
       auditLog('message_queue_enqueue', {
         messageId: msg.id,
         userId: message.userId,
         channel: message.channel,
-        priority: message.priority
+        priority: message.priority,
       });
 
       logger.debug(`Message queued: ${msg.id} (${message.channel}, ${message.priority})`);
@@ -202,11 +202,11 @@ class MessageQueueService {
       try {
         // Process all priority levels
         const priorities: Message['priority'][] = ['urgent', 'high', 'normal', 'low'];
-        
+
         for (const priority of priorities) {
           const queueKey = this.getQueueKey(channel, priority);
           const batch = await this.redis!.lRange(queueKey, 0, this.config.batchSize - 1);
-          
+
           if (batch.length === 0) continue;
 
           // Remove processed messages
@@ -228,7 +228,7 @@ class MessageQueueService {
               auditLog('message_queue_process', {
                 messageId: message.id,
                 channel,
-                processingTime
+                processingTime,
               });
             } catch (error: any) {
               // Handle retry logic - message must be defined here
@@ -249,7 +249,7 @@ class MessageQueueService {
     const interval = setInterval(processQueue, 100); // Poll every 100ms
     this.workers.set(channel, interval);
     this.stats.activeWorkers++;
-    
+
     logger.info(`✅ Worker started for channel: ${channel}`);
   }
 
@@ -271,20 +271,20 @@ class MessageQueueService {
    */
   private async handleProcessingError(message: Message, error: any): Promise<void> {
     const retryCount = (message.retryCount || 0) + 1;
-    
+
     if (retryCount >= (message.maxRetries || this.config.maxRetries)) {
       // Move to dead letter queue
       if (this.config.enableDeadLetter) {
         await this.moveToDeadLetter(message, error);
       }
-      
+
       this.updateStats(false, 0);
       auditLog('message_queue_dead_letter', {
         messageId: message.id,
         error: error.message,
-        retryCount
+        retryCount,
       });
-      
+
       logger.error(`Message ${message.id} moved to dead letter queue after ${retryCount} retries`);
       return;
     }
@@ -308,9 +308,9 @@ class MessageQueueService {
     const dlqMessage = {
       ...message,
       error: error.message,
-      failedAt: Date.now()
+      failedAt: Date.now(),
     };
-    
+
     await this.redis!.rPush(dlqKey, JSON.stringify(dlqMessage));
     this.stats.totalDeadLetter++;
   }
@@ -326,7 +326,7 @@ class MessageQueueService {
     if (!cached || now > cached.resetAt) {
       this.rateLimitCache.set(key, {
         count: 1,
-        resetAt: now + this.config.rateLimitWindow
+        resetAt: now + this.config.rateLimitWindow,
       });
       return true;
     }
@@ -385,7 +385,7 @@ class MessageQueueService {
       this.stats.totalProcessed++;
       // Update average processing time (exponential moving average)
       const alpha = 0.1;
-      this.stats.averageProcessingTime = 
+      this.stats.averageProcessingTime =
         alpha * processingTime + (1 - alpha) * this.stats.averageProcessingTime;
     } else {
       this.stats.totalFailed++;
@@ -395,7 +395,9 @@ class MessageQueueService {
   /**
    * Process message immediately (fallback mode)
    */
-  private async processImmediate(message: Omit<Message, 'id' | 'timestamp' | 'retryCount'>): Promise<string> {
+  private async processImmediate(
+    message: Omit<Message, 'id' | 'timestamp' | 'retryCount'>
+  ): Promise<string> {
     const msgId = this.generateMessageId();
     logger.debug(`Processing message immediately: ${msgId}`);
     // In fallback mode, messages are processed synchronously
@@ -418,9 +420,9 @@ class MessageQueueService {
       urgent: 0,
       high: 1,
       normal: 2,
-      low: 3
+      low: 3,
     }[priority];
-    
+
     return `queue:${channel}:${priorityNum}`;
   }
 
@@ -471,4 +473,3 @@ export async function initializeMessageQueue(config?: QueueConfig): Promise<Mess
 
 export { MessageQueueService };
 export type { Message, QueueConfig, QueueStats };
-

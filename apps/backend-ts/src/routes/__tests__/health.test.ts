@@ -67,7 +67,7 @@ describe('Health Routes', () => {
   describe('GET /health', () => {
     it('should return basic health status', async () => {
       const response = await request(app).get('/health');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
       expect(response.body.data.status).toBe('healthy');
@@ -79,9 +79,9 @@ describe('Health Routes', () => {
   describe('GET /health/detailed', () => {
     it('should return detailed health information', async () => {
       (featureFlags.isEnabled as jest.Mock).mockReturnValue(false);
-      
+
       const response = await request(app).get('/health/detailed');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
       expect(response.body.data.services).toBeDefined();
@@ -92,9 +92,9 @@ describe('Health Routes', () => {
       (featureFlags.isEnabled as jest.Mock).mockImplementation((flag) => {
         return flag === FeatureFlag.ENABLE_ENHANCED_POOLING;
       });
-      
+
       const response = await request(app).get('/health/detailed');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.data.services.postgresql).toBeDefined();
     });
@@ -103,9 +103,9 @@ describe('Health Routes', () => {
       (featureFlags.isEnabled as jest.Mock).mockImplementation((flag) => {
         return flag === FeatureFlag.ENABLE_CIRCUIT_BREAKER;
       });
-      
+
       const response = await request(app).get('/health/detailed');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.data.circuitBreakers).toBeDefined();
     });
@@ -114,9 +114,9 @@ describe('Health Routes', () => {
   describe('GET /health/ready', () => {
     it('should return readiness status', async () => {
       (featureFlags.isEnabled as jest.Mock).mockReturnValue(false);
-      
+
       const response = await request(app).get('/health/ready');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
       expect(response.body.data.ready).toBe(true);
@@ -125,15 +125,15 @@ describe('Health Routes', () => {
 
     it('should return 503 if not ready', async () => {
       (featureFlags.isEnabled as jest.Mock).mockReturnValue(true);
-      
+
       // Mock database health check to fail
       const { getDatabasePool } = require('../../services/connection-pool.js');
       getDatabasePool.mockReturnValueOnce({
         healthCheck: jest.fn().mockResolvedValue(false),
       });
-      
+
       const response = await request(app).get('/health/ready');
-      
+
       expect(response.status).toBe(503);
     });
   });
@@ -141,7 +141,7 @@ describe('Health Routes', () => {
   describe('GET /health/live', () => {
     it('should return liveness status', async () => {
       const response = await request(app).get('/health/live');
-      
+
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
       expect(response.body.data.alive).toBe(true);
@@ -152,9 +152,9 @@ describe('Health Routes', () => {
   describe('GET /metrics', () => {
     it('should return Prometheus metrics', async () => {
       (featureFlags.isEnabled as jest.Mock).mockReturnValue(false);
-      
+
       const response = await request(app).get('/metrics');
-      
+
       expect(response.status).toBe(200);
       expect(response.headers['content-type']).toContain('text/plain');
       expect(response.text).toContain('process_memory_heap_used_bytes');
@@ -165,9 +165,9 @@ describe('Health Routes', () => {
       (featureFlags.isEnabled as jest.Mock).mockImplementation((flag) => {
         return flag === FeatureFlag.ENABLE_ENHANCED_POOLING;
       });
-      
+
       const response = await request(app).get('/metrics');
-      
+
       expect(response.text).toContain('db_pool');
     });
 
@@ -175,13 +175,10 @@ describe('Health Routes', () => {
       (featureFlags.isEnabled as jest.Mock).mockImplementation((flag) => {
         return flag === FeatureFlag.ENABLE_CIRCUIT_BREAKER;
       });
-      
+
       const response = await request(app).get('/metrics');
-      
+
       expect(response.text).toContain('circuit_breaker');
     });
   });
 });
-
-
-

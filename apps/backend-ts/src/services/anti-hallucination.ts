@@ -2,7 +2,7 @@
 // Eliminates false information and ensures all responses are grounded in verified data
 
 import logger from './logger.js';
-import { getFirestore } from "./firebase.js";
+import { getFirestore } from './firebase.js';
 
 export interface VerifiedFact {
   fact: string;
@@ -34,7 +34,7 @@ export class AntiHallucinationSystem {
     'historical_data',
     'configuration',
     'database',
-    'external_api'
+    'external_api',
   ]);
 
   private trustedPatterns = {
@@ -48,17 +48,17 @@ export class AntiHallucinationSystem {
     response_times: {
       min_hours: 1,
       max_hours: 48,
-      typical_hours: 24
+      typical_hours: 24,
     },
 
     // Verified team members
     team_members: {
-      'zero': { role: 'ceo', email: 'zero@balizero.com', verified: true },
-      'zainal': { role: 'ceo_real', email: 'zainal@balizero.com', verified: true },
-      
-      'damar': { role: 'junior_consultant', email: 'damar@balizero.com', verified: true },
-      'ari': { role: 'lead_specialist', email: 'ari.firda@balizero.com', verified: true }
-    }
+      zero: { role: 'ceo', email: 'zero@balizero.com', verified: true },
+      zainal: { role: 'ceo_real', email: 'zainal@balizero.com', verified: true },
+
+      damar: { role: 'junior_consultant', email: 'damar@balizero.com', verified: true },
+      ari: { role: 'lead_specialist', email: 'ari.firda@balizero.com', verified: true },
+    },
   };
 
   private constructor() {}
@@ -97,7 +97,7 @@ export class AntiHallucinationSystem {
       evidence: evidence || null,
       confidence,
       timestamp: new Date().toISOString(),
-      verified: confidence >= 0.7
+      verified: confidence >= 0.7,
     };
 
     // Store fact
@@ -118,17 +118,17 @@ export class AntiHallucinationSystem {
     const lowerFact = fact.toLowerCase();
 
     // Check service mentions
-    if (this.trustedPatterns.services.some(s => lowerFact.includes(s.toLowerCase()))) {
+    if (this.trustedPatterns.services.some((s) => lowerFact.includes(s.toLowerCase()))) {
       return true;
     }
 
     // Check visa types
-    if (this.trustedPatterns.visa_types.some(v => lowerFact.includes(v.toLowerCase()))) {
+    if (this.trustedPatterns.visa_types.some((v) => lowerFact.includes(v.toLowerCase()))) {
       return true;
     }
 
     // Check locations
-    if (this.trustedPatterns.locations.some(l => lowerFact.includes(l.toLowerCase()))) {
+    if (this.trustedPatterns.locations.some((l) => lowerFact.includes(l.toLowerCase()))) {
       return true;
     }
 
@@ -179,14 +179,16 @@ export class AntiHallucinationSystem {
       confidence: Math.max(0.1, confidence),
       grounded: confidence >= 0.7,
       verification_timestamp: new Date().toISOString(),
-      warnings: warnings.length > 0 ? warnings : undefined
+      warnings: warnings.length > 0 ? warnings : undefined,
     };
   }
 
   /**
    * Validate numeric claims in response
    */
-  private async validateNumericClaims(obj: any): Promise<{ warnings: string[], confidence: number }> {
+  private async validateNumericClaims(
+    obj: any
+  ): Promise<{ warnings: string[]; confidence: number }> {
     const warnings: string[] = [];
     let confidence = 1.0;
 
@@ -225,7 +227,9 @@ export class AntiHallucinationSystem {
   /**
    * Validate text claims
    */
-  private async validateTextClaims(text: string): Promise<{ warnings: string[], confidence: number }> {
+  private async validateTextClaims(
+    text: string
+  ): Promise<{ warnings: string[]; confidence: number }> {
     const warnings: string[] = [];
     let confidence = 1.0;
 
@@ -233,7 +237,9 @@ export class AntiHallucinationSystem {
     const absoluteTerms = ['always', 'never', 'guaranteed', '100%', 'definitely'];
     for (const term of absoluteTerms) {
       if (text.toLowerCase().includes(term)) {
-        warnings.push(`Absolute statement detected: '${term}' - consider using probabilistic language`);
+        warnings.push(
+          `Absolute statement detected: '${term}' - consider using probabilistic language`
+        );
         confidence *= 0.8;
       }
     }
@@ -245,7 +251,7 @@ export class AntiHallucinationSystem {
       for (const num of numbers) {
         // Allow known good numbers
         const knownGoodNumbers = ['24', '48', '1', '2', '3', '5', '7', '10', '30', '60', '90'];
-        if (!knownGoodNumbers.some(good => num.includes(good))) {
+        if (!knownGoodNumbers.some((good) => num.includes(good))) {
           warnings.push(`Unverified specific number: ${num}`);
           confidence *= 0.9;
         }
@@ -263,7 +269,7 @@ export class AntiHallucinationSystem {
       const db = getFirestore();
       await db.collection('verified_facts').add({
         ...fact,
-        created_at: new Date()
+        created_at: new Date(),
       });
     } catch (error) {
       logger.info('📝 Fact stored locally only');
@@ -293,16 +299,16 @@ export class AntiHallucinationSystem {
     sources_used: string[];
   } {
     const facts = Array.from(this.factStore.values());
-    const verified = facts.filter(f => f.verified);
+    const verified = facts.filter((f) => f.verified);
     const avgConfidence = facts.reduce((sum, f) => sum + f.confidence, 0) / (facts.length || 1);
-    const sources = [...new Set(facts.map(f => f.source))];
+    const sources = [...new Set(facts.map((f) => f.source))];
 
     return {
       total_facts: facts.length,
       verified_facts: verified.length,
       unverified_facts: facts.length - verified.length,
       average_confidence: avgConfidence,
-      sources_used: sources
+      sources_used: sources,
     };
   }
 
@@ -318,7 +324,8 @@ export class AntiHallucinationSystem {
     const sources: string[] = [];
 
     if (handlerName.includes('memory')) sources.push('firestore');
-    if (handlerName.includes('drive') || handlerName.includes('calendar')) sources.push('google_workspace');
+    if (handlerName.includes('drive') || handlerName.includes('calendar'))
+      sources.push('google_workspace');
     if (handlerName.includes('ai') || handlerName.includes('openai')) sources.push('external_api');
     if (handlerName.includes('identity')) sources.push('database');
     if (handlerName.includes('zara')) sources.push('system_config');
@@ -348,7 +355,7 @@ export class AntiHallucinationSystem {
       suggestion: 'Please try with more specific parameters or contact support',
       grounded: true,
       sources: ['system_config'],
-      confidence: 1.0
+      confidence: 1.0,
     };
   }
 }

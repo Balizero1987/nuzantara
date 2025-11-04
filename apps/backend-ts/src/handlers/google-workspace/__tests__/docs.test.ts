@@ -5,7 +5,7 @@ import { BadRequestError } from '../../../utils/errors.js';
 const mockDocs = {
   documents: {
     create: jest.fn().mockResolvedValue({
-      data: { documentId: 'test-doc-id' }
+      data: { documentId: 'test-doc-id' },
     }),
     get: jest.fn().mockResolvedValue({
       data: {
@@ -13,30 +13,42 @@ const mockDocs = {
         title: 'Test Document',
         revisionId: 'rev-1',
         body: {
-          content: [{
-            paragraph: {
-              elements: [{
-                textRun: { content: 'Test content' }
-              }]
-            }
-          }]
-        }
-      }
+          content: [
+            {
+              paragraph: {
+                elements: [
+                  {
+                    textRun: { content: 'Test content' },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
     }),
     batchUpdate: jest.fn().mockResolvedValue({
-      data: { replies: [] }
-    })
-  }
+      data: { replies: [] },
+    }),
+  },
 };
 
-jest.mock('../../../services/google-auth-service.js', () => ({
-  getDocs: jest.fn().mockResolvedValue(mockDocs)
-}), { virtual: true });
+jest.mock(
+  '../../../services/google-auth-service.js',
+  () => ({
+    getDocs: jest.fn().mockResolvedValue(mockDocs),
+  }),
+  { virtual: true }
+);
 
 // Mock bridge proxy
-jest.mock('../../../services/bridgeProxy.js', () => ({
-  forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null)
-}), { virtual: true });
+jest.mock(
+  '../../../services/bridgeProxy.js',
+  () => ({
+    forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null),
+  }),
+  { virtual: true }
+);
 
 describe('Docs', () => {
   let handlers: any;
@@ -50,7 +62,7 @@ describe('Docs', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.docsCreate({
         title: 'Test Document',
-        content: 'Test content'
+        content: 'Test content',
       });
 
       expect(result).toBeDefined();
@@ -68,7 +80,7 @@ describe('Docs', () => {
 
     it('should handle params with defaults', async () => {
       const result = await handlers.docsCreate({
-        title: 'My Document'
+        title: 'My Document',
       });
       expect(result.ok).toBe(true);
       expect(result.data.title).toBe('My Document');
@@ -78,7 +90,7 @@ describe('Docs', () => {
   describe('docsRead', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.docsRead({
-        documentId: 'test-doc-id'
+        documentId: 'test-doc-id',
       });
 
       expect(result).toBeDefined();
@@ -93,9 +105,11 @@ describe('Docs', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.docsRead({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.docsRead({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -103,12 +117,14 @@ describe('Docs', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.docsUpdate({
         documentId: 'test-doc-id',
-        requests: [{
-          insertText: {
-            location: { index: 1 },
-            text: 'Updated content'
-          }
-        }]
+        requests: [
+          {
+            insertText: {
+              location: { index: 1 },
+              text: 'Updated content',
+            },
+          },
+        ],
       });
 
       expect(result).toBeDefined();
@@ -122,10 +138,11 @@ describe('Docs', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.docsUpdate({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.docsUpdate({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
-
 });

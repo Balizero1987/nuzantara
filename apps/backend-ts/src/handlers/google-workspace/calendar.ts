@@ -1,7 +1,7 @@
-import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
-import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
-import { getCalendar } from "../../services/google-auth-service.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
+import { getCalendar } from '../../services/google-auth-service.js';
 
 // Using centralized Google authentication service
 
@@ -26,18 +26,41 @@ export interface CalendarCreateParams {
   location?: string;
 }
 
-export interface CalendarGetParams { calendarId?: string; eventId: string }
+export interface CalendarGetParams {
+  calendarId?: string;
+  eventId: string;
+}
 
 // Result interfaces
-export interface CalendarListResult { events: any[] }
-export interface CalendarCreateResult { event: any }
-export interface CalendarGetResult { event: any }
+export interface CalendarListResult {
+  events: any[];
+}
+export interface CalendarCreateResult {
+  event: any;
+}
+export interface CalendarGetResult {
+  event: any;
+}
 
 export async function calendarList(params: CalendarListParams) {
-  const { calendarId = 'c_7000dd5c02a3819af0774ad34d76379c506928057eff5e6540d662073aaeaaa7@group.calendar.google.com', timeMin, timeMax, maxResults = 25, singleEvents = true, orderBy = 'startTime' } = params || {} as CalendarListParams;
+  const {
+    calendarId = 'c_7000dd5c02a3819af0774ad34d76379c506928057eff5e6540d662073aaeaaa7@group.calendar.google.com',
+    timeMin,
+    timeMax,
+    maxResults = 25,
+    singleEvents = true,
+    orderBy = 'startTime',
+  } = params || ({} as CalendarListParams);
   const cal = await getCalendar();
   if (cal) {
-    const res = await cal.events.list({ calendarId, timeMin, timeMax, maxResults, singleEvents, orderBy });
+    const res = await cal.events.list({
+      calendarId,
+      timeMin,
+      timeMax,
+      maxResults,
+      singleEvents,
+      orderBy,
+    });
     return ok({ events: res.data.items || [] });
   }
   const bridged = await forwardToBridgeIfSupported('calendar.list', params as any);
@@ -54,14 +77,16 @@ export async function calendarCreate(params: CalendarCreateParams) {
     end,
     description,
     attendees,
-    location
+    location,
   } = params || ({} as CalendarCreateParams);
 
   let requestBody = event as any;
 
   if (!requestBody) {
     if (!summary || !start || !end) {
-      throw new BadRequestError('event is required (provide `event` object or summary/start/end fields)');
+      throw new BadRequestError(
+        'event is required (provide `event` object or summary/start/end fields)'
+      );
     }
 
     requestBody = { summary, start, end } as any;
@@ -83,7 +108,10 @@ export async function calendarCreate(params: CalendarCreateParams) {
 }
 
 export async function calendarGet(params: CalendarGetParams) {
-  const { calendarId = 'c_7000dd5c02a3819af0774ad34d76379c506928057eff5e6540d662073aaeaaa7@group.calendar.google.com', eventId } = params || ({} as CalendarGetParams);
+  const {
+    calendarId = 'c_7000dd5c02a3819af0774ad34d76379c506928057eff5e6540d662073aaeaaa7@group.calendar.google.com',
+    eventId,
+  } = params || ({} as CalendarGetParams);
   if (!eventId) throw new BadRequestError('eventId is required');
 
   const cal = await getCalendar();

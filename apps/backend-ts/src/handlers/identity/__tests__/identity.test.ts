@@ -28,7 +28,7 @@ describe('Identity', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.identityResolve({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
@@ -66,7 +66,7 @@ describe('Identity', () => {
       // Function should handle invalid params
       try {
         const result = await handlers.onboardingStart({
-          invalid: 'data'
+          invalid: 'data',
         });
         expect(result).toBeDefined();
       } catch (error: any) {
@@ -75,5 +75,4 @@ describe('Identity', () => {
       }
     });
   });
-
 });

@@ -1,20 +1,20 @@
 /**
  * 🚀 ZANTARA v3 Ω Performance Cache Layer
- * 
+ *
  * CRITICAL OPTIMIZATION: Reduce 30s response time to <2s
- * 
+ *
  * Features:
  * - Domain-specific TTL strategies
  * - Parallel query execution
  * - Request deduplication
  * - Intelligent cache warming
  * - Automatic fallback on cache miss
- * 
+ *
  * Performance Targets:
  * - Quick mode: <500ms (90th percentile)
  * - Detailed mode: <2s (90th percentile)
  * - Comprehensive mode: <5s (95th percentile)
- * 
+ *
  * @author Claude Sonnet 4.5
  * @date 2025-11-02
  */
@@ -25,17 +25,17 @@ import crypto from 'crypto';
 
 // Domain-specific cache TTL configurations (in seconds)
 export const CACHE_TTL_CONFIG = {
-  kbli: 7200,           // 2 hours - COMPLETE KBLI database (stable)
-  kbli_complete: 14400,  // 4 hours - Enhanced KBLI analysis (very stable)
-  pricing: 14400,       // 4 hours - business-critical but stable
-  team: 1800,           // 30 minutes - changes often
-  legal: 21600,         // 6 hours - stable regulations
-  immigration: 21600,   // 6 hours - stable regulations
-  tax: 21600,           // 6 hours - stable regulations
-  property: 21600,      // 6 hours - stable regulations
-  business: 7200,       // 2 hours - business setup info
-  memory: 900,          // 15 minutes - user-generated content
-  collective: 900       // 15 minutes - collective intelligence
+  kbli: 7200, // 2 hours - COMPLETE KBLI database (stable)
+  kbli_complete: 14400, // 4 hours - Enhanced KBLI analysis (very stable)
+  pricing: 14400, // 4 hours - business-critical but stable
+  team: 1800, // 30 minutes - changes often
+  legal: 21600, // 6 hours - stable regulations
+  immigration: 21600, // 6 hours - stable regulations
+  tax: 21600, // 6 hours - stable regulations
+  property: 21600, // 6 hours - stable regulations
+  business: 7200, // 2 hours - business setup info
+  memory: 900, // 15 minutes - user-generated content
+  collective: 900, // 15 minutes - collective intelligence
 } as const;
 
 type CacheDomain = keyof typeof CACHE_TTL_CONFIG;
@@ -53,37 +53,40 @@ interface CacheMetrics {
   cacheHits: number;
   cacheMisses: number;
   averageResponseTime: number;
-  domainMetrics: Record<string, {
-    queries: number;
-    hits: number;
-    avgTime: number;
-  }>;
+  domainMetrics: Record<
+    string,
+    {
+      queries: number;
+      hits: number;
+      avgTime: number;
+    }
+  >;
 }
 
 class V3PerformanceCache {
   private cache: EnhancedRedisCache;
   private metrics: CacheMetrics;
   private pendingRequests: Map<string, Promise<any>> = new Map();
-  
+
   constructor() {
     this.cache = getEnhancedCache({
-      l1Ttl: 60,           // 1 minute L1 (in-memory)
-      l2Ttl: 3600,         // 1 hour L2 (Redis)
-      maxL1Size: 2000,     // Increased for v3 queries
+      l1Ttl: 60, // 1 minute L1 (in-memory)
+      l2Ttl: 3600, // 1 hour L2 (Redis)
+      maxL1Size: 2000, // Increased for v3 queries
       enableCompression: true,
       enableWarming: true,
-      enableStats: true
+      enableStats: true,
     });
-    
+
     this.metrics = {
       totalQueries: 0,
       cacheHits: 0,
       cacheMisses: 0,
       averageResponseTime: 0,
-      domainMetrics: {}
+      domainMetrics: {},
     };
   }
-  
+
   /**
    * Initialize cache system
    */
@@ -91,14 +94,14 @@ class V3PerformanceCache {
     try {
       await this.cache.initialize();
       logger.info('✅ V3 Performance Cache initialized');
-      
+
       // Warm cache with common queries
       await this.warmCommonQueries();
     } catch (error: any) {
       logger.error('Failed to initialize V3 Performance Cache:', error);
     }
   }
-  
+
   /**
    * Generate cache key for query
    */
@@ -107,18 +110,18 @@ class V3PerformanceCache {
       query: params.query?.toLowerCase().trim(),
       domain: params.domain || 'all',
       mode: params.mode || 'quick',
-      include_sources: params.include_sources ?? true
+      include_sources: params.include_sources ?? true,
     };
-    
+
     const hash = crypto
       .createHash('sha256')
       .update(JSON.stringify(normalized))
       .digest('hex')
       .substring(0, 16);
-    
+
     return `${prefix}:${normalized.domain}:${hash}`;
   }
-  
+
   /**
    * Get cached query result with request deduplication
    */
@@ -129,16 +132,16 @@ class V3PerformanceCache {
   ): Promise<T> {
     const startTime = Date.now();
     this.metrics.totalQueries++;
-    
+
     const cacheKey = this.generateCacheKey(params);
-    
+
     // Request deduplication: check if same query is already in flight
     const pending = this.pendingRequests.get(cacheKey);
     if (pending) {
       logger.debug(`Deduplicating request: ${cacheKey}`);
       return pending as Promise<T>;
     }
-    
+
     try {
       // Try cache first
       const cached = await this.cache.get<T>(cacheKey);
@@ -148,25 +151,27 @@ class V3PerformanceCache {
         logger.debug(`Cache HIT: ${cacheKey} (${Date.now() - startTime}ms)`);
         return cached;
       }
-      
+
       // Cache miss - execute query
       this.metrics.cacheMisses++;
       logger.debug(`Cache MISS: ${cacheKey}`);
-      
+
       // Create promise and track it
       const promise = executor();
       this.pendingRequests.set(cacheKey, promise);
-      
+
       try {
         const result = await promise;
-        
+
         // Cache the result with domain-specific TTL
         const ttl = CACHE_TTL_CONFIG[domain];
         await this.cache.set(cacheKey, result, ttl, [domain, params.mode || 'quick']);
-        
+
         this.updateDomainMetrics(domain, false, Date.now() - startTime);
-        logger.debug(`Cached result: ${cacheKey} (TTL: ${ttl}s, Time: ${Date.now() - startTime}ms)`);
-        
+        logger.debug(
+          `Cached result: ${cacheKey} (TTL: ${ttl}s, Time: ${Date.now() - startTime}ms)`
+        );
+
         return result;
       } finally {
         // Clean up pending request tracking
@@ -178,7 +183,7 @@ class V3PerformanceCache {
       return executor();
     }
   }
-  
+
   /**
    * Execute multiple domain queries in parallel
    */
@@ -190,9 +195,9 @@ class V3PerformanceCache {
     }>
   ): Promise<Array<{ domain: CacheDomain; result: T | null; error?: Error }>> {
     const startTime = Date.now();
-    
+
     logger.info(`🚀 Executing ${queries.length} domain queries in parallel`);
-    
+
     const results = await Promise.allSettled(
       queries.map(async ({ domain, params, executor }) => {
         try {
@@ -204,7 +209,7 @@ class V3PerformanceCache {
         }
       })
     );
-    
+
     const processed = results.map((result, index) => {
       if (result.status === 'fulfilled') {
         return result.value;
@@ -212,17 +217,17 @@ class V3PerformanceCache {
         return {
           domain: queries[index].domain,
           result: null,
-          error: result.reason
+          error: result.reason,
         };
       }
     });
-    
+
     const elapsed = Date.now() - startTime;
     logger.info(`✅ Parallel execution complete: ${elapsed}ms (${queries.length} queries)`);
-    
+
     return processed;
   }
-  
+
   /**
    * Invalidate cache by domain
    */
@@ -236,7 +241,7 @@ class V3PerformanceCache {
       return 0;
     }
   }
-  
+
   /**
    * Invalidate specific query
    */
@@ -249,32 +254,25 @@ class V3PerformanceCache {
       logger.error('Failed to invalidate query:', error);
     }
   }
-  
+
   /**
    * Warm cache with common queries
    */
   private async warmCommonQueries(): Promise<void> {
     // Common KBLI queries
-    const commonQueries = [
-      'restaurant',
-      'hotel',
-      'cafe',
-      'accommodation',
-      'retail',
-      'services'
-    ];
-    
+    const commonQueries = ['restaurant', 'hotel', 'cafe', 'accommodation', 'retail', 'services'];
+
     logger.info('Warming cache with common queries...');
-    
+
     // Pre-generate cache keys for warming
-    const keys = commonQueries.map(query => 
+    const keys = commonQueries.map((query) =>
       this.generateCacheKey({ query, domain: 'kbli', mode: 'quick' })
     );
-    
+
     // Note: Actual warming happens lazily when queries are executed
     logger.info(`Prepared ${keys.length} cache keys for warming`);
   }
-  
+
   /**
    * Update domain-specific metrics
    */
@@ -283,38 +281,39 @@ class V3PerformanceCache {
       this.metrics.domainMetrics[domain] = {
         queries: 0,
         hits: 0,
-        avgTime: 0
+        avgTime: 0,
       };
     }
-    
+
     const domainMetrics = this.metrics.domainMetrics[domain];
     domainMetrics.queries++;
     if (hit) domainMetrics.hits++;
-    
+
     // Update moving average
     const alpha = 0.2;
     domainMetrics.avgTime = alpha * responseTime + (1 - alpha) * domainMetrics.avgTime;
-    
+
     // Update overall average
-    this.metrics.averageResponseTime = 
+    this.metrics.averageResponseTime =
       alpha * responseTime + (1 - alpha) * this.metrics.averageResponseTime;
   }
-  
+
   /**
    * Get performance metrics
    */
   getMetrics(): CacheMetrics & { cacheStats: any; hitRate: number } {
-    const hitRate = this.metrics.totalQueries > 0
-      ? (this.metrics.cacheHits / this.metrics.totalQueries) * 100
-      : 0;
-    
+    const hitRate =
+      this.metrics.totalQueries > 0
+        ? (this.metrics.cacheHits / this.metrics.totalQueries) * 100
+        : 0;
+
     return {
       ...this.metrics,
       cacheStats: this.cache.getStats(),
-      hitRate: parseFloat(hitRate.toFixed(2))
+      hitRate: parseFloat(hitRate.toFixed(2)),
     };
   }
-  
+
   /**
    * Reset metrics
    */
@@ -324,11 +323,11 @@ class V3PerformanceCache {
       cacheHits: 0,
       cacheMisses: 0,
       averageResponseTime: 0,
-      domainMetrics: {}
+      domainMetrics: {},
     };
     this.cache.resetStats();
   }
-  
+
   /**
    * Shutdown cache
    */

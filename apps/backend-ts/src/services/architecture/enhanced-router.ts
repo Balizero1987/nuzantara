@@ -1,13 +1,13 @@
 /**
  * Enhanced Router with Service Registry and Circuit Breaker
- * 
+ *
  * Advanced routing system for v3 Ω endpoints with:
  * - Service discovery and load balancing
  * - Circuit breaker pattern for resilience
  * - Request/response transformation
  * - Monitoring and metrics
  * - Rate limiting per service
- * 
+ *
  * @author GLM 4.6 - System Architect
  * @version 1.0.0
  */
@@ -25,7 +25,7 @@ class SimpleRateLimiter {
 
   async consume(key: string): Promise<void> {
     const now = Date.now();
-    const windowStart = now - (this.config.duration * 1000);
+    const windowStart = now - this.config.duration * 1000;
 
     if (!this.requests.has(key)) {
       this.requests.set(key, []);
@@ -34,7 +34,7 @@ class SimpleRateLimiter {
     const timestamps = this.requests.get(key)!;
 
     // Remove old requests outside the window
-    const validRequests = timestamps.filter(time => time > windowStart);
+    const validRequests = timestamps.filter((time) => time > windowStart);
 
     if (validRequests.length >= this.config.points) {
       throw new Error('Rate limit exceeded');
@@ -92,10 +92,13 @@ class EnhancedRouter {
 
     // Initialize rate limiter if configured
     if (config.rateLimit) {
-      this.rateLimiters.set(key, new SimpleRateLimiter({
-        points: config.rateLimit.max,
-        duration: config.rateLimit.windowMs / 1000,
-      }));
+      this.rateLimiters.set(
+        key,
+        new SimpleRateLimiter({
+          points: config.rateLimit.max,
+          duration: config.rateLimit.windowMs / 1000,
+        })
+      );
     }
 
     // Initialize circuit breaker for service
@@ -110,8 +113,10 @@ class EnhancedRouter {
           logger.debug(`Service call success: ${config.service} (${duration}ms)`);
         },
         onCallFailure: (error, duration) => {
-          logger.warn(`Service call failure: ${config.service} (${duration}ms)`, { error: error.message });
-        }
+          logger.warn(`Service call failure: ${config.service} (${duration}ms)`, {
+            error: error.message,
+          });
+        },
       });
       this.circuitBreakers.set(config.service, breaker);
     }
@@ -179,7 +184,7 @@ class EnhancedRouter {
           service: routeConfig.service,
           duration,
           status: 200,
-          success: true
+          success: true,
         });
 
         // Record success with service registry
@@ -191,13 +196,12 @@ class EnhancedRouter {
           meta: {
             service: routeConfig.service,
             duration: `${duration}ms`,
-            instance: serviceInstance.id
-          }
+            instance: serviceInstance.id,
+          },
         });
-
       } catch (error) {
         const duration = Date.now() - startTime;
-        
+
         // Record failure metrics
         this.recordMetrics({
           path: req.path,
@@ -206,7 +210,7 @@ class EnhancedRouter {
           duration,
           status: 500,
           success: false,
-          error: error.message
+          error: error.message,
         });
 
         logger.error(`Route ${key} failed:`, error);
@@ -216,8 +220,8 @@ class EnhancedRouter {
           error: error.message,
           meta: {
             service: routeConfig.service,
-            duration: `${duration}ms`
-          }
+            duration: `${duration}ms`,
+          },
         });
       }
     };
@@ -235,7 +239,7 @@ class EnhancedRouter {
       try {
         const result = await internalServiceRegistry.executeHandler(serviceName, data, {
           requestId: Math.random().toString(36).substr(2, 9),
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
         return result;
       } catch (error) {
@@ -250,7 +254,9 @@ class EnhancedRouter {
     // 🚨 WARNING: Detect potential self-recursion
     if (url.includes('localhost:8080') || url.includes('127.0.0.1:8080')) {
       logger.error(`🚨 SELF-RECURSION DETECTED: ${url} - This would cause infinite loop!`);
-      throw new Error(`Self-recursion detected: Cannot call localhost:8080 from within the same service`);
+      throw new Error(
+        `Self-recursion detected: Cannot call localhost:8080 from within the same service`
+      );
     }
 
     const controller = new AbortController();
@@ -262,10 +268,10 @@ class EnhancedRouter {
         method: config.method,
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'nuzantara-enhanced-router/1.0.0'
+          'User-Agent': 'nuzantara-enhanced-router/1.0.0',
         },
         body: JSON.stringify(data),
-        signal: controller.signal
+        signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
@@ -289,7 +295,7 @@ class EnhancedRouter {
       error: 'Service temporarily unavailable',
       fallback: true,
       service: config.service,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -298,7 +304,7 @@ class EnhancedRouter {
    */
   private recordMetrics(metrics: RequestMetrics): void {
     this.metrics.push(metrics);
-    
+
     // Keep only recent metrics
     if (this.metrics.length > this.maxMetricsSize) {
       this.metrics = this.metrics.slice(-this.maxMetricsSize);
@@ -317,18 +323,19 @@ class EnhancedRouter {
     recentErrors: RequestMetrics[];
   } {
     const total = this.metrics.length;
-    const successful = this.metrics.filter(m => m.success).length;
-    const errors = this.metrics.filter(m => !m.success).slice(-10); // Last 10 errors
+    const successful = this.metrics.filter((m) => m.success).length;
+    const errors = this.metrics.filter((m) => !m.success).slice(-10); // Last 10 errors
 
-    const responseTimes = this.metrics.map(m => m.duration);
-    const avgResponseTime = responseTimes.length > 0 
-      ? responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length 
-      : 0;
+    const responseTimes = this.metrics.map((m) => m.duration);
+    const avgResponseTime =
+      responseTimes.length > 0
+        ? responseTimes.reduce((sum, time) => sum + time, 0) / responseTimes.length
+        : 0;
 
     const requestsByService: Record<string, number> = {};
     const requestsByPath: Record<string, number> = {};
 
-    this.metrics.forEach(metric => {
+    this.metrics.forEach((metric) => {
       requestsByService[metric.service] = (requestsByService[metric.service] || 0) + 1;
       const pathKey = `${metric.method} ${metric.path}`;
       requestsByPath[pathKey] = (requestsByPath[pathKey] || 0) + 1;
@@ -340,7 +347,7 @@ class EnhancedRouter {
       averageResponseTime: Math.round(avgResponseTime),
       requestsByService,
       requestsByPath,
-      recentErrors: errors
+      recentErrors: errors,
     };
   }
 
@@ -369,15 +376,25 @@ class EnhancedRouter {
    * Initialize default circuit breakers for v3 Ω services
    */
   private initializeDefaultCircuitBreakers(): void {
-    const v3Services = ['unified', 'collective', 'ecosystem', 'kbli', 'pricing', 'legal', 'immigration', 'tax', 'property'];
-    
-    v3Services.forEach(serviceName => {
+    const v3Services = [
+      'unified',
+      'collective',
+      'ecosystem',
+      'kbli',
+      'pricing',
+      'legal',
+      'immigration',
+      'tax',
+      'property',
+    ];
+
+    v3Services.forEach((serviceName) => {
       CircuitBreakerFactory.create({
         name: serviceName,
         config: this.getDefaultCircuitBreakerConfig(),
         onStateChange: (from, to) => {
           logger.info(`Circuit breaker for ${serviceName}: ${from} -> ${to}`);
-        }
+        },
       });
     });
 
@@ -392,7 +409,7 @@ class EnhancedRouter {
       failureThreshold: 5,
       resetTimeout: 60000, // 1 minute
       monitoringPeriod: 30000, // 30 seconds
-      expectedRecoveryTime: 120000 // 2 minutes
+      expectedRecoveryTime: 120000, // 2 minutes
     };
   }
 
@@ -403,8 +420,8 @@ class EnhancedRouter {
     setInterval(() => {
       // Keep only last hour of metrics
       const oneHourAgo = Date.now() - 3600000;
-      this.metrics = this.metrics.filter(m => 
-        Date.now() - (Date.now() - m.duration) < oneHourAgo
+      this.metrics = this.metrics.filter(
+        (m) => Date.now() - (Date.now() - m.duration) < oneHourAgo
       );
     }, 300000); // Run every 5 minutes
   }

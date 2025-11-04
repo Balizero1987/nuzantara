@@ -5,8 +5,25 @@
 
 const ClarificationPrompts = (() => {
   // Ambiguity detection patterns (client-side, mirrors backend logic)
-  const VAGUE_PATTERNS = ['tell me about', 'what about', 'how about', 'info on', 'explain', 'describe'];
-  const VAGUE_TRIGGERS = ['visa', 'tax', 'business', 'company', 'permit', 'service', 'it', 'this', 'that'];
+  const VAGUE_PATTERNS = [
+    'tell me about',
+    'what about',
+    'how about',
+    'info on',
+    'explain',
+    'describe',
+  ];
+  const VAGUE_TRIGGERS = [
+    'visa',
+    'tax',
+    'business',
+    'company',
+    'permit',
+    'service',
+    'it',
+    'this',
+    'that',
+  ];
   const INCOMPLETE_PATTERNS = ['how much', 'how long', 'when can', 'where is', 'who can'];
   const PRONOUNS = ['it', 'this', 'that', 'these', 'those', 'they', 'them'];
 
@@ -59,10 +76,10 @@ const ClarificationPrompts = (() => {
 
     // 4. MULTIPLE INTERPRETATIONS
     const multiKeywords = {
-      'work': ['work visa', 'work permit', 'job', 'employment'],
-      'cost': ['registration cost', 'service cost', 'government fee', 'annual cost'],
-      'register': ['company registration', 'tax registration', 'visa registration'],
-      'open': ['open company', 'open bank account', 'open office']
+      work: ['work visa', 'work permit', 'job', 'employment'],
+      cost: ['registration cost', 'service cost', 'government fee', 'annual cost'],
+      register: ['company registration', 'tax registration', 'visa registration'],
+      open: ['open company', 'open bank account', 'open office'],
     };
 
     for (const [keyword, interpretations] of Object.entries(multiKeywords)) {
@@ -75,7 +92,7 @@ const ClarificationPrompts = (() => {
 
     // 5. TOO SHORT
     const greetings = ['hi', 'hello', 'ciao', 'halo'];
-    if (words.length < 3 && !greetings.some(g => queryLower.includes(g))) {
+    if (words.length < 3 && !greetings.some((g) => queryLower.includes(g))) {
       confidence += 0.2;
       reasons.push(`Very short query (${words.length} words) - may need more detail`);
     }
@@ -88,7 +105,7 @@ const ClarificationPrompts = (() => {
       confidence: Math.min(confidence, 1.0),
       ambiguityType,
       reasons,
-      clarificationNeeded
+      clarificationNeeded,
     };
   }
 
@@ -99,44 +116,72 @@ const ClarificationPrompts = (() => {
    */
   function generateClarificationOptions(query) {
     const queryLower = query.toLowerCase();
-    
+
     // Visa-related
-    if (queryLower.includes('visa') || queryLower.includes('permit') || queryLower.includes('visto')) {
+    if (
+      queryLower.includes('visa') ||
+      queryLower.includes('permit') ||
+      queryLower.includes('visto')
+    ) {
       return [
         { text: '🏖️ Tourist Visa', query: 'Tell me about tourist visa requirements for Indonesia' },
-        { text: '💼 Business Visa (KITAS)', query: 'What are the requirements for KITAS business visa?' },
+        {
+          text: '💼 Business Visa (KITAS)',
+          query: 'What are the requirements for KITAS business visa?',
+        },
         { text: '💪 Work Permit', query: 'How do I get a work permit for Indonesia?' },
-        { text: '🔄 Visa Extension', query: 'How can I extend my visa in Indonesia?' }
+        { text: '🔄 Visa Extension', query: 'How can I extend my visa in Indonesia?' },
       ];
     }
 
     // Tax-related
     if (queryLower.includes('tax') || queryLower.includes('pajak') || queryLower.includes('npwp')) {
       return [
-        { text: '🏢 Corporate Tax', query: 'Tell me about corporate tax requirements in Indonesia' },
-        { text: '👤 Personal Income Tax', query: 'How does personal income tax work in Indonesia?' },
+        {
+          text: '🏢 Corporate Tax',
+          query: 'Tell me about corporate tax requirements in Indonesia',
+        },
+        {
+          text: '👤 Personal Income Tax',
+          query: 'How does personal income tax work in Indonesia?',
+        },
         { text: '📊 VAT/PPN', query: 'Explain VAT (PPN) in Indonesia' },
-        { text: '📝 NPWP Registration', query: 'How do I register for NPWP tax number?' }
+        { text: '📝 NPWP Registration', query: 'How do I register for NPWP tax number?' },
       ];
     }
 
     // Business/Company related
-    if (queryLower.includes('business') || queryLower.includes('company') || queryLower.includes('pt pma')) {
+    if (
+      queryLower.includes('business') ||
+      queryLower.includes('company') ||
+      queryLower.includes('pt pma')
+    ) {
       return [
         { text: '🚀 Start New Company', query: 'How do I start a new company in Indonesia?' },
         { text: '🏛️ PT PMA Registration', query: 'What are the requirements for PT PMA company?' },
         { text: '📜 Business Licenses', query: 'What business licenses do I need in Indonesia?' },
-        { text: '💰 Capital Requirements', query: 'What are the capital requirements for PT PMA?' }
+        { text: '💰 Capital Requirements', query: 'What are the capital requirements for PT PMA?' },
       ];
     }
 
     // Cost-related
-    if (queryLower.includes('cost') || queryLower.includes('price') || queryLower.includes('fee') || queryLower.includes('biaya')) {
+    if (
+      queryLower.includes('cost') ||
+      queryLower.includes('price') ||
+      queryLower.includes('fee') ||
+      queryLower.includes('biaya')
+    ) {
       return [
-        { text: '🏢 Company Setup Cost', query: 'How much does it cost to set up a PT PMA company?' },
+        {
+          text: '🏢 Company Setup Cost',
+          query: 'How much does it cost to set up a PT PMA company?',
+        },
         { text: '💼 KITAS Cost', query: 'What is the cost of KITAS business visa?' },
-        { text: '📊 Accounting Services', query: 'How much do accounting services cost per month?' },
-        { text: '📝 NPWP Registration', query: 'What is the cost for NPWP tax registration?' }
+        {
+          text: '📊 Accounting Services',
+          query: 'How much do accounting services cost per month?',
+        },
+        { text: '📝 NPWP Registration', query: 'What is the cost for NPWP tax registration?' },
       ];
     }
 
@@ -146,7 +191,7 @@ const ClarificationPrompts = (() => {
         { text: '💼 Work Visa', query: 'What is required for a work visa in Indonesia?' },
         { text: '📄 Work Permit', query: 'How do I get a work permit (IMTA)?' },
         { text: '👔 Employment Contract', query: 'What should be in my employment contract?' },
-        { text: '🏢 Working in PT PMA', query: 'Can foreigners work in PT PMA companies?' }
+        { text: '🏢 Working in PT PMA', query: 'Can foreigners work in PT PMA companies?' },
       ];
     }
 
@@ -155,7 +200,10 @@ const ClarificationPrompts = (() => {
       { text: '🏢 Company Setup', query: 'I want to set up a PT PMA company in Bali' },
       { text: '💼 KITAS Visa', query: 'How do I get a KITAS business visa?' },
       { text: '📊 Tax Services', query: 'Tell me about tax services for businesses in Indonesia' },
-      { text: '💬 Speak to Expert', query: 'I need to speak with a Bali Zero expert about my situation' }
+      {
+        text: '💬 Speak to Expert',
+        query: 'I need to speak with a Bali Zero expert about my situation',
+      },
     ];
   }
 
@@ -171,17 +219,19 @@ const ClarificationPrompts = (() => {
     // Create clarification container
     const clarificationDiv = document.createElement('div');
     clarificationDiv.className = 'clarification-prompt';
-    
+
     // Header message
     const headerText = getClarificationMessage(ambiguityInfo.ambiguityType);
-    
+
     clarificationDiv.innerHTML = `
       <div class="clarification-header">
         <span class="clarification-icon">🤔</span>
         <span class="clarification-text">${headerText}</span>
       </div>
       <div class="clarification-options" id="clarificationOptions-${Date.now()}">
-        ${options.map((opt, idx) => `
+        ${options
+          .map(
+            (opt, idx) => `
           <button 
             class="clarification-button" 
             data-query="${escapeHtml(opt.query)}"
@@ -189,7 +239,9 @@ const ClarificationPrompts = (() => {
           >
             ${opt.text}
           </button>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
       <div class="clarification-footer">
         Or continue typing to provide more details...
@@ -197,19 +249,19 @@ const ClarificationPrompts = (() => {
     `;
 
     // Add event listeners to buttons
-    clarificationDiv.querySelectorAll('.clarification-button').forEach(btn => {
-      btn.addEventListener('click', function() {
+    clarificationDiv.querySelectorAll('.clarification-button').forEach((btn) => {
+      btn.addEventListener('click', function () {
         const selectedQuery = this.getAttribute('data-query');
         handleClarificationSelection(selectedQuery, clarificationDiv);
       });
     });
 
     messageContainer.appendChild(clarificationDiv);
-    
+
     console.log('[ClarificationPrompts] Rendered:', {
       type: ambiguityInfo.ambiguityType,
       confidence: ambiguityInfo.confidence,
-      options: options.length
+      options: options.length,
     });
   }
 
@@ -220,10 +272,10 @@ const ClarificationPrompts = (() => {
    */
   function getClarificationMessage(ambiguityType) {
     const messages = {
-      'vague': 'Per aiutarti meglio, potresti specificare cosa ti interessa esattamente?',
-      'incomplete': 'Ho bisogno di qualche informazione in più per darti la risposta giusta.',
-      'multiple': 'Ci sono diverse interpretazioni possibili. Quale di queste ti interessa?',
-      'unclear_context': 'Vorrei aiutarti! Potresti darmi un po\' più di contesto?'
+      vague: 'Per aiutarti meglio, potresti specificare cosa ti interessa esattamente?',
+      incomplete: 'Ho bisogno di qualche informazione in più per darti la risposta giusta.',
+      multiple: 'Ci sono diverse interpretazioni possibili. Quale di queste ti interessa?',
+      unclear_context: "Vorrei aiutarti! Potresti darmi un po' più di contesto?",
     };
 
     return messages[ambiguityType] || messages.vague;
@@ -240,7 +292,7 @@ const ClarificationPrompts = (() => {
     // Remove clarification UI with fade animation
     clarificationDiv.style.opacity = '0';
     clarificationDiv.style.transform = 'translateY(-10px)';
-    
+
     setTimeout(() => {
       clarificationDiv.remove();
     }, 300);
@@ -249,7 +301,7 @@ const ClarificationPrompts = (() => {
     const chatInput = document.getElementById('userInput');
     if (chatInput) {
       chatInput.value = selectedQuery;
-      
+
       // Trigger send function if available
       if (window.sendMessage) {
         window.sendMessage();
@@ -260,7 +312,7 @@ const ClarificationPrompts = (() => {
           code: 'Enter',
           keyCode: 13,
           which: 13,
-          bubbles: true
+          bubbles: true,
         });
         chatInput.dispatchEvent(event);
       }
@@ -290,7 +342,7 @@ const ClarificationPrompts = (() => {
     }
 
     const ambiguityInfo = detectAmbiguity(query, hasConversationHistory);
-    
+
     // Show if high confidence ambiguity detected
     return ambiguityInfo.clarificationNeeded && ambiguityInfo.confidence >= 0.7;
   }
@@ -300,13 +352,13 @@ const ClarificationPrompts = (() => {
    */
   function init() {
     console.log('[ClarificationPrompts] Initialized');
-    
+
     // Hook into chat input to detect ambiguity before sending
     const chatInput = document.getElementById('userInput');
     if (chatInput) {
       // Add subtle indicator for ambiguous queries while typing
       let typingTimeout;
-      chatInput.addEventListener('input', function() {
+      chatInput.addEventListener('input', function () {
         clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => {
           const query = this.value.trim();
@@ -330,7 +382,7 @@ const ClarificationPrompts = (() => {
     detectAmbiguity,
     generateClarificationOptions,
     renderClarificationPrompt,
-    shouldShowClarification
+    shouldShowClarification,
   };
 })();
 

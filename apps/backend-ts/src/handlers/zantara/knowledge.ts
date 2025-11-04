@@ -5,10 +5,10 @@
  * Integrates with ~/zantara-rag ChromaDB vector store
  */
 
-import { z } from "zod";
+import { z } from 'zod';
 import { logger } from '../../logging/unified-logger.js';
-import axios from "axios";
-import { ok, err } from "../../utils/response.js";
+import axios from 'axios';
+import { ok, err } from '../../utils/response.js';
 
 // HandlerResponse type
 export interface HandlerResponse {
@@ -19,39 +19,36 @@ export interface HandlerResponse {
 
 // Zod validation schema
 export const ZantaraKnowledgeParamsSchema = z.object({
-  query: z.string().min(3, "Query must be at least 3 characters").max(500),
+  query: z.string().min(3, 'Query must be at least 3 characters').max(500),
   category: z
     .enum([
-      "all",
-      "zantara-personal",
-      "computer_science",
-      "legal",
-      "philosophy",
-      "occult",
-      "literature",
-      "science",
-      "business",
-      "mathematics",
-      "politics",
-      "AI",
-      "blockchain",
-      "eastern_traditions",
-      "security",
-      "epub",
+      'all',
+      'zantara-personal',
+      'computer_science',
+      'legal',
+      'philosophy',
+      'occult',
+      'literature',
+      'science',
+      'business',
+      'mathematics',
+      'politics',
+      'AI',
+      'blockchain',
+      'eastern_traditions',
+      'security',
+      'epub',
     ])
     .optional()
-    .default("all"),
+    .default('all'),
   limit: z.number().min(1).max(20).optional().default(5),
   priority_only: z.boolean().optional().default(false),
 });
 
-export type ZantaraKnowledgeParams = z.infer<
-  typeof ZantaraKnowledgeParamsSchema
->;
+export type ZantaraKnowledgeParams = z.infer<typeof ZantaraKnowledgeParamsSchema>;
 
 // RAG Backend URL (should be in env)
-const RAG_BACKEND_URL =
-  process.env.RAG_BACKEND_URL || "http://localhost:8000";
+const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'http://localhost:8000';
 
 /**
  * ZANTARA Knowledge Handler
@@ -70,7 +67,7 @@ export async function handleZantaraKnowledge(
       {
         query: validated.query,
         filters: {
-          category: validated.category !== "all" ? validated.category : undefined,
+          category: validated.category !== 'all' ? validated.category : undefined,
           priority: validated.priority_only ? true : undefined,
         },
         k: validated.limit,
@@ -78,7 +75,7 @@ export async function handleZantaraKnowledge(
       {
         timeout: 30000, // 30s timeout
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       }
     );
@@ -100,7 +97,7 @@ export async function handleZantaraKnowledge(
           total_chunks: r.metadata.total_chunks,
           similarity: r.similarity,
           is_priority: r.metadata.priority,
-          content: r.document.substring(0, 300) + "...", // Preview
+          content: r.document.substring(0, 300) + '...', // Preview
           full_content: r.document, // Full text
         })),
         metadata: {
@@ -111,13 +108,12 @@ export async function handleZantaraKnowledge(
     };
   } catch (error: any) {
     // Handle RAG backend not available
-    if (error.code === "ECONNREFUSED" || error.code === "ETIMEDOUT") {
+    if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
       return {
         ok: false,
-        error: "RAG backend not available. Please ensure zantara-rag service is running.",
+        error: 'RAG backend not available. Please ensure zantara-rag service is running.',
         data: {
-          suggestion:
-            "Run: cd ~/zantara-rag && docker-compose up -d (or npm start in backend/)",
+          suggestion: 'Run: cd ~/zantara-rag && docker-compose up -d (or npm start in backend/)',
         },
       };
     }
@@ -137,45 +133,45 @@ export async function handleZantaraKnowledge(
  * Quick actions for ZANTARA knowledge queries
  */
 export const ZANTARA_KNOWLEDGE_QUICK_ACTIONS = {
-  "Sunda Wiwitan": {
-    query: "Sunda Wiwitan Sanghyang Kersa Nyi Pohaci sacred tradition",
-    category: "zantara-personal",
-    description: "Core Sundanese spiritual tradition",
+  'Sunda Wiwitan': {
+    query: 'Sunda Wiwitan Sanghyang Kersa Nyi Pohaci sacred tradition',
+    category: 'zantara-personal',
+    description: 'Core Sundanese spiritual tradition',
   },
-  "Kujang Symbolism": {
-    query: "Kujang sacred symbol geometry spiritual meaning Sundanese",
-    category: "zantara-personal",
-    description: "Sacred Sundanese symbol analysis",
+  'Kujang Symbolism': {
+    query: 'Kujang sacred symbol geometry spiritual meaning Sundanese',
+    category: 'zantara-personal',
+    description: 'Sacred Sundanese symbol analysis',
   },
-  "Gunung Padang": {
-    query: "Gunung Padang pyramid megalithic site sacred mountain",
-    category: "zantara-personal",
-    description: "Ancient Sundanese sacred site",
+  'Gunung Padang': {
+    query: 'Gunung Padang pyramid megalithic site sacred mountain',
+    category: 'zantara-personal',
+    description: 'Ancient Sundanese sacred site',
   },
-  "Hermeticism": {
-    query: "Hermeticism alchemy Corpus Hermeticum Kybalion principles",
-    category: "occult",
-    description: "Western esoteric tradition",
+  Hermeticism: {
+    query: 'Hermeticism alchemy Corpus Hermeticum Kybalion principles',
+    category: 'occult',
+    description: 'Western esoteric tradition',
   },
-  "Guénon Synthesis": {
-    query: "René Guénon traditional metaphysics primordial tradition",
-    category: "philosophy",
-    description: "Traditional metaphysics synthesis",
+  'Guénon Synthesis': {
+    query: 'René Guénon traditional metaphysics primordial tradition',
+    category: 'philosophy',
+    description: 'Traditional metaphysics synthesis',
   },
-  "Deep Learning": {
-    query: "deep learning neural networks training architecture",
-    category: "computer_science",
-    description: "AI/ML technical knowledge",
+  'Deep Learning': {
+    query: 'deep learning neural networks training architecture',
+    category: 'computer_science',
+    description: 'AI/ML technical knowledge',
   },
-  "Blockchain": {
-    query: "blockchain consensus mechanism smart contracts distributed",
-    category: "computer_science",
-    description: "Blockchain technology",
+  Blockchain: {
+    query: 'blockchain consensus mechanism smart contracts distributed',
+    category: 'computer_science',
+    description: 'Blockchain technology',
   },
-  "International Law": {
-    query: "international law treaties conventions animal rights",
-    category: "legal",
-    description: "Legal framework knowledge",
+  'International Law': {
+    query: 'international law treaties conventions animal rights',
+    category: 'legal',
+    description: 'Legal framework knowledge',
   },
 };
 
@@ -202,12 +198,12 @@ export async function getZantaraKnowledge() {
   try {
     const knowledge = {
       project: {
-        name: "ZANTARA Webapp & Backend",
-        version: "5.2.0",
-        description: "Intelligent AI Assistant and Business Automation Platform"
+        name: 'ZANTARA Webapp & Backend',
+        version: '5.2.0',
+        description: 'Intelligent AI Assistant and Business Automation Platform',
       },
-      status: "operational",
-      timestamp: new Date().toISOString()
+      status: 'operational',
+      timestamp: new Date().toISOString(),
     };
     return ok(knowledge);
   } catch (error) {
@@ -222,12 +218,12 @@ export async function getZantaraKnowledge() {
 export async function getSystemHealth() {
   try {
     const health = {
-      status: "healthy",
+      status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
-        backendTS: { status: "healthy" },
-        backendRAG: { status: "healthy" }
-      }
+        backendTS: { status: 'healthy' },
+        backendRAG: { status: 'healthy' },
+      },
     };
     return ok(health);
   } catch (error) {

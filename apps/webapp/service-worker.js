@@ -1,6 +1,6 @@
 /**
  * ZANTARA Service Worker - PWA Support
- * 
+ *
  * Implements offline caching, background sync, and push notifications.
  * Version: 5.2.0
  */
@@ -23,7 +23,7 @@ const STATIC_ASSETS = [
   '/styles/chat.css',
   '/styles/design-tokens.css',
   '/assets/logoscon.png',
-  '/manifest.json'
+  '/manifest.json',
 ];
 
 // API endpoints to cache (with short TTL)
@@ -32,22 +32,23 @@ const CACHEABLE_API_ENDPOINTS = [
   '/config/flags',
   '/contact.info',
   '/team.list',
-  '/bali.zero.pricing'
+  '/bali.zero.pricing',
 ];
 
 // Max cache sizes
 const MAX_CACHE_SIZE = {
-  [CACHE_DYNAMIC]: 50,  // 50 dynamic pages
-  [CACHE_API]: 20       // 20 API responses
+  [CACHE_DYNAMIC]: 50, // 50 dynamic pages
+  [CACHE_API]: 20, // 20 API responses
 };
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing service worker v5.2.0');
-  
+
   event.waitUntil(
-    caches.open(CACHE_STATIC)
-      .then(cache => {
+    caches
+      .open(CACHE_STATIC)
+      .then((cache) => {
         console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_ASSETS);
       })
@@ -55,7 +56,7 @@ self.addEventListener('install', (event) => {
         console.log('[SW] Static assets cached');
         return self.skipWaiting(); // Activate immediately
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('[SW] Failed to cache static assets:', error);
       })
   );
@@ -64,18 +65,18 @@ self.addEventListener('install', (event) => {
 // Activate event - clean old caches
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activating service worker v5.2.0');
-  
+
   event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
+    caches
+      .keys()
+      .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter(cacheName => {
+            .filter((cacheName) => {
               // Delete caches from different versions
-              return cacheName.startsWith('zantara-') && 
-                     !cacheName.startsWith(CACHE_VERSION);
+              return cacheName.startsWith('zantara-') && !cacheName.startsWith(CACHE_VERSION);
             })
-            .map(cacheName => {
+            .map((cacheName) => {
               console.log('[SW] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             })
@@ -126,7 +127,7 @@ async function handleStaticRequest(request) {
 
     // Fetch from network
     const networkResponse = await fetch(request);
-    
+
     // Cache successful responses
     if (networkResponse.ok) {
       const cache = await caches.open(CACHE_DYNAMIC);
@@ -146,7 +147,7 @@ async function handleStaticRequest(request) {
     return new Response('Offline - Please check your connection', {
       status: 503,
       statusText: 'Service Unavailable',
-      headers: { 'Content-Type': 'text/plain' }
+      headers: { 'Content-Type': 'text/plain' },
     });
   }
 }
@@ -174,14 +175,17 @@ async function handleAPIRequest(request) {
     }
 
     // Return error response
-    return new Response(JSON.stringify({
-      ok: false,
-      error: 'Network unavailable',
-      offline: true
-    }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        error: 'Network unavailable',
+        offline: true,
+      }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 }
 
@@ -200,33 +204,35 @@ async function updateCacheInBackground(request) {
 
 // Check if request is to API
 function isAPIRequest(url) {
-  return url.hostname.includes('railway.app') ||
-         url.hostname.includes('run.app') ||
-         url.pathname.startsWith('/call') ||
-         url.pathname.startsWith('/api/');
+  return (
+    url.hostname.includes('railway.app') ||
+    url.hostname.includes('run.app') ||
+    url.pathname.startsWith('/call') ||
+    url.pathname.startsWith('/api/')
+  );
 }
 
 // Check if API endpoint should be cached
 function isCacheableAPIEndpoint(url) {
-  return CACHEABLE_API_ENDPOINTS.some(endpoint => url.includes(endpoint));
+  return CACHEABLE_API_ENDPOINTS.some((endpoint) => url.includes(endpoint));
 }
 
 // Trim cache to max size (LRU eviction)
 async function trimCache(cacheName, maxSize) {
   const cache = await caches.open(cacheName);
   const keys = await cache.keys();
-  
+
   if (keys.length > maxSize) {
     // Remove oldest entries
     const toDelete = keys.slice(0, keys.length - maxSize);
-    await Promise.all(toDelete.map(key => cache.delete(key)));
+    await Promise.all(toDelete.map((key) => cache.delete(key)));
   }
 }
 
 // Background sync (for offline actions)
 self.addEventListener('sync', (event) => {
   console.log('[SW] Background sync:', event.tag);
-  
+
   if (event.tag === 'sync-offline-actions') {
     event.waitUntil(syncOfflineActions());
   }
@@ -235,7 +241,7 @@ self.addEventListener('sync', (event) => {
 async function syncOfflineActions() {
   // Implement offline action queue sync
   console.log('[SW] Syncing offline actions...');
-  
+
   // TODO: Get offline actions from IndexedDB and sync
   // This would be implemented based on your specific needs
 }
@@ -243,7 +249,7 @@ async function syncOfflineActions() {
 // Push notifications
 self.addEventListener('push', (event) => {
   console.log('[SW] Push notification received');
-  
+
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'ZANTARA';
   const options = {
@@ -251,46 +257,40 @@ self.addEventListener('push', (event) => {
     icon: '/assets/logoscon.png',
     badge: '/assets/logoscon.png',
     data: data.url || '/',
-    vibrate: [200, 100, 200]
+    vibrate: [200, 100, 200],
   };
 
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 // Notification click
 self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notification clicked');
-  
+
   event.notification.close();
-  
-  event.waitUntil(
-    clients.openWindow(event.notification.data || '/')
-  );
+
+  event.waitUntil(clients.openWindow(event.notification.data || '/'));
 });
 
 // Message handler (communication with page)
 self.addEventListener('message', (event) => {
   console.log('[SW] Message received:', event.data);
-  
+
   if (event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
+
   if (event.data.type === 'CLEAR_CACHE') {
     event.waitUntil(
-      caches.keys().then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => caches.delete(cacheName))
-        );
+      caches.keys().then((cacheNames) => {
+        return Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
       })
     );
   }
-  
+
   if (event.data.type === 'GET_CACHE_SIZE') {
     event.waitUntil(
-      getCacheSize().then(size => {
+      getCacheSize().then((size) => {
         event.ports[0].postMessage({ size });
       })
     );
@@ -301,13 +301,13 @@ self.addEventListener('message', (event) => {
 async function getCacheSize() {
   const cacheNames = await caches.keys();
   let totalSize = 0;
-  
+
   for (const cacheName of cacheNames) {
     const cache = await caches.open(cacheName);
     const keys = await cache.keys();
     totalSize += keys.length;
   }
-  
+
   return totalSize;
 }
 

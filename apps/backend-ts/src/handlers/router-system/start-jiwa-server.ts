@@ -24,12 +24,12 @@ app.use(express.json());
 app.use(jiwaMiddleware()); // Add JIWA to all requests
 
 // Basic health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'healthy',
     service: 'ZANTARA Complete Orchestrator',
     jiwa: 'enabled',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -51,16 +51,14 @@ app.post('/api/query', async (req, res) => {
       'https://api.anthropic.com/v1/messages',
       {
         model: 'claude-3-5-haiku-20241022',
-        messages: [
-          { role: 'user', content: query }
-        ],
-        max_tokens: 1024
+        messages: [{ role: 'user', content: query }],
+        max_tokens: 1024,
       },
       {
         headers: {
           'x-api-key': process.env.ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01'
-        }
+          'anthropic-version': '2023-06-01',
+        },
       }
     );
 
@@ -69,27 +67,27 @@ app.post('/api/query', async (req, res) => {
       metadata: {
         intent: routerResponse.data.intent,
         tools: routerResponse.data.tools.map((t: any) => t.name),
-        jiwa_enhanced: false
-      }
+        jiwa_enhanced: false,
+      },
     });
   } catch (error) {
     res.status(500).json({
       error: 'Query failed',
       message: error.message,
-      jiwa_enhanced: false
+      jiwa_enhanced: false,
     });
   }
 });
 
 // Metrics endpoint
-app.get('/api/metrics', async (req, res) => {
+app.get('/api/metrics', async (_req, res) => {
   try {
     const axios = require('axios');
 
     // Gather metrics from all services
     const metrics: any = {
       timestamp: new Date().toISOString(),
-      services: {}
+      services: {},
     };
 
     // Router metrics
@@ -97,7 +95,7 @@ app.get('/api/metrics', async (req, res) => {
       const routerHealth = await axios.get(`${FLAN_ROUTER_URL}/health`);
       metrics.services.router = {
         status: 'online',
-        model: routerHealth.data.model_loaded
+        model: routerHealth.data.model_loaded,
       };
     } catch (e) {
       metrics.services.router = { status: 'offline' };
@@ -111,7 +109,7 @@ app.get('/api/metrics', async (req, res) => {
         heartbeats: jiwaStatus.data.heart.heartbeats,
         souls_touched: jiwaStatus.data.heart.souls_touched,
         protections: jiwaStatus.data.heart.protections_activated,
-        blessings: jiwaStatus.data.middleware.blessings_given
+        blessings: jiwaStatus.data.middleware.blessings_given,
       };
     } catch (e) {
       metrics.services.jiwa = { status: 'offline' };
@@ -119,14 +117,14 @@ app.get('/api/metrics', async (req, res) => {
 
     // API key status
     metrics.services.haiku = {
-      status: process.env.ANTHROPIC_API_KEY ? 'configured' : 'missing'
+      status: process.env.ANTHROPIC_API_KEY ? 'configured' : 'missing',
     };
 
     res.json(metrics);
   } catch (error) {
     res.status(500).json({
       error: 'Failed to gather metrics',
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -142,7 +140,9 @@ app.listen(PORT, () => {
   logger.info('  Soul Service:  ${JIWA_SERVICE_URL}', { type: 'debug_migration' });
   logger.info('═══════════════════════════════════════════════════════════════');
   console.log('  Endpoints:');
-  logger.info('    POST /api/query-jiwa  - Query with JIWA enhancement', { type: 'debug_migration' });
+  logger.info('    POST /api/query-jiwa  - Query with JIWA enhancement', {
+    type: 'debug_migration',
+  });
   logger.info('    POST /api/query       - Standard query (no JIWA)', { type: 'debug_migration' });
   logger.info('    GET  /api/jiwa/status - JIWA system status', { type: 'debug_migration' });
   logger.info('    GET  /api/metrics     - System metrics', { type: 'debug_migration' });

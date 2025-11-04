@@ -9,11 +9,11 @@ jest.mock('../../services/google-translate-service.js', () => ({
   getTranslateService: jest.fn().mockResolvedValue({
     client: {
       getAccessToken: jest.fn().mockResolvedValue({
-        token: 'mock-access-token'
-      })
+        token: 'mock-access-token',
+      }),
     },
-    baseUrl: 'https://translation.googleapis.com/language/translate/v2'
-  })
+    baseUrl: 'https://translation.googleapis.com/language/translate/v2',
+  }),
 }));
 
 describe('Translate', () => {
@@ -31,17 +31,19 @@ describe('Translate', () => {
         status: 200,
         json: async () => ({
           data: {
-            translations: [{
-              translatedText: 'Hello',
-              detectedSourceLanguage: 'it'
-            }]
-          }
-        })
+            translations: [
+              {
+                translatedText: 'Hello',
+                detectedSourceLanguage: 'it',
+              },
+            ],
+          },
+        }),
       } as Response);
 
       const result = await handlers.translateText({
         text: 'Ciao',
-        targetLanguage: 'en'
+        targetLanguage: 'en',
       });
 
       expect(result).toBeDefined();
@@ -55,10 +57,12 @@ describe('Translate', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.translateText({
-        text: 'Hello',
-        targetLanguage: 'invalid-language'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.translateText({
+          text: 'Hello',
+          targetLanguage: 'invalid-language',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -71,15 +75,15 @@ describe('Translate', () => {
           data: {
             translations: [
               { translatedText: 'Hello', detectedSourceLanguage: 'it' },
-              { translatedText: 'World', detectedSourceLanguage: 'it' }
-            ]
-          }
-        })
+              { translatedText: 'World', detectedSourceLanguage: 'it' },
+            ],
+          },
+        }),
       } as Response);
 
       const result = await handlers.translateBatch({
         texts: ['Ciao', 'Mondo'],
-        targetLanguage: 'en'
+        targetLanguage: 'en',
       });
 
       expect(result).toBeDefined();
@@ -92,10 +96,12 @@ describe('Translate', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.translateBatch({
-        texts: ['Hello'],
-        targetLanguage: 'invalid'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.translateBatch({
+          texts: ['Hello'],
+          targetLanguage: 'invalid',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -106,13 +112,13 @@ describe('Translate', () => {
         status: 200,
         json: async () => ({
           data: {
-            detections: [[{ language: 'it', confidence: 0.95 }]]
-          }
-        })
+            detections: [[{ language: 'it', confidence: 0.95 }]],
+          },
+        }),
       } as Response);
 
       const result = await handlers.detectLanguage({
-        text: 'Ciao mondo'
+        text: 'Ciao mondo',
       });
 
       expect(result).toBeDefined();
@@ -127,7 +133,7 @@ describe('Translate', () => {
     it('should handle invalid params', async () => {
       // Function should handle gracefully
       const result = await handlers.detectLanguage({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // Should either throw or return error response
@@ -154,12 +160,11 @@ describe('Translate', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.translateBusinessTemplate({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
       expect(result).toBeDefined();
     });
   });
-
 });

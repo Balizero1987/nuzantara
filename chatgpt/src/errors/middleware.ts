@@ -10,20 +10,18 @@ import { ApplicationError, isApplicationError, ErrorCategory, ErrorSeverity } fr
 /**
  * Global error handling middleware
  * Should be registered as the last middleware in the Express app
- * 
+ *
  * @example
  * ```ts
  * import express from 'express';
  * import { errorHandlerMiddleware } from './errors/middleware';
- * 
+ *
  * const app = express();
  * // ... register routes ...
  * app.use(errorHandlerMiddleware());
  * ```
  */
-export function errorHandlerMiddleware(
-  handler?: UnifiedErrorHandler,
-): ErrorRequestHandler {
+export function errorHandlerMiddleware(handler?: UnifiedErrorHandler): ErrorRequestHandler {
   const errorHandler = handler ?? getDefaultErrorHandler();
 
   return (err: Error | ApplicationError, req: Request, res: Response) => {
@@ -51,11 +49,11 @@ export function errorHandlerMiddleware(
 /**
  * Async error wrapper for route handlers
  * Automatically catches errors in async functions and passes them to error middleware
- * 
+ *
  * @example
  * ```ts
  * import { asyncHandler } from './errors/middleware';
- * 
+ *
  * app.get('/users/:id', asyncHandler(async (req, res) => {
  *   const user = await getUserById(req.params.id);
  *   if (!user) {
@@ -71,7 +69,11 @@ export function asyncHandler<
   ReqBody = unknown,
   ReqQuery = Record<string, string>,
 >(
-  fn: (req: Request<P, ResBody, ReqBody, ReqQuery>, res: Response<ResBody>, next: NextFunction) => Promise<void>,
+  fn: (
+    req: Request<P, ResBody, ReqBody, ReqQuery>,
+    res: Response<ResBody>,
+    next: NextFunction
+  ) => Promise<void>
 ): RequestHandler<P, ResBody, ReqBody, ReqQuery> {
   return (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
@@ -82,11 +84,11 @@ export function asyncHandler<
  * Request context injection middleware
  * Adds request ID and other context to requests for error tracking
  * Should be registered early in the middleware chain
- * 
+ *
  * @example
  * ```ts
  * import { requestContextMiddleware } from './errors/middleware';
- * 
+ *
  * const app = express();
  * app.use(requestContextMiddleware());
  * // ... register other middleware and routes ...
@@ -116,11 +118,11 @@ function generateRequestId(): string {
 /**
  * Not found (404) handler middleware
  * Should be registered after all routes but before error handler
- * 
+ *
  * @example
  * ```ts
  * import { notFoundHandler } from './errors/middleware';
- * 
+ *
  * const app = express();
  * // ... register routes ...
  * app.use(notFoundHandler());
@@ -139,7 +141,7 @@ export function notFoundHandler(): RequestHandler {
           method: req.method,
           timestamp: new Date(),
         },
-      },
+      }
     );
     next(error);
   };
@@ -148,13 +150,13 @@ export function notFoundHandler(): RequestHandler {
 /**
  * Request timeout middleware
  * Automatically terminates requests that exceed the specified timeout
- * 
+ *
  * @param timeoutMs - Timeout in milliseconds (default: 30000)
- * 
+ *
  * @example
  * ```ts
  * import { requestTimeoutMiddleware } from './errors/middleware';
- * 
+ *
  * const app = express();
  * app.use(requestTimeoutMiddleware(15000)); // 15 second timeout
  * ```
@@ -176,7 +178,7 @@ export function requestTimeoutMiddleware(timeoutMs = 30000): RequestHandler {
                 timeoutMs,
               },
             },
-          },
+          }
         );
         next(error);
       }
@@ -199,13 +201,13 @@ export function requestTimeoutMiddleware(timeoutMs = 30000): RequestHandler {
 /**
  * Error rate limiting middleware
  * Tracks error rates per IP and returns 429 if threshold is exceeded
- * 
+ *
  * @param maxErrorsPerMinute - Maximum errors allowed per minute per IP (default: 10)
- * 
+ *
  * @example
  * ```ts
  * import { errorRateLimitMiddleware } from './errors/middleware';
- * 
+ *
  * const app = express();
  * app.use(errorRateLimitMiddleware(5)); // Max 5 errors per minute
  * ```
@@ -246,7 +248,7 @@ export function errorRateLimitMiddleware(maxErrorsPerMinute = 10): ErrorRequestH
               windowMinutes: 1,
             },
           },
-        },
+        }
       );
 
       const errorHandler = getDefaultErrorHandler();
@@ -262,26 +264,26 @@ export function errorRateLimitMiddleware(maxErrorsPerMinute = 10): ErrorRequestH
 /**
  * Complete error handling setup helper
  * Sets up all recommended error handling middleware in the correct order
- * 
+ *
  * @example
  * ```ts
  * import express from 'express';
  * import { setupErrorHandling } from './errors/middleware';
- * 
+ *
  * const app = express();
- * 
+ *
  * // ... register body parsers, etc ...
- * 
+ *
  * const { requestContext, notFound, errorHandler } = setupErrorHandling({
  *   requestTimeout: 15000,
  *   maxErrorsPerMinute: 5,
  * });
- * 
+ *
  * // Apply context middleware early
  * app.use(requestContext);
- * 
+ *
  * // ... register routes ...
- * 
+ *
  * // Apply error middleware last
  * app.use(notFound);
  * app.use(errorHandler);

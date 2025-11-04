@@ -18,7 +18,7 @@ describe('Analytics', () => {
         const result = await handlers.analyticsHandlers['analytics.report']({
           propertyId: '365284833',
           startDate: '7daysAgo',
-          endDate: 'today'
+          endDate: 'today',
         });
 
         expect(result).toBeDefined();
@@ -40,7 +40,7 @@ describe('Analytics', () => {
 
       it('should handle invalid params gracefully', async () => {
         const result = await handlers.analyticsHandlers['analytics.report']({
-          invalid: 'data'
+          invalid: 'data',
         });
 
         expect(result).toBeDefined();
@@ -51,7 +51,7 @@ describe('Analytics', () => {
     describe('analytics.realtime', () => {
       it('should handle success case with valid params', async () => {
         const result = await handlers.analyticsHandlers['analytics.realtime']({
-          propertyId: '365284833'
+          propertyId: '365284833',
         });
 
         expect(result).toBeDefined();
@@ -76,7 +76,7 @@ describe('Analytics', () => {
         const result = await handlers.analyticsHandlers['analytics.pages']({
           propertyId: '365284833',
           startDate: '30daysAgo',
-          endDate: 'today'
+          endDate: 'today',
         });
 
         expect(result).toBeDefined();
@@ -99,7 +99,7 @@ describe('Analytics', () => {
         const result = await handlers.analyticsHandlers['analytics.sources']({
           propertyId: '365284833',
           startDate: '30daysAgo',
-          endDate: 'today'
+          endDate: 'today',
         });
 
         expect(result).toBeDefined();
@@ -123,7 +123,7 @@ describe('Analytics', () => {
           propertyId: '365284833',
           startDate: '30daysAgo',
           endDate: 'today',
-          dimension: 'country'
+          dimension: 'country',
         });
 
         expect(result).toBeDefined();
@@ -142,5 +142,4 @@ describe('Analytics', () => {
       });
     });
   });
-
 });

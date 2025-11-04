@@ -5,7 +5,7 @@
  */
 
 export interface CacheConfig {
-  ttl: number;  // Time to live in seconds
+  ttl: number; // Time to live in seconds
   category: 'static' | 'dynamic' | 'never';
   description: string;
 }
@@ -13,69 +13,69 @@ export interface CacheConfig {
 export const SAFE_CACHE_CONFIG: Record<string, CacheConfig> = {
   // ========== STATIC DATA (Safe to cache) ==========
   'contact.info': {
-    ttl: 3600,  // 1 hour
+    ttl: 3600, // 1 hour
     category: 'static',
-    description: 'Company contact information'
+    description: 'Company contact information',
   },
   'document.prepare': {
-    ttl: 1800,  // 30 minutes
+    ttl: 1800, // 30 minutes
     category: 'static',
-    description: 'Document checklists and requirements'
+    description: 'Document checklists and requirements',
   },
   'services.list': {
-    ttl: 3600,  // 1 hour
+    ttl: 3600, // 1 hour
     category: 'static',
-    description: 'Available services catalog'
+    description: 'Available services catalog',
   },
   'faq.get': {
-    ttl: 7200,  // 2 hours
+    ttl: 7200, // 2 hours
     category: 'static',
-    description: 'Frequently asked questions'
+    description: 'Frequently asked questions',
   },
 
   // ========== DYNAMIC DATA (Short cache) ==========
   'ai.chat': {
-    ttl: 300,  // 5 minutes max
+    ttl: 300, // 5 minutes max
     category: 'dynamic',
-    description: 'AI conversation responses'
+    description: 'AI conversation responses',
   },
   'memory.search': {
-    ttl: 60,  // 1 minute
+    ttl: 60, // 1 minute
     category: 'dynamic',
-    description: 'Memory search results'
+    description: 'Memory search results',
   },
   'calendar.list': {
-    ttl: 180,  // 3 minutes
+    ttl: 180, // 3 minutes
     category: 'dynamic',
-    description: 'Calendar events listing'
+    description: 'Calendar events listing',
   },
 
   // ========== NEVER CACHE (Critical data) ==========
   'quote.generate': {
     ttl: 0,
     category: 'never',
-    description: 'Always generate fresh quotes'
+    description: 'Always generate fresh quotes',
   },
   'lead.save': {
     ttl: 0,
     category: 'never',
-    description: 'Always save directly to database'
+    description: 'Always save directly to database',
   },
   'payment.process': {
     ttl: 0,
     category: 'never',
-    description: 'Never cache payment operations'
+    description: 'Never cache payment operations',
   },
   'user.auth': {
     ttl: 0,
     category: 'never',
-    description: 'Never cache authentication'
+    description: 'Never cache authentication',
   },
   'ambaradam.profile.upsert': {
     ttl: 0,
     category: 'never',
-    description: 'Always update user profiles in real-time'
-  }
+    description: 'Always update user profiles in real-time',
+  },
 };
 
 /**
@@ -112,7 +112,7 @@ export class SafeCache {
     }
 
     const ttl = config.ttl || this.DEFAULT_TTL;
-    const expires = Date.now() + (ttl * 1000);
+    const expires = Date.now() + ttl * 1000;
 
     this.cache.set(key, { data, expires });
   }
@@ -136,7 +136,7 @@ export class SafeCache {
     return {
       size: this.cache.size,
       entries: Array.from(this.cache.keys()),
-      memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024 + ' MB'
+      memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024 + ' MB',
     };
   }
 }

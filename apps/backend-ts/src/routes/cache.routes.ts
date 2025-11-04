@@ -9,7 +9,7 @@ import {
   cacheSet,
   cacheDel,
   getCacheStats,
-  invalidateCache
+  invalidateCache,
 } from '../middleware/cache.middleware.js';
 import { logger } from '../logging/unified-logger.js';
 
@@ -25,7 +25,7 @@ router.get('/get', async (req: Request, res: Response) => {
   if (!key) {
     return res.status(400).json({
       status: 'error',
-      message: 'Missing required parameter: key'
+      message: 'Missing required parameter: key',
     });
   }
 
@@ -39,14 +39,14 @@ router.get('/get', async (req: Request, res: Response) => {
           status: 'hit',
           key,
           value: parsed,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       } catch {
         res.json({
           status: 'hit',
           key,
           value,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     } else {
@@ -54,7 +54,7 @@ router.get('/get', async (req: Request, res: Response) => {
         status: 'miss',
         key,
         message: 'Key not found in cache',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   } catch (error: any) {
@@ -62,7 +62,7 @@ router.get('/get', async (req: Request, res: Response) => {
     res.status(500).json({
       status: 'error',
       message: 'Failed to retrieve from cache',
-      error: error?.message || 'Unknown error'
+      error: error?.message || 'Unknown error',
     });
   }
 });
@@ -77,7 +77,7 @@ router.post('/set', async (req: Request, res: Response) => {
   if (!key || value === undefined) {
     return res.status(400).json({
       status: 'error',
-      message: 'Missing required parameters: key, value'
+      message: 'Missing required parameters: key, value',
     });
   }
 
@@ -89,14 +89,14 @@ router.post('/set', async (req: Request, res: Response) => {
       key,
       ttl,
       message: 'Value stored in cache',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
     logger.error('Cache set error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to store in cache',
-      error: error?.message || 'Unknown error'
+      error: error?.message || 'Unknown error',
     });
   }
 });
@@ -111,7 +111,7 @@ router.delete('/clear/:key', async (req: Request, res: Response) => {
   if (!key) {
     return res.status(400).json({
       status: 'error',
-      message: 'Missing required parameter: key'
+      message: 'Missing required parameter: key',
     });
   }
 
@@ -122,14 +122,14 @@ router.delete('/clear/:key', async (req: Request, res: Response) => {
       status: 'success',
       key,
       message: 'Cache key deleted',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
     logger.error('Cache delete error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to delete from cache',
-      error: error?.message || 'Unknown error'
+      error: error?.message || 'Unknown error',
     });
   }
 });
@@ -144,7 +144,7 @@ router.post('/invalidate', async (req: Request, res: Response) => {
   if (!pattern) {
     return res.status(400).json({
       status: 'error',
-      message: 'Missing required parameter: pattern'
+      message: 'Missing required parameter: pattern',
     });
   }
 
@@ -156,14 +156,14 @@ router.post('/invalidate', async (req: Request, res: Response) => {
       pattern,
       invalidated: count,
       message: `Invalidated ${count} cache entries`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
     logger.error('Cache invalidation error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to invalidate cache',
-      error: error?.message || 'Unknown error'
+      error: error?.message || 'Unknown error',
     });
   }
 });
@@ -172,21 +172,21 @@ router.post('/invalidate', async (req: Request, res: Response) => {
  * GET /cache/stats
  * Get cache statistics
  */
-router.get('/stats', async (req: Request, res: Response) => {
+router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const stats = await getCacheStats();
 
     res.json({
       status: 'success',
       stats,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
     logger.error('Cache stats error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to retrieve cache stats',
-      error: error?.message || 'Unknown error'
+      error: error?.message || 'Unknown error',
     });
   }
 });
@@ -195,7 +195,7 @@ router.get('/stats', async (req: Request, res: Response) => {
  * GET /cache/health
  * Check cache connection health
  */
-router.get('/health', async (req: Request, res: Response) => {
+router.get('/health', async (_req: Request, res: Response) => {
   try {
     // Test with a simple operation
     const testKey = 'cache:health:test';
@@ -207,14 +207,14 @@ router.get('/health', async (req: Request, res: Response) => {
         status: 'healthy',
         connected: true,
         message: 'Redis cache is operational',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     } else {
       res.status(503).json({
         status: 'degraded',
         connected: false,
         message: 'Redis cache test failed',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   } catch (error: any) {
@@ -224,7 +224,7 @@ router.get('/health', async (req: Request, res: Response) => {
       connected: false,
       message: 'Redis cache is not operational',
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -233,17 +233,19 @@ router.get('/health', async (req: Request, res: Response) => {
  * GET /cache/debug
  * Debug Redis connection details
  */
-router.get('/debug', async (req: Request, res: Response) => {
+router.get('/debug', async (_req: Request, res: Response) => {
   const redisUrl = process.env.REDIS_URL;
   const isConfigured = !!redisUrl;
-  const sanitizedUrl = redisUrl ? redisUrl.replace(/:\/\/[^:]+:[^@]+@/, '://***:***@') : 'Not configured';
+  const sanitizedUrl = redisUrl
+    ? redisUrl.replace(/:\/\/[^:]+:[^@]+@/, '://***:***@')
+    : 'Not configured';
 
   res.json({
     status: 'debug',
     redis_configured: isConfigured,
     redis_url_pattern: sanitizedUrl,
-    env_keys: Object.keys(process.env).filter(k => k.includes('REDIS')),
-    timestamp: new Date().toISOString()
+    env_keys: Object.keys(process.env).filter((k) => k.includes('REDIS')),
+    timestamp: new Date().toISOString(),
   });
 });
 

@@ -12,7 +12,7 @@ describe('Team Login', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.teamLogin({
         name: 'zero',
-        email: 'zero@balizero.com'
+        email: 'zero@balizero.com',
       });
 
       expect(result).toBeDefined();
@@ -25,9 +25,11 @@ describe('Team Login', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.teamLogin({
-        invalid: 'data'
-      })).rejects.toThrow();
+      await expect(
+        handlers.teamLogin({
+          invalid: 'data',
+        })
+      ).rejects.toThrow();
     });
   });
 
@@ -35,11 +37,11 @@ describe('Team Login', () => {
     it('should handle success case with valid params', async () => {
       const loginResult = await handlers.teamLogin({
         name: 'zero',
-        email: 'zero@balizero.com'
+        email: 'zero@balizero.com',
       });
 
       const result = await handlers.validateSession({
-        token: loginResult.data.token
+        token: loginResult.data.token,
       });
 
       expect(result).toBeDefined();
@@ -65,11 +67,11 @@ describe('Team Login', () => {
     it('should handle success case with valid params', async () => {
       const loginResult = await handlers.teamLogin({
         name: 'zero',
-        email: 'zero@balizero.com'
+        email: 'zero@balizero.com',
       });
 
       const result = await handlers.logoutSession({
-        token: loginResult.data.token
+        token: loginResult.data.token,
       });
 
       expect(result).toBeDefined();
@@ -80,5 +82,4 @@ describe('Team Login', () => {
       await expect(handlers.logoutSession({})).rejects.toThrow();
     });
   });
-
 });

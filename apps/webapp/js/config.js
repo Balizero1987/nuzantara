@@ -8,9 +8,9 @@
 export const config = {
   // API Endpoints
   api: {
-    // Fly.io backends (RAG and TypeScript)
-    baseUrl: import.meta.env?.VITE_API_BASE_URL || 'https://nuzantara-rag.fly.dev',
-    proxyUrl: import.meta.env?.VITE_PROXY_URL || 'https://nuzantara-orchestrator.fly.dev',
+    // Unified Cloudflare API Gateway (via balizero.com)
+    baseUrl: import.meta.env?.VITE_API_BASE_URL || 'https://api.balizero.com',
+    proxyUrl: import.meta.env?.VITE_PROXY_URL || 'https://api.balizero.com',
     timeout: 30000,
     retryAttempts: 3,
     retryDelay: 1000,
@@ -35,7 +35,7 @@ export const config = {
   // Session Configuration
   session: {
     idleTimeout: 30 * 60 * 1000, // 30 minutes
-    warningTime: 5 * 60 * 1000,  // 5 minutes before timeout
+    warningTime: 5 * 60 * 1000, // 5 minutes before timeout
   },
 
   // Environment

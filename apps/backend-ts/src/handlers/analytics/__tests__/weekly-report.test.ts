@@ -28,7 +28,7 @@ describe('Weekly Report', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.generateWeeklyReport({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
@@ -55,7 +55,7 @@ describe('Weekly Report', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.scheduleWeeklyReport({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
@@ -82,7 +82,7 @@ describe('Weekly Report', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.generateMonthlyReport({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
@@ -109,12 +109,11 @@ describe('Weekly Report', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.scheduleMonthlyReport({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
       expect(result).toBeDefined();
     });
   });
-
 });

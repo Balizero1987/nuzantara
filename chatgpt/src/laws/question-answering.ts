@@ -31,7 +31,10 @@ function answerQuestion(query: string): string {
     return 'You cannot work in Indonesia with a tourist visa. Consider applying for a KITAS or KITAP.';
   }
 
-  if (lowerQuery.includes('local worker requirement') || lowerQuery.includes('local worker ratio')) {
+  if (
+    lowerQuery.includes('local worker requirement') ||
+    lowerQuery.includes('local worker ratio')
+  ) {
     const ratios = laws.map((law: LawSignal) => {
       if (law.signals.local_worker_ratio) {
         return `${law.law}: ${law.signals.local_worker_ratio[0]} locals per ${law.signals.local_worker_ratio[1]} foreign workers.`;

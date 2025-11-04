@@ -28,7 +28,7 @@ const TEST_CONFIG = {
   PERFORMANCE_ITERATIONS: 10,
   TIMEOUT_MS: 30000,
   SAMPLE_TEXT_DIR: '/tmp/test_documents',
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY || 'test-key'
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY || 'test-key',
 };
 
 // Types for test data
@@ -77,7 +77,7 @@ class ChromaDBMock {
       id: doc.id,
       document: doc.content,
       metadata: doc.metadata,
-      score: 0.9 - (index * 0.1)
+      score: 0.9 - index * 0.1,
     }));
   }
 
@@ -98,7 +98,7 @@ class ChromaDBMock {
 class MockEmbeddingFunction {
   async generate(texts: string[]): Promise<number[][]> {
     // Generate deterministic mock embeddings for consistent testing
-    return texts.map(text => {
+    return texts.map((text) => {
       const hash = crypto.createHash('md5').update(text).digest('hex');
       return Array.from({ length: 1536 }, (_, i) => {
         const charCode = hash.charCodeAt(i % hash.length);
@@ -123,8 +123,8 @@ class TestDataGenerator {
           timestamp: new Date(Date.now() - i * 1000).toISOString(),
           size: 100 + i * 10,
           language: 'en',
-          version: '1.0.' + (i % 100)
-        }
+          version: '1.0.' + (i % 100),
+        },
       });
     }
 
@@ -142,8 +142,8 @@ class TestDataGenerator {
         metadata: {
           source: 'large_generator',
           size: largeContent.length,
-          type: 'large_document'
-        }
+          type: 'large_document',
+        },
       });
     }
 
@@ -155,7 +155,7 @@ class TestDataGenerator {
       { id: '', content: 'Valid content', metadata: {} }, // Empty ID
       { id: 'valid_id', content: '', metadata: {} }, // Empty content
       { id: 'valid_id2', content: 'Valid content', metadata: null as any }, // Null metadata
-      { id: 'valid_id3', content: 'Valid content', metadata: { invalid: Symbol('test') } } // Invalid metadata type
+      { id: 'valid_id3', content: 'Valid content', metadata: { invalid: Symbol('test') } }, // Invalid metadata type
     ];
   }
 
@@ -214,8 +214,8 @@ class TestUtils {
         uploadSpeed: iterations / (duration / 1000), // ops per second
         queryLatency: duration / iterations, // ms per operation
         memoryUsage: endMemory - startMemory, // MB
-        throughput: iterations / (duration / 1000) // ops per second
-      }
+        throughput: iterations / (duration / 1000), // ops per second
+      },
     };
   }
 
@@ -232,7 +232,7 @@ class TestUtils {
       } catch (error) {
         lastError = error as Error;
         if (i < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
       }
     }
@@ -241,7 +241,7 @@ class TestUtils {
   }
 
   static async delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 
@@ -368,11 +368,11 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
       });
 
       test('should handle batch embedding generation', async () => {
-        const texts = testDocuments.slice(0, 10).map(doc => doc.content);
+        const texts = testDocuments.slice(0, 10).map((doc) => doc.content);
         const embeddings = await mockEmbedding.generate(texts);
 
         expect(embeddings).toHaveLength(10);
-        embeddings.forEach(embedding => {
+        embeddings.forEach((embedding) => {
           expect(embedding).toHaveLength(1536);
         });
       });
@@ -410,7 +410,7 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
       try {
         const { ChromaApi, OpenAIEmbeddingFunction } = require('chromadb');
         realChromaClient = new ChromaApi({
-          path: TEST_CONFIG.CHROMA_URL
+          path: TEST_CONFIG.CHROMA_URL,
         });
       } catch (error) {
         console.warn('Skipping integration tests - ChromaDB not available');
@@ -439,22 +439,22 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
         // Create collection
         const collection = await realChromaClient.createCollection({
           name: collectionName,
-          metadata: { test: true }
+          metadata: { test: true },
         });
 
         expect(collection).toBeDefined();
 
         // Add documents
         await collection.add({
-          ids: documents.map(d => d.id),
-          documents: documents.map(d => d.content),
-          metadatas: documents.map(d => d.metadata)
+          ids: documents.map((d) => d.id),
+          documents: documents.map((d) => d.content),
+          metadatas: documents.map((d) => d.metadata),
         });
 
         // Query collection
         const results = await collection.query({
           queryTexts: ['test'],
-          nResults: 3
+          nResults: 3,
         });
 
         expect(results.ids[0]).toBeDefined();
@@ -523,8 +523,9 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
       const documentsPerOperation = 100;
 
       const operations = Array.from({ length: concurrentOperations }, async (_, index) => {
-        const documents = TestDataGenerator.generateSampleDocuments(documentsPerOperation)
-          .map((doc, i) => ({ ...doc, id: `concurrent_${index}_${i}` }));
+        const documents = TestDataGenerator.generateSampleDocuments(documentsPerOperation).map(
+          (doc, i) => ({ ...doc, id: `concurrent_${index}_${i}` })
+        );
 
         return chromaMock.addDocuments(collectionName, documents);
       });
@@ -551,8 +552,8 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
 
       const retrievedDocuments = await chromaMock.getCollection(collectionName);
 
-      originalDocuments.forEach(originalDoc => {
-        const retrievedDoc = retrievedDocuments.find(doc => doc.id === originalDoc.id);
+      originalDocuments.forEach((originalDoc) => {
+        const retrievedDoc = retrievedDocuments.find((doc) => doc.id === originalDoc.id);
         expect(retrievedDoc).toBeDefined();
         expect(retrievedDoc.content).toBe(originalDoc.content);
         expect(TestUtils.calculateChecksum(retrievedDoc.metadata)).toBe(
@@ -572,19 +573,19 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
           complexObject: {
             nestedField: 'value_' + index,
             nestedArray: [1, 2, 3, index],
-            nestedBoolean: index % 2 === 0
+            nestedBoolean: index % 2 === 0,
           },
           specialChars: 'Special chars: áéíóú ñ ß 中文',
           nullField: null,
-          undefinedField: undefined
-        }
+          undefinedField: undefined,
+        },
       }));
 
       await chromaMock.addDocuments(collectionName, documentsWithComplexMetadata);
       const retrievedDocuments = await chromaMock.getCollection(collectionName);
 
-      documentsWithComplexMetadata.forEach(originalDoc => {
-        const retrievedDoc = retrievedDocuments.find(doc => doc.id === originalDoc.id);
+      documentsWithComplexMetadata.forEach((originalDoc) => {
+        const retrievedDoc = retrievedDocuments.find((doc) => doc.id === originalDoc.id);
         expect(retrievedDoc).toBeDefined();
         expect(retrievedDoc.metadata.complexObject.nestedField).toBe(
           originalDoc.metadata.complexObject.nestedField
@@ -601,12 +602,11 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
       let totalProcessed = 0;
 
       for (const batchSize of batchSizes) {
-        const batch = TestDataGenerator.generateSampleDocuments(batchSize)
-          .map((doc, index) => ({
-            ...doc,
-            id: `batch_${batchSize}_${index}`,
-            batchId: batchSize
-          }));
+        const batch = TestDataGenerator.generateSampleDocuments(batchSize).map((doc, index) => ({
+          ...doc,
+          id: `batch_${batchSize}_${index}`,
+          batchId: batchSize,
+        }));
 
         await chromaMock.addDocuments(collectionName, batch);
         totalProcessed += batchSize;
@@ -616,7 +616,7 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
         expect(retrievedDocuments).toHaveLength(totalProcessed);
 
         // Check batch-specific metadata
-        const batchDocs = retrievedDocuments.filter(doc => doc.metadata.batchId === batchSize);
+        const batchDocs = retrievedDocuments.filter((doc) => doc.metadata.batchId === batchSize);
         expect(batchDocs).toHaveLength(batchSize);
       }
     });
@@ -651,7 +651,7 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
 
       // Simulate slow operation
       const slowOperation = async () => {
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         return chromaMock.addDocuments(collectionName, testDocuments.slice(0, 5));
       };
 
@@ -668,7 +668,7 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
       const mixedDocuments = [
         ...testDocuments.slice(0, 5), // Valid documents
         ...TestDataGenerator.generateInvalidDocuments(), // Invalid documents
-        ...testDocuments.slice(5, 10) // More valid documents
+        ...testDocuments.slice(5, 10), // More valid documents
       ];
 
       // Should process valid documents and skip invalid ones
@@ -697,7 +697,6 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
 
         const retrievedDocuments = await chromaMock.getCollection(collectionName);
         expect(retrievedDocuments).toHaveLength(5000);
-
       } catch (error) {
         // If memory error occurs, system should handle it gracefully
         expect(error).toBeDefined();
@@ -732,14 +731,16 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
         { id: null as any, content: 'Invalid ID', metadata: {} }, // Invalid ID
         { id: 'valid_2', content: 'Another valid content', metadata: { valid: true } },
         { id: 'valid_3', content: '', metadata: { empty: true } }, // Empty content
-        { id: 'circular', content: 'Content with circular ref', metadata: {} } // Will add circular reference
+        { id: 'circular', content: 'Content with circular ref', metadata: {} }, // Will add circular reference
       ];
 
       // Add circular reference to test handling
       corruptedDocuments[4].metadata.self = corruptedDocuments[4];
 
       // Should handle corrupted data without crashing
-      await expect(chromaMock.addDocuments(collectionName, corruptedDocuments)).resolves.not.toThrow();
+      await expect(
+        chromaMock.addDocuments(collectionName, corruptedDocuments)
+      ).resolves.not.toThrow();
 
       // Should have processed valid documents
       const retrievedDocuments = await chromaMock.getCollection(collectionName);
@@ -767,8 +768,8 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
       expect(targetDocuments).toHaveLength(50);
 
       // Verify data integrity
-      sourceDocuments.forEach(sourceDoc => {
-        const targetDoc = targetDocuments.find(doc => doc.id === sourceDoc.id);
+      sourceDocuments.forEach((sourceDoc) => {
+        const targetDoc = targetDocuments.find((doc) => doc.id === sourceDoc.id);
         expect(targetDoc).toBeDefined();
         expect(targetDoc.content).toBe(sourceDoc.content);
       });
@@ -783,8 +784,10 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
       await chromaMock.addDocuments(collectionName, initialDocs);
 
       // Incremental migration
-      const incrementalDocs = TestDataGenerator.generateSampleDocuments(20)
-        .map((doc, index) => ({ ...doc, id: `incremental_${index}` }));
+      const incrementalDocs = TestDataGenerator.generateSampleDocuments(20).map((doc, index) => ({
+        ...doc,
+        id: `incremental_${index}`,
+      }));
       await chromaMock.addDocuments(collectionName, incrementalDocs);
 
       // Verify total count
@@ -792,12 +795,12 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
       expect(finalDocs).toHaveLength(50);
 
       // Verify all documents are present
-      initialDocs.forEach(doc => {
-        expect(finalDocs.find(d => d.id === doc.id)).toBeDefined();
+      initialDocs.forEach((doc) => {
+        expect(finalDocs.find((d) => d.id === doc.id)).toBeDefined();
       });
 
-      incrementalDocs.forEach(doc => {
-        expect(finalDocs.find(d => d.id === doc.id)).toBeDefined();
+      incrementalDocs.forEach((doc) => {
+        expect(finalDocs.find((d) => d.id === doc.id)).toBeDefined();
       });
     });
 
@@ -818,8 +821,8 @@ describe('ZANTARA ChromaDB Migration Test Suite', () => {
       expect(targetChecksum).toBe(sourceChecksum);
 
       // All original documents should be present
-      documentsToMigrate.forEach(originalDoc => {
-        const migratedDoc = migratedDocuments.find(doc => doc.id === originalDoc.id);
+      documentsToMigrate.forEach((originalDoc) => {
+        const migratedDoc = migratedDocuments.find((doc) => doc.id === originalDoc.id);
         expect(migratedDoc).toBeDefined();
         expect(migratedDoc.content).toBe(originalDoc.content);
       });
@@ -852,13 +855,14 @@ export class MigrationBenchmark {
 
       // Query performance
       const queryVector = new Array(1536).fill(0.1);
-      const { duration: queryDuration, metrics: queryMetrics } =
-        await TestUtils.measurePerformance(
-          () => chromaMock.query(collectionName, queryVector),
-          10
-        );
+      const { duration: queryDuration, metrics: queryMetrics } = await TestUtils.measurePerformance(
+        () => chromaMock.query(collectionName, queryVector),
+        10
+      );
 
-      console.log(`  Upload: ${uploadMetrics.uploadSpeed.toFixed(2)} docs/sec (${uploadDuration}ms)`);
+      console.log(
+        `  Upload: ${uploadMetrics.uploadSpeed.toFixed(2)} docs/sec (${uploadDuration}ms)`
+      );
       console.log(`  Query:  ${queryMetrics.queryLatency.toFixed(2)}ms avg latency`);
       console.log(`  Memory: ${uploadMetrics.memoryUsage.toFixed(2)}MB used`);
 
@@ -882,13 +886,12 @@ export class TestRunner {
       const { execSync } = require('child_process');
       const testOutput = execSync('npx jest test-migration.ts --verbose', {
         encoding: 'utf8',
-        cwd: path.dirname(__filename)
+        cwd: path.dirname(__filename),
       });
 
       console.log(testOutput);
 
       console.log('\n✅ All tests completed successfully!');
-
     } catch (error) {
       console.error('\n❌ Test suite failed:', error);
       process.exit(1);

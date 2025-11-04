@@ -4,9 +4,7 @@
     "type": "must/shall",
     "content": "Setiap penerbitan persyaratan dasar, PB, dan/atau PB UMKU\nharus disampaikan kepada Pelaku Usaha hanya melalui\nSistem OSS setelah melalui proses tahapan verifikasi oleh\nkementerian/lembaga sesuai dengan kewenangan masing-\nmasing",
     "keyword": "harus",
-    "systems": [
-      "OSS"
-    ],
+    "systems": ["OSS"],
     "entities": {}
   },
   {
@@ -14,9 +12,7 @@
     "type": "must/shall",
     "content": "Huruf e\nDalam hal bentuk usaha tetap sudah memiliki kontrak kerja\nsama dengan pemerintah, poligon/koordinat wilayah kerja\nminyak dan gas bumi harus sudah ditanamkan dalam\nSistem OSS",
     "keyword": "harus",
-    "systems": [
-      "OSS"
-    ],
+    "systems": ["OSS"],
     "entities": {}
   },
   {
@@ -32,9 +28,7 @@
     "type": "must/required",
     "content": "(1) Terhadap kegiatan usaha pendukung sebagaimana\ndimaksud dalam Pasal 2lO ayat (3), Pelaku Usaha yang\ntelah mengisi data sebagaimana dimaksud dalam Pasal\n2O7 ayat (1) wajib melanjutkan proses di Sistem OSS\nuntuk mendapatkan PBBR dengan memasukkan data\nkegiatan usaha pendukung untuk masing-masing kode\nKBLI 5 (lima) digit dan lokasi usaha paling sedikit memuat:\na",
     "keyword": "wajib",
-    "systems": [
-      "OSS"
-    ],
+    "systems": ["OSS"],
     "entities": {}
   },
   {
@@ -90,9 +84,7 @@
     "type": "must/required",
     "content": "SK No 193145 A\n\n[PAGE 135]\nPRESIDEN\nREPUBLIK INDONESIA\n- 135-\n(5) Perkembangan realisasi dan pemenuhan kewajiban\nPenanaman Modal sebagaimana dimaksud pada ayat (21\nhuruf b disampaikan dalam laporan kegiatan Penanaman\nModal melalui Sistem OSS",
     "keyword": "wajib",
-    "systems": [
-      "OSS"
-    ],
+    "systems": ["OSS"],
     "entities": {}
   },
   {

@@ -6,9 +6,9 @@ jest.mock('twilio', () => {
     messages: {
       create: jest.fn().mockResolvedValue({
         sid: 'test-sid',
-        status: 'sent'
-      })
-    }
+        status: 'sent',
+      }),
+    },
   }));
 });
 
@@ -26,12 +26,12 @@ describe('Twilio Whatsapp', () => {
   function createMockReqRes(params: any = {}) {
     const mockReq = {
       body: params.body || {},
-      ...params
+      ...params,
     };
     const mockRes = {
       status: jest.fn().mockReturnThis(),
       send: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis()
+      json: jest.fn().mockReturnThis(),
     };
     return { req: mockReq, res: mockRes };
   }
@@ -43,8 +43,8 @@ describe('Twilio Whatsapp', () => {
           Body: 'Test message',
           From: 'whatsapp:+1234567890',
           To: 'whatsapp:+14155238886',
-          MessageSid: 'test-sid'
-        }
+          MessageSid: 'test-sid',
+        },
       });
 
       await handlers.twilioWhatsappWebhook(req, res);
@@ -55,7 +55,7 @@ describe('Twilio Whatsapp', () => {
 
     it('should handle missing required params', async () => {
       const { req, res } = createMockReqRes({
-        body: {}
+        body: {},
       });
 
       await handlers.twilioWhatsappWebhook(req, res);
@@ -67,8 +67,8 @@ describe('Twilio Whatsapp', () => {
     it('should handle invalid params', async () => {
       const { req, res } = createMockReqRes({
         body: {
-          invalid: 'data'
-        }
+          invalid: 'data',
+        },
       });
 
       await handlers.twilioWhatsappWebhook(req, res);
@@ -79,10 +79,7 @@ describe('Twilio Whatsapp', () => {
 
   describe('sendTwilioWhatsapp', () => {
     it('should handle success case with valid params', async () => {
-      const result = await handlers.sendTwilioWhatsapp(
-        'whatsapp:+1234567890',
-        'Test message'
-      );
+      const result = await handlers.sendTwilioWhatsapp('whatsapp:+1234567890', 'Test message');
 
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
@@ -102,7 +99,7 @@ describe('Twilio Whatsapp', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.twilioSendWhatsapp({
         to: 'whatsapp:+1234567890',
-        message: 'Test message'
+        message: 'Test message',
       });
 
       expect(result).toBeDefined();
@@ -114,10 +111,11 @@ describe('Twilio Whatsapp', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.twilioSendWhatsapp({
-        invalid: 'data'
-      })).rejects.toThrow();
+      await expect(
+        handlers.twilioSendWhatsapp({
+          invalid: 'data',
+        })
+      ).rejects.toThrow();
     });
   });
-
 });

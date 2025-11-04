@@ -4,20 +4,20 @@
  */
 
 class ConversationExport {
-    constructor() {
-        this.init();
-    }
+  constructor() {
+    this.init();
+  }
 
-    init() {
-        this.createExportButton();
-        this.attachEventListeners();
-    }
+  init() {
+    this.createExportButton();
+    this.attachEventListeners();
+  }
 
-    createExportButton() {
-        const button = document.createElement('button');
-        button.id = 'exportConversationBtn';
-        button.className = 'export-conversation-btn';
-        button.innerHTML = `
+  createExportButton() {
+    const button = document.createElement('button');
+    button.id = 'exportConversationBtn';
+    button.className = 'export-conversation-btn';
+    button.innerHTML = `
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
@@ -25,38 +25,38 @@ class ConversationExport {
             </svg>
             Export
         `;
-        button.title = 'Export conversation (Ctrl+E)';
+    button.title = 'Export conversation (Ctrl+E)';
 
-        // Add to chat container header
-        const chatContainer = document.querySelector('.chat-container');
-        if (chatContainer) {
-            const header = document.createElement('div');
-            header.className = 'export-button-container';
-            header.appendChild(button);
-            chatContainer.insertBefore(header, chatContainer.firstChild);
-        }
+    // Add to chat container header
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer) {
+      const header = document.createElement('div');
+      header.className = 'export-button-container';
+      header.appendChild(button);
+      chatContainer.insertBefore(header, chatContainer.firstChild);
     }
+  }
 
-    attachEventListeners() {
-        // Export button click
-        document.getElementById('exportConversationBtn')?.addEventListener('click', () => {
-            this.showExportModal();
-        });
+  attachEventListeners() {
+    // Export button click
+    document.getElementById('exportConversationBtn')?.addEventListener('click', () => {
+      this.showExportModal();
+    });
 
-        // Keyboard shortcut Ctrl+E
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'e') {
-                e.preventDefault();
-                this.showExportModal();
-            }
-        });
-    }
+    // Keyboard shortcut Ctrl+E
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault();
+        this.showExportModal();
+      }
+    });
+  }
 
-    showExportModal() {
-        const modal = document.createElement('div');
-        modal.id = 'exportModal';
-        modal.className = 'export-modal';
-        modal.innerHTML = `
+  showExportModal() {
+    const modal = document.createElement('div');
+    modal.id = 'exportModal';
+    modal.className = 'export-modal';
+    modal.innerHTML = `
             <div class="export-modal-content">
                 <div class="export-modal-header">
                     <h3>📥 Export Conversation</h3>
@@ -109,107 +109,107 @@ class ConversationExport {
             </div>
         `;
 
-        document.body.appendChild(modal);
+    document.body.appendChild(modal);
 
-        // Close handlers
-        modal.querySelector('.export-modal-close').addEventListener('click', () => {
-            modal.remove();
-        });
+    // Close handlers
+    modal.querySelector('.export-modal-close').addEventListener('click', () => {
+      modal.remove();
+    });
 
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
-            }
-        });
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
 
-        // Format button handlers
-        modal.querySelectorAll('.export-format-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const format = btn.dataset.format;
-                const options = {
-                    timestamps: document.getElementById('includeTimestamps').checked,
-                    citations: document.getElementById('includeCitations').checked,
-                    metadata: document.getElementById('includeMetadata').checked
-                };
-                this.exportConversation(format, options);
-                modal.remove();
-            });
-        });
+    // Format button handlers
+    modal.querySelectorAll('.export-format-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const format = btn.dataset.format;
+        const options = {
+          timestamps: document.getElementById('includeTimestamps').checked,
+          citations: document.getElementById('includeCitations').checked,
+          metadata: document.getElementById('includeMetadata').checked,
+        };
+        this.exportConversation(format, options);
+        modal.remove();
+      });
+    });
+  }
+
+  async exportConversation(format, options) {
+    const messages = this.collectMessages();
+
+    if (messages.length === 0) {
+      this.showToast('No messages to export', 'error');
+      return;
     }
 
-    async exportConversation(format, options) {
-        const messages = this.collectMessages();
-        
-        if (messages.length === 0) {
-            this.showToast('No messages to export', 'error');
-            return;
-        }
-
-        try {
-            switch (format) {
-                case 'pdf':
-                    await this.exportAsPDF(messages, options);
-                    break;
-                case 'txt':
-                    this.exportAsTXT(messages, options);
-                    break;
-                case 'json':
-                    this.exportAsJSON(messages, options);
-                    break;
-            }
-            this.showToast(`Conversation exported as ${format.toUpperCase()}`, 'success');
-        } catch (error) {
-            console.error('Export error:', error);
-            this.showToast('Export failed: ' + error.message, 'error');
-        }
+    try {
+      switch (format) {
+        case 'pdf':
+          await this.exportAsPDF(messages, options);
+          break;
+        case 'txt':
+          this.exportAsTXT(messages, options);
+          break;
+        case 'json':
+          this.exportAsJSON(messages, options);
+          break;
+      }
+      this.showToast(`Conversation exported as ${format.toUpperCase()}`, 'success');
+    } catch (error) {
+      console.error('Export error:', error);
+      this.showToast('Export failed: ' + error.message, 'error');
     }
+  }
 
-    collectMessages() {
-        const messages = [];
-        const messageElements = document.querySelectorAll('.message');
+  collectMessages() {
+    const messages = [];
+    const messageElements = document.querySelectorAll('.message');
 
-        messageElements.forEach(el => {
-            const isUser = el.classList.contains('user-message');
-            const content = el.querySelector('.message-content, .ai-content')?.innerText || '';
-            const timestamp = el.dataset.timestamp || new Date().toISOString();
-            
-            // Extract citations if present
-            const citations = [];
-            el.querySelectorAll('.citation-badge').forEach(cite => {
-                citations.push(cite.textContent);
-            });
+    messageElements.forEach((el) => {
+      const isUser = el.classList.contains('user-message');
+      const content = el.querySelector('.message-content, .ai-content')?.innerText || '';
+      const timestamp = el.dataset.timestamp || new Date().toISOString();
 
-            messages.push({
-                role: isUser ? 'user' : 'assistant',
-                content: content,
-                timestamp: timestamp,
-                citations: citations
-            });
-        });
+      // Extract citations if present
+      const citations = [];
+      el.querySelectorAll('.citation-badge').forEach((cite) => {
+        citations.push(cite.textContent);
+      });
 
-        return messages;
-    }
+      messages.push({
+        role: isUser ? 'user' : 'assistant',
+        content: content,
+        timestamp: timestamp,
+        citations: citations,
+      });
+    });
 
-    async exportAsPDF(messages, options) {
-        // Note: Requires jsPDF library. For now, create HTML that can be printed to PDF
-        const htmlContent = this.generateHTMLForPDF(messages, options);
-        
-        // Create a temporary window for printing
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(htmlContent);
-        printWindow.document.close();
-        
-        // Trigger print dialog (user can save as PDF)
-        setTimeout(() => {
-            printWindow.print();
-        }, 250);
-    }
+    return messages;
+  }
 
-    generateHTMLForPDF(messages, options) {
-        const timestamp = new Date().toLocaleString();
-        const userName = ZANTARA_API.getUserName() || 'User';
-        
-        let html = `
+  async exportAsPDF(messages, options) {
+    // Note: Requires jsPDF library. For now, create HTML that can be printed to PDF
+    const htmlContent = this.generateHTMLForPDF(messages, options);
+
+    // Create a temporary window for printing
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    // Trigger print dialog (user can save as PDF)
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  }
+
+  generateHTMLForPDF(messages, options) {
+    const timestamp = new Date().toLocaleString();
+    const userName = ZANTARA_API.getUserName() || 'User';
+
+    let html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -241,22 +241,26 @@ class ConversationExport {
     <div class="messages">
 `;
 
-        messages.forEach((msg, index) => {
-            const timeStr = options.timestamps ? new Date(msg.timestamp).toLocaleString() : '';
-            html += `
+    messages.forEach((msg, index) => {
+      const timeStr = options.timestamps ? new Date(msg.timestamp).toLocaleString() : '';
+      html += `
         <div class="message ${msg.role}-message">
             <div class="message-header">${msg.role === 'user' ? '👤 You' : '🤖 ZANTARA'}</div>
             <div class="message-content">${this.escapeHtml(msg.content)}</div>
             ${options.timestamps ? `<div class="timestamp">${timeStr}</div>` : ''}
-            ${options.citations && msg.citations.length > 0 ? `
+            ${
+              options.citations && msg.citations.length > 0
+                ? `
             <div class="citations">
                 <strong>📚 Citations:</strong> ${msg.citations.join(', ')}
-            </div>` : ''}
+            </div>`
+                : ''
+            }
         </div>
 `;
-        });
+    });
 
-        html += `
+    html += `
     </div>
     <div class="footer">
         Generated by ZANTARA - Bali Zero Intelligence<br>
@@ -265,97 +269,99 @@ class ConversationExport {
 </body>
 </html>
 `;
-        return html;
-    }
+    return html;
+  }
 
-    exportAsTXT(messages, options) {
-        const timestamp = new Date().toLocaleString();
-        const userName = ZANTARA_API.getUserName() || 'User';
-        
-        let content = `ZANTARA CONVERSATION EXPORT\n`;
-        content += `===============================================\n`;
-        content += `User: ${userName}\n`;
-        content += `Exported: ${timestamp}\n`;
-        content += `Messages: ${messages.length}\n`;
-        content += `===============================================\n\n`;
+  exportAsTXT(messages, options) {
+    const timestamp = new Date().toLocaleString();
+    const userName = ZANTARA_API.getUserName() || 'User';
 
-        messages.forEach((msg, index) => {
-            const timeStr = options.timestamps ? ` [${new Date(msg.timestamp).toLocaleString()}]` : '';
-            const role = msg.role === 'user' ? 'YOU' : 'ZANTARA';
-            
-            content += `${role}${timeStr}:\n`;
-            content += `${msg.content}\n`;
-            
-            if (options.citations && msg.citations.length > 0) {
-                content += `Citations: ${msg.citations.join(', ')}\n`;
-            }
-            
-            content += `\n---\n\n`;
-        });
+    let content = `ZANTARA CONVERSATION EXPORT\n`;
+    content += `===============================================\n`;
+    content += `User: ${userName}\n`;
+    content += `Exported: ${timestamp}\n`;
+    content += `Messages: ${messages.length}\n`;
+    content += `===============================================\n\n`;
 
-        content += `\nGenerated by ZANTARA - Bali Zero Intelligence\n`;
-        content += `https://zantara.balizero.com\n`;
+    messages.forEach((msg, index) => {
+      const timeStr = options.timestamps ? ` [${new Date(msg.timestamp).toLocaleString()}]` : '';
+      const role = msg.role === 'user' ? 'YOU' : 'ZANTARA';
 
-        this.downloadFile(content, `zantara-conversation-${Date.now()}.txt`, 'text/plain');
-    }
+      content += `${role}${timeStr}:\n`;
+      content += `${msg.content}\n`;
 
-    exportAsJSON(messages, options) {
-        const data = {
-            metadata: options.metadata ? {
-                user: ZANTARA_API.getUserName() || 'Unknown',
-                exported: new Date().toISOString(),
-                messageCount: messages.length,
-                version: '1.0'
-            } : undefined,
-            messages: messages.map(msg => ({
-                role: msg.role,
-                content: msg.content,
-                timestamp: options.timestamps ? msg.timestamp : undefined,
-                citations: options.citations ? msg.citations : undefined
-            }))
-        };
+      if (options.citations && msg.citations.length > 0) {
+        content += `Citations: ${msg.citations.join(', ')}\n`;
+      }
 
-        const jsonString = JSON.stringify(data, null, 2);
-        this.downloadFile(jsonString, `zantara-conversation-${Date.now()}.json`, 'application/json');
-    }
+      content += `\n---\n\n`;
+    });
 
-    downloadFile(content, filename, mimeType) {
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
+    content += `\nGenerated by ZANTARA - Bali Zero Intelligence\n`;
+    content += `https://zantara.balizero.com\n`;
 
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    this.downloadFile(content, `zantara-conversation-${Date.now()}.txt`, 'text/plain');
+  }
 
-    showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast-notification toast-${type}`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => toast.classList.add('show'), 10);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
+  exportAsJSON(messages, options) {
+    const data = {
+      metadata: options.metadata
+        ? {
+            user: ZANTARA_API.getUserName() || 'Unknown',
+            exported: new Date().toISOString(),
+            messageCount: messages.length,
+            version: '1.0',
+          }
+        : undefined,
+      messages: messages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: options.timestamps ? msg.timestamp : undefined,
+        citations: options.citations ? msg.citations : undefined,
+      })),
+    };
+
+    const jsonString = JSON.stringify(data, null, 2);
+    this.downloadFile(jsonString, `zantara-conversation-${Date.now()}.json`, 'application/json');
+  }
+
+  downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
 }
 
 // Initialize when DOM ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.conversationExport = new ConversationExport();
-    });
-} else {
+  document.addEventListener('DOMContentLoaded', () => {
     window.conversationExport = new ConversationExport();
+  });
+} else {
+  window.conversationExport = new ConversationExport();
 }

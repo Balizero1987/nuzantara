@@ -1,19 +1,19 @@
 // ZANTARA v3 Ω Collective Intelligence Endpoint
 // Shared learning across all users - memory, insights, verification
 
-import { ok } from "../../utils/response.js";
-import { Request, Response } from "express";
-import { collectiveMemory, CollectiveMemory } from "../memory/collective-memory.js";
-import { searchMemoriesSemantica } from "../../services/memory-vector.js";
+import { ok } from '../../utils/response.js';
+import { Request, Response } from 'express';
+import { collectiveMemory } from '../memory/collective-memory.js';
+import { searchMemoriesSemantica } from '../../services/memory-vector.js';
 
 export async function zantaraCollectiveIntelligence(req: Request, res: Response) {
   try {
     const params = req.body?.params || req.body || {};
     const {
-      action = "query", // query, contribute, verify, stats, sync
+      action = 'query', // query, contribute, verify, stats, sync
       data = {},
-      userId = "anonymous",
-      confidence = 0.5
+      userId = 'anonymous',
+      confidence = 0.5,
     } = params;
 
     const startTime = Date.now();
@@ -23,44 +23,48 @@ export async function zantaraCollectiveIntelligence(req: Request, res: Response)
       userId,
       timestamp: new Date().toISOString(),
       processing_time: 0,
-      result: {}
+      result: {},
     };
 
     switch (action) {
-      case "query":
+      case 'query':
         response.result = await handleCollectiveQuery(data, confidence);
         break;
 
-      case "contribute":
+      case 'contribute':
         response.result = await handleContribution(data, userId, confidence);
         break;
 
-      case "verify":
+      case 'verify':
         response.result = await handleVerification(data, userId, confidence);
         break;
 
-      case "stats":
+      case 'stats':
         response.result = await handleStats();
         break;
 
-      case "sync":
+      case 'sync':
         response.result = await handleSync(data, userId);
         break;
 
       default:
-        response.result = { error: "Unknown action", available_actions: ["query", "contribute", "verify", "stats", "sync"] };
+        response.result = {
+          error: 'Unknown action',
+          available_actions: ['query', 'contribute', 'verify', 'stats', 'sync'],
+        };
     }
 
     response.processing_time = `${Date.now() - startTime}ms`;
 
     return res.json(ok(response));
-
   } catch (error: any) {
-    return res.json(ok({
-      error: "Collective intelligence failed",
-      message: error.message,
-      fallback: "Individual memory systems still available"
-    }));
+    return res.json(
+      ok({
+        error: 'Collective intelligence failed',
+        message: error.message,
+        fallback: 'Individual memory systems still available',
+      })
+    );
   }
 }
 
@@ -68,7 +72,7 @@ async function handleCollectiveQuery(data: any, minConfidence: number) {
   const { query, category, limit = 10 } = data;
 
   if (!query) {
-    return { error: "Query required for collective search" };
+    return { error: 'Query required for collective search' };
   }
 
   try {
@@ -77,13 +81,13 @@ async function handleCollectiveQuery(data: any, minConfidence: number) {
       query,
       category,
       limit,
-      minConfidence
+      minConfidence,
     });
 
     // Also search semantic memory for additional insights
     const semanticResults = await searchMemoriesSemantica({
       query,
-      limit: Math.floor(limit / 2)
+      limit: Math.floor(limit / 2),
     });
 
     return {
@@ -92,14 +96,13 @@ async function handleCollectiveQuery(data: any, minConfidence: number) {
       semantic_insights: semanticResults.slice(0, 5), // Top semantic matches
       total_found: collectiveResults.length + semanticResults.length,
       confidence_boost: collectiveResults.length > 0 ? 0.2 : 0.0,
-      learning_available: collectiveResults.length > 0
+      learning_available: collectiveResults.length > 0,
     };
-
   } catch (error) {
     return {
-      error: "Collective search failed",
+      error: 'Collective search failed',
       message: error.message,
-      fallback: "Individual search available"
+      fallback: 'Individual search available',
     };
   }
 }
@@ -107,14 +110,14 @@ async function handleCollectiveQuery(data: any, minConfidence: number) {
 async function handleContribution(data: any, userId: string, confidence: number) {
   const {
     content,
-    type = "business_insight",
-    category = "general",
+    type = 'business_insight',
+    category = 'general',
     entities = [],
-    tags = []
+    tags = [],
   } = data;
 
   if (!content) {
-    return { error: "Content required for contribution" };
+    return { error: 'Content required for contribution' };
   }
 
   try {
@@ -122,19 +125,19 @@ async function handleContribution(data: any, userId: string, confidence: number)
     const memoryId = await collectiveMemory.addCollectiveMemory({
       content,
       type,
-      source: "user_interaction",
+      source: 'user_interaction',
       userId,
       category,
       entities,
       tags,
-      confidence
+      confidence,
     });
 
     // Get relevant existing memories for context
     const relatedMemories = await collectiveMemory.searchCollectiveMemory({
       query: content.substring(0, 100), // First 100 chars as query
       limit: 3,
-      includeUnverified: true
+      includeUnverified: true,
     });
 
     return {
@@ -144,24 +147,23 @@ async function handleContribution(data: any, userId: string, confidence: number)
       category,
       confidence,
       related_memories: relatedMemories.length,
-      collective_impact: "Added to shared knowledge base",
-      verification_pending: true
+      collective_impact: 'Added to shared knowledge base',
+      verification_pending: true,
     };
-
   } catch (error) {
     return {
-      error: "Contribution failed",
+      error: 'Contribution failed',
       message: error.message,
-      fallback: "Individual memory saved"
+      fallback: 'Individual memory saved',
     };
   }
 }
 
-async function handleVerification(data: any, userId: string, confidence: number) {
+async function handleVerification(data: any, userId: string, _confidence: number) {
   const { memoryId, verified, verificationScore, notes } = data;
 
   if (!memoryId) {
-    return { error: "Memory ID required for verification" };
+    return { error: 'Memory ID required for verification' };
   }
 
   try {
@@ -170,7 +172,7 @@ async function handleVerification(data: any, userId: string, confidence: number)
       userId,
       verified,
       verificationScore,
-      notes
+      notes,
     });
 
     return {
@@ -179,14 +181,13 @@ async function handleVerification(data: any, userId: string, confidence: number)
       verified_by: userId,
       verification_score: verificationScore,
       verification_notes: notes,
-      impact: verified ? "Knowledge validated" : "Knowledge flagged for review"
+      impact: verified ? 'Knowledge validated' : 'Knowledge flagged for review',
     };
-
   } catch (error) {
     return {
-      error: "Verification failed",
+      error: 'Verification failed',
       message: error.message,
-      fallback: "Memory remains unverified"
+      fallback: 'Memory remains unverified',
     };
   }
 }
@@ -202,117 +203,130 @@ async function handleStats() {
         verified_ratio: collectiveStats.verifiedMemories / collectiveStats.totalMemories,
         avg_confidence: collectiveStats.avgConfidence,
         active_contributors: collectiveStats.topContributors.length,
-        knowledge_distribution: collectiveStats.categoryBreakdown
+        knowledge_distribution: collectiveStats.categoryBreakdown,
       },
       intelligence_maturity: {
-        level: collectiveStats.avgConfidence > 0.7 ? "High" : collectiveStats.avgConfidence > 0.5 ? "Medium" : "Developing",
+        level:
+          collectiveStats.avgConfidence > 0.7
+            ? 'High'
+            : collectiveStats.avgConfidence > 0.5
+              ? 'Medium'
+              : 'Developing',
         cross_domain_learning: collectiveStats.categoryBreakdown,
         collective_benefits: [
-          "Shared business insights",
-          "Cross-user problem solving",
-          "Verified knowledge accumulation",
-          "Reduced duplicate queries"
-        ]
-      }
+          'Shared business insights',
+          'Cross-user problem solving',
+          'Verified knowledge accumulation',
+          'Reduced duplicate queries',
+        ],
+      },
     };
-
   } catch (error) {
     return {
-      error: "Stats collection failed",
+      error: 'Stats collection failed',
       message: error.message,
-      fallback: "Basic stats available"
+      fallback: 'Basic stats available',
     };
   }
 }
 
 async function handleSync(data: any, userId: string) {
-  const { syncType = "knowledge", preferences = {} } = data;
+  const { syncType = 'knowledge', preferences = {} } = data;
 
   try {
     switch (syncType) {
-      case "knowledge":
+      case 'knowledge':
         return await syncUserKnowledge(userId, preferences);
 
-      case "preferences":
+      case 'preferences':
         return await syncUserPreferences(userId, preferences);
 
-      case "insights":
+      case 'insights':
         return await syncUserInsights(userId, preferences);
 
       default:
-        return { error: "Unknown sync type", available_types: ["knowledge", "preferences", "insights"] };
+        return {
+          error: 'Unknown sync type',
+          available_types: ['knowledge', 'preferences', 'insights'],
+        };
     }
-
   } catch (error) {
     return {
-      error: "Sync failed",
+      error: 'Sync failed',
       message: error.message,
-      fallback: "Async sync scheduled"
+      fallback: 'Async sync scheduled',
     };
   }
 }
 
-async function syncUserKnowledge(userId: string, preferences: any) {
+async function syncUserKnowledge(userId: string, _preferences: any) {
   // Get recent collective insights relevant to user
   const recentInsights = await collectiveMemory.searchCollectiveMemory({
-    query: "business restaurant immigration legal",
+    query: 'business restaurant immigration legal',
     limit: 10,
-    minConfidence: 0.6
+    minConfidence: 0.6,
   });
 
   return {
-    sync_type: "knowledge",
+    sync_type: 'knowledge',
     user_id: userId,
     synced_insights: recentInsights.length,
-    collective_updates: recentInsights.map(memory => ({
+    collective_updates: recentInsights.map((memory) => ({
       id: memory.id,
       type: memory.type,
       confidence: memory.confidence,
-      contributors: memory.contributors.length
+      contributors: memory.contributors.length,
     })),
-    benefit: "Access to community-validated knowledge",
-    next_sync: "24 hours"
+    benefit: 'Access to community-validated knowledge',
+    next_sync: '24 hours',
   };
 }
 
 async function syncUserPreferences(userId: string, preferences: any) {
   // User preference sync logic would go here
   return {
-    sync_type: "preferences",
+    sync_type: 'preferences',
     user_id: userId,
     preferences_updated: Object.keys(preferences).length,
-    collective_alignment: "Aligned with community patterns",
-    personalization_active: true
+    collective_alignment: 'Aligned with community patterns',
+    personalization_active: true,
   };
 }
 
 async function syncUserInsights(userId: string, preferences: any) {
   // Generate personalized insights based on collective data
-  const popularCategories = ["business", "legal", "immigration"];
+  const popularCategories = ['business', 'legal', 'immigration'];
   const insights = [];
 
   for (const category of popularCategories) {
     const topInsights = await collectiveMemory.searchCollectiveMemory({
       query: category,
-      category: category as 'business' | 'legal' | 'immigration' | 'general' | 'kbli' | 'property' | 'tax',
+      category: category as
+        | 'business'
+        | 'legal'
+        | 'immigration'
+        | 'general'
+        | 'kbli'
+        | 'property'
+        | 'tax',
       limit: 3,
-      minConfidence: 0.7
+      minConfidence: 0.7,
     });
 
     if (topInsights.length > 0) {
       insights.push({
         category,
         top_insights: topInsights,
-        relevance: category === preferences["primary_interest"] ? "high" : "medium"
+        relevance: category === preferences['primary_interest'] ? 'high' : 'medium',
       });
     }
   }
 
   return {
-    sync_type: "insights",
+    sync_type: 'insights',
     user_id: userId,
     personalized_insights: insights,
     collective_wisdom_applied: true,
-    learning_acceleration: "Community-sourced knowledge"
+    learning_acceleration: 'Community-sourced knowledge',
   };
 }

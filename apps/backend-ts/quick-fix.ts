@@ -7,7 +7,10 @@ console.log('🔧 RAPID FIX - TypeScript Compilation Issues');
 // Fix 1: services/logger.ts - remove circular import
 try {
   let content = fs.readFileSync('src/services/logger.ts', 'utf8');
-  content = content.replace(/import \{ logger \} from "..\/logging\/unified-logger\.js";/, '// Using local logger implementation - circular import resolved');
+  content = content.replace(
+    /import \{ logger \} from "..\/logging\/unified-logger\.js";/,
+    '// Using local logger implementation - circular import resolved'
+  );
   fs.writeFileSync('src/services/logger.ts', content);
   console.log('✅ Fixed services/logger.ts circular import');
 } catch (e) {
@@ -33,16 +36,22 @@ const errorFixFiles = [
   'src/middleware/cache.middleware.ts',
   'src/middleware/jwt-auth.ts',
   'src/middleware/monitoring.ts',
-  'src/routing/router.ts'
+  'src/routing/router.ts',
 ];
 
-errorFixFiles.forEach(file => {
+errorFixFiles.forEach((file) => {
   try {
     let content = fs.readFileSync(file, 'utf8');
 
     // Fix error object assignments
-    content = content.replace(/logger\.error\(([^,]+), \{ error: ([^}]+) \}/g, 'logger.error($1, new Error($2))');
-    content = content.replace(/\{ error: ([^,}]+), ([^}]+) \}/g, '{ name: "Error", message: $1, $2 }');
+    content = content.replace(
+      /logger\.error\(([^,]+), \{ error: ([^}]+) \}/g,
+      'logger.error($1, new Error($2))'
+    );
+    content = content.replace(
+      /\{ error: ([^,}]+), ([^}]+) \}/g,
+      '{ name: "Error", message: $1, $2 }'
+    );
 
     fs.writeFileSync(file, content);
     console.log(`✅ Fixed error types in ${file}`);

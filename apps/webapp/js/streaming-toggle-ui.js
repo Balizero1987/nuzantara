@@ -19,9 +19,10 @@ class StreamingToggleUI {
     }
 
     // Only show in dev mode
-    const isDev = window.location.hostname === 'localhost' ||
-                  window.location.hostname === '127.0.0.1' ||
-                  params.get('dev') === 'true';
+    const isDev =
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      params.get('dev') === 'true';
 
     if (isDev) {
       this.createToggle();
@@ -148,9 +149,11 @@ class StreamingToggleUI {
     }
 
     // Emit event
-    window.dispatchEvent(new CustomEvent('streaming-toggle', {
-      detail: { enabled: this.isEnabled }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('streaming-toggle', {
+        detail: { enabled: this.isEnabled },
+      })
+    );
   }
 
   showToast(message) {

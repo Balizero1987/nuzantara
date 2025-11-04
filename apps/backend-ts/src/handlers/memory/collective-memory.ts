@@ -8,16 +8,16 @@ import { storeMemoryVector, searchMemoriesSemantica } from '../../services/memor
 class InMemoryStore {
   private dataStore: Map<string, any> = new Map();
 
-  async getCollection(name: string, options?: any): Promise<any[]> {
+  async getCollection(_name: string, _options?: any): Promise<any[]> {
     // Return all memories as array
     return Array.from(this.dataStore.values());
   }
 
-  async store(name: string, id: string, data: any): Promise<void> {
+  async store(_name: string, id: string, data: any): Promise<void> {
     this.dataStore.set(id, data);
   }
 
-  async get(name: string, id: string): Promise<any> {
+  async get(_name: string, id: string): Promise<any> {
     return this.dataStore.get(id);
   }
 }
@@ -27,7 +27,12 @@ const firestoreStore = new InMemoryStore();
 interface CollectiveMemory {
   id: string;
   content: string;
-  type: 'business_insight' | 'legal_precedent' | 'pricing_update' | 'process_improvement' | 'case_study';
+  type:
+    | 'business_insight'
+    | 'legal_precedent'
+    | 'pricing_update'
+    | 'process_improvement'
+    | 'case_study';
   source: 'user_interaction' | 'team_input' | 'system_learning' | 'external_api';
   contributors: string[];
   userIds: string[]; // Users who contributed this knowledge
@@ -45,7 +50,7 @@ interface CollectiveMemory {
 
 class CollectiveMemoryStore {
   private readonly COLLECTION_NAME = 'collective_memory';
-  private readonly SHARED_COLLECTION_ID = 'zantara_collective';
+  private readonly _SHARED_COLLECTION_ID = 'zantara_collective';
 
   /**
    * Add knowledge to collective memory from any user interaction
@@ -79,7 +84,7 @@ class CollectiveMemoryStore {
       lastUsed: new Date(),
       tags: params.tags || [],
       confidence: params.confidence || 0.5,
-      category: params.category
+      category: params.category,
     };
 
     try {
@@ -93,7 +98,7 @@ class CollectiveMemoryStore {
         content: params.content,
         type: `collective_${params.type}`,
         timestamp: collectiveMemory.createdAt.toISOString(),
-        entities: params.entities || []
+        entities: params.entities || [],
       });
 
       logger.info(`🧠 Collective memory added: ${memoryId} by ${params.userId}`);
@@ -121,7 +126,7 @@ class CollectiveMemoryStore {
       type,
       limit = 10,
       minConfidence = 0.3,
-      includeUnverified = false
+      includeUnverified = false,
     } = params;
 
     try {
@@ -129,11 +134,11 @@ class CollectiveMemoryStore {
       const vectorResults = await searchMemoriesSemantica({
         query,
         userId: 'collective',
-        limit: limit * 2 // Get more to filter
+        limit: limit * 2, // Get more to filter
       });
 
       // Get matching memories from in-memory store
-      const memoryIds = vectorResults.map(r => r.id);
+      const memoryIds = vectorResults.map((r) => r.id);
       const allMemories = await firestoreStore.getCollection(this.COLLECTION_NAME);
       const firestoreResults = allMemories.filter((memory: CollectiveMemory) =>
         memoryIds.includes(memory.id)
@@ -151,14 +156,14 @@ class CollectiveMemoryStore {
 
       // Sort by usage count and verification score
       filteredResults.sort((a: CollectiveMemory, b: CollectiveMemory) => {
-        const scoreA = (a.usageCount * 0.3) + (a.verificationScore * 0.5) + (a.confidence * 0.2);
-        const scoreB = (b.usageCount * 0.3) + (b.verificationScore * 0.5) + (b.confidence * 0.2);
+        const scoreA = a.usageCount * 0.3 + a.verificationScore * 0.5 + a.confidence * 0.2;
+        const scoreB = b.usageCount * 0.3 + b.verificationScore * 0.5 + b.confidence * 0.2;
         return scoreB - scoreA;
       });
 
       // Update usage count for returned memories
       const results = filteredResults.slice(0, limit);
-      await this.updateUsageCounts(results.map(r => r.id));
+      await this.updateUsageCounts(results.map((r) => r.id));
 
       return results;
     } catch (error: any) {
@@ -178,7 +183,10 @@ class CollectiveMemoryStore {
     confidenceBoost?: number;
   }): Promise<boolean> {
     try {
-      const memory = await firestoreStore.get(this.COLLECTION_NAME, params.memoryId) as CollectiveMemory;
+      const memory = (await firestoreStore.get(
+        this.COLLECTION_NAME,
+        params.memoryId
+      )) as CollectiveMemory;
 
       if (!memory) {
         throw new Error(`Memory ${params.memoryId} not found`);
@@ -220,7 +228,7 @@ class CollectiveMemoryStore {
           content: memory.content,
           type: `collective_${memory.type}`,
           timestamp: memory.updatedAt.toISOString(),
-          entities: memory.entities
+          entities: memory.entities,
         });
       }
 
@@ -243,7 +251,10 @@ class CollectiveMemoryStore {
     notes?: string;
   }): Promise<boolean> {
     try {
-      const memory = await firestoreStore.get(this.COLLECTION_NAME, params.memoryId) as CollectiveMemory;
+      const memory = (await firestoreStore.get(
+        this.COLLECTION_NAME,
+        params.memoryId
+      )) as CollectiveMemory;
 
       if (!memory) {
         throw new Error(`Memory ${params.memoryId} not found`);
@@ -283,25 +294,28 @@ class CollectiveMemoryStore {
     avgConfidence: number;
   }> {
     try {
-      const allMemories = await firestoreStore.getCollection(this.COLLECTION_NAME) as CollectiveMemory[];
+      const allMemories = (await firestoreStore.getCollection(
+        this.COLLECTION_NAME
+      )) as CollectiveMemory[];
 
       const stats = {
         totalMemories: allMemories.length,
-        verifiedMemories: allMemories.filter(m => m.verified).length,
+        verifiedMemories: allMemories.filter((m) => m.verified).length,
         categoryBreakdown: {} as Record<string, number>,
         topContributors: [] as Array<{ userId: string; contributions: number }>,
-        avgConfidence: 0
+        avgConfidence: 0,
       };
 
       // Category breakdown
-      allMemories.forEach(memory => {
-        stats.categoryBreakdown[memory.category] = (stats.categoryBreakdown[memory.category] || 0) + 1;
+      allMemories.forEach((memory) => {
+        stats.categoryBreakdown[memory.category] =
+          (stats.categoryBreakdown[memory.category] || 0) + 1;
       });
 
       // Top contributors
       const contributorCounts: Record<string, number> = {};
-      allMemories.forEach(memory => {
-        memory.contributors.forEach(userId => {
+      allMemories.forEach((memory) => {
+        memory.contributors.forEach((userId) => {
           contributorCounts[userId] = (contributorCounts[userId] || 0) + 1;
         });
       });
@@ -312,7 +326,8 @@ class CollectiveMemoryStore {
         .slice(0, 10);
 
       // Average confidence
-      stats.avgConfidence = allMemories.reduce((sum, m) => sum + m.confidence, 0) / allMemories.length;
+      stats.avgConfidence =
+        allMemories.reduce((sum, m) => sum + m.confidence, 0) / allMemories.length;
 
       return stats;
     } catch (error: any) {
@@ -322,7 +337,7 @@ class CollectiveMemoryStore {
         verifiedMemories: 0,
         categoryBreakdown: {},
         topContributors: [],
-        avgConfidence: 0
+        avgConfidence: 0,
       };
     }
   }
@@ -330,7 +345,10 @@ class CollectiveMemoryStore {
   private async updateUsageCounts(memoryIds: string[]): Promise<void> {
     for (const memoryId of memoryIds) {
       try {
-        const memory = await firestoreStore.get(this.COLLECTION_NAME, memoryId) as CollectiveMemory;
+        const memory = (await firestoreStore.get(
+          this.COLLECTION_NAME,
+          memoryId
+        )) as CollectiveMemory;
         if (memory) {
           memory.usageCount += 1;
           memory.lastUsed = new Date();

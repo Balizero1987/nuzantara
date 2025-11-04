@@ -24,10 +24,7 @@
         "useESM": true
       }
     },
-    "collectCoverageFrom": [
-      "test-migration.ts",
-      "!**/node_modules/**"
-    ],
+    "collectCoverageFrom": ["test-migration.ts", "!**/node_modules/**"],
     "coverageThreshold": {
       "global": {
         "branches": 90,

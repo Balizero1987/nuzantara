@@ -1,7 +1,7 @@
 /**
  * ZANTARA Internationalization (i18n)
  * Supports EN (English - DEFAULT), IT (Italian), ID (Indonesian)
- * 
+ *
  * @version 2.0.0
  * Features:
  * - English as primary/default language
@@ -30,18 +30,18 @@ const ZANTARA_I18N = {
         kitas: {
           title: '📋 E23 Freelance KITAS',
           subtitle: 'Documents, costs and timeline',
-          question: 'How can I get an E23 Freelance KITAS?'
+          question: 'How can I get an E23 Freelance KITAS?',
         },
         company: {
           title: '🏢 PT Company Setup',
           subtitle: 'Complete costs and requirements',
-          question: 'How much does it cost to open a PT company in Indonesia?'
+          question: 'How much does it cost to open a PT company in Indonesia?',
         },
         investor: {
           title: '💼 Investor Visas',
           subtitle: 'E28A, E33A and comparison',
-          question: 'What are the visa options for investors?'
-        }
+          question: 'What are the visa options for investors?',
+        },
       },
 
       // Input area
@@ -76,7 +76,7 @@ const ZANTARA_I18N = {
 
       // Language Selector
       languageSelector: 'Language',
-      changeLanguage: 'Change Language'
+      changeLanguage: 'Change Language',
     },
 
     it: {
@@ -96,18 +96,18 @@ const ZANTARA_I18N = {
         kitas: {
           title: '📋 E23 Freelance KITAS',
           subtitle: 'Documenti, costi e timeline',
-          question: 'Come posso ottenere una E23 Freelance KITAS?'
+          question: 'Come posso ottenere una E23 Freelance KITAS?',
         },
         company: {
           title: '🏢 PT Company Setup',
           subtitle: 'Costi e requisiti completi',
-          question: 'Quanto costa aprire una PT company in Indonesia?'
+          question: 'Quanto costa aprire una PT company in Indonesia?',
         },
         investor: {
           title: '💼 Visti Investitori',
           subtitle: 'E28A, E33A e confronto',
-          question: 'Quali sono le opzioni di visto per investitori?'
-        }
+          question: 'Quali sono le opzioni di visto per investitori?',
+        },
       },
 
       // Input area
@@ -142,7 +142,7 @@ const ZANTARA_I18N = {
 
       // Language Selector
       languageSelector: 'Lingua',
-      changeLanguage: 'Cambia Lingua'
+      changeLanguage: 'Cambia Lingua',
     },
 
     id: {
@@ -162,18 +162,18 @@ const ZANTARA_I18N = {
         kitas: {
           title: '📋 E23 Freelance KITAS',
           subtitle: 'Dokumen, biaya dan timeline',
-          question: 'Bagaimana cara mendapatkan E23 Freelance KITAS?'
+          question: 'Bagaimana cara mendapatkan E23 Freelance KITAS?',
         },
         company: {
           title: '🏢 Pendirian PT',
           subtitle: 'Biaya dan persyaratan lengkap',
-          question: 'Berapa biaya mendirikan perusahaan PT di Indonesia?'
+          question: 'Berapa biaya mendirikan perusahaan PT di Indonesia?',
         },
         investor: {
           title: '💼 Visa Investor',
           subtitle: 'E28A, E33A dan perbandingan',
-          question: 'Apa saja pilihan visa untuk investor?'
-        }
+          question: 'Apa saja pilihan visa untuk investor?',
+        },
       },
 
       // Input area
@@ -208,7 +208,7 @@ const ZANTARA_I18N = {
 
       // Language Selector
       languageSelector: 'Bahasa',
-      changeLanguage: 'Ubah Bahasa'
+      changeLanguage: 'Ubah Bahasa',
     },
 
     uk: {
@@ -228,18 +228,18 @@ const ZANTARA_I18N = {
         kitas: {
           title: '📋 E23 Freelance KITAS',
           subtitle: 'Документи, вартість та терміни',
-          question: 'Як отримати E23 Freelance KITAS?'
+          question: 'Як отримати E23 Freelance KITAS?',
         },
         company: {
           title: '🏢 Реєстрація PT',
           subtitle: 'Повна вартість і вимоги',
-          question: 'Скільки коштує відкрити компанію PT в Індонезії?'
+          question: 'Скільки коштує відкрити компанію PT в Індонезії?',
         },
         investor: {
           title: '💼 Візи для інвесторів',
           subtitle: 'E28A, E33A та порівняння',
-          question: 'Які варіанти віз для інвесторів?'
-        }
+          question: 'Які варіанти віз для інвесторів?',
+        },
       },
 
       // Input area
@@ -274,8 +274,8 @@ const ZANTARA_I18N = {
 
       // Language Selector
       languageSelector: 'Мова',
-      changeLanguage: 'Змінити мову'
-    }
+      changeLanguage: 'Змінити мову',
+    },
   },
 
   // Supported languages with metadata
@@ -284,26 +284,26 @@ const ZANTARA_I18N = {
       code: 'en',
       name: 'English',
       flag: '🇬🇧',
-      nativeName: 'English'
+      nativeName: 'English',
     },
     it: {
       code: 'it',
       name: 'Italian',
       flag: '🇮🇹',
-      nativeName: 'Italiano'
+      nativeName: 'Italiano',
     },
     id: {
       code: 'id',
       name: 'Indonesian',
       flag: '🇮🇩',
-      nativeName: 'Bahasa Indonesia'
+      nativeName: 'Bahasa Indonesia',
     },
     uk: {
       code: 'uk',
       name: 'Ukrainian',
       flag: '🇺🇦',
-      nativeName: 'Українська'
-    }
+      nativeName: 'Українська',
+    },
   },
 
   /**
@@ -317,7 +317,7 @@ const ZANTARA_I18N = {
     // Map to supported languages
     if (langCode === 'it') return 'it';
     if (langCode === 'id') return 'id';
-    
+
     // Default to English for all other languages
     return 'en';
   },
@@ -383,9 +383,11 @@ const ZANTARA_I18N = {
       }
 
       // Dispatch event for other components
-      window.dispatchEvent(new CustomEvent('zantara:languageChanged', { 
-        detail: { language: lang } 
-      }));
+      window.dispatchEvent(
+        new CustomEvent('zantara:languageChanged', {
+          detail: { language: lang },
+        })
+      );
     } catch (error) {
       console.error('Failed to set language:', error);
     }
@@ -424,7 +426,7 @@ const ZANTARA_I18N = {
     console.log(`🌍 Applying translations for: ${lang}`);
 
     // Update all elements with data-i18n attribute
-    document.querySelectorAll('[data-i18n]').forEach(el => {
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
       const key = el.getAttribute('data-i18n');
       const translation = this.t(key, lang);
 
@@ -464,7 +466,8 @@ const ZANTARA_I18N = {
     if (companyEl) {
       companyEl.setAttribute('data-question', questions.company.question);
       companyEl.querySelector('.suggested-question-title').textContent = questions.company.title;
-      companyEl.querySelector('.suggested-question-subtitle').textContent = questions.company.subtitle;
+      companyEl.querySelector('.suggested-question-subtitle').textContent =
+        questions.company.subtitle;
     }
 
     // Investor question
@@ -472,9 +475,10 @@ const ZANTARA_I18N = {
     if (investorEl) {
       investorEl.setAttribute('data-question', questions.investor.question);
       investorEl.querySelector('.suggested-question-title').textContent = questions.investor.title;
-      investorEl.querySelector('.suggested-question-subtitle').textContent = questions.investor.subtitle;
+      investorEl.querySelector('.suggested-question-subtitle').textContent =
+        questions.investor.subtitle;
     }
-  }
+  },
 };
 
 // Make available globally

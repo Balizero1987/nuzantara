@@ -13,7 +13,14 @@ import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragServi
  * Handler: rag.query
  */
 export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryResponse> {
-  const { query, k = 5, use_llm = true, conversation_history, user_id = 'guest', user_email = 'guest@demo.com' } = params;
+  const {
+    query,
+    k = 5,
+    use_llm = true,
+    conversation_history,
+    user_id = 'guest',
+    user_email = 'guest@demo.com',
+  } = params;
 
   if (!query) {
     throw new Error('Query parameter is required');
@@ -25,8 +32,8 @@ export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryRes
       k,
       use_llm,
       conversation_history,
-      user_id,       // Fix: Add user_id for RAG backend
-      user_email     // Fix: Add user_email for RAG backend
+      user_id, // Fix: Add user_id for RAG backend
+      user_email, // Fix: Add user_email for RAG backend
     });
 
     return result;
@@ -36,7 +43,7 @@ export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryRes
       success: false,
       query,
       sources: [],
-      error: error.message || 'RAG service unavailable'
+      error: error.message || 'RAG service unavailable',
     };
   }
 }
@@ -60,13 +67,14 @@ export async function baliZeroChat(params: any, _req?: Request): Promise<BaliZer
       query,
       conversation_history,
       user_role,
-      user_email  // CRITICAL: Pass user_email to backend for collaborator identification
+      user_email, // CRITICAL: Pass user_email to backend for collaborator identification
     });
 
     // Normalize empty responses to a safe, user‑visible fallback to avoid "blank" UI replies
     // Keep the contract stable: always return a non‑empty `response` string
     const hasText = typeof result?.response === 'string' && result.response.trim().length > 0;
-    const fallback = 'I could not generate a direct answer from the knowledge base. Please rephrase or ask a more specific question.';
+    const fallback =
+      'I could not generate a direct answer from the knowledge base. Please rephrase or ask a more specific question.';
     const normalized = {
       ...result,
       response: hasText ? result.response : fallback,
@@ -111,13 +119,13 @@ export async function ragHealth(_params: any, _req?: Request) {
       success: true,
       status: isHealthy ? 'healthy' : 'unhealthy',
       rag_backend: isHealthy,
-      backend_url: process.env.RAG_BACKEND_URL || 'http://localhost:8000'
+      backend_url: process.env.RAG_BACKEND_URL || 'http://localhost:8000',
     };
   } catch (error: any) {
     return {
       success: false,
       status: 'unhealthy',
-      error: error.message
+      error: error.message,
     };
   }
 }

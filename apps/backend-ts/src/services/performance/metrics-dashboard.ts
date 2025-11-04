@@ -16,7 +16,7 @@ interface PerformanceMetrics {
     min: number;
     max: number;
   };
-  
+
   // Request metrics
   requests: {
     total: number;
@@ -24,7 +24,7 @@ interface PerformanceMetrics {
     error: number;
     rate: number; // requests per second
   };
-  
+
   // Cache metrics
   cache: {
     hitRate: number;
@@ -33,7 +33,7 @@ interface PerformanceMetrics {
     l1HitRate: number;
     l2HitRate: number;
   };
-  
+
   // Memory metrics
   memory: {
     totalMemories: number;
@@ -41,18 +41,21 @@ interface PerformanceMetrics {
     vectorSearches: number;
     semanticAccuracy: number;
   };
-  
+
   // Authentication metrics
   auth: {
-    methods: Record<string, {
-      count: number;
-      successRate: number;
-      averageTime: number;
-    }>;
+    methods: Record<
+      string,
+      {
+        count: number;
+        successRate: number;
+        averageTime: number;
+      }
+    >;
     totalAttempts: number;
     successRate: number;
   };
-  
+
   // Knowledge base metrics
   knowledgeBase: {
     kbliQueries: number;
@@ -60,7 +63,7 @@ interface PerformanceMetrics {
     averageResults: number;
     domainBreakdown: Record<string, number>;
   };
-  
+
   // System health metrics
   system: {
     uptime: number;
@@ -69,7 +72,7 @@ interface PerformanceMetrics {
     activeConnections: number;
     errorRate: number;
   };
-  
+
   // Business metrics
   business: {
     dailyActiveUsers: number;
@@ -101,91 +104,89 @@ class MetricsCollector {
         p95: 0,
         p99: 0,
         min: Infinity,
-        max: 0
+        max: 0,
       },
       requests: {
         total: 0,
         success: 0,
         error: 0,
-        rate: 0
+        rate: 0,
       },
       cache: {
         hitRate: 0,
         totalHits: 0,
         totalMisses: 0,
         l1HitRate: 0,
-        l2HitRate: 0
+        l2HitRate: 0,
       },
       memory: {
         totalMemories: 0,
         averageSize: 0,
         vectorSearches: 0,
-        semanticAccuracy: 0
+        semanticAccuracy: 0,
       },
       auth: {
         methods: {},
         totalAttempts: 0,
-        successRate: 0
+        successRate: 0,
       },
       knowledgeBase: {
         kbliQueries: 0,
         kblHitRate: 0,
         averageResults: 0,
-        domainBreakdown: {}
+        domainBreakdown: {},
       },
       system: {
         uptime: 0,
         memoryUsage: process.memoryUsage(),
         cpuUsage: 0,
         activeConnections: 0,
-        errorRate: 0
+        errorRate: 0,
       },
       business: {
         dailyActiveUsers: 0,
         sessionDuration: 0,
         conversionRate: 0,
-        popularQueries: []
-      }
+        popularQueries: [],
+      },
     };
   }
 
   private setupCollectionIntervals() {
     // Update system metrics every 30 seconds
-    this.intervals.push(
-      setInterval(() => this.updateSystemMetrics(), 30000)
-    );
+    this.intervals.push(setInterval(() => this.updateSystemMetrics(), 30000));
 
     // Calculate percentiles every 10 seconds
-    this.intervals.push(
-      setInterval(() => this.calculatePercentiles(), 10000)
-    );
+    this.intervals.push(setInterval(() => this.calculatePercentiles(), 10000));
 
     // Calculate rates every 5 seconds
-    this.intervals.push(
-      setInterval(() => this.calculateRates(), 5000)
-    );
+    this.intervals.push(setInterval(() => this.calculateRates(), 5000));
 
     // Cleanup old response times every minute
-    this.intervals.push(
-      setInterval(() => this.cleanupOldResponseTimes(), 60000)
-    );
+    this.intervals.push(setInterval(() => this.cleanupOldResponseTimes(), 60000));
   }
 
   // Record request start
   recordRequestStart(reqId: string, req?: any): { startTime: number; endpoint: string } {
     return {
       startTime: Date.now(),
-      endpoint: (req && req.url) || 'unknown'
+      endpoint: (req && req.url) || 'unknown',
     };
   }
 
   // Record request completion
-  recordRequestEnd(reqId: string, startTime: number, endpoint: string, success: boolean, error?: Error) {
+  recordRequestEnd(
+    reqId: string,
+    startTime: number,
+    endpoint: string,
+    success: boolean,
+    error?: Error
+  ) {
     const responseTime = Date.now() - startTime;
-    
+
     this.responseTimes.push(responseTime);
     this.metrics.requests.total++;
-    
+
     if (success) {
       this.metrics.requests.success++;
     } else {
@@ -200,7 +201,7 @@ class MetricsCollector {
   // Record cache hit
   recordCacheHit(cacheType: 'l1' | 'l2', key: string) {
     this.metrics.cache.totalHits++;
-    
+
     if (cacheType === 'l1') {
       // L1 hits are implicitly tracked in totalHits
     } else {
@@ -219,55 +220,60 @@ class MetricsCollector {
       this.metrics.auth.methods[method] = {
         count: 0,
         successRate: 0,
-        averageTime: 0
+        averageTime: 0,
       };
     }
 
     const methodMetrics = this.metrics.auth.methods[method];
     methodMetrics.count++;
-    
+
     // Update success rate (exponential moving average)
     const alpha = 0.1;
     methodMetrics.successRate = methodMetrics.successRate * (1 - alpha) + (success ? 1 : 0) * alpha;
-    
+
     // Update average response time (exponential moving average)
     methodMetrics.averageTime = methodMetrics.averageTime * (1 - alpha) + responseTime * alpha;
-    
+
     this.metrics.auth.totalAttempts++;
-    this.metrics.auth.successRate = this.metrics.auth.successRate * (1 - alpha) + (success ? 1 : 0) * alpha;
+    this.metrics.auth.successRate =
+      this.metrics.auth.successRate * (1 - alpha) + (success ? 1 : 0) * alpha;
   }
 
   // Record knowledge base query
   recordKBLIQuery(domain: string, resultsCount: number, searchMethod: string) {
     this.metrics.knowledgeBase.kbliQueries++;
-    
+
     if (!this.metrics.knowledgeBase.domainBreakdown[domain]) {
       this.metrics.knowledgeBase.domainBreakdown[domain] = 0;
     }
     this.metrics.knowledgeBase.domainBreakdown[domain]++;
-    
+
     // Update average results
     const alpha = 0.1;
-    this.metrics.knowledgeBase.averageResults = 
+    this.metrics.knowledgeBase.averageResults =
       this.metrics.knowledgeBase.averageResults * (1 - alpha) + resultsCount * alpha;
-    
+
     // Update hit rate if we got results
     if (resultsCount > 0) {
-      this.metrics.knowledgeBase.kblHitRate = 
+      this.metrics.knowledgeBase.kblHitRate =
         this.metrics.knowledgeBase.kblHitRate * (1 - alpha) + 1 * alpha;
     }
   }
 
   // Record memory operation
-  recordMemoryOperation(operation: 'save' | 'search' | 'get', success: boolean, responseTime?: number) {
+  recordMemoryOperation(
+    operation: 'save' | 'search' | 'get',
+    success: boolean,
+    responseTime?: number
+  ) {
     if (operation === 'search') {
       this.metrics.memory.vectorSearches++;
     }
-    
+
     // Update semantic accuracy based on success rates
     if (operation === 'search') {
       const alpha = 0.05;
-      this.metrics.memory.semanticAccuracy = 
+      this.metrics.memory.semanticAccuracy =
         this.metrics.memory.semanticAccuracy * (1 - alpha) + (success ? 1 : 0) * alpha;
     }
   }
@@ -275,7 +281,7 @@ class MetricsCollector {
   private updateSystemMetrics() {
     this.metrics.system.uptime = Date.now() - this.startTime;
     this.metrics.system.memoryUsage = process.memoryUsage();
-    
+
     // Calculate error rate
     if (this.metrics.requests.total > 0) {
       this.metrics.system.errorRate = this.metrics.requests.error / this.metrics.requests.total;
@@ -291,7 +297,7 @@ class MetricsCollector {
     this.metrics.responseTime.min = Math.min(...sorted);
     this.metrics.responseTime.max = Math.max(...sorted);
     this.metrics.responseTime.average = sorted.reduce((sum, time) => sum + time, 0) / len;
-    
+
     // Calculate percentiles
     this.metrics.responseTime.p50 = sorted[Math.floor(len * 0.5)];
     this.metrics.responseTime.p90 = sorted[Math.floor(len * 0.9)];
@@ -307,14 +313,13 @@ class MetricsCollector {
     }
 
     // Calculate request rate (per second over last minute)
-    this.metrics.requests.rate = this.responseTimes.filter(
-      time => Date.now() - time < 60000
-    ).length / 60;
+    this.metrics.requests.rate =
+      this.responseTimes.filter((time) => Date.now() - time < 60000).length / 60;
   }
 
   private cleanupOldResponseTimes() {
     const cutoff = Date.now() - 300000; // Keep last 5 minutes
-    this.responseTimes = this.responseTimes.filter(time => time > cutoff);
+    this.responseTimes = this.responseTimes.filter((time) => time > cutoff);
   }
 
   private updateEndpointMetrics(endpoint: string, responseTime: number, success: boolean) {
@@ -332,45 +337,45 @@ class MetricsCollector {
     const uptime = this.metrics.system.uptime;
     const uptimeHours = Math.floor(uptime / (1000 * 60 * 60));
     const uptimeMinutes = Math.floor((uptime % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     return {
       systemHealth: {
         status: this.metrics.system.errorRate < 0.05 ? 'healthy' : 'degraded',
         uptime: `${uptimeHours}h ${uptimeMinutes}m`,
-        errorRate: `${(this.metrics.system.errorRate * 100).toFixed(2)}%`
+        errorRate: `${(this.metrics.system.errorRate * 100).toFixed(2)}%`,
       },
       performance: {
         averageResponseTime: `${this.metrics.responseTime.average.toFixed(0)}ms`,
         p95ResponseTime: `${this.metrics.responseTime.p95.toFixed(0)}ms`,
         requestRate: `${this.metrics.requests.rate.toFixed(1)}/s`,
-        cacheHitRate: `${(this.metrics.cache.hitRate * 100).toFixed(1)}%`
+        cacheHitRate: `${(this.metrics.cache.hitRate * 100).toFixed(1)}%`,
       },
       usage: {
         totalRequests: this.metrics.requests.total,
         cacheHits: this.metrics.cache.totalHits,
         authAttempts: this.metrics.auth.totalAttempts,
-        kbliQueries: this.metrics.knowledgeBase.kbliQueries
+        kbliQueries: this.metrics.knowledgeBase.kbliQueries,
       },
       business: {
         memoryOps: this.metrics.memory.vectorSearches,
         popularAuthMethod: this.getMostPopularAuthMethod(),
-        topKBLIDomain: this.getTopKBLIDomain()
-      }
+        topKBLIDomain: this.getTopKBLIDomain(),
+      },
     };
   }
 
   private getMostPopularAuthMethod(): string {
     const methods = Object.entries(this.metrics.auth.methods);
     if (methods.length === 0) return 'none';
-    
-    return methods.reduce((a, b) => b[1].count > a[1].count ? b : a)[0];
+
+    return methods.reduce((a, b) => (b[1].count > a[1].count ? b : a))[0];
   }
 
   private getTopKBLIDomain(): string {
     const domains = Object.entries(this.metrics.knowledgeBase.domainBreakdown);
     if (domains.length === 0) return 'none';
-    
-    return domains.reduce((a, b) => b[1] > a[1] ? b : a)[0];
+
+    return domains.reduce((a, b) => (b[1] > a[1] ? b : a))[0];
   }
 
   // Get detailed endpoint breakdown
@@ -381,18 +386,18 @@ class MetricsCollector {
       'kbli.lookup.complete': {
         requests: 0,
         averageTime: 0,
-        successRate: 1.0
+        successRate: 1.0,
       },
       'memory.search.enhanced': {
         requests: 0,
         averageTime: 0,
-        successRate: 1.0
+        successRate: 1.0,
       },
       'zantara.unified': {
         requests: 0,
         averageTime: 0,
-        successRate: 1.0
-      }
+        successRate: 1.0,
+      },
     };
   }
 
@@ -407,12 +412,12 @@ class MetricsCollector {
   generateReport() {
     const metrics = this.getMetrics();
     const summary = this.getMetricsSummary();
-    
+
     return {
       timestamp: new Date().toISOString(),
       summary,
       detailed: metrics,
-      recommendations: this.generateRecommendations(metrics)
+      recommendations: this.generateRecommendations(metrics),
     };
   }
 
@@ -450,7 +455,7 @@ class MetricsCollector {
 
   // Cleanup
   destroy() {
-    this.intervals.forEach(interval => clearInterval(interval));
+    this.intervals.forEach((interval) => clearInterval(interval));
     this.intervals = [];
   }
 }
@@ -479,28 +484,28 @@ export function getMetricsCollector(): MetricsCollector {
 export function metricsMiddleware(req: any, res: any, next: any) {
   const collector = getMetricsCollector();
   const reqId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+
   // Record request start
   const { startTime, endpoint } = collector.recordRequestStart(reqId, req);
-  
+
   // Store request info for later
   (req as any).__metricsId = reqId;
   (req as any).__metricsStartTime = startTime;
   (req as any).__metricsEndpoint = endpoint;
-  
+
   // Override res.end to capture completion
   const originalEnd = res.end;
-  res.end = function(chunk?: any, encoding?: any) {
+  res.end = function (chunk?: any, encoding?: any) {
     const success = res.statusCode < 400;
     const responseTime = Date.now() - startTime;
-    
+
     // Record request completion
     collector.recordRequestEnd(reqId, startTime, endpoint, success);
-    
+
     // Call original end
     originalEnd.call(this, chunk, encoding);
   };
-  
+
   next();
 }
 
@@ -512,7 +517,7 @@ export function getMetricsDashboard(req: any, res?: any) {
     const detailed = collector.getMetrics();
     const endpointBreakdown = collector.getEndpointBreakdown();
     const report = collector.generateReport();
-    
+
     const response = {
       success: true,
       timestamp: new Date().toISOString(),
@@ -520,7 +525,7 @@ export function getMetricsDashboard(req: any, res?: any) {
       detailed,
       endpointBreakdown,
       report,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
 
     // Handle both Express response and direct return patterns
@@ -528,20 +533,20 @@ export function getMetricsDashboard(req: any, res?: any) {
       res.json(response);
       return;
     }
-    
+
     return response;
   } catch (error: any) {
     logger.error('Failed to get metrics dashboard:', error);
     const errorResponse = {
       success: false,
-      error: 'Failed to retrieve metrics'
+      error: 'Failed to retrieve metrics',
     };
-    
+
     if (res && typeof res.status === 'function') {
       res.status(500).json(errorResponse);
       return;
     }
-    
+
     return errorResponse;
   }
 }
@@ -550,31 +555,31 @@ export function resetMetrics(req: any, res?: any) {
   try {
     const collector = getMetricsCollector();
     collector.resetMetrics();
-    
+
     const response = {
       success: true,
       message: 'Metrics reset successfully',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     if (res && typeof res.json === 'function') {
       res.json(response);
       return;
     }
-    
+
     return response;
   } catch (error: any) {
     logger.error('Failed to reset metrics:', error);
     const errorResponse = {
       success: false,
-      error: 'Failed to reset metrics'
+      error: 'Failed to reset metrics',
     };
-    
+
     if (res && typeof res.status === 'function') {
       res.status(500).json(errorResponse);
       return;
     }
-    
+
     return errorResponse;
   }
 }

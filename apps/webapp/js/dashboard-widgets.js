@@ -14,7 +14,7 @@ class DashboardWidgets {
       { id: 'handler-stats', type: 'handlerStats', x: 2, y: 0, width: 2, height: 1 },
       { id: 'ai-insights', type: 'aiInsights', x: 0, y: 1, width: 2, height: 1 },
       { id: 'recent-activity', type: 'recentActivity', x: 2, y: 1, width: 2, height: 1 },
-      { id: 'performance-metrics', type: 'performanceMetrics', x: 0, y: 2, width: 4, height: 1 }
+      { id: 'performance-metrics', type: 'performanceMetrics', x: 0, y: 2, width: 4, height: 1 },
     ];
   }
 
@@ -24,16 +24,16 @@ class DashboardWidgets {
   async initialize() {
     // Load user preferences
     this.loadUserPreferences();
-    
+
     // Register default widgets
     this.registerDefaultWidgets();
-    
+
     // Load widget layout
     this.loadWidgetLayout();
-    
+
     // Render dashboard
     await this.renderDashboard();
-    
+
     console.log('[DashboardWidgets] System initialized');
   }
 
@@ -56,8 +56,7 @@ class DashboardWidgets {
    */
   saveUserPreferences() {
     try {
-      localStorage.setItem('zantara-dashboard-preferences', 
-        JSON.stringify(this.userPreferences));
+      localStorage.setItem('zantara-dashboard-preferences', JSON.stringify(this.userPreferences));
     } catch (error) {
       console.error('[DashboardWidgets] Error saving preferences:', error);
     }
@@ -86,8 +85,7 @@ class DashboardWidgets {
    */
   saveWidgetLayout() {
     try {
-      localStorage.setItem('zantara-dashboard-layout', 
-        JSON.stringify(this.widgetLayout));
+      localStorage.setItem('zantara-dashboard-layout', JSON.stringify(this.widgetLayout));
     } catch (error) {
       console.error('[DashboardWidgets] Error saving layout:', error);
     }
@@ -104,7 +102,7 @@ class DashboardWidgets {
       render: this.renderSystemStatusWidget.bind(this),
       update: this.updateSystemStatusWidget.bind(this),
       minWidth: 1,
-      minHeight: 1
+      minHeight: 1,
     });
 
     // Handler Stats Widget
@@ -114,7 +112,7 @@ class DashboardWidgets {
       render: this.renderHandlerStatsWidget.bind(this),
       update: this.updateHandlerStatsWidget.bind(this),
       minWidth: 1,
-      minHeight: 1
+      minHeight: 1,
     });
 
     // AI Insights Widget
@@ -124,7 +122,7 @@ class DashboardWidgets {
       render: this.renderAIInsightsWidget.bind(this),
       update: this.updateAIInsightsWidget.bind(this),
       minWidth: 1,
-      minHeight: 1
+      minHeight: 1,
     });
 
     // Recent Activity Widget
@@ -134,7 +132,7 @@ class DashboardWidgets {
       render: this.renderRecentActivityWidget.bind(this),
       update: this.updateRecentActivityWidget.bind(this),
       minWidth: 1,
-      minHeight: 1
+      minHeight: 1,
     });
 
     // Performance Metrics Widget
@@ -144,7 +142,7 @@ class DashboardWidgets {
       render: this.renderPerformanceMetricsWidget.bind(this),
       update: this.updatePerformanceMetricsWidget.bind(this),
       minWidth: 2,
-      minHeight: 1
+      minHeight: 1,
     });
   }
 
@@ -164,31 +162,31 @@ class DashboardWidgets {
     if (!widgetConfig.id) {
       widgetConfig.id = `widget_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
-    
+
     // Set default position if not provided
     if (typeof widgetConfig.x === 'undefined') {
       widgetConfig.x = 0;
-      widgetConfig.y = Math.max(...this.widgetLayout.map(w => w.y), 0) + 1;
+      widgetConfig.y = Math.max(...this.widgetLayout.map((w) => w.y), 0) + 1;
     }
-    
+
     // Set default size if not provided
     if (typeof widgetConfig.width === 'undefined') {
       widgetConfig.width = 1;
     }
-    
+
     if (typeof widgetConfig.height === 'undefined') {
       widgetConfig.height = 1;
     }
-    
+
     // Add to layout
     this.widgetLayout.push(widgetConfig);
-    
+
     // Save layout
     this.saveWidgetLayout();
-    
+
     // Re-render dashboard
     this.renderDashboard();
-    
+
     console.log(`[DashboardWidgets] Added widget: ${widgetConfig.id}`);
     return widgetConfig.id;
   }
@@ -197,7 +195,7 @@ class DashboardWidgets {
    * Remove a widget from the dashboard
    */
   removeWidget(widgetId) {
-    const index = this.widgetLayout.findIndex(w => w.id === widgetId);
+    const index = this.widgetLayout.findIndex((w) => w.id === widgetId);
     if (index !== -1) {
       this.widgetLayout.splice(index, 1);
       this.saveWidgetLayout();
@@ -212,7 +210,7 @@ class DashboardWidgets {
    * Update widget position and size
    */
   updateWidgetLayout(widgetId, newLayout) {
-    const widget = this.widgetLayout.find(w => w.id === widgetId);
+    const widget = this.widgetLayout.find((w) => w.id === widgetId);
     if (widget) {
       Object.assign(widget, newLayout);
       this.saveWidgetLayout();
@@ -229,27 +227,27 @@ class DashboardWidgets {
   async renderDashboard() {
     const dashboardContainer = document.getElementById('rocket-dashboard');
     if (!dashboardContainer) return;
-    
+
     // Sort widgets by position
     const sortedWidgets = [...this.widgetLayout].sort((a, b) => {
       if (a.y !== b.y) return a.y - b.y;
       return a.x - b.x;
     });
-    
+
     // Create dashboard grid
     let dashboardHTML = `
       <div class="dashboard-widgets-grid">
-        ${sortedWidgets.map(widgetConfig => this.renderWidgetPlaceholder(widgetConfig)).join('')}
+        ${sortedWidgets.map((widgetConfig) => this.renderWidgetPlaceholder(widgetConfig)).join('')}
       </div>
     `;
-    
+
     dashboardContainer.innerHTML = dashboardHTML;
-    
+
     // Render each widget content
     for (const widgetConfig of sortedWidgets) {
       await this.renderWidgetContent(widgetConfig);
     }
-    
+
     // Set up widget interactions
     this.setupWidgetInteractions();
   }
@@ -260,7 +258,7 @@ class DashboardWidgets {
   renderWidgetPlaceholder(widgetConfig) {
     const widgetDef = this.widgets.get(widgetConfig.type);
     const title = widgetDef ? widgetDef.title : 'Unknown Widget';
-    
+
     return `
       <div class="dashboard-widget" 
            id="widget-${widgetConfig.id}"
@@ -288,11 +286,11 @@ class DashboardWidgets {
   async renderWidgetContent(widgetConfig) {
     const widgetDef = this.widgets.get(widgetConfig.type);
     if (!widgetDef) {
-      document.getElementById(`widget-content-${widgetConfig.id}`).innerHTML = 
+      document.getElementById(`widget-content-${widgetConfig.id}`).innerHTML =
         '<div class="widget-error">Widget type not found</div>';
       return;
     }
-    
+
     try {
       const content = await widgetDef.render(widgetConfig);
       const contentElement = document.getElementById(`widget-content-${widgetConfig.id}`);
@@ -301,7 +299,7 @@ class DashboardWidgets {
       }
     } catch (error) {
       console.error(`[DashboardWidgets] Error rendering widget ${widgetConfig.id}:`, error);
-      document.getElementById(`widget-content-${widgetConfig.id}`).innerHTML = 
+      document.getElementById(`widget-content-${widgetConfig.id}`).innerHTML =
         `<div class="widget-error">Error: ${error.message}</div>`;
     }
   }
@@ -311,16 +309,16 @@ class DashboardWidgets {
    */
   setupWidgetInteractions() {
     // Refresh buttons
-    document.querySelectorAll('.widget-refresh').forEach(button => {
+    document.querySelectorAll('.widget-refresh').forEach((button) => {
       button.addEventListener('click', (e) => {
         const widgetElement = e.target.closest('.dashboard-widget');
         const widgetId = widgetElement.getAttribute('data-widget-id');
         this.refreshWidget(widgetId);
       });
     });
-    
+
     // Remove buttons
-    document.querySelectorAll('.widget-remove').forEach(button => {
+    document.querySelectorAll('.widget-remove').forEach((button) => {
       button.addEventListener('click', (e) => {
         const widgetElement = e.target.closest('.dashboard-widget');
         const widgetId = widgetElement.getAttribute('data-widget-id');
@@ -333,18 +331,18 @@ class DashboardWidgets {
    * Refresh a specific widget
    */
   async refreshWidget(widgetId) {
-    const widgetConfig = this.widgetLayout.find(w => w.id === widgetId);
+    const widgetConfig = this.widgetLayout.find((w) => w.id === widgetId);
     if (!widgetConfig) return;
-    
+
     const widgetDef = this.widgets.get(widgetConfig.type);
     if (!widgetDef) return;
-    
+
     // Show loading state
     const contentElement = document.getElementById(`widget-content-${widgetId}`);
     if (contentElement) {
       contentElement.innerHTML = '<div class="widget-loading">Refreshing...</div>';
     }
-    
+
     // Call update function if available, otherwise re-render
     try {
       if (widgetDef.update) {
@@ -408,7 +406,7 @@ class DashboardWidgets {
     const totalHandlers = 122;
     const integratedHandlers = 25;
     const integrationPercentage = Math.round((integratedHandlers / totalHandlers) * 100);
-    
+
     return `
       <div class="handler-stats-widget">
         <div class="stats-visualization">
@@ -493,19 +491,23 @@ class DashboardWidgets {
       { time: '2 min ago', action: 'Handler executed: team.list', user: 'System' },
       { time: '5 min ago', action: 'New conversation started', user: 'User' },
       { time: '10 min ago', action: 'Dashboard accessed', user: 'Admin' },
-      { time: '15 min ago', action: 'Settings updated', user: 'User' }
+      { time: '15 min ago', action: 'Settings updated', user: 'User' },
     ];
-    
+
     return `
       <div class="recent-activity-widget">
         <ul class="activity-list">
-          ${activities.map(activity => `
+          ${activities
+            .map(
+              (activity) => `
             <li class="activity-item">
               <div class="activity-time">${activity.time}</div>
               <div class="activity-content">${activity.action}</div>
               <div class="activity-user">by ${activity.user}</div>
             </li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
     `;
@@ -567,7 +569,7 @@ class DashboardWidgets {
       types.push({
         type,
         title: definition.title,
-        description: definition.description
+        description: definition.description,
       });
     }
     return types;
@@ -588,14 +590,14 @@ class DashboardWidgets {
    */
   getStatistics() {
     const widgetTypes = {};
-    this.widgetLayout.forEach(widget => {
+    this.widgetLayout.forEach((widget) => {
       widgetTypes[widget.type] = (widgetTypes[widget.type] || 0) + 1;
     });
-    
+
     return {
       totalWidgets: this.widgetLayout.length,
       widgetTypes,
-      layoutComplexity: this.calculateLayoutComplexity()
+      layoutComplexity: this.calculateLayoutComplexity(),
     };
   }
 
@@ -606,16 +608,16 @@ class DashboardWidgets {
     // Simple complexity calculation based on layout diversity
     const positions = new Set();
     const sizes = new Set();
-    
-    this.widgetLayout.forEach(widget => {
+
+    this.widgetLayout.forEach((widget) => {
       positions.add(`${widget.x},${widget.y}`);
       sizes.add(`${widget.width},${widget.height}`);
     });
-    
+
     return {
       uniquePositions: positions.size,
       uniqueSizes: sizes.size,
-      totalWidgets: this.widgetLayout.length
+      totalWidgets: this.widgetLayout.length,
     };
   }
 }
@@ -624,9 +626,9 @@ class DashboardWidgets {
 document.addEventListener('DOMContentLoaded', () => {
   window.DashboardWidgets = new DashboardWidgets();
   window.DashboardWidgets.initialize();
-  
+
   console.log('[DashboardWidgets] System ready');
-  
+
   // Mark enhancement as completed
   if (window.enhancementTracker) {
     window.enhancementTracker.markCompleted(23);

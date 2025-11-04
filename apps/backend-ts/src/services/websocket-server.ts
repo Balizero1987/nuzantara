@@ -38,7 +38,7 @@ export class ZantaraWebSocketServer {
     this.wss = new WebSocketServer({
       server,
       path,
-      clientTracking: true
+      clientTracking: true,
     });
 
     this.initialize();
@@ -73,7 +73,7 @@ export class ZantaraWebSocketServer {
     const url = new URL(req.url || '', `http://${req.headers.host}`);
     const userIdParam = url.searchParams.get('userId');
     const roleParam = url.searchParams.get('role');
-    
+
     if (userIdParam) client.userId = userIdParam;
     if (roleParam) client.userRole = roleParam;
 
@@ -84,8 +84,8 @@ export class ZantaraWebSocketServer {
       data: {
         message: 'Connected to ZANTARA WebSocket',
         clientId,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
 
     // Handle messages
@@ -141,7 +141,7 @@ export class ZantaraWebSocketServer {
       this.sendToClient(client, {
         type: 'message',
         channel: 'error',
-        data: { error: 'Invalid message format' }
+        data: { error: 'Invalid message format' },
       });
     }
   }
@@ -171,7 +171,7 @@ export class ZantaraWebSocketServer {
     this.sendToClient(client, {
       type: 'message',
       channel: 'system',
-      data: { message: `Subscribed to ${channel}` }
+      data: { message: `Subscribed to ${channel}` },
     });
   }
 
@@ -198,7 +198,7 @@ export class ZantaraWebSocketServer {
       type: 'message',
       channel,
       data,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     let sent = 0;
@@ -227,7 +227,7 @@ export class ZantaraWebSocketServer {
           type: 'message',
           channel,
           data,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
         sent++;
       }
@@ -273,16 +273,16 @@ export class ZantaraWebSocketServer {
   public getStats() {
     return {
       activeClients: this.clients.size,
-      channels: Array.from(this.channels.keys()).map(channel => ({
+      channels: Array.from(this.channels.keys()).map((channel) => ({
         name: channel,
-        subscribers: this.channels.get(channel)!.size
+        subscribers: this.channels.get(channel)!.size,
       })),
-      clients: Array.from(this.clients.values()).map(c => ({
+      clients: Array.from(this.clients.values()).map((c) => ({
         clientId: c.clientId,
         userId: c.userId,
         subscriptions: Array.from(c.subscriptions),
-        lastPing: c.lastPing
-      }))
+        lastPing: c.lastPing,
+      })),
     };
   }
 

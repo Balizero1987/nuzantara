@@ -58,7 +58,7 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
     zantaraCollective = await import('../zantara-collective.js');
     zantaraEcosystem = await import('../zantara-ecosystem.js');
     memoryHandlers = await import('../../memory/memory.js');
-    
+
     // Setup test environment
     jest.clearAllMocks();
   });
@@ -264,7 +264,10 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
         },
       }) as Request;
       const contributeRes = createMockResponse() as Response;
-      const contributeResult = await zantaraCollective.zantaraCollectiveIntelligence(contributeReq, contributeRes);
+      const contributeResult = await zantaraCollective.zantaraCollectiveIntelligence(
+        contributeReq,
+        contributeRes
+      );
       const memoryId = contributeResult.data?.result?.memory_id;
 
       if (memoryId) {
@@ -730,7 +733,7 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
       const totalTime = endTime - startTime;
 
       // All requests should succeed
-      expect(results.every(r => r.ok === true)).toBe(true);
+      expect(results.every((r) => r.ok === true)).toBe(true);
       expect(results.length).toBe(CONCURRENT_REQUESTS);
 
       // Average response time should be reasonable
@@ -759,7 +762,7 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
       const endTime = Date.now();
       const totalTime = endTime - startTime;
 
-      expect(results.every(r => r.ok === true)).toBe(true);
+      expect(results.every((r) => r.ok === true)).toBe(true);
       expect(results.length).toBe(CONCURRENT_REQUESTS);
 
       const avgTime = totalTime / CONCURRENT_REQUESTS;
@@ -786,7 +789,7 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
       const endTime = Date.now();
       const totalTime = endTime - startTime;
 
-      expect(results.every(r => r.ok === true)).toBe(true);
+      expect(results.every((r) => r.ok === true)).toBe(true);
       expect(results.length).toBe(CONCURRENT_REQUESTS);
 
       const avgTime = totalTime / CONCURRENT_REQUESTS;
@@ -808,7 +811,7 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
       const endTime = Date.now();
       const totalTime = endTime - startTime;
 
-      expect(results.every(r => r.ok === true)).toBe(true);
+      expect(results.every((r) => r.ok === true)).toBe(true);
       expect(results.length).toBe(50);
 
       const avgTime = totalTime / 50;
@@ -886,7 +889,7 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
       const endTime = Date.now();
       const totalTime = endTime - startTime;
 
-      expect(allResults.every(r => r.ok === true)).toBe(true);
+      expect(allResults.every((r) => r.ok === true)).toBe(true);
       expect(allResults.length).toBe(15);
       expect(totalTime).toBeLessThan(PERFORMANCE_THRESHOLD_MS * 5); // Allow more time for mixed load
     }, 60000); // 60 second timeout for mixed workload
@@ -926,7 +929,10 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
         },
       }) as Request;
       const contributeRes = createMockResponse() as Response;
-      const contributeResult = await zantaraCollective.zantaraCollectiveIntelligence(contributeReq, contributeRes);
+      const contributeResult = await zantaraCollective.zantaraCollectiveIntelligence(
+        contributeReq,
+        contributeRes
+      );
       expect(contributeResult.ok).toBe(true);
 
       // 3. Analyze ecosystem
@@ -939,7 +945,10 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
         },
       }) as Request;
       const ecosystemRes = createMockResponse() as Response;
-      const ecosystemResult = await zantaraEcosystem.zantaraEcosystemAnalysis(ecosystemReq, ecosystemRes);
+      const ecosystemResult = await zantaraEcosystem.zantaraEcosystemAnalysis(
+        ecosystemReq,
+        ecosystemRes
+      );
       expect(ecosystemResult.ok).toBe(true);
 
       // 4. Save user memory
@@ -951,7 +960,9 @@ describe('🧪 ZANTARA v3 Ω Integration Tests', () => {
       expect(memoryResult.ok).toBe(true);
 
       // All steps completed successfully
-      expect(unifiedResult.ok && contributeResult.ok && ecosystemResult.ok && memoryResult.ok).toBe(true);
+      expect(unifiedResult.ok && contributeResult.ok && ecosystemResult.ok && memoryResult.ok).toBe(
+        true
+      );
     }, 30000);
 
     it('should handle error recovery gracefully', async () => {

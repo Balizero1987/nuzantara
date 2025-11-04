@@ -1,6 +1,6 @@
 /**
  * WebSocket Server for Real-Time Features
- * 
+ *
  * Bridges Redis pub/sub to WebSocket clients
  * Enables real-time notifications without polling
  */
@@ -15,9 +15,9 @@ export function setupWebSocket(httpServer: HTTPServer) {
     cors: {
       origin: process.env.WEBAPP_URL || 'https://zantara.balizero.com',
       methods: ['GET', 'POST'],
-      credentials: true
+      credentials: true,
     },
-    transports: ['websocket', 'polling']
+    transports: ['websocket', 'polling'],
   });
 
   logger.info('WebSocket server initializing...');
@@ -44,7 +44,7 @@ export function setupWebSocket(httpServer: HTTPServer) {
     socket.emit('connected', {
       message: 'Real-time connection established',
       userId,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // Handle disconnection
@@ -94,33 +94,24 @@ function setupRedisBridge(io: Server) {
   );
 
   // AI results
-  PubSubService.psubscribe<AIResult>(
-    `${CHANNELS.AI_RESULTS}:*`,
-    (channel, result) => {
-      const userId = result.userId;
-      io.to(`user:${userId}`).emit('ai-result', result);
-      logger.debug(`AI result sent to user ${userId}`);
-    }
-  );
+  PubSubService.psubscribe<AIResult>(`${CHANNELS.AI_RESULTS}:*`, (channel, result) => {
+    const userId = result.userId;
+    io.to(`user:${userId}`).emit('ai-result', result);
+    logger.debug(`AI result sent to user ${userId}`);
+  });
 
   // Chat messages
-  PubSubService.psubscribe(
-    `${CHANNELS.CHAT_MESSAGES}:*`,
-    (channel, message: any) => {
-      const roomId = channel.split(':')[2];
-      io.to(`room:${roomId}`).emit('chat-message', message);
-      logger.debug(`Chat message sent to room ${roomId}`);
-    }
-  );
+  PubSubService.psubscribe(`${CHANNELS.CHAT_MESSAGES}:*`, (channel, message: any) => {
+    const roomId = channel.split(':')[2];
+    io.to(`room:${roomId}`).emit('chat-message', message);
+    logger.debug(`Chat message sent to room ${roomId}`);
+  });
 
   // System events (broadcast to all)
-  PubSubService.subscribe(
-    CHANNELS.SYSTEM_EVENTS,
-    (event: any) => {
-      io.emit('system-event', event);
-      logger.debug('System event broadcasted');
-    }
-  );
+  PubSubService.subscribe(CHANNELS.SYSTEM_EVENTS, (event: any) => {
+    io.emit('system-event', event);
+    logger.debug('System event broadcasted');
+  });
 
   logger.info('✅ Redis → WebSocket bridge established');
 }

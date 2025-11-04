@@ -13,7 +13,7 @@ class RocketSuggestions {
         icon: '🏢',
         triggers: ['company', 'business', 'pt', 'establish', 'setup', 'found'],
         handler: 'bali-zero.oracle.business_setup',
-        parameters: {}
+        parameters: {},
       },
       {
         id: 'visa_application',
@@ -22,7 +22,7 @@ class RocketSuggestions {
         icon: '🛂',
         triggers: ['visa', 'kitas', 'kitap', 'application', 'permit', 'immigration'],
         handler: 'bali-zero.oracle.visa_application',
-        parameters: {}
+        parameters: {},
       },
       {
         id: 'tax_obligations',
@@ -31,7 +31,7 @@ class RocketSuggestions {
         icon: '💰',
         triggers: ['tax', 'pajak', 'filings', 'obligations', 'npwp'],
         handler: 'bali-zero.oracle.tax_obligations',
-        parameters: {}
+        parameters: {},
       },
       {
         id: 'team_management',
@@ -40,7 +40,7 @@ class RocketSuggestions {
         icon: '👥',
         triggers: ['team', 'member', 'user', 'permission', 'access'],
         handler: 'team.list',
-        parameters: {}
+        parameters: {},
       },
       {
         id: 'pricing_info',
@@ -49,7 +49,7 @@ class RocketSuggestions {
         icon: '💸',
         triggers: ['price', 'cost', 'fee', 'pricing', 'charge'],
         handler: 'bali-zero.pricing.get',
-        parameters: { service_type: 'general' }
+        parameters: { service_type: 'general' },
       },
       {
         id: 'legal_docs',
@@ -58,10 +58,10 @@ class RocketSuggestions {
         icon: '📜',
         triggers: ['document', 'legal', 'contract', 'template', 'form'],
         handler: 'drive.search',
-        parameters: { query: 'legal documents' }
-      }
+        parameters: { query: 'legal documents' },
+      },
     ];
-    
+
     this.contextHistory = [];
     this.maxHistory = 10;
   }
@@ -72,17 +72,17 @@ class RocketSuggestions {
   generateSuggestions(userInput = '', context = {}) {
     // Add current context to history
     this.updateContextHistory(context);
-    
+
     // Score templates based on input and context
     const scoredSuggestions = this.suggestionTemplates
-      .map(template => ({
+      .map((template) => ({
         ...template,
-        score: this.calculateRelevanceScore(template, userInput, context)
+        score: this.calculateRelevanceScore(template, userInput, context),
       }))
-      .filter(suggestion => suggestion.score > 0.3) // Only relevant suggestions
+      .filter((suggestion) => suggestion.score > 0.3) // Only relevant suggestions
       .sort((a, b) => b.score - a.score) // Sort by relevance
       .slice(0, 5); // Top 5 suggestions
-    
+
     return scoredSuggestions;
   }
 
@@ -91,35 +91,35 @@ class RocketSuggestions {
    */
   calculateRelevanceScore(template, userInput, context) {
     let score = 0;
-    
+
     // Check input keywords match (highest weight)
     if (userInput) {
       const inputLower = userInput.toLowerCase();
-      const matches = template.triggers.filter(trigger => 
-        inputLower.includes(trigger)
-      ).length;
-      
+      const matches = template.triggers.filter((trigger) => inputLower.includes(trigger)).length;
+
       score += (matches / template.triggers.length) * 0.5;
     }
-    
+
     // Check context history (medium weight)
     if (this.contextHistory.length > 0) {
       const recentContext = this.contextHistory[this.contextHistory.length - 1];
-      if (recentContext.category && template.triggers.some(trigger => 
-        recentContext.category.toLowerCase().includes(trigger))) {
+      if (
+        recentContext.category &&
+        template.triggers.some((trigger) => recentContext.category.toLowerCase().includes(trigger))
+      ) {
         score += 0.3;
       }
     }
-    
+
     // Check conversation topics (lower weight)
     if (context.topics) {
-      const topicMatches = context.topics.filter(topic => 
-        template.triggers.some(trigger => trigger.includes(topic))
+      const topicMatches = context.topics.filter((topic) =>
+        template.triggers.some((trigger) => trigger.includes(topic))
       ).length;
-      
+
       score += (topicMatches / context.topics.length) * 0.2;
     }
-    
+
     return Math.min(score, 1); // Cap at 1.0
   }
 
@@ -128,7 +128,7 @@ class RocketSuggestions {
    */
   updateContextHistory(context) {
     this.contextHistory.push(context);
-    
+
     // Keep only the most recent contexts
     if (this.contextHistory.length > this.maxHistory) {
       this.contextHistory.shift();
@@ -141,17 +141,19 @@ class RocketSuggestions {
   renderSuggestions(suggestions, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     if (suggestions.length === 0) {
       container.innerHTML = '<p class="no-suggestions">No suggestions available</p>';
       return;
     }
-    
+
     container.innerHTML = `
       <div class="rocket-suggestions">
         <h3>🚀 Quick Actions</h3>
         <div class="suggestions-grid">
-          ${suggestions.map(suggestion => `
+          ${suggestions
+            .map(
+              (suggestion) => `
             <div class="suggestion-card" data-handler="${suggestion.handler}">
               <div class="suggestion-icon">${suggestion.icon}</div>
               <div class="suggestion-content">
@@ -159,13 +161,15 @@ class RocketSuggestions {
                 <p>${suggestion.description}</p>
               </div>
             </div>
-          `).join('')}
+          `
+            )
+            .join('')}
         </div>
       </div>
     `;
-    
+
     // Add click handlers
-    container.querySelectorAll('.suggestion-card').forEach(card => {
+    container.querySelectorAll('.suggestion-card').forEach((card) => {
       card.addEventListener('click', (e) => {
         const handler = card.getAttribute('data-handler');
         this.onSuggestionClick(handler);
@@ -178,12 +182,14 @@ class RocketSuggestions {
    */
   onSuggestionClick(handlerName) {
     console.log(`[RocketSuggestions] Suggestion clicked: ${handlerName}`);
-    
+
     // Dispatch event for other components to handle
-    window.dispatchEvent(new CustomEvent('suggestion-selected', {
-      detail: { handler: handlerName }
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('suggestion-selected', {
+        detail: { handler: handlerName },
+      })
+    );
+
     // If HandlerDiscovery is available, execute the handler
     if (window.HandlerDiscovery && window.HandlerDiscovery.initialized) {
       const handler = window.HandlerDiscovery.getHandler(handlerName);
@@ -212,7 +218,7 @@ class RocketSuggestions {
 // Initialize Rocket Suggestions
 document.addEventListener('DOMContentLoaded', () => {
   window.RocketSuggestions = new RocketSuggestions();
-  
+
   console.log('[RocketSuggestions] System ready');
 });
 

@@ -1,7 +1,7 @@
 // ZANTARA Dashboard Analytics - Real-time Metrics & Monitoring
 import logger from '../../services/logger.js';
-import { ok, err } from "../../utils/response.js";
-import { getFirestore } from "../../services/firebase.js";
+import { ok, err } from '../../utils/response.js';
+import { getFirestore } from '../../services/firebase.js';
 
 interface ConversationMetrics {
   total_conversations: number;
@@ -82,7 +82,7 @@ class DashboardAnalytics {
       average_session_duration: 0,
       unique_users_today: 0,
       unique_users_this_week: 0,
-      unique_users_this_month: 0
+      unique_users_this_month: 0,
     };
 
     if (this.db) {
@@ -94,19 +94,13 @@ class DashboardAnalytics {
         // Get messages stats
         const messagesRef = this.db.collection('messages');
 
-        const todayMessages = await messagesRef
-          .where('timestamp', '>=', todayStart)
-          .get();
+        const todayMessages = await messagesRef.where('timestamp', '>=', todayStart).get();
         metrics.messages_today = todayMessages.size;
 
-        const weekMessages = await messagesRef
-          .where('timestamp', '>=', weekStart)
-          .get();
+        const weekMessages = await messagesRef.where('timestamp', '>=', weekStart).get();
         metrics.messages_this_week = weekMessages.size;
 
-        const monthMessages = await messagesRef
-          .where('timestamp', '>=', monthStart)
-          .get();
+        const monthMessages = await messagesRef.where('timestamp', '>=', monthStart).get();
         metrics.messages_this_month = monthMessages.size;
 
         // Get unique users
@@ -114,20 +108,20 @@ class DashboardAnalytics {
         const usersWeek = new Set();
         const usersMonth = new Set();
 
-        todayMessages.forEach(doc => usersToday.add(doc.data().userId));
-        weekMessages.forEach(doc => usersWeek.add(doc.data().userId));
-        monthMessages.forEach(doc => usersMonth.add(doc.data().userId));
+        todayMessages.forEach((doc) => usersToday.add(doc.data().userId));
+        weekMessages.forEach((doc) => usersWeek.add(doc.data().userId));
+        monthMessages.forEach((doc) => usersMonth.add(doc.data().userId));
 
         metrics.unique_users_today = usersToday.size;
         metrics.unique_users_this_week = usersWeek.size;
         metrics.unique_users_this_month = usersMonth.size;
 
         // Get active sessions (from memory or session tracking)
-        const sessionsRef = await this.db.collection('active_sessions')
+        const sessionsRef = await this.db
+          .collection('active_sessions')
           .where('last_activity', '>=', new Date(Date.now() - 30 * 60 * 1000)) // Active in last 30 min
           .get();
         metrics.active_sessions = sessionsRef.size;
-
       } catch (error) {
         logger.info('Error fetching conversation metrics:', error);
       }
@@ -146,17 +140,18 @@ class DashboardAnalytics {
       quotes_generated: 0,
       documents_created: 0,
       successful_identifications: 0,
-      blocked_requests: 0
+      blocked_requests: 0,
     };
 
     if (this.db) {
       try {
         // Get service inquiries from handler_calls collection
-        const handlerCalls = await this.db.collection('handler_calls')
+        const handlerCalls = await this.db
+          .collection('handler_calls')
           .where('timestamp', '>=', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) // Last 30 days
           .get();
 
-        handlerCalls.forEach(doc => {
+        handlerCalls.forEach((doc) => {
           const data = doc.data();
           const handler = data.handler || '';
 
@@ -185,7 +180,6 @@ class DashboardAnalytics {
             metrics.blocked_requests++;
           }
         });
-
       } catch (error) {
         logger.info('Error fetching service metrics:', error);
       }
@@ -199,12 +193,13 @@ class DashboardAnalytics {
 
     if (this.db) {
       try {
-        const handlerCalls = await this.db.collection('handler_calls')
+        const handlerCalls = await this.db
+          .collection('handler_calls')
           .orderBy('timestamp', 'desc')
           .limit(1000)
           .get();
 
-        handlerCalls.forEach(doc => {
+        handlerCalls.forEach((doc) => {
           const data = doc.data();
           const handlerName = data.handler || 'unknown';
 
@@ -215,7 +210,7 @@ class DashboardAnalytics {
               success_rate: 0,
               average_response_time: 0,
               last_called: null,
-              errors_count: 0
+              errors_count: 0,
             });
           }
 
@@ -228,16 +223,17 @@ class DashboardAnalytics {
 
           if (data.response_time) {
             handler.average_response_time =
-              (handler.average_response_time * (handler.total_calls - 1) + data.response_time) / handler.total_calls;
+              (handler.average_response_time * (handler.total_calls - 1) + data.response_time) /
+              handler.total_calls;
           }
 
           if (!handler.last_called || data.timestamp.toDate() > handler.last_called) {
             handler.last_called = data.timestamp.toDate();
           }
 
-          handler.success_rate = ((handler.total_calls - handler.errors_count) / handler.total_calls) * 100;
+          handler.success_rate =
+            ((handler.total_calls - handler.errors_count) / handler.total_calls) * 100;
         });
-
       } catch (error) {
         logger.info('Error fetching handler metrics:', error);
       }
@@ -255,10 +251,10 @@ class DashboardAnalytics {
       memory_usage_mb: Math.round(memoryUsage.heapUsed / 1024 / 1024),
       cpu_usage_percent: Math.round(process.cpuUsage().user / 1000000), // Approximate
       active_handlers: 54, // From our handler count
-      total_handlers: 64,  // Including all ZARA handlers
+      total_handlers: 64, // Including all ZARA handlers
       firebase_status: this.db ? 'connected' : 'disconnected',
       reality_check_status: 'operational',
-      identity_gate_status: 'enforcing'
+      identity_gate_status: 'enforcing',
     };
   }
 
@@ -267,12 +263,13 @@ class DashboardAnalytics {
 
     if (this.db) {
       try {
-        const usersRef = await this.db.collection('users')
+        const usersRef = await this.db
+          .collection('users')
           .orderBy('stats.messages_count', 'desc')
           .limit(limit)
           .get();
 
-        usersRef.forEach(doc => {
+        usersRef.forEach((doc) => {
           const data = doc.data();
           users.push({
             userId: doc.id,
@@ -280,10 +277,9 @@ class DashboardAnalytics {
             last_active: data.last_seen?.toDate() || new Date(),
             total_messages: data.stats?.messages_count || 0,
             services_used: data.services_used || [],
-            language: data.language || 'en'
+            language: data.language || 'en',
           });
         });
-
       } catch (error) {
         logger.info('Error fetching top users:', error);
       }
@@ -298,7 +294,7 @@ class DashboardAnalytics {
       this.getServiceMetrics(),
       this.getHandlerMetrics(),
       this.getSystemHealth(),
-      this.getTopUsers(5)
+      this.getTopUsers(5),
     ]);
 
     return {
@@ -313,8 +309,8 @@ class DashboardAnalytics {
         system_status: health.firebase_status === 'connected' ? 'fully_operational' : 'degraded',
         security_status: 'enforced',
         ai_models_active: ['openai', 'anthropic', 'gemini', 'cohere'],
-        zara_handlers_active: 20
-      }
+        zara_handlers_active: 20,
+      },
     };
   }
 }
@@ -337,8 +333,8 @@ export async function dashboardMain(_params: any) {
         services: '/dashboard/services',
         handlers: '/dashboard/handlers',
         health: '/dashboard/health',
-        users: '/dashboard/users'
-      }
+        users: '/dashboard/users',
+      },
     });
   } catch (error: any) {
     return err('DASHBOARD_ERROR', error.message);
@@ -356,8 +352,8 @@ export async function dashboardConversations(_params: any) {
       insights: {
         trend: metrics.messages_today > 0 ? 'active' : 'quiet',
         engagement_rate: metrics.active_sessions > 0 ? 'engaged' : 'low',
-        user_retention: metrics.unique_users_this_week > 0 ? 'returning' : 'new'
-      }
+        user_retention: metrics.unique_users_this_week > 0 ? 'returning' : 'new',
+      },
     });
   } catch (error: any) {
     return err('METRICS_ERROR', error.message);
@@ -373,7 +369,7 @@ export async function dashboardServices(_params: any) {
       visa: metrics.visa_inquiries,
       company: metrics.company_inquiries,
       tax: metrics.tax_inquiries,
-      legal: metrics.legal_inquiries
+      legal: metrics.legal_inquiries,
     }).sort((a, b) => b[1] - a[1])[0];
 
     return ok({
@@ -382,10 +378,11 @@ export async function dashboardServices(_params: any) {
       insights: {
         most_popular_service: mostPopular?.[0] || 'unknown',
         security_effectiveness: metrics.blocked_requests > 0 ? 'high' : 'untested',
-        conversion_rate: metrics.successful_identifications > 0
-          ? `${Math.round((metrics.quotes_generated / metrics.successful_identifications) * 100)}%`
-          : '0%'
-      }
+        conversion_rate:
+          metrics.successful_identifications > 0
+            ? `${Math.round((metrics.quotes_generated / metrics.successful_identifications) * 100)}%`
+            : '0%',
+      },
     });
   } catch (error: any) {
     return err('METRICS_ERROR', error.message);
@@ -403,13 +400,15 @@ export async function dashboardHandlers(_params: any) {
       data: handlers,
       insights: {
         most_used: handlers[0]?.handler_name || 'none',
-        average_success_rate: handlers.length > 0
-          ? `${Math.round(handlers.reduce((sum, h) => sum + h.success_rate, 0) / handlers.length)}%`
-          : '0%',
-        average_response_time: handlers.length > 0
-          ? `${Math.round(handlers.reduce((sum, h) => sum + h.average_response_time, 0) / handlers.length)}ms`
-          : '0ms'
-      }
+        average_success_rate:
+          handlers.length > 0
+            ? `${Math.round(handlers.reduce((sum, h) => sum + h.success_rate, 0) / handlers.length)}%`
+            : '0%',
+        average_response_time:
+          handlers.length > 0
+            ? `${Math.round(handlers.reduce((sum, h) => sum + h.average_response_time, 0) / handlers.length)}ms`
+            : '0ms',
+      },
     });
   } catch (error: any) {
     return err('METRICS_ERROR', error.message);
@@ -428,11 +427,9 @@ export async function dashboardHealth(_params: any) {
         overall: 'healthy',
         firebase: health.firebase_status,
         security: 'enforced',
-        performance: health.memory_usage_mb < 500 ? 'optimal' : 'monitoring'
+        performance: health.memory_usage_mb < 500 ? 'optimal' : 'monitoring',
       },
-      alerts: health.memory_usage_mb > 800
-        ? ['High memory usage detected']
-        : []
+      alerts: health.memory_usage_mb > 800 ? ['High memory usage detected'] : [],
     });
   } catch (error: any) {
     return err('HEALTH_ERROR', error.message);
@@ -452,10 +449,11 @@ export async function dashboardUsers(_params: any) {
       insights: {
         most_active: users[0]?.name || 'none',
         primary_language: users[0]?.language || 'en',
-        average_messages: users.length > 0
-          ? Math.round(users.reduce((sum, u) => sum + u.total_messages, 0) / users.length)
-          : 0
-      }
+        average_messages:
+          users.length > 0
+            ? Math.round(users.reduce((sum, u) => sum + u.total_messages, 0) / users.length)
+            : 0,
+      },
     });
   } catch (error: any) {
     return err('USERS_ERROR', error.message);

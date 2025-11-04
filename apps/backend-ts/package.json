@@ -2,7 +2,7 @@
   "name": "nuzantara-ts-backend",
   "version": "5.2.0",
   "private": true,
-    "engines": {
+  "engines": {
     "node": "20"
   },
   "scripts": {
@@ -19,12 +19,14 @@
     "@google-cloud/secret-manager": "^6.1.1",
     "@google/generative-ai": "^0.24.1",
     "@octokit/rest": "^22.0.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/ws": "^8.18.1",
     "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "chromadb": "^1.10.5",
     "cors": "^2.8.5",

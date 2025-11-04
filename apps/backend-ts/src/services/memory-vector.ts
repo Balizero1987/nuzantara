@@ -37,7 +37,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       // Call Python RAG backend to generate embedding
       const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/embed`, {
         text,
-        model: 'sentence-transformers' // Use FREE local embeddings
+        model: 'sentence-transformers', // Use FREE local embeddings
       });
       return response.data.embedding;
     });
@@ -48,7 +48,10 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
     return embedding;
   } catch (error: any) {
-    logger.error(`⚠️ Embedding generation failed (${RAG_BACKEND_URL}/api/memory/embed):`, error?.message);
+    logger.error(
+      `⚠️ Embedding generation failed (${RAG_BACKEND_URL}/api/memory/embed):`,
+      error?.message
+    );
     // Fallback: return zero vector (won't work for search but won't crash)
     return new Array(384).fill(0); // sentence-transformers dimension
   }
@@ -82,14 +85,17 @@ export async function storeMemoryVector(params: {
         type,
         timestamp,
         entities: entities.join(','), // ChromaDB metadata must be strings
-        created_at: new Date().toISOString()
-      }
+        created_at: new Date().toISOString(),
+      },
     });
 
     logger.info(`✅ Memory vector stored: ${memoryId} for ${userId}`);
     return true;
   } catch (error: any) {
-    logger.error(`⚠️ Vector storage failed (${RAG_BACKEND_URL}/api/memory/store):`, error?.response?.data || error?.message);
+    logger.error(
+      `⚠️ Vector storage failed (${RAG_BACKEND_URL}/api/memory/store):`,
+      error?.response?.data || error?.message
+    );
     return false;
   }
 }
@@ -107,14 +113,7 @@ export async function searchMemoriesSemantica(params: {
   typeFilter?: string;
 }): Promise<VectorSearchResult[]> {
   try {
-    const { 
-      query, 
-      userId, 
-      limit = 10, 
-      threshold = 0.7,
-      entityFilter,
-      typeFilter
-    } = params;
+    const { query, userId, limit = 10, threshold = 0.7, entityFilter, typeFilter } = params;
 
     // Enhanced cache key with all filters
     const cacheKey = `${query}|${userId || 'all'}|${threshold}|${entityFilter || 'none'}|${typeFilter || 'none'}`;
@@ -140,7 +139,7 @@ export async function searchMemoriesSemantica(params: {
           metadata_filter: Object.keys(metadataFilter).length > 0 ? metadataFilter : undefined,
           include_metadata: true,
           include_documents: true,
-          include_distances: true
+          include_distances: true,
         });
 
         // Transform and filter results
@@ -148,26 +147,30 @@ export async function searchMemoriesSemantica(params: {
         const transformedResults = results
           .map((r: any, idx: number) => {
             const similarity = 1 / (1 + (response.data.distances?.[idx] || 1));
-            
+
             return {
               id: response.data.ids?.[idx] || r.id,
               userId: r.metadata?.userId || r.user_id,
               content: r.document || r.content,
               type: r.metadata?.type || r.type,
               timestamp: r.metadata?.timestamp || r.created_at,
-              entities: r.metadata?.entities ? 
-                (Array.isArray(r.metadata.entities) ? r.metadata.entities : r.metadata.entities.split(',')) : 
-                [],
+              entities: r.metadata?.entities
+                ? Array.isArray(r.metadata.entities)
+                  ? r.metadata.entities
+                  : r.metadata.entities.split(',')
+                : [],
               similarity,
-              score: similarity * (r.metadata?.importance || 5) / 10, // Boost by importance
-              metadata: r.metadata
+              score: (similarity * (r.metadata?.importance || 5)) / 10, // Boost by importance
+              metadata: r.metadata,
             };
           })
-          .filter(result => result.similarity >= threshold) // Filter by threshold
+          .filter((result) => result.similarity >= threshold) // Filter by threshold
           .sort((a, b) => b.score - a.score) // Sort by relevance score
           .slice(0, limit); // Limit results
 
-        logger.info(`🔍 Vector search: ${results.length} raw → ${transformedResults.length} filtered results`);
+        logger.info(
+          `🔍 Vector search: ${results.length} raw → ${transformedResults.length} filtered results`
+        );
         return transformedResults;
       }
     );
@@ -215,7 +218,7 @@ export async function findSimilarMemories(params: {
     // Get the memory's embedding from ChromaDB
     const response = await axios.post(`${RAG_BACKEND_URL}/api/memory/similar`, {
       memory_id: memoryId,
-      limit
+      limit,
     });
 
     return response.data.results.map((r: any, idx: number) => ({
@@ -225,7 +228,7 @@ export async function findSimilarMemories(params: {
       type: r.metadata.type,
       timestamp: r.metadata.timestamp,
       entities: r.metadata.entities ? r.metadata.entities.split(',') : [],
-      similarity: 1 / (1 + response.data.distances[idx])
+      similarity: 1 / (1 + response.data.distances[idx]),
     }));
   } catch (error: any) {
     logger.info('⚠️ Similar memory search failed:', error?.message);
@@ -263,7 +266,7 @@ export async function getMemoryVectorStats(): Promise<{
     return {
       total_memories: 0,
       users: 0,
-      collection_size_mb: 0
+      collection_size_mb: 0,
     };
   }
 }

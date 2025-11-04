@@ -27,51 +27,75 @@ export function registerGoogleWorkspaceHandlers() {
       handler,
       module: 'google-workspace',
       requiresAuth: true,
-      description: `Gmail: ${key.replace('gmail.', '')}`
+      description: `Gmail: ${key.replace('gmail.', '')}`,
     });
   }
 
   // Drive handlers
-  globalRegistry.registerModule('google-workspace', {
-    'drive.upload': driveUpload,
-    'drive.list': driveList,
-    'drive.search': driveSearch,
-    'drive.read': driveRead
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'google-workspace',
+    {
+      'drive.upload': driveUpload,
+      'drive.list': driveList,
+      'drive.search': driveSearch,
+      'drive.read': driveRead,
+    },
+    { requiresAuth: true }
+  );
 
   // Calendar handlers
-  globalRegistry.registerModule('google-workspace', {
-    'calendar.create': calendarCreate,
-    'calendar.list': calendarList,
-    'calendar.get': calendarGet
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'google-workspace',
+    {
+      'calendar.create': calendarCreate,
+      'calendar.list': calendarList,
+      'calendar.get': calendarGet,
+    },
+    { requiresAuth: true }
+  );
 
   // Sheets handlers
-  globalRegistry.registerModule('google-workspace', {
-    'sheets.read': sheetsRead,
-    'sheets.append': sheetsAppend,
-    'sheets.create': sheetsCreate
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'google-workspace',
+    {
+      'sheets.read': sheetsRead,
+      'sheets.append': sheetsAppend,
+      'sheets.create': sheetsCreate,
+    },
+    { requiresAuth: true }
+  );
 
   // Docs handlers
-  globalRegistry.registerModule('google-workspace', {
-    'docs.create': docsCreate,
-    'docs.read': docsRead,
-    'docs.update': docsUpdate
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'google-workspace',
+    {
+      'docs.create': docsCreate,
+      'docs.read': docsRead,
+      'docs.update': docsUpdate,
+    },
+    { requiresAuth: true }
+  );
 
   // Slides handlers
-  globalRegistry.registerModule('google-workspace', {
-    'slides.create': slidesCreate,
-    'slides.read': slidesRead,
-    'slides.update': slidesUpdate
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'google-workspace',
+    {
+      'slides.create': slidesCreate,
+      'slides.read': slidesRead,
+      'slides.update': slidesUpdate,
+    },
+    { requiresAuth: true }
+  );
 
   // Contacts handlers
-  globalRegistry.registerModule('google-workspace', {
-    'contacts.list': contactsList,
-    'contacts.create': contactsCreate
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'google-workspace',
+    {
+      'contacts.list': contactsList,
+      'contacts.create': contactsCreate,
+    },
+    { requiresAuth: true }
+  );
 
   logger.info('✅ Google Workspace handlers registered');
 }

@@ -23,16 +23,16 @@ class VoiceCommandIntegration {
   async initialize() {
     // Check for browser support
     this.checkBrowserSupport();
-    
+
     // Set up voice recognition
     this.setupVoiceRecognition();
-    
+
     // Register default commands
     this.registerDefaultCommands();
-    
+
     // Set up event listeners
     this.setupEventListeners();
-    
+
     console.log('[VoiceCommand] System initialized');
   }
 
@@ -47,7 +47,7 @@ class VoiceCommandIntegration {
       this.voiceSupported = true;
       console.log('[VoiceCommand] Speech recognition supported');
     }
-    
+
     if (!('speechSynthesis' in window)) {
       console.warn('[VoiceCommand] Speech synthesis not supported in this browser');
       this.synthesisSupported = false;
@@ -62,51 +62,53 @@ class VoiceCommandIntegration {
    */
   setupVoiceRecognition() {
     if (!this.voiceSupported) return;
-    
+
     // Use the appropriate SpeechRecognition constructor
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     this.recognition = new SpeechRecognition();
-    
+
     // Configure recognition settings
     this.recognition.continuous = this.continuousListening;
     this.recognition.interimResults = true;
     this.recognition.lang = this.language;
-    
+
     // Set up recognition event handlers
     this.recognition.onstart = () => {
       this.isListening = true;
       console.log('[VoiceCommand] Voice recognition started');
-      
+
       // Notify UI
       window.dispatchEvent(new CustomEvent('voice-recognition-started'));
     };
-    
+
     this.recognition.onend = () => {
       this.isListening = false;
       console.log('[VoiceCommand] Voice recognition ended');
-      
+
       // Notify UI
       window.dispatchEvent(new CustomEvent('voice-recognition-ended'));
-      
+
       // Restart if continuous listening is enabled
       if (this.continuousListening && this.voiceEnabled) {
         this.startListening();
       }
     };
-    
+
     this.recognition.onerror = (event) => {
       console.error('[VoiceCommand] Voice recognition error:', event.error);
-      
+
       // Notify UI
-      window.dispatchEvent(new CustomEvent('voice-recognition-error', {
-        detail: { error: event.error, message: event.message }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('voice-recognition-error', {
+          detail: { error: event.error, message: event.message },
+        })
+      );
     };
-    
+
     this.recognition.onresult = (event) => {
       this.handleRecognitionResult(event);
     };
-    
+
     console.log('[VoiceCommand] Voice recognition set up');
   }
 
@@ -116,25 +118,27 @@ class VoiceCommandIntegration {
   handleRecognitionResult(event) {
     let finalTranscript = '';
     let interimTranscript = '';
-    
+
     // Process results
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const transcript = event.results[i][0].transcript;
-      
+
       if (event.results[i].isFinal) {
         finalTranscript += transcript;
       } else {
         interimTranscript += transcript;
       }
     }
-    
+
     // Notify about interim results
     if (interimTranscript) {
-      window.dispatchEvent(new CustomEvent('voice-interim-result', {
-        detail: { transcript: interimTranscript }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('voice-interim-result', {
+          detail: { transcript: interimTranscript },
+        })
+      );
     }
-    
+
     // Process final transcript
     if (finalTranscript) {
       this.processVoiceCommand(finalTranscript);
@@ -152,27 +156,27 @@ class VoiceCommandIntegration {
       action: () => {
         window.location.hash = '#home';
         this.speak('Navigating to home page');
-      }
+      },
     });
-    
+
     this.registerCommand('navigate_dashboard', {
       phrases: ['go to dashboard', 'navigate to dashboard', 'show dashboard'],
       description: 'Navigate to the dashboard',
       action: () => {
         window.location.hash = '#dashboard';
         this.speak('Navigating to dashboard');
-      }
+      },
     });
-    
+
     this.registerCommand('navigate_handlers', {
       phrases: ['go to handlers', 'show handlers', 'navigate to handlers'],
       description: 'Navigate to the handlers page',
       action: () => {
         window.location.hash = '#handlers';
         this.speak('Navigating to handlers');
-      }
+      },
     });
-    
+
     // System commands
     this.registerCommand('toggle_theme', {
       phrases: ['toggle theme', 'switch theme', 'dark mode', 'light mode'],
@@ -183,35 +187,35 @@ class VoiceCommandIntegration {
         document.body.classList.toggle('dark-theme');
         localStorage.setItem('zantara-theme', newTheme);
         this.speak(`Switched to ${newTheme} theme`);
-      }
+      },
     });
-    
+
     this.registerCommand('show_help', {
       phrases: ['help', 'show help', 'what can i say'],
       description: 'Show available voice commands',
       action: () => {
         this.showAvailableCommands();
-      }
+      },
     });
-    
+
     this.registerCommand('stop_listening', {
       phrases: ['stop listening', 'stop voice', 'silence'],
       description: 'Stop voice recognition',
       action: () => {
         this.stopListening();
         this.speak('Stopping voice recognition');
-      }
+      },
     });
-    
+
     this.registerCommand('start_listening', {
       phrases: ['start listening', 'activate voice', 'hey zantara'],
       description: 'Start voice recognition',
       action: () => {
         this.startListening();
         this.speak('Voice recognition activated');
-      }
+      },
     });
-    
+
     // Handler execution commands
     this.registerCommand('execute_handler', {
       phrases: ['execute handler', 'run handler', 'use handler'],
@@ -225,9 +229,9 @@ class VoiceCommandIntegration {
         } else {
           this.speak('Please specify which handler to execute');
         }
-      }
+      },
     });
-    
+
     console.log('[VoiceCommand] Default commands registered');
   }
 
@@ -237,9 +241,9 @@ class VoiceCommandIntegration {
   registerCommand(commandId, commandDefinition) {
     this.commands.set(commandId, {
       id: commandId,
-      ...commandDefinition
+      ...commandDefinition,
     });
-    
+
     console.log(`[VoiceCommand] Command registered: ${commandId}`);
   }
 
@@ -248,19 +252,21 @@ class VoiceCommandIntegration {
    */
   processVoiceCommand(transcript) {
     console.log(`[VoiceCommand] Processing command: "${transcript}"`);
-    
+
     // Add to command history
     this.addToCommandHistory(transcript);
-    
+
     // Notify about recognized command
-    window.dispatchEvent(new CustomEvent('voice-command-recognized', {
-      detail: { transcript: transcript }
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('voice-command-recognized', {
+        detail: { transcript: transcript },
+      })
+    );
+
     // Match command to registered commands
     let matchedCommand = null;
     let matchedCommandId = null;
-    
+
     for (const [commandId, command] of this.commands) {
       for (const phrase of command.phrases) {
         // Check for exact or fuzzy match
@@ -270,10 +276,10 @@ class VoiceCommandIntegration {
           break;
         }
       }
-      
+
       if (matchedCommand) break;
     }
-    
+
     // Execute matched command or provide feedback
     if (matchedCommand) {
       try {
@@ -294,14 +300,16 @@ class VoiceCommandIntegration {
    */
   handleGeneralQuery(query) {
     console.log(`[VoiceCommand] Handling general query: "${query}"`);
-    
+
     // For now, we'll just acknowledge and suggest help
     this.speak(`I heard: ${query}. For available commands, say "help"`);
-    
+
     // Notify UI about unrecognized command
-    window.dispatchEvent(new CustomEvent('voice-command-unrecognized', {
-      detail: { query: query }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('voice-command-unrecognized', {
+        detail: { query: query },
+      })
+    );
   }
 
   /**
@@ -309,15 +317,17 @@ class VoiceCommandIntegration {
    */
   executeHandler(handlerName) {
     console.log(`[VoiceCommand] Executing handler: ${handlerName}`);
-    
+
     // In a real implementation, this would execute the actual handler
     // For now, we'll just simulate it
     this.speak(`Executing handler ${handlerName}`);
-    
+
     // Notify about handler execution
-    window.dispatchEvent(new CustomEvent('handler-executed-by-voice', {
-      detail: { handlerName: handlerName }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('handler-executed-by-voice', {
+        detail: { handlerName: handlerName },
+      })
+    );
   }
 
   /**
@@ -325,7 +335,7 @@ class VoiceCommandIntegration {
    */
   startListening() {
     if (!this.voiceEnabled || !this.voiceSupported || !this.recognition) return;
-    
+
     try {
       this.recognition.start();
       console.log('[VoiceCommand] Started listening');
@@ -339,7 +349,7 @@ class VoiceCommandIntegration {
    */
   stopListening() {
     if (!this.recognition) return;
-    
+
     try {
       this.recognition.stop();
       this.isListening = false;
@@ -365,15 +375,15 @@ class VoiceCommandIntegration {
    */
   speak(text) {
     if (!this.synthesisSupported || !this.voiceEnabled) return;
-    
+
     try {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = this.language;
       utterance.rate = 1.0;
       utterance.pitch = 1.0;
-      
+
       this.speechSynthesis.speak(utterance);
-      
+
       console.log(`[VoiceCommand] Speaking: "${text}"`);
     } catch (error) {
       console.error('[VoiceCommand] Error with speech synthesis:', error);
@@ -387,11 +397,11 @@ class VoiceCommandIntegration {
     const historyItem = {
       id: `cmd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date().toISOString(),
-      transcript: transcript
+      transcript: transcript,
     };
-    
+
     this.commandHistory.unshift(historyItem);
-    
+
     // Limit history size
     if (this.commandHistory.length > this.maxHistoryItems) {
       this.commandHistory.pop();
@@ -417,19 +427,21 @@ class VoiceCommandIntegration {
    */
   showAvailableCommands() {
     const commandsList = Array.from(this.commands.values())
-      .map(cmd => `${cmd.phrases.join(', ')} - ${cmd.description}`)
+      .map((cmd) => `${cmd.phrases.join(', ')} - ${cmd.description}`)
       .join('\n');
-    
+
     const message = `Available voice commands:\n${commandsList}`;
     console.log('[VoiceCommand] Available commands:', message);
-    
+
     // Speak the commands
     this.speak('Here are the available voice commands');
-    
+
     // Show in UI
-    window.dispatchEvent(new CustomEvent('voice-commands-list', {
-      detail: { commands: Array.from(this.commands.values()) }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('voice-commands-list', {
+        detail: { commands: Array.from(this.commands.values()) },
+      })
+    );
   }
 
   /**
@@ -437,11 +449,11 @@ class VoiceCommandIntegration {
    */
   setVoiceEnabled(enabled) {
     this.voiceEnabled = enabled;
-    
+
     if (!enabled && this.isListening) {
       this.stopListening();
     }
-    
+
     if (enabled) {
       console.log('[VoiceCommand] Voice commands enabled');
     } else {
@@ -454,11 +466,11 @@ class VoiceCommandIntegration {
    */
   setContinuousListening(enabled) {
     this.continuousListening = enabled;
-    
+
     if (this.recognition) {
       this.recognition.continuous = enabled;
     }
-    
+
     if (enabled) {
       console.log('[VoiceCommand] Continuous listening enabled');
     } else {
@@ -471,11 +483,11 @@ class VoiceCommandIntegration {
    */
   setLanguage(language) {
     this.language = language;
-    
+
     if (this.recognition) {
       this.recognition.lang = language;
     }
-    
+
     console.log(`[VoiceCommand] Language set to: ${language}`);
   }
 
@@ -491,7 +503,7 @@ class VoiceCommandIntegration {
       continuousListening: this.continuousListening,
       language: this.language,
       totalCommands: this.commands.size,
-      commandHistoryCount: this.commandHistory.length
+      commandHistoryCount: this.commandHistory.length,
     };
   }
 
@@ -503,11 +515,11 @@ class VoiceCommandIntegration {
     window.addEventListener('start-voice-command', () => {
       this.startListening();
     });
-    
+
     window.addEventListener('stop-voice-command', () => {
       this.stopListening();
     });
-    
+
     // Listen for UI interactions
     window.addEventListener('toggle-voice', () => {
       this.toggleListening();
@@ -520,7 +532,7 @@ class VoiceCommandIntegration {
   renderVoiceDashboard(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     // Create voice dashboard HTML
     container.innerHTML = `
       <div class="voice-dashboard">
@@ -595,40 +607,40 @@ class VoiceCommandIntegration {
         </div>
       </div>
     `;
-    
+
     // Render components
     this.renderVoiceStatus('voice-status');
     this.renderCommandHistory('command-history');
     this.renderAvailableCommands('available-commands');
-    
+
     // Set up action buttons
     document.getElementById('start-voice').addEventListener('click', () => {
       this.toggleListening();
       this.renderVoiceDashboard(containerId); // Re-render
     });
-    
+
     document.getElementById('show-commands').addEventListener('click', () => {
       this.showAvailableCommands();
     });
-    
+
     document.getElementById('clear-history').addEventListener('click', () => {
       this.clearCommandHistory();
       this.renderCommandHistory('command-history');
     });
-    
+
     // Set up settings controls
     document.getElementById('voice-enabled').addEventListener('change', (e) => {
       this.setVoiceEnabled(e.target.checked);
     });
-    
+
     document.getElementById('continuous-listening').addEventListener('change', (e) => {
       this.setContinuousListening(e.target.checked);
     });
-    
+
     document.getElementById('voice-language').addEventListener('change', (e) => {
       this.setLanguage(e.target.value);
     });
-    
+
     // Set up real-time transcript display
     this.setupTranscriptDisplay();
   }
@@ -639,9 +651,9 @@ class VoiceCommandIntegration {
   renderVoiceStatus(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const stats = this.getVoiceStatistics();
-    
+
     container.innerHTML = `
       <div class="status-grid">
         <div class="status-item">
@@ -678,24 +690,28 @@ class VoiceCommandIntegration {
   renderCommandHistory(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     if (this.commandHistory.length === 0) {
       container.innerHTML = '<p class="no-data">No voice commands recorded</p>';
       return;
     }
-    
+
     // Get last 10 commands
     const recentCommands = this.commandHistory.slice(0, 10);
-    
+
     container.innerHTML = `
       <div class="history-list">
         <ul>
-          ${recentCommands.map(command => `
+          ${recentCommands
+            .map(
+              (command) => `
             <li class="history-item">
               <div class="command-text">"${command.transcript}"</div>
               <div class="command-time">${new Date(command.timestamp).toLocaleString()}</div>
             </li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
     `;
@@ -707,23 +723,27 @@ class VoiceCommandIntegration {
   renderAvailableCommands(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const commands = Array.from(this.commands.values());
-    
+
     if (commands.length === 0) {
       container.innerHTML = '<p class="no-data">No voice commands available</p>';
       return;
     }
-    
+
     container.innerHTML = `
       <div class="commands-list">
         <ul>
-          ${commands.map(command => `
+          ${commands
+            .map(
+              (command) => `
             <li class="command-item">
               <div class="command-phrases">${command.phrases.join(', ')}</div>
               <div class="command-description">${command.description}</div>
             </li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
     `;
@@ -740,7 +760,7 @@ class VoiceCommandIntegration {
         interimDisplay.textContent = event.detail.transcript;
       }
     });
-    
+
     // Listen for recognized commands
     window.addEventListener('voice-command-recognized', (event) => {
       const finalDisplay = document.getElementById('final-transcript');
@@ -750,18 +770,18 @@ class VoiceCommandIntegration {
         newLine.className = 'transcript-line';
         newLine.textContent = event.detail.transcript;
         finalDisplay.appendChild(newLine);
-        
+
         // Scroll to bottom
         finalDisplay.scrollTop = finalDisplay.scrollHeight;
       }
-      
+
       // Clear interim transcript
       const interimDisplay = document.getElementById('interim-transcript');
       if (interimDisplay) {
         interimDisplay.textContent = '';
       }
     });
-    
+
     // Update mic icon when listening state changes
     window.addEventListener('voice-recognition-started', () => {
       const micIcon = document.querySelector('.mic-icon');
@@ -769,7 +789,7 @@ class VoiceCommandIntegration {
         micIcon.classList.add('listening');
       }
     });
-    
+
     window.addEventListener('voice-recognition-ended', () => {
       const micIcon = document.querySelector('.mic-icon');
       if (micIcon) {
@@ -783,9 +803,9 @@ class VoiceCommandIntegration {
 document.addEventListener('DOMContentLoaded', () => {
   window.VoiceCommandIntegration = new VoiceCommandIntegration();
   window.VoiceCommandIntegration.initialize();
-  
+
   console.log('[VoiceCommand] System ready');
-  
+
   // Mark enhancement as completed
   if (window.enhancementTracker) {
     window.enhancementTracker.markCompleted(33);

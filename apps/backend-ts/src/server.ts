@@ -9,10 +9,7 @@ import { ENV } from './config/index.js';
 import logger from './services/logger.js';
 import { attachRoutes } from './routing/router.js';
 import { loadAllHandlers } from './core/load-all-handlers.js';
-import {
-  applySecurity,
-  globalRateLimiter
-} from './middleware/security.middleware.js';
+import { applySecurity, globalRateLimiter } from './middleware/security.middleware.js';
 import { corsMiddleware } from './middleware/cors.js';
 import { setupWebSocket } from './websocket.js';
 import { metricsMiddleware, metricsHandler } from './middleware/observability.middleware.js';
@@ -29,7 +26,11 @@ import healthRoutes from './routes/health.js';
 import { auditTrail } from './services/audit-trail.js';
 
 // 🚀 PERFORMANCE MONITORING - Sonnet implementation
-import { performanceMiddleware, performanceHeaders, startMetricsCleanup } from './middleware/performance-middleware.js';
+import {
+  performanceMiddleware,
+  performanceHeaders,
+  startMetricsCleanup,
+} from './middleware/performance-middleware.js';
 import performanceRoutes from './routes/performance.routes.js';
 
 // GLM 4.6 Architect Patch - Enhanced Architecture
@@ -39,7 +40,10 @@ import { enhancedRouter } from './services/architecture/enhanced-router.js';
 import { registerV3InternalHandlers } from './handlers/zantara-v3/internal-handlers.js';
 
 // UNIFIED AUTHENTICATION - Strategy Pattern Implementation (Gemini Pro 2.5)
-import { unifiedAuth, authenticate as unifiedAuthenticate } from './services/auth/unified-auth-strategy.js';
+import {
+  unifiedAuth,
+  authenticate as unifiedAuthenticate,
+} from './services/auth/unified-auth-strategy.js';
 
 // GLM 4.6 Architect Patch: Register v3 Ω services
 async function registerV3OmegaServices(): Promise<void> {
@@ -57,8 +61,8 @@ async function registerV3OmegaServices(): Promise<void> {
       metadata: {
         description: 'Unified knowledge hub service',
         weight: 10,
-        domain: 'all'
-      }
+        domain: 'all',
+      },
     },
     {
       id: 'collective-service-1',
@@ -72,8 +76,8 @@ async function registerV3OmegaServices(): Promise<void> {
       metadata: {
         description: 'Collective memory service',
         weight: 8,
-        domain: 'memory'
-      }
+        domain: 'memory',
+      },
     },
     {
       id: 'ecosystem-service-1',
@@ -87,9 +91,9 @@ async function registerV3OmegaServices(): Promise<void> {
       metadata: {
         description: 'Business ecosystem analysis',
         weight: 7,
-        domain: 'business'
-      }
-    }
+        domain: 'business',
+      },
+    },
   ];
 
   for (const service of v3Services) {
@@ -110,8 +114,8 @@ async function registerV3OmegaServices(): Promise<void> {
     retryAttempts: 3,
     rateLimit: {
       windowMs: 60000,
-      max: 100
-    }
+      max: 100,
+    },
   });
 
   enhancedRouter.registerRoute({
@@ -122,8 +126,8 @@ async function registerV3OmegaServices(): Promise<void> {
     retryAttempts: 2,
     rateLimit: {
       windowMs: 60000,
-      max: 50
-    }
+      max: 50,
+    },
   });
 
   enhancedRouter.registerRoute({
@@ -134,8 +138,8 @@ async function registerV3OmegaServices(): Promise<void> {
     retryAttempts: 2,
     rateLimit: {
       windowMs: 60000,
-      max: 30
-    }
+      max: 30,
+    },
   });
 
   logger.info('✅ v3 Ω services registered with enhanced routing');
@@ -180,7 +184,7 @@ async function startServer() {
         await initializeDatabasePool();
         logger.info('✅ Database connection pool initialized');
       }
-      
+
       if (process.env.CHROMADB_URL) {
         await initializeChromaDBPool();
         logger.info('✅ ChromaDB connection pool initialized');
@@ -260,7 +264,7 @@ async function startServer() {
       service: 'ZANTARA TS-BACKEND',
       version: '5.2.1',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime()
+      uptime: process.uptime(),
     });
   });
 
@@ -278,12 +282,12 @@ async function startServer() {
         circuitBreakers: enhancedRouter.getCircuitBreakerStatus(),
         serviceRegistry: enhancedRouter.getServiceRegistryStatus(),
         metrics: enhancedRouter.getMetricsSummary(),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
       meta: {
         version: 'GLM 4.6 Architect Patch v1.0.0',
-        description: 'Enhanced Architecture Status Dashboard'
-      }
+        description: 'Enhanced Architecture Status Dashboard',
+      },
     });
   });
 
@@ -298,16 +302,16 @@ async function startServer() {
       ok: true,
       data: {
         strategies: unifiedAuth.getStrategyStats(),
-        availableStrategies: unifiedAuth.getStrategies().map(s => ({
+        availableStrategies: unifiedAuth.getStrategies().map((s) => ({
           name: s.name,
-          priority: s.priority
+          priority: s.priority,
         })),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
       meta: {
         service: 'zantara-unified-auth',
-        version: '1.0.0'
-      }
+        version: '1.0.0',
+      },
     });
   });
 
@@ -318,7 +322,7 @@ async function startServer() {
       if (!token) {
         return res.status(400).json({
           ok: false,
-          error: 'Token is required'
+          error: 'Token is required',
         });
       }
 
@@ -336,19 +340,19 @@ async function startServer() {
               department: user.department,
               authType: user.authType,
               permissions: user.permissions,
-              isActive: user.isActive
+              isActive: user.isActive,
             },
             tokenInfo: {
               strategy: user.authType,
-              validatedAt: new Date().toISOString()
-            }
-          }
+              validatedAt: new Date().toISOString(),
+            },
+          },
         });
       } else {
         res.status(401).json({
           ok: false,
           error: 'Invalid or expired token',
-          code: 'INVALID_TOKEN'
+          code: 'INVALID_TOKEN',
         });
       }
     } catch (error) {
@@ -356,7 +360,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token validation failed',
-        details: error.message
+        details: error.message,
       });
     }
   });
@@ -368,7 +372,7 @@ async function startServer() {
       if (!token) {
         return res.status(400).json({
           ok: false,
-          error: 'Token is required'
+          error: 'Token is required',
         });
       }
 
@@ -379,14 +383,14 @@ async function startServer() {
           ok: true,
           data: {
             token: newToken,
-            refreshedAt: new Date().toISOString()
-          }
+            refreshedAt: new Date().toISOString(),
+          },
         });
       } else {
         res.status(401).json({
           ok: false,
           error: 'Token refresh failed',
-          code: 'REFRESH_FAILED'
+          code: 'REFRESH_FAILED',
         });
       }
     } catch (error) {
@@ -394,7 +398,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token refresh failed',
-        details: error.message
+        details: error.message,
       });
     }
   });
@@ -406,7 +410,7 @@ async function startServer() {
       if (!token) {
         return res.status(400).json({
           ok: false,
-          error: 'Token is required'
+          error: 'Token is required',
         });
       }
 
@@ -416,15 +420,15 @@ async function startServer() {
         ok: true,
         data: {
           revoked,
-          revokedAt: new Date().toISOString()
-        }
+          revokedAt: new Date().toISOString(),
+        },
       });
     } catch (error) {
       logger.error('Token revocation error:', error);
       res.status(500).json({
         ok: false,
         error: 'Token revocation failed',
-        details: error.message
+        details: error.message,
       });
     }
   });
@@ -436,7 +440,7 @@ async function startServer() {
       if (!user || !user.id || !user.email) {
         return res.status(400).json({
           ok: false,
-          error: 'User data with id and email is required'
+          error: 'User data with id and email is required',
         });
       }
 
@@ -450,7 +454,7 @@ async function startServer() {
         permissions: user.permissions || ['read'],
         isActive: true,
         lastLogin: new Date(),
-        authType: strategy as any
+        authType: strategy as any,
       };
 
       const token = unifiedAuth.generateToken(unifiedUser, strategy);
@@ -461,15 +465,15 @@ async function startServer() {
           token,
           strategy,
           user: unifiedUser,
-          generatedAt: new Date().toISOString()
-        }
+          generatedAt: new Date().toISOString(),
+        },
       });
     } catch (error) {
       logger.error('Token generation error:', error);
       res.status(500).json({
         ok: false,
         error: 'Token generation failed',
-        details: error.message
+        details: error.message,
       });
     }
   });
@@ -482,8 +486,8 @@ async function startServer() {
       endpoints: {
         health: '/health',
         api: '/call',
-        team: '/team.login'
-      }
+        team: '/team.login',
+      },
     });
   });
 
@@ -496,6 +500,11 @@ async function startServer() {
   app.use('/api/auth/team', teamAuthRoutes.default);
   logger.info('✅ Team Authentication routes loaded');
 
+  // User Authentication routes
+  const userAuthRoutes = await import('./routes/api/auth/user-auth.routes.js');
+  app.use('/api/auth', userAuthRoutes.default);
+  logger.info('✅ User Authentication routes loaded');
+
   // PATCH-3: Advanced Analytics Routes (Claude Sonnet 4.5)
   const advancedAnalyticsRoutes = await import('./routes/analytics/advanced-analytics.routes.js');
   app.use('/analytics', advancedAnalyticsRoutes.default);
@@ -507,7 +516,7 @@ async function startServer() {
   const zantaraV3Routes = await import('./routes/api/v3/zantara-v3.routes.js');
   app.use('/api/v3/zantara', zantaraV3Routes.default);
   logger.info('✅ ZANTARA v3 Ω Strategic Routes loaded (unified/collective/ecosystem)');
-  
+
   // V3 Performance Monitoring Routes
   const v3PerformanceRoutes = await import('./routes/v3-performance.routes.js');
   app.use('/api/v3/performance', v3PerformanceRoutes.default);
@@ -527,7 +536,7 @@ async function startServer() {
     res.status(500).json({
       status: 'error',
       message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
     });
   });
 
@@ -536,7 +545,7 @@ async function startServer() {
     res.status(404).json({
       status: 'error',
       message: 'Endpoint not found',
-      path: req.originalUrl
+      path: req.originalUrl,
     });
   });
 
@@ -566,7 +575,7 @@ async function startServer() {
   // Handle shutdown gracefully
   async function gracefulShutdown(signal: string) {
     logger.info(`${signal} signal received: starting graceful shutdown`);
-    
+
     // Stop accepting new requests
     server.close(async () => {
       logger.info('HTTP server closed');
@@ -579,7 +588,7 @@ async function startServer() {
             await dbPool.close();
             logger.info('Database connection pool closed');
           }
-          
+
           if (process.env.CHROMADB_URL) {
             const chromaPool = getChromaDBPool();
             await chromaPool.close();
@@ -615,7 +624,7 @@ async function startServer() {
 }
 
 // Start the server
-startServer().catch(err => {
+startServer().catch((err) => {
   logger.error('❌ Failed to start server:', err);
   process.exit(1);
 });

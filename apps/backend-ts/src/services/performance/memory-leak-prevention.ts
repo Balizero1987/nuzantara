@@ -1,9 +1,9 @@
 /**
  * Memory Leak Prevention System
- * 
+ *
  * Proactive memory management and leak detection to ensure
  * long-term stability and prevent memory-related crashes.
- * 
+ *
  * Features:
  * - Automatic memory monitoring
  * - Leak detection with heap snapshots
@@ -43,7 +43,7 @@ class MemoryLeakPrevention {
     checkInterval: 60000, // 1 minute
     leakThreshold: 50, // MB growth per hour
     maxHeapSize: 512 * 1024 * 1024, // 512 MB
-    enableAutoCleanup: true
+    enableAutoCleanup: true,
   };
 
   /**
@@ -97,8 +97,10 @@ class MemoryLeakPrevention {
 
     // Check for leaks
     if (detection.isLeaking) {
-      logger.warn(`⚠️ Potential memory leak detected: ${detection.growthRate.toFixed(2)} MB/hour growth`);
-      
+      logger.warn(
+        `⚠️ Potential memory leak detected: ${detection.growthRate.toFixed(2)} MB/hour growth`
+      );
+
       // Trigger cleanup if enabled
       if (this.config.enableAutoCleanup) {
         this.performCleanup();
@@ -107,8 +109,10 @@ class MemoryLeakPrevention {
 
     // Check for memory pressure
     if (snapshot.heapUsed > this.config.maxHeapSize) {
-      logger.error(`🔴 CRITICAL: Heap size exceeded limit: ${(snapshot.heapUsed / 1024 / 1024).toFixed(2)} MB`);
-      
+      logger.error(
+        `🔴 CRITICAL: Heap size exceeded limit: ${(snapshot.heapUsed / 1024 / 1024).toFixed(2)} MB`
+      );
+
       // Force garbage collection if available
       if (global.gc) {
         logger.info('Forcing garbage collection...');
@@ -128,7 +132,7 @@ class MemoryLeakPrevention {
       heapTotal: usage.heapTotal,
       external: usage.external,
       arrayBuffers: usage.arrayBuffers,
-      rss: usage.rss
+      rss: usage.rss,
     };
 
     this.snapshots.push(snapshot);
@@ -150,21 +154,21 @@ class MemoryLeakPrevention {
         isLeaking: false,
         growthRate: 0,
         consecutiveGrowth: 0,
-        alertThreshold: this.config.leakThreshold
+        alertThreshold: this.config.leakThreshold,
       };
     }
 
     // Calculate growth rate over last hour
     const now = Date.now();
-    const oneHourAgo = now - (60 * 60 * 1000);
-    
-    const recentSnapshots = this.snapshots.filter(s => s.timestamp >= oneHourAgo);
+    const oneHourAgo = now - 60 * 60 * 1000;
+
+    const recentSnapshots = this.snapshots.filter((s) => s.timestamp >= oneHourAgo);
     if (recentSnapshots.length < 5) {
       return {
         isLeaking: false,
         growthRate: 0,
         consecutiveGrowth: 0,
-        alertThreshold: this.config.leakThreshold
+        alertThreshold: this.config.leakThreshold,
       };
     }
 
@@ -172,7 +176,7 @@ class MemoryLeakPrevention {
     const newest = recentSnapshots[recentSnapshots.length - 1];
     const timeDiff = (newest.timestamp - oldest.timestamp) / (1000 * 60 * 60); // hours
     const memoryDiff = newest.heapUsed - oldest.heapUsed;
-    const growthRate = (memoryDiff / 1024 / 1024) / timeDiff; // MB per hour
+    const growthRate = memoryDiff / 1024 / 1024 / timeDiff; // MB per hour
 
     // Check for consecutive growth
     let consecutiveGrowth = 0;
@@ -188,7 +192,7 @@ class MemoryLeakPrevention {
       isLeaking: growthRate > this.config.leakThreshold && consecutiveGrowth >= 3,
       growthRate,
       consecutiveGrowth,
-      alertThreshold: this.config.leakThreshold
+      alertThreshold: this.config.leakThreshold,
     };
   }
 
@@ -200,7 +204,7 @@ class MemoryLeakPrevention {
 
     // Clear orphaned intervals/timeouts
     this.cleanupIntervals();
-    
+
     // Clear orphaned event listeners
     this.cleanupListeners();
 
@@ -261,7 +265,9 @@ class MemoryLeakPrevention {
   private cleanupIntervals(): void {
     // Note: Actual cleanup requires access to interval callbacks
     // This is a placeholder - in production, maintain a registry
-    logger.debug(`Tracking ${this.trackedIntervals.size} intervals, ${this.trackedTimeouts.size} timeouts`);
+    logger.debug(
+      `Tracking ${this.trackedIntervals.size} intervals, ${this.trackedTimeouts.size} timeouts`
+    );
   }
 
   /**
@@ -292,14 +298,17 @@ class MemoryLeakPrevention {
         heapTotal: current.heapTotal,
         external: current.external,
         arrayBuffers: current.arrayBuffers,
-        rss: current.rss
+        rss: current.rss,
       },
       leakDetection: this.detectLeak(),
       tracked: {
         intervals: this.trackedIntervals.size,
         timeouts: this.trackedTimeouts.size,
-        listeners: Array.from(this.trackedListeners.values()).reduce((sum, set) => sum + set.size, 0)
-      }
+        listeners: Array.from(this.trackedListeners.values()).reduce(
+          (sum, set) => sum + set.size,
+          0
+        ),
+      },
     };
   }
 }
@@ -326,4 +335,3 @@ export function startMemoryLeakPrevention(): void {
 }
 
 export { MemoryLeakPrevention };
-

@@ -1,6 +1,6 @@
 /**
  * JWT Login System
- * 
+ *
  * Handles JWT authentication with the backend.
  * Integrates with existing team login system.
  */
@@ -17,13 +17,13 @@ class JWTLogin {
   async login(email, password) {
     try {
       console.log('[JWT Login] Attempting login for:', email);
-      
+
       const response = await fetch(`${this.apiBase}/auth/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
@@ -32,31 +32,30 @@ class JWTLogin {
       }
 
       const data = await response.json();
-      
+
       if (data.ok && data.data) {
         // Store tokens
         localStorage.setItem('zantara-auth-token', data.data.accessToken);
         localStorage.setItem('zantara-refresh-token', data.data.refreshToken);
         localStorage.setItem('zantara-user', JSON.stringify(data.data.user));
-        
+
         this.isLoggedIn = true;
-        
+
         console.log('[JWT Login] ✅ Login successful');
-        
+
         return {
           success: true,
           user: data.data.user,
-          message: 'Login successful'
+          message: 'Login successful',
         };
       } else {
         throw new Error(data.error || 'Login failed');
       }
-      
     } catch (error) {
       console.error('[JWT Login] ❌ Error:', error);
       return {
         success: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -67,19 +66,18 @@ class JWTLogin {
   async logout() {
     try {
       const refreshToken = localStorage.getItem('zantara-refresh-token');
-      
+
       if (refreshToken) {
         // Call logout endpoint
         await fetch(`${this.apiBase}/auth/logout`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('zantara-auth-token')}`
+            Authorization: `Bearer ${localStorage.getItem('zantara-auth-token')}`,
           },
-          body: JSON.stringify({ refreshToken })
+          body: JSON.stringify({ refreshToken }),
         });
       }
-      
     } catch (error) {
       console.warn('[JWT Logout] Warning:', error);
     } finally {
@@ -87,9 +85,9 @@ class JWTLogin {
       localStorage.removeItem('zantara-auth-token');
       localStorage.removeItem('zantara-refresh-token');
       localStorage.removeItem('zantara-user');
-      
+
       this.isLoggedIn = false;
-      
+
       console.log('[JWT Logout] ✅ Logged out');
     }
   }
@@ -100,7 +98,7 @@ class JWTLogin {
   isAuthenticated() {
     const token = localStorage.getItem('zantara-auth-token');
     if (!token) return false;
-    
+
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const now = Date.now() / 1000;
@@ -135,33 +133,32 @@ class JWTLogin {
       if (!refreshToken) {
         throw new Error('No refresh token available');
       }
-      
+
       const response = await fetch(`${this.apiBase}/auth/refresh`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ refreshToken })
+        body: JSON.stringify({ refreshToken }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Token refresh failed');
       }
-      
+
       const data = await response.json();
-      
+
       if (data.ok && data.data) {
         localStorage.setItem('zantara-auth-token', data.data.accessToken);
         if (data.data.user) {
           localStorage.setItem('zantara-user', JSON.stringify(data.data.user));
         }
-        
+
         console.log('[JWT] Token refreshed successfully');
         return true;
       }
-      
+
       return false;
-      
     } catch (error) {
       console.error('[JWT Refresh] Error:', error);
       return false;

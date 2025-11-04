@@ -5,8 +5,8 @@ import { BadRequestError } from '../../../utils/errors.js';
 jest.mock('../../ai-services/ai.js', () => ({
   aiChat: jest.fn().mockResolvedValue({
     ok: true,
-    data: { response: 'Test response', answer: 'Test answer' }
-  })
+    data: { response: 'Test response', answer: 'Test answer' },
+  }),
 }));
 
 describe('Chat', () => {
@@ -20,7 +20,7 @@ describe('Chat', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.zeroChat({
         prompt: 'Test prompt',
-        userId: 'zero'
+        userId: 'zero',
       });
 
       expect(result).toBeDefined();
@@ -34,11 +34,12 @@ describe('Chat', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.zeroChat({
-        prompt: 'test',
-        userId: 'not-zero'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.zeroChat({
+          prompt: 'test',
+          userId: 'not-zero',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
-
 });

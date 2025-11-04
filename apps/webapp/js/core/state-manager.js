@@ -62,7 +62,7 @@ class StateManager {
         }
 
         return value;
-      }
+      },
     });
   }
 
@@ -77,7 +77,7 @@ class StateManager {
    * Update state (batch updates)
    */
   setState(updates) {
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key) => {
       this._state[key] = updates[key];
     });
   }
@@ -107,7 +107,7 @@ class StateManager {
     // Notify exact path listeners
     const listeners = this._listeners.get(path);
     if (listeners) {
-      listeners.forEach(callback => {
+      listeners.forEach((callback) => {
         try {
           callback(newValue, oldValue, path);
         } catch (e) {
@@ -119,7 +119,7 @@ class StateManager {
     // Notify wildcard listeners
     const wildcardListeners = this._listeners.get('*');
     if (wildcardListeners) {
-      wildcardListeners.forEach(callback => {
+      wildcardListeners.forEach((callback) => {
         try {
           callback(newValue, oldValue, path);
         } catch (e) {
@@ -133,11 +133,14 @@ class StateManager {
    * Add message to chat
    */
   addMessage(message) {
-    this._state.messages = [...this._state.messages, {
-      id: Date.now(),
-      timestamp: new Date().toISOString(),
-      ...message
-    }];
+    this._state.messages = [
+      ...this._state.messages,
+      {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        ...message,
+      },
+    ];
   }
 
   /**

@@ -1,6 +1,6 @@
 /**
  * Enhanced Database Connection Pooling
- * 
+ *
  * Manages connection pools for PostgreSQL and ChromaDB
  * with health checks, circuit breakers, and metrics
  */
@@ -50,7 +50,7 @@ export class DatabaseConnectionPool {
       // @ts-ignore - pg is optional dependency
       const pg = await import('pg');
       const Pool = pg.Pool;
-      
+
       this.pool = new Pool(this.config);
 
       // Handle pool errors
@@ -71,13 +71,17 @@ export class DatabaseConnectionPool {
       await client.query('SELECT 1');
       client.release();
 
-      logger.info(`✅ PostgreSQL connection pool initialized: min=${this.config.min}, max=${this.config.max}`);
+      logger.info(
+        `✅ PostgreSQL connection pool initialized: min=${this.config.min}, max=${this.config.max}`
+      );
 
       // Start health checks
       this.startHealthChecks();
     } catch (error: any) {
       if (error.code === 'MODULE_NOT_FOUND') {
-        logger.warn('⚠️ PostgreSQL (pg) module not found. Database pooling disabled. Install pg package to enable.');
+        logger.warn(
+          '⚠️ PostgreSQL (pg) module not found. Database pooling disabled. Install pg package to enable.'
+        );
         this.isHealthy = false;
         // Don't throw - allow app to continue without pooling
         return;
@@ -226,8 +230,8 @@ export async function initializeDatabasePool(): Promise<DatabaseConnectionPool> 
 
   dbPool = new DatabaseConnectionPool({
     connectionString: databaseUrl,
-      max: Number.parseInt(process.env.DB_POOL_MAX || '20', 10),
-      min: Number.parseInt(process.env.DB_POOL_MIN || '5', 10),
+    max: Number.parseInt(process.env.DB_POOL_MAX || '20', 10),
+    min: Number.parseInt(process.env.DB_POOL_MIN || '5', 10),
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
   });
@@ -245,4 +249,3 @@ export function getDatabasePool(): DatabaseConnectionPool {
   }
   return dbPool;
 }
-

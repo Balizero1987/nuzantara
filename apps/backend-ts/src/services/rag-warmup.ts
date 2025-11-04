@@ -1,6 +1,6 @@
 /**
  * RAG Backend Warmup Service
- * 
+ *
  * Keeps RAG backend alive by pinging health endpoint every 10 minutes.
  * Prevents 502 errors caused by Fly.io cold starts.
  */
@@ -8,9 +8,8 @@
 import logger from './logger.js';
 
 // Fallback to hardcoded URL if env var not set (Fly.io sometimes doesn't pass it immediately)
-const RAG_URL = process.env.RAG_BACKEND_URL || 
-  process.env.FLY_RAG_BACKEND_URL ||
-  'https://nuzantara-rag.fly.dev';
+const RAG_URL =
+  process.env.RAG_BACKEND_URL || process.env.FLY_RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
 
 const WARMUP_INTERVAL = 10 * 60 * 1000; // 10 minutes
 const WARMUP_TIMEOUT = 5000; // 5 seconds
@@ -33,9 +32,9 @@ class RAGWarmupService {
     lastPingTime: null,
     lastStatus: 'pending',
     averageResponseTime: 0,
-    consecutiveFailures: 0
+    consecutiveFailures: 0,
   };
-  
+
   private intervalId: NodeJS.Timeout | null = null;
   private responseTimes: number[] = [];
   private isRunning = false;
@@ -52,8 +51,8 @@ class RAGWarmupService {
         signal: controller.signal,
         headers: {
           'User-Agent': 'NUZANTARA-Warmup-Service/1.0',
-          'Accept': 'application/json'
-        }
+          Accept: 'application/json',
+        },
       });
 
       clearTimeout(timeoutId);
@@ -64,8 +63,8 @@ class RAGWarmupService {
         this.responseTimes.shift(); // Keep last 20
       }
 
-      const avgResponseTime = this.responseTimes.reduce((a, b) => a + b, 0) / 
-        this.responseTimes.length;
+      const avgResponseTime =
+        this.responseTimes.reduce((a, b) => a + b, 0) / this.responseTimes.length;
       this.stats.averageResponseTime = Math.round(avgResponseTime);
 
       if (response.ok) {
@@ -73,8 +72,10 @@ class RAGWarmupService {
         this.stats.lastStatus = 'success';
         this.stats.lastPingTime = new Date();
         this.stats.consecutiveFailures = 0;
-        
-        logger.info(`✅ RAG backend warmed up (${responseTime}ms, success rate: ${this.getSuccessRate()}%)`);
+
+        logger.info(
+          `✅ RAG backend warmed up (${responseTime}ms, success rate: ${this.getSuccessRate()}%)`
+        );
         return true;
       } else {
         throw new Error(`HTTP ${response.status}`);
@@ -84,15 +85,19 @@ class RAGWarmupService {
       this.stats.lastStatus = 'failed';
       this.stats.lastPingTime = new Date();
       this.stats.consecutiveFailures++;
-      
+
       const errorMsg = error.name === 'AbortError' ? 'Timeout' : error.message;
-      logger.warn(`⚠️ RAG warmup failed: ${errorMsg} (consecutive failures: ${this.stats.consecutiveFailures})`);
-      
+      logger.warn(
+        `⚠️ RAG warmup failed: ${errorMsg} (consecutive failures: ${this.stats.consecutiveFailures})`
+      );
+
       // Alert if too many consecutive failures
       if (this.stats.consecutiveFailures >= 3) {
-        logger.error(`🚨 RAG backend appears to be down (${this.stats.consecutiveFailures} consecutive failures)`);
+        logger.error(
+          `🚨 RAG backend appears to be down (${this.stats.consecutiveFailures} consecutive failures)`
+        );
       }
-      
+
       return false;
     }
   }
@@ -106,18 +111,20 @@ class RAGWarmupService {
     this.isRunning = true;
 
     // Immediate ping on startup
-    this.ping().catch(err => {
+    this.ping().catch((err) => {
       logger.error('Initial RAG warmup ping failed:', err);
     });
 
     // Then every WARMUP_INTERVAL
     this.intervalId = setInterval(() => {
-      this.ping().catch(err => {
+      this.ping().catch((err) => {
         logger.error('Scheduled RAG warmup ping failed:', err);
       });
     }, WARMUP_INTERVAL);
 
-    logger.info(`🔥 RAG warmup service started (interval: ${WARMUP_INTERVAL / 1000}s, target: ${RAG_URL})`);
+    logger.info(
+      `🔥 RAG warmup service started (interval: ${WARMUP_INTERVAL / 1000}s, target: ${RAG_URL})`
+    );
   }
 
   stop() {
@@ -148,7 +155,7 @@ class RAGWarmupService {
     status: string;
   } {
     const successRate = this.getSuccessRate();
-    
+
     let status = 'unknown';
     if (this.stats.consecutiveFailures >= 3) {
       status = 'critical';
@@ -165,7 +172,7 @@ class RAGWarmupService {
       successRate,
       avgResponseTime: this.stats.averageResponseTime,
       lastPing: this.stats.lastPingTime ? this.stats.lastPingTime.toISOString() : null,
-      status
+      status,
     };
   }
 
@@ -176,13 +183,13 @@ class RAGWarmupService {
       const success = await this.ping();
       return {
         success,
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       };
     } catch (error: any) {
       return {
         success: false,
         responseTime: Date.now() - startTime,
-        error: error.message
+        error: error.message,
       };
     }
   }

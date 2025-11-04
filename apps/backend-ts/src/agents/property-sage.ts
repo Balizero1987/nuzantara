@@ -9,7 +9,6 @@
  */
 
 export class PropertySage {
-
   // ==========================================
   // PROPERTY OWNERSHIP FOR FOREIGNERS 2025
   // ==========================================
@@ -18,35 +17,47 @@ export class PropertySage {
     fundamentalLaw: {
       regulation: 'UUPA (Law No. 5/1960) Article 21',
       principle: 'Foreigners CANNOT own Hak Milik (freehold) in Indonesia',
-      enforcement: 'Active enforcement since 2023 (185 certificates revoked, 163 deportations)'
+      enforcement: 'Active enforcement since 2023 (185 certificates revoked, 163 deportations)',
     },
 
     legalOptions: {
       hakPakai: {
         name: 'Hak Pakai (Right to Use)',
         duration: '25 years (renewable once for 20 years = 45 years max)',
-        requirements: ['Valid KITAS/KITAP', 'Domicile in Indonesia', 'Property value ≥ IDR 10B (Bali/major cities)'],
+        requirements: [
+          'Valid KITAS/KITAP',
+          'Domicile in Indonesia',
+          'Property value ≥ IDR 10B (Bali/major cities)',
+        ],
         process: 'Purchase property → Convert Hak Milik to Hak Pakai at BPN',
         cost: 'BPHTB (5%) + notary (1-2%) + BPN fees',
-        suitability: 'Best for expats living long-term in Indonesia'
+        suitability: 'Best for expats living long-term in Indonesia',
       },
 
       leasehold: {
         name: 'Sewa (Leasehold)',
         duration: '25-30 years (renewable by agreement)',
-        requirements: ['Lease agreement', 'Notarized at Indonesian notary', 'Registered at BPN (recommended)'],
+        requirements: [
+          'Lease agreement',
+          'Notarized at Indonesian notary',
+          'Registered at BPN (recommended)',
+        ],
         cost: 'One-time payment upfront or annual payments',
         risks: 'Owner can sell property (new owner must honor lease if registered at BPN)',
-        suitability: 'Budget-friendly, lower commitment'
+        suitability: 'Budget-friendly, lower commitment',
       },
 
       ptPMA: {
         name: 'PT PMA (Foreign Investment Company)',
         ownership: 'Hak Guna Bangunan (HGB) - 30 years (renewable 2× = 80 years max)',
-        requirements: ['PT PMA established', 'Minimum capital IDR 10B per KBLI', 'Property for commercial use'],
+        requirements: [
+          'PT PMA established',
+          'Minimum capital IDR 10B per KBLI',
+          'Property for commercial use',
+        ],
         suitability: 'Businesses (villas, hotels, offices)',
-        note: 'Most secure for commercial property + business operations'
-      }
+        note: 'Most secure for commercial property + business operations',
+      },
     },
 
     illegalOptions: {
@@ -58,12 +69,12 @@ export class PropertySage {
           'Property seized by government',
           'Money paid NOT returned',
           'Certificate revoked',
-          'Deportation possible'
+          'Deportation possible',
         ],
         enforcement: '2023: 185 certificates revoked, 163 deportations (Operation Wira Waspada)',
-        warning: '⚠️ NEVER recommend nominee structure - clients WILL lose money AND property'
-      }
-    }
+        warning: '⚠️ NEVER recommend nominee structure - clients WILL lose money AND property',
+      },
+    },
   };
 
   // ==========================================
@@ -86,7 +97,7 @@ export class PropertySage {
           'Shopping malls > 5,000 m²',
           'Mining operations',
           'Power plants',
-          'Waste treatment facilities'
+          'Waste treatment facilities',
         ],
         process: [
           '1. TOR (Terms of Reference) preparation',
@@ -95,13 +106,13 @@ export class PropertySage {
           '4. Public consultation (mandatory)',
           '5. Environmental management plan (RKL)',
           '6. Environmental monitoring plan (RPL)',
-          '7. Government review & approval'
+          '7. Government review & approval',
         ],
         timeline: '3-6 months',
         cost: 'IDR 50M - 500M+ (depends on project scale)',
         authority: 'Ministry of Environment / Regional Environment Agency',
         validity: 'Valid for duration of project',
-        renewal: 'Required if project significantly changes'
+        renewal: 'Required if project significantly changes',
       },
 
       uklUpl: {
@@ -114,7 +125,7 @@ export class PropertySage {
           'Medium factories',
           'Medium warehouses',
           'Medium offices',
-          'Medium construction projects'
+          'Medium construction projects',
         ],
         process: [
           '1. UKL-UPL document preparation',
@@ -122,13 +133,13 @@ export class PropertySage {
           '3. Monitoring plan',
           '4. Submit via OSS system',
           '5. Government verification',
-          '6. Approval certificate issued'
+          '6. Approval certificate issued',
         ],
         timeline: '1-2 months',
         cost: 'IDR 5M - 50M (depends on business scale)',
         authority: 'Regional Environment Agency',
         validity: 'Valid for duration of project',
-        selfDeclaration: 'Can be self-declared via OSS for low-risk businesses (PP 28/2025)'
+        selfDeclaration: 'Can be self-declared via OSS for low-risk businesses (PP 28/2025)',
       },
 
       sppl: {
@@ -141,33 +152,38 @@ export class PropertySage {
           'Small cafes',
           'Consulting offices',
           'Retail shops',
-          'Coworking spaces'
+          'Coworking spaces',
         ],
         process: [
           '1. Prepare statement letter',
           '2. Sign declaration of environmental commitment',
           '3. Submit via OSS system',
-          '4. Automatic approval (self-declaration)'
+          '4. Automatic approval (self-declaration)',
         ],
         timeline: '1-2 weeks',
         cost: 'IDR 500K - 5M',
         authority: 'OSS system (self-declared)',
         validity: 'Valid for duration of project',
-        selfDeclaration: 'Fully self-declared under PP 28/2025 (risk-based licensing)'
-      }
+        selfDeclaration: 'Fully self-declared under PP 28/2025 (risk-based licensing)',
+      },
     },
 
     decisionMatrix: {
       description: 'How to determine which environmental permit is required',
-      factors: ['Business scale', 'Location (proximity to protected areas)', 'Environmental impact', 'KBLI code risk level'],
+      factors: [
+        'Business scale',
+        'Location (proximity to protected areas)',
+        'Environmental impact',
+        'KBLI code risk level',
+      ],
       rules: [
         'Check KBLI code on OSS system → system auto-determines permit type',
         'If high-risk KBLI → AMDAL required',
         'If medium-risk KBLI → UKL-UPL required',
         'If low-risk KBLI → SPPL sufficient',
-        'Special locations (protected areas, forests, coasts) → may require AMDAL regardless of scale'
-      ]
-    }
+        'Special locations (protected areas, forests, coasts) → may require AMDAL regardless of scale',
+      ],
+    },
   };
 
   // ==========================================
@@ -182,8 +198,13 @@ export class PropertySage {
       timeline: '14-30 days (via OSS system)',
       cost: 'IDR 5M - 50M (depends on building size)',
       validity: 'Valid until building completion',
-      documents: ['Land certificate', 'Site plan', 'Architectural drawings', 'Structural calculations'],
-      note: 'Cannot operate business without PBG + SLF'
+      documents: [
+        'Land certificate',
+        'Site plan',
+        'Architectural drawings',
+        'Structural calculations',
+      ],
+      note: 'Cannot operate business without PBG + SLF',
     },
 
     slf: {
@@ -193,9 +214,15 @@ export class PropertySage {
       timeline: '7-14 days (after inspection)',
       cost: 'IDR 3M - 20M (depends on building size)',
       validity: '5 years (renewable)',
-      inspectionTypes: ['Architectural compliance', 'Structural safety', 'Fire safety', 'Utilities (water, electricity, sanitation)'],
-      criticalWarning: '⚠️ Cannot open business without valid SLF - mandatory for all commercial buildings'
-    }
+      inspectionTypes: [
+        'Architectural compliance',
+        'Structural safety',
+        'Fire safety',
+        'Utilities (water, electricity, sanitation)',
+      ],
+      criticalWarning:
+        '⚠️ Cannot open business without valid SLF - mandatory for all commercial buildings',
+    },
   };
 
   // ==========================================
@@ -208,16 +235,20 @@ export class PropertySage {
       allowedActivities: ['Retail', 'Offices', 'Hotels', 'Restaurants', 'Entertainment'],
       restrictions: 'None (business-friendly)',
       buildingHeight: 'Up to 15 meters (varies by regency)',
-      buildingCoverage: '60-80% of land area'
+      buildingCoverage: '60-80% of land area',
     },
 
     residentialZone: {
       name: 'Zona Perumahan',
-      allowedActivities: ['Residential', 'Small home-based businesses (limited)', 'Pondok Wisata (up to 5 rooms)'],
+      allowedActivities: [
+        'Residential',
+        'Small home-based businesses (limited)',
+        'Pondok Wisata (up to 5 rooms)',
+      ],
       restrictions: 'No large-scale commercial activities, no nightlife',
       buildingHeight: 'Up to 12 meters (max 2-3 stories)',
       buildingCoverage: '40-60% of land area',
-      homeBusinessLimit: 'Up to 5 villa rooms (Pondok Wisata license)'
+      homeBusinessLimit: 'Up to 5 villa rooms (Pondok Wisata license)',
     },
 
     greenZone: {
@@ -225,7 +256,7 @@ export class PropertySage {
       allowedActivities: 'Agriculture, eco-tourism (limited), conservation',
       restrictions: 'No construction, no commercial development',
       examples: ['Rice paddies (subak)', 'Forests', 'Protected areas'],
-      enforcement: 'Strict - violations result in demolition'
+      enforcement: 'Strict - violations result in demolition',
     },
 
     touristZone: {
@@ -233,8 +264,8 @@ export class PropertySage {
       allowedActivities: ['Hotels', 'Resorts', 'Villas', 'Restaurants', 'Spas', 'Entertainment'],
       restrictions: 'Height restrictions near beaches (max 15m = height of coconut tree)',
       buildingCoverage: '50-70% of land area',
-      specialPermits: 'Beach access requires additional permits from Tourism Board'
-    }
+      specialPermits: 'Beach access requires additional permits from Tourism Board',
+    },
   };
 
   // ==========================================
@@ -248,21 +279,31 @@ export class PropertySage {
       requiredFor: 'Small villas, guesthouses in residential areas',
       timeline: '14-21 days',
       cost: 'IDR 5M - 10M',
-      requirements: ['Residential zoning', 'Valid land certificate', 'Owner domicile (can be KITAS)'],
+      requirements: [
+        'Residential zoning',
+        'Valid land certificate',
+        'Owner domicile (can be KITAS)',
+      ],
       authority: 'Regency Tourism Board',
       validity: '3 years (renewable)',
-      note: 'If > 5 rooms → requires full hotel license (PT PMA + commercial zoning)'
+      note: 'If > 5 rooms → requires full hotel license (PT PMA + commercial zoning)',
     },
 
     hotelLicense: {
       name: 'Tanda Daftar Usaha Pariwisata (TDUP) - Hotel',
       requiredFor: 'Hotels, large villas (> 5 rooms)',
-      requirements: ['PT PMA established', 'KBLI 55111 or 55130', 'Commercial zoning', 'PBG + SLF', 'NIB'],
+      requirements: [
+        'PT PMA established',
+        'KBLI 55111 or 55130',
+        'Commercial zoning',
+        'PBG + SLF',
+        'NIB',
+      ],
       timeline: '30-45 days',
       cost: 'IDR 20M - 50M',
       validity: 'Permanent (as long as business operates)',
-      authority: 'Regional Tourism Board'
-    }
+      authority: 'Regional Tourism Board',
+    },
   };
 
   // ==========================================
@@ -282,23 +323,23 @@ export class PropertySage {
       timeline: this.getCompletionTimeline(businessScale),
       costs: this.getTotalCosts(businessScale),
       warnings: this.getWarnings(intent),
-      confidence: 0.9
+      confidence: 0.9,
     };
   }
 
   private detectPropertyType(intent: any): string {
     const keywords = intent.keywords || [];
 
-    if (keywords.some(k => ['villa', 'guesthouse', 'homestay'].includes(k))) {
+    if (keywords.some((k) => ['villa', 'guesthouse', 'homestay'].includes(k))) {
       return 'villa';
     }
-    if (keywords.some(k => ['hotel', 'resort'].includes(k))) {
+    if (keywords.some((k) => ['hotel', 'resort'].includes(k))) {
       return 'hotel';
     }
-    if (keywords.some(k => ['office', 'coworking', 'workspace'].includes(k))) {
+    if (keywords.some((k) => ['office', 'coworking', 'workspace'].includes(k))) {
       return 'office';
     }
-    if (keywords.some(k => ['restaurant', 'cafe', 'bar'].includes(k))) {
+    if (keywords.some((k) => ['restaurant', 'cafe', 'bar'].includes(k))) {
       return 'restaurant';
     }
 
@@ -328,14 +369,14 @@ export class PropertySage {
       return {
         recommended: this.foreignOwnership.legalOptions.ptPMA,
         alternative: this.foreignOwnership.legalOptions.leasehold,
-        warning: this.foreignOwnership.illegalOptions.nominee.warning
+        warning: this.foreignOwnership.illegalOptions.nominee.warning,
       };
     }
 
     return {
       recommended: this.foreignOwnership.legalOptions.hakPakai,
       alternative: this.foreignOwnership.legalOptions.leasehold,
-      warning: this.foreignOwnership.illegalOptions.nominee.warning
+      warning: this.foreignOwnership.illegalOptions.nominee.warning,
     };
   }
 
@@ -354,7 +395,7 @@ export class PropertySage {
     return {
       pbg: this.buildingPermits.pbg,
       slf: this.buildingPermits.slf,
-      note: 'Both PBG and SLF are mandatory for all commercial properties'
+      note: 'Both PBG and SLF are mandatory for all commercial properties',
     };
   }
 
@@ -365,13 +406,13 @@ export class PropertySage {
         return {
           preferred: this.zoning.touristZone,
           alternative: this.zoning.residentialZone,
-          note: 'Residential zone limited to 5 rooms (Pondok Wisata)'
+          note: 'Residential zone limited to 5 rooms (Pondok Wisata)',
         };
       case 'restaurant':
       case 'office':
         return {
           required: this.zoning.commercialZone,
-          note: 'Commercial zoning mandatory for these business types'
+          note: 'Commercial zoning mandatory for these business types',
         };
       default:
         return this.zoning;
@@ -410,7 +451,7 @@ export class PropertySage {
           buildingPermits: 'IDR 20M - 100M',
           tourismLicense: 'IDR 30M - 50M',
           professionalFees: 'IDR 50M - 150M',
-          total: 'IDR 150M - 800M'
+          total: 'IDR 150M - 800M',
         };
       case 'medium':
         return {
@@ -418,7 +459,7 @@ export class PropertySage {
           buildingPermits: 'IDR 10M - 50M',
           tourismLicense: 'IDR 20M - 50M',
           professionalFees: 'IDR 30M - 100M',
-          total: 'IDR 65M - 250M'
+          total: 'IDR 65M - 250M',
         };
       default:
         return {
@@ -426,7 +467,7 @@ export class PropertySage {
           buildingPermits: 'IDR 5M - 20M',
           tourismLicense: 'IDR 5M - 10M',
           professionalFees: 'IDR 10M - 30M',
-          total: 'IDR 20.5M - 65M'
+          total: 'IDR 20.5M - 65M',
         };
     }
   }
@@ -436,11 +477,13 @@ export class PropertySage {
       '⚠️ NEVER use nominee structure - 0/140 cases won by foreigners (MA 3020 K/Pdt/2014)',
       '⚠️ Environmental permit MUST be obtained BEFORE construction starts',
       '⚠️ SLF mandatory before business can operate - no exceptions',
-      '⚠️ Pondok Wisata limited to 5 rooms - exceeding requires full hotel license'
+      '⚠️ Pondok Wisata limited to 5 rooms - exceeding requires full hotel license',
     ];
 
     if (intent.hasNominee) {
-      warnings.unshift('🚨 CLIENT CONSIDERING NOMINEE - STRONGLY ADVISE AGAINST (property will be seized, money lost)');
+      warnings.unshift(
+        '🚨 CLIENT CONSIDERING NOMINEE - STRONGLY ADVISE AGAINST (property will be seized, money lost)'
+      );
     }
 
     return warnings;

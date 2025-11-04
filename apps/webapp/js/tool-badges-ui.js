@@ -13,12 +13,12 @@ class ToolBadgesUI {
   constructor() {
     this.container = null;
     this.categoryColors = {
-      'get': '#3b82f6',      // Blue - read operations
-      'search': '#8b5cf6',   // Purple - search operations
-      'pricing': '#10b981',  // Green - pricing queries
-      'team': '#f59e0b',     // Orange - team operations
-      'kbli': '#ec4899',     // Pink - KBLI operations
-      'default': '#6b7280'   // Gray - other tools
+      get: '#3b82f6', // Blue - read operations
+      search: '#8b5cf6', // Purple - search operations
+      pricing: '#10b981', // Green - pricing queries
+      team: '#f59e0b', // Orange - team operations
+      kbli: '#ec4899', // Pink - KBLI operations
+      default: '#6b7280', // Gray - other tools
     };
   }
 
@@ -165,12 +165,14 @@ class ToolBadgesUI {
    */
   getToolIcon(category) {
     const icons = {
-      'get': 'M6 1L2 5h3v6h2V5h3z',          // Download icon
-      'search': 'M4.5 2a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM1 4.5a3.5 3.5 0 116.53 1.74l2.87 2.87a.5.5 0 01-.71.71L6.74 7.03A3.5 3.5 0 011 4.5z', // Search icon
-      'pricing': 'M6 1a.5.5 0 01.5.5v1h1a.5.5 0 010 1h-1v2h1a.5.5 0 010 1h-1v1a.5.5 0 01-1 0v-1h-1a.5.5 0 010-1h1v-2h-1a.5.5 0 010-1h1v-1A.5.5 0 016 1z', // Dollar icon
-      'team': 'M4 6a2 2 0 100-4 2 2 0 000 4zM8 6a2 2 0 100-4 2 2 0 000 4zM1.5 9A1.5 1.5 0 013 7.5h2A1.5 1.5 0 016.5 9v2h-5V9zM7 7.5A1.5 1.5 0 018.5 9v2h-2V9A2.5 2.5 0 004.5 6.5h1A1.5 1.5 0 017 7.5z', // Team icon
-      'kbli': 'M2 3a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 1v4h4V4H4z', // Code icon
-      'default': 'M6 2a1 1 0 011 1v2h2a1 1 0 110 2H7v2a1 1 0 11-2 0V7H3a1 1 0 110-2h2V3a1 1 0 011-1z' // Wrench icon
+      get: 'M6 1L2 5h3v6h2V5h3z', // Download icon
+      search:
+        'M4.5 2a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM1 4.5a3.5 3.5 0 116.53 1.74l2.87 2.87a.5.5 0 01-.71.71L6.74 7.03A3.5 3.5 0 011 4.5z', // Search icon
+      pricing:
+        'M6 1a.5.5 0 01.5.5v1h1a.5.5 0 010 1h-1v2h1a.5.5 0 010 1h-1v1a.5.5 0 01-1 0v-1h-1a.5.5 0 010-1h1v-2h-1a.5.5 0 010-1h1v-1A.5.5 0 016 1z', // Dollar icon
+      team: 'M4 6a2 2 0 100-4 2 2 0 000 4zM8 6a2 2 0 100-4 2 2 0 000 4zM1.5 9A1.5 1.5 0 013 7.5h2A1.5 1.5 0 016.5 9v2h-5V9zM7 7.5A1.5 1.5 0 018.5 9v2h-2V9A2.5 2.5 0 004.5 6.5h1A1.5 1.5 0 017 7.5z', // Team icon
+      kbli: 'M2 3a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 1v4h4V4H4z', // Code icon
+      default: 'M6 2a1 1 0 011 1v2h2a1 1 0 110 2H7v2a1 1 0 11-2 0V7H3a1 1 0 110-2h2V3a1 1 0 011-1z', // Wrench icon
     };
 
     return icons[category] || icons.default;
@@ -183,7 +185,7 @@ class ToolBadgesUI {
     return toolName
       .replace(/_/g, ' ')
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   }
 

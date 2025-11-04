@@ -4,7 +4,7 @@ type CacheModule = {
   cache: {
     getAIResponse: (prompt: string, provider?: string) => Promise<any>;
     cacheAIResponse: (prompt: string, response: any, provider?: string) => Promise<void>;
-  }
+  };
 };
 
 async function loadCache(): Promise<CacheModule> {
@@ -46,11 +46,12 @@ export function getCachedIdentity(email: string): any | null {
   return null;
 }
 
-export function setCachedIdentity(email: string, data: any, ttlMs: number = 300000) { // 5 min default
+export function setCachedIdentity(email: string, data: any, ttlMs: number = 300000) {
+  // 5 min default
   identityCache.set(email, {
     data,
     timestamp: Date.now(),
-    ttl: ttlMs
+    ttl: ttlMs,
   });
 
   // Cleanup old entries (simple LRU)
@@ -61,4 +62,3 @@ export function setCachedIdentity(email: string, data: any, ttlMs: number = 3000
     }
   }
 }
-

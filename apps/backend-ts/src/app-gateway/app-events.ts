@@ -23,12 +23,19 @@ function checkIdem(key?: string) {
 }
 
 function originAllowed(origin?: string): boolean {
-  const allowed = (process.env.CORS_ORIGINS || 'https://zantara.balizero.com,https://balizero1987.github.io,http://localhost:3000,http://127.0.0.1:3000')
-    .split(',').map(s=>s.trim()).filter(Boolean);
+  const allowed = (
+    process.env.CORS_ORIGINS ||
+    'https://zantara.balizero.com,https://balizero1987.github.io,http://localhost:3000,http://127.0.0.1:3000'
+  )
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   return !!(origin && allowed.includes(origin));
 }
 
-export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patches?: Patch[]; code?: string; message?: string }>{
+export async function handleAppEvent(
+  req: Request
+): Promise<{ ok: boolean; patches?: Patch[]; code?: string; message?: string }> {
   const parse = EventRequestSchema.safeParse(req.body as unknown);
   if (!parse.success) {
     const flat = parse.error.flatten();
@@ -68,7 +75,7 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
     // This ensures user identification works even if webapp doesn't send it
     const enrichedMeta = {
       ...ev.meta,
-      user: ev.meta?.user || sess.user  // Use session user if not in meta
+      user: ev.meta?.user || sess.user, // Use session user if not in meta
     };
 
     logger.info(`🔐 [Event] Session user: ${sess.user}, Meta user: ${enrichedMeta.user}`);
@@ -87,7 +94,7 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
       patches.push({
         op: 'append',
         target: 'timeline',
-        data: { role: 'user', content: query }
+        data: { role: 'user', content: query },
       });
 
       // Call Bali Zero Chat handler
@@ -98,35 +105,45 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
           target: 'timeline',
           data: {
             role: 'assistant',
-            content: '⚠️ Chat service temporarily unavailable. Handler not found.'
-          }
+            content: '⚠️ Chat service temporarily unavailable. Handler not found.',
+          },
         });
         return { ok: true, patches };
       }
 
       // Execute handler
-      const chatResult = await globalRegistry.execute(handlerKey, {
-        query,
-        conversation_history: ev.meta?.conversation_history,
-        user_role: sess.user_role || 'member'
-      }, req);
+      const chatResult = await globalRegistry.execute(
+        handlerKey,
+        {
+          query,
+          conversation_history: ev.meta?.conversation_history,
+          user_role: sess.user_role || 'member',
+        },
+        req
+      );
 
       // Add assistant response
-      const responseText = chatResult?.response || chatResult?.answer ||
+      const responseText =
+        chatResult?.response ||
+        chatResult?.answer ||
         'I could not generate a response. Please try again.';
 
       patches.push({
         op: 'append',
         target: 'timeline',
-        data: { role: 'assistant', content: responseText }
+        data: { role: 'assistant', content: responseText },
       });
 
       // Add sources if available
-      if (chatResult?.sources && Array.isArray(chatResult.sources) && chatResult.sources.length > 0) {
+      if (
+        chatResult?.sources &&
+        Array.isArray(chatResult.sources) &&
+        chatResult.sources.length > 0
+      ) {
         patches.push({
           op: 'set',
           target: 'sources',
-          data: chatResult.sources
+          data: chatResult.sources,
         });
       }
 
@@ -135,10 +152,9 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
         patches.push({
           op: 'notify',
           level: 'info',
-          message: `Model: ${chatResult.model}`
+          message: `Model: ${chatResult.model}`,
         });
       }
-
     } else if (ev.action === 'tool_run') {
       // Dynamic handler execution
       const toolName = params?.tool || params?.handler;
@@ -156,15 +172,14 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
       patches.push({
         op: 'set',
         target: 'tool_result',
-        data: toolResult
+        data: toolResult,
       });
 
       patches.push({
         op: 'notify',
         level: 'success',
-        message: `Tool ${toolName} executed successfully`
+        message: `Tool ${toolName} executed successfully`,
       });
-
     } else {
       // Generic action handling - try to execute handler
       const handlerKey = capability.handler;
@@ -173,14 +188,22 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
         // Dynamic handler - get from params
         const dynamicHandler = params?.handler || ev.action;
         if (!globalRegistry.has(dynamicHandler)) {
-          return { ok: false, code: 'handler_not_found', message: `Handler not found: ${dynamicHandler}` };
+          return {
+            ok: false,
+            code: 'handler_not_found',
+            message: `Handler not found: ${dynamicHandler}`,
+          };
         }
         const result = await globalRegistry.execute(dynamicHandler, params, req);
         patches.push({ op: 'set', target: 'result', data: result });
       } else {
         // Fixed handler
         if (!globalRegistry.has(handlerKey)) {
-          return { ok: false, code: 'handler_not_found', message: `Handler not configured: ${handlerKey}` };
+          return {
+            ok: false,
+            code: 'handler_not_found',
+            message: `Handler not configured: ${handlerKey}`,
+          };
         }
         const result = await globalRegistry.execute(handlerKey, params, req);
         patches.push({ op: 'set', target: 'result', data: result });
@@ -189,10 +212,9 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
       patches.push({
         op: 'notify',
         level: 'success',
-        message: `Action ${ev.action} completed`
+        message: `Action ${ev.action} completed`,
       });
     }
-
   } catch (error: any) {
     logger.error(`Gateway handler error [${ev.action}]:`, error);
 
@@ -200,7 +222,7 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
     patches.push({
       op: 'notify',
       level: 'error',
-      message: error.message || 'An error occurred processing your request'
+      message: error.message || 'An error occurred processing your request',
     });
 
     // For chat, add error message to timeline
@@ -210,8 +232,8 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
         target: 'timeline',
         data: {
           role: 'assistant',
-          content: `⚠️ Error: ${error.message || 'Service temporarily unavailable'}`
-        }
+          content: `⚠️ Error: ${error.message || 'Service temporarily unavailable'}`,
+        },
       });
     }
 
@@ -219,7 +241,7 @@ export async function handleAppEvent(req: Request): Promise<{ ok: boolean; patch
       ok: false,
       code: 'handler_error',
       message: error.message || 'Handler execution failed',
-      patches
+      patches,
     };
   }
 

@@ -7,31 +7,44 @@ const mockSheets = {
   spreadsheets: {
     values: {
       get: jest.fn().mockResolvedValue({
-        data: { values: [['A1', 'B1'], ['A2', 'B2']] }
+        data: {
+          values: [
+            ['A1', 'B1'],
+            ['A2', 'B2'],
+          ],
+        },
       }),
       append: jest.fn().mockResolvedValue({
-        data: { updates: { updatedCells: 2 } }
+        data: { updates: { updatedCells: 2 } },
       }),
       update: jest.fn().mockResolvedValue({
-        data: {}
-      })
+        data: {},
+      }),
     },
     create: jest.fn().mockResolvedValue({
-      data: { spreadsheetId: 'test-sheet-id' }
-    })
-  }
+      data: { spreadsheetId: 'test-sheet-id' },
+    }),
+  },
 };
 
 mockGetSheets.mockResolvedValue(mockSheets);
 
-jest.mock('../../../services/google-auth-service.js', () => ({
-  getSheets: mockGetSheets
-}), { virtual: true });
+jest.mock(
+  '../../../services/google-auth-service.js',
+  () => ({
+    getSheets: mockGetSheets,
+  }),
+  { virtual: true }
+);
 
 // Mock bridge proxy
-jest.mock('../../../services/bridgeProxy.js', () => ({
-  forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null)
-}), { virtual: true });
+jest.mock(
+  '../../../services/bridgeProxy.js',
+  () => ({
+    forwardToBridgeIfSupported: jest.fn().mockResolvedValue(null),
+  }),
+  { virtual: true }
+);
 
 describe('Sheets', () => {
   let handlers: any;
@@ -46,7 +59,7 @@ describe('Sheets', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.sheetsRead({
         spreadsheetId: 'test-sheet-id',
-        range: 'A1:B2'
+        range: 'A1:B2',
       });
 
       expect(result).toBeDefined();
@@ -61,9 +74,11 @@ describe('Sheets', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.sheetsRead({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.sheetsRead({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -72,7 +87,7 @@ describe('Sheets', () => {
       const result = await handlers.sheetsAppend({
         spreadsheetId: 'test-sheet-id',
         range: 'A1',
-        values: [['New Row', 'Data']]
+        values: [['New Row', 'Data']],
       });
 
       expect(result).toBeDefined();
@@ -82,20 +97,24 @@ describe('Sheets', () => {
 
     it('should handle missing required params', async () => {
       await expect(handlers.sheetsAppend({})).rejects.toThrow(BadRequestError);
-      await expect(handlers.sheetsAppend({})).rejects.toThrow('spreadsheetId, range and values are required');
+      await expect(handlers.sheetsAppend({})).rejects.toThrow(
+        'spreadsheetId, range and values are required'
+      );
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.sheetsAppend({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.sheetsAppend({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
   describe('sheetsCreate', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.sheetsCreate({
-        title: 'Test Sheet'
+        title: 'Test Sheet',
       });
 
       expect(result).toBeDefined();
@@ -110,10 +129,11 @@ describe('Sheets', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.sheetsCreate({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.sheetsCreate({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
-
 });

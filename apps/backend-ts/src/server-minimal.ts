@@ -89,14 +89,14 @@ app.get('/health', (req, res) => {
     features: {
       enabled: ['cors', 'security'],
       total: 24,
-      progress: '1/24'
+      progress: '1/24',
     },
     env: {
       port: PORT,
       nodeEnv: process.env.NODE_ENV,
       redisUrl: process.env.REDIS_URL ? 'SET' : 'NOT_SET',
-      databaseUrl: process.env.DATABASE_URL ? 'SET' : 'NOT_SET'
-    }
+      databaseUrl: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
+    },
   });
 });
 
@@ -107,8 +107,8 @@ app.get('/', (req, res) => {
     status: 'operational',
     features: {
       enabled: ['cors', 'security'],
-      next: 'metrics-observability'
-    }
+      next: 'metrics-observability',
+    },
   });
 });
 
@@ -146,4 +146,3 @@ process.on('SIGINT', () => {
 });
 
 console.log('✅ [INC] Setup complete');
-

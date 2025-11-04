@@ -29,7 +29,8 @@ class ResilientSSEClient {
     this.onError = config.onError || ((error) => console.error('SSE Error:', error));
     this.onConnect = config.onConnect || (() => console.log('SSE Connected'));
     this.onDisconnect = config.onDisconnect || (() => console.log('SSE Disconnected'));
-    this.onReconnecting = config.onReconnecting || ((attempt) => console.log(`Reconnecting... Attempt ${attempt}`));
+    this.onReconnecting =
+      config.onReconnecting || ((attempt) => console.log(`Reconnecting... Attempt ${attempt}`));
 
     // Metrics
     this.metrics = {
@@ -39,7 +40,7 @@ class ResilientSSEClient {
       messagesReceived: 0,
       reconnectAttempts: 0,
       totalUptime: 0,
-      lastConnectTime: null
+      lastConnectTime: null,
     };
 
     // Bind methods
@@ -67,7 +68,7 @@ class ResilientSSEClient {
 
     // Build URL with query parameters
     const url = new URL(this.url);
-    Object.keys(queryParams).forEach(key => {
+    Object.keys(queryParams).forEach((key) => {
       url.searchParams.append(key, queryParams[key]);
     });
     url.searchParams.append('connection_id', this.connectionId);
@@ -108,7 +109,6 @@ class ResilientSSEClient {
 
       this.metrics.connectCount++;
       this.metrics.lastConnectTime = Date.now();
-
     } catch (error) {
       console.error('[SSE] Connection error:', error);
       this.handleError(error);
@@ -158,7 +158,6 @@ class ResilientSSEClient {
 
       // Pass to handler
       this.onMessage(data);
-
     } catch (error) {
       // Handle non-JSON messages
       if (event.data && event.data.trim() !== '') {
@@ -211,15 +210,18 @@ class ResilientSSEClient {
     this.reconnectAttempts++;
     this.metrics.reconnectAttempts++;
 
-    console.log(`[SSE] Reconnecting in ${this.reconnectDelay}ms (Attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+    console.log(
+      `[SSE] Reconnecting in ${this.reconnectDelay}ms (Attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+    );
     this.onReconnecting(this.reconnectAttempts);
 
     setTimeout(() => {
       console.log(`[SSE] Reconnection attempt ${this.reconnectAttempts}`);
 
       // Save original query params
-      const originalParams = this.eventSource ?
-        Object.fromEntries(new URL(this.eventSource.url).searchParams) : {};
+      const originalParams = this.eventSource
+        ? Object.fromEntries(new URL(this.eventSource.url).searchParams)
+        : {};
 
       // Remove connection_id as we'll get a new one
       delete originalParams.connection_id;
@@ -321,7 +323,7 @@ class ResilientSSEClient {
       isConnected: this.isConnected,
       currentReconnectAttempts: this.reconnectAttempts,
       connectionId: this.connectionId,
-      uptimePercentage: this.calculateUptimePercentage()
+      uptimePercentage: this.calculateUptimePercentage(),
     };
   }
 
@@ -348,10 +350,10 @@ class ResilientSSEClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Connection-Id': this.connectionId
+        'X-Connection-Id': this.connectionId,
       },
-      body: JSON.stringify(data)
-    }).catch(error => {
+      body: JSON.stringify(data),
+    }).catch((error) => {
       console.error('[SSE] Error sending data:', error);
     });
 
@@ -390,7 +392,7 @@ if (typeof window !== 'undefined' && window.ZANTARA_CONFIG) {
     },
     onDisconnect: () => {
       window.dispatchEvent(new CustomEvent('zantara-sse-disconnected'));
-    }
+    },
   });
 
   // Auto-connect on load

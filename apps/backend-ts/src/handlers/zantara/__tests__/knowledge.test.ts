@@ -3,12 +3,16 @@ import { ZodError } from 'zod';
 
 // Mock axios for RAG backend calls
 const mockAxiosPost = jest.fn();
-jest.mock('axios', () => ({
-  default: {
-    post: (...args: any[]) => mockAxiosPost(...args)
-  },
-  post: (...args: any[]) => mockAxiosPost(...args)
-}), { virtual: true });
+jest.mock(
+  'axios',
+  () => ({
+    default: {
+      post: (...args: any[]) => mockAxiosPost(...args),
+    },
+    post: (...args: any[]) => mockAxiosPost(...args),
+  }),
+  { virtual: true }
+);
 
 describe('Knowledge', () => {
   let handlers: any;
@@ -31,20 +35,20 @@ describe('Knowledge', () => {
                 filename: 'test.md',
                 chunk_index: 0,
                 total_chunks: 10,
-                priority: true
-              }
-            }
+                priority: true,
+              },
+            },
           ],
           kb_stats: { total_files: 238 },
-          query_time_ms: 150
-        }
+          query_time_ms: 150,
+        },
       });
 
       const result = await handlers.handleZantaraKnowledge({
         query: 'test query',
         category: 'zantara-personal',
         limit: 5,
-        priority_only: false
+        priority_only: false,
       });
 
       expect(result).toBeDefined();
@@ -64,7 +68,7 @@ describe('Knowledge', () => {
     it('should handle missing required params', async () => {
       // handleZantaraKnowledge catches ZodError and returns error response
       const result = await handlers.handleZantaraKnowledge({});
-      
+
       expect(result).toBeDefined();
       expect(result.ok).toBe(false);
       expect(result.error).toBeDefined();
@@ -74,9 +78,9 @@ describe('Knowledge', () => {
       // handleZantaraKnowledge catches ZodError and returns error response
       const result = await handlers.handleZantaraKnowledge({
         query: 'ab', // Too short (min 3)
-        invalid: 'data'
+        invalid: 'data',
       });
-      
+
       expect(result).toBeDefined();
       expect(result.ok).toBe(false);
       expect(result.error).toBeDefined();
@@ -89,7 +93,7 @@ describe('Knowledge', () => {
 
       const result = await handlers.handleZantaraKnowledge({
         query: 'test query',
-        category: 'all'
+        category: 'all',
       });
 
       expect(result).toBeDefined();
@@ -184,5 +188,4 @@ describe('Knowledge', () => {
       expect(result.ok).toBe(true);
     });
   });
-
 });

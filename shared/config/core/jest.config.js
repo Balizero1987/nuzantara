@@ -10,9 +10,7 @@ export default {
   },
   resolver: undefined,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  modulePathIgnorePatterns: [
-    '<rootDir>/src/middleware/monitoring.ts',
-  ],
+  modulePathIgnorePatterns: ['<rootDir>/src/middleware/monitoring.ts'],
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',
@@ -31,11 +29,7 @@ export default {
       },
     ],
   },
-  testMatch: [
-    '**/__tests__/**/*.test.ts',
-    '**/tests/**/*.test.ts',
-    '**/*.test.ts',
-  ],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/tests/**/*.test.ts', '**/*.test.ts'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
@@ -44,9 +38,7 @@ export default {
     '!src/index.ts',
     '!src/middleware/monitoring.ts',
   ],
-  transformIgnorePatterns: [
-    'node_modules/(?!(supertest|@jest)/)',
-  ],
+  transformIgnorePatterns: ['node_modules/(?!(supertest|@jest)/)'],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   coverageThreshold: {

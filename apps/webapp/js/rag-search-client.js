@@ -26,7 +26,7 @@ class ZantaraRAGClient {
       { id: 'tax_knowledge', name: 'Tax Knowledge', icon: '💡' },
       { id: 'property_listings', name: 'Property Listings', icon: '🏠' },
       { id: 'property_knowledge', name: 'Property Knowledge', icon: '🏡' },
-      { id: 'legal_updates', name: 'Legal Updates', icon: '⚖️' }
+      { id: 'legal_updates', name: 'Legal Updates', icon: '⚖️' },
     ];
 
     this.cache = new Map();
@@ -38,12 +38,14 @@ class ZantaraRAGClient {
    */
   async search(query, options = {}) {
     const {
-      collection = null,      // Specific collection or null for auto-detect
-      limit = 5,             // Number of results
-      userLevel = 0          // Access level (0=public, 3=admin)
+      collection = null, // Specific collection or null for auto-detect
+      limit = 5, // Number of results
+      userLevel = 0, // Access level (0=public, 3=admin)
     } = options;
 
-    console.log(`🔍 [RAGClient] Searching: "${query}"${collection ? ` in ${collection}` : ' (auto-detect)'}`);
+    console.log(
+      `🔍 [RAGClient] Searching: "${query}"${collection ? ` in ${collection}` : ' (auto-detect)'}`
+    );
 
     // Check cache
     const cacheKey = `${query}:${collection}:${limit}:${userLevel}`;
@@ -58,14 +60,14 @@ class ZantaraRAGClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this._getAuthToken()
+          Authorization: this._getAuthToken(),
         },
         body: JSON.stringify({
           query,
           collection,
           limit,
-          user_level: userLevel
-        })
+          user_level: userLevel,
+        }),
       });
 
       if (!response.ok) {
@@ -80,7 +82,7 @@ class ZantaraRAGClient {
           collection: data.collection || collection || 'auto',
           confidence: data.confidence || 0.8,
           sources: data.sources || [],
-          total: (data.results || []).length
+          total: (data.results || []).length,
         };
 
         console.log(`✅ [RAGClient] Found ${results.total} results in ${results.collection}`);
@@ -100,7 +102,7 @@ class ZantaraRAGClient {
         confidence: 0,
         sources: [],
         total: 0,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -123,7 +125,7 @@ class ZantaraRAGClient {
    * Get collection info by ID
    */
   getCollection(collectionId) {
-    return this.collections.find(c => c.id === collectionId);
+    return this.collections.find((c) => c.id === collectionId);
   }
 
   /**
@@ -143,7 +145,9 @@ class ZantaraRAGClient {
     }
 
     // KBLI keywords
-    if (this._containsAny(queryLower, ['kbli', 'business code', 'activity code', 'classification'])) {
+    if (
+      this._containsAny(queryLower, ['kbli', 'business code', 'activity code', 'classification'])
+    ) {
       return 'kbli_eye';
     }
 
@@ -180,7 +184,7 @@ class ZantaraRAGClient {
   getStats() {
     return {
       cached_queries: this.cache.size,
-      collections: this.collections.length
+      collections: this.collections.length,
     };
   }
 
@@ -188,7 +192,7 @@ class ZantaraRAGClient {
    * Private: Check if string contains any of the keywords
    */
   _containsAny(str, keywords) {
-    return keywords.some(keyword => str.includes(keyword));
+    return keywords.some((keyword) => str.includes(keyword));
   }
 
   /**
@@ -213,7 +217,7 @@ class ZantaraRAGClient {
   _setCached(key, data) {
     this.cache.set(key, {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // Limit cache size to 100 entries

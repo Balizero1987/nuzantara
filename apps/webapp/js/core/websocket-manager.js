@@ -1,6 +1,6 @@
 /**
  * WebSocket Manager with Auto-Reconnect
- * 
+ *
  * Implements exponential backoff reconnection strategy.
  * Handles connection lifecycle and message queuing.
  */
@@ -11,18 +11,18 @@ class WebSocketManager {
     this.url = null;
     this.isConnecting = false;
     this.isManuallyDisconnected = false;
-    
+
     // Reconnection settings
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 10;
     this.reconnectDelay = 1000; // Start at 1 second
     this.maxReconnectDelay = 30000; // Max 30 seconds
     this.reconnectTimer = null;
-    
+
     // Message queue for offline messages
     this.messageQueue = [];
     this.maxQueueSize = 50;
-    
+
     // Event listeners
     this.listeners = {
       open: [],
@@ -30,9 +30,9 @@ class WebSocketManager {
       error: [],
       message: [],
       reconnecting: [],
-      reconnected: []
+      reconnected: [],
     };
-    
+
     // Statistics
     this.stats = {
       messagesReceived: 0,
@@ -40,7 +40,7 @@ class WebSocketManager {
       reconnections: 0,
       errors: 0,
       totalUptime: 0,
-      connectionStartTime: null
+      connectionStartTime: null,
     };
   }
 
@@ -61,14 +61,13 @@ class WebSocketManager {
 
     try {
       console.log('[WS] Connecting to:', url);
-      
+
       this.ws = new WebSocket(url, protocols);
-      
+
       this.ws.onopen = (event) => this.handleOpen(event);
       this.ws.onclose = (event) => this.handleClose(event);
       this.ws.onerror = (event) => this.handleError(event);
       this.ws.onmessage = (event) => this.handleMessage(event);
-      
     } catch (error) {
       console.error('[WS] Connection error:', error);
       this.isConnecting = false;
@@ -79,49 +78,49 @@ class WebSocketManager {
   disconnect() {
     this.isManuallyDisconnected = true;
     this.cancelReconnect();
-    
+
     if (this.ws) {
       this.ws.close();
       this.ws = null;
     }
-    
+
     console.log('[WS] Manually disconnected');
   }
 
   handleOpen(event) {
     console.log('[WS] Connected');
-    
+
     this.isConnecting = false;
     this.stats.connectionStartTime = Date.now();
-    
+
     // Reset reconnection settings on successful connect
     if (this.reconnectAttempts > 0) {
       this.stats.reconnections++;
       this.emit('reconnected', { attempts: this.reconnectAttempts });
     }
-    
+
     this.reconnectAttempts = 0;
     this.reconnectDelay = 1000;
-    
+
     // Send queued messages
     this.flushMessageQueue();
-    
+
     this.emit('open', event);
   }
 
   handleClose(event) {
     console.log('[WS] Disconnected', event.code, event.reason);
-    
+
     this.isConnecting = false;
-    
+
     // Update uptime stats
     if (this.stats.connectionStartTime) {
       this.stats.totalUptime += Date.now() - this.stats.connectionStartTime;
       this.stats.connectionStartTime = null;
     }
-    
+
     this.emit('close', event);
-    
+
     // Reconnect if not manually disconnected
     if (!this.isManuallyDisconnected) {
       this.scheduleReconnect();
@@ -130,14 +129,14 @@ class WebSocketManager {
 
   handleError(event) {
     console.error('[WS] Error:', event);
-    
+
     this.stats.errors++;
     this.emit('error', event);
   }
 
   handleMessage(event) {
     this.stats.messagesReceived++;
-    
+
     try {
       const data = JSON.parse(event.data);
       this.emit('message', data);
@@ -150,31 +149,33 @@ class WebSocketManager {
   scheduleReconnect() {
     // Cancel any existing reconnect timer
     this.cancelReconnect();
-    
+
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error('[WS] Max reconnect attempts reached');
       this.emit('reconnecting', {
         attempt: this.reconnectAttempts,
         maxAttempts: this.maxReconnectAttempts,
-        gaveUp: true
+        gaveUp: true,
       });
       return;
     }
 
     this.reconnectAttempts++;
-    
+
     // Calculate delay with exponential backoff
     const delay = Math.min(
       this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1),
       this.maxReconnectDelay
     );
-    
-    console.log(`[WS] Reconnecting in ${delay / 1000}s (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-    
+
+    console.log(
+      `[WS] Reconnecting in ${delay / 1000}s (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+    );
+
     this.emit('reconnecting', {
       attempt: this.reconnectAttempts,
       maxAttempts: this.maxReconnectAttempts,
-      delay: delay
+      delay: delay,
     });
 
     this.reconnectTimer = setTimeout(() => {
@@ -213,23 +214,23 @@ class WebSocketManager {
       // Remove oldest message
       this.messageQueue.shift();
     }
-    
+
     this.messageQueue.push({
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
-    
+
     console.log(`[WS] Message queued (${this.messageQueue.length}/${this.maxQueueSize})`);
   }
 
   flushMessageQueue() {
     if (this.messageQueue.length === 0) return;
-    
+
     console.log(`[WS] Flushing ${this.messageQueue.length} queued messages`);
-    
+
     const queue = [...this.messageQueue];
     this.messageQueue = [];
-    
+
     queue.forEach(({ data }) => {
       this.send(data);
     });
@@ -241,7 +242,7 @@ class WebSocketManager {
 
   getReadyState() {
     if (!this.ws) return 'DISCONNECTED';
-    
+
     const states = ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'];
     return states[this.ws.readyState] || 'UNKNOWN';
   }
@@ -251,15 +252,15 @@ class WebSocketManager {
     if (!this.listeners[event]) {
       throw new Error(`Invalid event: ${event}`);
     }
-    
+
     this.listeners[event].push(callback);
-    
+
     return () => this.off(event, callback);
   }
 
   off(event, callback) {
     if (!this.listeners[event]) return;
-    
+
     const index = this.listeners[event].indexOf(callback);
     if (index > -1) {
       this.listeners[event].splice(index, 1);
@@ -268,8 +269,8 @@ class WebSocketManager {
 
   emit(event, data) {
     if (!this.listeners[event]) return;
-    
-    this.listeners[event].forEach(callback => {
+
+    this.listeners[event].forEach((callback) => {
       try {
         callback(data);
       } catch (error) {
@@ -285,9 +286,7 @@ class WebSocketManager {
       readyState: this.getReadyState(),
       reconnectAttempts: this.reconnectAttempts,
       queuedMessages: this.messageQueue.length,
-      uptime: this.stats.connectionStartTime 
-        ? Date.now() - this.stats.connectionStartTime 
-        : 0
+      uptime: this.stats.connectionStartTime ? Date.now() - this.stats.connectionStartTime : 0,
     };
   }
 
@@ -311,7 +310,7 @@ if (typeof window !== 'undefined') {
     off: (event, callback) => wsManager.off(event, callback),
     getStats: () => wsManager.getStats(),
     isConnected: () => wsManager.isConnected(),
-    clearQueue: () => wsManager.clearQueue()
+    clearQueue: () => wsManager.clearQueue(),
   };
 }
 

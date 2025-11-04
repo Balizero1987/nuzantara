@@ -59,9 +59,7 @@ describe('Oracle Handler', () => {
       const lowResult = await oracleSimulate(lowUrgencyParams);
       const highResult = await oracleSimulate(highUrgencyParams);
 
-      expect(lowResult.data.successProbability).toBeGreaterThan(
-        highResult.data.successProbability
-      );
+      expect(lowResult.data.successProbability).toBeGreaterThan(highResult.data.successProbability);
     });
 
     it('should adjust timeline based on complexity', async () => {
@@ -78,9 +76,7 @@ describe('Oracle Handler', () => {
       const highResult = await oracleSimulate(highComplexity);
 
       // High complexity should have longer timeline
-      expect(lowResult.data.recommendedTimeline).not.toBe(
-        highResult.data.recommendedTimeline
-      );
+      expect(lowResult.data.recommendedTimeline).not.toBe(highResult.data.recommendedTimeline);
     });
 
     it('should include region in simulation results', async () => {
@@ -163,9 +159,7 @@ describe('Oracle Handler', () => {
       const result = await oracleAnalyze(params);
 
       expect(result.ok).toBe(true);
-      const docArea = result.data.focusAreas.find(
-        (area: any) => area.area === 'Documentation'
-      );
+      const docArea = result.data.focusAreas.find((area: any) => area.area === 'Documentation');
       expect(docArea).toBeDefined();
       expect(docArea.status).toBe('attention');
       expect(Array.isArray(docArea.insights)).toBe(true);
@@ -327,12 +321,8 @@ describe('Oracle Handler', () => {
       const totalDays = result.data.forecast.totalDurationDays;
 
       // Checkpoints should be distributed across the timeline
-      expect(checkpoints[0].etaDays).toBeLessThan(
-        checkpoints[checkpoints.length - 1].etaDays
-      );
-      expect(checkpoints[checkpoints.length - 1].etaDays).toBeLessThanOrEqual(
-        totalDays
-      );
+      expect(checkpoints[0].etaDays).toBeLessThan(checkpoints[checkpoints.length - 1].etaDays);
+      expect(checkpoints[checkpoints.length - 1].etaDays).toBeLessThanOrEqual(totalDays);
     });
   });
 

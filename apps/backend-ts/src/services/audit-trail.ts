@@ -1,6 +1,6 @@
 /**
  * Audit Trail System for Critical Operations
- * 
+ *
  * Logs all critical operations for compliance and security
  * GDPR-compliant with data retention policies
  */
@@ -15,23 +15,23 @@ export enum AuditEventType {
   AUTH_LOGOUT = 'auth_logout',
   AUTH_FAILED = 'auth_failed',
   AUTH_TOKEN_REFRESH = 'auth_token_refresh',
-  
+
   // Data access
   DATA_READ = 'data_read',
   DATA_WRITE = 'data_write',
   DATA_DELETE = 'data_delete',
   DATA_EXPORT = 'data_export',
-  
+
   // Administrative
   ADMIN_ACTION = 'admin_action',
   CONFIG_CHANGE = 'config_change',
   FEATURE_FLAG_CHANGE = 'feature_flag_change',
-  
+
   // System operations
   CIRCUIT_BREAKER_OPEN = 'circuit_breaker_open',
   RATE_LIMIT_EXCEEDED = 'rate_limit_exceeded',
   ERROR_EVENT = 'error_event',
-  
+
   // GDPR-related
   DATA_ACCESS_REQUEST = 'data_access_request',
   DATA_DELETION_REQUEST = 'data_deletion_request',
@@ -68,7 +68,9 @@ class AuditTrailService {
   /**
    * Log an audit event
    */
-  async log(event: Omit<AuditEvent, 'timestamp' | 'gdprRelevant' | 'retentionDays'>): Promise<void> {
+  async log(
+    event: Omit<AuditEvent, 'timestamp' | 'gdprRelevant' | 'retentionDays'>
+  ): Promise<void> {
     if (!this.enabled) {
       return;
     }
@@ -82,7 +84,9 @@ class AuditTrailService {
       };
 
       // Log to console
-      logger.info(`📋 AUDIT [${event.eventType}]: ${event.action || 'N/A'} - User: ${event.userId || 'anonymous'} - Result: ${event.result}`);
+      logger.info(
+        `📋 AUDIT [${event.eventType}]: ${event.action || 'N/A'} - User: ${event.userId || 'anonymous'} - Result: ${event.result}`
+      );
 
       // Store in database
       await this.storeEvent(fullEvent);
@@ -285,7 +289,7 @@ class AuditTrailService {
       }
 
       query += ' ORDER BY timestamp DESC';
-      
+
       if (filters.limit) {
         query += ` LIMIT $${paramIndex++}`;
         params.push(filters.limit);
@@ -354,10 +358,12 @@ export const auditTrail = new AuditTrailService();
 
 // Schedule cleanup job (daily)
 if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
-    auditTrail.cleanupOldEvents().catch((err) => {
-      logger.error(`Audit cleanup job failed: ${err.message}`);
-    });
-  }, 24 * 60 * 60 * 1000); // Daily
+  setInterval(
+    () => {
+      auditTrail.cleanupOldEvents().catch((err) => {
+        logger.error(`Audit cleanup job failed: ${err.message}`);
+      });
+    },
+    24 * 60 * 60 * 1000
+  ); // Daily
 }
-

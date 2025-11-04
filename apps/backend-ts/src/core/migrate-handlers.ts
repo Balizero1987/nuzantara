@@ -28,7 +28,7 @@ import { logger } from '../logging/unified-logger.js';
 
 export interface ModuleMapping {
   module: string;
-  handlers: string[];  // handler file names
+  handlers: string[]; // handler file names
 }
 
 /**
@@ -45,27 +45,16 @@ export const MODULE_STRUCTURE: ModuleMapping[] = [
       'docs',
       'sheets',
       'slides',
-      'contacts'
-    ]
+      'contacts',
+    ],
   },
   {
     module: 'ai-services',
-    handlers: [
-      'ai',
-      'ai-enhanced',
-      'advanced-ai',
-      'creative'
-    ]
+    handlers: ['ai', 'ai-enhanced', 'advanced-ai', 'creative'],
   },
   {
     module: 'bali-zero',
-    handlers: [
-      'bali-zero-pricing',
-      'kbli',
-      'advisory',
-      'oracle',
-      'team'
-    ]
+    handlers: ['bali-zero-pricing', 'kbli', 'advisory', 'oracle', 'team'],
   },
   {
     module: 'zantara',
@@ -74,51 +63,33 @@ export const MODULE_STRUCTURE: ModuleMapping[] = [
       'zantara-v2-simple',
       'zantara-dashboard',
       'zantara-brilliant',
-      'zantaraKnowledgeHandler'
-    ]
+      'zantaraKnowledgeHandler',
+    ],
   },
   {
     module: 'communication',
-    handlers: [
-      'communication',
-      'whatsapp',
-      'translate'
-    ]
+    handlers: ['communication', 'whatsapp', 'translate'],
   },
   {
     module: 'analytics',
-    handlers: [
-      'analytics',
-      'dashboard-analytics',
-      'weekly-report',
-      'daily-drive-recap'
-    ]
+    handlers: ['analytics', 'dashboard-analytics', 'weekly-report', 'daily-drive-recap'],
   },
   {
     module: 'memory',
-    handlers: [
-      'memory',
-      'conversation-autosave'
-    ]
+    handlers: ['memory', 'conversation-autosave'],
   },
   {
     module: 'identity',
-    handlers: [
-      'identity'
-    ]
+    handlers: ['identity'],
   },
   {
     module: 'rag',
-    handlers: [
-      'rag'
-    ]
+    handlers: ['rag'],
   },
   {
     module: 'maps',
-    handlers: [
-      'maps'
-    ]
-  }
+    handlers: ['maps'],
+  },
 ];
 
 /**
@@ -132,7 +103,7 @@ export function generateMigrationPlan(): string[] {
   commands.push('');
 
   // Create module directories
-  const modules = MODULE_STRUCTURE.map(m => m.module).filter((v, i, a) => a.indexOf(v) === i);
+  const modules = MODULE_STRUCTURE.map((m) => m.module).filter((v, i, a) => a.indexOf(v) === i);
   for (const module of modules) {
     commands.push(`mkdir -p ${module}`);
   }
@@ -143,7 +114,9 @@ export function generateMigrationPlan(): string[] {
   for (const { module, handlers } of MODULE_STRUCTURE) {
     commands.push(`# Module: ${module}`);
     for (const handler of handlers) {
-      commands.push(`mv ${handler}.ts ${module}/${handler}.ts 2>/dev/null || echo "⚠️  ${handler}.ts not found"`);
+      commands.push(
+        `mv ${handler}.ts ${module}/${handler}.ts 2>/dev/null || echo "⚠️  ${handler}.ts not found"`
+      );
     }
     commands.push('');
   }
@@ -151,7 +124,7 @@ export function generateMigrationPlan(): string[] {
   // Create index files for each module
   commands.push('# Create module index files');
   for (const { module, handlers } of MODULE_STRUCTURE) {
-    const exports = handlers.map(h => `export * from './${h}.js';`).join('\n');
+    const exports = handlers.map((h) => `export * from './${h}.js';`).join('\n');
     commands.push(`cat > ${module}/index.ts <<'EOF'`);
     commands.push(`/**`);
     commands.push(` * ${module.toUpperCase()} Module`);
@@ -193,8 +166,8 @@ export function printMigrationPlan() {
   const plan = generateMigrationPlan();
   logger.info(plan.join('\n'));
 
-  console.log('\n\n=== NEW ROUTER IMPORTS ===\n');
-  console.log(generateRouterImports());
+  logger.info('\n\n=== NEW ROUTER IMPORTS ===\n');
+  logger.info(generateRouterImports());
 }
 
 // Auto-run if executed directly

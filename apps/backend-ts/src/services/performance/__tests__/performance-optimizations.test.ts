@@ -1,6 +1,6 @@
 /**
  * Performance Optimizations Test Suite
- * 
+ *
  * Comprehensive tests for all performance optimization components
  */
 import { getFlags, DEFAULT_FLAGS } from '../../../config/flags.js';
@@ -13,7 +13,7 @@ import { getBenchmarking } from '../benchmarking.js';
 describe('Performance Optimizations - Feature Flags', () => {
   it('should have all performance flags defined', () => {
     const flags = getFlags();
-    
+
     expect(flags).toHaveProperty('ENABLE_WEBSOCKET_IOS_FALLBACK');
     expect(flags).toHaveProperty('ENABLE_MESSAGE_QUEUE');
     expect(flags).toHaveProperty('ENABLE_ENHANCED_REDIS_CACHE');
@@ -66,7 +66,7 @@ describe('Performance Optimizations - Message Queue', () => {
       channel: 'test',
       type: 'chat',
       payload: { text: 'test1' },
-      priority: 'normal'
+      priority: 'normal',
     });
 
     const msg2 = await queue.enqueue({
@@ -74,7 +74,7 @@ describe('Performance Optimizations - Message Queue', () => {
       channel: 'test',
       type: 'chat',
       payload: { text: 'test2' },
-      priority: 'normal'
+      priority: 'normal',
     });
 
     expect(msg1).toBeTruthy();
@@ -116,7 +116,7 @@ describe('Performance Optimizations - Enhanced Redis Cache', () => {
   it('should set and get cache values', async () => {
     await cache.set('test-key', { data: 'test-value' }, 60);
     const value = await cache.get('test-key');
-    
+
     // If disabled, should gracefully degrade
     if (cache.isEnabled()) {
       expect(value).toEqual({ data: 'test-value' });
@@ -127,7 +127,7 @@ describe('Performance Optimizations - Enhanced Redis Cache', () => {
     await cache.set('test-key-del', 'test-value', 60);
     await cache.del('test-key-del');
     const value = await cache.get('test-key-del');
-    
+
     if (cache.isEnabled()) {
       expect(value).toBeNull();
     }
@@ -160,12 +160,12 @@ describe('Performance Optimizations - Memory Leak Prevention', () => {
   it('should start and stop monitoring', () => {
     prevention.start();
     const stats = prevention.getStats();
-    
+
     expect(stats).toHaveProperty('current');
     expect(stats).toHaveProperty('leakDetection');
     expect(stats.current).toHaveProperty('heapUsed');
     expect(stats.current).toHaveProperty('rss');
-    
+
     prevention.stop();
   });
 
@@ -180,12 +180,16 @@ describe('Performance Optimizations - Memory Leak Prevention', () => {
 
 describe('Performance Optimizations - Audit Trail', () => {
   it('should log audit events', async () => {
-    const eventId = await auditLog('test_action', {
-      testData: 'test'
-    }, {
-      userId: 'test-user',
-      resource: 'test-resource'
-    });
+    const eventId = await auditLog(
+      'test_action',
+      {
+        testData: 'test',
+      },
+      {
+        userId: 'test-user',
+        resource: 'test-resource',
+      }
+    );
 
     expect(eventId).toBeTruthy();
   });
@@ -199,16 +203,16 @@ describe('Performance Optimizations - Audit Trail', () => {
       metadata: {
         email: 'test@example.com',
         phone: '1234567890',
-        password: 'secret123'
-      }
+        password: 'secret123',
+      },
     });
 
     expect(eventId).toBeTruthy();
-    
+
     // Query should return masked data
     const events = await audit.query({
       action: 'test',
-      limit: 1
+      limit: 1,
     });
 
     if (events.length > 0) {
@@ -224,9 +228,9 @@ describe('Performance Optimizations - Audit Trail', () => {
 describe('Performance Optimizations - Benchmarking', () => {
   it('should collect baseline metrics', async () => {
     const benchmark = getBenchmarking();
-    
+
     const baseline = await benchmark.collectBaseline('test-baseline');
-    
+
     expect(baseline).toHaveProperty('timestamp');
     expect(baseline).toHaveProperty('apiLatency');
     expect(baseline).toHaveProperty('cacheHitRate');
@@ -237,12 +241,12 @@ describe('Performance Optimizations - Benchmarking', () => {
 
   it('should compare metrics with baseline', async () => {
     const benchmark = getBenchmarking();
-    
+
     await benchmark.collectBaseline('test-baseline');
     await benchmark.collectMetrics();
-    
+
     const comparisons = benchmark.compareWithBaseline('test-baseline');
-    
+
     expect(comparisons.length).toBeGreaterThan(0);
     expect(comparisons[0]).toHaveProperty('metric');
     expect(comparisons[0]).toHaveProperty('before');
@@ -253,12 +257,12 @@ describe('Performance Optimizations - Benchmarking', () => {
 
   it('should generate comparison report', async () => {
     const benchmark = getBenchmarking();
-    
+
     await benchmark.collectBaseline('test-report');
     await benchmark.collectMetrics();
-    
+
     const report = benchmark.generateReport('test-report');
-    
+
     expect(report).toContain('Performance Benchmarking Report');
     expect(report).toContain('Comparison Results');
   });
@@ -267,7 +271,7 @@ describe('Performance Optimizations - Benchmarking', () => {
 describe('Performance Optimizations - Backward Compatibility', () => {
   it('should maintain backward compatibility when flags are disabled', () => {
     const flags = getFlags();
-    
+
     // All optimizations should gracefully degrade when disabled
     if (!flags.ENABLE_MESSAGE_QUEUE) {
       const queue = getMessageQueue();
@@ -287,4 +291,3 @@ describe('Performance Optimizations - Backward Compatibility', () => {
     expect(typeof flags.ENABLE_OBSERVABILITY).toBe('boolean');
   });
 });
-

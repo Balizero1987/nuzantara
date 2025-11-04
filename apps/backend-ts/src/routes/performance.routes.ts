@@ -15,7 +15,7 @@ import { Router, Request, Response } from 'express';
 import {
   performanceMetricsRoute,
   prometheusMetricsRoute,
-  performanceHealthRoute
+  performanceHealthRoute,
 } from '../middleware/performance-middleware.js';
 import { performanceMonitor } from '../services/monitoring/performance-monitor.js';
 import { logger } from '../logging/unified-logger.js';
@@ -50,7 +50,7 @@ router.get('/health', (req: Request, res: Response) => {
  * GET /performance/alerts
  * Get active performance alerts
  */
-router.get('/alerts', (req: Request, res: Response) => {
+router.get('/alerts', (_req: Request, res: Response) => {
   try {
     const alerts = performanceMonitor.getActiveAlerts();
 
@@ -59,22 +59,22 @@ router.get('/alerts', (req: Request, res: Response) => {
       data: {
         alerts,
         total: alerts.length,
-        critical: alerts.filter(a => a.severity === 'critical').length,
-        warning: alerts.filter(a => a.severity === 'warning').length,
-        lastUpdated: new Date().toISOString()
+        critical: alerts.filter((a) => a.severity === 'critical').length,
+        warning: alerts.filter((a) => a.severity === 'warning').length,
+        lastUpdated: new Date().toISOString(),
       },
       meta: {
         service: 'zantara-performance-alerts',
         version: '1.0.0',
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     logger.error('Performance alerts error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance alerts',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -97,15 +97,15 @@ router.get('/summary', (req: Request, res: Response) => {
         timeWindowMinutes,
         service: 'zantara-performance-summary',
         version: '1.0.0',
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     logger.error('Performance summary error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance summary',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -126,19 +126,19 @@ router.post('/cleanup', (req: Request, res: Response) => {
       data: {
         message: `Cleaned up metrics older than ${olderThanMinutes} minutes`,
         olderThanMinutes,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
       meta: {
         service: 'zantara-performance-cleanup',
-        version: '1.0.0'
-      }
+        version: '1.0.0',
+      },
     });
   } catch (error) {
     logger.error('Performance cleanup error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to cleanup performance metrics',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -167,7 +167,7 @@ router.get('/dashboard', (req: Request, res: Response) => {
         errorRate: summary.summary.errorRate,
         requestsPerMinute: summary.summary.requestsPerMinute,
         activeAlerts: alerts.length,
-        criticalAlerts: alerts.filter(a => a.severity === 'critical').length
+        criticalAlerts: alerts.filter((a) => a.severity === 'critical').length,
       },
       endpoints: Object.entries(v3Metrics).map(([endpoint, metrics]) => ({
         endpoint,
@@ -177,8 +177,12 @@ router.get('/dashboard', (req: Request, res: Response) => {
         cacheHitRate: Math.round(metrics.cacheHitRate * 100),
         errorRate: Math.round(metrics.errorRate * 100),
         requestsPerMinute: Math.round(metrics.requestsPerMinute * 10) / 10,
-        health: metrics.averageResponseTime < 1000 && metrics.errorRate < 0.05 ? 'good' :
-              metrics.averageResponseTime < 5000 && metrics.errorRate < 0.1 ? 'warning' : 'critical'
+        health:
+          metrics.averageResponseTime < 1000 && metrics.errorRate < 0.05
+            ? 'good'
+            : metrics.averageResponseTime < 5000 && metrics.errorRate < 0.1
+              ? 'warning'
+              : 'critical',
       })),
       alerts: alerts.slice(0, 20), // Top 20 alerts
       domainPerformance: summary.domainPerformance,
@@ -186,9 +190,9 @@ router.get('/dashboard', (req: Request, res: Response) => {
         // Calculate simple trends (would be enhanced in real implementation)
         responseTimeTrend: calculateTrend(v3Metrics, 'averageResponseTime'),
         cacheHitTrend: calculateTrend(v3Metrics, 'cacheHitRate'),
-        errorRateTrend: calculateTrend(v3Metrics, 'errorRate')
+        errorRateTrend: calculateTrend(v3Metrics, 'errorRate'),
       },
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
 
     res.json({
@@ -198,16 +202,15 @@ router.get('/dashboard', (req: Request, res: Response) => {
         timeWindowMinutes,
         service: 'zantara-performance-dashboard',
         version: '1.0.0',
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
-
   } catch (error) {
     logger.error('Performance dashboard error:', error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance dashboard',
-      details: error.message
+      details: error.message,
     });
   }
 });

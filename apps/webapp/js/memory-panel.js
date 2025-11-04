@@ -6,7 +6,7 @@
 const MemoryPanel = (() => {
   // Backend API base URLs
   const RAG_BACKEND_URL = 'https://nuzantara-rag.fly.dev';
-  
+
   // State
   let isOpen = false;
   let currentUserEmail = null;
@@ -18,7 +18,7 @@ const MemoryPanel = (() => {
    */
   function init() {
     console.log('[MemoryPanel] Initializing...');
-    
+
     // Get current user email from ZANTARA_API
     if (window.ZANTARA_API && window.ZANTARA_API.isLoggedIn()) {
       const userInfo = window.ZANTARA_API.getUserInfo();
@@ -28,7 +28,7 @@ const MemoryPanel = (() => {
 
     // Create panel UI
     createPanelUI();
-    
+
     // Add keyboard shortcut (Ctrl/Cmd + H)
     document.addEventListener('keydown', (e) => {
       // Accept both 'h' and 'H' for cross-platform compatibility
@@ -158,13 +158,16 @@ const MemoryPanel = (() => {
    */
   function switchTab(tabName) {
     // Update tab buttons
-    document.querySelectorAll('.memory-tab').forEach(btn => {
+    document.querySelectorAll('.memory-tab').forEach((btn) => {
       btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
     });
 
     // Update tab content
-    document.querySelectorAll('.memory-tab-content').forEach(content => {
-      content.classList.toggle('active', content.id === `memory${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`);
+    document.querySelectorAll('.memory-tab-content').forEach((content) => {
+      content.classList.toggle(
+        'active',
+        content.id === `memory${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`
+      );
     });
   }
 
@@ -172,10 +175,7 @@ const MemoryPanel = (() => {
    * Load all data (stats + history)
    */
   async function loadData() {
-    await Promise.all([
-      loadStats(),
-      loadHistory()
-    ]);
+    await Promise.all([loadStats(), loadHistory()]);
   }
 
   /**
@@ -193,7 +193,7 @@ const MemoryPanel = (() => {
 
       stats = await response.json();
       renderStats();
-      
+
       console.log('[MemoryPanel] Stats loaded:', stats);
     } catch (error) {
       console.error('[MemoryPanel] Failed to load stats:', error);
@@ -208,12 +208,12 @@ const MemoryPanel = (() => {
     const statsSection = document.getElementById('memoryStatsSection');
     if (!statsSection || !stats) return;
 
-    const lastConversation = stats.last_conversation 
+    const lastConversation = stats.last_conversation
       ? new Date(stats.last_conversation).toLocaleDateString('it-IT', {
           day: '2-digit',
           month: 'short',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
         })
       : 'Mai';
 
@@ -263,7 +263,7 @@ const MemoryPanel = (() => {
       const data = await response.json();
       conversationHistory = data.messages || [];
       renderHistory();
-      
+
       console.log('[MemoryPanel] History loaded:', conversationHistory.length, 'messages');
     } catch (error) {
       console.error('[MemoryPanel] Failed to load history:', error);
@@ -287,18 +287,19 @@ const MemoryPanel = (() => {
       return;
     }
 
-    const messagesHTML = conversationHistory.map((msg, idx) => {
-      const isUser = msg.role === 'user';
-      const icon = isUser ? '👤' : '🤖';
-      const roleClass = isUser ? 'user' : 'assistant';
-      
-      // Truncate long messages
-      let content = msg.content || '';
-      if (content.length > 150) {
-        content = content.substring(0, 150) + '...';
-      }
+    const messagesHTML = conversationHistory
+      .map((msg, idx) => {
+        const isUser = msg.role === 'user';
+        const icon = isUser ? '👤' : '🤖';
+        const roleClass = isUser ? 'user' : 'assistant';
 
-      return `
+        // Truncate long messages
+        let content = msg.content || '';
+        if (content.length > 150) {
+          content = content.substring(0, 150) + '...';
+        }
+
+        return `
         <div class="memory-message ${roleClass}">
           <div class="memory-message-header">
             <span class="memory-message-icon">${icon}</span>
@@ -307,7 +308,8 @@ const MemoryPanel = (() => {
           <div class="memory-message-content">${escapeHtml(content)}</div>
         </div>
       `;
-    }).join('');
+      })
+      .join('');
 
     historyList.innerHTML = messagesHTML;
   }
@@ -331,11 +333,11 @@ const MemoryPanel = (() => {
    */
   async function refresh() {
     console.log('[MemoryPanel] Refreshing data...');
-    
+
     // Show loading indicators
     const statsSection = document.getElementById('memoryStatsSection');
     const historyList = document.getElementById('memoryHistoryList');
-    
+
     if (statsSection) {
       statsSection.innerHTML = '<div class="memory-stats-loading">⏳ Aggiornamento...</div>';
     }
@@ -350,7 +352,9 @@ const MemoryPanel = (() => {
    * Clear conversation history
    */
   async function clearHistory() {
-    if (!confirm('Sei sicuro di voler cancellare tutta la cronologia? Questa azione è irreversibile.')) {
+    if (
+      !confirm('Sei sicuro di voler cancellare tutta la cronologia? Questa azione è irreversibile.')
+    ) {
       return;
     }
 
@@ -370,7 +374,7 @@ const MemoryPanel = (() => {
       console.log('[MemoryPanel] Cleared:', result.deleted_count, 'conversations');
 
       alert(`✅ Cancellati ${result.deleted_count} conversazioni`);
-      
+
       // Reload data
       await refresh();
     } catch (error) {
@@ -396,7 +400,7 @@ const MemoryPanel = (() => {
     toggle,
     switchTab,
     refresh,
-    clearHistory
+    clearHistory,
   };
 })();
 

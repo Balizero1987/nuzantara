@@ -79,7 +79,7 @@ export function getAllHandlers() {
  * Auto-execute handler loading when this module is imported
  * This ensures all handlers are registered at app startup
  */
-loadAllHandlers().catch(err => {
+loadAllHandlers().catch((err) => {
   logger.error('❌ Critical: Handler loading failed:', err);
   process.exit(1);
 });

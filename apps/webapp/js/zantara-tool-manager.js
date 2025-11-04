@@ -11,9 +11,9 @@
 
 class ZantaraToolManager {
   constructor() {
-    this.tools = [];              // All tool definitions
-    this.toolMap = new Map();     // Map for fast lookup
-    this.lastUpdate = null;       // Timestamp of last update
+    this.tools = []; // All tool definitions
+    this.toolMap = new Map(); // Map for fast lookup
+    this.lastUpdate = null; // Timestamp of last update
     this.updateInterval = 300000; // Refresh every 5 minutes
     this.isInitialized = false;
   }
@@ -26,17 +26,14 @@ class ZantaraToolManager {
 
     try {
       // Call backend TypeScript to get Anthropic-formatted tool definitions
-      const response = await fetch(
-        'https://nuzantara-orchestrator.fly.dev/call',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            key: 'system.handlers.tools',  // Existing endpoint!
-            params: {}
-          })
-        }
-      );
+      const response = await fetch('https://nuzantara-orchestrator.fly.dev/call', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: 'system.handlers.tools', // Existing endpoint!
+          params: {},
+        }),
+      });
 
       const data = await response.json();
 
@@ -45,28 +42,38 @@ class ZantaraToolManager {
         this.lastUpdate = Date.now();
 
         // Create Map for fast lookup
-        data.data.tools.forEach(tool => {
+        data.data.tools.forEach((tool) => {
           this.toolMap.set(tool.name, tool);
         });
 
         console.log(`✅ [ToolManager] Loaded ${this.tools.length} tools`);
-        console.log(`   Sample tools: ${this.tools.map(t => t.name).slice(0, 5).join(', ')}...`);
+        console.log(
+          `   Sample tools: ${this.tools
+            .map((t) => t.name)
+            .slice(0, 5)
+            .join(', ')}...`
+        );
 
         // Cache in localStorage for offline support
-        localStorage.setItem('zantara_tools', JSON.stringify({
-          tools: this.tools,
-          timestamp: this.lastUpdate
-        }));
+        localStorage.setItem(
+          'zantara_tools',
+          JSON.stringify({
+            tools: this.tools,
+            timestamp: this.lastUpdate,
+          })
+        );
 
         this.isInitialized = true;
 
         // Dispatch event for other components
-        window.dispatchEvent(new CustomEvent('tools-loaded', {
-          detail: {
-            count: this.tools.length,
-            tools: this.tools
-          }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('tools-loaded', {
+            detail: {
+              count: this.tools.length,
+              tools: this.tools,
+            },
+          })
+        );
 
         return true;
       } else {
@@ -108,10 +115,9 @@ class ZantaraToolManager {
 
     // 1. Pricing queries → pricing tools
     if (this._isPricingQuery(queryLower)) {
-      const pricingTools = this.tools.filter(t =>
-        t.name.includes('pricing') ||
-        t.name.includes('get_pricing') ||
-        t.name.includes('quote')
+      const pricingTools = this.tools.filter(
+        (t) =>
+          t.name.includes('pricing') || t.name.includes('get_pricing') || t.name.includes('quote')
       );
       console.log(`🔧 [ToolManager] Pricing query detected → ${pricingTools.length} tools`);
       return pricingTools;
@@ -119,10 +125,11 @@ class ZantaraToolManager {
 
     // 2. Team queries → team tools
     if (this._isTeamQuery(queryLower)) {
-      const teamTools = this.tools.filter(t =>
-        t.name.includes('team') ||
-        t.name.includes('search_team_member') ||
-        t.name.includes('get_team_members_list')
+      const teamTools = this.tools.filter(
+        (t) =>
+          t.name.includes('team') ||
+          t.name.includes('search_team_member') ||
+          t.name.includes('get_team_members_list')
       );
       console.log(`🔧 [ToolManager] Team query detected → ${teamTools.length} tools`);
       return teamTools;
@@ -130,9 +137,7 @@ class ZantaraToolManager {
 
     // 3. KBLI queries → KBLI tools
     if (this._isKBLIQuery(queryLower)) {
-      const kbliTools = this.tools.filter(t =>
-        t.name.includes('kbli')
-      );
+      const kbliTools = this.tools.filter((t) => t.name.includes('kbli'));
       console.log(`🔧 [ToolManager] KBLI query detected → ${kbliTools.length} tools`);
       return kbliTools;
     }
@@ -143,9 +148,9 @@ class ZantaraToolManager {
         'get_pricing',
         'search_team_member',
         'get_team_members_list',
-        'kbli_lookup'
+        'kbli_lookup',
       ];
-      const businessTools = this.tools.filter(t => coreToolNames.includes(t.name));
+      const businessTools = this.tools.filter((t) => coreToolNames.includes(t.name));
       console.log(`🔧 [ToolManager] Business query detected → ${businessTools.length} tools`);
       return businessTools;
     }
@@ -157,10 +162,9 @@ class ZantaraToolManager {
     }
 
     // 6. Default: return limited core tools only (max 10)
-    const defaultTools = this.tools.filter(t =>
-      t.name.includes('pricing') ||
-      t.name.includes('team')
-    ).slice(0, 10);
+    const defaultTools = this.tools
+      .filter((t) => t.name.includes('pricing') || t.name.includes('team'))
+      .slice(0, 10);
 
     console.log(`🔧 [ToolManager] Default filtering → ${defaultTools.length} tools`);
     return defaultTools;
@@ -170,29 +174,58 @@ class ZantaraToolManager {
    * Query classification helpers
    */
   _isPricingQuery(query) {
-    const keywords = ['price', 'cost', 'harga', 'biaya', 'berapa', 'quanto costa', 'fee', 'pricing', 'tarif'];
-    return keywords.some(k => query.includes(k));
+    const keywords = [
+      'price',
+      'cost',
+      'harga',
+      'biaya',
+      'berapa',
+      'quanto costa',
+      'fee',
+      'pricing',
+      'tarif',
+    ];
+    return keywords.some((k) => query.includes(k));
   }
 
   _isTeamQuery(query) {
-    const keywords = ['team', 'staff', 'chi è', 'chi e', 'who is', 'member', 'colleague', 'dipendente'];
-    return keywords.some(k => query.includes(k));
+    const keywords = [
+      'team',
+      'staff',
+      'chi è',
+      'chi e',
+      'who is',
+      'member',
+      'colleague',
+      'dipendente',
+    ];
+    return keywords.some((k) => query.includes(k));
   }
 
   _isKBLIQuery(query) {
     const keywords = ['kbli', 'business code', 'activity code', 'kode bisnis', 'classification'];
-    return keywords.some(k => query.includes(k));
+    return keywords.some((k) => query.includes(k));
   }
 
   _isBusinessQuery(query) {
-    const keywords = ['kitas', 'visa', 'pt pma', 'npwp', 'company', 'business', 'tax', 'pajak', 'legal'];
-    return keywords.some(k => query.includes(k));
+    const keywords = [
+      'kitas',
+      'visa',
+      'pt pma',
+      'npwp',
+      'company',
+      'business',
+      'tax',
+      'pajak',
+      'legal',
+    ];
+    return keywords.some((k) => query.includes(k));
   }
 
   _isGreeting(query) {
     const greetings = ['ciao', 'hello', 'hi', 'hey', 'hola', 'buongiorno', 'good morning'];
     // Greeting if starts with greeting AND has less than 3 words
-    const startsWithGreeting = greetings.some(g => query.startsWith(g));
+    const startsWithGreeting = greetings.some((g) => query.startsWith(g));
     const isShort = query.split(' ').length <= 3;
     return startsWithGreeting && isShort;
   }
@@ -229,7 +262,7 @@ class ZantaraToolManager {
    * Refresh tools if cache expired
    */
   async refreshIfNeeded() {
-    if (!this.lastUpdate || (Date.now() - this.lastUpdate) > this.updateInterval) {
+    if (!this.lastUpdate || Date.now() - this.lastUpdate > this.updateInterval) {
       console.log('🔄 [ToolManager] Refreshing tools (cache expired)');
       await this.initialize();
     }
@@ -243,13 +276,13 @@ class ZantaraToolManager {
       total: this.tools.length,
       lastUpdate: this.lastUpdate ? new Date(this.lastUpdate).toISOString() : null,
       isInitialized: this.isInitialized,
-      categories: this._getCategories()
+      categories: this._getCategories(),
     };
   }
 
   _getCategories() {
     const categories = {};
-    this.tools.forEach(tool => {
+    this.tools.forEach((tool) => {
       const category = tool.name.split('_')[0] || 'other';
       categories[category] = (categories[category] || 0) + 1;
     });

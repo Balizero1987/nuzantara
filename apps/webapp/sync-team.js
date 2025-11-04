@@ -11,16 +11,20 @@ async function syncTeamFromBackend() {
       throw new Error('API helper not available');
     }
 
-    const result = await window.ZANTARA_API.call('/call', {
-      key: 'team.list',
-      params: {}
-    }, true);
+    const result = await window.ZANTARA_API.call(
+      '/call',
+      {
+        key: 'team.list',
+        params: {},
+      },
+      true
+    );
 
     if (result.ok && result.data && result.data.members) {
       // Transform backend data to match frontend format
       const transformedMembers = {};
 
-      result.data.members.forEach(member => {
+      result.data.members.forEach((member) => {
         transformedMembers[member.email] = {
           id: member.id,
           name: member.name.toUpperCase(),
@@ -29,7 +33,7 @@ async function syncTeamFromBackend() {
           badge: member.badge || '👤',
           permissions: getPermissionsForRole(member.role),
           welcomeMessage: generateWelcomeMessage(member),
-          dashboardWidgets: getDashboardWidgets(member.department)
+          dashboardWidgets: getDashboardWidgets(member.department),
         };
       });
 
@@ -68,12 +72,12 @@ function getPermissionsForRole(role) {
 
 function generateWelcomeMessage(member) {
   const messages = {
-    'zainal': 'Welcome CEO! Ready to lead Bali Zero to new heights? 🚀',
-    'zero': 'Welcome back Zero! Ready to scale Bali Zero to infinity? ∞',
-    'adit': 'Halo Adit! Ada aplikasi visa atau company yang perlu di-handle hari ini?',
-    'angel': 'Hello Angel! Ready untuk handle urusan pajak dan NPWP hari ini?',
-    'amanda': 'Hi Amanda! Siap organize dan dokumentasi semua dengan detail? 📝',
-    'nina': 'Hello Nina! Ready to create inspiring content yang motivasi team dan client?'
+    zainal: 'Welcome CEO! Ready to lead Bali Zero to new heights? 🚀',
+    zero: 'Welcome back Zero! Ready to scale Bali Zero to infinity? ∞',
+    adit: 'Halo Adit! Ada aplikasi visa atau company yang perlu di-handle hari ini?',
+    angel: 'Hello Angel! Ready untuk handle urusan pajak dan NPWP hari ini?',
+    amanda: 'Hi Amanda! Siap organize dan dokumentasi semua dengan detail? 📝',
+    nina: 'Hello Nina! Ready to create inspiring content yang motivasi team dan client?',
   };
 
   return messages[member.id] || `Welcome ${member.name}! Ready to make today productive?`;
@@ -81,13 +85,13 @@ function generateWelcomeMessage(member) {
 
 function getDashboardWidgets(department) {
   const widgets = {
-    'management': ['revenue_overview', 'team_performance', 'client_pipeline', 'ai_insights'],
-    'setup': ['active_applications', 'team_workload', 'priority_cases', 'completion_rates'],
-    'tax': ['tax_applications', 'compliance_status', 'npwp_tracker', 'deadline_alerts'],
-    'marketing': ['campaign_performance', 'content_calendar', 'brand_metrics', 'engagement_stats'],
-    'technology': ['system_health', 'api_metrics', 'deployment_status', 'error_logs'],
-    'advisory': ['client_advisory', 'market_analysis', 'strategic_insights'],
-    'reception': ['appointment_calendar', 'client_inquiries', 'satisfaction_scores']
+    management: ['revenue_overview', 'team_performance', 'client_pipeline', 'ai_insights'],
+    setup: ['active_applications', 'team_workload', 'priority_cases', 'completion_rates'],
+    tax: ['tax_applications', 'compliance_status', 'npwp_tracker', 'deadline_alerts'],
+    marketing: ['campaign_performance', 'content_calendar', 'brand_metrics', 'engagement_stats'],
+    technology: ['system_health', 'api_metrics', 'deployment_status', 'error_logs'],
+    advisory: ['client_advisory', 'market_analysis', 'strategic_insights'],
+    reception: ['appointment_calendar', 'client_inquiries', 'satisfaction_scores'],
   };
 
   return widgets[department] || ['general_dashboard'];
@@ -99,7 +103,9 @@ if (typeof window !== 'undefined') {
 
   // Sync team data when DOM is ready
   const start = () => {
-    try { syncTeamFromBackend(); } catch (_) {}
+    try {
+      syncTeamFromBackend();
+    } catch (_) {}
     scheduleNextSync();
   };
   if (document.readyState === 'loading') {
@@ -110,8 +116,8 @@ if (typeof window !== 'undefined') {
 
   let syncTimer = null;
   let backoff = 1; // exponential backoff factor
-  const VISIBLE_MS = 5 * 60 * 1000;   // 5 minutes when tab visible
-  const HIDDEN_MS  = 30 * 60 * 1000;  // 30 minutes when tab hidden
+  const VISIBLE_MS = 5 * 60 * 1000; // 5 minutes when tab visible
+  const HIDDEN_MS = 30 * 60 * 1000; // 30 minutes when tab hidden
 
   function scheduleNextSync() {
     if (syncTimer) clearTimeout(syncTimer);
@@ -121,7 +127,8 @@ if (typeof window !== 'undefined') {
       try {
         const res = await syncTeamFromBackend();
         // If we got data, reset backoff; otherwise increase up to x8
-        if (res) backoff = 1; else backoff = Math.min(backoff * 2, 8);
+        if (res) backoff = 1;
+        else backoff = Math.min(backoff * 2, 8);
       } catch (_) {
         backoff = Math.min(backoff * 2, 8);
       }

@@ -17,7 +17,7 @@ export {
   logError,
   logWarn,
   logDebug,
-  logTrace
+  logTrace,
 } from './unified-logger.js';
 
 // Correlation tracking
@@ -26,7 +26,7 @@ export {
   withRequestTracking,
   getCorrelationContext,
   createRequestLogger,
-  type CorrelatedRequest
+  type CorrelatedRequest,
 } from './correlation-middleware.js';
 
 // Performance monitoring
@@ -41,16 +41,15 @@ export {
   trackMemoryUsage,
   PerformanceMonitor,
   globalPerformanceMonitor,
-  type PerformanceMeasurement
+  type PerformanceMeasurement,
 } from './performance-logger.js';
 
 // Migration utilities
 export {
   LoggingMigration,
   type MigrationOptions,
-  type MigrationStats
+  type MigrationStats,
 } from './migration-script.js';
 
-// Default exports for convenience
+// Default export for convenience
 export { logger as default } from './unified-logger.js';
-export { correlationMiddleware as default } from './correlation-middleware.js';

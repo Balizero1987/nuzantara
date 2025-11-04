@@ -1,5 +1,6 @@
 import { Pool, PoolClient } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
+import logger from '../logger.js';
 
 // =====================================================
 // INTERFACES PERSISTENT TEAM KNOWLEDGE
@@ -121,7 +122,7 @@ export class TeamKnowledgeDatabase {
     const client = await this.pool.connect();
     try {
       await client.query('SELECT NOW()');
-      console.log('✅ Team Knowledge Database connected successfully');
+      logger.info('✅ Team Knowledge Database connected successfully');
     } finally {
       client.release();
     }
@@ -149,8 +150,8 @@ export class TeamKnowledgeDatabase {
           context: {
             recent_mentions: 0,
             user_interactions: 0,
-            relationship_context: []
-          }
+            relationship_context: [],
+          },
         };
       }
 
@@ -169,7 +170,7 @@ export class TeamKnowledgeDatabase {
         confidence: parseFloat(bestMatch.confidence),
         match_type: bestMatch.match_type,
         related_members: relatedMembers,
-        context
+        context,
       };
     } finally {
       client.release();
@@ -215,7 +216,7 @@ export class TeamKnowledgeDatabase {
         verification_status: row.verification_status,
         confidence_score: parseFloat(row.confidence_score),
         last_updated: row.last_updated,
-        created_at: row.created_at
+        created_at: row.created_at,
       };
     } finally {
       client.release();
@@ -238,7 +239,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query);
 
-      return result.rows.map(row => ({
+      return result.rows.map((row) => ({
         id: row.id,
         name: row.name,
         role: row.role,
@@ -256,7 +257,7 @@ export class TeamKnowledgeDatabase {
         verification_status: row.verification_status,
         confidence_score: parseFloat(row.confidence_score),
         last_updated: row.last_updated,
-        created_at: row.created_at
+        created_at: row.created_at,
       }));
     } finally {
       client.release();
@@ -280,7 +281,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query, [department]);
 
-      return result.rows.map(row => ({
+      return result.rows.map((row) => ({
         id: row.id,
         name: row.name,
         role: row.role,
@@ -298,7 +299,7 @@ export class TeamKnowledgeDatabase {
         verification_status: row.verification_status,
         confidence_score: parseFloat(row.confidence_score),
         last_updated: row.last_updated,
-        created_at: row.created_at
+        created_at: row.created_at,
       }));
     } finally {
       client.release();
@@ -325,7 +326,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query, [memberId]);
 
-      return result.rows.map(row => ({
+      return result.rows.map((row) => ({
         id: row.id,
         name: row.name,
         role: row.role,
@@ -343,7 +344,7 @@ export class TeamKnowledgeDatabase {
         verification_status: row.verification_status,
         confidence_score: parseFloat(row.confidence_score),
         last_updated: row.last_updated,
-        created_at: row.created_at
+        created_at: row.created_at,
       }));
     } finally {
       client.release();
@@ -371,7 +372,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query, params);
 
-      return result.rows.map(row => ({
+      return result.rows.map((row) => ({
         id: row.id,
         member_a: row.member_a,
         member_b: row.member_b,
@@ -380,7 +381,7 @@ export class TeamKnowledgeDatabase {
         interaction_frequency: row.interaction_frequency,
         projects_together: row.projects_together || [],
         confidence_level: parseFloat(row.confidence_level),
-        last_interaction: row.last_interaction
+        last_interaction: row.last_interaction,
       }));
     } finally {
       client.release();
@@ -432,21 +433,23 @@ export class TeamKnowledgeDatabase {
       `;
 
       const relationshipsResult = await client.query(relationshipsQuery, [memberId]);
-      const relationshipContext = relationshipsResult.rows.map(row =>
-        `${row.related_name} (${row.relationship_type}, ${row.interaction_frequency})`
+      const relationshipContext = relationshipsResult.rows.map(
+        (row) => `${row.related_name} (${row.relationship_type}, ${row.interaction_frequency})`
       );
 
       return {
         recent_mentions: recentMentions,
         user_interactions: userInteractions,
-        relationship_context: relationshipContext
+        relationship_context: relationshipContext,
       };
     } finally {
       client.release();
     }
   }
 
-  async recordTeamInteraction(interaction: Omit<TeamInteraction, 'id' | 'created_at'>): Promise<void> {
+  async recordTeamInteraction(
+    interaction: Omit<TeamInteraction, 'id' | 'created_at'>
+  ): Promise<void> {
     const client = await this.pool.connect();
     try {
       const query = `
@@ -469,7 +472,7 @@ export class TeamKnowledgeDatabase {
         interaction.member_recognition_success,
         interaction.recognition_confidence,
         JSON.stringify(interaction.business_context),
-        JSON.stringify(interaction.user_intent)
+        JSON.stringify(interaction.user_intent),
       ]);
 
       // Update confidence score if recognition was successful
@@ -501,7 +504,7 @@ export class TeamKnowledgeDatabase {
         memory.team_members_mentioned,
         memory.topics_discussed,
         memory.response_quality_score,
-        memory.user_satisfaction_rating
+        memory.user_satisfaction_rating,
       ]);
     } finally {
       client.release();
@@ -547,7 +550,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query, [searchTerm, limit]);
 
-      return result.rows.map(row => ({
+      return result.rows.map((row) => ({
         id: row.id,
         name: row.name,
         role: row.role,
@@ -565,7 +568,7 @@ export class TeamKnowledgeDatabase {
         verification_status: row.verification_status,
         confidence_score: parseFloat(row.confidence_score),
         last_updated: row.last_updated,
-        created_at: row.created_at
+        created_at: row.created_at,
       }));
     } finally {
       client.release();
@@ -593,7 +596,7 @@ export class TeamKnowledgeDatabase {
       `;
       const deptResult = await client.query(deptQuery);
       const departments: { [key: string]: number } = {};
-      deptResult.rows.forEach(row => {
+      deptResult.rows.forEach((row) => {
         departments[row.department] = parseInt(row.count);
       });
 
@@ -605,8 +608,10 @@ export class TeamKnowledgeDatabase {
       `;
       const verifyResult = await client.query(verifyQuery);
       const verification_status = { verified: 0, pending: 0, unverified: 0 };
-      verifyResult.rows.forEach(row => {
-        verification_status[row.verification_status as keyof typeof verification_status] = parseInt(row.count);
+      verifyResult.rows.forEach((row) => {
+        verification_status[row.verification_status as keyof typeof verification_status] = parseInt(
+          row.count
+        );
       });
 
       // Average confidence
@@ -618,7 +623,7 @@ export class TeamKnowledgeDatabase {
         total_members: totalMembers,
         departments,
         verification_status,
-        average_confidence
+        average_confidence: averageConfidence,
       };
     } finally {
       client.release();
@@ -649,7 +654,11 @@ export class PersistentTeamEngine {
     await this.database.initialize();
   }
 
-  async recognizeTeamMember(query: string, userId: string, sessionId: string): Promise<PersistentMemory> {
+  async recognizeTeamMember(
+    query: string,
+    userId: string,
+    sessionId: string
+  ): Promise<PersistentMemory> {
     // Extract potential names from query
     const potentialNames = this.extractNamesFromQuery(query);
 
@@ -661,8 +670,8 @@ export class PersistentTeamEngine {
       context: {
         recent_mentions: 0,
         user_interactions: 0,
-        relationship_context: []
-      }
+        relationship_context: [],
+      },
     };
 
     // Try each potential name
@@ -680,13 +689,13 @@ export class PersistentTeamEngine {
         session_id: sessionId,
         user_id: userId,
         primary_member_mentioned: bestRecognition.member?.id,
-        secondary_members_mentioned: bestRecognition.related_members.map(m => m.id),
+        secondary_members_mentioned: bestRecognition.related_members.map((m) => m.id),
         interaction_type: 'inquiry',
         original_query: query,
         member_recognition_success: true,
         recognition_confidence: bestRecognition.confidence,
         business_context: {},
-        user_intent: {}
+        user_intent: {},
       });
     }
 
@@ -695,7 +704,7 @@ export class PersistentTeamEngine {
 
     return {
       member_recognition: bestRecognition,
-      collective_context: collectiveContext
+      collective_context: collectiveContext,
     };
   }
 
@@ -709,7 +718,7 @@ export class PersistentTeamEngine {
 
           if (!recognition.member_found) {
             // This might be a new team member or variation
-            console.log(`Potential new team member detected: ${entity.name}`);
+            logger.info(`Potential new team member detected: ${entity.name}`);
           }
         }
       }
@@ -741,7 +750,10 @@ export class PersistentTeamEngine {
     return [...new Set(names)]; // Remove duplicates
   }
 
-  private async getCollectiveContext(userId: string, memberId?: string): Promise<{
+  private async getCollectiveContext(
+    userId: string,
+    memberId?: string
+  ): Promise<{
     recent_discussions: Array<{
       topic: string;
       date: Date;
@@ -756,28 +768,28 @@ export class PersistentTeamEngine {
     relationship_network: TeamRelationship[];
   }> {
     // Get recent discussions involving this member
-    const recentDiscussions = memberId ?
-      await this.getRecentDiscussionsForMember(memberId) : [];
+    const recentDiscussions = memberId ? await this.getRecentDiscussionsForMember(memberId) : [];
 
     // Get user history
     const userHistory = await this.getUserHistory(userId);
 
     // Get relationship network
-    const relationshipNetwork = memberId ?
-      await this.database.getTeamRelationships(memberId) : [];
+    const relationshipNetwork = memberId ? await this.database.getTeamRelationships(memberId) : [];
 
     return {
       recent_discussions: recentDiscussions,
       user_history: userHistory,
-      relationship_network: relationshipNetwork
+      relationship_network: relationshipNetwork,
     };
   }
 
-  private async getRecentDiscussionsForMember(memberId: string): Promise<Array<{
-    topic: string;
-    date: Date;
-    participants: string[];
-  }>> {
+  private async getRecentDiscussionsForMember(memberId: string): Promise<
+    Array<{
+      topic: string;
+      date: Date;
+      participants: string[];
+    }>
+  > {
     const client = await this.database['pool'].connect();
     try {
       const query = `
@@ -793,22 +805,24 @@ export class PersistentTeamEngine {
 
       const result = await client.query(query, [memberId]);
 
-      return result.rows.map(row => ({
+      return result.rows.map((row) => ({
         topic: row.topics_discussed[0] || 'General discussion',
         date: row.date,
-        participants: row.team_members_mentioned
+        participants: row.team_members_mentioned,
       }));
     } finally {
       client.release();
     }
   }
 
-  private async getUserHistory(userId: string): Promise<Array<{
-    query: string;
-    response: string;
-    date: Date;
-    satisfaction?: number;
-  }>> {
+  private async getUserHistory(userId: string): Promise<
+    Array<{
+      query: string;
+      response: string;
+      date: Date;
+      satisfaction?: number;
+    }>
+  > {
     const client = await this.database['pool'].connect();
     try {
       const query = `
@@ -825,11 +839,11 @@ export class PersistentTeamEngine {
 
       const result = await client.query(query, [userId]);
 
-      return result.rows.map(row => ({
+      return result.rows.map((row) => ({
         query: row.query_text,
         response: row.response_text,
         date: row.date,
-        satisfaction: row.user_satisfaction_rating
+        satisfaction: row.user_satisfaction_rating,
       }));
     } finally {
       client.release();

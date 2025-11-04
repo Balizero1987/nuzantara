@@ -29,7 +29,7 @@ export async function loadHandlersRegistry() {
       data: data,
       timestamp: Date.now(),
       ttl: CACHE_TTL,
-      version: '1.0'
+      version: '1.0',
     };
 
     localStorage.setItem(HANDLERS_REGISTRY_CACHE_KEY, JSON.stringify(cacheData));
@@ -38,7 +38,6 @@ export async function loadHandlersRegistry() {
     console.log(`[HandlersLoader] Categories: ${Object.keys(data.categories).join(', ')}`);
 
     return data;
-
   } catch (error) {
     console.error('[HandlersLoader] Failed to load handlers:', error);
 
@@ -72,9 +71,10 @@ export function getHandlersRegistry() {
       return null;
     }
 
-    console.log(`[HandlersLoader] Using cached registry (${Math.round((Date.now() - parsed.timestamp) / 1000)}s old)`);
+    console.log(
+      `[HandlersLoader] Using cached registry (${Math.round((Date.now() - parsed.timestamp) / 1000)}s old)`
+    );
     return parsed.data;
-
   } catch (error) {
     console.error('[HandlersLoader] Error reading cache:', error);
     return null;
@@ -95,9 +95,9 @@ export function clearHandlersCache() {
 export function formatHandlersForZantara(handlersData) {
   if (!handlersData || !handlersData.handlers) {
     return {
-      system_context: "No handlers available",
+      system_context: 'No handlers available',
       handlers_list: [],
-      available_tools: 0
+      available_tools: 0,
     };
   }
 
@@ -125,7 +125,7 @@ These are your primary intelligence endpoints - USE THESE FIRST:
     systemContext += `
 **${name}**: ${config.description}
 Usage: CALL_HANDLER[${name}](${config.params.join(', ')})
-Examples: ${config.examples?.map(ex => ex.call).join(' | ') || 'N/A'}
+Examples: ${config.examples?.map((ex) => ex.call).join(' | ') || 'N/A'}
 
 `;
   });
@@ -154,7 +154,7 @@ ${catInfo.description}
         systemContext += `
 **${name}**: ${config.description}
 Usage: CALL_HANDLER[${name}](${config.params.join(', ')})
-Examples: ${config.examples?.map(ex => ex.call).join(' | ') || 'N/A'}
+Examples: ${config.examples?.map((ex) => ex.call).join(' | ') || 'N/A'}
 
 `;
       });
@@ -187,7 +187,7 @@ Remember: You are ZANTARA v3 Ω - these handlers extend your intelligence capabi
     params: config.params,
     backend: config.backend,
     priority: categories[config.category]?.priority || 'medium',
-    example: config.examples?.[0]?.call || `CALL_HANDLER[${name}](${config.params.join(', ')})`
+    example: config.examples?.[0]?.call || `CALL_HANDLER[${name}](${config.params.join(', ')})`,
   }));
 
   return {
@@ -196,7 +196,7 @@ Remember: You are ZANTARA v3 Ω - these handlers extend your intelligence capabi
     available_tools: handlersData.total,
     categories: Object.keys(categories),
     statistics: handlersData.statistics,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 }
 
@@ -215,8 +215,8 @@ export async function executeHandler(handlerName, params = {}) {
       body: JSON.stringify({
         handler_name: handlerName,
         params: params,
-        timeout: 30
-      })
+        timeout: 30,
+      }),
     });
 
     if (!response.ok) {
@@ -227,7 +227,6 @@ export async function executeHandler(handlerName, params = {}) {
     console.log(`[HandlersLoader] Handler ${handlerName} executed successfully`);
 
     return result;
-
   } catch (error) {
     console.error(`[HandlersLoader] Handler ${handlerName} execution failed:`, error);
     throw error;
@@ -247,13 +246,13 @@ export async function executeHandlersBatch(calls) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        calls: calls.map(call => ({
+        calls: calls.map((call) => ({
           handler_name: call.handlerName,
           params: call.params || {},
-          timeout: call.timeout || 30
+          timeout: call.timeout || 30,
         })),
-        timeout: 30
-      })
+        timeout: 30,
+      }),
     });
 
     if (!response.ok) {
@@ -264,7 +263,6 @@ export async function executeHandlersBatch(calls) {
     console.log(`[HandlersLoader] Batch execution completed: ${results.length} results`);
 
     return results;
-
   } catch (error) {
     console.error('[HandlersLoader] Batch execution failed:', error);
     throw error;
@@ -295,10 +293,11 @@ export function searchHandlers(handlersData, query) {
   const searchQuery = query.toLowerCase();
 
   return Object.entries(handlersData.handlers)
-    .filter(([name, config]) =>
-      name.toLowerCase().includes(searchQuery) ||
-      config.description.toLowerCase().includes(searchQuery) ||
-      config.category.toLowerCase().includes(searchQuery)
+    .filter(
+      ([name, config]) =>
+        name.toLowerCase().includes(searchQuery) ||
+        config.description.toLowerCase().includes(searchQuery) ||
+        config.category.toLowerCase().includes(searchQuery)
     )
     .map(([name, config]) => ({ name, ...config }));
 }
@@ -308,11 +307,11 @@ export function searchHandlers(handlersData, query) {
  */
 export function validateHandlerParams(handlerConfig, params) {
   const requiredParams = handlerConfig.params || [];
-  const missingParams = requiredParams.filter(param => !(param in params));
+  const missingParams = requiredParams.filter((param) => !(param in params));
 
   return {
     valid: missingParams.length === 0,
     missing: missingParams,
-    provided: Object.keys(params)
+    provided: Object.keys(params),
   };
 }

@@ -4,7 +4,11 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Request } from 'express';
-import { UnifiedErrorHandler, getDefaultErrorHandler, resetDefaultErrorHandler } from '../errors/unified-error-handler.js';
+import {
+  UnifiedErrorHandler,
+  getDefaultErrorHandler,
+  resetDefaultErrorHandler,
+} from '../errors/unified-error-handler.js';
 import {
   ApplicationError,
   ValidationError,
@@ -116,7 +120,7 @@ describe('UnifiedErrorHandler', () => {
       handler.processError(
         new ApplicationError('Non-operational', ErrorCategory.INTERNAL, {
           isOperational: false,
-        }),
+        })
       );
 
       const metrics = handler.getMetrics();

@@ -1,6 +1,6 @@
 // ZANTARA Logo Interactive Effects
 
-(function() {
+(function () {
   'use strict';
 
   // Wait for DOM to be ready
@@ -27,7 +27,7 @@
   function initMagneticEffect() {
     const magneticLogos = document.querySelectorAll('.logo-magnetic');
 
-    magneticLogos.forEach(logo => {
+    magneticLogos.forEach((logo) => {
       let bounds = logo.getBoundingClientRect();
 
       // Update bounds on resize
@@ -117,10 +117,12 @@
 
   // Click effects
   function initClickEffects() {
-    const clickableLogos = document.querySelectorAll('.logo-3d, .logo-breakout img, .parallax-logo img');
+    const clickableLogos = document.querySelectorAll(
+      '.logo-3d, .logo-breakout img, .parallax-logo img'
+    );
 
-    clickableLogos.forEach(logo => {
-      logo.addEventListener('click', function(e) {
+    clickableLogos.forEach((logo) => {
+      logo.addEventListener('click', function (e) {
         // Create ripple effect
         createRipple(e, this);
 
@@ -140,7 +142,7 @@
   function initGlitchEffect() {
     const glitchLogos = document.querySelectorAll('.logo-glitch');
 
-    glitchLogos.forEach(logo => {
+    glitchLogos.forEach((logo) => {
       logo.addEventListener('mouseenter', () => {
         logo.classList.add('glitching');
         setTimeout(() => {
@@ -221,19 +223,22 @@
       document.body.appendChild(particle);
 
       // Animate particle
-      const animation = particle.animate([
+      const animation = particle.animate(
+        [
+          {
+            transform: 'translate(0, 0) scale(1)',
+            opacity: 1,
+          },
+          {
+            transform: `translate(${Math.cos(angle) * velocity}px, ${Math.sin(angle) * velocity}px) scale(0)`,
+            opacity: 0,
+          },
+        ],
         {
-          transform: 'translate(0, 0) scale(1)',
-          opacity: 1
-        },
-        {
-          transform: `translate(${Math.cos(angle) * velocity}px, ${Math.sin(angle) * velocity}px) scale(0)`,
-          opacity: 0
+          duration: 1000,
+          easing: 'cubic-bezier(0, 0.5, 1, 1)',
         }
-      ], {
-        duration: 1000,
-        easing: 'cubic-bezier(0, 0.5, 1, 1)'
-      });
+      );
 
       animation.onfinish = () => particle.remove();
     }

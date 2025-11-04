@@ -9,7 +9,7 @@ import { BadRequestError } from '../../utils/errors.js';
 import { getImagineArtService } from '../../services/imagine-art-service.js';
 import type {
   ImagineArtGenerateRequest,
-  ImagineArtUpscaleRequest
+  ImagineArtUpscaleRequest,
 } from '../../types/imagine-art-types.js';
 
 /**
@@ -37,7 +37,7 @@ export async function aiImageGenerate(params: any) {
       aspect_ratio = '16:9',
       seed,
       negative_prompt,
-      high_res_results = 1
+      high_res_results = 1,
     } = params;
 
     if (!prompt) {
@@ -47,7 +47,7 @@ export async function aiImageGenerate(params: any) {
     logger.info('🎨 ai.image.generate called', {
       promptLength: prompt.length,
       style,
-      aspect_ratio
+      aspect_ratio,
     });
 
     const service = getImagineArtService();
@@ -58,7 +58,7 @@ export async function aiImageGenerate(params: any) {
       aspect_ratio,
       seed,
       negative_prompt,
-      high_res_results
+      high_res_results,
     };
 
     const result = await service.generateImage(request);
@@ -72,10 +72,9 @@ export async function aiImageGenerate(params: any) {
       metadata: {
         provider: 'Imagine.art',
         timestamp: new Date().toISOString(),
-        seed: result.seed
-      }
+        seed: result.seed,
+      },
     });
-
   } catch (error: any) {
     logger.error('🔥 ai.image.generate failed:', error.message);
     throw new BadRequestError(`Image generation failed: ${error.message}`);
@@ -105,7 +104,7 @@ export async function aiImageUpscale(params: any) {
     const service = getImagineArtService();
 
     const request: ImagineArtUpscaleRequest = {
-      image
+      image,
     };
 
     const result = await service.upscaleImage(request);
@@ -116,10 +115,9 @@ export async function aiImageUpscale(params: any) {
       original_image: result.original_image,
       metadata: {
         provider: 'Imagine.art',
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
-
   } catch (error: any) {
     logger.error('🔥 ai.image.upscale failed:', error.message);
     throw new BadRequestError(`Image upscale failed: ${error.message}`);
@@ -137,14 +135,13 @@ export async function aiImageTest() {
     return ok({
       available: isConnected,
       provider: 'Imagine.art',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-
   } catch (error: any) {
     logger.error('🔥 ai.image.test failed:', error.message);
     return ok({
       available: false,
-      error: error.message
+      error: error.message,
     });
   }
 }

@@ -10,5 +10,5 @@ import { zeroChatSimple } from './chat-simple.js';
 
 export const handlers = {
   'zero.chat': zeroChat, // ZANTARA-ONLY with tool use
-  'zero.chat.simple': zeroChatSimple // ZANTARA-ONLY simplified
+  'zero.chat.simple': zeroChatSimple, // ZANTARA-ONLY simplified
 };

@@ -7,7 +7,8 @@ function genId(): string {
 
 export function correlationId() {
   return function cid(req: Request, res: Response, next: NextFunction) {
-    const incoming = (req.headers['x-request-id'] as string) || (req.headers['x-correlation-id'] as string);
+    const incoming =
+      (req.headers['x-request-id'] as string) || (req.headers['x-correlation-id'] as string);
     const id = incoming || genId();
     res.setHeader('X-Request-ID', id);
     // Correlation: prefer explicit header, fallback to request id

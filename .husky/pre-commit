@@ -8,7 +8,7 @@ npx lint-staged
 # Quick typecheck (solo errori, non blocca se ci sono warning)
 echo "📝 Quick typecheck..."
 TS_ERRORS=$(npm run typecheck 2>&1 | grep -c "error TS" || echo "0")
-if [ "$TS_ERRORS" -gt 300 ]; then
+if [ "$TS_ERRORS" -gt 250 ]; then
   echo "⚠️  Found $TS_ERRORS TypeScript errors"
   npm run typecheck 2>&1 | grep "error TS" | head -5
   echo "💡 Run 'npm run typecheck' for full details"

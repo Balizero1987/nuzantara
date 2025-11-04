@@ -1,17 +1,38 @@
-import { ok } from "../../utils/response.js";
-import { BadRequestError } from "../../utils/errors.js";
-import { forwardToBridgeIfSupported } from "../../services/bridgeProxy.js";
-import { getSlides } from "../../services/google-auth-service.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError } from '../../utils/errors.js';
+import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
+import { getSlides } from '../../services/google-auth-service.js';
 
 // Param interfaces
-export interface SlidesCreateParams { title?: string }
-export interface SlidesReadParams { presentationId: string }
-export interface SlidesUpdateParams { presentationId: string; requests: any[] }
+export interface SlidesCreateParams {
+  title?: string;
+}
+export interface SlidesReadParams {
+  presentationId: string;
+}
+export interface SlidesUpdateParams {
+  presentationId: string;
+  requests: any[];
+}
 
 // Result interfaces
-export interface SlidesCreateResult { presentationId: string; title: string; url: string; slides: number; created: string }
-export interface SlidesReadResult { presentation: { presentationId?: string; title?: string; revisionId?: string; url: string }; slides: Array<{ objectId?: string; text: string }>; slideCount: number }
-export interface SlidesUpdateResult { presentationId: string; replies: any[]; writeControl?: any }
+export interface SlidesCreateResult {
+  presentationId: string;
+  title: string;
+  url: string;
+  slides: number;
+  created: string;
+}
+export interface SlidesReadResult {
+  presentation: { presentationId?: string; title?: string; revisionId?: string; url: string };
+  slides: Array<{ objectId?: string; text: string }>;
+  slideCount: number;
+}
+export interface SlidesUpdateResult {
+  presentationId: string;
+  replies: any[];
+  writeControl?: any;
+}
 
 export async function slidesCreate(params: SlidesCreateParams) {
   const { title = 'Untitled Presentation' } = params || {};
@@ -19,7 +40,7 @@ export async function slidesCreate(params: SlidesCreateParams) {
   const slides = await getSlides();
   if (slides) {
     const res = await slides.presentations.create({
-      requestBody: { title }
+      requestBody: { title },
     });
 
     const presentationId = res.data.presentationId!;
@@ -30,7 +51,7 @@ export async function slidesCreate(params: SlidesCreateParams) {
       title,
       url: `https://docs.google.com/presentation/d/${presentationId}`,
       slides: presentation.slides?.length || 0,
-      created: new Date().toISOString()
+      created: new Date().toISOString(),
     });
   }
   const bridged = await forwardToBridgeIfSupported('slides.create', params);
@@ -54,7 +75,7 @@ export async function slidesRead(params: SlidesReadParams) {
         for (const slide of presentation.slides) {
           const slideContent: any = {
             objectId: slide.objectId,
-            text: ''
+            text: '',
           };
 
           if (slide.pageElements) {
@@ -77,10 +98,10 @@ export async function slidesRead(params: SlidesReadParams) {
           presentationId: presentation.presentationId,
           title: presentation.title,
           revisionId: presentation.revisionId,
-          url: `https://docs.google.com/presentation/d/${presentation.presentationId}`
+          url: `https://docs.google.com/presentation/d/${presentation.presentationId}`,
         },
         slides: slidesContent,
-        slideCount: slidesContent.length
+        slideCount: slidesContent.length,
       });
     } catch (error: any) {
       if (error.code === 404) {
@@ -97,20 +118,21 @@ export async function slidesRead(params: SlidesReadParams) {
 export async function slidesUpdate(params: SlidesUpdateParams) {
   const { presentationId, requests } = params || ({} as SlidesUpdateParams);
   if (!presentationId) throw new BadRequestError('presentationId is required');
-  if (!requests || !Array.isArray(requests)) throw new BadRequestError('requests array is required');
+  if (!requests || !Array.isArray(requests))
+    throw new BadRequestError('requests array is required');
 
   const slides = await getSlides();
   if (slides) {
     try {
       const res = await slides.presentations.batchUpdate({
         presentationId,
-        requestBody: { requests }
+        requestBody: { requests },
       });
 
       return ok({
         presentationId,
         replies: res.data.replies || [],
-        writeControl: res.data.writeControl
+        writeControl: res.data.writeControl,
       });
     } catch (error: any) {
       if (error.code === 404) {

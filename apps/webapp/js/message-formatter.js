@@ -32,19 +32,19 @@ class MessageFormatter {
    */
   static formatStructuredMessage(text, options = {}) {
     if (!text) return '';
-    
+
     const {
       showCTA = true,
       phoneNumber = '+62 859 0436 9574',
       email = 'info@balizero.com',
-      language = 'id'
+      language = 'id',
     } = options;
 
     // Try to detect if message already has structure
     const hasStructure = this.detectStructure(text);
-    
+
     let formattedHtml = '';
-    
+
     if (hasStructure) {
       // Parse and format existing structure
       formattedHtml = this.parseStructuredText(text);
@@ -52,12 +52,12 @@ class MessageFormatter {
       // Format as regular message with auto-paragraphs
       formattedHtml = this.formatRegularMessage(text);
     }
-    
+
     // Add CTA if enabled
     if (showCTA) {
       formattedHtml += this.createCTA(phoneNumber, email, language);
     }
-    
+
     return formattedHtml;
   }
 
@@ -69,11 +69,11 @@ class MessageFormatter {
       /\(Paragraph \d+[^)]*\)/i,
       /\(Part \d+[^)]*\)/i,
       /\(Section \d+[^)]*\)/i,
-      /#{1,3}\s+\d+\./,  // Markdown headers with numbers
-      /^\d+\.\s+\*\*[^*]+\*\*/m  // Numbered bold sections
+      /#{1,3}\s+\d+\./, // Markdown headers with numbers
+      /^\d+\.\s+\*\*[^*]+\*\*/m, // Numbered bold sections
     ];
-    
-    return patterns.some(pattern => pattern.test(text));
+
+    return patterns.some((pattern) => pattern.test(text));
   }
 
   /**
@@ -81,14 +81,14 @@ class MessageFormatter {
    */
   static parseStructuredText(text) {
     let html = '<div class="structured-response">';
-    
+
     // Split by paragraph markers
     const paragraphs = text.split(/(\((?:Paragraph|Part|Section)\s+\d+[^)]*\))/gi);
-    
+
     for (let i = 0; i < paragraphs.length; i++) {
       const part = paragraphs[i].trim();
       if (!part) continue;
-      
+
       // Check if it's a section header
       const headerMatch = part.match(/\((?:Paragraph|Part|Section)\s+\d+\s*-\s*([^)]+)\)/i);
       if (headerMatch) {
@@ -101,7 +101,7 @@ class MessageFormatter {
         }
       }
     }
-    
+
     html += '</div>';
     return html;
   }
@@ -113,7 +113,7 @@ class MessageFormatter {
     const paragraphs = text.split(/\n\n+/);
     let html = '<div class="regular-response">';
 
-    paragraphs.forEach(para => {
+    paragraphs.forEach((para) => {
       const trimmed = para.trim();
       if (!trimmed) return;
 
@@ -143,25 +143,25 @@ class MessageFormatter {
    */
   static formatParagraph(text) {
     if (!text) return '';
-    
+
     let formatted = text;
-    
+
     // Convert markdown-style formatting
     // Bold: **text** or __text__
     formatted = formatted.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     formatted = formatted.replace(/__(.+?)__/g, '<strong>$1</strong>');
-    
+
     // Italic: *text* or _text_
     formatted = formatted.replace(/\*(.+?)\*/g, '<em>$1</em>');
     formatted = formatted.replace(/_(.+?)_/g, '<em>$1</em>');
-    
+
     // Lists: detect bullet points or numbered lists
     if (formatted.includes('\n•') || formatted.includes('\n-') || formatted.includes('\n*')) {
       const lines = formatted.split('\n');
       let inList = false;
       let listHtml = '';
-      
-      lines.forEach(line => {
+
+      lines.forEach((line) => {
         const trimmed = line.trim();
         if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*')) {
           if (!inList) {
@@ -176,14 +176,14 @@ class MessageFormatter {
           listHtml += (inList ? '' : '<br>') + trimmed;
         }
       });
-      
+
       if (inList) listHtml += '</ul>';
       return listHtml;
     }
-    
+
     // Line breaks
     formatted = formatted.replace(/\n/g, '<br>');
-    
+
     return formatted;
   }
 
@@ -195,26 +195,26 @@ class MessageFormatter {
       id: {
         prefix: 'Untuk bantuan langsung, hubungi kami:',
         whatsapp: 'WhatsApp',
-        email: 'Email'
+        email: 'Email',
       },
       it: {
         prefix: 'Per assistenza diretta contattaci su:',
         whatsapp: 'WhatsApp',
-        email: 'Email'
+        email: 'Email',
       },
       en: {
         prefix: 'For direct assistance, contact us:',
         whatsapp: 'WhatsApp',
-        email: 'Email'
-      }
+        email: 'Email',
+      },
     };
-    
+
     const text = texts[language] || texts.id;
-    
+
     // Clean phone number for WhatsApp URL
     const cleanPhone = phoneNumber.replace(/[^\d]/g, '');
     const whatsappUrl = `https://wa.me/${cleanPhone}`;
-    
+
     return `
       <div class="message-cta">
         <div class="cta-divider"></div>
@@ -245,15 +245,15 @@ class MessageFormatter {
     const patterns = {
       it: /\b(per|che|quando|come|dove|sono|questo|quello|grazie)\b/i,
       en: /\b(the|is|are|was|were|this|that|thank|please)\b/i,
-      id: /\b(yang|untuk|adalah|dengan|dari|ke|di|pada|terima|kasih)\b/i
+      id: /\b(yang|untuk|adalah|dengan|dari|ke|di|pada|terima|kasih)\b/i,
     };
-    
+
     for (const [lang, pattern] of Object.entries(patterns)) {
       if (pattern.test(text)) {
         return lang;
       }
     }
-    
+
     return defaultLang;
   }
 }
@@ -262,4 +262,3 @@ class MessageFormatter {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = MessageFormatter;
 }
-

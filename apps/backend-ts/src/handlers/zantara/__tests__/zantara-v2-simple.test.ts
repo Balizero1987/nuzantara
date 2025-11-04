@@ -36,7 +36,7 @@ describe('Zantara V2 Simple', () => {
       // Function should handle invalid params
       try {
         const result = await handlers.zantaraEmotionalProfileAdvanced({
-          invalid: 'data'
+          invalid: 'data',
         });
         expect(result).toBeDefined();
       } catch (error: any) {
@@ -71,7 +71,7 @@ describe('Zantara V2 Simple', () => {
     it('should handle invalid params', async () => {
       try {
         const result = await handlers.zantaraConflictPrediction({
-          invalid: 'data'
+          invalid: 'data',
         });
         expect(result).toBeDefined();
       } catch (error: any) {
@@ -106,7 +106,7 @@ describe('Zantara V2 Simple', () => {
     it('should handle invalid params', async () => {
       try {
         const result = await handlers.zantaraMultiProjectOrchestration({
-          invalid: 'data'
+          invalid: 'data',
         });
         expect(result).toBeDefined();
       } catch (error: any) {
@@ -137,7 +137,7 @@ describe('Zantara V2 Simple', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.zantaraClientRelationshipIntelligence({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
@@ -166,7 +166,7 @@ describe('Zantara V2 Simple', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.zantaraCulturalIntelligenceAdaptation({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
@@ -195,12 +195,11 @@ describe('Zantara V2 Simple', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.zantaraPerformanceOptimization({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
       expect(result).toBeDefined();
     });
   });
-
 });

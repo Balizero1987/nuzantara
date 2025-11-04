@@ -1,6 +1,6 @@
 /**
  * Updated Send Message Function
- * 
+ *
  * This replaces the old sendMessage function with one that uses the unified API configuration.
  * It supports both streaming and non-streaming modes with intelligent backend routing.
  */
@@ -10,16 +10,19 @@
  */
 async function sendMessageUpdated() {
   console.log('📤 [sendMessageUpdated] Function called');
-  
-  const inputField = document.getElementById('chatInput') || document.getElementById('messageInput') || document.getElementById('inputField');
+
+  const inputField =
+    document.getElementById('chatInput') ||
+    document.getElementById('messageInput') ||
+    document.getElementById('inputField');
   if (!inputField) {
     console.error('❌ [sendMessageUpdated] No input field found');
     return;
   }
-  
+
   const message = inputField.value.trim();
   console.log('📝 [sendMessageUpdated] Message:', message);
-  
+
   if (!message) {
     console.log('⚠️ [sendMessageUpdated] Empty message, returning');
     return;
@@ -47,7 +50,7 @@ async function sendMessageUpdated() {
   if (typeof conversationHistory !== 'undefined') {
     conversationHistory.push({
       role: 'user',
-      content: message
+      content: message,
     });
 
     // Limit history to last 20 messages for performance
@@ -58,7 +61,7 @@ async function sendMessageUpdated() {
 
   // Clear input
   inputField.value = '';
-  
+
   // Auto-resize textarea
   if (inputField.tagName === 'TEXTAREA') {
     inputField.style.height = 'auto';
@@ -96,14 +99,15 @@ async function sendMessageUpdated() {
       params: {
         query: message,
         user_role: 'member',
-        conversation_history: typeof conversationHistory !== 'undefined' ? conversationHistory.slice(-10) : []
-      }
+        conversation_history:
+          typeof conversationHistory !== 'undefined' ? conversationHistory.slice(-10) : [],
+      },
     };
 
     // Check if unified API is available
     if (window.ZANTARA_API && window.ZANTARA_API.call) {
       console.log('🌊 [sendMessageUpdated] Using unified API with JWT');
-      
+
       // Try streaming first
       if (window.ZANTARA_SSE && window.ZANTARA_SSE.stream) {
         await handleStreamingResponse(requestData, aiMsg, thinkingIndicator);
@@ -116,7 +120,6 @@ async function sendMessageUpdated() {
       // Fallback to legacy method
       await handleLegacyResponse(message, aiMsg, thinkingIndicator);
     }
-
   } catch (error) {
     console.error('❌ [sendMessageUpdated] Error:', error);
     handleError(error, aiMsg, thinkingIndicator);
@@ -128,29 +131,28 @@ async function sendMessageUpdated() {
  */
 async function handleStreamingResponse(requestData, aiMsg, thinkingIndicator) {
   let streamingText = '';
-  
+
   // Clear previous event listeners
   const events = ['start', 'delta', 'complete', 'error', 'connected', 'stop'];
-  events.forEach(event => {
+  events.forEach((event) => {
     const listeners = window.ZANTARA_SSE.listeners.get(event);
     if (listeners) {
       listeners.length = 0;
     }
   });
 
-  window.ZANTARA_SSE
-    .on('start', () => {
-      console.log('🌊 [Streaming] Connected');
-      if (thinkingIndicator) {
-        thinkingIndicator.stop();
-      }
-      aiMsg.innerHTML = '';
-      aiMsg.className = 'ai-message streaming';
-    })
-    .on('delta', ({chunk, message}) => {
+  window.ZANTARA_SSE.on('start', () => {
+    console.log('🌊 [Streaming] Connected');
+    if (thinkingIndicator) {
+      thinkingIndicator.stop();
+    }
+    aiMsg.innerHTML = '';
+    aiMsg.className = 'ai-message streaming';
+  })
+    .on('delta', ({ chunk, message }) => {
       streamingText = message;
       aiMsg.textContent = streamingText;
-      
+
       // Scroll every 10 chunks
       if (!window._scrollCounter) window._scrollCounter = 0;
       window._scrollCounter++;
@@ -158,17 +160,17 @@ async function handleStreamingResponse(requestData, aiMsg, thinkingIndicator) {
         scrollToBottom();
       }
     })
-    .on('complete', ({message}) => {
+    .on('complete', ({ message }) => {
       console.log('🌊 [Streaming] Complete');
       aiMsg.className = 'ai-message';
-      
+
       // Apply markdown formatting
       if (window.formatMessage) {
         aiMsg.innerHTML = window.formatMessage(message);
       } else {
         aiMsg.textContent = message;
       }
-      
+
       scrollToBottom();
     })
     .on('error', (error) => {
@@ -185,15 +187,15 @@ async function handleStreamingResponse(requestData, aiMsg, thinkingIndicator) {
  */
 async function handleRegularResponse(requestData, aiMsg, thinkingIndicator) {
   console.log('🌊 [Regular API] Making request');
-  
+
   const response = await window.ZANTARA_API.call('bali.zero.chat', requestData.params);
-  
+
   if (thinkingIndicator) {
     thinkingIndicator.stop();
   }
-  
+
   aiMsg.className = 'ai-message';
-  
+
   if (response && response.answer) {
     if (window.formatMessage) {
       aiMsg.innerHTML = window.formatMessage(response.answer);
@@ -203,7 +205,7 @@ async function handleRegularResponse(requestData, aiMsg, thinkingIndicator) {
   } else {
     aiMsg.textContent = 'Sorry, I encountered an error processing your request.';
   }
-  
+
   scrollToBottom();
 }
 
@@ -212,16 +214,16 @@ async function handleRegularResponse(requestData, aiMsg, thinkingIndicator) {
  */
 async function handleLegacyResponse(message, aiMsg, thinkingIndicator) {
   console.log('🌊 [Legacy] Using legacy method');
-  
+
   // This would use the old API configuration
   // Implementation depends on the existing legacy code
   if (thinkingIndicator) {
     thinkingIndicator.stop();
   }
-  
+
   aiMsg.className = 'ai-message';
   aiMsg.textContent = 'Legacy mode - API configuration needs update';
-  
+
   scrollToBottom();
 }
 
@@ -230,20 +232,20 @@ async function handleLegacyResponse(message, aiMsg, thinkingIndicator) {
  */
 function handleError(error, aiMsg, thinkingIndicator) {
   console.error('❌ [sendMessageUpdated] Error:', error);
-  
+
   if (thinkingIndicator) {
     thinkingIndicator.stop();
   }
-  
+
   // Remove streaming message
   const streaming = document.getElementById('streaming-msg');
   if (streaming) streaming.remove();
-  
+
   // Show error message
   const errorMsg = document.createElement('div');
   errorMsg.className = 'error-message';
   errorMsg.textContent = '❌ Error: ' + (error.message || 'Failed to get response from Zantara AI');
-  
+
   const messagesDiv = document.querySelector('.messages');
   if (messagesDiv) {
     messagesDiv.appendChild(errorMsg);
@@ -255,9 +257,11 @@ function handleError(error, aiMsg, thinkingIndicator) {
  * Get user email helper
  */
 function getUserEmail() {
-  return localStorage.getItem('zantara-user-email') || 
-         localStorage.getItem('zantara-user') || 
-         'anonymous';
+  return (
+    localStorage.getItem('zantara-user-email') ||
+    localStorage.getItem('zantara-user') ||
+    'anonymous'
+  );
 }
 
 /**

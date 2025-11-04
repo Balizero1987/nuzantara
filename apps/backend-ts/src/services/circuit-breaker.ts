@@ -1,6 +1,6 @@
 /**
  * Circuit Breaker Pattern for Fault Tolerance
- * 
+ *
  * Implements circuit breaker pattern to prevent cascading failures
  * when external services (database, APIs) are down or slow.
  */
@@ -8,16 +8,16 @@
 import logger from './logger.js';
 
 export enum CircuitState {
-  CLOSED = 'CLOSED',      // Normal operation
-  OPEN = 'OPEN',          // Failing, reject requests immediately
-  HALF_OPEN = 'HALF_OPEN' // Testing if service recovered
+  CLOSED = 'CLOSED', // Normal operation
+  OPEN = 'OPEN', // Failing, reject requests immediately
+  HALF_OPEN = 'HALF_OPEN', // Testing if service recovered
 }
 
 export interface CircuitBreakerOptions {
-  failureThreshold: number;      // Open circuit after N failures
-  successThreshold: number;      // Close circuit after N successes in half-open
-  timeout: number;               // Time before trying half-open (ms)
-  resetTimeout: number;          // Time before resetting failure count (ms)
+  failureThreshold: number; // Open circuit after N failures
+  successThreshold: number; // Close circuit after N successes in half-open
+  timeout: number; // Time before trying half-open (ms)
+  resetTimeout: number; // Time before resetting failure count (ms)
 }
 
 export interface CircuitBreakerStats {
@@ -56,10 +56,7 @@ export class CircuitBreaker {
   /**
    * Execute a function with circuit breaker protection
    */
-  async execute<T>(
-    fn: () => Promise<T>,
-    fallback?: () => Promise<T>
-  ): Promise<T> {
+  async execute<T>(fn: () => Promise<T>, fallback?: () => Promise<T>): Promise<T> {
     this.totalRequests++;
 
     // Check if circuit is open
@@ -99,7 +96,9 @@ export class CircuitBreaker {
     if (this.state === CircuitState.HALF_OPEN) {
       this.successes++;
       if (this.successes >= this.options.successThreshold) {
-        logger.info(`✅ Circuit breaker ${this.name}: Closing circuit after ${this.successes} successes`);
+        logger.info(
+          `✅ Circuit breaker ${this.name}: Closing circuit after ${this.successes} successes`
+        );
         this.state = CircuitState.CLOSED;
         this.failures = 0;
         this.successes = 0;
@@ -120,9 +119,14 @@ export class CircuitBreaker {
       logger.warn(`❌ Circuit breaker ${this.name}: Failure in HALF_OPEN, reopening circuit`);
       this.state = CircuitState.OPEN;
       this.successes = 0;
-    } else if (this.state === CircuitState.CLOSED && this.failures >= this.options.failureThreshold) {
+    } else if (
+      this.state === CircuitState.CLOSED &&
+      this.failures >= this.options.failureThreshold
+    ) {
       // Too many failures, open circuit
-      logger.error(`🔴 Circuit breaker ${this.name}: Opening circuit after ${this.failures} failures`);
+      logger.error(
+        `🔴 Circuit breaker ${this.name}: Opening circuit after ${this.failures} failures`
+      );
       this.state = CircuitState.OPEN;
       this.scheduleHalfOpenAttempt();
     }
@@ -135,7 +139,7 @@ export class CircuitBreaker {
     if (this.halfOpenTimer) {
       clearTimeout(this.halfOpenTimer);
     }
-    
+
     this.halfOpenTimer = setTimeout(() => {
       if (this.state === CircuitState.OPEN) {
         logger.info(`🔄 Circuit breaker ${this.name}: Attempting to move to HALF_OPEN`);
@@ -229,4 +233,3 @@ export const externalApiCircuitBreaker = new CircuitBreaker('external-api', {
   timeout: 30000,
   resetTimeout: 300000,
 });
-

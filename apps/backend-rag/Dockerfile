@@ -13,7 +13,7 @@ WORKDIR /app
 # Copy requirements first (better caching)
 COPY requirements-minimal.txt .
 
-# Install Python dependencies (minimal - no torch/sentence-transformers)
+# Install Python dependencies (includes sentence-transformers for local embeddings)
 RUN pip install --no-cache-dir -r requirements-minimal.txt
 
 # Copy application code
@@ -30,15 +30,18 @@ ENV PYTHONPATH=/app/backend
 # Create data directory for ChromaDB
 RUN mkdir -p /data/chroma_db_FULL_deploy
 
+# Set runtime working directory so uvicorn can load main_cloud module directly
+WORKDIR /app/backend/app
+
+# Copy .env to the working directory where config.py expects it (from parent directory)
+RUN cp /app/.env .env 2>/dev/null || echo "No .env file found"
+
 # Expose port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+# Health check (model downloads on first request, not at startup)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
-
-# Set runtime working directory so uvicorn can load main_cloud module directly
-WORKDIR /app/backend/app
 
 # Start uvicorn
 CMD ["uvicorn", "main_cloud:app", "--host", "0.0.0.0", "--port", "8000"]

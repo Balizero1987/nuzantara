@@ -15,9 +15,7 @@
     "risiko: Risk assessment",
     "perizinan: Licensing procedures"
   ],
-  "critical_requirements": [
-    "KBLI 5-digit mandatory for OSS registration (Pasal 211)"
-  ],
+  "critical_requirements": ["KBLI 5-digit mandatory for OSS registration (Pasal 211)"],
   "files_generated": {
     "raw_text": "PP_28_2025_raw_text.txt",
     "structure_map": "structure_map.json",

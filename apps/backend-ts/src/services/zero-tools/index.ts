@@ -9,9 +9,27 @@ export * from './filesystem.js';
 export * from './bash.js';
 export * from './deployment.js';
 
-import { readFileZero, editFileZero, writeFileZero, globZero, listDirectoryZero } from './filesystem.js';
-import { bashZero, gitStatusZero, gitDiffZero, gitLogZero, npmRunZero, healthCheckZero } from './bash.js';
-import { deployBackendZero, deployRagZero, checkWorkflowStatusZero, listRecentDeploymentsZero } from './deployment.js';
+import {
+  readFileZero,
+  editFileZero,
+  writeFileZero,
+  globZero,
+  listDirectoryZero,
+} from './filesystem.js';
+import {
+  bashZero,
+  gitStatusZero,
+  gitDiffZero,
+  gitLogZero,
+  npmRunZero,
+  healthCheckZero,
+} from './bash.js';
+import {
+  deployBackendZero,
+  deployRagZero,
+  checkWorkflowStatusZero,
+  listRecentDeploymentsZero,
+} from './deployment.js';
 
 /**
  * Tool definitions for Claude API
@@ -19,44 +37,46 @@ import { deployBackendZero, deployRagZero, checkWorkflowStatusZero, listRecentDe
 export const ZERO_TOOLS = [
   {
     name: 'read_file',
-    description: 'Read any file in the NUZANTARA-2 project. Returns content with line count and size.',
+    description:
+      'Read any file in the NUZANTARA-2 project. Returns content with line count and size.',
     input_schema: {
       type: 'object',
       properties: {
         path: {
           type: 'string',
-          description: 'File path relative to project root (e.g., "src/index.ts", "package.json")'
-        }
+          description: 'File path relative to project root (e.g., "src/index.ts", "package.json")',
+        },
       },
-      required: ['path']
-    }
+      required: ['path'],
+    },
   },
   {
     name: 'edit_file',
-    description: 'Edit file with exact string replacement (like Claude Code Edit tool). Fails if string not found or multiple matches.',
+    description:
+      'Edit file with exact string replacement (like Claude Code Edit tool). Fails if string not found or multiple matches.',
     input_schema: {
       type: 'object',
       properties: {
         path: {
           type: 'string',
-          description: 'File path relative to project root'
+          description: 'File path relative to project root',
         },
         old_string: {
           type: 'string',
-          description: 'Exact string to replace (must be unique in file)'
+          description: 'Exact string to replace (must be unique in file)',
         },
         new_string: {
           type: 'string',
-          description: 'Replacement string'
+          description: 'Replacement string',
         },
         replace_all: {
           type: 'boolean',
           description: 'Replace all occurrences (default: false)',
-          default: false
-        }
+          default: false,
+        },
       },
-      required: ['path', 'old_string', 'new_string']
-    }
+      required: ['path', 'old_string', 'new_string'],
+    },
   },
   {
     name: 'write_file',
@@ -66,15 +86,15 @@ export const ZERO_TOOLS = [
       properties: {
         path: {
           type: 'string',
-          description: 'File path relative to project root'
+          description: 'File path relative to project root',
         },
         content: {
           type: 'string',
-          description: 'File content'
-        }
+          description: 'File content',
+        },
       },
-      required: ['path', 'content']
-    }
+      required: ['path', 'content'],
+    },
   },
   {
     name: 'glob',
@@ -84,11 +104,11 @@ export const ZERO_TOOLS = [
       properties: {
         pattern: {
           type: 'string',
-          description: 'Glob pattern'
-        }
+          description: 'Glob pattern',
+        },
       },
-      required: ['pattern']
-    }
+      required: ['pattern'],
+    },
   },
   {
     name: 'list_directory',
@@ -99,41 +119,42 @@ export const ZERO_TOOLS = [
         path: {
           type: 'string',
           description: 'Directory path relative to project root (default: ".")',
-          default: '.'
-        }
-      }
-    }
+          default: '.',
+        },
+      },
+    },
   },
   {
     name: 'bash',
-    description: 'Execute bash command in project directory. Allowed commands: git, npm, node, ls, cat, grep, find, curl, gcloud, gsutil, docker, make',
+    description:
+      'Execute bash command in project directory. Allowed commands: git, npm, node, ls, cat, grep, find, curl, gcloud, gsutil, docker, make',
     input_schema: {
       type: 'object',
       properties: {
         command: {
           type: 'string',
-          description: 'Bash command to execute'
+          description: 'Bash command to execute',
         },
         cwd: {
           type: 'string',
-          description: 'Working directory relative to project root (optional)'
+          description: 'Working directory relative to project root (optional)',
         },
         timeout: {
           type: 'number',
           description: 'Timeout in milliseconds (default: 120000)',
-          default: 120000
-        }
+          default: 120000,
+        },
       },
-      required: ['command']
-    }
+      required: ['command'],
+    },
   },
   {
     name: 'git_status',
     description: 'Get git status (short format)',
     input_schema: {
       type: 'object',
-      properties: {}
-    }
+      properties: {},
+    },
   },
   {
     name: 'git_diff',
@@ -143,10 +164,10 @@ export const ZERO_TOOLS = [
       properties: {
         file: {
           type: 'string',
-          description: 'Specific file to diff (optional)'
-        }
-      }
-    }
+          description: 'Specific file to diff (optional)',
+        },
+      },
+    },
   },
   {
     name: 'git_log',
@@ -157,10 +178,10 @@ export const ZERO_TOOLS = [
         limit: {
           type: 'number',
           description: 'Number of commits to show (default: 10)',
-          default: 10
-        }
-      }
-    }
+          default: 10,
+        },
+      },
+    },
   },
   {
     name: 'npm_run',
@@ -170,27 +191,27 @@ export const ZERO_TOOLS = [
       properties: {
         script: {
           type: 'string',
-          description: 'Script name (e.g., "dev", "build", "test")'
-        }
+          description: 'Script name (e.g., "dev", "build", "test")',
+        },
       },
-      required: ['script']
-    }
+      required: ['script'],
+    },
   },
   {
     name: 'deploy_backend',
     description: 'Deploy TypeScript backend to Cloud Run via GitHub Actions',
     input_schema: {
       type: 'object',
-      properties: {}
-    }
+      properties: {},
+    },
   },
   {
     name: 'deploy_rag',
     description: 'Deploy RAG backend to Cloud Run via GitHub Actions',
     input_schema: {
       type: 'object',
-      properties: {}
-    }
+      properties: {},
+    },
   },
   {
     name: 'check_workflow_status',
@@ -200,11 +221,11 @@ export const ZERO_TOOLS = [
       properties: {
         run_id: {
           type: 'number',
-          description: 'Workflow run ID'
-        }
+          description: 'Workflow run ID',
+        },
       },
-      required: ['run_id']
-    }
+      required: ['run_id'],
+    },
   },
   {
     name: 'list_recent_deployments',
@@ -215,28 +236,25 @@ export const ZERO_TOOLS = [
         limit: {
           type: 'number',
           description: 'Number of deployments to show (default: 5)',
-          default: 5
-        }
-      }
-    }
+          default: 5,
+        },
+      },
+    },
   },
   {
     name: 'health_check',
     description: 'Check health of production backends (TypeScript + RAG)',
     input_schema: {
       type: 'object',
-      properties: {}
-    }
-  }
+      properties: {},
+    },
+  },
 ];
 
 /**
  * Tool executor - maps tool names to implementations
  */
-export async function executeZeroTool(
-  toolName: string,
-  toolInput: any
-): Promise<any> {
+export async function executeZeroTool(toolName: string, toolInput: any): Promise<any> {
   switch (toolName) {
     // Filesystem
     case 'read_file':
@@ -263,7 +281,7 @@ export async function executeZeroTool(
     case 'bash':
       return bashZero(toolInput.command, {
         cwd: toolInput.cwd,
-        timeout: toolInput.timeout
+        timeout: toolInput.timeout,
       });
 
     case 'git_status':

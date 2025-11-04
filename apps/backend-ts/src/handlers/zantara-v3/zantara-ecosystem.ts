@@ -1,22 +1,21 @@
 // ZANTARA v3 Ω Ecosystem Analysis Endpoint
 // Complete business ecosystem analysis: ALL domains integrated
 
-import { ok } from "../../utils/response.js";
-import { Request, Response } from "express";
-import { baliZeroPricing } from "../bali-zero/bali-zero-pricing.js";
-import { kbliLookup, kbliRequirements } from "../bali-zero/kbli.js";
-import { collectiveMemory } from "../memory/collective-memory.js";
-import axios from "axios";
+import { ok } from '../../utils/response.js';
+import { Request, Response } from 'express';
+import { baliZeroPricing } from '../bali-zero/bali-zero-pricing.js';
+import { kbliLookup } from '../bali-zero/kbli.js';
+import { collectiveMemory } from '../memory/collective-memory.js';
 
 export async function zantaraEcosystemAnalysis(req: Request, res: Response) {
   try {
     const params = req.body?.params || req.body || {};
     const {
-      scenario = "business_setup", // business_setup, expansion, compliance, optimization
-      business_type = "restaurant", // restaurant, hotel, retail, services, tech
-      ownership = "foreign", // foreign, local, joint_venture
-      scope = "quick", // quick, detailed, comprehensive (default quick for speed)
-      location = "bali"
+      scenario = 'business_setup', // business_setup, expansion, compliance, optimization
+      business_type = 'restaurant', // restaurant, hotel, retail, services, tech
+      ownership = 'foreign', // foreign, local, joint_venture
+      scope = 'quick', // quick, detailed, comprehensive (default quick for speed)
+      location = 'bali',
     } = params;
 
     const startTime = Date.now();
@@ -39,29 +38,29 @@ export async function zantaraEcosystemAnalysis(req: Request, res: Response) {
         opportunities: [],
         team_needs: {},
         compliance: {},
-        optimization: {}
+        optimization: {},
       },
       recommendations: [],
       success_probability: 0,
       investment_estimate: {},
-      next_steps: []
+      next_steps: [],
     };
 
     // Business Type Analysis
     switch (business_type) {
-      case "restaurant":
+      case 'restaurant':
         ecosystem = await analyzeRestaurantBusiness(ecosystem, scope);
         break;
-      case "hotel":
+      case 'hotel':
         ecosystem = await analyzeHotelBusiness(ecosystem, scope);
         break;
-      case "retail":
+      case 'retail':
         ecosystem = await analyzeRetailBusiness(ecosystem, scope);
         break;
-      case "services":
+      case 'services':
         ecosystem = await analyzeServicesBusiness(ecosystem, scope);
         break;
-      case "tech":
+      case 'tech':
         ecosystem = await analyzeTechBusiness(ecosystem, scope);
         break;
       default:
@@ -76,16 +75,16 @@ export async function zantaraEcosystemAnalysis(req: Request, res: Response) {
 
     // Scenario-specific analysis
     switch (scenario) {
-      case "business_setup":
+      case 'business_setup':
         ecosystem = await analyzeBusinessSetup(ecosystem);
         break;
-      case "expansion":
+      case 'expansion':
         ecosystem = await analyzeBusinessExpansion(ecosystem);
         break;
-      case "compliance":
+      case 'compliance':
         ecosystem = await analyzeComplianceRequirements(ecosystem);
         break;
-      case "optimization":
+      case 'optimization':
         ecosystem = await analyzeOptimizationOpportunities(ecosystem);
         break;
     }
@@ -96,226 +95,231 @@ export async function zantaraEcosystemAnalysis(req: Request, res: Response) {
     ecosystem.processing_time = `${Date.now() - startTime}ms`;
 
     return res.json(ok(ecosystem));
-
   } catch (error: any) {
-    return res.json(ok({
-      error: "Ecosystem analysis failed",
-      message: error.message,
-      fallback: "Use individual domain analysis"
-    }));
+    return res.json(
+      ok({
+        error: 'Ecosystem analysis failed',
+        message: error.message,
+        fallback: 'Use individual domain analysis',
+      })
+    );
   }
 }
 
-async function analyzeRestaurantBusiness(ecosystem: any, scope: string) {
+async function analyzeRestaurantBusiness(ecosystem: any, _scope: string) {
   // KBLI Analysis for Restaurants
-  const mockReq = { body: { params: { category: "restaurants" } } } as any;
+  const mockReq = { body: { params: { category: 'restaurants' } } } as any;
   const mockRes = { json: (data: any) => data } as any;
   const kbliResult = await kbliLookup(mockReq, mockRes);
 
   ecosystem.analysis.kblis = (kbliResult as any)?.data?.codes || [
-    { code: "56101", name: "Restaurant", minimumCapital: "IDR 10,000,000,000" },
-    { code: "56102", name: "Warung Makan", minimumCapital: "IDR 50,000,000" },
-    { code: "56104", name: "Cafe", minimumCapital: "IDR 10,000,000,000" }
+    { code: '56101', name: 'Restaurant', minimumCapital: 'IDR 10,000,000,000' },
+    { code: '56102', name: 'Warung Makan', minimumCapital: 'IDR 50,000,000' },
+    { code: '56104', name: 'Cafe', minimumCapital: 'IDR 10,000,000,000' },
   ];
 
   // Requirements Analysis
   ecosystem.analysis.requirements = {
     licenses: [
-      "SIUP (Surat Izin Usaha Perdagangan)",
-      "TDP (Tanda Daftar Perusahaan)",
-      "HO (Izin Gangguan)",
-      "Sertifikat Laik Hygiene",
-      "Izin Lingkungan"
+      'SIUP (Surat Izin Usaha Perdagangan)',
+      'TDP (Tanda Daftar Perusahaan)',
+      'HO (Izin Gangguan)',
+      'Sertifikat Laik Hygiene',
+      'Izin Lingkungan',
     ],
     documents: [
-      "Company deed (Akta Pendirian)",
-      "NPWP (Tax ID)",
-      "NIB (Business ID)",
-      "Location permit",
-      "Health certificates"
+      'Company deed (Akta Pendirian)',
+      'NPWP (Tax ID)',
+      'NIB (Business ID)',
+      'Location permit',
+      'Health certificates',
     ],
     special_licenses: [
-      "Alcohol license (if serving alcohol)",
-      "Halal certification (recommended)",
-      "Food handling permits"
-    ]
+      'Alcohol license (if serving alcohol)',
+      'Halal certification (recommended)',
+      'Food handling permits',
+    ],
   };
 
   // Cost Analysis
-  const pricing = await baliZeroPricing({ service_type: "kitas" });
+  const pricing = await baliZeroPricing({ service_type: 'kitas' });
   ecosystem.analysis.costs = {
     setup: {
-      company_registration: "IDR 20,000,000+",
-      kbli_registration: "IDR 5,000,000",
-      licenses: "IDR 10,000,000+",
-      minimum_capital: "IDR 10,000,000,000 (PMA)"
+      company_registration: 'IDR 20,000,000+',
+      kbli_registration: 'IDR 5,000,000',
+      licenses: 'IDR 10,000,000+',
+      minimum_capital: 'IDR 10,000,000,000 (PMA)',
     },
     operational: {
-      monthly_kitas: pricing.data?.kitas_permits?.["Working KITAS"]?.onshore || "IDR 36,000,000",
-      tax_registration: "IDR 1,000,000",
-      health_insurance: "IDR 1,500,000/month"
-    }
+      monthly_kitas: pricing.data?.kitas_permits?.['Working KITAS']?.onshore || 'IDR 36,000,000',
+      tax_registration: 'IDR 1,000,000',
+      health_insurance: 'IDR 1,500,000/month',
+    },
   };
 
   // Timeline Analysis
   ecosystem.analysis.timeline = {
-    company_setup: "2-3 weeks",
-    licenses: "4-6 weeks",
-    operational_launch: "8-10 weeks total",
-    hiring_timeline: "4-6 weeks"
+    company_setup: '2-3 weeks',
+    licenses: '4-6 weeks',
+    operational_launch: '8-10 weeks total',
+    hiring_timeline: '4-6 weeks',
   };
 
   ecosystem.analysis.risks = [
-    "Location zoning restrictions",
-    "Alcohol license complexity",
-    "Halal certification requirements",
-    "Foreign staff visa processing"
+    'Location zoning restrictions',
+    'Alcohol license complexity',
+    'Halal certification requirements',
+    'Foreign staff visa processing',
   ];
 
   ecosystem.analysis.opportunities = [
-    "Tourist market growth",
-    "Expat community demand",
-    "Delivery platform integration",
-    "Multi-outlet expansion potential"
+    'Tourist market growth',
+    'Expat community demand',
+    'Delivery platform integration',
+    'Multi-outlet expansion potential',
   ];
 
   return ecosystem;
 }
 
-async function analyzeHotelBusiness(ecosystem: any, scope: string) {
+async function analyzeHotelBusiness(ecosystem: any, _scope: string) {
   // KBLI for Accommodation
-  const mockReq = { body: { params: { category: "accommodation" } } } as any;
+  const mockReq = { body: { params: { category: 'accommodation' } } } as any;
   const mockRes = { json: (data: any) => data } as any;
   const kbliResult = await kbliLookup(mockReq, mockRes);
 
   ecosystem.analysis.kblis = (kbliResult as any)?.data?.codes || [
-    { code: "55111", name: "Hotel Bintang", minimumCapital: "IDR 10,000,000,000" },
-    { code: "55130", name: "Villa", minimumCapital: "IDR 10,000,000,000" },
-    { code: "55199", name: "Guest House", minimumCapital: "IDR 50,000,000" }
+    { code: '55111', name: 'Hotel Bintang', minimumCapital: 'IDR 10,000,000,000' },
+    { code: '55130', name: 'Villa', minimumCapital: 'IDR 10,000,000,000' },
+    { code: '55199', name: 'Guest House', minimumCapital: 'IDR 50,000,000' },
   ];
 
   ecosystem.analysis.requirements = {
     licenses: [
-      "Hotel license",
-      "Pondok Wisata (for villas)",
-      "Building permits (PBG & SLF)",
-      "Fire safety certification",
-      "Tourism registration"
+      'Hotel license',
+      'Pondok Wisata (for villas)',
+      'Building permits (PBG & SLF)',
+      'Fire safety certification',
+      'Tourism registration',
     ],
     documents: [
-      "Building ownership proof",
-      "Environmental impact assessment",
-      "Health and safety compliance"
-    ]
+      'Building ownership proof',
+      'Environmental impact assessment',
+      'Health and safety compliance',
+    ],
   };
 
   ecosystem.analysis.costs = {
     setup: {
-      hotel_license: "IDR 15,000,000+",
-      building_permit: "IDR 50,000,000+",
-      minimum_capital: "IDR 10,000,000,000"
-    }
+      hotel_license: 'IDR 15,000,000+',
+      building_permit: 'IDR 50,000,000+',
+      minimum_capital: 'IDR 10,000,000,000',
+    },
   };
 
   ecosystem.analysis.timeline = {
-    building_completion: "variable",
-    licensing: "3-4 months",
-    operational_setup: "4-6 months total"
+    building_completion: 'variable',
+    licensing: '3-4 months',
+    operational_setup: '4-6 months total',
   };
 
   return ecosystem;
 }
 
-async function analyzeRetailBusiness(ecosystem: any, scope: string) {
+async function analyzeRetailBusiness(ecosystem: any, _scope: string) {
   // Retail analysis
   ecosystem.analysis.kblis = [
-    { code: "47111", name: "Minimarket", minimumCapital: "IDR 10,000,000,000" },
-    { code: "47190", name: "Retail Store", minimumCapital: "IDR 10,000,000,000" },
-    { code: "47911", name: "E-Commerce", minimumCapital: "IDR 100,000,000,000" }
+    { code: '47111', name: 'Minimarket', minimumCapital: 'IDR 10,000,000,000' },
+    { code: '47190', name: 'Retail Store', minimumCapital: 'IDR 10,000,000,000' },
+    { code: '47911', name: 'E-Commerce', minimumCapital: 'IDR 100,000,000,000' },
   ];
 
   ecosystem.analysis.requirements = {
-    licenses: ["SIUP", "TDP", "HO"],
+    licenses: ['SIUP', 'TDP', 'HO'],
     restrictions: [
-      "Foreign-owned retail: CLOSED",
-      "Online retail: OPEN (with high capital)",
-      "Location restrictions near traditional markets"
-    ]
+      'Foreign-owned retail: CLOSED',
+      'Online retail: OPEN (with high capital)',
+      'Location restrictions near traditional markets',
+    ],
   };
 
   return ecosystem;
 }
 
-async function analyzeServicesBusiness(ecosystem: any, scope: string) {
+async function analyzeServicesBusiness(ecosystem: any, _scope: string) {
   ecosystem.analysis.kblis = [
-    { code: "62010", name: "Computer Programming", minimumCapital: "IDR 10,000,000,000" },
-    { code: "70209", name: "Business Consulting", minimumCapital: "IDR 10,000,000,000" },
-    { code: "73100", name: "Advertising", minimumCapital: "IDR 10,000,000,000" }
+    { code: '62010', name: 'Computer Programming', minimumCapital: 'IDR 10,000,000,000' },
+    { code: '70209', name: 'Business Consulting', minimumCapital: 'IDR 10,000,000,000' },
+    { code: '73100', name: 'Advertising', minimumCapital: 'IDR 10,000,000,000' },
   ];
 
   ecosystem.analysis.requirements = {
-    licenses: ["SIUP", "TDP"],
+    licenses: ['SIUP', 'TDP'],
     benefits: [
-      "100% foreign ownership allowed",
-      "No location restrictions",
-      "Lower capital requirements for digital services"
-    ]
+      '100% foreign ownership allowed',
+      'No location restrictions',
+      'Lower capital requirements for digital services',
+    ],
   };
 
   return ecosystem;
 }
 
-async function analyzeTechBusiness(ecosystem: any, scope: string) {
+async function analyzeTechBusiness(ecosystem: any, _scope: string) {
   ecosystem.analysis.kblis = [
-    { code: "62010", name: "Software Development", minimumCapital: "IDR 10,000,000,000" },
-    { code: "63110", name: "Data Processing", minimumCapital: "IDR 10,000,000,000" }
+    { code: '62010', name: 'Software Development', minimumCapital: 'IDR 10,000,000,000' },
+    { code: '63110', name: 'Data Processing', minimumCapital: 'IDR 10,000,000,000' },
   ];
 
   ecosystem.analysis.requirements = {
-    licenses: ["SIUP", "TDP", "Electronic System Operator License"],
+    licenses: ['SIUP', 'TDP', 'Electronic System Operator License'],
     incentives: [
-      "Tax holidays for pioneer industries",
-      "Import duty exemptions",
-      "100% foreign ownership"
-    ]
+      'Tax holidays for pioneer industries',
+      'Import duty exemptions',
+      '100% foreign ownership',
+    ],
   };
 
   return ecosystem;
 }
 
-async function analyzeGeneralBusiness(ecosystem: any, scope: string) {
+async function analyzeGeneralBusiness(ecosystem: any, _scope: string) {
   return ecosystem; // Generic business analysis
 }
 
 async function analyzeOwnershipStructure(ecosystem: any) {
   switch (ecosystem.ownership) {
-    case "foreign":
+    case 'foreign':
       ecosystem.analysis.ownership = {
-        structure: "PT PMA (Foreign Investment Company)",
-        minimum_capital: "IDR 10,000,000,000",
-        ownership_limits: "Varies by sector",
-        reporting: "LKPM quarterly reports required",
-        benefits: ["100% repatriation of profits", "Foreign director allowed", "Investment incentives"]
+        structure: 'PT PMA (Foreign Investment Company)',
+        minimum_capital: 'IDR 10,000,000,000',
+        ownership_limits: 'Varies by sector',
+        reporting: 'LKPM quarterly reports required',
+        benefits: [
+          '100% repatriation of profits',
+          'Foreign director allowed',
+          'Investment incentives',
+        ],
       };
       break;
 
-    case "local":
+    case 'local':
       ecosystem.analysis.ownership = {
-        structure: "PT (Local Company)",
-        minimum_capital: "No minimum required",
-        ownership_limits: "100% Indonesian ownership",
-        reporting: "Standard corporate reporting",
-        benefits: ["Simpler setup", "Lower compliance burden", "Access to local programs"]
+        structure: 'PT (Local Company)',
+        minimum_capital: 'No minimum required',
+        ownership_limits: '100% Indonesian ownership',
+        reporting: 'Standard corporate reporting',
+        benefits: ['Simpler setup', 'Lower compliance burden', 'Access to local programs'],
       };
       break;
 
-    case "joint_venture":
+    case 'joint_venture':
       ecosystem.analysis.ownership = {
-        structure: "PT PMA with local partner",
-        minimum_capital: "IDR 10,000,000,000",
-        ownership_limits: "Foreign ownership varies by sector",
-        reporting: "Corporate + investment reporting",
-        benefits: ["Local market access", "Shared expertise", "Regulatory navigation"]
+        structure: 'PT PMA with local partner',
+        minimum_capital: 'IDR 10,000,000,000',
+        ownership_limits: 'Foreign ownership varies by sector',
+        reporting: 'Corporate + investment reporting',
+        benefits: ['Local market access', 'Shared expertise', 'Regulatory navigation'],
       };
       break;
   }
@@ -329,29 +333,26 @@ async function integrateCollectiveIntelligence(ecosystem: any) {
     const collectiveInsights = await collectiveMemory.searchCollectiveMemory({
       query: `${ecosystem.business_type} ${ecosystem.ownership} Bali setup`,
       limit: 5,
-      includeUnverified: true
+      includeUnverified: true,
     });
 
     ecosystem.analysis.collective_intelligence = {
       similar_scenarios: collectiveInsights.length,
-      shared_experiences: collectiveInsights.map(insight => ({
+      shared_experiences: collectiveInsights.map((insight) => ({
         type: insight.type,
         confidence: insight.confidence,
-        contributors: insight.contributors.length
+        contributors: insight.contributors.length,
       })),
-      community_wisdom: collectiveInsights.length > 0 ? "Available" : "Not enough data"
+      community_wisdom: collectiveInsights.length > 0 ? 'Available' : 'Not enough data',
     };
 
     if (collectiveInsights.length > 0) {
-      ecosystem.recommendations.push(
-        "Leverage community experience from similar business setups"
-      );
+      ecosystem.recommendations.push('Leverage community experience from similar business setups');
     }
-
   } catch (error) {
     ecosystem.analysis.collective_intelligence = {
-      status: "unavailable",
-      fallback: "Individual analysis only"
+      status: 'unavailable',
+      fallback: 'Individual analysis only',
     };
   }
 
@@ -360,13 +361,13 @@ async function integrateCollectiveIntelligence(ecosystem: any) {
 
 async function analyzeBusinessSetup(ecosystem: any) {
   ecosystem.next_steps = [
-    "1. Company registration with Ministry of Law",
-    "2. Tax ID (NPWP) registration",
-    "3. Business ID (NIB) issuance via OSS",
-    "4. KBLI code registration",
-    "5. Location permits acquisition",
-    "6. Operational licenses setup",
-    "7. Staff hiring and visa processing"
+    '1. Company registration with Ministry of Law',
+    '2. Tax ID (NPWP) registration',
+    '3. Business ID (NIB) issuance via OSS',
+    '4. KBLI code registration',
+    '5. Location permits acquisition',
+    '6. Operational licenses setup',
+    '7. Staff hiring and visa processing',
   ];
 
   return ecosystem;
@@ -374,10 +375,10 @@ async function analyzeBusinessSetup(ecosystem: any) {
 
 async function analyzeBusinessExpansion(ecosystem: any) {
   ecosystem.analysis.expansion = {
-    additional_kblis: "May need additional codes for new activities",
-    capital_requirements: "Additional IDR 10B per new KBLI per location",
-    regulatory_compliance: "Each location requires separate permits",
-    scalability_factors: ["Talent availability", "Market demand", "Regulatory capacity"]
+    additional_kblis: 'May need additional codes for new activities',
+    capital_requirements: 'Additional IDR 10B per new KBLI per location',
+    regulatory_compliance: 'Each location requires separate permits',
+    scalability_factors: ['Talent availability', 'Market demand', 'Regulatory capacity'],
   };
 
   return ecosystem;
@@ -386,13 +387,13 @@ async function analyzeBusinessExpansion(ecosystem: any) {
 async function analyzeComplianceRequirements(ecosystem: any) {
   ecosystem.analysis.compliance = {
     ongoing_requirements: [
-      "Monthly tax reporting",
-      "Quarterly LKPM reports (PMA)",
-      "Annual financial statements",
-      "Staff visa renewals",
-      "License renewals"
+      'Monthly tax reporting',
+      'Quarterly LKPM reports (PMA)',
+      'Annual financial statements',
+      'Staff visa renewals',
+      'License renewals',
     ],
-    penalties: ["Late filing penalties", "Non-compliance fines", "Business suspension risks"]
+    penalties: ['Late filing penalties', 'Non-compliance fines', 'Business suspension risks'],
   };
 
   return ecosystem;
@@ -401,15 +402,15 @@ async function analyzeComplianceRequirements(ecosystem: any) {
 async function analyzeOptimizationOpportunities(ecosystem: any) {
   ecosystem.analysis.optimization = {
     cost_optimization: [
-      "Tax incentives eligibility",
-      "BPJS optimization strategies",
-      "Import duty exemptions"
+      'Tax incentives eligibility',
+      'BPJS optimization strategies',
+      'Import duty exemptions',
     ],
     operational_efficiency: [
-      "Digital licensing options",
-      "Online tax filing",
-      "Automated compliance tracking"
-    ]
+      'Digital licensing options',
+      'Online tax filing',
+      'Automated compliance tracking',
+    ],
   };
 
   return ecosystem;
@@ -420,12 +421,13 @@ async function calculateSuccessMetrics(ecosystem: any) {
   let successScore = 0.7; // Base score
 
   // Adjust for business type
-  if (ecosystem.business_type === "services") successScore += 0.1;
-  if (ecosystem.business_type === "retail" && ecosystem.ownership === "foreign") successScore -= 0.2;
+  if (ecosystem.business_type === 'services') successScore += 0.1;
+  if (ecosystem.business_type === 'retail' && ecosystem.ownership === 'foreign')
+    successScore -= 0.2;
 
   // Adjust for ownership structure
-  if (ecosystem.ownership === "local") successScore += 0.1;
-  if (ecosystem.ownership === "joint_venture") successScore += 0.05;
+  if (ecosystem.ownership === 'local') successScore += 0.1;
+  if (ecosystem.ownership === 'joint_venture') successScore += 0.05;
 
   // Adjust for collective intelligence
   if (ecosystem.analysis.collective_intelligence?.similar_scenarios > 0) {
@@ -435,35 +437,37 @@ async function calculateSuccessMetrics(ecosystem: any) {
   ecosystem.success_probability = Math.min(0.95, Math.max(0.3, successScore));
 
   // Investment estimate
-  const setupCosts = Object.values(ecosystem.analysis.costs?.setup || {}).reduce((sum: number, cost: any) => {
-    const numericCost = typeof cost === 'string' ?
-      parseInt(cost.replace(/[^0-9]/g, '')) || 0 :
-      cost;
-    return sum + numericCost;
-  }, 0);
+  const setupCosts = Object.values(ecosystem.analysis.costs?.setup || {}).reduce(
+    (sum: number, cost: any) => {
+      const numericCost =
+        typeof cost === 'string' ? parseInt(cost.replace(/[^0-9]/g, '')) || 0 : cost;
+      return sum + numericCost;
+    },
+    0
+  );
 
   ecosystem.investment_estimate = {
     initial_investment: `IDR ${setupCosts.toLocaleString()}`,
     operational_yearly: `IDR ${(Number(setupCosts) * 0.3).toLocaleString()}`,
-    break_even_timeline: "12-18 months typical",
-    roi_potential: (ecosystem as any).success_probability > 0.7 ? "High" : "Medium"
+    break_even_timeline: '12-18 months typical',
+    roi_potential: (ecosystem as any).success_probability > 0.7 ? 'High' : 'Medium',
   };
 
   // Generate final recommendations
   if ((ecosystem as any).success_probability > 0.8) {
     ecosystem.recommendations.push(
-      "High success probability - proceed with confidence",
-      "Consider rapid expansion after first year"
+      'High success probability - proceed with confidence',
+      'Consider rapid expansion after first year'
     );
   } else if ((ecosystem as any).success_probability > 0.6) {
     ecosystem.recommendations.push(
-      "Moderate success probability - proceed with careful planning",
-      "Consider local partnership for better market access"
+      'Moderate success probability - proceed with careful planning',
+      'Consider local partnership for better market access'
     );
   } else {
     ecosystem.recommendations.push(
-      "Lower success probability - reconsider business model",
-      "Explore alternative business types or ownership structures"
+      'Lower success probability - reconsider business model',
+      'Explore alternative business types or ownership structures'
     );
   }
 

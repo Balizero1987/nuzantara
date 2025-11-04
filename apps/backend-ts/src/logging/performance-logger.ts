@@ -3,7 +3,7 @@
  * Provides performance monitoring with minimal overhead
  */
 
-import { logger, LogContext, LogMetrics } from './unified-logger.js';
+import { logger, LogContext } from './unified-logger.js';
 import type { CorrelatedRequest } from './correlation-middleware.js';
 
 // Performance measurement interface
@@ -18,10 +18,10 @@ export interface PerformanceMeasurement {
 
 // Performance thresholds (in milliseconds)
 const PERFORMANCE_THRESHOLDS = {
-  FAST: 100,      // < 100ms
-  NORMAL: 500,    // < 500ms
-  SLOW: 1000,     // < 1s
-  VERY_SLOW: 5000 // < 5s
+  FAST: 100, // < 100ms
+  NORMAL: 500, // < 500ms
+  SLOW: 1000, // < 1s
+  VERY_SLOW: 5000, // < 5s
 };
 
 // Active measurements tracking
@@ -41,7 +41,7 @@ export function startPerformanceMeasurement(
     operation,
     startTime: Date.now(),
     context,
-    metadata
+    metadata,
   };
 
   activeMeasurements.set(measurementId, measurement);
@@ -51,7 +51,7 @@ export function startPerformanceMeasurement(
     type: 'performance_start',
     measurementId,
     operation,
-    metadata
+    metadata,
   });
 
   return measurementId;
@@ -60,10 +60,15 @@ export function startPerformanceMeasurement(
 /**
  * End performance measurement and log results
  */
-export function endPerformanceMeasurement(measurementId: string, additionalContext?: LogContext): number {
+export function endPerformanceMeasurement(
+  measurementId: string,
+  additionalContext?: LogContext
+): number {
   const measurement = activeMeasurements.get(measurementId);
   if (!measurement) {
-    logger.warn(`Performance measurement not found: ${measurementId}`, { type: 'performance_error' });
+    logger.warn(`Performance measurement not found: ${measurementId}`, {
+      type: 'performance_error',
+    });
     return 0;
   }
 
@@ -72,7 +77,7 @@ export function endPerformanceMeasurement(measurementId: string, additionalConte
 
   const finalContext = {
     ...measurement.context,
-    ...additionalContext
+    ...additionalContext,
   };
 
   // Determine performance category
@@ -90,7 +95,7 @@ export function endPerformanceMeasurement(measurementId: string, additionalConte
       duration: measurement.duration,
       category,
       measurementId,
-      metadata: measurement.metadata
+      metadata: measurement.metadata,
     });
   } else if (logLevel === 'warn') {
     logger.warn(logMessage, {
@@ -100,7 +105,7 @@ export function endPerformanceMeasurement(measurementId: string, additionalConte
       duration: measurement.duration,
       category,
       measurementId,
-      metadata: measurement.metadata
+      metadata: measurement.metadata,
     });
   } else {
     logger.debug(logMessage, {
@@ -110,7 +115,7 @@ export function endPerformanceMeasurement(measurementId: string, additionalConte
       duration: measurement.duration,
       category,
       measurementId,
-      metadata: measurement.metadata
+      metadata: measurement.metadata,
     });
   }
 
@@ -166,7 +171,7 @@ export async function withPerformanceTracking<T>(
   } catch (error) {
     endPerformanceMeasurement(measurementId, {
       success: false,
-      error: (error as Error).message
+      error: (error as Error).message,
     });
     throw error;
   }
@@ -183,7 +188,7 @@ export function performanceMiddleware() {
       {
         method: req.method,
         url: req.url,
-        userAgent: req.get('User-Agent')
+        userAgent: req.get('User-Agent'),
       }
     );
 
@@ -192,10 +197,10 @@ export function performanceMiddleware() {
 
     // Override res.end to capture final timing
     const originalEnd = res.end;
-    res.end = function(this: any, ...args: any[]) {
+    res.end = function (this: any, ...args: any[]) {
       endPerformanceMeasurement(measurementId, {
         statusCode: res.statusCode,
-        success: res.statusCode < 400
+        success: res.statusCode < 400,
       });
       originalEnd.apply(this, args);
     };
@@ -207,11 +212,7 @@ export function performanceMiddleware() {
 /**
  * Database query performance tracking
  */
-export function trackDatabaseQuery(
-  query: string,
-  context: LogContext,
-  duration: number
-): void {
+export function trackDatabaseQuery(query: string, context: LogContext, duration: number): void {
   const category = getPerformanceCategory(duration);
 
   if (category === 'SLOW' || category === 'VERY_SLOW' || category === 'CRITICAL') {
@@ -220,7 +221,7 @@ export function trackDatabaseQuery(
       type: 'database_slow',
       query: query.substring(0, 200), // Limit query length in logs
       duration,
-      category
+      category,
     });
   } else {
     logger.trace(`Database query: ${duration}ms`, {
@@ -228,7 +229,7 @@ export function trackDatabaseQuery(
       type: 'database_query',
       query: query.substring(0, 200),
       duration,
-      category
+      category,
     });
   }
 }
@@ -245,15 +246,18 @@ export function trackApiCall(
 ): void {
   const category = getPerformanceCategory(duration);
 
-  logger.info('API call: ${service}${endpoint} - ${duration}ms (${success ? \'SUCCESS\' : \'FAILED\'})', {
-    ...context,
-    type: 'api_call',
-    service,
-    endpoint,
-    duration,
-    success,
-    category
-  });
+  logger.info(
+    "API call: ${service}${endpoint} - ${duration}ms (${success ? 'SUCCESS' : 'FAILED'})",
+    {
+      ...context,
+      type: 'api_call',
+      service,
+      endpoint,
+      duration,
+      success,
+      category,
+    }
+  );
 }
 
 /**
@@ -272,7 +276,7 @@ export function trackCacheOperation(
     operation,
     key: key.substring(0, 100), // Limit key length
     duration,
-    hit
+    hit,
   });
 }
 
@@ -290,8 +294,8 @@ export function trackMemoryUsage(context: LogContext): void {
       heapTotal: memUsage.heapTotal,
       heapUsed: memUsage.heapUsed,
       external: memUsage.external,
-      arrayBuffers: memUsage.arrayBuffers
-    }
+      arrayBuffers: memUsage.arrayBuffers,
+    },
   });
 }
 
@@ -302,8 +306,8 @@ export class PerformanceMonitor {
   private interval: NodeJS.Timeout | null = null;
   private measurements: Array<{ operation: string; duration: number; timestamp: number }> = [];
 
-  constructor(private intervalMs: number = 60000) { // 1 minute default
-
+  constructor(private intervalMs: number = 60000) {
+    // 1 minute default
   }
 
   start(): void {
@@ -328,7 +332,7 @@ export class PerformanceMonitor {
     this.measurements.push({
       operation,
       duration,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
 
     // Keep only last 1000 measurements to prevent memory leaks
@@ -341,13 +345,16 @@ export class PerformanceMonitor {
     if (this.measurements.length === 0) return;
 
     const now = Date.now();
-    const recentMeasurements = this.measurements.filter(m => now - m.timestamp < this.intervalMs);
+    const recentMeasurements = this.measurements.filter((m) => now - m.timestamp < this.intervalMs);
 
     if (recentMeasurements.length === 0) return;
 
-    const avgDuration = recentMeasurements.reduce((sum, m) => sum + m.duration, 0) / recentMeasurements.length;
-    const maxDuration = Math.max(...recentMeasurements.map(m => m.duration));
-    const slowOperations = recentMeasurements.filter(m => m.duration > PERFORMANCE_THRESHOLDS.SLOW);
+    const avgDuration =
+      recentMeasurements.reduce((sum, m) => sum + m.duration, 0) / recentMeasurements.length;
+    const maxDuration = Math.max(...recentMeasurements.map((m) => m.duration));
+    const slowOperations = recentMeasurements.filter(
+      (m) => m.duration > PERFORMANCE_THRESHOLDS.SLOW
+    );
 
     logger.info('Performance summary', {
       type: 'performance_summary',
@@ -356,11 +363,11 @@ export class PerformanceMonitor {
       averageDuration: Math.round(avgDuration),
       maxDuration,
       slowOperationsCount: slowOperations.length,
-      slowOperations: slowOperations.slice(0, 5) // Top 5 slowest operations
+      slowOperations: slowOperations.slice(0, 5), // Top 5 slowest operations
     });
 
     // Clear old measurements
-    this.measurements = this.measurements.filter(m => now - m.timestamp < this.intervalMs * 2);
+    this.measurements = this.measurements.filter((m) => now - m.timestamp < this.intervalMs * 2);
   }
 }
 
@@ -377,5 +384,5 @@ export default {
   trackCacheOperation,
   trackMemoryUsage,
   PerformanceMonitor,
-  globalPerformanceMonitor
+  globalPerformanceMonitor,
 };

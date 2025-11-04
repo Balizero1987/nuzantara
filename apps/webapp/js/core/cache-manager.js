@@ -1,6 +1,6 @@
 /**
  * Intelligent Cache Manager for API Responses
- * 
+ *
  * Caches idempotent requests with configurable TTL.
  * Implements LRU eviction and automatic cleanup.
  */
@@ -12,7 +12,7 @@ class CacheManager {
       hits: 0,
       misses: 0,
       sets: 0,
-      evictions: 0
+      evictions: 0,
     };
 
     // Endpoints che POSSONO essere cachati (idempotenti)
@@ -27,23 +27,23 @@ class CacheManager {
       'dashboard.main',
       'dashboard.health',
       'memory.list',
-      'memory.entities'
+      'memory.entities',
     ]);
 
     // TTL per tipo di endpoint (millisecondi)
     this.ttlConfig = {
-      'contact.info': 5 * 60 * 1000,      // 5 minuti
-      'team.list': 2 * 60 * 1000,         // 2 minuti
-      'team.departments': 5 * 60 * 1000,  // 5 minuti
-      'team.get': 2 * 60 * 1000,          // 2 minuti
+      'contact.info': 5 * 60 * 1000, // 5 minuti
+      'team.list': 2 * 60 * 1000, // 2 minuti
+      'team.departments': 5 * 60 * 1000, // 5 minuti
+      'team.get': 2 * 60 * 1000, // 2 minuti
       'bali.zero.pricing': 10 * 60 * 1000, // 10 minuti
       'system.handlers.list': 10 * 60 * 1000, // 10 minuti
-      'config.flags': 1 * 60 * 1000,      // 1 minuto
-      'dashboard.main': 30 * 1000,        // 30 secondi
-      'dashboard.health': 30 * 1000,      // 30 secondi
-      'memory.list': 2 * 60 * 1000,       // 2 minuti
-      'memory.entities': 2 * 60 * 1000,   // 2 minuti
-      'default': 1 * 60 * 1000            // 1 minuto default
+      'config.flags': 1 * 60 * 1000, // 1 minuto
+      'dashboard.main': 30 * 1000, // 30 secondi
+      'dashboard.health': 30 * 1000, // 30 secondi
+      'memory.list': 2 * 60 * 1000, // 2 minuti
+      'memory.entities': 2 * 60 * 1000, // 2 minuti
+      default: 1 * 60 * 1000, // 1 minuto default
     };
 
     // Cleanup expired entries ogni minuto
@@ -53,16 +53,16 @@ class CacheManager {
   isCacheable(endpoint, params = {}) {
     // Non cachare se params contiene dati sensibili
     const sensitiveKeys = ['password', 'token', 'api_key', 'secret', 'auth', 'credential'];
-    const hasSensitiveData = Object.keys(params).some(key =>
-      sensitiveKeys.some(sensitive => key.toLowerCase().includes(sensitive))
+    const hasSensitiveData = Object.keys(params).some((key) =>
+      sensitiveKeys.some((sensitive) => key.toLowerCase().includes(sensitive))
     );
 
     if (hasSensitiveData) return false;
 
     // Non cachare operazioni write
     const writeOperations = ['save', 'create', 'update', 'delete', 'upload', 'send'];
-    const isWriteOp = writeOperations.some(op => endpoint.toLowerCase().includes(op));
-    
+    const isWriteOp = writeOperations.some((op) => endpoint.toLowerCase().includes(op));
+
     if (isWriteOp) return false;
 
     // Verifica se endpoint è in whitelist
@@ -99,9 +99,9 @@ class CacheManager {
     // Update access time for LRU
     entry.lastAccess = Date.now();
     entry.accessCount++;
-    
+
     this.stats.hits++;
-    
+
     // Log in dev mode
     if (this.isDevMode()) {
       const age = Math.round((Date.now() - entry.timestamp) / 1000);
@@ -127,7 +127,7 @@ class CacheManager {
       accessCount: 0,
       endpoint,
       params,
-      ttl
+      ttl,
     });
 
     this.stats.sets++;
@@ -149,21 +149,21 @@ class CacheManager {
           count++;
         }
       }
-      
+
       if (this.isDevMode() && count > 0) {
         console.log(`[Cache] 🗑️ INVALIDATED: ${endpoint} (${count} entries)`);
       }
-      
+
       return count;
     } else {
       // Invalida cache specifico
       const key = this.getCacheKey(endpoint, params);
       const deleted = this.cache.delete(key);
-      
+
       if (this.isDevMode() && deleted) {
         console.log(`[Cache] 🗑️ INVALIDATED: ${key}`);
       }
-      
+
       return deleted ? 1 : 0;
     }
   }
@@ -190,16 +190,17 @@ class CacheManager {
   clear() {
     const size = this.cache.size;
     this.cache.clear();
-    
+
     if (this.isDevMode()) {
       console.log(`[Cache] 🗑️ Cleared ${size} entries`);
     }
   }
 
   getStats() {
-    const hitRate = this.stats.hits + this.stats.misses > 0
-      ? (this.stats.hits / (this.stats.hits + this.stats.misses)) * 100
-      : 0;
+    const hitRate =
+      this.stats.hits + this.stats.misses > 0
+        ? (this.stats.hits / (this.stats.hits + this.stats.misses)) * 100
+        : 0;
 
     return {
       ...this.stats,
@@ -211,15 +212,17 @@ class CacheManager {
         age: Math.round((Date.now() - entry.timestamp) / 1000),
         ttl: Math.round((entry.expiresAt - Date.now()) / 1000),
         accessCount: entry.accessCount,
-        lastAccess: Math.round((Date.now() - entry.lastAccess) / 1000)
-      }))
+        lastAccess: Math.round((Date.now() - entry.lastAccess) / 1000),
+      })),
     };
   }
 
   isDevMode() {
-    return window.location.hostname === 'localhost' || 
-           window.location.hostname === '127.0.0.1' ||
-           new URLSearchParams(window.location.search).get('dev') === 'true';
+    return (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      new URLSearchParams(window.location.search).get('dev') === 'true'
+    );
   }
 
   // Cleanup on page unload
@@ -240,7 +243,7 @@ if (typeof window !== 'undefined') {
     clear: () => cacheManager.clear(),
     invalidate: (endpoint, params) => cacheManager.invalidate(endpoint, params),
     get: (endpoint, params) => cacheManager.get(endpoint, params),
-    set: (endpoint, params, data) => cacheManager.set(endpoint, params, data)
+    set: (endpoint, params, data) => cacheManager.set(endpoint, params, data),
   };
 }
 

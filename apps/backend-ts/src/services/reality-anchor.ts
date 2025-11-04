@@ -2,7 +2,7 @@
 // Ensures ZANTARA remains grounded in verifiable reality
 
 import logger from './logger.js';
-import { getFirestore } from "./firebase.js";
+import { getFirestore } from './firebase.js';
 // import { AntiHallucinationSystem } from "./anti-hallucination.js"; // Not used
 
 interface RealityCheck {
@@ -27,57 +27,60 @@ export class RealityAnchorSystem {
   // Immutable business truths about Bali Zero
   private readonly ABSOLUTE_TRUTHS: BusinessTruth[] = [
     {
-      fact: "Bali Zero operates in Kerobokan, Bali, Indonesia",
-      source: "official",
-      lastVerified: "2025-09-26",
-      immutable: true
+      fact: 'Bali Zero operates in Kerobokan, Bali, Indonesia',
+      source: 'official',
+      lastVerified: '2025-09-26',
+      immutable: true,
     },
     {
-      fact: "Services: Visa, Company Setup, Tax Consulting, Real Estate Legal",
-      source: "official",
-      lastVerified: "2025-09-26",
-      immutable: true
+      fact: 'Services: Visa, Company Setup, Tax Consulting, Real Estate Legal',
+      source: 'official',
+      lastVerified: '2025-09-26',
+      immutable: true,
     },
     {
-      fact: "CEO: Zainal Abidin (zainal@balizero.id)",
-      source: "documented",
-      lastVerified: "2025-09-26",
-      immutable: true
+      fact: 'CEO: Zainal Abidin (zainal@balizero.id)',
+      source: 'documented',
+      lastVerified: '2025-09-26',
+      immutable: true,
     },
     {
-      fact: "Visa types handled: B211A, B211B, KITAS, KITAP, VOA",
-      source: "verified",
-      lastVerified: "2025-09-26",
-      immutable: true
+      fact: 'Visa types handled: B211A, B211B, KITAS, KITAP, VOA',
+      source: 'verified',
+      lastVerified: '2025-09-26',
+      immutable: true,
     },
     {
-      fact: "Company types: PT, PT PMA, CV",
-      source: "verified",
-      lastVerified: "2025-09-26",
-      immutable: true
+      fact: 'Company types: PT, PT PMA, CV',
+      source: 'verified',
+      lastVerified: '2025-09-26',
+      immutable: true,
     },
     {
-      fact: "Response time: 24-48 hours typical",
-      source: "historical",
-      lastVerified: "2025-09-26",
-      immutable: false
-    }
+      fact: 'Response time: 24-48 hours typical',
+      source: 'historical',
+      lastVerified: '2025-09-26',
+      immutable: false,
+    },
   ];
 
   // Real-time fact verification database
-  private verificationCache: Map<string, {
-    verified: boolean;
-    confidence: number;
-    lastCheck: Date;
-    evidence: any;
-  }> = new Map();
+  private verificationCache: Map<
+    string,
+    {
+      verified: boolean;
+      confidence: number;
+      lastCheck: Date;
+      evidence: any;
+    }
+  > = new Map();
 
   // Contradiction detection patterns
   private contradictionPatterns = [
     { pattern: /always|never|100%|guaranteed/gi, flag: 'absolute_claim' },
     { pattern: /instant|immediate|right now/gi, flag: 'unrealistic_timeline' },
     { pattern: /free|no cost|completely free/gi, flag: 'pricing_claim' },
-    { pattern: /unlimited|infinite|endless/gi, flag: 'resource_claim' }
+    { pattern: /unlimited|infinite|endless/gi, flag: 'resource_claim' },
   ];
 
   private constructor() {
@@ -94,10 +97,7 @@ export class RealityAnchorSystem {
   /**
    * Perform deep reality check on any claim
    */
-  async performRealityCheck(
-    claim: string,
-    context: string
-  ): Promise<RealityCheck> {
+  async performRealityCheck(claim: string, context: string): Promise<RealityCheck> {
     const timestamp = new Date().toISOString();
     const verifiedFacts: string[] = [];
     const contradictions: string[] = [];
@@ -142,7 +142,7 @@ export class RealityAnchorSystem {
       context,
       verifiedFacts,
       contradictions,
-      realityScore: Math.max(0.1, Math.min(1.0, realityScore))
+      realityScore: Math.max(0.1, Math.min(1.0, realityScore)),
     };
   }
 
@@ -165,7 +165,8 @@ export class RealityAnchorSystem {
 
     for (const cn of claimNumbers) {
       for (const tn of truthNumbers) {
-        if (Math.abs(cn - tn) / tn > 2) { // More than 200% difference
+        if (Math.abs(cn - tn) / tn > 2) {
+          // More than 200% difference
           return true;
         }
       }
@@ -179,8 +180,10 @@ export class RealityAnchorSystem {
    */
   private claimAlignsWith(claim: string, truth: string): boolean {
     const claimLower = claim.toLowerCase();
-    const truthKeywords = truth.toLowerCase().split(/\s+/)
-      .filter(word => word.length > 3);
+    const truthKeywords = truth
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((word) => word.length > 3);
 
     let matches = 0;
     for (const keyword of truthKeywords) {
@@ -212,7 +215,7 @@ export class RealityAnchorSystem {
       if (/visa|company|tax|legal/i.test(claim)) {
         return {
           consistent: false,
-          issue: 'Unrealistic timeframe for bureaucratic process'
+          issue: 'Unrealistic timeframe for bureaucratic process',
         };
       }
     }
@@ -221,14 +224,14 @@ export class RealityAnchorSystem {
     const datePattern = /\d{4}-\d{2}-\d{2}/g;
     const dates = claim.match(datePattern);
     if (dates) {
-      const parsedDates = dates.map(d => new Date(d));
+      const parsedDates = dates.map((d) => new Date(d));
       const now = new Date();
 
       for (const date of parsedDates) {
         if (date > now) {
           return {
             consistent: false,
-            issue: 'Future date mentioned as past event'
+            issue: 'Future date mentioned as past event',
           };
         }
       }
@@ -250,13 +253,14 @@ export class RealityAnchorSystem {
       const db = getFirestore();
 
       // Check recent similar claims
-      const recentClaims = await db.collection('verified_facts')
+      const recentClaims = await db
+        .collection('verified_facts')
         .where('context', '==', context)
         .orderBy('created_at', 'desc')
         .limit(10)
         .get();
 
-      recentClaims.forEach(doc => {
+      recentClaims.forEach((doc) => {
         const data = doc.data();
         if (this.claimContradictsTruth(claim, data.fact)) {
           discrepancies.push(`Contradicts previous: ${data.fact}`);
@@ -268,17 +272,14 @@ export class RealityAnchorSystem {
 
     return {
       discrepancies: discrepancies.length,
-      details: discrepancies
+      details: discrepancies,
     };
   }
 
   /**
    * Generate reality-anchored response
    */
-  async generateAnchoredResponse(
-    originalResponse: any,
-    context: string
-  ): Promise<any> {
+  async generateAnchoredResponse(originalResponse: any, context: string): Promise<any> {
     // Extract all claims from response
     const claims = this.extractClaims(originalResponse);
     const anchoredResponse = { ...originalResponse };
@@ -297,20 +298,22 @@ export class RealityAnchorSystem {
     }
 
     // Calculate overall reality score
-    const overallScore = realityChecks.reduce((sum, check) => sum + check.realityScore, 0) /
-                        (realityChecks.length || 1);
+    const overallScore =
+      realityChecks.reduce((sum, check) => sum + check.realityScore, 0) /
+      (realityChecks.length || 1);
 
     anchoredResponse.reality_anchor = {
       score: overallScore,
       checks_performed: realityChecks.length,
-      verified_facts: realityChecks.flatMap(c => c.verifiedFacts).length,
-      contradictions_found: realityChecks.flatMap(c => c.contradictions).length,
-      timestamp: new Date().toISOString()
+      verified_facts: realityChecks.flatMap((c) => c.verifiedFacts).length,
+      contradictions_found: realityChecks.flatMap((c) => c.contradictions).length,
+      timestamp: new Date().toISOString(),
     };
 
     // Add disclaimer if score is low
     if (overallScore < 0.7) {
-      anchoredResponse.disclaimer = "This response has been flagged for review. Please verify independently.";
+      anchoredResponse.disclaimer =
+        'This response has been flagged for review. Please verify independently.';
     }
 
     return anchoredResponse;
@@ -341,7 +344,7 @@ export class RealityAnchorSystem {
     // Split into sentences
     const allClaims: string[] = [];
     for (const claim of claims) {
-      const sentences = claim.split(/[.!?]+/).filter(s => s.trim().length > 10);
+      const sentences = claim.split(/[.!?]+/).filter((s) => s.trim().length > 10);
       allClaims.push(...sentences);
     }
 
@@ -367,7 +370,7 @@ export class RealityAnchorSystem {
         success: wasSuccessful,
         reality_score: output.reality_anchor?.score || 0,
         timestamp: new Date(),
-        learned_patterns: this.extractPatterns(input, output)
+        learned_patterns: this.extractPatterns(input, output),
       });
 
       // Update verification cache
@@ -377,7 +380,7 @@ export class RealityAnchorSystem {
           verified: true,
           confidence: output.reality_anchor.score,
           lastCheck: new Date(),
-          evidence: output
+          evidence: output,
         });
       }
     } catch (error) {
@@ -413,22 +416,20 @@ export class RealityAnchorSystem {
     averageRealityScore: number;
     contradictionsDetected: number;
   } {
-    const scores = Array.from(this.verificationCache.values())
-      .map(v => v.confidence);
+    const scores = Array.from(this.verificationCache.values()).map((v) => v.confidence);
 
-    const avgScore = scores.length > 0
-      ? scores.reduce((a, b) => a + b, 0) / scores.length
-      : 0;
+    const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
 
-    const contradictions = Array.from(this.verificationCache.values())
-      .filter(v => v.confidence < 0.5).length;
+    const contradictions = Array.from(this.verificationCache.values()).filter(
+      (v) => v.confidence < 0.5
+    ).length;
 
     return {
       absoluteTruths: this.ABSOLUTE_TRUTHS.length,
       verifiedFacts: this.verificationCache.size,
       cacheSize: this.verificationCache.size,
       averageRealityScore: avgScore,
-      contradictionsDetected: contradictions
+      contradictionsDetected: contradictions,
     };
   }
 

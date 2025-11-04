@@ -6,7 +6,7 @@
 const TeamRoster = (() => {
   // Backend API base URL
   const API_BASE_URL = 'https://nuzantara-orchestrator.fly.dev';
-  
+
   // Department color mapping (from backend)
   const DEPARTMENT_COLORS = {
     management: '#6366f1',
@@ -15,7 +15,7 @@ const TeamRoster = (() => {
     marketing: '#ef4444',
     reception: '#06b6d4',
     advisory: '#8b5cf6',
-    technology: '#ec4899'
+    technology: '#ec4899',
   };
 
   // Department icons (from backend)
@@ -26,7 +26,7 @@ const TeamRoster = (() => {
     marketing: '🎤',
     reception: '🌸',
     advisory: '🧐',
-    technology: '🚀'
+    technology: '🚀',
   };
 
   // State
@@ -61,9 +61,9 @@ const TeamRoster = (() => {
       const response = await fetch(`${API_BASE_URL}/api/bali-zero/team/list`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({})
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
@@ -71,7 +71,7 @@ const TeamRoster = (() => {
       }
 
       const result = await response.json();
-      
+
       if (!result.ok) {
         throw new Error(result.error || 'Failed to load team data');
       }
@@ -83,7 +83,7 @@ const TeamRoster = (() => {
       console.log('[TeamRoster] Loaded:', {
         members: allMembers.length,
         departments: Object.keys(departments).length,
-        stats
+        stats,
       });
     } catch (error) {
       console.error('[TeamRoster] Load error:', error);
@@ -178,13 +178,13 @@ const TeamRoster = (() => {
 
     // Department filter
     if (currentFilter !== 'all') {
-      filtered = filtered.filter(m => m.department === currentFilter);
+      filtered = filtered.filter((m) => m.department === currentFilter);
     }
 
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(m => {
+      filtered = filtered.filter((m) => {
         return (
           m.name.toLowerCase().includes(query) ||
           m.role.toLowerCase().includes(query) ||
@@ -215,7 +215,7 @@ const TeamRoster = (() => {
       return;
     }
 
-    const cards = filtered.map(member => createMemberCard(member)).join('');
+    const cards = filtered.map((member) => createMemberCard(member)).join('');
     gridContainer.innerHTML = cards;
   }
 
@@ -228,10 +228,14 @@ const TeamRoster = (() => {
     const deptName = departments[member.department]?.name || member.department;
 
     // Language flag
-    const languageFlag = member.language === 'Indonesian' ? '🇮🇩' 
-                       : member.language === 'Ukrainian' ? '🇺🇦'
-                       : member.language === 'Italian' ? '🇮🇹'
-                       : '🌐';
+    const languageFlag =
+      member.language === 'Indonesian'
+        ? '🇮🇩'
+        : member.language === 'Ukrainian'
+          ? '🇺🇦'
+          : member.language === 'Italian'
+            ? '🇮🇹'
+            : '🌐';
 
     return `
       <div class="member-card" style="border-left-color: ${deptColor};">
@@ -305,7 +309,7 @@ const TeamRoster = (() => {
   return {
     init,
     filterByDepartment,
-    search
+    search,
   };
 })();
 

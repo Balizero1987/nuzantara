@@ -11,13 +11,10 @@ import {
   dashboardServices,
   dashboardHandlers,
   dashboardHealth,
-  dashboardUsers
+  dashboardUsers,
 } from './dashboard-analytics.js';
 import { weeklyReportHandlers } from './weekly-report.js';
-import {
-  updateDailyRecap,
-  getCurrentDailyRecap
-} from './daily-drive-recap.js';
+import { updateDailyRecap, getCurrentDailyRecap } from './daily-drive-recap.js';
 
 export function registerAnalyticsHandlers() {
   // Analytics handlers (object-based)
@@ -27,20 +24,24 @@ export function registerAnalyticsHandlers() {
         key: `analytics.${key}`,
         handler,
         module: 'analytics',
-        requiresAuth: true
+        requiresAuth: true,
       });
     }
   }
 
   // Dashboard handlers
-  globalRegistry.registerModule('analytics', {
-    'dashboard.main': dashboardMain,
-    'dashboard.conversations': dashboardConversations,
-    'dashboard.services': dashboardServices,
-    'dashboard.handlers': dashboardHandlers,
-    'dashboard.health': dashboardHealth,
-    'dashboard.users': dashboardUsers
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'analytics',
+    {
+      'dashboard.main': dashboardMain,
+      'dashboard.conversations': dashboardConversations,
+      'dashboard.services': dashboardServices,
+      'dashboard.handlers': dashboardHandlers,
+      'dashboard.health': dashboardHealth,
+      'dashboard.users': dashboardUsers,
+    },
+    { requiresAuth: true }
+  );
 
   // Weekly report handlers (object-based)
   if (weeklyReportHandlers && typeof weeklyReportHandlers === 'object') {
@@ -49,16 +50,20 @@ export function registerAnalyticsHandlers() {
         key: `weekly.report.${key}`,
         handler,
         module: 'analytics',
-        requiresAuth: true
+        requiresAuth: true,
       });
     }
   }
 
   // Daily recap handlers
-  globalRegistry.registerModule('analytics', {
-    'daily.recap.update': updateDailyRecap,
-    'daily.recap.get': getCurrentDailyRecap
-  }, { requiresAuth: true });
+  globalRegistry.registerModule(
+    'analytics',
+    {
+      'daily.recap.update': updateDailyRecap,
+      'daily.recap.get': getCurrentDailyRecap,
+    },
+    { requiresAuth: true }
+  );
 
   logger.info('✅ Analytics handlers registered');
 }

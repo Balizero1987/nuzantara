@@ -5,8 +5,8 @@
  */
 
 import logger from '../../services/logger.js';
-import { ok } from "../../utils/response.js";
-import { BadRequestError, UnauthorizedError } from "../../utils/errors.js";
+import { ok } from '../../utils/response.js';
+import { BadRequestError, UnauthorizedError } from '../../utils/errors.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -27,7 +27,7 @@ const loginAttempts = new Map<string, LoginAttempt>();
 
 // Team database with secure PIN hashes
 const TEAM_DATABASE = {
-  'zainal': {
+  zainal: {
     id: 'zainal',
     name: 'Zainal Abidin',
     role: 'CEO',
@@ -35,9 +35,9 @@ const TEAM_DATABASE = {
     department: 'management',
     language: 'Indonesian',
     pinHash: '$2b$10$k6h0w/bvQ0QIYklzfVjtPOYDQBI3gGbvdQSKgfAkFF8oWkISwVZ7a', // PIN: 521209
-    badge: '👑'
+    badge: '👑',
   },
-  'ruslana': {
+  ruslana: {
     id: 'ruslana',
     name: 'Ruslana',
     role: 'Board Member',
@@ -45,9 +45,9 @@ const TEAM_DATABASE = {
     department: 'management',
     language: 'English',
     pinHash: '$2b$10$kdpkOuiRaK1h3EI/K88ojOmLpY1StOYxy1UWe0PLmQ58rKP5RJFIK', // PIN: 544835
-    badge: '💼'
+    badge: '💼',
   },
-  'zero': {
+  zero: {
     id: 'zero',
     name: 'Zero',
     role: 'AI Bridge/Tech Lead',
@@ -55,9 +55,9 @@ const TEAM_DATABASE = {
     department: 'technology',
     language: 'Italian',
     pinHash: '$2b$10$sjaM6AcuTgFZM0/8tRDX5.L8vRXBr7cKeJyWojrDCZFZR5Lm8LbLq', // PIN: 010719
-    badge: '🤖'
+    badge: '🤖',
   },
-  'amanda': {
+  amanda: {
     id: 'amanda',
     name: 'Amanda',
     role: 'Executive Consultant',
@@ -65,81 +65,81 @@ const TEAM_DATABASE = {
     department: 'setup',
     language: 'Indonesian',
     pinHash: '$2b$10$aSbKt0B4axbmEMGlk8CjBeDsm37.shHvqtdiYDCCAz87bWk00taT2', // PIN: 180785
-    badge: '📒'
+    badge: '📒',
   },
-  'anton': {
+  anton: {
     id: 'anton',
     name: 'Anton',
     role: 'Executive Consultant',
     email: 'anton@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$0JgQgucmWVMkD7/hj.eJA.o2yywL.TrUw5DhrqVG7Ne9UikJALhB6' // PIN: 717657
+    pinHash: '$2b$10$0JgQgucmWVMkD7/hj.eJA.o2yywL.TrUw5DhrqVG7Ne9UikJALhB6', // PIN: 717657
   },
-  'vino': {
+  vino: {
     id: 'vino',
     name: 'Vino',
     role: 'Junior Consultant',
     email: 'info@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$R/6z/RYXwi.hYEetHaMbMeUeoZfrupMJQSslMKMnWMnMLBIlzETDC' // PIN: 630443
+    pinHash: '$2b$10$R/6z/RYXwi.hYEetHaMbMeUeoZfrupMJQSslMKMnWMnMLBIlzETDC', // PIN: 630443
   },
-  'krisna': {
+  krisna: {
     id: 'krisna',
     name: 'Krisna',
     role: 'Executive Consultant',
     email: 'krisna@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$DkVlZDUVDGAVJZtzAUSfneAN5RIVBr.pFNvlgaakGyzZy93iqvCNe' // PIN: 705802
+    pinHash: '$2b$10$DkVlZDUVDGAVJZtzAUSfneAN5RIVBr.pFNvlgaakGyzZy93iqvCNe', // PIN: 705802
   },
-  'adit': {
+  adit: {
     id: 'adit',
     name: 'Adit',
     role: 'Crew Lead',
     email: 'consulting@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$coHPnjVQ9VEsQc4EaLh8IuLcI3dtBmcHVIrMIgsqfyZgSju10X2oC' // PIN: 897634
+    pinHash: '$2b$10$coHPnjVQ9VEsQc4EaLh8IuLcI3dtBmcHVIrMIgsqfyZgSju10X2oC', // PIN: 897634
   },
-  'ari': {
+  ari: {
     id: 'ari',
     name: 'Ari',
     role: 'Specialist Consultant',
     email: 'ari.firda@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$BOU0p5xsvKREicXNv.IOeObdFeDV36PahfywB7PVQOLTxzNwV8e7e' // PIN: 679880
+    pinHash: '$2b$10$BOU0p5xsvKREicXNv.IOeObdFeDV36PahfywB7PVQOLTxzNwV8e7e', // PIN: 679880
   },
-  'dea': {
+  dea: {
     id: 'dea',
     name: 'Dea',
     role: 'Executive Consultant',
     email: 'dea@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$6AeF62P9TMQglzIP0xyNXOESF7qH.0xxaxpem9det4GQzreFdS0RK' // PIN: 865622
+    pinHash: '$2b$10$6AeF62P9TMQglzIP0xyNXOESF7qH.0xxaxpem9det4GQzreFdS0RK', // PIN: 865622
   },
-  'surya': {
+  surya: {
     id: 'surya',
     name: 'Surya',
     role: 'Specialist Consultant',
     email: 'surya@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$HnaMEldDMI1xmhj2RUSe5uYHUT1diTebIeIq3BrdV5FpcpLe8G9am' // PIN: 981689
+    pinHash: '$2b$10$HnaMEldDMI1xmhj2RUSe5uYHUT1diTebIeIq3BrdV5FpcpLe8G9am', // PIN: 981689
   },
-  'damar': {
+  damar: {
     id: 'damar',
     name: 'Damar',
     role: 'Junior Consultant',
     email: 'damar@balizero.com',
     department: 'setup',
     language: 'Indonesian',
-    pinHash: '$2b$10$TYuGHJrTatNzy.iENr9lRu9vFPmE5ivX6N81w6qA4ExSu1i8Ymg8W' // PIN: 180453
+    pinHash: '$2b$10$TYuGHJrTatNzy.iENr9lRu9vFPmE5ivX6N81w6qA4ExSu1i8Ymg8W', // PIN: 180453
   },
-  'veronika': {
+  veronika: {
     id: 'veronika',
     name: 'Veronika',
     role: 'Tax Manager',
@@ -147,54 +147,54 @@ const TEAM_DATABASE = {
     department: 'tax',
     language: 'Indonesian',
     pinHash: '$2b$10$6zgojExYqDPAR0saMWDm7.M9P72iCANnCccoEkvoiS9vr.6515pKu', // PIN: 650817
-    badge: '💰'
+    badge: '💰',
   },
-  'olena': {
+  olena: {
     id: 'olena',
     name: 'Olena',
     role: 'External Tax Advisory',
     email: 'olena@balizero.com',
     department: 'tax',
     language: 'English',
-    pinHash: '$2b$10$YpO3AMrLQg8kSac02M7m8eOqUlotHvC8EZYV6nWaa6BwdRu10Qn7G' // PIN: 840319
+    pinHash: '$2b$10$YpO3AMrLQg8kSac02M7m8eOqUlotHvC8EZYV6nWaa6BwdRu10Qn7G', // PIN: 840319
   },
-  'angel': {
+  angel: {
     id: 'angel',
     name: 'Angel',
     role: 'Tax Expert',
     email: 'angel.tax@balizero.com',
     department: 'tax',
     language: 'English',
-    pinHash: '$2b$10$8he.rxJDMr.AsrISm5uylONLBNEfnotCdUhVk3PVl1YZ.DHTZB9va' // PIN: 429097
+    pinHash: '$2b$10$8he.rxJDMr.AsrISm5uylONLBNEfnotCdUhVk3PVl1YZ.DHTZB9va', // PIN: 429097
   },
-  'kadek': {
+  kadek: {
     id: 'kadek',
     name: 'Kadek',
     role: 'Tax Consultant',
     email: 'kadek.tax@balizero.com',
     department: 'tax',
     language: 'Indonesian',
-    pinHash: '$2b$10$zL/SxlmZpHj503Ihq0gsze1JH0wX7shLFWkmPLEKpmOFHHYVb7.Vi' // PIN: 489327
+    pinHash: '$2b$10$zL/SxlmZpHj503Ihq0gsze1JH0wX7shLFWkmPLEKpmOFHHYVb7.Vi', // PIN: 489327
   },
-  'dewaayu': {
+  dewaayu: {
     id: 'dewaayu',
     name: 'Dewa Ayu',
     role: 'Tax Consultant',
     email: 'dewa.ayu.tax@balizero.com',
     department: 'tax',
     language: 'Indonesian',
-    pinHash: '$2b$10$7uN8RaomgZjgo8yohUMbpOlHm217/YlTKjW2mEjr2a1yxLBLWy38O' // PIN: 976468
+    pinHash: '$2b$10$7uN8RaomgZjgo8yohUMbpOlHm217/YlTKjW2mEjr2a1yxLBLWy38O', // PIN: 976468
   },
-  'faisha': {
+  faisha: {
     id: 'faisha',
     name: 'Faisha',
     role: 'Tax Care',
     email: 'faisha.tax@balizero.com',
     department: 'tax',
     language: 'Indonesian',
-    pinHash: '$2b$10$e1mLBGAlrvODZpgNUGEfDO8X46XNBWry6JCqOghdp9Wph3LEGR5Mq' // PIN: 185324
+    pinHash: '$2b$10$e1mLBGAlrvODZpgNUGEfDO8X46XNBWry6JCqOghdp9Wph3LEGR5Mq', // PIN: 185324
   },
-  'rina': {
+  rina: {
     id: 'rina',
     name: 'Rina',
     role: 'Reception',
@@ -202,9 +202,9 @@ const TEAM_DATABASE = {
     department: 'reception',
     language: 'Indonesian',
     pinHash: '$2b$10$3HafTOBoHXrIgfFAFQlmBeFjCyYOLsAqisWVR2chai59NkxjNNjJe', // PIN: 253479
-    badge: '📞'
+    badge: '📞',
   },
-  'nina': {
+  nina: {
     id: 'nina',
     name: 'Nina',
     role: 'Marketing Advisory',
@@ -212,18 +212,18 @@ const TEAM_DATABASE = {
     department: 'marketing',
     language: 'English',
     pinHash: '$2b$10$pwHdnITRpz/gxbbBA1GQd./Gei13k..IYs6o2tSJyKix0MW2AzVE2', // PIN: 581480
-    badge: '📢'
+    badge: '📢',
   },
-  'sahira': {
+  sahira: {
     id: 'sahira',
     name: 'Sahira',
     role: 'Marketing Specialist',
     email: 'sahira@balizero.com',
     department: 'marketing',
     language: 'Indonesian',
-    pinHash: '$2b$10$Cbc3f.ls3hktpBcyP23KMeFoYfFVivkqVhzoSQzrW0/cEMtGqGi92' // PIN: 810949
+    pinHash: '$2b$10$Cbc3f.ls3hktpBcyP23KMeFoYfFVivkqVhzoSQzrW0/cEMtGqGi92', // PIN: 810949
   },
-  'marta': {
+  marta: {
     id: 'marta',
     name: 'Marta',
     role: 'External Advisory',
@@ -231,8 +231,8 @@ const TEAM_DATABASE = {
     department: 'advisory',
     language: 'Italian',
     pinHash: '$2b$10$cNBdYxMYzSxJU1.I8F3VQuOarxdKq..hWeqZnGAiaFOGm6RL2.lM2', // PIN: 166272
-    badge: '💼'
-  }
+    badge: '💼',
+  },
 };
 
 /**
@@ -252,7 +252,7 @@ function checkRateLimit(email: string): { allowed: boolean; reason?: string; ret
     return {
       allowed: false,
       reason: `Too many failed attempts. Please try again in ${retryAfter} seconds.`,
-      retryAfter
+      retryAfter,
     };
   }
 
@@ -271,7 +271,7 @@ function checkRateLimit(email: string): { allowed: boolean; reason?: string; ret
     return {
       allowed: false,
       reason: `Too many failed attempts. Account locked for ${retryAfter} seconds.`,
-      retryAfter
+      retryAfter,
     };
   }
 
@@ -314,7 +314,7 @@ export async function resetLoginAttempts(params: any) {
 
   return ok({
     success: true,
-    message: `Login attempts cleared for ${email}. User can try again.`
+    message: `Login attempts cleared for ${email}. User can try again.`,
   });
 }
 
@@ -381,7 +381,7 @@ export async function teamLoginSecure(params: any) {
       email: member.email,
       role: member.role,
       department: member.department,
-      name: member.name // Added for adminAuth compatibility
+      name: member.name, // Added for adminAuth compatibility
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRY }
@@ -402,15 +402,15 @@ export async function teamLoginSecure(params: any) {
     user: {
       id: member.id,
       name: member.name,
-      email: member.email,  // ✅ CRITICAL: Frontend needs this for recognition!
+      email: member.email, // ✅ CRITICAL: Frontend needs this for recognition!
       role: member.role,
       department: member.department,
       language: member.language,
-      badge: (member as any).badge || ''
+      badge: (member as any).badge || '',
     },
     permissions,
     message: response,
-    expiresIn: JWT_EXPIRY
+    expiresIn: JWT_EXPIRY,
   });
 }
 
@@ -430,12 +430,12 @@ export function verifyToken(token: string): any {
  * Get team member list (safe - no PINs!)
  */
 export function getTeamMemberList() {
-  return Object.values(TEAM_DATABASE).map(member => ({
+  return Object.values(TEAM_DATABASE).map((member) => ({
     id: member.id,
     name: member.name,
     role: member.role,
     department: member.department,
-    badge: (member as any).badge || ''
+    badge: (member as any).badge || '',
   }));
 }
 
@@ -444,7 +444,7 @@ export function getTeamMemberList() {
  */
 function getPermissionsForRole(role: string): string[] {
   const permissions: { [key: string]: string[] } = {
-    'CEO': ['all', 'admin', 'finance', 'hr', 'tech', 'marketing'],
+    CEO: ['all', 'admin', 'finance', 'hr', 'tech', 'marketing'],
     'Board Member': ['all', 'finance', 'hr', 'tech', 'marketing'],
     'AI Bridge/Tech Lead': ['all', 'tech', 'admin', 'finance'],
     'Executive Consultant': ['setup', 'finance', 'clients', 'reports'],
@@ -457,8 +457,8 @@ function getPermissionsForRole(role: string): string[] {
     'Tax Care': ['tax', 'clients'],
     'Marketing Specialist': ['marketing', 'clients', 'reports'],
     'Marketing Advisory': ['marketing', 'clients'],
-    'Reception': ['clients', 'appointments'],
-    'External Advisory': ['clients', 'reports']
+    Reception: ['clients', 'appointments'],
+    'External Advisory': ['clients', 'reports'],
   };
 
   return permissions[role] || ['clients'];
@@ -472,7 +472,7 @@ function getPersonalizedResponse(member: any): string {
     Indonesian: `Selamat datang kembali, ${member.name}! Anda telah berhasil masuk sebagai ${member.role}.`,
     Italian: `Ciao ${member.name}! Bentornato. Accesso riuscito come ${member.role}.`,
     Ukrainian: `Ласкаво просимо, ${member.name}! Ви успішно увійшли як ${member.role}.`,
-    English: `Welcome back, ${member.name}! You have successfully logged in as ${member.role}.`
+    English: `Welcome back, ${member.name}! You have successfully logged in as ${member.role}.`,
   };
 
   return responses[member.language] || responses['English'] || 'Welcome back!';

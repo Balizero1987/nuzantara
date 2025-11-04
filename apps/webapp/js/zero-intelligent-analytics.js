@@ -23,7 +23,9 @@ class ZeroIntelligentAnalytics {
     this.isZero = this.checkIfZero();
 
     if (this.isZero) {
-      console.log('🎯 [ZeroIntelligent] ZERO access detected - enabling analytics (natural language only)');
+      console.log(
+        '🎯 [ZeroIntelligent] ZERO access detected - enabling analytics (natural language only)'
+      );
       this.setupNaturalLanguageHandler();
       // ❌ DISABLED: Visual dashboard causing duplicate widgets
       // this.setupVisualDashboard();
@@ -41,14 +43,16 @@ class ZeroIntelligentAnalytics {
       'zero@balizero.com',
       'antonello@balizero.com',
       'antonello.siano@balizero.com',
-      'antonellosiano@gmail.com'
+      'antonellosiano@gmail.com',
     ];
 
-    return zeroEmails.includes(user.email?.toLowerCase()) ||
-           user.role?.toLowerCase().includes('ceo') ||
-           user.role?.toLowerCase().includes('owner') ||
-           user.name?.toLowerCase().includes('antonello') ||
-           user.name?.toLowerCase().includes('zero');
+    return (
+      zeroEmails.includes(user.email?.toLowerCase()) ||
+      user.role?.toLowerCase().includes('ceo') ||
+      user.role?.toLowerCase().includes('owner') ||
+      user.name?.toLowerCase().includes('antonello') ||
+      user.name?.toLowerCase().includes('zero')
+    );
   }
 
   getCurrentUser() {
@@ -133,11 +137,11 @@ class ZeroIntelligentAnalytics {
       'chi sta lavorando',
       'attività team',
       'statistiche',
-      'produttività'
+      'produttività',
     ];
 
     const queryLower = query.toLowerCase();
-    return analyticsKeywords.some(keyword => queryLower.includes(keyword));
+    return analyticsKeywords.some((keyword) => queryLower.includes(keyword));
   }
 
   async handleZeroQuery(query) {
@@ -171,7 +175,7 @@ class ZeroIntelligentAnalytics {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
       });
 
       if (response.ok) {
@@ -189,31 +193,38 @@ class ZeroIntelligentAnalytics {
   formatTeamResponse(data, query) {
     const queryLower = query.toLowerCase();
 
-    if (queryLower.includes('chi si è loggato') ||
-        queryLower.includes('login oggi') ||
-        queryLower.includes('chi è online') ||
-        queryLower.includes('chi sta lavorando')) {
+    if (
+      queryLower.includes('chi si è loggato') ||
+      queryLower.includes('login oggi') ||
+      queryLower.includes('chi è online') ||
+      queryLower.includes('chi sta lavorando')
+    ) {
       return this.formatLoginReport(data);
-    }
-    else if (queryLower.includes('ore lavoro') ||
-             queryLower.includes('ore oggi') ||
-             queryLower.includes('performance') ||
-             queryLower.includes('produttività')) {
+    } else if (
+      queryLower.includes('ore lavoro') ||
+      queryLower.includes('ore oggi') ||
+      queryLower.includes('performance') ||
+      queryLower.includes('produttività')
+    ) {
       return this.formatPerformanceReport(data);
-    }
-    else if (queryLower.includes('team status') ||
-             queryLower.includes('dashboard') ||
-             queryLower.includes('statistiche')) {
+    } else if (
+      queryLower.includes('team status') ||
+      queryLower.includes('dashboard') ||
+      queryLower.includes('statistiche')
+    ) {
       return this.formatTeamStatus(data);
-    }
-    else {
+    } else {
       return this.formatGeneralReport(data);
     }
   }
 
   formatLoginReport(data) {
     const now = new Date();
-    const dateStr = now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+    const dateStr = now.toLocaleDateString('it-IT', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
     const timeStr = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
     let response = `📊 **REPORT LOGIN TEAM**\n`;
@@ -226,7 +237,7 @@ class ZeroIntelligentAnalytics {
       response += `🟢 **ATTUALMENTE ONLINE: ${activeSessions}/${totalMembers}**\n\n`;
 
       if (data.active_members && data.active_members.length > 0) {
-        data.active_members.forEach(member => {
+        data.active_members.forEach((member) => {
           const duration = this.formatDuration(member.session_duration_minutes);
           response += `• **${member.name}** (${member.department})\n`;
           response += `  └─ Online da ${duration}\n`;
@@ -302,7 +313,11 @@ class ZeroIntelligentAnalytics {
 
   formatGeneralReport(data) {
     const now = new Date();
-    const dateStr = now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+    const dateStr = now.toLocaleDateString('it-IT', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
 
     let response = `📋 **REPORT GENERALE TEAM**\n`;
     response += `📅 ${dateStr}\n\n`;
@@ -315,7 +330,7 @@ class ZeroIntelligentAnalytics {
 
     if (data.active_members && data.active_members.length > 0) {
       response += `👤 **MEMBRI ONLINE ADESSO:**\n`;
-      data.active_members.forEach(member => {
+      data.active_members.forEach((member) => {
         response += `🟢 **${member.name}** (${member.department}) - ${(member.hours_today || 0).toFixed(1)}h\n`;
       });
     } else {
@@ -388,7 +403,8 @@ class ZeroIntelligentAnalytics {
     // Check if dashboard widget already exists
     if (!this.dashboardElement) {
       this.dashboardElement = this.createDashboardWidget(data);
-      const chatWrapper = document.querySelector('.chat-wrapper') || document.querySelector('.messages');
+      const chatWrapper =
+        document.querySelector('.chat-wrapper') || document.querySelector('.messages');
       if (chatWrapper && chatWrapper.parentElement) {
         chatWrapper.parentElement.insertBefore(this.dashboardElement, chatWrapper);
       }

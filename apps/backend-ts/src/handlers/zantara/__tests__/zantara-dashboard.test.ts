@@ -34,10 +34,12 @@ describe('Zantara Dashboard', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.zantaraDashboardOverview({
-        timeframe: 'invalid_timeframe',
-        invalid: 'data'
-      })).rejects.toThrow(ZodError);
+      await expect(
+        handlers.zantaraDashboardOverview({
+          timeframe: 'invalid_timeframe',
+          invalid: 'data',
+        })
+      ).rejects.toThrow(ZodError);
     });
   });
 
@@ -61,10 +63,12 @@ describe('Zantara Dashboard', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.zantaraTeamHealthMonitor({
-        team_members: [], // Empty array should fail (min 1)
-        invalid: 'data'
-      })).rejects.toThrow(ZodError);
+      await expect(
+        handlers.zantaraTeamHealthMonitor({
+          team_members: [], // Empty array should fail (min 1)
+          invalid: 'data',
+        })
+      ).rejects.toThrow(ZodError);
     });
   });
 
@@ -93,10 +97,12 @@ describe('Zantara Dashboard', () => {
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.zantaraPerformanceAnalytics({
-        analysis_type: 'invalid_type',
-        invalid: 'data'
-      })).rejects.toThrow(ZodError);
+      await expect(
+        handlers.zantaraPerformanceAnalytics({
+          analysis_type: 'invalid_type',
+          invalid: 'data',
+        })
+      ).rejects.toThrow(ZodError);
     });
   });
 
@@ -123,12 +129,11 @@ describe('Zantara Dashboard', () => {
     it('should handle invalid params', async () => {
       // Accepts any params, should succeed
       const result = await handlers.zantaraSystemDiagnostics({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
     });
   });
-
 });

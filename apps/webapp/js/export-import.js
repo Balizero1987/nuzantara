@@ -16,7 +16,7 @@ class ExportImport {
   initialize() {
     // Register default exportable components
     this.registerDefaultComponents();
-    
+
     console.log('[ExportImport] System initialized');
   }
 
@@ -30,7 +30,7 @@ class ExportImport {
       description: 'Chat conversations and message history',
       exporter: this.exportConversations.bind(this),
       importer: this.importConversations.bind(this),
-      validator: this.validateConversationsImport.bind(this)
+      validator: this.validateConversationsImport.bind(this),
     });
 
     // Register user preferences
@@ -39,7 +39,7 @@ class ExportImport {
       description: 'Dashboard layout, notification settings, and UI preferences',
       exporter: this.exportPreferences.bind(this),
       importer: this.importPreferences.bind(this),
-      validator: this.validatePreferencesImport.bind(this)
+      validator: this.validatePreferencesImport.bind(this),
     });
 
     // Register handler data
@@ -48,7 +48,7 @@ class ExportImport {
       description: 'Custom handler configurations and settings',
       exporter: this.exportHandlers.bind(this),
       importer: this.importHandlers.bind(this),
-      validator: this.validateHandlersImport.bind(this)
+      validator: this.validateHandlersImport.bind(this),
     });
 
     // Register tags and categories
@@ -57,7 +57,7 @@ class ExportImport {
       description: 'Custom tags, categories, and labeling systems',
       exporter: this.exportTags.bind(this),
       importer: this.importTags.bind(this),
-      validator: this.validateTagsImport.bind(this)
+      validator: this.validateTagsImport.bind(this),
     });
   }
 
@@ -85,13 +85,12 @@ class ExportImport {
       const exportData = {
         version: '1.0',
         timestamp: new Date().toISOString(),
-        components: {}
+        components: {},
       };
 
       // Determine which components to export
-      const componentsToExport = componentIds.length > 0 
-        ? componentIds 
-        : [...this.exportableComponents.keys()];
+      const componentsToExport =
+        componentIds.length > 0 ? componentIds : [...this.exportableComponents.keys()];
 
       // Export each component
       for (const componentId of componentsToExport) {
@@ -108,9 +107,9 @@ class ExportImport {
           version: exportData.version,
           timestamp: exportData.timestamp,
           componentCount: Object.keys(exportData.components).length,
-          components: componentsToExport
+          components: componentsToExport,
         },
-        data: exportData.components
+        data: exportData.components,
       };
 
       console.log('[ExportImport] Data export completed');
@@ -133,7 +132,7 @@ class ExportImport {
 
       const results = {
         success: [],
-        errors: []
+        errors: [],
       };
 
       // Import each component
@@ -142,7 +141,7 @@ class ExportImport {
         if (component) {
           try {
             console.log(`[ExportImport] Importing ${componentId}...`);
-            
+
             // Validate component data
             if (component.validator && !component.validator(componentData)) {
               throw new Error(`Validation failed for ${componentId}`);
@@ -155,7 +154,7 @@ class ExportImport {
             console.error(`[ExportImport] Error importing ${componentId}:`, error);
             results.errors.push({
               component: componentId,
-              error: error.message
+              error: error.message,
             });
           }
         }
@@ -173,11 +172,13 @@ class ExportImport {
    * Validate import data structure
    */
   validateImportStructure(importData) {
-    return importData && 
-           importData.metadata && 
-           importData.data && 
-           typeof importData.metadata === 'object' && 
-           typeof importData.data === 'object';
+    return (
+      importData &&
+      importData.metadata &&
+      importData.data &&
+      typeof importData.metadata === 'object' &&
+      typeof importData.data === 'object'
+    );
   }
 
   /**
@@ -189,15 +190,15 @@ class ExportImport {
       return {
         history: window.ConversationHistory.history,
         starred: [...window.ConversationHistory.starredConversations],
-        tags: Object.fromEntries(window.ConversationHistory.tags)
+        tags: Object.fromEntries(window.ConversationHistory.tags),
       };
     }
-    
+
     // Fallback to localStorage
     return {
       history: JSON.parse(localStorage.getItem('zantara-conversation-history') || '[]'),
       starred: JSON.parse(localStorage.getItem('zantara-starred-conversations') || '[]'),
-      tags: JSON.parse(localStorage.getItem('zantara-conversation-tags') || '{}')
+      tags: JSON.parse(localStorage.getItem('zantara-conversation-tags') || '{}'),
     };
   }
 
@@ -218,33 +219,39 @@ class ExportImport {
       if (conversationData.history) {
         window.ConversationHistory.history = conversationData.history;
       }
-      
+
       if (conversationData.starred) {
         window.ConversationHistory.starredConversations = new Set(conversationData.starred);
       }
-      
+
       if (conversationData.tags) {
         window.ConversationHistory.tags = new Map(Object.entries(conversationData.tags));
       }
-      
+
       // Save to localStorage
       window.ConversationHistory.saveHistory();
       return true;
     }
-    
+
     // Fallback to localStorage
     if (conversationData.history) {
-      localStorage.setItem('zantara-conversation-history', JSON.stringify(conversationData.history));
+      localStorage.setItem(
+        'zantara-conversation-history',
+        JSON.stringify(conversationData.history)
+      );
     }
-    
+
     if (conversationData.starred) {
-      localStorage.setItem('zantara-starred-conversations', JSON.stringify(conversationData.starred));
+      localStorage.setItem(
+        'zantara-starred-conversations',
+        JSON.stringify(conversationData.starred)
+      );
     }
-    
+
     if (conversationData.tags) {
       localStorage.setItem('zantara-conversation-tags', JSON.stringify(conversationData.tags));
     }
-    
+
     return true;
   }
 
@@ -252,10 +259,12 @@ class ExportImport {
    * Validate conversations import data
    */
   validateConversationsImport(conversationData) {
-    return conversationData && 
-           typeof conversationData === 'object' &&
-           (conversationData.history === undefined || Array.isArray(conversationData.history)) &&
-           (conversationData.starred === undefined || Array.isArray(conversationData.starred));
+    return (
+      conversationData &&
+      typeof conversationData === 'object' &&
+      (conversationData.history === undefined || Array.isArray(conversationData.history)) &&
+      (conversationData.starred === undefined || Array.isArray(conversationData.starred))
+    );
   }
 
   /**
@@ -266,7 +275,7 @@ class ExportImport {
       dashboard: JSON.parse(localStorage.getItem('zantara-dashboard-preferences') || '{}'),
       notifications: JSON.parse(localStorage.getItem('zantara-notification-preferences') || '{}'),
       dashboardLayout: JSON.parse(localStorage.getItem('zantara-dashboard-layout') || '[]'),
-      theme: localStorage.getItem('zantara-theme') || 'light'
+      theme: localStorage.getItem('zantara-theme') || 'light',
     };
   }
 
@@ -284,26 +293,37 @@ class ExportImport {
 
     // Import data
     if (preferenceData.dashboard) {
-      localStorage.setItem('zantara-dashboard-preferences', JSON.stringify(preferenceData.dashboard));
+      localStorage.setItem(
+        'zantara-dashboard-preferences',
+        JSON.stringify(preferenceData.dashboard)
+      );
     }
-    
+
     if (preferenceData.notifications) {
-      localStorage.setItem('zantara-notification-preferences', JSON.stringify(preferenceData.notifications));
+      localStorage.setItem(
+        'zantara-notification-preferences',
+        JSON.stringify(preferenceData.notifications)
+      );
     }
-    
+
     if (preferenceData.dashboardLayout) {
-      localStorage.setItem('zantara-dashboard-layout', JSON.stringify(preferenceData.dashboardLayout));
+      localStorage.setItem(
+        'zantara-dashboard-layout',
+        JSON.stringify(preferenceData.dashboardLayout)
+      );
     }
-    
+
     if (preferenceData.theme) {
       localStorage.setItem('zantara-theme', preferenceData.theme);
     }
-    
+
     // Notify system of preference changes
-    window.dispatchEvent(new CustomEvent('preferences-imported', {
-      detail: preferenceData
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('preferences-imported', {
+        detail: preferenceData,
+      })
+    );
+
     return true;
   }
 
@@ -322,14 +342,14 @@ class ExportImport {
     if (window.HandlerDiscovery) {
       return {
         handlers: window.HandlerDiscovery.handlers,
-        categories: window.HandlerDiscovery.categories
+        categories: window.HandlerDiscovery.categories,
       };
     }
-    
+
     // Return empty data if no handlers system available
     return {
       handlers: [],
-      categories: []
+      categories: [],
     };
   }
 
@@ -338,10 +358,12 @@ class ExportImport {
    */
   async importHandlers(handlerData, options) {
     // Handler data is typically read-only, so we just notify about the import
-    window.dispatchEvent(new CustomEvent('handlers-imported', {
-      detail: handlerData
-    }));
-    
+    window.dispatchEvent(
+      new CustomEvent('handlers-imported', {
+        detail: handlerData,
+      })
+    );
+
     return true;
   }
 
@@ -349,10 +371,12 @@ class ExportImport {
    * Validate handlers import data
    */
   validateHandlersImport(handlerData) {
-    return handlerData && 
-           typeof handlerData === 'object' &&
-           Array.isArray(handlerData.handlers !== undefined ? handlerData.handlers : []) &&
-           Array.isArray(handlerData.categories !== undefined ? handlerData.categories : []);
+    return (
+      handlerData &&
+      typeof handlerData === 'object' &&
+      Array.isArray(handlerData.handlers !== undefined ? handlerData.handlers : []) &&
+      Array.isArray(handlerData.categories !== undefined ? handlerData.categories : [])
+    );
   }
 
   /**
@@ -366,13 +390,13 @@ class ExportImport {
         tagsData[conversationId] = [...tags];
       }
       return {
-        tags: tagsData
+        tags: tagsData,
       };
     }
-    
+
     // Fallback to localStorage
     return {
-      tags: JSON.parse(localStorage.getItem('zantara-conversation-tags') || '{}')
+      tags: JSON.parse(localStorage.getItem('zantara-conversation-tags') || '{}'),
     };
   }
 
@@ -385,22 +409,22 @@ class ExportImport {
       if (options.clearExisting) {
         window.ConversationHistory.tags = new Map();
       }
-      
+
       if (tagsData.tags) {
         for (const [conversationId, tags] of Object.entries(tagsData.tags)) {
           window.ConversationHistory.tags.set(conversationId, new Set(tags));
         }
       }
-      
+
       window.ConversationHistory.saveHistory();
       return true;
     }
-    
+
     // Fallback to localStorage
     if (tagsData.tags) {
       localStorage.setItem('zantara-conversation-tags', JSON.stringify(tagsData.tags));
     }
-    
+
     return true;
   }
 
@@ -408,9 +432,7 @@ class ExportImport {
    * Validate tags import data
    */
   validateTagsImport(tagsData) {
-    return tagsData && 
-           typeof tagsData === 'object' &&
-           tagsData.tags !== undefined;
+    return tagsData && typeof tagsData === 'object' && tagsData.tags !== undefined;
   }
 
   /**
@@ -421,20 +443,20 @@ class ExportImport {
       const jsonData = JSON.stringify(data, null, 2);
       const blob = new Blob([jsonData], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-      
+
       // Create download link
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-      
+
       // Clean up
       setTimeout(() => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       }, 100);
-      
+
       console.log(`[ExportImport] File downloaded: ${filename}`);
       return true;
     } catch (error) {
@@ -473,7 +495,7 @@ class ExportImport {
       components.push({
         id,
         name: definition.name,
-        description: definition.description
+        description: definition.description,
       });
     }
     return components;
@@ -485,7 +507,7 @@ class ExportImport {
   getStatistics() {
     return {
       exportableComponents: this.exportableComponents.size,
-      registeredValidators: this.importValidators.size
+      registeredValidators: this.importValidators.size,
     };
   }
 }
@@ -494,9 +516,9 @@ class ExportImport {
 document.addEventListener('DOMContentLoaded', () => {
   window.ExportImport = new ExportImport();
   window.ExportImport.initialize();
-  
+
   console.log('[ExportImport] System ready');
-  
+
   // Mark enhancement as completed
   if (window.enhancementTracker) {
     window.enhancementTracker.markCompleted(24);

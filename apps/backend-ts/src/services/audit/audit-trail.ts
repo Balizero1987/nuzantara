@@ -1,9 +1,9 @@
 /**
  * Audit Trail System
- * 
+ *
  * Comprehensive audit logging for all critical operations to ensure
  * security compliance, GDPR compliance, and operational traceability.
- * 
+ *
  * Features:
  * - Automatic audit logging for critical operations
  * - GDPR-compliant data handling (PII masking)
@@ -11,7 +11,7 @@
  * - Searchable audit logs
  * - Export capabilities for compliance reporting
  * - Integration with existing authentication system
- * 
+ *
  * CRITICAL OPERATIONS LOGGED:
  * - Authentication events (login, logout, token refresh)
  * - Authorization changes (role changes, permissions)
@@ -75,8 +75,8 @@ class AuditTrailService {
         'creditCard',
         'ssn',
         'email',
-        'phone'
-      ]
+        'phone',
+      ],
     };
 
     // Start buffer flush interval
@@ -102,8 +102,8 @@ class AuditTrailService {
             reconnectStrategy: (retries) => {
               if (retries > 3) return false;
               return Math.min(retries * 100, 1000);
-            }
-          }
+            },
+          },
         });
 
         this.redis.on('error', (err) => {
@@ -145,7 +145,7 @@ class AuditTrailService {
       id: this.generateEventId(),
       timestamp: Date.now(),
       metadata: maskedMetadata,
-      gdprCompliant: this.config.enablePIIMasking
+      gdprCompliant: this.config.enablePIIMasking,
     };
 
     // Add to buffer
@@ -170,7 +170,7 @@ class AuditTrailService {
       const keyLower = key.toLowerCase();
 
       // Check if field is sensitive
-      if (this.config.sensitiveFields!.some(field => keyLower.includes(field.toLowerCase()))) {
+      if (this.config.sensitiveFields!.some((field) => keyLower.includes(field.toLowerCase()))) {
         if (typeof value === 'string') {
           // Mask email addresses
           if (keyLower.includes('email')) {
@@ -182,16 +182,16 @@ class AuditTrailService {
           }
           // Generic string masking
           else {
-            masked[key] = value.length > 4 
-              ? value.substring(0, 2) + '***' + value.substring(value.length - 2)
-              : '***';
+            masked[key] =
+              value.length > 4
+                ? value.substring(0, 2) + '***' + value.substring(value.length - 2)
+                : '***';
           }
         }
         // Mask other sensitive types
         else if (typeof value === 'object' && value !== null) {
           masked[key] = this.maskPII(value as Record<string, any>);
-        }
-        else {
+        } else {
           masked[key] = '***REDACTED***';
         }
       }
@@ -210,9 +210,8 @@ class AuditTrailService {
   private maskEmail(email: string): string {
     const [local, domain] = email.split('@');
     if (!domain) return '***@***';
-    const maskedLocal = local.length > 2
-      ? local.substring(0, 1) + '***' + local.substring(local.length - 1)
-      : '***';
+    const maskedLocal =
+      local.length > 2 ? local.substring(0, 1) + '***' + local.substring(local.length - 1) : '***';
     return `${maskedLocal}@${domain}`;
   }
 
@@ -306,7 +305,7 @@ class AuditTrailService {
     try {
       const events: AuditEvent[] = [];
       const limit = filters.limit || 100;
-      
+
       // Build query keys
       let queryKey: string;
       if (filters.userId) {
@@ -315,30 +314,28 @@ class AuditTrailService {
         queryKey = `audit:action:${filters.action}`;
       } else {
         // Query by date range
-        const startDate = filters.startTime || Date.now() - (24 * 60 * 60 * 1000); // Default: last 24h
+        const startDate = filters.startTime || Date.now() - 24 * 60 * 60 * 1000; // Default: last 24h
         queryKey = `audit:events:${this.getDateKey(startDate)}`;
       }
 
       // Get events from sorted set
       const start = filters.startTime || 0;
       const end = filters.endTime || Date.now();
-      
+
       // Get events using a simpler approach to avoid Redis API conflicts
-      const results = await (this.redis as any).zRangeByScore(
-        queryKey,
-        start,
-        end,
-        { LIMIT: { offset: 0, count: limit }, REV: true }
-      );
+      const results = await (this.redis as any).zRangeByScore(queryKey, start, end, {
+        LIMIT: { offset: 0, count: limit },
+        REV: true,
+      });
 
       // Parse and filter events
       for (const result of results) {
         const event: AuditEvent = JSON.parse(result as string);
-        
+
         // Apply additional filters
         if (filters.resource && event.resource !== filters.resource) continue;
         if (filters.status && event.status !== filters.status) continue;
-        
+
         events.push(event);
       }
 
@@ -362,7 +359,7 @@ class AuditTrailService {
       userId: filters.userId,
       startTime: filters.startTime,
       endTime: filters.endTime,
-      limit: 10000 // Max export limit
+      limit: 10000, // Max export limit
     });
 
     if (filters.format === 'csv') {
@@ -377,20 +374,19 @@ class AuditTrailService {
    */
   private exportToCSV(events: AuditEvent[]): string {
     const headers = ['id', 'timestamp', 'userId', 'action', 'resource', 'status', 'ipAddress'];
-    const rows = events.map(event => [
+    const rows = events.map((event) => [
       event.id,
       new Date(event.timestamp).toISOString(),
       event.userId || '',
       event.action,
       event.resource,
       event.status,
-      event.ipAddress || ''
+      event.ipAddress || '',
     ]);
 
-    return [
-      headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
-    ].join('\n');
+    return [headers.join(','), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(','))].join(
+      '\n'
+    );
   }
 
   /**
@@ -405,7 +401,7 @@ class AuditTrailService {
       action: event.action,
       resource: event.resource,
       status: event.status,
-      metadata: event.metadata
+      metadata: event.metadata,
     };
 
     if (event.status === 'failure') {
@@ -439,7 +435,7 @@ class AuditTrailService {
     }
 
     try {
-      const cutoffDate = Date.now() - (this.config.retentionDays * 24 * 60 * 60 * 1000);
+      const cutoffDate = Date.now() - this.config.retentionDays * 24 * 60 * 60 * 1000;
       const cutoffDateKey = this.getDateKey(cutoffDate);
 
       // Find all audit keys older than retention period
@@ -531,10 +527,9 @@ export async function auditLog(
     action,
     resource: context?.resource || 'system',
     status: context?.status || 'success',
-    metadata
+    metadata,
   });
 }
 
 export { AuditTrailService };
 export type { AuditEvent, AuditConfig };
-

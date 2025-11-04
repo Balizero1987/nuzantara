@@ -5,22 +5,22 @@ const mockCommunicate = jest.fn().mockResolvedValue({
   success: true,
   response: 'Test response from DevAI',
   context: {},
-  metadata: { model: 'zantara', tokens: 100 }
+  metadata: { model: 'zantara', tokens: 100 },
 });
 
 const mockOrchestrateWorkflow = jest.fn().mockResolvedValue([
   { success: true, response: 'Step 1 complete', metadata: {} },
-  { success: true, response: 'Step 2 complete', metadata: {} }
+  { success: true, response: 'Step 2 complete', metadata: {} },
 ]);
 
 const mockGetConversationHistory = jest.fn().mockReturnValue([
   { role: 'user', content: 'Test message', timestamp: new Date(), ai: 'zantara' },
-  { role: 'assistant', content: 'Test response', timestamp: new Date(), ai: 'devai' }
+  { role: 'assistant', content: 'Test response', timestamp: new Date(), ai: 'devai' },
 ]);
 
 const mockGetSharedContext = jest.fn().mockReturnValue({
   key1: 'value1',
-  key2: 'value2'
+  key2: 'value2',
 });
 
 const mockClearWorkflow = jest.fn();
@@ -31,8 +31,8 @@ jest.unstable_mockModule('../../../services/ai-communication.js', () => ({
     orchestrateWorkflow: mockOrchestrateWorkflow,
     getConversationHistory: mockGetConversationHistory,
     getSharedContext: mockGetSharedContext,
-    clearWorkflow: mockClearWorkflow
-  }
+    clearWorkflow: mockClearWorkflow,
+  },
 }));
 
 describe('Ai Bridge', () => {
@@ -52,7 +52,7 @@ describe('Ai Bridge', () => {
       const result = await handlers.zantaraCallDevAI({
         message: 'Test message to DevAI',
         target: 'devai',
-        workflowId: 'test-workflow-1'
+        workflowId: 'test-workflow-1',
       });
 
       expect(result).toBeDefined();
@@ -73,7 +73,7 @@ describe('Ai Bridge', () => {
 
       const result = await handlers.zantaraCallDevAI({
         message: 'Test message',
-        target: 'devai'
+        target: 'devai',
       });
 
       expect(result).toBeDefined();
@@ -86,15 +86,15 @@ describe('Ai Bridge', () => {
     it('should handle success case with valid params', async () => {
       mockOrchestrateWorkflow.mockResolvedValueOnce([
         { success: true, response: 'Step 1 complete', metadata: {} },
-        { success: true, response: 'Step 2 complete', metadata: {} }
+        { success: true, response: 'Step 2 complete', metadata: {} },
       ]);
 
       const result = await handlers.zantaraOrchestrateWorkflow({
         workflowId: 'test-workflow-1',
         steps: [
           { ai: 'zantara', task: 'Analyze data' },
-          { ai: 'devai', task: 'Generate code' }
-        ]
+          { ai: 'devai', task: 'Generate code' },
+        ],
       });
 
       expect(result).toBeDefined();
@@ -111,15 +111,15 @@ describe('Ai Bridge', () => {
     it('should handle partial workflow failures', async () => {
       mockOrchestrateWorkflow.mockResolvedValueOnce([
         { success: true, response: 'Step 1 complete', metadata: {} },
-        { success: false, response: 'Step 2 failed', metadata: {} }
+        { success: false, response: 'Step 2 failed', metadata: {} },
       ]);
 
       const result = await handlers.zantaraOrchestrateWorkflow({
         workflowId: 'test-workflow-1',
         steps: [
           { ai: 'zantara', task: 'Step 1' },
-          { ai: 'devai', task: 'Step 2' }
-        ]
+          { ai: 'devai', task: 'Step 2' },
+        ],
       });
 
       expect(result).toBeDefined();
@@ -134,7 +134,7 @@ describe('Ai Bridge', () => {
   describe('zantaraGetConversationHistory', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.zantaraGetConversationHistory({
-        workflowId: 'test-workflow-1'
+        workflowId: 'test-workflow-1',
       });
 
       expect(result).toBeDefined();
@@ -153,7 +153,7 @@ describe('Ai Bridge', () => {
       mockGetConversationHistory.mockReturnValueOnce([]);
 
       const result = await handlers.zantaraGetConversationHistory({
-        workflowId: 'new-workflow'
+        workflowId: 'new-workflow',
       });
 
       expect(result).toBeDefined();
@@ -165,7 +165,7 @@ describe('Ai Bridge', () => {
   describe('zantaraGetSharedContext', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.zantaraGetSharedContext({
-        workflowId: 'test-workflow-1'
+        workflowId: 'test-workflow-1',
       });
 
       expect(result).toBeDefined();
@@ -184,7 +184,7 @@ describe('Ai Bridge', () => {
       mockGetSharedContext.mockReturnValueOnce({});
 
       const result = await handlers.zantaraGetSharedContext({
-        workflowId: 'new-workflow'
+        workflowId: 'new-workflow',
       });
 
       expect(result).toBeDefined();
@@ -196,7 +196,7 @@ describe('Ai Bridge', () => {
   describe('zantaraClearWorkflow', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.zantaraClearWorkflow({
-        workflowId: 'test-workflow-1'
+        workflowId: 'test-workflow-1',
       });
 
       expect(result).toBeDefined();
@@ -214,12 +214,11 @@ describe('Ai Bridge', () => {
 
     it('should clear workflow successfully', async () => {
       const result = await handlers.zantaraClearWorkflow({
-        workflowId: 'workflow-to-clear'
+        workflowId: 'workflow-to-clear',
       });
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('cleared');
     });
   });
-
 });

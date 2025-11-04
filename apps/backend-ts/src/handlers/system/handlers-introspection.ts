@@ -3,7 +3,7 @@
  * Exposes complete handler registry for RAG backend tool use
  */
 
-import { ok } from "../../utils/response.js";
+import { ok } from '../../utils/response.js';
 
 /**
  * Handler metadata extracted from JSDoc comments in router.ts (DEPRECATED - used as fallback only)
@@ -36,7 +36,7 @@ export async function getAllHandlers() {
           category: metadata.module,
           description: metadata.description || `Handler from ${metadata.module} module`,
           params: {},
-          returns: "Dynamic handler - check implementation for details"
+          returns: 'Dynamic handler - check implementation for details',
         };
       }
     }
@@ -49,8 +49,8 @@ export async function getAllHandlers() {
     sources: {
       static: Object.keys(HANDLER_REGISTRY).length,
       dynamic: dynamicHandlers.length,
-      merged: Object.keys(mergedHandlers).length
-    }
+      merged: Object.keys(mergedHandlers).length,
+    },
   });
 }
 
@@ -58,14 +58,12 @@ export async function getAllHandlers() {
  * Get handlers by category
  */
 export async function getHandlersByCategory(params: { category: string }) {
-  const filtered = Object.values(HANDLER_REGISTRY).filter(
-    h => h.category === params.category
-  );
+  const filtered = Object.values(HANDLER_REGISTRY).filter((h) => h.category === params.category);
 
   return ok({
     category: params.category,
     count: filtered.length,
-    handlers: filtered
+    handlers: filtered,
   });
 }
 
@@ -78,7 +76,7 @@ export async function getHandlerDetails(params: { key: string }) {
   if (!handler) {
     return {
       ok: false,
-      error: `Handler '${params.key}' not found`
+      error: `Handler '${params.key}' not found`,
     };
   }
 
@@ -110,7 +108,7 @@ export async function getAnthropicToolDefinitions() {
         const paramMeta = value as any;
         properties[key] = {
           type: paramMeta.type || 'string',
-          description: paramMeta.description || ''
+          description: paramMeta.description || '',
         };
       }
     }
@@ -119,18 +117,18 @@ export async function getAnthropicToolDefinitions() {
       name: handler.key.replace(/\./g, '_'), // Anthropic doesn't allow dots in tool names
       description: handler.description,
       input_schema: {
-        type: "object",
+        type: 'object',
         properties,
         required: Object.entries(handler.params || {})
           .filter(([_, meta]: any) => meta.required)
-          .map(([name, _]) => name)
-      }
+          .map(([name, _]) => name),
+      },
     };
   });
 
   return ok({
     total: tools.length,
     tools,
-    sources: allHandlersResponse.data.sources
+    sources: allHandlersResponse.data.sources,
   });
 }

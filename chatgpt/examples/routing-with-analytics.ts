@@ -115,17 +115,10 @@ app.use('/api', registerRoutes(apiRoutes));
 app.use(registerRoutes(adminRoutes));
 
 // Error handler
-app.use(
-  (
-    err: Error,
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction
-  ) => {
-    console.error('Error:', err.message);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-);
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Error:', err.message);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
 
 // Start server
 const PORT = Number(process.env.PORT ?? 3000);

@@ -19,16 +19,16 @@ class AdvancedAnalytics {
   async initialize() {
     // Register default metrics
     this.registerDefaultMetrics();
-    
+
     // Register data collectors
     this.registerDataCollectors();
-    
+
     // Start data collection
     this.startDataCollection();
-    
+
     // Set up event listeners
     this.setupEventListeners();
-    
+
     console.log('[AdvancedAnalytics] System initialized');
   }
 
@@ -42,7 +42,7 @@ class AdvancedAnalytics {
       description: 'Average system response time',
       unit: 'ms',
       category: 'performance',
-      collector: 'systemMetrics'
+      collector: 'systemMetrics',
     });
 
     this.registerMetric('system.uptime', {
@@ -50,7 +50,7 @@ class AdvancedAnalytics {
       description: 'System availability percentage',
       unit: '%',
       category: 'reliability',
-      collector: 'systemMetrics'
+      collector: 'systemMetrics',
     });
 
     this.registerMetric('system.requests_per_minute', {
@@ -58,8 +58,8 @@ class AdvancedAnalytics {
       description: 'Number of requests processed per minute',
       unit: 'req/min',
       category: 'performance',
-      collector: 'systemMetrics'
-      });
+      collector: 'systemMetrics',
+    });
 
     // User Activity Metrics
     this.registerMetric('user.active_sessions', {
@@ -67,7 +67,7 @@ class AdvancedAnalytics {
       description: 'Number of currently active user sessions',
       unit: 'sessions',
       category: 'user_activity',
-      collector: 'userMetrics'
+      collector: 'userMetrics',
     });
 
     this.registerMetric('user.conversations_started', {
@@ -75,7 +75,7 @@ class AdvancedAnalytics {
       description: 'Number of conversations initiated',
       unit: 'conversations',
       category: 'user_activity',
-      collector: 'userMetrics'
+      collector: 'userMetrics',
     });
 
     this.registerMetric('user.handlers_executed', {
@@ -83,7 +83,7 @@ class AdvancedAnalytics {
       description: 'Number of backend handlers executed',
       unit: 'handlers',
       category: 'user_activity',
-      collector: 'userMetrics'
+      collector: 'userMetrics',
     });
 
     // AI Usage Metrics
@@ -92,7 +92,7 @@ class AdvancedAnalytics {
       description: 'Number of AI queries processed',
       unit: 'queries',
       category: 'ai_usage',
-      collector: 'aiMetrics'
+      collector: 'aiMetrics',
     });
 
     this.registerMetric('ai.cache_hit_rate', {
@@ -100,7 +100,7 @@ class AdvancedAnalytics {
       description: 'Percentage of queries served from cache',
       unit: '%',
       category: 'ai_usage',
-      collector: 'aiMetrics'
+      collector: 'aiMetrics',
     });
 
     this.registerMetric('ai.model_usage', {
@@ -108,7 +108,7 @@ class AdvancedAnalytics {
       description: 'Usage distribution across AI models',
       unit: 'calls',
       category: 'ai_usage',
-      collector: 'aiMetrics'
+      collector: 'aiMetrics',
     });
 
     // Business Metrics
@@ -117,7 +117,7 @@ class AdvancedAnalytics {
       description: 'Percentage of available handlers being used',
       unit: '%',
       category: 'business',
-      collector: 'businessMetrics'
+      collector: 'businessMetrics',
     });
 
     this.registerMetric('business.user_satisfaction', {
@@ -125,7 +125,7 @@ class AdvancedAnalytics {
       description: 'Estimated user satisfaction score',
       unit: 'score',
       category: 'business',
-      collector: 'businessMetrics'
+      collector: 'businessMetrics',
     });
   }
 
@@ -137,9 +137,9 @@ class AdvancedAnalytics {
       id: metricId,
       ...metricDefinition,
       data: [],
-      lastUpdated: null
+      lastUpdated: null,
     });
-    
+
     console.log(`[AdvancedAnalytics] Registered metric: ${metricId}`);
   }
 
@@ -167,12 +167,12 @@ class AdvancedAnalytics {
   startDataCollection() {
     // Initial collection
     this.collectAllMetrics();
-    
+
     // Set up periodic collection
     this.refreshTimer = setInterval(() => {
       this.collectAllMetrics();
     }, this.refreshInterval);
-    
+
     console.log('[AdvancedAnalytics] Data collection started');
   }
 
@@ -192,17 +192,17 @@ class AdvancedAnalytics {
    */
   async collectAllMetrics() {
     console.log('[AdvancedAnalytics] Collecting all metrics...');
-    
+
     // Group metrics by collector
     const collectors = new Map();
-    
+
     for (const [metricId, metric] of this.metrics) {
       if (!collectors.has(metric.collector)) {
         collectors.set(metric.collector, []);
       }
       collectors.get(metric.collector).push(metricId);
     }
-    
+
     // Collect data for each collector
     for (const [collectorId, metricIds] of collectors) {
       const collector = this.dataCollectors.get(collectorId);
@@ -215,11 +215,13 @@ class AdvancedAnalytics {
         }
       }
     }
-    
+
     // Notify about data update
-    window.dispatchEvent(new CustomEvent('analytics-data-updated', {
-      detail: { timestamp: new Date() }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('analytics-data-updated', {
+        detail: { timestamp: new Date() },
+      })
+    );
   }
 
   /**
@@ -227,21 +229,21 @@ class AdvancedAnalytics {
    */
   updateMetricsWithData(metricIds, data) {
     const timestamp = new Date();
-    
-    metricIds.forEach(metricId => {
+
+    metricIds.forEach((metricId) => {
       const metric = this.metrics.get(metricId);
       if (metric && data.hasOwnProperty(metricId)) {
         // Add new data point
         metric.data.push({
           timestamp: timestamp,
-          value: data[metricId]
+          value: data[metricId],
         });
-        
+
         // Keep only last 100 data points
         if (metric.data.length > 100) {
           metric.data.shift();
         }
-        
+
         metric.lastUpdated = timestamp;
       }
     });
@@ -254,8 +256,8 @@ class AdvancedAnalytics {
     // In a real implementation, this would fetch actual system metrics
     // For now, we'll simulate data
     const data = {};
-    
-    metricIds.forEach(metricId => {
+
+    metricIds.forEach((metricId) => {
       switch (metricId) {
         case 'system.response_time':
           // Simulate response time between 50-300ms
@@ -273,7 +275,7 @@ class AdvancedAnalytics {
           data[metricId] = Math.random() * 100;
       }
     });
-    
+
     return data;
   }
 
@@ -283,8 +285,8 @@ class AdvancedAnalytics {
   async collectUserMetrics(metricIds) {
     // In a real implementation, this would fetch actual user metrics
     const data = {};
-    
-    metricIds.forEach(metricId => {
+
+    metricIds.forEach((metricId) => {
       switch (metricId) {
         case 'user.active_sessions':
           // Simulate active sessions
@@ -302,7 +304,7 @@ class AdvancedAnalytics {
           data[metricId] = Math.random() * 100;
       }
     });
-    
+
     return data;
   }
 
@@ -312,8 +314,8 @@ class AdvancedAnalytics {
   async collectAIMetrics(metricIds) {
     // In a real implementation, this would fetch actual AI metrics
     const data = {};
-    
-    metricIds.forEach(metricId => {
+
+    metricIds.forEach((metricId) => {
       switch (metricId) {
         case 'ai.queries_processed':
           // Simulate queries processed
@@ -328,14 +330,14 @@ class AdvancedAnalytics {
           data[metricId] = {
             haiku: Math.floor(Math.random() * 1000),
             llama: Math.floor(Math.random() * 500),
-            devai: Math.floor(Math.random() * 200)
+            devai: Math.floor(Math.random() * 200),
           };
           break;
         default:
           data[metricId] = Math.random() * 100;
       }
     });
-    
+
     return data;
   }
 
@@ -345,8 +347,8 @@ class AdvancedAnalytics {
   async collectBusinessMetrics(metricIds) {
     // In a real implementation, this would fetch actual business metrics
     const data = {};
-    
-    metricIds.forEach(metricId => {
+
+    metricIds.forEach((metricId) => {
       switch (metricId) {
         case 'business.handlers_utilization':
           // Simulate handler utilization
@@ -360,7 +362,7 @@ class AdvancedAnalytics {
           data[metricId] = Math.random() * 100;
       }
     });
-    
+
     return data;
   }
 
@@ -389,7 +391,7 @@ class AdvancedAnalytics {
           description: metric.description,
           unit: metric.unit,
           lastValue: metric.data.length > 0 ? metric.data[metric.data.length - 1].value : null,
-          lastUpdated: metric.lastUpdated
+          lastUpdated: metric.lastUpdated,
         });
       }
     }
@@ -409,7 +411,7 @@ class AdvancedAnalytics {
         unit: metric.unit,
         category: metric.category,
         lastValue: metric.data.length > 0 ? metric.data[metric.data.length - 1].value : null,
-        lastUpdated: metric.lastUpdated
+        lastUpdated: metric.lastUpdated,
       });
     }
     return metrics;
@@ -421,11 +423,11 @@ class AdvancedAnalytics {
   getMetricHistory(metricId, hours = 24) {
     const metric = this.metrics.get(metricId);
     if (!metric) return [];
-    
+
     const now = new Date();
-    const startTime = new Date(now.getTime() - (hours * 60 * 60 * 1000));
-    
-    return metric.data.filter(point => new Date(point.timestamp) >= startTime);
+    const startTime = new Date(now.getTime() - hours * 60 * 60 * 1000);
+
+    return metric.data.filter((point) => new Date(point.timestamp) >= startTime);
   }
 
   /**
@@ -437,13 +439,13 @@ class AdvancedAnalytics {
       // In a real implementation, we would update relevant metrics
       console.log('[AdvancedAnalytics] Handler executed:', event.detail);
     });
-    
+
     // Listen for conversation events
     window.addEventListener('conversation-started', (event) => {
       // In a real implementation, we would update relevant metrics
       console.log('[AdvancedAnalytics] Conversation started:', event.detail);
     });
-    
+
     // Listen for system events
     window.addEventListener('system-event', (event) => {
       // In a real implementation, we would update relevant metrics
@@ -458,9 +460,9 @@ class AdvancedAnalytics {
     const report = {
       timestamp: new Date(),
       timeRange: timeRange,
-      metrics: {}
+      metrics: {},
     };
-    
+
     // Add metric data to report
     for (const [metricId, metric] of this.metrics) {
       report.metrics[metricId] = {
@@ -470,10 +472,10 @@ class AdvancedAnalytics {
         category: metric.category,
         currentValue: metric.data.length > 0 ? metric.data[metric.data.length - 1].value : null,
         history: this.getMetricHistory(metricId, timeRange === '24h' ? 24 : 168), // 24h or 168h (7 days)
-        lastUpdated: metric.lastUpdated
+        lastUpdated: metric.lastUpdated,
       };
     }
-    
+
     return report;
   }
 
@@ -484,7 +486,10 @@ class AdvancedAnalytics {
     return {
       totalMetrics: this.metrics.size,
       activeCollectors: this.dataCollectors.size,
-      dataPoints: Array.from(this.metrics.values()).reduce((sum, metric) => sum + metric.data.length, 0)
+      dataPoints: Array.from(this.metrics.values()).reduce(
+        (sum, metric) => sum + metric.data.length,
+        0
+      ),
     };
   }
 
@@ -494,7 +499,7 @@ class AdvancedAnalytics {
   renderDashboard(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     // Create dashboard HTML
     container.innerHTML = `
       <div class="advanced-analytics-dashboard">
@@ -539,18 +544,18 @@ class AdvancedAnalytics {
         </div>
       </div>
     `;
-    
+
     // Render metrics
     this.renderMetricsByCategory('performance', 'performance-metrics');
     this.renderMetricsByCategory('user_activity', 'user-activity');
     this.renderMetricsByCategory('ai_usage', 'ai-usage');
     this.renderMetricsByCategory('business', 'business-metrics');
-    
+
     // Set up action buttons
     document.getElementById('refresh-analytics').addEventListener('click', () => {
       this.collectAllMetrics();
     });
-    
+
     document.getElementById('generate-report').addEventListener('click', () => {
       const report = this.generateReport();
       console.log('[AdvancedAnalytics] Generated report:', report);
@@ -565,15 +570,17 @@ class AdvancedAnalytics {
   renderMetricsByCategory(category, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const metrics = this.getMetricsByCategory(category);
-    
+
     if (metrics.length === 0) {
       container.innerHTML = '<p class="no-data">No metrics available</p>';
       return;
     }
-    
-    container.innerHTML = metrics.map(metric => `
+
+    container.innerHTML = metrics
+      .map(
+        (metric) => `
       <div class="metric-card">
         <div class="metric-header">
           <h4>${metric.name}</h4>
@@ -589,7 +596,9 @@ class AdvancedAnalytics {
           Last updated: ${metric.lastUpdated ? new Date(metric.lastUpdated).toLocaleTimeString() : 'Never'}
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
   }
 }
 
@@ -597,9 +606,9 @@ class AdvancedAnalytics {
 document.addEventListener('DOMContentLoaded', () => {
   window.AdvancedAnalytics = new AdvancedAnalytics();
   window.AdvancedAnalytics.initialize();
-  
+
   console.log('[AdvancedAnalytics] System ready');
-  
+
   // Mark enhancement as completed
   if (window.enhancementTracker) {
     window.enhancementTracker.markCompleted(25);

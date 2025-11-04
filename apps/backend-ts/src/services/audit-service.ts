@@ -1,6 +1,6 @@
 /**
  * Audit Service - GDPR Compliant Audit Trail
- * 
+ *
  * Records all critical operations for compliance, security, and debugging
  * - GDPR compliant: No PII stored unnecessarily
  * - Tamper-proof: Timestamped, immutable logs
@@ -36,7 +36,7 @@ class AuditService {
     const auditEntry: AuditEntry = {
       ...entry,
       timestamp: new Date().toISOString(),
-      gdprCompliant: this.isGDPRCompliant(entry)
+      gdprCompliant: this.isGDPRCompliant(entry),
     };
 
     // Add to in-memory log (for quick access)
@@ -51,7 +51,7 @@ class AuditService {
       ...auditEntry,
       // Redact sensitive data for logs
       userEmail: this.shouldLogEmail(entry) ? entry.userEmail : '[REDACTED]',
-      ipAddress: this.shouldLogIP(entry) ? entry.ipAddress : '[REDACTED]'
+      ipAddress: this.shouldLogIP(entry) ? entry.ipAddress : '[REDACTED]',
     });
   }
 
@@ -88,10 +88,10 @@ class AuditService {
         queryLength: params.query.length,
         firstTokenLatency: params.firstTokenLatency,
         tokensReceived: params.tokensReceived,
-        duration: params.duration
+        duration: params.duration,
       },
       duration: params.duration,
-      error: params.error
+      error: params.error,
     });
   }
 
@@ -114,9 +114,9 @@ class AuditService {
       success: false,
       metadata: {
         limit: params.limit,
-        window: params.window
+        window: params.window,
       },
-      error: 'Rate limit exceeded'
+      error: 'Rate limit exceeded',
     });
   }
 
@@ -139,7 +139,7 @@ class AuditService {
       endpoint: '/auth',
       method: 'POST',
       success: params.success,
-      error: params.error
+      error: params.error,
     });
   }
 
@@ -165,7 +165,10 @@ class AuditService {
     }
 
     // If storing IP, must be for security purposes
-    if (entry.ipAddress && !['security.', 'auth.', 'stream.'].some(p => entry.operation.startsWith(p))) {
+    if (
+      entry.ipAddress &&
+      !['security.', 'auth.', 'stream.'].some((p) => entry.operation.startsWith(p))
+    ) {
       return false; // IP only for security/auth/stream operations
     }
 
@@ -206,14 +209,16 @@ class AuditService {
     cutoffDate.setDate(cutoffDate.getDate() - this.MAX_RETENTION_DAYS);
 
     const initialCount = this.auditLog.length;
-    this.auditLog = this.auditLog.filter(entry => {
+    this.auditLog = this.auditLog.filter((entry) => {
       const entryDate = new Date(entry.timestamp);
       return entryDate >= cutoffDate;
     });
 
     const removed = initialCount - this.auditLog.length;
     if (removed > 0) {
-      logger.info(`[AUDIT] Cleaned up ${removed} old audit entries (GDPR retention: ${this.MAX_RETENTION_DAYS} days)`);
+      logger.info(
+        `[AUDIT] Cleaned up ${removed} old audit entries (GDPR retention: ${this.MAX_RETENTION_DAYS} days)`
+      );
     }
   }
 }
@@ -222,7 +227,9 @@ class AuditService {
 export const auditService = new AuditService();
 
 // Periodic cleanup (daily)
-setInterval(() => {
-  auditService.cleanupOldLogs();
-}, 24 * 60 * 60 * 1000); // 24 hours
-
+setInterval(
+  () => {
+    auditService.cleanupOldLogs();
+  },
+  24 * 60 * 60 * 1000
+); // 24 hours

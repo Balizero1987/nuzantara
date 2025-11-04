@@ -98,17 +98,17 @@ export class PromptLoaderService {
     const lowerQuery = query.toLowerCase();
 
     // Check for Level 3 patterns (highest priority)
-    if (this.levelPatterns.level3.some(pattern => pattern.test(query))) {
+    if (this.levelPatterns.level3.some((pattern) => pattern.test(query))) {
       return UserLevel.LEVEL_3;
     }
 
     // Check for Level 2 patterns
-    if (this.levelPatterns.level2.some(pattern => pattern.test(query))) {
+    if (this.levelPatterns.level2.some((pattern) => pattern.test(query))) {
       return UserLevel.LEVEL_2;
     }
 
     // Check for Level 1 patterns
-    if (this.levelPatterns.level1.some(pattern => pattern.test(query))) {
+    if (this.levelPatterns.level1.some((pattern) => pattern.test(query))) {
       return UserLevel.LEVEL_1;
     }
 
@@ -165,13 +165,7 @@ export class PromptLoaderService {
    * Load prompt file from disk
    */
   private async loadPromptFile(filename: string): Promise<string> {
-    const promptPath = path.join(
-      __dirname,
-      '..',
-      'config',
-      'prompts',
-      filename
-    );
+    const promptPath = path.join(__dirname, '..', 'config', 'prompts', filename);
 
     try {
       return await fs.readFile(promptPath, 'utf-8');
@@ -265,7 +259,10 @@ When uncertain, refer to the Bali Zero team.`;
   /**
    * Get dynamic prompt for a specific query
    */
-  async getDynamicPrompt(query: string, context?: UserContext): Promise<{
+  async getDynamicPrompt(
+    query: string,
+    context?: UserContext
+  ): Promise<{
     prompt: string;
     level: UserLevel;
     metadata: any;
@@ -282,7 +279,7 @@ When uncertain, refer to the Bali Zero team.`;
         queryLength: query.length,
         language: context?.language || 'en',
         timestamp: new Date().toISOString(),
-      }
+      },
     };
   }
 

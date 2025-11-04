@@ -36,8 +36,8 @@ const ROLE_HIERARCHY = {
   'Marketing Team Lead': 70,
   'Senior Developer': 60,
   'Junior Developer': 40,
-  'Intern': 20,
-  'User': 10
+  Intern: 20,
+  User: 10,
 } as const;
 
 // Permission levels
@@ -47,7 +47,7 @@ enum PermissionLevel {
   UPDATE = 3,
   DELETE = 4,
   ADMIN = 10,
-  SUPER_ADMIN = 100
+  SUPER_ADMIN = 100,
 }
 
 // Enhanced user interface with extended properties
@@ -81,11 +81,11 @@ interface JWTPayload {
 
 // Permission bypass configuration
 const PERMISSION_BYPASS = {
-  'health': PermissionLevel.READ,
+  health: PermissionLevel.READ,
   'system.info': PermissionLevel.READ,
   'analytics.read': PermissionLevel.READ,
   'user.profile': PermissionLevel.READ,
-  'team.list': PermissionLevel.READ
+  'team.list': PermissionLevel.READ,
 };
 
 export class EnhancedJWTAuth {
@@ -116,13 +116,13 @@ export class EnhancedJWTAuth {
             userAgent: req.get('User-Agent'),
             path: req.path,
             method: req.method,
-            requiredPermissions
+            requiredPermissions,
           });
 
           res.status(401).json({
             ok: false,
             error: 'Authentication required',
-            code: 'AUTH_REQUIRED'
+            code: 'AUTH_REQUIRED',
           });
           return;
         }
@@ -132,13 +132,13 @@ export class EnhancedJWTAuth {
         // Check if token is blacklisted
         if (await this.isTokenBlacklisted(token)) {
           logger.warn('Authentication failed: Blacklisted token used', {
-            token: token.substring(0, 20) + '...'
+            token: token.substring(0, 20) + '...',
           });
 
           res.status(401).json({
             ok: false,
             error: 'Token has been revoked',
-            code: 'TOKEN_REVOKED'
+            code: 'TOKEN_REVOKED',
           });
           return;
         }
@@ -152,7 +152,7 @@ export class EnhancedJWTAuth {
           res.status(403).json({
             ok: false,
             error: 'Account is inactive',
-            code: 'ACCOUNT_INACTIVE'
+            code: 'ACCOUNT_INACTIVE',
           });
           return;
         }
@@ -169,7 +169,7 @@ export class EnhancedJWTAuth {
           subscriptionTier: decoded.subscriptionTier as any,
           isActive: userStatus.isActive,
           lastLogin: new Date(),
-          metadata: userStatus.metadata
+          metadata: userStatus.metadata,
         };
 
         // Check permissions using bypass system
@@ -179,7 +179,7 @@ export class EnhancedJWTAuth {
             userRole: enhancedUser.role,
             requiredPermissions,
             path: req.path,
-            method: req.method
+            method: req.method,
           });
 
           res.status(403).json({
@@ -187,7 +187,7 @@ export class EnhancedJWTAuth {
             error: 'Insufficient permissions',
             code: 'INSUFFICIENT_PERMISSIONS',
             required: requiredPermissions,
-            current: enhancedUser.permissions
+            current: enhancedUser.permissions,
           });
           return;
         }
@@ -206,18 +206,17 @@ export class EnhancedJWTAuth {
           subscriptionTier: enhancedUser.subscriptionTier,
           path: req.path,
           method: req.method,
-          ip: req.ip
+          ip: req.ip,
         });
 
         next();
-
       } catch (error) {
         logger.error('Enhanced JWT authentication error:', error);
 
         res.status(401).json({
           ok: false,
           error: 'Invalid authentication token',
-          code: 'INVALID_TOKEN'
+          code: 'INVALID_TOKEN',
         });
       }
     };
@@ -231,7 +230,7 @@ export class EnhancedJWTAuth {
       return jwt.verify(token, this.jwtSecret, {
         algorithms: ['HS256'],
         issuer: 'nuzantara-backend',
-        audience: 'nuzantara-users'
+        audience: 'nuzantara-users',
       }) as JWTPayload;
     } catch (error) {
       logger.error('JWT verification failed:', error);
@@ -287,8 +286,8 @@ export class EnhancedJWTAuth {
         isActive: true,
         metadata: {
           lastSeen: new Date().toISOString(),
-          loginCount: Math.floor(Math.random() * 100)
-        }
+          loginCount: Math.floor(Math.random() * 100),
+        },
       };
 
       // Cache the status
@@ -318,9 +317,7 @@ export class EnhancedJWTAuth {
     }
 
     // Check explicit permissions
-    return requiredPermissions.every(level =>
-      this.hasPermissionLevel(user, level)
-    );
+    return requiredPermissions.every((level) => this.hasPermissionLevel(user, level));
   }
 
   /**
@@ -337,10 +334,13 @@ export class EnhancedJWTAuth {
    */
   private getSubscriptionMultiplier(tier?: string): number {
     switch (tier) {
-      case 'enterprise': return 2.0;
-      case 'premium': return 1.5;
+      case 'enterprise':
+        return 2.0;
+      case 'premium':
+        return 1.5;
       case 'free':
-      default: return 1.0;
+      default:
+        return 1.0;
     }
   }
 
@@ -436,13 +436,13 @@ export class EnhancedJWTAuth {
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor((Date.now() + 15 * 60 * 1000) / 1000), // 15 minutes
       jti: this.generateJTI(),
-      subscriptionTier: user.subscriptionTier
+      subscriptionTier: user.subscriptionTier,
     };
 
     return jwt.sign(payload, this.jwtSecret, {
       algorithm: 'HS256',
       issuer: 'nuzantara-backend',
-      audience: 'nuzantara-users'
+      audience: 'nuzantara-users',
     });
   }
 

@@ -7,14 +7,54 @@ import { ok } from '../../utils/response.js';
 import { BadRequestError, InternalServerError } from '../../utils/errors.js';
 
 // Param interfaces
-export interface SendEmailParams { to: string; subject: string; body?: string; html?: string }
-export interface ListEmailParams { maxResults?: number; q?: string }
-export interface ReadEmailParams { messageId: string }
+export interface SendEmailParams {
+  to: string;
+  subject: string;
+  body?: string;
+  html?: string;
+}
+export interface ListEmailParams {
+  maxResults?: number;
+  q?: string;
+}
+export interface ReadEmailParams {
+  messageId: string;
+}
 
 // Result interfaces
-export interface GmailSendResult { messageId?: string; threadId?: string; to: string; subject: string; sentAt: string }
-export interface GmailListResult { messages: Array<{ id?: string; threadId?: string; snippet?: string; subject?: string; from?: string; date?: string; labelIds?: string[] }>; total: number; nextPageToken?: string }
-export interface GmailReadResult { message: { id?: string; threadId?: string; subject?: string; from?: string; date?: string; snippet?: string; body?: string; labelIds?: string[]; historyId?: string } }
+export interface GmailSendResult {
+  messageId?: string;
+  threadId?: string;
+  to: string;
+  subject: string;
+  sentAt: string;
+}
+export interface GmailListResult {
+  messages: Array<{
+    id?: string;
+    threadId?: string;
+    snippet?: string;
+    subject?: string;
+    from?: string;
+    date?: string;
+    labelIds?: string[];
+  }>;
+  total: number;
+  nextPageToken?: string;
+}
+export interface GmailReadResult {
+  message: {
+    id?: string;
+    threadId?: string;
+    subject?: string;
+    from?: string;
+    date?: string;
+    snippet?: string;
+    body?: string;
+    labelIds?: string[];
+    historyId?: string;
+  };
+}
 
 export const gmailHandlers = {
   'gmail.send': async (params: SendEmailParams) => {
@@ -29,7 +69,9 @@ export const gmailHandlers = {
         // Fallback to OAuth2 client if available
         const auth = await getOAuth2Client();
         if (!auth) {
-          throw new Error('No authentication method available for Gmail (Service Account needs Domain-Wide Delegation)');
+          throw new Error(
+            'No authentication method available for Gmail (Service Account needs Domain-Wide Delegation)'
+          );
         }
         gmailService = google.gmail({ version: 'v1', auth });
       }
@@ -41,7 +83,7 @@ export const gmailHandlers = {
         `To: ${to}`,
         `Subject: ${subject}`,
         '',
-        html || body || ''
+        html || body || '',
       ].join('\n');
 
       // Encode in base64
@@ -54,8 +96,8 @@ export const gmailHandlers = {
       const result = await gmailService.users.messages.send({
         userId: 'me',
         requestBody: {
-          raw: encodedMessage
-        }
+          raw: encodedMessage,
+        },
       });
 
       return ok({
@@ -63,7 +105,7 @@ export const gmailHandlers = {
         threadId: result.data.threadId,
         to,
         subject,
-        sentAt: new Date().toISOString()
+        sentAt: new Date().toISOString(),
       });
     } catch (error: any) {
       logger.error('Gmail send error:', error);
@@ -72,7 +114,7 @@ export const gmailHandlers = {
   },
 
   'gmail.list': async (params: ListEmailParams = {}) => {
-    const { maxResults = 10, q = '' } = params || {} as ListEmailParams;
+    const { maxResults = 10, q = '' } = params || ({} as ListEmailParams);
 
     try {
       // Try to get Gmail service with unified authentication
@@ -82,7 +124,9 @@ export const gmailHandlers = {
         // Fallback to OAuth2 client if available
         const auth = await getOAuth2Client();
         if (!auth) {
-          throw new Error('No authentication method available for Gmail (Service Account needs Domain-Wide Delegation)');
+          throw new Error(
+            'No authentication method available for Gmail (Service Account needs Domain-Wide Delegation)'
+          );
         }
         gmail = google.gmail({ version: 'v1', auth });
       }
@@ -90,35 +134,35 @@ export const gmailHandlers = {
       const result = await gmail.users.messages.list({
         userId: 'me',
         maxResults,
-        q
+        q,
       });
 
       const messages = result.data.messages || [];
 
       // Get details for first 5 messages
       const details = await Promise.all(
-        messages.slice(0, 5).map(msg =>
+        messages.slice(0, 5).map((msg) =>
           gmail.users.messages.get({
             userId: 'me',
             id: msg.id!,
             format: 'metadata',
-            metadataHeaders: ['Subject', 'From', 'Date']
+            metadataHeaders: ['Subject', 'From', 'Date'],
           })
         )
       );
 
       return ok({
-        messages: details.map(d => ({
+        messages: details.map((d) => ({
           id: d.data.id,
           threadId: d.data.threadId,
           snippet: d.data.snippet,
-          subject: d.data.payload?.headers?.find(h => h.name === 'Subject')?.value,
-          from: d.data.payload?.headers?.find(h => h.name === 'From')?.value,
-          date: d.data.payload?.headers?.find(h => h.name === 'Date')?.value,
-          labelIds: d.data.labelIds
+          subject: d.data.payload?.headers?.find((h) => h.name === 'Subject')?.value,
+          from: d.data.payload?.headers?.find((h) => h.name === 'From')?.value,
+          date: d.data.payload?.headers?.find((h) => h.name === 'Date')?.value,
+          labelIds: d.data.labelIds,
         })),
         total: messages.length,
-        nextPageToken: result.data.nextPageToken
+        nextPageToken: result.data.nextPageToken,
       });
     } catch (error: any) {
       logger.error('Gmail list error:', error);
@@ -137,7 +181,9 @@ export const gmailHandlers = {
         // Fallback to OAuth2 client if available
         const auth = await getOAuth2Client();
         if (!auth) {
-          throw new Error('No authentication method available for Gmail (Service Account needs Domain-Wide Delegation)');
+          throw new Error(
+            'No authentication method available for Gmail (Service Account needs Domain-Wide Delegation)'
+          );
         }
         gmailService = google.gmail({ version: 'v1', auth });
       }
@@ -145,7 +191,7 @@ export const gmailHandlers = {
       const result = await gmailService.users.messages.get({
         userId: 'me',
         id: messageId,
-        format: 'full'
+        format: 'full',
       });
 
       const message = result.data;
@@ -186,8 +232,8 @@ export const gmailHandlers = {
           date: headers.find((h: any) => h.name === 'Date')?.value,
           body: bodyContent,
           labelIds: message.labelIds,
-          historyId: message.historyId
-        }
+          historyId: message.historyId,
+        },
       });
     } catch (error: any) {
       logger.error('Gmail read error:', error);
@@ -213,19 +259,19 @@ export const gmailHandlers = {
       const result = await gmail.users.messages.list({
         userId: 'me',
         q: query,
-        maxResults
+        maxResults,
       });
 
       const messages = result.data.messages || [];
 
       // Get details for found messages
       const details = await Promise.all(
-        messages.slice(0, Math.min(messages.length, 10)).map(msg =>
+        messages.slice(0, Math.min(messages.length, 10)).map((msg) =>
           gmail.users.messages.get({
             userId: 'me',
             id: msg.id!,
             format: 'metadata',
-            metadataHeaders: ['Subject', 'From', 'Date']
+            metadataHeaders: ['Subject', 'From', 'Date'],
           })
         )
       );
@@ -233,18 +279,18 @@ export const gmailHandlers = {
       return ok({
         query,
         count: messages.length,
-        messages: details.map(d => ({
+        messages: details.map((d) => ({
           id: d.data.id,
           threadId: d.data.threadId,
           snippet: d.data.snippet,
-          subject: d.data.payload?.headers?.find(h => h.name === 'Subject')?.value,
-          from: d.data.payload?.headers?.find(h => h.name === 'From')?.value,
-          date: d.data.payload?.headers?.find(h => h.name === 'Date')?.value
-        }))
+          subject: d.data.payload?.headers?.find((h) => h.name === 'Subject')?.value,
+          from: d.data.payload?.headers?.find((h) => h.name === 'From')?.value,
+          date: d.data.payload?.headers?.find((h) => h.name === 'Date')?.value,
+        })),
       });
     } catch (error: any) {
       logger.error('Gmail search error:', error);
       throw new InternalServerError(`Failed to search emails: ${error.message}`);
     }
-  }
+  },
 };

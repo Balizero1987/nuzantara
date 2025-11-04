@@ -14,9 +14,9 @@ describe('Team Handler', () => {
   describe('teamList', () => {
     it('should return team members successfully', async () => {
       const { teamList } = await import('../team.js');
-      
+
       await teamList(mockReq, mockRes);
-      
+
       // Just check that the handler was called
       expect(mockRes.status).toBeDefined();
       expect(mockRes.json).toBeDefined();
@@ -24,12 +24,12 @@ describe('Team Handler', () => {
 
     it('should handle errors gracefully', async () => {
       const { teamList } = await import('../team.js');
-      
+
       // Mock an error scenario
       jest.spyOn(console, 'error').mockImplementation(() => {});
-      
+
       await teamList(mockReq, mockRes);
-      
+
       // Just check that the handler was called
       expect(mockRes.status).toBeDefined();
       expect(mockRes.json).toBeDefined();

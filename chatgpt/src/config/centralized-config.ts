@@ -5,14 +5,8 @@ import { createLogger, format, transports } from 'winston';
 
 const logger = createLogger({
   level: 'info',
-  format: format.combine(
-    format.timestamp(),
-    format.json()
-  ),
-  transports: [
-    new transports.Console(),
-    new transports.File({ filename: 'config-changes.log' })
-  ]
+  format: format.combine(format.timestamp(), format.json()),
+  transports: [new transports.Console(), new transports.File({ filename: 'config-changes.log' })],
 });
 
 const configSchema = z.object({
@@ -77,7 +71,6 @@ class CentralizedConfig {
     return this.config;
   }
 }
-
 
 export { CentralizedConfig };
 export const config = CentralizedConfig.getInstance();

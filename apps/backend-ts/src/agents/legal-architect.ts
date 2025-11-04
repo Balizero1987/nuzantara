@@ -26,17 +26,17 @@ export class LegalArchitect {
         book2: {
           title: 'THINGS (Property & Real Rights)',
           articles: '535-722',
-          keyForRealEstate: 'Art. 570-645 - Property, mortgages, servitudes'
+          keyForRealEstate: 'Art. 570-645 - Property, mortgages, servitudes',
         },
         book3: {
           title: 'OBLIGATIONS (Contracts)',
           articles: '1233-1864',
           keyArticles: {
             'Art. 1320': 'Contract validity - 4 requirements (lawful cause CRITICAL)',
-            'Art. 1335-1337': 'Unlawful cause = nullity'
-          }
-        }
-      }
+            'Art. 1335-1337': 'Unlawful cause = nullity',
+          },
+        },
+      },
     },
 
     // ========================
@@ -49,15 +49,15 @@ export class LegalArchitect {
       criticalArticles: {
         article21: {
           text: 'Only Indonesian citizens can have Hak Milik',
-          interpretation: 'ABSOLUTE BAN - no exceptions for foreigners'
+          interpretation: 'ABSOLUTE BAN - no exceptions for foreigners',
         },
         article26: {
           subsection1: 'Sale to foreigner = VOID by law',
           subsection2: {
             text: 'Rights EXTINGUISH, land RETURNS TO STATE',
-            critical: '⚠️ Money paid by foreigner NOT RETURNED (Supreme Court confirmed)'
-          }
-        }
+            critical: '⚠️ Money paid by foreigner NOT RETURNED (Supreme Court confirmed)',
+          },
+        },
       },
 
       landRights: {
@@ -65,14 +65,14 @@ export class LegalArchitect {
           name: 'Hak Milik (Freehold)',
           holders: 'Indonesian citizens ONLY',
           certificate: 'SHM - RED',
-          foreignersAllowed: false
+          foreignersAllowed: false,
         },
         hakGunaBangunan: {
           name: 'HGB (Right to Build)',
           holders: 'Indonesian citizens + PT PMA',
           duration: '30+20+30 years (max 80)',
           certificate: 'SHGB - YELLOW',
-          foreignersAllowed: 'Via PT PMA only'
+          foreignersAllowed: 'Via PT PMA only',
         },
         hakPakai: {
           name: 'Hak Pakai (Right to Use)',
@@ -83,16 +83,16 @@ export class LegalArchitect {
           minimumValue: {
             jakarta: 'USD 195,000-650,000',
             bali: 'USD 150,000+',
-            canggu: 'USD 150,000+'
-          }
+            canggu: 'USD 150,000+',
+          },
         },
         hakSewa: {
           name: 'Hak Sewa (Leasehold)',
           holders: 'Anyone (no visa required)',
           duration: 'Negotiable (25-30 years typical)',
-          foreignersAllowed: 'Yes'
-        }
-      }
+          foreignersAllowed: 'Yes',
+        },
+      },
     },
 
     // ===================================
@@ -107,27 +107,28 @@ export class LegalArchitect {
         facts: [
           '2010-2011: Foreigner buys land Bali via Indonesian nominee',
           'Nominee betrays: sells to third party',
-          'Foreigner sues both'
+          'Foreigner sues both',
         ],
 
         decision: {
           supremeCourt: 'FOREIGNER HAS NO RIGHTS',
-          ratioDecidendi: 'Nominee agreement violates Art. 21 UUPA + Art. 1320 KUHPerdata (unlawful cause)',
+          ratioDecidendi:
+            'Nominee agreement violates Art. 21 UUPA + Art. 1320 KUHPerdata (unlawful cause)',
 
           consequences: [
             '❌ Foreigner loses land',
             '❌ Foreigner loses money paid',
             '❌ No compensation',
             '✅ Nominee keeps money (even if betrayed)',
-            '✅ Third party buyer keeps land'
-          ]
+            '✅ Third party buyer keeps land',
+          ],
         },
 
         impact: {
           precedent: 'De facto binding on all lower courts',
           outcomeNomineeDisputes: '0/140 cases won by foreigners (2014-2025)',
-          lossRate: '100%'
-        }
+          lossRate: '100%',
+        },
       },
 
       sema10_2020: {
@@ -138,7 +139,7 @@ export class LegalArchitect {
           'Legal owner (name on certificate) = ONLY recognized',
           'Beneficial owner = NO RIGHTS (even if paid fully)',
           'Legal owner can sell without beneficial owner consent',
-          'Good faith buyer protected'
+          'Good faith buyer protected',
         ],
 
         typicalOutcome: [
@@ -146,8 +147,8 @@ export class LegalArchitect {
           'Indonesian sells to third party USD 600K',
           'Court: Foreigner not owner, no rights',
           'Foreigner loses villa + USD 500K',
-          'Indonesian keeps USD 1.1M total'
-        ]
+          'Indonesian keeps USD 1.1M total',
+        ],
       },
 
       constitutionalCourt2016: {
@@ -160,11 +161,11 @@ export class LegalArchitect {
         newRegime: [
           '✅ Prenuptial still valid (before marriage)',
           '✅ POST-NUPTIAL now legal (during marriage)',
-          '✅ Indonesian spouse can buy Hak Milik after post-nuptial'
+          '✅ Indonesian spouse can buy Hak Milik after post-nuptial',
         ],
 
-        impact: '+300% post-nuptial agreements (2016-2025), mainly Bali mixed couples'
-      }
+        impact: '+300% post-nuptial agreements (2016-2025), mainly Bali mixed couples',
+      },
     },
 
     // ===================================
@@ -179,7 +180,7 @@ export class LegalArchitect {
         valueUSD: 10.4e9, // 10.4 billion
         villas: 7500,
         baliPercentage: 65,
-        baliPlots: 6825
+        baliPlots: 6825,
       },
 
       enforcement2023: {
@@ -187,18 +188,18 @@ export class LegalArchitect {
           bali: 120,
           jakarta: 40,
           lombok: 25,
-          total: 185
+          total: 185,
         },
         deportations: 163, // Jan-Jun 2023
-        criminalProsecutions: 55
+        criminalProsecutions: 55,
       },
 
       statistics: {
         activeCases: 140,
         foreignersWon: 0,
         averageLoss: 'USD 280,000-350,000',
-        recoveryRate: '0-5%'
-      }
+        recoveryRate: '0-5%',
+      },
     },
 
     // ===================================
@@ -210,7 +211,7 @@ export class LegalArchitect {
         claim: 'Bought 1.1 hectares Canggu',
         discovery: 'Entry with VOA (tourism only)',
         result: 'PERMANENT BAN Indonesia (21 Nov 2024)',
-        loss: 'USD 6.2 million claimed'
+        loss: 'USD 6.2 million claimed',
       },
 
       nightmareParadise2017: {
@@ -220,10 +221,10 @@ export class LegalArchitect {
         legalAttempts: [
           'Civil suit: rejected (18 months, USD 15K cost)',
           'Criminal: not prosecuted',
-          'Action vs buyer: rejected'
+          'Action vs buyer: rejected',
         ],
         totalLoss: 'USD 315,000',
-        result: 'Zero recovery, left Indonesia'
+        result: 'Zero recovery, left Indonesia',
       },
 
       northBali150k: {
@@ -231,8 +232,8 @@ export class LegalArchitect {
         scam: 'Fake certificate, corrupt PPAT',
         paid: 'EUR 150,000',
         discovery: 'BPN verification: certificate FAKE',
-        northBaliRisk: '3x fraud rate vs South Bali'
-      }
+        northBaliRisk: '3x fraud rate vs South Bali',
+      },
     },
 
     // ===================================
@@ -243,7 +244,7 @@ export class LegalArchitect {
         status: '🚫 100% ILLEGAL',
         lossRate: '100% (0/140 won)',
         art26Consequence: 'Money NOT returned',
-        baliZeroAdvice: 'NEVER. ZERO EXCEPTIONS. Legal alternatives exist for every budget.'
+        baliZeroAdvice: 'NEVER. ZERO EXCEPTIONS. Legal alternatives exist for every budget.',
       },
 
       hakPakai: {
@@ -251,7 +252,7 @@ export class LegalArchitect {
         when: 'Single villa, personal use, USD 150K-1M',
         pros: ['Direct ownership', 'Full control', 'Economic'],
         cons: ['Visa dependency', 'Limited exit', 'Not commercial'],
-        baliZeroAdvice: 'Ideal for single villa. Ensure 30 years + clear extensions.'
+        baliZeroAdvice: 'Ideal for single villa. Ensure 30 years + clear extensions.',
       },
 
       ptPma: {
@@ -261,11 +262,12 @@ export class LegalArchitect {
           old: 'IDR 2.5 billion minimum capital (pre-2024)',
           new: 'IDR 10 billion minimum (effective 2024/2025)',
           clarification: '⚠️ TO VERIFY: 10B capital OR 10B total investment plan?',
-          usdEquivalent: 'USD ~650,000 at 15,400 IDR/USD'
+          usdEquivalent: 'USD ~650,000 at 15,400 IDR/USD',
         },
         pros: ['100% legal', 'HGB possible', 'Business operation', 'Exit strategy', 'Financing'],
         cons: ['High capital requirement (4x increase)', 'Annual compliance', 'Complexity'],
-        baliZeroAdvice: 'Recommended for serious investment. Higher capital requirement but total protection.'
+        baliZeroAdvice:
+          'Recommended for serious investment. Higher capital requirement but total protection.',
       },
 
       leasehold: {
@@ -273,7 +275,8 @@ export class LegalArchitect {
         when: 'Limited budget, no visa, short-term',
         pros: ['No visa needed', 'Lower cost', 'Flexible'],
         cons: ['Not ownership', 'Renewal risk', 'Difficult financing'],
-        baliZeroAdvice: 'Acceptable temporary. CRITICAL: Expert lawyer, clear extensions, BPN registration.'
+        baliZeroAdvice:
+          'Acceptable temporary. CRITICAL: Expert lawyer, clear extensions, BPN registration.',
       },
 
       marriedCouples: {
@@ -281,8 +284,8 @@ export class LegalArchitect {
         postnuptial: 'AFTER marriage - legal since 2016 Constitutional Court',
         cost: 'USD 1,000-3,000',
         timeline: '1-7 months',
-        critical: 'DO BEFORE buying property to avoid Art. 21 UUPA violation'
-      }
+        critical: 'DO BEFORE buying property to avoid Art. 21 UUPA violation',
+      },
     },
 
     // ===================================
@@ -295,11 +298,11 @@ export class LegalArchitect {
           'Survey (USD 300-600) - Authorized surveyor, boundaries, area',
           'Seller Background (USD 200-400) - Identity, history, litigation',
           'Tax Verification (USD 100-200) - SPPT PBB, payment history',
-          'Planning Check (USD 200-400) - Zoning, permits, RTRW'
+          'Planning Check (USD 200-400) - Zoning, permits, RTRW',
         ],
         totalCost: 'USD 1,600-3,100',
         timeline: '3-6 weeks',
-        roi: '15-20% deals abort (saves USD 200K-1M+)'
+        roi: '15-20% deals abort (saves USD 200K-1M+)',
       },
 
       redFlagsAbort: [
@@ -310,9 +313,9 @@ export class LegalArchitect {
         '❌ Pressure decision <1 week',
         '❌ Suggests nominee',
         '❌ Cash only',
-        '❌ Resists due diligence'
-      ]
-    }
+        '❌ Resists due diligence',
+      ],
+    },
   };
 
   /**
@@ -333,8 +336,8 @@ export class LegalArchitect {
       contact: {
         company: 'Bali Zero Legal',
         whatsapp: '+62 859 0436 9574',
-        email: 'info@balizero.com'
-      }
+        email: 'info@balizero.com',
+      },
     };
   }
 
@@ -359,37 +362,36 @@ export class LegalArchitect {
         illegal: '100% (Art. 21 & 26 UUPA)',
         lossRate: '100% (0/140 won)',
         consequence: 'Land to State, money NOT returned',
-        action: 'ABORT IMMEDIATELY'
+        action: 'ABORT IMMEDIATELY',
       },
       hak_pakai: {
         level: 'LOW (if done correctly)',
         legal: 'Yes (with KITAS/KITAP)',
-        risks: ['Exit limited', 'Visa dependency']
+        risks: ['Exit limited', 'Visa dependency'],
       },
       pt_pma: {
         level: 'VERY LOW (gold standard)',
         legal: '100%',
-        risks: ['High cost', 'Complexity']
+        risks: ['High cost', 'Complexity'],
       },
       marriage: {
         level: 'MEDIUM (without prenuptial/postnuptial)',
         risk: 'Foreign spouse 50% Hak Milik = Art. 21 violated',
-        solution: 'Prenuptial or postnuptial'
+        solution: 'Prenuptial or postnuptial',
       },
       fraud: {
         level: 'HIGH (recovery difficult)',
         prosecution: '20% chance',
         recovery: '5% partial',
-        totalLoss: '65-75% probability'
-      }
+        totalLoss: '65-75% probability',
+      },
     };
 
     return risks[category] || { level: 'UNKNOWN' };
   }
 
   private getRecommendation(category: string): any {
-    return this.knowledgeBase.recommendations[category] ||
-           this.knowledgeBase.recommendations.ptPma;
+    return this.knowledgeBase.recommendations[category] || this.knowledgeBase.recommendations.ptPma;
   }
 
   private getRelevantLaw(category: string): any {
@@ -397,7 +399,7 @@ export class LegalArchitect {
       return [
         this.knowledgeBase.agrarianLaw.criticalArticles.article21,
         this.knowledgeBase.agrarianLaw.criticalArticles.article26,
-        { code: 'KUHPerdata Art. 1320', text: 'Lawful cause required' }
+        { code: 'KUHPerdata Art. 1320', text: 'Lawful cause required' },
       ];
     }
 
@@ -406,10 +408,7 @@ export class LegalArchitect {
 
   private getRelevantCaseLaw(category: string): any {
     if (category === 'nominee_risk' || category === 'fraud') {
-      return [
-        this.knowledgeBase.caseLaw.ma3020_2014,
-        this.knowledgeBase.caseLaw.sema10_2020
-      ];
+      return [this.knowledgeBase.caseLaw.ma3020_2014, this.knowledgeBase.caseLaw.sema10_2020];
     }
 
     if (category === 'marriage') {

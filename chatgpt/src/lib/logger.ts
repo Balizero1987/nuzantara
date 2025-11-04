@@ -13,15 +13,12 @@ const logger: Logger = createLogger({
     }),
     format.errors({ stack: true }),
     format.splat(),
-    format.json(),
+    format.json()
   ),
   defaultMeta: { service: 'zantara-api' },
   transports: [
     new transports.Console({
-      format: format.combine(
-        format.colorize(),
-        format.simple(),
-      ),
+      format: format.combine(format.colorize(), format.simple()),
     }),
     new transports.File({ filename: 'logs/error.log', level: 'error' }),
     new transports.File({ filename: 'logs/combined.log' }),

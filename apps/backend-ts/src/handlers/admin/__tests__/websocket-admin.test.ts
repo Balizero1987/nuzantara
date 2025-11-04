@@ -6,14 +6,14 @@ const mockWebSocketServer = {
   getStats: jest.fn().mockReturnValue({
     totalConnections: 0,
     channels: {},
-    clients: []
+    clients: [],
   }),
   broadcast: jest.fn(),
-  sendToUser: jest.fn()
+  sendToUser: jest.fn(),
 };
 
 jest.unstable_mockModule('../../services/websocket-server.js', () => ({
-  getWebSocketServer: jest.fn().mockReturnValue(mockWebSocketServer)
+  getWebSocketServer: jest.fn().mockReturnValue(mockWebSocketServer),
 }));
 
 describe('Websocket Admin', () => {
@@ -38,7 +38,7 @@ describe('Websocket Admin', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.websocketBroadcast({
         channel: 'test-channel',
-        data: { message: 'Test broadcast' }
+        data: { message: 'Test broadcast' },
       });
 
       expect(result).toBeDefined();
@@ -49,13 +49,17 @@ describe('Websocket Admin', () => {
 
     it('should handle missing required params', async () => {
       await expect(handlers.websocketBroadcast({})).rejects.toThrow(BadRequestError);
-      await expect(handlers.websocketBroadcast({})).rejects.toThrow('channel and data are required');
+      await expect(handlers.websocketBroadcast({})).rejects.toThrow(
+        'channel and data are required'
+      );
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.websocketBroadcast({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.websocketBroadcast({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
 
@@ -64,7 +68,7 @@ describe('Websocket Admin', () => {
       const result = await handlers.websocketSendToUser({
         userId: 'test-user',
         channel: 'test-channel',
-        data: { message: 'Test message' }
+        data: { message: 'Test message' },
       });
 
       expect(result).toBeDefined();
@@ -75,14 +79,17 @@ describe('Websocket Admin', () => {
 
     it('should handle missing required params', async () => {
       await expect(handlers.websocketSendToUser({})).rejects.toThrow(BadRequestError);
-      await expect(handlers.websocketSendToUser({})).rejects.toThrow('userId, channel, and data are required');
+      await expect(handlers.websocketSendToUser({})).rejects.toThrow(
+        'userId, channel, and data are required'
+      );
     });
 
     it('should handle invalid params', async () => {
-      await expect(handlers.websocketSendToUser({
-        invalid: 'data'
-      })).rejects.toThrow(BadRequestError);
+      await expect(
+        handlers.websocketSendToUser({
+          invalid: 'data',
+        })
+      ).rejects.toThrow(BadRequestError);
     });
   });
-
 });

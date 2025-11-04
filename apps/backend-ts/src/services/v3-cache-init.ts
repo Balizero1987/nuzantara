@@ -1,6 +1,6 @@
 /**
  * V3 Performance Cache Initialization
- * 
+ *
  * Initialize cache system on server startup
  * Auto-warm frequently accessed queries
  */
@@ -25,12 +25,12 @@ export async function initializeV3CacheSystem(): Promise<void> {
 
     // Initialize enhanced Redis cache (L1 + L2)
     await initializeEnhancedCache({
-      l1Ttl: 60,        // 1 minute in-memory
-      l2Ttl: 3600,      // 1 hour Redis
-      maxL1Size: 2000,  // Increased for v3
+      l1Ttl: 60, // 1 minute in-memory
+      l2Ttl: 3600, // 1 hour Redis
+      maxL1Size: 2000, // Increased for v3
       enableCompression: true,
       enableWarming: true,
-      enableStats: true
+      enableStats: true,
     });
 
     // Initialize V3-specific cache
@@ -43,10 +43,11 @@ export async function initializeV3CacheSystem(): Promise<void> {
     setInterval(() => {
       const cache = getV3Cache();
       const metrics = cache.getMetrics();
-      
-      logger.info(`📊 V3 Cache Stats: ${metrics.totalQueries} queries, ${metrics.cacheHits} hits, ${(metrics.cacheHits / metrics.totalQueries * 100).toFixed(1)}% hit rate`);
-    }, 300000); // Every 5 minutes
 
+      logger.info(
+        `📊 V3 Cache Stats: ${metrics.totalQueries} queries, ${metrics.cacheHits} hits, ${((metrics.cacheHits / metrics.totalQueries) * 100).toFixed(1)}% hit rate`
+      );
+    }, 300000); // Every 5 minutes
   } catch (error: any) {
     logger.error('❌ Failed to initialize V3 cache system:', error);
     // Don't throw - application should work without cache

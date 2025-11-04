@@ -12,18 +12,18 @@
  */
 
 import { logger } from '../logging/unified-logger.js';
-import type { Request } from "express";
+import type { Request } from 'express';
 
 // Handler types
 export type HandlerFunction = (params: any, req?: Request) => Promise<any>;
 
 export interface HandlerMetadata {
-  key: string;                    // e.g., "gmail.send"
+  key: string; // e.g., "gmail.send"
   handler: HandlerFunction;
-  module: string;                 // e.g., "google-workspace"
+  module: string; // e.g., "google-workspace"
   description?: string;
   requiresAuth?: boolean;
-  rateLimit?: number;            // requests per minute
+  rateLimit?: number; // requests per minute
   deprecated?: boolean;
   version?: string;
 }
@@ -52,7 +52,7 @@ export class HandlerRegistry {
     this.options = {
       enableLogging: true,
       enableMetrics: true,
-      ...options
+      ...options,
     };
   }
 
@@ -96,13 +96,17 @@ export class HandlerRegistry {
    * });
    * ```
    */
-  registerModule(moduleName: string, handlers: Record<string, HandlerFunction>, options: Partial<HandlerMetadata> = {}): void {
+  registerModule(
+    moduleName: string,
+    handlers: Record<string, HandlerFunction>,
+    options: Partial<HandlerMetadata> = {}
+  ): void {
     for (const [key, handler] of Object.entries(handlers)) {
       this.register({
         key: `${moduleName}.${key}`,
         handler,
         module: moduleName,
-        ...options
+        ...options,
       });
     }
   }
@@ -192,7 +196,7 @@ export class HandlerRegistry {
       topHandlers: Array.from(this.callCounts.entries())
         .sort(([, a], [, b]) => b - a)
         .slice(0, 10)
-        .map(([key, count]) => ({ key, count }))
+        .map(([key, count]) => ({ key, count })),
     };
   }
 
@@ -213,7 +217,7 @@ export class HandlerRegistry {
 // Global registry instance
 export const globalRegistry = new HandlerRegistry({
   enableLogging: true, // ALWAYS enable logging for debugging
-  enableMetrics: true
+  enableMetrics: true,
 });
 
 /**
@@ -236,7 +240,7 @@ export function Handler(key: string, options: Partial<HandlerMetadata> = {}) {
       key,
       handler: originalMethod,
       module: options.module || 'unknown',
-      ...options
+      ...options,
     });
 
     return descriptor;

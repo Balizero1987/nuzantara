@@ -1,7 +1,6 @@
-import type { Error } from "express";
 /**
  * Admin Authentication Middleware
- * 
+ *
  * Restricts access to admin-only routes for the analytics dashboard.
  */
 
@@ -29,12 +28,12 @@ export function adminAuth(req: RequestWithAdmin, res: Response, next: NextFuncti
     if (!req.user) {
       logger.warn('Admin Auth: User not authenticated', {
         path: req.path,
-        ip: req.ip || 'unknown'
+        ip: req.ip || 'unknown',
       });
 
       return res.status(401).json({
         ok: false,
-        error: 'User not authenticated'
+        error: 'User not authenticated',
       });
     }
 
@@ -45,7 +44,7 @@ export function adminAuth(req: RequestWithAdmin, res: Response, next: NextFuncti
         email: req.user.email.substring(0, 3) + '***',
         name: req.user.name,
         path: req.path,
-        ip: req.ip || 'unknown'
+        ip: req.ip || 'unknown',
       });
 
       logger.info('ADMIN_ACCESS_AUDIT', {
@@ -55,12 +54,12 @@ export function adminAuth(req: RequestWithAdmin, res: Response, next: NextFuncti
         name: req.user.name,
         path: req.path,
         ip: req.ip || 'unknown',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       return res.status(403).json({
         ok: false,
-        error: 'Access denied. Admin access required.'
+        error: 'Access denied. Admin access required.',
       });
     }
 
@@ -72,22 +71,19 @@ export function adminAuth(req: RequestWithAdmin, res: Response, next: NextFuncti
       name: req.user.name,
       path: req.path,
       ip: req.ip || 'unknown',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     next();
-    
   } catch (error: any) {
     // BUG FIX: Use logger instead of console.error
-    logger.error('Admin Auth error:', {
-      error: error.message,
-      stack: error.stack,
-      path: req.path
+    logger.error('Admin Auth error:', error, {
+      path: req.path,
     });
 
     return res.status(500).json({
       ok: false,
-      error: 'Internal server error'
+      error: 'Internal server error',
     });
   }
 }

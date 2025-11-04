@@ -6,14 +6,8 @@ import { createLogger, format, transports } from 'winston';
 
 const logger = createLogger({
   level: 'warn',
-  format: format.combine(
-    format.timestamp(),
-    format.json()
-  ),
-  transports: [
-    new transports.Console(),
-    new transports.File({ filename: 'cors-violations.log' })
-  ]
+  format: format.combine(format.timestamp(), format.json()),
+  transports: [new transports.Console(), new transports.File({ filename: 'cors-violations.log' })],
 });
 
 const allowedOrigins = config.getAll().cors.allowedOrigins;
@@ -29,7 +23,7 @@ const corsOptions: cors.CorsOptions = {
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  credentials: true,
 };
 
 export const productionCors = cors(corsOptions);

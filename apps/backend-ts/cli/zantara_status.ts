@@ -76,9 +76,9 @@ export class ZantaraStatus {
 
       // Calculate overall score
       const services = [backendStatus, webappStatus, databaseStatus, cacheStatus, aiStatus];
-      const onlineCount = services.filter(s => s.status === 'online').length;
-      const degradedCount = services.filter(s => s.status === 'degraded').length;
-      const offlineCount = services.filter(s => s.status === 'offline').length;
+      const onlineCount = services.filter((s) => s.status === 'online').length;
+      const degradedCount = services.filter((s) => s.status === 'degraded').length;
+      const offlineCount = services.filter((s) => s.status === 'offline').length;
 
       let overallStatus: 'healthy' | 'degraded' | 'critical';
       let overallScore: number;
@@ -88,14 +88,15 @@ export class ZantaraStatus {
         overallScore = 90 + (10 - degradedCount * 10);
       } else if (offlineCount <= 1) {
         overallStatus = 'degraded';
-        overallScore = 50 + (5 - offlineCount * 20) + (degradedCount * 5);
+        overallScore = 50 + (5 - offlineCount * 20) + degradedCount * 5;
       } else {
         overallStatus = 'critical';
         overallScore = Math.max(0, 20 - offlineCount * 15);
       }
 
       // Calculate average response time
-      const avgResponseTime = services.reduce((sum, s) => sum + s.response_time, 0) / services.length;
+      const avgResponseTime =
+        services.reduce((sum, s) => sum + s.response_time, 0) / services.length;
 
       const systemStatus: SystemStatus = {
         timestamp,
@@ -103,33 +104,32 @@ export class ZantaraStatus {
           status: overallStatus,
           uptime: this.calculateUptime(),
           version: backendStatus.details?.version || 'v100-perfect',
-          score: Math.round(overallScore)
+          score: Math.round(overallScore),
         },
         services: {
           backend: backendStatus,
           webapp: webappStatus,
           database: databaseStatus,
           cache: cacheStatus,
-          ai: aiStatus
+          ai: aiStatus,
         },
         metrics: {
           endpoints: this.countEndpoints(backendStatus.details),
           handlers: this.countHandlers(backendStatus.details),
           active_connections: backendStatus.details?.active_connections || 0,
           memory_usage: 'N/A', // Would need memory monitoring endpoint
-          response_time: Math.round(avgResponseTime)
+          response_time: Math.round(avgResponseTime),
         },
         deployment: {
           platform: 'Fly.io',
           region: 'Global (Singapore)',
           last_deploy: this.getLastDeployTime(),
-          version: backendStatus.details?.version || 'v100-perfect'
-        }
+          version: backendStatus.details?.version || 'v100-perfect',
+        },
       };
 
       this.printStatus(systemStatus);
       return systemStatus;
-
     } catch (error) {
       console.error('❌ Status check failed:', error);
       throw error;
@@ -147,7 +147,7 @@ export class ZantaraStatus {
         status: response.data.status === 'healthy' ? 'online' : 'degraded',
         response_time: responseTime,
         last_check: new Date().toISOString(),
-        details: response.data
+        details: response.data,
       };
     } catch (error) {
       return {
@@ -155,7 +155,7 @@ export class ZantaraStatus {
         status: 'offline',
         response_time: 10000,
         last_check: new Date().toISOString(),
-        details: { error: String(error) }
+        details: { error: String(error) },
       };
     }
   }
@@ -171,7 +171,7 @@ export class ZantaraStatus {
         status: response.status === 200 ? 'online' : 'degraded',
         response_time: responseTime,
         last_check: new Date().toISOString(),
-        details: { status_code: response.status }
+        details: { status_code: response.status },
       };
     } catch (error) {
       return {
@@ -179,7 +179,7 @@ export class ZantaraStatus {
         status: 'offline',
         response_time: 10000,
         last_check: new Date().toISOString(),
-        details: { error: String(error) }
+        details: { error: String(error) },
       };
     }
   }
@@ -197,7 +197,7 @@ export class ZantaraStatus {
         status: dbConnected ? 'online' : 'offline',
         response_time: responseTime,
         last_check: new Date().toISOString(),
-        details: { connected: dbConnected }
+        details: { connected: dbConnected },
       };
     } catch (error) {
       return {
@@ -205,7 +205,7 @@ export class ZantaraStatus {
         status: 'offline',
         response_time: 10000,
         last_check: new Date().toISOString(),
-        details: { error: String(error) }
+        details: { error: String(error) },
       };
     }
   }
@@ -221,7 +221,7 @@ export class ZantaraStatus {
         status: response.data.connected ? 'online' : 'offline',
         response_time: responseTime,
         last_check: new Date().toISOString(),
-        details: response.data
+        details: response.data,
       };
     } catch (error) {
       return {
@@ -229,7 +229,7 @@ export class ZantaraStatus {
         status: 'offline',
         response_time: 10000,
         last_check: new Date().toISOString(),
-        details: { error: String(error) }
+        details: { error: String(error) },
       };
     }
   }
@@ -249,8 +249,8 @@ export class ZantaraStatus {
         last_check: new Date().toISOString(),
         details: {
           available: aiAvailable,
-          model: 'claude-haiku-4-5-20251001'
-        }
+          model: 'claude-haiku-4-5-20251001',
+        },
       };
     } catch (error) {
       return {
@@ -258,7 +258,7 @@ export class ZantaraStatus {
         status: 'offline',
         response_time: 10000,
         last_check: new Date().toISOString(),
-        details: { error: String(error) }
+        details: { error: String(error) },
       };
     }
   }
@@ -302,7 +302,9 @@ export class ZantaraStatus {
     console.log('\n🔧 SERVICE STATUS');
     Object.entries(status.services).forEach(([key, service]) => {
       const icon = service.status === 'online' ? '✅' : service.status === 'degraded' ? '⚠️' : '❌';
-      console.log(`${icon} ${service.name}: ${service.status.toUpperCase()} (${service.response_time}ms)`);
+      console.log(
+        `${icon} ${service.name}: ${service.status.toUpperCase()} (${service.response_time}ms)`
+      );
     });
 
     console.log('\n📈 SYSTEM METRICS');
@@ -324,7 +326,8 @@ export class ZantaraStatus {
 // Export for direct execution
 if (import.meta.url === `file://${process.argv[1]}`) {
   const statusChecker = new ZantaraStatus();
-  statusChecker.showStatus()
+  statusChecker
+    .showStatus()
     .then((status) => {
       console.log('\n✅ Status check completed');
       process.exit(0);

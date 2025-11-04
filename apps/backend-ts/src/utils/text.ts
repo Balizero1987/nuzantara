@@ -14,7 +14,9 @@ export function cleanMarkdown(text: string): string {
 }
 
 export function toPlainIfEnabled(text: string): string {
-  const plain = process.env.ZANTARA_PLAIN_TEXT === '1' || process.env.ZANTARA_PLAIN_TEXT === 'true' || process.env.ZANTARA_OUTPUT_FORMAT === 'plain';
+  const plain =
+    process.env.ZANTARA_PLAIN_TEXT === '1' ||
+    process.env.ZANTARA_PLAIN_TEXT === 'true' ||
+    process.env.ZANTARA_OUTPUT_FORMAT === 'plain';
   return plain ? cleanMarkdown(text) : text;
 }
-

@@ -35,15 +35,15 @@ const CONFIG = {
   verbose: process.argv.includes('--verbose'),
   resume: process.argv.includes('--resume'),
   collections: {
-    'kbli_eye': 'kbli_eye',
-    'legal_architect': 'legal_architect',
-    'tax_genius': 'tax_genius',
-    'visa_oracle': 'visa_oracle',
-    'zantara_books': 'zantara_books',
-    'raw_books_philosophy': 'zantara_books',
-    'KB_human_readable_ID': 'zantara_books',
-    'KB_backup_pre_migration': 'zantara_books'
-  }
+    kbli_eye: 'kbli_eye',
+    legal_architect: 'legal_architect',
+    tax_genius: 'tax_genius',
+    visa_oracle: 'visa_oracle',
+    zantara_books: 'zantara_books',
+    raw_books_philosophy: 'zantara_books',
+    KB_human_readable_ID: 'zantara_books',
+    KB_backup_pre_migration: 'zantara_books',
+  },
 } as const;
 
 // Logging utility
@@ -56,9 +56,12 @@ class Logger {
 
   private formatMessage(level: string, message: string, ...args: any[]): string {
     const timestamp = new Date().toISOString();
-    const formattedArgs = args.length > 0 ? ` ${args.map(arg =>
-      typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-    ).join(' ')}` : '';
+    const formattedArgs =
+      args.length > 0
+        ? ` ${args
+            .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg)))
+            .join(' ')}`
+        : '';
     return `[${timestamp}] ${level}: ${message}${formattedArgs}`;
   }
 
@@ -280,13 +283,15 @@ class TextProcessor {
         const lastNewline = text.lastIndexOf('\n', endPos);
         const breakPoint = Math.max(lastSentence, lastNewline);
 
-        if (breakPoint > currentPos + maxSize * 0.3) { // Don't go too far back
+        if (breakPoint > currentPos + maxSize * 0.3) {
+          // Don't go too far back
           endPos = breakPoint + 1;
         }
       }
 
       const chunk = text.substring(currentPos, endPos).trim();
-      if (chunk.length > 20) { // Skip very small chunks
+      if (chunk.length > 20) {
+        // Skip very small chunks
         chunks.push(chunk);
       }
 
@@ -312,7 +317,7 @@ class TextProcessor {
       chunk_index: chunkIndex,
       created_at: new Date().toISOString(),
       file_path: filePath,
-      relative_path: relativePath
+      relative_path: relativePath,
     };
   }
 }
@@ -362,13 +367,13 @@ class RAGBackendClient {
           id: ids[i],
           document: documents[i],
           metadata: metadatas[i],
-          collection: collectionName
+          collection: collectionName,
         };
 
         try {
           await axios.post(`${this.baseUrl}/api/admin/ingest-document`, payload, {
             headers: { 'Content-Type': 'application/json' },
-            timeout: 30000
+            timeout: 30000,
           });
 
           this.logger.debug(`Uploaded document: ${ids[i]}`);
@@ -384,8 +389,8 @@ class RAGBackendClient {
                 document: documents[i],
                 metadata: {
                   ...metadatas[i],
-                  collection: collectionName
-                }
+                  collection: collectionName,
+                },
               });
 
               this.logger.debug(`Stored via memory API: ${ids[i]}`);
@@ -417,7 +422,7 @@ class RAGBackendClient {
       const response = await axios.post(`${this.baseUrl}/search`, {
         query: docId,
         collection: collectionName,
-        limit: 1
+        limit: 1,
       });
 
       return response.data?.results?.length > 0;
@@ -446,7 +451,7 @@ async function retry<T>(
       if (attempt < maxRetries) {
         const waitTime = delay * attempt; // Exponential backoff
         logger.debug(`Retrying in ${waitTime}ms...`);
-        await new Promise(resolve => setTimeout(resolve, waitTime));
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
       }
     }
   }
@@ -482,7 +487,7 @@ class ChromaDBMigrator {
         dryRun: CONFIG.dryRun,
         resume: CONFIG.resume,
         maxChunkSize: CONFIG.maxChunkSize,
-        batchSize: CONFIG.batchSize
+        batchSize: CONFIG.batchSize,
       });
 
       if (CONFIG.dryRun) {
@@ -524,7 +529,6 @@ class ChromaDBMigrator {
 
       // Final summary
       this.printFinalSummary();
-
     } catch (error: any) {
       this.logger.error('Migration failed:', error.message);
       if (CONFIG.verbose) {
@@ -569,7 +573,6 @@ class ChromaDBMigrator {
         if (this.progress.getProgress() % 10 === 0) {
           this.progress.print();
         }
-
       } catch (error: any) {
         this.logger.error(`Failed to process file ${filePath}:`, error.message);
         this.progress.incrementError();
@@ -587,7 +590,10 @@ class ChromaDBMigrator {
   /**
    * Process a single file
    */
-  private async processFile(filePath: string, collectionName: string): Promise<{
+  private async processFile(
+    filePath: string,
+    collectionName: string
+  ): Promise<{
     documents: string[];
     metadatas: any[];
     ids: string[];
@@ -598,7 +604,7 @@ class ChromaDBMigrator {
     // Skip if resume mode and document might already exist
     if (CONFIG.resume) {
       const docId = `${collectionName}_${fileName}_0`;
-      if (!CONFIG.dryRun && await this.ragClient.documentExists(collectionName, docId)) {
+      if (!CONFIG.dryRun && (await this.ragClient.documentExists(collectionName, docId))) {
         this.logger.debug(`Skipping already processed: ${relativePath}`);
         this.progress.incrementSkipped();
         return null;
@@ -609,7 +615,9 @@ class ChromaDBMigrator {
     const textContent = this.textProcessor.extractText(filePath);
 
     if (textContent.length < 20) {
-      this.logger.warn(`Skipping very short content: ${relativePath} (${textContent.length} chars)`);
+      this.logger.warn(
+        `Skipping very short content: ${relativePath} (${textContent.length} chars)`
+      );
       this.progress.incrementSkipped();
       return null;
     }
@@ -638,7 +646,9 @@ class ChromaDBMigrator {
       ids.push(docId);
     }
 
-    this.logger.debug(`Processed ${relativePath}: ${chunks.length} chunks, ${textContent.length} total chars`);
+    this.logger.debug(
+      `Processed ${relativePath}: ${chunks.length} chunks, ${textContent.length} total chars`
+    );
 
     return { documents, metadatas, ids };
   }
@@ -658,7 +668,12 @@ class ChromaDBMigrator {
     }
 
     await retry(async () => {
-      const success = await this.ragClient.uploadDocuments(collectionName, documents, metadatas, ids);
+      const success = await this.ragClient.uploadDocuments(
+        collectionName,
+        documents,
+        metadatas,
+        ids
+      );
       if (!success) {
         throw new Error(`Failed to upload batch to ${collectionName}`);
       }
@@ -677,7 +692,7 @@ class ChromaDBMigrator {
       errorFiles: this.progress.errorFiles,
       totalChunks: this.progress.totalChunks,
       totalTime: (elapsed / 1000).toFixed(1),
-      avgTimePerFile: (elapsed / this.progress.processedFiles / 1000).toFixed(2)
+      avgTimePerFile: (elapsed / this.progress.processedFiles / 1000).toFixed(2),
     };
 
     console.log('\n🎉 Migration Complete!');
@@ -747,7 +762,7 @@ process.on('uncaughtException', (error) => {
 
 // Run if this file is executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(error => {
+  main().catch((error) => {
     logger.error('Migration failed:', error);
     process.exit(1);
   });

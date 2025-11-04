@@ -3,36 +3,36 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 // Mock Firestore
 const mockCollectionGet = jest.fn().mockResolvedValue({
   size: 0,
-  forEach: jest.fn()
+  forEach: jest.fn(),
 });
 
 const mockWhereGet = jest.fn().mockResolvedValue({
   size: 0,
-  forEach: jest.fn()
+  forEach: jest.fn(),
 });
 
 const mockOrderByLimitGet = jest.fn().mockResolvedValue({
-  forEach: jest.fn()
+  forEach: jest.fn(),
 });
 
 const mockCollection = jest.fn(() => ({
   get: mockCollectionGet,
   where: jest.fn(() => ({
-    get: mockWhereGet
+    get: mockWhereGet,
   })),
   orderBy: jest.fn(() => ({
     limit: jest.fn(() => ({
-      get: mockOrderByLimitGet
-    }))
-  }))
+      get: mockOrderByLimitGet,
+    })),
+  })),
 }));
 
 const mockFirestore = {
-  collection: mockCollection
+  collection: mockCollection,
 };
 
 jest.mock('../../../services/firebase.js', () => ({
-  getFirestore: jest.fn(() => mockFirestore)
+  getFirestore: jest.fn(() => mockFirestore),
 }));
 
 describe('Dashboard Analytics', () => {
@@ -40,11 +40,11 @@ describe('Dashboard Analytics', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    
+
     // Setup default mock responses
     mockCollectionGet.mockResolvedValue({
       size: 10,
-      forEach: jest.fn()
+      forEach: jest.fn(),
     });
 
     mockWhereGet.mockResolvedValue({
@@ -53,10 +53,10 @@ describe('Dashboard Analytics', () => {
         // Simulate some mock documents
         const mockDocs = [
           { id: '1', data: () => ({ userId: 'user1', timestamp: { toDate: () => new Date() } }) },
-          { id: '2', data: () => ({ userId: 'user2', timestamp: { toDate: () => new Date() } }) }
+          { id: '2', data: () => ({ userId: 'user2', timestamp: { toDate: () => new Date() } }) },
         ];
         mockDocs.forEach(callback);
-      })
+      }),
     });
 
     mockOrderByLimitGet.mockResolvedValue({
@@ -69,12 +69,12 @@ describe('Dashboard Analytics', () => {
               stats: { messages_count: 100 },
               last_seen: { toDate: () => new Date() },
               services_used: ['visa', 'company'],
-              language: 'en'
-            })
-          }
+              language: 'en',
+            }),
+          },
         ];
         mockDocs.forEach(callback);
-      })
+      }),
     });
 
     handlers = await import('../dashboard-analytics.js');
@@ -104,7 +104,7 @@ describe('Dashboard Analytics', () => {
     it('should handle invalid params', async () => {
       // dashboardMain ignores params
       const result = await handlers.dashboardMain({
-        invalid: 'data'
+        invalid: 'data',
       });
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
@@ -133,7 +133,7 @@ describe('Dashboard Analytics', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.dashboardConversations({
-        invalid: 'data'
+        invalid: 'data',
       });
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
@@ -161,7 +161,7 @@ describe('Dashboard Analytics', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.dashboardServices({
-        invalid: 'data'
+        invalid: 'data',
       });
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
@@ -189,7 +189,7 @@ describe('Dashboard Analytics', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.dashboardHandlers({
-        invalid: 'data'
+        invalid: 'data',
       });
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
@@ -217,7 +217,7 @@ describe('Dashboard Analytics', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.dashboardHealth({
-        invalid: 'data'
+        invalid: 'data',
       });
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
@@ -227,7 +227,7 @@ describe('Dashboard Analytics', () => {
   describe('dashboardUsers', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.dashboardUsers({
-        limit: 5
+        limit: 5,
       });
 
       expect(result).toBeDefined();
@@ -247,11 +247,10 @@ describe('Dashboard Analytics', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.dashboardUsers({
-        invalid: 'data'
+        invalid: 'data',
       });
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
     });
   });
-
 });

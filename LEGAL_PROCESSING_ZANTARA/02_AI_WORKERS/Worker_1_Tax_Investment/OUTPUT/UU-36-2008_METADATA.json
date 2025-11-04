@@ -16,14 +16,7 @@
     "both_applicable": 29
   },
   "chunking_strategy": "1 Pasal = 1 Atomic Chunk",
-  "target_users": [
-    "WNI",
-    "WNA",
-    "PT_Lokal",
-    "PT_PMA",
-    "BUT",
-    "PT_Tbk"
-  ],
+  "target_users": ["WNI", "WNA", "PT_Lokal", "PT_PMA", "BUT", "PT_Tbk"],
   "signal_dimensions": [
     "tax_type",
     "tax_rate",

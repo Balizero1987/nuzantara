@@ -1,6 +1,6 @@
 /**
  * Redis Pub/Sub Wrapper for NUZANTARA
- * 
+ *
  * Enables real-time features:
  * - User notifications
  * - AI job queue
@@ -27,13 +27,13 @@ function getRedisConfig(url: string) {
     maxRetriesPerRequest: 3,
     lazyConnect: true, // ← CRITICAL: Don't connect immediately
     enableOfflineQueue: false,
-    connectTimeout: 10000
+    connectTimeout: 10000,
   };
 
   // Check if URL requires TLS (Upstash or rediss://)
   if (url.includes('upstash.io') || url.startsWith('rediss://')) {
     config.tls = {
-      rejectUnauthorized: false // Required for Upstash Redis
+      rejectUnauthorized: false, // Required for Upstash Redis
     };
   }
 
@@ -44,7 +44,7 @@ function getRedisConfig(url: string) {
 function createRedisClient(url: string, label: string): Redis | null {
   try {
     const client = new Redis(url, getRedisConfig(url));
-    
+
     client.on('error', (err) => {
       logger.error(`Redis ${label} error:`, err);
       // Don't crash - just log
@@ -88,22 +88,22 @@ if (!redisUrl) {
 export const CHANNELS = {
   // User notifications
   USER_NOTIFICATIONS: 'user:notifications',
-  
+
   // AI processing
   AI_JOBS: 'ai:jobs',
   AI_RESULTS: 'ai:results',
-  
+
   // Cache management
   CACHE_INVALIDATE: 'cache:invalidate',
-  
+
   // Live chat
   CHAT_MESSAGES: 'chat:messages',
-  
+
   // Analytics
   ANALYTICS_EVENTS: 'analytics:events',
-  
+
   // System events
-  SYSTEM_EVENTS: 'system:events'
+  SYSTEM_EVENTS: 'system:events',
 } as const;
 
 /**
@@ -181,10 +181,7 @@ export class PubSubService {
   /**
    * Subscribe to a channel with typed handler
    */
-  static subscribe<T = any>(
-    channel: string,
-    handler: (data: T) => void | Promise<void>
-  ): void {
+  static subscribe<T = any>(channel: string, handler: (data: T) => void | Promise<void>): void {
     if (!subscriberRedis) {
       logger.warn(`Pub/sub disabled - cannot subscribe to ${channel}`);
       return;
@@ -290,10 +287,7 @@ export async function queueAIJob(job: AIJob): Promise<void> {
  * Publish AI result
  */
 export async function publishAIResult(result: AIResult): Promise<void> {
-  await PubSubService.publish(
-    `${CHANNELS.AI_RESULTS}:${result.userId}`,
-    result
-  );
+  await PubSubService.publish(`${CHANNELS.AI_RESULTS}:${result.userId}`, result);
 }
 
 /**
@@ -303,7 +297,7 @@ export async function invalidateCache(pattern: string, reason?: string): Promise
   await PubSubService.publish(CHANNELS.CACHE_INVALIDATE, {
     pattern,
     reason,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 }
 
@@ -311,10 +305,7 @@ export async function invalidateCache(pattern: string, reason?: string): Promise
  * Send chat message to room
  */
 export async function sendChatMessage(message: ChatMessage): Promise<void> {
-  await PubSubService.publish(
-    `${CHANNELS.CHAT_MESSAGES}:${message.roomId}`,
-    message
-  );
+  await PubSubService.publish(`${CHANNELS.CHAT_MESSAGES}:${message.roomId}`, message);
 }
 
 /**
@@ -323,7 +314,7 @@ export async function sendChatMessage(message: ChatMessage): Promise<void> {
 export async function trackEvent(event: AnalyticsEvent): Promise<void> {
   await PubSubService.publish(CHANNELS.ANALYTICS_EVENTS, {
     ...event,
-    timestamp: event.timestamp || Date.now()
+    timestamp: event.timestamp || Date.now(),
   });
 }
 

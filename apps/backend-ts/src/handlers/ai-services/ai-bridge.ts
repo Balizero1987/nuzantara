@@ -21,7 +21,7 @@ export async function zantaraCallDevAI(params: ZantaraBridgeParams) {
   try {
     logger.info('ZANTARA calling DevAI', {
       message: params.message.substring(0, 100) + '...',
-      workflowId: params.workflowId
+      workflowId: params.workflowId,
     });
 
     const request: AIBridgeRequest = {
@@ -30,7 +30,7 @@ export async function zantaraCallDevAI(params: ZantaraBridgeParams) {
       message: params.message,
       context: params.context,
       workflowId: params.workflowId,
-      priority: params.priority || 'normal'
+      priority: params.priority || 'normal',
     };
 
     const response = await aiCommunicationService.communicate(request);
@@ -38,37 +38,36 @@ export async function zantaraCallDevAI(params: ZantaraBridgeParams) {
     if (response.success) {
       logger.info('ZANTARA → DevAI communication successful', {
         responseLength: response.response.length,
-        workflowId: params.workflowId
+        workflowId: params.workflowId,
       });
 
       return {
         success: true,
         response: response.response,
         context: response.context,
-        metadata: response.metadata
+        metadata: response.metadata,
       };
     } else {
       logger.error('ZANTARA → DevAI communication failed', {
         error: response.response,
-        workflowId: params.workflowId
+        workflowId: params.workflowId,
       });
 
       return {
         success: false,
         error: response.response,
-        metadata: response.metadata
+        metadata: response.metadata,
       };
     }
-
   } catch (error: any) {
     logger.error('ZANTARA → DevAI communication error', {
       error: error.message,
-      workflowId: params.workflowId
+      workflowId: params.workflowId,
     });
 
     return {
       success: false,
-      error: error.message
+      error: error.message,
     };
   }
 }
@@ -87,7 +86,7 @@ export async function zantaraOrchestrateWorkflow(params: {
   try {
     logger.info('ZANTARA orchestrating workflow', {
       workflowId: params.workflowId,
-      steps: params.steps.length
+      steps: params.steps.length,
     });
 
     const results = await aiCommunicationService.orchestrateWorkflow(
@@ -95,12 +94,12 @@ export async function zantaraOrchestrateWorkflow(params: {
       params.steps
     );
 
-    const successfulSteps = results.filter(r => r.success).length;
-    
+    const successfulSteps = results.filter((r) => r.success).length;
+
     logger.info('ZANTARA workflow orchestration completed', {
       workflowId: params.workflowId,
       totalSteps: params.steps.length,
-      successfulSteps
+      successfulSteps,
     });
 
     return {
@@ -109,20 +108,19 @@ export async function zantaraOrchestrateWorkflow(params: {
       summary: {
         totalSteps: params.steps.length,
         successfulSteps,
-        failedSteps: params.steps.length - successfulSteps
-      }
+        failedSteps: params.steps.length - successfulSteps,
+      },
     };
-
   } catch (error: any) {
     logger.error('ZANTARA workflow orchestration error', {
       error: error.message,
-      workflowId: params.workflowId
+      workflowId: params.workflowId,
     });
 
     return {
       success: false,
       error: error.message,
-      results: []
+      results: [],
     };
   }
 }
@@ -130,28 +128,25 @@ export async function zantaraOrchestrateWorkflow(params: {
 /**
  * Get conversation history for ZANTARA
  */
-export async function zantaraGetConversationHistory(params: {
-  workflowId: string;
-}) {
+export async function zantaraGetConversationHistory(params: { workflowId: string }) {
   try {
     const history = aiCommunicationService.getConversationHistory(params.workflowId);
-    
+
     return {
       success: true,
       history,
-      count: history.length
+      count: history.length,
     };
-
   } catch (error: any) {
     logger.error('ZANTARA get conversation history error', {
       error: error.message,
-      workflowId: params.workflowId
+      workflowId: params.workflowId,
     });
 
     return {
       success: false,
       error: error.message,
-      history: []
+      history: [],
     };
   }
 }
@@ -159,28 +154,25 @@ export async function zantaraGetConversationHistory(params: {
 /**
  * Get shared context for ZANTARA
  */
-export async function zantaraGetSharedContext(params: {
-  workflowId: string;
-}) {
+export async function zantaraGetSharedContext(params: { workflowId: string }) {
   try {
     const context = aiCommunicationService.getSharedContext(params.workflowId);
-    
+
     return {
       success: true,
       context,
-      keys: Object.keys(context)
+      keys: Object.keys(context),
     };
-
   } catch (error: any) {
     logger.error('ZANTARA get shared context error', {
       error: error.message,
-      workflowId: params.workflowId
+      workflowId: params.workflowId,
     });
 
     return {
       success: false,
       error: error.message,
-      context: {}
+      context: {},
     };
   }
 }
@@ -188,30 +180,27 @@ export async function zantaraGetSharedContext(params: {
 /**
  * Clear workflow for ZANTARA
  */
-export async function zantaraClearWorkflow(params: {
-  workflowId: string;
-}) {
+export async function zantaraClearWorkflow(params: { workflowId: string }) {
   try {
     aiCommunicationService.clearWorkflow(params.workflowId);
-    
+
     logger.info('ZANTARA workflow cleared', {
-      workflowId: params.workflowId
+      workflowId: params.workflowId,
     });
 
     return {
       success: true,
-      message: 'Workflow cleared successfully'
+      message: 'Workflow cleared successfully',
     };
-
   } catch (error: any) {
     logger.error('ZANTARA clear workflow error', {
       error: error.message,
-      workflowId: params.workflowId
+      workflowId: params.workflowId,
     });
 
     return {
       success: false,
-      error: error.message
+      error: error.message,
     };
   }
 }

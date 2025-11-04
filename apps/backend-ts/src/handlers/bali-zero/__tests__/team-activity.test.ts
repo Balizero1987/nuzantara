@@ -28,12 +28,11 @@ describe('Team Activity', () => {
 
     it('should handle invalid params', async () => {
       const result = await handlers.teamRecentActivity({
-        invalid: 'data'
+        invalid: 'data',
       });
 
       // TODO: Verify error handling
       expect(result).toBeDefined();
     });
   });
-
 });

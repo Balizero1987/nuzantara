@@ -5,7 +5,7 @@
 
 // Removed unused imports for ZANTARA-ONLY mode
 import logger from '../../services/logger.js';
-import { aiChat } from "../ai-services/ai.js";
+import { aiChat } from '../ai-services/ai.js';
 
 export interface ZeroChatSimpleParams {
   userId: string;
@@ -32,7 +32,7 @@ export async function zeroChatSimple(params: ZeroChatSimpleParams): Promise<Zero
   if (userId !== 'zero') {
     return {
       ok: false,
-      error: 'Zero access required'
+      error: 'Zero access required',
     };
   }
 
@@ -42,21 +42,21 @@ export async function zeroChatSimple(params: ZeroChatSimpleParams): Promise<Zero
       prompt: message,
       context: 'Zero administrative access - you have full system permissions',
       provider: 'zantara',
-      userId: 'zero'
+      userId: 'zero',
     });
 
     const responseData: any = result.data || result;
-    
+
     return {
       ok: true,
       response: responseData.response || responseData.answer,
-      toolsUsed: ['zantara']
+      toolsUsed: ['zantara'],
     };
   } catch (error: any) {
     logger.error('Zero chat simple error:', error);
     return {
       ok: false,
-      error: `Zero chat failed: ${error.message}`
+      error: `Zero chat failed: ${error.message}`,
     };
   }
 }

@@ -20,22 +20,22 @@ class OfflineFunctionality {
   async initialize() {
     // Set up service worker
     this.setupServiceWorker();
-    
+
     // Set up cache storage
     this.setupCacheStorage();
-    
+
     // Set up network status monitoring
     this.setupNetworkMonitoring();
-    
+
     // Set up data synchronization
     this.setupDataSynchronization();
-    
+
     // Load cached data
     this.loadCachedData();
-    
+
     // Set up event listeners
     this.setupEventListeners();
-    
+
     console.log('[OfflineFunctionality] System initialized');
   }
 
@@ -47,11 +47,11 @@ class OfflineFunctionality {
       console.warn('[OfflineFunctionality] Service workers not supported');
       return;
     }
-    
+
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
       console.log('[OfflineFunctionality] Service worker registered:', registration);
-      
+
       // Listen for updates
       registration.addEventListener('updatefound', () => {
         console.log('[OfflineFunctionality] Service worker update found');
@@ -69,14 +69,14 @@ class OfflineFunctionality {
       console.warn('[OfflineFunctionality] Cache API not supported');
       return;
     }
-    
+
     try {
       // Open cache for static assets
       this.assetsCache = await caches.open('nuzantara-assets-v1');
-      
+
       // Open cache for API responses
       this.apiCache = await caches.open('nuzantara-api-v1');
-      
+
       console.log('[OfflineFunctionality] Cache storage set up');
     } catch (error) {
       console.error('[OfflineFunctionality] Cache storage setup failed:', error);
@@ -90,22 +90,22 @@ class OfflineFunctionality {
     window.addEventListener('online', () => {
       this.isOnline = true;
       console.log('[OfflineFunctionality] Network connection restored');
-      
+
       // Notify about online status
       window.dispatchEvent(new CustomEvent('app-online'));
-      
+
       // Start sync process
       this.startSyncProcess();
     });
-    
+
     window.addEventListener('offline', () => {
       this.isOnline = false;
       console.log('[OfflineFunctionality] Network connection lost');
-      
+
       // Notify about offline status
       window.dispatchEvent(new CustomEvent('app-offline'));
     });
-    
+
     console.log('[OfflineFunctionality] Network monitoring set up');
   }
 
@@ -119,7 +119,7 @@ class OfflineFunctionality {
         this.processSyncQueue();
       }
     }, 30000); // Every 30 seconds
-    
+
     console.log('[OfflineFunctionality] Data synchronization set up');
   }
 
@@ -132,7 +132,7 @@ class OfflineFunctionality {
       if (cachedSyncQueue) {
         this.syncQueue = JSON.parse(cachedSyncQueue);
       }
-      
+
       const cachedData = localStorage.getItem('offline-cached-data');
       if (cachedData) {
         const parsedData = JSON.parse(cachedData);
@@ -140,7 +140,7 @@ class OfflineFunctionality {
           this.cachedData.set(key, value);
         });
       }
-      
+
       console.log('[OfflineFunctionality] Cached data loaded');
     } catch (error) {
       console.error('[OfflineFunctionality] Error loading cached data:', error);
@@ -154,14 +154,13 @@ class OfflineFunctionality {
     try {
       // Save sync queue
       localStorage.setItem('offline-sync-queue', JSON.stringify(this.syncQueue));
-      
+
       // Save cached data
       const cachedDataObj = {};
       for (const [key, value] of this.cachedData) {
         cachedDataObj[key] = value;
       }
       localStorage.setItem('offline-cached-data', JSON.stringify(cachedDataObj));
-      
     } catch (error) {
       console.error('[OfflineFunctionality] Error saving cached data:', error);
     }
@@ -175,12 +174,12 @@ class OfflineFunctionality {
     window.addEventListener('cache-data', (event) => {
       this.cacheData(event.detail.key, event.detail.data);
     });
-    
+
     // Listen for actions that need to be synced
     window.addEventListener('sync-action', (event) => {
       this.queueSyncAction(event.detail);
     });
-    
+
     // Listen for cache clear requests
     window.addEventListener('clear-cache', () => {
       this.clearCache();
@@ -192,25 +191,25 @@ class OfflineFunctionality {
    */
   cacheData(key, data) {
     if (!this.offlineEnabled) return;
-    
+
     // Add timestamp
     const cachedItem = {
       data: data,
       timestamp: new Date().toISOString(),
-      key: key
+      key: key,
     };
-    
+
     this.cachedData.set(key, cachedItem);
-    
+
     // Enforce cache size limit
     if (this.cachedData.size > this.cacheSizeLimit) {
       const firstKey = this.cachedData.keys().next().value;
       this.cachedData.delete(firstKey);
     }
-    
+
     // Save to localStorage
     this.saveCachedData();
-    
+
     console.log(`[OfflineFunctionality] Data cached: ${key}`);
   }
 
@@ -231,11 +230,11 @@ class OfflineFunctionality {
   isDataFresh(key, maxAgeMinutes = 60) {
     const cachedItem = this.cachedData.get(key);
     if (!cachedItem) return false;
-    
+
     const now = new Date();
     const cachedTime = new Date(cachedItem.timestamp);
     const ageInMinutes = (now - cachedTime) / (1000 * 60);
-    
+
     return ageInMinutes <= maxAgeMinutes;
   }
 
@@ -244,20 +243,20 @@ class OfflineFunctionality {
    */
   queueSyncAction(action) {
     if (!this.offlineEnabled) return;
-    
+
     const syncItem = {
       id: `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date().toISOString(),
       retries: 0,
       maxRetries: 3,
-      ...action
+      ...action,
     };
-    
+
     this.syncQueue.push(syncItem);
-    
+
     // Save to localStorage
     this.saveCachedData();
-    
+
     console.log(`[OfflineFunctionality] Action queued for sync: ${action.type}`);
   }
 
@@ -266,24 +265,24 @@ class OfflineFunctionality {
    */
   async processSyncQueue() {
     if (this.syncQueue.length === 0) return;
-    
+
     console.log(`[OfflineFunctionality] Processing sync queue (${this.syncQueue.length} items)`);
-    
+
     const completedItems = [];
-    
+
     for (const item of this.syncQueue) {
       try {
         // Attempt to sync the item
         await this.syncItem(item);
         completedItems.push(item.id);
-        
+
         console.log(`[OfflineFunctionality] Sync completed: ${item.type}`);
       } catch (error) {
         console.error(`[OfflineFunctionality] Sync failed for ${item.type}:`, error);
-        
+
         // Increment retry count
         item.retries++;
-        
+
         // If max retries exceeded, move to failed items
         if (item.retries >= item.maxRetries) {
           this.handleFailedSync(item);
@@ -291,10 +290,10 @@ class OfflineFunctionality {
         }
       }
     }
-    
+
     // Remove completed items from queue
     if (completedItems.length > 0) {
-      this.syncQueue = this.syncQueue.filter(item => !completedItems.includes(item.id));
+      this.syncQueue = this.syncQueue.filter((item) => !completedItems.includes(item.id));
       this.saveCachedData();
     }
   }
@@ -308,7 +307,8 @@ class OfflineFunctionality {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // Simulate network conditions
-        if (Math.random() < 0.8) { // 80% success rate
+        if (Math.random() < 0.8) {
+          // 80% success rate
           resolve();
         } else {
           reject(new Error('Sync failed'));
@@ -322,11 +322,13 @@ class OfflineFunctionality {
    */
   handleFailedSync(item) {
     console.warn(`[OfflineFunctionality] Sync permanently failed: ${item.type}`);
-    
+
     // Notify about failed sync
-    window.dispatchEvent(new CustomEvent('sync-failed', {
-      detail: item
-    }));
+    window.dispatchEvent(
+      new CustomEvent('sync-failed', {
+        detail: item,
+      })
+    );
   }
 
   /**
@@ -344,7 +346,7 @@ class OfflineFunctionality {
    */
   setOfflineEnabled(enabled) {
     this.offlineEnabled = enabled;
-    
+
     if (enabled) {
       console.log('[OfflineFunctionality] Offline functionality enabled');
     } else {
@@ -360,19 +362,17 @@ class OfflineFunctionality {
       // Clear in-memory cache
       this.cachedData.clear();
       this.syncQueue = [];
-      
+
       // Clear localStorage
       localStorage.removeItem('offline-sync-queue');
       localStorage.removeItem('offline-cached-data');
-      
+
       // Clear service worker caches
       if ('caches' in window) {
         const cacheNames = await caches.keys();
-        await Promise.all(
-          cacheNames.map(cacheName => caches.delete(cacheName))
-        );
+        await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
       }
-      
+
       console.log('[OfflineFunctionality] Cache cleared');
     } catch (error) {
       console.error('[OfflineFunctionality] Error clearing cache:', error);
@@ -388,7 +388,7 @@ class OfflineFunctionality {
       offlineEnabled: this.offlineEnabled,
       cachedItems: this.cachedData.size,
       syncQueueLength: this.syncQueue.length,
-      cacheSizeLimit: this.cacheSizeLimit
+      cacheSizeLimit: this.cacheSizeLimit,
     };
   }
 
@@ -402,7 +402,7 @@ class OfflineFunctionality {
       const cacheKey = `api_${url}`;
       return this.cachedData.has(cacheKey) && this.isDataFresh(cacheKey);
     }
-    
+
     return false;
   }
 
@@ -411,7 +411,7 @@ class OfflineFunctionality {
    */
   async prefetchResources() {
     if (!this.offlineEnabled) return;
-    
+
     // List of important resources to prefetch
     const resourcesToPrefetch = [
       '/api/handlers',
@@ -419,11 +419,11 @@ class OfflineFunctionality {
       '/api/user/preferences',
       '/public/images/logo.png',
       '/public/css/main.css',
-      '/public/js/main.js'
+      '/public/js/main.js',
     ];
-    
+
     console.log('[OfflineFunctionality] Prefetching resources');
-    
+
     for (const resource of resourcesToPrefetch) {
       try {
         await this.fetchAndCache(resource);
@@ -456,7 +456,7 @@ class OfflineFunctionality {
   renderOfflineDashboard(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     // Create offline dashboard HTML
     container.innerHTML = `
       <div class="offline-dashboard">
@@ -521,19 +521,19 @@ class OfflineFunctionality {
         </div>
       </div>
     `;
-    
+
     // Render components
     this.renderOfflineStatistics('offline-statistics');
     this.renderSyncQueue('sync-queue');
     this.renderCachedResources('cached-resources');
     this.renderOfflineAvailability('offline-availability');
-    
+
     // Set up action buttons
     document.getElementById('prefetch-resources').addEventListener('click', () => {
       this.prefetchResources();
       alert('Prefetching resources... Check console for progress.');
     });
-    
+
     document.getElementById('clear-offline-data').addEventListener('click', () => {
       if (confirm('Are you sure you want to clear all offline data?')) {
         this.clearCache();
@@ -541,7 +541,7 @@ class OfflineFunctionality {
         alert('Offline data cleared');
       }
     });
-    
+
     document.getElementById('toggle-offline').addEventListener('click', () => {
       this.setOfflineEnabled(!this.offlineEnabled);
       this.renderOfflineDashboard(containerId); // Re-render
@@ -554,9 +554,9 @@ class OfflineFunctionality {
   renderOfflineStatistics(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const stats = this.getOfflineStatistics();
-    
+
     container.innerHTML = `
       <div class="metrics-grid">
         <div class="metric-card">
@@ -585,25 +585,29 @@ class OfflineFunctionality {
   renderSyncQueue(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     if (this.syncQueue.length === 0) {
       container.innerHTML = '<p class="no-data">No items in sync queue</p>';
       return;
     }
-    
+
     // Get last 10 items
     const queueItems = this.syncQueue.slice(-10);
-    
+
     container.innerHTML = `
       <div class="queue-list">
         <ul>
-          ${queueItems.map(item => `
+          ${queueItems
+            .map(
+              (item) => `
             <li class="queue-item">
               <div class="queue-type">${item.type}</div>
               <div class="queue-time">${new Date(item.timestamp).toLocaleString()}</div>
               <div class="queue-retries">Retries: ${item.retries}/${item.maxRetries}</div>
             </li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
     `;
@@ -615,25 +619,29 @@ class OfflineFunctionality {
   renderCachedResources(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     if (this.cachedData.size === 0) {
       container.innerHTML = '<p class="no-data">No cached resources</p>';
       return;
     }
-    
+
     // Get last 10 cached items
     const cachedItems = Array.from(this.cachedData.values()).slice(-10);
-    
+
     container.innerHTML = `
       <div class="resources-list">
         <ul>
-          ${cachedItems.map(item => `
+          ${cachedItems
+            .map(
+              (item) => `
             <li class="resource-item">
               <div class="resource-key">${item.key}</div>
               <div class="resource-time">${new Date(item.timestamp).toLocaleString()}</div>
               <div class="resource-size">${JSON.stringify(item.data).length} bytes</div>
             </li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
     `;
@@ -645,30 +653,30 @@ class OfflineFunctionality {
   renderOfflineAvailability(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     // Check availability of important resources
-    const importantResources = [
-      '/api/handlers',
-      '/api/categories',
-      '/public/images/logo.png'
-    ];
-    
-    const availabilityChecks = importantResources.map(resource => ({
+    const importantResources = ['/api/handlers', '/api/categories', '/public/images/logo.png'];
+
+    const availabilityChecks = importantResources.map((resource) => ({
       resource: resource,
-      available: this.isResourceAvailableOffline(resource)
+      available: this.isResourceAvailableOffline(resource),
     }));
-    
+
     container.innerHTML = `
       <div class="availability-list">
         <ul>
-          ${availabilityChecks.map(check => `
+          ${availabilityChecks
+            .map(
+              (check) => `
             <li class="availability-item">
               <div class="resource-name">${check.resource}</div>
               <div class="resource-status ${check.available ? 'available' : 'unavailable'}">
                 ${check.available ? 'Available Offline' : 'Not Available'}
               </div>
             </li>
-          `).join('')}
+          `
+            )
+            .join('')}
         </ul>
       </div>
     `;
@@ -679,9 +687,9 @@ class OfflineFunctionality {
 document.addEventListener('DOMContentLoaded', () => {
   window.OfflineFunctionality = new OfflineFunctionality();
   window.OfflineFunctionality.initialize();
-  
+
   console.log('[OfflineFunctionality] System ready');
-  
+
   // Mark enhancement as completed
   if (window.enhancementTracker) {
     window.enhancementTracker.markCompleted(32);

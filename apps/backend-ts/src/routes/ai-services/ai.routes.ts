@@ -14,23 +14,24 @@ import { BadRequestError } from '../../utils/errors.js';
 const router = Router();
 
 // AI chat schemas - ZANTARA-ONLY
-const AIChatSchema = z.object({
-  prompt: z.string().optional(),
-  message: z.string().optional(),
-  context: z.string().optional(),
-  provider: z.enum(['zantara', 'llama']).optional().default('zantara'),
-  model: z.string().optional(),
-  userId: z.string().optional(),
-  userEmail: z.string().optional(),
-  userName: z.string().optional(),
-  userIdentification: z.string().optional(),
-  sessionId: z.string().optional(),
-  max_tokens: z.number().optional(),
-  temperature: z.number().optional(),
-}).refine(
-  (data) => data.prompt || data.message,
-  { message: 'Either prompt or message is required' }
-);
+const AIChatSchema = z
+  .object({
+    prompt: z.string().optional(),
+    message: z.string().optional(),
+    context: z.string().optional(),
+    provider: z.enum(['zantara', 'llama']).optional().default('zantara'),
+    model: z.string().optional(),
+    userId: z.string().optional(),
+    userEmail: z.string().optional(),
+    userName: z.string().optional(),
+    userIdentification: z.string().optional(),
+    sessionId: z.string().optional(),
+    max_tokens: z.number().optional(),
+    temperature: z.number().optional(),
+  })
+  .refine((data) => data.prompt || data.message, {
+    message: 'Either prompt or message is required',
+  });
 
 /**
  * POST /api/ai/chat
@@ -60,7 +61,7 @@ router.post('/zantara', apiKeyAuth, async (req: RequestWithCtx, res) => {
       message: params.prompt || params.message || '',
       max_tokens: params.max_tokens,
       temperature: params.temperature,
-      context: params.context
+      context: params.context,
     });
     return res.json(ok(result?.data ?? result));
   } catch (error: any) {

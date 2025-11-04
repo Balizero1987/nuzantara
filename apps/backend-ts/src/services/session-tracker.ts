@@ -45,7 +45,7 @@ function extractUserIdentity(req: Request): { email: string; memberId: string } 
   if (userId && userId.includes('@')) {
     return {
       email: userId,
-      memberId: userId?.split('@')[0]?.toLowerCase() || 'unknown'
+      memberId: userId?.split('@')[0]?.toLowerCase() || 'unknown',
     };
   }
 
@@ -63,7 +63,7 @@ function extractUserIdentity(req: Request): { email: string; memberId: string } 
     if (email) {
       return {
         email,
-        memberId: email?.split('@')[0]?.toLowerCase() || 'unknown'
+        memberId: email?.split('@')[0]?.toLowerCase() || 'unknown',
       };
     }
   }
@@ -72,7 +72,7 @@ function extractUserIdentity(req: Request): { email: string; memberId: string } 
   if (req.body?.userId?.includes('@')) {
     return {
       email: req.body.userId,
-      memberId: req.body.userId.split('@')[0].toLowerCase()
+      memberId: req.body.userId.split('@')[0].toLowerCase(),
     };
   }
 
@@ -83,7 +83,10 @@ function extractUserIdentity(req: Request): { email: string; memberId: string } 
  * Track activity for a request
  * Called by middleware on every authenticated request
  */
-export function trackActivity(req: Request, activityType: SessionActivity['activityType'] = 'action') {
+export function trackActivity(
+  req: Request,
+  activityType: SessionActivity['activityType'] = 'action'
+) {
   const identity = extractUserIdentity(req);
   if (!identity) return; // Not a team member request
 
@@ -100,13 +103,15 @@ export function trackActivity(req: Request, activityType: SessionActivity['activ
     lastActive: new Date(),
     activityType,
     activityCount: (existingSession?.activityCount || 0) + 1,
-    lastHandler: (req.body?.key) || undefined,
-    lastPath: req.path
+    lastHandler: req.body?.key || undefined,
+    lastPath: req.path,
   };
 
   sessionStore.set(identity.memberId, activity);
 
-  logger.info(`📊 Activity tracked: ${identity.email} (${activityType}) - ${activity.activityCount} actions`);
+  logger.info(
+    `📊 Activity tracked: ${identity.email} (${activityType}) - ${activity.activityCount} actions`
+  );
 }
 
 /**
@@ -124,11 +129,12 @@ export function getRecentActivities(params: GetRecentActivitiesParams = {}): Ses
 
   const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
 
-  let activities = Array.from(sessionStore.values())
-    .filter(activity => activity.lastActive >= cutoffTime);
+  let activities = Array.from(sessionStore.values()).filter(
+    (activity) => activity.lastActive >= cutoffTime
+  );
 
   if (department) {
-    activities = activities.filter(a => a.department === department);
+    activities = activities.filter((a) => a.department === department);
   }
 
   // Sort by most recent first
@@ -149,10 +155,10 @@ export function getActivityStats() {
 
   return {
     totalMembers: TEAM_MEMBERS.size,
-    activeLast24h: allActivities.filter(a => a.lastActive >= last24h).length,
-    activeLast1h: allActivities.filter(a => a.lastActive >= last1h).length,
+    activeLast24h: allActivities.filter((a) => a.lastActive >= last24h).length,
+    activeLast1h: allActivities.filter((a) => a.lastActive >= last1h).length,
     totalActions: allActivities.reduce((sum, a) => sum + a.activityCount, 0),
-    byDepartment: groupByDepartment(allActivities)
+    byDepartment: groupByDepartment(allActivities),
   };
 }
 
@@ -169,7 +175,8 @@ function groupByDepartment(activities: SessionActivity[]) {
 /**
  * Clear old sessions (call periodically)
  */
-export function cleanupOldSessions(maxAgeHours = 168) { // 7 days default
+export function cleanupOldSessions(maxAgeHours = 168) {
+  // 7 days default
   const cutoffTime = new Date(Date.now() - maxAgeHours * 60 * 60 * 1000);
 
   let cleaned = 0;
