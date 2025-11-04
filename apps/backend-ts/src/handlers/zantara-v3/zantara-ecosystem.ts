@@ -10,7 +10,7 @@ import axios from "axios";
 
 export async function zantaraEcosystemAnalysis(req: Request, res: Response) {
   try {
-    const params = req.body.params || req.body;
+    const params = req.body?.params || req.body || {};
     const {
       scenario = "business_setup", // business_setup, expansion, compliance, optimization
       business_type = "restaurant", // restaurant, hotel, retail, services, tech

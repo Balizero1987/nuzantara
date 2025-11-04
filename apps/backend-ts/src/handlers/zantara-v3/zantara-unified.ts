@@ -25,8 +25,8 @@ export async function zantaraUnifiedQuery(req: Request, res: Response) {
   const startTime = Date.now();
   
   try {
-    // Accept params from either req.body or req.body.params
-    const params = req.body.params || req.body;
+    // Accept params from either req.body or req.body.params (defensive)
+    const params = req.body?.params || req.body || {};
     const {
       query,
       domain = "all", // KBLI, pricing, team, legal, tax, immigration, all

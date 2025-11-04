@@ -8,7 +8,7 @@ import { searchMemoriesSemantica } from "../../services/memory-vector.js";
 
 export async function zantaraCollectiveIntelligence(req: Request, res: Response) {
   try {
-    const params = req.body.params || req.body;
+    const params = req.body?.params || req.body || {};
     const {
       action = "query", // query, contribute, verify, stats, sync
       data = {},
