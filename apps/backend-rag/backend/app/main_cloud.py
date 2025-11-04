@@ -673,17 +673,21 @@ def download_chromadb_from_r2():
         bucket_name = "nuzantaradb"
         source_prefix = "chroma_db/"
 
-        # ✨ OPTIMIZATION: Use persistent volume (Fly.io) instead of /tmp
-        local_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db")
+        # ✨ CORRECTION: Use proper ChromaDB path with full database
+        local_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
 
         # ✨ OPTIMIZATION: Check if ChromaDB already exists in persistent volume
         # This reduces startup time from 3+ minutes to ~30 seconds on restarts
         chroma_sqlite_path = os.path.join(local_path, "chroma.sqlite3")
         if os.path.exists(chroma_sqlite_path):
             file_size_mb = os.path.getsize(chroma_sqlite_path) / 1024 / 1024
-            logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
-            logger.info(f"⚡ Skipping download (using cached version, {file_size_mb:.1f} MB)")
-            return local_path
+            # Only skip download if database is substantial (> 1MB = has data)
+            if file_size_mb > 1.0:
+                logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
+                logger.info(f"⚡ Skipping download (using cached version, {file_size_mb:.1f} MB)")
+                return local_path
+            else:
+                logger.info(f"⚠️ ChromaDB found but too small ({file_size_mb:.1f} MB), re-downloading from R2...")
 
         if not all([r2_access_key, r2_secret_key, r2_endpoint]):
             raise ValueError("R2 credentials not configured (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT_URL)")
@@ -822,7 +826,7 @@ async def _initialize_backend_services():
         logger.info("📂 Initializing empty ChromaDB for manual population...")
 
         # Fallback: Initialize empty ChromaDB in persistent volume (or /tmp)
-        chroma_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db")
+        chroma_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
         os.makedirs(chroma_path, exist_ok=True)
         logger.info(f"✅ Empty ChromaDB initialized: {chroma_path}")
         logger.info("💡 Populate via: POST /api/oracle/populate-now")
@@ -1235,13 +1239,7 @@ async def cache_stats():
         return {"success": False, "error": str(e)}
 
 
-@app.get("/legacy-health")
-async def legacy_health():
-    """Deprecated endpoint - returns 410 Gone"""
-    return JSONResponse(
-        {"deprecated": True, "message": "Use /health instead"},
-        status_code=410
-    )
+# Legacy health endpoint removed - use /health instead
 
 
 @app.get("/cache/health")
@@ -2231,9 +2229,11 @@ app.include_router(admin_migration.router)
 
 # Include Oracle routers (Universal Query System - Phase 3)
 from app.routers import oracle_universal
+from app.routers import oracle_ingest  # NEW: Bulk ingest endpoint
 from app.routers import agents
 from app.routers import notifications
 app.include_router(oracle_universal.router)
+app.include_router(oracle_ingest.router)  # NEW: /api/oracle/ingest + /collections
 app.include_router(agents.router)
 app.include_router(notifications.router)
 # NOTE: admin_oracle_populate router removed - using inline endpoint instead
@@ -2443,6 +2443,7 @@ class MemorySaveRequest(BaseModel):
 @app.post("/memory/save")
 async def save_memory_frontend(request: MemorySaveRequest):
     """
+    ⚠️ LEGACY: Use /api/memory/store instead
     Frontend SDK endpoint: Save user memory (facts + summary)
     Compatible with zantara-sdk.js saveMemory() method
     """
@@ -2483,6 +2484,7 @@ async def save_memory_frontend(request: MemorySaveRequest):
 @app.get("/memory/get")
 async def get_memory_frontend(userId: str):
     """
+    ⚠️ LEGACY: Use /api/memory/{memory_id} instead
     Frontend SDK endpoint: Retrieve user memory
     Compatible with zantara-sdk.js getMemory() method
 
@@ -2524,6 +2526,7 @@ class RAGSearchRequest(BaseModel):
 @app.post("/rag/search")
 async def rag_search(request: RAGSearchRequest):
     """
+    ⚠️ LEGACY: Use /api/memory/search instead
     Direct search in RAG knowledge base (14 ChromaDB collections)
 
     Params:
