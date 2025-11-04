@@ -27,6 +27,9 @@ COPY *.py ./
 # Set Python path
 ENV PYTHONPATH=/app/backend
 
+# Create data directory for ChromaDB
+RUN mkdir -p /data/chroma_db_FULL_deploy
+
 # Expose port
 EXPOSE 8000
 

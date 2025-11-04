@@ -676,18 +676,31 @@ def download_chromadb_from_r2():
         # ✨ CORRECTION: Use proper ChromaDB path with full database
         local_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
 
-        # ✨ OPTIMIZATION: Check if ChromaDB already exists in persistent volume
-        # This reduces startup time from 3+ minutes to ~30 seconds on restarts
+        # 🔧 OPTION 1: FORCE COMPLETE SYNC FROM R2
+        # Check if we need to force sync based on file count/size
         chroma_sqlite_path = os.path.join(local_path, "chroma.sqlite3")
+        force_sync = False
+        
         if os.path.exists(chroma_sqlite_path):
             file_size_mb = os.path.getsize(chroma_sqlite_path) / 1024 / 1024
-            # Only skip download if database is substantial (> 1MB = has data)
-            if file_size_mb > 1.0:
-                logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
-                logger.info(f"⚡ Skipping download (using cached version, {file_size_mb:.1f} MB)")
-                return local_path
+            # Force sync if database is too small (< 50MB = incomplete sync)
+            if file_size_mb < 50.0:
+                logger.info(f"⚠️ ChromaDB too small ({file_size_mb:.1f} MB), forcing complete sync...")
+                force_sync = True
             else:
-                logger.info(f"⚠️ ChromaDB found but too small ({file_size_mb:.1f} MB), re-downloading from R2...")
+                logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
+                logger.info(f"⚡ Using cached version ({file_size_mb:.1f} MB)")
+                return local_path
+        else:
+            logger.info("🔄 No ChromaDB found, forcing complete sync...")
+            force_sync = True
+
+        if force_sync:
+            logger.info("🗑️ Removing incomplete ChromaDB data...")
+            if os.path.exists(local_path):
+                import shutil
+                shutil.rmtree(local_path)
+            os.makedirs(local_path, exist_ok=True)
 
         if not all([r2_access_key, r2_secret_key, r2_endpoint]):
             raise ValueError("R2 credentials not configured (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT_URL)")
