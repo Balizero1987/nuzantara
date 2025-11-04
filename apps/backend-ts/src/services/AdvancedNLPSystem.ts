@@ -1,4 +1,5 @@
 import { TeamKnowledgeDatabase } from './TeamKnowledgeEngine';
+import logger from './logger.js';
 
 // =====================================================
 // ADVANCED NLP ENTITY EXTRACTION SYSTEM
@@ -6,7 +7,18 @@ import { TeamKnowledgeDatabase } from './TeamKnowledgeEngine';
 
 export interface ExtractedEntity {
   text: string;
-  type: 'person' | 'role' | 'department' | 'email' | 'phone' | 'service' | 'company' | 'location' | 'date' | 'price' | 'expertise';
+  type:
+    | 'person'
+    | 'role'
+    | 'department'
+    | 'email'
+    | 'phone'
+    | 'service'
+    | 'company'
+    | 'location'
+    | 'date'
+    | 'price'
+    | 'expertise';
   confidence: number;
   position: {
     start: number;
@@ -86,10 +98,10 @@ export class AdvancedNLPSystem {
       urgency,
       complexity,
       keywords,
-      business_context
+      businessContext,
     };
 
-    console.log(`🧠 NLP Analysis completed in ${Date.now() - startTime}ms`);
+    logger.info(`🧠 NLP Analysis completed in ${Date.now() - startTime}ms`);
     return analysis;
   }
 
@@ -98,15 +110,57 @@ export class AdvancedNLPSystem {
   // =====================================================
 
   private detectLanguage(query: string): 'it' | 'en' | 'id' | 'mixed' {
-    const italianKeywords = ['chi', 'qual', 'dove', 'come', 'quando', 'perché', 'il', 'la', 'lo', 'un', 'una', 'del', 'della', 'dei', 'delle', 'è', 'sono'];
-    const englishKeywords = ['who', 'what', 'where', 'when', 'why', 'how', 'the', 'a', 'an', 'of', 'is', 'are'];
-    const indonesianKeywords = ['siapa', 'apa', 'dimana', 'bagaimana', 'mengapa', 'di', 'pada', 'adalah', 'ini', 'itu'];
+    const italianKeywords = [
+      'chi',
+      'qual',
+      'dove',
+      'come',
+      'quando',
+      'perché',
+      'il',
+      'la',
+      'lo',
+      'un',
+      'una',
+      'del',
+      'della',
+      'dei',
+      'delle',
+      'è',
+      'sono',
+    ];
+    const englishKeywords = [
+      'who',
+      'what',
+      'where',
+      'when',
+      'why',
+      'how',
+      'the',
+      'a',
+      'an',
+      'of',
+      'is',
+      'are',
+    ];
+    const indonesianKeywords = [
+      'siapa',
+      'apa',
+      'dimana',
+      'bagaimana',
+      'mengapa',
+      'di',
+      'pada',
+      'adalah',
+      'ini',
+      'itu',
+    ];
 
     const lowerQuery = query.toLowerCase();
 
-    const itScore = italianKeywords.filter(word => lowerQuery.includes(word)).length;
-    const enScore = englishKeywords.filter(word => lowerQuery.includes(word)).length;
-    const idScore = indonesianKeywords.filter(word => lowerQuery.includes(word)).length;
+    const itScore = italianKeywords.filter((word) => lowerQuery.includes(word)).length;
+    const enScore = englishKeywords.filter((word) => lowerQuery.includes(word)).length;
+    const idScore = indonesianKeywords.filter((word) => lowerQuery.includes(word)).length;
 
     const maxScore = Math.max(itScore, enScore, idScore);
     const totalScore = itScore + enScore + idScore;
@@ -174,7 +228,7 @@ export class AdvancedNLPSystem {
 
     // Filter and sort by confidence
     return entities
-      .filter(entity => entity.confidence >= this.config.confidence_threshold)
+      .filter((entity) => entity.confidence >= this.config.confidence_threshold)
       .sort((a, b) => b.confidence - a.confidence);
   }
 
@@ -190,17 +244,27 @@ export class AdvancedNLPSystem {
 
     const namePatterns = {
       it: {
-        titles: ['dott', 'dottoressa', 'sig', 'signora', 'signore', 'ing', 'prof', 'dottor', 'dottoressa'],
-        honorifics: ['mr', 'mrs', 'ms', 'dr', 'prof', 'eng', 'arch', 'avv']
+        titles: [
+          'dott',
+          'dottoressa',
+          'sig',
+          'signora',
+          'signore',
+          'ing',
+          'prof',
+          'dottor',
+          'dottoressa',
+        ],
+        honorifics: ['mr', 'mrs', 'ms', 'dr', 'prof', 'eng', 'arch', 'avv'],
       },
       en: {
         titles: ['mr', 'mrs', 'ms', 'dr', 'prof', 'eng', 'arch', 'attorney'],
-        honorifics: ['sir', 'madam', 'mr', 'mrs', 'ms']
+        honorifics: ['sir', 'madam', 'mr', 'mrs', 'ms'],
       },
       id: {
         titles: ['bapak', 'ibu', 'pak', 'bu', 'mas', 'mbak', 'tuan', 'nyonya'],
-        honorifics: ['bapak', 'ibu', 'pak', 'bu']
-      }
+        honorifics: ['bapak', 'ibu', 'pak', 'bu'],
+      },
     };
 
     const patterns = namePatterns[language] || namePatterns['mixed'];
@@ -211,7 +275,7 @@ export class AdvancedNLPSystem {
         memberData.name,
         ...(memberData.name_variations || []),
         memberData.name.split(' ')[0], // First name only
-        memberData.name.split(' ').slice(1).join(' ') // Last name only
+        memberData.name.split(' ').slice(1).join(' '), // Last name only
       ];
 
       for (const variation of variations) {
@@ -226,15 +290,15 @@ export class AdvancedNLPSystem {
             confidence: 0.95 + (match[0] === memberData.name ? 0.05 : 0),
             position: {
               start: position,
-              end: position + match[0].length
+              end: position + match[0].length,
             },
             normalized_value: memberData.name,
             metadata: {
               member_id: memberId,
               role: memberData.role,
               department: memberData.department,
-              email: memberData.email
-            }
+              email: memberData.email,
+            },
           });
         }
       }
@@ -247,7 +311,7 @@ export class AdvancedNLPSystem {
     if (matches) {
       for (const match of matches) {
         // Skip if already matched as team member
-        if (!entities.find(e => e.normalized_value === match)) {
+        if (!entities.find((e) => e.normalized_value === match)) {
           const position = query.indexOf(match);
           entities.push({
             text: match,
@@ -255,12 +319,12 @@ export class AdvancedNLPSystem {
             confidence: 0.6,
             position: {
               start: position,
-              end: position + match.length
+              end: position + match.length,
             },
             metadata: {
               source: 'pattern_matching',
-              likely_indonesian: this.isIndonesianName(match)
-            }
+              likely_indonesian: this.isIndonesianName(match),
+            },
           });
         }
       }
@@ -278,56 +342,56 @@ export class AdvancedNLPSystem {
 
     const roleKeywords = {
       it: {
-        'ceo': ['ceo', 'amministratore delegato', 'direttore generale', 'presidente'],
-        'manager': ['manager', 'responsabile', 'capo', 'team lead', 'capo squadra'],
-        'consultant': ['consulente', 'consultant', 'consulenza', 'esperto'],
-        'specialist': ['specialista', 'specialist consultant', 'esperto'],
-        'advisor': ['consulente', 'advisor', 'consigliere'],
-        'expert': ['esperto', 'specialista', 'professionista'],
-        'director': ['direttore', 'director'],
-        'coordinator': ['coordinatore', 'coordinator'],
-        'analyst': ['analista', 'analyst'],
-        'developer': ['sviluppatore', 'developer', 'programmatore'],
-        'engineer': ['ingegnere', 'engineer', 'ing'],
-        'architect': ['architetto', 'architect', 'arch'],
-        'designer': ['designer', 'grafico', 'grafica'],
-        'trainer': ['formatore', 'trainer'],
-        'consultant_senior': ['consulente senior', 'senior consultant'],
-        'consultant_junior': ['consulente junior', 'junior consultant']
+        ceo: ['ceo', 'amministratore delegato', 'direttore generale', 'presidente'],
+        manager: ['manager', 'responsabile', 'capo', 'team lead', 'capo squadra'],
+        consultant: ['consulente', 'consultant', 'consulenza', 'esperto'],
+        specialist: ['specialista', 'specialist consultant', 'esperto'],
+        advisor: ['consulente', 'advisor', 'consigliere'],
+        expert: ['esperto', 'specialista', 'professionista'],
+        director: ['direttore', 'director'],
+        coordinator: ['coordinatore', 'coordinator'],
+        analyst: ['analista', 'analyst'],
+        developer: ['sviluppatore', 'developer', 'programmatore'],
+        engineer: ['ingegnere', 'engineer', 'ing'],
+        architect: ['architetto', 'architect', 'arch'],
+        designer: ['designer', 'grafico', 'grafica'],
+        trainer: ['formatore', 'trainer'],
+        consultant_senior: ['consulente senior', 'senior consultant'],
+        consultant_junior: ['consulente junior', 'junior consultant'],
       },
       en: {
-        'ceo': ['ceo', 'chief executive', 'president', 'executive director'],
-        'manager': ['manager', 'team lead', 'head', 'supervisor'],
-        'consultant': ['consultant', 'advisor', 'expert'],
-        'specialist': ['specialist', 'expert', 'professional'],
-        'advisor': ['advisor', 'consultant', 'counselor'],
-        'expert': ['expert', 'specialist', 'professional'],
-        'director': ['director', 'head'],
-        'coordinator': ['coordinator', 'organizer'],
-        'analyst': ['analyst', 'researcher'],
-        'developer': ['developer', 'programmer', 'software engineer'],
-        'engineer': ['engineer', 'eng', 'technical engineer'],
-        'architect': ['architect', 'arch', 'system architect'],
-        'designer': ['designer', 'graphic designer', 'ui designer'],
-        'trainer': ['trainer', 'instructor'],
-        'senior_consultant': ['senior consultant', 'lead consultant'],
-        'junior_consultant': ['junior consultant', 'associate consultant']
+        ceo: ['ceo', 'chief executive', 'president', 'executive director'],
+        manager: ['manager', 'team lead', 'head', 'supervisor'],
+        consultant: ['consultant', 'advisor', 'expert'],
+        specialist: ['specialist', 'expert', 'professional'],
+        advisor: ['advisor', 'consultant', 'counselor'],
+        expert: ['expert', 'specialist', 'professional'],
+        director: ['director', 'head'],
+        coordinator: ['coordinator', 'organizer'],
+        analyst: ['analyst', 'researcher'],
+        developer: ['developer', 'programmer', 'software engineer'],
+        engineer: ['engineer', 'eng', 'technical engineer'],
+        architect: ['architect', 'arch', 'system architect'],
+        designer: ['designer', 'graphic designer', 'ui designer'],
+        trainer: ['trainer', 'instructor'],
+        senior_consultant: ['senior consultant', 'lead consultant'],
+        junior_consultant: ['junior consultant', 'associate consultant'],
       },
       id: {
-        'ceo': ['ceo', 'direktur utama', 'presiden direktur', 'komisaris'],
-        'manager': ['manager', 'manajer', 'pemimpin', 'ketua tim'],
-        'consultant': ['konsultan', 'ahli', 'pakar'],
-        'specialist': ['spesialis', 'ahli spesialis'],
-        'advisor': ['penasihat', 'konsultan'],
-        'expert': ['ahli', 'pakar', 'spesialis'],
-        'director': ['direktur', 'direksi'],
-        'coordinator': ['koordinator'],
-        'analyst': ['analis', 'penganalisis'],
-        'developer': ['pengembang', 'programmer'],
-        'engineer': ['insinyur'],
-        'architect': ['arsitek'],
-        'designer': ['desainer', 'perancang']
-      }
+        ceo: ['ceo', 'direktur utama', 'presiden direktur', 'komisaris'],
+        manager: ['manager', 'manajer', 'pemimpin', 'ketua tim'],
+        consultant: ['konsultan', 'ahli', 'pakar'],
+        specialist: ['spesialis', 'ahli spesialis'],
+        advisor: ['penasihat', 'konsultan'],
+        expert: ['ahli', 'pakar', 'spesialis'],
+        director: ['direktur', 'direksi'],
+        coordinator: ['koordinator'],
+        analyst: ['analis', 'penganalisis'],
+        developer: ['pengembang', 'programmer'],
+        engineer: ['insinyur'],
+        architect: ['arsitek'],
+        designer: ['desainer', 'perancang'],
+      },
     };
 
     const roles = roleKeywords[language] || roleKeywords['mixed'];
@@ -346,13 +410,13 @@ export class AdvancedNLPSystem {
               confidence: 0.8,
               position: {
                 start: position,
-                end: position + match.length
+                end: position + match.length,
               },
               normalized_value: roleType,
               metadata: {
                 keyword_matched: keyword,
-                role_category: roleType
-              }
+                role_category: roleType,
+              },
             });
           }
         }
@@ -370,9 +434,58 @@ export class AdvancedNLPSystem {
     const entities: ExtractedEntity[] = [];
 
     const departments = {
-      it: ['management', 'direzione', 'amministrazione', 'tecnologia', 'tech', 'tax', 'fiscale', 'marketing', 'vendite', 'ricorsi umani', 'hr', 'finanza', 'legale', 'consulenza', 'reception', 'assistenza clienti', 'operazioni'],
-      en: ['management', 'executive', 'technology', 'tech', 'tax', 'finance', 'marketing', 'sales', 'human resources', 'hr', 'legal', 'consulting', 'reception', 'customer service', 'operations'],
-      id: ['manajemen', 'direksi', 'teknologi', 'tax', 'pajak', 'keuangan', 'marketing', 'sumber daya manusia', 'hr', 'hukum', 'konsultasi', 'resepsionis', 'pelayanan pelanggan', 'operasional']
+      it: [
+        'management',
+        'direzione',
+        'amministrazione',
+        'tecnologia',
+        'tech',
+        'tax',
+        'fiscale',
+        'marketing',
+        'vendite',
+        'ricorsi umani',
+        'hr',
+        'finanza',
+        'legale',
+        'consulenza',
+        'reception',
+        'assistenza clienti',
+        'operazioni',
+      ],
+      en: [
+        'management',
+        'executive',
+        'technology',
+        'tech',
+        'tax',
+        'finance',
+        'marketing',
+        'sales',
+        'human resources',
+        'hr',
+        'legal',
+        'consulting',
+        'reception',
+        'customer service',
+        'operations',
+      ],
+      id: [
+        'manajemen',
+        'direksi',
+        'teknologi',
+        'tax',
+        'pajak',
+        'keuangan',
+        'marketing',
+        'sumber daya manusia',
+        'hr',
+        'hukum',
+        'konsultasi',
+        'resepsionis',
+        'pelayanan pelanggan',
+        'operasional',
+      ],
     };
 
     const deptKeywords = departments[language] || departments['mixed'];
@@ -390,11 +503,11 @@ export class AdvancedNLPSystem {
             confidence: 0.9,
             position: {
               start: position,
-              end: position + match.length
+              end: position + match.length,
             },
             metadata: {
-              department_type: dept
-            }
+              department_type: dept,
+            },
           });
         }
       }
@@ -422,12 +535,12 @@ export class AdvancedNLPSystem {
           confidence: 0.95,
           position: {
             start: position,
-            end: position + match.length
+            end: position + match.length,
           },
           metadata: {
             domain: match.split('@')[1],
-            is_bali_zero: match.includes('@balizero.com')
-          }
+            is_bali_zero: match.includes('@balizero.com'),
+          },
         });
       }
     }
@@ -444,9 +557,9 @@ export class AdvancedNLPSystem {
 
     // Phone patterns for Indonesian numbers
     const phonePatterns = [
-      /\b(?:\+62|62|0)[2-9]\d{8,11}\b/g,  // Indonesian mobile/landline
-      /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/g,  // XXX-XXX-XXXX format
-      /\b\d{4}[-.\s]?\d{4}[-.\s]?\d{4}\b/g   // XXXX-XXXX-XXXX format
+      /\b(?:\+62|62|0)[2-9]\d{8,11}\b/g, // Indonesian mobile/landline
+      /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/g, // XXX-XXX-XXXX format
+      /\b\d{4}[-.\s]?\d{4}[-.\s]?\d{4}\b/g, // XXXX-XXXX-XXXX format
     ];
 
     for (const pattern of phonePatterns) {
@@ -460,12 +573,12 @@ export class AdvancedNLPSystem {
             confidence: 0.9,
             position: {
               start: position,
-              end: position + match.length
+              end: position + match.length,
             },
             metadata: {
               formatted: match.replace(/[^\d+]/g, ''),
-              type: this.getPhoneType(match)
-            }
+              type: this.getPhoneType(match),
+            },
           });
         }
       }
@@ -482,9 +595,84 @@ export class AdvancedNLPSystem {
     const entities: ExtractedEntity[] = [];
 
     const services = {
-      it: ['kitas', 'vitas', 'imta', 'izin kerja', 'izin tinggal', 'pt pma', 'pendirian pt', 'perizinan', 'izin usaha', 'nib', 'siup', 'tdp', 'api', 'npwp', 'spt', 'pph 21', 'pph 23', 'ppn', 'bpjs', 'asuransi', 'visa', 'passaporto', 'ktp', 'sim', 'kk'],
-      en: ['kitas', 'vitas', 'work permit', 'business visa', 'pt pma', 'company registration', 'business license', 'nib', 'siup', 'tdp', 'api', 'tax id', 'npwp', 'tax filing', 'withholding tax', 'vat', 'bpjs', 'insurance', 'visa', 'passport', 'id card', 'sim card', 'family card'],
-      id: ['kitas', 'vitas', 'izin kerja', 'izin tinggal', 'pt pma', 'pendirian pt', 'perizinan', 'izin usaha', 'nib', 'siup', 'tdp', 'api', 'npwp', 'spt', 'pph 21', 'pph 23', 'ppn', 'bpjs', 'asuransi', 'visa', 'paspor', 'ktp', 'sim', 'kk']
+      it: [
+        'kitas',
+        'vitas',
+        'imta',
+        'izin kerja',
+        'izin tinggal',
+        'pt pma',
+        'pendirian pt',
+        'perizinan',
+        'izin usaha',
+        'nib',
+        'siup',
+        'tdp',
+        'api',
+        'npwp',
+        'spt',
+        'pph 21',
+        'pph 23',
+        'ppn',
+        'bpjs',
+        'asuransi',
+        'visa',
+        'passaporto',
+        'ktp',
+        'sim',
+        'kk',
+      ],
+      en: [
+        'kitas',
+        'vitas',
+        'work permit',
+        'business visa',
+        'pt pma',
+        'company registration',
+        'business license',
+        'nib',
+        'siup',
+        'tdp',
+        'api',
+        'tax id',
+        'npwp',
+        'tax filing',
+        'withholding tax',
+        'vat',
+        'bpjs',
+        'insurance',
+        'visa',
+        'passport',
+        'id card',
+        'sim card',
+        'family card',
+      ],
+      id: [
+        'kitas',
+        'vitas',
+        'izin kerja',
+        'izin tinggal',
+        'pt pma',
+        'pendirian pt',
+        'perizinan',
+        'izin usaha',
+        'nib',
+        'siup',
+        'tdp',
+        'api',
+        'npwp',
+        'spt',
+        'pph 21',
+        'pph 23',
+        'ppn',
+        'bpjs',
+        'asuransi',
+        'visa',
+        'paspor',
+        'ktp',
+        'sim',
+        'kk',
+      ],
     };
 
     const serviceKeywords = services[language] || services['mixed'];
@@ -502,12 +690,12 @@ export class AdvancedNLPSystem {
             confidence: 0.85,
             position: {
               start: position,
-              end: position + match.length
+              end: position + match.length,
             },
             metadata: {
               service_category: this.getServiceCategory(match),
-              service_type: match.toLowerCase()
-            }
+              service_type: match.toLowerCase(),
+            },
           });
         }
       }
@@ -525,9 +713,57 @@ export class AdvancedNLPSystem {
 
     // Known company patterns
     const knownCompanies = {
-      it: ['pt', 'cv', 'ud', ' Firma', 'mandiri', 'bca', 'bni', 'bri', 'telkomsel', 'xl', 'indosat', 'pertamina', 'garuda indonesia'],
-      en: ['pt', 'cv', 'ud', 'pt pma', 'limited', 'corporation', 'ltd', 'inc', 'llc', 'mandiri', 'bca', 'bni', 'bri', 'telkomsel', 'xl', 'indosat', 'pertamina', 'garuda indonesia'],
-      id: ['pt', 'cv', 'ud', 'perseroan terbatas', 'perseroan komanditer', 'mandiri', 'bca', 'bni', 'bri', 'telkomsel', 'xl', 'indosat', 'pertamina', 'garuda indonesia']
+      it: [
+        'pt',
+        'cv',
+        'ud',
+        ' Firma',
+        'mandiri',
+        'bca',
+        'bni',
+        'bri',
+        'telkomsel',
+        'xl',
+        'indosat',
+        'pertamina',
+        'garuda indonesia',
+      ],
+      en: [
+        'pt',
+        'cv',
+        'ud',
+        'pt pma',
+        'limited',
+        'corporation',
+        'ltd',
+        'inc',
+        'llc',
+        'mandiri',
+        'bca',
+        'bni',
+        'bri',
+        'telkomsel',
+        'xl',
+        'indosat',
+        'pertamina',
+        'garuda indonesia',
+      ],
+      id: [
+        'pt',
+        'cv',
+        'ud',
+        'perseroan terbatas',
+        'perseroan komanditer',
+        'mandiri',
+        'bca',
+        'bni',
+        'bri',
+        'telkomsel',
+        'xl',
+        'indosat',
+        'pertamina',
+        'garuda indonesia',
+      ],
     };
 
     const companies = knownCompanies[language] || knownCompanies['mixed'];
@@ -545,11 +781,11 @@ export class AdvancedNLPSystem {
             confidence: 0.7,
             position: {
               start: position,
-              end: position + match.length
+              end: position + match.length,
             },
             metadata: {
-              company_type: this.getCompanyType(match)
-            }
+              company_type: this.getCompanyType(match),
+            },
           });
         }
       }
@@ -566,9 +802,57 @@ export class AdvancedNLPSystem {
     const entities: ExtractedEntity[] = [];
 
     const locations = {
-      it: ['jakarta', 'bali', 'denpasar', 'surabaya', 'bandung', 'medan', 'semarang', 'makassar', 'palembang', 'tangerang', 'depok', 'bekasi', 'bogor', 'batam', 'indonesia'],
-      en: ['jakarta', 'bali', 'denpasar', 'surabaya', 'bandung', 'medan', 'semarang', 'makassar', 'palembang', 'tangerang', 'depok', 'bekasi', 'bogor', 'batam', 'indonesia'],
-      id: ['jakarta', 'bali', 'denpasar', 'surabaya', 'bandung', 'medan', 'semarang', 'makassar', 'palembang', 'tangerang', 'depok', 'bekasi', 'bogor', 'batam', 'indonesia']
+      it: [
+        'jakarta',
+        'bali',
+        'denpasar',
+        'surabaya',
+        'bandung',
+        'medan',
+        'semarang',
+        'makassar',
+        'palembang',
+        'tangerang',
+        'depok',
+        'bekasi',
+        'bogor',
+        'batam',
+        'indonesia',
+      ],
+      en: [
+        'jakarta',
+        'bali',
+        'denpasar',
+        'surabaya',
+        'bandung',
+        'medan',
+        'semarang',
+        'makassar',
+        'palembang',
+        'tangerang',
+        'depok',
+        'bekasi',
+        'bogor',
+        'batam',
+        'indonesia',
+      ],
+      id: [
+        'jakarta',
+        'bali',
+        'denpasar',
+        'surabaya',
+        'bandung',
+        'medan',
+        'semarang',
+        'makassar',
+        'palembang',
+        'tangerang',
+        'depok',
+        'bekasi',
+        'bogor',
+        'batam',
+        'indonesia',
+      ],
     };
 
     const locationKeywords = locations[language] || locations['mixed'];
@@ -586,11 +870,11 @@ export class AdvancedNLPSystem {
             confidence: 0.8,
             position: {
               start: position,
-              end: position + match.length
+              end: position + match.length,
             },
             metadata: {
-              location_type: this.getLocationType(match)
-            }
+              location_type: this.getLocationType(match),
+            },
           });
         }
       }
@@ -607,11 +891,11 @@ export class AdvancedNLPSystem {
     const entities: ExtractedEntity[] = [];
 
     const datePatterns = [
-      /\b\d{1,2}\/\d{1,2}\/\d{4}\b/g,  // MM/DD/YYYY
-      /\b\d{1,2}-\d{1,2}-\d{4}\b/g,  // MM-DD-YYYY
-      /\b\d{4}-\d{2}-\d{2}\b/g,   // YYYY-MM-DD
+      /\b\d{1,2}\/\d{1,2}\/\d{4}\b/g, // MM/DD/YYYY
+      /\b\d{1,2}-\d{1,2}-\d{4}\b/g, // MM-DD-YYYY
+      /\b\d{4}-\d{2}-\d{2}\b/g, // YYYY-MM-DD
       /\b(?:today|tomorrow|yesterday|oggi|besok|kemarin)\b/gi, // Relative dates
-      /\b(?:january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{1,2},?\s+\d{4}\b/gi
+      /\b(?:january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{1,2},?\s+\d{4}\b/gi,
     ];
 
     for (const pattern of datePatterns) {
@@ -625,12 +909,12 @@ export class AdvancedNLPSystem {
             confidence: 0.9,
             position: {
               start: position,
-              end: position + match.length
+              end: position + match.length,
             },
             metadata: {
               date_format: this.getDateFormat(match),
-              normalized_date: this.normalizeDate(match)
-            }
+              normalized_date: this.normalizeDate(match),
+            },
           });
         }
       }
@@ -647,10 +931,10 @@ export class AdvancedNLPSystem {
     const entities: ExtractedEntity[] = [];
 
     const pricePatterns = [
-      /\$\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?\b/g,           // $1,000.00
-      /\b\d{1,3}(?:,\d{3})*(?:\.\d{2})?\s*(?:usd|dollar|\$|ribu|juta|juta)\b/gi,  // 1,000 USD, 1 juta
-      /\b(?:rp|idr)\s*\d{1,3}(?:\.\d{3})*(?:,\d{3})?\b/gi,      // RP 1.000.000
-      /\b\d{1,3}(?:\.\d{3})*(?:,\d{3})?\s*(?:rp|idr)\b/gi       // 1.000.000 RP
+      /\$\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?\b/g, // $1,000.00
+      /\b\d{1,3}(?:,\d{3})*(?:\.\d{2})?\s*(?:usd|dollar|\$|ribu|juta|juta)\b/gi, // 1,000 USD, 1 juta
+      /\b(?:rp|idr)\s*\d{1,3}(?:\.\d{3})*(?:,\d{3})?\b/gi, // RP 1.000.000
+      /\b\d{1,3}(?:\.\d{3})*(?:,\d{3})?\s*(?:rp|idr)\b/gi, // 1.000.000 RP
     ];
 
     for (const pattern of pricePatterns) {
@@ -664,13 +948,13 @@ export class AdvancedNLPSystem {
             confidence: 0.85,
             position: {
               start: position,
-              end: position + match.length
+              end: position + match.length,
             },
             metadata: {
               currency: this.detectCurrency(match),
               amount: this.parseAmount(match),
-              normalized_amount: this.normalizeAmount(match)
-            }
+              normalized_amount: this.normalizeAmount(match),
+            },
           });
         }
       }
@@ -687,9 +971,70 @@ export class AdvancedNLPSystem {
     const entities: ExtractedEntity[] = [];
 
     const expertiseKeywords = {
-      it: ['imposte', 'tassazione', 'contabilità', 'finanza', 'marketing digitale', 'social media', 'sviluppo software', 'intelligenza artificiale', 'machine learning', 'data analysis', 'business intelligence', 'gestione progetti', 'risorse umane', 'legale', 'consulenza aziendale', 'strategia business', 'sviluppo web', 'e-commerce', 'blockchain', 'cybersecurity'],
-      en: ['tax', 'accounting', 'finance', 'digital marketing', 'social media', 'software development', 'artificial intelligence', 'machine learning', 'data analysis', 'business intelligence', 'project management', 'human resources', 'legal', 'business consulting', 'business strategy', 'web development', 'e-commerce', 'blockchain', 'cybersecurity'],
-      id: ['pajak', 'akuntansi', 'keuangan', 'pemasaran digital', 'media sosial', 'pengembangan perangkat lunak', 'kecerdasan buatan', 'machine learning', 'analisis data', 'business intelligence', 'manajemen proyek', 'sumber daya manusia', 'hukum', 'konsultasi bisnis', 'strategi bisnis', 'pengembangan web', 'e-commerce', 'blockchain', 'keamanan siber']
+      it: [
+        'imposte',
+        'tassazione',
+        'contabilità',
+        'finanza',
+        'marketing digitale',
+        'social media',
+        'sviluppo software',
+        'intelligenza artificiale',
+        'machine learning',
+        'data analysis',
+        'business intelligence',
+        'gestione progetti',
+        'risorse umane',
+        'legale',
+        'consulenza aziendale',
+        'strategia business',
+        'sviluppo web',
+        'e-commerce',
+        'blockchain',
+        'cybersecurity',
+      ],
+      en: [
+        'tax',
+        'accounting',
+        'finance',
+        'digital marketing',
+        'social media',
+        'software development',
+        'artificial intelligence',
+        'machine learning',
+        'data analysis',
+        'business intelligence',
+        'project management',
+        'human resources',
+        'legal',
+        'business consulting',
+        'business strategy',
+        'web development',
+        'e-commerce',
+        'blockchain',
+        'cybersecurity',
+      ],
+      id: [
+        'pajak',
+        'akuntansi',
+        'keuangan',
+        'pemasaran digital',
+        'media sosial',
+        'pengembangan perangkat lunak',
+        'kecerdasan buatan',
+        'machine learning',
+        'analisis data',
+        'business intelligence',
+        'manajemen proyek',
+        'sumber daya manusia',
+        'hukum',
+        'konsultasi bisnis',
+        'strategi bisnis',
+        'pengembangan web',
+        'e-commerce',
+        'blockchain',
+        'keamanan siber',
+      ],
     };
 
     const expertise = expertiseKeywords[language] || expertiseKeywords['mixed'];
@@ -707,12 +1052,12 @@ export class AdvancedNLPSystem {
             confidence: 0.75,
             position: {
               start: position,
-              end: position + match.length
+              end: position + match.length,
             },
             metadata: {
               expertise_category: this.getExpertiseCategory(skill),
-              skill_level: this.assessSkillLevel(query, match)
-            }
+              skill_level: this.assessSkillLevel(query, match),
+            },
           });
         }
       }
@@ -726,21 +1071,37 @@ export class AdvancedNLPSystem {
   // =====================================================
 
   private classifyIntent(query: string, entities: ExtractedEntity[], language: string): string {
-    const personEntities = entities.filter(e => e.type === 'person');
-    const serviceEntities = entities.filter(e => e.type === 'service');
-    const emailEntities = entities.filter(e => e.type === 'email');
-    const priceEntities = entities.filter(e => e.type === 'price');
+    const personEntities = entities.filter((e) => e.type === 'person');
+    const serviceEntities = entities.filter((e) => e.type === 'service');
+    const emailEntities = entities.filter((e) => e.type === 'email');
+    const priceEntities = entities.filter((e) => e.type === 'price');
 
     // Check for specific intents
-    if (this.containsWords(query, ['who is', 'chi è', 'siapa', 'chi é', 'who is', 'tell me about', 'dimmi di', 'cerca', 'cari'])) {
+    if (
+      this.containsWords(query, [
+        'who is',
+        'chi è',
+        'siapa',
+        'chi é',
+        'who is',
+        'tell me about',
+        'dimmi di',
+        'cerca',
+        'cari',
+      ])
+    ) {
       return 'person_inquiry';
     }
 
-    if (this.containsWords(query, ['how much', 'quanto costa', 'harga', 'price', 'cost', 'biaya'])) {
+    if (
+      this.containsWords(query, ['how much', 'quanto costa', 'harga', 'price', 'cost', 'biaya'])
+    ) {
       return 'pricing_inquiry';
     }
 
-    if (this.containsWords(query, ['contact', 'email', 'phone', 'contatta', 'telefono', 'chiamare'])) {
+    if (
+      this.containsWords(query, ['contact', 'email', 'phone', 'contatta', 'telefono', 'chiamare'])
+    ) {
       return 'contact_inquiry';
     }
 
@@ -756,11 +1117,23 @@ export class AdvancedNLPSystem {
       return 'person_inquiry';
     }
 
-    if (this.containsWords(query, ['help', 'aiuto', 'assistenza', 'support', 'problem', 'problema', 'issue'])) {
+    if (
+      this.containsWords(query, [
+        'help',
+        'aiuto',
+        'assistenza',
+        'support',
+        'problem',
+        'problema',
+        'issue',
+      ])
+    ) {
       return 'help_request';
     }
 
-    if (this.containsWords(query, ['what', 'cosa', 'what is', 'che cosa', 'apa', 'explain', 'spiega'])) {
+    if (
+      this.containsWords(query, ['what', 'cosa', 'what is', 'che cosa', 'apa', 'explain', 'spiega'])
+    ) {
       return 'information_request';
     }
 
@@ -773,15 +1146,57 @@ export class AdvancedNLPSystem {
 
   private analyzeSentiment(query: string, language: string): 'positive' | 'neutral' | 'negative' {
     const positiveWords = {
-      it: ['ottimo', 'eccellente', 'perfetto', 'bravo', 'grazie', 'fantastico', 'meraviglioso', 'bello', 'ottimo lavoro', 'soddisfatto'],
-      en: ['excellent', 'perfect', 'great', 'good', 'thank you', 'fantastic', 'wonderful', 'beautiful', 'satisfied'],
-      id: ['bagus', 'hebat', 'terima kasih', 'luar biasa', 'mantap', 'puas', 'memuaskan']
+      it: [
+        'ottimo',
+        'eccellente',
+        'perfetto',
+        'bravo',
+        'grazie',
+        'fantastico',
+        'meraviglioso',
+        'bello',
+        'ottimo lavoro',
+        'soddisfatto',
+      ],
+      en: [
+        'excellent',
+        'perfect',
+        'great',
+        'good',
+        'thank you',
+        'fantastic',
+        'wonderful',
+        'beautiful',
+        'satisfied',
+      ],
+      id: ['bagus', 'hebat', 'terima kasih', 'luar biasa', 'mantap', 'puas', 'memuaskan'],
     };
 
     const negativeWords = {
-      it: ['scarso', 'terribile', 'pessimo', 'problema', 'errore', 'fallito', 'deluso', 'scontento', 'triste', 'difficile'],
-      en: ['bad', 'terrible', 'poor', 'problem', 'error', 'failed', 'disappointed', 'sad', 'difficult'],
-      id: ['buruk', 'jelek', 'masalah', 'kesalahan', 'gagal', 'kecewa', 'sedih', 'sulit']
+      it: [
+        'scarso',
+        'terribile',
+        'pessimo',
+        'problema',
+        'errore',
+        'fallito',
+        'deluso',
+        'scontento',
+        'triste',
+        'difficile',
+      ],
+      en: [
+        'bad',
+        'terrible',
+        'poor',
+        'problem',
+        'error',
+        'failed',
+        'disappointed',
+        'sad',
+        'difficult',
+      ],
+      id: ['buruk', 'jelek', 'masalah', 'kesalahan', 'gagal', 'kecewa', 'sedih', 'sulit'],
     };
 
     const posWords = positiveWords[language] || positiveWords['mixed'];
@@ -789,8 +1204,8 @@ export class AdvancedNLPSystem {
 
     const lowerQuery = query.toLowerCase();
 
-    const posCount = posWords.filter(word => lowerQuery.includes(word)).length;
-    const negCount = negWords.filter(word => lowerQuery.includes(word)).length;
+    const posCount = posWords.filter((word) => lowerQuery.includes(word)).length;
+    const negCount = negWords.filter((word) => lowerQuery.includes(word)).length;
 
     if (posCount > negCount) return 'positive';
     if (negCount > posCount) return 'negative';
@@ -805,13 +1220,22 @@ export class AdvancedNLPSystem {
     const urgentWords = {
       it: ['urgente', 'immediato', 'subito', 'ora', 'adesso', 'emergenza', 'critico', 'importante'],
       en: ['urgent', 'immediate', 'now', 'asap', 'emergency', 'critical', 'important'],
-      id: ['segera', 'sekarang', 'segera ini', 'darurat', 'penting', 'penting sekali', 'kritikal', 'penting']
+      id: [
+        'segera',
+        'sekarang',
+        'segera ini',
+        'darurat',
+        'penting',
+        'penting sekali',
+        'kritikal',
+        'penting',
+      ],
     };
 
     const urgent = urgentWords[language] || urgentWords['mixed'];
     const lowerQuery = query.toLowerCase();
 
-    const urgentCount = urgent.filter(word => lowerQuery.includes(word)).length;
+    const urgentCount = urgent.filter((word) => lowerQuery.includes(word)).length;
 
     if (urgentCount >= 2) return 'high';
     if (urgentCount === 1) return 'medium';
@@ -822,7 +1246,10 @@ export class AdvancedNLPSystem {
   // COMPLEXITY ASSESSMENT
   // =====================================================
 
-  private assessComplexity(query: string, entities: ExtractedEntity[]): 'simple' | 'moderate' | 'complex' {
+  private assessComplexity(
+    query: string,
+    entities: ExtractedEntity[]
+  ): 'simple' | 'moderate' | 'complex' {
     // Simple: short query, few entities
     if (query.length < 50 && entities.length <= 2) return 'simple';
 
@@ -839,15 +1266,87 @@ export class AdvancedNLPSystem {
 
   private extractKeywords(query: string, language: string): string[] {
     const stopWords = {
-      it: ['il', 'lo', 'la', 'i', 'gli', 'le', 'un', 'una', 'di', 'a', 'da', 'in', 'con', 'su', 'per', 'tra', 'fra', 'anche', 'e', 'o', 'ma', 'se', 'che', 'non', 'più'],
-      en: ['the', 'a', 'an', 'and', 'or', 'but', 'if', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'up', 'about', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'between'],
-      id: ['yang', 'dan', 'atau', 'tapi', 'jika', 'untuk', 'dari', 'pada', 'di', 'dengan', 'ke', 'kepada', 'adalah', 'itu', 'ini', 'itu', 'itu']
+      it: [
+        'il',
+        'lo',
+        'la',
+        'i',
+        'gli',
+        'le',
+        'un',
+        'una',
+        'di',
+        'a',
+        'da',
+        'in',
+        'con',
+        'su',
+        'per',
+        'tra',
+        'fra',
+        'anche',
+        'e',
+        'o',
+        'ma',
+        'se',
+        'che',
+        'non',
+        'più',
+      ],
+      en: [
+        'the',
+        'a',
+        'an',
+        'and',
+        'or',
+        'but',
+        'if',
+        'in',
+        'on',
+        'at',
+        'to',
+        'for',
+        'of',
+        'with',
+        'by',
+        'from',
+        'up',
+        'about',
+        'into',
+        'through',
+        'during',
+        'before',
+        'after',
+        'above',
+        'below',
+        'between',
+      ],
+      id: [
+        'yang',
+        'dan',
+        'atau',
+        'tapi',
+        'jika',
+        'untuk',
+        'dari',
+        'pada',
+        'di',
+        'dengan',
+        'ke',
+        'kepada',
+        'adalah',
+        'itu',
+        'ini',
+        'itu',
+        'itu',
+      ],
     };
 
     const stops = stopWords[language] || stopWords['mixed'];
-    const words = query.toLowerCase()
+    const words = query
+      .toLowerCase()
       .split(/\s+/)
-      .filter(word => word.length > 2 && !stops.includes(word));
+      .filter((word) => word.length > 2 && !stops.includes(word));
 
     // Remove duplicates and return
     return [...new Set(words)];
@@ -857,7 +1356,11 @@ export class AdvancedNLPSystem {
   // BUSINESS CONTEXT ANALYSIS
   // =====================================================
 
-  private async analyzeBusinessContext(query: string, entities: ExtractedEntity[], language: string): Promise<any> {
+  private async analyzeBusinessContext(
+    query: string,
+    entities: ExtractedEntity[],
+    language: string
+  ): Promise<any> {
     const context = {
       business_stage: this.detectBusinessStage(query, entities),
       customer_type: this.detectCustomerType(query, entities),
@@ -865,7 +1368,7 @@ export class AdvancedNLPSystem {
       budget_indicators: this.detectBudgetIndicators(query, entities),
       timeline: this.detectTimeline(query, language),
       decision_maker: this.detectDecisionMaker(query, entities),
-      compliance_required: this.detectComplianceRequired(entities)
+      compliance_required: this.detectComplianceRequired(entities),
     };
 
     return context;
@@ -875,20 +1378,44 @@ export class AdvancedNLPSystem {
     if (this.containsWords(query, ['idea', 'thinking', 'considering', 'valutando', 'pensando'])) {
       return 'exploration';
     }
-    if (this.containsWords(query, ['planning', 'preparing', 'setting up', 'pianificazione', 'preparazione'])) {
+    if (
+      this.containsWords(query, [
+        'planning',
+        'preparing',
+        'setting up',
+        'pianificazione',
+        'preparazione',
+      ])
+    ) {
       return 'planning';
     }
-    if (this.containsWords(query, ['ready', 'start', 'implement', 'execute', 'pronto', 'iniziare', 'implementare'])) {
+    if (
+      this.containsWords(query, [
+        'ready',
+        'start',
+        'implement',
+        'execute',
+        'pronto',
+        'iniziare',
+        'implementare',
+      ])
+    ) {
       return 'execution';
     }
-    if (this.containsWords(query, ['expand', 'grow', 'scale', 'additional', 'espandere', 'crescere'])) {
+    if (
+      this.containsWords(query, ['expand', 'grow', 'scale', 'additional', 'espandere', 'crescere'])
+    ) {
       return 'expansion';
     }
     return 'unknown';
   }
 
   private detectCustomerType(query: string, entities: ExtractedEntity[]): string {
-    if (entities.some(e => e.type === 'person' && this.containsWords(e.text, ['freelance', 'individual']))) {
+    if (
+      entities.some(
+        (e) => e.type === 'person' && this.containsWords(e.text, ['freelance', 'individual'])
+      )
+    ) {
       return 'freelance';
     }
     if (this.containsWords(query, ['company', 'corporation', 'business', 'azienda', 'impresa'])) {
@@ -901,24 +1428,22 @@ export class AdvancedNLPSystem {
   }
 
   private detectServiceNeeded(entities: ExtractedEntity[]): string[] {
-    return entities
-      .filter(e => e.type === 'service')
-      .map(e => e.text.toLowerCase());
+    return entities.filter((e) => e.type === 'service').map((e) => e.text.toLowerCase());
   }
 
   private detectBudgetIndicators(query: string, entities: ExtractedEntity[]): any {
-    const priceEntities = entities.filter(e => e.type === 'price');
+    const priceEntities = entities.filter((e) => e.type === 'price');
 
     if (priceEntities.length === 0) return null;
 
-    const amounts = priceEntities.map(e => e.metadata?.normalized_amount || 0);
+    const amounts = priceEntities.map((e) => e.metadata?.normalized_amount || 0);
     const avgAmount = amounts.reduce((a, b) => a + b, 0) / amounts.length;
 
     return {
       has_budget: true,
       average_amount: avgAmount,
       currency: 'USD',
-      budget_range: avgAmount < 1000 ? 'low' : avgAmount < 10000 ? 'medium' : 'high'
+      budget_range: avgAmount < 1000 ? 'low' : avgAmount < 10000 ? 'medium' : 'high',
     };
   }
 
@@ -926,7 +1451,14 @@ export class AdvancedNLPSystem {
     if (this.containsWords(query, ['asap', 'urgent', 'immediately', 'subito', 'urgente'])) {
       return 'immediate';
     }
-    if (this.containsWords(query, ['this week', 'next week', 'questa settimana', 'prossima settimana'])) {
+    if (
+      this.containsWords(query, [
+        'this week',
+        'next week',
+        'questa settimana',
+        'prossima settimana',
+      ])
+    ) {
       return 'week';
     }
     if (this.containsWords(query, ['this month', 'next month', 'questo mese', 'prossimo mese'])) {
@@ -939,7 +1471,9 @@ export class AdvancedNLPSystem {
     if (this.containsWords(query, ['i need', 'we need', 'ho bisogno', 'abbiamo bisogno'])) {
       return 'self';
     }
-    if (this.containsWords(query, ['my boss', 'manager', 'supervisor', 'mio capo', 'il mio capo'])) {
+    if (
+      this.containsWords(query, ['my boss', 'manager', 'supervisor', 'mio capo', 'il mio capo'])
+    ) {
       return 'manager';
     }
     if (this.containsWords(query, ['client', 'customer', 'cliente', 'cliente'])) {
@@ -952,10 +1486,12 @@ export class AdvancedNLPSystem {
     const complianceServices = ['tax', 'legal', 'visa', 'work permit', 'business license'];
 
     return entities
-      .filter(e => e.type === 'service' && complianceServices.some(service =>
-        e.text.toLowerCase().includes(service)
-      ))
-      .map(e => e.text.toLowerCase());
+      .filter(
+        (e) =>
+          e.type === 'service' &&
+          complianceServices.some((service) => e.text.toLowerCase().includes(service))
+      )
+      .map((e) => e.text.toLowerCase());
   }
 
   // =====================================================
@@ -982,9 +1518,9 @@ export class AdvancedNLPSystem {
         }
 
         this.lastCacheUpdate = now;
-        console.log(`🔄 Team member cache refreshed with ${teamMembers.length} members`);
-      } catch (error) {
-        console.error('❌ Failed to refresh team member cache:', error);
+        logger.info(`🔄 Team member cache refreshed with ${teamMembers.length} members`);
+      } catch (error: any) {
+        logger.error('❌ Failed to refresh team member cache:', error);
       }
     }
   }
@@ -995,13 +1531,27 @@ export class AdvancedNLPSystem {
 
   private containsWords(text: string, words: string[]): boolean {
     const lowerText = text.toLowerCase();
-    return words.some(word => lowerText.includes(word));
+    return words.some((word) => lowerText.includes(word));
   }
 
   private isIndonesianName(name: string): boolean {
-    const indonesianNames = ['surya', 'dewa', 'made', 'wayan', 'ketut', 'putu', 'gusti', 'ni made', 'i made', 'komang', 'nyoman', 'id', 'bayu'];
+    const indonesianNames = [
+      'surya',
+      'dewa',
+      'made',
+      'wayan',
+      'ketut',
+      'putu',
+      'gusti',
+      'ni made',
+      'i made',
+      'komang',
+      'nyoman',
+      'id',
+      'bayu',
+    ];
     const lowerName = name.toLowerCase();
-    return indonesianNames.some(indName => lowerName.includes(indName));
+    return indonesianNames.some((indName) => lowerName.includes(indName));
   }
 
   private getPhoneType(phone: string): string {
@@ -1015,18 +1565,18 @@ export class AdvancedNLPSystem {
 
   private getServiceCategory(service: string): string {
     const categories = {
-      'kitas': 'immigration',
-      'vitas': 'immigration',
+      kitas: 'immigration',
+      vitas: 'immigration',
       'work permit': 'immigration',
       'pt pma': 'company_registration',
-      'tax': 'tax',
-      'legal': 'legal',
-      'insurance': 'insurance'
+      tax: 'tax',
+      legal: 'legal',
+      insurance: 'insurance',
     };
 
     const lowerService = service.toLowerCase();
     for (const [category, keywords] of Object.entries(categories)) {
-      if (keywords.some(keyword => lowerService.includes(keyword))) {
+      if (keywords.some((keyword) => lowerService.includes(keyword))) {
         return category;
       }
     }
@@ -1038,14 +1588,16 @@ export class AdvancedNLPSystem {
     if (company.toLowerCase().includes('pt')) return 'PT';
     if (company.toLowerCase().includes('cv')) return 'CV';
     if (company.toLowerCase().includes('ud')) return 'UD';
-    if (company.toLowerCase().includes('limited') || company.toLowerCase().includes('ltd')) return 'Limited';
-    if (company.toLowerCase().includes('corporation') || company.toLowerCase().includes('corp')) return 'Corporation';
+    if (company.toLowerCase().includes('limited') || company.toLowerCase().includes('ltd'))
+      return 'Limited';
+    if (company.toLowerCase().includes('corporation') || company.toLowerCase().includes('corp'))
+      return 'Corporation';
     return 'Unknown';
   }
 
   private getLocationType(location: string): string {
     const capitals = ['jakarta', 'denpasar', 'surabaya', 'bandung'];
-    if (capitals.some(cap => location.toLowerCase() === cap.toLowerCase())) {
+    if (capitals.some((cap) => location.toLowerCase() === cap.toLowerCase())) {
       return 'major_city';
     }
     return 'general';
@@ -1092,25 +1644,25 @@ export class AdvancedNLPSystem {
 
   private getExpertiseCategory(skill: string): string {
     const categories = {
-      'tax': 'finance',
-      'accounting': 'finance',
-      'finance': 'finance',
-      'marketing': 'marketing',
-      'software': 'technology',
-      'development': 'technology',
-      'ai': 'technology',
+      tax: 'finance',
+      accounting: 'finance',
+      finance: 'finance',
+      marketing: 'marketing',
+      software: 'technology',
+      development: 'technology',
+      ai: 'technology',
       'artificial intelligence': 'technology',
       'machine learning': 'technology',
-      'data': 'technology',
-      'project': 'management',
+      data: 'technology',
+      project: 'management',
       'human resources': 'management',
-      'legal': 'legal',
-      'consulting': 'business'
+      legal: 'legal',
+      consulting: 'business',
     };
 
     const lowerSkill = skill.toLowerCase();
     for (const [category, keywords] of Object.entries(categories)) {
-      if (keywords.some(keyword => lowerSkill.includes(keyword))) {
+      if (keywords.some((keyword) => lowerSkill.includes(keyword))) {
         return category;
       }
     }
@@ -1119,7 +1671,11 @@ export class AdvancedNLPSystem {
   }
 
   private assessSkillLevel(query: string, skill: string): string {
-    if (query.toLowerCase().includes('senior') || query.toLowerCase().includes('lead') || query.toLowerCase().includes('head')) {
+    if (
+      query.toLowerCase().includes('senior') ||
+      query.toLowerCase().includes('lead') ||
+      query.toLowerCase().includes('head')
+    ) {
       return 'senior';
     }
     if (query.toLowerCase().includes('junior') || query.toLowerCase().includes('associate')) {
