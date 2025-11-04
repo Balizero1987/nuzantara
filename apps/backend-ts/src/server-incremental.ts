@@ -259,7 +259,35 @@ async function startIncrementalServer() {
   } else {
     console.log('⚠️ [F7] Feature #7 SKIPPED: Bali Zero routes not available');
   }
-  
+
+  // ============================================================
+  // FEATURE #9: Team Authentication Routes
+  // ============================================================
+  console.log('🔄 [INC] Loading Feature #9: Team Authentication...');
+
+  let teamAuthRoutes: any;
+
+  try {
+    const teamAuthModule = await import('./routes/api/auth/team-auth.routes.js');
+    teamAuthRoutes = teamAuthModule.default;
+    console.log('  ✅ [F9] Team Auth routes loaded');
+  } catch (error: any) {
+    console.log('  ⚠️ [F9] Team Auth routes failed:', error.message);
+    teamAuthRoutes = null;
+  }
+
+  // Mount Team Auth routes if available
+  if (teamAuthRoutes) {
+    try {
+      app.use('/api/auth/team', teamAuthRoutes);
+      console.log('✅ [F9] Feature #9 ENABLED: Team Authentication');
+    } catch (error: any) {
+      console.error('❌ [F9] Failed to mount Team Auth routes:', error.message);
+    }
+  } else {
+    console.log('⚠️ [F9] Feature #9 SKIPPED: Team Auth routes not available');
+  }
+
   // ============================================================
   // FEATURE #8: ZANTARA v3 AI Routes (unified/collective/ecosystem)
   // ============================================================
