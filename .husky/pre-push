@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+echo "🚀 Pre-push checks..."
+
+# Typecheck completo
+echo "📝 Running typecheck..."
+npm run typecheck || exit 1
+
+# Lint check
+echo "🔍 Running lint..."
+npm run lint || echo "⚠️  Lint warnings found (non-blocking)"
+
+# Test coverage check
+echo "🧪 Running tests..."
+npm run test:coverage || exit 1
+
+echo "✅ All pre-push checks passed!"
