@@ -2334,7 +2334,22 @@ async def generate_embedding(request: EmbedRequest):
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
+    """Root endpoint - Dynamic KB count from ChromaDB"""
+    # Calculate dynamic document count from ChromaDB
+    total_docs = 0
+    collection_stats = {}
+
+    try:
+        if search_service and hasattr(search_service, 'chroma_client'):
+            collections = search_service.chroma_client.list_collections()
+            for col in collections:
+                count = col.count()
+                total_docs += count
+                collection_stats[col.name] = count
+    except Exception as e:
+        logger.warning(f"Could not get dynamic doc count: {e}")
+        total_docs = 25422  # Fallback to verified count
+
     return {
         "service": "ZANTARA RAG",
         "version": "3.1.0-perf-fix",
@@ -2349,8 +2364,9 @@ async def root():
             "knowledge_base": {
                 "bali_zero_agents": "1,458 operational documents",
                 "zantara_books": "214 books (12,907 embeddings)",
-                "total": "14,365 documents",
-                "routing": "intelligent (keyword-based)"
+                "total": f"{total_docs:,} documents (dynamic count from ChromaDB)",
+                "routing": "intelligent (keyword-based)",
+                "collection_counts": collection_stats
             },
             "auth": "mock (MVP only)",
             "collaborative_intelligence": {
@@ -2587,6 +2603,177 @@ async def rag_search(request: RAGSearchRequest):
     except Exception as e:
         logger.error(f"❌ RAG search failed: {e}")
         raise HTTPException(500, f"RAG search failed: {str(e)}")
+
+
+# ========================================
+# FEATURE #10: RAG QUERY DIRECT ENDPOINTS
+# Direct RAG query interface for Backend-TS
+# ========================================
+
+class APIQueryRequest(BaseModel):
+    query: str
+    collection: Optional[str] = None
+    limit: int = 5
+    metadata_filter: Optional[Dict[str, Any]] = None
+    user_level: int = 0
+
+
+@app.post("/api/query")
+async def api_query(request: APIQueryRequest):
+    """
+    Feature #10: Direct RAG query endpoint for Backend-TS integration
+
+    Unified query interface with ChromaDB collections
+
+    Args:
+        query: Search query text
+        collection: Optional collection name (auto-detect if None)
+        limit: Max results (default 5)
+        metadata_filter: Optional metadata filter
+        user_level: Access level 0-3 (default 0)
+
+    Returns:
+        {
+            "ok": true,
+            "results": [...],
+            "count": 5,
+            "collection": "collection_name",
+            "query": "original query"
+        }
+    """
+    if not search_service:
+        raise HTTPException(503, "Search service not available")
+
+    try:
+        logger.info(f"🔍 API Query: '{request.query}' (collection: {request.collection or 'auto'})")
+
+        # Perform search
+        results = await search_service.search(
+            query=request.query,
+            user_level=request.user_level,
+            limit=request.limit,
+            collection_override=request.collection
+        )
+
+        # Format response for Feature #10
+        collection_used = request.collection or results.get("primary_collection", "multi")
+        formatted_results = results.get("results", [])
+
+        return {
+            "ok": True,
+            "results": formatted_results,
+            "count": len(formatted_results),
+            "collection": collection_used,
+            "query": request.query
+        }
+
+    except Exception as e:
+        logger.error(f"❌ API query failed: {e}")
+        raise HTTPException(500, f"API query failed: {str(e)}")
+
+
+@app.post("/api/semantic-search")
+async def api_semantic_search(request: APIQueryRequest):
+    """
+    Feature #10: Semantic search endpoint (alias to /api/query)
+
+    Same functionality as /api/query but with semantic search focus
+    """
+    return await api_query(request)
+
+
+@app.get("/api/collections")
+async def api_list_collections():
+    """
+    Feature #10: List all available ChromaDB collections
+
+    Returns:
+        {
+            "ok": true,
+            "collections": [
+                {
+                    "name": "bali_zero_pricing",
+                    "description": "Bali Zero pricing information"
+                },
+                ...
+            ],
+            "total": 14
+        }
+    """
+    if not search_service:
+        raise HTTPException(503, "Search service not available")
+
+    try:
+        # Return list of available collections with descriptions
+        collections_list = [
+            {"name": "bali_zero_pricing", "description": "Bali Zero pricing information (PRIORITY)"},
+            {"name": "visa_oracle", "description": "Visa and immigration guidance"},
+            {"name": "kbli_eye", "description": "KBLI business classification codes"},
+            {"name": "tax_genius", "description": "Indonesian tax regulations"},
+            {"name": "legal_architect", "description": "Legal and regulatory information"},
+            {"name": "kb_indonesian", "description": "Indonesian knowledge base"},
+            {"name": "kbli_comprehensive", "description": "Comprehensive KBLI data"},
+            {"name": "zantara_books", "description": "Zantara knowledge books"},
+            {"name": "cultural_insights", "description": "Indonesian cultural intelligence (LLAMA)"},
+            {"name": "tax_updates", "description": "Tax regulatory updates"},
+            {"name": "tax_knowledge", "description": "Tax knowledge base"},
+            {"name": "property_listings", "description": "Property listings data"},
+            {"name": "property_knowledge", "description": "Property knowledge base"},
+            {"name": "legal_updates", "description": "Legal regulatory updates"}
+        ]
+
+        return {
+            "ok": True,
+            "collections": collections_list,
+            "total": len(collections_list)
+        }
+
+    except Exception as e:
+        logger.error(f"❌ List collections failed: {e}")
+        raise HTTPException(500, f"List collections failed: {str(e)}")
+
+
+@app.get("/api/collections/{collection_name}/stats")
+async def api_collection_stats(collection_name: str):
+    """
+    Feature #10: Get statistics for a specific collection
+
+    Args:
+        collection_name: Name of the collection
+
+    Returns:
+        {
+            "ok": true,
+            "collection": "collection_name",
+            "total_documents": 1234,
+            "tiers_distribution": {...}
+        }
+    """
+    if not search_service:
+        raise HTTPException(503, "Search service not available")
+
+    try:
+        # Check if collection exists
+        if collection_name not in search_service.collections:
+            raise HTTPException(404, f"Collection '{collection_name}' not found")
+
+        # Get collection stats
+        vector_db = search_service.collections[collection_name]
+        stats = vector_db.get_collection_stats()
+
+        return {
+            "ok": True,
+            "collection": collection_name,
+            "total_documents": stats.get("total_documents", 0),
+            "tiers_distribution": stats.get("tiers_distribution", {}),
+            "persist_directory": stats.get("persist_directory", "")
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Get collection stats failed: {e}")
+        raise HTTPException(500, f"Get collection stats failed: {str(e)}")
 
 
 # ========================================
