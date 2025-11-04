@@ -49,101 +49,136 @@
             inset: 0;
             z-index: 0;
             overflow: hidden;
-            background: #000;
+            background: radial-gradient(ellipse at 50% 50%, #0a0a0a 0%, #000000 100%);
         }
 
         /* Batik spiral patterns - layer 1 */
         .mystical-bg::before {
             content: "";
             position: absolute;
-            inset: -50%;
+            inset: 0;
+            width: 200%;
+            height: 200%;
+            left: -50%;
+            top: -50%;
             background-image: 
-                radial-gradient(circle at 20% 30%, transparent 10%, rgba(214,178,94,0.03) 11%, transparent 12%),
-                radial-gradient(circle at 35% 45%, transparent 15%, rgba(214,178,94,0.04) 16%, transparent 17%),
-                radial-gradient(circle at 60% 25%, transparent 12%, rgba(214,178,94,0.035) 13%, transparent 14%),
-                radial-gradient(circle at 75% 60%, transparent 18%, rgba(214,178,94,0.045) 19%, transparent 20%),
-                radial-gradient(circle at 45% 75%, transparent 14%, rgba(214,178,94,0.04) 15%, transparent 16%),
-                radial-gradient(circle at 85% 40%, transparent 16%, rgba(214,178,94,0.038) 17%, transparent 18%),
-                radial-gradient(ellipse at 50% 50%, rgba(214,178,94,0.08) 0%, transparent 50%);
+                conic-gradient(from 0deg at 25% 25%, 
+                    transparent 0deg,
+                    rgba(214,178,94,0.06) 30deg,
+                    transparent 60deg,
+                    rgba(214,178,94,0.08) 90deg,
+                    transparent 120deg,
+                    rgba(214,178,94,0.05) 150deg,
+                    transparent 180deg,
+                    rgba(214,178,94,0.07) 210deg,
+                    transparent 240deg,
+                    rgba(214,178,94,0.06) 270deg,
+                    transparent 300deg,
+                    rgba(214,178,94,0.08) 330deg,
+                    transparent 360deg
+                ),
+                conic-gradient(from 60deg at 75% 40%, 
+                    transparent 0deg,
+                    rgba(214,178,94,0.05) 45deg,
+                    transparent 90deg,
+                    rgba(214,178,94,0.07) 135deg,
+                    transparent 180deg,
+                    rgba(214,178,94,0.06) 225deg,
+                    transparent 270deg,
+                    rgba(214,178,94,0.08) 315deg,
+                    transparent 360deg
+                ),
+                conic-gradient(from 120deg at 50% 70%, 
+                    transparent 0deg,
+                    rgba(214,178,94,0.04) 60deg,
+                    transparent 120deg,
+                    rgba(214,178,94,0.06) 180deg,
+                    transparent 240deg,
+                    rgba(214,178,94,0.05) 300deg,
+                    transparent 360deg
+                ),
+                radial-gradient(circle at 30% 50%, transparent 10%, rgba(214,178,94,0.03) 11%, transparent 12%),
+                radial-gradient(circle at 30% 50%, transparent 15%, rgba(214,178,94,0.04) 16%, transparent 17%),
+                radial-gradient(circle at 70% 45%, transparent 12%, rgba(214,178,94,0.035) 13%, transparent 14%);
             background-size: 
+                800px 800px,
+                900px 900px,
+                750px 750px,
                 400px 400px,
-                550px 550px,
-                480px 480px,
-                620px 620px,
-                500px 500px,
-                580px 580px,
-                800px 800px;
-            background-position: 
-                0 0,
-                100px 100px,
-                200px 50px,
-                -50px 150px,
-                150px 250px,
-                250px -50px,
-                center;
+                400px 400px,
+                500px 500px;
+            background-position: center;
             mix-blend-mode: screen;
-            animation: spiralFlow1 40s linear infinite;
+            animation: spiralRotate1 60s linear infinite;
         }
 
         /* Batik spiral patterns - layer 2 (counter-rotating) */
         .mystical-bg::after {
             content: "";
             position: absolute;
-            inset: -50%;
+            inset: 0;
+            width: 200%;
+            height: 200%;
+            left: -50%;
+            top: -50%;
             background-image: 
-                radial-gradient(circle at 40% 60%, transparent 8%, rgba(214,178,94,0.025) 9%, transparent 10%),
-                radial-gradient(circle at 65% 35%, transparent 13%, rgba(214,178,94,0.03) 14%, transparent 15%),
-                radial-gradient(circle at 25% 50%, transparent 11%, rgba(214,178,94,0.028) 12%, transparent 13%),
-                radial-gradient(circle at 80% 70%, transparent 16%, rgba(214,178,94,0.035) 17%, transparent 18%),
-                radial-gradient(circle at 50% 20%, transparent 14%, rgba(214,178,94,0.032) 15%, transparent 16%),
-                radial-gradient(ellipse at 50% 50%, rgba(214,178,94,0.05) 0%, transparent 60%);
+                conic-gradient(from 180deg at 60% 60%, 
+                    transparent 0deg,
+                    rgba(214,178,94,0.05) 40deg,
+                    transparent 80deg,
+                    rgba(214,178,94,0.07) 120deg,
+                    transparent 160deg,
+                    rgba(214,178,94,0.06) 200deg,
+                    transparent 240deg,
+                    rgba(214,178,94,0.08) 280deg,
+                    transparent 320deg,
+                    rgba(214,178,94,0.05) 360deg
+                ),
+                conic-gradient(from 90deg at 40% 35%, 
+                    transparent 0deg,
+                    rgba(214,178,94,0.06) 50deg,
+                    transparent 100deg,
+                    rgba(214,178,94,0.07) 150deg,
+                    transparent 200deg,
+                    rgba(214,178,94,0.05) 250deg,
+                    transparent 300deg,
+                    rgba(214,178,94,0.08) 350deg,
+                    transparent 360deg
+                ),
+                radial-gradient(circle at 55% 30%, transparent 8%, rgba(214,178,94,0.025) 9%, transparent 10%),
+                radial-gradient(circle at 45% 65%, transparent 11%, rgba(214,178,94,0.028) 12%, transparent 13%);
             background-size: 
+                850px 850px,
+                950px 950px,
                 450px 450px,
-                520px 520px,
-                490px 490px,
-                600px 600px,
-                530px 530px,
-                900px 900px;
-            background-position: 
-                50px 50px,
-                -100px 200px,
-                200px -50px,
-                100px 150px,
-                -50px -50px,
-                center;
+                550px 550px;
+            background-position: center;
             mix-blend-mode: overlay;
-            animation: spiralFlow2 35s linear infinite reverse;
+            animation: spiralRotate2 50s linear infinite reverse;
         }
 
-        /* Spiral flow animations */
+        /* Rotazione continua delle spirali */
+        @keyframes spiralRotate1 {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spiralRotate2 {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        /* Remove old animations */
         @keyframes spiralFlow1 {
-            0% { 
-                transform: rotate(0deg) scale(1);
-                opacity: 0.8;
-            }
-            50% { 
-                transform: rotate(180deg) scale(1.1);
-                opacity: 1;
-            }
-            100% { 
-                transform: rotate(360deg) scale(1);
-                opacity: 0.8;
-            }
+            0% { transform: rotate(0deg) scale(1); opacity: 0.8; }
+            50% { transform: rotate(180deg) scale(1.1); opacity: 1; }
+            100% { transform: rotate(360deg) scale(1); opacity: 0.8; }
         }
 
         @keyframes spiralFlow2 {
-            0% { 
-                transform: rotate(0deg) scale(1.05);
-                opacity: 0.6;
-            }
-            50% { 
-                transform: rotate(-180deg) scale(0.95);
-                opacity: 0.8;
-            }
-            100% { 
-                transform: rotate(-360deg) scale(1.05);
-                opacity: 0.6;
-            }
+            0% { transform: rotate(0deg) scale(1.05); opacity: 0.6; }
+            50% { transform: rotate(-180deg) scale(0.95); opacity: 0.8; }
+            100% { transform: rotate(-360deg) scale(1.05); opacity: 0.6; }
         }
 
         /* Bali Zero logo with glow */

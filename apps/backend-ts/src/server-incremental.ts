@@ -19,7 +19,14 @@ async function startIncrementalServer() {
   // Configure trust proxy for Fly.io
   app.set('trust proxy', true);
   console.log('✅ [INC] Trust proxy configured');
-  
+
+  // ============================================================
+  // BODY PARSER - MUST BE BEFORE ALL ROUTES
+  // ============================================================
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  console.log('✅ [INC] Body parsing configured');
+
   // ============================================================
   // FEATURE #1: CORS & Security Middleware
   // ============================================================
@@ -345,12 +352,9 @@ async function startIncrementalServer() {
   }
   
   // ============================================================
-  // BASIC MIDDLEWARE
+  // REQUEST LOGGING
   // ============================================================
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-  console.log('✅ [INC] Body parsing configured');
-  
+
   // Request logging with correlation ID
   app.use((req, res, next) => {
     const corrId = (req as any).correlationId || 'unknown';
