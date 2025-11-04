@@ -4,6 +4,7 @@
 import { ok } from "../../utils/response.js";
 import { Request, Response } from "express";
 import ZANTARAAgentRouter from "../../services/zantara-router.js";
+import logger from "../../services/logger.js";
 
 const agentRouter = new ZANTARAAgentRouter();
 
@@ -67,7 +68,7 @@ export async function routeAgentQuery(req: Request, res: Response) {
 /**
  * Get router and agents status
  */
-export async function getRouterStatus(req: Request, res: Response) {
+export async function getRouterStatus(_req: Request, res: Response) {
   try {
     const status = await agentRouter.getStatus();
 
@@ -113,8 +114,7 @@ export async function testAgent(req: Request, res: Response) {
 
     const response = await agentRouter.routeToAgent({
       query,
-      agent_filter: agent,
-      context: { test_mode: true }
+      context: { test_mode: true, forced_agent: agent }
     });
 
     return res.json(ok({

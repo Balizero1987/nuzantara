@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000">
+    <title>ZANTARA - Chat (Draft v1)</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Critical JS - Symlinked from production -->
+    <script src="../shared/js/api-contracts.js"></script>
+    <script src="../shared/js/zantara-api.js"></script>
+    <script src="../shared/js/sse-client.js"></script>
+    <script src="../shared/js/message-formatter.js"></script>
+    
+    <style>
+        /* Modern Reset */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* ZANTARA Brand Colors */
+            --bg-primary: #000;
+            --bg-secondary: #0a0a0a;
+            --bg-message-user: rgba(0, 102, 255, 0.1);
+            --bg-message-ai: rgba(255, 255, 255, 0.03);
+            --text-primary: #fff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #0066ff;
+            --accent-hover: #0052cc;
+            
+            /* Header height */
+            --header-height: 64px;
+            --input-height: 80px;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            height: var(--header-height);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #00cc66);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Messages Container */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Scrollbar styling */
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Message */
+        .message {
+            display: flex;
+            gap: 0.75rem;
+            max-width: 800px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: var(--accent);
+            color: white;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, var(--accent), #00cc66);
+            color: white;
+        }
+
+        .message-content {
+            flex: 1;
+            padding: 0.875rem 1.125rem;
+            border-radius: 12px;
+            line-height: 1.6;
+        }
+
+        .message.user .message-content {
+            background: var(--bg-message-user);
+            border: 1px solid rgba(0, 102, 255, 0.2);
+        }
+
+        .message.ai .message-content {
+            background: var(--bg-message-ai);
+            border: 1px solid var(--border);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .typing-indicator.show {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* Input Area */
+        .input-area {
+            border-top: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-input {
+            width: 100%;
+            min-height: 48px;
+            max-height: 120px;
+            padding: 0.875rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            overflow-y: auto;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .send-btn {
+            padding: 0.875rem 1.5rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 1.125rem;
+        }
+
+        .empty-state-hint {
+            font-size: 0.875rem;
+            opacity: 0.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .messages-container {
+                padding: 1rem;
+            }
+            
+            .input-area {
+                padding: 1rem;
+            }
+            
+            .header-user span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-brand">
+                <div class="brand-logo">ZANTARA</div>
+            </div>
+            <div class="header-user">
+                <span id="userEmail">Loading...</span>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+
+        <!-- Messages -->
+        <div class="messages-container" id="messagesContainer">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-state-icon">💬</div>
+                <div class="empty-state-text">Start a conversation</div>
+                <div class="empty-state-hint">Ask me anything about visas, business setup, or Indonesian regulations</div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            ZANTARA is thinking...
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="Type your message..."
+                        rows="1"
+                    ></textarea>
+                </div>
+                <button class="send-btn" id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const messagesContainer = document.getElementById('messagesContainer');
+        const emptyState = document.getElementById('emptyState');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const userEmail = document.getElementById('userEmail');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        let messages = [];
+
+        // Check auth
+        function checkAuth() {
+            const token = localStorage.getItem('zantara-jwt-token');
+            const email = localStorage.getItem('zantara-user-email');
+            const demoMode = localStorage.getItem('zantara-demo-mode');
+            
+            if (!token && !demoMode) {
+                window.location.href = '../login-draft/login-v1.html';
+                return false;
+            }
+            
+            userEmail.textContent = email || 'Demo User';
+            return true;
+        }
+
+        // Add message to UI
+        function addMessage(content, isUser = false) {
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${isUser ? 'user' : 'ai'}`;
+            
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            messageEl.innerHTML = `
+                <div class="message-avatar">${isUser ? 'Y' : 'Z'}</div>
+                <div class="message-content">
+                    ${content}
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageEl);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            messages.push({ content, isUser, time });
+        }
+
+        // Show typing indicator
+        function showTyping(show = true) {
+            if (show) {
+                typingIndicator.classList.add('show');
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } else {
+                typingIndicator.classList.remove('show');
+            }
+        }
+
+        // Send message
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, true);
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            
+            // Disable input
+            sendBtn.disabled = true;
+            chatInput.disabled = true;
+            showTyping(true);
+            
+            try {
+                const response = await fetch('https://nuzantara-backend.fly.dev/api/v3/zantara/unified', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('zantara-jwt-token') || 'demo'}`
+                    },
+                    body: JSON.stringify({
+                        query: message,
+                        domain: 'all',
+                        mode: 'quick'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.ok) {
+                    // Format response
+                    let aiResponse = 'I found some information:\n\n';
+                    
+                    if (data.data.results) {
+                        Object.keys(data.data.results).forEach(domain => {
+                            const result = data.data.results[domain];
+                            if (result && result.data) {
+                                aiResponse += `**${domain.toUpperCase()}**: ${JSON.stringify(result.data).substring(0, 200)}...\n\n`;
+                            }
+                        });
+                    }
+                    
+                    addMessage(aiResponse);
+                } else {
+                    throw new Error('Failed to get response');
+                }
+            } catch (error) {
+                console.error('Send error:', error);
+                addMessage('Sorry, I encountered an error. Please try again.', false);
+            } finally {
+                showTyping(false);
+                sendBtn.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', () => {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+        });
+
+        // Send on Enter (Shift+Enter for new line)
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Send button click
+        sendBtn.addEventListener('click', sendMessage);
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('zantara-jwt-token');
+            localStorage.removeItem('zantara-user-email');
+            localStorage.removeItem('zantara-demo-mode');
+            window.location.href = '../login-draft/login-v1.html';
+        });
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            chatInput.focus();
+        });
+    </script>
+</body>
+</html>

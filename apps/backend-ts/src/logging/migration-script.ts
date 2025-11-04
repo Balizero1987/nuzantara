@@ -331,23 +331,24 @@ function parseArguments(): MigrationOptions {
         options.verbose = true;
         break;
       case '--help':
-        logger.info('
-ZANTARA Logging Migration Script
+        logger.info(
+          `ZANTARA Logging Migration Script
 
 Usage: npx tsx src/logging/migration-script.ts [options]
 
 Options:
   --dry-run        Show what would be changed without modifying files
   --path <path>    Target directory path (default: ./src)
-  --no-backup      Don\'t create backup files
+  --no-backup      Don't create backup files
   --verbose        Show detailed processing information
   --help           Show this help message
 
 Examples:
   npx tsx src/logging/migration-script.ts --dry-run --verbose
   npx tsx src/logging/migration-script.ts --path ./src/handlers
-  npx tsx src/logging/migration-script.ts --no-backup
-        ', { type: 'debug_migration' });
+  npx tsx src/logging/migration-script.ts --no-backup`,
+          { type: 'debug_migration' }
+        );
         process.exit(0);
     }
   }

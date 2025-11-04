@@ -57,12 +57,12 @@ router.get('/get', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Cache get error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to retrieve from cache',
-      error: error.message
+      error: error?.message || 'Unknown error'
     });
   }
 });
@@ -91,12 +91,12 @@ router.post('/set', async (req: Request, res: Response) => {
       message: 'Value stored in cache',
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Cache set error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to store in cache',
-      error: error.message
+      error: error?.message || 'Unknown error'
     });
   }
 });
@@ -124,12 +124,12 @@ router.delete('/clear/:key', async (req: Request, res: Response) => {
       message: 'Cache key deleted',
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Cache delete error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to delete from cache',
-      error: error.message
+      error: error?.message || 'Unknown error'
     });
   }
 });
@@ -158,12 +158,12 @@ router.post('/invalidate', async (req: Request, res: Response) => {
       message: `Invalidated ${count} cache entries`,
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Cache invalidation error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to invalidate cache',
-      error: error.message
+      error: error?.message || 'Unknown error'
     });
   }
 });
@@ -181,12 +181,12 @@ router.get('/stats', async (req: Request, res: Response) => {
       stats,
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Cache stats error:', error);
     res.status(500).json({
       status: 'error',
       message: 'Failed to retrieve cache stats',
-      error: error.message
+      error: error?.message || 'Unknown error'
     });
   }
 });

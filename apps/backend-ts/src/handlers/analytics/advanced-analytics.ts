@@ -11,7 +11,7 @@ import logger from '../../services/logger.js';
 // SYSTEM BEHAVIOR ANALYSIS
 // ========================================
 
-export async function analyzeSystemBehavior(req: Request, res: Response) {
+export async function analyzeSystemBehavior(_req: Request, res: Response) {
   try {
     const result = await analyticsEngine.analyzeSystemBehavior();
 
@@ -37,7 +37,7 @@ export async function analyzeSystemBehavior(req: Request, res: Response) {
 // PREDICTIVE ANALYTICS
 // ========================================
 
-export async function generatePredictiveInsights(req: Request, res: Response) {
+export async function generatePredictiveInsights(_req: Request, res: Response) {
   try {
     const predictions = await analyticsEngine.generatePredictiveInsights();
 
@@ -65,7 +65,7 @@ export async function generatePredictiveInsights(req: Request, res: Response) {
 // ANOMALY DETECTION
 // ========================================
 
-export async function detectSystemAnomalies(req: Request, res: Response) {
+export async function detectSystemAnomalies(_req: Request, res: Response) {
   try {
     const result = await analyticsEngine.detectAnomalies();
 
@@ -89,7 +89,7 @@ export async function detectSystemAnomalies(req: Request, res: Response) {
 // SYSTEM HEALTH SCORING
 // ========================================
 
-export async function calculateSystemHealth(req: Request, res: Response) {
+export async function calculateSystemHealth(_req: Request, res: Response) {
   try {
     const healthScore = await analyticsEngine.calculateSystemHealthScore();
 
@@ -188,7 +188,7 @@ export async function recordSystemMetrics(req: Request, res: Response) {
 // COMPREHENSIVE ANALYTICS DASHBOARD
 // ========================================
 
-export async function getAnalyticsDashboard(req: Request, res: Response) {
+export async function getAnalyticsDashboard(_req: Request, res: Response) {
   try {
     const [behavior, predictions, anomalies, health] = await Promise.all([
       analyticsEngine.analyzeSystemBehavior(),
@@ -248,7 +248,7 @@ export async function getAnalyticsDashboard(req: Request, res: Response) {
 // EXECUTIVE SUMMARY
 // ========================================
 
-export async function getExecutiveSummary(req: Request, res: Response) {
+export async function getExecutiveSummary(_req: Request, res: Response) {
   try {
     const [health, predictions, behavior] = await Promise.all([
       analyticsEngine.calculateSystemHealthScore(),
@@ -333,7 +333,7 @@ export async function getExecutiveSummary(req: Request, res: Response) {
 // REAL-TIME MONITORING
 // ========================================
 
-export async function getRealTimeMetrics(req: Request, res: Response) {
+export async function getRealTimeMetrics(_req: Request, res: Response) {
   try {
     const [anomalies, health] = await Promise.all([
       analyticsEngine.detectAnomalies(),
@@ -368,7 +368,7 @@ export async function getRealTimeMetrics(req: Request, res: Response) {
 // ANALYTICS API INFO
 // ========================================
 
-export async function getAnalyticsInfo(req: Request, res: Response) {
+export async function getAnalyticsInfo(_req: Request, res: Response) {
   return res.json(ok({
     service: 'ZANTARA v3 Ω Analytics Engine',
     version: '1.0.0',

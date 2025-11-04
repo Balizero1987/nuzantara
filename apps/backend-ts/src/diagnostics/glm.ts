@@ -2,10 +2,7 @@
  * GLM — Global Layer Monitor for Nuzantara
  * Runs orchestrator-level health checks and prints structured results
  */
-import { execSync } from "child_process";
 import logger from "../services/logger";
-
-const require = (id: string) => import(id);
 
 interface LayerStatus {
   name: string;
@@ -125,21 +122,21 @@ export async function runGLM(): Promise<LayerStatus[]> {
   // Output colorato
   logger.info("\n🧩 GLM — Global Layer Monitor\n");
   results.forEach(r => {
-    const color =
+    const _color =
       r.status === "ok"
         ? "\x1b[32m"
         : r.status === "warn"
         ? "\x1b[33m"
         : "\x1b[31m";
-    const reset = "\x1b[0m";
-    const icon =
+    const _reset = "\x1b[0m";
+    const _icon =
       r.status === "ok"
         ? "✅"
         : r.status === "warn"
         ? "⚠️"
         : "❌";
 
-    logger.info('${color}${r.status.toUpperCase()}${reset} ${icon} → ${r.name}: ${r.detail}', { type: 'debug_migration' });
+    logger.info(`${_color}${r.status.toUpperCase()}${_reset} ${_icon} → ${r.name}: ${r.detail}`, { type: 'debug_migration' });
   });
 
   // Summary for CI
@@ -147,7 +144,7 @@ export async function runGLM(): Promise<LayerStatus[]> {
   const warnCount = results.filter(r => r.status === "warn").length;
   const errorCount = results.filter(r => r.status === "error").length;
 
-  logger.info('\n📊 Summary: ${okCount} OK, ${warnCount} WARN, ${errorCount} ERROR', { type: 'debug_migration' });
+  logger.info(`\n📊 Summary: ${okCount} OK, ${warnCount} WARN, ${errorCount} ERROR`, { type: 'debug_migration' });
 
   return results;
 }

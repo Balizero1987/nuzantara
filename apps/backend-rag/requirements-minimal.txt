@@ -25,6 +25,9 @@ email-validator==2.1.0
 # Cloud Storage
 boto3==1.34.22
 
+# Cache
+redis==5.0.1
+
 # Database (needed by services)
 asyncpg==0.29.0
 psycopg2-binary==2.9.9

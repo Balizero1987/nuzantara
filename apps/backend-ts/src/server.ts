@@ -491,6 +491,11 @@ async function startServer() {
   const baliZeroRoutes = await import('./routes/api/v2/bali-zero.routes.js');
   app.use('/api/v2/bali-zero', baliZeroRoutes.default);
 
+  // Team Authentication routes
+  const teamAuthRoutes = await import('./routes/api/auth/team-auth.routes.js');
+  app.use('/api/auth/team', teamAuthRoutes.default);
+  logger.info('✅ Team Authentication routes loaded');
+
   // PATCH-3: Advanced Analytics Routes (Claude Sonnet 4.5)
   const advancedAnalyticsRoutes = await import('./routes/analytics/advanced-analytics.routes.js');
   app.use('/analytics', advancedAnalyticsRoutes.default);
