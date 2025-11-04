@@ -1,0 +1,11 @@
+{
+  "sources": "",
+  "tags": "kitas,permanent-stay,limited-stay,golden-visa,investment,visa,kitap",
+  "last_updated": "2025-10-03",
+  "content_type": "reference",
+  "title": "Visa Type.Schema",
+  "collection": "visa_oracle",
+  "filename": "visa_type.schema.json",
+  "version": "1.0",
+  "domain": "visa"
+}

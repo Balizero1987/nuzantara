@@ -1,0 +1,11 @@
+{
+  "sources": "",
+  "tags": "visa",
+  "version": "1.0",
+  "domain": "visa",
+  "collection": "visa_oracle",
+  "title": "Official Document Extraction & Citation Guide",
+  "filename": "EXTRACTION_GUIDE.md",
+  "last_updated": "2025-10-03",
+  "content_type": "guide"
+}

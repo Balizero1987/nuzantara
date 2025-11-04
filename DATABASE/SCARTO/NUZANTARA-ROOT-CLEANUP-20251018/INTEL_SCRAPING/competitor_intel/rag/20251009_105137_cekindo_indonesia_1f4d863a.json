@@ -1,0 +1,54 @@
+{
+  "title": "Cekindo Indonesia",
+  "summary": "Full-service company setup and registration services for businesses in Indonesia.",
+  "category": "competitor_intel",
+  "sub_category": "business_setup",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "Cekindo Indonesia",
+      "InCorp"
+    ],
+    "locations": [
+      "Indonesia"
+    ]
+  },
+  "keywords": [
+    "company setup",
+    "registration services",
+    "business registration",
+    "Indonesia"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "businesses",
+      "investors"
+    ],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": true
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Business setup and registration services for companies in Indonesia.",
+    "Compliance with Indonesian regulations and laws.",
+    "Expert team to guide clients through the process."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "Cekindo Indonesia provides comprehensive business setup and registration services, ensuring compliance with Indonesian regulations and laws, and expert guidance throughout the process.",
+  "source_url": "https://www.cekindo.com/",
+  "source_name": "Cekindo Indonesia",
+  "scraped_at": "2025-10-09T10:51:37.407460",
+  "content_hash": "1f4d863ab0725047",
+  "word_count": 3608
+}

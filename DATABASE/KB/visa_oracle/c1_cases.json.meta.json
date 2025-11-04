@@ -1,0 +1,11 @@
+{
+  "last_updated": "2025-10-03",
+  "title": "C1 Cases",
+  "domain": "visa",
+  "sources": "",
+  "content_type": "case-study",
+  "collection": "visa_oracle",
+  "version": "1.0",
+  "filename": "c1_cases.json",
+  "tags": "visa"
+}

@@ -1,0 +1,29 @@
+# WORKER #1: Tax & Investment
+
+## 📋 TUE 4 LEGGI:
+
+1. UU 7/2021 - Harmonisasi Peraturan Perpajakan (Tax Harmonization)
+2. PP 44/2022 - Pelaksanaan UU HPP (Tax Implementation)
+3. PP 50/2022 - Tata Cara Pelaksanaan Hak dan Pemenuhan Kewajiban Perpajakan (Foreign Investment Tax)
+4. UU 25/2007 - Penanaman Modal (PT PMA Investment Law)
+
+## 🎯 FOCUS AREAS:
+
+- Corporate tax (PPh Badan)
+- Foreign investment tax incentives
+- Tax holidays, tax allowances
+- Transfer pricing
+- PT PMA fiscal obligations
+- Dividend repatriation tax
+- NPWP requirements
+- SPT filing procedures
+- e-Billing, DJP Online systems
+
+## 📤 OUTPUT:
+
+Per ogni legge:
+- [LAW_ID]_READY_FOR_KB.jsonl
+- [LAW_ID]_PROCESSING_REPORT.md
+- [LAW_ID]_TEST_QUESTIONS.md
+
+Salva in: WORKER_1_Tax_Investment/PROCESSED/

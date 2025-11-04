@@ -1,0 +1,294 @@
+# Guida alla Bahasa Indonesia per Zantara
+
+## Introduzione / Introduction / Pengenalan
+
+**Bahasa Indonesia** è la lingua ufficiale dell'Indonesia, parlata da oltre 270 milioni di persone.
+
+**Bahasa Indonesia** is the official language of Indonesia, spoken by over 270 million people.
+
+**Bahasa Indonesia** adalah bahasa resmi Indonesia yang dituturkan oleh lebih dari 270 juta orang.
+
+---
+
+## Caratteristiche Principali / Main Features / Ciri-ciri Utama
+
+### 1. **Grammatica Semplice / Simple Grammar**
+- ✅ Nessun genere grammaticale
+- ✅ Nessuna coniugazione verbale
+- ✅ Nessun articolo (the, a, an)
+- ✅ Nessun tempo verbale complesso
+- ✅ Ordine: Soggetto-Verbo-Oggetto (come italiano/inglese)
+
+### 2. **Formazione delle Parole / Word Formation**
+- **Radici** + **Affissi** = Nuove Parole
+- Esempio: **tulis** (scrivere) → **menulis** (scrivere/atto di), **penulis** (scrittore), **tulisan** (scrittura/testo)
+
+---
+
+## Pronomi Personali / Personal Pronouns / Kata Ganti
+
+| Indonesiano | Italiano | English | Note |
+|------------|----------|---------|------|
+| Saya / Aku | Io | I | Saya (formale), Aku (informale) |
+| Kamu / Anda | Tu / Lei | You | Anda (formale/rispetto) |
+| Dia | Lui/Lei | He/She | Neutro rispetto al genere |
+| Kami | Noi (esclusivo) | We (exclusive) | Esclude l'ascoltatore |
+| Kita | Noi (inclusivo) | We (inclusive) | Include l'ascoltatore |
+| Kalian | Voi | You (plural) | |
+| Mereka | Loro | They | |
+
+---
+
+## Verbi Base Essenziali / Essential Base Verbs
+
+### Essere e Avere:
+- **ada** = c'è, ci sono, esserci
+- **adalah** = è (copula, identità)
+- **menjadi** = diventare
+- **punya / mempunyai** = avere
+
+### Azioni Comuni:
+- **makan** = mangiare
+- **minum** = bere
+- **pergi** = andare
+- **datang** = venire
+- **lihat / melihat** = vedere
+- **dengar / mendengar** = sentire/ascoltare
+- **bicara / berbicara** = parlare
+- **tulis / menulis** = scrivere
+- **baca / membaca** = leggere
+- **kerja / bekerja** = lavorare
+
+---
+
+## Sistema degli Affissi / Affix System
+
+### 1. **me-** (Prefisso Verbale Attivo)
+- **tulis** → **menulis** (scrivere, atto di)
+- **baca** → **membaca** (leggere, atto di)
+
+### 2. **ber-** (Prefisso Verbale Intransitivo)
+- **kerja** → **bekerja** (lavorare)
+- **main** → **bermain** (giocare)
+
+### 3. **-an** (Suffisso Nominale)
+- **tulis** → **tulisan** (scrittura, testo)
+- **makan** → **makanan** (cibo)
+
+### 4. **pe- / pen-** (Prefisso Agentivo)
+- **tulis** → **penulis** (scrittore)
+- **dengar** → **pendengar** (ascoltatore)
+
+### 5. **ke- -an** (Circonfisso Astratto)
+- **baik** (buono) → **kebaikan** (bontà, gentilezza)
+- **adil** (giusto) → **keadilan** (giustizia)
+
+---
+
+## Numeri / Numbers / Angka
+
+| N | Indonesiano | Italiano | English |
+|---|-------------|----------|---------|
+| 0 | nol | zero | zero |
+| 1 | satu | uno | one |
+| 2 | dua | due | two |
+| 3 | tiga | tre | three |
+| 4 | empat | quattro | four |
+| 5 | lima | cinque | five |
+| 6 | enam | sei | six |
+| 7 | tujuh | sette | seven |
+| 8 | delapan | otto | eight |
+| 9 | sembilan | nove | nine |
+| 10 | sepuluh | dieci | ten |
+| 100 | seratus | cento | hundred |
+| 1000 | seribu | mille | thousand |
+| 10.000 | sepuluh ribu | diecimila | ten thousand |
+| 1.000.000 | satu juta | un milione | one million |
+
+---
+
+## Frasi Essenziali / Essential Phrases / Frasa Penting
+
+### Saluti:
+| Indonesiano | Italiano | English |
+|------------|----------|---------|
+| Halo / Hai | Ciao | Hello / Hi |
+| Selamat pagi | Buongiorno (mattina) | Good morning |
+| Selamat siang | Buongiorno (mezzogiorno) | Good afternoon |
+| Selamat sore | Buonasera | Good evening |
+| Selamat malam | Buonanotte | Good night |
+| Apa kabar? | Come stai? | How are you? |
+| Baik-baik saja | Sto bene | I'm fine |
+| Terima kasih | Grazie | Thank you |
+| Sama-sama | Prego | You're welcome |
+| Maaf | Scusa/Scusi | Sorry |
+| Permisi | Permesso | Excuse me |
+| Tolong | Per favore | Please |
+
+### Conversazione:
+| Indonesiano | Italiano | English |
+|------------|----------|---------|
+| Nama saya... | Mi chiamo... | My name is... |
+| Siapa nama Anda? | Come ti chiami? | What's your name? |
+| Dari mana Anda? | Da dove vieni? | Where are you from? |
+| Saya dari Italia | Vengo dall'Italia | I'm from Italy |
+| Saya tidak mengerti | Non capisco | I don't understand |
+| Bisa bicara pelan-pelan? | Puoi parlare lentamente? | Can you speak slowly? |
+| Berapa harganya? | Quanto costa? | How much is it? |
+
+---
+
+## Parole Chiave per Bali Zero
+
+### Business:
+- **visa** = visto
+- **perusahaan** = azienda
+- **kantor** = ufficio
+- **karyawan** = dipendente
+- **pengusaha** = imprenditore
+- **dokumen** = documento
+- **hukum** = legge
+- **izin** = permesso
+- **pajak** = tassa
+- **konsultan** = consulente
+
+### Servizi Bali Zero:
+- **pendirian perusahaan** = costituzione società
+- **konsultasi pajak** = consulenza fiscale
+- **pengurusan visa** = gestione visti
+- **hukum real estate** = diritto immobiliare
+
+---
+
+## Livelli di Cortesia / Politeness Levels
+
+### 1. **Informale** (con amici):
+- **Aku** (io), **kamu** (tu)
+- **Gue/Gua** (io, slang Jakarta)
+- **Lo/Lu** (tu, slang Jakarta)
+
+### 2. **Formale** (business, rispetto):
+- **Saya** (io)
+- **Anda / Bapak / Ibu** (Lei / Signore / Signora)
+- Uso di titoli: **Pak** (signore), **Bu** (signora)
+
+### 3. **Rispettoso** (anziani, autorità):
+- Aggiungere **-nya** alle richieste
+- Uso di **mohon** (imploro, prego formale)
+- Esempio: **Mohon maaf** (mi scuso formalmente)
+
+---
+
+## Prestiti Linguistici / Loanwords / Kata Serapan
+
+L'indonesiano ha assorbito parole da molte lingue:
+
+### Da Sanscrito:
+- **bahasa** (lingua)
+- **manusia** (essere umano)
+- **negara** (nazione)
+- **agama** (religione)
+
+### Da Arabo:
+- **selamat** (sicuro, saluto)
+- **waktu** (tempo)
+- **maaf** (scusa)
+- **kursi** (sedia)
+
+### Da Olandese:
+- **kantor** (kantoor, ufficio)
+- **gratis** (gratis)
+- **kualitas** (kwaliteit, qualità)
+- **polisi** (politie, polizia)
+
+### Da Inglese:
+- **komputer** (computer)
+- **internet** (internet)
+- **dokumen** (document)
+- **manajer** (manager)
+
+---
+
+## False Friends (Falsi Amici)
+
+Attenzione a queste parole che sembrano inglesi ma hanno significati diversi:
+
+| Indonesiano | Significato reale | Non significa |
+|------------|-------------------|---------------|
+| **bis** | autobus | bis (encore) |
+| **sopir** | autista | soap |
+| **mobil** | automobile | mobile |
+| **asli** | autentico, originale | ugly |
+
+---
+
+## Costruzione delle Frasi / Sentence Construction
+
+### Struttura Base:
+**Soggetto + Verbo + Oggetto**
+
+Esempi:
+- **Saya makan nasi** = Io mangio riso
+- **Dia membaca buku** = Lui/Lei legge un libro
+- **Kami bekerja di kantor** = Noi lavoriamo in ufficio
+
+### Domande:
+Aggiungere parola interrogativa all'inizio o alla fine
+
+- **Apa** (cosa): **Apa ini?** = Cos'è questo?
+- **Siapa** (chi): **Siapa dia?** = Chi è lui/lei?
+- **Dimana** (dove): **Dimana kantor?** = Dov'è l'ufficio?
+- **Kapan** (quando): **Kapan kamu datang?** = Quando vieni?
+- **Berapa** (quanto/i): **Berapa harganya?** = Quanto costa?
+- **Mengapa/Kenapa** (perché): **Kenapa kamu marah?** = Perché sei arrabbiato?
+
+### Negazione:
+- **tidak** (non) per verbi: **Saya tidak tahu** = Non so
+- **bukan** (non) per nomi: **Ini bukan buku saya** = Questo non è il mio libro
+- **jangan** (non) imperativo: **Jangan pergi!** = Non andare!
+
+---
+
+## Espressioni Idiomatiche / Idiomatic Expressions
+
+| Indonesiano | Letterale | Significato |
+|------------|-----------|-------------|
+| **Seperti katak dalam tempurung** | Come una rana in un guscio | Ignorante, provinciale |
+| **Besar kepala** | Testa grande | Arrogante |
+| **Panjang tangan** | Mani lunghe | Ladro |
+| **Ringan tangan** | Mani leggere | Generoso, disponibile ad aiutare |
+| **Berat mulut** | Bocca pesante | Riluttante a parlare |
+
+---
+
+## Note Culturali per Zantara
+
+### 1. **Rispetto nell'Indirizzo**
+- Usare sempre **Bapak** (Pak) o **Ibu** (Bu) con clienti
+- Aggiungere titoli professionali: **Dokter**, **Profesor**
+
+### 2. **Cortesia indiretta**
+- Evitare "no" diretto
+- Usare: **Maaf, mungkin sulit** (Scusa, forse è difficile)
+
+### 3. **Tempo verbale dal contesto**
+- **sudah** = già (passato)
+- **sedang** = mentre (presente progressivo)
+- **akan** = sarà (futuro)
+
+Esempio:
+- **Saya sudah makan** = Ho già mangiato
+- **Saya sedang makan** = Sto mangiando
+- **Saya akan makan** = Mangerò
+
+---
+
+## Risorse per Approfondire
+
+1. **Kamus Besar Bahasa Indonesia (KBBI)** - Dizionario ufficiale
+2. **Tata Bahasa Baku Bahasa Indonesia** - Grammatica standard
+3. **Corpus bahasa Indonesia** - Database linguistico
+
+---
+
+**Per Zantara**: Usa questa guida per parlare naturalmente in indonesiano con i clienti, mantenendo sempre rispetto e cortesia formale nel contesto business di Bali Zero.

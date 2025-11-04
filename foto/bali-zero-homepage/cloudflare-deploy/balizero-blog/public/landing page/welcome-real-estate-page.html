@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Services — Bali Zero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --vivid-black: #090920;
+            --bold-red: #FF0000;
+            --gold: #D4AF37;
+            --cream: #e8d5b7;
+            --navy: #1a1f3a;
+            --off-white: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--vivid-black);
+            color: var(--off-white);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Batik Pattern Background */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.06) 2%, transparent 0%),
+                radial-gradient(circle at 75% 75%, rgba(232, 213, 183, 0.06) 2%, transparent 0%),
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.03) 1%, transparent 0%);
+            background-size: 60px 60px, 80px 80px, 40px 40px;
+            background-position: 0 0, 20px 20px, 40px 40px;
+            animation: batik-flow 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes batik-flow {
+            0%, 100% { opacity: 0.03; }
+            50% { opacity: 0.06; }
+        }
+
+        /* Vignette Effect */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(232, 213, 183, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 60px;
+            width: auto;
+            transition: opacity 0.3s;
+        }
+
+        .logo img:hover {
+            opacity: 0.8;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            font-size: 1.5rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--bold-red);
+            border-color: var(--bold-red);
+            color: var(--off-white);
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--off-white);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        nav a:hover {
+            color: var(--gold);
+        }
+
+        nav a.active {
+            color: var(--bold-red);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0 4rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--off-white);
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--cream);
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+
+        /* Services Grid */
+        .services-section {
+            margin: 4rem 0;
+        }
+
+        .services-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.75rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--off-white);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .service-card {
+            background: linear-gradient(135deg, var(--navy) 0%, rgba(26, 31, 58, 0.7) 100%);
+            border: 1px solid rgba(232, 213, 183, 0.15);
+            border-radius: 16px;
+            padding: 2.5rem;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--bold-red), var(--gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .service-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--bold-red);
+            box-shadow: 0 20px 60px rgba(255, 0, 0, 0.2), 0 0 40px rgba(255, 0, 0, 0.1);
+        }
+
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 1.25rem;
+            display: block;
+        }
+
+        .service-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(212, 175, 55, 0.3));
+            transition: transform 0.3s;
+        }
+
+        .service-card:hover .service-icon img {
+            transform: scale(1.1);
+        }
+
+        .service-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--off-white);
+        }
+
+        .service-card p {
+            font-size: 0.98rem;
+            color: var(--cream);
+            line-height: 1.6;
+        }
+
+        /* Property Types Section */
+        .property-types {
+            background: linear-gradient(135deg, var(--navy) 0%, rgba(26, 31, 58, 0.5) 100%);
+            border-radius: 20px;
+            padding: 4rem;
+            margin: 5rem 0;
+            border: 1px solid rgba(232, 213, 183, 0.1);
+        }
+
+        .property-types h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--gold);
+        }
+
+        .types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .property-type {
+            background: linear-gradient(135deg, rgba(26, 31, 58, 0.8) 0%, rgba(26, 31, 58, 0.4) 100%);
+            border: 1px solid rgba(232, 213, 183, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .property-type:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+        }
+
+        .property-type h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--off-white);
+        }
+
+        .property-type p {
+            color: var(--cream);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Legal Framework Section */
+        .legal-framework {
+            margin: 5rem 0;
+        }
+
+        .legal-framework h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--off-white);
+        }
+
+        .legal-intro {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--cream);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+        }
+
+        .legal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .legal-item {
+            background: linear-gradient(135deg, var(--navy) 0%, rgba(26, 31, 58, 0.6) 100%);
+            border: 1px solid rgba(232, 213, 183, 0.1);
+            border-left: 4px solid var(--bold-red);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .legal-item h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--gold);
+        }
+
+        .legal-item p {
+            color: var(--cream);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .legal-item ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .legal-item li {
+            padding: 0.4rem 0 0.4rem 1.5rem;
+            position: relative;
+            color: var(--off-white);
+            font-size: 0.95rem;
+        }
+
+        .legal-item li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--bold-red);
+            font-weight: 700;
+        }
+
+        /* Footer CTA */
+        .footer-cta {
+            text-align: center;
+            padding: 5rem 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--bold-red);
+            color: var(--off-white);
+            padding: 1.25rem 3rem;
+            border-radius: 50px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: 2px solid var(--bold-red);
+        }
+
+        .cta-button:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: var(--navy);
+                border-left: 1px solid rgba(232, 213, 183, 0.2);
+                flex-direction: column;
+                gap: 0;
+                padding: 5rem 2rem 2rem;
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 999;
+                overflow-y: auto;
+            }
+
+            nav.active {
+                right: 0;
+                box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+            }
+
+            nav a {
+                padding: 1rem 0;
+                border-bottom: 1px solid rgba(232, 213, 183, 0.1);
+                font-size: 1.1rem;
+            }
+
+            nav a::after {
+                display: none;
+            }
+
+            h1 { font-size: 3rem; }
+            .services-grid { grid-template-columns: 1fr; }
+            .property-types { padding: 2.5rem 2rem; }
+            .property-types h2 { font-size: 2.25rem; }
+            .legal-framework h2 { font-size: 2.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="welcome-balizero-redesign.html" class="logo">
+                    <img src="logo/balizero-logo.png" alt="Bali Zero" width="120" height="60">
+                </a>
+                <button class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="main-nav">
+                    ☰
+                </button>
+                <nav id="main-nav" role="navigation" aria-label="Main navigation">
+                    <a href="welcome-balizero-redesign.html">Home</a>
+                    <a href="welcome-visas-page.html">Visas</a>
+                    <a href="welcome-company-page.html">Company</a>
+                    <a href="welcome-tax-page.html">Tax</a>
+                    <a href="welcome-balizero-redesign.html" class="active">Real Estate</a>
+                    <a href="welcome-contact-page.html">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1>Real Estate Services</h1>
+            <p class="subtitle">Secure property with legal clarity and guidance. Navigate Indonesia's real estate market with expert support from acquisition to ownership.</p>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section">
+        <div class="container">
+            <h2>Our Real Estate Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <span class="service-icon"><img src="sticker/property-search-sticker.png" alt="Property Search" loading="lazy" width="60" height="60"></span>
+                    <h3>Property Search</h3>
+                    <p>Find your ideal property in Bali. We connect you with trusted developers and property owners across the island.</p>
+                </div>
+
+                <div class="service-card">
+                    <span class="service-icon"><img src="sticker/legal-due-diligence-sticker.png" alt="Legal Due Diligence" loading="lazy" width="60" height="60"></span>
+                    <h3>Legal Due Diligence</h3>
+                    <p>Comprehensive property verification. Land certificate checks, ownership verification, and legal risk assessment.</p>
+                </div>
+
+                <div class="service-card">
+                    <span class="service-icon"><img src="sticker/transaction-support-sticker.png" alt="Transaction Support" loading="lazy" width="60" height="60"></span>
+                    <h3>Transaction Support</h3>
+                    <p>End-to-end support for property purchases. Negotiation, contract review, and notary coordination.</p>
+                </div>
+
+                <div class="service-card">
+                    <span class="service-icon"><img src="sticker/leasehold-agreements-sticker.png" alt="Leasehold Agreements" loading="lazy" width="60" height="60"></span>
+                    <h3>Leasehold Agreements</h3>
+                    <p>Structure and register long-term leasehold agreements (Hak Sewa) for villas, land, and commercial properties.</p>
+                </div>
+
+                <div class="service-card">
+                    <span class="service-icon"><img src="sticker/building-permits-sticker.png" alt="Building Permits" loading="lazy" width="60" height="60"></span>
+                    <h3>IMB & Building Permits</h3>
+                    <p>Obtain building permits (IMB) for construction and renovation projects. Compliance with local regulations.</p>
+                </div>
+
+                <div class="service-card">
+                    <span class="service-icon"><img src="sticker/property-management-sticker.png" alt="Property Management" loading="lazy" width="60" height="60"></span>
+                    <h3>Property Management</h3>
+                    <p>Ongoing property management, maintenance coordination, and rental management for investment properties.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Property Types -->
+    <section class="property-types">
+        <div class="container">
+            <h2>Property Ownership Structures for Foreigners</h2>
+            <div class="types-grid">
+                <div class="property-type">
+                    <h3>Leasehold (Hak Sewa)</h3>
+                    <p>Long-term lease up to 80 years. Most common for foreigners. Renewable and transferable.</p>
+                </div>
+
+                <div class="property-type">
+                    <h3>Hak Pakai (Right to Use)</h3>
+                    <p>Up to 80 years. Available for foreigners with specific visa types. Can be extended.</p>
+                </div>
+
+                <div class="property-type">
+                    <h3>Nominee Structure</h3>
+                    <p>Property held by Indonesian nominee with usage rights. Requires careful legal structure.</p>
+                </div>
+
+                <div class="property-type">
+                    <h3>PT PMA Ownership</h3>
+                    <p>Foreign company (PT PMA) owns property. Best for commercial or investment properties.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Legal Framework -->
+    <section class="legal-framework">
+        <div class="container">
+            <h2>Understanding Indonesian Real Estate Law</h2>
+            <p class="legal-intro">Indonesia has specific regulations for foreign property ownership. We ensure you understand the legal framework and choose the right structure for your needs.</p>
+
+            <div class="legal-grid">
+                <div class="legal-item">
+                    <h3>Foreigners Can:</h3>
+                    <ul>
+                        <li>Own property through leasehold (up to 80 years)</li>
+                        <li>Hold Hak Pakai title with qualifying visa</li>
+                        <li>Own through Indonesian PT PMA company</li>
+                        <li>Purchase apartments/condos (strata title)</li>
+                    </ul>
+                </div>
+
+                <div class="legal-item">
+                    <h3>Foreigners Cannot:</h3>
+                    <ul>
+                        <li>Hold freehold (Hak Milik) title directly</li>
+                        <li>Own agricultural or plantation land</li>
+                        <li>Purchase certain strategic locations</li>
+                        <li>Own land without proper legal structure</li>
+                    </ul>
+                </div>
+
+                <div class="legal-item">
+                    <h3>Key Considerations:</h3>
+                    <ul>
+                        <li>Always conduct thorough due diligence</li>
+                        <li>Use licensed notary (PPAT) for transactions</li>
+                        <li>Verify land certificates with BPN</li>
+                        <li>Understand tax implications (BPHTB, PBB)</li>
+                        <li>Review local zoning regulations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta">
+        <div class="container">
+            <a href="welcome-contact-page.html" class="cta-button">Start Your Property Journey</a>
+        </div>
+    </section>
+
+    <script>
+        // Simple interaction for service cards
+        document.querySelectorAll('.service-card').forEach(card => {
+            card.addEventListener('click', function() {
+                console.log('Service clicked:', this.querySelector('h3').textContent);
+            });
+        });
+    </script>
+</body>
+</html>

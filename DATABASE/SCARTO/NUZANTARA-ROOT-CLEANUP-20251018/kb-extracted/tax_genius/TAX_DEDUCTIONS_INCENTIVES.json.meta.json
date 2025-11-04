@@ -1,0 +1,11 @@
+{
+  "filename": "TAX_DEDUCTIONS_INCENTIVES.json",
+  "domain": "tax",
+  "version": "1.0",
+  "content_type": "reference",
+  "tags": "income-tax,tax",
+  "sources": "",
+  "collection": "tax_genius",
+  "last_updated": "2025-10-03",
+  "title": "Tax Deductions Incentives"
+}

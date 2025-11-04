@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visa Services — Bali Zero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --vivid-black: #090920;
+            --bold-red: #FF0000;
+            --gold: #D4AF37;
+            --cream: #e8d5b7;
+            --navy: #1a1f3a;
+            --off-white: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--vivid-black);
+            color: var(--off-white);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Batik Pattern Background */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.06) 2%, transparent 0%),
+                radial-gradient(circle at 75% 75%, rgba(232, 213, 183, 0.06) 2%, transparent 0%),
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.03) 1%, transparent 0%);
+            background-size: 60px 60px, 80px 80px, 40px 40px;
+            background-position: 0 0, 20px 20px, 40px 40px;
+            animation: batik-flow 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes batik-flow {
+            0%, 100% { opacity: 0.03; }
+            50% { opacity: 0.06; }
+        }
+
+        /* Vignette Effect */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(232, 213, 183, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 60px;
+            width: auto;
+            transition: opacity 0.3s;
+        }
+
+        .logo img:hover {
+            opacity: 0.8;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            font-size: 1.5rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--bold-red);
+            border-color: var(--bold-red);
+            color: var(--off-white);
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--off-white);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        nav a:hover {
+            color: var(--gold);
+        }
+
+        nav a.active {
+            color: var(--bold-red);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0 4rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--off-white);
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--cream);
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+
+        /* Category Section */
+        .category-section {
+            margin-bottom: 5rem;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            color: var(--off-white);
+            letter-spacing: -0.5px;
+        }
+
+        /* Visa Grid */
+        .visa-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .visa-card {
+            background: linear-gradient(135deg, var(--navy) 0%, rgba(26, 31, 58, 0.7) 100%);
+            border: 1px solid rgba(232, 213, 183, 0.15);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visa-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--bold-red), var(--gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .visa-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .visa-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--bold-red);
+            box-shadow: 0 20px 60px rgba(255, 0, 0, 0.2), 0 0 40px rgba(255, 0, 0, 0.1);
+        }
+
+        .visa-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--off-white);
+        }
+
+        .visa-description {
+            font-size: 0.95rem;
+            color: var(--cream);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            min-height: 60px;
+        }
+
+        .visa-badge {
+            display: inline-block;
+            background: rgba(255, 0, 0, 0.1);
+            color: var(--bold-red);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(9, 9, 32, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--navy) 0%, rgba(26, 31, 58, 0.95) 100%);
+            border: 1px solid rgba(232, 213, 183, 0.2);
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            padding: 3rem;
+            position: relative;
+            animation: modal-slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modal-slide-in {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 0, 0, 0.1);
+            border: none;
+            color: var(--bold-red);
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--bold-red);
+            color: var(--off-white);
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            color: var(--off-white);
+        }
+
+        .modal-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--cream);
+            margin-bottom: 2rem;
+        }
+
+        .modal-section {
+            margin-bottom: 2rem;
+        }
+
+        .modal-section h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--gold);
+        }
+
+        .modal-section ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .modal-section li {
+            padding: 0.5rem 0 0.5rem 2rem;
+            position: relative;
+            color: var(--off-white);
+            line-height: 1.7;
+        }
+
+        .modal-section li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--bold-red);
+            font-weight: 700;
+        }
+
+        .price-box {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(212, 175, 55, 0.1) 100%);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .price-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-amount {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--off-white);
+            line-height: 1.2;
+        }
+
+        .price-note {
+            font-size: 0.9rem;
+            color: var(--cream);
+            margin-top: 0.5rem;
+        }
+
+        /* Footer CTA */
+        .footer-cta {
+            text-align: center;
+            padding: 5rem 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--bold-red);
+            color: var(--off-white);
+            padding: 1.25rem 3rem;
+            border-radius: 50px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: 2px solid var(--bold-red);
+        }
+
+        .cta-button:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem; }
+            h2 { font-size: 2rem; }
+            .visa-grid { grid-template-columns: 1fr; }
+            .modal-content { padding: 2rem; }
+            .modal-title { font-size: 2rem; }
+
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: var(--navy);
+                border-left: 1px solid rgba(232, 213, 183, 0.2);
+                flex-direction: column;
+                gap: 0;
+                padding: 5rem 2rem 2rem;
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 999;
+                overflow-y: auto;
+            }
+
+            nav.active {
+                right: 0;
+                box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+            }
+
+            nav a {
+                padding: 1rem 0;
+                border-bottom: 1px solid rgba(232, 213, 183, 0.1);
+                font-size: 1.1rem;
+            }
+
+            nav a::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="welcome-balizero-redesign.html" class="logo" aria-label="Bali Zero Home">
+                    <img src="logo/balizero-logo.png" alt="Bali Zero" width="120" height="60">
+                </a>
+                <button class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="main-nav">
+                    ☰
+                </button>
+                <nav id="main-nav" role="navigation" aria-label="Main navigation">
+                    <a href="welcome-balizero-redesign.html">Home</a>
+                    <a href="welcome-visas-page.html" aria-current="page" class="active">Visas</a>
+                    <a href="welcome-company-page.html">Company</a>
+                    <a href="welcome-contact-page.html">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1>Visa Services</h1>
+            <p class="subtitle">Stay and work in Bali with the right permits. From tourism to permanent residence, we've got you covered.</p>
+        </div>
+    </section>
+
+    <!-- Single Entry Visas -->
+    <section class="category-section">
+        <div class="container">
+            <h2>Single Entry Visas</h2>
+            <div class="visa-grid">
+                <div class="visa-card" onclick="openModal('c1')">
+                    <h3>C1 Tourism</h3>
+                    <p class="visa-description">Perfect for tourism, visiting friends or family, and attending meetings or exhibitions.</p>
+                    <span class="visa-badge">Up to 180 days</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('c2')">
+                    <h3>C2 Business</h3>
+                    <p class="visa-description">Ideal for business activities, meetings, or shopping. Valid up to 180 days.</p>
+                    <span class="visa-badge">Business Activities</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('c7')">
+                    <h3>C7 Professional</h3>
+                    <p class="visa-description">For invited professionals like chefs, yoga instructors, and photographers.</p>
+                    <span class="visa-badge">30 Days</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('c7ab')">
+                    <h3>C7 A&B Music</h3>
+                    <p class="visa-description">For foreigners performing or displaying work related to music.</p>
+                    <span class="visa-badge">Musical Performance</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('c22a')">
+                    <h3>C22A Academic Internship</h3>
+                    <p class="visa-description">For individuals engaging in internship activities to fulfill academic requirements.</p>
+                    <span class="visa-badge">60 or 180 Days</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('c22b')">
+                    <h3>C22B Company Internship</h3>
+                    <p class="visa-description">For undertaking internship activities aimed at developing skills within a company.</p>
+                    <span class="visa-badge">Skills Development</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multiple Entry Visas -->
+    <section class="category-section">
+        <div class="container">
+            <h2>Multiple Entry Visas</h2>
+            <div class="visa-grid">
+                <div class="visa-card" onclick="openModal('d1')">
+                    <h3>D1 Multiple Entry</h3>
+                    <p class="visa-description">Ideal for attending meetings, conventions, exhibitions, tourism, and visiting family.</p>
+                    <span class="visa-badge">1 or 2 Years</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('d2')">
+                    <h3>D2 Business Multiple Entry</h3>
+                    <p class="visa-description">Perfect for business activities, meetings, or shopping with multiple entries.</p>
+                    <span class="visa-badge">Multiple Entries</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('d12')">
+                    <h3>D12 Investment Investigation</h3>
+                    <p class="visa-description">For investigating starting business in Indonesia, permitting site visits and feasibility studies.</p>
+                    <span class="visa-badge">Pre-Investment</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KITAS (Work & Stay Permits) -->
+    <section class="category-section">
+        <div class="container">
+            <h2>KITAS (Work & Stay Permits)</h2>
+            <div class="visa-grid">
+                <div class="visa-card" onclick="openModal('working-kitas')">
+                    <h3>Working KITAS (E23)</h3>
+                    <p class="visa-description">Longer stay permit for foreign nationals working in Indonesia for 1 year.</p>
+                    <span class="visa-badge">1 Year Validity</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('freelance-kitas')">
+                    <h3>Freelance KITAS</h3>
+                    <p class="visa-description">For freelancers and remote workers based in Bali.</p>
+                    <span class="visa-badge">Freelance Work</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('investor-kitas')">
+                    <h3>Investor KITAS</h3>
+                    <p class="visa-description">For foreign investors with business interests in Indonesia.</p>
+                    <span class="visa-badge">Investment</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('dependent-kitas')">
+                    <h3>Dependent KITAS</h3>
+                    <p class="visa-description">For family members dependent on a working foreigner.</p>
+                    <span class="visa-badge">Family Permit</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('retirement-kitas')">
+                    <h3>Retirement KITAS</h3>
+                    <p class="visa-description">For retirees aged 55+ wishing to reside in Indonesia.</p>
+                    <span class="visa-badge">Retirement</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('spouse-kitas')">
+                    <h3>Spouse KITAS</h3>
+                    <p class="visa-description">For spouses of Indonesian citizens or foreign permit holders.</p>
+                    <span class="visa-badge">Spouse Permit</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KITAP (Permanent Residence) -->
+    <section class="category-section">
+        <div class="container">
+            <h2>KITAP (Permanent Residence)</h2>
+            <div class="visa-grid">
+                <div class="visa-card" onclick="openModal('investor-kitap')">
+                    <h3>Investor KITAP</h3>
+                    <p class="visa-description">Permanent residence for long-term investors in Indonesia.</p>
+                    <span class="visa-badge">Permanent</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('working-kitap')">
+                    <h3>Working KITAP</h3>
+                    <p class="visa-description">Permanent residence for long-term workers after 4 consecutive KITAS.</p>
+                    <span class="visa-badge">Permanent</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('family-kitap')">
+                    <h3>Family KITAP</h3>
+                    <p class="visa-description">For family members of Indonesian citizens or permanent residents.</p>
+                    <span class="visa-badge">Family Based</span>
+                </div>
+
+                <div class="visa-card" onclick="openModal('retirement-kitap')">
+                    <h3>Retirement KITAP</h3>
+                    <p class="visa-description">Permanent residence for retirees with long-term retirement KITAS.</p>
+                    <span class="visa-badge">Retirement</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta">
+        <div class="container">
+            <a href="#contact" class="cta-button">Get Started with Your Visa</a>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        const visaData = {
+            'c1': {
+                title: 'C1 Tourism Visa',
+                description: 'The perfect visa to stay up to 180 days if you want to spend time in Indonesia for tourism, visiting friends or family, and transit. Also as a participant at meetings, incentives, conventions, and exhibitions.',
+                features: [
+                    'Initial e-visa valid 60 days',
+                    'Can be extended twice, each time adding 60 days',
+                    'Total stay up to 180 days',
+                    'Single entry visa'
+                ],
+                price: '2,300,000 IDR',
+                extension: 'Extension: 1,700,000 IDR'
+            },
+            'c2': {
+                title: 'C2 Business Visa',
+                description: 'The ideal visa to stay up to 180 days if you want to carry out activities related to business, meetings, or shopping including but not limited to checking goods at the office, factory, or production site of goods.',
+                features: [
+                    'Business activities up to 180 days',
+                    'Can be extended twice',
+                    'Single entry visa',
+                    'Perfect for business meetings and shopping'
+                ],
+                price: '3,600,000 IDR',
+                extension: 'Extension: 1,700,000 IDR'
+            },
+            'c7': {
+                title: 'C7 Professional Visa',
+                description: 'Single entry visa designed for professionals like chefs, yoga instructors, bartenders, and photographers who are invited to take part in events throughout Indonesia.',
+                features: [
+                    '30 days stay from arrival',
+                    'Not extendable',
+                    'For invited professionals',
+                    'Event participation visa'
+                ],
+                price: '5,000,000 IDR',
+                extension: null
+            },
+            'c7ab': {
+                title: 'C7 A&B Music Visa',
+                description: 'Single entry visa designed for foreigners who want to show, display, or perform work related to music. Supporting foreigners carrying out musical performance activities.',
+                features: [
+                    '30 days stay from arrival',
+                    'Not extendable',
+                    'Musical performance activities',
+                    'Show and display work related to music'
+                ],
+                price: '4,500,000 IDR',
+                extension: null
+            },
+            'c22a': {
+                title: 'C22A Academic Internship',
+                description: 'Single entry visa crafted for individuals looking to engage in internship activities to fulfill the academic requirements of their overseas education.',
+                features: [
+                    'Academic requirement fulfillment',
+                    'Not extendable',
+                    'Choose 60 or 180 days',
+                    'Overseas education requirement'
+                ],
+                price: '60 Days: 4,800,000 IDR | 180 Days: 5,800,000 IDR',
+                extension: null
+            },
+            'c22b': {
+                title: 'C22B Company Internship',
+                description: 'Single entry visa tailored for individuals eager to undertake internship activities aimed at developing skills and talent within a company, office, or workplace.',
+                features: [
+                    'Skills and talent development',
+                    'Company, office, or workplace setting',
+                    'Choose 60 or 180 days',
+                    'Not extendable'
+                ],
+                price: '60 Days: 4,800,000 IDR | 180 Days: 5,800,000 IDR',
+                extension: null
+            },
+            'd1': {
+                title: 'D1 Multiple Entry Visa',
+                description: 'The ideal choice to attend as a participant at meetings, incentives, conventions, and exhibitions. Also for conducting activities related to tourism and visiting friends or family.',
+                features: [
+                    '60 days per visit',
+                    'Two extensions possible (60 days each)',
+                    'Up to 180 days per single visit',
+                    'Multiple entry visa'
+                ],
+                price: '1 Year: 5,000,000 IDR | 2 Years: 7,000,000 IDR',
+                extension: null
+            },
+            'd2': {
+                title: 'D2 Business Multiple Entry',
+                description: 'The perfect choice to carry out activities related to business, meetings, or shopping including but not limited to checking goods at the office, factory, or production site of goods.',
+                features: [
+                    '60 days per visit',
+                    'Two extensions possible (60 days each)',
+                    'Business activities focus',
+                    'Multiple entry visa'
+                ],
+                price: '1 Year: 6,000,000 IDR | 2 Years: 8,000,000 IDR',
+                extension: null
+            },
+            'd12': {
+                title: 'D12 Investment Investigation',
+                description: 'The perfect choice visa for investigating starting business in Indonesia, permitting activities such as site visits, field surveys and/or feasibility studies.',
+                features: [
+                    'Up to 180 days stay',
+                    'Can be extended once',
+                    'Business investigation activities',
+                    'Site visits and feasibility studies'
+                ],
+                price: '1 Year: 7,500,000 IDR | 2 Years: 10,000,000 IDR',
+                extension: 'Extension: 3,500,000 IDR'
+            },
+            'working-kitas': {
+                title: 'Working KITAS (E23)',
+                description: 'Working Kitas is a longer stay permit in Indonesia granted to foreign nationals who work in Indonesia for 1 Year under a company in Indonesia with one type of work.',
+                features: [
+                    '1 year validity',
+                    'Multiple entry permit',
+                    'Work under Indonesian company',
+                    'One type of work specified'
+                ],
+                price: 'Offshore: 34,500,000 IDR | Onshore: 36,000,000 IDR',
+                extension: 'Extension: 31,000,000 IDR'
+            },
+            'freelance-kitas': {
+                title: 'Freelance KITAS (E23)',
+                description: 'The Freelance KITAS is linked with the working permit (IMTA). This permit allows foreigners to live and work in Indonesia for up to 6 months without the need for a specific employer.',
+                features: [
+                    'Work without specific employer',
+                    'Up to 6 months validity',
+                    'Ideal for DJs, marketing managers',
+                    'Includes working permit (IMTA)'
+                ],
+                price: 'Offshore: 26,000,000 IDR | Onshore: 28,000,000 IDR',
+                extension: null
+            },
+            'investor-kitas': {
+                title: 'Investor KITAS (E28A)',
+                description: 'The Investor KITAS is available for foreign investors who have invested in Indonesia through a PT PMA (foreign investment company). It allows them to reside in the country for 2 years.',
+                features: [
+                    '2 years validity',
+                    'For PT PMA investors',
+                    'Foreign investment company requirement',
+                    'Multiple entry permit'
+                ],
+                price: 'Offshore: 17,000,000 IDR | Onshore: 19,000,000 IDR',
+                extension: 'Extension: 18,000,000 IDR'
+            },
+            'dependent-kitas': {
+                title: 'Dependent KITAS (E31B & E31E)',
+                description: 'This visa is intended for dependent family members of KITAS and long-stay visa holders (including Golden Visa, Working, Investor and Kitap).',
+                features: [
+                    '1 Year: Offshore 11M IDR, Onshore 13.5M IDR, Extension 9M IDR',
+                    '2 Years: Offshore 15M IDR, Onshore 18M IDR, Extension 15M IDR',
+                    'For dependent family members',
+                    'Multiple entry permit'
+                ],
+                price: '1 Year Options or 2 Years Options (see features)',
+                extension: null
+            },
+            'retirement-kitas': {
+                title: 'Retirement KITAS (E33F)',
+                description: 'The Retirement KITAS is available for foreign nationals aged 55 and want to enjoy retirement in this country. You are allowed to stay for 1 year and get multiple entry permit.',
+                features: [
+                    'Age 55 and above',
+                    '1 year validity',
+                    'Multiple entry permit',
+                    'Retirement purpose'
+                ],
+                price: 'Offshore: 14,000,000 IDR | Onshore: 16,000,000 IDR',
+                extension: 'Extension: 10,000,000 IDR'
+            },
+            'spouse-kitas': {
+                title: 'Spouse KITAS (E31A)',
+                description: 'The Spouse KITAS is available for foreign citizens who are married to Indonesian citizens. You are allowed to stay for 1/2 years and get multiple entry permit.',
+                features: [
+                    '1 Year: Offshore 11M IDR, Onshore 13.5M IDR, Extension 9M IDR',
+                    '2 Years: Offshore 15M IDR, Onshore 18M IDR, Extension 15M IDR',
+                    'For spouses of Indonesian citizens',
+                    'Multiple entry permit'
+                ],
+                price: '1 Year Options or 2 Years Options (see features)',
+                extension: null
+            },
+            'investor-kitap': {
+                title: 'Investor KITAP',
+                description: 'Permanent residence permit for long-term investors who have held investment KITAS for consecutive years.',
+                features: [
+                    'Permanent residence',
+                    'No renewal required after 5 years',
+                    'Multiple entry permit',
+                    'Investment requirements apply'
+                ],
+                price: 'Contact for pricing',
+                extension: null
+            },
+            'working-kitap': {
+                title: 'Working KITAP',
+                description: 'Permanent residence for foreigners who have held working KITAS for 4 consecutive years.',
+                features: [
+                    'Permanent residence',
+                    'Valid for 5 years',
+                    '4 consecutive KITAS required',
+                    'Renewable every 5 years'
+                ],
+                price: 'Contact for pricing',
+                extension: null
+            },
+            'family-kitap': {
+                title: 'Family KITAP',
+                description: 'For family members of Indonesian citizens or permanent residents.',
+                features: [
+                    'Permanent residence',
+                    'Valid for 5 years',
+                    'Family relationship required',
+                    'Renewable every 5 years'
+                ],
+                price: 'Contact for pricing',
+                extension: null
+            },
+            'retirement-kitap': {
+                title: 'Retirement KITAP',
+                description: 'Permanent residence for retirees who have held retirement KITAS for consecutive years.',
+                features: [
+                    'Permanent residence',
+                    'Valid for 5 years',
+                    'Age requirement: 55+',
+                    'Renewable every 5 years'
+                ],
+                price: 'Contact for pricing',
+                extension: null
+            }
+        };
+
+        function openModal(visaId) {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modal-body');
+            const data = visaData[visaId];
+
+            let featuresHTML = data.features.map(f => `<li>${f}</li>`).join('');
+
+            modalBody.innerHTML = `
+                <h2 class="modal-title">${data.title}</h2>
+                <p class="modal-description">${data.description}</p>
+                <div class="modal-section">
+                    <h4>Features:</h4>
+                    <ul>${featuresHTML}</ul>
+                </div>
+                <div class="price-box">
+                    <div class="price-amount">${data.price}</div>
+                    ${data.extension ? `<div class="price-note">${data.extension}</div>` : ''}
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        // Close on click outside
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+
+    <script>
+        // Mobile Menu Toggle
+        const mobileToggle = document.querySelector('.mobile-menu-toggle');
+        const nav = document.querySelector('nav');
+
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', function() {
+                const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', !isExpanded);
+                nav.classList.toggle('active');
+                this.textContent = nav.classList.contains('active') ? '✕' : '☰';
+            });
+
+            // Close menu when clicking nav links
+            const navLinks = nav.querySelectorAll('a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    nav.classList.remove('active');
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    mobileToggle.textContent = '☰';
+                });
+            });
+
+            // Close menu on ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && nav.classList.contains('active')) {
+                    nav.classList.remove('active');
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    mobileToggle.textContent = '☰';
+                    mobileToggle.focus();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "title": "PPATK",
+  "summary": "PPATK is a financial transaction report and regulation agency in Indonesia.",
+  "category": "banking_finance",
+  "sub_category": "",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "PPATK"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "PPATK",
+    "financial transaction report",
+    "regulation"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [],
+    "action_required": false,
+    "urgency": "future"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 1,
+  "source_reliability": "official",
+  "key_points": [
+    "PPATK is responsible for regulating financial transactions in Indonesia.",
+    "The agency also provides information on financial reports and regulations."
+  ],
+  "regulatory_changes": [],
+  "business_implications": "",
+  "source_url": "https://www.ppatk.go.id/",
+  "source_name": "Financial Transaction Reports",
+  "scraped_at": "2025-10-09T10:50:16.437897",
+  "content_hash": "d13da86c7dbf97b7",
+  "word_count": 771
+}

@@ -21,6 +21,9 @@ COPY backend ./backend
 COPY .env ./
 COPY *.py ./
 
+# ChromaDB data is downloaded from Cloudflare R2 at startup (see main_cloud.py)
+# COPY chroma_db_deploy /data/chroma_db  # ← REMOVED: Data now loaded from R2
+
 # Set Python path
 ENV PYTHONPATH=/app/backend
 

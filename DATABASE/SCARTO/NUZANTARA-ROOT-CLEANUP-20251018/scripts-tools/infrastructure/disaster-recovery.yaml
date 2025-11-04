@@ -1,0 +1,337 @@
+# Zantara Bridge Disaster Recovery Plan
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disaster-recovery-config
+  namespace: zantara-system
+data:
+  # Recovery Time Objective (RTO): 15 minutes
+  # Recovery Point Objective (RPO): 1 hour
+  
+  primary_region: "asia-southeast2"
+  backup_regions: "us-central1,europe-west1"
+  backup_frequency: "1h"
+  retention_period: "30d"
+  
+  # Backup strategy
+  backup_strategy: |
+    1. Database: Continuous Firestore backup with point-in-time recovery
+    2. Code: Git repository with automated backups
+    3. Secrets: Secret Manager with cross-region replication
+    4. Static Assets: Multi-region Cloud Storage
+    5. Configuration: Infrastructure as Code (Terraform/YAML)
+
+---
+# Multi-region Cloud Run deployment for failover
+apiVersion: run.googleapis.com/v1
+kind: Service
+metadata:
+  name: zantara-bridge-backup-us
+  annotations:
+    run.googleapis.com/ingress: all
+    run.googleapis.com/execution-environment: gen2
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: "20"
+        autoscaling.knative.dev/minScale: "0"
+        run.googleapis.com/cpu-throttling: "false"
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      containerConcurrency: 100
+      timeoutSeconds: 300
+      serviceAccountName: zantara@involuted-box-469105-r0.iam.gserviceaccount.com
+      containers:
+      - image: gcr.io/involuted-box-469105-r0/zantara-bridge:latest
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: REGION
+          value: "us-central1"
+        - name: DISASTER_RECOVERY_MODE
+          value: "true"
+        resources:
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+# Load balancer configuration for failover
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: zantara-bridge-ssl-cert
+spec:
+  domains:
+  - zantara-bridge.example.com
+  - api.zantara.com
+
+---
+# Global load balancer with health checks
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeGlobalForwardingRule
+metadata:
+  name: zantara-bridge-global-lb
+spec:
+  target:
+    targetHTTPSProxyRef:
+      name: zantara-bridge-https-proxy
+  portRange: "443"
+  ipAddress:
+    addressRef:
+      name: zantara-bridge-global-ip
+
+---
+# Health check configuration
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeHealthCheck
+metadata:
+  name: zantara-bridge-health-check
+spec:
+  checkIntervalSec: 10
+  timeoutSec: 5
+  healthyThreshold: 2
+  unhealthyThreshold: 3
+  httpHealthCheck:
+    port: 8080
+    requestPath: "/health"
+    portSpecification: "USE_FIXED_PORT"
+
+---
+# Backend service with failover
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeBackendService
+metadata:
+  name: zantara-bridge-backend-service
+spec:
+  healthCheckRefs:
+  - name: zantara-bridge-health-check
+  loadBalancingScheme: "EXTERNAL"
+  protocol: "HTTP"
+  backend:
+  - group:
+      backendServiceRef:
+        name: zantara-bridge-primary
+    balancingMode: "UTILIZATION"
+    maxUtilization: 0.8
+    capacityScaler: 1.0
+  - group:
+      backendServiceRef:
+        name: zantara-bridge-backup-us
+    balancingMode: "UTILIZATION"
+    maxUtilization: 0.8
+    capacityScaler: 0.0  # Only activated during failover
+  failoverPolicy:
+    disableConnectionDrainOnFailover: false
+    dropTrafficIfUnhealthy: true
+    failoverRatio: 1.0
+
+---
+# Monitoring and alerting for disaster recovery
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: disaster-recovery-alerts
+spec:
+  groups:
+  - name: disaster-recovery
+    rules:
+    - alert: PrimaryRegionDown
+      expr: up{job="zantara-bridge", region="asia-southeast2"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        team: sre
+      annotations:
+        summary: "Primary region is down"
+        description: "Zantara Bridge primary region has been down for {{ $value }} minutes"
+        runbook_url: "https://docs.zantara.com/disaster-recovery"
+        
+    - alert: HighErrorRate
+      expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+        team: sre
+      annotations:
+        summary: "High error rate detected"
+        description: "Error rate is {{ $value }} which is above threshold"
+        
+    - alert: DatabaseConnectionFailure
+      expr: firestore_connection_errors > 5
+      for: 1m
+      labels:
+        severity: critical
+        team: sre
+      annotations:
+        summary: "Database connection failures"
+        description: "Multiple database connection failures detected"
+
+---
+# Backup automation
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: zantara-backup-job
+spec:
+  schedule: "0 */1 * * *"  # Every hour
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
+            command:
+            - /bin/bash
+            - -c
+            - |
+              # Backup Firestore
+              gcloud firestore export gs://zantara-backup-$(date +%Y%m%d-%H%M)/ \
+                --collection-ids=zantara_users,zantara_sessions \
+                --project=involuted-box-469105-r0
+              
+              # Backup secrets
+              gcloud secrets list --format="value(name)" | while read secret; do
+                gcloud secrets versions access latest --secret="$secret" > "/tmp/$secret.txt"
+                gsutil cp "/tmp/$secret.txt" "gs://zantara-secrets-backup/$(date +%Y%m%d)/"
+              done
+              
+              # Backup container images
+              gcloud container images list --repository=gcr.io/involuted-box-469105-r0 \
+                --format="value(name)" | head -5 | while read image; do
+                  gsutil cp "gs://artifacts.involuted-box-469105-r0.appspot.com/$image" \
+                    "gs://zantara-image-backup/$(date +%Y%m%d)/"
+                done
+              
+              echo "Backup completed at $(date)"
+            env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secrets/google/key.json
+            volumeMounts:
+            - name: google-cloud-key
+              mountPath: /var/secrets/google
+          volumes:
+          - name: google-cloud-key
+            secret:
+              secretName: google-cloud-key
+          restartPolicy: OnFailure
+          serviceAccountName: zantara-backup-sa
+
+---
+# Disaster recovery runbook
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disaster-recovery-runbook
+data:
+  runbook.md: |
+    # Zantara Bridge Disaster Recovery Runbook
+    
+    ## 🚨 Emergency Response (RTO: 15 minutes)
+    
+    ### 1. Immediate Assessment (2 minutes)
+    ```bash
+    # Check primary service health
+    curl -f https://zantara-bridge-v2-prod-himaadsxua-et.a.run.app/health
+    
+    # Check monitoring dashboard
+    open https://console.cloud.google.com/monitoring/dashboards/custom/zantara-bridge
+    
+    # Check error logs
+    gcloud logging read "resource.type=cloud_run_revision AND severity>=ERROR" --limit=50
+    ```
+    
+    ### 2. Failover Decision (3 minutes)
+    If primary region is unresponsive for >5 minutes:
+    
+    ```bash
+    # Activate backup region
+    gcloud run services update-traffic zantara-bridge-backup-us \
+      --to-revisions=LATEST=100 \
+      --region=us-central1
+    
+    # Update load balancer to route to backup
+    gcloud compute backend-services update zantara-bridge-backend-service \
+      --global \
+      --failover-ratio=1.0
+    ```
+    
+    ### 3. Database Failover (5 minutes)
+    ```bash
+    # Firestore automatically handles multi-region
+    # Verify data consistency
+    gcloud firestore collections list
+    
+    # If needed, restore from backup
+    gcloud firestore import gs://zantara-backup-YYYYMMDD-HHMM/
+    ```
+    
+    ### 4. DNS and Traffic Routing (3 minutes)
+    ```bash
+    # Update DNS if needed (automation should handle this)
+    gcloud dns record-sets transaction start --zone=zantara-zone
+    gcloud dns record-sets transaction add --zone=zantara-zone \
+      --name=api.zantara.com --type=A --ttl=60 [BACKUP_IP]
+    gcloud dns record-sets transaction execute --zone=zantara-zone
+    ```
+    
+    ### 5. Verification (2 minutes)
+    ```bash
+    # Test all critical endpoints
+    curl -f https://api.zantara.com/health
+    curl -f https://api.zantara.com/bridge/status
+    
+    # Verify authentication
+    curl -H "Authorization: Bearer test" https://api.zantara.com/api/test
+    
+    # Check logs for errors
+    gcloud logging read "resource.type=cloud_run_revision" --limit=20
+    ```
+    
+    ## 🔄 Recovery Procedures
+    
+    ### Primary Region Recovery
+    1. Verify primary region is healthy
+    2. Deploy latest code to primary
+    3. Gradually shift traffic back (10%, 50%, 100%)
+    4. Monitor for 30 minutes before declaring recovery complete
+    
+    ### Data Recovery
+    ```bash
+    # Point-in-time recovery (if needed)
+    gcloud firestore import gs://zantara-backup-YYYYMMDD-HHMM/ \
+      --collection-ids=collection_name
+    
+    # Secret recovery
+    gsutil cp gs://zantara-secrets-backup/YYYYMMDD/* /tmp/
+    for secret in /tmp/*.txt; do
+      gcloud secrets create $(basename $secret .txt) --data-file=$secret
+    done
+    ```
+    
+    ## 📞 Escalation Contacts
+    - Primary: +1-XXX-XXX-XXXX (SRE Team)
+    - Secondary: +1-XXX-XXX-XXXX (Engineering Lead) 
+    - Management: +1-XXX-XXX-XXXX (CTO)
+    
+    ## 📊 Post-Incident
+    1. Document timeline and actions taken
+    2. Conduct post-mortem within 24 hours
+    3. Update runbook based on lessons learned
+    4. Test recovery procedures quarterly

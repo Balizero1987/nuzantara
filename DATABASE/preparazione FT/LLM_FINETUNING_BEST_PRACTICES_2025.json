@@ -1,0 +1,409 @@
+{
+  "executive_summary": {
+    "key_points": [
+      "Dataset quality trumps quantity: 1,000 high-quality samples can outperform larger models with poor data. Focus on curation, deduplication (exact + semantic), PII redaction, and balanced representation.",
+      "QLoRA (4-bit quantization + LoRA) enables efficient fine-tuning of 70B models on single A100 80GB GPU, reducing memory by ~90% while preserving performance. Use NF4 quantization, double quantization, and paged optimizers.",
+      "Comprehensive evaluation requires multiple metrics: perplexity, BLEU/ROUGE for generation tasks, domain-specific accuracy, and fine-tuned LLM judges for nuanced assessment. Monitor training/validation loss curves to detect overfitting early.",
+      "Production deployment demands layered defenses: CI/CD pipelines with automated testing, A/B testing, canary deployments, continuous monitoring (latency, drift, errors), and robust PII/bias safeguards with differential privacy.",
+      "Data versioning with DVC + Git provides ML-specific capabilities beyond Git LFS: dataset lineage tracking, cloud-agnostic storage, local caching, and integration with experiment tracking tools like MLflow/W&B."
+    ]
+  },
+
+  "top_resources": [
+    {
+      "title": "QLoRA: Efficient Finetuning of Quantized LLMs (arxiv.org/abs/2305.14314)",
+      "url": "https://arxiv.org/abs/2305.14314",
+      "type": "Research Paper",
+      "why_useful": "Foundational paper introducing 4-bit quantization with NF4, double quantization, and paged optimizers. Demonstrates fine-tuning 65B model on single 48GB GPU. Essential for understanding memory-efficient training.",
+      "year": 2023,
+      "key_innovations": "NF4 data type, double quantization, paged optimizers",
+      "github": "https://github.com/artidoro/qlora"
+    },
+    {
+      "title": "Hugging Face PEFT Library",
+      "url": "https://huggingface.co/docs/peft",
+      "type": "Official Documentation + Code",
+      "why_useful": "Production-ready library with LoRA, QLoRA, AdaLoRA, and other PEFT methods. Integrates seamlessly with transformers library. Includes practical examples and configuration guides.",
+      "strengths": "Easy integration, well-maintained, extensive examples",
+      "code_snippet": "from peft import LoraConfig, get_peft_model; lora_config = LoraConfig(r=64, lora_alpha=128, target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj'])"
+    },
+    {
+      "title": "The Ultimate Guide to Fine-Tuning LLMs from Basics to Breakthroughs",
+      "url": "https://arxiv.org/html/2408.13296v1",
+      "type": "Comprehensive Review Paper",
+      "why_useful": "Exhaustive 7-stage pipeline covering entire lifecycle: data preparation, model selection, hyperparameter tuning, training, evaluation, deployment. Includes recent 2024 techniques like RAFT and adapter tuning.",
+      "coverage": "End-to-end workflow with practical recommendations",
+      "year": 2024
+    },
+    {
+      "title": "Hugging Face Minimal Trainer Zoo",
+      "url": "https://github.com/muellerzr/minimal-trainer-zoo",
+      "type": "Code Repository",
+      "why_useful": "Minimal (<150 lines) reproducible training scripts for various tasks. Clean, hackable examples using Hugging Face Trainer with proper seeding and distributed training support.",
+      "practical_value": "Copy-paste ready scripts, easy to customize",
+      "reproducibility": "Built-in seed management and distributed training"
+    },
+    {
+      "title": "Data Deduplication at Trillion Scale (Zilliz blog)",
+      "url": "https://zilliz.com/blog/data-deduplication-at-trillion-scale-solve-the-biggest-bottleneck-of-llm-training",
+      "type": "Technical Blog",
+      "why_useful": "Real-world data pipeline optimization: GPU-accelerated deduplication reduced processing time 10x (3 weeks → 2 days) and cut TCO 50%. Covers exact and semantic deduplication at scale.",
+      "case_study": "Zyphra's production pipeline",
+      "performance": "10x faster, 50% cost reduction"
+    },
+    {
+      "title": "NVIDIA NeMo Curator",
+      "url": "https://developer.nvidia.com/blog/mastering-llm-techniques-data-preprocessing/",
+      "type": "Tool + Guide",
+      "why_useful": "Production-grade data preprocessing pipeline: unicode normalization, exact deduplication, quality filtering (heuristic + classifier-based), and PII redaction. GPU-accelerated for large datasets.",
+      "capabilities": "Complete preprocessing pipeline, GPU acceleration",
+      "tools": "Integrates with IBM Data Prep Kit, AI Fairness 360"
+    },
+    {
+      "title": "Fine-Tuning Llama 3 Cost Analysis (10xstudio.ai)",
+      "url": "https://10xstudio.ai/blog/how-much-does-it-cost-to-finetune-llama-with-lora",
+      "type": "Practical Guide",
+      "why_useful": "Detailed cost breakdown for Llama fine-tuning: A100 80GB @ $0.78/hr, training times (15 min - 5 hours depending on dataset size), total costs ($2-$100). Includes configuration recommendations.",
+      "cost_estimates": "Llama 8B: $2-20, Llama 70B: $50-100",
+      "hardware": "A100 80GB, A100 40GB, L4 comparisons"
+    },
+    {
+      "title": "Essential Checklist for Deploying LLM Features to Production (Latitude)",
+      "url": "https://latitude-blog.ghost.io/blog/essential-checklist-for-deploying-llm-features-to-production/",
+      "type": "Production Guide",
+      "why_useful": "Comprehensive deployment checklist: pre-deployment testing, SLA definition (latency <100ms, uptime >99.9%), monitoring setup, canary deployments, rollback strategies, and cost management.",
+      "checklist_items": "Testing, monitoring, deployment strategy, cost control",
+      "sla_examples": "100ms latency, 99.9% uptime"
+    },
+    {
+      "title": "DVC (Data Version Control) Official Documentation",
+      "url": "https://dvc.org/doc/use-cases/versioning-data-and-models",
+      "type": "Tool Documentation",
+      "why_useful": "Git-like versioning for datasets and models: track changes, switch between versions, cloud-agnostic storage (S3, GCS, Azure), local caching for performance. Superior to Git LFS for ML workflows.",
+      "advantages": "ML-specific, cloud-agnostic, local caching",
+      "integration": "Works with MLflow, W&B, TensorBoard"
+    },
+    {
+      "title": "Privacy in Fine-tuning LLMs: Attacks, Defenses, Future Directions",
+      "url": "https://arxiv.org/html/2412.16504v1",
+      "type": "Research Paper",
+      "why_useful": "Comprehensive survey of privacy risks (PII leakage up to 19%, data memorization) and defense mechanisms: differential privacy, federated learning, PII redaction, monitoring strategies. Critical for production systems.",
+      "risks_covered": "PII leakage, memorization, overfitting",
+      "mitigations": "Differential privacy, PII redaction, monitoring",
+      "year": 2024
+    }
+  ],
+
+  "playbook": {
+    "a100_80gb": {
+      "title": "Production-Ready Fine-Tuning on A100 80GB",
+      "hardware": "A100 80GB (e.g., Google Cloud, Lambda Labs, RunPod)",
+      "cost": "$0.78-2.00/hour depending on provider",
+      "steps": [
+        "1. ENVIRONMENT SETUP (5 min):\n   pip install transformers peft bitsandbytes accelerate datasets trl\n   pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cu121",
+
+        "2. DATA PREPARATION (2-6 hours):\n   - Deduplication: Use exact matching (SHA256 hashing) for duplicates\n   - PII Redaction: Regex + NER models to remove names, emails, IDs\n   - Quality Filtering: Remove low-quality samples (length <50 chars, profanity, etc.)\n   - Format: Convert to ChatML/Alpaca format with 'messages' key\n   - Split: 95% train, 5% validation\n   - Save: JSONL format for streaming\n   Commands:\n   python deduplicate.py --input raw.jsonl --output clean.jsonl\n   python redact_pii.py --input clean.jsonl --output safe.jsonl\n   python split_dataset.py --input safe.jsonl --train train.jsonl --val val.jsonl",
+
+        "3. CONFIGURE TRAINING (10 min):\n   from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer\n   from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training\n   from datasets import load_dataset\n   import torch\n   \n   # Load model with 4-bit quantization\n   bnb_config = BitsAndBytesConfig(\n       load_in_4bit=True,\n       bnb_4bit_quant_type='nf4',\n       bnb_4bit_compute_dtype=torch.bfloat16,\n       bnb_4bit_use_double_quant=True\n   )\n   model = AutoModelForCausalLM.from_pretrained(\n       'meta-llama/Meta-Llama-3.1-8B-Instruct',\n       quantization_config=bnb_config,\n       device_map='auto'\n   )\n   \n   # LoRA configuration\n   lora_config = LoraConfig(\n       r=64,\n       lora_alpha=128,\n       target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj', 'gate_proj', 'up_proj', 'down_proj'],\n       lora_dropout=0.05,\n       bias='none',\n       task_type='CAUSAL_LM'\n   )\n   model = prepare_model_for_kbit_training(model)\n   model = get_peft_model(model, lora_config)",
+
+        "4. SET TRAINING ARGUMENTS (5 min):\n   training_args = TrainingArguments(\n       output_dir='./results',\n       num_train_epochs=3,\n       per_device_train_batch_size=2,\n       gradient_accumulation_steps=8,\n       learning_rate=2e-4,\n       warmup_steps=100,\n       logging_steps=10,\n       save_steps=500,\n       eval_steps=500,\n       save_total_limit=3,\n       bf16=True,\n       gradient_checkpointing=True,\n       optim='paged_adamw_8bit',\n       lr_scheduler_type='cosine',\n       max_grad_norm=1.0,\n       report_to='tensorboard'\n   )",
+
+        "5. TRAIN (2-12 hours depending on dataset):\n   trainer = Trainer(\n       model=model,\n       args=training_args,\n       train_dataset=train_dataset,\n       eval_dataset=eval_dataset,\n       data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False)\n   )\n   trainer.train()\n   \n   Time estimates:\n   - 1K samples: ~15 min, cost ~$0.50\n   - 10K samples: ~2 hours, cost ~$3\n   - 30K samples: ~6 hours, cost ~$10\n   - 100K samples: ~12 hours, cost ~$20",
+
+        "6. EVALUATION (30 min):\n   eval_results = trainer.evaluate()\n   # Metrics: perplexity, loss, custom task accuracy\n   # Monitor: training/validation loss curves for overfitting",
+
+        "7. SAVE MODEL (5 min):\n   trainer.save_model('./final_model')\n   tokenizer.save_pretrained('./final_model')\n   # LoRA adapters only: ~400-800 MB\n   # Merged model: ~15 GB (optional)"
+      ],
+      "total_time": "4-20 hours (including prep)",
+      "total_cost": "$5-40 depending on dataset size"
+    },
+
+    "budget_a10g_t4": {
+      "title": "Budget-Friendly Fine-Tuning (A10G/T4)",
+      "hardware": "A10G 24GB or T4 16GB (Google Colab, AWS)",
+      "cost": "$0.30-1.00/hour",
+      "constraints": "Limited memory requires smaller models or aggressive quantization",
+      "steps": [
+        "1. USE SMALLER BASE MODEL:\n   - Llama 3.1 8B → Llama 3 7B or Mistral 7B\n   - Or use 4-bit quantization for 8B models",
+
+        "2. REDUCE BATCH SIZE & CONTEXT:\n   per_device_train_batch_size=1\n   gradient_accumulation_steps=16\n   max_length=2048  # Instead of 4096-8192",
+
+        "3. AGGRESSIVE QUANTIZATION:\n   load_in_4bit=True  # Essential for T4/A10G\n   bnb_4bit_use_double_quant=True",
+
+        "4. LOWER LoRA RANK:\n   r=16  # Instead of 64\n   lora_alpha=32  # Instead of 128",
+
+        "5. GRADIENT CHECKPOINTING:\n   gradient_checkpointing=True  # Trades compute for memory",
+
+        "6. DATASET STREAMING:\n   dataset = load_dataset('json', data_files='train.jsonl', streaming=True)\n   # Avoids loading entire dataset into memory"
+      ],
+      "training_time": "2-3x slower than A100",
+      "cost_savings": "60-70% cheaper than A100"
+    }
+  },
+
+  "training_recipes": [
+    {
+      "scenario": "Llama 3.1 8B on legal/business dataset (30K samples)",
+      "hardware": "A100 80GB",
+      "dataset": "30K Q&A pairs, max 2.5K tokens/sample",
+      "hyperparams": {
+        "epochs": 3,
+        "batch_size": 2,
+        "gradient_accumulation": 8,
+        "effective_batch": 16,
+        "learning_rate": "2e-4",
+        "warmup_steps": 200,
+        "max_length": 8192,
+        "lora_r": 128,
+        "lora_alpha": 256,
+        "lora_dropout": 0.05,
+        "quantization": "4-bit NF4",
+        "optimizer": "paged_adamw_8bit",
+        "lr_scheduler": "cosine"
+      },
+      "commands": [
+        "python train.py --model meta-llama/Meta-Llama-3.1-8B-Instruct --dataset train.jsonl --output ./llama31_legal --epochs 3 --batch_size 2 --gradient_accum 8 --lr 2e-4 --max_length 8192 --lora_r 128 --quantize 4bit"
+      ],
+      "time": "10-12 hours",
+      "cost": "$18-24",
+      "memory": "~70 GB peak",
+      "result": "~400 MB LoRA adapters"
+    },
+    {
+      "scenario": "Mistral 7B on conversational data (10K samples)",
+      "hardware": "A10G 24GB",
+      "dataset": "10K chat logs, avg 800 tokens/sample",
+      "hyperparams": {
+        "epochs": 2,
+        "batch_size": 1,
+        "gradient_accumulation": 16,
+        "effective_batch": 16,
+        "learning_rate": "3e-4",
+        "warmup_steps": 50,
+        "max_length": 2048,
+        "lora_r": 32,
+        "lora_alpha": 64,
+        "quantization": "4-bit",
+        "gradient_checkpointing": true
+      },
+      "time": "4-6 hours",
+      "cost": "$3-6",
+      "memory": "~22 GB peak"
+    },
+    {
+      "scenario": "Code generation fine-tuning (Qwen 2.5 Coder 7B)",
+      "hardware": "A100 40GB",
+      "dataset": "20K code snippets with explanations",
+      "hyperparams": {
+        "epochs": 3,
+        "batch_size": 1,
+        "gradient_accumulation": 4,
+        "learning_rate": "1e-4",
+        "max_length": 4096,
+        "lora_r": 64,
+        "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"]
+      },
+      "time": "8-10 hours",
+      "cost": "$12-16",
+      "notes": "Lower LR for code tasks, target attention modules only"
+    }
+  ],
+
+  "checklist_production": {
+    "pre_deployment": [
+      "✓ Data validation: Verify no PII leakage, check data quality, confirm balanced representation",
+      "✓ Model testing: Test on holdout set, adversarial examples, edge cases",
+      "✓ Performance benchmarks: Measure latency (p50, p95, p99), throughput, memory usage",
+      "✓ Define SLAs: Target latency <100ms, uptime >99.9%, accuracy thresholds",
+      "✓ Staging environment: Mirror production setup, test with realistic load"
+    ],
+    "deployment_strategy": [
+      "✓ Version control: Tag model version, save hyperparameters, document dataset version",
+      "✓ Canary deployment: Release to 5% users initially, monitor errors/latency",
+      "✓ A/B testing: Compare new model vs baseline, measure business metrics",
+      "✓ Rollback plan: Keep previous model ready, automated rollback on error threshold",
+      "✓ CI/CD pipeline: Automated testing (unit, integration, e2e), deployment automation"
+    ],
+    "monitoring": [
+      "✓ Inference metrics: Track latency, throughput, error rate, timeout rate",
+      "✓ Model drift: Monitor input distribution shift, output quality degradation",
+      "✓ Resource usage: GPU/CPU utilization, memory consumption, cost per request",
+      "✓ User feedback: Collect ratings, track thumbs up/down, analyze complaints",
+      "✓ Alerting: Set thresholds for latency spikes, error rate increases, cost overruns"
+    ],
+    "security_privacy": [
+      "✓ PII protection: Input sanitization, output filtering, audit logging",
+      "✓ Rate limiting: Per-user quotas, DDoS protection, cost control",
+      "✓ Authentication: API keys, OAuth, role-based access control",
+      "✓ Bias monitoring: Regular audits for demographic fairness, toxicity detection",
+      "✓ Compliance: GDPR/CCPA adherence, data retention policies, right-to-deletion"
+    ],
+    "continuous_improvement": [
+      "✓ Regular retraining: Schedule based on data drift, quarterly at minimum",
+      "✓ Dataset curation: Collect production errors, add to training set, remove obsolete data",
+      "✓ Hyperparameter tuning: Experiment tracking with MLflow/W&B, optimize for cost/performance",
+      "✓ Model compression: Quantization for inference, distillation for smaller deployment",
+      "✓ Documentation: Keep runbooks updated, document known issues, maintain incident logs"
+    ]
+  },
+
+  "risks": [
+    {
+      "risk": "PII Leakage and Memorization",
+      "severity": "CRITICAL",
+      "description": "Fine-tuned models can memorize and leak sensitive information from training data. Research shows up to 19% PII leakage rate, especially with high-frequency patterns (emails, IDs, addresses). Fine-tuned models are more vulnerable than pretrained models.",
+      "mitigation": [
+        "Pre-training PII redaction: Use regex + NER models to remove/mask PII before training",
+        "Differential privacy: Apply DP-SGD during training to limit individual data point influence",
+        "Regularization: Prevent overfitting through dropout, weight decay, early stopping",
+        "Post-training filtering: Implement output sanitization to catch leaked PII",
+        "Continuous monitoring: Test model outputs against PII patterns, automated alerts",
+        "Data minimization: Only include necessary data, reduce retention period"
+      ],
+      "tools": ["Presidio (Microsoft)", "AWS Comprehend PII Detection", "Google DLP API"]
+    },
+    {
+      "risk": "Overfitting and Poor Generalization",
+      "severity": "HIGH",
+      "description": "Model performs well on training data but fails on unseen examples. Causes: insufficient data diversity, too many training epochs, inadequate validation, dataset leakage between train/test splits.",
+      "mitigation": [
+        "Holdout validation set: 5-10% of data never seen during training",
+        "Monitor loss curves: Stop training when validation loss plateaus or increases",
+        "Data augmentation: Paraphrasing, back-translation, synthetic examples",
+        "Regularization: L2 penalty, dropout=0.05-0.1, gradient clipping",
+        "Early stopping: Patience=3-5 epochs without validation improvement",
+        "Cross-validation: K-fold for small datasets to ensure robust performance"
+      ],
+      "detection": "Validation loss increases while training loss decreases (divergence)"
+    },
+    {
+      "risk": "Cost Overruns and Inefficient Resource Usage",
+      "severity": "MEDIUM-HIGH",
+      "description": "GPU costs can spiral: A100 @ $2/hr × 20 hours = $40 per experiment. Inefficient configurations waste money: oversized context windows, redundant checkpoints, poor batching.",
+      "mitigation": [
+        "Right-size context: Match max_length to actual data distribution (don't use 16K for 2K data)",
+        "Gradient accumulation: Simulate large batches without memory overhead",
+        "Mixed precision: Use bf16/fp16 to reduce memory and increase throughput",
+        "Checkpoint strategy: Save only top-3 models, delete intermediate checkpoints",
+        "Spot instances: Use preemptible/spot GPUs for 70% cost savings (with checkpointing)",
+        "Budget alerts: Set spending limits, automated shutdown on threshold",
+        "Cost tracking: Log training time, GPU hours, cost per experiment"
+      ],
+      "optimization_example": "Reduce context 16K→8K saved 40% training time for dataset with max 2.4K tokens"
+    },
+    {
+      "risk": "Data Quality and Bias Issues",
+      "severity": "HIGH",
+      "description": "Poor data quality leads to poor model performance: outdated information (e.g., B211 visa code obsolete for 3 years), biased samples, noisy labels, duplicate examples skew training.",
+      "mitigation": [
+        "Data validation: Check for obsolete information, verify against current regulations",
+        "Deduplication: Remove exact duplicates (hash-based) and near-duplicates (embedding similarity)",
+        "Quality filtering: Remove low-quality samples (length, coherence, profanity checks)",
+        "Bias audits: Test model on demographic subgroups, measure fairness metrics",
+        "Source diversity: Collect data from multiple sources to reduce bias",
+        "Human review: Sample and manually inspect training data (1-5% coverage)",
+        "Version control: Track dataset changes, enable rollback to previous versions"
+      ],
+      "tools": ["DVC for versioning", "cleanlab for label errors", "AI Fairness 360"]
+    },
+    {
+      "risk": "Model Degradation in Production (Drift)",
+      "severity": "MEDIUM",
+      "description": "Model performance degrades over time as real-world data distribution shifts. Examples: new legal regulations, changing user language patterns, emerging topics not in training data.",
+      "mitigation": [
+        "Continuous monitoring: Track accuracy, latency, error rate over time",
+        "Drift detection: Monitor input/output distributions, flag significant changes",
+        "Regular retraining: Schedule quarterly retraining or trigger-based on drift metrics",
+        "Feedback loops: Collect user corrections, low-rated outputs for retraining data",
+        "A/B testing: Compare retrained model vs current model before full deployment",
+        "Fallback mechanisms: Graceful degradation to simpler model or human handoff",
+        "Incremental learning: Fine-tune on recent data without forgetting past knowledge"
+      ],
+      "metrics": ["KL divergence for distribution shift", "accuracy over time", "error rate trends"]
+    }
+  ],
+
+  "tools_ecosystem": {
+    "training_frameworks": [
+      {"name": "Hugging Face Transformers", "purpose": "Model loading, training, inference", "url": "huggingface.co/transformers"},
+      {"name": "PEFT", "purpose": "LoRA, QLoRA, adapter tuning", "url": "huggingface.co/peft"},
+      {"name": "bitsandbytes", "purpose": "4-bit/8-bit quantization", "url": "github.com/TimDettmers/bitsandbytes"},
+      {"name": "DeepSpeed", "purpose": "Multi-GPU training, ZeRO optimization", "url": "github.com/microsoft/DeepSpeed"},
+      {"name": "Accelerate", "purpose": "Distributed training abstraction", "url": "huggingface.co/accelerate"},
+      {"name": "TRL (Transformer Reinforcement Learning)", "purpose": "RLHF, DPO, reward modeling", "url": "github.com/huggingface/trl"}
+    ],
+    "data_processing": [
+      {"name": "DVC", "purpose": "Dataset versioning", "url": "dvc.org"},
+      {"name": "NVIDIA NeMo Curator", "purpose": "Data preprocessing pipeline", "url": "nvidia.com/nemo"},
+      {"name": "cleanlab", "purpose": "Data quality, label errors", "url": "cleanlab.ai"},
+      {"name": "Presidio", "purpose": "PII detection and anonymization", "url": "microsoft.github.io/presidio"}
+    ],
+    "monitoring_observability": [
+      {"name": "MLflow", "purpose": "Experiment tracking, model registry", "url": "mlflow.org"},
+      {"name": "Weights & Biases", "purpose": "Training monitoring, hyperparameter tuning", "url": "wandb.ai"},
+      {"name": "Prometheus + Grafana", "purpose": "Production metrics, alerting", "url": "prometheus.io"},
+      {"name": "Traceloop", "purpose": "LLM observability, trace analysis", "url": "traceloop.com"}
+    ]
+  },
+
+  "cost_benchmarks": {
+    "llama_8b": {
+      "1k_samples": {"time": "15 min", "cost": "$0.50", "hardware": "A100 80GB"},
+      "10k_samples": {"time": "2 hours", "cost": "$3-4", "hardware": "A100 80GB"},
+      "30k_samples": {"time": "6-8 hours", "cost": "$10-16", "hardware": "A100 80GB"},
+      "100k_samples": {"time": "12-15 hours", "cost": "$20-30", "hardware": "A100 80GB"}
+    },
+    "llama_70b": {
+      "1k_samples": {"time": "45 min", "cost": "$1.50", "hardware": "A100 80GB (QLoRA)"},
+      "10k_samples": {"time": "8 hours", "cost": "$13-16", "hardware": "A100 80GB (QLoRA)"},
+      "note": "70B requires QLoRA on single A100, full fine-tune needs multi-GPU"
+    },
+    "budget_options": {
+      "t4": {"cost_per_hour": "$0.30-0.50", "memory": "16 GB", "recommendation": "Max 7B models with 4-bit"},
+      "a10g": {"cost_per_hour": "$0.70-1.00", "memory": "24 GB", "recommendation": "7B-13B models"},
+      "l4": {"cost_per_hour": "$0.60-0.90", "memory": "24 GB", "recommendation": "Similar to A10G"}
+    }
+  },
+
+  "key_papers_2024": [
+    {
+      "title": "QLoRA: Efficient Finetuning of Quantized LLMs",
+      "authors": "Dettmers et al.",
+      "year": 2023,
+      "arxiv": "2305.14314",
+      "impact": "Foundational - enables 70B fine-tuning on single GPU"
+    },
+    {
+      "title": "RAFT: Adapting Language Model to Domain Specific RAG",
+      "year": 2024,
+      "institution": "UC Berkeley",
+      "contribution": "Novel approach for domain-specific RAG fine-tuning"
+    },
+    {
+      "title": "The Ultimate Guide to Fine-Tuning LLMs",
+      "arxiv": "2408.13296v1",
+      "year": 2024,
+      "scope": "Comprehensive review of fine-tuning lifecycle"
+    },
+    {
+      "title": "Privacy in Fine-tuning LLMs: Attacks, Defenses, Future Directions",
+      "arxiv": "2412.16504v1",
+      "year": 2024,
+      "focus": "PII leakage, mitigation strategies"
+    }
+  ],
+
+  "metadata": {
+    "compiled_date": "2025-10-11",
+    "sources_checked": 50,
+    "primary_sources": [
+      "arXiv papers",
+      "Hugging Face documentation",
+      "NVIDIA blogs",
+      "Production deployment blogs",
+      "GitHub repositories"
+    ],
+    "recency": "Prioritized 2024-2025 sources, included foundational 2023 papers",
+    "focus": "Practical implementation, cost optimization, production deployment"
+  }
+}

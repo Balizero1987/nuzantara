@@ -40,6 +40,9 @@ import analyticsRoutes from './analytics/analytics.routes.js';
 // RAG Management Routes
 import ragRoutes from './rag.routes.js';
 
+// ZANTARA V4.0 Persistent Memory Routes
+import persistentMemoryRoutes from './persistent-memory.routes.js';
+
 /**
  * Attach all routes to Express app
  */
@@ -71,7 +74,10 @@ export function attachModularRoutes(app: Express) {
   // RAG Management
   app.use('/api/rag', ragRoutes);
 
-  logger.info('✅ Modular routes attached (including RAG)');
+  // ZANTARA V4.0 Persistent Memory
+  app.use('/api/persistent-memory', persistentMemoryRoutes);
+
+  logger.info('✅ Modular routes attached (including RAG and Persistent Memory)');
 }
 
 /**
@@ -79,17 +85,18 @@ export function attachModularRoutes(app: Express) {
  */
 export function getRouteStats() {
   return {
-    totalModules: 12, // Update as routes are added
+    totalModules: 13, // Update as routes are added
     implemented: [
       'gmail', 'drive', 'calendar', 'sheets', 'docs',
       'ai', 'creative',
       'oracle', 'pricing', 'team',
       'translate',
-      'analytics'
+      'analytics',
+      'persistent-memory'
     ],
     pending: [
       'whatsapp', 'instagram'
     ],
-    note: 'Webhook routes (WhatsApp, Instagram) remain in router.ts by design'
+    note: 'Webhook routes (WhatsApp, Instagram) remain in router.ts by design. Persistent Memory V4.0 now integrated!'
   };
 }

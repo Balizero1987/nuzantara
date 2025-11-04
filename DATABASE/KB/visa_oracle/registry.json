@@ -1,0 +1,60 @@
+{
+  "immigration": [
+    {
+      "title": "Nomor 26 Tahun 2022",
+      "type": "Regulation",
+      "status": "present",
+      "path": "Nomor 26 Tahun 2022.pdf"
+    },
+    {
+      "title": "Permenkumham Nomor 10 Tahun 2017",
+      "type": "Minister Regulation",
+      "status": "present",
+      "path": "Permenkumham Nomor 10 Tahun 2017.pdf"
+    },
+    {
+      "title": "SE IMI‑417 (May 2025) — Photo/Interview Extension",
+      "type": "Circular (SE IMI)",
+      "status": "present",
+      "path": "SE_IMI‑417_FotoInterviewExtension_Maggio2025.pdf.pdf"
+    },
+    {
+      "title": "SE IMI‑453/2025 — Summary",
+      "type": "Circular (SE IMI)",
+      "status": "present",
+      "path": "Sintesi_SE_IMI-453_2025.pdf"
+    },
+    {
+      "title": "UU 6/2011 — Immigration Law",
+      "type": "Law (UU)",
+      "status": "missing",
+      "expected_path": "official/docs/UU_6_2011.pdf"
+    },
+    {
+      "title": "PP 31/2013 (as amended) — Immigration Implementing Regulation",
+      "type": "Government Regulation (PP)",
+      "status": "missing",
+      "expected_path": "official/docs/PP_31_2013_as_amended.pdf"
+    },
+    {
+      "title": "Permenkumham 22/2023 (as amended by 11/2024) — Golden Visa",
+      "type": "Minister Regulation",
+      "status": "missing",
+      "expected_path": "official/docs/Permenkumham_22_2023_11_2024_Golden_Visa.pdf"
+    }
+  ],
+  "manpower": [
+    {
+      "title": "PP 34/2021 — Foreign Workers (TKA)",
+      "type": "Government Regulation (PP)",
+      "status": "missing",
+      "expected_path": "official/docs/PP_34_2021_TKA.pdf"
+    },
+    {
+      "title": "Permenaker 8/2021 — RPTKA Procedures (and amendments)",
+      "type": "Minister Regulation",
+      "status": "missing",
+      "expected_path": "official/docs/Permenaker_8_2021_RPTKA.pdf"
+    }
+  ]
+}

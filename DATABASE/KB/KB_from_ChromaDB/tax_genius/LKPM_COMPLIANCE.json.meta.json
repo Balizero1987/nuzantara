@@ -1,0 +1,11 @@
+{
+  "domain": "tax",
+  "content_type": "reference",
+  "title": "Lkpm Compliance",
+  "filename": "LKPM_COMPLIANCE.json",
+  "tags": "income-tax,tax,vat",
+  "version": "1.0",
+  "last_updated": "2025-10-03",
+  "sources": "",
+  "collection": "tax_genius"
+}

@@ -1,0 +1,48 @@
+{
+  "title": "Popbela",
+  "summary": "A social media platform with various categories and IDN ecosystem links.",
+  "category": "social_media",
+  "sub_category": "media",
+  "entities": {
+    "people": [],
+    "organizations": [
+      "IDN"
+    ],
+    "locations": []
+  },
+  "keywords": [
+    "Popbela",
+    "IDN",
+    "social media"
+  ],
+  "dates": {
+    "published": null,
+    "effective": null,
+    "deadline": null
+  },
+  "impact": {
+    "level": "medium",
+    "affected_groups": [
+      "users"
+    ],
+    "action_required": false,
+    "urgency": "informational"
+  },
+  "language": {
+    "primary": "en|id",
+    "needs_translation": false
+  },
+  "tier": 2,
+  "source_reliability": "official",
+  "key_points": [
+    "Features various categories including Beauty, Career, Fashion, Lifestyle, and Relationship.",
+    "Has an IDN ecosystem with links to other websites and events."
+  ],
+  "regulatory_changes": [],
+  "business_implications": null,
+  "source_url": "https://www.popbela.com/",
+  "source_name": "Popbela",
+  "scraped_at": "2025-10-09T11:05:46.428858",
+  "content_hash": "108f06b0de6231f6",
+  "word_count": 1397
+}

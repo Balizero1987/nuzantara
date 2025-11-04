@@ -1,0 +1,11 @@
+{
+  "title": "E33F Retirement Kitas",
+  "content_type": "reference",
+  "filename": "e33f-retirement-kitas.json",
+  "version": "1.0",
+  "domain": "visa",
+  "collection": "visa_oracle",
+  "tags": "visa,limited-stay,kitas",
+  "last_updated": "2025-10-03",
+  "sources": ""
+}

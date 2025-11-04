@@ -1,0 +1,11 @@
+{
+  "content_type": "reference",
+  "collection": "visa_oracle",
+  "domain": "visa",
+  "title": "C7 Visa Professional Event",
+  "version": "1.0",
+  "sources": "",
+  "tags": "visa",
+  "filename": "c7-visa-professional-event.json",
+  "last_updated": "2025-10-03"
+}

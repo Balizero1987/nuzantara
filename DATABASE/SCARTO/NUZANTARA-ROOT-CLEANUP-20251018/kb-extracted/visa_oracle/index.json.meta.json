@@ -1,0 +1,11 @@
+{
+  "domain": "visa",
+  "collection": "visa_oracle",
+  "tags": "kitas,limited-stay,golden-visa,investment,visa",
+  "sources": "",
+  "version": "1.0",
+  "content_type": "reference",
+  "title": "Index",
+  "last_updated": "2025-10-03",
+  "filename": "index.json"
+}

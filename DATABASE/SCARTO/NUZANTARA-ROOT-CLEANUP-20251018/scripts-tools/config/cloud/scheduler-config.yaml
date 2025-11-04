@@ -1,0 +1,106 @@
+# Cloud Scheduler Configuration for ZANTARA Warm-up
+# Cost: $0.10/month (3 jobs free tier, then $0.10 per job)
+# Prevents cold starts during business hours
+
+apiVersion: cloudscheduler.googleapis.com/v1
+kind: Job
+metadata:
+  name: zantara-warmup-business-hours
+  project: involuted-box-469105-r0
+  location: europe-west1
+
+spec:
+  # Primary warm-up during business hours
+  - name: zantara-warmup-frequent
+    schedule: "*/5 6-22 * * *"  # Every 5 minutes from 6 AM to 10 PM
+    timeZone: "Europe/Rome"      # Italian timezone
+    description: "Keep ZANTARA warm during business hours"
+    httpTarget:
+      uri: https://zantara-v520-test-1064094238013.europe-west1.run.app/health
+      httpMethod: GET
+      headers:
+        User-Agent: "Google-Cloud-Scheduler"
+      oidcToken:
+        serviceAccountEmail: zantara-bridge-v2@involuted-box-469105-r0.iam.gserviceaccount.com
+    retryConfig:
+      retryCount: 1
+      maxRetryDuration: "10s"
+      minBackoffDuration: "1s"
+      maxBackoffDuration: "10s"
+
+  # Night maintenance check
+  - name: zantara-warmup-night
+    schedule: "0 */2 23-5 * *"   # Every 2 hours at night
+    timeZone: "Europe/Rome"
+    description: "Light warm-up during night hours"
+    httpTarget:
+      uri: https://zantara-v520-test-1064094238013.europe-west1.run.app/health
+      httpMethod: GET
+      headers:
+        User-Agent: "Google-Cloud-Scheduler"
+      oidcToken:
+        serviceAccountEmail: zantara-bridge-v2@involuted-box-469105-r0.iam.gserviceaccount.com
+    retryConfig:
+      retryCount: 1
+      maxRetryDuration: "10s"
+
+  # Peak hours aggressive warm-up
+  - name: zantara-warmup-peak
+    schedule: "*/2 9-12,14-18 * * MON-FRI"  # Every 2 minutes during peak business
+    timeZone: "Europe/Rome"
+    description: "Aggressive warm-up during peak hours"
+    httpTarget:
+      uri: https://zantara-v520-test-1064094238013.europe-west1.run.app/health
+      httpMethod: GET
+      headers:
+        User-Agent: "Google-Cloud-Scheduler"
+      oidcToken:
+        serviceAccountEmail: zantara-bridge-v2@involuted-box-469105-r0.iam.gserviceaccount.com
+    attemptDeadline: "30s"
+
+---
+# Deployment script
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scheduler-deployment-script
+data:
+  deploy.sh: |
+    #!/bin/bash
+
+    # Create business hours warm-up
+    gcloud scheduler jobs create http zantara-warmup-frequent \
+      --location=europe-west1 \
+      --schedule="*/5 6-22 * * *" \
+      --time-zone="Europe/Rome" \
+      --uri="https://zantara-v520-test-1064094238013.europe-west1.run.app/health" \
+      --http-method=GET \
+      --oidc-service-account-email=zantara-bridge-v2@involuted-box-469105-r0.iam.gserviceaccount.com \
+      --attempt-deadline=30s \
+      --description="Keep ZANTARA warm during business hours"
+
+    # Create night warm-up
+    gcloud scheduler jobs create http zantara-warmup-night \
+      --location=europe-west1 \
+      --schedule="0 */2 23-5 * *" \
+      --time-zone="Europe/Rome" \
+      --uri="https://zantara-v520-test-1064094238013.europe-west1.run.app/health" \
+      --http-method=GET \
+      --oidc-service-account-email=zantara-bridge-v2@involuted-box-469105-r0.iam.gserviceaccount.com \
+      --attempt-deadline=30s \
+      --description="Light warm-up during night hours"
+
+    # Create peak hours warm-up
+    gcloud scheduler jobs create http zantara-warmup-peak \
+      --location=europe-west1 \
+      --schedule="*/2 9-12,14-18 * * MON-FRI" \
+      --time-zone="Europe/Rome" \
+      --uri="https://zantara-v520-test-1064094238013.europe-west1.run.app/health" \
+      --http-method=GET \
+      --oidc-service-account-email=zantara-bridge-v2@involuted-box-469105-r0.iam.gserviceaccount.com \
+      --attempt-deadline=30s \
+      --description="Aggressive warm-up during peak hours"
+
+    echo "✅ Scheduler jobs created successfully!"
+    echo "📊 Total monthly cost: ~$0.10"
+    echo "🚀 Benefits: Zero cold starts during business hours"

@@ -1,0 +1,84 @@
+{
+  "id": "e23-freelance-kitas",
+  "code": "E23",
+  "name": "Freelance/Impresario KITAS",
+  "jurisdiction": "ID",
+  "category": "kitas",
+  "entry_type": "multiple",
+  "validity": {
+    "min_months": 6,
+    "max_months": 6,
+    "notes": "Up to 6 months; no specific employer required"
+  },
+  "can_work": true,
+  "work_scope": "Freelance activities as per permit scope; not a general employment contract",
+  "sponsor": {
+    "required": true,
+    "types": [
+      "Registered sponsor/agent"
+    ]
+  },
+  "eligibility": [
+    "Professional freelancers (e.g., DJs, performers)"
+  ],
+  "requirements": [
+    "Sponsor letter",
+    "Portfolio/engagement details",
+    "Health insurance"
+  ],
+  "documents": [
+    {
+      "title": "KITAS & Work Permit Complete Guide 2025",
+      "path": "KITAS_WORK_PERMIT_2025.json"
+    }
+  ],
+  "process": [
+    {
+      "id": "docs",
+      "name": "Prepare documents"
+    },
+    {
+      "id": "apply",
+      "name": "Apply E23 (6 months)"
+    },
+    {
+      "id": "issue",
+      "name": "KITAS issuance"
+    }
+  ],
+  "biometrics": {
+    "required": true,
+    "effective_date": "2025-06-01"
+  },
+  "merp": {
+    "required": true
+  },
+  "costs": {
+    "currency": "IDR"
+  },
+  "bali_zero_pricing_ref": {
+    "section": "kitas",
+    "code": "E23_FREELANCE"
+  },
+  "service_prices_idr": {
+    "offshore": 26000000,
+    "onshore": 28000000
+  },
+  "legal_basis": [
+    {
+      "ref_id": "E23-2025",
+      "title": "E23 Freelance KITAS 2025",
+      "citation": "Immigration/MoM",
+      "path": "INDONESIA_VISA_REGULATIONS_2025_COMPLETE.md"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "sponsor-letter",
+      "text": "Sponsor/agent letter"
+    }
+  ],
+  "effective_date": "2024-01-01",
+  "last_updated": "2025-10-02",
+  "sources": []
+}

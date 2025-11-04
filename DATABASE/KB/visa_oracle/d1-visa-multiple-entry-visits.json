@@ -1,0 +1,84 @@
+{
+  "id": "d1-visa-multiple-entry-visits",
+  "code": "D1",
+  "name": "Multiple Entry Visa (Visits/Meetings)",
+  "jurisdiction": "ID",
+  "category": "visitor",
+  "entry_type": "multiple",
+  "validity": {
+    "min_months": 12,
+    "max_months": 24,
+    "notes": "1 or 2 years; per visit 60 days + extensions to 180"
+  },
+  "can_work": false,
+  "work_scope": "Meetings/visits/tourism; no employment",
+  "sponsor": {
+    "required": true,
+    "types": [
+      "Registered sponsor/agent"
+    ]
+  },
+  "eligibility": [
+    "Frequent visits over 1–2 years"
+  ],
+  "requirements": [
+    "Sponsor letter",
+    "Itinerary",
+    "Passport",
+    "Photos"
+  ],
+  "documents": [
+    {
+      "title": "INDONESIA_VISA_PRACTICAL_GUIDE_2025",
+      "path": "INDONESIA_VISA_PRACTICAL_GUIDE_2025.md"
+    }
+  ],
+  "process": [
+    {
+      "id": "apply",
+      "name": "Apply (D1) 1y/2y"
+    },
+    {
+      "id": "enter",
+      "name": "Enter per visit (60 days)"
+    },
+    {
+      "id": "extend",
+      "name": "Per visit extensions"
+    }
+  ],
+  "biometrics": {
+    "required": false
+  },
+  "merp": {
+    "required": false
+  },
+  "costs": {
+    "currency": "IDR"
+  },
+  "bali_zero_pricing_ref": {
+    "section": "multiple_entry",
+    "code": "D1"
+  },
+  "service_prices_idr": {
+    "1_year": 5000000,
+    "2_years": 7000000
+  },
+  "legal_basis": [
+    {
+      "ref_id": "PMK-10-2017",
+      "title": "Permenkumham 10/2017 — Visa Procedures",
+      "citation": "Multiple entry",
+      "path": "official/extracts/Permenkumham_10_2017.md#multi"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "sponsor-letter",
+      "text": "Sponsor letter"
+    }
+  ],
+  "effective_date": "2024-01-01",
+  "last_updated": "2025-10-02",
+  "sources": []
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@nuzantara/backend-api",
+  "version": "5.2.0",
+  "private": true,
+  "type": "module",
+  "description": "TypeScript Express API with 96 handlers for Google Workspace, AI, Memory, and Analytics",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "tsx watch index.ts",
+    "test": "jest",
+    "deploy": "gcloud run deploy zantara-v520-nuzantara --source ."
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.62.0",
+    "@google-cloud/firestore": "^7.11.4",
+    "@google-cloud/secret-manager": "^6.1.0",
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.12.2",
+    "cohere-ai": "^7.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "firebase-admin": "^12.7.0",
+    "googleapis": "^160.0.0",
+    "lru-cache": "^11.2.1",
+    "node-cache": "^5.1.2",
+    "openai": "^5.20.2",
+    "redis": "^5.8.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.9.2"
+  }
+}

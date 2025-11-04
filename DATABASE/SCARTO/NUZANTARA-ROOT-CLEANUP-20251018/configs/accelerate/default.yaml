@@ -1,0 +1,11 @@
+compute_environment: LOCAL_MACHINE
+distributed_type: NO
+mixed_precision: bf16
+num_processes: 1
+use_cpu: false
+device: null
+machine_rank: 0
+num_machines: 1
+main_training_function: main
+fsdp_config: {}
+deepspeed_config: {}

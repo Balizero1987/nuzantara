@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "content_type": "reference",
+  "last_updated": "2025-10-03",
+  "domain": "visa",
+  "tags": "kitas,permanent-stay,limited-stay,visa,kitap",
+  "filename": "normalized.json",
+  "title": "Normalized",
+  "collection": "visa_oracle",
+  "sources": ""
+}

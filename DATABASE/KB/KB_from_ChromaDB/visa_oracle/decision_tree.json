@@ -1,0 +1,310 @@
+{
+  "metadata": {
+    "title": "Visa Selection Decision Tree",
+    "scope": [
+      "E33G",
+      "E23",
+      "E28A",
+      "E31A",
+      "E33F",
+      "C1",
+      "C2",
+      "D1",
+      "D2",
+      "D12"
+    ],
+    "lastUpdated": "2025-10-02"
+  },
+  "questions": [
+    {
+      "id": "purpose",
+      "text": "What is the main purpose?",
+      "choices": [
+        {
+          "id": "remote_work",
+          "label": "Remote work for overseas employer"
+        },
+        {
+          "id": "employment",
+          "label": "Employment at Indonesian company"
+        },
+        {
+          "id": "invest",
+          "label": "Invest/manage company (PT PMA)"
+        },
+        {
+          "id": "spouse",
+          "label": "Spouse of Indonesian citizen"
+        },
+        {
+          "id": "retire",
+          "label": "Retirement (55+)"
+        },
+        {
+          "id": "tourism",
+          "label": "Tourism/visit"
+        },
+        {
+          "id": "business",
+          "label": "Business meetings/fairs/visits"
+        },
+        {
+          "id": "feasibility",
+          "label": "Feasibility/site visits"
+        }
+      ]
+    },
+    {
+      "id": "duration",
+      "text": "Expected stay duration?",
+      "choices": [
+        {
+          "id": "<=60",
+          "label": "≤ 60 days"
+        },
+        {
+          "id": "<=180",
+          "label": "≤ 180 days"
+        },
+        {
+          "id": "~12m",
+          "label": "~12 months"
+        },
+        {
+          "id": "1-2y",
+          "label": "1–2 years"
+        }
+      ]
+    },
+    {
+      "id": "frequency",
+      "text": "Entry frequency?",
+      "choices": [
+        {
+          "id": "single",
+          "label": "Single entry"
+        },
+        {
+          "id": "frequent",
+          "label": "Frequent entries over 1–2 years"
+        }
+      ]
+    },
+    {
+      "id": "income_remote",
+      "text": "(Remote work only) Monthly income ≥ USD 2,000?",
+      "choices": [
+        {
+          "id": "yes",
+          "label": "Yes"
+        },
+        {
+          "id": "no",
+          "label": "No"
+        }
+      ]
+    },
+    {
+      "id": "capital",
+      "text": "(Invest only) PT PMA paid‑up capital ≥ IDR 10B?",
+      "choices": [
+        {
+          "id": "yes",
+          "label": "Yes"
+        },
+        {
+          "id": "no",
+          "label": "No"
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "when": {
+        "purpose": "remote_work",
+        "income_remote": "yes"
+      },
+      "recommend": [
+        {
+          "code": "E33G",
+          "reason": "Lavoro remoto per datore estero (income ≥ USD 2.000/mese)"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "remote_work",
+        "income_remote": "no"
+      },
+      "recommend": [
+        {
+          "code": "C1",
+          "reason": "Turismo fino a 180 gg (no lavoro)"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "employment"
+      },
+      "recommend": [
+        {
+          "code": "E23",
+          "reason": "Impiegarsi presso azienda in Indonesia (RPTKA→KITAS)"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "invest",
+        "capital": "yes"
+      },
+      "recommend": [
+        {
+          "code": "E28A",
+          "reason": "Investor KITAS (PT PMA ≥ IDR 10B)"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "invest",
+        "capital": "no"
+      },
+      "recommend": [
+        {
+          "code": "C2",
+          "reason": "Business visit (no lavoro)"
+        },
+        {
+          "code": "D2",
+          "reason": "Ingresso multiplo per visite frequenti"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "spouse"
+      },
+      "recommend": [
+        {
+          "code": "E31A",
+          "reason": "Coniuge di cittadino indonesiano (no lavoro)"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "retire"
+      },
+      "recommend": [
+        {
+          "code": "E33F",
+          "reason": "Retirement 55+ (no lavoro)"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "tourism",
+        "duration": "<=180"
+      },
+      "recommend": [
+        {
+          "code": "C1",
+          "reason": "Turismo fino a 180 gg"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "tourism",
+        "frequency": "frequent"
+      },
+      "recommend": [
+        {
+          "code": "D1",
+          "reason": "Ingressi multipli 1–2 anni"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "business",
+        "duration": "<=180"
+      },
+      "recommend": [
+        {
+          "code": "C2",
+          "reason": "Business meetings/fiere/visite (no lavoro)"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "business",
+        "frequency": "frequent"
+      },
+      "recommend": [
+        {
+          "code": "D2",
+          "reason": "Business multi‑ingresso 1–2 anni"
+        }
+      ]
+    },
+    {
+      "when": {
+        "purpose": "feasibility"
+      },
+      "recommend": [
+        {
+          "code": "D12",
+          "reason": "Studi di fattibilità/sopralluoghi multi‑ingresso"
+        }
+      ]
+    }
+  ],
+  "price_refs": {
+    "E33G": {
+      "section": "kitas",
+      "code": "E33G_REMOTE_WORKER"
+    },
+    "E23": {
+      "section": "kitas",
+      "code": "E23_WORKING"
+    },
+    "E28A": {
+      "section": "kitas",
+      "code": "E28A_INVESTOR"
+    },
+    "E31A": {
+      "section": "kitas",
+      "code": "E31A_SPOUSE"
+    },
+    "E33F": {
+      "section": "kitas",
+      "code": "E33F_RETIREMENT"
+    },
+    "C1": {
+      "section": "single_entry",
+      "code": "C1"
+    },
+    "C2": {
+      "section": "single_entry",
+      "code": "C2"
+    },
+    "D1": {
+      "section": "multiple_entry",
+      "code": "D1"
+    },
+    "D2": {
+      "section": "multiple_entry",
+      "code": "D2"
+    },
+    "D12": {
+      "section": "multiple_entry",
+      "code": "D12"
+    }
+  }
+}

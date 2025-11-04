@@ -1,0 +1,11 @@
+{
+  "content_type": "case-study",
+  "sources": "",
+  "title": "Case Study.Schema",
+  "filename": "case_study.schema.json",
+  "collection": "visa_oracle",
+  "tags": "visa",
+  "last_updated": "2025-10-03",
+  "version": "1.0",
+  "domain": "visa"
+}

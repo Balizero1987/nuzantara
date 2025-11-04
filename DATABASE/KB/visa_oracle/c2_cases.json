@@ -1,0 +1,93 @@
+{
+  "metadata": {
+    "title": "C2 Business Visa — Case Studies",
+    "description": "Business activities/visits without employment",
+    "visaCode": "C2",
+    "lastUpdated": "2025-10-02"
+  },
+  "case1_supplier_audit": {
+    "title": "Supplier audit — site visits + meetings",
+    "clientProfile": {
+      "nationality": "IT",
+      "company": "OEM automotive",
+      "purpose": "Audit qualitativo"
+    },
+    "selectedOption": "C2 60 gg, con possibile estensione",
+    "activities": [
+      "Riunioni",
+      "Visite sito",
+      "Ispezioni"
+    ],
+    "pitfalls": [
+      "No operational work",
+      "No local remuneration"
+    ],
+    "costs": {
+      "baliZeroServiceIDR": {
+        "initial": 3600000,
+        "extension": 1700000
+      }
+    }
+  },
+  "case2_trade_fair": {
+    "title": "Trade fair — exhibition and meetings",
+    "clientProfile": {
+      "nationality": "ES",
+      "event": "Jakarta Trade Expo",
+      "days": 20
+    },
+    "selectedOption": "C2 senza estensione (20 giorni)",
+    "notes": "Consider D2 for frequent annual entries"
+  },
+  "quickSummary": {
+    "service": "C2: initial 3.6M IDR; extension 1.7M IDR",
+    "work": "No work"
+  }
+}
+
+{
+  "metadata": {
+    "title": "C2 Business Visa — Case Studies",
+    "description": "Business activities/visits without employment",
+    "visaCode": "C2",
+    "lastUpdated": "2025-10-02"
+  },
+  "case1_supplier_audit": {
+    "title": "Supplier audit — site visits + meetings",
+    "clientProfile": {
+      "nationality": "IT",
+      "company": "OEM automotive",
+      "purpose": "Audit qualitativo"
+    },
+    "selectedOption": "C2 60 gg, con possibile estensione",
+    "activities": [
+      "Riunioni",
+      "Visite sito",
+      "Ispezioni"
+    ],
+    "pitfalls": [
+      "No operational work",
+      "No local remuneration"
+    ],
+    "costs": {
+      "baliZeroServiceIDR": {
+        "initial": 3600000,
+        "extension": 1700000
+      }
+    }
+  },
+  "case2_trade_fair": {
+    "title": "Trade fair — exhibition and meetings",
+    "clientProfile": {
+      "nationality": "ES",
+      "event": "Jakarta Trade Expo",
+      "days": 20
+    },
+    "selectedOption": "C2 senza estensione (20 giorni)",
+    "notes": "Consider D2 for frequent annual entries"
+  },
+  "quickSummary": {
+    "service": "C2: initial 3.6M IDR; extension 1.7M IDR",
+    "work": "No work"
+  }
+}

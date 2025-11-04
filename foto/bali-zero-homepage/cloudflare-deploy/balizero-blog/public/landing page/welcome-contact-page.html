@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us — Bali Zero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --vivid-black: #090920;
+            --bold-red: #FF0000;
+            --gold: #D4AF37;
+            --cream: #e8d5b7;
+            --navy: #1a1f3a;
+            --off-white: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--vivid-black);
+            color: var(--off-white);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Batik Pattern Background */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.06) 2%, transparent 0%),
+                radial-gradient(circle at 75% 75%, rgba(232, 213, 183, 0.06) 2%, transparent 0%),
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 0, 0.03) 1%, transparent 0%);
+            background-size: 60px 60px, 80px 80px, 40px 40px;
+            background-position: 0 0, 20px 20px, 40px 40px;
+            animation: batik-flow 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes batik-flow {
+            0%, 100% { opacity: 0.03; }
+            50% { opacity: 0.06; }
+        }
+
+        /* Vignette Effect */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(232, 213, 183, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 60px;
+            width: auto;
+            transition: opacity 0.3s;
+        }
+
+        .logo img:hover {
+            opacity: 0.8;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            font-size: 1.5rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--bold-red);
+            border-color: var(--bold-red);
+            color: var(--off-white);
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--off-white);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        nav a:hover {
+            color: var(--gold);
+        }
+
+        nav a.active {
+            color: var(--bold-red);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 0 4rem;
+            text-align: center;
+        }
+
+        .hero-icon {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 2rem;
+            border-radius: 20px;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 0, 0, 0.05) 100%);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s;
+        }
+
+        .hero-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 60px rgba(255, 0, 0, 0.2);
+        }
+
+        .hero-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--off-white);
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--cream);
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            margin: 4rem 0;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 5rem;
+        }
+
+        /* Contact Form */
+        .contact-form {
+            background: linear-gradient(135deg, var(--navy) 0%, rgba(26, 31, 58, 0.7) 100%);
+            border: 1px solid rgba(232, 213, 183, 0.15);
+            border-radius: 20px;
+            padding: 3rem;
+        }
+
+        .contact-form h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--off-white);
+        }
+
+        .contact-form p {
+            color: var(--cream);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--cream);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(26, 31, 58, 0.5);
+            border: 1px solid rgba(232, 213, 183, 0.2);
+            border-radius: 8px;
+            color: var(--off-white);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--bold-red);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 1.25rem;
+            background: var(--bold-red);
+            color: var(--off-white);
+            border: 2px solid var(--bold-red);
+            border-radius: 50px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-button:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Contact Info */
+        .contact-info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, var(--navy) 0%, rgba(26, 31, 58, 0.7) 100%);
+            border: 1px solid rgba(232, 213, 183, 0.15);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: block;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--bold-red);
+            box-shadow: 0 15px 40px rgba(255, 0, 0, 0.15);
+        }
+
+        .contact-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+        }
+
+        .contact-card-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(212, 175, 55, 0.3));
+            transition: transform 0.3s;
+        }
+
+        .contact-card:hover .contact-card-icon img {
+            transform: scale(1.1);
+        }
+
+        .contact-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--gold);
+        }
+
+        .contact-card p {
+            color: var(--off-white);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .contact-card small {
+            color: var(--cream);
+            font-size: 0.9rem;
+        }
+
+        /* Office Hours */
+        .office-hours {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(255, 0, 0, 0.05) 100%);
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .office-hours h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--gold);
+        }
+
+        .office-hours p {
+            color: var(--cream);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .office-hours strong {
+            color: var(--off-white);
+        }
+
+        /* Map Section */
+        .map-section {
+            margin: 5rem 0;
+            text-align: center;
+        }
+
+        .map-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.75rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--off-white);
+        }
+
+        .map-container {
+            background: var(--navy);
+            border: 1px solid rgba(232, 213, 183, 0.15);
+            border-radius: 20px;
+            overflow: hidden;
+            height: 450px;
+            position: relative;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--navy) 0%, rgba(26, 31, 58, 0.7) 100%);
+        }
+
+        .map-placeholder div {
+            text-align: center;
+        }
+
+        .map-placeholder h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            color: var(--gold);
+            margin-bottom: 0.75rem;
+        }
+
+        .map-placeholder p {
+            color: var(--cream);
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 1px solid rgba(232, 213, 183, 0.1);
+            margin-top: 5rem;
+        }
+
+        footer p {
+            color: var(--cream);
+            font-size: 0.95rem;
+        }
+
+        /* Form Feedback Messages */
+        .form-message {
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: none;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .form-message.success {
+            background: linear-gradient(135deg, rgba(34, 139, 34, 0.2) 0%, rgba(34, 139, 34, 0.1) 100%);
+            border: 1px solid rgba(34, 139, 34, 0.3);
+            color: #90EE90;
+        }
+
+        .form-message.error {
+            background: linear-gradient(135deg, rgba(220, 20, 60, 0.2) 0%, rgba(220, 20, 60, 0.1) 100%);
+            border: 1px solid rgba(220, 20, 60, 0.3);
+            color: #FFB6C1;
+        }
+
+        .form-message.show {
+            display: block;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--off-white);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .submit-button.loading {
+            position: relative;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .submit-button.loading .loading-spinner {
+            display: inline-block;
+        }
+
+        /* Field Validation Styles */
+        .form-group.error input,
+        .form-group.error textarea,
+        .form-group.error select {
+            border-color: rgba(220, 20, 60, 0.5);
+            background: rgba(220, 20, 60, 0.05);
+        }
+
+        .field-error {
+            color: #FFB6C1;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .form-group.error .field-error {
+            display: block;
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 280px;
+                height: 100vh;
+                background: var(--navy);
+                border-left: 1px solid rgba(232, 213, 183, 0.2);
+                flex-direction: column;
+                gap: 0;
+                padding: 5rem 2rem 2rem;
+                transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 999;
+                overflow-y: auto;
+            }
+
+            nav.active {
+                right: 0;
+                box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+            }
+
+            nav a {
+                padding: 1rem 0;
+                border-bottom: 1px solid rgba(232, 213, 183, 0.1);
+                font-size: 1.1rem;
+            }
+
+            nav a::after {
+                display: none;
+            }
+
+            h1 { font-size: 3rem; }
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .contact-form,
+            .contact-card {
+                padding: 2rem 1.5rem;
+            }
+            .map-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="welcome-balizero-redesign.html" class="logo">
+                    <img src="logo/balizero-logo.png" alt="Bali Zero" width="120" height="60">
+                </a>
+                <button class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="main-nav">
+                    ☰
+                </button>
+                <nav id="main-nav" role="navigation" aria-label="Main navigation">
+                    <a href="welcome-balizero-redesign.html">Home</a>
+                    <a href="welcome-visas-page.html">Visas</a>
+                    <a href="welcome-company-page.html">Company</a>
+                    <a href="welcome-tax-page.html">Tax</a>
+                    <a href="welcome-real-estate-page.html">Real Estate</a>
+                    <a href="welcome-team-page.html">Team</a>
+                    <a href="welcome-balizero-redesign.html" class="active">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-icon">
+                <img src="sticker/contact-communication-sticker.png" alt="Contact Communication" loading="lazy" width="200" height="150">
+            </div>
+            <h1>Contact Us</h1>
+            <p class="subtitle">Ready to start your journey in Bali? Get in touch with our team and we'll guide you through every step of the process.</p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="contact-grid">
+                <!-- Contact Form -->
+                <div class="contact-form">
+                    <h2>Send Us a Message</h2>
+                    <p>Fill out the form below and we'll get back to you within 24 hours.</p>
+
+                    <!-- Formspree form - Replace YOUR_FORM_ID with actual form ID -->
+                    <form id="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+                        <div class="form-group">
+                            <label for="name">Full Name *</label>
+                            <input type="text" id="name" name="name" required minlength="2" maxlength="100">
+                            <span class="field-error">Please enter your full name (2-100 characters)</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required maxlength="254">
+                            <span class="field-error">Please enter a valid email address</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" pattern="[+]?[0-9\s\-()]{10,20}">
+                            <span class="field-error">Please enter a valid phone number</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="service">Service Interested In *</label>
+                            <select id="service" name="service" required>
+                                <option value="">Select a service...</option>
+                                <option value="visas">Visa Services</option>
+                                <option value="company">Company Setup</option>
+                                <option value="tax">Tax Consulting</option>
+                                <option value="real-estate">Real Estate</option>
+                                <option value="multiple">Multiple Services</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <span class="field-error">Please select a service</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Message *</label>
+                            <textarea id="message" name="message" required minlength="10" maxlength="5000" placeholder="Tell us about your needs..."></textarea>
+                            <span class="field-error">Please enter your message (10-5000 characters)</span>
+                        </div>
+
+                        <!-- Hidden fields for Formspree -->
+                        <input type="text" name="_gotcha" style="display:none">
+                        <input type="hidden" name="_subject" value="New Contact Form Submission from Bali Zero Website">
+
+                        <button type="submit" class="submit-button">
+                            <span class="button-text">Send Message</span>
+                            <span class="loading-spinner"></span>
+                        </button>
+
+                        <!-- Success/Error Messages -->
+                        <div id="form-message" class="form-message"></div>
+                    </form>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="contact-info-section">
+                    <a href="https://maps.google.com/?q=Kerobokan+Bali" target="_blank" class="contact-card">
+                        <span class="contact-card-icon"><img src="logo/google-maps-logo.svg" alt="Office Location" loading="lazy" width="40" height="40"></span>
+                        <h3>Office</h3>
+                        <p>Kerobokan, Bali</p>
+                        <small>Visit us by appointment</small>
+                    </a>
+
+                    <a href="mailto:info@balizero.com" class="contact-card">
+                        <span class="contact-card-icon"><img src="logo/gmail-logo.svg" alt="Email" loading="lazy" width="40" height="40"></span>
+                        <h3>Email</h3>
+                        <p>info@balizero.com</p>
+                        <small>We'll respond within 24 hours</small>
+                    </a>
+
+                    <a href="https://wa.me/6285904369574" target="_blank" class="contact-card">
+                        <span class="contact-card-icon"><img src="logo/whatsapp-logo.svg" alt="WhatsApp" loading="lazy" width="40" height="40"></span>
+                        <h3>WhatsApp</h3>
+                        <p>+62 859 0436 9574</p>
+                        <small>Chat with us directly</small>
+                    </a>
+
+                    <a href="https://instagram.com/balizero0" target="_blank" class="contact-card">
+                        <span class="contact-card-icon"><img src="logo/instagram-logo.svg" alt="Instagram" loading="lazy" width="40" height="40"></span>
+                        <h3>Instagram</h3>
+                        <p>@balizero0</p>
+                        <small>Follow for updates</small>
+                    </a>
+
+                    <div class="office-hours">
+                        <h4>Office Hours</h4>
+                        <p><strong>Monday - Friday:</strong> <span>9:00 AM - 5:00 PM</span></p>
+                        <p><strong>Saturday:</strong> <span>10:00 AM - 2:00 PM</span></p>
+                        <p><strong>Sunday:</strong> <span>Closed</span></p>
+                        <small style="display: block; margin-top: 1rem; text-align: center;">WITA (Bali Time, UTC+8)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section">
+        <div class="container">
+            <h2>Find Us in Kerobokan</h2>
+            <div class="map-container">
+                <div class="map-placeholder">
+                    <div>
+                        <h3>📍 Kerobokan, Bali</h3>
+                        <p>Exact location shared upon appointment</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>© 2025 Bali Zero. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Enhanced Form Handler with Validation and Formspree Integration
+        const contactForm = document.getElementById('contact-form');
+        const formMessage = document.getElementById('form-message');
+        const submitButton = contactForm.querySelector('.submit-button');
+        const buttonText = submitButton.querySelector('.button-text');
+
+        // Field validation patterns
+        const validationPatterns = {
+            name: /^[a-zA-Z\s]{2,100}$/,
+            email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            phone: /^[+]?[0-9\s\-()]{10,20}$/
+        };
+
+        // Validate single field
+        function validateField(field) {
+            const formGroup = field.closest('.form-group');
+            const fieldName = field.name;
+            const fieldValue = field.value.trim();
+
+            // Remove error state initially
+            formGroup.classList.remove('error');
+
+            // Check required fields
+            if (field.hasAttribute('required') && !fieldValue) {
+                formGroup.classList.add('error');
+                return false;
+            }
+
+            // Check pattern validation for specific fields
+            if (fieldValue && validationPatterns[fieldName]) {
+                if (!validationPatterns[fieldName].test(fieldValue)) {
+                    formGroup.classList.add('error');
+                    return false;
+                }
+            }
+
+            // Check min/max length
+            if (field.minLength && fieldValue.length < field.minLength) {
+                formGroup.classList.add('error');
+                return false;
+            }
+
+            if (field.maxLength && fieldValue.length > field.maxLength) {
+                formGroup.classList.add('error');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Real-time validation on blur
+        contactForm.querySelectorAll('input, textarea, select').forEach(field => {
+            field.addEventListener('blur', () => validateField(field));
+            field.addEventListener('input', () => {
+                const formGroup = field.closest('.form-group');
+                if (formGroup.classList.contains('error')) {
+                    validateField(field);
+                }
+            });
+        });
+
+        // Show message
+        function showMessage(message, type) {
+            formMessage.textContent = message;
+            formMessage.className = `form-message ${type} show`;
+
+            // Auto-hide success messages after 10 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    formMessage.classList.remove('show');
+                }, 10000);
+            }
+        }
+
+        // Set loading state
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitButton.classList.add('loading');
+                submitButton.disabled = true;
+                buttonText.textContent = 'Sending...';
+            } else {
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
+                buttonText.textContent = 'Send Message';
+            }
+        }
+
+        // Handle form submission
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Clear previous messages
+            formMessage.classList.remove('show');
+
+            // Validate all fields
+            const fields = this.querySelectorAll('input:not([type="hidden"]):not([name="_gotcha"]), textarea, select');
+            let isValid = true;
+
+            fields.forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                showMessage('Please correct the errors in the form.', 'error');
+                return;
+            }
+
+            // Set loading state
+            setLoading(true);
+
+            try {
+                // Submit to Formspree
+                const formData = new FormData(this);
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Success
+                    showMessage('Thank you for your message! We will get back to you within 24 hours.', 'success');
+                    this.reset();
+
+                    // Remove any error states
+                    this.querySelectorAll('.form-group.error').forEach(group => {
+                        group.classList.remove('error');
+                    });
+
+                    // Optional: Scroll to message
+                    formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    // Error from server
+                    const data = await response.json();
+                    throw new Error(data.error || 'Server error');
+                }
+            } catch (error) {
+                // Handle errors
+                console.error('Form submission error:', error);
+
+                if (error.message.includes('YOUR_FORM_ID')) {
+                    showMessage('Form configuration error. Please contact us directly via email or WhatsApp.', 'error');
+                } else if (error.message.includes('network')) {
+                    showMessage('Network error. Please check your connection and try again.', 'error');
+                } else {
+                    showMessage('An error occurred. Please try again or contact us directly.', 'error');
+                }
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Mobile menu toggle (keeping existing functionality)
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const nav = document.querySelector('nav');
+
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function() {
+                nav.classList.toggle('active');
+                const isExpanded = nav.classList.contains('active');
+                this.setAttribute('aria-expanded', isExpanded);
+            });
+        }
+    </script>
+</body>
+</html>
