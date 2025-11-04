@@ -13,9 +13,9 @@ console.log('🔍 [INC] Node version:', process.version);
 async function startIncrementalServer() {
   const app = express();
   const PORT = parseInt(process.env.PORT || '8080');
-  
+
   console.log('✅ [INC] Express app created');
-  
+
   // Configure trust proxy for Fly.io
   app.set('trust proxy', true);
   console.log('✅ [INC] Trust proxy configured');
@@ -31,10 +31,10 @@ async function startIncrementalServer() {
   // FEATURE #1: CORS & Security Middleware
   // ============================================================
   console.log('🔄 [INC] Loading Feature #1: CORS & Security...');
-  
+
   let corsMiddleware: any;
   let applySecurity: any;
-  
+
   // Try to load CORS middleware
   try {
     const corsModule = await import('./middleware/cors.js');
@@ -52,7 +52,7 @@ async function startIncrementalServer() {
       next();
     };
   }
-  
+
   // Try to load Security middleware
   try {
     const securityModule = await import('./middleware/security.middleware.js');
@@ -62,7 +62,7 @@ async function startIncrementalServer() {
     console.log('  ⚠️ [F1] Security middleware failed, using no-op:', error.message);
     applySecurity = (req: any, res: any, next: any) => next();
   }
-  
+
   // Apply middleware
   try {
     app.use(applySecurity);
@@ -71,15 +71,15 @@ async function startIncrementalServer() {
   } catch (error: any) {
     console.error('❌ [F1] Failed to apply middleware:', error.message);
   }
-  
+
   // ============================================================
   // FEATURE #2: Metrics & Observability
   // ============================================================
   console.log('🔄 [INC] Loading Feature #2: Metrics & Observability...');
-  
+
   let metricsMiddleware: any;
   let metricsHandler: any;
-  
+
   try {
     const metricsModule = await import('./middleware/observability.middleware.js');
     metricsMiddleware = metricsModule.metricsMiddleware;
@@ -91,11 +91,11 @@ async function startIncrementalServer() {
     metricsHandler = (req: any, res: any) => {
       res.json({
         status: 'metrics_disabled',
-        message: 'Observability module not loaded'
+        message: 'Observability module not loaded',
       });
     };
   }
-  
+
   // Apply metrics middleware
   try {
     app.use(metricsMiddleware);
@@ -103,14 +103,14 @@ async function startIncrementalServer() {
   } catch (error: any) {
     console.error('❌ [F2] Failed to apply metrics middleware:', error.message);
   }
-  
+
   // ============================================================
   // FEATURE #3: Advanced Health Routes
   // ============================================================
   console.log('🔄 [INC] Loading Feature #3: Advanced Health Routes...');
-  
+
   let healthRoutes: any;
-  
+
   try {
     const healthModule = await import('./routes/health.js');
     healthRoutes = healthModule.default;
@@ -119,7 +119,7 @@ async function startIncrementalServer() {
     console.log('  ⚠️ [F3] Health routes failed:', error.message);
     healthRoutes = null;
   }
-  
+
   // Apply health routes if loaded
   if (healthRoutes) {
     try {
@@ -131,15 +131,15 @@ async function startIncrementalServer() {
   } else {
     console.log('⚠️ [F3] Feature #3 SKIPPED: Health routes not available');
   }
-  
+
   // ============================================================
   // FEATURE #4: Redis Cache Initialization & Routes
   // ============================================================
   console.log('🔄 [INC] Loading Feature #4: Redis Cache...');
-  
+
   let initializeRedis: any;
   let cacheRoutes: any;
-  
+
   // Try to initialize Redis
   try {
     const cacheModule = await import('./middleware/cache.middleware.js');
@@ -149,7 +149,7 @@ async function startIncrementalServer() {
     console.log('  ⚠️ [F4] Cache middleware failed:', error.message);
     initializeRedis = async () => console.log('  ⚠️ Redis initialization skipped');
   }
-  
+
   // Initialize Redis connection
   try {
     await initializeRedis();
@@ -157,7 +157,7 @@ async function startIncrementalServer() {
   } catch (error: any) {
     console.log('  ⚠️ [F4] Redis initialization failed:', error.message);
   }
-  
+
   // Try to load cache routes
   try {
     const cacheRoutesModule = await import('./routes/cache.routes.js');
@@ -167,7 +167,7 @@ async function startIncrementalServer() {
     console.log('  ⚠️ [F4] Cache routes failed:', error.message);
     cacheRoutes = null;
   }
-  
+
   // Mount cache routes if available
   if (cacheRoutes) {
     try {
@@ -179,14 +179,14 @@ async function startIncrementalServer() {
   } else {
     console.log('⚠️ [F4] Feature #4 PARTIAL: Redis initialized, routes skipped');
   }
-  
+
   // ============================================================
   // FEATURE #5: Correlation Middleware (Request Tracking)
   // ============================================================
   console.log('🔄 [INC] Loading Feature #5: Correlation Middleware...');
-  
+
   let correlationMiddleware: any;
-  
+
   try {
     const correlationModule = await import('./logging/correlation-middleware.js');
     correlationMiddleware = correlationModule.default;
@@ -195,14 +195,15 @@ async function startIncrementalServer() {
     console.log('  ⚠️ [F5] Correlation middleware failed, using no-op:', error.message);
     correlationMiddleware = () => (req: any, res: any, next: any) => {
       // Generate basic correlation ID
-      req.correlationId = req.headers['x-correlation-id'] || 
-                          req.headers['x-request-id'] || 
-                          `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      req.correlationId =
+        req.headers['x-correlation-id'] ||
+        req.headers['x-request-id'] ||
+        `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       res.setHeader('x-correlation-id', req.correlationId);
       next();
     };
   }
-  
+
   // Apply correlation middleware early (before request logging)
   try {
     app.use(correlationMiddleware());
@@ -210,14 +211,14 @@ async function startIncrementalServer() {
   } catch (error: any) {
     console.error('❌ [F5] Failed to apply correlation middleware:', error.message);
   }
-  
+
   // ============================================================
   // FEATURE #6: Performance Routes & Monitoring
   // ============================================================
   console.log('🔄 [INC] Loading Feature #6: Performance Routes...');
-  
+
   let performanceRoutes: any;
-  
+
   try {
     const perfModule = await import('./routes/performance.routes.js');
     performanceRoutes = perfModule.default;
@@ -226,7 +227,7 @@ async function startIncrementalServer() {
     console.log('  ⚠️ [F6] Performance routes failed:', error.message);
     performanceRoutes = null;
   }
-  
+
   // Mount performance routes if available
   if (performanceRoutes) {
     try {
@@ -238,14 +239,14 @@ async function startIncrementalServer() {
   } else {
     console.log('⚠️ [F6] Feature #6 SKIPPED: Performance routes not available');
   }
-  
+
   // ============================================================
   // FEATURE #7: Bali Zero Chat Routes
   // ============================================================
   console.log('🔄 [INC] Loading Feature #7: Bali Zero Chat...');
-  
+
   let baliZeroRoutes: any;
-  
+
   try {
     const baliModule = await import('./routes/api/v2/bali-zero.routes.js');
     baliZeroRoutes = baliModule.default;
@@ -254,7 +255,7 @@ async function startIncrementalServer() {
     console.log('  ⚠️ [F7] Bali Zero routes failed:', error.message);
     baliZeroRoutes = null;
   }
-  
+
   // Mount Bali Zero routes if available
   if (baliZeroRoutes) {
     try {
@@ -296,12 +297,40 @@ async function startIncrementalServer() {
   }
 
   // ============================================================
+  // FEATURE #10: User Authentication (Complete System)
+  // ============================================================
+  console.log('🔄 [INC] Loading Feature #10: User Authentication...');
+
+  let userAuthRoutes: any;
+
+  try {
+    const userAuthModule = await import('./routes/api/auth/user-auth.routes.js');
+    userAuthRoutes = userAuthModule.default;
+    console.log('  ✅ [F10] User Auth routes loaded');
+  } catch (error: any) {
+    console.log('  ⚠️ [F10] User Auth routes failed:', error.message);
+    userAuthRoutes = null;
+  }
+
+  // Mount User Auth routes if available
+  if (userAuthRoutes) {
+    try {
+      app.use('/api/auth', userAuthRoutes);
+      console.log('✅ [F10] Feature #10 ENABLED: User Authentication System');
+    } catch (error: any) {
+      console.error('❌ [F10] Failed to mount User Auth routes:', error.message);
+    }
+  } else {
+    console.log('⚠️ [F10] Feature #10 SKIPPED: User Auth routes not available');
+  }
+
+  // ============================================================
   // FEATURE #8: ZANTARA v3 AI Routes (unified/collective/ecosystem)
   // ============================================================
   console.log('🔄 [INC] Loading Feature #8: ZANTARA v3 AI...');
-  
+
   let zantaraV3Routes: any;
-  
+
   try {
     const v3Module = await import('./routes/api/v3/zantara-v3.routes.js');
     zantaraV3Routes = v3Module.default;
@@ -310,7 +339,7 @@ async function startIncrementalServer() {
     console.log('  ⚠️ [F8] ZANTARA v3 routes failed:', error.message);
     zantaraV3Routes = null;
   }
-  
+
   // Mount ZANTARA v3 routes if available
   if (zantaraV3Routes) {
     try {
@@ -322,14 +351,14 @@ async function startIncrementalServer() {
   } else {
     console.log('⚠️ [F8] Feature #8 SKIPPED: ZANTARA v3 routes not available');
   }
-  
+
   // ============================================================
   // FEATURE #9: Main Router (Safe Progressive Loading)
   // ============================================================
   console.log('🔄 [INC] Loading Feature #9: Main Router (safe mode)...');
-  
+
   let attachRoutes: any;
-  
+
   try {
     const routingModule = await import('./routing/router-safe.js');
     attachRoutes = routingModule.attachRoutes;
@@ -338,19 +367,21 @@ async function startIncrementalServer() {
     console.log('  ⚠️ [F9] Safe router failed:', error.message);
     attachRoutes = null;
   }
-  
+
   // Attach main router with progressive loading
   if (attachRoutes) {
     try {
       const result = await attachRoutes(app);
-      console.log(`✅ [F9] Feature #9 ENABLED: Main Router (${result.loaded} routes loaded, ${result.failed} skipped)`);
+      console.log(
+        `✅ [F9] Feature #9 ENABLED: Main Router (${result.loaded} routes loaded, ${result.failed} skipped)`
+      );
     } catch (error: any) {
       console.error('❌ [F9] Failed to attach main router:', error.message);
     }
   } else {
     console.log('⚠️ [F9] Feature #9 SKIPPED: Main router not available');
   }
-  
+
   // ============================================================
   // REQUEST LOGGING
   // ============================================================
@@ -361,22 +392,33 @@ async function startIncrementalServer() {
     console.log(`📍 [INC] [${corrId.substr(0, 12)}] ${req.method} ${req.path}`);
     next();
   });
-  
+
   // ============================================================
   // ENDPOINTS
   // ============================================================
-  
+
   // Metrics endpoint (Feature #2)
   app.get('/metrics', metricsHandler);
   console.log('✅ [INC] Metrics endpoint registered at /metrics');
-  
+
   app.get('/health', (req, res) => {
     res.json({
       status: 'healthy',
       version: 'incremental-v0.9-progressive',
       timestamp: new Date().toISOString(),
       features: {
-        enabled: ['cors', 'security', 'metrics', 'health-routes', 'redis-cache', 'correlation', 'performance', 'bali-zero', 'zantara-v3', 'main-router-progressive'],
+        enabled: [
+          'cors',
+          'security',
+          'metrics',
+          'health-routes',
+          'redis-cache',
+          'correlation',
+          'performance',
+          'bali-zero',
+          'zantara-v3',
+          'main-router-progressive',
+        ],
         total: 38,
         progress: '9+/38',
         note: 'Progressive router loading - handlers loaded on-demand',
@@ -386,27 +428,38 @@ async function startIncrementalServer() {
           'Business Logic': 'progressive',
           'Finance & Pricing': 'progressive',
           'Admin & System': 'progressive',
-          'Utility': '4/7 + progressive'
-        }
+          Utility: '4/7 + progressive',
+        },
       },
       env: {
         port: PORT,
         nodeEnv: process.env.NODE_ENV,
         redisUrl: process.env.REDIS_URL ? 'CONNECTED' : 'NOT_SET',
-        databaseUrl: process.env.DATABASE_URL ? 'SET' : 'NOT_SET'
-      }
+        databaseUrl: process.env.DATABASE_URL ? 'SET' : 'NOT_SET',
+      },
     });
   });
-  
+
   app.get('/', (req, res) => {
     res.json({
       message: 'ZANTARA TS-BACKEND - Progressive Deployment',
       version: 'incremental-v0.9-progressive',
       status: 'operational',
       features: {
-        enabled: ['cors', 'security', 'metrics', 'health-routes', 'redis-cache', 'correlation', 'performance', 'bali-zero', 'zantara-v3', 'main-router-progressive'],
+        enabled: [
+          'cors',
+          'security',
+          'metrics',
+          'health-routes',
+          'redis-cache',
+          'correlation',
+          'performance',
+          'bali-zero',
+          'zantara-v3',
+          'main-router-progressive',
+        ],
         totalEndpoints: 38,
-        note: 'Core + Progressive Router (handlers loaded safely with fallback)'
+        note: 'Core + Progressive Router (handlers loaded safely with fallback)',
       },
       endpoints: {
         health: '/health',
@@ -416,13 +469,13 @@ async function startIncrementalServer() {
         baliZero: '/api/v2/bali-zero/* (KBLI lookup)',
         zantaraV3: '/api/v3/zantara/* (AI unified)',
         progressive: '/api/* (additional routes loaded progressively)',
-        docs: 'Check logs for loaded routes count'
-      }
+        docs: 'Check logs for loaded routes count',
+      },
     });
   });
-  
+
   console.log(`🎯 [INC] Attempting to listen on port ${PORT}...`);
-  
+
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log('🚀 ========================================');
     console.log('🚀 INCREMENTAL SERVER STARTED');
@@ -436,12 +489,12 @@ async function startIncrementalServer() {
     console.log(`🚀 Features: 8/38 core features enabled (21%) ✅`);
     console.log('🚀 ========================================');
   });
-  
+
   server.on('error', (error: any) => {
     console.error('❌ [INC] Server error:', error);
     process.exit(1);
   });
-  
+
   process.on('SIGTERM', () => {
     console.log('🛑 [INC] SIGTERM received');
     server.close(() => {
@@ -449,7 +502,7 @@ async function startIncrementalServer() {
       process.exit(0);
     });
   });
-  
+
   process.on('SIGINT', () => {
     console.log('🛑 [INC] SIGINT received');
     server.close(() => {
@@ -457,12 +510,12 @@ async function startIncrementalServer() {
       process.exit(0);
     });
   });
-  
+
   console.log('✅ [INC] Setup complete');
 }
 
 // Start the server
-startIncrementalServer().catch(err => {
+startIncrementalServer().catch((err) => {
   console.error('❌ [INC] FATAL ERROR:', err);
   process.exit(1);
 });
