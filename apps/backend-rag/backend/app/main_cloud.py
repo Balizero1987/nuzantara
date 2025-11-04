@@ -2340,8 +2340,24 @@ async def root():
     collection_stats = {}
 
     try:
-        if search_service and hasattr(search_service, 'chroma_client'):
-            collections = search_service.chroma_client.list_collections()
+        # Try to get count from search_service if available
+        if search_service:
+            try:
+                if hasattr(search_service, 'chroma_client'):
+                    collections = search_service.chroma_client.list_collections()
+                    for col in collections:
+                        count = col.count()
+                        total_docs += count
+                        collection_stats[col.name] = count
+            except Exception:
+                pass
+
+        # If no data yet, connect directly to ChromaDB
+        if total_docs == 0:
+            import chromadb
+            chroma_path = os.getenv('CHROMA_DB_PATH', '/data/chroma_db_FULL_deploy')
+            chroma_client = chromadb.PersistentClient(path=chroma_path)
+            collections = chroma_client.list_collections()
             for col in collections:
                 count = col.count()
                 total_docs += count
