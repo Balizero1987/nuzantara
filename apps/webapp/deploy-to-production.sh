@@ -15,38 +15,38 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Configuration
-REPO_PATH="/Users/antonellosiano/Desktop/NUZANTARA-RAILWAY/apps/webapp"
+REPO_PATH="/Users/antonellosiano/Desktop/NUZANTARA-FLY/apps/webapp"
 DOMAIN="zantara.balizero.com"
-BACKEND_PRODUCTION="https://zantara-v520-production-1064094238013.europe-west1.run.app"
-BACKEND_RAG="https://zantara-v520-chatgpt-patch-1064094238013.europe-west1.run.app"
-PROXY_URL="https://zantara-web-proxy-1064094238013.europe-west1.run.app/api/zantara"
+BACKEND_PRODUCTION="https://nuzantara-backend.fly.dev"
+BACKEND_RAG="https://nuzantara-rag.fly.dev"
 
 cd "$REPO_PATH"
 
 # Ask which backend to use
 echo -e "${BLUE}Which backend do you want to use?${NC}"
 echo ""
-echo "1) Current (Proxy + Stable Production) - RECOMMENDED"
-echo "2) Direct RAG Backend (Latest with 4 new RAG endpoints)"
+echo "1) Production Backend (Fly.io) - RECOMMENDED"
+echo "2) RAG Backend (Latest with vector search)"
 echo "3) Custom URL"
 echo ""
 read -p "Choice [1-3]: " BACKEND_CHOICE
 
 case $BACKEND_CHOICE in
   2)
-    echo -e "${YELLOW}Updating to RAG backend with new endpoints...${NC}"
+    echo -e "${YELLOW}Updating to RAG backend...${NC}"
     # Update api-config.js to use RAG backend
-    sed -i.bak "s|base: '.*europe-west1.run.app'|base: '$BACKEND_RAG'|g" js/api-config.js
+    sed -i.bak "s|base: '.*'|base: '$BACKEND_RAG'|g" js/api-config.js
     BACKEND_USED="RAG (Latest)"
     ;;
   3)
     read -p "Enter custom backend URL: " CUSTOM_URL
-    sed -i.bak "s|base: '.*europe-west1.run.app'|base: '$CUSTOM_URL'|g" js/api-config.js
+    sed -i.bak "s|base: '.*'|base: '$CUSTOM_URL'|g" js/api-config.js
     BACKEND_USED="Custom ($CUSTOM_URL)"
     ;;
   *)
-    echo -e "${GREEN}Keeping current configuration (Proxy mode)${NC}"
-    BACKEND_USED="Proxy (Secure)"
+    echo -e "${GREEN}Using Production backend (Fly.io)${NC}"
+    sed -i.bak "s|base: '.*'|base: '$BACKEND_PRODUCTION'|g" js/api-config.js
+    BACKEND_USED="Production (Fly.io)"
     ;;
 esac
 
