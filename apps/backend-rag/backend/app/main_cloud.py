@@ -1210,6 +1210,7 @@ class SearchRequest(BaseModel):
     use_llm: bool = True
     user_level: int = 3
     conversation_history: Optional[List[Dict[str, Any]]] = None
+    collection: Optional[str] = None  # FIX: Allow specifying collection for OpenAI 1536-dim migration
 
 
 class SearchResponse(BaseModel):
@@ -1499,7 +1500,8 @@ async def search_endpoint(request: SearchRequest):
         results = await search_service.search(
             query=request.query,
             user_level=request.user_level,
-            limit=request.k
+            limit=request.k,
+            collection_override=request.collection  # FIX: Pass collection for 1536-dim migration
         )
 
         answer = None
