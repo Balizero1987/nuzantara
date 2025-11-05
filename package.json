@@ -51,16 +51,6 @@
     "devai:analyze": "node -e \"console.log('Use: curl /call -d {key:devai.analyze,params:{code:...}}')\"",
     "devai:fix-typescript": "npm run typecheck 2>&1 | head -50"
   },
-  "jest": {
-    "coverageThreshold": {
-      "global": {
-        "branches": 70,
-        "functions": 70,
-        "lines": 70,
-        "statements": 70
-      }
-    }
-  },
   "lint-staged": {
     "*.{ts,js}": [
       "eslint --fix",

@@ -1,4 +1,7 @@
 export default {
+  // Root directories - only search in src, never in dist
+  roots: ['<rootDir>/src'],
+
   // Use SWC for fast TypeScript transformation with ESM support
   transform: {
     '^.+\\.(t|j)sx?$': '@swc/jest',
@@ -10,8 +13,13 @@ export default {
   // Test environment
   testEnvironment: 'node',
 
-  // Test file patterns
-  testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
+  // Test file patterns - exclude dist explicitly
+  testMatch: [
+    '**/__tests__/**/*.test.ts',
+    '**/?(*.)+(spec|test).ts',
+    '!**/dist/**',
+    '!**/node_modules/**',
+  ],
 
   // Module paths
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
@@ -22,12 +30,13 @@ export default {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 
-  // Coverage configuration
+  // Coverage configuration - only from src, never dist
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/__tests__/**',
     '!src/**/*.test.ts',
     '!src/**/index.ts',
+    '!**/dist/**',
   ],
 
   // Coverage thresholds (optional - can adjust based on project needs)
@@ -40,10 +49,12 @@ export default {
     },
   },
 
-  // Ignore patterns
+  // Ignore patterns - use regex patterns that match paths
   testPathIgnorePatterns: [
     '/node_modules/',
     '/dist/',
+    '.*/dist/.*',
+    '.*dist.*',
     // Temporarily skip tests with complex dependencies that cause timeouts
     'memory-firestore.test.ts',
     'alerts.test.ts',
