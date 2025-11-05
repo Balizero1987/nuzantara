@@ -56,15 +56,23 @@ class ChromaDBClient:
         )
 
         # Get or create collection
-        self.collection = self.client.get_or_create_collection(
-            name=self.collection_name,
-            metadata={"description": "ZANTARA Knowledge Base"}
-        )
-
-        logger.info(
-            f"ChromaDB initialized: collection='{self.collection_name}', "
-            f"persist_dir='{self.persist_directory}'"
-        )
+        # First, try to get existing collection to preserve its metadata (including dimensions)
+        try:
+            self.collection = self.client.get_collection(name=self.collection_name)
+            logger.info(
+                f"ChromaDB connected to existing collection: '{self.collection_name}' "
+                f"(metadata: {self.collection.metadata})"
+            )
+        except Exception:
+            # Collection doesn't exist, create with default metadata
+            self.collection = self.client.create_collection(
+                name=self.collection_name,
+                metadata={"description": "ZANTARA Knowledge Base"}
+            )
+            logger.info(
+                f"ChromaDB created new collection: '{self.collection_name}', "
+                f"persist_dir='{self.persist_directory}'"
+            )
 
     def upsert_documents(
         self,

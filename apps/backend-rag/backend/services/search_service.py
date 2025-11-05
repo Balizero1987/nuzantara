@@ -42,9 +42,12 @@ class SearchService:
         # This fixes the critical collection mapping issue where all 8,122 chunks are in zantara_memories
         logger.warning("⚠️ TEMPORARY FIX: Redirecting empty collections to zantara_memories")
 
-        # Initialize 14 collections (multi-domain + pricing + cultural + Oracle)
+        # Initialize 16 collections (multi-domain + pricing + cultural + Oracle + test collections)
         self.collections = {
             "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing"),
+            # Test collections for OpenAI embeddings migration
+            "bali_zero_pricing_test_1536": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_test_1536"),
+            "bali_zero_pricing_test_384": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_test_384"),
             # TEMPORARY PATCH: Point to zantara_memories where data actually exists
             "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
             "kbli_eye": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
@@ -87,7 +90,7 @@ class SearchService:
         }
 
         logger.info(f"SearchService initialized with ChromaDB path: {chroma_path}")
-        logger.info("✅ Collections: 14 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books, cultural_insights [JIWA], tax_updates, tax_knowledge, property_listings, property_knowledge, legal_updates)")
+        logger.info("✅ Collections: 16 (bali_zero_pricing [PRIORITY], test_1536, test_384, visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books, cultural_insights [JIWA], tax_updates, tax_knowledge, property_listings, property_knowledge, legal_updates)")
         logger.info("✅ Query routing enabled (Phase 3: Smart Fallback + Conflict Resolution)")
         logger.info("✅ Conflict Resolution Agent: ENABLED")
 
@@ -116,6 +119,10 @@ class SearchService:
         try:
             # Generate query embedding
             query_embedding = self.embedder.generate_query_embedding(query)
+
+            # 🔍 DEBUG: Log embedding details
+            logger.info(f"🔍 DEBUG - Query: '{query[:50]}...', embedding_dim={len(query_embedding)}, provider={self.embedder.provider}")
+            logger.info(f"🔍 DEBUG - Parameters: collection_override={collection_override}, user_level={user_level}, limit={limit}")
 
             # Detect if pricing query
             is_pricing_query = any(kw in query.lower() for kw in self.pricing_keywords)
@@ -152,6 +159,9 @@ class SearchService:
             else:
                 chroma_filter = None
                 tier_values = []
+
+            # 🔍 DEBUG: Log final collection details
+            logger.info(f"🔍 DEBUG - Final collection: {collection_name}, metadata: {vector_db.collection.metadata if hasattr(vector_db, 'collection') else 'N/A'}")
 
             # Search
             raw_results = vector_db.search(

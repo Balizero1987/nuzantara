@@ -30,6 +30,9 @@ async def semantic_search(query: SearchQuery):
     try:
         start_time = time.time()
 
+        # 🔍 DEBUG: Log incoming request
+        logger.info(f"🔍 DEBUG ROUTER - Received query: '{query.query}', collection={query.collection}, level={query.level}, limit={query.limit}")
+
         # Validate level
         if query.level < 0 or query.level > 3:
             raise HTTPException(
@@ -45,7 +48,8 @@ async def semantic_search(query: SearchQuery):
             query=query.query,
             user_level=query.level,
             limit=query.limit,
-            tier_filter=query.tier_filter
+            tier_filter=query.tier_filter,
+            collection_override=query.collection
         )
 
         # Format results

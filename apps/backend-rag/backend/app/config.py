@@ -3,6 +3,7 @@ ZANTARA RAG - Configuration Management
 """
 
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 from typing import Optional
 
 
@@ -21,7 +22,16 @@ class Settings(BaseSettings):
 
     # Embeddings
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    embedding_dimensions: int = 384  # 384 for MiniLM, 1536 for OpenAI
+    embedding_dimensions: int = 384  # Will be auto-updated based on provider
+
+    @field_validator('embedding_dimensions', mode='before')
+    @classmethod
+    def set_dimensions_from_provider(cls, v, info):
+        """Automatically set embedding dimensions based on provider"""
+        provider = info.data.get('embedding_provider', 'sentence-transformers')
+        if provider == 'openai':
+            return 1536  # OpenAI text-embedding-3-small
+        return 384  # sentence-transformers/all-MiniLM-L6-v2
 
     # Chunking
     chunk_size: int = 500

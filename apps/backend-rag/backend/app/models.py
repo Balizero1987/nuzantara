@@ -44,6 +44,7 @@ class SearchQuery(BaseModel):
     level: int = Field(0, ge=0, le=3, description="User access level (0-3)")
     limit: int = Field(5, ge=1, le=50, description="Maximum results to return")
     tier_filter: Optional[List[TierLevel]] = Field(None, description="Filter by specific tiers")
+    collection: Optional[str] = Field(None, description="Optional specific collection to search")
 
 
 class SearchResult(BaseModel):
