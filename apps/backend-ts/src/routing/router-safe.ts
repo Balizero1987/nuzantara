@@ -63,6 +63,8 @@ export async function attachRoutes(app: express.Application) {
   // ==================================================================
   try {
     const { aiChat } = await import('../handlers/ai-services/ai.js');
+
+    // RESTful endpoint: /api/ai/chat
     router.post('/api/ai/chat', async (req: any, res: any) => {
       try {
         const result = await aiChat(req.body);
@@ -72,11 +74,33 @@ export async function attachRoutes(app: express.Application) {
         res.status(500).json({ ok: false, error: error.message || 'AI chat failed' });
       }
     });
-    loadedCount += 1;
-    logger.info('  ✅ AI Chat route loaded (1)');
+
+    // Legacy RPC-style endpoint: /call (for webapp compatibility)
+    router.post('/call', async (req: any, res: any) => {
+      try {
+        const { key, params } = req.body;
+
+        // Only handle ai.chat for now
+        if (key === 'ai.chat') {
+          const result = await aiChat(params);
+          res.json(result);
+        } else {
+          res.status(404).json({
+            ok: false,
+            error: `Handler not found: ${key}. Use /api/ai/chat for AI chat.`
+          });
+        }
+      } catch (error: any) {
+        logger.error('Legacy /call error:', error);
+        res.status(500).json({ ok: false, error: error.message || 'Call failed' });
+      }
+    });
+
+    loadedCount += 2;
+    logger.info('  ✅ AI Chat routes loaded (2: /api/ai/chat + /call)');
   } catch (error: any) {
     logger.warn(`  ⚠️ AI routes skipped: ${error.message}`);
-    failedCount += 1;
+    failedCount += 2;
   }
 
   // ==================================================================
