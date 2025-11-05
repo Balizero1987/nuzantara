@@ -2098,19 +2098,30 @@ async def update_session(session_id: str, request: Request):
     try:
         body = await request.json()
         history = body.get("history", [])
+        ttl_hours = body.get("ttl_hours")  # Optional custom TTL
 
         if not isinstance(history, list):
             raise HTTPException(400, "History must be an array")
 
-        success = await session_service.update_history(session_id, history)
+        # Use custom TTL if provided, otherwise use default (24h)
+        if ttl_hours:
+            if not isinstance(ttl_hours, (int, float)) or ttl_hours <= 0 or ttl_hours > 720:
+                raise HTTPException(400, "ttl_hours must be a number between 1 and 720 (30 days)")
+
+            success = await session_service.update_history_with_ttl(session_id, history, int(ttl_hours))
+            logger.info(f"💾 Updated session {session_id} with {len(history)} messages (TTL: {ttl_hours}h)")
+        else:
+            success = await session_service.update_history(session_id, history)
+            logger.info(f"💾 Updated session {session_id} with {len(history)} messages (TTL: 24h default)")
+
         if not success:
             raise HTTPException(500, "Failed to update session")
 
-        logger.info(f"💾 Updated session {session_id} with {len(history)} messages")
         return {
             "session_id": session_id,
             "updated": True,
-            "message_count": len(history)
+            "message_count": len(history),
+            "ttl_hours": ttl_hours if ttl_hours else 24
         }
     except HTTPException:
         raise
@@ -2145,6 +2156,116 @@ async def delete_session(session_id: str):
     except Exception as e:
         logger.error(f"❌ Failed to delete session: {e}")
         raise HTTPException(500, f"Failed to delete session: {str(e)}")
+
+
+@app.get("/sessions/analytics")
+async def get_session_analytics():
+    """
+    Get analytics about all sessions
+
+    Returns analytics including:
+    - Total sessions
+    - Active sessions (with messages)
+    - Average messages per session
+    - Top session by message count
+    - Distribution by message count ranges
+    """
+    if not session_service:
+        raise HTTPException(503, "Session service unavailable")
+
+    try:
+        analytics = await session_service.get_analytics()
+        return analytics
+    except Exception as e:
+        logger.error(f"❌ Failed to get analytics: {e}")
+        raise HTTPException(500, f"Failed to get analytics: {str(e)}")
+
+
+@app.put("/sessions/{session_id}/ttl")
+async def update_session_ttl(session_id: str, request: Request):
+    """
+    Update session TTL (time-to-live)
+
+    Body: {"ttl_hours": 168}  # e.g., 7 days = 168 hours
+    """
+    if not session_service:
+        raise HTTPException(503, "Session service unavailable")
+
+    try:
+        body = await request.json()
+        ttl_hours = body.get("ttl_hours")
+
+        if not ttl_hours or not isinstance(ttl_hours, (int, float)):
+            raise HTTPException(400, "ttl_hours must be a number")
+
+        if ttl_hours <= 0 or ttl_hours > 720:  # Max 30 days
+            raise HTTPException(400, "ttl_hours must be between 1 and 720 (30 days)")
+
+        extended = await session_service.extend_ttl_custom(session_id, int(ttl_hours))
+
+        if not extended:
+            raise HTTPException(404, "Session not found or expired")
+
+        return {
+            "session_id": session_id,
+            "ttl_hours": ttl_hours,
+            "updated": True
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to update TTL: {e}")
+        raise HTTPException(500, f"Failed to update TTL: {str(e)}")
+
+
+@app.get("/sessions/{session_id}/export")
+async def export_session(session_id: str, format: str = "json"):
+    """
+    Export session conversation in specified format
+
+    Query params:
+    - format: "json" or "markdown" (default: json)
+
+    Returns:
+    - JSON: application/json with conversation data
+    - Markdown: text/markdown with formatted conversation
+    """
+    if not session_service:
+        raise HTTPException(503, "Session service unavailable")
+
+    try:
+        if format not in ["json", "markdown"]:
+            raise HTTPException(400, "Format must be 'json' or 'markdown'")
+
+        exported = await session_service.export_session(session_id, format)
+
+        if not exported:
+            raise HTTPException(404, "Session not found or expired")
+
+        # Return appropriate content type
+        if format == "markdown":
+            from fastapi.responses import PlainTextResponse
+            return PlainTextResponse(
+                content=exported,
+                media_type="text/markdown",
+                headers={
+                    "Content-Disposition": f"attachment; filename=session_{session_id}.md"
+                }
+            )
+        else:
+            from fastapi.responses import JSONResponse
+            return JSONResponse(
+                content=json.loads(exported),
+                media_type="application/json",
+                headers={
+                    "Content-Disposition": f"attachment; filename=session_{session_id}.json"
+                }
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to export session: {e}")
+        raise HTTPException(500, f"Failed to export session: {str(e)}")
 
 
 @app.options("/bali-zero/chat-stream")

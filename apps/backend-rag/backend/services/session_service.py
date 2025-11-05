@@ -226,6 +226,187 @@ class SessionService:
         logger.info("ℹ️ Session cleanup is handled automatically by Redis TTL")
         return 0
 
+    async def get_analytics(self) -> Dict:
+        """
+        Get analytics about all sessions in Redis
+
+        Returns:
+            Dict with:
+            - total_sessions: total number of sessions
+            - active_sessions: sessions with >0 messages
+            - avg_messages_per_session: average message count
+            - top_session: session with most messages
+            - sessions_by_range: distribution by message count
+        """
+        try:
+            # Get all session keys
+            keys = []
+            async for key in self.redis.scan_iter("session:*"):
+                keys.append(key)
+
+            total_sessions = len(keys)
+            if total_sessions == 0:
+                return {
+                    "total_sessions": 0,
+                    "active_sessions": 0,
+                    "avg_messages_per_session": 0,
+                    "top_session": None,
+                    "sessions_by_range": {}
+                }
+
+            # Analyze each session
+            message_counts = []
+            top_session = {"id": None, "messages": 0}
+            ranges = {"0-10": 0, "11-20": 0, "21-50": 0, "51+": 0}
+
+            for key in keys:
+                session_id = key.replace("session:", "")
+                data = await self.redis.get(key)
+                if data:
+                    try:
+                        history = json.loads(data)
+                        msg_count = len(history)
+                        message_counts.append(msg_count)
+
+                        # Track top session
+                        if msg_count > top_session["messages"]:
+                            top_session = {"id": session_id, "messages": msg_count}
+
+                        # Categorize by range
+                        if msg_count <= 10:
+                            ranges["0-10"] += 1
+                        elif msg_count <= 20:
+                            ranges["11-20"] += 1
+                        elif msg_count <= 50:
+                            ranges["21-50"] += 1
+                        else:
+                            ranges["51+"] += 1
+                    except json.JSONDecodeError:
+                        pass
+
+            active_sessions = len([c for c in message_counts if c > 0])
+            avg_messages = sum(message_counts) / len(message_counts) if message_counts else 0
+
+            analytics = {
+                "total_sessions": total_sessions,
+                "active_sessions": active_sessions,
+                "avg_messages_per_session": round(avg_messages, 2),
+                "top_session": top_session if top_session["id"] else None,
+                "sessions_by_range": ranges
+            }
+
+            logger.info(f"📊 Analytics: {total_sessions} sessions, avg {avg_messages:.1f} messages")
+            return analytics
+
+        except Exception as e:
+            logger.error(f"❌ Failed to get analytics: {e}")
+            return {
+                "error": str(e),
+                "total_sessions": 0,
+                "active_sessions": 0,
+                "avg_messages_per_session": 0,
+                "top_session": None,
+                "sessions_by_range": {}
+            }
+
+    async def update_history_with_ttl(self, session_id: str, history: List[Dict], ttl_hours: Optional[int] = None) -> bool:
+        """
+        Update conversation history with custom TTL
+
+        Args:
+            session_id: Session UUID
+            history: List of conversation messages
+            ttl_hours: Custom TTL in hours (default: use service default)
+
+        Returns:
+            bool: True if successful
+        """
+        try:
+            if not isinstance(history, list):
+                logger.error(f"❌ Invalid history format: expected list, got {type(history)}")
+                return False
+
+            # Use custom TTL or default
+            ttl = timedelta(hours=ttl_hours) if ttl_hours else self.ttl
+
+            await self.redis.setex(
+                f"session:{session_id}",
+                ttl,
+                json.dumps(history)
+            )
+            logger.info(f"💾 Updated session {session_id} with {len(history)} messages (TTL: {ttl.total_seconds()/3600:.1f}h)")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Failed to update session with custom TTL: {e}")
+            return False
+
+    async def extend_ttl_custom(self, session_id: str, ttl_hours: int) -> bool:
+        """
+        Extend session TTL to custom duration
+
+        Args:
+            session_id: Session UUID
+            ttl_hours: New TTL in hours
+
+        Returns:
+            bool: True if TTL was extended
+        """
+        try:
+            ttl = timedelta(hours=ttl_hours)
+            extended = await self.redis.expire(f"session:{session_id}", ttl)
+            if extended:
+                logger.info(f"⏰ Extended TTL for session {session_id} to {ttl_hours}h")
+            return extended
+        except Exception as e:
+            logger.error(f"❌ Failed to extend TTL: {e}")
+            return False
+
+    async def export_session(self, session_id: str, format: str = "json") -> Optional[str]:
+        """
+        Export session conversation in specified format
+
+        Args:
+            session_id: Session UUID
+            format: Export format ("json" or "markdown")
+
+        Returns:
+            str: Formatted conversation or None if session not found
+        """
+        try:
+            history = await self.get_history(session_id)
+            if not history:
+                return None
+
+            if format == "markdown":
+                # Format as Markdown
+                lines = [f"# Conversation Export - {session_id}\n"]
+                lines.append(f"**Messages:** {len(history)}\n")
+                lines.append("---\n")
+
+                for i, msg in enumerate(history, 1):
+                    role = msg.get("role", "unknown")
+                    content = msg.get("content", "")
+
+                    if role == "user":
+                        lines.append(f"## 👤 User (Message {i})\n")
+                    else:
+                        lines.append(f"## 🤖 Assistant (Message {i})\n")
+
+                    lines.append(f"{content}\n\n")
+
+                return "".join(lines)
+
+            else:  # JSON format (default)
+                return json.dumps({
+                    "session_id": session_id,
+                    "message_count": len(history),
+                    "conversation": history
+                }, indent=2, ensure_ascii=False)
+
+        except Exception as e:
+            logger.error(f"❌ Failed to export session: {e}")
+            return None
+
     async def close(self):
         """Close Redis connection"""
         try:
