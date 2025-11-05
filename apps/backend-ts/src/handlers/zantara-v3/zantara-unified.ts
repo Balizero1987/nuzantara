@@ -217,7 +217,7 @@ async function queryKBLI(query: string, mode: string) {
     const isSimple = isSimpleKBLIQuery(query);
     
     if (isSimple) {
-      const localResult = await tryLocalKBLI(query);
+      const localResult = await tryLocalKBLI(query) as any;
       if (localResult && localResult.ok && localResult.data?.results?.length > 0) {
         logger.info(`KBLI fast path hit: "${query}" found in local DB`);
         return {
@@ -260,8 +260,8 @@ async function queryKBLI(query: string, mode: string) {
         if (response.ok) {
           const data = await response.json();
           
-          if (data.results && data.results.length > 0) {
-            logger.info(`KBLI RAG success: found ${data.results.length} results`);
+          if ((data as any).results && (data as any).results.length > 0) {
+            logger.info(`KBLI RAG success: found ${(data as any).results.length} results`);
             return {
               type: 'rag_semantic_search',
               data: data,

@@ -345,16 +345,16 @@ export async function requestPasswordReset(email: string) {
 
     // If user exists, send reset email
     if (user) {
-      logger.info({ userId: user.id, email }, 'Password reset requested');
+      logger.info('Password reset requested', { userId: user.id, email });
 
       const emailResult = await sendPasswordResetEmail(email, reset_token);
 
       if (!emailResult.success) {
-        logger.warn({ error: emailResult.error }, 'Failed to send password reset email');
+        logger.warn('Failed to send password reset email', undefined, { error: emailResult.error });
         // Still return success to not reveal email existence
       }
     } else {
-      logger.info({ email }, 'Password reset requested for non-existent email');
+      logger.info('Password reset requested for non-existent email', { email });
     }
 
     // Always return the same response to prevent email enumeration attacks

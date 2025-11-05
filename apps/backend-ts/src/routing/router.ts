@@ -11,7 +11,7 @@ import {
   optionalUnifiedAuth,
   requireRole,
   requirePermission,
-  RequestWithUnifiedAuth,
+  type RequestWithUnifiedAuth,
 } from '../middleware/auth-unified-complete.js';
 import { ForbiddenError, BadRequestError, UnauthorizedError } from '../utils/errors.js';
 import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
@@ -1292,9 +1292,7 @@ export function attachRoutes(app: import('express').Express) {
         })
       );
     } catch (e: any) {
-      logger.error('JWT Login error:', {
-        error: e.message,
-        stack: e.stack,
+      logger.error('JWT Login error:', e, {
         ip: clientIP,
       });
 

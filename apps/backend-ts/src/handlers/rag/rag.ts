@@ -174,8 +174,8 @@ export async function ragQueryDirect(params: RAGQueryParams) {
 
     return {
       ok: true,
-      results: data.results || [],
-      count: data.count || 0,
+      results: (data as any).results || [],
+      count: (data as any).count || 0,
       collection: collection || 'kbli_unified',
       query,
     };
@@ -220,9 +220,9 @@ export async function semanticSearch(params: SemanticSearchParams) {
 
     return {
       ok: true,
-      results: data.results || [],
+      results: (data as any).results || [],
       collections_searched: collections,
-      total_results: data.total_results || 0,
+      total_results: (data as any).total_results || 0,
       query,
     };
   } catch (error: any) {
@@ -246,7 +246,7 @@ export async function getCollections() {
 
     const data = await response.json();
 
-    const collections = data.collections || [];
+    const collections = (data as any).collections || [];
     const collectionsArray = collections.map((col: any) => ({
       name: col.name,
       description: col.description,
@@ -256,7 +256,7 @@ export async function getCollections() {
     return {
       ok: true,
       collections: collectionsArray,
-      total_collections: data.total || collectionsArray.length,
+      total_collections: (data as any).total || collectionsArray.length,
       total_documents: 0,
     };
   } catch (error: any) {
@@ -296,8 +296,8 @@ export async function generateEmbeddings(params: EmbeddingParams) {
 
     return {
       ok: true,
-      embeddings: data.embeddings || [],
-      dimensions: data.dimensions || 384,
+      embeddings: (data as any).embeddings || [],
+      dimensions: (data as any).dimensions || 384,
       model,
     };
   } catch (error: any) {

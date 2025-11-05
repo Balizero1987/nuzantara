@@ -59,6 +59,7 @@ class EmbeddingsGenerator:
         """Initialize OpenAI embeddings provider"""
         from openai import OpenAI
 
+        self.provider = "openai"  # Ensure provider is set to openai
         self.model = model or (settings.embedding_model if settings else "text-embedding-3-small")
         self.dimensions = 1536  # OpenAI text-embedding-3-small is always 1536
         self.api_key = api_key or (settings.openai_api_key if settings else None)
