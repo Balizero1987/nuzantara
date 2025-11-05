@@ -60,7 +60,7 @@ export class MemoryAnalyticsClient {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as { success: boolean; analytics: ComprehensiveAnalytics; error?: string };
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to fetch analytics');
@@ -84,7 +84,7 @@ export class MemoryAnalyticsClient {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as { success: boolean; realtime: RealTimeMetrics; error?: string };
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to fetch real-time metrics');
@@ -114,7 +114,7 @@ export class MemoryAnalyticsClient {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as { success: boolean; date: string; error?: string };
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to aggregate daily stats');
@@ -140,7 +140,7 @@ export class MemoryAnalyticsClient {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as { success: boolean; deleted_count: number; error?: string };
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to clean old events');
@@ -166,7 +166,7 @@ export class MemoryAnalyticsClient {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as { success: boolean; stats: any; error?: string };
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to fetch stats');

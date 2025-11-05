@@ -9,13 +9,34 @@
   <link rel="stylesheet" href="css/design-system.css">
 
   <style>
-    /* FORCE PURE BLACK EVERYWHERE */
+    /* ATMOSPHERIC BLUE GALAXY BACKGROUND */
     html,
-    body,
+    body {
+      background: #000000;
+      background:
+        /* Blue atmospheric galaxy */
+        radial-gradient(
+          ellipse 50% 30% at 50% 25%,
+          rgba(50, 130, 180, 0.3) 0%,
+          rgba(25, 85, 140, 0.2) 20%,
+          rgba(12, 55, 100, 0.12) 35%,
+          rgba(6, 28, 60, 0.06) 50%,
+          transparent 70%
+        ),
+        linear-gradient(
+          180deg,
+          transparent 80%,
+          rgba(40, 120, 160, 0.08) 90%,
+          rgba(60, 150, 190, 0.12) 97%,
+          rgba(70, 170, 210, 0.15) 100%
+        ),
+        #000000 !important;
+    }
+
     .messages-container,
     .messages-inner,
     .message-space {
-      background: #0c0c0c !important; /* PURE BLACK FORCED */
+      background: transparent !important; /* Transparent to show body background */
     }
 
     /* Layout */
@@ -23,7 +44,6 @@
       position: relative;
       min-height: 100vh;
       overflow-x: hidden;
-      background: #0c0c0c; /* Pure black, no gradients */
     }
 
     /* Video Background (optional - da testare performance) */
@@ -55,8 +75,8 @@
       padding-top: 2rem;
       padding-bottom: 1.5rem;
       z-index: 50;
-      background: #0c0c0c; /* Pure black */
-      border-bottom: 1px solid rgba(191, 170, 126, 0.15);
+      background: rgba(0, 0, 0, 0.85); /* Semi-transparent to show galaxy behind */
+      backdrop-filter: blur(10px);
     }
 
     .logo-container {
@@ -70,6 +90,13 @@
       height: 4.25rem; /* +70% from 2.5rem */
       width: auto;
       opacity: 0.95;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: high-quality;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      object-fit: contain;
     }
 
     .zantara-title {
@@ -172,8 +199,10 @@
       padding-bottom: 2rem;
       padding-left: 1rem;
       padding-right: 1rem;
-      background: #0c0c0c; /* Pure black */
-      border-top: 1px solid rgba(191, 170, 126, 0.15);
+      background: rgba(0, 0, 0, 0.95); /* More opaque for better visibility */
+      backdrop-filter: blur(15px);
+      z-index: 40;
+      border-top: 1px solid rgba(191, 170, 126, 0.2);
     }
 
     .chat-input-wrapper {
@@ -187,18 +216,18 @@
       align-items: flex-end;
       gap: 1rem;
       padding: 0 1.25rem 0.75rem;
-      background-color: transparent; /* No background - pure black */
-      border: 1px solid rgba(191, 170, 126, 0.2);
-      border-bottom: 1.5px solid rgba(191, 170, 126, 0.3);
+      background-color: rgba(0, 0, 0, 0.4); /* Slight background for visibility */
+      border: 1px solid rgba(191, 170, 126, 0.35);
+      border-bottom: 1.5px solid rgba(191, 170, 126, 0.5);
       border-radius: 0.5rem;
       transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .chat-input-box.focused {
-      background-color: transparent; /* No background - pure black */
-      border-color: rgba(191, 170, 126, 0.5);
+      background-color: rgba(0, 0, 0, 0.5); /* Slight background for visibility */
+      border-color: rgba(191, 170, 126, 0.6);
       border-bottom-color: #bfaa7e;
-      box-shadow: none; /* No shadows - pure black background */
+      box-shadow: 0 0 0 1px rgba(191, 170, 126, 0.2);
     }
 
     .chat-textarea {
@@ -424,7 +453,16 @@
   <!-- Header -->
   <header class="chat-header">
     <div class="logo-container">
-      <img src="assets/images/balizero-logo-clean.png" alt="Bali Zero Logo" class="bali-zero-logo">
+      <video
+        class="bali-zero-logo"
+        autoplay
+        loop
+        muted
+        playsinline
+        poster="assets/images/balizero-logo-clean.png">
+        <source src="assets/images/balizero-logo-animated.mp4" type="video/mp4">
+        <img src="assets/images/balizero-logo-clean.png" alt="Bali Zero Logo">
+      </video>
 
       <h1 class="zantara-title">ZANTARA</h1>
 

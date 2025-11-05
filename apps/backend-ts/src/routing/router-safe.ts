@@ -75,6 +75,17 @@ export async function attachRoutes(app: express.Application) {
       }
     });
 
+    // ZANTARA v3 Unified endpoint (main production endpoint)
+    router.post('/zantara.unified', async (req: any, res: any) => {
+      try {
+        const result = await aiChat(req.body);
+        res.json(result);
+      } catch (error: any) {
+        logger.error('ZANTARA unified error:', error);
+        res.status(500).json({ ok: false, error: error.message || 'ZANTARA chat failed' });
+      }
+    });
+
     // Legacy RPC-style endpoint: /call (for webapp compatibility)
     router.post('/call', async (req: any, res: any) => {
       try {
@@ -96,11 +107,11 @@ export async function attachRoutes(app: express.Application) {
       }
     });
 
-    loadedCount += 2;
-    logger.info('  ✅ AI Chat routes loaded (2: /api/ai/chat + /call)');
+    loadedCount += 3;
+    logger.info('  ✅ AI Chat routes loaded (3: /api/ai/chat + /zantara.unified + /call)');
   } catch (error: any) {
     logger.warn(`  ⚠️ AI routes skipped: ${error.message}`);
-    failedCount += 2;
+    failedCount += 3;
   }
 
   // ==================================================================

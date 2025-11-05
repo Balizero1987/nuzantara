@@ -11,18 +11,19 @@ class Settings(BaseSettings):
     """Application settings from environment variables"""
 
     # Embeddings Provider
-    embedding_provider: str = "sentence-transformers"  # or "openai"
+    # HOTFIX 2025-11-05: Switch to OpenAI to match migrated collections (1536-dim)
+    embedding_provider: str = "openai"  # was: "sentence-transformers"
 
-    # OpenAI (optional - only if using OpenAI provider)
-    openai_api_key: Optional[str] = None
+    # OpenAI (required for production)
+    openai_api_key: Optional[str] = None  # Set via OPENAI_API_KEY env var
 
     # Chroma
     chroma_persist_dir: str = "./data/chroma_db"
     chroma_collection_name: str = "zantara_books"
 
     # Embeddings
-    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    embedding_dimensions: int = 384  # Will be auto-updated based on provider
+    embedding_model: str = "text-embedding-3-small"  # was: sentence-transformers/all-MiniLM-L6-v2
+    embedding_dimensions: int = 1536  # was: 384 - now matches migrated collections
 
     @field_validator('embedding_dimensions', mode='before')
     @classmethod
