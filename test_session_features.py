@@ -22,7 +22,7 @@ def test_analytics():
     log("📊 TEST 1: Session Analytics Endpoint")
     log("=" * 60)
 
-    response = requests.get(f"{BASE_URL}/sessions/analytics")
+    response = requests.get(f"{BASE_URL}/analytics/sessions")
 
     if response.status_code == 200:
         data = response.json()

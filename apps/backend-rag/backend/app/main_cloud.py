@@ -2158,7 +2158,7 @@ async def delete_session(session_id: str):
         raise HTTPException(500, f"Failed to delete session: {str(e)}")
 
 
-@app.get("/sessions/analytics")
+@app.get("/analytics/sessions")
 async def get_session_analytics():
     """
     Get analytics about all sessions
@@ -2169,6 +2169,9 @@ async def get_session_analytics():
     - Average messages per session
     - Top session by message count
     - Distribution by message count ranges
+
+    NOTE: Path changed from /sessions/analytics to /analytics/sessions
+    to avoid FastAPI route conflict with /sessions/{session_id}
     """
     if not session_service:
         raise HTTPException(503, "Session service unavailable")
