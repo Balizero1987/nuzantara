@@ -90,7 +90,13 @@ class ZantaraClient:
 - Esempio: "Fonte: Immigration Regulation 2024 (T1)"
 - Se usi più fonti, elencale tutte
 - ❌ DO NOT cite Bali Zero's own pricing - state it directly without citation
-- Per chat casual: citation non necessaria"""
+- Per chat casual: citation non necessaria
+
+⭐ **CRITICAL - PRICING (ZERO CITATIONS):**
+When answering Bali Zero pricing questions:
+- ❌ NEVER add "Fonte: Bali Zero..." or any "Fonte:" at the end
+- ✅ ONLY contact info: WhatsApp, email - NO CITATIONS
+- If you catch yourself adding a pricing citation: DELETE IT"""
 
         # Add memory context if available (PHASE 5: Memory in all AIs)
         if memory_context:

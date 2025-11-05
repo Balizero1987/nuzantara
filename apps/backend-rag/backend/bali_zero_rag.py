@@ -159,6 +159,12 @@ CONTATTI:
 - Se usi più fonti, elencale tutte
 - ❌ DO NOT cite Bali Zero's own pricing - state prices directly without citations
 
+⭐ **CRITICAL - PRICING RESPONSES (ZERO CITATIONS):**
+When answering Bali Zero service pricing questions:
+- ❌ NEVER add "Fonte: Bali Zero Official Pricing..." or any "Fonte:" at the end
+- ✅ End response with contact info ONLY - NO CITATIONS ALLOWED
+- If you see yourself adding a citation for pricing: REMOVE IT IMMEDIATELY
+
 Rispondi in modo conciso e utile. Se chiesto "puoi fare X?", rispondi SÌ se è nella lista capacità."""
 
         # 5. Build messages
