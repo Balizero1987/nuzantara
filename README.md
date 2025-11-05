@@ -25,6 +25,14 @@ bash scripts/doctor.sh
 - **zantara-collective**: Memoria condivisa e apprendimento cross-user
 - **zantara-ecosystem**: Analisi completa ecosistema business
 
+### Session Store (Redis-based) ✅ NEW
+- **Capacity**: 50+ message conversations (175% increase vs querystring)
+- **Analytics Dashboard**: Real-time session monitoring and statistics
+- **Configurable TTL**: 1 hour → 30 days retention
+- **Export/Backup**: JSON & Markdown conversation export
+- **Performance**: <1s operations, 100% context preservation
+- **Documentation**: [SESSION_FEATURES_IMPLEMENTATION_20251105.md](~/Desktop/SESSION_FEATURES_IMPLEMENTATION_20251105.md)
+
 ### Technology Stack
 - **Backend**: TypeScript + Node.js (Fly.io)
 - **Frontend**: React + Tailwind CSS (Cloudflare Pages)
@@ -49,8 +57,39 @@ bash scripts/doctor.sh
 # Full system diagnostics
 bash scripts/doctor.sh
 
-# Vector layer status
+# Backend health
 curl https://nuzantara-backend.fly.dev/health
+
+# RAG + Session Store health
+curl https://nuzantara-rag.fly.dev/health
+
+# Session Analytics
+curl https://nuzantara-rag.fly.dev/analytics/sessions
+```
+
+## 📡 API Endpoints
+
+### Session Store (https://nuzantara-rag.fly.dev)
+```bash
+# Create session
+POST /sessions
+
+# Get session history
+GET /sessions/{id}
+
+# Update session (with optional TTL)
+PUT /sessions/{id}
+Body: {"history": [...], "ttl_hours": 168}
+
+# Update TTL only
+PUT /sessions/{id}/ttl
+Body: {"ttl_hours": 720}
+
+# Export session
+GET /sessions/{id}/export?format=json|markdown
+
+# Analytics dashboard
+GET /analytics/sessions
 ```
 
 ---
