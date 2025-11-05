@@ -6,6 +6,7 @@ Direct execution (no HTTP calls) - faster & more reliable
 import logging
 from typing import Dict, Any, List, Optional
 from services.pricing_service import get_pricing_service
+from services.collaborator_service import CollaboratorService
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ class ZantaraTools:
 
     def __init__(self):
         self.pricing_service = get_pricing_service()
+        self.collaborator_service = CollaboratorService()
         logger.info("✅ ZantaraTools initialized")
 
     async def execute_tool(
@@ -113,37 +115,98 @@ class ZantaraTools:
         Args:
             params: {"query": str}
         """
-        # Placeholder - implement with actual team data
-        query = params.get("query", "").lower()
+        query = params.get("query", "").lower().strip()
+
+        if not query:
+            return {
+                "success": False,
+                "error": "Please provide a name to search for"
+            }
 
         logger.info(f"👥 search_team_member: query={query}")
 
-        # TODO: Implement with actual team database
+        # Search in TEAM_DATABASE by name or ambaradam
+        results = []
+        for email, data in self.collaborator_service.TEAM_DATABASE.items():
+            name = data.get("name", "").lower()
+            ambaradam = data.get("ambaradam_name", "").lower()
+
+            # Match by full name or partial match
+            if query in name or query in ambaradam or name.startswith(query) or ambaradam.startswith(query):
+                results.append({
+                    "name": data["name"],
+                    "ambaradam_name": data["ambaradam_name"],
+                    "email": email,
+                    "role": data["role"],
+                    "department": data["department"],
+                    "expertise_level": data["expertise_level"],
+                    "language": data["language"]
+                })
+
+        if not results:
+            return {
+                "success": True,
+                "data": {
+                    "message": f"No team member found matching '{query}'",
+                    "suggestion": "Try searching by first name or department"
+                }
+            }
+
         return {
             "success": True,
             "data": {
-                "message": f"Team search for '{query}' - not yet implemented",
-                "contact": "info@balizero.com for team inquiries"
+                "count": len(results),
+                "results": results
             }
         }
 
     async def _get_team_members_list(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Get full team roster
+        Get full team roster, optionally filtered by department
 
         Args:
             params: {"department": str (optional)}
         """
-        department = params.get("department")
+        department = params.get("department", "").lower().strip() if params.get("department") else None
 
         logger.info(f"👥 get_team_members_list: department={department}")
 
-        # TODO: Implement with actual team database
+        # Build roster from TEAM_DATABASE
+        roster = []
+        for email, data in self.collaborator_service.TEAM_DATABASE.items():
+            # Filter by department if specified
+            if department and data.get("department", "").lower() != department:
+                continue
+
+            roster.append({
+                "name": data["name"],
+                "ambaradam_name": data["ambaradam_name"],
+                "email": email,
+                "role": data["role"],
+                "department": data["department"],
+                "expertise_level": data["expertise_level"],
+                "sub_rosa_level": data["sub_rosa_level"],
+                "language": data["language"]
+            })
+
+        # Group by department for better readability
+        by_department = {}
+        for member in roster:
+            dept = member["department"]
+            if dept not in by_department:
+                by_department[dept] = []
+            by_department[dept].append(member)
+
+        # Get team stats
+        stats = self.collaborator_service.get_team_stats()
+
         return {
             "success": True,
             "data": {
-                "message": "Team roster - not yet implemented",
-                "contact": "info@balizero.com for team inquiries"
+                "total_members": len(roster),
+                "by_department": by_department,
+                "roster": roster,
+                "stats": stats
             }
         }
 
