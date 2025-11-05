@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.81% </span>
+                <span class="strong">84.09% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>36/44</span>
+                <span class='fraction'>37/44</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">54.09% </span>
+                <span class="strong">52.45% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>33/61</span>
+                <span class='fraction'>32/61</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.81% </span>
+                <span class="strong">84.09% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>36/44</span>
+                <span class='fraction'>37/44</span>
             </div>
         
             
@@ -341,9 +341,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -416,14 +416,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
@@ -522,14 +522,14 @@ Format as structured recommendations for system optimization.`;
 &nbsp;
   try {
     const result = await aiChat({ prompt });
-    const responseData: any = result.data || <span class="branch-1 cbranch-no" title="branch not covered" >result;</span>
+    const responseData: any = <span class="cstat-no" title="statement not covered" >result.data || result;</span>
 &nbsp;
-    return ok({
+<span class="cstat-no" title="statement not covered" >    return ok({</span>
       learning: {
         type: learning_type,
-        insights: responseData.response || <span class="branch-1 cbranch-no" title="branch not covered" >responseData.answer </span>|| <span class="branch-2 cbranch-no" title="branch not covered" >'',</span>
+        insights: responseData.response || responseData.answer || '',
         processed_at: Date.now(),
-        model: responseData.model || <span class="branch-1 cbranch-no" title="branch not covered" >'zantara',</span>
+        model: responseData.model || 'zantara',
       },
       recommendations: [
         'Continue monitoring patterns',
@@ -597,14 +597,14 @@ Provide a clear, human-readable explanation of:
 &nbsp;
     try {
       const result = await aiChat({ prompt });
-      const responseData: any = <span class="cstat-no" title="statement not covered" >result.data || result;</span>
-<span class="cstat-no" title="statement not covered" >      explanation.human_explanation = responseData.response || responseData.answer || '';</span>
+      const responseData: any = result.data || <span class="branch-1 cbranch-no" title="branch not covered" >result;</span>
+      explanation.human_explanation = responseData.response || <span class="branch-1 cbranch-no" title="branch not covered" >responseData.answer </span>|| <span class="branch-2 cbranch-no" title="branch not covered" >'';</span>
     } catch {
 <span class="cstat-no" title="statement not covered" >      explanation.human_explanation = 'Decision based on standard operating parameters';</span>
     }
   }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return ok(explanation);</span>
+  return ok(explanation);
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -613,7 +613,7 @@ Provide a clear, human-readable explanation of:
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-05T06:44:55.751Z
+                at 2025-11-05T06:52:05.298Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
