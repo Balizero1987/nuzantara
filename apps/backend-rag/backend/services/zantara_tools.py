@@ -125,17 +125,15 @@ class ZantaraTools:
 
         logger.info(f"👥 search_team_member: query={query}")
 
-        # Search in TEAM_DATABASE by name or ambaradam
+        # Search in TEAM_DATABASE by name only
         results = []
         for email, data in self.collaborator_service.TEAM_DATABASE.items():
             name = data.get("name", "").lower()
-            ambaradam = data.get("ambaradam_name", "").lower()
 
             # Match by full name or partial match
-            if query in name or query in ambaradam or name.startswith(query) or ambaradam.startswith(query):
+            if query in name or name.startswith(query):
                 results.append({
                     "name": data["name"],
-                    "ambaradam_name": data["ambaradam_name"],
                     "email": email,
                     "role": data["role"],
                     "department": data["department"],
@@ -180,7 +178,6 @@ class ZantaraTools:
 
             roster.append({
                 "name": data["name"],
-                "ambaradam_name": data["ambaradam_name"],
                 "email": email,
                 "role": data["role"],
                 "department": data["department"],
@@ -259,13 +256,13 @@ DO NOT generate prices from memory - prices change and must be accurate.""",
             },
             {
                 "name": "search_team_member",
-                "description": "Search for a Bali Zero team member by name or ambaradam. Returns contact info, role, skills.",
+                "description": "Search for a Bali Zero team member by name. Returns contact info, role, expertise level.",
                 "input_schema": {
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "Name or ambaradam to search for (e.g. 'Dea', 'Zero', 'Krisna')"
+                            "description": "Name to search for (e.g. 'Dea', 'Zero', 'Krisna')"
                         }
                     },
                     "required": ["query"]
