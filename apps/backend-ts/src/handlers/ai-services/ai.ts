@@ -110,26 +110,57 @@ export async function aiChat(params: any) {
       })
       .catch((err) => logger.warn('⚠️  Memory user message storage failed:', err));
 
-    // === MEMORY: Retrieve Conversation History ===
+    // === MEMORY: Retrieve Conversation History (with summary for long conversations) ===
     let conversationContext = '';
     if (params.sessionId) {
       try {
-        const historyData = await memoryServiceClient.getConversationHistory(sessionId, 10);
-        const messages = historyData.messages || [];
+        // Use new summarization-aware endpoint
+        const historyData = await memoryServiceClient.getConversationWithSummary(sessionId, 10);
+        const summary = historyData.summary || null;
+        const messages = historyData.recentMessages || [];
 
+        // If we have a summary, include it first
+        if (summary) {
+          conversationContext += `\n\n=== Previous Conversation Summary ===\n`;
+          conversationContext += `${summary.summary_text}\n\n`;
+
+          if (summary.topics && summary.topics.length > 0) {
+            conversationContext += `Topics discussed: ${summary.topics.join(', ')}\n`;
+          }
+
+          if (summary.important_facts && summary.important_facts.length > 0) {
+            conversationContext += `\nImportant facts:\n`;
+            summary.important_facts.forEach((fact: string) => {
+              conversationContext += `- ${fact}\n`;
+            });
+          }
+
+          if (summary.key_decisions && summary.key_decisions.length > 0) {
+            conversationContext += `\nKey decisions:\n`;
+            summary.key_decisions.forEach((decision: string) => {
+              conversationContext += `- ${decision}\n`;
+            });
+          }
+
+          conversationContext += `=== End of Summary ===\n\n`;
+          logger.info(
+            `📄 Using conversation summary (${summary.message_count} messages summarized)`
+          );
+        }
+
+        // Add recent messages
         if (messages.length > 0) {
-          // Format last 10 messages as context (reverse to get chronological order)
           const formattedHistory = messages
-            .reverse()
-            .slice(-10)
             .map((msg: any) => {
               const role = msg.message_type === 'user' ? 'User' : 'Assistant';
               return `${role}: ${msg.content}`;
             })
-            .join('\n');
+            .join('\n\n');
 
-          conversationContext = `\n\n=== Previous Conversation ===\n${formattedHistory}\n=== End of Previous Conversation ===\n\n`;
-          logger.info(`📖 Retrieved ${messages.length} previous messages for context`);
+          conversationContext += `=== Recent Messages ===\n${formattedHistory}\n=== End of Recent Messages ===\n\n`;
+          logger.info(
+            `📖 Retrieved ${messages.length} recent messages${summary ? ' + summary' : ''} for context`
+          );
         }
       } catch (err) {
         logger.warn('⚠️  Failed to retrieve conversation history:', err);

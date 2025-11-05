@@ -164,6 +164,36 @@ export class MemoryServiceClient {
   }
 
   /**
+   * Get conversation with summary (for long conversations)
+   * Returns summary of old messages + recent messages
+   */
+  async getConversationWithSummary(sessionId: string, limit: number = 10): Promise<any> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/api/conversation/${sessionId}/with-summary?limit=${limit}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Memory Service error: ${response.statusText}`);
+      }
+
+      const data: any = await response.json();
+      logger.debug('📖 Retrieved conversation with summary:', {
+        session_id: sessionId,
+        has_summary: !!data.summary,
+        recent_count: data.recentMessages?.length || 0,
+        has_more: data.hasMore,
+      });
+
+      return data;
+    } catch (error) {
+      logger.error('❌ Failed to get conversation with summary from Memory Service:', error);
+      // Fallback to regular history if summary endpoint fails
+      return this.getConversationHistory(sessionId, limit);
+    }
+  }
+
+  /**
    * Store collective memory (shared knowledge)
    */
   async storeCollectiveMemory(memory: CollectiveMemory): Promise<any> {

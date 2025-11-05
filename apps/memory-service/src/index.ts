@@ -21,6 +21,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import { MemoryAnalytics } from './analytics';
+import { ConversationSummarizer } from './summarization';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -68,6 +69,13 @@ if (process.env.REDIS_URL) {
 
 // Initialize Analytics
 const analytics = new MemoryAnalytics(postgres, redis);
+
+// Initialize Summarizer
+const summarizer = new ConversationSummarizer(postgres, {
+  messageThreshold: 50,
+  keepRecentCount: 10,
+  openaiApiKey: process.env.OPENAI_API_KEY || '',
+});
 
 // ============================================================
 // DATABASE INITIALIZATION
@@ -143,6 +151,7 @@ async function initializeDatabase() {
     await postgres.query(`
       CREATE TABLE IF NOT EXISTS memory_summaries (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        session_id VARCHAR(255) NOT NULL,
         user_id VARCHAR(255) NOT NULL,
         summary_date DATE NOT NULL,
         summary_content TEXT NOT NULL,
@@ -150,7 +159,7 @@ async function initializeDatabase() {
         topics TEXT[] DEFAULT ARRAY[]::TEXT[],
         created_at TIMESTAMP DEFAULT NOW(),
         metadata JSONB DEFAULT '{}'::jsonb,
-        UNIQUE (user_id, summary_date)
+        UNIQUE (session_id, summary_date)
       )
     `);
 
@@ -284,6 +293,34 @@ app.post('/api/conversation/store', async (req: Request, res: Response) => {
       user_id,
       metadata: { message_type, model_used },
     });
+
+    // Check if conversation needs summarization (non-blocking)
+    if (message_type === 'assistant') {
+      // Only check after assistant responses to avoid duplicate checks
+      summarizer
+        .needsSummarization(session_id)
+        .then((needsSummarization) => {
+          if (needsSummarization) {
+            console.log(
+              `🔄 Conversation ${session_id} needs summarization - triggering in background`
+            );
+            // Trigger summarization in background (don't await)
+            summarizer
+              .summarizeConversation(session_id)
+              .then((summary) => {
+                if (summary) {
+                  console.log(`✅ Auto-summarized conversation ${session_id}`);
+                }
+              })
+              .catch((err) => {
+                console.error(`⚠️  Auto-summarization failed for ${session_id}:`, err);
+              });
+          }
+        })
+        .catch((err) => {
+          console.error(`⚠️  Failed to check summarization need:`, err);
+        });
+    }
 
     res.json({ success: true, message: result.rows[0] });
   } catch (error) {
@@ -592,6 +629,97 @@ app.post('/api/analytics/clean-old-events', async (req: Request, res: Response) 
     });
   } catch (error) {
     console.error('Analytics cleanup error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// ============================================================
+// CONVERSATION SUMMARIZATION
+// ============================================================
+
+app.post('/api/conversation/summarize/:session_id', async (req: Request, res: Response) => {
+  try {
+    const { session_id } = req.params;
+
+    // Check if summarization is needed
+    const needsSummarization = await summarizer.needsSummarization(session_id);
+    if (!needsSummarization) {
+      return res.json({
+        success: true,
+        message: 'Conversation does not need summarization yet',
+        needs_summarization: false,
+      });
+    }
+
+    // Trigger summarization
+    const summary = await summarizer.summarizeConversation(session_id);
+
+    res.json({
+      success: true,
+      summary,
+      needs_summarization: true,
+    });
+  } catch (error) {
+    console.error('Summarization error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.get('/api/conversation/:session_id/with-summary', async (req: Request, res: Response) => {
+  try {
+    const { session_id } = req.params;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    // Get conversation with summary
+    const result = await summarizer.getConversationWithSummary(session_id, limit);
+
+    // Format context
+    const formattedContext = summarizer.formatContextWithSummary(
+      result.summary,
+      result.recentMessages
+    );
+
+    res.json({
+      success: true,
+      summary: result.summary,
+      recent_messages: result.recentMessages,
+      has_more: result.hasMore,
+      formatted_context: formattedContext,
+    });
+  } catch (error) {
+    console.error('Get conversation with summary error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.get('/api/conversation/:session_id/summary', async (req: Request, res: Response) => {
+  try {
+    const { session_id } = req.params;
+
+    const summary = await summarizer.getSummary(session_id);
+
+    if (!summary) {
+      return res.status(404).json({
+        success: false,
+        error: 'No summary found for this session',
+      });
+    }
+
+    res.json({
+      success: true,
+      summary,
+    });
+  } catch (error) {
+    console.error('Get summary error:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
