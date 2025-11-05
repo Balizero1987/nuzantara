@@ -44,7 +44,7 @@ class SearchService:
 
         # Initialize 16 collections (multi-domain + pricing + cultural + Oracle + test collections)
         self.collections = {
-            "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing"),
+            "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_openai"),  # OpenAI 1536-dim embeddings
             # Test collections for OpenAI embeddings migration
             "bali_zero_pricing_test_1536": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_test_1536"),
             "bali_zero_pricing_test_384": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_test_384"),
