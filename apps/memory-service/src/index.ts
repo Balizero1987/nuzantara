@@ -20,6 +20,7 @@ import Redis from 'ioredis';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import path from 'path';
 import { MemoryAnalytics } from './analytics';
 import { ConversationSummarizer } from './summarization';
 
@@ -31,6 +32,9 @@ app.use(helmet());
 app.use(cors());
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
+
+// Serve static files (dashboard)
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Database connections
 const postgres = new Pool({
@@ -567,6 +571,34 @@ app.get('/api/stats', async (req: Request, res: Response) => {
   }
 });
 
+app.get('/api/stats/users', async (req: Request, res: Response) => {
+  try {
+    const users = await postgres.query(`
+      SELECT
+        user_id,
+        member_name,
+        COUNT(DISTINCT session_id) as session_count,
+        MAX(last_active) as last_active,
+        MIN(created_at) as first_seen
+      FROM memory_sessions
+      GROUP BY user_id, member_name
+      ORDER BY session_count DESC
+    `);
+
+    res.json({
+      success: true,
+      users: users.rows,
+      total_users: users.rows.length,
+    });
+  } catch (error) {
+    console.error('User stats error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 // ============================================================
 // ADVANCED ANALYTICS
 // ============================================================
@@ -775,6 +807,378 @@ app.post('/api/admin/recreate-summaries-table', async (_req: Request, res: Respo
     });
   } catch (error) {
     console.error('❌ Failed to recreate table:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.post('/api/admin/optimize-database', async (_req: Request, res: Response) => {
+  try {
+    console.log('🔧 Optimizing database with performance indexes...');
+
+    const optimizations = [];
+
+    // Index 1: session_id for faster lookups
+    try {
+      await postgres.query(`
+        CREATE INDEX IF NOT EXISTS idx_memory_messages_session_id
+        ON memory_messages(session_id)
+      `);
+      optimizations.push('idx_memory_messages_session_id');
+    } catch (err: any) {
+      console.warn('⚠️  Failed to create idx_memory_messages_session_id:', err.message);
+    }
+
+    // Index 2: created_at for time-based queries
+    try {
+      await postgres.query(`
+        CREATE INDEX IF NOT EXISTS idx_memory_messages_created_at
+        ON memory_messages(created_at DESC)
+      `);
+      optimizations.push('idx_memory_messages_created_at');
+    } catch (err: any) {
+      console.warn('⚠️  Failed to create idx_memory_messages_created_at:', err.message);
+    }
+
+    // Index 3: Composite index for session + time queries
+    try {
+      await postgres.query(`
+        CREATE INDEX IF NOT EXISTS idx_memory_messages_session_created
+        ON memory_messages(session_id, created_at DESC)
+      `);
+      optimizations.push('idx_memory_messages_session_created');
+    } catch (err: any) {
+      console.warn('⚠️  Failed to create idx_memory_messages_session_created:', err.message);
+    }
+
+    // Index 4: user_id for user-specific queries
+    try {
+      await postgres.query(`
+        CREATE INDEX IF NOT EXISTS idx_memory_sessions_user_id
+        ON memory_sessions(user_id)
+      `);
+      optimizations.push('idx_memory_sessions_user_id');
+    } catch (err: any) {
+      console.warn('⚠️  Failed to create idx_memory_sessions_user_id:', err.message);
+    }
+
+    // Index 5: session created_at for cleanup queries
+    try {
+      await postgres.query(`
+        CREATE INDEX IF NOT EXISTS idx_memory_sessions_created_at
+        ON memory_sessions(created_at DESC)
+      `);
+      optimizations.push('idx_memory_sessions_created_at');
+    } catch (err: any) {
+      console.warn('⚠️  Failed to create idx_memory_sessions_created_at:', err.message);
+    }
+
+    // Analyze tables to update statistics
+    try {
+      await postgres.query('ANALYZE memory_sessions');
+      optimizations.push('ANALYZE memory_sessions');
+    } catch (err: any) {
+      console.warn('⚠️  Failed to analyze memory_sessions:', err.message);
+    }
+
+    try {
+      await postgres.query('ANALYZE memory_messages');
+      optimizations.push('ANALYZE memory_messages');
+    } catch (err: any) {
+      console.warn('⚠️  Failed to analyze memory_messages:', err.message);
+    }
+
+    try {
+      await postgres.query('ANALYZE memory_summaries');
+      optimizations.push('ANALYZE memory_summaries');
+    } catch (err: any) {
+      console.warn('⚠️  Failed to analyze memory_summaries:', err.message);
+    }
+
+    console.log('✅ Database optimization completed');
+    console.log(`✅ Applied ${optimizations.length} optimizations:`, optimizations);
+
+    res.json({
+      success: true,
+      message: 'Database optimization completed successfully',
+      optimizations_applied: optimizations.length,
+      optimizations,
+    });
+  } catch (error) {
+    console.error('❌ Failed to optimize database:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.post('/api/admin/cleanup-old-sessions', async (req: Request, res: Response) => {
+  try {
+    const { days = 30, dryRun = false } = req.body;
+
+    console.log(
+      `🧹 ${dryRun ? 'Simulating' : 'Executing'} cleanup of sessions older than ${days} days...`
+    );
+
+    // Find old sessions
+    const oldSessionsQuery = await postgres.query(
+      `SELECT session_id, user_id, member_name, created_at, last_active,
+              (SELECT COUNT(*) FROM memory_messages WHERE memory_messages.session_id = memory_sessions.session_id) as message_count
+       FROM memory_sessions
+       WHERE last_active < NOW() - INTERVAL '${days} days'
+       ORDER BY last_active ASC`
+    );
+
+    const sessionsToDelete = oldSessionsQuery.rows;
+
+    if (sessionsToDelete.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No old sessions found',
+        deleted_count: 0,
+        dry_run: dryRun,
+      });
+    }
+
+    let deletedSessions = 0;
+    let deletedMessages = 0;
+
+    if (!dryRun) {
+      // Delete messages first (foreign key constraint)
+      for (const session of sessionsToDelete) {
+        const msgResult = await postgres.query(
+          'DELETE FROM memory_messages WHERE session_id = $1',
+          [session.session_id]
+        );
+        deletedMessages += msgResult.rowCount || 0;
+      }
+
+      // Delete sessions
+      const sessionIds = sessionsToDelete.map((s) => s.session_id);
+      const sessionResult = await postgres.query(
+        'DELETE FROM memory_sessions WHERE session_id = ANY($1::text[])',
+        [sessionIds]
+      );
+      deletedSessions = sessionResult.rowCount || 0;
+
+      console.log(`✅ Cleaned up ${deletedSessions} sessions and ${deletedMessages} messages`);
+    }
+
+    res.json({
+      success: true,
+      message: dryRun
+        ? `Would delete ${sessionsToDelete.length} sessions`
+        : `Successfully deleted ${deletedSessions} sessions and ${deletedMessages} messages`,
+      deleted_sessions: dryRun ? 0 : deletedSessions,
+      deleted_messages: dryRun ? 0 : deletedMessages,
+      sessions_to_delete: sessionsToDelete.length,
+      dry_run: dryRun,
+      preview: sessionsToDelete.slice(0, 10).map((s) => ({
+        session_id: s.session_id,
+        user: s.member_name || s.user_id,
+        last_active: s.last_active,
+        message_count: s.message_count,
+      })),
+    });
+  } catch (error) {
+    console.error('❌ Session cleanup failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.get('/api/admin/cleanup-stats', async (req: Request, res: Response) => {
+  try {
+    const stats = await postgres.query(`
+      SELECT
+        COUNT(*) as total_sessions,
+        COUNT(CASE WHEN last_active > NOW() - INTERVAL '7 days' THEN 1 END) as active_last_7_days,
+        COUNT(CASE WHEN last_active > NOW() - INTERVAL '30 days' THEN 1 END) as active_last_30_days,
+        COUNT(CASE WHEN last_active < NOW() - INTERVAL '30 days' THEN 1 END) as older_than_30_days,
+        COUNT(CASE WHEN last_active < NOW() - INTERVAL '90 days' THEN 1 END) as older_than_90_days
+      FROM memory_sessions
+    `);
+
+    const messageCounts = await postgres.query(`
+      SELECT
+        COUNT(*) as total_messages,
+        (SELECT COUNT(*) FROM memory_messages
+         WHERE session_id IN (
+           SELECT session_id FROM memory_sessions
+           WHERE last_active < NOW() - INTERVAL '30 days'
+         )) as messages_in_old_sessions
+      FROM memory_messages
+    `);
+
+    res.json({
+      success: true,
+      stats: {
+        ...stats.rows[0],
+        ...messageCounts.rows[0],
+      },
+    });
+  } catch (error) {
+    console.error('Cleanup stats error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.get('/api/admin/database-size', async (req: Request, res: Response) => {
+  try {
+    // Get database size
+    const dbSize = await postgres.query(`
+      SELECT
+        pg_database.datname as database_name,
+        pg_size_pretty(pg_database_size(pg_database.datname)) as size_pretty,
+        pg_database_size(pg_database.datname) as size_bytes
+      FROM pg_database
+      WHERE datname = current_database()
+    `);
+
+    // Get table sizes
+    const tableSizes = await postgres.query(`
+      SELECT
+        schemaname,
+        tablename,
+        pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size_pretty,
+        pg_total_relation_size(schemaname||'.'||tablename) as size_bytes,
+        pg_size_pretty(pg_relation_size(schemaname||'.'||tablename)) as table_size,
+        pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename) - pg_relation_size(schemaname||'.'||tablename)) as indexes_size
+      FROM pg_tables
+      WHERE schemaname = 'public'
+      ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC
+    `);
+
+    // Row counts
+    const rowCounts = await postgres.query(`
+      SELECT
+        'memory_sessions' as table_name,
+        COUNT(*) as row_count
+      FROM memory_sessions
+      UNION ALL
+      SELECT 'memory_messages', COUNT(*) FROM memory_messages
+      UNION ALL
+      SELECT 'memory_summaries', COUNT(*) FROM memory_summaries
+      UNION ALL
+      SELECT 'collective_memory', COUNT(*) FROM collective_memory
+      UNION ALL
+      SELECT 'memory_facts', COUNT(*) FROM memory_facts
+    `);
+
+    const totalSizeBytes = dbSize.rows[0]?.size_bytes || 0;
+    const totalSizeMB = Math.round(totalSizeBytes / (1024 * 1024));
+    const alertThreshold = 800; // 800MB
+    const criticalThreshold = 950; // 950MB (close to 1GB limit)
+
+    const status =
+      totalSizeMB >= criticalThreshold
+        ? 'critical'
+        : totalSizeMB >= alertThreshold
+          ? 'warning'
+          : 'healthy';
+
+    res.json({
+      success: true,
+      status,
+      database: {
+        ...dbSize.rows[0],
+        size_mb: totalSizeMB,
+        usage_percent: Math.round((totalSizeMB / 1024) * 100),
+      },
+      tables: tableSizes.rows,
+      row_counts: rowCounts.rows,
+      alerts: {
+        should_alert: status !== 'healthy',
+        message:
+          status === 'critical'
+            ? '🚨 CRITICAL: Database size exceeds 950MB! Cleanup required immediately.'
+            : status === 'warning'
+              ? '⚠️ WARNING: Database size exceeds 800MB. Consider cleanup.'
+              : '✅ Database size is healthy',
+        threshold_mb: alertThreshold,
+        critical_threshold_mb: criticalThreshold,
+      },
+    });
+  } catch (error) {
+    console.error('Database size check failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.get('/api/admin/growth-projection', async (req: Request, res: Response) => {
+  try {
+    // Calculate daily growth rate
+    const growthData = await postgres.query(`
+      SELECT
+        DATE(created_at) as date,
+        COUNT(*) as new_sessions,
+        (SELECT COUNT(*) FROM memory_messages WHERE DATE(created_at) = DATE(memory_sessions.created_at)) as new_messages
+      FROM memory_sessions
+      WHERE created_at > NOW() - INTERVAL '7 days'
+      GROUP BY DATE(created_at)
+      ORDER BY date DESC
+    `);
+
+    // Get current size
+    const currentSize = await postgres.query(`
+      SELECT pg_database_size(current_database()) as size_bytes
+    `);
+
+    const sizeBytes = currentSize.rows[0]?.size_bytes || 0;
+    const sizeMB = sizeBytes / (1024 * 1024);
+
+    // Simple projection: assume average daily growth
+    const dailyGrowth =
+      growthData.rows.length > 0
+        ? growthData.rows.reduce((sum, row) => sum + (row.new_sessions || 0), 0) /
+          growthData.rows.length
+        : 0;
+
+    const avgMessageSize = 1024; // 1KB per message estimate
+    const estimatedDailyGrowthMB = (dailyGrowth * avgMessageSize) / (1024 * 1024);
+
+    const daysUntil800MB =
+      estimatedDailyGrowthMB > 0 ? Math.floor((800 - sizeMB) / estimatedDailyGrowthMB) : Infinity;
+
+    const daysUntil1GB =
+      estimatedDailyGrowthMB > 0 ? Math.floor((1024 - sizeMB) / estimatedDailyGrowthMB) : Infinity;
+
+    res.json({
+      success: true,
+      current_size_mb: Math.round(sizeMB),
+      daily_growth: {
+        sessions_per_day: Math.round(dailyGrowth),
+        estimated_mb_per_day: estimatedDailyGrowthMB.toFixed(2),
+      },
+      projections: {
+        days_until_800mb: daysUntil800MB === Infinity ? 'N/A' : daysUntil800MB,
+        days_until_1gb: daysUntil1GB === Infinity ? 'N/A' : daysUntil1GB,
+        estimated_date_800mb:
+          daysUntil800MB === Infinity
+            ? 'N/A'
+            : new Date(Date.now() + daysUntil800MB * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split('T')[0],
+        estimated_date_1gb:
+          daysUntil1GB === Infinity
+            ? 'N/A'
+            : new Date(Date.now() + daysUntil1GB * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      },
+      recent_growth: growthData.rows,
+    });
+  } catch (error) {
+    console.error('Growth projection failed:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
