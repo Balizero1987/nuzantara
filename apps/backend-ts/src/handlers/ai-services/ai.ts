@@ -81,20 +81,18 @@ export async function aiChat(params: any) {
 
   try {
     // === MEMORY: Create/Update Session ===
-    if (params.sessionId) {
-      await memoryServiceClient
-        .createSession({
-          session_id: sessionId,
-          user_id: userId,
-          member_name: params.memberName || 'User',
-          metadata: {
-            mode: params.mode || 'santai',
-            language: params.language || 'unknown',
-            user_agent: params.userAgent || 'unknown',
-          },
-        })
-        .catch((err) => logger.warn('⚠️  Memory session creation failed:', err));
-    }
+    await memoryServiceClient
+      .createSession({
+        session_id: sessionId,
+        user_id: userId,
+        member_name: params.memberName || 'User',
+        metadata: {
+          mode: params.mode || 'santai',
+          language: params.language || 'unknown',
+          user_agent: params.userAgent || 'unknown',
+        },
+      })
+      .catch((err) => logger.warn('⚠️  Memory session creation failed:', err));
 
     // === MEMORY: Save User Message ===
     await memoryServiceClient
@@ -112,12 +110,11 @@ export async function aiChat(params: any) {
 
     // === MEMORY: Retrieve Conversation History (with summary for long conversations) ===
     let conversationContext = '';
-    if (params.sessionId) {
-      try {
-        // Use new summarization-aware endpoint
-        const historyData = await memoryServiceClient.getConversationWithSummary(sessionId, 10);
-        const summary = historyData.summary || null;
-        const messages = historyData.recentMessages || [];
+    try {
+      // Use new summarization-aware endpoint
+      const historyData = await memoryServiceClient.getConversationWithSummary(sessionId, 10);
+      const summary = historyData.summary || null;
+      const messages = historyData.recentMessages || [];
 
         // If we have a summary, include it first
         if (summary) {
@@ -162,9 +159,8 @@ export async function aiChat(params: any) {
             `📖 Retrieved ${messages.length} recent messages${summary ? ' + summary' : ''} for context`
           );
         }
-      } catch (err) {
-        logger.warn('⚠️  Failed to retrieve conversation history:', err);
-      }
+    } catch (err) {
+      logger.warn('⚠️  Failed to retrieve conversation history:', err);
     }
 
     // Check for identity recognition FIRST
