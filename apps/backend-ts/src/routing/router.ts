@@ -135,6 +135,36 @@ import {
 import { weeklyReportHandlers } from '../handlers/analytics/weekly-report.js';
 import { updateDailyRecap, getCurrentDailyRecap } from '../handlers/analytics/daily-drive-recap.js';
 
+// Orphaned Handlers - Now Wired
+// Oracle Universal (RAG integration)
+import { oracleUniversalQuery, oracleCollections } from '../handlers/bali-zero/oracle-universal.js';
+// Imagine.art AI Image Generation
+import { aiImageGenerate, aiImageUpscale, aiImageTest } from '../handlers/ai-services/imagine-art-handler.js';
+// Pricing System Handlers
+import {
+  generateInvoice,
+  getInvoiceDetails,
+  getInvoiceHistory,
+  downloadInvoice,
+  calculateInvoiceTotals,
+} from '../handlers/bali-zero/pricing-invoices.js';
+import {
+  getSubscriptionPlans,
+  getSubscriptionDetails,
+  calculateSubscriptionRenewal,
+} from '../handlers/bali-zero/pricing-subscription.js';
+import {
+  calculateUpgradeCost,
+  processUpgrade,
+  getUpgradeOptions,
+} from '../handlers/bali-zero/pricing-upgrade.js';
+// AI Bridge (DevAI integration)
+import {
+  zantaraCallDevAI,
+  zantaraOrchestrateWorkflow,
+  zantaraGetConversationHistory,
+} from '../handlers/ai-services/ai-bridge.js';
+
 // Admin auth middleware
 import { adminAuth } from '../middleware/admin-auth.js';
 
@@ -512,6 +542,45 @@ const handlers: Record<string, Handler> = {
   'oracle.simulate': oracleSimulate,
   'oracle.analyze': oracleAnalyze,
   'oracle.predict': oraclePredict,
+
+  // Oracle Universal - RAG-powered universal query interface
+  'oracle.universal.query': oracleUniversalQuery,
+  'oracle.collections': oracleCollections,
+
+  // Imagine.art AI Image Generation
+  'ai.image.generate': aiImageGenerate,
+  'ai.image.upscale': aiImageUpscale,
+  'ai.image.test': aiImageTest,
+
+  // Drive Multipart Upload Handler (Note: requires Express middleware integration)
+  'drive.upload.multipart': async (params: any) => {
+    return {
+      ok: false,
+      error: 'Drive multipart upload requires Express middleware. Use POST /api/drive/upload-multipart endpoint instead.',
+    };
+  },
+
+  // Pricing System - Invoices
+  'pricing.invoice.generate': generateInvoice,
+  'pricing.invoice.details': getInvoiceDetails,
+  'pricing.invoice.history': getInvoiceHistory,
+  'pricing.invoice.download': downloadInvoice,
+  'pricing.invoice.totals': calculateInvoiceTotals,
+
+  // Pricing System - Subscriptions
+  'pricing.subscription.plans': getSubscriptionPlans,
+  'pricing.subscription.details': getSubscriptionDetails,
+  'pricing.subscription.renewal': calculateSubscriptionRenewal,
+
+  // Pricing System - Upgrades
+  'pricing.upgrade.cost': calculateUpgradeCost,
+  'pricing.upgrade.process': processUpgrade,
+  'pricing.upgrade.options': getUpgradeOptions,
+
+  // Zantara AI Bridge - DevAI Integration (legacy)
+  'zantara.devai.call': zantaraCallDevAI,
+  'zantara.orchestrate.workflow': zantaraOrchestrateWorkflow,
+  'zantara.conversation.history': zantaraGetConversationHistory,
 
   /**
    * @handler ai.chat
