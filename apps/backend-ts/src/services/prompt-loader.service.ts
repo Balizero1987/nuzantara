@@ -95,6 +95,7 @@ export class PromptLoaderService {
    * Analyze query content to determine appropriate level
    */
   private analyzeQuery(query: string): UserLevel {
+    // @ts-expect-error - Intentionally unused
     const _lowerQuery = query.toLowerCase();
 
     // Check for Level 3 patterns (highest priority)

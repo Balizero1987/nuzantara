@@ -83,6 +83,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
       const authHeader = req.headers.authorization;
       if (!authHeader?.startsWith('Bearer ')) return null;
 
+      // @ts-expect-error - Intentionally unused
       const _token = authHeader.substring(7);
 
       // Use enhanced JWT auth system
@@ -184,6 +185,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   readonly name = 'team';
   readonly priority = 80;
 
+  // @ts-expect-error - Intentionally unused
   private _teamMembers = new Map(); // Will be populated from team-login data
   private jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
 

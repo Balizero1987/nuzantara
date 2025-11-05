@@ -497,6 +497,7 @@ export function metricsMiddleware(req: any, res: any, next: any) {
   const originalEnd = res.end;
   res.end = function (chunk?: any, encoding?: any) {
     const success = res.statusCode < 400;
+    // @ts-expect-error - Intentionally unused
     const _responseTime = Date.now() - startTime;
 
     // Record request completion

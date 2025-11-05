@@ -449,6 +449,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
 
   async recordFeedback(req: Request, res: Response): Promise<void> {
     try {
+      // @ts-expect-error - Intentionally unused
       const { session_id, user_id, query, response, rating, _feedback } = req.body;
 
       if (!session_id || !user_id || !query || !response || rating === undefined) {

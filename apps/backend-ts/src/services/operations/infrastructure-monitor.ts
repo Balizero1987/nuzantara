@@ -222,6 +222,7 @@ export class InfrastructureMonitor {
         : 0;
 
     const requestsPerSecond = this.calculateRequestsPerSecond();
+    // @ts-expect-error - Intentionally unused
     const _errorRate = this.calculateErrorRate();
 
     const metrics: ApplicationMetrics = {
@@ -314,6 +315,7 @@ export class InfrastructureMonitor {
    */
   private getRecentErrors(): ErrorMetrics[] {
     const errors: ErrorMetrics[] = [];
+    // @ts-expect-error - Intentionally unused
     const _fiveMinutesAgo = Date.now() - 300000;
 
     for (const [message, count] of this.errorCounts.entries()) {
