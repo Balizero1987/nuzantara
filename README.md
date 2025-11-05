@@ -25,13 +25,24 @@ bash scripts/doctor.sh
 - **zantara-collective**: Memoria condivisa e apprendimento cross-user
 - **zantara-ecosystem**: Analisi completa ecosistema business
 
-### Session Store (Redis-based) ✅ NEW
+### Session Store (Redis-based) ✅
 - **Capacity**: 50+ message conversations (175% increase vs querystring)
 - **Analytics Dashboard**: Real-time session monitoring and statistics
 - **Configurable TTL**: 1 hour → 30 days retention
 - **Export/Backup**: JSON & Markdown conversation export
 - **Performance**: <1s operations, 100% context preservation
 - **Documentation**: [SESSION_FEATURES_IMPLEMENTATION_20251105.md](~/Desktop/SESSION_FEATURES_IMPLEMENTATION_20251105.md)
+
+### ZANTARA Agentic System ✅ NEW
+**Autonomous AI agents for code automation and self-evolution**
+- **ENDPOINT-GENERATOR**: Generate complete API endpoints from natural language (20 min → <1 min)
+- **MEMORY-INTEGRATOR**: Auto-integrate session memory into any handler
+- **SELF-HEALING**: Analyze and fix production errors automatically (-95% downtime)
+- **TEST-WRITER**: Generate comprehensive test suites (unit/integration/e2e)
+- **PR-AGENT**: Create pull requests autonomously with full CI workflow
+- **Stack**: Qwen3 Coder 480B, DeepSeek V3.1, MiniMax M2 (via OpenRouter)
+- **ROI**: 265 hours/month savings, 1 month break-even
+- **Documentation**: [apps/backend-ts/src/agents/README.md](./apps/backend-ts/src/agents/README.md) | [AGENTIC_SYSTEM_DEPLOYMENT_REPORT.md](./apps/backend-ts/AGENTIC_SYSTEM_DEPLOYMENT_REPORT.md)
 
 ### Technology Stack
 - **Backend**: TypeScript + Node.js (Fly.io)
