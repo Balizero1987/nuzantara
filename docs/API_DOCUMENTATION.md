@@ -5,9 +5,10 @@ Production-Ready REST API Reference
 - RAG Backend: `https://nuzantara-rag.fly.dev`
 - Backend TS: `https://nuzantara-backend.fly.dev`
 - Core Backend: `https://nuzantara-core.fly.dev`
+- **Memory Service:** `https://nuzantara-memory.fly.dev` ✨ *NEW*
 
-**Version:** 5.2.1  
-**Last Updated:** 2025-11-02
+**Version:** 5.2.1
+**Last Updated:** 2025-11-06
 
 ---
 
@@ -17,10 +18,11 @@ Production-Ready REST API Reference
 2. [Health & Status](#health--status)
 3. [Vector Search](#vector-search)
 4. [SSE Streaming](#sse-streaming)
-5. [Memory Management](#memory-management)
-6. [CRM Operations](#crm-operations)
-7. [Rate Limiting](#rate-limiting)
-8. [Error Handling](#error-handling)
+5. [Memory Management (Vector DB)](#memory-management-vector-db)
+6. **[Conversation Memory Service](#conversation-memory-service)** ✨ *NEW*
+7. [CRM Operations](#crm-operations)
+8. [Rate Limiting](#rate-limiting)
+9. [Error Handling](#error-handling)
 
 ---
 
@@ -219,7 +221,7 @@ eventSource.onmessage = (event) => {
 
 ---
 
-## Memory Management
+## Memory Management (Vector DB)
 
 ### POST /api/memory/store
 
@@ -272,6 +274,169 @@ List available collections.
   "total_documents": 15432
 }
 ```
+
+---
+
+## Conversation Memory Service
+
+**New microservice for intelligent conversation memory management with PostgreSQL persistence and Redis caching.**
+
+🌐 **Service URL:** `https://nuzantara-memory.fly.dev`
+📊 **Admin Dashboard:** `https://nuzantara-memory.fly.dev/dashboard.html`
+📖 **Full Documentation:** `apps/memory-service/README.md`
+
+### Architecture
+
+- **Storage:** PostgreSQL 16+ (sessions, messages, facts, summaries)
+- **Caching:** Redis 7+ (1-hour TTL, automatic fallback)
+- **Features:** Multi-user sessions, conversation history, AI summarization
+- **Integration:** Seamlessly integrated with backend-ts
+
+### GET /health
+
+Check Memory Service health and database connections.
+
+**Request:**
+```bash
+curl https://nuzantara-memory.fly.dev/health
+```
+
+**Response:** `200 OK`
+```json
+{
+  "status": "healthy",
+  "version": "1.0",
+  "timestamp": "2025-11-06T02:00:00.000Z",
+  "databases": {
+    "postgres": "connected",
+    "redis": "connected"
+  }
+}
+```
+
+### GET /api/stats
+
+Get overall memory statistics.
+
+**Request:**
+```bash
+curl https://nuzantara-memory.fly.dev/api/stats
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "stats": {
+    "active_sessions": 184,
+    "total_messages": 1109,
+    "unique_users": 8,
+    "collective_memories": 0,
+    "total_facts": 0
+  }
+}
+```
+
+### POST /api/conversation/store
+
+Store a message in conversation history (automatically integrated in backend-ts).
+
+**Request:**
+```bash
+curl -X POST https://nuzantara-memory.fly.dev/api/conversation/store \
+  -H "Content-Type: application/json" \
+  -d '{
+    "session_id": "session_123",
+    "user_id": "zero",
+    "message_type": "user",
+    "content": "What visa do I need for Bali?",
+    "metadata": {
+      "tokens": 8,
+      "model": "gpt-4"
+    }
+  }'
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "message_id": 456,
+  "cached": true
+}
+```
+
+### GET /api/conversation/:session_id
+
+Retrieve conversation history with Redis caching.
+
+**Request:**
+```bash
+# Get last 10 messages (cached for 1 hour)
+curl "https://nuzantara-memory.fly.dev/api/conversation/session_123?limit=10"
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "session_id": "session_123",
+  "messages": [
+    {
+      "id": 456,
+      "message_type": "user",
+      "content": "What visa do I need for Bali?",
+      "created_at": "2025-11-06T02:00:00.000Z",
+      "metadata": {
+        "tokens": 8,
+        "model": "gpt-4"
+      }
+    }
+  ],
+  "total": 10,
+  "source": "cache"
+}
+```
+
+### POST /api/conversation/:session_id/summarize
+
+Generate AI summary for long conversations (requires OpenAI API key).
+
+**Request:**
+```bash
+curl -X POST https://nuzantara-memory.fly.dev/api/conversation/session_123/summarize
+```
+
+**Response:** `200 OK`
+```json
+{
+  "success": true,
+  "summary": "User inquired about B211A visa requirements...",
+  "messages_summarized": 25,
+  "tokens_saved": 1500
+}
+```
+
+### Admin Operations
+
+**Database Optimization:**
+```bash
+curl -X POST https://nuzantara-memory.fly.dev/api/admin/optimize-database
+```
+
+**Cleanup Preview:**
+```bash
+curl -X POST https://nuzantara-memory.fly.dev/api/admin/cleanup-old-sessions \
+  -H "Content-Type: application/json" \
+  -d '{"days": 30, "dryRun": true}'
+```
+
+**Live Dashboard:**
+Visit `https://nuzantara-memory.fly.dev/dashboard.html` for real-time monitoring of:
+- System health (PostgreSQL, Redis)
+- Active sessions and messages
+- Per-user activity statistics
+- Database cleanup tools
 
 ---
 
