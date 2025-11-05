@@ -2,7 +2,7 @@
 // Real-time monitoring and analytics for ZANTARA system performance
 
 import logger from '../logger.js';
-import { getV3Cache } from '../v3-performance-cache.js';
+// import { getV3Cache } from '../v3-performance-cache.js';
 
 // Performance metrics collection
 interface PerformanceMetrics {
@@ -167,7 +167,7 @@ class MetricsCollector {
   }
 
   // Record request start
-  recordRequestStart(reqId: string, req?: any): { startTime: number; endpoint: string } {
+  recordRequestStart(_reqId: string, req?: any): { startTime: number; endpoint: string } {
     return {
       startTime: Date.now(),
       endpoint: (req && req.url) || 'unknown',
@@ -176,7 +176,7 @@ class MetricsCollector {
 
   // Record request completion
   recordRequestEnd(
-    reqId: string,
+    _reqId: string,
     startTime: number,
     endpoint: string,
     success: boolean,
@@ -199,7 +199,7 @@ class MetricsCollector {
   }
 
   // Record cache hit
-  recordCacheHit(cacheType: 'l1' | 'l2', key: string) {
+  recordCacheHit(cacheType: 'l1' | 'l2', _key: string) {
     this.metrics.cache.totalHits++;
 
     if (cacheType === 'l1') {
@@ -240,7 +240,7 @@ class MetricsCollector {
   }
 
   // Record knowledge base query
-  recordKBLIQuery(domain: string, resultsCount: number, searchMethod: string) {
+  recordKBLIQuery(domain: string, resultsCount: number, _searchMethod: string) {
     this.metrics.knowledgeBase.kbliQueries++;
 
     if (!this.metrics.knowledgeBase.domainBreakdown[domain]) {
@@ -264,7 +264,7 @@ class MetricsCollector {
   recordMemoryOperation(
     operation: 'save' | 'search' | 'get',
     success: boolean,
-    responseTime?: number
+    _responseTime?: number
   ) {
     if (operation === 'search') {
       this.metrics.memory.vectorSearches++;
@@ -322,7 +322,7 @@ class MetricsCollector {
     this.responseTimes = this.responseTimes.filter((time) => time > cutoff);
   }
 
-  private updateEndpointMetrics(endpoint: string, responseTime: number, success: boolean) {
+  private updateEndpointMetrics(_endpoint: string, _responseTime: number, _success: boolean) {
     // This could be extended to track specific endpoint performance
     // For now, we're tracking overall metrics
   }
@@ -497,7 +497,7 @@ export function metricsMiddleware(req: any, res: any, next: any) {
   const originalEnd = res.end;
   res.end = function (chunk?: any, encoding?: any) {
     const success = res.statusCode < 400;
-    const responseTime = Date.now() - startTime;
+    const _responseTime = Date.now() - startTime;
 
     // Record request completion
     collector.recordRequestEnd(reqId, startTime, endpoint, success);
@@ -510,7 +510,7 @@ export function metricsMiddleware(req: any, res: any, next: any) {
 }
 
 // Metrics API endpoint handlers
-export function getMetricsDashboard(req: any, res?: any) {
+export function getMetricsDashboard(_req: any, res?: any) {
   try {
     const collector = getMetricsCollector();
     const summary = collector.getMetricsSummary();
@@ -551,7 +551,7 @@ export function getMetricsDashboard(req: any, res?: any) {
   }
 }
 
-export function resetMetrics(req: any, res?: any) {
+export function resetMetrics(_req: any, res?: any) {
   try {
     const collector = getMetricsCollector();
     collector.resetMetrics();

@@ -100,3 +100,5 @@ docs/reports/cleanup-*/
 .zantara/bridge/logs/*.txt
 
 # Node modules (all locations)
+.wrangler/
+*.pdf

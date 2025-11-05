@@ -3,14 +3,14 @@
  * Enhanced with comprehensive error logging and graceful degradation
  */
 
+import express from 'express';
+import { createServer } from 'http';
+
 // Wrap everything in an async IIFE to avoid top-level await issues
 (async () => {
   console.log('🔍 [DEBUG] Starting server.ts execution...');
   console.log('🔍 [DEBUG] Node version:', process.version);
   console.log('🔍 [DEBUG] Working directory:', process.cwd());
-
-  import express from 'express';
-  import { createServer } from 'http';
 
   console.log('✅ [DEBUG] Core imports successful (express, http)');
 
@@ -214,7 +214,7 @@
     }
 
     // Request logging
-    app.use((req, res, next) => {
+    app.use((req, _res, next) => {
       logger.info(`${req.method} ${req.path} - ${req.ip}`);
       next();
     });
@@ -301,23 +301,23 @@
       logger.warn('  ⚠️ Bali Zero routes failed:', error.message);
     }
 
-    // Advanced Analytics routes
-    try {
-      const analyticsModule = await import('./routes/analytics/advanced-analytics.routes.js');
-      app.use('/analytics', analyticsModule.default);
-      logger.info('  ✅ Analytics routes loaded');
-    } catch (error: any) {
-      logger.warn('  ⚠️ Analytics routes failed:', error.message);
-    }
+    // Advanced Analytics routes - REMOVED
+    // try {
+    //   const analyticsModule = await import('./routes/analytics/advanced-analytics.routes.js');
+    //   app.use('/analytics', analyticsModule.default);
+    //   logger.info('  ✅ Analytics routes loaded');
+    // } catch (error: any) {
+    //   logger.warn('  ⚠️ Analytics routes failed:', error.message);
+    // }
 
-    // ZANTARA v3 routes
-    try {
-      const v3Module = await import('./routes/api/v3/zantara-v3.routes.js');
-      app.use('/api/v3/zantara', v3Module.default);
-      logger.info('  ✅ ZANTARA v3 routes loaded');
-    } catch (error: any) {
-      logger.warn('  ⚠️ ZANTARA v3 routes failed:', error.message);
-    }
+    // ZANTARA v3 routes - REMOVED
+    // try {
+    //   const v3Module = await import('./routes/api/v3/zantara-v3.routes.js');
+    //   app.use('/api/v3/zantara', v3Module.default);
+    //   logger.info('  ✅ ZANTARA v3 routes loaded');
+    // } catch (error: any) {
+    //   logger.warn('  ⚠️ ZANTARA v3 routes failed:', error.message);
+    // }
 
     // V3 Performance routes
     try {

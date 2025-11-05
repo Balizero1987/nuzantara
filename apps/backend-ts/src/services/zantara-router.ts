@@ -132,7 +132,7 @@ export class ZANTARAAgentRouter {
   /**
    * Call Qwen Reasoning Agent (2.5B ~1.6GB)
    */
-  private async callQwenAgent(query: ZANTARAQuery, intent: AgentIntent): Promise<any> {
+  private async callQwenAgent(query: ZANTARAQuery, _intent: AgentIntent): Promise<any> {
     try {
       const response = await axios.post(
         this.agentEndpoints.qwen,
@@ -163,7 +163,7 @@ export class ZANTARAAgentRouter {
   /**
    * Call Mistral Business Intelligence Agent (7B ~5GB)
    */
-  private async callMistralAgent(query: ZANTARAQuery, intent: AgentIntent): Promise<any> {
+  private async callMistralAgent(query: ZANTARAQuery, _intent: AgentIntent): Promise<any> {
     try {
       const response = await axios.post(
         this.agentEndpoints.mistral,
@@ -194,7 +194,7 @@ export class ZANTARAAgentRouter {
   /**
    * Call Llama Multi-Language Agent (3.1B ~2GB)
    */
-  private async callLlamaAgent(query: ZANTARAQuery, intent: AgentIntent): Promise<any> {
+  private async callLlamaAgent(query: ZANTARAQuery, _intent: AgentIntent): Promise<any> {
     try {
       const response = await axios.post(
         this.agentEndpoints.llama,

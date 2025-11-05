@@ -225,7 +225,7 @@ export class PubSubService {
       logger.info(`Pattern subscribed: ${pattern}`);
     });
 
-    subscriberRedis.on('pmessage', async (pattern, ch, message) => {
+    subscriberRedis.on('pmessage', async (_pattern, ch, message) => {
       try {
         const data = JSON.parse(message) as T;
         await handler(ch, data);

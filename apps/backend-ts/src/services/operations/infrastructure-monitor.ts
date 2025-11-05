@@ -15,7 +15,7 @@
 
 import { performance } from 'perf_hooks';
 import { cpus, totalmem, freemem, loadavg } from 'os';
-import { readFileSync } from 'fs';
+// import { readFileSync } from 'fs';
 import logger from '../logger.js';
 
 export interface SystemMetrics {
@@ -222,7 +222,7 @@ export class InfrastructureMonitor {
         : 0;
 
     const requestsPerSecond = this.calculateRequestsPerSecond();
-    const errorRate = this.calculateErrorRate();
+    const _errorRate = this.calculateErrorRate();
 
     const metrics: ApplicationMetrics = {
       timestamp: now,
@@ -314,7 +314,7 @@ export class InfrastructureMonitor {
    */
   private getRecentErrors(): ErrorMetrics[] {
     const errors: ErrorMetrics[] = [];
-    const fiveMinutesAgo = Date.now() - 300000;
+    const _fiveMinutesAgo = Date.now() - 300000;
 
     for (const [message, count] of this.errorCounts.entries()) {
       if (count > 0) {

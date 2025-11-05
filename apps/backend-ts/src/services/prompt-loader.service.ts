@@ -6,7 +6,7 @@
 import fs from 'fs/promises';
 import { logger } from '../logging/unified-logger.js';
 import path from 'path';
-import crypto from 'crypto';
+// import crypto from 'crypto';
 
 export interface UserContext {
   userId?: string;
@@ -95,7 +95,7 @@ export class PromptLoaderService {
    * Analyze query content to determine appropriate level
    */
   private analyzeQuery(query: string): UserLevel {
-    const lowerQuery = query.toLowerCase();
+    const _lowerQuery = query.toLowerCase();
 
     // Check for Level 3 patterns (highest priority)
     if (this.levelPatterns.level3.some((pattern) => pattern.test(query))) {

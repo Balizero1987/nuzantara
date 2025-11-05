@@ -28,9 +28,10 @@ export interface UnifiedAuthResult {
   confidence: number; // 0-1
 }
 
-export interface RequestWithUnifiedAuth extends Request {
+export interface RequestWithUnifiedAuth {
   user?: UnifiedAuthUser;
   authMethod?: string;
+  [key: string]: any;
 }
 
 // Firebase Auth Integration (when available)

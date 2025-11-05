@@ -57,7 +57,7 @@ class EnhancedRedisCache {
   private isConnected = false;
   private config: Required<CacheConfig>;
   private stats: CacheStats;
-  private warmingQueue: Set<string> = new Set();
+  private _warmingQueue: Set<string> = new Set();
   private invalidationTags: Map<string, Set<string>> = new Map(); // tag -> keys
 
   constructor(config: CacheConfig = {}) {

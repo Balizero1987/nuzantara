@@ -294,7 +294,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
     }
   }
 
-  private async getTeamMember(userId: string): Promise<any> {
+  private async getTeamMember(_userId: string): Promise<any> {
     // This would integrate with the team-login.ts data
     // For now, return mock data
     return {
@@ -329,13 +329,13 @@ export class FirebaseAuthStrategy implements AuthenticationStrategy {
     return authHeader?.startsWith('Bearer ') && false; // Disabled until Firebase is integrated
   }
 
-  async authenticate(req: Request): Promise<UnifiedUser | null> {
+  async authenticate(_req: Request): Promise<UnifiedUser | null> {
     // TODO: Implement Firebase Auth integration
     logger.warn('Firebase Auth strategy not yet implemented');
     return null;
   }
 
-  generateToken(user: UnifiedUser): string {
+  generateToken(_user: UnifiedUser): string {
     // TODO: Implement Firebase custom token generation
     throw new Error('Firebase Auth strategy not yet implemented');
   }

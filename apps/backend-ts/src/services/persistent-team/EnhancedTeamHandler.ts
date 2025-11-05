@@ -86,7 +86,7 @@ export class EnhancedTeamHandler {
 
   private buildPersistentResponse(
     persistentResult: PersistentMemory,
-    query: TeamQuery
+    _query: TeamQuery
   ): TeamResponse {
     const { member_recognition, collective_context } = persistentResult;
 
@@ -186,7 +186,7 @@ export class EnhancedTeamHandler {
   private buildRecentContext(recentDiscussions: any[]): string {
     let context = '\n📅 **Attività Recente**:\n';
 
-    recentDiscussions.slice(0, 3).forEach((discussion, index) => {
+    recentDiscussions.slice(0, 3).forEach((discussion, _index) => {
       const date = new Date(discussion.date).toLocaleDateString('it-IT');
       context += `• ${discussion.topic} (${date})\n`;
     });
@@ -227,7 +227,7 @@ export class EnhancedTeamHandler {
     return contact;
   }
 
-  private buildRAGResponse(ragResult: any, query: TeamQuery): TeamResponse {
+  private buildRAGResponse(ragResult: any, _query: TeamQuery): TeamResponse {
     let response = ragResult.response || '';
 
     // Add learning notification if confidence is high
@@ -244,7 +244,7 @@ export class EnhancedTeamHandler {
     };
   }
 
-  private buildGenericResponse(query: TeamQuery): TeamResponse {
+  private buildGenericResponse(_query: TeamQuery): TeamResponse {
     const response = `👋 **Team Bali Zero**
 
 Non ho trovato informazioni specifiche sulla tua richiesta, ma ecco come posso aiutarti:
@@ -426,7 +426,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
     }
   }
 
-  async handleTeamStatistics(req: Request, res: Response): Promise<void> {
+  async handleTeamStatistics(_req: Request, res: Response): Promise<void> {
     try {
       const stats = await this.persistentEngine.getTeamStatistics();
 
@@ -449,7 +449,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
 
   async recordFeedback(req: Request, res: Response): Promise<void> {
     try {
-      const { session_id, user_id, query, response, rating, feedback } = req.body;
+      const { session_id, user_id, query, response, rating, _feedback } = req.body;
 
       if (!session_id || !user_id || !query || !response || rating === undefined) {
         res.status(400).json({

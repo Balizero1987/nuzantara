@@ -1,5 +1,6 @@
-import { Pool, PoolClient } from 'pg';
-import { v4 as uuidv4 } from 'uuid';
+import { Pool } from 'pg';
+// import { PoolClient } from 'pg';
+// import { v4 as uuidv4 } from 'uuid';
 import logger from '../logger.js';
 
 // =====================================================
@@ -708,7 +709,7 @@ export class PersistentTeamEngine {
     };
   }
 
-  async learnFromRAG(query: string, ragResult: any, userId: string): Promise<void> {
+  async learnFromRAG(_query: string, ragResult: any, _userId: string): Promise<void> {
     // If RAG found good team information, learn from it
     if (ragResult.confidence > 0.8 && ragResult.entities) {
       for (const entity of ragResult.entities) {

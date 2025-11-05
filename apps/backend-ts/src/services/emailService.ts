@@ -104,7 +104,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
     if (emailProvider === 'sendgrid') {
       return await sendViaSendGrid(to, subject, html, text);
     } else if (emailProvider === 'smtp') {
-      return await sendViaSMTP(to, subject, html, text);
+      return await sendViaSMTP(to, subject, html);
     } else {
       // Fallback to console logging
       logger.warn('Unknown email provider, falling back to console logging');

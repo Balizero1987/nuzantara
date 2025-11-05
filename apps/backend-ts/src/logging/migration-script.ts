@@ -12,11 +12,11 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+// import { fileURLToPath } from 'url';
 import { glob } from 'glob';
 import logger from '../services/logger.js';
 
-const _filename = fileURLToPath(import.meta.url);
+// const _filename = fileURLToPath(import.meta.url);
 
 interface MigrationOptions {
   dryRun: boolean;

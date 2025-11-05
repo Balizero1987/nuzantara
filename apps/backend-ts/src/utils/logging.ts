@@ -14,7 +14,7 @@ export const logError = (message: string, error?: Error, meta?: Record<string, u
     stack: error?.stack,
     ...meta,
   };
-  logger.error(message, errorMeta);
+  logger.error(message, error as Error | undefined, errorMeta);
 };
 
 export const logWarn = (message: string, meta?: Record<string, unknown>) => {

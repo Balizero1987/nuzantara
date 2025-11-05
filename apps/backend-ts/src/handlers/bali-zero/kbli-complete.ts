@@ -8,7 +8,8 @@ import { Request, Response } from 'express';
 // ==========================================
 // FOREIGN OWNERSHIP MATRIX 2025
 // ==========================================
-const FOREIGN_OWNERSHIP_RULES = {
+// @ts-expect-error - Intentionally unused constant
+const _FOREIGN_OWNERSHIP_RULES = {
   // 100% Foreign Ownership
   OPEN_100: [
     '6', // Manufacturing (C)
@@ -549,14 +550,14 @@ function searchKBLIComplete(query: string) {
   return results;
 }
 
-function _getForeignOwnership(capital: number): string {
-  for (const [percentage, codes] of Object.entries(FOREIGN_OWNERSHIP_RULES)) {
-    if (codes.some((code) => capital.toString().startsWith(code.toString()))) {
-      return percentage;
-    }
-  }
-  return 'OPEN_100'; // Default
-}
+// function _getForeignOwnership(capital: number): string {
+//   for (const [percentage, codes] of Object.entries(FOREIGN_OWNERSHIP_RULES)) {
+//     if (codes.some((code) => capital.toString().startsWith(code.toString()))) {
+//       return percentage;
+//     }
+//   }
+//   return 'OPEN_100'; // Default
+// }
 
 // ==========================================
 // HANDLER FUNCTIONS

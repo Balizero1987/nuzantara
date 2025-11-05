@@ -202,7 +202,7 @@ async function startIncrementalServer() {
         req.headers['x-correlation-id'] ||
         req.headers['x-request-id'] ||
         `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      res.setHeader('x-correlation-id', req.correlationId);
+      _res.setHeader('x-correlation-id', req.correlationId);
       next();
     };
   }
@@ -307,9 +307,9 @@ async function startIncrementalServer() {
   let userAuthRoutes: any;
 
   try {
-    const userAuthModule = await import('./routes/api/auth/user-auth.routes.js');
-    userAuthRoutes = userAuthModule.default;
-    console.log('  ✅ [F10] User Auth routes loaded');
+    // const userAuthModule = await import('./routes/api/auth/user-auth.routes.js');
+    // userAuthRoutes = userAuthModule.default;
+    console.log('  ⚠️ [F10] User Auth routes removed');
   } catch (error: any) {
     console.log('  ⚠️ [F10] User Auth routes failed:', error.message);
     userAuthRoutes = null;
@@ -335,9 +335,9 @@ async function startIncrementalServer() {
   let zantaraV3Routes: any;
 
   try {
-    const v3Module = await import('./routes/api/v3/zantara-v3.routes.js');
-    zantaraV3Routes = v3Module.default;
-    console.log('  ✅ [F8] ZANTARA v3 routes loaded');
+    // const v3Module = await import('./routes/api/v3/zantara-v3.routes.js');
+    // zantaraV3Routes = v3Module.default;
+    console.log('  ⚠️ [F8] ZANTARA v3 routes removed');
   } catch (error: any) {
     console.log('  ⚠️ [F8] ZANTARA v3 routes failed:', error.message);
     zantaraV3Routes = null;

@@ -1,6 +1,6 @@
 // Local logger implementation - no external import
 import winston from 'winston';
-import { logger } from '../logging/unified-logger.js';
+import { logger as unifiedLogger } from '../logging/unified-logger.js';
 import LokiTransport from 'winston-loki';
 
 const transports: winston.transport[] = [
@@ -24,10 +24,10 @@ if (process.env.GRAFANA_LOKI_URL) {
       batching: true,
       interval: 5,
       replaceTimestamp: true,
-      onConnectionError: (err) => logger.error('⚠️  Loki connection error:', err),
+      onConnectionError: (err: any) => unifiedLogger.error('⚠️  Loki connection error:', err),
     }) as any
   );
-  logger.info('✅ Grafana Loki transport enabled');
+  unifiedLogger.info('✅ Grafana Loki transport enabled');
 }
 
 const logger = winston.createLogger({

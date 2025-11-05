@@ -86,7 +86,7 @@ function setupRedisBridge(io: Server) {
   // User notifications
   PubSubService.psubscribe<UserNotification>(
     `${CHANNELS.USER_NOTIFICATIONS}:*`,
-    (channel, notification) => {
+    (_channel, notification) => {
       const userId = notification.userId;
       io.to(`user:${userId}`).emit('notification', notification);
       logger.debug(`Notification sent to user ${userId}`);
@@ -94,7 +94,7 @@ function setupRedisBridge(io: Server) {
   );
 
   // AI results
-  PubSubService.psubscribe<AIResult>(`${CHANNELS.AI_RESULTS}:*`, (channel, result) => {
+  PubSubService.psubscribe<AIResult>(`${CHANNELS.AI_RESULTS}:*`, (_channel, result) => {
     const userId = result.userId;
     io.to(`user:${userId}`).emit('ai-result', result);
     logger.debug(`AI result sent to user ${userId}`);

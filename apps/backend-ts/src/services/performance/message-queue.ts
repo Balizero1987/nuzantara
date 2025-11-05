@@ -396,7 +396,7 @@ class MessageQueueService {
    * Process message immediately (fallback mode)
    */
   private async processImmediate(
-    message: Omit<Message, 'id' | 'timestamp' | 'retryCount'>
+    _message: Omit<Message, 'id' | 'timestamp' | 'retryCount'>
   ): Promise<string> {
     const msgId = this.generateMessageId();
     logger.debug(`Processing message immediately: ${msgId}`);

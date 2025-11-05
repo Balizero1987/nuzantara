@@ -2,7 +2,7 @@
 // Connects to real-time Indonesian government APIs for KBLI data
 
 import logger from './logger.js';
-import { getCachedEmbedding, getCachedSearch } from './memory-cache.js';
+// import { getCachedEmbedding, getCachedSearch } from './memory-cache.js';
 import axios from 'axios';
 
 interface KBLIExternal {

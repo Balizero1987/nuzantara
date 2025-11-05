@@ -8,7 +8,7 @@
  * @version 2.0.0
  */
 
-import { AdvancedNLPSystem, QueryAnalysis } from './AdvancedNLPSystem';
+import { AdvancedNLPSystem, QueryAnalysis, ExtractedEntity } from './AdvancedNLPSystem';
 import logger from './logger.js';
 
 // =====================================================
@@ -355,7 +355,7 @@ export class MultiLanguageSystem {
     const localizedEntities = await this.localizeEntities(nlpAnalysis.entities, targetLanguage);
 
     return {
-      original_text: nlpAnalysis.query,
+      original_text: (nlpAnalysis as any).query || '',
       localized_text: culturalAdaptations.adapted_text,
       language: targetLanguage,
       cultural_adaptations: culturalAdaptations.adaptations,
@@ -366,7 +366,7 @@ export class MultiLanguageSystem {
     };
   }
 
-  private getTeamMemberAdaptations(memberName?: string, language: string): any {
+  private getTeamMemberAdaptations(memberName: string | undefined, language: string): any {
     if (!memberName || !this.teamMemberLanguages.has(memberName)) {
       return {
         formality: 'professional',
@@ -513,7 +513,7 @@ export class MultiLanguageSystem {
     const adaptations: CulturalAdaptation[] = [];
 
     // Formal address for Ukrainian business context
-    if (text.includes('ви') || text.includes('Ви')) {
+    if (_text.includes('ви') || _text.includes('Ви')) {
       adaptations.push({
         type: 'formality',
         original: 'ви',
@@ -523,7 +523,7 @@ export class MultiLanguageSystem {
     }
 
     // Business etiquette adaptations
-    if (text.includes('компанія')) {
+    if (_text.includes('компанія')) {
       adaptations.push({
         type: 'business_etiquette',
         original: 'компанія',
@@ -621,12 +621,12 @@ export class MultiLanguageSystem {
   }
 
   private formatSpecialties(specialties: string[], _language: string): string {
-    const _labels = {
-      it: 'Specializzazioni',
-      ua: 'Спеціалізації',
-      id: 'Keahlian',
-      en: 'Specialties',
-    };
+    // const _labels = {
+    //   it: 'Specializzazioni',
+    //   ua: 'Спеціалізації',
+    //   id: 'Keahlian',
+    //   en: 'Specialties',
+    // };
 
     return specialties.join(', ');
   }
@@ -787,7 +787,7 @@ export class MultiLanguageSystem {
   private updateUserProfile(
     userId: string,
     language: 'it' | 'en' | 'id' | 'ua',
-    query: string,
+    _query: string,
     context?: any
   ): void {
     const profile = this.getUserLanguageProfile(userId);
@@ -889,7 +889,7 @@ export class MultiLanguageSystem {
     };
   }
 
-  private getEntityCulturalContext(entity: any, language: string): string {
+  private getEntityCulturalContext(_entity: any, language: string): string {
     const contexts = {
       it: 'Contesto culturale italiano',
       ua: 'Український культурний контекст',
@@ -908,22 +908,22 @@ export class MultiLanguageSystem {
     language: 'it' | 'en' | 'id' | 'ua'
   ): Promise<string> {
     const templates = this.localizationTemplates.get(language);
-    if (!templates) return nlpAnalysis.query;
+    if (!templates) return (nlpAnalysis as any).query || '';
 
     // Select appropriate response template
     let templateKey = 'unknown_query';
 
     if (nlpAnalysis.intent === 'team_inquiry') {
       templateKey = 'team_recognition';
-    } else if (nlpAnalysis.sentiment === 'question') {
+    } else if ((nlpAnalysis as any).intent === 'question') {
       templateKey = 'help';
-    } else if (nlpAnalysis.sentiment === 'greeting') {
+    } else if ((nlpAnalysis as any).intent === 'greeting') {
       templateKey = 'greeting';
-    } else if (nlpAnalysis.sentiment === 'error' || nlpAnalysis.sentiment === 'negative') {
+    } else if (nlpAnalysis.sentiment === 'negative') {
       templateKey = 'error';
     }
 
-    return templates.get(templateKey) || nlpAnalysis.query;
+    return templates.get(templateKey) || (nlpAnalysis as any).query || '';
   }
 
   // =====================================================

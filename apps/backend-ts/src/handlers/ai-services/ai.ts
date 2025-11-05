@@ -191,7 +191,7 @@ export async function generateEmbeddings(params: any) {
   const { text, model = 'all-MiniLM-L6-v2' } = params || {};
 
   try {
-    logger.info({ text: text?.substring(0, 100) }, 'Generating embeddings');
+    logger.info('Generating embeddings', { text: text?.substring(0, 100) });
 
     // Validate input
     if (!text || typeof text !== 'string') {
@@ -220,7 +220,7 @@ export async function generateEmbeddings(params: any) {
     const dimension = 384; // all-MiniLM-L6-v2 uses 384 dimensions
     const embeddingVector = Array.from({ length: dimension }, () => Math.random() - 0.5);
 
-    logger.info({ model, dimension }, 'Embeddings generated successfully');
+    logger.info('Embeddings generated successfully', { model, dimension });
 
     return {
       success: true,
@@ -236,7 +236,7 @@ export async function generateEmbeddings(params: any) {
       timestamp: Date.now(),
     };
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Embeddings generation error');
+    logger.error('Embeddings generation error', error, { error: error.message });
     return {
       success: false,
       error: error.message || 'Failed to generate embeddings',
@@ -255,14 +255,14 @@ export async function getCompletions(params: any) {
     model = 'zantara',
     max_tokens = 256,
     temperature = 0.7,
-    top_p = 0.9,
-    stop,
-    frequency_penalty = 0,
-    presence_penalty = 0,
+    top_p: _top_p = 0.9,
+    stop: _stop,
+    frequency_penalty: _frequency_penalty = 0,
+    presence_penalty: _presence_penalty = 0,
   } = params || {};
 
   try {
-    logger.info({ prompt: prompt?.substring(0, 100), model }, 'Getting completions');
+    logger.info('Getting completions', { prompt: prompt?.substring(0, 100), model });
 
     // Validate input
     if (!prompt || typeof prompt !== 'string') {
@@ -338,7 +338,7 @@ export async function getCompletions(params: any) {
       timestamp: Date.now(),
     };
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Completions error');
+    logger.error('Completions error', error, { error: error.message });
     return {
       success: false,
       error: error.message || 'Failed to generate completions',

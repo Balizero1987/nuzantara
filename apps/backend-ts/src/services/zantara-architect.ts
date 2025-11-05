@@ -234,7 +234,7 @@ export class ZANTARAArchitect {
     return ['/api/v3/zantara/unified', '/api/v3/zantara/collective', '/api/v3/zantara/ecosystem'];
   }
 
-  private parseKnowledgeAnalysis(content: string): KnowledgeAnalysis {
+  private parseKnowledgeAnalysis(_content: string): KnowledgeAnalysis {
     // Parse GLM-4.6 response into structured data
     return {
       domain: 'zantara-v3',
@@ -249,7 +249,7 @@ export class ZANTARAArchitect {
     };
   }
 
-  private parseOptimizationReport(content: string): OptimizationReport {
+  private parseOptimizationReport(_content: string): OptimizationReport {
     return {
       optimizations: [],
       performanceGain: 0,
@@ -257,7 +257,7 @@ export class ZANTARAArchitect {
     };
   }
 
-  private parseTroubleshootingReport(content: string): TroubleshootingReport {
+  private parseTroubleshootingReport(_content: string): TroubleshootingReport {
     return {
       rootCause: '',
       steps: [],

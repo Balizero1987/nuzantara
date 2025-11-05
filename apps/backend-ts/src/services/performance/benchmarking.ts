@@ -11,7 +11,7 @@
  */
 
 import logger from '../logger.js';
-import { getFlags } from '../../config/flags.js';
+// import { getFlags } from '../../config/flags.js';
 import * as promClient from 'prom-client';
 
 interface BenchmarkMetrics {
@@ -236,7 +236,7 @@ class PerformanceBenchmarking {
   /**
    * Extract latency metrics from Prometheus text
    */
-  private extractLatencyMetrics(metricsText: string): BenchmarkMetrics['apiLatency'] {
+  private extractLatencyMetrics(_metricsText: string): BenchmarkMetrics['apiLatency'] {
     // Simplified - in production, use proper Prometheus parsing
     return {
       p50: 200,
@@ -249,7 +249,7 @@ class PerformanceBenchmarking {
   /**
    * Extract cache hit rate
    */
-  private extractCacheHitRate(metricsText: string): number {
+  private extractCacheHitRate(_metricsText: string): number {
     // Simplified - parse from metrics
     return 85;
   }
@@ -257,7 +257,7 @@ class PerformanceBenchmarking {
   /**
    * Extract throughput
    */
-  private extractThroughput(metricsText: string): BenchmarkMetrics['throughput'] {
+  private extractThroughput(_metricsText: string): BenchmarkMetrics['throughput'] {
     return {
       requestsPerSecond: 100,
     };
@@ -266,7 +266,7 @@ class PerformanceBenchmarking {
   /**
    * Extract error rate
    */
-  private extractErrorRate(metricsText: string): number {
+  private extractErrorRate(_metricsText: string): number {
     return 0.1;
   }
 

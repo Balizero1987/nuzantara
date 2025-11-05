@@ -1,4 +1,4 @@
-import { TeamKnowledgeDatabase } from './TeamKnowledgeEngine';
+// import { TeamKnowledgeDatabase } from './TeamKnowledgeEngine';
 import logger from './logger.js';
 
 // =====================================================
@@ -48,12 +48,12 @@ export interface NLPConfiguration {
 }
 
 export class AdvancedNLPSystem {
-  private database: TeamKnowledgeDatabase;
+  private database: any; // TeamKnowledgeDatabase removed
   private config: NLPConfiguration;
   private teamMemberCache: Map<string, any> = new Map();
   private lastCacheUpdate: number = 0;
 
-  constructor(database: TeamKnowledgeDatabase, config: NLPConfiguration) {
+  constructor(database: any, config: NLPConfiguration) {
     this.database = database;
     this.config = config;
   }
@@ -98,7 +98,7 @@ export class AdvancedNLPSystem {
       urgency,
       complexity,
       keywords,
-      businessContext,
+      business_context: businessContext,
     };
 
     logger.info(`🧠 NLP Analysis completed in ${Date.now() - startTime}ms`);
@@ -397,7 +397,8 @@ export class AdvancedNLPSystem {
     const roles = roleKeywords[language] || roleKeywords['mixed'];
 
     for (const [roleType, keywords] of Object.entries(roles)) {
-      for (const keyword of keywords) {
+      const keywordsArray = Array.isArray(keywords) ? keywords : [];
+      for (const keyword of keywordsArray) {
         const regex = new RegExp(`\\b${this.escapeRegExp(keyword)}\\b`, 'gi');
         const matches = query.match(regex);
 
@@ -1576,7 +1577,8 @@ export class AdvancedNLPSystem {
 
     const lowerService = service.toLowerCase();
     for (const [category, keywords] of Object.entries(categories)) {
-      if (keywords.some((keyword) => lowerService.includes(keyword))) {
+      const keywordsArray = Array.isArray(keywords) ? keywords : [];
+      if (keywordsArray.some((keyword) => lowerService.includes(keyword))) {
         return category;
       }
     }
@@ -1662,7 +1664,8 @@ export class AdvancedNLPSystem {
 
     const lowerSkill = skill.toLowerCase();
     for (const [category, keywords] of Object.entries(categories)) {
-      if (keywords.some((keyword) => lowerSkill.includes(keyword))) {
+      const keywordsArray = Array.isArray(keywords) ? keywords : [];
+      if (keywordsArray.some((keyword) => lowerSkill.includes(keyword))) {
         return category;
       }
     }
