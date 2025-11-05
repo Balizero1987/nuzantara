@@ -356,6 +356,34 @@ async function startIncrementalServer() {
   }
 
   // ============================================================
+  // FEATURE #8.5: Persistent Memory System
+  // ============================================================
+  console.log('🔄 [INC] Loading Feature #8.5: Persistent Memory...');
+
+  let persistentMemoryRoutes: any;
+
+  try {
+    const memoryModule = await import('./routes/persistent-memory.routes.js');
+    persistentMemoryRoutes = memoryModule.default;
+    console.log('  ✅ [F8.5] Persistent Memory routes loaded');
+  } catch (error: any) {
+    console.log('  ⚠️ [F8.5] Persistent Memory routes failed:', error.message);
+    persistentMemoryRoutes = null;
+  }
+
+  // Mount persistent memory routes if available
+  if (persistentMemoryRoutes) {
+    try {
+      app.use('/api/persistent-memory', persistentMemoryRoutes);
+      console.log('✅ [F8.5] Feature #8.5 ENABLED: Persistent Memory System (PostgreSQL)');
+    } catch (error: any) {
+      console.error('❌ [F8.5] Failed to mount Persistent Memory routes:', error.message);
+    }
+  } else {
+    console.log('⚠️ [F8.5] Feature #8.5 SKIPPED: Persistent Memory not available');
+  }
+
+  // ============================================================
   // FEATURE #9: Main Router (Safe Progressive Loading)
   // ============================================================
   console.log('🔄 [INC] Loading Feature #9: Main Router (safe mode)...');
