@@ -58,8 +58,7 @@ if (process.env.REDIS_URL) {
       console.warn('⚠️  Redis unavailable, running without cache:', err.message);
       redis = null;
     });
-  } catch (_err) {
-    // eslint-disable-line @typescript-eslint/no-unused-vars, no-unused-vars
+  } catch {
     console.warn('⚠️  Redis initialization failed, running without cache');
     redis = null;
   }
@@ -161,6 +160,20 @@ async function initializeDatabase() {
         metadata JSONB DEFAULT '{}'::jsonb,
         UNIQUE (session_id, summary_date)
       )
+    `);
+
+    // Migration: Add session_id column if it doesn't exist (for old schemas)
+    await postgres.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'memory_summaries' AND column_name = 'session_id'
+        ) THEN
+          ALTER TABLE memory_summaries ADD COLUMN session_id VARCHAR(255);
+          ALTER TABLE memory_summaries ADD COLUMN user_id VARCHAR(255);
+        END IF;
+      END $$;
     `);
 
     console.log('✅ Memory Service Database initialized successfully!');
