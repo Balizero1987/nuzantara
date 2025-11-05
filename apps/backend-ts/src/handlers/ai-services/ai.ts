@@ -3,9 +3,11 @@
  * Simplified AI routing with only ZANTARA/LLAMA support
  */
 
+/* eslint-disable no-unused-vars */
 import logger from '../../services/logger.js';
 import { ok } from '../../utils/response.js';
 import { zantaraChat } from './zantara-llama.js';
+import { memoryServiceClient } from '../../services/memory-service-client.js';
 
 // Team member recognition database
 const TEAM_RECOGNITION: Record<
@@ -71,23 +73,97 @@ function checkIdentityRecognition(prompt: string, _sessionId: string): string | 
 // ZANTARA-ONLY AI Chat
 export async function aiChat(params: any) {
   const { provider: _provider = 'zantara' } = params || {};
+  const sessionId = params.sessionId || `session_${Date.now()}`;
+  const userId = params.userId || params.user_email || 'unknown';
+  const userMessage = params.prompt || params.message;
 
   logger.info('🎯 [AI Router] ZANTARA-ONLY mode - using only ZANTARA/LLAMA');
 
   try {
+    // === MEMORY: Create/Update Session ===
+    if (params.sessionId) {
+      await memoryServiceClient
+        .createSession({
+          session_id: sessionId,
+          user_id: userId,
+          member_name: params.memberName || 'User',
+          metadata: {
+            mode: params.mode || 'santai',
+            language: params.language || 'unknown',
+            user_agent: params.userAgent || 'unknown',
+          },
+        })
+        .catch((err) => logger.warn('⚠️  Memory session creation failed:', err));
+    }
+
+    // === MEMORY: Save User Message ===
+    await memoryServiceClient
+      .storeMessage({
+        session_id: sessionId,
+        user_id: userId,
+        message_type: 'user',
+        content: userMessage,
+        metadata: {
+          mode: params.mode,
+          timestamp: new Date().toISOString(),
+        },
+      })
+      .catch((err) => logger.warn('⚠️  Memory user message storage failed:', err));
+
+    // === MEMORY: Retrieve Conversation History ===
+    let conversationContext = '';
+    if (params.sessionId) {
+      try {
+        const historyData = await memoryServiceClient.getConversationHistory(sessionId, 10);
+        const messages = historyData.messages || [];
+
+        if (messages.length > 0) {
+          // Format last 10 messages as context (reverse to get chronological order)
+          const formattedHistory = messages
+            .reverse()
+            .slice(-10)
+            .map((msg: any) => {
+              const role = msg.message_type === 'user' ? 'User' : 'Assistant';
+              return `${role}: ${msg.content}`;
+            })
+            .join('\n');
+
+          conversationContext = `\n\n=== Previous Conversation ===\n${formattedHistory}\n=== End of Previous Conversation ===\n\n`;
+          logger.info(`📖 Retrieved ${messages.length} previous messages for context`);
+        }
+      } catch (err) {
+        logger.warn('⚠️  Failed to retrieve conversation history:', err);
+      }
+    }
+
     // Check for identity recognition FIRST
-    const identityResponse = checkIdentityRecognition(
-      params.prompt || params.message,
-      params.sessionId || 'default'
-    );
+    const identityResponse = checkIdentityRecognition(userMessage, sessionId);
     if (identityResponse) {
       logger.info(`✅ [ZANTARA] Identity recognized - returning personalized response`);
+
+      // === MEMORY: Save Assistant Response ===
+      await memoryServiceClient
+        .storeMessage({
+          session_id: sessionId,
+          user_id: userId,
+          message_type: 'assistant',
+          content: identityResponse,
+          tokens_used: 0,
+          model_used: 'identity-recognition',
+        })
+        .catch((err) => logger.warn('⚠️  Memory assistant message storage failed:', err));
+
       return ok({ response: identityResponse, recognized: true, ts: Date.now() });
     }
 
     // Use ZANTARA for all queries with mode support
+    // Add conversation history as context if available
+    const messageWithContext = conversationContext
+      ? `${conversationContext}Current question: ${userMessage}`
+      : userMessage;
+
     const zantaraResult = await zantaraChat({
-      message: params.prompt || params.message,
+      message: messageWithContext,
       mode: params.mode || 'santai', // Default to Santai mode
       user_email: params.user_email, // CRITICAL: Pass user_email for identification
       ...params,
@@ -96,15 +172,36 @@ export async function aiChat(params: any) {
     // Normalize response format: zantaraChat returns 'answer', but tests expect 'response'
     if (zantaraResult.ok && zantaraResult.data) {
       const data = zantaraResult.data as any;
+      const assistantResponse = data.answer || data.response || '';
+
+      // === MEMORY: Save Assistant Response ===
+      await memoryServiceClient
+        .storeMessage({
+          session_id: sessionId,
+          user_id: userId,
+          message_type: 'assistant',
+          content: assistantResponse,
+          tokens_used: data.tokens || 0,
+          model_used: data.model || 'zantara-llama',
+          metadata: {
+            mode: data.mode || params.mode || 'santai',
+            provider: data.provider || 'rag-backend',
+            usage: data.usage || {},
+          },
+        })
+        .catch((err) => logger.warn('⚠️  Memory assistant message storage failed:', err));
+
       return ok({
-        response: data.answer || data.response || '',
-        answer: data.answer || data.response || '', // Keep for backward compatibility
+        response: assistantResponse,
+        answer: assistantResponse, // Keep for backward compatibility
         model: data.model || 'zantara-llama',
         provider: data.provider || 'rag-backend',
         tokens: data.tokens || 0,
         usage: data.usage || {},
         mode: data.mode || params.mode || 'santai',
         recognized: false, // Not an identity match
+        sessionId: sessionId, // Return session ID for client
+        hasHistory: conversationContext.length > 0, // Indicates if conversation history was used
         ts: Date.now(),
       });
     }
@@ -144,7 +241,13 @@ export async function getAIModels(_params: any) {
         description: 'Specialized Bali Zero AI assistant with business knowledge',
         type: 'chat',
         status: 'active',
-        capabilities: ['business-analysis', 'kbli-lookup', 'visa-guidance', 'tax-planning', 'rag-search'],
+        capabilities: [
+          'business-analysis',
+          'kbli-lookup',
+          'visa-guidance',
+          'tax-planning',
+          'rag-search',
+        ],
         context_window: 8192,
         max_tokens: 2048,
         latency_ms: '500-1800',
