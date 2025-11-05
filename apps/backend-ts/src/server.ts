@@ -34,15 +34,12 @@ import {
 import performanceRoutes from './routes/performance.routes.js';
 
 // GLM 4.6 Architect Patch - Enhanced Architecture
-import { enhancedJWTAuth, authenticate } from './middleware/enhanced-jwt-auth.js';
 import { serviceRegistry } from './services/architecture/service-registry.js';
 import { enhancedRouter } from './services/architecture/enhanced-router.js';
-import { registerV3InternalHandlers } from './handlers/zantara-v3/internal-handlers.js';
 
 // UNIFIED AUTHENTICATION - Strategy Pattern Implementation (Gemini Pro 2.5)
 import {
   unifiedAuth,
-  // authenticate as unifiedAuthenticate,
 } from './services/auth/unified-auth-strategy.js';
 
 // GLM 4.6 Architect Patch: Register v3 Ω services
@@ -100,10 +97,6 @@ async function registerV3OmegaServices(): Promise<void> {
     await serviceRegistry.registerService(service);
   }
 
-  // 🚀 FIX: Register internal handlers to eliminate self-recursion
-  logger.info('🔧 Registering internal v3 Ω handlers...');
-  registerV3InternalHandlers();
-  logger.info('✅ Self-recursion elimination activated - internal handlers registered');
 
   // Register enhanced routes
   enhancedRouter.registerRoute({
@@ -500,22 +493,6 @@ async function startServer() {
   app.use('/api/auth/team', teamAuthRoutes.default);
   logger.info('✅ Team Authentication routes loaded');
 
-  // User Authentication routes
-  const userAuthRoutes = await import('./routes/api/auth/user-auth.routes.js');
-  app.use('/api/auth', userAuthRoutes.default);
-  logger.info('✅ User Authentication routes loaded');
-
-  // PATCH-3: Advanced Analytics Routes (Claude Sonnet 4.5)
-  const advancedAnalyticsRoutes = await import('./routes/analytics/advanced-analytics.routes.js');
-  app.use('/analytics', advancedAnalyticsRoutes.default);
-  logger.info('✅ Advanced Analytics Engine loaded');
-
-  // ========================================
-  // 🚀 ZANTARA v3 Ω ROUTES - PERFORMANCE OPTIMIZED
-  // ========================================
-  const zantaraV3Routes = await import('./routes/api/v3/zantara-v3.routes.js');
-  app.use('/api/v3/zantara', zantaraV3Routes.default);
-  logger.info('✅ ZANTARA v3 Ω Strategic Routes loaded (unified/collective/ecosystem)');
 
   // V3 Performance Monitoring Routes
   const v3PerformanceRoutes = await import('./routes/v3-performance.routes.js');

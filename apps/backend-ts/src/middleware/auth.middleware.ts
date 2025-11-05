@@ -5,7 +5,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '../handlers/auth/user-auth.js';
+import { verifyToken } from '../handlers/auth/team-login-secure.js';
 import { logger } from '../logging/unified-logger.js';
 
 // Extend Express Request to include user info

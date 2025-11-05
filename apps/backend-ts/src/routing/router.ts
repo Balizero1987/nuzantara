@@ -4,15 +4,8 @@ import { z, ZodError } from 'zod';
 import type { Request, Response } from 'express';
 import { ok, err } from '../utils/response.js';
 import { apiKeyAuth, RequestWithCtx } from '../middleware/auth.js';
-import { jwtAuth, optionalJwtAuth, RequestWithJWT } from '../middleware/jwt-auth.js';
+import { jwtAuth, RequestWithJWT } from '../middleware/jwt-auth.js';
 import { demoUserAuth, RequestWithDemo } from '../middleware/demo-user-auth.js';
-import {
-  unifiedAuthMiddleware,
-  optionalUnifiedAuth,
-  requireRole,
-  requirePermission,
-  type RequestWithUnifiedAuth,
-} from '../middleware/auth-unified-complete.js';
 import { ForbiddenError, BadRequestError, UnauthorizedError } from '../utils/errors.js';
 import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
 
@@ -699,25 +692,6 @@ const handlers: Record<string, Handler> = {
     return { success: true, message: 'Metrics collection initialized', initialized: true };
   },
 
-  // ZANTARA v3 Ω Strategic Endpoints - 3 endpoints for complete knowledge access
-  'zantara.unified': async (_params: any, req: Request) => {
-    const { zantaraUnifiedQuery } = await import('../handlers/zantara-v3/zantara-unified.js');
-    return await zantaraUnifiedQuery(req, { json: (data: any) => data } as any);
-  },
-
-  'zantara.collective': async (_params: any, req: Request) => {
-    const { zantaraCollectiveIntelligence } = await import(
-      '../handlers/zantara-v3/zantara-collective.js'
-    );
-    return await zantaraCollectiveIntelligence(req, { json: (data: any) => data } as any);
-  },
-
-  'zantara.ecosystem': async (_params: any, req: Request) => {
-    const { zantaraEcosystemAnalysis } = await import(
-      '../handlers/zantara-v3/zantara-ecosystem.js'
-    );
-    return await zantaraEcosystemAnalysis(req, { json: (data: any) => data } as any);
-  },
   /**
    * @handler memory.retrieve
    * @description Retrieve user memory from Firestore with automatic fallback to in-memory Map. Returns most recent fact or fact matching a specific key.
@@ -994,45 +968,6 @@ const handlers: Record<string, Handler> = {
   'dashboard.health': dashboardHealth,
   'dashboard.users': dashboardUsers,
 
-  // 🔌 WebSocket Admin - Connection Management
-  'websocket.stats': async () => {
-    const { websocketStats } = await import('../handlers/admin/websocket-admin.js');
-    return await websocketStats({});
-  },
-  /**
-   * @handler websocket.broadcast
-   * @description Broadcast message to all WebSocket clients on a specific channel. Admin-only operation for real-time notifications and updates.
-   * @param {string} params.channel - Channel name to broadcast to (required)
-   * @param {any} params.data - Message data to broadcast (any JSON-serializable type) (required)
-   * @param {string} [params.excludeClientId] - Client ID to exclude from broadcast (e.g., sender)
-   * @returns {Promise<{ok: boolean, broadcast: boolean, channel: string, timestamp: string}>} Broadcast confirmation
-   * @throws {BadRequestError} If channel or data missing, or WebSocket server not initialized
-   * @example
-   * // Broadcast system notification
-   * await call('websocket.broadcast', {
-   *   channel: 'system',
-   *   data: {
-   *     type: 'announcement',
-   *     message: 'Server maintenance in 10 minutes',
-   *     priority: 'high'
-   *   }
-   * })
-   *
-   * // Broadcast to specific channel, exclude sender
-   * await call('websocket.broadcast', {
-   *   channel: 'team-updates',
-   *   data: { event: 'new-lead', lead_id: 'lead_123' },
-   *   excludeClientId: 'client_abc'
-   * })
-   */
-  'websocket.broadcast': async (params: any) => {
-    const { websocketBroadcast } = await import('../handlers/admin/websocket-admin.js');
-    return await websocketBroadcast(params);
-  },
-  'websocket.send': async (params: any) => {
-    const { websocketSendToUser } = await import('../handlers/admin/websocket-admin.js');
-    return await websocketSendToUser(params);
-  },
 
   // 🔐 OAuth2 Token Management
   'oauth2.status': async () => {
@@ -1442,9 +1377,7 @@ export function attachRoutes(app: import('express').Express) {
         })
       );
     } catch (e: any) {
-      logger.error('JWT Refresh error:', {
-        error: e.message,
-        stack: e.stack,
+      logger.error('JWT Refresh error:', e, {
         ip: clientIP,
       });
 
@@ -2199,85 +2132,6 @@ export function attachRoutes(app: import('express').Express) {
    *   }
    * })
    */
-  app.post(
-    '/zantara.unified',
-    [optionalJwtAuth, demoUserAuth],
-    async (req: RequestWithDemo, res: Response) => {
-      try {
-        const { zantaraUnifiedQuery } = await import('../handlers/zantara-v3/zantara-unified.js');
-        await zantaraUnifiedQuery(req, res);
-      } catch (e: any) {
-        if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-        if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-        if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-        return res.status(500).json(err(e?.message || 'Internal Error'));
-      }
-    }
-  );
-
-  /**
-   * @endpoint POST /zantara.collective
-   * @description ZANTARA v3 Ω Collective Intelligence Endpoint - Shared memory and learning across users
-   * @access Public (demo user auth)
-   * @example
-   * // Query collective memory
-   * await call('zantara.collective', {
-   *   params: {
-   *     action: 'query',
-   *     data: { query: 'restaurant business setup Bali', category: 'business' }
-   *   }
-   * })
-   */
-  app.post(
-    '/zantara.collective',
-    [optionalJwtAuth, demoUserAuth],
-    async (req: RequestWithDemo, res: Response) => {
-      try {
-        const { zantaraCollectiveIntelligence } = await import(
-          '../handlers/zantara-v3/zantara-collective.js'
-        );
-        await zantaraCollectiveIntelligence(req, res);
-      } catch (e: any) {
-        if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-        if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-        if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-        return res.status(500).json(err(e?.message || 'Internal Error'));
-      }
-    }
-  );
-
-  /**
-   * @endpoint POST /zantara.ecosystem
-   * @description ZANTARA v3 Ω Ecosystem Analysis Endpoint - Complete business ecosystem analysis
-   * @access Public (demo user auth)
-   * @example
-   * // Analyze restaurant business setup
-   * await call('zantara.ecosystem', {
-   *   params: {
-   *     scenario: 'business_setup',
-   *     business_type: 'restaurant',
-   *     ownership: 'foreign',
-   *     scope: 'comprehensive'
-   *   }
-   * })
-   */
-  app.post(
-    '/zantara.ecosystem',
-    [optionalJwtAuth, demoUserAuth],
-    async (req: RequestWithDemo, res: Response) => {
-      try {
-        const { zantaraEcosystemAnalysis } = await import(
-          '../handlers/zantara-v3/zantara-ecosystem.js'
-        );
-        await zantaraEcosystemAnalysis(req, res);
-      } catch (e: any) {
-        if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-        if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-        if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-        return res.status(500).json(err(e?.message || 'Internal Error'));
-      }
-    }
-  );
 
   app.post('/intel.scraper.status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
