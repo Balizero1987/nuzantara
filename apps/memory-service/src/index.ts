@@ -741,6 +741,48 @@ app.get('/api/conversation/:session_id/summary', async (req: Request, res: Respo
 });
 
 // ============================================================
+// ADMIN ENDPOINTS
+// ============================================================
+
+app.post('/api/admin/recreate-summaries-table', async (_req: Request, res: Response) => {
+  try {
+    console.log('🔧 Recreating memory_summaries table...');
+
+    // Drop existing table
+    await postgres.query('DROP TABLE IF EXISTS memory_summaries CASCADE');
+
+    // Recreate with correct schema
+    await postgres.query(`
+      CREATE TABLE memory_summaries (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        session_id VARCHAR(255) NOT NULL,
+        user_id VARCHAR(255) NOT NULL,
+        summary_date DATE NOT NULL,
+        summary_content TEXT NOT NULL,
+        source_message_count INTEGER DEFAULT 0,
+        topics TEXT[] DEFAULT ARRAY[]::TEXT[],
+        created_at TIMESTAMP DEFAULT NOW(),
+        metadata JSONB DEFAULT '{}'::jsonb,
+        UNIQUE (session_id, summary_date)
+      )
+    `);
+
+    console.log('✅ memory_summaries table recreated successfully');
+
+    res.json({
+      success: true,
+      message: 'memory_summaries table recreated successfully',
+    });
+  } catch (error) {
+    console.error('❌ Failed to recreate table:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// ============================================================
 // START SERVER
 // ============================================================
 
