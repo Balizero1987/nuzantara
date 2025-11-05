@@ -52,6 +52,7 @@ class SearchService:
             "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
             "kb_indonesian": ChromaDBClient(persist_directory=chroma_path, collection_name="kb_indonesian"),
             "kbli_comprehensive": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_comprehensive"),
+            "kbli_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),
             # Keep original for books collection
             "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
             "cultural_insights": ChromaDBClient(persist_directory=chroma_path, collection_name="cultural_insights"),  # LLAMA-generated Indonesian cultural knowledge
