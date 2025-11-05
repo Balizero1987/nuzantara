@@ -2063,7 +2063,33 @@ async def bali_zero_chat_stream(
             if conversation_history:
                 try:
                     parsed_history = json.loads(conversation_history)
-                    logger.info(f"📚 [Stream] Conversation history: {len(parsed_history)} messages")
+
+                    # DECOMPRESSION LOGIC: Support compressed history format from client
+                    # Compressed format: {r: 'u'|'a', c: 'content'} → Full format: {role: 'user'|'assistant', content: 'content'}
+                    decompressed_history = []
+                    for msg in parsed_history:
+                        if isinstance(msg, dict):
+                            # Check if message uses compressed format (keys 'r' and 'c')
+                            if 'r' in msg and 'c' in msg:
+                                # Decompress: r='u'→'user', r='a'→'assistant'
+                                role_map = {'u': 'user', 'a': 'assistant'}
+                                decompressed_msg = {
+                                    'role': role_map.get(msg['r'], msg['r']),
+                                    'content': msg['c']
+                                }
+                                decompressed_history.append(decompressed_msg)
+                            elif 'role' in msg and 'content' in msg:
+                                # Already in full format
+                                decompressed_history.append(msg)
+                            else:
+                                # Unknown format, keep as-is
+                                decompressed_history.append(msg)
+                        else:
+                            # Not a dict, keep as-is
+                            decompressed_history.append(msg)
+
+                    parsed_history = decompressed_history if decompressed_history else parsed_history
+                    logger.info(f"📚 [Stream] Conversation history: {len(parsed_history)} messages (decompressed if needed)")
                 except Exception as e:
                     logger.warning(f"⚠️ [Stream] Failed to parse conversation_history: {e}")
 

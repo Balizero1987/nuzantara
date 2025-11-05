@@ -37,10 +37,29 @@ const postgres = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
-  maxRetriesPerRequest: 3,
-  enableReadyCheck: true,
-});
+// Redis (optional - for caching)
+let redis: Redis | null = null;
+if (process.env.REDIS_URL) {
+  try {
+    redis = new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: 3,
+      enableReadyCheck: true,
+      lazyConnect: true,
+    });
+    redis.on('error', (err) => {
+      console.warn('⚠️  Redis connection error (caching disabled):', err.message);
+    });
+    redis.connect().catch((err) => {
+      console.warn('⚠️  Redis unavailable, running without cache:', err.message);
+      redis = null;
+    });
+  } catch (err) {
+    console.warn('⚠️  Redis initialization failed, running without cache');
+    redis = null;
+  }
+} else {
+  console.log('ℹ️  Redis not configured, running without cache');
+}
 
 // ============================================================
 // DATABASE INITIALIZATION
@@ -50,31 +69,24 @@ async function initializeDatabase() {
   console.log('🔧 Initializing Memory Service Database...');
 
   try {
-    // Create extensions
-    await postgres.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
-    await postgres.query('CREATE EXTENSION IF NOT EXISTS "pgcrypto"');
-
     // Table 1: Sessions
     await postgres.query(`
       CREATE TABLE IF NOT EXISTS memory_sessions (
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         session_id VARCHAR(255) UNIQUE NOT NULL,
         user_id VARCHAR(255) NOT NULL,
         member_name VARCHAR(255),
         created_at TIMESTAMP DEFAULT NOW(),
         last_active TIMESTAMP DEFAULT NOW(),
         is_active BOOLEAN DEFAULT true,
-        metadata JSONB DEFAULT '{}'::jsonb,
-        INDEX idx_user_id (user_id),
-        INDEX idx_session_id (session_id),
-        INDEX idx_active (is_active, last_active)
+        metadata JSONB DEFAULT '{}'::jsonb
       )
     `);
 
     // Table 2: Conversation History
     await postgres.query(`
       CREATE TABLE IF NOT EXISTS conversation_history (
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         session_id VARCHAR(255) NOT NULL,
         user_id VARCHAR(255) NOT NULL,
         message_type VARCHAR(50) NOT NULL CHECK (message_type IN ('user', 'assistant', 'system')),
@@ -82,16 +94,14 @@ async function initializeDatabase() {
         timestamp TIMESTAMP DEFAULT NOW(),
         tokens_used INTEGER DEFAULT 0,
         model_used VARCHAR(100),
-        metadata JSONB DEFAULT '{}'::jsonb,
-        INDEX idx_session (session_id, timestamp),
-        INDEX idx_user_time (user_id, timestamp DESC)
+        metadata JSONB DEFAULT '{}'::jsonb
       )
     `);
 
     // Table 3: Collective Memory (shared knowledge)
     await postgres.query(`
       CREATE TABLE IF NOT EXISTS collective_memory (
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         memory_key VARCHAR(255) UNIQUE NOT NULL,
         memory_type VARCHAR(100) NOT NULL,
         content TEXT NOT NULL,
@@ -102,17 +112,14 @@ async function initializeDatabase() {
         access_count INTEGER DEFAULT 0,
         last_accessed TIMESTAMP,
         tags TEXT[] DEFAULT ARRAY[]::TEXT[],
-        metadata JSONB DEFAULT '{}'::jsonb,
-        INDEX idx_type_importance (memory_type, importance_score DESC),
-        INDEX idx_tags (tags),
-        INDEX idx_access (access_count DESC, last_accessed DESC)
+        metadata JSONB DEFAULT '{}'::jsonb
       )
     `);
 
     // Table 4: Memory Facts (important user-specific facts)
     await postgres.query(`
       CREATE TABLE IF NOT EXISTS memory_facts (
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id VARCHAR(255) NOT NULL,
         fact_type VARCHAR(100) NOT NULL,
         fact_content TEXT NOT NULL,
@@ -120,16 +127,14 @@ async function initializeDatabase() {
         source VARCHAR(255),
         created_at TIMESTAMP DEFAULT NOW(),
         verified BOOLEAN DEFAULT false,
-        metadata JSONB DEFAULT '{}'::jsonb,
-        INDEX idx_user_confidence (user_id, confidence DESC),
-        INDEX idx_type (fact_type)
+        metadata JSONB DEFAULT '{}'::jsonb
       )
     `);
 
     // Table 5: Memory Summaries (consolidated conversations)
     await postgres.query(`
       CREATE TABLE IF NOT EXISTS memory_summaries (
-        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id VARCHAR(255) NOT NULL,
         summary_date DATE NOT NULL,
         summary_content TEXT NOT NULL,
@@ -137,8 +142,7 @@ async function initializeDatabase() {
         topics TEXT[] DEFAULT ARRAY[]::TEXT[],
         created_at TIMESTAMP DEFAULT NOW(),
         metadata JSONB DEFAULT '{}'::jsonb,
-        UNIQUE (user_id, summary_date),
-        INDEX idx_user_date (user_id, summary_date DESC)
+        UNIQUE (user_id, summary_date)
       )
     `);
 
@@ -160,7 +164,7 @@ app.get('/health', async (req: Request, res: Response) => {
   try {
     // Test database connection
     const dbTest = await postgres.query('SELECT NOW()');
-    const redisTest = await redis.ping();
+    const redisTest = redis ? await redis.ping() : 'disabled';
 
     res.json({
       status: 'healthy',
@@ -254,11 +258,13 @@ app.post('/api/conversation/store', async (req: Request, res: Response) => {
       [session_id, user_id, message_type, content, tokens_used || 0, model_used, metadata]
     );
 
-    // Cache last 20 messages in Redis
-    const cacheKey = `session:${session_id}:messages`;
-    await redis.lpush(cacheKey, JSON.stringify(result.rows[0]));
-    await redis.ltrim(cacheKey, 0, 19); // Keep only last 20
-    await redis.expire(cacheKey, 3600); // 1 hour TTL
+    // Cache last 20 messages in Redis (if available)
+    if (redis) {
+      const cacheKey = `session:${session_id}:messages`;
+      await redis.lpush(cacheKey, JSON.stringify(result.rows[0]));
+      await redis.ltrim(cacheKey, 0, 19); // Keep only last 20
+      await redis.expire(cacheKey, 3600); // 1 hour TTL
+    }
 
     res.json({ success: true, message: result.rows[0] });
   } catch (error) {
@@ -275,20 +281,22 @@ app.get('/api/conversation/:session_id', async (req: Request, res: Response) => 
     const { session_id } = req.params;
     const limit = parseInt(req.query.limit as string) || 50;
 
-    // Try Redis cache first
-    const cacheKey = `session:${session_id}:messages`;
-    const cached = await redis.lrange(cacheKey, 0, limit - 1);
+    // Try Redis cache first (if available)
+    if (redis) {
+      const cacheKey = `session:${session_id}:messages`;
+      const cached = await redis.lrange(cacheKey, 0, limit - 1);
 
-    if (cached.length > 0) {
-      const messages = cached.map((msg) => JSON.parse(msg));
-      return res.json({
-        success: true,
-        messages: messages.reverse(),
-        source: 'cache',
-      });
+      if (cached.length > 0) {
+        const messages = cached.map((msg) => JSON.parse(msg));
+        return res.json({
+          success: true,
+          messages: messages.reverse(),
+          source: 'cache',
+        });
+      }
     }
 
-    // Fallback to PostgreSQL
+    // Fallback to PostgreSQL (or primary if no Redis)
     const result = await postgres.query(
       `SELECT * FROM conversation_history
        WHERE session_id = $1
@@ -480,6 +488,6 @@ app.listen(PORT, () => {
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down Memory Service...');
   await postgres.end();
-  await redis.quit();
+  if (redis) await redis.quit();
   process.exit(0);
 });

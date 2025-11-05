@@ -63,7 +63,15 @@ export async function attachRoutes(app: express.Application) {
   // ==================================================================
   try {
     const { aiChat } = await import('../handlers/ai-services/ai.js');
-    router.post('/api/ai/chat', aiChat as any);
+    router.post('/api/ai/chat', async (req: any, res: any) => {
+      try {
+        const result = await aiChat(req.body);
+        res.json(result);
+      } catch (error: any) {
+        logger.error('AI Chat error:', error);
+        res.status(500).json({ ok: false, error: error.message || 'AI chat failed' });
+      }
+    });
     loadedCount += 1;
     logger.info('  ✅ AI Chat route loaded (1)');
   } catch (error: any) {

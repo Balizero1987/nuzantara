@@ -89,65 +89,120 @@ class ZantaraSSEClient {
       this.stop();
     }
 
-    return new Promise((resolve, reject) => {
-      this.isStreaming = true;
-      this.currentMessage = '';
-      this.currentSources = null; // ← CITATIONS: Collect sources from SSE
-      this.lastStreamUrl = null;
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.isStreaming = true;
+        this.currentMessage = '';
+        this.currentSources = null; // ← CITATIONS: Collect sources from SSE
+        this.lastStreamUrl = null;
 
-      // Build URL with query parameters
-      const url = new URL(`${this.baseUrl}/bali-zero/chat-stream`);
-      url.searchParams.append('query', query);
-
-      // Add user email if available
-      if (userEmail) {
-        url.searchParams.append('user_email', userEmail);
-      } else {
-        // Try to get from localStorage (FIX: use correct key 'zantara-email' not 'zantara-user-email')
-        const storedEmail =
-          localStorage.getItem('zantara-email') || localStorage.getItem('zantara-user-email');
-        if (storedEmail && storedEmail !== 'undefined' && storedEmail !== 'null') {
-          url.searchParams.append('user_email', storedEmail);
+        // Get user email if not provided
+        let email = userEmail;
+        if (!email) {
+          email =
+            localStorage.getItem('zantara-email') || localStorage.getItem('zantara-user-email');
+          if (!email || email === 'undefined' || email === 'null') {
+            email = null;
+          }
         }
-      }
 
-      // ✨ Add conversation history for context (as JSON)
-      if (
-        conversationHistory &&
-        Array.isArray(conversationHistory) &&
-        conversationHistory.length > 0
-      ) {
-        url.searchParams.append('conversation_history', JSON.stringify(conversationHistory));
-        console.log(
-          '[ZantaraSSE] Sending conversation history:',
-          conversationHistory.length,
-          'messages'
-        );
-      }
+        // OPTIMIZATION: Context window for internal team usage
+        // For internal Bali Zero team (like Surya), we support deeper context
+        // Limits: ~4-5 KB for 20 messages compressed, ~6-7 KB for 30 messages
+        let trimmedHistory = conversationHistory;
+        const MAX_HISTORY_INTERNAL_TEAM = 20; // 20 messages = ~4-5 KB compressed
+        const MAX_HISTORY_FALLBACK = 15; // If URL gets too long, fallback to 15
 
-      // 🚀 NEW: Add handlers context for ZANTARA
-      if (handlersContext) {
-        url.searchParams.append('handlers_context', JSON.stringify(handlersContext));
-        console.log(
-          '[ZantaraSSE] Sending handlers context:',
-          handlersContext.available_tools,
-          'tools available'
-        );
-      } else {
-        // Try to get handlers context from localStorage
-        const handlersFromCache = this.getHandlersContext();
-        if (handlersFromCache) {
-          url.searchParams.append('handlers_context', JSON.stringify(handlersFromCache));
+        if (trimmedHistory && Array.isArray(trimmedHistory)) {
+          if (trimmedHistory.length > MAX_HISTORY_INTERNAL_TEAM) {
+            console.warn(
+              `[ZantaraSSE] Trimming conversation history from ${trimmedHistory.length} to ${MAX_HISTORY_INTERNAL_TEAM} messages for internal team use`
+            );
+            trimmedHistory = trimmedHistory.slice(-MAX_HISTORY_INTERNAL_TEAM);
+          }
+        }
+
+        // BUILD STREAM URL WITH OPTIMIZED PARAMETERS
+        const url = new URL(`${this.baseUrl}/bali-zero/chat-stream`);
+        url.searchParams.append('query', query);
+
+        if (email) {
+          url.searchParams.append('user_email', email);
+        }
+
+        // Convert conversation history to AGGRESSIVELY compressed format
+        if (trimmedHistory && Array.isArray(trimmedHistory) && trimmedHistory.length > 0) {
+          // Ultra-compressed format for internal team:
+          // r: role (u=user, a=assistant)
+          // c: content (first 250 chars - balance between context & size)
+          const compressedHistory = trimmedHistory.map((msg) => ({
+            r: msg.role.charAt(0),
+            c: msg.content.substring(0, 250), // Internal team: more content detail
+          }));
+
+          let historyJson = JSON.stringify(compressedHistory);
+          url.searchParams.append('conversation_history', historyJson);
+
+          const historySize = historyJson.length;
           console.log(
-            '[ZantaraSSE] Sending cached handlers context:',
-            handlersFromCache.available_tools,
-            'tools available'
+            `[ZantaraSSE] Sending conversation history: ${trimmedHistory.length} messages (~${historySize} bytes compressed)`
           );
         }
-      }
 
-      const streamUrl = url.toString();
-      this.lastStreamUrl = streamUrl;
+        // 🚀 Add handlers context for ZANTARA
+        if (handlersContext) {
+          url.searchParams.append('handlers_context', JSON.stringify(handlersContext));
+          console.log(
+            '[ZantaraSSE] Sending handlers context:',
+            handlersContext.available_tools,
+            'tools available'
+          );
+        } else {
+          // Try to get handlers context from localStorage
+          const handlersFromCache = this.getHandlersContext();
+          if (handlersFromCache) {
+            url.searchParams.append('handlers_context', JSON.stringify(handlersFromCache));
+            console.log(
+              '[ZantaraSSE] Sending cached handlers context:',
+              handlersFromCache.available_tools,
+              'tools available'
+            );
+          }
+        }
+
+        const streamUrl = url.toString();
+        this.lastStreamUrl = streamUrl;
+
+        // SAFETY CHECK: If URL exceeds 5 KB, trim history further
+        if (streamUrl.length > 5120) { // 5 KB
+          console.warn(
+            `[ZantaraSSE] ⚠️ URL too long (${streamUrl.length} chars). Retrying with fewer messages...`
+          );
+          // Remove from query and rebuild with fallback
+          url.searchParams.delete('conversation_history');
+
+          if (trimmedHistory && trimmedHistory.length > MAX_HISTORY_FALLBACK) {
+            const fallbackHistory = trimmedHistory.slice(-MAX_HISTORY_FALLBACK);
+            const compressedFallback = fallbackHistory.map((msg) => ({
+              r: msg.role.charAt(0),
+              c: msg.content.substring(0, 250),
+            }));
+            url.searchParams.append('conversation_history', JSON.stringify(compressedFallback));
+            console.log(
+              `[ZantaraSSE] Fallback: Using ${MAX_HISTORY_FALLBACK} messages instead`
+            );
+          }
+        }
+
+        // Final URL length check
+        const finalUrl = url.toString();
+        if (finalUrl.length > 4000) {
+          console.info(
+            `[ZantaraSSE] ℹ️ Stream URL is ${finalUrl.length} chars (within safe range ~4-5 KB)`
+          );
+        }
+
+        this.lastStreamUrl = finalUrl;
 
       const clearRetry = () => {
         if (this.retryTimeout) {
