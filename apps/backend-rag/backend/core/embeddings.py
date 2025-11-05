@@ -71,20 +71,34 @@ class EmbeddingsGenerator:
 
     def _init_sentence_transformers(self, model: str = None):
         """Initialize Sentence Transformers local embeddings provider"""
-        from sentence_transformers import SentenceTransformer
-
         self.model = model or (settings.embedding_model if settings else "sentence-transformers/all-MiniLM-L6-v2")
 
-        logger.info(f"🔌 [EmbeddingsGenerator] Loading Sentence Transformers: {self.model}")
-        logger.info("   This may take a moment on first run (downloads model)...")
+        logger.info(f"🔌 [EmbeddingsGenerator] Attempting to load Sentence Transformers: {self.model}")
 
         try:
+            from sentence_transformers import SentenceTransformer
+
+            logger.info("   This may take a moment on first run (downloads model)...")
             self.transformer = SentenceTransformer(self.model)
             self.dimensions = self.transformer.get_sentence_embedding_dimension()
             logger.info(f"🔌 [EmbeddingsGenerator] Initialized with Sentence Transformers: {self.model} ({self.dimensions} dims)")
+
+        except ImportError:
+            # Sentence transformers not available (size constraint on Fly.io)
+            # Fallback to OpenAI
+            logger.warning("🔌 [EmbeddingsGenerator] Sentence Transformers not available (size constraint)")
+            logger.warning("   Falling back to OpenAI (text-embedding-3-small)")
+            logger.warning("   ⚠️ NOTE: This may cause dimension mismatch if ChromaDB collections expect 384 dims")
+            self._init_openai(model=None)
+
         except Exception as e:
             logger.error(f"🔌 [EmbeddingsGenerator] Failed to load Sentence Transformers: {e}")
-            raise
+            logger.error("   Falling back to OpenAI...")
+            try:
+                self._init_openai(model=None)
+            except Exception as openai_error:
+                logger.error(f"🔌 [EmbeddingsGenerator] Both providers failed: {openai_error}")
+                raise
 
     def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         """

@@ -85,7 +85,7 @@ export interface TeamMemberLanguageProfile {
 export class MultiLanguageSystem {
   private nlpSystem: AdvancedNLPSystem;
   private userProfiles: Map<string, LanguageProfile> = new Map();
-  private translationCache: Map<string, TranslationResult> = new Map();
+  private _translationCache: Map<string, TranslationResult> = new Map();
   private localizationTemplates: Map<string, Map<string, string>> = new Map();
   private teamMemberLanguages: Map<string, TeamMemberLanguageProfile> = new Map();
 
@@ -301,7 +301,7 @@ export class MultiLanguageSystem {
     userProfile: LanguageProfile,
     preferredLanguage?: string,
     recognizedMember?: string,
-    context?: any
+    _context?: any
   ): Promise<'it' | 'en' | 'id' | 'ua'> {
     // Priority 1: Recognized team member's preferred language
     if (recognizedMember && this.teamMemberLanguages.has(recognizedMember)) {
@@ -334,9 +334,9 @@ export class MultiLanguageSystem {
   private async generateLocalizedResponseForMember(
     nlpAnalysis: QueryAnalysis,
     targetLanguage: 'it' | 'en' | 'id' | 'ua',
-    userProfile: LanguageProfile,
+    _userProfile: LanguageProfile,
     recognizedMember?: string,
-    context?: any
+    _context?: any
   ): Promise<LocalizedResponse> {
     // Get base response template
     const baseResponse = await this.generateBaseResponse(nlpAnalysis, targetLanguage);
@@ -507,8 +507,8 @@ export class MultiLanguageSystem {
   }
 
   private applyUkrainianCulturalAdaptations(
-    text: string,
-    memberContext: any
+    _text: string,
+    _memberContext: any
   ): CulturalAdaptation[] {
     const adaptations: CulturalAdaptation[] = [];
 
@@ -543,11 +543,11 @@ export class MultiLanguageSystem {
     return adaptations;
   }
 
-  private applyItalianCulturalAdaptations(text: string, memberContext: any): CulturalAdaptation[] {
+  private applyItalianCulturalAdaptations(_text: string, _memberContext: any): CulturalAdaptation[] {
     const adaptations: CulturalAdaptation[] = [];
 
     // Formal vs informal
-    if (memberContext?.communication_style === 'formal') {
+    if (_memberContext?.communication_style === 'formal') {
       adaptations.push({
         type: 'formality',
         original: 'informal tone',
@@ -560,8 +560,8 @@ export class MultiLanguageSystem {
   }
 
   private applyIndonesianCulturalAdaptations(
-    text: string,
-    memberContext: any
+    _text: string,
+    _memberContext: any
   ): CulturalAdaptation[] {
     const adaptations: CulturalAdaptation[] = [];
 
@@ -584,7 +584,7 @@ export class MultiLanguageSystem {
     return adaptations;
   }
 
-  private applyEnglishCulturalAdaptations(text: string, memberContext: any): CulturalAdaptation[] {
+  private applyEnglishCulturalAdaptations(_text: string, _memberContext: any): CulturalAdaptation[] {
     const adaptations: CulturalAdaptation[] = [];
 
     // Professional tone
@@ -620,8 +620,8 @@ export class MultiLanguageSystem {
     return adaptedText;
   }
 
-  private formatSpecialties(specialties: string[], language: string): string {
-    const labels = {
+  private formatSpecialties(specialties: string[], _language: string): string {
+    const _labels = {
       it: 'Specializzazioni',
       ua: 'Спеціалізації',
       id: 'Keahlian',
@@ -631,7 +631,7 @@ export class MultiLanguageSystem {
     return specialties.join(', ');
   }
 
-  private formatCulturalContext(context: string, language: string): string {
+  private formatCulturalContext(context: string, _language: string): string {
     return context;
   }
 

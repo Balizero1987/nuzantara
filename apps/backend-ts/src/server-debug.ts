@@ -127,7 +127,7 @@
   } catch (error: any) {
     logger.warn('⚠️ [DEBUG] Cache middleware failed, using no-op:', error.message);
     initializeRedis = async () => logger.warn('⚠️ Redis initialization skipped');
-    cacheMiddleware = (_req: any, _res: any, next: any) => next();
+    _cacheMiddleware = (_req: any, _res: any, next: any) => next();
   }
 
   // Import correlation middleware

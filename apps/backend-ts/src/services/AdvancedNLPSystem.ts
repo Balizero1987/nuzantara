@@ -1374,7 +1374,7 @@ export class AdvancedNLPSystem {
     return context;
   }
 
-  private detectBusinessStage(query: string, entities: ExtractedEntity[]): string {
+  private detectBusinessStage(query: string, _entities: ExtractedEntity[]): string {
     if (this.containsWords(query, ['idea', 'thinking', 'considering', 'valutando', 'pensando'])) {
       return 'exploration';
     }

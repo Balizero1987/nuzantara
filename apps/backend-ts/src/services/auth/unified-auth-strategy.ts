@@ -83,7 +83,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
       const authHeader = req.headers.authorization;
       if (!authHeader?.startsWith('Bearer ')) return null;
 
-      const token = authHeader.substring(7);
+      const _token = authHeader.substring(7);
 
       // Use enhanced JWT auth system
       return new Promise((resolve, reject) => {
@@ -340,7 +340,7 @@ export class FirebaseAuthStrategy implements AuthenticationStrategy {
     throw new Error('Firebase Auth strategy not yet implemented');
   }
 
-  async validateToken(token: string): Promise<UnifiedUser | null> {
+  async validateToken(_token: string): Promise<UnifiedUser | null> {
     // TODO: Implement Firebase token validation
     return null;
   }

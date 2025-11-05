@@ -267,7 +267,7 @@ export function getJiwaClient(baseURL?: string): JiwaClient {
 export function jiwaMiddleware() {
   const client = getJiwaClient();
 
-  return async (req: any, res: any, next: any) => {
+  return async (req: any, _res: any, next: any) => {
     // Attach JIWA client to request
     req.jiwa = client;
 

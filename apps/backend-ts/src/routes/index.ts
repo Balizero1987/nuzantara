@@ -22,6 +22,7 @@ import docsRoutes from './google-workspace/docs.routes.js';
 
 // AI Services Routes
 import aiRoutes from './ai-services/ai.routes.js';
+import aiEmbeddingsRoutes from './api/ai-embeddings.routes.js';
 import creativeRoutes from './ai-services/creative.routes.js';
 
 // Bali Zero Routes
@@ -56,6 +57,7 @@ export function attachModularRoutes(app: Express) {
 
   // AI Services
   app.use('/api/ai', aiRoutes);
+  app.use('/api/ai', aiEmbeddingsRoutes); // Handler #13-14: Embeddings and Completions
   app.use('/api/creative', creativeRoutes);
 
   // Bali Zero

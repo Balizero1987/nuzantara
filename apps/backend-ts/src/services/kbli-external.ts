@@ -264,7 +264,7 @@ class KBLIExternalService {
   /**
    * Search local KBLI database
    */
-  private async searchLocalKBLI(query: string): Promise<any[]> {
+  private async searchLocalKBLI(_query: string): Promise<any[]> {
     // This would integrate with the existing kbli.ts handler
     // For now, return empty array - implementation would connect to existing search
     return [];
