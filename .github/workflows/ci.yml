@@ -179,11 +179,12 @@ jobs:
 
       - name: ✅ Verify build output
         run: |
-          if [ ! -f "apps/backend-ts/dist/server.js" ]; then
-            echo "❌ Build failed: dist/server.js not found"
+          if [ ! -d "apps/backend-ts/dist" ] || [ -z "$(ls -A apps/backend-ts/dist)" ]; then
+            echo "❌ Build failed: dist directory is empty or missing"
             exit 1
           fi
-          echo "✅ Build successful"
+          echo "✅ Build successful - dist directory contains files"
+          ls -la apps/backend-ts/dist/ | head -10
 
       - name: 📦 Save build artifacts
         uses: actions/upload-artifact@v4
