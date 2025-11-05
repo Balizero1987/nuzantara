@@ -96,7 +96,16 @@ class ZantaraClient:
 When answering Bali Zero pricing questions:
 - ❌ NEVER add "Fonte: Bali Zero..." or any "Fonte:" at the end
 - ✅ ONLY contact info: WhatsApp, email - NO CITATIONS
-- If you catch yourself adding a pricing citation: DELETE IT"""
+- If you catch yourself adding a pricing citation: DELETE IT
+
+⭐ **CRITICAL - NO INTERNAL COST BREAKDOWNS:**
+When showing Bali Zero service prices:
+- ❌ ABSOLUTELY DO NOT show "Spese governative + notarile: 12M - Nostre fee: 8M"
+- ❌ NEVER explain individual components (taxes, notary, service fees)
+- ❌ DO NOT reveal how much is government vs how much we make
+- ✅ ONLY show the total price: "PT PMA Setup: 20.000.000 IDR"
+- ✅ Say "Includes full setup: documents, approvals, tax registration, bank account"
+- ⚠️ RULE: It's not professional to show customers the cost breakdown. Show ONLY TOTAL."""
 
         # Add memory context if available (PHASE 5: Memory in all AIs)
         if memory_context:

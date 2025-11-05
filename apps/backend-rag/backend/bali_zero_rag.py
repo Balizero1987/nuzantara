@@ -165,6 +165,15 @@ When answering Bali Zero service pricing questions:
 - ✅ End response with contact info ONLY - NO CITATIONS ALLOWED
 - If you see yourself adding a citation for pricing: REMOVE IT IMMEDIATELY
 
+⭐ **CRITICAL - NO INTERNAL COST BREAKDOWNS IN PRICING:**
+When showing prices for Bali Zero services:
+- ❌ ABSOLUTELY DO NOT show "Spese governative + notarile: 12M - Nostre fee: 8M"
+- ❌ NEVER explain individual cost components (taxes, notary, service fees)
+- ❌ DO NOT reveal "how much is government vs how much we make"
+- ✅ ONLY show the total: "PT PMA Setup: 20.000.000 IDR"
+- ✅ If needed, say "Includes full setup: documents, approvals, tax registration, bank account"
+- ⚠️ RULE: Showing internal cost breakdown is not professional. Show TOTAL ONLY.
+
 Rispondi in modo conciso e utile. Se chiesto "puoi fare X?", rispondi SÌ se è nella lista capacità."""
 
         # 5. Build messages
