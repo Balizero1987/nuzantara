@@ -112,8 +112,8 @@
     logger.info('✅ [DEBUG] Metrics middleware loaded');
   } catch (error: any) {
     logger.warn('⚠️ [DEBUG] Metrics middleware failed, using no-op:', error.message);
-    metricsMiddleware = (req: any, res: any, next: any) => next();
-    metricsHandler = (req: any, res: any) => res.json({ status: 'metrics disabled' });
+    metricsMiddleware = (_req: any, _res: any, next: any) => next();
+    metricsHandler = (_req: any, res: any) => res.json({ status: 'metrics disabled' });
   }
 
   // Import Redis cache with error handling
@@ -127,7 +127,7 @@
   } catch (error: any) {
     logger.warn('⚠️ [DEBUG] Cache middleware failed, using no-op:', error.message);
     initializeRedis = async () => logger.warn('⚠️ Redis initialization skipped');
-    cacheMiddleware = (req: any, res: any, next: any) => next();
+    cacheMiddleware = (_req: any, _res: any, next: any) => next();
   }
 
   // Import correlation middleware
@@ -138,7 +138,7 @@
     logger.info('✅ [DEBUG] Correlation middleware loaded');
   } catch (error: any) {
     logger.warn('⚠️ [DEBUG] Correlation middleware failed, using no-op:', error.message);
-    correlationMiddleware = () => (req: any, res: any, next: any) => next();
+    correlationMiddleware = () => (_req: any, _res: any, next: any) => next();
   }
 
   logger.info('✅ [DEBUG] All critical imports completed successfully');
@@ -222,7 +222,7 @@
     logger.info('✅ [DEBUG] All middleware applied successfully');
 
     // Health check endpoint
-    app.get('/health', (req, res) => {
+    app.get('/health', (_req, res) => {
       res.json({
         status: 'healthy',
         service: 'ZANTARA TS-BACKEND',
@@ -249,7 +249,7 @@
     logger.info('✅ [DEBUG] Metrics endpoint registered');
 
     // Root endpoint
-    app.get('/', (req, res) => {
+    app.get('/', (_req, res) => {
       res.json({
         message: 'ZANTARA TS-BACKEND is running (DEBUG MODE)',
         version: '5.2.1-debug',
@@ -352,7 +352,7 @@
     logger.info('✅ [DEBUG] All routes loaded (with graceful degradation)');
 
     // Error handling
-    app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
       logger.error('Unhandled error:', err);
       res.status(500).json({
         status: 'error',

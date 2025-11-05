@@ -365,7 +365,7 @@ class EnhancedRouter {
     const allServices = serviceRegistry.getAllServices();
     const status: Record<string, any> = {};
 
-    for (const [serviceName, instances] of Object.entries(allServices)) {
+    for (const [serviceName, _instances] of Object.entries(allServices)) {
       status[serviceName] = serviceRegistry.getServiceHealth(serviceName);
     }
 

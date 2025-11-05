@@ -1,6 +1,7 @@
 /**
- * RAG Handlers - Proxy to Python RAG backend
- * Integrates Ollama LLM and Bali Zero routing
+ * RAG Handlers - Unified Module
+ * Consolidates all RAG backend integration
+ * Feature #11: RAG Query + Semantic Search + Embeddings
  */
 
 import logger from '../../services/logger.js';
@@ -8,9 +9,15 @@ import { ragService } from '../../services/ragService.js';
 import type { Request } from 'express';
 import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragService.js';
 
+const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
+
+// ============================================================================
+// HANDLER FUNCTIONS (for Handler Registry)
+// ============================================================================
+
 /**
  * RAG Query - Generate answer using Ollama + ChromaDB
- * Handler: rag.query
+ * Handler: rag.query (Feature #11)
  */
 export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryResponse> {
   const {
@@ -32,8 +39,8 @@ export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryRes
       k,
       use_llm,
       conversation_history,
-      user_id, // Fix: Add user_id for RAG backend
-      user_email, // Fix: Add user_email for RAG backend
+      user_id,
+      user_email,
     });
 
     return result;
@@ -67,11 +74,9 @@ export async function baliZeroChat(params: any, _req?: Request): Promise<BaliZer
       query,
       conversation_history,
       user_role,
-      user_email, // CRITICAL: Pass user_email to backend for collaborator identification
+      user_email,
     });
 
-    // Normalize empty responses to a safe, user‑visible fallback to avoid "blank" UI replies
-    // Keep the contract stable: always return a non‑empty `response` string
     const hasText = typeof result?.response === 'string' && result.response.trim().length > 0;
     const fallback =
       'I could not generate a direct answer from the knowledge base. Please rephrase or ask a more specific question.';
@@ -126,6 +131,211 @@ export async function ragHealth(_params: any, _req?: Request) {
       success: false,
       status: 'unhealthy',
       error: error.message,
+    };
+  }
+}
+
+// ============================================================================
+// API ROUTE HANDLERS (for Direct API Access)
+// ============================================================================
+
+/**
+ * Direct query to RAG backend - for API routes
+ */
+export interface RAGQueryParams {
+  query: string;
+  collection?: string;
+  limit?: number;
+  metadata_filter?: Record<string, any>;
+}
+
+export async function ragQueryDirect(params: RAGQueryParams) {
+  const { query, collection, limit = 10, metadata_filter } = params;
+
+  try {
+    logger.info('RAG query:', { query, collection, limit });
+
+    const response = await fetch(`${RAG_BACKEND_URL}/api/query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        collection: collection || 'kbli_unified',
+        limit,
+        metadata_filter,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`RAG backend error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      ok: true,
+      results: data.results || [],
+      count: data.count || 0,
+      collection: collection || 'kbli_unified',
+      query,
+    };
+  } catch (error: any) {
+    logger.error('RAG query error:', error);
+    throw new Error(`RAG query failed: ${error?.message || 'Unknown error'}`);
+  }
+}
+
+/**
+ * Semantic search across multiple collections
+ */
+export interface SemanticSearchParams {
+  query: string;
+  collections: string[];
+  limit?: number;
+  threshold?: number;
+}
+
+export async function semanticSearch(params: SemanticSearchParams) {
+  const { query, collections, limit = 10, threshold = 0.7 } = params;
+
+  try {
+    logger.info('Semantic search:', { query, collections, limit });
+
+    const response = await fetch(`${RAG_BACKEND_URL}/api/semantic-search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        collections,
+        limit,
+        threshold,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`RAG backend error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      ok: true,
+      results: data.results || [],
+      collections_searched: collections,
+      total_results: data.total_results || 0,
+      query,
+    };
+  } catch (error: any) {
+    logger.error('Semantic search error:', error);
+    throw new Error(`Semantic search failed: ${error?.message || 'Unknown error'}`);
+  }
+}
+
+/**
+ * Get list of available collections
+ */
+export async function getCollections() {
+  try {
+    logger.info('Getting RAG collections');
+
+    const response = await fetch(`${RAG_BACKEND_URL}/api/collections`);
+
+    if (!response.ok) {
+      throw new Error(`RAG backend error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    const collections = data.collections || [];
+    const collectionsArray = collections.map((col: any) => ({
+      name: col.name,
+      description: col.description,
+      document_count: 0,
+    }));
+
+    return {
+      ok: true,
+      collections: collectionsArray,
+      total_collections: data.total || collectionsArray.length,
+      total_documents: 0,
+    };
+  } catch (error: any) {
+    logger.error('Get collections error:', error);
+    throw new Error(`Failed to get collections: ${error?.message || 'Unknown error'}`);
+  }
+}
+
+/**
+ * Generate embeddings for text
+ */
+export interface EmbeddingParams {
+  text: string;
+  model?: string;
+}
+
+export async function generateEmbeddings(params: EmbeddingParams) {
+  const { text, model = 'all-MiniLM-L6-v2' } = params;
+
+  try {
+    logger.info('Generating embeddings:', { text_length: text.length, model });
+
+    const response = await fetch(`${RAG_BACKEND_URL}/api/embeddings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        model,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`RAG backend error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      ok: true,
+      embeddings: data.embeddings || [],
+      dimensions: data.dimensions || 384,
+      model,
+    };
+  } catch (error: any) {
+    logger.error('Generate embeddings error:', error);
+    throw new Error(`Failed to generate embeddings: ${error?.message || 'Unknown error'}`);
+  }
+}
+
+/**
+ * Get RAG backend health status
+ */
+export async function getRagHealth() {
+  try {
+    const response = await fetch(`${RAG_BACKEND_URL}/health`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        status: 'unhealthy',
+        error: `HTTP ${response.status}`,
+      };
+    }
+
+    const data = await response.json();
+
+    return {
+      ok: true,
+      status: 'healthy',
+      data,
+    };
+  } catch (error: any) {
+    logger.error('RAG health check error:', error);
+    return {
+      ok: false,
+      status: 'unhealthy',
+      error: error?.message || 'Connection failed',
     };
   }
 }

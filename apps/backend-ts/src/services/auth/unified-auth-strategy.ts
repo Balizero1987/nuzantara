@@ -184,7 +184,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   readonly name = 'team';
   readonly priority = 80;
 
-  private teamMembers = new Map(); // Will be populated from team-login data
+  private _teamMembers = new Map(); // Will be populated from team-login data
   private jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
 
   canHandle(req: Request): boolean {

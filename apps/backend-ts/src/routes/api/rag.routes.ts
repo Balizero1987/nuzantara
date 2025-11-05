@@ -6,12 +6,12 @@
 
 import { Router, Request, Response } from 'express';
 import {
-  ragQuery,
+  ragQueryDirect,
   semanticSearch,
   getCollections,
   generateEmbeddings,
   getRagHealth,
-} from '../../handlers/rag/query.js';
+} from '../../handlers/rag/rag.js';
 import { logger } from '../../logging/unified-logger.js';
 
 const router = Router();
@@ -55,7 +55,7 @@ router.post('/query', async (req: Request, res: Response) => {
     }
 
     // Execute query
-    const result = await ragQuery({
+    const result = await ragQueryDirect({
       query,
       collection,
       limit,

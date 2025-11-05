@@ -113,7 +113,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
   private metricsBuffer: Map<string, SystemMetrics[]> = new Map();
   private analysisWindow: number = 24 * 60 * 60 * 1000; // 24 hours
   private baselineMetrics: Map<string, SystemMetrics> = new Map();
-  private anomalyThresholds: Map<string, number> = new Map();
+  private _anomalyThresholds: Map<string, number> = new Map();
   private isInitialized: boolean = false;
 
   constructor() {
@@ -586,7 +586,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
     return 50;
   }
 
-  private calculateReliabilityScore(metrics: any): number {
+  private calculateReliabilityScore(_metrics: any): number {
     return 85;
   }
 
@@ -646,7 +646,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
     };
   }
 
-  private async gatherRelevantData(context: DecisionContext): Promise<any> {
+  private async gatherRelevantData(_context: DecisionContext): Promise<any> {
     return {
       currentMetrics: await this.getCurrentMetrics(),
       historicalTrends: await this.getHistoricalMetrics(7),
@@ -655,7 +655,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
     };
   }
 
-  private analyzeDecisionContext(data: any, context: DecisionContext): any {
+  private analyzeDecisionContext(data: any, _context: DecisionContext): any {
     return {
       currentState: data.systemHealth.overall,
       trends: data.predictions.performanceForecast,
@@ -664,7 +664,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
     };
   }
 
-  private generateDecisionRecommendations(analysis: any): any[] {
+  private generateDecisionRecommendations(_analysis: any): any[] {
     return [
       {
         action: 'Monitor and maintain',
@@ -675,15 +675,15 @@ export class SystemAnalyticsEngine extends EventEmitter {
     ];
   }
 
-  private calculateConfidence(analysis: any): number {
+  private calculateConfidence(_analysis: any): number {
     return 0.75;
   }
 
-  private generateAlternativeStrategies(recommendations: any[]): any[] {
+  private generateAlternativeStrategies(_recommendations: any[]): any[] {
     return [];
   }
 
-  private identifyOpportunities(data: any): string[] {
+  private identifyOpportunities(_data: any): string[] {
     return ['Performance optimization', 'Cost reduction'];
   }
 
@@ -822,7 +822,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
       }));
   }
 
-  private analyzeRequestDistribution(metrics: SystemMetrics[]): any {
+  private analyzeRequestDistribution(_metrics: SystemMetrics[]): any {
     return {
       type: 'normal',
       variance: 'moderate',
@@ -838,7 +838,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
     return 0.05;
   }
 
-  private estimateAvgSessionDuration(metrics: SystemMetrics[]): number {
+  private estimateAvgSessionDuration(_metrics: SystemMetrics[]): number {
     return 300;
   }
 
@@ -918,7 +918,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
     return insights;
   }
 
-  private extractBehaviorPatterns(behaviorData: any): BehaviorPattern[] {
+  private extractBehaviorPatterns(_behaviorData: any): BehaviorPattern[] {
     return [
       {
         type: 'daily_peak',
@@ -930,7 +930,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
     ];
   }
 
-  private async storeAnalysisResults(type: string, results: any): Promise<void> {
+  private async storeAnalysisResults(_type: string, results: any): Promise<void> {
     logger.info('Analytics results stored: ${type}', { count: results.insights?.length || 0 });
   }
 

@@ -8,12 +8,12 @@ import { createServer } from 'http';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
 import { attachRoutes } from './routing/router.js';
-import { loadAllHandlers } from './core/load-all-handlers.js';
+// import { loadAllHandlers } from './core/load-all-handlers.js';
 import { applySecurity, globalRateLimiter } from './middleware/security.middleware.js';
 import { corsMiddleware } from './middleware/cors.js';
 import { setupWebSocket } from './websocket.js';
 import { metricsMiddleware, metricsHandler } from './middleware/observability.middleware.js';
-import { initializeRedis, cacheMiddleware } from './middleware/cache.middleware.js';
+import { initializeRedis } from './middleware/cache.middleware.js';
 import cacheRoutes from './routes/cache.routes.js';
 import correlationMiddleware from './logging/correlation-middleware.js';
 
@@ -42,7 +42,7 @@ import { registerV3InternalHandlers } from './handlers/zantara-v3/internal-handl
 // UNIFIED AUTHENTICATION - Strategy Pattern Implementation (Gemini Pro 2.5)
 import {
   unifiedAuth,
-  authenticate as unifiedAuthenticate,
+  // authenticate as unifiedAuthenticate,
 } from './services/auth/unified-auth-strategy.js';
 
 // GLM 4.6 Architect Patch: Register v3 Ω services
@@ -258,7 +258,7 @@ async function startServer() {
   logger.info('✅ Performance monitoring routes mounted');
 
   // Legacy health check (backward compatibility)
-  app.get('/health', (req, res) => {
+  app.get('/health', (_req, res) => {
     res.json({
       status: 'healthy',
       service: 'ZANTARA TS-BACKEND',
@@ -275,7 +275,7 @@ async function startServer() {
   app.use('/cache', cacheRoutes);
 
   // GLM 4.6 Architect Patch: Enhanced Architecture endpoints
-  app.get('/architecture/status', (req, res) => {
+  app.get('/architecture/status', (_req, res) => {
     res.json({
       ok: true,
       data: {
@@ -297,7 +297,7 @@ async function startServer() {
   app.post('/zantara.ecosystem', enhancedRouter.getMiddleware());
 
   // UNIFIED AUTHENTICATION ENDPOINTS (Gemini Pro 2.5)
-  app.get('/auth/strategies', (req, res) => {
+  app.get('/auth/strategies', (_req, res) => {
     res.json({
       ok: true,
       data: {
@@ -479,7 +479,7 @@ async function startServer() {
   });
 
   // Root endpoint
-  app.get('/', (req, res) => {
+  app.get('/', (_req, res) => {
     res.json({
       message: 'ZANTARA TS-BACKEND is running',
       version: '5.2.1',
@@ -531,7 +531,7 @@ async function startServer() {
   attachRoutes(app);
 
   // Error handling
-  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     logger.error('Unhandled error:', err);
     res.status(500).json({
       status: 'error',

@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { createServer } from 'http';
+// import { createServer } from 'http';
 
 console.log('🔍 [INC] Server starting...');
 console.log('🔍 [INC] Node version:', process.version);
@@ -43,6 +43,9 @@ async function startIncrementalServer() {
   } catch (error: any) {
     console.log('  ⚠️ [F1] CORS middleware failed, using basic CORS:', error.message);
     corsMiddleware = (req: any, res: any, next: any) => {
+      if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+      }
       res.header('Access-Control-Allow-Origin', '*');
       res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -60,7 +63,7 @@ async function startIncrementalServer() {
     console.log('  ✅ [F1] Security middleware loaded');
   } catch (error: any) {
     console.log('  ⚠️ [F1] Security middleware failed, using no-op:', error.message);
-    applySecurity = (req: any, res: any, next: any) => next();
+    applySecurity = (_req: any, _res: any, next: any) => next();
   }
 
   // Apply middleware
@@ -87,8 +90,8 @@ async function startIncrementalServer() {
     console.log('  ✅ [F2] Observability middleware loaded');
   } catch (error: any) {
     console.log('  ⚠️ [F2] Observability middleware failed, using no-op:', error.message);
-    metricsMiddleware = (req: any, res: any, next: any) => next();
-    metricsHandler = (req: any, res: any) => {
+    metricsMiddleware = (_req: any, _res: any, next: any) => next();
+    metricsHandler = (_req: any, res: any) => {
       res.json({
         status: 'metrics_disabled',
         message: 'Observability module not loaded',
@@ -193,7 +196,7 @@ async function startIncrementalServer() {
     console.log('  ✅ [F5] Correlation middleware loaded');
   } catch (error: any) {
     console.log('  ⚠️ [F5] Correlation middleware failed, using no-op:', error.message);
-    correlationMiddleware = () => (req: any, res: any, next: any) => {
+    correlationMiddleware = () => (req: any, _res: any, next: any) => {
       // Generate basic correlation ID
       req.correlationId =
         req.headers['x-correlation-id'] ||
@@ -401,7 +404,7 @@ async function startIncrementalServer() {
   app.get('/metrics', metricsHandler);
   console.log('✅ [INC] Metrics endpoint registered at /metrics');
 
-  app.get('/health', (req, res) => {
+  app.get('/health', (_req, res) => {
     res.json({
       status: 'healthy',
       version: 'incremental-v0.9-progressive',
@@ -440,7 +443,7 @@ async function startIncrementalServer() {
     });
   });
 
-  app.get('/', (req, res) => {
+  app.get('/', (_req, res) => {
     res.json({
       message: 'ZANTARA TS-BACKEND - Progressive Deployment',
       version: 'incremental-v0.9-progressive',

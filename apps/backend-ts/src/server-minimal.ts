@@ -52,7 +52,7 @@ try {
   console.log('  ✅ [F1] Security middleware loaded');
 } catch (error: any) {
   console.log('  ⚠️ [F1] Security middleware failed, using no-op:', error.message);
-  applySecurity = (req: any, res: any, next: any) => next();
+  applySecurity = (_req: any, _res: any, next: any) => next();
 }
 
 // Apply middleware
@@ -81,7 +81,7 @@ app.use((req, res, next) => {
 // ENDPOINTS
 // ============================================================
 
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'healthy',
     version: 'incremental-v0.1',
@@ -100,7 +100,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({
     message: 'ZANTARA TS-BACKEND - Incremental Deployment',
     version: 'incremental-v0.1',

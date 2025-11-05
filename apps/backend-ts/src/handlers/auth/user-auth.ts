@@ -7,6 +7,7 @@
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { logger } from '../../logging/unified-logger.js';
+import { sendPasswordResetEmail } from '../../services/emailService.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'zantara-secret-key-change-in-production';
 const SALT_ROUNDS = 10;
@@ -329,36 +330,47 @@ export async function changePassword(
 }
 
 /**
- * Request Password Reset (Mock - sends reset token)
+ * Request Password Reset
+ * Sends password reset email with secure reset link
  */
 export async function requestPasswordReset(email: string) {
   try {
     const user = Array.from(users.values()).find((u) => u.email === email);
-    if (!user) {
-      // Don't reveal if email exists (security)
-      return {
-        ok: true,
-        message: 'If the email exists, a reset link has been sent',
-      };
-    }
 
     // Generate reset token (valid for 1 hour)
-    const reset_token = jwt.sign({ userId: user.id, type: 'reset' }, JWT_SECRET, {
+    // Note: We generate token even for non-existent users to prevent email enumeration
+    const reset_token = jwt.sign({ userId: user?.id || 'invalid', type: 'reset' }, JWT_SECRET, {
       expiresIn: '1h',
     });
 
-    logger.info('Password reset requested:', { userId: user.id, email });
+    // If user exists, send reset email
+    if (user) {
+      logger.info({ userId: user.id, email }, 'Password reset requested');
 
-    // In production: send email with reset link
-    // For MVP: return token directly
+      const emailResult = await sendPasswordResetEmail(email, reset_token);
+
+      if (!emailResult.success) {
+        logger.warn({ error: emailResult.error }, 'Failed to send password reset email');
+        // Still return success to not reveal email existence
+      }
+    } else {
+      logger.info({ email }, 'Password reset requested for non-existent email');
+    }
+
+    // Always return the same response to prevent email enumeration attacks
     return {
       ok: true,
       message: 'If the email exists, a reset link has been sent',
-      reset_token, // Remove this in production!
+      // NOTE: reset_token is NOT returned to client in production
+      // Token is only accessible via email link
     };
   } catch (error: any) {
     logger.error('Password reset request error:', error);
-    throw error;
+    // Return generic success message even on error to prevent enumeration
+    return {
+      ok: true,
+      message: 'If the email exists, a reset link has been sent',
+    };
   }
 }
 

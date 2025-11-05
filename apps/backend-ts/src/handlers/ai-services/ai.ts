@@ -127,3 +127,57 @@ export async function aiChat(params: any) {
     });
   }
 }
+
+/**
+ * Get Available AI Models
+ * Handler #12: getAIModelsHandler
+ * Returns list of available AI models and their capabilities
+ */
+export async function getAIModels(_params: any) {
+  try {
+    logger.info('📋 Fetching available AI models');
+
+    const models = [
+      {
+        id: 'zantara',
+        name: 'ZANTARA',
+        description: 'Specialized Bali Zero AI assistant with business knowledge',
+        type: 'chat',
+        status: 'active',
+        capabilities: ['business-analysis', 'kbli-lookup', 'visa-guidance', 'tax-planning', 'rag-search'],
+        context_window: 8192,
+        max_tokens: 2048,
+        latency_ms: '500-1800',
+        provider: 'rag-backend',
+      },
+      {
+        id: 'llama',
+        name: 'LLAMA (Fallback)',
+        description: 'Open-source general-purpose language model for basic queries',
+        type: 'chat',
+        status: 'active',
+        capabilities: ['text-generation', 'question-answering', 'summarization'],
+        context_window: 4096,
+        max_tokens: 1024,
+        latency_ms: '1000-3000',
+        provider: 'local-ollama',
+      },
+    ];
+
+    return {
+      success: true,
+      models,
+      total_models: models.length,
+      default_model: 'zantara',
+      timestamp: Date.now(),
+    };
+  } catch (error: any) {
+    logger.error('Error fetching AI models:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to fetch models',
+      models: [],
+      total_models: 0,
+    };
+  }
+}

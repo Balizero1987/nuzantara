@@ -62,7 +62,7 @@ export class AdvancedNLPSystem {
   // MAIN ANALYSIS ENGINE
   // =====================================================
 
-  async analyzeQuery(query: string, context?: any): Promise<QueryAnalysis> {
+  async analyzeQuery(query: string, _context?: any): Promise<QueryAnalysis> {
     const startTime = Date.now();
 
     // 1. Language Detection
@@ -267,7 +267,7 @@ export class AdvancedNLPSystem {
       },
     };
 
-    const patterns = namePatterns[language] || namePatterns['mixed'];
+    const _patterns = namePatterns[language] || namePatterns['mixed'];
 
     // Check for team members first (highest confidence)
     for (const [memberId, memberData] of this.teamMemberCache) {
@@ -887,7 +887,7 @@ export class AdvancedNLPSystem {
   // DATE EXTRACTION
   // =====================================================
 
-  private extractDates(query: string, language: string): ExtractedEntity[] {
+  private extractDates(query: string, _language: string): ExtractedEntity[] {
     const entities: ExtractedEntity[] = [];
 
     const datePatterns = [
@@ -927,7 +927,7 @@ export class AdvancedNLPSystem {
   // PRICE EXTRACTION
   // =====================================================
 
-  private extractPrices(query: string, language: string): ExtractedEntity[] {
+  private extractPrices(query: string, _language: string): ExtractedEntity[] {
     const entities: ExtractedEntity[] = [];
 
     const pricePatterns = [
@@ -1070,10 +1070,10 @@ export class AdvancedNLPSystem {
   // INTENT CLASSIFICATION
   // =====================================================
 
-  private classifyIntent(query: string, entities: ExtractedEntity[], language: string): string {
+  private classifyIntent(query: string, entities: ExtractedEntity[], _language: string): string {
     const personEntities = entities.filter((e) => e.type === 'person');
     const serviceEntities = entities.filter((e) => e.type === 'service');
-    const emailEntities = entities.filter((e) => e.type === 'email');
+    const _emailEntities = entities.filter((e) => e.type === 'email');
     const priceEntities = entities.filter((e) => e.type === 'price');
 
     // Check for specific intents
@@ -1431,7 +1431,7 @@ export class AdvancedNLPSystem {
     return entities.filter((e) => e.type === 'service').map((e) => e.text.toLowerCase());
   }
 
-  private detectBudgetIndicators(query: string, entities: ExtractedEntity[]): any {
+  private detectBudgetIndicators(_query: string, entities: ExtractedEntity[]): any {
     const priceEntities = entities.filter((e) => e.type === 'price');
 
     if (priceEntities.length === 0) return null;
@@ -1447,7 +1447,7 @@ export class AdvancedNLPSystem {
     };
   }
 
-  private detectTimeline(query: string, language: string): string {
+  private detectTimeline(query: string, _language: string): string {
     if (this.containsWords(query, ['asap', 'urgent', 'immediately', 'subito', 'urgente'])) {
       return 'immediate';
     }
@@ -1467,7 +1467,7 @@ export class AdvancedNLPSystem {
     return 'flexible';
   }
 
-  private detectDecisionMaker(query: string, entities: ExtractedEntity[]): string {
+  private detectDecisionMaker(query: string, _entities: ExtractedEntity[]): string {
     if (this.containsWords(query, ['i need', 'we need', 'ho bisogno', 'abbiamo bisogno'])) {
       return 'self';
     }
@@ -1670,7 +1670,7 @@ export class AdvancedNLPSystem {
     return 'general';
   }
 
-  private assessSkillLevel(query: string, skill: string): string {
+  private assessSkillLevel(query: string, _skill: string): string {
     if (
       query.toLowerCase().includes('senior') ||
       query.toLowerCase().includes('lead') ||
