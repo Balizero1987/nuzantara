@@ -250,7 +250,7 @@ class ServiceRegistryImpl {
    * Perform health check on all services
    */
   private async performHealthChecks(): Promise<void> {
-    for (const [serviceName, instances] of this.registry.services.entries()) {
+    for (const [_serviceName, instances] of this.registry.services.entries()) {
       await Promise.all(
         instances.map(async (instance) => {
           let timeoutId: NodeJS.Timeout | null = null;

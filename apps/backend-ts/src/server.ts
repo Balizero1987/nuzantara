@@ -245,7 +245,7 @@ async function startServer() {
   app.use(metricsMiddleware);
 
   // Request logging
-  app.use((req, res, next) => {
+  app.use((req, _res, next) => {
     logger.info(`${req.method} ${req.path} - ${req.ip}`);
     next();
   });
@@ -557,7 +557,7 @@ async function startServer() {
 
   // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
   if (process.env.REDIS_URL) {
-    const io = setupWebSocket(httpServer);
+    const _io = setupWebSocket(httpServer);
     logger.info('✅ WebSocket server initialized');
   } else {
     logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');

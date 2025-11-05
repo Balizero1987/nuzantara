@@ -72,7 +72,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 console.log('✅ [INC] Body parsing configured');
 
 // Request logging
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   console.log(`📍 [INC] ${req.method} ${req.path} - ${req.ip}`);
   next();
 });

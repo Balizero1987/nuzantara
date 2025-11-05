@@ -197,8 +197,7 @@ async function sendViaSendGrid(
 async function sendViaSMTP(
   to: string,
   subject: string,
-  html: string,
-  text?: string
+  html: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   logger.warn('SMTP email provider not fully configured. Please set EMAIL_PROVIDER=sendgrid and SENDGRID_API_KEY.');
 

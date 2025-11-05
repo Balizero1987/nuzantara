@@ -118,11 +118,11 @@
 
   // Import Redis cache with error handling
   let initializeRedis: any;
-  let cacheMiddleware: any;
+  let _cacheMiddleware: any;
   try {
     const cacheModule = await import('./middleware/cache.middleware.js');
     initializeRedis = cacheModule.initializeRedis;
-    cacheMiddleware = cacheModule.cacheMiddleware;
+    _cacheMiddleware = cacheModule.cacheMiddleware;
     logger.info('✅ [DEBUG] Cache middleware loaded');
   } catch (error: any) {
     logger.warn('⚠️ [DEBUG] Cache middleware failed, using no-op:', error.message);

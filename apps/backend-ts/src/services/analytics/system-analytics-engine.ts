@@ -834,7 +834,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
     return Math.min(100, Math.max(0, avgUsers * 5));
   }
 
-  private estimateChurnRate(metrics: SystemMetrics[]): number {
+  private estimateChurnRate(_metrics: SystemMetrics[]): number {
     return 0.05;
   }
 

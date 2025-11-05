@@ -390,7 +390,7 @@ async function startIncrementalServer() {
   // ============================================================
 
   // Request logging with correlation ID
-  app.use((req, res, next) => {
+  app.use((req, _res, next) => {
     const corrId = (req as any).correlationId || 'unknown';
     console.log(`📍 [INC] [${corrId.substr(0, 12)}] ${req.method} ${req.path}`);
     next();

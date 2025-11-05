@@ -25,40 +25,66 @@ except ImportError:
 
 class EmbeddingsGenerator:
     """
-    Generate embeddings using OpenAI's text-embedding-3-small model.
-    Optimized for semantic search and RAG applications.
+    Generate embeddings using configured provider (OpenAI or Sentence Transformers).
+    Automatically chooses provider based on settings.
     """
 
-    def __init__(self, api_key: str = None, model: str = None):
+    def __init__(self, api_key: str = None, model: str = None, provider: str = None):
         """
         Initialize embeddings generator.
         Automatically chooses provider based on settings.
 
         Args:
-            api_key: OpenAI API key (only needed if using OpenAI)
+            api_key: OpenAI API key (only needed if using OpenAI provider)
             model: Embedding model name (default from settings)
+            provider: "openai" or "sentence-transformers" (default from settings)
         """
-        # OpenAI-only configuration (sentence-transformers removed for deployment size)
+        # Determine provider from settings or parameter
+        if provider:
+            self.provider = provider
+        elif settings:
+            self.provider = settings.embedding_provider
+        else:
+            # Default to sentence-transformers for local deployment
+            self.provider = "sentence-transformers"
+
+        # Load appropriate provider
+        if self.provider == "openai":
+            self._init_openai(api_key, model)
+        else:
+            # Default to sentence-transformers (local, no API key needed)
+            self._init_sentence_transformers(model)
+
+    def _init_openai(self, api_key: str = None, model: str = None):
+        """Initialize OpenAI embeddings provider"""
         from openai import OpenAI
 
-        # Use settings if available, otherwise fallback to defaults
-        if settings:
-            self.provider = "openai"
-            self.model = model or settings.embedding_model
-            self.dimensions = settings.embedding_dimensions
-        else:
-            # Defaults when settings unavailable
-            self.provider = "openai"
-            self.model = model or "text-embedding-3-small"
-            self.dimensions = 1536
-
+        self.model = model or (settings.embedding_model if settings else "text-embedding-3-small")
+        self.dimensions = 1536  # OpenAI text-embedding-3-small is always 1536
         self.api_key = api_key or (settings.openai_api_key if settings else None)
 
         if not self.api_key:
-            raise ValueError("OpenAI API key is required")
+            raise ValueError("OpenAI API key is required for OpenAI provider")
 
         self.client = OpenAI(api_key=self.api_key)
-        logger.info(f"EmbeddingsGenerator initialized with OpenAI: {self.model}")
+        logger.info(f"🔌 [EmbeddingsGenerator] Initialized with OpenAI: {self.model} ({self.dimensions} dims)")
+
+    def _init_sentence_transformers(self, model: str = None):
+        """Initialize Sentence Transformers local embeddings provider"""
+        from sentence_transformers import SentenceTransformer
+
+        self.model = model or (settings.embedding_model if settings else "sentence-transformers/all-MiniLM-L6-v2")
+
+        logger.info(f"🔌 [EmbeddingsGenerator] Loading Sentence Transformers: {self.model}")
+        logger.info("   This may take a moment on first run (downloads model)...")
+
+        try:
+            self.transformer = SentenceTransformer(self.model)
+            self.dimensions = self.transformer.get_sentence_embedding_dimension()
+            logger.info(f"🔌 [EmbeddingsGenerator] Initialized with Sentence Transformers: {self.model} ({self.dimensions} dims)")
+        except Exception as e:
+            logger.error(f"🔌 [EmbeddingsGenerator] Failed to load Sentence Transformers: {e}")
+            raise
 
     def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         """
@@ -78,22 +104,48 @@ class EmbeddingsGenerator:
             return []
 
         try:
-            logger.info(f"Generating embeddings for {len(texts)} texts using OpenAI")
-
-            # Call OpenAI API
-            response = self.client.embeddings.create(
-                model=self.model,
-                input=texts,
-                dimensions=self.dimensions
-            )
-
-            embeddings = [item.embedding for item in response.data]
-
-            logger.info(f"Successfully generated {len(embeddings)} embeddings")
-            return embeddings
+            if self.provider == "openai":
+                return self._generate_embeddings_openai(texts)
+            else:
+                return self._generate_embeddings_sentence_transformers(texts)
 
         except Exception as e:
             logger.error(f"Error generating embeddings: {e}")
+            raise
+
+    def _generate_embeddings_openai(self, texts: List[str]) -> List[List[float]]:
+        """Generate embeddings using OpenAI API"""
+        logger.info(f"Generating embeddings for {len(texts)} texts using OpenAI")
+
+        # Call OpenAI API
+        response = self.client.embeddings.create(
+            model=self.model,
+            input=texts,
+            dimensions=self.dimensions
+        )
+
+        embeddings = [item.embedding for item in response.data]
+        logger.info(f"✅ Generated {len(embeddings)} embeddings (OpenAI)")
+        return embeddings
+
+    def _generate_embeddings_sentence_transformers(self, texts: List[str]) -> List[List[float]]:
+        """Generate embeddings using Sentence Transformers"""
+        logger.info(f"Generating embeddings for {len(texts)} texts using Sentence Transformers")
+
+        try:
+            embeddings = self.transformer.encode(
+                texts,
+                convert_to_numpy=True,
+                show_progress_bar=len(texts) > 10
+            )
+
+            # Convert numpy array to list of lists
+            embeddings_list = embeddings.tolist()
+            logger.info(f"✅ Generated {len(embeddings_list)} embeddings (Sentence Transformers)")
+            return embeddings_list
+
+        except Exception as e:
+            logger.error(f"Sentence Transformers error: {e}")
             raise
 
     def generate_single_embedding(self, text: str) -> List[float]:
@@ -129,11 +181,12 @@ class EmbeddingsGenerator:
         Returns:
             Dictionary with model configuration
         """
+        cost_info = "Paid (OpenAI API)" if self.provider == "openai" else "FREE (Local)"
         return {
             "model": self.model,
             "dimensions": self.dimensions,
-            "provider": "openai",
-            "cost": "Paid (OpenAI API)"
+            "provider": self.provider,
+            "cost": cost_info
         }
 
 
