@@ -25,6 +25,7 @@ const BALI_ZERO_TEAM = {
     { id: 'angel', name: 'Angel', role: 'Tax Expert', email: 'angel@balizero.com', department: 'tax', badge: '🔎', language: 'Indonesian' },
     { id: 'kadek', name: 'Kadek', role: 'Tax Consultant', email: 'kadek@balizero.com', department: 'tax', badge: '📐', language: 'Indonesian' },
     { id: 'dewaayu', name: 'Dewa Ayu', role: 'Tax Consultant', email: 'dewaayu@balizero.com', department: 'tax', badge: '🗂️', language: 'Indonesian' },
+    { id: 'monaka', name: 'Monaka', role: 'Tax Consultant', email: 'monaka@balizero.com', department: 'tax', badge: '💼', language: 'Indonesian' },
     { id: 'faisha', name: 'Faisha', role: 'Tax Care', email: 'faisha@balizero.com', department: 'tax', badge: '🧾', language: 'Indonesian' },
 
     // Marketing
@@ -53,18 +54,18 @@ const BALI_ZERO_TEAM = {
   } as Record<string, { name: string; color: string; icon: string }>,
 
   stats: {
-    total: 23,
+    total: 24,
     byDepartment: {
       management: 2,
       setup: 10,
-      tax: 5,
+      tax: 6,
       marketing: 2,
       reception: 1,
       advisory: 2,
       technology: 1
     },
     byLanguage: {
-      Indonesian: 19,
+      Indonesian: 20,
       Ukrainian: 3,
       Italian: 1
     }
