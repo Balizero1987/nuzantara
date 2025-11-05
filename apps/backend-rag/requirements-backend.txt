@@ -25,6 +25,7 @@ lxml==5.1.0
 
 # Database
 asyncpg==0.29.0  # PostgreSQL async driver
+redis[asyncio]==5.0.1  # Session store for conversation context
 
 # Data Processing
 pydantic==2.5.3

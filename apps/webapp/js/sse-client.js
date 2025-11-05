@@ -15,6 +15,8 @@ class ZantaraSSEClient {
     this.currentSources = null;
     this.retryTimeout = null;
     this.lastStreamUrl = null;
+    this.sessionId = null; // NEW: Session ID for Redis-based history (50+ messages)
+    this.maxHistorySize = 50; // NEW: Support 50+ messages (was 20 with compression)
   }
 
   // Get API base URL for SSE streaming
@@ -106,23 +108,17 @@ class ZantaraSSEClient {
           }
         }
 
-        // OPTIMIZATION: Context window for internal team usage
-        // For internal Bali Zero team (like Surya), we support deeper context
-        // Limits: ~4-5 KB for 20 messages compressed, ~6-7 KB for 30 messages
-        let trimmedHistory = conversationHistory;
-        const MAX_HISTORY_INTERNAL_TEAM = 20; // 20 messages = ~4-5 KB compressed
-        const MAX_HISTORY_FALLBACK = 15; // If URL gets too long, fallback to 15
+        // ════════════════════════════════════════════════════════════════
+        // NEW SESSION STORE ARCHITECTURE (50+ message support)
+        // ════════════════════════════════════════════════════════════════
+        // Update session with latest conversation history BEFORE streaming
+        // This eliminates URL size constraints by storing history in Redis
+        await this.updateSession(conversationHistory);
 
-        if (trimmedHistory && Array.isArray(trimmedHistory)) {
-          if (trimmedHistory.length > MAX_HISTORY_INTERNAL_TEAM) {
-            console.warn(
-              `[ZantaraSSE] Trimming conversation history from ${trimmedHistory.length} to ${MAX_HISTORY_INTERNAL_TEAM} messages for internal team use`
-            );
-            trimmedHistory = trimmedHistory.slice(-MAX_HISTORY_INTERNAL_TEAM);
-          }
-        }
+        // Get session ID (create if needed)
+        const sessionId = await this.ensureSession();
 
-        // BUILD STREAM URL WITH OPTIMIZED PARAMETERS
+        // BUILD STREAM URL WITH SESSION ID
         const url = new URL(`${this.baseUrl}/bali-zero/chat-stream`);
         url.searchParams.append('query', query);
 
@@ -130,23 +126,24 @@ class ZantaraSSEClient {
           url.searchParams.append('user_email', email);
         }
 
-        // Convert conversation history to AGGRESSIVELY compressed format
-        if (trimmedHistory && Array.isArray(trimmedHistory) && trimmedHistory.length > 0) {
-          // Ultra-compressed format for internal team:
-          // r: role (u=user, a=assistant)
-          // c: content (first 250 chars - balance between context & size)
-          const compressedHistory = trimmedHistory.map((msg) => ({
-            r: msg.role.charAt(0),
-            c: msg.content.substring(0, 250), // Internal team: more content detail
-          }));
+        // NEW: Send session_id instead of full conversation_history!
+        if (sessionId) {
+          url.searchParams.append('session_id', sessionId);
+          console.log(`[ZantaraSSE] Using session store: ${sessionId} (50+ message support)`);
+        } else {
+          // FALLBACK: If session creation failed, use old compressed method
+          console.warn('[ZantaraSSE] Session unavailable, falling back to querystring (15 msg limit)');
+          const trimmed = conversationHistory && Array.isArray(conversationHistory)
+            ? conversationHistory.slice(-15)
+            : [];
 
-          let historyJson = JSON.stringify(compressedHistory);
-          url.searchParams.append('conversation_history', historyJson);
-
-          const historySize = historyJson.length;
-          console.log(
-            `[ZantaraSSE] Sending conversation history: ${trimmedHistory.length} messages (~${historySize} bytes compressed)`
-          );
+          if (trimmed.length > 0) {
+            const compressed = trimmed.map((msg) => ({
+              r: msg.role.charAt(0),
+              c: msg.content.substring(0, 250)
+            }));
+            url.searchParams.append('conversation_history', JSON.stringify(compressed));
+          }
         }
 
         // 🚀 Add handlers context for ZANTARA
@@ -173,36 +170,15 @@ class ZantaraSSEClient {
         const streamUrl = url.toString();
         this.lastStreamUrl = streamUrl;
 
-        // SAFETY CHECK: If URL exceeds 5 KB, trim history further
-        if (streamUrl.length > 5120) { // 5 KB
-          console.warn(
-            `[ZantaraSSE] ⚠️ URL too long (${streamUrl.length} chars). Retrying with fewer messages...`
-          );
-          // Remove from query and rebuild with fallback
-          url.searchParams.delete('conversation_history');
-
-          if (trimmedHistory && trimmedHistory.length > MAX_HISTORY_FALLBACK) {
-            const fallbackHistory = trimmedHistory.slice(-MAX_HISTORY_FALLBACK);
-            const compressedFallback = fallbackHistory.map((msg) => ({
-              r: msg.role.charAt(0),
-              c: msg.content.substring(0, 250),
-            }));
-            url.searchParams.append('conversation_history', JSON.stringify(compressedFallback));
-            console.log(
-              `[ZantaraSSE] Fallback: Using ${MAX_HISTORY_FALLBACK} messages instead`
-            );
-          }
-        }
-
-        // Final URL length check
-        const finalUrl = url.toString();
-        if (finalUrl.length > 4000) {
-          console.info(
-            `[ZantaraSSE] ℹ️ Stream URL is ${finalUrl.length} chars (within safe range ~4-5 KB)`
-          );
-        }
-
-        this.lastStreamUrl = finalUrl;
+        // URL is now tiny! (~100 bytes instead of 4-5 KB)
+        console.log(`[ZantaraSSE] Stream URL: ${streamUrl.length} chars (session-based ✨)`);
+        this.lastStreamUrl = streamUrl;
+      } catch (error) {
+        console.error('[ZantaraSSE] Failed to prepare stream:', error);
+        this.isStreaming = false;
+        reject(error);
+        return;
+      }
 
       const clearRetry = () => {
         if (this.retryTimeout) {
@@ -372,6 +348,99 @@ class ZantaraSSEClient {
     } catch (error) {
       console.error('[ZantaraSSE] Error caching handlers context:', error);
     }
+  }
+
+  /**
+   * Ensure we have a valid session ID (create one if needed)
+   * Supports 50+ message conversations via Redis session store
+   *
+   * @returns {Promise<string|null>} Session ID or null if creation failed
+   */
+  async ensureSession() {
+    // Check if we already have a session ID in memory
+    if (this.sessionId) {
+      console.log('[ZantaraSSE] Using existing session:', this.sessionId);
+      return this.sessionId;
+    }
+
+    // Try to get cached session ID from localStorage
+    const cached = localStorage.getItem('zantara-session-id');
+    if (cached) {
+      this.sessionId = cached;
+      console.log('[ZantaraSSE] Using cached session:', cached);
+      return cached;
+    }
+
+    // Create new session via backend
+    try {
+      console.log('[ZantaraSSE] Creating new session...');
+      const response = await fetch(`${this.baseUrl}/sessions`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to create session: ${response.status}`);
+      }
+
+      const data = await response.json();
+      this.sessionId = data.session_id;
+      localStorage.setItem('zantara-session-id', this.sessionId);
+
+      console.log('[ZantaraSSE] Created new session:', this.sessionId);
+      return this.sessionId;
+    } catch (error) {
+      console.error('[ZantaraSSE] Failed to create session:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Update session with latest conversation history
+   *
+   * @param {Array} conversationHistory - Conversation history array
+   * @returns {Promise<boolean>} True if update succeeded
+   */
+  async updateSession(conversationHistory) {
+    const sessionId = await this.ensureSession();
+    if (!sessionId) {
+      console.warn('[ZantaraSSE] No session ID, skipping update');
+      return false;
+    }
+
+    try {
+      // Trim to max size (50 messages - much better than 20!)
+      let trimmed = conversationHistory;
+      if (trimmed && trimmed.length > this.maxHistorySize) {
+        trimmed = trimmed.slice(-this.maxHistorySize);
+        console.log(`[ZantaraSSE] Trimmed history from ${conversationHistory.length} to ${this.maxHistorySize}`);
+      }
+
+      const response = await fetch(`${this.baseUrl}/sessions/${sessionId}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({history: trimmed || []})
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update session: ${response.status}`);
+      }
+
+      console.log(`[ZantaraSSE] Updated session with ${trimmed?.length || 0} messages`);
+      return true;
+    } catch (error) {
+      console.error('[ZantaraSSE] Failed to update session:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Clear current session (useful for "new conversation")
+   */
+  clearSession() {
+    this.sessionId = null;
+    localStorage.removeItem('zantara-session-id');
+    console.log('[ZantaraSSE] Session cleared');
   }
 }
 

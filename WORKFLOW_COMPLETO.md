@@ -16,6 +16,7 @@
 6. [Knowledge Base Update Workflow](#knowledge-base-update-workflow)
 7. [Team Authentication Workflow](#team-authentication-workflow)
 8. [API Request Workflow](#api-request-workflow)
+9. [Context Compression Workflow](#context-compression-workflow-new)
 
 ---
 
@@ -685,6 +686,99 @@ curl -s -X POST https://nuzantara-backend.fly.dev/api/auth/team/members | jq '.d
 
 echo ""
 echo "=== Health Check Complete ==="
+```
+
+---
+
+## 🔄 CONTEXT COMPRESSION WORKFLOW (NEW)
+
+### Problem: Long conversations losing context (19+ messages)
+
+**Symptoms**:
+- URL size exceeds server limits (40-50 KB vs. 2-8 KB safe)
+- Conversation history truncated
+- Final responses incomplete
+- RAG sources return null
+
+### Solution Workflow: Compression + Smart Limiting
+
+#### Step 1: Client-side compression (Browser)
+```javascript
+// File: apps/webapp/js/sse-client.js (lines 113-205)
+
+// Compress conversation history
+const compressedHistory = history.map(msg => ({
+  r: msg.role.charAt(0),        // 'u' for user, 'a' for assistant
+  c: msg.content.substring(0, 250)  // First 250 chars
+}));
+
+// Check URL size before sending
+if (streamUrl.length > 5120) {  // 5 KB threshold
+  // Auto-fallback: use 15 messages instead of 20
+}
+```
+
+#### Step 2: Server-side decompression (Backend)
+```python
+# File: apps/backend-rag/backend/app/main_cloud.py (lines 2061-2094)
+
+# Auto-detect and decompress
+for msg in conversation_history:
+    if 'r' in msg and 'c' in msg:
+        # Decompress {r,c} format
+        decompressed = {
+            'role': 'user' if msg['r'] == 'u' else 'assistant',
+            'content': msg['c']
+        }
+    elif 'role' in msg and 'content' in msg:
+        # Already full format - use as-is
+        decompressed = msg
+```
+
+#### Step 3: Deploy to Fly.io RAG backend
+```bash
+# Use HUSKY=0 to skip pre-commit hooks during Docker build
+HUSKY=0 flyctl deploy -a nuzantara-rag --remote-only
+
+# Verify deployment
+flyctl status -a nuzantara-rag
+curl https://nuzantara-rag.fly.dev/health
+```
+
+#### Step 4: Test compression
+```javascript
+// Browser DevTools Console
+// Look for compression metrics:
+// [ZantaraSSE] Sending conversation history: 20 messages (~4500 bytes compressed)
+// [ZantaraSSE] Stream URL is 4800 chars (within safe range ~4-5 KB)
+```
+
+### Compression Metrics
+
+| Metric | Value |
+|--------|-------|
+| Uncompressed size (20 msg) | ~40-50 KB |
+| Compressed size (20 msg) | ~4-5 KB |
+| Reduction | 80-90% |
+| URL safe threshold | 5 KB |
+| Max messages (internal team) | 20 |
+| Fallback messages | 15 |
+
+### When to use this workflow
+
+**Use compression when**:
+- Internal team conversations (Bali Zero members)
+- Messages: 15-20 messages
+- Need immediate fix (already deployed)
+
+**Consider full RAG when**:
+- External clients need 50+ messages
+- Need long-term memory
+- Want distributed session management
+
+### Rollback (if needed)
+```bash
+flyctl rollback -a nuzantara-rag
 ```
 
 ---

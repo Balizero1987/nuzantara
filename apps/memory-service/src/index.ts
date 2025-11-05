@@ -11,12 +11,16 @@
  * - Basic retrieval
  */
 
+/* eslint-disable no-console */ // Console statements appropriate for service logging
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import express, { Request, Response } from 'express';
 import { Pool } from 'pg';
 import Redis from 'ioredis';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import { MemoryAnalytics } from './analytics';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -53,13 +57,17 @@ if (process.env.REDIS_URL) {
       console.warn('⚠️  Redis unavailable, running without cache:', err.message);
       redis = null;
     });
-  } catch (err) {
+  } catch (_err) {
+    // eslint-disable-line @typescript-eslint/no-unused-vars, no-unused-vars
     console.warn('⚠️  Redis initialization failed, running without cache');
     redis = null;
   }
 } else {
   console.log('ℹ️  Redis not configured, running without cache');
 }
+
+// Initialize Analytics
+const analytics = new MemoryAnalytics(postgres, redis);
 
 // ============================================================
 // DATABASE INITIALIZATION
@@ -147,6 +155,9 @@ async function initializeDatabase() {
     `);
 
     console.log('✅ Memory Service Database initialized successfully!');
+
+    // Initialize analytics tables
+    await analytics.initialize();
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
     throw error;
@@ -266,6 +277,14 @@ app.post('/api/conversation/store', async (req: Request, res: Response) => {
       await redis.expire(cacheKey, 3600); // 1 hour TTL
     }
 
+    // Track analytics event
+    analytics.trackEvent({
+      event_type: 'message_store',
+      session_id,
+      user_id,
+      metadata: { message_type, model_used },
+    });
+
     res.json({ success: true, message: result.rows[0] });
   } catch (error) {
     console.error('Conversation storage error:', error);
@@ -288,10 +307,31 @@ app.get('/api/conversation/:session_id', async (req: Request, res: Response) => 
 
       if (cached.length > 0) {
         const messages = cached.map((msg) => JSON.parse(msg));
+
+        // Track cache hit
+        analytics.trackEvent({
+          event_type: 'cache_hit',
+          session_id,
+          metadata: { messages_retrieved: messages.length },
+        });
+
+        // Track conversation retrieve
+        analytics.trackEvent({
+          event_type: 'conversation_retrieve',
+          session_id,
+          metadata: { messages_retrieved: messages.length, source: 'cache' },
+        });
+
         return res.json({
           success: true,
           messages: messages.reverse(),
           source: 'cache',
+        });
+      } else {
+        // Track cache miss
+        analytics.trackEvent({
+          event_type: 'cache_miss',
+          session_id,
         });
       }
     }
@@ -304,6 +344,13 @@ app.get('/api/conversation/:session_id', async (req: Request, res: Response) => 
        LIMIT $2`,
       [session_id, limit]
     );
+
+    // Track conversation retrieve
+    analytics.trackEvent({
+      event_type: 'conversation_retrieve',
+      session_id,
+      metadata: { messages_retrieved: result.rows.length, source: 'database' },
+    });
 
     res.json({
       success: true,
@@ -463,6 +510,88 @@ app.get('/api/stats', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Stats error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// ============================================================
+// ADVANCED ANALYTICS
+// ============================================================
+
+app.get('/api/analytics/comprehensive', async (req: Request, res: Response) => {
+  try {
+    const days = parseInt(req.query.days as string) || 7;
+    const analyticsData = await analytics.getAnalytics(days);
+
+    res.json({
+      success: true,
+      analytics: analyticsData,
+      period_days: days,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Comprehensive analytics error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.get('/api/analytics/realtime', async (req: Request, res: Response) => {
+  try {
+    const realtimeMetrics = await analytics.getRealTimeMetrics();
+
+    res.json({
+      success: true,
+      realtime: realtimeMetrics,
+    });
+  } catch (error) {
+    console.error('Real-time analytics error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.post('/api/analytics/aggregate-daily', async (req: Request, res: Response) => {
+  try {
+    const { date } = req.body;
+    const targetDate = date ? new Date(date) : undefined;
+
+    await analytics.aggregateDailyStats(targetDate);
+
+    res.json({
+      success: true,
+      message: 'Daily stats aggregated successfully',
+      date: targetDate
+        ? targetDate.toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0],
+    });
+  } catch (error) {
+    console.error('Daily aggregation error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.post('/api/analytics/clean-old-events', async (req: Request, res: Response) => {
+  try {
+    const deletedCount = await analytics.cleanOldEvents();
+
+    res.json({
+      success: true,
+      message: `Cleaned ${deletedCount} old analytics events`,
+      deleted_count: deletedCount,
+    });
+  } catch (error) {
+    console.error('Analytics cleanup error:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

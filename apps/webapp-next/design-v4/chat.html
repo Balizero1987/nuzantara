@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZANTARA - Legal Counsel</title>
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="css/design-system.css">
+
+  <style>
+    /* FORCE PURE BLACK EVERYWHERE */
+    html,
+    body,
+    .messages-container,
+    .messages-inner,
+    .message-space {
+      background: #0c0c0c !important; /* PURE BLACK FORCED */
+    }
+
+    /* Layout */
+    body {
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background: #0c0c0c; /* Pure black, no gradients */
+    }
+
+    /* Video Background (optional - da testare performance) */
+    .video-background {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0; /* Hidden for now - enable when video ready */
+    }
+
+    /* Overlay - removed for pure black background */
+    .bg-overlay {
+      display: none;
+    }
+
+    /* Header */
+    .chat-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: 2rem;
+      padding-bottom: 1.5rem;
+      z-index: 50;
+      background: #0c0c0c; /* Pure black */
+      border-bottom: 1px solid rgba(191, 170, 126, 0.15);
+    }
+
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .bali-zero-logo {
+      height: 4.25rem; /* +70% from 2.5rem */
+      width: auto;
+      opacity: 0.95;
+    }
+
+    .zantara-title {
+      font-family: var(--font-serif);
+      font-weight: 600;
+      font-size: 2.25rem;
+      line-height: 1.2;
+      letter-spacing: 0.05em;
+      color: #bfaa7e;
+    }
+
+    .subtitle {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      margin-top: 0.25rem;
+      color: rgba(255, 255, 255, 0.92);
+      opacity: 0.6;
+      font-family: var(--font-sans);
+    }
+
+    /* Messages Area */
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      margin-top: 180px;
+      margin-bottom: 8rem;
+      padding-bottom: 3rem;
+    }
+
+    .messages-inner {
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 3rem 1rem;
+    }
+
+    .message-space {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Welcome Message */
+    .welcome-message {
+      text-align: center;
+      padding: 2rem;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .welcome-message p {
+      font-size: 1rem;
+      color: var(--zantara-text-secondary);
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      padding: 1rem 0.5rem;
+      justify-content: center;
+      animation: slideUp 0.4s ease-out;
+    }
+
+    .quick-action-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      background-color: transparent; /* No background - pure black */
+      border: 1px solid rgba(191, 170, 126, 0.3);
+      color: #bfaa7e;
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .quick-action-btn:hover {
+      background-color: transparent; /* No background - pure black */
+      border-color: rgba(191, 170, 126, 0.5);
+      box-shadow: none; /* No shadows - pure black background */
+      transform: scale(1.05);
+    }
+
+    .quick-action-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Chat Input */
+    .chat-input-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding-top: 1.5rem;
+      padding-bottom: 2rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      background: #0c0c0c; /* Pure black */
+      border-top: 1px solid rgba(191, 170, 126, 0.15);
+    }
+
+    .chat-input-wrapper {
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .chat-input-box {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      padding: 0 1.25rem 0.75rem;
+      background-color: transparent; /* No background - pure black */
+      border: 1px solid rgba(191, 170, 126, 0.2);
+      border-bottom: 1.5px solid rgba(191, 170, 126, 0.3);
+      border-radius: 0.5rem;
+      transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .chat-input-box.focused {
+      background-color: transparent; /* No background - pure black */
+      border-color: rgba(191, 170, 126, 0.5);
+      border-bottom-color: #bfaa7e;
+      box-shadow: none; /* No shadows - pure black background */
+    }
+
+    .chat-textarea {
+      flex: 1;
+      resize: none;
+      outline: none;
+      max-height: 120px;
+      padding: 0.75rem 0;
+      font-size: 1rem;
+      background-color: transparent;
+      color: rgba(255, 255, 255, 0.92);
+      border: none;
+      font-family: var(--font-sans);
+      transition: color 200ms;
+    }
+
+    .chat-textarea::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .send-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 2.5rem;
+      height: 2rem;
+      padding: 0.625rem 0.5rem;
+      font-size: 1.75rem;
+      font-weight: bold;
+      line-height: 1;
+      color: rgba(191, 170, 126, 0.7);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transform: scaleX(-1);
+      transition: all 200ms;
+      filter: none; /* No shadow - pure black background */
+    }
+
+    .send-button.focused {
+      color: #bfaa7e;
+      text-shadow: none; /* No shadow - pure black background */
+      filter: none; /* No shadow - pure black background */
+    }
+
+    .send-button:hover:not(:disabled) {
+      opacity: 1;
+      transform: scaleX(-1) scale(1.1);
+    }
+
+    .send-button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .input-hint {
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+      padding: 0 1.25rem;
+      color: rgba(255, 255, 255, 0.92);
+      opacity: 0.35;
+      font-family: var(--font-sans);
+      letter-spacing: 0.02em;
+    }
+
+    /* Message Bubbles */
+    .message {
+      display: flex;
+      gap: 1.5rem;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .message.ai {
+      justify-content: flex-start;
+    }
+
+    .message-content {
+      max-width: 32rem;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      transition: all 200ms;
+    }
+
+    .message.user .message-content {
+      background-color: transparent; /* No background - pure black */
+      border: 1px solid rgba(191, 170, 126, 0.15);
+      border-left: 2px solid rgba(191, 170, 126, 0.4);
+    }
+
+    .message.ai .message-content {
+      background-color: transparent; /* No background - pure black */
+      border: 1px solid rgba(191, 170, 126, 0.15);
+      border-left: 3px solid rgba(191, 170, 126, 0.3);
+    }
+
+    .message-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.92);
+      font-family: var(--font-sans);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    .message-time {
+      font-size: 0.6875rem;
+      margin-top: 0.75rem;
+      color: rgba(255, 255, 255, 0.92);
+      opacity: 0.4;
+      letter-spacing: 0.02em;
+    }
+
+    .message.user .message-time {
+      text-align: right;
+      padding-right: 0.5rem;
+    }
+
+    .message.ai .message-time {
+      text-align: left;
+      padding-left: 0.5rem;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      gap: 1rem;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .typing-avatar {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background-color: transparent; /* No background - pure black */
+      border: 1px solid rgba(191, 170, 126, 0.3);
+    }
+
+    .typing-avatar-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background-color: #bfaa7e;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .typing-text {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-top: 0.25rem;
+    }
+
+    .typing-label {
+      font-size: 1rem;
+      font-family: var(--font-serif);
+      color: #bfaa7e;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .typing-dot {
+      width: 0.375rem;
+      height: 0.375rem;
+      border-radius: 50%;
+      background-color: #bfaa7e;
+    }
+
+    .typing-dot:nth-child(1) {
+      animation: wave 1.4s ease-in-out infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation: wave 1.4s ease-in-out infinite 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation: wave 1.4s ease-in-out infinite 0.4s;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .zantara-title {
+        font-size: 1.875rem;
+      }
+
+      .messages-inner {
+        padding: 2rem 0.75rem;
+      }
+
+      .quick-actions {
+        padding: 0.75rem 0.25rem;
+      }
+
+      .quick-action-btn {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.875rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Video Background (placeholder - add video source when ready) -->
+  <!-- <video class="video-background" autoplay loop muted playsinline preload="metadata">
+    <source src="assets/video/background.mp4" type="video/mp4">
+  </video> -->
+
+  <!-- Overlay - removed for pure black background -->
+  <!-- <div class="bg-overlay"></div> -->
+
+  <!-- Header -->
+  <header class="chat-header">
+    <div class="logo-container">
+      <img src="assets/images/balizero-logo-clean.png" alt="Bali Zero Logo" class="bali-zero-logo">
+
+      <h1 class="zantara-title">ZANTARA</h1>
+
+      <p class="subtitle">LEGAL COUNSEL</p>
+    </div>
+  </header>
+
+  <!-- Messages Container -->
+  <main class="messages-container" id="messagesContainer">
+    <div class="messages-inner">
+      <div class="message-space" id="messageSpace">
+
+        <!-- Welcome Message (shown initially) -->
+        <div class="welcome-message" id="welcomeMessage">
+          <p>I am the Jiwa of Bali Zero. How may I assist you with legal or business matters today?</p>
+        </div>
+
+        <!-- Quick Actions (shown initially) -->
+        <div class="quick-actions" id="quickActions">
+          <button class="quick-action-btn" onclick="handleQuickAction('Check visa status')">
+            Check visa status
+          </button>
+          <button class="quick-action-btn" onclick="handleQuickAction('NPWP requirements')">
+            NPWP requirements
+          </button>
+          <button class="quick-action-btn" onclick="handleQuickAction('Company setup')">
+            Company setup
+          </button>
+          <button class="quick-action-btn" onclick="handleQuickAction('Document templates')">
+            Document templates
+          </button>
+        </div>
+
+        <!-- Messages will be appended here -->
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Chat Input -->
+  <div class="chat-input-container">
+    <div class="chat-input-wrapper">
+      <div class="chat-input-box" id="inputBox">
+        <textarea
+          id="messageInput"
+          class="chat-textarea"
+          placeholder="Your inquiry…"
+          rows="1"
+          maxlength="2000"
+        ></textarea>
+        <button
+          id="sendButton"
+          class="send-button"
+          disabled
+          aria-label="Send message"
+        >∞</button>
+      </div>
+      <p class="input-hint">Enter to send • Shift + Enter for new line</p>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // State
+    let messages = [];
+    let isLoading = false;
+    let isFocused = false;
+
+    // DOM Elements
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const inputBox = document.getElementById('inputBox');
+    const messageSpace = document.getElementById('messageSpace');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const quickActions = document.getElementById('quickActions');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setupEventListeners();
+      checkAuth(); // TODO: Implement auth check
+    });
+
+    function setupEventListeners() {
+      // Input focus
+      messageInput.addEventListener('focus', () => {
+        isFocused = true;
+        inputBox.classList.add('focused');
+        sendButton.classList.add('focused');
+      });
+
+      messageInput.addEventListener('blur', () => {
+        isFocused = false;
+        inputBox.classList.remove('focused');
+        sendButton.classList.remove('focused');
+      });
+
+      // Input change
+      messageInput.addEventListener('input', handleInputChange);
+
+      // Enter key
+      messageInput.addEventListener('keydown', handleKeyDown);
+
+      // Send button
+      sendButton.addEventListener('click', handleSend);
+    }
+
+    function handleInputChange() {
+      const value = messageInput.value.trim();
+      sendButton.disabled = !value;
+
+      // Auto-resize textarea
+      messageInput.style.height = 'auto';
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    }
+
+    function handleSend() {
+      const content = messageInput.value.trim();
+      if (!content || isLoading) return;
+
+      sendMessage(content);
+    }
+
+    function handleQuickAction(action) {
+      sendMessage(action);
+      hideQuickActions();
+    }
+
+    function hideQuickActions() {
+      if (welcomeMessage) welcomeMessage.style.display = 'none';
+      if (quickActions) quickActions.style.display = 'none';
+    }
+
+    async function sendMessage(content) {
+      // Hide quick actions on first message
+      hideQuickActions();
+
+      // Add user message
+      addMessage({
+        type: 'user',
+        content: content,
+        timestamp: new Date()
+      });
+
+      // Clear input
+      messageInput.value = '';
+      messageInput.style.height = 'auto';
+      sendButton.disabled = true;
+
+      // Show typing indicator
+      showTypingIndicator();
+
+      // TODO: Replace with real API call
+      // For now, mock response
+      setTimeout(() => {
+        hideTypingIndicator();
+        addMessage({
+          type: 'ai',
+          content: 'Thank you for your inquiry. This is a demonstration of ZANTARA. In a production environment, I would provide detailed legal and business guidance based on Indonesian law and Bali Zero\'s expertise.',
+          timestamp: new Date()
+        });
+      }, 1500);
+    }
+
+    function addMessage(msg) {
+      messages.push(msg);
+
+      const messageEl = document.createElement('div');
+      messageEl.className = `message ${msg.type}`;
+
+      const contentEl = document.createElement('div');
+      contentEl.className = 'message-content';
+
+      const textEl = document.createElement('p');
+      textEl.className = 'message-text';
+      textEl.textContent = msg.content;
+
+      const timeEl = document.createElement('div');
+      timeEl.className = 'message-time';
+      timeEl.textContent = formatTime(msg.timestamp);
+
+      contentEl.appendChild(textEl);
+      messageEl.appendChild(contentEl);
+      messageEl.appendChild(timeEl);
+
+      messageSpace.appendChild(messageEl);
+
+      // Scroll to bottom
+      scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+      isLoading = true;
+
+      const typingEl = document.createElement('div');
+      typingEl.className = 'typing-indicator';
+      typingEl.id = 'typingIndicator';
+
+      typingEl.innerHTML = `
+        <div class="typing-avatar">
+          <div class="typing-avatar-dot"></div>
+        </div>
+        <div class="typing-text">
+          <span class="typing-label">ZANTARA is analyzing</span>
+          <div class="typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+      `;
+
+      messageSpace.appendChild(typingEl);
+      scrollToBottom();
+    }
+
+    function hideTypingIndicator() {
+      isLoading = false;
+      const typingEl = document.getElementById('typingIndicator');
+      if (typingEl) typingEl.remove();
+    }
+
+    function scrollToBottom() {
+      setTimeout(() => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 100);
+    }
+
+    function formatTime(date) {
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+
+    function checkAuth() {
+      // TODO: Implement JWT auth check
+      // For now, allow access
+      console.log('Auth check: OK (mock)');
+    }
+
+    // Expose for debugging
+    window.ZANTARA = {
+      messages,
+      sendMessage,
+      isLoading
+    };
+  </script>
+
+</body>
+</html>

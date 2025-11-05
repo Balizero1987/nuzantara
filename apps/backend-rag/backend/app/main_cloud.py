@@ -53,6 +53,7 @@ from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
 from services.work_session_service import WorkSessionService
 from services.team_analytics_service import TeamAnalyticsService
+from services.session_service import SessionService  # Session store for 50+ message conversations
 from services.query_router import QueryRouter  # PRIORITY 1: Query routing for autonomous research
 from services.autonomous_research_service import AutonomousResearchService  # PRIORITY 1: Self-directed research agent
 from services.cross_oracle_synthesis_service import CrossOracleSynthesisService  # PRIORITY 2: Multi-Oracle orchestrator
@@ -128,6 +129,7 @@ cross_oracle_synthesis_service: Optional[CrossOracleSynthesisService] = None  # 
 dynamic_pricing_service: Optional[DynamicPricingService] = None  # PRIORITY 3: Comprehensive pricing calculator
 work_session_service: Optional[WorkSessionService] = None  # Team work session tracking
 team_analytics_service: Optional["TeamAnalyticsService"] = None  # Advanced team analytics (7 techniques)
+session_service: Optional["SessionService"] = None  # Redis session store for 50+ message conversations
 
 # System prompt v3.0 FINAL - Tier 1-2-3 System (97/100 effectiveness rating)
 SYSTEM_PROMPT = """ZANTARA - Bali Zero AI Assistant
@@ -832,7 +834,7 @@ async def preload_redis_cache():
 
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
-    global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service
+    global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
 
     logger.info("🚀 Starting ZANTARA RAG Backend (HAIKU-ONLY: Claude Haiku 4.5)...")
     logger.info("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
@@ -841,6 +843,24 @@ async def _initialize_backend_services():
     redis_warmup = asyncio.create_task(preload_redis_cache())
 
     await asyncio.sleep(0.1)
+
+    # Initialize Session Service (Redis-based conversation store for 50+ messages)
+    try:
+        redis_url = os.getenv("REDIS_URL")
+        if redis_url:
+            session_service = SessionService(redis_url=redis_url, ttl_hours=24)
+            # Test connection
+            health = await session_service.health_check()
+            if health:
+                logger.info("✅ SessionService ready (50+ message support via Redis)")
+            else:
+                logger.warning("⚠️ SessionService unhealthy - sessions may not work")
+        else:
+            logger.warning("⚠️ REDIS_URL not set - SessionService disabled (using querystring fallback)")
+            session_service = None
+    except Exception as e:
+        logger.error(f"❌ SessionService initialization failed: {e}")
+        session_service = None
 
     # Initialize Alert Service (for error monitoring)
     try:
@@ -1994,6 +2014,139 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
         raise HTTPException(500, f"Chat failed: {str(e)}")
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# SESSION ENDPOINTS - Redis-based conversation store for 50+ message support
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.post("/sessions")
+async def create_session():
+    """
+    Create a new conversation session
+
+    Returns:
+        {"session_id": "uuid-here"}
+
+    Example:
+        curl -X POST https://nuzantara-rag.fly.dev/sessions
+    """
+    if not session_service:
+        raise HTTPException(503, "Session service unavailable - REDIS_URL not configured")
+
+    try:
+        session_id = await session_service.create_session()
+        logger.info(f"🆕 Created session: {session_id}")
+        return {"session_id": session_id}
+    except Exception as e:
+        logger.error(f"❌ Failed to create session: {e}")
+        raise HTTPException(500, f"Failed to create session: {str(e)}")
+
+
+@app.get("/sessions/{session_id}")
+async def get_session(session_id: str):
+    """
+    Get conversation history for a session
+
+    Args:
+        session_id: Session UUID
+
+    Returns:
+        {"session_id": "...", "history": [...]}
+
+    Example:
+        curl https://nuzantara-rag.fly.dev/sessions/{session_id}
+    """
+    if not session_service:
+        raise HTTPException(503, "Session service unavailable - REDIS_URL not configured")
+
+    try:
+        history = await session_service.get_history(session_id)
+        if history is None:
+            raise HTTPException(404, "Session not found or expired")
+
+        return {
+            "session_id": session_id,
+            "history": history,
+            "message_count": len(history)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to get session: {e}")
+        raise HTTPException(500, f"Failed to get session: {str(e)}")
+
+
+@app.put("/sessions/{session_id}")
+async def update_session(session_id: str, request: Request):
+    """
+    Update conversation history for a session
+
+    Args:
+        session_id: Session UUID
+        Body: {"history": [{"role": "user", "content": "..."}, ...]}
+
+    Returns:
+        {"session_id": "...", "updated": true, "message_count": N}
+
+    Example:
+        curl -X PUT https://nuzantara-rag.fly.dev/sessions/{session_id} \
+          -H "Content-Type: application/json" \
+          -d '{"history": [{"role":"user","content":"test"}]}'
+    """
+    if not session_service:
+        raise HTTPException(503, "Session service unavailable - REDIS_URL not configured")
+
+    try:
+        body = await request.json()
+        history = body.get("history", [])
+
+        if not isinstance(history, list):
+            raise HTTPException(400, "History must be an array")
+
+        success = await session_service.update_history(session_id, history)
+        if not success:
+            raise HTTPException(500, "Failed to update session")
+
+        logger.info(f"💾 Updated session {session_id} with {len(history)} messages")
+        return {
+            "session_id": session_id,
+            "updated": True,
+            "message_count": len(history)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to update session: {e}")
+        raise HTTPException(500, f"Failed to update session: {str(e)}")
+
+
+@app.delete("/sessions/{session_id}")
+async def delete_session(session_id: str):
+    """
+    Delete a session
+
+    Args:
+        session_id: Session UUID
+
+    Returns:
+        {"session_id": "...", "deleted": true}
+
+    Example:
+        curl -X DELETE https://nuzantara-rag.fly.dev/sessions/{session_id}
+    """
+    if not session_service:
+        raise HTTPException(503, "Session service unavailable - REDIS_URL not configured")
+
+    try:
+        deleted = await session_service.delete_session(session_id)
+        return {
+            "session_id": session_id,
+            "deleted": deleted
+        }
+    except Exception as e:
+        logger.error(f"❌ Failed to delete session: {e}")
+        raise HTTPException(500, f"Failed to delete session: {str(e)}")
+
+
 @app.options("/bali-zero/chat-stream")
 async def bali_zero_chat_stream_options():
     """Handle CORS preflight requests for SSE endpoint"""
@@ -2015,7 +2168,8 @@ async def bali_zero_chat_stream(
     query: str,
     user_email: Optional[str] = None,
     conversation_history: Optional[str] = None,
-    handlers_context: Optional[str] = None
+    handlers_context: Optional[str] = None,
+    session_id: Optional[str] = None
 ):
     """
     SSE streaming endpoint for real-time chat responses
@@ -2025,7 +2179,8 @@ async def bali_zero_chat_stream(
     Args:
         query: User message/question
         user_email: Optional user email for personalization
-        conversation_history: Optional JSON string of conversation history for context
+        conversation_history: DEPRECATED - Optional JSON string of conversation history (use session_id instead)
+        session_id: NEW - Session ID for Redis-based history (supports 50+ messages)
 
     Returns:
         StreamingResponse: SSE stream with text chunks
@@ -2058,9 +2213,24 @@ async def bali_zero_chat_stream(
 
         try:
 
-            # Parse conversation history if provided
+            # Parse conversation history - ENHANCED with Redis session support
             parsed_history = None
-            if conversation_history:
+
+            # PRIORITY 1: Try session_id (new method - supports 50+ messages)
+            if session_id and session_service:
+                try:
+                    parsed_history = await session_service.get_history(session_id)
+                    if parsed_history:
+                        logger.info(f"📚 [Stream] Loaded {len(parsed_history)} messages from session {session_id}")
+                        # Extend session TTL on active use (keep alive for 24h)
+                        await session_service.extend_ttl(session_id)
+                    else:
+                        logger.warning(f"⚠️ [Stream] Session {session_id} not found or expired")
+                except Exception as e:
+                    logger.error(f"❌ [Stream] Failed to load session: {e}")
+
+            # PRIORITY 2: Fallback to querystring (backward compatibility - DEPRECATED)
+            if not parsed_history and conversation_history:
                 try:
                     parsed_history = json.loads(conversation_history)
 
@@ -2089,7 +2259,7 @@ async def bali_zero_chat_stream(
                             decompressed_history.append(msg)
 
                     parsed_history = decompressed_history if decompressed_history else parsed_history
-                    logger.info(f"📚 [Stream] Conversation history: {len(parsed_history)} messages (decompressed if needed)")
+                    logger.info(f"📚 [Stream] Querystring history: {len(parsed_history)} messages (decompressed, DEPRECATED)")
                 except Exception as e:
                     logger.warning(f"⚠️ [Stream] Failed to parse conversation_history: {e}")
 
