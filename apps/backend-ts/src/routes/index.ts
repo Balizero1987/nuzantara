@@ -38,7 +38,7 @@ import translateRoutes from './communication/translate.routes.js';
 import analyticsRoutes from './analytics/analytics.routes.js';
 
 // RAG Management Routes
-import ragRoutes from './rag.routes.js';
+// import ragRoutes from './rag.routes.js'; // Temporarily disabled - missing @qdrant/js-client-rest
 
 // Tax Platform Routes
 import taxRoutes from './tax.routes.js';
@@ -75,9 +75,9 @@ export function attachModularRoutes(app: Express) {
   app.use('/api/analytics', analyticsRoutes);
 
   // RAG Management
-  app.use('/api/rag', ragRoutes);
+  // app.use('/api/rag', ragRoutes); // Temporarily disabled - missing @qdrant/js-client-rest
 
-  logger.info('✅ Modular routes attached (including RAG + Tax Platform)');
+  logger.info('✅ Modular routes attached (including Tax Platform)');
 }
 
 /**

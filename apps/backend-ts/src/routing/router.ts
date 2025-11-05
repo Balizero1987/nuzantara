@@ -10,6 +10,7 @@ import { demoUserAuth, RequestWithDemo } from "../middleware/demo-user-auth.js";
 import { unifiedAuthMiddleware, optionalUnifiedAuth, requireRole, requirePermission, RequestWithUnifiedAuth } from "../middleware/auth-unified-complete.js";
 import { ForbiddenError, BadRequestError, UnauthorizedError } from "../utils/errors.js";
 import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
+import { attachModularRoutes } from '../routes/index.js';
 
 // Create Express router
 const router = express.Router();
@@ -2254,6 +2255,9 @@ export function attachRoutes(app: import("express").Express) {
       });
     }
   });
+
+  // Attach all modular routes (including Tax Platform)
+  attachModularRoutes(app);
 
 }
 
