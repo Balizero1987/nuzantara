@@ -677,7 +677,7 @@ router.get('/collective/search', async (req: Request, res: Response) => {
  * POST /api/persistent-memory/cleanup
  * Clean up expired sessions and cache
  */
-router.post('/cleanup', async (req: Request, res: Response) => {
+router.post('/cleanup', async (_req: Request, res: Response) => {
   try {
     await persistentMemoryManager.cleanupExpiredSessions();
     res.json({ success: true, message: 'Cleanup completed successfully' });
@@ -691,7 +691,7 @@ router.post('/cleanup', async (req: Request, res: Response) => {
  * GET /api/persistent-memory/status
  * Get system status
  */
-router.get('/status', async (req: Request, res: Response) => {
+router.get('/status', async (_req: Request, res: Response) => {
   try {
     // Check database connection
     const dbTest = await pool.query('SELECT NOW() as current_time, current_database() as database');
