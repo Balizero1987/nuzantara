@@ -40,6 +40,9 @@ import analyticsRoutes from './analytics/analytics.routes.js';
 // RAG Management Routes
 import ragRoutes from './rag.routes.js';
 
+// Tax Platform Routes
+import taxRoutes from './tax.routes.js';
+
 /**
  * Attach all routes to Express app
  */
@@ -60,6 +63,9 @@ export function attachModularRoutes(app: Express) {
   app.use('/api/pricing', pricingRoutes);
   app.use('/api/team', teamRoutes);
 
+  // Tax Platform (NEW!)
+  app.use('/api/tax', taxRoutes);
+
   // Communication
   app.use('/api/translate', translateRoutes);
   // app.use('/api/whatsapp', whatsappRoutes);
@@ -67,11 +73,11 @@ export function attachModularRoutes(app: Express) {
 
   // Analytics
   app.use('/api/analytics', analyticsRoutes);
-  
+
   // RAG Management
   app.use('/api/rag', ragRoutes);
 
-  logger.info('✅ Modular routes attached (including RAG)');
+  logger.info('✅ Modular routes attached (including RAG + Tax Platform)');
 }
 
 /**
@@ -79,13 +85,14 @@ export function attachModularRoutes(app: Express) {
  */
 export function getRouteStats() {
   return {
-    totalModules: 12, // Update as routes are added
+    totalModules: 13, // Update as routes are added
     implemented: [
       'gmail', 'drive', 'calendar', 'sheets', 'docs',
       'ai', 'creative',
       'oracle', 'pricing', 'team',
       'translate',
-      'analytics'
+      'analytics',
+      'tax' // Tax Platform (NEW!)
     ],
     pending: [
       'whatsapp', 'instagram'
