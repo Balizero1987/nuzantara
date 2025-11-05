@@ -45,7 +45,8 @@ from services.emotional_attunement import EmotionalAttunementService
 from services.collaborative_capabilities import CollaborativeCapabilitiesService
 from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_handler_proxy
 from services.tool_executor import ToolExecutor
-# HAIKU-ONLY SYSTEM: Claude Haiku 4.5 + Intelligent Router
+# AI SYSTEM: Llama 4 Scout (primary) + Claude Haiku 4.5 (fallback) + Intelligent Router
+from llm.llama_scout_client import LlamaScoutClient
 from services.claude_haiku_service import ClaudeHaikuService
 from services.intelligent_router import IntelligentRouter
 from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultural intelligence
@@ -108,8 +109,9 @@ except Exception as e:
 
 # Global clients
 search_service: Optional[SearchService] = None
-# HAIKU-ONLY SYSTEM: Claude Haiku 4.5 + Router
-claude_haiku: Optional[ClaudeHaikuService] = None  # ALL queries (greetings, casual, business, complex)
+# AI SYSTEM: Llama 4 Scout (primary) + Claude Haiku 4.5 (fallback)
+llama_scout_client: Optional[LlamaScoutClient] = None  # NEW: Primary AI with fallback
+claude_haiku: Optional[ClaudeHaikuService] = None  # Kept for backward compatibility
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 cultural_rag_service: Optional[CulturalRAGService] = None  # NEW: LLAMA cultural RAG
 tool_executor: Optional[ToolExecutor] = None  # NEW: Tool execution system
@@ -925,22 +927,37 @@ async def _initialize_backend_services():
         logger.warning("⚠️ Continuing without SearchService (pure LLM mode)")
         search_service = None
 
-    # Initialize Claude Haiku (Fast & Cheap for greetings/casual)
+    # Initialize Llama 4 Scout Client (Primary AI with Haiku fallback)
     try:
+        openrouter_api_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
         anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
-        if anthropic_api_key:
-            claude_haiku = ClaudeHaikuService(api_key=anthropic_api_key)
-            logger.info("✅ Claude Haiku 3.5 ready (Fast & Cheap)")
-            logger.info("   Use case: Greetings, casual chat (60% traffic)")
-            logger.info("   Cost: $0.25/$1.25 per 1M tokens (12x cheaper than Sonnet)")
+
+        if openrouter_api_key or anthropic_api_key:
+            llama_scout_client = LlamaScoutClient(
+                openrouter_api_key=openrouter_api_key,
+                anthropic_api_key=anthropic_api_key,
+                force_haiku=False  # Try Llama first, fallback to Haiku
+            )
+            logger.info("✅ Llama 4 Scout + Haiku 4.5 ready (Primary + Fallback)")
+            logger.info("   Primary: Llama 4 Scout (92% cheaper, 22% faster TTFT)")
+            logger.info("   Cost: $0.20/$0.20 per 1M tokens vs Haiku $1/$5")
+            logger.info("   Fallback: Claude Haiku 4.5 (for tool use & emergencies)")
+            logger.info(f"   Llama available: {'✅' if openrouter_api_key else '❌'}")
+            logger.info(f"   Haiku available: {'✅' if anthropic_api_key else '❌'}")
+
+            # Also initialize standalone claude_haiku for backward compatibility
+            if anthropic_api_key:
+                claude_haiku = ClaudeHaikuService(api_key=anthropic_api_key)
+            else:
+                claude_haiku = None
         else:
-            logger.warning("⚠️ ANTHROPIC_API_KEY not set - Claude Haiku unavailable")
+            logger.warning("⚠️ Neither OPENROUTER_API_KEY_LLAMA nor ANTHROPIC_API_KEY set - No AI available")
+            llama_scout_client = None
             claude_haiku = None
     except Exception as e:
-        logger.error(f"❌ Claude Haiku initialization failed: {e}")
+        logger.error(f"❌ Llama Scout client initialization failed: {e}")
+        llama_scout_client = None
         claude_haiku = None
-
-    # Claude Sonnet removed - Haiku 4.5 is the ONLY AI
 
     # PRIORITY 1: Initialize QueryRouter for autonomous research
     try:
@@ -1196,16 +1213,17 @@ async def _initialize_backend_services():
                     cultural_rag_service = None
 
             intelligent_router = IntelligentRouter(
-                llama_client=None,  # No LLAMA - pure Claude routing
-                haiku_service=claude_haiku,
+                llama_client=None,  # Kept for backward compatibility
+                haiku_service=llama_scout_client,  # NEW: LlamaScoutClient with Haiku fallback
                 search_service=search_service,
-                tool_executor=tool_executor,  # Now properly initialized
-                cultural_rag_service=cultural_rag_service,  # NEW: LLAMA cultural intelligence
-                autonomous_research_service=autonomous_research_service,  # PRIORITY 1: Self-directed research
-                cross_oracle_synthesis_service=cross_oracle_synthesis_service  # PRIORITY 2: Multi-Oracle orchestrator
+                tool_executor=tool_executor,
+                cultural_rag_service=cultural_rag_service,
+                autonomous_research_service=autonomous_research_service,
+                cross_oracle_synthesis_service=cross_oracle_synthesis_service
             )
-            logger.info("✅ Intelligent Router ready (HAIKU-ONLY + Cultural RAG + Advanced Services)")
-            logger.info("   AI: Claude Haiku 4.5 (ALL queries, 100% traffic)")
+            logger.info("✅ Intelligent Router ready (Llama 4 Scout PRIMARY + Haiku FALLBACK)")
+            logger.info("   Primary AI: Llama 4 Scout (92% cheaper, 22% faster)")
+            logger.info("   Fallback AI: Claude Haiku 4.5 (tool calling, errors)")
             logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
             logger.info(f"   Autonomous Research: {'✅ enabled' if autonomous_research_service else '⚠️ disabled'}")
             logger.info(f"   Cross-Oracle Synthesis: {'✅ enabled' if cross_oracle_synthesis_service else '⚠️ disabled'}")

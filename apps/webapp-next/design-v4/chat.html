@@ -97,6 +97,9 @@
       transform: translateZ(0);
       -webkit-transform: translateZ(0);
       object-fit: contain;
+      background-color: #000000;
+      padding: 0.75rem;
+      border-radius: 50%;
     }
 
     .zantara-title {
@@ -117,15 +120,47 @@
       font-family: var(--font-sans);
     }
 
+    .javanese-script {
+      font-size: 0.85rem;
+      margin-left: 0.5rem;
+      font-weight: 400;
+      letter-spacing: 0;
+      background: linear-gradient(135deg,
+        #D4AF37 0%,
+        #F4E5B0 25%,
+        #BFAA7E 50%,
+        #F4E5B0 75%,
+        #D4AF37 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 3px rgba(191, 170, 126, 0.6))
+              drop-shadow(0 0 8px rgba(191, 170, 126, 0.3));
+      animation: keris-flame 3s ease-in-out infinite;
+    }
+
+    @keyframes keris-flame {
+      0%, 100% {
+        filter: drop-shadow(0 0 3px rgba(191, 170, 126, 0.6))
+                drop-shadow(0 0 8px rgba(191, 170, 126, 0.3));
+      }
+      50% {
+        filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.8))
+                drop-shadow(0 0 12px rgba(244, 229, 176, 0.5));
+      }
+    }
+
     /* Messages Area */
     .messages-container {
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
       scroll-behavior: smooth;
-      margin-top: 180px;
-      margin-bottom: 8rem;
-      padding-bottom: 3rem;
+      margin-top: 200px;
+      margin-bottom: 10rem;
+      padding: 2rem 0;
+      min-height: calc(100vh - 200px - 10rem);
     }
 
     .messages-inner {
@@ -191,36 +226,40 @@
 
     /* Chat Input */
     .chat-input-container {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding-top: 1.5rem;
-      padding-bottom: 2rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      background: rgba(0, 0, 0, 0.95); /* More opaque for better visibility */
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      padding: 2rem 1rem !important;
+      background: #000000 !important;
       backdrop-filter: blur(15px);
-      z-index: 40;
-      border-top: 1px solid rgba(191, 170, 126, 0.2);
+      z-index: 9999 !important;
+      border-top: 3px solid #BFAA7E !important;
+      box-shadow: 0 -4px 20px rgba(191, 170, 126, 0.3) !important;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
     }
 
     .chat-input-wrapper {
       max-width: 42rem;
       margin: 0 auto;
       padding: 0 1rem;
+      display: block !important;
+      visibility: visible !important;
     }
 
     .chat-input-box {
-      display: flex;
+      display: flex !important;
       align-items: flex-end;
       gap: 1rem;
-      padding: 0 1.25rem 0.75rem;
-      background-color: rgba(0, 0, 0, 0.4); /* Slight background for visibility */
-      border: 1px solid rgba(191, 170, 126, 0.35);
-      border-bottom: 1.5px solid rgba(191, 170, 126, 0.5);
-      border-radius: 0.5rem;
+      padding: 1rem 1.25rem;
+      background-color: rgba(0, 0, 0, 0.8) !important;
+      border: 2px solid rgba(191, 170, 126, 0.6) !important;
+      border-bottom: 3px solid rgba(191, 170, 126, 0.8) !important;
+      border-radius: 0.75rem;
       transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      visibility: visible !important;
     }
 
     .chat-input-box.focused {
@@ -231,41 +270,44 @@
     }
 
     .chat-textarea {
-      flex: 1;
+      flex: 1 !important;
       resize: none;
       outline: none;
       max-height: 120px;
       padding: 0.75rem 0;
-      font-size: 1rem;
-      background-color: transparent;
-      color: rgba(255, 255, 255, 0.92);
+      font-size: 1.125rem;
+      background-color: transparent !important;
+      color: #FFFFFF !important;
       border: none;
       font-family: var(--font-sans);
       transition: color 200ms;
+      display: block !important;
+      visibility: visible !important;
     }
 
     .chat-textarea::placeholder {
-      color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.5);
     }
 
     .send-button {
-      display: flex;
+      display: flex !important;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       width: 2.5rem;
-      height: 2rem;
-      padding: 0.625rem 0.5rem;
-      font-size: 1.75rem;
+      height: 2.5rem;
+      padding: 0.5rem;
+      font-size: 2rem;
       font-weight: bold;
       line-height: 1;
-      color: rgba(191, 170, 126, 0.7);
-      background: transparent;
+      color: #BFAA7E !important;
+      background: transparent !important;
       border: none;
       cursor: pointer;
       transform: scaleX(-1);
       transition: all 200ms;
-      filter: none; /* No shadow - pure black background */
+      opacity: 1 !important;
+      visibility: visible !important;
     }
 
     .send-button.focused {
@@ -453,20 +495,11 @@
   <!-- Header -->
   <header class="chat-header">
     <div class="logo-container">
-      <video
-        class="bali-zero-logo"
-        autoplay
-        loop
-        muted
-        playsinline
-        poster="assets/images/balizero-logo-clean.png">
-        <source src="assets/images/balizero-logo-animated.mp4" type="video/mp4">
-        <img src="assets/images/balizero-logo-clean.png" alt="Bali Zero Logo">
-      </video>
+      <img src="assets/images/logo-main.png" alt="Bali Zero Logo" class="bali-zero-logo">
 
       <h1 class="zantara-title">ZANTARA</h1>
 
-      <p class="subtitle">LEGAL COUNSEL</p>
+      <p class="subtitle"><span class="javanese-script">ᬯᬶᬤ᭄ᬬ ᬥᬃᬫ</span></p>
     </div>
   </header>
 
@@ -474,30 +507,7 @@
   <main class="messages-container" id="messagesContainer">
     <div class="messages-inner">
       <div class="message-space" id="messageSpace">
-
-        <!-- Welcome Message (shown initially) -->
-        <div class="welcome-message" id="welcomeMessage">
-          <p>I am the Jiwa of Bali Zero. How may I assist you with legal or business matters today?</p>
-        </div>
-
-        <!-- Quick Actions (shown initially) -->
-        <div class="quick-actions" id="quickActions">
-          <button class="quick-action-btn" onclick="handleQuickAction('Check visa status')">
-            Check visa status
-          </button>
-          <button class="quick-action-btn" onclick="handleQuickAction('NPWP requirements')">
-            NPWP requirements
-          </button>
-          <button class="quick-action-btn" onclick="handleQuickAction('Company setup')">
-            Company setup
-          </button>
-          <button class="quick-action-btn" onclick="handleQuickAction('Document templates')">
-            Document templates
-          </button>
-        </div>
-
         <!-- Messages will be appended here -->
-
       </div>
     </div>
   </main>
@@ -537,13 +547,14 @@
     const inputBox = document.getElementById('inputBox');
     const messageSpace = document.getElementById('messageSpace');
     const messagesContainer = document.getElementById('messagesContainer');
-    const welcomeMessage = document.getElementById('welcomeMessage');
-    const quickActions = document.getElementById('quickActions');
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       setupEventListeners();
-      checkAuth(); // TODO: Implement auth check
+      // Scroll to show messages
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
     });
 
     function setupEventListeners() {
@@ -595,17 +606,9 @@
 
     function handleQuickAction(action) {
       sendMessage(action);
-      hideQuickActions();
-    }
-
-    function hideQuickActions() {
-      if (welcomeMessage) welcomeMessage.style.display = 'none';
-      if (quickActions) quickActions.style.display = 'none';
     }
 
     async function sendMessage(content) {
-      // Hide quick actions on first message
-      hideQuickActions();
 
       // Add user message
       addMessage({

@@ -38,33 +38,32 @@ class SearchService:
         # Use CHROMA_DB_PATH from environment (set by main_cloud.py after download)
         chroma_path = os.environ.get('CHROMA_DB_PATH', '/tmp/chroma_db')
 
-        # TEMPORARY FIX: Point empty collections to zantara_memories where data actually exists
-        # This fixes the critical collection mapping issue where all 8,122 chunks are in zantara_memories
-        logger.warning("⚠️ TEMPORARY FIX: Redirecting empty collections to zantara_memories")
+        # FIX 2025-11-05: Use migrated collections with OpenAI 1536-dim embeddings
+        logger.info("✅ Using migrated collections with OpenAI 1536-dim embeddings")
 
         # Initialize 16 collections (multi-domain + pricing + cultural + Oracle + test collections)
         self.collections = {
-            "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_openai"),  # OpenAI 1536-dim embeddings
+            "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing"),  # Migrated to 1536-dim
             # Test collections for OpenAI embeddings migration
             "bali_zero_pricing_test_1536": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_test_1536"),
             "bali_zero_pricing_test_384": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_test_384"),
-            # TEMPORARY PATCH: Point to zantara_memories where data actually exists
-            "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
-            "kbli_eye": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
-            "tax_genius": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
-            "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
+            # MIGRATED COLLECTIONS: Now point to actual collections with 1536-dim OpenAI embeddings
+            "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="visa_oracle"),  # 1,612 docs (pending migration)
+            "kbli_eye": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),  # Fallback to kbli_unified (8,887 docs)
+            "tax_genius": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_genius"),  # 895 docs, 1536-dim ✅ MIGRATED
+            "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_unified"),  # 559 docs, 1536-dim ✅ NEW LAWS 2025
             "kb_indonesian": ChromaDBClient(persist_directory=chroma_path, collection_name="kb_indonesian"),
             "kbli_comprehensive": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_comprehensive"),
-            "kbli_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),
-            # Keep original for books collection
-            "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="zantara_memories"),
-            "cultural_insights": ChromaDBClient(persist_directory=chroma_path, collection_name="cultural_insights"),  # LLAMA-generated Indonesian cultural knowledge
+            "kbli_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),  # 8,887 docs
+            # Fallback collection for unmigrated queries
+            "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="knowledge_base"),  # 8,923 docs
+            "cultural_insights": ChromaDBClient(persist_directory=chroma_path, collection_name="cultural_insights"),
             # Oracle System Collections (Phase 1 - Dependency Injection)
             "tax_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_updates"),
-            "tax_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_knowledge"),
-            "property_listings": ChromaDBClient(persist_directory=chroma_path, collection_name="property_listings"),
-            "property_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="property_knowledge"),
-            "legal_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_updates")
+            "tax_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_genius"),  # Redirect to migrated tax_genius
+            "property_listings": ChromaDBClient(persist_directory=chroma_path, collection_name="property_listings"),  # 29 docs, 1536-dim ✅ MIGRATED
+            "property_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="property_unified"),  # 29 docs
+            "legal_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_unified")  # 559 docs, 1536-dim ✅ NEW LAWS 2025
         }
 
         # Initialize query router
