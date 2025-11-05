@@ -141,7 +141,7 @@ export async function generateInvoice(params: any) {
 
     return ok(response);
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Generate invoice error');
+    logger.error('Generate invoice error', error, { error: error.message });
     return ok({
       error: 'Failed to generate invoice',
       message: error.message,
@@ -212,7 +212,7 @@ export async function getInvoiceDetails(params: any) {
 
     return ok(response);
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Get invoice details error');
+    logger.error('Get invoice details error', error, { error: error.message });
     return ok({
       error: 'Failed to fetch invoice details',
     });
@@ -272,7 +272,7 @@ export async function getInvoiceHistory(params: any) {
 
     return ok(response);
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Get invoice history error');
+    logger.error('Get invoice history error', error, { error: error.message });
     return ok({
       error: 'Failed to fetch invoice history',
       message: error.message,
@@ -308,7 +308,7 @@ export async function downloadInvoice(params: any) {
 
     return ok(response);
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Download invoice error');
+    logger.error('Download invoice error', error, { error: error.message });
     return ok({
       error: 'Failed to download invoice',
     });
@@ -333,7 +333,7 @@ export async function calculateInvoiceTotals(params: any) {
       });
     }
 
-    logger.info({ service_count: services.length }, 'Calculating invoice totals');
+    logger.info('Calculating invoice totals', { service_count: services.length });
 
     let subtotal = 0;
     const line_items: any[] = [];
@@ -371,7 +371,7 @@ export async function calculateInvoiceTotals(params: any) {
 
     return ok(response);
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Calculate invoice totals error');
+    logger.error('Calculate invoice totals error', error, { error: error.message });
     return ok({
       error: 'Failed to calculate totals',
       message: error.message,

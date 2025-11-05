@@ -59,7 +59,7 @@ const PLAN_FEATURES = {
 export async function calculateUpgradeCost(params: any) {
   try {
     const p = UpgradeRequestSchema.parse(params);
-    logger.info({ current: p.current_plan, target: p.target_plan }, 'Calculating upgrade cost');
+    logger.info('Calculating upgrade cost', { current: p.current_plan, target: p.target_plan });
 
     // Validate upgrade path
     const plan_order = ['starter', 'professional', 'enterprise', 'custom'];
@@ -161,7 +161,7 @@ export async function calculateUpgradeCost(params: any) {
 
     return ok(response);
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Calculate upgrade cost error');
+    logger.error('Calculate upgrade cost error', error, { error: error.message });
     return ok({
       error: 'Failed to calculate upgrade cost',
       message: error.message,
@@ -173,10 +173,11 @@ export async function calculateUpgradeCost(params: any) {
 export async function processUpgrade(params: any) {
   try {
     const p = UpgradeRequestSchema.parse(params);
-    logger.info(
-      { user_id: p.user_id, from: p.current_plan, to: p.target_plan },
-      'Processing upgrade'
-    );
+    logger.info('Processing upgrade', {
+      user_id: p.user_id,
+      from: p.current_plan,
+      to: p.target_plan,
+    });
 
     // Get cost calculation
     const cost_calc = await calculateUpgradeCost(params);
@@ -184,7 +185,7 @@ export async function processUpgrade(params: any) {
       return cost_calc;
     }
 
-    const upgrade_cost = cost_calc.data.payment_info.upgrade_charge;
+    const upgrade_cost = (cost_calc.data as any)?.payment_info?.upgrade_charge;
 
     const response = {
       ok: true,
@@ -212,7 +213,7 @@ export async function processUpgrade(params: any) {
 
     return ok(response);
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Process upgrade error');
+    logger.error('Process upgrade error', error, { error: error.message });
     return ok({
       error: 'Failed to process upgrade',
       message: error.message,
@@ -253,7 +254,7 @@ export async function getUpgradeOptions(params: any) {
       contact_for_custom: 'Support team available at support@balizero.com',
     });
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Get upgrade options error');
+    logger.error('Get upgrade options error', error, { error: error.message });
     return ok({
       error: 'Failed to fetch upgrade options',
     });

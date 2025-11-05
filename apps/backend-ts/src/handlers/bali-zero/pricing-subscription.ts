@@ -198,7 +198,7 @@ export async function getSubscriptionPlans(params: any) {
 
     return ok(response_data);
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Get subscription plans error');
+    logger.error('Get subscription plans error', error, { error: error.message });
     return ok({
       error: 'Failed to fetch subscription plans',
       contact_info: {
@@ -213,7 +213,7 @@ export async function getSubscriptionPlans(params: any) {
 export async function getSubscriptionDetails(params: any) {
   try {
     const p = SubscriptionDetailSchema.parse(params);
-    logger.info({ plan_id: p.plan_id }, 'Fetching subscription details');
+    logger.info('Fetching subscription details', { plan_id: p.plan_id });
 
     // Find plan by ID
     let found_plan = null;
@@ -249,7 +249,7 @@ export async function getSubscriptionDetails(params: any) {
 
     return ok(response);
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Get subscription details error');
+    logger.error('Get subscription details error', error, { error: error.message });
     return ok({
       error: 'Failed to fetch subscription details',
       message: 'Please provide a valid plan_id',
@@ -293,7 +293,7 @@ export async function calculateSubscriptionRenewal(params: any) {
       renewal_status: days_until_renewal > 0 ? 'pending' : 'overdue',
     });
   } catch (error: any) {
-    logger.error({ error: error.message }, 'Calculate renewal error');
+    logger.error('Calculate renewal error', error, { error: error.message });
     return ok({
       error: 'Failed to calculate renewal date',
     });
