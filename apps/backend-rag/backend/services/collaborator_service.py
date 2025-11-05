@@ -59,8 +59,8 @@ class CollaboratorService:
         # C-Level & Leadership (L3 - Initiated)
         "zero@balizero.com": {
             "id": "zero",
-            "name": "Antonello Siano",
-            "ambaradam_name": "Zero Master",
+            "name": "Zero",
+            "ambaradam_name": "Zero",
             "role": "founder",  # Founder of BALI ZERO & creator of ZANTARA
             "department": "leadership",  # Not "tech" - he's the Founder/Creator
             "sub_rosa_level": 3,  # Full access
