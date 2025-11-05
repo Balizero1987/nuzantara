@@ -33,6 +33,8 @@ export default {
       pathname.startsWith('/rag/') ||
       pathname.startsWith('/bali-zero/chat') || // RAG chat endpoint
       pathname.startsWith('/query') ||
+      pathname.startsWith('/api/query') || // Feature #10: RAG query endpoint
+      pathname.startsWith('/api/semantic-search') ||
       pathname.startsWith('/api/oracle/ingest') ||
       pathname.startsWith('/api/oracle/query')
     ) {
