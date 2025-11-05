@@ -22,7 +22,7 @@ class ContextBuilder:
 
     def __init__(self):
         """Initialize context builder"""
-        logger.info("✅ ContextBuilder initialized")
+        logger.info("📚 [ContextBuilder] Initialized")
 
     def build_memory_context(self, memory: Optional[Any]) -> Optional[str]:
         """
@@ -42,7 +42,7 @@ class ContextBuilder:
         if facts_count == 0:
             return None
 
-        logger.info(f"💾 [Context] Building memory context from {facts_count} facts")
+        logger.info(f"📚 [ContextBuilder] Building memory context from {facts_count} facts")
 
         # Build natural narrative (not bullet lists)
         memory_context = "Context about this conversation:\n"
@@ -67,7 +67,7 @@ class ContextBuilder:
         if hasattr(memory, 'summary') and memory.summary:
             memory_context += f"\nPrevious conversation context: {memory.summary[:500]}"
 
-        logger.info(f"💾 [Context] Memory context built: {len(memory_context)} chars")
+        logger.info(f"📚 [ContextBuilder] Built memory context: {len(memory_context)} chars")
 
         return memory_context
 
@@ -84,7 +84,7 @@ class ContextBuilder:
         if not collaborator or not hasattr(collaborator, 'id') or collaborator.id == "anonymous":
             return None
 
-        logger.info(f"👥 [Context] Building team context for {collaborator.name}")
+        logger.info(f"📚 [ContextBuilder] Building team context for {collaborator.name}")
 
         team_parts = []
 
@@ -165,7 +165,7 @@ class ContextBuilder:
         # Build natural sentence
         team_context = ". ".join(team_parts) + "."
 
-        logger.info(f"👥 [Context] Team context built: {len(team_context)} chars")
+        logger.info(f"📚 [ContextBuilder] Built team context: {len(team_context)} chars")
 
         return team_context
 
@@ -211,6 +211,6 @@ class ContextBuilder:
 
         combined = "\n\n".join(contexts)
 
-        logger.info(f"📚 [Context] Combined context: {len(combined)} chars from {len(contexts)} sources")
+        logger.info(f"📚 [ContextBuilder] Combined context: {len(combined)} chars from {len(contexts)} sources")
 
         return combined

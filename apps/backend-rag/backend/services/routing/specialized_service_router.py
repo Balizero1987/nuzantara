@@ -71,7 +71,7 @@ class SpecializedServiceRouter:
         self.autonomous_research = autonomous_research_service
         self.cross_oracle = cross_oracle_synthesis_service
 
-        logger.info("✅ SpecializedServiceRouter initialized")
+        logger.info("🛣️ [SpecializedServiceRouter] Initialized")
         logger.info(f"   Autonomous Research: {'✅' if autonomous_research_service else '❌'}")
         logger.info(f"   Cross-Oracle Synthesis: {'✅' if cross_oracle_synthesis_service else '❌'}")
 
@@ -104,7 +104,7 @@ class SpecializedServiceRouter:
         needs_research = has_ambiguous_term or (is_long_query and has_how_to)
 
         if needs_research:
-            logger.info("🔬 [SpecializedRouter] AUTONOMOUS RESEARCH detected")
+            logger.info("🛣️ [SpecializedServiceRouter] AUTONOMOUS RESEARCH detected")
             logger.info(f"   Ambiguous: {has_ambiguous_term}, Long: {is_long_query}, How-to: {has_how_to}")
 
         return needs_research
@@ -135,9 +135,7 @@ class SpecializedServiceRouter:
             )
 
             logger.info(
-                f"✅ [Autonomous Research] Complete: {research_result.total_steps} steps, "
-                f"{len(research_result.collections_explored)} collections, "
-                f"confidence={research_result.confidence:.2f}"
+                f"🛣️ [SpecializedServiceRouter] AUTONOMOUS RESEARCH Complete: {research_result.total_steps} steps"
             )
 
             return {
@@ -157,7 +155,7 @@ class SpecializedServiceRouter:
             }
 
         except Exception as e:
-            logger.error(f"❌ [Autonomous Research] Failed: {e}")
+            logger.error(f"🛣️ [SpecializedServiceRouter] Error: {e}")
             return None
 
     def detect_cross_oracle(self, message: str, category: str) -> bool:
@@ -191,7 +189,7 @@ class SpecializedServiceRouter:
         )
 
         if needs_cross_oracle:
-            logger.info("🎯 [SpecializedRouter] CROSS-ORACLE SYNTHESIS detected")
+            logger.info("🛣️ [SpecializedServiceRouter] CROSS-ORACLE SYNTHESIS detected")
             logger.info(f"   Business setup: {has_business_setup_term}, Comprehensive: {wants_comprehensive_plan}")
 
         return needs_cross_oracle
@@ -225,9 +223,7 @@ class SpecializedServiceRouter:
             )
 
             logger.info(
-                f"✅ [Cross-Oracle Synthesis] Complete: {synthesis_result.scenario_type}, "
-                f"{len(synthesis_result.oracles_consulted)} Oracles consulted, "
-                f"confidence={synthesis_result.confidence:.2f}"
+                f"🛣️ [SpecializedServiceRouter] CROSS-ORACLE SYNTHESIS Complete: {synthesis_result.scenario_type}"
             )
 
             return {
@@ -249,5 +245,5 @@ class SpecializedServiceRouter:
             }
 
         except Exception as e:
-            logger.error(f"❌ [Cross-Oracle Synthesis] Failed: {e}")
+            logger.error(f"🛣️ [SpecializedServiceRouter] Error: {e}")
             return None

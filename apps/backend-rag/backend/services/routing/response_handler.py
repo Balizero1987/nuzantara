@@ -30,7 +30,7 @@ class ResponseHandler:
 
     def __init__(self):
         """Initialize response handler"""
-        logger.info("✅ ResponseHandler initialized (PHASE 1 & 2 fixes)")
+        logger.info("✨ [ResponseHandler] Initialized (PHASE 1 & 2 fixes)")
 
     def classify_query(self, message: str) -> str:
         """
@@ -74,10 +74,10 @@ class ResponseHandler:
                 add_contact=add_contact
             )
 
-            logger.info(f"✨ [ResponseHandler] Response sanitized (type: {query_type})")
+            logger.info(f"✨ [ResponseHandler] Sanitized response (type: {query_type})")
 
             return sanitized
 
         except Exception as e:
-            logger.error(f"❌ [ResponseHandler] Sanitization error: {e}")
+            logger.error(f"✨ [ResponseHandler] Error: {e}")
             return response  # Return original if sanitization fails

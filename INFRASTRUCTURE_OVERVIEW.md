@@ -96,13 +96,13 @@
 | tax_updates | 2 | Tax Updates |
 | legal_updates | 2 | Legal Updates |
 
-**Empty Collections** (6):
-- kbli_comprehensive
-- kb_indonesian
-- tax_knowledge
-- cultural_insights
-- zantara_memories
-- property_knowledge
+**Empty Collections** (6 - Intentional Placeholders):
+- kbli_comprehensive (placeholder for KBLI enhanced analysis)
+- kb_indonesian (placeholder for Indonesian language KB)
+- tax_knowledge (placeholder for advanced tax knowledge)
+- cultural_insights (placeholder for business culture data)
+- zantara_memories (placeholder for AI memory system)
+- property_knowledge (placeholder for property market data)
 
 ---
 
@@ -393,7 +393,14 @@
 
 ## 🔄 RECENT UPDATES
 
-### November 5, 2025
+### November 5, 2025 (Latest - v5.2.1 Incremental v0.8)
+- ✅ **CRITICAL FIX**: RAG root endpoint now dynamically counts documents from ChromaDB
+  - Was returning hardcoded 14,365 documents (WRONG)
+  - Now returns 25,422 documents (VERIFIED via direct ChromaDB query)
+  - File: `apps/backend-rag/backend/app/main_cloud.py` (lines 2335-2396)
+  - Added fallback chain: search_service → direct ChromaDB → hardcoded fallback
+- ✅ **Documentation**: Updated INFRASTRUCTURE_OVERVIEW.md with empty collection explanations
+- ✅ **Verification**: 25,422 documents physically verified in Fly.io ChromaDB (via SSH)
 - ✅ **Feature #4 FIXED**: Cache POST endpoints (`/cache/set`, `/cache/invalidate`)
 - ✅ **Feature #9 ADDED**: Team Authentication (5 endpoints)
 - ✅ **Bug Fix**: Moved body parser before route mounting

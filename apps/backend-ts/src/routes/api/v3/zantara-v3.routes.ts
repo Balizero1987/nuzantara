@@ -115,7 +115,7 @@ router.get('/', (_req, res) => {
         method: 'POST',
         description: 'Single entry point for ALL knowledge bases',
         domains: ['kbli', 'pricing', 'team', 'legal', 'tax', 'immigration', 'property', 'memory'],
-        coverage: '8 knowledge domains + 14,365 RAG documents',
+        coverage: '8 knowledge domains + 25,422 RAG documents (verified)',
         examples: [
           { domain: 'kbli', query: 'restaurant' },
           { domain: 'pricing', query: 'KITAS' },
@@ -149,10 +149,12 @@ router.get('/', (_req, res) => {
         property: '447 lines property law',
       },
       rag: {
-        total_documents: '14,365',
-        bali_zero_agents: '1,458 operational documents',
-        books: '214 books (12,907 embeddings)',
-        vector_database: 'ChromaDB + Qdrant',
+        total_documents: '25,422 (verified Nov 5, 2025)',
+        kbli_unified: '8,887 documents',
+        legal_unified: '5,041 documents',
+        knowledge_base: '8,923 documents',
+        other_collections: '2,571 documents',
+        vector_database: 'ChromaDB (Fly.io volume)',
       },
       collective: {
         memory: 'Cross-user learning system',
@@ -171,7 +173,7 @@ router.get('/', (_req, res) => {
         'Unified all knowledge bases under single API',
         'Added collective intelligence system',
         'Complete ecosystem analysis capability',
-        'Integrated RAG with 14,365 documents',
+        'Integrated RAG with 25,422 verified ChromaDB documents',
       ],
     },
   });

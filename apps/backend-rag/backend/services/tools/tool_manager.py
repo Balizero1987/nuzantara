@@ -58,7 +58,7 @@ class ToolManager:
         self.haiku_tools = None
         self.tools_loaded = False
 
-        logger.info(f"✅ ToolManager initialized (executor: {'✅' if tool_executor else '❌'})")
+        logger.info(f"🔧 [ToolManager] Initialized (executor: {'✅' if tool_executor else '❌'})")
 
     async def load_tools(self):
         """
@@ -72,24 +72,12 @@ class ToolManager:
             return
 
         try:
-            logger.info("🔧 [ToolManager] Loading available tools...")
+            logger.info("🔧 [ToolManager] Loading available tools")
 
             # Get all available tools from ToolExecutor
             self.all_tools = await self.tool_executor.get_available_tools()
 
-            logger.info(f"   Total tools available: {len(self.all_tools)}")
-
-            # Debug: Log all tool names
-            tool_names = [t["name"] for t in self.all_tools]
-            logger.info(f"🔍 DEBUG: All tool names: {tool_names}")
-
-            # Check for team roster tools
-            has_team_list = "get_team_members_list" in tool_names
-            has_team_search = "search_team_member" in tool_names
-            logger.info(
-                f"🔍 DEBUG: Team roster tools present: "
-                f"get_team_members_list={has_team_list}, search_team_member={has_team_search}"
-            )
+            logger.info(f"🔧 [ToolManager] Total tools available: {len(self.all_tools)}")
 
             # Filter essential tools for Haiku
             self.haiku_tools = [
@@ -97,13 +85,13 @@ class ToolManager:
                 if any(tool["name"].startswith(prefix) for prefix in HAIKU_ALLOWED_PREFIXES)
             ]
 
-            logger.info(f"   Haiku tools (LIMITED): {len(self.haiku_tools)}")
-            logger.info(f"   Sonnet tools (FULL): {len(self.all_tools)}")
+            logger.info(f"🔧 [ToolManager] Haiku tools (LIMITED): {len(self.haiku_tools)}")
+            logger.info(f"🔧 [ToolManager] Sonnet tools (FULL): {len(self.all_tools)}")
 
             self.tools_loaded = True
 
         except Exception as e:
-            logger.error(f"❌ [ToolManager] Failed to load tools: {e}")
+            logger.error(f"🔧 [ToolManager] Error: {e}")
             self.tools_loaded = False
 
     def get_available_tools(self, model: str = "haiku") -> Optional[List[Dict]]:
@@ -145,7 +133,7 @@ class ToolManager:
         has_service_keyword = any(kw in message_lower for kw in SERVICE_KEYWORDS)
 
         if has_pricing_keyword or (has_service_keyword and len(message.split()) < 15):
-            logger.info("🎯 [ToolManager] PRICING query detected → Will prefetch pricing tool")
+            logger.info("🔧 [ToolManager] PRICING query detected (will prefetch)")
             return {
                 "should_prefetch": True,
                 "tool_name": "get_pricing",
@@ -154,7 +142,7 @@ class ToolManager:
 
         # Check for team query
         if any(kw in message_lower for kw in TEAM_KEYWORDS):
-            logger.info("🎯 [ToolManager] TEAM query detected → Will prefetch team tool")
+            logger.info("🔧 [ToolManager] TEAM query detected (will prefetch)")
             return {
                 "should_prefetch": True,
                 "tool_name": "get_team_members_list",

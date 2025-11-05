@@ -27,7 +27,7 @@ class RAGManager:
             search_service: SearchService instance for ChromaDB queries
         """
         self.search = search_service
-        logger.info(f"✅ RAGManager initialized (search: {'✅' if search_service else '❌'})")
+        logger.info(f"🔍 [RAGManager] Initialized (search: {'✅' if search_service else '❌'})")
 
     async def retrieve_context(
         self,
@@ -54,7 +54,7 @@ class RAGManager:
         """
         # Skip RAG for greetings and casual queries
         if query_type not in ["business", "emergency"]:
-            logger.info(f"⏭️ [RAG] Skipping RAG for {query_type} query (not business/emergency)")
+            logger.info(f"🔍 [RAGManager] Skipping for {query_type} query")
             return {
                 "context": None,
                 "used_rag": False,
@@ -62,7 +62,7 @@ class RAGManager:
             }
 
         if not self.search:
-            logger.warning("⚠️ [RAG] SearchService not available")
+            logger.warning("🔍 [RAGManager] SearchService not available")
             return {
                 "context": None,
                 "used_rag": False,
@@ -70,7 +70,7 @@ class RAGManager:
             }
 
         try:
-            logger.info(f"🔍 [RAG] Fetching context for {query_type} query...")
+            logger.info(f"🔍 [RAGManager] Fetching context for {query_type} query")
 
             # Retrieve relevant documents from ChromaDB
             search_results = await self.search.search(
@@ -80,7 +80,7 @@ class RAGManager:
             )
 
             if not search_results.get("results"):
-                logger.info("⚠️ [RAG] No results found")
+                logger.info("🔍 [RAGManager] No results found")
                 return {
                     "context": None,
                     "used_rag": False,
@@ -96,7 +96,7 @@ class RAGManager:
 
             rag_context = "\n\n".join(rag_docs)
 
-            logger.info(f"✅ [RAG] Context retrieved: {len(rag_docs)} documents, {len(rag_context)} chars")
+            logger.info(f"🔍 [RAGManager] Retrieved {len(rag_docs)} documents ({len(rag_context)} chars)")
 
             return {
                 "context": rag_context,
@@ -105,7 +105,7 @@ class RAGManager:
             }
 
         except Exception as e:
-            logger.warning(f"⚠️ [RAG] Retrieval failed: {e}")
+            logger.warning(f"🔍 [RAGManager] Retrieval failed: {e}")
             return {
                 "context": None,
                 "used_rag": False,

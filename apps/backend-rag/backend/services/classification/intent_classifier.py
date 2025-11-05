@@ -97,7 +97,7 @@ class IntentClassifier:
 
     def __init__(self):
         """Initialize intent classifier with pattern constants"""
-        logger.info("✅ IntentClassifier initialized (pattern-based, no AI cost)")
+        logger.info("🏷️ [IntentClassifier] Initialized (pattern-based, no AI cost)")
 
     async def classify_intent(self, message: str) -> Dict:
         """
@@ -119,7 +119,7 @@ class IntentClassifier:
 
             # Check exact greetings first
             if message_lower in SIMPLE_GREETINGS:
-                logger.info("🎯 [Classifier] Quick match: greeting")
+                logger.info("🏷️ [IntentClassifier] Classified: greeting")
                 return {
                     "category": "greeting",
                     "confidence": 1.0,
@@ -129,7 +129,7 @@ class IntentClassifier:
 
             # Check session state patterns
             if any(pattern in message_lower for pattern in SESSION_PATTERNS):
-                logger.info("🎯 [Classifier] Quick match: session_state → Haiku with memory")
+                logger.info("🏷️ [IntentClassifier] Classified: session_state")
                 return {
                     "category": "session_state",
                     "confidence": 1.0,
@@ -139,7 +139,7 @@ class IntentClassifier:
 
             # Check casual questions
             if any(pattern in message_lower for pattern in CASUAL_PATTERNS):
-                logger.info("🎯 [Classifier] Quick match: casual")
+                logger.info("🏷️ [IntentClassifier] Classified: casual")
                 return {
                     "category": "casual",
                     "confidence": 1.0,
@@ -148,7 +148,7 @@ class IntentClassifier:
 
             # Check emotional patterns
             if any(pattern in message_lower for pattern in EMOTIONAL_PATTERNS):
-                logger.info("🎯 [Classifier] Quick match: emotional/empathetic → Haiku")
+                logger.info("🏷️ [IntentClassifier] Classified: casual (emotional)")
                 return {
                     "category": "casual",  # Treat emotional as casual for warm response
                     "confidence": 1.0,
@@ -171,21 +171,21 @@ class IntentClassifier:
                 # 1. Simple question + short message → Haiku with RAG
                 # 2. Complex indicators or long message → Sonnet
                 if is_simple_question and len(message) < 50 and not has_complex_indicator:
-                    logger.info("🎯 [Classifier] Quick match: business_simple → Haiku + RAG")
+                    logger.info("🏷️ [IntentClassifier] Classified: business_simple")
                     return {
                         "category": "business_simple",
                         "confidence": 0.9,
                         "suggested_ai": "haiku"
                     }
                 elif has_complex_indicator or len(message) > 100:
-                    logger.info("🎯 [Classifier] Quick match: business_complex → Sonnet + RAG")
+                    logger.info("🏷️ [IntentClassifier] Classified: business_complex")
                     return {
                         "category": "business_complex",
                         "confidence": 0.9,
                         "suggested_ai": "sonnet"
                     }
                 else:
-                    logger.info("🎯 [Classifier] Quick match: business_medium → Sonnet")
+                    logger.info("🏷️ [IntentClassifier] Classified: business_medium")
                     return {
                         "category": "business_simple",
                         "confidence": 0.8,
@@ -194,7 +194,7 @@ class IntentClassifier:
 
             # Check DevAI keywords
             if any(keyword in message_lower for keyword in DEVAI_KEYWORDS):
-                logger.info("🎯 [Classifier] Quick match: devai_code")
+                logger.info("🏷️ [IntentClassifier] Classified: devai_code")
                 return {
                     "category": "devai_code",
                     "confidence": 0.9,
@@ -202,16 +202,16 @@ class IntentClassifier:
                 }
 
             # Fast heuristic fallback: short messages → Haiku
-            logger.info(f"🤔 [Classifier] Using fast pattern fallback for: '{message[:50]}...'")
+            logger.info(f"🏷️ [IntentClassifier] Fallback classification for: '{message[:50]}...'")
 
             if len(message) < 50:
                 category = "casual"
                 suggested_ai = "haiku"
-                logger.info("🎯 [Classifier] Fast fallback: SHORT message → Haiku")
+                logger.info("🏷️ [IntentClassifier] Fallback: casual (short message)")
             else:
                 category = "business_simple"
                 suggested_ai = "haiku"
-                logger.info("🎯 [Classifier] Fast fallback: LONG message → Haiku")
+                logger.info("🏷️ [IntentClassifier] Fallback: business_simple (long message)")
 
             return {
                 "category": category,
@@ -220,7 +220,7 @@ class IntentClassifier:
             }
 
         except Exception as e:
-            logger.error(f"❌ [Classifier] Classification error: {e}")
+            logger.error(f"🏷️ [IntentClassifier] Error: {e}")
             # Fallback: route to Haiku
             return {
                 "category": "unknown",

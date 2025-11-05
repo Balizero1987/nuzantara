@@ -81,14 +81,14 @@ class IntelligentRouter:
         self.response_handler = ResponseHandler()
         self.tool_manager = ToolManager(tool_executor)
 
-        logger.info("✅ IntelligentRouter initialized (HAIKU-ONLY, MODULAR)")
-        logger.info("   Classification: Pattern Matching (fast, no AI cost)")
-        logger.info(f"   Haiku 4.5 (ALL queries): {'✅' if haiku_service else '❌'}")
-        logger.info(f"   RAG (context): {'✅' if search_service else '❌'}")
-        logger.info(f"   Tool Use: {'✅' if tool_executor else '❌'}")
-        logger.info(f"   Cultural RAG (Haiku): {'✅' if cultural_rag_service else '❌'}")
+        logger.info("🎯 [IntelligentRouter] Initialized (HAIKU-ONLY, MODULAR)")
+        logger.info(f"   Classification: {'✅' if True else '❌'} (Pattern Matching)")
+        logger.info(f"   Haiku 4.5: {'✅' if haiku_service else '❌'}")
+        logger.info(f"   RAG: {'✅' if search_service else '❌'}")
+        logger.info(f"   Tools: {'✅' if tool_executor else '❌'}")
+        logger.info(f"   Cultural RAG: {'✅' if cultural_rag_service else '❌'}")
         logger.info(f"   Autonomous Research: {'✅' if autonomous_research_service else '❌'}")
-        logger.info(f"   Cross-Oracle Synthesis: {'✅' if cross_oracle_synthesis_service else '❌'}")
+        logger.info(f"   Cross-Oracle: {'✅' if cross_oracle_synthesis_service else '❌'}")
 
     async def route_chat(
         self,
