@@ -20,16 +20,31 @@ const router = Router();
  */
 router.post('/login', async (req: Request, res: Response) => {
   try {
-    const { name, email } = req.body || {};
+    const { email, pin } = req.body || {};
 
-    if (!name) {
+    if (!email) {
       return res.status(400).json({
         ok: false,
-        error: 'Name is required for login',
+        error: 'Email is required for login',
       });
     }
 
-    const result = await teamLogin({ name, email });
+    if (!pin) {
+      return res.status(400).json({
+        ok: false,
+        error: 'PIN is required for login',
+      });
+    }
+
+    // Validate PIN format
+    if (!/^[0-9]{4,8}$/.test(pin)) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Invalid PIN format. Must be 4-8 digits.',
+      });
+    }
+
+    const result = await teamLogin({ email, pin });
 
     res.json(result);
   } catch (error: any) {

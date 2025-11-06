@@ -16,6 +16,7 @@ const TEAM_RECOGNITION = {
     name: 'Zainal Abidin',
     role: 'CEO',
     email: 'zainal@balizero.com',
+    pin: '847261',
     department: 'management',
     language: 'Indonesian',
     aliases: ['zainal', 'saya zainal', 'halo saya zainal', 'sono zainal'],
@@ -27,6 +28,7 @@ const TEAM_RECOGNITION = {
     name: 'Ruslana',
     role: 'Board Member',
     email: 'ruslana@balizero.com',
+    pin: '293518',
     department: 'management',
     language: 'English',
     aliases: ['ruslana', 'i am ruslana', 'my name is ruslana', 'sono ruslana'],
@@ -40,6 +42,7 @@ const TEAM_RECOGNITION = {
     name: 'Zero',
     role: 'AI Bridge/Tech Lead',
     email: 'zero@balizero.com',
+    pin: '010719',
     department: 'technology',
     language: 'Italian',
     aliases: ['zero', 'sono zero', "i'm zero", 'io sono zero', 'ciao sono zero'],
@@ -53,6 +56,7 @@ const TEAM_RECOGNITION = {
     name: 'Amanda',
     role: 'Executive Consultant',
     email: 'amanda@balizero.com',
+    pin: '614829',
     department: 'setup',
     language: 'Indonesian',
     aliases: ['amanda', 'saya amanda', 'halo saya amanda'],
@@ -64,6 +68,7 @@ const TEAM_RECOGNITION = {
     name: 'Anton',
     role: 'Executive Consultant',
     email: 'anton@balizero.com',
+    pin: '538147',
     department: 'setup',
     language: 'Indonesian',
     aliases: ['anton', 'saya anton', 'halo saya anton'],
@@ -75,6 +80,7 @@ const TEAM_RECOGNITION = {
     name: 'Vino',
     role: 'Junior Consultant',
     email: 'vino@balizero.com',
+    pin: '926734',
     department: 'setup',
     language: 'Indonesian',
     aliases: ['vino', 'saya vino', 'halo saya vino'],
@@ -86,6 +92,7 @@ const TEAM_RECOGNITION = {
     name: 'Krisna',
     role: 'Executive Consultant',
     email: 'krisna@balizero.com',
+    pin: '471592',
     department: 'setup',
     language: 'Indonesian',
     aliases: ['krisna', 'saya krisna', 'halo saya krisna'],
@@ -97,6 +104,7 @@ const TEAM_RECOGNITION = {
     name: 'Adit',
     role: 'Crew Lead',
     email: 'adit@balizero.com',
+    pin: '385216',
     department: 'setup',
     language: 'Indonesian',
     aliases: ['adit', 'saya adit', 'halo saya adit'],
@@ -108,6 +116,7 @@ const TEAM_RECOGNITION = {
     name: 'Ari',
     role: 'Specialist Consultant',
     email: 'ari@balizero.com',
+    pin: '759483',
     department: 'setup',
     language: 'Indonesian',
     aliases: ['ari', 'saya ari', 'halo saya ari'],
@@ -119,6 +128,7 @@ const TEAM_RECOGNITION = {
     name: 'Dea',
     role: 'Executive Consultant',
     email: 'dea@balizero.com',
+    pin: '162847',
     department: 'setup',
     language: 'Indonesian',
     aliases: ['dea', 'saya dea', 'halo saya dea'],
@@ -130,6 +140,7 @@ const TEAM_RECOGNITION = {
     name: 'Surya',
     role: 'Specialist Consultant',
     email: 'surya@balizero.com',
+    pin: '894621',
     department: 'setup',
     language: 'Indonesian',
     aliases: ['surya', 'saya surya', 'halo saya surya'],
@@ -141,6 +152,7 @@ const TEAM_RECOGNITION = {
     name: 'Damar',
     role: 'Junior Consultant',
     email: 'damar@balizero.com',
+    pin: '637519',
     department: 'setup',
     language: 'Indonesian',
     aliases: ['damar', 'saya damar', 'halo saya damar'],
@@ -154,6 +166,7 @@ const TEAM_RECOGNITION = {
     name: 'Veronika',
     role: 'Tax Manager',
     email: 'veronika@balizero.com',
+    pin: '418639',
     department: 'tax',
     language: 'Ukrainian',
     aliases: ['veronika', 'я вероніка', 'i am veronika', 'sono veronika'],
@@ -165,6 +178,7 @@ const TEAM_RECOGNITION = {
     name: 'Olena',
     role: 'External Tax Advisory',
     email: 'olena@balizero.com',
+    pin: '925814',
     department: 'tax',
     language: 'Ukrainian',
     aliases: ['olena', 'я олена', 'i am olena', 'sono olena'],
@@ -176,6 +190,7 @@ const TEAM_RECOGNITION = {
     name: 'Angel',
     role: 'Tax Expert',
     email: 'angel@balizero.com',
+    pin: '341758',
     department: 'tax',
     language: 'English',
     aliases: ['angel', 'i am angel', 'my name is angel', 'sono angel'],
@@ -186,6 +201,7 @@ const TEAM_RECOGNITION = {
     name: 'Kadek',
     role: 'Tax Consultant',
     email: 'kadek@balizero.com',
+    pin: '786294',
     department: 'tax',
     language: 'Indonesian',
     aliases: ['kadek', 'saya kadek', 'halo saya kadek'],
@@ -197,6 +213,7 @@ const TEAM_RECOGNITION = {
     name: 'Dewa Ayu',
     role: 'Tax Consultant',
     email: 'dewaayu@balizero.com',
+    pin: '259176',
     department: 'tax',
     language: 'Indonesian',
     aliases: ['dewa ayu', 'dewaayu', 'saya dewa ayu', 'halo saya dewa ayu'],
@@ -208,6 +225,7 @@ const TEAM_RECOGNITION = {
     name: 'Faisha',
     role: 'Tax Care',
     email: 'faisha@balizero.com',
+    pin: '673942',
     department: 'tax',
     language: 'Indonesian',
     aliases: ['faisha', 'saya faisha', 'halo saya faisha'],
@@ -221,6 +239,7 @@ const TEAM_RECOGNITION = {
     name: 'Rina',
     role: 'Reception',
     email: 'rina@balizero.com',
+    pin: '214876',
     department: 'reception',
     language: 'Indonesian',
     aliases: ['rina', 'saya rina', 'halo saya rina'],
@@ -232,6 +251,7 @@ const TEAM_RECOGNITION = {
     name: 'Nina',
     role: 'Marketing Advisory',
     email: 'nina@balizero.com',
+    pin: '582931',
     department: 'marketing',
     language: 'English',
     aliases: ['nina', 'i am nina', 'my name is nina', 'sono nina'],
@@ -243,6 +263,7 @@ const TEAM_RECOGNITION = {
     name: 'Sahira',
     role: 'Marketing Specialist',
     email: 'sahira@balizero.com',
+    pin: '512638',
     department: 'marketing',
     language: 'Indonesian',
     aliases: ['sahira', 'saya sahira', 'halo saya sahira'],
@@ -254,6 +275,7 @@ const TEAM_RECOGNITION = {
     name: 'Marta',
     role: 'External Advisory',
     email: 'marta@balizero.com',
+    pin: '847325',
     department: 'advisory',
     language: 'Italian',
     aliases: ['marta', 'sono marta', 'ciao sono marta', 'i am marta'],
@@ -269,26 +291,39 @@ const activeSessions = new Map<string, any>();
  * Team member login authentication
  */
 export async function teamLogin(params: any) {
-  const { name, email } = params || {};
+  const { email, pin } = params || {};
 
-  if (!name) {
-    throw new BadRequestError('Name is required for login');
+  if (!email) {
+    throw new BadRequestError('Email is required for login');
   }
 
-  // Find team member by name or email
-  let member = null;
+  if (!pin) {
+    throw new BadRequestError('PIN is required for login');
+  }
+
+  // Validate PIN format (4-8 digits)
+  if (!/^[0-9]{4,8}$/.test(pin)) {
+    throw new BadRequestError('Invalid PIN format. Must be 4-8 digits.');
+  }
+
+  // Find team member by email
+  let member: any = null;
   for (const [_key, teamMember] of Object.entries(TEAM_RECOGNITION)) {
-    if (
-      teamMember.name.toLowerCase() === name.toLowerCase() ||
-      teamMember.email.toLowerCase() === email?.toLowerCase()
-    ) {
+    if (teamMember.email.toLowerCase() === email.toLowerCase()) {
       member = teamMember;
       break;
     }
   }
 
   if (!member) {
-    throw new BadRequestError('Team member not found. Please contact admin.');
+    throw new BadRequestError('User not found. Please check your email.');
+  }
+
+  // Verify PIN
+  if (member.pin !== pin) {
+    // Log failed attempt for security monitoring
+    logger.warn(`Failed login attempt for ${email} - Invalid PIN`);
+    throw new BadRequestError('Invalid PIN. Please try again.');
   }
 
   // Create session
