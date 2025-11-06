@@ -52,6 +52,7 @@ class SearchService:
             "kbli_eye": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),  # Fallback to kbli_unified (8,887 docs)
             "tax_genius": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_genius"),  # 895 docs, 1536-dim ✅ MIGRATED
             "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_unified"),  # 559 docs, 1536-dim ✅ NEW LAWS 2025
+            "legal_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_unified"),  # 559 docs, 1536-dim ✅ NEW LAWS 2025 (direct access)
             "kb_indonesian": ChromaDBClient(persist_directory=chroma_path, collection_name="kb_indonesian"),
             "kbli_comprehensive": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_comprehensive"),
             "kbli_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),  # 8,887 docs
