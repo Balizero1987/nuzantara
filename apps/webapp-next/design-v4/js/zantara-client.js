@@ -304,8 +304,10 @@ class ZantaraClient {
 
       console.log(`🔌 Connecting to: ${url.toString()}`);
 
-      // Use EventSource instead of fetch
-      this.eventSource = new EventSource(url.toString());
+      // Use EventSource with credentials for CORS
+      this.eventSource = new EventSource(url.toString(), {
+        withCredentials: true
+      });
       let accumulatedText = '';
 
       this.eventSource.onmessage = (event) => {
