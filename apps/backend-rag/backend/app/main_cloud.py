@@ -78,24 +78,15 @@ app = FastAPI(
     description="RAG + LLM backend for NUZANTARA (ChromaDB from R2 + Claude AI Haiku 4.5 ONLY with Intelligent Routing)"
 )
 
-# CORS - Production + Development + Inter-Service (SSE streaming support)
+# CORS - Production + Development + Inter-Service
+# NOTE: EventSource endpoints (/bali-zero/chat-stream) handle CORS manually
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://zantara.balizero.com",
-        "https://nuzantara-backend.fly.dev",
-        "https://nuzantara-core.fly.dev",
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://localhost:8002",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:8002"
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],  # Wildcard for EventSource compatibility
+    allow_credentials=False,  # No credentials for cross-domain EventSource
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "Accept", "Cache-Control", "X-Session-Id", "X-Continuity-Id", "X-Reconnection", "X-Last-Chunk-Timestamp"],
-    expose_headers=["Content-Type", "Access-Control-Allow-Origin", "Cache-Control", "Connection", "X-Accel-Buffering"],
+    expose_headers=["Content-Type", "Cache-Control", "Connection", "X-Accel-Buffering"],
     max_age=3600
 )
 
