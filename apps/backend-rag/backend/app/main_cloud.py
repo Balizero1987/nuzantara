@@ -2357,6 +2357,8 @@ async def bali_zero_chat_stream(
         sequence_number = 0
 
         try:
+            # Send immediate ping to keep connection alive during processing
+            yield ": ping\n\n"
 
             # Parse conversation history - ENHANCED with Redis session support
             parsed_history = None
