@@ -30,10 +30,10 @@ const TEAM_RECOGNITION = {
     email: 'ruslana@balizero.com',
     pin: '293518',
     department: 'management',
-    language: 'English',
+    language: 'Ukrainian',
     aliases: ['ruslana', 'i am ruslana', 'my name is ruslana', 'sono ruslana'],
     personalizedResponse:
-      'Welcome back Ruslana! As a Board Member, you have full access to all Bali Zero systems.',
+      'Ласкаво просимо Руслана! Як член правління, у вас є повний доступ до всіх систем Bali Zero.',
   },
 
   // Technology & AI
@@ -277,10 +277,10 @@ const TEAM_RECOGNITION = {
     email: 'marta@balizero.com',
     pin: '847325',
     department: 'advisory',
-    language: 'Italian',
+    language: 'Ukrainian',
     aliases: ['marta', 'sono marta', 'ciao sono marta', 'i am marta'],
     personalizedResponse:
-      'Ciao Marta! Benvenuta. Come External Advisory, hai accesso ai sistemi Bali Zero.',
+      'Ласкаво просимо Марта! Як External Advisory, у вас є доступ до систем Bali Zero.',
   },
 };
 
@@ -308,7 +308,7 @@ export async function teamLogin(params: any) {
 
   // Find team member by email
   let member: any = null;
-  for (const [_key, teamMember] of Object.entries(TEAM_RECOGNITION)) {
+  for (const teamMember of Object.values(TEAM_RECOGNITION)) {
     if (teamMember.email.toLowerCase() === email.toLowerCase()) {
       member = teamMember;
       break;
