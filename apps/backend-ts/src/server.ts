@@ -7,7 +7,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
-import { attachRoutes } from './routing/router.js';
+import { attachRoutes } from './routing/router.ts';
 // import { loadAllHandlers } from './core/load-all-handlers.js';
 import { applySecurity, globalRateLimiter } from './middleware/security.middleware.js';
 import { corsMiddleware } from './middleware/cors.js';
