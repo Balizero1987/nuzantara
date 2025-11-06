@@ -81,8 +81,12 @@ function createAvatarElement(userId, role) {
   const container = document.createElement('div');
   container.className = 'user-avatar-container';
 
+  // Use EMAIL as stable key instead of userId (which can change)
+  const userEmail = localStorage.getItem('zantara-email') || userId;
+  const avatarKey = `zantara-avatar-${userEmail}`;
+
   // Check if user has uploaded avatar
-  const savedAvatar = localStorage.getItem(`zantara-avatar-${userId}`);
+  const savedAvatar = localStorage.getItem(avatarKey);
   const badgeConfig = getBadgeForRole(role);
 
   if (savedAvatar) {
@@ -91,7 +95,7 @@ function createAvatarElement(userId, role) {
     img.className = `user-avatar ${badgeConfig.avatar}`;
     img.src = savedAvatar;
     img.alt = 'User Avatar';
-    img.onclick = () => openAvatarUpload(userId, role);
+    img.onclick = () => openAvatarUpload(userEmail, role);
     container.appendChild(img);
   } else {
     // Show placeholder with first letter
@@ -99,7 +103,7 @@ function createAvatarElement(userId, role) {
     const placeholder = document.createElement('div');
     placeholder.className = `avatar-placeholder ${badgeConfig.avatar}`;
     placeholder.textContent = userName.charAt(0).toUpperCase();
-    placeholder.onclick = () => openAvatarUpload(userId, role);
+    placeholder.onclick = () => openAvatarUpload(userEmail, role);
     placeholder.title = 'Click to upload photo';
     container.appendChild(placeholder);
   }
@@ -110,7 +114,7 @@ function createAvatarElement(userId, role) {
 /**
  * Open avatar upload (direct file picker)
  */
-function openAvatarUpload(userId, role) {
+function openAvatarUpload(userEmail, role) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
@@ -135,7 +139,8 @@ function openAvatarUpload(userId, role) {
     const reader = new FileReader();
     reader.onload = (event) => {
       const imageData = event.target.result;
-      localStorage.setItem(`zantara-avatar-${userId}`, imageData);
+      // Use email as stable key
+      localStorage.setItem(`zantara-avatar-${userEmail}`, imageData);
 
       showToast('✅ Avatar uploaded successfully!', 'success');
 
