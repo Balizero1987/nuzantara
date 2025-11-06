@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZANTARA Oracle Chamber</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            color: #e8e8e8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #2c2c2c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            letter-spacing: 0.2em;
+            color: #d6b25e;
+        }
+
+        .chamber {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            letter-spacing: 0.3em;
+            text-align: center;
+            color: #d6b25e;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-style: italic;
+            color: #d6b25e;
+            opacity: 0.7;
+            margin-bottom: 2rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid #2c2c2c;
+            border-radius: 8px;
+            color: #e8e8e8;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            border-color: #d6b25e;
+            color: #d6b25e;
+            transform: scale(1.05);
+        }
+
+        .response-box {
+            border: 1px solid #2c2c2c;
+            border-radius: 12px;
+            padding: 2rem;
+            min-height: 300px;
+            margin-bottom: 2rem;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 260px;
+            color: #d6b25e;
+            opacity: 0.3;
+        }
+
+        .empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+
+        .oracle-text {
+            line-height: 1.8;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-area {
+            display: flex;
+            gap: 1rem;
+        }
+
+        textarea {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #2c2c2c;
+            border-radius: 12px;
+            color: #e8e8e8;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: none;
+            min-height: 50px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #d6b25e;
+        }
+
+        .send-btn {
+            padding: 0 2rem;
+            background: transparent;
+            border: 1px solid #d6b25e;
+            border-radius: 12px;
+            color: #d6b25e;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: #d6b25e;
+            color: #000;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1rem;
+            color: #666;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">ZANTARA</div>
+    </div>
+
+    <div class="chamber">
+        <h1 class="title">Oracle Chamber</h1>
+        <p class="subtitle">"Ask, and the cosmos shall whisper its wisdom..."</p>
+
+        <div class="buttons">
+            <button class="btn" onclick="askOracle('borders')">Crossing Borders</button>
+            <button class="btn" onclick="askOracle('forge')">Forge Your Dream</button>
+            <button class="btn" onclick="askOracle('decode')">Decode the System</button>
+        </div>
+
+        <div class="response-box" id="response">
+            <div class="empty">
+                <div class="empty-icon">🔮</div>
+                <div>The oracle awaits your inquiry...</div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <textarea id="question" placeholder="Speak your question to the oracle..." rows="2"></textarea>
+            <button class="send-btn" onclick="sendQuestion()">Inquire</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        ∞ Bali Zero is powered by humans, fueled by a thinking engine.
+    </div>
+
+    <script>
+        const responses = {
+            borders: "The paths between lands are both physical and mystical. Visas are keys, but understanding is the door. Every border crossed expands your world, but the greatest journey is within.",
+            forge: "Every venture begins with intention. Structure gives it form, but purpose gives it life. The dream you forge today becomes the reality you inhabit tomorrow.",
+            decode: "Numbers serve the story, not the other way around. Tax codes are maps, not prisons. Behind every regulation lies a path to freedom through understanding."
+        };
+
+        function showResponse(html) {
+            document.getElementById('response').innerHTML =
+                '<div class="oracle-text">' + html + '</div>';
+        }
+
+        function askOracle(type) {
+            showResponse('<div style="color: #d6b25e; font-style: italic;">Consulting the cosmos...</div>');
+
+            setTimeout(() => {
+                showResponse(
+                    '<strong style="color: #d6b25e;">The Oracle speaks:</strong><br><br>' +
+                    responses[type]
+                );
+            }, 1000);
+        }
+
+        function sendQuestion() {
+            const question = document.getElementById('question').value.trim();
+            if (!question) return;
+
+            showResponse(
+                '<em style="color: #d6b25e;">You ask:</em> "' + question + '"<br><br>' +
+                '<div style="color: #d6b25e; font-style: italic;">The oracle ponders...</div>'
+            );
+
+            document.getElementById('question').value = '';
+
+            setTimeout(() => {
+                showResponse(
+                    '<em style="color: #d6b25e;">You ask:</em> "' + question + '"<br><br>' +
+                    '<strong style="color: #d6b25e;">The Oracle responds:</strong><br><br>' +
+                    'The answer reveals itself in layers. What you seek is already within you, waiting to be discovered. Trust the journey.'
+                );
+            }, 1500);
+        }
+
+        // Enter to send
+        document.getElementById('question').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendQuestion();
+            }
+        });
+    </script>
+</body>
+</html>
