@@ -490,11 +490,14 @@
 
     .message-content {
       max-width: 32rem;
-      padding: 0.35rem 0.65rem; /* Even tighter - minimal padding */
+      min-height: 2.5rem; /* Congela altezza minima per stabilità */
+      padding: 0.35rem 0.65rem;
       border-radius: 0.4rem;
       transition: all 200ms;
-      display: inline-block; /* Shrink to content */
+      display: inline-block;
       width: fit-content;
+      overflow-wrap: break-word; /* Previeni overflow e salti */
+      word-wrap: break-word;
     }
 
     .message.user .message-content {
@@ -518,13 +521,14 @@
     }
 
     .message-text {
-      font-size: 0.9375rem; /* Slightly smaller text */
-      line-height: 1.45; /* Even tighter line height */
+      font-size: 15px; /* px invece di rem per stabilità */
+      line-height: 1.5; /* line-height fisso per evitare salti */
       color: rgba(255, 255, 255, 0.92);
       font-family: var(--font-sans);
       font-weight: 400;
-      letter-spacing: 0.005em;
+      letter-spacing: 0.01em; /* Leggermente aumentato per leggibilità */
       margin: 0;
+      overflow-wrap: break-word; /* Ripetuto qui per sicurezza */
     }
 
     .message-time {
