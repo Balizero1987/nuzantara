@@ -1097,9 +1097,10 @@ window.ConversationHistory = ConversationHistory;
  * Conversation History Management System
  * Enhancement #21 for NUZANTARA-RAILWAY
  * Implements features for managing, searching, and organizing conversation history
+ * NOTE: Renamed to ConversationHistoryEnhanced to avoid conflict with existing ConversationHistory IIFE
  */
 
-class ConversationHistory {
+class ConversationHistoryEnhanced {
   constructor() {
     this.history = [];
     this.starredConversations = new Set();
@@ -1412,12 +1413,12 @@ class ConversationHistory {
   }
 }
 
-// Initialize conversation history system
+// Initialize conversation history system (enhanced version)
 document.addEventListener('DOMContentLoaded', () => {
-  window.ConversationHistory = new ConversationHistory();
-  window.ConversationHistory.loadHistory();
+  window.ConversationHistoryEnhanced = new ConversationHistoryEnhanced();
+  window.ConversationHistoryEnhanced.loadHistory();
 
-  console.log('[ConversationHistory] System ready');
+  console.log('[ConversationHistoryEnhanced] System ready');
 
   // Mark enhancement as completed
   if (window.enhancementTracker) {
@@ -1427,5 +1428,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ConversationHistory;
+  module.exports = { ConversationHistory, ConversationHistoryEnhanced };
 }

@@ -92,6 +92,9 @@ class ZantaraSSEClient {
     }
 
     return new Promise(async (resolve, reject) => {
+      // Declare streamUrl outside try-catch so it's accessible in connect()
+      let streamUrl;
+
       try {
         this.isStreaming = true;
         this.currentMessage = '';
@@ -167,7 +170,7 @@ class ZantaraSSEClient {
           }
         }
 
-        const streamUrl = url.toString();
+        streamUrl = url.toString();
         this.lastStreamUrl = streamUrl;
 
         // URL is now tiny! (~100 bytes instead of 4-5 KB)
