@@ -30,7 +30,22 @@ const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+
+// CORS Configuration - Secure & Minimal
+app.use(
+  cors({
+    origin: [
+      'https://nuzantara-backend.fly.dev', // Backend-TS (primary caller)
+      'http://localhost:3000', // Webapp dev
+      'http://localhost:8080', // Local memory service
+      'http://127.0.0.1:8080', // Local alternative
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 
