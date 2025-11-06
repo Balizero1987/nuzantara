@@ -48,8 +48,8 @@ export interface SummarizationConfig {
 }
 
 const DEFAULT_CONFIG: SummarizationConfig = {
-  messageThreshold: 50,
-  keepRecentCount: 10,
+  messageThreshold: 7, // TEMP: Lowered from 50 for testing (triggers when > 7 messages)
+  keepRecentCount: 2, // TEMP: Lowered from 10 for testing (keep last 2, summarize the rest)
   summaryMaxLength: 500,
   chunkSize: 20,
   openaiApiKey: process.env.OPENAI_API_KEY || '',

@@ -67,6 +67,12 @@ npm run dev
 - **tax_updates** - Tax Updates (2 docs)
 - **legal_updates** - Legal Updates (2 docs)
 
+### **🤖 AI System (Nov 5, 2025 - Cost Optimization)**
+- **Primary:** Llama 4 Scout (92% cheaper, 22% faster TTFT)
+- **Fallback:** Claude Haiku 4.5 (tool calling, reliability)
+- **Cost Savings:** $10-12/month (verified via 100-query POC)
+- **Strategy:** Automatic fallback on errors, zero breaking changes
+
 ---
 
 ## 🔧 **API ENDPOINTS**

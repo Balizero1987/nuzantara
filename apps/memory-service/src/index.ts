@@ -23,6 +23,7 @@ import compression from 'compression';
 import path from 'path';
 import { MemoryAnalytics } from './analytics';
 import { ConversationSummarizer } from './summarization';
+import { FactExtractor } from './fact-extraction';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -78,6 +79,13 @@ const summarizer = new ConversationSummarizer(postgres, {
   messageThreshold: 50,
   keepRecentCount: 10,
   openaiApiKey: process.env.OPENAI_API_KEY || '',
+});
+
+// Initialize Fact Extractor
+const factExtractor = new FactExtractor(postgres, {
+  openaiApiKey: process.env.OPENAI_API_KEY || '',
+  minConfidence: 0.7,
+  minImportance: 0.6,
 });
 
 // ============================================================
@@ -1179,6 +1187,168 @@ app.get('/api/admin/growth-projection', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Growth projection failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// ============================================================
+// FACT EXTRACTION
+// ============================================================
+
+/**
+ * POST /api/facts/extract/:session_id
+ * Extract facts from a conversation session
+ */
+app.post('/api/facts/extract/:session_id', async (req: Request, res: Response) => {
+  try {
+    const { session_id } = req.params;
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'user_id is required',
+      });
+    }
+
+    console.log(`🔍 Extracting facts from session ${session_id}...`);
+
+    const factsStored = await factExtractor.processSession(session_id, user_id);
+
+    res.json({
+      success: true,
+      session_id,
+      facts_extracted: factsStored,
+      message: `Successfully extracted and stored ${factsStored} facts`,
+    });
+  } catch (error) {
+    console.error('Fact extraction error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+/**
+ * GET /api/facts/relevant
+ * Get relevant collective memories for a context
+ */
+app.get('/api/facts/relevant', async (req: Request, res: Response) => {
+  try {
+    const context = req.query.context as string;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    if (!context) {
+      return res.status(400).json({
+        success: false,
+        error: 'context parameter is required',
+      });
+    }
+
+    const memories = await factExtractor.getRelevantMemories(context, limit);
+
+    res.json({
+      success: true,
+      memories,
+      count: memories.length,
+    });
+  } catch (error) {
+    console.error('Get relevant memories error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+/**
+ * POST /api/facts/batch-extract
+ * Extract facts from multiple recent sessions
+ */
+app.post('/api/facts/batch-extract', async (req: Request, res: Response) => {
+  try {
+    const { user_id, limit = 10 } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'user_id is required',
+      });
+    }
+
+    console.log(`🔍 Batch extracting facts for user ${user_id}...`);
+
+    // Get recent sessions for user
+    const sessionsResult = await postgres.query(
+      `SELECT DISTINCT session_id
+       FROM conversation_history
+       WHERE user_id = $1
+       ORDER BY session_id DESC
+       LIMIT $2`,
+      [user_id, limit]
+    );
+
+    const sessions = sessionsResult.rows.map((row) => row.session_id);
+    let totalFacts = 0;
+
+    for (const sessionId of sessions) {
+      try {
+        const facts = await factExtractor.processSession(sessionId, user_id);
+        totalFacts += facts;
+      } catch (error) {
+        console.error(`Failed to process session ${sessionId}:`, error);
+      }
+    }
+
+    res.json({
+      success: true,
+      sessions_processed: sessions.length,
+      facts_extracted: totalFacts,
+      message: `Processed ${sessions.length} sessions, extracted ${totalFacts} facts`,
+    });
+  } catch (error) {
+    console.error('Batch extraction error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+/**
+ * GET /api/facts/stats
+ * Get statistics about extracted facts
+ */
+app.get('/api/facts/stats', async (req: Request, res: Response) => {
+  try {
+    const stats = await postgres.query(`
+      SELECT
+        COUNT(*) as total_facts,
+        COUNT(DISTINCT memory_type) as fact_types,
+        AVG(importance_score) as avg_importance,
+        SUM(access_count) as total_accesses,
+        COUNT(DISTINCT created_by) as contributors
+      FROM collective_memory
+    `);
+
+    const topFacts = await postgres.query(`
+      SELECT memory_type, content, importance_score, access_count
+      FROM collective_memory
+      ORDER BY importance_score DESC, access_count DESC
+      LIMIT 10
+    `);
+
+    res.json({
+      success: true,
+      stats: stats.rows[0],
+      top_facts: topFacts.rows,
+    });
+  } catch (error) {
+    console.error('Facts stats error:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
