@@ -142,8 +142,15 @@ class ZantaraClient {
 
   /**
    * Update session history in Redis store
+   * NOTE: Disabled for now - memory service integration pending
    */
   async updateSession(messages) {
+    // TODO: Integrate with https://nuzantara-memory.fly.dev when ready
+    // For now, we only save to localStorage
+    console.log(`💾 Session saved to localStorage (${messages.length} messages)`);
+    return;
+
+    /* Disabled pending memory service integration
     try {
       const sessionId = await this.ensureSession();
 
@@ -160,6 +167,7 @@ class ZantaraClient {
       console.warn('Failed to update session:', error);
       // Don't throw - session update is not critical
     }
+    */
   }
 
   // ========================================================================

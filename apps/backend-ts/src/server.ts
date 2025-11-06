@@ -493,12 +493,12 @@ async function startServer() {
   app.use('/api/auth/team', teamAuthRoutes.default);
   logger.info('✅ Team Authentication routes loaded');
 
-  // Tax Dashboard routes - DISABLED (incomplete implementation)
-  // const taxRoutes = await import('./routes/api/tax/tax.routes.js');
-  // const { seedTestData } = await import('./services/tax-db.service.js');
-  // app.use('/api/tax', taxRoutes.default);
-  // seedTestData(); // Initialize test companies
-  // logger.info('✅ Tax Dashboard routes loaded');
+  // Tax Dashboard routes
+  const taxRoutes = await import('./routes/api/tax/tax.routes.js');
+  const { seedTestData } = await import('./services/tax-db.service.js');
+  app.use('/api/tax', taxRoutes.default);
+  seedTestData(); // Initialize test companies
+  logger.info('✅ Tax Dashboard routes loaded');
 
   // V3 Performance Monitoring Routes
   const v3PerformanceRoutes = await import('./routes/v3-performance.routes.js');
