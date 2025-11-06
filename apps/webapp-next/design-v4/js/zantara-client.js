@@ -32,6 +32,7 @@ class ZantaraClient {
     this.messages = [];
     this.isStreaming = false;
     this.retryCount = 0;
+    this.eventSource = null; // EventSource for SSE streaming
 
     // Initialize
     this.loadSession();
@@ -125,6 +126,40 @@ class ZantaraClient {
 
   generateSessionId() {
     return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Ensure session exists and return session ID for Redis store
+   */
+  async ensureSession() {
+    let session = localStorage.getItem('zantara-session-id');
+    if (!session) {
+      session = this.sessionId; // Use existing sessionId from loadSession()
+      localStorage.setItem('zantara-session-id', session);
+    }
+    return session;
+  }
+
+  /**
+   * Update session history in Redis store
+   */
+  async updateSession(messages) {
+    try {
+      const sessionId = await this.ensureSession();
+
+      await fetch(`${this.config.apiUrl}/sessions/${sessionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          history: messages.slice(-50), // Keep last 50 messages
+        }),
+      });
+
+      console.log(`✅ Session updated: ${sessionId}`);
+    } catch (error) {
+      console.warn('Failed to update session:', error);
+      // Don't throw - session update is not critical
+    }
   }
 
   // ========================================================================
@@ -232,7 +267,7 @@ class ZantaraClient {
   }
 
   /**
-   * Send message with SSE streaming
+   * Send message with SSE streaming (EventSource)
    */
   async sendMessageStream(query, callbacks = {}) {
     const {
@@ -247,31 +282,69 @@ class ZantaraClient {
       this.isStreaming = true;
       onStart();
 
-      const response = await this.fetchWithRetry(
-        `${this.config.apiUrl}${this.config.chatEndpoint}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.token}`,
-            Accept: 'text/event-stream',
-          },
-          body: JSON.stringify({
-            query,
-            user_id: this.sessionId,
-            stream: true,
-          }),
+      // Update session with current messages
+      await this.updateSession(this.messages);
+
+      // Get session ID for Redis store
+      const sessionId = await this.ensureSession();
+
+      // Build URL with query parameters
+      const url = new URL(`${this.config.apiUrl}/bali-zero/chat-stream`);
+      url.searchParams.append('query', query);
+      url.searchParams.append('session_id', sessionId);
+      url.searchParams.append('user_email', 'demo@example.com');
+
+      console.log(`🔌 Connecting to: ${url.toString()}`);
+
+      // Use EventSource instead of fetch
+      this.eventSource = new EventSource(url.toString());
+      let accumulatedText = '';
+
+      this.eventSource.onmessage = (event) => {
+        try {
+          // Check for [DONE] signal
+          if (event.data === '[DONE]') {
+            this.eventSource.close();
+            this.isStreaming = false;
+            onComplete(accumulatedText);
+            return;
+          }
+
+          const data = JSON.parse(event.data);
+
+          // Extract token from various possible formats
+          // Backend uses 'text' field with sequenceNumber
+          const token = data.text || data.content || data.token || '';
+          if (token) {
+            accumulatedText += token;
+            onToken(token, accumulatedText);
+          }
+        } catch (error) {
+          console.warn('Failed to parse SSE data:', event.data, error);
         }
-      );
+      };
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
+      this.eventSource.onerror = (error) => {
+        console.error('❌ EventSource error:', error);
+        this.eventSource.close();
+        this.isStreaming = false;
+        onError(error);
+      };
 
-      await this.processSSEStream(response, onToken, onComplete);
+      // Handle stream completion after a reasonable timeout
+      setTimeout(() => {
+        if (this.isStreaming && accumulatedText) {
+          this.eventSource.close();
+          this.isStreaming = false;
+          onComplete(accumulatedText);
+        }
+      }, 60000); // 60 second timeout
     } catch (error) {
       console.error('❌ Streaming error:', error);
       this.isStreaming = false;
+      if (this.eventSource) {
+        this.eventSource.close();
+      }
       onError(error);
       throw error;
     }
@@ -359,6 +432,10 @@ class ZantaraClient {
    */
   stopStream() {
     this.isStreaming = false;
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
     console.log('⏹️  Stream stopped');
   }
 
