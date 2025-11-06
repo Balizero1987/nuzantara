@@ -300,7 +300,10 @@ class ZantaraClient {
       const url = new URL(`${this.config.apiUrl}/bali-zero/chat-stream`);
       url.searchParams.append('query', query);
       url.searchParams.append('session_id', sessionId);
-      url.searchParams.append('user_email', 'demo@example.com');
+
+      // Get user email from UserContext
+      const userEmail = window.UserContext?.user?.email || 'demo@example.com';
+      url.searchParams.append('user_email', userEmail);
 
       console.log(`🔌 Connecting to: ${url.toString()}`);
 
