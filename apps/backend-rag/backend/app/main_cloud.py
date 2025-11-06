@@ -2291,23 +2291,7 @@ async def export_session(session_id: str, format: str = "json"):
         raise HTTPException(500, f"Failed to export session: {str(e)}")
 
 
-@app.options("/bali-zero/chat-stream")
-async def bali_zero_chat_stream_options(request: Request):
-    """Handle CORS preflight requests for SSE endpoint"""
-    origin = request.headers.get("origin", "*")
-    return Response(
-        status_code=204,
-        headers={
-            "Access-Control-Allow-Origin": origin,
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "3600"
-        }
-    )
-
-
-@app.get("/bali-zero/chat-stream")
+@app.api_route("/bali-zero/chat-stream", methods=["GET", "OPTIONS"])
 async def bali_zero_chat_stream(
     request: Request,
     query: str,
