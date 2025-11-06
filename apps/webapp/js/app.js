@@ -413,10 +413,10 @@ class ZantaraApp {
         `<div class="message-avatar"><img src="zantara_logo_transparent.png" alt="ZANTARA"></div><div class="message-bubble">${content}</div>`
       );
     } else {
-      // Get user avatar from localStorage
+      // Get user avatar from localStorage (use email as stable key)
       const user = JSON.parse(localStorage.getItem('zantara-user') || '{}');
-      const userId = user.id || user.email || 'guest';
-      const savedAvatar = localStorage.getItem(`zantara-avatar-${userId}`);
+      const userEmail = localStorage.getItem('zantara-email') || user.email || 'guest';
+      const savedAvatar = localStorage.getItem(`zantara-avatar-${userEmail}`);
 
       let avatarHtml = '';
       if (savedAvatar) {
@@ -1076,10 +1076,10 @@ class ZantaraApp {
           `<div class="message-avatar"><img src="zantara_logo_transparent.png" alt="ZANTARA"></div><div class="message-bubble">${content}</div>`
         );
       } else {
-        // Get user avatar from localStorage
+        // Get user avatar from localStorage (use email as stable key)
         const user = JSON.parse(localStorage.getItem('zantara-user') || '{}');
-        const userId = user.id || user.email || 'guest';
-        const savedAvatar = localStorage.getItem(`zantara-avatar-${userId}`);
+        const userEmail = localStorage.getItem('zantara-email') || user.email || 'guest';
+        const savedAvatar = localStorage.getItem(`zantara-avatar-${userEmail}`);
 
         let avatarHtml = '';
         if (savedAvatar) {
