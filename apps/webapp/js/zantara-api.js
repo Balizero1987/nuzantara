@@ -348,6 +348,35 @@ const ZANTARA_API = {
   },
 
   /**
+   * Get current user info
+   */
+  getUserInfo() {
+    try {
+      const userStr = localStorage.getItem('zantara-user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return {
+          email: user.email || localStorage.getItem('zantara-email'),
+          name: user.name || localStorage.getItem('zantara-user-name'),
+          role: user.role || localStorage.getItem('zantara-user-role'),
+          id: user.id,
+        };
+      }
+
+      // Fallback to individual items
+      return {
+        email: localStorage.getItem('zantara-email'),
+        name: localStorage.getItem('zantara-user-name'),
+        role: localStorage.getItem('zantara-user-role'),
+        id: null,
+      };
+    } catch (error) {
+      console.error('[ZANTARA_API] getUserInfo error:', error);
+      return null;
+    }
+  },
+
+  /**
    * Logout
    */
   logout() {
