@@ -4,10 +4,13 @@
  * Available only for: Zero, Dea, Krisna (privileged users)
  */
 
+/* eslint-env browser */
+/* eslint-disable no-console */
+
 const ImageCreator = (() => {
   // ImagineArt API Configuration
   const IMAGINEART_API_URL = 'https://api.imagineapi.dev/v1/generations';
-  const IMAGINEART_API_KEY = 'YOUR_IMAGINEAPI_KEY'; // TODO: Move to env variable
+  const IMAGINEART_API_KEY = 'vk-3zVt3g8xJ7dSg6KZ3pbpPRUPDwtSAQDlJssPQrKZTp7Kp';
   
   // FREE/LOW-COST MODELS (Zero or minimal credits)
   // Reference: https://docs.imagineapi.dev/models
@@ -357,24 +360,6 @@ const ImageCreator = (() => {
         <div class="image-mock-notice">
           <p>🎨 <strong>Demo Mode:</strong> Mostrando immagine di esempio</p>
           <p class="generating-detail">Modello: ${modelInfo.name} (${modelInfo.credits === 0 ? 'FREE' : modelInfo.credits + ' credit'})</p>
-          <img src="https://picsum.photos/800/450" alt="Mock generated image" class="generated-image" />
-          <div class="image-actions">
-            <button onclick="ImageCreator.downloadImage('https://picsum.photos/800/450')" class="action-btn">
-              ⬇️ Download
-            </button>
-            <button onclick="ImageCreator.insertToChat('${escapeHtml(prompt)}')" class="action-btn">
-              💬 Inserisci in Chat
-            </button>
-          </div>
-        </div>
-      `;
-        <div class="image-error">
-          <p>⚠️ Errore durante la generazione</p>
-          <p class="error-detail">${error.message}</p>
-          <button onclick="ImageCreator.generate()" class="retry-btn">🔄 Riprova</button>
-        </div>
-        <div class="image-mock-notice">
-          <p>🎨 <strong>Demo Mode:</strong> Mostrando immagine di esempio</p>
           <img src="https://picsum.photos/800/450" alt="Mock generated image" class="generated-image" />
           <div class="image-actions">
             <button onclick="ImageCreator.downloadImage('https://picsum.photos/800/450')" class="action-btn">
