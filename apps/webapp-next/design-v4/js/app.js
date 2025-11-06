@@ -18,6 +18,17 @@ let messageSpace, messageInput, sendButton, quickActions, messagesContainer;
 document.addEventListener('DOMContentLoaded', async function () {
   console.log('🚀 ZANTARA Chat Application Starting...');
 
+  // Check authentication
+  const userContext = window.UserContext;
+  if (!userContext.isAuthenticated()) {
+    console.error('❌ Not authenticated - redirecting to login');
+    window.location.href = '/login.html';
+    return;
+  }
+
+  // Display user info in header
+  displayUserInfo();
+
   // Initialize client
   zantaraClient = new window.ZantaraClient({
     apiUrl: 'https://nuzantara-rag.fly.dev',
@@ -40,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   // Authenticate
   try {
-    await zantaraClient.authenticate('demo');
+    await zantaraClient.authenticate();
     console.log('✅ Client initialized and authenticated');
   } catch (error) {
     console.error('Failed to authenticate:', error);
@@ -443,6 +454,65 @@ function clearChatHistory() {
     showWelcomeMessage();
     showNotification('Chat history cleared', 'success');
   }
+}
+
+/**
+ * Display user info in header
+ */
+function displayUserInfo() {
+  const userContext = window.UserContext;
+  const userName = document.getElementById('userName');
+  const userRole = document.getElementById('userRole');
+  const userAvatar = document.getElementById('userAvatar');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  if (userName && userContext.user) {
+    userName.textContent = userContext.getName();
+  }
+
+  if (userRole && userContext.user) {
+    userRole.textContent = userContext.getRole();
+  }
+
+  if (userAvatar && userContext.user) {
+    const initial = userContext.getName().charAt(0).toUpperCase();
+    userAvatar.textContent = initial;
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', handleLogout);
+  }
+
+  console.log(`✅ User info displayed: ${userContext.getName()} (${userContext.getRole()})`);
+}
+
+/**
+ * Handle logout
+ */
+async function handleLogout() {
+  const confirmed = confirm('Are you sure you want to logout?');
+  if (!confirmed) return;
+
+  try {
+    const userContext = window.UserContext;
+    const sessionId = userContext.getSessionId();
+
+    if (sessionId) {
+      await fetch('https://nuzantara-backend.fly.dev/api/auth/team/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      });
+    }
+  } catch (error) {
+    console.warn('Logout API call failed:', error);
+  }
+
+  // Clear local storage
+  window.UserContext.logout();
+
+  // Redirect to login
+  window.location.href = '/login.html';
 }
 
 // Export for use in HTML

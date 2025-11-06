@@ -87,8 +87,10 @@ app.add_middleware(
         "https://nuzantara-core.fly.dev",
         "http://localhost:3000",
         "http://localhost:5173",
+        "http://localhost:8002",
         "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173"
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:8002"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS"],
@@ -2290,15 +2292,16 @@ async def export_session(session_id: str, format: str = "json"):
 
 
 @app.options("/bali-zero/chat-stream")
-async def bali_zero_chat_stream_options():
+async def bali_zero_chat_stream_options(request: Request):
     """Handle CORS preflight requests for SSE endpoint"""
+    origin = request.headers.get("origin", "*")
     return Response(
         status_code=204,
         headers={
-            "Access-Control-Allow-Origin": "https://zantara.balizero.com",
+            "Access-Control-Allow-Origin": origin,
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Allow-Credentials": "false",
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600"
         }
     )
@@ -2565,15 +2568,18 @@ async def bali_zero_chat_stream(
                 return
             yield chunk
 
+    # Get origin from request headers
+    origin = request.headers.get("origin", "*")
+
     headers = {
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
         "X-Accel-Buffering": "no",  # Disable nginx buffering for immediate streaming
         # CORS headers for browser SSE connections
-        "Access-Control-Allow-Origin": "https://zantara.balizero.com",
+        "Access-Control-Allow-Origin": origin,
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "false",
+        "Access-Control-Allow-Credentials": "true",
         "Access-Control-Max-Age": "3600"
     }
 

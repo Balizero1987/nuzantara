@@ -10,6 +10,10 @@
   <!-- Production Styles -->
   <link rel="stylesheet" href="css/production.css">
 
+  <!-- Authentication Guard -->
+  <script src="js/auth-guard.js"></script>
+  <script src="js/user-context.js"></script>
+
   <style>
     /* ATMOSPHERIC BLUE GALAXY BACKGROUND */
     html,
@@ -64,7 +68,7 @@
       display: none;
     }
 
-    /* Header */
+    /* Header - Fixed at top with clear separation */
     .chat-header {
       position: fixed;
       top: 0;
@@ -74,11 +78,17 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding-top: 2rem;
-      padding-bottom: 1.5rem;
-      z-index: 50;
-      background: rgba(0, 0, 0, 0.85); /* Semi-transparent to show galaxy behind */
+      padding: 1.5rem 2rem;
+      z-index: 100;
+      background: linear-gradient(180deg,
+        rgba(0, 0, 0, 0.95) 0%,
+        rgba(0, 0, 0, 0.85) 80%,
+        rgba(0, 0, 0, 0.6) 100%
+      );
       backdrop-filter: blur(10px);
+      gap: 0.75rem;
+      border-bottom: 1px solid rgba(191, 170, 126, 0.15);
+      height: 140px; /* Fixed height to prevent overlap */
     }
 
     .logo-container {
@@ -86,10 +96,88 @@
       flex-direction: column;
       align-items: center;
       gap: 0.5rem;
+      position: relative;
+    }
+
+    /* User Info - Positioned in top right */
+    .user-info {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      z-index: 51;
+    }
+
+    .user-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: rgba(191,170,126,0.2);
+      border: 2px solid rgba(191,170,126,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #bfaa7e;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .user-avatar:hover {
+      transform: scale(1.1);
+      border-color: #bfaa7e;
+      box-shadow: 0 0 20px rgba(191,170,126,0.4);
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .user-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .user-role {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.05em;
+    }
+
+    .logout-btn {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid rgba(191,170,126,0.4);
+      border-radius: 0.5rem;
+      color: #bfaa7e;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      border-color: #bfaa7e;
+      background: rgba(191,170,126,0.1);
+      transform: scale(1.05);
     }
 
     .bali-zero-logo {
-      height: 4.25rem; /* +70% from 2.5rem */
+      height: 3rem; /* Smaller logo */
       width: auto;
       opacity: 0.95;
       image-rendering: -webkit-optimize-contrast;
@@ -100,14 +188,14 @@
       -webkit-transform: translateZ(0);
       object-fit: contain;
       background-color: #000000;
-      padding: 0.75rem;
+      padding: 0.5rem;
       border-radius: 50%;
     }
 
     .zantara-title {
       font-family: var(--font-serif);
       font-weight: 600;
-      font-size: 2.25rem;
+      font-size: 1.75rem; /* Smaller title */
       line-height: 1.2;
       letter-spacing: 0.05em;
       color: #bfaa7e;
@@ -159,10 +247,10 @@
       overflow-y: auto;
       overflow-x: hidden;
       scroll-behavior: smooth;
-      margin-top: 200px;
-      margin-bottom: 10rem;
+      margin-top: 140px; /* Match header height */
+      margin-bottom: 180px; /* Space for lower chat bar */
       padding: 2rem 0;
-      min-height: calc(100vh - 200px - 10rem);
+      min-height: calc(100vh - 140px - 180px);
     }
 
     .messages-inner {
@@ -226,21 +314,26 @@
       transform: scale(0.95);
     }
 
-    /* Chat Input */
+    /* Chat Input - Much lower with gradient background */
     .chat-input-container {
       position: fixed !important;
       bottom: 0 !important;
       left: 0 !important;
       right: 0 !important;
-      padding: 2rem 1rem !important;
-      background: #000000 !important;
+      padding: 2.5rem 1rem 2rem !important;
+      background: linear-gradient(0deg,
+        rgba(0, 0, 0, 0.98) 0%,
+        rgba(0, 0, 0, 0.92) 70%,
+        rgba(0, 0, 0, 0.7) 100%
+      ) !important;
       backdrop-filter: blur(15px);
-      z-index: 9999 !important;
-      border-top: 3px solid #BFAA7E !important;
-      box-shadow: 0 -4px 20px rgba(191, 170, 126, 0.3) !important;
+      z-index: 90 !important;
+      border-top: 2px solid rgba(191, 170, 126, 0.4) !important;
+      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6) !important;
       display: block !important;
       visibility: visible !important;
       opacity: 1 !important;
+      min-height: 160px;
     }
 
     .chat-input-wrapper {
@@ -328,6 +421,39 @@
       cursor: not-allowed;
     }
 
+    /* Energy shock animation for infinity symbol */
+    @keyframes energyShock {
+      0% {
+        transform: scaleX(-1) scale(1);
+        filter: brightness(1);
+      }
+      20% {
+        transform: scaleX(-1) scale(1.3);
+        filter: brightness(2) drop-shadow(0 0 10px #BFAA7E) drop-shadow(0 0 20px rgba(70, 170, 210, 0.8));
+      }
+      40% {
+        transform: scaleX(-1) scale(0.9);
+        filter: brightness(1.5);
+      }
+      60% {
+        transform: scaleX(-1) scale(1.15);
+        filter: brightness(1.8) drop-shadow(0 0 8px rgba(70, 170, 210, 0.6));
+      }
+      80% {
+        transform: scaleX(-1) scale(0.95);
+        filter: brightness(1.2);
+      }
+      100% {
+        transform: scaleX(-1) scale(1);
+        filter: brightness(1);
+      }
+    }
+
+    .send-button.sending {
+      animation: energyShock 0.6s ease-out;
+      pointer-events: none;
+    }
+
     .input-hint {
       font-size: 0.75rem;
       margin-top: 0.5rem;
@@ -361,15 +487,23 @@
     }
 
     .message.user .message-content {
-      background-color: transparent; /* No background - pure black */
-      border: 1px solid rgba(191, 170, 126, 0.15);
-      border-left: 2px solid rgba(191, 170, 126, 0.4);
+      background: linear-gradient(135deg,
+        rgba(70, 170, 210, 0.25) 0%,
+        rgba(50, 150, 200, 0.35) 100%
+      ); /* Lighter blue gradient for user messages - more visible */
+      border: 1px solid rgba(70, 170, 210, 0.5);
+      border-left: 3px solid rgba(70, 170, 210, 0.8);
+      box-shadow: 0 2px 8px rgba(70, 170, 210, 0.15);
     }
 
     .message.ai .message-content {
-      background-color: transparent; /* No background - pure black */
-      border: 1px solid rgba(191, 170, 126, 0.15);
-      border-left: 3px solid rgba(191, 170, 126, 0.3);
+      background: linear-gradient(135deg,
+        rgba(15, 45, 80, 0.3) 0%,
+        rgba(10, 30, 60, 0.4) 100%
+      ); /* Much darker blue gradient for AI messages - clearly different */
+      border: 1px solid rgba(191, 170, 126, 0.3);
+      border-left: 3px solid rgba(212, 175, 55, 0.7);
+      box-shadow: 0 2px 8px rgba(191, 170, 126, 0.1);
     }
 
     .message-text {
@@ -463,6 +597,90 @@
       animation: wave 1.4s ease-in-out infinite 0.4s;
     }
 
+    /* Avatar Upload Modal */
+    .avatar-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar-modal.active {
+      display: flex;
+    }
+
+    .avatar-modal-content {
+      background: linear-gradient(135deg,
+        rgba(25, 85, 140, 0.3) 0%,
+        rgba(12, 55, 100, 0.4) 100%
+      );
+      border: 1px solid rgba(191, 170, 126, 0.3);
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .avatar-modal-title {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      color: #bfaa7e;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .avatar-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      border: 3px solid rgba(191, 170, 126, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: #bfaa7e;
+      background: rgba(191, 170, 126, 0.1);
+      overflow: hidden;
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-upload-btn,
+    .avatar-remove-btn,
+    .avatar-close-btn {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid rgba(191, 170, 126, 0.4);
+      background: transparent;
+      color: #bfaa7e;
+    }
+
+    .avatar-upload-btn:hover,
+    .avatar-remove-btn:hover,
+    .avatar-close-btn:hover {
+      border-color: #bfaa7e;
+      background: rgba(191, 170, 126, 0.1);
+      transform: scale(1.02);
+    }
+
+    .avatar-file-input {
+      display: none;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .zantara-title {
@@ -498,10 +716,18 @@
   <header class="chat-header">
     <div class="logo-container">
       <img src="assets/images/logo-main.png" alt="Bali Zero Logo" class="bali-zero-logo">
-
       <h1 class="zantara-title">ZANTARA</h1>
-
       <p class="subtitle"><span class="javanese-script">ᬯᬶᬤ᭄ᬬ ᬥᬃᬫ</span></p>
+    </div>
+
+    <!-- User Info -->
+    <div class="user-info" id="userInfo">
+      <div class="user-avatar" id="userAvatar"></div>
+      <div class="user-details">
+        <span class="user-name" id="userName"></span>
+        <span class="user-role" id="userRole"></span>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
     </div>
   </header>
 
@@ -536,9 +762,137 @@
     </div>
   </div>
 
+  <!-- Avatar Upload Modal -->
+  <div class="avatar-modal" id="avatarModal">
+    <div class="avatar-modal-content">
+      <h2 class="avatar-modal-title">Customize Avatar</h2>
+      <div class="avatar-preview" id="avatarPreview">
+        <span id="avatarLetter">Z</span>
+      </div>
+      <input type="file" id="avatarFileInput" class="avatar-file-input" accept="image/*">
+      <button class="avatar-upload-btn" onclick="document.getElementById('avatarFileInput').click()">
+        Upload Photo
+      </button>
+      <button class="avatar-remove-btn" id="removeAvatarBtn">
+        Remove Photo
+      </button>
+      <button class="avatar-close-btn" id="closeAvatarModalBtn">
+        Close
+      </button>
+    </div>
+  </div>
+
   <!-- Production JavaScript -->
   <script src="js/zantara-client.js"></script>
   <script src="js/app.js"></script>
+
+  <!-- Avatar Management Script -->
+  <script>
+    // Avatar management
+    (function() {
+      const modal = document.getElementById('avatarModal');
+      const avatar = document.getElementById('userAvatar');
+      const avatarPreview = document.getElementById('avatarPreview');
+      const avatarLetter = document.getElementById('avatarLetter');
+      const fileInput = document.getElementById('avatarFileInput');
+      const removeBtn = document.getElementById('removeAvatarBtn');
+      const closeBtn = document.getElementById('closeAvatarModalBtn');
+      const AVATAR_KEY = 'zantara_user_avatar';
+
+      // Load saved avatar
+      function loadAvatar() {
+        const saved = localStorage.getItem(AVATAR_KEY);
+        if (saved) {
+          setAvatarImage(saved);
+        }
+      }
+
+      // Set avatar image
+      function setAvatarImage(dataUrl) {
+        const img = document.createElement('img');
+        img.src = dataUrl;
+        avatar.innerHTML = '';
+        avatar.appendChild(img);
+
+        avatarPreview.innerHTML = '';
+        const previewImg = img.cloneNode();
+        avatarPreview.appendChild(previewImg);
+      }
+
+      // Remove avatar image
+      function removeAvatar() {
+        localStorage.removeItem(AVATAR_KEY);
+        avatar.innerHTML = avatarLetter.textContent;
+        avatarPreview.innerHTML = `<span id="avatarLetter">${avatarLetter.textContent}</span>`;
+      }
+
+      // Open modal
+      avatar.addEventListener('click', () => {
+        modal.classList.add('active');
+      });
+
+      // Close modal
+      closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+      });
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+
+      // Handle file upload
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const dataUrl = event.target.result;
+            localStorage.setItem(AVATAR_KEY, dataUrl);
+            setAvatarImage(dataUrl);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Remove avatar
+      removeBtn.addEventListener('click', removeAvatar);
+
+      // Initialize
+      loadAvatar();
+    })();
+
+    // Add energy shock animation to send button + Enter key support
+    (function() {
+      const sendBtn = document.getElementById('sendButton');
+      const messageInput = document.getElementById('messageInput');
+
+      // Trigger animation on send
+      function triggerSendAnimation() {
+        sendBtn.classList.add('sending');
+        setTimeout(() => {
+          sendBtn.classList.remove('sending');
+        }, 600);
+      }
+
+      // Click handler
+      sendBtn.addEventListener('click', function(e) {
+        triggerSendAnimation();
+      });
+
+      // Enter key handler (without Shift)
+      messageInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault(); // Prevent new line
+          if (!sendBtn.disabled) {
+            triggerSendAnimation();
+            sendBtn.click(); // Trigger the actual send
+          }
+        }
+      });
+    })();
+  </script>
 
 </body>
 </html>
