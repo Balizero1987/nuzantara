@@ -2294,7 +2294,7 @@ async def export_session(session_id: str, format: str = "json"):
 @app.api_route("/bali-zero/chat-stream", methods=["GET", "OPTIONS"])
 async def bali_zero_chat_stream(
     request: Request,
-    query: str,
+    query: str = None,
     user_email: Optional[str] = None,
     conversation_history: Optional[str] = None,
     handlers_context: Optional[str] = None,
@@ -2302,6 +2302,8 @@ async def bali_zero_chat_stream(
 ):
     """
     SSE streaming endpoint for real-time chat responses
+
+    Handles both OPTIONS (CORS preflight) and GET (EventSource connection)
 
     Returns Server-Sent Events (SSE) stream with text chunks as they arrive from AI
 
@@ -2317,7 +2319,19 @@ async def bali_zero_chat_stream(
     Example:
         curl -N "http://localhost:8000/bali-zero/chat-stream?query=Ciao"
     """
-    logger.info(f"🌊 [Stream] SSE request: '{query[:50]}...'")
+
+    # Handle OPTIONS preflight (CORS)
+    if request.method == "OPTIONS":
+        return Response(
+            status_code=204,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            }
+        )
+
+    logger.info(f"🌊 [Stream] SSE request: '{query[:50] if query else 'empty'}...'")
 
     # Check if intelligent router is available
     if not intelligent_router:
@@ -2560,19 +2574,15 @@ async def bali_zero_chat_stream(
                 return
             yield chunk
 
-    # Get origin from request headers
-    origin = request.headers.get("origin", "*")
-
+    # EventSource CORS headers (NO credentials for cross-domain EventSource)
     headers = {
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
         "X-Accel-Buffering": "no",  # Disable nginx buffering for immediate streaming
         # CORS headers for browser SSE connections
-        "Access-Control-Allow-Origin": origin,
+        "Access-Control-Allow-Origin": "*",  # Wildcard for EventSource (no credentials)
         "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Max-Age": "3600"
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
     }
 
     return StreamingResponse(
