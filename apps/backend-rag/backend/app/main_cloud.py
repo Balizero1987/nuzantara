@@ -2438,6 +2438,9 @@ async def bali_zero_chat_stream(
                 except Exception as e:
                     logger.warning(f"⚠️ [Stream] Collaborator identification failed: {e}")
 
+            # Send ping before memory load (keep-alive)
+            yield ": ping\n\n"
+
             # Load memory if available
             memory = None
             if memory_service and user_id != "anonymous":
@@ -2446,6 +2449,9 @@ async def bali_zero_chat_stream(
                     logger.info(f"💾 [Stream] Memory loaded: {len(memory.profile_facts)} facts")
                 except Exception as e:
                     logger.warning(f"⚠️ [Stream] Memory load failed: {e}")
+
+            # Send ping before AI streaming (keep-alive)
+            yield ": ping\n\n"
 
             # Stream response chunks from intelligent router and collect full message + sources
             full_message = ""

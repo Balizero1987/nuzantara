@@ -304,10 +304,8 @@ class ZantaraClient {
 
       console.log(`🔌 Connecting to: ${url.toString()}`);
 
-      // Use EventSource with credentials for CORS
-      this.eventSource = new EventSource(url.toString(), {
-        withCredentials: true
-      });
+      // Use EventSource (no credentials - Fly.io blocks cross-domain credentials)
+      this.eventSource = new EventSource(url.toString());
       let accumulatedText = '';
 
       // Log connection open
