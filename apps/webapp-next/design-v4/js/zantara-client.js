@@ -310,6 +310,11 @@ class ZantaraClient {
       });
       let accumulatedText = '';
 
+      // Log connection open
+      this.eventSource.onopen = () => {
+        console.log('✅ EventSource connection opened (readyState:', this.eventSource.readyState, ')');
+      };
+
       this.eventSource.onmessage = (event) => {
         try {
           // Check for [DONE] signal
@@ -335,7 +340,20 @@ class ZantaraClient {
       };
 
       this.eventSource.onerror = (error) => {
-        console.error('❌ EventSource error:', error);
+        console.error('❌ EventSource error:', {
+          readyState: this.eventSource.readyState,
+          url: this.eventSource.url,
+          withCredentials: this.eventSource.withCredentials,
+          error: error
+        });
+
+        // Check readyState to understand failure
+        if (this.eventSource.readyState === EventSource.CONNECTING) {
+          console.error('🔴 EventSource: Still connecting, connection refused or CORS blocked');
+        } else if (this.eventSource.readyState === EventSource.CLOSED) {
+          console.error('🔴 EventSource: Connection closed unexpectedly');
+        }
+
         this.eventSource.close();
         this.isStreaming = false;
         onError(error);
