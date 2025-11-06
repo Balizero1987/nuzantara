@@ -318,15 +318,27 @@ class ZantaraClient {
 
       this.eventSource.onmessage = (event) => {
         try {
-          // Check for [DONE] signal
-          if (event.data === '[DONE]') {
+          const data = JSON.parse(event.data);
+
+          // FIX #2: Check for done signal (server sends {done: true})
+          if (data.done === true) {
+            console.log('✅ Stream completed:', {
+              duration: data.streamDuration,
+              sequence: data.sequenceNumber
+            });
             this.eventSource.close();
             this.isStreaming = false;
             onComplete(accumulatedText);
             return;
           }
 
-          const data = JSON.parse(event.data);
+          // FIX #3: Handle sources before done signal
+          if (data.sources && Array.isArray(data.sources)) {
+            console.log('📚 Sources received:', data.sources.length);
+            // Store sources for later use (can be passed to onComplete)
+            this._lastSources = data.sources;
+            return;
+          }
 
           // Extract token from various possible formats
           // Backend uses 'text' field with sequenceNumber
@@ -357,17 +369,25 @@ class ZantaraClient {
 
         this.eventSource.close();
         this.isStreaming = false;
-        onError(error);
+        
+        // FIX #5: Pass accumulated text even on error (partial response)
+        if (accumulatedText) {
+          console.log('⚠️ Returning partial response on error:', accumulatedText.length, 'chars');
+          onComplete(accumulatedText);
+        } else {
+          onError(error);
+        }
       };
 
-      // Handle stream completion after a reasonable timeout
+      // FIX #4: Reduced timeout from 60s to 20s (more reasonable for SSE)
       setTimeout(() => {
         if (this.isStreaming && accumulatedText) {
+          console.warn('⚠️ Stream timeout after 20s, forcing completion');
           this.eventSource.close();
           this.isStreaming = false;
           onComplete(accumulatedText);
         }
-      }, 60000); // 60 second timeout
+      }, 20000); // 20 second timeout
     } catch (error) {
       console.error('❌ Streaming error:', error);
       this.isStreaming = false;
