@@ -107,11 +107,33 @@ export async function attachRoutes(app: express.Application) {
       }
     });
 
-    loadedCount += 3;
-    logger.info('  ✅ AI Chat routes loaded (3: /api/ai/chat + /zantara.unified + /call)');
+    // ZANTARA v3 Collective endpoint
+    router.post('/zantara.collective', async (req: any, res: any) => {
+      try {
+        const result = await aiChat(req.body);
+        res.json(result);
+      } catch (error: any) {
+        logger.error('ZANTARA collective error:', error);
+        res.status(500).json({ ok: false, error: error.message || 'ZANTARA collective failed' });
+      }
+    });
+
+    // ZANTARA v3 Ecosystem endpoint
+    router.post('/zantara.ecosystem', async (req: any, res: any) => {
+      try {
+        const result = await aiChat(req.body);
+        res.json(result);
+      } catch (error: any) {
+        logger.error('ZANTARA ecosystem error:', error);
+        res.status(500).json({ ok: false, error: error.message || 'ZANTARA ecosystem failed' });
+      }
+    });
+
+    loadedCount += 5;
+    logger.info('  ✅ AI Chat routes loaded (5: /api/ai/chat + /zantara.unified + /zantara.collective + /zantara.ecosystem + /call)');
   } catch (error: any) {
     logger.warn(`  ⚠️ AI routes skipped: ${error.message}`);
-    failedCount += 3;
+    failedCount += 5;
   }
 
   // ==================================================================
