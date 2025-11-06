@@ -2318,7 +2318,8 @@ async def bali_zero_chat_stream(
             headers={
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+                "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, X-Session-Id, X-Continuity-Id, X-Reconnection, X-Last-Chunk-Timestamp",
+                "Access-Control-Max-Age": "3600"
             }
         )
 
@@ -2331,13 +2332,16 @@ async def bali_zero_chat_stream(
     async def generate():
         """Generator function for SSE stream with heartbeat support"""
         # Declare global services to ensure access in nested function
-        global search_service, collaborator_service, memory_service, intelligent_router
+        global search_service, collaborator_service, memory_service, intelligent_router, session_service
 
         # Extract reconnection headers for resilience support
-        session_id = request.headers.get("x-session-id")
+        session_id_header = request.headers.get("x-session-id")
         continuity_id = request.headers.get("x-continuity-id")
         is_reconnection = request.headers.get("x-reconnection") == "true"
         last_chunk_timestamp = request.headers.get("x-last-chunk-timestamp")
+
+        # Use query parameter session_id (from URL) if provided, otherwise fall back to header
+        effective_session_id = session_id or session_id_header
 
         if is_reconnection:
             logger.info(f"🔄 [Stream] Reconnection detected - Session: {session_id}, Continuity: {continuity_id}")
@@ -2457,6 +2461,11 @@ async def bali_zero_chat_stream(
                 yield f"data: {json.dumps(continuity_data)}\n\n"
                 logger.info(f"🔗 [Stream] Continuity verification sent for {continuity_id}")
 
+            # 🔥 FIX: Keep-alive mechanism for Fly.io 30s timeout
+            # Track last activity to send periodic pings
+            last_activity = time.time()
+            KEEPALIVE_INTERVAL = 15  # seconds (half of Fly.io's 30s timeout)
+
             async for chunk in intelligent_router.stream_chat(
                 message=query,
                 user_id=user_id,
@@ -2464,6 +2473,13 @@ async def bali_zero_chat_stream(
                 memory=memory,
                 collaborator=collaborator
             ):
+                # Check if we need to send keep-alive (if idle > 15s)
+                current_time = time.time()
+                if current_time - last_activity > KEEPALIVE_INTERVAL:
+                    yield ":keepalive\n\n"
+                    logger.debug(f"💓 [Stream] Keep-alive sent ({current_time - last_activity:.1f}s idle)")
+                    last_activity = current_time
+
                 # Enhanced chunk with sequence number
                 sequence_number += 1
                 enhanced_chunk = {
@@ -2476,6 +2492,10 @@ async def bali_zero_chat_stream(
                 full_message += chunk
                 sse_data = json.dumps(enhanced_chunk)
                 yield f"data: {sse_data}\n\n"
+                last_activity = time.time()  # Update activity timestamp
+
+            # Send keep-alive before source retrieval (can take time)
+            yield ":keepalive\n\n"
 
             # SOURCES: Attempt to retrieve sources from search service (same logic as chat endpoint)
             try:
@@ -2540,7 +2560,10 @@ async def bali_zero_chat_stream(
                 "sequenceNumber": sequence_number,
                 "timestamp": time.time()
             }
-            yield f"data: {json.dumps(error_data)}\n\n"
+            try:
+                yield f"data: {json.dumps(error_data)}\n\n"
+            except Exception:
+                pass
         finally:
             logger.info("🔁 [Stream] Generator cleanup triggered")
 
@@ -2573,7 +2596,8 @@ async def bali_zero_chat_stream(
         # CORS headers for browser SSE connections
         "Access-Control-Allow-Origin": "*",  # Wildcard for EventSource (no credentials)
         "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, X-Session-Id, X-Continuity-Id, X-Reconnection, X-Last-Chunk-Timestamp",
+        "Access-Control-Expose-Headers": "Content-Type, Cache-Control, Connection, X-Accel-Buffering"
     }
 
     return StreamingResponse(
