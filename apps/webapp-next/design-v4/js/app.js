@@ -461,13 +461,13 @@ function clearChatHistory() {
  */
 function displayUserInfo() {
   const userContext = window.UserContext;
-  const userName = document.getElementById('userName');
+  const userEmail = document.getElementById('userEmail');
   const userRole = document.getElementById('userRole');
   const userAvatar = document.getElementById('userAvatar');
   const logoutBtn = document.getElementById('logoutBtn');
 
-  if (userName && userContext.user) {
-    userName.textContent = userContext.getName();
+  if (userEmail && userContext.user) {
+    userEmail.textContent = userContext.user.email || 'guest@zantara.com';
   }
 
   if (userRole && userContext.user) {
