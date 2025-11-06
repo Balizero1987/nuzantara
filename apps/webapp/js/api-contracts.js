@@ -22,7 +22,7 @@ class APIContracts {
 
     // Backend URLs with versioning
     this.backends = {
-      ts: 'https://nuzantara-orchestrator.fly.dev',
+      ts: 'https://nuzantara-backend.fly.dev',
       rag: 'https://nuzantara-rag.fly.dev',
     };
 

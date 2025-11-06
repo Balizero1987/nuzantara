@@ -26,7 +26,7 @@ const ZANTARA_API = {
       if (window.API_CONTRACTS) {
         console.log('🔄 Using API Contracts for login...');
 
-        const data = await window.API_CONTRACTS.callWithFallback('ts', '/team.login', {
+        const data = await window.API_CONTRACTS.callWithFallback('ts', '/api/auth/team/login', {
           method: 'POST',
           body: JSON.stringify({ email, pin, name }),
         });
@@ -41,7 +41,7 @@ const ZANTARA_API = {
 
       // Fallback to direct call (legacy)
       console.log('⚠️ Using legacy API call (no contracts)');
-      const response = await fetch(`${this.backends.ts}/team.login`, {
+      const response = await fetch(`${this.backends.ts}/api/auth/team/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, pin, name }),

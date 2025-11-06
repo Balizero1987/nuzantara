@@ -1457,7 +1457,7 @@
                     });
 
                     // Start streaming AFTER listeners are set up
-                    await window.ZANTARA_SSE.stream(message, userEmail);
+                    await window.ZANTARA_SSE.stream(message, userEmail, conversationHistory);
 
                 } else {
                     // Fallback to regular chat (non-streaming)
