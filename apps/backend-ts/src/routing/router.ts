@@ -1498,6 +1498,39 @@ export function attachRoutes(app: import('express').Express) {
     }
   });
 
+  // ZANTARA v3 Unified endpoint (main production endpoint)
+  app.post('/zantara.unified', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+    try {
+      const result = await aiChat(req.body);
+      return res.status(200).json(ok(result?.data ?? result));
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // ZANTARA v3 Collective endpoint
+  app.post('/zantara.collective', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+    try {
+      const result = await aiChat(req.body);
+      return res.status(200).json(ok(result?.data ?? result));
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // ZANTARA v3 Ecosystem endpoint
+  app.post('/zantara.ecosystem', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+    try {
+      const result = await aiChat(req.body);
+      return res.status(200).json(ok(result?.data ?? result));
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
   // Memory Search
   app.post('/memory.search', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
