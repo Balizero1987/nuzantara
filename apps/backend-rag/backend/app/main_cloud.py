@@ -2038,16 +2038,6 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
 # SESSION ENDPOINTS - Redis-based conversation store for 50+ message support
 # ═══════════════════════════════════════════════════════════════════════════════
 
-@app.options("/sessions")
-async def options_sessions():
-    """Handle CORS preflight for session creation"""
-    return Response(status_code=200, headers={
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    })
-
-
 @app.post("/sessions")
 async def create_session():
     """
@@ -2103,16 +2093,6 @@ async def get_session(session_id: str):
     except Exception as e:
         logger.error(f"❌ Failed to get session: {e}")
         raise HTTPException(500, f"Failed to get session: {str(e)}")
-
-
-@app.options("/sessions/{session_id}")
-async def options_session_by_id():
-    """Handle CORS preflight for session GET/PUT/DELETE"""
-    return Response(status_code=200, headers={
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    })
 
 
 @app.put("/sessions/{session_id}")
