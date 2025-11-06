@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bali Zero Tax Dashboard - Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #FAFAFA;
+      --surface: #FFFFFF;
+      --border: #E5E7EB;
+      --text: #1F2937;
+      --text-secondary: #6B7280;
+      --primary: #0891B2;
+      --primary-hover: #0E7490;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .title { font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .subtitle { color: var(--text-secondary); margin-bottom: 2rem; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 600;
+      font-family: monospace;
+    }
+
+    .stat-change {
+      font-size: 0.875rem;
+      color: var(--success);
+      margin-top: 0.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title { font-size: 1.25rem; font-weight: 600; }
+
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn:hover { background: var(--primary-hover); }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .client {
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      transition: all 0.2s;
+    }
+
+    .client:hover { border-color: var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+    .client-name { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .client-meta { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: #D1FAE5;
+      color: var(--success);
+    }
+
+    .badge-warning { background: #FEF3C7; color: var(--warning); }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .alert {
+      padding: 1rem;
+      background: #FEF3C7;
+      border-left: 4px solid var(--warning);
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .login-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1);
+    }
+
+    .label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .test-creds {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 1rem;
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <div class="login-title">🏢 BALI ZERO TAX</div>
+      <div class="login-subtitle">Tax Management Dashboard</div>
+
+      <form onsubmit="login(event)">
+        <label class="label">Email</label>
+        <input type="email" class="input" id="email" value="angel@balizero.com" required>
+
+        <label class="label">Password</label>
+        <input type="password" class="input" id="password" value="demo123" required>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Login</button>
+      </form>
+
+      <div class="test-creds">
+        Test credentials:<br>
+        <code>angel@balizero.com / demo123</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboardScreen" class="hidden">
+    <div class="header">
+      <div class="logo">
+        <span>🏢</span>
+        <span>BALI ZERO TAX</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-size: 0.875rem; color: var(--text-secondary);" id="userName">Angel</span>
+        <button class="btn btn-secondary" onclick="logout()" style="padding: 0.5rem 1rem;">Logout</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1 class="title">Dashboard</h1>
+      <p class="subtitle">Welcome back! Here's what's happening with your clients today.</p>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Total Clients</div>
+          <div class="stat-value">12</div>
+          <div class="stat-change">↗ +2 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Reports</div>
+          <div class="stat-value">3</div>
+          <div class="stat-change" style="color: var(--warning);">⚠ Due this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Upcoming Payments</div>
+          <div class="stat-value">5</div>
+          <div class="stat-change">📅 Next 7 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">This Month Tax</div>
+          <div class="stat-value" style="font-size: 1.5rem;">Rp 125M</div>
+          <div class="stat-change">↗ +15% vs last month</div>
+        </div>
+      </div>
+
+      <div class="alert">
+        <strong>3 clients</strong> have payments due in the next 3 days.
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">My Clients</h2>
+          <button class="btn" onclick="alert('Create new client feature - Phase 1 complete!')">➕ New Client</button>
+        </div>
+
+        <div class="client">
+          <div class="client-name">PT Example Indonesia</div>
+          <div class="client-meta">
+            NPWP: 12.345.678.9-123.000 • KBLI: 46391 •
+            <span class="badge">Active</span>
+          </div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary);">
+            Last Report: Q3 2024 • Next Payment: Nov 10 • <strong>Rp 3,333,333</strong>
+          </div>
+          <div class="actions">
+            <button class="btn">Calculate Tax</button>
+            <button class="btn btn-secondary">View Profile</button>
+            <button class="btn btn-secondary">📁 Documents</button>
+          </div>
+        </div>
+
+        <div class="client">
+          <div class="client-name">CV Test Corporation</div>
+          <div class="client-meta">
+            NPWP: 98.765.432.1-321.000 • KBLI: 62010 •
+            <span class="badge">Active</span>
+          </div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary);">
+            Last Report: Q2 2024 • <span style="color: var(--error); font-weight: 600;">⚠ Overdue payment</span>
+          </div>
+          <div class="actions">
+            <button class="btn">Calculate Tax</button>
+            <button class="btn btn-secondary">View Profile</button>
+            <button class="btn btn-secondary">📁 Documents</button>
+          </div>
+        </div>
+
+        <div class="client">
+          <div class="client-name">PT Demo Limited</div>
+          <div class="client-meta">
+            NPWP: 11.222.333.4-444.000 • KBLI: 47911 •
+            <span class="badge badge-warning">Pending Setup</span>
+          </div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary);">
+            No reports yet • Setup in progress
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary">Complete Setup</button>
+            <button class="btn btn-secondary">View Profile</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function login(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (email && password) {
+        document.getElementById('userName').textContent = email.split('@')[0];
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('dashboardScreen').classList.remove('hidden');
+      }
+    }
+
+    function logout() {
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('dashboardScreen').classList.add('hidden');
+      document.getElementById('email').value = 'angel@balizero.com';
+      document.getElementById('password').value = 'demo123';
+    }
+  </script>
+
+</body>
+</html>
