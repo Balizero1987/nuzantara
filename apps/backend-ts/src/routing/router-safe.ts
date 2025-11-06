@@ -63,6 +63,9 @@ export async function attachRoutes(app: express.Application) {
   // ==================================================================
   try {
     const { aiChat } = await import('../handlers/ai-services/ai.js');
+    const { getAnthropicToolDefinitions } = await import(
+      '../handlers/system/handlers-introspection.js'
+    );
 
     // RESTful endpoint: /api/ai/chat
     router.post('/api/ai/chat', async (req: any, res: any) => {
@@ -91,14 +94,19 @@ export async function attachRoutes(app: express.Application) {
       try {
         const { key, params } = req.body;
 
-        // Only handle ai.chat for now
+        // Handle ai.chat
         if (key === 'ai.chat') {
           const result = await aiChat(params);
+          res.json(result);
+        }
+        // Handle system.handlers.tools (for RAG backend tools integration)
+        else if (key === 'system.handlers.tools') {
+          const result = await getAnthropicToolDefinitions();
           res.json(result);
         } else {
           res.status(404).json({
             ok: false,
-            error: `Handler not found: ${key}. Use /api/ai/chat for AI chat.`
+            error: `Handler not found: ${key}. Use /api/ai/chat for AI chat.`,
           });
         }
       } catch (error: any) {
@@ -130,7 +138,9 @@ export async function attachRoutes(app: express.Application) {
     });
 
     loadedCount += 5;
-    logger.info('  ✅ AI Chat routes loaded (5: /api/ai/chat + /zantara.unified + /zantara.collective + /zantara.ecosystem + /call)');
+    logger.info(
+      '  ✅ AI Chat routes loaded (5: /api/ai/chat + /zantara.unified + /zantara.collective + /zantara.ecosystem + /call)'
+    );
   } catch (error: any) {
     logger.warn(`  ⚠️ AI routes skipped: ${error.message}`);
     failedCount += 5;
