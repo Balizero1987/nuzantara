@@ -1,0 +1,332 @@
+name: 🚀 Deploy to Staging
+
+on:
+  push:
+    branches: [staging]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests (emergency deploy)'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  NODE_VERSION: '20.x'
+  FLY_APP_STAGING: nuzantara-staging
+  REGISTRY: ghcr.io
+
+jobs:
+  # ==========================================
+  # ✅ PRE-DEPLOYMENT VALIDATION
+  # ==========================================
+
+  pre-deploy-checks:
+    name: ✅ Pre-Deployment Checks
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.validation.outputs.should_deploy }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Validate branch
+        id: validation
+        run: |
+          if [ "${{ github.event.inputs.skip_tests }}" == "true" ]; then
+            echo "⚠️ **EMERGENCY DEPLOYMENT - Tests skipped by user**" >> $GITHUB_STEP_SUMMARY
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📊 Check recent commits
+        run: |
+          echo "## 📝 Recent Commits" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git log --oneline -5 >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # 🧪 RUN TESTS (unless skipped)
+  # ==========================================
+
+  run-tests:
+    name: 🧪 Run Test Suite
+    runs-on: ubuntu-latest
+    needs: [pre-deploy-checks]
+    if: github.event.inputs.skip_tests != 'true'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: zantara_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: 🧪 Run tests
+        working-directory: apps/backend-ts
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://test:test@localhost:5432/zantara_test
+        run: npm run test
+        continue-on-error: false
+
+  # ==========================================
+  # 🏗️ BUILD & PUSH DOCKER IMAGES
+  # ==========================================
+
+  build-and-push:
+    name: 🏗️ Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: [run-tests]
+    if: always() && (needs.run-tests.result == 'success' || needs.run-tests.result == 'skipped')
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Generate tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/zantara-${{ matrix.service }}
+          tags: |
+            type=raw,value=staging-latest
+            type=raw,value=staging-${{ github.sha }}
+            type=raw,value=staging-{{date 'YYYYMMDD-HHmmss'}}
+
+      - name: 🐳 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.service == 'backend' && './apps/backend-ts' || './apps/webapp' }}
+          file: ./docker/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: ✅ Image pushed successfully
+        run: |
+          echo "## 🐳 Docker Image: ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # 🚀 DEPLOY TO FLY.IO STAGING
+  # ==========================================
+
+  deploy-to-staging:
+    name: 🚀 Deploy to Fly.io Staging
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    environment:
+      name: staging
+      url: https://${{ env.FLY_APP_STAGING }}.fly.dev
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: 🚀 Deploy to Fly.io staging
+        working-directory: ./apps/backend-ts
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          echo "🚀 Deploying to staging environment..."
+
+          # Check if staging app exists, create if not
+          if ! flyctl status --app ${{ env.FLY_APP_STAGING }} >/dev/null 2>&1; then
+            echo "Creating staging app..."
+            flyctl apps create ${{ env.FLY_APP_STAGING }} --org personal
+          fi
+
+          # Deploy to staging
+          flyctl deploy \
+            --app ${{ env.FLY_APP_STAGING }} \
+            --image ${{ env.REGISTRY }}/${{ github.repository }}/zantara-backend:staging-${{ github.sha }} \
+            --remote-only \
+            --strategy rolling \
+            --wait-timeout 300
+
+      - name: 📝 Deployment info
+        run: |
+          echo "## 🚀 Staging Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- **App:** ${{ env.FLY_APP_STAGING }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://${{ env.FLY_APP_STAGING }}.fly.dev" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # 🏥 HEALTH CHECKS & SMOKE TESTS
+  # ==========================================
+
+  health-check:
+    name: 🏥 Health Check & Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-to-staging]
+    steps:
+      - name: ⏳ Wait for deployment to stabilize
+        run: sleep 30
+
+      - name: 🏥 Health check
+        id: health
+        run: |
+          HEALTH_URL="https://${{ env.FLY_APP_STAGING }}.fly.dev/health"
+          MAX_RETRIES=12
+          RETRY_COUNT=0
+
+          echo "## 🏥 Health Check Results" >> $GITHUB_STEP_SUMMARY
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ **Health check passed!** (HTTP $HTTP_CODE)" >> $GITHUB_STEP_SUMMARY
+              echo "health_status=success" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "⏳ Attempt $RETRY_COUNT/$MAX_RETRIES: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+            sleep 10
+          done
+
+          echo "❌ **Health check failed after $MAX_RETRIES attempts**" >> $GITHUB_STEP_SUMMARY
+          echo "health_status=failed" >> $GITHUB_OUTPUT
+          exit 1
+
+      - name: 🧪 Smoke tests
+        if: steps.health.outputs.health_status == 'success'
+        run: |
+          BASE_URL="https://${{ env.FLY_APP_STAGING }}.fly.dev"
+
+          echo "## 🧪 Smoke Test Results" >> $GITHUB_STEP_SUMMARY
+
+          # Test 1: Health endpoint
+          if curl -f "$BASE_URL/health" >/dev/null 2>&1; then
+            echo "✅ Health endpoint working" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Health endpoint failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Test 2: API root
+          if curl -f "$BASE_URL/" >/dev/null 2>&1; then
+            echo "✅ API root accessible" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ API root returned error (may be expected)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Test 3: Response time
+          RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}\n' "$BASE_URL/health")
+          echo "⏱️ Response time: ${RESPONSE_TIME}s" >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # 📢 NOTIFICATIONS
+  # ==========================================
+
+  notify:
+    name: 📢 Send Notifications
+    runs-on: ubuntu-latest
+    needs: [deploy-to-staging, health-check]
+    if: always()
+    steps:
+      - name: 📢 Slack notification (success)
+        if: needs.health-check.result == 'success'
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": "✅ Staging deployment successful!",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*✅ ZANTARA Staging Deployment Successful*\n\n*Environment:* Staging\n*URL:* https://${{ env.FLY_APP_STAGING }}.fly.dev\n*Deployed by:* ${{ github.actor }}\n*Commit:* `${{ github.sha }}`"
+                    }
+                  }
+                ]
+              }' || echo "Slack webhook not configured"
+          fi
+
+      - name: 📢 Slack notification (failure)
+        if: needs.health-check.result == 'failure' || needs.deploy-to-staging.result == 'failure'
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": "❌ Staging deployment failed!",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*❌ ZANTARA Staging Deployment Failed*\n\n*Environment:* Staging\n*Deployed by:* ${{ github.actor }}\n*Commit:* `${{ github.sha }}`\n*Action:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>"
+                    }
+                  }
+                ]
+              }' || echo "Slack webhook not configured"
+          fi
+
+      - name: 📊 Final summary
+        if: always()
+        run: |
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.health-check.result }}" == "success" ]; then
+            echo "✅ **Staging deployment completed successfully!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🌐 **Staging URL:** https://${{ env.FLY_APP_STAGING }}.fly.dev" >> $GITHUB_STEP_SUMMARY
+            echo "🔍 **Next steps:** Run manual QA tests on staging" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Staging deployment failed!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🔍 **Action required:** Check logs and investigate failure" >> $GITHUB_STEP_SUMMARY
+          fi
