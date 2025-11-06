@@ -93,7 +93,7 @@ app.add_middleware(
         "http://127.0.0.1:8002"
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "Accept", "Cache-Control", "X-Session-Id", "X-Continuity-Id", "X-Reconnection", "X-Last-Chunk-Timestamp"],
     expose_headers=["Content-Type", "Access-Control-Allow-Origin", "Cache-Control", "Connection", "X-Accel-Buffering"],
     max_age=3600
