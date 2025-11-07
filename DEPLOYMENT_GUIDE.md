@@ -491,13 +491,71 @@ env | grep -i api
 
 - **Backend TS:** https://nuzantara-backend.fly.dev
 - **RAG Backend:** https://nuzantara-rag.fly.dev
-- **Webapp:** https://zantara.balizero.com (GitHub Pages)
+- **Webapp:** https://zantara.balizero.com (Cloudflare Pages)
 - **Dashboard:** (if deployed separately)
 
 ---
 
-**Last Updated:** 2025-01-02  
-**Maintained By:** NUZANTARA-FLY Development Team
+## 🌐 Frontend (Webapp) Deployment - Cloudflare Pages
+
+### Using Deploy Script (RECOMMENDED)
+
+```bash
+cd apps/webapp
+./deploy.sh
+```
+
+**Features:**
+- ✅ Pre-deployment file validation
+- ✅ Git commit verification
+- ✅ Automatic commit hash tracking
+- ✅ Clear success/error messages
+- ✅ Deploy URL output
+
+### Manual Deployment
+
+```bash
+cd apps/webapp
+
+npx wrangler pages deploy . \
+  --project-name=zantara \
+  --branch=main \
+  --commit-hash="$(git rev-parse --short HEAD)" \
+  --commit-message="$(git log -1 --pretty=%B)" \
+  --commit-dirty=true
+```
+
+### Verification
+
+```bash
+# 1. Check deployment list
+npx wrangler pages deployment list --project-name=zantara
+
+# 2. Test deploy URL first (shown in output)
+curl https://[DEPLOY-ID].zantara.pages.dev/js/auth-auto-login.js
+
+# 3. Wait 2-5 min for production cache
+curl https://zantara.balizero.com/js/auth-auto-login.js
+```
+
+### Common Issues
+
+**Issue: Changes not visible on production**
+- Solution: Wait 2-5 minutes for Cloudflare cache propagation
+- Test on deploy URL (`https://[ID].zantara.pages.dev`) first
+
+**Issue: Old files deployed**
+- Solution: Ensure git commit before deploying
+- Use `./deploy.sh` which verifies commit hash
+
+**Issue: Missing files in deployment**
+- Solution: Run `./deploy.sh` - validates all required files
+- Check: auth-auto-login.js, message-search.js, conversation-client.js
+
+---
+
+**Last Updated:** November 7, 2025
+**Maintained By:** NUZANTARA-FLY Development Team (Zero - AI Bridge/Tech Lead)
 
 
 
