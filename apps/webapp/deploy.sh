@@ -71,7 +71,7 @@ echo "🌍 Deploying to Cloudflare Pages..."
 
 # Deploy with wrangler
 npx wrangler pages deploy . \
-  --project-name=zantara \
+  --project-name=zantara-v4 \
   --branch=main \
   --commit-hash="$COMMIT_HASH" \
   --commit-message="$COMMIT_MSG" \

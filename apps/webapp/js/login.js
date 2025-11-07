@@ -172,12 +172,12 @@ async function handleLogin(e) {
     console.log('🔐 Attempting login...');
 
     // Call login API
-    const response = await fetch(`${API_BASE_URL}/api/team/login`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/team/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, pin }),
+      body: JSON.stringify({ name: email.split('@')[0], email, pin }),
     });
 
     const result = await response.json();

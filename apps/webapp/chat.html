@@ -816,8 +816,10 @@
       // Load saved avatar
       function loadAvatar() {
         const saved = localStorage.getItem(AVATAR_KEY);
+        console.log('🖼️ Loading avatar from localStorage:', saved ? 'Found' : 'Not found');
         if (saved) {
           setAvatarImage(saved);
+          console.log('✅ Avatar loaded successfully');
         }
       }
 
@@ -864,6 +866,7 @@
           reader.onload = (event) => {
             const dataUrl = event.target.result;
             localStorage.setItem(AVATAR_KEY, dataUrl);
+            console.log('💾 Avatar saved to localStorage (size:', dataUrl.length, 'bytes)');
             setAvatarImage(dataUrl);
           };
           reader.readAsDataURL(file);
