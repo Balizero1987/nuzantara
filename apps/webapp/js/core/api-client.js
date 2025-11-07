@@ -7,13 +7,15 @@
  */
 
 import { config } from '../config.js';
+import { API_CONFIG } from '../api-config.js'; // FIX 6: Import API_CONFIG
 import { jwtService } from '../auth/jwt-service.js';
 import { cacheManager } from './cache-manager.js';
 import { requestDeduplicator } from './request-deduplicator.js';
 
 class APIClient {
   constructor() {
-    this.baseUrl = config.api.proxyUrl;
+    // FIX 6: Use API_CONFIG.backend.url instead of undefined config.api.proxyUrl
+    this.baseUrl = API_CONFIG.backend.url;
     this.timeout = config.api.timeout;
     this.retryAttempts = config.api.retryAttempts;
     this.retryDelay = config.api.retryDelay;
