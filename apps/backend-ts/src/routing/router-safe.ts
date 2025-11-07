@@ -89,29 +89,184 @@ export async function attachRoutes(app: express.Application) {
       }
     });
 
-    // Legacy RPC-style endpoint: /call (for webapp compatibility)
+    // Legacy RPC-style endpoint: /call (for webapp compatibility + high-priority handlers)
     router.post('/call', async (req: any, res: any) => {
       try {
         const { key, params } = req.body;
 
-        // Handle ai.chat
+        // === AI SERVICES ===
         if (key === 'ai.chat') {
           const result = await aiChat(params);
           res.json(result);
         }
-        // Handle system.handlers.tools (for RAG backend tools integration)
+
+        // === SYSTEM INTROSPECTION ===
         else if (key === 'system.handlers.tools') {
           const result = await getAnthropicToolDefinitions();
           res.json(result);
-        } else {
+        }
+
+        // === TEAM MANAGEMENT ===
+        else if (key === 'team.list') {
+          const { teamList } = await import('../handlers/bali-zero/team.js');
+          const result = await teamList(params);
+          res.json(result);
+        } else if (key === 'team.get') {
+          const { teamGet } = await import('../handlers/bali-zero/team.js');
+          const result = await teamGet(params);
+          res.json(result);
+        } else if (key === 'team.departments') {
+          const { teamDepartments } = await import('../handlers/bali-zero/team.js');
+          const result = await teamDepartments(params);
+          res.json(result);
+        } else if (key === 'team.login.secure') {
+          const { teamLoginSecure } = await import('../handlers/auth/team-login-secure.js');
+          const result = await teamLoginSecure(params);
+          res.json(result);
+        }
+
+        // === PRICING SYSTEM ===
+        else if (key === 'pricing.official' || key === 'bali.zero.pricing') {
+          const { baliZeroPricing } = await import('../handlers/bali-zero/bali-zero-pricing.js');
+          const result = await baliZeroPricing(params);
+          res.json(result);
+        } else if (key === 'pricing.invoice.generate') {
+          const { generateInvoice } = await import('../handlers/bali-zero/pricing-invoices.js');
+          const result = await generateInvoice(params);
+          res.json(result);
+        } else if (key === 'pricing.invoice.details') {
+          const { getInvoiceDetails } = await import('../handlers/bali-zero/pricing-invoices.js');
+          const result = await getInvoiceDetails(params);
+          res.json(result);
+        } else if (key === 'pricing.subscription.plans') {
+          const { getSubscriptionPlans } = await import(
+            '../handlers/bali-zero/pricing-subscription.js'
+          );
+          const result = await getSubscriptionPlans(params);
+          res.json(result);
+        } else if (key === 'pricing.subscription.details') {
+          const { getSubscriptionDetails } = await import(
+            '../handlers/bali-zero/pricing-subscription.js'
+          );
+          const result = await getSubscriptionDetails(params);
+          res.json(result);
+        } else if (key === 'pricing.subscription.renewal') {
+          const { calculateSubscriptionRenewal } = await import(
+            '../handlers/bali-zero/pricing-subscription.js'
+          );
+          const result = await calculateSubscriptionRenewal(params);
+          res.json(result);
+        }
+
+        // === KBLI ADVANCED ===
+        else if (key === 'kbli.lookup.complete') {
+          const { kbliLookupComplete } = await import('../handlers/bali-zero/kbli-complete.js');
+          const result = await kbliLookupComplete(params);
+          res.json(result);
+        } else if (key === 'kbli.business.analysis') {
+          const { kbliBusinessAnalysis } = await import('../handlers/bali-zero/kbli-complete.js');
+          const result = await kbliBusinessAnalysis(params);
+          res.json(result);
+        }
+
+        // === LEAD MANAGEMENT ===
+        else if (key === 'lead.save') {
+          // Inline handler from router.ts
+          const { getHandler } = await import('./router.js');
+          const handler = await getHandler('lead.save');
+          const result = await handler(params);
+          res.json(result);
+        } else if (key === 'quote.generate') {
+          // Inline handler from router.ts
+          const { getHandler } = await import('./router.js');
+          const handler = await getHandler('quote.generate');
+          const result = await handler(params);
+          res.json(result);
+        } else if (key === 'document.prepare') {
+          const { documentPrepare } = await import('../handlers/bali-zero/advisory.js');
+          const result = await documentPrepare(params);
+          res.json(result);
+        }
+
+        // === ORACLE SYSTEM ===
+        else if (key === 'oracle.simulate') {
+          const { oracleSimulate } = await import('../handlers/bali-zero/oracle.js');
+          const result = await oracleSimulate(params);
+          res.json(result);
+        } else if (key === 'oracle.analyze') {
+          const { oracleAnalyze } = await import('../handlers/bali-zero/oracle.js');
+          const result = await oracleAnalyze(params);
+          res.json(result);
+        } else if (key === 'oracle.predict') {
+          const { oraclePredict } = await import('../handlers/bali-zero/oracle.js');
+          const result = await oraclePredict(params);
+          res.json(result);
+        } else if (key === 'oracle.universal.query') {
+          const { oracleUniversalQuery } = await import(
+            '../handlers/bali-zero/oracle-universal.js'
+          );
+          const result = await oracleUniversalQuery(params);
+          res.json(result);
+        } else if (key === 'oracle.collections') {
+          const { oracleCollections } = await import('../handlers/bali-zero/oracle-universal.js');
+          const result = await oracleCollections(params);
+          res.json(result);
+        }
+
+        // === RAG SYSTEM ===
+        else if (key === 'rag.query') {
+          const { ragQuery } = await import('../handlers/rag/rag.js');
+          const result = await ragQuery(params);
+          res.json(result);
+        } else if (key === 'rag.search') {
+          const { ragSearch } = await import('../handlers/rag/rag.js');
+          const result = await ragSearch(params);
+          res.json(result);
+        } else if (key === 'rag.health') {
+          const { ragHealth } = await import('../handlers/rag/rag.js');
+          const result = await ragHealth(params);
+          res.json(result);
+        } else if (key === 'bali.zero.chat') {
+          const { baliZeroChat } = await import('../handlers/rag/rag.js');
+          const result = await baliZeroChat(params);
+          res.json(result);
+        }
+
+        // === CONTACT INFO ===
+        else if (key === 'contact.info') {
+          res.json({
+            ok: true,
+            data: {
+              company: 'Bali Zero',
+              tagline: 'From Zero to Infinity ∞',
+              services: ['Visas', 'Company Setup', 'Tax Consulting', 'Real Estate Legal'],
+              office: {
+                location: 'Kerobokan, Bali, Indonesia',
+                mapUrl: 'https://maps.app.goo.gl/i6DbEmfCtn1VJ3G58',
+              },
+              communication: {
+                email: 'info@balizero.com',
+                whatsapp: '+62 859 0436 9574',
+                instagram: '@balizero0',
+              },
+              team: {
+                ceo: 'Zainal Abidin',
+                techLead: 'Zero (AI Bridge)',
+              },
+            },
+          });
+        }
+
+        // === HANDLER NOT FOUND ===
+        else {
           res.status(404).json({
             ok: false,
-            error: `Handler not found: ${key}. Use /api/ai/chat for AI chat.`,
+            error: `Handler not found: ${key}. Available handlers: ai.chat, system.handlers.tools, team.*, pricing.*, kbli.*, lead.*, oracle.*, rag.*, contact.info`,
           });
         }
       } catch (error: any) {
-        logger.error('Legacy /call error:', error);
-        res.status(500).json({ ok: false, error: error.message || 'Call failed' });
+        logger.error(`/call handler error [${req.body?.key}]:`, error);
+        res.status(500).json({ ok: false, error: error.message || 'Handler execution failed' });
       }
     });
 
