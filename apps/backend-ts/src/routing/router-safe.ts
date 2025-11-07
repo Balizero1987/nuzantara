@@ -172,14 +172,23 @@ export async function attachRoutes(app: express.Application) {
         }
 
         // === KBLI ADVANCED ===
+        // Note: KBLI handlers are Express-style (req, res), need to create mock request
         else if (key === 'kbli.lookup.complete') {
           const { kbliLookupComplete } = await import('../handlers/bali-zero/kbli-complete.js');
-          const result = await kbliLookupComplete(params);
-          res.json(result);
+          const mockReq: any = { body: { params } };
+          const mockRes: any = {
+            json: (data: any) => res.json(data),
+            status: (code: number) => ({ json: (data: any) => res.status(code).json(data) }),
+          };
+          await kbliLookupComplete(mockReq, mockRes);
         } else if (key === 'kbli.business.analysis') {
           const { kbliBusinessAnalysis } = await import('../handlers/bali-zero/kbli-complete.js');
-          const result = await kbliBusinessAnalysis(params);
-          res.json(result);
+          const mockReq: any = { body: { params } };
+          const mockRes: any = {
+            json: (data: any) => res.json(data),
+            status: (code: number) => ({ json: (data: any) => res.status(code).json(data) }),
+          };
+          await kbliBusinessAnalysis(mockReq, mockRes);
         }
 
         // === LEAD MANAGEMENT ===
