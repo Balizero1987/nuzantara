@@ -1,5 +1,11 @@
 import logger from '../../services/logger.js';
 import { Request, Response } from 'express';
+import { RedisClientWrapper } from '../../services/redis-client.js';
+
+// Redis cache for team members (1 hour TTL)
+const redisClient = new RedisClientWrapper();
+const TEAM_CACHE_KEY = 'balizero:team:members';
+const TEAM_CACHE_TTL = 3600; // 1 hour
 
 // Complete Bali Zero team data
 const BALI_ZERO_TEAM = {
@@ -254,6 +260,15 @@ export async function teamList(req: Request, res: Response) {
   try {
     const { department, role, search } = req.body.params || {};
 
+    // Try Redis cache first (only for unfiltered requests)
+    if (!department && !role && !search) {
+      const cached = await redisClient.get(TEAM_CACHE_KEY);
+      if (cached) {
+        logger.info('✅ Team list served from Redis cache');
+        return res.json(JSON.parse(cached));
+      }
+    }
+
     let members = [...BALI_ZERO_TEAM.members];
 
     // Filter by department
@@ -275,7 +290,7 @@ export async function teamList(req: Request, res: Response) {
       );
     }
 
-    return res.json({
+    const response = {
       ok: true,
       data: {
         members,
@@ -285,7 +300,15 @@ export async function teamList(req: Request, res: Response) {
         total: BALI_ZERO_TEAM.stats.total,
         timestamp: new Date().toISOString(),
       },
-    });
+    };
+
+    // Cache unfiltered response in Redis
+    if (!department && !role && !search) {
+      await redisClient.setex(TEAM_CACHE_KEY, TEAM_CACHE_TTL, JSON.stringify(response));
+      logger.info('✅ Team list cached in Redis');
+    }
+
+    return res.json(response);
   } catch (error: any) {
     logger.error('team.list error:', error);
     return res.status(500).json({
