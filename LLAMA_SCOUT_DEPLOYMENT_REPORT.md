@@ -81,7 +81,7 @@ Features: Tool calling (164 tools), prompt caching
 
 #### Local Development (`.env`):
 ```bash
-OPENROUTER_API_KEY_LLAMA=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
+OPENROUTER_API_KEY_LLAMA=[REDACTED]
 ANTHROPIC_API_KEY=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
 ```
 
