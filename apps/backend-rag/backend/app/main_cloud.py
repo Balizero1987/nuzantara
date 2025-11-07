@@ -3317,16 +3317,16 @@ async def api_collection_count(name: str):
         raise HTTPException(503, "Search service not available")
     
     try:
-        # Check if collection exists
+        # Get ChromaDB wrapper and access native collection
         if name not in search_service.collections:
             raise HTTPException(404, f"Collection '{name}' not found")
         
-        # Get collection count
-        vector_db = search_service.collections[name]
+        chromadb_wrapper = search_service.collections[name]
+        # Access the native ChromaDB collection for accurate count
+        collection = chromadb_wrapper.collection
         
-        # Try to get count from collection stats
-        stats = vector_db.get_collection_stats()
-        count = stats.get("total_documents", 0)
+        # Get count from native collection (not wrapper stats)
+        count = collection.count()
         
         return {
             "ok": True,
@@ -3409,12 +3409,21 @@ async def load_documents_to_collection(
         # Process in batches
         for i in range(0, len(documents), batch_size):
             batch = documents[i:i + batch_size]
+            
+            # Clean metadata: remove None values (ChromaDB doesn't accept null)
+            cleaned_metadatas = []
+            for doc in batch:
+                cleaned_meta = {k: v for k, v in doc["metadata"].items() if v is not None}
+                # Ensure at least one metadata field exists
+                if not cleaned_meta:
+                    cleaned_meta = {"source": "indonesian_laws"}
+                cleaned_metadatas.append(cleaned_meta)
 
             # Add documents to collection (native ChromaDB API)
             collection.add(
                 ids=[doc["id"] for doc in batch],
                 documents=[doc["text"] for doc in batch],
-                metadatas=[doc["metadata"] for doc in batch],
+                metadatas=cleaned_metadatas,
                 embeddings=[doc["embedding"] for doc in batch]
             )
             loaded_count += len(batch)
