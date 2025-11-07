@@ -34,9 +34,35 @@ export async function attachRoutes(app: express.Application) {
     const { teamLogin, getTeamMembers, logoutSession } = await import(
       '../handlers/auth/team-login.js'
     );
-    router.post('/api/team/login', teamLogin as any);
-    router.get('/api/team/members', getTeamMembers as any);
-    router.post('/api/team/logout', logoutSession as any);
+    router.post('/api/team/login', async (req: any, res: any) => {
+      try {
+        const result = await teamLogin(req.body);
+        return res.status(200).json(result?.data ?? result);
+      } catch (e: any) {
+        if (e.name === 'BadRequestError')
+          return res.status(400).json({ ok: false, error: e.message });
+        if (e.name === 'UnauthorizedError')
+          return res.status(401).json({ ok: false, error: e.message });
+        return res.status(500).json({ ok: false, error: e?.message || 'Internal Error' });
+      }
+    });
+    router.get('/api/team/members', async (_req: any, res: any) => {
+      try {
+        const result = getTeamMembers();
+        return res.status(200).json({ ok: true, data: result });
+      } catch (e: any) {
+        return res.status(500).json({ ok: false, error: e?.message || 'Internal Error' });
+      }
+    });
+    router.post('/api/team/logout', async (req: any, res: any) => {
+      try {
+        const { sessionId } = req.body;
+        const result = logoutSession(sessionId);
+        return res.status(200).json({ ok: true, data: { success: result } });
+      } catch (e: any) {
+        return res.status(500).json({ ok: false, error: e?.message || 'Internal Error' });
+      }
+    });
     loadedCount += 3;
     logger.info('  ✅ Team Auth routes loaded (3)');
   } catch (error: any) {
