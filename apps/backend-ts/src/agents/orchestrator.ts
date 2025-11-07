@@ -173,7 +173,7 @@ export class AgentOrchestrator {
       suspiciousActivity: await this.getSuspiciousActivityCount(),
 
       // Code
-      untested Functions: await this.getUntestedFunctionsCount(),
+      untestedFunctions: await this.getUntestedFunctionsCount(),
       outdatedDocs: await this.getOutdatedDocsCount(),
     };
 
