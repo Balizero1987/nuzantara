@@ -2807,6 +2807,12 @@ app.include_router(crm_interactions.router)
 app.include_router(crm_shared_memory.router)
 app.include_router(admin_migration.router)
 
+# Also mount CRM routers with /api prefix for compatibility
+app.include_router(crm_clients.router, prefix="/api")
+app.include_router(crm_practices.router, prefix="/api")
+app.include_router(crm_interactions.router, prefix="/api")
+app.include_router(crm_shared_memory.router, prefix="/api")
+
 # Include Oracle routers (Universal Query System - Phase 3)
 from app.routers import oracle_universal
 from app.routers import oracle_ingest  # NEW: Bulk ingest endpoint
