@@ -25,6 +25,9 @@ import { prioritizedRateLimiter } from './middleware/prioritized-rate-limit.js';
 import healthRoutes from './routes/health.js';
 import { auditTrail } from './services/audit-trail.js';
 
+// 🤖 AUTONOMOUS AGENTS - Cron Scheduler
+import { getCronScheduler } from './services/cron-scheduler.js';
+
 // 🚀 PERFORMANCE MONITORING - Sonnet implementation
 import {
   performanceMiddleware,
@@ -266,6 +269,11 @@ async function startServer() {
 
   // Cache management routes
   app.use('/cache', cacheRoutes);
+
+  // Autonomous Agents Monitoring routes
+  const monitoringRoutes = await import('./routes/monitoring.routes.js');
+  app.use('/api/monitoring', monitoringRoutes.default);
+  logger.info('✅ Autonomous Agents monitoring routes mounted');
 
   // GLM 4.6 Architect Patch: Enhanced Architecture endpoints
   app.get('/architecture/status', (_req, res) => {
@@ -550,18 +558,36 @@ async function startServer() {
     logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
   }
 
-  const server = httpServer.listen(PORT, '0.0.0.0', () => {
+  const server = httpServer.listen(PORT, '0.0.0.0', async () => {
     logger.info(`🚀 ZANTARA TS-BACKEND started on port ${PORT}`);
     logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);
     logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
     if (process.env.REDIS_URL) {
       logger.info(`🔌 WebSocket ready for real-time features`);
     }
+
+    // Initialize Cron Scheduler for Autonomous Agents
+    try {
+      const cronScheduler = getCronScheduler();
+      await cronScheduler.start();
+      logger.info('✅ Autonomous Agents Cron Scheduler activated');
+    } catch (error: any) {
+      logger.error('❌ Failed to start Cron Scheduler:', error.message);
+    }
   });
 
   // Handle shutdown gracefully
   async function gracefulShutdown(signal: string) {
     logger.info(`${signal} signal received: starting graceful shutdown`);
+
+    // Stop cron scheduler
+    try {
+      const cronScheduler = getCronScheduler();
+      await cronScheduler.stop();
+      logger.info('Cron Scheduler stopped');
+    } catch (error: any) {
+      logger.error('Error stopping Cron Scheduler:', error.message);
+    }
 
     // Stop accepting new requests
     server.close(async () => {
