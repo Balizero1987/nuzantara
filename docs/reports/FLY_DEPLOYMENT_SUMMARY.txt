@@ -1,0 +1,301 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│  ███████╗██╗  ██╗   ██╗    ██╗ ██████╗     ██████╗ ███████╗██████╗│
+│  ██╔════╝██║  ╚██╗ ██╔╝   ██╔╝██╔═══██╗    ██╔══██╗██╔════╝██╔══██╗│
+│  █████╗  ██║   ╚████╔╝   ██╔╝ ██║   ██║    ██║  ██║█████╗  ██████╔╝│
+│  ██╔══╝  ██║    ╚██╔╝   ██╔╝  ██║   ██║    ██║  ██║██╔══╝  ██╔═══╝ │
+│  ██║     ███████╗██║   ██╔╝   ╚██████╔╝    ██████╔╝███████╗██║     │
+│  ╚═╝     ╚══════╝╚═╝   ╚═╝     ╚═════╝     ╚═════╝ ╚══════╝╚═╝     │
+│                                                                     │
+│              ZANTARA Deployment Analysis                           │
+│                  Status Report                                     │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+
+📊 DEPLOYMENT STATUS OVERVIEW
+
+═══════════════════════════════════════════════════════════════════════
+  APPS DEPLOYED
+═══════════════════════════════════════════════════════════════════════
+
+✅ OPERATIONAL (5 apps)
+
+┌─────────────────────┬──────────┬─────────────────────────────┐
+│ App Name            │ Status   │ URL                         │
+├─────────────────────┼──────────┼─────────────────────────────┤
+│ nuzantara-rag       │ ✅ UP    │ nuzantara-rag.fly.dev       │
+│ nuzantara-backend   │ ✅ UP    │ nuzantara-backend.fly.dev   │
+│ nuzantara-core      │ ✅ UP    │ nuzantara-core.fly.dev      │
+│ nuzantara-postgres  │ ✅ UP    │ (internal)                  │
+│ nuzantara-qdrant    │ ✅ UP    │ (internal)                  │
+└─────────────────────┴──────────┴─────────────────────────────┘
+
+⚠️  PROBLEMATIC (1 app)
+
+┌─────────────────────┬──────────┬─────────────────────────────┐
+│ App Name            │ Status   │ Issue                       │
+├─────────────────────┼──────────┼─────────────────────────────┤
+│ nuzantara-webapp-kb │ ❌ FAIL  │ Deploy never completed      │
+└─────────────────────┴──────────┴─────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+  CRITICAL ISSUES (MUST FIX)
+═══════════════════════════════════════════════════════════════════════
+
+🔥 1. Backend TS Missing Secrets
+
+   Problem:  No API keys configured
+   Impact:   Cannot communicate with RAG backend or external APIs
+   Files:    apps/backend-ts/fly.toml
+   
+   Fix:
+   $ cd apps/backend-ts
+   $ fly secrets set RAG_BACKEND_URL=https://nuzantara-rag.fly.dev
+   $ fly secrets set ANTHROPIC_API_KEY=your-key
+   $ fly secrets set OPENAI_API_KEY=your-key
+
+   Status:   ❌ NOT FIXED
+
+───────────────────────────────────────────────────────────────────────
+
+🔥 2. CORS Configuration Incomplete
+
+   Problem:  Backend RAG doesn't allow requests from backend TS
+   Impact:   Inter-service communication fails
+   Files:    apps/backend-rag/backend/app/main_cloud.py
+   
+   Current CORS origins:
+   • https://zantara.balizero.com  ✅
+   • http://localhost:3000          ✅
+   • http://localhost:5173          ✅
+   
+   Missing:
+   • https://nuzantara-backend.fly.dev  ❌
+   • https://nuzantara-core.fly.dev     ❌
+   
+   Fix: Add to allow_origins list in main_cloud.py (line 79-88)
+   
+   Status:   ❌ NOT FIXED
+
+───────────────────────────────────────────────────────────────────────
+
+🔥 3. Failed Webapp Deployment
+
+   Problem:  nuzantara-webapp-kb stuck in "pending" state
+   Impact:   Occupies app slot, causes confusion
+   
+   Fix:
+   $ fly apps destroy nuzantara-webapp-kb
+   
+   Status:   ❌ NOT FIXED
+
+═══════════════════════════════════════════════════════════════════════
+  HIGH PRIORITY ISSUES
+═══════════════════════════════════════════════════════════════════════
+
+⚠️  4. Inconsistent App Naming
+
+   Problem:  fly.toml says "nuzantara-core", deployed as "nuzantara-backend"
+   Impact:   Confusion, requires -a flag for all commands
+   
+   Options:
+   A) Rename app: fly apps rename nuzantara-backend nuzantara-core
+   B) Fix fly.toml: Change app = "nuzantara-backend"
+   
+   Status:   ⏳ PENDING DECISION
+
+───────────────────────────────────────────────────────────────────────
+
+⚠️  5. Volume Persistence Check
+
+   Problem:  ChromaDB volume may not be created
+   Impact:   Data loss on restart
+   
+   Check:
+   $ cd apps/backend-rag
+   $ fly volumes list -a nuzantara-rag
+   
+   If empty, create:
+   $ fly volumes create chroma_data --size 10 --region sin
+   
+   Status:   ⏳ NEEDS VERIFICATION
+
+───────────────────────────────────────────────────────────────────────
+
+⚠️  6. Health Check Timeouts Too Aggressive
+
+   Backend RAG: timeout = 10s   (cold start may need 15s)
+   Backend TS:  timeout = 5s    (should be 10s)
+   
+   Recommendation:
+   • RAG: timeout = 15s, grace_period = 60s
+   • TS:  timeout = 10s, grace_period = 15s
+   
+   Status:   ⏳ NEEDS UPDATE
+
+═══════════════════════════════════════════════════════════════════════
+  ARCHITECTURE DIAGRAM
+═══════════════════════════════════════════════════════════════════════
+
+                    ┌─────────────────────┐
+                    │   Users / Frontend  │
+                    │ zantara.balizero.com│
+                    └──────────┬──────────┘
+                               │
+                 ┌─────────────┴─────────────┐
+                 │                           │
+      ┌──────────▼──────────┐     ┌─────────▼──────────┐
+      │ nuzantara-backend   │     │ nuzantara-core     │
+      │   (TypeScript)      │     │   (TypeScript)     │
+      │ Port: 8080          │     │ Port: 8080         │
+      │ Status: ✅ UP       │     │ Status: ✅ UP      │
+      │ Secrets: ❌ MISSING │     │ Secrets: ?         │
+      └──────────┬──────────┘     └─────────┬──────────┘
+                 │                           │
+                 └─────────────┬─────────────┘
+                               │
+                               │ CORS Issue ❌
+                               │
+                    ┌──────────▼──────────┐
+                    │   nuzantara-rag     │
+                    │    (Python)         │
+                    │  Port: 8000         │
+                    │  Status: ✅ UP      │
+                    │  Secrets: ✅ SET    │
+                    └──────────┬──────────┘
+                               │
+                ┌──────────────┼──────────────┐
+                │              │              │
+      ┌─────────▼────┐  ┌──────▼──────┐  ┌──▼─────────┐
+      │ PostgreSQL   │  │  Qdrant     │  │ ChromaDB   │
+      │ (Database)   │  │ (Vectors)   │  │ (Volume)   │
+      │ Status: ✅   │  │ Status: ✅  │  │ Status: ?  │
+      └──────────────┘  └─────────────┘  └────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+  RESOURCE ALLOCATION
+═══════════════════════════════════════════════════════════════════════
+
+Backend RAG (Python):
+  Memory:    2048 MB  ✅ Adequate for ChromaDB + embeddings
+  CPU:       2 shared ✅ Adequate
+  Machines:  1 always ✅ Correct (RAG needs persistence)
+  Region:    sin      ✅ Singapore (low latency to target users)
+
+Backend TS (Node.js):
+  Memory:    1024 MB  ✅ Adequate
+  CPU:       1 shared ✅ Adequate
+  Machines:  2 active ⚠️  Could scale to zero to save costs
+  Region:    sin      ✅ Singapore
+
+Backend Core (Node.js):
+  Memory:    1024 MB  ✅ Adequate
+  CPU:       1 shared ✅ Adequate
+  Machines:  2 active ⚠️  Duplicate of backend TS?
+  Region:    sin      ✅ Singapore
+
+💰 Monthly Cost Estimate: ~$85
+
+═══════════════════════════════════════════════════════════════════════
+  QUICK FIX COMMANDS
+═══════════════════════════════════════════════════════════════════════
+
+🚀 Run Automated Fix Script:
+   $ ./fix-deployment.sh
+
+🔧 Manual Fixes:
+
+   1. Set Backend TS Secrets:
+      $ cd apps/backend-ts
+      $ fly secrets set RAG_BACKEND_URL=https://nuzantara-rag.fly.dev
+      $ fly secrets set ANTHROPIC_API_KEY=sk-ant-...
+      $ fly secrets set OPENAI_API_KEY=sk-...
+
+   2. Fix CORS (edit main_cloud.py):
+      allow_origins=[
+          "https://zantara.balizero.com",
+          "https://nuzantara-backend.fly.dev",  # ← ADD THIS
+          "https://nuzantara-core.fly.dev",     # ← ADD THIS
+          "http://localhost:3000",
+          "http://localhost:5173"
+      ]
+
+   3. Remove Failed Webapp:
+      $ fly apps destroy nuzantara-webapp-kb
+
+   4. Verify Volume:
+      $ fly volumes list -a nuzantara-rag
+
+   5. Deploy Changes:
+      $ cd apps/backend-rag
+      $ fly deploy -a nuzantara-rag
+      
+      $ cd apps/backend-ts
+      $ fly deploy -a nuzantara-backend
+
+═══════════════════════════════════════════════════════════════════════
+  HEALTH CHECK VERIFICATION
+═══════════════════════════════════════════════════════════════════════
+
+Backend RAG:
+  $ curl https://nuzantara-rag.fly.dev/health
+  Response: ✅ {"status":"healthy","version":"v100-perfect"}
+
+Backend TS:
+  $ curl https://nuzantara-backend.fly.dev/health
+  Response: ✅ {"status":"healthy","version":"5.2.1"}
+
+Backend Core:
+  $ curl https://nuzantara-core.fly.dev/health
+  Response: ✅ {"status":"healthy"}
+
+═══════════════════════════════════════════════════════════════════════
+  FILES CREATED
+═══════════════════════════════════════════════════════════════════════
+
+📄 FLY_DEPLOYMENT_ANALYSIS.md     Detailed analysis (11KB)
+📄 fix-deployment.sh               Automated fix script (8KB)
+📄 FLY_DEPLOYMENT_SUMMARY.txt      This summary
+
+═══════════════════════════════════════════════════════════════════════
+  NEXT STEPS
+═══════════════════════════════════════════════════════════════════════
+
+TODAY:
+   1. ✅ Review analysis document
+   2. ⏳ Run ./fix-deployment.sh
+   3. ⏳ Fix CORS configuration
+   4. ⏳ Set backend TS secrets
+   5. ⏳ Test inter-service communication
+
+THIS WEEK:
+   1. ⏳ Align app naming
+   2. ⏳ Verify volume persistence
+   3. ⏳ Update health check timeouts
+   4. ⏳ Remove failed webapp
+
+NEXT 2 WEEKS:
+   1. ⏳ Setup monitoring dashboards
+   2. ⏳ Configure auto-scaling
+   3. ⏳ Cost optimization review
+   4. ⏳ Document deployment procedures
+
+═══════════════════════════════════════════════════════════════════════
+
+📊 OVERALL STATUS: ⚠️  FUNCTIONAL BUT NEEDS FIXES
+
+Critical Issues:    3 ❌ (must fix immediately)
+High Priority:      3 ⚠️  (fix this week)
+Medium Priority:    2 🟡 (fix next 2 weeks)
+
+Apps Running:       5/6 (83%)
+Services Healthy:   ✅ All operational
+Inter-service Comm: ❌ CORS blocking
+
+RECOMMENDATION: Run fix script and deploy updates TODAY
+
+═══════════════════════════════════════════════════════════════════════
+
+Last Updated: 2025-11-02
+Specialist: Deploy Team
+Priority: HIGH
