@@ -3298,6 +3298,49 @@ async def api_collection_stats(collection_name: str):
         raise HTTPException(500, f"Get collection stats failed: {str(e)}")
 
 
+@app.get("/api/collections/{name}/count")
+async def api_collection_count(name: str):
+    """
+    Get document count for a specific ChromaDB collection
+    
+    Args:
+        name: Collection name
+        
+    Returns:
+        {
+            "ok": true,
+            "collection": "collection_name",
+            "count": 1234
+        }
+    """
+    if not search_service:
+        raise HTTPException(503, "Search service not available")
+    
+    try:
+        # Check if collection exists
+        if name not in search_service.collections:
+            raise HTTPException(404, f"Collection '{name}' not found")
+        
+        # Get collection count
+        vector_db = search_service.collections[name]
+        
+        # Try to get count from collection stats
+        stats = vector_db.get_collection_stats()
+        count = stats.get("total_documents", 0)
+        
+        return {
+            "ok": True,
+            "collection": name,
+            "count": count
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Get collection count failed: {e}")
+        raise HTTPException(500, f"Get collection count failed: {str(e)}")
+
+
 # ========================================
 # TEAM WORK SESSION TRACKING ENDPOINTS
 # All reports sent to ZERO only
