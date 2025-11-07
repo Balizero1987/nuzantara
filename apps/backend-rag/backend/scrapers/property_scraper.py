@@ -19,6 +19,12 @@ import psycopg2
 from psycopg2.extras import execute_values, Json
 import re
 
+# Import embeddings generator
+try:
+    from core.embeddings import EmbeddingsGenerator
+except ImportError:
+    from backend.core.embeddings import EmbeddingsGenerator
+
 # Configure logging
 logger.add("logs/property_scraper.log", rotation="1 day")
 
@@ -31,6 +37,10 @@ class LegalArchitect:
         chroma_path: str = "./data/property_kb",
         pg_conn_string: Optional[str] = None
     ):
+        # Initialize embeddings generator (OpenAI 1536-dim)
+        self.embedder = EmbeddingsGenerator()
+        logger.info(f"LegalArchitect using embeddings: {self.embedder.provider} ({self.embedder.dimensions} dims)")
+
         # ChromaDB setup
         self.chroma_client = chromadb.PersistentClient(path=chroma_path)
 
@@ -685,8 +695,11 @@ Opportunities:
     def search_properties(self, query: str, limit: int = 10) -> List[Dict]:
         """Search properties using semantic search"""
         try:
+            # Generate query embedding using OpenAI (1536-dim)
+            query_embedding = self.embedder.generate_query_embedding(query)
+
             results = self.property_listings_collection.query(
-                query_texts=[query],
+                query_embeddings=[query_embedding],
                 n_results=limit
             )
 
