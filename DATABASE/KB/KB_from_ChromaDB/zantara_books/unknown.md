@@ -141,7 +141,7 @@
     - Extension KITAS: 15,000,000 IDR
 
 15. RETIREMENT KITAS (E33F)
-    Description: The Retirement KITAS is available for foreign nationals aged 55 
+    Description: The Retirement KITAS is available for foreign nationals aged 60 
     and want to enjoy retirement in this country. You are allowed to stay for 
     1 year and get multiple entry permit.
     

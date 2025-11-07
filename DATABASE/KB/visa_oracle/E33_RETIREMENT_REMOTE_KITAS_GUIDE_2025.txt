@@ -16,7 +16,7 @@ Name: E33F Retirement Limited Stay Permit
 Old Code: N/A (new category, replaces informal "retirement visa" arrangements)
 Validity: 1 year or 5 years (depends on investment level)
 Entry Type: Multiple entry (built-in)
-Purpose: Foreign nationals aged 55+ retiring in Indonesia
+Purpose: Foreign nationals aged 60+ retiring in Indonesia
 
 E33G - REMOTE WORKER / DIGITAL NOMAD KITAS
 Name: E33G Remote Worker Limited Stay Permit  
@@ -39,7 +39,7 @@ MAJOR BENEFIT: These visas do NOT require Indonesian company sponsorship
 
 AGE
 ---
-□ Minimum age: 55 years old on application date
+□ Minimum age: 60 years old on application date
   - Both spouses eligible if both 55+ (separate applications)
   - Younger spouse: Can apply as E31B Dependent (if sponsor 55+)
 
@@ -332,7 +332,7 @@ E33G is for long-term digital nomads who don't seek permanent residency.
 ================================================================================
 
 CHOOSE E33F RETIREMENT KITAS IF:
-- Age 55+ years old
+- Age 60+ years old
 - Retired (no employment income, living on pension/savings)
 - Want to settle in Indonesia long-term
 - Have USD 35K to deposit OR USD 1,500/month pension

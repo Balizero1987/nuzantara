@@ -527,12 +527,12 @@ e-ITAS = Electronic ITAS (modern digital term)
 
 #### E33F - Retirement KITAS
 
-**Purpose**: For foreigners aged 55+ who want to retire in Indonesia
+**Purpose**: For foreigners aged 60+ who want to retire in Indonesia
 
 **Duration**: 1 year (renewable annually up to 5 years)
 
 **Requirements**:
-- **Minimum age**: 55 years old
+- **Minimum age**: 60 years old
 - **Financial requirement**: USD 18,000-36,000/year pension (sources vary, some state USD 3,000/month)
 - **Insurance**: IDR 25M (~USD 1,600) health + life insurance
 - **Lease agreement**: 1-year lease or property ownership documentation
