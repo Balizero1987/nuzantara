@@ -12,6 +12,8 @@
  * - Error Recovery
  */
 
+import { API_CONFIG } from './api-config.js';
+
 class APIContracts {
   constructor() {
     this.currentVersion = 'v1.2.0';
@@ -22,8 +24,8 @@ class APIContracts {
 
     // Backend URLs with versioning
     this.backends = {
-      ts: 'https://nuzantara-backend.fly.dev',
-      rag: 'https://nuzantara-rag.fly.dev',
+      ts: API_CONFIG.backend.url,
+      rag: API_CONFIG.rag.url,
     };
 
     // Health status cache

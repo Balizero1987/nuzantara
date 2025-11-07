@@ -7,7 +7,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
-import { attachRoutes } from './routing/router.ts';
+import { attachRoutes } from './routing/router.js';
 // import { loadAllHandlers } from './core/load-all-handlers.js';
 import { applySecurity, globalRateLimiter } from './middleware/security.middleware.js';
 import { corsMiddleware } from './middleware/cors.js';
@@ -285,9 +285,12 @@ async function startServer() {
   });
 
   // Enhanced v3 Ω endpoints with circuit breaker protection
-  app.post('/zantara.unified', enhancedRouter.getMiddleware());
-  app.post('/zantara.collective', enhancedRouter.getMiddleware());
-  app.post('/zantara.ecosystem', enhancedRouter.getMiddleware());
+  const { zantaraUnified } = await import('./handlers/zantara/zantara-unified.js');
+  const { zantaraCollective } = await import('./handlers/zantara/zantara-collective.js');
+  const { zantaraEcosystem } = await import('./handlers/zantara/zantara-ecosystem.js');
+  app.post('/zantara.unified', zantaraUnified);
+  app.post('/zantara.collective', zantaraCollective);
+  app.post('/zantara.ecosystem', zantaraEcosystem);
 
   // UNIFIED AUTHENTICATION ENDPOINTS (Gemini Pro 2.5)
   app.get('/auth/strategies', (_req, res) => {
@@ -493,12 +496,12 @@ async function startServer() {
   app.use('/api/auth/team', teamAuthRoutes.default);
   logger.info('✅ Team Authentication routes loaded');
 
-  // Tax Dashboard routes
-  const taxRoutes = await import('./routes/api/tax/tax.routes.js');
-  const { seedTestData } = await import('./services/tax-db.service.js');
-  app.use('/api/tax', taxRoutes.default);
-  seedTestData(); // Initialize test companies
-  logger.info('✅ Tax Dashboard routes loaded');
+  // Tax Dashboard routes (disabled - routes not yet implemented)
+  // const taxRoutes = await import('./routes/api/tax/tax.routes.js');
+  // const { seedTestData } = await import('./services/tax-db.service.js');
+  // app.use('/api/tax', taxRoutes.default);
+  // seedTestData(); // Initialize test companies
+  // logger.info('✅ Tax Dashboard routes loaded');
 
   // V3 Performance Monitoring Routes
   const v3PerformanceRoutes = await import('./routes/v3-performance.routes.js');

@@ -10,11 +10,13 @@
  * Contracts: API versioning and fallback system
  */
 
+import { API_CONFIG } from './api-config.js';
+
 const ZANTARA_API = {
   // Backend URLs (legacy - use API_CONTRACTS for new calls)
   backends: {
-    ts: 'https://nuzantara-backend.fly.dev',
-    rag: 'https://nuzantara-rag.fly.dev',
+    ts: API_CONFIG.backend.url,
+    rag: API_CONFIG.rag.url,
   },
 
   /**
@@ -241,7 +243,7 @@ const ZANTARA_API = {
       }
 
       // Fallback to production backend
-      const response = await fetch('https://nuzantara-backend.fly.dev/zantara.unified', {
+      const response = await fetch(`${API_CONFIG.backend.url}/zantara.unified`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -277,7 +279,7 @@ const ZANTARA_API = {
       }
 
       // Fallback to production backend
-      const response = await fetch('https://nuzantara-backend.fly.dev/zantara.collective', {
+      const response = await fetch(`${API_CONFIG.backend.url}/zantara.collective`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -325,7 +327,7 @@ const ZANTARA_API = {
       }
 
       // Fallback to production backend
-      const response = await fetch('https://nuzantara-backend.fly.dev/zantara.ecosystem', {
+      const response = await fetch(`${API_CONFIG.backend.url}/zantara.ecosystem`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
