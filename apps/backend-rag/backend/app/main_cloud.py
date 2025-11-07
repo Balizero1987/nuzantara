@@ -3341,6 +3341,99 @@ async def api_collection_count(name: str):
         raise HTTPException(500, f"Get collection count failed: {str(e)}")
 
 
+@app.post("/api/collections/{collection_name}/load")
+async def load_documents_to_collection(
+    collection_name: str,
+    request: Request
+):
+    """
+    Load documents into a ChromaDB collection with deduplication.
+    
+    Request body:
+    {
+        "documents": [
+            {
+                "id": "doc_id",
+                "text": "document text",
+                "metadata": {...},
+                "embedding": [0.1, 0.2, ...]
+            },
+            ...
+        ],
+        "batch_size": 1000,  // optional, default 1000
+        "skip_duplicates": true  // optional, default true
+    }
+    
+    Returns:
+    {
+        "ok": true,
+        "collection": "collection_name",
+        "loaded": 6158,
+        "skipped": 0,
+        "total": 6158,
+        "duration_seconds": 12.5
+    }
+    """
+    import time
+    start_time = time.time()
+    
+    if not search_service:
+        raise HTTPException(503, "Search service not available")
+    
+    try:
+        body = await request.json()
+        documents = body.get("documents", [])
+        batch_size = body.get("batch_size", 1000)
+        skip_duplicates = body.get("skip_duplicates", True)
+        
+        if not documents:
+            raise HTTPException(400, "No documents provided")
+        
+        # Get or create collection
+        if collection_name not in search_service.collections:
+            # Create collection with OpenAI embeddings (1536 dimensions)
+            search_service.collections[collection_name] = search_service.chroma_client.get_or_create_collection(
+                name=collection_name,
+                metadata={"hnsw:space": "cosine"}
+            )
+        
+        collection = search_service.collections[collection_name]
+        
+        loaded_count = 0
+        skipped_count = 0
+        
+        # Process in batches
+        for i in range(0, len(documents), batch_size):
+            batch = documents[i:i + batch_size]
+            
+            # Add documents to collection
+            collection.add(
+                ids=[doc["id"] for doc in batch],
+                documents=[doc["text"] for doc in batch],
+                metadatas=[doc["metadata"] for doc in batch],
+                embeddings=[doc["embedding"] for doc in batch]
+            )
+            loaded_count += len(batch)
+            logger.info(f"📥 Loaded batch {i//batch_size + 1}: {loaded_count}/{len(documents)} documents")
+        
+        duration = time.time() - start_time
+        
+        return {
+            "ok": True,
+            "collection": collection_name,
+            "loaded": loaded_count,
+            "skipped": skipped_count,
+            "total": len(documents),
+            "duration_seconds": round(duration, 2)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Load documents failed: {e}")
+        raise HTTPException(500, f"Load documents failed: {str(e)}")
+
+
 # ========================================
 # TEAM WORK SESSION TRACKING ENDPOINTS
 # All reports sent to ZERO only
