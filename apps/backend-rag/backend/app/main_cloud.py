@@ -3389,24 +3389,28 @@ async def load_documents_to_collection(
         if not documents:
             raise HTTPException(400, "No documents provided")
         
-        # Get or create collection
+        # Get or create collection via ChromaDBClient wrapper
         if collection_name not in search_service.collections:
-            # Create collection with OpenAI embeddings (1536 dimensions)
-            search_service.collections[collection_name] = search_service.chroma_client.get_or_create_collection(
-                name=collection_name,
-                metadata={"hnsw:space": "cosine"}
+            # Create new ChromaDBClient wrapper for this collection
+            from core.vector_db import ChromaDBClient
+            chroma_path = os.environ.get('CHROMA_DB_PATH', '/data/chroma_db_FULL_deploy')
+            search_service.collections[collection_name] = ChromaDBClient(
+                persist_directory=chroma_path,
+                collection_name=collection_name
             )
-        
-        collection = search_service.collections[collection_name]
-        
+
+        chromadb_wrapper = search_service.collections[collection_name]
+        # Access the native ChromaDB collection
+        collection = chromadb_wrapper.collection
+
         loaded_count = 0
         skipped_count = 0
-        
+
         # Process in batches
         for i in range(0, len(documents), batch_size):
             batch = documents[i:i + batch_size]
-            
-            # Add documents to collection
+
+            # Add documents to collection (native ChromaDB API)
             collection.add(
                 ids=[doc["id"] for doc in batch],
                 documents=[doc["text"] for doc in batch],
