@@ -1,0 +1,605 @@
+/**
+ * ZANTARA Design System v4
+ * Extracted from /Desktop/webza design
+ * Adapted for vanilla HTML/CSS/JS (no Tailwind)
+ *
+ * Color Palette: Gold (#BFAA7E) + Black (#0C0C0C)
+ * Typography: Cormorant Garamond (serif) + SF Pro Display (sans-serif)
+ * Effects: Glassmorphism, smooth animations
+ */
+
+/* ============================================
+   1. CSS RESET & BASE
+   ============================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #0c0c0c !important; /* PURE BLACK FORCED */
+  color: rgba(255, 255, 255, 0.92);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI',
+               'Roboto', 'Helvetica Neue', sans-serif;
+  line-height: 1.6;
+}
+
+html {
+  background: #0c0c0c !important; /* PURE BLACK FORCED */
+}
+
+/* ============================================
+   2. CSS VARIABLES
+   ============================================ */
+
+:root {
+  /* --- COLORS --- */
+
+  /* Gold Palette */
+  --zantara-gold: #bfaa7e;
+  --zantara-gold-dim: rgba(191, 170, 126, 0.6);
+  --zantara-gold-bright: #d4af8f;
+  --zantara-gold-light: rgba(191, 170, 126, 0.15);
+
+  /* Background */
+  --zantara-bg: #0c0c0c;
+  --zantara-bg-light: #1a1a1a;
+
+  /* Text */
+  --zantara-white: rgba(255, 255, 255, 0.92);
+  --zantara-text-secondary: rgba(255, 255, 255, 0.7);
+  --zantara-text-tertiary: rgba(255, 255, 255, 0.4);
+  --zantara-text-disabled: rgba(255, 255, 255, 0.35);
+
+  /* Surface */
+  --zantara-surface: rgba(255, 255, 255, 0.03);
+  --zantara-surface-hover: rgba(255, 255, 255, 0.06);
+  --zantara-surface-active: rgba(255, 255, 255, 0.08);
+
+  /* Border */
+  --zantara-border: rgba(191, 170, 126, 0.2);
+  --zantara-border-light: rgba(191, 170, 126, 0.15);
+  --zantara-border-strong: rgba(191, 170, 126, 0.3);
+  --zantara-border-hover: rgba(191, 170, 126, 0.5);
+
+  /* Accent */
+  --zantara-accent: #bfaa7e;
+  --zantara-accent-hover: #d4af8f;
+
+  /* Status */
+  --zantara-error: #a84c37;
+  --zantara-success: #4a9b6f;
+  --zantara-warning: #c4a25c;
+
+  /* --- TYPOGRAPHY --- */
+
+  /* Font Families */
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+               'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  --font-mono: 'SF Mono', Consolas, 'Courier New', monospace;
+
+  /* Font Sizes */
+  --text-xs: 0.6875rem;    /* 11px */
+  --text-sm: 0.8125rem;    /* 13px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 1.875rem;    /* 30px */
+  --text-4xl: 2.25rem;     /* 36px */
+
+  /* Font Weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+  --leading-loose: 1.75;
+
+  /* Letter Spacing */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* --- SPACING --- */
+
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+
+  /* --- RADIUS --- */
+
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.625rem;   /* 10px */
+  --radius-xl: 0.75rem;    /* 12px */
+  --radius-full: 9999px;
+
+  /* --- SHADOWS --- */
+
+  --shadow-sm: 0 1px 2px rgba(191, 170, 126, 0.1);
+  --shadow-md: 0 2px 4px rgba(191, 170, 126, 0.15);
+  --shadow-lg: 0 4px 8px rgba(191, 170, 126, 0.2);
+  --shadow-xl: 0 8px 16px rgba(191, 170, 126, 0.25);
+  --shadow-glow: 0 0 6px rgba(191, 170, 126, 0.3);
+
+  /* --- TRANSITIONS --- */
+
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slower: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Z-INDEX --- */
+
+  --z-base: 1;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal: 40;
+  --z-popover: 50;
+  --z-tooltip: 60;
+}
+
+/* ============================================
+   3. TYPOGRAPHY UTILITIES
+   ============================================ */
+
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+.text-3xl { font-size: var(--text-3xl); }
+.text-4xl { font-size: var(--text-4xl); }
+
+.font-normal { font-weight: var(--weight-normal); }
+.font-medium { font-weight: var(--weight-medium); }
+.font-semibold { font-weight: var(--weight-semibold); }
+.font-bold { font-weight: var(--weight-bold); }
+
+.font-serif { font-family: var(--font-serif); }
+.font-sans { font-family: var(--font-sans); }
+.font-mono { font-family: var(--font-mono); }
+
+.leading-tight { line-height: var(--leading-tight); }
+.leading-normal { line-height: var(--leading-normal); }
+.leading-relaxed { line-height: var(--leading-relaxed); }
+.leading-loose { line-height: var(--leading-loose); }
+
+.tracking-tight { letter-spacing: var(--tracking-tight); }
+.tracking-normal { letter-spacing: var(--tracking-normal); }
+.tracking-wide { letter-spacing: var(--tracking-wide); }
+.tracking-wider { letter-spacing: var(--tracking-wider); }
+.tracking-widest { letter-spacing: var(--tracking-widest); }
+
+/* Text Colors */
+.text-gold { color: var(--zantara-gold); }
+.text-white { color: var(--zantara-white); }
+.text-secondary { color: var(--zantara-text-secondary); }
+.text-tertiary { color: var(--zantara-text-tertiary); }
+.text-disabled { color: var(--zantara-text-disabled); }
+
+/* ============================================
+   4. ANIMATIONS
+   ============================================ */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes wave {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation Classes */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-wave {
+  animation: wave 1.5s ease-in-out infinite;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideInFromBottom {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* ============================================
+   5. SCROLLBAR STYLING
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--zantara-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--zantara-gold-dim);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--zantara-border) transparent;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   6. UTILITY CLASSES
+   ============================================ */
+
+/* Display */
+.hidden { display: none; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.grid { display: grid; }
+
+/* Flexbox */
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+
+/* Position */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+
+/* Sizing */
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.min-h-screen { min-height: 100vh; }
+.max-w-2xl { max-width: 42rem; }
+.max-w-lg { max-width: 32rem; }
+
+/* Spacing */
+.p-2 { padding: var(--space-2); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.px-5 { padding-left: var(--space-5); padding-right: var(--space-5); }
+.px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
+.py-2 { padding-top: var(--space-2); padding-bottom: var(--space-2); }
+.py-3 { padding-top: var(--space-3); padding-bottom: var(--space-3); }
+.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.pt-8 { padding-top: var(--space-8); }
+.pb-8 { padding-bottom: var(--space-8); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mb-2 { margin-bottom: var(--space-2); }
+
+/* Border Radius */
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* Opacity */
+.opacity-35 { opacity: 0.35; }
+.opacity-60 { opacity: 0.6; }
+.opacity-92 { opacity: 0.92; }
+.opacity-95 { opacity: 0.95; }
+
+/* Overflow */
+.overflow-hidden { overflow: hidden; }
+.overflow-x-hidden { overflow-x: hidden; }
+.overflow-y-auto { overflow-y: auto; }
+
+/* Cursor */
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+
+/* Transitions */
+.transition-all { transition: all var(--transition-base); }
+.transition-colors { transition: color var(--transition-base),
+                                background-color var(--transition-base),
+                                border-color var(--transition-base); }
+
+/* ============================================
+   7. COMPONENT PATTERNS
+   ============================================ */
+
+/* Glass Surface */
+.glass-surface {
+  background: var(--zantara-surface);
+  border: 1px solid var(--zantara-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.glass-surface-hover {
+  background: var(--zantara-surface-hover);
+  border: 1px solid var(--zantara-border-hover);
+}
+
+/* Gold Border Accent */
+.border-accent-left {
+  border-left: 2px solid var(--zantara-gold);
+}
+
+.border-accent-bottom {
+  border-bottom: 1.5px solid var(--zantara-gold);
+}
+
+/* Focus Ring */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(191, 170, 126, 0.1);
+}
+
+/* Button Base */
+.btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border: 1px solid transparent;
+}
+
+.btn-base:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Button Primary (Gold) */
+.btn-primary {
+  background: var(--zantara-gold);
+  color: var(--zantara-bg);
+  border-color: var(--zantara-gold);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--zantara-gold-bright);
+  transform: scale(1.02);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Button Secondary (Outline) */
+.btn-secondary {
+  background: var(--zantara-surface);
+  color: var(--zantara-gold);
+  border-color: var(--zantara-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--zantara-surface-hover);
+  border-color: var(--zantara-border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+/* Input Base */
+.input-base {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--zantara-surface);
+  border: 1px solid var(--zantara-border);
+  border-radius: var(--radius-lg);
+  color: var(--zantara-white);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  transition: all var(--transition-base);
+}
+
+.input-base::placeholder {
+  color: var(--zantara-text-tertiary);
+}
+
+.input-base:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--zantara-border-hover);
+  box-shadow: 0 0 0 3px rgba(191, 170, 126, 0.1);
+}
+
+/* ============================================
+   8. RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  .sm\:hidden {
+    display: none;
+  }
+
+  .sm\:text-sm {
+    font-size: var(--text-sm);
+  }
+
+  .sm\:px-4 {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+}
+
+@media (min-width: 768px) {
+  .md\:px-8 {
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
+  }
+
+  .md\:text-base {
+    font-size: var(--text-base);
+  }
+}
+
+/* ============================================
+   9. ACCESSIBILITY
+   ============================================ */
+
+/* Focus visible for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--zantara-gold);
+  outline-offset: 2px;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --zantara-border: rgba(191, 170, 126, 0.5);
+    --zantara-text-tertiary: rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* ============================================
+   10. PRINT STYLES
+   ============================================ */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
