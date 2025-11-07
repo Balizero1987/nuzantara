@@ -1,8 +1,10 @@
 # 🌟 ZANTARA v5.2.1 - PRODUCTION READY
 ## *Advanced Knowledge System for Business Intelligence*
 
+**📋 Latest Updates:** See [docs/RECENT_UPDATES_20251107.md](docs/RECENT_UPDATES_20251107.md) for Nov 7, 2025 changes.
+
 **Status**: 🟢 **FULLY OPERATIONAL** | **Deployed**: Fly.io (Singapore + Cloudflare CDN)
-**Last Updated**: 2025-11-05 | **Knowledge Base**: 25,422 Documents (Verified ✅)
+**Last Updated**: 2025-11-07 | **Knowledge Base**: 25,422 Documents (Verified ✅)
 **Features**: 9/38 Implemented (23.7%) | **Uptime**: 99%+
 
 ---
@@ -11,7 +13,7 @@
 
 ZANTARA is an advanced **intelligent knowledge system** that provides:
 - 🧠 **Semantic Search** across 8 specialized knowledge domains
-- 🤖 **AI-Powered Intelligence** (Claude Haiku 4.5) for business insights
+- 🤖 **AI-Powered Intelligence** (Llama 4 Scout PRIMARY, Claude Haiku 4.5 fallback) for business insights
 - 🌍 **Production Infrastructure** with 99%+ uptime
 - ⚡ **Real-time Processing** with ~120ms cached response times
 - 🔒 **Enterprise Security** with JWT authentication & rate limiting
