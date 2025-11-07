@@ -2,9 +2,13 @@
  * ZANTARA Login Page - Email + PIN Authentication
  */
 
-// Configuration
-const API_BASE_URL = 'https://nuzantara-backend.fly.dev';
-const MEMORY_SERVICE_URL = 'https://nuzantara-memory.fly.dev';
+// Configuration - Use centralized API_CONFIG
+const API_CONFIG = window.API_CONFIG || {
+  backend: { url: 'https://nuzantara-backend.fly.dev' },
+  memory: { url: 'https://nuzantara-memory.fly.dev' }
+};
+const API_BASE_URL = API_CONFIG.backend.url;
+const MEMORY_SERVICE_URL = API_CONFIG.memory.url;
 
 // DOM Elements
 let emailInput, pinInput, pinToggle, loginButton, errorMessage, welcomeMessage, loginForm;
