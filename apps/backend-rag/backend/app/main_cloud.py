@@ -1473,6 +1473,67 @@ async def health_check():
     )
 
 
+@app.post("/api/auth/demo")
+async def demo_auth(request: Request):
+    """
+    Demo authentication endpoint for frontend
+
+    This endpoint provides a simple token-based authentication for development/demo purposes.
+    Frontend calls this from zantara-client.js to get an access token.
+
+    Request body:
+    {
+        "userId": "demo" (optional)
+    }
+
+    Response:
+    {
+        "token": "demo_<userId>_<timestamp>",
+        "expiresIn": 3600,
+        "userId": "<userId>"
+    }
+    """
+    try:
+        body = await request.json()
+        user_id = body.get("userId", "demo")
+
+        # Generate demo token (simple timestamp-based for now)
+        # In production, this would use JWT or similar
+        token = f"demo_{user_id}_{int(time.time())}"
+
+        logger.info(f"🔐 Demo auth: Generated token for user '{user_id}'")
+
+        return JSONResponse(
+            content={
+                "token": token,
+                "expiresIn": 3600,  # 1 hour
+                "userId": user_id
+            },
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            }
+        )
+    except Exception as e:
+        logger.error(f"❌ Demo auth error: {e}")
+        raise HTTPException(status_code=500, detail=f"Authentication failed: {str(e)}")
+
+
+@app.options("/api/auth/demo")
+async def demo_auth_options():
+    """Handle CORS preflight for demo auth endpoint"""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Max-Age": "3600"
+        }
+    )
+
+
 @app.get("/warmup/stats")
 async def warmup_stats():
     """Get warmup task status and system readiness"""
