@@ -17,3 +17,7 @@ export const API_CONFIG = {
   }
 };
 
+// Expose globally for non-module scripts
+if (typeof window !== 'undefined') {
+  window.API_CONFIG = API_CONFIG;
+}
