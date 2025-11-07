@@ -188,7 +188,7 @@
 
 ## 2. RETIREMENT VISAS
 
-Indonesia offers **two types** of retirement visas for foreign nationals age 55+.
+Indonesia offers **two types** of retirement visas for foreign nationals age 60+.
 
 ### 2.1 Standard Retirement KITAS (E33F)
 
@@ -199,7 +199,7 @@ Indonesia offers **two types** of retirement visas for foreign nationals age 55+
 #### Eligibility
 
 **Age Requirements**:
-- **Minimum Age**: 55 years old (some sources state 60 - verify with immigration office)
+- **Minimum Age**: 60 years old (some sources state 60 - verify with immigration office)
 - Must provide birth certificate or passport showing age
 
 **Financial Requirements**:

@@ -107,7 +107,7 @@ In **January 2024**, the Indonesian government overhauled the visa classificatio
 | **Work** | C312 work permit holder | **3 years** C312 KITAS | Continuous employment required |
 | **Golden Visa** | Golden Visa holder | **3 years** Golden Visa | USD 350K+ investment maintained |
 | **Second Home Visa** | Second Home Visa holder | **3 years** Second Home | USD 130K+ deposit maintained |
-| **Retirement** | E33F retirement visa holder | **5 years** E33F KITAS | Age 55+, continuous residence |
+| **Retirement** | E33F retirement visa holder | **5 years** E33F KITAS | Age 60+, continuous residence |
 
 ---
 

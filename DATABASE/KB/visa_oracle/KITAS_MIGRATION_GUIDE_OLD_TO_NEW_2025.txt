@@ -223,7 +223,7 @@ Old "retirement visa" was informal arrangement (often C1 tourist extended repeat
 
 NEW E33F (2024):
 - Official retirement permit (not tourist visa abuse)
-- Age 55+ required
+- Age 60+ required
 - Financial: USD 1,500/month pension OR USD 35K bank deposit
 - Validity: 1 year or 5 years
 - Cost: 14M IDR (1yr offshore)
@@ -231,7 +231,7 @@ NEW E33F (2024):
 - Path to KITAP: Yes (after 4 years)
 
 WHO SHOULD APPLY:
-- Retirees aged 55+ who previously used serial C1 extensions
+- Retirees aged 60+ who previously used serial C1 extensions
 - Former E23 holders who retired (and are 55+)
 - Foreigners with pension income wanting long-term stay
 
@@ -365,7 +365,7 @@ A: No. Each C312 was a separate 1-year permit. KITAP requires 3 CONSECUTIVE
    years of E23 (new system). Your C312 history doesn't transfer.
 
 Q: I'm 54 years old, can I get E33F Retirement KITAS now?
-A: No. E33F requires age 55+. Wait until your 55th birthday, then apply.
+A: No. E33F requires age 60+. Wait until your 55th birthday, then apply.
    Alternative: E33G Remote Worker (if working) or C1/D1 tourist visa until 55.
 
 Q: Can I convert from E23 (work) to E33G (remote worker) if I want to freelance?
@@ -420,7 +420,7 @@ IF YOU'RE DIGITAL NOMAD ON TOURIST VISA:
 
 IF YOU'RE RETIRED (55+) ON TOURIST VISA:
 -----------------------------------------
-□ Prove age 55+ (passport/birth certificate)
+□ Prove age 60+ (passport/birth certificate)
 □ Show pension income (USD 1.5K/month) OR deposit USD 35K in Indonesian bank
 □ Get health insurance
 □ Find sponsor (Bali Zero can connect with insurance company)
