@@ -107,18 +107,31 @@ export async function attachRoutes(app: express.Application) {
         }
 
         // === TEAM MANAGEMENT ===
+        // Note: Team handlers are Express-style (req, res), need to create mock request
         else if (key === 'team.list') {
           const { teamList } = await import('../handlers/bali-zero/team.js');
-          const result = await teamList(params);
-          res.json(result);
+          const mockReq: any = { body: { params } };
+          const mockRes: any = {
+            json: (data: any) => res.json(data),
+            status: (code: number) => ({ json: (data: any) => res.status(code).json(data) }),
+          };
+          await teamList(mockReq, mockRes);
         } else if (key === 'team.get') {
           const { teamGet } = await import('../handlers/bali-zero/team.js');
-          const result = await teamGet(params);
-          res.json(result);
+          const mockReq: any = { body: { params } };
+          const mockRes: any = {
+            json: (data: any) => res.json(data),
+            status: (code: number) => ({ json: (data: any) => res.status(code).json(data) }),
+          };
+          await teamGet(mockReq, mockRes);
         } else if (key === 'team.departments') {
           const { teamDepartments } = await import('../handlers/bali-zero/team.js');
-          const result = await teamDepartments(params);
-          res.json(result);
+          const mockReq: any = { body: { params } };
+          const mockRes: any = {
+            json: (data: any) => res.json(data),
+            status: (code: number) => ({ json: (data: any) => res.status(code).json(data) }),
+          };
+          await teamDepartments(mockReq, mockRes);
         } else if (key === 'team.login.secure') {
           const { teamLoginSecure } = await import('../handlers/auth/team-login-secure.js');
           const result = await teamLoginSecure(params);
@@ -171,17 +184,51 @@ export async function attachRoutes(app: express.Application) {
 
         // === LEAD MANAGEMENT ===
         else if (key === 'lead.save') {
-          // Inline handler from router.ts
-          const { getHandler } = await import('./router.js');
-          const handler = await getHandler('lead.save');
-          const result = await handler(params);
-          res.json(result);
+          // Inline implementation (from router.ts)
+          const { service = '' } = params;
+          if (!service) {
+            res.status(400).json({
+              ok: false,
+              error: 'Service type required: visa, company, tax, or real-estate',
+            });
+          } else {
+            res.json({
+              ok: true,
+              leadId: `lead_${Date.now()}`,
+              followUpScheduled: true,
+              message: `Lead saved for ${service} service. Our team will contact you within 24 hours.`,
+              nextSteps: [
+                'Team notification sent',
+                'Follow-up scheduled',
+                'Documents preparation initiated',
+              ],
+              contact: {
+                email: 'info@balizero.com',
+                whatsapp: '+62 859 0436 9574',
+              },
+            });
+          }
         } else if (key === 'quote.generate') {
-          // Inline handler from router.ts
-          const { getHandler } = await import('./router.js');
-          const handler = await getHandler('quote.generate');
-          const result = await handler(params);
-          res.json(result);
+          // Inline implementation (from router.ts)
+          const { service = '' } = params;
+          if (!service) {
+            res.status(400).json({
+              ok: false,
+              error: 'Service type required',
+            });
+          } else {
+            res.json({
+              ok: true,
+              quoteId: `quote_${Date.now()}`,
+              service,
+              estimatedCost: 'Contact for detailed quote',
+              message: 'Quote generated. Our team will contact you with detailed pricing.',
+              contact: {
+                email: 'info@balizero.com',
+                whatsapp: '+62 859 0436 9574',
+              },
+            });
+          }
         } else if (key === 'document.prepare') {
           const { documentPrepare } = await import('../handlers/bali-zero/advisory.js');
           const result = await documentPrepare(params);
