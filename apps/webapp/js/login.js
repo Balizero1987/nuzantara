@@ -173,15 +173,15 @@ async function handleLogin(e) {
   clearError();
 
   try {
-    console.log('🔐 Attempting login...');
+    console.log('🔐 Attempting login with new auth endpoint...');
 
-    // Call login API
-    const response = await fetch(`${API_BASE_URL}/api/auth/team/login`, {
+    // Call NEW login API
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name: email.split('@')[0], email, pin }),
+      body: JSON.stringify({ email, pin }),
     });
 
     const result = await response.json();
@@ -194,20 +194,20 @@ async function handleLogin(e) {
     const { data } = result;
     console.log('✅ Login successful:', data.user.name);
 
-    // Store auth data
-    storeAuthData(data);
+    // Store auth data (JWT token + user)
+    localStorage.setItem('auth_token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    localStorage.setItem('auth_expires', data.expires_in || '7d');
+    
+    console.log('✅ JWT token saved to localStorage');
 
-    // Show personalized response
-    if (data.personalizedResponse) {
-      showSuccess(data.personalizedResponse);
+    // Show success message
+    showSuccess(`Welcome back, ${data.user.name}! 🎉`);
 
-      // Redirect after 2 seconds
-      setTimeout(() => {
-        window.location.href = '/chat.html';
-      }, 2000);
-    } else {
+    // Redirect after 1.5 seconds
+    setTimeout(() => {
       window.location.href = '/chat.html';
-    }
+    }, 1500);
 
   } catch (error) {
     console.error('❌ Login failed:', error);
