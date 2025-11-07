@@ -11,7 +11,9 @@ export const API_CONFIG = {
       : 'https://nuzantara-rag.fly.dev'
   },
   memory: {
-    url: 'https://nuzantara-memory.fly.dev'
+    url: window.location.hostname === 'localhost'
+      ? 'http://localhost:8081'  // Different port to avoid conflict with backend-ts
+      : 'https://nuzantara-memory.fly.dev'
   }
 };
 
