@@ -1,5 +1,7 @@
 # ZANTARA v3 Ω
 
+**📋 Latest Updates:** See [docs/RECENT_UPDATES_20251107.md](docs/RECENT_UPDATES_20251107.md) for Nov 7, 2025 changes.
+
 Sistema di intelligenza legale e gestionale per Indonesia - Architettura modulare completa.
 
 ## 🚀 Quick Start
