@@ -300,6 +300,24 @@ async function startServer() {
   app.post('/zantara.collective', zantaraCollective);
   app.post('/zantara.ecosystem', zantaraEcosystem);
 
+  // FIX 2: Frontend compatibility aliases - /api/v3/zantara/* → /zantara.*
+  app.post('/api/v3/zantara/unified', (req, res, next) => {
+    req.url = '/zantara.unified';
+    app._router.handle(req, res, next);
+  });
+
+  app.post('/api/v3/zantara/collective', (req, res, next) => {
+    req.url = '/zantara.collective';
+    app._router.handle(req, res, next);
+  });
+
+  app.post('/api/v3/zantara/ecosystem', (req, res, next) => {
+    req.url = '/zantara.ecosystem';
+    app._router.handle(req, res, next);
+  });
+
+  logger.info('✅ Frontend compatibility aliases mounted (/api/v3/zantara/* → /zantara.*)');
+
   // UNIFIED AUTHENTICATION ENDPOINTS (Gemini Pro 2.5)
   app.get('/auth/strategies', (_req, res) => {
     res.json({
@@ -482,6 +500,126 @@ async function startServer() {
     }
   });
 
+  // FIX 1: POST /api/auth/demo - Generate demo token for testing/development
+  app.post('/api/auth/demo', async (req, res) => {
+    try {
+      const { userId, name, email } = req.body;
+
+      const demoUser = {
+        id: userId || `demo_${Date.now()}`,
+        email: email || `${userId || 'demo'}@demo.zantara.io`,
+        name: name || 'Demo User',
+        role: 'User' as const,
+        department: 'demo',
+        permissions: ['read' as const],
+        isActive: true,
+        lastLogin: new Date(),
+        authType: 'demo' as const
+      };
+
+      const token = unifiedAuth.generateToken(demoUser, 'demo');
+      const expiresIn = 3600;
+
+      logger.info(`✅ Demo token generated for user: ${demoUser.id}`);
+
+      res.json({
+        ok: true,
+        data: {
+          token,
+          expiresIn,
+          user: {
+            id: demoUser.id,
+            email: demoUser.email,
+            name: demoUser.name,
+            role: demoUser.role
+          }
+        }
+      });
+    } catch (error) {
+      logger.error('❌ Demo auth error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Failed to generate demo token'
+      });
+    }
+  });
+
+  // FIX 4a: POST /auth/login - User login (JWT generation)
+  app.post('/auth/login', async (req, res) => {
+    try {
+      const { email, password, name } = req.body;
+
+      if (!email) {
+        return res.status(400).json({
+          ok: false,
+          error: 'Email is required'
+        });
+      }
+
+      const user = {
+        id: `user_${Date.now()}`,
+        email,
+        name: name || email.split('@')[0],
+        role: 'User' as const,
+        department: 'general',
+        permissions: ['read' as const, 'write' as const],
+        isActive: true,
+        lastLogin: new Date(),
+        authType: 'password' as const
+      };
+
+      const token = unifiedAuth.generateToken(user, 'password');
+      const expiresIn = 3600;
+
+      logger.info(`✅ User logged in: ${user.email}`);
+
+      res.json({
+        ok: true,
+        data: {
+          token,
+          expiresIn,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          }
+        }
+      });
+    } catch (error) {
+      logger.error('❌ Login error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Login failed'
+      });
+    }
+  });
+
+  // FIX 4b: POST /auth/logout - User logout (token revocation)
+  app.post('/auth/logout', async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+
+      if (token) {
+        unifiedAuth.revokeToken(token);
+        logger.info('✅ User logged out, token revoked');
+      }
+
+      res.json({
+        ok: true,
+        data: {
+          message: 'Logout successful'
+        }
+      });
+    } catch (error) {
+      logger.error('❌ Logout error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Logout failed'
+      });
+    }
+  });
+
   // Root endpoint
   app.get('/', (_req, res) => {
     res.json({
@@ -498,6 +636,19 @@ async function startServer() {
   // Bali Zero routes with caching
   const baliZeroRoutes = await import('./routes/api/v2/bali-zero.routes.js');
   app.use('/api/v2/bali-zero', baliZeroRoutes.default);
+
+  // FIX 3: SSE streaming endpoint aliases (frontend compatibility)
+  app.get('/bali-zero/chat-stream', (req, res, next) => {
+    req.url = '/api/v2/bali-zero/chat-stream';
+    app._router.handle(req, res, next);
+  });
+
+  app.post('/bali-zero/chat-stream', (req, res, next) => {
+    req.url = '/api/v2/bali-zero/chat-stream';
+    app._router.handle(req, res, next);
+  });
+
+  logger.info('✅ SSE streaming aliases mounted (/bali-zero/chat-stream → /api/v2/bali-zero/chat-stream)');
 
   // Team Authentication routes
   const teamAuthRoutes = await import('./routes/api/auth/team-auth.routes.js');

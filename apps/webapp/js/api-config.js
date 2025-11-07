@@ -11,7 +11,10 @@ export const API_CONFIG = {
       : 'https://nuzantara-rag.fly.dev'
   },
   memory: {
-    url: 'https://nuzantara-memory.fly.dev'
+    // FIX 5: Add localhost fallback (port 8081, different from backend 8080)
+    url: window.location.hostname === 'localhost'
+      ? 'http://localhost:8081'
+      : 'https://nuzantara-memory.fly.dev'
   }
 };
 
