@@ -339,7 +339,7 @@ CHOOSE E33F RETIREMENT KITAS IF:
 - Want path to KITAP (after 4 years)
 
 CHOOSE E33G REMOTE WORKER KITAS IF:
-- Age <55 OR still working remotely
+- Age <60 OR still working remotely
 - Employed by foreign company OR freelancer/entrepreneur
 - Income USD 2,000+/month
 - Want flexibility to work while living in Indonesia
