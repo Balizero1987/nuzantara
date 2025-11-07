@@ -27,7 +27,7 @@ Error: 401 - {'error': {'message': 'No cookie auth credentials found', 'code': 4
 ```
 
 ### 2. API Key Testing
-**New Key**: `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`
+**New Key**: `[REDACTED]`
 
 **Direct Test Results**:
 ```
