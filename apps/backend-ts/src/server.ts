@@ -504,6 +504,12 @@ async function startServer() {
   app.use('/api/auth/team', teamAuthRoutes.default);
   logger.info('✅ Team Authentication routes loaded');
 
+  // Main Authentication routes (JWT-based)
+  const authRoutes = await import('./routes/auth.routes.js');
+  app.use('/api/auth', authRoutes.default);
+  app.use('/api/user', authRoutes.default); // For /api/user/profile
+  logger.info('✅ Main Authentication routes loaded');
+
   // Tax Dashboard routes (disabled - routes not yet implemented)
   // const taxRoutes = await import('./routes/api/tax/tax.routes.js');
   // const { seedTestData } = await import('./services/tax-db.service.js');
