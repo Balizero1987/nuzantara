@@ -4,6 +4,7 @@
 
 // Configuration
 const API_BASE_URL = 'https://nuzantara-backend.fly.dev';
+const MEMORY_SERVICE_URL = 'https://nuzantara-memory.fly.dev';
 
 // DOM Elements
 let emailInput, pinInput, pinToggle, loginButton, errorMessage, welcomeMessage, loginForm;
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async function() {
  */
 async function loadTeamMembers() {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/team/members`);
+    const response = await fetch(`${API_BASE_URL}/api/team/members`);
     const result = await response.json();
 
     if (result.ok && result.data) {
@@ -171,7 +172,7 @@ async function handleLogin(e) {
     console.log('🔐 Attempting login...');
 
     // Call login API
-    const response = await fetch(`${API_BASE_URL}/api/auth/team/login`, {
+    const response = await fetch(`${API_BASE_URL}/api/team/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -257,6 +258,30 @@ function storeAuthData(data) {
   }
 
   console.log('✅ Auth data stored in localStorage');
+
+  // Initialize Memory Service session
+  initializeMemorySession(data.user.id, data.user.email);
+}
+
+/**
+ * Initialize or restore conversation session in Memory Service
+ */
+async function initializeMemorySession(userId, userEmail) {
+  try {
+    // Use global CONVERSATION_CLIENT from conversation-client.js
+    if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
+      const sessionId = await window.CONVERSATION_CLIENT.initializeSession(userId, userEmail);
+      console.log(`✅ Memory Service session initialized: ${sessionId}`);
+      return sessionId;
+    } else {
+      console.warn('⚠️ CONVERSATION_CLIENT not loaded');
+      return null;
+    }
+  } catch (error) {
+    console.warn('⚠️ Memory Service initialization failed:', error.message);
+    // Continue without memory service - not critical for login
+    return null;
+  }
 }
 
 /**
