@@ -6,7 +6,6 @@
 
 import logger from '../../services/logger.js';
 import { ragService } from '../../services/ragService.js';
-import type { Request } from 'express';
 import type { RAGQueryResponse, BaliZeroResponse } from '../../services/ragService.js';
 
 const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
@@ -19,11 +18,12 @@ const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fl
  * RAG Query - Generate answer using Ollama + ChromaDB
  * Handler: rag.query (Feature #11)
  */
-export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryResponse> {
+export async function ragQuery(params: any): Promise<RAGQueryResponse> {
   const {
     query,
     k = 5,
     use_llm = true,
+    collection = 'legal_unified', // Default: 1536-dim OpenAI embeddings
     conversation_history,
     user_id = 'guest',
     user_email = 'guest@demo.com',
@@ -38,6 +38,7 @@ export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryRes
       query,
       k,
       use_llm,
+      collection, // Pass collection to service
       conversation_history,
       user_id,
       user_email,
@@ -60,7 +61,7 @@ export async function ragQuery(params: any, _req?: Request): Promise<RAGQueryRes
  * Handler: bali.zero.chat
  * Specialized for immigration/visa queries
  */
-export async function baliZeroChat(params: any, _req?: Request): Promise<BaliZeroResponse> {
+export async function baliZeroChat(params: any): Promise<BaliZeroResponse> {
   const { query, conversation_history, user_role = 'member', user_email } = params;
 
   if (!query) {
@@ -96,15 +97,15 @@ export async function baliZeroChat(params: any, _req?: Request): Promise<BaliZer
  * RAG Search - Fast semantic search (no LLM)
  * Handler: rag.search
  */
-export async function ragSearch(params: any, _req?: Request) {
-  const { query, k = 5 } = params;
+export async function ragSearch(params: any) {
+  const { query, k = 5, collection = 'legal_unified' } = params;
 
   if (!query) {
     throw new Error('Query parameter is required');
   }
 
   try {
-    const result = await ragService.search(query, k);
+    const result = await ragService.search(query, k, collection);
     return result;
   } catch (error: any) {
     logger.error('RAG search error:', error);
@@ -116,7 +117,7 @@ export async function ragSearch(params: any, _req?: Request) {
  * RAG Health Check
  * Handler: rag.health
  */
-export async function ragHealth(_params: any, _req?: Request) {
+export async function ragHealth() {
   try {
     const isHealthy = await ragService.healthCheck();
 
