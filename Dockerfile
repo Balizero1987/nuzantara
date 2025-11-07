@@ -22,7 +22,7 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY package-lock.json package.json ./
-RUN npm ci --include=dev --legacy-peer-deps
+RUN npm ci --include=dev --legacy-peer-deps --ignore-scripts
 
 # Generate Prisma Client (commented - prisma not used)
 # COPY prisma .
@@ -33,7 +33,7 @@ COPY . .
 
 # Build only backend-ts workspace (main app)
 WORKDIR /app/apps/backend-ts
-RUN npm ci --include=dev --legacy-peer-deps
+RUN npm ci --include=dev --legacy-peer-deps --ignore-scripts
 RUN npm run build
 
 # Return to app root
