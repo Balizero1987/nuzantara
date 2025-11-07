@@ -2813,6 +2813,11 @@ app.include_router(crm_practices.router, prefix="/api")
 app.include_router(crm_interactions.router, prefix="/api")
 app.include_router(crm_shared_memory.router, prefix="/api")
 
+# Include Conversations/Memory router
+from app.routers import conversations
+app.include_router(conversations.router)  # /bali-zero/conversations
+app.include_router(conversations.router, prefix="/api", tags=["memory"])  # /api/conversations
+
 # Include Oracle routers (Universal Query System - Phase 3)
 from app.routers import oracle_universal
 from app.routers import oracle_ingest  # NEW: Bulk ingest endpoint
