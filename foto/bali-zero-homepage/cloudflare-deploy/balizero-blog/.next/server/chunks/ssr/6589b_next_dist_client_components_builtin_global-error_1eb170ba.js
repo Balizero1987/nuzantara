@@ -1,3 +1,0 @@
-module.exports=[11285,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(67821);a.n(d("[project]/Desktop/NUZANTARA-RAILWAY/website/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},78600,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(67821);a.n(d("[project]/Desktop/NUZANTARA-RAILWAY/website/node_modules/next/dist/client/components/builtin/global-error.js"))},82128,a=>{"use strict";a.i(11285);var b=a.i(78600);a.n(b)}];
-
-//# sourceMappingURL=6589b_next_dist_client_components_builtin_global-error_1eb170ba.js.map

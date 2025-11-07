@@ -1,12 +1,17 @@
-/**
- * DEPRECATED - Use zantara-api.js instead
- * This file is kept for backward compatibility only
- */
+// API Configuration - Centralized
+export const API_CONFIG = {
+  backend: {
+    url: window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : 'https://nuzantara-backend.fly.dev'
+  },
+  rag: {
+    url: window.location.hostname === 'localhost'
+      ? 'http://localhost:8000'
+      : 'https://nuzantara-rag.fly.dev'
+  },
+  memory: {
+    url: 'https://nuzantara-memory.fly.dev'
+  }
+};
 
-console.warn('⚠️ api-config.js is DEPRECATED - Please use zantara-api.js instead');
-
-// Redirect to new API
-if (typeof window !== 'undefined' && window.ZANTARA_API) {
-  // New API is available, this file should not be used
-  console.log('✅ Using new ZANTARA_API instead of api-config.js');
-}

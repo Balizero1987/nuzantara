@@ -1,1 +1,0 @@
-tail -50 /workspace/training_full.log
