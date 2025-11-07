@@ -1,0 +1,28 @@
+SPRITE_API_KEY=sk-user-WBUKaz7ZoF9S6FWdRRRbDsasi6Q8kQTYvEPdKF_fCIfzaQA3SRBCOCjfFHchBzLVIb9dTYnjTNs1qThsDfxlYbYrce_c-RT4VQb5xVesi2gnZYasxXb0nsVwsOztXei66wE
+
+# ==========================================
+# ANTHROPIC CLAUDE API - For validation
+# ==========================================
+ANTHROPIC_API_KEY=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
+
+# ==========================================
+# GOOGLE WORKSPACE OAUTH2 - Google Workspace Integration
+# ==========================================
+USE_OAUTH2=true
+GOOGLE_OAUTH_CLIENT_ID=1064094238013-fj7iktn683mo2b5kpfqgl67flj0n1ui8.apps.googleusercontent.com
+GOOGLE_OAUTH_CLIENT_SECRET=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
+GOOGLE_OAUTH_REDIRECT_URI=http://localhost:3000/oauth2callback
+
+# ==========================================
+# INTEL SCRAPING - Ollama Local (Llama 3.1 8B)
+# ==========================================
+# Backend: "ollama" (local) or "runpod" (cloud)
+AI_BACKEND=ollama
+
+# Ollama Configuration (Mac M4 Air 16GB optimized)
+OLLAMA_MODEL=llama3.1:8b
+OLLAMA_BASE_URL=http://localhost:11434
+
+# RunPod Fallback (if needed)
+# RUNPOD_LLAMA_ENDPOINT=https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync
+# RUNPOD_API_KEY=your-runpod-key-here
