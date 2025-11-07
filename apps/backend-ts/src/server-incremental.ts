@@ -244,6 +244,34 @@ async function startIncrementalServer() {
   }
 
   // ============================================================
+  // FEATURE #6.5: Autonomous Agents Monitoring Routes
+  // ============================================================
+  console.log('🔄 [INC] Loading Feature #6.5: Autonomous Agents Monitoring...');
+
+  let monitoringRoutes: any;
+
+  try {
+    const monitoringModule = await import('./routes/monitoring.routes.js');
+    monitoringRoutes = monitoringModule.default;
+    console.log('  ✅ [F6.5] Monitoring routes loaded');
+  } catch (error: any) {
+    console.log('  ⚠️ [F6.5] Monitoring routes failed:', error.message);
+    monitoringRoutes = null;
+  }
+
+  // Mount monitoring routes if available
+  if (monitoringRoutes) {
+    try {
+      app.use('/api/monitoring', monitoringRoutes);
+      console.log('✅ [F6.5] Feature #6.5 ENABLED: Autonomous Agents Monitoring');
+    } catch (error: any) {
+      console.error('❌ [F6.5] Failed to mount monitoring routes:', error.message);
+    }
+  } else {
+    console.log('⚠️ [F6.5] Feature #6.5 SKIPPED: Monitoring routes not available');
+  }
+
+  // ============================================================
   // FEATURE #7: Bali Zero Chat Routes
   // ============================================================
   console.log('🔄 [INC] Loading Feature #7: Bali Zero Chat...');
@@ -497,6 +525,7 @@ async function startIncrementalServer() {
         metrics: '/metrics',
         cache: '/cache/*',
         performance: '/performance/*',
+        monitoring: '/api/monitoring/* (cron-status, agent-tasks)',
         baliZero: '/api/v2/bali-zero/* (KBLI lookup)',
         zantaraV3: '/api/v3/zantara/* (AI unified)',
         progressive: '/api/* (additional routes loaded progressively)',
@@ -507,7 +536,7 @@ async function startIncrementalServer() {
 
   console.log(`🎯 [INC] Attempting to listen on port ${PORT}...`);
 
-  const server = app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', async () => {
     console.log('🚀 ========================================');
     console.log('🚀 INCREMENTAL SERVER STARTED');
     console.log('🚀 ========================================');
@@ -517,8 +546,19 @@ async function startIncrementalServer() {
     console.log(`🚀 Cache (Redis): http://localhost:${PORT}/cache/stats`);
     console.log(`🚀 Bali Zero: http://localhost:${PORT}/api/v2/bali-zero`);
     console.log(`🚀 ZANTARA v3: http://localhost:${PORT}/api/v3/zantara`);
-    console.log(`🚀 Features: 8/38 core features enabled (21%) ✅`);
+    console.log(`🚀 Monitoring: http://localhost:${PORT}/api/monitoring/cron-status`);
+    console.log(`🚀 Features: 9/38 core features enabled (24%) ✅`);
     console.log('🚀 ========================================');
+
+    // Initialize Autonomous Agents Cron Scheduler
+    try {
+      const { getCronScheduler } = await import('./services/cron-scheduler.js');
+      const cronScheduler = getCronScheduler();
+      await cronScheduler.start();
+      console.log('✅ [INC] Autonomous Agents Cron Scheduler activated');
+    } catch (error: any) {
+      console.error('❌ [INC] Failed to start Cron Scheduler:', error.message);
+    }
   });
 
   server.on('error', (error: any) => {
@@ -526,16 +566,38 @@ async function startIncrementalServer() {
     process.exit(1);
   });
 
-  process.on('SIGTERM', () => {
+  process.on('SIGTERM', async () => {
     console.log('🛑 [INC] SIGTERM received');
+    
+    // Stop cron scheduler
+    try {
+      const { getCronScheduler } = await import('./services/cron-scheduler.js');
+      const cronScheduler = getCronScheduler();
+      await cronScheduler.stop();
+      console.log('✅ [INC] Cron Scheduler stopped');
+    } catch (error: any) {
+      console.error('❌ [INC] Error stopping Cron Scheduler:', error.message);
+    }
+
     server.close(() => {
       console.log('✅ [INC] Server closed');
       process.exit(0);
     });
   });
 
-  process.on('SIGINT', () => {
+  process.on('SIGINT', async () => {
     console.log('🛑 [INC] SIGINT received');
+    
+    // Stop cron scheduler
+    try {
+      const { getCronScheduler } = await import('./services/cron-scheduler.js');
+      const cronScheduler = getCronScheduler();
+      await cronScheduler.stop();
+      console.log('✅ [INC] Cron Scheduler stopped');
+    } catch (error: any) {
+      console.error('❌ [INC] Error stopping Cron Scheduler:', error.message);
+    }
+
     server.close(() => {
       console.log('✅ [INC] Server closed');
       process.exit(0);
