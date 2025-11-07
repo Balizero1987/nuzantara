@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   quickActions = document.querySelectorAll('.quick-action');
   messagesContainer = document.querySelector('.messages-container');
 
-  // Load message history
-  loadMessageHistory();
+  // Load message history (async)
+  await loadMessageHistory();
 
   // Setup event listeners
   setupEventListeners();
@@ -89,13 +89,46 @@ function setupEventListeners() {
 }
 
 /**
- * Load message history from localStorage
+ * Load message history from Memory Service + localStorage
  */
-function loadMessageHistory() {
+async function loadMessageHistory() {
+  // Try to load from Memory Service first
+  if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
+    try {
+      console.log('📚 Loading conversation history from Memory Service...');
+      const history = await window.CONVERSATION_CLIENT.getHistory();
+
+      if (history && history.length > 0) {
+        console.log(`✅ Loaded ${history.length} messages from Memory Service`);
+
+        // Clear existing messages
+        messageSpace.innerHTML = '';
+        messages = [];
+
+        // Convert Memory Service format to app format and render
+        history.forEach((msg) => {
+          const appMsg = {
+            type: msg.role === 'user' ? 'user' : 'ai',
+            content: msg.content,
+            timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+          };
+          messages.push(appMsg);
+          renderMessage(appMsg, false); // false = don't save to history again
+        });
+
+        scrollToBottom();
+        return;
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to load from Memory Service, falling back to localStorage:', error.message);
+    }
+  }
+
+  // Fallback to localStorage
   messages = zantaraClient.messages;
 
   if (messages.length > 0) {
-    console.log(`📚 Loading ${messages.length} messages from history`);
+    console.log(`📚 Loading ${messages.length} messages from localStorage`);
 
     // Clear existing messages
     messageSpace.innerHTML = '';
@@ -290,7 +323,16 @@ function renderMessage(msg, saveToHistory = true) {
 
   // Save to history
   if (saveToHistory) {
+    // Save to localStorage (via ZantaraClient)
     zantaraClient.addMessage(msg);
+
+    // Save to Memory Service
+    if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
+      const role = msg.type === 'user' ? 'user' : 'assistant';
+      window.CONVERSATION_CLIENT.addMessage(role, msg.content).catch((error) => {
+        console.warn('⚠️ Failed to save message to Memory Service:', error.message);
+      });
+    }
   }
 }
 
@@ -353,9 +395,18 @@ function finalizeLiveMessage(messageEl, fullText) {
     content: fullText,
     timestamp: new Date(),
   };
+
+  // Save to localStorage
   zantaraClient.addMessage(aiMsg);
 
-  console.log('✅ Message streaming completed');
+  // Save to Memory Service
+  if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
+    window.CONVERSATION_CLIENT.addMessage('assistant', fullText).catch((error) => {
+      console.warn('⚠️ Failed to save AI message to Memory Service:', error.message);
+    });
+  }
+
+  console.log('✅ Message streaming completed and saved to Memory Service');
 }
 
 /**
@@ -447,10 +498,24 @@ function formatTime(date) {
 /**
  * Clear chat history
  */
-function clearChatHistory() {
+async function clearChatHistory() {
   if (confirm('Are you sure you want to clear all chat history?')) {
+    // Clear localStorage
     zantaraClient.clearHistory();
+
+    // Clear Memory Service
+    if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
+      try {
+        await window.CONVERSATION_CLIENT.clearConversation();
+        console.log('✅ Conversation cleared from Memory Service');
+      } catch (error) {
+        console.warn('⚠️ Failed to clear Memory Service conversation:', error.message);
+      }
+    }
+
+    // Clear UI
     messageSpace.innerHTML = '';
+    messages = [];
     showWelcomeMessage();
     showNotification('Chat history cleared', 'success');
   }
@@ -497,12 +562,23 @@ async function handleLogout() {
     const userContext = window.UserContext;
     const sessionId = userContext.getSessionId();
 
+    // Call logout API
     if (sessionId) {
-      await fetch('https://nuzantara-backend.fly.dev/api/auth/team/logout', {
+      await fetch('https://nuzantara-backend.fly.dev/api/team/logout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId }),
       });
+    }
+
+    // Clear conversation session from Memory Service
+    if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
+      try {
+        await window.CONVERSATION_CLIENT.clearConversation();
+        console.log('✅ Conversation session cleared on logout');
+      } catch (error) {
+        console.warn('⚠️ Failed to clear conversation on logout:', error.message);
+      }
     }
   } catch (error) {
     console.warn('Logout API call failed:', error);
