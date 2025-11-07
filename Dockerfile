@@ -56,4 +56,4 @@ COPY --from=build /app /app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-CMD [ "node", "apps/backend-ts/dist/server.js" ]
+CMD [ "npx", "tsx", "apps/backend-ts/src/server-incremental.ts" ]
