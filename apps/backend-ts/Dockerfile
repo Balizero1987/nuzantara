@@ -26,6 +26,6 @@ EXPOSE $PORT
 
 # Health check removed - using Fly.io's built-in health monitoring
 
-# Start the application with tsx (TypeScript runtime) - INCREMENTAL
-CMD ["npx", "tsx", "src/server-incremental.ts"]
-# Build 1730737080 - INCREMENTAL
+# Start the application with tsx (TypeScript runtime) - MAIN SERVER
+CMD ["npx", "tsx", "src/server.ts"]
+# Build 1731008847 - MAIN SERVER with auth fixes
