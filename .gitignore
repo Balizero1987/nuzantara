@@ -244,6 +244,7 @@ cloudbuild*.yaml
 *.wav
 *.png
 !apps/webapp/**/assets/**/*.png
+!apps/webapp/paint.png
 !docs/**/*.png
 *.patch
 *.b64
