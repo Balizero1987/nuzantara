@@ -93,7 +93,9 @@
       flex-direction: column;
       align-items: center;
       gap: 0.25rem;
-      position: relative;
+      position: absolute; /* Center logo absolutely */
+      left: 50%;
+      transform: translateX(-50%);
       flex: 0 0 auto;
       margin-top: 0.5rem; /* Push ZANTARA down a bit */
     }
@@ -108,15 +110,15 @@
     }
 
     .user-avatar {
-      width: 2rem;
-      height: 2rem;
+      width: 2.6rem; /* Increased by 30%: 2rem * 1.3 = 2.6rem */
+      height: 2.6rem; /* Increased by 30%: 2rem * 1.3 = 2.6rem */
       border-radius: 50%;
       background: rgba(191,170,126,0.2);
       border: 2px solid rgba(191,170,126,0.6);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+      font-size: 1.3rem; /* Increased proportionally */
       font-weight: 600;
       color: #bfaa7e;
       cursor: pointer;
@@ -147,6 +149,7 @@
     }
 
     .user-email {
+      display: none; /* Hidden per request */
       font-size: 0.875rem;
       font-weight: 400;
       color: rgba(255, 255, 255, 0.8);
@@ -780,18 +783,7 @@
     </div>
   </header>
 
-  <!-- AI Info Banner -->
-  <div class="ai-info-banner">
-    <div class="ai-info-content">
-      <span class="ai-icon">🤖</span>
-      <span class="ai-primary">Llama 4 Scout</span>
-      <span class="ai-badge">PRIMARY</span>
-      <span class="ai-savings">92% cost savings</span>
-      <span class="ai-separator">|</span>
-      <span class="ai-fallback">Claude Haiku 4.5</span>
-      <span class="ai-badge fallback">FALLBACK</span>
-    </div>
-  </div>
+  <!-- AI Info Banner - REMOVED per request -->
 
   <!-- Messages Container -->
   <main class="messages-container" id="messagesContainer">
@@ -821,7 +813,7 @@
           class="image-button"
           title="Generate Image"
           aria-label="Generate Image"
-        >🎨</button>
+        ><img src="paint.png" alt="Paint" style="width: 100%; height: 100%; object-fit: contain; filter: brightness(1.2) drop-shadow(0 0 4px rgba(191, 170, 126, 0.5));"></button>
         <textarea
           id="messageInput"
           class="chat-textarea"
