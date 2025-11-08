@@ -1,0 +1,106 @@
+# Pre-commit hooks for ZANTARA DevOps
+# https://pre-commit.com/
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+      - id: end-of-file-fixer
+        name: Fix end of files
+      - id: check-yaml
+        name: Check YAML syntax
+        exclude: '^\.github/workflows/'
+      - id: check-json
+        name: Check JSON syntax
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      - id: check-added-large-files
+        name: Check for large files
+        args: ['--maxkb=1000']
+      - id: detect-private-key
+        name: Detect private keys
+      - id: no-commit-to-branch
+        name: Prevent commits to main/staging
+        args: ['--branch', 'main', '--branch', 'staging']
+
+  # TypeScript/JavaScript linting with ESLint
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.7.0
+    hooks:
+      - id: eslint
+        name: ESLint (TypeScript)
+        files: \.(ts|tsx|js|jsx)$
+        args: ['--fix', '--max-warnings=0']
+        additional_dependencies:
+          - eslint@8.57.0
+          - '@typescript-eslint/eslint-plugin@7.0.0'
+          - '@typescript-eslint/parser@7.0.0'
+
+  # Prettier for code formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        name: Prettier formatting
+        files: \.(ts|tsx|js|jsx|json|yaml|yml|md)$
+        args: ['--write']
+
+  # Secret detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        name: Detect secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            package-lock\.json|
+            \.env\.example|
+            \.env\.template
+          )$
+
+  # Commit message validation
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.0.0
+    hooks:
+      - id: conventional-pre-commit
+        name: Validate commit message
+        stages: [commit-msg]
+
+  # TypeScript type checking
+  - repo: local
+    hooks:
+      - id: typescript-check
+        name: TypeScript type checking
+        entry: bash -c 'cd apps/backend-ts && npx tsc --noEmit'
+        language: system
+        files: \.ts$
+        pass_filenames: false
+
+  # Security audit for npm dependencies
+  - repo: local
+    hooks:
+      - id: npm-audit
+        name: NPM security audit
+        entry: bash -c 'npm audit --audit-level=high --production'
+        language: system
+        pass_filenames: false
+        stages: [push]
+
+  # Docker file linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        name: Lint Dockerfiles
+        files: Dockerfile.*
+
+# Global configuration
+default_language_version:
+  node: '20.0.0'
+
+fail_fast: false
+minimum_pre_commit_version: '3.0.0'

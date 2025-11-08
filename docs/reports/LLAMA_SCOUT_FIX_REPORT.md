@@ -40,7 +40,7 @@ Error: 401 - {'error': {'message': 'No cookie auth credentials found', 'code': 4
 
 ### 3. Production Deployment
 ```bash
-flyctl secrets set OPENROUTER_API_KEY_LLAMA="sk-or-v1-5bc..." -a nuzantara-rag
+flyctl secrets set OPENROUTER_API_KEY_LLAMA="your-openrouter-api-key" -a nuzantara-rag
 # ✅ Successfully updated with rolling deployment
 # ✅ DNS configuration verified
 # ✅ Machine health checks passed

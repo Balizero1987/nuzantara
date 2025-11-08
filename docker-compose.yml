@@ -1,0 +1,162 @@
+# ============================================
+# ZANTARA - Local Development Docker Compose
+# Complete environment for development
+# ============================================
+
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: zantara-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-zantara}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zantara_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-zantara_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./DATABASE/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-zantara}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zantara-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: zantara-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_dev}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zantara-network
+
+  # Backend TypeScript Service
+  backend:
+    build:
+      context: ./apps/backend-ts
+      dockerfile: ../../docker/backend/Dockerfile
+      target: production
+    container_name: zantara-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      DATABASE_URL: postgresql://${POSTGRES_USER:-zantara}:${POSTGRES_PASSWORD:-zantara_dev}@postgres:5432/${POSTGRES_DB:-zantara_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev}@redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_in_production}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:8080}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - ./apps/backend-ts/src:/app/src:ro
+      - backend_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - zantara-network
+
+  # Frontend Webapp
+  frontend:
+    build:
+      context: ./apps/webapp
+      dockerfile: ../../docker/frontend/Dockerfile
+    container_name: zantara-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-3000}:8080"
+    environment:
+      BACKEND_URL: http://backend:8080
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - zantara-network
+
+  # ChromaDB Vector Database (for RAG)
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: zantara-chromadb
+    restart: unless-stopped
+    environment:
+      IS_PERSISTENT: "TRUE"
+      ANONYMIZED_TELEMETRY: ${ANONYMIZED_TELEMETRY:-FALSE}
+    ports:
+      - "${CHROMADB_PORT:-8000}:8000"
+    volumes:
+      - chromadb_data:/chroma/chroma
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - zantara-network
+
+  # pgAdmin (Database Management UI)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: zantara-pgadmin
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@zantara.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - zantara-network
+    profiles:
+      - tools
+
+networks:
+  zantara-network:
+    driver: bridge
+    name: zantara-network
+
+volumes:
+  postgres_data:
+    name: zantara-postgres-data
+  redis_data:
+    name: zantara-redis-data
+  chromadb_data:
+    name: zantara-chromadb-data
+  pgadmin_data:
+    name: zantara-pgadmin-data
+  backend_logs:
+    name: zantara-backend-logs

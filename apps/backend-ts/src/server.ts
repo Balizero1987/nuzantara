@@ -515,6 +515,7 @@ async function startServer() {
       const demoUser = {
         id: demoUserId,
         userId: demoUserId, // Compatibility layer
+        userId: demoUserId,
         email: email || `${userId || 'demo'}@demo.zantara.io`,
         name: name || 'Demo User',
         role: 'User' as const,
@@ -525,7 +526,7 @@ async function startServer() {
         authType: 'legacy' as const
       };
 
-      const token = unifiedAuth.generateToken(demoUser, 'demo');
+      const token = unifiedAuth.generateToken(demoUser, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ Demo token generated for user: ${demoUser.id}`);
@@ -568,6 +569,10 @@ async function startServer() {
       const user = {
         id: userIdGenerated,
         userId: userIdGenerated, // Compatibility layer
+      const generatedUserId = `user_${Date.now()}`;
+      const user = {
+        id: generatedUserId,
+        userId: generatedUserId,
         email,
         name: name || email.split('@')[0],
         role: 'User' as const,
@@ -576,9 +581,10 @@ async function startServer() {
         isActive: true,
         lastLogin: new Date(),
         authType: 'enhanced' as const
+        authType: 'legacy' as const
       };
 
-      const token = unifiedAuth.generateToken(user, 'password');
+      const token = unifiedAuth.generateToken(user, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ User logged in: ${user.email}`);
@@ -719,7 +725,6 @@ async function startServer() {
 
   // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
   if (process.env.REDIS_URL) {
-    // @ts-expect-error - Intentionally unused
     const _io = setupWebSocket(httpServer);
     logger.info('✅ WebSocket server initialized');
   } else {
@@ -732,6 +737,15 @@ async function startServer() {
     logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
     if (process.env.REDIS_URL) {
       logger.info(`🔌 WebSocket ready for real-time features`);
+    }
+
+    // Start AI Automation Cron Scheduler
+    try {
+      cronScheduler.start();
+      logger.info('🤖 AI Automation Cron Scheduler started');
+    } catch (error: any) {
+      logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
+      logger.warn('⚠️  Continuing without AI automation');
     }
 
     // Initialize Cron Scheduler for Autonomous Agents
@@ -783,6 +797,8 @@ async function startServer() {
       // Stop AI Automation Cron Scheduler
       try {
         await getCronScheduler().stop();
+        getCronScheduler().stop();
+        cronScheduler.stop();
         logger.info('AI Automation Cron Scheduler stopped');
       } catch (error: any) {
         logger.warn(`Error stopping cron scheduler: ${error.message}`);

@@ -134,7 +134,7 @@ router.post('/login', async (req: Request, res: Response) => {
 router.get('/check', jwtAuth, async (req: RequestWithJWT, res: Response) => {
   try {
     // If jwtAuth middleware passed, token is valid
-    const userId = req.user?.user_id || req.user?.email;
+    const userId = req.user?.userId || req.user?.email;
 
     // Find full user data
     const user = TEAM_MEMBERS.find(
@@ -188,7 +188,7 @@ router.post('/logout', async (req: Request, res: Response) => {
  */
 router.get('/profile', jwtAuth, async (req: RequestWithJWT, res: Response) => {
   try {
-    const userId = req.user?.user_id || req.user?.email;
+    const userId = req.user?.userId || req.user?.email;
 
     // Find user
     const user = TEAM_MEMBERS.find(

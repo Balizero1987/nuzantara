@@ -553,7 +553,7 @@ const handlers: Record<string, Handler> = {
   'ai.image.test': aiImageTest,
 
   // Drive Multipart Upload Handler (Note: requires Express middleware integration)
-  // @ts-expect-error - Intentionally unused
+
   'drive.upload.multipart': async (params: any) => {
     return {
       ok: false,
@@ -758,7 +758,7 @@ const handlers: Record<string, Handler> = {
   'metrics.dashboard': async (req: any, res: any) => getMetricsDashboard(req, res),
   'metrics.reset': async (req: any, res: any) => resetMetrics(req, res),
   'metrics.initialize': async () => {
-    // @ts-expect-error - Intentionally unused
+
     const _collector = initializeMetricsCollector();
     return { success: true, message: 'Metrics collection initialized', initialized: true };
   },
@@ -1316,7 +1316,7 @@ export function attachRoutes(app: import('express').Express) {
   // JWT Refresh endpoint - BUG FIX
   app.post('/auth/refresh', async (req: RequestWithCtx, res: Response) => {
     const clientIP = req.header('x-forwarded-for') || req.ip || 'unknown';
-    // @ts-expect-error - Intentionally unused
+
     const _userAgent = req.header('user-agent') || 'unknown';
 
     try {
