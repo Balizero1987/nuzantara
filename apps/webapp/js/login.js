@@ -140,33 +140,33 @@ async function handleLogin(e) {
 
     const result = await response.json();
 
-    if (!response.ok || !result.ok) {
-      throw new Error(result.error || 'Login failed');
+    if (!response.ok) {
+      throw new Error(result.detail || result.message || 'Login failed');
     }
 
-    // Login successful
-    const { data } = result;
-    console.log('✅ Login successful:', data.user.name);
+    // Login successful - handle actual backend response format
+    const user = result.user;
+    const token = result.access_token;
+    const expiresIn = result.expires_in || 900; // 15 minutes default
+
+    console.log('✅ Login successful:', user.name || user.email);
 
     // Store auth data in ZANTARA format (zantara-*)
     localStorage.setItem('zantara-token', JSON.stringify({
-      token: data.token,
-      expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+      token: token,
+      expiresAt: Date.now() + (expiresIn * 1000), // Convert seconds to milliseconds
     }));
-    localStorage.setItem('zantara-user', JSON.stringify(data.user));
+    localStorage.setItem('zantara-user', JSON.stringify(user));
     localStorage.setItem('zantara-session', JSON.stringify({
-      id: data.sessionId || `session_${Date.now()}`,
+      id: user.id || `session_${Date.now()}`,
       createdAt: Date.now(),
       lastActivity: Date.now(),
     }));
-    if (data.permissions) {
-      localStorage.setItem('zantara-permissions', JSON.stringify(data.permissions));
-    }
 
     console.log('✅ Auth data saved to localStorage (zantara-* format)');
 
     // Show success message
-    showSuccess(`Welcome back, ${data.user.name}! 🎉`);
+    showSuccess(`Welcome back, ${user.name || user.email}! 🎉`);
 
     // Redirect after 1.5 seconds
     setTimeout(() => {
