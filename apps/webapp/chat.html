@@ -376,6 +376,41 @@
       color: rgba(255, 255, 255, 0.5);
     }
 
+    .image-button {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0.5rem;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: #BFAA7E !important;
+      background: transparent !important;
+      border: none;
+      cursor: pointer;
+      transition: all 200ms;
+      opacity: 1 !important;
+      visibility: visible !important;
+      text-shadow:
+        0 0 8px rgba(191, 170, 126, 0.6),
+        0 0 15px rgba(212, 175, 55, 0.4);
+      filter: brightness(1.2) drop-shadow(0 0 4px rgba(191, 170, 126, 0.5));
+    }
+
+    .image-button:hover {
+      transform: scale(1.1);
+      text-shadow:
+        0 0 12px rgba(212, 175, 55, 0.9),
+        0 0 20px rgba(244, 229, 176, 0.7);
+      filter: brightness(1.5) drop-shadow(0 0 8px rgba(212, 175, 55, 0.7));
+    }
+
+    .image-button:active {
+      transform: scale(0.95);
+    }
+
     .send-button {
       display: flex !important;
       align-items: center;
@@ -756,6 +791,12 @@
   <div class="chat-input-container">
     <div class="chat-input-wrapper">
       <div class="chat-input-box" id="inputBox">
+        <button
+          id="imageButton"
+          class="image-button"
+          title="Generate Image"
+          aria-label="Generate Image"
+        >🎨</button>
         <textarea
           id="messageInput"
           class="chat-textarea"
@@ -909,6 +950,142 @@
           }
         }
       });
+    })();
+
+    // Image generation handler
+    (function() {
+      const imageBtn = document.getElementById('imageButton');
+      const messageSpace = document.getElementById('messageSpace');
+
+      imageBtn.addEventListener('click', async function() {
+        // Get prompt from textarea or show modal
+        const messageInput = document.getElementById('messageInput');
+        const prompt = messageInput.value.trim();
+
+        if (!prompt) {
+          alert('Please enter a description for the image you want to generate.');
+          messageInput.focus();
+          return;
+        }
+
+        // Clear input
+        messageInput.value = '';
+
+        // Add user message
+        addUserMessage(prompt);
+
+        // Add loading message
+        const loadingId = addAIMessage('🎨 Generating image...');
+
+        try {
+          // Call image generation API
+          const response = await fetch('https://nuzantara-rag.fly.dev/api/call', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('zantara_access_token')}`
+            },
+            body: JSON.stringify({
+              tool: 'ai.image.generate',
+              params: {
+                prompt: prompt,
+                style: 'realistic',
+                aspect_ratio: '16:9',
+                high_res_results: 1
+              }
+            })
+          });
+
+          const data = await response.json();
+
+          if (data.success && data.result && data.result.image_url) {
+            // Remove loading message
+            removeMessage(loadingId);
+
+            // Add image message
+            addImageMessage(data.result.image_url, prompt);
+          } else {
+            throw new Error(data.error || 'Failed to generate image');
+          }
+        } catch (error) {
+          console.error('Image generation failed:', error);
+          // Update loading message with error
+          updateMessage(loadingId, `❌ Image generation failed: ${error.message}`);
+        }
+      });
+
+      // Helper functions
+      function addUserMessage(text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message user';
+        messageDiv.innerHTML = `
+          <div class="message-content">
+            <div class="message-text">${escapeHtml(text)}</div>
+          </div>
+        `;
+        messageSpace.appendChild(messageDiv);
+        scrollToBottom();
+      }
+
+      function addAIMessage(text) {
+        const messageId = 'msg-' + Date.now();
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ai';
+        messageDiv.id = messageId;
+        messageDiv.innerHTML = `
+          <div class="message-content">
+            <div class="message-text">${escapeHtml(text)}</div>
+          </div>
+        `;
+        messageSpace.appendChild(messageDiv);
+        scrollToBottom();
+        return messageId;
+      }
+
+      function addImageMessage(imageUrl, prompt) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ai';
+        messageDiv.innerHTML = `
+          <div class="message-content">
+            <div class="message-text">
+              <p style="margin-bottom: 0.5rem; color: #bfaa7e;">Generated image: "${escapeHtml(prompt)}"</p>
+              <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(prompt)}"
+                   style="max-width: 100%; border-radius: 0.5rem; margin-top: 0.5rem;">
+            </div>
+          </div>
+        `;
+        messageSpace.appendChild(messageDiv);
+        scrollToBottom();
+      }
+
+      function removeMessage(messageId) {
+        const msg = document.getElementById(messageId);
+        if (msg) msg.remove();
+      }
+
+      function updateMessage(messageId, text) {
+        const msg = document.getElementById(messageId);
+        if (msg) {
+          const textEl = msg.querySelector('.message-text');
+          if (textEl) textEl.textContent = text;
+        }
+      }
+
+      function scrollToBottom() {
+        const container = document.querySelector('.messages-container');
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      }
+
+      function escapeHtml(unsafe) {
+        return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
     })();
   </script>
 
