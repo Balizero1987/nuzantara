@@ -211,7 +211,7 @@ Total Monthly: ~$50/mese
 ### ✅ **RISOLTO: Llama Scout Authentication** 
 - **Data Fix**: 6 Nov 2025, 23:15 UTC
 - **Causa**: API key OpenRouter scaduta
-- **Soluzione**: Deploy `sk-or-v1-5bc6bf9914358f94...` 
+- **Soluzione**: Deploy nuova chiave OpenRouter
 - **Impatto**: $120-144 risparmio annuale ripristinato
 
 ### ⚠️ **MONITORING NECESSARIO**
