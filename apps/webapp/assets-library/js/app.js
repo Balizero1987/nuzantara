@@ -478,7 +478,7 @@ class ZantaraApp {
       let out = this.extractReply(res) || 'OK.';
       const profile = this.getCounterpartProfile();
       if (profile.isExternal) {
-        out += '\n\nBali Zero is powered by humans, fueled by a thinking engine.';
+        out += '\n\nBali Zero is powered by humans.';
       }
       const cat = this.detectCategory(text);
       const title = this.defaultTitle(cat, msgLang);
