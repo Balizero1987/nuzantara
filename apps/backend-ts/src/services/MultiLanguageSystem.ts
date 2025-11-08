@@ -85,7 +85,7 @@ export interface TeamMemberLanguageProfile {
 export class MultiLanguageSystem {
   private nlpSystem: AdvancedNLPSystem;
   private userProfiles: Map<string, LanguageProfile> = new Map();
-  // @ts-expect-error - Intentionally unused
+
   private _translationCache: Map<string, TranslationResult> = new Map();
   private localizationTemplates: Map<string, Map<string, string>> = new Map();
   private teamMemberLanguages: Map<string, TeamMemberLanguageProfile> = new Map();

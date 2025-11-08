@@ -45,6 +45,9 @@ import {
   unifiedAuth,
 } from './services/auth/unified-auth-strategy.js';
 
+// AI AUTOMATION - Cron Scheduler (OpenRouter Integration)
+import aiMonitoringRoutes from './routes/ai-monitoring.js';
+
 // GLM 4.6 Architect Patch: Register v3 Ω services
 async function registerV3OmegaServices(): Promise<void> {
   // Register v3 Ω service instances
@@ -712,7 +715,6 @@ async function startServer() {
 
   // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
   if (process.env.REDIS_URL) {
-    // @ts-expect-error - Intentionally unused
     const _io = setupWebSocket(httpServer);
     logger.info('✅ WebSocket server initialized');
   } else {
@@ -771,6 +773,14 @@ async function startServer() {
         } catch (error: any) {
           logger.error(`Error closing connection pools: ${error.message}`);
         }
+      }
+
+      // Stop AI Automation Cron Scheduler
+      try {
+        getCronScheduler().stop();
+        logger.info('AI Automation Cron Scheduler stopped');
+      } catch (error: any) {
+        logger.warn(`Error stopping cron scheduler: ${error.message}`);
       }
 
       // Log shutdown to audit trail
