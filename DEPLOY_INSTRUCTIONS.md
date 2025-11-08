@@ -8,13 +8,14 @@
 
 ## ✅ ALL FIXES READY TO DEPLOY
 
-### **5 Commits Ready**:
+### **6 Commits Ready**:
 ```
-34dfadc - merge: Deploy authentication fixes and webapp analysis
-e398f7a - docs: Add login test report - all tests passing
-ad99bc6 - fix: Fix critical authentication - handle backend response
-b46ca7f - refactor: Remove demo auth, implement standard login
-000de8f - docs: Add priority features plan for internal testing
+66dc4fe - fix(webapp): Fix authentication redirect loop - remove backend verification
+2ccdd2b - docs: Add deployment instructions for webapp fixes
+e398f7a - docs(webapp): Add login test report - all tests passing
+ad99bc6 - fix(webapp): Fix critical authentication - handle backend response
+b46ca7f - refactor(auth): Remove demo auth, implement standard login
+000de8f - docs(webapp): Add priority features plan for internal testing
 ```
 
 ---
@@ -26,9 +27,12 @@ b46ca7f - refactor: Remove demo auth, implement standard login
    - Response parsing: Fixed to handle backend format
    - Token storage: Unified `zantara-*` format
 
-2. **✅ Infinite Login Loop Fixed**
+2. **✅ Infinite Login Loop Fixed** ⚡ NEW
+   - Root cause: auth-guard.js calling non-existent `/api/auth/check` endpoint
+   - Backend verification removed (MVP uses client-side only)
    - Token format mismatch resolved
    - Auto-login now works correctly
+   - URLs cleaned up: removed all `.html` extensions
 
 3. **✅ API Endpoints Corrected**
    - Backend URL: `nuzantara-rag.fly.dev`
@@ -95,11 +99,14 @@ git push origin main
 
 | File | Changes | Impact |
 |------|---------|--------|
-| `js/login.js` | -54 lines | ✅ Fixed auth endpoint & response parsing |
+| `js/auth-guard.js` | -38 lines | ✅ Removed backend verification, fixed redirect loop ⚡ NEW |
+| `js/auth-auto-login.js` | Updated | ✅ Fixed redirect URL (removed .html) ⚡ NEW |
+| `js/login.js` | -54 lines | ✅ Fixed auth endpoint & response parsing, removed .html |
 | `js/zantara-client.js` | Updated | ✅ Fixed default auth endpoint |
 | `js/auth/unified-auth.js` | Updated | ✅ Fixed demo login endpoint |
 | `LOGIN_TEST_REPORT.md` | +294 lines | 📝 Complete test documentation |
 | `PRIORITY_FEATURES_PLAN.md` | +431 lines | 📝 Feature roadmap |
+| `DEPLOY_INSTRUCTIONS.md` | Updated | 📝 Deployment guide |
 
 ---
 
