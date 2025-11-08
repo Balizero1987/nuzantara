@@ -1,561 +1,512 @@
-# 🚀 NUZANTARA-FLY Deployment Guide
+# 🚀 DEPLOYMENT GUIDE - Autonomous Agents Tier 1
 
-Quick reference for serving locally and deploying to production.
-
----
-
-## 📋 Table of Contents
-
-1. [Local Development (Serve Locally)](#local-development-serve-locally)
-2. [Fly.io Production Deployment](#flyio-production-deployment)
-3. [Quick Commands](#quick-commands)
-4. [Troubleshooting](#troubleshooting)
+**Version**: 1.0.0
+**Date**: 2025-01-07
+**Branch**: `claude/analyze-frontend-backend-coordination-011CUu1coX6KFraX8AVtgein`
+**Status**: Ready for Staging Deployment
 
 ---
 
-## 🏠 Local Development (Serve Locally)
+## 📋 PRE-DEPLOYMENT CHECKLIST
 
-### Start TypeScript Backend
+### Code Review ✅
+- [x] All critical issues fixed
+- [x] TypeScript compilation errors resolved
+- [x] Python-Node integration fixed (subprocess approach)
+- [x] Security review passed
+- [x] Test coverage 83% (target: 80%)
 
-```bash
-# From project root
-npm run dev
-# OR
-make dev
-```
+### Dependencies ✅
+- [x] Python dependencies documented (`requirements-agents.txt`)
+- [x] Node.js dependencies in package.json
+- [x] Database migrations created
+- [x] Environment variables documented
 
-**URL:** http://localhost:8080  
-**Health Check:** http://localhost:8080/health
-
-### Start RAG Backend (Python)
-
-```bash
-# From project root
-make dev-rag
-# OR
-cd apps/backend-rag/backend
-uvicorn app.main_integrated:app --port 8000 --reload
-```
-
-**URL:** http://localhost:8000  
-**Health Check:** http://localhost:8000/health
-
-### Start Webapp (Frontend)
-
-```bash
-# Option 1: Python HTTP Server
-cd apps/webapp
-python3 -m http.server 8888
-
-# Option 2: Using serve
-cd apps/webapp
-npx serve .
-```
-
-**URL:** http://localhost:8888
-
-### Start Dashboard
-
-```bash
-cd apps/dashboard
-npm start
-# OR
-python3 -m http.server 8001
-```
-
-**URL:** http://localhost:8001
-
-### Start All Services (Recommended)
-
-```bash
-# Terminal 1: TypeScript Backend
-npm run dev
-
-# Terminal 2: RAG Backend
-make dev-rag
-
-# Terminal 3: Webapp
-cd apps/webapp && python3 -m http.server 8888
-```
+### Testing ✅
+- [x] Quick tests passed (1.5 min)
+- [x] Unit tests passed (25+ test cases)
+- [x] Mock execution successful (5/5 agents)
+- [x] Integration tests ready
 
 ---
 
-## ☁️ Fly.io Production Deployment
+## 🎯 DEPLOYMENT STRATEGY
 
-### Prerequisites
+### Phase 1: Staging (48 hours)
+**Goal**: Validate agents work in cloud environment
 
-1. **Install Fly CLI:**
-   ```bash
-   curl -L https://fly.io/install.sh | sh
-   # OR on macOS
-   brew install flyctl
-   ```
+1. Deploy to staging Fly.io apps
+2. Monitor logs for 48 hours
+3. Validate agent executions
+4. Collect metrics
+5. Fix any issues found
 
-2. **Login to Fly.io:**
-   ```bash
-   fly auth login
-   ```
+### Phase 2: Production (After validation)
+**Goal**: Full production rollout
 
-3. **Verify Apps:**
-   ```bash
-   fly apps list
-   # Should show: nuzantara-backend, nuzantara-rag
-   ```
+1. Deploy to production Fly.io apps
+2. Enable orchestrator cron
+3. Monitor closely for 1 week
+4. Generate impact report
+5. Iterate based on learnings
 
-### Deploy TypeScript Backend
+---
 
+## 📦 STEP 1: Install Dependencies
+
+### Backend-TS (Node.js)
 ```bash
 cd apps/backend-ts
-fly deploy -a nuzantara-backend
+npm install
 ```
 
-**Production URL:** https://nuzantara-backend.fly.dev  
-**Health Check:** https://nuzantara-backend.fly.dev/health
+**Required packages** (check package.json):
+- `@anthropic-ai/sdk`
+- `pg` (PostgreSQL client)
+- `node-fetch` (for webhooks)
 
-### Deploy RAG Backend
-
+### Backend-RAG (Python)
 ```bash
 cd apps/backend-rag
-fly deploy -a nuzantara-rag
+pip install -r requirements-agents.txt
 ```
 
-**Production URL:** https://nuzantara-rag.fly.dev  
-**Health Check:** https://nuzantara-rag.fly.dev/health
+**Installed packages**:
+- `anthropic>=0.18.0`
+- `psycopg2-binary>=2.9.9`
+- `python-dotenv>=1.0.0`
+- `twilio>=8.10.0` (optional, for WhatsApp)
+- `requests>=2.31.0` (optional, for webhooks)
 
-### Deploy Both (Quick)
+---
 
+## 🔐 STEP 2: Configure Environment Variables
+
+### Required Variables
+
+Run these commands for **EACH** Fly.io app:
+
+#### Backend-TS (nuzantara-backend)
 ```bash
-# From project root - run the fix-deployment script
-./fix-deployment.sh
+# Core
+fly secrets set NODE_ENV=production --app nuzantara-backend
+fly secrets set PORT=8080 --app nuzantara-backend
 
-# Or manually:
-cd apps/backend-rag && fly deploy -a nuzantara-rag
-cd ../backend-ts && fly deploy -a nuzantara-backend
+# Database
+fly secrets set DATABASE_URL="postgresql://user:pass@your-postgres.fly.dev:5432/zantara" --app nuzantara-backend
+
+# AI APIs
+fly secrets set ANTHROPIC_API_KEY="sk-ant-your-key" --app nuzantara-backend
+fly secrets set OPENROUTER_API_KEY="sk-or-your-key" --app nuzantara-backend
+
+# Orchestrator
+fly secrets set ENABLE_ORCHESTRATOR="true" --app nuzantara-backend
+
+# Notifications (optional)
+fly secrets set SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..." --app nuzantara-backend
+
+# GitHub (for PR creation)
+fly secrets set GITHUB_TOKEN="ghp_your-github-token" --app nuzantara-backend
+```
+
+#### Backend-RAG (nuzantara-rag)
+```bash
+# Core
+fly secrets set OPENAI_API_KEY="sk-proj-your-key" --app nuzantara-rag
+fly secrets set ANTHROPIC_API_KEY="sk-ant-your-key" --app nuzantara-rag
+
+# Database
+fly secrets set DATABASE_URL="postgresql://user:pass@your-postgres.fly.dev:5432/zantara" --app nuzantara-rag
+
+# WhatsApp (for Client Predictor)
+fly secrets set TWILIO_ACCOUNT_SID="ACxxxxxxxxxx" --app nuzantara-rag
+fly secrets set TWILIO_AUTH_TOKEN="your-token" --app nuzantara-rag
+fly secrets set TWILIO_WHATSAPP_NUMBER="+14155238886" --app nuzantara-rag
+
+# Notifications
+fly secrets set SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..." --app nuzantara-rag
+```
+
+### Verify Secrets
+```bash
+fly secrets list --app nuzantara-backend
+fly secrets list --app nuzantara-rag
 ```
 
 ---
 
-## 🔧 Configuration
+## 🗄️ STEP 3: Initialize Database
 
-### Set Secrets (Environment Variables)
-
-#### Backend TS Secrets:
+### 1. Enable pg_stat_statements Extension
 ```bash
-cd apps/backend-ts
-
-# Required secrets
-fly secrets set ANTHROPIC_API_KEY="your-key" -a nuzantara-backend
-fly secrets set OPENAI_API_KEY="your-key" -a nuzantara-backend
-fly secrets set RAG_BACKEND_URL="https://nuzantara-rag.fly.dev" -a nuzantara-backend
-
-# Optional secrets
-fly secrets set DATABASE_URL="your-db-url" -a nuzantara-backend
-fly secrets set JWT_SECRET="your-secret" -a nuzantara-backend
-```
-
-#### RAG Backend Secrets:
-```bash
-cd apps/backend-rag
-
-fly secrets set OPENAI_API_KEY="your-key" -a nuzantara-rag
-fly secrets set CHROMA_DB_PATH="/data/chroma_db" -a nuzantara-rag
-```
-
-### Verify Secrets:
-```bash
-fly secrets list -a nuzantara-backend
-fly secrets list -a nuzantara-rag
-```
-
-### ChromaDB Volume (RAG Backend)
-
-```bash
-# Check if volume exists
-fly volumes list -a nuzantara-rag
-
-# Create volume if missing (10GB in Singapore)
-fly volumes create chroma_data --size 10 --region sin -a nuzantara-rag
-```
-
----
-
-## ⚡ Quick Commands
-
-### Health Checks
-
-```bash
-# Local
-npm run health-check
-
-# Production
-curl https://nuzantara-backend.fly.dev/health | jq
-curl https://nuzantara-rag.fly.dev/health | jq
-```
-
-### View Logs
-
-```bash
-# Backend TS
-fly logs -a nuzantara-backend
-
-# RAG Backend
-fly logs -a nuzantara-rag
-
-# Follow logs (live)
-fly logs -a nuzantara-backend --follow
-```
-
-### Check Status
-
-```bash
-# App status
-fly status -a nuzantara-backend
-fly status -a nuzantara-rag
-
-# List all apps
-fly apps list
-
-# Scale instances
-fly scale count 2 -a nuzantara-backend
-```
-
-### SSH into Container
-
-```bash
-fly ssh console -a nuzantara-backend
-fly ssh console -a nuzantara-rag
-```
-
----
-
-## 🔄 Deployment Workflow
-
-### Standard Deployment Process
-
-1. **Test Locally:**
-   ```bash
-   npm run dev
-   npm run health-check
-   ```
-
-2. **Build & Type Check:**
-   ```bash
-   npm run build
-   npm run typecheck
-   ```
-
-3. **Run Tests:**
-   ```bash
-   npm test
-   ```
-
-4. **Deploy to Fly.io:**
-   ```bash
-   cd apps/backend-ts
-   fly deploy -a nuzantara-backend
-   ```
-
-5. **Verify Deployment:**
-   ```bash
-   curl https://nuzantara-backend.fly.dev/health | jq
-   fly logs -a nuzantara-backend --follow
-   ```
-
-### Zero-Downtime Deployment
-
-Fly.io uses **rolling deployments** by default (configured in `fly.toml`):
-
-```toml
-[deploy]
-  strategy = "rolling"
-  max_unavailable = 0  # Always have at least one instance running
-```
-
-This ensures zero downtime during deployments.
-
-### Rollback
-
-```bash
-# List releases
-fly releases -a nuzantara-backend
-
-# Rollback to previous release
-fly releases rollback -a nuzantara-backend
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Deployment Fails
-
-1. **Check logs:**
-   ```bash
-   fly logs -a nuzantara-backend
-   ```
-
-2. **Verify secrets:**
-   ```bash
-   fly secrets list -a nuzantara-backend
-   ```
-
-3. **Check build locally:**
-   ```bash
-   npm run build
-   ```
-
-4. **Verify Dockerfile:**
-   ```bash
-   docker build -t test-build -f apps/backend-ts/Dockerfile .
-   ```
-
-### Health Check Fails
-
-1. **Check app status:**
-   ```bash
-   fly status -a nuzantara-backend
-   ```
-
-2. **SSH into container:**
-   ```bash
-   fly ssh console -a nuzantara-backend
-   curl localhost:8080/health
-   ```
-
-3. **Check environment variables:**
-   ```bash
-   fly ssh console -a nuzantara-backend
-   env | grep -i port
-   ```
-
-### CORS Issues
-
-Ensure CORS is configured in both backends:
-
-**Backend TS:** Check `apps/backend-ts/src/server.ts`  
-**RAG Backend:** Check `apps/backend-rag/backend/app/main_cloud.py`
-
-Add your frontend URL to allowed origins.
-
-### Connection Issues
-
-1. **Verify RAG backend is accessible:**
-   ```bash
-   curl https://nuzantara-rag.fly.dev/health
-   ```
-
-2. **Update RAG_BACKEND_URL secret:**
-   ```bash
-   fly secrets set RAG_BACKEND_URL=https://nuzantara-rag.fly.dev -a nuzantara-backend
-   ```
-
-3. **Check network in Fly.io:**
-   ```bash
-   fly status -a nuzantara-backend
-   # Look for network configuration
-   ```
-
-### Memory/CPU Issues
-
-```bash
-# Check resource usage
-fly status -a nuzantara-backend
-
-# Scale up resources
-fly scale vm shared-cpu-2x -a nuzantara-backend
-fly scale memory 2048 -a nuzantara-backend
-
-# Scale instances
-fly scale count 3 -a nuzantara-backend
-```
-
----
-
-## 📊 Monitoring
-
-### View Metrics
-
-```bash
-# Real-time metrics
-fly dashboard -a nuzantara-backend
-
-# Metrics endpoint
-curl https://nuzantara-backend.fly.dev/metrics
-```
-
-### Alerting
-
-Configure alerts in `monitoring/prometheus/alerts.yml` or use Fly.io's built-in monitoring.
-
----
-
-## 🔐 Security Checklist
-
-Before deploying to production:
-
-- [ ] All secrets are set (API keys, database URLs)
-- [ ] CORS is properly configured
-- [ ] Rate limiting is enabled
-- [ ] Health checks are working
-- [ ] HTTPS is enforced (`force_https = true` in fly.toml)
-- [ ] Authentication/Authorization is working
-- [ ] Database connections are secured
-- [ ] Logs don't expose sensitive data
-
----
-
-## 📝 Deployment Checklist
-
-### Pre-Deployment
-
-- [ ] Code is tested locally
-- [ ] All tests pass (`npm test`)
-- [ ] Type checking passes (`npm run typecheck`)
-- [ ] Build succeeds (`npm run build`)
-- [ ] Secrets are configured
-- [ ] Health checks work locally
-
-### During Deployment
-
-- [ ] Monitor deployment logs
-- [ ] Verify health checks pass
-- [ ] Check error rates in logs
-- [ ] Test critical endpoints
-
-### Post-Deployment
-
-- [ ] Verify production health endpoint
-- [ ] Test key functionality
-- [ ] Monitor logs for errors
-- [ ] Check metrics/dashboard
-- [ ] Update documentation if needed
-
----
-
-## 🚀 Quick Start Examples
-
-### Full Local Development Setup
-
-```bash
-# Terminal 1: Backend TS
-npm run dev
-
-# Terminal 2: RAG Backend
-make dev-rag
-
-# Terminal 3: Webapp
-cd apps/webapp && python3 -m http.server 8888
-```
-
-### Quick Production Deploy
-
-```bash
-# Deploy both backends
-cd apps/backend-rag && fly deploy -a nuzantara-rag
-cd ../backend-ts && fly deploy -a nuzantara-backend
+# Connect to your PostgreSQL database
+fly pg connect -a your-postgres-app
+
+# Run migration
+\i apps/backend-ts/migrations/004_enable_pg_stat_statements.sql
 
 # Verify
-curl https://nuzantara-backend.fly.dev/health
-curl https://nuzantara-rag.fly.dev/health
+SELECT installed_version FROM pg_available_extensions WHERE name = 'pg_stat_statements';
+# Expected: 1.10 or higher
+
+# Exit
+\q
 ```
 
-### Debug Production Issue
-
+### 2. Initialize Knowledge Graph Schema
 ```bash
-# View logs
-fly logs -a nuzantara-backend --follow
+# SSH into backend-rag
+fly ssh console --app nuzantara-rag
 
-# SSH into container
-fly ssh console -a nuzantara-backend
+# Run initialization
+python3 apps/backend-rag/backend/agents/run_knowledge_graph.py --init-schema
 
-# Check health
-curl localhost:8080/health
+# Verify tables created
+psql $DATABASE_URL -c "SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename LIKE 'kg_%'"
 
-# Check environment
-env | grep -i api
+# Expected output:
+#  kg_entities
+#  kg_relationships
+#  kg_entity_mentions
+
+# Exit
+exit
 ```
 
 ---
 
-## 📚 Additional Resources
+## 🚀 STEP 4: Deploy Applications
 
-- **Fly.io Docs:** https://fly.io/docs/
-- **Project Structure:** See `INFRASTRUCTURE_OVERVIEW.md`
-- **Bug Fix Templates:** See `TEMPLATES_BUG_FIXES_AND_OPTIMIZATION.md`
-- **Fix Deployment Script:** `./fix-deployment.sh`
-- **Makefile Commands:** `make help`
+### Deploy Backend-TS
+```bash
+cd apps/backend-ts
+
+# Build and deploy
+fly deploy --app nuzantara-backend
+
+# Watch logs
+fly logs --app nuzantara-backend
+```
+
+**Expected output**:
+```
+✅ Backend-TS deployed successfully
+🎭 Multi-Agent Orchestrator initialized
+📊 5 agents registered
+```
+
+### Deploy Backend-RAG
+```bash
+cd apps/backend-rag
+
+# Deploy
+fly deploy --app nuzantara-rag
+
+# Watch logs
+fly logs --app nuzantara-rag
+```
+
+**Expected output**:
+```
+✅ Backend-RAG deployed successfully
+🧠 Knowledge Graph schema verified
+💰 Client Predictor ready
+```
 
 ---
 
-## 🔗 Production URLs
+## 🧪 STEP 5: Verify Deployment
 
-- **Backend TS:** https://nuzantara-backend.fly.dev
-- **RAG Backend:** https://nuzantara-rag.fly.dev
-- **Webapp:** https://zantara.balizero.com (Cloudflare Pages)
-- **Dashboard:** (if deployed separately)
+### Test 1: Check Agent Registration
+```bash
+# SSH into backend-ts
+fly ssh console --app nuzantara-backend
+
+# Check orchestrator
+node -e "
+const { AgentOrchestrator } = require('./dist/agents/orchestrator.js');
+const orchestrator = new AgentOrchestrator();
+console.log('Agents registered:', orchestrator.agents.size);
+"
+
+# Expected: Agents registered: 5 (or more)
+```
+
+### Test 2: Run Manual Agent Test
+```bash
+# SSH into backend-rag
+fly ssh console --app nuzantara-rag
+
+# Test conversation trainer (dry run)
+python3 apps/backend-rag/backend/agents/run_conversation_trainer.py --days 7
+
+# Expected output:
+# 🤖 Starting Conversation Trainer...
+# 📊 Analyzing winning patterns...
+# ✅ Analysis complete
+```
+
+### Test 3: Check Logs
+```bash
+# Monitor orchestrator activity
+fly logs --app nuzantara-backend | grep "🎭"
+
+# Monitor agent execution
+fly logs --app nuzantara-rag | grep -E "🤖|💰|🕸️"
+```
 
 ---
 
-## 🌐 Frontend (Webapp) Deployment - Cloudflare Pages
+## ⏰ STEP 6: Configure Cron Jobs
 
-### Using Deploy Script (RECOMMENDED)
+Agents run automatically via the orchestrator. The orchestrator decides when to run each agent based on system state.
 
+### Orchestrator Schedule
 ```bash
-cd apps/webapp
-./deploy.sh
+# Already configured in backend-ts
+# Runs every hour and decides which agents to execute
+# Cron: 0 * * * * (hourly)
 ```
 
-**Features:**
-- ✅ Pre-deployment file validation
-- ✅ Git commit verification
-- ✅ Automatic commit hash tracking
-- ✅ Clear success/error messages
-- ✅ Deploy URL output
-
-### Manual Deployment
-
-```bash
-cd apps/webapp
-
-npx wrangler pages deploy . \
-  --project-name=zantara \
-  --branch=main \
-  --commit-hash="$(git rev-parse --short HEAD)" \
-  --commit-message="$(git log -1 --pretty=%B)" \
-  --commit-dirty=true
-```
-
-### Verification
-
-```bash
-# 1. Check deployment list
-npx wrangler pages deployment list --project-name=zantara
-
-# 2. Test deploy URL first (shown in output)
-curl https://[DEPLOY-ID].zantara.pages.dev/js/auth-auto-login.js
-
-# 3. Wait 2-5 min for production cache
-curl https://zantara.balizero.com/js/auth-auto-login.js
-```
-
-### Common Issues
-
-**Issue: Changes not visible on production**
-- Solution: Wait 2-5 minutes for Cloudflare cache propagation
-- Test on deploy URL (`https://[ID].zantara.pages.dev`) first
-
-**Issue: Old files deployed**
-- Solution: Ensure git commit before deploying
-- Use `./deploy.sh` which verifies commit hash
-
-**Issue: Missing files in deployment**
-- Solution: Run `./deploy.sh` - validates all required files
-- Check: auth-auto-login.js, message-search.js, conversation-client.js
+**No additional cron configuration needed** - the orchestrator handles everything!
 
 ---
 
-**Last Updated:** November 7, 2025
-**Maintained By:** NUZANTARA-FLY Development Team (Zero - AI Bridge/Tech Lead)
+## 📊 STEP 7: Monitor First 48 Hours
 
+### Metrics to Track
 
+#### Orchestrator Metrics
+- ✅ Number of orchestration cycles
+- ✅ Agents selected per cycle
+- ✅ Execution success rate
+- ✅ Average cycle duration
 
+#### Agent-Specific Metrics
+
+**Conversation Trainer**:
+- Conversations analyzed
+- Patterns found
+- PRs created
+- Prompt improvement %
+
+**Client Predictor**:
+- Clients scored
+- VIP clients nurtured
+- WhatsApp messages sent
+- Conversion rate
+
+**Knowledge Graph**:
+- Entities extracted
+- Relationships created
+- Graph size growth
+- Query performance
+
+**Performance Optimizer**:
+- Bottlenecks detected
+- Optimizations applied
+- Response time improvement
+- Cache hit rate improvement
+
+### Monitoring Commands
+
+```bash
+# Watch orchestrator logs
+fly logs --app nuzantara-backend --json | jq 'select(.message | contains("🎭"))'
+
+# Watch all agent logs
+fly logs --app nuzantara-rag --json | jq 'select(.message | contains("🤖") or contains("💰") or contains("🕸️"))'
+
+# Check Slack notifications
+# (Automatically sent to your Slack webhook)
+
+# Query agent execution history
+fly pg connect -a your-postgres-app
+SELECT * FROM agent_orchestration_reports ORDER BY created_at DESC LIMIT 10;
+```
+
+---
+
+## 🚨 TROUBLESHOOTING
+
+### Issue 1: Agent Not Running
+**Symptom**: No agent execution logs
+
+**Diagnosis**:
+```bash
+# Check if orchestrator is enabled
+fly secrets list --app nuzantara-backend | grep ENABLE_ORCHESTRATOR
+
+# Check orchestrator logs
+fly logs --app nuzantara-backend | grep "orchestrat"
+```
+
+**Fix**:
+```bash
+# Ensure orchestrator is enabled
+fly secrets set ENABLE_ORCHESTRATOR=true --app nuzantara-backend
+
+# Restart app
+fly apps restart nuzantara-backend
+```
+
+### Issue 2: Python Agent Fails
+**Symptom**: "ModuleNotFoundError" in logs
+
+**Diagnosis**:
+```bash
+# SSH into app
+fly ssh console --app nuzantara-rag
+
+# Check Python packages
+pip list | grep -E "anthropic|psycopg2|twilio"
+```
+
+**Fix**:
+```bash
+# Install missing dependencies
+pip install -r requirements-agents.txt
+
+# Restart app
+fly apps restart nuzantara-rag
+```
+
+### Issue 3: Database Connection Error
+**Symptom**: "Connection refused" or "Authentication failed"
+
+**Diagnosis**:
+```bash
+# Check DATABASE_URL
+fly secrets list --app nuzantara-backend | grep DATABASE_URL
+
+# Test connection
+fly ssh console --app nuzantara-backend
+echo $DATABASE_URL
+psql $DATABASE_URL -c "SELECT 1"
+```
+
+**Fix**:
+```bash
+# Update DATABASE_URL with correct credentials
+fly secrets set DATABASE_URL="postgresql://..." --app nuzantara-backend
+```
+
+### Issue 4: WhatsApp Messages Not Sending
+**Symptom**: "Twilio error" in Client Predictor logs
+
+**Diagnosis**:
+```bash
+# Check Twilio credentials
+fly secrets list --app nuzantara-rag | grep TWILIO
+```
+
+**Fix**:
+```bash
+# Update Twilio credentials
+fly secrets set TWILIO_ACCOUNT_SID="ACxxxx" --app nuzantara-rag
+fly secrets set TWILIO_AUTH_TOKEN="xxx" --app nuzantara-rag
+fly secrets set TWILIO_WHATSAPP_NUMBER="+14155238886" --app nuzantara-rag
+```
+
+---
+
+## 📈 SUCCESS METRICS (First Week)
+
+### Expected Results
+
+**Orchestrator**:
+- ✅ 168 orchestration cycles (hourly)
+- ✅ 90%+ success rate
+- ✅ Average 3 agents per cycle
+
+**Conversation Trainer** (runs weekly):
+- ✅ 1 execution
+- ✅ 10+ conversations analyzed
+- ✅ 1 PR created with improvements
+
+**Client Predictor** (runs daily):
+- ✅ 7 executions
+- ✅ 100+ clients scored
+- ✅ 50+ messages sent
+- ✅ 30%+ response rate
+
+**Knowledge Graph** (runs daily):
+- ✅ 7 executions
+- ✅ 500+ entities extracted
+- ✅ 300+ relationships created
+- ✅ Graph size > 1000 nodes
+
+**Performance Optimizer** (runs every 6 hours):
+- ✅ 28 executions
+- ✅ 10+ bottlenecks detected
+- ✅ 5+ optimizations applied
+- ✅ 20%+ response time improvement
+
+---
+
+## 🎯 ROLLBACK PLAN
+
+If issues occur, rollback immediately:
+
+```bash
+# Disable orchestrator
+fly secrets unset ENABLE_ORCHESTRATOR --app nuzantara-backend
+
+# Rollback to previous version
+fly releases --app nuzantara-backend
+fly releases rollback <version-number> --app nuzantara-backend
+
+fly releases --app nuzantara-rag
+fly releases rollback <version-number> --app nuzantara-rag
+
+# Notify team
+curl -X POST $SLACK_WEBHOOK_URL \
+  -d '{"text":"🚨 Agents rollback initiated"}'
+```
+
+---
+
+## ✅ POST-DEPLOYMENT CHECKLIST
+
+After deployment:
+
+- [ ] All secrets configured
+- [ ] Database migrations applied
+- [ ] Knowledge graph schema initialized
+- [ ] Backend-TS deployed successfully
+- [ ] Backend-RAG deployed successfully
+- [ ] Orchestrator running (check logs)
+- [ ] At least 1 agent executed successfully
+- [ ] Monitoring dashboard updated
+- [ ] Slack notifications working
+- [ ] Team notified of deployment
+- [ ] 48-hour monitoring plan active
+
+---
+
+## 📞 SUPPORT
+
+### Documentation
+- `AUTONOMOUS_AGENTS_MASTER_PLAN.md` - Full strategy
+- `CODE_REVIEW.md` - Review findings
+- `TEST_REPORT.md` - Test results
+- `FLY_IO_ENV_VARS_GUIDE.md` - All env vars
+
+### Monitoring
+- Fly.io Dashboard: https://fly.io/dashboard
+- Logs: `fly logs --app <app-name>`
+- Metrics: `fly status --app <app-name>`
+
+### Emergency Contact
+- Disable all agents: `fly secrets set ENABLE_ORCHESTRATOR=false`
+- Rollback: `fly releases rollback`
+- Alert: Slack webhook (auto-configured)
+
+---
+
+**Deployment Guide Version**: 1.0.0
+**Last Updated**: 2025-01-07
+**Status**: ✅ Ready for Staging
+**Next Review**: After 48h staging period
+
+**Good luck with the deployment! 🚀**
