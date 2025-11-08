@@ -4,7 +4,7 @@ Plugin API Routes - FastAPI
 Provides REST API for plugin management and execution.
 """
 
-from fastapi import APIRouter, HTTPException, Header, Depends
+from fastapi import APIRouter, HTTPException, Header
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel
 from core.plugins import registry, executor, PluginCategory
