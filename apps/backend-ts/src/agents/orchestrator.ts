@@ -302,27 +302,36 @@ ${JSON.stringify(agentDescriptions, null, 2)}
    * Run specific agent
    */
   private async runAgent(agentId: string): Promise<void> {
-    const { exec } = await import('child_process');
-    const { promisify } = await import('util');
-    const execAsync = promisify(exec);
+    const ragBackendUrl = process.env.BACKEND_RAG_URL || 'http://localhost:8000';
 
     switch (agentId) {
       case 'conversation_trainer':
-        // Run Python agent via subprocess
-        logger.info('Starting Conversation Trainer (Python)...');
-        await execAsync('python3 apps/backend-rag/backend/agents/run_conversation_trainer.py');
+        // Run Python agent via HTTP call to backend-rag
+        logger.info('Starting Conversation Trainer (Python via HTTP)...');
+        await this.callRagBackend(`${ragBackendUrl}/api/autonomous-agents/conversation-trainer/run`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ days_back: 7 })
+        });
         break;
 
       case 'client_value_predictor':
-        // Run Python agent via subprocess
-        logger.info('Starting Client Value Predictor (Python)...');
-        await execAsync('python3 apps/backend-rag/backend/agents/run_client_predictor.py');
+        // Run Python agent via HTTP call to backend-rag
+        logger.info('Starting Client Value Predictor (Python via HTTP)...');
+        await this.callRagBackend(`${ragBackendUrl}/api/autonomous-agents/client-value-predictor/run`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
         break;
 
       case 'knowledge_graph_builder':
-        // Run Python agent via subprocess
-        logger.info('Starting Knowledge Graph Builder (Python)...');
-        await execAsync('python3 apps/backend-rag/backend/agents/run_knowledge_graph.py');
+        // Run Python agent via HTTP call to backend-rag
+        logger.info('Starting Knowledge Graph Builder (Python via HTTP)...');
+        await this.callRagBackend(`${ragBackendUrl}/api/autonomous-agents/knowledge-graph-builder/run`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ days_back: 30, init_schema: false })
+        });
         break;
 
       case 'performance_optimizer':
@@ -350,6 +359,28 @@ ${JSON.stringify(agentDescriptions, null, 2)}
 
       default:
         logger.warn(`Unknown agent: ${agentId}`);
+    }
+  }
+
+  /**
+   * Call backend-rag HTTP API
+   */
+  private async callRagBackend(url: string, options: any): Promise<any> {
+    const fetch = (await import('node-fetch')).default;
+
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(`Backend-RAG API error: ${response.status} - ${JSON.stringify(data)}`);
+      }
+
+      logger.info('Backend-RAG agent execution response', { data });
+      return data;
+    } catch (error) {
+      logger.error('Failed to call backend-rag API', { url, error });
+      throw error;
     }
   }
 

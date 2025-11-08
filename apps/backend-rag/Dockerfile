@@ -12,9 +12,13 @@ WORKDIR /app
 
 # Copy requirements first (better caching)
 COPY requirements-minimal.txt .
+COPY requirements-agents.txt .
 
 # Install Python dependencies (includes sentence-transformers for local embeddings)
 RUN pip install --no-cache-dir -r requirements-minimal.txt
+
+# Install autonomous agents dependencies
+RUN pip install --no-cache-dir -r requirements-agents.txt
 
 # Copy application code
 COPY backend ./backend
