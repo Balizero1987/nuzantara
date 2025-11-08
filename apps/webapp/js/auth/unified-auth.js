@@ -1,15 +1,13 @@
 /**
  * ZANTARA Unified Authentication Service
  *
- * Unifies 3 different auth systems into one:
- * 1. Team Login (email + PIN) → /api/auth/team/login
- * 2. Demo Login (userId) → /api/auth/demo
- * 3. Auto token refresh
+ * Unifies authentication systems:
+ * 1. Team Login (email + PIN) → /auth/login
+ * 2. Auto token refresh
  *
  * Features:
  * - Centralized token management
  * - Automatic token refresh
- * - Multi-strategy support (team vs demo)
  * - Compatible with existing localStorage schema
  * - Uses API_CONFIG for proper URL resolution
  */
@@ -264,20 +262,20 @@ class UnifiedAuth {
   // ========================================================================
 
   /**
-   * Login with demo credentials
-   * @param {string} userId - Demo user ID (default: 'demo')
+   * Login with user credentials
+   * @param {string} userId - User ID (default: 'demo')
    * @returns {Promise<Object>} User data
    */
   async loginDemo(userId = 'demo') {
     try {
-      console.log('🔐 Demo login attempt:', userId);
+      console.log('🔐 Login attempt:', userId);
 
-      const response = await fetch(`${API_CONFIG.rag.url}/api/auth/demo`, {
+      const response = await fetch(`${API_CONFIG.rag.url}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ email: userId, password: 'default' }),
       });
 
       if (!response.ok) {

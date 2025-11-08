@@ -4,17 +4,13 @@
 
 // Configuration - Use centralized API_CONFIG
 const API_CONFIG = window.API_CONFIG || {
-  backend: { url: 'https://nuzantara-backend.fly.dev' },
-  memory: { url: 'https://nuzantara-memory.fly.dev' }
+  backend: { url: 'https://nuzantara-rag.fly.dev' },
+  memory: { url: 'https://nuzantara-rag.fly.dev' }
 };
 const API_BASE_URL = API_CONFIG.backend.url;
-const MEMORY_SERVICE_URL = API_CONFIG.memory.url;
 
 // DOM Elements
 let emailInput, pinInput, pinToggle, loginButton, errorMessage, welcomeMessage, loginForm;
-
-// State
-let teamMembers = [];
 
 /**
  * Initialize login page
@@ -31,40 +27,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   welcomeMessage = document.getElementById('welcomeMessage');
   loginForm = document.getElementById('loginForm');
 
-  // Load team members for auto-complete
-  await loadTeamMembers();
-
   // Setup event listeners
   setupEventListeners();
 
   console.log('✅ Login page ready');
 });
-
-/**
- * Load team members from backend
- */
-async function loadTeamMembers() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/team/members`);
-    const result = await response.json();
-
-    if (result.ok && result.data) {
-      teamMembers = result.data.members;
-
-      // Populate email datalist
-      const datalist = document.getElementById('team-emails');
-      teamMembers.forEach(member => {
-        const option = document.createElement('option');
-        option.value = member.email;
-        datalist.appendChild(option);
-      });
-
-      console.log(`✅ Loaded ${teamMembers.length} team members`);
-    }
-  } catch (error) {
-    console.warn('Could not load team members:', error);
-  }
-}
 
 /**
  * Setup event listeners
@@ -94,27 +61,11 @@ function setupEventListeners() {
 }
 
 /**
- * Handle email blur - recognize team member
+ * Handle email blur
  */
 function handleEmailBlur() {
-  const email = emailInput.value.trim().toLowerCase();
-
-  if (!email) {
-    welcomeMessage.classList.remove('show');
-    return;
-  }
-
-  // Find team member
-  const member = teamMembers.find(m => m.email.toLowerCase() === email);
-
-  if (member) {
-    welcomeMessage.textContent = `Welcome back, ${member.name}! Enter your PIN to continue.`;
-    welcomeMessage.classList.remove('success');
-    welcomeMessage.classList.add('show');
-    console.log(`✅ Recognized: ${member.name} (${member.role})`);
-  } else {
-    welcomeMessage.classList.remove('show');
-  }
+  // Clear any messages on blur
+  welcomeMessage.classList.remove('show');
 }
 
 /**
@@ -173,46 +124,49 @@ async function handleLogin(e) {
   clearError();
 
   try {
-    console.log('🔐 Attempting login with demo auth endpoint...');
+    console.log('🔐 Attempting login...');
 
-    // Call demo auth API (correct endpoint per OpenAPI spec)
-    const response = await fetch(`${API_BASE_URL}/api/auth/demo`, {
+    // Call auth API with email + PIN (sent as password)
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, pin }),
+      body: JSON.stringify({
+        email: email,
+        password: pin  // PIN sent as password field
+      }),
     });
 
     const result = await response.json();
 
-    if (!response.ok || !result.ok) {
-      throw new Error(result.error || 'Login failed');
+    if (!response.ok) {
+      throw new Error(result.detail || result.message || 'Login failed');
     }
 
-    // Login successful
-    const { data } = result;
-    console.log('✅ Login successful:', data.user.name);
+    // Login successful - handle actual backend response format
+    const user = result.user;
+    const token = result.access_token;
+    const expiresIn = result.expires_in || 900; // 15 minutes default
+
+    console.log('✅ Login successful:', user.name || user.email);
 
     // Store auth data in ZANTARA format (zantara-*)
     localStorage.setItem('zantara-token', JSON.stringify({
-      token: data.token,
-      expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+      token: token,
+      expiresAt: Date.now() + (expiresIn * 1000), // Convert seconds to milliseconds
     }));
-    localStorage.setItem('zantara-user', JSON.stringify(data.user));
+    localStorage.setItem('zantara-user', JSON.stringify(user));
     localStorage.setItem('zantara-session', JSON.stringify({
-      id: data.sessionId || `session_${Date.now()}`,
+      id: user.id || `session_${Date.now()}`,
       createdAt: Date.now(),
       lastActivity: Date.now(),
     }));
-    if (data.permissions) {
-      localStorage.setItem('zantara-permissions', JSON.stringify(data.permissions));
-    }
 
     console.log('✅ Auth data saved to localStorage (zantara-* format)');
 
     // Show success message
-    showSuccess(`Welcome back, ${data.user.name}! 🎉`);
+    showSuccess(`Welcome back, ${user.name || user.email}! 🎉`);
 
     // Redirect after 1.5 seconds
     setTimeout(() => {
