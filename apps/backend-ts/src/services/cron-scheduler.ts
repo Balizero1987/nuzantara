@@ -2,9 +2,9 @@
  * Cron Scheduler for AI Automation
  *
  * Manages automated jobs for:
- * - AI code refactoring (daily 4 AM)
- * - AI test generation (daily 5 AM)
- * - Predictive analytics (every 6 hours)
+ * - AI code refactoring (daily 2 AM UTC)
+ * - AI test generation (daily 3 AM UTC)
+ * - AI health check (every hour)
  *
  * SAFETY: All jobs include anti-loop protection
  */
@@ -31,8 +31,8 @@ export class CronScheduler {
     // AI AUTOMATION JOBS (OpenRouter)
     // ========================================
 
-    // Daily AI Code Refactoring (4 AM, uses DeepSeek Coder - FREE)
-    this.scheduleJob('ai-code-refactoring', '0 4 * * *', async () => {
+    // Daily AI Code Refactoring (2 AM UTC, uses DeepSeek Coder - FREE)
+    this.scheduleJob('ai-code-refactoring', '0 2 * * *', async () => {
       logger.info('🔧 Starting daily AI code refactoring...');
 
       try {
@@ -71,8 +71,8 @@ export class CronScheduler {
       }
     });
 
-    // Daily Test Generation (5 AM, uses Qwen 2.5 - FREE)
-    this.scheduleJob('ai-test-generation', '0 5 * * *', async () => {
+    // Daily Test Generation (3 AM UTC, uses Qwen 2.5 - FREE)
+    this.scheduleJob('ai-test-generation', '0 3 * * *', async () => {
       logger.info('🧪 Starting daily AI test generation...');
 
       try {
@@ -186,7 +186,7 @@ export class CronScheduler {
       },
       {
         scheduled: true,
-        timezone: 'Asia/Singapore' // Fly.io Singapore region
+        timezone: 'UTC' // Use UTC for reliability
       }
     );
 
