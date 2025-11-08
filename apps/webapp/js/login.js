@@ -2,9 +2,13 @@
  * ZANTARA Login Page - Email + PIN Authentication
  */
 
-// Configuration
-const API_BASE_URL = 'https://nuzantara-backend.fly.dev';
-const MEMORY_SERVICE_URL = 'https://nuzantara-memory.fly.dev';
+// Configuration - Use centralized API_CONFIG
+const API_CONFIG = window.API_CONFIG || {
+  backend: { url: 'https://nuzantara-backend.fly.dev' },
+  memory: { url: 'https://nuzantara-memory.fly.dev' }
+};
+const API_BASE_URL = API_CONFIG.backend.url;
+const MEMORY_SERVICE_URL = API_CONFIG.memory.url;
 
 // DOM Elements
 let emailInput, pinInput, pinToggle, loginButton, errorMessage, welcomeMessage, loginForm;
@@ -169,10 +173,10 @@ async function handleLogin(e) {
   clearError();
 
   try {
-    console.log('🔐 Attempting login...');
+    console.log('🔐 Attempting login with demo auth endpoint...');
 
-    // Call login API
-    const response = await fetch(`${API_BASE_URL}/api/team/login`, {
+    // Call demo auth API (correct endpoint per OpenAPI spec)
+    const response = await fetch(`${API_BASE_URL}/api/auth/demo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -190,20 +194,30 @@ async function handleLogin(e) {
     const { data } = result;
     console.log('✅ Login successful:', data.user.name);
 
-    // Store auth data
-    storeAuthData(data);
-
-    // Show personalized response
-    if (data.personalizedResponse) {
-      showSuccess(data.personalizedResponse);
-
-      // Redirect after 2 seconds
-      setTimeout(() => {
-        window.location.href = '/chat.html';
-      }, 2000);
-    } else {
-      window.location.href = '/chat.html';
+    // Store auth data in ZANTARA format (zantara-*)
+    localStorage.setItem('zantara-token', JSON.stringify({
+      token: data.token,
+      expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+    }));
+    localStorage.setItem('zantara-user', JSON.stringify(data.user));
+    localStorage.setItem('zantara-session', JSON.stringify({
+      id: data.sessionId || `session_${Date.now()}`,
+      createdAt: Date.now(),
+      lastActivity: Date.now(),
+    }));
+    if (data.permissions) {
+      localStorage.setItem('zantara-permissions', JSON.stringify(data.permissions));
     }
+
+    console.log('✅ Auth data saved to localStorage (zantara-* format)');
+
+    // Show success message
+    showSuccess(`Welcome back, ${data.user.name}! 🎉`);
+
+    // Redirect after 1.5 seconds
+    setTimeout(() => {
+      window.location.href = '/chat.html';
+    }, 1500);
 
   } catch (error) {
     console.error('❌ Login failed:', error);
@@ -229,58 +243,6 @@ async function handleLogin(e) {
     // Clear PIN field on error
     pinInput.value = '';
     pinInput.focus();
-  }
-}
-
-/**
- * Store authentication data in localStorage
- */
-function storeAuthData(data) {
-  // Store token
-  localStorage.setItem('zantara-token', JSON.stringify({
-    token: data.token,
-    expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
-  }));
-
-  // Store user
-  localStorage.setItem('zantara-user', JSON.stringify(data.user));
-
-  // Store session
-  localStorage.setItem('zantara-session', JSON.stringify({
-    id: data.sessionId,
-    createdAt: Date.now(),
-    lastActivity: Date.now(),
-  }));
-
-  // Store permissions
-  if (data.permissions) {
-    localStorage.setItem('zantara-permissions', JSON.stringify(data.permissions));
-  }
-
-  console.log('✅ Auth data stored in localStorage');
-
-  // Initialize Memory Service session
-  initializeMemorySession(data.user.id, data.user.email);
-}
-
-/**
- * Initialize or restore conversation session in Memory Service
- */
-async function initializeMemorySession(userId, userEmail) {
-  try {
-    // Use global CONVERSATION_CLIENT from conversation-client.js
-    if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
-      const sessionId = await window.CONVERSATION_CLIENT.initializeSession(userId, userEmail);
-      console.log(`✅ Memory Service session initialized: ${sessionId}`);
-      return sessionId;
-    } else {
-      console.warn('⚠️ CONVERSATION_CLIENT not loaded');
-      return null;
-    }
-  } catch (error) {
-    console.warn('⚠️ Memory Service initialization failed:', error.message);
-    // Continue without memory service - not critical for login
-    return null;
   }
 }
 

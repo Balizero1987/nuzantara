@@ -29,3 +29,6 @@ EXPOSE $PORT
 # Start the application with tsx (TypeScript runtime)
 CMD ["npx", "tsx", "src/server.ts"]
 # Build with AI Automation enabled
+# Start the application with tsx (TypeScript runtime) - MAIN SERVER
+CMD ["npx", "tsx", "src/server.ts"]
+# Build 1731008847 - MAIN SERVER with auth fixes

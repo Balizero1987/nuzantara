@@ -51,8 +51,8 @@ class SearchService:
             "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="visa_oracle"),  # 1,612 docs (pending migration)
             "kbli_eye": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),  # Fallback to kbli_unified (8,887 docs)
             "tax_genius": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_genius"),  # 895 docs, 1536-dim ✅ MIGRATED
-            "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_unified"),  # 559 docs, 1536-dim ✅ NEW LAWS 2025
-            "legal_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_unified"),  # 559 docs, 1536-dim ✅ NEW LAWS 2025 (direct access)
+            "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="indonesian_laws_unified"),  # 5,039 docs, 1536-dim ✅ UNIFIED LAWS 2025
+            "legal_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="indonesian_laws_unified"),  # 5,039 docs, 1536-dim ✅ UNIFIED LAWS 2025 (direct access)
             "kb_indonesian": ChromaDBClient(persist_directory=chroma_path, collection_name="kb_indonesian"),
             "kbli_comprehensive": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_comprehensive"),
             "kbli_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),  # 8,887 docs
@@ -64,7 +64,8 @@ class SearchService:
             "tax_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_genius"),  # Redirect to migrated tax_genius
             "property_listings": ChromaDBClient(persist_directory=chroma_path, collection_name="property_listings"),  # 29 docs, 1536-dim ✅ MIGRATED
             "property_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="property_unified"),  # 29 docs
-            "legal_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="legal_unified")  # 559 docs, 1536-dim ✅ NEW LAWS 2025
+            "legal_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="indonesian_laws_unified"),  # 5,039 docs, 1536-dim ✅ UNIFIED LAWS 2025
+            "legal_intelligence": ChromaDBClient(persist_directory=chroma_path, collection_name="indonesian_laws_unified")  # 5,039 docs, 1536-dim ✅ UNIFIED LAWS 2025 (comprehensive)
         }
 
         # Initialize query router

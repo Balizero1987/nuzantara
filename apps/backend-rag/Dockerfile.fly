@@ -18,11 +18,12 @@ RUN pip install --no-cache-dir -r requirements-minimal.txt
 
 # Copy application code - FROM PROJECT ROOT
 COPY apps/backend-rag/backend ./backend
-COPY apps/backend-rag/.env ./
 COPY apps/backend-rag/*.py ./
+# .env is optional - handled at runtime via fly.toml env vars
 
 # ChromaDB data is downloaded from Cloudflare R2 at startup (see main_cloud.py)
 # COPY chroma_db_deploy /data/chroma_db  # ← REMOVED: Data now loaded from R2
+# NOTE: .env is not copied here - it's handled later with fallback (line 37)
 
 # Set Python path
 ENV PYTHONPATH=/app/backend

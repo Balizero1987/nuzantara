@@ -291,7 +291,7 @@ export async function attachRoutes(app: express.Application) {
           res.json(result);
         } else if (key === 'oracle.collections') {
           const { oracleCollections } = await import('../handlers/bali-zero/oracle-universal.js');
-          const result = await oracleCollections(params);
+          const result = await oracleCollections();
           res.json(result);
         }
 
@@ -306,7 +306,7 @@ export async function attachRoutes(app: express.Application) {
           res.json(result);
         } else if (key === 'rag.health') {
           const { ragHealth } = await import('../handlers/rag/rag.js');
-          const result = await ragHealth(params);
+          const result = await ragHealth();
           res.json(result);
         } else if (key === 'bali.zero.chat') {
           const { baliZeroChat } = await import('../handlers/rag/rag.js');

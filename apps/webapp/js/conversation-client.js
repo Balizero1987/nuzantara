@@ -9,9 +9,12 @@
  * - Automatic session management
  */
 
+import { API_CONFIG } from './api-config.js';
+
 class ZantaraConversationClient {
   constructor(config = {}) {
-    this.memoryServiceUrl = config.memoryServiceUrl || 'https://nuzantara-memory.fly.dev';
+    // Use centralized API_CONFIG for memory service URL
+    this.memoryServiceUrl = config.memoryServiceUrl || API_CONFIG.memory.url;
     this.sessionId = null;
     this.userId = null;
     this.maxHistorySize = config.maxHistorySize || 50;
