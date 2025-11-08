@@ -2925,6 +2925,38 @@ async def root():
     total_docs = 0
     collection_stats = {}
 
+    # Helper function to get AI status dynamically
+    def _get_ai_status():
+        """Get current AI configuration status"""
+        # Check if Llama Scout is available
+        has_openrouter_key = os.getenv("OPENROUTER_API_KEY_LLAMA") is not None
+        has_anthropic_key = os.getenv("ANTHROPIC_API_KEY") is not None
+
+        if has_openrouter_key:
+            # Llama 4 Scout is primary
+            return {
+                "primary": "Llama 4 Scout (109B MoE, 17B active - 92% cheaper, 22% faster)",
+                "fallback": "Claude Haiku 4.5 (for errors & tool calling)",
+                "routing": "Intelligent Router (Llama primary → Haiku fallback)",
+                "cost_savings": "92% cheaper than Haiku ($0.20 vs $1-5 per 1M tokens)",
+                "performance": "22% faster TTFT (~880ms), 50x context (10M tokens)",
+                "status": "🦙 Llama 4 Scout ACTIVE"
+            }
+        elif has_anthropic_key:
+            # Haiku-only mode
+            return {
+                "primary": "Claude Haiku 4.5 (ALL queries - Fast, Efficient, RAG-enhanced)",
+                "routing": "Intelligent Router (100% Haiku 4.5)",
+                "cost_savings": "3x cheaper than Sonnet, same quality with RAG",
+                "status": "⚡ Haiku-only mode (add OPENROUTER_API_KEY_LLAMA for Llama 4)"
+            }
+        else:
+            # No AI available
+            return {
+                "status": "❌ No AI configured",
+                "setup_required": "Set OPENROUTER_API_KEY_LLAMA or ANTHROPIC_API_KEY"
+            }
+
     try:
         # Try to get count from search_service if available
         if search_service:
@@ -2958,6 +2990,7 @@ async def root():
         "status": "operational",
         "features": {
             "chromadb": search_service is not None,
+            "ai": _get_ai_status(),
             "ai": {
                 "primary": "Llama 4 Scout (92% cheaper, 22% faster TTFT, 10M context)",
                 "fallback": "Claude Haiku 4.5 (tool calling, emergencies)",
