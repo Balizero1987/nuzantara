@@ -48,33 +48,12 @@ class AgentExecutionResponse(BaseModel):
 # CONVERSATION QUALITY TRAINER
 # ============================================================================
 
-@router.post("/conversation-trainer/run", response_model=AgentExecutionResponse)
-async def run_conversation_trainer(
-    background_tasks: BackgroundTasks,
-    days_back: int = 7
-):
-    """
-    🤖 Run Conversation Quality Trainer Agent
-
-    Analyzes high-rated conversations and generates prompt improvements
-
-    Args:
-        days_back: Number of days to look back for conversations (default: 7)
-
-    Returns:
-        Execution status and result
-    """
-    execution_id = f"conv_trainer_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-
-    agent_executions[execution_id] = {
-        "agent_name": "conversation_trainer",
-        "status": "started",
-        "started_at": datetime.now().isoformat(),
-        "days_back": days_back
-    }
-
+async def _run_conversation_trainer_task(execution_id: str, days_back: int):
+    """Background task for conversation trainer execution"""
     try:
         logger.info(f"🤖 Starting Conversation Trainer (execution_id: {execution_id})")
+
+        agent_executions[execution_id]["status"] = "running"
 
         trainer = ConversationTrainer()
 
@@ -87,12 +66,12 @@ async def run_conversation_trainer(
                 "completed_at": datetime.now().isoformat(),
                 "result": {"message": "No high-rated conversations found"}
             })
-            return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id)
+            return
 
         # Generate improved prompt
         improved_prompt = await trainer.generate_prompt_update(analysis)
 
-        # Create PR (in background to avoid blocking)
+        # Create PR
         pr_branch = await trainer.create_improvement_pr(improved_prompt, analysis)
 
         agent_executions[execution_id].update({
@@ -107,7 +86,6 @@ async def run_conversation_trainer(
         })
 
         logger.info(f"✅ Conversation Trainer completed (execution_id: {execution_id})")
-        return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id)
 
     except Exception as e:
         logger.error(f"❌ Conversation Trainer failed: {e}", exc_info=True)
@@ -116,35 +94,50 @@ async def run_conversation_trainer(
             "completed_at": datetime.now().isoformat(),
             "error": str(e)
         })
-        return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id)
+
+
+@router.post("/conversation-trainer/run", response_model=AgentExecutionResponse)
+async def run_conversation_trainer(
+    background_tasks: BackgroundTasks,
+    days_back: int = 7
+):
+    """
+    🤖 Run Conversation Quality Trainer Agent
+
+    Analyzes high-rated conversations and generates prompt improvements
+
+    Args:
+        days_back: Number of days to look back for conversations (default: 7)
+
+    Returns:
+        Execution status (agent runs in background)
+    """
+    execution_id = f"conv_trainer_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    agent_executions[execution_id] = {
+        "agent_name": "conversation_trainer",
+        "status": "started",
+        "started_at": datetime.now().isoformat(),
+        "days_back": days_back
+    }
+
+    # Run agent in background
+    background_tasks.add_task(_run_conversation_trainer_task, execution_id, days_back)
+
+    # Return immediately
+    return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id, message="Agent execution started in background")
 
 
 # ============================================================================
 # CLIENT LTV PREDICTOR & NURTURING
 # ============================================================================
 
-@router.post("/client-value-predictor/run", response_model=AgentExecutionResponse)
-async def run_client_value_predictor(background_tasks: BackgroundTasks):
-    """
-    💰 Run Client LTV Predictor & Nurturing Agent
-
-    Scores all clients and sends personalized nurturing messages to:
-    - VIP clients (LTV > 80)
-    - High-risk clients (LTV < 30 and inactive > 30 days)
-
-    Returns:
-        Execution status and nurturing results
-    """
-    execution_id = f"client_predictor_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-
-    agent_executions[execution_id] = {
-        "agent_name": "client_value_predictor",
-        "status": "started",
-        "started_at": datetime.now().isoformat()
-    }
-
+async def _run_client_value_predictor_task(execution_id: str):
+    """Background task for client value predictor execution"""
     try:
         logger.info(f"💰 Starting Client Value Predictor (execution_id: {execution_id})")
+
+        agent_executions[execution_id]["status"] = "running"
 
         predictor = ClientValuePredictor()
 
@@ -164,7 +157,6 @@ async def run_client_value_predictor(background_tasks: BackgroundTasks):
         })
 
         logger.info(f"✅ Client Value Predictor completed (execution_id: {execution_id})")
-        return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id)
 
     except Exception as e:
         logger.error(f"❌ Client Value Predictor failed: {e}", exc_info=True)
@@ -173,43 +165,45 @@ async def run_client_value_predictor(background_tasks: BackgroundTasks):
             "completed_at": datetime.now().isoformat(),
             "error": str(e)
         })
-        return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id)
+
+
+@router.post("/client-value-predictor/run", response_model=AgentExecutionResponse)
+async def run_client_value_predictor(background_tasks: BackgroundTasks):
+    """
+    💰 Run Client LTV Predictor & Nurturing Agent
+
+    Scores all clients and sends personalized nurturing messages to:
+    - VIP clients (LTV > 80)
+    - High-risk clients (LTV < 30 and inactive > 30 days)
+
+    Returns:
+        Execution status (agent runs in background)
+    """
+    execution_id = f"client_predictor_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    agent_executions[execution_id] = {
+        "agent_name": "client_value_predictor",
+        "status": "started",
+        "started_at": datetime.now().isoformat()
+    }
+
+    # Run agent in background
+    background_tasks.add_task(_run_client_value_predictor_task, execution_id)
+
+    # Return immediately
+    return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id, message="Agent execution started in background")
 
 
 # ============================================================================
 # KNOWLEDGE GRAPH BUILDER
 # ============================================================================
 
-@router.post("/knowledge-graph-builder/run", response_model=AgentExecutionResponse)
-async def run_knowledge_graph_builder(
-    background_tasks: BackgroundTasks,
-    days_back: int = 30,
-    init_schema: bool = False
-):
-    """
-    🕸️ Run Knowledge Graph Builder Agent
-
-    Extracts entities and relationships from conversations and builds knowledge graph
-
-    Args:
-        days_back: Number of days to look back for conversations (default: 30)
-        init_schema: Initialize database schema (default: False)
-
-    Returns:
-        Execution status and graph insights
-    """
-    execution_id = f"kg_builder_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-
-    agent_executions[execution_id] = {
-        "agent_name": "knowledge_graph_builder",
-        "status": "started",
-        "started_at": datetime.now().isoformat(),
-        "days_back": days_back,
-        "init_schema": init_schema
-    }
-
+async def _run_knowledge_graph_builder_task(execution_id: str, days_back: int, init_schema: bool):
+    """Background task for knowledge graph builder execution"""
     try:
         logger.info(f"🕸️ Starting Knowledge Graph Builder (execution_id: {execution_id})")
+
+        agent_executions[execution_id]["status"] = "running"
 
         builder = KnowledgeGraphBuilder()
 
@@ -238,7 +232,6 @@ async def run_knowledge_graph_builder(
         })
 
         logger.info(f"✅ Knowledge Graph Builder completed (execution_id: {execution_id})")
-        return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id)
 
     except Exception as e:
         logger.error(f"❌ Knowledge Graph Builder failed: {e}", exc_info=True)
@@ -247,7 +240,41 @@ async def run_knowledge_graph_builder(
             "completed_at": datetime.now().isoformat(),
             "error": str(e)
         })
-        return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id)
+
+
+@router.post("/knowledge-graph-builder/run", response_model=AgentExecutionResponse)
+async def run_knowledge_graph_builder(
+    background_tasks: BackgroundTasks,
+    days_back: int = 30,
+    init_schema: bool = False
+):
+    """
+    🕸️ Run Knowledge Graph Builder Agent
+
+    Extracts entities and relationships from conversations and builds knowledge graph
+
+    Args:
+        days_back: Number of days to look back for conversations (default: 30)
+        init_schema: Initialize database schema (default: False)
+
+    Returns:
+        Execution status (agent runs in background)
+    """
+    execution_id = f"kg_builder_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    agent_executions[execution_id] = {
+        "agent_name": "knowledge_graph_builder",
+        "status": "started",
+        "started_at": datetime.now().isoformat(),
+        "days_back": days_back,
+        "init_schema": init_schema
+    }
+
+    # Run agent in background
+    background_tasks.add_task(_run_knowledge_graph_builder_task, execution_id, days_back, init_schema)
+
+    # Return immediately
+    return AgentExecutionResponse(**agent_executions[execution_id], execution_id=execution_id, message="Agent execution started in background")
 
 
 # ============================================================================
