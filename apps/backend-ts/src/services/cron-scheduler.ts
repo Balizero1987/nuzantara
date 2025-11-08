@@ -3,7 +3,7 @@
  * Runs maintenance tasks automatically
  */
 
-import cron, { ScheduledTask, ScheduleOptions } from 'node-cron';
+import cron, { ScheduledTask } from 'node-cron';
 import { logger } from '../logging/unified-logger.js';
 import { AgentOrchestrator } from '../agents/agent-orchestrator.js';
 
@@ -144,12 +144,10 @@ export class CronScheduler {
   private scheduleJob(name: string, cronExpression: string, task: () => Promise<void>) {
     const timezone = process.env.CRON_TIMEZONE || 'Asia/Singapore';
 
-    const options: ScheduleOptions = {
+    const job = cron.schedule(cronExpression, task, {
       scheduled: true,
       timezone,
-    };
-
-    const job = cron.schedule(cronExpression, task, options);
+    });
 
     this.jobs.set(name, job);
     logger.info(`📅 Scheduled job: ${name} (${cronExpression}) [${timezone}]`);
