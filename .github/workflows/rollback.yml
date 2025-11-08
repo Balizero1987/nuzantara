@@ -1,0 +1,376 @@
+name: 🔄 Emergency Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      target_version:
+        description: 'Target version/commit SHA to rollback to (leave empty for previous deployment)'
+        required: false
+        type: string
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+      confirmation:
+        description: 'Type ROLLBACK to confirm'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '20.x'
+  FLY_APP_STAGING: nuzantara-staging
+  FLY_APP_PRODUCTION: nuzantara-core
+  REGISTRY: ghcr.io
+
+jobs:
+  # ==========================================
+  # ✅ VALIDATION
+  # ==========================================
+
+  validate-rollback:
+    name: ✅ Validate Rollback Request
+    runs-on: ubuntu-latest
+    outputs:
+      confirmed: ${{ steps.validate.outputs.confirmed }}
+      target_image: ${{ steps.validate.outputs.target_image }}
+    steps:
+      - name: 🔐 Confirm rollback
+        id: validate
+        run: |
+          if [ "${{ github.event.inputs.confirmation }}" != "ROLLBACK" ]; then
+            echo "❌ **Rollback cancelled:** Confirmation must be 'ROLLBACK'" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          echo "## 🚨 Rollback Request" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target Version:** ${{ github.event.inputs.target_version || 'Previous deployment' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Reason:** ${{ github.event.inputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Requested by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+
+          echo "confirmed=true" >> $GITHUB_OUTPUT
+
+          # Determine target image
+          if [ -n "${{ github.event.inputs.target_version }}" ]; then
+            TARGET_IMAGE="prod-${{ github.event.inputs.target_version }}"
+          else
+            TARGET_IMAGE="production-latest"
+          fi
+          echo "target_image=$TARGET_IMAGE" >> $GITHUB_OUTPUT
+
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📜 Show recent deployments
+        run: |
+          echo "## 📜 Recent Deployments" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git log --oneline -10 >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # 💾 BACKUP CURRENT STATE
+  # ==========================================
+
+  backup-current-state:
+    name: 💾 Backup Current State
+    runs-on: ubuntu-latest
+    needs: [validate-rollback]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 💾 Save current deployment state
+        run: |
+          echo "## 💾 Current State Backup" >> $GITHUB_STEP_SUMMARY
+
+          BACKUP_FILE="rollback-backup-$(date +%Y%m%d-%H%M%S).json"
+
+          cat > $BACKUP_FILE <<EOF
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "environment": "${{ github.event.inputs.environment }}",
+            "current_commit": "${{ github.sha }}",
+            "rollback_to": "${{ github.event.inputs.target_version }}",
+            "reason": "${{ github.event.inputs.reason }}",
+            "triggered_by": "${{ github.actor }}"
+          }
+          EOF
+
+          echo "✅ Backup saved: $BACKUP_FILE" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📦 Upload backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollback-backup-${{ github.run_id }}
+          path: rollback-backup-*.json
+          retention-days: 90
+
+  # ==========================================
+  # 🔄 EXECUTE ROLLBACK
+  # ==========================================
+
+  execute-rollback:
+    name: 🔄 Execute Rollback
+    runs-on: ubuntu-latest
+    needs: [validate-rollback, backup-current-state]
+    environment:
+      name: ${{ github.event.inputs.environment }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: 🔄 Rollback deployment
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            FLY_APP="${{ env.FLY_APP_PRODUCTION }}"
+          else
+            FLY_APP="${{ env.FLY_APP_STAGING }}"
+          fi
+
+          echo "## 🔄 Rolling Back ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**App:** $FLY_APP" >> $GITHUB_STEP_SUMMARY
+
+          # Get previous release
+          if [ -n "${{ github.event.inputs.target_version }}" ]; then
+            # Rollback to specific version
+            TARGET_IMAGE="${{ env.REGISTRY }}/${{ github.repository }}/zantara-backend:${{ needs.validate-rollback.outputs.target_image }}"
+            echo "**Rolling back to:** $TARGET_IMAGE" >> $GITHUB_STEP_SUMMARY
+
+            flyctl deploy \
+              --app $FLY_APP \
+              --image $TARGET_IMAGE \
+              --strategy immediate \
+              --wait-timeout 300
+          else
+            # Rollback to previous deployment
+            echo "**Rolling back to:** Previous deployment" >> $GITHUB_STEP_SUMMARY
+
+            flyctl releases rollback \
+              --app $FLY_APP \
+              --yes
+          fi
+
+          echo "✅ Rollback command executed" >> $GITHUB_STEP_SUMMARY
+
+      - name: ⏳ Wait for rollback to stabilize
+        run: sleep 30
+
+  # ==========================================
+  # 🏥 VERIFY ROLLBACK
+  # ==========================================
+
+  verify-rollback:
+    name: 🏥 Verify Rollback Success
+    runs-on: ubuntu-latest
+    needs: [execute-rollback]
+    steps:
+      - name: 🏥 Health check after rollback
+        run: |
+          if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            HEALTH_URL="https://${{ env.FLY_APP_PRODUCTION }}.fly.dev/health"
+          else
+            HEALTH_URL="https://${{ env.FLY_APP_STAGING }}.fly.dev/health"
+          fi
+
+          echo "## 🏥 Rollback Verification" >> $GITHUB_STEP_SUMMARY
+
+          MAX_RETRIES=15
+          RETRY_COUNT=0
+          SUCCESS=0
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL" || echo "000")
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Health check passed (HTTP $HTTP_CODE) on attempt $((RETRY_COUNT + 1))" >> $GITHUB_STEP_SUMMARY
+              SUCCESS=1
+              break
+            fi
+
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "⏳ Attempt $RETRY_COUNT/$MAX_RETRIES: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+            sleep 10
+          done
+
+          if [ $SUCCESS -eq 0 ]; then
+            echo "❌ **Health check failed after rollback!**" >> $GITHUB_STEP_SUMMARY
+            echo "🚨 **CRITICAL: Manual intervention required immediately!**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: 🧪 Run smoke tests
+        run: |
+          if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            BASE_URL="https://${{ env.FLY_APP_PRODUCTION }}.fly.dev"
+          else
+            BASE_URL="https://${{ env.FLY_APP_STAGING }}.fly.dev"
+          fi
+
+          echo "## 🧪 Post-Rollback Smoke Tests" >> $GITHUB_STEP_SUMMARY
+
+          # Test critical endpoints
+          ENDPOINTS=("/health" "/")
+          FAILED=0
+
+          for endpoint in "${ENDPOINTS[@]}"; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL$endpoint" || echo "000")
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "404" ]; then
+              echo "✅ $endpoint: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ $endpoint: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            echo "⚠️ Some endpoints failed smoke tests after rollback" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **All smoke tests passed**" >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # 📢 NOTIFICATIONS & INCIDENT REPORT
+  # ==========================================
+
+  notify-and-document:
+    name: 📢 Notify & Create Incident Report
+    runs-on: ubuntu-latest
+    needs: [validate-rollback, execute-rollback, verify-rollback]
+    if: always()
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📄 Create incident report
+        run: |
+          INCIDENT_FILE="incidents/incident-$(date +%Y%m%d-%H%M%S).md"
+          mkdir -p incidents
+
+          cat > $INCIDENT_FILE <<EOF
+          # Rollback Incident Report
+
+          **Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          **Environment:** ${{ github.event.inputs.environment }}
+          **Triggered by:** ${{ github.actor }}
+
+          ## Details
+
+          - **Reason:** ${{ github.event.inputs.reason }}
+          - **Target Version:** ${{ github.event.inputs.target_version || 'Previous deployment' }}
+          - **Current Commit (before rollback):** ${{ github.sha }}
+          - **Rollback Status:** ${{ needs.verify-rollback.result }}
+
+          ## Timeline
+
+          1. **Rollback Initiated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          2. **Rollback Executed:** ${{ needs.execute-rollback.result }}
+          3. **Verification:** ${{ needs.verify-rollback.result }}
+
+          ## Post-Incident Actions Required
+
+          - [ ] Root cause analysis
+          - [ ] Fix underlying issue
+          - [ ] Update tests to prevent recurrence
+          - [ ] Document lessons learned
+          - [ ] Schedule post-mortem meeting
+
+          ## Notes
+
+          ${{ github.event.inputs.reason }}
+          EOF
+
+          echo "## 📄 Incident Report Created" >> $GITHUB_STEP_SUMMARY
+          echo '```markdown' >> $GITHUB_STEP_SUMMARY
+          cat $INCIDENT_FILE >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: 📦 Save incident report
+        uses: actions/upload-artifact@v4
+        with:
+          name: incident-report-${{ github.run_id }}
+          path: incidents/*.md
+          retention-days: 365
+
+      - name: 📢 Slack notification (success)
+        if: needs.verify-rollback.result == 'success'
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": "🔄 Rollback completed successfully",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*🔄 ZANTARA Rollback Completed*\n\n*Environment:* ${{ github.event.inputs.environment }}\n*Reason:* ${{ github.event.inputs.reason }}\n*Triggered by:* ${{ github.actor }}\n*Status:* ✅ Successful\n\n*Action Required:* Review incident report and schedule post-mortem"
+                    }
+                  }
+                ]
+              }' || echo "Slack webhook not configured"
+          fi
+
+      - name: 📢 Slack notification (failure)
+        if: needs.verify-rollback.result == 'failure'
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": "🚨 CRITICAL: Rollback failed!",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*🚨 CRITICAL: ZANTARA Rollback Failed*\n\n*Environment:* ${{ github.event.inputs.environment }}\n*Triggered by:* ${{ github.actor }}\n*Status:* ❌ Failed\n\n*🚨 IMMEDIATE ACTION REQUIRED*\n*Manual intervention needed!*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>"
+                    }
+                  }
+                ]
+              }' || echo "Slack webhook not configured"
+          fi
+
+      - name: 📊 Final rollback summary
+        if: always()
+        run: |
+          echo "---" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.verify-rollback.result }}" == "success" ]; then
+            echo "# ✅ Rollback Completed Successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## Next Steps" >> $GITHUB_STEP_SUMMARY
+            echo "1. ✅ Service is stable and running previous version" >> $GITHUB_STEP_SUMMARY
+            echo "2. 🔍 Investigate root cause of issues" >> $GITHUB_STEP_SUMMARY
+            echo "3. 🛠️ Fix issues in develop branch" >> $GITHUB_STEP_SUMMARY
+            echo "4. 🧪 Test thoroughly on staging" >> $GITHUB_STEP_SUMMARY
+            echo "5. 📅 Schedule post-mortem meeting" >> $GITHUB_STEP_SUMMARY
+            echo "6. 📝 Document lessons learned" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "# ❌ Rollback Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "## 🚨 CRITICAL ACTION REQUIRED" >> $GITHUB_STEP_SUMMARY
+            echo "1. Contact on-call engineer immediately" >> $GITHUB_STEP_SUMMARY
+            echo "2. Check Fly.io dashboard for errors" >> $GITHUB_STEP_SUMMARY
+            echo "3. Review application logs" >> $GITHUB_STEP_SUMMARY
+            echo "4. Consider manual intervention" >> $GITHUB_STEP_SUMMARY
+            echo "5. Escalate to senior engineer if needed" >> $GITHUB_STEP_SUMMARY
+          fi

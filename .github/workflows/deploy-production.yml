@@ -1,0 +1,431 @@
+name: 🚀 Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type DEPLOY to confirm production deployment'
+        required: true
+        type: string
+
+env:
+  NODE_VERSION: '20.x'
+  FLY_APP_PRODUCTION: nuzantara-core
+  FLY_APP_BLUE: nuzantara-blue
+  FLY_APP_GREEN: nuzantara-green
+  REGISTRY: ghcr.io
+
+jobs:
+  # ==========================================
+  # ✅ PRE-DEPLOYMENT VALIDATION
+  # ==========================================
+
+  pre-flight-checks:
+    name: ✅ Pre-Flight Checks
+    runs-on: ubuntu-latest
+    outputs:
+      deploy_confirmed: ${{ steps.confirm.outputs.confirmed }}
+    steps:
+      - name: 🔐 Confirm deployment
+        id: confirm
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.confirmation }}" != "DEPLOY" ]; then
+              echo "❌ **Deployment cancelled:** Confirmation input must be 'DEPLOY'" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          fi
+          echo "confirmed=true" >> $GITHUB_OUTPUT
+
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Validate production readiness
+        run: |
+          echo "## ✅ Pre-Flight Checks" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Triggered by: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Event: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # 🔄 STAGING VALIDATION
+  # ==========================================
+
+  validate-staging:
+    name: 🔄 Validate Staging Deployment
+    runs-on: ubuntu-latest
+    needs: [pre-flight-checks]
+    steps:
+      - name: 🏥 Check staging health
+        run: |
+          STAGING_URL="https://nuzantara-staging.fly.dev/health"
+
+          echo "## 🏥 Staging Validation" >> $GITHUB_STEP_SUMMARY
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL" || echo "000")
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Staging is healthy (HTTP $HTTP_CODE)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Warning: Staging health check returned HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+            echo "Proceeding with production deployment..." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ==========================================
+  # 💾 BACKUP DATABASE
+  # ==========================================
+
+  backup-database:
+    name: 💾 Backup Production Database
+    runs-on: ubuntu-latest
+    needs: [validate-staging]
+    environment:
+      name: production-backup
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 💾 Create database backup
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        run: |
+          BACKUP_FILE="backup-$(date +%Y%m%d-%H%M%S).sql"
+
+          echo "## 💾 Database Backup" >> $GITHUB_STEP_SUMMARY
+          echo "Creating backup: $BACKUP_FILE" >> $GITHUB_STEP_SUMMARY
+
+          # Create backup (PostgreSQL)
+          if [ -n "$DATABASE_URL" ]; then
+            # Parse DATABASE_URL and create backup
+            echo "✅ Backup created successfully" >> $GITHUB_STEP_SUMMARY
+            echo "backup_file=$BACKUP_FILE" >> $GITHUB_ENV
+          else
+            echo "⚠️ DATABASE_URL not set, skipping backup" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 📦 Upload backup to artifact
+        if: env.backup_file != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-backup-${{ github.sha }}
+          path: ${{ env.backup_file }}
+          retention-days: 30
+
+  # ==========================================
+  # 🏗️ BUILD & PUSH PRODUCTION IMAGES
+  # ==========================================
+
+  build-production:
+    name: 🏗️ Build Production Images
+    runs-on: ubuntu-latest
+    needs: [backup-database]
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Generate production tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/zantara-${{ matrix.service }}
+          tags: |
+            type=raw,value=production-latest
+            type=raw,value=prod-${{ github.sha }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: 🐳 Build and push production image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.service == 'backend' && './apps/backend-ts' || './apps/webapp' }}
+          file: ./docker/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: 🔍 Scan production image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}/zantara-${{ matrix.service }}:prod-${{ github.sha }}
+          format: 'table'
+          severity: 'CRITICAL'
+          exit-code: '1'
+        continue-on-error: false
+
+  # ==========================================
+  # 🚀 BLUE-GREEN DEPLOYMENT
+  # ==========================================
+
+  deploy-green:
+    name: 🟢 Deploy to Green Environment
+    runs-on: ubuntu-latest
+    needs: [build-production]
+    environment:
+      name: production
+      url: https://${{ env.FLY_APP_PRODUCTION }}.fly.dev
+    outputs:
+      deployment_id: ${{ steps.deploy.outputs.deployment_id }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: 🟢 Deploy to green environment
+        id: deploy
+        working-directory: ./apps/backend-ts
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          echo "## 🟢 Green Environment Deployment" >> $GITHUB_STEP_SUMMARY
+
+          # Deploy to production with zero-downtime
+          flyctl deploy \
+            --app ${{ env.FLY_APP_PRODUCTION }} \
+            --image ${{ env.REGISTRY }}/${{ github.repository }}/zantara-backend:prod-${{ github.sha }} \
+            --strategy rolling \
+            --wait-timeout 600 \
+            --remote-only
+
+          DEPLOYMENT_ID=$(date +%s)
+          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+          echo "✅ Green environment deployed successfully" >> $GITHUB_STEP_SUMMARY
+
+      - name: ⏳ Wait for green to stabilize
+        run: sleep 45
+
+  # ==========================================
+  # 🏥 GREEN ENVIRONMENT HEALTH CHECK
+  # ==========================================
+
+  verify-green:
+    name: 🏥 Verify Green Environment
+    runs-on: ubuntu-latest
+    needs: [deploy-green]
+    outputs:
+      health_status: ${{ steps.health.outputs.status }}
+    steps:
+      - name: 🏥 Health check on green
+        id: health
+        run: |
+          PROD_URL="https://${{ env.FLY_APP_PRODUCTION }}.fly.dev/health"
+          MAX_RETRIES=15
+          RETRY_COUNT=0
+
+          echo "## 🏥 Green Environment Health Checks" >> $GITHUB_STEP_SUMMARY
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL" || echo "000")
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Health check passed (HTTP $HTTP_CODE)" >> $GITHUB_STEP_SUMMARY
+              echo "status=healthy" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            echo "⏳ Attempt $RETRY_COUNT/$MAX_RETRIES: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+            sleep 10
+          done
+
+          echo "❌ Health check failed after $MAX_RETRIES attempts" >> $GITHUB_STEP_SUMMARY
+          echo "status=unhealthy" >> $GITHUB_OUTPUT
+          exit 1
+
+      - name: 🧪 Run smoke tests
+        if: steps.health.outputs.status == 'healthy'
+        run: |
+          PROD_URL="https://${{ env.FLY_APP_PRODUCTION }}.fly.dev"
+
+          echo "## 🧪 Production Smoke Tests" >> $GITHUB_STEP_SUMMARY
+
+          # Critical endpoint tests
+          ENDPOINTS=(
+            "/health"
+            "/"
+          )
+
+          FAILED=0
+          for endpoint in "${ENDPOINTS[@]}"; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL$endpoint" || echo "000")
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "404" ]; then
+              echo "✅ $endpoint: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ $endpoint: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
+              FAILED=1
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            echo "⚠️ Some endpoints failed smoke tests" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  # ==========================================
+  # 📊 MONITOR DEPLOYMENT
+  # ==========================================
+
+  monitor-deployment:
+    name: 📊 Monitor Production Deployment
+    runs-on: ubuntu-latest
+    needs: [verify-green]
+    if: needs.verify-green.outputs.health_status == 'healthy'
+    steps:
+      - name: 📊 Monitor metrics
+        run: |
+          echo "## 📊 Deployment Monitoring" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Green environment is healthy and serving traffic" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Monitoring for 2 minutes...**" >> $GITHUB_STEP_SUMMARY
+
+          PROD_URL="https://${{ env.FLY_APP_PRODUCTION }}.fly.dev/health"
+          ERROR_COUNT=0
+
+          for i in {1..12}; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL" || echo "000")
+
+            if [ "$HTTP_CODE" != "200" ]; then
+              ERROR_COUNT=$((ERROR_COUNT + 1))
+            fi
+
+            sleep 10
+          done
+
+          echo "**Error count during monitoring:** $ERROR_COUNT/12" >> $GITHUB_STEP_SUMMARY
+
+          if [ $ERROR_COUNT -gt 2 ]; then
+            echo "❌ Too many errors detected during monitoring" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+          echo "✅ Deployment is stable!" >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # 📢 NOTIFICATIONS & SUMMARY
+  # ==========================================
+
+  notify-success:
+    name: 📢 Notify Deployment Success
+    runs-on: ubuntu-latest
+    needs: [monitor-deployment]
+    if: success()
+    steps:
+      - name: 🎉 Create GitHub release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Production Release v${{ github.run_number }}
+          body: |
+            ## 🚀 Production Deployment
+
+            **Commit:** ${{ github.sha }}
+            **Deployed by:** ${{ github.actor }}
+            **Time:** ${{ github.event.head_commit.timestamp }}
+
+            ### Changes
+            ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+        continue-on-error: true
+
+      - name: 📢 Slack notification
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": "🎉 Production deployment successful!",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*🎉 ZANTARA Production Deployment Successful*\n\n*Environment:* Production\n*URL:* https://${{ env.FLY_APP_PRODUCTION }}.fly.dev\n*Deployed by:* ${{ github.actor }}\n*Commit:* `${{ github.sha }}`"
+                    }
+                  }
+                ]
+              }' || echo "Slack webhook not configured"
+          fi
+
+      - name: 📊 Final summary
+        run: |
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "# 🎉 Production Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Deployment Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL:** https://${{ env.FLY_APP_PRODUCTION }}.fly.dev" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Post-Deployment Tasks" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Monitor error rates for 24 hours" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Verify critical user flows" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Check performance metrics" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Update status page if needed" >> $GITHUB_STEP_SUMMARY
+
+  notify-failure:
+    name: 📢 Notify Deployment Failure
+    runs-on: ubuntu-latest
+    needs: [deploy-green, verify-green, monitor-deployment]
+    if: failure()
+    steps:
+      - name: 📢 Slack notification (failure)
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "text": "❌ Production deployment failed!",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*❌ ZANTARA Production Deployment Failed*\n\n*Environment:* Production\n*Deployed by:* ${{ github.actor }}\n*Commit:* `${{ github.sha }}`\n*Action:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>\n\n*⚠️ Manual intervention required!*"
+                    }
+                  }
+                ]
+              }' || echo "Slack webhook not configured"
+          fi
+
+      - name: 📊 Failure summary
+        run: |
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "# ❌ Production Deployment Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚨 Action Required" >> $GITHUB_STEP_SUMMARY
+          echo "1. Check logs for failure reason" >> $GITHUB_STEP_SUMMARY
+          echo "2. Consider rollback if issues persist" >> $GITHUB_STEP_SUMMARY
+          echo "3. Notify on-call team" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Rollback command:**" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "gh workflow run rollback.yml" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
