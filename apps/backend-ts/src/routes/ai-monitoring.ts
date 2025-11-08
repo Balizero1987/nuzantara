@@ -18,6 +18,8 @@ const router = Router();
 router.get('/cron-status', async (req: Request, res: Response) => {
   try {
     // Dynamically import to avoid issues if not yet initialized
+    const { cronScheduler } = await import('../services/cron-scheduler.js');
+    const status = cronScheduler.getStatus();
     const { getCronScheduler } = await import('../services/cron-scheduler.js');
     const cronScheduler = getCronScheduler();
     const status = cronScheduler.getJobStatus();
@@ -68,12 +70,14 @@ router.get('/ai-stats', async (req: Request, res: Response) => {
 router.get('/ai-health', async (req: Request, res: Response) => {
   try {
     const { openRouterClient } = await import('../services/ai/openrouter-client.js');
+    const { cronScheduler } = await import('../services/cron-scheduler.js');
     const { getCronScheduler } = await import('../services/cron-scheduler.js');
     const cronScheduler = getCronScheduler();
 
     // Check OpenRouter health
     const healthy = await openRouterClient.healthCheck();
     const stats = openRouterClient.getStats();
+    const cronStatus = cronScheduler.getStatus();
     const cronStatus = cronScheduler.getJobStatus();
 
     res.json({
