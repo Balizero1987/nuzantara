@@ -267,7 +267,7 @@ export class AdvancedNLPSystem {
       },
     };
 
-    // @ts-expect-error - Intentionally unused
+
     const _patterns = namePatterns[language] || namePatterns['mixed'];
 
     // Check for team members first (highest confidence)
@@ -1075,7 +1075,7 @@ export class AdvancedNLPSystem {
   private classifyIntent(query: string, entities: ExtractedEntity[], _language: string): string {
     const personEntities = entities.filter((e) => e.type === 'person');
     const serviceEntities = entities.filter((e) => e.type === 'service');
-    // @ts-expect-error - Intentionally unused
+
     const _emailEntities = entities.filter((e) => e.type === 'email');
     const priceEntities = entities.filter((e) => e.type === 'price');
 

@@ -720,7 +720,6 @@ async function startServer() {
 
   // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
   if (process.env.REDIS_URL) {
-    // @ts-expect-error - Intentionally unused
     const _io = setupWebSocket(httpServer);
     logger.info('✅ WebSocket server initialized');
   } else {
@@ -792,6 +791,7 @@ async function startServer() {
 
       // Stop AI Automation Cron Scheduler
       try {
+        getCronScheduler().stop();
         cronScheduler.stop();
         logger.info('AI Automation Cron Scheduler stopped');
       } catch (error: any) {

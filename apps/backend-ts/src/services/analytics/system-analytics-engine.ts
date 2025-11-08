@@ -113,7 +113,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
   private metricsBuffer: Map<string, SystemMetrics[]> = new Map();
   private analysisWindow: number = 24 * 60 * 60 * 1000; // 24 hours
   private baselineMetrics: Map<string, SystemMetrics> = new Map();
-  // @ts-expect-error - Intentionally unused
+
   private _anomalyThresholds: Map<string, number> = new Map();
   private isInitialized: boolean = false;
 

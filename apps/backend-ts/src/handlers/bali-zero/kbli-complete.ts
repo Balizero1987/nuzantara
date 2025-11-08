@@ -8,7 +8,6 @@ import { Request, Response } from 'express';
 // ==========================================
 // FOREIGN OWNERSHIP MATRIX 2025
 // ==========================================
-// @ts-expect-error - Intentionally unused constant
 const _FOREIGN_OWNERSHIP_RULES = {
   // 100% Foreign Ownership
   OPEN_100: [

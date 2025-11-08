@@ -247,7 +247,7 @@ class AuditTrailService {
 
     try {
       const pipeline = this.redis.multi();
-      // @ts-expect-error - Intentionally unused
+
       const _timestamp = Date.now();
 
       for (const event of events) {
