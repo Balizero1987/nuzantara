@@ -13,7 +13,6 @@ import argparse
 import ast
 from pathlib import Path
 from typing import List, Dict, Any
-import re
 
 
 def analyze_handler_file(file_path: Path) -> Dict[str, Any]:
