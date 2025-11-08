@@ -16,7 +16,7 @@ on:
 env:
   NODE_VERSION: '18.x'
   REGISTRY: ghcr.io
-  FLY_APP: nuzantara-core
+  FLY_APP: nuzantara-backend
 
 jobs:
   # ==========================================
