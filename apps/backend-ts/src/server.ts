@@ -516,10 +516,10 @@ async function startServer() {
         permissions: ['read' as const],
         isActive: true,
         lastLogin: new Date(),
-        authType: 'demo' as const
+        authType: 'legacy' as const
       };
 
-      const token = unifiedAuth.generateToken(demoUser, 'demo');
+      const token = unifiedAuth.generateToken(demoUser, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ Demo token generated for user: ${demoUser.id}`);
@@ -569,10 +569,10 @@ async function startServer() {
         permissions: ['read' as const, 'write' as const],
         isActive: true,
         lastLogin: new Date(),
-        authType: 'password' as const
+        authType: 'legacy' as const
       };
 
-      const token = unifiedAuth.generateToken(user, 'password');
+      const token = unifiedAuth.generateToken(user, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ User logged in: ${user.email}`);
