@@ -3,7 +3,7 @@
  * Runs maintenance tasks automatically
  */
 
-import cron from 'node-cron';
+import cron, { ScheduledTask } from 'node-cron';
 import { logger } from '../logging/unified-logger.js';
 import { AgentOrchestrator } from '../agents/agent-orchestrator.js';
 
@@ -13,7 +13,7 @@ import { AgentOrchestrator } from '../agents/agent-orchestrator.js';
  */
 export class CronScheduler {
   private orchestrator: AgentOrchestrator | null = null;
-  private jobs: Map<string, cron.ScheduledTask>;
+  private jobs: Map<string, ScheduledTask>;
   private enabled: boolean;
 
   constructor() {

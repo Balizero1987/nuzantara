@@ -505,8 +505,10 @@ async function startServer() {
     try {
       const { userId, name, email } = req.body;
 
+      const demoUserId = userId || `demo_${Date.now()}`;
       const demoUser = {
-        id: userId || `demo_${Date.now()}`,
+        id: demoUserId,
+        userId: demoUserId,
         email: email || `${userId || 'demo'}@demo.zantara.io`,
         name: name || 'Demo User',
         role: 'User' as const,
@@ -556,8 +558,10 @@ async function startServer() {
         });
       }
 
+      const generatedUserId = `user_${Date.now()}`;
       const user = {
-        id: `user_${Date.now()}`,
+        id: generatedUserId,
+        userId: generatedUserId,
         email,
         name: name || email.split('@')[0],
         role: 'User' as const,
