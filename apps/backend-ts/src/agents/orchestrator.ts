@@ -302,28 +302,52 @@ ${JSON.stringify(agentDescriptions, null, 2)}
    * Run specific agent
    */
   private async runAgent(agentId: string): Promise<void> {
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execAsync = promisify(exec);
+
     switch (agentId) {
       case 'conversation_trainer':
-        const { ConversationTrainer } = await import('../../backend-rag/backend/agents/conversation_trainer.py');
-        // await new ConversationTrainer().run();
+        // Run Python agent via subprocess
+        logger.info('Starting Conversation Trainer (Python)...');
+        await execAsync('python3 apps/backend-rag/backend/agents/run_conversation_trainer.py');
         break;
 
       case 'client_value_predictor':
-        const { ClientValuePredictor } = await import('../../backend-rag/backend/agents/client_value_predictor.py');
-        // await new ClientValuePredictor().run_daily_nurturing();
+        // Run Python agent via subprocess
+        logger.info('Starting Client Value Predictor (Python)...');
+        await execAsync('python3 apps/backend-rag/backend/agents/run_client_predictor.py');
         break;
 
       case 'knowledge_graph_builder':
-        const { KnowledgeGraphBuilder } = await import('../../backend-rag/backend/agents/knowledge_graph_builder.py');
-        // await new KnowledgeGraphBuilder().build_graph_from_all_conversations();
+        // Run Python agent via subprocess
+        logger.info('Starting Knowledge Graph Builder (Python)...');
+        await execAsync('python3 apps/backend-rag/backend/agents/run_knowledge_graph.py');
         break;
 
       case 'performance_optimizer':
+        // Run TypeScript agent directly
+        logger.info('Starting Performance Optimizer (TypeScript)...');
         const { PerformanceOptimizer } = await import('./performance-optimizer.js');
         await new PerformanceOptimizer().runOptimizationCycle();
         break;
 
-      // Add other agents...
+      case 'security_scanner':
+        logger.info('Security scanner not yet implemented');
+        break;
+
+      case 'analytics_predictor':
+        logger.info('Analytics predictor not yet implemented');
+        break;
+
+      case 'auto_tester':
+        logger.info('Auto-tester not yet implemented');
+        break;
+
+      case 'doc_generator':
+        logger.info('Doc generator not yet implemented');
+        break;
+
       default:
         logger.warn(`Unknown agent: ${agentId}`);
     }
