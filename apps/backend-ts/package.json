@@ -8,6 +8,7 @@
   "scripts": {
     "start": "npx tsx src/server.ts",
     "build": "mkdir -p dist && cp -r src/* dist/",
+    "typecheck": "tsc --noEmit",
     "dev": "tsx watch src/server.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
