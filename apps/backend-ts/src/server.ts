@@ -512,8 +512,10 @@ async function startServer() {
     try {
       const { userId, name, email } = req.body;
 
+      const demoUserId = userId || `demo_${Date.now()}`;
       const demoUser = {
-        id: userId || `demo_${Date.now()}`,
+        id: demoUserId,
+        userId: demoUserId,
         email: email || `${userId || 'demo'}@demo.zantara.io`,
         name: name || 'Demo User',
         role: 'User' as const,
@@ -521,10 +523,10 @@ async function startServer() {
         permissions: ['read' as const],
         isActive: true,
         lastLogin: new Date(),
-        authType: 'demo' as const
+        authType: 'legacy' as const
       };
 
-      const token = unifiedAuth.generateToken(demoUser, 'demo');
+      const token = unifiedAuth.generateToken(demoUser, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ Demo token generated for user: ${demoUser.id}`);
@@ -563,8 +565,10 @@ async function startServer() {
         });
       }
 
+      const generatedUserId = `user_${Date.now()}`;
       const user = {
-        id: `user_${Date.now()}`,
+        id: generatedUserId,
+        userId: generatedUserId,
         email,
         name: name || email.split('@')[0],
         role: 'User' as const,
@@ -572,10 +576,10 @@ async function startServer() {
         permissions: ['read' as const, 'write' as const],
         isActive: true,
         lastLogin: new Date(),
-        authType: 'password' as const
+        authType: 'legacy' as const
       };
 
-      const token = unifiedAuth.generateToken(user, 'password');
+      const token = unifiedAuth.generateToken(user, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ User logged in: ${user.email}`);
@@ -738,6 +742,8 @@ async function startServer() {
     } catch (error: any) {
       logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
       logger.warn('⚠️  Continuing without AI automation');
+    }
+
     // Initialize Cron Scheduler for Autonomous Agents
     try {
       const cronScheduler = getCronScheduler();
