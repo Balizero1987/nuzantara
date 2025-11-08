@@ -3,7 +3,7 @@ export const API_CONFIG = {
   backend: {
     url: window.location.hostname === 'localhost'
       ? 'http://localhost:8080'
-      : 'https://nuzantara-backend.fly.dev'
+      : 'https://nuzantara-rag.fly.dev'  // FIXED: Use RAG backend for all API calls
   },
   rag: {
     url: window.location.hostname === 'localhost'
@@ -13,7 +13,7 @@ export const API_CONFIG = {
   memory: {
     url: window.location.hostname === 'localhost'
       ? 'http://localhost:8081'  // Different port to avoid conflict with backend-ts
-      : 'https://nuzantara-memory.fly.dev'
+      : 'https://nuzantara-rag.fly.dev'  // FIXED: Memory service is part of RAG backend
   }
 };
 

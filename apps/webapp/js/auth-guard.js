@@ -1,20 +1,45 @@
 /**
  * ZANTARA Auth Guard
  * Protects pages that require authentication
- * Verifies JWT token with backend
+ * Uses ZANTARA token format (zantara-*)
  */
 
-const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-backend.fly.dev';
+const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev';
 
 /**
  * Check if user is authenticated
  */
 async function checkAuth() {
-  // Get token from localStorage
-  const token = localStorage.getItem('auth_token');
-  
-  if (!token) {
+  // Get token from localStorage (ZANTARA format)
+  const tokenData = localStorage.getItem('zantara-token');
+
+  if (!tokenData) {
     console.log('⚠️  No auth token found');
+    redirectToLogin();
+    return false;
+  }
+
+  let token;
+  try {
+    const parsed = JSON.parse(tokenData);
+    token = parsed.token;
+
+    // Check if token is expired
+    if (parsed.expiresAt && Date.now() >= parsed.expiresAt) {
+      console.log('⚠️  Token expired');
+      clearAuthData();
+      redirectToLogin();
+      return false;
+    }
+  } catch (error) {
+    console.log('⚠️  Invalid token format');
+    clearAuthData();
+    redirectToLogin();
+    return false;
+  }
+
+  if (!token) {
+    console.log('⚠️  No token in data');
     redirectToLogin();
     return false;
   }
@@ -42,8 +67,8 @@ async function checkAuth() {
 
     // Token valid - update user data
     const user = result.data.user;
-    localStorage.setItem('user', JSON.stringify(user));
-    
+    localStorage.setItem('zantara-user', JSON.stringify(user));
+
     console.log('✅ Authentication verified:', user.email);
     return true;
 
@@ -56,9 +81,10 @@ async function checkAuth() {
 }
 
 function clearAuthData() {
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem('user');
-  localStorage.removeItem('auth_expires');
+  localStorage.removeItem('zantara-token');
+  localStorage.removeItem('zantara-user');
+  localStorage.removeItem('zantara-session');
+  localStorage.removeItem('zantara-permissions');
 }
 
 function redirectToLogin() {
@@ -71,12 +97,19 @@ function redirectToLogin() {
 }
 
 function getCurrentUser() {
-  const userJson = localStorage.getItem('user');
+  const userJson = localStorage.getItem('zantara-user');
   return userJson ? JSON.parse(userJson) : null;
 }
 
 function getAuthToken() {
-  return localStorage.getItem('auth_token');
+  const tokenData = localStorage.getItem('zantara-token');
+  if (!tokenData) return null;
+  try {
+    const parsed = JSON.parse(tokenData);
+    return parsed.token;
+  } catch (error) {
+    return null;
+  }
 }
 
 // Auto-run auth check on protected pages

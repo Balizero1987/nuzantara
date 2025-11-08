@@ -18,7 +18,8 @@ class ZantaraClient {
     this.config = {
       apiUrl: config.apiUrl || 'https://nuzantara-rag.fly.dev',
       authEndpoint: config.authEndpoint || '/api/auth/demo',
-      chatEndpoint: config.chatEndpoint || '/api/v3/zantara/unified',
+      chatEndpoint: config.chatEndpoint || '/bali-zero/chat',  // FIXED: Correct Bali-Zero endpoint
+      streamEndpoint: config.streamEndpoint || '/bali-zero/chat-stream',  // SSE streaming endpoint
       maxRetries: config.maxRetries || 3,
       retryDelay: config.retryDelay || 1000,
       sessionKey: 'zantara-session',
