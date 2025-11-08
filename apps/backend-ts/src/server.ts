@@ -742,6 +742,8 @@ async function startServer() {
     } catch (error: any) {
       logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
       logger.warn('⚠️  Continuing without AI automation');
+    }
+
     // Initialize Cron Scheduler for Autonomous Agents
     try {
       const cronScheduler = getCronScheduler();
