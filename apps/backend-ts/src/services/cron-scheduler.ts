@@ -565,6 +565,17 @@ export class CronScheduler {
   }
 
   /**
+   * Get status of scheduler
+   */
+  getStatus() {
+    return {
+      enabled: this.enabled,
+      jobCount: this.jobs.size,
+      jobs: Array.from(this.jobs.keys())
+    };
+  }
+
+  /**
    * Get job status for monitoring
    */
   getJobStatus() {
@@ -583,7 +594,6 @@ export class CronScheduler {
 }
 
 // Singleton instance
-export const cronScheduler = new CronScheduler();
 let cronScheduler: CronScheduler | null = null;
 
 export function getCronScheduler(): CronScheduler {
