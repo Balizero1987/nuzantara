@@ -72,7 +72,7 @@ Error: User not found
 
 **⚠️ ISSUE:** La chiave API nel test script è **VECCHIA/INVALIDA**
 - Digest su Fly.io: `6d605e5612689ead`
-- Chiave testata: `sk-or-v1-912f40c50952...` (probabilmente scaduta)
+- Chiave testata: (rimossa per sicurezza - probabilmente scaduta)
 
 **📝 NOTE:** 
 - Fly.io secrets sono criptati (digest only)
