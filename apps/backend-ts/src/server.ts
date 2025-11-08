@@ -25,6 +25,9 @@ import { prioritizedRateLimiter } from './middleware/prioritized-rate-limit.js';
 import healthRoutes from './routes/health.js';
 import { auditTrail } from './services/audit-trail.js';
 
+// 🤖 AUTONOMOUS AGENTS - Cron Scheduler
+import { getCronScheduler } from './services/cron-scheduler.js';
+
 // 🚀 PERFORMANCE MONITORING - Sonnet implementation
 import {
   performanceMiddleware,
@@ -41,6 +44,10 @@ import { enhancedRouter } from './services/architecture/enhanced-router.js';
 import {
   unifiedAuth,
 } from './services/auth/unified-auth-strategy.js';
+
+// AI AUTOMATION - Cron Scheduler (OpenRouter Integration)
+import { cronScheduler } from './services/cron-scheduler.js';
+import aiMonitoringRoutes from './routes/ai-monitoring.js';
 
 // GLM 4.6 Architect Patch: Register v3 Ω services
 async function registerV3OmegaServices(): Promise<void> {
@@ -267,6 +274,14 @@ async function startServer() {
   // Cache management routes
   app.use('/cache', cacheRoutes);
 
+  // AI Automation monitoring routes
+  app.use('/api/monitoring', aiMonitoringRoutes);
+  logger.info('✅ AI Automation monitoring routes mounted');
+  // Autonomous Agents Monitoring routes
+  const monitoringRoutes = await import('./routes/monitoring.routes.js');
+  app.use('/api/monitoring', monitoringRoutes.default);
+  logger.info('✅ Autonomous Agents monitoring routes mounted');
+
   // GLM 4.6 Architect Patch: Enhanced Architecture endpoints
   app.get('/architecture/status', (_req, res) => {
     res.json({
@@ -285,9 +300,30 @@ async function startServer() {
   });
 
   // Enhanced v3 Ω endpoints with circuit breaker protection
-  app.post('/zantara.unified', enhancedRouter.getMiddleware());
-  app.post('/zantara.collective', enhancedRouter.getMiddleware());
-  app.post('/zantara.ecosystem', enhancedRouter.getMiddleware());
+  const { zantaraUnified } = await import('./handlers/zantara/zantara-unified.js');
+  const { zantaraCollective } = await import('./handlers/zantara/zantara-collective.js');
+  const { zantaraEcosystem } = await import('./handlers/zantara/zantara-ecosystem.js');
+  app.post('/zantara.unified', zantaraUnified);
+  app.post('/zantara.collective', zantaraCollective);
+  app.post('/zantara.ecosystem', zantaraEcosystem);
+
+  // FIX 2: Frontend compatibility aliases - /api/v3/zantara/* → /zantara.*
+  app.post('/api/v3/zantara/unified', (req, res, next) => {
+    req.url = '/zantara.unified';
+    app._router.handle(req, res, next);
+  });
+
+  app.post('/api/v3/zantara/collective', (req, res, next) => {
+    req.url = '/zantara.collective';
+    app._router.handle(req, res, next);
+  });
+
+  app.post('/api/v3/zantara/ecosystem', (req, res, next) => {
+    req.url = '/zantara.ecosystem';
+    app._router.handle(req, res, next);
+  });
+
+  logger.info('✅ Frontend compatibility aliases mounted (/api/v3/zantara/* → /zantara.*)');
 
   // UNIFIED AUTHENTICATION ENDPOINTS (Gemini Pro 2.5)
   app.get('/auth/strategies', (_req, res) => {
@@ -471,6 +507,130 @@ async function startServer() {
     }
   });
 
+  // FIX 1: POST /api/auth/demo - Generate demo token for testing/development
+  app.post('/api/auth/demo', async (req, res) => {
+    try {
+      const { userId, name, email } = req.body;
+
+      const demoUserId = userId || `demo_${Date.now()}`;
+      const demoUser = {
+        id: demoUserId,
+        userId: demoUserId,
+        email: email || `${userId || 'demo'}@demo.zantara.io`,
+        name: name || 'Demo User',
+        role: 'User' as const,
+        department: 'demo',
+        permissions: ['read' as const],
+        isActive: true,
+        lastLogin: new Date(),
+        authType: 'legacy' as const
+      };
+
+      const token = unifiedAuth.generateToken(demoUser, 'legacy');
+      const expiresIn = 3600;
+
+      logger.info(`✅ Demo token generated for user: ${demoUser.id}`);
+
+      res.json({
+        ok: true,
+        data: {
+          token,
+          expiresIn,
+          user: {
+            id: demoUser.id,
+            email: demoUser.email,
+            name: demoUser.name,
+            role: demoUser.role
+          }
+        }
+      });
+    } catch (error) {
+      logger.error('❌ Demo auth error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Failed to generate demo token'
+      });
+    }
+  });
+
+  // FIX 4a: POST /auth/login - User login (JWT generation)
+  app.post('/auth/login', async (req, res) => {
+    try {
+      const { email, password, name } = req.body;
+
+      if (!email) {
+        return res.status(400).json({
+          ok: false,
+          error: 'Email is required'
+        });
+      }
+
+      const generatedUserId = `user_${Date.now()}`;
+      const user = {
+        id: generatedUserId,
+        userId: generatedUserId,
+        email,
+        name: name || email.split('@')[0],
+        role: 'User' as const,
+        department: 'general',
+        permissions: ['read' as const, 'write' as const],
+        isActive: true,
+        lastLogin: new Date(),
+        authType: 'legacy' as const
+      };
+
+      const token = unifiedAuth.generateToken(user, 'legacy');
+      const expiresIn = 3600;
+
+      logger.info(`✅ User logged in: ${user.email}`);
+
+      res.json({
+        ok: true,
+        data: {
+          token,
+          expiresIn,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          }
+        }
+      });
+    } catch (error) {
+      logger.error('❌ Login error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Login failed'
+      });
+    }
+  });
+
+  // FIX 4b: POST /auth/logout - User logout (token revocation)
+  app.post('/auth/logout', async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+
+      if (token) {
+        unifiedAuth.revokeToken(token);
+        logger.info('✅ User logged out, token revoked');
+      }
+
+      res.json({
+        ok: true,
+        data: {
+          message: 'Logout successful'
+        }
+      });
+    } catch (error) {
+      logger.error('❌ Logout error:', error);
+      res.status(500).json({
+        ok: false,
+        error: 'Logout failed'
+      });
+    }
+  });
+
   // Root endpoint
   app.get('/', (_req, res) => {
     res.json({
@@ -488,17 +648,37 @@ async function startServer() {
   const baliZeroRoutes = await import('./routes/api/v2/bali-zero.routes.js');
   app.use('/api/v2/bali-zero', baliZeroRoutes.default);
 
+  // FIX 3: SSE streaming endpoint aliases (frontend compatibility)
+  app.get('/bali-zero/chat-stream', (req, res, next) => {
+    req.url = '/api/v2/bali-zero/chat-stream';
+    app._router.handle(req, res, next);
+  });
+
+  app.post('/bali-zero/chat-stream', (req, res, next) => {
+    req.url = '/api/v2/bali-zero/chat-stream';
+    app._router.handle(req, res, next);
+  });
+
+  logger.info('✅ SSE streaming aliases mounted (/bali-zero/chat-stream → /api/v2/bali-zero/chat-stream)');
+
   // Team Authentication routes
   const teamAuthRoutes = await import('./routes/api/auth/team-auth.routes.js');
   app.use('/api/auth/team', teamAuthRoutes.default);
   logger.info('✅ Team Authentication routes loaded');
 
-  // Tax Dashboard routes
-  const taxRoutes = await import('./routes/api/tax/tax.routes.js');
-  const { seedTestData } = await import('./services/tax-db.service.js');
-  app.use('/api/tax', taxRoutes.default);
-  seedTestData(); // Initialize test companies
-  logger.info('✅ Tax Dashboard routes loaded');
+  // Tax Dashboard routes (commented out - routes not yet implemented)
+  // Main Authentication routes (JWT-based)
+  const authRoutes = await import('./routes/auth.routes.js');
+  app.use('/api/auth', authRoutes.default);
+  app.use('/api/user', authRoutes.default); // For /api/user/profile
+  logger.info('✅ Main Authentication routes loaded');
+
+  // Tax Dashboard routes (disabled - routes not yet implemented)
+  // const taxRoutes = await import('./routes/api/tax/tax.routes.js');
+  // const { seedTestData } = await import('./services/tax-db.service.js');
+  // app.use('/api/tax', taxRoutes.default);
+  // seedTestData(); // Initialize test companies
+  // logger.info('✅ Tax Dashboard routes loaded');
 
   // V3 Performance Monitoring Routes
   const v3PerformanceRoutes = await import('./routes/v3-performance.routes.js');
@@ -547,18 +727,45 @@ async function startServer() {
     logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
   }
 
-  const server = httpServer.listen(PORT, '0.0.0.0', () => {
+  const server = httpServer.listen(PORT, '0.0.0.0', async () => {
     logger.info(`🚀 ZANTARA TS-BACKEND started on port ${PORT}`);
     logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);
     logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
     if (process.env.REDIS_URL) {
       logger.info(`🔌 WebSocket ready for real-time features`);
     }
+
+    // Start AI Automation Cron Scheduler
+    try {
+      cronScheduler.start();
+      logger.info('🤖 AI Automation Cron Scheduler started');
+    } catch (error: any) {
+      logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
+      logger.warn('⚠️  Continuing without AI automation');
+    }
+
+    // Initialize Cron Scheduler for Autonomous Agents
+    try {
+      const cronScheduler = getCronScheduler();
+      await cronScheduler.start();
+      logger.info('✅ Autonomous Agents Cron Scheduler activated');
+    } catch (error: any) {
+      logger.error('❌ Failed to start Cron Scheduler:', error.message);
+    }
   });
 
   // Handle shutdown gracefully
   async function gracefulShutdown(signal: string) {
     logger.info(`${signal} signal received: starting graceful shutdown`);
+
+    // Stop cron scheduler
+    try {
+      const cronScheduler = getCronScheduler();
+      await cronScheduler.stop();
+      logger.info('Cron Scheduler stopped');
+    } catch (error: any) {
+      logger.error('Error stopping Cron Scheduler:', error.message);
+    }
 
     // Stop accepting new requests
     server.close(async () => {
@@ -581,6 +788,14 @@ async function startServer() {
         } catch (error: any) {
           logger.error(`Error closing connection pools: ${error.message}`);
         }
+      }
+
+      // Stop AI Automation Cron Scheduler
+      try {
+        cronScheduler.stop();
+        logger.info('AI Automation Cron Scheduler stopped');
+      } catch (error: any) {
+        logger.warn(`Error stopping cron scheduler: ${error.message}`);
       }
 
       // Log shutdown to audit trail

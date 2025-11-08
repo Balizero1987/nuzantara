@@ -10,6 +10,7 @@ interface RAGQueryRequest {
   query: string;
   k?: number;
   use_llm?: boolean;
+  collection?: string; // ChromaDB collection (default: 'legal_unified')
   conversation_history?: Array<{ role: string; content: string }>;
   user_id?: string; // User identifier for RAG backend
   user_email?: string; // User email for RAG backend
@@ -113,7 +114,16 @@ export class RAGService {
    */
   async generateAnswer(request: RAGQueryRequest): Promise<RAGQueryResponse> {
     try {
-      return await this.makeAuthenticatedRequest<RAGQueryResponse>('post', '/search', request);
+      // Default to legal_unified collection (1536-dim OpenAI embeddings)
+      const requestWithDefaults = {
+        ...request,
+        collection: request.collection || 'legal_unified',
+      };
+      return await this.makeAuthenticatedRequest<RAGQueryResponse>(
+        'post',
+        '/search',
+        requestWithDefaults
+      );
     } catch (error: any) {
       logger.error('RAG generate error:', error);
       return {
@@ -146,11 +156,12 @@ export class RAGService {
    * Search only (no LLM generation)
    * Use for fast semantic search
    */
-  async search(query: string, k: number = 5) {
+  async search(query: string, k: number = 5, collection: string = 'legal_unified') {
     try {
       return await this.makeAuthenticatedRequest('post', '/search', {
         query,
         k,
+        collection, // Default: legal_unified (1536-dim)
         use_llm: false,
       });
     } catch (error: any) {

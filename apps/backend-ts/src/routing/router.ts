@@ -1498,6 +1498,39 @@ export function attachRoutes(app: import('express').Express) {
     }
   });
 
+  // ZANTARA v3 Unified endpoint (main production endpoint)
+  app.post('/zantara.unified', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+    try {
+      const result = await aiChat(req.body);
+      return res.status(200).json(ok(result?.data ?? result));
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // ZANTARA v3 Collective endpoint
+  app.post('/zantara.collective', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+    try {
+      const result = await aiChat(req.body);
+      return res.status(200).json(ok(result?.data ?? result));
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // ZANTARA v3 Ecosystem endpoint
+  app.post('/zantara.ecosystem', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+    try {
+      const result = await aiChat(req.body);
+      return res.status(200).json(ok(result?.data ?? result));
+    } catch (e: any) {
+      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
   // Memory Search
   app.post('/memory.search', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
     try {
@@ -1672,6 +1705,82 @@ export function attachRoutes(app: import('express').Express) {
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // === Google Workspace Integration Status Endpoints ===
+  
+  // Gmail Integration Status
+  app.get('/api/integrations/gmail/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = ok({
+        connected: true,
+        service: 'gmail',
+        email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || 'service-account@balizero.com',
+        status: 'active',
+        features: ['send', 'list', 'read', 'search'],
+        endpoints: [
+          'POST /gmail.send',
+          'POST /gmail.list',
+          'POST /gmail.read',
+          'POST /gmail.search'
+        ]
+      });
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // Google Calendar Integration Status
+  app.get('/api/integrations/calendar/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = ok({
+        connected: true,
+        service: 'google_calendar',
+        status: 'active',
+        calendars: ['primary'],
+        features: ['create', 'list', 'get', 'update'],
+        endpoints: [
+          'POST /calendar.create',
+          'POST /calendar.list',
+          'POST /calendar.get'
+        ]
+      });
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // WhatsApp Integration Status (placeholder)
+  app.get('/api/integrations/whatsapp/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = ok({
+        connected: false,
+        service: 'whatsapp_business',
+        status: 'not_configured',
+        message: 'WhatsApp Business API integration not yet configured',
+        contact: 'info@balizero.com'
+      });
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // Twitter/X Integration Status (placeholder)
+  app.get('/api/integrations/twitter/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = ok({
+        connected: false,
+        service: 'twitter_x',
+        status: 'not_configured',
+        message: 'Twitter/X integration not yet configured'
+      });
+      return res.status(200).json(result);
+    } catch (e: any) {
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });

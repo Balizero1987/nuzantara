@@ -26,7 +26,7 @@ export const TEAM_MEMBERS = {
   },
 
   // Setup & Operations Team
-  'adit@balizero.com': {
+  'consulting@balizero.com': {
     id: 'adit',
     name: 'ADIT',
     role: 'Supervisor - Setup',
@@ -64,7 +64,7 @@ export const TEAM_MEMBERS = {
     dashboardWidgets: ['checklist_overview', 'completion_tracker', 'quality_metrics'],
   },
 
-  'ari@balizero.com': {
+  'ari.firda@balizero.com': {
     id: 'ari',
     name: 'ARI',
     role: 'Team Leader - Setup',
@@ -87,7 +87,7 @@ export const TEAM_MEMBERS = {
   },
 
   // Tax Department
-  'angel@balizero.com': {
+  'angel.tax@balizero.com': {
     id: 'angel',
     name: 'ANGEL',
     role: 'Tax Lead',
@@ -98,7 +98,7 @@ export const TEAM_MEMBERS = {
     dashboardWidgets: ['tax_applications', 'compliance_status', 'npwp_tracker', 'deadline_alerts'],
   },
 
-  'veronika@balizero.com': {
+  'tax@balizero.com': {
     id: 'veronika',
     name: 'VERONIKA',
     role: 'Tax Manager',
@@ -114,7 +114,7 @@ export const TEAM_MEMBERS = {
     ],
   },
 
-  'dewa_ayu@balizero.com': {
+  'dewa.ayu.tax@balizero.com': {
     id: 'dewa_ayu',
     name: 'DEWA AYU',
     role: 'Tax Lead',
@@ -125,7 +125,7 @@ export const TEAM_MEMBERS = {
     dashboardWidgets: ['document_tracker', 'filing_deadlines', 'client_communications'],
   },
 
-  'faisha@balizero.com': {
+  'faisha.tax@balizero.com': {
     id: 'faisha',
     name: 'FAISHA',
     role: 'Take Care - Tax',
@@ -136,7 +136,7 @@ export const TEAM_MEMBERS = {
     dashboardWidgets: ['client_support', 'tax_calculator', 'document_prep'],
   },
 
-  'kadek@balizero.com': {
+  'kadek.tax@balizero.com': {
     id: 'kadek',
     name: 'KADEK',
     role: 'Tax Lead',
@@ -237,7 +237,7 @@ export const TEAM_MEMBERS = {
   },
 
   // Creative & Innovation
-  'vino@balizero.com': {
+  'info@balizero.com': {
     id: 'vino',
     name: 'VINO',
     role: 'Junior - Setup',
@@ -374,8 +374,17 @@ export function detectTeamMember(email, userAgent = '', ip = '') {
 
   // Fallback for common email variations
   const emailVariations = {
-    'adit@balizero.id': 'adit@balizero.com',
+    'adit@balizero.id': 'consulting@balizero.com',
+    'adit@balizero.com': 'consulting@balizero.com',
     'zero@bali-zero.com': 'zero@balizero.com',
+    'veronika@balizero.com': 'tax@balizero.com',
+    'angel@balizero.com': 'angel.tax@balizero.com',
+    'kadek@balizero.com': 'kadek.tax@balizero.com',
+    'dewaayu@balizero.com': 'dewa.ayu.tax@balizero.com',
+    'dewa_ayu@balizero.com': 'dewa.ayu.tax@balizero.com',
+    'faisha@balizero.com': 'faisha.tax@balizero.com',
+    'ari@balizero.com': 'ari.firda@balizero.com',
+    'vino@balizero.com': 'info@balizero.com',
     // Add more variations as needed
   };
 

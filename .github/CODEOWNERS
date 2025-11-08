@@ -1,0 +1,41 @@
+# CODEOWNERS for ZANTARA
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @Balizero1987
+
+# Backend TypeScript code
+/apps/backend-ts/ @Balizero1987
+/apps/backend-ts/src/agents/ @Balizero1987
+/apps/backend-ts/src/middleware/ @Balizero1987
+
+# Frontend/Webapp code
+/apps/webapp/ @Balizero1987
+/apps/webapp-next/ @Balizero1987
+
+# Infrastructure and deployment
+/docker/ @Balizero1987
+/.github/workflows/ @Balizero1987
+/scripts/ @Balizero1987
+Dockerfile* @Balizero1987
+docker-compose*.yml @Balizero1987
+fly.toml @Balizero1987
+railway.toml @Balizero1987
+
+# Database and migrations
+/DATABASE/ @Balizero1987
+/database/ @Balizero1987
+
+# Configuration files
+*.env.example @Balizero1987
+.pre-commit-config.yaml @Balizero1987
+package.json @Balizero1987
+tsconfig.json @Balizero1987
+
+# Documentation
+/docs/ @Balizero1987
+*.md @Balizero1987
+
+# Security-sensitive files (require extra review)
+/apps/backend-ts/src/middleware/auth*.ts @Balizero1987
+/apps/backend-ts/src/middleware/security*.ts @Balizero1987

@@ -1,5 +1,11 @@
 import logger from '../../services/logger.js';
 import { Request, Response } from 'express';
+import { RedisClientWrapper } from '../../services/redis-client.js';
+
+// Redis cache for team members (1 hour TTL)
+const redisClient = new RedisClientWrapper();
+const TEAM_CACHE_KEY = 'balizero:team:members';
+const TEAM_CACHE_TTL = 3600; // 1 hour
 
 // Complete Bali Zero team data
 const BALI_ZERO_TEAM = {
@@ -74,7 +80,7 @@ const BALI_ZERO_TEAM = {
       id: 'vino',
       name: 'Vino',
       role: 'Lead Junior',
-      email: 'vino@balizero.com',
+      email: 'info@balizero.com',
       department: 'setup',
       badge: '🎨',
       language: 'Indonesian',
@@ -113,7 +119,7 @@ const BALI_ZERO_TEAM = {
       id: 'veronika',
       name: 'Veronika',
       role: 'Tax Manager',
-      email: 'veronika@balizero.com',
+      email: 'tax@balizero.com',
       department: 'tax',
       badge: '📊',
       language: 'Indonesian',
@@ -122,7 +128,7 @@ const BALI_ZERO_TEAM = {
       id: 'angel',
       name: 'Angel',
       role: 'Tax Expert',
-      email: 'angel@balizero.com',
+      email: 'angel.tax@balizero.com',
       department: 'tax',
       badge: '🔎',
       language: 'Indonesian',
@@ -131,7 +137,7 @@ const BALI_ZERO_TEAM = {
       id: 'kadek',
       name: 'Kadek',
       role: 'Tax Consultant',
-      email: 'kadek@balizero.com',
+      email: 'kadek.tax@balizero.com',
       department: 'tax',
       badge: '📐',
       language: 'Indonesian',
@@ -140,7 +146,7 @@ const BALI_ZERO_TEAM = {
       id: 'dewaayu',
       name: 'Dewa Ayu',
       role: 'Tax Consultant',
-      email: 'dewaayu@balizero.com',
+      email: 'dewa.ayu.tax@balizero.com',
       department: 'tax',
       badge: '🗂️',
       language: 'Indonesian',
@@ -149,7 +155,7 @@ const BALI_ZERO_TEAM = {
       id: 'faisha',
       name: 'Faisha',
       role: 'Tax Care',
-      email: 'faisha@balizero.com',
+      email: 'faisha.tax@balizero.com',
       department: 'tax',
       badge: '🧾',
       language: 'Indonesian',
@@ -254,6 +260,15 @@ export async function teamList(req: Request, res: Response) {
   try {
     const { department, role, search } = req.body.params || {};
 
+    // Try Redis cache first (only for unfiltered requests)
+    if (!department && !role && !search) {
+      const cached = await redisClient.get(TEAM_CACHE_KEY);
+      if (cached) {
+        logger.info('✅ Team list served from Redis cache');
+        return res.json(JSON.parse(cached));
+      }
+    }
+
     let members = [...BALI_ZERO_TEAM.members];
 
     // Filter by department
@@ -275,7 +290,7 @@ export async function teamList(req: Request, res: Response) {
       );
     }
 
-    return res.json({
+    const response = {
       ok: true,
       data: {
         members,
@@ -285,7 +300,15 @@ export async function teamList(req: Request, res: Response) {
         total: BALI_ZERO_TEAM.stats.total,
         timestamp: new Date().toISOString(),
       },
-    });
+    };
+
+    // Cache unfiltered response in Redis
+    if (!department && !role && !search) {
+      await redisClient.setex(TEAM_CACHE_KEY, TEAM_CACHE_TTL, JSON.stringify(response));
+      logger.info('✅ Team list cached in Redis');
+    }
+
+    return res.json(response);
   } catch (error: any) {
     logger.error('team.list error:', error);
     return res.status(500).json({

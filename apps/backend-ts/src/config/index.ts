@@ -18,6 +18,16 @@ const envSchema = z.object({
   GOOGLE_OAUTH_REDIRECT_URI: z.string().optional(),
   GDRIVE_AMBARADAM_DRIVE_ID: z.string().optional(),
   FIREBASE_PROJECT_ID: z.string().optional(),
+  // Autonomous Agents Cron Configuration
+  ENABLE_CRON: z.string().optional(),
+  CRON_TIMEZONE: z.string().default('Asia/Singapore'),
+  CRON_SELF_HEALING: z.string().default('0 2 * * *'),
+  CRON_AUTO_TESTS: z.string().default('0 3 * * *'),
+  CRON_WEEKLY_PR: z.string().default('0 4 * * 0'),
+  CRON_HEALTH_CHECK: z.string().default('*/15 * * * *'),
+  CRON_DAILY_REPORT: z.string().default('0 9 * * *'),
+  OPENROUTER_API_KEY: z.string().optional(),
+  DEEPSEEK_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.parse(process.env);
@@ -49,4 +59,16 @@ export const ENV = {
     DEFAULT_EXTERNAL_API_KEY,
     'API_KEYS_EXTERNAL'
   ),
+  // Cron configuration
+  CRON: {
+    enabled: parsed.ENABLE_CRON === 'true' || parsed.NODE_ENV === 'production',
+    timezone: parsed.CRON_TIMEZONE,
+    schedules: {
+      selfHealing: parsed.CRON_SELF_HEALING,
+      autoTests: parsed.CRON_AUTO_TESTS,
+      weeklyPR: parsed.CRON_WEEKLY_PR,
+      healthCheck: parsed.CRON_HEALTH_CHECK,
+      dailyReport: parsed.CRON_DAILY_REPORT,
+    },
+  },
 };
