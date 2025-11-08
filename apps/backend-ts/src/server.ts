@@ -46,6 +46,7 @@ import {
 } from './services/auth/unified-auth-strategy.js';
 
 // AI AUTOMATION - Cron Scheduler (OpenRouter Integration)
+import { cronScheduler } from './services/cron-scheduler.js';
 import aiMonitoringRoutes from './routes/ai-monitoring.js';
 
 // GLM 4.6 Architect Patch: Register v3 Ω services
@@ -273,6 +274,9 @@ async function startServer() {
   // Cache management routes
   app.use('/cache', cacheRoutes);
 
+  // AI Automation monitoring routes
+  app.use('/api/monitoring', aiMonitoringRoutes);
+  logger.info('✅ AI Automation monitoring routes mounted');
   // Autonomous Agents Monitoring routes
   const monitoringRoutes = await import('./routes/monitoring.routes.js');
   app.use('/api/monitoring', monitoringRoutes.default);
@@ -662,6 +666,7 @@ async function startServer() {
   app.use('/api/auth/team', teamAuthRoutes.default);
   logger.info('✅ Team Authentication routes loaded');
 
+  // Tax Dashboard routes (commented out - routes not yet implemented)
   // Main Authentication routes (JWT-based)
   const authRoutes = await import('./routes/auth.routes.js');
   app.use('/api/auth', authRoutes.default);
@@ -729,6 +734,15 @@ async function startServer() {
       logger.info(`🔌 WebSocket ready for real-time features`);
     }
 
+    // Start AI Automation Cron Scheduler
+    try {
+      cronScheduler.start();
+      logger.info('🤖 AI Automation Cron Scheduler started');
+    } catch (error: any) {
+      logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
+      logger.warn('⚠️  Continuing without AI automation');
+    }
+
     // Initialize Cron Scheduler for Autonomous Agents
     try {
       const cronScheduler = getCronScheduler();
@@ -778,6 +792,7 @@ async function startServer() {
       // Stop AI Automation Cron Scheduler
       try {
         getCronScheduler().stop();
+        cronScheduler.stop();
         logger.info('AI Automation Cron Scheduler stopped');
       } catch (error: any) {
         logger.warn(`Error stopping cron scheduler: ${error.message}`);

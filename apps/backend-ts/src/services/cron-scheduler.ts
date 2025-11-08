@@ -143,7 +143,7 @@ export class CronScheduler {
    */
   private scheduleJob(name: string, cronExpression: string, task: () => Promise<void>) {
     const timezone = process.env.CRON_TIMEZONE || 'Asia/Singapore';
-    
+
     const job = cron.schedule(cronExpression, task, {
       timezone,
     });
