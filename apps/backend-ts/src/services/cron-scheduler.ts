@@ -3,7 +3,7 @@
  * Runs maintenance tasks automatically
  */
 
-import cron from 'node-cron';
+import cron, { ScheduledTask, ScheduleOptions } from 'node-cron';
 import { logger } from '../logging/unified-logger.js';
 import { AgentOrchestrator } from '../agents/agent-orchestrator.js';
 
@@ -13,7 +13,7 @@ import { AgentOrchestrator } from '../agents/agent-orchestrator.js';
  */
 export class CronScheduler {
   private orchestrator: AgentOrchestrator | null = null;
-  private jobs: Map<string, cron.ScheduledTask>;
+  private jobs: Map<string, ScheduledTask>;
   private enabled: boolean;
 
   constructor() {
@@ -143,11 +143,13 @@ export class CronScheduler {
    */
   private scheduleJob(name: string, cronExpression: string, task: () => Promise<void>) {
     const timezone = process.env.CRON_TIMEZONE || 'Asia/Singapore';
-    
-    const job = cron.schedule(cronExpression, task, {
+
+    const options: ScheduleOptions = {
       scheduled: true,
       timezone,
-    });
+    };
+
+    const job = cron.schedule(cronExpression, task, options);
 
     this.jobs.set(name, job);
     logger.info(`📅 Scheduled job: ${name} (${cronExpression}) [${timezone}]`);
@@ -259,6 +261,17 @@ export class CronScheduler {
     logger.info('  - Weekly PR Creation: Sunday at 4:00 AM');
     logger.info('  - Health Check: Every 15 minutes');
     logger.info('  - Daily Report: Daily at 9:00 AM');
+  }
+
+  /**
+   * Get status of scheduler
+   */
+  getStatus() {
+    return {
+      enabled: this.enabled,
+      jobCount: this.jobs.size,
+      jobs: Array.from(this.jobs.keys())
+    };
   }
 
   /**
