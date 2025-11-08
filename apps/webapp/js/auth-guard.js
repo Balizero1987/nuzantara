@@ -1,67 +1,99 @@
 /**
  * ZANTARA Auth Guard
  * Protects pages that require authentication
+ * Verifies JWT token with backend
  */
 
-(function() {
-  'use strict';
+const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-backend.fly.dev';
 
-  console.log('🛡️ Auth Guard: Checking authentication...');
-
-  // Check if token exists
-  const tokenData = localStorage.getItem('zantara-token');
-
-  if (!tokenData) {
-    console.warn('⚠️ No token found - redirecting to login');
-    redirectToLogin('No authentication token');
-    return;
+/**
+ * Check if user is authenticated
+ */
+async function checkAuth() {
+  // Get token from localStorage
+  const token = localStorage.getItem('auth_token');
+  
+  if (!token) {
+    console.log('⚠️  No auth token found');
+    redirectToLogin();
+    return false;
   }
 
-  // Parse token
-  let token;
   try {
-    token = JSON.parse(tokenData);
+    console.log('🔐 Verifying auth token...');
+    
+    // Verify token with backend
+    const response = await fetch(`${API_BASE_URL}/api/auth/check`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.ok || !result.data?.authenticated) {
+      console.log('❌ Token invalid or expired');
+      clearAuthData();
+      redirectToLogin();
+      return false;
+    }
+
+    // Token valid - update user data
+    const user = result.data.user;
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    console.log('✅ Authentication verified:', user.email);
+    return true;
+
   } catch (error) {
-    console.error('❌ Invalid token format - redirecting to login');
-    localStorage.removeItem('zantara-token');
-    redirectToLogin('Invalid token');
+    console.error('❌ Auth check failed:', error);
+    clearAuthData();
+    redirectToLogin();
+    return false;
+  }
+}
+
+function clearAuthData() {
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('auth_expires');
+}
+
+function redirectToLogin() {
+  const currentPage = window.location.pathname;
+  if (currentPage.includes('login.html') || currentPage === '/') {
     return;
   }
+  console.log('↩️  Redirecting to login...');
+  window.location.href = '/login.html';
+}
 
-  // Check if token expired
-  if (token.expiresAt && token.expiresAt < Date.now()) {
-    console.warn('⚠️ Token expired - redirecting to login');
-    clearAuth();
-    redirectToLogin('Session expired');
-    return;
+function getCurrentUser() {
+  const userJson = localStorage.getItem('user');
+  return userJson ? JSON.parse(userJson) : null;
+}
+
+function getAuthToken() {
+  return localStorage.getItem('auth_token');
+}
+
+// Auto-run auth check on protected pages
+if (typeof window !== 'undefined') {
+  const currentPage = window.location.pathname;
+  const publicPages = ['/', '/login.html', '/index.html'];
+  
+  if (!publicPages.includes(currentPage)) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', checkAuth);
+    } else {
+      checkAuth();
+    }
   }
-
-  // Check if user data exists
-  const userData = localStorage.getItem('zantara-user');
-  if (!userData) {
-    console.warn('⚠️ No user data - redirecting to login');
-    clearAuth();
-    redirectToLogin('No user data');
-    return;
-  }
-
-  console.log('✅ Auth Guard: Authentication valid');
-
-  /**
-   * Redirect to login page
-   */
-  function redirectToLogin(reason) {
-    const params = new URLSearchParams({ reason });
-    window.location.href = `/login.html?${params.toString()}`;
-  }
-
-  /**
-   * Clear all auth data
-   */
-  function clearAuth() {
-    localStorage.removeItem('zantara-token');
-    localStorage.removeItem('zantara-user');
-    localStorage.removeItem('zantara-session');
-    localStorage.removeItem('zantara-permissions');
-  }
-})();
+  
+  window.checkAuth = checkAuth;
+  window.getCurrentUser = getCurrentUser;
+  window.getAuthToken = getAuthToken;
+  window.clearAuthData = clearAuthData;
+}

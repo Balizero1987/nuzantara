@@ -29,9 +29,13 @@ document.addEventListener('DOMContentLoaded', async function () {
   // Display user info in header
   displayUserInfo();
 
-  // Initialize client
+  // Initialize client with centralized config
+  const API_CONFIG = window.API_CONFIG || {
+    rag: { url: 'https://nuzantara-rag.fly.dev' }
+  };
+
   zantaraClient = new window.ZantaraClient({
-    apiUrl: 'https://nuzantara-rag.fly.dev',
+    apiUrl: API_CONFIG.rag.url,
     chatEndpoint: '/api/v3/zantara/unified',
     maxRetries: 3,
   });
@@ -562,9 +566,13 @@ async function handleLogout() {
     const userContext = window.UserContext;
     const sessionId = userContext.getSessionId();
 
-    // Call logout API
+    // Call logout API with centralized config
     if (sessionId) {
-      await fetch('https://nuzantara-backend.fly.dev/api/team/logout', {
+      const API_CONFIG = window.API_CONFIG || {
+        backend: { url: 'https://nuzantara-backend.fly.dev' }
+      };
+
+      await fetch(`${API_CONFIG.backend.url}/api/team/logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId }),
