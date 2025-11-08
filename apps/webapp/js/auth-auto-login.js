@@ -4,8 +4,9 @@
  */
 
 (function() {
-  // Skip if already on chat page
-  if (window.location.pathname.includes('/chat.html')) {
+  // Skip if already on chat page (handle both /chat and /chat.html)
+  const pathname = window.location.pathname;
+  if (pathname.includes('/chat.html') || pathname.includes('/chat') || pathname.endsWith('/chat')) {
     return;
   }
 
