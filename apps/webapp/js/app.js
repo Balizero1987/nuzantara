@@ -36,7 +36,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   zantaraClient = new window.ZantaraClient({
     apiUrl: API_CONFIG.rag.url,
-    chatEndpoint: '/api/v3/zantara/unified',
+    chatEndpoint: '/bali-zero/chat',  // FIXED: Use correct Bali-Zero endpoint
+    streamEndpoint: '/bali-zero/chat-stream',  // For SSE streaming
     maxRetries: 3,
   });
 

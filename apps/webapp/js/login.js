@@ -173,10 +173,10 @@ async function handleLogin(e) {
   clearError();
 
   try {
-    console.log('🔐 Attempting login with new auth endpoint...');
+    console.log('🔐 Attempting login with demo auth endpoint...');
 
-    // Call NEW login API
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    // Call demo auth API (correct endpoint per OpenAPI spec)
+    const response = await fetch(`${API_BASE_URL}/api/auth/demo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -194,12 +194,22 @@ async function handleLogin(e) {
     const { data } = result;
     console.log('✅ Login successful:', data.user.name);
 
-    // Store auth data (JWT token + user)
-    localStorage.setItem('auth_token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    localStorage.setItem('auth_expires', data.expires_in || '7d');
-    
-    console.log('✅ JWT token saved to localStorage');
+    // Store auth data in ZANTARA format (zantara-*)
+    localStorage.setItem('zantara-token', JSON.stringify({
+      token: data.token,
+      expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+    }));
+    localStorage.setItem('zantara-user', JSON.stringify(data.user));
+    localStorage.setItem('zantara-session', JSON.stringify({
+      id: data.sessionId || `session_${Date.now()}`,
+      createdAt: Date.now(),
+      lastActivity: Date.now(),
+    }));
+    if (data.permissions) {
+      localStorage.setItem('zantara-permissions', JSON.stringify(data.permissions));
+    }
+
+    console.log('✅ Auth data saved to localStorage (zantara-* format)');
 
     // Show success message
     showSuccess(`Welcome back, ${data.user.name}! 🎉`);
@@ -233,58 +243,6 @@ async function handleLogin(e) {
     // Clear PIN field on error
     pinInput.value = '';
     pinInput.focus();
-  }
-}
-
-/**
- * Store authentication data in localStorage
- */
-function storeAuthData(data) {
-  // Store token
-  localStorage.setItem('zantara-token', JSON.stringify({
-    token: data.token,
-    expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
-  }));
-
-  // Store user
-  localStorage.setItem('zantara-user', JSON.stringify(data.user));
-
-  // Store session
-  localStorage.setItem('zantara-session', JSON.stringify({
-    id: data.sessionId,
-    createdAt: Date.now(),
-    lastActivity: Date.now(),
-  }));
-
-  // Store permissions
-  if (data.permissions) {
-    localStorage.setItem('zantara-permissions', JSON.stringify(data.permissions));
-  }
-
-  console.log('✅ Auth data stored in localStorage');
-
-  // Initialize Memory Service session
-  initializeMemorySession(data.user.id, data.user.email);
-}
-
-/**
- * Initialize or restore conversation session in Memory Service
- */
-async function initializeMemorySession(userId, userEmail) {
-  try {
-    // Use global CONVERSATION_CLIENT from conversation-client.js
-    if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
-      const sessionId = await window.CONVERSATION_CLIENT.initializeSession(userId, userEmail);
-      console.log(`✅ Memory Service session initialized: ${sessionId}`);
-      return sessionId;
-    } else {
-      console.warn('⚠️ CONVERSATION_CLIENT not loaded');
-      return null;
-    }
-  } catch (error) {
-    console.warn('⚠️ Memory Service initialization failed:', error.message);
-    // Continue without memory service - not critical for login
-    return null;
   }
 }
 
