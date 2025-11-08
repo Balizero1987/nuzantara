@@ -202,8 +202,8 @@ Total: 1,980 lines of production TypeScript code
 
 ### Current Keys (Embedded)
 ```bash
-OPENROUTER_API_KEY=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
-DEEPSEEK_API_KEY=sk-6f68785d946542769c7ba7b8f64dff86
+OPENROUTER_API_KEY=your-openrouter-api-key
+DEEPSEEK_API_KEY=your-deepseek-api-key
 ```
 
 ### Models Used
