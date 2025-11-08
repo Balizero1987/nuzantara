@@ -1,10 +1,10 @@
 """
-Intelligent Router - HAIKU-ONLY routing system (REFACTORED)
-Uses pattern matching for intent classification, routes to Haiku 4.5 ONLY
+Intelligent Router - Llama 4 Scout PRIMARY + Haiku FALLBACK (REFACTORED)
+Uses pattern matching for intent classification, routes to Llama Scout with Haiku fallback
 
 Routing logic:
-- ALL queries → Claude Haiku 4.5 (fast, efficient, RAG-enhanced)
-- Fallback → Claude Haiku 4.5 (consistent experience)
+- PRIMARY AI → Llama 4 Scout (92% cheaper, 22% faster, 10M context)
+- FALLBACK AI → Claude Haiku 4.5 (tool calling, error recovery)
 
 PHASE 1 & 2 FIXES (2025-10-21):
 - Response sanitization (removes training data artifacts)
@@ -33,15 +33,16 @@ logger = logging.getLogger(__name__)
 
 class IntelligentRouter:
     """
-    HAIKU-ONLY intelligent routing system (Orchestrator)
+    Llama 4 Scout PRIMARY + Haiku FALLBACK intelligent routing system (Orchestrator)
 
     Architecture:
     1. Pattern Matching: Fast intent classification (no AI cost)
-    2. Claude Haiku 4.5: ALL queries (fast, efficient, RAG-enhanced)
-    3. RAG Integration: Enhanced context for all business queries
-    4. Tool Use: Full access to all 164 tools
+    2. Llama 4 Scout: PRIMARY AI (92% cheaper, 22% faster, 10M context)
+    3. Claude Haiku 4.5: FALLBACK AI (tool calling, error recovery)
+    4. RAG Integration: Enhanced context for all business queries
+    5. Tool Use: Full access to all 164 tools via Haiku fallback
 
-    Cost optimization: Routes 100% to Haiku 4.5 (3x cheaper than Sonnet)
+    Cost optimization: Llama Scout $0.20/$0.20 vs Haiku $1/$5 per 1M tokens (92% savings)
     """
 
     def __init__(
@@ -81,9 +82,10 @@ class IntelligentRouter:
         self.response_handler = ResponseHandler()
         self.tool_manager = ToolManager(tool_executor)
 
-        logger.info("🎯 [IntelligentRouter] Initialized (HAIKU-ONLY, MODULAR)")
+        logger.info("🎯 [IntelligentRouter] Initialized (Llama 4 Scout PRIMARY + Haiku FALLBACK, MODULAR)")
         logger.info(f"   Classification: {'✅' if True else '❌'} (Pattern Matching)")
-        logger.info(f"   Haiku 4.5: {'✅' if haiku_service else '❌'}")
+        logger.info(f"   Llama 4 Scout (PRIMARY): {'✅' if llama_client else '❌'}")
+        logger.info(f"   Haiku 4.5 (FALLBACK): {'✅' if haiku_service else '❌'}")
         logger.info(f"   RAG: {'✅' if search_service else '❌'}")
         logger.info(f"   Tools: {'✅' if tool_executor else '❌'}")
         logger.info(f"   Cultural RAG: {'✅' if cultural_rag_service else '❌'}")
@@ -196,8 +198,8 @@ class IntelligentRouter:
                 if result:
                     return result
 
-            # STEP 11: Route to Haiku (ONLY AI)
-            logger.info("🎯 [Router] Using Haiku 4.5 - ZANTARA (full system access)")
+            # STEP 11: Route to Llama Scout (PRIMARY) or Haiku (FALLBACK)
+            logger.info("🎯 [Router] Using Llama 4 Scout (PRIMARY) or Haiku 4.5 (FALLBACK)")
 
             if self.tool_manager.tool_executor and tools_to_use:
                 logger.info(f"   Tool use: ENABLED ({len(tools_to_use)} tools)")
@@ -461,7 +463,7 @@ class IntelligentRouter:
     def get_stats(self) -> Dict:
         """Get router statistics"""
         return {
-            "router": "haiku_only",
+            "router": "llama_scout_primary_haiku_fallback",
             "classification": "pattern_matching",
             "ai_models": {
                 "haiku": {

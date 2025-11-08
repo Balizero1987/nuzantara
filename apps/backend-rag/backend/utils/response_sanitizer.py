@@ -157,13 +157,16 @@ def classify_query_type(message: str) -> str:
         return "greeting"
 
     # CASUAL: Small talk (NO RAG)
+    # FIX: Only classify as casual if query is SHORT (< 10 words)
+    # This prevents false positives on long technical queries
     casual_patterns = [
         "come stai", "come va", "how are you", "how r you", "how are u",
         "what's up", "whats up", "wassup", "how's it going", "how is it going",
         "come ti chiami", "what's your name", "who are you", "chi sei",
         "tell me about yourself", "parlami di te", "describe yourself"
     ]
-    if any(pattern in msg_lower for pattern in casual_patterns):
+    word_count = len(msg_lower.split())
+    if word_count < 10 and any(pattern in msg_lower for pattern in casual_patterns):
         return "casual"
 
     # EMERGENCY: Urgent issues (RAG + special handling)

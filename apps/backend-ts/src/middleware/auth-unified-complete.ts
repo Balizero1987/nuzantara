@@ -37,7 +37,6 @@ export interface RequestWithUnifiedAuth {
 // Firebase Auth Integration (when available)
 class FirebaseAuthService {
   private enabled: boolean = false;
-  // @ts-expect-error - Intentionally unused
   private _admin: any = null;
 
   async initialize() {
@@ -464,7 +463,6 @@ export const requirePermission = (permission: string) => {
 // Multiple roles/permissions
 export const requireAny = (requirements: Array<{ role?: string; permission?: string }>) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    // @ts-expect-error - Intentionally unused
     const _user = (req as unknown as RequestWithUnifiedAuth).user;
 
     const hasAccess = requirements.some((requirement) => {

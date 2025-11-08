@@ -118,7 +118,7 @@ import { createServer } from 'http';
 
   // Import Redis cache with error handling
   let initializeRedis: any;
-  // @ts-expect-error - Intentionally unused
+
   let _cacheMiddleware: any;
   try {
     const cacheModule = await import('./middleware/cache.middleware.js');

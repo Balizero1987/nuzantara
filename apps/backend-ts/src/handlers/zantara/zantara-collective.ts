@@ -45,12 +45,12 @@ export async function zantaraCollective(req: Request, res: Response) {
       });
     }
 
-    const data = await response.json();
+    const data = await response.json() as { results?: any } | any;
 
     return res.json({
       ok: true,
       data: {
-        results: data.results || data,
+        results: (data as any).results || data,
         query,
         domain,
         mode,

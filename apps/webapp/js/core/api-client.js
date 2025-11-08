@@ -6,32 +6,32 @@
  * response caching, and request deduplication.
  */
 
-import { config } from '../config.js';
-import { API_CONFIG } from '../api-config.js'; // FIX 6: Import API_CONFIG
-import { jwtService } from '../auth/jwt-service.js';
+import { API_CONFIG } from '../api-config.js';
+import { unifiedAuth } from '../auth/unified-auth.js';
 import { cacheManager } from './cache-manager.js';
 import { requestDeduplicator } from './request-deduplicator.js';
 
 class APIClient {
   constructor() {
-    // FIX 6: Use API_CONFIG.backend.url instead of undefined config.api.proxyUrl
+    // Use centralized API_CONFIG instead of undefined config.api.proxyUrl
     this.baseUrl = API_CONFIG.backend.url;
-    this.timeout = config.api.timeout;
-    this.retryAttempts = config.api.retryAttempts;
-    this.retryDelay = config.api.retryDelay;
+    this.timeout = 30000; // 30 seconds
+    this.retryAttempts = 3;
+    this.retryDelay = 1000; // 1 second
   }
 
   /**
    * Make authenticated API call
    */
   async call(endpoint, params = {}, useStreaming = false) {
-    const authHeader = await jwtService.getAuthHeader();
+    // Use UnifiedAuth instead of broken jwtService
+    const authHeader = await unifiedAuth.getAuthHeader();
 
     if (!authHeader) {
       throw new Error('Not authenticated');
     }
 
-    const user = jwtService.getUser();
+    const user = unifiedAuth.getUser();
     const headers = {
       'Content-Type': 'application/json',
       Authorization: authHeader,
