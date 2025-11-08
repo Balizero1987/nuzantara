@@ -84,7 +84,7 @@ export default function AboutPortal({ onNavigate }: AboutPortalProps) {
       </motion.div>
 
       <footer className="mt-12 md:mt-16 text-xs md:text-sm text-gray-500 px-4 pb-4">
-        ∞ Bali Zero is powered by humans.
+        ∞ Bali Zero is powered by humans, fueled by a thinking engine.
       </footer>
     </div>
   )
