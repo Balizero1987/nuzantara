@@ -170,7 +170,7 @@ async function handleLogin(e) {
 
     // Redirect after 1.5 seconds
     setTimeout(() => {
-      window.location.href = '/chat.html';
+      window.location.href = '/chat';
     }, 1500);
 
   } catch (error) {
