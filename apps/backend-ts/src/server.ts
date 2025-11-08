@@ -46,7 +46,6 @@ import {
 } from './services/auth/unified-auth-strategy.js';
 
 // AI AUTOMATION - Cron Scheduler (OpenRouter Integration)
-import { cronScheduler } from './services/cron-scheduler.js';
 import aiMonitoringRoutes from './routes/ai-monitoring.js';
 
 // GLM 4.6 Architect Patch: Register v3 Ω services
@@ -515,6 +514,7 @@ async function startServer() {
       const demoUserId = userId || `demo_${Date.now()}`;
       const demoUser = {
         id: demoUserId,
+        userId: demoUserId, // Compatibility layer
         userId: demoUserId,
         email: email || `${userId || 'demo'}@demo.zantara.io`,
         name: name || 'Demo User',
@@ -565,6 +565,10 @@ async function startServer() {
         });
       }
 
+      const userIdGenerated = `user_${Date.now()}`;
+      const user = {
+        id: userIdGenerated,
+        userId: userIdGenerated, // Compatibility layer
       const generatedUserId = `user_${Date.now()}`;
       const user = {
         id: generatedUserId,
@@ -576,6 +580,7 @@ async function startServer() {
         permissions: ['read' as const, 'write' as const],
         isActive: true,
         lastLogin: new Date(),
+        authType: 'enhanced' as const
         authType: 'legacy' as const
       };
 
@@ -791,6 +796,7 @@ async function startServer() {
 
       // Stop AI Automation Cron Scheduler
       try {
+        await getCronScheduler().stop();
         getCronScheduler().stop();
         cronScheduler.stop();
         logger.info('AI Automation Cron Scheduler stopped');
