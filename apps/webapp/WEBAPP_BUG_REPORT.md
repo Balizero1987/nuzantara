@@ -3,7 +3,8 @@
 **Date**: 2025-11-08
 **Analyzed by**: Claude Code
 **Production URLs**:
-- Frontend: https://zantara.balizero.com
+- Frontend: https://zantara.balizero.com (DNS via Cloudflare → GitHub Pages)
+- GitHub Pages: https://balizero1987.github.io/nuzantara/
 - Backend: https://nuzantara-rag.fly.dev
 - OpenAPI Docs: https://nuzantara-rag.fly.dev/docs
 
@@ -26,7 +27,7 @@
 ### 1. ✅ FIXED - Token Storage Inconsistency (Infinite Login Loop)
 
 **Severity**: CRITICAL
-**Impact**: Users cannot access the chat interface - infinite redirect loop
+**Impact**: Users cannot access the chat interface - infinite redirect loop on production
 **Root Cause**: Multiple token storage formats causing authentication mismatch
 
 **Details**:
@@ -362,7 +363,7 @@ Removed both unused functions
 ### After Deployment:
 
 1. Monitor console logs for errors
-2. Verify auto-login works on Cloudflare Pages
+2. Verify auto-login works on production (https://zantara.balizero.com)
 3. Test SSE streaming in production
 4. Monitor backend logs for correct endpoint usage
 
@@ -370,11 +371,12 @@ Removed both unused functions
 
 ## 📝 Additional Notes
 
-### GitHub Pages vs Cloudflare Pages:
+### Frontend Architecture:
 
-- GitHub Pages URL: https://balizero1987.github.io/nuzantara/
-- Redirects to: https://zantara.balizero.com (Cloudflare Pages)
-- All testing should be done on Cloudflare Pages URL
+- **Hosting**: GitHub Pages (https://balizero1987.github.io/nuzantara/)
+- **DNS**: Cloudflare manages DNS for custom domain
+- **Production URL**: https://zantara.balizero.com → points to GitHub Pages
+- **Deployment**: Auto-deploy on push to `main` branch (GitHub Pages)
 
 ### Token Format Decision:
 
