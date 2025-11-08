@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="css/design-system.css">
   <!-- Production Styles -->
   <link rel="stylesheet" href="css/production.css">
+  <!-- AI Info Styles -->
+  <link rel="stylesheet" href="css/ai-info.css">
 
   <!-- Authentication Guard -->
   <script src="js/auth-guard.js"></script>
@@ -743,6 +745,19 @@
     </div>
   </header>
 
+  <!-- AI Info Banner -->
+  <div class="ai-info-banner">
+    <div class="ai-info-content">
+      <span class="ai-icon">🤖</span>
+      <span class="ai-primary">Llama 4 Scout</span>
+      <span class="ai-badge">PRIMARY</span>
+      <span class="ai-savings">92% cost savings</span>
+      <span class="ai-separator">|</span>
+      <span class="ai-fallback">Claude Haiku 4.5</span>
+      <span class="ai-badge fallback">FALLBACK</span>
+    </div>
+  </div>
+
   <!-- Messages Container -->
   <main class="messages-container" id="messagesContainer">
     <div class="messages-inner">
@@ -751,6 +766,16 @@
       </div>
     </div>
   </main>
+
+  <!-- Sources Container (hidden by default, shown when sources available) -->
+  <div id="sources-container" class="sources-container" style="display: none;">
+    <!-- Sources will be populated here by JavaScript -->
+  </div>
+
+  <!-- Metadata Container (hidden by default, shown after response) -->
+  <div id="metadata-container" class="metadata-container" style="display: none;">
+    <!-- Metadata will be populated here by JavaScript -->
+  </div>
 
   <!-- Chat Input -->
   <div class="chat-input-container">
@@ -796,6 +821,7 @@
 
   <!-- Production JavaScript -->
   <script type="module" src="js/api-config.js"></script>
+  <script src="js/sse-client.js"></script>
   <script src="js/zantara-client.min.js?v=20251106-debug"></script>
   <script src="js/conversation-client.js?v=20251107"></script>
   <script src="js/message-search.js?v=20251107"></script>
