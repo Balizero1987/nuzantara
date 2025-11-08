@@ -85,6 +85,7 @@ function createRateLimiter(priority: EndpointPriority) {
     max: config.max,
     standardHeaders: true,
     legacyHeaders: true,
+    trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
     keyGenerator: getRateLimitKey,
     // Skip IPv6 validation warning by not using IP directly
     validate: {
@@ -189,6 +190,7 @@ export function createEndpointRateLimiter(
     max,
     standardHeaders: true,
     legacyHeaders: true,
+    trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
     keyGenerator: getRateLimitKey,
 
     handler: (req: Request, res: Response) => {
