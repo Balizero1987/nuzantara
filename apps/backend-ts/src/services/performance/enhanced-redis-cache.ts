@@ -57,7 +57,7 @@ class EnhancedRedisCache {
   private isConnected = false;
   private config: Required<CacheConfig>;
   private stats: CacheStats;
-  // @ts-expect-error - Intentionally unused
+
   private _warmingQueue: Set<string> = new Set();
   private invalidationTags: Map<string, Set<string>> = new Map(); // tag -> keys
 

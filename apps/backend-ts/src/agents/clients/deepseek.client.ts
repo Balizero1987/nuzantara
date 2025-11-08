@@ -5,6 +5,18 @@
 
 import type { AgentConfig, AgentMessage, AgentResponse } from '../types/agent.types.js';
 
+interface DeepSeekAPIResponse {
+  choices: Array<{
+    message: { content: string };
+    finish_reason: string;
+  }>;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
 export class DeepSeekClient {
   private apiKey: string;
   private baseURL = 'https://api.deepseek.com/v1';
@@ -40,7 +52,7 @@ export class DeepSeekClient {
         throw new Error(`DeepSeek API error: ${response.status} - ${errorText}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as DeepSeekAPIResponse;
 
       return {
         success: true,

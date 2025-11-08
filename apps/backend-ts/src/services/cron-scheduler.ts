@@ -56,11 +56,11 @@ export class CronScheduler {
         const taskId = await this.orchestrator.submitTask(
           'self-healing',
           { action: 'scan-and-fix', description: 'Nightly scan for errors and auto-fix' },
-          { priority: 'high', timestamp: new Date() }
+          { timestamp: new Date(), metadata: { priority: 'high' } }
         );
         logger.info('✅ [CRON] Nightly self-healing submitted', { taskId });
       } catch (error: any) {
-        logger.error('❌ [CRON] Nightly self-healing failed', { error: error.message });
+        logger.error('❌ [CRON] Nightly self-healing failed', error);
       }
     });
 
@@ -75,11 +75,11 @@ export class CronScheduler {
         const taskId = await this.orchestrator.submitTask(
           'test-writer',
           { action: 'update-tests', description: 'Generate missing tests for handlers' },
-          { priority: 'medium', timestamp: new Date() }
+          { timestamp: new Date(), metadata: { priority: 'medium' } }
         );
         logger.info('✅ [CRON] Auto-test generation submitted', { taskId });
       } catch (error: any) {
-        logger.error('❌ [CRON] Auto-test generation failed', { error: error.message });
+        logger.error('❌ [CRON] Auto-test generation failed', error);
       }
     });
 
@@ -94,11 +94,11 @@ export class CronScheduler {
         const taskId = await this.orchestrator.submitTask(
           'pr-agent',
           { action: 'create-weekly-summary', description: 'Create PR with weekly improvements' },
-          { priority: 'low', timestamp: new Date() }
+          { timestamp: new Date(), metadata: { priority: 'low' } }
         );
         logger.info('✅ [CRON] Weekly PR creation submitted', { taskId });
       } catch (error: any) {
-        logger.error('❌ [CRON] Weekly PR creation failed', { error: error.message });
+        logger.error('❌ [CRON] Weekly PR creation failed', error);
       }
     });
 
@@ -112,13 +112,13 @@ export class CronScheduler {
           const taskId = await this.orchestrator.submitTask(
             'self-healing',
             { action: 'emergency-fix', description: `Critical issue detected: ${health.issue}` },
-            { priority: 'critical', timestamp: new Date() }
+            { timestamp: new Date(), metadata: { priority: 'critical' } }
           );
           logger.warn('⚠️  [CRON] Critical health issue detected, emergency healing triggered', { taskId });
         }
         logger.debug('✅ [CRON] Health check completed', { status: health.status });
       } catch (error: any) {
-        logger.error('❌ [CRON] Health check failed', { error: error.message });
+        logger.error('❌ [CRON] Health check failed', error);
       }
     });
 
@@ -130,7 +130,7 @@ export class CronScheduler {
         await this.sendReport(metrics);
         logger.info('✅ [CRON] Daily report completed', { metrics });
       } catch (error: any) {
-        logger.error('❌ [CRON] Daily report failed', { error: error.message });
+        logger.error('❌ [CRON] Daily report failed', error);
       }
     });
 
@@ -145,7 +145,6 @@ export class CronScheduler {
     const timezone = process.env.CRON_TIMEZONE || 'Asia/Singapore';
 
     const job = cron.schedule(cronExpression, task, {
-      scheduled: true,
       timezone,
     });
 

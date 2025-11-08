@@ -271,7 +271,7 @@ Message from ${request.from}: ${request.message}
 Please respond as ZANTARA, maintaining your helpful and professional personality. Consider the shared context and provide a thoughtful response.`;
   }
 
-  // @ts-expect-error - Intentionally unused
+
   private _buildDevAIPrompt(request: AIBridgeRequest, context: AICommunicationContext): string {
     const history = context.conversationHistory.slice(-5);
     const historyText = history.map((h) => `${h.ai}: ${h.content}`).join('\n');
