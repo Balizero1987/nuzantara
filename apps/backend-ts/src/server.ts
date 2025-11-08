@@ -45,6 +45,9 @@ import {
   unifiedAuth,
 } from './services/auth/unified-auth-strategy.js';
 
+// AI AUTOMATION - Cron Scheduler (OpenRouter Integration)
+import aiMonitoringRoutes from './routes/ai-monitoring.js';
+
 // GLM 4.6 Architect Patch: Register v3 Ω services
 async function registerV3OmegaServices(): Promise<void> {
   // Register v3 Ω service instances
@@ -270,6 +273,9 @@ async function startServer() {
   // Cache management routes
   app.use('/cache', cacheRoutes);
 
+  // AI Automation monitoring routes
+  app.use('/api/monitoring', aiMonitoringRoutes);
+  logger.info('✅ AI Automation monitoring routes mounted');
   // Autonomous Agents Monitoring routes
   const monitoringRoutes = await import('./routes/monitoring.routes.js');
   app.use('/api/monitoring', monitoringRoutes.default);
@@ -505,8 +511,11 @@ async function startServer() {
     try {
       const { userId, name, email } = req.body;
 
+      const demoUserId = userId || `demo_${Date.now()}`;
       const demoUser = {
-        id: userId || `demo_${Date.now()}`,
+        id: demoUserId,
+        userId: demoUserId, // Compatibility layer
+        userId: demoUserId,
         email: email || `${userId || 'demo'}@demo.zantara.io`,
         name: name || 'Demo User',
         role: 'User' as const,
@@ -514,10 +523,10 @@ async function startServer() {
         permissions: ['read' as const],
         isActive: true,
         lastLogin: new Date(),
-        authType: 'demo' as const
+        authType: 'legacy' as const
       };
 
-      const token = unifiedAuth.generateToken(demoUser, 'demo');
+      const token = unifiedAuth.generateToken(demoUser, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ Demo token generated for user: ${demoUser.id}`);
@@ -556,8 +565,14 @@ async function startServer() {
         });
       }
 
+      const userIdGenerated = `user_${Date.now()}`;
       const user = {
-        id: `user_${Date.now()}`,
+        id: userIdGenerated,
+        userId: userIdGenerated, // Compatibility layer
+      const generatedUserId = `user_${Date.now()}`;
+      const user = {
+        id: generatedUserId,
+        userId: generatedUserId,
         email,
         name: name || email.split('@')[0],
         role: 'User' as const,
@@ -565,10 +580,11 @@ async function startServer() {
         permissions: ['read' as const, 'write' as const],
         isActive: true,
         lastLogin: new Date(),
-        authType: 'password' as const
+        authType: 'enhanced' as const
+        authType: 'legacy' as const
       };
 
-      const token = unifiedAuth.generateToken(user, 'password');
+      const token = unifiedAuth.generateToken(user, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ User logged in: ${user.email}`);
@@ -655,6 +671,13 @@ async function startServer() {
   app.use('/api/auth/team', teamAuthRoutes.default);
   logger.info('✅ Team Authentication routes loaded');
 
+  // Tax Dashboard routes (commented out - routes not yet implemented)
+  // Main Authentication routes (JWT-based)
+  const authRoutes = await import('./routes/auth.routes.js');
+  app.use('/api/auth', authRoutes.default);
+  app.use('/api/user', authRoutes.default); // For /api/user/profile
+  logger.info('✅ Main Authentication routes loaded');
+
   // Tax Dashboard routes (disabled - routes not yet implemented)
   // const taxRoutes = await import('./routes/api/tax/tax.routes.js');
   // const { seedTestData } = await import('./services/tax-db.service.js');
@@ -702,7 +725,6 @@ async function startServer() {
 
   // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
   if (process.env.REDIS_URL) {
-    // @ts-expect-error - Intentionally unused
     const _io = setupWebSocket(httpServer);
     logger.info('✅ WebSocket server initialized');
   } else {
@@ -715,6 +737,15 @@ async function startServer() {
     logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
     if (process.env.REDIS_URL) {
       logger.info(`🔌 WebSocket ready for real-time features`);
+    }
+
+    // Start AI Automation Cron Scheduler
+    try {
+      cronScheduler.start();
+      logger.info('🤖 AI Automation Cron Scheduler started');
+    } catch (error: any) {
+      logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
+      logger.warn('⚠️  Continuing without AI automation');
     }
 
     // Initialize Cron Scheduler for Autonomous Agents
@@ -761,6 +792,16 @@ async function startServer() {
         } catch (error: any) {
           logger.error(`Error closing connection pools: ${error.message}`);
         }
+      }
+
+      // Stop AI Automation Cron Scheduler
+      try {
+        await getCronScheduler().stop();
+        getCronScheduler().stop();
+        cronScheduler.stop();
+        logger.info('AI Automation Cron Scheduler stopped');
+      } catch (error: any) {
+        logger.warn(`Error stopping cron scheduler: ${error.message}`);
       }
 
       // Log shutdown to audit trail

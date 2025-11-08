@@ -69,7 +69,7 @@ router.get('/cron-status', async (req, res) => {
     logger.info('Cron status requested', { jobsActive: jobs.length });
     res.json({ success: true, status });
   } catch (error: any) {
-    logger.error('Failed to get cron status', { error: error.message });
+    logger.error('Failed to get cron status', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -112,7 +112,7 @@ router.get('/agent-tasks', async (req, res) => {
       },
     });
   } catch (error: any) {
-    logger.error('Failed to get agent tasks', { error: error.message });
+    logger.error('Failed to get agent tasks', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -149,7 +149,7 @@ router.post('/trigger-job', async (req, res) => {
         taskId = await orchestrator.submitTask(
           'self-healing',
           { action: 'scan-and-fix', description: 'Manual trigger: self-healing' },
-          { priority: 'high', timestamp: new Date() }
+          { timestamp: new Date(), metadata: { priority: 'high' } }
         );
         break;
 
@@ -157,7 +157,7 @@ router.post('/trigger-job', async (req, res) => {
         taskId = await orchestrator.submitTask(
           'test-writer',
           { action: 'update-tests', description: 'Manual trigger: test generation' },
-          { priority: 'medium', timestamp: new Date() }
+          { timestamp: new Date(), metadata: { priority: 'medium' } }
         );
         break;
 
@@ -165,7 +165,7 @@ router.post('/trigger-job', async (req, res) => {
         taskId = await orchestrator.submitTask(
           'pr-agent',
           { action: 'create-weekly-summary', description: 'Manual trigger: PR creation' },
-          { priority: 'low', timestamp: new Date() }
+          { timestamp: new Date(), metadata: { priority: 'low' } }
         );
         break;
 
@@ -184,7 +184,7 @@ router.post('/trigger-job', async (req, res) => {
       taskId,
     });
   } catch (error: any) {
-    logger.error('Failed to trigger job', { error: error.message });
+    logger.error('Failed to trigger job', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

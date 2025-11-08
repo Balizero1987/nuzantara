@@ -553,7 +553,7 @@ const handlers: Record<string, Handler> = {
   'ai.image.test': aiImageTest,
 
   // Drive Multipart Upload Handler (Note: requires Express middleware integration)
-  // @ts-expect-error - Intentionally unused
+
   'drive.upload.multipart': async (params: any) => {
     return {
       ok: false,
@@ -758,7 +758,7 @@ const handlers: Record<string, Handler> = {
   'metrics.dashboard': async (req: any, res: any) => getMetricsDashboard(req, res),
   'metrics.reset': async (req: any, res: any) => resetMetrics(req, res),
   'metrics.initialize': async () => {
-    // @ts-expect-error - Intentionally unused
+
     const _collector = initializeMetricsCollector();
     return { success: true, message: 'Metrics collection initialized', initialized: true };
   },
@@ -1316,7 +1316,7 @@ export function attachRoutes(app: import('express').Express) {
   // JWT Refresh endpoint - BUG FIX
   app.post('/auth/refresh', async (req: RequestWithCtx, res: Response) => {
     const clientIP = req.header('x-forwarded-for') || req.ip || 'unknown';
-    // @ts-expect-error - Intentionally unused
+
     const _userAgent = req.header('user-agent') || 'unknown';
 
     try {
@@ -1705,6 +1705,82 @@ export function attachRoutes(app: import('express').Express) {
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // === Google Workspace Integration Status Endpoints ===
+  
+  // Gmail Integration Status
+  app.get('/api/integrations/gmail/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = ok({
+        connected: true,
+        service: 'gmail',
+        email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || 'service-account@balizero.com',
+        status: 'active',
+        features: ['send', 'list', 'read', 'search'],
+        endpoints: [
+          'POST /gmail.send',
+          'POST /gmail.list',
+          'POST /gmail.read',
+          'POST /gmail.search'
+        ]
+      });
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // Google Calendar Integration Status
+  app.get('/api/integrations/calendar/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = ok({
+        connected: true,
+        service: 'google_calendar',
+        status: 'active',
+        calendars: ['primary'],
+        features: ['create', 'list', 'get', 'update'],
+        endpoints: [
+          'POST /calendar.create',
+          'POST /calendar.list',
+          'POST /calendar.get'
+        ]
+      });
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // WhatsApp Integration Status (placeholder)
+  app.get('/api/integrations/whatsapp/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = ok({
+        connected: false,
+        service: 'whatsapp_business',
+        status: 'not_configured',
+        message: 'WhatsApp Business API integration not yet configured',
+        contact: 'info@balizero.com'
+      });
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(500).json(err(e?.message || 'Internal Error'));
+    }
+  });
+
+  // Twitter/X Integration Status (placeholder)
+  app.get('/api/integrations/twitter/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+    try {
+      const result = ok({
+        connected: false,
+        service: 'twitter_x',
+        status: 'not_configured',
+        message: 'Twitter/X integration not yet configured'
+      });
+      return res.status(200).json(result);
+    } catch (e: any) {
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   });

@@ -1,0 +1,5 @@
+# AI Automation history files - DO NOT COMMIT
+*.json
+*-history.json
+refactoring-history.json
+test-generation-history.json

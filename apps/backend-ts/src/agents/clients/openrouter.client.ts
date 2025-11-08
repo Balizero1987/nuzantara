@@ -5,6 +5,18 @@
 
 import type { AgentConfig, AgentMessage, AgentResponse } from '../types/agent.types.js';
 
+interface OpenRouterAPIResponse {
+  choices: Array<{
+    message: { content: string };
+    finish_reason: string;
+  }>;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
 export class OpenRouterClient {
   private apiKey: string;
   private baseURL = 'https://openrouter.ai/api/v1';
@@ -43,7 +55,7 @@ export class OpenRouterClient {
         throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as OpenRouterAPIResponse;
 
       return {
         success: true,
