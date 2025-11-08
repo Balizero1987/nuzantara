@@ -44,40 +44,10 @@ async function checkAuth() {
     return false;
   }
 
-  try {
-    console.log('🔐 Verifying auth token...');
-    
-    // Verify token with backend
-    const response = await fetch(`${API_BASE_URL}/api/auth/check`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    const result = await response.json();
-
-    if (!response.ok || !result.ok || !result.data?.authenticated) {
-      console.log('❌ Token invalid or expired');
-      clearAuthData();
-      redirectToLogin();
-      return false;
-    }
-
-    // Token valid - update user data
-    const user = result.data.user;
-    localStorage.setItem('zantara-user', JSON.stringify(user));
-
-    console.log('✅ Authentication verified:', user.email);
-    return true;
-
-  } catch (error) {
-    console.error('❌ Auth check failed:', error);
-    clearAuthData();
-    redirectToLogin();
-    return false;
-  }
+  // Token exists and not expired - user is authenticated
+  // For MVP: No backend verification (mock auth accepts any token)
+  console.log('✅ Authentication verified (client-side)');
+  return true;
 }
 
 function clearAuthData() {
@@ -89,11 +59,11 @@ function clearAuthData() {
 
 function redirectToLogin() {
   const currentPage = window.location.pathname;
-  if (currentPage.includes('login.html') || currentPage === '/') {
+  if (currentPage.includes('login') || currentPage === '/') {
     return;
   }
   console.log('↩️  Redirecting to login...');
-  window.location.href = '/login.html';
+  window.location.href = '/login';
 }
 
 function getCurrentUser() {
@@ -115,8 +85,8 @@ function getAuthToken() {
 // Auto-run auth check on protected pages
 if (typeof window !== 'undefined') {
   const currentPage = window.location.pathname;
-  const publicPages = ['/', '/login.html', '/index.html'];
-  
+  const publicPages = ['/', '/login', '/login.html', '/index.html'];
+
   if (!publicPages.includes(currentPage)) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', checkAuth);
