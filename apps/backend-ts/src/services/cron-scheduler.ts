@@ -185,7 +185,6 @@ export class CronScheduler {
         }
       },
       {
-        scheduled: true,
         timezone: 'UTC' // Use UTC for reliability
       }
     );
