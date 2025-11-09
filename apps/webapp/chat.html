@@ -111,6 +111,7 @@
 
     .user-avatar {
       width: 2.6rem; /* Increased by 30%: 2rem * 1.3 = 2.6rem */
+      width: 2.6rem;
       height: 2.6rem;
       border-radius: 50%;
       background: rgba(191,170,126,0.2);
@@ -118,7 +119,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
+      font-size: 1.3rem;
       font-weight: 600;
       color: #bfaa7e;
       cursor: pointer;
@@ -153,6 +154,7 @@
       font-size: 0.875rem;
       font-weight: 400;
       color: rgba(255, 255, 255, 0.8);
+      display: none;
     }
 
     .user-role {
@@ -177,7 +179,7 @@
     }
 
     .bali-zero-logo {
-      height: 3.75rem; /* 150% bigger - was 2.5rem */
+      height: 5.25rem; /* 210% bigger - was 2.5rem */
       width: auto;
       opacity: 0.95;
       image-rendering: -webkit-optimize-contrast;
@@ -274,7 +276,7 @@
     }
 
     .welcome-message p {
-      font-size: 1rem;
+      font-size: 1.3rem;
       color: var(--zantara-text-secondary);
       line-height: 1.6;
       max-width: 600px;
@@ -591,8 +593,8 @@
     }
 
     .typing-avatar {
-      width: 2rem;
-      height: 2rem;
+      width: 2.6rem;
+      height: 2.6rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -618,7 +620,7 @@
     }
 
     .typing-label {
-      font-size: 1rem;
+      font-size: 1.3rem;
       font-family: var(--font-serif);
       color: #bfaa7e;
     }
@@ -711,7 +713,7 @@
       padding: 0.75rem;
       margin-bottom: 0.75rem;
       border-radius: 0.5rem;
-      font-size: 1rem;
+      font-size: 1.3rem;
       cursor: pointer;
       transition: all 0.2s;
       border: 1px solid rgba(191, 170, 126, 0.4);
@@ -813,6 +815,8 @@
           title="Generate Image"
           aria-label="Generate Image"
         ><img src="paint.png" alt="Paint" style="width: 100%; height: 100%; object-fit: contain;"></button>
+        ><img src="assets/images/paint.svg" alt="Generate Image" style="width: 1.5rem; height: 1.5rem;"></button>
+        >🎨</button>
         <textarea
           id="messageInput"
           class="chat-textarea"
@@ -897,8 +901,10 @@
       // Remove avatar image
       function removeAvatar() {
         localStorage.removeItem(AVATAR_KEY);
-        avatar.innerHTML = avatarLetter.textContent;
-        avatarPreview.innerHTML = `<span id="avatarLetter">${avatarLetter.textContent}</span>`;
+        const userEmail = localStorage.getItem("zantara_user_email") || "user@example.com";
+        const initial = userEmail.charAt(0).toUpperCase();
+        avatar.innerHTML = initial;
+        avatarPreview.innerHTML = `<span id="avatarLetter">${initial}</span>`;
       }
 
       // Open modal
@@ -1106,5 +1112,5 @@
     })();
   </script>
 
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99b6a1790b71e148',t:'MTc2MjYyMTI2OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
