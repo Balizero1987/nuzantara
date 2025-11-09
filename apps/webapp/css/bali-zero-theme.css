@@ -127,54 +127,44 @@ body[data-theme="day"] {
 }
 
 /* ============================================
-   NIGHT MODE - RIPOSANTE E VITALE
+   NIGHT MODE - RIPOSANTE E VITALE (SOFT)
    ============================================ */
 html[data-theme="night"],
 body[data-theme="night"] {
-  background: #12121A !important;
+  background: #1A1A24 !important;
   background:
     radial-gradient(
       ellipse 60% 40% at 50% 20%,
-      rgba(233, 77, 53, 0.12) 0%,
-      rgba(233, 77, 53, 0.06) 30%,
+      rgba(233, 77, 53, 0.03) 0%,
+      rgba(233, 77, 53, 0.015) 30%,
       transparent 60%
-    ),
-    radial-gradient(
-      ellipse 40% 60% at 80% 80%,
-      rgba(233, 77, 53, 0.08) 0%,
-      transparent 50%
     ),
     linear-gradient(
       180deg,
-      #0A0A12 0%,
-      #12121A 50%,
-      #1A1A26 100%
+      #1A1A24 0%,
+      #1E1E28 50%,
+      #1A1A24 100%
     ),
-    #12121A !important;
+    #1A1A24 !important;
 }
 
 html:not([data-theme]),
 body:not([data-theme]) {
-  background: #12121A !important;
+  background: #1A1A24 !important;
   background:
     radial-gradient(
       ellipse 60% 40% at 50% 20%,
-      rgba(233, 77, 53, 0.12) 0%,
-      rgba(233, 77, 53, 0.06) 30%,
+      rgba(233, 77, 53, 0.03) 0%,
+      rgba(233, 77, 53, 0.015) 30%,
       transparent 60%
-    ),
-    radial-gradient(
-      ellipse 40% 60% at 80% 80%,
-      rgba(233, 77, 53, 0.08) 0%,
-      transparent 50%
     ),
     linear-gradient(
       180deg,
-      #0A0A12 0%,
-      #12121A 50%,
-      #1A1A26 100%
+      #1A1A24 0%,
+      #1E1E28 50%,
+      #1A1A24 100%
     ),
-    #12121A !important;
+    #1A1A24 !important;
 }
 
 /* ============================================
@@ -190,8 +180,8 @@ body[data-theme="day"] .zantara-title {
 
 body[data-theme="night"] .zantara-title,
 body:not([data-theme]) .zantara-title {
-  color: #E94D35 !important;
-  text-shadow: 0 0 10px rgba(233, 77, 53, 0.3);
+  color: rgba(233, 77, 53, 0.85) !important;
+  text-shadow: none;
 }
 
 .javanese-script {
@@ -208,8 +198,8 @@ body[data-theme="day"] .javanese-script {
 
 body[data-theme="night"] .javanese-script,
 body:not([data-theme]) .javanese-script {
-  filter: drop-shadow(0 0 4px rgba(233, 77, 53, 0.6))
-          drop-shadow(0 0 8px rgba(233, 77, 53, 0.4));
+  filter: none;
+  opacity: 0.9;
 }
 
 /* ============================================
@@ -225,7 +215,7 @@ body[data-theme="day"] .form-label {
 
 body[data-theme="night"] .form-label,
 body:not([data-theme]) .form-label {
-  color: #E94D35 !important;
+  color: rgba(233, 77, 53, 0.75) !important;
 }
 
 .form-input {
@@ -240,9 +230,9 @@ body[data-theme="day"] .form-input {
 
 body[data-theme="night"] .form-input,
 body:not([data-theme]) .form-input {
-  border-color: rgba(233, 77, 53, 0.4) !important;
-  background: rgba(26, 26, 38, 0.6) !important;
-  color: #F9F5F0 !important;
+  border-color: rgba(233, 77, 53, 0.25) !important;
+  background: rgba(30, 30, 40, 0.7) !important;
+  color: rgba(249, 245, 240, 0.95) !important;
 }
 
 .form-input:focus {
@@ -300,15 +290,15 @@ body[data-theme="day"] .login-button {
 
 body[data-theme="night"] .login-button,
 body:not([data-theme]) .login-button {
-  border-color: #E94D35 !important;
-  color: #E94D35 !important;
-  background: rgba(233, 77, 53, 0.1) !important;
+  border-color: rgba(233, 77, 53, 0.5) !important;
+  color: rgba(233, 77, 53, 0.9) !important;
+  background: rgba(233, 77, 53, 0.08) !important;
 }
 
 .login-button:hover:not(:disabled) {
-  background: rgba(233, 77, 53, 0.2) !important;
-  box-shadow: 0 0 20px rgba(233, 77, 53, 0.4) !important;
-  transform: scale(1.02);
+  background: rgba(233, 77, 53, 0.15) !important;
+  box-shadow: 0 2px 8px rgba(233, 77, 53, 0.2) !important;
+  transform: scale(1.01);
 }
 
 .login-button:disabled {
@@ -357,8 +347,8 @@ body[data-theme="day"] .login-form {
 
 body[data-theme="night"] .login-form,
 body:not([data-theme]) .login-form {
-  background: rgba(26, 26, 38, 0.8) !important;
-  border: 2px solid rgba(233, 77, 53, 0.3) !important;
+  background: rgba(30, 30, 40, 0.85) !important;
+  border: 1px solid rgba(233, 77, 53, 0.2) !important;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
