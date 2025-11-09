@@ -1,0 +1,425 @@
+/**
+ * ZANTARA Bali Zero Theme
+ * Tema unificato per tutte le pagine
+ * Colori: Bali Zero Orange (#E94D35)
+ */
+
+/* ============================================
+   CSS VARIABLES - BALI ZERO COLORS
+   ============================================ */
+:root {
+  --zantara-gold: #E94D35 !important;
+  --zantara-gold-dim: rgba(233, 77, 53, 0.6) !important;
+  --zantara-gold-bright: #F57C5C !important;
+  --zantara-gold-light: rgba(233, 77, 53, 0.15) !important;
+  --zantara-accent: #E94D35 !important;
+  --zantara-border: rgba(233, 77, 53, 0.2) !important;
+  --zantara-border-light: rgba(233, 77, 53, 0.15) !important;
+  --zantara-border-strong: rgba(233, 77, 53, 0.3) !important;
+  --zantara-border-hover: rgba(233, 77, 53, 0.5) !important;
+}
+
+/* ============================================
+   THEME TOGGLE - SOBRIO ED ELEGANTE
+   ============================================ */
+.theme-toggle-container {
+  display: flex;
+  align-items: center;
+  margin: 0 1rem;
+  flex: 0 0 auto;
+  z-index: 10;
+}
+
+.theme-toggle {
+  width: 3.5rem;
+  height: 2rem;
+  background: rgba(233, 77, 53, 0.15);
+  border: 1px solid rgba(233, 77, 53, 0.4);
+  border-radius: 0.875rem;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(233, 77, 53, 0.2);
+}
+
+body[data-theme="day"] .theme-toggle {
+  background: rgba(233, 77, 53, 0.12);
+  border-color: rgba(233, 77, 53, 0.3);
+  box-shadow: 0 2px 6px rgba(233, 77, 53, 0.15);
+}
+
+body[data-theme="night"] .theme-toggle,
+body:not([data-theme]) .theme-toggle {
+  background: rgba(233, 77, 53, 0.2);
+  border-color: rgba(233, 77, 53, 0.5);
+  box-shadow: 0 2px 8px rgba(233, 77, 53, 0.3);
+}
+
+.theme-toggle:hover {
+  border-color: rgba(233, 77, 53, 0.7);
+  background: rgba(233, 77, 53, 0.25);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(233, 77, 53, 0.4);
+}
+
+body[data-theme="day"] .theme-toggle:hover {
+  background: rgba(233, 77, 53, 0.18);
+  box-shadow: 0 4px 10px rgba(233, 77, 53, 0.25);
+}
+
+body[data-theme="night"] .theme-toggle:hover,
+body:not([data-theme]) .theme-toggle:hover {
+  background: rgba(233, 77, 53, 0.3);
+  box-shadow: 0 4px 12px rgba(233, 77, 53, 0.5);
+}
+
+.theme-icon {
+  font-size: 1rem;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+body[data-theme="day"] .day-icon {
+  opacity: 1;
+}
+
+body[data-theme="day"] .night-icon {
+  opacity: 0.3;
+}
+
+body[data-theme="night"] .day-icon {
+  opacity: 0.3;
+}
+
+body[data-theme="night"] .night-icon {
+  opacity: 1;
+}
+
+/* ============================================
+   DAY MODE - SFONDO RIPOSANTE
+   ============================================ */
+html[data-theme="day"],
+body[data-theme="day"] {
+  background: #F9F5F0 !important;
+  background:
+    radial-gradient(
+      ellipse 60% 40% at 50% 20%,
+      rgba(233, 77, 53, 0.08) 0%,
+      rgba(233, 77, 53, 0.04) 30%,
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      #F9F5F0 0%,
+      #F5F1EB 50%,
+      #F9F5F0 100%
+    ),
+    #F9F5F0 !important;
+}
+
+/* ============================================
+   NIGHT MODE - RIPOSANTE E VITALE
+   ============================================ */
+html[data-theme="night"],
+body[data-theme="night"] {
+  background: #12121A !important;
+  background:
+    radial-gradient(
+      ellipse 60% 40% at 50% 20%,
+      rgba(233, 77, 53, 0.12) 0%,
+      rgba(233, 77, 53, 0.06) 30%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 40% 60% at 80% 80%,
+      rgba(233, 77, 53, 0.08) 0%,
+      transparent 50%
+    ),
+    linear-gradient(
+      180deg,
+      #0A0A12 0%,
+      #12121A 50%,
+      #1A1A26 100%
+    ),
+    #12121A !important;
+}
+
+html:not([data-theme]),
+body:not([data-theme]) {
+  background: #12121A !important;
+  background:
+    radial-gradient(
+      ellipse 60% 40% at 50% 20%,
+      rgba(233, 77, 53, 0.12) 0%,
+      rgba(233, 77, 53, 0.06) 30%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 40% 60% at 80% 80%,
+      rgba(233, 77, 53, 0.08) 0%,
+      transparent 50%
+    ),
+    linear-gradient(
+      180deg,
+      #0A0A12 0%,
+      #12121A 50%,
+      #1A1A26 100%
+    ),
+    #12121A !important;
+}
+
+/* ============================================
+   TYPOGRAPHY - BALI ZERO COLORS
+   ============================================ */
+.zantara-title {
+  transition: color 0.3s ease;
+}
+
+body[data-theme="day"] .zantara-title {
+  color: #E94D35 !important;
+}
+
+body[data-theme="night"] .zantara-title,
+body:not([data-theme]) .zantara-title {
+  color: #E94D35 !important;
+  text-shadow: 0 0 10px rgba(233, 77, 53, 0.3);
+}
+
+.javanese-script {
+  background: linear-gradient(135deg, #E94D35 0%, #F57C5C 50%, #E94D35 100%) !important;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.3s ease;
+}
+
+body[data-theme="day"] .javanese-script {
+  filter: drop-shadow(0 0 2px rgba(233, 77, 53, 0.4));
+}
+
+body[data-theme="night"] .javanese-script,
+body:not([data-theme]) .javanese-script {
+  filter: drop-shadow(0 0 4px rgba(233, 77, 53, 0.6))
+          drop-shadow(0 0 8px rgba(233, 77, 53, 0.4));
+}
+
+/* ============================================
+   FORM ELEMENTS - BALI ZERO STYLE
+   ============================================ */
+.form-label {
+  transition: color 0.3s ease;
+}
+
+body[data-theme="day"] .form-label {
+  color: #E94D35 !important;
+}
+
+body[data-theme="night"] .form-label,
+body:not([data-theme]) .form-label {
+  color: #E94D35 !important;
+}
+
+.form-input {
+  transition: border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+body[data-theme="day"] .form-input {
+  border-color: rgba(233, 77, 53, 0.3) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #1a1a1a !important;
+}
+
+body[data-theme="night"] .form-input,
+body:not([data-theme]) .form-input {
+  border-color: rgba(233, 77, 53, 0.4) !important;
+  background: rgba(26, 26, 38, 0.6) !important;
+  color: #F9F5F0 !important;
+}
+
+.form-input:focus {
+  border-color: #E94D35 !important;
+  outline: none;
+}
+
+.form-input::placeholder {
+  transition: color 0.3s ease;
+}
+
+body[data-theme="day"] .form-input::placeholder {
+  color: rgba(26, 26, 38, 0.3) !important;
+}
+
+body[data-theme="night"] .form-input::placeholder,
+body:not([data-theme]) .form-input::placeholder {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.pin-toggle {
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+}
+
+body[data-theme="day"] .pin-toggle {
+  color: rgba(233, 77, 53, 0.6) !important;
+}
+
+body[data-theme="night"] .pin-toggle,
+body:not([data-theme]) .pin-toggle {
+  color: rgba(233, 77, 53, 0.7) !important;
+}
+
+.pin-toggle:hover {
+  color: #E94D35 !important;
+}
+
+.login-button {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+body[data-theme="day"] .login-button {
+  border-color: #E94D35 !important;
+  color: #E94D35 !important;
+  background: rgba(233, 77, 53, 0.05) !important;
+}
+
+body[data-theme="night"] .login-button,
+body:not([data-theme]) .login-button {
+  border-color: #E94D35 !important;
+  color: #E94D35 !important;
+  background: rgba(233, 77, 53, 0.1) !important;
+}
+
+.login-button:hover:not(:disabled) {
+  background: rgba(233, 77, 53, 0.2) !important;
+  box-shadow: 0 0 20px rgba(233, 77, 53, 0.4) !important;
+  transform: scale(1.02);
+}
+
+.login-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.login-button.loading::after {
+  content: '';
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  top: 50%;
+  left: 50%;
+  margin: -0.5rem 0 0 -0.5rem;
+  border: 2px solid rgba(233, 77, 53, 0.3);
+  border-top-color: #E94D35;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   LOGIN FORM CONTAINER
+   ============================================ */
+.login-form {
+  transition: all 0.3s ease;
+  border-radius: 0.75rem;
+  padding: 2rem;
+}
+
+body[data-theme="day"] .login-form {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid rgba(233, 77, 53, 0.2) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+body[data-theme="night"] .login-form,
+body:not([data-theme]) .login-form {
+  background: rgba(26, 26, 38, 0.8) !important;
+  border: 2px solid rgba(233, 77, 53, 0.3) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* ============================================
+   WELCOME MESSAGE
+   ============================================ */
+.welcome-message {
+  transition: all 0.3s ease;
+  display: none;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.welcome-message.show {
+  display: block;
+  animation: fadeIn 0.3s;
+}
+
+body[data-theme="day"] .welcome-message {
+  background: rgba(233, 77, 53, 0.1) !important;
+  border: 1px solid rgba(233, 77, 53, 0.3) !important;
+  color: #E94D35 !important;
+}
+
+body[data-theme="night"] .welcome-message,
+body:not([data-theme]) .welcome-message {
+  background: rgba(233, 77, 53, 0.15) !important;
+  border: 1px solid rgba(233, 77, 53, 0.4) !important;
+  color: #E94D35 !important;
+}
+
+.welcome-message.success {
+  background: rgba(34,197,94,0.1) !important;
+  border-color: rgba(34,197,94,0.3) !important;
+  color: #86efac !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   PIN HINT
+   ============================================ */
+.pin-hint {
+  font-size: 0.75rem;
+  transition: color 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+body[data-theme="day"] .pin-hint {
+  color: rgba(26, 26, 38, 0.5);
+}
+
+body[data-theme="night"] .pin-hint,
+body:not([data-theme]) .pin-hint {
+  color: rgba(255, 255, 255, 0.4);
+}
+
