@@ -136,6 +136,15 @@ session_service: Optional["SessionService"] = None  # Redis session store for 50
 semantic_cache: Optional[SemanticCache] = None  # NEW: Semantic caching for RAG queries
 redis_client: Optional[Redis] = None  # NEW: Redis async client
 
+# Skill Detection Layer (NEW)
+skill_index: Optional[Any] = None
+skill_detector: Optional[Any] = None
+skill_loader: Optional[Any] = None
+skill_coordinator: Optional[Any] = None
+enhanced_context_builder: Optional[Any] = None
+skill_cache: Optional[Any] = None
+skill_metrics: Optional[Any] = None
+
 # System prompt v3.0 FINAL - Tier 1-2-3 System (97/100 effectiveness rating)
 SYSTEM_PROMPT = """ZANTARA - Bali Zero AI Assistant
 
@@ -840,6 +849,7 @@ async def preload_redis_cache():
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
     global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
+    global skill_index, skill_detector, skill_loader, skill_coordinator, enhanced_context_builder, skill_cache, skill_metrics
 
     logger.info("🚀 Starting ZANTARA RAG Backend (Llama 4 Scout PRIMARY + Claude Haiku FALLBACK)...")
     logger.info("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
@@ -1262,6 +1272,74 @@ async def _initialize_backend_services():
     except Exception as e:
         logger.error(f"❌ Intelligent Router initialization failed: {e}")
         intelligent_router = None
+
+    # Initialize Skill Detection Layer (NEW)
+    try:
+        from config.feature_flags import SKILL_DETECTION_ENABLED
+        if SKILL_DETECTION_ENABLED:
+            from services.skill_index import SkillIndex
+            from services.skill_detector import SkillDetector
+            from services.skill_loader import SkillLoader
+            from services.skill_coordinator import SkillCoordinator
+            from services.context.enhanced_context_builder import EnhancedContextBuilder
+            from services.context.context_builder import ContextBuilder
+            from services.skill_cache import SkillCache
+            from services.skill_metrics import SkillMetrics
+            from core.embeddings import EmbeddingsGenerator
+            import os
+            
+            skills_dir = os.path.join(os.path.dirname(__file__), '..', 'skills')
+            
+            # Initialize embedder for skills
+            embedder = EmbeddingsGenerator()
+            
+            # Initialize skill index
+            skill_index = SkillIndex()
+            await skill_index.initialize(skills_dir, embedder)
+            
+            # Initialize skill cache
+            skill_cache = SkillCache()
+            await skill_cache.warmup(skill_index.skills, embedder)
+            
+            # Initialize skill detector
+            skill_detector = SkillDetector(skill_index, embedder)
+            
+            # Initialize skill loader
+            skill_loader = SkillLoader(skill_index)
+            
+            # Initialize skill coordinator
+            skill_coordinator = SkillCoordinator(skill_loader)
+            
+            # Initialize enhanced context builder
+            base_context_builder = ContextBuilder()
+            enhanced_context_builder = EnhancedContextBuilder(base_context_builder)
+            
+            # Initialize skill metrics
+            skill_metrics = SkillMetrics()
+            
+            logger.info("✅ Skill Detection Layer initialized")
+            logger.info(f"   Skills loaded: {len(skill_index.skills)}")
+            logger.info(f"   Cache warmed: {len(skill_cache.l2_cache)} embeddings")
+        else:
+            logger.info("⏭️ Skill Detection Layer disabled (SKILL_DETECTION_ENABLED=false)")
+            skill_index = None
+            skill_detector = None
+            skill_loader = None
+            skill_coordinator = None
+            enhanced_context_builder = None
+            skill_cache = None
+            skill_metrics = None
+    except Exception as e:
+        import traceback
+        logger.error(f"❌ Skill Detection Layer initialization failed: {e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        skill_index = None
+        skill_detector = None
+        skill_loader = None
+        skill_coordinator = None
+        enhanced_context_builder = None
+        skill_cache = None
+        skill_metrics = None
 
     logger.info("✅ ZANTARA RAG Backend ready on port 8000")
 
@@ -2626,8 +2704,184 @@ async def bali_zero_chat_stream(
                 except Exception as e:
                     logger.warning(f"⚠️ [Stream] Memory load failed: {e}")
 
+            # NEW: Collective Memory Workflow (LangGraph)
+            try:
+                from services.collective_memory_workflow import create_collective_memory_workflow, MemoryCategory
+                from services.collective_memory_emitter import collective_memory_emitter
+                
+                # Crea workflow se non esiste
+                if not hasattr(bali_zero_chat_stream, '_collective_memory_workflow'):
+                    bali_zero_chat_stream._collective_memory_workflow = create_collective_memory_workflow(
+                        memory_service=memory_service
+                    )
+                
+                workflow = bali_zero_chat_stream._collective_memory_workflow
+                
+                # Esegui workflow per estrarre memoria collettiva
+                if user_id != "anonymous" and query:
+                    # Crea wrapper per event source SSE
+                    class SSEEventSourceWrapper:
+                        def __init__(self, generator):
+                            self.generator = generator
+                            self.queue = []
+                        
+                        async def send(self, data: str):
+                            self.queue.append(data)
+                    
+                    sse_wrapper = SSEEventSourceWrapper(None)
+                    
+                    # Esegui workflow LangGraph
+                    workflow_state = await workflow.ainvoke({
+                        "query": query,
+                        "user_id": user_id,
+                        "session_id": session_id or "default",
+                        "participants": [user_id],  # TODO: Estrai altri partecipanti
+                        "detected_category": None,
+                        "detected_type": None,
+                        "extracted_entities": [],
+                        "sentiment": None,
+                        "importance_score": 0.0,
+                        "personal_importance": 0.0,
+                        "existing_memories": [],
+                        "needs_consolidation": False,
+                        "consolidation_actions": [],
+                        "relationships_to_update": [],
+                        "new_relationships": [],
+                        "memory_to_store": None,
+                        "relationships_to_store": [],
+                        "profile_updates": [],
+                        "confidence": 0.0,
+                        "errors": []
+                    })
+                    
+                    # Emetti eventi SSE se memoria rilevata
+                    if workflow_state.get("memory_to_store"):
+                        memory_data = workflow_state["memory_to_store"]
+                        category = workflow_state.get("detected_category", MemoryCategory.WORK)
+                        
+                        # Emetti evento memoria memorizzata
+                        await collective_memory_emitter.emit_memory_stored(
+                            event_source=sse_wrapper,
+                            memory_key=f"{user_id}_{int(time.time())}",
+                            category=category.value if hasattr(category, 'value') else str(category),
+                            content=memory_data.get("content", query),
+                            members=workflow_state.get("participants", [user_id]),
+                            importance=workflow_state.get("personal_importance", 0.5)
+                        )
+                        
+                        # Emetti eventi specifici per categoria
+                        if category == MemoryCategory.PREFERENCE:
+                            await collective_memory_emitter.emit_preference_detected(
+                                event_source=sse_wrapper,
+                                member=user_id,
+                                preference=query[:100],
+                                category="preference"
+                            )
+                        elif category == MemoryCategory.MILESTONE:
+                            await collective_memory_emitter.emit_milestone_detected(
+                                event_source=sse_wrapper,
+                                member=user_id,
+                                milestone_type="general",
+                                date=None,
+                                message=query[:200],
+                                recurring=False
+                            )
+                        
+                        # Emetti relazioni se presenti
+                        for rel in workflow_state.get("relationships_to_update", []):
+                            await collective_memory_emitter.emit_relationship_updated(
+                                event_source=sse_wrapper,
+                                member_a=rel.get("member_a", user_id),
+                                member_b=rel.get("member_b", ""),
+                                relationship_type=rel.get("relationship_type", "social"),
+                                strength=0.7,
+                                context=query[:100]
+                            )
+                        
+                        # Yield eventi dalla coda
+                        for event_data in sse_wrapper.queue:
+                            yield event_data
+                        
+                        logger.info(f"🧠 [Collective Memory] Workflow completed: {category}")
+                        
+            except Exception as e:
+                logger.warning(f"⚠️ [Collective Memory] Workflow failed: {e}")
+                import traceback
+                logger.debug(f"Traceback: {traceback.format_exc()}")
+
             # Send ping before AI streaming (keep-alive)
             yield ": ping\n\n"
+
+            # NEW: Skill Detection Layer - Parallel execution with RAG
+            skill_triggers = []
+            skill_context = None
+            detection_start_time = time.time()
+            
+            try:
+                from config.feature_flags import should_enable_skill_detection
+                
+                if skill_detector and should_enable_skill_detection(sanitized_email):
+                    # Check L1 cache first
+                    cached_triggers = skill_cache.get_l1(query) if skill_cache else None
+                    
+                    if cached_triggers:
+                        skill_triggers = cached_triggers
+                        if skill_metrics:
+                            skill_metrics.record_cache_hit('l1')
+                        logger.debug(f"🔍 [Skill] Cache hit for query: {query[:50]}")
+                    else:
+                        # Detect skills
+                        skill_triggers = await skill_detector.detect(query)
+                        
+                        # Store in cache
+                        if skill_cache and skill_triggers:
+                            skill_cache.set_l1(query, skill_triggers)
+                        
+                        # Record metrics
+                        if skill_metrics:
+                            detection_latency = (time.time() - detection_start_time) * 1000
+                            skill_metrics.record_detection(query, skill_triggers, detection_latency)
+                    
+                    # Load skill context if triggers found
+                    if skill_triggers and skill_coordinator:
+                        from services.intent_extractor import IntentExtractor
+                        intent_extractor = IntentExtractor()
+                        intent = intent_extractor.extract(query, skill_index.patterns if skill_index else {})
+                        
+                        skill_context = await skill_coordinator.coordinate(
+                            skill_triggers, query, intent
+                        )
+                        
+                        # Emit skill events via SSE
+                        if skill_context:
+                            from services.skill_event_emitter import emit_skill_events
+                            
+                            # Create simple event source wrapper for SSE
+                            class SSEEventSource:
+                                def __init__(self):
+                                    self.queue = []
+                                
+                                async def send(self, data: str):
+                                    self.queue.append(data)
+                            
+                            event_source_wrapper = SSEEventSource()
+                            await emit_skill_events(event_source_wrapper, skill_triggers, skill_context)
+                            
+                            # Yield queued events
+                            for event_data in event_source_wrapper.queue:
+                                yield event_data
+                    
+                    if skill_triggers:
+                        logger.info(f"🔍 [Skill] Detected {len(skill_triggers)} skills: {[t.skillId for t in skill_triggers]}")
+                else:
+                    if skill_cache:
+                        skill_cache.record_cache_miss('l1')
+            except Exception as e:
+                logger.warning(f"⚠️ [Skill] Detection failed: {e}")
+                import traceback
+                logger.debug(f"Traceback: {traceback.format_exc()}")
+                if skill_metrics:
+                    skill_metrics.record_error('detection_failed')
 
             # Stream response chunks from intelligent router and collect full message + sources
             full_message = ""
@@ -4544,5 +4798,25 @@ except ImportError as e:
     logger.warning(f"⚠️ [Startup] Failed to load handlers API: {e}")
 except Exception as e:
     logger.error(f"❌ [Startup] Error loading handlers API: {e}")
+
+# 🚀 NEW: Include Skill Admin API
+try:
+    from app.routers.skill_admin import router as skill_admin_router
+    app.include_router(skill_admin_router)
+    logger.info("🔧 [Startup] Skill admin API loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ [Startup] Failed to load skill admin API: {e}")
+except Exception as e:
+    logger.error(f"❌ [Startup] Error loading skill admin API: {e}")
+
+# 🚀 NEW: Include Skill Feedback API
+try:
+    from app.routers.skill_feedback import router as skill_feedback_router
+    app.include_router(skill_feedback_router)
+    logger.info("🔧 [Startup] Skill feedback API loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ [Startup] Failed to load skill feedback API: {e}")
+except Exception as e:
+    logger.error(f"❌ [Startup] Error loading skill feedback API: {e}")
 
 # Force Fly.io redeploy - Priority 1-5 active

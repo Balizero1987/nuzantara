@@ -4,10 +4,90 @@
  * Integrates with ZantaraClient for all backend communication
  */
 
+// Import Skill Detection Layer (dynamic import per performance)
+let QueryComplexityAnalyzer, StagingTheater, SSESkillExtension, skillEventBus;
+
+// Import Collective Memory Layer (dynamic import per performance)
+let SSECollectiveMemoryExtension, CollectiveMemoryWidget;
+let isFeatureEnabled, shouldShowFeature;
+
+// Load skill detection modules if feature enabled
+async function loadSkillDetectionModules() {
+  try {
+    const module = await import('./utils/query-complexity.js');
+    QueryComplexityAnalyzer = module.QueryComplexityAnalyzer;
+
+    const theaterModule = await import('./components/staging-theater.js');
+    StagingTheater = theaterModule.StagingTheater;
+
+    const extensionModule = await import('./adapters/sse-skill-extension.js');
+    SSESkillExtension = extensionModule.SSESkillExtension;
+
+    const eventBusModule = await import('./core/skill-event-bus.js');
+    skillEventBus = eventBusModule.skillEventBus;
+
+    const flagsModule = await import('./config/feature-flags.js');
+    isFeatureEnabled = flagsModule.isFeatureEnabled;
+    shouldShowFeature = flagsModule.shouldShowFeature;
+
+    // Load analytics and services
+    const analyticsModule = await import('./services/analytics.js');
+    skillAnalytics = analyticsModule.skillAnalytics;
+
+    const abTestingModule = await import('./services/ab-testing.js');
+    abTesting = abTestingModule.abTesting;
+
+    const feedbackModule = await import('./services/feedback-collector.js');
+    feedbackCollector = feedbackModule.feedbackCollector;
+
+    return true;
+  } catch (error) {
+    console.warn('Skill Detection Layer not available:', error);
+    return false;
+  }
+}
+
+/**
+ * Load Collective Memory modules if feature enabled
+ */
+async function loadCollectiveMemoryModules() {
+  try {
+    // Import event bus
+    const eventBusModule = await import('./core/collective-memory-event-bus.js');
+    window.collectiveMemoryBus = eventBusModule.collectiveMemoryBus;
+
+    // Import SSE extension
+    const extensionModule = await import('./adapters/sse-collective-memory-extension.js');
+    SSECollectiveMemoryExtension = extensionModule.SSECollectiveMemoryExtension;
+
+    // Import widget
+    const widgetModule = await import('./components/collective-memory-widget.js');
+    CollectiveMemoryWidget = widgetModule.CollectiveMemoryWidget;
+
+    // Inizializza widget
+    const memoryWidget = new CollectiveMemoryWidget();
+    window.collectiveMemoryWidget = memoryWidget;
+
+    // Attach extension al client (dopo che zantaraClient è inizializzato)
+    setTimeout(() => {
+      if (SSECollectiveMemoryExtension && window.zantaraClient) {
+        const memoryExtension = new SSECollectiveMemoryExtension();
+        memoryExtension.attach(window.zantaraClient);
+      }
+    }, 1000);
+
+    return true;
+  } catch (error) {
+    console.warn('Collective Memory modules not available:', error);
+    return false;
+  }
+}
+
 // Global state
 let zantaraClient;
 let messages = [];
 let currentLiveMessage = null;
+let stagingTheater = null;
 
 // DOM elements
 let messageSpace, messageInput, sendButton, quickActions, messagesContainer;
@@ -31,13 +111,13 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   // Initialize client with centralized config
   const API_CONFIG = window.API_CONFIG || {
-    rag: { url: 'https://nuzantara-rag.fly.dev' }
+    rag: { url: 'https://nuzantara-rag.fly.dev' },
   };
 
   zantaraClient = new window.ZantaraClient({
     apiUrl: API_CONFIG.rag.url,
-    chatEndpoint: '/bali-zero/chat',  // FIXED: Use correct Bali-Zero endpoint
-    streamEndpoint: '/bali-zero/chat-stream',  // For SSE streaming
+    chatEndpoint: '/bali-zero/chat', // FIXED: Use correct Bali-Zero endpoint
+    streamEndpoint: '/bali-zero/chat-stream', // For SSE streaming
     maxRetries: 3,
   });
 
@@ -62,6 +142,20 @@ document.addEventListener('DOMContentLoaded', async function () {
     console.error('Failed to authenticate:', error);
     showErrorNotification('Authentication failed. Some features may not work.');
   }
+
+  // Load Skill Detection Layer modules (async, non-blocking)
+  loadSkillDetectionModules().then((loaded) => {
+    if (loaded) {
+      console.log('✅ Skill Detection Layer modules loaded');
+    }
+  });
+
+  // Load Collective Memory modules (async, non-blocking)
+  loadCollectiveMemoryModules().then((loaded) => {
+    if (loaded) {
+      console.log('✅ Collective Memory modules loaded');
+    }
+  });
 });
 
 /**
@@ -125,7 +219,10 @@ async function loadMessageHistory() {
         return;
       }
     } catch (error) {
-      console.warn('⚠️ Failed to load from Memory Service, falling back to localStorage:', error.message);
+      console.warn(
+        '⚠️ Failed to load from Memory Service, falling back to localStorage:',
+        error.message
+      );
     }
   }
 
@@ -222,6 +319,74 @@ async function sendMessage(content) {
   // Show typing indicator
   showTypingIndicator();
 
+  // Skill Detection Layer - Query Complexity Analysis
+  if (
+    QueryComplexityAnalyzer &&
+    isFeatureEnabled &&
+    isFeatureEnabled('stagingTheater') &&
+    shouldShowFeature()
+  ) {
+    try {
+      const complexityAnalyzer = new QueryComplexityAnalyzer();
+      const complexity = complexityAnalyzer.analyze(content);
+
+      // Track query in analytics
+      if (skillAnalytics) {
+        skillAnalytics.trackQuery(content, complexity.complexity);
+      }
+
+      if (complexity.showStaging) {
+        stagingTheater = new StagingTheater();
+        // Start staging in background (non-blocking)
+        stagingTheater.showStaging(complexity, [], complexity.domains).catch((err) => {
+          console.warn('Staging theater error:', err);
+        });
+
+        // Track staging shown
+        if (skillAnalytics) {
+          skillAnalytics.trackStagingShown(complexity.complexity);
+        }
+      }
+
+      // Attach SSE skill extension
+      if (SSESkillExtension && skillEventBus) {
+        const skillExtension = new SSESkillExtension();
+        skillExtension.attach(zantaraClient);
+
+        // Listeners per skill events
+        skillEventBus.on('skill_detected', (skills) => {
+          if (stagingTheater) {
+            stagingTheater.updateSkills(skills);
+          }
+          // Track in analytics
+          if (skillAnalytics) {
+            skillAnalytics.trackSkillDetection(skills);
+          }
+        });
+
+        skillEventBus.on('legal_references', (refs) => {
+          if (stagingTheater) {
+            stagingTheater.updateLegalReferences(refs);
+          }
+          // Track in analytics
+          if (skillAnalytics) {
+            skillAnalytics.trackLegalReferences(refs);
+          }
+        });
+
+        skillEventBus.on('consultants_activated', (consultants) => {
+          // Track in analytics
+          if (skillAnalytics) {
+            skillAnalytics.trackConsultantsActivated(consultants);
+          }
+        });
+      }
+    } catch (error) {
+      console.warn('Skill Detection Layer error:', error);
+      // Continue normally se skill detection fallisce
+    }
+  }
+
   try {
     // Use streaming for better UX
     await zantaraClient.sendMessageStream(content, {
@@ -230,18 +395,55 @@ async function sendMessage(content) {
         currentLiveMessage = createLiveMessage();
       },
       onToken: (token, fullText) => {
+        // Se staging visibile e stiamo ricevendo token, accelera fade
+        if (stagingTheater && fullText.length > 50) {
+          stagingTheater.accelerateFade();
+        }
         updateLiveMessage(currentLiveMessage, fullText);
       },
-      onComplete: (fullText) => {
+      onComplete: async (fullText) => {
+        // Assicura che staging sia rimosso
+        if (stagingTheater) {
+          stagingTheater.forceFade();
+          stagingTheater = null;
+        }
         finalizeLiveMessage(currentLiveMessage, fullText);
         currentLiveMessage = null;
+
+        // Show feedback widget (optional, non-intrusive)
+        if (feedbackCollector && skillEventBus) {
+          try {
+            // Get detected skills from event bus history
+            const skillEvents = skillEventBus.getHistory('skill_detected');
+            const lastSkills =
+              skillEvents.length > 0 ? skillEvents[skillEvents.length - 1].data : [];
+
+            // Only show feedback for complex queries with skills detected
+            if (lastSkills.length > 0) {
+              const { FeedbackWidget } = await import('./components/feedback-widget.js');
+              const feedbackWidget = new FeedbackWidget();
+              feedbackWidget.show(content, lastSkills);
+            }
+          } catch (error) {
+            // Feedback widget is optional
+            console.debug('Feedback widget not available:', error);
+          }
+        }
       },
       onError: (error) => {
+        if (stagingTheater) {
+          stagingTheater.forceFade();
+          stagingTheater = null;
+        }
         hideTypingIndicator();
         handleSendError(error);
       },
     });
   } catch (error) {
+    if (stagingTheater) {
+      stagingTheater.forceFade();
+      stagingTheater = null;
+    }
     hideTypingIndicator();
     handleSendError(error);
   }
@@ -570,7 +772,7 @@ async function handleLogout() {
     // Call logout API with centralized config
     if (sessionId) {
       const API_CONFIG = window.API_CONFIG || {
-        backend: { url: 'https://nuzantara-backend.fly.dev' }
+        backend: { url: 'https://nuzantara-backend.fly.dev' },
       };
 
       await fetch(`${API_CONFIG.backend.url}/api/team/logout`, {
