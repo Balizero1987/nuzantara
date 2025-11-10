@@ -35,7 +35,7 @@ cd apps/backend-rag
 
 # Configura secrets Fly.io
 fly secrets set \
-  OPENROUTER_API_KEY="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" \
+  OPENROUTER_API_KEY="LA_TUA_NUOVA_KEY_QUI" \
   AI_MODEL="meta-llama/llama-3.3-70b-instruct" \
   AI_PROVIDER="openrouter" \
   DATABASE_URL="postgresql://user:pass@host:5432/dbname" \
