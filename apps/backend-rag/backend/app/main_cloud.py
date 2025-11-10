@@ -1657,6 +1657,19 @@ async def debug_startup():
     }
 
 
+@app.get("/debug/ai-keys")
+async def debug_ai_keys():
+    """Debug endpoint to check which AI API keys are configured"""
+    return {
+        "openrouter_llama": bool(os.getenv("OPENROUTER_API_KEY_LLAMA")),
+        "openrouter_general": bool(os.getenv("OPENROUTER_API_KEY")),
+        "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
+        "openai": bool(os.getenv("OPENAI_API_KEY")),
+        "intelligent_router_initialized": intelligent_router is not None,
+        "haiku_client_type": str(type(intelligent_router.haiku).__name__) if intelligent_router else None
+    }
+
+
 @app.get("/api/monitoring/health-monitor")
 async def monitoring_status():
     """Get health monitor status and alerts"""
