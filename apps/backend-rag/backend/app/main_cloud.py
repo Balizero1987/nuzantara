@@ -1286,8 +1286,7 @@ async def _initialize_backend_services():
             from services.skill_cache import SkillCache
             from services.skill_metrics import SkillMetrics
             from core.embeddings import EmbeddingsGenerator
-            import os
-            
+
             skills_dir = os.path.join(os.path.dirname(__file__), '..', 'skills')
             
             # Initialize embedder for skills
