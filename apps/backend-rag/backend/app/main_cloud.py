@@ -889,7 +889,7 @@ def log_startup(msg: str, level: str = "info"):
 
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
-    global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
+    global search_service, llama_scout_client, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
     global skill_index, skill_detector, skill_loader, skill_coordinator, enhanced_context_builder, skill_cache, skill_metrics
     global startup_logs
 
