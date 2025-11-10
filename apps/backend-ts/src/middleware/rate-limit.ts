@@ -36,7 +36,7 @@ export const baliZeroChatLimiter = rateLimit({
   max: 20, // 20 requests per minute
   standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
   legacyHeaders: true, // Enable `X-RateLimit-*` headers for compatibility
-  trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
+  // Note: trust proxy is handled by app.set('trust proxy', 1) in server.ts
 
   // Custom key generator
   keyGenerator: getRateLimitKey,
@@ -91,7 +91,7 @@ export const aiChatLimiter = rateLimit({
   max: 30, // 30 requests per minute
   standardHeaders: true,
   legacyHeaders: true,
-  trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
+  // Note: trust proxy is handled by app.set('trust proxy', 1) in server.ts
   keyGenerator: getRateLimitKey,
 
   handler: (req, res) => {
@@ -128,7 +128,7 @@ export const ragQueryLimiter = rateLimit({
   max: 15, // 15 requests per minute
   standardHeaders: true,
   legacyHeaders: true,
-  trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
+  // Note: trust proxy is handled by app.set('trust proxy', 1) in server.ts
   keyGenerator: getRateLimitKey,
 
   handler: (req, res) => {
@@ -165,7 +165,7 @@ export const strictLimiter = rateLimit({
   max: 5, // 5 requests per minute
   standardHeaders: true,
   legacyHeaders: true,
-  trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
+  // Note: trust proxy is handled by app.set('trust proxy', 1) in server.ts
   keyGenerator: getRateLimitKey,
 
   handler: (req, res) => {
