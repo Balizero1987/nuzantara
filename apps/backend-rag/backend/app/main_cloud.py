@@ -719,23 +719,39 @@ def download_chromadb_from_r2():
         # ✨ CORRECTION: Use proper ChromaDB path with full database
         local_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
 
-        # 🔧 OPTION 1: FORCE COMPLETE SYNC FROM R2
-        # Check if we need to force sync based on file count/size
+        # 🔧 FORCE SYNC LOGIC: Always sync on deploy to ensure fresh data from R2
+        # Check if we need to force sync based on ENV variable or file integrity
         chroma_sqlite_path = os.path.join(local_path, "chroma.sqlite3")
-        force_sync = False
-        
-        if os.path.exists(chroma_sqlite_path):
+        force_sync_env = os.getenv("FORCE_R2_SYNC", "true").lower() == "true"  # Default TRUE for fresh deploys
+        force_sync = force_sync_env
+
+        if os.path.exists(chroma_sqlite_path) and not force_sync_env:
             file_size_mb = os.path.getsize(chroma_sqlite_path) / 1024 / 1024
             # Force sync if database is too small (< 50MB = incomplete sync)
             if file_size_mb < 50.0:
                 logger.info(f"⚠️ ChromaDB too small ({file_size_mb:.1f} MB), forcing complete sync...")
                 force_sync = True
             else:
-                logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
-                logger.info(f"⚡ Using cached version ({file_size_mb:.1f} MB)")
-                return local_path
+                # Verify database has data by checking collection count
+                try:
+                    import chromadb
+                    client = chromadb.PersistentClient(path=local_path)
+                    collections = client.list_collections()
+                    if len(collections) == 0:
+                        logger.warning(f"⚠️ ChromaDB cache is EMPTY (0 collections), forcing R2 sync...")
+                        force_sync = True
+                    else:
+                        logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
+                        logger.info(f"⚡ Using cached version ({file_size_mb:.1f} MB, {len(collections)} collections)")
+                        return local_path
+                except Exception as e:
+                    logger.warning(f"⚠️ ChromaDB cache validation failed: {e}, forcing R2 sync...")
+                    force_sync = True
         else:
-            logger.info("🔄 No ChromaDB found, forcing complete sync...")
+            if force_sync_env:
+                logger.info("🔄 FORCE_R2_SYNC=true, forcing complete sync from R2...")
+            else:
+                logger.info("🔄 No ChromaDB found, forcing complete sync...")
             force_sync = True
 
         if force_sync:
@@ -1103,11 +1119,24 @@ async def _initialize_backend_services():
 
     # Initialize MemoryService (PostgreSQL)
     try:
-        memory_service = MemoryServicePostgres()  # PostgreSQL via Fly.io DATABASE_URL
-        await memory_service.connect()  # Initialize connection pool
-        logger.info("✅ MemoryServicePostgres ready (PostgreSQL enabled)")
+        database_url = os.getenv("DATABASE_URL")
+        if not database_url:
+            logger.warning("⚠️ DATABASE_URL not configured - MemoryService will use in-memory fallback")
+            memory_service = None
+        else:
+            logger.info(f"🔗 PostgreSQL: Connecting to {database_url[:20]}...")
+            memory_service = MemoryServicePostgres()  # PostgreSQL via Fly.io DATABASE_URL
+            await memory_service.connect()  # Initialize connection pool
+
+            # Verify connection actually works
+            if memory_service.use_postgres and memory_service.pool:
+                logger.info("✅ MemoryServicePostgres ready (PostgreSQL enabled)")
+            else:
+                logger.warning("⚠️ MemoryServicePostgres using in-memory fallback (PostgreSQL unavailable)")
     except Exception as e:
+        import traceback
         logger.error(f"❌ MemoryServicePostgres initialization failed: {e}")
+        logger.error(f"   Traceback: {traceback.format_exc()}")
         memory_service = None
 
     # Initialize ConversationService (Phase 2)
