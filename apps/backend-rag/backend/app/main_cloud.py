@@ -1660,14 +1660,88 @@ async def debug_startup():
 @app.get("/debug/ai-keys")
 async def debug_ai_keys():
     """Debug endpoint to check which AI API keys are configured"""
-    return {
-        "openrouter_llama": bool(os.getenv("OPENROUTER_API_KEY_LLAMA")),
-        "openrouter_general": bool(os.getenv("OPENROUTER_API_KEY")),
-        "anthropic": bool(os.getenv("ANTHROPIC_API_KEY")),
-        "openai": bool(os.getenv("OPENAI_API_KEY")),
-        "intelligent_router_initialized": intelligent_router is not None,
-        "haiku_client_type": str(type(intelligent_router.haiku).__name__) if intelligent_router else None
+    openrouter_llama_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
+    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+
+    result = {
+        "environment_variables": {
+            "OPENROUTER_API_KEY_LLAMA": {
+                "present": bool(openrouter_llama_key),
+                "prefix": openrouter_llama_key[:15] + "..." if openrouter_llama_key else None
+            },
+            "ANTHROPIC_API_KEY": {
+                "present": bool(anthropic_key),
+                "prefix": anthropic_key[:15] + "..." if anthropic_key else None
+            },
+            "OPENROUTER_API_KEY": bool(os.getenv("OPENROUTER_API_KEY")),
+            "OPENAI_API_KEY": bool(os.getenv("OPENAI_API_KEY"))
+        },
+        "services": {
+            "llama_scout_client": llama_scout_client is not None,
+            "intelligent_router": intelligent_router is not None,
+        }
     }
+
+    # Add LlamaScoutClient details if available
+    if llama_scout_client:
+        result["llama_scout_details"] = {
+            "llama_client_initialized": llama_scout_client.llama_client is not None,
+            "haiku_client_initialized": llama_scout_client.haiku_client is not None,
+            "force_haiku": llama_scout_client.force_haiku,
+            "metrics": llama_scout_client.metrics
+        }
+
+    # Add IntelligentRouter details if available
+    if intelligent_router:
+        result["intelligent_router_details"] = {
+            "haiku_service_type": str(type(intelligent_router.haiku).__name__),
+            "haiku_is_llama_scout": isinstance(intelligent_router.haiku, LlamaScoutClient)
+        }
+
+    return result
+
+
+@app.get("/debug/test-llama")
+async def test_llama():
+    """Test Llama API directly and return detailed diagnostics"""
+    if not llama_scout_client:
+        return {
+            "error": "LlamaScoutClient not initialized",
+            "llama_scout_client": None
+        }
+
+    try:
+        # Try a simple test message with Llama
+        test_messages = [{"role": "user", "content": "Say 'test' only"}]
+
+        # Call chat_async and see what happens
+        result = await llama_scout_client.chat_async(
+            messages=test_messages,
+            system="Reply with only the word 'test'",
+            max_tokens=10,
+            temperature=0
+        )
+
+        return {
+            "success": True,
+            "ai_used": result.get("provider", result.get("ai_used")),
+            "model": result.get("model"),
+            "response": result.get("response", result.get("content", ""))[:100],
+            "tokens": result.get("tokens"),
+            "cost": result.get("cost"),
+            "llama_client_available": llama_scout_client.llama_client is not None,
+            "haiku_client_available": llama_scout_client.haiku_client is not None
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "llama_client_available": llama_scout_client.llama_client is not None,
+            "haiku_client_available": llama_scout_client.haiku_client is not None,
+            "force_haiku": llama_scout_client.force_haiku
+        }
 
 
 @app.get("/api/monitoring/health-monitor")
