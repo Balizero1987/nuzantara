@@ -8,6 +8,7 @@ import psycopg2
 from datetime import datetime, timedelta
 from anthropic import AsyncAnthropic
 import json
+from typing import Dict, List, Optional
 
 class ClientValuePredictor:
     """
