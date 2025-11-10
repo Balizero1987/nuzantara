@@ -7,19 +7,8 @@
 
   <!-- Design System -->
   <link rel="stylesheet" href="css/design-system.css">
-  <!-- Production Styles -->
-  <link rel="stylesheet" href="css/production.css">
-  <!-- AI Info Styles -->
-  <link rel="stylesheet" href="css/ai-info.css">
-  <!-- Chat Enhancements -->
-  <link rel="stylesheet" href="styles/chat-enhancements.css">
   <!-- Bali Zero Theme -->
   <link rel="stylesheet" href="css/bali-zero-theme.css">
-  <!-- Collective Memory Widget Styles -->
-  <link rel="stylesheet" href="styles/collective-memory-widget.css">
-  <!-- Additional Enhancements -->
-  <link rel="stylesheet" href="styles/ui-enhancements.css">
-  <link rel="stylesheet" href="styles/components.css">
 
   <!-- Authentication Guard -->
   <script src="js/auth-guard.js"></script>
@@ -27,6 +16,10 @@
   <script src="js/theme-manager.js"></script>
 
   <style>
+    /* Sfondo grigio #1A1A24 */
+    html, body {
+      background: #1A1A24 !important;
+    }
 
     .messages-container,
     .messages-inner,
@@ -92,17 +85,6 @@
       border-bottom: 1px solid rgba(233, 77, 53, 0.15);
     }
 
-    .logo-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      flex: 0 0 auto;
-      margin-top: 0.5rem; /* Push ZANTARA down a bit */
-    }
 
     /* User Info - Inline with header */
     .user-info {
@@ -224,12 +206,11 @@
       transform: scale(1.05);
     }
 
-    .bali-zero-logo {
-      height: 5.25rem; /* 210% bigger - was 2.5rem */
+    .zantara-logo {
       width: auto;
-      opacity: 0.95;
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: high-quality;
+      height: auto;
+      max-width: 150px;
+      display: block;
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
       transform: translateZ(0);
@@ -237,91 +218,12 @@
       object-fit: contain;
       background-color: transparent;
       padding: 0.5rem;
-      border-radius: 50%;
       transition: all 0.3s ease;
+      display: block;
+      margin: 0;
     }
 
-    body[data-theme="day"] .bali-zero-logo {
-      border: 2px solid rgba(233, 77, 53, 0.2);
-    }
 
-    body[data-theme="night"] .bali-zero-logo,
-    body:not([data-theme]) .bali-zero-logo {
-      border: 2px solid rgba(233, 77, 53, 0.3);
-      box-shadow: 0 0 20px rgba(233, 77, 53, 0.2);
-    }
-
-    .zantara-title {
-      font-family: var(--font-serif);
-      font-weight: 600;
-      font-size: 1.5rem;
-      line-height: 1.1;
-      letter-spacing: 0.05em;
-      transition: all 0.3s ease;
-    }
-
-    body[data-theme="day"] .zantara-title {
-      color: #E94D35 !important;
-    }
-
-    body[data-theme="night"] .zantara-title,
-    body:not([data-theme]) .zantara-title {
-      color: #E94D35 !important;
-      text-shadow: 0 0 10px rgba(233, 77, 53, 0.3);
-    }
-
-    .subtitle {
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      margin-top: 0.15rem;
-      opacity: 0.6;
-      font-family: var(--font-sans);
-      transition: color 0.3s ease;
-    }
-
-    body[data-theme="day"] .subtitle {
-      color: rgba(26, 26, 38, 0.7);
-    }
-
-    body[data-theme="night"] .subtitle,
-    body:not([data-theme]) .subtitle {
-      color: rgba(255, 255, 255, 0.92);
-    }
-
-    .javanese-script {
-      font-size: 0.85rem;
-      margin-left: 0.5rem;
-      font-weight: 400;
-      letter-spacing: 0;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      transition: all 0.3s ease;
-    }
-
-    body[data-theme="day"] .javanese-script {
-      background: linear-gradient(135deg, #E94D35 0%, #F57C5C 50%, #E94D35 100%) !important;
-      filter: drop-shadow(0 0 2px rgba(233, 77, 53, 0.4));
-    }
-
-    body[data-theme="night"] .javanese-script,
-    body:not([data-theme]) .javanese-script {
-      background: linear-gradient(135deg, #E94D35 0%, #F57C5C 50%, #E94D35 100%) !important;
-      filter: drop-shadow(0 0 4px rgba(233, 77, 53, 0.6))
-              drop-shadow(0 0 8px rgba(233, 77, 53, 0.4));
-      animation: keris-flame 3s ease-in-out infinite;
-    }
-
-    @keyframes keris-flame {
-      0%, 100% {
-        filter: drop-shadow(0 0 4px rgba(233, 77, 53, 0.6))
-                drop-shadow(0 0 8px rgba(233, 77, 53, 0.4));
-      }
-      50% {
-        filter: drop-shadow(0 0 6px rgba(233, 77, 53, 0.8))
-                drop-shadow(0 0 12px rgba(245, 124, 92, 0.6));
-      }
-    }
 
     /* Messages Area - Fixed center, scrollable like GPT/Claude */
     .messages-container {
@@ -1083,13 +985,12 @@
     }
 
     /* ============================================
-       LEGAL COUNSEL SIDEBAR - CARTELLA DOCUMENTI
+       CONVERSATION HISTORY SIDEBAR - MAX 50 CONVERSATIONS
        ============================================ */
-    .legal-counsel-toggle {
+    .conversation-sidebar-toggle {
       position: fixed;
       left: 0;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 85px;
       z-index: 200;
       width: 3rem;
       height: 3rem;
@@ -1099,81 +1000,98 @@
       border-radius: 0 0.5rem 0.5rem 0;
       cursor: pointer;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 1.25rem;
+      gap: 4px;
+      padding: 0.5rem;
       transition: all 0.3s ease;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
 
-    body[data-theme="day"] .legal-counsel-toggle {
+    .conversation-sidebar-toggle span {
+      width: 20px;
+      height: 2px;
+      background: #E94D35;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    body[data-theme="day"] .conversation-sidebar-toggle {
       background: rgba(233, 77, 53, 0.08);
       border-color: rgba(233, 77, 53, 0.2);
     }
 
-    body[data-theme="night"] .legal-counsel-toggle,
-    body:not([data-theme]) .legal-counsel-toggle {
+    body[data-theme="night"] .conversation-sidebar-toggle,
+    body:not([data-theme]) .conversation-sidebar-toggle {
       background: rgba(233, 77, 53, 0.15);
       border-color: rgba(233, 77, 53, 0.3);
     }
 
-    .legal-counsel-toggle:hover {
+    .conversation-sidebar-toggle:hover {
       background: rgba(233, 77, 53, 0.2);
       border-color: rgba(233, 77, 53, 0.5);
-      transform: translateY(-50%) translateX(2px);
+      transform: translateX(2px);
     }
 
-    .legal-counsel-sidebar {
+    .conversation-sidebar {
       position: fixed;
       left: -320px;
       top: 85px;
       bottom: 0;
       width: 320px;
+      min-width: 200px;
+      max-width: 500px;
       z-index: 199;
       transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       overflow-y: auto;
       overflow-x: hidden;
+      resize: horizontal;
     }
 
-    .legal-counsel-sidebar.open {
+    .conversation-sidebar.open {
       left: 0;
     }
 
-    body[data-theme="day"] .legal-counsel-sidebar {
+    body[data-theme="day"] .conversation-sidebar {
       background: rgba(249, 245, 240, 0.98);
       border-right: 1px solid rgba(233, 77, 53, 0.15);
       -webkit-backdrop-filter: blur(20px);
       backdrop-filter: blur(20px);
     }
 
-    body[data-theme="night"] .legal-counsel-sidebar,
-    body:not([data-theme]) .legal-counsel-sidebar {
+    body[data-theme="night"] .conversation-sidebar,
+    body:not([data-theme]) .conversation-sidebar {
       background: rgba(18, 18, 26, 0.98);
       border-right: 1px solid rgba(233, 77, 53, 0.2);
       -webkit-backdrop-filter: blur(20px);
       backdrop-filter: blur(20px);
     }
 
-    .legal-counsel-header {
+    .conversation-sidebar-header {
       padding: 1.5rem;
       border-bottom: 1px solid rgba(233, 77, 53, 0.15);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
+      position: sticky;
+      top: 0;
+      background: inherit;
+      z-index: 10;
     }
 
-    body[data-theme="day"] .legal-counsel-header {
+    body[data-theme="day"] .conversation-sidebar-header {
       border-bottom-color: rgba(233, 77, 53, 0.1);
     }
 
-    body[data-theme="night"] .legal-counsel-header,
-    body:not([data-theme]) .legal-counsel-header {
+    body[data-theme="night"] .conversation-sidebar-header,
+    body:not([data-theme]) .conversation-sidebar-header {
       border-bottom-color: rgba(233, 77, 53, 0.2);
     }
 
-    .legal-counsel-title {
+    .conversation-sidebar-title {
       display: flex;
       align-items: center;
       gap: 0.75rem;
@@ -1182,16 +1100,16 @@
       transition: color 0.3s ease;
     }
 
-    body[data-theme="day"] .legal-counsel-title {
+    body[data-theme="day"] .conversation-sidebar-title {
       color: #E94D35;
     }
 
-    body[data-theme="night"] .legal-counsel-title,
-    body:not([data-theme]) .legal-counsel-title {
+    body[data-theme="night"] .conversation-sidebar-title,
+    body:not([data-theme]) .conversation-sidebar-title {
       color: #E94D35;
     }
 
-    .legal-counsel-close {
+    .conversation-sidebar-close {
       width: 2rem;
       height: 2rem;
       border: none;
@@ -1206,173 +1124,107 @@
       opacity: 0.7;
     }
 
-    .legal-counsel-close:hover {
+    .conversation-sidebar-close:hover {
       opacity: 1;
       background: rgba(233, 77, 53, 0.1);
     }
 
-    body[data-theme="day"] .legal-counsel-close:hover {
-      background: rgba(233, 77, 53, 0.08);
-    }
-
-    body[data-theme="night"] .legal-counsel-close:hover,
-    body:not([data-theme]) .legal-counsel-close:hover {
-      background: rgba(233, 77, 53, 0.15);
-    }
-
-    .legal-counsel-content {
+    .conversation-sidebar-content {
       padding: 1rem;
     }
 
-    .legal-folder {
-      margin-bottom: 1.5rem;
-    }
-
-    .legal-folder-header {
+    .conversation-item {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      flex-direction: column;
+      gap: 0.25rem;
       padding: 0.75rem;
-      cursor: pointer;
+      margin-bottom: 0.5rem;
       border-radius: 0.5rem;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-
-    .legal-folder-header:hover {
-      background: rgba(233, 77, 53, 0.08);
-    }
-
-    body[data-theme="day"] .legal-folder-header:hover {
-      background: rgba(233, 77, 53, 0.05);
-    }
-
-    body[data-theme="night"] .legal-folder-header:hover,
-    body:not([data-theme]) .legal-folder-header:hover {
-      background: rgba(233, 77, 53, 0.1);
-    }
-
-    .legal-folder-icon {
-      font-size: 1.25rem;
-      transition: transform 0.2s ease;
-    }
-
-    .legal-folder.open .legal-folder-icon {
-      transform: rotate(90deg);
-    }
-
-    .legal-folder-name {
-      font-weight: 600;
-      font-size: 0.9375rem;
-      transition: color 0.3s ease;
-    }
-
-    body[data-theme="day"] .legal-folder-name {
-      color: #1a1a1a;
-    }
-
-    body[data-theme="night"] .legal-folder-name,
-    body:not([data-theme]) .legal-folder-name {
-      color: #F9F5F0;
-    }
-
-    .legal-folder-items {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      padding-left: 1.5rem;
-    }
-
-    .legal-folder.open .legal-folder-items {
-      max-height: 2000px;
-    }
-
-    .legal-document {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.625rem 0.75rem;
-      margin: 0.25rem 0;
-      border-radius: 0.375rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      text-decoration: none;
+      background: rgba(233, 77, 53, 0.05);
+      border: 1px solid rgba(233, 77, 53, 0.1);
     }
 
-    .legal-document:hover {
+    .conversation-item:hover {
       background: rgba(233, 77, 53, 0.1);
       transform: translateX(4px);
     }
 
-    body[data-theme="day"] .legal-document:hover {
+    body[data-theme="day"] .conversation-item {
+      background: rgba(233, 77, 53, 0.03);
+      border-color: rgba(233, 77, 53, 0.08);
+    }
+
+    body[data-theme="day"] .conversation-item:hover {
       background: rgba(233, 77, 53, 0.08);
     }
 
-    body[data-theme="night"] .legal-document:hover,
-    body:not([data-theme]) .legal-document:hover {
+    body[data-theme="night"] .conversation-item:hover,
+    body:not([data-theme]) .conversation-item:hover {
       background: rgba(233, 77, 53, 0.12);
     }
 
-    .legal-document-icon {
-      font-size: 1rem;
-      flex-shrink: 0;
+    .conversation-item.active {
+      background: rgba(233, 77, 53, 0.15);
+      border-color: rgba(233, 77, 53, 0.3);
     }
 
-    .legal-document-name {
+    .conversation-title {
       font-size: 0.875rem;
-      flex: 1;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    body[data-theme="day"] .conversation-title {
+      color: #1a1a1a;
+    }
+
+    body[data-theme="night"] .conversation-title,
+    body:not([data-theme]) .conversation-title {
+      color: rgba(249, 245, 240, 0.9);
+    }
+
+    .conversation-time {
+      font-size: 0.75rem;
       transition: color 0.3s ease;
     }
 
-    body[data-theme="day"] .legal-document-name {
-      color: #4a4a4a;
+    body[data-theme="day"] .conversation-time {
+      color: rgba(26, 26, 38, 0.6);
     }
 
-    body[data-theme="night"] .legal-document-name,
-    body:not([data-theme]) .legal-document-name {
-      color: rgba(249, 245, 240, 0.8);
-    }
-
-    .legal-document:hover .legal-document-name {
-      color: #E94D35;
+    body[data-theme="night"] .conversation-time,
+    body:not([data-theme]) .conversation-time {
+      color: rgba(249, 245, 240, 0.6);
     }
 
     /* Adjust main content when sidebar is open */
-    body:has(.legal-counsel-sidebar.open) .messages-container {
+    body:has(.conversation-sidebar.open) .messages-container {
       margin-left: 320px;
       transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Responsive */
     @media (max-width: 768px) {
-      .legal-counsel-sidebar {
+      .conversation-sidebar {
         width: 280px;
       }
 
-      body:has(.legal-counsel-sidebar.open) .messages-container {
+      body:has(.conversation-sidebar.open) .messages-container {
         margin-left: 280px;
       }
 
-      .legal-counsel-toggle {
+      .conversation-sidebar-toggle {
         width: 2.5rem;
         height: 2.5rem;
-        font-size: 1rem;
-      }
-      .zantara-title {
-        font-size: 1.875rem;
       }
 
       .messages-inner {
         padding: 2rem 0.75rem;
-      }
-
-      .quick-actions {
-        padding: 0.75rem 0.25rem;
-      }
-
-      .quick-action-btn {
-        font-size: 0.75rem;
-        padding: 0.4rem 0.875rem;
       }
     }
   </style>
@@ -1387,81 +1239,38 @@
   <!-- Overlay - removed for pure black background -->
   <!-- <div class="bg-overlay"></div> -->
 
-  <!-- Legal Counsel Sidebar Toggle -->
-  <button class="legal-counsel-toggle" id="legalCounselToggle" aria-label="Toggle Legal Counsel">
-    📁
+  <!-- Conversation History Sidebar Toggle -->
+  <button class="conversation-sidebar-toggle" id="conversationSidebarToggle" aria-label="Toggle Conversation History">
+    <span></span>
+    <span></span>
+    <span></span>
   </button>
 
-  <!-- Legal Counsel Sidebar -->
-  <aside class="legal-counsel-sidebar" id="legalCounselSidebar">
-    <div class="legal-counsel-header">
-      <div class="legal-counsel-title">
-        <span>⚖️</span>
-        <span>Legal Counsel</span>
+  <!-- Conversation History Sidebar -->
+  <aside class="conversation-sidebar" id="conversationSidebar">
+    <div class="conversation-sidebar-header">
+      <div class="conversation-sidebar-title">
+        <span>💬</span>
+        <span>Conversations</span>
       </div>
-      <button class="legal-counsel-close" id="legalCounselClose" aria-label="Close sidebar">
+      <button class="conversation-sidebar-close" id="conversationSidebarClose" aria-label="Close sidebar">
         ✕
       </button>
     </div>
-    <div class="legal-counsel-content">
-      <div class="legal-folder open">
-        <div class="legal-folder-header">
-          <span class="legal-folder-icon">▶</span>
-          <span class="legal-folder-name">Legal Counsel</span>
-        </div>
-        <div class="legal-folder-items">
-          <a href="#" class="legal-document">
-            <span class="legal-document-icon">📄</span>
-            <span class="legal-document-name">Company Formation Guide</span>
-          </a>
-          <a href="#" class="legal-document">
-            <span class="legal-document-icon">📄</span>
-            <span class="legal-document-name">Visa Requirements</span>
-          </a>
-          <a href="#" class="legal-document">
-            <span class="legal-document-icon">📄</span>
-            <span class="legal-document-name">Tax Regulations</span>
-          </a>
-          <a href="#" class="legal-document">
-            <span class="legal-document-icon">📄</span>
-            <span class="legal-document-name">Employment Law</span>
-          </a>
-          <a href="#" class="legal-document">
-            <span class="legal-document-icon">📄</span>
-            <span class="legal-document-name">Investment Guidelines</span>
-          </a>
-          <a href="#" class="legal-document">
-            <span class="legal-document-icon">📄</span>
-            <span class="legal-document-name">Business Licenses</span>
-          </a>
-        </div>
-      </div>
+    <div class="conversation-sidebar-content" id="conversationSidebarContent">
+      <!-- Conversations will be loaded here dynamically -->
     </div>
   </aside>
 
   <!-- Header -->
   <header class="chat-header">
-    <!-- Left: Bali Zero Logo -->
-    <div style="flex: 0 0 auto;">
-      <img src="assets/images/logo-main.png" alt="Bali Zero Logo" class="bali-zero-logo">
-    </div>
-
-    <!-- Center: ZANTARA Title -->
-    <div class="logo-container">
-      <h1 class="zantara-title">ZANTARA</h1>
-      <p class="subtitle"><span class="javanese-script">ᬯᬶᬤ᭄ᬬ ᬥᬃᬫ</span></p>
-    </div>
-
-    <!-- Theme Toggle -->
-    <div class="theme-toggle-container">
-      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-        <span class="theme-icon day-icon">☀️</span>
-        <span class="theme-icon night-icon">🌙</span>
-      </button>
+    <!-- Left: ZANTARA Logo -->
+    <div style="flex: 0 0 auto; display: flex; align-items: center;">
+      <img src="assets/images/logo1-zantara.svg" alt="ZANTARA Logo" class="zantara-logo">
     </div>
 
     <!-- Right: User Info -->
-    <div class="user-info" id="userInfo">
+    <div class="user-info" id="userInfo" style="flex: 0 0 auto; margin-left: auto;">
       <div class="user-avatar" id="userAvatar"></div>
       <span class="user-email" id="userEmail"></span>
       <button class="logout-btn" id="logoutBtn">Logout</button>
@@ -1497,9 +1306,7 @@
           class="image-button"
           title="Generate Image"
           aria-label="Generate Image"
-        ><img src="paint.png" alt="Paint" style="width: 100%; height: 100%; object-fit: contain;"></button>
         ><img src="assets/images/paint.svg" alt="Generate Image" style="width: 1.5rem; height: 1.5rem;"></button>
-        >🎨</button>
         <textarea
           id="messageInput"
           class="chat-textarea"
@@ -1550,13 +1357,84 @@
   <script>
     // Theme management è ora gestito da theme-manager.js
 
-    // Legal Counsel Sidebar Management
+    // Conversation History Sidebar Management
     (function() {
-      const sidebar = document.getElementById('legalCounselSidebar');
-      const toggle = document.getElementById('legalCounselToggle');
-      const closeBtn = document.getElementById('legalCounselClose');
-      const folderHeader = document.querySelector('.legal-folder-header');
-      
+      const sidebar = document.getElementById('conversationSidebar');
+      const toggle = document.getElementById('conversationSidebarToggle');
+      const closeBtn = document.getElementById('conversationSidebarClose');
+      const content = document.getElementById('conversationSidebarContent');
+      const MAX_CONVERSATIONS = 50;
+      let conversations = [];
+      let currentConversationId = null;
+
+      // Load conversations from Memory Service
+      async function loadConversations() {
+        try {
+          // Get user info
+          const userContext = window.USER_CONTEXT?.getUser();
+          if (!userContext || !userContext.userId) {
+            console.warn('⚠️ No user context available');
+            return;
+          }
+
+          // Fetch conversations metadata from backend
+          // This would need a backend endpoint like /api/conversations/metadata
+          // For now, we'll use localStorage as fallback
+          const storedConversations = localStorage.getItem('zantara-conversations-list');
+          if (storedConversations) {
+            conversations = JSON.parse(storedConversations).slice(0, MAX_CONVERSATIONS);
+            renderConversations();
+          }
+        } catch (error) {
+          console.error('❌ Failed to load conversations:', error);
+        }
+      }
+
+      // Render conversations list
+      function renderConversations() {
+        if (!content) return;
+
+        if (conversations.length === 0) {
+          content.innerHTML = '<p style="padding: 1rem; color: rgba(249, 245, 240, 0.5); text-align: center;">No conversations yet</p>';
+          return;
+        }
+
+        content.innerHTML = conversations.map((conv, index) => {
+          const date = new Date(conv.lastMessageTime || conv.createdAt || Date.now());
+          const timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const title = conv.title || conv.firstMessage || 'New Conversation';
+          const isActive = conv.id === currentConversationId;
+
+          return `
+            <div class="conversation-item ${isActive ? 'active' : ''}" data-conversation-id="${conv.id}" data-index="${index}">
+              <div class="conversation-title">${title}</div>
+              <div class="conversation-time">${timeStr}</div>
+            </div>
+          `;
+        }).join('');
+
+        // Add click handlers
+        content.querySelectorAll('.conversation-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const convId = item.dataset.conversationId;
+            loadConversation(convId);
+          });
+        });
+      }
+
+      // Load a specific conversation
+      async function loadConversation(conversationId) {
+        currentConversationId = conversationId;
+        renderConversations();
+        
+        // Load conversation messages
+        if (window.CONVERSATION_CLIENT) {
+          // This would load the conversation messages
+          // Implementation depends on your backend API
+          console.log('📂 Loading conversation:', conversationId);
+        }
+      }
+
       // Toggle sidebar
       if (toggle && sidebar) {
         toggle.addEventListener('click', () => {
@@ -1571,16 +1449,6 @@
         });
       }
 
-      // Toggle folder
-      if (folderHeader) {
-        folderHeader.addEventListener('click', () => {
-          const folder = folderHeader.closest('.legal-folder');
-          if (folder) {
-            folder.classList.toggle('open');
-          }
-        });
-      }
-
       // Close sidebar when clicking outside (optional)
       document.addEventListener('click', (e) => {
         if (sidebar && sidebar.classList.contains('open')) {
@@ -1589,6 +1457,11 @@
           }
         }
       });
+
+      // Load conversations on page load
+      setTimeout(() => {
+        loadConversations();
+      }, 1000);
     })();
 
     // Avatar management

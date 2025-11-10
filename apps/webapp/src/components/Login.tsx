@@ -2,19 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { validateEmail, validatePin, sanitizePin } from '../utils/login-utils';
 import { useLogin } from '../hooks/useLogin';
 import { InputField } from './InputField';
-import { PinInput } from './PinInput';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
 
 interface LoginProps {}
 
 export const Login: React.FC<LoginProps> = () => {
   const [email, setEmail] = useState('');
   const [pin, setPin] = useState('');
-  const [showPin, setShowPin] = useState(false);
   const [emailValid, setEmailValid] = useState<boolean | null>(null);
   const [pinValid, setPinValid] = useState<boolean | null>(null);
   
   const emailInputRef = useRef<HTMLInputElement>(null);
-  const pinInputRef = useRef<HTMLInputElement>(null);
 
   const { loading, error, success, login, clearError, clearSuccess } = useLogin();
 
@@ -39,26 +37,17 @@ export const Login: React.FC<LoginProps> = () => {
     setEmail(e.target.value.trim());
   };
 
-  const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPin(e.target.value);
+  const handlePinChange = (value: string) => {
+    setPin(value);
   };
 
   const handleEmailKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      pinInputRef.current?.focus();
+      // Focus first PIN input
+      const firstPinInput = document.querySelector('.pin-otp-wrapper input') as HTMLInputElement;
+      firstPinInput?.focus();
     }
-  };
-
-  const handlePinKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && emailValid && pinValid) {
-      e.preventDefault();
-      handleSubmit(e as any);
-    }
-  };
-
-  const togglePinVisibility = () => {
-    setShowPin(!showPin);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,7 +57,9 @@ export const Login: React.FC<LoginProps> = () => {
     } catch (err) {
       // Error already handled by useLogin hook
       setPin('');
-      pinInputRef.current?.focus();
+      // Focus first PIN input
+      const firstPinInput = document.querySelector('.pin-otp-wrapper input') as HTMLInputElement;
+      firstPinInput?.focus();
     }
   };
 
@@ -91,7 +82,7 @@ export const Login: React.FC<LoginProps> = () => {
     }
 
     // Auto-submit when PIN = 8 characters
-    if (length === 8 && emailValid && isFormValid) {
+    if (length === 8 && emailValid && isValid) {
       const form = document.getElementById('loginForm') as HTMLFormElement;
       if (form) {
         setTimeout(() => {
@@ -125,33 +116,48 @@ export const Login: React.FC<LoginProps> = () => {
             {error && `Error: ${error}`}
           </div>
           
-          <InputField
-            ref={emailInputRef}
-            id="email"
-            label="EMAIL"
-            type="email"
-            placeholder="zero@balizero.com"
-            value={email}
-            onChange={handleEmailChange}
-            onKeyDown={handleEmailKeyDown}
-            onBlur={clearSuccess}
-            isValid={emailValid}
-            required
-            autoComplete="email"
-          />
+          {/* Email Field */}
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">
+              Email Address
+            </label>
+            <div className="input-wrapper">
+              <InputField
+                ref={emailInputRef}
+                id="email"
+                label=""
+                type="email"
+                placeholder="your.email@example.com"
+                value={email}
+                onChange={handleEmailChange}
+                onKeyDown={handleEmailKeyDown}
+                onBlur={clearSuccess}
+                isValid={emailValid}
+                required
+                autoComplete="email"
+              />
+            </div>
+          </div>
 
-          <PinInput
-            ref={pinInputRef}
-            id="pin"
-            label="PIN"
-            value={pin}
-            onChange={handlePinChange}
-            onKeyDown={handlePinKeyDown}
-            showPin={showPin}
-            onToggleVisibility={togglePinVisibility}
-            isValid={pinValid}
-            pinLength={pinLength}
-          />
+          {/* PIN Field with separate boxes */}
+          <div className="form-group">
+            <label htmlFor="pin" className="form-label">
+              Security PIN
+            </label>
+            <div className="pin-otp-wrapper">
+              <InputOTP maxLength={8} value={pin} onChange={handlePinChange}>
+                <InputOTPGroup className="pin-otp-group">
+                  {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <InputOTPSlot
+                      key={index}
+                      index={index}
+                      className="pin-otp-slot"
+                    />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+          </div>
 
           <button 
             type="submit" 
@@ -159,7 +165,7 @@ export const Login: React.FC<LoginProps> = () => {
             className={`login-button ${loading ? 'loading' : ''}`}
             disabled={!isFormValid || loading}
           >
-            <span className="button-text">Login</span>
+            <span className="button-text">SIGN IN</span>
             {loading && (
               <span className="button-spinner" aria-hidden="true"></span>
             )}

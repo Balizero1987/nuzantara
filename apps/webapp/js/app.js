@@ -455,6 +455,11 @@ async function sendMessage(content) {
 function handleSendError(error) {
   const errorInfo = zantaraClient.getErrorMessage(error);
 
+  // Re-enable send button on error
+  if (sendButton) {
+    sendButton.disabled = false;
+  }
+
   // Show error message
   const errorMsg = {
     type: 'error',
@@ -595,6 +600,11 @@ function finalizeLiveMessage(messageEl, fullText) {
   // Remove live-message class and id
   messageEl.classList.remove('live-message');
   messageEl.removeAttribute('id');
+
+  // Re-enable send button when response is complete
+  if (sendButton) {
+    sendButton.disabled = false;
+  }
 
   // Save to history
   const aiMsg = {
