@@ -111,7 +111,7 @@ export class PluginExecutor {
     if (!validation.success) {
       return {
         success: false,
-        error: validation.error,
+        error: 'error' in validation ? validation.error : 'Validation failed',
         ok: false
       };
     }

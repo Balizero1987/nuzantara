@@ -721,8 +721,7 @@ async function startServer() {
 
   // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
   if (process.env.REDIS_URL) {
-    // @ts-expect-error - Intentionally unused
-    const _io = setupWebSocket(httpServer);
+    setupWebSocket(httpServer);
     logger.info('✅ WebSocket server initialized');
   } else {
     logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
