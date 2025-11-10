@@ -58,6 +58,8 @@ from services.intelligent_router import IntelligentRouter
 from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultural intelligence
 from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
+from services.health_monitor import HealthMonitor, init_health_monitor, get_health_monitor  # NEW: Health monitoring
+from services.chromadb_backup import ChromaDBBackupService, init_backup_service, get_backup_service  # NEW: Automatic backups
 from services.work_session_service import WorkSessionService
 from services.team_analytics_service import TeamAnalyticsService
 from services.session_service import SessionService  # Session store for 50+ message conversations
@@ -956,6 +958,28 @@ async def _initialize_backend_services():
         logger.error(f"❌ AlertService initialization failed: {e}")
         alert_service = None
 
+    # Initialize Health Monitor (watches for downtime)
+    try:
+        if alert_service:
+            health_monitor = init_health_monitor(alert_service, check_interval=60)
+            await health_monitor.start()
+            logger.info("✅ HealthMonitor started (60s interval, downtime alerts enabled)")
+        else:
+            logger.warning("⚠️ HealthMonitor disabled (AlertService unavailable)")
+    except Exception as e:
+        logger.error(f"❌ HealthMonitor initialization failed: {e}")
+
+    # Initialize ChromaDB Backup Service (automatic R2 backups)
+    try:
+        if alert_service:
+            backup_service = init_backup_service(alert_service)
+            await backup_service.start()
+            logger.info("✅ ChromaDBBackupService started (24h interval, 7 day retention)")
+        else:
+            logger.warning("⚠️ ChromaDBBackupService disabled (AlertService unavailable)")
+    except Exception as e:
+        logger.error(f"❌ ChromaDBBackupService initialization failed: {e}")
+
     # Download ChromaDB from Cloudflare R2 (OR initialize empty)
     try:
         log_startup("📥 Attempting ChromaDB download from Cloudflare R2...")
@@ -1575,9 +1599,14 @@ async def health_check():
             "tool_executor_status": tool_executor is not None,
             "pricing_service_status": pricing_service is not None,
             "handler_proxy_status": handler_proxy_service is not None
+        },
+        "monitoring": {
+            "health_monitor": get_health_monitor() is not None,
+            "backup_service": get_backup_service() is not None,
+            "rate_limiting": "enabled"
         }
     }
-    
+
     # Add detailed reranker stats if available
     if reranker_service is not None:
         try:
@@ -1625,6 +1654,66 @@ async def debug_startup():
             "tools": tool_executor is not None
         },
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+
+@app.get("/api/monitoring/health-monitor")
+async def monitoring_status():
+    """Get health monitor status and alerts"""
+    health_monitor = get_health_monitor()
+    if not health_monitor:
+        return {"error": "Health monitor not initialized"}
+
+    return {
+        "status": health_monitor.get_status(),
+        "description": "Monitors system health every 60s and sends alerts on downtime"
+    }
+
+
+@app.get("/api/monitoring/backup-service")
+async def backup_status():
+    """Get backup service status"""
+    backup_service = get_backup_service()
+    if not backup_service:
+        return {"error": "Backup service not initialized"}
+
+    return {
+        "status": backup_service.get_status(),
+        "description": "Automatic daily backups to Cloudflare R2 with 7 day retention"
+    }
+
+
+@app.post("/api/monitoring/backup/trigger")
+async def trigger_manual_backup():
+    """Trigger a manual backup immediately"""
+    backup_service = get_backup_service()
+    if not backup_service:
+        raise HTTPException(status_code=503, detail="Backup service not initialized")
+
+    result = await backup_service.trigger_manual_backup()
+    return result
+
+
+@app.get("/api/monitoring/rate-limits")
+async def rate_limit_info():
+    """Get rate limiting configuration and statistics"""
+    from middleware.rate_limiter import get_rate_limit_stats, RateLimitMiddleware
+
+    stats = get_rate_limit_stats()
+
+    return {
+        "backend": stats["backend"],
+        "connected": stats["connected"],
+        "total_rules": stats["rate_limits_configured"],
+        "rules": {
+            "chat": "30 requests/minute",
+            "search": "60 requests/minute",
+            "api_general": "120 requests/minute",
+            "agents_journey": "10 requests/hour",
+            "agents_compliance": "20 requests/hour",
+            "default": "200 requests/minute"
+        },
+        "description": "Rate limiting protects endpoints from abuse. Limits vary by endpoint type."
     }
 
 
