@@ -1710,38 +1710,66 @@ async def test_llama():
             "llama_scout_client": None
         }
 
-    try:
-        # Try a simple test message with Llama
-        test_messages = [{"role": "user", "content": "Say 'test' only"}]
+    diagnostics = {
+        "llama_client_available": llama_scout_client.llama_client is not None,
+        "haiku_client_available": llama_scout_client.haiku_client is not None,
+        "force_haiku": llama_scout_client.force_haiku,
+        "metrics": llama_scout_client.metrics
+    }
 
-        # Call chat_async and see what happens
+    # Test 1: Try calling Llama DIRECTLY (no fallback)
+    test_messages = [{"role": "user", "content": "Say 'test' only"}]
+
+    try:
+        if llama_scout_client.llama_client:
+            logger.info("🧪 Testing Llama API directly...")
+            llama_result = await llama_scout_client._call_llama(
+                messages=test_messages,
+                system="Reply with only the word 'test'",
+                max_tokens=10,
+                temperature=0
+            )
+            diagnostics["llama_direct_test"] = {
+                "success": True,
+                "provider": llama_result.get("provider"),
+                "model": llama_result.get("model"),
+                "response": llama_result.get("text", "")[:50]
+            }
+        else:
+            diagnostics["llama_direct_test"] = {
+                "success": False,
+                "error": "llama_client is None"
+            }
+    except Exception as e:
+        diagnostics["llama_direct_test"] = {
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "error_details": repr(e)
+        }
+
+    # Test 2: Try with fallback (normal flow)
+    try:
         result = await llama_scout_client.chat_async(
             messages=test_messages,
             system="Reply with only the word 'test'",
             max_tokens=10,
             temperature=0
         )
-
-        return {
+        diagnostics["full_test_with_fallback"] = {
             "success": True,
             "ai_used": result.get("provider", result.get("ai_used")),
             "model": result.get("model"),
-            "response": result.get("response", result.get("content", ""))[:100],
-            "tokens": result.get("tokens"),
-            "cost": result.get("cost"),
-            "llama_client_available": llama_scout_client.llama_client is not None,
-            "haiku_client_available": llama_scout_client.haiku_client is not None
+            "response": result.get("response", result.get("content", ""))[:50]
         }
-
     except Exception as e:
-        return {
+        diagnostics["full_test_with_fallback"] = {
             "success": False,
             "error": str(e),
-            "error_type": type(e).__name__,
-            "llama_client_available": llama_scout_client.llama_client is not None,
-            "haiku_client_available": llama_scout_client.haiku_client is not None,
-            "force_haiku": llama_scout_client.force_haiku
+            "error_type": type(e).__name__
         }
+
+    return diagnostics
 
 
 @app.get("/api/monitoring/health-monitor")
