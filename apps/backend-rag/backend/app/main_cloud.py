@@ -79,6 +79,9 @@ logger = logging.getLogger(__name__)
 # Background warmup task handle (set during startup)
 warmup_task: Optional[asyncio.Task] = None
 
+# Startup logs for debugging (accessible via /debug/startup endpoint)
+startup_logs: List[str] = []
+
 # Initialize FastAPI
 app = FastAPI(
     title="ZANTARA RAG API",
@@ -716,6 +719,11 @@ def download_chromadb_from_r2():
         bucket_name = "nuzantaradb"
         source_prefix = "chroma_db/"
 
+        # Log R2 credentials status
+        logger.info(f"🔐 R2 Credentials: access_key={'SET' if r2_access_key else 'MISSING'}, "
+                   f"secret_key={'SET' if r2_secret_key else 'MISSING'}, "
+                   f"endpoint={'SET' if r2_endpoint else 'MISSING'}")
+
         # ✨ CORRECTION: Use proper ChromaDB path with full database
         local_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
 
@@ -862,13 +870,30 @@ async def preload_redis_cache():
         return False
 
 
+def log_startup(msg: str, level: str = "info"):
+    """Log startup message to both logger and startup_logs list for debugging"""
+    global startup_logs
+    timestamp = time.strftime("%H:%M:%S")
+    log_entry = f"[{timestamp}] {msg}"
+    startup_logs.append(log_entry)
+
+    if level == "info":
+        logger.info(msg)
+    elif level == "warning":
+        logger.warning(msg)
+    elif level == "error":
+        logger.error(msg)
+
+
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
     global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
     global skill_index, skill_detector, skill_loader, skill_coordinator, enhanced_context_builder, skill_cache, skill_metrics
+    global startup_logs
 
-    logger.info("🚀 Starting ZANTARA RAG Backend (Llama 4 Scout PRIMARY + Claude Haiku FALLBACK)...")
-    logger.info("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
+    startup_logs.clear()  # Clear previous logs
+    log_startup("🚀 Starting ZANTARA RAG Backend (Llama 4 Scout PRIMARY + Claude Haiku FALLBACK)...")
+    log_startup("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
 
     # Preload Redis cache first
     redis_warmup = asyncio.create_task(preload_redis_cache())
@@ -933,18 +958,20 @@ async def _initialize_backend_services():
 
     # Download ChromaDB from Cloudflare R2 (OR initialize empty)
     try:
+        log_startup("📥 Attempting ChromaDB download from Cloudflare R2...")
         chroma_path = download_chromadb_from_r2()
-        logger.info("✅ ChromaDB loaded from Cloudflare R2")
+        log_startup("✅ ChromaDB loaded from Cloudflare R2")
     except Exception as e:
         import traceback
-        logger.warning(f"⚠️ R2 download failed: {e}")
-        logger.info("📂 Initializing empty ChromaDB for manual population...")
+        log_startup(f"⚠️ R2 download failed: {e}", "warning")
+        log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "warning")
+        log_startup("📂 Initializing empty ChromaDB for manual population...")
 
         # Fallback: Initialize empty ChromaDB in persistent volume (or /tmp)
         chroma_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
         os.makedirs(chroma_path, exist_ok=True)
-        logger.info(f"✅ Empty ChromaDB initialized: {chroma_path}")
-        logger.info("💡 Populate via: POST /api/oracle/populate-now")
+        log_startup(f"✅ Empty ChromaDB initialized: {chroma_path}")
+        log_startup("💡 Populate via: POST /api/oracle/populate-now")
 
     # Set environment variable for SearchService
     os.environ['CHROMA_DB_PATH'] = chroma_path
@@ -1121,22 +1148,22 @@ async def _initialize_backend_services():
     try:
         database_url = os.getenv("DATABASE_URL")
         if not database_url:
-            logger.warning("⚠️ DATABASE_URL not configured - MemoryService will use in-memory fallback")
+            log_startup("⚠️ DATABASE_URL not configured - MemoryService will use in-memory fallback", "warning")
             memory_service = None
         else:
-            logger.info(f"🔗 PostgreSQL: Connecting to {database_url[:20]}...")
+            log_startup(f"🔗 PostgreSQL: Connecting to {database_url[:30]}...")
             memory_service = MemoryServicePostgres()  # PostgreSQL via Fly.io DATABASE_URL
             await memory_service.connect()  # Initialize connection pool
 
             # Verify connection actually works
             if memory_service.use_postgres and memory_service.pool:
-                logger.info("✅ MemoryServicePostgres ready (PostgreSQL enabled)")
+                log_startup("✅ MemoryServicePostgres ready (PostgreSQL enabled)")
             else:
-                logger.warning("⚠️ MemoryServicePostgres using in-memory fallback (PostgreSQL unavailable)")
+                log_startup("⚠️ MemoryServicePostgres using in-memory fallback (PostgreSQL unavailable)", "warning")
     except Exception as e:
         import traceback
-        logger.error(f"❌ MemoryServicePostgres initialization failed: {e}")
-        logger.error(f"   Traceback: {traceback.format_exc()}")
+        log_startup(f"❌ MemoryServicePostgres initialization failed: {e}", "error")
+        log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
         memory_service = None
 
     # Initialize ConversationService (Phase 2)
@@ -1527,8 +1554,8 @@ async def health_check():
         ],
         "chromadb": search_service is not None,
         "ai": {
-            "claude_haiku_available": claude_haiku is not None,
-            "has_ai": claude_haiku is not None
+            "llama_scout_primary": intelligent_router is not None,
+            "has_ai": intelligent_router is not None or claude_haiku is not None
         },
         "memory": {
             "postgresql": memory_service is not None,
@@ -1583,6 +1610,22 @@ async def health_check():
             "Access-Control-Allow-Headers": "Content-Type, Authorization"
         }
     )
+
+
+@app.get("/debug/startup")
+async def debug_startup():
+    """Debug endpoint to view startup logs - helps diagnose service initialization issues"""
+    return {
+        "startup_logs": startup_logs,
+        "total_logs": len(startup_logs),
+        "services_status": {
+            "chromadb": search_service is not None,
+            "postgresql": memory_service is not None,
+            "ai_router": intelligent_router is not None,
+            "tools": tool_executor is not None
+        },
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
 
 
 @app.post("/api/auth/demo")
