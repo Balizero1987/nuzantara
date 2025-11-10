@@ -45,7 +45,7 @@ export const globalRateLimiter = rateLimit({
   message: { ok: false, error: 'Troppi tentativi. Riprova tra 15 minuti.' },
   standardHeaders: true,
   legacyHeaders: true,
-  trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
+  // Note: trust proxy is handled by app.set('trust proxy', 1) in server.ts
   skip: (req: Request) => req.path === '/health',
   handler: (req: Request, res: Response) => {
     logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
@@ -64,7 +64,7 @@ export const apiRateLimiter = rateLimit({
   message: { ok: false, error: 'Troppi tentativi API. Riprova tra 1 minuto.' },
   standardHeaders: true,
   legacyHeaders: true,
-  trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
+  // Note: trust proxy is handled by app.set('trust proxy', true) in server.ts
   handler: (req: Request, res: Response) => {
     logger.warn(`API rate limit exceeded for IP: ${req.ip}`);
     res.setHeader('Retry-After', '60');
@@ -82,7 +82,7 @@ export const strictRateLimiter = rateLimit({
   message: { ok: false, error: 'Troppi tentativi per operazione sensibile. Riprova tra 1 ora.' },
   standardHeaders: true,
   legacyHeaders: true,
-  trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
+  // Note: trust proxy is handled by app.set('trust proxy', true) in server.ts
   handler: (req: Request, res: Response) => {
     logger.warn(`Strict rate limit exceeded for IP: ${req.ip}`);
     res.setHeader('Retry-After', (60 * 60).toString());

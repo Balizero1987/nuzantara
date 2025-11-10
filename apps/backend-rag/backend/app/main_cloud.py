@@ -58,6 +58,8 @@ from services.intelligent_router import IntelligentRouter
 from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultural intelligence
 from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
+from services.health_monitor import HealthMonitor, init_health_monitor, get_health_monitor  # NEW: Health monitoring
+from services.chromadb_backup import ChromaDBBackupService, init_backup_service, get_backup_service  # NEW: Automatic backups
 from services.work_session_service import WorkSessionService
 from services.team_analytics_service import TeamAnalyticsService
 from services.session_service import SessionService  # Session store for 50+ message conversations
@@ -887,7 +889,7 @@ def log_startup(msg: str, level: str = "info"):
 
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
-    global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
+    global search_service, llama_scout_client, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
     global skill_index, skill_detector, skill_loader, skill_coordinator, enhanced_context_builder, skill_cache, skill_metrics
     global startup_logs
 
@@ -955,6 +957,28 @@ async def _initialize_backend_services():
     except Exception as e:
         logger.error(f"❌ AlertService initialization failed: {e}")
         alert_service = None
+
+    # Initialize Health Monitor (watches for downtime)
+    try:
+        if alert_service:
+            health_monitor = init_health_monitor(alert_service, check_interval=60)
+            await health_monitor.start()
+            logger.info("✅ HealthMonitor started (60s interval, downtime alerts enabled)")
+        else:
+            logger.warning("⚠️ HealthMonitor disabled (AlertService unavailable)")
+    except Exception as e:
+        logger.error(f"❌ HealthMonitor initialization failed: {e}")
+
+    # Initialize ChromaDB Backup Service (automatic R2 backups)
+    try:
+        if alert_service:
+            backup_service = init_backup_service(alert_service)
+            await backup_service.start()
+            logger.info("✅ ChromaDBBackupService started (24h interval, 7 day retention)")
+        else:
+            logger.warning("⚠️ ChromaDBBackupService disabled (AlertService unavailable)")
+    except Exception as e:
+        logger.error(f"❌ ChromaDBBackupService initialization failed: {e}")
 
     # Download ChromaDB from Cloudflare R2 (OR initialize empty)
     try:
@@ -1575,9 +1599,14 @@ async def health_check():
             "tool_executor_status": tool_executor is not None,
             "pricing_service_status": pricing_service is not None,
             "handler_proxy_status": handler_proxy_service is not None
+        },
+        "monitoring": {
+            "health_monitor": get_health_monitor() is not None,
+            "backup_service": get_backup_service() is not None,
+            "rate_limiting": "enabled"
         }
     }
-    
+
     # Add detailed reranker stats if available
     if reranker_service is not None:
         try:
@@ -1625,6 +1654,181 @@ async def debug_startup():
             "tools": tool_executor is not None
         },
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+
+@app.get("/debug/ai-keys")
+async def debug_ai_keys():
+    """Debug endpoint to check which AI API keys are configured"""
+    openrouter_llama_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
+    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+
+    result = {
+        "environment_variables": {
+            "OPENROUTER_API_KEY_LLAMA": {
+                "present": bool(openrouter_llama_key),
+                "prefix": openrouter_llama_key[:15] + "..." if openrouter_llama_key else None
+            },
+            "ANTHROPIC_API_KEY": {
+                "present": bool(anthropic_key),
+                "prefix": anthropic_key[:15] + "..." if anthropic_key else None
+            },
+            "OPENROUTER_API_KEY": bool(os.getenv("OPENROUTER_API_KEY")),
+            "OPENAI_API_KEY": bool(os.getenv("OPENAI_API_KEY"))
+        },
+        "services": {
+            "llama_scout_client": llama_scout_client is not None,
+            "intelligent_router": intelligent_router is not None,
+        }
+    }
+
+    # Add LlamaScoutClient details if available
+    if llama_scout_client:
+        result["llama_scout_details"] = {
+            "llama_client_initialized": llama_scout_client.llama_client is not None,
+            "haiku_client_initialized": llama_scout_client.haiku_client is not None,
+            "force_haiku": llama_scout_client.force_haiku,
+            "metrics": llama_scout_client.metrics
+        }
+
+    # Add IntelligentRouter details if available
+    if intelligent_router:
+        result["intelligent_router_details"] = {
+            "haiku_service_type": str(type(intelligent_router.haiku).__name__),
+            "haiku_is_llama_scout": isinstance(intelligent_router.haiku, LlamaScoutClient)
+        }
+
+    return result
+
+
+@app.get("/debug/test-llama")
+async def test_llama():
+    """Test Llama API directly and return detailed diagnostics"""
+    if not llama_scout_client:
+        return {
+            "error": "LlamaScoutClient not initialized",
+            "llama_scout_client": None
+        }
+
+    diagnostics = {
+        "llama_client_available": llama_scout_client.llama_client is not None,
+        "haiku_client_available": llama_scout_client.haiku_client is not None,
+        "force_haiku": llama_scout_client.force_haiku,
+        "metrics": llama_scout_client.metrics
+    }
+
+    # Test 1: Try calling Llama DIRECTLY (no fallback)
+    test_messages = [{"role": "user", "content": "Say 'test' only"}]
+
+    try:
+        if llama_scout_client.llama_client:
+            logger.info("🧪 Testing Llama API directly...")
+            llama_result = await llama_scout_client._call_llama(
+                messages=test_messages,
+                system="Reply with only the word 'test'",
+                max_tokens=10,
+                temperature=0
+            )
+            diagnostics["llama_direct_test"] = {
+                "success": True,
+                "provider": llama_result.get("provider"),
+                "model": llama_result.get("model"),
+                "response": llama_result.get("text", "")[:50]
+            }
+        else:
+            diagnostics["llama_direct_test"] = {
+                "success": False,
+                "error": "llama_client is None"
+            }
+    except Exception as e:
+        diagnostics["llama_direct_test"] = {
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "error_details": repr(e)
+        }
+
+    # Test 2: Try with fallback (normal flow)
+    try:
+        result = await llama_scout_client.chat_async(
+            messages=test_messages,
+            system="Reply with only the word 'test'",
+            max_tokens=10,
+            temperature=0
+        )
+        diagnostics["full_test_with_fallback"] = {
+            "success": True,
+            "ai_used": result.get("provider", result.get("ai_used")),
+            "model": result.get("model"),
+            "response": result.get("response", result.get("content", ""))[:50]
+        }
+    except Exception as e:
+        diagnostics["full_test_with_fallback"] = {
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__
+        }
+
+    return diagnostics
+
+
+@app.get("/api/monitoring/health-monitor")
+async def monitoring_status():
+    """Get health monitor status and alerts"""
+    health_monitor = get_health_monitor()
+    if not health_monitor:
+        return {"error": "Health monitor not initialized"}
+
+    return {
+        "status": health_monitor.get_status(),
+        "description": "Monitors system health every 60s and sends alerts on downtime"
+    }
+
+
+@app.get("/api/monitoring/backup-service")
+async def backup_status():
+    """Get backup service status"""
+    backup_service = get_backup_service()
+    if not backup_service:
+        return {"error": "Backup service not initialized"}
+
+    return {
+        "status": backup_service.get_status(),
+        "description": "Automatic daily backups to Cloudflare R2 with 7 day retention"
+    }
+
+
+@app.post("/api/monitoring/backup/trigger")
+async def trigger_manual_backup():
+    """Trigger a manual backup immediately"""
+    backup_service = get_backup_service()
+    if not backup_service:
+        raise HTTPException(status_code=503, detail="Backup service not initialized")
+
+    result = await backup_service.trigger_manual_backup()
+    return result
+
+
+@app.get("/api/monitoring/rate-limits")
+async def rate_limit_info():
+    """Get rate limiting configuration and statistics"""
+    from middleware.rate_limiter import get_rate_limit_stats, RateLimitMiddleware
+
+    stats = get_rate_limit_stats()
+
+    return {
+        "backend": stats["backend"],
+        "connected": stats["connected"],
+        "total_rules": stats["rate_limits_configured"],
+        "rules": {
+            "chat": "30 requests/minute",
+            "search": "60 requests/minute",
+            "api_general": "120 requests/minute",
+            "agents_journey": "10 requests/hour",
+            "agents_compliance": "20 requests/hour",
+            "default": "200 requests/minute"
+        },
+        "description": "Rate limiting protects endpoints from abuse. Limits vary by endpoint type."
     }
 
 

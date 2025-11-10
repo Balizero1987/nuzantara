@@ -212,7 +212,9 @@ async function startServer() {
   const app = express();
 
   // Fix for Fly.io proxy headers - configure trust proxy
-  app.set('trust proxy', true);
+  // express-rate-limit v7+ requires specific trust proxy config (not just 'true')
+  // Fly.io has 1 proxy hop, so we trust 1 level
+  app.set('trust proxy', 1);
 
   // PATCH-3: Apply security middleware (headers, sanitization, logging)
   app.use(applySecurity);
