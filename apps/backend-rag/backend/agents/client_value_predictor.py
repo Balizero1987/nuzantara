@@ -6,6 +6,7 @@ Predicts high-value clients and automatically nurtures them
 import os
 import psycopg2
 from datetime import datetime, timedelta
+from typing import Dict, List, Optional
 from anthropic import AsyncAnthropic
 import json
 from typing import Dict, List, Optional
