@@ -30,7 +30,7 @@
       flex-direction: column !important;
       align-items: center !important;
       gap: -4.8rem !important;
-      max-width: 400px !important;
+      max-width: 550px !important;
       width: 100% !important;
       padding: 1rem 2rem 2rem 2rem !important;
       margin: 0 auto !important;
@@ -44,10 +44,10 @@
       height: auto !important;
       max-width: 900px !important;
       display: block !important;
-      margin: 3rem auto -4.8rem -17rem !important;
+      margin: 3rem auto -4.8rem -15rem !important;
       margin-top: 3rem !important;
       margin-bottom: -4.8rem !important;
-      margin-left: -17rem !important;
+      margin-left: -15rem !important;
       margin-right: auto !important;
       text-align: center !important;
     }
@@ -65,7 +65,8 @@
       margin-left: 0.5rem !important;
       padding: 3rem 2.5rem;
       width: 100%;
-      max-width: 380px;
+      max-width: 520px;
+      background: #323232 !important;
       animation: fadeInUp 0.5s ease-out 0.2s both;
     }
 
@@ -292,6 +293,57 @@
 
     .pin-hint {
       color: rgba(255, 255, 255, 0.5);
+      margin-top: 0.75rem;
+    }
+
+    /* Email label with icon */
+    .email-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .email-icon {
+      width: 18px;
+      height: 18px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* PIN OTP separate boxes */
+    .pin-otp-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    .pin-otp-group {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+
+    .pin-otp-slot {
+      width: 40px !important;
+      height: 48px !important;
+      background: white !important;
+      border: 1px solid #d1d5db !important;
+      border-radius: 8px !important;
+      text-align: center !important;
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      color: #111827 !important;
+      transition: all 0.2s ease !important;
+      padding: 0 !important;
+    }
+
+    .pin-otp-slot:focus {
+      border-color: rgba(217, 32, 39, 0.8) !important;
+      outline: none !important;
+      box-shadow: 0 0 0 2px rgba(217, 32, 39, 0.2) !important;
+    }
+
+    .pin-otp-slot[data-active="true"] {
+      border-color: rgba(217, 32, 39, 0.8) !important;
     }
 
     /* Improved responsive */
