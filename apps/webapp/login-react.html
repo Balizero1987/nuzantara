@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="night">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZANTARA - Login</title>
+
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/bali-zero-theme.css">
+
+  <style>
+    /* Gray background #2B2B2B - FORCED */
+    html, body {
+      background: #2B2B2B !important;
+      background-color: #2B2B2B !important;
+    }
+
+    /* Login specific layout */
+    body {
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: center !important;
+      min-height: 100vh !important;
+      font-family: var(--font-sans);
+      padding-top: 2rem !important;
+    }
+
+    .login-container {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: -4.8rem !important;
+      max-width: 400px !important;
+      width: 100% !important;
+      padding: 1rem 2rem 2rem 2rem !important;
+      margin: 0 auto !important;
+      justify-content: flex-start !important;
+      text-align: center !important;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .bali-zero-logo {
+      width: auto !important;
+      height: auto !important;
+      max-width: 900px !important;
+      display: block !important;
+      margin: 3rem auto -4.8rem -17rem !important;
+      margin-top: 3rem !important;
+      margin-bottom: -4.8rem !important;
+      margin-left: -17rem !important;
+      margin-right: auto !important;
+      text-align: center !important;
+    }
+
+    .login-form-wrapper {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-left: 0.5rem !important;
+    }
+
+    .login-form {
+      margin: 0 auto !important;
+      margin-left: 0.5rem !important;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 380px;
+      animation: fadeInUp 0.5s ease-out 0.2s both;
+    }
+
+    .form-group {
+      margin-bottom: 2rem;
+    }
+
+    .pin-input-wrapper {
+      position: relative;
+    }
+
+    .pin-input {
+      font-family: monospace;
+      letter-spacing: 0.25em;
+      padding-right: 6rem;
+      background: #262626 !important;
+      color: rgba(255, 255, 255, 0.95) !important;
+      border: 1px solid #3a3a3a !important;
+    }
+
+    .pin-input:focus {
+      background: rgba(255, 255, 255, 0.08) !important;
+      color: rgba(255, 255, 255, 0.95) !important;
+      border-bottom: 2px solid rgba(217, 32, 39, 0.8) !important;
+    }
+
+    .pin-input::placeholder {
+      color: #777 !important;
+    }
+
+    .pin-toggle {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      padding: 0.5rem;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s ease;
+    }
+
+    .pin-toggle:hover {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .pin-toggle:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.6);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    .eye-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Animations fade-in */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Screen reader only */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    /* Input wrapper for validation icons */
+    .input-wrapper {
+      position: relative;
+    }
+
+    .validation-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .validation-icon.valid {
+      opacity: 1;
+      color: #4ade80;
+    }
+
+    .validation-icon.invalid {
+      opacity: 1;
+      color: #f87171;
+    }
+
+    .form-input {
+      padding-right: 2.5rem;
+      border: 1px solid #3a3a3a !important;
+      background: #262626 !important;
+    }
+    
+    .form-input::placeholder {
+      color: #777 !important;
+    }
+    
+    .form-input:focus {
+      border-bottom: 2px solid rgba(217, 32, 39, 0.8) !important;
+    }
+
+    .pin-input-wrapper .validation-icon {
+      right: 3.5rem;
+    }
+
+    /* Focus visible for accessibility */
+    .form-input:focus-visible,
+    .login-button:focus-visible,
+    .pin-toggle:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.6);
+      outline-offset: 2px;
+    }
+
+    /* Progress indicator PIN */
+    .pin-progress {
+      margin-top: 0.5rem;
+    }
+
+    .pin-progress-bar {
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 1px;
+      overflow: hidden;
+      margin-bottom: 0.25rem;
+    }
+
+    .pin-progress-bar::after {
+      content: '';
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: rgba(255, 255, 255, 0.4);
+      transition: width 0.3s ease;
+    }
+
+    .pin-progress-bar[data-progress="1"]::after { width: 12.5%; }
+    .pin-progress-bar[data-progress="2"]::after { width: 25%; }
+    .pin-progress-bar[data-progress="3"]::after { width: 37.5%; }
+    .pin-progress-bar[data-progress="4"]::after { width: 50%; }
+    .pin-progress-bar[data-progress="5"]::after { width: 62.5%; }
+    .pin-progress-bar[data-progress="6"]::after { width: 75%; }
+    .pin-progress-bar[data-progress="7"]::after { width: 87.5%; }
+    .pin-progress-bar[data-progress="8"]::after { width: 100%; background: rgba(255, 255, 255, 0.6); }
+
+    .pin-hint {
+      font-size: 0.65rem !important;
+      color: rgba(255, 255, 255, 0.5) !important;
+      margin-top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Loading spinner improved */
+    .login-button.loading .button-text {
+      opacity: 0;
+    }
+
+    .login-button.loading .button-spinner {
+      display: block;
+    }
+
+    .button-spinner {
+      display: none;
+      position: absolute;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .login-button {
+      position: relative;
+    }
+
+    /* Improved contrast */
+    .form-label {
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .pin-hint {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Improved responsive */
+    @media (max-width: 768px) {
+      .login-container {
+        padding: 1rem;
+      }
+
+      .login-form {
+        padding: 2rem 1.5rem;
+      }
+
+      .bali-zero-logo {
+        max-width: 100%;
+        margin-left: 0 !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .login-form {
+        padding: 1.5rem 1rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Auto-login feature -->
+  <script type="module" src="js/api-config.js"></script>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
+
