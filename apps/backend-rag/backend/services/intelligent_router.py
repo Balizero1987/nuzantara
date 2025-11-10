@@ -233,7 +233,7 @@ class IntelligentRouter:
 
             return {
                 "response": sanitized_response,
-                "ai_used": "haiku",
+                "ai_used": result.get("ai_used", "haiku"),  # Use actual AI used, not hardcoded
                 "category": category,
                 "model": result["model"],
                 "tokens": result["tokens"],
