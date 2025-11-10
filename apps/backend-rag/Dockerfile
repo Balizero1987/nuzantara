@@ -22,7 +22,8 @@ RUN pip install --no-cache-dir -r requirements-agents.txt
 
 # Copy application code
 COPY backend ./backend
-COPY .env ./
+# .env is not in repo (secrets via Fly.io secrets set)
+# COPY .env ./  # Commented: Use Fly.io secrets instead
 COPY *.py ./
 
 # ChromaDB data is downloaded from Cloudflare R2 at startup (see main_cloud.py)
@@ -38,7 +39,8 @@ RUN mkdir -p /data/chroma_db_FULL_deploy
 WORKDIR /app/backend/app
 
 # Copy .env to the working directory where config.py expects it (from parent directory)
-RUN cp /app/.env .env 2>/dev/null || echo "No .env file found"
+# RUN cp /app/.env .env 2>/dev/null || echo "No .env file found"
+# Note: All config via Fly.io environment variables & secrets
 
 # Expose port
 EXPOSE 8000
