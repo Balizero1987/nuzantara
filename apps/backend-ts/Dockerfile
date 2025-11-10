@@ -1,6 +1,10 @@
 # TypeScript Backend Dockerfile for Fly.io
 FROM node:20-alpine
 
+# Force rebuild - cache bust for rate limiter fixes
+ARG CACHEBUST=2025-11-10-v2
+RUN echo "Build: $CACHEBUST"
+
 # Install curl for health checks
 RUN apk add --no-cache curl
 
@@ -28,7 +32,3 @@ EXPOSE $PORT
 
 # Start the application with tsx (TypeScript runtime)
 CMD ["npx", "tsx", "src/server.ts"]
-# Build with AI Automation enabled
-# Start the application with tsx (TypeScript runtime) - MAIN SERVER
-CMD ["npx", "tsx", "src/server.ts"]
-# Build 1731008847 - MAIN SERVER with auth fixes
