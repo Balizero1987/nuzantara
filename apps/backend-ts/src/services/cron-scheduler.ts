@@ -45,76 +45,87 @@ export class CronScheduler {
       });
     }
 
-    // Job 1: Nightly Self-Healing (2:00 AM)
-    this.scheduleJob('nightly-healing', process.env.CRON_SELF_HEALING || '0 2 * * *', async () => {
-      logger.info('🔧 [CRON] Starting nightly self-healing...');
-      try {
-        if (!this.orchestrator) {
-          logger.warn('⚠️  [CRON] Orchestrator not initialized, skipping self-healing');
-          return;
+    // Job 1: Nightly Self-Healing (2:00 AM) - DISABLED by default for safety
+    if (process.env.CRON_SELF_HEALING) {
+      this.scheduleJob('nightly-healing', process.env.CRON_SELF_HEALING, async () => {
+        logger.info('🔧 [CRON] Starting nightly self-healing...');
+        try {
+          if (!this.orchestrator) {
+            logger.warn('⚠️  [CRON] Orchestrator not initialized, skipping self-healing');
+            return;
+          }
+          const taskId = await this.orchestrator.submitTask(
+            'self-healing',
+            { action: 'scan-and-fix', description: 'Nightly scan for errors and auto-fix' },
+            { priority: 'high', timestamp: new Date() }
+          );
+          logger.info('✅ [CRON] Nightly self-healing submitted', { taskId });
+        } catch (error: any) {
+          logger.error('❌ [CRON] Nightly self-healing failed', { error: error.message });
         }
-        const taskId = await this.orchestrator.submitTask(
-          'self-healing',
-          { action: 'scan-and-fix', description: 'Nightly scan for errors and auto-fix' },
-          { priority: 'high', timestamp: new Date() }
-        );
-        logger.info('✅ [CRON] Nightly self-healing submitted', { taskId });
-      } catch (error: any) {
-        logger.error('❌ [CRON] Nightly self-healing failed', { error: error.message });
-      }
-    });
+      });
+    } else {
+      logger.info('⚠️  [CRON] Nightly Self-Healing DISABLED (set CRON_SELF_HEALING to enable)');
+    }
 
-    // Job 2: Auto-Test Generation (3:00 AM)
-    this.scheduleJob('nightly-tests', process.env.CRON_AUTO_TESTS || '0 3 * * *', async () => {
-      logger.info('🧪 [CRON] Starting auto-test generation...');
-      try {
-        if (!this.orchestrator) {
-          logger.warn('⚠️  [CRON] Orchestrator not initialized, skipping test generation');
-          return;
+    // Job 2: Auto-Test Generation (3:00 AM) - DISABLED by default for safety
+    if (process.env.CRON_AUTO_TESTS) {
+      this.scheduleJob('nightly-tests', process.env.CRON_AUTO_TESTS, async () => {
+        logger.info('🧪 [CRON] Starting auto-test generation...');
+        try {
+          if (!this.orchestrator) {
+            logger.warn('⚠️  [CRON] Orchestrator not initialized, skipping test generation');
+            return;
+          }
+          const taskId = await this.orchestrator.submitTask(
+            'test-writer',
+            { action: 'update-tests', description: 'Generate missing tests for handlers' },
+            { priority: 'medium', timestamp: new Date() }
+          );
+          logger.info('✅ [CRON] Auto-test generation submitted', { taskId });
+        } catch (error: any) {
+          logger.error('❌ [CRON] Auto-test generation failed', { error: error.message });
         }
-        const taskId = await this.orchestrator.submitTask(
-          'test-writer',
-          { action: 'update-tests', description: 'Generate missing tests for handlers' },
-          { priority: 'medium', timestamp: new Date() }
-        );
-        logger.info('✅ [CRON] Auto-test generation submitted', { taskId });
-      } catch (error: any) {
-        logger.error('❌ [CRON] Auto-test generation failed', { error: error.message });
-      }
-    });
+      });
+    } else {
+      logger.info('⚠️  [CRON] Auto-Test Generation DISABLED (set CRON_AUTO_TESTS to enable)');
+    }
 
-    // Job 3: Weekly PR Creation (Sunday 4:00 AM)
-    this.scheduleJob('weekly-pr', process.env.CRON_WEEKLY_PR || '0 4 * * 0', async () => {
-      logger.info('📝 [CRON] Starting weekly PR creation...');
-      try {
-        if (!this.orchestrator) {
-          logger.warn('⚠️  [CRON] Orchestrator not initialized, skipping PR creation');
-          return;
+    // Job 3: Weekly PR Creation (Sunday 4:00 AM) - DISABLED by default for safety
+    if (process.env.CRON_WEEKLY_PR) {
+      this.scheduleJob('weekly-pr', process.env.CRON_WEEKLY_PR, async () => {
+        logger.info('📝 [CRON] Starting weekly PR creation...');
+        try {
+          if (!this.orchestrator) {
+            logger.warn('⚠️  [CRON] Orchestrator not initialized, skipping PR creation');
+            return;
+          }
+          const taskId = await this.orchestrator.submitTask(
+            'pr-agent',
+            { action: 'create-weekly-summary', description: 'Create PR with weekly improvements' },
+            { priority: 'low', timestamp: new Date() }
+          );
+          logger.info('✅ [CRON] Weekly PR creation submitted', { taskId });
+        } catch (error: any) {
+          logger.error('❌ [CRON] Weekly PR creation failed', { error: error.message });
         }
-        const taskId = await this.orchestrator.submitTask(
-          'pr-agent',
-          { action: 'create-weekly-summary', description: 'Create PR with weekly improvements' },
-          { priority: 'low', timestamp: new Date() }
-        );
-        logger.info('✅ [CRON] Weekly PR creation submitted', { taskId });
-      } catch (error: any) {
-        logger.error('❌ [CRON] Weekly PR creation failed', { error: error.message });
-      }
-    });
+      });
+    } else {
+      logger.info('⚠️  [CRON] Weekly PR Creation DISABLED (set CRON_WEEKLY_PR to enable)');
+    }
 
-    // Job 4: Health Check (Every 15 minutes)
+    // Job 4: Health Check (Every 15 minutes) - SAFE, monitoring only
     this.scheduleJob('health-check', process.env.CRON_HEALTH_CHECK || '*/15 * * * *', async () => {
       logger.debug('💓 [CRON] Running health check...');
       try {
         const health = await this.checkSystemHealth();
-        if (health.critical && this.orchestrator) {
-          // Trigger self-healing immediately
-          const taskId = await this.orchestrator.submitTask(
-            'self-healing',
-            { action: 'emergency-fix', description: `Critical issue detected: ${health.issue}` },
-            { priority: 'critical', timestamp: new Date() }
-          );
-          logger.warn('⚠️  [CRON] Critical health issue detected, emergency healing triggered', { taskId });
+        if (health.critical) {
+          // Only log critical issues, do NOT trigger auto-healing for safety
+          logger.warn('⚠️  [CRON] Critical health issue detected', {
+            status: health.status,
+            issue: health.issue,
+            note: 'Auto-healing disabled for safety. Enable CRON_SELF_HEALING to auto-fix.'
+          });
         }
         logger.debug('✅ [CRON] Health check completed', { status: health.status });
       } catch (error: any) {
@@ -134,7 +145,8 @@ export class CronScheduler {
       }
     });
 
-    logger.info('✅ Cron Scheduler started with 5 jobs');
+    const activeJobs = this.jobs.size;
+    logger.info(`✅ Cron Scheduler started with ${activeJobs} active jobs (2 safe jobs enabled by default)`);
     this.logSchedule();
   }
 
