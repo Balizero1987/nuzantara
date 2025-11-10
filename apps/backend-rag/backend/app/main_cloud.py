@@ -58,6 +58,8 @@ from services.intelligent_router import IntelligentRouter
 from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultural intelligence
 from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
+from services.health_monitor import HealthMonitor, init_health_monitor, get_health_monitor  # NEW: Health monitoring
+from services.chromadb_backup import ChromaDBBackupService, init_backup_service, get_backup_service  # NEW: Automatic backups
 from services.work_session_service import WorkSessionService
 from services.team_analytics_service import TeamAnalyticsService
 from services.session_service import SessionService  # Session store for 50+ message conversations
@@ -78,6 +80,9 @@ logger = logging.getLogger(__name__)
 
 # Background warmup task handle (set during startup)
 warmup_task: Optional[asyncio.Task] = None
+
+# Startup logs for debugging (accessible via /debug/startup endpoint)
+startup_logs: List[str] = []
 
 # Initialize FastAPI
 app = FastAPI(
@@ -716,26 +721,47 @@ def download_chromadb_from_r2():
         bucket_name = "nuzantaradb"
         source_prefix = "chroma_db/"
 
+        # Log R2 credentials status
+        logger.info(f"🔐 R2 Credentials: access_key={'SET' if r2_access_key else 'MISSING'}, "
+                   f"secret_key={'SET' if r2_secret_key else 'MISSING'}, "
+                   f"endpoint={'SET' if r2_endpoint else 'MISSING'}")
+
         # ✨ CORRECTION: Use proper ChromaDB path with full database
         local_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
 
-        # 🔧 OPTION 1: FORCE COMPLETE SYNC FROM R2
-        # Check if we need to force sync based on file count/size
+        # 🔧 FORCE SYNC LOGIC: Always sync on deploy to ensure fresh data from R2
+        # Check if we need to force sync based on ENV variable or file integrity
         chroma_sqlite_path = os.path.join(local_path, "chroma.sqlite3")
-        force_sync = False
-        
-        if os.path.exists(chroma_sqlite_path):
+        force_sync_env = os.getenv("FORCE_R2_SYNC", "true").lower() == "true"  # Default TRUE for fresh deploys
+        force_sync = force_sync_env
+
+        if os.path.exists(chroma_sqlite_path) and not force_sync_env:
             file_size_mb = os.path.getsize(chroma_sqlite_path) / 1024 / 1024
             # Force sync if database is too small (< 50MB = incomplete sync)
             if file_size_mb < 50.0:
                 logger.info(f"⚠️ ChromaDB too small ({file_size_mb:.1f} MB), forcing complete sync...")
                 force_sync = True
             else:
-                logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
-                logger.info(f"⚡ Using cached version ({file_size_mb:.1f} MB)")
-                return local_path
+                # Verify database has data by checking collection count
+                try:
+                    import chromadb
+                    client = chromadb.PersistentClient(path=local_path)
+                    collections = client.list_collections()
+                    if len(collections) == 0:
+                        logger.warning(f"⚠️ ChromaDB cache is EMPTY (0 collections), forcing R2 sync...")
+                        force_sync = True
+                    else:
+                        logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
+                        logger.info(f"⚡ Using cached version ({file_size_mb:.1f} MB, {len(collections)} collections)")
+                        return local_path
+                except Exception as e:
+                    logger.warning(f"⚠️ ChromaDB cache validation failed: {e}, forcing R2 sync...")
+                    force_sync = True
         else:
-            logger.info("🔄 No ChromaDB found, forcing complete sync...")
+            if force_sync_env:
+                logger.info("🔄 FORCE_R2_SYNC=true, forcing complete sync from R2...")
+            else:
+                logger.info("🔄 No ChromaDB found, forcing complete sync...")
             force_sync = True
 
         if force_sync:
@@ -846,13 +872,30 @@ async def preload_redis_cache():
         return False
 
 
+def log_startup(msg: str, level: str = "info"):
+    """Log startup message to both logger and startup_logs list for debugging"""
+    global startup_logs
+    timestamp = time.strftime("%H:%M:%S")
+    log_entry = f"[{timestamp}] {msg}"
+    startup_logs.append(log_entry)
+
+    if level == "info":
+        logger.info(msg)
+    elif level == "warning":
+        logger.warning(msg)
+    elif level == "error":
+        logger.error(msg)
+
+
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
-    global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
+    global search_service, llama_scout_client, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
     global skill_index, skill_detector, skill_loader, skill_coordinator, enhanced_context_builder, skill_cache, skill_metrics
+    global startup_logs
 
-    logger.info("🚀 Starting ZANTARA RAG Backend (Llama 4 Scout PRIMARY + Claude Haiku FALLBACK)...")
-    logger.info("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
+    startup_logs.clear()  # Clear previous logs
+    log_startup("🚀 Starting ZANTARA RAG Backend (Llama 4 Scout PRIMARY + Claude Haiku FALLBACK)...")
+    log_startup("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
 
     # Preload Redis cache first
     redis_warmup = asyncio.create_task(preload_redis_cache())
@@ -915,20 +958,44 @@ async def _initialize_backend_services():
         logger.error(f"❌ AlertService initialization failed: {e}")
         alert_service = None
 
+    # Initialize Health Monitor (watches for downtime)
+    try:
+        if alert_service:
+            health_monitor = init_health_monitor(alert_service, check_interval=60)
+            await health_monitor.start()
+            logger.info("✅ HealthMonitor started (60s interval, downtime alerts enabled)")
+        else:
+            logger.warning("⚠️ HealthMonitor disabled (AlertService unavailable)")
+    except Exception as e:
+        logger.error(f"❌ HealthMonitor initialization failed: {e}")
+
+    # Initialize ChromaDB Backup Service (automatic R2 backups)
+    try:
+        if alert_service:
+            backup_service = init_backup_service(alert_service)
+            await backup_service.start()
+            logger.info("✅ ChromaDBBackupService started (24h interval, 7 day retention)")
+        else:
+            logger.warning("⚠️ ChromaDBBackupService disabled (AlertService unavailable)")
+    except Exception as e:
+        logger.error(f"❌ ChromaDBBackupService initialization failed: {e}")
+
     # Download ChromaDB from Cloudflare R2 (OR initialize empty)
     try:
+        log_startup("📥 Attempting ChromaDB download from Cloudflare R2...")
         chroma_path = download_chromadb_from_r2()
-        logger.info("✅ ChromaDB loaded from Cloudflare R2")
+        log_startup("✅ ChromaDB loaded from Cloudflare R2")
     except Exception as e:
         import traceback
-        logger.warning(f"⚠️ R2 download failed: {e}")
-        logger.info("📂 Initializing empty ChromaDB for manual population...")
+        log_startup(f"⚠️ R2 download failed: {e}", "warning")
+        log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "warning")
+        log_startup("📂 Initializing empty ChromaDB for manual population...")
 
         # Fallback: Initialize empty ChromaDB in persistent volume (or /tmp)
         chroma_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
         os.makedirs(chroma_path, exist_ok=True)
-        logger.info(f"✅ Empty ChromaDB initialized: {chroma_path}")
-        logger.info("💡 Populate via: POST /api/oracle/populate-now")
+        log_startup(f"✅ Empty ChromaDB initialized: {chroma_path}")
+        log_startup("💡 Populate via: POST /api/oracle/populate-now")
 
     # Set environment variable for SearchService
     os.environ['CHROMA_DB_PATH'] = chroma_path
@@ -1103,11 +1170,24 @@ async def _initialize_backend_services():
 
     # Initialize MemoryService (PostgreSQL)
     try:
-        memory_service = MemoryServicePostgres()  # PostgreSQL via Fly.io DATABASE_URL
-        await memory_service.connect()  # Initialize connection pool
-        logger.info("✅ MemoryServicePostgres ready (PostgreSQL enabled)")
+        database_url = os.getenv("DATABASE_URL")
+        if not database_url:
+            log_startup("⚠️ DATABASE_URL not configured - MemoryService will use in-memory fallback", "warning")
+            memory_service = None
+        else:
+            log_startup(f"🔗 PostgreSQL: Connecting to {database_url[:30]}...")
+            memory_service = MemoryServicePostgres()  # PostgreSQL via Fly.io DATABASE_URL
+            await memory_service.connect()  # Initialize connection pool
+
+            # Verify connection actually works
+            if memory_service.use_postgres and memory_service.pool:
+                log_startup("✅ MemoryServicePostgres ready (PostgreSQL enabled)")
+            else:
+                log_startup("⚠️ MemoryServicePostgres using in-memory fallback (PostgreSQL unavailable)", "warning")
     except Exception as e:
-        logger.error(f"❌ MemoryServicePostgres initialization failed: {e}")
+        import traceback
+        log_startup(f"❌ MemoryServicePostgres initialization failed: {e}", "error")
+        log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
         memory_service = None
 
     # Initialize ConversationService (Phase 2)
@@ -1286,8 +1366,7 @@ async def _initialize_backend_services():
             from services.skill_cache import SkillCache
             from services.skill_metrics import SkillMetrics
             from core.embeddings import EmbeddingsGenerator
-            import os
-            
+
             skills_dir = os.path.join(os.path.dirname(__file__), '..', 'skills')
             
             # Initialize embedder for skills
@@ -1499,8 +1578,8 @@ async def health_check():
         ],
         "chromadb": search_service is not None,
         "ai": {
-            "claude_haiku_available": claude_haiku is not None,
-            "has_ai": claude_haiku is not None
+            "llama_scout_primary": intelligent_router is not None,
+            "has_ai": intelligent_router is not None or claude_haiku is not None
         },
         "memory": {
             "postgresql": memory_service is not None,
@@ -1520,9 +1599,14 @@ async def health_check():
             "tool_executor_status": tool_executor is not None,
             "pricing_service_status": pricing_service is not None,
             "handler_proxy_status": handler_proxy_service is not None
+        },
+        "monitoring": {
+            "health_monitor": get_health_monitor() is not None,
+            "backup_service": get_backup_service() is not None,
+            "rate_limiting": "enabled"
         }
     }
-    
+
     # Add detailed reranker stats if available
     if reranker_service is not None:
         try:
@@ -1555,6 +1639,197 @@ async def health_check():
             "Access-Control-Allow-Headers": "Content-Type, Authorization"
         }
     )
+
+
+@app.get("/debug/startup")
+async def debug_startup():
+    """Debug endpoint to view startup logs - helps diagnose service initialization issues"""
+    return {
+        "startup_logs": startup_logs,
+        "total_logs": len(startup_logs),
+        "services_status": {
+            "chromadb": search_service is not None,
+            "postgresql": memory_service is not None,
+            "ai_router": intelligent_router is not None,
+            "tools": tool_executor is not None
+        },
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+
+@app.get("/debug/ai-keys")
+async def debug_ai_keys():
+    """Debug endpoint to check which AI API keys are configured"""
+    openrouter_llama_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
+    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+
+    result = {
+        "environment_variables": {
+            "OPENROUTER_API_KEY_LLAMA": {
+                "present": bool(openrouter_llama_key),
+                "prefix": openrouter_llama_key[:15] + "..." if openrouter_llama_key else None
+            },
+            "ANTHROPIC_API_KEY": {
+                "present": bool(anthropic_key),
+                "prefix": anthropic_key[:15] + "..." if anthropic_key else None
+            },
+            "OPENROUTER_API_KEY": bool(os.getenv("OPENROUTER_API_KEY")),
+            "OPENAI_API_KEY": bool(os.getenv("OPENAI_API_KEY"))
+        },
+        "services": {
+            "llama_scout_client": llama_scout_client is not None,
+            "intelligent_router": intelligent_router is not None,
+        }
+    }
+
+    # Add LlamaScoutClient details if available
+    if llama_scout_client:
+        result["llama_scout_details"] = {
+            "llama_client_initialized": llama_scout_client.llama_client is not None,
+            "haiku_client_initialized": llama_scout_client.haiku_client is not None,
+            "force_haiku": llama_scout_client.force_haiku,
+            "metrics": llama_scout_client.metrics
+        }
+
+    # Add IntelligentRouter details if available
+    if intelligent_router:
+        result["intelligent_router_details"] = {
+            "haiku_service_type": str(type(intelligent_router.haiku).__name__),
+            "haiku_is_llama_scout": isinstance(intelligent_router.haiku, LlamaScoutClient)
+        }
+
+    return result
+
+
+@app.get("/debug/test-llama")
+async def test_llama():
+    """Test Llama API directly and return detailed diagnostics"""
+    if not llama_scout_client:
+        return {
+            "error": "LlamaScoutClient not initialized",
+            "llama_scout_client": None
+        }
+
+    diagnostics = {
+        "llama_client_available": llama_scout_client.llama_client is not None,
+        "haiku_client_available": llama_scout_client.haiku_client is not None,
+        "force_haiku": llama_scout_client.force_haiku,
+        "metrics": llama_scout_client.metrics
+    }
+
+    # Test 1: Try calling Llama DIRECTLY (no fallback)
+    test_messages = [{"role": "user", "content": "Say 'test' only"}]
+
+    try:
+        if llama_scout_client.llama_client:
+            logger.info("🧪 Testing Llama API directly...")
+            llama_result = await llama_scout_client._call_llama(
+                messages=test_messages,
+                system="Reply with only the word 'test'",
+                max_tokens=10,
+                temperature=0
+            )
+            diagnostics["llama_direct_test"] = {
+                "success": True,
+                "provider": llama_result.get("provider"),
+                "model": llama_result.get("model"),
+                "response": llama_result.get("text", "")[:50]
+            }
+        else:
+            diagnostics["llama_direct_test"] = {
+                "success": False,
+                "error": "llama_client is None"
+            }
+    except Exception as e:
+        diagnostics["llama_direct_test"] = {
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "error_details": repr(e)
+        }
+
+    # Test 2: Try with fallback (normal flow)
+    try:
+        result = await llama_scout_client.chat_async(
+            messages=test_messages,
+            system="Reply with only the word 'test'",
+            max_tokens=10,
+            temperature=0
+        )
+        diagnostics["full_test_with_fallback"] = {
+            "success": True,
+            "ai_used": result.get("provider", result.get("ai_used")),
+            "model": result.get("model"),
+            "response": result.get("response", result.get("content", ""))[:50]
+        }
+    except Exception as e:
+        diagnostics["full_test_with_fallback"] = {
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__
+        }
+
+    return diagnostics
+
+
+@app.get("/api/monitoring/health-monitor")
+async def monitoring_status():
+    """Get health monitor status and alerts"""
+    health_monitor = get_health_monitor()
+    if not health_monitor:
+        return {"error": "Health monitor not initialized"}
+
+    return {
+        "status": health_monitor.get_status(),
+        "description": "Monitors system health every 60s and sends alerts on downtime"
+    }
+
+
+@app.get("/api/monitoring/backup-service")
+async def backup_status():
+    """Get backup service status"""
+    backup_service = get_backup_service()
+    if not backup_service:
+        return {"error": "Backup service not initialized"}
+
+    return {
+        "status": backup_service.get_status(),
+        "description": "Automatic daily backups to Cloudflare R2 with 7 day retention"
+    }
+
+
+@app.post("/api/monitoring/backup/trigger")
+async def trigger_manual_backup():
+    """Trigger a manual backup immediately"""
+    backup_service = get_backup_service()
+    if not backup_service:
+        raise HTTPException(status_code=503, detail="Backup service not initialized")
+
+    result = await backup_service.trigger_manual_backup()
+    return result
+
+
+@app.get("/api/monitoring/rate-limits")
+async def rate_limit_info():
+    """Get rate limiting configuration and statistics"""
+    from middleware.rate_limiter import get_rate_limit_stats, RateLimitMiddleware
+
+    stats = get_rate_limit_stats()
+
+    return {
+        "backend": stats["backend"],
+        "connected": stats["connected"],
+        "total_rules": stats["rate_limits_configured"],
+        "rules": {
+            "chat": "30 requests/minute",
+            "search": "60 requests/minute",
+            "api_general": "120 requests/minute",
+            "agents_journey": "10 requests/hour",
+            "agents_compliance": "20 requests/hour",
+            "default": "200 requests/minute"
+        },
+        "description": "Rate limiting protects endpoints from abuse. Limits vary by endpoint type."
+    }
 
 
 @app.post("/api/auth/demo")
