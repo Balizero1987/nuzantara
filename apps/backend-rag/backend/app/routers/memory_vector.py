@@ -25,7 +25,8 @@ memory_vector_db: Optional[ChromaDBClient] = None
 def initialize_memory_vector_db(persist_dir: Optional[str] = None) -> ChromaDBClient:
     """Create or refresh the Chroma collection used for semantic memories."""
     global memory_vector_db
-    target_dir = persist_dir or os.environ.get("CHROMA_DB_PATH", "/tmp/chroma_db")
+    # FIX 2025-11-10: Use same default as SearchService to avoid ChromaDB instance conflicts
+    target_dir = persist_dir or os.environ.get("CHROMA_DB_PATH", "/data/chroma_db_FULL_deploy")
 
     try:
         memory_vector_db = ChromaDBClient(

@@ -42,8 +42,8 @@ class ChromaDBClient:
             self.persist_directory = persist_directory or env_dir or settings.chroma_persist_dir
             self.collection_name = collection_name or settings.chroma_collection_name
         else:
-            # Fallback defaults when settings unavailable
-            self.persist_directory = persist_directory or os.environ.get("CHROMA_DB_PATH", "/tmp/chroma_db")
+            # FIX 2025-11-10: Use production path as fallback to avoid ChromaDB instance conflicts
+            self.persist_directory = persist_directory or os.environ.get("CHROMA_DB_PATH", "/data/chroma_db_FULL_deploy")
             self.collection_name = collection_name or "zantara_books"
 
         # Initialize Chroma client with persistence
