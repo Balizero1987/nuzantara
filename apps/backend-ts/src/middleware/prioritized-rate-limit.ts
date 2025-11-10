@@ -190,7 +190,7 @@ export function createEndpointRateLimiter(
     max,
     standardHeaders: true,
     legacyHeaders: true,
-    trust: 1, // Trust only 1 proxy hop (Fly.io's proxy)
+    // Note: trust proxy is handled by app.set('trust proxy', 1) in server.ts
     keyGenerator: getRateLimitKey,
 
     handler: (req: Request, res: Response) => {
