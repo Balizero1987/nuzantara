@@ -1,11 +1,12 @@
-// 💬 ZANTARA Chat Service - Natural Language Interface
+// 💬 ZANTARA Chat Service - Natural Language Interface with Teaching Mode
 
 import { GamificationApi } from './gamificationApi';
-import { Quest, UserProfile } from '../types/gamification';
+import { Quest, UserProfile, SystemKnowledge, IntelligenceLayer } from '../types/gamification';
+import { TeachingEngine } from './teachingEngine';
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
   metadata?: {
@@ -13,6 +14,8 @@ export interface ChatMessage {
     entities?: any[];
     questSuggestions?: Quest[];
     ragSources?: any[];
+    intelligenceLayer?: IntelligenceLayer;
+    teachingMode?: boolean;
   };
 }
 
@@ -21,6 +24,8 @@ export interface ChatContext {
   sessionId: string;
   userProfile?: UserProfile;
   recentQuests?: Quest[];
+  systemKnowledge?: SystemKnowledge;
+  teachingMode?: boolean; // Enable/disable teaching explanations
 }
 
 /**
@@ -64,6 +69,12 @@ export class ZantaraChat {
           break;
         case 'analytics':
           response = await this.handleAnalytics(userMessage, intent);
+          break;
+        case 'learning':
+          response = await this.handleLearning(userMessage, intent);
+          break;
+        case 'explain':
+          response = await this.handleExplain(userMessage, intent);
           break;
         case 'help':
           response = await this.handleHelp(userMessage);
@@ -128,12 +139,32 @@ export class ZantaraChat {
       return { type: 'analytics', entities: {} };
     }
 
+    // Learning & Teaching
+    if (
+      lowerMsg.includes('impara') ||
+      lowerMsg.includes('learn') ||
+      lowerMsg.includes('insegna') ||
+      lowerMsg.includes('teach') ||
+      lowerMsg.includes('spiega') ||
+      lowerMsg.includes('explain') ||
+      lowerMsg.includes('come funziona') ||
+      lowerMsg.includes('how does') ||
+      lowerMsg.includes('what is') ||
+      lowerMsg.includes('cos\'è') ||
+      lowerMsg.includes('cosa è')
+    ) {
+      // Extract concept
+      const conceptMatch = lowerMsg.match(/(rag|agent|embedding|semantic|vector|llama|claude|nlp|memory|cache|redis|chromadb|multi-agent)/);
+      return {
+        type: lowerMsg.includes('spiega') || lowerMsg.includes('explain') ? 'explain' : 'learning',
+        entities: { concept: conceptMatch?.[1] || null }
+      };
+    }
+
     // Help
     if (
       lowerMsg.includes('help') ||
-      lowerMsg.includes('aiuto') ||
-      lowerMsg.includes('come') ||
-      lowerMsg.includes('how')
+      lowerMsg.includes('aiuto')
     ) {
       return { type: 'help', entities: {} };
     }
@@ -278,9 +309,14 @@ export class ZantaraChat {
       `- "Mostrami i trend della settimana"\n` +
       `- "Report delle metriche"\n` +
       `- "Analisi del sistema"\n\n` +
-      `🔍 **Ricerca**\n` +
-      `- Fai qualsiasi domanda e cercherò nella knowledge base!\n\n` +
-      `Cosa vuoi fare? 😊`;
+      `🎓 **Teaching Mode (NEW!)**\n` +
+      `- "Insegnami RAG"\n` +
+      `- "Spiega come funziona il Multi-Agent"\n` +
+      `- "Cos'è il semantic search?"\n` +
+      `- "Come funziona la memoria persistente?"\n\n` +
+      `🔍 **Ricerca Knowledge Base**\n` +
+      `- Fai qualsiasi domanda e cercherò tra 25K+ documenti!\n\n` +
+      `💡 Cresci insieme al sistema - da utente a architetto! 🚀`;
 
     return {
       id: `msg_${Date.now()}_assistant`,
@@ -316,6 +352,158 @@ export class ZantaraChat {
   }
 
   /**
+   * Handle learning queries (Teaching Mode)
+   */
+  private async handleLearning(message: string, intent: any): Promise<ChatMessage> {
+    const userLevel = this.context.userProfile?.level || 'Rookie';
+    const conceptId = intent.entities.concept;
+
+    if (!conceptId) {
+      // General learning inquiry
+      const recommended = TeachingEngine.getRecommendedConcepts(
+        this.context.systemKnowledge || this.createEmptyKnowledge(),
+        userLevel as any,
+        3
+      );
+
+      let content = '🎓 **ZANTARA Teaching Mode**\n\n';
+      content += 'Posso insegnarti molti concetti sul sistema Nuzantara!\n\n';
+      content += '💡 Concetti consigliati per te:\n\n';
+
+      recommended.forEach((concept, i) => {
+        content += `${i + 1}. **${concept.name}**\n`;
+        content += `   ${concept.description}\n\n`;
+      });
+
+      content += 'Chiedi: "Spiega [concetto]" per iniziare! 🚀';
+
+      return {
+        id: `msg_${Date.now()}_assistant`,
+        role: 'assistant',
+        content,
+        timestamp: new Date(),
+        metadata: { intent: 'learning_overview', teachingMode: true }
+      };
+    }
+
+    // Specific concept teaching
+    const teachingContent = TeachingEngine.generateTeachingContent(conceptId, userLevel as any);
+
+    if (!teachingContent) {
+      return {
+        id: `msg_${Date.now()}_assistant`,
+        role: 'assistant',
+        content: `Non ho ancora materiale didattico su "${conceptId}". Prova con: RAG, Agents, NLP, Memory, o Cache.`,
+        timestamp: new Date(),
+        metadata: { intent: 'learning_not_found' }
+      };
+    }
+
+    let content = `🎓 **${teachingContent.topic}**\n\n`;
+    content += `${teachingContent.explanation}\n\n`;
+
+    if (teachingContent.examples.length > 0) {
+      content += '📚 **Esempi:**\n';
+      teachingContent.examples.forEach((ex, i) => {
+        content += `${i + 1}. ${ex}\n`;
+      });
+      content += '\n';
+    }
+
+    if (teachingContent.quiz) {
+      content += '🎯 **Quiz**: ' + teachingContent.quiz.question + '\n\n';
+      teachingContent.quiz.options.forEach((opt, i) => {
+        content += `${String.fromCharCode(65 + i)}. ${opt}\n`;
+      });
+    }
+
+    return {
+      id: `msg_${Date.now()}_assistant`,
+      role: 'assistant',
+      content,
+      timestamp: new Date(),
+      metadata: { intent: 'learning_specific', teachingMode: true }
+    };
+  }
+
+  /**
+   * Handle "explain how it works" queries (Deep Dive Mode)
+   */
+  private async handleExplain(message: string, intent: any): Promise<ChatMessage> {
+    const userLevel = this.context.userProfile?.level || 'Rookie';
+    const conceptId = intent.entities.concept;
+
+    if (!conceptId) {
+      return {
+        id: `msg_${Date.now()}_assistant`,
+        role: 'assistant',
+        content: '🤔 Cosa vuoi che ti spieghi? Prova: "Spiega come funziona il RAG" o "Spiega i Multi-Agent"',
+        timestamp: new Date()
+      };
+    }
+
+    // Generate intelligence layer for this concept
+    const intelligenceLayer = TeachingEngine.generateIntelligenceLayer(
+      `quest_${conceptId}_intro`,
+      userLevel as any
+    );
+
+    if (!intelligenceLayer) {
+      // Fallback to teaching content
+      return this.handleLearning(message, intent);
+    }
+
+    let content = `💡 **Did You Know?**\n${intelligenceLayer.didYouKnow}\n\n`;
+    content += `🔧 **Come Funziona Tecnicamente:**\n${intelligenceLayer.technicalExplanation}\n\n`;
+
+    if (intelligenceLayer.deepDive) {
+      const dive = intelligenceLayer.deepDive;
+      content += `📖 **Deep Dive: ${dive.title}**\n\n`;
+
+      dive.sections.forEach((section, i) => {
+        content += `**${section.heading}**\n`;
+        content += `${section.content}\n`;
+        if (section.code) {
+          content += `\`\`\`\n${section.code}\n\`\`\`\n`;
+        }
+        content += '\n';
+      });
+
+      if (dive.visualAid) {
+        content += `**Visual:**\n\`\`\`\n${dive.visualAid}\n\`\`\`\n\n`;
+      }
+
+      if (dive.practicalExample) {
+        content += `💪 **Prova Tu:** ${dive.practicalExample}\n\n`;
+      }
+
+      if (dive.furtherReading && dive.furtherReading.length > 0) {
+        content += `📚 **Approfondisci:** ${dive.furtherReading.join(', ')}\n`;
+      }
+    }
+
+    if (intelligenceLayer.relatedConcepts && intelligenceLayer.relatedConcepts.length > 0) {
+      content += `\n🔗 **Concetti Correlati:** ${intelligenceLayer.relatedConcepts.join(', ')}`;
+    }
+
+    if (intelligenceLayer.unlockQuest) {
+      content += `\n\n🎯 **Quest Sbloccata:** ${intelligenceLayer.unlockQuest}`;
+    }
+
+    return {
+      id: `msg_${Date.now()}_assistant`,
+      role: 'assistant',
+      content,
+      timestamp: new Date(),
+      metadata: {
+        intent: 'explain_deep_dive',
+        teachingMode: true,
+        intelligenceLayer
+      }
+    };
+  }
+
+  /**
    * Handle general conversation
    */
   private async handleGeneral(message: string): Promise<ChatMessage> {
@@ -323,7 +511,8 @@ export class ZantaraChat {
       'Interessante! Vuoi che ti aiuti con qualche quest o monitoraggio?',
       'Capisco. Posso suggerirti delle task da fare, vuoi?',
       'Ok! Cosa vuoi esplorare del sistema?',
-      'Perfetto! Ti posso aiutare con quest, monitoring o analytics. Cosa preferisci?'
+      'Perfetto! Ti posso aiutare con quest, monitoring o analytics. Cosa preferisci?',
+      '🎓 Sapevi che posso anche insegnarti come funziona il sistema? Chiedi "Insegnami!" per iniziare!'
     ];
 
     const content = responses[Math.floor(Math.random() * responses.length)];
@@ -334,6 +523,19 @@ export class ZantaraChat {
       content,
       timestamp: new Date(),
       metadata: { intent: 'general' }
+    };
+  }
+
+  /**
+   * Create empty system knowledge for new users
+   */
+  private createEmptyKnowledge(): SystemKnowledge {
+    return {
+      userId: this.context.userId,
+      conceptsLearned: [],
+      intelligenceLevel: 0,
+      architectPoints: 0,
+      teachingScore: 0
     };
   }
 
