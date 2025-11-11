@@ -1,0 +1,38 @@
+/**
+ * ZANTARA Design System - SOLO SFONDO E LOGO
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+html,
+body {
+  background: #2B2B2B !important;
+  background-color: #2B2B2B !important;
+}
+
+body {
+  min-height: 100vh;
+  background: #2B2B2B !important;
+  background-color: #2B2B2B !important;
+  color: rgba(255, 255, 255, 0.95);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+}
+
+/* Logo SVG */
+.bali-zero-logo,
+.zantara-logo {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  display: block;
+}
