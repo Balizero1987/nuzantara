@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUZANTARA System Architecture Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: #fff;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+        }
+
+        .header .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #a5b4fc;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .architecture-map {
+            position: relative;
+            min-height: 2000px;
+            background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .layer {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .layer-title {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            padding-left: 20px;
+            border-left: 5px solid;
+            display: inline-block;
+        }
+
+        .layer-0 .layer-title { border-color: #f472b6; color: #f472b6; }
+        .layer-1 .layer-title { border-color: #fb923c; color: #fb923c; }
+        .layer-2 .layer-title { border-color: #facc15; color: #facc15; }
+        .layer-3 .layer-title { border-color: #4ade80; color: #4ade80; }
+        .layer-4 .layer-title { border-color: #22d3ee; color: #22d3ee; }
+        .layer-5 .layer-title { border-color: #818cf8; color: #818cf8; }
+        .layer-6 .layer-title { border-color: #c084fc; color: #c084fc; }
+
+        .components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            position: relative;
+        }
+
+        .component {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid;
+            position: relative;
+            transition: all 0.3s;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .component::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .component:hover::before {
+            opacity: 1;
+        }
+
+        .component:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5);
+        }
+
+        .component-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .component-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .component-desc {
+            font-size: 0.9em;
+            opacity: 0.8;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .component-details {
+            font-size: 0.85em;
+            opacity: 0.7;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        .component-details ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .component-details li {
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .component-details li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: inherit;
+        }
+
+        /* Color schemes for different layers */
+        .layer-0 .component { border-color: #f472b6; }
+        .layer-1 .component { border-color: #fb923c; }
+        .layer-2 .component { border-color: #facc15; }
+        .layer-3 .component { border-color: #4ade80; }
+        .layer-4 .component { border-color: #22d3ee; }
+        .layer-5 .component { border-color: #818cf8; }
+        .layer-6 .component { border-color: #c084fc; }
+
+        /* Connection lines */
+        .connection-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .components {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Badge styles */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin: 3px;
+            text-transform: uppercase;
+        }
+
+        .badge-primary { background: #6366f1; }
+        .badge-success { background: #10b981; }
+        .badge-warning { background: #f59e0b; }
+        .badge-info { background: #06b6d4; }
+        .badge-danger { background: #ef4444; }
+
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Legend */
+        .legend {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .legend h3 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .component { min-width: 100%; }
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: white; color: black; }
+            .component { page-break-inside: avoid; }
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tech-tag {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Pulse animation for important components */
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+        }
+
+        .component.critical {
+            animation: pulse 2s infinite;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 2em;
+            color: rgba(255, 255, 255, 0.3);
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header floating">
+            <h1>🗺️ NUZANTARA SYSTEM MAP</h1>
+            <p class="subtitle">Complete System Architecture & Infrastructure</p>
+            <p style="opacity: 0.8; margin-top: 10px;">Production Site: <a href="https://zantara.balizero.com" style="color: #a5b4fc; text-decoration: none;">https://zantara.balizero.com</a></p>
+            <p style="opacity: 0.7; font-size: 0.9em; margin-top: 5px;">Version 5.2.2 (incremental-v0.9) | Status: Production Ready 99%+ Uptime</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="number">25,422</div>
+                <div class="label">Documents Indexed</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">10</div>
+                <div class="label">Collections</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">79+</div>
+                <div class="label">API Handlers</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">63</div>
+                <div class="label">Python Services</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">15</div>
+                <div class="label">AI Agents</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">99%+</div>
+                <div class="label">Uptime SLA</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">~120ms</div>
+                <div class="label">Response Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">192KB</div>
+                <div class="label">Bundle Size</div>
+            </div>
+        </div>
+
+        <div class="architecture-map">
+            <!-- Layer 0: User Access -->
+            <div class="layer layer-0">
+                <h2 class="layer-title">🌐 Layer 0: Global User Access</h2>
+                <div class="components">
+                    <div class="component critical">
+                        <span class="component-icon">🌍</span>
+                        <div class="component-name">Global Users</div>
+                        <div class="component-desc">Worldwide access to ZANTARA platform for Indonesian business intelligence</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Multi-region accessibility</li>
+                                <li>CDN-accelerated delivery</li>
+                                <li>SSL/TLS secured</li>
+                                <li>Mobile & desktop support</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="badge badge-primary">HTTPS</span>
+                            <span class="badge badge-success">Global</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇️</div>
+
+            <!-- Layer 1: CDN & Edge -->
+            <div class="layer layer-1">
+                <h2 class="layer-title">☁️ Layer 1: CDN & Edge Network</h2>
+                <div class="components">
+                    <div class="component critical">
+                        <span class="component-icon">⚡</span>
+                        <div class="component-name">Cloudflare CDN</div>
+                        <div class="component-desc">Global edge network providing SSL, DDoS protection, and content delivery</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>200+ edge locations</li>
+                                <li>Auto SSL/TLS renewal</li>
+                                <li>DDoS protection</li>
+                                <li>DNS management</li>
+                                <li>WAF (Web Application Firewall)</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="badge badge-info">Cloudflare</span>
+                            <span class="badge badge-success">Edge</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇️</div>
+
+            <!-- Layer 2: Frontend Hosting -->
+            <div class="layer layer-2">
+                <h2 class="layer-title">💻 Layer 2: Frontend Layer</h2>
+                <div class="components">
+                    <div class="component critical">
+                        <span class="component-icon">⚛️</span>
+                        <div class="component-name">React Web App</div>
+                        <div class="component-desc">Modern React 18 application with optimized bundle size and performance</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Bundle: 192KB (85% reduction)</li>
+                                <li>10 JS files (90% reduction)</li>
+                                <li>Load time: <1.5s</li>
+                                <li>Login with PIN authentication</li>
+                                <li>Chat interface</li>
+                                <li>Plugin marketplace</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-tag">React 18</span>
+                            <span class="tech-tag">TypeScript</span>
+                            <span class="tech-tag">Vite</span>
+                            <span class="tech-tag">Tailwind CSS</span>
+                        </div>
+                        <span class="badge badge-primary">GitHub Pages</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🎨</span>
+                        <div class="component-name">UI Components</div>
+                        <div class="component-desc">Reusable component library with shadcn/ui integration</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Login.tsx - Auth UI</li>
+                                <li>PinInput.tsx - PIN entry</li>
+                                <li>PluginMarketplace.tsx</li>
+                                <li>ErrorBoundary.tsx</li>
+                                <li>10+ UI components</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🪝</span>
+                        <div class="component-name">React Hooks</div>
+                        <div class="component-desc">Custom hooks for state and business logic</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>useLogin - Auth logic</li>
+                                <li>Custom validation</li>
+                                <li>State management</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇️</div>
+
+            <!-- Layer 3: API Gateway -->
+            <div class="layer layer-3">
+                <h2 class="layer-title">🔌 Layer 3: API Gateway & Backend Services</h2>
+                <div class="components">
+                    <div class="component critical">
+                        <span class="component-icon">🚀</span>
+                        <div class="component-name">TypeScript Backend</div>
+                        <div class="component-desc">Express.js API Gateway - Main orchestration layer with 79 handlers</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Port: 8080</li>
+                                <li>79 handler modules</li>
+                                <li>50+ service modules</li>
+                                <li>15 autonomous agents</li>
+                                <li>Circuit breaker pattern</li>
+                                <li>Rate limiting: 100 req/min</li>
+                                <li>JWT authentication</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-tag">Node.js 20</span>
+                            <span class="tech-tag">Express.js</span>
+                            <span class="tech-tag">TypeScript</span>
+                        </div>
+                        <span class="badge badge-primary">Fly.io Singapore</span>
+                        <span class="badge badge-success">2GB RAM</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🛡️</span>
+                        <div class="component-name">Security Middleware</div>
+                        <div class="component-desc">Comprehensive security layer with CORS, Helmet, rate limiting</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Helmet security headers</li>
+                                <li>CORS configuration</li>
+                                <li>Request sanitization</li>
+                                <li>Rate limiting per IP</li>
+                                <li>Correlation ID tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🔐</span>
+                        <div class="component-name">Authentication System</div>
+                        <div class="component-desc">Unified JWT-based authentication with multiple strategies</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Team login (22 members)</li>
+                                <li>User authentication</li>
+                                <li>JWT token management</li>
+                                <li>Session validation</li>
+                                <li>OAuth support</li>
+                            </ul>
+                        </div>
+                        <span class="badge badge-warning">JWT</span>
+                    </div>
+
+                    <div class="component critical">
+                        <span class="component-icon">🐍</span>
+                        <div class="component-name">Python RAG Backend</div>
+                        <div class="component-desc">FastAPI service for RAG with ChromaDB - 63 Python services</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Port: 8000</li>
+                                <li>63 service modules</li>
+                                <li>Vector search</li>
+                                <li>Semantic caching</li>
+                                <li>Cultural RAG</li>
+                                <li>Pricing calculator</li>
+                                <li>Research agent</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-tag">Python 3.11</span>
+                            <span class="tech-tag">FastAPI</span>
+                            <span class="tech-tag">ChromaDB</span>
+                        </div>
+                        <span class="badge badge-primary">Fly.io Singapore</span>
+                        <span class="badge badge-success">2GB RAM</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">📊</span>
+                        <div class="component-name">API Endpoints</div>
+                        <div class="component-desc">50+ REST endpoints organized by domain</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>/api/v3/zantara/* - Unified</li>
+                                <li>/api/v2/bali-zero/* - Services</li>
+                                <li>/api/auth/* - Authentication</li>
+                                <li>/cache/* - Cache management</li>
+                                <li>/health, /metrics - Monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇️</div>
+
+            <!-- Layer 4: Autonomous Agents -->
+            <div class="layer layer-4">
+                <h2 class="layer-title">🤖 Layer 4: Autonomous AI Agents</h2>
+                <div class="components">
+                    <div class="component">
+                        <span class="component-icon">🔧</span>
+                        <div class="component-name">Self-Healing Agent</div>
+                        <div class="component-desc">Automatically detects and fixes production errors</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Error pattern recognition</li>
+                                <li>Auto-fix deployment</li>
+                                <li>Rollback on failure</li>
+                                <li>Cron: 0 2 * * *</li>
+                            </ul>
+                        </div>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🧪</span>
+                        <div class="component-name">Test Writer Agent</div>
+                        <div class="component-desc">Generates comprehensive test suites automatically</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Unit test generation</li>
+                                <li>Integration tests</li>
+                                <li>E2E test scenarios</li>
+                                <li>Cron: 0 3 * * *</li>
+                            </ul>
+                        </div>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🏥</span>
+                        <div class="component-name">Health Monitor</div>
+                        <div class="component-desc">Continuous health monitoring and alerting</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Endpoint availability</li>
+                                <li>Performance metrics</li>
+                                <li>Alert generation</li>
+                                <li>Cron: */15 * * * *</li>
+                            </ul>
+                        </div>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">📝</span>
+                        <div class="component-name">Endpoint Generator</div>
+                        <div class="component-desc">Generate API endpoints from natural language</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>NL to API conversion</li>
+                                <li>Auto-documentation</li>
+                                <li>Type safety</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">💰</span>
+                        <div class="component-name">Tax Genius Agent</div>
+                        <div class="component-desc">Indonesian tax calculations and compliance</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>PPh 21/23/25/26/29 calculations</li>
+                                <li>VAT (PPN 11%)</li>
+                                <li>895+ tax scenarios</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">⚖️</span>
+                        <div class="component-name">Legal Architect</div>
+                        <div class="component-desc">Legal document analysis and compliance checking</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Contract analysis</li>
+                                <li>Compliance checking</li>
+                                <li>Risk assessment</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🏢</span>
+                        <div class="component-name">Property Sage</div>
+                        <div class="component-desc">Property investment analysis and ownership guidance</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Ownership types analysis</li>
+                                <li>Foreign ownership rules</li>
+                                <li>Due diligence</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🔍</span>
+                        <div class="component-name">EYE-KBLI Agent</div>
+                        <div class="component-desc">Business classification system (1,400+ codes)</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>KBLI 2020 classification</li>
+                                <li>Capital requirements</li>
+                                <li>Foreign ownership rules</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">📊</span>
+                        <div class="component-name">Bali Zero Services</div>
+                        <div class="component-desc">Business services orchestrator for pricing and setup</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>KITAS pricing (28M-38M IDR)</li>
+                                <li>Company setup (25M-65M IDR)</li>
+                                <li>Tax services (2M-25M+ IDR)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">⚡</span>
+                        <div class="component-name">Performance Optimizer</div>
+                        <div class="component-desc">Continuous performance optimization</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Query optimization</li>
+                                <li>Cache strategy</li>
+                                <li>Bundle analysis</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🔄</span>
+                        <div class="component-name">Refactoring Agent</div>
+                        <div class="component-desc">Automated code refactoring and cleanup</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Code smell detection</li>
+                                <li>Pattern implementation</li>
+                                <li>Tech debt reduction</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🔀</span>
+                        <div class="component-name">PR Agent</div>
+                        <div class="component-desc">Automated pull request creation with CI</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Weekly PR generation</li>
+                                <li>CI workflow integration</li>
+                                <li>Cron: Sunday 4 AM</li>
+                            </ul>
+                        </div>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇️</div>
+
+            <!-- Layer 5: Data Layer -->
+            <div class="layer layer-5">
+                <h2 class="layer-title">💾 Layer 5: Data & Storage Layer</h2>
+                <div class="components">
+                    <div class="component critical">
+                        <span class="component-icon">📚</span>
+                        <div class="component-name">ChromaDB Vector Store</div>
+                        <div class="component-desc">Vector database with 25,422 documents across 10 specialized collections</div>
+                        <div class="component-details">
+                            <strong>Collections:</strong>
+                            <ul>
+                                <li>knowledge_base: 8,923 docs</li>
+                                <li>kbli_unified: 8,887 docs</li>
+                                <li>legal_unified: 5,041 docs</li>
+                                <li>visa_oracle: 1,612 docs</li>
+                                <li>tax_genius: 895 docs</li>
+                                <li>property_unified: 29 docs</li>
+                                <li>bali_zero_pricing: 29 docs</li>
+                                <li>+ 3 more collections</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-tag">ChromaDB</span>
+                            <span class="tech-tag">1536-dim</span>
+                        </div>
+                        <span class="badge badge-info">10GB Volume</span>
+                        <span class="badge badge-primary">Fly.io</span>
+                    </div>
+
+                    <div class="component critical">
+                        <span class="component-icon">⚡</span>
+                        <div class="component-name">Redis Cache</div>
+                        <div class="component-desc">High-performance caching with 60-80% hit rate</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Response caching</li>
+                                <li>Session storage</li>
+                                <li>Semantic cache</li>
+                                <li>Rate limit counters</li>
+                                <li>81% latency reduction</li>
+                                <li>800ms → 150ms response</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-tag">Redis 7</span>
+                        </div>
+                        <span class="badge badge-warning">AWS Singapore</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🗄️</span>
+                        <div class="component-name">PostgreSQL Database</div>
+                        <div class="component-desc">Relational database for metadata and user data</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>User accounts & profiles</li>
+                                <li>Session history</li>
+                                <li>Team member data (22)</li>
+                                <li>Conversation metadata</li>
+                                <li>Audit trail logs</li>
+                                <li>CRM data</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-tag">PostgreSQL 15</span>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🔗</span>
+                        <div class="component-name">Memory Service</div>
+                        <div class="component-desc">Session and conversation memory management</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>50+ message conversations</li>
+                                <li>Context preservation</li>
+                                <li>User preferences</li>
+                                <li>Historical queries</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇️</div>
+
+            <!-- Layer 6: AI & External Services -->
+            <div class="layer layer-6">
+                <h2 class="layer-title">🧠 Layer 6: AI Services & External Integrations</h2>
+                <div class="components">
+                    <div class="component critical">
+                        <span class="component-icon">🦙</span>
+                        <div class="component-name">Llama 4 Scout</div>
+                        <div class="component-desc">PRIMARY AI Model - 92% cheaper than Claude Haiku</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Cost: $0.20/$0.20 per 1M tokens</li>
+                                <li>10M token context window</li>
+                                <li>22% faster TTFT</li>
+                                <li>Main inference engine</li>
+                                <li>Monthly savings: $10-12</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-tag">meta-llama/llama-4-scout</span>
+                        </div>
+                        <span class="badge badge-primary">OpenRouter</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🤖</span>
+                        <div class="component-name">Claude Haiku 4.5</div>
+                        <div class="component-desc">FALLBACK AI Model with tool calling</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Emergency backup</li>
+                                <li>Tool calling support</li>
+                                <li>High accuracy tasks</li>
+                                <li>Automatic failover</li>
+                            </ul>
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-tag">claude-3.5-haiku</span>
+                        </div>
+                        <span class="badge badge-warning">Anthropic</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🔤</span>
+                        <div class="component-name">OpenAI Embeddings</div>
+                        <div class="component-desc">Text embedding generation for vector search</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Model: text-embedding-3-small</li>
+                                <li>Dimensions: 1536</li>
+                                <li>Upgraded from 384-dim</li>
+                                <li>Chunk size: 500 chars</li>
+                                <li>Overlap: 50 chars</li>
+                            </ul>
+                        </div>
+                        <span class="badge badge-info">OpenAI</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🔮</span>
+                        <div class="component-name">OpenRouter Gateway</div>
+                        <div class="component-desc">Unified AI model gateway for multiple providers</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Llama 4 Scout</li>
+                                <li>Qwen3 Coder 480B</li>
+                                <li>DeepSeek V3.1</li>
+                                <li>MiniMax M2</li>
+                                <li>Automatic routing</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">📊</span>
+                        <div class="component-name">Prometheus Monitoring</div>
+                        <div class="component-desc">Metrics collection and alerting</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>CPU & memory tracking</li>
+                                <li>HTTP request metrics</li>
+                                <li>Custom business metrics</li>
+                                <li>Alert rules</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">📈</span>
+                        <div class="component-name">Grafana Dashboards</div>
+                        <div class="component-desc">Real-time visualization and monitoring</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>System health dashboards</li>
+                                <li>Performance graphs</li>
+                                <li>Alert visualization</li>
+                                <li>Business KPIs</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🚀</span>
+                        <div class="component-name">Fly.io Infrastructure</div>
+                        <div class="component-desc">Primary hosting platform - Singapore region</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>2 applications deployed</li>
+                                <li>2GB RAM, 2 CPU each</li>
+                                <li>10GB persistent volume</li>
+                                <li>Auto-scaling enabled</li>
+                                <li>Health checks active</li>
+                            </ul>
+                        </div>
+                        <span class="badge badge-primary">Singapore</span>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🔄</span>
+                        <div class="component-name">GitHub Actions CI/CD</div>
+                        <div class="component-desc">8 automated workflows for deployment and quality</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>deploy-pages.yml</li>
+                                <li>deploy-production.yml</li>
+                                <li>ci-enhanced.yml</li>
+                                <li>copilot-review.yml</li>
+                                <li>rollback.yml</li>
+                                <li>+ 3 more workflows</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="component">
+                        <span class="component-icon">🌐</span>
+                        <div class="component-name">Google OAuth</div>
+                        <div class="component-desc">Google Workspace integration for authentication</div>
+                        <div class="component-details">
+                            <ul>
+                                <li>OAuth 2.0 flow</li>
+                                <li>Workspace SSO</li>
+                                <li>User profile sync</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3>🎨 Legend</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f472b6; border-color: #f472b6;"></div>
+                    <span>User Access Layer</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fb923c; border-color: #fb923c;"></div>
+                    <span>CDN & Edge Network</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #facc15; border-color: #facc15;"></div>
+                    <span>Frontend Layer</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #4ade80; border-color: #4ade80;"></div>
+                    <span>API Gateway & Backend</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #22d3ee; border-color: #22d3ee;"></div>
+                    <span>AI Agents Layer</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #818cf8; border-color: #818cf8;"></div>
+                    <span>Data & Storage</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #c084fc; border-color: #c084fc;"></div>
+                    <span>AI & External Services</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding: 30px; background: rgba(0,0,0,0.3); border-radius: 15px;">
+            <h3 style="margin-bottom: 15px; font-size: 1.5em;">📊 Key Metrics Summary</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                <div>
+                    <div style="font-size: 2em; color: #4ade80;">100,000+</div>
+                    <div style="opacity: 0.8;">Lines of Code</div>
+                </div>
+                <div>
+                    <div style="font-size: 2em; color: #22d3ee;">50+</div>
+                    <div style="opacity: 0.8;">API Endpoints</div>
+                </div>
+                <div>
+                    <div style="font-size: 2em; color: #818cf8;">8</div>
+                    <div style="opacity: 0.8;">CI/CD Workflows</div>
+                </div>
+                <div>
+                    <div style="font-size: 2em; color: #c084fc;">22</div>
+                    <div style="opacity: 0.8;">Team Members</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding: 20px; opacity: 0.7; font-size: 0.9em;">
+            <p>🗺️ NUZANTARA System Map - Generated on 2025-11-11</p>
+            <p style="margin-top: 10px;">Production-ready, enterprise-grade system with comprehensive monitoring and autonomous healing</p>
+            <p style="margin-top: 10px; color: #a5b4fc;">Built with ❤️ by Bali Zero Team</p>
+        </div>
+    </div>
+
+    <script>
+        // Add interactivity
+        document.querySelectorAll('.component').forEach(component => {
+            component.addEventListener('click', function() {
+                this.style.transform = this.style.transform === 'scale(1.05)' ? 'scale(1)' : 'scale(1.05)';
+            });
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        console.log('🗺️ NUZANTARA System Map loaded successfully!');
+        console.log('📊 Components: ' + document.querySelectorAll('.component').length);
+        console.log('🎨 Layers: ' + document.querySelectorAll('.layer').length);
+    </script>
+</body>
+</html>
