@@ -3,7 +3,7 @@
 
 const HANDLERS_REGISTRY_CACHE_KEY = 'zantara_handlers_registry';
 const CACHE_TTL = 3600000; // 1 hour
-const BASE_URL = 'https://nuzantara-rag.fly.dev';
+const BASE_URL = 'https://nuzantara-backend.fly.dev';
 
 /**
  * Load handlers registry from backend API
