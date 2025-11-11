@@ -1,0 +1,47 @@
+name: Deploy ZANTARA Webapp to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/webapp/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Cloudflare Pages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/webapp/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd apps/webapp
+          npm ci
+
+      - name: Build webapp
+        run: |
+          cd apps/webapp
+          npm run build
+          # Copy static files
+          cp -R css js assets dist/ || true
+          cp chat.html dist/ || true
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: zantara-webapp
+          directory: apps/webapp/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
