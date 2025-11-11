@@ -3,8 +3,8 @@ import { fetchWithTimeout, parseLoginResponse, formatErrorMessage } from '../uti
 
 // Configuration - Use centralized API_CONFIG
 const API_CONFIG = globalThis.API_CONFIG || {
-  backend: { url: 'https://nuzantara-rag.fly.dev' },
-  memory: { url: 'https://nuzantara-rag.fly.dev' }
+  backend: { url: 'https://nuzantara-backend.fly.dev' },
+  memory: { url: 'https://nuzantara-backend.fly.dev' }
 };
 const API_BASE_URL = API_CONFIG.backend.url;
 
@@ -60,9 +60,9 @@ export const useLogin = (): UseLoginReturn => {
     try {
       console.log('🔐 Attempting login...');
 
-      // Call auth API with email + PIN (sent as password) - with timeout
+      // Call auth API with email + PIN - with timeout
       const response = await fetchWithTimeout(
-        `${API_BASE_URL}/auth/login`,
+        `${API_BASE_URL}/api/auth/team/login`,
         {
           method: 'POST',
           headers: {
@@ -70,7 +70,7 @@ export const useLogin = (): UseLoginReturn => {
           },
           body: JSON.stringify({
             email: trimmedEmail,
-            password: trimmedPin  // PIN sent as password field
+            pin: trimmedPin  // PIN as expected by backend
           }),
         },
         10000 // 10 seconds timeout

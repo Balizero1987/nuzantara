@@ -3,17 +3,17 @@ export const API_CONFIG = {
   backend: {
     url: window.location.hostname === 'localhost'
       ? 'http://localhost:8080'
-      : 'https://nuzantara-rag.fly.dev'  // FIXED: Use RAG backend for all API calls
+      : 'https://nuzantara-backend.fly.dev'  // TypeScript backend for auth, handlers, API
   },
   rag: {
     url: window.location.hostname === 'localhost'
       ? 'http://localhost:8000'
-      : 'https://nuzantara-rag.fly.dev'
+      : 'https://nuzantara-rag.fly.dev'  // Python RAG backend for chat streaming and vector search
   },
   memory: {
     url: window.location.hostname === 'localhost'
-      ? 'http://localhost:8081'  // Different port to avoid conflict with backend-ts
-      : 'https://nuzantara-rag.fly.dev'  // FIXED: Memory service is part of RAG backend
+      ? 'http://localhost:8080'  // Memory service is on TypeScript backend
+      : 'https://nuzantara-backend.fly.dev'  // Memory service is on TypeScript backend
   }
 };
 
@@ -21,7 +21,8 @@ export const API_CONFIG = {
 export const API_ENDPOINTS = {
   // Authentication
   auth: {
-    login: '/api/auth/login',
+    login: '/auth/login',
+    teamLogin: '/api/auth/team/login',
     check: '/api/auth/check',
     logout: '/api/auth/logout',
     profile: '/api/user/profile'
