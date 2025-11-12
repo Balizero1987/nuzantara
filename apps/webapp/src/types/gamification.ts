@@ -294,83 +294,83 @@ export interface TeachingQuiz {
 
 // System concepts that can be learned
 export const SYSTEM_CONCEPTS = {
-  // RAG & Knowledge
+  // Come ZANTARA Trova Informazioni
   RAG_BASICS: {
     id: 'rag_basics',
-    name: 'RAG (Retrieval Augmented Generation)',
-    description: 'How ZANTARA finds and uses information from 25K+ documents',
+    name: 'Come ZANTARA Trova le Informazioni',
+    description: 'Come ZANTARA cerca tra 25.000+ documenti per rispondere alle tue domande',
     requiredLevel: UserLevel.ROOKIE
   },
   SEMANTIC_SEARCH: {
     id: 'semantic_search',
-    name: 'Semantic Search',
-    description: 'Understanding meaning, not just keywords',
+    name: 'Ricerca Intelligente',
+    description: 'Perché ZANTARA capisce il significato, non solo le parole',
     requiredLevel: UserLevel.EXPLORER
   },
   VECTOR_EMBEDDINGS: {
     id: 'vector_embeddings',
-    name: 'Vector Embeddings',
-    description: 'How text becomes searchable math',
+    name: 'Come ZANTARA Capisce il Significato',
+    description: 'Il segreto dietro la ricerca intelligente',
     requiredLevel: UserLevel.EXPERT
   },
   CHROMADB: {
     id: 'chromadb',
-    name: 'ChromaDB Vector Database',
-    description: 'Where and how knowledge is stored',
+    name: 'La Libreria di ZANTARA',
+    description: 'Dove e come vengono conservati tutti i documenti',
     requiredLevel: UserLevel.EXPERT
   },
 
-  // Agents & AI
+  // I 4 Esperti di ZANTARA
   MULTI_AGENT: {
     id: 'multi_agent',
-    name: 'Multi-Agent Architecture',
-    description: 'Immigration, Health, Revenue, Memory - how they work together',
+    name: 'I 4 Esperti di ZANTARA',
+    description: 'Immigration, Salute, Revenue, Memoria - come lavorano insieme',
     requiredLevel: UserLevel.EXPLORER
   },
   LLAMA_VS_CLAUDE: {
     id: 'llama_vs_claude',
-    name: 'Llama 4 Scout vs Claude Haiku',
-    description: 'When and why ZANTARA switches models',
+    name: 'Come ZANTARA Sceglie Come Rispondere',
+    description: 'Perché a volte le risposte sono diverse',
     requiredLevel: UserLevel.EXPERT
   },
   NLP_PIPELINE: {
     id: 'nlp_pipeline',
-    name: 'NLP Pipeline',
-    description: 'Entity extraction, intent classification, sentiment analysis',
+    name: 'Come ZANTARA Capisce Cosa Chiedi',
+    description: 'Dal tuo messaggio alla risposta giusta',
     requiredLevel: UserLevel.EXPERT
   },
 
-  // Architecture & Performance
+  // Velocità e Memoria
   PERSISTENT_MEMORY: {
     id: 'persistent_memory',
-    name: 'Persistent Memory System',
-    description: 'How ZANTARA remembers conversations and learns',
+    name: 'Come ZANTARA Ti Ricorda',
+    description: 'Perché ZANTARA ricorda le conversazioni passate',
     requiredLevel: UserLevel.EXPLORER
   },
   REDIS_CACHE: {
     id: 'redis_cache',
-    name: 'Redis Caching',
-    description: 'Why responses are fast (60-80% cache hit rate)',
+    name: 'Perché ZANTARA È Così Veloce',
+    description: 'Il trucco per risposte in meno di 1 secondo',
     requiredLevel: UserLevel.EXPERT
   },
   CIRCUIT_BREAKER: {
     id: 'circuit_breaker',
-    name: 'Circuit Breaker Pattern',
-    description: 'System resilience and failure handling',
+    name: 'Quando Qualcosa Va Storto',
+    description: 'Come ZANTARA gestisce i problemi senza crashare',
     requiredLevel: UserLevel.MASTER
   },
 
-  // Integration
+  // Integrazioni
   GOOGLE_WORKSPACE: {
     id: 'google_workspace',
-    name: 'Google Workspace Integration',
-    description: 'Drive, Calendar, Sheets, Gmail integration',
+    name: 'ZANTARA e Google',
+    description: 'Come ZANTARA lavora con Drive, Calendar, Gmail e Sheets',
     requiredLevel: UserLevel.EXPLORER
   },
   API_DESIGN: {
     id: 'api_design',
-    name: 'API Architecture',
-    description: '50+ REST endpoints, design patterns',
+    name: 'Come Funziona il Sistema Dietro le Quinte',
+    description: 'Architettura e design del sistema',
     requiredLevel: UserLevel.MASTER
   }
 };
@@ -390,32 +390,32 @@ export interface LearningPath {
 export const LEARNING_PATHS: Record<string, LearningPath> = {
   RAG_MASTER_PATH: {
     id: 'rag_master_path',
-    name: 'RAG Mastery',
-    description: 'Become an expert in how ZANTARA finds and uses knowledge',
+    name: 'Esperto di Ricerca',
+    description: 'Diventa esperto su come ZANTARA trova e usa le informazioni',
     track: LearningTrack.INTELLIGENCE,
     concepts: ['rag_basics', 'semantic_search', 'vector_embeddings', 'chromadb'],
     quests: ['quest_rag_intro', 'quest_rag_training', 'quest_rag_deep_dive', 'quest_rag_optimization'],
     finalBadge: BadgeType.RAG_MASTER,
-    estimatedTime: '2 weeks'
+    estimatedTime: '2 settimane'
   },
   ARCHITECT_PATH: {
     id: 'architect_path',
-    name: 'System Architect',
-    description: 'Understand system architecture and contribute to design',
+    name: 'Architetto del Sistema',
+    description: 'Capisci come funziona il sistema e contribuisci al suo design',
     track: LearningTrack.ARCHITECT,
     concepts: ['multi_agent', 'persistent_memory', 'redis_cache', 'circuit_breaker', 'api_design'],
     quests: ['quest_architecture_map', 'quest_design_review', 'quest_propose_improvement'],
     finalBadge: BadgeType.ARCHITECT,
-    estimatedTime: '1 month'
+    estimatedTime: '1 mese'
   },
   PROMPT_ENGINEER_PATH: {
     id: 'prompt_engineer_path',
-    name: 'Prompt Engineering',
-    description: 'Master the art of asking ZANTARA perfect questions',
+    name: 'Maestro delle Domande',
+    description: 'Impara l\'arte di fare domande perfette a ZANTARA',
     track: LearningTrack.INTELLIGENCE,
     concepts: ['llama_vs_claude', 'nlp_pipeline'],
     quests: ['quest_prompt_basics', 'quest_advanced_prompting', 'quest_prompt_optimization'],
     finalBadge: BadgeType.PROMPT_ENGINEER,
-    estimatedTime: '1 week'
+    estimatedTime: '1 settimana'
   }
 };
