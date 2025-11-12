@@ -1,7 +1,13 @@
 /**
  * Intel Scraper Handler
  * Trigger Bali intelligence scraping system
- * Integrates with Python scraper in apps/HIGH_PRIORITY/bali-intel-scraper/
+ * Integrates with Python scraper in apps/bali-intel-scraper/
+ *
+ * Features:
+ * - 630+ sources across 12 categories
+ * - AI-powered filtering (Llama 4 Scout + Gemini 2.0 Flash + Claude Haiku)
+ * - Cost: ~$0.0004 per article (91% cheaper than Claude-only)
+ * - Generates professional Bali Zero Journal articles
  */
 
 import { spawn } from 'child_process';
@@ -9,14 +15,15 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import logger from '../../services/logger.js';
 
-const SCRAPER_DIR = path.join(process.cwd(), 'apps', 'HIGH_PRIORITY', 'bali-intel-scraper');
-const OUTPUT_DIR = path.join(SCRAPER_DIR, 'data', 'INTEL_SCRAPING');
+const SCRAPER_DIR = path.join(process.cwd(), 'apps', 'bali-intel-scraper');
+const OUTPUT_DIR = path.join(SCRAPER_DIR, 'data');
 
 interface ScraperParams {
-  categories?: string[]; // Specific categories to scrape (default: all 20)
-  runStage2?: boolean; // Run Claude content generation + ChromaDB upload
+  categories?: string[]; // Specific categories to scrape (default: all 12)
+  runStage2?: boolean; // Run AI article generation (Llama + Gemini + Claude fallback)
   dryRun?: boolean; // Test mode without actual scraping
   limit?: number; // Max articles per category (default: 10)
+  maxArticles?: number; // Max total articles to generate (default: 100)
 }
 
 interface ScraperResult {
@@ -36,25 +43,29 @@ interface ScraperResult {
  */
 export async function intelScraperRun(params: ScraperParams): Promise<ScraperResult> {
   try {
-    const { categories = [], runStage2 = false, dryRun = false, limit = 10 } = params;
+    const { categories = [], runStage2 = false, dryRun = false, limit = 10, maxArticles = 100 } = params;
 
     const jobId = `scraper_${Date.now()}`;
-    logger.info('Starting intel scraper job: ${jobId}', { params });
+    logger.info(`Starting intel scraper job: ${jobId}`, { params });
 
-    // Build Python command
-    const scriptPath = path.join(SCRAPER_DIR, 'scripts', 'scrape_all_categories.py');
-    const args: string[] = [];
+    // Build Python command - use orchestrator for full pipeline
+    const scriptPath = path.join(SCRAPER_DIR, 'scripts', 'orchestrator.py');
+    const args: string[] = ['--stage', runStage2 ? 'all' : '1'];
 
     if (dryRun) {
       args.push('--dry-run');
     }
 
     if (categories.length > 0) {
-      args.push('--categories', categories.join(','));
+      args.push('--categories', ...categories);
     }
 
     if (limit) {
-      args.push('--limit', limit.toString());
+      args.push('--scrape-limit', limit.toString());
+    }
+
+    if (maxArticles) {
+      args.push('--max-articles', maxArticles.toString());
     }
 
     // Set environment variables
