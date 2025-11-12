@@ -504,15 +504,17 @@
         const data = await response.json();
 
         if (response.ok && data.token) {
-          // Store auth data
+          // Store auth data (demo auth format)
           localStorage.setItem('zantara_access_token', data.token);
           localStorage.setItem('zantara_user_email', email);
-          if (data.user && data.user.name) {
-            localStorage.setItem('zantara_user_name', data.user.name);
-          }
 
+          // Demo auth returns userId, not user object
+          const userName = data.user?.name || data.userId || email.split('@')[0];
+          localStorage.setItem('zantara_user_name', userName);
+
+          console.log('✅ Login successful, token stored:', data.token.substring(0, 20) + '...');
           showSuccess('Login successful! Redirecting...');
-          
+
           setTimeout(() => {
             window.location.href = '/chat.html';
           }, 1000);
