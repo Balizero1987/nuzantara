@@ -16,7 +16,8 @@ const router = Router();
 router.get('/cron-status', async (req, res) => {
   try {
     const scheduler = getCronScheduler();
-    const jobs = scheduler.getJobStatus();
+    const schedulerStatus = scheduler.getStatus();
+    const jobs = schedulerStatus.jobs || [];
     const orchestrator = scheduler.getOrchestrator();
 
     const status = {
@@ -27,31 +28,31 @@ router.get('/cron-status', async (req, res) => {
           name: 'nightly-healing',
           schedule: process.env.CRON_SELF_HEALING || '0 2 * * *',
           description: 'Daily self-healing scan at 2:00 AM',
-          status: jobs.find((j) => j.name === 'nightly-healing') ? 'active' : 'inactive',
+          status: jobs.includes('nightly-healing') ? 'active' : 'inactive',
         },
         {
           name: 'nightly-tests',
           schedule: process.env.CRON_AUTO_TESTS || '0 3 * * *',
           description: 'Auto-test generation at 3:00 AM',
-          status: jobs.find((j) => j.name === 'nightly-tests') ? 'active' : 'inactive',
+          status: jobs.includes('nightly-tests') ? 'active' : 'inactive',
         },
         {
           name: 'weekly-pr',
           schedule: process.env.CRON_WEEKLY_PR || '0 4 * * 0',
           description: 'Weekly PR creation on Sunday at 4:00 AM',
-          status: jobs.find((j) => j.name === 'weekly-pr') ? 'active' : 'inactive',
+          status: jobs.includes('weekly-pr') ? 'active' : 'inactive',
         },
         {
           name: 'health-check',
           schedule: process.env.CRON_HEALTH_CHECK || '*/15 * * * *',
           description: 'System health check every 15 minutes',
-          status: jobs.find((j) => j.name === 'health-check') ? 'active' : 'inactive',
+          status: jobs.includes('health-check') ? 'active' : 'inactive',
         },
         {
           name: 'daily-report',
           schedule: process.env.CRON_DAILY_REPORT || '0 9 * * *',
           description: 'Daily metrics report at 9:00 AM',
-          status: jobs.find((j) => j.name === 'daily-report') ? 'active' : 'inactive',
+          status: jobs.includes('daily-report') ? 'active' : 'inactive',
         },
       ],
       orchestrator: orchestrator

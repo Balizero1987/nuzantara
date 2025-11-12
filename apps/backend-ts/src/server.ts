@@ -212,9 +212,7 @@ async function startServer() {
   const app = express();
 
   // Fix for Fly.io proxy headers - configure trust proxy
-  // express-rate-limit v7+ requires specific trust proxy config (not just 'true')
-  // Fly.io has 1 proxy hop, so we trust 1 level
-  app.set('trust proxy', 1);
+  app.set('trust proxy', true);
 
   // PATCH-3: Apply security middleware (headers, sanitization, logging)
   app.use(applySecurity);
@@ -527,7 +525,7 @@ async function startServer() {
         authType: 'legacy' as const
       };
 
-      const token = unifiedAuth.generateToken(demoUser, 'demo');
+      const token = unifiedAuth.generateToken(demoUser, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ Demo token generated for user: ${demoUser.id}`);
@@ -566,10 +564,10 @@ async function startServer() {
         });
       }
 
-      const userIdGenerated = `user_${Date.now()}`;
+      const generatedUserId = `user_${Date.now()}`;
       const user = {
-        id: userIdGenerated,
-        userId: userIdGenerated, // Compatibility layer
+        id: generatedUserId,
+        userId: generatedUserId,
         email,
         name: name || email.split('@')[0],
         role: 'User' as const,
@@ -580,7 +578,7 @@ async function startServer() {
         authType: 'enhanced' as const
       };
 
-      const token = unifiedAuth.generateToken(user, 'password');
+      const token = unifiedAuth.generateToken(user, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ User logged in: ${user.email}`);
@@ -721,7 +719,7 @@ async function startServer() {
 
   // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
   if (process.env.REDIS_URL) {
-    setupWebSocket(httpServer);
+    const _io = setupWebSocket(httpServer);
     logger.info('✅ WebSocket server initialized');
   } else {
     logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
@@ -733,6 +731,15 @@ async function startServer() {
     logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
     if (process.env.REDIS_URL) {
       logger.info(`🔌 WebSocket ready for real-time features`);
+    }
+
+    // Start AI Automation Cron Scheduler
+    try {
+      getCronScheduler().start();
+      logger.info('🤖 AI Automation Cron Scheduler started');
+    } catch (error: any) {
+      logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
+      logger.warn('⚠️  Continuing without AI automation');
     }
 
     // Initialize Cron Scheduler for Autonomous Agents

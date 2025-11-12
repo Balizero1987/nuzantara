@@ -4,7 +4,7 @@
  * Uses ZANTARA token format (zantara-*)
  */
 
-const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-backend.fly.dev';
+const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev';
 
 /**
  * Check if user is authenticated
@@ -86,8 +86,14 @@ function getAuthToken() {
 if (typeof window !== 'undefined') {
   const currentPage = window.location.pathname;
   const publicPages = ['/', '/login', '/login.html', '/index.html'];
+  const protectedPages = ['/chat', '/chat.html'];
 
-  if (!publicPages.includes(currentPage)) {
+  // Only check auth on protected pages (explicit list to avoid loop)
+  const isProtectedPage = protectedPages.some(page =>
+    currentPage.includes(page) || currentPage.endsWith(page)
+  );
+
+  if (isProtectedPage) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', checkAuth);
     } else {
