@@ -1,0 +1,965 @@
+/* ZANTARA Chat - Design v2 */
+/* Background: #2B2B2B */
+
+.chat-app {
+  min-height: 100vh;
+  background: #2B2B2B;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+html, body {
+  background: #2B2B2B !important;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================ */
+/* HEADER - Logo centrato INGRANDITO */
+/* ============================================ */
+.chat-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  z-index: 100;
+  background: rgba(43, 43, 43, 0.98);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  height: 70px;
+}
+
+/* Hamburger menu - sinistra */
+.conversation-sidebar-toggle {
+  position: absolute;
+  left: 1.5rem;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.conversation-sidebar-toggle span {
+  width: 20px;
+  height: 2px;
+  background: #FFFFFF;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.conversation-sidebar-toggle:hover {
+  opacity: 0.8;
+}
+
+/* Logo CENTRATO - INGRANDITO 180px (4x) */
+.header-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zantara-logo {
+  width: auto !important;
+  height: 180px !important; /* 4x ingrandimento */
+  display: block;
+  object-fit: contain;
+  margin: -50px 0; /* Margine negativo per non spostare elementi */
+  position: relative;
+  z-index: 50;
+}
+
+/* User Info - destra */
+.user-info {
+  position: absolute;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  overflow: hidden;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+
+.user-avatar:active {
+  transform: scale(0.95);
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* ============================================ */
+/* MESSAGES AREA - Espande a sinistra quando sidebar chiuso */
+/* ============================================ */
+.messages-container {
+  position: fixed;
+  top: 70px;
+  bottom: 90px;
+  left: 0; /* Espande a sinistra quando sidebar chiuso */
+  right: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  padding: 2rem 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.messages-container.sidebar-open {
+  left: 320px; /* Si sposta a destra quando sidebar aperto */
+  padding-left: 0;
+}
+
+.messages-inner {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================ */
+/* MESSAGE BUBBLES - Arrotondate */
+/* ============================================ */
+.message {
+  display: flex;
+  gap: 1rem;
+  animation: fadeIn 0.3s ease-out;
+  margin-bottom: 2rem;
+}
+
+.message.user {
+  justify-content: flex-end;
+  padding-right: 1rem;
+}
+
+.message.ai {
+  justify-content: flex-start;
+}
+
+.message-content {
+  max-width: 36rem;
+  min-height: 2.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  transition: all 200ms;
+  display: inline-block;
+  width: fit-content;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.message.user .message-content {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: rgba(255, 255, 255, 0.95);
+  border-radius: 1rem 1rem 0.25rem 1rem;
+}
+
+.message.ai .message-content {
+  background: rgba(60, 60, 60, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.95);
+  border-radius: 1rem 1rem 1rem 0.25rem;
+}
+
+.message-content:hover {
+  transform: translateY(-1px);
+}
+
+.message-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================ */
+/* MARKDOWN STYLING - Claude/ChatGPT style */
+/* ============================================ */
+.message-text h1,
+.message-text h2,
+.message-text h3,
+.message-text h4,
+.message-text h5,
+.message-text h6 {
+  font-weight: 600;
+  margin: 1em 0 0.5em 0;
+  line-height: 1.3;
+}
+
+.message-text h1 { font-size: 1.5rem; }
+.message-text h2 { font-size: 1.3rem; }
+.message-text h3 { font-size: 1.1rem; }
+.message-text h4 { font-size: 1rem; }
+
+.message-text h1:first-child,
+.message-text h2:first-child,
+.message-text h3:first-child {
+  margin-top: 0;
+}
+
+.message-text p {
+  margin: 0.75em 0;
+}
+
+.message-text p:first-child {
+  margin-top: 0;
+}
+
+.message-text p:last-child {
+  margin-bottom: 0;
+}
+
+.message-text strong {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.message-text em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.message-text ul,
+.message-text ol {
+  margin: 0.75em 0;
+  padding-left: 1.5em;
+}
+
+.message-text li {
+  margin: 0.25em 0;
+}
+
+.message-text code {
+  padding: 0.2em 0.4em;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.25rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 0.875em;
+}
+
+.message-text pre {
+  margin: 0.75em 0;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.message-text pre code {
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+}
+
+.message-text blockquote {
+  margin: 0.75em 0;
+  padding-left: 1em;
+  border-left: 3px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+}
+
+.message-text a {
+  color: rgba(150, 200, 255, 0.9);
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+
+.message-text a:hover {
+  opacity: 0.8;
+}
+
+.message-text hr {
+  margin: 1em 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.message-text table {
+  margin: 0.75em 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.message-text th,
+.message-text td {
+  padding: 0.5em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: left;
+}
+
+.message-text th {
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+
+/* ============================================ */
+/* SOURCES & MEMORY BADGES - Minimal & Professional */
+/* ============================================ */
+.message-sources {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.sources-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.sources-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.sources-toggle-icon {
+  transition: transform 0.2s ease;
+}
+
+.sources-toggle.expanded .sources-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.sources-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.sources-list.expanded {
+  max-height: 500px;
+}
+
+.source-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  margin-bottom: 0.375rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+}
+
+.source-title {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.source-score {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.65rem;
+}
+
+.memory-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.4rem;
+  background: rgba(100, 150, 255, 0.15);
+  border: 1px solid rgba(100, 150, 255, 0.3);
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  color: rgba(150, 200, 255, 0.9);
+  margin-top: 0.375rem;
+  cursor: help;
+}
+
+/* ============================================ */
+/* CHAT INPUT - Espande a sinistra quando sidebar chiuso */
+/* ============================================ */
+.chat-input-container {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important; /* Espande a sinistra quando sidebar chiuso */
+  right: 0 !important;
+  padding: 5rem 1.5rem 1.5rem !important; /* Aumentato padding-top per abbassare */
+  background: #2B2B2B !important;
+  z-index: 90 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-input-container.sidebar-open {
+  left: 320px !important; /* Si sposta a destra quando sidebar aperto */
+  padding-left: 1.5rem !important;
+}
+
+.chat-input-wrapper {
+  max-width: 48rem;
+  margin: 0 auto;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-input-box {
+  display: flex !important;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1.5rem;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: rgba(60, 60, 60, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.chat-input-box.focused {
+  background-color: rgba(60, 60, 60, 0.8);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.chat-textarea {
+  flex: 1;
+  resize: none;
+  outline: none;
+  max-height: 120px;
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  background: transparent !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-family: inherit;
+}
+
+.chat-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.send-button {
+  display: flex;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.send-button:hover {
+  transform: scale(1.1);
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.send-button img {
+  width: 100%;
+  height: 100%;
+  filter: brightness(1.5);
+}
+
+/* ============================================ */
+/* GENERATE IMAGE BUTTON - Gradient Colorato */
+/* ============================================ */
+.image-button {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.25rem;
+  background: linear-gradient(135deg, rgba(255, 100, 150, 0.2), rgba(150, 100, 255, 0.2)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+  position: relative;
+  overflow: visible;
+}
+
+.image-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 100, 150, 0.3), rgba(150, 100, 255, 0.3));
+  opacity: 0;
+  transition: opacity 300ms;
+}
+
+.image-button:hover {
+  opacity: 1;
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 4px 12px rgba(200, 100, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.image-button:hover::before {
+  opacity: 1;
+}
+
+.image-button img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  filter: none;
+  position: relative;
+  z-index: 10;
+}
+
+/* Tooltip per Generate Image button */
+.image-button[title]::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  padding: 0.4rem 0.75rem;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  border: 1px solid rgba(255, 100, 200, 0.5);
+  box-shadow: 0 4px 12px rgba(200, 100, 255, 0.3);
+}
+
+.image-button[title]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================ */
+/* SIDEBAR - Con toggle */
+/* ============================================ */
+.conversation-sidebar {
+  position: fixed;
+  left: -320px;
+  top: 70px;
+  bottom: 0;
+  width: 320px;
+  z-index: 199;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: rgba(43, 43, 43, 0.98);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+}
+
+.conversation-sidebar.open {
+  left: 0;
+}
+
+.conversation-sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: inherit;
+  z-index: 10;
+}
+
+.conversation-sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.conversation-sidebar-close {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  font-size: 1.25rem;
+  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.conversation-sidebar-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.conversation-sidebar-content {
+  padding: 0.75rem;
+}
+
+.conversation-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.conversation-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.conversation-item.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.conversation-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conversation-time {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ============================================ */
+/* AVATAR MODAL */
+/* ============================================ */
+.avatar-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-modal.active {
+  display: flex;
+}
+
+.avatar-modal-content {
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  background: rgba(43, 43, 43, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.avatar-modal-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: white;
+}
+
+.avatar-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-upload-btn,
+.avatar-remove-btn,
+.avatar-close-btn {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+}
+
+.avatar-upload-btn:hover,
+.avatar-remove-btn:hover,
+.avatar-close-btn:hover {
+  border-color: white;
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.02);
+}
+
+.avatar-file-input {
+  display: none;
+}
+
+/* ============================================ */
+/* ANIMATIONS */
+/* ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Typing Indicator - Professional shimmer effect */
+.typing-indicator {
+  position: relative;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+}
+
+.typing-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.message.typing {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* ============================================ */
+/* RESPONSIVE */
+/* ============================================ */
+@media (max-width: 768px) {
+  .conversation-sidebar {
+    width: 280px;
+  }
+
+  .messages-container.sidebar-open {
+    left: 280px;
+  }
+
+  .chat-input-container.sidebar-open {
+    left: 280px !important;
+  }
+
+  .messages-inner {
+    padding: 0 1rem;
+  }
+
+  .chat-input-container {
+    padding: 1rem 1rem 1rem !important;
+  }
+}
+
+/* ============================================ */
+/* CUSTOM MODIFICATIONS - Nov 12, 2025 */
+/* ============================================ */
+
+/* Welcome Message - Elegant & Sacred */
+.welcome-message {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  position: relative;
+}
+
+/* Subtle glow effect behind text */
+.welcome-message::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.welcome-message p:first-child {
+  font-size: 1.25rem;
+  font-weight: 300;
+  margin-bottom: 2rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+
+/* Elegant underline */
+.welcome-message p:first-child::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%);
+}
+
+.welcome-blessing {
+  font-size: 1.125rem;
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 38rem;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  position: relative;
+  padding: 0 2rem;
+}
+
+/* Subtle quotation marks */
+.welcome-blessing::before,
+.welcome-blessing::after {
+  content: '"';
+  position: absolute;
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.15);
+  font-family: 'Georgia', serif;
+  line-height: 1;
+}
+
+.welcome-blessing::before {
+  top: -1rem;
+  left: 0;
+}
+
+.welcome-blessing::after {
+  bottom: -2rem;
+  right: 0;
+}
+
+/* Logout Button - No Border, White Bold */
+.logout-btn {
+  background: transparent !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  padding: 0.5rem 1rem !important;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.logout-btn:hover {
+  opacity: 0.8;
+}
+
+/* User Message - Lighter Gray */
+.message.user .message-content {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+/* AI Message - Darker Gray */
+.message.ai .message-content {
+  background: rgba(40, 40, 40, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}

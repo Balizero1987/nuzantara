@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZANTARA - Chat</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo1-zantara.svg">
+
+  <!-- Design v2 CSS (keep our custom design) -->
+  <link rel="stylesheet" href="css/chat-v2.css">
+
+  <!-- Production JS imports - added for conversation management -->
+  <!-- <script src="js/auth-guard.js"></script> COMMENTED: causes redirect in local testing -->
+  <script src="js/user-context.js"></script>
+  <script src="js/theme-manager.js"></script>
+  <script type="module" src="js/api-config.js"></script>
+  <!-- <script src="js/conversation-client.js"></script> COMMENTED: import error in local testing -->
+  <script src="js/message-search.js"></script>
+</head>
+<body>
+  <div class="chat-app">
+    <header class="chat-header">
+      <!-- Hamburger menu -->
+      <button class="conversation-sidebar-toggle" id="sidebarToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="header-logo">
+        <img src="assets/images/logo1-zantara.svg" alt="ZANTARA" class="zantara-logo" />
+      </div>
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar"></div>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+      </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="conversation-sidebar" id="sidebar">
+      <div class="conversation-sidebar-header">
+        <div class="conversation-sidebar-title">
+          💬 Conversations
+        </div>
+        <button class="conversation-sidebar-close" id="sidebarClose">✕</button>
+      </div>
+      <div class="conversation-sidebar-content">
+        <div class="conversation-item active">
+          <div class="conversation-title">Current Session</div>
+          <div class="conversation-time">Just now</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="messages-container" id="messagesContainer">
+      <div class="messages-inner">
+        <div class="message-space" id="messageSpace">
+          <div class="welcome-message">
+            <p>Selamat datang di ZANTARA</p>
+            <p class="welcome-blessing">Semoga kehadiran kami membawa cahaya dan kebijaksanaan dalam perjalanan Anda</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="chat-input-container" id="inputContainer">
+      <div class="chat-input-wrapper">
+        <div class="chat-input-box" id="inputBox">
+          <!-- Generate Image - SVG Icon -->
+          <img src="assets/images/image.svg" alt="Generate Image" style="width: 134px; height: 134px; object-fit: contain; cursor: pointer; margin: -50px -40px -50px -50px; transition: transform 0.2s; border-radius: 6px; position: relative; z-index: 10;" id="imageButton" title="Generate Image">
+
+          <!-- Attach File Button -->
+          <button class="attach-button" id="attachButton" title="Attach file or image" style="width: 40px; height: 40px; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 8px; transition: transform 0.2s;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            </svg>
+          </button>
+
+          <textarea id="chatTextarea" class="chat-textarea" placeholder="Type your message..." rows="1"></textarea>
+
+          <button class="send-button" id="sendButton">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/%3E%3C/svg%3E" alt="Send" />
+          </button>
+        </div>
+
+        <!-- File Preview Area (hidden by default) -->
+        <div id="filePreviewArea" style="display: none; padding: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; margin-top: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <img id="filePreviewImage" style="max-width: 100px; max-height: 100px; border-radius: 4px; display: none;">
+            <div id="filePreviewInfo" style="flex: 1; color: rgba(255, 255, 255, 0.8); font-size: 14px;"></div>
+            <button id="fileRemoveButton" style="background: rgba(255, 0, 0, 0.2); border: 1px solid rgba(255, 0, 0, 0.5); color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden Avatar Upload Input -->
+    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+
+    <!-- Hidden File Attachment Input -->
+    <input type="file" id="fileAttachmentInput" accept="image/*,application/pdf,.doc,.docx,.txt" style="display: none;">
+  </div>
+
+  <style>
+    .attach-button:hover {
+      transform: scale(1.1) !important;
+    }
+    .attach-button:active {
+      transform: scale(0.95) !important;
+    }
+    #imageButton:hover {
+      transform: scale(1.1) !important;
+      filter: brightness(1.2);
+    }
+    #imageButton:active {
+      transform: scale(0.95) !important;
+    }
+  </style>
+
+  <script>
+    const API = 'https://nuzantara-rag.fly.dev';
+    const msgSpace = document.getElementById('messageSpace');
+    const msgContainer = document.getElementById('messagesContainer');
+    const textarea = document.getElementById('chatTextarea');
+    const sendBtn = document.getElementById('sendButton');
+    const userAvatar = document.getElementById('userAvatar');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
+    let messages = [];
+    let sessionId = null;
+    let isStreaming = false;
+    let eventSource = null;
+    let currentMessage = '';
+    let accumulatedText = '';
+
+    // Init
+    function init() {
+      const user = JSON.parse(localStorage.getItem('zantara-user') || '{}');
+      const session = JSON.parse(localStorage.getItem('zantara-session') || '{}');
+
+      // Load avatar image or show initial
+      loadAvatar();
+
+      sessionId = session.id || `session_${Date.now()}`;
+      if (!session.id) {
+        localStorage.setItem('zantara-session', JSON.stringify({id: sessionId, createdAt: Date.now(), lastActivity: Date.now()}));
+      }
+    }
+
+    // ===================================================================
+    // AVATAR MANAGEMENT - Upload & Persistent Storage
+    // ===================================================================
+    function loadAvatar() {
+      const user = JSON.parse(localStorage.getItem('zantara-user') || '{}');
+      const savedAvatar = localStorage.getItem('zantara-avatar-image');
+
+      if (savedAvatar) {
+        // Show saved image
+        userAvatar.style.backgroundImage = `url(${savedAvatar})`;
+        userAvatar.style.backgroundSize = 'cover';
+        userAvatar.style.backgroundPosition = 'center';
+        userAvatar.textContent = '';
+      } else {
+        // Show initial letter
+        userAvatar.style.backgroundImage = 'none';
+        userAvatar.textContent = (user.email || 'Z').charAt(0).toUpperCase();
+      }
+    }
+
+    function saveAvatar(imageDataUrl) {
+      localStorage.setItem('zantara-avatar-image', imageDataUrl);
+      loadAvatar();
+    }
+
+    // Avatar click handler - open file picker
+    userAvatar.addEventListener('click', () => {
+      document.getElementById('avatarUpload').click();
+    });
+
+    // Avatar upload handler
+    document.getElementById('avatarUpload').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          saveAvatar(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = '/login.html';
+    });
+
+    // Send message
+    sendBtn.addEventListener('click', () => sendMessage());
+    textarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    async function sendMessage() {
+      const text = textarea.value.trim();
+
+      // Check if we're in image generation mode
+      if (imageGenerationMode && text) {
+        imageGenerationMode = false;
+        textarea.placeholder = originalPlaceholder;
+        textarea.style.fontStyle = '';
+        textarea.style.fontSize = '';
+        textarea.value = '';
+
+        // Show generating message
+        const generatingMsgId = `ai-${Date.now()}`;
+        addMessage({id: generatingMsgId, type: 'ai', text: '🎨 Generating image...'});
+
+        try {
+          const imageUrl = await generateImage(text);
+
+          // Remove generating message
+          messages = messages.filter(m => m.id !== generatingMsgId);
+
+          // Add image message with attachment
+          addMessage({
+            id: `ai-${Date.now()}`,
+            type: 'ai',
+            text: `🎨 Generated: *${text}*`,
+            attachment: {
+              type: 'image',
+              url: imageUrl,
+              name: 'generated-image.jpg'
+            }
+          });
+        } catch (error) {
+          console.error('Image generation error:', error);
+          messages = messages.filter(m => m.id !== generatingMsgId);
+          addMessage({
+            id: `ai-${Date.now()}`,
+            type: 'ai',
+            text: '❌ Image generation failed. Please try again.'
+          });
+        }
+
+        return;
+      }
+
+      // Check if there's an attached file
+      if (attachedFile) {
+        const fileName = attachedFile.name;
+        const fileType = attachedFile.type;
+
+        // Add user message with file
+        if (fileType.startsWith('image/')) {
+          addMessage({
+            id: `user-${Date.now()}`,
+            type: 'user',
+            text: text || '📎 Shared an image',
+            attachment: {
+              type: 'image',
+              url: attachedFileDataUrl,
+              name: fileName
+            }
+          });
+        } else {
+          addMessage({
+            id: `user-${Date.now()}`,
+            type: 'user',
+            text: text || `📎 Shared: ${fileName}`,
+            attachment: {
+              type: 'file',
+              name: fileName
+            }
+          });
+        }
+
+        // Clear attachment
+        attachedFile = null;
+        attachedFileDataUrl = null;
+        filePreviewArea.style.display = 'none';
+        fileAttachmentInput.value = '';
+        textarea.value = '';
+
+        // Show AI response
+        showTypingIndicator();
+        setTimeout(() => {
+          hideTypingIndicator();
+          addMessage({
+            id: `ai-${Date.now()}`,
+            type: 'ai',
+            text: `I can see you've shared ${fileName}. In production, I would be able to analyze this image/document using vision AI!`
+          });
+        }, 1500);
+
+        return;
+      }
+
+      // Normal message without attachment
+      if (!text || isStreaming) return;
+
+      // Add user message
+      addMessage({id: `user-${Date.now()}`, type: 'user', text});
+      textarea.value = '';
+
+      // Start streaming
+      isStreaming = true;
+      sendBtn.disabled = true;
+      accumulatedText = '';
+
+      // Show typing indicator
+      showTypingIndicator();
+
+      try {
+        const url = new URL(`${API}/bali-zero/chat-stream`);
+        url.searchParams.append('query', text);
+        url.searchParams.append('session_id', sessionId);
+
+        eventSource = new EventSource(url.toString());
+
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            
+            if (data.done) {
+              console.log('📊 Backend response (done):', data);
+              console.log('  → sources:', data.sources);
+              console.log('  → usedMemory:', data.usedMemory);
+              eventSource.close();
+              isStreaming = false;
+              sendBtn.disabled = false;
+              if (accumulatedText.trim()) {
+                // Use real sources and memory data from backend
+                addMessage({
+                  id: `ai-${Date.now()}`,
+                  type: 'ai',
+                  text: accumulatedText.trim(),
+                  sources: data.sources || [], // Real sources from backend
+                  usedMemory: data.usedMemory || false // Real memory usage from backend
+                });
+                accumulatedText = '';
+                updateStreamingMessage('');
+              }
+              return;
+            }
+
+            if (data.text) {
+              // Remove typing indicator on first token
+              if (!accumulatedText) {
+                hideTypingIndicator();
+              }
+              accumulatedText += data.text;
+              updateStreamingMessage(accumulatedText);
+            }
+          } catch (e) {
+            // Ignore parse errors
+          }
+        };
+
+        eventSource.onerror = () => {
+          hideTypingIndicator();
+          eventSource.close();
+          isStreaming = false;
+          sendBtn.disabled = false;
+          if (accumulatedText.trim()) {
+            addMessage({id: `ai-${Date.now()}`, type: 'ai', text: accumulatedText.trim()});
+            accumulatedText = '';
+            updateStreamingMessage('');
+          } else {
+            addMessage({id: `ai-${Date.now()}`, type: 'ai', text: 'Connection error. Please try again.'});
+          }
+        };
+
+      } catch (error) {
+        hideTypingIndicator();
+        console.error('Stream error:', error);
+        isStreaming = false;
+        sendBtn.disabled = false;
+        addMessage({id: `ai-${Date.now()}`, type: 'ai', text: 'Failed to connect. Please try again.'});
+      }
+    }
+
+    function addMessage(msg) {
+      if (msg.type === 'ai') {
+        console.log('💬 Adding AI message:', {
+          sources: msg.sources,
+          usedMemory: msg.usedMemory,
+          hasSourcesData: !!(msg.sources && msg.sources.length > 0),
+          hasMemoryData: !!msg.usedMemory
+        });
+      }
+      messages.push(msg);
+      renderMessages();
+    }
+
+    function updateStreamingMessage(text) {
+      const existing = document.getElementById('streaming-message');
+      if (text) {
+        if (!existing) {
+          const div = document.createElement('div');
+          div.id = 'streaming-message';
+          div.className = 'message ai';
+          div.innerHTML = `<div class="message-content"><div class="message-text">${escapeHtml(text)}</div></div>`;
+          msgSpace.appendChild(div);
+        } else {
+          existing.querySelector('.message-text').textContent = text;
+        }
+        scrollToBottom();
+      } else {
+        if (existing) existing.remove();
+      }
+    }
+
+    function renderMessages() {
+      const welcome = msgSpace.querySelector('.welcome-message');
+      if (welcome && messages.length > 0) welcome.remove();
+
+      const streaming = document.getElementById('streaming-message');
+      msgSpace.innerHTML = messages.map(msg => {
+        // Use markdown for AI messages, escape HTML for user messages
+        const messageContent = msg.type === 'ai' ? parseMarkdown(msg.text) : escapeHtml(msg.text);
+
+        // Add attachment (image/file) if present
+        let attachmentHtml = '';
+        if (msg.attachment) {
+          if (msg.attachment.type === 'image' && msg.attachment.url) {
+            attachmentHtml = `
+              <div style="margin-top: 8px;">
+                <img src="${msg.attachment.url}" alt="${escapeHtml(msg.attachment.name || 'Attached image')}" style="max-width: 300px; max-height: 300px; border-radius: 8px; display: block;">
+              </div>
+            `;
+          } else if (msg.attachment.type === 'file') {
+            attachmentHtml = `
+              <div style="margin-top: 8px; padding: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; font-size: 14px;">
+                📄 ${escapeHtml(msg.attachment.name)}
+              </div>
+            `;
+          }
+        }
+
+        let html = `
+          <div class="message ${msg.type}" data-msg-id="${msg.id}">
+            <div class="message-content">
+              <div class="message-text">${messageContent}</div>
+              ${attachmentHtml}
+              ${msg.type === 'ai' && msg.sources ? renderSources(msg.sources, msg.id) : ''}
+              ${msg.type === 'ai' && msg.usedMemory ? renderMemoryBadge() : ''}
+            </div>
+          </div>
+        `;
+        return html;
+      }).join('');
+
+      if (streaming) msgSpace.appendChild(streaming);
+
+      // Attach click handlers for sources toggle
+      document.querySelectorAll('.sources-toggle').forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+          const msgId = e.target.closest('[data-msg-id]').dataset.msgId;
+          toggleSources(msgId);
+        });
+      });
+
+      scrollToBottom();
+    }
+
+    function renderSources(sources, msgId) {
+      if (!sources || sources.length === 0) return '';
+
+      return `
+        <div class="message-sources">
+          <div class="sources-toggle" data-msg-id="${msgId}">
+            <span>📚 ${sources.length} source${sources.length > 1 ? 's' : ''}</span>
+            <span class="sources-toggle-icon">▼</span>
+          </div>
+          <div class="sources-list" id="sources-${msgId}">
+            ${sources.map(src => `
+              <div class="source-item">
+                <div class="source-title">${escapeHtml(src.title || src.collection || 'Document')}</div>
+                <div class="source-score">Similarity: ${(src.score * 100).toFixed(1)}%</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMemoryBadge() {
+      return `
+        <div class="memory-badge" title="ZANTARA used collective memory from previous conversations">
+          🧠 Memory used
+        </div>
+      `;
+    }
+
+    function toggleSources(msgId) {
+      const toggle = document.querySelector(`.sources-toggle[data-msg-id="${msgId}"]`);
+      const list = document.getElementById(`sources-${msgId}`);
+
+      if (toggle && list) {
+        toggle.classList.toggle('expanded');
+        list.classList.toggle('expanded');
+      }
+    }
+
+    function scrollToBottom() {
+      msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ===================================================================
+    // MARKDOWN PARSER - Improved for Proper Rendering
+    // ===================================================================
+    function parseMarkdown(text) {
+      if (!text) return '';
+
+      let html = text;
+
+      // Step 1: Preserve code blocks (must be first)
+      const codeBlocks = [];
+      html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+        codeBlocks.push(`<pre><code>${escapeHtml(code.trim())}</code></pre>`);
+        return `__CODE_BLOCK_${codeBlocks.length - 1}__`;
+      });
+
+      // Step 2: Inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Step 3: Headers (must be at start of line)
+      html = html.replace(/^### (.+)$/gim, '<h3>$1</h3>');
+      html = html.replace(/^## (.+)$/gim, '<h2>$1</h2>');
+      html = html.replace(/^# (.+)$/gim, '<h1>$1</h1>');
+
+      // Step 4: Bold (before italic to avoid conflict)
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+
+      // Step 5: Italic
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+
+      // Step 6: Links
+      html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+      // Step 7: Lists (better regex)
+      // Unordered lists
+      html = html.replace(/^[\*\-] (.+)$/gim, '<li>$1</li>');
+      html = html.replace(/(<li>[\s\S]+?<\/li>)/gim, (match) => {
+        if (!match.includes('<ul>')) {
+          return '<ul>' + match + '</ul>';
+        }
+        return match;
+      });
+
+      // Ordered lists
+      html = html.replace(/^\d+\. (.+)$/gim, '<li>$1</li>');
+      html = html.replace(/(<li>[\s\S]+?<\/li>)/gim, (match) => {
+        if (!match.includes('<ol>') && !match.includes('<ul>')) {
+          return '<ol>' + match + '</ol>';
+        }
+        return match;
+      });
+
+      // Step 8: Blockquotes
+      html = html.replace(/^> (.+)$/gim, '<blockquote>$1</blockquote>');
+
+      // Step 9: Paragraphs and line breaks
+      // Split by double newlines for paragraphs
+      const lines = html.split('\n\n');
+      html = lines.map(line => {
+        // Don't wrap if already has HTML tags
+        if (line.trim().match(/^<(h[1-6]|ul|ol|blockquote|pre|div)/i)) {
+          return line;
+        }
+        // Replace single newlines with <br>
+        line = line.replace(/\n/g, '<br>');
+        return '<p>' + line + '</p>';
+      }).join('\n');
+
+      // Step 10: Restore code blocks
+      codeBlocks.forEach((block, index) => {
+        html = html.replace(`__CODE_BLOCK_${index}__`, block);
+      });
+
+      return html;
+    }
+
+    // ===================================================================
+    // TYPING INDICATOR - Professional shimmer effect
+    // ===================================================================
+    function getTypingText() {
+      const user = JSON.parse(localStorage.getItem('zantara-user') || '{}');
+      let lang = user.language || 'en';
+
+      // Fallback to English if language is not IT, ID, or UK
+      const supportedLanguages = ['it', 'id', 'uk'];
+      if (!supportedLanguages.includes(lang)) {
+        lang = 'en';
+      }
+
+      const translations = {
+        'it': 'ZANTARA sta pensando...',
+        'id': 'ZANTARA sedang berpikir...',
+        'uk': 'ZANTARA думає...',
+        'en': 'ZANTARA is thinking...'
+      };
+
+      return translations[lang];
+    }
+
+    function showTypingIndicator() {
+      const existing = document.getElementById('typing-indicator');
+      if (existing) return; // Already showing
+
+      const div = document.createElement('div');
+      div.id = 'typing-indicator';
+      div.className = 'message ai typing';
+      div.innerHTML = `
+        <div class="message-content">
+          <div class="message-text typing-indicator">${getTypingText()}</div>
+        </div>
+      `;
+      msgSpace.appendChild(div);
+      scrollToBottom();
+    }
+
+    function hideTypingIndicator() {
+      const indicator = document.getElementById('typing-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
+    }
+
+    init();
+
+    // ===================================================================
+    // DESIGN V2 - SIDEBAR TOGGLE
+    // ===================================================================
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarClose = document.getElementById('sidebarClose');
+    const sidebar = document.getElementById('sidebar');
+    const inputContainer = document.getElementById('inputContainer');
+    const inputBox = document.getElementById('inputBox');
+
+    function toggleSidebar() {
+      sidebar.classList.toggle('open');
+      msgContainer.classList.toggle('sidebar-open');
+      inputContainer.classList.toggle('sidebar-open');
+    }
+
+    if (sidebarToggle) sidebarToggle.addEventListener('click', toggleSidebar);
+    if (sidebarClose) sidebarClose.addEventListener('click', toggleSidebar);
+
+    // ===================================================================
+    // DESIGN V2 - TEXTAREA AUTO-RESIZE & INPUT BOX FOCUS
+    // ===================================================================
+    if (textarea) {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+      });
+
+      textarea.addEventListener('focus', () => {
+        if (inputBox) inputBox.classList.add('focused');
+      });
+
+      textarea.addEventListener('blur', () => {
+        if (inputBox) inputBox.classList.remove('focused');
+      });
+    }
+
+    // ===================================================================
+    // DESIGN V2 - GENERATE IMAGE BUTTON - ImagineArt Integration
+    // ===================================================================
+    const IMAGE_API_KEY = 'vk-3zVt3g8xJ7dSg6KZ3pbpPRUPDwtSAQDlJssPQrKZTp7Kp';
+    const IMAGE_API_URL = 'https://api.vyro.ai/v2/image/generations';
+
+    // Models in priority order (free/cheap first)
+    const IMAGE_MODELS = ['nano-banana', 'imagineart-1.0-pro'];
+
+    let imageGenerationMode = false;
+    const originalPlaceholder = textarea.placeholder;
+
+    const imageButton = document.getElementById('imageButton');
+    if (imageButton) {
+      imageButton.addEventListener('click', () => {
+        // Activate image generation mode
+        imageGenerationMode = true;
+        textarea.placeholder = 'Generate image';
+        textarea.style.fontStyle = 'italic';
+        textarea.style.fontSize = '14px';
+        textarea.focus();
+      });
+    }
+
+    // Reset placeholder when user types
+    textarea.addEventListener('input', () => {
+      if (imageGenerationMode && textarea.value.trim()) {
+        textarea.style.fontStyle = 'normal';
+        textarea.style.fontSize = '';
+      }
+    });
+
+    // Reset mode when textarea loses focus without input
+    textarea.addEventListener('blur', () => {
+      if (imageGenerationMode && !textarea.value.trim()) {
+        imageGenerationMode = false;
+        textarea.placeholder = originalPlaceholder;
+        textarea.style.fontStyle = '';
+        textarea.style.fontSize = '';
+      }
+    });
+
+    async function generateImage(prompt) {
+      try {
+        const formData = new FormData();
+        formData.append('prompt', prompt);
+        formData.append('style', 'realistic');
+        formData.append('aspect_ratio', '1:1');
+
+        const response = await fetch(IMAGE_API_URL, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${IMAGE_API_KEY}`
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        // ImagineArt returns image directly as blob
+        const blob = await response.blob();
+        const imageUrl = URL.createObjectURL(blob);
+
+        console.log('Image generated successfully:', imageUrl);
+        return imageUrl;
+      } catch (error) {
+        console.error('Image generation failed:', error);
+        throw error;
+      }
+    }
+
+    // ===================================================================
+    // FILE ATTACHMENT - Upload images/files to share with Zantara
+    // ===================================================================
+    let attachedFile = null;
+    let attachedFileDataUrl = null;
+
+    const attachButton = document.getElementById('attachButton');
+    const fileAttachmentInput = document.getElementById('fileAttachmentInput');
+    const filePreviewArea = document.getElementById('filePreviewArea');
+    const filePreviewImage = document.getElementById('filePreviewImage');
+    const filePreviewInfo = document.getElementById('filePreviewInfo');
+    const fileRemoveButton = document.getElementById('fileRemoveButton');
+
+    // Click attach button → open file picker
+    if (attachButton) {
+      attachButton.addEventListener('click', () => {
+        fileAttachmentInput.click();
+      });
+    }
+
+    // File selected → show preview
+    if (fileAttachmentInput) {
+      fileAttachmentInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        attachedFile = file;
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          attachedFileDataUrl = event.target.result;
+
+          // Show preview area
+          filePreviewArea.style.display = 'block';
+
+          // Show image preview if it's an image
+          if (file.type.startsWith('image/')) {
+            filePreviewImage.src = attachedFileDataUrl;
+            filePreviewImage.style.display = 'block';
+            filePreviewInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+          } else {
+            filePreviewImage.style.display = 'none';
+            filePreviewInfo.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+          }
+        };
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Remove file attachment
+    if (fileRemoveButton) {
+      fileRemoveButton.addEventListener('click', () => {
+        attachedFile = null;
+        attachedFileDataUrl = null;
+        filePreviewArea.style.display = 'none';
+        fileAttachmentInput.value = '';
+      });
+    }
+
+    // ===================================================================
+    // DESIGN V2 - AVATAR MODAL
+    // ===================================================================
+    const avatarModal = document.getElementById('avatarModal');
+    const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+    const avatarRemoveBtn = document.getElementById('avatarRemoveBtn');
+    const avatarCloseBtn = document.getElementById('avatarCloseBtn');
+    const avatarFileInput = document.getElementById('avatarFileInput');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const avatarLetter = document.getElementById('avatarLetter');
+
+    // Open modal on avatar click
+    if (userAvatar) {
+      userAvatar.addEventListener('click', () => {
+        if (avatarModal) avatarModal.classList.add('active');
+      });
+    }
+
+    // Close modal
+    if (avatarCloseBtn) {
+      avatarCloseBtn.addEventListener('click', () => {
+        avatarModal.classList.remove('active');
+      });
+    }
+
+    // Close on background click
+    if (avatarModal) {
+      avatarModal.addEventListener('click', (e) => {
+        if (e.target === avatarModal) {
+          avatarModal.classList.remove('active');
+        }
+      });
+    }
+
+    // Upload button
+    if (avatarUploadBtn) {
+      avatarUploadBtn.addEventListener('click', () => {
+        if (avatarFileInput) avatarFileInput.click();
+      });
+    }
+
+    // File upload handler
+    if (avatarFileInput) {
+      avatarFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const dataUrl = event.target.result;
+            localStorage.setItem('zantara_user_avatar', dataUrl);
+            updateAvatarDisplay(dataUrl);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // Remove avatar
+    if (avatarRemoveBtn) {
+      avatarRemoveBtn.addEventListener('click', () => {
+        localStorage.removeItem('zantara_user_avatar');
+        const user = JSON.parse(localStorage.getItem('zantara-user') || '{}');
+        const initial = (user.email || 'Z').charAt(0).toUpperCase();
+        if (avatarLetter) avatarLetter.textContent = initial;
+        if (avatarPreview) avatarPreview.innerHTML = `<span id="avatarLetter">${initial}</span>`;
+        userAvatar.innerHTML = initial;
+      });
+    }
+
+    function updateAvatarDisplay(dataUrl) {
+      if (avatarPreview) avatarPreview.innerHTML = `<img src="${dataUrl}" alt="Avatar">`;
+      userAvatar.innerHTML = `<img src="${dataUrl}" alt="Avatar">`;
+    }
+
+    // Load saved avatar on init
+    function loadSavedAvatar() {
+      const savedAvatar = localStorage.getItem('zantara_user_avatar');
+      if (savedAvatar) {
+        updateAvatarDisplay(savedAvatar);
+      } else {
+        // Set initial letter in modal
+        const user = JSON.parse(localStorage.getItem('zantara-user') || '{}');
+        const initial = (user.email || 'Z').charAt(0).toUpperCase();
+        if (avatarLetter) avatarLetter.textContent = initial;
+      }
+    }
+
+    // Call loadSavedAvatar after init
+    loadSavedAvatar();
+  </script>
+
+  <!-- Avatar Modal -->
+  <div class="avatar-modal" id="avatarModal">
+    <div class="avatar-modal-content">
+      <h2 class="avatar-modal-title">Customize Avatar</h2>
+      <div class="avatar-preview" id="avatarPreview">
+        <span id="avatarLetter">Z</span>
+      </div>
+      <input type="file" id="avatarFileInput" class="avatar-file-input" accept="image/*">
+      <button class="avatar-upload-btn" id="avatarUploadBtn">Upload Photo</button>
+      <button class="avatar-remove-btn" id="avatarRemoveBtn">Remove Photo</button>
+      <button class="avatar-close-btn" id="avatarCloseBtn">Close</button>
+    </div>
+  </div>
+</body>
+</html>
