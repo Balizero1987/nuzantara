@@ -13,11 +13,14 @@
  * - Retry logic with exponential backoff
  */
 
+import { generateSessionId } from './utils/session-id.js';
+
 class ZantaraClient {
   constructor(config = {}) {
     this.config = {
       apiUrl: config.apiUrl || 'https://nuzantara-rag.fly.dev',
-      authEndpoint: config.authEndpoint || '/auth/login',  // FIXED: Standard auth endpoint
+      authUrl: config.authUrl || 'https://nuzantara-backend.fly.dev',  // NEW: Separate auth backend
+      authEndpoint: config.authEndpoint || '/api/auth/demo',  // FIXED: Correct demo auth endpoint
       chatEndpoint: config.chatEndpoint || '/bali-zero/chat',  // FIXED: Correct Bali-Zero endpoint
       streamEndpoint: config.streamEndpoint || '/bali-zero/chat-stream',  // SSE streaming endpoint
       maxRetries: config.maxRetries || 3,
@@ -60,9 +63,10 @@ class ZantaraClient {
         }
       }
 
-      // Get new token
-      console.log('🔐 Authenticating...');
-      const response = await fetch(`${this.config.apiUrl}${this.config.authEndpoint}`, {
+      // Get new token from auth backend (not RAG backend)
+      const authUrl = window.API_CONFIG?.backend?.url || this.config.authUrl;
+      console.log(`🔐 Authenticating via ${authUrl}${this.config.authEndpoint}...`);
+      const response = await fetch(`${authUrl}${this.config.authEndpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),
@@ -126,7 +130,7 @@ class ZantaraClient {
   }
 
   generateSessionId() {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return generateSessionId(); // Use shared utility
   }
 
   /**

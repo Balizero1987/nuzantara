@@ -10,6 +10,7 @@
  */
 
 import { API_CONFIG } from './api-config.js';
+import { generateSessionId } from './utils/session-id.js';
 
 class ZantaraConversationClient {
   constructor(config = {}) {
@@ -56,7 +57,7 @@ class ZantaraConversationClient {
    */
   async createSession(userId, userEmail) {
     try {
-      this.sessionId = `session_${Date.now()}_${userId}`;
+      this.sessionId = generateSessionId(userId); // Use shared utility
 
       const response = await fetch(`${this.memoryServiceUrl}/api/conversation`, {
         method: 'POST',
