@@ -5,7 +5,14 @@ import ProfileCardV0 from './ProfileCardV0';
 import QuestBoardV0 from './QuestBoardV0';
 import ZantaraChatWidgetV0 from './ZantaraChatWidgetV0';
 import LeaderboardV0 from './LeaderboardV0';
-import { UserProfile, Quest, LeaderboardEntry } from '../types/gamification';
+import { 
+  UserProfile, 
+  Quest, 
+  LeaderboardEntry,
+  UserLevel,
+  QuestCategory,
+  SYSTEM_CONCEPTS
+} from '../types/gamification';
 import { GamificationEngine } from '../services/gamificationEngine';
 import { QuestManager } from '../services/questManager';
 import { TeachingEngine } from '../services/teachingEngine';
@@ -41,7 +48,7 @@ export default function DashboardV0({ userId, initialProfile }: DashboardV0Props
           userId,
           username: userId,
           displayName: 'Team Member',
-          level: require('../types/gamification').UserLevel.EXPLORER,
+          level: UserLevel.EXPLORER,
           xp: 2400,
           xpToNextLevel: 2600,
           totalXp: 2400,
@@ -61,7 +68,7 @@ export default function DashboardV0({ userId, initialProfile }: DashboardV0Props
             badgesUnlocked: 3,
             daysActive: 15,
             averageQuestsPerDay: 0.8,
-            favoriteCategory: require('../types/gamification').QuestCategory.LEARNING,
+            favoriteCategory: QuestCategory.LEARNING,
             successRate: 85
           }
         };
@@ -99,7 +106,7 @@ export default function DashboardV0({ userId, initialProfile }: DashboardV0Props
         const teachingEngine = new TeachingEngine();
 
         // Try to extract topic from message
-        const concepts = Object.keys(require('../types/gamification').SYSTEM_CONCEPTS);
+        const concepts = Object.keys(SYSTEM_CONCEPTS);
         const matchedConcept = concepts.find(concept =>
           message.toLowerCase().includes(concept.toLowerCase().replace(/_/g, ' '))
         );
