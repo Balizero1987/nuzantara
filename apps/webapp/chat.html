@@ -1226,12 +1226,6 @@
   <div class="chat-input-container">
     <div class="chat-input-wrapper">
       <div class="chat-input-box" id="inputBox">
-        <button
-          id="imageButton"
-          class="image-button"
-          title="Generate Image"
-          aria-label="Generate Image"
-        ><img src="assets/images/image.svg" alt="Generate Image" style="width: 6.75rem; height: 6.75rem; margin: -2.625rem;"></button>
         <textarea
           id="messageInput"
           class="chat-textarea"
@@ -1512,105 +1506,6 @@
         }
       });
     })();
-
-    // Image generation handler
-    (function() {
-      const imageBtn = document.getElementById('imageButton');
-      const messageSpace = document.getElementById('messageSpace');
-
-      imageBtn.addEventListener('click', function() {
-        // Scrivi "Generate image" in corsivo e piccolo nella chatbar
-        const messageInput = document.getElementById('messageInput');
-        messageInput.value = 'Generate image ';
-        messageInput.style.fontStyle = 'italic';
-        messageInput.style.fontSize = '0.85rem';  // Piccolo
-        messageInput.focus();
-
-        // Posiziona cursore alla fine (dopo lo spazio)
-        messageInput.setSelectionRange(messageInput.value.length, messageInput.value.length);
-
-        // Reset font style quando l'utente inizia a scrivere
-        const resetStyle = function() {
-          messageInput.style.fontStyle = 'normal';
-          messageInput.style.fontSize = '';  // Reset size
-        };
-
-        messageInput.addEventListener('input', resetStyle, { once: true });
-        messageInput.addEventListener('keydown', resetStyle, { once: true });
-      });
-
-      // Helper functions
-      function addUserMessage(text) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message user';
-        messageDiv.innerHTML = `
-          <div class="message-content">
-            <div class="message-text">${escapeHtml(text)}</div>
-          </div>
-        `;
-        messageSpace.appendChild(messageDiv);
-        scrollToBottom();
-      }
-
-      function addAIMessage(text) {
-        const messageId = 'msg-' + Date.now();
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message ai';
-        messageDiv.id = messageId;
-        messageDiv.innerHTML = `
-          <div class="message-content">
-            <div class="message-text">${escapeHtml(text)}</div>
-          </div>
-        `;
-        messageSpace.appendChild(messageDiv);
-        scrollToBottom();
-        return messageId;
-      }
-
-      function addImageMessage(imageUrl, prompt) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message ai';
-        messageDiv.innerHTML = `
-          <div class="message-content">
-            <div class="message-text">
-              <p style="margin-bottom: 0.5rem; color: #bfaa7e;">Generated image: "${escapeHtml(prompt)}"</p>
-              <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(prompt)}"
-                   style="max-width: 100%; border-radius: 0.5rem; margin-top: 0.5rem;">
-            </div>
-          </div>
-        `;
-        messageSpace.appendChild(messageDiv);
-        scrollToBottom();
-      }
-
-      function removeMessage(messageId) {
-        const msg = document.getElementById(messageId);
-        if (msg) msg.remove();
-      }
-
-      function updateMessage(messageId, text) {
-        const msg = document.getElementById(messageId);
-        if (msg) {
-          const textEl = msg.querySelector('.message-text');
-          if (textEl) textEl.textContent = text;
-        }
-      }
-
-      function scrollToBottom() {
-        const container = document.querySelector('.messages-container');
-        if (container) {
-          container.scrollTop = container.scrollHeight;
-        }
-      }
-
-      function escapeHtml(unsafe) {
-        return unsafe
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-      }
 
       // File Attachment Handler
       (function() {
