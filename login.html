@@ -543,23 +543,11 @@
     // Auto-focus email on load
     emailInput.focus();
 
-    // Check if already logged in
+    // Check if already logged in (skip validation for demo auth)
     const existingToken = localStorage.getItem('zantara_access_token');
     if (existingToken) {
-      fetch(`${API_BASE_URL}/api/auth/validate`, {
-        headers: {
-          'Authorization': `Bearer ${existingToken}`
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.valid) {
-          window.location.href = '/chat.html';
-        }
-      })
-      .catch(() => {
-        localStorage.removeItem('zantara_access_token');
-      });
+      console.log('✅ Token found, redirecting to chat...');
+      window.location.href = '/chat.html';
     }
   </script>
 </body>
