@@ -1,19 +1,17 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react()],
   build: {
     outDir: 'dist',
     rollupOptions: {
       input: {
-        login: './login-react.html'
-      }
-    }
+        login: './login-react.html',
+        quest: './quest-dashboard-v0.html',
+      },
+    },
   },
   server: {
-    port: 3000,
-    open: '/login-react.html'
-  }
+    port: 5173,
+    open: '/quest-dashboard-v0.html',
+  },
 });
-
