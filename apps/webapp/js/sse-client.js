@@ -3,9 +3,12 @@
  * Connects to Llama 4 Scout backend with SSE streaming
  */
 
+import { API_CONFIG } from './api-config.js';
+import { generateSessionId } from './utils/session-id.js';
+
 class ZantaraSSEClient {
     constructor(config = {}) {
-        this.baseURL = config.baseURL || 'https://nuzantara-rag.fly.dev';
+        this.baseURL = config.baseURL || API_CONFIG.rag.url;
         this.chatEndpoint = '/bali-zero/chat';
         this.streamEndpoint = '/bali-zero/chat-stream';
         this.aiModel = 'Llama 4 Scout';
@@ -322,7 +325,7 @@ class ZantaraChatUI {
     }
 
     generateSessionId() {
-        return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return generateSessionId(); // Use shared utility
     }
 }
 

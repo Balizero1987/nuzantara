@@ -12,8 +12,8 @@ export const API_CONFIG = {
   },
   memory: {
     url: window.location.hostname === 'localhost'
-      ? 'http://localhost:8080'  // Memory service is on TypeScript backend
-      : 'https://nuzantara-backend.fly.dev'  // Memory service is on TypeScript backend
+      ? 'http://localhost:8080'  // Memory service local
+      : 'https://nuzantara-memory.fly.dev'  // FIXED: Correct Memory Service URL
   }
 };
 
@@ -67,13 +67,21 @@ export function getEndpointUrl(service, endpoint) {
 
 // Helper: Get auth headers
 export function getAuthHeaders() {
-  const token = localStorage.getItem('auth_token');
-  return token ? {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  } : {
-    'Content-Type': 'application/json'
-  };
+  const tokenData = localStorage.getItem('zantara-token');
+  if (!tokenData) {
+    return { 'Content-Type': 'application/json' };
+  }
+
+  try {
+    const parsed = JSON.parse(tokenData);
+    return {
+      'Authorization': `Bearer ${parsed.token}`,
+      'Content-Type': 'application/json'
+    };
+  } catch (error) {
+    console.warn('Failed to parse auth token:', error);
+    return { 'Content-Type': 'application/json' };
+  }
 }
 
 // Expose globally for non-module scripts
