@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="0; url=/login.html">
+  <title>ZANTARA - Redirecting to Login</title>
+  <link rel="stylesheet" href="css/design-system.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #0c0c0c;
+    }
+    .loader {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      color: var(--zantara-gold);
+      animation: pulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="loader">ZANTARA</div>
+  <script>
+    // Fallback redirect to login
+    setTimeout(() => {
+      window.location.href = '/login.html';
+    }, 100);
+  </script>
+</body>
+</html>
