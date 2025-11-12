@@ -405,54 +405,54 @@ interface TeachingLibraryItem {
 
 const TEACHING_LIBRARY: Record<string, TeachingLibraryItem> = {
   rag_basics: {
-    topic: 'RAG (Retrieval Augmented Generation)',
+    topic: 'Come ZANTARA Trova le Informazioni',
     explanations: [
       // Level 1-2: Rookie/Explorer
-      'RAG è come avere un assistente che cerca informazioni in una libreria prima di rispondere. ZANTARA cerca tra 25K+ documenti, trova i più rilevanti, e li usa per darti una risposta precisa con fonti.',
+      'Immagina ZANTARA come un bibliotecario intelligente. Quando fai una domanda, lui va a cercare tra 25.000+ documenti nella sua libreria, trova quelli più utili, li legge, e ti dà una risposta citando da dove ha preso le informazioni. Non inventa niente, usa documenti veri!',
 
       // Level 3-4: Expert/Master
-      'RAG combina retrieval (ricerca) e generation (creazione risposta). Usa embeddings vettoriali per semantic search in ChromaDB, recupera top-K documenti simili, e li passa al LLM come contesto. Questo riduce allucinazioni e permette risposte grounded.',
+      'ZANTARA fa due cose: prima CERCA i documenti giusti, poi CREA la risposta. Per cercare, trasforma la tua domanda in una "formula matematica" e trova documenti con formule simili. Poi legge quei documenti e scrive la risposta citando le fonti. Per questo le risposte sono sempre accurate!',
 
       // Level 5: Legend
-      'RAG architecture: Query encoding → Similarity search (cosine similarity su embeddings) → Context retrieval → Prompt augmentation → LLM generation. Usa HNSW index per sub-linear search time, chunk overlap per context preservation, e re-ranking per relevance optimization.'
+      'Il processo: la tua domanda diventa un "embedding" (vettore matematico). ZANTARA cerca documenti con embeddings simili usando cosine similarity. Trova i top 5-10 risultati, li passa al modello AI che genera la risposta. Usa HNSW index per ricerca veloce, chunking con overlap per non perdere contesto.'
     ],
     examples: [
-      'Tu: "Visto lavorativo Indonesia?"\nZANTARA cerca → Trova 5 docs rilevanti → Risponde citando fonti',
-      'Semantic search: "immigration procedures" e "pratiche immigrazione" trovano gli stessi documenti',
-      'ChromaDB has 25,422 indexed documents with 1536-dim embeddings for ultra-fast similarity search'
+      'Tu chiedi: "Visto lavorativo Indonesia?"\nZANTARA cerca → Trova 5 documenti su visti → Ti risponde citando le fonti',
+      'Se cerchi in italiano o inglese, trova gli stessi documenti perché capisce il SIGNIFICATO',
+      'Ha 25.422 documenti indicizzati, può cercare tra tutti in meno di mezzo secondo'
     ],
     interactiveDemo: true
   },
 
   semantic_search: {
-    topic: 'Semantic Search - Ricerca per Significato',
+    topic: 'Ricerca Intelligente',
     explanations: [
-      'Semantic search capisce il SIGNIFICATO, non solo le parole. Se cerchi "come applicare per visa" trova anche documenti che dicono "visa application process" o "richiesta visto".',
+      'ZANTARA non cerca solo le stesse parole che usi. Capisce il SIGNIFICATO! Se chiedi "come ottenere visa" trova anche documenti che parlano di "richiesta visto", "visa application", "procedura immigrazione" - anche se non usano le tue stesse parole.',
 
-      'Usa embeddings: ogni testo diventa un vettore matematico che rappresenta il suo significato. Testi con significato simile hanno vettori simili (cosine similarity). ChromaDB fa similarity search in milliseconds.',
+      'Come fa? Ogni testo (sia la tua domanda che i documenti) diventa un "numero speciale" che rappresenta il suo significato. Testi con significati simili hanno numeri simili. ZANTARA confronta i numeri e trova i documenti che "significano" qualcosa di simile alla tua domanda.',
 
-      'Vector embeddings mapping: text → R^1536 space. Semantic similarity → geometric proximity. Uses transformer models (sentence-transformers) for encoding. HNSW graph index for approximate nearest neighbor search with 99%+ recall.'
+      'Tecnicamente: usa vector embeddings in spazio 1536-dimensionale. Similarity search con cosine similarity. Modelli transformer (sentence-transformers) per encoding. HNSW graph index per ricerca approssimata con 99%+ recall.'
     ],
     examples: [
-      '"visto lavorativo" e "work permit" → vettori simili → stessi risultati',
-      'Funziona anche cross-language: IT/EN/ID queries trovano docs rilevanti',
-      'Cosine similarity: dot(v1, v2) / (||v1|| * ||v2||) > 0.7 = relevant match'
+      'Cerchi "visto lavorativo" in italiano → Trova anche docs che dicono "work permit" in inglese',
+      'Funziona in 3 lingue: Italiano, Inglese, Indonesiano',
+      'Due frasi diverse ma con stesso significato vengono trovate insieme'
     ]
   },
 
   multi_agent: {
-    topic: 'Multi-Agent Architecture',
+    topic: 'I 4 Esperti di ZANTARA',
     explanations: [
-      'Nuzantara ha 4 agenti specializzati: Immigration (visti), Health (assicurazioni), Revenue (tasse), Memory (conversazioni). Ogni agente è esperto nel suo dominio.',
+      'ZANTARA non è uno solo - è un team di 4 esperti! Immigration (pratiche visti), Health (assicurazioni salute), Revenue (tasse e soldi), Memory (ricorda le conversazioni). Quando fai una domanda, ZANTARA capisce l\'argomento e chiama l\'esperto giusto. È come avere 4 consulenti specializzati sempre disponibili!',
 
-      'Ogni agente ha: RAG specializzato, domain knowledge, tool specifici. Un router analizza la query e la manda all\'agente giusto. Gli agenti possono collaborare per query complesse.',
+      'Ogni esperto ha: la sua libreria di documenti specializzati, conoscenze specifiche del suo settore, strumenti dedicati. Un "router" analizza la tua domanda e la manda all\'esperto più adatto. A volte collaborano tra loro per domande complesse.',
 
-      'Microservices architecture: backend-ts (orchestrator), backend-rag (vector search), memory-service (persistent context). Agent selection via intent classification + entity extraction. Cross-agent communication via message bus.'
+      'Architettura: backend-ts coordina tutto (orchestrator), backend-rag fa la ricerca documenti (vector search), memory-service gestisce memoria (persistent context). Selezione agent via intent classification + entity extraction. Comunicazione cross-agent via message bus.'
     ],
     examples: [
-      'Query su visto → Immigration Agent (8K docs)',
-      'Query su assicurazione → Health Agent (6K docs)',
-      'Query complessa → Multi-agent collaboration con context sharing'
+      'Chiedi di un visto → Immigration Agent risponde (ha 8.000 documenti su immigrazione)',
+      'Chiedi di assicurazione → Health Agent risponde (ha 6.000 documenti su salute)',
+      'Domanda complessa su visto + tasse → Immigration e Revenue collaborano'
     ]
   }
 };
