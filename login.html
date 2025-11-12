@@ -504,13 +504,20 @@
         const data = await response.json();
 
         if (response.ok && data.token) {
-          // Store auth data (demo auth format)
-          localStorage.setItem('zantara_access_token', data.token);
-          localStorage.setItem('zantara_user_email', email);
+          // Store auth data in format expected by chat.html (zantara-token with JSON)
+          const expiresAt = Date.now() + (data.expiresIn * 1000); // Convert seconds to milliseconds
+          localStorage.setItem('zantara-token', JSON.stringify({
+            token: data.token,
+            expiresAt: expiresAt
+          }));
 
-          // Demo auth returns userId, not user object
+          // Store user data
           const userName = data.user?.name || data.userId || email.split('@')[0];
-          localStorage.setItem('zantara_user_name', userName);
+          localStorage.setItem('zantara-user', JSON.stringify({
+            email: email,
+            name: userName,
+            id: data.userId
+          }));
 
           console.log('✅ Login successful, token stored:', data.token.substring(0, 20) + '...');
           showSuccess('Login successful! Redirecting...');
@@ -546,7 +553,7 @@
     emailInput.focus();
 
     // Check if already logged in (skip validation for demo auth)
-    const existingToken = localStorage.getItem('zantara_access_token');
+    const existingToken = localStorage.getItem('zantara-token');
     if (existingToken) {
       console.log('✅ Token found, redirecting to chat...');
       window.location.href = '/chat.html';
