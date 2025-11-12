@@ -88,8 +88,6 @@ let zantaraClient;
 let messages = [];
 let currentLiveMessage = null;
 let stagingTheater = null;
-let fileUploadManager = null;
-let typingThoughtInterval = null;
 
 // DOM elements
 let messageSpace, messageInput, sendButton, quickActions, messagesContainer;
@@ -102,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   // Check authentication
   const userContext = window.UserContext;
-  if (!userContext.isAuthenticated()) {
+  if (!userContext || !userContext.isAuthenticated()) {
     console.error('❌ Not authenticated - redirecting to login');
     window.location.href = '/login.html';
     return;
@@ -267,7 +265,8 @@ function showWelcomeMessage() {
  */
 function handleInputChange() {
   const value = messageInput.value.trim();
-  sendButton.disabled = !value;
+  // Send button sempre abilitato
+  sendButton.disabled = false;
 
   // Auto-resize textarea
   messageInput.style.height = 'auto';
@@ -291,7 +290,21 @@ function handleSend() {
   const content = messageInput.value.trim();
   if (!content || zantaraClient.isStreaming) return;
 
-  sendMessage(content);
+  // Trigger send animation
+  const sendBtn = document.getElementById('sendButton');
+  if (sendBtn) {
+    sendBtn.classList.add('sending');
+    setTimeout(() => {
+      sendBtn.classList.remove('sending');
+    }, 600);
+  }
+
+  // Check if it's an image generation request
+  if (content.toLowerCase().startsWith('generate image')) {
+    handleImageGeneration(content);
+  } else {
+    sendMessage(content);
+  }
 }
 
 /**
@@ -316,7 +329,7 @@ async function sendMessage(content) {
   // Clear input
   messageInput.value = '';
   messageInput.style.height = 'auto';
-  sendButton.disabled = true;
+  sendButton.disabled = false;
 
   // Show typing indicator
   showTypingIndicator();
@@ -548,6 +561,8 @@ function renderMessage(msg, saveToHistory = true) {
       });
     }
   }
+
+  return messageEl; // FIXED: Return message element for reference
 }
 
 /**
@@ -645,12 +660,10 @@ function showTypingIndicator() {
         <span></span>
         <span></span>
       </div>
-      <div class="typing-thought" id="typingThought"></div>
     </div>
   `;
 
   messageSpace.appendChild(indicator);
-  startThinkingMonologue();
   scrollToBottom();
 }
 
@@ -662,38 +675,105 @@ function hideTypingIndicator() {
   if (indicator) {
     indicator.remove();
   }
-  stopThinkingMonologue();
 }
 
-const THINKING_PHRASES = [
-  'Sto incrociando le normative... forse il Pasal giusto è qui.',
-  'Rovisto tra gli atti di Bali Zero, dammi un secondo.',
-  'Metto in fila i pensieri, respirando tra leggi e sentenze.',
-  'Controllo le note sul Peraturan Menteri, potrebbe servire.',
-  'Passeggio tra i paragrafi: troverò la clausola perfetta.',
-  'Sto tessendo collegamenti mentali... quasi fatto.',
-  'Verifico le interpretazioni giurisprudenziali più recenti...'
-];
+/**
+ * Handle image generation
+ * ⚠️ SECURITY FIX: API key moved to backend
+ * TODO: Implement backend endpoint for image generation
+ */
+async function handleImageGeneration(content) {
+  // Extract prompt (remove "generate image" prefix)
+  const prompt = content.replace(/^generate image:?\s*/i, '').trim() || 'abstract art';
 
-function startThinkingMonologue() {
-  const thoughtEl = document.getElementById('typingThought');
-  if (!thoughtEl) return;
+  // Add user message
+  const userMsg = {
+    type: 'user',
+    content: content,
+    timestamp: new Date(),
+  };
+  renderMessage(userMsg, true);
 
-  let index = 0;
-  thoughtEl.textContent = THINKING_PHRASES[index];
+  // Clear input
+  messageInput.value = '';
+  messageInput.style.height = 'auto';
+  sendButton.disabled = false;
 
-  stopThinkingMonologue();
-  typingThoughtInterval = window.setInterval(() => {
-    index = (index + 1) % THINKING_PHRASES.length;
-    thoughtEl.textContent = THINKING_PHRASES[index];
-  }, 2400);
-}
+  // Show error message - feature temporarily disabled for security
+  const errorMsg = {
+    type: 'ai',
+    content: '⚠️ Image generation is temporarily disabled. This feature requires backend implementation for security reasons.',
+    timestamp: new Date(),
+  };
+  renderMessage(errorMsg, true);
 
-function stopThinkingMonologue() {
-  if (typingThoughtInterval) {
-    window.clearInterval(typingThoughtInterval);
-    typingThoughtInterval = null;
+  scrollToBottom();
+
+  /* DISABLED FOR SECURITY - API KEY EXPOSED IN FRONTEND
+  // Show loading message
+  const loadingMsg = {
+    type: 'ai',
+    content: '🎨 Generating image...',
+    timestamp: new Date(),
+  };
+  const loadingEl = renderMessage(loadingMsg, false);
+  const loadingId = loadingEl.id;
+
+  try {
+    // Call ImagineArt API
+    const formData = new FormData();
+    formData.append('prompt', prompt);
+    formData.append('style', 'realistic');
+    formData.append('aspect_ratio', '1:1');
+
+    const response = await fetch('https://api.vyro.ai/v2/image/generations', {
+      method: 'POST',
+      headers: {
+        // ⚠️ SECURITY VULNERABILITY: API key exposed in frontend code
+        // MUST be moved to backend endpoint
+        'Authorization': 'Bearer [REDACTED - MOVE TO BACKEND]'
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    // Get image blob
+    const blob = await response.blob();
+    const imageUrl = URL.createObjectURL(blob);
+
+    // Remove loading message
+    const loadingElement = document.getElementById(loadingId);
+    if (loadingElement) {
+      loadingElement.remove();
+    }
+
+    // Add image message
+    const imageMsg = {
+      type: 'ai',
+      content: `<p style="margin-bottom: 0.5rem; color: #bfaa7e;">Generated image: "${prompt}"</p><img src="${imageUrl}" alt="${prompt}" style="max-width: 100%; border-radius: 0.5rem; margin-top: 0.5rem;">`,
+      timestamp: new Date(),
+    };
+    renderMessage(imageMsg, true);
+  } catch (error) {
+    console.error('Image generation failed:', error);
+
+    // Update loading message with error
+    const loadingElement = document.getElementById(loadingId);
+    if (loadingElement) {
+      loadingElement.querySelector('.message-text').textContent = `❌ Image generation failed: ${error.message}`;
+    }
   }
+
+  // Re-enable send button
+  if (sendButton) {
+    sendButton.disabled = false;
+  }
+
+  scrollToBottom();
+  */
 }
 
 /**
@@ -784,6 +864,12 @@ function displayUserInfo() {
   const userAvatar = document.getElementById('userAvatar');
   const logoutBtn = document.getElementById('logoutBtn');
 
+  // Handle case when UserContext is not available (testing mode)
+  if (!userContext) {
+    console.warn('⚠️ UserContext not available - running in testing mode');
+    return;
+  }
+
   if (userEmail && userContext.user) {
     userEmail.textContent = userContext.user.email || 'guest@zantara.com';
   }
@@ -805,29 +891,13 @@ function displayUserInfo() {
 }
 
 /**
- * Handle logout
+ * Handle logout (Client-side only - no backend call needed for demo auth)
  */
 async function handleLogout() {
   const confirmed = confirm('Are you sure you want to logout?');
   if (!confirmed) return;
 
   try {
-    const userContext = window.UserContext;
-    const sessionId = userContext.getSessionId();
-
-    // Call logout API with centralized config
-    if (sessionId) {
-      const API_CONFIG = window.API_CONFIG || {
-        backend: { url: 'https://nuzantara-backend.fly.dev' },
-      };
-
-      await fetch(`${API_CONFIG.backend.url}/api/team/logout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
-      });
-    }
-
     // Clear conversation session from Memory Service
     if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
       try {
@@ -837,12 +907,26 @@ async function handleLogout() {
         console.warn('⚠️ Failed to clear conversation on logout:', error.message);
       }
     }
+
+    // Clear chat history from ZantaraClient
+    if (zantaraClient) {
+      zantaraClient.clearHistory();
+    }
   } catch (error) {
-    console.warn('Logout API call failed:', error);
+    console.warn('Logout cleanup failed:', error);
   }
 
-  // Clear local storage
-  window.UserContext.logout();
+  // Clear all auth data from localStorage
+  if (window.UserContext) {
+    window.UserContext.logout();
+  }
+
+  // Clear additional session data
+  localStorage.removeItem('zantara-session-id');
+  localStorage.removeItem('zantara-history');
+  localStorage.removeItem('zantara-session');
+
+  console.log('✅ User logged out successfully');
 
   // Redirect to login
   window.location.href = '/login.html';

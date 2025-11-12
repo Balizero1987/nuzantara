@@ -3,17 +3,17 @@ export const API_CONFIG = {
   backend: {
     url: window.location.hostname === 'localhost'
       ? 'http://localhost:8080'
-      : 'https://nuzantara-rag.fly.dev'  // FIXED: Use RAG backend for all API calls
+      : 'https://nuzantara-backend.fly.dev'  // TypeScript backend for auth, handlers, API
   },
   rag: {
     url: window.location.hostname === 'localhost'
       ? 'http://localhost:8000'
-      : 'https://nuzantara-rag.fly.dev'
+      : 'https://nuzantara-rag.fly.dev'  // Python RAG backend for chat streaming and vector search
   },
   memory: {
     url: window.location.hostname === 'localhost'
-      ? 'http://localhost:8081'  // Different port to avoid conflict with backend-ts
-      : 'https://nuzantara-rag.fly.dev'  // FIXED: Memory service is part of RAG backend
+      ? 'http://localhost:8080'  // Memory service local
+      : 'https://nuzantara-memory.fly.dev'  // FIXED: Correct Memory Service URL
   }
 };
 
@@ -21,7 +21,8 @@ export const API_CONFIG = {
 export const API_ENDPOINTS = {
   // Authentication
   auth: {
-    login: '/api/auth/login',
+    login: '/auth/login',
+    teamLogin: '/api/auth/team/login',
     check: '/api/auth/check',
     logout: '/api/auth/logout',
     profile: '/api/user/profile'
@@ -66,13 +67,21 @@ export function getEndpointUrl(service, endpoint) {
 
 // Helper: Get auth headers
 export function getAuthHeaders() {
-  const token = localStorage.getItem('auth_token');
-  return token ? {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  } : {
-    'Content-Type': 'application/json'
-  };
+  const tokenData = localStorage.getItem('zantara-token');
+  if (!tokenData) {
+    return { 'Content-Type': 'application/json' };
+  }
+
+  try {
+    const parsed = JSON.parse(tokenData);
+    return {
+      'Authorization': `Bearer ${parsed.token}`,
+      'Content-Type': 'application/json'
+    };
+  } catch (error) {
+    console.warn('Failed to parse auth token:', error);
+    return { 'Content-Type': 'application/json' };
+  }
 }
 
 // Expose globally for non-module scripts
