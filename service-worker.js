@@ -2,10 +2,10 @@
  * ZANTARA Service Worker - PWA Support
  *
  * Implements offline caching, background sync, and push notifications.
- * Version: 5.3.0
+ * Version: 5.4.0
  */
 
-const CACHE_VERSION = 'zantara-v5.3.0';
+const CACHE_VERSION = 'zantara-v5.4.0';
 const CACHE_STATIC = `${CACHE_VERSION}-static`;
 const CACHE_DYNAMIC = `${CACHE_VERSION}-dynamic`;
 const CACHE_API = `${CACHE_VERSION}-api`;
@@ -43,7 +43,7 @@ const MAX_CACHE_SIZE = {
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v5.3.0');
+  console.log('[SW] Installing service worker v5.4.0');
 
   event.waitUntil(
     caches
