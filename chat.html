@@ -1007,6 +1007,52 @@
       }
     }
 
+    /* Image Generation Mode - Color Explosion Animation */
+    @keyframes colorExplosion {
+      0% {
+        background-position: 0% 50%;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+      }
+      25% {
+        background-position: 25% 50%;
+        box-shadow: 0 0 15px rgba(65, 105, 225, 0.4);
+      }
+      50% {
+        background-position: 50% 50%;
+        box-shadow: 0 0 20px rgba(255, 69, 0, 0.4);
+      }
+      75% {
+        background-position: 75% 50%;
+        box-shadow: 0 0 15px rgba(50, 205, 50, 0.4);
+      }
+      100% {
+        background-position: 100% 50%;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+      }
+    }
+
+    .chat-input-box.image-gen-mode {
+      background: linear-gradient(
+        90deg,
+        rgba(255, 215, 0, 0.15),
+        rgba(65, 105, 225, 0.15),
+        rgba(255, 69, 0, 0.15),
+        rgba(50, 205, 50, 0.15),
+        rgba(255, 215, 0, 0.15)
+      ) !important;
+      background-size: 400% 400% !important;
+      animation: colorExplosion 8s ease-in-out infinite !important;
+      border-color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .image-gen-button:hover {
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .image-gen-button:active {
+      transform: translateY(-50%) scale(0.95);
+    }
+
     
       </style>
 </head>
@@ -1091,10 +1137,18 @@
           placeholder="Your inquiry…"
           rows="1"
           maxlength="2000"
-          style="padding-left: 15px !important; padding-right: 60px !important;"
+          style="padding-left: 60px !important; padding-right: 60px !important;"
         ></textarea>
         
-                
+        <!-- Generate Image Button - Left side -->
+        <button class="image-gen-button" id="imageGenButton" title="Generate Image with AI"
+                style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+                       width: 40px; height: 40px; background: transparent; border: none;
+                       cursor: pointer; display: flex; align-items: center; justify-content: center;
+                       transition: transform 0.2s; z-index: 5;">
+          <img src="assets/images/image.svg" alt="Generate Image" 
+               style="width: 28px; height: 28px; object-fit: contain; opacity: 0.9;">
+        </button>
                 
         <!-- File Attachment Button - Right side with paperclip -->
         <button class="attach-button" id="attachButton" title="Attach File"
@@ -1198,6 +1252,127 @@
             <div class="conversation-time">3 days ago</div>
           </div>
         `;
+      }
+    })();
+
+    // Image Generation with ImagineArt API
+    (function() {
+      const imageGenBtn = document.getElementById('imageGenButton');
+      const messageInput = document.getElementById('messageInput');
+      const inputBox = document.getElementById('inputBox');
+      const IMAGINEART_API_KEY = 'vk-3zVt3g8xJ7dSg6KZ3pbpPRUPDwtSAQDlJssPQrKZTp7Kp';
+      let isImageGenMode = false;
+
+      if (imageGenBtn && messageInput && inputBox) {
+        // Click on image button
+        imageGenBtn.addEventListener('click', () => {
+          isImageGenMode = !isImageGenMode;
+          
+          if (isImageGenMode) {
+            // Attiva modalità image generation
+            messageInput.placeholder = '/generate image';
+            messageInput.style.fontStyle = 'italic';
+            messageInput.style.opacity = '0.7';
+            messageInput.style.fontSize = '0.95rem';
+            messageInput.value = '';
+            messageInput.focus();
+            
+            // Aggiungi classe per animazione colorata
+            inputBox.classList.add('image-gen-mode');
+            
+            // Highlight button
+            imageGenBtn.style.opacity = '1';
+          } else {
+            // Disattiva modalità
+            resetImageGenMode();
+          }
+        });
+
+        // Enter key handler
+        messageInput.addEventListener('keydown', async (e) => {
+          if (isImageGenMode && e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const prompt = e.target.value.trim();
+            
+            if (prompt) {
+              // Reset mode
+              resetImageGenMode();
+              isImageGenMode = false;
+              
+              // Show generating message
+              const messageSpace = document.getElementById('messageSpace');
+              const generatingMsg = document.createElement('div');
+              generatingMsg.className = 'message ai';
+              generatingMsg.innerHTML = `
+                <div class="message-content">
+                  <div style="font-style: italic; opacity: 0.8;">
+                    🎨 Generating image: "${prompt}"
+                  </div>
+                </div>
+              `;
+              messageSpace.appendChild(generatingMsg);
+              messageSpace.scrollTop = messageSpace.scrollHeight;
+              
+              try {
+                // Call ImagineArt API
+                const response = await fetch('https://api.imagineart.ai/v1/images/generations', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${IMAGINEART_API_KEY}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    prompt: prompt,
+                    model: 'nano-banana',
+                    n: 1,
+                    size: '512x512'
+                  })
+                });
+                
+                if (response.ok) {
+                  const data = await response.json();
+                  const imageUrl = data.data[0].url;
+                  
+                  // Show generated image
+                  generatingMsg.innerHTML = `
+                    <div class="message-content">
+                      <div style="margin-bottom: 10px;">✨ Image generated!</div>
+                      <img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">
+                      <div style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
+                        "${prompt}"
+                      </div>
+                    </div>
+                  `;
+                } else {
+                  throw new Error('Failed to generate image');
+                }
+              } catch (error) {
+                console.error('Image generation error:', error);
+                generatingMsg.innerHTML = `
+                  <div class="message-content">
+                    <div style="color: #ff6b6b;">
+                      ❌ Failed to generate image. Please try again.
+                    </div>
+                  </div>
+                `;
+              }
+            }
+          } else if (isImageGenMode && e.key === 'Escape') {
+            // Escape to cancel
+            resetImageGenMode();
+            isImageGenMode = false;
+          }
+        });
+
+        function resetImageGenMode() {
+          messageInput.placeholder = 'Your inquiry…';
+          messageInput.style.fontStyle = 'normal';
+          messageInput.style.opacity = '1';
+          messageInput.style.fontSize = '';
+          messageInput.value = '';
+          inputBox.classList.remove('image-gen-mode');
+          imageGenBtn.style.opacity = '0.9';
+        }
       }
     })();
                       
