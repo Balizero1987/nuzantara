@@ -1232,16 +1232,18 @@
           placeholder="Your inquiry…"
           rows="1"
           maxlength="2000"
-          style="padding-left: 140px !important;"
+          style="padding-left: 50px !important; padding-right: 100px !important;"
         ></textarea>
-        <!-- Image Generation Button - Left side, 250% bigger -->
-        <button class="image-gen-button" id="imageGenButton" title="Generate Image"
-                style="position: absolute; left: 10px; width: 125px; height: 125px; 
-                       background: transparent; border: none; cursor: pointer; 
-                       display: flex; align-items: center; justify-content: center;
-                       transition: transform 0.2s; z-index: 10;">
+        <!-- Image Generation Button - Integrated in chatbar -->
+        <button class="image-gen-button" id="imageGenButton" title="Generate Image with AI"
+                style="position: absolute; left: 5px; top: 50%; transform: translateY(-50%);
+                       width: 40px; height: 40px; background: rgba(255,255,255,0.05); 
+                       border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+                       cursor: pointer; display: flex; align-items: center; justify-content: center;
+                       transition: all 0.3s ease; z-index: 10;">
           <img src="assets/images/image.svg" alt="Generate Image" 
-               style="width: 100%; height: 100%; object-fit: contain;">
+               style="width: 70%; height: 70%; object-fit: contain; 
+                      filter: brightness(0) invert(1) opacity(0.8);">
         </button>
         
         <!-- File Attachment Button - Right side with paperclip -->
@@ -1522,25 +1524,116 @@
       });
     })();
 
-      // Image Generation Handler
+      // Image Generation Handler with ImagineArt API
       (function() {
         const imageGenBtn = document.getElementById('imageGenButton');
+        const IMAGINEART_API_KEY = 'vk-3zVt3g8xJ7dSg6KZ3pbpPRUPDwtSAQDlJssPQrKZTp7Kp';
+        let isGeneratingImage = false;
         
         if (imageGenBtn) {
-          imageGenBtn.addEventListener('click', () => {
-            // Trigger image generation
+          imageGenBtn.addEventListener('click', async () => {
             const messageInput = document.getElementById('messageInput');
-            const currentText = messageInput.value;
-            messageInput.value = '/imagine ' + currentText;
-            messageInput.focus();
+            
+            if (!isGeneratingImage) {
+              // Add /generate image prefix in italic
+              const placeholder = messageInput.placeholder;
+              messageInput.placeholder = '/generate image...';
+              messageInput.style.fontStyle = 'italic';
+              messageInput.style.opacity = '0.7';
+              messageInput.value = '';
+              messageInput.focus();
+              isGeneratingImage = true;
+              
+              // Change button appearance
+              imageGenBtn.style.opacity = '1';
+              imageGenBtn.style.transform = 'scale(1.1)';
+            }
+          });
+          
+          // Handle Enter key for image generation
+          document.getElementById('messageInput').addEventListener('keydown', async (e) => {
+            if (isGeneratingImage && e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              const prompt = e.target.value.trim();
+              
+              if (prompt) {
+                // Reset input
+                e.target.value = '';
+                e.target.style.fontStyle = 'normal';
+                e.target.style.opacity = '1';
+                e.target.placeholder = 'Your inquiry…';
+                isGeneratingImage = false;
+                imageGenBtn.style.opacity = '0.8';
+                imageGenBtn.style.transform = 'scale(1)';
+                
+                // Show generating message
+                const messageSpace = document.getElementById('messageSpace');
+                const generatingMsg = document.createElement('div');
+                generatingMsg.className = 'message ai-message';
+                generatingMsg.innerHTML = `
+                  <div style="font-style: italic; opacity: 0.8;">
+                    🎨 Generating image with Nano Banana model: "${prompt}"
+                  </div>
+                `;
+                messageSpace.appendChild(generatingMsg);
+                
+                try {
+                  // Call ImagineArt API
+                  const response = await fetch('https://api.imagineart.ai/v1/images/generations', {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${IMAGINEART_API_KEY}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      prompt: prompt,
+                      model: 'nano-banana',
+                      n: 1,
+                      size: '512x512'
+                    })
+                  });
+                  
+                  if (response.ok) {
+                    const data = await response.json();
+                    const imageUrl = data.data[0].url;
+                    
+                    // Display generated image
+                    generatingMsg.innerHTML = `
+                      <div style="margin-bottom: 10px;">✨ Image generated successfully!</div>
+                      <img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">
+                      <div style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
+                        Prompt: "${prompt}" | Model: Nano Banana
+                      </div>
+                    `;
+                  } else {
+                    throw new Error('Failed to generate image');
+                  }
+                } catch (error) {
+                  console.error('Image generation error:', error);
+                  generatingMsg.innerHTML = `
+                    <div style="color: #ff6b6b;">
+                      ❌ Failed to generate image. Please try again.
+                    </div>
+                  `;
+                }
+              }
+            }
           });
           
           imageGenBtn.addEventListener('mouseenter', () => {
-            imageGenBtn.style.transform = 'scale(1.1)';
+            if (!isGeneratingImage) {
+              imageGenBtn.style.background = 'rgba(255,255,255,0.1)';
+              imageGenBtn.style.borderColor = 'rgba(255,255,255,0.4)';
+              imageGenBtn.querySelector('img').style.filter = 'brightness(0) invert(1) opacity(1)';
+            }
           });
           
           imageGenBtn.addEventListener('mouseleave', () => {
-            imageGenBtn.style.transform = 'scale(1)';
+            if (!isGeneratingImage) {
+              imageGenBtn.style.background = 'rgba(255,255,255,0.05)';
+              imageGenBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+              imageGenBtn.querySelector('img').style.filter = 'brightness(0) invert(1) opacity(0.8)';
+            }
           });
         }
       })();
