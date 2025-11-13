@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Login Flow - ZANTARA</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1a24;
+      color: #fff;
+    }
+    .test-section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    button {
+      background: #e94d35;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #d63825;
+    }
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    .success { background: rgba(0,255,0,0.1); color: #0f0; }
+    .error { background: rgba(255,0,0,0.1); color: #f00; }
+    .info { background: rgba(0,100,255,0.1); color: #08f; }
+    h1 { color: #e94d35; }
+    h2 { color: #fff; font-size: 18px; }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 4px;
+      border: 1px solid #444;
+      background: #222;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 ZANTARA Login Flow Test</h1>
+
+  <div class="test-section">
+    <h2>1. Check Current Auth Status</h2>
+    <button onclick="checkAuthStatus()">Check Auth Status</button>
+    <button onclick="clearAllAuth()">Clear All Auth Data</button>
+    <div id="authStatus" class="status info"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>2. Mock Login Test</h2>
+    <input type="email" id="email" placeholder="Email" value="test@zantara.com">
+    <input type="password" id="password" placeholder="Password" value="test123">
+    <button onclick="testMockLogin()">Test Mock Login</button>
+    <div id="loginStatus" class="status info"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>3. Navigation Test</h2>
+    <button onclick="navigateToChat()">Go to Chat (Should Work)</button>
+    <button onclick="navigateToLogin()">Go to Login</button>
+    <div id="navStatus" class="status info"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>4. Storage Inspector</h2>
+    <button onclick="inspectStorage()">Inspect LocalStorage</button>
+    <div id="storageStatus" class="status info" style="white-space: pre-wrap;"></div>
+  </div>
+
+  <script>
+    // Check auth status
+    function checkAuthStatus() {
+      const token = localStorage.getItem('zantara-token');
+      const user = localStorage.getItem('zantara-user');
+      const session = localStorage.getItem('zantara-session');
+      
+      let status = '📊 Auth Status:\n';
+      status += `Token: ${token ? '✅ Present' : '❌ Missing'}\n`;
+      status += `User: ${user ? '✅ Present' : '❌ Missing'}\n`;
+      status += `Session: ${session ? '✅ Present' : '❌ Missing'}\n`;
+      
+      if (token) {
+        try {
+          const tokenData = JSON.parse(token);
+          const expiresAt = new Date(tokenData.expiresAt);
+          const isExpired = Date.now() >= tokenData.expiresAt;
+          status += `\nToken expires: ${expiresAt.toLocaleString()}\n`;
+          status += `Status: ${isExpired ? '⚠️ EXPIRED' : '✅ VALID'}`;
+        } catch (e) {
+          status += '\n⚠️ Invalid token format';
+        }
+      }
+      
+      document.getElementById('authStatus').textContent = status;
+      document.getElementById('authStatus').className = token ? 'status success' : 'status error';
+    }
+
+    // Clear all auth data
+    function clearAllAuth() {
+      localStorage.removeItem('zantara-token');
+      localStorage.removeItem('zantara-user');
+      localStorage.removeItem('zantara-session');
+      localStorage.removeItem('zantara-permissions');
+      localStorage.removeItem('zantara-redirect-attempt');
+      
+      document.getElementById('authStatus').textContent = '🗑️ All auth data cleared!';
+      document.getElementById('authStatus').className = 'status info';
+    }
+
+    // Test mock login
+    function testMockLogin() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      // Simulate mock login
+      const mockUser = {
+        id: 'mock-user-001',
+        email: email,
+        name: email.split('@')[0],
+        role: 'user'
+      };
+      
+      const mockToken = btoa(JSON.stringify({ 
+        user: mockUser, 
+        timestamp: Date.now() 
+      }));
+      
+      const tokenData = {
+        token: mockToken,
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('zantara-token', JSON.stringify(tokenData));
+      localStorage.setItem('zantara-user', JSON.stringify(mockUser));
+      localStorage.setItem('zantara-session', JSON.stringify({
+        startedAt: Date.now(),
+        lastActivity: Date.now()
+      }));
+      
+      document.getElementById('loginStatus').textContent = 
+        `✅ Mock login successful!\nUser: ${mockUser.email}\nToken created with 24h expiry`;
+      document.getElementById('loginStatus').className = 'status success';
+      
+      // Update auth status
+      checkAuthStatus();
+    }
+
+    // Navigate to chat
+    function navigateToChat() {
+      // Try different possible paths
+      const paths = [
+        '/chat.html',
+        '/Desktop/COOKING-LAB/chat.html',
+        '/Desktop/webapp/chat.html'
+      ];
+      
+      // Use the first path that exists (for local testing, use root)
+      const path = window.location.hostname === 'localhost' ? '/Desktop/COOKING-LAB/chat.html' : '/chat.html';
+      
+      document.getElementById('navStatus').textContent = `🚀 Navigating to: ${path}`;
+      document.getElementById('navStatus').className = 'status info';
+      
+      setTimeout(() => {
+        window.location.href = path;
+      }, 1000);
+    }
+
+    // Navigate to login
+    function navigateToLogin() {
+      // Use the correct path based on environment
+      const path = window.location.hostname === 'localhost' ? '/login.html' : '/login.html';
+      
+      document.getElementById('navStatus').textContent = `🚀 Navigating to: ${path}`;
+      document.getElementById('navStatus').className = 'status info';
+      
+      setTimeout(() => {
+        window.location.href = path;
+      }, 1000);
+    }
+
+    // Inspect storage
+    function inspectStorage() {
+      let storage = '📦 LocalStorage Contents:\n\n';
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('zantara-')) {
+          const value = localStorage.getItem(key);
+          storage += `${key}:\n`;
+          try {
+            const parsed = JSON.parse(value);
+            storage += JSON.stringify(parsed, null, 2) + '\n\n';
+          } catch {
+            storage += value + '\n\n';
+          }
+        }
+      }
+      
+      if (storage === '📦 LocalStorage Contents:\n\n') {
+        storage += '(No ZANTARA data found)';
+      }
+      
+      document.getElementById('storageStatus').textContent = storage;
+    }
+
+    // Initial check
+    checkAuthStatus();
+  </script>
+</body>
+</html>
