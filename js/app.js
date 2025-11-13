@@ -251,13 +251,7 @@ async function loadMessageHistory() {
  * Show welcome message
  */
 function showWelcomeMessage() {
-  const welcomeMsg = {
-    type: 'ai',
-    content:
-      'I am the Jiwa of Bali Zero. How can I assist you today with Indonesian business law, visas, or company formation?',
-    timestamp: new Date(),
-  };
-  renderMessage(welcomeMsg, false);
+  // Welcome message removed - using HTML welcome instead
 }
 
 /**
@@ -318,6 +312,12 @@ function handleQuickAction(action) {
  * Send message to ZANTARA
  */
 async function sendMessage(content) {
+  // Hide welcome message on first message
+  const welcomeMsg = document.querySelector('.welcome-message');
+  if (welcomeMsg) {
+    welcomeMsg.style.display = 'none';
+  }
+
   // Add user message
   const userMsg = {
     type: 'user',

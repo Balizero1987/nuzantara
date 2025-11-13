@@ -84,17 +84,35 @@
       hide(err);hide(wel);loading=true;btn.disabled=true;
       const sp=document.createElement('span');sp.className='button-spinner';btn.appendChild(sp);
       try{
-        // REAL AUTHENTICATION - Only PIN 010719 is valid
-        const VALID_PIN = '010719';
-        const VALID_EMAILS = [
-          'zero@balizero.com',
-          'admin@zantara.com',
-          'antonello@balizero.com'
-        ];
+        // REAL AUTHENTICATION - Team PINs
+        const VALID_CREDENTIALS = {
+          // Admin
+          'zero@balizero.com': '010719',
+          'antonello@balizero.com': '010719',
+          // Indonesian Team
+          'zainal@balizero.com': '847261',
+          'amanda@balizero.com': '614829',
+          'anton@balizero.com': '538147',
+          'info@balizero.com': '926734',
+          'krishna@balizero.com': '471592',
+          'consulting@balizero.com': '385216',
+          'ari.firda@balizero.com': '759483',
+          'dea@balizero.com': '162847',
+          'surya@balizero.com': '894621',
+          'damar@balizero.com': '637519',
+          'tax@balizero.com': '418639',
+          'angel.tax@balizero.com': '341758',
+          'kadek.tax@balizero.com': '786294',
+          'dewa.ayu.tax@balizero.com': '259176',
+          'faisha.tax@balizero.com': '673942',
+          'rina@balizero.com': '214876',
+          'sahira@balizero.com': '512638'
+        };
         
-        // Validate PIN
-        if (pin !== VALID_PIN) {
-          throw new Error('Invalid PIN. Access denied.');
+        // Validate credentials
+        const emailLower = em.toLowerCase();
+        if (!VALID_CREDENTIALS[emailLower] || VALID_CREDENTIALS[emailLower] !== pin) {
+          throw new Error('Invalid email or PIN. Access denied.');
         }
         
         // Validate email format
@@ -102,12 +120,16 @@
           throw new Error('Invalid email format');
         }
         
+        // Determine user role
+        const ADMIN_EMAILS = ['zero@balizero.com', 'antonello@balizero.com', 'zainal@balizero.com'];
+        const isAdmin = ADMIN_EMAILS.includes(emailLower);
+        
         // Create authenticated user
         const u = {
           id: `user_${Date.now()}`,
           email: em,
           name: em.split('@')[0],
-          role: VALID_EMAILS.includes(em.toLowerCase()) ? 'admin' : 'user',
+          role: isAdmin ? 'admin' : 'user',
           authenticatedAt: new Date().toISOString(),
           isAuthenticated: true
         };
