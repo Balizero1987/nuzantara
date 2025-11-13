@@ -126,8 +126,8 @@ function getAuthToken() {
 // Auto-run auth check on protected pages
 if (typeof window !== 'undefined') {
   const currentPage = window.location.pathname;
-  const publicPages = ['/', '/login', '/login.html', '/index.html', '/chat.html'];
-  const protectedPages = []; // Empty for now, chat.html is public
+  const publicPages = ['/', '/login', '/login.html', '/index.html'];
+  const protectedPages = ['/chat.html']; // Chat requires authentication
 
   // Only check auth on protected pages (explicit list to avoid loop)
   const isProtectedPage = protectedPages.some(page =>

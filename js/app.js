@@ -98,13 +98,12 @@ let messageSpace, messageInput, sendButton, quickActions, messagesContainer;
 document.addEventListener('DOMContentLoaded', async function () {
   console.log('🚀 ZANTARA Chat Application Starting...');
 
-  // Check authentication - DISABLED for testing
+  // Check authentication
   const userContext = window.UserContext;
   if (!userContext || !userContext.isAuthenticated()) {
-    console.warn('⚠️ Not authenticated - continuing in demo mode');
-    // Don't redirect, allow demo mode
-    // window.location.href = '/login.html';
-    // return;
+    console.log('⚠️ Not authenticated - redirecting to login');
+    window.location.href = '/login.html';
+    return;
   }
 
   // Display user info in header
