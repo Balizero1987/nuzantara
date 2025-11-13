@@ -1104,10 +1104,10 @@
       transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Keep chat input fixed when sidebar opens */
+    /* Adjust chat input when sidebar opens - move to right */
     body:has(.conversation-sidebar.open) .chat-input-container {
-      left: 0 !important;
-      right: 0 !important;
+      left: 320px !important;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Responsive */
@@ -1232,14 +1232,32 @@
           placeholder="Your inquiry…"
           rows="1"
           maxlength="2000"
+          style="padding-left: 140px !important;"
         ></textarea>
-        <button class="attach-button" id="attachButton" title="Generate Image"
-                style="width: 50px; height: 50px; background: transparent; border: none;
-                       cursor: pointer; display: flex; align-items: center; justify-content: center;
-                       margin-left: 8px; transition: transform 0.2s;">
-          <img src="assets/images/image.svg" alt="Generate Image" style="width: 100%; height: 100%; object-fit: contain;">
+        <!-- Image Generation Button - Left side, 250% bigger -->
+        <button class="image-gen-button" id="imageGenButton" title="Generate Image"
+                style="position: absolute; left: 10px; width: 125px; height: 125px; 
+                       background: transparent; border: none; cursor: pointer; 
+                       display: flex; align-items: center; justify-content: center;
+                       transition: transform 0.2s; z-index: 10;">
+          <img src="assets/images/image.svg" alt="Generate Image" 
+               style="width: 100%; height: 100%; object-fit: contain;">
         </button>
+        
+        <!-- File Attachment Button - Right side with paperclip -->
+        <button class="attach-button" id="attachButton" title="Attach File"
+                style="width: 40px; height: 40px; background: transparent; border: none;
+                       cursor: pointer; display: flex; align-items: center; justify-content: center;
+                       margin-right: 8px; transition: transform 0.2s;">
+          <!-- White Paperclip Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+               fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+        </button>
+        
         <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
+        
         <button
           id="sendButton"
           class="send-button"
@@ -1504,6 +1522,29 @@
       });
     })();
 
+      // Image Generation Handler
+      (function() {
+        const imageGenBtn = document.getElementById('imageGenButton');
+        
+        if (imageGenBtn) {
+          imageGenBtn.addEventListener('click', () => {
+            // Trigger image generation
+            const messageInput = document.getElementById('messageInput');
+            const currentText = messageInput.value;
+            messageInput.value = '/imagine ' + currentText;
+            messageInput.focus();
+          });
+          
+          imageGenBtn.addEventListener('mouseenter', () => {
+            imageGenBtn.style.transform = 'scale(1.1)';
+          });
+          
+          imageGenBtn.addEventListener('mouseleave', () => {
+            imageGenBtn.style.transform = 'scale(1)';
+          });
+        }
+      })();
+
       // File Attachment Handler
       (function() {
         const attachBtn = document.getElementById('attachButton');
@@ -1524,6 +1565,17 @@
               reader.onload = (event) => {
                 attachedFileDataUrl = event.target.result;
                 console.log('File attached:', file.name);
+                // Show file name in UI
+                const fileName = document.createElement('div');
+                fileName.style.cssText = 'position: absolute; bottom: 60px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px;';
+                fileName.textContent = '📎 ' + file.name;
+                fileName.id = 'attachedFileName';
+                
+                // Remove old file name if exists
+                const oldFileName = document.getElementById('attachedFileName');
+                if (oldFileName) oldFileName.remove();
+                
+                document.querySelector('.chat-input-container').appendChild(fileName);
               };
               reader.readAsDataURL(file);
             }
