@@ -226,43 +226,29 @@
       position: relative;
     }
 
-    /* Barra orizzontale luminosa tra titolo e sottotitolo */
+    /* Barra orizzontale semplice tra titolo e sottotitolo */
     .welcome-divider {
       width: 200px;
-      height: 2px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(212, 175, 55, 0.3) 20%,
-        rgba(212, 175, 55, 0.8) 50%,
-        rgba(212, 175, 55, 0.3) 80%,
-        transparent 100%);
+      height: 1px;
+      background: rgba(255, 255, 255, 0.2);
       margin: 1rem auto;
-      box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
-      animation: dividerPulse 3s ease-in-out infinite;
-    }
-
-    @keyframes dividerPulse {
-      0%, 100% { opacity: 0.7; }
-      50% { opacity: 1; box-shadow: 0 0 20px rgba(212, 175, 55, 0.8); }
     }
 
     .welcome-message p:first-child {
-      font-size: 1.25rem;  /* 50% più piccolo da 2.5rem */
+      font-size: 1.25rem;
       color: rgba(255, 255, 255, 0.95);
       line-height: 1.4;
       max-width: 800px;
       margin: 0 auto 1.5rem;
       font-weight: 600;
-      text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
     }
 
     .welcome-blessing {
-      font-size: 1.25rem;  /* Ingrandito da 0.95rem */
+      font-size: 1.25rem;
       color: rgba(255, 255, 255, 0.7);
       font-style: italic;
       max-width: 700px;
       margin: 0 auto;
-      text-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
     }
 
     /* Quick Actions */
@@ -896,6 +882,163 @@
       display: none;
     }
 
+    /* ============================================
+       CONVERSATION HISTORY SIDEBAR
+       ============================================ */
+    .conversation-sidebar-toggle {
+      position: absolute;
+      left: 1.5rem;
+      width: 2rem;
+      height: 2rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 0.5rem;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .conversation-sidebar-toggle span {
+      width: 20px;
+      height: 2px;
+      background: #FFFFFF;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .conversation-sidebar-toggle:hover span {
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .conversation-sidebar {
+      position: fixed;
+      left: -320px;
+      top: 85px;
+      bottom: 0;
+      width: 320px;
+      z-index: 199;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: #2B2B2B !important;
+      border-right: 1px solid white !important;
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+    }
+
+    .conversation-sidebar.open {
+      left: 0;
+    }
+
+    .conversation-sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid white !important;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      background: inherit;
+      z-index: 10;
+    }
+
+    .conversation-sidebar-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: white !important;
+    }
+
+    .conversation-sidebar-close {
+      width: 2rem;
+      height: 2rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.375rem;
+      font-size: 1.25rem;
+      transition: all 0.2s ease;
+      opacity: 0.7;
+      color: white !important;
+    }
+
+    .conversation-sidebar-close:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .conversation-sidebar-content {
+      padding: 1rem;
+    }
+
+    .conversation-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid white !important;
+    }
+
+    .conversation-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(4px);
+    }
+
+    .conversation-item.active {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: white !important;
+    }
+
+    .conversation-title {
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: white !important;
+    }
+
+    .conversation-time {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Adjust main content when sidebar is open */
+    body:has(.conversation-sidebar.open) .messages-container {
+      margin-left: 320px;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body:has(.conversation-sidebar.open) .chat-input-container {
+      left: 320px !important;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @media (max-width: 768px) {
+      .conversation-sidebar {
+        width: 280px;
+      }
+      body:has(.conversation-sidebar.open) .messages-container {
+        margin-left: 280px;
+      }
+    }
+
     
       </style>
 </head>
@@ -909,9 +1052,30 @@
   <!-- Overlay - removed for pure black background -->
   <!-- <div class="bg-overlay"></div> -->
 
+  <!-- Conversation History Sidebar -->
+  <aside class="conversation-sidebar" id="conversationSidebar">
+    <div class="conversation-sidebar-header">
+      <div class="conversation-sidebar-title">
+        <span>💬</span>
+        <span>Conversations</span>
+      </div>
+      <button class="conversation-sidebar-close" id="conversationSidebarClose" aria-label="Close sidebar">
+        ✕
+      </button>
+    </div>
+    <div class="conversation-sidebar-content" id="conversationSidebarContent">
+      <!-- Conversations will be loaded here -->
+    </div>
+  </aside>
 
   <!-- Header -->
   <header class="chat-header">
+    <!-- Hamburger menu - sinistra -->
+    <button class="conversation-sidebar-toggle" id="conversationSidebarToggle" aria-label="Toggle Conversation History">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
     
     <!-- Centered: ZANTARA Logo -->
     <div style="display: flex; align-items: center; justify-content: center;">
@@ -1020,6 +1184,54 @@
   <script>
     // Theme management è ora gestito da theme-manager.js
 
+    // Conversation History Sidebar Management
+    (function() {
+      const sidebar = document.getElementById('conversationSidebar');
+      const toggle = document.getElementById('conversationSidebarToggle');
+      const closeBtn = document.getElementById('conversationSidebarClose');
+      const content = document.getElementById('conversationSidebarContent');
+
+      // Toggle sidebar
+      if (toggle && sidebar) {
+        toggle.addEventListener('click', () => {
+          sidebar.classList.toggle('open');
+        });
+      }
+
+      // Close sidebar
+      if (closeBtn && sidebar) {
+        closeBtn.addEventListener('click', () => {
+          sidebar.classList.remove('open');
+        });
+      }
+
+      // Close sidebar when clicking outside
+      document.addEventListener('click', (e) => {
+        if (sidebar && sidebar.classList.contains('open')) {
+          if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+            sidebar.classList.remove('open');
+          }
+        }
+      });
+
+      // Load conversations (mock data for now)
+      if (content) {
+        content.innerHTML = `
+          <div class="conversation-item active">
+            <div class="conversation-title">B211A Visa Requirements</div>
+            <div class="conversation-time">2 hours ago</div>
+          </div>
+          <div class="conversation-item">
+            <div class="conversation-title">Company Registration PT PMA</div>
+            <div class="conversation-time">Yesterday</div>
+          </div>
+          <div class="conversation-item">
+            <div class="conversation-title">Tax Obligations for Expats</div>
+            <div class="conversation-time">3 days ago</div>
+          </div>
+        `;
+      }
+    })();
                       
     // Avatar management
     (function() {
