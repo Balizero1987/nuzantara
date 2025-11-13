@@ -1385,10 +1385,23 @@
       const fileInput = document.getElementById('avatarFileInput');
       const removeBtn = document.getElementById('removeAvatarBtn');
       const closeBtn = document.getElementById('closeAvatarModalBtn');
-      const AVATAR_KEY = 'zantara_user_avatar';
+      
+      // Get user-specific key for multi-user support
+      function getAvatarKey() {
+        const userEmail = localStorage.getItem('zantara-user') || 'default';
+        let email = 'default';
+        try {
+          const userData = JSON.parse(userEmail);
+          email = userData.email || 'default';
+        } catch (e) {
+          email = userEmail;
+        }
+        return `zantara_avatar_${email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      }
 
       // Load saved avatar with enhanced data handling
       function loadAvatar() {
+        const AVATAR_KEY = getAvatarKey();
         const saved = localStorage.getItem(AVATAR_KEY);
         console.log('🖼️ Loading avatar from localStorage:', saved ? 'Found' : 'Not found');
         
@@ -1432,6 +1445,7 @@
 
       // Remove avatar image
       function removeAvatar() {
+        const AVATAR_KEY = getAvatarKey();
         localStorage.removeItem(AVATAR_KEY);
         // Sagoma umana SVG delineata bianco bold
         const humanSilhouette = `
@@ -1480,7 +1494,8 @@
               size: file.size
             };
             
-            // Save enhanced avatar data
+            // Save enhanced avatar data with user-specific key
+            const AVATAR_KEY = getAvatarKey();
             localStorage.setItem(AVATAR_KEY, JSON.stringify(avatarData));
             console.log('💾 Avatar saved to localStorage:', {
               size: dataUrl.length,
