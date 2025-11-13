@@ -531,55 +531,23 @@
       border-radius: 1rem;
     }
 
-    /* Golden flowing border animation */
-    @keyframes goldenBorderFlow {
-      0% {
-        background-position: 0% 50%;
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3),
-                    0 0 40px rgba(255, 215, 0, 0.2);
-      }
-      50% {
-        background-position: 100% 50%;
-        box-shadow: 0 0 30px rgba(255, 215, 0, 0.5),
-                    0 0 60px rgba(255, 215, 0, 0.3);
-      }
-      100% {
-        background-position: 0% 50%;
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3),
-                    0 0 40px rgba(255, 215, 0, 0.2);
-      }
+    /* Animazione elegante al hover */
+    .message-content {
+      transition: all 0.2s ease;
     }
-
-    .message.user.sending .message-content,
-    .message.ai.thinking .message-content {
-      background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.1) 0%, 
-        rgba(255, 255, 255, 0.15) 50%, 
-        rgba(255, 255, 255, 0.1) 100%);
-      background-size: 200% 200%;
-      border: 2px solid transparent;
-      background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
-        linear-gradient(90deg, #FFD700, #FFA500, #FFD700);
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
-      animation: goldenBorderFlow 2s ease-in-out infinite;
-    }
-
-    /* Remove red glow completely */
-    .message.user .message-content:hover {
+    
+    .message-content:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
     }
 
     body[data-theme="day"] .message.user .message-content:hover {
-      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(233, 77, 53, 0.12);
     }
 
     body[data-theme="night"] .message.user .message-content:hover,
     body:not([data-theme]) .message.user .message-content:hover {
-      box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3),
-                  0 0 30px rgba(255, 215, 0, 0.1);
+      box-shadow: 0 4px 16px rgba(233, 77, 53, 0.25),
+                  0 0 30px rgba(233, 77, 53, 0.1);
     }
 
     .message-text {
