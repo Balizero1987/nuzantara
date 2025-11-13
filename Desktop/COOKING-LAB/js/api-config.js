@@ -1,3 +1,4 @@
+// Force rebuild 1763013700
 // ZANTARA API Configuration
 // ES6 Module export for use with import statements
 // Also maintains window.API_CONFIG for backward compatibility
