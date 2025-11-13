@@ -54,7 +54,7 @@
 
     // Redirect to chat
     setTimeout(() => {
-      window.location.href = '/chat';
+      window.location.href = '/chat.html';
     }, 500);
 
   } catch (error) {

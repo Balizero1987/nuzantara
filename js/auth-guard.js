@@ -2,14 +2,39 @@
  * ZANTARA Auth Guard
  * Protects pages that require authentication
  * Uses ZANTARA token format (zantara-*)
+ * Includes circuit breaker to prevent infinite redirect loops
  */
 
-const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-backend.fly.dev';
+const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev';
+
+// Circuit breaker constants
+const REDIRECT_KEY = 'zantara-redirect-attempt';
+const MAX_REDIRECTS = 3;
+const REDIRECT_TIMEOUT = 10000; // 10 seconds
 
 /**
  * Check if user is authenticated
  */
 async function checkAuth() {
+  // CIRCUIT BREAKER: Check for redirect loops
+  const redirectAttempt = localStorage.getItem(REDIRECT_KEY);
+  if (redirectAttempt) {
+    try {
+      const { count, timestamp } = JSON.parse(redirectAttempt);
+      const timeSinceFirst = Date.now() - timestamp;
+
+      if (count >= MAX_REDIRECTS && timeSinceFirst < REDIRECT_TIMEOUT) {
+        console.error('🚨 REDIRECT LOOP DETECTED in auth-guard - Clearing auth data');
+        clearAuthData();
+        localStorage.removeItem(REDIRECT_KEY);
+        // Don't redirect, just show the current page
+        return false;
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+  }
+
   // Get token from localStorage (ZANTARA format)
   const tokenData = localStorage.getItem('zantara-token');
 
@@ -45,7 +70,8 @@ async function checkAuth() {
   }
 
   // Token exists and not expired - user is authenticated
-  // For MVP: No backend verification (mock auth accepts any token)
+  // Clear redirect counter on successful auth
+  localStorage.removeItem(REDIRECT_KEY);
   console.log('✅ Authentication verified (client-side)');
   return true;
 }
@@ -62,8 +88,23 @@ function redirectToLogin() {
   if (currentPage.includes('login') || currentPage === '/') {
     return;
   }
-  console.log('↩️  Redirecting to login...');
-  window.location.href = '/login';
+
+  // Increment redirect counter
+  let redirectData = { count: 1, timestamp: Date.now() };
+  try {
+    const existing = localStorage.getItem(REDIRECT_KEY);
+    if (existing) {
+      const parsed = JSON.parse(existing);
+      redirectData.count = parsed.count + 1;
+      redirectData.timestamp = parsed.timestamp;
+    }
+  } catch (e) {
+    // Use defaults
+  }
+
+  localStorage.setItem(REDIRECT_KEY, JSON.stringify(redirectData));
+  console.log(`↩️  Redirecting to login... (attempt ${redirectData.count})`);
+  window.location.href = '/login.html';
 }
 
 function getCurrentUser() {
@@ -86,8 +127,14 @@ function getAuthToken() {
 if (typeof window !== 'undefined') {
   const currentPage = window.location.pathname;
   const publicPages = ['/', '/login', '/login.html', '/index.html'];
+  const protectedPages = ['/chat.html', '/chat/index.html'];
 
-  if (!publicPages.includes(currentPage)) {
+  // Only check auth on protected pages (explicit list to avoid loop)
+  const isProtectedPage = protectedPages.some(page =>
+    currentPage.includes(page) || currentPage.endsWith(page)
+  );
+
+  if (isProtectedPage) {
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', checkAuth);
     } else {
