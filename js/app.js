@@ -293,12 +293,8 @@ function handleSend() {
     }, 600);
   }
 
-  // Check if it's an image generation request
-  if (content.toLowerCase().startsWith('generate image')) {
-    handleImageGeneration(content);
-  } else {
-    sendMessage(content);
-  }
+  // Send message directly
+  sendMessage(content);
 }
 
 /**
@@ -501,6 +497,28 @@ function renderMessage(msg, saveToHistory = true) {
     messageEl.classList.add('error');
   }
 
+  // Add golden effect for user messages when sending
+  if (msg.type === 'user' && saveToHistory) {
+    messageEl.classList.add('sending');
+    // Remove golden effect after 2 seconds
+    setTimeout(() => {
+      messageEl.classList.remove('sending');
+    }, 2000);
+  }
+
+  // Add golden effect for AI messages when thinking
+  if (msg.type === 'ai' && !msg.isComplete) {
+    messageEl.classList.add('thinking');
+    // Remove golden effect when message is complete
+    if (msg.onComplete) {
+      const originalOnComplete = msg.onComplete;
+      msg.onComplete = () => {
+        messageEl.classList.remove('thinking');
+        originalOnComplete();
+      };
+    }
+  }
+
   const contentEl = document.createElement('div');
   contentEl.className = 'message-content';
 
@@ -570,7 +588,7 @@ function renderMessage(msg, saveToHistory = true) {
  */
 function createLiveMessage() {
   const messageEl = document.createElement('div');
-  messageEl.className = 'message ai live-message';
+  messageEl.className = 'message ai live-message thinking'; // Add thinking class for golden effect
   messageEl.id = 'liveMessage';
 
   const contentEl = document.createElement('div');
@@ -614,8 +632,8 @@ function updateLiveMessage(messageEl, text) {
 function finalizeLiveMessage(messageEl, fullText) {
   if (!messageEl) return;
 
-  // Remove live-message class and id
-  messageEl.classList.remove('live-message');
+  // Remove live-message class and thinking class (golden effect)
+  messageEl.classList.remove('live-message', 'thinking');
   messageEl.removeAttribute('id');
 
   // Re-enable send button when response is complete
@@ -675,105 +693,6 @@ function hideTypingIndicator() {
   if (indicator) {
     indicator.remove();
   }
-}
-
-/**
- * Handle image generation
- * ⚠️ SECURITY FIX: API key moved to backend
- * TODO: Implement backend endpoint for image generation
- */
-async function handleImageGeneration(content) {
-  // Extract prompt (remove "generate image" prefix)
-  const prompt = content.replace(/^generate image:?\s*/i, '').trim() || 'abstract art';
-
-  // Add user message
-  const userMsg = {
-    type: 'user',
-    content: content,
-    timestamp: new Date(),
-  };
-  renderMessage(userMsg, true);
-
-  // Clear input
-  messageInput.value = '';
-  messageInput.style.height = 'auto';
-  sendButton.disabled = false;
-
-  // Show error message - feature temporarily disabled for security
-  const errorMsg = {
-    type: 'ai',
-    content: '⚠️ Image generation is temporarily disabled. This feature requires backend implementation for security reasons.',
-    timestamp: new Date(),
-  };
-  renderMessage(errorMsg, true);
-
-  scrollToBottom();
-
-  /* DISABLED FOR SECURITY - API KEY EXPOSED IN FRONTEND
-  // Show loading message
-  const loadingMsg = {
-    type: 'ai',
-    content: '🎨 Generating image...',
-    timestamp: new Date(),
-  };
-  const loadingEl = renderMessage(loadingMsg, false);
-  const loadingId = loadingEl.id;
-
-  try {
-    // Call ImagineArt API
-    const formData = new FormData();
-    formData.append('prompt', prompt);
-    formData.append('style', 'realistic');
-    formData.append('aspect_ratio', '1:1');
-
-    const response = await fetch('https://api.vyro.ai/v2/image/generations', {
-      method: 'POST',
-      headers: {
-        // ⚠️ SECURITY VULNERABILITY: API key exposed in frontend code
-        // MUST be moved to backend endpoint
-        'Authorization': 'Bearer [REDACTED - MOVE TO BACKEND]'
-      },
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    // Get image blob
-    const blob = await response.blob();
-    const imageUrl = URL.createObjectURL(blob);
-
-    // Remove loading message
-    const loadingElement = document.getElementById(loadingId);
-    if (loadingElement) {
-      loadingElement.remove();
-    }
-
-    // Add image message
-    const imageMsg = {
-      type: 'ai',
-      content: `<p style="margin-bottom: 0.5rem; color: #bfaa7e;">Generated image: "${prompt}"</p><img src="${imageUrl}" alt="${prompt}" style="max-width: 100%; border-radius: 0.5rem; margin-top: 0.5rem;">`,
-      timestamp: new Date(),
-    };
-    renderMessage(imageMsg, true);
-  } catch (error) {
-    console.error('Image generation failed:', error);
-
-    // Update loading message with error
-    const loadingElement = document.getElementById(loadingId);
-    if (loadingElement) {
-      loadingElement.querySelector('.message-text').textContent = `❌ Image generation failed: ${error.message}`;
-    }
-  }
-
-  // Re-enable send button
-  if (sendButton) {
-    sendButton.disabled = false;
-  }
-
-  scrollToBottom();
-  */
 }
 
 /**
