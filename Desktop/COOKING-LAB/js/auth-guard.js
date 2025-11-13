@@ -39,10 +39,13 @@ async function checkAuth() {
   const tokenData = localStorage.getItem('zantara-token');
 
   if (!tokenData) {
-    console.log('⚠️  No auth token found');
+    console.log('⚠️  No auth token found - redirecting to login');
+    console.log('📍 Current page:', window.location.pathname);
     redirectToLogin();
     return false;
   }
+
+  console.log('🔐 Token found, validating...');
 
   let token;
   try {
@@ -51,10 +54,19 @@ async function checkAuth() {
 
     // Check if token is expired
     if (parsed.expiresAt && Date.now() >= parsed.expiresAt) {
-      console.log('⚠️  Token expired');
+      const expiredAt = new Date(parsed.expiresAt).toLocaleString();
+      console.log('⚠️  Token expired at:', expiredAt);
+      console.log('⏰ Current time:', new Date().toLocaleString());
       clearAuthData();
       redirectToLogin();
       return false;
+    }
+
+    // Log token validity
+    if (parsed.expiresAt) {
+      const remainingMs = parsed.expiresAt - Date.now();
+      const remainingHours = Math.floor(remainingMs / (1000 * 60 * 60));
+      console.log(`✅ Token valid for ${remainingHours} more hours`);
     }
   } catch (error) {
     console.log('⚠️  Invalid token format');
@@ -64,7 +76,8 @@ async function checkAuth() {
   }
 
   if (!token) {
-    console.log('⚠️  No token in data');
+    console.log('⚠️  No token in data - invalid token format');
+    clearAuthData();
     redirectToLogin();
     return false;
   }

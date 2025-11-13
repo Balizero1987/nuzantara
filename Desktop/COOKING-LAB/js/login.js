@@ -147,7 +147,8 @@ async function handleLogin(e) {
     // Login successful - handle actual backend response format
     // Backend returns: {token: "demo_xxx", expiresIn: 3600, userId: "demo"}
     const token = result.token || result.access_token;
-    const expiresIn = result.expiresIn || result.expires_in || 3600; // 1 hour default
+    // Use 7 days instead of backend's expiresIn to avoid frequent logouts
+    const expiresIn = 7 * 24 * 60 * 60; // 7 days (604800 seconds)
     const user = result.user || {
       id: result.userId || 'demo',
       email: email,
