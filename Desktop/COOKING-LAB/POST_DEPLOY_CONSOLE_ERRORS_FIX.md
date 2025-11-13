@@ -211,6 +211,52 @@ Se gli `import` ES6 causano problemi, alternativa è convertire i file a script 
 2. Verifica console dopo deploy - errori Uncaught dovrebbero essere risolti
 3. Verifica che `image.svg` sia accessibile su produzione
 
-**STATO:** 🟡 **IMPLEMENTATO - IN ATTESA DI DEPLOY**  
+---
+
+## 🚀 DEPLOY E VERIFICA POST-DEPLOY
+
+**DATA DEPLOY:** 2025-01-XX  
+**COMMIT PUSHED:** `1bc4c324` su branch `gh-pages`
+
+### Deploy Eseguito:
+- ✅ Pull da remote completato (rebase)
+- ✅ Push su `origin gh-pages` completato
+- ✅ GitHub Pages rebuild in corso
+
+### Verifiche Post-Deploy:
+
+#### ✅ Fix Redirect Login/Chat (da PATCH precedente):
+- ✅ `js/login.js`: `window.location.href = '/chat.html'` ✓
+- ✅ `js/auth-auto-login.js`: `window.location.href = '/chat.html'` ✓
+- ✅ `js/auth-guard.js`: `protectedPages = ['/chat.html', '/chat/index.html']` ✓
+
+#### ⚠️ Fix Console Errors (type='module'):
+**STATO:** 🟡 **VERIFICA MANUALE RICHIESTA**
+
+**Note:**
+- Il file `/chat.html` su produzione sembra essere una versione diversa da `webapp-dev/chat.html`
+- I fix sono stati applicati a `webapp-dev/chat.html` e committati
+- Potrebbe essere necessario attendere più tempo per GitHub Pages rebuild (5-10 minuti)
+- Oppure il file nella root viene generato da un processo di build separato
+
+**Verifica Manuale Richiesta:**
+1. Aprire `https://zantara.balizero.com/chat.html` nel browser
+2. Aprire DevTools → Console
+3. Verificare se gli errori "Uncaught" da `sse-client.js:6` e `conversation-client.js:12` sono ancora presenti
+4. Se presenti, verificare il sorgente HTML per vedere se contiene `type="module"` sugli script
+
+#### ⚠️ Fix image.svg (404):
+**STATO:** 🟡 **VERIFICA MANUALE RICHIESTA**
+
+- File aggiunto al git: ✅
+- File deployato: ⏳ In attesa di verifica
+- URL produzione: `https://zantara.balizero.com/assets/images/image.svg` (ritorna 404)
+
+**Possibili cause:**
+- GitHub Pages non ha ancora completato il rebuild
+- Il file potrebbe essere in un path diverso su produzione
+- Potrebbe essere necessario un deploy manuale o rebuild
+
+**STATO:** 🟡 **DEPLOY COMPLETATO - VERIFICA MANUALE IN CORSO**  
 **ULTIMO AGGIORNAMENTO:** 2025-01-XX
 
