@@ -1046,10 +1046,19 @@
     }
 
     .image-gen-button:hover {
-      transform: translateY(-50%) scale(1.1);
+      transform: translateY(-50%) scale(1.15);
+      filter: brightness(1.2);
     }
 
     .image-gen-button:active {
+      transform: translateY(-50%) scale(0.9);
+    }
+
+    .attach-button:hover {
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .attach-button:active {
       transform: translateY(-50%) scale(0.95);
     }
 
@@ -1137,29 +1146,29 @@
           placeholder="Your inquiry…"
           rows="1"
           maxlength="2000"
-          style="padding-left: 60px !important; padding-right: 60px !important;"
+          style="padding-left: 60px !important; padding-right: 105px !important;"
         ></textarea>
         
-        <!-- Generate Image Button - Left side -->
-        <button class="image-gen-button" id="imageGenButton" title="Generate Image with AI"
+        <!-- File Attachment Button - Left side with paperclip -->
+        <button class="attach-button" id="attachButton" title="Attach File"
                 style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
                        width: 40px; height: 40px; background: transparent; border: none;
                        cursor: pointer; display: flex; align-items: center; justify-content: center;
                        transition: transform 0.2s; z-index: 5;">
-          <img src="assets/images/image.svg" alt="Generate Image" 
-               style="width: 28px; height: 28px; object-fit: contain; opacity: 0.9;">
-        </button>
-                
-        <!-- File Attachment Button - Right side with paperclip -->
-        <button class="attach-button" id="attachButton" title="Attach File"
-                style="width: 40px; height: 40px; background: transparent; border: none;
-                       cursor: pointer; display: flex; align-items: center; justify-content: center;
-                       margin-right: 8px; transition: transform 0.2s;">
           <!-- White Paperclip Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
                fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
           </svg>
+        </button>
+                
+        <!-- Generate Image Button - Right side -->
+        <button class="image-gen-button" id="imageGenButton" title="Generate Image with AI"
+                style="position: absolute; right: 55px; top: 50%; transform: translateY(-50%);
+                       width: 40px; height: 40px; background: transparent; border: none;
+                       cursor: pointer; display: flex; align-items: center; justify-content: center;
+                       transition: transform 0.2s; z-index: 5; font-size: 22px;">
+          🎨
         </button>
         
         <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
