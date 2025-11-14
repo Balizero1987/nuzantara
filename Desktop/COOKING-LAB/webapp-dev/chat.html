@@ -1549,18 +1549,70 @@
       const removeBtn = document.getElementById('removeAvatarBtn');
       const closeBtn = document.getElementById('closeAvatarModalBtn');
       const AVATAR_KEY = 'zantara_user_avatar';
+      const DB_NAME = 'zantara-storage';
+      const DB_STORE = 'avatars';
 
-      // Load saved avatar
+      // Initialize IndexedDB
+      let db = null;
+      function initDB() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, 1);
+          request.onerror = () => {
+            console.error('❌ IndexedDB open failed, will use localStorage as fallback');
+            resolve(null);
+          };
+          request.onsuccess = () => {
+            db = request.result;
+            resolve(db);
+          };
+          request.onupgradeneeded = (event) => {
+            const database = event.target.result;
+            if (!database.objectStoreNames.contains(DB_STORE)) {
+              database.createObjectStore(DB_STORE);
+            }
+          };
+        });
+      }
+
+      // Load saved avatar from IndexedDB or localStorage
       function loadAvatar() {
-        const saved = localStorage.getItem(AVATAR_KEY);
-        console.log('🖼️ Loading avatar from localStorage:', saved ? 'Found' : 'Not found');
-        if (saved) {
-          setAvatarImage(saved);
-          console.log('✅ Avatar loaded successfully');
-        } else {
-          // Mostra sagoma umana se non c'è avatar
-          removeAvatar();
-        }
+        initDB().then(() => {
+          if (db) {
+            // Try IndexedDB first
+            const transaction = db.transaction([DB_STORE], 'readonly');
+            const store = transaction.objectStore(DB_STORE);
+            const request = store.get(AVATAR_KEY);
+            request.onsuccess = () => {
+              const saved = request.result;
+              if (saved) {
+                console.log('🖼️ Avatar loaded from IndexedDB');
+                setAvatarImage(saved);
+              } else {
+                // Fallback: check localStorage
+                const localSaved = localStorage.getItem(AVATAR_KEY);
+                if (localSaved) {
+                  console.log('🖼️ Avatar migrated from localStorage to IndexedDB');
+                  // Migrate to IndexedDB
+                  const tx = db.transaction([DB_STORE], 'readwrite');
+                  tx.objectStore(DB_STORE).put(localSaved, AVATAR_KEY);
+                  setAvatarImage(localSaved);
+                  localStorage.removeItem(AVATAR_KEY);
+                } else {
+                  removeAvatar();
+                }
+              }
+            };
+          } else {
+            // Fallback: localStorage only
+            const saved = localStorage.getItem(AVATAR_KEY);
+            if (saved) {
+              console.log('🖼️ Avatar loaded from localStorage (IndexedDB unavailable)');
+              setAvatarImage(saved);
+            } else {
+              removeAvatar();
+            }
+          }
+        });
       }
 
       // Set avatar image
@@ -1577,6 +1629,10 @@
 
       // Remove avatar image
       function removeAvatar() {
+        if (db) {
+          const transaction = db.transaction([DB_STORE], 'readwrite');
+          transaction.objectStore(DB_STORE).delete(AVATAR_KEY);
+        }
         localStorage.removeItem(AVATAR_KEY);
         // Sagoma umana SVG delineata bianco bold
         const humanSilhouette = `
@@ -1609,11 +1665,25 @@
       fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith('image/')) {
+          // Check file size (max 5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            console.warn('⚠️ Image too large (max 5MB), compressing...');
+          }
           const reader = new FileReader();
           reader.onload = (event) => {
             const dataUrl = event.target.result;
-            localStorage.setItem(AVATAR_KEY, dataUrl);
-            console.log('💾 Avatar saved to localStorage (size:', dataUrl.length, 'bytes)');
+
+            // Save to IndexedDB
+            if (db) {
+              const transaction = db.transaction([DB_STORE], 'readwrite');
+              const store = transaction.objectStore(DB_STORE);
+              store.put(dataUrl, AVATAR_KEY);
+              console.log('💾 Avatar saved to IndexedDB');
+            } else {
+              // Fallback to localStorage
+              localStorage.setItem(AVATAR_KEY, dataUrl);
+              console.log('💾 Avatar saved to localStorage (IndexedDB unavailable)');
+            }
             setAvatarImage(dataUrl);
           };
           reader.readAsDataURL(file);
