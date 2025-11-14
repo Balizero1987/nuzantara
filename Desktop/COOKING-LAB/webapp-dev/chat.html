@@ -334,16 +334,19 @@
     }
 
     .chat-input-wrapper {
+      width: 100% !important;
       max-width: 42rem;
       margin: 0 auto;
       padding: 0 1rem;
       display: block !important;
       visibility: visible !important;
+      box-sizing: border-box !important;
     }
 
     .chat-input-box {
       display: flex !important;
       align-items: flex-end;
+      width: 100% !important;
       gap: 0;
       padding: 0.65rem 0.75rem;
       border-radius: 0.75rem;
@@ -351,6 +354,7 @@
       visibility: visible !important;
       background-color: #2B2B2B !important;
       border: 2px solid white !important;
+      box-sizing: border-box !important;
     }
 
     .chat-input-box.focused {
@@ -364,8 +368,8 @@
       resize: none;
       outline: none;
       max-height: 120px;
-      padding: 0.75rem 0.5rem !important;
-      margin: 0 0.5rem !important;
+      padding: 0.75rem 0.35rem !important;
+      margin: 0 0.25rem !important;
       font-size: 1.125rem;
       background-color: transparent !important;
       border: none !important;
@@ -373,6 +377,7 @@
       transition: color 200ms;
       display: block !important;
       visibility: visible !important;
+      min-width: 1rem !important;
     }
 
     body[data-theme="day"] .chat-textarea {
@@ -402,8 +407,10 @@
       height: 2rem !important;
       min-width: 2rem !important;
       min-height: 2rem !important;
+      max-width: 2rem !important;
+      max-height: 2rem !important;
       padding: 0 !important;
-      margin: 0 0.5rem 0 0 !important;
+      margin: 0 0.3rem 0 0 !important;
       font-size: 1.2rem;
       line-height: 1;
       color: #BFAA7E !important;
@@ -440,8 +447,10 @@
       height: 2rem !important;
       min-width: 2rem !important;
       min-height: 2rem !important;
+      max-width: 2rem !important;
+      max-height: 2rem !important;
       padding: 0 !important;
-      margin: 0 0.5rem !important;
+      margin: 0 0.3rem !important;
       font-size: 1.5rem;
       font-weight: bold;
       line-height: 1;
