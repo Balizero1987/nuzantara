@@ -39,10 +39,13 @@ async function checkAuth() {
   const tokenData = localStorage.getItem('zantara-token');
 
   if (!tokenData) {
-    console.log('⚠️  No auth token found');
+    console.log('⚠️  No auth token found - redirecting to login');
+    console.log('📍 Current page:', window.location.pathname);
     redirectToLogin();
     return false;
   }
+
+  console.log('🔐 Token found, validating...');
 
   let token;
   try {
@@ -51,10 +54,19 @@ async function checkAuth() {
 
     // Check if token is expired
     if (parsed.expiresAt && Date.now() >= parsed.expiresAt) {
-      console.log('⚠️  Token expired');
+      const expiredAt = new Date(parsed.expiresAt).toLocaleString();
+      console.log('⚠️  Token expired at:', expiredAt);
+      console.log('⏰ Current time:', new Date().toLocaleString());
       clearAuthData();
       redirectToLogin();
       return false;
+    }
+
+    // Log token validity
+    if (parsed.expiresAt) {
+      const remainingMs = parsed.expiresAt - Date.now();
+      const remainingHours = Math.floor(remainingMs / (1000 * 60 * 60));
+      console.log(`✅ Token valid for ${remainingHours} more hours`);
     }
   } catch (error) {
     console.log('⚠️  Invalid token format');
@@ -64,7 +76,8 @@ async function checkAuth() {
   }
 
   if (!token) {
-    console.log('⚠️  No token in data');
+    console.log('⚠️  No token in data - invalid token format');
+    clearAuthData();
     redirectToLogin();
     return false;
   }
@@ -85,7 +98,15 @@ function clearAuthData() {
 
 function redirectToLogin() {
   const currentPage = window.location.pathname;
-  if (currentPage.includes('login') || currentPage === '/') {
+
+  // Check if already on login or public pages - use EXACT match
+  const isLoginPage = currentPage === '/login.html' ||
+                      currentPage === '/login' ||
+                      currentPage === '/login/';
+  const isHomePage = currentPage === '/' || currentPage === '/index.html';
+
+  if (isLoginPage || isHomePage) {
+    console.log('📍 Already on public page, no redirect needed');
     return;
   }
 
@@ -126,20 +147,46 @@ function getAuthToken() {
 // Auto-run auth check on protected pages
 if (typeof window !== 'undefined') {
   const currentPage = window.location.pathname;
-  const publicPages = ['/', '/login', '/login.html', '/index.html'];
-  const protectedPages = ['/chat.html']; // Chat requires authentication
 
-  // Only check auth on protected pages (explicit list to avoid loop)
-  const isProtectedPage = protectedPages.some(page =>
-    currentPage.includes(page) || currentPage.endsWith(page)
+  // Exactly define public pages (no auth required)
+  const publicPages = [
+    '/',
+    '/index.html',
+    '/login',
+    '/login.html',
+    '/login/',
+  ];
+
+  // Exactly define protected pages (auth required)
+  const protectedPages = [
+    '/chat',
+    '/chat/',
+    '/chat.html',
+    '/chat/index.html',
+  ];
+
+  // Check if current page is public (exact match)
+  const isPublicPage = publicPages.some(page =>
+    currentPage === page
   );
 
-  if (isProtectedPage) {
+  // Check if current page is protected (exact match)
+  const isProtectedPage = protectedPages.some(page =>
+    currentPage === page
+  );
+
+  // Only check auth on protected pages (avoid false positives)
+  if (isProtectedPage && !isPublicPage) {
+    console.log(`🔐 Protected page detected: ${currentPage} - Running auth check`);
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', checkAuth);
     } else {
       checkAuth();
     }
+  } else if (isPublicPage) {
+    console.log(`🔓 Public page: ${currentPage} - No auth check needed`);
+  } else {
+    console.log(`⚠️  Unknown page type: ${currentPage} - Skipping auth check`);
   }
   
   window.checkAuth = checkAuth;
