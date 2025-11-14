@@ -1,33 +1,82 @@
 {
   "app_title": "ZANTARA - Asisten Cerdas",
   "header_title": "ZANTARA Intelligence",
-  "header_subtitle": "Asisten AI Anda dengan akses ke pengetahuan, kalender, email, peta, dan lainnya",
+  "header_subtitle": "Asisten AI Anda untuk bisnis, visa, dan kehidupan di Indonesia",
 
-  "welcome_greeting": "👋 Halo! Saya ZANTARA, asisten cerdas Anda.",
-  "welcome_can_help": "Saya dapat membantu Anda dengan:",
-  "welcome_visas": "📚 Informasi tentang visa dan imigrasi",
-  "welcome_calendar": "📅 Manajemen kalender dan email",
-  "welcome_maps": "🗺️ Mencari tempat dan arah",
-  "welcome_memory": "💾 Menyimpan preferensi Anda",
-  "welcome_chat": "🤖 Percakapan tentang topik apa pun",
-  "welcome_question": "Apa yang bisa saya lakukan untuk Anda?",
+  "welcome_greeting": "Halo! Saya ZANTARA, siap membantu Anda.",
+  "welcome_can_help": "Saya bisa bantu dengan:",
+  "welcome_visas": "Informasi visa, KITAS, dan imigrasi",
+  "welcome_business": "Setup PT, PT PMA, dan perizinan usaha",
+  "welcome_tax": "Konsultasi pajak dan compliance",
+  "welcome_kbli": "Klasifikasi KBLI untuk bisnis Anda",
+  "welcome_legal": "Persyaratan legal dan regulasi",
+  "welcome_chat": "Pertanyaan apapun seputar bisnis di Indonesia",
+  "welcome_question": "Ada yang bisa saya bantu hari ini?",
 
-  "suggestion_visa": "Apa persyaratan untuk Golden Visa?",
-  "suggestion_calendar": "Tunjukkan acara kalender saya yang akan datang",
-  "suggestion_restaurant": "Cari restoran di Ubud",
-  "suggestion_email": "Tunjukkan email terbaru saya",
+  "suggestion_visa": "Bagaimana cara mengurus KITAS?",
+  "suggestion_pt_pma": "Apa bedanya PT dengan PT PMA?",
+  "suggestion_kbli": "KBLI apa yang cocok untuk usaha kopi?",
+  "suggestion_tax": "Berapa pajak untuk PT PMA?",
+  "suggestion_timeline": "Berapa lama proses setup PT PMA?",
+  "suggestion_cost": "Berapa biaya pengurusan KITAS E23?",
 
-  "input_placeholder": "Tulis pesan Anda dalam bahasa alami...",
+  "input_placeholder": "Ketik pertanyaan Anda disini...",
   "send_button": "Kirim",
-  "thinking": "Berpikir...",
+  "thinking": "Sedang memikirkan jawaban...",
+  "processing": "Memproses...",
+  "searching": "Mencari informasi...",
 
-  "error_connection": "Kesalahan koneksi",
-  "error_unknown": "Kesalahan tidak diketahui",
-  "error_occurred": "Terjadi kesalahan",
+  "error_connection": "Koneksi terputus",
+  "error_unknown": "Terjadi kendala teknis",
+  "error_occurred": "Maaf, ada kesalahan",
+  "error_retry": "Silakan coba lagi",
 
-  "sources_prefix": "📚 Sumber:",
-  "sources_documents": "dokumen dikonsultasikan",
+  "sources_prefix": "Sumber:",
+  "sources_documents": "dokumen referensi",
+  "sources_from": "dari",
+
+  "contact_info": "Butuh bantuan lebih lanjut?",
+  "contact_whatsapp": "Hubungi kami di WhatsApp",
+  "contact_email": "Atau kirim email",
 
   "language": "Bahasa",
-  "select_language": "Pilih Bahasa"
+  "select_language": "Pilih Bahasa",
+  "language_en": "English",
+  "language_id": "Bahasa Indonesia",
+  "language_it": "Italiano",
+
+  "chat_clear": "Hapus percakapan",
+  "chat_new": "Percakapan baru",
+  "chat_history": "Riwayat chat",
+
+  "response_helpful": "Apakah jawaban ini membantu?",
+  "response_yes": "Ya, membantu",
+  "response_no": "Kurang jelas",
+  "response_thanks": "Terima kasih atas feedback Anda!",
+
+  "business_services": "Layanan Bisnis",
+  "visa_services": "Layanan Visa",
+  "tax_services": "Layanan Pajak",
+  "legal_services": "Layanan Legal",
+
+  "learn_more": "Pelajari lebih lanjut",
+  "get_started": "Mulai sekarang",
+  "contact_us": "Hubungi kami",
+
+  "greeting_morning": "Selamat pagi!",
+  "greeting_afternoon": "Selamat siang!",
+  "greeting_evening": "Selamat malam!",
+  "greeting_casual": "Halo!",
+
+  "helper_text_visa": "Contoh: Bagaimana cara mengurus KITAS E23?",
+  "helper_text_business": "Contoh: Berapa biaya setup PT PMA di Bali?",
+  "helper_text_tax": "Contoh: Apa saja kewajiban pajak untuk PT PMA?",
+  "helper_text_kbli": "Contoh: KBLI apa untuk usaha restoran?",
+
+  "status_online": "Online",
+  "status_offline": "Offline",
+  "status_connecting": "Menghubungkan...",
+
+  "privacy_notice": "Kami menjaga privasi percakapan Anda",
+  "data_secure": "Data Anda aman dan terenkripsi"
 }
