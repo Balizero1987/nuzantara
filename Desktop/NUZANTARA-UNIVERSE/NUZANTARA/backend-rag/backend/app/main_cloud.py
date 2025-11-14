@@ -3,7 +3,7 @@ ZANTARA RAG Backend - Fly.io Version (v3.3.1-cors-fix)
 Port 8000
 Uses ChromaDB from Persistent Volume (chroma_data) + Llama 4 Scout AI (PRIMARY)
 
-AI ROUTING: Intelligent Router with Llama 4 Scout PRIMARY + Claude Haiku FALLBACK
+AI ROUTING: Intelligent Router with Llama 4 PRIMARY
 - Llama 4 Scout: PRIMARY AI (92% cheaper, 22% faster TTFT, 10M context)
   * Cost: $0.20/$0.20 per 1M tokens
   * Model: meta-llama/llama-4-scout via OpenRouter
@@ -51,7 +51,7 @@ from services.emotional_attunement import EmotionalAttunementService
 from services.collaborative_capabilities import CollaborativeCapabilitiesService
 from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_handler_proxy
 from services.tool_executor import ToolExecutor
-# AI SYSTEM: Llama 4 Scout (primary) + Claude Haiku 4.5 (fallback) + Intelligent Router
+# AI SYSTEM: Llama 4 (primary) + Intelligent Router
 from llm.llama_scout_client import LlamaScoutClient
 from services.claude_haiku_service import ClaudeHaikuService
 from services.intelligent_router import IntelligentRouter
@@ -83,7 +83,7 @@ warmup_task: Optional[asyncio.Task] = None
 app = FastAPI(
     title="ZANTARA RAG API",
     version="3.3.1-cors-fix",
-    description="RAG + LLM backend for NUZANTARA (ChromaDB Persistent + Llama 4 Scout PRIMARY + Haiku FALLBACK)"
+    description="RAG + LLM backend for NUZANTARA (ChromaDB Persistent + Llama 4 PRIMARY)"
 )
 
 # CORS - Production + Development + Inter-Service
@@ -110,7 +110,7 @@ except Exception as e:
 
 # Global clients
 search_service: Optional[SearchService] = None
-# AI SYSTEM: Llama 4 Scout (primary) + Claude Haiku 4.5 (fallback)
+# AI SYSTEM: Llama 4 (primary)
 llama_scout_client: Optional[LlamaScoutClient] = None  # NEW: Primary AI with fallback
 claude_haiku: Optional[ClaudeHaikuService] = None  # Kept for backward compatibility
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
@@ -841,7 +841,7 @@ async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
     global search_service, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
 
-    logger.info("🚀 Starting ZANTARA RAG Backend (Llama 4 Scout PRIMARY + Claude Haiku FALLBACK)...")
+    logger.info("🚀 Starting ZANTARA RAG Backend (Llama 4 PRIMARY)...")
     logger.info("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
 
     # Preload Redis cache first
@@ -954,7 +954,7 @@ async def _initialize_backend_services():
         logger.warning("⚠️ Continuing without SearchService (pure LLM mode)")
         search_service = None
 
-    # Initialize Llama 4 Scout Client (Primary AI with Haiku fallback)
+    # Initialize Llama 4 Client (Primary AI)
     try:
         openrouter_api_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
         anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
@@ -1225,7 +1225,7 @@ async def _initialize_backend_services():
         logger.warning("⚠️ ToolExecutor not initialized - missing dependencies")
         logger.warning(f"   HandlerProxy: {'✅' if handler_proxy_service else '❌'}")
 
-    # Initialize Intelligent Router (Llama 4 Scout PRIMARY + Haiku FALLBACK)
+    # Initialize Intelligent Router (Llama 4 PRIMARY)
     try:
         if claude_haiku:
             # Initialize Cultural RAG Service (LLAMA-generated cultural intelligence)
