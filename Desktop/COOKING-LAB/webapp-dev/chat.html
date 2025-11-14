@@ -1724,6 +1724,29 @@
       });
     })();
 
+      // Image Generation Palette Handler
+      (function() {
+        const paletteBtn = document.getElementById('paletteButton');
+        if (paletteBtn) {
+          paletteBtn.addEventListener('click', () => {
+            const messageInput = document.getElementById('messageInput');
+            const currentText = messageInput.value.trim();
+
+            if (currentText) {
+              // If there's existing text, append image generation request
+              messageInput.value = currentText + '\n\nGenerate image: [describe the image you want]';
+            } else {
+              // Otherwise, show prompt for image description
+              messageInput.value = 'Generate image: ';
+            }
+
+            messageInput.focus();
+            messageInput.style.height = 'auto';
+            messageInput.style.height = (messageInput.scrollHeight) + 'px';
+          });
+        }
+      })();
+
       // File Attachment Handler
       (function() {
         const attachBtn = document.getElementById('attachButton');
