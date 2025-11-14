@@ -14,6 +14,7 @@
   <script src="js/auth-guard.js"></script>
   <script src="js/user-context.js"></script>
   <script src="js/theme-manager.js"></script>
+  <script src="js/auth-debug.js"></script>
 
   <style>
     /* Sfondo grafite #2B2B2B */
@@ -399,10 +400,10 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      width: 2.5rem;
-      height: 2.5rem;
-      padding: 0.5rem;
-      font-size: 1.5rem;
+      width: 2rem;
+      height: 2rem;
+      padding: 0.4rem;
+      font-size: 1.2rem;
       line-height: 1;
       color: #BFAA7E !important;
       background: transparent !important;
@@ -415,6 +416,7 @@
         0 0 8px rgba(191, 170, 126, 0.6),
         0 0 15px rgba(212, 175, 55, 0.4);
       filter: brightness(1.2) drop-shadow(0 0 4px rgba(191, 170, 126, 0.5));
+      order: -1;
     }
 
     .image-button:hover {
@@ -514,6 +516,42 @@
       pointer-events: none;
     }
 
+    .image-palette-button {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      padding: 0.4rem;
+      font-size: 1.2rem;
+      line-height: 1;
+      color: #D4AF37 !important;
+      background: transparent !important;
+      border: none;
+      cursor: pointer;
+      transition: all 200ms;
+      opacity: 1 !important;
+      visibility: visible !important;
+      text-shadow:
+        0 0 8px rgba(212, 175, 55, 0.6),
+        0 0 15px rgba(212, 175, 55, 0.4);
+      filter: brightness(1.2) drop-shadow(0 0 4px rgba(212, 175, 55, 0.5));
+      margin-left: 0.5rem;
+    }
+
+    .image-palette-button:hover {
+      transform: scale(1.1);
+      text-shadow:
+        0 0 12px rgba(212, 175, 55, 0.9),
+        0 0 20px rgba(244, 229, 176, 0.7);
+      filter: brightness(1.5) drop-shadow(0 0 8px rgba(212, 175, 55, 0.7));
+    }
+
+    .image-palette-button:active {
+      transform: scale(0.95);
+    }
+
     .input-hint {
       font-size: 0.75rem;
       margin-top: 0.5rem;
@@ -576,6 +614,115 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       color: rgba(255, 255, 255, 0.95);
       border-radius: 1rem;
+      padding: 1.25rem 1.5rem;
+      line-height: 1.8;
+      letter-spacing: 0.3px;
+    }
+
+    /* Legal document styling for AI responses */
+    .message.ai .message-content p {
+      margin: 1rem 0;
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .message.ai .message-content p:first-child {
+      margin-top: 0;
+    }
+
+    .message.ai .message-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message.ai .message-content strong {
+      font-weight: 600;
+      color: #D4AF37;
+      letter-spacing: 0.5px;
+    }
+
+    .message.ai .message-content em {
+      font-style: italic;
+      color: rgba(212, 175, 55, 0.85);
+      letter-spacing: 0.2px;
+    }
+
+    .message.ai .message-content em strong,
+    .message.ai .message-content strong em {
+      font-weight: 600;
+      font-style: italic;
+      color: #D4AF37;
+    }
+
+    .message.ai .message-content ul,
+    .message.ai .message-content ol {
+      margin: 1rem 0;
+      padding-left: 1.75rem;
+    }
+
+    .message.ai .message-content li {
+      margin: 0.5rem 0;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .message.ai .message-content li strong {
+      color: #D4AF37;
+    }
+
+    .message.ai .message-content h3,
+    .message.ai .message-content h4 {
+      margin: 1.5rem 0 0.75rem 0;
+      font-weight: 600;
+      color: #D4AF37;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      font-family: 'Georgia', serif;
+    }
+
+    .message.ai .message-content h3:first-child {
+      margin-top: 0;
+    }
+
+    .message.ai .message-content blockquote {
+      margin: 1rem 0;
+      padding: 0.75rem 0 0.75rem 1rem;
+      border-left: 3px solid rgba(212, 175, 55, 0.6);
+      color: rgba(255, 255, 255, 0.85);
+      font-style: italic;
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    .message.ai .message-content code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      font-family: 'Monaco', 'Courier New', monospace;
+      color: rgba(212, 175, 55, 0.9);
+      font-size: 0.9em;
+    }
+
+    .message.ai .message-content pre {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      border-left: 3px solid rgba(212, 175, 55, 0.6);
+    }
+
+    .message.ai .message-content pre code {
+      background: none;
+      padding: 0;
+      color: rgba(212, 175, 55, 0.85);
+    }
+
+    /* Horizontal divider - legal document style */
+    .message.ai .message-content hr {
+      margin: 1.5rem 0;
+      border: none;
+      border-top: 1px solid rgba(212, 175, 55, 0.3);
+      opacity: 0.6;
     }
 
     /* Animazione elegante al hover */
@@ -1226,6 +1373,9 @@
   <div class="chat-input-container">
     <div class="chat-input-wrapper">
       <div class="chat-input-box" id="inputBox">
+        <button class="image-button" id="attachButton" title="Attach File" aria-label="Attach file">
+          📎
+        </button>
         <textarea
           id="messageInput"
           class="chat-textarea"
@@ -1233,18 +1383,15 @@
           rows="1"
           maxlength="2000"
         ></textarea>
-        <button class="attach-button" id="attachButton" title="Generate Image"
-                style="width: 50px; height: 50px; background: transparent; border: none;
-                       cursor: pointer; display: flex; align-items: center; justify-content: center;
-                       margin-left: 8px; transition: transform 0.2s;">
-          <img src="assets/images/image.svg" alt="Generate Image" style="width: 100%; height: 100%; object-fit: contain;">
-        </button>
         <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
         <button
           id="sendButton"
           class="send-button"
           aria-label="Send message"
         >∞</button>
+        <button class="image-palette-button" id="paletteButton" title="Generate Image" aria-label="Generate image with ImaginArt">
+          🎨
+        </button>
       </div>
       <p class="input-hint">Enter to send • Shift + Enter for new line</p>
     </div>
