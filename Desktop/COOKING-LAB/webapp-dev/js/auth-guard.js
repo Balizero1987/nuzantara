@@ -98,7 +98,15 @@ function clearAuthData() {
 
 function redirectToLogin() {
   const currentPage = window.location.pathname;
-  if (currentPage.includes('login') || currentPage === '/') {
+
+  // Check if already on login or public pages - use EXACT match
+  const isLoginPage = currentPage === '/login.html' ||
+                      currentPage === '/login' ||
+                      currentPage === '/login/';
+  const isHomePage = currentPage === '/' || currentPage === '/index.html';
+
+  if (isLoginPage || isHomePage) {
+    console.log('📍 Already on public page, no redirect needed');
     return;
   }
 
@@ -139,20 +147,46 @@ function getAuthToken() {
 // Auto-run auth check on protected pages
 if (typeof window !== 'undefined') {
   const currentPage = window.location.pathname;
-  const publicPages = ['/', '/login', '/login.html', '/index.html'];
-  const protectedPages = ['/chat.html', '/chat/index.html'];
 
-  // Only check auth on protected pages (explicit list to avoid loop)
-  const isProtectedPage = protectedPages.some(page =>
-    currentPage.includes(page) || currentPage.endsWith(page)
+  // Exactly define public pages (no auth required)
+  const publicPages = [
+    '/',
+    '/index.html',
+    '/login',
+    '/login.html',
+    '/login/',
+  ];
+
+  // Exactly define protected pages (auth required)
+  const protectedPages = [
+    '/chat',
+    '/chat/',
+    '/chat.html',
+    '/chat/index.html',
+  ];
+
+  // Check if current page is public (exact match)
+  const isPublicPage = publicPages.some(page =>
+    currentPage === page
   );
 
-  if (isProtectedPage) {
+  // Check if current page is protected (exact match)
+  const isProtectedPage = protectedPages.some(page =>
+    currentPage === page
+  );
+
+  // Only check auth on protected pages (avoid false positives)
+  if (isProtectedPage && !isPublicPage) {
+    console.log(`🔐 Protected page detected: ${currentPage} - Running auth check`);
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', checkAuth);
     } else {
       checkAuth();
     }
+  } else if (isPublicPage) {
+    console.log(`🔓 Public page: ${currentPage} - No auth check needed`);
+  } else {
+    console.log(`⚠️  Unknown page type: ${currentPage} - Skipping auth check`);
   }
   
   window.checkAuth = checkAuth;
