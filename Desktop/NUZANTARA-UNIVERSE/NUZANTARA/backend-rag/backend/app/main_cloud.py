@@ -963,14 +963,13 @@ async def _initialize_backend_services():
             llama_scout_client = LlamaScoutClient(
                 openrouter_api_key=openrouter_api_key,
                 anthropic_api_key=anthropic_api_key,
-                force_haiku=False  # Try Llama first, fallback to Haiku
+                force_haiku=False  # Llama 4 is PRIMARY
             )
-            logger.info("✅ Llama 4 Scout + Haiku 4.5 ready (Primary + Fallback)")
-            logger.info("   Primary: Llama 4 Scout (92% cheaper, 22% faster TTFT)")
-            logger.info("   Cost: $0.20/$0.20 per 1M tokens vs Haiku $1/$5")
-            logger.info("   Fallback: Claude Haiku 4.5 (for tool use & emergencies)")
-            logger.info(f"   Llama available: {'✅' if openrouter_api_key else '❌'}")
-            logger.info(f"   Haiku available: {'✅' if anthropic_api_key else '❌'}")
+            logger.info("✅ Llama 4 ready (PRIMARY AI)")
+            logger.info("   Primary: Llama 4 (92% cheaper, 22% faster TTFT)")
+            logger.info("   Cost: $0.20/$0.20 per 1M tokens")
+            logger.info("   Context: 10M tokens")
+            logger.info(f"   Llama 4 available: {'✅' if openrouter_api_key else '❌'}")
 
             # Also initialize standalone claude_haiku for backward compatibility
             if anthropic_api_key:
@@ -978,7 +977,7 @@ async def _initialize_backend_services():
             else:
                 claude_haiku = None
         else:
-            logger.warning("⚠️ Neither OPENROUTER_API_KEY_LLAMA nor ANTHROPIC_API_KEY set - No AI available")
+            logger.warning("⚠️ OPENROUTER_API_KEY_LLAMA not set - Llama 4 unavailable")
             llama_scout_client = None
             claude_haiku = None
     except Exception as e:
@@ -1248,16 +1247,15 @@ async def _initialize_backend_services():
                 autonomous_research_service=autonomous_research_service,
                 cross_oracle_synthesis_service=cross_oracle_synthesis_service
             )
-            logger.info("✅ Intelligent Router ready (Llama 4 Scout PRIMARY + Haiku FALLBACK)")
-            logger.info("   Primary AI: Llama 4 Scout (92% cheaper, 22% faster)")
-            logger.info("   Fallback AI: Claude Haiku 4.5 (tool calling, errors)")
+            logger.info("✅ Intelligent Router ready (Llama 4 PRIMARY)")
+            logger.info("   Primary AI: Llama 4 (92% cheaper, 22% faster)")
             logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
             logger.info(f"   Autonomous Research: {'✅ enabled' if autonomous_research_service else '⚠️ disabled'}")
             logger.info(f"   Cross-Oracle Synthesis: {'✅ enabled' if cross_oracle_synthesis_service else '⚠️ disabled'}")
-            logger.info("   Cost optimization: 3x cheaper than Sonnet, same quality with RAG")
+            logger.info("   Cost optimization: Optimized with Llama 4")
         else:
-            logger.warning("⚠️ Intelligent Router not initialized - missing Claude Haiku service")
-            logger.warning(f"   Haiku: {'✅' if claude_haiku else '❌'}")
+            logger.warning("⚠️ Intelligent Router not initialized - missing Llama 4 service")
+            logger.warning(f"   Llama 4: {'✅' if llama_scout_client else '❌'}")
             intelligent_router = None
     except Exception as e:
         logger.error(f"❌ Intelligent Router initialization failed: {e}")
@@ -1673,12 +1671,13 @@ async def search_endpoint(request: SearchRequest):
 
             try:
                 logger.info("🎯 [RAG Search] Using Llama 4 Scout via OpenRouter (Primary API)")
-                response = await intelligent_router.conversational(
+                response = await intelligent_router.route_chat(
                     message=messages[-1]["content"],
                     user_id="search_user",
+                    conversation_history=messages[:-1],
                     context={"source": "rag_search", "query": request.query}
                 )
-                answer = response.get("text", "")
+                answer = response.get("response", response.get("text", ""))
                 model_used = response.get("model_used", "meta-llama/llama-4-scout")
             except Exception as e:
                 logger.error(f"❌ [RAG Search] Llama 4 Scout failed: {e}")
