@@ -46,6 +46,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from services.search_service import SearchService
 from services.collaborator_service import CollaboratorService
 from services.memory_service_postgres import MemoryServicePostgres
+from services.unified_memory_orchestrator import UnifiedMemoryOrchestrator  # PHASE 1: 95% memory recall
 from services.conversation_service import ConversationService
 from services.emotional_attunement import EmotionalAttunementService
 from services.collaborative_capabilities import CollaborativeCapabilitiesService
@@ -889,7 +890,7 @@ def log_startup(msg: str, level: str = "info"):
 
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
-    global search_service, llama_scout_client, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
+    global search_service, llama_scout_client, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, memory_orchestrator, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
     global skill_index, skill_detector, skill_loader, skill_coordinator, enhanced_context_builder, skill_cache, skill_metrics
     global startup_logs
 
@@ -1189,6 +1190,33 @@ async def _initialize_backend_services():
         log_startup(f"❌ MemoryServicePostgres initialization failed: {e}", "error")
         log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
         memory_service = None
+
+    # Initialize Unified Memory Orchestrator (PHASE 1: 95% Memory Recall)
+    try:
+        redis_url = os.getenv("REDIS_URL")
+        database_url = os.getenv("DATABASE_URL")
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+
+        if database_url:
+            log_startup("🧠 Initializing Unified Memory Orchestrator (3-level memory system)...")
+            memory_orchestrator = UnifiedMemoryOrchestrator({
+                'redis_url': redis_url,
+                'postgres_url': database_url,
+                'openai_api_key': openai_api_key
+            })
+            await memory_orchestrator.initialize()
+            log_startup("✅ Unified Memory Orchestrator ready (95% recall target)")
+            log_startup("   - Working Memory: Redis (last 5 messages)")
+            log_startup("   - Episodic Memory: PostgreSQL (session summaries)")
+            log_startup("   - Semantic Memory: PostgreSQL (extracted facts)")
+        else:
+            log_startup("⚠️ DATABASE_URL not configured - Unified Memory disabled", "warning")
+            memory_orchestrator = None
+    except Exception as e:
+        import traceback
+        log_startup(f"❌ Unified Memory Orchestrator initialization failed: {e}", "error")
+        log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
+        memory_orchestrator = None
 
     # Initialize ConversationService (Phase 2)
     try:
@@ -2063,15 +2091,21 @@ async def save_conversation_background(
     model_used: str,
     ai_used: str,
     tokens: Dict,
-    sources_count: int
+    sources_count: int,
+    session_id: Optional[str] = None  # NEW: session_id for unified memory
 ):
     """
     Background task: Save conversation and extract facts
     Runs after response is sent to user (non-blocking)
+    ENHANCED: Now stores in Unified Memory Orchestrator for 95% recall
     """
     try:
-        if not conversation_service or user_id == "anonymous":
+        if user_id == "anonymous":
             return
+
+        # Generate session_id if not provided
+        if not session_id:
+            session_id = f"session_{user_id}"
 
         # Build full message history
         full_messages = (conversation_history or []).copy()
@@ -2090,11 +2124,52 @@ async def save_conversation_background(
             "sources_count": sources_count
         }
 
-        # Save conversation
-        await conversation_service.save_conversation(user_id, full_messages, metadata)
-        logger.info(f"💬 [Background] Conversation saved for {user_id}")
+        # PHASE 1: Store in Unified Memory Orchestrator (3-level memory)
+        if memory_orchestrator:
+            try:
+                # Store user message
+                await memory_orchestrator.store_message(
+                    session_id=session_id,
+                    user_id=user_id,
+                    message={
+                        'role': 'user',
+                        'content': query,
+                        'metadata': metadata
+                    }
+                )
 
-        # Increment conversation counter
+                # Store assistant response
+                await memory_orchestrator.store_message(
+                    session_id=session_id,
+                    user_id=user_id,
+                    message={
+                        'role': 'assistant',
+                        'content': answer,
+                        'metadata': metadata
+                    }
+                )
+
+                logger.info(f"🧠 [Unified Memory] Messages stored for {user_id} in session {session_id}")
+
+                # Trigger async fact extraction with unified orchestrator
+                facts_count = await memory_orchestrator.extract_facts(
+                    session_id=session_id,
+                    user_id=user_id,
+                    content=f"User: {query}\nAssistant: {answer}"
+                )
+
+                if facts_count > 0:
+                    logger.info(f"💎 [Unified Memory] Extracted {facts_count} facts for {user_id}")
+
+            except Exception as mem_error:
+                logger.warning(f"⚠️ [Unified Memory] Storage failed: {mem_error}")
+
+        # Legacy: Save conversation to conversation_service
+        if conversation_service:
+            await conversation_service.save_conversation(user_id, full_messages, metadata)
+            logger.info(f"💬 [Background] Conversation saved for {user_id}")
+
+        # Increment conversation counter (legacy)
         if memory_service:
             await memory_service.increment_counter(user_id, "conversations")
 
@@ -2172,6 +2247,9 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
         collaborator = None
         sub_rosa_level = 0
         user_id = "anonymous"
+
+        # Generate or extract session_id for unified memory
+        session_id = request.session_id if hasattr(request, 'session_id') and request.session_id else None
 
         if collaborator_service and effective_email:
             try:
@@ -2252,10 +2330,32 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
 
         # OPTIMIZATION: Parallel execution of PHASES 2-3 (NOW that we have collaborator)
         async def load_memory():
-            """PHASE 2: Load user memory"""
+            """PHASE 2: Load user memory with Unified Orchestrator (95% recall)"""
+            # Try Unified Memory Orchestrator first (PHASE 1: Enhanced recall)
+            if memory_orchestrator and user_id != "anonymous":
+                try:
+                    # Get session_id from request or generate one
+                    session_id = request.session_id if hasattr(request, 'session_id') and request.session_id else f"session_{user_id}"
+
+                    # Get optimized context from orchestrator
+                    memory_context = await memory_orchestrator.get_context(
+                        session_id=session_id,
+                        user_id=user_id,
+                        query=request.query
+                    )
+                    logger.info(
+                        f"🧠 Unified Memory: quality={memory_context.context_quality_score:.2f}, "
+                        f"working={len(memory_context.working_memory)}, "
+                        f"facts={len(memory_context.relevant_facts)}"
+                    )
+                    return memory_context
+                except Exception as e:
+                    logger.warning(f"⚠️ Unified Memory failed, falling back to legacy: {e}")
+
+            # Fallback to legacy memory service
             if memory_service and user_id != "anonymous":
                 mem = await memory_service.get_memory(user_id)
-                logger.info(f"💾 Memory loaded for {user_id}: {len(mem.profile_facts)} facts, {len(mem.summary)} char summary")
+                logger.info(f"💾 Legacy Memory loaded for {user_id}: {len(mem.profile_facts)} facts, {len(mem.summary)} char summary")
                 return mem
             return None
 
@@ -2439,6 +2539,10 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
         # OPTIMIZATION: Save conversation in background (non-blocking response)
         # This allows the response to be sent immediately while saving happens asynchronously
         if user_id != "anonymous":
+            # Generate session_id if not provided
+            if not session_id:
+                session_id = f"session_{user_id}"
+
             background_tasks.add_task(
                 save_conversation_background,
                 user_id=user_id,
@@ -2450,9 +2554,10 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 model_used=model_used,
                 ai_used=ai_used,
                 tokens=tokens,
-                sources_count=len(sources)
+                sources_count=len(sources),
+                session_id=session_id  # PHASE 1: Pass session_id for unified memory
             )
-            logger.info(f"💬 [Optimization] Conversation save scheduled in background for {user_id}")
+            logger.info(f"💬 [Optimization] Conversation save scheduled in background for {user_id} (session: {session_id})")
 
         return BaliZeroResponse(
             success=True,
