@@ -194,3 +194,5 @@ if (typeof window !== 'undefined') {
   window.getAuthToken = getAuthToken;
   window.clearAuthData = clearAuthData;
 }
+
+// Version: 2025-11-15 - Cache bust for GitHub Pages deployment
