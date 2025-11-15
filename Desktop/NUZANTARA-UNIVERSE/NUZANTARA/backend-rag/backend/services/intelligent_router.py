@@ -394,7 +394,7 @@ class IntelligentRouter:
 
         return {
             "response": result["text"],
-            "ai_used": "llama4",
+            "ai_used": result.get("ai_used", "llama4"),  # Use actual AI from client (llama4 or haiku)
             "category": "emotional_support",
             "model": result["model"],
             "tokens": result["tokens"],
