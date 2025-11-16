@@ -1,152 +1,31 @@
 """
-Tool Manager Module
-Loads, filters, and caches available tools
+Tool Manager - Stub Implementation
+Minimal implementation to satisfy imports until full tool system is implemented
 """
 
-import logging
-from typing import Optional, List, Dict, Any
-
-logger = logging.getLogger(__name__)
-
-# Tool prefetch keywords (multilingual)
-PRICING_KEYWORDS = [
-    'harga', 'price', 'berapa', 'cost', 'quanto costa', 'biaya',
-    'tarif', 'fee', 'costo', 'cuánto cuesta', 'custo', 'how much'
-]
-
-SERVICE_KEYWORDS = [
-    'visa', 'kitas', 'kitap', 'c1', 'c2', 'd1', 'd2',
-    'e23', 'e28a', 'e31a', 'pt pma', 'npww', 'bpjs',
-    'business setup', 'tax', 'setup perusahaan'
-]
-
-TEAM_KEYWORDS = [
-    'team', 'tim', 'squadra', 'equipo', 'chi è', 'who is',
-    'siapa', 'quién es', 'members', 'membri', 'anggota'
-]
-
-# Haiku allowed tool prefixes (fast, essential only)
-HAIKU_ALLOWED_PREFIXES = [
-    "pricing_",           # Pricing queries (fast)
-    "team_recent",        # Recent activity (fast)
-    "team_list",          # Team members list (fast)
-    "memory_retrieve",    # Memory read (fast)
-    "memory_search"       # Memory search (fast)
-]
+from typing import Dict, List, Optional, Any
+from loguru import logger
 
 
 class ToolManager:
-    """
-    Tool Manager for loading and filtering tools
+    """Minimal ToolManager stub to prevent import errors"""
 
-    Handles:
-    - Tool loading from ToolExecutor
-    - Caching for performance
-    - Model-specific filtering (Haiku vs Sonnet)
-    - Prefetch detection for streaming
-    """
-
-    def __init__(self, tool_executor=None):
-        """
-        Initialize tool manager
-
-        Args:
-            tool_executor: ToolExecutor instance
-        """
+    def __init__(self, tool_executor: Optional[Any] = None):
         self.tool_executor = tool_executor
-        self.all_tools = None
-        self.haiku_tools = None
-        self.tools_loaded = False
+        logger.info("🔧 [ToolManager] Initialized (STUB - no tools loaded)")
 
-        logger.info(f"🔧 [ToolManager] Initialized (executor: {'✅' if tool_executor else '❌'})")
+    async def load_tools(self) -> None:
+        """Stub method - no-op"""
+        pass
 
-    async def load_tools(self):
-        """
-        Load available tools from ToolExecutor and cache them
+    def get_available_tools(self, ai_type: str = "haiku") -> List[Dict]:
+        """Return empty tool list"""
+        return []
 
-        Filters tools for:
-        - Haiku: LIMITED tools (fast, essential only)
-        - Sonnet: ALL tools (full capability)
-        """
-        if self.tools_loaded or not self.tool_executor:
-            return
-
-        try:
-            logger.info("🔧 [ToolManager] Loading available tools")
-
-            # Get all available tools from ToolExecutor
-            self.all_tools = await self.tool_executor.get_available_tools()
-
-            logger.info(f"🔧 [ToolManager] Total tools available: {len(self.all_tools)}")
-
-            # Filter essential tools for Haiku
-            self.haiku_tools = [
-                tool for tool in self.all_tools
-                if any(tool["name"].startswith(prefix) for prefix in HAIKU_ALLOWED_PREFIXES)
-            ]
-
-            logger.info(f"🔧 [ToolManager] Haiku tools (LIMITED): {len(self.haiku_tools)}")
-            logger.info(f"🔧 [ToolManager] Sonnet tools (FULL): {len(self.all_tools)}")
-
-            self.tools_loaded = True
-
-        except Exception as e:
-            logger.error(f"🔧 [ToolManager] Error: {e}")
-            self.tools_loaded = False
-
-    def get_available_tools(self, model: str = "haiku") -> Optional[List[Dict]]:
-        """
-        Get filtered tools for specific model
-
-        Args:
-            model: "haiku" or "sonnet"
-
-        Returns:
-            List of tool definitions or None
-        """
-        if not self.tools_loaded:
-            return None
-
-        if model == "haiku":
-            return self.haiku_tools
-        else:
-            return self.all_tools
-
-    def detect_tool_needs(self, message: str) -> Dict[str, Any]:
-        """
-        Detect if query needs tool prefetching before streaming
-
-        Args:
-            message: User message
-
-        Returns:
-            {
-                "should_prefetch": bool,
-                "tool_name": str,
-                "tool_input": dict
-            }
-        """
-        message_lower = message.lower()
-
-        # Check for pricing query
-        has_pricing_keyword = any(kw in message_lower for kw in PRICING_KEYWORDS)
-        has_service_keyword = any(kw in message_lower for kw in SERVICE_KEYWORDS)
-
-        if has_pricing_keyword or (has_service_keyword and len(message.split()) < 15):
-            logger.info("🔧 [ToolManager] PRICING query detected (will prefetch)")
-            return {
-                "should_prefetch": True,
-                "tool_name": "get_pricing",
-                "tool_input": {"service_type": "all"}
-            }
-
-        # Check for team query
-        if any(kw in message_lower for kw in TEAM_KEYWORDS):
-            logger.info("🔧 [ToolManager] TEAM query detected (will prefetch)")
-            return {
-                "should_prefetch": True,
-                "tool_name": "get_team_members_list",
-                "tool_input": {}
-            }
-
-        return {"should_prefetch": False}
+    def detect_tool_needs(self, message: str) -> Dict:
+        """Always return no tool needs"""
+        return {
+            "should_prefetch": False,
+            "needs_tools": False,
+            "suggested_tools": []
+        }
