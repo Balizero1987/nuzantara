@@ -239,6 +239,7 @@ cloudbuild*.yaml
 !.github/**/*.json
 !apps/**/*.json
 !docs/**/*.json
+!DATASET_GEMMA/**/*.json
 *.html
 !apps/webapp/**/*.html
 !apps/webapp-v2/**/*.html
