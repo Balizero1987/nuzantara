@@ -337,36 +337,55 @@ When showing Bali Zero service prices:
 
         logger.info("🔵 [Haiku] Using fallback AI")
 
-        # Call Anthropic
-        response = await self.haiku_client.messages.create(
-            model=self.haiku_model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            system=system,
-            messages=messages
-        )
+        try:
+            # Call Anthropic
+            response = await self.haiku_client.messages.create(
+                model=self.haiku_model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system=system,
+                messages=messages
+            )
 
-        # Extract response
-        answer = response.content[0].text if response.content else ""
+            # Extract response
+            answer = response.content[0].text if response.content else ""
 
-        # Get exact token usage
-        tokens_input = response.usage.input_tokens
-        tokens_output = response.usage.output_tokens
+            # Get exact token usage
+            tokens_input = response.usage.input_tokens
+            tokens_output = response.usage.output_tokens
 
-        # Calculate cost
-        cost = (tokens_input / 1_000_000 * self.haiku_pricing["input"]) + \
-               (tokens_output / 1_000_000 * self.haiku_pricing["output"])
+            # Calculate cost
+            cost = (tokens_input / 1_000_000 * self.haiku_pricing["input"]) + \
+                   (tokens_output / 1_000_000 * self.haiku_pricing["output"])
 
-        return {
-            "text": answer,
-            "model": self.haiku_model,
-            "provider": "anthropic",
-            "tokens": {
-                "input": tokens_input,
-                "output": tokens_output
-            },
-            "cost": cost
-        }
+            return {
+                "text": answer,
+                "model": self.haiku_model,
+                "provider": "anthropic",
+                "tokens": {
+                    "input": tokens_input,
+                    "output": tokens_output
+                },
+                "cost": cost
+            }
+
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"❌ [Haiku] API Error: {error_msg}")
+
+            # Check if it's an API limit error
+            if "usage limits" in error_msg.lower() or "quota" in error_msg.lower():
+                logger.warning("⚠️ [Haiku] API limit reached - using Llama-only fallback message")
+                return {
+                    "text": "🙏 Maaf, saya mengalami keterbatasan sementara dengan layanan AI premium. Namun, saya masih bisa membantu Anda dengan pertanyaan tentang visa, bisnis, atau hukum di Indonesia. Silakan ajukan pertanyaan Anda! 🇮🇩\n\n(Note: Currently using backup AI due to temporary service limits. I can still assist with visa, business, and legal questions about Indonesia.)",
+                    "model": "llama-4-scout-fallback",
+                    "provider": "openrouter",
+                    "tokens": {"input": 0, "output": 100},
+                    "cost": 0.0
+                }
+            else:
+                # Re-raise other errors
+                raise
 
 
     def get_metrics(self) -> Dict:
