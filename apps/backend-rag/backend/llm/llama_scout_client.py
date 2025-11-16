@@ -270,16 +270,23 @@ When showing Bali Zero service prices:
             return result
 
         except Exception as e:
-            logger.warning(f"⚠️  [Llama Scout] Failed: {e}")
-            logger.info("   Falling back to Haiku 4.5...")
+            error_msg = str(e)
+            logger.error(f"❌ [Llama Scout] Failed: {error_msg}")
             self.metrics["llama_failures"] += 1
-            self.metrics["haiku_fallbacks"] += 1
 
-            # Fallback to Haiku
-            if self.haiku_client:
-                return await self._call_haiku(messages, system, max_tokens, temperature)
-            else:
-                raise Exception("Both Llama Scout and Haiku unavailable")
+            # TEMPORARY FIX: Skip Haiku fallback until December 1st (Anthropic API limit)
+            # Return helpful error message instead
+            logger.warning("⚠️ [Haiku] Fallback disabled temporarily (API limits)")
+            return {
+                "text": "🙏 **Saya sedang mengalami gangguan teknis sementara** / *I'm experiencing temporary technical difficulties*\n\n"
+                        "Mohon maaf atas ketidaknyamanannya. Silakan coba lagi dalam beberapa saat, atau hubungi tim kami di WhatsApp +62 859 0436 9574 untuk bantuan segera.\n\n"
+                        "*Sorry for the inconvenience. Please try again in a few moments, or contact our team on WhatsApp +62 859 0436 9574 for immediate assistance.*",
+                "model": "llama-4-scout-error",
+                "provider": "error-handler",
+                "tokens": {"input": 0, "output": 100},
+                "cost": 0.0,
+                "error": error_msg
+            }
 
 
     async def _call_llama(
