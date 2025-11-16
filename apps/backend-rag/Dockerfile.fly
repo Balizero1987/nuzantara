@@ -35,9 +35,8 @@ WORKDIR /app/backend
 # Expose port
 EXPOSE 8000
 
-# Health check with proper start period (5min grace_period set in fly.toml)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5m --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+# Health check is configured in fly.toml with 5min grace_period
+# (removed from Dockerfile to avoid conflicts)
 
-# Start uvicorn (removed debug logging now that issue is identified)
+# Start uvicorn
 CMD ["uvicorn", "app.main_cloud:app", "--host", "0.0.0.0", "--port", "8000"]
