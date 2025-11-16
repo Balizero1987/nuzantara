@@ -35,9 +35,9 @@ WORKDIR /app/backend
 # Expose port
 EXPOSE 8000
 
-# Health check (model downloads on first request, not at startup)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+# TEMPORARILY DISABLED FOR DEBUGGING - will re-enable after identifying startup issue
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+#     CMD curl -f http://localhost:8000/health || exit 1
 
 # Start uvicorn with verbose logging for debugging
 CMD ["sh", "-c", "echo '=== STARTING ZANTARA RAG ===' && \
