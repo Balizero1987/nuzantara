@@ -114,12 +114,20 @@ document.addEventListener('DOMContentLoaded', async function () {
     rag: { url: 'https://nuzantara-rag.fly.dev' },
   };
 
+  // Check if ZantaraClient is available
+  if (typeof window.ZantaraClient === 'undefined') {
+    console.error('ZantaraClient not loaded! Check if zantara-client.min.js is loaded correctly.');
+    return;
+  }
+
   zantaraClient = new window.ZantaraClient({
     apiUrl: API_CONFIG.rag.url,
     chatEndpoint: '/bali-zero/chat', // FIXED: Use correct Bali-Zero endpoint
     streamEndpoint: '/bali-zero/chat-stream', // For SSE streaming
     maxRetries: 3,
   });
+
+  console.log('✅ ZantaraClient initialized successfully');
 
   // Get DOM elements
   messageSpace = document.getElementById('messageSpace');
@@ -292,9 +300,22 @@ function handleKeyDown(e) {
  * Handle send button click
  */
 function handleSend() {
+  console.log('🚀 handleSend called');
+
   const content = messageInput.value.trim();
-  if (!content) return;
-  if (zantaraClient && zantaraClient.isStreaming) return;
+  console.log('📝 Message content:', content);
+
+  if (!content) {
+    console.log('❌ No content, returning');
+    return;
+  }
+
+  if (zantaraClient && zantaraClient.isStreaming) {
+    console.log('⚠️ Already streaming, returning');
+    return;
+  }
+
+  console.log('✅ Proceeding with send');
 
   // Trigger send animation
   const sendBtn = document.getElementById('sendButton');
