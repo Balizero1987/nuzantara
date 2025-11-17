@@ -1,6 +1,6 @@
 {
   "name": "@nuzantara/publication",
-  "version": "1.0.0",
+  "version": "5.2.0",
   "private": true,
   "description": "Bali Zero Publication - McKinsey-style content platform",
   "type": "module",

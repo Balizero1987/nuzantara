@@ -1,6 +1,6 @@
 {
   "name": "nuzantara-memory-service",
-  "version": "1.0.0",
+  "version": "5.2.0",
   "description": "Standalone Memory Service with multi-layer storage (PostgreSQL, ChromaDB, Neo4j)",
   "main": "dist/index.js",
   "scripts": {
