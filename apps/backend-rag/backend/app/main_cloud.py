@@ -841,6 +841,20 @@ async def startup_event():
     warmup_task = asyncio.create_task(_initialize_backend_services())
     warmup_task.add_done_callback(_log_warmup_result)
 
+    # Start Self-Healing Agent
+    try:
+        from backend.self_healing.backend_agent import BackendSelfHealingAgent
+        agent = BackendSelfHealingAgent(
+            service_name="rag",
+            orchestrator_url="https://nuzantara-orchestrator.fly.dev",
+            check_interval=30,
+            auto_fix_enabled=True
+        )
+        asyncio.create_task(agent.start())
+        logger.info("🤖 Self-Healing Agent started")
+    except Exception as e:
+        logger.warning(f"⚠️ Self-Healing Agent not available: {e}")
+
 
 def _log_warmup_result(task: asyncio.Task):
     try:

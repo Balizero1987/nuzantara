@@ -48,3 +48,7 @@ redis==5.0.1
 # twilio==8.10.0    # Uncomment when TWILIO credentials are available
 
 # Force rebuild: 2025-10-25-16:00 - Phase 1 deployment
+
+# Self-Healing Agent dependencies
+psutil==5.9.6
+redis==5.0.1
