@@ -1153,6 +1153,20 @@ async def _initialize_backend_services():
         logger.warning(f"⚠️ Memory tables initialization skipped: {e}")
         # Non-fatal: continue without PostgreSQL tables (will use in-memory fallback)
 
+    # Run database migrations (NEW: Nov 17, 2025 - Team Timesheet System)
+    try:
+        from db.run_migrations import run_migrations
+        log_startup("🔄 Running database migrations...")
+        migration_success = await run_migrations()
+        if migration_success:
+            log_startup("✅ Database migrations completed")
+        else:
+            log_startup("⚠️ Database migrations failed or skipped", "warning")
+    except Exception as e:
+        import traceback
+        log_startup(f"❌ Migration runner failed: {e}", "error")
+        log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
+
     # Initialize MemoryService (PostgreSQL)
     try:
         database_url = os.getenv("DATABASE_URL")
