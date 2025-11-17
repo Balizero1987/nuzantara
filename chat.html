@@ -1445,6 +1445,39 @@
   <script>
     // Theme management è ora gestito da theme-manager.js
 
+    // Filter AI response to remove unwanted content
+    function filterAIResponse(text) {
+      if (!text) return text;
+      
+      let filtered = text;
+
+      // Remove WhatsApp number and related text at the end
+      filtered = filtered.replace(/\n*Need help with this\? Reach out on WhatsApp.*$/i, '');
+      filtered = filtered.replace(/\n*Reach out on WhatsApp.*$/i, '');
+      filtered = filtered.replace(/\n*WhatsApp.*$/i, '');
+      filtered = filtered.replace(/\n*\+62\s*\d{8,}\s*\d{4,}.*$/g, '');
+      filtered = filtered.replace(/\n*\+62\s*859\s*0436\s*9574.*$/gi, '');
+      
+      // Check if this is the first message of the day
+      const today = new Date().toDateString();
+      const lastGreetingDate = localStorage.getItem('zantara-last-greeting-date');
+      const isFirstMessageToday = lastGreetingDate !== today;
+      
+      // Remove "Ciao Zero" if not first message of the day
+      if (!isFirstMessageToday) {
+        // Remove "Ciao Zero!" at the beginning (with variations)
+        filtered = filtered.replace(/^Ciao\s+Zero[!.,]?\s*/i, '');
+        filtered = filtered.replace(/^Ciao\s+Zero[!.,]?\s+/i, '');
+        // Also remove if it's on a new line
+        filtered = filtered.replace(/\nCiao\s+Zero[!.,]?\s*/i, '\n');
+      } else {
+        // Mark that we've greeted today
+        localStorage.setItem('zantara-last-greeting-date', today);
+      }
+      
+      return filtered.trim();
+    }
+
     // Conversation History Sidebar Management
     (function() {
       const sidebar = document.getElementById('conversationSidebar');

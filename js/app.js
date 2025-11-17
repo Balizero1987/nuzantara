@@ -535,7 +535,9 @@ function renderMessage(msg, saveToHistory = true) {
 
   // Render markdown for AI messages
   if (msg.type === 'ai') {
-    textEl.innerHTML = zantaraClient.renderMarkdown(msg.content);
+    // Filter AI responses when rendering from history
+    const filteredContent = filterAIResponse(msg.content);
+    textEl.innerHTML = zantaraClient.renderMarkdown(filteredContent);
   } else {
     textEl.textContent = msg.content;
   }
@@ -613,6 +615,41 @@ function createLiveMessage() {
 }
 
 /**
+ * Filter AI response to remove unwanted content
+ */
+function filterAIResponse(text) {
+  if (!text) return text;
+  
+  let filtered = text;
+
+  // Remove WhatsApp number and related text at the end
+  filtered = filtered.replace(/\n*Need help with this\? Reach out on WhatsApp.*$/i, '');
+  filtered = filtered.replace(/\n*Reach out on WhatsApp.*$/i, '');
+  filtered = filtered.replace(/\n*WhatsApp.*$/i, '');
+  filtered = filtered.replace(/\n*\+62\s*\d{8,}\s*\d{4,}.*$/g, '');
+  filtered = filtered.replace(/\n*\+62\s*859\s*0436\s*9574.*$/gi, '');
+  
+  // Check if this is the first message of the day
+  const today = new Date().toDateString();
+  const lastGreetingDate = localStorage.getItem('zantara-last-greeting-date');
+  const isFirstMessageToday = lastGreetingDate !== today;
+  
+  // Remove "Ciao Zero" if not first message of the day
+  if (!isFirstMessageToday) {
+    // Remove "Ciao Zero!" at the beginning (with variations)
+    filtered = filtered.replace(/^Ciao\s+Zero[!.,]?\s*/i, '');
+    filtered = filtered.replace(/^Ciao\s+Zero[!.,]?\s+/i, '');
+    // Also remove if it's on a new line
+    filtered = filtered.replace(/\nCiao\s+Zero[!.,]?\s*/i, '\n');
+  } else {
+    // Mark that we've greeted today
+    localStorage.setItem('zantara-last-greeting-date', today);
+  }
+  
+  return filtered.trim();
+}
+
+/**
  * Update live message during streaming
  */
 function updateLiveMessage(messageEl, text) {
@@ -620,8 +657,10 @@ function updateLiveMessage(messageEl, text) {
 
   const textEl = messageEl.querySelector('.message-text');
   if (textEl) {
+    // Filter the text before rendering
+    const filteredText = filterAIResponse(text);
     // Render markdown in real-time
-    textEl.innerHTML = zantaraClient.renderMarkdown(text);
+    textEl.innerHTML = zantaraClient.renderMarkdown(filteredText);
     scrollToBottom();
   }
 }
@@ -632,6 +671,15 @@ function updateLiveMessage(messageEl, text) {
 function finalizeLiveMessage(messageEl, fullText) {
   if (!messageEl) return;
 
+  // Filter the text before finalizing
+  const filteredText = filterAIResponse(fullText);
+
+  // Update the displayed text with filtered version
+  const textEl = messageEl.querySelector('.message-text');
+  if (textEl) {
+    textEl.innerHTML = zantaraClient.renderMarkdown(filteredText);
+  }
+
   // Remove live-message class and thinking class (golden effect)
   messageEl.classList.remove('live-message', 'thinking');
   messageEl.removeAttribute('id');
@@ -641,19 +689,19 @@ function finalizeLiveMessage(messageEl, fullText) {
     sendButton.disabled = false;
   }
 
-  // Save to history
+  // Save to history (use filtered text)
   const aiMsg = {
     type: 'ai',
-    content: fullText,
+    content: filteredText, // Save filtered version
     timestamp: new Date(),
   };
 
   // Save to localStorage
   zantaraClient.addMessage(aiMsg);
 
-  // Save to Memory Service
+  // Save to Memory Service (use filtered text)
   if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
-    window.CONVERSATION_CLIENT.addMessage('assistant', fullText).catch((error) => {
+    window.CONVERSATION_CLIENT.addMessage('assistant', filteredText).catch((error) => {
       console.warn('⚠️ Failed to save AI message to Memory Service:', error.message);
     });
   }
