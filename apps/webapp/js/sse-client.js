@@ -11,8 +11,8 @@ class ZantaraSSEClient {
         this.baseURL = config.baseURL || API_CONFIG.rag.url;
         this.chatEndpoint = '/bali-zero/chat';
         this.streamEndpoint = '/bali-zero/chat-stream';
-        this.aiModel = 'Llama 4 Scout';
-        this.fallbackModel = 'Claude Haiku 4.5';
+        this.aiModel = 'ZANTARA AI';
+        this.fallbackModel = 'ZANTARA AI';
         this.eventSource = null;
         this.abortController = null;
     }

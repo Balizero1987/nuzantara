@@ -51,9 +51,8 @@ from services.emotional_attunement import EmotionalAttunementService
 from services.collaborative_capabilities import CollaborativeCapabilitiesService
 from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_handler_proxy
 from services.tool_executor import ToolExecutor
-# AI SYSTEM: Llama 4 Scout (primary) + Claude Haiku 4.5 (fallback) + Intelligent Router
-from llm.llama_scout_client import LlamaScoutClient
-from services.claude_haiku_service import ClaudeHaikuService
+# AI SYSTEM: ZANTARA AI (Llama 4 Scout via OpenRouter) + Intelligent Router
+from llm.zantara_ai_client import ZantaraAIClient
 from services.intelligent_router import IntelligentRouter
 from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultural intelligence
 from services.memory_fact_extractor import MemoryFactExtractor
@@ -115,9 +114,8 @@ except Exception as e:
 
 # Global clients
 search_service: Optional[SearchService] = None
-# AI SYSTEM: Llama 4 Scout (primary) + Claude Haiku 4.5 (fallback)
-llama_scout_client: Optional[LlamaScoutClient] = None  # NEW: Primary AI with fallback
-claude_haiku: Optional[ClaudeHaikuService] = None  # Kept for backward compatibility
+# AI SYSTEM: ZANTARA AI (Llama 4 Scout via OpenRouter)
+zantara_ai_client: Optional[ZantaraAIClient] = None  # Primary AI engine
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 cultural_rag_service: Optional[CulturalRAGService] = None  # NEW: LLAMA cultural RAG
 tool_executor: Optional[ToolExecutor] = None  # NEW: Tool execution system
@@ -889,12 +887,12 @@ def log_startup(msg: str, level: str = "info"):
 
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
-    global search_service, llama_scout_client, claude_haiku, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
+    global search_service, zantara_ai_client, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
     global skill_index, skill_detector, skill_loader, skill_coordinator, enhanced_context_builder, skill_cache, skill_metrics
     global startup_logs
 
     startup_logs.clear()  # Clear previous logs
-    log_startup("🚀 Starting ZANTARA RAG Backend (Llama 4 Scout PRIMARY + Claude Haiku FALLBACK)...")
+    log_startup("🚀 Starting ZANTARA RAG Backend (ZANTARA AI - Llama 4 Scout)...")
     log_startup("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
 
     # Preload Redis cache first
@@ -1031,37 +1029,22 @@ async def _initialize_backend_services():
         logger.warning("⚠️ Continuing without SearchService (pure LLM mode)")
         search_service = None
 
-    # Initialize Llama 4 Scout Client (Primary AI with Haiku fallback)
+    # Initialize ZANTARA AI Client (Llama 4 Scout via OpenRouter)
     try:
         openrouter_api_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
-        anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
 
-        if openrouter_api_key or anthropic_api_key:
-            llama_scout_client = LlamaScoutClient(
-                openrouter_api_key=openrouter_api_key,
-                anthropic_api_key=anthropic_api_key,
-                force_haiku=False  # Try Llama first, fallback to Haiku
-            )
-            logger.info("✅ Llama 4 Scout + Haiku 4.5 ready (Primary + Fallback)")
-            logger.info("   Primary: Llama 4 Scout (92% cheaper, 22% faster TTFT)")
-            logger.info("   Cost: $0.20/$0.20 per 1M tokens vs Haiku $1/$5")
-            logger.info("   Fallback: Claude Haiku 4.5 (for tool use & emergencies)")
-            logger.info(f"   Llama available: {'✅' if openrouter_api_key else '❌'}")
-            logger.info(f"   Haiku available: {'✅' if anthropic_api_key else '❌'}")
-
-            # Also initialize standalone claude_haiku for backward compatibility
-            if anthropic_api_key:
-                claude_haiku = ClaudeHaikuService(api_key=anthropic_api_key)
-            else:
-                claude_haiku = None
+        if openrouter_api_key:
+            zantara_ai_client = ZantaraAIClient(api_key=openrouter_api_key)
+            logger.info("✅ ZANTARA AI Client ready (Llama 4 Scout via OpenRouter)")
+            logger.info("   Model: Llama 4 Scout")
+            logger.info("   Cost: $0.20/$0.20 per 1M tokens")
+            logger.info("   Provider: OpenRouter")
         else:
-            logger.warning("⚠️ Neither OPENROUTER_API_KEY_LLAMA nor ANTHROPIC_API_KEY set - No AI available")
-            llama_scout_client = None
-            claude_haiku = None
+            logger.warning("⚠️ OPENROUTER_API_KEY_LLAMA not set - No AI available")
+            zantara_ai_client = None
     except Exception as e:
-        logger.error(f"❌ Llama Scout client initialization failed: {e}")
-        llama_scout_client = None
-        claude_haiku = None
+        logger.error(f"❌ ZANTARA AI Client initialization failed: {e}")
+        zantara_ai_client = None
 
     # PRIORITY 1: Initialize QueryRouter for autonomous research
     try:
@@ -1073,11 +1056,11 @@ async def _initialize_backend_services():
 
     # PRIORITY 1: Initialize Autonomous Research Service
     try:
-        if search_service and query_router and claude_haiku:
+        if search_service and query_router and zantara_ai_client:
             autonomous_research_service = AutonomousResearchService(
                 search_service=search_service,
                 query_router=query_router,
-                claude_sonnet_service=claude_haiku  # Using Haiku as synthesis engine
+                claude_sonnet_service=zantara_ai_client  # Using ZANTARA AI as synthesis engine
             )
             logger.info("✅ AutonomousResearchService initialized (self-directed iterative research)")
             logger.info(f"   Max iterations: {autonomous_research_service.MAX_ITERATIONS}")
@@ -1086,7 +1069,7 @@ async def _initialize_backend_services():
             logger.warning("⚠️ AutonomousResearchService not initialized - missing dependencies")
             logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
             logger.warning(f"   QueryRouter: {'✅' if query_router else '❌'}")
-            logger.warning(f"   Claude Haiku: {'✅' if claude_haiku else '❌'}")
+            logger.warning(f"   ZANTARA AI: {'✅' if zantara_ai_client else '❌'}")
             autonomous_research_service = None
     except Exception as e:
         logger.error(f"❌ AutonomousResearchService initialization failed: {e}")
@@ -1094,10 +1077,10 @@ async def _initialize_backend_services():
 
     # PRIORITY 2: Initialize Cross-Oracle Synthesis Service
     try:
-        if search_service and claude_haiku:
+        if search_service and zantara_ai_client:
             cross_oracle_synthesis_service = CrossOracleSynthesisService(
                 search_service=search_service,
-                claude_sonnet_service=claude_haiku,  # Using Haiku as synthesis engine
+                claude_sonnet_service=zantara_ai_client,  # Using ZANTARA AI as synthesis engine
                 golden_answer_service=None  # No cache for now
             )
             logger.info("✅ CrossOracleSynthesisService initialized (multi-Oracle orchestrator)")
@@ -1106,7 +1089,7 @@ async def _initialize_backend_services():
         else:
             logger.warning("⚠️ CrossOracleSynthesisService not initialized - missing dependencies")
             logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
-            logger.warning(f"   Claude Haiku: {'✅' if claude_haiku else '❌'}")
+            logger.warning(f"   ZANTARA AI: {'✅' if zantara_ai_client else '❌'}")
             cross_oracle_synthesis_service = None
     except Exception as e:
         logger.error(f"❌ CrossOracleSynthesisService initialization failed: {e}")
@@ -1316,9 +1299,9 @@ async def _initialize_backend_services():
         logger.warning("⚠️ ToolExecutor not initialized - missing dependencies")
         logger.warning(f"   HandlerProxy: {'✅' if handler_proxy_service else '❌'}")
 
-    # Initialize Intelligent Router (Llama 4 Scout PRIMARY + Haiku FALLBACK)
+    # Initialize Intelligent Router (ZANTARA AI)
     try:
-        if claude_haiku:
+        if zantara_ai_client:
             # Initialize Cultural RAG Service (LLAMA-generated cultural intelligence)
             cultural_rag_service = None
             if search_service:
@@ -1330,24 +1313,23 @@ async def _initialize_backend_services():
                     cultural_rag_service = None
 
             intelligent_router = IntelligentRouter(
-                llama_client=None,  # Kept for backward compatibility
-                haiku_service=llama_scout_client,  # NEW: LlamaScoutClient with Haiku fallback
+                ai_client=zantara_ai_client,  # ZANTARA AI client
                 search_service=search_service,
                 tool_executor=tool_executor,
                 cultural_rag_service=cultural_rag_service,
                 autonomous_research_service=autonomous_research_service,
                 cross_oracle_synthesis_service=cross_oracle_synthesis_service
             )
-            logger.info("✅ Intelligent Router ready (Llama 4 Scout PRIMARY + Haiku FALLBACK)")
-            logger.info("   Primary AI: Llama 4 Scout (92% cheaper, 22% faster)")
-            logger.info("   Fallback AI: Claude Haiku 4.5 (tool calling, errors)")
+            logger.info("✅ Intelligent Router ready (ZANTARA AI - Llama 4 Scout)")
+            logger.info("   AI Engine: ZANTARA AI (Llama 4 Scout via OpenRouter)")
+            logger.info("   Cost: $0.20/$0.20 per 1M tokens")
             logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
             logger.info(f"   Autonomous Research: {'✅ enabled' if autonomous_research_service else '⚠️ disabled'}")
             logger.info(f"   Cross-Oracle Synthesis: {'✅ enabled' if cross_oracle_synthesis_service else '⚠️ disabled'}")
             logger.info("   Cost optimization: 3x cheaper than Sonnet, same quality with RAG")
         else:
-            logger.warning("⚠️ Intelligent Router not initialized - missing Claude Haiku service")
-            logger.warning(f"   Haiku: {'✅' if claude_haiku else '❌'}")
+            logger.warning("⚠️ Intelligent Router not initialized - missing ZANTARA AI client")
+            logger.warning(f"   ZANTARA AI: {'✅' if zantara_ai_client else '❌'}")
             intelligent_router = None
     except Exception as e:
         logger.error(f"❌ Intelligent Router initialization failed: {e}")
@@ -1355,7 +1337,7 @@ async def _initialize_backend_services():
 
     # Initialize Skill Detection Layer (NEW)
     try:
-        from config.feature_flags import SKILL_DETECTION_ENABLED
+        from app.feature_flags import SKILL_DETECTION_ENABLED
         if SKILL_DETECTION_ENABLED:
             from services.skill_index import SkillIndex
             from services.skill_detector import SkillDetector
@@ -1571,15 +1553,15 @@ async def health_check():
         "mode": "full",
         "available_services": [
             "chromadb",
-            "claude_haiku",
+            "zantara_ai",
             "postgresql",
             "crm_system",
             "reranker"
         ],
         "chromadb": search_service is not None,
         "ai": {
-            "llama_scout_primary": intelligent_router is not None,
-            "has_ai": intelligent_router is not None or claude_haiku is not None
+            "zantara_ai": intelligent_router is not None,
+            "has_ai": intelligent_router is not None or zantara_ai_client is not None
         },
         "memory": {
             "postgresql": memory_service is not None,
@@ -1677,96 +1659,71 @@ async def debug_ai_keys():
             "OPENAI_API_KEY": bool(os.getenv("OPENAI_API_KEY"))
         },
         "services": {
-            "llama_scout_client": llama_scout_client is not None,
+            "zantara_ai_client": zantara_ai_client is not None,
             "intelligent_router": intelligent_router is not None,
         }
     }
 
-    # Add LlamaScoutClient details if available
-    if llama_scout_client:
-        result["llama_scout_details"] = {
-            "llama_client_initialized": llama_scout_client.llama_client is not None,
-            "haiku_client_initialized": llama_scout_client.haiku_client is not None,
-            "force_haiku": llama_scout_client.force_haiku,
-            "metrics": llama_scout_client.metrics
+    # Add ZANTARA AI Client details if available
+    if zantara_ai_client:
+        result["zantara_ai_details"] = {
+            "model": zantara_ai_client.model,
+            "provider": "openrouter",
+            "available": zantara_ai_client.is_available(),
+            "model_info": zantara_ai_client.get_model_info()
         }
 
     # Add IntelligentRouter details if available
     if intelligent_router:
         result["intelligent_router_details"] = {
-            "haiku_service_type": str(type(intelligent_router.haiku).__name__),
-            "haiku_is_llama_scout": isinstance(intelligent_router.haiku, LlamaScoutClient)
+            "ai_client_type": str(type(intelligent_router.ai).__name__) if hasattr(intelligent_router, 'ai') else "N/A",
+            "ai_is_zantara": isinstance(intelligent_router.ai, ZantaraAIClient) if hasattr(intelligent_router, 'ai') else False
         }
 
     return result
 
 
-@app.get("/debug/test-llama")
-async def test_llama():
-    """Test Llama API directly and return detailed diagnostics"""
-    if not llama_scout_client:
+@app.get("/debug/test-zantara-ai")
+async def test_zantara_ai():
+    """Test ZANTARA AI API directly and return detailed diagnostics"""
+    if not zantara_ai_client:
         return {
-            "error": "LlamaScoutClient not initialized",
-            "llama_scout_client": None
+            "error": "ZantaraAIClient not initialized",
+            "zantara_ai_client": None
         }
 
     diagnostics = {
-        "llama_client_available": llama_scout_client.llama_client is not None,
-        "haiku_client_available": llama_scout_client.haiku_client is not None,
-        "force_haiku": llama_scout_client.force_haiku,
-        "metrics": llama_scout_client.metrics
+        "zantara_ai_available": zantara_ai_client.is_available(),
+        "model": zantara_ai_client.model,
+        "provider": "openrouter",
+        "model_info": zantara_ai_client.get_model_info()
     }
 
-    # Test 1: Try calling Llama DIRECTLY (no fallback)
+    # Test: Try calling ZANTARA AI
     test_messages = [{"role": "user", "content": "Say 'test' only"}]
 
     try:
-        if llama_scout_client.llama_client:
-            logger.info("🧪 Testing Llama API directly...")
-            llama_result = await llama_scout_client._call_llama(
-                messages=test_messages,
-                system="Reply with only the word 'test'",
-                max_tokens=10,
-                temperature=0
-            )
-            diagnostics["llama_direct_test"] = {
-                "success": True,
-                "provider": llama_result.get("provider"),
-                "model": llama_result.get("model"),
-                "response": llama_result.get("text", "")[:50]
-            }
-        else:
-            diagnostics["llama_direct_test"] = {
-                "success": False,
-                "error": "llama_client is None"
-            }
-    except Exception as e:
-        diagnostics["llama_direct_test"] = {
-            "success": False,
-            "error": str(e),
-            "error_type": type(e).__name__,
-            "error_details": repr(e)
-        }
-
-    # Test 2: Try with fallback (normal flow)
-    try:
-        result = await llama_scout_client.chat_async(
+        logger.info("🧪 Testing ZANTARA AI API...")
+        result = await zantara_ai_client.chat_async(
             messages=test_messages,
             system="Reply with only the word 'test'",
             max_tokens=10,
             temperature=0
         )
-        diagnostics["full_test_with_fallback"] = {
+        diagnostics["zantara_ai_test"] = {
             "success": True,
-            "ai_used": result.get("provider", result.get("ai_used")),
+            "provider": result.get("provider"),
             "model": result.get("model"),
-            "response": result.get("response", result.get("content", ""))[:50]
+            "response": result.get("text", "")[:50],
+            "tokens": result.get("tokens"),
+            "cost": result.get("cost")
         }
     except Exception as e:
-        diagnostics["full_test_with_fallback"] = {
+        diagnostics["zantara_ai_test"] = {
             "success": False,
             "error": str(e),
-            "error_type": type(e).__name__
+            "error_type": type(e).__name__,
+            "error_details": repr(e)
         }
 
     return diagnostics
@@ -1916,7 +1873,7 @@ async def warmup_stats():
         "error": warmup_error,
         "services": {
             "chromadb": search_service is not None,
-            "claude_haiku": claude_haiku is not None,
+            "zantara_ai": zantara_ai_client is not None,
             "memory": memory_service is not None,
             "tool_executor": tool_executor is not None,
             "intelligent_router": intelligent_router is not None
@@ -2020,22 +1977,22 @@ async def search_endpoint(request: SearchRequest):
                 "content": f"Context from knowledge base:\n\n{context}\n\nQuestion: {request.query}"
             })
 
-            # Use Claude Haiku 4.5 for RAG search (efficient with RAG context)
-            if not claude_haiku:
-                raise HTTPException(503, "Claude Haiku AI not available")
+            # Use ZANTARA AI for RAG search (efficient with RAG context)
+            if not zantara_ai_client:
+                raise HTTPException(503, "ZANTARA AI not available")
 
             try:
-                logger.info("🎯 [RAG Search] Using Claude Haiku 4.5 (Efficient AI with RAG)")
-                response = await claude_haiku.conversational(
+                logger.info("🎯 [RAG Search] Using ZANTARA AI (Efficient AI with RAG)")
+                response = await zantara_ai_client.conversational(
                     message=messages[-1]["content"],
                     user_id="search_user",
                     max_tokens=1500
                 )
                 answer = response.get("text", "")
-                model_used = "claude-haiku-4-5"
+                model_used = "zantara-ai"
             except Exception as e:
-                logger.error(f"❌ [RAG Search] Claude Haiku failed: {e}")
-                raise HTTPException(503, f"Claude AI error: {str(e)}")
+                logger.error(f"❌ [RAG Search] ZANTARA AI failed: {e}")
+                raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
 
         execution_time = (time.time() - start) * 1000
 
@@ -3093,7 +3050,7 @@ async def bali_zero_chat_stream(
             detection_start_time = time.time()
             
             try:
-                from config.feature_flags import should_enable_skill_detection
+                from app.feature_flags import should_enable_skill_detection
                 
                 if skill_detector and should_enable_skill_detection(sanitized_email):
                     # Check L1 cache first
