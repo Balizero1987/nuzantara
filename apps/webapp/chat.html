@@ -1322,7 +1322,8 @@
         try {
           // Get user info
           const userContext = window.USER_CONTEXT?.getUser();
-          if (!userContext || !userContext.userId) {
+          const userId = userContext?.userId || userContext?.id;
+          if (!userContext || !userId) {
             console.warn('⚠️ No user context available');
             return;
           }
