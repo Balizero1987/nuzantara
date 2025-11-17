@@ -1,5 +1,5 @@
 {
-  "name": "bali-zero-journal",
+  "name": "@nuzantara/intel-scraping",
   "version": "5.2.0",
   "description": "Bali Zero Journal - News Intelligence System",
   "main": "src/index.ts",
