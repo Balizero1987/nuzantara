@@ -1458,9 +1458,11 @@
       // Load conversations from Memory Service
       async function loadConversations() {
         try {
-          // Get user info
-          const userContext = window.USER_CONTEXT?.getUser();
-          if (!userContext || !userContext.userId) {
+          // Get user info - try both USER_CONTEXT and UserContext
+          const userContext = window.UserContext || window.USER_CONTEXT;
+          const user = userContext?.getUser ? userContext.getUser() : (userContext?.user || null);
+          
+          if (!user || (!user.id && !user.userId)) {
             console.warn('⚠️ No user context available');
             return;
           }
