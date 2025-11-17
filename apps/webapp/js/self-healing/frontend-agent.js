@@ -1043,7 +1043,7 @@ class ZantaraFrontendAgent {
     // Redirect to login page (avoid redirect loop by checking current path)
     if (!window.location.pathname.includes('/login')) {
       setTimeout(() => {
-        window.location.href = '/login-react.html';
+        window.location.href = '/login.html';
       }, 500); // Brief delay to allow logging
     }
 
