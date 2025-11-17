@@ -1,0 +1,87 @@
+{
+  "deployment_status": {
+    "test_name": "deployment_status",
+    "success": true,
+    "status": {
+      "status": "healthy",
+      "service": "ZANTARA RAG",
+      "version": "v100-perfect",
+      "mode": "full",
+      "available_services": [
+        "chromadb",
+        "claude_haiku",
+        "postgresql",
+        "crm_system",
+        "reranker"
+      ],
+      "chromadb": true,
+      "ai": {
+        "llama_scout_primary": true,
+        "has_ai": true
+      },
+      "memory": {
+        "postgresql": true,
+        "vector_db": true
+      },
+      "crm": {
+        "enabled": true,
+        "endpoints": 41,
+        "features": [
+          "auto_extraction",
+          "client_tracking",
+          "practice_management",
+          "shared_memory"
+        ]
+      },
+      "reranker": {
+        "enabled": false,
+        "status": "disabled"
+      },
+      "collaborative_intelligence": true,
+      "tools": {
+        "tool_executor_status": true,
+        "pricing_service_status": true,
+        "handler_proxy_status": true
+      },
+      "monitoring": {
+        "health_monitor": true,
+        "backup_service": true,
+        "rate_limiting": "enabled"
+      }
+    },
+    "errors": []
+  },
+  "reranker_performance": {
+    "test_name": "reranker_performance",
+    "success": false,
+    "metrics": {},
+    "errors": [
+      "No module named 'chromadb'"
+    ]
+  },
+  "translation_quality": {
+    "test_name": "translation_quality",
+    "success": false,
+    "responses": [],
+    "errors": [
+      "No module named 'httpx'"
+    ]
+  },
+  "integration": {
+    "test_name": "integration",
+    "success": false,
+    "tests": [
+      {
+        "name": "imports",
+        "status": "failed",
+        "error": "No module named 'chromadb'"
+      },
+      {
+        "name": "configuration",
+        "status": "failed",
+        "error": "No module named 'pydantic_settings'"
+      }
+    ],
+    "errors": []
+  }
+}
