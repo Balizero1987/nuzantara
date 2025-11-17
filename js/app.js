@@ -854,4 +854,6 @@ async function handleLogout() {
 // Export for use in HTML
 if (typeof window !== 'undefined') {
   window.clearChatHistory = clearChatHistory;
+  window.handleSend = handleSend; // Export handleSend for chat.html
+  window.sendMessage = sendMessage; // Export sendMessage for chat.html
 }
