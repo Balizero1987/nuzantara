@@ -27,6 +27,18 @@ class ZantaraFrontendAgent {
     this.uiErrors = [];
     this.performanceIssues = [];
 
+    // Circuit breaker state
+    this.circuitBreaker = {
+      failureCount: 0,
+      lastFailureTime: null,
+      state: 'closed', // closed, open, half-open
+      threshold: 5,
+      resetTimeout: 60000 // 1 minute
+    };
+
+    // Offline state
+    this.isOffline = !navigator.onLine;
+
     // Health metrics
     this.metrics = {
       errorsDetected: 0,
@@ -53,6 +65,18 @@ class ZantaraFrontendAgent {
 
     // Monitor network requests
     this.monitorNetworkRequests();
+
+    // Monitor XMLHttpRequest (XHR)
+    this.monitorXHR();
+
+    // Monitor WebSocket and SSE
+    this.monitorWebSocket();
+
+    // Monitor offline/online status
+    this.monitorOnlineStatus();
+
+    // Proactive token expiry check
+    this.startTokenExpiryCheck();
 
     // Monitor UI errors (React/Vue error boundaries)
     this.monitorUIErrors();
@@ -152,8 +176,34 @@ class ZantaraFrontendAgent {
     // Intercept fetch
     const originalFetch = window.fetch;
     window.fetch = async function(...args) {
+      // Check if offline
+      if (self.isOffline) {
+        console.warn('📡 [Frontend Agent] Request blocked - network offline');
+        throw new Error('Network offline');
+      }
+
+      // Check circuit breaker
+      if (self.circuitBreaker.state === 'open') {
+        const timeSinceFailure = Date.now() - self.circuitBreaker.lastFailureTime;
+        if (timeSinceFailure < self.circuitBreaker.resetTimeout) {
+          console.warn('⚡ [Frontend Agent] Circuit breaker OPEN - request blocked');
+          throw new Error('Circuit breaker open');
+        } else {
+          // Try half-open
+          self.circuitBreaker.state = 'half-open';
+          console.log('⚡ [Frontend Agent] Circuit breaker HALF-OPEN - trying request');
+        }
+      }
+
       try {
         const response = await originalFetch.apply(this, args);
+
+        // Circuit breaker: success in half-open → close
+        if (self.circuitBreaker.state === 'half-open' && response.ok) {
+          self.circuitBreaker.state = 'closed';
+          self.circuitBreaker.failureCount = 0;
+          console.log('⚡ [Frontend Agent] Circuit breaker CLOSED');
+        }
 
         // Detect failures
         if (!response.ok) {
@@ -168,11 +218,33 @@ class ZantaraFrontendAgent {
           self.networkErrors.push(errorData);
           self.metrics.errorsDetected++;
 
+          // Increment circuit breaker failure count
+          self.circuitBreaker.failureCount++;
+          self.circuitBreaker.lastFailureTime = Date.now();
+
+          // Open circuit if threshold reached
+          if (self.circuitBreaker.failureCount >= self.circuitBreaker.threshold) {
+            self.circuitBreaker.state = 'open';
+            console.warn('⚡ [Frontend Agent] Circuit breaker OPENED (too many failures)');
+            self.reportToOrchestrator({
+              type: 'circuit_breaker_open',
+              severity: 'critical',
+              data: { failureCount: self.circuitBreaker.failureCount }
+            });
+          }
+
           // Handle authentication errors immediately
           if (response.status === 401 || response.status === 403) {
             console.warn('🔒 [Frontend Agent] Authentication error detected, redirecting to login...');
             await self.handleAuthenticationError(errorData);
             return response; // Return original response after redirect initiated
+          }
+
+          // Handle rate limiting (429)
+          if (response.status === 429) {
+            console.warn('⚠️ [Frontend Agent] Rate limit detected (429)');
+            await self.handleRateLimitError(errorData);
+            return response;
           }
 
           // Attempt auto-fix (retry, fallback) for other errors
@@ -183,17 +255,45 @@ class ZantaraFrontendAgent {
 
         return response;
       } catch (error) {
+        // Check if CORS error
+        const isCorsError = error.message && (
+          error.message.includes('CORS') ||
+          error.message.includes('cross-origin') ||
+          error.message.includes('Failed to fetch')
+        );
+
         const errorData = {
           timestamp: Date.now(),
           url: args[0],
           error: error.message,
-          type: 'network_error'
+          type: isCorsError ? 'cors_error' : 'network_error',
+          isCors: isCorsError
         };
 
         self.networkErrors.push(errorData);
         self.metrics.errorsDetected++;
 
-        // Attempt auto-fix
+        // Circuit breaker
+        self.circuitBreaker.failureCount++;
+        self.circuitBreaker.lastFailureTime = Date.now();
+
+        if (self.circuitBreaker.failureCount >= self.circuitBreaker.threshold) {
+          self.circuitBreaker.state = 'open';
+          console.warn('⚡ [Frontend Agent] Circuit breaker OPENED');
+        }
+
+        // CORS errors: don't retry (won't help)
+        if (isCorsError) {
+          console.error('🚫 [Frontend Agent] CORS error - retries won\'t help');
+          self.reportToOrchestrator({
+            type: 'cors_error',
+            severity: 'high',
+            data: errorData
+          });
+          throw error;
+        }
+
+        // Attempt auto-fix for other errors
         if (self.autoFixEnabled) {
           return await self.attemptNetworkFix(args, errorData);
         }
@@ -201,6 +301,229 @@ class ZantaraFrontendAgent {
         throw error;
       }
     };
+  }
+
+  /**
+   * Monitor XMLHttpRequest (XHR) for older libraries
+   */
+  monitorXHR() {
+    const self = this;
+    const originalOpen = XMLHttpRequest.prototype.open;
+    const originalSend = XMLHttpRequest.prototype.send;
+
+    XMLHttpRequest.prototype.open = function(method, url, ...args) {
+      this._requestData = { method, url, startTime: Date.now() };
+      return originalOpen.apply(this, [method, url, ...args]);
+    };
+
+    XMLHttpRequest.prototype.send = function(...args) {
+      const xhr = this;
+
+      // Intercept load event
+      xhr.addEventListener('load', function() {
+        if (xhr.status >= 400) {
+          const errorData = {
+            timestamp: Date.now(),
+            url: xhr._requestData?.url,
+            method: xhr._requestData?.method,
+            status: xhr.status,
+            statusText: xhr.statusText,
+            type: 'network_error',
+            source: 'xhr'
+          };
+
+          self.networkErrors.push(errorData);
+          self.metrics.errorsDetected++;
+
+          // Handle auth errors
+          if (xhr.status === 401 || xhr.status === 403) {
+            console.warn('🔒 [Frontend Agent] XHR auth error detected');
+            self.handleAuthenticationError(errorData);
+          }
+          // Handle rate limiting
+          else if (xhr.status === 429) {
+            console.warn('⚠️ [Frontend Agent] Rate limit detected (429)');
+            self.handleRateLimitError(errorData);
+          }
+        }
+      });
+
+      // Intercept error event
+      xhr.addEventListener('error', function() {
+        const errorData = {
+          timestamp: Date.now(),
+          url: xhr._requestData?.url,
+          method: xhr._requestData?.method,
+          error: 'Network error',
+          type: 'network_error',
+          source: 'xhr'
+        };
+
+        self.networkErrors.push(errorData);
+        self.metrics.errorsDetected++;
+
+        if (self.autoFixEnabled) {
+          self.reportToOrchestrator({
+            type: 'xhr_error',
+            severity: 'high',
+            data: errorData
+          });
+        }
+      });
+
+      return originalSend.apply(this, args);
+    };
+  }
+
+  /**
+   * Monitor WebSocket and EventSource (SSE) errors
+   */
+  monitorWebSocket() {
+    const self = this;
+
+    // Monitor EventSource (SSE)
+    const originalEventSource = window.EventSource;
+    if (originalEventSource) {
+      window.EventSource = function(url, config) {
+        const es = new originalEventSource(url, config);
+
+        es.addEventListener('error', function(event) {
+          const errorData = {
+            timestamp: Date.now(),
+            url: url,
+            type: 'sse_error',
+            readyState: es.readyState
+          };
+
+          self.networkErrors.push(errorData);
+          self.metrics.errorsDetected++;
+
+          console.warn('🔌 [Frontend Agent] SSE connection error detected');
+
+          // Auto-reconnect after delay
+          if (self.autoFixEnabled && es.readyState === EventSource.CLOSED) {
+            setTimeout(() => {
+              console.log('🔄 [Frontend Agent] Attempting SSE reconnection...');
+              self.metrics.errorsFixed++;
+            }, 5000);
+          }
+
+          self.reportToOrchestrator({
+            type: 'sse_error',
+            severity: 'medium',
+            data: errorData
+          });
+        });
+
+        return es;
+      };
+    }
+
+    // Monitor WebSocket
+    const originalWebSocket = window.WebSocket;
+    if (originalWebSocket) {
+      window.WebSocket = function(url, protocols) {
+        const ws = new originalWebSocket(url, protocols);
+
+        ws.addEventListener('error', function(event) {
+          const errorData = {
+            timestamp: Date.now(),
+            url: url,
+            type: 'websocket_error',
+            readyState: ws.readyState
+          };
+
+          self.networkErrors.push(errorData);
+          self.metrics.errorsDetected++;
+
+          console.warn('🔌 [Frontend Agent] WebSocket error detected');
+
+          self.reportToOrchestrator({
+            type: 'websocket_error',
+            severity: 'medium',
+            data: errorData
+          });
+        });
+
+        ws.addEventListener('close', function(event) {
+          if (!event.wasClean) {
+            console.warn('🔌 [Frontend Agent] WebSocket closed unexpectedly');
+            self.reportToOrchestrator({
+              type: 'websocket_close',
+              severity: 'medium',
+              data: { url, code: event.code, reason: event.reason }
+            });
+          }
+        });
+
+        return ws;
+      };
+    }
+  }
+
+  /**
+   * Monitor online/offline status
+   */
+  monitorOnlineStatus() {
+    window.addEventListener('offline', () => {
+      console.warn('📡 [Frontend Agent] Network offline detected');
+      this.isOffline = true;
+      this.metrics.errorsDetected++;
+
+      // Show user notification
+      this.showOfflineNotification();
+
+      this.reportToOrchestrator({
+        type: 'network_offline',
+        severity: 'high',
+        data: { timestamp: Date.now() }
+      });
+    });
+
+    window.addEventListener('online', () => {
+      console.log('📡 [Frontend Agent] Network back online');
+      this.isOffline = false;
+      this.metrics.errorsFixed++;
+
+      // Hide notification
+      this.hideOfflineNotification();
+
+      this.reportToOrchestrator({
+        type: 'network_online',
+        severity: 'low',
+        data: { timestamp: Date.now() }
+      });
+    });
+  }
+
+  /**
+   * Proactive token expiry check
+   */
+  startTokenExpiryCheck() {
+    setInterval(() => {
+      try {
+        const tokenData = localStorage.getItem('zantara-token');
+        if (tokenData) {
+          const { token, expiresAt } = JSON.parse(tokenData);
+
+          // Check if token expires in next 5 minutes
+          const fiveMinutes = 5 * 60 * 1000;
+          if (Date.now() + fiveMinutes >= expiresAt) {
+            console.warn('⚠️ [Frontend Agent] Token expiring soon, preemptive logout');
+
+            const errorData = {
+              timestamp: Date.now(),
+              type: 'token_expiring',
+              expiresAt
+            };
+
+            this.handleAuthenticationError(errorData);
+          }
+        }
+      } catch (error) {
+        console.debug('[Frontend Agent] Token check error:', error);
+      }
+    }, 60000); // Check every minute
   }
 
   /**
@@ -287,6 +610,228 @@ class ZantaraFrontendAgent {
           }
         }
       }, 30000); // Check every 30s
+    }
+
+    // Monitor CSS and image load failures
+    this.monitorAssetLoading();
+
+    // Monitor Service Worker
+    this.monitorServiceWorker();
+
+    // Monitor localStorage errors
+    this.monitorLocalStorage();
+
+    // Check browser compatibility
+    this.checkBrowserCompatibility();
+
+    // Restore state if available
+    this.restoreState();
+  }
+
+  /**
+   * Monitor CSS and image load failures
+   */
+  monitorAssetLoading() {
+    // Monitor image errors
+    window.addEventListener('error', (event) => {
+      if (event.target.tagName === 'IMG') {
+        const errorData = {
+          timestamp: Date.now(),
+          type: 'image_load_error',
+          src: event.target.src,
+          alt: event.target.alt
+        };
+
+        this.performanceIssues.push(errorData);
+        this.metrics.errorsDetected++;
+
+        console.warn(`🖼️ [Frontend Agent] Image failed to load: ${event.target.src}`);
+
+        this.reportToOrchestrator({
+          type: 'image_load_error',
+          severity: 'low',
+          data: errorData
+        });
+      }
+
+      if (event.target.tagName === 'LINK' && event.target.rel === 'stylesheet') {
+        const errorData = {
+          timestamp: Date.now(),
+          type: 'css_load_error',
+          href: event.target.href
+        };
+
+        this.performanceIssues.push(errorData);
+        this.metrics.errorsDetected++;
+
+        console.error(`🎨 [Frontend Agent] CSS failed to load: ${event.target.href}`);
+
+        // CSS failure is critical - might need reload
+        this.reportToOrchestrator({
+          type: 'css_load_error',
+          severity: 'high',
+          data: errorData
+        });
+      }
+    }, true); // Use capture phase
+  }
+
+  /**
+   * Monitor Service Worker errors
+   */
+  monitorServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch((error) => {
+        const errorData = {
+          timestamp: Date.now(),
+          type: 'service_worker_error',
+          error: error.message
+        };
+
+        this.performanceIssues.push(errorData);
+        this.metrics.errorsDetected++;
+
+        console.warn('⚙️ [Frontend Agent] Service Worker registration failed:', error);
+
+        this.reportToOrchestrator({
+          type: 'service_worker_error',
+          severity: 'low',
+          data: errorData
+        });
+      });
+    }
+  }
+
+  /**
+   * Monitor localStorage quota and errors
+   */
+  monitorLocalStorage() {
+    const originalSetItem = Storage.prototype.setItem;
+    const self = this;
+
+    Storage.prototype.setItem = function(key, value) {
+      try {
+        return originalSetItem.apply(this, [key, value]);
+      } catch (error) {
+        const isQuotaError = error.name === 'QuotaExceededError';
+
+        const errorData = {
+          timestamp: Date.now(),
+          type: isQuotaError ? 'storage_quota_exceeded' : 'storage_error',
+          error: error.message,
+          key
+        };
+
+        self.performanceIssues.push(errorData);
+        self.metrics.errorsDetected++;
+
+        if (isQuotaError) {
+          console.error('💾 [Frontend Agent] localStorage quota exceeded');
+
+          // Auto-fix: clear old data
+          if (self.autoFixEnabled) {
+            self.clearOldLocalStorageData();
+            // Retry
+            try {
+              originalSetItem.apply(this, [key, value]);
+              self.metrics.errorsFixed++;
+            } catch (retryError) {
+              console.error('💾 [Frontend Agent] Retry failed after cleanup');
+            }
+          }
+        }
+
+        self.reportToOrchestrator({
+          type: errorData.type,
+          severity: 'medium',
+          data: errorData
+        });
+
+        throw error;
+      }
+    };
+  }
+
+  /**
+   * Check browser compatibility
+   */
+  checkBrowserCompatibility() {
+    const issues = [];
+
+    // Check essential APIs
+    if (typeof Promise === 'undefined') {
+      issues.push('Promise not supported');
+    }
+    if (typeof fetch === 'undefined') {
+      issues.push('fetch API not supported');
+    }
+    if (typeof localStorage === 'undefined') {
+      issues.push('localStorage not supported');
+    }
+    if (typeof EventSource === 'undefined') {
+      issues.push('EventSource (SSE) not supported');
+    }
+
+    if (issues.length > 0) {
+      console.error('⚠️ [Frontend Agent] Browser compatibility issues:', issues);
+
+      this.reportToOrchestrator({
+        type: 'browser_incompatibility',
+        severity: 'critical',
+        data: {
+          issues,
+          userAgent: navigator.userAgent
+        }
+      });
+
+      // Show warning to user
+      alert('⚠️ Il tuo browser potrebbe non essere compatibile con ZANTARA. Aggiorna il browser per la migliore esperienza.');
+    }
+  }
+
+  /**
+   * Restore agent state after page reload
+   */
+  restoreState() {
+    try {
+      const savedState = localStorage.getItem('zantara-agent-state');
+      if (savedState) {
+        const state = JSON.parse(savedState);
+
+        // Restore metrics (but not uptime)
+        this.errorHistory = state.errorHistory || [];
+        this.fixHistory = state.fixHistory || [];
+
+        console.log('🔄 [Frontend Agent] State restored from previous session');
+
+        // Clear saved state
+        localStorage.removeItem('zantara-agent-state');
+      }
+    } catch (error) {
+      console.debug('[Frontend Agent] Failed to restore state:', error);
+    }
+  }
+
+  /**
+   * Clear old localStorage data to free space
+   */
+  clearOldLocalStorageData() {
+    try {
+      // Remove agent-specific old data
+      const keys = Object.keys(localStorage);
+      const agentKeys = keys.filter(k => k.startsWith('zantara-agent-'));
+
+      agentKeys.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+        } catch (e) {
+          // Ignore
+        }
+      });
+
+      console.log('💾 [Frontend Agent] Cleared old data to free space');
+    } catch (error) {
+      console.error('💾 [Frontend Agent] Failed to clear old data:', error);
     }
   }
 
@@ -503,6 +1048,74 @@ class ZantaraFrontendAgent {
     }
 
     this.metrics.errorsFixed++;
+    return true;
+  }
+
+  /**
+   * Handle rate limiting (429) with exponential backoff
+   */
+  async handleRateLimitError(errorData) {
+    console.warn('⚠️ [Frontend Agent] Rate limit hit - waiting before retry');
+
+    // Extract Retry-After header if available
+    const retryAfter = errorData.retryAfter || 60; // Default 60s
+
+    // Report to orchestrator
+    await this.reportToOrchestrator({
+      type: 'rate_limit_error',
+      severity: 'medium',
+      data: {
+        ...errorData,
+        retryAfter,
+        action: 'wait_and_retry'
+      }
+    });
+
+    // Show user notification
+    console.warn(`⚠️ Troppo veloce! Attendere ${retryAfter} secondi...`);
+
+    this.metrics.errorsFixed++;
+    return true;
+  }
+
+  /**
+   * Show offline notification banner
+   */
+  showOfflineNotification() {
+    // Remove existing banner if any
+    this.hideOfflineNotification();
+
+    const banner = document.createElement('div');
+    banner.id = 'zantara-offline-banner';
+    banner.innerHTML = `
+      <div style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #ff6b6b;
+        color: white;
+        padding: 12px;
+        text-align: center;
+        font-family: system-ui;
+        font-size: 14px;
+        z-index: 999999;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      ">
+        📡 Connessione Internet persa. Attendere il ripristino...
+      </div>
+    `;
+    document.body.appendChild(banner);
+  }
+
+  /**
+   * Hide offline notification banner
+   */
+  hideOfflineNotification() {
+    const banner = document.getElementById('zantara-offline-banner');
+    if (banner) {
+      banner.remove();
+    }
   }
 
   /**
