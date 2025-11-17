@@ -39,35 +39,37 @@ class TimesheetWidget {
     createWidgetHTML() {
         const widget = document.createElement('div');
         widget.id = 'timesheet-widget';
-        widget.className = 'timesheet-widget';
+        widget.className = 'timesheet-widget-minimal';
         widget.innerHTML = `
-            <div class="timesheet-status">
-                <div class="status-indicator" id="status-indicator"></div>
-                <div class="status-text" id="status-text">Loading...</div>
-            </div>
-            <div class="timesheet-details" id="timesheet-details" style="display: none;">
-                <div class="today-hours" id="today-hours">Today: 0.00h</div>
-                <div class="current-session" id="current-session" style="display: none;">
-                    Session: <span id="session-timer">00:00:00</span>
+            <button class="clock-circle-button" id="clock-button" disabled>
+                <span id="button-text">...</span>
+            </button>
+            <div class="timesheet-tooltip" id="timesheet-tooltip" style="display: none;">
+                <div class="tooltip-status">
+                    <div class="status-dot" id="status-dot"></div>
+                    <span id="tooltip-text">Loading...</span>
+                </div>
+                <div class="tooltip-hours" id="today-hours">0.00h today</div>
+                <div class="tooltip-session" id="current-session" style="display: none;">
+                    <span id="session-timer">00:00:00</span>
                 </div>
             </div>
-            <button class="timesheet-button" id="clock-button" disabled>
-                <span id="button-text">Loading...</span>
-            </button>
             ${timesheetClient.isAdmin() ? `
-                <a href="team-dashboard.html" class="admin-link" title="Team Dashboard">
-                    📊
-                </a>
+                <a href="team-dashboard.html" class="admin-link-mini" title="Team Dashboard">📊</a>
             ` : ''}
         `;
 
-        // Insert widget into navbar (after user info or at the end)
-        const navbar = document.querySelector('.header-content') ||
-                      document.querySelector('header') ||
-                      document.querySelector('nav') ||
-                      document.body;
+        // Insert widget next to hamburger menu (left side of header)
+        const header = document.querySelector('.chat-header');
+        const hamburger = document.querySelector('.conversation-sidebar-toggle');
 
-        navbar.appendChild(widget);
+        if (header && hamburger) {
+            // Insert after hamburger button
+            hamburger.insertAdjacentElement('afterend', widget);
+        } else if (header) {
+            // Fallback: prepend to header
+            header.prepend(widget);
+        }
     }
 
     /**
@@ -79,17 +81,17 @@ class TimesheetWidget {
             button.addEventListener('click', () => this.handleClockToggle());
         }
 
-        // Show/hide details on hover
+        // Show/hide tooltip on hover
         const widget = document.getElementById('timesheet-widget');
-        const details = document.getElementById('timesheet-details');
+        const tooltip = document.getElementById('timesheet-tooltip');
 
-        if (widget && details) {
+        if (widget && tooltip) {
             widget.addEventListener('mouseenter', () => {
-                details.style.display = 'block';
+                tooltip.style.display = 'block';
             });
 
             widget.addEventListener('mouseleave', () => {
-                details.style.display = 'none';
+                tooltip.style.display = 'none';
             });
         }
     }
@@ -176,39 +178,41 @@ class TimesheetWidget {
      * Render widget state
      */
     render() {
-        const indicator = document.getElementById('status-indicator');
-        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        const tooltipText = document.getElementById('tooltip-text');
         const button = document.getElementById('clock-button');
         const buttonText = document.getElementById('button-text');
         const todayHoursEl = document.getElementById('today-hours');
         const currentSession = document.getElementById('current-session');
 
-        if (!indicator || !statusText || !button || !buttonText || !todayHoursEl) {
+        if (!statusDot || !tooltipText || !button || !buttonText || !todayHoursEl) {
             return;
         }
 
-        // Update status indicator
+        // Update button and tooltip
         if (this.isOnline) {
-            indicator.className = 'status-indicator online';
-            statusText.textContent = 'Online';
-            buttonText.textContent = 'Clock Out';
-            button.className = 'timesheet-button clock-out';
+            // User is clocked in - show OUT button
+            statusDot.className = 'status-dot online';
+            tooltipText.textContent = 'Online';
+            buttonText.textContent = 'OUT';
+            button.className = 'clock-circle-button active';
             if (currentSession) {
                 currentSession.style.display = 'block';
                 this.updateTimer();
             }
         } else {
-            indicator.className = 'status-indicator offline';
-            statusText.textContent = 'Offline';
-            buttonText.textContent = 'Clock In';
-            button.className = 'timesheet-button clock-in';
+            // User is clocked out - show IN button
+            statusDot.className = 'status-dot offline';
+            tooltipText.textContent = 'Offline';
+            buttonText.textContent = 'IN';
+            button.className = 'clock-circle-button';
             if (currentSession) {
                 currentSession.style.display = 'none';
             }
         }
 
         // Update today's hours
-        todayHoursEl.textContent = `Today: ${this.todayHours.toFixed(2)}h`;
+        todayHoursEl.textContent = `${this.todayHours.toFixed(2)}h today`;
 
         // Enable button
         button.disabled = false;

@@ -185,6 +185,11 @@ function setupEventListeners() {
   window.addEventListener('offline', () => {
     showNotification('No internet connection', 'error');
   });
+
+  // Enable send button immediately after setup
+  if (sendButton) {
+    sendButton.disabled = false;
+  }
 }
 
 /**
