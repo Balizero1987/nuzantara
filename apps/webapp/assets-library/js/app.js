@@ -294,7 +294,7 @@ class ZantaraApp {
     return this.processWithZantara(command);
   }
 
-  showChatInterface() { const w = document.getElementById('welcome-screen'); const c = document.getElementById('chat-interface'); if (w) w.style.display = 'none'; if (c) c.style.display = 'flex'; localStorage.setItem('zantara_user', 'true'); }
+  showChatInterface() { const w = document.getElementById('welcome-screen'); const c = document.getElementById('chat-interface'); if (w) w.style.display = 'none'; if (c) c.style.display = 'flex'; localStorage.setItem('zantara-user-active', 'true'); }
 
   sendMessage() { const input = document.getElementById('message-input'); const text = (input?.value || '').trim(); if (!text) return; this.addMessage('user', text); if (input) input.value = ''; this.processWithZantara(text); }
 

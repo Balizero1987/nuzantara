@@ -59,7 +59,7 @@ class ZantaraConversationClient {
     try {
       this.sessionId = generateSessionId(userId); // Use shared utility
 
-      const response = await fetch(`${this.memoryServiceUrl}/api/conversation`, {
+      const response = await fetch(`${this.memoryServiceUrl}/api/conversations`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,8 +110,8 @@ class ZantaraConversationClient {
 
     try {
       const url = limit
-        ? `${this.memoryServiceUrl}/api/conversation/${this.sessionId}?limit=${limit}`
-        : `${this.memoryServiceUrl}/api/conversation/${this.sessionId}`;
+        ? `${this.memoryServiceUrl}/api/conversations/${this.sessionId}?limit=${limit}`
+        : `${this.memoryServiceUrl}/api/conversations/${this.sessionId}`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -191,7 +191,7 @@ class ZantaraConversationClient {
     }
 
     try {
-      const response = await fetch(`${this.memoryServiceUrl}/api/conversation/${this.sessionId}`, {
+      const response = await fetch(`${this.memoryServiceUrl}/api/conversations/${this.sessionId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
