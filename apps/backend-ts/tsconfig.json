@@ -16,7 +16,19 @@
     "noEmitOnError": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["./*"],
+      "@handlers/*": ["./handlers/*"],
+      "@middleware/*": ["./middleware/*"],
+      "@services/*": ["./services/*"],
+      "@utils/*": ["./utils/*"],
+      "@types/*": ["./types/*"],
+      "@config/*": ["./config/*"],
+      "@routes/*": ["./routes/*"],
+      "@tests/*": ["../tests/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": [

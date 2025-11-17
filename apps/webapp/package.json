@@ -1,5 +1,5 @@
 {
-  "name": "nuzantara-webapp",
+  "name": "@nuzantara/webapp",
   "version": "5.2.0",
   "description": "NUZANTARA Web Application",
   "main": "index.js",
