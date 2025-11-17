@@ -293,7 +293,8 @@ function handleKeyDown(e) {
  */
 function handleSend() {
   const content = messageInput.value.trim();
-  if (!content || zantaraClient.isStreaming) return;
+  if (!content) return;
+  if (zantaraClient && zantaraClient.isStreaming) return;
 
   // Trigger send animation
   const sendBtn = document.getElementById('sendButton');

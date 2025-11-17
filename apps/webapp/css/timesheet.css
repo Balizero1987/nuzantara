@@ -5,11 +5,12 @@
 
 /* Widget Container - Minimal */
 .timesheet-widget-minimal {
+    position: absolute;
+    left: 4.5rem;
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-left: 12px;
-    position: relative;
+    z-index: 10;
 }
 
 /* Circular Clock Button */
