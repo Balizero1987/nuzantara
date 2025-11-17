@@ -235,6 +235,7 @@ class NightlyWorker:
             "cultural_chunks_generated": 0,
             "total_queries_analyzed": 0,
             "clusters_found": 0,
+            "llama_tokens_used": 0,
             "status": "running"
         }
 
@@ -296,7 +297,8 @@ class NightlyWorker:
                     )
 
                     stats["golden_answers_generated"] = golden_stats["successful"]
-                    logger.info(f"   ✅ Generated {golden_stats['successful']} golden answers")
+                    stats["llama_tokens_used"] += golden_stats.get("tokens_used", 0)
+                    logger.info(f"   ✅ Generated {golden_stats['successful']} golden answers ({golden_stats.get('tokens_used', 0)} tokens)")
 
             # ========================================
             # TASK 3: Cultural Knowledge Generation
@@ -309,7 +311,8 @@ class NightlyWorker:
                 logger.info("   Regenerating all cultural chunks...")
                 cultural_stats = await self.cultural_generator.batch_generate_cultural_chunks()
                 stats["cultural_chunks_generated"] = cultural_stats["successful"]
-                logger.info(f"   ✅ Generated {cultural_stats['successful']} cultural chunks")
+                stats["llama_tokens_used"] += cultural_stats.get("tokens_used", 0)
+                logger.info(f"   ✅ Generated {cultural_stats['successful']} cultural chunks ({cultural_stats.get('tokens_used', 0)} tokens)")
             else:
                 logger.info("   Skipping cultural regeneration (use --regenerate-cultural to force)")
                 stats["cultural_chunks_generated"] = 0
@@ -327,7 +330,7 @@ class NightlyWorker:
                 golden_answers_generated=stats["golden_answers_generated"],
                 golden_answers_updated=0,
                 cultural_chunks_generated=stats["cultural_chunks_generated"],
-                llama_tokens_used=0,  # TODO: Track tokens
+                llama_tokens_used=stats["llama_tokens_used"],
                 status="completed"
             )
 
@@ -339,6 +342,7 @@ class NightlyWorker:
             logger.info(f"   Clusters found: {stats['clusters_found']}")
             logger.info(f"   Golden answers generated: {stats['golden_answers_generated']}")
             logger.info(f"   Cultural chunks generated: {stats['cultural_chunks_generated']}")
+            logger.info(f"   LLAMA tokens used: {stats['llama_tokens_used']}")
             logger.info(f"   Duration: {stats['duration_seconds']:.1f} seconds")
             logger.info("=" * 70)
 
