@@ -23,6 +23,7 @@
     "node_modules",
     "dist",
     "src/agents/**/*",
+    "src/archived/**/*",
     "src/core/zantara-orchestrator.ts",
     "src/**/__tests__/**/*",
     "src/**/*.test.ts",
