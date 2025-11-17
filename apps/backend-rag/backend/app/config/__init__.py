@@ -1,3 +1,0 @@
-"""
-ZANTARA Configuration Package
-"""

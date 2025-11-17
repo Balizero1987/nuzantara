@@ -1,10 +1,9 @@
 """
-Intelligent Router - Llama 4 Scout PRIMARY + Haiku FALLBACK (REFACTORED)
-Uses pattern matching for intent classification, routes to Llama Scout with Haiku fallback
+Intelligent Router - ZANTARA AI (REFACTORED)
+Uses pattern matching for intent classification, routes to ZANTARA AI
 
 Routing logic:
-- PRIMARY AI → Llama 4 Scout (92% cheaper, 22% faster, 10M context)
-- FALLBACK AI → Claude Haiku 4.5 (tool calling, error recovery)
+- PRIMARY AI → ZANTARA AI (Llama 4 Scout via OpenRouter)
 
 PHASE 1 & 2 FIXES (2025-10-21):
 - Response sanitization (removes training data artifacts)
@@ -17,6 +16,10 @@ REFACTORED (2025-11-05):
 - Orchestrator pattern - delegates to specialized services
 - No code duplication between route_chat and stream_chat
 - Independent, testable modules
+
+REFACTORED (2025-12-01):
+- Removed Claude Haiku fallback
+- Using ZANTARA AI exclusively (Llama 4 Scout via OpenRouter)
 """
 
 import logging
@@ -33,22 +36,20 @@ logger = logging.getLogger(__name__)
 
 class IntelligentRouter:
     """
-    Llama 4 Scout PRIMARY + Haiku FALLBACK intelligent routing system (Orchestrator)
+    ZANTARA AI intelligent routing system (Orchestrator)
 
     Architecture:
     1. Pattern Matching: Fast intent classification (no AI cost)
-    2. Llama 4 Scout: PRIMARY AI (92% cheaper, 22% faster, 10M context)
-    3. Claude Haiku 4.5: FALLBACK AI (tool calling, error recovery)
-    4. RAG Integration: Enhanced context for all business queries
-    5. Tool Use: Full access to all 164 tools via Haiku fallback
+    2. ZANTARA AI: Primary AI engine (Llama 4 Scout via OpenRouter)
+    3. RAG Integration: Enhanced context for all business queries
+    4. Tool Use: Full access to all 164 tools via ZANTARA AI
 
-    Cost optimization: Llama Scout $0.20/$0.20 vs Haiku $1/$5 per 1M tokens (92% savings)
+    Cost optimization: ZANTARA AI $0.20/$0.20 per 1M tokens
     """
 
     def __init__(
         self,
-        llama_client,
-        haiku_service,
+        ai_client,
         search_service=None,
         tool_executor=None,
         cultural_rag_service=None,
@@ -59,8 +60,7 @@ class IntelligentRouter:
         Initialize intelligent router with modular components
 
         Args:
-            llama_client: Optional (not used - kept for backward compatibility)
-            haiku_service: ClaudeHaikuService for ALL queries
+            ai_client: ZantaraAIClient for ALL queries
             search_service: Optional SearchService for RAG
             tool_executor: ToolExecutor for handler execution (optional)
             cultural_rag_service: CulturalRAGService for Indonesian cultural context (optional)
@@ -68,7 +68,7 @@ class IntelligentRouter:
             cross_oracle_synthesis_service: CrossOracleSynthesisService for business planning (optional)
         """
         # Core services
-        self.haiku = haiku_service
+        self.ai = ai_client
         self.cultural_rag = cultural_rag_service
 
         # Initialize modular components
@@ -82,10 +82,9 @@ class IntelligentRouter:
         self.response_handler = ResponseHandler()
         self.tool_manager = ToolManager(tool_executor)
 
-        logger.info("🎯 [IntelligentRouter] Initialized (Llama 4 Scout PRIMARY + Haiku FALLBACK, MODULAR)")
+        logger.info("🎯 [IntelligentRouter] Initialized (ZANTARA AI, MODULAR)")
         logger.info(f"   Classification: {'✅' if True else '❌'} (Pattern Matching)")
-        logger.info(f"   Llama 4 Scout (PRIMARY): {'✅' if llama_client else '❌'}")
-        logger.info(f"   Haiku 4.5 (FALLBACK): {'✅' if haiku_service else '❌'}")
+        logger.info(f"   ZANTARA AI: {'✅' if ai_client else '❌'}")
         logger.info(f"   RAG: {'✅' if search_service else '❌'}")
         logger.info(f"   Tools: {'✅' if tool_executor else '❌'}")
         logger.info(f"   Cultural RAG: {'✅' if cultural_rag_service else '❌'}")
@@ -198,12 +197,12 @@ class IntelligentRouter:
                 if result:
                     return result
 
-            # STEP 11: Route to Llama Scout (PRIMARY) or Haiku (FALLBACK)
-            logger.info("🎯 [Router] Using Llama 4 Scout (PRIMARY) or Haiku 4.5 (FALLBACK)")
+            # STEP 11: Route to ZANTARA AI
+            logger.info("🎯 [Router] Using ZANTARA AI")
 
             if self.tool_manager.tool_executor and tools_to_use:
                 logger.info(f"   Tool use: ENABLED ({len(tools_to_use)} tools)")
-                result = await self.haiku.conversational_with_tools(
+                result = await self.ai.conversational_with_tools(
                     message=message,
                     user_id=user_id,
                     conversation_history=conversation_history,
@@ -215,7 +214,7 @@ class IntelligentRouter:
                 )
             else:
                 logger.info("   Tool use: DISABLED")
-                result = await self.haiku.conversational(
+                result = await self.ai.conversational(
                     message=message,
                     user_id=user_id,
                     conversation_history=conversation_history,
@@ -233,7 +232,7 @@ class IntelligentRouter:
 
             return {
                 "response": sanitized_response,
-                "ai_used": result.get("ai_used", "haiku"),  # Use actual AI used, not hardcoded
+                "ai_used": result.get("ai_used", "zantara-ai"),  # Use actual AI used
                 "category": category,
                 "model": result["model"],
                 "tokens": result["tokens"],
@@ -328,9 +327,9 @@ class IntelligentRouter:
                 if prefetched_context:
                     combined_context = (combined_context or "") + prefetched_context
 
-            # STEP 9: Stream from Haiku
-            logger.info("🎯 [Router Stream] Using Haiku 4.5 with REAL token-by-token streaming")
-            async for chunk in self.haiku.stream(
+            # STEP 9: Stream from ZANTARA AI
+            logger.info("🎯 [Router Stream] Using ZANTARA AI with REAL token-by-token streaming")
+            async for chunk in self.ai.stream(
                 message=message,
                 user_id=user_id,
                 conversation_history=conversation_history,
@@ -368,12 +367,12 @@ class IntelligentRouter:
         if detected_state not in emotional_states_needing_empathy:
             return None
 
-        logger.info(f"🎭 [Router] EMOTIONAL OVERRIDE: {detected_state} → Force Haiku for empathy")
+        logger.info(f"🎭 [Router] EMOTIONAL OVERRIDE: {detected_state} → Using ZANTARA AI for empathy")
 
         memory_context = self.context_builder.build_memory_context(memory)
 
         if self.tool_manager.tool_executor and tools_to_use:
-            result = await self.haiku.conversational_with_tools(
+            result = await self.ai.conversational_with_tools(
                 message=message,
                 user_id=user_id,
                 conversation_history=conversation_history,
@@ -384,7 +383,7 @@ class IntelligentRouter:
                 max_tool_iterations=5
             )
         else:
-            result = await self.haiku.conversational(
+            result = await self.ai.conversational(
                 message=message,
                 user_id=user_id,
                 conversation_history=conversation_history,
@@ -394,7 +393,7 @@ class IntelligentRouter:
 
         return {
             "response": result["text"],
-            "ai_used": "haiku",
+            "ai_used": "zantara-ai",
             "category": "emotional_support",
             "model": result["model"],
             "tokens": result["tokens"],
@@ -463,14 +462,15 @@ class IntelligentRouter:
     def get_stats(self) -> Dict:
         """Get router statistics"""
         return {
-            "router": "llama_scout_primary_haiku_fallback",
+            "router": "zantara_ai_router",
             "classification": "pattern_matching",
             "ai_models": {
-                "haiku": {
-                    "available": self.haiku.is_available() if self.haiku else False,
+                "zantara_ai": {
+                    "available": self.ai.is_available() if self.ai else False,
                     "use_case": "ALL queries (greetings, casual, business, complex)",
-                    "cost": "$0.25/$1.25 per 1M tokens",
-                    "traffic": "100%"
+                    "cost": "$0.20/$0.20 per 1M tokens",
+                    "traffic": "100%",
+                    "engine": "Llama 4 Scout via OpenRouter"
                 }
             },
             "rag_available": self.rag_manager.search is not None,

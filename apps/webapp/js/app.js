@@ -428,10 +428,15 @@ async function sendMessage(content) {
         // Show feedback widget (optional, non-intrusive)
         if (feedbackCollector && skillEventBus) {
           try {
-            // Get detected skills from event bus history
-            const skillEvents = skillEventBus.getHistory('skill_detected');
-            const lastSkills =
-              skillEvents.length > 0 ? skillEvents[skillEvents.length - 1].data : [];
+            // Check if getHistory method exists before calling it
+            let lastSkills = [];
+            if (typeof skillEventBus.getHistory === 'function') {
+              // Get detected skills from event bus history
+              const skillEvents = skillEventBus.getHistory('skill_detected');
+              lastSkills = skillEvents.length > 0 ? skillEvents[skillEvents.length - 1].data : [];
+            } else {
+              console.debug('skillEventBus.getHistory not available, skipping feedback widget');
+            }
 
             // Only show feedback for complex queries with skills detected
             if (lastSkills.length > 0) {
