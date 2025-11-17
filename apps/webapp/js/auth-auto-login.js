@@ -4,9 +4,15 @@
  */
 
 (function() {
-  // Skip if already on chat page (handle both /chat and /chat.html)
+  // Skip if already on chat page OR actively logging in (handle both /chat and /chat.html)
   const pathname = window.location.pathname;
   if (pathname.includes('/chat.html') || pathname.includes('/chat') || pathname.endsWith('/chat')) {
+    return;
+  }
+
+  // CRITICAL: Do NOT auto-login if user is actively on login page
+  // This prevents infinite redirect loops
+  if (pathname.includes('/login')) {
     return;
   }
 
