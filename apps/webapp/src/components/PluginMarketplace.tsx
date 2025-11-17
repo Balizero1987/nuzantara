@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { getAuthToken } from '../utils/login-utils';
 
 interface PluginMetadata {
   name: string;
@@ -118,10 +119,17 @@ export const PluginMarketplace: React.FC = () => {
 
   const reloadPlugin = async (pluginName: string) => {
     try {
+      const token = getAuthToken();
+      if (!token) {
+        alert('Authentication required. Please log in again.');
+        return;
+      }
+
       const response = await fetch(`/api/plugins/${pluginName}/reload`, {
         method: 'POST',
         headers: {
-          'x-admin-key': 'YOUR_ADMIN_KEY' // TODO: Get from auth context
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
@@ -129,6 +137,8 @@ export const PluginMarketplace: React.FC = () => {
       if (data.success) {
         alert(`Plugin ${pluginName} reloaded successfully`);
         fetchPlugins();
+      } else {
+        alert(data.error || 'Failed to reload plugin');
       }
     } catch (error) {
       console.error('Failed to reload plugin:', error);

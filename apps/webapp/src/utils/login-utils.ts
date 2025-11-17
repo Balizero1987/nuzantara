@@ -114,3 +114,40 @@ export const formatErrorMessage = (errorMsg: string): string => {
   return errorMsg;
 };
 
+// Auth token retrieval
+export const getAuthToken = (): string | null => {
+  try {
+    const tokenData = localStorage.getItem('zantara-token');
+    if (!tokenData) return null;
+
+    const parsed = JSON.parse(tokenData);
+
+    // Check if token is expired
+    if (parsed.expiresAt && Date.now() > parsed.expiresAt) {
+      // Token expired, clear it
+      localStorage.removeItem('zantara-token');
+      localStorage.removeItem('zantara-user');
+      localStorage.removeItem('zantara-session');
+      return null;
+    }
+
+    return parsed.token || null;
+  } catch (error) {
+    console.error('Error retrieving auth token:', error);
+    return null;
+  }
+};
+
+// Get user data from localStorage
+export const getAuthUser = (): { id: string; email: string; name: string; role?: string } | null => {
+  try {
+    const userData = localStorage.getItem('zantara-user');
+    if (!userData) return null;
+
+    return JSON.parse(userData);
+  } catch (error) {
+    console.error('Error retrieving auth user:', error);
+    return null;
+  }
+};
+
