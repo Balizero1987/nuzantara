@@ -58,6 +58,7 @@ from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultu
 from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
 from services.health_monitor import HealthMonitor, init_health_monitor, get_health_monitor  # NEW: Health monitoring
+from services.team_timesheet_service import TeamTimesheetService, init_timesheet_service, get_timesheet_service  # NEW: Team work hours tracking
 from services.chromadb_backup import ChromaDBBackupService, init_backup_service, get_backup_service  # NEW: Automatic backups
 from services.work_session_service import WorkSessionService
 from services.team_analytics_service import TeamAnalyticsService
@@ -129,6 +130,7 @@ reranker_service: Optional["RerankerService"] = None  # String annotation for la
 handler_proxy_service: Optional[HandlerProxyService] = None
 fact_extractor: Optional[MemoryFactExtractor] = None  # Memory fact extraction
 alert_service: Optional[AlertService] = None  # Error monitoring and alerts
+timesheet_service: Optional[TeamTimesheetService] = None  # NEW: Team work hours tracking (Bali timezone)
 query_router: Optional[QueryRouter] = None  # PRIORITY 1: Collection routing for autonomous research
 autonomous_research_service: Optional[AutonomousResearchService] = None  # PRIORITY 1: Self-directed research agent
 cross_oracle_synthesis_service: Optional[CrossOracleSynthesisService] = None  # PRIORITY 2: Multi-Oracle orchestrator
@@ -887,7 +889,7 @@ def log_startup(msg: str, level: str = "info"):
 
 async def _initialize_backend_services():
     """Initialize heavy services asynchronously after binding."""
-    global search_service, zantara_ai_client, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
+    global search_service, zantara_ai_client, intelligent_router, cultural_rag_service, tool_executor, pricing_service, collaborator_service, memory_service, conversation_service, emotional_service, capabilities_service, reranker_service, handler_proxy_service, fact_extractor, alert_service, timesheet_service, work_session_service, team_analytics_service, query_router, autonomous_research_service, cross_oracle_synthesis_service, dynamic_pricing_service, session_service
     global skill_index, skill_detector, skill_loader, skill_coordinator, enhanced_context_builder, skill_cache, skill_metrics
     global startup_logs
 
@@ -1172,6 +1174,21 @@ async def _initialize_backend_services():
         log_startup(f"❌ MemoryServicePostgres initialization failed: {e}", "error")
         log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
         memory_service = None
+
+    # Initialize Team Timesheet Service (NEW: Nov 17, 2025)
+    try:
+        if memory_service and memory_service.pool:
+            timesheet_service = init_timesheet_service(memory_service.pool)
+            await timesheet_service.start_auto_logout_monitor()
+            log_startup("✅ TeamTimesheetService ready (Bali timezone, auto-logout 18:30)")
+        else:
+            log_startup("⚠️ TeamTimesheetService disabled (PostgreSQL unavailable)", "warning")
+            timesheet_service = None
+    except Exception as e:
+        import traceback
+        log_startup(f"❌ TeamTimesheetService initialization failed: {e}", "error")
+        log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
+        timesheet_service = None
 
     # Initialize ConversationService (Phase 2)
     try:
@@ -3322,6 +3339,10 @@ app.include_router(oracle_ingest.router)  # NEW: /api/oracle/ingest + /collectio
 app.include_router(agents.router)
 # app.include_router(autonomous_agents.router)  # Tier 1 Autonomous Agents HTTP API
 app.include_router(notifications.router)
+
+# Include Team Activity router (NEW: Nov 17, 2025 - Team timesheet & work hours)
+from app.routers import team_activity
+app.include_router(team_activity.router)
 # NOTE: admin_oracle_populate router removed - using inline endpoint instead
 
 # Include Llama 4 Scout router - DISABLED (module not in production)
