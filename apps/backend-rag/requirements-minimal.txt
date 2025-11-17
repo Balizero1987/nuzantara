@@ -34,7 +34,8 @@ psycopg2-binary==2.9.9
 
 # AI frameworks (needed by services)
 langchain==0.1.6
-langgraph>=0.0.20  # LangGraph for intelligent memory workflows (optional)
+# langgraph - OPTIONAL: Requires langchain>=0.2, disabled to avoid conflicts
+# Feature flag will gracefully handle its absence via should_enable_collective_memory()
 
 # Utilities
 aiofiles==23.2.1
