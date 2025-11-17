@@ -168,7 +168,14 @@ class ZantaraFrontendAgent {
           self.networkErrors.push(errorData);
           self.metrics.errorsDetected++;
 
-          // Attempt auto-fix (retry, fallback)
+          // Handle authentication errors immediately
+          if (response.status === 401 || response.status === 403) {
+            console.warn('🔒 [Frontend Agent] Authentication error detected, redirecting to login...');
+            await self.handleAuthenticationError(errorData);
+            return response; // Return original response after redirect initiated
+          }
+
+          // Attempt auto-fix (retry, fallback) for other errors
           if (self.autoFixEnabled) {
             return await self.attemptNetworkFix(args, errorData);
           }
@@ -298,6 +305,9 @@ class ZantaraFrontendAgent {
     if (msg.includes('404') || msg.includes('not found')) {
       return 'file_not_found';
     }
+    if (msg.includes('401') || msg.includes('403') || msg.includes('unauthorized') || msg.includes('forbidden')) {
+      return 'auth_error';
+    }
     if (msg.includes('typeerror')) {
       return 'type_error';
     }
@@ -329,6 +339,11 @@ class ZantaraFrontendAgent {
       case 'file_not_found':
         fixStrategy = 'ignore_missing_file';
         fixApplied = true; // Already logged, can continue
+        break;
+
+      case 'auth_error':
+        fixStrategy = 'redirect_to_login';
+        fixApplied = await this.handleAuthenticationError(errorData);
         break;
 
       case 'network_error':
@@ -453,6 +468,41 @@ class ZantaraFrontendAgent {
         data: issue
       });
     }
+  }
+
+  /**
+   * Handle authentication errors (401/403) with automatic redirect
+   */
+  async handleAuthenticationError(errorData) {
+    console.log('🔒 [Frontend Agent] Handling authentication error...');
+
+    // Clear invalid tokens
+    localStorage.removeItem('zantara-token');
+    localStorage.removeItem('zantara-user');
+    localStorage.removeItem('zantara-session');
+
+    // Report to orchestrator
+    await this.reportToOrchestrator({
+      type: 'authentication_error',
+      severity: 'medium',
+      data: {
+        ...errorData,
+        action: 'redirect_to_login',
+        cleared_tokens: true
+      }
+    });
+
+    // Show brief message before redirect
+    console.warn('🔒 Sessione scaduta. Reindirizzamento a login...');
+
+    // Redirect to login page (avoid redirect loop by checking current path)
+    if (!window.location.pathname.includes('/login')) {
+      setTimeout(() => {
+        window.location.href = '/login.html';
+      }, 500); // Brief delay to allow logging
+    }
+
+    this.metrics.errorsFixed++;
   }
 
   /**
