@@ -147,6 +147,12 @@ async function handleLogin(e) {
     // Login successful - handle actual backend response format
     // Backend returns: {token: "demo_xxx", expiresIn: 3600, userId: "demo"}
     const token = result.token || result.access_token;
+
+    // CRITICAL: Verify token exists
+    if (!token) {
+      throw new Error('Server did not return authentication token. Please contact support.');
+    }
+
     const expiresIn = result.expiresIn || result.expires_in || 3600; // 1 hour default
     const user = result.user || {
       id: result.userId || 'demo',

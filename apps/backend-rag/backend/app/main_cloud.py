@@ -1895,6 +1895,101 @@ async def demo_auth_options():
     )
 
 
+@app.post("/api/auth/team/login")
+async def team_login(request: Request):
+    """
+    Team member login endpoint with email + PIN authentication
+
+    This endpoint provides authentication for team members using email and PIN.
+    Frontend calls this from unified-auth.js for team login.
+
+    Request body:
+    {
+        "name": "username",
+        "email": "user@example.com",
+        "pin": "1234"
+    }
+
+    Response:
+    {
+        "ok": true,
+        "data": {
+            "token": "team_<email_hash>_<timestamp>",
+            "user": {
+                "id": "<user_id>",
+                "email": "<email>",
+                "name": "<name>",
+                "tier": "team"
+            },
+            "sessionId": "session_<timestamp>",
+            "permissions": []
+        }
+    }
+    """
+    try:
+        body = await request.json()
+        email = body.get("email", "")
+        pin = body.get("pin", "")
+        name = body.get("name", email.split("@")[0] if email else "user")
+
+        if not email or not pin:
+            raise HTTPException(status_code=400, detail="Email and PIN are required")
+
+        # Validate PIN format (4-8 digits)
+        if not pin.isdigit() or len(pin) < 4 or len(pin) > 8:
+            raise HTTPException(status_code=400, detail="PIN must be 4-8 digits")
+
+        # Generate team token (for demo/MVP - in production this would validate against DB)
+        email_hash = hashlib.md5(email.encode()).hexdigest()[:16]
+        timestamp = int(time.time())
+        token = f"team_{email_hash}_{timestamp}"
+        session_id = f"session_{timestamp}"
+
+        logger.info(f"🔐 Team login: {email} (PIN: {'*' * len(pin)})")
+
+        return JSONResponse(
+            content={
+                "ok": True,
+                "data": {
+                    "token": token,
+                    "user": {
+                        "id": email_hash,
+                        "email": email,
+                        "name": name,
+                        "tier": "team",
+                        "avatar": None
+                    },
+                    "sessionId": session_id,
+                    "permissions": []
+                }
+            },
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Team login error: {e}")
+        raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
+
+
+@app.options("/api/auth/team/login")
+async def team_login_options():
+    """Handle CORS preflight for team login endpoint"""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Max-Age": "3600"
+        }
+    )
+
+
 @app.get("/warmup/stats")
 async def warmup_stats():
     """Get warmup task status and system readiness"""
