@@ -1,0 +1,4 @@
+
+# Self-Healing Agent dependencies
+psutil==5.9.6
+redis==5.0.1

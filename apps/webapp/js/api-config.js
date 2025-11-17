@@ -3,7 +3,7 @@ export const API_CONFIG = {
   backend: {
     url: window.location.hostname === 'localhost'
       ? 'http://localhost:8080'
-      : 'https://nuzantara-backend.fly.dev'  // TypeScript backend for auth, handlers, API
+      : 'https://nuzantara-rag.fly.dev'  // FIXED: Using RAG backend (backend service doesn't exist)
   },
   rag: {
     url: window.location.hostname === 'localhost'
