@@ -98,7 +98,7 @@ app.add_middleware(
     allow_origins=["*"],  # Wildcard for EventSource compatibility
     allow_credentials=False,  # No credentials for cross-domain EventSource
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "Accept", "Cache-Control", "X-Session-Id", "X-Continuity-Id", "X-Reconnection", "X-Last-Chunk-Timestamp"],
+    allow_headers=["*"],  # Allow all headers for maximum compatibility
     expose_headers=["Content-Type", "Cache-Control", "Connection", "X-Accel-Buffering"],
     max_age=3600
 )
