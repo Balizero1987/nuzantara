@@ -134,6 +134,7 @@ SECURITY_*.md
 SERVICE_*.md
 TWITTER_*.md
 QUICK_*.md
+!DATASET_GEMMA/QUICK_START.md
 SECRETS_*.md
 
 # Script Python temporanei e di test
@@ -240,6 +241,11 @@ cloudbuild*.yaml
 !apps/**/*.json
 !docs/**/*.json
 !DATASET_GEMMA/**/*.json
+
+# Generated dataset files (large, can be regenerated)
+*.jsonl
+DATASET_GEMMA/gemma_*.jsonl
+DATASET_GEMMA/splits/
 *.html
 !apps/webapp/**/*.html
 !apps/webapp-v2/**/*.html
