@@ -5,6 +5,7 @@ Timezone: Asia/Makassar (Bali Time, UTC+8)
 """
 
 import asyncio
+import json
 import logging
 from datetime import datetime, time, timedelta
 from typing import Dict, List, Optional, Any
@@ -115,11 +116,11 @@ class TeamTimesheetService:
             await conn.execute(
                 """
                 INSERT INTO team_timesheet (user_id, email, action_type, metadata)
-                VALUES ($1, $2, 'clock_in', $3)
+                VALUES ($1, $2, 'clock_in', $3::jsonb)
                 """,
                 user_id,
                 email,
-                metadata or {}
+                json.dumps(metadata or {})
             )
 
             logger.info(f"🟢 Clock-in: {email} at {now.strftime('%H:%M')} Bali time")
@@ -165,11 +166,11 @@ class TeamTimesheetService:
             await conn.execute(
                 """
                 INSERT INTO team_timesheet (user_id, email, action_type, metadata)
-                VALUES ($1, $2, 'clock_out', $3)
+                VALUES ($1, $2, 'clock_out', $3::jsonb)
                 """,
                 user_id,
                 email,
-                metadata or {}
+                json.dumps(metadata or {})
             )
 
             # Calculate hours worked
