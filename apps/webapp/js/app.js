@@ -5,14 +5,14 @@
  */
 
 // Import Skill Detection Layer (dynamic import per performance)
-let QueryComplexityAnalyzer, StagingTheater, SSESkillExtension, skillEventBus;
+// DISABLED: let QueryComplexityAnalyzer, StagingTheater, SSESkillExtension, skillEventBus;
 
 // Import Collective Memory Layer (dynamic import per performance)
 let SSECollectiveMemoryExtension, CollectiveMemoryWidget;
 let isFeatureEnabled, shouldShowFeature;
 
 // Load skill detection modules if feature enabled
-async function loadSkillDetectionModules() {
+// DISABLED: async function loadSkillDetectionModules() {
   try {
     const module = await import('./utils/query-complexity.js');
     QueryComplexityAnalyzer = module.QueryComplexityAnalyzer;
@@ -24,7 +24,7 @@ async function loadSkillDetectionModules() {
     SSESkillExtension = extensionModule.SSESkillExtension;
 
     const eventBusModule = await import('./core/skill-event-bus.js');
-    skillEventBus = eventBusModule.skillEventBus;
+// DISABLED:     skillEventBus = eventBusModule.skillEventBus;
 
     const flagsModule = await import('./config/feature-flags.js');
     isFeatureEnabled = flagsModule.isFeatureEnabled;
@@ -38,7 +38,7 @@ async function loadSkillDetectionModules() {
     abTesting = abTestingModule.abTesting;
 
     const feedbackModule = await import('./services/feedback-collector.js');
-    feedbackCollector = feedbackModule.feedbackCollector;
+// DISABLED:     feedbackCollector = feedbackModule.feedbackCollector;
 
     return true;
   } catch (error) {
@@ -87,7 +87,7 @@ async function loadCollectiveMemoryModules() {
 let zantaraClient;
 let messages = [];
 let currentLiveMessage = null;
-let stagingTheater = null;
+// DISABLED: let stagingTheater = null;
 
 // DOM elements
 let messageSpace, messageInput, sendButton, quickActions, messagesContainer;
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   // Load Skill Detection Layer modules (async, non-blocking)
-  loadSkillDetectionModules().then((loaded) => {
+// DISABLED:   loadSkillDetectionModules().then((loaded) => {
     if (loaded) {
       console.log('✅ Skill Detection Layer modules loaded');
     }
@@ -338,7 +338,7 @@ async function sendMessage(content) {
   if (
     QueryComplexityAnalyzer &&
     isFeatureEnabled &&
-    isFeatureEnabled('stagingTheater') &&
+// DISABLED:     isFeatureEnabled('stagingTheater') &&
     shouldShowFeature()
   ) {
     try {
@@ -351,9 +351,9 @@ async function sendMessage(content) {
       }
 
       if (complexity.showStaging) {
-        stagingTheater = new StagingTheater();
+// DISABLED:         stagingTheater = new StagingTheater();
         // Start staging in background (non-blocking)
-        stagingTheater.showStaging(complexity, [], complexity.domains).catch((err) => {
+// DISABLED:         stagingTheater.showStaging(complexity, [], complexity.domains).catch((err) => {
           console.warn('Staging theater error:', err);
         });
 
@@ -364,14 +364,14 @@ async function sendMessage(content) {
       }
 
       // Attach SSE skill extension
-      if (SSESkillExtension && skillEventBus) {
+// DISABLED:       if (SSESkillExtension && skillEventBus) {
         const skillExtension = new SSESkillExtension();
         skillExtension.attach(zantaraClient);
 
         // Listeners per skill events
-        skillEventBus.on('skill_detected', (skills) => {
-          if (stagingTheater) {
-            stagingTheater.updateSkills(skills);
+// DISABLED:         skillEventBus.on('skill_detected', (skills) => {
+// DISABLED:           if (stagingTheater) {
+// DISABLED:             stagingTheater.updateSkills(skills);
           }
           // Track in analytics
           if (skillAnalytics) {
@@ -379,9 +379,9 @@ async function sendMessage(content) {
           }
         });
 
-        skillEventBus.on('legal_references', (refs) => {
-          if (stagingTheater) {
-            stagingTheater.updateLegalReferences(refs);
+// DISABLED:         skillEventBus.on('legal_references', (refs) => {
+// DISABLED:           if (stagingTheater) {
+// DISABLED:             stagingTheater.updateLegalReferences(refs);
           }
           // Track in analytics
           if (skillAnalytics) {
@@ -389,7 +389,7 @@ async function sendMessage(content) {
           }
         });
 
-        skillEventBus.on('consultants_activated', (consultants) => {
+// DISABLED:         skillEventBus.on('consultants_activated', (consultants) => {
           // Track in analytics
           if (skillAnalytics) {
             skillAnalytics.trackConsultantsActivated(consultants);
@@ -411,31 +411,31 @@ async function sendMessage(content) {
       },
       onToken: (token, fullText) => {
         // Se staging visibile e stiamo ricevendo token, accelera fade
-        if (stagingTheater && fullText.length > 50) {
-          stagingTheater.accelerateFade();
+// DISABLED:         if (stagingTheater && fullText.length > 50) {
+// DISABLED:           stagingTheater.accelerateFade();
         }
         updateLiveMessage(currentLiveMessage, fullText);
       },
       onComplete: async (fullText) => {
         // Assicura che staging sia rimosso
-        if (stagingTheater) {
-          stagingTheater.forceFade();
-          stagingTheater = null;
+// DISABLED:         if (stagingTheater) {
+// DISABLED:           stagingTheater.forceFade();
+// DISABLED:           stagingTheater = null;
         }
         finalizeLiveMessage(currentLiveMessage, fullText);
         currentLiveMessage = null;
 
         // Show feedback widget (optional, non-intrusive)
-        if (feedbackCollector && skillEventBus) {
+// DISABLED: // DISABLED:         if (feedbackCollector && skillEventBus) {
           try {
             // Check if getHistory method exists before calling it
             let lastSkills = [];
-            if (typeof skillEventBus.getHistory === 'function') {
+// DISABLED:             if (typeof skillEventBus.getHistory === 'function') {
               // Get detected skills from event bus history
-              const skillEvents = skillEventBus.getHistory('skill_detected');
+// DISABLED:               const skillEvents = skillEventBus.getHistory('skill_detected');
               lastSkills = skillEvents.length > 0 ? skillEvents[skillEvents.length - 1].data : [];
             } else {
-              console.debug('skillEventBus.getHistory not available, skipping feedback widget');
+// DISABLED:               console.debug('skillEventBus.getHistory not available, skipping feedback widget');
             }
 
             // Only show feedback for complex queries with skills detected
@@ -451,18 +451,18 @@ async function sendMessage(content) {
         }
       },
       onError: (error) => {
-        if (stagingTheater) {
-          stagingTheater.forceFade();
-          stagingTheater = null;
+// DISABLED:         if (stagingTheater) {
+// DISABLED:           stagingTheater.forceFade();
+// DISABLED:           stagingTheater = null;
         }
         hideTypingIndicator();
         handleSendError(error);
       },
     });
   } catch (error) {
-    if (stagingTheater) {
-      stagingTheater.forceFade();
-      stagingTheater = null;
+// DISABLED:     if (stagingTheater) {
+// DISABLED:       stagingTheater.forceFade();
+// DISABLED:       stagingTheater = null;
     }
     hideTypingIndicator();
     handleSendError(error);
