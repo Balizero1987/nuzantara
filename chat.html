@@ -1873,18 +1873,28 @@
         return true;
       }
 
-      // Setup handlers when DOM and app.js are ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => setTimeout(setupSendHandlers, 500));
-      } else {
+      // Setup handlers when DOM and scripts are ready
+      function waitForZantaraClient(callback, maxAttempts = 30) {
         let attempts = 0;
-        const maxAttempts = 20;
-        const checkAndSetup = setInterval(() => {
+        const check = setInterval(() => {
           attempts++;
-          if (setupSendHandlers() || attempts >= maxAttempts) {
-            clearInterval(checkAndSetup);
+          if (typeof window.ZantaraClient === 'function' || typeof window.zantaraClient !== 'undefined' || typeof window.handleSend === 'function') {
+            clearInterval(check);
+            callback();
+          } else if (attempts >= maxAttempts) {
+            clearInterval(check);
+            console.warn('⚠️ ZantaraClient not found after', attempts, 'attempts, but will try anyway');
+            callback(); // Try anyway
           }
         }, 500);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          waitForZantaraClient(() => setTimeout(setupSendHandlers, 500));
+        });
+      } else {
+        waitForZantaraClient(() => setTimeout(setupSendHandlers, 500));
       }
     })();
 
