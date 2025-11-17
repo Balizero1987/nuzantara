@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZANTARA Knowledge Base Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(180deg, #0A0A12 0%, #12121A 40%, #1A1A26 100%);
+            color: #F9F5F0;
+            min-height: 100vh;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .demo-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            background: linear-gradient(45deg, #C7A75E, #F9F5F0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .demo-subtitle {
+            font-size: 18px;
+            color: #9CA3AF;
+            margin: 0;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .demo-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .demo-section h2 {
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            color: #C7A75E;
+        }
+
+        .kb-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #C7A75E;
+            margin: 0 0 5px 0;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #9CA3AF;
+            margin: 0;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .quick-action-btn {
+            padding: 10px 16px;
+            background: #C7A75E;
+            color: #0A0A12;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-action-btn:hover {
+            background: #F9F5F0;
+            transform: translateY(-1px);
+        }
+
+        .demo-code {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .demo-code pre {
+            margin: 0;
+            color: #F9F5F0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-online {
+            background: #10B981;
+            color: white;
+        }
+
+        .status-offline {
+            background: #EF4444;
+            color: white;
+        }
+
+        .info-box {
+            background: rgba(199, 167, 94, 0.1);
+            border: 1px solid rgba(199, 167, 94, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #C7A75E;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <header class="demo-header">
+            <h1 class="demo-title">ZANTARA Knowledge Base Demo</h1>
+            <p class="demo-subtitle">Test the new RAG-powered knowledge base integration</p>
+            <span id="connection-status" class="status-indicator status-offline">Connecting...</span>
+        </header>
+
+        <div class="demo-grid">
+            <section class="demo-section">
+                <h2>🔍 Knowledge Search</h2>
+                <div id="kb-search-container" data-kb-search='{"placeholder":"Ask about visas, taxes, business setup...","maxResults":8}'>
+                    <!-- KB Search component will be initialized here -->
+                </div>
+            </section>
+
+            <section class="demo-section">
+                <h2>📊 KB Statistics</h2>
+                <div class="kb-stats" id="kb-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-docs">-</div>
+                        <p class="stat-label">Total Documents</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-collections">5</div>
+                        <p class="stat-label">Collections</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="migration-status">In Progress</div>
+                        <p class="stat-label">Migration Status</p>
+                    </div>
+                </div>
+
+                <h3>🚀 Quick Test Queries</h3>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="testQuery('What is KITAS business visa?')">KITAS Requirements</button>
+                    <button class="quick-action-btn" onclick="testQuery('Corporate tax rate Indonesia')">Tax Rates</button>
+                    <button class="quick-action-btn" onclick="testQuery('KBLI code for restaurant')">Business Codes</button>
+                    <button class="quick-action-btn" onclick="testQuery('How to setup PT PMA?')">PT PMA Setup</button>
+                </div>
+            </section>
+        </div>
+
+        <section class="demo-section">
+            <h2>💻 Integration Code Examples</h2>
+
+            <h3>Basic Search</h3>
+            <div class="demo-code">
+                <pre><code>// Search the knowledge base
+const results = await ZANTARA_KB.search("What is KITAS?");
+console.log('Found', results.total, 'results');
+
+// Quick search with auto-domain detection
+const quickResults = await ZANTARA_KB.quickSearch("Business visa requirements");</code></pre>
+            </div>
+
+            <h3>Collection-Specific Search</h3>
+            <div class="demo-code">
+                <pre><code>// Search specific collections
+const visaResults = await ZANTARA_KB.search(
+  "Investor visa requirements",
+  ZANTARA_KB.COLLECTIONS.VISA
+);
+
+const taxResults = await ZANTARA_KB.search(
+  "Corporate tax calculation",
+  ZANTARA_KB.COLLECTIONS.TAX
+);</code></pre>
+            </div>
+
+            <h3>UI Component Integration</h3>
+            <div class="demo-code">
+                <pre><code>// Initialize KB search component
+const searchComponent = new KBSearchComponent('#search-container', {
+  placeholder: "Search Indonesian regulations...",
+  collections: ZANTARA_KB.COLLECTIONS.ALL,
+  maxResults: 5
+});
+
+// Auto-initialize all search containers
+KBSearchComponent.autoInit();</code></pre>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <h2>🔗 Available Collections</h2>
+            <div class="kb-stats">
+                <div class="stat-card">
+                    <div class="stat-number">📋 visa_oracle</div>
+                    <p class="stat-label">Indonesia visa regulations & requirements</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">💰 tax_genius</div>
+                    <p class="stat-label">Indonesian tax regulations & calculations</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">⚖️ legal_architect</div>
+                    <p class="stat-label">Legal compliance & business laws</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">🏢 kbli_eye</div>
+                    <p class="stat-label">Business classification codes (KBLI)</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">📚 zantara_books</div>
+                    <p class="stat-label">Internal processes & procedures</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <h2>ℹ️ Implementation Status</h2>
+            <div class="info-box">
+                <p><strong>✅ RAG Backend:</strong> Running on https://nuzantara-rag.fly.dev</p>
+                <p><strong>🔄 KB Migration:</strong> In progress - zantara_books completed, kbli_eye in progress</p>
+                <p><strong>🔗 API Integration:</strong> Ready - /api/oracle/query endpoint functional</p>
+                <p><strong>🎨 UI Components:</strong> Created - search component ready for deployment</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Load required scripts -->
+    <script src="js/kb-service.js"></script>
+    <script src="js/kb-search-component.js"></script>
+
+    <script>
+        // Demo functions
+        async function testQuery(query) {
+            console.log(`🔍 Testing query: "${query}"`);
+
+            try {
+                const results = await ZANTARA_KB.quickSearch(query);
+
+                if (results.success) {
+                    console.log('✅ Query successful:', results);
+                    alert(`Found ${results.total} results for "${query}"\n\nFirst result: ${results.results[0]?.text?.substring(0, 100) || 'N/A'}...`);
+                } else {
+                    console.error('❌ Query failed:', results.error);
+                    alert(`Query failed: ${results.error}`);
+                }
+            } catch (error) {
+                console.error('❌ Query error:', error);
+                alert('Query error: ' + error.message);
+            }
+        }
+
+        // Check connection status
+        async function checkConnection() {
+            const statusElement = document.getElementById('connection-status');
+
+            try {
+                const response = await fetch('https://nuzantara-rag.fly.dev/health');
+                if (response.ok) {
+                    statusElement.textContent = '✅ Online';
+                    statusElement.className = 'status-indicator status-online';
+                } else {
+                    throw new Error('Health check failed');
+                }
+            } catch (error) {
+                statusElement.textContent = '❌ Offline';
+                statusElement.className = 'status-indicator status-offline';
+                console.error('Connection check failed:', error);
+            }
+        }
+
+        // Load KB statistics
+        async function loadKBStats() {
+            try {
+                const stats = await ZANTARA_KB.getStats();
+                if (stats.success) {
+                    document.getElementById('total-docs').textContent = stats.totalDocuments || 'Loading...';
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        // Initialize demo
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 ZANTARA KB Demo initializing...');
+
+            // Check connection
+            checkConnection();
+
+            // Load statistics
+            loadKBStats();
+
+            // Update migration status periodically
+            setInterval(() => {
+                const statusElement = document.getElementById('migration-status');
+                const statuses = ['In Progress', 'Migrating...', 'Processing...', 'Almost Done'];
+                const currentStatus = statusElement.textContent;
+                const currentIndex = statuses.indexOf(currentStatus);
+                if (currentIndex >= 0) {
+                    statusElement.textContent = statuses[(currentIndex + 1) % statuses.length];
+                }
+            }, 3000);
+
+            console.log('✅ ZANTARA KB Demo ready');
+        });
+    </script>
+</body>
+</html>
