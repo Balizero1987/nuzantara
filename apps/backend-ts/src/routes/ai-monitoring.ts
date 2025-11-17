@@ -2,6 +2,15 @@
  * AI Automation Monitoring Endpoints
  *
  * Provides monitoring and status endpoints for AI automation services
+ *
+ * Mounted at: /api/monitoring/ai
+ *
+ * Endpoints:
+ * - GET /api/monitoring/ai/cron-status - Cron scheduler status
+ * - GET /api/monitoring/ai/ai-stats - OpenRouter client stats
+ * - GET /api/monitoring/ai/ai-health - AI automation health check
+ * - GET /api/monitoring/ai/refactoring-stats - Refactoring agent stats
+ * - GET /api/monitoring/ai/test-generator-stats - Test generator stats
  */
 
 import { Router, Request, Response } from 'express';

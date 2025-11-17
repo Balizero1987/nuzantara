@@ -1,6 +1,13 @@
 /**
  * ZANTARA Monitoring Routes
  * Endpoints for monitoring cron jobs and agent tasks
+ *
+ * Mounted at: /api/monitoring
+ *
+ * Endpoints:
+ * - GET /api/monitoring/cron-status - Comprehensive cron job status
+ * - GET /api/monitoring/agent-tasks - All agent tasks with summary
+ * - POST /api/monitoring/trigger-job - Manually trigger cron jobs
  */
 
 import { Router } from 'express';

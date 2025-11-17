@@ -273,13 +273,14 @@ async function startServer() {
   // Cache management routes
   app.use('/cache', cacheRoutes);
 
-  // AI Automation monitoring routes
-  app.use('/api/monitoring', aiMonitoringRoutes);
-  logger.info('✅ AI Automation monitoring routes mounted');
-  // Autonomous Agents Monitoring routes
+  // Autonomous Agents Monitoring routes (main monitoring)
   const monitoringRoutes = await import('./routes/monitoring.routes.js');
   app.use('/api/monitoring', monitoringRoutes.default);
   logger.info('✅ Autonomous Agents monitoring routes mounted');
+
+  // AI Automation monitoring routes (under /ai subpath)
+  app.use('/api/monitoring/ai', aiMonitoringRoutes);
+  logger.info('✅ AI Automation monitoring routes mounted on /api/monitoring/ai');
 
   // GLM 4.6 Architect Patch: Enhanced Architecture endpoints
   app.get('/architecture/status', (_req, res) => {
