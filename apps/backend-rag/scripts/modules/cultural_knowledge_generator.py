@@ -92,11 +92,14 @@ class CulturalKnowledgeGenerator:
         logger.info(f"🔄 Generating cultural chunk: {topic}")
 
         try:
-            content = await self._generate_with_llama(topic, when_to_use, tone)
+            result = await self._generate_with_llama(topic, when_to_use, tone)
 
-            if not content:
+            if not result:
                 logger.error(f"❌ Generation failed for: {topic}")
                 return None
+
+            content = result.get("content", "")
+            tokens_used = result.get("tokens_used", 0)
 
             # Save to PostgreSQL cultural_knowledge table
             await self._save_cultural_chunk(
@@ -121,7 +124,8 @@ class CulturalKnowledgeGenerator:
                 "topic": topic,
                 "content": content,
                 "when_to_use": when_to_use,
-                "tone": tone
+                "tone": tone,
+                "tokens_used": tokens_used
             }
 
         except Exception as e:
@@ -379,9 +383,18 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
                     logger.error(f"❌ LLAMA returned empty response. Data: {data}")
                     return None
 
-                logger.info(f"✅ LLAMA generated cultural chunk ({len(content)} chars)")
+                # Extract token usage from RunPod response
+                usage = data.get("usage", {})
+                tokens_used = usage.get("total_tokens", 0) or (
+                    usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0)
+                )
 
-                return content.strip()
+                logger.info(f"✅ LLAMA generated cultural chunk ({len(content)} chars, {tokens_used} tokens)")
+
+                return {
+                    "content": content.strip(),
+                    "tokens_used": tokens_used
+                }
 
         except httpx.TimeoutException:
             logger.error("❌ LLAMA timeout (>300s)")
@@ -552,7 +565,8 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
         stats = {
             "total_topics": len(topics),
             "successful": 0,
-            "failed": 0
+            "failed": 0,
+            "tokens_used": 0
         }
 
         for i, topic_spec in enumerate(topics, 1):
@@ -567,6 +581,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
 
                 if result:
                     stats["successful"] += 1
+                    stats["tokens_used"] += result.get("tokens_used", 0)
                 else:
                     stats["failed"] += 1
 
@@ -581,6 +596,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
         logger.info(f"✅ Batch generation complete:")
         logger.info(f"   Successful: {stats['successful']}")
         logger.info(f"   Failed: {stats['failed']}")
+        logger.info(f"   Tokens used: {stats['tokens_used']}")
 
         return stats
 
