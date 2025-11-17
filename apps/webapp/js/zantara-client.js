@@ -19,7 +19,7 @@ class ZantaraClient {
   constructor(config = {}) {
     this.config = {
       apiUrl: config.apiUrl || 'https://nuzantara-rag.fly.dev',
-      authUrl: config.authUrl || 'https://nuzantara-backend.fly.dev',  // NEW: Separate auth backend
+      authUrl: config.authUrl || 'https://nuzantara-rag.fly.dev',  // FIXED: Use RAG backend for auth
       authEndpoint: config.authEndpoint || '/api/auth/demo',  // FIXED: Correct demo auth endpoint
       chatEndpoint: config.chatEndpoint || '/bali-zero/chat',  // FIXED: Correct Bali-Zero endpoint
       streamEndpoint: config.streamEndpoint || '/bali-zero/chat-stream',  // SSE streaming endpoint

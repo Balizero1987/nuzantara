@@ -7,7 +7,7 @@ import { API_CONFIG } from './api-config.js';
 
 class TimesheetClient {
     constructor() {
-        this.baseURL = API_CONFIG.BASE_URL;
+        this.baseURL = API_CONFIG.backend.url;
     }
 
     /**
