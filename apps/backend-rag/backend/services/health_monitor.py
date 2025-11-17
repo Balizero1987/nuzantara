@@ -73,10 +73,10 @@ class HealthMonitor:
         from app.main_cloud import search_service, memory_service, intelligent_router, tool_executor
 
         current_status = {
-            "chromadb": search_service is not None,
-            "postgresql": memory_service is not None and getattr(memory_service, 'use_postgres', False),
-            "ai_router": intelligent_router is not None,
-            "tools": tool_executor is not None
+            "chromadb": await self._check_chromadb(search_service),
+            "postgresql": await self._check_postgresql(memory_service),
+            "ai_router": await self._check_ai_router(intelligent_router),
+            "tools": tool_executor is not None  # Simple check for optional service
         }
 
         # Check each service
@@ -135,6 +135,56 @@ class HealthMonitor:
         )
 
         logger.info(f"✅ ALERT SENT: {service_name} RECOVERED")
+
+    async def _check_chromadb(self, search_service) -> bool:
+        """Check if ChromaDB is actually working"""
+        if search_service is None:
+            return False
+
+        try:
+            # Try to get collection count (lightweight operation)
+            if hasattr(search_service, 'client') and search_service.client:
+                collections = search_service.client.list_collections()
+                return len(collections) >= 0  # Even 0 is OK (means connection works)
+            return True  # Service exists
+        except Exception as e:
+            logger.debug(f"ChromaDB health check failed: {e}")
+            return False
+
+    async def _check_postgresql(self, memory_service) -> bool:
+        """Check if PostgreSQL is actually working"""
+        if memory_service is None:
+            return False
+
+        try:
+            # Check if using postgres and has active pool
+            use_postgres = getattr(memory_service, 'use_postgres', False)
+            if not use_postgres:
+                return False
+
+            # Try a simple connection check
+            if hasattr(memory_service, 'pool') and memory_service.pool:
+                return True
+            return False
+        except Exception as e:
+            logger.debug(f"PostgreSQL health check failed: {e}")
+            return False
+
+    async def _check_ai_router(self, intelligent_router) -> bool:
+        """Check if AI Router is actually working"""
+        if intelligent_router is None:
+            return False
+
+        try:
+            # Check if router has working AI clients
+            has_llama = hasattr(intelligent_router, 'llama_client') and intelligent_router.llama_client is not None
+            has_haiku = hasattr(intelligent_router, 'haiku_client') and intelligent_router.haiku_client is not None
+
+            # At least one AI should be available
+            return has_llama or has_haiku
+        except Exception as e:
+            logger.debug(f"AI Router health check failed: {e}")
+            return False
 
     def get_status(self) -> Dict[str, Any]:
         """Get current monitoring status"""
