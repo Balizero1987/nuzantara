@@ -1,6 +1,6 @@
 {
   "name": "bali-zero-journal",
-  "version": "1.0.0",
+  "version": "5.2.0",
   "description": "Bali Zero Journal - News Intelligence System",
   "main": "src/index.ts",
   "scripts": {

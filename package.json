@@ -7,8 +7,10 @@
     "apps/backend-ts",
     "apps/backend-rag",
     "apps/dashboard",
-    "apps/webapp",
+    "apps/intel-scraping",
+    "apps/memory-service",
     "apps/publication",
+    "apps/webapp",
     "packages/*"
   ],
   "scripts": {
