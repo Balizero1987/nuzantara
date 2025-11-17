@@ -1797,6 +1797,60 @@
             return;
           }
 
+          // Final fallback: create ZantaraClient instance directly
+          if (typeof window.ZantaraClient === 'function') {
+            console.log('✅ Using ZantaraClient class directly');
+            const API_CONFIG = window.API_CONFIG || { rag: { url: 'https://nuzantara-rag.fly.dev' } };
+            
+            const client = new window.ZantaraClient({
+              apiUrl: API_CONFIG.rag?.url || 'https://nuzantara-rag.fly.dev',
+              chatEndpoint: '/bali-zero/chat',
+              streamEndpoint: '/bali-zero/chat-stream',
+              maxRetries: 3,
+            });
+            
+            client.authenticate().then(() => {
+              return client.sendMessageStream(content, {
+                onStart: () => {
+                  const welcomeMsg = document.querySelector('.welcome-message');
+                  if (welcomeMsg) welcomeMsg.style.display = 'none';
+                  
+                  const messageSpace = document.getElementById('messageSpace');
+                  if (messageSpace) {
+                    const userMsg = document.createElement('div');
+                    userMsg.className = 'message user';
+                    userMsg.innerHTML = `<div class="message-content"><div class="message-text">${content}</div></div>`;
+                    messageSpace.appendChild(userMsg);
+                  }
+                  
+                  messageInput.value = '';
+                  messageInput.style.height = 'auto';
+                },
+                onToken: (token, fullText) => {
+                  let liveMsg = document.getElementById('liveMessage');
+                  if (!liveMsg) {
+                    liveMsg = document.createElement('div');
+                    liveMsg.id = 'liveMessage';
+                    liveMsg.className = 'message ai';
+                    const messageSpace = document.getElementById('messageSpace');
+                    if (messageSpace) messageSpace.appendChild(liveMsg);
+                  }
+                  liveMsg.innerHTML = `<div class="message-content"><div class="message-text">${fullText}</div></div>`;
+                },
+                onComplete: (fullText) => {
+                  const liveMsg = document.getElementById('liveMessage');
+                  if (liveMsg) liveMsg.removeAttribute('id');
+                },
+                onError: (error) => {
+                  console.error('❌ Send error:', error);
+                }
+              });
+            }).catch(err => {
+              console.error('❌ Authentication or send error:', err);
+            });
+            return;
+          }
+
           console.warn('⚠️ No send function available');
         }
 
