@@ -1281,6 +1281,26 @@
   <script src="js/zantara-client.min.js?v=20251106-debug"></script>
   <script type="module" src="js/conversation-client.js?v=20251107"></script>
   <script src="js/message-search.js?v=20251107"></script>
+
+  <!-- Initialize USER_CONTEXT from localStorage -->
+  <script>
+    window.USER_CONTEXT = {
+      getUser: function() {
+        try {
+          const userData = localStorage.getItem('zantara-user');
+          if (userData) {
+            const user = JSON.parse(userData);
+            console.log('✅ USER_CONTEXT initialized:', user);
+            return user;
+          }
+        } catch (e) {
+          console.error('❌ Failed to parse user data:', e);
+        }
+        return null;
+      }
+    };
+  </script>
+
   <script src="js/app.js"></script>
 
   <!-- Avatar Management Script -->
