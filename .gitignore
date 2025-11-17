@@ -200,6 +200,10 @@ madge-output.json
 # Test e development folders
 eval/
 datasets/
+!datasets/gemma_format/
+datasets/gemma_format/*
+!datasets/gemma_format/*_cleaned.jsonl
+!datasets/gemma_format/README.md
 models_ft/
 test_memory/
 indonesian_laws_download/
