@@ -123,7 +123,7 @@ class OptimizedStreamingService:
     async def stream_claude_response_optimized(
         self,
         messages: List[Dict],
-        model: str = "claude-sonnet-4-20250514",
+        model: str = "claude-haiku-4-5-20251001",  # Changed from Sonnet 4 (3x cheaper!)
         system: Optional[str] = None,
         max_tokens: int = 2000,
         temperature: float = 0.7,
@@ -269,7 +269,7 @@ class OptimizedStreamingService:
         query: str,
         conversation_history: List[Dict],
         system_prompt: str,
-        model: str = "claude-sonnet-4-20250514",
+        model: str = "claude-haiku-4-5-20251001",  # Changed from Sonnet 4 (3x cheaper!)
         rag_context: Optional[str] = None,
         memory_context: Optional[str] = None,
         max_tokens: int = 2000,
