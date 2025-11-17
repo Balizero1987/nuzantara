@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="night">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZANTARA - Team Dashboard</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/design-system.css">
+  <link rel="stylesheet" href="team-dashboard.css">
+
+  <!-- Chart.js for analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+  <!-- Authentication -->
+  <script src="../js/auth-guard.js"></script>
+  <script src="../js/user-context.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="team-header">
+    <div class="header-left">
+      <h1>🤖 ZANTARA Team Command Center</h1>
+      <span class="status-indicator">● LIVE</span>
+    </div>
+    <div class="header-right">
+      <button id="refresh-btn" class="btn-refresh">🔄 Refresh</button>
+      <div class="user-badge" id="user-badge">Team Member</div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <nav class="nav-menu">
+        <a href="#overview" class="nav-item active" data-section="overview">
+          <span class="icon">📊</span>
+          <span>Overview</span>
+        </a>
+        <a href="#agents" class="nav-item" data-section="agents">
+          <span class="icon">🤖</span>
+          <span>AI Agents</span>
+        </a>
+        <a href="#team" class="nav-item" data-section="team">
+          <span class="icon">👥</span>
+          <span>Team Members</span>
+        </a>
+        <a href="#decisions" class="nav-item" data-section="decisions">
+          <span class="icon">⚖️</span>
+          <span>Decision Log</span>
+        </a>
+        <a href="#analytics" class="nav-item" data-section="analytics">
+          <span class="icon">📈</span>
+          <span>Analytics</span>
+        </a>
+        <a href="#memory" class="nav-item" data-section="memory">
+          <span class="icon">🧠</span>
+          <span>Team Memory</span>
+        </a>
+        <a href="#security" class="nav-item" data-section="security">
+          <span class="icon">🔐</span>
+          <span>Security Audit</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="quick-stats">
+          <div class="stat-item">
+            <span class="stat-label">Uptime</span>
+            <span class="stat-value" id="uptime">99.8%</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Agents Active</span>
+            <span class="stat-value" id="agents-active">8/10</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- SECTION: Overview -->
+      <section id="overview-section" class="content-section active">
+        <h2>Team Overview</h2>
+
+        <!-- Alert Banner -->
+        <div id="alerts-container" class="alerts-container"></div>
+
+        <!-- Quick Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-icon">💻</span>
+              <h3>Commits Today</h3>
+            </div>
+            <div class="stat-value" id="commits-today">23</div>
+            <div class="stat-trend positive">↑ 15% vs yesterday</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-icon">🚀</span>
+              <h3>Deploys</h3>
+            </div>
+            <div class="stat-value" id="deploys-count">4</div>
+            <div class="stat-trend positive">✓ All successful</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-icon">🐛</span>
+              <h3>Open Issues</h3>
+            </div>
+            <div class="stat-value" id="issues-count">7</div>
+            <div class="stat-trend neutral">2 critical</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-icon">⏱️</span>
+              <h3>Sprint Progress</h3>
+            </div>
+            <div class="stat-value" id="sprint-progress">87%</div>
+            <div class="stat-trend positive">On track</div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section">
+          <h3>🔔 Recent Activity</h3>
+          <div id="activity-feed" class="activity-feed">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: AI Agents -->
+      <section id="agents-section" class="content-section">
+        <h2>🤖 AI Agents Status</h2>
+
+        <div class="agents-grid" id="agents-grid">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="agent-details" id="agent-details" style="display: none;">
+          <h3 id="agent-details-title"></h3>
+          <div id="agent-details-content"></div>
+        </div>
+      </section>
+
+      <!-- SECTION: Team Members -->
+      <section id="team-section" class="content-section">
+        <h2>👥 Team Members</h2>
+
+        <div class="team-controls">
+          <input type="text" id="team-search" placeholder="🔍 Search team member...">
+          <select id="team-filter">
+            <option value="all">All Members</option>
+            <option value="developers">Developers</option>
+            <option value="active">Active Now</option>
+          </select>
+        </div>
+
+        <div class="team-grid" id="team-grid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- SECTION: Decision Log -->
+      <section id="decisions-section" class="content-section">
+        <h2>⚖️ Decision Log</h2>
+
+        <div class="decision-controls">
+          <button id="new-decision-btn" class="btn-primary">+ New Decision</button>
+          <select id="decision-filter">
+            <option value="all">All Decisions</option>
+            <option value="architecture">Architecture</option>
+            <option value="business">Business</option>
+            <option value="hiring">Hiring</option>
+          </select>
+        </div>
+
+        <div class="timeline" id="decisions-timeline">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- New Decision Modal -->
+        <div id="decision-modal" class="modal">
+          <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3>📝 Log New Decision</h3>
+            <form id="decision-form">
+              <div class="form-group">
+                <label>Decision Type</label>
+                <select name="type" required>
+                  <option value="architecture">Architecture</option>
+                  <option value="business">Business</option>
+                  <option value="hiring">Hiring</option>
+                  <option value="technical">Technical</option>
+                  <option value="process">Process</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" required placeholder="Brief decision title">
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="4" required placeholder="What was decided and why?"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Participants</label>
+                <input type="text" name="participants" placeholder="Marco, Sara, Zero">
+              </div>
+              <div class="form-group">
+                <label>Impact</label>
+                <select name="impact">
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Save Decision</button>
+                <button type="button" class="btn-secondary" id="cancel-decision">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: Analytics -->
+      <section id="analytics-section" class="content-section">
+        <h2>📈 Team Analytics</h2>
+
+        <div class="analytics-grid">
+          <div class="chart-card">
+            <h3>Commits by Day</h3>
+            <canvas id="commits-chart"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>Code Quality Trend</h3>
+            <canvas id="quality-chart"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>Team Velocity</h3>
+            <canvas id="velocity-chart"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>Bug Resolution Time</h3>
+            <canvas id="bugs-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="insights-section">
+          <h3>🔍 AI Insights</h3>
+          <div id="ai-insights" class="insights-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: Team Memory -->
+      <section id="memory-section" class="content-section">
+        <h2>🧠 Team Memory</h2>
+
+        <div class="memory-search">
+          <input type="text" id="memory-search" placeholder="🔍 Search team knowledge (semantic)...">
+          <button id="memory-search-btn" class="btn-primary">Search</button>
+        </div>
+
+        <div class="memory-tabs">
+          <button class="tab-btn active" data-tab="entities">Entities</button>
+          <button class="tab-btn" data-tab="events">Events</button>
+          <button class="tab-btn" data-tab="knowledge">Knowledge</button>
+        </div>
+
+        <div class="memory-content">
+          <div id="memory-entities" class="tab-content active">
+            <!-- Entity graph visualization -->
+            <div id="entity-graph"></div>
+          </div>
+          <div id="memory-events" class="tab-content">
+            <!-- Event timeline -->
+          </div>
+          <div id="memory-knowledge" class="tab-content">
+            <!-- Knowledge items -->
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: Security Audit -->
+      <section id="security-section" class="content-section">
+        <h2>🔐 Security Audit Log</h2>
+
+        <div class="security-filters">
+          <select id="security-level">
+            <option value="all">All Levels</option>
+            <option value="critical">Critical</option>
+            <option value="warning">Warning</option>
+            <option value="info">Info</option>
+          </select>
+          <select id="security-tool">
+            <option value="all">All Tools</option>
+            <option value="zero_tools">Zero Tools</option>
+            <option value="deploy">Deployments</option>
+            <option value="auth">Authentication</option>
+          </select>
+        </div>
+
+        <div class="audit-table">
+          <table id="audit-log">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Tool</th>
+                <th>Status</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="team-dashboard.js"></script>
+</body>
+</html>

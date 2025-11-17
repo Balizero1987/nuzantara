@@ -1,0 +1,241 @@
+{
+  "templates": [
+    {
+      "id": "architecture",
+      "name": "Architecture Decision",
+      "type": "architecture",
+      "description": "Template for architectural and technical design decisions",
+      "fields": {
+        "title": "Required: Brief decision title",
+        "description": "Required: What was decided",
+        "rationale": "Required: Why this decision was made",
+        "alternatives": "Optional: What alternatives were considered",
+        "consequences": "Optional: Expected consequences and tradeoffs",
+        "participants": "Required: Who was involved in the decision",
+        "decidedBy": "Required: Final decision maker",
+        "impact": "Required: low | medium | high | critical",
+        "reviewDate": "Optional: When to review this decision again",
+        "tags": "Optional: Tags for categorization"
+      },
+      "example": {
+        "title": "Switch from REST to GraphQL for new APIs",
+        "description": "All new APIs will use GraphQL instead of REST. Existing REST APIs will remain but won't be expanded.",
+        "rationale": "GraphQL provides better flexibility for frontend, reduces over-fetching, enables better documentation through introspection, and allows clients to request exactly what they need.",
+        "alternatives": [
+          "Continue with REST (rejected due to over-fetching issues)",
+          "Use gRPC (rejected due to web browser compatibility)",
+          "Hybrid REST + GraphQL (rejected due to increased complexity)"
+        ],
+        "consequences": [
+          "Positive: Better frontend developer experience",
+          "Positive: Reduced bandwidth usage",
+          "Negative: Team needs to learn GraphQL",
+          "Negative: Additional infrastructure for GraphQL server"
+        ],
+        "participants": ["Marco", "Sara", "Zero"],
+        "decidedBy": "Zero",
+        "impact": "high",
+        "reviewDate": "2025-05-01",
+        "tags": ["api", "architecture", "graphql"]
+      }
+    },
+    {
+      "id": "technical",
+      "name": "Technical Decision",
+      "type": "technical",
+      "description": "Template for technical implementation decisions",
+      "fields": {
+        "title": "Required: Technical decision summary",
+        "description": "Required: What technology/approach was chosen",
+        "rationale": "Required: Why this choice was made",
+        "alternatives": "Optional: Other options considered",
+        "participants": "Required: Team members involved",
+        "decidedBy": "Required: Technical lead who decided",
+        "impact": "Required: low | medium | high | critical",
+        "tags": "Optional: Technology tags"
+      },
+      "example": {
+        "title": "Use PostgreSQL for CRM data storage",
+        "description": "CRM data (clients, practices, interactions) will be stored in PostgreSQL instead of a separate microservice or NoSQL database.",
+        "rationale": "PostgreSQL provides ACID transactions needed for CRM data integrity, has excellent JSON support for flexible fields, integrates well with existing infrastructure, and the team has strong expertise.",
+        "alternatives": [
+          "MongoDB - rejected due to lack of ACID transactions",
+          "Separate microservice - rejected due to added complexity",
+          "Firestore - rejected due to cost at scale"
+        ],
+        "participants": ["Marco", "Zero"],
+        "decidedBy": "Marco",
+        "impact": "medium",
+        "tags": ["database", "postgresql", "crm"]
+      }
+    },
+    {
+      "id": "business",
+      "name": "Business Decision",
+      "type": "business",
+      "description": "Template for business strategy and operations decisions",
+      "fields": {
+        "title": "Required: Business decision summary",
+        "description": "Required: What was decided",
+        "rationale": "Required: Business reasoning",
+        "impact": "Required: Business impact level",
+        "participants": "Required: Stakeholders involved",
+        "decidedBy": "Required: Final decision maker",
+        "expectedOutcome": "Optional: Expected business outcomes",
+        "metrics": "Optional: How success will be measured",
+        "reviewDate": "Optional: When to review results"
+      },
+      "example": {
+        "title": "Launch Google Workspace integration as premium feature",
+        "description": "Google Workspace integration (Gmail, Drive, Calendar, Sheets) will be available only for premium plan customers, not free tier.",
+        "rationale": "Integration has significant development and maintenance cost, premium positioning aligns with target market (businesses), creates clear upgrade incentive.",
+        "impact": "high",
+        "participants": ["Product team", "Sales", "Engineering"],
+        "decidedBy": "CEO",
+        "expectedOutcome": "15-20% increase in premium conversions, higher customer lifetime value",
+        "metrics": ["Premium conversion rate", "Feature usage", "Customer retention"],
+        "reviewDate": "2025-03-01",
+        "tags": ["pricing", "features", "integration"]
+      }
+    },
+    {
+      "id": "hiring",
+      "name": "Hiring Decision",
+      "type": "hiring",
+      "description": "Template for hiring and team expansion decisions",
+      "fields": {
+        "title": "Required: Candidate name and role",
+        "description": "Required: Hiring decision details",
+        "rationale": "Required: Why this candidate was chosen",
+        "participants": "Required: Interviewers",
+        "decidedBy": "Required: Hiring manager",
+        "impact": "Required: Team impact",
+        "startDate": "Optional: Expected start date",
+        "onboardingOwner": "Optional: Who handles onboarding",
+        "interviewFeedback": "Optional: Summary of interview feedback"
+      },
+      "example": {
+        "title": "Hired Anna Rossi as Frontend Developer",
+        "description": "Anna Rossi accepted offer for Frontend Developer position. Salary: $75k/year, start date: 2024-12-01.",
+        "rationale": "Strong technical skills in React and TypeScript, excellent portfolio, culture fit confirmed by team interviews, previous experience with similar projects.",
+        "participants": ["Marco", "Sara", "Zero"],
+        "decidedBy": "Zero",
+        "impact": "high",
+        "startDate": "2024-12-01",
+        "onboardingOwner": "Sara",
+        "interviewFeedback": "Marco: 4/5 (strong technical), Sara: 5/5 (excellent culture fit), Zero: 4/5 (good problem solving)",
+        "tags": ["hiring", "frontend", "team-expansion"]
+      }
+    },
+    {
+      "id": "process",
+      "name": "Process Decision",
+      "type": "process",
+      "description": "Template for workflow and process decisions",
+      "fields": {
+        "title": "Required: Process change summary",
+        "description": "Required: New process or change",
+        "rationale": "Required: Why this change is needed",
+        "oldProcess": "Optional: Previous process (if changing)",
+        "newProcess": "Required: New process details",
+        "participants": "Required: Team members involved",
+        "decidedBy": "Required: Process owner",
+        "impact": "Required: Team impact",
+        "rolloutPlan": "Optional: How to implement"
+      },
+      "example": {
+        "title": "Implement 2-person code review requirement",
+        "description": "All PRs must have approval from 2 team members before merging to main (previously only 1).",
+        "rationale": "Recent production bugs could have been caught with additional review. Higher quality bar needed as codebase grows and customer base increases.",
+        "oldProcess": "1 approval required for PR merge",
+        "newProcess": "2 approvals required. At least one must be from senior developer. Exception: hotfixes can use 1 approval with post-merge review.",
+        "participants": ["Marco", "Sara", "Zero"],
+        "decidedBy": "Zero",
+        "impact": "medium",
+        "rolloutPlan": "Update GitHub branch protection rules immediately. Communicate in team meeting. Monitor review times for bottlenecks.",
+        "tags": ["process", "code-review", "quality"]
+      }
+    },
+    {
+      "id": "security",
+      "name": "Security Decision",
+      "type": "security",
+      "description": "Template for security-related decisions",
+      "fields": {
+        "title": "Required: Security decision summary",
+        "description": "Required: What security measure was decided",
+        "rationale": "Required: Security reasoning and threat addressed",
+        "riskLevel": "Required: Risk level if not implemented",
+        "participants": "Required: Security reviewers",
+        "decidedBy": "Required: Security decision owner",
+        "impact": "Required: critical | high | medium | low",
+        "implementationDeadline": "Optional: When must be implemented",
+        "complianceRequirement": "Optional: Regulatory compliance info"
+      },
+      "example": {
+        "title": "Require 2FA for all production deployments",
+        "description": "All users with production deployment access must enable 2FA. Deployment tools will verify 2FA is active before allowing production deploys.",
+        "rationale": "Production access is high-risk. Single-factor authentication insufficient given increasing security threats. 2FA significantly reduces risk of unauthorized deployments.",
+        "riskLevel": "high",
+        "participants": ["Zero", "Marco", "Security team"],
+        "decidedBy": "Zero",
+        "impact": "critical",
+        "implementationDeadline": "2024-12-01",
+        "complianceRequirement": "Aligns with SOC 2 requirements for production access controls",
+        "tags": ["security", "2fa", "production", "compliance"]
+      }
+    },
+    {
+      "id": "incident",
+      "name": "Incident Decision",
+      "type": "technical",
+      "description": "Template for incident response and resolution decisions",
+      "fields": {
+        "title": "Required: Incident summary",
+        "description": "Required: What happened and what was decided",
+        "severity": "Required: P0 | P1 | P2 | P3",
+        "rootCause": "Required: What caused the incident",
+        "resolution": "Required: How it was fixed",
+        "preventionMeasures": "Required: How to prevent recurrence",
+        "participants": "Required: Incident responders",
+        "decidedBy": "Required: Incident commander",
+        "impact": "Required: critical | high | medium | low",
+        "downtime": "Optional: Duration of impact",
+        "affectedUsers": "Optional: Number or percentage of users affected"
+      },
+      "example": {
+        "title": "Memory leak causing backend crashes - deployed emergency fix",
+        "description": "Backend v2.3.4 had memory leak in ChromaDB connection pool causing crashes every 2-3 hours. Decided to deploy emergency fix (v2.3.5) outside normal release cycle.",
+        "severity": "P1",
+        "rootCause": "ChromaDB connections not properly closed in error handling paths. Connection pool exhausted over time leading to OOM crashes.",
+        "resolution": "Added proper connection cleanup in all error handlers. Deployed v2.3.5 with fix. Restarted all backend instances.",
+        "preventionMeasures": "Add connection monitoring alerts, implement connection leak detector in tests, mandate connection pooling review in code reviews for database code.",
+        "participants": ["Marco", "Zero"],
+        "decidedBy": "Zero",
+        "impact": "critical",
+        "downtime": "2 hours total (multiple 5-10 minute outages)",
+        "affectedUsers": "100% (all users)",
+        "tags": ["incident", "memory-leak", "production", "chromadb"]
+      }
+    }
+  ],
+  "usage_notes": [
+    "Select the template that best matches your decision type",
+    "Fill all required fields - they are marked as Required in the template",
+    "Optional fields provide additional context and should be used when relevant",
+    "Tags help categorize and search decisions later",
+    "Review dates are important for decisions that may need revisiting",
+    "Use clear, concise language - future team members will read this",
+    "Include specific details (versions, dates, metrics) not just general descriptions"
+  ],
+  "best_practices": [
+    "Log decisions as soon as they are made, not days later",
+    "Include dissenting opinions in rationale when applicable",
+    "Link to related documents (PRs, design docs, metrics dashboards)",
+    "Update decision status when implemented or reversed",
+    "Review critical decisions quarterly to ensure they still make sense",
+    "Make decisions searchable by using consistent tags",
+    "Include everyone who was involved in the decision",
+    "Be honest about alternatives and tradeoffs"
+  ]
+}
