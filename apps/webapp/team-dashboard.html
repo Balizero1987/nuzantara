@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Dashboard - ZANTARA</title>
 
+    <!-- Authentication Guard -->
+    <script src="js/auth-guard.js"></script>
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/production.css">
     <link rel="stylesheet" href="css/timesheet.css">
@@ -373,10 +376,18 @@
     <script type="module">
         import { timesheetClient } from './js/timesheet-client.js';
 
-        // Check admin access
+        // Check admin access (auth-guard already checked login)
         if (!timesheetClient.isAdmin()) {
-            alert('Admin access required');
-            window.location.href = 'chat.html';
+            // Show error message but don't redirect (to avoid loops)
+            const container = document.querySelector('.dashboard-container');
+            container.innerHTML = `
+                <div class="error-state" style="text-align: center; padding: 60px 20px;">
+                    <h2 style="color: #ff4444; margin-bottom: 20px;">Access Denied</h2>
+                    <p style="color: #aaa; margin-bottom: 30px;">Admin access required to view this page.</p>
+                    <a href="chat.html" class="back-link" style="display: inline-block;">← Back to Chat</a>
+                </div>
+            `;
+            return; // Stop execution
         }
 
         // Tab switching
