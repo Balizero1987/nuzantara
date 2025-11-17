@@ -175,6 +175,9 @@ class TeamTimesheetService:
 
             # Calculate hours worked
             clock_in_time = current_status["last_action_bali"]
+            # Ensure clock_in_time is timezone-aware
+            if clock_in_time.tzinfo is None:
+                clock_in_time = clock_in_time.replace(tzinfo=BALI_TZ)
             duration = now - clock_in_time
             hours_worked = duration.total_seconds() / 3600
 
