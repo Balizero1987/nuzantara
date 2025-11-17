@@ -346,6 +346,59 @@
       border-color: rgba(217, 32, 39, 0.8) !important;
     }
 
+    /* Error and Success Messages */
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      text-align: center;
+    }
+
+    .success-message {
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      color: #4ade80;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      text-align: center;
+    }
+
+    /* Login Button */
+    .login-button {
+      width: 100%;
+      padding: 1rem;
+      background: rgba(217, 32, 39, 0.9);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 0.5rem;
+    }
+
+    .login-button:hover {
+      background: rgba(217, 32, 39, 1);
+      transform: translateY(-1px);
+    }
+
+    .login-button:active {
+      transform: translateY(0);
+    }
+
+    .login-button:disabled {
+      background: rgba(100, 100, 100, 0.5);
+      cursor: not-allowed;
+      transform: none;
+    }
+
     /* Improved responsive */
     @media (max-width: 768px) {
       .login-container {
@@ -374,11 +427,83 @@
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div class="login-container">
+    <!-- Logo -->
+    <img src="assets/balizero-logo-clean.png" alt="Bali Zero" class="bali-zero-logo" />
 
-  <!-- Auto-login feature -->
-  <script type="module" src="js/api-config.js"></script>
-  <script type="module" src="/src/main.tsx"></script>
+    <!-- Login Form -->
+    <div class="login-form-wrapper">
+      <form id="loginForm" class="login-form">
+        <!-- Email Field -->
+        <div class="form-group">
+          <label for="email" class="form-label email-label">
+            <span>Email</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              placeholder="your@email.com"
+              required
+              autocomplete="email"
+            />
+            <span class="validation-icon" id="emailValidation"></span>
+          </div>
+        </div>
+
+        <!-- PIN Field -->
+        <div class="form-group">
+          <label for="pin" class="form-label">PIN (4-8 digits)</label>
+          <div class="pin-input-wrapper input-wrapper">
+            <input
+              type="password"
+              id="pin"
+              name="pin"
+              class="form-input pin-input"
+              placeholder="••••••••"
+              required
+              inputmode="numeric"
+              pattern="[0-9]{4,8}"
+              minlength="4"
+              maxlength="8"
+              autocomplete="off"
+            />
+            <button type="button" class="pin-toggle" id="pinToggle" aria-label="Toggle PIN visibility">
+              <svg class="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+            <span class="validation-icon" id="pinValidation"></span>
+          </div>
+          <div class="pin-progress">
+            <div class="pin-progress-bar" id="pinProgressBar"></div>
+            <p class="pin-hint">
+              <span id="pinLength">0</span><span> / 8 digits</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+        <!-- Success Message -->
+        <div id="welcomeMessage" class="success-message" style="display: none;"></div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="loginButton" class="login-button">
+          <span class="button-text">Login to ZANTARA</span>
+          <span class="button-spinner"></span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Load API Config and Login Script -->
+  <script src="js/api-config.js"></script>
+  <script src="js/login.js"></script>
 </body>
 </html>
 
