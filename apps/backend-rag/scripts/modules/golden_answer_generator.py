@@ -126,7 +126,8 @@ class GoldenAnswerGenerator:
                 "canonical_question": cluster.canonical_question,
                 "answer": answer_data['answer'],
                 "sources": rag_results[:5],
-                "confidence": answer_data.get('confidence', 0.8)
+                "confidence": answer_data.get('confidence', 0.8),
+                "tokens_used": answer_data.get('tokens_used', 0)
             }
 
         except Exception as e:
@@ -278,11 +279,18 @@ Generate the FAQ answer now:"""
                     logger.error("❌ LLAMA returned empty response")
                     return None
 
-                logger.info(f"✅ LLAMA generated answer ({len(answer_text)} chars)")
+                # Extract token usage from RunPod response
+                usage = data.get("usage", {})
+                tokens_used = usage.get("total_tokens", 0) or (
+                    usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0)
+                )
+
+                logger.info(f"✅ LLAMA generated answer ({len(answer_text)} chars, {tokens_used} tokens)")
 
                 return {
                     "answer": answer_text.strip(),
-                    "confidence": 0.85  # Default confidence
+                    "confidence": 0.85,  # Default confidence
+                    "tokens_used": tokens_used
                 }
 
         except httpx.TimeoutException:
@@ -388,7 +396,8 @@ Generate the FAQ answer now:"""
             "total_clusters": len(clusters),
             "successful": 0,
             "failed": 0,
-            "skipped": 0
+            "skipped": 0,
+            "tokens_used": 0
         }
 
         for i, cluster in enumerate(clusters, 1):
@@ -399,6 +408,7 @@ Generate the FAQ answer now:"""
 
                 if result:
                     stats["successful"] += 1
+                    stats["tokens_used"] += result.get("tokens_used", 0)
                 else:
                     stats["failed"] += 1
 
@@ -413,6 +423,7 @@ Generate the FAQ answer now:"""
         logger.info(f"✅ Batch generation complete:")
         logger.info(f"   Successful: {stats['successful']}")
         logger.info(f"   Failed: {stats['failed']}")
+        logger.info(f"   Tokens used: {stats['tokens_used']}")
 
         return stats
 
