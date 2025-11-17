@@ -3,8 +3,8 @@ import { fetchWithTimeout, parseLoginResponse, formatErrorMessage } from '../uti
 
 // Configuration - Use centralized API_CONFIG
 const API_CONFIG = globalThis.API_CONFIG || {
-  backend: { url: 'https://nuzantara-backend.fly.dev' },
-  memory: { url: 'https://nuzantara-backend.fly.dev' }
+  backend: { url: 'https://nuzantara-rag.fly.dev' },
+  memory: { url: 'https://nuzantara-memory.fly.dev' }
 };
 const API_BASE_URL = API_CONFIG.backend.url;
 
