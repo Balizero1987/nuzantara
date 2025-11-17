@@ -14,6 +14,17 @@ export const API_CONFIG = {
     url: window.location.hostname === 'localhost'
       ? 'http://localhost:8080'  // Memory service local
       : 'https://nuzantara-memory.fly.dev'  // FIXED: Correct Memory Service URL
+  },
+  // Request configuration
+  timeouts: {
+    default: 30000,      // 30 seconds for standard API calls
+    auth: 10000,         // 10 seconds for auth endpoints
+    streaming: 120000,   // 2 minutes for streaming responses
+    upload: 300000       // 5 minutes for file uploads
+  },
+  retries: {
+    maxAttempts: 3,
+    backoffMs: 1000     // Initial backoff delay
   }
 };
 

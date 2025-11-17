@@ -36,3 +36,12 @@ body {
   max-width: 100%;
   display: block;
 }
+
+/* Utility classes */
+.show {
+  display: block !important;
+}
+
+.hide {
+  display: none !important;
+}
