@@ -1296,10 +1296,21 @@
 
     // Conversation History Sidebar Management
     (function() {
+      console.log('🚀 Sidebar module initializing...');
       const sidebar = document.getElementById('conversationSidebar');
       const toggle = document.getElementById('conversationSidebarToggle');
       const closeBtn = document.getElementById('conversationSidebarClose');
       const content = document.getElementById('conversationSidebarContent');
+
+      console.log('📍 Elements found:', {
+        sidebar: !!sidebar,
+        toggle: !!toggle,
+        closeBtn: !!closeBtn,
+        content: !!content,
+        sidebarClasses: sidebar?.className,
+        toggleClasses: toggle?.className
+      });
+
       const MAX_CONVERSATIONS = 50;
       let conversations = [];
       let currentConversationId = null;
@@ -1374,9 +1385,25 @@
 
       // Toggle sidebar
       if (toggle && sidebar) {
-        toggle.addEventListener('click', () => {
+        console.log('✅ Sidebar toggle initialized');
+        toggle.addEventListener('click', (e) => {
+          console.log('🔘 Hamburger clicked!', {
+            event: e,
+            target: e.target,
+            currentTarget: e.currentTarget
+          });
+          console.log('📂 Sidebar before toggle:', {
+            hasOpenClass: sidebar.classList.contains('open'),
+            classList: Array.from(sidebar.classList)
+          });
           sidebar.classList.toggle('open');
+          console.log('📂 Sidebar after toggle:', {
+            hasOpenClass: sidebar.classList.contains('open'),
+            classList: Array.from(sidebar.classList)
+          });
         });
+      } else {
+        console.error('❌ Sidebar toggle NOT initialized:', { toggle: !!toggle, sidebar: !!sidebar });
       }
 
       // Close sidebar
