@@ -388,7 +388,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token validation failed',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });
@@ -426,7 +426,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token refresh failed',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });
@@ -456,7 +456,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token revocation failed',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });
@@ -501,7 +501,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token generation failed',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });

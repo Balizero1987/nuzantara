@@ -72,7 +72,7 @@ router.get('/metrics', (_req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to analyze code quality',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined,
     });
   }
 });
@@ -106,7 +106,7 @@ router.get('/analyze/:file', (req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to analyze file',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -169,7 +169,7 @@ router.post('/run-tests', async (req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to run tests',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -235,7 +235,7 @@ router.get('/report', (_req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to generate report',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -300,7 +300,7 @@ router.get('/suggestions', (req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to get suggestions',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -367,7 +367,7 @@ router.post('/benchmark', async (req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to run benchmark',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });

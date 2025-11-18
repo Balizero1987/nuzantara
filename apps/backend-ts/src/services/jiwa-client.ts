@@ -73,7 +73,7 @@ export class JiwaClient {
       logger.info(`💗 JIWA Service: ${this.isHealthy ? 'Connected' : 'Not available'}`);
       return this.isHealthy;
     } catch (error) {
-      logger.warn(`⚠️ JIWA Service not available: ${error.message}`);
+      logger.warn(`⚠️ JIWA Service not available: ${error instanceof Error ? error.message : String(error)}`);
       this.isHealthy = false;
       return false;
     }
@@ -112,7 +112,7 @@ export class JiwaClient {
       );
       return response.data;
     } catch (error) {
-      logger.error(`❌ Soul reading failed: ${error.message}`);
+      logger.error(`❌ Soul reading failed: ${error instanceof Error ? error.message : String(error)}`);
       return null;
     }
   }
@@ -148,7 +148,7 @@ export class JiwaClient {
       logger.info(`💫 Response infused with warmth: ${result.data.maternal_warmth}`);
       return result.data;
     } catch (error) {
-      logger.error(`❌ Response infusion failed: ${error.message}`);
+      logger.error(`❌ Response infusion failed: ${error instanceof Error ? error.message : String(error)}`);
       return null;
     }
   }
@@ -174,7 +174,7 @@ export class JiwaClient {
       logger.warn('🛡️ Protection activated for ${userId}: ${response.data.protection_id}');
       return response.data;
     } catch (error) {
-      logger.error('❌ Protection activation failed:', error.message);
+      logger.error('❌ Protection activation failed:', error instanceof Error ? error.message : String(error));
       return null;
     }
   }
@@ -187,7 +187,7 @@ export class JiwaClient {
       const response = await this.client.get('/jiwa-status');
       return response.data;
     } catch (error) {
-      logger.error('❌ Failed to get JIWA status:', error.message);
+      logger.error('❌ Failed to get JIWA status:', error instanceof Error ? error.message : String(error));
       return null;
     }
   }

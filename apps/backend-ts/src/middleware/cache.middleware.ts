@@ -268,7 +268,7 @@ export async function getCacheStats(): Promise<any> {
     };
   } catch (error) {
     logger.error('Failed to get cache stats:', error);
-    return { status: 'error', error: error.message };
+    return { status: 'error', error: error instanceof Error ? error.message : String(error) };
   }
 }
 
