@@ -1543,40 +1543,39 @@
       });
     })();
 
-      // File Attachment Handler
-      (function() {
-        const attachBtn = document.getElementById('attachButton');
-        const fileInput = document.getElementById('fileInput');
-        let attachedFile = null;
-        let attachedFileDataUrl = null;
+    // File Attachment Handler
+    (function() {
+      const attachBtn = document.getElementById('attachButton');
+      const fileInput = document.getElementById('fileInput');
+      let attachedFile = null;
+      let attachedFileDataUrl = null;
 
-        if (attachBtn && fileInput) {
-          attachBtn.addEventListener('click', () => {
-            fileInput.click();
-          });
+      if (attachBtn && fileInput) {
+        attachBtn.addEventListener('click', () => {
+          fileInput.click();
+        });
 
-          fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-              attachedFile = file;
-              const reader = new FileReader();
-              reader.onload = (event) => {
-                attachedFileDataUrl = event.target.result;
-                console.log('File attached:', file.name);
-              };
-              reader.readAsDataURL(file);
-            }
-          });
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            attachedFile = file;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              attachedFileDataUrl = event.target.result;
+              console.log('File attached:', file.name);
+            };
+            reader.readAsDataURL(file);
+          }
+        });
 
-          attachBtn.addEventListener('mouseenter', () => {
-            attachBtn.style.transform = 'scale(1.1)';
-          });
+        attachBtn.addEventListener('mouseenter', () => {
+          attachBtn.style.transform = 'scale(1.1)';
+        });
 
-          attachBtn.addEventListener('mouseleave', () => {
-            attachBtn.style.transform = 'scale(1)';
-          });
-        }
-      })();
+        attachBtn.addEventListener('mouseleave', () => {
+          attachBtn.style.transform = 'scale(1)';
+        });
+      }
     })();
   </script>
 
