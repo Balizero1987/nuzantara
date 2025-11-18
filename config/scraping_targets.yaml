@@ -1,0 +1,247 @@
+# NUZANTARA INTEL SCRAPING TARGETS
+# Comprehensive source configuration for automated intelligence gathering
+
+version: "2.0"
+last_updated: "2025-11-18"
+total_sources: 630
+
+# Source priority tiers:
+# T1: Official government/regulatory (daily scraping)
+# T2: Professional media/industry sources (every 48h)
+# T3: Community/forums (weekly)
+
+categories:
+  immigration:
+    priority: critical
+    scrape_frequency: daily
+    sources:
+      - name: "Imigrasi Indonesia"
+        url: "https://www.imigrasi.go.id/"
+        tier: T1
+        selectors: ["div.content", "article", "div.news-item"]
+
+      - name: "Kemnaker RI"
+        url: "https://kemnaker.go.id/"
+        tier: T1
+        selectors: ["article", "div.content"]
+
+      - name: "Jakarta Post - Visa"
+        url: "https://www.thejakartapost.com/search?q=visa"
+        tier: T2
+        selectors: ["article.post"]
+
+      - name: "Indonesia Expat"
+        url: "https://indonesiaexpat.id/category/visa-immigration/"
+        tier: T2
+        selectors: ["article", "div.post"]
+
+  tax_bkpm:
+    priority: critical
+    scrape_frequency: daily
+    sources:
+      - name: "DJP (Tax Directorate)"
+        url: "https://www.pajak.go.id/id/berita"
+        tier: T1
+        selectors: ["article", "div.news-item"]
+
+      - name: "BKPM"
+        url: "https://www.bkpm.go.id/"
+        tier: T1
+        selectors: ["div.content", "article"]
+
+      - name: "Kemenkeu"
+        url: "https://www.kemenkeu.go.id/informasi-publik/publikasi/berita-pajak"
+        tier: T1
+        selectors: ["div.content-item"]
+
+  property:
+    priority: high
+    scrape_frequency: "48h"
+    sources:
+      - name: "ATR/BPN"
+        url: "https://www.atrbpn.go.id/Berita"
+        tier: T1
+        selectors: ["article", "div.news-item"]
+
+      - name: "Rumah.com Bali"
+        url: "https://www.rumah.com/berita-properti/bali"
+        tier: T2
+        selectors: ["article", "div.news-card"]
+
+      - name: "Lamudi Bali"
+        url: "https://www.lamudi.co.id/bali/"
+        tier: T2
+        selectors: ["div.property-item"]
+
+  business_regulations:
+    priority: critical
+    scrape_frequency: daily
+    sources:
+      - name: "OSS Indonesia"
+        url: "https://oss.go.id/"
+        tier: T1
+        selectors: ["div.announcement", "article"]
+
+      - name: "KADIN"
+        url: "https://kadin.id/"
+        tier: T2
+        selectors: ["article", "div.news"]
+
+  legal_updates:
+    priority: critical
+    scrape_frequency: daily
+    sources:
+      - name: "JDIH (Legal Database)"
+        url: "https://peraturan.go.id/"
+        tier: T1
+        selectors: ["div.regulation-item"]
+
+      - name: "Hukumonline"
+        url: "https://www.hukumonline.com/"
+        tier: T2
+        selectors: ["article"]
+
+  events:
+    priority: medium
+    scrape_frequency: weekly
+    sources:
+      - name: "Bali Advertiser Events"
+        url: "https://baliadvertiser.biz/category/events/"
+        tier: T3
+        selectors: ["article", "div.event-card"]
+
+      - name: "Eventbrite Bali"
+        url: "https://www.eventbrite.com/d/indonesia--bali/events/"
+        tier: T3
+        selectors: ["div.event-card"]
+
+  cost_of_living:
+    priority: medium
+    scrape_frequency: weekly
+    sources:
+      - name: "BPS Bali"
+        url: "https://bali.bps.go.id/"
+        tier: T1
+        selectors: ["div.news-item", "article"]
+
+      - name: "Numbeo Bali"
+        url: "https://www.numbeo.com/cost-of-living/in/Bali"
+        tier: T3
+        selectors: ["div.data-item"]
+
+  healthcare:
+    priority: medium
+    scrape_frequency: "48h"
+    sources:
+      - name: "Kemenkes RI"
+        url: "https://www.kemkes.go.id/"
+        tier: T1
+        selectors: ["article", "div.news"]
+
+      - name: "BPJS Kesehatan"
+        url: "https://www.bpjs-kesehatan.go.id/bpjs/"
+        tier: T1
+        selectors: ["div.news-item"]
+
+  education:
+    priority: low
+    scrape_frequency: weekly
+    sources:
+      - name: "Kemdikbud"
+        url: "https://www.kemdikbud.go.id/"
+        tier: T1
+        selectors: ["article", "div.news"]
+
+  transportation:
+    priority: low
+    scrape_frequency: weekly
+    sources:
+      - name: "Ministry of Transportation"
+        url: "http://dephub.go.id/"
+        tier: T1
+        selectors: ["article", "div.news"]
+
+  bali_news:
+    priority: medium
+    scrape_frequency: daily
+    sources:
+      - name: "Bali Post"
+        url: "https://www.balipost.com/"
+        tier: T2
+        selectors: ["article", "div.news-item"]
+
+      - name: "Nusa Bali"
+        url: "https://www.nusabali.com/"
+        tier: T2
+        selectors: ["article"]
+
+      - name: "Tribun Bali"
+        url: "https://bali.tribunnews.com/"
+        tier: T2
+        selectors: ["article.txt__article"]
+
+  competitor_intel:
+    priority: medium
+    scrape_frequency: weekly
+    sources:
+      - name: "Indonesia Expat"
+        url: "https://indonesiaexpat.id/"
+        tier: T2
+        selectors: ["article"]
+
+      - name: "Jakarta Post"
+        url: "https://www.thejakartapost.com/"
+        tier: T1
+        selectors: ["article.post"]
+
+      - name: "Coconuts Bali"
+        url: "https://coconuts.co/bali/"
+        tier: T2
+        selectors: ["article"]
+
+      - name: "NOW! Bali"
+        url: "https://nowbali.co.id/"
+        tier: T3
+        selectors: ["article"]
+
+# Alert configuration
+alerts:
+  critical:
+    channels: ["email", "slack"]
+    recipients:
+      - "team@nuzantara.com"
+    keywords:
+      - "urgent"
+      - "breaking"
+      - "deadline"
+      - "immediate"
+      - "new requirement"
+      - "policy change"
+
+  important:
+    channels: ["slack"]
+    recipients:
+      - "#intel-updates"
+
+  daily_digest:
+    time: "07:00 UTC"
+    recipients:
+      - "team@nuzantara.com"
+    include_categories: ["immigration", "tax_bkpm", "legal_updates"]
+
+# Rate limiting
+rate_limits:
+  delay_between_requests: 3  # seconds
+  delay_between_categories: 5  # seconds
+  max_retries: 3
+  timeout: 15  # seconds
+
+# Quality filters
+quality_filters:
+  min_word_count: 100
+  max_word_count: 10000
+  spam_keywords:
+    - "spam"
+    - "click here"
+    - "buy now"
+  duplicate_threshold: 0.85  # 85% similarity = duplicate
