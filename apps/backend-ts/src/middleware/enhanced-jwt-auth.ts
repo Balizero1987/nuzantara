@@ -324,7 +324,7 @@ export class EnhancedJWTAuth {
    * Get user's permission level based on role
    */
   private getUserPermissionLevel(user: EnhancedUser): number {
-    const roleLevel = ROLE_HIERARCHY[user.role] || 0;
+    const roleLevel = (ROLE_HIERARCHY as Record<string, number>)[user.role] || 0;
     const subscriptionMultiplier = this.getSubscriptionMultiplier(user.subscriptionTier);
     return roleLevel * subscriptionMultiplier;
   }

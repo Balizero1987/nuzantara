@@ -803,7 +803,7 @@ function getRiskScore(riskLevel: string): number {
 }
 
 function getRiskLevelFromScore(score: number): string {
-  const levels = {
+  const levels: { [key: number]: string } = {
     1: RISK_LEVELS.LOW,
     2: RISK_LEVELS.MEDIUM_LOW,
     3: RISK_LEVELS.MEDIUM_HIGH,
