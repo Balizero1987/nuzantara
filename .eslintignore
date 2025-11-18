@@ -1,6 +1,0 @@
-# Ignore missing and generated files
-apps/webapp-next/shared/js/api-contracts.js
-node_modules
-dist
-build
-coverage
