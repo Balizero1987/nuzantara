@@ -164,7 +164,7 @@ export abstract class Plugin<TInput = any, TOutput = any> {
    * @param input - Input data to validate
    * @returns True if valid, false otherwise
    */
-  async validate(input: TInput): Promise<boolean> {
+  async validate(_input: TInput): Promise<boolean> {
     return true;
   }
 
@@ -231,7 +231,7 @@ export abstract class Plugin<TInput = any, TOutput = any> {
    * Convert Zod schema to JSON schema (simplified)
    * For full implementation, use zod-to-json-schema library
    */
-  private zodToJsonSchema(schema: z.ZodSchema): any {
+  private zodToJsonSchema(_schema: z.ZodSchema): any {
     // This is a simplified implementation
     // In production, use the 'zod-to-json-schema' library
     return {
@@ -305,7 +305,7 @@ export function wrapHandlerAsPlugin(
 
   const inputSchema = options.inputSchema || z.any();
 
-  return createSimplePlugin(metadata, inputSchema, async (input, context) => {
+  return createSimplePlugin(metadata, inputSchema, async (input, _context) => {
     try {
       const result = await handler(input);
       return {

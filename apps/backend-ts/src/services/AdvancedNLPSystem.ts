@@ -236,39 +236,11 @@ export class AdvancedNLPSystem {
   // PERSON NAMES EXTRACTION
   // =====================================================
 
-  private async extractPersonNames(query: string, language: string): Promise<ExtractedEntity[]> {
+  private async extractPersonNames(query: string, _language: string): Promise<ExtractedEntity[]> {
     const entities: ExtractedEntity[] = [];
 
     // Ensure team member cache is fresh
     await this.refreshTeamMemberCache();
-
-    const namePatterns = {
-      it: {
-        titles: [
-          'dott',
-          'dottoressa',
-          'sig',
-          'signora',
-          'signore',
-          'ing',
-          'prof',
-          'dottor',
-          'dottoressa',
-        ],
-        honorifics: ['mr', 'mrs', 'ms', 'dr', 'prof', 'eng', 'arch', 'avv'],
-      },
-      en: {
-        titles: ['mr', 'mrs', 'ms', 'dr', 'prof', 'eng', 'arch', 'attorney'],
-        honorifics: ['sir', 'madam', 'mr', 'mrs', 'ms'],
-      },
-      id: {
-        titles: ['bapak', 'ibu', 'pak', 'bu', 'mas', 'mbak', 'tuan', 'nyonya'],
-        honorifics: ['bapak', 'ibu', 'pak', 'bu'],
-      },
-    };
-
-
-    const _patterns = namePatterns[language] || namePatterns['mixed'];
 
     // Check for team members first (highest confidence)
     for (const [memberId, memberData] of this.teamMemberCache) {
@@ -1075,8 +1047,6 @@ export class AdvancedNLPSystem {
   private classifyIntent(query: string, entities: ExtractedEntity[], _language: string): string {
     const personEntities = entities.filter((e) => e.type === 'person');
     const serviceEntities = entities.filter((e) => e.type === 'service');
-
-    const _emailEntities = entities.filter((e) => e.type === 'email');
     const priceEntities = entities.filter((e) => e.type === 'price');
 
     // Check for specific intents

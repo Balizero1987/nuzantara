@@ -157,7 +157,7 @@ router.get('/:pluginName/metrics', async (req, res) => {
  * Get all plugin metrics
  * GET /api/plugins/metrics/all
  */
-router.get('/metrics/all', async (req, res) => {
+router.get('/metrics/all', async (_req, res) => {
   try {
     const allMetrics = executor.getAllMetrics();
 
@@ -208,7 +208,7 @@ router.post('/search', async (req, res) => {
  * Get registry statistics
  * GET /api/plugins/statistics
  */
-router.get('/statistics', async (req, res) => {
+router.get('/statistics', async (_req, res) => {
   try {
     const stats = registry.getStatistics();
 
@@ -289,7 +289,7 @@ router.post('/:pluginName/reload', async (req, res) => {
  * Health check
  * GET /api/plugins/health
  */
-router.get('/health', async (req, res) => {
+router.get('/health', async (_req, res) => {
   try {
     const stats = registry.getStatistics();
 

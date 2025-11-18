@@ -555,7 +555,7 @@ async function startServer() {
   // FIX 4a: POST /auth/login - User login (JWT generation)
   app.post('/auth/login', async (req, res) => {
     try {
-      const { email, password, name } = req.body;
+      const { email, name } = req.body;
 
       if (!email) {
         return res.status(400).json({
@@ -719,7 +719,7 @@ async function startServer() {
 
   // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
   if (process.env.REDIS_URL) {
-    const _io = setupWebSocket(httpServer);
+    setupWebSocket(httpServer);
     logger.info('✅ WebSocket server initialized');
   } else {
     logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
