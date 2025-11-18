@@ -79,7 +79,7 @@ export class MemoryServiceClient {
 
       return data;
     } catch (error) {
-      logger.error('❌ Failed to create session in Memory Service:', error);
+      logger.error('❌ Failed to create session in Memory Service:', error as Error);
       throw error;
     }
   }
@@ -97,7 +97,7 @@ export class MemoryServiceClient {
 
       return await response.json();
     } catch (error) {
-      logger.error('❌ Failed to get session from Memory Service:', error);
+      logger.error('❌ Failed to get session from Memory Service:', error as Error);
       throw error;
     }
   }
@@ -132,7 +132,7 @@ export class MemoryServiceClient {
 
       return data;
     } catch (error) {
-      logger.error('❌ Failed to store message in Memory Service:', error);
+      logger.error('❌ Failed to store message in Memory Service:', error as Error);
       // Don't throw - memory storage shouldn't break chat flow
       return { success: false, error };
     }
@@ -158,7 +158,7 @@ export class MemoryServiceClient {
 
       return data;
     } catch (error) {
-      logger.error('❌ Failed to get conversation history from Memory Service:', error);
+      logger.error('❌ Failed to get conversation history from Memory Service:', error as Error);
       return { success: true, messages: [], source: 'error' };
     }
   }
@@ -187,7 +187,7 @@ export class MemoryServiceClient {
 
       return data;
     } catch (error) {
-      logger.error('❌ Failed to get conversation with summary from Memory Service:', error);
+      logger.error('❌ Failed to get conversation with summary from Memory Service:', error as Error);
       // Fallback to regular history if summary endpoint fails
       return this.getConversationHistory(sessionId, limit);
     }
@@ -213,7 +213,7 @@ export class MemoryServiceClient {
 
       return data;
     } catch (error) {
-      logger.error('❌ Failed to store collective memory:', error);
+      logger.error('❌ Failed to store collective memory:', error as Error);
       return { success: false, error };
     }
   }
@@ -242,7 +242,7 @@ export class MemoryServiceClient {
 
       return data;
     } catch (error) {
-      logger.error('❌ Failed to search collective memory:', error);
+      logger.error('❌ Failed to search collective memory:', error as Error);
       return { success: true, results: [] };
     }
   }
@@ -267,7 +267,7 @@ export class MemoryServiceClient {
 
       return data;
     } catch (error) {
-      logger.error('❌ Failed to store user fact:', error);
+      logger.error('❌ Failed to store user fact:', error as Error);
       return { success: false, error };
     }
   }
@@ -291,7 +291,7 @@ export class MemoryServiceClient {
 
       return data;
     } catch (error) {
-      logger.error('❌ Failed to get user facts:', error);
+      logger.error('❌ Failed to get user facts:', error as Error);
       return { success: true, facts: [] };
     }
   }
@@ -309,7 +309,7 @@ export class MemoryServiceClient {
 
       return await response.json();
     } catch (error) {
-      logger.error('❌ Failed to get Memory Service stats:', error);
+      logger.error('❌ Failed to get Memory Service stats:', error as Error);
       return { success: false, error };
     }
   }
@@ -322,7 +322,7 @@ export class MemoryServiceClient {
       const response = await fetch(`${this.baseUrl}/health`, { method: 'GET' });
       return response.ok;
     } catch (error) {
-      logger.warn('⚠️  Memory Service health check failed:', error);
+      logger.warn('⚠️  Memory Service health check failed:', error as any);
       return false;
     }
   }

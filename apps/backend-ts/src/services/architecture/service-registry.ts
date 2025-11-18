@@ -275,7 +275,7 @@ class ServiceRegistryImpl {
               instance.health = 'unhealthy';
             }
           } catch (error) {
-            clearTimeout(timeoutId);
+            if (timeoutId) clearTimeout(timeoutId);
             instance.health = 'unhealthy';
             await this.recordFailure(instance.id);
           }

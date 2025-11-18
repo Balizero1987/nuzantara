@@ -68,7 +68,7 @@ router.get('/metrics', (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Code quality metrics error:', error);
+    logger.error('Code quality metrics error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to analyze code quality',
@@ -102,7 +102,7 @@ router.get('/analyze/:file', (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('File analysis error:', error);
+    logger.error('File analysis error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to analyze file',
@@ -165,7 +165,7 @@ router.post('/run-tests', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Test execution error:', error);
+    logger.error('Test execution error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to run tests',
@@ -231,7 +231,7 @@ router.get('/report', (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Report generation error:', error);
+    logger.error('Report generation error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to generate report',
@@ -296,7 +296,7 @@ router.get('/suggestions', (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Suggestions generation error:', error);
+    logger.error('Suggestions generation error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get suggestions',
@@ -363,7 +363,7 @@ router.post('/benchmark', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Benchmark error:', error);
+    logger.error('Benchmark error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to run benchmark',

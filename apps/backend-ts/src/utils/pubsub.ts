@@ -173,7 +173,7 @@ export class PubSubService {
       logger.debug(`Published to ${channel}: ${receivers} receivers`);
       return receivers;
     } catch (error) {
-      logger.error(`Failed to publish to ${channel}:`, error);
+      logger.error(`Failed to publish to ${channel}:`, error as Error);
       throw error;
     }
   }
@@ -200,7 +200,7 @@ export class PubSubService {
           const data = JSON.parse(message) as T;
           await handler(data);
         } catch (error) {
-          logger.error(`Error handling message from ${channel}:`, error);
+          logger.error(`Error handling message from ${channel}:`, error as Error);
         }
       }
     });
@@ -230,7 +230,7 @@ export class PubSubService {
         const data = JSON.parse(message) as T;
         await handler(ch, data);
       } catch (error) {
-        logger.error(`Error handling pattern message from ${ch}:`, error);
+        logger.error(`Error handling pattern message from ${ch}:`, error as Error);
       }
     });
   }

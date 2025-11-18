@@ -141,7 +141,7 @@ export function performanceMetricsRoute(_req: Request, res: Response): void {
       });
     }
   } catch (error) {
-    logger.error('Performance metrics error:', error);
+    logger.error('Performance metrics error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance metrics',
@@ -160,7 +160,7 @@ export function prometheusMetricsRoute(_req: Request, res: Response): void {
     res.set('Content-Type', 'text/plain; version=0.0.4');
     res.send(metrics);
   } catch (error) {
-    logger.error('Prometheus metrics error:', error);
+    logger.error('Prometheus metrics error:', error as Error);
     res.status(500).send('# Error generating metrics\n');
   }
 }
@@ -210,7 +210,7 @@ export function performanceHealthRoute(_req: Request, res: Response): void {
       },
     });
   } catch (error) {
-    logger.error('Performance health check error:', error);
+    logger.error('Performance health check error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Performance health check failed',

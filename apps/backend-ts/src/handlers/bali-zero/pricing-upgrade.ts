@@ -122,9 +122,9 @@ export async function calculateUpgradeCost(params: any) {
         net_prorated_amount: prorated_amount.toFixed(0),
       },
       feature_changes: {
-        removed: [],
-        added: [],
-        upgraded: [],
+        removed: [] as string[],
+        added: [] as string[],
+        upgraded: [] as string[],
       },
       payment_info: {
         currency: 'IDR',
