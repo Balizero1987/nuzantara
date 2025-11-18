@@ -223,8 +223,6 @@ export class InfrastructureMonitor {
 
     const requestsPerSecond = this.calculateRequestsPerSecond();
 
-    const _errorRate = this.calculateErrorRate();
-
     const metrics: ApplicationMetrics = {
       timestamp: now,
       requests: {
@@ -315,8 +313,6 @@ export class InfrastructureMonitor {
    */
   private getRecentErrors(): ErrorMetrics[] {
     const errors: ErrorMetrics[] = [];
-
-    const _fiveMinutesAgo = Date.now() - 300000;
 
     for (const [message, count] of this.errorCounts.entries()) {
       if (count > 0) {

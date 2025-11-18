@@ -95,9 +95,6 @@ export class PromptLoaderService {
    * Analyze query content to determine appropriate level
    */
   private analyzeQuery(query: string): UserLevel {
-
-    const _lowerQuery = query.toLowerCase();
-
     // Check for Level 3 patterns (highest priority)
     if (this.levelPatterns.level3.some((pattern) => pattern.test(query))) {
       return UserLevel.LEVEL_3;

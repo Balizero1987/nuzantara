@@ -240,7 +240,7 @@ export class OpenRouterClient {
   /**
    * ANTI-LOOP: Check daily budget
    */
-  private checkBudget(model: OpenRouterModel): void {
+  private checkBudget(_model: OpenRouterModel): void {
     const now = Date.now();
     const dayElapsed = now - this.budgetResetTime;
 

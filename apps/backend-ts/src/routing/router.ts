@@ -554,7 +554,7 @@ const handlers: Record<string, Handler> = {
 
   // Drive Multipart Upload Handler (Note: requires Express middleware integration)
 
-  'drive.upload.multipart': async (params: any) => {
+  'drive.upload.multipart': async (_params: any) => {
     return {
       ok: false,
       error: 'Drive multipart upload requires Express middleware. Use POST /api/drive/upload-multipart endpoint instead.',
@@ -758,8 +758,7 @@ const handlers: Record<string, Handler> = {
   'metrics.dashboard': async (req: any, res: any) => getMetricsDashboard(req, res),
   'metrics.reset': async (req: any, res: any) => resetMetrics(req, res),
   'metrics.initialize': async () => {
-
-    const _collector = initializeMetricsCollector();
+    initializeMetricsCollector();
     return { success: true, message: 'Metrics collection initialized', initialized: true };
   },
 
@@ -1317,8 +1316,6 @@ export function attachRoutes(app: import('express').Express) {
   app.post('/auth/refresh', async (req: RequestWithCtx, res: Response) => {
     const clientIP = req.header('x-forwarded-for') || req.ip || 'unknown';
 
-    const _userAgent = req.header('user-agent') || 'unknown';
-
     try {
       const { refreshToken } = req.body;
 
@@ -1712,7 +1709,7 @@ export function attachRoutes(app: import('express').Express) {
   // === Google Workspace Integration Status Endpoints ===
   
   // Gmail Integration Status
-  app.get('/api/integrations/gmail/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/api/integrations/gmail/status', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = ok({
         connected: true,
@@ -1734,7 +1731,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Google Calendar Integration Status
-  app.get('/api/integrations/calendar/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/api/integrations/calendar/status', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = ok({
         connected: true,
@@ -1755,7 +1752,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // WhatsApp Integration Status (placeholder)
-  app.get('/api/integrations/whatsapp/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/api/integrations/whatsapp/status', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = ok({
         connected: false,
@@ -1771,7 +1768,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Twitter/X Integration Status (placeholder)
-  app.get('/api/integrations/twitter/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/api/integrations/twitter/status', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = ok({
         connected: false,

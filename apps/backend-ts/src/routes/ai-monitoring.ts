@@ -13,7 +13,7 @@ const router = Router();
  * Get cron scheduler status
  * GET /api/monitoring/cron-status
  */
-router.get('/cron-status', async (req: Request, res: Response) => {
+router.get('/cron-status', async (_req: Request, res: Response) => {
   try {
     // Dynamically import to avoid issues if not yet initialized
     const { getCronScheduler } = await import('../services/cron-scheduler.js');
@@ -38,7 +38,7 @@ router.get('/cron-status', async (req: Request, res: Response) => {
  * Get OpenRouter client stats
  * GET /api/monitoring/ai-stats
  */
-router.get('/ai-stats', async (req: Request, res: Response) => {
+router.get('/ai-stats', async (_req: Request, res: Response) => {
   try {
     const { openRouterClient } = await import('../services/ai/openrouter-client.js');
     const stats = openRouterClient.getStats();
@@ -62,7 +62,7 @@ router.get('/ai-stats', async (req: Request, res: Response) => {
  * Health check for AI automation
  * GET /api/monitoring/ai-health
  */
-router.get('/ai-health', async (req: Request, res: Response) => {
+router.get('/ai-health', async (_req: Request, res: Response) => {
   try {
     const { openRouterClient } = await import('../services/ai/openrouter-client.js');
     const { getCronScheduler } = await import('../services/cron-scheduler.js');
@@ -97,7 +97,7 @@ router.get('/ai-health', async (req: Request, res: Response) => {
  * Get refactoring agent stats
  * GET /api/monitoring/refactoring-stats
  */
-router.get('/refactoring-stats', async (req: Request, res: Response) => {
+router.get('/refactoring-stats', async (_req: Request, res: Response) => {
   try {
     const { RefactoringAgent } = await import('../agents/refactoring-agent.js');
     const agent = new RefactoringAgent();
@@ -122,7 +122,7 @@ router.get('/refactoring-stats', async (req: Request, res: Response) => {
  * Get test generator stats
  * GET /api/monitoring/test-generator-stats
  */
-router.get('/test-generator-stats', async (req: Request, res: Response) => {
+router.get('/test-generator-stats', async (_req: Request, res: Response) => {
   try {
     const { TestGeneratorAgent } = await import('../agents/test-generator-agent.js');
     const agent = new TestGeneratorAgent();

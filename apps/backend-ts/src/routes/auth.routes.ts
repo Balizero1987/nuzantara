@@ -167,7 +167,7 @@ router.get('/check', jwtAuth, async (req: RequestWithJWT, res: Response) => {
  * POST /api/auth/logout
  * Logout user (client-side token removal)
  */
-router.post('/logout', async (req: Request, res: Response) => {
+router.post('/logout', async (_req: Request, res: Response) => {
   try {
     // In a stateless JWT system, logout is client-side
     // Server just confirms the action

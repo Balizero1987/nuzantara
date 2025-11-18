@@ -498,8 +498,6 @@ export function metricsMiddleware(req: any, res: any, next: any) {
   res.end = function (chunk?: any, encoding?: any) {
     const success = res.statusCode < 400;
 
-    const _responseTime = Date.now() - startTime;
-
     // Record request completion
     collector.recordRequestEnd(reqId, startTime, endpoint, success);
 

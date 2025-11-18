@@ -37,7 +37,6 @@ export interface RequestWithUnifiedAuth {
 // Firebase Auth Integration (when available)
 class FirebaseAuthService {
   private enabled: boolean = false;
-  private _admin: any = null;
 
   async initialize() {
     try {
@@ -463,8 +462,6 @@ export const requirePermission = (permission: string) => {
 // Multiple roles/permissions
 export const requireAny = (requirements: Array<{ role?: string; permission?: string }>) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const _user = (req as unknown as RequestWithUnifiedAuth).user;
-
     const hasAccess = requirements.some((requirement) => {
       if (requirement.role && unifiedAuth.hasRole(req as any, requirement.role)) return true;
       if (requirement.permission && unifiedAuth.hasPermission(req as any, requirement.permission))

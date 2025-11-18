@@ -248,8 +248,6 @@ class AuditTrailService {
     try {
       const pipeline = this.redis.multi();
 
-      const _timestamp = Date.now();
-
       for (const event of events) {
         // Store in sorted set by timestamp for efficient querying
         const key = `audit:events:${this.getDateKey(event.timestamp)}`;

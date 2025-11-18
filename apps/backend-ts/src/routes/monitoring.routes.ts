@@ -13,7 +13,7 @@ const router = Router();
  * GET /api/monitoring/cron-status
  * Get status of all cron jobs
  */
-router.get('/cron-status', async (req, res) => {
+router.get('/cron-status', async (_req, res) => {
   try {
     const scheduler = getCronScheduler();
     const schedulerStatus = scheduler.getStatus();
@@ -79,7 +79,7 @@ router.get('/cron-status', async (req, res) => {
  * GET /api/monitoring/agent-tasks
  * Get all agent tasks
  */
-router.get('/agent-tasks', async (req, res) => {
+router.get('/agent-tasks', async (_req, res) => {
   try {
     const scheduler = getCronScheduler();
     const orchestrator = scheduler.getOrchestrator();
