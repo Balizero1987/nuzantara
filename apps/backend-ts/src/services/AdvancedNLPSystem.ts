@@ -367,7 +367,7 @@ export class AdvancedNLPSystem {
       },
     };
 
-    const roles = roleKeywords[language] || roleKeywords['mixed'];
+    const roles = (roleKeywords as Record<string, any>)[language] || (roleKeywords as Record<string, any>)['mixed'];
 
     for (const [roleType, keywords] of Object.entries(roles)) {
       const keywordsArray = Array.isArray(keywords) ? keywords : [];
@@ -462,7 +462,7 @@ export class AdvancedNLPSystem {
       ],
     };
 
-    const deptKeywords = departments[language] || departments['mixed'];
+    const deptKeywords = (departments as Record<string, string[]>)[language] || (departments as Record<string, string[]>)['mixed'];
 
     for (const dept of deptKeywords) {
       const regex = new RegExp(`\\b${this.escapeRegExp(dept)}\\b`, 'gi');
@@ -649,7 +649,7 @@ export class AdvancedNLPSystem {
       ],
     };
 
-    const serviceKeywords = services[language] || services['mixed'];
+    const serviceKeywords = (services as Record<string, string[]>)[language] || (services as Record<string, string[]>)['mixed'];
 
     for (const service of serviceKeywords) {
       const regex = new RegExp(`\\b${this.escapeRegExp(service)}\\b`, 'gi');
@@ -740,7 +740,7 @@ export class AdvancedNLPSystem {
       ],
     };
 
-    const companies = knownCompanies[language] || knownCompanies['mixed'];
+    const companies = (knownCompanies as Record<string, string[]>)[language] || (knownCompanies as Record<string, string[]>)['mixed'];
 
     for (const company of companies) {
       const regex = new RegExp(`\\b${this.escapeRegExp(company)}\\b`, 'gi');
@@ -829,7 +829,7 @@ export class AdvancedNLPSystem {
       ],
     };
 
-    const locationKeywords = locations[language] || locations['mixed'];
+    const locationKeywords = (locations as Record<string, string[]>)[language] || (locations as Record<string, string[]>)['mixed'];
 
     for (const location of locationKeywords) {
       const regex = new RegExp(`\\b${this.escapeRegExp(location)}\\b`, 'gi');
@@ -1011,7 +1011,7 @@ export class AdvancedNLPSystem {
       ],
     };
 
-    const expertise = expertiseKeywords[language] || expertiseKeywords['mixed'];
+    const expertise = (expertiseKeywords as Record<string, string[]>)[language] || (expertiseKeywords as Record<string, string[]>)['mixed'];
 
     for (const skill of expertise) {
       const regex = new RegExp(`\\b${this.escapeRegExp(skill)}\\b`, 'gi');
@@ -1172,8 +1172,8 @@ export class AdvancedNLPSystem {
       id: ['buruk', 'jelek', 'masalah', 'kesalahan', 'gagal', 'kecewa', 'sedih', 'sulit'],
     };
 
-    const posWords = positiveWords[language] || positiveWords['mixed'];
-    const negWords = negativeWords[language] || negativeWords['mixed'];
+    const posWords = (positiveWords as Record<string, string[]>)[language] || (positiveWords as Record<string, string[]>)['mixed'];
+    const negWords = (negativeWords as Record<string, string[]>)[language] || (negativeWords as Record<string, string[]>)['mixed'];
 
     const lowerQuery = query.toLowerCase();
 
@@ -1205,7 +1205,7 @@ export class AdvancedNLPSystem {
       ],
     };
 
-    const urgent = urgentWords[language] || urgentWords['mixed'];
+    const urgent = (urgentWords as Record<string, string[]>)[language] || (urgentWords as Record<string, string[]>)['mixed'];
     const lowerQuery = query.toLowerCase();
 
     const urgentCount = urgent.filter((word) => lowerQuery.includes(word)).length;
@@ -1315,7 +1315,7 @@ export class AdvancedNLPSystem {
       ],
     };
 
-    const stops = stopWords[language] || stopWords['mixed'];
+    const stops = (stopWords as Record<string, string[]>)[language] || (stopWords as Record<string, string[]>)['mixed'];
     const words = query
       .toLowerCase()
       .split(/\s+/)

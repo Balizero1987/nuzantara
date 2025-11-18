@@ -274,7 +274,7 @@ router.get('/suggestions', (req: Request, res: Response) => {
     // Sort by impact and limit
     const sortedSuggestions = filteredSuggestions
       .sort((a, b) => {
-        const impactWeight = { high: 3, medium: 2, low: 1 };
+        const impactWeight: { [key: string]: number } = { high: 3, medium: 2, low: 1 };
         return (impactWeight[b.impact] || 0) - (impactWeight[a.impact] || 0);
       })
       .slice(0, parseInt(limit as string));
