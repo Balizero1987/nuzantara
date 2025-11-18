@@ -137,10 +137,10 @@ class ZantaraClient {
    * Ensure session exists and return session ID for Redis store
    */
   async ensureSession() {
-    let session = localStorage.getItem('zantara-session-id');
+    let session = localStorage.getItem(this.config.sessionKey);
     if (!session) {
       session = this.sessionId; // Use existing sessionId from loadSession()
-      localStorage.setItem('zantara-session-id', session);
+      localStorage.setItem(this.config.sessionKey, session);
     }
     return session;
   }

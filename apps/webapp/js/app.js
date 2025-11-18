@@ -453,16 +453,19 @@ async function sendMessage(content) {
         currentLiveMessage = null;
 
         // Show feedback widget (optional, non-intrusive)
-// DISABLED: // DISABLED:         if (feedbackCollector && skillEventBus) {
+        // DISABLED: Feedback widget and skill detection layer are disabled
+        // Uncomment the code below when skill detection is re-enabled
+        /*
+        if (feedbackCollector && skillEventBus) {
           try {
             // Check if getHistory method exists before calling it
             let lastSkills = [];
-// DISABLED:             if (typeof skillEventBus.getHistory === 'function') {
+            if (typeof skillEventBus.getHistory === 'function') {
               // Get detected skills from event bus history
-// DISABLED:               const skillEvents = skillEventBus.getHistory('skill_detected');
+              const skillEvents = skillEventBus.getHistory('skill_detected');
               lastSkills = skillEvents.length > 0 ? skillEvents[skillEvents.length - 1].data : [];
             } else {
-// DISABLED:               console.debug('skillEventBus.getHistory not available, skipping feedback widget');
+              console.debug('skillEventBus.getHistory not available, skipping feedback widget');
             }
 
             // Only show feedback for complex queries with skills detected
@@ -476,6 +479,7 @@ async function sendMessage(content) {
             console.debug('Feedback widget not available:', error);
           }
         }
+        */
       },
       onError: (error) => {
 // DISABLED:         if (stagingTheater) {

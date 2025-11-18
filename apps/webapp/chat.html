@@ -1103,10 +1103,10 @@
       transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Keep chat input fixed when sidebar opens */
+    /* Adjust chat input when sidebar opens - elegant push to the right */
     body:has(.conversation-sidebar.open) .chat-input-container {
-      left: 0 !important;
-      right: 0 !important;
+      left: 320px !important;
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Responsive */
@@ -1117,6 +1117,10 @@
 
       body:has(.conversation-sidebar.open) .messages-container {
         margin-left: 280px;
+      }
+
+      body:has(.conversation-sidebar.open) .chat-input-container {
+        left: 280px !important;
       }
 
       .conversation-sidebar-toggle {
