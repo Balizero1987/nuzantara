@@ -53,13 +53,18 @@
         const data = await response.json();
         currentStatus = data;
         updateUI(data.is_clocked_in);
+      } else if (response.status === 404) {
+        // Endpoint not implemented yet, hide widget
+        console.warn('⚠️ Timesheet endpoint not available, hiding widget');
+        hideWidget();
       } else {
         console.error('❌ Failed to check clock status:', response.status);
         updateUI(false);
       }
     } catch (error) {
       console.error('❌ Error checking clock status:', error);
-      updateUI(false);
+      // Network error or endpoint doesn't exist - hide widget
+      hideWidget();
     }
   }
 
