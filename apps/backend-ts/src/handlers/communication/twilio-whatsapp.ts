@@ -46,7 +46,7 @@ export async function twilioWhatsappWebhook(req: any, res: any) {
     // Process message asynchronously
     await handleTwilioMessage(From, Body, MessageSid);
   } catch (error) {
-    logger.error('❌ Twilio Webhook Error:', error);
+    logger.error('❌ Twilio Webhook Error:', error as Error);
     // Still return 200 to Twilio to avoid retries
     res.status(200).send('<?xml version="1.0" encoding="UTF-8"?><Response></Response>');
   }
@@ -64,7 +64,7 @@ async function handleTwilioMessage(from: string, message: string, _messageSid: s
 
     await sendTwilioWhatsapp(from, reply);
   } catch (error) {
-    logger.error('❌ Error handling Twilio message:', error);
+    logger.error('❌ Error handling Twilio message:', error as Error);
   }
 }
 
@@ -84,7 +84,7 @@ export async function sendTwilioWhatsapp(to: string, message: string) {
     logger.info(`✅ Twilio WhatsApp message sent to ${to}:`, result.sid);
     return result;
   } catch (error) {
-    logger.error('❌ Error sending Twilio WhatsApp:', error);
+    logger.error('❌ Error sending Twilio WhatsApp:', error as Error);
     throw error;
   }
 }

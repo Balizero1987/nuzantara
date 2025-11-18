@@ -51,7 +51,7 @@ class FirebaseAuthService {
         logger.info('Firebase Auth disabled - missing configuration');
       }
     } catch (error) {
-      logger.warn('Firebase Auth initialization failed:', error);
+      logger.warn('Firebase Auth initialization failed:', error as any);
       this.enabled = false;
     }
   }
@@ -75,7 +75,7 @@ class FirebaseAuthService {
       logger.info('🔥 Firebase token verification (mock)');
       return null;
     } catch (error) {
-      logger.warn('Firebase token verification failed:', error);
+      logger.warn('Firebase token verification failed:', error as any);
       return null;
     }
   }
@@ -88,7 +88,7 @@ class FirebaseAuthService {
       // return await this.admin.auth().createCustomToken(uid, additionalClaims);
       return null;
     } catch (error) {
-      logger.error('Firebase custom token generation failed:', error);
+      logger.error('Firebase custom token generation failed:', error as Error);
       return null;
     }
   }
@@ -259,7 +259,7 @@ class UnifiedAuthenticationStrategy {
 
         await teamLoginSecure(mockReq.body);
       } catch (error) {
-        logger.warn('Team auth failed:', error);
+        logger.warn('Team auth failed:', error as any);
         next();
       }
     };
@@ -279,7 +279,7 @@ class UnifiedAuthenticationStrategy {
           (req as unknown as RequestWithUnifiedAuth).authMethod = 'firebase';
         }
       } catch (error) {
-        logger.warn('Firebase auth failed:', error);
+        logger.warn('Firebase auth failed:', error as any);
         next();
       }
     };
@@ -333,7 +333,7 @@ class UnifiedAuthenticationStrategy {
           });
           return;
         } catch (error) {
-          logger.warn(`${method.name} auth error:`, error);
+          logger.warn(`${method.name} auth error:`, error as any);
         }
       }
     }
@@ -424,7 +424,7 @@ export const optionalUnifiedAuth = async (req: Request, res: Response, next: Nex
     await unifiedAuth.authenticate(req, res, next);
   } catch (error) {
     // Continue without authentication
-    logger.warn('Optional auth failed, continuing:', error);
+    logger.warn('Optional auth failed, continuing:', error as any);
     next();
   }
 };

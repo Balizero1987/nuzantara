@@ -168,7 +168,7 @@ export class PromptLoaderService {
     try {
       return await fs.readFile(promptPath, 'utf-8');
     } catch (error) {
-      logger.error(`Failed to load prompt file ${filename}:`, error);
+      logger.error(`Failed to load prompt file ${filename}:`, error as Error);
       // Fallback to basic prompt
       return this.getBasicPrompt();
     }

@@ -70,7 +70,7 @@ router.get('/alerts', (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Performance alerts error:', error);
+    logger.error('Performance alerts error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance alerts',
@@ -101,7 +101,7 @@ router.get('/summary', (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Performance summary error:', error);
+    logger.error('Performance summary error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance summary',
@@ -134,7 +134,7 @@ router.post('/cleanup', (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Performance cleanup error:', error);
+    logger.error('Performance cleanup error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to cleanup performance metrics',
@@ -206,7 +206,7 @@ router.get('/dashboard', (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Performance dashboard error:', error);
+    logger.error('Performance dashboard error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance dashboard',
