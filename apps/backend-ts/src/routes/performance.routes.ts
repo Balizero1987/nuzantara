@@ -74,7 +74,7 @@ router.get('/alerts', (_req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance alerts',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -105,7 +105,7 @@ router.get('/summary', (req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance summary',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -138,7 +138,7 @@ router.post('/cleanup', (req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to cleanup performance metrics',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -210,7 +210,7 @@ router.get('/dashboard', (req: Request, res: Response) => {
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance dashboard',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });

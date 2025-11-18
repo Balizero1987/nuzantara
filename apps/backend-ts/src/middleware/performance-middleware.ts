@@ -145,7 +145,7 @@ export function performanceMetricsRoute(_req: Request, res: Response): void {
     res.status(500).json({
       ok: false,
       error: 'Failed to get performance metrics',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 }
