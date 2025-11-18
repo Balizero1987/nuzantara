@@ -9,6 +9,10 @@
   <link rel="stylesheet" href="css/design-system.css">
   <!-- Bali Zero Theme -->
   <link rel="stylesheet" href="css/bali-zero-theme.css">
+  <!-- Animations & Microinteractions -->
+  <link rel="stylesheet" href="css/animations.css">
+  <!-- Accessibility -->
+  <link rel="stylesheet" href="css/accessibility.css">
 
   <!-- Authentication Guard -->
   <script src="js/auth-guard.js"></script>
@@ -1128,12 +1132,517 @@
         padding: 2rem 0.75rem;
       }
     }
+
+    /* ============================================
+       NEW COMPONENTS STYLES
+       ============================================ */
+
+    /* Sidebar Search */
+    .sidebar-search-wrapper {
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    .sidebar-search {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid white;
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+    }
+
+    body[data-theme="day"] .sidebar-search {
+      background: rgba(233, 77, 53, 0.05);
+      border-color: rgba(233, 77, 53, 0.2);
+      color: #1A1A26;
+    }
+
+    .sidebar-search::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    body[data-theme="day"] .sidebar-search::placeholder {
+      color: rgba(26, 26, 38, 0.5);
+    }
+
+    /* New Chat Button */
+    .new-chat-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      background: transparent;
+      border: 2px solid white;
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    body[data-theme="day"] .new-chat-btn {
+      border-color: rgba(233, 77, 53, 0.3);
+      color: #E94D35;
+    }
+
+    .new-chat-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    }
+
+    body[data-theme="day"] .new-chat-btn:hover {
+      background: rgba(233, 77, 53, 0.1);
+      border-color: #E94D35;
+      box-shadow: 0 4px 12px rgba(233, 77, 53, 0.2);
+    }
+
+    .new-chat-icon {
+      font-size: 1.125rem;
+    }
+
+    /* Conversation Delete Button */
+    .conversation-delete {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: rgba(220, 38, 38, 0.8);
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 0.25rem;
+      opacity: 0;
+      transition: all 0.2s ease;
+    }
+
+    .conversation-item {
+      position: relative;
+      padding-right: 2.5rem;
+    }
+
+    .conversation-item:hover .conversation-delete {
+      opacity: 1;
+    }
+
+    .conversation-delete:hover {
+      background: rgba(220, 38, 38, 0.15);
+      color: #DC2626;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Conversation Title Edit */
+    .conversation-title {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .conversation-title:hover {
+      text-decoration: underline;
+      text-decoration-style: dotted;
+    }
+
+    .conversation-title-edit {
+      width: 100%;
+      padding: 0.25rem 0.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid white;
+      border-radius: 0.25rem;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    body[data-theme="day"] .conversation-title-edit {
+      background: rgba(233, 77, 53, 0.05);
+      border-color: rgba(233, 77, 53, 0.3);
+      color: #1A1A26;
+    }
+
+    /* Sidebar Empty State */
+    .sidebar-empty {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    body[data-theme="day"] .sidebar-empty {
+      color: rgba(26, 26, 38, 0.5);
+    }
+
+    .sidebar-empty p {
+      margin: 0.5rem 0;
+    }
+
+    .sidebar-empty-hint {
+      font-size: 0.8125rem;
+      opacity: 0.7;
+    }
+
+    /* Avatar Dropdown Menu */
+    .avatar-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 0.5rem;
+      min-width: 200px;
+      background: #2B2B2B;
+      border: 2px solid white;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    body[data-theme="day"] .avatar-dropdown-menu {
+      background: rgba(249, 245, 240, 0.98);
+      border-color: rgba(233, 77, 53, 0.3);
+    }
+
+    .avatar-dropdown-menu.hidden {
+      display: none;
+    }
+
+    .avatar-menu-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    body[data-theme="day"] .avatar-menu-item {
+      color: #1A1A26;
+    }
+
+    .avatar-menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    body[data-theme="day"] .avatar-menu-item:hover {
+      background: rgba(233, 77, 53, 0.1);
+    }
+
+    .avatar-menu-icon {
+      font-size: 1.125rem;
+    }
+
+    .avatar-menu-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0.5rem 0;
+    }
+
+    body[data-theme="day"] .avatar-menu-divider {
+      background: rgba(233, 77, 53, 0.2);
+    }
+
+    /* Theme Settings Button */
+    .theme-settings-btn {
+      width: 2.6rem;
+      height: 2.6rem;
+      background: transparent;
+      border: 2px solid white;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+    }
+
+    body[data-theme="day"] .theme-settings-btn {
+      border-color: rgba(233, 77, 53, 0.3);
+    }
+
+    .theme-settings-btn:hover {
+      transform: scale(1.1) rotate(45deg);
+      border-color: white;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    body[data-theme="day"] .theme-settings-btn:hover {
+      border-color: #E94D35;
+      box-shadow: 0 0 10px rgba(233, 77, 53, 0.3);
+    }
+
+    /* Theme Settings Panel */
+    .theme-settings-panel {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 1.5rem;
+      width: 320px;
+      max-height: 80vh;
+      overflow-y: auto;
+      background: #2B2B2B;
+      border: 2px solid white;
+      border-radius: 0.75rem;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    body[data-theme="day"] .theme-settings-panel {
+      background: rgba(249, 245, 240, 0.98);
+      border-color: rgba(233, 77, 53, 0.3);
+    }
+
+    .theme-settings-panel.hidden {
+      display: none;
+    }
+
+    .theme-settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    body[data-theme="day"] .theme-settings-header {
+      border-bottom-color: rgba(233, 77, 53, 0.2);
+    }
+
+    .theme-settings-header h3 {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    body[data-theme="day"] .theme-settings-header h3 {
+      color: #E94D35;
+    }
+
+    .theme-settings-close {
+      width: 2rem;
+      height: 2rem;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      border-radius: 0.25rem;
+      transition: all 0.2s ease;
+    }
+
+    body[data-theme="day"] .theme-settings-close {
+      color: #1A1A26;
+    }
+
+    .theme-settings-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    body[data-theme="day"] .theme-settings-close:hover {
+      background: rgba(233, 77, 53, 0.1);
+    }
+
+    .theme-settings-content {
+      padding: 1.25rem;
+    }
+
+    .theme-setting-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .theme-setting-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: white;
+    }
+
+    body[data-theme="day"] .theme-setting-label {
+      color: #1A1A26;
+    }
+
+    /* Theme Mode Options */
+    .theme-mode-options,
+    .font-size-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .theme-mode-btn,
+    .font-size-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    body[data-theme="day"] .theme-mode-btn,
+    body[data-theme="day"] .font-size-btn {
+      background: rgba(233, 77, 53, 0.05);
+      border-color: rgba(233, 77, 53, 0.2);
+      color: #1A1A26;
+    }
+
+    .theme-mode-btn:hover,
+    .font-size-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: white;
+    }
+
+    body[data-theme="day"] .theme-mode-btn:hover,
+    body[data-theme="day"] .font-size-btn:hover {
+      background: rgba(233, 77, 53, 0.1);
+      border-color: #E94D35;
+    }
+
+    .theme-mode-btn.active,
+    .font-size-btn.active {
+      background: rgba(233, 77, 53, 0.2);
+      border-color: #E94D35;
+      color: #E94D35;
+    }
+
+    .theme-mode-icon {
+      font-size: 1.5rem;
+    }
+
+    .font-size-label {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    /* Accent Color Picker */
+    .accent-color-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    #accentColorInput {
+      width: 100%;
+      height: 3rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+
+    body[data-theme="day"] #accentColorInput {
+      border-color: rgba(233, 77, 53, 0.2);
+    }
+
+    .accent-color-presets {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+    }
+
+    .accent-preset {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 2px solid transparent;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .accent-preset:hover {
+      transform: scale(1.15);
+      border-color: white;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    /* Theme Preview Info */
+    .theme-preview-info {
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    body[data-theme="day"] .theme-preview-info {
+      background: rgba(233, 77, 53, 0.05);
+    }
+
+    .theme-preview-info p {
+      margin: 0;
+      font-size: 0.8125rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+    }
+
+    body[data-theme="day"] .theme-preview-info p {
+      color: rgba(26, 26, 38, 0.7);
+    }
+
+    /* Reset Button */
+    .theme-reset-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    body[data-theme="day"] .theme-reset-btn {
+      border-color: rgba(233, 77, 53, 0.3);
+      color: #E94D35;
+    }
+
+    .theme-reset-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: white;
+    }
+
+    body[data-theme="day"] .theme-reset-btn:hover {
+      background: rgba(233, 77, 53, 0.1);
+      border-color: #E94D35;
+    }
   </style>
 
   <!-- Team Timesheet Widget Styles -->
   <link rel="stylesheet" href="css/timesheet.css">
 </head>
 <body data-theme="night">
+
+  <!-- Skip Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ARIA Live Region for Screen Readers -->
+  <div id="aria-live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
   <!-- Video Background (placeholder - add video source when ready) -->
   <!-- <video class="video-background" autoplay loop muted playsinline preload="metadata">
@@ -1202,7 +1711,8 @@
 
 
   <!-- Messages Container -->
-  <main class="messages-container" id="messagesContainer">
+  <main class="messages-container" id="messagesContainer" role="main" tabindex="-1">
+    <div id="main-content"></div>
     <div class="messages-inner">
       <div class="message-space" id="messageSpace">
         <div class="welcome-message">
@@ -1571,6 +2081,11 @@
   <!-- Team Timesheet Widget -->
   <script type="module" src="js/timesheet-client.js"></script>
   <script type="module" src="js/timesheet-widget.js"></script>
+
+  <!-- New UI Components -->
+  <script type="module" src="js/components/sidebar.js"></script>
+  <script type="module" src="js/components/avatar-uploader.js"></script>
+  <script type="module" src="js/components/theme-selector.js"></script>
 
 </body>
 </html>

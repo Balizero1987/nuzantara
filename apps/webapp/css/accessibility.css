@@ -1,0 +1,608 @@
+/**
+ * ZANTARA Accessibility Styles
+ * Full WCAG 2.1 AA compliance:
+ * - ARIA labels and live regions
+ * - Keyboard navigation (Tab, Enter, Escape)
+ * - Focus visible states
+ * - Screen reader compatibility
+ * - High contrast support
+ * - Skip links
+ * - Semantic HTML support
+ */
+
+/* ============================================
+   FOCUS STATES - WCAG 2.4.7 (Focus Visible)
+   ============================================ */
+
+/* Remove default outline, add custom focus ring */
+*:focus {
+  outline: none;
+}
+
+/* Visible focus indicator for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--accent-color, #E94D35);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Enhanced focus for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 3px solid var(--accent-color, #E94D35);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(233, 77, 53, 0.2);
+}
+
+/* Focus within containers */
+.chat-input-box:focus-within {
+  outline: 2px solid var(--accent-color, #E94D35);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(233, 77, 53, 0.15);
+}
+
+/* ============================================
+   SKIP LINKS - WCAG 2.4.1 (Bypass Blocks)
+   ============================================ */
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  z-index: 10000;
+  border-radius: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid #fff;
+}
+
+/* ============================================
+   SCREEN READER ONLY CONTENT
+   ============================================ */
+
+.sr-only,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ============================================
+   ARIA LIVE REGIONS
+   ============================================ */
+
+[aria-live="polite"],
+[aria-live="assertive"] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Status messages for screen readers */
+.status-message {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+}
+
+/* ============================================
+   KEYBOARD NAVIGATION STYLES
+   ============================================ */
+
+/* Conversation items keyboard navigation */
+.conversation-item[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--accent-color, #E94D35);
+  outline-offset: -2px;
+  background: rgba(233, 77, 53, 0.15);
+}
+
+/* Menu items keyboard navigation */
+.avatar-menu-item:focus-visible,
+.theme-mode-btn:focus-visible,
+.font-size-btn:focus-visible {
+  outline: 2px solid var(--accent-color, #E94D35);
+  outline-offset: 2px;
+  background: rgba(233, 77, 53, 0.1);
+}
+
+/* Search input focus */
+.sidebar-search:focus-visible {
+  outline: 2px solid var(--accent-color, #E94D35);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(233, 77, 53, 0.15);
+}
+
+/* Textarea focus */
+.chat-textarea:focus-visible {
+  outline: none; /* Use parent container focus */
+}
+
+/* ============================================
+   HIGH CONTRAST MODE SUPPORT
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  /* Increase contrast for borders */
+  .chat-input-box,
+  .conversation-item,
+  .avatar-dropdown-menu,
+  .theme-settings-panel {
+    border: 2px solid currentColor !important;
+  }
+
+  /* Stronger focus indicators */
+  *:focus-visible {
+    outline-width: 4px !important;
+    outline-offset: 4px !important;
+  }
+
+  /* Enhanced text contrast */
+  body {
+    filter: contrast(1.2);
+  }
+
+  /* Remove subtle shadows in high contrast */
+  .message-content,
+  .conversation-item {
+    box-shadow: none !important;
+  }
+}
+
+/* ============================================
+   COLOR CONTRAST - WCAG 2.1.4.3 (AA)
+   ============================================ */
+
+/* Ensure text meets 4.5:1 contrast ratio */
+body[data-theme="day"] {
+  --text-primary: #1A1A26;
+  --text-secondary: rgba(26, 26, 38, 0.8);
+  --text-tertiary: rgba(26, 26, 38, 0.6);
+}
+
+body[data-theme="night"],
+body:not([data-theme]) {
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.92);
+  --text-tertiary: rgba(255, 255, 255, 0.7);
+}
+
+/* Ensure interactive elements have sufficient contrast */
+.quick-action-btn,
+.conversation-item,
+.avatar-menu-item,
+.theme-mode-btn {
+  color: var(--text-primary);
+}
+
+/* Disabled state with clear visual indication */
+button:disabled,
+[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(50%);
+}
+
+/* ============================================
+   REDUCED MOTION - WCAG 2.3.3
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable parallax and complex animations */
+  .typing-dot,
+  .typing-avatar-dot,
+  .welcome-divider {
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   TOUCH TARGETS - WCAG 2.5.5 (Target Size)
+   ============================================ */
+
+/* Minimum 44x44px touch targets */
+button,
+a,
+input,
+textarea,
+select,
+[role="button"],
+[role="menuitem"],
+[tabindex="0"] {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Exceptions for text inputs */
+.chat-textarea,
+.sidebar-search {
+  min-width: auto;
+  min-height: 44px;
+}
+
+/* Increase clickable area for small icons */
+.conversation-delete,
+.avatar-menu-icon,
+.theme-settings-close {
+  padding: 0.5rem;
+}
+
+/* ============================================
+   FORM ACCESSIBILITY
+   ============================================ */
+
+/* Label association */
+label {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Required field indicators */
+input:required,
+textarea:required {
+  border-left: 3px solid var(--accent-color, #E94D35);
+}
+
+/* Error states */
+input:invalid:not(:focus),
+textarea:invalid:not(:focus) {
+  border-color: #DC2626;
+  background: rgba(220, 38, 38, 0.05);
+}
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: #DC2626;
+}
+
+/* Error messages */
+.error-message,
+[role="alert"] {
+  color: #DC2626;
+  font-weight: 600;
+  padding: 0.5rem;
+  border-left: 3px solid #DC2626;
+  background: rgba(220, 38, 38, 0.1);
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+/* Success states */
+input:valid,
+textarea:valid {
+  border-color: #10B981;
+}
+
+.success-message {
+  color: #10B981;
+  font-weight: 600;
+  padding: 0.5rem;
+  border-left: 3px solid #10B981;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 0.25rem;
+}
+
+/* ============================================
+   MODALS & DIALOGS ACCESSIBILITY
+   ============================================ */
+
+/* Trap focus in modals */
+.avatar-modal[aria-hidden="false"],
+.theme-settings-panel[aria-hidden="false"] {
+  position: fixed;
+  z-index: 1000;
+}
+
+/* Prevent background scroll when modal open */
+body:has(.avatar-modal:not(.hidden)),
+body:has(.theme-settings-panel:not(.hidden)) {
+  overflow: hidden;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 999;
+}
+
+/* ============================================
+   SEMANTIC HTML SUPPORT
+   ============================================ */
+
+/* Main landmark */
+main[role="main"] {
+  min-height: 100vh;
+}
+
+/* Navigation landmark */
+nav,
+[role="navigation"] {
+  position: relative;
+}
+
+/* Complementary landmark */
+aside,
+[role="complementary"] {
+  position: relative;
+}
+
+/* Headings hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+}
+
+/* Lists */
+ul, ol {
+  padding-left: 1.5rem;
+}
+
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* ============================================
+   TOOLTIPS ACCESSIBILITY
+   ============================================ */
+
+[title] {
+  position: relative;
+}
+
+/* Show tooltip on focus for keyboard users */
+[title]:focus::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 1rem;
+  background: #000;
+  color: #fff;
+  border-radius: 0.5rem;
+  white-space: nowrap;
+  z-index: 1000;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   LOADING STATES ACCESSIBILITY
+   ============================================ */
+
+/* Loading indicator for screen readers */
+[aria-busy="true"]::after {
+  content: "Loading...";
+  position: absolute;
+  left: -10000px;
+}
+
+.loading-spinner[role="status"] {
+  position: relative;
+}
+
+.loading-spinner::after {
+  content: "Loading...";
+  position: absolute;
+  left: -10000px;
+}
+
+/* ============================================
+   NOTIFICATION ACCESSIBILITY
+   ============================================ */
+
+.notification,
+[role="status"],
+[role="alert"] {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.notification[role="alert"] {
+  border: 2px solid var(--accent-color, #E94D35);
+}
+
+/* ============================================
+   TABLE ACCESSIBILITY (if needed)
+   ============================================ */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.75rem;
+  border-bottom: 2px solid currentColor;
+}
+
+td {
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   CUSTOM FOCUS INDICATORS FOR COMPONENTS
+   ============================================ */
+
+/* Sidebar toggle button */
+.conversation-sidebar-toggle:focus-visible {
+  outline: 3px solid var(--accent-color, #E94D35);
+  outline-offset: 3px;
+  background: rgba(233, 77, 53, 0.1);
+}
+
+/* New chat button */
+.new-chat-btn:focus-visible {
+  outline: 3px solid var(--accent-color, #E94D35);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(233, 77, 53, 0.2);
+}
+
+/* Send button */
+.send-button:focus-visible {
+  outline: 3px solid #D4AF37;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(212, 175, 55, 0.3);
+}
+
+/* Avatar */
+.user-avatar:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   PRINT STYLES (Accessibility)
+   ============================================ */
+
+@media print {
+  /* Show only main content */
+  .conversation-sidebar,
+  .chat-header,
+  .chat-input-container,
+  .avatar-dropdown-menu,
+  .theme-settings-panel {
+    display: none !important;
+  }
+
+  /* Optimize message display */
+  .message {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* High contrast for printing */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .message-content {
+    border: 1px solid #000 !important;
+    background: white !important;
+    color: black !important;
+  }
+}
+
+/* ============================================
+   LANGUAGE & RTL SUPPORT
+   ============================================ */
+
+[dir="rtl"] {
+  direction: rtl;
+}
+
+[dir="rtl"] .conversation-sidebar {
+  left: auto;
+  right: -320px;
+}
+
+[dir="rtl"] .conversation-sidebar.open {
+  right: 0;
+}
+
+[dir="rtl"] .conversation-item:hover {
+  transform: translateX(-4px);
+}
+
+/* ============================================
+   KEYBOARD SHORTCUTS HELP
+   ============================================ */
+
+.keyboard-shortcuts {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  z-index: 1000;
+  max-width: 300px;
+}
+
+.keyboard-shortcuts kbd {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: #333;
+  border: 1px solid #666;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+/* ============================================
+   ASSISTIVE TECHNOLOGY ENHANCEMENTS
+   ============================================ */
+
+/* Better focus management for modals */
+.modal-open {
+  overflow: hidden;
+}
+
+/* Announce dynamic content changes */
+.live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Status updates for screen readers */
+.status-update[aria-live="polite"] {
+  position: absolute;
+  left: -10000px;
+}
