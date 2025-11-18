@@ -98,9 +98,76 @@ repos:
         name: Lint Dockerfiles
         files: Dockerfile.*
 
+  # ============================================================================
+  # PYTHON CODE QUALITY (NEW - Closes critical gap!)
+  # ============================================================================
+
+  # Black - Python code formatter
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        name: Black (Python formatter)
+        language_version: python3.10
+        files: \.py$
+        args: ['--line-length=100']
+
+  # isort - Python import sorting
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort (Python imports)
+        files: \.py$
+        args: ['--profile', 'black', '--line-length', '100']
+
+  # Ruff - Fast Python linter (modern alternative to flake8)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.14
+    hooks:
+      - id: ruff
+        name: Ruff (Python linter)
+        files: \.py$
+        args: ['--fix', '--exit-non-zero-on-fix']
+
+  # Mypy - Python static type checker
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        name: Mypy (Python type checker)
+        files: \.py$
+        args: ['--strict', '--ignore-missing-imports']
+        additional_dependencies:
+          - types-PyYAML
+          - types-requests
+          - pydantic
+
+  # Bandit - Python security linter
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.6
+    hooks:
+      - id: bandit
+        name: Bandit (Python security)
+        files: \.py$
+        args: ['-c', 'apps/backend-rag/pyproject.toml']
+        exclude: ^tests/
+
+  # Pytest - Python testing (pre-push only)
+  - repo: local
+    hooks:
+      - id: pytest
+        name: Pytest (Python tests)
+        entry: bash -c 'cd apps/backend-rag && python -m pytest tests/ --cov=. --cov-fail-under=70'
+        language: system
+        files: \.py$
+        pass_filenames: false
+        stages: [push]
+
 # Global configuration
 default_language_version:
   node: '20.0.0'
+  python: python3.10
 
 fail_fast: false
 minimum_pre_commit_version: '3.0.0'
