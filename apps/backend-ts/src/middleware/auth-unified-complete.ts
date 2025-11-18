@@ -123,7 +123,7 @@ class UnifiedAuthenticationStrategy {
       priority: 1,
       test: (req) => {
         const authHeader = req.headers.authorization;
-        return authHeader?.startsWith('Bearer ');
+        return authHeader?.startsWith('Bearer ') ?? false;
       },
       confidence: 1.0,
     });

@@ -477,6 +477,9 @@ export function getMetricsCollector(): MetricsCollector {
   if (!metricsCollector) {
     initializeMetricsCollector();
   }
+  if (!metricsCollector) {
+    throw new Error('Failed to initialize metrics collector');
+  }
   return metricsCollector;
 }
 
