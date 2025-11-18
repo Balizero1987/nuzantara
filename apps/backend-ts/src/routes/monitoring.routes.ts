@@ -96,7 +96,7 @@ router.get('/agent-tasks', async (_req, res) => {
 
     res.json({
       success: true,
-      tasks: tasks.map((t) => ({
+      tasks: tasks.map((t: any) => ({
         id: t.id,
         type: t.type,
         status: t.status,
@@ -106,10 +106,10 @@ router.get('/agent-tasks', async (_req, res) => {
       })),
       summary: {
         total: tasks.length,
-        pending: tasks.filter((t) => t.status === 'pending').length,
-        running: tasks.filter((t) => t.status === 'running').length,
-        completed: tasks.filter((t) => t.status === 'completed').length,
-        failed: tasks.filter((t) => t.status === 'failed').length,
+        pending: tasks.filter((t: any) => t.status === 'pending').length,
+        running: tasks.filter((t: any) => t.status === 'running').length,
+        completed: tasks.filter((t: any) => t.status === 'completed').length,
+        failed: tasks.filter((t: any) => t.status === 'failed').length,
       },
     });
   } catch (error: any) {

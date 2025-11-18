@@ -322,7 +322,7 @@ export class FirebaseAuthStrategy implements AuthenticationStrategy {
 
   canHandle(req: Request): boolean {
     const authHeader = req.headers.authorization;
-    return authHeader?.startsWith('Bearer ') && false; // Disabled until Firebase is integrated
+    return (authHeader?.startsWith('Bearer ') ?? false) && false; // Disabled until Firebase is integrated
   }
 
   async authenticate(_req: Request): Promise<UnifiedUser | null> {

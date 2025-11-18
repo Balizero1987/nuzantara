@@ -54,7 +54,7 @@ export class DatabaseConnectionPool {
       this.pool = new Pool(this.config);
 
       // Handle pool errors
-      this.pool.on('error', (err) => {
+      this.pool.on('error', (err: Error) => {
         logger.error(`❌ PostgreSQL pool error: ${err.message}`);
         this.isHealthy = false;
         // Note: Circuit breaker failure tracking happens in query execution

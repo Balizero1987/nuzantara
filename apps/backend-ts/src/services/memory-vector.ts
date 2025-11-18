@@ -164,8 +164,8 @@ export async function searchMemoriesSemantica(params: {
               metadata: r.metadata,
             };
           })
-          .filter((result) => result.similarity >= threshold) // Filter by threshold
-          .sort((a, b) => b.score - a.score) // Sort by relevance score
+          .filter((result: any) => result.similarity >= threshold) // Filter by threshold
+          .sort((a: any, b: any) => b.score - a.score) // Sort by relevance score
           .slice(0, limit); // Limit results
 
         logger.info(

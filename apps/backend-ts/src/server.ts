@@ -225,7 +225,7 @@ async function startServer() {
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Correlation tracking for unified logging
-  app.use(correlationMiddleware());
+  app.use(correlationMiddleware() as any);
 
   // PATCH-3: Global rate limiting (fallback)
   app.use(globalRateLimiter);
