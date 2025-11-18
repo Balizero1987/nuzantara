@@ -47,6 +47,15 @@ export default defineConfig([
   // TypeScript recommended rules
   ...tseslint.configs.recommended,
 
+  // Relaxed rules for test files
+  {
+    files: ['**/__tests__/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+    },
+  },
+
   {
     ...pluginReact.configs.flat.recommended,
     settings: { react: { version: 'detect' } },
