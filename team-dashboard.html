@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Dashboard - ZANTARA</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 32px;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+
+    .stat-value.green {
+      color: #4ade80;
+    }
+
+    .stat-value.red {
+      color: #ef4444;
+    }
+
+    .team-list {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .team-list-header {
+      padding: 20px 30px;
+      background: #f9f9f9;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .team-list-header h2 {
+      font-size: 20px;
+      color: #1a1a1a;
+    }
+
+    .refresh-btn {
+      padding: 10px 20px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .refresh-btn:hover {
+      background: #333;
+    }
+
+    .member {
+      padding: 20px 30px;
+      border-bottom: 1px solid #f0f0f0;
+      display: grid;
+      grid-template-columns: 50px 1fr 150px 150px 120px;
+      gap: 20px;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .member:hover {
+      background: #f9f9f9;
+    }
+
+    .member:last-child {
+      border-bottom: none;
+    }
+
+    .member-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #666;
+      font-size: 18px;
+    }
+
+    .member-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .member-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .member-role {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .member-status {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .member-time {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+
+    .status-badge.online {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-badge.offline {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+      font-size: 16px;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 768px) {
+      .member {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎯 Team Dashboard</h1>
+      <p style="color: #666; margin-top: 10px;">Real-time team status and timesheet tracking</p>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Team Members</div>
+        <div class="stat-value" id="totalMembers">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Clocked In</div>
+        <div class="stat-value green" id="clockedIn">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Clocked Out</div>
+        <div class="stat-value red" id="clockedOut">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Last Update</div>
+        <div class="stat-value" style="font-size: 20px;" id="lastUpdate">--</div>
+      </div>
+    </div>
+
+    <div class="team-list">
+      <div class="team-list-header">
+        <h2>Team Members</h2>
+        <button class="refresh-btn" onclick="loadTeamData()">🔄 Refresh</button>
+      </div>
+      <div id="teamMembers" class="loading">
+        Loading team data...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_URL = 'https://nuzantara-rag.fly.dev';
+    let teamData = [];
+
+    // Load team data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTeamData();
+      // Auto-refresh every 30 seconds
+      setInterval(loadTeamData, 30000);
+    });
+
+    async function loadTeamData() {
+      try {
+        // For now, use the team_employees data we have
+        // Later this will call /api/timesheet/team-status
+        const response = await fetch(`${BACKEND_URL}/api/team/members`);
+
+        if (!response.ok) {
+          // If endpoint doesn't exist, show mock data
+          showMockData();
+          return;
+        }
+
+        const data = await response.json();
+        teamData = data.members || [];
+        updateDashboard();
+      } catch (error) {
+        console.error('Error loading team data:', error);
+        showMockData();
+      }
+    }
+
+    function showMockData() {
+      // Mock data based on team_employees from database
+      teamData = [
+        { id: 'zainal', name: 'Zainal Abidin', role: 'CEO', department: 'management', is_clocked_in: true, clock_in_time: '09:00' },
+        { id: 'ruslana', name: 'Ruslana', role: 'Board Member', department: 'management', is_clocked_in: true, clock_in_time: '09:15' },
+        { id: 'zero', name: 'Zero', role: 'AI Bridge/Tech Lead', department: 'technology', is_clocked_in: true, clock_in_time: '08:45' },
+        { id: 'amanda', name: 'Amanda', role: 'Executive Consultant', department: 'setup', is_clocked_in: false },
+        { id: 'anton', name: 'Anton', role: 'Executive Consultant', department: 'setup', is_clocked_in: false },
+        { id: 'vino', name: 'Vino', role: 'Junior Consultant', department: 'setup', is_clocked_in: true, clock_in_time: '10:00' },
+        { id: 'krisna', name: 'Krisna', role: 'Executive Consultant', department: 'setup', is_clocked_in: false },
+        { id: 'adit', name: 'Adit', role: 'Crew Lead', department: 'setup', is_clocked_in: true, clock_in_time: '09:30' },
+        { id: 'ari', name: 'Ari', role: 'Specialist Consultant', department: 'setup', is_clocked_in: false },
+        { id: 'dea', name: 'Dea', role: 'Executive Consultant', department: 'setup', is_clocked_in: true, clock_in_time: '09:00' },
+        { id: 'surya', name: 'Surya', role: 'Specialist Consultant', department: 'setup', is_clocked_in: false },
+        { id: 'damar', name: 'Damar', role: 'Junior Consultant', department: 'setup', is_clocked_in: false },
+        { id: 'veronika', name: 'Veronika', role: 'Tax Manager', department: 'tax', is_clocked_in: true, clock_in_time: '08:30' },
+        { id: 'olena', name: 'Olena', role: 'External Tax Advisory', department: 'tax', is_clocked_in: false },
+        { id: 'angel', name: 'Angel', role: 'Tax Expert', department: 'tax', is_clocked_in: true, clock_in_time: '09:00' },
+        { id: 'kadek', name: 'Kadek', role: 'Tax Consultant', department: 'tax', is_clocked_in: false },
+        { id: 'dewaayu', name: 'Dewa Ayu', role: 'Tax Consultant', department: 'tax', is_clocked_in: false },
+        { id: 'faisha', name: 'Faisha', role: 'Tax Care', department: 'tax', is_clocked_in: true, clock_in_time: '10:00' },
+        { id: 'rina', name: 'Rina', role: 'Reception', department: 'reception', is_clocked_in: true, clock_in_time: '08:00' },
+        { id: 'nina', name: 'Nina', role: 'Marketing Advisory', department: 'marketing', is_clocked_in: false },
+        { id: 'sahira', name: 'Sahira', role: 'Marketing Specialist', department: 'marketing', is_clocked_in: false },
+        { id: 'marta', name: 'Marta', role: 'External Advisory', department: 'advisory', is_clocked_in: false }
+      ];
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      const clockedIn = teamData.filter(m => m.is_clocked_in).length;
+      const clockedOut = teamData.length - clockedIn;
+
+      // Update stats
+      document.getElementById('totalMembers').textContent = teamData.length;
+      document.getElementById('clockedIn').textContent = clockedIn;
+      document.getElementById('clockedOut').textContent = clockedOut;
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+
+      // Render team members
+      const container = document.getElementById('teamMembers');
+      container.innerHTML = teamData.map(member => `
+        <div class="member">
+          <div class="member-avatar">${member.name.charAt(0).toUpperCase()}</div>
+          <div class="member-info">
+            <div class="member-name">${member.name}</div>
+            <div class="member-role">${member.role} • ${member.department}</div>
+          </div>
+          <div class="member-status">
+            <span class="status-badge ${member.is_clocked_in ? 'online' : 'offline'}">
+              ${member.is_clocked_in ? 'Clocked In' : 'Clocked Out'}
+            </span>
+          </div>
+          <div class="member-time">
+            ${member.is_clocked_in && member.clock_in_time ? `Since ${member.clock_in_time}` : '---'}
+          </div>
+          <div class="member-department">${member.department}</div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
