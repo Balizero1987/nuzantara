@@ -1,0 +1,15 @@
+{
+  "name": "@nuzantara/config",
+  "version": "1.0.0",
+  "description": "Shared configuration for Nuzantara monorepo",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["nuzantara", "config", "configuration"],
+  "author": "Nuzantara Team",
+  "license": "UNLICENSED",
+  "private": true
+}
