@@ -1,0 +1,93 @@
+/* ============================================
+   TIMESHEET WIDGET - Minimal Circular Design
+   ============================================ */
+
+/* Widget Container - Positioned left of hamburger */
+.timesheet-widget-minimal {
+    position: absolute;
+    left: 4.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+/* Circular Clock Button */
+.clock-circle-button {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.clock-circle-button:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.05);
+}
+
+.clock-circle-button:active {
+    transform: scale(0.98);
+}
+
+/* Active State - Clocked In */
+.clock-circle-button.clocked-in {
+    border-color: #4ade80;
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+}
+
+.clock-circle-button.clocked-in:hover {
+    border-color: #22c55e;
+    color: #22c55e;
+    background: rgba(74, 222, 128, 0.15);
+}
+
+/* Status Indicator (optional small dot) */
+.clock-circle-button::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.clock-circle-button.clocked-in::before {
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+}
+
+/* Status Text (minimal, optional) */
+.clock-status-text {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+    display: none; /* Hidden by default, show on hover if needed */
+}
+
+.timesheet-widget-minimal:hover .clock-status-text {
+    display: block;
+}
+
+/* Responsive - Hide on small screens */
+@media (max-width: 768px) {
+    .timesheet-widget-minimal {
+        display: none;
+    }
+}

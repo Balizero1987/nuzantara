@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="css/design-system.css">
   <!-- Bali Zero Theme -->
   <link rel="stylesheet" href="css/bali-zero-theme.css">
+  <!-- Timesheet Widget -->
+  <link rel="stylesheet" href="css/timesheet.css">
 
   <!-- Authentication Guard -->
   <script src="js/auth-guard.js"></script>
@@ -321,42 +323,39 @@
       bottom: 0 !important;
       left: 0 !important;
       right: 0 !important;
-      padding: 0.5rem 0 1.5rem 0 !important; /* Remove left/right padding to control from wrapper */
+      padding: 0.5rem 1rem 1.5rem !important; /* Much thinner - reduced padding */
       background: transparent !important; /* Fully transparent - unified background */
       backdrop-filter: none;
       z-index: 90 !important;
       border: none !important; /* No borders */
       box-shadow: none !important; /* No shadow */
-      display: flex !important; /* Use flex to center children */
-      justify-content: center !important;
+      display: block !important;
       visibility: visible !important;
       opacity: 1 !important;
       min-height: auto; /* Auto height */
-      width: 100% !important;
     }
 
     .chat-input-wrapper {
-      width: 100% !important;
-      max-width: 42rem !important;
-      padding: 0 1rem !important;
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 0 1rem;
       display: block !important;
       visibility: visible !important;
-      box-sizing: border-box !important;
     }
 
     .chat-input-box {
       display: flex !important;
-      align-items: flex-end !important;
-      width: 100% !important;
-      gap: 0 !important;
-      padding: 0.65rem 0.75rem !important;
-      border-radius: 0.75rem !important;
-      transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+      align-items: flex-end;
+      gap: 1rem;
+      padding: 0.65rem 1rem;
+      border-radius: 0.75rem;
+      transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
       visibility: visible !important;
+    }
+
+    .chat-input-box {
       background-color: #2B2B2B !important;
       border: 2px solid white !important;
-      box-sizing: border-box !important;
-      overflow: hidden !important; /* Prevent buttons from breaking out */
     }
 
     .chat-input-box.focused {
@@ -366,20 +365,18 @@
     }
 
     .chat-textarea {
-      flex: 1 1 auto !important;
-      resize: none !important;
-      outline: none !important;
-      max-height: 120px !important;
-      padding: 0.75rem 0.35rem !important;
-      margin: 0 0.25rem !important;
-      font-size: 1.125rem !important;
+      flex: 1 !important;
+      resize: none;
+      outline: none;
+      max-height: 120px;
+      padding: 0.75rem 0;
+      font-size: 1.125rem;
       background-color: transparent !important;
-      border: none !important;
-      font-family: var(--font-sans) !important;
-      transition: color 200ms !important;
+      border: none;
+      font-family: var(--font-sans);
+      transition: color 200ms;
       display: block !important;
       visibility: visible !important;
-      min-width: 2rem !important; /* Minimum space for at least a couple chars */
     }
 
     body[data-theme="day"] .chat-textarea {
@@ -402,30 +399,25 @@
 
     .image-button {
       display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      flex: 0 0 2rem !important; /* Do not shrink or grow */
-      width: 2rem !important;
-      height: 2rem !important;
-      min-width: 2rem !important;
-      min-height: 2rem !important;
-      max-width: 2rem !important;
-      max-height: 2rem !important;
-      padding: 0 !important;
-      margin: 0 0.2rem 0 0 !important; /* Reduced from 0.3rem */
-      font-size: 1.2rem !important;
-      line-height: 1 !important;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0.5rem;
+      font-size: 1.5rem;
+      line-height: 1;
       color: #BFAA7E !important;
       background: transparent !important;
-      border: none !important;
-      cursor: pointer !important;
-      transition: all 200ms !important;
+      border: none;
+      cursor: pointer;
+      transition: all 200ms;
       opacity: 1 !important;
       visibility: visible !important;
       text-shadow:
         0 0 8px rgba(191, 170, 126, 0.6),
-        0 0 15px rgba(212, 175, 55, 0.4) !important;
-      filter: brightness(1.2) drop-shadow(0 0 4px rgba(191, 170, 126, 0.5)) !important;
+        0 0 15px rgba(212, 175, 55, 0.4);
+      filter: brightness(1.2) drop-shadow(0 0 4px rgba(191, 170, 126, 0.5));
     }
 
     .image-button:hover {
@@ -442,32 +434,30 @@
 
     .send-button {
       display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      flex: 0 0 2rem !important; /* Do not shrink or grow */
-      width: 2rem !important;
-      height: 2rem !important;
-      min-width: 2rem !important;
-      min-height: 2rem !important;
-      max-width: 2rem !important;
-      max-height: 2rem !important;
-      padding: 0 !important;
-      margin: 0 0.2rem !important; /* Reduced from 0.3rem */
-      font-size: 1.5rem !important;
-      font-weight: bold !important;
-      line-height: 1 !important;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0.5rem;
+      font-size: 2rem;
+      font-weight: bold;
+      line-height: 1;
       background: transparent !important;
-      border: none !important;
-      cursor: pointer !important;
-      transform: scaleX(-1) !important;
-      transition: all 200ms !important;
+      border: none;
+      cursor: pointer;
+      transform: scaleX(-1);
+      transition: all 200ms;
       opacity: 1 !important;
       visibility: visible !important;
+    }
+
+    .send-button {
       color: #D4AF37 !important;
       text-shadow:
         0 0 8px rgba(212, 175, 55, 0.6),
-        0 0 15px rgba(212, 175, 55, 0.4) !important;
-      filter: brightness(1.2) !important;
+        0 0 15px rgba(212, 175, 55, 0.4);
+      filter: brightness(1.2);
     }
 
     .send-button.focused {
@@ -525,46 +515,6 @@
     .send-button.sending {
       animation: energyShock 0.6s ease-out;
       pointer-events: none;
-    }
-
-    .image-palette-button {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      flex: 0 0 2rem !important; /* Do not shrink or grow */
-      width: 2rem !important;
-      height: 2rem !important;
-      min-width: 2rem !important;
-      min-height: 2rem !important;
-      max-width: 2rem !important;
-      max-height: 2rem !important;
-      padding: 0 !important;
-      margin: 0 0 0 0.2rem !important; /* Reduced from 0.5rem */
-      font-size: 1.2rem !important;
-      line-height: 1 !important;
-      color: #D4AF37 !important;
-      background: transparent !important;
-      border: none !important;
-      cursor: pointer !important;
-      transition: all 200ms !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      text-shadow:
-        0 0 8px rgba(212, 175, 55, 0.6),
-        0 0 15px rgba(212, 175, 55, 0.4) !important;
-      filter: brightness(1.2) drop-shadow(0 0 4px rgba(212, 175, 55, 0.5)) !important;
-    }
-
-    .image-palette-button:hover {
-      transform: scale(1.1);
-      text-shadow:
-        0 0 12px rgba(212, 175, 55, 0.9),
-        0 0 20px rgba(244, 229, 176, 0.7);
-      filter: brightness(1.5) drop-shadow(0 0 8px rgba(212, 175, 55, 0.7));
-    }
-
-    .image-palette-button:active {
-      transform: scale(0.95);
     }
 
     .input-hint {
@@ -629,115 +579,6 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       color: rgba(255, 255, 255, 0.95);
       border-radius: 1rem;
-      padding: 1.25rem 1.5rem;
-      line-height: 1.8;
-      letter-spacing: 0.3px;
-    }
-
-    /* Legal document styling for AI responses */
-    .message.ai .message-content p {
-      margin: 1rem 0;
-      font-size: 15px;
-      line-height: 1.8;
-      color: rgba(255, 255, 255, 0.92);
-    }
-
-    .message.ai .message-content p:first-child {
-      margin-top: 0;
-    }
-
-    .message.ai .message-content p:last-child {
-      margin-bottom: 0;
-    }
-
-    .message.ai .message-content strong {
-      font-weight: 600;
-      color: #D4AF37;
-      letter-spacing: 0.5px;
-    }
-
-    .message.ai .message-content em {
-      font-style: italic;
-      color: rgba(212, 175, 55, 0.85);
-      letter-spacing: 0.2px;
-    }
-
-    .message.ai .message-content em strong,
-    .message.ai .message-content strong em {
-      font-weight: 600;
-      font-style: italic;
-      color: #D4AF37;
-    }
-
-    .message.ai .message-content ul,
-    .message.ai .message-content ol {
-      margin: 1rem 0;
-      padding-left: 1.75rem;
-    }
-
-    .message.ai .message-content li {
-      margin: 0.5rem 0;
-      line-height: 1.8;
-      color: rgba(255, 255, 255, 0.92);
-    }
-
-    .message.ai .message-content li strong {
-      color: #D4AF37;
-    }
-
-    .message.ai .message-content h3,
-    .message.ai .message-content h4 {
-      margin: 1.5rem 0 0.75rem 0;
-      font-weight: 600;
-      color: #D4AF37;
-      font-size: 1.1rem;
-      letter-spacing: 0.5px;
-      font-family: 'Georgia', serif;
-    }
-
-    .message.ai .message-content h3:first-child {
-      margin-top: 0;
-    }
-
-    .message.ai .message-content blockquote {
-      margin: 1rem 0;
-      padding: 0.75rem 0 0.75rem 1rem;
-      border-left: 3px solid rgba(212, 175, 55, 0.6);
-      color: rgba(255, 255, 255, 0.85);
-      font-style: italic;
-      background: rgba(212, 175, 55, 0.05);
-    }
-
-    .message.ai .message-content code {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 0.2rem 0.5rem;
-      border-radius: 0.25rem;
-      font-family: 'Monaco', 'Courier New', monospace;
-      color: rgba(212, 175, 55, 0.9);
-      font-size: 0.9em;
-    }
-
-    .message.ai .message-content pre {
-      background: rgba(0, 0, 0, 0.4);
-      padding: 1rem;
-      border-radius: 0.5rem;
-      overflow-x: auto;
-      margin: 1rem 0;
-      border-left: 3px solid rgba(212, 175, 55, 0.6);
-    }
-
-    .message.ai .message-content pre code {
-      background: none;
-      padding: 0;
-      color: rgba(212, 175, 55, 0.85);
-    }
-
-    /* Horizontal divider - legal document style */
-    .message.ai .message-content hr {
-      margin: 1.5rem 0;
-      border: none;
-      border-top: 1px solid rgba(212, 175, 55, 0.3);
-      opacity: 0.6;
     }
 
     /* Animazione elegante al hover */
@@ -1348,6 +1189,14 @@
       <span></span>
     </button>
 
+    <!-- Clock In/Out Widget - Minimal Circular -->
+    <div class="timesheet-widget-minimal">
+      <button class="clock-circle-button" id="clockButton" title="Clock In/Out">
+        IN
+      </button>
+      <span class="clock-status-text" id="clockStatus"></span>
+    </div>
+
     <!-- Centered: ZANTARA Logo -->
     <div style="display: flex; align-items: center; justify-content: center;">
       <img src="assets/images/logo1-zantara.svg" alt="ZANTARA Logo" class="zantara-logo">
@@ -1388,9 +1237,6 @@
   <div class="chat-input-container">
     <div class="chat-input-wrapper">
       <div class="chat-input-box" id="inputBox">
-        <button class="image-button" id="attachButton" title="Attach File" aria-label="Attach file">
-          📎
-        </button>
         <textarea
           id="messageInput"
           class="chat-textarea"
@@ -1398,15 +1244,18 @@
           rows="1"
           maxlength="2000"
         ></textarea>
+        <button class="attach-button" id="attachButton" title="Generate Image"
+                style="width: 50px; height: 50px; background: transparent; border: none;
+                       cursor: pointer; display: flex; align-items: center; justify-content: center;
+                       margin-left: 8px; transition: transform 0.2s;">
+          <img src="assets/images/image.svg" alt="Generate Image" style="width: 100%; height: 100%; object-fit: contain;">
+        </button>
         <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
         <button
           id="sendButton"
           class="send-button"
           aria-label="Send message"
         >∞</button>
-        <button class="image-palette-button" id="paletteButton" title="Generate Image" aria-label="Generate image with ImaginArt">
-          🎨
-        </button>
       </div>
       <p class="input-hint">Enter to send • Shift + Enter for new line</p>
     </div>
@@ -1445,39 +1294,6 @@
   <script>
     // Theme management è ora gestito da theme-manager.js
 
-    // Filter AI response to remove unwanted content
-    function filterAIResponse(text) {
-      if (!text) return text;
-      
-      let filtered = text;
-
-      // Remove WhatsApp number and related text at the end
-      filtered = filtered.replace(/\n*Need help with this\? Reach out on WhatsApp.*$/i, '');
-      filtered = filtered.replace(/\n*Reach out on WhatsApp.*$/i, '');
-      filtered = filtered.replace(/\n*WhatsApp.*$/i, '');
-      filtered = filtered.replace(/\n*\+62\s*\d{8,}\s*\d{4,}.*$/g, '');
-      filtered = filtered.replace(/\n*\+62\s*859\s*0436\s*9574.*$/gi, '');
-      
-      // Check if this is the first message of the day
-      const today = new Date().toDateString();
-      const lastGreetingDate = localStorage.getItem('zantara-last-greeting-date');
-      const isFirstMessageToday = lastGreetingDate !== today;
-      
-      // Remove "Ciao Zero" if not first message of the day
-      if (!isFirstMessageToday) {
-        // Remove "Ciao Zero!" at the beginning (with variations)
-        filtered = filtered.replace(/^Ciao\s+Zero[!.,]?\s*/i, '');
-        filtered = filtered.replace(/^Ciao\s+Zero[!.,]?\s+/i, '');
-        // Also remove if it's on a new line
-        filtered = filtered.replace(/\nCiao\s+Zero[!.,]?\s*/i, '\n');
-      } else {
-        // Mark that we've greeted today
-        localStorage.setItem('zantara-last-greeting-date', today);
-      }
-      
-      return filtered.trim();
-    }
-
     // Conversation History Sidebar Management
     (function() {
       const sidebar = document.getElementById('conversationSidebar');
@@ -1491,11 +1307,9 @@
       // Load conversations from Memory Service
       async function loadConversations() {
         try {
-          // Get user info - try both USER_CONTEXT and UserContext
-          const userContext = window.UserContext || window.USER_CONTEXT;
-          const user = userContext?.getUser ? userContext.getUser() : (userContext?.user || null);
-          
-          if (!user || (!user.id && !user.userId)) {
+          // Get user info
+          const userContext = window.USER_CONTEXT?.getUser();
+          if (!userContext || !userContext.userId) {
             console.warn('⚠️ No user context available');
             return;
           }
@@ -1597,70 +1411,18 @@
       const removeBtn = document.getElementById('removeAvatarBtn');
       const closeBtn = document.getElementById('closeAvatarModalBtn');
       const AVATAR_KEY = 'zantara_user_avatar';
-      const DB_NAME = 'zantara-storage';
-      const DB_STORE = 'avatars';
 
-      // Initialize IndexedDB
-      let db = null;
-      function initDB() {
-        return new Promise((resolve, reject) => {
-          const request = indexedDB.open(DB_NAME, 1);
-          request.onerror = () => {
-            console.error('❌ IndexedDB open failed, will use localStorage as fallback');
-            resolve(null);
-          };
-          request.onsuccess = () => {
-            db = request.result;
-            resolve(db);
-          };
-          request.onupgradeneeded = (event) => {
-            const database = event.target.result;
-            if (!database.objectStoreNames.contains(DB_STORE)) {
-              database.createObjectStore(DB_STORE);
-            }
-          };
-        });
-      }
-
-      // Load saved avatar from IndexedDB or localStorage
+      // Load saved avatar
       function loadAvatar() {
-        initDB().then(() => {
-          if (db) {
-            // Try IndexedDB first
-            const transaction = db.transaction([DB_STORE], 'readonly');
-            const store = transaction.objectStore(DB_STORE);
-            const request = store.get(AVATAR_KEY);
-            request.onsuccess = () => {
-              const saved = request.result;
-              if (saved) {
-                console.log('🖼️ Avatar loaded from IndexedDB');
-                setAvatarImage(saved);
-              } else {
-                // Fallback: check localStorage
-                const localSaved = localStorage.getItem(AVATAR_KEY);
-                if (localSaved) {
-                  console.log('🖼️ Avatar migrated from localStorage to IndexedDB');
-                  // Migrate to IndexedDB
-                  const tx = db.transaction([DB_STORE], 'readwrite');
-                  tx.objectStore(DB_STORE).put(localSaved, AVATAR_KEY);
-                  setAvatarImage(localSaved);
-                  localStorage.removeItem(AVATAR_KEY);
-                } else {
-                  removeAvatar();
-                }
-              }
-            };
-          } else {
-            // Fallback: localStorage only
-            const saved = localStorage.getItem(AVATAR_KEY);
-            if (saved) {
-              console.log('🖼️ Avatar loaded from localStorage (IndexedDB unavailable)');
-              setAvatarImage(saved);
-            } else {
-              removeAvatar();
-            }
-          }
-        });
+        const saved = localStorage.getItem(AVATAR_KEY);
+        console.log('🖼️ Loading avatar from localStorage:', saved ? 'Found' : 'Not found');
+        if (saved) {
+          setAvatarImage(saved);
+          console.log('✅ Avatar loaded successfully');
+        } else {
+          // Mostra sagoma umana se non c'è avatar
+          removeAvatar();
+        }
       }
 
       // Set avatar image
@@ -1677,10 +1439,6 @@
 
       // Remove avatar image
       function removeAvatar() {
-        if (db) {
-          const transaction = db.transaction([DB_STORE], 'readwrite');
-          transaction.objectStore(DB_STORE).delete(AVATAR_KEY);
-        }
         localStorage.removeItem(AVATAR_KEY);
         // Sagoma umana SVG delineata bianco bold
         const humanSilhouette = `
@@ -1713,25 +1471,11 @@
       fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith('image/')) {
-          // Check file size (max 5MB)
-          if (file.size > 5 * 1024 * 1024) {
-            console.warn('⚠️ Image too large (max 5MB), compressing...');
-          }
           const reader = new FileReader();
           reader.onload = (event) => {
             const dataUrl = event.target.result;
-
-            // Save to IndexedDB
-            if (db) {
-              const transaction = db.transaction([DB_STORE], 'readwrite');
-              const store = transaction.objectStore(DB_STORE);
-              store.put(dataUrl, AVATAR_KEY);
-              console.log('💾 Avatar saved to IndexedDB');
-            } else {
-              // Fallback to localStorage
-              localStorage.setItem(AVATAR_KEY, dataUrl);
-              console.log('💾 Avatar saved to localStorage (IndexedDB unavailable)');
-            }
+            localStorage.setItem(AVATAR_KEY, dataUrl);
+            console.log('💾 Avatar saved to localStorage (size:', dataUrl.length, 'bytes)');
             setAvatarImage(dataUrl);
           };
           reader.readAsDataURL(file);
@@ -1746,235 +1490,31 @@
     })();
 
     // Add energy shock animation to send button + Enter key support
-    // Wait for app.js to load before setting up handlers
     (function() {
-      function setupSendHandlers() {
-        const sendBtn = document.getElementById('sendButton');
-        const messageInput = document.getElementById('messageInput');
+      const sendBtn = document.getElementById('sendButton');
+      const messageInput = document.getElementById('messageInput');
 
-        if (!sendBtn || !messageInput) {
-          return false;
-        }
-
-        // Trigger animation on send
-        function triggerSendAnimation() {
-          if (sendBtn) {
-            sendBtn.classList.add('sending');
-            setTimeout(() => {
-              sendBtn.classList.remove('sending');
-            }, 600);
-          }
-        }
-
-        // Send message function
-        function attemptSend() {
-          const content = messageInput.value.trim();
-          const fileInput = document.getElementById('fileInput');
-          const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
-          
-          if (!content && !hasFile) {
-            return;
-          }
-
-          triggerSendAnimation();
-
-          // Try to use handleSend from app.js
-          if (typeof window.handleSend === 'function') {
-            window.handleSend();
-            return;
-          }
-
-          // Try to use sendMessage from app.js
-          if (typeof window.sendMessage === 'function') {
-            window.sendMessage(content);
-            return;
-          }
-
-          // Fallback: try to call zantaraClient directly
-          if (window.zantaraClient && typeof window.zantaraClient.sendMessageStream === 'function') {
-            if (content) {
-              window.zantaraClient.sendMessageStream(content, {
-                onStart: () => {
-                  const welcomeMsg = document.querySelector('.welcome-message');
-                  if (welcomeMsg) welcomeMsg.style.display = 'none';
-                  
-                  const messageSpace = document.getElementById('messageSpace');
-                  if (messageSpace) {
-                    const userMsg = document.createElement('div');
-                    userMsg.className = 'message user';
-                    userMsg.innerHTML = `<div class="message-content"><div class="message-text">${content}</div></div>`;
-                    messageSpace.appendChild(userMsg);
-                  }
-                  
-                  messageInput.value = '';
-                  messageInput.style.height = 'auto';
-                },
-                onToken: (token, fullText) => {
-                  let liveMsg = document.getElementById('liveMessage');
-                  if (!liveMsg) {
-                    liveMsg = document.createElement('div');
-                    liveMsg.id = 'liveMessage';
-                    liveMsg.className = 'message ai';
-                    const messageSpace = document.getElementById('messageSpace');
-                    if (messageSpace) messageSpace.appendChild(liveMsg);
-                  }
-                  // Filter AI response
-                  const filteredText = filterAIResponse(fullText);
-                  liveMsg.innerHTML = `<div class="message-content"><div class="message-text">${filteredText}</div></div>`;
-                },
-                onComplete: (fullText) => {
-                  const liveMsg = document.getElementById('liveMessage');
-                  if (liveMsg) {
-                    // Apply final filter
-                    const filteredText = filterAIResponse(fullText);
-                    const textEl = liveMsg.querySelector('.message-text');
-                    if (textEl) {
-                      textEl.textContent = filteredText;
-                    }
-                    liveMsg.removeAttribute('id');
-                  }
-                },
-                onError: (error) => {
-                  console.error('❌ Send error:', error);
-                }
-              }).catch(err => console.error('❌ Send error:', err));
-            }
-            return;
-          }
-
-          // Final fallback: create ZantaraClient instance directly
-          if (typeof window.ZantaraClient === 'function') {
-            console.log('✅ Using ZantaraClient class directly');
-            const API_CONFIG = window.API_CONFIG || { rag: { url: 'https://nuzantara-rag.fly.dev' } };
-            
-            const client = new window.ZantaraClient({
-              apiUrl: API_CONFIG.rag?.url || 'https://nuzantara-rag.fly.dev',
-              chatEndpoint: '/bali-zero/chat',
-              streamEndpoint: '/bali-zero/chat-stream',
-              maxRetries: 3,
-            });
-            
-            client.authenticate().then(() => {
-              return client.sendMessageStream(content, {
-                onStart: () => {
-                  const welcomeMsg = document.querySelector('.welcome-message');
-                  if (welcomeMsg) welcomeMsg.style.display = 'none';
-                  
-                  const messageSpace = document.getElementById('messageSpace');
-                  if (messageSpace) {
-                    const userMsg = document.createElement('div');
-                    userMsg.className = 'message user';
-                    userMsg.innerHTML = `<div class="message-content"><div class="message-text">${content}</div></div>`;
-                    messageSpace.appendChild(userMsg);
-                  }
-                  
-                  messageInput.value = '';
-                  messageInput.style.height = 'auto';
-                },
-                onToken: (token, fullText) => {
-                  let liveMsg = document.getElementById('liveMessage');
-                  if (!liveMsg) {
-                    liveMsg = document.createElement('div');
-                    liveMsg.id = 'liveMessage';
-                    liveMsg.className = 'message ai';
-                    const messageSpace = document.getElementById('messageSpace');
-                    if (messageSpace) messageSpace.appendChild(liveMsg);
-                  }
-                  // Filter AI response
-                  const filteredText = filterAIResponse(fullText);
-                  liveMsg.innerHTML = `<div class="message-content"><div class="message-text">${filteredText}</div></div>`;
-                },
-                onComplete: (fullText) => {
-                  const liveMsg = document.getElementById('liveMessage');
-                  if (liveMsg) {
-                    // Apply final filter
-                    const filteredText = filterAIResponse(fullText);
-                    const textEl = liveMsg.querySelector('.message-text');
-                    if (textEl) {
-                      textEl.textContent = filteredText;
-                    }
-                    liveMsg.removeAttribute('id');
-                  }
-                },
-                onError: (error) => {
-                  console.error('❌ Send error:', error);
-                }
-              });
-            }).catch(err => {
-              console.error('❌ Authentication or send error:', err);
-            });
-            return;
-          }
-
-          console.warn('⚠️ No send function available');
-        }
-
-        // Click handler
-        sendBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          attemptSend();
-        });
-
-        // Enter key handler (without Shift)
-        messageInput.addEventListener('keydown', function(e) {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (!sendBtn.disabled) {
-              attemptSend();
-            }
-          }
-        });
-
-        return true;
+      // Trigger animation on send
+      function triggerSendAnimation() {
+        sendBtn.classList.add('sending');
+        setTimeout(() => {
+          sendBtn.classList.remove('sending');
+        }, 600);
       }
 
-      // Setup handlers when DOM and scripts are ready
-      function waitForZantaraClient(callback, maxAttempts = 30) {
-        let attempts = 0;
-        const check = setInterval(() => {
-          attempts++;
-          if (typeof window.ZantaraClient === 'function' || typeof window.zantaraClient !== 'undefined' || typeof window.handleSend === 'function') {
-            clearInterval(check);
-            callback();
-          } else if (attempts >= maxAttempts) {
-            clearInterval(check);
-            console.warn('⚠️ ZantaraClient not found after', attempts, 'attempts, but will try anyway');
-            callback(); // Try anyway
-          }
-        }, 500);
-      }
+      // Click handler - removed to avoid conflict with app.js handleSend
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-          waitForZantaraClient(() => setTimeout(setupSendHandlers, 500));
-        });
-      } else {
-        waitForZantaraClient(() => setTimeout(setupSendHandlers, 500));
-      }
+      // Enter key handler (without Shift)
+      messageInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault(); // Prevent new line
+          if (!sendBtn.disabled) {
+            triggerSendAnimation();
+            sendBtn.click(); // Trigger the actual send
+          }
+        }
+      });
     })();
-
-      // Image Generation Palette Handler
-      (function() {
-        const paletteBtn = document.getElementById('paletteButton');
-        if (paletteBtn) {
-          paletteBtn.addEventListener('click', () => {
-            const messageInput = document.getElementById('messageInput');
-            const currentText = messageInput.value.trim();
-
-            if (currentText) {
-              // If there's existing text, append image generation request
-              messageInput.value = currentText + '\n\nGenerate image: [describe the image you want]';
-            } else {
-              // Otherwise, show prompt for image description
-              messageInput.value = 'Generate image: ';
-            }
-
-            messageInput.focus();
-            messageInput.style.height = 'auto';
-            messageInput.style.height = (messageInput.scrollHeight) + 'px';
-          });
-        }
-      })();
 
       // File Attachment Handler
       (function() {
@@ -2010,7 +1550,11 @@
           });
         }
       })();
+    })();
   </script>
+
+  <!-- Timesheet Widget Functionality -->
+  <script src="js/timesheet-widget.js"></script>
 
 </body>
 </html>
