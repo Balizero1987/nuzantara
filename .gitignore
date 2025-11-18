@@ -263,4 +263,5 @@ test.*
 # Orchestra framework (troppo grande)
 orchestra/
 orchestra_*/
-agents/
+# agents/ - REMOVED: backend-rag/backend/agents/ needed for autonomous agents
+# If you need to ignore specific agent directories, use explicit paths
