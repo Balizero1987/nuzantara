@@ -83,9 +83,8 @@
       clockButton.disabled = true;
 
       const isClockedIn = clockButton.classList.contains('clocked-in');
-      const endpoint = isClockedIn ? 'clock-out' : 'clock-in';
 
-      const response = await fetch(`${BACKEND_URL}/api/timesheet/${endpoint}`, {
+      const response = await fetch(`${BACKEND_URL}/api/timesheet/toggle`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -97,8 +96,8 @@
         const data = await response.json();
         console.log(`✅ ${isClockedIn ? 'Clocked out' : 'Clocked in'}:`, data);
 
-        // Update UI
-        updateUI(!isClockedIn);
+        // Update UI based on server response
+        updateUI(data.is_clocked_in);
 
         // Show success message
         showNotification(
