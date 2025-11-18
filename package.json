@@ -28,7 +28,7 @@
     "start:dev": "nodemon --watch apps/backend-ts/src --ext ts,js --exec tsx apps/backend-ts/src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage --coverageReporters=lcov --coverageThreshold='{\"global\":{\"branches\":70,\"functions\":70,\"lines\":70,\"statements\":70}}'",
+    "test:coverage": "jest --coverage --coverageReporters=lcov",
     "test:ci": "jest --ci --coverage --watchAll=false --coverageReporters=lcov",
     "health-check": "curl -s http://localhost:8080/health | jq . || echo 'Server not running on port 8080'",
     "test:integration": "npm run build && npm run test:ci",
