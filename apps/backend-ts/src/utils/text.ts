@@ -5,7 +5,7 @@ export function cleanMarkdown(text: string): string {
       .replace(/#{1,6}\s*/g, '')
       .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
       .replace(/[🔧📧📱🌐💫✅❌🎯🚀📍📸🌸🌐💡🔥⭐️✨💬🧠🛠️🧩📊📌]/g, '')
-      .replace(/[>]{1}\s?/g, '')
+      .replace(/^\s*>\s?/gm, '')
       .replace(/\r?\n\s*\r?\n/g, '\n')
       .trim();
   } catch {
