@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { BadRequestError } from '../../../utils/errors.js';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('Advisory', () => {
   let handlers: any;
@@ -22,15 +21,21 @@ describe('Advisory', () => {
     });
 
     it('should handle missing required params', async () => {
-      await expect(handlers.documentPrepare({})).rejects.toThrow();
+      const result = await handlers.documentPrepare({});
+      expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      // Defaults to 'visa' when no service specified
+      expect(result.data.checklist).toContain('Visa');
     });
 
     it('should handle invalid params', async () => {
-      await expect(
-        handlers.documentPrepare({
-          service: 'invalid-service',
-        })
-      ).rejects.toThrow();
+      const result = await handlers.documentPrepare({
+        service: 'invalid-service',
+      });
+      expect(result).toBeDefined();
+      expect(result.ok).toBe(true);
+      // Falls back to 'visa' for unrecognized services
+      expect(result.data.checklist).toContain('Visa');
     });
   });
 

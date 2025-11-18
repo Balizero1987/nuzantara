@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 describe('Bali Zero Pricing', () => {
   let handlers: any;
@@ -29,12 +29,11 @@ describe('Bali Zero Pricing', () => {
     });
 
     it('should handle invalid params gracefully', async () => {
-      const result = await handlers.baliZeroPricing({
-        service_type: 'invalid-service',
-      });
-
-      expect(result).toBeDefined();
-      expect(result.ok).toBe(true);
+      await expect(
+        handlers.baliZeroPricing({
+          service_type: 'invalid-service',
+        })
+      ).rejects.toThrow();
     });
   });
 
