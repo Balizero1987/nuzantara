@@ -96,7 +96,7 @@ async function performAsyncRealityCheck(
       }
     }
   } catch (error) {
-    logger.error('Reality check error:', error);
+    logger.error('Reality check error:', error as Error);
   }
 }
 

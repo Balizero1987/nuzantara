@@ -85,8 +85,6 @@ export interface TeamMemberLanguageProfile {
 export class MultiLanguageSystem {
   private nlpSystem: AdvancedNLPSystem;
   private userProfiles: Map<string, LanguageProfile> = new Map();
-
-  private _translationCache: Map<string, TranslationResult> = new Map();
   private localizationTemplates: Map<string, Map<string, string>> = new Map();
   private teamMemberLanguages: Map<string, TeamMemberLanguageProfile> = new Map();
 
@@ -412,9 +410,10 @@ export class MultiLanguageSystem {
       },
     };
 
+    const langGreetings = greetings[language as keyof typeof greetings] as Record<string, string>;
     return (
-      greetings[language as keyof typeof greetings]?.[memberName as keyof typeof greetings.it] ||
-      greetings[language as keyof typeof greetings]?.default ||
+      langGreetings?.[memberName] ||
+      langGreetings?.default ||
       greetings.en.default
     );
   }
@@ -444,9 +443,10 @@ export class MultiLanguageSystem {
       },
     };
 
+    const langClosings = closings[language as keyof typeof closings] as Record<string, string>;
     return (
-      closings[language as keyof typeof closings]?.[memberName as keyof typeof closings.it] ||
-      closings[language as keyof typeof closings]?.default ||
+      langClosings?.[memberName] ||
+      langClosings?.default ||
       closings.en.default
     );
   }
@@ -897,7 +897,7 @@ export class MultiLanguageSystem {
       id: 'Konteks budaya Indonesia',
       en: 'English cultural context',
     };
-    return contexts[language] || contexts.en;
+    return (contexts as Record<string, string>)[language] || contexts.en;
   }
 
   // =====================================================

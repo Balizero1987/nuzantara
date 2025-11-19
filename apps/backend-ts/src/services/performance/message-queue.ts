@@ -217,6 +217,8 @@ class MessageQueueService {
             let message: Message | null = null;
             try {
               message = JSON.parse(msgStr);
+              if (!message) continue;
+
               const startTime = Date.now();
 
               await handler(message);

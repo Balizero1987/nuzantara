@@ -477,6 +477,9 @@ export function getMetricsCollector(): MetricsCollector {
   if (!metricsCollector) {
     initializeMetricsCollector();
   }
+  if (!metricsCollector) {
+    throw new Error('Failed to initialize metrics collector');
+  }
   return metricsCollector;
 }
 
@@ -497,8 +500,6 @@ export function metricsMiddleware(req: any, res: any, next: any) {
   const originalEnd = res.end;
   res.end = function (chunk?: any, encoding?: any) {
     const success = res.statusCode < 400;
-
-    const _responseTime = Date.now() - startTime;
 
     // Record request completion
     collector.recordRequestEnd(reqId, startTime, endpoint, success);

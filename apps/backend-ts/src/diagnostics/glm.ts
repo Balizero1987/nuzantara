@@ -116,7 +116,7 @@ export async function runGLM(): Promise<LayerStatus[]> {
     results.push({
       name: 'GLM System',
       status: 'error',
-      detail: `Critical error: ${error.message}`,
+      detail: `Critical error: ${error instanceof Error ? error.message : String(error)}`,
     });
   }
 

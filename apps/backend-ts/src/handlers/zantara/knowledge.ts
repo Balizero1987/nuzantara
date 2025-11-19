@@ -207,7 +207,7 @@ export async function getZantaraKnowledge() {
     };
     return ok(knowledge);
   } catch (error) {
-    logger.error('Error getting Zantara knowledge:', error);
+    logger.error('Error getting Zantara knowledge:', error as Error);
     return err('Failed to retrieve Zantara knowledge', 500);
   }
 }
@@ -227,7 +227,7 @@ export async function getSystemHealth() {
     };
     return ok(health);
   } catch (error) {
-    logger.error('Error getting system health:', error);
+    logger.error('Error getting system health:', error as Error);
     return err('Failed to retrieve system health', 500);
   }
 }
@@ -260,7 +260,7 @@ Bali Zero specialties: Company setup (PT PMA), KITAS/visas, pricing, business co
 
     return ok({ data: systemPrompt });
   } catch (error) {
-    logger.error('Error generating Zantara system prompt:', error);
+    logger.error('Error generating Zantara system prompt:', error as Error);
     return err('Failed to generate Zantara system prompt', 500);
   }
 }

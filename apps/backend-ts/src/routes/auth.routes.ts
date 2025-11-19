@@ -131,7 +131,7 @@ router.post('/login', async (req: Request, res: Response) => {
  * GET /api/auth/check
  * Verify if current token is valid
  */
-router.get('/check', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+router.get('/check', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
   try {
     // If jwtAuth middleware passed, token is valid
     const userId = req.user?.userId || req.user?.email;
@@ -161,13 +161,13 @@ router.get('/check', jwtAuth, async (req: RequestWithJWT, res: Response) => {
   } catch (error: any) {
     return res.status(401).json(err('Authentication failed'));
   }
-});
+}) as any);
 
 /**
  * POST /api/auth/logout
  * Logout user (client-side token removal)
  */
-router.post('/logout', async (req: Request, res: Response) => {
+router.post('/logout', async (_req: Request, res: Response) => {
   try {
     // In a stateless JWT system, logout is client-side
     // Server just confirms the action
@@ -186,7 +186,7 @@ router.post('/logout', async (req: Request, res: Response) => {
  * GET /api/user/profile
  * Get current user profile
  */
-router.get('/profile', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+router.get('/profile', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
   try {
     const userId = req.user?.userId || req.user?.email;
 
@@ -218,6 +218,6 @@ router.get('/profile', jwtAuth, async (req: RequestWithJWT, res: Response) => {
   } catch (error: any) {
     return res.status(500).json(err(error?.message || 'Failed to fetch profile'));
   }
-});
+}) as any);
 
 export default router;

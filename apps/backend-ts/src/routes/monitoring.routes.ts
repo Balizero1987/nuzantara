@@ -13,7 +13,7 @@ const router = Router();
  * GET /api/monitoring/cron-status
  * Get status of all cron jobs
  */
-router.get('/cron-status', async (req, res) => {
+router.get('/cron-status', async (_req, res) => {
   try {
     const scheduler = getCronScheduler();
     const schedulerStatus = scheduler.getStatus();
@@ -79,7 +79,7 @@ router.get('/cron-status', async (req, res) => {
  * GET /api/monitoring/agent-tasks
  * Get all agent tasks
  */
-router.get('/agent-tasks', async (req, res) => {
+router.get('/agent-tasks', async (_req, res) => {
   try {
     const scheduler = getCronScheduler();
     const orchestrator = scheduler.getOrchestrator();
@@ -96,7 +96,7 @@ router.get('/agent-tasks', async (req, res) => {
 
     res.json({
       success: true,
-      tasks: tasks.map((t) => ({
+      tasks: tasks.map((t: any) => ({
         id: t.id,
         type: t.type,
         status: t.status,
@@ -106,10 +106,10 @@ router.get('/agent-tasks', async (req, res) => {
       })),
       summary: {
         total: tasks.length,
-        pending: tasks.filter((t) => t.status === 'pending').length,
-        running: tasks.filter((t) => t.status === 'running').length,
-        completed: tasks.filter((t) => t.status === 'completed').length,
-        failed: tasks.filter((t) => t.status === 'failed').length,
+        pending: tasks.filter((t: any) => t.status === 'pending').length,
+        running: tasks.filter((t: any) => t.status === 'running').length,
+        completed: tasks.filter((t: any) => t.status === 'completed').length,
+        failed: tasks.filter((t: any) => t.status === 'failed').length,
       },
     });
   } catch (error: any) {

@@ -95,9 +95,6 @@ export class PromptLoaderService {
    * Analyze query content to determine appropriate level
    */
   private analyzeQuery(query: string): UserLevel {
-
-    const _lowerQuery = query.toLowerCase();
-
     // Check for Level 3 patterns (highest priority)
     if (this.levelPatterns.level3.some((pattern) => pattern.test(query))) {
       return UserLevel.LEVEL_3;
@@ -171,7 +168,7 @@ export class PromptLoaderService {
     try {
       return await fs.readFile(promptPath, 'utf-8');
     } catch (error) {
-      logger.error(`Failed to load prompt file ${filename}:`, error);
+      logger.error(`Failed to load prompt file ${filename}:`, error as Error);
       // Fallback to basic prompt
       return this.getBasicPrompt();
     }

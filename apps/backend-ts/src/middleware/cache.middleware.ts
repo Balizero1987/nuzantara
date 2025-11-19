@@ -128,7 +128,7 @@ export async function cacheGet(key: string): Promise<string | null> {
     }
     return value;
   } catch (error) {
-    logger.error('Cache get error:', error);
+    logger.error('Cache get error:', error as Error);
     return null;
   }
 }
@@ -144,7 +144,7 @@ export async function cacheSet(key: string, value: any, ttl: number = 300): Prom
     await redis.setEx(key, ttl, serialized);
     logger.debug(`Cache set: ${key} (TTL: ${ttl}s)`);
   } catch (error) {
-    logger.error('Cache set error:', error);
+    logger.error('Cache set error:', error as Error);
   }
 }
 
@@ -158,7 +158,7 @@ export async function cacheDel(key: string): Promise<void> {
     await redis.del(key);
     logger.debug(`Cache deleted: ${key}`);
   } catch (error) {
-    logger.error('Cache delete error:', error);
+    logger.error('Cache delete error:', error as Error);
   }
 }
 
@@ -217,7 +217,7 @@ export function cacheMiddleware(keyPrefix: string, ttl: number = 300) {
 
       next();
     } catch (error) {
-      logger.error('Cache middleware error:', error);
+      logger.error('Cache middleware error:', error as Error);
       next();
     }
   };
@@ -238,7 +238,7 @@ export async function invalidateCache(pattern: string): Promise<number> {
     }
     return 0;
   } catch (error) {
-    logger.error('Cache invalidation error:', error);
+    logger.error('Cache invalidation error:', error as Error);
     return 0;
   }
 }
@@ -267,8 +267,8 @@ export async function getCacheStats(): Promise<any> {
       }, {}),
     };
   } catch (error) {
-    logger.error('Failed to get cache stats:', error);
-    return { status: 'error', error: error.message };
+    logger.error('Failed to get cache stats:', error as Error);
+    return { status: 'error', error: error instanceof Error ? error.message : String(error) };
   }
 }
 

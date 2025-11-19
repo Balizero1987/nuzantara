@@ -45,11 +45,18 @@ describe('StreamingService', () => {
         flushHeaders: jest.fn(),
       } as any;
 
-      await expect(
-        streamingService.streamChat(mockReq, mockRes, {
-          query: 'test query',
-        })
-      ).rejects.toThrow('Backend stream failed');
+      // Function handles errors internally and sends error via SSE
+      await streamingService.streamChat(mockReq, mockRes, {
+        query: 'test query',
+      });
+
+      // Check that error was sent to client via SSE
+      expect(mockRes.write).toHaveBeenCalled();
+      const writeCalls = (mockRes.write as jest.MockedFunction<any>).mock.calls;
+      const errorMessage = writeCalls.find(
+        (call: any[]) => call[0].includes('error') && call[0].includes('Backend stream failed')
+      );
+      expect(errorMessage).toBeDefined();
     });
   });
 

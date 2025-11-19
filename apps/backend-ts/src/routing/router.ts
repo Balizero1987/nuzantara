@@ -554,7 +554,7 @@ const handlers: Record<string, Handler> = {
 
   // Drive Multipart Upload Handler (Note: requires Express middleware integration)
 
-  'drive.upload.multipart': async (params: any) => {
+  'drive.upload.multipart': async (_params: any) => {
     return {
       ok: false,
       error: 'Drive multipart upload requires Express middleware. Use POST /api/drive/upload-multipart endpoint instead.',
@@ -758,8 +758,7 @@ const handlers: Record<string, Handler> = {
   'metrics.dashboard': async (req: any, res: any) => getMetricsDashboard(req, res),
   'metrics.reset': async (req: any, res: any) => resetMetrics(req, res),
   'metrics.initialize': async () => {
-
-    const _collector = initializeMetricsCollector();
+    initializeMetricsCollector();
     return { success: true, message: 'Metrics collection initialized', initialized: true };
   },
 
@@ -1115,7 +1114,7 @@ export function attachRoutes(app: import('express').Express) {
   // === NEW v2 RESTful Operations (for OpenAPI v2) ===
 
   // Identity Management
-  app.post('/identity.resolve', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/identity.resolve', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await identityResolve(req.body);
       return res.status(200).json(result?.data ?? result);
@@ -1128,10 +1127,11 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // Team Authentication Routes
-  app.post('/team.login', demoUserAuth, async (req: RequestWithDemo, res: Response) => {
+  app.post('/team.login', demoUserAuth as any, (async (req: RequestWithDemo, res: Response) => // @ts-ignore
+   {
     try {
       const result = await teamLogin(req.body);
       return res.status(200).json(result?.data ?? result);
@@ -1140,7 +1140,7 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   app.get('/team.members', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
@@ -1151,7 +1151,8 @@ export function attachRoutes(app: import('express').Express) {
     }
   });
 
-  app.post('/team.logout', demoUserAuth, async (req: RequestWithDemo, res: Response) => {
+  app.post('/team.logout', demoUserAuth as any, (async (req: RequestWithDemo, res: Response) => // @ts-ignore
+   {
     try {
       const { sessionId } = req.body;
       const result = logoutSession(sessionId);
@@ -1159,14 +1160,14 @@ export function attachRoutes(app: import('express').Express) {
     } catch (e: any) {
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // ========================================
   // JWT AUTHENTICATION ENDPOINTS
   // ========================================
 
   // JWT Login endpoint - BUG FIX
-  app.post('/auth/login', async (req: RequestWithCtx, res: Response) => {
+  app.post('/auth/login', (async (req: RequestWithCtx, res: Response) => {
     const startTime = Date.now();
     const clientIP = req.header('x-forwarded-for') || req.ip || 'unknown';
     const _userAgent = req.header('user-agent') || 'unknown';
@@ -1311,13 +1312,11 @@ export function attachRoutes(app: import('express').Express) {
 
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // JWT Refresh endpoint - BUG FIX
-  app.post('/auth/refresh', async (req: RequestWithCtx, res: Response) => {
+  app.post('/auth/refresh', (async (req: RequestWithCtx, res: Response) => {
     const clientIP = req.header('x-forwarded-for') || req.ip || 'unknown';
-
-    const _userAgent = req.header('user-agent') || 'unknown';
 
     try {
       const { refreshToken } = req.body;
@@ -1465,10 +1464,10 @@ export function attachRoutes(app: import('express').Express) {
       }
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // JWT Logout endpoint
-  app.post('/auth/logout', async (req: RequestWithCtx, res: Response) => {
+  app.post('/auth/logout', (async (req: RequestWithCtx, res: Response) => {
     try {
       const { refreshToken: _refreshToken } = req.body;
 
@@ -1485,10 +1484,10 @@ export function attachRoutes(app: import('express').Express) {
       logger.error('JWT Logout error:', e);
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // AI Chat (JWT protected)
-  app.post('/ai.chat', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+  app.post('/ai.chat', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
     try {
       const result = await aiChat(req.body);
       return res.status(200).json(ok(result?.data ?? result));
@@ -1496,10 +1495,10 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // ZANTARA v3 Unified endpoint (main production endpoint)
-  app.post('/zantara.unified', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+  app.post('/zantara.unified', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
     try {
       const result = await aiChat(req.body);
       return res.status(200).json(ok(result?.data ?? result));
@@ -1507,10 +1506,10 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // ZANTARA v3 Collective endpoint
-  app.post('/zantara.collective', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+  app.post('/zantara.collective', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
     try {
       const result = await aiChat(req.body);
       return res.status(200).json(ok(result?.data ?? result));
@@ -1518,10 +1517,10 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // ZANTARA v3 Ecosystem endpoint
-  app.post('/zantara.ecosystem', jwtAuth, async (req: RequestWithJWT, res: Response) => {
+  app.post('/zantara.ecosystem', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
     try {
       const result = await aiChat(req.body);
       return res.status(200).json(ok(result?.data ?? result));
@@ -1529,10 +1528,10 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // Memory Search
-  app.post('/memory.search', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/memory.search', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await memorySearch(req.body);
       return res.status(200).json(result);
@@ -1548,10 +1547,10 @@ export function attachRoutes(app: import('express').Express) {
 
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // Business Logic
-  app.get('/contact.info', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/contact.info', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const handler = handlers['contact.info'];
       if (handler) {
@@ -1562,9 +1561,9 @@ export function attachRoutes(app: import('express').Express) {
     } catch (e: any) {
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/lead.save', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/lead.save', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const handler = handlers['lead.save'];
       if (handler) {
@@ -1576,10 +1575,10 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // Google Workspace - Native TypeScript implementations
-  app.get('/drive.list', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/drive.list', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await driveList(req.query);
       return res.status(200).json(result);
@@ -1587,9 +1586,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/drive.search', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/drive.search', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await driveSearch(req.body);
       return res.status(200).json(result);
@@ -1597,9 +1596,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/drive.read', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/drive.read', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await driveRead(req.body);
       return res.status(200).json(result);
@@ -1607,9 +1606,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/calendar.create', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/calendar.create', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await calendarCreate(req.body);
       return res.status(200).json(result);
@@ -1617,9 +1616,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/calendar.get', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/calendar.get', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await calendarGet(req.body);
       return res.status(200).json(result);
@@ -1627,9 +1626,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/sheets.read', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/sheets.read', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await sheetsRead(req.body);
       return res.status(200).json(result);
@@ -1637,9 +1636,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/sheets.append', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/sheets.append', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await sheetsAppend(req.body);
       return res.status(200).json(result);
@@ -1647,9 +1646,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/docs.create', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/docs.create', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await docsCreate(req.body);
       return res.status(200).json(result);
@@ -1657,9 +1656,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/docs.read', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/docs.read', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await docsRead(req.body);
       return res.status(200).json(result);
@@ -1667,9 +1666,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/docs.update', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/docs.update', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await docsUpdate(req.body);
       return res.status(200).json(result);
@@ -1677,9 +1676,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/slides.create', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/slides.create', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await slidesCreate(req.body);
       return res.status(200).json(result);
@@ -1687,9 +1686,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/slides.read', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/slides.read', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await slidesRead(req.body);
       return res.status(200).json(result);
@@ -1697,9 +1696,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/slides.update', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/slides.update', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const result = await slidesUpdate(req.body);
       return res.status(200).json(result);
@@ -1707,12 +1706,12 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // === Google Workspace Integration Status Endpoints ===
   
   // Gmail Integration Status
-  app.get('/api/integrations/gmail/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/api/integrations/gmail/status', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = ok({
         connected: true,
@@ -1734,7 +1733,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Google Calendar Integration Status
-  app.get('/api/integrations/calendar/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/api/integrations/calendar/status', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = ok({
         connected: true,
@@ -1755,7 +1754,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // WhatsApp Integration Status (placeholder)
-  app.get('/api/integrations/whatsapp/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/api/integrations/whatsapp/status', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = ok({
         connected: false,
@@ -1771,7 +1770,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Twitter/X Integration Status (placeholder)
-  app.get('/api/integrations/twitter/status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.get('/api/integrations/twitter/status', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
       const result = ok({
         connected: false,
@@ -1834,9 +1833,9 @@ export function attachRoutes(app: import('express').Express) {
   // === Legacy RPC-style /call (for backwards compatibility) ===
   app.post(
     '/call',
-    demoUserAuth,
-    selectiveRateLimiter,
-    async (req: RequestWithDemo, res: Response) => {
+    demoUserAuth as any,
+    selectiveRateLimiter as any,
+    (async (req: RequestWithDemo, res: Response) => {
       let key = '';
       let params = {};
 
@@ -2028,11 +2027,11 @@ export function attachRoutes(app: import('express').Express) {
 
         return res.status(500).json(err(e?.message || 'Internal Error'));
       }
-    }
+    }) as any
   );
 
   // GET/POST /ai.chat.stream – optional SSE streaming (pseudo streaming)
-  app.get('/ai.chat.stream', demoUserAuth, async (req: RequestWithDemo, res) => {
+  app.get('/ai.chat.stream', demoUserAuth as any, (async (req: RequestWithDemo, res: Response) => {
     try {
       const prompt = (req.query.prompt as string) || '';
       if (!prompt) {
@@ -2066,13 +2065,13 @@ export function attachRoutes(app: import('express').Express) {
       }
       return;
     }
-  });
+  }) as any);
 
-  app.post('/ai.chat.stream', demoUserAuth, async (req: RequestWithDemo, res) => {
+  app.post('/ai.chat.stream', demoUserAuth as any, (async (req: RequestWithDemo, res: Response) => {
     // same as GET but read prompt from body
     (req as any).query.prompt = req.body?.prompt || '';
     return (app as any)._router.handle(req, res, () => void 0);
-  });
+  }) as any);
 
   // === WhatsApp Business API Webhooks ===
 
@@ -2246,7 +2245,7 @@ export function attachRoutes(app: import('express').Express) {
   // INTEL NEWS SEARCH (Bali Intelligence)
   // ========================================
 
-  app.post('/intel.news.search', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.news.search', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const { intelNewsSearch } = await import('../handlers/intel/news-search.js');
       const result = await intelNewsSearch(req.body);
@@ -2255,9 +2254,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/intel.news.critical', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.news.critical', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const { intelNewsGetCritical } = await import('../handlers/intel/news-search.js');
       const result = await intelNewsGetCritical(req.body);
@@ -2266,9 +2265,9 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
-  app.post('/intel.news.trends', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.news.trends', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const { intelNewsGetTrends } = await import('../handlers/intel/news-search.js');
       const result = await intelNewsGetTrends(req.body);
@@ -2277,13 +2276,13 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // ========================================
   // INTEL SCRAPER (Bali Intelligence Scraping System)
   // ========================================
 
-  app.post('/intel.scraper.run', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.scraper.run', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const { intelScraperRun } = await import('../handlers/intel/scraper.js');
       const result = await intelScraperRun(req.body);
@@ -2292,7 +2291,7 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   // ========================================
   // ZANTARA v3 Ω STRATEGIC ENDPOINTS
@@ -2314,7 +2313,7 @@ export function attachRoutes(app: import('express').Express) {
    * })
    */
 
-  app.post('/intel.scraper.status', apiKeyAuth, async (req: RequestWithCtx, res: Response) => {
+  app.post('/intel.scraper.status', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
       const { intelScraperStatus } = await import('../handlers/intel/scraper.js');
       const result = await intelScraperStatus(req.body);
@@ -2323,7 +2322,7 @@ export function attachRoutes(app: import('express').Express) {
       if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
-  });
+  }) as any);
 
   app.get('/intel.scraper.categories', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
     try {
@@ -2339,7 +2338,7 @@ export function attachRoutes(app: import('express').Express) {
   // ========================================
 
   // Main dashboard overview
-  router.get('/admin/dashboard/main', jwtAuth, adminAuth, async (_req, res) => {
+  router.get('/admin/dashboard/main', jwtAuth as any, adminAuth as any, async (_req, res) => {
     try {
       const result = await dashboardMain({});
       res.json(result);
@@ -2352,7 +2351,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Conversation metrics
-  router.get('/admin/dashboard/conversations', jwtAuth, adminAuth, async (_req, res) => {
+  router.get('/admin/dashboard/conversations', jwtAuth as any, adminAuth as any, async (_req, res) => {
     try {
       const result = await dashboardConversations({});
       res.json(result);
@@ -2365,7 +2364,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Service metrics
-  router.get('/admin/dashboard/services', jwtAuth, adminAuth, async (_req, res) => {
+  router.get('/admin/dashboard/services', jwtAuth as any, adminAuth as any, async (_req, res) => {
     try {
       const result = await dashboardServices({});
       res.json(result);
@@ -2378,7 +2377,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // Handler performance metrics
-  router.get('/admin/dashboard/handlers', jwtAuth, adminAuth, async (_req, res) => {
+  router.get('/admin/dashboard/handlers', jwtAuth as any, adminAuth as any, async (_req, res) => {
     try {
       const result = await dashboardHandlers({});
       res.json(result);
@@ -2391,7 +2390,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // System health metrics
-  router.get('/admin/dashboard/health', jwtAuth, adminAuth, async (_req, res) => {
+  router.get('/admin/dashboard/health', jwtAuth as any, adminAuth as any, async (_req, res) => {
     try {
       const result = await dashboardHealth({});
       res.json(result);
@@ -2404,7 +2403,7 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // User activity metrics
-  router.get('/admin/dashboard/users', jwtAuth, adminAuth, async (_req, res) => {
+  router.get('/admin/dashboard/users', jwtAuth as any, adminAuth as any, async (_req, res) => {
     try {
       const result = await dashboardUsers({});
       res.json(result);

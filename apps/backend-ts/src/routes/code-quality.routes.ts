@@ -68,11 +68,11 @@ router.get('/metrics', (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Code quality metrics error:', error);
+    logger.error('Code quality metrics error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to analyze code quality',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined,
     });
   }
 });
@@ -102,11 +102,11 @@ router.get('/analyze/:file', (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('File analysis error:', error);
+    logger.error('File analysis error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to analyze file',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -165,11 +165,11 @@ router.post('/run-tests', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Test execution error:', error);
+    logger.error('Test execution error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to run tests',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -231,11 +231,11 @@ router.get('/report', (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Report generation error:', error);
+    logger.error('Report generation error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to generate report',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -274,7 +274,7 @@ router.get('/suggestions', (req: Request, res: Response) => {
     // Sort by impact and limit
     const sortedSuggestions = filteredSuggestions
       .sort((a, b) => {
-        const impactWeight = { high: 3, medium: 2, low: 1 };
+        const impactWeight: { [key: string]: number } = { high: 3, medium: 2, low: 1 };
         return (impactWeight[b.impact] || 0) - (impactWeight[a.impact] || 0);
       })
       .slice(0, parseInt(limit as string));
@@ -296,11 +296,11 @@ router.get('/suggestions', (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Suggestions generation error:', error);
+    logger.error('Suggestions generation error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to get suggestions',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });
@@ -363,11 +363,11 @@ router.post('/benchmark', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Benchmark error:', error);
+    logger.error('Benchmark error:', error as Error);
     res.status(500).json({
       ok: false,
       error: 'Failed to run benchmark',
-      details: error.message,
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 });

@@ -211,7 +211,7 @@ export class EnhancedJWTAuth {
 
         next();
       } catch (error) {
-        logger.error('Enhanced JWT authentication error:', error);
+        logger.error('Enhanced JWT authentication error:', error as Error);
 
         res.status(401).json({
           ok: false,
@@ -233,7 +233,7 @@ export class EnhancedJWTAuth {
         audience: 'nuzantara-users',
       }) as JWTPayload;
     } catch (error) {
-      logger.error('JWT verification failed:', error);
+      logger.error('JWT verification failed:', error as Error);
       throw new Error('Invalid JWT token');
     }
   }
@@ -247,7 +247,7 @@ export class EnhancedJWTAuth {
       const isBlacklisted = await redisClient.get(`blacklist:${jti}`);
       return isBlacklisted === '1';
     } catch (error) {
-      logger.error('Token blacklist check failed:', error);
+      logger.error('Token blacklist check failed:', error as Error);
       return false;
     }
   }
@@ -260,7 +260,7 @@ export class EnhancedJWTAuth {
       const decoded = jwt.decode(token) as any;
       return decoded.jti || '';
     } catch (error) {
-      logger.error('JTI extraction failed:', error);
+      logger.error('JTI extraction failed:', error as Error);
       return '';
     }
   }
@@ -295,7 +295,7 @@ export class EnhancedJWTAuth {
 
       return userStatus;
     } catch (error) {
-      logger.error('User status check failed:', error);
+      logger.error('User status check failed:', error as Error);
       return { isActive: true };
     }
   }
@@ -324,7 +324,7 @@ export class EnhancedJWTAuth {
    * Get user's permission level based on role
    */
   private getUserPermissionLevel(user: EnhancedUser): number {
-    const roleLevel = ROLE_HIERARCHY[user.role] || 0;
+    const roleLevel = (ROLE_HIERARCHY as Record<string, number>)[user.role] || 0;
     const subscriptionMultiplier = this.getSubscriptionMultiplier(user.subscriptionTier);
     return roleLevel * subscriptionMultiplier;
   }
@@ -387,7 +387,7 @@ export class EnhancedJWTAuth {
       // This would typically fetch from database
       logger.info(`Refreshed permissions cache for user ${userId}`);
     } catch (error) {
-      logger.error('Permission cache refresh failed:', error);
+      logger.error('Permission cache refresh failed:', error as Error);
     }
   }
 
@@ -406,7 +406,7 @@ export class EnhancedJWTAuth {
 
       logger.info(`Token blacklisted: ${jti}`);
     } catch (error) {
-      logger.error('Token blacklisting failed:', error);
+      logger.error('Token blacklisting failed:', error as Error);
     }
   }
 
@@ -461,7 +461,7 @@ export class EnhancedJWTAuth {
       const decoded = jwt.decode(token) as any;
       return new Date(decoded.exp * 1000);
     } catch (error) {
-      logger.error('Token expiration check failed:', error);
+      logger.error('Token expiration check failed:', error as Error);
       return null;
     }
   }

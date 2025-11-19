@@ -21,8 +21,8 @@ const app = express();
 
 // Apply logging middleware
 app.use(express.json());
-app.use(correlationMiddleware());
-app.use(performanceMiddleware());
+app.use(correlationMiddleware() as any);
+app.use(performanceMiddleware() as any);
 
 // Example: Enhanced handler with structured logging
 export async function zantaraUnifiedQueryEnhanced(req: any, res: any) {
