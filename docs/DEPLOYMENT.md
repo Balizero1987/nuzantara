@@ -1,7 +1,96 @@
 # NUZANTARA Deployment & Infrastructure
 
-**Version:** 5.2.0  
-**Last Updated:** 2025-11-07
+**Version:** 6.0.0
+**Last Updated:** 2025-11-19
+
+---
+
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Environment Setup](#environment-setup)
+3. [Infrastructure Overview](#infrastructure-overview)
+4. [Deployment Environments](#deployment-environments)
+5. [Fly.io Deployment](#fly-io-deployment)
+6. [Cloudflare Deployment](#cloudflare-deployment)
+7. [CI/CD Pipeline](#ci-cd-pipeline)
+8. [Database Backups](#database-backups)
+9. [Monitoring](#monitoring)
+10. [Scaling](#scaling)
+11. [Disaster Recovery](#disaster-recovery)
+12. [Cost Optimization](#cost-optimization)
+13. [Security](#security)
+14. [Troubleshooting](#troubleshooting)
+
+---
+
+## Prerequisites
+
+- **Fly.io Account:** For backend deployment
+- **Cloudflare Account:** For frontend and DNS
+- **GitHub Account:** For CI/CD
+- **Node.js:** v20+
+- **Python:** v3.11+
+- **Docker:** Latest version
+- **Fly CLI:** `flyctl`
+- **Wrangler CLI:** `wrangler`
+
+---
+
+## Environment Setup
+
+### 1. Install CLIs
+
+```bash
+# Install Fly CLI
+curl -L https://fly.io/install.sh | sh
+
+# Install Wrangler CLI
+npm install -g wrangler
+```
+
+### 2. Login to Services
+
+```bash
+# Login to Fly.io
+fly auth login
+
+# Login to Cloudflare
+wrangler login
+```
+
+### 3. Environment Variables
+
+Create a `.env` file in the root directory for local development.
+
+```env
+# Backend-TS
+DATABASE_URL="postgresql://..."
+REDIS_URL="redis://..."
+OPENAI_API_KEY="sk-..."
+ANTHROPIC_API_KEY="sk-ant-..."
+
+# Backend-RAG
+CHROMA_DB_PATH="/data/chroma_db"
+EMBEDDING_MODEL="text-embedding-3-small"
+```
+
+### 4. Fly.io Secrets
+
+Set secrets for production deployment.
+
+```bash
+# Backend-RAG
+fly secrets set -a nuzantara-rag \
+  DATABASE_URL="postgresql://..." \
+  OPENAI_API_KEY="sk-..." \
+  ANTHROPIC_API_KEY="sk-ant-..."
+
+# Backend-TS
+fly secrets set -a nuzantara-backend \
+  DATABASE_URL="postgresql://..." \
+  REDIS_URL="redis://..."
+```
 
 ---
 
