@@ -14,7 +14,7 @@ import logging
 import os
 from datetime import datetime
 from core.embeddings import EmbeddingsGenerator
-from core.vector_db import ChromaDBClient
+from core.qdrant_db import QdrantClient
 from app.models import TierLevel, AccessLevel
 from services.query_router import QueryRouter
 from core.cache import cached
@@ -35,37 +35,35 @@ class SearchService:
 
     def __init__(self):
         self.embedder = EmbeddingsGenerator()
-        # Use CHROMA_DB_PATH from environment (set by main_cloud.py after download)
-        chroma_path = os.environ.get('CHROMA_DB_PATH', '/tmp/chroma_db')
+        # Get Qdrant URL from environment
+        qdrant_url = os.environ.get('QDRANT_URL', 'https://nuzantara-qdrant.fly.dev')
 
-        # FIX 2025-11-05: Use migrated collections with OpenAI 1536-dim embeddings
-        logger.info("✅ Using migrated collections with OpenAI 1536-dim embeddings")
+        # FIX 2025-11-20: Migrated to Qdrant with OpenAI 1536-dim embeddings
+        logger.info("✅ Using Qdrant with OpenAI 1536-dim embeddings")
 
-        # Initialize 16 collections (multi-domain + pricing + cultural + Oracle + test collections)
+        # Initialize collections pointing to Qdrant (25,415 docs total)
+        # Map old ChromaDB collection names to Qdrant collections
         self.collections = {
-            "bali_zero_pricing": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing"),  # Migrated to 1536-dim
-            # Test collections for OpenAI embeddings migration
-            "bali_zero_pricing_test_1536": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_test_1536"),
-            "bali_zero_pricing_test_384": ChromaDBClient(persist_directory=chroma_path, collection_name="bali_zero_pricing_test_384"),
-            # MIGRATED COLLECTIONS: Now point to actual collections with 1536-dim OpenAI embeddings
-            "visa_oracle": ChromaDBClient(persist_directory=chroma_path, collection_name="visa_oracle"),  # 1,612 docs (pending migration)
-            "kbli_eye": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),  # Fallback to kbli_unified (8,887 docs)
-            "tax_genius": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_genius"),  # 895 docs, 1536-dim ✅ MIGRATED
-            "legal_architect": ChromaDBClient(persist_directory=chroma_path, collection_name="indonesian_laws_unified"),  # 5,039 docs, 1536-dim ✅ UNIFIED LAWS 2025
-            "legal_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="indonesian_laws_unified"),  # 5,039 docs, 1536-dim ✅ UNIFIED LAWS 2025 (direct access)
-            "kb_indonesian": ChromaDBClient(persist_directory=chroma_path, collection_name="kb_indonesian"),
-            "kbli_comprehensive": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_comprehensive"),
-            "kbli_unified": ChromaDBClient(persist_directory=chroma_path, collection_name="kbli_unified"),  # 8,887 docs
+            "bali_zero_pricing": QdrantClient(qdrant_url=qdrant_url, collection_name="bali_zero_pricing"),  # 29 docs
+            # PRODUCTION COLLECTIONS: All migrated with 1536-dim OpenAI embeddings
+            "visa_oracle": QdrantClient(qdrant_url=qdrant_url, collection_name="visa_oracle"),  # 1,612 docs (updated nomenclature)
+            "kbli_eye": QdrantClient(qdrant_url=qdrant_url, collection_name="kbli_unified"),  # Fallback to kbli_unified (8,886 docs)
+            "tax_genius": QdrantClient(qdrant_url=qdrant_url, collection_name="tax_genius"),  # 895 docs
+            "legal_architect": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified"),  # 5,041 docs (Indonesian laws)
+            "legal_unified": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified"),  # 5,041 docs (direct access)
+            "kb_indonesian": QdrantClient(qdrant_url=qdrant_url, collection_name="knowledge_base"),  # Fallback
+            "kbli_comprehensive": QdrantClient(qdrant_url=qdrant_url, collection_name="kbli_unified"),  # 8,886 docs
+            "kbli_unified": QdrantClient(qdrant_url=qdrant_url, collection_name="kbli_unified"),  # 8,886 docs
             # Fallback collection for unmigrated queries
-            "zantara_books": ChromaDBClient(persist_directory=chroma_path, collection_name="knowledge_base"),  # 8,923 docs
-            "cultural_insights": ChromaDBClient(persist_directory=chroma_path, collection_name="cultural_insights"),
-            # Oracle System Collections (Phase 1 - Dependency Injection)
-            "tax_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_updates"),
-            "tax_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="tax_genius"),  # Redirect to migrated tax_genius
-            "property_listings": ChromaDBClient(persist_directory=chroma_path, collection_name="property_listings"),  # 29 docs, 1536-dim ✅ MIGRATED
-            "property_knowledge": ChromaDBClient(persist_directory=chroma_path, collection_name="property_unified"),  # 29 docs
-            "legal_updates": ChromaDBClient(persist_directory=chroma_path, collection_name="indonesian_laws_unified"),  # 5,039 docs, 1536-dim ✅ UNIFIED LAWS 2025
-            "legal_intelligence": ChromaDBClient(persist_directory=chroma_path, collection_name="indonesian_laws_unified")  # 5,039 docs, 1536-dim ✅ UNIFIED LAWS 2025 (comprehensive)
+            "zantara_books": QdrantClient(qdrant_url=qdrant_url, collection_name="knowledge_base"),  # 8,923 docs
+            "cultural_insights": QdrantClient(qdrant_url=qdrant_url, collection_name="knowledge_base"),  # Fallback
+            # Oracle System Collections
+            "tax_updates": QdrantClient(qdrant_url=qdrant_url, collection_name="tax_genius"),  # Redirect
+            "tax_knowledge": QdrantClient(qdrant_url=qdrant_url, collection_name="tax_genius"),  # 895 docs
+            "property_listings": QdrantClient(qdrant_url=qdrant_url, collection_name="property_unified"),  # 29 docs
+            "property_knowledge": QdrantClient(qdrant_url=qdrant_url, collection_name="property_unified"),  # 29 docs
+            "legal_updates": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified"),  # 5,041 docs
+            "legal_intelligence": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified")  # 5,041 docs
         }
 
         # Initialize query router
@@ -90,8 +88,8 @@ class SearchService:
             "semantic_resolutions": 0
         }
 
-        logger.info(f"SearchService initialized with ChromaDB path: {chroma_path}")
-        logger.info("✅ Collections: 16 (bali_zero_pricing [PRIORITY], test_1536, test_384, visa_oracle, kbli_eye, tax_genius, legal_architect, kb_indonesian, kbli_comprehensive, zantara_books, cultural_insights [JIWA], tax_updates, tax_knowledge, property_listings, property_knowledge, legal_updates)")
+        logger.info(f"SearchService initialized with Qdrant URL: {qdrant_url}")
+        logger.info("✅ Collections: 16 (bali_zero_pricing [PRIORITY], visa_oracle, kbli_eye, tax_genius, legal_architect/legal_unified, kb_indonesian, kbli_comprehensive, kbli_unified, zantara_books, cultural_insights, tax_updates, tax_knowledge, property_listings, property_knowledge, legal_updates, legal_intelligence)")
         logger.info("✅ Query routing enabled (Phase 3: Smart Fallback + Conflict Resolution)")
         logger.info("✅ Conflict Resolution Agent: ENABLED")
 
