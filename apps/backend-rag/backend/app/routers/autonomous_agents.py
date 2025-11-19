@@ -21,9 +21,9 @@ import os
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from agents.conversation_trainer import ConversationTrainer
-from agents.client_value_predictor import ClientValuePredictor
-from agents.knowledge_graph_builder import KnowledgeGraphBuilder
+from agents.agents.conversation_trainer import ConversationTrainer
+from agents.agents.client_value_predictor import ClientValuePredictor
+from agents.agents.knowledge_graph_builder import KnowledgeGraphBuilder
 
 logger = logging.getLogger(__name__)
 
