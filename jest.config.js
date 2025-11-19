@@ -8,6 +8,7 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
     '^@/(.*)$': '<rootDir>/apps/backend-ts/src/$1',
+    '^@/services/(.*)$': '<rootDir>/apps/backend-ts/src/services/$1',
   },
 
   // Transform TypeScript files with ts-jest

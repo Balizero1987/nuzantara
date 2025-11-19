@@ -1173,11 +1173,11 @@ export function attachRoutes(app: import('express').Express) {
     const _userAgent = req.header('user-agent') || 'unknown';
 
     try {
-      const { email, password } = req.body;
+      const { email, pin } = req.body;
 
-      if (!email || !password) {
+      if (!email || !pin) {
         logger.warn('JWT Login: Missing credentials', { ip: clientIP });
-        return res.status(400).json(err('Email and password are required'));
+        return res.status(400).json(err('Email and pin are required'));
       }
 
       // BUG FIX: teamLogin requires { name, email }, not { email, pin }
@@ -1191,11 +1191,30 @@ export function attachRoutes(app: import('express').Express) {
           ip: clientIP,
         });
 
-        // Audit log (GDPR compliant - no password)
+        // Audit log (GDPR compliant - no pin)
         logger.info('JWT_LOGIN_AUDIT', {
           event: 'login_failure',
           email: email.substring(0, 3) + '***',
           reason: 'user_not_found',
+          ip: clientIP,
+          timestamp: new Date().toISOString(),
+        });
+
+        return res.status(401).json(err('Invalid credentials'));
+      }
+
+      // Verify PIN
+      if (member.pin !== pin) {
+        logger.warn('JWT Login: Invalid PIN', {
+          email: email.substring(0, 3) + '***',
+          ip: clientIP,
+        });
+
+        logger.info('JWT_LOGIN_AUDIT', {
+          event: 'login_failure',
+          userId: member.id,
+          email: email.substring(0, 3) + '***',
+          reason: 'invalid_pin',
           ip: clientIP,
           timestamp: new Date().toISOString(),
         });

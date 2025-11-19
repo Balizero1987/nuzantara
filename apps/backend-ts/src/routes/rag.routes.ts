@@ -6,7 +6,7 @@
 import { Router, Request, Response } from 'express';
 import { ChromaClient } from 'chromadb';
 import { QdrantClient } from '@qdrant/js-client-rest';
-import logger from '../services/logger.js';
+import { logger } from '../logging/unified-logger.js';
 
 const router = Router();
 
@@ -35,7 +35,11 @@ router.post('/ingest', async (req: Request, res: Response) => {
       });
     }
 
-    logger.info(`📥 Ingesting ${chunks.length} chunks to ${collection}`);
+    logger.info(`Ingesting chunks`, {
+      collection,
+      chunksCount: chunks.length,
+      source: metadata.source,
+    });
 
     // Get or create ChromaDB collection
     let chromaCollection;
@@ -68,7 +72,10 @@ router.post('/ingest', async (req: Request, res: Response) => {
       metadatas,
     });
 
-    logger.info(`✅ Successfully ingested ${chunks.length} chunks`);
+    logger.info('Successfully ingested chunks', {
+      collection,
+      chunksIngested: chunks.length,
+    });
 
     res.json({
       success: true,
@@ -77,7 +84,9 @@ router.post('/ingest', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    logger.error('❌ Ingestion error:', error);
+    logger.error('Ingestion error', error as Error, {
+      collection: req.body.collection,
+    });
     res.status(500).json({
       error: 'Ingestion failed',
       message: error.message,
@@ -112,7 +121,9 @@ router.get('/stats', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    logger.error('❌ Stats error:', error);
+    logger.error('Failed to get collection stats', error as Error, {
+      collection: req.query.collection,
+    });
     res.status(500).json({
       error: 'Failed to get stats',
       message: error.message,
@@ -155,7 +166,9 @@ router.post('/query', async (req: Request, res: Response) => {
       count: results.documents[0].length,
     });
   } catch (error: any) {
-    logger.error('❌ Query error:', error);
+    logger.error('Query error', error as Error, {
+      collection: req.body.collection,
+    });
     res.status(500).json({
       error: 'Query failed',
       message: error.message,
@@ -179,7 +192,7 @@ router.get('/collections', async (req: Request, res: Response) => {
       count: collections.length,
     });
   } catch (error: any) {
-    logger.error('❌ Collections list error:', error);
+    logger.error('Failed to list collections', error as Error);
     res.status(500).json({
       error: 'Failed to list collections',
       message: error.message,
@@ -203,7 +216,9 @@ router.delete('/collection/:name', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    logger.error('❌ Delete collection error:', error);
+    logger.error('Failed to delete collection', error as Error, {
+      collection: req.params.name,
+    });
     res.status(500).json({
       error: 'Failed to delete collection',
       message: error.message,

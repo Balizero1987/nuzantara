@@ -6,7 +6,7 @@
 
 import type { Request, Response } from 'express';
 import { Router } from 'express';
-import { logger } from '../logging/unified-logger.js';
+import { logger } from '../../services/logger.js';
 import { featureFlags, FeatureFlag } from '../services/feature-flags.js';
 import { getDatabasePool } from '../services/connection-pool.js';
 import { getChromaDBPool } from '../services/chromadb-pool.js';

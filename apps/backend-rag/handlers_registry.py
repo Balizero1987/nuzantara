@@ -102,6 +102,18 @@ AVAILABLE_HANDLERS = {
         ]
     },
 
+    "bali_zero_chat": {
+        "endpoint": "/api/rag/query",
+        "method": "POST",
+        "backend": "rag",
+        "params": ["query", "context_filter", "limit"],
+        "description": "Chat with Bali Zero AI (RAG-powered)",
+        "category": "knowledge_base",
+        "examples": [
+            {"call": "CALL_HANDLER[bali_zero_chat](What are the requirements for a PT PMA?, legal, 5)", "result": "Information about PT PMA requirements"}
+        ]
+    },
+
     # Authentication & User Management
     "authenticate_user": {
         "endpoint": "/api/auth/authenticate",
