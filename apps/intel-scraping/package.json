@@ -39,7 +39,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@mozilla/readability": "^0.4.4",
+    "@mozilla/readability": "^0.6.0",
     "axios": "^1.6.2",
     "bull": "^4.11.5",
     "cors": "^2.8.5",

@@ -120,7 +120,7 @@ class CircuitBreakerImpl {
       this.onFailure(error as Error, duration);
 
       if (fallback) {
-        logger.warn(`Operation failed for ${this.name}, using fallback`, { error: error.message });
+        logger.warn(`Operation failed for ${this.name}, using fallback`, { error: error instanceof Error ? error.message : String(error) });
         return await fallback();
       }
 

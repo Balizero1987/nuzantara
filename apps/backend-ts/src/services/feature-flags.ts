@@ -61,7 +61,7 @@ class FeatureFlagsService {
             enabledForIPs: process.env[`${envKey}_IPS`]?.split(',').filter(Boolean),
           };
           this.flags.set(flag, config);
-        } catch (error) {
+        } catch {
           logger.warn(`Failed to parse feature flag ${flag}: ${envValue}`);
         }
       } else {
@@ -85,20 +85,7 @@ class FeatureFlagsService {
   ): boolean {
     const config = this.flags.get(flag) || this.defaultConfig;
 
-    if (!config.enabled) {
-      return false;
-    }
-
-    // Check date constraints
-    if (config.enabledAfter && new Date() < config.enabledAfter) {
-      return false;
-    }
-
-    if (config.disabledAfter && new Date() > config.disabledAfter) {
-      return false;
-    }
-
-    // Check specific user/IP allowlist (even if globally disabled)
+    // Check specific user/IP allowlist FIRST (works even if globally disabled)
     if (context?.userId && config.enabledForUsers?.includes(context.userId)) {
       return true;
     }
@@ -109,6 +96,15 @@ class FeatureFlagsService {
 
     // If globally disabled and not in allowlist, return false
     if (!config.enabled) {
+      return false;
+    }
+
+    // Check date constraints
+    if (config.enabledAfter && new Date() < config.enabledAfter) {
+      return false;
+    }
+
+    if (config.disabledAfter && new Date() > config.disabledAfter) {
       return false;
     }
 

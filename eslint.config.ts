@@ -1,37 +1,67 @@
-import js from "@eslint/js";
-import globals from "globals";
-import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
-import { defineConfig } from "eslint/config";
+import js from '@eslint/js';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+import pluginReact from 'eslint-plugin-react';
+import { defineConfig } from 'eslint/config';
 
 export default defineConfig([
+  // Global ignores (replaces .eslintignore)
   {
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/coverage/**',
+      '**/api-contracts.js',
+      '**/out/**',
+      'apps/archived/**',
+      'docs/**',
+      'DATASET_GEMMA/**',
+      '**/*.json',
+      '**/*.md',
+      '**/.next/**',
+    ],
+  },
+
+  // Base ESLint recommended rules
+  js.configs.recommended,
+
+  // Base configuration for all files
+  {
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
+      ecmaVersion: 'latest',
+      sourceType: 'module',
       globals: {
         ...globals.browser,
         ...globals.node,
       },
     },
-    plugins: { js },
-    extends: ["eslint:recommended"],
     rules: {
-      "no-console": "off",
-      "no-undef": "off",
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      'no-console': 'off',
+      'no-undef': 'off',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
 
+  // TypeScript recommended rules
   ...tseslint.configs.recommended,
+
+  // Relaxed rules for test files
+  {
+    files: ['**/__tests__/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+    },
+  },
 
   {
     ...pluginReact.configs.flat.recommended,
-    settings: { react: { version: "detect" } },
+    settings: { react: { version: 'detect' } },
     rules: {
       ...pluginReact.configs.flat.recommended.rules,
-      "react/react-in-jsx-scope": "off",
+      'react/react-in-jsx-scope': 'off',
     },
   },
 ]);

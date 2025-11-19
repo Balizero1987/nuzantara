@@ -264,3 +264,4 @@ test.*
 orchestra/
 orchestra_*/
 agents/
+coverage/

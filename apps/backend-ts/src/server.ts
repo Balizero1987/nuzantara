@@ -225,7 +225,7 @@ async function startServer() {
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Correlation tracking for unified logging
-  app.use(correlationMiddleware());
+  app.use(correlationMiddleware() as any);
 
   // PATCH-3: Global rate limiting (fallback)
   app.use(globalRateLimiter);
@@ -388,7 +388,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token validation failed',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });
@@ -426,7 +426,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token refresh failed',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });
@@ -456,7 +456,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token revocation failed',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });
@@ -501,7 +501,7 @@ async function startServer() {
       res.status(500).json({
         ok: false,
         error: 'Token generation failed',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
   });
@@ -555,7 +555,7 @@ async function startServer() {
   // FIX 4a: POST /auth/login - User login (JWT generation)
   app.post('/auth/login', async (req, res) => {
     try {
-      const { email, password, name } = req.body;
+      const { email, name } = req.body;
 
       if (!email) {
         return res.status(400).json({
@@ -719,7 +719,7 @@ async function startServer() {
 
   // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
   if (process.env.REDIS_URL) {
-    const _io = setupWebSocket(httpServer);
+    setupWebSocket(httpServer);
     logger.info('✅ WebSocket server initialized');
   } else {
     logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');

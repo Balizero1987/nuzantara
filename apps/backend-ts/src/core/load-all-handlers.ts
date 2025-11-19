@@ -62,7 +62,7 @@ export async function loadAllHandlers() {
 
     return stats;
   } catch (error) {
-    logger.error('❌ Error loading handlers:', error);
+    logger.error('❌ Error loading handlers:', error as Error);
     throw error;
   }
 }

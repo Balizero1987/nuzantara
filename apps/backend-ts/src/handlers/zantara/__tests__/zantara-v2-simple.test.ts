@@ -49,14 +49,14 @@ describe('Zantara V2 Simple', () => {
   describe('zantaraConflictPrediction', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.zantaraConflictPrediction({
-        team_members: ['item1', 'item2'],
-        project_context: 'Test String',
-        deadline_pressure: 'test_value',
-        complexity: 'test_value',
+        team_members: ['member1', 'member2'],
+        project_context: 'Complex software project',
+        deadline_pressure: 'high',
+        complexity: 'complex',
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
@@ -83,15 +83,26 @@ describe('Zantara V2 Simple', () => {
   describe('zantaraMultiProjectOrchestration', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.zantaraMultiProjectOrchestration({
-        id: 'Test String',
-        name: 'Test String',
-        team_members: ['item1', 'item2'],
-        priority: 'test_value',
-        complexity: 'test_value',
+        projects: [
+          {
+            id: 'proj1',
+            name: 'Project Alpha',
+            team_members: ['member1', 'member2'],
+            priority: 'high',
+            complexity: 'complex',
+          },
+          {
+            id: 'proj2',
+            name: 'Project Beta',
+            team_members: ['member3', 'member4'],
+            priority: 'medium',
+            complexity: 'simple',
+          },
+        ],
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
@@ -118,59 +129,62 @@ describe('Zantara V2 Simple', () => {
   describe('zantaraClientRelationshipIntelligence', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.zantaraClientRelationshipIntelligence({
-        client_id: 'Test String',
-        relationship_stage: 'test_value',
-        business_value: 123,
-        cultural_context: 'Test String',
+        client_id: 'client-123',
+        relationship_stage: 'established',
+        business_value: 50000,
+        cultural_context: 'Western European',
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.zantaraClientRelationshipIntelligence({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.zantaraClientRelationshipIntelligence({})).rejects.toThrow();
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.zantaraClientRelationshipIntelligence({
-        invalid: 'data',
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(
+        handlers.zantaraClientRelationshipIntelligence({
+          client_id: 'client-123',
+          relationship_stage: 'invalid-stage',
+        })
+      ).rejects.toThrow();
     });
   });
 
   describe('zantaraCulturalIntelligenceAdaptation', () => {
     it('should handle success case with valid params', async () => {
       const result = await handlers.zantaraCulturalIntelligenceAdaptation({
-        id: 'Test String',
-        culture: 'Test String',
-        language: 'Test String',
+        participants: [
+          {
+            id: 'user1',
+            culture: 'Italian',
+            language: 'it',
+          },
+          {
+            id: 'user2',
+            culture: 'American',
+            language: 'en',
+          },
+        ],
+        interaction_context: 'International business negotiation meeting',
       });
 
       expect(result).toBeDefined();
-      // TODO: Add more specific assertions
+      expect(result.ok).toBe(true);
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.zantaraCulturalIntelligenceAdaptation({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.zantaraCulturalIntelligenceAdaptation({})).rejects.toThrow();
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.zantaraCulturalIntelligenceAdaptation({
-        invalid: 'data',
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(
+        handlers.zantaraCulturalIntelligenceAdaptation({
+          invalid: 'data',
+        })
+      ).rejects.toThrow();
     });
   });
 
@@ -187,19 +201,15 @@ describe('Zantara V2 Simple', () => {
     });
 
     it('should handle missing required params', async () => {
-      const result = await handlers.zantaraPerformanceOptimization({});
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(handlers.zantaraPerformanceOptimization({})).rejects.toThrow();
     });
 
     it('should handle invalid params', async () => {
-      const result = await handlers.zantaraPerformanceOptimization({
-        invalid: 'data',
-      });
-
-      // TODO: Verify error handling
-      expect(result).toBeDefined();
+      await expect(
+        handlers.zantaraPerformanceOptimization({
+          invalid: 'data',
+        })
+      ).rejects.toThrow();
     });
   });
 });

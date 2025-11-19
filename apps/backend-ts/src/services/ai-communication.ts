@@ -270,21 +270,6 @@ Message from ${request.from}: ${request.message}
 
 Please respond as ZANTARA, maintaining your helpful and professional personality. Consider the shared context and provide a thoughtful response.`;
   }
-
-
-  private _buildDevAIPrompt(request: AIBridgeRequest, context: AICommunicationContext): string {
-    const history = context.conversationHistory.slice(-5);
-    const historyText = history.map((h) => `${h.ai}: ${h.content}`).join('\n');
-
-    return `You are DevAI, a developer AI assistant. You are receiving a message from ${request.from} AI system.
-
-Previous conversation context:
-${historyText}
-
-Message from ${request.from}: ${request.message}
-
-Please respond as DevAI, focusing on technical and development aspects. Consider the shared context and provide a helpful response.`;
-  }
 }
 
 export const aiCommunicationService = AICommunicationService.getInstance();

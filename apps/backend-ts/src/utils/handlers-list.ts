@@ -120,7 +120,7 @@ export function getHandlersList(): string {
 
     return list;
   } catch (error) {
-    logger.error('[handlers-list] Error generating list:', error);
+    logger.error('[handlers-list] Error generating list:', error as Error);
     return 'Handlers list temporarily unavailable';
   }
 }

@@ -210,14 +210,14 @@ class EnhancedRouter {
           duration,
           status: 500,
           success: false,
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
         });
 
         logger.error(`Route ${key} failed:`, error);
 
         res.status(500).json({
           ok: false,
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
           meta: {
             service: routeConfig.service,
             duration: `${duration}ms`,

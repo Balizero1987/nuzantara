@@ -37,7 +37,6 @@ export interface RequestWithUnifiedAuth {
 // Firebase Auth Integration (when available)
 class FirebaseAuthService {
   private enabled: boolean = false;
-  private _admin: any = null;
 
   async initialize() {
     try {
@@ -52,7 +51,7 @@ class FirebaseAuthService {
         logger.info('Firebase Auth disabled - missing configuration');
       }
     } catch (error) {
-      logger.warn('Firebase Auth initialization failed:', error);
+      logger.warn('Firebase Auth initialization failed:', error as any);
       this.enabled = false;
     }
   }
@@ -76,7 +75,7 @@ class FirebaseAuthService {
       logger.info('🔥 Firebase token verification (mock)');
       return null;
     } catch (error) {
-      logger.warn('Firebase token verification failed:', error);
+      logger.warn('Firebase token verification failed:', error as any);
       return null;
     }
   }
@@ -89,7 +88,7 @@ class FirebaseAuthService {
       // return await this.admin.auth().createCustomToken(uid, additionalClaims);
       return null;
     } catch (error) {
-      logger.error('Firebase custom token generation failed:', error);
+      logger.error('Firebase custom token generation failed:', error as Error);
       return null;
     }
   }
@@ -124,7 +123,7 @@ class UnifiedAuthenticationStrategy {
       priority: 1,
       test: (req) => {
         const authHeader = req.headers.authorization;
-        return authHeader?.startsWith('Bearer ');
+        return authHeader?.startsWith('Bearer ') ?? false;
       },
       confidence: 1.0,
     });
@@ -260,7 +259,7 @@ class UnifiedAuthenticationStrategy {
 
         await teamLoginSecure(mockReq.body);
       } catch (error) {
-        logger.warn('Team auth failed:', error);
+        logger.warn('Team auth failed:', error as any);
         next();
       }
     };
@@ -280,7 +279,7 @@ class UnifiedAuthenticationStrategy {
           (req as unknown as RequestWithUnifiedAuth).authMethod = 'firebase';
         }
       } catch (error) {
-        logger.warn('Firebase auth failed:', error);
+        logger.warn('Firebase auth failed:', error as any);
         next();
       }
     };
@@ -334,7 +333,7 @@ class UnifiedAuthenticationStrategy {
           });
           return;
         } catch (error) {
-          logger.warn(`${method.name} auth error:`, error);
+          logger.warn(`${method.name} auth error:`, error as any);
         }
       }
     }
@@ -425,7 +424,7 @@ export const optionalUnifiedAuth = async (req: Request, res: Response, next: Nex
     await unifiedAuth.authenticate(req, res, next);
   } catch (error) {
     // Continue without authentication
-    logger.warn('Optional auth failed, continuing:', error);
+    logger.warn('Optional auth failed, continuing:', error as any);
     next();
   }
 };
@@ -463,8 +462,6 @@ export const requirePermission = (permission: string) => {
 // Multiple roles/permissions
 export const requireAny = (requirements: Array<{ role?: string; permission?: string }>) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const _user = (req as unknown as RequestWithUnifiedAuth).user;
-
     const hasAccess = requirements.some((requirement) => {
       if (requirement.role && unifiedAuth.hasRole(req as any, requirement.role)) return true;
       if (requirement.permission && unifiedAuth.hasPermission(req as any, requirement.permission))

@@ -397,7 +397,7 @@ export async function languageAnalyzeSentiment(params: any) {
       throw new Error(`Language API error: ${response.status}`);
     }
 
-    const result: AnalyzeSentimentResponse = await response.json();
+    const result = await response.json() as AnalyzeSentimentResponse;
     const sentiment = result.documentSentiment || {};
 
     return ok({
