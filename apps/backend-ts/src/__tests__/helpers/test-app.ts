@@ -14,6 +14,9 @@ import correlationMiddleware from '../logging/correlation-middleware.js';
 export async function createTestApp() {
   const app = express();
 
+  // Trust proxy for rate limiting
+  app.set('trust proxy', 1);
+
   // Minimal middleware for testing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -21,6 +24,9 @@ export async function createTestApp() {
   // Skip security middleware in tests to avoid complications
   // app.use(applySecurity);
   // app.use(corsMiddleware);
+
+  // Add correlation middleware for request tracking
+  app.use(correlationMiddleware());
 
   // Request logging (optional in tests)
   app.use((req, res, next) => {
