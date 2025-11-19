@@ -12,7 +12,7 @@ let SSECollectiveMemoryExtension, CollectiveMemoryWidget;
 let isFeatureEnabled, shouldShowFeature;
 
 // Load skill detection modules if feature enabled
-// DISABLED: async function loadSkillDetectionModules() {
+async function loadSkillDetectionModules() {
   try {
     const module = await import('./utils/query-complexity.js');
     QueryComplexityAnalyzer = module.QueryComplexityAnalyzer;
