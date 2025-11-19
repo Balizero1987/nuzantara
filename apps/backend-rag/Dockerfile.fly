@@ -1,5 +1,5 @@
 # ZANTARA RAG Backend - Fly.io Deployment
-# Python 3.11 + FastAPI + ChromaDB + Qdrant + Sentence Transformers
+# Python 3.11 + FastAPI + Qdrant Vector Database + OpenAI Embeddings
 FROM python:3.11-slim
 
 # Install system dependencies
@@ -11,19 +11,15 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements first (better caching) - FROM PROJECT ROOT
-COPY apps/backend-rag/requirements-minimal.txt .
+COPY apps/backend-rag/requirements.txt .
 
-# Install Python dependencies (includes sentence-transformers for local embeddings)
-RUN pip install --no-cache-dir -r requirements-minimal.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code - FROM PROJECT ROOT
 COPY apps/backend-rag/backend ./backend
 
-# ChromaDB data is downloaded from Cloudflare R2 at startup (see main_cloud.py)
-# Environment variables are set via fly.toml, no .env needed
-
-# Create data directory for ChromaDB
-RUN mkdir -p /data/chroma_db_FULL_deploy
+# Environment variables are set via fly.toml (QDRANT_URL, OPENAI_API_KEY, etc.)
 
 # Set Python path to include the backend directory
 ENV PYTHONPATH=/app/backend
