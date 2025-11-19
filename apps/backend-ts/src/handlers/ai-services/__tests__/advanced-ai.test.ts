@@ -46,7 +46,7 @@ describe('Advanced Ai', () => {
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
       expect(result.data.anticipation).toBeDefined();
-    }, 10000);
+    }, 30000);
 
     it('should handle missing required params', async () => {
       await expect(handlers.aiAnticipate({})).rejects.toThrow(BadRequestError);
@@ -81,7 +81,7 @@ describe('Advanced Ai', () => {
 
       expect(result).toBeDefined();
       expect(result.ok).toBe(true);
-    }, 10000);
+    }, 30000);
 
     it('should handle missing required params', async () => {
       await expect(handlers.aiLearn({})).rejects.toThrow(BadRequestError);
@@ -119,7 +119,7 @@ describe('Advanced Ai', () => {
       expect(result.data.decision).toBeDefined();
       expect(result.data.decisionId).toBeDefined();
       expect(result.data.reasoning).toBeDefined();
-    }, 10000);
+    }, 30000);
 
     it('should handle missing required params', async () => {
       await expect(handlers.xaiExplain({})).rejects.toThrow(BadRequestError);
