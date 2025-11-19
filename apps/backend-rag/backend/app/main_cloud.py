@@ -3454,13 +3454,13 @@ app.include_router(conversations.router, prefix="/api", tags=["memory"])  # /api
 from app.routers import oracle_universal
 from app.routers import oracle_ingest  # NEW: Bulk ingest endpoint
 from app.routers import agents
-# TEMPORARILY DISABLED: autonomous_agents causing NameError (agents dir in .gitignore)
-# from app.routers import autonomous_agents  # Tier 1 Autonomous Agents
+# FIXED 2025-11-20: autonomous_agents NameError resolved (import path corrected)
+from app.routers import autonomous_agents  # Tier 1 Autonomous Agents
 from app.routers import notifications
 app.include_router(oracle_universal.router)
 app.include_router(oracle_ingest.router)  # NEW: /api/oracle/ingest + /collections
 app.include_router(agents.router)
-# app.include_router(autonomous_agents.router)  # Tier 1 Autonomous Agents HTTP API
+app.include_router(autonomous_agents.router)  # Tier 1 Autonomous Agents HTTP API - FIXED 2025-11-20
 app.include_router(notifications.router)
 
 # Include Team Activity router (NEW: Nov 17, 2025 - Team timesheet & work hours)
