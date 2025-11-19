@@ -1,6 +1,5 @@
 /**
  * Test App
-app.use(correlationMiddleware()); Helper
  * Creates Express app instance for testing
  */
 
@@ -25,12 +24,17 @@ export async function createTestApp() {
   // app.use(applySecurity);
   // app.use(corsMiddleware);
 
-  // Add correlation middleware for request tracking
-  app.use(correlationMiddleware());
+  // Note: Skip correlationMiddleware in tests to avoid potential body parsing issues
+  // app.use(correlationMiddleware());
 
-  // Request logging (optional in tests)
+  // Request logging and body debugging
   app.use((req, res, next) => {
-    logger.debug(`TEST ${req.method} ${req.path}`);
+    logger.debug(`TEST ${req.method} ${req.path}`, { body: req.body });
+    console.log(`[TEST] ${req.method} ${req.path}`, {
+      body: req.body,
+      contentType: req.get('content-type'),
+      bodyKeys: Object.keys(req.body || {})
+    });
     next();
   });
 

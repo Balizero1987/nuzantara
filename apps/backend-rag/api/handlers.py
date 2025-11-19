@@ -4,7 +4,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from typing import Dict, List, Any, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import asyncio
 import aiohttp
 import os
@@ -172,6 +172,29 @@ async def batch_execute_handlers(request: BatchHandlerRequest):
             final_results.append(result)
 
     return final_results
+
+class ChatRequest(BaseModel):
+    query: str
+    session_id: Optional[str] = None
+    context_filter: Optional[str] = None
+    limit: Optional[int] = None
+
+@router.post("/bali-zero/chat")
+async def bali_zero_chat_endpoint(request: ChatRequest):
+    """
+    Frontend-facing chat endpoint for Bali Zero AI.
+    Internally calls the 'bali_zero_chat' handler.
+    """
+    handler_request = HandlerRequest(
+        handler_name="bali_zero_chat",
+        params={
+            "query": request.query,
+            "context_filter": request.context_filter,
+            "limit": request.limit
+        }
+    )
+    response = await execute_handler(handler_request)
+    return response
 
 @router.get("/categories", response_model=Dict[str, Any])
 async def list_categories():

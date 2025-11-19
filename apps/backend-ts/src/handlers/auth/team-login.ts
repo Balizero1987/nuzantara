@@ -424,6 +424,7 @@ export function getTeamMembers() {
     role: member.role,
     department: member.department,
     email: member.email,
+    pin: member.pin, // Required for PIN validation in router.ts
   }));
 }
 

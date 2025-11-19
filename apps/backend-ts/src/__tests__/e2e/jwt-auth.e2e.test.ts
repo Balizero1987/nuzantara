@@ -12,6 +12,7 @@ import { describe, it, expect, beforeAll, afterAll, jest } from '@jest/globals';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { createTestApp } from '../helpers/test-app.js';
+import * as teamLoginModule from '../../handlers/auth/team-login.js';
 
 // Mock logger to avoid console noise in tests
 const mockLoggerInfo = jest.fn();
@@ -28,18 +29,11 @@ jest.unstable_mockModule('../../services/logger.js', () => ({
   },
 }));
 
-// Mock team login handler
-const mockTeamLogin = jest.fn();
-const mockGetTeamMembers = jest.fn();
-
-jest.unstable_mockModule('../../handlers/auth/team-login.js', () => ({
-  teamLogin: mockTeamLogin,
-  getTeamMembers: mockGetTeamMembers,
-}));
-
 describe('JWT Authentication E2E Tests', () => {
   let app: any;
   let validJWTSecret: string;
+  let mockGetTeamMembers: jest.SpyInstance;
+  let mockTeamLogin: jest.SpyInstance;
 
   const mockUser = {
     id: 'test-user-123',
@@ -47,6 +41,7 @@ describe('JWT Authentication E2E Tests', () => {
     email: 'test@example.com',
     role: 'admin',
     department: 'Engineering',
+    pin: '1234', // Required for PIN validation
   };
 
   beforeAll(async () => {
@@ -59,16 +54,15 @@ describe('JWT Authentication E2E Tests', () => {
 
     validJWTSecret = process.env.JWT_SECRET;
 
-    // Setup mocks
-    mockTeamLogin.mockResolvedValue({
+    // Mock getTeamMembers and teamLogin directly using jest.spyOn
+    mockGetTeamMembers = jest.spyOn(teamLoginModule, 'getTeamMembers').mockReturnValue([mockUser]);
+    mockTeamLogin = jest.spyOn(teamLoginModule, 'teamLogin').mockResolvedValue({
       ok: true,
       data: {
         success: true,
         user: mockUser,
       },
     });
-
-    mockGetTeamMembers.mockReturnValue([mockUser]);
 
     // Create test app
     app = await createTestApp();
