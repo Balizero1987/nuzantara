@@ -34,7 +34,7 @@ export const API_ENDPOINTS = {
   auth: {
     login: '/auth/login',
     teamLogin: '/api/auth/team/login',
-    check: '/api/auth/check',
+    check: '/auth/me',  // FIXED 2025-11-20: Backend uses /auth/me instead of /api/auth/check
     logout: '/api/auth/logout',
     profile: '/api/user/profile'
   },
@@ -51,8 +51,8 @@ export const API_ENDPOINTS = {
   
   // Memory/Conversations
   memory: {
-    save: '/api/conversations/save',
-    history: '/api/conversations/history'
+    save: '/api/bali-zero/conversations/save',      // FIXED 2025-11-20: Backend uses /api/bali-zero/conversations/*
+    history: '/api/bali-zero/conversations/history'  // FIXED 2025-11-20: Backend uses /api/bali-zero/conversations/*
   },
   
   // Integrations
