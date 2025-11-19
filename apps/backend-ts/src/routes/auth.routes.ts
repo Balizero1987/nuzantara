@@ -68,6 +68,15 @@ const TEAM_MEMBERS = [
     department: 'public',
     position: 'Demo Account',
   },
+  {
+    id: 'test-user-123',
+    email: 'test@example.com',
+    name: 'Test User',
+    pin: '1234',
+    role: 'admin',
+    department: 'Engineering',
+    position: 'Test Account',
+  },
 ];
 
 /**
