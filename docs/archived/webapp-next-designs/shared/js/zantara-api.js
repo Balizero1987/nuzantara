@@ -1,1 +1,0 @@
-../../../webapp/js/zantara-api.js

@@ -1,1 +1,0 @@
-../../../webapp/js/message-formatter.js
