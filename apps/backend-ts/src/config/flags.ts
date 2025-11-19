@@ -32,7 +32,7 @@ export const DEFAULT_FLAGS: Flags = {
   // Performance Optimization Flags - DISABLED by default for zero-downtime deployment
   ENABLE_WEBSOCKET_IOS_FALLBACK: false, // Enable after staging testing
   ENABLE_MESSAGE_QUEUE: false, // Enable after staging testing
-  ENABLE_ENHANCED_REDIS_CACHE: true, // ✅ ENABLED - Production ready
+  ENABLE_ENHANCED_REDIS_CACHE: false, // Enable after staging testing (safe default)
   ENABLE_CDN_INTEGRATION: false, // Enable after staging testing
   ENABLE_DB_QUERY_OPTIMIZATION: false, // Enable after staging testing
   ENABLE_MEMORY_LEAK_PREVENTION: true, // Always enabled for safety

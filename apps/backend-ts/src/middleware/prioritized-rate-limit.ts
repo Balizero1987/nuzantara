@@ -154,9 +154,20 @@ const ENDPOINT_PRIORITY_MAP: Array<{ pattern: RegExp; priority: EndpointPriority
 ];
 
 /**
- * Get priority for an endpoint path
+ * Get priority for an endpoint path and body
  */
-function getEndpointPriority(path: string): EndpointPriority {
+function getEndpointPriority(path: string, req?: Request): EndpointPriority {
+  // For /call endpoint, check the key in the body
+  if (path === '/call' && req?.body?.key) {
+    const key = req.body.key as string;
+    if (key.startsWith('ai.') || key.startsWith('memory.search')) {
+      return EndpointPriority.LOW;
+    }
+    if (key.startsWith('memory.') && key.includes('search')) {
+      return EndpointPriority.STRICT;
+    }
+  }
+
   for (const { pattern, priority } of ENDPOINT_PRIORITY_MAP) {
     if (pattern.test(path)) {
       return priority;
@@ -170,8 +181,16 @@ function getEndpointPriority(path: string): EndpointPriority {
  * Prioritized rate limiting middleware
  */
 export function prioritizedRateLimiter(req: Request, res: Response, next: NextFunction) {
-  const priority = getEndpointPriority(req.path);
-  const limiter = createRateLimiter(priority);
+  const priority = getEndpointPriority(req.path, req);
+  // Use pre-created limiters instead of creating new ones per request
+  const limiters: Record<EndpointPriority, ReturnType<typeof rateLimit>> = {
+    [EndpointPriority.CRITICAL]: criticalRateLimiter,
+    [EndpointPriority.HIGH]: highRateLimiter,
+    [EndpointPriority.MEDIUM]: mediumRateLimiter,
+    [EndpointPriority.LOW]: lowRateLimiter,
+    [EndpointPriority.STRICT]: strictRateLimiter,
+  };
+  const limiter = limiters[priority];
   return limiter(req, res, next);
 }
 
