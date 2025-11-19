@@ -84,7 +84,7 @@ describe('JWT Authentication E2E Tests', () => {
         .post('/auth/login')
         .send({
           email: 'test@example.com',
-          password: 'test123',
+          pin: '1234',
         })
         .expect(200);
 
@@ -108,7 +108,7 @@ describe('JWT Authentication E2E Tests', () => {
       const response = await request(app)
         .post('/auth/login')
         .send({
-          password: 'test123',
+          pin: '1234',
         })
         .expect(400);
 
@@ -116,7 +116,7 @@ describe('JWT Authentication E2E Tests', () => {
       expect(response.body.error).toContain('required');
     });
 
-    it('should reject login with missing password', async () => {
+    it('should reject login with missing pin', async () => {
       const response = await request(app)
         .post('/auth/login')
         .send({
@@ -128,18 +128,11 @@ describe('JWT Authentication E2E Tests', () => {
     });
 
     it('should reject login with invalid credentials', async () => {
-      mockTeamLogin.mockResolvedValueOnce({
-        ok: true,
-        data: {
-          success: false,
-        },
-      });
-
       const response = await request(app)
         .post('/auth/login')
         .send({
-          email: 'invalid@example.com',
-          password: 'wrong',
+          email: 'test@example.com',
+          pin: 'wrong',
         })
         .expect(401);
 
