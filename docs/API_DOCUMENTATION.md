@@ -7,22 +7,23 @@ Production-Ready REST API Reference
 - Core Backend: `https://nuzantara-core.fly.dev`
 - **Memory Service:** `https://nuzantara-memory.fly.dev` ✨ *NEW*
 
-**Version:** 5.2.1
-**Last Updated:** 2025-11-06
+**Version:** 6.0.0
+**Last Updated:** 2025-11-19
 
 ---
 
 ## Table of Contents
 
 1. [Authentication](#authentication)
-2. [Health & Status](#health--status)
-3. [Vector Search](#vector-search)
-4. [SSE Streaming](#sse-streaming)
-5. [Memory Management (Vector DB)](#memory-management-vector-db)
-6. **[Conversation Memory Service](#conversation-memory-service)** ✨ *NEW*
-7. [CRM Operations](#crm-operations)
-8. [Rate Limiting](#rate-limiting)
-9. [Error Handling](#error-handling)
+2. [AI System](#ai-system)
+3. [Health & Status](#health--status)
+4. [Vector Search](#vector-search)
+5. [SSE Streaming](#sse-streaming)
+6. [Memory Management (Vector DB)](#memory-management-vector-db)
+7. **[Conversation Memory Service](#conversation-memory-service)** ✨ *NEW*
+8. [CRM Operations](#crm-operations)
+9. [Rate Limiting](#rate-limiting)
+10. [Error Handling](#error-handling)
 
 ---
 
@@ -48,6 +49,18 @@ X-API-Key: <your-api-key>
 
 ---
 
+## AI System
+
+Our AI system uses a tiered approach to provide the best performance and cost-effectiveness.
+
+- **Primary AI:** Llama 4 Scout (92% cheaper, 22% faster TTFT, 10M context)
+- **Fallback AI:** Claude Haiku 4.5 (for tool calling and in case of primary AI failure)
+- **Routing:** Intelligent Router that directs requests to the appropriate AI model.
+
+This setup provides a 92% cost reduction compared to using only Claude Haiku.
+
+---
+
 ## Health & Status
 
 ### GET /health
@@ -63,33 +76,28 @@ curl https://nuzantara-rag.fly.dev/health
 ```json
 {
   "status": "healthy",
-  "service": "ZANTARA RAG",
+  "timestamp": "2025-11-19T10:00:00.123Z",
   "version": "v100-perfect",
-  "mode": "full",
-  "available_services": [
-    "chromadb",
-    "claude_haiku",
-    "postgresql",
-    "crm_system"
-  ],
-  "chromadb": true,
-  "ai": {
-    "claude_haiku_available": true,
-    "has_ai": true
-  },
-  "memory": {
-    "postgresql": true,
-    "vector_db": true
-  },
-  "crm": {
-    "enabled": true,
-    "endpoints": 41,
-    "features": [
-      "auto_extraction",
-      "client_tracking",
-      "practice_management",
-      "shared_memory"
-    ]
+  "services": {
+    "chromadb": {
+      "status": "connected",
+      "total_documents": 26036
+    },
+    "ai": {
+      "primary": "Llama 4 Scout (92% cheaper, 22% faster TTFT, 10M context)",
+      "fallback": "Claude Haiku 4.5 (tool calling, emergencies)",
+      "routing": "Intelligent Router (Llama PRIMARY, Haiku FALLBACK)",
+      "cost_savings": "92% cheaper than Haiku ($0.20/$0.20 vs $1/$5 per 1M tokens)"
+    },
+    "postgresql": {
+      "status": "connected"
+    },
+    "crm": {
+      "status": "available"
+    },
+    "reranker": {
+      "status": "disabled"
+    }
   }
 }
 ```
@@ -644,6 +652,6 @@ stream.on('data', (chunk) => console.log(chunk.text));
 
 ---
 
-**Last Updated:** 2025-11-02  
-**Version:** 5.2.1  
+**Last Updated:** 2025-11-19
+**Version:** 6.0.0
 **Maintained by:** ZANTARA Team
