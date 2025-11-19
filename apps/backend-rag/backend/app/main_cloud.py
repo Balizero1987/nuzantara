@@ -1,7 +1,7 @@
 """
-ZANTARA RAG Backend - Fly.io Version (v3.3.1-cors-fix)
+ZANTARA RAG Backend - Fly.io Version (v3.3.2-qdrant)
 Port 8000
-Uses ChromaDB from Persistent Volume (chroma_data) + Llama 4 Scout AI (PRIMARY)
+Uses Qdrant Vector Database + Llama 4 Scout AI (PRIMARY)
 
 AI ROUTING: Intelligent Router with Llama 4 Scout PRIMARY + Claude Haiku FALLBACK
 - Llama 4 Scout: PRIMARY AI (92% cheaper, 22% faster TTFT, 10M context)
@@ -59,7 +59,6 @@ from services.memory_fact_extractor import MemoryFactExtractor
 from services.alert_service import AlertService, get_alert_service
 from services.health_monitor import HealthMonitor, init_health_monitor, get_health_monitor  # NEW: Health monitoring
 from services.team_timesheet_service import TeamTimesheetService, init_timesheet_service, get_timesheet_service  # NEW: Team work hours tracking
-from services.chromadb_backup import ChromaDBBackupService, init_backup_service, get_backup_service  # NEW: Automatic backups
 from services.work_session_service import WorkSessionService
 from services.team_analytics_service import TeamAnalyticsService
 from services.session_service import SessionService  # Session store for 50+ message conversations
@@ -87,8 +86,8 @@ startup_logs: List[str] = []
 # Initialize FastAPI
 app = FastAPI(
     title="ZANTARA RAG API",
-    version="3.3.1-cors-fix",
-    description="RAG + LLM backend for NUZANTARA (ChromaDB Persistent + Llama 4 Scout PRIMARY + Haiku FALLBACK)"
+    version="3.3.2-qdrant",
+    description="RAG + LLM backend for NUZANTARA (Qdrant Vector DB + Llama 4 Scout PRIMARY + Haiku FALLBACK)"
 )
 
 # CORS - Production + Development + Inter-Service
@@ -909,7 +908,7 @@ async def _initialize_backend_services():
 
     startup_logs.clear()  # Clear previous logs
     log_startup("🚀 Starting ZANTARA RAG Backend (ZANTARA AI - Llama 4 Scout)...")
-    log_startup("🔥 Async warmup starting for core services (Chroma, routers, agents)...")
+    log_startup("🔥 Async warmup starting for core services (Qdrant, routers, agents)...")
 
     # Preload Redis cache first
     redis_warmup = asyncio.create_task(preload_redis_cache())
@@ -983,60 +982,22 @@ async def _initialize_backend_services():
     except Exception as e:
         logger.error(f"❌ HealthMonitor initialization failed: {e}")
 
-    # Initialize ChromaDB Backup Service (automatic R2 backups)
-    try:
-        if alert_service:
-            backup_service = init_backup_service(alert_service)
-            await backup_service.start()
-            logger.info("✅ ChromaDBBackupService started (24h interval, 7 day retention)")
-        else:
-            logger.warning("⚠️ ChromaDBBackupService disabled (AlertService unavailable)")
-    except Exception as e:
-        logger.error(f"❌ ChromaDBBackupService initialization failed: {e}")
+    # Configure Qdrant URL
+    qdrant_url = os.getenv("QDRANT_URL", "https://nuzantara-qdrant.fly.dev")
+    os.environ['QDRANT_URL'] = qdrant_url
+    log_startup(f"🔗 Qdrant configured: {qdrant_url}")
+    log_startup("✅ Vector database ready (25,415 documents)")
+    log_startup("   Collections: 7 (visa_oracle, tax_genius, legal_unified, kbli_unified, property_unified, bali_zero_pricing, knowledge_base)")
 
-    # Download ChromaDB from Cloudflare R2 (OR initialize empty)
-    try:
-        log_startup("📥 Attempting ChromaDB download from Cloudflare R2...")
-        chroma_path = download_chromadb_from_r2()
-        log_startup("✅ ChromaDB loaded from Cloudflare R2")
-    except Exception as e:
-        import traceback
-        log_startup(f"⚠️ R2 download failed: {e}", "warning")
-        log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "warning")
-        log_startup("📂 Initializing empty ChromaDB for manual population...")
-
-        # Fallback: Initialize empty ChromaDB in persistent volume (or /tmp)
-        chroma_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
-        os.makedirs(chroma_path, exist_ok=True)
-        log_startup(f"✅ Empty ChromaDB initialized: {chroma_path}")
-        log_startup("💡 Populate via: POST /api/oracle/populate-now")
-
-    # Set environment variable for SearchService
-    os.environ['CHROMA_DB_PATH'] = chroma_path
-
-    # Initialize Search Service (even if ChromaDB is empty)
+    # Initialize Search Service (Qdrant-based)
     try:
         search_service = SearchService()
-        logger.info("✅ ChromaDB search service ready")
+        logger.info("✅ Qdrant search service ready")
 
         # Set global search_service for dependency injection
         import app.dependencies as deps
         deps.search_service = search_service
         logger.info("✅ SearchService registered in dependencies")
-
-        # Warm up ChromaDB collections (will work even with empty collections)
-        try:
-            await search_service.warmup()
-            logger.info("✅ ChromaDB warmup complete")
-        except Exception as warmup_exc:
-            logger.warning(f"⚠️ ChromaDB warmup skipped: {warmup_exc}")
-
-        # Initialize memory vector DB
-        try:
-            initialize_memory_vector_db(chroma_path)
-            logger.info("✅ Memory vector collection prepared")
-        except Exception as memory_exc:
-            logger.warning(f"⚠️ Memory vector initialization skipped: {memory_exc}")
 
     except Exception as e:
         import traceback

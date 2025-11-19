@@ -17,9 +17,9 @@ class Settings(BaseSettings):
     # OpenAI (required for production)
     openai_api_key: Optional[str] = None  # Set via OPENAI_API_KEY env var
 
-    # Chroma
-    chroma_persist_dir: str = "./data/chroma_db"
-    chroma_collection_name: str = "zantara_books"
+    # Qdrant Vector Database
+    qdrant_url: str = "https://nuzantara-qdrant.fly.dev"
+    qdrant_collection_name: str = "knowledge_base"
 
     # Embeddings
     embedding_model: str = "text-embedding-3-small"  # was: sentence-transformers/all-MiniLM-L6-v2
@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     reranker_rate_limit_per_hour: int = 1000  # Max rerank requests per user/IP per hour
     
     # Reranker Overfetch Strategy
-    reranker_overfetch_count: int = 20  # Fetch 20 candidates from ChromaDB
+    reranker_overfetch_count: int = 20  # Fetch 20 candidates from Qdrant
     reranker_return_count: int = 5  # Return top-5 after reranking
 
     # Tier overrides (optional)
