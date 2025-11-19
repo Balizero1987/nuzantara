@@ -1,1 +1,0 @@
-../../../webapp/js/api-contracts.js
