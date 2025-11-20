@@ -12,7 +12,7 @@ const ALLOW_HEADERS = 'Content-Type, Authorization';
 
 /**
  * Lightweight CORS middleware tailored for the ZANTARA webapp.
- * Supports production domain, local development, and Cloudflare Pages previews.
+ * Supports production domain and local development.
  */
 export function corsMiddleware(req: Request, res: Response, next: NextFunction): void {
   const origin = req.headers.origin || '';
