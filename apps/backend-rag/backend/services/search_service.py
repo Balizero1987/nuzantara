@@ -34,15 +34,23 @@ class SearchService:
     }
 
     def __init__(self):
+        logger.info("🔄 SearchService initialization starting...")
+        
+        # Initialize embeddings generator (singleton pattern)
+        logger.info("🔄 Loading EmbeddingsGenerator...")
         self.embedder = EmbeddingsGenerator()
+        logger.info(f"✅ EmbeddingsGenerator ready: {self.embedder.provider} ({self.embedder.dimensions} dims)")
+        
         # Get Qdrant URL from environment
         qdrant_url = os.environ.get('QDRANT_URL', 'https://nuzantara-qdrant.fly.dev')
+        logger.info(f"🔄 Connecting to Qdrant: {qdrant_url}")
 
         # FIX 2025-11-20: Migrated to Qdrant with OpenAI 1536-dim embeddings
         logger.info("✅ Using Qdrant with OpenAI 1536-dim embeddings")
 
         # Initialize collections pointing to Qdrant (25,415 docs total)
         # Map old ChromaDB collection names to Qdrant collections
+        logger.info("🔄 Initializing 16 Qdrant collection clients...")
         self.collections = {
             "bali_zero_pricing": QdrantClient(qdrant_url=qdrant_url, collection_name="bali_zero_pricing"),  # 29 docs
             # PRODUCTION COLLECTIONS: All migrated with 1536-dim OpenAI embeddings
@@ -65,9 +73,12 @@ class SearchService:
             "legal_updates": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified"),  # 5,041 docs
             "legal_intelligence": QdrantClient(qdrant_url=qdrant_url, collection_name="legal_unified")  # 5,041 docs
         }
+        logger.info("✅ All Qdrant collection clients initialized")
 
         # Initialize query router
+        logger.info("🔄 Initializing QueryRouter...")
         self.router = QueryRouter()
+        logger.info("✅ QueryRouter initialized")
 
         # Phase 3: Initialize collection health monitor
         from services.collection_health_service import CollectionHealthService
