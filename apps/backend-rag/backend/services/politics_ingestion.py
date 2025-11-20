@@ -6,21 +6,21 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 from core.embeddings import EmbeddingsGenerator
-from core.vector_db import ChromaDBClient
+from core.qdrant_db import QdrantClient
 
 logger = logging.getLogger(__name__)
 
 
 class PoliticsIngestionService:
     """
-    Ingest structured Indonesian politics KB (1999→today) into ChromaDB.
+    Ingest structured Indonesian politics KB (1999→today) into Qdrant.
     Stores in collection 'politics_id'.
     """
 
-    def __init__(self, persist_directory: Optional[str] = None):
+    def __init__(self, qdrant_url: Optional[str] = None):
         self.embedder = EmbeddingsGenerator()
-        self.vector_db = ChromaDBClient(
-            persist_directory=persist_directory or "/tmp/chroma_db",
+        self.vector_db = QdrantClient(
+            qdrant_url=qdrant_url,
             collection_name="politics_id",
         )
 

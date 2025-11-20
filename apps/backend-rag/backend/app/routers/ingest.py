@@ -18,7 +18,7 @@ from ..models import (
     TierLevel
 )
 from ...services.ingestion_service import IngestionService
-from ...core.vector_db import ChromaDBClient
+from ...core.qdrant_db import QdrantClient
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/ingest", tags=["ingestion"])
@@ -216,7 +216,7 @@ async def get_ingestion_stats():
     Returns total documents, tier distribution, and collection info.
     """
     try:
-        db = ChromaDBClient()
+        db = QdrantClient()
         stats = db.get_collection_stats()
 
         return {

@@ -710,126 +710,7 @@ async def initialize_memory_tables():
         return False
 
 
-def download_chromadb_from_r2():
-    """Download ChromaDB from Cloudflare R2 to persistent volume (or /tmp as fallback)"""
-    try:
-        # R2 Configuration from environment variables
-        r2_access_key = os.getenv("R2_ACCESS_KEY_ID")
-        r2_secret_key = os.getenv("R2_SECRET_ACCESS_KEY")
-        r2_endpoint = os.getenv("R2_ENDPOINT_URL")
-        bucket_name = "nuzantaradb"
-        source_prefix = "chroma_db/"
-
-        # Log R2 credentials status
-        logger.info(f"🔐 R2 Credentials: access_key={'SET' if r2_access_key else 'MISSING'}, "
-                   f"secret_key={'SET' if r2_secret_key else 'MISSING'}, "
-                   f"endpoint={'SET' if r2_endpoint else 'MISSING'}")
-
-        # ✨ CORRECTION: Use proper ChromaDB path with full database
-        local_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
-
-        # 🔧 FORCE SYNC LOGIC: Always sync on deploy to ensure fresh data from R2
-        # Check if we need to force sync based on ENV variable or file integrity
-        chroma_sqlite_path = os.path.join(local_path, "chroma.sqlite3")
-        force_sync_env = os.getenv("FORCE_R2_SYNC", "true").lower() == "true"  # Default TRUE for fresh deploys
-        force_sync = force_sync_env
-
-        if os.path.exists(chroma_sqlite_path) and not force_sync_env:
-            file_size_mb = os.path.getsize(chroma_sqlite_path) / 1024 / 1024
-            # Force sync if database is too small (< 50MB = incomplete sync)
-            if file_size_mb < 50.0:
-                logger.info(f"⚠️ ChromaDB too small ({file_size_mb:.1f} MB), forcing complete sync...")
-                force_sync = True
-            else:
-                # Verify database has data by checking collection count
-                try:
-                    import chromadb
-                    client = chromadb.PersistentClient(path=local_path)
-                    collections = client.list_collections()
-                    if len(collections) == 0:
-                        logger.warning(f"⚠️ ChromaDB cache is EMPTY (0 collections), forcing R2 sync...")
-                        force_sync = True
-                    else:
-                        logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
-                        logger.info(f"⚡ Using cached version ({file_size_mb:.1f} MB, {len(collections)} collections)")
-                        return local_path
-                except Exception as e:
-                    logger.warning(f"⚠️ ChromaDB cache validation failed: {e}, forcing R2 sync...")
-                    force_sync = True
-        else:
-            if force_sync_env:
-                logger.info("🔄 FORCE_R2_SYNC=true, forcing complete sync from R2...")
-            else:
-                logger.info("🔄 No ChromaDB found, forcing complete sync...")
-            force_sync = True
-
-        if force_sync:
-            logger.info("🗑️ Removing incomplete ChromaDB data...")
-            if os.path.exists(local_path):
-                import shutil
-                shutil.rmtree(local_path)
-            os.makedirs(local_path, exist_ok=True)
-
-        if not all([r2_access_key, r2_secret_key, r2_endpoint]):
-            raise ValueError("R2 credentials not configured (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT_URL)")
-
-        logger.info(f"📥 Downloading ChromaDB from Cloudflare R2: {bucket_name}/{source_prefix}")
-        logger.info(f"📂 Target location: {local_path}")
-
-        # Create local directory
-        os.makedirs(local_path, exist_ok=True)
-
-        # Initialize S3-compatible client for R2
-        s3_client = boto3.client(
-            's3',
-            endpoint_url=r2_endpoint,
-            aws_access_key_id=r2_access_key,
-            aws_secret_access_key=r2_secret_key,
-            region_name='auto'
-        )
-
-        # List and download all files
-        paginator = s3_client.get_paginator('list_objects_v2')
-        file_count = 0
-        total_size = 0
-
-        for page in paginator.paginate(Bucket=bucket_name, Prefix=source_prefix):
-            if 'Contents' not in page:
-                continue
-
-            for obj in page['Contents']:
-                key = obj['Key']
-
-                # Skip directories (keys ending with /)
-                if key.endswith('/'):
-                    continue
-
-                # Get relative path
-                relative_path = key.replace(source_prefix, '')
-                local_file = os.path.join(local_path, relative_path)
-
-                # Create parent directories
-                os.makedirs(os.path.dirname(local_file), exist_ok=True)
-
-                # Download file
-                s3_client.download_file(bucket_name, key, local_file)
-                file_count += 1
-                total_size += obj['Size']
-
-                if file_count % 10 == 0:
-                    logger.info(f"  Downloaded {file_count} files ({total_size / 1024 / 1024:.1f} MB)")
-
-        logger.info(f"✅ ChromaDB downloaded from R2: {file_count} files ({total_size / 1024 / 1024:.1f} MB)")
-        logger.info(f"📂 Location: {local_path}")
-
-        return local_path
-
-    except ClientError as e:
-        logger.error(f"❌ Failed to download ChromaDB from R2: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"❌ Failed to download ChromaDB: {e}")
-        raise
+# ChromaDB download function removed - using Qdrant only
 
 
 @app.on_event("startup")
@@ -1417,19 +1298,7 @@ async def shutdown_event():
     logger.info("👋 ZANTARA RAG Backend shutdown")
 
     # ✨ OPTIMIZATION: No cleanup needed for persistent volume
-    # Fly.io persistent volumes are automatically managed and preserved across restarts
-    # Only clean up /tmp if it was used (fallback case)
-    try:
-        volume_path = os.getenv("FLY_VOLUME_MOUNT_PATH")
-        if not volume_path:  # Only cleanup if no persistent volume configured
-            chroma_path = "/tmp/chroma_db"
-            if os.path.exists(chroma_path):
-                shutil.rmtree(chroma_path)
-                logger.info("🧹 Cleaned up temporary ChromaDB from /tmp")
-        else:
-            logger.info("✅ ChromaDB preserved in persistent volume (no cleanup needed)")
-    except Exception as e:
-        logger.warning(f"⚠️ Cleanup warning: {e}")
+    # Qdrant is hosted externally, no local cleanup needed
 
 
 # Pydantic models
@@ -1558,13 +1427,13 @@ async def health_check():
         "version": "v100-perfect",
         "mode": "full",
         "available_services": [
-            "chromadb",
+            "qdrant",
             "zantara_ai",
             "postgresql",
             "crm_system",
             "reranker"
         ],
-        "chromadb": search_service is not None,
+        "qdrant": search_service is not None,
         "ai": {
             "zantara_ai": intelligent_router is not None,
             "has_ai": intelligent_router is not None or zantara_ai_client is not None
@@ -1636,7 +1505,7 @@ async def debug_startup():
         "startup_logs": startup_logs,
         "total_logs": len(startup_logs),
         "services_status": {
-            "chromadb": search_service is not None,
+            "qdrant": search_service is not None,
             "postgresql": memory_service is not None,
             "ai_router": intelligent_router is not None,
             "tools": tool_executor is not None
@@ -1973,7 +1842,7 @@ async def warmup_stats():
         "healthy": is_complete and warmup_error is None,
         "error": warmup_error,
         "services": {
-            "chromadb": search_service is not None,
+            "qdrant": search_service is not None,
             "zantara_ai": zantara_ai_client is not None,
             "memory": memory_service is not None,
             "tool_executor": tool_executor is not None,
@@ -2046,13 +1915,13 @@ async def search_endpoint(request: SearchRequest):
     RAG Search endpoint with optional LLM generation
     """
     if not search_service:
-        raise HTTPException(503, "ChromaDB not available")
+        raise HTTPException(503, "Qdrant search service not available")
 
     try:
         import time
         start = time.time()
 
-        # Search ChromaDB
+        # Search Qdrant
         results = await search_service.search(
             query=request.query,
             user_level=request.user_level,
@@ -3443,7 +3312,7 @@ async def populate_oracle_inline():
     """ONE-TIME: Populate Oracle collections. Remove after calling."""
     try:
         from core.embeddings import EmbeddingsGenerator
-        from core.vector_db import ChromaDBClient
+        from core.qdrant_db import QdrantClient
 
         embedder = EmbeddingsGenerator()
         results = {}
@@ -3451,21 +3320,21 @@ async def populate_oracle_inline():
         # Tax
         tax_texts = ["Tax: PPh 21 Rate reduced 25% to 22%", "Tax: VAT increased 11% to 12% April 2025"]
         tax_emb = [embedder.generate_single_embedding(t) for t in tax_texts]
-        tax_coll = ChromaDBClient(collection_name="tax_updates")
+        tax_coll = QdrantClient(collection_name="tax_updates")
         tax_coll.upsert_documents(tax_texts, tax_emb, [{"id": f"tax_{i}"} for i in range(len(tax_texts))], [f"tax_{i}" for i in range(len(tax_texts))])
         results['tax'] = len(tax_texts)
 
         # Legal
         legal_texts = ["Legal: PT PMA capital reduced to IDR 5B", "Legal: Minimum wage +6.5% Jakarta IDR 5.3M"]
         legal_emb = [embedder.generate_single_embedding(t) for t in legal_texts]
-        legal_coll = ChromaDBClient(collection_name="legal_updates")
+        legal_coll = QdrantClient(collection_name="legal_updates")
         legal_coll.upsert_documents(legal_texts, legal_emb, [{"id": f"legal_{i}"} for i in range(len(legal_texts))], [f"legal_{i}" for i in range(len(legal_texts))])
         results['legal'] = len(legal_texts)
 
         # Property
         prop_texts = ["Property: Canggu Villa 4BR IDR 15B ocean view", "Property: Seminyak Villa 6BR IDR 25B beachfront"]
         prop_emb = [embedder.generate_single_embedding(t) for t in prop_texts]
-        prop_coll = ChromaDBClient(collection_name="property_listings")
+        prop_coll = QdrantClient(collection_name="property_listings")
         prop_coll.upsert_documents(prop_texts, prop_emb, [{"id": f"prop_{i}"} for i in range(len(prop_texts))], [f"prop_{i}" for i in range(len(prop_texts))])
         results['property'] = len(prop_texts)
 
@@ -3562,16 +3431,21 @@ async def root():
             except Exception:
                 pass
 
-        # If no data yet, connect directly to ChromaDB
+        # If no data yet, try Qdrant collections directly
         if total_docs == 0:
-            import chromadb
-            chroma_path = os.getenv('CHROMA_DB_PATH', '/data/chroma_db_FULL_deploy')
-            chroma_client = chromadb.PersistentClient(path=chroma_path)
-            collections = chroma_client.list_collections()
-            for col in collections:
-                count = col.count()
-                total_docs += count
-                collection_stats[col.name] = count
+            from core.qdrant_db import QdrantClient
+            qdrant_url = os.getenv('QDRANT_URL', 'https://nuzantara-qdrant.fly.dev')
+            # Try to get stats from main collections
+            collections_to_check = ["knowledge_base", "visa_oracle", "tax_genius", "legal_unified", "kbli_unified"]
+            for col_name in collections_to_check:
+                try:
+                    client = QdrantClient(qdrant_url=qdrant_url, collection_name=col_name)
+                    stats = client.get_collection_stats()
+                    count = stats.get("total_documents", 0)
+                    total_docs += count
+                    collection_stats[col_name] = count
+                except Exception:
+                    pass
     except Exception as e:
         logger.warning(f"Could not get dynamic doc count: {e}")
         total_docs = 25422  # Fallback to verified count
@@ -3581,7 +3455,7 @@ async def root():
         "version": "3.1.0-perf-fix",
         "status": "operational",
         "features": {
-            "chromadb": search_service is not None,
+            "qdrant": search_service is not None,
             "ai": _get_ai_status(),
             "ai": {
                 "primary": "Llama 4 Scout (92% cheaper, 22% faster TTFT, 10M context)",
@@ -4023,16 +3897,14 @@ async def api_collection_count(name: str):
         raise HTTPException(503, "Search service not available")
     
     try:
-        # Get ChromaDB wrapper and access native collection
+        # Get Qdrant client and access collection stats
         if name not in search_service.collections:
             raise HTTPException(404, f"Collection '{name}' not found")
         
-        chromadb_wrapper = search_service.collections[name]
-        # Access the native ChromaDB collection for accurate count
-        collection = chromadb_wrapper.collection
-        
-        # Get count from native collection (not wrapper stats)
-        count = collection.count()
+        qdrant_client = search_service.collections[name]
+        # Get count from Qdrant collection stats
+        stats = qdrant_client.get_collection_stats()
+        count = stats.get("total_documents", 0)
         
         return {
             "ok": True,
@@ -4095,19 +3967,17 @@ async def load_documents_to_collection(
         if not documents:
             raise HTTPException(400, "No documents provided")
         
-        # Get or create collection via ChromaDBClient wrapper
+        # Get or create collection via QdrantClient wrapper
         if collection_name not in search_service.collections:
-            # Create new ChromaDBClient wrapper for this collection
-            from core.vector_db import ChromaDBClient
-            chroma_path = os.environ.get('CHROMA_DB_PATH', '/data/chroma_db_FULL_deploy')
-            search_service.collections[collection_name] = ChromaDBClient(
-                persist_directory=chroma_path,
+            # Create new QdrantClient wrapper for this collection
+            from core.qdrant_db import QdrantClient
+            qdrant_url = os.environ.get('QDRANT_URL', 'https://nuzantara-qdrant.fly.dev')
+            search_service.collections[collection_name] = QdrantClient(
+                qdrant_url=qdrant_url,
                 collection_name=collection_name
             )
 
-        chromadb_wrapper = search_service.collections[collection_name]
-        # Access the native ChromaDB collection
-        collection = chromadb_wrapper.collection
+        qdrant_client = search_service.collections[collection_name]
 
         loaded_count = 0
         skipped_count = 0
@@ -4116,7 +3986,7 @@ async def load_documents_to_collection(
         for i in range(0, len(documents), batch_size):
             batch = documents[i:i + batch_size]
             
-            # Clean metadata: remove None values (ChromaDB doesn't accept null)
+            # Clean metadata: remove None values (Qdrant doesn't accept null)
             cleaned_metadatas = []
             for doc in batch:
                 cleaned_meta = {k: v for k, v in doc["metadata"].items() if v is not None}
@@ -4125,12 +3995,12 @@ async def load_documents_to_collection(
                     cleaned_meta = {"source": "indonesian_laws"}
                 cleaned_metadatas.append(cleaned_meta)
 
-            # Add documents to collection (native ChromaDB API)
-            collection.add(
-                ids=[doc["id"] for doc in batch],
-                documents=[doc["text"] for doc in batch],
+            # Add documents to collection via Qdrant API
+            qdrant_client.upsert_documents(
+                chunks=[doc["text"] for doc in batch],
+                embeddings=[doc["embedding"] for doc in batch],
                 metadatas=cleaned_metadatas,
-                embeddings=[doc["embedding"] for doc in batch]
+                ids=[doc["id"] for doc in batch]
             )
             loaded_count += len(batch)
             logger.info(f"📥 Loaded batch {i//batch_size + 1}: {loaded_count}/{len(documents)} documents")

@@ -115,8 +115,8 @@ async def ingest_documents(
             # Auto-create collection if legal_intelligence
             if request.collection == "legal_intelligence":
                 logger.info(f"Auto-creating collection: {request.collection}")
-                from core.vector_db import ChromaDBClient
-                vector_db = ChromaDBClient(collection_name=request.collection)
+                from core.qdrant_db import QdrantClient
+                vector_db = QdrantClient(collection_name=request.collection)
                 service.collections[request.collection] = vector_db
             else:
                 return IngestResponse(

@@ -218,3 +218,167 @@ class QdrantClient:
         except Exception as e:
             logger.error(f"Error upserting to Qdrant: {e}")
             raise
+
+    @property
+    def collection(self):
+        """
+        Property to provide ChromaDB-compatible collection interface.
+        Returns self for direct method access.
+        """
+        return self
+
+    def get(
+        self,
+        ids: List[str],
+        include: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Retrieve points by IDs (ChromaDB-compatible interface).
+
+        Args:
+            ids: List of point IDs to retrieve
+            include: List of fields to include (e.g., ["embeddings", "payload"])
+
+        Returns:
+            Dictionary with ChromaDB-compatible format
+        """
+        try:
+            url = f"{self.qdrant_url}/collections/{self.collection_name}/points"
+            
+            # Qdrant retrieve endpoint
+            payload = {"ids": ids}
+            if include:
+                # Map ChromaDB include to Qdrant with_payload/with_vectors
+                with_payload = "payload" in include or "metadatas" in include
+                with_vectors = "embeddings" in include
+                params = {}
+                if with_payload:
+                    params["with_payload"] = True
+                if with_vectors:
+                    params["with_vectors"] = True
+            else:
+                params = {"with_payload": True, "with_vectors": True}
+
+            response = requests.post(url, json=payload, params=params, timeout=30)
+
+            if response.status_code != 200:
+                logger.error(f"Qdrant get failed: {response.status_code} - {response.text}")
+                return {
+                    "ids": [],
+                    "embeddings": [],
+                    "documents": [],
+                    "metadatas": []
+                }
+
+            results = response.json().get("result", [])
+
+            # Transform to ChromaDB format
+            formatted = {
+                "ids": [],
+                "embeddings": [],
+                "documents": [],
+                "metadatas": []
+            }
+
+            for point in results:
+                formatted["ids"].append(str(point["id"]))
+                if "vector" in point:
+                    formatted["embeddings"].append(point["vector"])
+                else:
+                    formatted["embeddings"].append(None)
+                
+                payload_data = point.get("payload", {})
+                formatted["documents"].append(payload_data.get("text", ""))
+                formatted["metadatas"].append(payload_data.get("metadata", {}))
+
+            return formatted
+
+        except Exception as e:
+            logger.error(f"Qdrant get error: {e}")
+            return {
+                "ids": [],
+                "embeddings": [],
+                "documents": [],
+                "metadatas": []
+            }
+
+    def delete(self, ids: List[str]) -> Dict[str, Any]:
+        """
+        Delete points by IDs (ChromaDB-compatible interface).
+
+        Args:
+            ids: List of point IDs to delete
+
+        Returns:
+            Dictionary with operation results
+        """
+        try:
+            url = f"{self.qdrant_url}/collections/{self.collection_name}/points/delete"
+            
+            payload = {"points": ids}
+            response = requests.post(url, json=payload, params={"wait": "true"}, timeout=30)
+
+            if response.status_code == 200:
+                logger.info(f"Deleted {len(ids)} points from Qdrant collection '{self.collection_name}'")
+                return {
+                    "success": True,
+                    "deleted_count": len(ids)
+                }
+            else:
+                logger.error(f"Qdrant delete failed: {response.status_code} - {response.text}")
+                return {
+                    "success": False,
+                    "error": f"HTTP {response.status_code}"
+                }
+
+        except Exception as e:
+            logger.error(f"Error deleting from Qdrant: {e}")
+            raise
+
+    def peek(self, limit: int = 10) -> Dict[str, Any]:
+        """
+        Peek at points in the collection (ChromaDB-compatible interface).
+
+        Args:
+            limit: Maximum number of points to return
+
+        Returns:
+            Dictionary with sample points in ChromaDB format
+        """
+        try:
+            url = f"{self.qdrant_url}/collections/{self.collection_name}/points/scroll"
+            
+            payload = {
+                "limit": limit,
+                "with_payload": True,
+                "with_vectors": False
+            }
+            response = requests.post(url, json=payload, timeout=10)
+
+            if response.status_code == 200:
+                data = response.json().get("result", {})
+                points = data.get("points", [])
+
+                # Transform to ChromaDB format
+                formatted = {
+                    "ids": [str(p["id"]) for p in points],
+                    "documents": [p.get("payload", {}).get("text", "") for p in points],
+                    "metadatas": [p.get("payload", {}).get("metadata", {}) for p in points]
+                }
+
+                return formatted
+            else:
+                logger.error(f"Qdrant peek failed: {response.status_code}")
+                return {
+                    "ids": [],
+                    "documents": [],
+                    "metadatas": []
+                }
+
+        except Exception as e:
+            logger.error(f"Error peeking Qdrant collection: {e}")
+            return {
+                "ids": [],
+                "documents": [],
+                "metadatas": []
+            }

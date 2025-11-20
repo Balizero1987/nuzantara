@@ -1,6 +1,6 @@
 """
 ZANTARA RAG - Memory Vector Router
-Semantic memory storage and search using ChromaDB
+Semantic memory storage and search using Qdrant
 Complements Firestore-based memory system with vector search capabilities
 """
 
@@ -11,7 +11,7 @@ import logging
 import time
 
 from core.embeddings import EmbeddingsGenerator
-from core.vector_db import ChromaDBClient
+from core.qdrant_db import QdrantClient
 import os
 
 logger = logging.getLogger(__name__)
@@ -19,24 +19,24 @@ router = APIRouter(prefix="/api/memory", tags=["memory"])
 
 # Initialize services
 embedder = EmbeddingsGenerator()
-memory_vector_db: Optional[ChromaDBClient] = None
+memory_vector_db: Optional[QdrantClient] = None
 
 
-def initialize_memory_vector_db(persist_dir: Optional[str] = None) -> ChromaDBClient:
-    """Create or refresh the Chroma collection used for semantic memories."""
+def initialize_memory_vector_db(qdrant_url: Optional[str] = None) -> QdrantClient:
+    """Create or refresh the Qdrant collection used for semantic memories."""
     global memory_vector_db
-    # FIX 2025-11-10: Use same default as SearchService to avoid ChromaDB instance conflicts
-    target_dir = persist_dir or os.environ.get("CHROMA_DB_PATH", "/data/chroma_db_FULL_deploy")
+    # Use Qdrant URL from environment or default
+    target_url = qdrant_url or os.environ.get("QDRANT_URL", "https://nuzantara-qdrant.fly.dev")
 
     try:
-        memory_vector_db = ChromaDBClient(
-            persist_directory=target_dir,
+        memory_vector_db = QdrantClient(
+            qdrant_url=target_url,
             collection_name="zantara_memories"
         )
         stats = memory_vector_db.get_collection_stats()
         logger.info(
-            "✅ Memory vector DB ready (collection='zantara_memories', path='%s', total=%s)"
-            % (target_dir, stats.get("total_documents", 0))
+            "✅ Memory vector DB ready (collection='zantara_memories', url='%s', total=%s)"
+            % (target_url, stats.get("total_documents", 0))
         )
     except Exception as exc:
         logger.error(f"Memory vector DB initialization failed: {exc}")
@@ -45,11 +45,11 @@ def initialize_memory_vector_db(persist_dir: Optional[str] = None) -> ChromaDBCl
     return memory_vector_db
 
 
-def get_memory_vector_db() -> ChromaDBClient:
+def get_memory_vector_db() -> QdrantClient:
     """Return an initialized memory vector database instance."""
     global memory_vector_db
     if memory_vector_db is None:
-        logger.warning("Memory vector DB not initialized; creating with default path")
+        logger.warning("Memory vector DB not initialized; creating with default Qdrant URL")
         return initialize_memory_vector_db()
     return memory_vector_db
 
@@ -93,13 +93,13 @@ class MemorySearchResponse(BaseModel):
 
 
 class InitRequest(BaseModel):
-    persist_directory: Optional[str] = None
+    qdrant_url: Optional[str] = None
 
 
 class InitResponse(BaseModel):
     status: str
     collection: str
-    persist_directory: str
+    qdrant_url: str
     total_memories: int
 
 
@@ -109,12 +109,12 @@ class InitResponse(BaseModel):
 async def init_memory_collection(request: InitRequest) -> InitResponse:
     """Reinitialize the semantic memory collection after deployments or resets."""
     try:
-        db = initialize_memory_vector_db(request.persist_directory)
+        db = initialize_memory_vector_db(request.qdrant_url)
         stats = db.get_collection_stats()
         return InitResponse(
             status="initialized",
             collection=stats.get("collection_name", "zantara_memories"),
-            persist_directory=stats.get("persist_directory", request.persist_directory or os.environ.get("CHROMA_DB_PATH", "/tmp/chroma_db")),
+            qdrant_url=db.qdrant_url,
             total_memories=stats.get("total_documents", 0)
         )
     except Exception as exc:
@@ -150,7 +150,7 @@ async def generate_embedding(request: EmbedRequest):
 @router.post("/store")
 async def store_memory_vector(request: StoreMemoryRequest):
     """
-    Store memory in ChromaDB for semantic search.
+    Store memory in Qdrant for semantic search.
 
     Metadata should include:
     - userId: User ID
@@ -194,21 +194,19 @@ async def search_memories_semantic(request: SearchMemoryRequest):
     try:
         start_time = time.time()
 
-        # Prepare filter (ChromaDB where clause)
+        # Prepare filter (Qdrant filter format)
         where_filter = None
         if request.metadata_filter:
-            # Convert TypeScript-style filter to ChromaDB format
+            # Convert TypeScript-style filter to Qdrant format
             where_filter = {}
             for key, value in request.metadata_filter.items():
                 if isinstance(value, dict) and "$contains" in value:
-                    # Handle contains filter (not native in ChromaDB, but we can use simple equality)
-                    # For entities, we stored as comma-separated string
-                    # This is a limitation - for Phase 3 we'd need proper array support
+                    # Handle contains filter (Qdrant supports text matching)
                     where_filter[key] = value["$contains"]
                 else:
                     where_filter[key] = value
 
-        # Search ChromaDB
+        # Search Qdrant
         db = get_memory_vector_db()
         results = db.search(
             query_embedding=request.query_embedding,
@@ -258,30 +256,26 @@ async def find_similar_memories(request: SimilarMemoryRequest):
 
         db = get_memory_vector_db()
 
-        # Get the memory's embedding from ChromaDB
-        memory = db.collection.get(
+        # Get the memory's embedding from Qdrant
+        memory = db.get(
             ids=[request.memory_id],
             include=["embeddings"]
         )
 
         embeddings_raw = memory.get("embeddings") if isinstance(memory, dict) else None
-        if embeddings_raw is None:
+        if embeddings_raw is None or len(embeddings_raw) == 0:
             raise HTTPException(
                 status_code=404,
                 detail=f"Memory not found: {request.memory_id}"
             )
 
-        # Normalize embedding payloads returned by ChromaDB
-        if hasattr(embeddings_raw, "tolist"):
-            embeddings_raw = embeddings_raw.tolist()
-
-        if isinstance(embeddings_raw, list) and len(embeddings_raw) > 0:
-            first_item = embeddings_raw[0]
-            if isinstance(first_item, (list, tuple)):
-                query_embedding = list(first_item)
-            else:
-                # Handle flat vectors returned directly as a single list of floats
-                query_embedding = list(embeddings_raw)
+        # Normalize embedding payloads returned by Qdrant
+        first_embedding = embeddings_raw[0]
+        if isinstance(first_embedding, (list, tuple)):
+            query_embedding = list(first_embedding)
+        elif isinstance(first_embedding, (int, float)):
+            # Handle flat vectors returned directly as a single list of floats
+            query_embedding = list(embeddings_raw)
         else:
             raise HTTPException(
                 status_code=500,
@@ -351,7 +345,7 @@ async def delete_memory_vector(memory_id: str):
     """Delete memory from vector store"""
     try:
         db = get_memory_vector_db()
-        db.collection.delete(ids=[memory_id])
+        db.delete(ids=[memory_id])
 
         logger.info(f"✅ Memory deleted: {memory_id}")
 
@@ -374,13 +368,14 @@ async def get_memory_stats():
         db = get_memory_vector_db()
         stats = db.get_collection_stats()
 
+        peek_data = db.peek(limit=1000)
         return {
             "total_memories": stats.get("total_documents", 0),
             "collection_name": stats.get("collection_name", "zantara_memories"),
-            "persist_directory": stats.get("persist_directory", ""),
+            "qdrant_url": db.qdrant_url,
             "users": len(set([
                 m.get("userId", "")
-                for m in db.collection.peek(limit=1000).get("metadatas", [])
+                for m in peek_data.get("metadatas", [])
             ])),
             "collection_size_mb": stats.get("total_documents", 0) * 0.001  # Rough estimate
         }
