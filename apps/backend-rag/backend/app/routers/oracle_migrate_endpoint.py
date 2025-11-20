@@ -15,7 +15,7 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from core.embeddings import EmbeddingsGenerator
-from core.vector_db import ChromaDBClient
+from core.qdrant_db import QdrantClient
 
 router = APIRouter(prefix="/api/oracle", tags=["Oracle MIGRATION"])
 
@@ -89,7 +89,7 @@ Details: {update['details']}"""
 
         tax_embeddings = [embedder.generate_single_embedding(text) for text in tax_texts]
 
-        tax_collection = ChromaDBClient(
+        tax_collection = QdrantClient(
             persist_directory=str(chroma_path),
             collection_name="tax_updates"
         )
@@ -142,7 +142,7 @@ Details: {update['details']}"""
 
         legal_embeddings = [embedder.generate_single_embedding(text) for text in legal_texts]
 
-        legal_collection = ChromaDBClient(
+        legal_collection = QdrantClient(
             persist_directory=str(chroma_path),
             collection_name="legal_updates"
         )
@@ -193,7 +193,7 @@ Features: {', '.join(listing['features'])}"""
 
         prop_embeddings = [embedder.generate_single_embedding(text) for text in prop_texts]
 
-        prop_collection = ChromaDBClient(
+        prop_collection = QdrantClient(
             persist_directory=str(chroma_path),
             collection_name="property_listings"
         )

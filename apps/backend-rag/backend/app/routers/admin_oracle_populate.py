@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from core.embeddings import EmbeddingsGenerator
-from core.vector_db import ChromaDBClient
+from core.qdrant_db import QdrantClient
 
 router = APIRouter(prefix="/admin", tags=["Admin - TEMPORARY"])
 
@@ -128,7 +128,7 @@ Details: {update['details']}"""
 
         tax_embeddings = [embedder.generate_single_embedding(text) for text in tax_texts]
 
-        tax_collection = ChromaDBClient(collection_name="tax_updates")
+        tax_collection = QdrantClient(collection_name="tax_updates")
         tax_collection.upsert_documents(
             chunks=tax_texts,
             embeddings=tax_embeddings,
@@ -239,7 +239,7 @@ Details: {update['details']}"""
 
         legal_embeddings = [embedder.generate_single_embedding(text) for text in legal_texts]
 
-        legal_collection = ChromaDBClient(collection_name="legal_updates")
+        legal_collection = QdrantClient(collection_name="legal_updates")
         legal_collection.upsert_documents(
             chunks=legal_texts,
             embeddings=legal_embeddings,
@@ -320,7 +320,7 @@ Features: {', '.join(prop['features'])}"""
 
         prop_embeddings = [embedder.generate_single_embedding(text) for text in prop_texts]
 
-        prop_collection = ChromaDBClient(collection_name="property_listings")
+        prop_collection = QdrantClient(collection_name="property_listings")
         prop_collection.upsert_documents(
             chunks=prop_texts,
             embeddings=prop_embeddings,

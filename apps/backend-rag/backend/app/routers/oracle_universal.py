@@ -191,7 +191,7 @@ async def universal_oracle_query(
         if (not search_results.get("documents") or len(search_results.get("documents", [])) == 0) and \
            collection_used in ["tax_updates", "legal_updates", "property_listings"]:
             try:
-                from core.vector_db import ChromaDBClient
+                from core.qdrant_db import QdrantClient
                 # Populate based on collection
                 if collection_used == "tax_updates":
                     texts = ["Tax: PPh 21 reduced 25% to 22%", "Tax: VAT 12% April 2025"]
@@ -201,7 +201,7 @@ async def universal_oracle_query(
                     texts = ["Property: Canggu Villa 4BR IDR 15B", "Property: Seminyak 6BR IDR 25B"]
 
                 emb = [embedder.generate_single_embedding(t) for t in texts]
-                ChromaDBClient(collection_name=collection_used).upsert_documents(
+                QdrantClient(collection_name=collection_used).upsert_documents(
                     chunks=texts, embeddings=emb,
                     metadatas=[{"id": f"auto_{i}"} for i in range(len(texts))],
                     ids=[f"auto_{i}" for i in range(len(texts))]
@@ -395,7 +395,7 @@ async def populate_oracle_collections():
         sys.path.append(str(Path(__file__).parent.parent.parent))
 
         from core.embeddings import EmbeddingsGenerator
-        from core.vector_db import ChromaDBClient
+        from core.qdrant_db import QdrantClient
 
         embedder = EmbeddingsGenerator()
         results = {}
@@ -410,7 +410,7 @@ async def populate_oracle_collections():
             "Tax: Transfer pricing CbCR threshold IDR 10T"
         ]
         tax_emb = [embedder.generate_single_embedding(t) for t in tax_texts]
-        ChromaDBClient(collection_name="tax_updates").upsert_documents(
+        QdrantClient(collection_name="tax_updates").upsert_documents(
             chunks=tax_texts, embeddings=tax_emb,
             metadatas=[{"id": f"tax_{i}"} for i in range(len(tax_texts))],
             ids=[f"tax_{i}" for i in range(len(tax_texts))]
@@ -428,7 +428,7 @@ async def populate_oracle_collections():
             "Legal: Expat quotas IT 50% healthcare 40%"
         ]
         legal_emb = [embedder.generate_single_embedding(t) for t in legal_texts]
-        ChromaDBClient(collection_name="legal_updates").upsert_documents(
+        QdrantClient(collection_name="legal_updates").upsert_documents(
             chunks=legal_texts, embeddings=legal_emb,
             metadatas=[{"id": f"legal_{i}"} for i in range(len(legal_texts))],
             ids=[f"legal_{i}" for i in range(len(legal_texts))]
@@ -443,7 +443,7 @@ async def populate_oracle_collections():
             "Property: Sanur Commercial IDR 45B 1200m2 hotel zoning"
         ]
         prop_emb = [embedder.generate_single_embedding(t) for t in prop_texts]
-        ChromaDBClient(collection_name="property_listings").upsert_documents(
+        QdrantClient(collection_name="property_listings").upsert_documents(
             chunks=prop_texts, embeddings=prop_emb,
             metadatas=[{"id": f"prop_{i}"} for i in range(len(prop_texts))],
             ids=[f"prop_{i}" for i in range(len(prop_texts))]

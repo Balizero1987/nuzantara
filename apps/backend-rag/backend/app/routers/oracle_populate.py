@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from core.embeddings import EmbeddingsGenerator
-from core.vector_db import ChromaDBClient
+from core.qdrant_db import QdrantClient
 
 router = APIRouter(prefix="/admin", tags=["ADMIN"])
 
@@ -46,7 +46,7 @@ async def populate_oracle():
         tax_meta = [{"id": u['id'], "title": u['title'], "category": u['category']}
                     for u in tax_updates]
 
-        tax_coll = ChromaDBClient(collection_name="tax_updates")
+        tax_coll = QdrantClient(collection_name="tax_updates")
         tax_coll.upsert_documents(chunks=tax_texts, embeddings=tax_embeddings,
                                   metadatas=tax_meta, ids=tax_ids)
         results['tax_updates'] = len(tax_texts)
@@ -66,7 +66,7 @@ async def populate_oracle():
         legal_meta = [{"id": u['id'], "title": u['title'], "category": u['category']}
                       for u in legal_updates]
 
-        legal_coll = ChromaDBClient(collection_name="legal_updates")
+        legal_coll = QdrantClient(collection_name="legal_updates")
         legal_coll.upsert_documents(chunks=legal_texts, embeddings=legal_embeddings,
                                     metadatas=legal_meta, ids=legal_ids)
         results['legal_updates'] = len(legal_texts)
@@ -86,7 +86,7 @@ async def populate_oracle():
         prop_meta = [{"id": p['id'], "title": p['title'], "location": p['location']}
                      for p in properties]
 
-        prop_coll = ChromaDBClient(collection_name="property_listings")
+        prop_coll = QdrantClient(collection_name="property_listings")
         prop_coll.upsert_documents(chunks=prop_texts, embeddings=prop_embeddings,
                                    metadatas=prop_meta, ids=prop_ids)
         results['property_listings'] = len(prop_texts)

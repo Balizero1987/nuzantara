@@ -3,7 +3,7 @@ ZANTARA RAG - Health Check Router
 """
 
 from fastapi import APIRouter
-from ...core.vector_db import ChromaDBClient
+from ...core.qdrant_db import QdrantClient
 from ...core.embeddings import EmbeddingsGenerator
 from ..models import HealthResponse
 import logging
@@ -19,8 +19,8 @@ async def health_check():
     Verifies database and embeddings service are operational.
     """
     try:
-        # Check vector database
-        db = ChromaDBClient()
+        # Check vector database (Qdrant)
+        db = QdrantClient(collection_name="knowledge_base")
         db_stats = db.get_collection_stats()
 
         # Check embeddings (quick test)
@@ -32,9 +32,9 @@ async def health_check():
             version="1.0.0",
             database={
                 "status": "connected",
-                "collection": db_stats["collection_name"],
-                "total_documents": db_stats["total_documents"],
-                "tiers": db_stats.get("tiers_distribution", {})
+                "collection": db_stats.get("collection_name", "knowledge_base"),
+                "total_documents": db_stats.get("total_documents", 0),
+                "tiers": {}  # Qdrant doesn't use tiers
             },
             embeddings={
                 "status": "operational",

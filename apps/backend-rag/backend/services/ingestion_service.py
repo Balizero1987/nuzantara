@@ -10,7 +10,7 @@ from pathlib import Path
 from core.parsers import auto_detect_and_parse, get_document_info
 from core.chunker import TextChunker
 from core.embeddings import EmbeddingsGenerator
-from core.vector_db import ChromaDBClient
+from core.qdrant_db import QdrantClient
 from utils.tier_classifier import TierClassifier
 from app.models import TierLevel
 
@@ -27,7 +27,7 @@ class IngestionService:
         """Initialize ingestion service with all components"""
         self.chunker = TextChunker()
         self.embedder = EmbeddingsGenerator()
-        self.vector_db = ChromaDBClient()
+        self.vector_db = QdrantClient()
         self.classifier = TierClassifier()
 
         logger.info("IngestionService initialized")

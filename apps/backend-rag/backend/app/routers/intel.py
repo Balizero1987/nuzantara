@@ -8,7 +8,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 import logging
 
-from core.vector_db import ChromaDBClient
+from core.qdrant_db import QdrantClient
 from core.embeddings import EmbeddingsGenerator
 
 router = APIRouter()
@@ -67,7 +67,7 @@ async def search_intel(request: IntelSearchRequest):
                 continue
 
             try:
-                client = ChromaDBClient(collection_name=collection_name)
+                client = QdrantClient(collection_name=collection_name)
 
                 # Build metadata filter
                 where_filter = {"tier": {"$in": request.tier}}
@@ -148,7 +148,7 @@ async def store_intel(request: IntelStoreRequest):
         if not collection_name:
             raise HTTPException(status_code=400, detail=f"Invalid collection: {request.collection}")
 
-        client = ChromaDBClient(collection_name=collection_name)
+        client = QdrantClient(collection_name=collection_name)
 
         client.upsert_documents(
             chunks=[request.document],
@@ -185,7 +185,7 @@ async def get_critical_items(category: Optional[str] = None, days: int = 7):
                 continue
 
             try:
-                client = ChromaDBClient(collection_name=collection_name)
+                client = QdrantClient(collection_name=collection_name)
 
                 results = client.collection.get(
                     where={
@@ -243,7 +243,7 @@ async def get_trends(category: Optional[str] = None, days: int = 30):
                 continue
 
             try:
-                client = ChromaDBClient(collection_name=collection_name)
+                client = QdrantClient(collection_name=collection_name)
                 stats = client.get_collection_stats()
 
                 # Extract keywords from metadata (simplified)
@@ -275,7 +275,7 @@ async def get_collection_stats(collection: str):
         if not collection_name:
             raise HTTPException(status_code=404, detail=f"Collection not found: {collection}")
 
-        client = ChromaDBClient(collection_name=collection_name)
+        client = QdrantClient(collection_name=collection_name)
         stats = client.get_collection_stats()
 
         return {

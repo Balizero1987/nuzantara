@@ -1,5 +1,5 @@
 # ZANTARA RAG Backend - Fly.io Deployment
-# Python 3.11 + FastAPI + ChromaDB + Qdrant + Sentence Transformers
+# Python 3.11 + FastAPI + Qdrant + Sentence Transformers
 FROM python:3.11-slim
 
 # Install system dependencies
@@ -26,14 +26,10 @@ COPY backend ./backend
 # COPY .env ./  # Commented: Use Fly.io secrets instead
 COPY *.py ./
 
-# ChromaDB data is downloaded from Cloudflare R2 at startup (see main_cloud.py)
-# COPY chroma_db_deploy /data/chroma_db  # ← REMOVED: Data now loaded from R2
+# Qdrant is hosted externally, no local data directory needed
 
 # Set Python path
 ENV PYTHONPATH=/app/backend
-
-# Create data directory for ChromaDB
-RUN mkdir -p /data/chroma_db_FULL_deploy
 
 # Set runtime working directory so uvicorn can load main_cloud module directly
 WORKDIR /app/backend/app
