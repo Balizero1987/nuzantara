@@ -4997,14 +4997,14 @@ async def add_request_count(request: Request, call_next):
     return await call_next(request)
 
 # 🚀 NEW: Include Handlers Registry API
-# try:
-#     from api.handlers import router as handlers_router
-#     app.include_router(handlers_router)
-#     logger.info("🔧 [Startup] Handlers registry API loaded")
-# except ImportError as e:
-#     logger.warning(f"⚠️ [Startup] Failed to load handlers API: {e}")
-# except Exception as e:
-#     logger.error(f"❌ [Startup] Error loading handlers API: {e}")
+try:
+    from api.handlers import router as handlers_router
+    app.include_router(handlers_router)
+    logger.info("🔧 [Startup] Handlers registry API loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ [Startup] Failed to load handlers API: {e}")
+except Exception as e:
+    logger.error(f"❌ [Startup] Error loading handlers API: {e}")
 
 # 🚀 NEW: Include Skill Admin API
 # try:

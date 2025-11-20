@@ -140,8 +140,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     console.log('✅ Team Analytics Client initialized');
   }
 
-  // Initialize System Handlers Client (Disabled for now as backend endpoint is missing)
-  /*
+  // Initialize System Handlers Client
   if (typeof window.SystemHandlersClient !== 'undefined') {
     const systemHandlersClient = new window.SystemHandlersClient();
     window.systemHandlersClient = systemHandlersClient;
@@ -153,7 +152,6 @@ document.addEventListener('DOMContentLoaded', async function () {
       console.warn('⚠️ Failed to load system handlers:', error.message);
     });
   }
-  */
 
   // Load compliance alerts
   if (typeof window.AgentsClient !== 'undefined') {
@@ -868,28 +866,26 @@ async function clearChatHistory() {
     // Clear localStorage
     zantaraClient.clearHistory();
 
-    // Clear Memory Service
-    if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
-      try {
-        await window.CONVERSATION_CLIENT.clearConversation();
-        console.log('✅ Conversation cleared from Memory Service');
-      } catch (error) {
-        errorHandler.handle({
-          type: 'memory_service_error',
-          error,
-          message: 'Failed to clear Memory Service conversation'
-        });
-        console.warn('⚠️ Failed to clear Memory Service conversation:', error.message);
-      }
+    try {
+      await window.CONVERSATION_CLIENT.clearConversation();
+      console.log('✅ Conversation cleared from Memory Service');
+    } catch (error) {
+      errorHandler.handle({
+        type: 'memory_service_error',
+        error,
+        message: 'Failed to clear Memory Service conversation'
+      });
+      console.warn('⚠️ Failed to clear Memory Service conversation:', error.message);
     }
-
-    // Clear UI and StateManager
-    messageSpace.innerHTML = '';
-    stateManager.clearMessages();
-    showWelcomeMessage();
-    showNotification('Chat history cleared', 'success');
   }
+
+  // Clear UI and StateManager
+  messageSpace.innerHTML = '';
+  stateManager.clearMessages();
+  showWelcomeMessage();
+  showNotification('Chat history cleared', 'success');
 }
+
 
 /**
  * Display user info in header
@@ -999,6 +995,11 @@ function showComplianceAlertsBanner(alerts) {
 function displayCollectiveInsightsSidebar(insights) {
   // Find or create sidebar container
   let sidebar = document.getElementById('collective-insights-sidebar');
+
+  if (!Array.isArray(insights)) {
+    console.warn('⚠️ displayCollectiveInsightsSidebar: insights is not an array', insights);
+    return;
+  }
 
   if (!sidebar) {
     sidebar = document.createElement('div');

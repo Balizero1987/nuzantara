@@ -396,8 +396,17 @@ class ZantaraClient {
           // Extract token from various possible formats
           // Backend uses 'text' field with sequenceNumber
           const token = data.text || data.content || data.token || '';
+
           if (token) {
-            accumulatedText += token;
+            // FIX: Handle both full-text updates and deltas
+            // If token starts with accumulated text, it's likely a full update (replace)
+            // Otherwise it's a delta (append)
+            if (accumulatedText.length > 0 && token.startsWith(accumulatedText)) {
+              accumulatedText = token;
+            } else {
+              accumulatedText += token;
+            }
+
             onToken(token, accumulatedText);
           }
         } catch (error) {

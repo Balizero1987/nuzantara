@@ -1,4 +1,5 @@
 import { UnifiedAPIClient } from './core/unified-api-client.js';
+import { API_CONFIG } from './api-config.js';
 
 /**
  * CRM Client
@@ -7,7 +8,7 @@ import { UnifiedAPIClient } from './core/unified-api-client.js';
 class CRMClient {
     constructor() {
         this.api = new UnifiedAPIClient();
-        this.config = window.API_CONFIG || {};
+        this.config = API_CONFIG;
     }
 
     // ========================================================================
