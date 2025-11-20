@@ -134,10 +134,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://zantara.balizero.com",
+        "https://balizero1987.github.io",
         "http://localhost:5173",
         "http://localhost:8002",
-        "http://localhost:3000",
-        "*"  # Fallback for EventSource compatibility
+        "http://localhost:3000"
     ],
     allow_credentials=True,  # Allow credentials for httpOnly cookies
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
