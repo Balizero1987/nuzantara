@@ -1,81 +1,81 @@
 /**
- * ZANTARA Theme - SOLO SFONDO GRIGIO
+ * ZANTARA Theme - Using Design System Variables
  */
 
 html,
 body {
-  background: #2B2B2B !important;
-  background-color: #2B2B2B !important;
+  background: var(--color-background) !important;
+  background-color: var(--color-background) !important;
 }
 
 /* Form rettangolare verticale elegante in altorilievo */
 .login-form {
-  background: #323232 !important;
+  background: var(--color-surface) !important;
   border: none !important;
   border-radius: 0;
-  padding: 3rem 2.5rem;
+  padding: var(--space-12) var(--space-10);
   width: 100%;
   max-width: 380px;
   box-sizing: border-box;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  transition: box-shadow var(--transition-slow), transform var(--transition-slow);
 }
 
 /* Form elements eleganti */
 .form-label {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--color-text-primary);
   display: block;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-3);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
 
 .form-input {
-  background: #262626 !important;
-  border: 1px solid #3a3a3a !important;
-  color: rgba(255, 255, 255, 0.95) !important;
-  padding: 0.875rem 1rem;
+  background: var(--color-surface-dark) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+  padding: var(--space-3) var(--space-4);
   width: 100%;
   box-sizing: border-box;
-  font-size: 1rem;
-  transition: all 0.2s ease;
+  font-size: var(--font-size-base);
+  transition: all var(--transition-base);
 }
 
 .form-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.95) !important;
-  border-bottom: 2px solid rgba(217, 32, 39, 0.8) !important;
+  color: var(--color-text-primary) !important;
+  border-bottom: 2px solid var(--color-primary) !important;
 }
 
 .form-input::placeholder {
-  color: #777 !important;
+  color: var(--color-text-placeholder) !important;
 }
 
 .login-button {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(217, 32, 39, 0.5) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-  color: rgba(255, 255, 255, 0.95);
-  padding: 0.875rem 2rem;
+  color: var(--color-text-primary);
+  padding: var(--space-3) var(--space-8);
   width: 100%;
   font-weight: 500;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 0.5rem;
+  transition: all var(--transition-base);
+  margin-top: var(--space-2);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .login-button:hover:not(:disabled) {
-  background: rgba(217, 32, 39, 0.9) !important;
-  border-color: rgba(217, 32, 39, 0.9) !important;
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: rgba(255, 255, 255, 1) !important;
+  color: var(--color-primary-hover) !important;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
@@ -85,7 +85,7 @@ body {
 }
 
 .pin-hint {
-  font-size: 0.65rem !important;
-  color: rgba(255, 255, 255, 0.4);
-  margin-top: 0.5rem;
+  font-size: var(--font-size-xs) !important;
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-2);
 }
