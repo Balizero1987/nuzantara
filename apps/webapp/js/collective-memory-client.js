@@ -1,52 +1,53 @@
-/* eslint-disable no-undef, no-console */
+/* eslint-disable no-undef */
 /**
  * ZANTARA Collective Memory Client
- * Manages persistent and collective memory across users and sessions
+ * Manages collective memory and team insights
+ * Refactored to use UnifiedAPIClient
  */
 
 class CollectiveMemoryClient {
     constructor(config = {}) {
         this.config = {
             apiUrl: window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev',
-            collectiveEndpoint: '/api/v3/zantara/collective',
-            cacheTTL: 30 * 60 * 1000, // 30 minutes
+            endpoints: window.API_ENDPOINTS?.collective || {
+                store: '/api/v3/zantara/collective',
+                query: '/api/v3/zantara/collective'
+            }, // Default endpoints if not provided
             ...config
         };
-        this.insights = [];
-        this.lastFetch = null;
-    }
 
-    get headers() {
-        return window.getAuthHeaders();
+        // Use unified API client
+        this.api = window.apiClient || new window.UnifiedAPIClient({ baseURL: this.config.apiUrl });
     }
 
     /**
-     * Store collective insight
+     * Store an insight to collective memory
      */
     async storeInsight(category, content, metadata = {}) {
         try {
-            const response = await fetch(`${this.config.apiUrl}${this.config.collectiveEndpoint}`, {
-                method: 'POST',
-                headers: this.headers,
-                body: JSON.stringify({
-                    query: `Store ${category}: ${content}`,
-                    category: category,
-                    metadata: {
-                        ...metadata,
-                        timestamp: new Date().toISOString(),
-                        source: 'chat'
-                    }
-                })
-            });
+            const data = {
+                query: `Store ${category}: ${content}`, // Keep original query format for backend
+                category,
+                metadata: {
+                    ...metadata,
+                    timestamp: new Date().toISOString(),
+                    source: 'chat'
+                }
+            };
 
-            if (!response.ok) throw new Error('Failed to store insight');
+            const result = await this.api.post(this.config.endpoints.store, data);
 
-            const data = await response.json();
+            if (window.toast) {
+                window.toast.success('Insight saved to collective memory');
+            }
             console.log(`✅ Collective insight stored: ${category}`);
-            return data;
+            return result;
         } catch (error) {
-            console.error('Failed to store collective insight:', error);
-            return null;
+            console.error('Failed to store insight:', error);
+            if (window.toast) {
+                window.toast.error('Failed to save insight');
+            }
+            throw error; // Re-throw to allow further handling if needed
         }
     }
 

@@ -1,19 +1,20 @@
-/* eslint-disable no-undef, no-console */
+/* eslint-disable no-undef */
 /**
  * ZANTARA Team Analytics Client
- * Interfaces with TeamAnalyticsService for team knowledge and performance metrics
+ * Provides team analytics and performance metrics
+ * Refactored to use UnifiedAPIClient
  */
 
 class TeamAnalyticsClient {
     constructor(config = {}) {
         this.config = {
             apiUrl: window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev',
+            endpoints: window.API_ENDPOINTS?.team || {},
             ...config
         };
-    }
 
-    get headers() {
-        return window.getAuthHeaders();
+        // Use unified API client if available, fallback to fetch
+        this.api = window.apiClient || new window.UnifiedAPIClient({ baseURL: this.config.apiUrl });
     }
 
     /**
@@ -21,16 +22,14 @@ class TeamAnalyticsClient {
      */
     async getPerformanceTrends(userEmail, weeks = 4) {
         try {
-            const response = await fetch(
-                `${this.config.apiUrl}/team/analytics/trends?user_email=${encodeURIComponent(userEmail)}&weeks=${weeks}`,
-                { headers: this.headers }
-            );
-
-            if (!response.ok) throw new Error('Failed to fetch performance trends');
-            return response.json();
+            const endpoint = `${this.config.endpoints.trends}?user_email=${userEmail}&weeks=${weeks}`;
+            return await this.api.get(endpoint);
         } catch (error) {
             console.error('Failed to get performance trends:', error);
-            return null;
+            if (window.toast) {
+                window.toast.error('Failed to load performance trends');
+            }
+            throw error;
         }
     }
 
@@ -39,16 +38,14 @@ class TeamAnalyticsClient {
      */
     async getSkillGaps(userEmail) {
         try {
-            const response = await fetch(
-                `${this.config.apiUrl}/team/analytics/skills?user_email=${encodeURIComponent(userEmail)}`,
-                { headers: this.headers }
-            );
-
-            if (!response.ok) throw new Error('Failed to fetch skill gaps');
-            return response.json();
+            const endpoint = `${this.config.endpoints.skills}?user_email=${userEmail}`;
+            return await this.api.get(endpoint);
         } catch (error) {
             console.error('Failed to get skill gaps:', error);
-            return null;
+            if (window.toast) {
+                window.toast.error('Failed to load skill analysis');
+            }
+            throw error;
         }
     }
 
@@ -57,16 +54,14 @@ class TeamAnalyticsClient {
      */
     async getWorkloadDistribution(teamId) {
         try {
-            const response = await fetch(
-                `${this.config.apiUrl}/team/analytics/workload?team_id=${teamId}`,
-                { headers: this.headers }
-            );
-
-            if (!response.ok) throw new Error('Failed to fetch workload');
-            return response.json();
+            const endpoint = `${this.config.endpoints.workload}?team_id=${teamId}`;
+            return await this.api.get(endpoint);
         } catch (error) {
             console.error('Failed to get workload distribution:', error);
-            return null;
+            if (window.toast) {
+                window.toast.error('Failed to load workload data');
+            }
+            throw error;
         }
     }
 
@@ -75,16 +70,14 @@ class TeamAnalyticsClient {
      */
     async getCollaborationPatterns(teamId) {
         try {
-            const response = await fetch(
-                `${this.config.apiUrl}/team/analytics/collaboration?team_id=${teamId}`,
-                { headers: this.headers }
-            );
-
-            if (!response.ok) throw new Error('Failed to fetch collaboration');
-            return response.json();
+            const endpoint = `${this.config.endpoints.collaboration}?team_id=${teamId}`;
+            return await this.api.get(endpoint);
         } catch (error) {
             console.error('Failed to get collaboration patterns:', error);
-            return null;
+            if (window.toast) {
+                window.toast.error('Failed to load collaboration data');
+            }
+            throw error;
         }
     }
 
@@ -93,16 +86,14 @@ class TeamAnalyticsClient {
      */
     async getResponseTimes(userEmail) {
         try {
-            const response = await fetch(
-                `${this.config.apiUrl}/team/analytics/response-times?user_email=${encodeURIComponent(userEmail)}`,
-                { headers: this.headers }
-            );
-
-            if (!response.ok) throw new Error('Failed to fetch response times');
-            return response.json();
+            const endpoint = `${this.config.endpoints.responseTimes}?user_email=${userEmail}`;
+            return await this.api.get(endpoint);
         } catch (error) {
             console.error('Failed to get response times:', error);
-            return null;
+            if (window.toast) {
+                window.toast.error('Failed to load response metrics');
+            }
+            throw error;
         }
     }
 
@@ -111,16 +102,14 @@ class TeamAnalyticsClient {
      */
     async getClientSatisfaction(userEmail) {
         try {
-            const response = await fetch(
-                `${this.config.apiUrl}/team/analytics/satisfaction?user_email=${encodeURIComponent(userEmail)}`,
-                { headers: this.headers }
-            );
-
-            if (!response.ok) throw new Error('Failed to fetch satisfaction');
-            return response.json();
+            const endpoint = `${this.config.endpoints.satisfaction}?user_email=${userEmail}`;
+            return await this.api.get(endpoint);
         } catch (error) {
             console.error('Failed to get client satisfaction:', error);
-            return null;
+            if (window.toast) {
+                window.toast.error('Failed to load satisfaction metrics');
+            }
+            throw error;
         }
     }
 
@@ -129,16 +118,14 @@ class TeamAnalyticsClient {
      */
     async getKnowledgeSharingIndex(teamId) {
         try {
-            const response = await fetch(
-                `${this.config.apiUrl}/team/analytics/knowledge-sharing?team_id=${teamId}`,
-                { headers: this.headers }
-            );
-
-            if (!response.ok) throw new Error('Failed to fetch knowledge sharing');
-            return response.json();
+            const endpoint = `${this.config.endpoints.knowledgeSharing}?team_id=${teamId}`;
+            return await this.api.get(endpoint);
         } catch (error) {
             console.error('Failed to get knowledge sharing index:', error);
-            return null;
+            if (window.toast) {
+                window.toast.error('Failed to load knowledge sharing data');
+            }
+            throw error;
         }
     }
 }
@@ -146,3 +133,5 @@ class TeamAnalyticsClient {
 if (typeof window !== 'undefined') {
     window.TeamAnalyticsClient = TeamAnalyticsClient;
 }
+
+export default TeamAnalyticsClient;
