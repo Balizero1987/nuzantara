@@ -344,9 +344,25 @@ async function sendMessage(content) {
       onToken: (token, fullText) => {
         updateLiveMessage(stateManager.state.streamingMessage, fullText);
       },
-      onComplete: async (fullText) => {
-        finalizeLiveMessage(stateManager.state.streamingMessage, fullText);
+      onComplete: async (fullText, metadata) => {
+        finalizeLiveMessage(stateManager.state.streamingMessage, fullText, metadata);
         stateManager.state.streamingMessage = null;
+
+        // Auto-save to CRM if CRMClient is available
+        if (typeof window.CRMClient !== 'undefined') {
+          try {
+            const crmClient = new window.CRMClient();
+            const userContext = window.UserContext;
+            await crmClient.saveInteractionFromChat({
+              user_email: userContext?.user?.email || 'unknown',
+              messages: zantaraClient.messages.slice(-2),
+              interaction_type: 'chat'
+            });
+            console.log('✅ Interaction auto-saved to CRM');
+          } catch (error) {
+            console.warn('⚠️ Failed to auto-save to CRM:', error.message);
+          }
+        }
       },
       onError: (error) => {
         hideTypingIndicator();
@@ -511,12 +527,43 @@ function updateLiveMessage(messageEl, text) {
 /**
  * Finalize live message after streaming completes
  */
-function finalizeLiveMessage(messageEl, fullText) {
+function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
   if (!messageEl) return;
 
   // Remove live-message class and id
   messageEl.classList.remove('live-message');
   messageEl.removeAttribute('id');
+
+  // Add sources if available
+  if (metadata.sources && metadata.sources.length > 0) {
+    const sourcesEl = document.createElement('div');
+    sourcesEl.className = 'message-sources';
+    sourcesEl.innerHTML = `
+      <div class="sources-header">📚 Sources (${metadata.sources.length})</div>
+      <div class="sources-list">
+        ${metadata.sources.map((source, idx) => `
+          <div class="source-item">
+            <span class="source-number">${idx + 1}</span>
+            <span class="source-snippet">${source.snippet || source.source}</span>
+            ${source.similarity ? `<span class="source-score">${(source.similarity * 100).toFixed(0)}%</span>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+    messageEl.querySelector('.message-content').appendChild(sourcesEl);
+  }
+
+  // Add metadata footer if available
+  if (metadata.model || metadata.tokens || metadata.cost) {
+    const metadataEl = document.createElement('div');
+    metadataEl.className = 'message-metadata';
+    const parts = [];
+    if (metadata.model) parts.push(`🤖 ${metadata.model}`);
+    if (metadata.tokens) parts.push(`📊 ${metadata.tokens} tokens`);
+    if (metadata.cost) parts.push(`💰 $${metadata.cost.toFixed(4)}`);
+    metadataEl.innerHTML = parts.join(' • ');
+    messageEl.appendChild(metadataEl);
+  }
 
   // Re-enable send button when response is complete
   if (sendButton) {
@@ -528,6 +575,7 @@ function finalizeLiveMessage(messageEl, fullText) {
     type: 'ai',
     content: fullText,
     timestamp: new Date(),
+    metadata: metadata
   };
 
   // Save to localStorage
