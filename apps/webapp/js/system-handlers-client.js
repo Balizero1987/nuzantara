@@ -33,9 +33,15 @@ class SystemHandlersClient {
             }
         }
 
+        // Check if feature is enabled
+        if (!this.config.endpoints.call) {
+            console.log('ℹ️ System Handlers feature disabled (no call endpoint)');
+            return [];
+        }
+
         // Fetch from backend
         try {
-            const endpoint = this.config.endpoints.call || '/api/system/handlers/call';
+            const endpoint = this.config.endpoints.call + '/tools';
             const data = await this.api.post(endpoint, { key: 'system.handlers.tools' });
 
             this.tools = data.tools || [];
