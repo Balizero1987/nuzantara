@@ -371,7 +371,34 @@
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div class="login-container">
+    <img src="assets/bali-zero-logo.svg" alt="ZANTARA" class="bali-zero-logo">
+    
+    <form id="loginForm" class="login-form">
+      <div id="welcomeMessage" class="welcome-message">Welcome to ZANTARA</div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="your@email.com" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="pin">PIN (4-8 digits)</label>
+        <div class="pin-input-wrapper">
+          <input type="password" id="pin" placeholder="••••••••" maxlength="8" required>
+          <button type="button" id="pinToggle" class="pin-toggle" aria-label="Toggle PIN visibility">
+            👁️
+          </button>
+        </div>
+      </div>
+      
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+      
+      <button type="submit" id="loginButton" class="login-button">
+        SIGN IN
+      </button>
+    </form>
+  </div>
 
   <!-- Auto-login feature -->
   <script type="module" src="js/api-config.js"></script>
