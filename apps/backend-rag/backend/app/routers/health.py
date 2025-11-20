@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/health", tags=["health"])
 
 
-@router.get("/", response_model=HealthResponse)
+@router.get("", response_model=HealthResponse)
+@router.get("/", response_model=HealthResponse, include_in_schema=False)
 async def health_check():
     """
     System health check - Non-blocking during startup.
