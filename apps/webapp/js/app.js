@@ -125,6 +125,20 @@ document.addEventListener('DOMContentLoaded', async function () {
   stateManager.restore();
   stateManager.setUser(userContext.user);
 
+  // Initialize Collective Memory Client
+  if (typeof window.CollectiveMemoryClient !== 'undefined') {
+    const collectiveMemoryClient = new window.CollectiveMemoryClient();
+    window.collectiveMemoryClient = collectiveMemoryClient;
+    console.log('✅ Collective Memory Client initialized');
+  }
+
+  // Initialize Team Analytics Client
+  if (typeof window.TeamAnalyticsClient !== 'undefined') {
+    const teamAnalyticsClient = new window.TeamAnalyticsClient();
+    window.teamAnalyticsClient = teamAnalyticsClient;
+    console.log('✅ Team Analytics Client initialized');
+  }
+
   // Initialize System Handlers Client and load tools
   if (typeof window.SystemHandlersClient !== 'undefined') {
     const systemHandlersClient = new window.SystemHandlersClient();
@@ -135,6 +149,18 @@ document.addEventListener('DOMContentLoaded', async function () {
       console.log(`✅ System Handlers initialized: ${tools.length} tools available`);
     }).catch(error => {
       console.warn('⚠️ Failed to load system handlers:', error.message);
+    });
+  }
+
+  // Load compliance alerts
+  if (typeof window.AgentsClient !== 'undefined') {
+    const agentsClient = new window.AgentsClient();
+    agentsClient.getComplianceAlerts().then(alerts => {
+      if (alerts && alerts.length > 0) {
+        showComplianceAlertsBanner(alerts);
+      }
+    }).catch(error => {
+      console.warn('⚠️ Failed to load compliance alerts:', error.message);
     });
   }
 
@@ -374,6 +400,23 @@ async function sendMessage(content) {
             console.log('✅ Interaction auto-saved to CRM');
           } catch (error) {
             console.warn('⚠️ Failed to auto-save to CRM:', error.message);
+          }
+        }
+
+        // Auto-store to Collective Memory if important
+        if (typeof window.collectiveMemoryClient !== 'undefined') {
+          try {
+            const userContext = window.UserContext;
+            const lastUserMsg = stateManager.state.messages.filter(m => m.type === 'user').pop();
+            if (lastUserMsg) {
+              await window.collectiveMemoryClient.autoStoreFromChat(
+                lastUserMsg.content,
+                fullText,
+                { user_email: userContext?.user?.email }
+              );
+            }
+          } catch (error) {
+            console.warn('⚠️ Failed to auto-store to collective memory:', error.message);
           }
         }
       },
@@ -814,8 +857,33 @@ async function handleLogout() {
   window.location.href = '/login.html';
 }
 
+/**
+ * Show compliance alerts banner
+ */
+function showComplianceAlertsBanner(alerts) {
+  // Remove existing banner if any
+  const existing = document.getElementById('compliance-alerts-banner');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'compliance-alerts-banner';
+  banner.className = 'compliance-alerts-banner';
+  banner.innerHTML = `
+    <div class="alert-icon">\u26a0\ufe0f</div>
+    <div class="alert-content">
+      <strong>${alerts.length} Compliance Alert${alerts.length > 1 ? 's' : ''}</strong>
+      <span>${alerts[0].message || alerts[0].description}</span>
+    </div>
+    <button class="alert-close" onclick="this.parentElement.remove()">\u00d7</button>
+  `;
+  document.body.prepend(banner);
+
+  console.log(`\u26a0\ufe0f Showing ${alerts.length} compliance alerts`);
+}
+
 // Export for use in HTML and other modules
 if (typeof window !== 'undefined') {
   window.clearChatHistory = clearChatHistory;
   window.showNotification = showNotification;
+  window.showComplianceAlertsBanner = showComplianceAlertsBanner;
 }
