@@ -251,7 +251,6 @@ function showWelcomeMessage() {
  * Handle input change
  */
 function handleInputChange() {
-  const value = messageInput.value.trim();
   // Send button sempre abilitato
   sendButton.disabled = false;
 
@@ -584,9 +583,6 @@ function hideTypingIndicator() {
  * TODO: Implement backend endpoint for image generation
  */
 async function handleImageGeneration(content) {
-  // Extract prompt (remove "generate image" prefix)
-  const prompt = content.replace(/^generate image:?\s*/i, '').trim() || 'abstract art';
-
   // Add user message
   const userMsg = {
     type: 'user',
@@ -609,72 +605,6 @@ async function handleImageGeneration(content) {
   renderMessage(errorMsg, true);
 
   scrollToBottom();
-
-  /* DISABLED FOR SECURITY - API KEY EXPOSED IN FRONTEND
-  // Show loading message
-  const loadingMsg = {
-    type: 'ai',
-    content: '🎨 Generating image...',
-    timestamp: new Date(),
-  };
-  const loadingEl = renderMessage(loadingMsg, false);
-  const loadingId = loadingEl.id;
-
-  try {
-    // Call ImagineArt API
-    const formData = new FormData();
-    formData.append('prompt', prompt);
-    formData.append('style', 'realistic');
-    formData.append('aspect_ratio', '1:1');
-
-    const response = await fetch('https://api.vyro.ai/v2/image/generations', {
-      method: 'POST',
-      headers: {
-        // ⚠️ SECURITY VULNERABILITY: API key exposed in frontend code
-        // MUST be moved to backend endpoint
-        'Authorization': 'Bearer [REDACTED - MOVE TO BACKEND]'
-      },
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    // Get image blob
-    const blob = await response.blob();
-    const imageUrl = URL.createObjectURL(blob);
-
-    // Remove loading message
-    const loadingElement = document.getElementById(loadingId);
-    if (loadingElement) {
-      loadingElement.remove();
-    }
-
-    // Add image message
-    const imageMsg = {
-      type: 'ai',
-      content: `<p style="margin-bottom: 0.5rem; color: #bfaa7e;">Generated image: "${prompt}"</p><img src="${imageUrl}" alt="${prompt}" style="max-width: 100%; border-radius: 0.5rem; margin-top: 0.5rem;">`,
-      timestamp: new Date(),
-    };
-    renderMessage(imageMsg, true);
-  } catch (error) {
-    console.error('Image generation failed:', error);
-
-    // Update loading message with error
-    const loadingElement = document.getElementById(loadingId);
-    if (loadingElement) {
-      loadingElement.querySelector('.message-text').textContent = `❌ Image generation failed: ${error.message}`;
-    }
-  }
-
-  // Re-enable send button
-  if (sendButton) {
-    sendButton.disabled = false;
-  }
-
-  scrollToBottom();
-  */
 }
 
 /**

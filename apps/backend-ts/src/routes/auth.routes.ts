@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { ok, err } from '../utils/response.js';
 import { jwtAuth, RequestWithJWT } from '../middleware/jwt-auth.js';
+import { verifyToken } from '../handlers/auth/verify.js';
 
 const router = Router();
 
@@ -171,6 +172,12 @@ router.get('/check', jwtAuth as any, (async (req: RequestWithJWT, res: Response)
     return res.status(401).json(err('Authentication failed'));
   }
 }) as any);
+
+/**
+ * POST /api/auth/verify
+ * Verify JWT token validity
+ */
+router.post('/verify', verifyToken);
 
 /**
  * POST /api/auth/logout

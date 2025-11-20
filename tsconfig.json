@@ -10,6 +10,11 @@
     "strict": false,
     "resolveJsonModule": true
   },
-  "include": ["tests/**/*.ts", "playwright.config*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "apps/backend-ts/**/*.ts",
+    "apps/backend-rag/**/*.ts",
+    "global.d.ts",
+    ".test-hook.ts"
+  ],
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
 }

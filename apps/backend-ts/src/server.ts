@@ -3,14 +3,44 @@
  * Main entry point for the TypeScript backend service
  */
 
+/** Set up for OpenTelemetry tracing **/
+import { resourceFromAttributes } from "@opentelemetry/resources";
+import {
+  NodeTracerProvider,
+  SimpleSpanProcessor,
+} from "@opentelemetry/sdk-trace-node";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { OpenAIInstrumentation } from "@traceloop/instrumentation-openai";
+
+const exporter = new OTLPTraceExporter({
+    url: "http://localhost:4318/v1/traces",
+});
+const provider = new NodeTracerProvider({
+    resource: resourceFromAttributes({
+        "service.name": "nuzantara-backend-ts",
+    }),
+    spanProcessors: [
+        new SimpleSpanProcessor(exporter)
+    ],
+});
+provider.register();
+
+registerInstrumentations({
+    instrumentations: [new OpenAIInstrumentation()],
+});
+/** Set up for OpenTelemetry tracing **/
+
 import express from 'express';
 import { createServer } from 'http';
+import cookieParser from 'cookie-parser';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
 import { attachRoutes } from './routing/router.js';
 // import { loadAllHandlers } from './core/load-all-handlers.js';
 import { applySecurity, globalRateLimiter } from './middleware/security.middleware.js';
 import { corsMiddleware } from './middleware/cors.js';
+import { generateCsrfToken, validateCsrfToken } from './middleware/csrf.js';
 import { setupWebSocket } from './websocket.js';
 import { metricsMiddleware, metricsHandler } from './middleware/observability.middleware.js';
 import { initializeRedis } from './middleware/cache.middleware.js';
@@ -220,12 +250,21 @@ async function startServer() {
   // PATCH-3: CORS with security configuration
   app.use(corsMiddleware);
 
+  // Cookie parsing
+  app.use(cookieParser());
+
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Correlation tracking for unified logging
   app.use(correlationMiddleware() as any);
+
+  // CSRF Protection (generate token for all requests)
+  app.use(generateCsrfToken);
+  
+  // CSRF Protection (validate token for state-changing requests)
+  app.use(validateCsrfToken);
 
   // PATCH-3: Global rate limiting (fallback)
   app.use(globalRateLimiter);

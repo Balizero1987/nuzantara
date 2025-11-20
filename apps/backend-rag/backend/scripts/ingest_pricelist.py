@@ -30,8 +30,8 @@ def ingest_pricelist():
 
     # Import ChromaDB client
     try:
-        from core.vector_db import ChromaDBClient
-        db = ChromaDBClient()
+        from core.qdrant_db import QdrantClient
+        db = QdrantClient()
         print("✅ ChromaDB client initialized")
     except Exception as e:
         print(f"❌ ChromaDB error: {e}")

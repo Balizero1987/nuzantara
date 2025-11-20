@@ -139,6 +139,8 @@ class ZantaraConversationClient {
 
     } catch (error) {
       console.error('❌ [ConversationClient] Failed to get history:', error);
+      // Notify user about Memory Service unavailability
+      this._notifyUser('Could not load conversation history from server. Using local storage.', 'warning');
       return [];
     }
   }
@@ -177,6 +179,8 @@ class ZantaraConversationClient {
 
     } catch (error) {
       console.error('❌ [ConversationClient] Failed to add message:', error);
+      // Notify user about persistence failure
+      this._notifyUser('Message saved locally only. Server sync unavailable.', 'warning');
       return false;
     }
   }
@@ -225,6 +229,8 @@ class ZantaraConversationClient {
 
     } catch (error) {
       console.error('❌ [ConversationClient] Failed to update history:', error);
+      // Notify user about sync failure
+      this._notifyUser('Conversation sync failed. Changes saved locally only.', 'warning');
       return false;
     }
   }
@@ -250,6 +256,30 @@ class ZantaraConversationClient {
       return JSON.parse(storedSession);
     }
     return null;
+  }
+
+  /**
+   * Notify user about Memory Service issues
+   * Uses window.showNotification if available, otherwise console.warn
+   */
+  _notifyUser(message, type = 'warning') {
+    // Only show notification once per session to avoid spam
+    const notificationKey = `memory-service-notification-${type}`;
+    const lastNotification = sessionStorage.getItem(notificationKey);
+    const now = Date.now();
+    
+    // Show notification max once every 5 minutes
+    if (lastNotification && (now - parseInt(lastNotification)) < 300000) {
+      return;
+    }
+    
+    sessionStorage.setItem(notificationKey, now.toString());
+    
+    if (typeof window.showNotification === 'function') {
+      window.showNotification(message, type);
+    } else {
+      console.warn(`[ConversationClient] ${message}`);
+    }
   }
 }
 
