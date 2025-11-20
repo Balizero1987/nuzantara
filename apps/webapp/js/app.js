@@ -125,6 +125,19 @@ document.addEventListener('DOMContentLoaded', async function () {
   stateManager.restore();
   stateManager.setUser(userContext.user);
 
+  // Initialize System Handlers Client and load tools
+  if (typeof window.SystemHandlersClient !== 'undefined') {
+    const systemHandlersClient = new window.SystemHandlersClient();
+    window.systemHandlersClient = systemHandlersClient;
+
+    // Load tools in background
+    systemHandlersClient.getTools().then(tools => {
+      console.log(`✅ System Handlers initialized: ${tools.length} tools available`);
+    }).catch(error => {
+      console.warn('⚠️ Failed to load system handlers:', error.message);
+    });
+  }
+
   // Load Collective Memory modules (async, non-blocking)
   loadCollectiveMemoryModules().then((loaded) => {
     if (loaded) {
