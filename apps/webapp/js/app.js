@@ -601,22 +601,13 @@ function updateLiveMessage(messageEl, text) {
   try {
     const textEl = messageEl.querySelector('.message-text');
     if (textEl) {
-      // Safely render markdown
-      if (typeof zantaraClient !== 'undefined' && typeof zantaraClient.renderMarkdown === 'function') {
-        textEl.innerHTML = zantaraClient.renderMarkdown(text);
-      } else {
-        // Fallback to plain text
-        textEl.textContent = text;
-      }
+      // Use safe text content to avoid binding issues
+      // Markdown will be rendered in finalizeLiveMessage
+      textEl.textContent = text;
       scrollToBottom();
     }
   } catch (error) {
     console.error('Error in updateLiveMessage:', error);
-    // Fallback: just set text content
-    const textEl = messageEl.querySelector('.message-text');
-    if (textEl) {
-      textEl.textContent = text;
-    }
   }
 }
 
@@ -633,6 +624,23 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
     // Remove live-message class and id
     messageEl.classList.remove('live-message');
     messageEl.removeAttribute('id');
+
+    // Render markdown now that streaming is complete
+    const textEl = messageEl.querySelector('.message-text');
+    if (textEl && fullText) {
+      try {
+        // Safe markdown rendering
+        if (typeof zantaraClient !== 'undefined' && zantaraClient.renderMarkdown) {
+          const renderFn = zantaraClient.renderMarkdown.bind(zantaraClient);
+          textEl.innerHTML = renderFn(fullText);
+        } else {
+          textEl.textContent = fullText;
+        }
+      } catch (mdError) {
+        console.warn('Markdown rendering failed, using plain text:', mdError);
+        textEl.textContent = fullText;
+      }
+    }
 
     // Add sources if available
     if (metadata.sources && metadata.sources.length > 0) {
