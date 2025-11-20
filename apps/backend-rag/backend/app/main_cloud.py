@@ -1448,98 +1448,8 @@ async def cache_health():
         }
 
 
-@app.options("/health")
-async def health_options():
-    """Handle CORS preflight for health endpoint"""
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Max-Age": "3600"
-        }
-    )
-
-
-@app.get("/health")
-async def health_check():
-    """Optimized health check endpoint - v100 with reranker stats"""
-    health_data = {
-        "status": "healthy",
-        "service": "ZANTARA RAG",
-        "version": "v100-perfect",
-        "mode": "full",
-        "available_services": [
-            "qdrant",
-            "zantara_ai",
-            "postgresql",
-            "crm_system",
-            "reranker"
-        ],
-        "qdrant": search_service is not None,
-        "ai": {
-            "zantara_ai": intelligent_router is not None,
-            "has_ai": intelligent_router is not None or zantara_ai_client is not None
-        },
-        "memory": {
-            "postgresql": memory_service is not None,
-            "vector_db": search_service is not None
-        },
-        "crm": {
-            "enabled": True,
-            "endpoints": 41,
-            "features": ["auto_extraction", "client_tracking", "practice_management", "shared_memory"]
-        },
-        "reranker": {
-            "enabled": reranker_service is not None,
-            "status": "ready" if reranker_service is not None else "disabled"
-        },
-        "collaborative_intelligence": True,
-        "tools": {
-            "tool_executor_status": tool_executor is not None,
-            "pricing_service_status": pricing_service is not None,
-            "handler_proxy_status": handler_proxy_service is not None
-        },
-        "monitoring": {
-            "health_monitor": False,  # Disabled for now
-            "backup_service": False,  # Disabled for now
-            "rate_limiting": "enabled"
-        }
-    }
-
-    # Add detailed reranker stats if available
-    if reranker_service is not None:
-        try:
-            reranker_stats = reranker_service.get_stats()
-            health_data["reranker"].update({
-                "stats": {
-                    "total_reranks": reranker_stats.get("total_reranks", 0),
-                    "avg_latency_ms": round(reranker_stats.get("avg_latency_ms", 0), 2),
-                    "p95_latency_ms": round(reranker_stats.get("p95_latency_ms", 0), 2),
-                    "p99_latency_ms": round(reranker_stats.get("p99_latency_ms", 0), 2),
-                    "cache_hit_rate_percent": round(reranker_stats.get("cache_hit_rate_percent", 0), 1),
-                    "target_latency_met_rate_percent": round(reranker_stats.get("target_latency_met_rate_percent", 0), 1),
-                    "cache_enabled": reranker_stats.get("cache_enabled", False),
-                    "cache_size": reranker_stats.get("cache_size", 0),
-                    "cache_max_size": reranker_stats.get("cache_max_size", 0),
-                    "target_latency_ms": reranker_stats.get("target_latency_ms", 50.0)
-                },
-                "status": "healthy" if reranker_stats.get("avg_latency_ms", 0) < 100 else "degraded"
-            })
-        except Exception as e:
-            logger.warning(f"Failed to get reranker stats: {e}")
-            health_data["reranker"]["error"] = str(e)
-    
-    return Response(
-        content=json.dumps(health_data),
-        media_type="application/json",
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization"
-        }
-    )
+# Health check endpoint removed - using app.routers.health instead
+# Included via app.include_router(health.router) below
 
 
 @app.get("/debug/startup")
@@ -1664,14 +1574,14 @@ async def monitoring_status():
 @app.get("/api/monitoring/backup-service")
 async def backup_status():
     """Get backup service status"""
-    backup_service = get_backup_service()
-    if not backup_service:
-        return {"error": "Backup service not initialized"}
+    # backup_service = get_backup_service()
+    # if not backup_service:
+    return {"status": "disabled", "description": "Backup service temporarily disabled"}
 
-    return {
-        "status": backup_service.get_status(),
-        "description": "Automatic daily backups to Cloudflare R2 with 7 day retention"
-    }
+    # return {
+    #     "status": backup_service.get_status(),
+    #     "description": "Automatic daily backups to Cloudflare R2 with 7 day retention"
+    # }
 
 
 @app.post("/api/monitoring/backup/trigger")
@@ -3377,6 +3287,16 @@ app.include_router(team_activity.router)
 # Include Llama 4 Scout router - DISABLED (module not in production)
 # from routers.llama4 import router as llama4_router
 # app.include_router(llama4_router)
+
+# 🚀 NEW: Include Health Router (Non-blocking)
+try:
+    from app.routers import health
+    app.include_router(health.router)
+    logger.info("🔧 [Startup] Health router loaded (non-blocking)")
+except ImportError as e:
+    logger.warning(f"⚠️ [Startup] Failed to load health router: {e}")
+except Exception as e:
+    logger.error(f"❌ [Startup] Error loading health router: {e}")
 
 
 # ========================================

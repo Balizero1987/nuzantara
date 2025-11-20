@@ -3,8 +3,8 @@ ZANTARA RAG - Health Check Router
 """
 
 from fastapi import APIRouter
-from ...core.qdrant_db import QdrantClient
-from ...core.embeddings import EmbeddingsGenerator
+from core.qdrant_db import QdrantClient
+from core.embeddings import EmbeddingsGenerator
 from ..models import HealthResponse
 import logging
 
