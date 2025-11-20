@@ -171,7 +171,7 @@ class SearchService:
                 tier_values = []
 
             # 🔍 DEBUG: Log final collection details
-            logger.info(f"🔍 DEBUG - Final collection: {collection_name}, metadata: {vector_db.collection.metadata if hasattr(vector_db, 'collection') else 'N/A'}")
+            logger.info(f"🔍 DEBUG - Final collection: {collection_name}")
 
             # Search
             raw_results = vector_db.search(
