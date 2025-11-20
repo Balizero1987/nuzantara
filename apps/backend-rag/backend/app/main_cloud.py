@@ -1502,8 +1502,8 @@ async def health_check():
             "handler_proxy_status": handler_proxy_service is not None
         },
         "monitoring": {
-            "health_monitor": get_health_monitor() is not None,
-            "backup_service": get_backup_service() is not None,
+            "health_monitor": False,  # Disabled for now
+            "backup_service": False,  # Disabled for now
             "rate_limiting": "enabled"
         }
     }
