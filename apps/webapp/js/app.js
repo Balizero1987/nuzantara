@@ -609,6 +609,20 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
     messageEl.querySelector('.message-content').appendChild(sourcesEl);
   }
 
+  // Add collection stats if available
+  if (metadata.collection_used || metadata.intent) {
+    const collectionsEl = document.createElement('div');
+    collectionsEl.className = 'collections-used';
+    const collectionName = metadata.collection_used || 'knowledge_base';
+    const intent = metadata.intent || 'general';
+    collectionsEl.innerHTML = `
+      <span class="collections-label">📚 Collection:</span>
+      <span class="collection-badge">${collectionName}</span>
+      <span class="intent-badge">🎯 ${intent}</span>
+    `;
+    messageEl.appendChild(collectionsEl);
+  }
+
   // Add metadata footer if available
   if (metadata.model || metadata.tokens || metadata.cost) {
     const metadataEl = document.createElement('div');
@@ -642,6 +656,19 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
     window.CONVERSATION_CLIENT.addMessage('assistant', fullText).catch((error) => {
       console.warn('⚠️ Failed to save AI message to Memory Service:', error.message);
     });
+  }
+
+  // Load collective insights in sidebar (if available)
+  if (typeof window.collectiveMemoryClient !== 'undefined') {
+    window.collectiveMemoryClient.queryCollective('recent insights', { limit: 5 })
+      .then(insights => {
+        if (insights && insights.length > 0) {
+          displayCollectiveInsightsSidebar(insights);
+        }
+      })
+      .catch(error => {
+        console.warn('⚠️ Failed to load collective insights:', error.message);
+      });
   }
 
   console.log('✅ Message streaming completed and saved to Memory Service');
@@ -881,9 +908,58 @@ function showComplianceAlertsBanner(alerts) {
   console.log(`\u26a0\ufe0f Showing ${alerts.length} compliance alerts`);
 }
 
+/**
+ * Display collective insights in sidebar
+ */
+function displayCollectiveInsightsSidebar(insights) {
+  // Find or create sidebar container
+  let sidebar = document.getElementById('collective-insights-sidebar');
+
+  if (!sidebar) {
+    sidebar = document.createElement('div');
+    sidebar.id = 'collective-insights-sidebar';
+    sidebar.className = 'collective-insights-sidebar';
+    document.body.appendChild(sidebar);
+  }
+
+  sidebar.innerHTML = `
+    <div class="sidebar-header">
+      <h3>\ud83d\udca1 Collective Insights</h3>
+      <button class="sidebar-close" onclick="this.parentElement.parentElement.remove()">\u00d7</button>
+    </div>
+    <div class="insights-container">
+      ${insights.map(insight => `
+        <div class="insight-card">
+          <div class="insight-icon">${getCategoryIcon(insight.category || 'fact')}</div>
+          <div class="insight-content">
+            <div class="insight-text">${insight.content || insight.snippet || 'No content'}</div>
+            <div class="insight-meta">
+              <span class="insight-category">${insight.category || 'general'}</span>
+              ${insight.timestamp ? `<span class="insight-time">${new Date(insight.timestamp).toLocaleDateString()}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  console.log(`\ud83d\udca1 Displaying ${insights.length} collective insights in sidebar`);
+}
+
+function getCategoryIcon(category) {
+  const icons = {
+    'fact': '\ud83d\udcda',
+    'preference': '\u2b50',
+    'milestone': '\ud83c\udfaf',
+    'relationship': '\ud83e\udd1d'
+  };
+  return icons[category] || '\ud83d\udca1';
+}
+
 // Export for use in HTML and other modules
 if (typeof window !== 'undefined') {
   window.clearChatHistory = clearChatHistory;
   window.showNotification = showNotification;
   window.showComplianceAlertsBanner = showComplianceAlertsBanner;
+  window.displayCollectiveInsightsSidebar = displayCollectiveInsightsSidebar;
 }
