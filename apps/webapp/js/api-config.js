@@ -38,7 +38,7 @@ export const API_ENDPOINTS = {
     logout: '/api/auth/logout',
     profile: '/api/user/profile'
   },
-  
+
   // CRM System
   crm: {
     clients: '/api/crm/clients',
@@ -48,13 +48,28 @@ export const API_ENDPOINTS = {
     analytics: '/api/crm/analytics',
     sharedMemory: '/api/crm/shared-memory'
   },
-  
+
+  // Agents & AI
+  agents: {
+    compliance: '/api/agents/compliance/alerts',
+    journey: '/api/agents/journey/next-steps',
+    research: '/api/agents/research/start'
+  },
+
+  // System Handlers
+  system: {
+    tools: '/api/system/handlers/tools',  // Discovery endpoint
+    call: '/call'                         // Direct handler call
+  },
+
   // Memory/Conversations
   memory: {
-    save: '/api/bali-zero/conversations/save',      // FIXED 2025-11-20: Backend uses /api/bali-zero/conversations/*
-    history: '/api/bali-zero/conversations/history'  // FIXED 2025-11-20: Backend uses /api/bali-zero/conversations/*
+    save: '/api/bali-zero/conversations/save',
+    history: '/api/bali-zero/conversations/history',
+    stats: '/api/bali-zero/conversations/stats',
+    clear: '/api/bali-zero/conversations/clear'
   },
-  
+
   // Integrations
   integrations: {
     gmail: '/api/integrations/gmail/status',
@@ -62,7 +77,7 @@ export const API_ENDPOINTS = {
     whatsapp: '/api/integrations/whatsapp/status',
     twitter: '/api/integrations/twitter/status'
   },
-  
+
   // RAG/Knowledge Base
   rag: {
     query: '/api/query',

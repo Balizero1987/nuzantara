@@ -156,7 +156,7 @@ class ZantaraClient {
     if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
       try {
         const sessionId = await this.ensureSession();
-        
+
         // Use CONVERSATION_CLIENT to update history
         await window.CONVERSATION_CLIENT.updateHistory(
           messages.slice(-50).map(msg => ({
@@ -270,7 +270,13 @@ class ZantaraClient {
       return {
         content: data.data?.response || data.data?.answer || 'No response',
         sources: data.data?.sources || [],
-        metadata: data.metadata || {},
+        tools: data.data?.tools_used || [],  // Capture used tools
+        metadata: {
+          ...data.metadata,
+          model: data.data?.model,
+          tokens: data.data?.usage?.total_tokens,
+          cost: data.data?.usage?.cost
+        } || {},
       };
     } catch (error) {
       console.error('❌ sendMessage error:', error);
@@ -283,10 +289,10 @@ class ZantaraClient {
    */
   async sendMessageStream(query, callbacks = {}) {
     const {
-      onStart = () => {},
-      onToken = () => {},
-      onComplete = () => {},
-      onError = () => {},
+      onStart = () => { },
+      onToken = () => { },
+      onComplete = () => { },
+      onError = () => { },
     } = callbacks;
 
     try {
@@ -373,7 +379,7 @@ class ZantaraClient {
 
         this.eventSource.close();
         this.isStreaming = false;
-        
+
         // FIX #5: Pass accumulated text even on error (partial response)
         if (accumulatedText) {
           console.log('⚠️ Returning partial response on error:', accumulatedText.length, 'chars');
