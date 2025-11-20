@@ -1730,7 +1730,11 @@ async def demo_auth(request: Request):
     """
     try:
         body = await request.json()
-        user_id = body.get("userId", "demo")
+        # Support both userId (legacy) and email (new format)
+        user_id = body.get("userId") or body.get("email", "demo")
+        # If email provided, extract username part
+        if "@" in user_id:
+            user_id = user_id.split("@")[0]
 
         # Generate demo token (simple timestamp-based for now)
         # In production, this would use JWT or similar
