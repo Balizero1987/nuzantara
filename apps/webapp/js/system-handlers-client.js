@@ -2,6 +2,7 @@
 /**
  * ZANTARA System Handlers Client
  * Handles tool discovery and caching
+ * Refactored to use UnifiedAPIClient
  */
 
 class SystemHandlersClient {
@@ -14,10 +15,9 @@ class SystemHandlersClient {
         };
         this.tools = null;
         this.lastFetch = null;
-    }
 
-    get headers() {
-        return window.getAuthHeaders();
+        // Use unified API client
+        this.api = window.apiClient || new window.UnifiedAPIClient({ baseURL: this.config.apiUrl });
     }
 
     /**
@@ -35,15 +35,8 @@ class SystemHandlersClient {
 
         // Fetch from backend
         try {
-            const response = await fetch(`${this.config.apiUrl}${this.config.endpoints.call}`, {
-                method: 'POST',
-                headers: this.headers,
-                body: JSON.stringify({ key: 'system.handlers.tools' })
-            });
+            const data = await this.api.post(this.config.endpoints.call, { key: 'system.handlers.tools' });
 
-            if (!response.ok) throw new Error('Failed to fetch tools');
-
-            const data = await response.json();
             this.tools = data.tools || [];
             this.lastFetch = Date.now();
 
@@ -105,17 +98,18 @@ class SystemHandlersClient {
      * Call a specific handler
      */
     async callHandler(handlerKey, params = {}) {
-        const response = await fetch(`${this.config.apiUrl}${this.config.endpoints.call}`, {
-            method: 'POST',
-            headers: this.headers,
-            body: JSON.stringify({ key: handlerKey, ...params })
-        });
-
-        if (!response.ok) throw new Error(`Handler call failed: ${handlerKey}`);
-        return response.json();
+        try {
+            return await this.api.post(this.config.endpoints.call, { key: handlerKey, ...params });
+        } catch (error) {
+            console.error(`Handler call failed: ${handlerKey}`, error);
+            if (window.toast) window.toast.error(`Failed to call handler: ${handlerKey}`);
+            throw error;
+        }
     }
 }
 
 if (typeof window !== 'undefined') {
     window.SystemHandlersClient = SystemHandlersClient;
 }
+
+export default SystemHandlersClient;

@@ -2,6 +2,7 @@
 /**
  * ZANTARA CRM Client
  * Handles Clients, Practices, and Interactions
+ * Refactored to use UnifiedAPIClient
  */
 
 class CRMClient {
@@ -11,10 +12,9 @@ class CRMClient {
             endpoints: window.API_ENDPOINTS?.crm || {},
             ...config
         };
-    }
 
-    get headers() {
-        return window.getAuthHeaders();
+        // Use unified API client
+        this.api = window.apiClient || new window.UnifiedAPIClient({ baseURL: this.config.apiUrl });
     }
 
     // ========================================================================
@@ -22,22 +22,26 @@ class CRMClient {
     // ========================================================================
 
     async getClients(params = {}) {
-        const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${this.config.apiUrl}${this.config.endpoints.clients}?${query}`, {
-            headers: this.headers
-        });
-        if (!response.ok) throw new Error('Failed to fetch clients');
-        return response.json();
+        try {
+            const query = new URLSearchParams(params).toString();
+            return await this.api.get(`${this.config.endpoints.clients}?${query}`);
+        } catch (error) {
+            console.error('Failed to fetch clients:', error);
+            if (window.toast) window.toast.error('Failed to load clients');
+            throw error;
+        }
     }
 
     async createClient(clientData) {
-        const response = await fetch(`${this.config.apiUrl}${this.config.endpoints.clientsCreate}`, {
-            method: 'POST',
-            headers: this.headers,
-            body: JSON.stringify(clientData)
-        });
-        if (!response.ok) throw new Error('Failed to create client');
-        return response.json();
+        try {
+            const result = await this.api.post(this.config.endpoints.clientsCreate, clientData);
+            if (window.toast) window.toast.success('Client created successfully');
+            return result;
+        } catch (error) {
+            console.error('Failed to create client:', error);
+            if (window.toast) window.toast.error('Failed to create client');
+            throw error;
+        }
     }
 
     // ========================================================================
@@ -45,12 +49,14 @@ class CRMClient {
     // ========================================================================
 
     async getPractices(params = {}) {
-        const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${this.config.apiUrl}${this.config.endpoints.practices}?${query}`, {
-            headers: this.headers
-        });
-        if (!response.ok) throw new Error('Failed to fetch practices');
-        return response.json();
+        try {
+            const query = new URLSearchParams(params).toString();
+            return await this.api.get(`${this.config.endpoints.practices}?${query}`);
+        } catch (error) {
+            console.error('Failed to fetch practices:', error);
+            if (window.toast) window.toast.error('Failed to load practices');
+            throw error;
+        }
     }
 
     // ========================================================================
@@ -58,16 +64,20 @@ class CRMClient {
     // ========================================================================
 
     async saveInteractionFromChat(data) {
-        const response = await fetch(`${this.config.apiUrl}${this.config.endpoints.interactions}/from-conversation`, {
-            method: 'POST',
-            headers: this.headers,
-            body: JSON.stringify(data)
-        });
-        if (!response.ok) throw new Error('Failed to save interaction');
-        return response.json();
+        try {
+            const result = await this.api.post(`${this.config.endpoints.interactions}/from-conversation`, data);
+            if (window.toast) window.toast.success('Interaction saved');
+            return result;
+        } catch (error) {
+            console.error('Failed to save interaction:', error);
+            if (window.toast) window.toast.error('Failed to save interaction');
+            throw error;
+        }
     }
 }
 
 if (typeof window !== 'undefined') {
     window.CRMClient = CRMClient;
 }
+
+export default CRMClient;
