@@ -1,12 +1,13 @@
-name: Deploy ZANTARA Webapp
-
-on:
-  push:
-    branches: [claude/network-connectivity-test-011CUuMAW4xMHQXjKyoSyjZE, main]
-    paths:
-      - 'apps/webapp/**'
-      - '.github/workflows/deploy-webapp.yml'
-  workflow_dispatch:
+# DISABLED: Using GitHub Pages instead (deploy-pages.yml)
+# name: Deploy ZANTARA Webapp
+# 
+# on:
+#   push:
+#     branches: [claude/network-connectivity-test-011CUuMAW4xMHQXjKyoSyjZE, main]
+#     paths:
+#       - 'apps/webapp/**'
+#       - '.github/workflows/deploy-webapp.yml'
+#   workflow_dispatch:
 
 jobs:
   deploy:
