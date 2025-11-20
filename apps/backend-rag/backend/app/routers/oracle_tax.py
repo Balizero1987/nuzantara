@@ -500,12 +500,9 @@ async def get_recent_tax_updates(
     try:
         client = service.collections["tax_updates"]
 
-        # Get all updates (ChromaDB doesn't have time-based filtering easily)
-        # In production, you'd filter by metadata timestamp
-        results = client.collection.get(
-            limit=100,
-            include=["documents", "metadatas"]
-        )
+        # Get all updates (Qdrant: use peek for now)
+        # TODO: Implement Qdrant filter support for time-based filtering
+        results = client.peek(limit=100)
 
         # Format results
         updates = []

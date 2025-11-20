@@ -155,12 +155,12 @@ async def ingest_documents(
         # Batch ingest
         logger.info(f"Ingesting {len(documents)} documents into {request.collection}...")
         
-        # ChromaDB add method
-        vector_db.collection.add(
-            documents=documents,
+        # Qdrant upsert method
+        vector_db.upsert_documents(
+            chunks=documents,
+            embeddings=embeddings,
             metadatas=metadatas,
-            ids=ids,
-            embeddings=embeddings
+            ids=ids
         )
         
         execution_time = (time.time() - start_time) * 1000
@@ -206,7 +206,8 @@ async def list_collections(
         
         for name, vector_db in service.collections.items():
             try:
-                count = vector_db.collection.count()
+                stats = vector_db.get_collection_stats()
+                count = stats.get("total_documents", 0)
                 collections_info[name] = {
                     "name": name,
                     "document_count": count

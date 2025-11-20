@@ -187,15 +187,18 @@ async def get_critical_items(category: Optional[str] = None, days: int = 7):
             try:
                 client = QdrantClient(collection_name=collection_name)
 
-                results = client.collection.get(
-                    where={
-                        "impact_level": "critical",
-                        "published_date": {"$gte": cutoff_date}
-                    },
-                    limit=50
-                )
-
+                # Qdrant: Use peek to get documents, then filter in Python
+                # TODO: Implement Qdrant filter support for better performance
+                results = client.peek(limit=100)
+                
+                # Filter in Python for now
+                filtered_metadatas = []
                 for metadata in results.get("metadatas", []):
+                    if (metadata.get("impact_level") == "critical" and 
+                        metadata.get("published_date", "") >= cutoff_date):
+                        filtered_metadatas.append(metadata)
+
+                for metadata in filtered_metadatas[:50]:
                     critical_items.append({
                         "id": metadata.get("id"),
                         "title": metadata.get("title"),

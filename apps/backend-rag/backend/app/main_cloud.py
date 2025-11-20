@@ -3498,12 +3498,15 @@ async def root():
         # Try to get count from search_service if available
         if search_service:
             try:
-                if hasattr(search_service, 'chroma_client'):
-                    collections = search_service.chroma_client.list_collections()
-                    for col in collections:
-                        count = col.count()
+                # Get counts from Qdrant collections
+                for col_name, vector_db in search_service.collections.items():
+                    try:
+                        stats = vector_db.get_collection_stats()
+                        count = stats.get("total_documents", 0)
                         total_docs += count
-                        collection_stats[col.name] = count
+                        collection_stats[col_name] = count
+                    except Exception:
+                        pass
             except Exception:
                 pass
 
