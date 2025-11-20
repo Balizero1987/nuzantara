@@ -49,17 +49,22 @@ export const API_ENDPOINTS = {
     sharedMemory: '/api/crm/shared-memory'
   },
 
-  // Agents & AI
+  // System Handlers
+  system: {
+    call: '/api/v3/zantara/handlers/call'  // Fixed: correct endpoint path
+  },
+
+  // Agents
   agents: {
     compliance: '/api/agents/compliance/alerts',
     journey: '/api/agents/journey/next-steps',
     research: '/api/agents/research/start'
   },
 
-  // System Handlers
-  system: {
-    tools: '/api/system/handlers/tools',  // Discovery endpoint
-    call: '/call'                         // Direct handler call
+  // Notifications
+  notifications: {
+    list: '/api/notifications',
+    markRead: '/api/notifications/read'
   },
 
   // Memory/Conversations
