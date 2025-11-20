@@ -362,35 +362,35 @@ async function sendMessage(content) {
   showTypingIndicator();
 
   // Skill Detection Layer - Query Complexity Analysis
-  if (
-    QueryComplexityAnalyzer &&
-    isFeatureEnabled &&
+// DISABLED:   if (
+// DISABLED:     QueryComplexityAnalyzer &&
+// DISABLED:     isFeatureEnabled &&
 // DISABLED:     isFeatureEnabled('stagingTheater') &&
-    shouldShowFeature()
-  ) {
-    try {
-      const complexityAnalyzer = new QueryComplexityAnalyzer();
-      const complexity = complexityAnalyzer.analyze(content);
-
-      // Track query in analytics
-      if (skillAnalytics) {
-        skillAnalytics.trackQuery(content, complexity.complexity);
-      }
-
-      if (complexity.showStaging) {
+// DISABLED:     shouldShowFeature()
+// DISABLED:   ) {
+// DISABLED:     try {
+// DISABLED:       const complexityAnalyzer = new QueryComplexityAnalyzer();
+// DISABLED:       const complexity = complexityAnalyzer.analyze(content);
+// DISABLED:
+// DISABLED:       // Track query in analytics
+// DISABLED:       if (skillAnalytics) {
+// DISABLED:         skillAnalytics.trackQuery(content, complexity.complexity);
+// DISABLED:       }
+// DISABLED:
+// DISABLED:       if (complexity.showStaging) {
 // DISABLED:         stagingTheater = new StagingTheater();
-        // Start staging in background (non-blocking)
+// DISABLED:         // Start staging in background (non-blocking)
 // DISABLED:         stagingTheater.showStaging(complexity, [], complexity.domains).catch((err) => {
 // DISABLED:           console.warn('Staging theater error:', err);
 // DISABLED:         });
-
-        // Track staging shown
-        if (skillAnalytics) {
-          skillAnalytics.trackStagingShown(complexity.complexity);
-        }
-      }
-
-      // Attach SSE skill extension
+// DISABLED:
+// DISABLED:         // Track staging shown
+// DISABLED:         if (skillAnalytics) {
+// DISABLED:           skillAnalytics.trackStagingShown(complexity.complexity);
+// DISABLED:         }
+// DISABLED:       }
+// DISABLED:
+// DISABLED:       // Attach SSE skill extension
 // DISABLED:       if (SSESkillExtension && skillEventBus) {
 // DISABLED:         const skillExtension = new SSESkillExtension();
 // DISABLED:         skillExtension.attach(zantaraClient);
@@ -423,11 +423,11 @@ async function sendMessage(content) {
 // DISABLED:           }
 // DISABLED:         });
 // DISABLED:       }
-    } catch (error) {
-      console.warn('Skill Detection Layer error:', error);
-      // Continue normally se skill detection fallisce
-    }
-  }
+// DISABLED:     } catch (error) {
+// DISABLED:       console.warn('Skill Detection Layer error:', error);
+// DISABLED:       // Continue normally se skill detection fallisce
+// DISABLED:     }
+// DISABLED:   }
 
   try {
     // Use streaming for better UX
