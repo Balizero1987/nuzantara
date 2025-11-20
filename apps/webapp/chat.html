@@ -18,10 +18,23 @@
   <link rel="stylesheet" href="css/advanced-features.css">
   <!-- Toast Notifications -->
   <link rel="stylesheet" href="css/toast-notifications.css">
+  <!-- Skeleton Screens -->
+  <link rel="stylesheet" href="css/skeleton-screens.css">
 
   <!-- Authentication Guard -->
   <script src="js/auth-guard.js"></script>
   <script src="js/user-context.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker-zantara.js')
+          .then(reg => console.log('✅ Service Worker registered:', reg.scope))
+          .catch(err => console.warn('⚠️ Service Worker registration failed:', err));
+      });
+    }
+  </script>
   <script src="js/theme-manager.js"></script>
 
   <style>
