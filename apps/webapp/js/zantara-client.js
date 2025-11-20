@@ -234,11 +234,50 @@ class ZantaraClient {
   // ========================================================================
 
   /**
+   * Detect query intent for smart collection selection
+   */
+  detectIntent(query) {
+    const intents = {
+      'visa': ['visa', 'kitas', 'permit', 'immigration', 'stay permit', 'residency'],
+      'business': ['company', 'pt pma', 'business', 'setup', 'incorporation', 'llc'],
+      'tax': ['tax', 'accounting', 'fiscal', 'vat', 'income tax', 'npwp'],
+      'property': ['property', 'real estate', 'land', 'villa', 'apartment', 'lease']
+    };
+
+    const queryLower = query.toLowerCase();
+    for (const [intent, keywords] of Object.entries(intents)) {
+      if (keywords.some(kw => queryLower.includes(kw))) {
+        return intent;
+      }
+    }
+    return 'general';
+  }
+
+  /**
+   * Select optimal RAG collection based on intent
+   */
+  selectCollection(intent) {
+    const collectionMap = {
+      'visa': 'immigration_knowledge',
+      'business': 'business_setup',
+      'tax': 'tax_accounting',
+      'property': 'property_legal',
+      'general': 'knowledge_base'
+    };
+    return collectionMap[intent] || 'knowledge_base';
+  }
+
+  /**
    * Send message and get response (non-streaming)
    */
   async sendMessage(query, options = {}) {
     try {
       await this.authenticate();
+
+      // Smart collection selection
+      const intent = this.detectIntent(query);
+      const collection = this.selectCollection(intent);
+      console.log(`🎯 Intent: ${intent}, Collection: ${collection}`);
 
       const response = await this.fetchWithRetry(
         `${this.config.apiUrl}${this.config.chatEndpoint}`,
@@ -252,6 +291,8 @@ class ZantaraClient {
             query,
             user_id: this.sessionId,
             stream: false,
+            collection: collection,
+            use_rag: true,
             ...options,
           }),
         }
@@ -271,11 +312,13 @@ class ZantaraClient {
         content: data.data?.response || data.data?.answer || 'No response',
         sources: data.data?.sources || [],
         tools: data.data?.tools_used || [],  // Capture used tools
+        collection_used: collection,
         metadata: {
           ...data.metadata,
           model: data.data?.model,
           tokens: data.data?.usage?.total_tokens,
-          cost: data.data?.usage?.cost
+          cost: data.data?.usage?.cost,
+          intent: intent
         } || {},
       };
     } catch (error) {
