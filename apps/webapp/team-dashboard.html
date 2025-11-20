@@ -91,6 +91,45 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Authentication Guard -->
+    <script src="js/auth-guard.js"></script>
+
+    <!-- Initialize USER_CONTEXT from localStorage -->
+    <script>
+        // Load user context from localStorage
+        const storedUser = localStorage.getItem('zantara-user');
+        const storedToken = localStorage.getItem('zantara-token');
+
+        if (storedUser && storedToken) {
+            try {
+                const user = JSON.parse(storedUser);
+                window.UserContext = {
+                    user: user,
+                    token: storedToken,
+                    isAuthenticated: () => !!storedToken,
+                    getName: () => user.name || user.email,
+                    getRole: () => user.role || 'user',
+                    getEmail: () => user.email
+                };
+                console.log('✅ UserContext initialized:', window.UserContext.getName());
+            } catch (error) {
+                console.error('Failed to parse user data:', error);
+                window.location.href = '/login.html';
+            }
+        } else {
+            console.warn('⚠️ No user data found, redirecting to login');
+            window.location.href = '/login.html';
+        }
+
+        // Helper function for auth headers
+        window.getAuthHeaders = function () {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${window.UserContext?.token || ''}`
+            };
+        };
+    </script>
+
     <script src="js/api-config.js"></script>
     <script type="module" src="js/team-analytics-client.js"></script>
     <script src="js/team-dashboard.js"></script>
