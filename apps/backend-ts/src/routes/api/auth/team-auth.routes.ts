@@ -46,6 +46,18 @@ router.post('/login', async (req: Request, res: Response) => {
 
     const result = await teamLogin({ email, pin });
 
+    // Set httpOnly cookie with JWT token
+    if (result.data?.token) {
+      const isProduction = process.env.NODE_ENV === 'production';
+      res.cookie('zantara-token', result.data.token, {
+        httpOnly: true,
+        secure: isProduction, // HTTPS only in production
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/',
+      });
+    }
+
     res.json(result);
   } catch (error: any) {
     logger.error('Team login error:', error);
@@ -96,6 +108,14 @@ router.post('/logout', async (req: Request, res: Response) => {
     }
 
     const success = logoutSession(sessionId);
+
+    // Clear httpOnly cookie
+    res.clearCookie('zantara-token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
 
     res.json({
       ok: true,

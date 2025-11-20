@@ -92,9 +92,7 @@ class ZantaraClient {
       return this.token;
     } catch (error) {
       console.error('❌ Authentication failed:', error);
-      // For MVP, continue without auth
-      this.token = 'demo-token';
-      return this.token;
+      throw new Error('Authentication required. Please login again.');
     }
   }
 
@@ -146,33 +144,34 @@ class ZantaraClient {
   }
 
   /**
-   * Update session history in Redis store
-   * NOTE: Disabled for now - memory service integration pending
+   * Update session history in Memory Service
+   * Falls back to localStorage if Memory Service is unavailable
    */
   async updateSession(messages) {
-    // TODO: Integrate with https://nuzantara-memory.fly.dev when ready
-    // For now, we only save to localStorage
+    // Always save to localStorage as fallback
+    this.saveHistory();
     console.log(`💾 Session saved to localStorage (${messages.length} messages)`);
-    return;
 
-    /* Disabled pending memory service integration
-    try {
-      const sessionId = await this.ensureSession();
+    // Try to sync with Memory Service if CONVERSATION_CLIENT is available
+    if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
+      try {
+        const sessionId = await this.ensureSession();
+        
+        // Use CONVERSATION_CLIENT to update history
+        await window.CONVERSATION_CLIENT.updateHistory(
+          messages.slice(-50).map(msg => ({
+            role: msg.type === 'user' ? 'user' : 'assistant',
+            content: msg.content,
+            timestamp: msg.timestamp ? new Date(msg.timestamp).toISOString() : new Date().toISOString()
+          }))
+        );
 
-      await fetch(`${this.config.apiUrl}/sessions/${sessionId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          history: messages.slice(-50), // Keep last 50 messages
-        }),
-      });
-
-      console.log(`✅ Session updated: ${sessionId}`);
-    } catch (error) {
-      console.warn('Failed to update session:', error);
-      // Don't throw - session update is not critical
+        console.log(`✅ Session synced to Memory Service: ${sessionId}`);
+      } catch (error) {
+        console.warn('⚠️ Failed to sync with Memory Service (using localStorage only):', error.message);
+        // Don't throw - localStorage fallback is sufficient
+      }
     }
-    */
   }
 
   // ========================================================================

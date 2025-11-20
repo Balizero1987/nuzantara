@@ -61,10 +61,12 @@ export const useLogin = (): UseLoginReturn => {
       console.log('🔐 Attempting login...');
 
       // Call auth API with email + PIN - with timeout
+      // credentials: 'include' ensures cookies are sent/received
       const response = await fetchWithTimeout(
         `${API_BASE_URL}/api/auth/team/login`,
         {
           method: 'POST',
+          credentials: 'include', // Include cookies (httpOnly token will be set)
           headers: {
             'Content-Type': 'application/json',
           },
@@ -98,11 +100,8 @@ export const useLogin = (): UseLoginReturn => {
 
       console.log('✅ Login successful:', user.name || user.email);
 
-      // Store auth data in ZANTARA format (zantara-*)
-      localStorage.setItem('zantara-token', JSON.stringify({
-        token: token,
-        expiresAt: Date.now() + (expiresIn * 1000), // Convert seconds to milliseconds
-      }));
+      // Token is now stored in httpOnly cookie by backend
+      // Only store non-sensitive user info in localStorage
       localStorage.setItem('zantara-user', JSON.stringify(user));
       localStorage.setItem('zantara-session', JSON.stringify({
         id: user.id || `session_${Date.now()}`,
@@ -110,7 +109,7 @@ export const useLogin = (): UseLoginReturn => {
         lastActivity: Date.now(),
       }));
 
-      console.log('✅ Auth data saved to localStorage (zantara-* format)');
+      console.log('✅ Auth data saved (token in httpOnly cookie, user info in localStorage)');
 
       // Show success message
       setSuccess(`Welcome back, ${user.name || user.email}! 🎉`);
