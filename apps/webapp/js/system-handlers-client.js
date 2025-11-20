@@ -1,19 +1,19 @@
 /* eslint-disable no-undef, no-console */
-/**
- * ZANTARA System Handlers Client
- * Handles tool discovery and caching
- * Refactored to use UnifiedAPIClient
- */
+import { UnifiedAPIClient } from './core/unified-api-client.js';
+import { API_CONFIG } from './api-config.js';
 
+/**
+ * System Handlers Client
+ * Manages dynamic tool execution and system capabilities
+ */
 class SystemHandlersClient {
-    constructor(config = {}) {
+    constructor() {
+        this.api = new UnifiedAPIClient({ baseURL: API_CONFIG.backend.url });
         this.config = {
-            apiUrl: window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev',
-            endpoints: window.API_ENDPOINTS?.system || {},
-            cacheTTL: 10 * 60 * 1000, // 10 minutes
-            ...config
+            ...API_CONFIG.systemHandlers,
+            cacheTTL: 10 * 60 * 1000, // 10 minutes (default, can be overridden by API_CONFIG)
         };
-        this.tools = null;
+        this.tools = [];
         this.lastFetch = null;
 
         // Use unified API client
@@ -36,7 +36,8 @@ class SystemHandlersClient {
         // Check if feature is enabled
         if (!this.config.endpoints.call) {
             console.log('ℹ️ System Handlers feature disabled (no call endpoint)');
-            return [];
+            // Try to use default if not in config
+            this.config.endpoints.call = '/api/v3/zantara/handlers/call';
         }
 
         // Fetch from backend

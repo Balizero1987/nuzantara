@@ -1,4 +1,7 @@
 /* eslint-disable no-undef */
+import { UnifiedAPIClient } from './core/unified-api-client.js';
+import { API_CONFIG } from './api-config.js';
+
 /**
  * ZANTARA Collective Memory Client
  * Manages collective memory and team insights
@@ -6,14 +9,13 @@
  */
 
 class CollectiveMemoryClient {
-    constructor(config = {}) {
+    constructor() {
         this.config = {
-            apiUrl: window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev',
-            endpoints: window.API_ENDPOINTS?.collective || {
+            apiUrl: API_CONFIG.backend.url || 'https://nuzantara-rag.fly.dev',
+            endpoints: API_CONFIG.endpoints.collective || {
                 store: '/api/v3/zantara/collective',
                 query: '/api/v3/zantara/collective'
             }, // Default endpoints if not provided
-            ...config
         };
 
         // Use unified API client
@@ -69,7 +71,9 @@ class CollectiveMemoryClient {
 
             // Backend returns { clients: [], practices: [], interactions: [], ... }
             // We normalize this to a list of insights
-            if (data) {
+            // Backend returns { clients: [], practices: [], interactions: [], ... }
+            // We normalize this to a list of insights
+            if (data && typeof data === 'object') {
                 const insights = [];
 
                 // Add clients

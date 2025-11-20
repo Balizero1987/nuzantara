@@ -1,40 +1,11 @@
 // API Configuration - Centralized
-export const API_CONFIG = {
-  backend: {
-    url: window.location.hostname === 'localhost'
-      ? 'http://localhost:8080'
-      : 'https://nuzantara-rag.fly.dev'  // FIXED: Using RAG backend (backend service doesn't exist)
-  },
-  rag: {
-    url: window.location.hostname === 'localhost'
-      ? 'http://localhost:8000'
-      : 'https://nuzantara-rag.fly.dev'  // Python RAG backend for chat streaming and vector search
-  },
-  memory: {
-    url: window.location.hostname === 'localhost'
-      ? 'http://localhost:8080'  // Memory service local
-      : 'https://nuzantara-memory.fly.dev'  // FIXED: Correct Memory Service URL
-  },
-  // Request configuration
-  timeouts: {
-    default: 30000,      // 30 seconds for standard API calls
-    auth: 10000,         // 10 seconds for auth endpoints
-    streaming: 120000,   // 2 minutes for streaming responses
-    upload: 300000       // 5 minutes for file uploads
-  },
-  retries: {
-    maxAttempts: 3,
-    backoffMs: 1000     // Initial backoff delay
-  }
-};
-
-// API Endpoints - New standardized paths
+// API Configuration - Centralized
 export const API_ENDPOINTS = {
   // Authentication
   auth: {
     login: '/auth/login',
     teamLogin: '/api/auth/team/login',
-    check: '/auth/me',  // FIXED 2025-11-20: Backend uses /auth/me instead of /api/auth/check
+    check: '/auth/me',
     logout: '/api/auth/logout',
     profile: '/api/user/profile'
   },
@@ -51,14 +22,17 @@ export const API_ENDPOINTS = {
 
   // System Handlers
   system: {
-    call: '/api/v3/zantara/handlers/call'  // Fixed: correct endpoint path
+    call: '/api/v3/zantara/handlers/call'
   },
 
   // Agents
   agents: {
     compliance: '/api/agents/compliance/alerts',
     journey: '/api/agents/journey/next-steps',
-    research: '/api/agents/research/start'
+    research: '/api/agents/research/start',
+    semanticSearch: '/api/agent/semantic_search',
+    hybridQuery: '/api/agent/hybrid_query',
+    documentIntelligence: '/api/agent/document_intelligence'
   },
 
   // Notifications
@@ -79,7 +53,6 @@ export const API_ENDPOINTS = {
   integrations: {
     gmail: '/api/integrations/gmail/status',
     calendar: '/api/integrations/calendar/status',
-    whatsapp: '/api/integrations/whatsapp/status',
     twitter: '/api/integrations/twitter/status'
   },
 
@@ -90,6 +63,38 @@ export const API_ENDPOINTS = {
   }
 };
 
+export const API_CONFIG = {
+  backend: {
+    url: window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : 'https://nuzantara-rag.fly.dev'
+  },
+  rag: {
+    url: window.location.hostname === 'localhost'
+      ? 'http://localhost:8000'
+      : 'https://nuzantara-rag.fly.dev'
+  },
+  memory: {
+    url: window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : 'https://nuzantara-memory.fly.dev'
+  },
+  // Request configuration
+  timeouts: {
+    default: 30000,
+    auth: 10000,
+    streaming: 120000,
+    upload: 300000
+  },
+  retries: {
+    maxAttempts: 3,
+    backoffMs: 1000
+  },
+  endpoints: API_ENDPOINTS // Included directly for module usage
+};
+
+// API Endpoints are defined above and included in API_CONFIG
+
 // Helper: Get full URL for endpoint
 export function getEndpointUrl(service, endpoint) {
   const baseUrl = API_CONFIG[service]?.url || API_CONFIG.backend.url;
@@ -98,21 +103,12 @@ export function getEndpointUrl(service, endpoint) {
 
 // Helper: Get auth headers
 export function getAuthHeaders() {
-  const tokenData = localStorage.getItem('zantara-token');
-  if (!tokenData) {
-    return { 'Content-Type': 'application/json' };
-  }
-
-  try {
-    const parsed = JSON.parse(tokenData);
-    return {
-      'Authorization': `Bearer ${parsed.token}`,
-      'Content-Type': 'application/json'
-    };
+  'Content-Type': 'application/json'
+};
   } catch (error) {
-    console.warn('Failed to parse auth token:', error);
-    return { 'Content-Type': 'application/json' };
-  }
+  console.warn('Failed to parse auth token:', error);
+  return { 'Content-Type': 'application/json' };
+}
 }
 
 // Expose globally for non-module scripts
