@@ -18,17 +18,15 @@ const localStorageMock = {
 };
 global.localStorage = localStorageMock;
 
-// Mock window.location (use Object.defineProperty to avoid navigation errors)
-Object.defineProperty(window, 'location', {
-  value: {
-    href: '',
-    pathname: '/',
-    search: '',
-    hash: '',
-    assign: jest.fn(),
-    replace: jest.fn(),
-    reload: jest.fn(),
-  },
-  writable: true,
-});
+// Mock window.location (delete first, then define)
+delete (window as any).location;
+(window as any).location = {
+  href: '',
+  pathname: '/',
+  search: '',
+  hash: '',
+  assign: jest.fn(),
+  replace: jest.fn(),
+  reload: jest.fn(),
+};
 
