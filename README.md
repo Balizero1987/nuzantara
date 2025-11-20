@@ -53,7 +53,6 @@ nuzantara/
 ### 🌐 Production Deployment
 - **Frontend:** GitHub Pages (auto-deploy on push)
 - **Backend:** Fly.io (TypeScript + Python)
-- **CDN:** Cloudflare (global edge network)
 - **HTTPS:** Enforced with auto SSL
 
 ### ⚡ Performance
@@ -168,7 +167,7 @@ npm run typecheck
 ### ✅ Deployment Automation
 - GitHub Pages auto-deploy workflow
 - Custom domain with DNS configuration
-- HTTPS enforced with Cloudflare
+- HTTPS enforced
 
 **Full details:** [Session Report](docs/sessions/SESSION_FINAL_NOV8_2025.md)
 
