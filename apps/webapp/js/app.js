@@ -625,19 +625,19 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
     messageEl.classList.remove('live-message');
     messageEl.removeAttribute('id');
 
-    // Render markdown now that streaming is complete
+    // Format text with simple HTML (no markdown library needed)
     const textEl = messageEl.querySelector('.message-text');
     if (textEl && fullText) {
       try {
-        // Safe markdown rendering
-        if (typeof zantaraClient !== 'undefined' && zantaraClient.renderMarkdown) {
-          const renderFn = zantaraClient.renderMarkdown.bind(zantaraClient);
-          textEl.innerHTML = renderFn(fullText);
-        } else {
-          textEl.textContent = fullText;
-        }
-      } catch (mdError) {
-        console.warn('Markdown rendering failed, using plain text:', mdError);
+        // Simple text formatting without external dependencies
+        const formatted = fullText
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\n/g, '<br>');
+        textEl.innerHTML = formatted;
+      } catch (formatError) {
+        console.warn('Text formatting failed, using plain text:', formatError);
         textEl.textContent = fullText;
       }
     }
