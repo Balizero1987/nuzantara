@@ -11,40 +11,30 @@ const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.f
  * Uses httpOnly cookies - token is automatically sent by browser
  */
 async function checkAuth() {
-  // Verify authentication with backend (cookie sent automatically)
+  // Check for token in localStorage (simple auth check)
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/check`, {
-      method: 'GET',
-      credentials: 'include', // Include cookies
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      console.log('⚠️  Authentication check failed');
-      clearAuthData();
-      redirectToLogin();
-      return false;
-    }
-
-    const result = await response.json();
+    const tokenData = localStorage.getItem('zantara-token');
     
-    if (result.ok && result.data?.authenticated) {
-      console.log('✅ Authentication verified (httpOnly cookie)');
-      // Store user info in localStorage for quick access (not sensitive)
-      if (result.data.user) {
-        localStorage.setItem('zantara-user', JSON.stringify(result.data.user));
-      }
-      return true;
-    } else {
-      console.log('⚠️  Not authenticated');
+    if (!tokenData) {
+      console.log('⚠️  No token found');
+      redirectToLogin();
+      return false;
+    }
+
+    const parsed = JSON.parse(tokenData);
+    
+    // Check if token is expired
+    if (!parsed.token || !parsed.expiresAt || Date.now() >= parsed.expiresAt) {
+      console.log('⚠️  Token expired');
       clearAuthData();
       redirectToLogin();
       return false;
     }
+
+    console.log('✅ Authentication verified (valid token)');
+    return true;
   } catch (error) {
-    console.warn('⚠️  Backend verification failed:', error.message);
+    console.warn('⚠️  Auth check failed:', error.message);
     clearAuthData();
     redirectToLogin();
     return false;
@@ -52,11 +42,11 @@ async function checkAuth() {
 }
 
 function clearAuthData() {
-  // Clear localStorage (user info only, token is in httpOnly cookie)
+  // Clear all auth data from localStorage
+  localStorage.removeItem('zantara-token');
   localStorage.removeItem('zantara-user');
   localStorage.removeItem('zantara-session');
   localStorage.removeItem('zantara-permissions');
-  // Note: zantara-token cookie is cleared by backend on logout
 }
 
 function redirectToLogin() {
@@ -74,9 +64,16 @@ function getCurrentUser() {
 }
 
 function getAuthToken() {
-  // Token is in httpOnly cookie, not accessible from JavaScript
-  // Return null - token is automatically sent with requests via credentials: 'include'
-  return null;
+  // Get token from localStorage
+  try {
+    const tokenData = localStorage.getItem('zantara-token');
+    if (!tokenData) return null;
+    
+    const parsed = JSON.parse(tokenData);
+    return parsed.token || null;
+  } catch (error) {
+    return null;
+  }
 }
 
 // Auto-run auth check on protected pages
