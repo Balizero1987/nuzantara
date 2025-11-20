@@ -7,15 +7,15 @@ email-validator==2.1.0  # Required for Pydantic EmailStr validation
 
 # ChromaDB and embeddings
 chromadb==1.1.0
-sentence-transformers==3.2.1
+# sentence-transformers==3.2.1  # REMOVED: Using OpenAI embeddings, not local models (saves ~5GB)
 openai==1.57.4  # For text-embedding-3-small (1536-dim) and AI clients
 
 # Machine Learning (for query clustering)
 scikit-learn==1.5.2
 numpy==1.26.4
 
-# PyTorch CPU-only (required for sentence-transformers CrossEncoder)
-# Install via Dockerfile with --index-url flag (not here)
+# PyTorch CPU-only - NOT NEEDED (we use OpenAI embeddings)
+# sentence-transformers removed, no need for PyTorch
 
 # Anthropic API
 anthropic==0.39.0

@@ -29,16 +29,31 @@ class EmbeddingsGenerator:
     Automatically chooses provider based on settings.
     """
 
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(EmbeddingsGenerator, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self, api_key: str = None, model: str = None, provider: str = None):
         """
         Initialize embeddings generator.
         Automatically chooses provider based on settings.
+        Singleton pattern: Only initializes once.
 
         Args:
             api_key: OpenAI API key (only needed if using OpenAI provider)
             model: Embedding model name (default from settings)
             provider: "openai" or "sentence-transformers" (default from settings)
         """
+        # Singleton check
+        if getattr(self, "_initialized", False):
+            return
+            
+        self._initialized = True
+
         # Determine provider from settings or parameter
         if provider:
             self.provider = provider

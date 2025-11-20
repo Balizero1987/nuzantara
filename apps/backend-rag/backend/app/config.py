@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     batch_size: int = 10
 
     # Reranker Service (Performance Enhancement)
-    enable_reranker: bool = True  # Enable CrossEncoder re-ranking for +40% quality
+    enable_reranker: bool = False  # DISABLED: Saves ~5GB Docker image size (sentence-transformers)
     reranker_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
     reranker_top_k: int = 5  # Return top-K re-ranked results
     reranker_latency_target_ms: float = 50.0  # Target latency per query
