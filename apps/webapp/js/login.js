@@ -129,6 +129,7 @@ async function handleLogin(e) {
     // Call auth API with email + PIN (sent as password)
     const response = await fetch(`${API_BASE_URL}/api/auth/demo`, {
       method: 'POST',
+      credentials: 'include', // Include cookies for CORS
       headers: {
         'Content-Type': 'application/json',
       },
