@@ -221,7 +221,7 @@ export class MemoryAnalyticsClient {
         recommendations,
       };
     } catch (_error) {
-      // eslint-disable-line @typescript-eslint/no-unused-vars, no-unused-vars
+       
       return {
         status: 'unhealthy',
         metrics: {} as ComprehensiveAnalytics,
