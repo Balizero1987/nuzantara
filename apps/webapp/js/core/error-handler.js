@@ -444,7 +444,8 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(style);
 }
 
-// Export singleton
+// Export class and singleton
+export { ErrorHandler };
 export const errorHandler = new ErrorHandler();
 
 // Expose globally for debugging
