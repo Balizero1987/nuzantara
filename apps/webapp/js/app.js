@@ -176,6 +176,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }
 
+  // Load team milestones if collective memory available
+  if (typeof window.collectiveMemoryClient !== 'undefined') {
+    window.collectiveMemoryClient.getTeamMilestones('balizero').then(milestones => {
+      if (milestones && milestones.length > 0) {
+        showTeamMilestonesBanner(milestones);
+      }
+    }).catch(error => {
+      console.warn('⚠️ Failed to load team milestones:', error.message);
+    });
+  }
+
   // Load Collective Memory modules (async, non-blocking)
   loadCollectiveMemoryModules().then((loaded) => {
     if (loaded) {
@@ -1015,6 +1026,42 @@ function showClientJourneyWidget(journey) {
   console.log(`\ud83d\udee4\ufe0f Client Journey widget displayed: ${stage} (${completion}%)`);
 }
 
+/**
+ * Show team milestones banner
+ */
+function showTeamMilestonesBanner(milestones) {
+  // Remove existing banner if any
+  const existing = document.getElementById('team-milestones-banner');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'team-milestones-banner';
+  banner.className = 'team-milestones-banner';
+
+  const latestMilestone = milestones[0];
+  const totalMilestones = milestones.length;
+
+  banner.innerHTML = `
+    <div class="milestone-icon">\ud83c\udfaf</div>
+    <div class="milestone-content">
+      <strong>Team Milestone Achieved!</strong>
+      <span>${latestMilestone.content || latestMilestone.description}</span>
+    </div>
+    <div class="milestone-count">${totalMilestones} total</div>
+    <button class="milestone-close" onclick="this.parentElement.remove()">\u00d7</button>
+  `;
+
+  // Insert below compliance alerts if present, otherwise at top
+  const complianceAlert = document.getElementById('compliance-alerts-banner');
+  if (complianceAlert) {
+    complianceAlert.after(banner);
+  } else {
+    document.body.prepend(banner);
+  }
+
+  console.log(`\ud83c\udfaf Showing ${totalMilestones} team milestones`);
+}
+
 // Export for use in HTML and other modules
 if (typeof window !== 'undefined') {
   window.clearChatHistory = clearChatHistory;
@@ -1022,4 +1069,5 @@ if (typeof window !== 'undefined') {
   window.showComplianceAlertsBanner = showComplianceAlertsBanner;
   window.displayCollectiveInsightsSidebar = displayCollectiveInsightsSidebar;
   window.showClientJourneyWidget = showClientJourneyWidget;
+  window.showTeamMilestonesBanner = showTeamMilestonesBanner;
 }

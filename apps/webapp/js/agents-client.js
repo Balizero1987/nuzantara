@@ -1,4 +1,4 @@
-/* eslint-disable no-undef, no-console */
+/* eslint-disable no-undef */
 /**
  * ZANTARA Agents Client
  * Handles Compliance, Journey, and Research agents
@@ -38,7 +38,29 @@ class AgentsClient {
             headers: this.headers
         });
         if (!response.ok) throw new Error('Failed to fetch next steps');
-        return response.json();
+        return null;
+    }
+
+    /**
+     * Start autonomous research
+     */
+    async startResearch(params) {
+        try {
+            const response = await fetch(
+                `${this.config.apiUrl}${this.config.endpoints.research}`,
+                {
+                    method: 'POST',
+                    headers: this.headers,
+                    body: JSON.stringify(params)
+                }
+            );
+
+            if (!response.ok) throw new Error('Failed to start research');
+            return response.json();
+        } catch (error) {
+            console.error('Failed to start research:', error);
+            return null;
+        }
     }
 }
 

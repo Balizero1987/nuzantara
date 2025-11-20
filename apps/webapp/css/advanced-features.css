@@ -419,3 +419,73 @@
     font-size: 0.85rem;
     line-height: 1.4;
 }
+
+/* Team Milestones Banner */
+.team-milestones-banner {
+    position: fixed;
+    top: 130px;
+    left: 0;
+    right: 0;
+    z-index: 98;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.95) 0%, rgba(56, 142, 60, 0.95) 100%);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease-out;
+}
+
+.milestone-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.milestone-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.milestone-content strong {
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.milestone-content span {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.85rem;
+}
+
+.milestone-count {
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.milestone-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.milestone-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
