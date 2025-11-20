@@ -2,6 +2,7 @@
 /**
  * ZANTARA Agents Client
  * Handles Compliance, Journey, and Research agents
+ * Refactored to use UnifiedAPIClient
  */
 
 class AgentsClient {
@@ -11,10 +12,9 @@ class AgentsClient {
             endpoints: window.API_ENDPOINTS?.agents || {},
             ...config
         };
-    }
 
-    get headers() {
-        return window.getAuthHeaders();
+        // Use unified API client
+        this.api = window.apiClient || new window.UnifiedAPIClient({ baseURL: this.config.apiUrl });
     }
 
     // ========================================================================
@@ -22,11 +22,13 @@ class AgentsClient {
     // ========================================================================
 
     async getComplianceAlerts() {
-        const response = await fetch(`${this.config.apiUrl}${this.config.endpoints.compliance}`, {
-            headers: this.headers
-        });
-        if (!response.ok) throw new Error('Failed to fetch compliance alerts');
-        return response.json();
+        try {
+            return await this.api.get(this.config.endpoints.compliance);
+        } catch (error) {
+            console.error('Failed to fetch compliance alerts:', error);
+            if (window.toast) window.toast.error('Failed to load compliance alerts');
+            throw error;
+        }
     }
 
     // ========================================================================
@@ -34,31 +36,27 @@ class AgentsClient {
     // ========================================================================
 
     async getNextSteps(clientId) {
-        const response = await fetch(`${this.config.apiUrl}${this.config.endpoints.journey}?client_id=${clientId}`, {
-            headers: this.headers
-        });
-        if (!response.ok) throw new Error('Failed to fetch next steps');
-        return null;
+        try {
+            return await this.api.get(`${this.config.endpoints.journey}?client_id=${clientId}`);
+        } catch (error) {
+            console.error('Failed to fetch next steps:', error);
+            if (window.toast) window.toast.error('Failed to load client journey');
+            return null;
+        }
     }
 
-    /**
-     * Start autonomous research
-     */
+    // ========================================================================
+    // RESEARCH AGENT
+    // ========================================================================
+
     async startResearch(params) {
         try {
-            const response = await fetch(
-                `${this.config.apiUrl}${this.config.endpoints.research}`,
-                {
-                    method: 'POST',
-                    headers: this.headers,
-                    body: JSON.stringify(params)
-                }
-            );
-
-            if (!response.ok) throw new Error('Failed to start research');
-            return response.json();
+            const result = await this.api.post(this.config.endpoints.research, params);
+            if (window.toast) window.toast.success('Research started successfully');
+            return result;
         } catch (error) {
             console.error('Failed to start research:', error);
+            if (window.toast) window.toast.error('Failed to start research');
             return null;
         }
     }
@@ -67,3 +65,5 @@ class AgentsClient {
 if (typeof window !== 'undefined') {
     window.AgentsClient = AgentsClient;
 }
+
+export default AgentsClient;
