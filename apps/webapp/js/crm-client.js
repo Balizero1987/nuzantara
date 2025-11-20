@@ -1,4 +1,4 @@
-/* eslint-disable no-undef, no-console */
+/* eslint-disable no-undef */
 /**
  * ZANTARA CRM Client
  * Handles Clients, Practices, and Interactions
