@@ -56,7 +56,8 @@ class StateManager {
         const value = target[property];
 
         // If value is object, make it reactive too
-        if (value && typeof value === 'object' && !Array.isArray(value)) {
+        // EXCEPTION: Do not proxy DOM elements or null values
+        if (value && typeof value === 'object' && !Array.isArray(value) && !(value instanceof Node) && !(value instanceof Window)) {
           const fullPath = path ? `${path}.${property}` : property;
           return self._createReactiveState(value, fullPath);
         }

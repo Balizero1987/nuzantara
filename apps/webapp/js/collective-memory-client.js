@@ -56,13 +56,13 @@ class CollectiveMemoryClient {
      */
     async queryCollective(query, filters = {}) {
         try {
-            const params = new URLSearchParams({
-                query,
-                ...filters
-            });
-
             const endpoint = this.config.endpoints.query || '/api/v3/zantara/collective';
-            const data = await this.api.get(`${endpoint}?${params}`);
+
+            // Use POST for query as required by backend
+            const data = await this.api.post(endpoint, {
+                query,
+                filters
+            });
 
             if (data.success && data.data) {
                 console.log(`✅ Collective query returned ${data.data.collective_insights?.length || 0} insights`);
