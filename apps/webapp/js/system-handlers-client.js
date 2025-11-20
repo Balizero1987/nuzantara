@@ -21,8 +21,8 @@ class SystemHandlersClient {
     }
 
     /**
-     * Get all available tools (with caching)
-     */
+   * Get all available tools (with caching)
+   */
     async getTools(forceRefresh = false) {
         // Check cache
         if (!forceRefresh && this.tools && this.lastFetch) {
@@ -35,7 +35,8 @@ class SystemHandlersClient {
 
         // Fetch from backend
         try {
-            const data = await this.api.post(this.config.endpoints.call, { key: 'system.handlers.tools' });
+            const endpoint = this.config.endpoints.call || '/api/system/handlers/call';
+            const data = await this.api.post(endpoint, { key: 'system.handlers.tools' });
 
             this.tools = data.tools || [];
             this.lastFetch = Date.now();
@@ -71,7 +72,9 @@ class SystemHandlersClient {
                 console.warn('Failed to load cached tools:', cacheError);
             }
 
-            throw error;
+            // Return empty array instead of throwing
+            console.warn('⚠️ Returning empty tools array');
+            return [];
         }
     }
 

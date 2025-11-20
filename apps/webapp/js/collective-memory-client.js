@@ -56,16 +56,6 @@ class CollectiveMemoryClient {
      */
     async queryCollective(query, filters = {}) {
         try {
-            const response = await fetch(`${this.config.apiUrl}${this.config.collectiveEndpoint}`, {
-                method: 'POST',
-                headers: this.headers,
-                body: JSON.stringify({
-                    query: query,
-                    filters: filters
-                })
-            });
-
-            if (!response.ok) throw new Error('Failed to query collective');
 
             const data = await response.json();
 
