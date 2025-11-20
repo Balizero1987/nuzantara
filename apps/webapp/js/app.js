@@ -57,6 +57,7 @@ let zantaraClient;
 
 // DOM elements
 let messageSpace, messageInput, sendButton, quickActions, messagesContainer;
+let currentStreamingMessage = null; // Local reference for streaming message DOM element
 
 /**
  * Initialize application
@@ -401,14 +402,17 @@ async function sendMessage(content) {
     await zantaraClient.sendMessageStream(content, {
       onStart: () => {
         hideTypingIndicator();
-        stateManager.state.streamingMessage = createLiveMessage();
+        // Store in local variable to avoid Proxy issues with DOM elements
+        currentStreamingMessage = createLiveMessage();
+        stateManager.state.isStreaming = true;
       },
       onToken: (token, fullText) => {
-        updateLiveMessage(stateManager.state.streamingMessage, fullText);
+        updateLiveMessage(currentStreamingMessage, fullText);
       },
       onComplete: async (fullText, metadata) => {
-        finalizeLiveMessage(stateManager.state.streamingMessage, fullText, metadata);
-        stateManager.state.streamingMessage = null;
+        finalizeLiveMessage(currentStreamingMessage, fullText, metadata);
+        currentStreamingMessage = null;
+        stateManager.state.isStreaming = false;
 
         // Auto-save to CRM if CRMClient is available
         if (typeof window.CRMClient !== 'undefined') {
