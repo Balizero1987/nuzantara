@@ -513,8 +513,14 @@
   </div>
 
   <!-- Load API Config and Login Script -->
-  <script src="js/api-config.js"></script>
-  <script src="js/login.js"></script>
+  <script type="module">
+    // Import API_CONFIG and make it globally available
+    import { API_CONFIG } from './js/api-config.js';
+    window.API_CONFIG = API_CONFIG;
+    
+    // Load login script after API_CONFIG is available
+    import('./js/login.js');
+  </script>
 </body>
 </html>
 

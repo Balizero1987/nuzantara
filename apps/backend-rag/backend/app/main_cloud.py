@@ -132,11 +132,17 @@ app = FastAPI(
 # NOTE: EventSource endpoints (/bali-zero/chat-stream) handle CORS manually
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Wildcard for EventSource compatibility
-    allow_credentials=False,  # No credentials for cross-domain EventSource
+    allow_origins=[
+        "https://zantara.balizero.com",
+        "http://localhost:5173",
+        "http://localhost:8002",
+        "http://localhost:3000",
+        "*"  # Fallback for EventSource compatibility
+    ],
+    allow_credentials=True,  # Allow credentials for httpOnly cookies
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],  # Allow all headers for maximum compatibility
-    expose_headers=["Content-Type", "Cache-Control", "Connection", "X-Accel-Buffering"],
+    expose_headers=["Content-Type", "Cache-Control", "Connection", "X-Accel-Buffering", "X-CSRF-Token"],
     max_age=3600
 )
 
@@ -1732,6 +1738,16 @@ async def demo_auth(request: Request):
 
         logger.info(f"🔐 Demo auth: Generated token for user '{user_id}'")
 
+        # Get origin from request for CORS
+        origin = request.headers.get("origin", "*")
+        allowed_origins = [
+            "https://zantara.balizero.com",
+            "http://localhost:5173",
+            "http://localhost:8002",
+            "http://localhost:3000"
+        ]
+        cors_origin = origin if origin in allowed_origins else "*"
+        
         return JSONResponse(
             content={
                 "token": token,
@@ -1739,9 +1755,10 @@ async def demo_auth(request: Request):
                 "userId": user_id
             },
             headers={
-                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Origin": cors_origin,
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                "Access-Control-Allow-Credentials": "true"
             }
         )
     except Exception as e:
@@ -1750,14 +1767,24 @@ async def demo_auth(request: Request):
 
 
 @app.options("/api/auth/demo")
-async def demo_auth_options():
+async def demo_auth_options(request: Request):
     """Handle CORS preflight for demo auth endpoint"""
+    origin = request.headers.get("origin", "*")
+    allowed_origins = [
+        "https://zantara.balizero.com",
+        "http://localhost:5173",
+        "http://localhost:8002",
+        "http://localhost:3000"
+    ]
+    cors_origin = origin if origin in allowed_origins else "*"
+    
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": cors_origin,
             "Access-Control-Allow-Methods": "POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600"
         }
     )
