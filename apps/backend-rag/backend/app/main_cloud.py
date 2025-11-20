@@ -83,6 +83,44 @@ warmup_task: Optional[asyncio.Task] = None
 # Startup logs for debugging (accessible via /debug/startup endpoint)
 startup_logs: List[str] = []
 
+# Initialize OpenTelemetry tracing
+try:
+    from opentelemetry import trace
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.instrumentation.openai import OpenAIInstrumentor
+
+    # Create resource with service information
+    resource = Resource.create({
+        "service.name": "zantara-rag-backend",
+        "service.version": "3.3.2-qdrant",
+        "service.instance.id": "backend-rag"
+    })
+
+    # Set up OTLP exporter to localhost:4318
+    otlp_exporter = OTLPSpanExporter(
+        endpoint="http://localhost:4318/v1/traces",
+        headers={}
+    )
+
+    # Create tracer provider
+    trace.set_tracer_provider(TracerProvider(resource=resource))
+
+    # Add span processor
+    span_processor = BatchSpanProcessor(otlp_exporter)
+    trace.get_tracer_provider().add_span_processor(span_processor)
+
+    # Instrument OpenAI
+    OpenAIInstrumentor().instrument()
+
+    logger.info("✅ OpenTelemetry tracing initialized (OTLP → localhost:4318)")
+
+except Exception as e:
+    logger.warning(f"⚠️ OpenTelemetry initialization failed: {e}")
+    logger.warning("   Tracing will be disabled - ensure AI Toolkit trace collector is running")
+
 # Initialize FastAPI
 app = FastAPI(
     title="ZANTARA RAG API",
@@ -3284,14 +3322,21 @@ app.include_router(conversations.router, prefix="/api", tags=["memory"])  # /api
 from app.routers import oracle_universal
 from app.routers import oracle_ingest  # NEW: Bulk ingest endpoint
 from app.routers import agents
-# FIXED 2025-11-20: autonomous_agents NameError resolved (import path corrected)
-from app.routers import autonomous_agents  # Tier 1 Autonomous Agents
 from app.routers import notifications
 app.include_router(oracle_universal.router)
 app.include_router(oracle_ingest.router)  # NEW: /api/oracle/ingest + /collections
 app.include_router(agents.router)
-app.include_router(autonomous_agents.router)  # Tier 1 Autonomous Agents HTTP API - FIXED 2025-11-20
 app.include_router(notifications.router)
+
+# Optional: Tier 1 Autonomous Agents API
+# Some environments may not ship with the experimental agents module.
+# Avoid crashing the app if it's missing.
+try:
+    from app.routers import autonomous_agents  # Tier 1 Autonomous Agents
+    app.include_router(autonomous_agents.router)
+except Exception as e:
+    # Log a lightweight warning; app remains healthy without this router
+    print(f"[WARN] Skipping autonomous_agents router: {e}")
 
 # Include Team Activity router (NEW: Nov 17, 2025 - Team timesheet & work hours)
 from app.routers import team_activity
