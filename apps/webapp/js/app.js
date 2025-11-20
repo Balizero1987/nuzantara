@@ -593,13 +593,30 @@ function createLiveMessage() {
  * Update live message during streaming
  */
 function updateLiveMessage(messageEl, text) {
-  if (!messageEl) return;
+  if (!messageEl) {
+    console.warn('⚠️ updateLiveMessage: No message element provided');
+    return;
+  }
 
-  const textEl = messageEl.querySelector('.message-text');
-  if (textEl) {
-    // Render markdown in real-time
-    textEl.innerHTML = zantaraClient.renderMarkdown(text);
-    scrollToBottom();
+  try {
+    const textEl = messageEl.querySelector('.message-text');
+    if (textEl) {
+      // Safely render markdown
+      if (typeof zantaraClient !== 'undefined' && typeof zantaraClient.renderMarkdown === 'function') {
+        textEl.innerHTML = zantaraClient.renderMarkdown(text);
+      } else {
+        // Fallback to plain text
+        textEl.textContent = text;
+      }
+      scrollToBottom();
+    }
+  } catch (error) {
+    console.error('Error in updateLiveMessage:', error);
+    // Fallback: just set text content
+    const textEl = messageEl.querySelector('.message-text');
+    if (textEl) {
+      textEl.textContent = text;
+    }
   }
 }
 
@@ -607,78 +624,99 @@ function updateLiveMessage(messageEl, text) {
  * Finalize live message after streaming completes
  */
 function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
-  if (!messageEl) return;
-
-  // Remove live-message class and id
-  messageEl.classList.remove('live-message');
-  messageEl.removeAttribute('id');
-
-  // Add sources if available
-  if (metadata.sources && metadata.sources.length > 0) {
-    const sourcesEl = document.createElement('div');
-    sourcesEl.className = 'message-sources';
-    sourcesEl.innerHTML = `
-      <div class="sources-header">📚 Sources (${metadata.sources.length})</div>
-      <div class="sources-list">
-        ${metadata.sources.map((source, idx) => `
-          <div class="source-item">
-            <span class="source-number">${idx + 1}</span>
-            <span class="source-snippet">${source.snippet || source.source}</span>
-            ${source.similarity ? `<span class="source-score">${(source.similarity * 100).toFixed(0)}%</span>` : ''}
-          </div>
-        `).join('')}
-      </div>
-    `;
-    messageEl.querySelector('.message-content').appendChild(sourcesEl);
+  if (!messageEl) {
+    console.warn('⚠️ finalizeLiveMessage: No message element provided');
+    return;
   }
 
-  // Add collection stats if available
-  if (metadata.collection_used || metadata.intent) {
-    const collectionsEl = document.createElement('div');
-    collectionsEl.className = 'collections-used';
-    const collectionName = metadata.collection_used || 'knowledge_base';
-    const intent = metadata.intent || 'general';
-    collectionsEl.innerHTML = `
-      <span class="collections-label">📚 Collection:</span>
-      <span class="collection-badge">${collectionName}</span>
-      <span class="intent-badge">🎯 ${intent}</span>
-    `;
-    messageEl.appendChild(collectionsEl);
-  }
+  try {
+    // Remove live-message class and id
+    messageEl.classList.remove('live-message');
+    messageEl.removeAttribute('id');
 
-  // Add metadata footer if available
-  if (metadata.model || metadata.tokens || metadata.cost) {
-    const metadataEl = document.createElement('div');
-    metadataEl.className = 'message-metadata';
-    const parts = [];
-    if (metadata.model) parts.push(`🤖 ${metadata.model}`);
-    if (metadata.tokens) parts.push(`📊 ${metadata.tokens} tokens`);
-    if (metadata.cost) parts.push(`💰 $${metadata.cost.toFixed(4)}`);
-    metadataEl.innerHTML = parts.join(' • ');
-    messageEl.appendChild(metadataEl);
-  }
+    // Add sources if available
+    if (metadata.sources && metadata.sources.length > 0) {
+      const sourcesEl = document.createElement('div');
+      sourcesEl.className = 'message-sources';
+      sourcesEl.innerHTML = `
+        <div class="sources-header">📚 Sources (${metadata.sources.length})</div>
+        <div class="sources-list">
+          ${metadata.sources.map((source, idx) => `
+            <div class="source-item">
+              <span class="source-number">${idx + 1}</span>
+              <span class="source-snippet">${source.snippet || source.source}</span>
+              ${source.similarity ? `<span class="source-score">${(source.similarity * 100).toFixed(0)}%</span>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+      const contentEl = messageEl.querySelector('.message-content');
+      if (contentEl) {
+        contentEl.appendChild(sourcesEl);
+      }
+    }
 
-  // Re-enable send button when response is complete
-  if (sendButton) {
-    sendButton.disabled = false;
-  }
+    // Add collection stats if available
+    if (metadata.collection_used || metadata.intent) {
+      const collectionsEl = document.createElement('div');
+      collectionsEl.className = 'collections-used';
+      const collectionName = metadata.collection_used || 'knowledge_base';
+      const intent = metadata.intent || 'general';
+      collectionsEl.innerHTML = `
+        <span class="collections-label">📚 Collection:</span>
+        <span class="collection-badge">${collectionName}</span>
+        <span class="intent-badge">🎯 ${intent}</span>
+      `;
+      messageEl.appendChild(collectionsEl);
+    }
 
-  // Save to history
-  const aiMsg = {
-    type: 'ai',
-    content: fullText,
-    timestamp: new Date(),
-    metadata: metadata
-  };
+    // Add metadata footer if available
+    if (metadata.model || metadata.tokens || metadata.cost) {
+      const metadataEl = document.createElement('div');
+      metadataEl.className = 'message-metadata';
+      const parts = [];
+      if (metadata.model) parts.push(`🤖 ${metadata.model}`);
+      if (metadata.tokens) parts.push(`📊 ${metadata.tokens} tokens`);
+      if (metadata.cost) parts.push(`💰 $${metadata.cost.toFixed(4)}`);
+      metadataEl.innerHTML = parts.join(' • ');
+      messageEl.appendChild(metadataEl);
+    }
 
-  // Save to localStorage
-  zantaraClient.addMessage(aiMsg);
+    // Re-enable send button when response is complete
+    if (sendButton) {
+      sendButton.disabled = false;
+    }
 
-  // Save to Memory Service
-  if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
-    window.CONVERSATION_CLIENT.addMessage('assistant', fullText).catch((error) => {
-      console.warn('⚠️ Failed to save AI message to Memory Service:', error.message);
-    });
+    // Save to history
+    const aiMsg = {
+      type: 'ai',
+      content: fullText,
+      timestamp: new Date(),
+      metadata: metadata
+    };
+
+    // Save to localStorage
+    if (typeof zantaraClient !== 'undefined' && typeof zantaraClient.addMessage === 'function') {
+      zantaraClient.addMessage(aiMsg);
+    }
+
+    // Save to Memory Service
+    if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
+      window.CONVERSATION_CLIENT.addMessage('assistant', fullText).catch((error) => {
+        console.warn('⚠️ Failed to save AI message to Memory Service:', error.message);
+      });
+    }
+
+    // Auto-store to collective memory
+    if (typeof displayCollectiveInsightsSidebar === 'function') {
+      displayCollectiveInsightsSidebar(fullText, metadata);
+    }
+  } catch (error) {
+    console.error('Error in finalizeLiveMessage:', error);
+    // Re-enable send button even on error
+    if (sendButton) {
+      sendButton.disabled = false;
+    }
   }
 
   // Load collective insights in sidebar (if available)
