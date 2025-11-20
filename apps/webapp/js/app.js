@@ -152,11 +152,11 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   // Load Skill Detection Layer modules (async, non-blocking)
-  loadSkillDetectionModules().then((loaded) => {
-    if (loaded) {
-      console.log('✅ Skill Detection Layer modules loaded');
-    }
-  });
+// DISABLED:   loadSkillDetectionModules().then((loaded) => {
+// DISABLED:     if (loaded) {
+// DISABLED:       console.log('✅ Skill Detection Layer modules loaded');
+// DISABLED:     }
+// DISABLED:   });
 
   // Load Collective Memory modules (async, non-blocking)
   loadCollectiveMemoryModules().then((loaded) => {
