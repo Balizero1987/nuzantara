@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="night">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,14 +20,16 @@
 
   <style>
     /* Sfondo grafite #2B2B2B */
-    html, body {
+    html,
+    body {
       background: #2B2B2B !important;
     }
 
     .messages-container,
     .messages-inner,
     .message-space {
-      background: transparent !important; /* Transparent to show body background */
+      background: transparent !important;
+      /* Transparent to show body background */
     }
 
     /* Layout */
@@ -44,7 +47,8 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      opacity: 0; /* Hidden for now - enable when video ready */
+      opacity: 0;
+      /* Hidden for now - enable when video ready */
     }
 
     /* Overlay - removed for pure black background */
@@ -98,7 +102,8 @@
     }
 
     .user-avatar {
-      width: 2.6rem; /* Increased by 30%: 2rem * 1.3 = 2.6rem */
+      width: 2.6rem;
+      /* Increased by 30%: 2rem * 1.3 = 2.6rem */
       height: 2.6rem;
       border-radius: 50%;
       display: flex;
@@ -137,11 +142,13 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      display: none; /* Hide user details to show only name */
+      display: none;
+      /* Hide user details to show only name */
     }
 
     .user-email {
-      display: none; /* Hidden per user request */
+      display: none;
+      /* Hidden per user request */
       font-size: 0.875rem;
       font-weight: 400;
       transition: color 0.3s ease;
@@ -158,7 +165,8 @@
     }
 
     .user-role {
-      display: none; /* Hide role */
+      display: none;
+      /* Hide role */
     }
 
     .logout-btn {
@@ -197,14 +205,17 @@
     /* Messages Area - Fixed center, scrollable like GPT/Claude */
     .messages-container {
       position: fixed;
-      top: 85px; /* Match new header height */
-      bottom: 95px; /* Lower chat bar position - more space */
+      top: 85px;
+      /* Match new header height */
+      bottom: 95px;
+      /* Lower chat bar position - more space */
       left: 0;
       right: 0;
       overflow-y: auto;
       overflow-x: hidden;
       scroll-behavior: smooth;
-      padding: 2rem 0 3rem 0; /* Extra bottom padding */
+      padding: 2rem 0 3rem 0;
+      /* Extra bottom padding */
     }
 
     .messages-inner {
@@ -232,23 +243,32 @@
       width: 200px;
       height: 2px;
       background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(212, 175, 55, 0.3) 20%,
-        rgba(212, 175, 55, 0.8) 50%,
-        rgba(212, 175, 55, 0.3) 80%,
-        transparent 100%);
+          transparent 0%,
+          rgba(212, 175, 55, 0.3) 20%,
+          rgba(212, 175, 55, 0.8) 50%,
+          rgba(212, 175, 55, 0.3) 80%,
+          transparent 100%);
       margin: 1rem auto;
       box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
       animation: dividerPulse 3s ease-in-out infinite;
     }
 
     @keyframes dividerPulse {
-      0%, 100% { opacity: 0.7; }
-      50% { opacity: 1; box-shadow: 0 0 20px rgba(212, 175, 55, 0.8); }
+
+      0%,
+      100% {
+        opacity: 0.7;
+      }
+
+      50% {
+        opacity: 1;
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+      }
     }
 
     .welcome-message p:first-child {
-      font-size: 1.25rem;  /* 50% più piccolo da 2.5rem */
+      font-size: 1.25rem;
+      /* 50% più piccolo da 2.5rem */
       color: rgba(255, 255, 255, 0.95);
       line-height: 1.4;
       max-width: 800px;
@@ -258,7 +278,8 @@
     }
 
     .welcome-blessing {
-      font-size: 1.25rem;  /* Ingrandito da 0.95rem */
+      font-size: 1.25rem;
+      /* Ingrandito da 0.95rem */
       color: rgba(255, 255, 255, 0.7);
       font-style: italic;
       max-width: 700px;
@@ -321,16 +342,21 @@
       bottom: 0 !important;
       left: 0 !important;
       right: 0 !important;
-      padding: 0.5rem 1rem 1.5rem !important; /* Much thinner - reduced padding */
-      background: transparent !important; /* Fully transparent - unified background */
+      padding: 0.5rem 1rem 1.5rem !important;
+      /* Much thinner - reduced padding */
+      background: transparent !important;
+      /* Fully transparent - unified background */
       backdrop-filter: none;
       z-index: 90 !important;
-      border: none !important; /* No borders */
-      box-shadow: none !important; /* No shadow */
+      border: none !important;
+      /* No borders */
+      box-shadow: none !important;
+      /* No shadow */
       display: block !important;
       visibility: visible !important;
       opacity: 1 !important;
-      min-height: auto; /* Auto height */
+      min-height: auto;
+      /* Auto height */
     }
 
     .chat-input-wrapper {
@@ -402,7 +428,8 @@
       flex-shrink: 0;
       width: 2.5rem;
       height: 2.5rem;
-      padding: 0;margin: 0 auto;
+      padding: 0;
+      margin: 0 auto;
       font-size: 1.5rem;
       line-height: 1;
       color: #BFAA7E !important;
@@ -437,7 +464,8 @@
       flex-shrink: 0;
       width: 2.5rem;
       height: 2.5rem;
-      padding: 0;margin: 0 auto;
+      padding: 0;
+      margin: 0 auto;
       font-size: 2rem;
       font-weight: bold;
       line-height: 1;
@@ -488,22 +516,27 @@
         transform: scaleX(-1) scale(1);
         filter: brightness(1);
       }
+
       20% {
         transform: scaleX(-1) scale(1.3);
         filter: brightness(2) drop-shadow(0 0 10px rgba(233, 77, 53, 0.8)) drop-shadow(0 0 20px rgba(233, 77, 53, 0.6));
       }
+
       40% {
         transform: scaleX(-1) scale(0.9);
         filter: brightness(1.5);
       }
+
       60% {
         transform: scaleX(-1) scale(1.15);
         filter: brightness(1.8) drop-shadow(0 0 8px rgba(233, 77, 53, 0.6));
       }
+
       80% {
         transform: scaleX(-1) scale(0.95);
         filter: brightness(1.2);
       }
+
       100% {
         transform: scaleX(-1) scale(1);
         filter: brightness(1);
@@ -542,12 +575,15 @@
     }
 
     .message.user {
-      justify-content: flex-end; /* User messages to right */
-      padding-right: 1rem; /* Minimal padding to stay closer to right edge */
+      justify-content: flex-end;
+      /* User messages to right */
+      padding-right: 1rem;
+      /* Minimal padding to stay closer to right edge */
     }
 
     .message.ai {
-      justify-content: flex-start; /* AI messages to left */
+      justify-content: flex-start;
+      /* AI messages to left */
     }
 
     .message-content {
@@ -595,7 +631,7 @@
     body[data-theme="night"] .message.user .message-content:hover,
     body:not([data-theme]) .message.user .message-content:hover {
       box-shadow: 0 4px 16px rgba(233, 77, 53, 0.25),
-                  0 0 30px rgba(233, 77, 53, 0.1);
+        0 0 30px rgba(233, 77, 53, 0.1);
     }
 
     .message-text {
@@ -619,7 +655,8 @@
     }
 
     .message-time {
-      display: none; /* Hide timestamps completely */
+      display: none;
+      /* Hide timestamps completely */
     }
 
     .message.user .message-time {
@@ -790,8 +827,10 @@
 
     body[data-theme="night"] .avatar-modal-content,
     body:not([data-theme]) .avatar-modal-content {
-      background: #2B2B2B !important;  /* Grafite */
-      border: 2px solid white !important;  /* White border */
+      background: #2B2B2B !important;
+      /* Grafite */
+      border: 2px solid white !important;
+      /* White border */
       -webkit-backdrop-filter: blur(10px);
       backdrop-filter: blur(10px);
     }
@@ -810,7 +849,8 @@
 
     body[data-theme="night"] .avatar-modal-title,
     body:not([data-theme]) .avatar-modal-title {
-      color: white !important;  /* White text */
+      color: white !important;
+      /* White text */
     }
 
     .avatar-preview {
@@ -834,9 +874,11 @@
 
     body[data-theme="night"] .avatar-preview,
     body:not([data-theme]) .avatar-preview {
-      border: 3px solid white !important;  /* White border */
+      border: 3px solid white !important;
+      /* White border */
       color: white;
-      background: #2B2B2B !important;  /* Grafite */
+      background: #2B2B2B !important;
+      /* Grafite */
     }
 
     .avatar-preview img {
@@ -871,8 +913,10 @@
     body:not([data-theme]) .avatar-upload-btn,
     body:not([data-theme]) .avatar-remove-btn,
     body:not([data-theme]) .avatar-close-btn {
-      border: 2px solid white !important;  /* White border */
-      color: white !important;  /* White text */
+      border: 2px solid white !important;
+      /* White border */
+      color: white !important;
+      /* White text */
     }
 
     body[data-theme="day"] .avatar-upload-btn:hover,
@@ -889,8 +933,10 @@
     body:not([data-theme]) .avatar-upload-btn:hover,
     body:not([data-theme]) .avatar-remove-btn:hover,
     body:not([data-theme]) .avatar-close-btn:hover {
-      border-color: white !important;  /* White border on hover */
-      background: rgba(255, 255, 255, 0.1);  /* White hover background */
+      border-color: white !important;
+      /* White border on hover */
+      background: rgba(255, 255, 255, 0.1);
+      /* White hover background */
       transform: scale(1.02);
     }
 
@@ -914,7 +960,8 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      padding: 0;margin: 0 auto;
+      padding: 0;
+      margin: 0 auto;
       transition: all 0.3s ease;
       z-index: 10;
     }
@@ -959,8 +1006,10 @@
 
     body[data-theme="night"] .conversation-sidebar,
     body:not([data-theme]) .conversation-sidebar {
-      background: #2B2B2B !important;  /* Grafite background */
-      border-right: 1px solid white !important;  /* White border */
+      background: #2B2B2B !important;
+      /* Grafite background */
+      border-right: 1px solid white !important;
+      /* White border */
       -webkit-backdrop-filter: blur(20px);
       backdrop-filter: blur(20px);
     }
@@ -984,7 +1033,8 @@
 
     body[data-theme="night"] .conversation-sidebar-header,
     body:not([data-theme]) .conversation-sidebar-header {
-      border-bottom-color: white !important;  /* White border */
+      border-bottom-color: white !important;
+      /* White border */
     }
 
     .conversation-sidebar-title {
@@ -1002,7 +1052,8 @@
 
     body[data-theme="night"] .conversation-sidebar-title,
     body:not([data-theme]) .conversation-sidebar-title {
-      color: white !important;  /* White text for "Conversations" */
+      color: white !important;
+      /* White text for "Conversations" */
     }
 
     .conversation-sidebar-close {
@@ -1018,12 +1069,14 @@
       font-size: 1.25rem;
       transition: all 0.2s ease;
       opacity: 0.7;
-      color: white !important;  /* White close button */
+      color: white !important;
+      /* White close button */
     }
 
     .conversation-sidebar-close:hover {
       opacity: 1;
-      background: rgba(255, 255, 255, 0.1);  /* White hover effect */
+      background: rgba(255, 255, 255, 0.1);
+      /* White hover effect */
     }
 
     .conversation-sidebar-content {
@@ -1040,11 +1093,13 @@
       cursor: pointer;
       transition: all 0.2s ease;
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid white !important;  /* White border */
+      border: 1px solid white !important;
+      /* White border */
     }
 
     .conversation-item:hover {
-      background: rgba(255, 255, 255, 0.1);  /* White hover effect */
+      background: rgba(255, 255, 255, 0.1);
+      /* White hover effect */
       transform: translateX(4px);
     }
 
@@ -1063,8 +1118,10 @@
     }
 
     .conversation-item.active {
-      background: rgba(255, 255, 255, 0.15);  /* White active background */
-      border-color: white !important;  /* White border for active */
+      background: rgba(255, 255, 255, 0.15);
+      /* White active background */
+      border-color: white !important;
+      /* White border for active */
     }
 
     .conversation-title {
@@ -1082,7 +1139,8 @@
 
     body[data-theme="night"] .conversation-title,
     body:not([data-theme]) .conversation-title {
-      color: white !important;  /* White text for conversation titles */
+      color: white !important;
+      /* White text for conversation titles */
     }
 
     .conversation-time {
@@ -1096,7 +1154,8 @@
 
     body[data-theme="night"] .conversation-time,
     body:not([data-theme]) .conversation-time {
-      color: rgba(255, 255, 255, 0.6);  /* White text for time */
+      color: rgba(255, 255, 255, 0.6);
+      /* White text for time */
     }
 
     /* Adjust main content when sidebar is open */
@@ -1107,7 +1166,8 @@
 
     /* Keep chat input fixed when sidebar opens - shift right to avoid overlay */
     body:has(.conversation-sidebar.open) .chat-input-container {
-      left: 320px !important;  /* Match sidebar width */
+      left: 320px !important;
+      /* Match sidebar width */
       right: 0 !important;
     }
 
@@ -1122,7 +1182,8 @@
       }
 
       body:has(.conversation-sidebar.open) .chat-input-container {
-        left: 280px !important;  /* Match mobile sidebar width */
+        left: 280px !important;
+        /* Match mobile sidebar width */
       }
 
       .conversation-sidebar-toggle {
@@ -1139,6 +1200,7 @@
   <!-- Team Timesheet Widget Styles -->
   <link rel="stylesheet" href="css/timesheet.css">
 </head>
+
 <body data-theme="night">
 
   <!-- Video Background (placeholder - add video source when ready) -->
@@ -1234,28 +1296,19 @@
   <div class="chat-input-container">
     <div class="chat-input-wrapper">
       <div class="chat-input-box" id="inputBox">
-        <textarea
-          id="messageInput"
-          class="chat-textarea"
-          placeholder="Your inquiry…"
-          rows="1"
-          maxlength="2000"
-        ></textarea>
-        <button class="attach-button" id="attachButton" title="Attach file or image"
-                style="width: 40px; height: 40px; background: transparent; border: none;
+        <textarea id="messageInput" class="chat-textarea" placeholder="Your inquiry…" rows="1"
+          maxlength="2000"></textarea>
+        <button class="attach-button" id="attachButton" title="Attach file or image" style="width: 40px; height: 40px; background: transparent; border: none;
                        cursor: pointer; display: flex; align-items: center; justify-content: center;
                        margin-left: 8px; transition: transform 0.2s;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-               fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white"
+            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
           </svg>
         </button>
         <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
-        <button
-          id="sendButton"
-          class="send-button"
-          aria-label="Send message"
-        >∞</button>
+        <button id="sendButton" class="send-button" aria-label="Send message">∞</button>
       </div>
       <p class="input-hint">Enter to send • Shift + Enter for new line</p>
     </div>
@@ -1285,14 +1338,18 @@
   <script type="module" src="js/api-config.js"></script>
   <!-- sse-client.js removed: functionality integrated in zantara-client.js -->
   <script type="module" src="js/components/notification.js"></script>
-  <script src="js/zantara-client.min.js?v=20251106-debug"></script>
+  <script src="js/zantara-client.min.js?v=20251106-debug"></script> <!-- Conversation Client (Memory Service) -->
   <script type="module" src="js/conversation-client.js?v=20251107"></script>
+  <!-- CRM Client -->
+  <script type="module" src="js/crm-client.js"></script>
+  <!-- Agents Client -->
+  <script type="module" src="js/agents-client.js"></script>
   <script src="js/message-search.js?v=20251107"></script>
 
   <!-- Initialize USER_CONTEXT from localStorage -->
   <script>
     window.USER_CONTEXT = {
-      getUser: function() {
+      getUser: function () {
         try {
           const userData = localStorage.getItem('zantara-user');
           if (userData) {
@@ -1315,7 +1372,7 @@
     // Theme management è ora gestito da theme-manager.js
 
     // Conversation History Sidebar Management
-    (function() {
+    (function () {
       const sidebar = document.getElementById('conversationSidebar');
       const toggle = document.getElementById('conversationSidebarToggle');
       const closeBtn = document.getElementById('conversationSidebarClose');
@@ -1384,7 +1441,7 @@
       async function loadConversation(conversationId) {
         currentConversationId = conversationId;
         renderConversations();
-        
+
         // Load conversation messages
         if (window.CONVERSATION_CLIENT) {
           // This would load the conversation messages
@@ -1423,7 +1480,7 @@
     })();
 
     // Avatar management
-    (function() {
+    (function () {
       const modal = document.getElementById('avatarModal');
       const avatar = document.getElementById('userAvatar');
       const avatarPreview = document.getElementById('avatarPreview');
@@ -1511,7 +1568,7 @@
     })();
 
     // Add energy shock animation to send button + Enter key support
-    (function() {
+    (function () {
       const sendBtn = document.getElementById('sendButton');
       const messageInput = document.getElementById('messageInput');
 
@@ -1526,7 +1583,7 @@
       // Click handler - removed to avoid conflict with app.js handleSend
 
       // Enter key handler (without Shift)
-      messageInput.addEventListener('keydown', function(e) {
+      messageInput.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault(); // Prevent new line
           if (!sendBtn.disabled) {
@@ -1537,40 +1594,40 @@
       });
     })();
 
-      // File Attachment Handler
-      (function() {
-        const attachBtn = document.getElementById('attachButton');
-        const fileInput = document.getElementById('fileInput');
-        let attachedFile = null;
-        let attachedFileDataUrl = null;
+    // File Attachment Handler
+    (function () {
+      const attachBtn = document.getElementById('attachButton');
+      const fileInput = document.getElementById('fileInput');
+      let attachedFile = null;
+      let attachedFileDataUrl = null;
 
-        if (attachBtn && fileInput) {
-          attachBtn.addEventListener('click', () => {
-            fileInput.click();
-          });
+      if (attachBtn && fileInput) {
+        attachBtn.addEventListener('click', () => {
+          fileInput.click();
+        });
 
-          fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-              attachedFile = file;
-              const reader = new FileReader();
-              reader.onload = (event) => {
-                attachedFileDataUrl = event.target.result;
-                console.log('File attached:', file.name);
-              };
-              reader.readAsDataURL(file);
-            }
-          });
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            attachedFile = file;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              attachedFileDataUrl = event.target.result;
+              console.log('File attached:', file.name);
+            };
+            reader.readAsDataURL(file);
+          }
+        });
 
-          attachBtn.addEventListener('mouseenter', () => {
-            attachBtn.style.transform = 'scale(1.1)';
-          });
+        attachBtn.addEventListener('mouseenter', () => {
+          attachBtn.style.transform = 'scale(1.1)';
+        });
 
-          attachBtn.addEventListener('mouseleave', () => {
-            attachBtn.style.transform = 'scale(1)';
-          });
-        }
-      })();
+        attachBtn.addEventListener('mouseleave', () => {
+          attachBtn.style.transform = 'scale(1)';
+        });
+      }
+    })();
   </script>
 
   <!-- Self-Healing Agent - REMOVED (file not found) -->
@@ -1580,4 +1637,5 @@
   <script type="module" src="js/timesheet-widget.js"></script>
 
 </body>
+
 </html>
