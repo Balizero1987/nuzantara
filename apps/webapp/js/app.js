@@ -162,6 +162,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     }).catch(error => {
       console.warn('⚠️ Failed to load compliance alerts:', error.message);
     });
+
+    // Load client journey if client detected
+    const currentClient = sessionStorage.getItem('current-client-id');
+    if (currentClient) {
+      agentsClient.getNextSteps(currentClient).then(journey => {
+        if (journey) {
+          showClientJourneyWidget(journey);
+        }
+      }).catch(error => {
+        console.warn('⚠️ Failed to load client journey:', error.message);
+      });
+    }
   }
 
   // Load Collective Memory modules (async, non-blocking)
@@ -956,10 +968,58 @@ function getCategoryIcon(category) {
   return icons[category] || '\ud83d\udca1';
 }
 
+/**
+ * Show client journey widget
+ */
+function showClientJourneyWidget(journey) {
+  // Remove existing widget if any
+  const existing = document.getElementById('client-journey-widget');
+  if (existing) existing.remove();
+
+  const widget = document.createElement('div');
+  widget.id = 'client-journey-widget';
+  widget.className = 'client-journey-widget';
+
+  const completion = journey.completion || 0;
+  const stage = journey.stage || 'Unknown';
+  const nextSteps = journey.next_steps || [];
+
+  widget.innerHTML = `
+    <div class="widget-header">
+      <h3>\ud83d\udee4\ufe0f Client Journey: ${stage}</h3>
+      <button class="widget-close" onclick="this.parentElement.parentElement.remove()">\u00d7</button>
+    </div>
+    <div class="progress-section">
+      <div class="progress-label">Progress: ${completion}%</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" style="width: ${completion}%"></div>
+      </div>
+    </div>
+    <div class="next-steps-section">
+      <h4>Next Steps:</h4>
+      <ul class="steps-list">
+        ${nextSteps.map((step, idx) => `
+          <li class="step-item">
+            <span class="step-number">${idx + 1}</span>
+            <span class="step-text">${step}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `;
+
+  // Insert in sidebar or main area
+  const sidebar = document.querySelector('.sidebar') || document.body;
+  sidebar.appendChild(widget);
+
+  console.log(`\ud83d\udee4\ufe0f Client Journey widget displayed: ${stage} (${completion}%)`);
+}
+
 // Export for use in HTML and other modules
 if (typeof window !== 'undefined') {
   window.clearChatHistory = clearChatHistory;
   window.showNotification = showNotification;
   window.showComplianceAlertsBanner = showComplianceAlertsBanner;
   window.displayCollectiveInsightsSidebar = displayCollectiveInsightsSidebar;
+  window.showClientJourneyWidget = showClientJourneyWidget;
 }
