@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   // Load Skill Detection Layer modules (async, non-blocking)
-// DISABLED:   loadSkillDetectionModules().then((loaded) => {
+  loadSkillDetectionModules().then((loaded) => {
     if (loaded) {
       console.log('✅ Skill Detection Layer modules loaded');
     }
@@ -381,8 +381,8 @@ async function sendMessage(content) {
 // DISABLED:         stagingTheater = new StagingTheater();
         // Start staging in background (non-blocking)
 // DISABLED:         stagingTheater.showStaging(complexity, [], complexity.domains).catch((err) => {
-          console.warn('Staging theater error:', err);
-        });
+// DISABLED:           console.warn('Staging theater error:', err);
+// DISABLED:         });
 
         // Track staging shown
         if (skillAnalytics) {
@@ -392,37 +392,37 @@ async function sendMessage(content) {
 
       // Attach SSE skill extension
 // DISABLED:       if (SSESkillExtension && skillEventBus) {
-        const skillExtension = new SSESkillExtension();
-        skillExtension.attach(zantaraClient);
-
-        // Listeners per skill events
+// DISABLED:         const skillExtension = new SSESkillExtension();
+// DISABLED:         skillExtension.attach(zantaraClient);
+// DISABLED:
+// DISABLED:         // Listeners per skill events
 // DISABLED:         skillEventBus.on('skill_detected', (skills) => {
 // DISABLED:           if (stagingTheater) {
 // DISABLED:             stagingTheater.updateSkills(skills);
-          }
-          // Track in analytics
-          if (skillAnalytics) {
-            skillAnalytics.trackSkillDetection(skills);
-          }
-        });
-
+// DISABLED:           }
+// DISABLED:           // Track in analytics
+// DISABLED:           if (skillAnalytics) {
+// DISABLED:             skillAnalytics.trackSkillDetection(skills);
+// DISABLED:           }
+// DISABLED:         });
+// DISABLED:
 // DISABLED:         skillEventBus.on('legal_references', (refs) => {
 // DISABLED:           if (stagingTheater) {
 // DISABLED:             stagingTheater.updateLegalReferences(refs);
-          }
-          // Track in analytics
-          if (skillAnalytics) {
-            skillAnalytics.trackLegalReferences(refs);
-          }
-        });
-
+// DISABLED:           }
+// DISABLED:           // Track in analytics
+// DISABLED:           if (skillAnalytics) {
+// DISABLED:             skillAnalytics.trackLegalReferences(refs);
+// DISABLED:           }
+// DISABLED:         });
+// DISABLED:
 // DISABLED:         skillEventBus.on('consultants_activated', (consultants) => {
-          // Track in analytics
-          if (skillAnalytics) {
-            skillAnalytics.trackConsultantsActivated(consultants);
-          }
-        });
-      }
+// DISABLED:           // Track in analytics
+// DISABLED:           if (skillAnalytics) {
+// DISABLED:             skillAnalytics.trackConsultantsActivated(consultants);
+// DISABLED:           }
+// DISABLED:         });
+// DISABLED:       }
     } catch (error) {
       console.warn('Skill Detection Layer error:', error);
       // Continue normally se skill detection fallisce
@@ -440,7 +440,7 @@ async function sendMessage(content) {
         // Se staging visibile e stiamo ricevendo token, accelera fade
 // DISABLED:         if (stagingTheater && fullText.length > 50) {
 // DISABLED:           stagingTheater.accelerateFade();
-        }
+// DISABLED:         }
         updateLiveMessage(currentLiveMessage, fullText);
       },
       onComplete: async (fullText) => {
@@ -448,40 +448,40 @@ async function sendMessage(content) {
 // DISABLED:         if (stagingTheater) {
 // DISABLED:           stagingTheater.forceFade();
 // DISABLED:           stagingTheater = null;
-        }
+// DISABLED:         }
         finalizeLiveMessage(currentLiveMessage, fullText);
         currentLiveMessage = null;
 
         // Show feedback widget (optional, non-intrusive)
-// DISABLED: // DISABLED:         if (feedbackCollector && skillEventBus) {
-          try {
-            // Check if getHistory method exists before calling it
-            let lastSkills = [];
+// DISABLED:         if (feedbackCollector && skillEventBus) {
+// DISABLED:           try {
+// DISABLED:             // Check if getHistory method exists before calling it
+// DISABLED:             let lastSkills = [];
 // DISABLED:             if (typeof skillEventBus.getHistory === 'function') {
-              // Get detected skills from event bus history
+// DISABLED:               // Get detected skills from event bus history
 // DISABLED:               const skillEvents = skillEventBus.getHistory('skill_detected');
-              lastSkills = skillEvents.length > 0 ? skillEvents[skillEvents.length - 1].data : [];
-            } else {
+// DISABLED:               lastSkills = skillEvents.length > 0 ? skillEvents[skillEvents.length - 1].data : [];
+// DISABLED:             } else {
 // DISABLED:               console.debug('skillEventBus.getHistory not available, skipping feedback widget');
-            }
-
-            // Only show feedback for complex queries with skills detected
-            if (lastSkills.length > 0) {
-              const { FeedbackWidget } = await import('./components/feedback-widget.js');
-              const feedbackWidget = new FeedbackWidget();
-              feedbackWidget.show(content, lastSkills);
-            }
-          } catch (error) {
-            // Feedback widget is optional
-            console.debug('Feedback widget not available:', error);
-          }
-        }
+// DISABLED:             }
+// DISABLED:
+// DISABLED:             // Only show feedback for complex queries with skills detected
+// DISABLED:             if (lastSkills.length > 0) {
+// DISABLED:               const { FeedbackWidget } = await import('./components/feedback-widget.js');
+// DISABLED:               const feedbackWidget = new FeedbackWidget();
+// DISABLED:               feedbackWidget.show(content, lastSkills);
+// DISABLED:             }
+// DISABLED:           } catch (error) {
+// DISABLED:             // Feedback widget is optional
+// DISABLED:             console.debug('Feedback widget not available:', error);
+// DISABLED:           }
+// DISABLED:         }
       },
       onError: (error) => {
 // DISABLED:         if (stagingTheater) {
 // DISABLED:           stagingTheater.forceFade();
 // DISABLED:           stagingTheater = null;
-        }
+// DISABLED:         }
         hideTypingIndicator();
         handleSendError(error);
       },
@@ -490,7 +490,7 @@ async function sendMessage(content) {
 // DISABLED:     if (stagingTheater) {
 // DISABLED:       stagingTheater.forceFade();
 // DISABLED:       stagingTheater = null;
-    }
+// DISABLED:     }
     hideTypingIndicator();
     handleSendError(error);
   }
