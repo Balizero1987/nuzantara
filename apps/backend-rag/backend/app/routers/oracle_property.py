@@ -234,11 +234,15 @@ async def get_market_analysis(
             # Return area knowledge from property_knowledge collection
             knowledge_client = service.collections["property_knowledge"]
 
-            results = knowledge_client.collection.get(
-                where={"area": area},
-                limit=1,
-                include=["documents", "metadatas"]
-            )
+            # Qdrant: Use peek and filter in Python
+            # TODO: Implement Qdrant filter support
+            all_results = knowledge_client.peek(limit=100)
+            results = {"documents": [], "metadatas": []}
+            for doc, meta in zip(all_results.get("documents", []), all_results.get("metadatas", [])):
+                if meta.get("area") == area:
+                    results["documents"].append(doc)
+                    results["metadatas"].append(meta)
+                    break  # limit=1
 
             if results['documents']:
                 return {
@@ -555,10 +559,13 @@ async def get_ownership_types(service: SearchService = Depends(get_search_servic
     try:
         client = service.collections["property_knowledge"]
 
-        results = client.collection.get(
-            where={"category": "ownership_types"},
-            include=["documents", "metadatas"]
-        )
+        # Qdrant: Use peek and filter in Python
+        all_results = client.peek(limit=100)
+        results = {"documents": [], "metadatas": []}
+        for doc, meta in zip(all_results.get("documents", []), all_results.get("metadatas", [])):
+            if meta.get("category") == "ownership_types":
+                results["documents"].append(doc)
+                results["metadatas"].append(meta)
 
         ownership_types = []
         for doc, metadata in zip(results['documents'], results['metadatas']):
@@ -583,10 +590,13 @@ async def get_areas_info(service: SearchService = Depends(get_search_service)):
     try:
         client = service.collections["property_knowledge"]
 
-        results = client.collection.get(
-            where={"category": "area_knowledge"},
-            include=["documents", "metadatas"]
-        )
+        # Qdrant: Use peek and filter in Python
+        all_results = client.peek(limit=100)
+        results = {"documents": [], "metadatas": []}
+        for doc, meta in zip(all_results.get("documents", []), all_results.get("metadatas", [])):
+            if meta.get("category") == "area_knowledge":
+                results["documents"].append(doc)
+                results["metadatas"].append(meta)
 
         areas = []
         for doc, metadata in zip(results['documents'], results['metadatas']):
@@ -615,10 +625,8 @@ async def get_legal_updates(limit: int = 20, service: SearchService = Depends(ge
     try:
         client = service.collections["legal_updates"]
 
-        results = client.collection.get(
-            limit=limit,
-            include=["documents", "metadatas"]
-        )
+        # Qdrant: Use peek
+        results = client.peek(limit=limit)
 
         updates = []
         for doc, metadata in zip(results['documents'], results['metadatas']):
