@@ -4997,33 +4997,25 @@ async def add_request_count(request: Request, call_next):
     return await call_next(request)
 
 # 🚀 NEW: Include Handlers Registry API
-try:
-    from api.handlers import router as handlers_router
-    app.include_router(handlers_router)
-    logger.info("🔧 [Startup] Handlers registry API loaded")
-except ImportError as e:
-    logger.warning(f"⚠️ [Startup] Failed to load handlers API: {e}")
-except Exception as e:
-    logger.error(f"❌ [Startup] Error loading handlers API: {e}")
+# try:
+#     from api.handlers import router as handlers_router
+#     app.include_router(handlers_router)
+#     logger.info("🔧 [Startup] Handlers registry API loaded")
+# except ImportError as e:
+#     logger.warning(f"⚠️ [Startup] Failed to load handlers API: {e}")
+# except Exception as e:
+#     logger.error(f"❌ [Startup] Error loading handlers API: {e}")
 
 # 🚀 NEW: Include Skill Admin API
-try:
-    from app.routers.skill_admin import router as skill_admin_router
-    app.include_router(skill_admin_router)
-    logger.info("🔧 [Startup] Skill admin API loaded")
-except ImportError as e:
-    logger.warning(f"⚠️ [Startup] Failed to load skill admin API: {e}")
-except Exception as e:
-    logger.error(f"❌ [Startup] Error loading skill admin API: {e}")
+# try:
+#     from app.routers.skill_admin import router as skill_admin_router
+#     app.include_router(skill_admin_router)
+#     logger.info("🔧 [Startup] Skill admin API loaded")
+# except ImportError as e:
+#     logger.warning(f"⚠️ [Startup] Failed to load skill admin API: {e}")
+# except Exception as e:
+#     logger.error(f"❌ [Startup] Error loading skill admin API: {e}")
 
 # 🚀 NEW: Include Skill Feedback API
-try:
-    from app.routers.skill_feedback import router as skill_feedback_router
-    app.include_router(skill_feedback_router)
-    logger.info("🔧 [Startup] Skill feedback API loaded")
-except ImportError as e:
-    logger.warning(f"⚠️ [Startup] Failed to load skill feedback API: {e}")
-except Exception as e:
-    logger.error(f"❌ [Startup] Error loading skill feedback API: {e}")
 
 # Force Fly.io redeploy - Priority 1-5 active
