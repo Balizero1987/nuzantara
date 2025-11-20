@@ -7,6 +7,7 @@ email-validator==2.1.0  # Required for Pydantic EmailStr validation
 
 # Embeddings and ML models
 sentence-transformers==3.2.1
+openai==1.57.4  # For text-embedding-3-small (1536-dim) and AI clients
 
 # Machine Learning (for query clustering)
 scikit-learn==1.5.2
