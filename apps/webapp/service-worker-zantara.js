@@ -65,8 +65,14 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Skip API requests (always fetch fresh)
+    // Network-first strategy for API requests
     if (url.pathname.startsWith('/api/')) {
+        // 1. Skip caching for POST, PUT, DELETE requests
+        if (event.request.method !== 'GET') {
+            event.respondWith(fetch(event.request));
+            return;
+        }
+
         event.respondWith(
             fetch(request)
                 .then((response) => {

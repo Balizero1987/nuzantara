@@ -140,7 +140,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     console.log('✅ Team Analytics Client initialized');
   }
 
-  // Initialize System Handlers Client and load tools
+  // Initialize System Handlers Client (Disabled for now as backend endpoint is missing)
+  /*
   if (typeof window.SystemHandlersClient !== 'undefined') {
     const systemHandlersClient = new window.SystemHandlersClient();
     window.systemHandlersClient = systemHandlersClient;
@@ -152,6 +153,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       console.warn('⚠️ Failed to load system handlers:', error.message);
     });
   }
+  */
 
   // Load compliance alerts
   if (typeof window.AgentsClient !== 'undefined') {
@@ -598,8 +600,14 @@ function createLiveMessage() {
  */
 function updateLiveMessage(messageEl, text) {
   if (!messageEl) {
-    console.warn('⚠️ updateLiveMessage: No message element provided');
-    return;
+    // If no message element, try to find it by ID as fallback
+    messageEl = document.getElementById('liveMessage');
+    if (!messageEl) {
+      console.warn('⚠️ updateLiveMessage: No message element provided and not found in DOM');
+      return;
+    }
+    // Update local reference if we recovered it
+    currentStreamingMessage = messageEl;
   }
 
   try {
@@ -620,8 +628,12 @@ function updateLiveMessage(messageEl, text) {
  */
 function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
   if (!messageEl) {
-    console.warn('⚠️ finalizeLiveMessage: No message element provided');
-    return;
+    // Fallback: try to find by ID
+    messageEl = document.getElementById('liveMessage');
+    if (!messageEl) {
+      console.warn('⚠️ finalizeLiveMessage: No message element provided and not found in DOM');
+      return;
+    }
   }
 
   try {

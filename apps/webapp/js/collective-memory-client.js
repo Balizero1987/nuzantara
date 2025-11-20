@@ -52,26 +52,61 @@ class CollectiveMemoryClient {
     }
 
     /**
-     * Query collective memory
+     * Query collective memory (Shared Memory)
+     * Uses GET /api/shared-memory/search
      */
     async queryCollective(query, filters = {}) {
         try {
-            const endpoint = this.config.endpoints.query || '/api/v3/zantara/collective';
+            const endpoint = this.config.endpoints.crm.sharedMemory + '/search';
 
-            // Use POST for query as required by backend
-            const data = await this.api.post(endpoint, {
-                query,
-                filters
+            // Use GET for search as required by backend
+            const params = new URLSearchParams({
+                q: query,
+                limit: filters.limit || 10
             });
 
-            if (data.success && data.data) {
-                console.log(`✅ Collective query returned ${data.data.collective_insights?.length || 0} insights`);
-                return data.data.collective_insights || [];
+            const data = await this.api.get(`${endpoint}?${params}`);
+
+            // Backend returns { clients: [], practices: [], interactions: [], ... }
+            // We normalize this to a list of insights
+            if (data) {
+                const insights = [];
+
+                // Add clients
+                if (data.clients) {
+                    data.clients.forEach(c => insights.push({
+                        type: 'client',
+                        content: `${c.full_name} (${c.email})`,
+                        metadata: c
+                    }));
+                }
+
+                // Add practices
+                if (data.practices) {
+                    data.practices.forEach(p => insights.push({
+                        type: 'practice',
+                        content: `${p.practice_type_name} for ${p.client_name} (${p.status})`,
+                        metadata: p
+                    }));
+                }
+
+                // Add interactions
+                if (data.interactions) {
+                    data.interactions.forEach(i => insights.push({
+                        type: 'interaction',
+                        content: `${i.interaction_type} with ${i.client_name}: ${i.summary || i.subject}`,
+                        metadata: i
+                    }));
+                }
+
+                console.log(`✅ Collective query returned ${insights.length} items`);
+                return insights;
             }
 
             return [];
         } catch (error) {
-            console.error('Failed to query collective memory:', error);
+            console.warn('⚠️ Failed to query collective memory:', error.message);
+            // Return empty array instead of throwing to avoid breaking UI
             return [];
         }
     }
