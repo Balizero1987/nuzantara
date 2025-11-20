@@ -169,3 +169,79 @@ async def mock_get_current_user():
         "tier": "free",
         "avatar": None
     }
+
+
+class VerifyTokenRequest(BaseModel):
+    token: str
+
+
+class VerifyTokenResponse(BaseModel):
+    valid: bool
+    user: Dict[str, Any] = None
+    error: str = None
+
+
+@router.post("/verify", response_model=VerifyTokenResponse)
+async def verify_token(request: VerifyTokenRequest):
+    """
+    Verify JWT token validity.
+    
+    For MVP: Accepts any token that follows the expected format.
+    Real implementation would verify JWT signature and expiry.
+    
+    Args:
+        request: Token to verify
+    
+    Returns:
+        Token validity status and user info if valid
+    
+    Example:
+        ```
+        POST /api/auth/verify
+        {"token": "mock_access_abc123_456"}
+        ```
+    """
+    try:
+        token = request.token
+        
+        # Mock validation: Check if token follows expected format
+        if not token or len(token) < 10:
+            logger.warning(f"⚠️ Invalid token format: {token[:20] if token else 'empty'}...")
+            return VerifyTokenResponse(
+                valid=False,
+                error="Invalid token format"
+            )
+        
+        # Mock validation: Accept tokens that start with expected prefixes
+        valid_prefixes = ["mock_access_", "demo-token", "zantara-"]
+        is_valid = any(token.startswith(prefix) for prefix in valid_prefixes)
+        
+        if not is_valid:
+            logger.warning(f"⚠️ Token verification failed: {token[:20]}...")
+            return VerifyTokenResponse(
+                valid=False,
+                error="Token not recognized"
+            )
+        
+        # Extract user info from token (mock)
+        # In real implementation, decode JWT payload
+        token_hash = hashlib.md5(token.encode()).hexdigest()[:16]
+        
+        logger.info(f"✅ Token verified: {token[:20]}...")
+        
+        return VerifyTokenResponse(
+            valid=True,
+            user={
+                "id": token_hash,
+                "email": "verified@zantara.com",
+                "name": "Verified User",
+                "tier": "free"
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"❌ Token verification error: {e}")
+        return VerifyTokenResponse(
+            valid=False,
+            error=f"Verification failed: {str(e)}"
+        )

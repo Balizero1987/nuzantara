@@ -1,51 +1,20 @@
 /* eslint-disable no-undef, no-console */
 /**
- * ZANTARA Chat Application - Production Ready
+ * ZANTARA Chat Application - Clean Architecture
  * Integrates with ZantaraClient for all backend communication
+ * Uses StateManager for centralized state and ErrorHandler for error tracking
  */
 
-// Import Skill Detection Layer (dynamic import per performance)
-// DISABLED: let QueryComplexityAnalyzer, StagingTheater, SSESkillExtension, skillEventBus;
+// Import Core Modules
+import { stateManager } from './core/state-manager.js';
+import { ErrorHandler } from './core/error-handler.js';
+import { notificationManager } from './components/notification.js';
+
+// Initialize Error Handler
+const errorHandler = new ErrorHandler();
 
 // Import Collective Memory Layer (dynamic import per performance)
 let SSECollectiveMemoryExtension, CollectiveMemoryWidget;
-let isFeatureEnabled, shouldShowFeature;
-
-// Load skill detection modules if feature enabled
-async function loadSkillDetectionModules() {
-  try {
-    const module = await import('./utils/query-complexity.js');
-    QueryComplexityAnalyzer = module.QueryComplexityAnalyzer;
-
-    const theaterModule = await import('./components/staging-theater.js');
-    StagingTheater = theaterModule.StagingTheater;
-
-    const extensionModule = await import('./adapters/sse-skill-extension.js');
-    SSESkillExtension = extensionModule.SSESkillExtension;
-
-    const eventBusModule = await import('./core/skill-event-bus.js');
-// DISABLED:     skillEventBus = eventBusModule.skillEventBus;
-
-    const flagsModule = await import('./config/feature-flags.js');
-    isFeatureEnabled = flagsModule.isFeatureEnabled;
-    shouldShowFeature = flagsModule.shouldShowFeature;
-
-    // Load analytics and services
-    const analyticsModule = await import('./services/analytics.js');
-    skillAnalytics = analyticsModule.skillAnalytics;
-
-    const abTestingModule = await import('./services/ab-testing.js');
-    abTesting = abTestingModule.abTesting;
-
-    const feedbackModule = await import('./services/feedback-collector.js');
-// DISABLED:     feedbackCollector = feedbackModule.feedbackCollector;
-
-    return true;
-  } catch (error) {
-    console.warn('Skill Detection Layer not available:', error);
-    return false;
-  }
-}
 
 /**
  * Load Collective Memory modules if feature enabled
@@ -83,11 +52,8 @@ async function loadCollectiveMemoryModules() {
   }
 }
 
-// Global state
+// Global client reference (state managed by StateManager)
 let zantaraClient;
-let messages = [];
-let currentLiveMessage = null;
-// DISABLED: let stagingTheater = null;
 
 // DOM elements
 let messageSpace, messageInput, sendButton, quickActions, messagesContainer;
@@ -147,16 +113,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     await zantaraClient.authenticate();
     console.log('✅ Client initialized and authenticated');
   } catch (error) {
-    console.error('Failed to authenticate:', error);
+    errorHandler.handle({
+      type: 'auth_error',
+      error,
+      message: 'Authentication failed'
+    });
     showErrorNotification('Authentication failed. Some features may not work.');
   }
 
-  // Load Skill Detection Layer modules (async, non-blocking)
-// DISABLED:   loadSkillDetectionModules().then((loaded) => {
-// DISABLED:     if (loaded) {
-// DISABLED:       console.log('✅ Skill Detection Layer modules loaded');
-// DISABLED:     }
-// DISABLED:   });
+  // Initialize StateManager
+  stateManager.restore();
+  stateManager.setUser(userContext.user);
 
   // Load Collective Memory modules (async, non-blocking)
   loadCollectiveMemoryModules().then((loaded) => {
@@ -215,7 +182,7 @@ async function loadMessageHistory() {
 
         // Clear existing messages
         messageSpace.innerHTML = '';
-        messages = [];
+        stateManager.clearMessages();
 
         // Convert Memory Service format to app format and render
         history.forEach((msg) => {
@@ -224,7 +191,7 @@ async function loadMessageHistory() {
             content: msg.content,
             timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date(),
           };
-          messages.push(appMsg);
+          stateManager.addMessage(appMsg);
           renderMessage(appMsg, false); // false = don't save to history again
         });
 
@@ -232,24 +199,31 @@ async function loadMessageHistory() {
         return;
       }
     } catch (error) {
+      errorHandler.handle({
+        type: 'memory_service_error',
+        error,
+        message: 'Failed to load from Memory Service'
+      });
       console.warn(
         '⚠️ Failed to load from Memory Service, falling back to localStorage:',
         error.message
       );
+      showNotification('Could not load conversation history from server', 'warning');
     }
   }
 
   // Fallback to localStorage
-  messages = zantaraClient.messages;
+  const localMessages = zantaraClient.messages;
 
-  if (messages.length > 0) {
-    console.log(`📚 Loading ${messages.length} messages from localStorage`);
+  if (localMessages.length > 0) {
+    console.log(`📚 Loading ${localMessages.length} messages from localStorage`);
 
     // Clear existing messages
     messageSpace.innerHTML = '';
 
-    // Render all messages
-    messages.forEach((msg) => {
+    // Render all messages and sync to StateManager
+    localMessages.forEach((msg) => {
+      stateManager.addMessage(msg);
       renderMessage(msg, false); // false = don't save to history again
     });
 
@@ -361,136 +335,31 @@ async function sendMessage(content) {
   // Show typing indicator
   showTypingIndicator();
 
-  // Skill Detection Layer - Query Complexity Analysis
-// DISABLED:   if (
-// DISABLED:     QueryComplexityAnalyzer &&
-// DISABLED:     isFeatureEnabled &&
-// DISABLED:     isFeatureEnabled('stagingTheater') &&
-// DISABLED:     shouldShowFeature()
-// DISABLED:   ) {
-// DISABLED:     try {
-// DISABLED:       const complexityAnalyzer = new QueryComplexityAnalyzer();
-// DISABLED:       const complexity = complexityAnalyzer.analyze(content);
-// DISABLED:
-// DISABLED:       // Track query in analytics
-// DISABLED:       if (skillAnalytics) {
-// DISABLED:         skillAnalytics.trackQuery(content, complexity.complexity);
-// DISABLED:       }
-// DISABLED:
-// DISABLED:       if (complexity.showStaging) {
-// DISABLED:         stagingTheater = new StagingTheater();
-// DISABLED:         // Start staging in background (non-blocking)
-// DISABLED:         stagingTheater.showStaging(complexity, [], complexity.domains).catch((err) => {
-// DISABLED:           console.warn('Staging theater error:', err);
-// DISABLED:         });
-// DISABLED:
-// DISABLED:         // Track staging shown
-// DISABLED:         if (skillAnalytics) {
-// DISABLED:           skillAnalytics.trackStagingShown(complexity.complexity);
-// DISABLED:         }
-// DISABLED:       }
-// DISABLED:
-// DISABLED:       // Attach SSE skill extension
-// DISABLED:       if (SSESkillExtension && skillEventBus) {
-// DISABLED:         const skillExtension = new SSESkillExtension();
-// DISABLED:         skillExtension.attach(zantaraClient);
-// DISABLED:
-// DISABLED:         // Listeners per skill events
-// DISABLED:         skillEventBus.on('skill_detected', (skills) => {
-// DISABLED:           if (stagingTheater) {
-// DISABLED:             stagingTheater.updateSkills(skills);
-// DISABLED:           }
-// DISABLED:           // Track in analytics
-// DISABLED:           if (skillAnalytics) {
-// DISABLED:             skillAnalytics.trackSkillDetection(skills);
-// DISABLED:           }
-// DISABLED:         });
-// DISABLED:
-// DISABLED:         skillEventBus.on('legal_references', (refs) => {
-// DISABLED:           if (stagingTheater) {
-// DISABLED:             stagingTheater.updateLegalReferences(refs);
-// DISABLED:           }
-// DISABLED:           // Track in analytics
-// DISABLED:           if (skillAnalytics) {
-// DISABLED:             skillAnalytics.trackLegalReferences(refs);
-// DISABLED:           }
-// DISABLED:         });
-// DISABLED:
-// DISABLED:         skillEventBus.on('consultants_activated', (consultants) => {
-// DISABLED:           // Track in analytics
-// DISABLED:           if (skillAnalytics) {
-// DISABLED:             skillAnalytics.trackConsultantsActivated(consultants);
-// DISABLED:           }
-// DISABLED:         });
-// DISABLED:       }
-// DISABLED:     } catch (error) {
-// DISABLED:       console.warn('Skill Detection Layer error:', error);
-// DISABLED:       // Continue normally se skill detection fallisce
-// DISABLED:     }
-// DISABLED:   }
-
   try {
     // Use streaming for better UX
     await zantaraClient.sendMessageStream(content, {
       onStart: () => {
         hideTypingIndicator();
-        currentLiveMessage = createLiveMessage();
+        stateManager.state.streamingMessage = createLiveMessage();
       },
       onToken: (token, fullText) => {
-        // Se staging visibile e stiamo ricevendo token, accelera fade
-// DISABLED:         if (stagingTheater && fullText.length > 50) {
-// DISABLED:           stagingTheater.accelerateFade();
-// DISABLED:         }
-        updateLiveMessage(currentLiveMessage, fullText);
+        updateLiveMessage(stateManager.state.streamingMessage, fullText);
       },
       onComplete: async (fullText) => {
-        // Assicura che staging sia rimosso
-// DISABLED:         if (stagingTheater) {
-// DISABLED:           stagingTheater.forceFade();
-// DISABLED:           stagingTheater = null;
-// DISABLED:         }
-        finalizeLiveMessage(currentLiveMessage, fullText);
-        currentLiveMessage = null;
-
-        // Show feedback widget (optional, non-intrusive)
-// DISABLED:         if (feedbackCollector && skillEventBus) {
-// DISABLED:           try {
-// DISABLED:             // Check if getHistory method exists before calling it
-// DISABLED:             let lastSkills = [];
-// DISABLED:             if (typeof skillEventBus.getHistory === 'function') {
-// DISABLED:               // Get detected skills from event bus history
-// DISABLED:               const skillEvents = skillEventBus.getHistory('skill_detected');
-// DISABLED:               lastSkills = skillEvents.length > 0 ? skillEvents[skillEvents.length - 1].data : [];
-// DISABLED:             } else {
-// DISABLED:               console.debug('skillEventBus.getHistory not available, skipping feedback widget');
-// DISABLED:             }
-// DISABLED:
-// DISABLED:             // Only show feedback for complex queries with skills detected
-// DISABLED:             if (lastSkills.length > 0) {
-// DISABLED:               const { FeedbackWidget } = await import('./components/feedback-widget.js');
-// DISABLED:               const feedbackWidget = new FeedbackWidget();
-// DISABLED:               feedbackWidget.show(content, lastSkills);
-// DISABLED:             }
-// DISABLED:           } catch (error) {
-// DISABLED:             // Feedback widget is optional
-// DISABLED:             console.debug('Feedback widget not available:', error);
-// DISABLED:           }
-// DISABLED:         }
+        finalizeLiveMessage(stateManager.state.streamingMessage, fullText);
+        stateManager.state.streamingMessage = null;
       },
       onError: (error) => {
-// DISABLED:         if (stagingTheater) {
-// DISABLED:           stagingTheater.forceFade();
-// DISABLED:           stagingTheater = null;
-// DISABLED:         }
         hideTypingIndicator();
         handleSendError(error);
       },
     });
   } catch (error) {
-// DISABLED:     if (stagingTheater) {
-// DISABLED:       stagingTheater.forceFade();
-// DISABLED:       stagingTheater = null;
-// DISABLED:     }
+    errorHandler.handle({
+      type: 'send_message_error',
+      error,
+      message: 'Failed to send message'
+    });
     hideTypingIndicator();
     handleSendError(error);
   }
@@ -568,8 +437,8 @@ function renderMessage(msg, saveToHistory = true) {
     retryBtn.className = 'retry-button';
     retryBtn.textContent = '🔄 Retry';
     retryBtn.onclick = () => {
-      // Get last user message
-      const lastUserMsg = messages.filter((m) => m.type === 'user').pop();
+      // Get last user message from StateManager
+      const lastUserMsg = stateManager.state.messages.filter((m) => m.type === 'user').pop();
       if (lastUserMsg) {
         sendMessage(lastUserMsg.content);
       }
@@ -809,32 +678,17 @@ async function handleImageGeneration(content) {
 }
 
 /**
- * Show notification
+ * Show notification (using unified notification system)
  */
 function showNotification(message, type = 'info') {
-  // Create notification element
-  const notification = document.createElement('div');
-  notification.className = `notification notification-${type}`;
-  notification.textContent = message;
-
-  // Add to body
-  document.body.appendChild(notification);
-
-  // Show with animation
-  setTimeout(() => notification.classList.add('show'), 10);
-
-  // Hide after 3 seconds
-  setTimeout(() => {
-    notification.classList.remove('show');
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
+  return notificationManager.show(message, type);
 }
 
 /**
  * Show error notification
  */
 function showErrorNotification(message) {
-  showNotification(message, 'error');
+  return notificationManager.show(message, 'error');
 }
 
 /**
@@ -874,13 +728,18 @@ async function clearChatHistory() {
         await window.CONVERSATION_CLIENT.clearConversation();
         console.log('✅ Conversation cleared from Memory Service');
       } catch (error) {
+        errorHandler.handle({
+          type: 'memory_service_error',
+          error,
+          message: 'Failed to clear Memory Service conversation'
+        });
         console.warn('⚠️ Failed to clear Memory Service conversation:', error.message);
       }
     }
 
-    // Clear UI
+    // Clear UI and StateManager
     messageSpace.innerHTML = '';
-    messages = [];
+    stateManager.clearMessages();
     showWelcomeMessage();
     showNotification('Chat history cleared', 'success');
   }
@@ -964,7 +823,8 @@ async function handleLogout() {
   window.location.href = '/login.html';
 }
 
-// Export for use in HTML
+// Export for use in HTML and other modules
 if (typeof window !== 'undefined') {
   window.clearChatHistory = clearChatHistory;
+  window.showNotification = showNotification;
 }
