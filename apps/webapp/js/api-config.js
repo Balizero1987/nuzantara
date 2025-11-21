@@ -102,13 +102,23 @@ export function getEndpointUrl(service, endpoint) {
 }
 
 // Helper: Get auth headers
+// Helper: Get auth headers
 export function getAuthHeaders() {
-  'Content-Type': 'application/json'
-};
+  try {
+    const token = localStorage.getItem('zantara-token');
+    if (token) {
+      return {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+    }
+    return {
+      'Content-Type': 'application/json'
+    };
   } catch (error) {
-  console.warn('Failed to parse auth token:', error);
-  return { 'Content-Type': 'application/json' };
-}
+    console.warn('Failed to parse auth token:', error);
+    return { 'Content-Type': 'application/json' };
+  }
 }
 
 // Expose globally for non-module scripts

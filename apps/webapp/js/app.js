@@ -54,6 +54,7 @@ async function loadCollectiveMemoryModules() {
 
 // Global client reference (state managed by StateManager)
 let zantaraClient;
+let availableTools = []; // Tools loaded from system handlers
 
 // DOM elements
 let messageSpace, messageInput, sendButton, quickActions, messagesContainer;
@@ -145,11 +146,16 @@ document.addEventListener('DOMContentLoaded', async function () {
     const systemHandlersClient = new window.SystemHandlersClient();
     window.systemHandlersClient = systemHandlersClient;
 
-    // Load tools in background
+    // Load tools in background and store globally
     systemHandlersClient.getTools().then(tools => {
-      console.log(`✅ System Handlers initialized: ${tools.length} tools available`);
+      availableTools = tools || [];
+      window.availableTools = availableTools; // Make globally accessible for ZantaraClient
+      console.log(`✅ System Handlers initialized: ${availableTools.length} tools available`);
+      console.log(`🔧 Tools available for AI: search_team_member, get_pricing, etc.`);
     }).catch(error => {
       console.warn('⚠️ Failed to load system handlers:', error.message);
+      availableTools = [];
+      window.availableTools = []; // Ensure global is set even on error
     });
   }
 

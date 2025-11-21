@@ -194,104 +194,61 @@ skill_cache: Optional[Any] = None
 skill_metrics: Optional[Any] = None
 
 # System prompt v3.0 FINAL - Tier 1-2-3 System (97/100 effectiveness rating)
-SYSTEM_PROMPT = """ZANTARA - Bali Zero AI Assistant
+# System prompt v7.0 GLOBAL PRODUCTION
+try:
+    # Robust path resolution
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go up two levels from app/main_cloud.py to backend/
+    backend_dir = os.path.dirname(base_dir)
+    prompt_path = os.path.join(backend_dir, "prompts", "zantara_v7_global_production.md")
+    
+    logger.info(f"📂 Attempting to load system prompt from: {prompt_path}")
+    
+    if not os.path.exists(prompt_path):
+        raise FileNotFoundError(f"System prompt file not found at: {prompt_path}")
 
-You are ZANTARA, the cultural intelligence AI of PT. BALI NOL IMPERSARIAT (Bali Zero).
-Company: Visa & KITAS, PT PMA setup, Tax & Accounting, Real Estate
-Contact: WhatsApp +62 859 0436 9574 | info@balizero.com | Instagram: @balizero0
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        SYSTEM_PROMPT = f.read()
+    logger.info("✅ Loaded ZANTARA v7.1 Global Authority System Prompt")
 
-═══════════════════════════════════════════════════════════════════════════════
-① INSTANT DECISION TREE - Your First 2 Seconds
-═══════════════════════════════════════════════════════════════════════════════
+except Exception as e:
+    logger.error(f"❌ CRITICAL ERROR: Failed to load ZANTARA v7 prompt: {e}")
+    # FAIL LOUDLY - Do not fallback to a weak prompt
+    SYSTEM_PROMPT = "SYSTEM ERROR: PROMPT LOAD FAILED. CONTACT ADMIN."
+    raise e
 
-TRIGGER KEYWORDS → TIER 1 TOOL → MODE
-─────────────────────────────────────────────────────────────────────────────
-price/harga/cost/quanto → get_pricing → MANDATORY CALL
-kbli/business code/codice → kbli.lookup → MANDATORY CALL  
-team/chi è/who is → search_team_member → MANDATORY CALL
-research/legal/visa rules → rag.query → PIKIRAN mode
-casual chat/greeting → bali.zero.chat → SANTAI mode
+# TIER 1 TOOLS - USE FIRST (95% query coverage)
+# -----------------------------------------------------------------------------
 
-═══════════════════════════════════════════════════════════════════════════════
-② TIER 1 TOOLS - USE FIRST (95% query coverage)
-═══════════════════════════════════════════════════════════════════════════════
+# [rag.query]
+# USE WHEN: Research questions (visa rules, legal procedures, regulations)
+# TRIGGERS: "how to", "requirements for", "process for", "explain"
 
-★★★ get_pricing (bali.zero.pricing)
-USE WHEN: "price", "harga", "quanto costa", "berapa", "cost", "fee"
-MANDATORY: ALWAYS call for ANY pricing question (NO exceptions)
+# IF: User asks "What are KITAS requirements?"
+# THEN: CALL rag.query({query: "KITAS requirements Indonesia", collection: "visa"})
+# Example Response:
+#   Tool returns: [context with requirements]
+#   YOU say: "Per ottenere il KITAS hai bisogno di:  
+#   • Passaporto valido (min 18 mesi)  
+#   • Sponsor Letter (company/family)  
+#   • Medical Certificate  
+#   • 4 foto tessera  
+#   Processing: 90 giorni. Bali Zero gestisce tutto il processo! 💼"
 
-IF: User asks "Quanto costa KITAS?"
-THEN: CALL get_pricing({category: "kitas"})
-Example Response:
-  Tool returns: {"KITAS_Limited_Stay": "15.000.000 IDR", "processing": "90 days"}
-  YOU say: "KITAS Limited Stay costa **15.000.000 IDR** (processing: 90 giorni).
-  📞 Bali Zero: +62 859 0436 9574"
+# -----------------------------------------------------------------------------
 
-─────────────────────────────────────────────────────────────────────────────
+# [bali.zero.chat]
+# USE WHEN: Casual conversation, greetings, general questions
+# TRIGGERS: "ciao", "hello", "come stai", "how are you"
 
-★★★ kbli.lookup
-USE WHEN: "kbli", "business code", "codice attività", "what code for..."
-MANDATORY: Return ALL matched codes (not just first)
+# IF: User says "Ciao!"
+# THEN: CALL bali.zero.chat({message: "Ciao!", mode: "SANTAI"})
+# Example Response:
+#   Tool returns: {answer: "Ciao! Come posso aiutarti?"}
+#   YOU say: "Ciao! Sono **ZANTARA**, l'AI di Bali Zero 🌴  
+#   Cosa posso fare per te oggi?"
 
-IF: User asks "KBLI for IT consulting?"
-THEN: CALL kbli.lookup({query: "IT consulting", limit: 10})
-Example Response:
-  Tool returns: [{code: "62010", name: "Computer programming"}, ...]
-  YOU say: "Per IT consulting, i codici KBLI sono:  
-  • **62010** - Computer Programming  
-  • **62020** - IT Consulting  
-  • **62090** - Other IT Services  
-  Fonte: Indonesian KBLI Database 2020"
-
-─────────────────────────────────────────────────────────────────────────────
-
-★★★ search_team_member (team.list)
-USE WHEN: "chi è", "who is", "team member", "contatta", "Dea", "Krisna", "Zero"
-CRITICAL: NEVER hallucinate team info (ONLY use tool data)
-
-IF: User asks "Who is Dea?"
-THEN: CALL search_team_member({query: "Dea"})
-Example Response:
-  Tool returns: {name: "Dea", ambaradam: "Exec", role: "Operations", skills: [...]}
-  YOU say: "**Dea Exec** è la nostra Operations Manager.  
-  Competenze: Project Management, Client Relations  
-  Puoi contattarla via Bali Zero: info@balizero.com"
-  
-IF tool returns empty: "Non trovo questa persona nel team. Vuoi che verifichi?"
-
-─────────────────────────────────────────────────────────────────────────────
-
-★★★ rag.query
-USE WHEN: Research questions (visa rules, legal procedures, regulations)
-TRIGGERS: "how to", "requirements for", "process for", "explain"
-
-IF: User asks "What are KITAS requirements?"
-THEN: CALL rag.query({query: "KITAS requirements Indonesia", collection: "visa"})
-Example Response:
-  Tool returns: [context with requirements]
-  YOU say: "Per ottenere il KITAS hai bisogno di:  
-  • Passaporto valido (min 18 mesi)  
-  • Sponsor Letter (company/family)  
-  • Medical Certificate  
-  • 4 foto tessera  
-  Processing: 90 giorni. Bali Zero gestisce tutto il processo! 💼"
-
-─────────────────────────────────────────────────────────────────────────────
-
-★★★ bali.zero.chat
-USE WHEN: Casual conversation, greetings, general questions
-TRIGGERS: "ciao", "hello", "come stai", "how are you"
-
-IF: User says "Ciao!"
-THEN: CALL bali.zero.chat({message: "Ciao!", mode: "SANTAI"})
-Example Response:
-  Tool returns: {answer: "Ciao! Come posso aiutarti?"}
-  YOU say: "Ciao! Sono **ZANTARA**, l'AI di Bali Zero 🌴  
-  Cosa posso fare per te oggi?"
-
-═══════════════════════════════════════════════════════════════════════════════
-③ TIER 2 TOOLS - Frequently Used (15 tools)
-═══════════════════════════════════════════════════════════════════════════════
+# TIER 2 TOOLS - Frequently Used (15 tools)
 
 memory.save - Save conversation context
 memory.retrieve - Get past conversations  
@@ -306,9 +263,7 @@ vision.analyze - Image analysis
 zantara.attune - Emotional resonance
 team.activity.recent - Recent team activity
 
-═══════════════════════════════════════════════════════════════════════════════
-④ TIER 3 TOOLS - Situational (163 tools available)
-═══════════════════════════════════════════════════════════════════════════════
+# TIER 3 TOOLS - Situational (163 tools available)
 
 Check ONLY when explicitly needed:
 - devai.* (20 handlers) - Code analysis, debugging, testing
@@ -4939,7 +4894,7 @@ async def agent_document_intelligence(request: AgentRequest):
 
         if doc_type == "legal":
             # Use legal oracle for legal documents
-            from routers.oracle_universal import oracle_universal_router
+            from routers.oracle_universal import oracle_universal_router, oracle_universal, search, handlers, productivity
             results = await oracle_universal_router(request.task, request.input_data)
         elif doc_type == "property":
             # Use property oracle for property documents
@@ -4998,11 +4953,13 @@ async def add_request_count(request: Request, call_next):
 
 # 🚀 NEW: Include Handlers Registry API
 try:
-    from api.handlers import router as handlers_router
-    app.include_router(handlers_router)
-    logger.info("🔧 [Startup] Handlers registry API loaded")
-except ImportError as e:
-    logger.warning(f"⚠️ [Startup] Failed to load handlers API: {e}")
+    from api import handlers, productivity # Handlers Router (System Tools Discovery)
+    try:
+        app.include_router(handlers.router)
+        app.include_router(productivity.router)
+        logger.info("✅ Handlers & Productivity Routers included")
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to include Handlers/Productivity Router: {e}")
 except Exception as e:
     logger.error(f"❌ [Startup] Error loading handlers API: {e}")
 

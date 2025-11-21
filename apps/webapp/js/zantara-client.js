@@ -358,7 +358,22 @@ class ZantaraClient {
       const userEmail = window.UserContext?.user?.email || 'demo@example.com';
       url.searchParams.append('user_email', userEmail);
 
-      console.log(`🔌 Connecting to: ${url.toString()}`);
+      // Add available tools if present (CRITICAL FOR RAG + TOOLS)
+      if (window.availableTools && window.availableTools.length > 0) {
+        const handlersContext = {
+          available_tools: window.availableTools.length,
+          tools: window.availableTools.slice(0, 50) // Limit to 50 most important
+        };
+        url.searchParams.append('handlers_context', JSON.stringify(handlersContext));
+        console.log(`🔧 Sending ${handlersContext.available_tools} tools to backend`);
+      } else {
+        console.warn('⚠️ No tools available - AI will use generic knowledge only');
+      }
+
+      // Prevent caching
+      url.searchParams.append('_t', Date.now());
+
+      console.log(`🔌 Connecting to: ${url.toString().substring(0, 200)}...`);
 
       // Use EventSource (no credentials - Fly.io blocks cross-domain credentials)
       this.eventSource = new EventSource(url.toString());
@@ -407,7 +422,15 @@ class ZantaraClient {
               accumulatedText += token;
             }
 
-            onToken(token, accumulatedText);
+            // CLEANUP: Remove internal system filenames
+            let cleanToken = token.replace(/KBLI_DECISION_HELPER\.(md|csv)/g, 'official documentation')
+              .replace(/VISA_DECISION_HELPER\.(md|csv)/g, 'visa guidelines');
+
+            // Update accumulated text with clean version for next iteration check
+            // Note: We keep the raw accumulatedText for the startWith check above to work correctly
+            // but we send the clean text to the UI
+
+            onToken(cleanToken, accumulatedText.replace(/KBLI_DECISION_HELPER\.(md|csv)/g, 'official documentation'));
           }
         } catch (error) {
           console.warn('Failed to parse SSE data:', event.data, error);
