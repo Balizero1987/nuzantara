@@ -11,11 +11,14 @@ import { API_CONFIG } from './api-config.js';
 class CollectiveMemoryClient {
     constructor() {
         this.config = {
-            apiUrl: API_CONFIG.backend.url || 'https://nuzantara-rag.fly.dev',
-            endpoints: API_CONFIG.endpoints.collective || {
-                store: '/api/v3/zantara/collective',
-                query: '/api/v3/zantara/collective'
-            }, // Default endpoints if not provided
+            apiUrl: API_CONFIG.backend.url || 'https://nuzantara-backend.fly.dev',
+            endpoints: {
+                store: API_CONFIG.endpoints?.crm?.sharedMemory || '/api/crm/shared-memory',
+                query: API_CONFIG.endpoints?.crm?.sharedMemory || '/api/crm/shared-memory',
+                crm: {
+                    sharedMemory: API_CONFIG.endpoints?.crm?.sharedMemory || '/api/crm/shared-memory'
+                }
+            }
         };
 
         // Use unified API client

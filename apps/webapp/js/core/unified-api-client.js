@@ -36,10 +36,25 @@ class UnifiedAPIClient {
      * Auth interceptor - adds Bearer token
      */
     authInterceptor(config) {
-        const token = localStorage.getItem('zantara-token');
-        if (token) {
-            config.headers = config.headers || {};
-            config.headers['Authorization'] = `Bearer ${token}`;
+        try {
+            const tokenData = localStorage.getItem('zantara-token');
+            if (tokenData) {
+                // Handle both JSON format and plain string
+                let token;
+                try {
+                    const parsed = JSON.parse(tokenData);
+                    token = parsed.token || parsed;
+                } catch {
+                    token = tokenData; // Plain string
+                }
+                
+                if (token) {
+                    config.headers = config.headers || {};
+                    config.headers['Authorization'] = `Bearer ${token}`;
+                }
+            }
+        } catch (error) {
+            console.warn('⚠️ Auth interceptor error:', error);
         }
         return config;
     }
