@@ -249,7 +249,7 @@ function generateRequestId(): string {
 /**
  * Middleware to add performance headers
  */
-export function performanceHeaders(req: Request, res: Response, next: NextFunction): void {
+export function performanceHeaders(_req: Request, res: Response, next: NextFunction): void {
   // Add server timing header
   res.setHeader('Server-Timing', 'zantara-monitor;desc="Performance Monitoring"');
 
