@@ -114,7 +114,7 @@ try:
     # Instrument OpenAI
     OpenAIInstrumentor().instrument()
 
-    logger.info("[OK] OpenTelemetry tracing initialized (OTLP → localhost:4318)")
+    logger.info("[OK] OpenTelemetry tracing initialized (OTLP -> localhost:4318)")
 
 except Exception as e:
     logger.warning(f"[WARN] OpenTelemetry initialization failed: {e}")
@@ -317,7 +317,7 @@ These agents run AUTOMATICALLY in the background and enrich your context:
 
 1. **PRICING MANDATORY**: ALWAYS call get_pricing for ANY price question
    [X] NEVER: Estimate, approximate, or answer from memory
-   [OK] ALWAYS: Call tool → use exact data → cite source
+   [OK] ALWAYS: Call tool -> use exact data -> cite source
 
 2. **NO VISA CODE HARDCODING**: NEVER invent visa codes
    [X] NEVER: List "C207", "B211A", or codes not in tool response
@@ -825,7 +825,7 @@ async def _initialize_backend_services():
             semantic_cache = get_semantic_cache(redis_client)
             logger.info("[OK] Semantic cache initialized (similarity threshold: 0.95)")
             logger.info("   Cache features: exact match + semantic similarity")
-            logger.info("   Performance: 800ms → 150ms (-81% on cache hit)")
+            logger.info("   Performance: 800ms -> 150ms (-81% on cache hit)")
             logger.info("   Storage: Redis with LRU eviction (max 10k entries)")
         else:
             logger.warning("[WARN] REDIS_URL not set - Semantic cache disabled")
@@ -974,7 +974,7 @@ async def _initialize_backend_services():
     try:
         ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://nuzantara-backend.fly.dev")
         handler_proxy_service = init_handler_proxy(ts_backend_url)
-        logger.info(f"[OK] HandlerProxyService ready → {ts_backend_url}")
+        logger.info(f"[OK] HandlerProxyService ready -> {ts_backend_url}")
     except Exception as e:
         logger.error(f"[X] HandlerProxyService initialization failed: {e}")
         handler_proxy_service = None
@@ -1137,7 +1137,7 @@ async def _initialize_backend_services():
     try:
         work_session_service = WorkSessionService()
         await work_session_service.connect()
-        logger.info("[OK] WorkSessionService ready (team activity tracking → ZERO only)")
+        logger.info("[OK] WorkSessionService ready (team activity tracking -> ZERO only)")
     except Exception as e:
         logger.error(f"[X] WorkSessionService initialization failed: {e}")
         work_session_service = None
@@ -1174,7 +1174,7 @@ async def _initialize_backend_services():
             tool_executor = ToolExecutor(
                 handler_proxy_service,
                 internal_key,
-                zantara_tools_instance  # ← PASS ZANTARA TOOLS!
+                zantara_tools_instance  # <- PASS ZANTARA TOOLS!
             )
             logger.info("[OK] ToolExecutor initialized (TypeScript + ZantaraTools)")
         except Exception as e:
@@ -1322,10 +1322,10 @@ class BaliZeroRequest(BaseModel):
     query: str
     conversation_history: Optional[List[Dict[str, Any]]] = None
     user_role: str = "member"
-    user_email: Optional[str] = None  # ← PHASE 1: Collaborator identification
-    mode: Optional[str] = "santai"  # ← ZANTARA mode: 'santai' or 'pikiran'
-    tools: Optional[List[Dict[str, Any]]] = None  # ← NEW: Tool definitions from frontend
-    tool_choice: Optional[Dict[str, Any]] = None  # ← NEW: Tool choice strategy
+    user_email: Optional[str] = None  # <- PHASE 1: Collaborator identification
+    mode: Optional[str] = "santai"  # <- ZANTARA mode: 'santai' or 'pikiran'
+    tools: Optional[List[Dict[str, Any]]] = None  # <- NEW: Tool definitions from frontend
+    tool_choice: Optional[Dict[str, Any]] = None  # <- NEW: Tool choice strategy
 
 
 class BaliZeroResponse(BaseModel):
@@ -1336,7 +1336,7 @@ class BaliZeroResponse(BaseModel):
     sources: Optional[List[Dict[str, Any]]] = None
     usage: Optional[Dict[str, Any]] = None
     used_rag: Optional[bool] = None  # PHASE 1: Track RAG usage
-    tools_used: Optional[List[str]] = None  # ← NEW: Which tools were called
+    tools_used: Optional[List[str]] = None  # <- NEW: Which tools were called
 
 
 @app.get("/cache/stats")
@@ -2124,7 +2124,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 profile = emotional_service.analyze_message(request.query, prefs)
                 logger.info(
                     f"🎭 Emotional: {profile.detected_state.value} "
-                    f"(conf: {profile.confidence:.2f}) → {profile.suggested_tone.value}"
+                    f"(conf: {profile.confidence:.2f}) -> {profile.suggested_tone.value}"
                 )
                 return profile
             return None
@@ -2166,9 +2166,9 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                         message=request.query,
                         user_id=user_id,
                         conversation_history=messages,
-                        memory=memory,  # ← Pass memory to router
-                        collaborator=collaborator,  # ← NEW: Pass collaborator for team personalization
-                        frontend_tools=request.tools  # ← NEW: Pass tools from frontend
+                        memory=memory,  # <- Pass memory to router
+                        collaborator=collaborator,  # <- NEW: Pass collaborator for team personalization
+                        frontend_tools=request.tools  # <- NEW: Pass tools from frontend
                     ),
                     timeout=settings.timeout_ai_response  # Configurable timeout from settings
                 )
@@ -2182,7 +2182,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
             ai_used = routing_result["ai_used"]
             tokens = routing_result.get("tokens", {})
             used_rag = routing_result.get("used_rag", False)
-            tools_called = routing_result.get("tools_called", [])  # ← NEW: Get which tools were called
+            tools_called = routing_result.get("tools_called", [])  # <- NEW: Get which tools were called
 
             if tools_called:
                 logger.info(f"[OK] [Chat] Tools called by AI: {tools_called}")
@@ -2202,7 +2202,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
             sources = []
             if used_rag and search_service:
                 try:
-                    # OPTIMIZATION: Overfetch 20 → rerank top-5 for +40% relevance
+                    # OPTIMIZATION: Overfetch 20 -> rerank top-5 for +40% relevance
                     # Use config values with backward compatibility
                     overfetch_count = (
                         settings.reranker_overfetch_count 
@@ -2323,7 +2323,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 "output_tokens": tokens.get("output", 0) or tokens.get("output_tokens", 0)
             },
             used_rag=used_rag,  # PHASE 1: Return RAG usage flag
-            tools_used=tools_called if tools_called else None  # ← NEW: Return which tools were called
+            tools_used=tools_called if tools_called else None  # <- NEW: Return which tools were called
         )
 
     except Exception as e:
@@ -2769,13 +2769,13 @@ async def bali_zero_chat_stream(
                     parsed_history = json.loads(conversation_history)
 
                     # DECOMPRESSION LOGIC: Support compressed history format from client
-                    # Compressed format: {r: 'u'|'a', c: 'content'} → Full format: {role: 'user'|'assistant', content: 'content'}
+                    # Compressed format: {r: 'u'|'a', c: 'content'} -> Full format: {role: 'user'|'assistant', content: 'content'}
                     decompressed_history = []
                     for msg in parsed_history:
                         if isinstance(msg, dict):
                             # Check if message uses compressed format (keys 'r' and 'c')
                             if 'r' in msg and 'c' in msg:
-                                # Decompress: r='u'→'user', r='a'→'assistant'
+                                # Decompress: r='u'->'user', r='a'->'assistant'
                                 role_map = {'u': 'user', 'a': 'assistant'}
                                 decompressed_msg = {
                                     'role': role_map.get(msg['r'], msg['r']),
