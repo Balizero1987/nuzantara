@@ -67,7 +67,7 @@ export const API_CONFIG = {
   backend: {
     url: window.location.hostname === 'localhost'
       ? 'http://localhost:8080'
-      : 'https://nuzantara-rag.fly.dev'
+      : 'https://nuzantara-backend.fly.dev'  // FIXED: Use TypeScript backend for CRM, agents, etc.
   },
   rag: {
     url: window.location.hostname === 'localhost'
