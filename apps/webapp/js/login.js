@@ -35,6 +35,22 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   // Setup event listeners
   setupEventListeners();
+  
+  // Enable button if email is pre-filled (from URL params)
+  if (emailInput && emailInput.value) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailParam = urlParams.get('email');
+    const pinParam = urlParams.get('pin');
+    
+    if (emailParam) {
+      emailInput.value = emailParam;
+    }
+    if (pinParam && pinInput) {
+      pinInput.value = pinParam;
+      // Trigger validation
+      handlePinInput({ target: pinInput });
+    }
+  }
 
   console.log('✅ Login page ready');
 });
@@ -45,7 +61,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 function setupEventListeners() {
   // Email input
   emailInput.addEventListener('blur', handleEmailBlur);
-  emailInput.addEventListener('input', clearError);
+  emailInput.addEventListener('input', () => {
+    clearError();
+    // Re-validate button when email changes
+    if (pinInput.value) {
+      handlePinInput({ target: pinInput });
+    }
+  });
 
   // PIN input
   pinInput.addEventListener('input', handlePinInput);
@@ -94,7 +116,10 @@ function handlePinInput(e) {
   const isValid = value.length >= 4 && value.length <= 8;
 
   // Enable/disable login button
-  loginButton.disabled = !emailInput.value || !isValid;
+  const emailValid = emailInput && emailInput.value.trim().length > 0;
+  loginButton.disabled = !emailValid || !isValid;
+  
+  console.log('🔍 PIN validation:', { valueLength: value.length, isValid, emailValid, buttonDisabled: loginButton.disabled });
 }
 
 /**
