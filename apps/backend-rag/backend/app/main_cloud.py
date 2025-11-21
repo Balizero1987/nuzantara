@@ -2008,7 +2008,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
 
     # Check if intelligent router is available
     if not intelligent_router:
-        raise HTTPException(503, "Intelligent Router not available - Claude AI required")
+        raise HTTPException(503, "Intelligent Router not available - ZANTARA AI required")
 
     try:
         # OPTIMIZATION: Sanitize user_email (frontend might send "undefined" or "null" as strings)
@@ -2726,7 +2726,7 @@ async def bali_zero_chat_stream(
 
     # Check if intelligent router is available
     if not intelligent_router:
-        raise HTTPException(503, "Intelligent Router not available - Claude AI required")
+        raise HTTPException(503, "Intelligent Router not available - ZANTARA AI required")
 
     async def generate():
         """Generator function for SSE stream with heartbeat support"""
