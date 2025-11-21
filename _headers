@@ -21,3 +21,7 @@
 
 *.svg
   Cache-Control: public, max-age=31536000, immutable
+
+# Critical auth script must not be cached (fast rollout of fixes)
+/js/login.js
+  Cache-Control: no-cache

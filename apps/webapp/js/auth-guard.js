@@ -4,7 +4,8 @@
  * Uses ZANTARA token format (zantara-*)
  */
 
-const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev';
+// Prefer backend service; fallback to TS backend in production
+const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-backend.fly.dev';
 
 /**
  * Check if user is authenticated
