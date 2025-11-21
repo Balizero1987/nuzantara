@@ -233,7 +233,7 @@ class Plugin(ABC):
     def to_anthropic_tool_definition(self) -> Dict[str, Any]:
         """
         Convert plugin to Anthropic tool definition format.
-        Used for Claude AI integration.
+        Used for ZANTARA AI integration.
         """
         return {
             "name": self.metadata.name.replace(".", "_"),

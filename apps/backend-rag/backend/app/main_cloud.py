@@ -4557,7 +4557,7 @@ async def get_prometheus_metrics():
             f"# TYPE zantara_rag_queries_total counter",
             f"zantara_rag_queries_total {getattr(app, 'rag_queries', 0)} {timestamp}",
             "",
-            f"# HELP zantara_claude_requests_total Total Claude AI requests",
+            f"# HELP zantara_ai_requests_total Total ZANTARA AI requests",
             f"# TYPE zantara_claude_requests_total counter",
             f"zantara_claude_requests_total {getattr(app, 'claude_requests', 0)} {timestamp}",
         ]
