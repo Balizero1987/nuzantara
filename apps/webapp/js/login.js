@@ -133,8 +133,11 @@ async function handleLogin(e) {
 
   try {
     console.log('🔐 Attempting login...');
+    console.log('📍 API URL:', `${API_BASE_URL}/api/auth/demo`);
+    console.log('📧 Email:', email);
 
-    // Call auth API with email + PIN (sent as password)
+    // Call auth API with email (backend accepts email or userId)
+    // Backend doesn't validate password for demo endpoint
     const response = await fetch(`${API_BASE_URL}/api/auth/demo`, {
       method: 'POST',
       credentials: 'include', // Include cookies for CORS
@@ -142,16 +145,20 @@ async function handleLogin(e) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: email,
-        password: pin  // PIN sent as password field
+        email: email  // Backend accepts email or userId
       }),
     });
+    
+    console.log('📡 Response status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ API Error:', errorText);
+      throw new Error(`Login failed: ${response.status} - ${errorText}`);
+    }
 
     const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.detail || result.message || 'Login failed');
-    }
+    console.log('✅ API Response:', result);
 
     // Login successful - handle actual backend response format
     // Backend returns: {token: "demo_xxx", expiresIn: 3600, userId: "demo"}
@@ -184,11 +191,16 @@ async function handleLogin(e) {
     }));
 
     console.log('✅ Auth data saved to localStorage (zantara-* format)');
+    console.log('🔄 Redirecting to /chat.html...');
 
-    // Show success message and redirect
-    showSuccess(`Welcome back, ${user.name || user.email}! 🎉`);
+    // Show success message and redirect IMMEDIATELY
+    if (welcomeMessage) {
+      welcomeMessage.textContent = `Welcome back, ${user.name || user.email}! 🎉`;
+      welcomeMessage.classList.add('show', 'success');
+    }
     
-    // Redirect is handled in showSuccess() - immediate redirect
+    // CRITICAL: Redirect immediately (no delay)
+    window.location.href = '/chat.html';
 
   } catch (error) {
     console.error('❌ Login failed:', error);
