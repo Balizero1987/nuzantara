@@ -70,7 +70,7 @@ export class EnhancedTeamHandler {
       // 4. Generic team response
       return this.buildGenericResponse(query);
     } catch (error) {
-      logger.error('Enhanced Team Handler error:', error);
+      logger.error('Enhanced Team Handler error:', error instanceof Error ? error : new Error(String(error)));
       return {
         success: false,
         response:
@@ -334,7 +334,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         },
       });
     } catch (error) {
-      logger.error('Team recognition error:', error);
+      logger.error('Team recognition error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         success: false,
         error: 'Internal server error during team recognition',
@@ -374,7 +374,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         },
       });
     } catch (error) {
-      logger.error('Team list error:', error);
+      logger.error('Team list error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         success: false,
         error: 'Internal server error during team list retrieval',
@@ -418,7 +418,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         },
       });
     } catch (error) {
-      logger.error('Team search error:', error);
+      logger.error('Team search error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         success: false,
         error: 'Internal server error during team search',
@@ -435,7 +435,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         data: stats,
       });
     } catch (error) {
-      logger.error('Team statistics error:', error);
+      logger.error('Team statistics error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         success: false,
         error: 'Internal server error during statistics retrieval',

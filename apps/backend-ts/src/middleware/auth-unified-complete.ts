@@ -320,7 +320,7 @@ const unifiedAuth = new UnifiedAuthenticationStrategy();
 
 // Initialize on module load
 unifiedAuth.initialize().catch((error) => {
-  logger.error('Failed to initialize unified auth:', error);
+  logger.error('Failed to initialize unified auth:', error instanceof Error ? error : new Error(String(error)));
 });
 
 // Middleware function

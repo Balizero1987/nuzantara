@@ -66,7 +66,7 @@ function createRedisClient(url: string, label: string): Redis | null {
 
     return client;
   } catch (error: any) {
-    logger.error(`Failed to create Redis ${label} client:`, error);
+    logger.error(`Failed to create Redis ${label} client:`, error instanceof Error ? error : new Error(String(error)));
     return null;
   }
 }

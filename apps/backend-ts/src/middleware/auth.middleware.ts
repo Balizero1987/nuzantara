@@ -70,7 +70,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
     next();
   } catch (error: any) {
-    logger.error('Auth middleware error:', error);
+    logger.error('Auth middleware error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(401).json({
       ok: false,
       error: error?.message || 'Authentication failed',
@@ -108,7 +108,7 @@ export async function optionalAuth(req: Request, _res: Response, next: NextFunct
 
     next();
   } catch (error: any) {
-    logger.error('Optional auth middleware error:', error);
+    logger.error('Optional auth middleware error:', error instanceof Error ? error : new Error(String(error)));
     next(); // Continue anyway
   }
 }

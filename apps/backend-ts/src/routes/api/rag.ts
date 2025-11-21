@@ -32,7 +32,7 @@ router.post('/query', async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    logger.error('RAG query error:', error);
+    logger.error('RAG query error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       error: error.message || 'Internal server error',
     });
@@ -65,7 +65,7 @@ router.post('/bali-zero', async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    logger.error('Bali Zero error:', error);
+    logger.error('Bali Zero error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       error: error.message || 'Internal server error',
     });
@@ -90,7 +90,7 @@ router.post('/search', async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    logger.error('Search error:', error);
+    logger.error('Search error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       error: error.message || 'Internal server error',
     });

@@ -249,7 +249,7 @@ class KBLIExternalService {
         combined: combinedResults,
       };
     } catch (error: any) {
-      logger.error('❌ Enhanced KBLI search failed:', error);
+      logger.error('❌ Enhanced KBLI search failed:', error instanceof Error ? error : new Error(String(error)));
 
       // Fallback to local only
       const localResults = await this.searchLocalKBLI(query);
@@ -286,7 +286,7 @@ class KBLIExternalService {
       // Fallback to BPS
       return await this.getBPSKBLI(undefined, query);
     } catch (error) {
-      logger.error('❌ External KBLI search failed:', error);
+      logger.error('❌ External KBLI search failed:', error instanceof Error ? error : new Error(String(error)));
       return [];
     }
   }

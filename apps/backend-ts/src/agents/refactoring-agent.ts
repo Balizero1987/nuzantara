@@ -217,7 +217,7 @@ export class RefactoringAgent {
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`❌ Refactoring failed for ${filePath}`, { error: errorMessage });
+      logger.error(`❌ Refactoring failed for ${filePath}`, error instanceof Error ? error : new Error(errorMessage));
 
       return {
         success: false,

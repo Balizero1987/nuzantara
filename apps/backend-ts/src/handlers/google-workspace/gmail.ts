@@ -108,7 +108,7 @@ export const gmailHandlers = {
         sentAt: new Date().toISOString(),
       });
     } catch (error: any) {
-      logger.error('Gmail send error:', error);
+      logger.error('Gmail send error:', error instanceof Error ? error : new Error(String(error)));
       throw new InternalServerError(`Failed to send email: ${error.message}`);
     }
   },
@@ -165,7 +165,7 @@ export const gmailHandlers = {
         nextPageToken: result.data.nextPageToken,
       });
     } catch (error: any) {
-      logger.error('Gmail list error:', error);
+      logger.error('Gmail list error:', error instanceof Error ? error : new Error(String(error)));
       throw new InternalServerError(`Failed to list emails: ${error.message}`);
     }
   },
@@ -236,7 +236,7 @@ export const gmailHandlers = {
         },
       });
     } catch (error: any) {
-      logger.error('Gmail read error:', error);
+      logger.error('Gmail read error:', error instanceof Error ? error : new Error(String(error)));
       throw new InternalServerError(`Failed to read email: ${error.message}`);
     }
   },
@@ -289,7 +289,7 @@ export const gmailHandlers = {
         })),
       });
     } catch (error: any) {
-      logger.error('Gmail search error:', error);
+      logger.error('Gmail search error:', error instanceof Error ? error : new Error(String(error)));
       throw new InternalServerError(`Failed to search emails: ${error.message}`);
     }
   },

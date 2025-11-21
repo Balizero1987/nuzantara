@@ -100,7 +100,7 @@ export async function instagramWebhookReceiver(req: any, res: any) {
       }
     }
   } catch (error) {
-    logger.error('❌ Instagram Webhook Error:', error);
+    logger.error('❌ Instagram Webhook Error:', error instanceof Error ? error : new Error(String(error)));
     // Still return 200 to Meta
   }
 }
@@ -179,7 +179,7 @@ async function handleInstagramMessage(messaging: any) {
       userInfo,
     });
   } catch (error) {
-    logger.error('❌ Error handling Instagram message:', error);
+    logger.error('❌ Error handling Instagram message:', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -207,7 +207,7 @@ async function handleStoryMention(value: any) {
 
     logger.info(`✅ Responded to story mention from @${username}`);
   } catch (error) {
-    logger.error('❌ Error handling story mention:', error);
+    logger.error('❌ Error handling story mention:', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -247,7 +247,7 @@ async function saveInstagramMessageToMemory(data: any) {
 
     logger.info('💾 Instagram message saved to memory:', data.username);
   } catch (error) {
-    logger.error('❌ Error saving to memory:', error);
+    logger.error('❌ Error saving to memory:', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -281,7 +281,7 @@ Message: "${text}"`;
     );
     return result;
   } catch (error) {
-    logger.error('❌ Sentiment analysis error:', error);
+    logger.error('❌ Sentiment analysis error:', error instanceof Error ? error : new Error(String(error)));
     return { score: 5, label: 'neutral', urgency: 'low' };
   }
 }
@@ -327,7 +327,7 @@ async function updateInstagramUserProfile(
 
     logger.info(`📊 User profile updated: @${username} (lead score: ${user.leadScore})`);
   } catch (error) {
-    logger.error('❌ Error updating user profile:', error);
+    logger.error('❌ Error updating user profile:', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -469,7 +469,7 @@ async function sendIntelligentInstagramResponse(to: string, userMessage: string,
 
     logger.info(`✅ Instagram response sent to @${context.username}`);
   } catch (error) {
-    logger.error('❌ Error sending Instagram response:', error);
+    logger.error('❌ Error sending Instagram response:', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -546,7 +546,7 @@ async function checkInstagramAlerts(params: any) {
     try {
       await sendTeamAlert(alert);
     } catch (error) {
-      logger.error('❌ Failed to send Instagram alert:', error);
+      logger.error('❌ Failed to send Instagram alert:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 }

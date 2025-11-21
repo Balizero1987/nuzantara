@@ -1602,7 +1602,7 @@ export function attachRoutes(app: import('express').Express) {
           }
 
           // Use ZANTARA-ONLY mode for consistency
-          const startTime = Date.now();
+          // startTime removed - not used
           const r = await aiChat(params);
 
           // Auto-save disabled (Firestore deprecated)
@@ -1651,19 +1651,7 @@ export function attachRoutes(app: import('express').Express) {
         const shouldAutoSave = autoSaveKeys.some((k) => key.includes(k) || key === k);
 
         if (shouldAutoSave) {
-          const prompt =
-            (params as any).prompt ||
-            (params as any).message ||
-            (params as any).text ||
-            (params as any).query ||
-            (params as any).content ||
-            JSON.stringify(params);
-          const response =
-            result?.data?.response ||
-            result?.response ||
-            result?.data?.translatedText ||
-            result?.data?.content ||
-            JSON.stringify(result?.data || result);
+          // Prompt and response variables removed - not used (Firestore deprecated)
 
           // Auto-save disabled (Firestore deprecated)
         }

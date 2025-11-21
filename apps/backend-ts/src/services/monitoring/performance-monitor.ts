@@ -253,7 +253,7 @@ export class PerformanceMonitor {
    */
   getActiveAlerts(): any[] {
     const alerts: any[] = [];
-    const v3Metrics = this.getV3Metrics(5); // Last 5 minutes
+    const v3Metrics = this.getEndpointMetricsSnapshot(5); // Last 5 minutes
 
     Object.entries(v3Metrics).forEach(([endpoint, metrics]) => {
       if (metrics.totalRequests > 0) {
@@ -382,30 +382,31 @@ export class PerformanceMonitor {
    * Get metrics for Prometheus
    */
   getPrometheusMetrics(): string {
-    const v3Metrics = this.getV3Metrics(5); // Last 5 minutes
+    const v3Metrics = this.getEndpointMetricsSnapshot(5); // Last 5 minutes
 
     let prometheusText = '';
 
     Object.entries(v3Metrics).forEach(([endpoint, metrics]) => {
+      const metricsTyped = metrics as any;
       // Response time metrics
       prometheusText += `# HELP zantara_response_time_seconds Response time in seconds\n`;
       prometheusText += `# TYPE zantara_response_time_seconds gauge\n`;
-      prometheusText += `zantara_response_time_seconds{endpoint="${endpoint}"} ${metrics.averageResponseTime / 1000}\n`;
+      prometheusText += `zantara_response_time_seconds{endpoint="${endpoint}"} ${metricsTyped.averageResponseTime / 1000}\n`;
 
       // Request count metrics
       prometheusText += `# HELP zantara_requests_total Total number of requests\n`;
       prometheusText += `# TYPE zantara_requests_total counter\n`;
-      prometheusText += `zantara_requests_total{endpoint="${endpoint}"} ${metrics.totalRequests}\n`;
+      prometheusText += `zantara_requests_total{endpoint="${endpoint}"} ${metricsTyped.totalRequests}\n`;
 
       // Cache hit rate metrics
       prometheusText += `# HELP zantara_cache_hit_rate Cache hit rate ratio\n`;
       prometheusText += `# TYPE zantara_cache_hit_rate gauge\n`;
-      prometheusText += `zantara_cache_hit_rate{endpoint="${endpoint}"} ${metrics.cacheHitRate}\n`;
+      prometheusText += `zantara_cache_hit_rate{endpoint="${endpoint}"} ${metricsTyped.cacheHitRate}\n`;
 
       // Error rate metrics
       prometheusText += `# HELP zantara_error_rate Error rate ratio\n`;
       prometheusText += `# TYPE zantara_error_rate gauge\n`;
-      prometheusText += `zantara_error_rate{endpoint="${endpoint}"} ${metrics.errorRate}\n`;
+      prometheusText += `zantara_error_rate{endpoint="${endpoint}"} ${metricsTyped.errorRate}\n`;
     });
 
     return prometheusText;

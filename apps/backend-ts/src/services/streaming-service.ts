@@ -243,7 +243,7 @@ export class StreamingService {
       this.cleanupConnection(connectionId);
       clearInterval(heartbeatInterval);
     } catch (error: any) {
-      logger.error(`[Stream] Stream error for ${connectionId}:`, error);
+      logger.error(`[Stream] Stream error for ${connectionId}:`, error instanceof Error ? error : new Error(String(error)));
 
       // Send error to client
       try {

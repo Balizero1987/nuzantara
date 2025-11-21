@@ -86,7 +86,7 @@ export async function teamRecentActivity(req: Request, res: Response) {
       },
     });
   } catch (error: any) {
-    logger.error('team.recent_activity error:', error);
+    logger.error('team.recent_activity error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to retrieve recent activity',

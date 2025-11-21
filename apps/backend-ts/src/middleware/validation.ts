@@ -45,7 +45,7 @@ export function validateResponse() {
             }
           })
           .catch((error) => {
-            logger.error('Validation error:', error);
+            logger.error('Validation error:', error instanceof Error ? error : new Error(String(error)));
           });
       }
 

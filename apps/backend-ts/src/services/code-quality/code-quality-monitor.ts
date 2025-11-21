@@ -93,7 +93,7 @@ export class CodeQualityMonitor {
 
       return analysis;
     } catch (error) {
-      logger.error(`Failed to analyze file ${filePath}:`, error);
+      logger.error(`Failed to analyze file ${filePath}:`, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }

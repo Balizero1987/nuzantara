@@ -328,7 +328,7 @@ class ServiceRegistryImpl {
       const registryData = JSON.stringify(this.getAllServices());
       await redisClient.setex('service_registry', 300, registryData); // 5 minutes TTL
     } catch (error) {
-      logger.error('Failed to cache service registry:', error);
+      logger.error('Failed to cache service registry:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -349,7 +349,7 @@ class ServiceRegistryImpl {
         logger.info('Service registry loaded from cache');
       }
     } catch (error) {
-      logger.error('Failed to load service registry from cache:', error);
+      logger.error('Failed to load service registry from cache:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 }

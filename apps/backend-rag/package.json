@@ -2,7 +2,7 @@
   "name": "@nuzantara/backend-rag",
   "version": "5.2.0",
   "private": true,
-  "description": "Python FastAPI RAG backend with ChromaDB and re-ranker (AMD64)",
+  "description": "Python FastAPI RAG backend with Qdrant and re-ranker (AMD64)",
   "scripts": {
     "start": "cd backend && uvicorn app.main_cloud:app --host 0.0.0.0 --port 8000",
     "dev": "cd backend && uvicorn app.main_cloud:app --reload",
@@ -13,7 +13,6 @@
     "python": ">=3.11"
   },
   "dependencies": {
-    "chromadb": "^3.1.0",
     "puppeteer": "^24.27.0"
   }
 }

@@ -350,7 +350,7 @@ export class MobileAPIHandlers {
 
       res.json(response);
     } catch (error: any) {
-      logger.error('Mobile chat error:', error);
+      logger.error('Mobile chat error:', error instanceof Error ? error : new Error(String(error)));
 
       const errorResponse: MobileChatResponse = {
         success: false,
@@ -419,7 +419,7 @@ export class MobileAPIHandlers {
         };
       }
     } catch (error: any) {
-      logger.error('Team query error:', error);
+      logger.error('Team query error:', error instanceof Error ? error : new Error(String(error)));
     }
 
     // Fallback to general response
@@ -623,7 +623,7 @@ export class MobileAPIHandlers {
       this.cache.set(cacheKey, response, 10); // Cache for 10 minutes
       res.json(response);
     } catch (error: any) {
-      logger.error('Mobile team list error:', error);
+      logger.error('Mobile team list error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         success: false,
         error: 'Failed to load team list',
@@ -664,7 +664,7 @@ export class MobileAPIHandlers {
 
       res.json(response);
     } catch (error: any) {
-      logger.error('Mobile pricing error:', error);
+      logger.error('Mobile pricing error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         success: false,
         error: 'Failed to generate pricing estimate',
@@ -760,7 +760,7 @@ export class MobileAPIHandlers {
         message: 'Analytics recorded successfully',
       });
     } catch (error: any) {
-      logger.error('Mobile analytics error:', error);
+      logger.error('Mobile analytics error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         success: false,
         error: 'Failed to record analytics',

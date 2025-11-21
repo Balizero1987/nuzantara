@@ -104,7 +104,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
         });
       });
     } catch (error) {
-      logger.error('Enhanced JWT authentication failed:', error);
+      logger.error('Enhanced JWT authentication failed:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -149,7 +149,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
         authType: 'enhanced',
       };
     } catch (error) {
-      logger.error('Enhanced JWT token validation failed:', error);
+      logger.error('Enhanced JWT token validation failed:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -161,7 +161,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
 
       return this.generateToken(user);
     } catch (error) {
-      logger.error('Enhanced JWT token refresh failed:', error);
+      logger.error('Enhanced JWT token refresh failed:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -171,7 +171,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
       await enhancedJWTAuth.blacklistToken(token);
       return true;
     } catch (error) {
-      logger.error('Enhanced JWT token revocation failed:', error);
+      logger.error('Enhanced JWT token revocation failed:', error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   }
@@ -227,7 +227,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
         authType: 'team',
       };
     } catch (error) {
-      logger.error('Team login JWT authentication failed:', error);
+      logger.error('Team login JWT authentication failed:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -273,7 +273,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
         authType: 'team',
       };
     } catch (error) {
-      logger.error('Team login JWT validation failed:', error);
+      logger.error('Team login JWT validation failed:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -285,7 +285,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
 
       return this.generateToken(user);
     } catch (error) {
-      logger.error('Team login JWT refresh failed:', error);
+      logger.error('Team login JWT refresh failed:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -376,7 +376,7 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
         authType: 'legacy',
       };
     } catch (error) {
-      logger.error('Legacy JWT authentication failed:', error);
+      logger.error('Legacy JWT authentication failed:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -416,7 +416,7 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
         authType: 'legacy',
       };
     } catch (error) {
-      logger.error('Legacy JWT validation failed:', error);
+      logger.error('Legacy JWT validation failed:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -442,8 +442,7 @@ export class UnifiedAuthenticationManager {
     this.registerStrategy(new LegacyJWTStrategy());
 
     logger.info(
-      '🔐 Unified Authentication Manager initialized with strategies:',
-      this.strategies.map((s) => s.name).join(', ')
+      `🔐 Unified Authentication Manager initialized with strategies: ${this.strategies.map((s) => s.name).join(', ')}`
     );
   }
 
@@ -467,7 +466,7 @@ export class UnifiedAuthenticationManager {
             return user;
           }
         } catch (error) {
-          logger.error(`❌ Authentication failed with ${strategy.name} strategy:`, error);
+          logger.error(`❌ Authentication failed with ${strategy.name} strategy:`, error instanceof Error ? error : new Error(String(error)));
         }
       }
     }
@@ -492,7 +491,7 @@ export class UnifiedAuthenticationManager {
           return user;
         }
       } catch (error) {
-        logger.debug(`Token validation failed with ${strategy.name} strategy:`, error);
+        logger.debug(`Token validation failed with ${strategy.name} strategy:`, error instanceof Error ? error : new Error(String(error)));
       }
     }
 
@@ -521,7 +520,7 @@ export class UnifiedAuthenticationManager {
             return newToken;
           }
         } catch (error) {
-          logger.error(`❌ Token refresh failed with ${strategy.name} strategy:`, error);
+          logger.error(`❌ Token refresh failed with ${strategy.name} strategy:`, error instanceof Error ? error : new Error(String(error)));
         }
       }
     }
@@ -542,7 +541,7 @@ export class UnifiedAuthenticationManager {
             return true;
           }
         } catch (error) {
-          logger.error(`❌ Token revocation failed with ${strategy.name} strategy:`, error);
+          logger.error(`❌ Token revocation failed with ${strategy.name} strategy:`, error instanceof Error ? error : new Error(String(error)));
         }
       }
     }
@@ -589,7 +588,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
       }
     })
     .catch((error) => {
-      logger.error('Unified authentication error:', error);
+      logger.error('Unified authentication error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         ok: false,
         error: 'Authentication error',

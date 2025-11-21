@@ -64,7 +64,7 @@ router.post('/query', async (req: Request, res: Response) => {
 
     res.json(result);
   } catch (error: any) {
-    logger.error('RAG query route error:', error);
+    logger.error('RAG query route error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: error?.message || 'RAG query failed',
@@ -134,7 +134,7 @@ router.post('/semantic-search', async (req: Request, res: Response) => {
 
     res.json(result);
   } catch (error: any) {
-    logger.error('Semantic search route error:', error);
+    logger.error('Semantic search route error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: error?.message || 'Semantic search failed',
@@ -151,7 +151,7 @@ router.get('/collections', async (req: Request, res: Response) => {
     const result = await getCollections();
     res.json(result);
   } catch (error: any) {
-    logger.error('Get collections route error:', error);
+    logger.error('Get collections route error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: error?.message || 'Failed to get collections',
@@ -203,7 +203,7 @@ router.post('/embeddings', async (req: Request, res: Response) => {
 
     res.json(result);
   } catch (error: any) {
-    logger.error('Generate embeddings route error:', error);
+    logger.error('Generate embeddings route error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: error?.message || 'Failed to generate embeddings',
@@ -225,7 +225,7 @@ router.get('/health', async (req: Request, res: Response) => {
       res.status(503).json(result);
     }
   } catch (error: any) {
-    logger.error('RAG health route error:', error);
+    logger.error('RAG health route error:', error instanceof Error ? error : new Error(String(error)));
     res.status(503).json({
       ok: false,
       status: 'unhealthy',

@@ -97,7 +97,7 @@ async function initializeDatabase() {
 
     logger.info('✅ ZANTARA V4.0 Persistent Memory Schema initialized successfully!');
   } catch (error) {
-    logger.error('❌ Failed to initialize persistent memory schema:', error);
+    logger.error('❌ Failed to initialize persistent memory schema:', error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 }
@@ -571,7 +571,7 @@ export const persistentMemoryManager = new PersistentMemoryManager();
 
 // Initialize database on route load
 initializeDatabase().catch((error) => {
-  logger.error('Failed to initialize persistent memory database:', error);
+  logger.error('Failed to initialize persistent memory database:', error instanceof Error ? error : new Error(String(error)));
 });
 
 /**
@@ -583,7 +583,7 @@ router.post('/session', async (req: Request, res: Response) => {
     const session = await persistentMemoryManager.createOrUpdateSession(req.body);
     res.json({ success: true, data: session });
   } catch (error) {
-    logger.error('Error creating/updating session:', error);
+    logger.error('Error creating/updating session:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: 'Failed to create/update session' });
   }
 });
@@ -600,7 +600,7 @@ router.get('/session/:userId', async (req: Request, res: Response) => {
     const session = await persistentMemoryManager.getActiveSession(userId, memberName as string);
     res.json({ success: true, data: session });
   } catch (error) {
-    logger.error('Error getting active session:', error);
+    logger.error('Error getting active session:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: 'Failed to get active session' });
   }
 });
@@ -614,7 +614,7 @@ router.post('/message', async (req: Request, res: Response) => {
     const message = await persistentMemoryManager.saveConversationMessage(req.body);
     res.json({ success: true, data: message });
   } catch (error) {
-    logger.error('Error saving conversation message:', error);
+    logger.error('Error saving conversation message:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: 'Failed to save conversation message' });
   }
 });
@@ -631,7 +631,7 @@ router.get('/history/:sessionId', async (req: Request, res: Response) => {
     const history = await persistentMemoryManager.getConversationHistory(sessionId, Number(limit));
     res.json({ success: true, data: history });
   } catch (error) {
-    logger.error('Error getting conversation history:', error);
+    logger.error('Error getting conversation history:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: 'Failed to get conversation history' });
   }
 });
@@ -645,7 +645,7 @@ router.post('/collective', async (req: Request, res: Response) => {
     const memory = await persistentMemoryManager.saveCollectiveMemory(req.body);
     res.json({ success: true, data: memory });
   } catch (error) {
-    logger.error('Error saving collective memory:', error);
+    logger.error('Error saving collective memory:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: 'Failed to save collective memory' });
   }
 });
@@ -668,7 +668,7 @@ router.get('/collective/search', async (req: Request, res: Response) => {
     );
     res.json({ success: true, data: results });
   } catch (error) {
-    logger.error('Error searching collective memory:', error);
+    logger.error('Error searching collective memory:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: 'Failed to search collective memory' });
   }
 });
@@ -682,7 +682,7 @@ router.post('/cleanup', async (_req: Request, res: Response) => {
     await persistentMemoryManager.cleanupExpiredSessions();
     res.json({ success: true, message: 'Cleanup completed successfully' });
   } catch (error) {
-    logger.error('Error during cleanup:', error);
+    logger.error('Error during cleanup:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: 'Failed to perform cleanup' });
   }
 });
@@ -726,7 +726,7 @@ router.get('/status', async (_req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    logger.error('Error getting system status:', error);
+    logger.error('Error getting system status:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       success: false,
       error: 'Failed to get system status',

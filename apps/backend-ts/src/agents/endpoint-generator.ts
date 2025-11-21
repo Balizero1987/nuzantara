@@ -236,7 +236,7 @@ try {
       const result = await ${this.toCamelCase(spec.name)}(req.body);
       res.json(result);
     } catch (error: any) {
-      logger.error('${spec.name} error:', error);
+      logger.error('${spec.name} error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({ ok: false, error: error.message });
     }
   });

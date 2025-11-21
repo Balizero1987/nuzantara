@@ -310,7 +310,7 @@ export async function teamList(req: Request, res: Response) {
 
     return res.json(response);
   } catch (error: any) {
-    logger.error('team.list error:', error);
+    logger.error('team.list error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to retrieve team list',
@@ -354,7 +354,7 @@ export async function teamGet(req: Request, res: Response) {
       },
     });
   } catch (error: any) {
-    logger.error('team.get error:', error);
+    logger.error('team.get error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to retrieve team member',
@@ -405,7 +405,7 @@ export async function teamDepartments(req: Request, res: Response) {
       },
     });
   } catch (error: any) {
-    logger.error('team.departments error:', error);
+    logger.error('team.departments error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to retrieve departments',
@@ -458,7 +458,7 @@ export async function teamTestRecognition(req: Request, res: Response) {
       full_response: data,
     });
   } catch (error: any) {
-    logger.error('team.test.recognition error:', error);
+    logger.error('team.test.recognition error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error?.message || 'Internal Error',

@@ -100,7 +100,7 @@ export class ZantaraWebSocketServer {
 
     // Handle errors
     client.on('error', (error) => {
-      logger.error(`❌ WebSocket error (${clientId}):`, error);
+      logger.error(`❌ WebSocket error (${clientId}):`, error instanceof Error ? error : new Error(String(error)));
     });
   }
 

@@ -257,7 +257,7 @@ class CircuitBreakerImpl {
         JSON.stringify(stateData)
       );
     } catch (error) {
-      logger.error(`Failed to save circuit breaker state for ${this.name}:`, error);
+      logger.error(`Failed to save circuit breaker state for ${this.name}:`, error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -277,7 +277,7 @@ class CircuitBreakerImpl {
         logger.info(`Circuit breaker '${this.name}' state loaded from cache`);
       }
     } catch (error) {
-      logger.error(`Failed to load circuit breaker state for ${this.name}:`, error);
+      logger.error(`Failed to load circuit breaker state for ${this.name}:`, error instanceof Error ? error : new Error(String(error)));
     }
   }
 

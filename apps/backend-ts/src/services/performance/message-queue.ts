@@ -123,7 +123,7 @@ class MessageQueueService {
       await this.redis.connect();
       logger.info('✅ Message queue service initialized');
     } catch (error: any) {
-      logger.error('Failed to initialize message queue:', error);
+      logger.error('Failed to initialize message queue:', error instanceof Error ? error : new Error(String(error)));
       this.redis = null;
       this.isConnected = false;
     }
@@ -178,7 +178,7 @@ class MessageQueueService {
       logger.debug(`Message queued: ${msg.id} (${message.channel}, ${message.priority})`);
       return msg.id;
     } catch (error: any) {
-      logger.error('Failed to enqueue message:', error);
+      logger.error('Failed to enqueue message:', error instanceof Error ? error : new Error(String(error)));
       // Fallback to immediate processing
       return this.processImmediate(message);
     }
@@ -237,13 +237,13 @@ class MessageQueueService {
               if (message) {
                 await this.handleProcessingError(message, error);
               } else {
-                logger.error(`Failed to parse message in queue ${channel}:`, error);
+                logger.error(`Failed to parse message in queue ${channel}:`, error instanceof Error ? error : new Error(String(error)));
               }
             }
           }
         }
       } catch (error: any) {
-        logger.error(`Worker error for ${channel}:`, error);
+        logger.error(`Worker error for ${channel}:`, error instanceof Error ? error : new Error(String(error)));
       }
     };
 
@@ -375,7 +375,7 @@ class MessageQueueService {
 
       this.stats.queueDepth = totalDepth;
     } catch (error) {
-      logger.error('Failed to update queue depth:', error);
+      logger.error('Failed to update queue depth:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 

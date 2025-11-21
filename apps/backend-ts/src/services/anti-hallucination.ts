@@ -330,7 +330,7 @@ export class AntiHallucinationSystem {
 
     // Log if not well-grounded
     if (!grounded.grounded) {
-      logger.warn(`⚠️ Low confidence response from ${handlerName}:`, grounded.confidence);
+      logger.warn(`⚠️ Low confidence response from ${handlerName}: ${grounded.confidence}`);
     }
 
     return grounded;

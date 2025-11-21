@@ -111,7 +111,7 @@ export async function twilioSendWhatsapp(req: any, _res?: any) {
       to: whatsappTo,
     });
   } catch (error: any) {
-    logger.error('❌ Twilio send error:', error);
+    logger.error('❌ Twilio send error:', error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 }
