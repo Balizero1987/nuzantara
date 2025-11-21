@@ -15,7 +15,6 @@ const STATIC_ASSETS = [
   '/',
   '/chat.html',
   '/login.html',
-  '/login-react.html',
   '/js/core/error-handler.js',
   '/js/core/cache-manager.js',
   '/js/core/state-manager.js',
