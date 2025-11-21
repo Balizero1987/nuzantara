@@ -135,25 +135,11 @@ export async function getHealthMetrics() {
   const uptime = process.uptime();
   const memUsage = process.memoryUsage();
 
-  // Get Service Account status from Firebase initialization
-  let serviceAccountStatus = { available: false, error: 'Not initialized' } as any;
+  // Firestore/Firebase removed - using PostgreSQL instead
+  let serviceAccountStatus = { available: false, error: 'Firebase removed - using PostgreSQL' } as any;
   try {
-    // Import firebaseStatus from firebase service
-    const { firebaseStatus } = await import('../services/firebase.js');
-
-    if (firebaseStatus.initialized && !firebaseStatus.error) {
-      serviceAccountStatus = {
-        available: true,
-        source: firebaseStatus.serviceAccountSource,
-        message:
-          firebaseStatus.serviceAccountSource === 'adc'
-            ? 'Using ADC (cloud-run-deployer@involuted-box-469105-r0.iam.gserviceaccount.com)'
-            : firebaseStatus.serviceAccountSource === 'secret-manager'
-              ? 'Loaded from Secret Manager'
-              : `Loaded from ${firebaseStatus.serviceAccountSource}`,
-      };
-    } else if (firebaseStatus.error) {
-      serviceAccountStatus = {
+    // Firebase service removed - monitoring now uses PostgreSQL
+    serviceAccountStatus = {
         available: false,
         error: firebaseStatus.error,
       };
