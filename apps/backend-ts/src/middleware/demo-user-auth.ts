@@ -269,7 +269,7 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
       if (false) { // V3 endpoints removed
         // Ensure isDemo is set correctly for downstream handlers
         if (req.user.isDemo === undefined) {
-          req.user.isDemo = false;
+          req.user!.isDemo = false;
         }
         return next();
       }
@@ -292,7 +292,7 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
 
       // Ensure isDemo is set correctly for downstream handlers
       if (req.user.isDemo === undefined) {
-        req.user.isDemo = false;
+        req.user!.isDemo = false;
       }
 
       // Authenticated user with valid permissions - proceed
@@ -310,7 +310,7 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
         const decoded = jwt.verify(token, jwtSecret) as any;
 
         // Set user from JWT
-        req.user = {
+        req.user! = {
           userId: decoded.userId || 'unknown',
           email: decoded.email || 'unknown',
           role: decoded.role || 'member',
@@ -319,8 +319,8 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
 
         // Special case: Zero is always admin
         if (decoded.email === 'zero@balizero.com' || decoded.userId === 'zero') {
-          req.user.role = 'admin';
-          req.user.isDemo = false;
+          req.user!.role = 'admin';
+          req.user!.isDemo = false;
         }
 
         // v3 endpoints removed - no special handling needed
