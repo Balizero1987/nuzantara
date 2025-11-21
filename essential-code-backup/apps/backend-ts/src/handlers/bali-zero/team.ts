@@ -1,0 +1,467 @@
+import logger from '../../services/logger.js';
+import { Request, Response } from 'express';
+import { RedisClientWrapper } from '../../services/redis-client.js';
+
+// Redis cache for team members (1 hour TTL)
+const redisClient = new RedisClientWrapper();
+const TEAM_CACHE_KEY = 'balizero:team:members';
+const TEAM_CACHE_TTL = 3600; // 1 hour
+
+// Complete Bali Zero team data
+const BALI_ZERO_TEAM = {
+  members: [
+    // C-Level
+    {
+      id: 'zainal',
+      name: 'Zainal Abidin',
+      role: 'CEO',
+      email: 'zainal@balizero.com',
+      department: 'management',
+      badge: '👑',
+      language: 'Indonesian',
+    },
+    {
+      id: 'ruslana',
+      name: 'Ruslana',
+      role: 'Board Member',
+      email: 'ruslana@balizero.com',
+      department: 'management',
+      badge: '💎',
+      language: 'Ukrainian',
+    },
+
+    // Setup Team
+    {
+      id: 'amanda',
+      name: 'Amanda',
+      role: 'Lead Executive',
+      email: 'amanda@balizero.com',
+      department: 'setup',
+      badge: '📒',
+      language: 'Indonesian',
+    },
+    {
+      id: 'anton',
+      name: 'Anton',
+      role: 'Lead Executive',
+      email: 'anton@balizero.com',
+      department: 'setup',
+      badge: '🎯',
+      language: 'Indonesian',
+    },
+    {
+      id: 'krisna',
+      name: 'Krisna',
+      role: 'Lead Executive',
+      email: 'krisna@balizero.com',
+      department: 'setup',
+      badge: '✅',
+      language: 'Indonesian',
+    },
+    {
+      id: 'dea',
+      name: 'Dea',
+      role: 'Lead Executive',
+      email: 'dea@balizero.com',
+      department: 'setup',
+      badge: '✨',
+      language: 'Indonesian',
+    },
+    {
+      id: 'adit',
+      name: 'Adit',
+      role: 'Crew Lead',
+      email: 'consulting@balizero.com',
+      department: 'setup',
+      badge: '⚡',
+      language: 'Indonesian',
+    },
+    {
+      id: 'vino',
+      name: 'Vino',
+      role: 'Lead Junior',
+      email: 'info@balizero.com',
+      department: 'setup',
+      badge: '🎨',
+      language: 'Indonesian',
+    },
+    {
+      id: 'ari',
+      name: 'Ari',
+      role: 'Lead Specialist',
+      email: 'ari.firda@balizero.com',
+      department: 'setup',
+      badge: '💍',
+      language: 'Indonesian',
+    },
+    {
+      id: 'surya',
+      name: 'Surya',
+      role: 'Lead Specialist',
+      email: 'surya@balizero.com',
+      department: 'setup',
+      badge: '📚',
+      language: 'Indonesian',
+    },
+
+    {
+      id: 'damar',
+      name: 'Damar',
+      role: 'Junior Consultant',
+      email: 'damar@balizero.com',
+      department: 'setup',
+      badge: '⭐',
+      language: 'Indonesian',
+    },
+
+    // Tax Department
+    {
+      id: 'veronika',
+      name: 'Veronika',
+      role: 'Tax Manager',
+      email: 'tax@balizero.com',
+      department: 'tax',
+      badge: '📊',
+      language: 'Indonesian',
+    },
+    {
+      id: 'angel',
+      name: 'Angel',
+      role: 'Tax Expert',
+      email: 'angel.tax@balizero.com',
+      department: 'tax',
+      badge: '🔎',
+      language: 'Indonesian',
+    },
+    {
+      id: 'kadek',
+      name: 'Kadek',
+      role: 'Tax Consultant',
+      email: 'kadek.tax@balizero.com',
+      department: 'tax',
+      badge: '📐',
+      language: 'Indonesian',
+    },
+    {
+      id: 'dewaayu',
+      name: 'Dewa Ayu',
+      role: 'Tax Consultant',
+      email: 'dewa.ayu.tax@balizero.com',
+      department: 'tax',
+      badge: '🗂️',
+      language: 'Indonesian',
+    },
+    {
+      id: 'faisha',
+      name: 'Faisha',
+      role: 'Tax Care',
+      email: 'faisha.tax@balizero.com',
+      department: 'tax',
+      badge: '🧾',
+      language: 'Indonesian',
+    },
+
+    // Marketing
+    {
+      id: 'sahira',
+      name: 'Sahira',
+      role: 'Marketing Specialist',
+      email: 'sahira@balizero.com',
+      department: 'marketing',
+      badge: '🌟',
+      language: 'Indonesian',
+    },
+    {
+      id: 'nina',
+      name: 'Nina',
+      role: 'Marketing Advisory',
+      email: 'nina@balizero.com',
+      department: 'marketing',
+      badge: '🎤',
+      language: 'Indonesian',
+    },
+
+    // Reception
+    {
+      id: 'rina',
+      name: 'Rina',
+      role: 'Reception',
+      email: 'rina@balizero.com',
+      department: 'reception',
+      badge: '🌸',
+      language: 'Indonesian',
+    },
+
+    // External Advisory
+    {
+      id: 'marta',
+      name: 'Marta',
+      role: 'External Advisory',
+      email: 'marta@balizero.com',
+      department: 'advisory',
+      badge: '🧐',
+      language: 'Ukrainian',
+    },
+    {
+      id: 'olena',
+      name: 'Olena',
+      role: 'External Advisory',
+      email: 'olena@balizero.com',
+      department: 'advisory',
+      badge: '🌐',
+      language: 'Ukrainian',
+    },
+
+    // Bridge & Tech
+    {
+      id: 'zero',
+      name: 'Zero',
+      role: 'Bridge/Tech',
+      email: 'zero@balizero.com',
+      department: 'technology',
+      badge: '🚀',
+      language: 'Italian',
+    },
+  ],
+
+  departments: {
+    management: { name: 'Management & Leadership', color: '#6366f1', icon: '👑' },
+    setup: { name: 'Setup & Operations', color: '#10b981', icon: '⚡' },
+    tax: { name: 'Tax Department', color: '#f59e0b', icon: '📊' },
+    marketing: { name: 'Marketing & Communications', color: '#ef4444', icon: '🎤' },
+    reception: { name: 'Reception & Client Relations', color: '#06b6d4', icon: '🌸' },
+    advisory: { name: 'External Advisory', color: '#8b5cf6', icon: '🧐' },
+    technology: { name: 'Bridge & Technology', color: '#ec4899', icon: '🚀' },
+  } as Record<string, { name: string; color: string; icon: string }>,
+
+  stats: {
+    total: 23,
+    byDepartment: {
+      management: 2,
+      setup: 10,
+      tax: 5,
+      marketing: 2,
+      reception: 1,
+      advisory: 2,
+      technology: 1,
+    },
+    byLanguage: {
+      Indonesian: 19,
+      Ukrainian: 3,
+      Italian: 1,
+    },
+  },
+};
+
+/**
+ * Get complete team list
+ */
+export async function teamList(req: Request, res: Response) {
+  try {
+    const { department, role, search } = req.body.params || {};
+
+    // Try Redis cache first (only for unfiltered requests)
+    if (!department && !role && !search) {
+      const cached = await redisClient.get(TEAM_CACHE_KEY);
+      if (cached) {
+        logger.info('✅ Team list served from Redis cache');
+        return res.json(JSON.parse(cached));
+      }
+    }
+
+    let members = [...BALI_ZERO_TEAM.members];
+
+    // Filter by department
+    if (department) {
+      members = members.filter((m) => m.department === department);
+    }
+
+    // Filter by role
+    if (role) {
+      members = members.filter((m) => m.role.toLowerCase().includes(role.toLowerCase()));
+    }
+
+    // Search by name or email
+    if (search) {
+      const searchLower = search.toLowerCase();
+      members = members.filter(
+        (m) =>
+          m.name.toLowerCase().includes(searchLower) || m.email.toLowerCase().includes(searchLower)
+      );
+    }
+
+    const response = {
+      ok: true,
+      data: {
+        members,
+        departments: BALI_ZERO_TEAM.departments,
+        stats: BALI_ZERO_TEAM.stats,
+        count: members.length,
+        total: BALI_ZERO_TEAM.stats.total,
+        timestamp: new Date().toISOString(),
+      },
+    };
+
+    // Cache unfiltered response in Redis
+    if (!department && !role && !search) {
+      await redisClient.setex(TEAM_CACHE_KEY, TEAM_CACHE_TTL, JSON.stringify(response));
+      logger.info('✅ Team list cached in Redis');
+    }
+
+    return res.json(response);
+  } catch (error: any) {
+    logger.error('team.list error:', error);
+    return res.status(500).json({
+      ok: false,
+      error: error.message || 'Failed to retrieve team list',
+    });
+  }
+}
+
+/**
+ * Get specific team member
+ */
+export async function teamGet(req: Request, res: Response) {
+  try {
+    const { id, email } = req.body.params || {};
+
+    let member;
+
+    if (id) {
+      member = BALI_ZERO_TEAM.members.find((m) => m.id === id);
+    } else if (email) {
+      member = BALI_ZERO_TEAM.members.find((m) => m.email.toLowerCase() === email.toLowerCase());
+    } else {
+      return res.status(400).json({
+        ok: false,
+        error: 'Either id or email parameter is required',
+      });
+    }
+
+    if (!member) {
+      return res.status(404).json({
+        ok: false,
+        error: 'Team member not found',
+      });
+    }
+
+    return res.json({
+      ok: true,
+      data: {
+        member,
+        department: BALI_ZERO_TEAM.departments[member.department],
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch (error: any) {
+    logger.error('team.get error:', error);
+    return res.status(500).json({
+      ok: false,
+      error: error.message || 'Failed to retrieve team member',
+    });
+  }
+}
+
+/**
+ * Get department info
+ */
+export async function teamDepartments(req: Request, res: Response) {
+  try {
+    const { name } = req.body.params || {};
+
+    if (name) {
+      const department = BALI_ZERO_TEAM.departments[name];
+      if (!department) {
+        return res.status(404).json({
+          ok: false,
+          error: 'Department not found',
+        });
+      }
+
+      const members = BALI_ZERO_TEAM.members.filter((m) => m.department === name);
+
+      return res.json({
+        ok: true,
+        data: {
+          department: {
+            ...department,
+            id: name,
+          },
+          members,
+          count: members.length,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    }
+
+    // Return all departments
+    return res.json({
+      ok: true,
+      data: {
+        departments: BALI_ZERO_TEAM.departments,
+        stats: BALI_ZERO_TEAM.stats.byDepartment,
+        total: Object.keys(BALI_ZERO_TEAM.departments).length,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch (error: any) {
+    logger.error('team.departments error:', error);
+    return res.status(500).json({
+      ok: false,
+      error: error.message || 'Failed to retrieve departments',
+    });
+  }
+}
+
+// Test handler for collaborator recognition
+export async function teamTestRecognition(req: Request, res: Response) {
+  try {
+    const { email, prompt = 'Ciao, sono un collega. Confermi il mio profilo?' } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Email is required',
+      });
+    }
+
+    const ragBackendUrl = process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
+    const response = await fetch(`${ragBackendUrl}/bali-zero/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': req.headers['x-api-key'] as string,
+        'x-user-id': email, // Pass email as x-user-id header
+      },
+      body: JSON.stringify({
+        query: prompt,
+        user_email: email, // Pass email in body for RAG backend
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = (await response
+        .json()
+        .catch(() => ({ message: 'Unknown RAG error' }))) as any;
+      return res.status(response.status).json({
+        ok: false,
+        error: errorData.message || `RAG Backend Error: ${response.status}`,
+      });
+    }
+
+    const data = (await response.json()) as any;
+    return res.json({
+      ok: data.success,
+      status: response.status,
+      ms: Date.now() - (req as any).ctx?.startTime || 0,
+      model: data.model_used,
+      snippet: data.response ? data.response.substring(0, 100) : null,
+      full_response: data,
+    });
+  } catch (error: any) {
+    logger.error('team.test.recognition error:', error);
+    return res.status(500).json({
+      ok: false,
+      error: error?.message || 'Internal Error',
+    });
+  }
+}

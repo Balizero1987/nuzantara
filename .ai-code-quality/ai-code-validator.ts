@@ -102,12 +102,18 @@ interface ValidationPolicies {
 // CONFIGURATION
 // ============================================================================
 
+// Determine if we're running from .ai-code-quality/ or project root
+const SCRIPT_DIR = __dirname;
+const IS_IN_AI_DIR = SCRIPT_DIR.endsWith('.ai-code-quality');
+const PROJECT_ROOT = IS_IN_AI_DIR ? path.dirname(SCRIPT_DIR) : process.cwd();
+const AI_QUALITY_DIR = IS_IN_AI_DIR ? SCRIPT_DIR : path.join(PROJECT_ROOT, '.ai-code-quality');
+
 const CONFIG = {
-  ROOT_DIR: process.cwd(),
-  AI_QUALITY_DIR: path.join(process.cwd(), '.ai-code-quality'),
-  REPORTS_DIR: path.join(process.cwd(), '.ai-code-quality', 'reports'),
-  ARCHITECTURAL_KNOWLEDGE: path.join(process.cwd(), '.ai-code-quality', 'architectural-knowledge.yaml'),
-  VALIDATION_POLICIES: path.join(process.cwd(), '.ai-code-quality', 'validation-policies.yaml'),
+  ROOT_DIR: PROJECT_ROOT,
+  AI_QUALITY_DIR: AI_QUALITY_DIR,
+  REPORTS_DIR: path.join(AI_QUALITY_DIR, 'reports'),
+  ARCHITECTURAL_KNOWLEDGE: path.join(AI_QUALITY_DIR, 'architectural-knowledge.yaml'),
+  VALIDATION_POLICIES: path.join(AI_QUALITY_DIR, 'validation-policies.yaml'),
   MAX_FILE_SIZE: 1000000, // 1MB
 };
 

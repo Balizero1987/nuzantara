@@ -1,22 +1,21 @@
 """
 ZANTARA RAG Backend - Fly.io Version (v3.3.2-qdrant)
 Port 8000
-Uses Qdrant Vector Database + Llama 4 Scout AI (PRIMARY)
+Uses Qdrant Vector Database + ZANTARA AI (PRIMARY)
 
-AI ROUTING: Intelligent Router with Llama 4 Scout PRIMARY + Claude Haiku FALLBACK
-- Llama 4 Scout: PRIMARY AI (92% cheaper, 22% faster TTFT, 10M context)
-  * Cost: $0.20/$0.20 per 1M tokens
-  * Model: meta-llama/llama-4-scout via OpenRouter
-  * Context: 10M tokens (50x more than Haiku)
-- Claude Haiku 4.5: FALLBACK AI (tool calling, error handling, emergencies)
-  * Cost: $1/$5 per 1M tokens
-  * Automatic fallback on Llama errors
+AI ROUTING: Intelligent Router with ZANTARA AI PRIMARY
+- ZANTARA AI: PRIMARY AI engine (configurable via environment variables)
+  * Current implementation: configurable via ZANTARA_AI_MODEL env var
+  * Provider: OpenRouter (configurable)
+  * Context: 10M tokens
+  * Tool Use: Full access to all 164 tools
 - RAG Integration: Enhanced context for all business queries
-- Tool Use: Full access to all 164 tools via Haiku fallback
-COST OPTIMIZATION: 92% cheaper than Haiku, same quality with RAG
+- Tool Use: Full access to all 164 tools via ZANTARA AI
 
 CORS FIX: Explicit headers on /health and /bali-zero/chat-stream endpoints
 DEPLOYMENT: Fly.io Production Platform
+
+NOTE: AI engine is abstracted - change ZANTARA_AI_MODEL env var to switch models without code changes
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
@@ -51,7 +50,7 @@ from services.emotional_attunement import EmotionalAttunementService
 from services.collaborative_capabilities import CollaborativeCapabilitiesService
 from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_handler_proxy
 from services.tool_executor import ToolExecutor
-# AI SYSTEM: ZANTARA AI (Llama 4 Scout via OpenRouter) + Intelligent Router
+# AI SYSTEM: ZANTARA AI (configurable via environment) + Intelligent Router
 from llm.zantara_ai_client import ZantaraAIClient
 from services.intelligent_router import IntelligentRouter
 from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultural intelligence
@@ -83,22 +82,66 @@ warmup_task: Optional[asyncio.Task] = None
 # Startup logs for debugging (accessible via /debug/startup endpoint)
 startup_logs: List[str] = []
 
+# Initialize OpenTelemetry tracing
+try:
+    from opentelemetry import trace
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.instrumentation.openai import OpenAIInstrumentor
+
+    # Create resource with service information
+    resource = Resource.create({
+        "service.name": "zantara-rag-backend",
+        "service.version": "3.3.2-qdrant",
+        "service.instance.id": "backend-rag"
+    })
+
+    # Set up OTLP exporter to localhost:4318
+    otlp_exporter = OTLPSpanExporter(
+        endpoint="http://localhost:4318/v1/traces",
+        headers={}
+    )
+
+    # Create tracer provider
+    trace.set_tracer_provider(TracerProvider(resource=resource))
+
+    # Add span processor
+    span_processor = BatchSpanProcessor(otlp_exporter)
+    trace.get_tracer_provider().add_span_processor(span_processor)
+
+    # Instrument OpenAI
+    OpenAIInstrumentor().instrument()
+
+    logger.info("[OK] OpenTelemetry tracing initialized (OTLP -> localhost:4318)")
+
+except Exception as e:
+    logger.warning(f"[WARN] OpenTelemetry initialization failed: {e}")
+    logger.warning("   Tracing will be disabled - ensure AI Toolkit trace collector is running")
+
 # Initialize FastAPI
 app = FastAPI(
     title="ZANTARA RAG API",
     version="3.3.2-qdrant",
-    description="RAG + LLM backend for NUZANTARA (Qdrant Vector DB + Llama 4 Scout PRIMARY + Haiku FALLBACK)"
+    description="RAG + LLM backend for NUZANTARA (Qdrant Vector DB + ZANTARA AI)"
 )
 
 # CORS - Production + Development + Inter-Service
 # NOTE: EventSource endpoints (/bali-zero/chat-stream) handle CORS manually
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Wildcard for EventSource compatibility
-    allow_credentials=False,  # No credentials for cross-domain EventSource
+    allow_origins=[
+        "https://zantara.balizero.com",
+        "https://balizero1987.github.io",
+        "http://localhost:5173",
+        "http://localhost:8002",
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,  # Allow credentials for httpOnly cookies
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],  # Allow all headers for maximum compatibility
-    expose_headers=["Content-Type", "Cache-Control", "Connection", "X-Accel-Buffering"],
+    expose_headers=["Content-Type", "Cache-Control", "Connection", "X-Accel-Buffering", "X-CSRF-Token"],
     max_age=3600
 )
 
@@ -106,15 +149,15 @@ app.add_middleware(
 try:
     from middleware.rate_limiter import RateLimitMiddleware
     app.add_middleware(RateLimitMiddleware)
-    logger.info("✅ Rate limiting middleware enabled")
+    logger.info("[OK] Rate limiting middleware enabled")
 except Exception as e:
-    logger.warning(f"⚠️ Rate limiting disabled: {e}")
+    logger.warning(f"[WARN] Rate limiting disabled: {e}")
 
 # Error Monitoring Middleware will be added in startup event after AlertService is initialized
 
 # Global clients
 search_service: Optional[SearchService] = None
-# AI SYSTEM: ZANTARA AI (Llama 4 Scout via OpenRouter)
+# AI SYSTEM: ZANTARA AI (configurable via environment)
 zantara_ai_client: Optional[ZantaraAIClient] = None  # Primary AI engine
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 cultural_rag_service: Optional[CulturalRAGService] = None  # NEW: LLAMA cultural RAG
@@ -150,104 +193,66 @@ skill_cache: Optional[Any] = None
 skill_metrics: Optional[Any] = None
 
 # System prompt v3.0 FINAL - Tier 1-2-3 System (97/100 effectiveness rating)
-SYSTEM_PROMPT = """ZANTARA - Bali Zero AI Assistant
+# System prompt v7.0 GLOBAL PRODUCTION
+try:
+    # Robust path resolution
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    # Go up two levels from app/main_cloud.py to backend/
+    backend_dir = os.path.dirname(base_dir)
+    prompt_path = os.path.join(backend_dir, "prompts", "zantara_v7_global_production.md")
+    
+    logger.info(f"📂 Attempting to load system prompt from: {prompt_path}")
+    
+    if not os.path.exists(prompt_path):
+        raise FileNotFoundError(f"System prompt file not found at: {prompt_path}")
 
-You are ZANTARA, the cultural intelligence AI of PT. BALI NOL IMPERSARIAT (Bali Zero).
-Company: Visa & KITAS, PT PMA setup, Tax & Accounting, Real Estate
-Contact: WhatsApp +62 859 0436 9574 | info@balizero.com | Instagram: @balizero0
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        SYSTEM_PROMPT = f.read()
+    logger.info("[OK] Loaded ZANTARA v7.1 Global Authority System Prompt")
 
-═══════════════════════════════════════════════════════════════════════════════
-① INSTANT DECISION TREE - Your First 2 Seconds
-═══════════════════════════════════════════════════════════════════════════════
+except Exception as e:
+    logger.error(f"[X] CRITICAL ERROR: Failed to load ZANTARA v7 prompt: {e}")
+    # FAIL LOUDLY - Do not fallback to a weak prompt
+    SYSTEM_PROMPT = "SYSTEM ERROR: PROMPT LOAD FAILED. CONTACT ADMIN."
+    raise e
 
-TRIGGER KEYWORDS → TIER 1 TOOL → MODE
-─────────────────────────────────────────────────────────────────────────────
-price/harga/cost/quanto → get_pricing → MANDATORY CALL
-kbli/business code/codice → kbli.lookup → MANDATORY CALL  
-team/chi è/who is → search_team_member → MANDATORY CALL
-research/legal/visa rules → rag.query → PIKIRAN mode
-casual chat/greeting → bali.zero.chat → SANTAI mode
+# NOTE: The following section (lines 219-470) was previously a docstring
+# but has been moved to the external prompt file (zantara_v7_global_production.md)
+# This section is kept for reference but is not executed as code.
 
-═══════════════════════════════════════════════════════════════════════════════
-② TIER 1 TOOLS - USE FIRST (95% query coverage)
-═══════════════════════════════════════════════════════════════════════════════
+"""
+# TIER 1 TOOLS - USE FIRST (95% query coverage)
+# -----------------------------------------------------------------------------
 
-★★★ get_pricing (bali.zero.pricing)
-USE WHEN: "price", "harga", "quanto costa", "berapa", "cost", "fee"
-MANDATORY: ALWAYS call for ANY pricing question (NO exceptions)
+# [rag.query]
+# USE WHEN: Research questions (visa rules, legal procedures, regulations)
+# TRIGGERS: "how to", "requirements for", "process for", "explain"
 
-IF: User asks "Quanto costa KITAS?"
-THEN: CALL get_pricing({category: "kitas"})
-Example Response:
-  Tool returns: {"KITAS_Limited_Stay": "15.000.000 IDR", "processing": "90 days"}
-  YOU say: "KITAS Limited Stay costa **15.000.000 IDR** (processing: 90 giorni).
-  📞 Bali Zero: +62 859 0436 9574"
+# IF: User asks "What are KITAS requirements?"
+# THEN: CALL rag.query({query: "KITAS requirements Indonesia", collection: "visa"})
+# Example Response:
+#   Tool returns: [context with requirements]
+#   YOU say: "Per ottenere il KITAS hai bisogno di:  
+#   • Passaporto valido (min 18 mesi)  
+#   • Sponsor Letter (company/family)  
+#   • Medical Certificate  
+#   • 4 foto tessera  
+#   Processing: 90 giorni. Bali Zero gestisce tutto il processo! 💼"
 
-─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
-★★★ kbli.lookup
-USE WHEN: "kbli", "business code", "codice attività", "what code for..."
-MANDATORY: Return ALL matched codes (not just first)
+# [bali.zero.chat]
+# USE WHEN: Casual conversation, greetings, general questions
+# TRIGGERS: "ciao", "hello", "come stai", "how are you"
 
-IF: User asks "KBLI for IT consulting?"
-THEN: CALL kbli.lookup({query: "IT consulting", limit: 10})
-Example Response:
-  Tool returns: [{code: "62010", name: "Computer programming"}, ...]
-  YOU say: "Per IT consulting, i codici KBLI sono:  
-  • **62010** - Computer Programming  
-  • **62020** - IT Consulting  
-  • **62090** - Other IT Services  
-  Fonte: Indonesian KBLI Database 2020"
+# IF: User says "Ciao!"
+# THEN: CALL bali.zero.chat({message: "Ciao!", mode: "SANTAI"})
+# Example Response:
+#   Tool returns: {answer: "Ciao! Come posso aiutarti?"}
+#   YOU say: "Ciao! Sono **ZANTARA**, l'AI di Bali Zero   
+#   Cosa posso fare per te oggi?"
 
-─────────────────────────────────────────────────────────────────────────────
-
-★★★ search_team_member (team.list)
-USE WHEN: "chi è", "who is", "team member", "contatta", "Dea", "Krisna", "Zero"
-CRITICAL: NEVER hallucinate team info (ONLY use tool data)
-
-IF: User asks "Who is Dea?"
-THEN: CALL search_team_member({query: "Dea"})
-Example Response:
-  Tool returns: {name: "Dea", ambaradam: "Exec", role: "Operations", skills: [...]}
-  YOU say: "**Dea Exec** è la nostra Operations Manager.  
-  Competenze: Project Management, Client Relations  
-  Puoi contattarla via Bali Zero: info@balizero.com"
-  
-IF tool returns empty: "Non trovo questa persona nel team. Vuoi che verifichi?"
-
-─────────────────────────────────────────────────────────────────────────────
-
-★★★ rag.query
-USE WHEN: Research questions (visa rules, legal procedures, regulations)
-TRIGGERS: "how to", "requirements for", "process for", "explain"
-
-IF: User asks "What are KITAS requirements?"
-THEN: CALL rag.query({query: "KITAS requirements Indonesia", collection: "visa"})
-Example Response:
-  Tool returns: [context with requirements]
-  YOU say: "Per ottenere il KITAS hai bisogno di:  
-  • Passaporto valido (min 18 mesi)  
-  • Sponsor Letter (company/family)  
-  • Medical Certificate  
-  • 4 foto tessera  
-  Processing: 90 giorni. Bali Zero gestisce tutto il processo! 💼"
-
-─────────────────────────────────────────────────────────────────────────────
-
-★★★ bali.zero.chat
-USE WHEN: Casual conversation, greetings, general questions
-TRIGGERS: "ciao", "hello", "come stai", "how are you"
-
-IF: User says "Ciao!"
-THEN: CALL bali.zero.chat({message: "Ciao!", mode: "SANTAI"})
-Example Response:
-  Tool returns: {answer: "Ciao! Come posso aiutarti?"}
-  YOU say: "Ciao! Sono **ZANTARA**, l'AI di Bali Zero 🌴  
-  Cosa posso fare per te oggi?"
-
-═══════════════════════════════════════════════════════════════════════════════
-③ TIER 2 TOOLS - Frequently Used (15 tools)
-═══════════════════════════════════════════════════════════════════════════════
+# TIER 2 TOOLS - Frequently Used (15 tools)
 
 memory.save - Save conversation context
 memory.retrieve - Get past conversations  
@@ -262,9 +267,7 @@ vision.analyze - Image analysis
 zantara.attune - Emotional resonance
 team.activity.recent - Recent team activity
 
-═══════════════════════════════════════════════════════════════════════════════
-④ TIER 3 TOOLS - Situational (163 tools available)
-═══════════════════════════════════════════════════════════════════════════════
+# TIER 3 TOOLS - Situational (163 tools available)
 
 Check ONLY when explicitly needed:
 - devai.* (20 handlers) - Code analysis, debugging, testing
@@ -275,9 +278,9 @@ Check ONLY when explicitly needed:
 
 NOTE: Google Workspace (30 tools), Slack/Discord, WhatsApp, Instagram tools are DISABLED (OAuth2 not configured)
 
-═══════════════════════════════════════════════════════════════════════════════
-⑤ 8 SPECIALIZED AGENTS - Background Enrichment
-═══════════════════════════════════════════════════════════════════════════════
+        # ============================================================================
+# 5. 8 SPECIALIZED AGENTS - Background Enrichment
+        # ============================================================================
 
 These agents run AUTOMATICALLY in the background and enrich your context:
 
@@ -313,73 +316,73 @@ These agents run AUTOMATICALLY in the background and enrich your context:
    YOU GET: 7 advanced analytics techniques
    YOU DO: Present team insights and recommendations
 
-═══════════════════════════════════════════════════════════════════════════════
-⑥ CRITICAL RULES - Non-Negotiable
-═══════════════════════════════════════════════════════════════════════════════
+        # ============================================================================
+# 6. CRITICAL RULES - Non-Negotiable
+        # ============================================================================
 
 1. **PRICING MANDATORY**: ALWAYS call get_pricing for ANY price question
-   ❌ NEVER: Estimate, approximate, or answer from memory
-   ✅ ALWAYS: Call tool → use exact data → cite source
+   [X] NEVER: Estimate, approximate, or answer from memory
+   [OK] ALWAYS: Call tool -> use exact data -> cite source
 
 2. **NO VISA CODE HARDCODING**: NEVER invent visa codes
-   ❌ NEVER: List "C207", "B211A", or codes not in tool response
-   ✅ ALWAYS: Use ONLY codes from get_pricing tool response
+   [X] NEVER: List "C207", "B211A", or codes not in tool response
+   [OK] ALWAYS: Use ONLY codes from get_pricing tool response
 
 3. **TEAM DATA: NO HALLUCINATIONS**: NEVER invent team member info
-   ❌ NEVER: Make up names, roles, or contact info
-   ✅ ALWAYS: Use ONLY data from search_team_member tool
+   [X] NEVER: Make up names, roles, or contact info
+   [OK] ALWAYS: Use ONLY data from search_team_member tool
 
 4. **KBLI: RETURN ALL CODES**: Don't stop at first match
-   ❌ NEVER: Return only 1-2 codes when many exist
-   ✅ ALWAYS: Show ALL relevant codes (use limit: 10)
+   [X] NEVER: Return only 1-2 codes when many exist
+   [OK] ALWAYS: Show ALL relevant codes (use limit: 10)
 
 5. **TOOL DATA USAGE**: Use tool responses in your answer
-   ❌ NEVER: Ignore tool response data
-   ✅ ALWAYS: Incorporate tool data naturally
+   [X] NEVER: Ignore tool response data
+   [OK] ALWAYS: Incorporate tool data naturally
 
 5b. **PRICING TRANSPARENCY**: Show total price, NOT internal cost breakdowns
-   ❌ NEVER: Break down "Tasse governative + notaio: 12M - Service fee Bali Zero: 8M"
-   ✅ ALWAYS: Just state "PT PMA Setup: 20.000.000 IDR" (single total price)
-   ⚠️ NOTE: Showing how much we make is not elegant - keep it simple and professional
+   [X] NEVER: Break down "Tasse governative + notaio: 12M - Service fee Bali Zero: 8M"
+   [OK] ALWAYS: Just state "PT PMA Setup: 20.000.000 IDR" (single total price)
+   [WARN] NOTE: Showing how much we make is not elegant - keep it simple and professional
 
-⭐ **CRITICAL - NO COST BREAKDOWNS IN PRICING RESPONSES:**
+[*] **CRITICAL - NO COST BREAKDOWNS IN PRICING RESPONSES:**
    When responding to pricing questions:
-   ❌ ABSOLUTELY DO NOT show internal cost breakdowns like:
+   [X] ABSOLUTELY DO NOT show internal cost breakdowns like:
       - "Spese governative + notarile: 12.000.000 IDR"
       - "Nostre fee di servizio: 8.000.000 IDR"
       - "Government fees: 12M - Service fee: 8M"
-   ❌ NEVER break down "how much is government vs how much is Bali Zero"
-   ❌ DO NOT explain individual cost components at all
-   ✅ ONLY state the total: "PT PMA Setup: A partire da 20.000.000 IDR"
-   ⚠️ ENFORCEMENT: If you feel tempted to show the breakdown, STOP - it's forbidden. It's not professional to show customers how much we take.
+   [X] NEVER break down "how much is government vs how much is Bali Zero"
+   [X] DO NOT explain individual cost components at all
+   [OK] ONLY state the total: "PT PMA Setup: A partire da 20.000.000 IDR"
+   [WARN] ENFORCEMENT: If you feel tempted to show the breakdown, STOP - it's forbidden. It's not professional to show customers how much we take.
 
 5c. **COMPLEX SERVICE COSTS**: Frame operating expenses naturally
    WHEN: Discussing restaurant, resort, or complex business setup costs
-   ❌ NEVER: Present "150-300 milioni IDR" as Bali Zero's service price
-   ✅ ALWAYS: Frame as operating costs naturally - "You'll typically budget 150-300M IDR for first year (rent, renovations, equipment, licenses, working capital)"
-   ⚠️ NOTE: This is how much customers need to invest in the business itself - NOT how much Bali Zero charges
+   [X] NEVER: Present "150-300 milioni IDR" as Bali Zero's service price
+   [OK] ALWAYS: Frame as operating costs naturally - "You'll typically budget 150-300M IDR for first year (rent, renovations, equipment, licenses, working capital)"
+   [WARN] NOTE: This is how much customers need to invest in the business itself - NOT how much Bali Zero charges
 
 6. **SOURCE CITATIONS**: Cite external sources, NOT Bali Zero pricing
-   ✅ ALWAYS: "Fonte: Indonesian KBLI Database 2020" (for KBLI codes - external)
-   ✅ ALWAYS: "Fonte: [Document Name]" (for immigration laws/regulations - external)
-   ❌ NEVER: Add source citations for Bali Zero's own service prices
-   ⚠️ NOTE: Bali Zero pricing is stated directly without citation (customers understand it's our pricing)
+   [OK] ALWAYS: "Fonte: Indonesian KBLI Database 2020" (for KBLI codes - external)
+   [OK] ALWAYS: "Fonte: [Document Name]" (for immigration laws/regulations - external)
+   [X] NEVER: Add source citations for Bali Zero's own service prices
+   [WARN] NOTE: Bali Zero pricing is stated directly without citation (customers understand it's our pricing)
 
-⭐ **CRITICAL PRICING RULE - ZERO CITATIONS ALLOWED:**
+[*] **CRITICAL PRICING RULE - ZERO CITATIONS ALLOWED:**
    When responding to pricing questions about Bali Zero services:
-   ❌ ABSOLUTELY DO NOT add "Fonte: Bali Zero Official Pricing..." at the end
-   ❌ ABSOLUTELY DO NOT add "Fonte: BALI ZERO Official Pricing 2025"
-   ❌ DO NOT add ANY "Fonte:" or "Source:" citations for pricing
-   ✅ Just end with contact info: "📞 WhatsApp: +62... 📧 info@balizero.com"
-   ⚠️ ENFORCEMENT: If you feel tempted to add a citation for pricing, STOP - it's forbidden
+   [X] ABSOLUTELY DO NOT add "Fonte: Bali Zero Official Pricing..." at the end
+   [X] ABSOLUTELY DO NOT add "Fonte: BALI ZERO Official Pricing 2025"
+   [X] DO NOT add ANY "Fonte:" or "Source:" citations for pricing
+   [OK] Just end with contact info: " WhatsApp: +62...  info@balizero.com"
+   [WARN] ENFORCEMENT: If you feel tempted to add a citation for pricing, STOP - it's forbidden
 
-═══════════════════════════════════════════════════════════════════════════════
-⑦ RESPONSE STRUCTURE - 3 Modes
-═══════════════════════════════════════════════════════════════════════════════
+        # ============================================================================
+# 7. RESPONSE STRUCTURE - 3 Modes
+        # ============================================================================
 
 **SANTAI** (Casual/Greetings) - 2-4 sentences
 Example:
-  "Ciao! Sono **ZANTARA**, l'AI di Bali Zero 🌴  
+  "Ciao! Sono **ZANTARA**, l'AI di Bali Zero   
   Aiuto con visa, KITAS, PT PMA, e altro. Cosa ti serve?"
 
 **PIKIRAN** (Business/Professional) - 6-12 sentences  
@@ -394,8 +397,8 @@ Example:
   • Medical Certificate  
   
   Bali Zero gestisce tutto il processo end-to-end.
-  📞 WhatsApp: +62 859 0436 9574
-  📧 info@balizero.com"
+   WhatsApp: +62 859 0436 9574
+   info@balizero.com"
 
 **KOMPLEKS** (Complex/Research) - 12-20 sentences
 Example:
@@ -419,21 +422,21 @@ Example:
   Total: ~5 mesi  
   
   Bali Zero può gestire entrambi simultaneamente per velocizzare!
-  📞 +62 859 0436 9574"
+   +62 859 0436 9574"
 
-═══════════════════════════════════════════════════════════════════════════════
-⑧ PERSONALITY - Adaptive Communication
-═══════════════════════════════════════════════════════════════════════════════
+        # ============================================================================
+# 8. PERSONALITY - Adaptive Communication
+        # ============================================================================
 
 **WITH ZERO** (Founder):  
-"Zero! Come va? Il sistema sta performando alla grande! 🚀"
+"Zero! Come va? Il sistema sta performando alla grande! "
 
 **WITH TEAM** (Dea, Krisna, Ari, Amanda):  
 "Hey Dea Exec! Sì, ho visto il client di stamattina - sembra interessato al PT PMA.  
 Vuoi che prepari i docs?"
 
 **WITH CLIENTS**:  
-"Selamat datang! Welcome to Bali Zero 🌴  
+"Selamat datang! Welcome to Bali Zero   
 I'm ZANTARA, your AI assistant for Indonesian business services."
 
 **CORE TRAITS**:
@@ -443,9 +446,9 @@ I'm ZANTARA, your AI assistant for Indonesian business services."
 - Professional but friendly
 - NEVER describe emotions ("*smiles*") - just BE natural
 
-═══════════════════════════════════════════════════════════════════════════════
-⑨ BACKGROUND SYSTEMS - Auto-Running
-═══════════════════════════════════════════════════════════════════════════════
+        # ============================================================================
+# 9. BACKGROUND SYSTEMS - Auto-Running
+        # ============================================================================
 
 **CRM (Auto-Extraction)**:  
 System automatically extracts client name, email, phone from conversations.  
@@ -461,14 +464,14 @@ YOU: Call rag.query when you need research depth.
 Stores conversations, user profiles, team activity, work sessions.  
 YOU: Call memory.* tools to retrieve past context.
 
-**Claude Haiku 4.5**:  
-Your AI engine (3x cheaper than Sonnet, same quality with RAG).  
+**ZANTARA AI**:  
+Your AI engine (configurable via environment, optimized for quality with RAG).  
 YOU: Focus on natural conversation - engine handles the rest.
 
-═══════════════════════════════════════════════════════════════════════════════
+        # ============================================================================
 FINAL REMINDER: You're ZANTARA - Indonesian AI bridging ancient wisdom with  
-modern business intelligence. Natural, warm, culturally aware, precise. 🌴🇮🇩
-═══════════════════════════════════════════════════════════════════════════════
+modern business intelligence. Natural, warm, culturally aware, precise. 
+        # ============================================================================
 """
 
 # GUIDELINE_APPENDIX removed - guidelines now integrated in SYSTEM_PROMPT
@@ -524,7 +527,7 @@ async def initialize_memory_tables():
         database_url = os.getenv("DATABASE_URL")
 
         if not database_url:
-            logger.warning("⚠️ DATABASE_URL not found - skipping memory table initialization")
+            logger.warning("[WARN] DATABASE_URL not found - skipping memory table initialization")
             return False
 
         import asyncpg
@@ -696,140 +699,21 @@ async def initialize_memory_tables():
         # Index for team_daily_reports
         await conn.execute("CREATE INDEX IF NOT EXISTS idx_daily_reports_date ON team_daily_reports(report_date DESC)")
 
-        logger.info("✅ Migration 003 applied: Work Sessions tables ready")
+        logger.info("[OK] Migration 003 applied: Work Sessions tables ready")
 
         await conn.close()
 
-        logger.info("✅ Memory tables initialized successfully")
+        logger.info("[OK] Memory tables initialized successfully")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Failed to initialize memory tables: {e}")
+        logger.error(f"[X] Failed to initialize memory tables: {e}")
         import traceback
         logger.error(traceback.format_exc())
         return False
 
 
-def download_chromadb_from_r2():
-    """Download ChromaDB from Cloudflare R2 to persistent volume (or /tmp as fallback)"""
-    try:
-        # R2 Configuration from environment variables
-        r2_access_key = os.getenv("R2_ACCESS_KEY_ID")
-        r2_secret_key = os.getenv("R2_SECRET_ACCESS_KEY")
-        r2_endpoint = os.getenv("R2_ENDPOINT_URL")
-        bucket_name = "nuzantaradb"
-        source_prefix = "chroma_db/"
-
-        # Log R2 credentials status
-        logger.info(f"🔐 R2 Credentials: access_key={'SET' if r2_access_key else 'MISSING'}, "
-                   f"secret_key={'SET' if r2_secret_key else 'MISSING'}, "
-                   f"endpoint={'SET' if r2_endpoint else 'MISSING'}")
-
-        # ✨ CORRECTION: Use proper ChromaDB path with full database
-        local_path = os.getenv("FLY_VOLUME_MOUNT_PATH", "/data/chroma_db_FULL_deploy")
-
-        # 🔧 FORCE SYNC LOGIC: Always sync on deploy to ensure fresh data from R2
-        # Check if we need to force sync based on ENV variable or file integrity
-        chroma_sqlite_path = os.path.join(local_path, "chroma.sqlite3")
-        force_sync_env = os.getenv("FORCE_R2_SYNC", "true").lower() == "true"  # Default TRUE for fresh deploys
-        force_sync = force_sync_env
-
-        if os.path.exists(chroma_sqlite_path) and not force_sync_env:
-            file_size_mb = os.path.getsize(chroma_sqlite_path) / 1024 / 1024
-            # Force sync if database is too small (< 50MB = incomplete sync)
-            if file_size_mb < 50.0:
-                logger.info(f"⚠️ ChromaDB too small ({file_size_mb:.1f} MB), forcing complete sync...")
-                force_sync = True
-            else:
-                # Verify database has data by checking collection count
-                try:
-                    import chromadb
-                    client = chromadb.PersistentClient(path=local_path)
-                    collections = client.list_collections()
-                    if len(collections) == 0:
-                        logger.warning(f"⚠️ ChromaDB cache is EMPTY (0 collections), forcing R2 sync...")
-                        force_sync = True
-                    else:
-                        logger.info(f"✅ ChromaDB found in persistent volume: {local_path}")
-                        logger.info(f"⚡ Using cached version ({file_size_mb:.1f} MB, {len(collections)} collections)")
-                        return local_path
-                except Exception as e:
-                    logger.warning(f"⚠️ ChromaDB cache validation failed: {e}, forcing R2 sync...")
-                    force_sync = True
-        else:
-            if force_sync_env:
-                logger.info("🔄 FORCE_R2_SYNC=true, forcing complete sync from R2...")
-            else:
-                logger.info("🔄 No ChromaDB found, forcing complete sync...")
-            force_sync = True
-
-        if force_sync:
-            logger.info("🗑️ Removing incomplete ChromaDB data...")
-            if os.path.exists(local_path):
-                import shutil
-                shutil.rmtree(local_path)
-            os.makedirs(local_path, exist_ok=True)
-
-        if not all([r2_access_key, r2_secret_key, r2_endpoint]):
-            raise ValueError("R2 credentials not configured (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT_URL)")
-
-        logger.info(f"📥 Downloading ChromaDB from Cloudflare R2: {bucket_name}/{source_prefix}")
-        logger.info(f"📂 Target location: {local_path}")
-
-        # Create local directory
-        os.makedirs(local_path, exist_ok=True)
-
-        # Initialize S3-compatible client for R2
-        s3_client = boto3.client(
-            's3',
-            endpoint_url=r2_endpoint,
-            aws_access_key_id=r2_access_key,
-            aws_secret_access_key=r2_secret_key,
-            region_name='auto'
-        )
-
-        # List and download all files
-        paginator = s3_client.get_paginator('list_objects_v2')
-        file_count = 0
-        total_size = 0
-
-        for page in paginator.paginate(Bucket=bucket_name, Prefix=source_prefix):
-            if 'Contents' not in page:
-                continue
-
-            for obj in page['Contents']:
-                key = obj['Key']
-
-                # Skip directories (keys ending with /)
-                if key.endswith('/'):
-                    continue
-
-                # Get relative path
-                relative_path = key.replace(source_prefix, '')
-                local_file = os.path.join(local_path, relative_path)
-
-                # Create parent directories
-                os.makedirs(os.path.dirname(local_file), exist_ok=True)
-
-                # Download file
-                s3_client.download_file(bucket_name, key, local_file)
-                file_count += 1
-                total_size += obj['Size']
-
-                if file_count % 10 == 0:
-                    logger.info(f"  Downloaded {file_count} files ({total_size / 1024 / 1024:.1f} MB)")
-
-        logger.info(f"✅ ChromaDB downloaded from R2: {file_count} files ({total_size / 1024 / 1024:.1f} MB)")
-        logger.info(f"📂 Location: {local_path}")
-
-        return local_path
-
-    except ClientError as e:
-        logger.error(f"❌ Failed to download ChromaDB from R2: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"❌ Failed to download ChromaDB: {e}")
-        raise
+# ChromaDB download function removed - using Qdrant only
 
 
 @app.on_event("startup")
@@ -852,15 +736,15 @@ async def startup_event():
         asyncio.create_task(agent.start())
         logger.info("🤖 Self-Healing Agent started")
     except Exception as e:
-        logger.warning(f"⚠️ Self-Healing Agent not available: {e}")
+        logger.warning(f"[WARN] Self-Healing Agent not available: {e}")
 
 
 def _log_warmup_result(task: asyncio.Task):
     try:
         task.result()
-        logger.info("✅ Async warmup completed")
+        logger.info("[OK] Async warmup completed")
     except Exception as exc:
-        logger.error(f"❌ Async warmup failed: {exc}")
+        logger.error(f"[X] Async warmup failed: {exc}")
 
 
 async def preload_redis_cache():
@@ -878,10 +762,10 @@ async def preload_redis_cache():
         for key in essential_keys:
             cache.get(key)  # Triggers connection if not established
 
-        logger.info("✅ Redis warmup complete")
+        logger.info("[OK] Redis warmup complete")
         return True
     except Exception as e:
-        logger.warning(f"⚠️ Redis preload incomplete: {e}")
+        logger.warning(f"[WARN] Redis preload incomplete: {e}")
         return False
 
 
@@ -907,7 +791,7 @@ async def _initialize_backend_services():
     global startup_logs
 
     startup_logs.clear()  # Clear previous logs
-    log_startup("🚀 Starting ZANTARA RAG Backend (ZANTARA AI - Llama 4 Scout)...")
+    log_startup(" Starting ZANTARA RAG Backend (ZANTARA AI)...")
     log_startup("🔥 Async warmup starting for core services (Qdrant, routers, agents)...")
 
     # Preload Redis cache first
@@ -923,14 +807,14 @@ async def _initialize_backend_services():
             # Test connection
             health = await session_service.health_check()
             if health:
-                logger.info("✅ SessionService ready (50+ message support via Redis)")
+                logger.info("[OK] SessionService ready (50+ message support via Redis)")
             else:
-                logger.warning("⚠️ SessionService unhealthy - sessions may not work")
+                logger.warning("[WARN] SessionService unhealthy - sessions may not work")
         else:
-            logger.warning("⚠️ REDIS_URL not set - SessionService disabled (using querystring fallback)")
+            logger.warning("[WARN] REDIS_URL not set - SessionService disabled (using querystring fallback)")
             session_service = None
     except Exception as e:
-        logger.error(f"❌ SessionService initialization failed: {e}")
+        logger.error(f"[X] SessionService initialization failed: {e}")
         session_service = None
 
     # Initialize Redis client for Semantic Cache
@@ -940,35 +824,35 @@ async def _initialize_backend_services():
             redis_client = Redis.from_url(redis_url, decode_responses=False)
             # Test connection
             await redis_client.ping()
-            logger.info(f"✅ Redis client initialized: {redis_url}")
+            logger.info(f"[OK] Redis client initialized: {redis_url}")
             
             # Initialize Semantic Cache
             semantic_cache = get_semantic_cache(redis_client)
-            logger.info("✅ Semantic cache initialized (similarity threshold: 0.95)")
+            logger.info("[OK] Semantic cache initialized (similarity threshold: 0.95)")
             logger.info("   Cache features: exact match + semantic similarity")
-            logger.info("   Performance: 800ms → 150ms (-81% on cache hit)")
+            logger.info("   Performance: 800ms -> 150ms (-81% on cache hit)")
             logger.info("   Storage: Redis with LRU eviction (max 10k entries)")
         else:
-            logger.warning("⚠️ REDIS_URL not set - Semantic cache disabled")
+            logger.warning("[WARN] REDIS_URL not set - Semantic cache disabled")
             redis_client = None
             semantic_cache = None
     except Exception as e:
-        logger.error(f"❌ Semantic cache initialization failed: {e}")
+        logger.error(f"[X] Semantic cache initialization failed: {e}")
         redis_client = None
         semantic_cache = None
 
     # Initialize Alert Service (for error monitoring)
     try:
         alert_service = get_alert_service()
-        logger.info("✅ AlertService ready (4xx/5xx error monitoring enabled)")
+        logger.info("[OK] AlertService ready (4xx/5xx error monitoring enabled)")
 
         # FIXED: Cannot add middleware in startup event - middleware must be added before app starts
         # The ErrorMonitoringMiddleware should be added at app initialization, not in startup event
         # For now, we'll use AlertService without the middleware
         # app.add_middleware(ErrorMonitoringMiddleware, alert_service=alert_service)
-        logger.info("✅ AlertService initialized (middleware disabled to fix startup error)")
+        logger.info("[OK] AlertService initialized (middleware disabled to fix startup error)")
     except Exception as e:
-        logger.error(f"❌ AlertService initialization failed: {e}")
+        logger.error(f"[X] AlertService initialization failed: {e}")
         alert_service = None
 
     # Initialize Health Monitor (watches for downtime)
@@ -976,59 +860,59 @@ async def _initialize_backend_services():
         if alert_service:
             health_monitor = init_health_monitor(alert_service, check_interval=60)
             await health_monitor.start()
-            logger.info("✅ HealthMonitor started (60s interval, downtime alerts enabled)")
+            logger.info("[OK] HealthMonitor started (60s interval, downtime alerts enabled)")
         else:
-            logger.warning("⚠️ HealthMonitor disabled (AlertService unavailable)")
+            logger.warning("[WARN] HealthMonitor disabled (AlertService unavailable)")
     except Exception as e:
-        logger.error(f"❌ HealthMonitor initialization failed: {e}")
+        logger.error(f"[X] HealthMonitor initialization failed: {e}")
 
     # Configure Qdrant URL
     qdrant_url = os.getenv("QDRANT_URL", "https://nuzantara-qdrant.fly.dev")
     os.environ['QDRANT_URL'] = qdrant_url
     log_startup(f"🔗 Qdrant configured: {qdrant_url}")
-    log_startup("✅ Vector database ready (25,415 documents)")
+    log_startup("[OK] Vector database ready (25,415 documents)")
     log_startup("   Collections: 7 (visa_oracle, tax_genius, legal_unified, kbli_unified, property_unified, bali_zero_pricing, knowledge_base)")
 
     # Initialize Search Service (Qdrant-based)
     try:
         search_service = SearchService()
-        logger.info("✅ Qdrant search service ready")
+        logger.info("[OK] Qdrant search service ready")
 
         # Set global search_service for dependency injection
         import app.dependencies as deps
         deps.search_service = search_service
-        logger.info("✅ SearchService registered in dependencies")
+        logger.info("[OK] SearchService registered in dependencies")
 
     except Exception as e:
         import traceback
-        logger.error(f"❌ SearchService initialization failed: {e}")
+        logger.error(f"[X] SearchService initialization failed: {e}")
         logger.error(f"Full traceback:\n{traceback.format_exc()}")
-        logger.warning("⚠️ Continuing without SearchService (pure LLM mode)")
+        logger.warning("[WARN] Continuing without SearchService (pure LLM mode)")
         search_service = None
 
-    # Initialize ZANTARA AI Client (Llama 4 Scout via OpenRouter)
+    # Initialize ZANTARA AI Client (configurable via environment)
     try:
         openrouter_api_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
 
         if openrouter_api_key:
             zantara_ai_client = ZantaraAIClient(api_key=openrouter_api_key)
-            logger.info("✅ ZANTARA AI Client ready (Llama 4 Scout via OpenRouter)")
-            logger.info("   Model: Llama 4 Scout")
+            logger.info("[OK] ZANTARA AI Client ready")
+            logger.info(f"   Model: {zantara_ai_client.model}")
             logger.info("   Cost: $0.20/$0.20 per 1M tokens")
             logger.info("   Provider: OpenRouter")
         else:
-            logger.warning("⚠️ OPENROUTER_API_KEY_LLAMA not set - No AI available")
+            logger.warning("[WARN] OPENROUTER_API_KEY_LLAMA not set - No AI available")
             zantara_ai_client = None
     except Exception as e:
-        logger.error(f"❌ ZANTARA AI Client initialization failed: {e}")
+        logger.error(f"[X] ZANTARA AI Client initialization failed: {e}")
         zantara_ai_client = None
 
     # PRIORITY 1: Initialize QueryRouter for autonomous research
     try:
         query_router = QueryRouter()
-        logger.info("✅ QueryRouter initialized (9-collection routing with fallback chains)")
+        logger.info("[OK] QueryRouter initialized (9-collection routing with fallback chains)")
     except Exception as e:
-        logger.error(f"❌ QueryRouter initialization failed: {e}")
+        logger.error(f"[X] QueryRouter initialization failed: {e}")
         query_router = None
 
     # PRIORITY 1: Initialize Autonomous Research Service
@@ -1037,19 +921,19 @@ async def _initialize_backend_services():
             autonomous_research_service = AutonomousResearchService(
                 search_service=search_service,
                 query_router=query_router,
-                claude_sonnet_service=zantara_ai_client  # Using ZANTARA AI as synthesis engine
+                zantara_ai_service=zantara_ai_client  # Using ZANTARA AI as synthesis engine
             )
-            logger.info("✅ AutonomousResearchService initialized (self-directed iterative research)")
+            logger.info("[OK] AutonomousResearchService initialized (self-directed iterative research)")
             logger.info(f"   Max iterations: {autonomous_research_service.MAX_ITERATIONS}")
             logger.info(f"   Confidence threshold: {autonomous_research_service.CONFIDENCE_THRESHOLD}")
         else:
-            logger.warning("⚠️ AutonomousResearchService not initialized - missing dependencies")
-            logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
-            logger.warning(f"   QueryRouter: {'✅' if query_router else '❌'}")
-            logger.warning(f"   ZANTARA AI: {'✅' if zantara_ai_client else '❌'}")
+            logger.warning("[WARN] AutonomousResearchService not initialized - missing dependencies")
+            logger.warning(f"   SearchService: {'[OK]' if search_service else '[X]'}")
+            logger.warning(f"   QueryRouter: {'[OK]' if query_router else '[X]'}")
+            logger.warning(f"   ZANTARA AI: {'[OK]' if zantara_ai_client else '[X]'}")
             autonomous_research_service = None
     except Exception as e:
-        logger.error(f"❌ AutonomousResearchService initialization failed: {e}")
+        logger.error(f"[X] AutonomousResearchService initialization failed: {e}")
         autonomous_research_service = None
 
     # PRIORITY 2: Initialize Cross-Oracle Synthesis Service
@@ -1060,16 +944,16 @@ async def _initialize_backend_services():
                 claude_sonnet_service=zantara_ai_client,  # Using ZANTARA AI as synthesis engine
                 golden_answer_service=None  # No cache for now
             )
-            logger.info("✅ CrossOracleSynthesisService initialized (multi-Oracle orchestrator)")
+            logger.info("[OK] CrossOracleSynthesisService initialized (multi-Oracle orchestrator)")
             logger.info(f"   Scenario patterns: {len(cross_oracle_synthesis_service.SCENARIO_PATTERNS)}")
             logger.info("   Examples: business_setup, visa_application, property_investment, tax_optimization, compliance_check")
         else:
-            logger.warning("⚠️ CrossOracleSynthesisService not initialized - missing dependencies")
-            logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
-            logger.warning(f"   ZANTARA AI: {'✅' if zantara_ai_client else '❌'}")
+            logger.warning("[WARN] CrossOracleSynthesisService not initialized - missing dependencies")
+            logger.warning(f"   SearchService: {'[OK]' if search_service else '[X]'}")
+            logger.warning(f"   ZANTARA AI: {'[OK]' if zantara_ai_client else '[X]'}")
             cross_oracle_synthesis_service = None
     except Exception as e:
-        logger.error(f"❌ CrossOracleSynthesisService initialization failed: {e}")
+        logger.error(f"[X] CrossOracleSynthesisService initialization failed: {e}")
         cross_oracle_synthesis_service = None
 
     # PRIORITY 3: Initialize Dynamic Pricing Service
@@ -1079,34 +963,34 @@ async def _initialize_backend_services():
                 cross_oracle_synthesis_service=cross_oracle_synthesis_service,
                 search_service=search_service
             )
-            logger.info("✅ DynamicPricingService initialized (comprehensive pricing calculator)")
+            logger.info("[OK] DynamicPricingService initialized (comprehensive pricing calculator)")
             logger.info("   Integrates costs from: KBLI, Legal, Tax, Visa, Property, Bali Zero Pricing")
             logger.info("   Features: Cost extraction, scenario pricing, detailed breakdowns")
         else:
-            logger.warning("⚠️ DynamicPricingService not initialized - missing dependencies")
-            logger.warning(f"   CrossOracleSynthesis: {'✅' if cross_oracle_synthesis_service else '❌'}")
-            logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
+            logger.warning("[WARN] DynamicPricingService not initialized - missing dependencies")
+            logger.warning(f"   CrossOracleSynthesis: {'[OK]' if cross_oracle_synthesis_service else '[X]'}")
+            logger.warning(f"   SearchService: {'[OK]' if search_service else '[X]'}")
             dynamic_pricing_service = None
     except Exception as e:
-        logger.error(f"❌ DynamicPricingService initialization failed: {e}")
+        logger.error(f"[X] DynamicPricingService initialization failed: {e}")
         dynamic_pricing_service = None
 
     # Initialize Handler Proxy Service (Tool Use) - MUST be before Intelligent Router
     try:
         ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://nuzantara-backend.fly.dev")
         handler_proxy_service = init_handler_proxy(ts_backend_url)
-        logger.info(f"✅ HandlerProxyService ready → {ts_backend_url}")
+        logger.info(f"[OK] HandlerProxyService ready -> {ts_backend_url}")
     except Exception as e:
-        logger.error(f"❌ HandlerProxyService initialization failed: {e}")
+        logger.error(f"[X] HandlerProxyService initialization failed: {e}")
         handler_proxy_service = None
 
     # Initialize Pricing Service
     try:
         from services.pricing_service import PricingService
         pricing_service = PricingService()
-        logger.info("✅ PricingService initialized (official Bali Zero prices)")
+        logger.info("[OK] PricingService initialized (official Bali Zero prices)")
     except Exception as e:
-        logger.warning(f"⚠️ PricingService initialization failed: {e}")
+        logger.warning(f"[WARN] PricingService initialization failed: {e}")
         pricing_service = None
 
     # IntelligentRouter moved to after ToolExecutor initialization
@@ -1115,17 +999,17 @@ async def _initialize_backend_services():
     try:
         collaborator_service = CollaboratorService(use_firestore=False)  # Start without Firestore
         stats = collaborator_service.get_team_stats()
-        logger.info(f"✅ CollaboratorService ready - {stats['total']} team members")
+        logger.info(f"[OK] CollaboratorService ready - {stats['total']} team members")
         logger.info(f"   Sub Rosa levels: L0={stats['by_sub_rosa_level'][0]}, L1={stats['by_sub_rosa_level'][1]}, L2={stats['by_sub_rosa_level'][2]}, L3={stats['by_sub_rosa_level'][3]}")
     except Exception as e:
-        logger.error(f"❌ CollaboratorService initialization failed: {e}")
+        logger.error(f"[X] CollaboratorService initialization failed: {e}")
         collaborator_service = None
 
     # Initialize Memory Tables (PostgreSQL schema)
     try:
         await initialize_memory_tables()
     except Exception as e:
-        logger.warning(f"⚠️ Memory tables initialization skipped: {e}")
+        logger.warning(f"[WARN] Memory tables initialization skipped: {e}")
         # Non-fatal: continue without PostgreSQL tables (will use in-memory fallback)
 
     # Run database migrations (NEW: Nov 17, 2025 - Team Timesheet System)
@@ -1134,19 +1018,19 @@ async def _initialize_backend_services():
         log_startup("🔄 Running database migrations...")
         migration_success = await run_migrations()
         if migration_success:
-            log_startup("✅ Database migrations completed")
+            log_startup("[OK] Database migrations completed")
         else:
-            log_startup("⚠️ Database migrations failed or skipped", "warning")
+            log_startup("[WARN] Database migrations failed or skipped", "warning")
     except Exception as e:
         import traceback
-        log_startup(f"❌ Migration runner failed: {e}", "error")
+        log_startup(f"[X] Migration runner failed: {e}", "error")
         log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
 
     # Initialize MemoryService (PostgreSQL)
     try:
         database_url = os.getenv("DATABASE_URL")
         if not database_url:
-            log_startup("⚠️ DATABASE_URL not configured - MemoryService will use in-memory fallback", "warning")
+            log_startup("[WARN] DATABASE_URL not configured - MemoryService will use in-memory fallback", "warning")
             memory_service = None
         else:
             log_startup(f"🔗 PostgreSQL: Connecting to {database_url[:30]}...")
@@ -1155,12 +1039,12 @@ async def _initialize_backend_services():
 
             # Verify connection actually works
             if memory_service.use_postgres and memory_service.pool:
-                log_startup("✅ MemoryServicePostgres ready (PostgreSQL enabled)")
+                log_startup("[OK] MemoryServicePostgres ready (PostgreSQL enabled)")
             else:
-                log_startup("⚠️ MemoryServicePostgres using in-memory fallback (PostgreSQL unavailable)", "warning")
+                log_startup("[WARN] MemoryServicePostgres using in-memory fallback (PostgreSQL unavailable)", "warning")
     except Exception as e:
         import traceback
-        log_startup(f"❌ MemoryServicePostgres initialization failed: {e}", "error")
+        log_startup(f"[X] MemoryServicePostgres initialization failed: {e}", "error")
         log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
         memory_service = None
 
@@ -1169,38 +1053,38 @@ async def _initialize_backend_services():
         if memory_service and memory_service.pool:
             timesheet_service = init_timesheet_service(memory_service.pool)
             await timesheet_service.start_auto_logout_monitor()
-            log_startup("✅ TeamTimesheetService ready (Bali timezone, auto-logout 18:30)")
+            log_startup("[OK] TeamTimesheetService ready (Bali timezone, auto-logout 18:30)")
         else:
-            log_startup("⚠️ TeamTimesheetService disabled (PostgreSQL unavailable)", "warning")
+            log_startup("[WARN] TeamTimesheetService disabled (PostgreSQL unavailable)", "warning")
             timesheet_service = None
     except Exception as e:
         import traceback
-        log_startup(f"❌ TeamTimesheetService initialization failed: {e}", "error")
+        log_startup(f"[X] TeamTimesheetService initialization failed: {e}", "error")
         log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
         timesheet_service = None
 
     # Initialize ConversationService (Phase 2)
     try:
         conversation_service = ConversationService(use_firestore=False)  # Start without Firestore
-        logger.info("✅ ConversationService ready (in-memory mode)")
+        logger.info("[OK] ConversationService ready (in-memory mode)")
     except Exception as e:
-        logger.error(f"❌ ConversationService initialization failed: {e}")
+        logger.error(f"[X] ConversationService initialization failed: {e}")
         conversation_service = None
 
     # Initialize EmotionalAttunementService (Phase 4)
     try:
         emotional_service = EmotionalAttunementService()
-        logger.info("✅ EmotionalAttunementService ready")
+        logger.info("[OK] EmotionalAttunementService ready")
     except Exception as e:
-        logger.error(f"❌ EmotionalAttunementService initialization failed: {e}")
+        logger.error(f"[X] EmotionalAttunementService initialization failed: {e}")
         emotional_service = None
 
     # Initialize CollaborativeCapabilitiesService (Phase 5)
     try:
         capabilities_service = CollaborativeCapabilitiesService()
-        logger.info("✅ CollaborativeCapabilitiesService ready (10 capabilities)")
+        logger.info("[OK] CollaborativeCapabilitiesService ready (10 capabilities)")
     except Exception as e:
-        logger.error(f"❌ CollaborativeCapabilitiesService initialization failed: {e}")
+        logger.error(f"[X] CollaborativeCapabilitiesService initialization failed: {e}")
         capabilities_service = None
 
     # Initialize RerankerService (Performance Enhancement - ENABLED by config)
@@ -1227,20 +1111,20 @@ async def _initialize_backend_services():
                         enabled=True,
                         log_file=None  # Use default path
                     )
-                    logger.info("✅ RerankerAuditService initialized")
+                    logger.info("[OK] RerankerAuditService initialized")
                 except Exception as e:
-                    logger.warning(f"⚠️ RerankerAuditService initialization failed: {e}")
+                    logger.warning(f"[WARN] RerankerAuditService initialization failed: {e}")
             
             logger.info(
-                f"✅ RerankerService ready "
+                f"[OK] RerankerService ready "
                 f"(model: {settings.reranker_model}, "
                 f"cache: {'enabled' if reranker_service.enable_cache else 'disabled'}, "
                 f"target latency: {settings.reranker_latency_target_ms}ms, "
                 f"+40% quality boost)"
             )
         except Exception as e:
-            logger.error(f"❌ RerankerService initialization failed: {e}")
-            logger.warning("⚠️ Continuing without re-ranker - performance may be reduced")
+            logger.error(f"[X] RerankerService initialization failed: {e}")
+            logger.warning("[WARN] Continuing without re-ranker - performance may be reduced")
             reranker_service = None
     else:
         logger.info("ℹ️ Re-ranker disabled for faster startup (set enable_reranker=True to enable)")
@@ -1249,25 +1133,25 @@ async def _initialize_backend_services():
     # Initialize Memory Fact Extractor (Always on)
     try:
         fact_extractor = MemoryFactExtractor()
-        logger.info("✅ Memory Fact Extractor ready (automatic key facts extraction)")
+        logger.info("[OK] Memory Fact Extractor ready (automatic key facts extraction)")
     except Exception as e:
-        logger.error(f"❌ Fact Extractor initialization failed: {e}")
+        logger.error(f"[X] Fact Extractor initialization failed: {e}")
         fact_extractor = None
 
     # Initialize Work Session Service (Team tracking - all reports to ZERO)
     try:
         work_session_service = WorkSessionService()
         await work_session_service.connect()
-        logger.info("✅ WorkSessionService ready (team activity tracking → ZERO only)")
+        logger.info("[OK] WorkSessionService ready (team activity tracking -> ZERO only)")
     except Exception as e:
-        logger.error(f"❌ WorkSessionService initialization failed: {e}")
+        logger.error(f"[X] WorkSessionService initialization failed: {e}")
         work_session_service = None
 
     # Initialize Team Analytics Service (7 Advanced Analytics Techniques)
     try:
         if work_session_service and work_session_service.pool:
             team_analytics_service = TeamAnalyticsService(db_pool=work_session_service.pool)
-            logger.info("✅ TeamAnalyticsService ready (7 advanced analytics techniques)")
+            logger.info("[OK] TeamAnalyticsService ready (7 advanced analytics techniques)")
             logger.info("   1. Pattern Recognition - Work hour patterns")
             logger.info("   2. Productivity Scoring - Performance metrics")
             logger.info("   3. Burnout Detection - Early warning system")
@@ -1276,10 +1160,10 @@ async def _initialize_backend_services():
             logger.info("   6. Optimal Hours - Peak productivity windows")
             logger.info("   7. Team Insights - Collaboration intelligence")
         else:
-            logger.warning("⚠️ TeamAnalyticsService disabled - requires WorkSessionService")
+            logger.warning("[WARN] TeamAnalyticsService disabled - requires WorkSessionService")
             team_analytics_service = None
     except Exception as e:
-        logger.error(f"❌ TeamAnalyticsService initialization failed: {e}")
+        logger.error(f"[X] TeamAnalyticsService initialization failed: {e}")
         team_analytics_service = None
 
     # Initialize ToolExecutor WITH ZantaraTools (for get_pricing)
@@ -1289,21 +1173,21 @@ async def _initialize_backend_services():
             # Import and initialize ZantaraTools
             from services.zantara_tools import get_zantara_tools
             zantara_tools_instance = get_zantara_tools()
-            logger.info("✅ ZantaraTools loaded (get_pricing, team tools)")
+            logger.info("[OK] ZantaraTools loaded (get_pricing, team tools)")
 
             internal_key = os.getenv("API_KEYS_INTERNAL")
             tool_executor = ToolExecutor(
                 handler_proxy_service,
                 internal_key,
-                zantara_tools_instance  # ← PASS ZANTARA TOOLS!
+                zantara_tools_instance  # <- PASS ZANTARA TOOLS!
             )
-            logger.info("✅ ToolExecutor initialized (TypeScript + ZantaraTools)")
+            logger.info("[OK] ToolExecutor initialized (TypeScript + ZantaraTools)")
         except Exception as e:
-            logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
+            logger.warning(f"[WARN] ToolExecutor initialization failed: {e}")
             tool_executor = None
     else:
-        logger.warning("⚠️ ToolExecutor not initialized - missing dependencies")
-        logger.warning(f"   HandlerProxy: {'✅' if handler_proxy_service else '❌'}")
+        logger.warning("[WARN] ToolExecutor not initialized - missing dependencies")
+        logger.warning(f"   HandlerProxy: {'[OK]' if handler_proxy_service else '[X]'}")
 
     # Initialize Intelligent Router (ZANTARA AI)
     try:
@@ -1313,9 +1197,9 @@ async def _initialize_backend_services():
             if search_service:
                 try:
                     cultural_rag_service = CulturalRAGService(search_service)
-                    logger.info("✅ Cultural RAG Service ready (LLAMA's Indonesian soul)")
+                    logger.info("[OK] Cultural RAG Service ready (LLAMA's Indonesian soul)")
                 except Exception as e:
-                    logger.warning(f"⚠️ Cultural RAG Service initialization failed: {e}")
+                    logger.warning(f"[WARN] Cultural RAG Service initialization failed: {e}")
                     cultural_rag_service = None
 
             intelligent_router = IntelligentRouter(
@@ -1326,19 +1210,19 @@ async def _initialize_backend_services():
                 autonomous_research_service=autonomous_research_service,
                 cross_oracle_synthesis_service=cross_oracle_synthesis_service
             )
-            logger.info("✅ Intelligent Router ready (ZANTARA AI - Llama 4 Scout)")
-            logger.info("   AI Engine: ZANTARA AI (Llama 4 Scout via OpenRouter)")
+            logger.info("[OK] Intelligent Router ready (ZANTARA AI)")
+            logger.info(f"   AI Engine: ZANTARA AI (model: {zantara_ai_client.model})")
             logger.info("   Cost: $0.20/$0.20 per 1M tokens")
-            logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
-            logger.info(f"   Autonomous Research: {'✅ enabled' if autonomous_research_service else '⚠️ disabled'}")
-            logger.info(f"   Cross-Oracle Synthesis: {'✅ enabled' if cross_oracle_synthesis_service else '⚠️ disabled'}")
+            logger.info(f"   Cultural Intelligence: {'[OK] JIWA enabled' if cultural_rag_service else '[WARN] disabled'}")
+            logger.info(f"   Autonomous Research: {'[OK] enabled' if autonomous_research_service else '[WARN] disabled'}")
+            logger.info(f"   Cross-Oracle Synthesis: {'[OK] enabled' if cross_oracle_synthesis_service else '[WARN] disabled'}")
             logger.info("   Cost optimization: 3x cheaper than Sonnet, same quality with RAG")
         else:
-            logger.warning("⚠️ Intelligent Router not initialized - missing ZANTARA AI client")
-            logger.warning(f"   ZANTARA AI: {'✅' if zantara_ai_client else '❌'}")
+            logger.warning("[WARN] Intelligent Router not initialized - missing ZANTARA AI client")
+            logger.warning(f"   ZANTARA AI: {'[OK]' if zantara_ai_client else '[X]'}")
             intelligent_router = None
     except Exception as e:
-        logger.error(f"❌ Intelligent Router initialization failed: {e}")
+        logger.error(f"[X] Intelligent Router initialization failed: {e}")
         intelligent_router = None
 
     # Initialize Skill Detection Layer (NEW)
@@ -1384,7 +1268,7 @@ async def _initialize_backend_services():
             # Initialize skill metrics
             skill_metrics = SkillMetrics()
             
-            logger.info("✅ Skill Detection Layer initialized")
+            logger.info("[OK] Skill Detection Layer initialized")
             logger.info(f"   Skills loaded: {len(skill_index.skills)}")
             logger.info(f"   Cache warmed: {len(skill_cache.l2_cache)} embeddings")
         else:
@@ -1398,7 +1282,7 @@ async def _initialize_backend_services():
             skill_metrics = None
     except Exception as e:
         import traceback
-        logger.error(f"❌ Skill Detection Layer initialization failed: {e}")
+        logger.error(f"[X] Skill Detection Layer initialization failed: {e}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         skill_index = None
         skill_detector = None
@@ -1408,7 +1292,7 @@ async def _initialize_backend_services():
         skill_cache = None
         skill_metrics = None
 
-    logger.info("✅ ZANTARA RAG Backend ready on port 8000")
+    logger.info("[OK] ZANTARA RAG Backend ready on port 8000")
 
 
 @app.on_event("shutdown")
@@ -1417,19 +1301,7 @@ async def shutdown_event():
     logger.info("👋 ZANTARA RAG Backend shutdown")
 
     # ✨ OPTIMIZATION: No cleanup needed for persistent volume
-    # Fly.io persistent volumes are automatically managed and preserved across restarts
-    # Only clean up /tmp if it was used (fallback case)
-    try:
-        volume_path = os.getenv("FLY_VOLUME_MOUNT_PATH")
-        if not volume_path:  # Only cleanup if no persistent volume configured
-            chroma_path = "/tmp/chroma_db"
-            if os.path.exists(chroma_path):
-                shutil.rmtree(chroma_path)
-                logger.info("🧹 Cleaned up temporary ChromaDB from /tmp")
-        else:
-            logger.info("✅ ChromaDB preserved in persistent volume (no cleanup needed)")
-    except Exception as e:
-        logger.warning(f"⚠️ Cleanup warning: {e}")
+    # Qdrant is hosted externally, no local cleanup needed
 
 
 # Pydantic models
@@ -1455,21 +1327,21 @@ class BaliZeroRequest(BaseModel):
     query: str
     conversation_history: Optional[List[Dict[str, Any]]] = None
     user_role: str = "member"
-    user_email: Optional[str] = None  # ← PHASE 1: Collaborator identification
-    mode: Optional[str] = "santai"  # ← ZANTARA mode: 'santai' or 'pikiran'
-    tools: Optional[List[Dict[str, Any]]] = None  # ← NEW: Tool definitions from frontend
-    tool_choice: Optional[Dict[str, Any]] = None  # ← NEW: Tool choice strategy
+    user_email: Optional[str] = None  # <- PHASE 1: Collaborator identification
+    mode: Optional[str] = "santai"  # <- ZANTARA mode: 'santai' or 'pikiran'
+    tools: Optional[List[Dict[str, Any]]] = None  # <- NEW: Tool definitions from frontend
+    tool_choice: Optional[Dict[str, Any]] = None  # <- NEW: Tool choice strategy
 
 
 class BaliZeroResponse(BaseModel):
     success: bool
     response: str
     model_used: str
-    ai_used: str  # "haiku" | "llama"
+    ai_used: str  # "zantara-ai" (configurable via ZANTARA_AI_MODEL)
     sources: Optional[List[Dict[str, Any]]] = None
     usage: Optional[Dict[str, Any]] = None
     used_rag: Optional[bool] = None  # PHASE 1: Track RAG usage
-    tools_used: Optional[List[str]] = None  # ← NEW: Which tools were called
+    tools_used: Optional[List[str]] = None  # <- NEW: Which tools were called
 
 
 @app.get("/cache/stats")
@@ -1535,98 +1407,8 @@ async def cache_health():
         }
 
 
-@app.options("/health")
-async def health_options():
-    """Handle CORS preflight for health endpoint"""
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Max-Age": "3600"
-        }
-    )
-
-
-@app.get("/health")
-async def health_check():
-    """Optimized health check endpoint - v100 with reranker stats"""
-    health_data = {
-        "status": "healthy",
-        "service": "ZANTARA RAG",
-        "version": "v100-perfect",
-        "mode": "full",
-        "available_services": [
-            "chromadb",
-            "zantara_ai",
-            "postgresql",
-            "crm_system",
-            "reranker"
-        ],
-        "chromadb": search_service is not None,
-        "ai": {
-            "zantara_ai": intelligent_router is not None,
-            "has_ai": intelligent_router is not None or zantara_ai_client is not None
-        },
-        "memory": {
-            "postgresql": memory_service is not None,
-            "vector_db": search_service is not None
-        },
-        "crm": {
-            "enabled": True,
-            "endpoints": 41,
-            "features": ["auto_extraction", "client_tracking", "practice_management", "shared_memory"]
-        },
-        "reranker": {
-            "enabled": reranker_service is not None,
-            "status": "ready" if reranker_service is not None else "disabled"
-        },
-        "collaborative_intelligence": True,
-        "tools": {
-            "tool_executor_status": tool_executor is not None,
-            "pricing_service_status": pricing_service is not None,
-            "handler_proxy_status": handler_proxy_service is not None
-        },
-        "monitoring": {
-            "health_monitor": get_health_monitor() is not None,
-            "backup_service": get_backup_service() is not None,
-            "rate_limiting": "enabled"
-        }
-    }
-
-    # Add detailed reranker stats if available
-    if reranker_service is not None:
-        try:
-            reranker_stats = reranker_service.get_stats()
-            health_data["reranker"].update({
-                "stats": {
-                    "total_reranks": reranker_stats.get("total_reranks", 0),
-                    "avg_latency_ms": round(reranker_stats.get("avg_latency_ms", 0), 2),
-                    "p95_latency_ms": round(reranker_stats.get("p95_latency_ms", 0), 2),
-                    "p99_latency_ms": round(reranker_stats.get("p99_latency_ms", 0), 2),
-                    "cache_hit_rate_percent": round(reranker_stats.get("cache_hit_rate_percent", 0), 1),
-                    "target_latency_met_rate_percent": round(reranker_stats.get("target_latency_met_rate_percent", 0), 1),
-                    "cache_enabled": reranker_stats.get("cache_enabled", False),
-                    "cache_size": reranker_stats.get("cache_size", 0),
-                    "cache_max_size": reranker_stats.get("cache_max_size", 0),
-                    "target_latency_ms": reranker_stats.get("target_latency_ms", 50.0)
-                },
-                "status": "healthy" if reranker_stats.get("avg_latency_ms", 0) < 100 else "degraded"
-            })
-        except Exception as e:
-            logger.warning(f"Failed to get reranker stats: {e}")
-            health_data["reranker"]["error"] = str(e)
-    
-    return Response(
-        content=json.dumps(health_data),
-        media_type="application/json",
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization"
-        }
-    )
+# Health check endpoint removed - using app.routers.health instead
+# Included via app.include_router(health.router) below
 
 
 @app.get("/debug/startup")
@@ -1636,7 +1418,7 @@ async def debug_startup():
         "startup_logs": startup_logs,
         "total_logs": len(startup_logs),
         "services_status": {
-            "chromadb": search_service is not None,
+            "qdrant": search_service is not None,
             "postgresql": memory_service is not None,
             "ai_router": intelligent_router is not None,
             "tools": tool_executor is not None
@@ -1649,20 +1431,18 @@ async def debug_startup():
 async def debug_ai_keys():
     """Debug endpoint to check which AI API keys are configured"""
     openrouter_llama_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
-    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
 
     result = {
         "environment_variables": {
             "OPENROUTER_API_KEY_LLAMA": {
                 "present": bool(openrouter_llama_key),
-                "prefix": openrouter_llama_key[:15] + "..." if openrouter_llama_key else None
+                "prefix": openrouter_llama_key[:15] + "..." if openrouter_llama_key else None,
+                "description": "ZANTARA AI PRIMARY - Required"
             },
-            "ANTHROPIC_API_KEY": {
-                "present": bool(anthropic_key),
-                "prefix": anthropic_key[:15] + "..." if anthropic_key else None
-            },
-            "OPENROUTER_API_KEY": bool(os.getenv("OPENROUTER_API_KEY")),
-            "OPENAI_API_KEY": bool(os.getenv("OPENAI_API_KEY"))
+            "OPENAI_API_KEY": {
+                "present": bool(os.getenv("OPENAI_API_KEY")),
+                "description": "For embeddings (text-embedding-3-small) - Required"
+            }
         },
         "services": {
             "zantara_ai_client": zantara_ai_client is not None,
@@ -1751,14 +1531,14 @@ async def monitoring_status():
 @app.get("/api/monitoring/backup-service")
 async def backup_status():
     """Get backup service status"""
-    backup_service = get_backup_service()
-    if not backup_service:
-        return {"error": "Backup service not initialized"}
+    # backup_service = get_backup_service()
+    # if not backup_service:
+    return {"status": "disabled", "description": "Backup service temporarily disabled"}
 
-    return {
-        "status": backup_service.get_status(),
-        "description": "Automatic daily backups to Cloudflare R2 with 7 day retention"
-    }
+    # return {
+    #     "status": backup_service.get_status(),
+    #     "description": "Automatic daily backups to Cloudflare R2 with 7 day retention"
+    # }
 
 
 @app.post("/api/monitoring/backup/trigger")
@@ -1817,7 +1597,11 @@ async def demo_auth(request: Request):
     """
     try:
         body = await request.json()
-        user_id = body.get("userId", "demo")
+        # Support both userId (legacy) and email (new format)
+        user_id = body.get("userId") or body.get("email", "demo")
+        # If email provided, extract username part
+        if "@" in user_id:
+            user_id = user_id.split("@")[0]
 
         # Generate demo token (simple timestamp-based for now)
         # In production, this would use JWT or similar
@@ -1825,6 +1609,16 @@ async def demo_auth(request: Request):
 
         logger.info(f"🔐 Demo auth: Generated token for user '{user_id}'")
 
+        # Get origin from request for CORS
+        origin = request.headers.get("origin", "*")
+        allowed_origins = [
+            "https://zantara.balizero.com",
+            "http://localhost:5173",
+            "http://localhost:8002",
+            "http://localhost:3000"
+        ]
+        cors_origin = origin if origin in allowed_origins else "*"
+        
         return JSONResponse(
             content={
                 "token": token,
@@ -1832,25 +1626,36 @@ async def demo_auth(request: Request):
                 "userId": user_id
             },
             headers={
-                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Origin": cors_origin,
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                "Access-Control-Allow-Credentials": "true"
             }
         )
     except Exception as e:
-        logger.error(f"❌ Demo auth error: {e}")
+        logger.error(f"[X] Demo auth error: {e}")
         raise HTTPException(status_code=500, detail=f"Authentication failed: {str(e)}")
 
 
 @app.options("/api/auth/demo")
-async def demo_auth_options():
+async def demo_auth_options(request: Request):
     """Handle CORS preflight for demo auth endpoint"""
+    origin = request.headers.get("origin", "*")
+    allowed_origins = [
+        "https://zantara.balizero.com",
+        "http://localhost:5173",
+        "http://localhost:8002",
+        "http://localhost:3000"
+    ]
+    cors_origin = origin if origin in allowed_origins else "*"
+    
     return Response(
         status_code=200,
         headers={
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": cors_origin,
             "Access-Control-Allow-Methods": "POST, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600"
         }
     )
@@ -1933,7 +1738,7 @@ async def team_login(request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Team login error: {e}")
+        logger.error(f"[X] Team login error: {e}")
         raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
 
 
@@ -1973,7 +1778,7 @@ async def warmup_stats():
         "healthy": is_complete and warmup_error is None,
         "error": warmup_error,
         "services": {
-            "chromadb": search_service is not None,
+            "qdrant": search_service is not None,
             "zantara_ai": zantara_ai_client is not None,
             "memory": memory_service is not None,
             "tool_executor": tool_executor is not None,
@@ -2046,13 +1851,13 @@ async def search_endpoint(request: SearchRequest):
     RAG Search endpoint with optional LLM generation
     """
     if not search_service:
-        raise HTTPException(503, "ChromaDB not available")
+        raise HTTPException(503, "Qdrant search service not available")
 
     try:
         import time
         start = time.time()
 
-        # Search ChromaDB
+        # Search Qdrant
         results = await search_service.search(
             query=request.query,
             user_level=request.user_level,
@@ -2092,7 +1897,7 @@ async def search_endpoint(request: SearchRequest):
                 answer = response.get("text", "")
                 model_used = "zantara-ai"
             except Exception as e:
-                logger.error(f"❌ [RAG Search] ZANTARA AI failed: {e}")
+                logger.error(f"[X] [RAG Search] ZANTARA AI failed: {e}")
                 raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
 
         execution_time = (time.time() - start) * 1000
@@ -2180,17 +1985,17 @@ async def save_conversation_background(
                     logger.info(f"💎 [Background] Saved {saved_count} key facts for {user_id}")
 
             except Exception as e:
-                logger.warning(f"⚠️ [Background] Fact extraction failed: {e}")
+                logger.warning(f"[WARN] [Background] Fact extraction failed: {e}")
 
     except Exception as e:
-        logger.error(f"❌ [Background] Conversation save failed: {e}")
+        logger.error(f"[X] [Background] Conversation save failed: {e}")
 
 
 @app.post("/bali-zero/chat", response_model=BaliZeroResponse)
 async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundTasks):
     """
     Bali Zero chat endpoint with TRIPLE-AI Routing + RAG + Collaborative Intelligence
-    Uses Intelligent Router (Claude Haiku/Sonnet + DevAI)
+    Uses Intelligent Router (ZANTARA AI)
 
     PERFORMANCE OPTIMIZATIONS:
     - Parallel execution of independent operations (collaborator, memory, emotional analysis)
@@ -2199,11 +2004,11 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
     - Timeout protection on AI calls (25s max)
     """
     import asyncio
-    logger.info("🚀 BALI ZERO CHAT - TRIPLE-AI with Intelligent Router")
+    logger.info(" BALI ZERO CHAT - TRIPLE-AI with Intelligent Router")
 
     # Check if intelligent router is available
     if not intelligent_router:
-        raise HTTPException(503, "Intelligent Router not available - Claude AI required")
+        raise HTTPException(503, "Intelligent Router not available - ZANTARA AI required")
 
     try:
         # OPTIMIZATION: Sanitize user_email (frontend might send "undefined" or "null" as strings)
@@ -2247,10 +2052,10 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                             user_email=effective_email
                         )
                     except Exception as ws_error:
-                        logger.warning(f"⚠️ Work session start failed: {ws_error}")
+                        logger.warning(f"[WARN] Work session start failed: {ws_error}")
 
             except Exception as e:
-                logger.warning(f"⚠️ Collaborator identification failed: {e}")
+                logger.warning(f"[WARN] Collaborator identification failed: {e}")
                 collaborator, sub_rosa_level, user_id = None, 0, "anonymous"
         else:
             logger.info("👤 Anonymous user - L0 (Public)")
@@ -2305,7 +2110,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                             usage={"input_tokens": 0, "output_tokens": 0}
                         )
                 except Exception as logout_error:
-                    logger.error(f"❌ Logout command failed: {logout_error}")
+                    logger.error(f"[X] Logout command failed: {logout_error}")
                     # Continue with normal chat if logout fails
 
         # OPTIMIZATION: Parallel execution of PHASES 2-3 (NOW that we have collaborator)
@@ -2324,7 +2129,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 profile = emotional_service.analyze_message(request.query, prefs)
                 logger.info(
                     f"🎭 Emotional: {profile.detected_state.value} "
-                    f"(conf: {profile.confidence:.2f}) → {profile.suggested_tone.value}"
+                    f"(conf: {profile.confidence:.2f}) -> {profile.suggested_tone.value}"
                 )
                 return profile
             return None
@@ -2339,10 +2144,10 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
 
         # Handle exceptions
         if isinstance(memory, Exception):
-            logger.warning(f"⚠️ Memory load failed: {memory}")
+            logger.warning(f"[WARN] Memory load failed: {memory}")
             memory = None
         if isinstance(emotional_profile, Exception):
-            logger.warning(f"⚠️ Emotional analysis failed: {emotional_profile}")
+            logger.warning(f"[WARN] Emotional analysis failed: {emotional_profile}")
             emotional_profile = None
 
         # PHASE 4: Route to appropriate AI using Intelligent Router
@@ -2354,27 +2159,27 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 logger.info(f"🔧 [Chat] Frontend provided {len(request.tools)} tools")
                 logger.info(f"   Tool names: {[t.get('name', 'unknown') for t in request.tools[:5]]}")
             else:
-                logger.info("⚠️ [Chat] No tools provided by frontend - will use backend default")
+                logger.info("[WARN] [Chat] No tools provided by frontend - will use backend default")
 
             # Build conversation history with memory context if available
             messages = request.conversation_history or []
 
-            # OPTIMIZATION: Add timeout to AI routing (max 25 seconds)
+            # OPTIMIZATION: Add timeout to AI routing (configurable)
             try:
                 routing_result = await asyncio.wait_for(
                     intelligent_router.route_chat(
                         message=request.query,
                         user_id=user_id,
                         conversation_history=messages,
-                        memory=memory,  # ← Pass memory to router
-                        collaborator=collaborator,  # ← NEW: Pass collaborator for team personalization
-                        frontend_tools=request.tools  # ← NEW: Pass tools from frontend
+                        memory=memory,  # <- Pass memory to router
+                        collaborator=collaborator,  # <- NEW: Pass collaborator for team personalization
+                        frontend_tools=request.tools  # <- NEW: Pass tools from frontend
                     ),
-                    timeout=60.0  # 60 second timeout for AI response (ChromaDB + Sonnet can take time)
+                    timeout=settings.timeout_ai_response  # Configurable timeout from settings
                 )
             except asyncio.TimeoutError:
-                logger.error("❌ AI routing timed out after 60 seconds")
-                raise HTTPException(504, "AI response timeout - please try again")
+                logger.error(f"[X] AI routing timed out after {settings.timeout_ai_response} seconds")
+                raise HTTPException(504, f"AI response timeout - please try again")
 
             # Extract response from router
             answer = routing_result["response"]
@@ -2382,12 +2187,12 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
             ai_used = routing_result["ai_used"]
             tokens = routing_result.get("tokens", {})
             used_rag = routing_result.get("used_rag", False)
-            tools_called = routing_result.get("tools_called", [])  # ← NEW: Get which tools were called
+            tools_called = routing_result.get("tools_called", [])  # <- NEW: Get which tools were called
 
             if tools_called:
-                logger.info(f"✅ [Chat] Tools called by AI: {tools_called}")
+                logger.info(f"[OK] [Chat] Tools called by AI: {tools_called}")
 
-            logger.info(f"✅ [Router] Response from {ai_used} (model: {model_used})")
+            logger.info(f"[OK] [Router] Response from {ai_used} (model: {model_used})")
 
             # WORK SESSION TRACKING: Update activity and increment conversations
             if work_session_service and user_id != "anonymous":
@@ -2395,14 +2200,14 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                     await work_session_service.update_activity(user_id)
                     await work_session_service.increment_conversations(user_id)
                 except Exception as ws_error:
-                    logger.warning(f"⚠️ Work session tracking failed: {ws_error}")
+                    logger.warning(f"[WARN] Work session tracking failed: {ws_error}")
 
             # OPTIMIZATION: Get sources in parallel (non-blocking for main response)
             # Only fetch sources if RAG was used - reduced complexity
             sources = []
             if used_rag and search_service:
                 try:
-                    # OPTIMIZATION: Overfetch 20 → rerank top-5 for +40% relevance
+                    # OPTIMIZATION: Overfetch 20 -> rerank top-5 for +40% relevance
                     # Use config values with backward compatibility
                     overfetch_count = (
                         settings.reranker_overfetch_count 
@@ -2455,7 +2260,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                     logger.warning(f"Source extraction failed: {e}")
 
             # Personalize response ONLY for greetings or first interaction
-            # This makes conversations more natural and fluid like Claude
+            # This makes conversations more natural and fluid
             try:
                 if collaborator and answer:
                     # Only add name if:
@@ -2523,11 +2328,11 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 "output_tokens": tokens.get("output", 0) or tokens.get("output_tokens", 0)
             },
             used_rag=used_rag,  # PHASE 1: Return RAG usage flag
-            tools_used=tools_called if tools_called else None  # ← NEW: Return which tools were called
+            tools_used=tools_called if tools_called else None  # <- NEW: Return which tools were called
         )
 
     except Exception as e:
-        logger.error(f"❌ Chat failed: {e}")
+        logger.error(f"[X] Chat failed: {e}")
         raise HTTPException(500, f"Chat failed: {str(e)}")
 
 
@@ -2554,7 +2359,7 @@ async def create_session():
         logger.info(f"🆕 Created session: {session_id}")
         return {"session_id": session_id}
     except Exception as e:
-        logger.error(f"❌ Failed to create session: {e}")
+        logger.error(f"[X] Failed to create session: {e}")
         raise HTTPException(500, f"Failed to create session: {str(e)}")
 
 
@@ -2588,7 +2393,7 @@ async def get_session(session_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Failed to get session: {e}")
+        logger.error(f"[X] Failed to get session: {e}")
         raise HTTPException(500, f"Failed to get session: {str(e)}")
 
 
@@ -2643,7 +2448,7 @@ async def update_session(session_id: str, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Failed to update session: {e}")
+        logger.error(f"[X] Failed to update session: {e}")
         raise HTTPException(500, f"Failed to update session: {str(e)}")
 
 
@@ -2671,7 +2476,7 @@ async def delete_session(session_id: str):
             "deleted": deleted
         }
     except Exception as e:
-        logger.error(f"❌ Failed to delete session: {e}")
+        logger.error(f"[X] Failed to delete session: {e}")
         raise HTTPException(500, f"Failed to delete session: {str(e)}")
 
 
@@ -2785,7 +2590,7 @@ async def get_session_analytics():
         analytics = await session_service.get_analytics()
         return analytics
     except Exception as e:
-        logger.error(f"❌ Failed to get analytics: {e}")
+        logger.error(f"[X] Failed to get analytics: {e}")
         raise HTTPException(500, f"Failed to get analytics: {str(e)}")
 
 
@@ -2822,7 +2627,7 @@ async def update_session_ttl(session_id: str, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Failed to update TTL: {e}")
+        logger.error(f"[X] Failed to update TTL: {e}")
         raise HTTPException(500, f"Failed to update TTL: {str(e)}")
 
 
@@ -2872,7 +2677,7 @@ async def export_session(session_id: str, format: str = "json"):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Failed to export session: {e}")
+        logger.error(f"[X] Failed to export session: {e}")
         raise HTTPException(500, f"Failed to export session: {str(e)}")
 
 
@@ -2921,7 +2726,7 @@ async def bali_zero_chat_stream(
 
     # Check if intelligent router is available
     if not intelligent_router:
-        raise HTTPException(503, "Intelligent Router not available - Claude AI required")
+        raise HTTPException(503, "Intelligent Router not available - ZANTARA AI required")
 
     async def generate():
         """Generator function for SSE stream with heartbeat support"""
@@ -2959,9 +2764,9 @@ async def bali_zero_chat_stream(
                         # Extend session TTL on active use (keep alive for 24h)
                         await session_service.extend_ttl(session_id)
                     else:
-                        logger.warning(f"⚠️ [Stream] Session {session_id} not found or expired")
+                        logger.warning(f"[WARN] [Stream] Session {session_id} not found or expired")
                 except Exception as e:
-                    logger.error(f"❌ [Stream] Failed to load session: {e}")
+                    logger.error(f"[X] [Stream] Failed to load session: {e}")
 
             # PRIORITY 2: Fallback to querystring (backward compatibility - DEPRECATED)
             if not parsed_history and conversation_history:
@@ -2969,13 +2774,13 @@ async def bali_zero_chat_stream(
                     parsed_history = json.loads(conversation_history)
 
                     # DECOMPRESSION LOGIC: Support compressed history format from client
-                    # Compressed format: {r: 'u'|'a', c: 'content'} → Full format: {role: 'user'|'assistant', content: 'content'}
+                    # Compressed format: {r: 'u'|'a', c: 'content'} -> Full format: {role: 'user'|'assistant', content: 'content'}
                     decompressed_history = []
                     for msg in parsed_history:
                         if isinstance(msg, dict):
                             # Check if message uses compressed format (keys 'r' and 'c')
                             if 'r' in msg and 'c' in msg:
-                                # Decompress: r='u'→'user', r='a'→'assistant'
+                                # Decompress: r='u'->'user', r='a'->'assistant'
                                 role_map = {'u': 'user', 'a': 'assistant'}
                                 decompressed_msg = {
                                     'role': role_map.get(msg['r'], msg['r']),
@@ -2995,16 +2800,16 @@ async def bali_zero_chat_stream(
                     parsed_history = decompressed_history if decompressed_history else parsed_history
                     logger.info(f"📚 [Stream] Querystring history: {len(parsed_history)} messages (decompressed, DEPRECATED)")
                 except Exception as e:
-                    logger.warning(f"⚠️ [Stream] Failed to parse conversation_history: {e}")
+                    logger.warning(f"[WARN] [Stream] Failed to parse conversation_history: {e}")
 
-            # 🚀 NEW: Parse handlers context if provided
+            #  NEW: Parse handlers context if provided
             parsed_handlers = None
             if handlers_context:
                 try:
                     parsed_handlers = json.loads(handlers_context)
                     logger.info(f"🔧 [Stream] Handlers context: {parsed_handlers.get('available_tools', 0)} tools available")
                 except Exception as e:
-                    logger.warning(f"⚠️ [Stream] Failed to parse handlers_context: {e}")
+                    logger.warning(f"[WARN] [Stream] Failed to parse handlers_context: {e}")
 
             # Sanitize user email (same logic as regular chat)
             sanitized_email = None
@@ -3023,7 +2828,7 @@ async def bali_zero_chat_stream(
                     user_id = collaborator.id
                     logger.info(f"👤 [Stream] {collaborator.name} ({collaborator.ambaradam_name})")
                 except Exception as e:
-                    logger.warning(f"⚠️ [Stream] Collaborator identification failed: {e}")
+                    logger.warning(f"[WARN] [Stream] Collaborator identification failed: {e}")
 
             # Send ping before memory load (keep-alive)
             yield ": ping\n\n"
@@ -3035,7 +2840,7 @@ async def bali_zero_chat_stream(
                     memory = await memory_service.get_memory(user_id)
                     logger.info(f"💾 [Stream] Memory loaded: {len(memory.profile_facts)} facts")
                 except Exception as e:
-                    logger.warning(f"⚠️ [Stream] Memory load failed: {e}")
+                    logger.warning(f"[WARN] [Stream] Memory load failed: {e}")
 
             # NEW: Collective Memory Workflow (LangGraph)
             try:
@@ -3138,7 +2943,7 @@ async def bali_zero_chat_stream(
                         logger.info(f"🧠 [Collective Memory] Workflow completed: {category}")
                         
             except Exception as e:
-                logger.warning(f"⚠️ [Collective Memory] Workflow failed: {e}")
+                logger.warning(f"[WARN] [Collective Memory] Workflow failed: {e}")
                 import traceback
                 logger.debug(f"Traceback: {traceback.format_exc()}")
 
@@ -3210,7 +3015,7 @@ async def bali_zero_chat_stream(
                     if skill_cache:
                         skill_cache.record_cache_miss('l1')
             except Exception as e:
-                logger.warning(f"⚠️ [Skill] Detection failed: {e}")
+                logger.warning(f"[WARN] [Skill] Detection failed: {e}")
                 import traceback
                 logger.debug(f"Traceback: {traceback.format_exc()}")
                 if skill_metrics:
@@ -3294,13 +3099,13 @@ async def bali_zero_chat_stream(
                             })
                         logger.info(f"📚 [Stream] Sources retrieved: {len(sources)} documents")
                     else:
-                        logger.warning(f"⚠️ [Stream] No search results found - search_results is {search_results}")
+                        logger.warning(f"[WARN] [Stream] No search results found - search_results is {search_results}")
                         sources = None
                 else:
-                    logger.warning(f"⚠️ [Stream] Cannot retrieve sources: search_service={'present (' + type(search_service).__name__ + ')' if search_service else 'MISSING (None)'}, query={'present' if query else 'MISSING'}")
+                    logger.warning(f"[WARN] [Stream] Cannot retrieve sources: search_service={'present (' + type(search_service).__name__ + ')' if search_service else 'MISSING (None)'}, query={'present' if query else 'MISSING'}")
                     sources = None
             except Exception as e:
-                logger.error(f"❌ [Stream] Sources retrieval exception: {e}")
+                logger.error(f"[X] [Stream] Sources retrieval exception: {e}")
                 import traceback
                 logger.error(f"Traceback: {traceback.format_exc()}")
                 sources = None
@@ -3309,7 +3114,7 @@ async def bali_zero_chat_stream(
             if sources:
                 sources_data = json.dumps({"sources": sources})
                 yield f"data: {sources_data}\n\n"
-                logger.info(f"✅ [Stream] Sources sent to client: {len(sources)} citations")
+                logger.info(f"[OK] [Stream] Sources sent to client: {len(sources)} citations")
 
             # Send done signal
             done_data = {
@@ -3319,10 +3124,10 @@ async def bali_zero_chat_stream(
                 "streamDuration": time.time() - stream_start_time
             }
             yield f"data: {json.dumps(done_data)}\n\n"
-            logger.info(f"✅ [Stream] Stream completed for user {user_id} in {time.time() - stream_start_time:.2f}s")
+            logger.info(f"[OK] [Stream] Stream completed for user {user_id} in {time.time() - stream_start_time:.2f}s")
 
         except Exception as e:
-            logger.error(f"❌ [Stream] Error: {e}")
+            logger.error(f"[X] [Stream] Error: {e}")
             # Send error to client with sequence number
             error_data = {
                 "error": str(e),
@@ -3349,7 +3154,7 @@ async def bali_zero_chat_stream(
         try:
             socket_obj.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         except Exception as sock_err:
-            logger.debug(f"⚠️ [Stream] Unable to enable keep-alive: {sock_err}")
+            logger.debug(f"[WARN] [Stream] Unable to enable keep-alive: {sock_err}")
 
     async def guarded_generate():
         async for chunk in generate():
@@ -3415,23 +3220,40 @@ app.include_router(conversations.router, prefix="/api", tags=["memory"])  # /api
 from app.routers import oracle_universal
 from app.routers import oracle_ingest  # NEW: Bulk ingest endpoint
 from app.routers import agents
-# FIXED 2025-11-20: autonomous_agents NameError resolved (import path corrected)
-from app.routers import autonomous_agents  # Tier 1 Autonomous Agents
 from app.routers import notifications
 app.include_router(oracle_universal.router)
 app.include_router(oracle_ingest.router)  # NEW: /api/oracle/ingest + /collections
 app.include_router(agents.router)
-app.include_router(autonomous_agents.router)  # Tier 1 Autonomous Agents HTTP API - FIXED 2025-11-20
 app.include_router(notifications.router)
+
+# Optional: Tier 1 Autonomous Agents API
+# Some environments may not ship with the experimental agents module.
+# Avoid crashing the app if it's missing.
+try:
+    from app.routers import autonomous_agents  # Tier 1 Autonomous Agents
+    app.include_router(autonomous_agents.router)
+except Exception as e:
+    # Log a lightweight warning; app remains healthy without this router
+    print(f"[WARN] Skipping autonomous_agents router: {e}")
 
 # Include Team Activity router (NEW: Nov 17, 2025 - Team timesheet & work hours)
 from app.routers import team_activity
 app.include_router(team_activity.router)
 # NOTE: admin_oracle_populate router removed - using inline endpoint instead
 
-# Include Llama 4 Scout router - DISABLED (module not in production)
+# Legacy AI router - DISABLED (module not in production)
 # from routers.llama4 import router as llama4_router
 # app.include_router(llama4_router)
+
+#  NEW: Include Health Router (Non-blocking)
+try:
+    from app.routers import health
+    app.include_router(health.router)
+    logger.info("🔧 [Startup] Health router loaded (non-blocking)")
+except ImportError as e:
+    logger.warning(f"[WARN] [Startup] Failed to load health router: {e}")
+except Exception as e:
+    logger.error(f"[X] [Startup] Error loading health router: {e}")
 
 
 # ========================================
@@ -3443,7 +3265,7 @@ async def populate_oracle_inline():
     """ONE-TIME: Populate Oracle collections. Remove after calling."""
     try:
         from core.embeddings import EmbeddingsGenerator
-        from core.vector_db import ChromaDBClient
+        from core.qdrant_db import QdrantClient
 
         embedder = EmbeddingsGenerator()
         results = {}
@@ -3451,21 +3273,21 @@ async def populate_oracle_inline():
         # Tax
         tax_texts = ["Tax: PPh 21 Rate reduced 25% to 22%", "Tax: VAT increased 11% to 12% April 2025"]
         tax_emb = [embedder.generate_single_embedding(t) for t in tax_texts]
-        tax_coll = ChromaDBClient(collection_name="tax_updates")
+        tax_coll = QdrantClient(collection_name="tax_updates")
         tax_coll.upsert_documents(tax_texts, tax_emb, [{"id": f"tax_{i}"} for i in range(len(tax_texts))], [f"tax_{i}" for i in range(len(tax_texts))])
         results['tax'] = len(tax_texts)
 
         # Legal
         legal_texts = ["Legal: PT PMA capital reduced to IDR 5B", "Legal: Minimum wage +6.5% Jakarta IDR 5.3M"]
         legal_emb = [embedder.generate_single_embedding(t) for t in legal_texts]
-        legal_coll = ChromaDBClient(collection_name="legal_updates")
+        legal_coll = QdrantClient(collection_name="legal_updates")
         legal_coll.upsert_documents(legal_texts, legal_emb, [{"id": f"legal_{i}"} for i in range(len(legal_texts))], [f"legal_{i}" for i in range(len(legal_texts))])
         results['legal'] = len(legal_texts)
 
         # Property
         prop_texts = ["Property: Canggu Villa 4BR IDR 15B ocean view", "Property: Seminyak Villa 6BR IDR 25B beachfront"]
         prop_emb = [embedder.generate_single_embedding(t) for t in prop_texts]
-        prop_coll = ChromaDBClient(collection_name="property_listings")
+        prop_coll = QdrantClient(collection_name="property_listings")
         prop_coll.upsert_documents(prop_texts, prop_emb, [{"id": f"prop_{i}"} for i in range(len(prop_texts))], [f"prop_{i}" for i in range(len(prop_texts))])
         results['property'] = len(prop_texts)
 
@@ -3520,58 +3342,57 @@ async def root():
     # Helper function to get AI status dynamically
     def _get_ai_status():
         """Get current AI configuration status"""
-        # Check if Llama Scout is available
+        # Check if ZANTARA AI is available
         has_openrouter_key = os.getenv("OPENROUTER_API_KEY_LLAMA") is not None
-        has_anthropic_key = os.getenv("ANTHROPIC_API_KEY") is not None
-
         if has_openrouter_key:
-            # Llama 4 Scout is primary
+            # ZANTARA AI is primary
+            current_model = os.getenv("ZANTARA_AI_MODEL", "meta-llama/llama-4-scout")
             return {
-                "primary": "Llama 4 Scout (109B MoE, 17B active - 92% cheaper, 22% faster)",
-                "fallback": "Claude Haiku 4.5 (for errors & tool calling)",
-                "routing": "Intelligent Router (Llama primary → Haiku fallback)",
-                "cost_savings": "92% cheaper than Haiku ($0.20 vs $1-5 per 1M tokens)",
-                "performance": "22% faster TTFT (~880ms), 50x context (10M tokens)",
-                "status": "🦙 Llama 4 Scout ACTIVE"
-            }
-        elif has_anthropic_key:
-            # Haiku-only mode
-            return {
-                "primary": "Claude Haiku 4.5 (ALL queries - Fast, Efficient, RAG-enhanced)",
-                "routing": "Intelligent Router (100% Haiku 4.5)",
-                "cost_savings": "3x cheaper than Sonnet, same quality with RAG",
-                "status": "⚡ Haiku-only mode (add OPENROUTER_API_KEY_LLAMA for Llama 4)"
+                "primary": f"ZANTARA AI (model: {current_model})",
+                "fallback": "None (ZANTARA AI handles all queries)",
+                "routing": "Intelligent Router (ZANTARA AI)",
+                "cost_savings": "Configurable via ZANTARA_AI_COST_INPUT/OUTPUT env vars",
+                "performance": "Configurable via ZANTARA_AI_MODEL env var",
+                "status": "[OK] ZANTARA AI ACTIVE"
             }
         else:
             # No AI available
             return {
-                "status": "❌ No AI configured",
-                "setup_required": "Set OPENROUTER_API_KEY_LLAMA or ANTHROPIC_API_KEY"
+                "status": "[X] No AI configured",
+                "setup_required": "Set OPENROUTER_API_KEY_LLAMA for ZANTARA AI"
             }
 
     try:
         # Try to get count from search_service if available
         if search_service:
             try:
-                if hasattr(search_service, 'chroma_client'):
-                    collections = search_service.chroma_client.list_collections()
-                    for col in collections:
-                        count = col.count()
+                # Get counts from Qdrant collections
+                for col_name, vector_db in search_service.collections.items():
+                    try:
+                        stats = vector_db.get_collection_stats()
+                        count = stats.get("total_documents", 0)
                         total_docs += count
-                        collection_stats[col.name] = count
+                        collection_stats[col_name] = count
+                    except Exception:
+                        pass
             except Exception:
                 pass
 
-        # If no data yet, connect directly to ChromaDB
+        # If no data yet, try Qdrant collections directly
         if total_docs == 0:
-            import chromadb
-            chroma_path = os.getenv('CHROMA_DB_PATH', '/data/chroma_db_FULL_deploy')
-            chroma_client = chromadb.PersistentClient(path=chroma_path)
-            collections = chroma_client.list_collections()
-            for col in collections:
-                count = col.count()
-                total_docs += count
-                collection_stats[col.name] = count
+            from core.qdrant_db import QdrantClient
+            qdrant_url = os.getenv('QDRANT_URL', 'https://nuzantara-qdrant.fly.dev')
+            # Try to get stats from main collections
+            collections_to_check = ["knowledge_base", "visa_oracle", "tax_genius", "legal_unified", "kbli_unified"]
+            for col_name in collections_to_check:
+                try:
+                    client = QdrantClient(qdrant_url=qdrant_url, collection_name=col_name)
+                    stats = client.get_collection_stats()
+                    count = stats.get("total_documents", 0)
+                    total_docs += count
+                    collection_stats[col_name] = count
+                except Exception:
+                    pass
     except Exception as e:
         logger.warning(f"Could not get dynamic doc count: {e}")
         total_docs = 25422  # Fallback to verified count
@@ -3581,12 +3402,12 @@ async def root():
         "version": "3.1.0-perf-fix",
         "status": "operational",
         "features": {
-            "chromadb": search_service is not None,
+            "qdrant": search_service is not None,
             "ai": _get_ai_status(),
             "ai": {
-                "primary": "Llama 4 Scout (92% cheaper, 22% faster TTFT, 10M context)",
-                "fallback": "Claude Haiku 4.5 (tool calling, emergencies)",
-                "routing": "Intelligent Router (Llama PRIMARY, Haiku FALLBACK)",
+                "primary": "ZANTARA AI (configurable via ZANTARA_AI_MODEL)",
+                "fallback": "None (ZANTARA AI handles all queries)",
+                "routing": "Intelligent Router (ZANTARA AI)",
                 "cost_savings": "92% cheaper than Haiku ($0.20/$0.20 vs $1/$5 per 1M tokens)"
             },
             "knowledge_base": {
@@ -3598,11 +3419,11 @@ async def root():
             },
             "auth": "mock (MVP only)",
             "collaborative_intelligence": {
-                "phase_1": "Collaborator Identification ✅",
-                "phase_2": "Memory System ✅",
-                "phase_3": "Sub Rosa Protocol ✅",
-                "phase_4": "Emotional Attunement ✅",
-                "phase_5": "10 Collaborative Capabilities ✅"
+                "phase_1": "Collaborator Identification [OK]",
+                "phase_2": "Memory System [OK]",
+                "phase_3": "Sub Rosa Protocol [OK]",
+                "phase_4": "Emotional Attunement [OK]",
+                "phase_5": "10 Collaborative Capabilities [OK]"
             }
         }
     }
@@ -3700,7 +3521,7 @@ class MemorySaveRequest(BaseModel):
 @app.post("/memory/save")
 async def save_memory_frontend(request: MemorySaveRequest):
     """
-    ⚠️ LEGACY: Use /api/memory/store instead
+    [WARN] LEGACY: Use /api/memory/store instead
     Frontend SDK endpoint: Save user memory (facts + summary)
     Compatible with zantara-sdk.js saveMemory() method
     """
@@ -3741,7 +3562,7 @@ async def save_memory_frontend(request: MemorySaveRequest):
 @app.get("/memory/get")
 async def get_memory_frontend(userId: str):
     """
-    ⚠️ LEGACY: Use /api/memory/{memory_id} instead
+    [WARN] LEGACY: Use /api/memory/{memory_id} instead
     Frontend SDK endpoint: Retrieve user memory
     Compatible with zantara-sdk.js getMemory() method
 
@@ -3783,7 +3604,7 @@ class RAGSearchRequest(BaseModel):
 @app.post("/rag/search")
 async def rag_search(request: RAGSearchRequest):
     """
-    ⚠️ LEGACY: Use /api/memory/search instead
+    [WARN] LEGACY: Use /api/memory/search instead
     Direct search in RAG knowledge base (14 ChromaDB collections)
 
     Params:
@@ -3829,7 +3650,7 @@ async def rag_search(request: RAGSearchRequest):
         }
 
     except Exception as e:
-        logger.error(f"❌ RAG search failed: {e}")
+        logger.error(f"[X] RAG search failed: {e}")
         raise HTTPException(500, f"RAG search failed: {str(e)}")
 
 
@@ -3896,7 +3717,7 @@ async def api_query(request: APIQueryRequest):
         }
 
     except Exception as e:
-        logger.error(f"❌ API query failed: {e}")
+        logger.error(f"[X] API query failed: {e}")
         raise HTTPException(500, f"API query failed: {str(e)}")
 
 
@@ -3957,7 +3778,7 @@ async def api_list_collections():
         }
 
     except Exception as e:
-        logger.error(f"❌ List collections failed: {e}")
+        logger.error(f"[X] List collections failed: {e}")
         raise HTTPException(500, f"List collections failed: {str(e)}")
 
 
@@ -4000,7 +3821,7 @@ async def api_collection_stats(collection_name: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Get collection stats failed: {e}")
+        logger.error(f"[X] Get collection stats failed: {e}")
         raise HTTPException(500, f"Get collection stats failed: {str(e)}")
 
 
@@ -4023,16 +3844,14 @@ async def api_collection_count(name: str):
         raise HTTPException(503, "Search service not available")
     
     try:
-        # Get ChromaDB wrapper and access native collection
+        # Get Qdrant client and access collection stats
         if name not in search_service.collections:
             raise HTTPException(404, f"Collection '{name}' not found")
         
-        chromadb_wrapper = search_service.collections[name]
-        # Access the native ChromaDB collection for accurate count
-        collection = chromadb_wrapper.collection
-        
-        # Get count from native collection (not wrapper stats)
-        count = collection.count()
+        qdrant_client = search_service.collections[name]
+        # Get count from Qdrant collection stats
+        stats = qdrant_client.get_collection_stats()
+        count = stats.get("total_documents", 0)
         
         return {
             "ok": True,
@@ -4043,7 +3862,7 @@ async def api_collection_count(name: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Get collection count failed: {e}")
+        logger.error(f"[X] Get collection count failed: {e}")
         raise HTTPException(500, f"Get collection count failed: {str(e)}")
 
 
@@ -4095,19 +3914,17 @@ async def load_documents_to_collection(
         if not documents:
             raise HTTPException(400, "No documents provided")
         
-        # Get or create collection via ChromaDBClient wrapper
+        # Get or create collection via QdrantClient wrapper
         if collection_name not in search_service.collections:
-            # Create new ChromaDBClient wrapper for this collection
-            from core.vector_db import ChromaDBClient
-            chroma_path = os.environ.get('CHROMA_DB_PATH', '/data/chroma_db_FULL_deploy')
-            search_service.collections[collection_name] = ChromaDBClient(
-                persist_directory=chroma_path,
+            # Create new QdrantClient wrapper for this collection
+            from core.qdrant_db import QdrantClient
+            qdrant_url = os.environ.get('QDRANT_URL', 'https://nuzantara-qdrant.fly.dev')
+            search_service.collections[collection_name] = QdrantClient(
+                qdrant_url=qdrant_url,
                 collection_name=collection_name
             )
 
-        chromadb_wrapper = search_service.collections[collection_name]
-        # Access the native ChromaDB collection
-        collection = chromadb_wrapper.collection
+        qdrant_client = search_service.collections[collection_name]
 
         loaded_count = 0
         skipped_count = 0
@@ -4116,7 +3933,7 @@ async def load_documents_to_collection(
         for i in range(0, len(documents), batch_size):
             batch = documents[i:i + batch_size]
             
-            # Clean metadata: remove None values (ChromaDB doesn't accept null)
+            # Clean metadata: remove None values (Qdrant doesn't accept null)
             cleaned_metadatas = []
             for doc in batch:
                 cleaned_meta = {k: v for k, v in doc["metadata"].items() if v is not None}
@@ -4125,12 +3942,12 @@ async def load_documents_to_collection(
                     cleaned_meta = {"source": "indonesian_laws"}
                 cleaned_metadatas.append(cleaned_meta)
 
-            # Add documents to collection (native ChromaDB API)
-            collection.add(
-                ids=[doc["id"] for doc in batch],
-                documents=[doc["text"] for doc in batch],
+            # Add documents to collection via Qdrant API
+            qdrant_client.upsert_documents(
+                chunks=[doc["text"] for doc in batch],
+                embeddings=[doc["embedding"] for doc in batch],
                 metadatas=cleaned_metadatas,
-                embeddings=[doc["embedding"] for doc in batch]
+                ids=[doc["id"] for doc in batch]
             )
             loaded_count += len(batch)
             logger.info(f"📥 Loaded batch {i//batch_size + 1}: {loaded_count}/{len(documents)} documents")
@@ -4149,7 +3966,7 @@ async def load_documents_to_collection(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Load documents failed: {e}")
+        logger.error(f"[X] Load documents failed: {e}")
         raise HTTPException(500, f"Load documents failed: {str(e)}")
 
 
@@ -4432,7 +4249,7 @@ async def calculate_productivity_scores(days: int = 7):
 @app.get("/team/analytics/burnout")
 async def detect_burnout_signals(user_email: Optional[str] = None):
     """
-    ⚠️ TECHNIQUE 3: Burnout Detection
+    [WARN] TECHNIQUE 3: Burnout Detection
 
     Detects early warning signs of burnout:
     - Increasing work hours trend
@@ -4740,9 +4557,9 @@ async def get_prometheus_metrics():
             f"# TYPE zantara_rag_queries_total counter",
             f"zantara_rag_queries_total {getattr(app, 'rag_queries', 0)} {timestamp}",
             "",
-            f"# HELP zantara_claude_requests_total Total Claude AI requests",
-            f"# TYPE zantara_claude_requests_total counter",
-            f"zantara_claude_requests_total {getattr(app, 'claude_requests', 0)} {timestamp}",
+            f"# HELP zantara_ai_requests_total Total ZANTARA AI requests",
+            f"# TYPE zantara_ai_requests_total counter",
+            f"zantara_ai_requests_total {getattr(app, 'zantara_ai_requests', 0)} {timestamp}",
         ]
 
         # Service-specific metrics if available
@@ -4791,7 +4608,7 @@ async def metrics_head():
     return Response(status_code=200)
 
 # ════════════════════════════════════════════════════════════════════════════════
-# 🚀 MISSING ENDPOINTS - API V3 ZANTARA & AGENT ENDPOINTS
+#  MISSING ENDPOINTS - API V3 ZANTARA & AGENT ENDPOINTS
 # ════════════════════════════════════════════════════════════════════════════════
 
 class UnifiedRequest(BaseModel):
@@ -4856,7 +4673,7 @@ async def zantara_unified(request: UnifiedRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ ZANTARA v3 Unified error: {e}")
+        logger.error(f"[X] ZANTARA v3 Unified error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Unified processing failed: {str(e)}",
@@ -4904,7 +4721,7 @@ async def zantara_collective(request: UnifiedRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ ZANTARA v3 Collective error: {e}")
+        logger.error(f"[X] ZANTARA v3 Collective error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Collective processing failed: {str(e)}",
@@ -4957,7 +4774,7 @@ async def zantara_ecosystem(request: UnifiedRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ ZANTARA v3 Ecosystem error: {e}")
+        logger.error(f"[X] ZANTARA v3 Ecosystem error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Ecosystem analysis failed: {str(e)}",
@@ -5005,7 +4822,7 @@ async def agent_semantic_search(request: AgentRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ Semantic Search Agent error: {e}")
+        logger.error(f"[X] Semantic Search Agent error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Semantic search failed: {str(e)}",
@@ -5049,7 +4866,7 @@ async def agent_hybrid_query(request: AgentRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ Hybrid Query Agent error: {e}")
+        logger.error(f"[X] Hybrid Query Agent error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Hybrid query failed: {str(e)}",
@@ -5070,7 +4887,7 @@ async def agent_document_intelligence(request: AgentRequest):
 
         if doc_type == "legal":
             # Use legal oracle for legal documents
-            from routers.oracle_universal import oracle_universal_router
+            from routers.oracle_universal import oracle_universal_router, oracle_universal, search, handlers, productivity
             results = await oracle_universal_router(request.task, request.input_data)
         elif doc_type == "property":
             # Use property oracle for property documents
@@ -5106,7 +4923,7 @@ async def agent_document_intelligence(request: AgentRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ Document Intelligence Agent error: {e}")
+        logger.error(f"[X] Document Intelligence Agent error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Document analysis failed: {str(e)}",
@@ -5119,7 +4936,7 @@ app.request_count = 0
 app.sse_connections = 0
 app.active_sse_connections = 0
 app.rag_queries = 0
-app.claude_requests = 0
+app.zantara_ai_requests = 0
 
 # Request counting middleware
 @app.middleware("http")
@@ -5127,34 +4944,28 @@ async def add_request_count(request: Request, call_next):
     app.request_count += 1
     return await call_next(request)
 
-# 🚀 NEW: Include Handlers Registry API
+#  NEW: Include Handlers Registry API
 try:
-    from api.handlers import router as handlers_router
-    app.include_router(handlers_router)
-    logger.info("🔧 [Startup] Handlers registry API loaded")
-except ImportError as e:
-    logger.warning(f"⚠️ [Startup] Failed to load handlers API: {e}")
+    from api import handlers, productivity # Handlers Router (System Tools Discovery)
+    try:
+        app.include_router(handlers.router)
+        app.include_router(productivity.router)
+        logger.info("[OK] Handlers & Productivity Routers included")
+    except Exception as e:
+        logger.warning(f"[WARN] Failed to include Handlers/Productivity Router: {e}")
 except Exception as e:
-    logger.error(f"❌ [Startup] Error loading handlers API: {e}")
+    logger.error(f"[X] [Startup] Error loading handlers API: {e}")
 
-# 🚀 NEW: Include Skill Admin API
-try:
-    from app.routers.skill_admin import router as skill_admin_router
-    app.include_router(skill_admin_router)
-    logger.info("🔧 [Startup] Skill admin API loaded")
-except ImportError as e:
-    logger.warning(f"⚠️ [Startup] Failed to load skill admin API: {e}")
-except Exception as e:
-    logger.error(f"❌ [Startup] Error loading skill admin API: {e}")
+#  NEW: Include Skill Admin API
+# try:
+#     from app.routers.skill_admin import router as skill_admin_router
+#     app.include_router(skill_admin_router)
+#     logger.info("🔧 [Startup] Skill admin API loaded")
+# except ImportError as e:
+#     logger.warning(f"[WARN] [Startup] Failed to load skill admin API: {e}")
+# except Exception as e:
+#     logger.error(f"[X] [Startup] Error loading skill admin API: {e}")
 
-# 🚀 NEW: Include Skill Feedback API
-try:
-    from app.routers.skill_feedback import router as skill_feedback_router
-    app.include_router(skill_feedback_router)
-    logger.info("🔧 [Startup] Skill feedback API loaded")
-except ImportError as e:
-    logger.warning(f"⚠️ [Startup] Failed to load skill feedback API: {e}")
-except Exception as e:
-    logger.error(f"❌ [Startup] Error loading skill feedback API: {e}")
+#  NEW: Include Skill Feedback API
 
 # Force Fly.io redeploy - Priority 1-5 active

@@ -2,10 +2,10 @@
  * ZANTARA Login Page - Email + PIN Authentication
  */
 
-// Configuration - Use centralized API_CONFIG
+// Configuration - Use centralized API_CONFIG (fallback to backend fly URL)
 const API_CONFIG = window.API_CONFIG || {
-  backend: { url: 'https://nuzantara-rag.fly.dev' },
-  memory: { url: 'https://nuzantara-rag.fly.dev' }
+  backend: { url: 'https://nuzantara-backend.fly.dev' },
+  memory: { url: 'https://nuzantara-backend.fly.dev' }
 };
 const API_BASE_URL = API_CONFIG.backend.url;
 
@@ -26,6 +26,12 @@ document.addEventListener('DOMContentLoaded', async function() {
   errorMessage = document.getElementById('errorMessage');
   welcomeMessage = document.getElementById('welcomeMessage');
   loginForm = document.getElementById('loginForm');
+
+  // If the page doesn't have the login form, bail out gracefully
+  if (!emailInput || !pinInput || !loginButton || !loginForm) {
+    console.warn('⚠️ Login elements not found on page - skipping login.js');
+    return;
+  }
 
   // Setup event listeners
   setupEventListeners();
@@ -65,7 +71,9 @@ function setupEventListeners() {
  */
 function handleEmailBlur() {
   // Clear any messages on blur
-  welcomeMessage.classList.remove('show');
+  if (welcomeMessage) {
+    welcomeMessage.classList.remove('show');
+  }
 }
 
 /**
@@ -95,7 +103,9 @@ function handlePinInput(e) {
 function togglePinVisibility() {
   const isPassword = pinInput.type === 'password';
   pinInput.type = isPassword ? 'text' : 'password';
-  pinToggle.textContent = isPassword ? '🙈' : '👁';
+  if (pinToggle) {
+    pinToggle.textContent = isPassword ? '🙈' : '👁';
+  }
 }
 
 /**
@@ -126,15 +136,15 @@ async function handleLogin(e) {
   try {
     console.log('🔐 Attempting login...');
 
-    // Call auth API with email + PIN (sent as password)
-    const response = await fetch(`${API_BASE_URL}/api/auth/demo`, {
+    // Call auth API with email + PIN
+    const response = await fetch(`${API_BASE_URL}/api/auth/team/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         email: email,
-        password: pin  // PIN sent as password field
+        pin: pin
       }),
     });
 
@@ -144,18 +154,17 @@ async function handleLogin(e) {
       throw new Error(result.detail || result.message || 'Login failed');
     }
 
-    // Login successful - handle actual backend response format
-    // Backend returns: {token: "demo_xxx", expiresIn: 3600, userId: "demo"}
-    const token = result.token || result.access_token;
+    // Login successful - handle backend response format
+    const token = result.data?.token || result.token || result.access_token;
 
     // CRITICAL: Verify token exists
     if (!token) {
       throw new Error('Server did not return authentication token. Please contact support.');
     }
 
-    const expiresIn = result.expiresIn || result.expires_in || 3600; // 1 hour default
-    const user = result.user || {
-      id: result.userId || 'demo',
+    const expiresIn = result.data?.expiresIn || result.expiresIn || result.expires_in || 3600; // default 1h
+    const user = result.data?.user || result.user || {
+      id: result.data?.userId || result.userId || 'demo',
       email: email,
       name: email.split('@')[0]
     };
@@ -215,7 +224,16 @@ async function handleLogin(e) {
  * Show error message
  */
 function showError(message) {
-  errorMessage.textContent = message;
+  if (!errorMessage) return;
+
+  const errorText = errorMessage.querySelector ? errorMessage.querySelector('.error-text') : null;
+  if (errorText) {
+    errorText.textContent = message;
+  } else {
+    errorMessage.textContent = message;
+  }
+
+  errorMessage.style.display = 'block';
   errorMessage.classList.add('show');
 }
 
@@ -223,13 +241,20 @@ function showError(message) {
  * Clear error message
  */
 function clearError() {
-  errorMessage.classList.remove('show');
+  if (errorMessage) {
+    errorMessage.style.display = 'none';
+    errorMessage.classList.remove('show');
+  }
 }
 
 /**
  * Show success message
  */
 function showSuccess(message) {
-  welcomeMessage.textContent = message;
-  welcomeMessage.classList.add('show', 'success');
+  if (welcomeMessage) {
+    welcomeMessage.textContent = message;
+    welcomeMessage.classList.add('show', 'success');
+  } else {
+    console.log('✅', message);
+  }
 }

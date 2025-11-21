@@ -4,53 +4,46 @@
  * Uses ZANTARA token format (zantara-*)
  */
 
-const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev';
+// Prefer backend service; fallback to TS backend in production
+const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-backend.fly.dev';
 
 /**
  * Check if user is authenticated
+ * Uses httpOnly cookies - token is automatically sent by browser
  */
 async function checkAuth() {
-  // Get token from localStorage (ZANTARA format)
-  const tokenData = localStorage.getItem('zantara-token');
-
-  if (!tokenData) {
-    console.log('⚠️  No auth token found');
-    redirectToLogin();
-    return false;
-  }
-
-  let token;
+  // Check for token in localStorage (simple auth check)
   try {
-    const parsed = JSON.parse(tokenData);
-    token = parsed.token;
+    const tokenData = localStorage.getItem('zantara-token');
+    
+    if (!tokenData) {
+      console.log('⚠️  No token found');
+      redirectToLogin();
+      return false;
+    }
 
+    const parsed = JSON.parse(tokenData);
+    
     // Check if token is expired
-    if (parsed.expiresAt && Date.now() >= parsed.expiresAt) {
+    if (!parsed.token || !parsed.expiresAt || Date.now() >= parsed.expiresAt) {
       console.log('⚠️  Token expired');
       clearAuthData();
       redirectToLogin();
       return false;
     }
+
+    console.log('✅ Authentication verified (valid token)');
+    return true;
   } catch (error) {
-    console.log('⚠️  Invalid token format');
+    console.warn('⚠️  Auth check failed:', error.message);
     clearAuthData();
     redirectToLogin();
     return false;
   }
-
-  if (!token) {
-    console.log('⚠️  No token in data');
-    redirectToLogin();
-    return false;
-  }
-
-  // Token exists and not expired - user is authenticated
-  // For MVP: No backend verification (mock auth accepts any token)
-  console.log('✅ Authentication verified (client-side)');
-  return true;
 }
 
 function clearAuthData() {
+  // Clear all auth data from localStorage
   localStorage.removeItem('zantara-token');
   localStorage.removeItem('zantara-user');
   localStorage.removeItem('zantara-session');
@@ -72,11 +65,13 @@ function getCurrentUser() {
 }
 
 function getAuthToken() {
-  const tokenData = localStorage.getItem('zantara-token');
-  if (!tokenData) return null;
+  // Get token from localStorage
   try {
+    const tokenData = localStorage.getItem('zantara-token');
+    if (!tokenData) return null;
+    
     const parsed = JSON.parse(tokenData);
-    return parsed.token;
+    return parsed.token || null;
   } catch (error) {
     return null;
   }

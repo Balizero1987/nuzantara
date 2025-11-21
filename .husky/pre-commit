@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "Running pre-commit checks..."
+
+# Run linting
+npm run lint:fix || echo "⚠️ Linting warnings (non-blocking)"
+
+# Run type checking
+npm run typecheck || {
+  echo "❌ Type checking failed"
+  exit 1
+}
+
+# Run unit tests (fast, only changed files)
+npm run test -- --onlyChanged --passWithNoTests || {
+  echo "❌ Tests failed"
+  exit 1
+}
+
+echo "✅ Pre-commit checks passed"
+

@@ -17,12 +17,17 @@ const STATIC_ASSETS = [
   '/login.html',
   '/js/core/error-handler.js',
   '/js/core/cache-manager.js',
+  '/js/core/state-manager.js',
   '/js/core/request-deduplicator.js',
   '/js/api-config.js',
   '/js/config.js',
+  '/js/zantara-client.js',
+  '/css/design-system.css',
+  '/css/bali-zero-theme.css',
   '/styles/chat.css',
   '/styles/design-tokens.css',
   '/assets/logoscon.png',
+  '/assets/images/logo1-zantara.svg',
   '/manifest.json',
 ];
 
