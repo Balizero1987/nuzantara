@@ -224,7 +224,16 @@ async function handleLogin(e) {
  * Show error message
  */
 function showError(message) {
-  errorMessage.textContent = message;
+  if (!errorMessage) return;
+
+  const errorText = errorMessage.querySelector ? errorMessage.querySelector('.error-text') : null;
+  if (errorText) {
+    errorText.textContent = message;
+  } else {
+    errorMessage.textContent = message;
+  }
+
+  errorMessage.style.display = 'block';
   errorMessage.classList.add('show');
 }
 
@@ -232,7 +241,10 @@ function showError(message) {
  * Clear error message
  */
 function clearError() {
-  errorMessage.classList.remove('show');
+  if (errorMessage) {
+    errorMessage.style.display = 'none';
+    errorMessage.classList.remove('show');
+  }
 }
 
 /**
