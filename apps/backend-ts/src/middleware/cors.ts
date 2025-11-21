@@ -8,7 +8,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 const ALLOW_METHODS = 'GET, POST, OPTIONS';
-const ALLOW_HEADERS = 'Content-Type, Authorization';
+const ALLOW_HEADERS = 'Content-Type, Authorization, x-user-email, x-api-key';
 
 /**
  * Lightweight CORS middleware tailored for the ZANTARA webapp.
