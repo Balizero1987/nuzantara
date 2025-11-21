@@ -17,7 +17,8 @@ from app.routers import (
     memory_vector,
     notifications,
     oracle_universal,
-    search
+    search,
+    productivity
 )
 
 router = APIRouter(prefix="/api/handlers", tags=["handlers"])
@@ -60,7 +61,8 @@ async def list_all_handlers():
         memory_vector,
         notifications,
         oracle_universal,
-        search
+        search,
+        productivity
     ]
     
     all_handlers = []

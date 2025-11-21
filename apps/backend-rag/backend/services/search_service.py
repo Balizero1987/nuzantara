@@ -193,9 +193,30 @@ class SearchService:
                 if collection_name == "bali_zero_pricing":
                     metadata = {**metadata, "pricing_priority": "high"}
 
+                # Phase 3: Redact prices to prevent hallucinations
+                import re
+                def redact_prices(text: str) -> str:
+                    patterns = [
+                        r'IDR\s*[\d,.]+',
+                        r'Rp\.?\s*[\d,.]+',
+                        r'USD\s*[\d,.]+',
+                        r'\$\s*[\d,.]+',
+                        r'[\d,.]+\s*IDR',  # NEW: Matches "7.500.000 IDR"
+                        r'[\d,.]+\s*USD',  # NEW: Matches "500 USD"
+                        r'[\d,.]+\s*(million|billion|juta|miliar)\s*(IDR|USD|Rp)?',
+                        r'price\s*[:=]\s*[\d,.]+',
+                        r'cost\s*[:=]\s*[\d,.]+'
+                    ]
+                    for pattern in patterns:
+                        text = re.sub(pattern, "[PRICE REDACTED - CONTACT SALES]", text, flags=re.IGNORECASE)
+                    return text
+
+                doc_content = raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else ""
+                doc_content = redact_prices(doc_content)
+
                 formatted_results.append({
                     "id": raw_results["ids"][i] if i < len(raw_results.get("ids", [])) else None,
-                    "text": raw_results["documents"][i] if i < len(raw_results.get("documents", [])) else "",
+                    "text": doc_content,
                     "metadata": metadata,
                     "score": round(score, 4)
                 })

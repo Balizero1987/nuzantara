@@ -104,7 +104,7 @@ self.addEventListener('fetch', (event) => {
                 return fetch(request)
                     .then((response) => {
                         // Cache successful responses
-                        if (response.ok) {
+                        if (response.ok && request.method === 'GET') {
                             const responseClone = response.clone();
                             caches.open(RUNTIME_CACHE).then((cache) => {
                                 cache.put(request, responseClone);

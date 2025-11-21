@@ -232,10 +232,29 @@ async def universal_oracle_query(
         model_used = None
 
         if request.use_ai and results and anthropic:
+            # Helper to redact prices
+            import re
+            def redact_prices(text: str) -> str:
+                # Patterns for IDR, USD, Rp, etc.
+                patterns = [
+                    r'IDR\s*[\d,.]+',
+                    r'Rp\.?\s*[\d,.]+',
+                    r'USD\s*[\d,.]+',
+                    r'\$\s*[\d,.]+',
+                    r'[\d,.]+\s*(million|billion|juta|miliar)\s*(IDR|USD|Rp)?',
+                    r'price\s*[:=]\s*[\d,.]+',
+                    r'cost\s*[:=]\s*[\d,.]+'
+                ]
+                for pattern in patterns:
+                    text = re.sub(pattern, "[PRICE REDACTED - CONTACT SALES]", text, flags=re.IGNORECASE)
+                return text
+
             # Build context from top results
             context_parts = []
             for i, result in enumerate(results[:5], 1):
                 content = result.content[:500]  # Limit context size
+                # REDACT PRICES FROM CONTEXT
+                content = redact_prices(content)
                 context_parts.append(f"[Source {i}]: {content}")
 
             context = "\n\n".join(context_parts)
