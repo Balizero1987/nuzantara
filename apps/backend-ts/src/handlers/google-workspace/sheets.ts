@@ -1,6 +1,5 @@
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
-import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
 import { getSheets } from '../../services/google-auth-service.js';
 
 // Minimal param interfaces (Step 1 typing)
@@ -40,7 +39,6 @@ export async function sheetsRead(params: SheetsReadParams) {
     const res = await sheets.spreadsheets.values.get({ spreadsheetId, range });
     return ok({ values: res.data.values || [], range });
   }
-  const bridged = await forwardToBridgeIfSupported('sheets.read', params);
   if (bridged) return bridged;
   throw new BadRequestError('Sheets not configured');
 }
@@ -64,7 +62,6 @@ export async function sheetsAppend(params: SheetsAppendParams) {
     });
     return ok({ update: res.data.updates || null });
   }
-  const bridged = await forwardToBridgeIfSupported('sheets.append', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Sheets not configured');
 }
@@ -106,7 +103,6 @@ export async function sheetsCreate(params: SheetsCreateParams) {
   }
 
   // Fallback to bridge if sheets service not available
-  const bridged = await forwardToBridgeIfSupported('sheets.create', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Sheets not configured');
 }

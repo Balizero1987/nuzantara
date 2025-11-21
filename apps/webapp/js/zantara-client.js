@@ -20,7 +20,7 @@ class ZantaraClient {
     this.config = {
       apiUrl: config.apiUrl || 'https://nuzantara-rag.fly.dev',
       authUrl: config.authUrl || 'https://nuzantara-rag.fly.dev',  // FIXED: Use RAG backend for auth
-      authEndpoint: config.authEndpoint || '/api/auth/demo',  // FIXED: Correct demo auth endpoint
+      authEndpoint: config.authEndpoint || '/api/auth/team/login',
       chatEndpoint: config.chatEndpoint || '/bali-zero/chat',  // FIXED: Correct Bali-Zero endpoint
       streamEndpoint: config.streamEndpoint || '/bali-zero/chat-stream',  // SSE streaming endpoint
       maxRetries: config.maxRetries || 3,
@@ -50,7 +50,7 @@ class ZantaraClient {
   /**
    * Get or create JWT token
    */
-  async authenticate(userId = 'demo') {
+  async authenticate(userId = null) {
     try {
       // Check if token exists and is valid
       const storedToken = localStorage.getItem(this.config.tokenKey);

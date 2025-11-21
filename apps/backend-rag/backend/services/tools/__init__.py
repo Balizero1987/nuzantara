@@ -3,6 +3,6 @@ Tools Module
 Tool loading, caching, and detection
 """
 
-from .tool_manager import ToolManager
+# ToolManager removed - using direct tool executor instead
 
-__all__ = ["ToolManager"]
+__all__ = []

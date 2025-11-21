@@ -1,7 +1,7 @@
 """
 Auto-Ingestion Orchestrator - Phase 5 (Automation Agent)
 
-Automatically monitors external sources and updates ChromaDB collections
+Automatically monitors external sources and updates Qdrant collections
 with new regulations, laws, and business information.
 
 Monitored Sources:
@@ -23,7 +23,7 @@ Process:
 Integration with bali-intel-scraper:
 - Extends existing scraper with structured ingestion
 - Uses same 2-tier filtering (LLAMA → Claude)
-- Adds to ChromaDB instead of just logging
+- Adds to Qdrant instead of just logging
 """
 
 import logging
@@ -75,7 +75,7 @@ class MonitoredSource:
     source_type: SourceType
     name: str
     url: str
-    target_collection: str  # Which ChromaDB collection to update
+    target_collection: str  # Which Qdrant collection to update
     scrape_frequency_hours: int = 24  # How often to check
     last_scraped: Optional[str] = None
     enabled: bool = True
@@ -113,7 +113,7 @@ class IngestionJob:
 
 class AutoIngestionOrchestrator:
     """
-    Orchestrates automatic ingestion from external sources to ChromaDB.
+    Orchestrates automatic ingestion from external sources to Qdrant.
 
     Features:
     - Monitors multiple external sources
@@ -384,7 +384,7 @@ Answer with YES or NO and a brief reason."""
         content_list: List[ScrapedContent]
     ) -> int:
         """
-        Ingest filtered content into ChromaDB collections.
+        Ingest filtered content into Qdrant collections.
 
         Args:
             content_list: List of filtered content
@@ -396,7 +396,7 @@ Answer with YES or NO and a brief reason."""
             logger.warning("SearchService not available")
             return 0
 
-        logger.info(f"📥 Ingesting {len(content_list)} items into ChromaDB...")
+        logger.info(f"📥 Ingesting {len(content_list)} items into Qdrant...")
 
         ingested_count = 0
 

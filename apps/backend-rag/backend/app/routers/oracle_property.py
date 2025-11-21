@@ -39,7 +39,7 @@ def get_db():
 
 # Phase 1 Optimization: Dependency Injection
 # SearchService is injected via get_search_service() dependency
-# This eliminates ChromaDBClient duplication (was creating 6 instances across endpoints)
+# This eliminates QdrantClient duplication (was creating 6 instances across endpoints)
 # Memory footprint reduced by ~80%
 
 
@@ -86,7 +86,7 @@ async def search_properties(
 ):
     """
     Semantic search for property listings
-    Searches ChromaDB property_listings collection
+    Searches Qdrant property_listings collection
     Phase 1 Optimization: Uses injected SearchService
     """
     try:

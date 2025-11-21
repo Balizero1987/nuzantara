@@ -393,11 +393,6 @@ class MetricsCollector {
         averageTime: 0,
         successRate: 1.0,
       },
-      'zantara.unified': {
-        requests: 0,
-        averageTime: 0,
-        successRate: 1.0,
-      },
     };
   }
 

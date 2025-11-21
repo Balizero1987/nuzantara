@@ -5,7 +5,8 @@ Prevents context overflow by keeping only recent messages with automatic summari
 
 import logging
 from typing import List, Dict, Optional, Any
-from anthropic import AsyncAnthropic
+
+from llm.zantara_ai_client import ZantaraAIClient
 
 logger = logging.getLogger(__name__)
 
@@ -20,18 +21,23 @@ class ContextWindowManager:
     - Total context stays within safe limits
     """
 
-    def __init__(self, max_messages: int = 15, summary_threshold: int = 20, anthropic_api_key: str = None):
+    def __init__(self, max_messages: int = 15, summary_threshold: int = 20):
         """
         Initialize context window manager
 
         Args:
             max_messages: Maximum number of recent messages to keep in full
             summary_threshold: Number of messages that triggers summarization
-            anthropic_api_key: Anthropic API key for summary generation (optional)
         """
         self.max_messages = max_messages
         self.summary_threshold = summary_threshold
-        self.claude_client = AsyncAnthropic(api_key=anthropic_api_key) if anthropic_api_key else None
+        # Use ZANTARA AI for summarization (via ZantaraAIClient)
+        try:
+            from llm.zantara_ai_client import ZantaraAIClient
+            self.zantara_client = ZantaraAIClient()
+        except Exception as e:
+            logger.warning(f"⚠️ ZANTARA AI not available for summarization: {e}")
+            self.zantara_client = None
         logger.info(f"✅ ContextWindowManager initialized (max: {max_messages}, threshold: {summary_threshold})")
 
 
@@ -209,7 +215,7 @@ Summary:"""
         existing_summary: Optional[str] = None
     ) -> str:
         """
-        Generate conversation summary using Claude Haiku (fast & cheap)
+        Generate conversation summary using ZANTARA AI (fast & cheap)
 
         Args:
             messages: Messages to summarize
@@ -218,8 +224,8 @@ Summary:"""
         Returns:
             Summary text (2-3 sentences)
         """
-        if not self.claude_client:
-            logger.warning("⚠️ [Summary] Claude client not available, cannot generate summary")
+        if not self.zantara_client:
+            logger.warning("⚠️ [Summary] ZANTARA AI client not available, cannot generate summary")
             return existing_summary or "Earlier conversation covered various topics."
 
         # Build summarization prompt
@@ -233,19 +239,18 @@ Summary:"""
 
 Update the summary to include both the previous context and new messages."""
 
-        # Call Claude Haiku for fast summarization
+        # Call ZANTARA AI for fast summarization
         try:
             logger.info(f"📝 [Summary] Generating summary for {len(messages)} messages...")
 
-            response = await self.claude_client.messages.create(
-                model="claude-3-haiku-20240307",  # Fast & cheap
+            summary = await self.zantara_client.generate_text(
+                prompt=prompt,
                 max_tokens=150,
-                messages=[{"role": "user", "content": prompt}]
+                temperature=0.3
             )
 
-            summary = response.content[0].text.strip()
             logger.info(f"✅ [Summary] Generated ({len(summary)} chars)")
-            return summary
+            return summary.strip()
 
         except Exception as e:
             logger.error(f"❌ [Summary] Generation failed: {e}")

@@ -128,15 +128,7 @@ router.post('/run-tests', async (req: Request, res: Response) => {
 
     // Generate integration tests for endpoints
     if (includeEndpoints) {
-      const endpoints = [
-        '/call',
-        '/team.login',
-        '/zantara.unified',
-        '/zantara.collective',
-        '/zantara.ecosystem',
-        '/analytics/health',
-        '/architecture/status',
-      ];
+      const endpoints = ['/call', '/team.login', '/analytics/health', '/architecture/status'];
       enhancedTestSuite.generateIntegrationTests(endpoints);
       logger.info(`Generated ${endpoints.length} integration tests`);
     }

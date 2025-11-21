@@ -7,9 +7,9 @@ import os
 import psycopg2
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-from anthropic import AsyncAnthropic
 import json
 from typing import Dict, List, Optional
+from llm.zantara_ai_client import ZantaraAIClient
 
 class ClientValuePredictor:
     """
@@ -23,7 +23,7 @@ class ClientValuePredictor:
 
     def __init__(self):
         self.db_url = os.getenv("DATABASE_URL")
-        self.anthropic = AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        self.zantara_client = ZantaraAIClient()
         self.twilio_sid = os.getenv("TWILIO_ACCOUNT_SID")
         self.twilio_token = os.getenv("TWILIO_AUTH_TOKEN")
         self.whatsapp_number = os.getenv("TWILIO_WHATSAPP_NUMBER")
@@ -149,14 +149,13 @@ Guidelines:
 
 Output ONLY the message text, no explanations."""
 
-        response = await self.anthropic.messages.create(
-            model="claude-3-5-haiku-20241022",  # Fast + cheap for this
+        message = await self.zantara_client.generate_text(
+            prompt=prompt,
             max_tokens=300,
-            temperature=0.7,
-            messages=[{"role": "user", "content": prompt}]
+            temperature=0.7
         )
 
-        return response.content[0].text.strip()
+        return message.strip()
 
     async def send_whatsapp_message(self, phone: str, message: str):
         """Send WhatsApp message via Twilio"""

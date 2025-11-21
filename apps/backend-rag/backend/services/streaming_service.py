@@ -12,8 +12,9 @@ Date: 2025-10-16
 import asyncio
 import logging
 from typing import AsyncIterator, Dict, Any, List, Optional
-from anthropic import AsyncAnthropic
 import json
+
+from llm.zantara_ai_client import ZantaraAIClient
 
 logger = logging.getLogger(__name__)
 
@@ -23,32 +24,32 @@ class StreamingService:
     Handles real-time streaming of AI responses using SSE
 
     Features:
-    - Token-by-token streaming from Claude API
+    - Token-by-token streaming from ZANTARA AI
     - Metadata collection (model, usage stats)
     - Error handling for network failures
-    - Support for multiple Claude models
+    - Support for multiple ZANTARA AI models
     """
 
     def __init__(self):
-        """Initialize streaming service with Claude client"""
-        self.claude_client = AsyncAnthropic()
-        logger.info("✅ StreamingService initialized")
+        """Initialize streaming service with ZANTARA AI client"""
+        self.zantara_client = ZantaraAIClient()
+        logger.info("✅ StreamingService initialized with ZANTARA AI")
 
 
-    async def stream_claude_response(
+    async def stream_zantara_response(
         self,
         messages: List[Dict],
-        model: str = "claude-sonnet-4-20250514",
+        model: Optional[str] = None,
         system: Optional[str] = None,
         max_tokens: int = 2000,
         temperature: float = 0.7
     ) -> AsyncIterator[Dict[str, Any]]:
         """
-        Stream Claude response token-by-token
+        Stream ZANTARA AI response token-by-token
 
         Args:
-            messages: Conversation history in Claude format
-            model: Claude model to use
+            messages: Conversation history in OpenAI format
+            model: ZANTARA AI model to use (optional, uses configured default)
             system: System prompt (optional)
             max_tokens: Maximum tokens to generate
             temperature: Sampling temperature (0.0-1.0)
@@ -60,55 +61,46 @@ class StreamingService:
             {"type": "error", "data": "..."} - Error message
         """
         try:
-            logger.info(f"🎬 [Streaming] Starting stream with {model}")
+            # Use model from client if not specified
+            use_model = model or self.zantara_client.model
+            logger.info(f"🎬 [Streaming] Starting stream with {use_model}")
 
-            # Build request parameters
-            request_params = {
-                "model": model,
-                "messages": messages,
-                "max_tokens": max_tokens,
-                "temperature": temperature
-            }
+            # Convert messages to string format for streaming
+            last_message = messages[-1]["content"] if messages else ""
 
-            if system:
-                request_params["system"] = system
+            # Build conversation history (exclude last message)
+            conversation_history = messages[:-1] if len(messages) > 1 else []
 
-            # Start streaming
-            async with self.claude_client.messages.stream(**request_params) as stream:
-                # Stream tokens as they arrive
-                token_count = 0
-                async for text in stream.text_stream:
-                    token_count += 1
-                    yield {
-                        "type": "token",
-                        "data": text
-                    }
-
-                # Get final message with metadata
-                final_message = await stream.get_final_message()
-
-                logger.info(
-                    f"✅ [Streaming] Complete: {token_count} tokens, "
-                    f"usage={final_message.usage.input_tokens}→{final_message.usage.output_tokens}"
-                )
-
-                # Send metadata
+            # Stream tokens as they arrive
+            token_count = 0
+            async for text_chunk in self.zantara_client.stream(
+                message=last_message,
+                user_id="streaming_user",
+                conversation_history=conversation_history,
+                memory_context=system,
+                max_tokens=max_tokens
+            ):
+                token_count += 1
                 yield {
-                    "type": "metadata",
-                    "data": {
-                        "model": final_message.model,
-                        "usage": {
-                            "input_tokens": final_message.usage.input_tokens,
-                            "output_tokens": final_message.usage.output_tokens,
-                            "total_tokens": final_message.usage.input_tokens + final_message.usage.output_tokens
-                        },
-                        "stop_reason": final_message.stop_reason,
-                        "tokens_streamed": token_count
-                    }
+                    "type": "token",
+                    "data": text_chunk
                 }
 
-                # Send completion signal
-                yield {"type": "done"}
+            logger.info(f"✅ [Streaming] Complete: {token_count} tokens streamed")
+
+            # Send metadata
+            yield {
+                "type": "metadata",
+                "data": {
+                    "model": use_model,
+                    "provider": "openrouter",
+                    "tokens_streamed": token_count,
+                    "ai_used": "zantara-ai"
+                }
+            }
+
+            # Send completion signal
+            yield {"type": "done"}
 
         except Exception as e:
             logger.error(f"❌ [Streaming] Failed: {e}", exc_info=True)
@@ -123,7 +115,7 @@ class StreamingService:
         query: str,
         conversation_history: List[Dict],
         system_prompt: str,
-        model: str = "claude-sonnet-4-20250514",
+        model: Optional[str] = None,
         rag_context: Optional[str] = None,
         memory_context: Optional[str] = None,
         max_tokens: int = 2000
@@ -135,13 +127,13 @@ class StreamingService:
             query: User's current question
             conversation_history: Previous conversation messages
             system_prompt: System prompt with instructions
-            model: Claude model to use
+            model: ZANTARA AI model to use (optional)
             rag_context: RAG knowledge base context (optional)
             memory_context: User memory context (optional)
             max_tokens: Maximum tokens to generate
 
         Yields:
-            Streaming events (same as stream_claude_response)
+            Streaming events (same as stream_zantara_response)
         """
         # Build enhanced system prompt with context
         enhanced_system = system_prompt
@@ -167,7 +159,7 @@ class StreamingService:
         )
 
         # Stream with full context
-        async for chunk in self.stream_claude_response(
+        async for chunk in self.stream_zantara_response(
             messages=messages,
             model=model,
             system=enhanced_system,
@@ -199,7 +191,7 @@ class StreamingService:
         """
         for attempt in range(max_retries + 1):
             try:
-                async for chunk in self.stream_claude_response(
+                async for chunk in self.stream_zantara_response(
                     messages=messages,
                     model=model,
                     system=system,
@@ -261,33 +253,27 @@ class StreamingService:
         Returns:
             {
                 "status": "healthy" | "unhealthy",
-                "claude_available": bool,
+                "zantara_available": bool,
                 "error": str (if unhealthy)
             }
         """
         try:
-            # Quick test with minimal request
-            test_messages = [{"role": "user", "content": "test"}]
-
-            async with self.claude_client.messages.stream(
-                model="claude-3-haiku-20240307",  # Fastest model
-                messages=test_messages,
+            # Quick test with minimal request using ZantaraAIClient
+            result = await self.zantara_client.chat_async(
+                messages=[{"role": "user", "content": "test"}],
                 max_tokens=5
-            ) as stream:
-                # Just check if we can connect
-                async for _ in stream.text_stream:
-                    break
+            )
 
             logger.info("✅ [Streaming] Health check passed")
             return {
                 "status": "healthy",
-                "claude_available": True
+                "zantara_available": True
             }
 
         except Exception as e:
             logger.error(f"❌ [Streaming] Health check failed: {e}")
             return {
                 "status": "unhealthy",
-                "claude_available": False,
+                "zantara_available": False,
                 "error": str(e)
             }

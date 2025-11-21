@@ -15,7 +15,7 @@ const RAG_BACKEND_URL = process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fl
 // ============================================================================
 
 /**
- * RAG Query - Generate answer using Ollama + ChromaDB
+ * RAG Query - Generate answer using Ollama + Qdrant
  * Handler: rag.query (Feature #11)
  */
 export async function ragQuery(params: any): Promise<RAGQueryResponse> {

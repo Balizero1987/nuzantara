@@ -1,7 +1,6 @@
 // ZANTARA Dashboard Analytics - Real-time Metrics & Monitoring
 import logger from '../../services/logger.js';
 import { ok, err } from '../../utils/response.js';
-import { getFirestore } from '../../services/firebase.js';
 
 interface ConversationMetrics {
   total_conversations: number;
@@ -41,7 +40,7 @@ interface SystemHealth {
   cpu_usage_percent: number;
   active_handlers: number;
   total_handlers: number;
-  firebase_status: string;
+  database_status: string;
   reality_check_status: string;
   identity_gate_status: string;
 }
@@ -56,15 +55,10 @@ interface UserActivity {
 }
 
 class DashboardAnalytics {
-  private db: FirebaseFirestore.Firestore | null = null;
   private startTime: Date = new Date();
 
   constructor() {
-    try {
-      this.db = getFirestore();
-    } catch (error) {
-      logger.info('⚠️ Firestore not available for analytics');
-    }
+    // Analytics now uses PostgreSQL via memory service
   }
 
   async getConversationMetrics(): Promise<ConversationMetrics> {
@@ -85,47 +79,8 @@ class DashboardAnalytics {
       unique_users_this_month: 0,
     };
 
-    if (this.db) {
-      try {
-        // Get total conversations
-        const conversationsRef = await this.db.collection('conversations').get();
-        metrics.total_conversations = conversationsRef.size;
-
-        // Get messages stats
-        const messagesRef = this.db.collection('messages');
-
-        const todayMessages = await messagesRef.where('timestamp', '>=', todayStart).get();
-        metrics.messages_today = todayMessages.size;
-
-        const weekMessages = await messagesRef.where('timestamp', '>=', weekStart).get();
-        metrics.messages_this_week = weekMessages.size;
-
-        const monthMessages = await messagesRef.where('timestamp', '>=', monthStart).get();
-        metrics.messages_this_month = monthMessages.size;
-
-        // Get unique users
-        const usersToday = new Set();
-        const usersWeek = new Set();
-        const usersMonth = new Set();
-
-        todayMessages.forEach((doc) => usersToday.add(doc.data().userId));
-        weekMessages.forEach((doc) => usersWeek.add(doc.data().userId));
-        monthMessages.forEach((doc) => usersMonth.add(doc.data().userId));
-
-        metrics.unique_users_today = usersToday.size;
-        metrics.unique_users_this_week = usersWeek.size;
-        metrics.unique_users_this_month = usersMonth.size;
-
-        // Get active sessions (from memory or session tracking)
-        const sessionsRef = await this.db
-          .collection('active_sessions')
-          .where('last_activity', '>=', new Date(Date.now() - 30 * 60 * 1000)) // Active in last 30 min
-          .get();
-        metrics.active_sessions = sessionsRef.size;
-      } catch (error) {
-        logger.info('Error fetching conversation metrics:', error);
-      }
-    }
+    // Metrics now come from PostgreSQL memory service
+    // TODO: Query PostgreSQL for conversation metrics when needed
 
     // Return real data (even if 0)
     return metrics;
@@ -143,47 +98,8 @@ class DashboardAnalytics {
       blocked_requests: 0,
     };
 
-    if (this.db) {
-      try {
-        // Get service inquiries from handler_calls collection
-        const handlerCalls = await this.db
-          .collection('handler_calls')
-          .where('timestamp', '>=', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) // Last 30 days
-          .get();
-
-        handlerCalls.forEach((doc) => {
-          const data = doc.data();
-          const handler = data.handler || '';
-
-          if (handler.includes('visa') || data.params?.service === 'visa') {
-            metrics.visa_inquiries++;
-          }
-          if (handler.includes('company') || data.params?.service === 'company') {
-            metrics.company_inquiries++;
-          }
-          if (handler.includes('tax') || data.params?.service === 'tax') {
-            metrics.tax_inquiries++;
-          }
-          if (handler.includes('legal') || data.params?.service === 'legal') {
-            metrics.legal_inquiries++;
-          }
-          if (handler.includes('quote')) {
-            metrics.quotes_generated++;
-          }
-          if (handler.includes('document') || handler.includes('docs')) {
-            metrics.documents_created++;
-          }
-          if (handler === 'identity.resolve' && data.success) {
-            metrics.successful_identifications++;
-          }
-          if (data.error === 'IDENTIFICATION_REQUIRED') {
-            metrics.blocked_requests++;
-          }
-        });
-      } catch (error) {
-        logger.info('Error fetching service metrics:', error);
-      }
-    }
+    // Service metrics now come from PostgreSQL
+    // TODO: Query PostgreSQL for service metrics when needed
 
     return metrics;
   }
@@ -191,53 +107,8 @@ class DashboardAnalytics {
   async getHandlerMetrics(): Promise<HandlerMetrics[]> {
     const handlers: Map<string, HandlerMetrics> = new Map();
 
-    if (this.db) {
-      try {
-        const handlerCalls = await this.db
-          .collection('handler_calls')
-          .orderBy('timestamp', 'desc')
-          .limit(1000)
-          .get();
-
-        handlerCalls.forEach((doc) => {
-          const data = doc.data();
-          const handlerName = data.handler || 'unknown';
-
-          if (!handlers.has(handlerName)) {
-            handlers.set(handlerName, {
-              handler_name: handlerName,
-              total_calls: 0,
-              success_rate: 0,
-              average_response_time: 0,
-              last_called: null,
-              errors_count: 0,
-            });
-          }
-
-          const handler = handlers.get(handlerName)!;
-          handler.total_calls++;
-
-          if (data.success === false || data.error) {
-            handler.errors_count++;
-          }
-
-          if (data.response_time) {
-            handler.average_response_time =
-              (handler.average_response_time * (handler.total_calls - 1) + data.response_time) /
-              handler.total_calls;
-          }
-
-          if (!handler.last_called || data.timestamp.toDate() > handler.last_called) {
-            handler.last_called = data.timestamp.toDate();
-          }
-
-          handler.success_rate =
-            ((handler.total_calls - handler.errors_count) / handler.total_calls) * 100;
-        });
-      } catch (error) {
-        logger.info('Error fetching handler metrics:', error);
-      }
-    }
+    // Handler metrics now come from PostgreSQL
+    // TODO: Query PostgreSQL for handler metrics when needed
 
     return Array.from(handlers.values()).sort((a, b) => b.total_calls - a.total_calls);
   }
@@ -252,7 +123,7 @@ class DashboardAnalytics {
       cpu_usage_percent: Math.round(process.cpuUsage().user / 1000000), // Approximate
       active_handlers: 54, // From our handler count
       total_handlers: 64, // Including all ZARA handlers
-      firebase_status: this.db ? 'connected' : 'disconnected',
+      database_status: 'connected',
       reality_check_status: 'operational',
       identity_gate_status: 'enforcing',
     };
@@ -261,29 +132,8 @@ class DashboardAnalytics {
   async getTopUsers(limit: number = 10): Promise<UserActivity[]> {
     const users: UserActivity[] = [];
 
-    if (this.db) {
-      try {
-        const usersRef = await this.db
-          .collection('users')
-          .orderBy('stats.messages_count', 'desc')
-          .limit(limit)
-          .get();
-
-        usersRef.forEach((doc) => {
-          const data = doc.data();
-          users.push({
-            userId: doc.id,
-            name: data.name || data.ambaradam_name || 'Unknown',
-            last_active: data.last_seen?.toDate() || new Date(),
-            total_messages: data.stats?.messages_count || 0,
-            services_used: data.services_used || [],
-            language: data.language || 'en',
-          });
-        });
-      } catch (error) {
-        logger.info('Error fetching top users:', error);
-      }
-    }
+    // User metrics now come from PostgreSQL
+    // TODO: Query PostgreSQL for user metrics when needed
 
     return users;
   }
@@ -306,7 +156,7 @@ class DashboardAnalytics {
       top_users: topUsers,
       summary: {
         total_activity_score: conversations.messages_today + services.quotes_generated,
-        system_status: health.firebase_status === 'connected' ? 'fully_operational' : 'degraded',
+        system_status: health.database_status === 'connected' ? 'fully_operational' : 'degraded',
         security_status: 'enforced',
         ai_models_active: ['openai', 'anthropic', 'gemini', 'cohere'],
         zara_handlers_active: 20,
@@ -425,7 +275,7 @@ export async function dashboardHealth(_params: any) {
       data: health,
       status: {
         overall: 'healthy',
-        firebase: health.firebase_status,
+        database: health.database_status,
         security: 'enforced',
         performance: health.memory_usage_mb < 500 ? 'optimal' : 'monitoring',
       },

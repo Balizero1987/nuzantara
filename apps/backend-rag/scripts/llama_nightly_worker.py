@@ -382,7 +382,7 @@ async def main():
     runpod_api_key = os.getenv("RUNPOD_API_KEY")
     rag_backend_url = os.getenv(
         "RAG_BACKEND_URL",
-        "https://zantara-rag-backend-1064094238013.europe-west1.run.app"
+        "https://nuzantara-rag.fly.dev"
     )
 
     if not database_url:

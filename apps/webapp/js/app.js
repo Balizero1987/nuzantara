@@ -930,7 +930,7 @@ function displayUserInfo() {
 }
 
 /**
- * Handle logout (Client-side only - no backend call needed for demo auth)
+ * Handle logout (Client-side only)
  */
 async function handleLogout() {
   const confirmed = confirm('Are you sure you want to logout?');

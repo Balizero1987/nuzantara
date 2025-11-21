@@ -1,6 +1,5 @@
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
-import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
 
 // // import { google } from 'googleapis'; // Unused import
 
@@ -146,9 +145,6 @@ export async function mapsDirections(params: DirectionsParams) {
       );
     }
   } catch (error: any) {
-    // Fallback to Bridge legacy implementation
-    const bridged = await forwardToBridgeIfSupported('maps.directions', params);
-    if (bridged) return bridged;
     throw new BadRequestError(`Maps directions failed: ${error.message}`);
   }
 }
@@ -235,9 +231,6 @@ export async function mapsPlaces(params: PlacesParams) {
       );
     }
   } catch (error: any) {
-    // Fallback to Bridge legacy implementation
-    const bridged = await forwardToBridgeIfSupported('maps.places', params);
-    if (bridged) return bridged;
     throw new BadRequestError(`Maps places search failed: ${error.message}`);
   }
 }
@@ -298,9 +291,6 @@ export async function mapsPlaceDetails(params: PlaceDetailsParams) {
       );
     }
   } catch (error: any) {
-    // Fallback to Bridge legacy implementation
-    const bridged = await forwardToBridgeIfSupported('maps.placeDetails', params);
-    if (bridged) return bridged;
     throw new BadRequestError(`Maps place details failed: ${error.message}`);
   }
 }

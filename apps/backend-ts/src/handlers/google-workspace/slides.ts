@@ -1,6 +1,5 @@
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
-import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
 import { getSlides } from '../../services/google-auth-service.js';
 
 // Param interfaces
@@ -54,7 +53,6 @@ export async function slidesCreate(params: SlidesCreateParams) {
       created: new Date().toISOString(),
     });
   }
-  const bridged = await forwardToBridgeIfSupported('slides.create', params);
   if (bridged) return bridged;
   throw new BadRequestError('Slides not configured');
 }
@@ -110,7 +108,6 @@ export async function slidesRead(params: SlidesReadParams) {
       throw error;
     }
   }
-  const bridged = await forwardToBridgeIfSupported('slides.read', params);
   if (bridged) return bridged;
   throw new BadRequestError('Slides not configured');
 }
@@ -141,7 +138,6 @@ export async function slidesUpdate(params: SlidesUpdateParams) {
       throw error;
     }
   }
-  const bridged = await forwardToBridgeIfSupported('slides.update', params);
   if (bridged) return bridged;
   throw new BadRequestError('Slides not configured');
 }

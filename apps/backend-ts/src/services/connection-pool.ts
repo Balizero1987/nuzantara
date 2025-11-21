@@ -1,7 +1,7 @@
 /**
  * Enhanced Database Connection Pooling
  *
- * Manages connection pools for PostgreSQL and ChromaDB
+ * Manages connection pools for PostgreSQL and Qdrant
  * with health checks, circuit breakers, and metrics
  */
 

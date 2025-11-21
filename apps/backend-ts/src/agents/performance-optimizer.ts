@@ -5,7 +5,6 @@
 
 import { logger } from '../logging/unified-logger.js';
 import { db } from '../services/connection-pool.js';
-import Anthropic from '@anthropic-ai/sdk';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -30,14 +29,10 @@ interface Bottleneck {
 }
 
 export class PerformanceOptimizer {
-  private anthropic: Anthropic;
   private readonly SLOW_THRESHOLD_MS = 1000;
   private readonly ERROR_RATE_THRESHOLD = 0.05; // 5%
 
   constructor() {
-    this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY || '',
-    });
   }
 
   /**
@@ -201,30 +196,45 @@ export class PerformanceOptimizer {
   }
 
   /**
-   * Generate optimization suggestions using Claude
+   * Generate optimization suggestions using deterministic heuristics
    */
   async generateOptimizationPlan(bottlenecks: Bottleneck[]): Promise<string> {
-    const prompt = `As a performance optimization expert, analyze these bottlenecks and create an actionable optimization plan:
+    if (bottlenecks.length === 0) {
+      return 'No performance bottlenecks detected in the selected time window.';
+    }
 
-${JSON.stringify(bottlenecks, null, 2)}
+    const sections = bottlenecks.map((bottleneck, index) => {
+      const baseline = `### ${index + 1}. ${bottleneck.type} (${bottleneck.severity.toUpperCase()})
 
-For each bottleneck, provide:
-1. Root cause analysis
-2. Specific code changes needed
-3. Expected performance improvement
-4. Implementation priority (1-5)
-5. Estimated implementation time
+**Observed metric:** ${JSON.stringify(bottleneck.metric)}
+**Suggested fix:** ${bottleneck.suggestedFix}`;
 
-Format as markdown with code examples where applicable.`;
+      const priority =
+        bottleneck.severity === 'critical'
+          ? 'Priority 5 – apply immediately.'
+          : bottleneck.severity === 'high'
+          ? 'Priority 4 – schedule within the next cycle.'
+          : 'Priority 3 – monitor and fix when capacity allows.';
 
-    const response = await this.anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 4096,
-      temperature: 0.3,
-      messages: [{ role: 'user', content: prompt }],
+      const improvement =
+        bottleneck.type === 'cache_miss'
+          ? 'Expected improvement: +20% cache hit rate on hot endpoints.'
+          : bottleneck.type === 'slow_query'
+          ? 'Expected improvement: up to 60% faster query execution after indexing.'
+          : bottleneck.type === 'slow_endpoint'
+          ? 'Expected improvement: 30-40% faster response time for this route.'
+          : 'Expected improvement: measurable stability gains.';
+
+      return `${baseline}
+**Priority:** ${priority}
+**Impact:** ${improvement}`;
     });
 
-    return response.content[0].type === 'text' ? response.content[0].text : '';
+    return [
+      '## Automated Optimization Plan',
+      ...sections,
+      'Always review generated suggestions before deploying to production.',
+    ].join('\n\n');
   }
 
   /**
@@ -326,36 +336,22 @@ Format as markdown with code examples where applicable.`;
   }
 
   /**
-   * Suggest database indexes using Claude
+   * Suggest database indexes using lightweight heuristics
    */
   private async suggestIndexes(query: string): Promise<string[]> {
-    const prompt = `Analyze this SQL query and suggest optimal indexes:
+    const normalized = query.toLowerCase();
+    const tableMatch = normalized.match(/from\s+([a-z0-9_\.]+)/);
+    const table = tableMatch ? tableMatch[1].replace(/["']/g, '') : 'target_table';
 
-\`\`\`sql
-${query}
-\`\`\`
+    const whereMatch = normalized.match(/where\s+([a-z0-9_\.]+)/);
+    const column = whereMatch ? whereMatch[1].split(/\s|=|>/)[0].replace(/["']/g, '') : 'key_column';
 
-Provide:
-1. Specific CREATE INDEX statements
-2. Explanation of why each index helps
-3. Estimated performance improvement
+    const suggestions = [
+      `CREATE INDEX IF NOT EXISTS idx_${table}_${column} ON ${table} (${column});`,
+      `Consider covering indexes for columns that appear in JOIN or ORDER BY clauses.`,
+    ];
 
-Format as JSON array of index suggestions.`;
-
-    const response = await this.anthropic.messages.create({
-      model: 'claude-3-5-haiku-20241022',
-      max_tokens: 1024,
-      temperature: 0.2,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    try {
-      const text = response.content[0].type === 'text' ? response.content[0].text : '';
-      const jsonMatch = text.match(/\[[\s\S]*\]/);
-      return jsonMatch ? JSON.parse(jsonMatch[0]) : [];
-    } catch {
-      return [];
-    }
+    return suggestions;
   }
 
   /**

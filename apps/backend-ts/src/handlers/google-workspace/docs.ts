@@ -1,6 +1,5 @@
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
-import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
 import { getDocs } from '../../services/google-auth-service.js';
 
 // Minimal param interfaces (Step 1 typing)
@@ -73,7 +72,6 @@ export async function docsCreate(params: DocsCreateParams) {
       created: new Date().toISOString(),
     });
   }
-  const bridged = await forwardToBridgeIfSupported('docs.create', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Docs not configured');
 }
@@ -119,7 +117,6 @@ export async function docsRead(params: DocsReadParams) {
       throw error;
     }
   }
-  const bridged = await forwardToBridgeIfSupported('docs.read', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Docs not configured');
 }
@@ -174,7 +171,6 @@ export async function docsUpdate(params: DocsUpdateParams) {
       throw error;
     }
   }
-  const bridged = await forwardToBridgeIfSupported('docs.update', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Docs not configured');
 }

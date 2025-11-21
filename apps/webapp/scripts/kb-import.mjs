@@ -4,7 +4,7 @@
  * Usage:
  *   node scripts/kb-import.mjs --user zero@balizero.com <path1> <path2> ...
  * Env:
- *   PROXY_BASE=https://zantara-web-proxy-himaadsxua-ew.a.run.app/api/zantara
+ *   PROXY_BASE=https://nuzantara-backend.fly.dev/call
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -17,7 +17,7 @@ if (!roots.length) {
   console.error('Provide one or more directories or files to import.');
   process.exit(1);
 }
-const PROXY_BASE = process.env.PROXY_BASE || 'https://zantara-web-proxy-himaadsxua-ew.a.run.app/api/zantara';
+const PROXY_BASE = process.env.PROXY_BASE || 'https://nuzantara-backend.fly.dev/call';
 
 // Lazy loaders
 let pdfParse = null, mammoth = null;
@@ -72,7 +72,7 @@ for (const root of roots) {
       const title = path.basename(f).replace(/\s+/g,' ').trim();
       const category = detectCategory(f);
       const payload = { key: 'kb.upsert', params: { packId, title, category, language: 'auto', text, source: f, tags: [category] } };
-      const resp = await fetch(`${PROXY_BASE}/call`, { method: 'POST', headers: { 'Content-Type':'application/json', ...(userId ? { 'x-user-id': userId } : {}) }, body: JSON.stringify(payload) });
+      const resp = await fetch(PROXY_BASE, { method: 'POST', headers: { 'Content-Type':'application/json', ...(userId ? { 'x-user-id': userId } : {}) }, body: JSON.stringify(payload) });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       ok++; total++;
       process.stdout.write(`+ ${title} (${category})\n`);

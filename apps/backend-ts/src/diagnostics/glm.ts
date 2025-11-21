@@ -22,16 +22,16 @@ export async function runGLM(): Promise<LayerStatus[]> {
       detail: nodeVersion,
     });
 
-    // 2️⃣ Vector layer - ChromaDB (check via process env)
+    // 2️⃣ Vector layer - Qdrant (check via process env)
     if (process.env.CHROMA_URL && process.env.CHROMA_PERSIST_DIR) {
       results.push({
-        name: 'ChromaDB',
+        name: 'Qdrant',
         status: 'ok',
         detail: 'Environment configured',
       });
     } else {
       results.push({
-        name: 'ChromaDB',
+        name: 'Qdrant',
         status: 'warn',
         detail: 'Environment missing',
       });

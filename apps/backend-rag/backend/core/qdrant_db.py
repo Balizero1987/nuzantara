@@ -66,7 +66,7 @@ class QdrantClient:
             limit: Maximum number of results
 
         Returns:
-            Dictionary with search results (compatible with ChromaDB format)
+            Dictionary with search results (compatible with Qdrant format)
         """
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points/search"
@@ -79,7 +79,7 @@ class QdrantClient:
 
             # Add filter if provided (Qdrant filter format)
             if filter:
-                # Convert ChromaDB filter format to Qdrant format
+                # Convert Qdrant filter format to Qdrant format
                 # Example: {"tier": {"$in": ["S", "A"]}} -> {"must": [{"key": "tier", "match": {"any": ["S", "A"]}}]}
                 # For now, skip complex filter conversion - will be added if needed
                 logger.warning(f"Filters not yet implemented in Qdrant client: {filter}")
@@ -98,7 +98,7 @@ class QdrantClient:
 
             results = response.json().get("result", [])
 
-            # Transform Qdrant results to ChromaDB-compatible format
+            # Transform Qdrant results to Qdrant-compatible format
             formatted_results = {
                 "ids": [str(r["id"]) for r in results],
                 "documents": [r["payload"].get("text", "") for r in results],
@@ -222,7 +222,7 @@ class QdrantClient:
     @property
     def collection(self):
         """
-        Property to provide ChromaDB-compatible collection interface.
+        Property to provide Qdrant-compatible collection interface.
         Returns self for direct method access.
         """
         return self
@@ -233,14 +233,14 @@ class QdrantClient:
         include: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
-        Retrieve points by IDs (ChromaDB-compatible interface).
+        Retrieve points by IDs (Qdrant-compatible interface).
 
         Args:
             ids: List of point IDs to retrieve
             include: List of fields to include (e.g., ["embeddings", "payload"])
 
         Returns:
-            Dictionary with ChromaDB-compatible format
+            Dictionary with Qdrant-compatible format
         """
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points"
@@ -248,7 +248,7 @@ class QdrantClient:
             # Qdrant retrieve endpoint
             payload = {"ids": ids}
             if include:
-                # Map ChromaDB include to Qdrant with_payload/with_vectors
+                # Map Qdrant include to Qdrant with_payload/with_vectors
                 with_payload = "payload" in include or "metadatas" in include
                 with_vectors = "embeddings" in include
                 params = {}
@@ -272,7 +272,7 @@ class QdrantClient:
 
             results = response.json().get("result", [])
 
-            # Transform to ChromaDB format
+            # Transform to Qdrant format
             formatted = {
                 "ids": [],
                 "embeddings": [],
@@ -304,7 +304,7 @@ class QdrantClient:
 
     def delete(self, ids: List[str]) -> Dict[str, Any]:
         """
-        Delete points by IDs (ChromaDB-compatible interface).
+        Delete points by IDs (Qdrant-compatible interface).
 
         Args:
             ids: List of point IDs to delete
@@ -337,13 +337,13 @@ class QdrantClient:
 
     def peek(self, limit: int = 10) -> Dict[str, Any]:
         """
-        Peek at points in the collection (ChromaDB-compatible interface).
+        Peek at points in the collection (Qdrant-compatible interface).
 
         Args:
             limit: Maximum number of points to return
 
         Returns:
-            Dictionary with sample points in ChromaDB format
+            Dictionary with sample points in Qdrant format
         """
         try:
             url = f"{self.qdrant_url}/collections/{self.collection_name}/points/scroll"
@@ -359,7 +359,7 @@ class QdrantClient:
                 data = response.json().get("result", {})
                 points = data.get("points", [])
 
-                # Transform to ChromaDB format
+                # Transform to Qdrant format
                 formatted = {
                     "ids": [str(p["id"]) for p in points],
                     "documents": [p.get("payload", {}).get("text", "") for p in points],

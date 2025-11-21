@@ -49,7 +49,7 @@ class SearchService:
         logger.info("✅ Using Qdrant with OpenAI 1536-dim embeddings")
 
         # Initialize collections pointing to Qdrant (25,415 docs total)
-        # Map old ChromaDB collection names to Qdrant collections
+        # Map old Qdrant collection names to Qdrant collections
         logger.info("🔄 Initializing 16 Qdrant collection clients...")
         self.collections = {
             "bali_zero_pricing": QdrantClient(qdrant_url=qdrant_url, collection_name="bali_zero_pricing"),  # 29 docs
@@ -645,7 +645,7 @@ class SearchService:
         metadata: Dict[str, Any]
     ) -> bool:
         """
-        Add cultural insight to ChromaDB (called by CulturalKnowledgeGenerator)
+        Add cultural insight to Qdrant (called by CulturalKnowledgeGenerator)
 
         Args:
             text: Cultural insight content
@@ -668,7 +668,7 @@ class SearchService:
             # Add to cultural_insights collection
             cultural_db = self.collections["cultural_insights"]
 
-            # Convert list fields to strings for ChromaDB compatibility
+            # Convert list fields to strings for Qdrant compatibility
             chroma_metadata = {**metadata}
             if 'when_to_use' in chroma_metadata and isinstance(chroma_metadata['when_to_use'], list):
                 chroma_metadata['when_to_use'] = ','.join(chroma_metadata['when_to_use'])
@@ -694,7 +694,7 @@ class SearchService:
         limit: int = 3
     ) -> List[Dict[str, Any]]:
         """
-        Query cultural insights from ChromaDB
+        Query cultural insights from Qdrant
 
         Args:
             query: Search query (user message)
@@ -708,8 +708,8 @@ class SearchService:
             # Generate query embedding
             query_embedding = self.embedder.generate_query_embedding(query)
 
-            # NOTE: ChromaDB filtering is limited - we rely on semantic search instead
-            # The when_to_use metadata is stored as comma-separated string, but ChromaDB
+            # NOTE: Qdrant filtering is limited - we rely on semantic search instead
+            # The when_to_use metadata is stored as comma-separated string, but Qdrant
             # doesn't support substring matching. Semantic search will naturally rank
             # relevant cultural insights higher based on the query content.
             chroma_filter = None
@@ -743,11 +743,11 @@ class SearchService:
 
     async def warmup(self) -> None:
         """
-        Warm up ChromaDB collections on startup to reduce cold-start latency.
+        Warm up Qdrant collections on startup to reduce cold-start latency.
 
         Pre-loads critical collections and generates dummy embeddings to:
         - Initialize embedding model in memory
-        - Load ChromaDB indexes into memory
+        - Load Qdrant indexes into memory
         - Reduce first-query latency from 5-20s to <1s
 
         Priority collections (most frequently accessed):
@@ -759,7 +759,7 @@ class SearchService:
             import time
             start_time = time.time()
 
-            logger.info("🔥 [Warmup] Starting ChromaDB warmup...")
+            logger.info("🔥 [Warmup] Starting Qdrant warmup...")
 
             # Priority collections to warm up (based on usage frequency)
             priority_collections = [
@@ -774,7 +774,7 @@ class SearchService:
             _ = self.embedder.generate_query_embedding(dummy_query)
             logger.info("   ✅ [Warmup] Embedding model warmed up")
 
-            # 2. Warm up ChromaDB collections with light searches
+            # 2. Warm up Qdrant collections with light searches
             logger.info(f"   🔥 [Warmup] Step 2/2: Warming up {len(priority_collections)} collections...")
             for collection_name in priority_collections:
                 try:
@@ -796,9 +796,9 @@ class SearchService:
                     logger.warning(f"   ⚠️ [Warmup] Failed to warm up {collection_name}: {e}")
 
             elapsed = time.time() - start_time
-            logger.info(f"🔥 [Warmup] ChromaDB warmup completed in {elapsed:.2f}s")
+            logger.info(f"🔥 [Warmup] Qdrant warmup completed in {elapsed:.2f}s")
             logger.info(f"   💡 [Warmup] First business query should now respond in <1s (vs 5-20s cold start)")
 
         except Exception as e:
-            logger.error(f"❌ [Warmup] ChromaDB warmup failed: {e}")
+            logger.error(f"❌ [Warmup] Qdrant warmup failed: {e}")
             # Non-fatal error - continue startup

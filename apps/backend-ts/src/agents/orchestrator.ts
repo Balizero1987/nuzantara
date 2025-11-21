@@ -4,7 +4,6 @@
  */
 
 import { logger } from '../logging/unified-logger.js';
-import Anthropic from '@anthropic-ai/sdk';
 import { db } from '../services/connection-pool.js';
 
 interface AgentTask {
@@ -30,14 +29,9 @@ interface ExecutionPlan {
 }
 
 export class AgentOrchestrator {
-  private anthropic: Anthropic;
   private agents: Map<string, AgentTask>;
 
   constructor() {
-    this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY || '',
-    });
-
     this.agents = new Map();
     this.registerAgents();
   }
@@ -181,75 +175,74 @@ export class AgentOrchestrator {
   }
 
   /**
-   * Use Claude to create intelligent execution plan
+   * Create an execution plan using deterministic heuristics
    */
   async createExecutionPlan(metrics: any): Promise<ExecutionPlan> {
-    const agentDescriptions = Array.from(this.agents.values()).map(a => ({
-      id: a.id,
-      name: a.name,
-      description: a.description,
-      priority: a.priority,
-      estimatedDuration: a.estimatedDuration,
-      dependencies: a.dependencies,
-      lastRun: a.lastRun,
-      lastStatus: a.lastStatus,
-    }));
+    const now = Date.now();
+    const selected: AgentTask[] = [];
+    const reasons: string[] = [];
 
-    const prompt = `You are an intelligent agent orchestrator. Based on current system metrics, decide which agents should run NOW.
+    const candidates = Array.from(this.agents.values())
+      .filter((agent) => this.shouldRunAgent(agent, metrics, now))
+      .sort((a, b) => b.priority - a.priority);
 
-**Current System Metrics:**
-${JSON.stringify(metrics, null, 2)}
-
-**Available Agents:**
-${JSON.stringify(agentDescriptions, null, 2)}
-
-**Decision Criteria:**
-1. Run critical agents (priority 9-10) if any issues detected
-2. Respect dependencies (run parent tasks first)
-3. Avoid running agents that just ran recently (< 1 hour ago)
-4. Consider time of day (avoid heavy tasks during peak hours 9-17)
-5. Balance load (max 3 concurrent agents)
-
-**Output Format:**
-{
-  "agents_to_run": ["agent_id1", "agent_id2"],
-  "execution_order": ["agent_id1", "agent_id2"],
-  "reasoning": "Why these agents now",
-  "skip_reason": {
-    "agent_id3": "Reason for skipping"
-  }
-}`;
-
-    const response = await this.anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 2048,
-      temperature: 0.4,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const text = response.content[0].type === 'text' ? response.content[0].text : '';
-
-    try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      const decision = jsonMatch ? JSON.parse(jsonMatch[0]) : { agents_to_run: [], execution_order: [], reasoning: '' };
-
-      const tasks = decision.agents_to_run.map((id: string) => this.agents.get(id)!).filter(Boolean);
-
-      return {
-        tasks,
-        totalEstimatedDuration: tasks.reduce((sum, t) => sum + t.estimatedDuration, 0),
-        executionOrder: decision.execution_order,
-        reasoning: decision.reasoning,
-      };
-    } catch (error) {
-      logger.error('Error parsing execution plan', { error, text });
-      return {
-        tasks: [],
-        totalEstimatedDuration: 0,
-        executionOrder: [],
-        reasoning: 'Failed to parse plan',
-      };
+    for (const agent of candidates) {
+      if (selected.length >= 3) break;
+      if (agent.dependencies.some((dep) => !this.hasRecentlySucceeded(dep, now))) {
+        reasons.push(`Skipped ${agent.name} due to pending dependency.`);
+        continue;
+      }
+      selected.push(agent);
+      reasons.push(`Selected ${agent.name} (priority ${agent.priority}) based on current metrics.`);
     }
+
+    return {
+      tasks: selected,
+      totalEstimatedDuration: selected.reduce((sum, t) => sum + t.estimatedDuration, 0),
+      executionOrder: selected.map((t) => t.id),
+      reasoning: reasons.join(' '),
+    };
+  }
+
+  private shouldRunAgent(agent: AgentTask, metrics: any, now: number): boolean {
+    if (!agent.enabled) return false;
+
+    if (agent.lastRun) {
+      const minutes = (now - agent.lastRun.getTime()) / 60000;
+      if (minutes < 60) {
+        return false;
+      }
+    }
+
+    switch (agent.id) {
+      case 'conversation_trainer':
+        return metrics.lowRatingConversations > 3;
+      case 'client_value_predictor':
+        return metrics.newClientsToday > 0 || metrics.highRiskClients > 0;
+      case 'knowledge_graph_builder':
+        return metrics.pendingPractices > 5;
+      case 'performance_optimizer':
+        return metrics.avgResponseTime > 1200 || metrics.errorRate > 0.03;
+      case 'security_scanner':
+        return metrics.failedLogins > 10 || metrics.suspiciousActivity > 0;
+      case 'analytics_predictor':
+        return metrics.conversationsToday > 50;
+      case 'auto_tester':
+        return metrics.untestedFunctions > 0;
+      case 'doc_generator':
+        return metrics.outdatedDocs > 0;
+      default:
+        return agent.priority >= 8;
+    }
+  }
+
+  private hasRecentlySucceeded(agentId: string, now: number): boolean {
+    const dependency = this.agents.get(agentId);
+    if (!dependency) return true;
+    if (!dependency.lastRun || dependency.lastStatus !== 'success') return false;
+
+    const minutesSinceRun = (now - dependency.lastRun.getTime()) / 60000;
+    return minutesSinceRun <= 240;
   }
 
   /**

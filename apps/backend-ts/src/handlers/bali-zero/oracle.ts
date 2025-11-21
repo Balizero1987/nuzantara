@@ -1,6 +1,5 @@
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
-import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
 
 type OracleParams = {
   service?: string;
@@ -137,7 +136,6 @@ function timelineSummary(days: number) {
 
 export async function oracleSimulate(params: OracleParams = {}) {
   if (process.env.BRIDGE_ORACLE_ENABLED === 'true') {
-    const bridged = await forwardToBridgeIfSupported('oracle.simulate', params);
     if (bridged && (bridged as any).ok !== false) return bridged;
   }
 
@@ -176,7 +174,6 @@ export async function oracleSimulate(params: OracleParams = {}) {
 
 export async function oracleAnalyze(params: OracleParams = {}) {
   if (process.env.BRIDGE_ORACLE_ENABLED === 'true') {
-    const bridged = await forwardToBridgeIfSupported('oracle.analyze', params);
     if (bridged && (bridged as any).ok !== false) return bridged;
   }
 
@@ -232,7 +229,6 @@ export async function oracleAnalyze(params: OracleParams = {}) {
 
 export async function oraclePredict(params: OracleParams = {}) {
   if (process.env.BRIDGE_ORACLE_ENABLED === 'true') {
-    const bridged = await forwardToBridgeIfSupported('oracle.predict', params);
     if (bridged && (bridged as any).ok !== false) return bridged;
   }
 

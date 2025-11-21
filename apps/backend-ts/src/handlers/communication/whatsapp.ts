@@ -242,7 +242,7 @@ async function saveMessageToMemory(data: any) {
 }
 
 /**
- * Analyze sentiment using Claude Haiku
+ * Analyze sentiment using the OpenRouter stack
  */
 async function analyzeSentiment(
   text: string
@@ -260,7 +260,7 @@ Message: "${text}"`;
     const response = await aiChat({
       prompt,
       max_tokens: 100,
-      model: 'claude-3-5-haiku-20241022',
+      model: 'meta-llama/llama-3.3-70b-instruct',
     });
 
     const responseData: any = response.data || response;
@@ -449,7 +449,7 @@ async function sendIntelligentResponse(to: string, userMessage: string, context:
     const aiResponse = await aiChat({
       prompt,
       max_tokens: 300,
-      model: 'claude-3-5-haiku-20241022',
+      model: 'meta-llama/llama-3.3-70b-instruct',
     });
 
     const responseData: any = aiResponse.data || aiResponse;

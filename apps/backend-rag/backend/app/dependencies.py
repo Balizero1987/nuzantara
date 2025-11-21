@@ -1,7 +1,7 @@
 """
 FastAPI Dependency Injection
 Centralized dependencies for all routers to avoid circular imports.
-Phase 1 Optimization: Eliminates ChromaDB client duplication.
+Note: Qdrant references are legacy - system now uses Qdrant exclusively.
 """
 
 from fastapi import HTTPException
@@ -31,10 +31,10 @@ def get_search_service() -> SearchService:
     """
     Dependency injection for SearchService.
     Provides singleton SearchService instance to all endpoints.
-    Eliminates ChromaDB client duplication in Oracle routers.
+    Eliminates Qdrant client duplication in Oracle routers.
 
     Returns:
-        SearchService: Singleton instance with 14 ChromaDB collections
+        SearchService: Singleton instance with Qdrant vector database
 
     Raises:
         HTTPException: 503 if service not initialized

@@ -326,18 +326,17 @@ export class FirebaseAuthStrategy implements AuthenticationStrategy {
   }
 
   async authenticate(_req: Request): Promise<UnifiedUser | null> {
-    // TODO: Implement Firebase Auth integration
-    logger.warn('Firebase Auth strategy not yet implemented');
+    logger.warn('Firebase Auth strategy removed - use other authentication methods');
     return null;
   }
 
   generateToken(_user: UnifiedUser): string {
-    // TODO: Implement Firebase custom token generation
-    throw new Error('Firebase Auth strategy not yet implemented');
+    // Firebase custom token generation removed
+    throw new Error('Firebase Auth strategy removed - use other authentication methods');
   }
 
   async validateToken(_token: string): Promise<UnifiedUser | null> {
-    // TODO: Implement Firebase token validation
+    // Firebase token validation removed
     return null;
   }
 }

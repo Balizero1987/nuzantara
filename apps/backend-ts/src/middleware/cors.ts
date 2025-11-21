@@ -17,10 +17,8 @@ const ALLOW_HEADERS = 'Content-Type, Authorization, x-user-email, x-api-key';
 export function corsMiddleware(req: Request, res: Response, next: NextFunction): void {
   const origin = req.headers.origin || '';
 
-  // Check if origin is in allowed list or matches *.pages.dev pattern
-  const isAllowed = ALLOWED_ORIGINS.includes(origin) ||
-                    origin.endsWith('.pages.dev') ||
-                    origin.includes('localhost');
+  // Check if origin is in allowed list or localhost
+  const isAllowed = ALLOWED_ORIGINS.includes(origin) || origin.includes('localhost');
 
   if (isAllowed) {
     res.header('Access-Control-Allow-Origin', origin);

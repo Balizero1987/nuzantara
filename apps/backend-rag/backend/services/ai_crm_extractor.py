@@ -1,13 +1,13 @@
 """
 ZANTARA CRM - AI Entity Extraction Service
-Uses Claude to extract structured data from conversations for CRM auto-population
+Uses ZANTARA AI to extract structured data from conversations for CRM auto-population
 """
 
 import os
 import json
 import logging
 from typing import Dict, List, Optional
-from anthropic import AsyncAnthropic
+from llm.zantara_ai_client import ZantaraAIClient
 
 logger = logging.getLogger(__name__)
 
@@ -18,16 +18,14 @@ class AICRMExtractor:
     Extracts: client info, practice intent, sentiment, urgency, action items
     """
 
-    def __init__(self, api_key: Optional[str] = None):
-        """Initialize with Anthropic API key"""
-        self.api_key = api_key or os.getenv("ANTHROPIC_API_KEY")
-        if not self.api_key:
-            raise ValueError("ANTHROPIC_API_KEY not set")
-
-        self.client = AsyncAnthropic(api_key=self.api_key)
-
-        # Use Haiku for fast, cheap extraction
-        self.model = "claude-3-5-haiku-20241022"
+    def __init__(self):
+        """Initialize with ZANTARA AI client"""
+        try:
+            self.client = ZantaraAIClient()
+            logger.info("✅ AICRMExtractor initialized with ZANTARA AI")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize ZANTARA AI: {e}")
+            raise
 
     async def extract_from_conversation(
         self,
@@ -136,18 +134,13 @@ RULES:
 7. Detect urgency from language ("urgent", "asap", "quickly", etc.)"""
 
         try:
-            response = await self.client.messages.create(
-                model=self.model,
+            # Use ZANTARA AI for extraction
+            content = await self.client.generate_text(
+                prompt=extraction_prompt,
                 max_tokens=1500,
-                temperature=0.1,  # Low temperature for consistent extraction
-                messages=[{
-                    "role": "user",
-                    "content": extraction_prompt
-                }]
+                temperature=0.1  # Low temperature for consistent extraction
             )
-
-            # Extract JSON from response
-            content = response.content[0].text.strip()
+            content = content.strip()
 
             # Remove markdown code blocks if present
             if content.startswith("```"):

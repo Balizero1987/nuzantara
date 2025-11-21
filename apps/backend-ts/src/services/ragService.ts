@@ -10,7 +10,7 @@ interface RAGQueryRequest {
   query: string;
   k?: number;
   use_llm?: boolean;
-  collection?: string; // ChromaDB collection (default: 'legal_unified')
+  collection?: string; // Qdrant collection (default: 'legal_unified')
   conversation_history?: Array<{ role: string; content: string }>;
   user_id?: string; // User identifier for RAG backend
   user_email?: string; // User email for RAG backend
@@ -82,13 +82,15 @@ export class RAGService {
 
       return response.data;
     } catch (error: any) {
-      logger.error('RAG backend request failed:', {
+      const errorObj = error instanceof Error ? error : new Error(String(error));
+      logger.error('RAG backend request failed:', errorObj);
+      logger.error('RAG request details:', {
         method,
         path,
         error: error.message,
         response: error.response?.data,
         status: error.response?.status,
-      });
+      } as any);
       throw new Error(
         error.response?.data?.detail || error.message || 'Search service unavailable'
       );
@@ -103,7 +105,7 @@ export class RAGService {
       const data = await this.makeAuthenticatedRequest<{ status: string }>('get', '/health');
       return data.status === 'healthy';
     } catch (error) {
-      logger.error('RAG backend health check failed:', error);
+      logger.error('RAG backend health check failed:', error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   }
@@ -125,7 +127,7 @@ export class RAGService {
         requestWithDefaults
       );
     } catch (error: any) {
-      logger.error('RAG generate error:', error);
+      logger.error('RAG generate error:', error instanceof Error ? error : new Error(String(error)));
       return {
         success: false,
         query: request.query,
@@ -147,7 +149,7 @@ export class RAGService {
         request
       );
     } catch (error: any) {
-      logger.error('Bali Zero error:', error);
+      logger.error('Bali Zero error:', error instanceof Error ? error : new Error(String(error)));
       throw new Error(error.response?.data?.detail || 'Bali Zero service unavailable');
     }
   }
@@ -165,7 +167,7 @@ export class RAGService {
         use_llm: false,
       });
     } catch (error: any) {
-      logger.error('Search error:', error);
+      logger.error('Search error:', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Search service unavailable');
     }
   }

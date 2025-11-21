@@ -20,7 +20,7 @@ const RATE_LIMIT_MAP: Record<string, any> = {
   // AI Chat handlers (expensive: API calls)
   'ai.chat': aiChatLimiter,
 
-  // RAG queries (expensive: ChromaDB + embeddings)
+  // RAG queries (expensive: Qdrant + embeddings)
   'rag.query': ragQueryLimiter,
   'rag.search': ragQueryLimiter,
 
