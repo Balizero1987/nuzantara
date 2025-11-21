@@ -216,6 +216,11 @@ except Exception as e:
     SYSTEM_PROMPT = "SYSTEM ERROR: PROMPT LOAD FAILED. CONTACT ADMIN."
     raise e
 
+# NOTE: The following section (lines 219-470) was previously a docstring
+# but has been moved to the external prompt file (zantara_v7_global_production.md)
+# This section is kept for reference but is not executed as code.
+
+"""
 # TIER 1 TOOLS - USE FIRST (95% query coverage)
 # -----------------------------------------------------------------------------
 
