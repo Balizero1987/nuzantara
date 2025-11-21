@@ -2,10 +2,10 @@
  * ZANTARA Login Page - Email + PIN Authentication
  */
 
-// Configuration - Use centralized API_CONFIG
+// Configuration - Use centralized API_CONFIG (fallback to backend fly URL)
 const API_CONFIG = window.API_CONFIG || {
-  backend: { url: 'https://nuzantara-rag.fly.dev' },
-  memory: { url: 'https://nuzantara-rag.fly.dev' }
+  backend: { url: 'https://nuzantara-backend.fly.dev' },
+  memory: { url: 'https://nuzantara-backend.fly.dev' }
 };
 const API_BASE_URL = API_CONFIG.backend.url;
 
@@ -24,33 +24,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   pinToggle = document.getElementById('pinToggle');
   loginButton = document.getElementById('loginButton');
   errorMessage = document.getElementById('errorMessage');
-  welcomeMessage = document.getElementById('welcomeMessage'); // Optional
+  welcomeMessage = document.getElementById('welcomeMessage');
   loginForm = document.getElementById('loginForm');
-  
-  // Verify critical elements exist
-  if (!emailInput || !pinInput || !loginButton || !loginForm) {
-    console.error('❌ Critical login elements missing!');
-    return;
-  }
 
   // Setup event listeners
   setupEventListeners();
-  
-  // Enable button if email is pre-filled (from URL params)
-  if (emailInput && emailInput.value) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const emailParam = urlParams.get('email');
-    const pinParam = urlParams.get('pin');
-    
-    if (emailParam) {
-      emailInput.value = emailParam;
-    }
-    if (pinParam && pinInput) {
-      pinInput.value = pinParam;
-      // Trigger validation
-      handlePinInput({ target: pinInput });
-    }
-  }
 
   console.log('✅ Login page ready');
 });
@@ -61,13 +39,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 function setupEventListeners() {
   // Email input
   emailInput.addEventListener('blur', handleEmailBlur);
-  emailInput.addEventListener('input', () => {
-    clearError();
-    // Re-validate button when email changes
-    if (pinInput.value) {
-      handlePinInput({ target: pinInput });
-    }
-  });
+  emailInput.addEventListener('input', clearError);
 
   // PIN input
   pinInput.addEventListener('input', handlePinInput);
@@ -93,9 +65,7 @@ function setupEventListeners() {
  */
 function handleEmailBlur() {
   // Clear any messages on blur
-  if (welcomeMessage) {
-    welcomeMessage.classList.remove('show');
-  }
+  welcomeMessage.classList.remove('show');
 }
 
 /**
@@ -116,10 +86,7 @@ function handlePinInput(e) {
   const isValid = value.length >= 4 && value.length <= 8;
 
   // Enable/disable login button
-  const emailValid = emailInput && emailInput.value.trim().length > 0;
-  loginButton.disabled = !emailValid || !isValid;
-  
-  console.log('🔍 PIN validation:', { valueLength: value.length, isValid, emailValid, buttonDisabled: loginButton.disabled });
+  loginButton.disabled = !emailInput.value || !isValid;
 }
 
 /**
@@ -158,45 +125,36 @@ async function handleLogin(e) {
 
   try {
     console.log('🔐 Attempting login...');
-    console.log('📍 API URL:', `${API_BASE_URL}/api/auth/demo`);
-    console.log('📧 Email:', email);
 
-    // Call auth API with email (backend accepts email or userId)
-    // Backend doesn't validate password for demo endpoint
-    const response = await fetch(`${API_BASE_URL}/api/auth/demo`, {
+    // Call auth API with email + PIN
+    const response = await fetch(`${API_BASE_URL}/api/auth/team/login`, {
       method: 'POST',
-      credentials: 'include', // Include cookies for CORS
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: email  // Backend accepts email or userId
+        email: email,
+        pin: pin
       }),
     });
-    
-    console.log('📡 Response status:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ API Error:', errorText);
-      throw new Error(`Login failed: ${response.status} - ${errorText}`);
-    }
 
     const result = await response.json();
-    console.log('✅ API Response:', result);
 
-    // Login successful - handle actual backend response format
-    // Backend returns: {token: "demo_xxx", expiresIn: 3600, userId: "demo"}
-    const token = result.token || result.access_token;
+    if (!response.ok) {
+      throw new Error(result.detail || result.message || 'Login failed');
+    }
+
+    // Login successful - handle backend response format
+    const token = result.data?.token || result.token || result.access_token;
 
     // CRITICAL: Verify token exists
     if (!token) {
       throw new Error('Server did not return authentication token. Please contact support.');
     }
 
-    const expiresIn = result.expiresIn || result.expires_in || 3600; // 1 hour default
-    const user = result.user || {
-      id: result.userId || 'demo',
+    const expiresIn = result.data?.expiresIn || result.expiresIn || result.expires_in || 3600; // default 1h
+    const user = result.data?.user || result.user || {
+      id: result.data?.userId || result.userId || 'demo',
       email: email,
       name: email.split('@')[0]
     };
@@ -216,16 +174,14 @@ async function handleLogin(e) {
     }));
 
     console.log('✅ Auth data saved to localStorage (zantara-* format)');
-    console.log('🔄 Redirecting to /chat.html...');
 
-    // Show success message and redirect IMMEDIATELY
-    if (welcomeMessage) {
-      welcomeMessage.textContent = `Welcome back, ${user.name || user.email}! 🎉`;
-      welcomeMessage.classList.add('show', 'success');
-    }
-    
-    // CRITICAL: Redirect immediately (no delay)
-    window.location.href = '/chat.html';
+    // Show success message
+    showSuccess(`Welcome back, ${user.name || user.email}! 🎉`);
+
+    // Redirect after 1.5 seconds
+    setTimeout(() => {
+      window.location.href = '/chat';
+    }, 1500);
 
   } catch (error) {
     console.error('❌ Login failed:', error);
@@ -258,17 +214,7 @@ async function handleLogin(e) {
  * Show error message
  */
 function showError(message) {
-  if (!errorMessage) return;
-  
-  // Use .error-text span if exists, otherwise use textContent
-  const errorText = errorMessage.querySelector('.error-text');
-  if (errorText) {
-    errorText.textContent = message;
-  } else {
-    errorMessage.textContent = message;
-  }
-  
-  errorMessage.style.display = 'block';
+  errorMessage.textContent = message;
   errorMessage.classList.add('show');
 }
 
@@ -276,24 +222,13 @@ function showError(message) {
  * Clear error message
  */
 function clearError() {
-  if (errorMessage) {
-    errorMessage.style.display = 'none';
-    errorMessage.classList.remove('show');
-  }
+  errorMessage.classList.remove('show');
 }
 
 /**
  * Show success message
  */
 function showSuccess(message) {
-  // Optional: show success message if element exists
-  if (welcomeMessage) {
-    welcomeMessage.textContent = message;
-    welcomeMessage.classList.add('show', 'success');
-  } else {
-    console.log('✅', message);
-  }
-  
-  // Always redirect immediately (no delay needed if no UI feedback)
-  window.location.href = '/chat.html';
+  welcomeMessage.textContent = message;
+  welcomeMessage.classList.add('show', 'success');
 }
