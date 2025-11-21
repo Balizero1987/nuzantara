@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', async function() {
   welcomeMessage = document.getElementById('welcomeMessage');
   loginForm = document.getElementById('loginForm');
 
+  // If the page doesn't have the login form, bail out gracefully
+  if (!emailInput || !pinInput || !loginButton || !loginForm) {
+    console.warn('⚠️ Login elements not found on page - skipping login.js');
+    return;
+  }
+
   // Setup event listeners
   setupEventListeners();
 
@@ -95,7 +101,9 @@ function handlePinInput(e) {
 function togglePinVisibility() {
   const isPassword = pinInput.type === 'password';
   pinInput.type = isPassword ? 'text' : 'password';
-  pinToggle.textContent = isPassword ? '🙈' : '👁';
+  if (pinToggle) {
+    pinToggle.textContent = isPassword ? '🙈' : '👁';
+  }
 }
 
 /**
