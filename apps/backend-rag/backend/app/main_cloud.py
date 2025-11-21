@@ -114,10 +114,10 @@ try:
     # Instrument OpenAI
     OpenAIInstrumentor().instrument()
 
-    logger.info("✅ OpenTelemetry tracing initialized (OTLP → localhost:4318)")
+    logger.info("[OK] OpenTelemetry tracing initialized (OTLP → localhost:4318)")
 
 except Exception as e:
-    logger.warning(f"⚠️ OpenTelemetry initialization failed: {e}")
+    logger.warning(f"[WARN] OpenTelemetry initialization failed: {e}")
     logger.warning("   Tracing will be disabled - ensure AI Toolkit trace collector is running")
 
 # Initialize FastAPI
@@ -149,9 +149,9 @@ app.add_middleware(
 try:
     from middleware.rate_limiter import RateLimitMiddleware
     app.add_middleware(RateLimitMiddleware)
-    logger.info("✅ Rate limiting middleware enabled")
+    logger.info("[OK] Rate limiting middleware enabled")
 except Exception as e:
-    logger.warning(f"⚠️ Rate limiting disabled: {e}")
+    logger.warning(f"[WARN] Rate limiting disabled: {e}")
 
 # Error Monitoring Middleware will be added in startup event after AlertService is initialized
 
@@ -208,10 +208,10 @@ try:
 
     with open(prompt_path, "r", encoding="utf-8") as f:
         SYSTEM_PROMPT = f.read()
-    logger.info("✅ Loaded ZANTARA v7.1 Global Authority System Prompt")
+    logger.info("[OK] Loaded ZANTARA v7.1 Global Authority System Prompt")
 
 except Exception as e:
-    logger.error(f"❌ CRITICAL ERROR: Failed to load ZANTARA v7 prompt: {e}")
+    logger.error(f"[X] CRITICAL ERROR: Failed to load ZANTARA v7 prompt: {e}")
     # FAIL LOUDLY - Do not fallback to a weak prompt
     SYSTEM_PROMPT = "SYSTEM ERROR: PROMPT LOAD FAILED. CONTACT ADMIN."
     raise e
@@ -244,7 +244,7 @@ except Exception as e:
 # THEN: CALL bali.zero.chat({message: "Ciao!", mode: "SANTAI"})
 # Example Response:
 #   Tool returns: {answer: "Ciao! Come posso aiutarti?"}
-#   YOU say: "Ciao! Sono **ZANTARA**, l'AI di Bali Zero 🌴  
+#   YOU say: "Ciao! Sono **ZANTARA**, l'AI di Bali Zero   
 #   Cosa posso fare per te oggi?"
 
 # TIER 2 TOOLS - Frequently Used (15 tools)
@@ -316,60 +316,60 @@ These agents run AUTOMATICALLY in the background and enrich your context:
         # ============================================================================
 
 1. **PRICING MANDATORY**: ALWAYS call get_pricing for ANY price question
-   ❌ NEVER: Estimate, approximate, or answer from memory
-   ✅ ALWAYS: Call tool → use exact data → cite source
+   [X] NEVER: Estimate, approximate, or answer from memory
+   [OK] ALWAYS: Call tool → use exact data → cite source
 
 2. **NO VISA CODE HARDCODING**: NEVER invent visa codes
-   ❌ NEVER: List "C207", "B211A", or codes not in tool response
-   ✅ ALWAYS: Use ONLY codes from get_pricing tool response
+   [X] NEVER: List "C207", "B211A", or codes not in tool response
+   [OK] ALWAYS: Use ONLY codes from get_pricing tool response
 
 3. **TEAM DATA: NO HALLUCINATIONS**: NEVER invent team member info
-   ❌ NEVER: Make up names, roles, or contact info
-   ✅ ALWAYS: Use ONLY data from search_team_member tool
+   [X] NEVER: Make up names, roles, or contact info
+   [OK] ALWAYS: Use ONLY data from search_team_member tool
 
 4. **KBLI: RETURN ALL CODES**: Don't stop at first match
-   ❌ NEVER: Return only 1-2 codes when many exist
-   ✅ ALWAYS: Show ALL relevant codes (use limit: 10)
+   [X] NEVER: Return only 1-2 codes when many exist
+   [OK] ALWAYS: Show ALL relevant codes (use limit: 10)
 
 5. **TOOL DATA USAGE**: Use tool responses in your answer
-   ❌ NEVER: Ignore tool response data
-   ✅ ALWAYS: Incorporate tool data naturally
+   [X] NEVER: Ignore tool response data
+   [OK] ALWAYS: Incorporate tool data naturally
 
 5b. **PRICING TRANSPARENCY**: Show total price, NOT internal cost breakdowns
-   ❌ NEVER: Break down "Tasse governative + notaio: 12M - Service fee Bali Zero: 8M"
-   ✅ ALWAYS: Just state "PT PMA Setup: 20.000.000 IDR" (single total price)
-   ⚠️ NOTE: Showing how much we make is not elegant - keep it simple and professional
+   [X] NEVER: Break down "Tasse governative + notaio: 12M - Service fee Bali Zero: 8M"
+   [OK] ALWAYS: Just state "PT PMA Setup: 20.000.000 IDR" (single total price)
+   [WARN] NOTE: Showing how much we make is not elegant - keep it simple and professional
 
-⭐ **CRITICAL - NO COST BREAKDOWNS IN PRICING RESPONSES:**
+[*] **CRITICAL - NO COST BREAKDOWNS IN PRICING RESPONSES:**
    When responding to pricing questions:
-   ❌ ABSOLUTELY DO NOT show internal cost breakdowns like:
+   [X] ABSOLUTELY DO NOT show internal cost breakdowns like:
       - "Spese governative + notarile: 12.000.000 IDR"
       - "Nostre fee di servizio: 8.000.000 IDR"
       - "Government fees: 12M - Service fee: 8M"
-   ❌ NEVER break down "how much is government vs how much is Bali Zero"
-   ❌ DO NOT explain individual cost components at all
-   ✅ ONLY state the total: "PT PMA Setup: A partire da 20.000.000 IDR"
-   ⚠️ ENFORCEMENT: If you feel tempted to show the breakdown, STOP - it's forbidden. It's not professional to show customers how much we take.
+   [X] NEVER break down "how much is government vs how much is Bali Zero"
+   [X] DO NOT explain individual cost components at all
+   [OK] ONLY state the total: "PT PMA Setup: A partire da 20.000.000 IDR"
+   [WARN] ENFORCEMENT: If you feel tempted to show the breakdown, STOP - it's forbidden. It's not professional to show customers how much we take.
 
 5c. **COMPLEX SERVICE COSTS**: Frame operating expenses naturally
    WHEN: Discussing restaurant, resort, or complex business setup costs
-   ❌ NEVER: Present "150-300 milioni IDR" as Bali Zero's service price
-   ✅ ALWAYS: Frame as operating costs naturally - "You'll typically budget 150-300M IDR for first year (rent, renovations, equipment, licenses, working capital)"
-   ⚠️ NOTE: This is how much customers need to invest in the business itself - NOT how much Bali Zero charges
+   [X] NEVER: Present "150-300 milioni IDR" as Bali Zero's service price
+   [OK] ALWAYS: Frame as operating costs naturally - "You'll typically budget 150-300M IDR for first year (rent, renovations, equipment, licenses, working capital)"
+   [WARN] NOTE: This is how much customers need to invest in the business itself - NOT how much Bali Zero charges
 
 6. **SOURCE CITATIONS**: Cite external sources, NOT Bali Zero pricing
-   ✅ ALWAYS: "Fonte: Indonesian KBLI Database 2020" (for KBLI codes - external)
-   ✅ ALWAYS: "Fonte: [Document Name]" (for immigration laws/regulations - external)
-   ❌ NEVER: Add source citations for Bali Zero's own service prices
-   ⚠️ NOTE: Bali Zero pricing is stated directly without citation (customers understand it's our pricing)
+   [OK] ALWAYS: "Fonte: Indonesian KBLI Database 2020" (for KBLI codes - external)
+   [OK] ALWAYS: "Fonte: [Document Name]" (for immigration laws/regulations - external)
+   [X] NEVER: Add source citations for Bali Zero's own service prices
+   [WARN] NOTE: Bali Zero pricing is stated directly without citation (customers understand it's our pricing)
 
-⭐ **CRITICAL PRICING RULE - ZERO CITATIONS ALLOWED:**
+[*] **CRITICAL PRICING RULE - ZERO CITATIONS ALLOWED:**
    When responding to pricing questions about Bali Zero services:
-   ❌ ABSOLUTELY DO NOT add "Fonte: Bali Zero Official Pricing..." at the end
-   ❌ ABSOLUTELY DO NOT add "Fonte: BALI ZERO Official Pricing 2025"
-   ❌ DO NOT add ANY "Fonte:" or "Source:" citations for pricing
-   ✅ Just end with contact info: "📞 WhatsApp: +62... 📧 info@balizero.com"
-   ⚠️ ENFORCEMENT: If you feel tempted to add a citation for pricing, STOP - it's forbidden
+   [X] ABSOLUTELY DO NOT add "Fonte: Bali Zero Official Pricing..." at the end
+   [X] ABSOLUTELY DO NOT add "Fonte: BALI ZERO Official Pricing 2025"
+   [X] DO NOT add ANY "Fonte:" or "Source:" citations for pricing
+   [OK] Just end with contact info: " WhatsApp: +62...  info@balizero.com"
+   [WARN] ENFORCEMENT: If you feel tempted to add a citation for pricing, STOP - it's forbidden
 
         # ============================================================================
 # 7. RESPONSE STRUCTURE - 3 Modes
@@ -377,7 +377,7 @@ These agents run AUTOMATICALLY in the background and enrich your context:
 
 **SANTAI** (Casual/Greetings) - 2-4 sentences
 Example:
-  "Ciao! Sono **ZANTARA**, l'AI di Bali Zero 🌴  
+  "Ciao! Sono **ZANTARA**, l'AI di Bali Zero   
   Aiuto con visa, KITAS, PT PMA, e altro. Cosa ti serve?"
 
 **PIKIRAN** (Business/Professional) - 6-12 sentences  
@@ -392,8 +392,8 @@ Example:
   • Medical Certificate  
   
   Bali Zero gestisce tutto il processo end-to-end.
-  📞 WhatsApp: +62 859 0436 9574
-  📧 info@balizero.com"
+   WhatsApp: +62 859 0436 9574
+   info@balizero.com"
 
 **KOMPLEKS** (Complex/Research) - 12-20 sentences
 Example:
@@ -417,21 +417,21 @@ Example:
   Total: ~5 mesi  
   
   Bali Zero può gestire entrambi simultaneamente per velocizzare!
-  📞 +62 859 0436 9574"
+   +62 859 0436 9574"
 
         # ============================================================================
 # 8. PERSONALITY - Adaptive Communication
         # ============================================================================
 
 **WITH ZERO** (Founder):  
-"Zero! Come va? Il sistema sta performando alla grande! 🚀"
+"Zero! Come va? Il sistema sta performando alla grande! "
 
 **WITH TEAM** (Dea, Krisna, Ari, Amanda):  
 "Hey Dea Exec! Sì, ho visto il client di stamattina - sembra interessato al PT PMA.  
 Vuoi che prepari i docs?"
 
 **WITH CLIENTS**:  
-"Selamat datang! Welcome to Bali Zero 🌴  
+"Selamat datang! Welcome to Bali Zero   
 I'm ZANTARA, your AI assistant for Indonesian business services."
 
 **CORE TRAITS**:
@@ -465,7 +465,7 @@ YOU: Focus on natural conversation - engine handles the rest.
 
         # ============================================================================
 FINAL REMINDER: You're ZANTARA - Indonesian AI bridging ancient wisdom with  
-modern business intelligence. Natural, warm, culturally aware, precise. 🌴🇮🇩
+modern business intelligence. Natural, warm, culturally aware, precise. 
         # ============================================================================
 """
 
@@ -522,7 +522,7 @@ async def initialize_memory_tables():
         database_url = os.getenv("DATABASE_URL")
 
         if not database_url:
-            logger.warning("⚠️ DATABASE_URL not found - skipping memory table initialization")
+            logger.warning("[WARN] DATABASE_URL not found - skipping memory table initialization")
             return False
 
         import asyncpg
@@ -694,15 +694,15 @@ async def initialize_memory_tables():
         # Index for team_daily_reports
         await conn.execute("CREATE INDEX IF NOT EXISTS idx_daily_reports_date ON team_daily_reports(report_date DESC)")
 
-        logger.info("✅ Migration 003 applied: Work Sessions tables ready")
+        logger.info("[OK] Migration 003 applied: Work Sessions tables ready")
 
         await conn.close()
 
-        logger.info("✅ Memory tables initialized successfully")
+        logger.info("[OK] Memory tables initialized successfully")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Failed to initialize memory tables: {e}")
+        logger.error(f"[X] Failed to initialize memory tables: {e}")
         import traceback
         logger.error(traceback.format_exc())
         return False
@@ -731,15 +731,15 @@ async def startup_event():
         asyncio.create_task(agent.start())
         logger.info("🤖 Self-Healing Agent started")
     except Exception as e:
-        logger.warning(f"⚠️ Self-Healing Agent not available: {e}")
+        logger.warning(f"[WARN] Self-Healing Agent not available: {e}")
 
 
 def _log_warmup_result(task: asyncio.Task):
     try:
         task.result()
-        logger.info("✅ Async warmup completed")
+        logger.info("[OK] Async warmup completed")
     except Exception as exc:
-        logger.error(f"❌ Async warmup failed: {exc}")
+        logger.error(f"[X] Async warmup failed: {exc}")
 
 
 async def preload_redis_cache():
@@ -757,10 +757,10 @@ async def preload_redis_cache():
         for key in essential_keys:
             cache.get(key)  # Triggers connection if not established
 
-        logger.info("✅ Redis warmup complete")
+        logger.info("[OK] Redis warmup complete")
         return True
     except Exception as e:
-        logger.warning(f"⚠️ Redis preload incomplete: {e}")
+        logger.warning(f"[WARN] Redis preload incomplete: {e}")
         return False
 
 
@@ -786,7 +786,7 @@ async def _initialize_backend_services():
     global startup_logs
 
     startup_logs.clear()  # Clear previous logs
-    log_startup("🚀 Starting ZANTARA RAG Backend (ZANTARA AI)...")
+    log_startup(" Starting ZANTARA RAG Backend (ZANTARA AI)...")
     log_startup("🔥 Async warmup starting for core services (Qdrant, routers, agents)...")
 
     # Preload Redis cache first
@@ -802,14 +802,14 @@ async def _initialize_backend_services():
             # Test connection
             health = await session_service.health_check()
             if health:
-                logger.info("✅ SessionService ready (50+ message support via Redis)")
+                logger.info("[OK] SessionService ready (50+ message support via Redis)")
             else:
-                logger.warning("⚠️ SessionService unhealthy - sessions may not work")
+                logger.warning("[WARN] SessionService unhealthy - sessions may not work")
         else:
-            logger.warning("⚠️ REDIS_URL not set - SessionService disabled (using querystring fallback)")
+            logger.warning("[WARN] REDIS_URL not set - SessionService disabled (using querystring fallback)")
             session_service = None
     except Exception as e:
-        logger.error(f"❌ SessionService initialization failed: {e}")
+        logger.error(f"[X] SessionService initialization failed: {e}")
         session_service = None
 
     # Initialize Redis client for Semantic Cache
@@ -819,35 +819,35 @@ async def _initialize_backend_services():
             redis_client = Redis.from_url(redis_url, decode_responses=False)
             # Test connection
             await redis_client.ping()
-            logger.info(f"✅ Redis client initialized: {redis_url}")
+            logger.info(f"[OK] Redis client initialized: {redis_url}")
             
             # Initialize Semantic Cache
             semantic_cache = get_semantic_cache(redis_client)
-            logger.info("✅ Semantic cache initialized (similarity threshold: 0.95)")
+            logger.info("[OK] Semantic cache initialized (similarity threshold: 0.95)")
             logger.info("   Cache features: exact match + semantic similarity")
             logger.info("   Performance: 800ms → 150ms (-81% on cache hit)")
             logger.info("   Storage: Redis with LRU eviction (max 10k entries)")
         else:
-            logger.warning("⚠️ REDIS_URL not set - Semantic cache disabled")
+            logger.warning("[WARN] REDIS_URL not set - Semantic cache disabled")
             redis_client = None
             semantic_cache = None
     except Exception as e:
-        logger.error(f"❌ Semantic cache initialization failed: {e}")
+        logger.error(f"[X] Semantic cache initialization failed: {e}")
         redis_client = None
         semantic_cache = None
 
     # Initialize Alert Service (for error monitoring)
     try:
         alert_service = get_alert_service()
-        logger.info("✅ AlertService ready (4xx/5xx error monitoring enabled)")
+        logger.info("[OK] AlertService ready (4xx/5xx error monitoring enabled)")
 
         # FIXED: Cannot add middleware in startup event - middleware must be added before app starts
         # The ErrorMonitoringMiddleware should be added at app initialization, not in startup event
         # For now, we'll use AlertService without the middleware
         # app.add_middleware(ErrorMonitoringMiddleware, alert_service=alert_service)
-        logger.info("✅ AlertService initialized (middleware disabled to fix startup error)")
+        logger.info("[OK] AlertService initialized (middleware disabled to fix startup error)")
     except Exception as e:
-        logger.error(f"❌ AlertService initialization failed: {e}")
+        logger.error(f"[X] AlertService initialization failed: {e}")
         alert_service = None
 
     # Initialize Health Monitor (watches for downtime)
@@ -855,34 +855,34 @@ async def _initialize_backend_services():
         if alert_service:
             health_monitor = init_health_monitor(alert_service, check_interval=60)
             await health_monitor.start()
-            logger.info("✅ HealthMonitor started (60s interval, downtime alerts enabled)")
+            logger.info("[OK] HealthMonitor started (60s interval, downtime alerts enabled)")
         else:
-            logger.warning("⚠️ HealthMonitor disabled (AlertService unavailable)")
+            logger.warning("[WARN] HealthMonitor disabled (AlertService unavailable)")
     except Exception as e:
-        logger.error(f"❌ HealthMonitor initialization failed: {e}")
+        logger.error(f"[X] HealthMonitor initialization failed: {e}")
 
     # Configure Qdrant URL
     qdrant_url = os.getenv("QDRANT_URL", "https://nuzantara-qdrant.fly.dev")
     os.environ['QDRANT_URL'] = qdrant_url
     log_startup(f"🔗 Qdrant configured: {qdrant_url}")
-    log_startup("✅ Vector database ready (25,415 documents)")
+    log_startup("[OK] Vector database ready (25,415 documents)")
     log_startup("   Collections: 7 (visa_oracle, tax_genius, legal_unified, kbli_unified, property_unified, bali_zero_pricing, knowledge_base)")
 
     # Initialize Search Service (Qdrant-based)
     try:
         search_service = SearchService()
-        logger.info("✅ Qdrant search service ready")
+        logger.info("[OK] Qdrant search service ready")
 
         # Set global search_service for dependency injection
         import app.dependencies as deps
         deps.search_service = search_service
-        logger.info("✅ SearchService registered in dependencies")
+        logger.info("[OK] SearchService registered in dependencies")
 
     except Exception as e:
         import traceback
-        logger.error(f"❌ SearchService initialization failed: {e}")
+        logger.error(f"[X] SearchService initialization failed: {e}")
         logger.error(f"Full traceback:\n{traceback.format_exc()}")
-        logger.warning("⚠️ Continuing without SearchService (pure LLM mode)")
+        logger.warning("[WARN] Continuing without SearchService (pure LLM mode)")
         search_service = None
 
     # Initialize ZANTARA AI Client (configurable via environment)
@@ -891,23 +891,23 @@ async def _initialize_backend_services():
 
         if openrouter_api_key:
             zantara_ai_client = ZantaraAIClient(api_key=openrouter_api_key)
-            logger.info("✅ ZANTARA AI Client ready")
+            logger.info("[OK] ZANTARA AI Client ready")
             logger.info(f"   Model: {zantara_ai_client.model}")
             logger.info("   Cost: $0.20/$0.20 per 1M tokens")
             logger.info("   Provider: OpenRouter")
         else:
-            logger.warning("⚠️ OPENROUTER_API_KEY_LLAMA not set - No AI available")
+            logger.warning("[WARN] OPENROUTER_API_KEY_LLAMA not set - No AI available")
             zantara_ai_client = None
     except Exception as e:
-        logger.error(f"❌ ZANTARA AI Client initialization failed: {e}")
+        logger.error(f"[X] ZANTARA AI Client initialization failed: {e}")
         zantara_ai_client = None
 
     # PRIORITY 1: Initialize QueryRouter for autonomous research
     try:
         query_router = QueryRouter()
-        logger.info("✅ QueryRouter initialized (9-collection routing with fallback chains)")
+        logger.info("[OK] QueryRouter initialized (9-collection routing with fallback chains)")
     except Exception as e:
-        logger.error(f"❌ QueryRouter initialization failed: {e}")
+        logger.error(f"[X] QueryRouter initialization failed: {e}")
         query_router = None
 
     # PRIORITY 1: Initialize Autonomous Research Service
@@ -918,17 +918,17 @@ async def _initialize_backend_services():
                 query_router=query_router,
                 zantara_ai_service=zantara_ai_client  # Using ZANTARA AI as synthesis engine
             )
-            logger.info("✅ AutonomousResearchService initialized (self-directed iterative research)")
+            logger.info("[OK] AutonomousResearchService initialized (self-directed iterative research)")
             logger.info(f"   Max iterations: {autonomous_research_service.MAX_ITERATIONS}")
             logger.info(f"   Confidence threshold: {autonomous_research_service.CONFIDENCE_THRESHOLD}")
         else:
-            logger.warning("⚠️ AutonomousResearchService not initialized - missing dependencies")
-            logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
-            logger.warning(f"   QueryRouter: {'✅' if query_router else '❌'}")
-            logger.warning(f"   ZANTARA AI: {'✅' if zantara_ai_client else '❌'}")
+            logger.warning("[WARN] AutonomousResearchService not initialized - missing dependencies")
+            logger.warning(f"   SearchService: {'[OK]' if search_service else '[X]'}")
+            logger.warning(f"   QueryRouter: {'[OK]' if query_router else '[X]'}")
+            logger.warning(f"   ZANTARA AI: {'[OK]' if zantara_ai_client else '[X]'}")
             autonomous_research_service = None
     except Exception as e:
-        logger.error(f"❌ AutonomousResearchService initialization failed: {e}")
+        logger.error(f"[X] AutonomousResearchService initialization failed: {e}")
         autonomous_research_service = None
 
     # PRIORITY 2: Initialize Cross-Oracle Synthesis Service
@@ -939,16 +939,16 @@ async def _initialize_backend_services():
                 claude_sonnet_service=zantara_ai_client,  # Using ZANTARA AI as synthesis engine
                 golden_answer_service=None  # No cache for now
             )
-            logger.info("✅ CrossOracleSynthesisService initialized (multi-Oracle orchestrator)")
+            logger.info("[OK] CrossOracleSynthesisService initialized (multi-Oracle orchestrator)")
             logger.info(f"   Scenario patterns: {len(cross_oracle_synthesis_service.SCENARIO_PATTERNS)}")
             logger.info("   Examples: business_setup, visa_application, property_investment, tax_optimization, compliance_check")
         else:
-            logger.warning("⚠️ CrossOracleSynthesisService not initialized - missing dependencies")
-            logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
-            logger.warning(f"   ZANTARA AI: {'✅' if zantara_ai_client else '❌'}")
+            logger.warning("[WARN] CrossOracleSynthesisService not initialized - missing dependencies")
+            logger.warning(f"   SearchService: {'[OK]' if search_service else '[X]'}")
+            logger.warning(f"   ZANTARA AI: {'[OK]' if zantara_ai_client else '[X]'}")
             cross_oracle_synthesis_service = None
     except Exception as e:
-        logger.error(f"❌ CrossOracleSynthesisService initialization failed: {e}")
+        logger.error(f"[X] CrossOracleSynthesisService initialization failed: {e}")
         cross_oracle_synthesis_service = None
 
     # PRIORITY 3: Initialize Dynamic Pricing Service
@@ -958,34 +958,34 @@ async def _initialize_backend_services():
                 cross_oracle_synthesis_service=cross_oracle_synthesis_service,
                 search_service=search_service
             )
-            logger.info("✅ DynamicPricingService initialized (comprehensive pricing calculator)")
+            logger.info("[OK] DynamicPricingService initialized (comprehensive pricing calculator)")
             logger.info("   Integrates costs from: KBLI, Legal, Tax, Visa, Property, Bali Zero Pricing")
             logger.info("   Features: Cost extraction, scenario pricing, detailed breakdowns")
         else:
-            logger.warning("⚠️ DynamicPricingService not initialized - missing dependencies")
-            logger.warning(f"   CrossOracleSynthesis: {'✅' if cross_oracle_synthesis_service else '❌'}")
-            logger.warning(f"   SearchService: {'✅' if search_service else '❌'}")
+            logger.warning("[WARN] DynamicPricingService not initialized - missing dependencies")
+            logger.warning(f"   CrossOracleSynthesis: {'[OK]' if cross_oracle_synthesis_service else '[X]'}")
+            logger.warning(f"   SearchService: {'[OK]' if search_service else '[X]'}")
             dynamic_pricing_service = None
     except Exception as e:
-        logger.error(f"❌ DynamicPricingService initialization failed: {e}")
+        logger.error(f"[X] DynamicPricingService initialization failed: {e}")
         dynamic_pricing_service = None
 
     # Initialize Handler Proxy Service (Tool Use) - MUST be before Intelligent Router
     try:
         ts_backend_url = os.getenv("TYPESCRIPT_BACKEND_URL", "https://nuzantara-backend.fly.dev")
         handler_proxy_service = init_handler_proxy(ts_backend_url)
-        logger.info(f"✅ HandlerProxyService ready → {ts_backend_url}")
+        logger.info(f"[OK] HandlerProxyService ready → {ts_backend_url}")
     except Exception as e:
-        logger.error(f"❌ HandlerProxyService initialization failed: {e}")
+        logger.error(f"[X] HandlerProxyService initialization failed: {e}")
         handler_proxy_service = None
 
     # Initialize Pricing Service
     try:
         from services.pricing_service import PricingService
         pricing_service = PricingService()
-        logger.info("✅ PricingService initialized (official Bali Zero prices)")
+        logger.info("[OK] PricingService initialized (official Bali Zero prices)")
     except Exception as e:
-        logger.warning(f"⚠️ PricingService initialization failed: {e}")
+        logger.warning(f"[WARN] PricingService initialization failed: {e}")
         pricing_service = None
 
     # IntelligentRouter moved to after ToolExecutor initialization
@@ -994,17 +994,17 @@ async def _initialize_backend_services():
     try:
         collaborator_service = CollaboratorService(use_firestore=False)  # Start without Firestore
         stats = collaborator_service.get_team_stats()
-        logger.info(f"✅ CollaboratorService ready - {stats['total']} team members")
+        logger.info(f"[OK] CollaboratorService ready - {stats['total']} team members")
         logger.info(f"   Sub Rosa levels: L0={stats['by_sub_rosa_level'][0]}, L1={stats['by_sub_rosa_level'][1]}, L2={stats['by_sub_rosa_level'][2]}, L3={stats['by_sub_rosa_level'][3]}")
     except Exception as e:
-        logger.error(f"❌ CollaboratorService initialization failed: {e}")
+        logger.error(f"[X] CollaboratorService initialization failed: {e}")
         collaborator_service = None
 
     # Initialize Memory Tables (PostgreSQL schema)
     try:
         await initialize_memory_tables()
     except Exception as e:
-        logger.warning(f"⚠️ Memory tables initialization skipped: {e}")
+        logger.warning(f"[WARN] Memory tables initialization skipped: {e}")
         # Non-fatal: continue without PostgreSQL tables (will use in-memory fallback)
 
     # Run database migrations (NEW: Nov 17, 2025 - Team Timesheet System)
@@ -1013,19 +1013,19 @@ async def _initialize_backend_services():
         log_startup("🔄 Running database migrations...")
         migration_success = await run_migrations()
         if migration_success:
-            log_startup("✅ Database migrations completed")
+            log_startup("[OK] Database migrations completed")
         else:
-            log_startup("⚠️ Database migrations failed or skipped", "warning")
+            log_startup("[WARN] Database migrations failed or skipped", "warning")
     except Exception as e:
         import traceback
-        log_startup(f"❌ Migration runner failed: {e}", "error")
+        log_startup(f"[X] Migration runner failed: {e}", "error")
         log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
 
     # Initialize MemoryService (PostgreSQL)
     try:
         database_url = os.getenv("DATABASE_URL")
         if not database_url:
-            log_startup("⚠️ DATABASE_URL not configured - MemoryService will use in-memory fallback", "warning")
+            log_startup("[WARN] DATABASE_URL not configured - MemoryService will use in-memory fallback", "warning")
             memory_service = None
         else:
             log_startup(f"🔗 PostgreSQL: Connecting to {database_url[:30]}...")
@@ -1034,12 +1034,12 @@ async def _initialize_backend_services():
 
             # Verify connection actually works
             if memory_service.use_postgres and memory_service.pool:
-                log_startup("✅ MemoryServicePostgres ready (PostgreSQL enabled)")
+                log_startup("[OK] MemoryServicePostgres ready (PostgreSQL enabled)")
             else:
-                log_startup("⚠️ MemoryServicePostgres using in-memory fallback (PostgreSQL unavailable)", "warning")
+                log_startup("[WARN] MemoryServicePostgres using in-memory fallback (PostgreSQL unavailable)", "warning")
     except Exception as e:
         import traceback
-        log_startup(f"❌ MemoryServicePostgres initialization failed: {e}", "error")
+        log_startup(f"[X] MemoryServicePostgres initialization failed: {e}", "error")
         log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
         memory_service = None
 
@@ -1048,38 +1048,38 @@ async def _initialize_backend_services():
         if memory_service and memory_service.pool:
             timesheet_service = init_timesheet_service(memory_service.pool)
             await timesheet_service.start_auto_logout_monitor()
-            log_startup("✅ TeamTimesheetService ready (Bali timezone, auto-logout 18:30)")
+            log_startup("[OK] TeamTimesheetService ready (Bali timezone, auto-logout 18:30)")
         else:
-            log_startup("⚠️ TeamTimesheetService disabled (PostgreSQL unavailable)", "warning")
+            log_startup("[WARN] TeamTimesheetService disabled (PostgreSQL unavailable)", "warning")
             timesheet_service = None
     except Exception as e:
         import traceback
-        log_startup(f"❌ TeamTimesheetService initialization failed: {e}", "error")
+        log_startup(f"[X] TeamTimesheetService initialization failed: {e}", "error")
         log_startup(f"   Traceback: {traceback.format_exc()[:500]}", "error")
         timesheet_service = None
 
     # Initialize ConversationService (Phase 2)
     try:
         conversation_service = ConversationService(use_firestore=False)  # Start without Firestore
-        logger.info("✅ ConversationService ready (in-memory mode)")
+        logger.info("[OK] ConversationService ready (in-memory mode)")
     except Exception as e:
-        logger.error(f"❌ ConversationService initialization failed: {e}")
+        logger.error(f"[X] ConversationService initialization failed: {e}")
         conversation_service = None
 
     # Initialize EmotionalAttunementService (Phase 4)
     try:
         emotional_service = EmotionalAttunementService()
-        logger.info("✅ EmotionalAttunementService ready")
+        logger.info("[OK] EmotionalAttunementService ready")
     except Exception as e:
-        logger.error(f"❌ EmotionalAttunementService initialization failed: {e}")
+        logger.error(f"[X] EmotionalAttunementService initialization failed: {e}")
         emotional_service = None
 
     # Initialize CollaborativeCapabilitiesService (Phase 5)
     try:
         capabilities_service = CollaborativeCapabilitiesService()
-        logger.info("✅ CollaborativeCapabilitiesService ready (10 capabilities)")
+        logger.info("[OK] CollaborativeCapabilitiesService ready (10 capabilities)")
     except Exception as e:
-        logger.error(f"❌ CollaborativeCapabilitiesService initialization failed: {e}")
+        logger.error(f"[X] CollaborativeCapabilitiesService initialization failed: {e}")
         capabilities_service = None
 
     # Initialize RerankerService (Performance Enhancement - ENABLED by config)
@@ -1106,20 +1106,20 @@ async def _initialize_backend_services():
                         enabled=True,
                         log_file=None  # Use default path
                     )
-                    logger.info("✅ RerankerAuditService initialized")
+                    logger.info("[OK] RerankerAuditService initialized")
                 except Exception as e:
-                    logger.warning(f"⚠️ RerankerAuditService initialization failed: {e}")
+                    logger.warning(f"[WARN] RerankerAuditService initialization failed: {e}")
             
             logger.info(
-                f"✅ RerankerService ready "
+                f"[OK] RerankerService ready "
                 f"(model: {settings.reranker_model}, "
                 f"cache: {'enabled' if reranker_service.enable_cache else 'disabled'}, "
                 f"target latency: {settings.reranker_latency_target_ms}ms, "
                 f"+40% quality boost)"
             )
         except Exception as e:
-            logger.error(f"❌ RerankerService initialization failed: {e}")
-            logger.warning("⚠️ Continuing without re-ranker - performance may be reduced")
+            logger.error(f"[X] RerankerService initialization failed: {e}")
+            logger.warning("[WARN] Continuing without re-ranker - performance may be reduced")
             reranker_service = None
     else:
         logger.info("ℹ️ Re-ranker disabled for faster startup (set enable_reranker=True to enable)")
@@ -1128,25 +1128,25 @@ async def _initialize_backend_services():
     # Initialize Memory Fact Extractor (Always on)
     try:
         fact_extractor = MemoryFactExtractor()
-        logger.info("✅ Memory Fact Extractor ready (automatic key facts extraction)")
+        logger.info("[OK] Memory Fact Extractor ready (automatic key facts extraction)")
     except Exception as e:
-        logger.error(f"❌ Fact Extractor initialization failed: {e}")
+        logger.error(f"[X] Fact Extractor initialization failed: {e}")
         fact_extractor = None
 
     # Initialize Work Session Service (Team tracking - all reports to ZERO)
     try:
         work_session_service = WorkSessionService()
         await work_session_service.connect()
-        logger.info("✅ WorkSessionService ready (team activity tracking → ZERO only)")
+        logger.info("[OK] WorkSessionService ready (team activity tracking → ZERO only)")
     except Exception as e:
-        logger.error(f"❌ WorkSessionService initialization failed: {e}")
+        logger.error(f"[X] WorkSessionService initialization failed: {e}")
         work_session_service = None
 
     # Initialize Team Analytics Service (7 Advanced Analytics Techniques)
     try:
         if work_session_service and work_session_service.pool:
             team_analytics_service = TeamAnalyticsService(db_pool=work_session_service.pool)
-            logger.info("✅ TeamAnalyticsService ready (7 advanced analytics techniques)")
+            logger.info("[OK] TeamAnalyticsService ready (7 advanced analytics techniques)")
             logger.info("   1. Pattern Recognition - Work hour patterns")
             logger.info("   2. Productivity Scoring - Performance metrics")
             logger.info("   3. Burnout Detection - Early warning system")
@@ -1155,10 +1155,10 @@ async def _initialize_backend_services():
             logger.info("   6. Optimal Hours - Peak productivity windows")
             logger.info("   7. Team Insights - Collaboration intelligence")
         else:
-            logger.warning("⚠️ TeamAnalyticsService disabled - requires WorkSessionService")
+            logger.warning("[WARN] TeamAnalyticsService disabled - requires WorkSessionService")
             team_analytics_service = None
     except Exception as e:
-        logger.error(f"❌ TeamAnalyticsService initialization failed: {e}")
+        logger.error(f"[X] TeamAnalyticsService initialization failed: {e}")
         team_analytics_service = None
 
     # Initialize ToolExecutor WITH ZantaraTools (for get_pricing)
@@ -1168,7 +1168,7 @@ async def _initialize_backend_services():
             # Import and initialize ZantaraTools
             from services.zantara_tools import get_zantara_tools
             zantara_tools_instance = get_zantara_tools()
-            logger.info("✅ ZantaraTools loaded (get_pricing, team tools)")
+            logger.info("[OK] ZantaraTools loaded (get_pricing, team tools)")
 
             internal_key = os.getenv("API_KEYS_INTERNAL")
             tool_executor = ToolExecutor(
@@ -1176,13 +1176,13 @@ async def _initialize_backend_services():
                 internal_key,
                 zantara_tools_instance  # ← PASS ZANTARA TOOLS!
             )
-            logger.info("✅ ToolExecutor initialized (TypeScript + ZantaraTools)")
+            logger.info("[OK] ToolExecutor initialized (TypeScript + ZantaraTools)")
         except Exception as e:
-            logger.warning(f"⚠️ ToolExecutor initialization failed: {e}")
+            logger.warning(f"[WARN] ToolExecutor initialization failed: {e}")
             tool_executor = None
     else:
-        logger.warning("⚠️ ToolExecutor not initialized - missing dependencies")
-        logger.warning(f"   HandlerProxy: {'✅' if handler_proxy_service else '❌'}")
+        logger.warning("[WARN] ToolExecutor not initialized - missing dependencies")
+        logger.warning(f"   HandlerProxy: {'[OK]' if handler_proxy_service else '[X]'}")
 
     # Initialize Intelligent Router (ZANTARA AI)
     try:
@@ -1192,9 +1192,9 @@ async def _initialize_backend_services():
             if search_service:
                 try:
                     cultural_rag_service = CulturalRAGService(search_service)
-                    logger.info("✅ Cultural RAG Service ready (LLAMA's Indonesian soul)")
+                    logger.info("[OK] Cultural RAG Service ready (LLAMA's Indonesian soul)")
                 except Exception as e:
-                    logger.warning(f"⚠️ Cultural RAG Service initialization failed: {e}")
+                    logger.warning(f"[WARN] Cultural RAG Service initialization failed: {e}")
                     cultural_rag_service = None
 
             intelligent_router = IntelligentRouter(
@@ -1205,19 +1205,19 @@ async def _initialize_backend_services():
                 autonomous_research_service=autonomous_research_service,
                 cross_oracle_synthesis_service=cross_oracle_synthesis_service
             )
-            logger.info("✅ Intelligent Router ready (ZANTARA AI)")
+            logger.info("[OK] Intelligent Router ready (ZANTARA AI)")
             logger.info(f"   AI Engine: ZANTARA AI (model: {zantara_ai_client.model})")
             logger.info("   Cost: $0.20/$0.20 per 1M tokens")
-            logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
-            logger.info(f"   Autonomous Research: {'✅ enabled' if autonomous_research_service else '⚠️ disabled'}")
-            logger.info(f"   Cross-Oracle Synthesis: {'✅ enabled' if cross_oracle_synthesis_service else '⚠️ disabled'}")
+            logger.info(f"   Cultural Intelligence: {'[OK] JIWA enabled' if cultural_rag_service else '[WARN] disabled'}")
+            logger.info(f"   Autonomous Research: {'[OK] enabled' if autonomous_research_service else '[WARN] disabled'}")
+            logger.info(f"   Cross-Oracle Synthesis: {'[OK] enabled' if cross_oracle_synthesis_service else '[WARN] disabled'}")
             logger.info("   Cost optimization: 3x cheaper than Sonnet, same quality with RAG")
         else:
-            logger.warning("⚠️ Intelligent Router not initialized - missing ZANTARA AI client")
-            logger.warning(f"   ZANTARA AI: {'✅' if zantara_ai_client else '❌'}")
+            logger.warning("[WARN] Intelligent Router not initialized - missing ZANTARA AI client")
+            logger.warning(f"   ZANTARA AI: {'[OK]' if zantara_ai_client else '[X]'}")
             intelligent_router = None
     except Exception as e:
-        logger.error(f"❌ Intelligent Router initialization failed: {e}")
+        logger.error(f"[X] Intelligent Router initialization failed: {e}")
         intelligent_router = None
 
     # Initialize Skill Detection Layer (NEW)
@@ -1263,7 +1263,7 @@ async def _initialize_backend_services():
             # Initialize skill metrics
             skill_metrics = SkillMetrics()
             
-            logger.info("✅ Skill Detection Layer initialized")
+            logger.info("[OK] Skill Detection Layer initialized")
             logger.info(f"   Skills loaded: {len(skill_index.skills)}")
             logger.info(f"   Cache warmed: {len(skill_cache.l2_cache)} embeddings")
         else:
@@ -1277,7 +1277,7 @@ async def _initialize_backend_services():
             skill_metrics = None
     except Exception as e:
         import traceback
-        logger.error(f"❌ Skill Detection Layer initialization failed: {e}")
+        logger.error(f"[X] Skill Detection Layer initialization failed: {e}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         skill_index = None
         skill_detector = None
@@ -1287,7 +1287,7 @@ async def _initialize_backend_services():
         skill_cache = None
         skill_metrics = None
 
-    logger.info("✅ ZANTARA RAG Backend ready on port 8000")
+    logger.info("[OK] ZANTARA RAG Backend ready on port 8000")
 
 
 @app.on_event("shutdown")
@@ -1628,7 +1628,7 @@ async def demo_auth(request: Request):
             }
         )
     except Exception as e:
-        logger.error(f"❌ Demo auth error: {e}")
+        logger.error(f"[X] Demo auth error: {e}")
         raise HTTPException(status_code=500, detail=f"Authentication failed: {str(e)}")
 
 
@@ -1733,7 +1733,7 @@ async def team_login(request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Team login error: {e}")
+        logger.error(f"[X] Team login error: {e}")
         raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
 
 
@@ -1892,7 +1892,7 @@ async def search_endpoint(request: SearchRequest):
                 answer = response.get("text", "")
                 model_used = "zantara-ai"
             except Exception as e:
-                logger.error(f"❌ [RAG Search] ZANTARA AI failed: {e}")
+                logger.error(f"[X] [RAG Search] ZANTARA AI failed: {e}")
                 raise HTTPException(503, f"ZANTARA AI error: {str(e)}")
 
         execution_time = (time.time() - start) * 1000
@@ -1980,10 +1980,10 @@ async def save_conversation_background(
                     logger.info(f"💎 [Background] Saved {saved_count} key facts for {user_id}")
 
             except Exception as e:
-                logger.warning(f"⚠️ [Background] Fact extraction failed: {e}")
+                logger.warning(f"[WARN] [Background] Fact extraction failed: {e}")
 
     except Exception as e:
-        logger.error(f"❌ [Background] Conversation save failed: {e}")
+        logger.error(f"[X] [Background] Conversation save failed: {e}")
 
 
 @app.post("/bali-zero/chat", response_model=BaliZeroResponse)
@@ -1999,7 +1999,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
     - Timeout protection on AI calls (25s max)
     """
     import asyncio
-    logger.info("🚀 BALI ZERO CHAT - TRIPLE-AI with Intelligent Router")
+    logger.info(" BALI ZERO CHAT - TRIPLE-AI with Intelligent Router")
 
     # Check if intelligent router is available
     if not intelligent_router:
@@ -2047,10 +2047,10 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                             user_email=effective_email
                         )
                     except Exception as ws_error:
-                        logger.warning(f"⚠️ Work session start failed: {ws_error}")
+                        logger.warning(f"[WARN] Work session start failed: {ws_error}")
 
             except Exception as e:
-                logger.warning(f"⚠️ Collaborator identification failed: {e}")
+                logger.warning(f"[WARN] Collaborator identification failed: {e}")
                 collaborator, sub_rosa_level, user_id = None, 0, "anonymous"
         else:
             logger.info("👤 Anonymous user - L0 (Public)")
@@ -2105,7 +2105,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                             usage={"input_tokens": 0, "output_tokens": 0}
                         )
                 except Exception as logout_error:
-                    logger.error(f"❌ Logout command failed: {logout_error}")
+                    logger.error(f"[X] Logout command failed: {logout_error}")
                     # Continue with normal chat if logout fails
 
         # OPTIMIZATION: Parallel execution of PHASES 2-3 (NOW that we have collaborator)
@@ -2139,10 +2139,10 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
 
         # Handle exceptions
         if isinstance(memory, Exception):
-            logger.warning(f"⚠️ Memory load failed: {memory}")
+            logger.warning(f"[WARN] Memory load failed: {memory}")
             memory = None
         if isinstance(emotional_profile, Exception):
-            logger.warning(f"⚠️ Emotional analysis failed: {emotional_profile}")
+            logger.warning(f"[WARN] Emotional analysis failed: {emotional_profile}")
             emotional_profile = None
 
         # PHASE 4: Route to appropriate AI using Intelligent Router
@@ -2154,7 +2154,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                 logger.info(f"🔧 [Chat] Frontend provided {len(request.tools)} tools")
                 logger.info(f"   Tool names: {[t.get('name', 'unknown') for t in request.tools[:5]]}")
             else:
-                logger.info("⚠️ [Chat] No tools provided by frontend - will use backend default")
+                logger.info("[WARN] [Chat] No tools provided by frontend - will use backend default")
 
             # Build conversation history with memory context if available
             messages = request.conversation_history or []
@@ -2173,7 +2173,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                     timeout=settings.timeout_ai_response  # Configurable timeout from settings
                 )
             except asyncio.TimeoutError:
-                logger.error(f"❌ AI routing timed out after {settings.timeout_ai_response} seconds")
+                logger.error(f"[X] AI routing timed out after {settings.timeout_ai_response} seconds")
                 raise HTTPException(504, f"AI response timeout - please try again")
 
             # Extract response from router
@@ -2185,9 +2185,9 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
             tools_called = routing_result.get("tools_called", [])  # ← NEW: Get which tools were called
 
             if tools_called:
-                logger.info(f"✅ [Chat] Tools called by AI: {tools_called}")
+                logger.info(f"[OK] [Chat] Tools called by AI: {tools_called}")
 
-            logger.info(f"✅ [Router] Response from {ai_used} (model: {model_used})")
+            logger.info(f"[OK] [Router] Response from {ai_used} (model: {model_used})")
 
             # WORK SESSION TRACKING: Update activity and increment conversations
             if work_session_service and user_id != "anonymous":
@@ -2195,7 +2195,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                     await work_session_service.update_activity(user_id)
                     await work_session_service.increment_conversations(user_id)
                 except Exception as ws_error:
-                    logger.warning(f"⚠️ Work session tracking failed: {ws_error}")
+                    logger.warning(f"[WARN] Work session tracking failed: {ws_error}")
 
             # OPTIMIZATION: Get sources in parallel (non-blocking for main response)
             # Only fetch sources if RAG was used - reduced complexity
@@ -2327,7 +2327,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
         )
 
     except Exception as e:
-        logger.error(f"❌ Chat failed: {e}")
+        logger.error(f"[X] Chat failed: {e}")
         raise HTTPException(500, f"Chat failed: {str(e)}")
 
 
@@ -2354,7 +2354,7 @@ async def create_session():
         logger.info(f"🆕 Created session: {session_id}")
         return {"session_id": session_id}
     except Exception as e:
-        logger.error(f"❌ Failed to create session: {e}")
+        logger.error(f"[X] Failed to create session: {e}")
         raise HTTPException(500, f"Failed to create session: {str(e)}")
 
 
@@ -2388,7 +2388,7 @@ async def get_session(session_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Failed to get session: {e}")
+        logger.error(f"[X] Failed to get session: {e}")
         raise HTTPException(500, f"Failed to get session: {str(e)}")
 
 
@@ -2443,7 +2443,7 @@ async def update_session(session_id: str, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Failed to update session: {e}")
+        logger.error(f"[X] Failed to update session: {e}")
         raise HTTPException(500, f"Failed to update session: {str(e)}")
 
 
@@ -2471,7 +2471,7 @@ async def delete_session(session_id: str):
             "deleted": deleted
         }
     except Exception as e:
-        logger.error(f"❌ Failed to delete session: {e}")
+        logger.error(f"[X] Failed to delete session: {e}")
         raise HTTPException(500, f"Failed to delete session: {str(e)}")
 
 
@@ -2585,7 +2585,7 @@ async def get_session_analytics():
         analytics = await session_service.get_analytics()
         return analytics
     except Exception as e:
-        logger.error(f"❌ Failed to get analytics: {e}")
+        logger.error(f"[X] Failed to get analytics: {e}")
         raise HTTPException(500, f"Failed to get analytics: {str(e)}")
 
 
@@ -2622,7 +2622,7 @@ async def update_session_ttl(session_id: str, request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Failed to update TTL: {e}")
+        logger.error(f"[X] Failed to update TTL: {e}")
         raise HTTPException(500, f"Failed to update TTL: {str(e)}")
 
 
@@ -2672,7 +2672,7 @@ async def export_session(session_id: str, format: str = "json"):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Failed to export session: {e}")
+        logger.error(f"[X] Failed to export session: {e}")
         raise HTTPException(500, f"Failed to export session: {str(e)}")
 
 
@@ -2759,9 +2759,9 @@ async def bali_zero_chat_stream(
                         # Extend session TTL on active use (keep alive for 24h)
                         await session_service.extend_ttl(session_id)
                     else:
-                        logger.warning(f"⚠️ [Stream] Session {session_id} not found or expired")
+                        logger.warning(f"[WARN] [Stream] Session {session_id} not found or expired")
                 except Exception as e:
-                    logger.error(f"❌ [Stream] Failed to load session: {e}")
+                    logger.error(f"[X] [Stream] Failed to load session: {e}")
 
             # PRIORITY 2: Fallback to querystring (backward compatibility - DEPRECATED)
             if not parsed_history and conversation_history:
@@ -2795,16 +2795,16 @@ async def bali_zero_chat_stream(
                     parsed_history = decompressed_history if decompressed_history else parsed_history
                     logger.info(f"📚 [Stream] Querystring history: {len(parsed_history)} messages (decompressed, DEPRECATED)")
                 except Exception as e:
-                    logger.warning(f"⚠️ [Stream] Failed to parse conversation_history: {e}")
+                    logger.warning(f"[WARN] [Stream] Failed to parse conversation_history: {e}")
 
-            # 🚀 NEW: Parse handlers context if provided
+            #  NEW: Parse handlers context if provided
             parsed_handlers = None
             if handlers_context:
                 try:
                     parsed_handlers = json.loads(handlers_context)
                     logger.info(f"🔧 [Stream] Handlers context: {parsed_handlers.get('available_tools', 0)} tools available")
                 except Exception as e:
-                    logger.warning(f"⚠️ [Stream] Failed to parse handlers_context: {e}")
+                    logger.warning(f"[WARN] [Stream] Failed to parse handlers_context: {e}")
 
             # Sanitize user email (same logic as regular chat)
             sanitized_email = None
@@ -2823,7 +2823,7 @@ async def bali_zero_chat_stream(
                     user_id = collaborator.id
                     logger.info(f"👤 [Stream] {collaborator.name} ({collaborator.ambaradam_name})")
                 except Exception as e:
-                    logger.warning(f"⚠️ [Stream] Collaborator identification failed: {e}")
+                    logger.warning(f"[WARN] [Stream] Collaborator identification failed: {e}")
 
             # Send ping before memory load (keep-alive)
             yield ": ping\n\n"
@@ -2835,7 +2835,7 @@ async def bali_zero_chat_stream(
                     memory = await memory_service.get_memory(user_id)
                     logger.info(f"💾 [Stream] Memory loaded: {len(memory.profile_facts)} facts")
                 except Exception as e:
-                    logger.warning(f"⚠️ [Stream] Memory load failed: {e}")
+                    logger.warning(f"[WARN] [Stream] Memory load failed: {e}")
 
             # NEW: Collective Memory Workflow (LangGraph)
             try:
@@ -2938,7 +2938,7 @@ async def bali_zero_chat_stream(
                         logger.info(f"🧠 [Collective Memory] Workflow completed: {category}")
                         
             except Exception as e:
-                logger.warning(f"⚠️ [Collective Memory] Workflow failed: {e}")
+                logger.warning(f"[WARN] [Collective Memory] Workflow failed: {e}")
                 import traceback
                 logger.debug(f"Traceback: {traceback.format_exc()}")
 
@@ -3010,7 +3010,7 @@ async def bali_zero_chat_stream(
                     if skill_cache:
                         skill_cache.record_cache_miss('l1')
             except Exception as e:
-                logger.warning(f"⚠️ [Skill] Detection failed: {e}")
+                logger.warning(f"[WARN] [Skill] Detection failed: {e}")
                 import traceback
                 logger.debug(f"Traceback: {traceback.format_exc()}")
                 if skill_metrics:
@@ -3094,13 +3094,13 @@ async def bali_zero_chat_stream(
                             })
                         logger.info(f"📚 [Stream] Sources retrieved: {len(sources)} documents")
                     else:
-                        logger.warning(f"⚠️ [Stream] No search results found - search_results is {search_results}")
+                        logger.warning(f"[WARN] [Stream] No search results found - search_results is {search_results}")
                         sources = None
                 else:
-                    logger.warning(f"⚠️ [Stream] Cannot retrieve sources: search_service={'present (' + type(search_service).__name__ + ')' if search_service else 'MISSING (None)'}, query={'present' if query else 'MISSING'}")
+                    logger.warning(f"[WARN] [Stream] Cannot retrieve sources: search_service={'present (' + type(search_service).__name__ + ')' if search_service else 'MISSING (None)'}, query={'present' if query else 'MISSING'}")
                     sources = None
             except Exception as e:
-                logger.error(f"❌ [Stream] Sources retrieval exception: {e}")
+                logger.error(f"[X] [Stream] Sources retrieval exception: {e}")
                 import traceback
                 logger.error(f"Traceback: {traceback.format_exc()}")
                 sources = None
@@ -3109,7 +3109,7 @@ async def bali_zero_chat_stream(
             if sources:
                 sources_data = json.dumps({"sources": sources})
                 yield f"data: {sources_data}\n\n"
-                logger.info(f"✅ [Stream] Sources sent to client: {len(sources)} citations")
+                logger.info(f"[OK] [Stream] Sources sent to client: {len(sources)} citations")
 
             # Send done signal
             done_data = {
@@ -3119,10 +3119,10 @@ async def bali_zero_chat_stream(
                 "streamDuration": time.time() - stream_start_time
             }
             yield f"data: {json.dumps(done_data)}\n\n"
-            logger.info(f"✅ [Stream] Stream completed for user {user_id} in {time.time() - stream_start_time:.2f}s")
+            logger.info(f"[OK] [Stream] Stream completed for user {user_id} in {time.time() - stream_start_time:.2f}s")
 
         except Exception as e:
-            logger.error(f"❌ [Stream] Error: {e}")
+            logger.error(f"[X] [Stream] Error: {e}")
             # Send error to client with sequence number
             error_data = {
                 "error": str(e),
@@ -3149,7 +3149,7 @@ async def bali_zero_chat_stream(
         try:
             socket_obj.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
         except Exception as sock_err:
-            logger.debug(f"⚠️ [Stream] Unable to enable keep-alive: {sock_err}")
+            logger.debug(f"[WARN] [Stream] Unable to enable keep-alive: {sock_err}")
 
     async def guarded_generate():
         async for chunk in generate():
@@ -3240,15 +3240,15 @@ app.include_router(team_activity.router)
 # from routers.llama4 import router as llama4_router
 # app.include_router(llama4_router)
 
-# 🚀 NEW: Include Health Router (Non-blocking)
+#  NEW: Include Health Router (Non-blocking)
 try:
     from app.routers import health
     app.include_router(health.router)
     logger.info("🔧 [Startup] Health router loaded (non-blocking)")
 except ImportError as e:
-    logger.warning(f"⚠️ [Startup] Failed to load health router: {e}")
+    logger.warning(f"[WARN] [Startup] Failed to load health router: {e}")
 except Exception as e:
-    logger.error(f"❌ [Startup] Error loading health router: {e}")
+    logger.error(f"[X] [Startup] Error loading health router: {e}")
 
 
 # ========================================
@@ -3348,12 +3348,12 @@ async def root():
                 "routing": "Intelligent Router (ZANTARA AI)",
                 "cost_savings": "Configurable via ZANTARA_AI_COST_INPUT/OUTPUT env vars",
                 "performance": "Configurable via ZANTARA_AI_MODEL env var",
-                "status": "✅ ZANTARA AI ACTIVE"
+                "status": "[OK] ZANTARA AI ACTIVE"
             }
         else:
             # No AI available
             return {
-                "status": "❌ No AI configured",
+                "status": "[X] No AI configured",
                 "setup_required": "Set OPENROUTER_API_KEY_LLAMA for ZANTARA AI"
             }
 
@@ -3414,11 +3414,11 @@ async def root():
             },
             "auth": "mock (MVP only)",
             "collaborative_intelligence": {
-                "phase_1": "Collaborator Identification ✅",
-                "phase_2": "Memory System ✅",
-                "phase_3": "Sub Rosa Protocol ✅",
-                "phase_4": "Emotional Attunement ✅",
-                "phase_5": "10 Collaborative Capabilities ✅"
+                "phase_1": "Collaborator Identification [OK]",
+                "phase_2": "Memory System [OK]",
+                "phase_3": "Sub Rosa Protocol [OK]",
+                "phase_4": "Emotional Attunement [OK]",
+                "phase_5": "10 Collaborative Capabilities [OK]"
             }
         }
     }
@@ -3516,7 +3516,7 @@ class MemorySaveRequest(BaseModel):
 @app.post("/memory/save")
 async def save_memory_frontend(request: MemorySaveRequest):
     """
-    ⚠️ LEGACY: Use /api/memory/store instead
+    [WARN] LEGACY: Use /api/memory/store instead
     Frontend SDK endpoint: Save user memory (facts + summary)
     Compatible with zantara-sdk.js saveMemory() method
     """
@@ -3557,7 +3557,7 @@ async def save_memory_frontend(request: MemorySaveRequest):
 @app.get("/memory/get")
 async def get_memory_frontend(userId: str):
     """
-    ⚠️ LEGACY: Use /api/memory/{memory_id} instead
+    [WARN] LEGACY: Use /api/memory/{memory_id} instead
     Frontend SDK endpoint: Retrieve user memory
     Compatible with zantara-sdk.js getMemory() method
 
@@ -3599,7 +3599,7 @@ class RAGSearchRequest(BaseModel):
 @app.post("/rag/search")
 async def rag_search(request: RAGSearchRequest):
     """
-    ⚠️ LEGACY: Use /api/memory/search instead
+    [WARN] LEGACY: Use /api/memory/search instead
     Direct search in RAG knowledge base (14 ChromaDB collections)
 
     Params:
@@ -3645,7 +3645,7 @@ async def rag_search(request: RAGSearchRequest):
         }
 
     except Exception as e:
-        logger.error(f"❌ RAG search failed: {e}")
+        logger.error(f"[X] RAG search failed: {e}")
         raise HTTPException(500, f"RAG search failed: {str(e)}")
 
 
@@ -3712,7 +3712,7 @@ async def api_query(request: APIQueryRequest):
         }
 
     except Exception as e:
-        logger.error(f"❌ API query failed: {e}")
+        logger.error(f"[X] API query failed: {e}")
         raise HTTPException(500, f"API query failed: {str(e)}")
 
 
@@ -3773,7 +3773,7 @@ async def api_list_collections():
         }
 
     except Exception as e:
-        logger.error(f"❌ List collections failed: {e}")
+        logger.error(f"[X] List collections failed: {e}")
         raise HTTPException(500, f"List collections failed: {str(e)}")
 
 
@@ -3816,7 +3816,7 @@ async def api_collection_stats(collection_name: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Get collection stats failed: {e}")
+        logger.error(f"[X] Get collection stats failed: {e}")
         raise HTTPException(500, f"Get collection stats failed: {str(e)}")
 
 
@@ -3857,7 +3857,7 @@ async def api_collection_count(name: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Get collection count failed: {e}")
+        logger.error(f"[X] Get collection count failed: {e}")
         raise HTTPException(500, f"Get collection count failed: {str(e)}")
 
 
@@ -3961,7 +3961,7 @@ async def load_documents_to_collection(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Load documents failed: {e}")
+        logger.error(f"[X] Load documents failed: {e}")
         raise HTTPException(500, f"Load documents failed: {str(e)}")
 
 
@@ -4244,7 +4244,7 @@ async def calculate_productivity_scores(days: int = 7):
 @app.get("/team/analytics/burnout")
 async def detect_burnout_signals(user_email: Optional[str] = None):
     """
-    ⚠️ TECHNIQUE 3: Burnout Detection
+    [WARN] TECHNIQUE 3: Burnout Detection
 
     Detects early warning signs of burnout:
     - Increasing work hours trend
@@ -4603,7 +4603,7 @@ async def metrics_head():
     return Response(status_code=200)
 
 # ════════════════════════════════════════════════════════════════════════════════
-# 🚀 MISSING ENDPOINTS - API V3 ZANTARA & AGENT ENDPOINTS
+#  MISSING ENDPOINTS - API V3 ZANTARA & AGENT ENDPOINTS
 # ════════════════════════════════════════════════════════════════════════════════
 
 class UnifiedRequest(BaseModel):
@@ -4668,7 +4668,7 @@ async def zantara_unified(request: UnifiedRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ ZANTARA v3 Unified error: {e}")
+        logger.error(f"[X] ZANTARA v3 Unified error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Unified processing failed: {str(e)}",
@@ -4716,7 +4716,7 @@ async def zantara_collective(request: UnifiedRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ ZANTARA v3 Collective error: {e}")
+        logger.error(f"[X] ZANTARA v3 Collective error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Collective processing failed: {str(e)}",
@@ -4769,7 +4769,7 @@ async def zantara_ecosystem(request: UnifiedRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ ZANTARA v3 Ecosystem error: {e}")
+        logger.error(f"[X] ZANTARA v3 Ecosystem error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Ecosystem analysis failed: {str(e)}",
@@ -4817,7 +4817,7 @@ async def agent_semantic_search(request: AgentRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ Semantic Search Agent error: {e}")
+        logger.error(f"[X] Semantic Search Agent error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Semantic search failed: {str(e)}",
@@ -4861,7 +4861,7 @@ async def agent_hybrid_query(request: AgentRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ Hybrid Query Agent error: {e}")
+        logger.error(f"[X] Hybrid Query Agent error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Hybrid query failed: {str(e)}",
@@ -4918,7 +4918,7 @@ async def agent_document_intelligence(request: AgentRequest):
         )
 
     except Exception as e:
-        logger.error(f"❌ Document Intelligence Agent error: {e}")
+        logger.error(f"[X] Document Intelligence Agent error: {e}")
         return UnifiedResponse(
             success=False,
             error=f"Document analysis failed: {str(e)}",
@@ -4939,28 +4939,28 @@ async def add_request_count(request: Request, call_next):
     app.request_count += 1
     return await call_next(request)
 
-# 🚀 NEW: Include Handlers Registry API
+#  NEW: Include Handlers Registry API
 try:
     from api import handlers, productivity # Handlers Router (System Tools Discovery)
     try:
         app.include_router(handlers.router)
         app.include_router(productivity.router)
-        logger.info("✅ Handlers & Productivity Routers included")
+        logger.info("[OK] Handlers & Productivity Routers included")
     except Exception as e:
-        logger.warning(f"⚠️ Failed to include Handlers/Productivity Router: {e}")
+        logger.warning(f"[WARN] Failed to include Handlers/Productivity Router: {e}")
 except Exception as e:
-    logger.error(f"❌ [Startup] Error loading handlers API: {e}")
+    logger.error(f"[X] [Startup] Error loading handlers API: {e}")
 
-# 🚀 NEW: Include Skill Admin API
+#  NEW: Include Skill Admin API
 # try:
 #     from app.routers.skill_admin import router as skill_admin_router
 #     app.include_router(skill_admin_router)
 #     logger.info("🔧 [Startup] Skill admin API loaded")
 # except ImportError as e:
-#     logger.warning(f"⚠️ [Startup] Failed to load skill admin API: {e}")
+#     logger.warning(f"[WARN] [Startup] Failed to load skill admin API: {e}")
 # except Exception as e:
-#     logger.error(f"❌ [Startup] Error loading skill admin API: {e}")
+#     logger.error(f"[X] [Startup] Error loading skill admin API: {e}")
 
-# 🚀 NEW: Include Skill Feedback API
+#  NEW: Include Skill Feedback API
 
 # Force Fly.io redeploy - Priority 1-5 active
