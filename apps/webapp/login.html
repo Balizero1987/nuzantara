@@ -1,25 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="night">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZANTARA - Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/team-dashboard.css"> <!-- Reuse Stellar variables -->
+  
+  <!-- Design System - Same as chat.html -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/bali-zero-theme.css">
 
   <style>
-    /* Override body for login layout */
+    /* GRAFITE Background - Same as chat.html */
+    html, body {
+      background: #2B2B2B !important;
+      background-color: #2B2B2B !important;
+    }
+    
     body {
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       margin: 0;
-      background: var(--stellar-bg);
-      background-image:
-        radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.1) 0%, transparent 20%);
     }
 
     .login-container {
@@ -30,27 +33,15 @@
     }
 
     .login-card {
-      background: var(--stellar-card-bg);
+      background: rgba(50, 50, 50, 0.95);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--stellar-border);
+      border: 2px solid white;
       border-radius: 1.5rem;
       padding: 2.5rem;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
       position: relative;
       overflow: hidden;
-    }
-
-    /* Glow effect */
-    .login-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--stellar-gradient);
-      opacity: 0.5;
     }
 
     .logo-section {
@@ -67,14 +58,15 @@
     .welcome-text {
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--stellar-text);
+      color: white;
       margin-bottom: 0.5rem;
       letter-spacing: -0.02em;
     }
 
     .welcome-subtext {
-      color: var(--stellar-text-muted);
+      color: rgba(255, 255, 255, 0.7);
       font-size: 0.875rem;
+      font-style: italic;
     }
 
     .form-group {
@@ -83,7 +75,7 @@
 
     .form-label {
       display: block;
-      color: var(--stellar-text-muted);
+      color: rgba(255, 255, 255, 0.8);
       font-size: 0.875rem;
       font-weight: 500;
       margin-bottom: 0.5rem;
@@ -95,8 +87,8 @@
 
     .form-input {
       width: 100%;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--stellar-border);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 0.75rem;
       padding: 0.875rem 1rem;
       color: var(--stellar-text);
@@ -243,9 +235,9 @@
   <div class="login-container">
     <div class="login-card">
       <div class="logo-section">
-        <img src="assets/bali-zero-logo.svg" alt="ZANTARA" class="bali-zero-logo">
-        <div class="welcome-text">Welcome Back</div>
-        <div class="welcome-subtext">Sign in to your ZANTARA workspace</div>
+        <img src="assets/images/logo1-zantara.svg" alt="ZANTARA" class="bali-zero-logo">
+        <div class="welcome-text">Selamat datang di ZANTARA</div>
+        <div class="welcome-subtext">Semoga kehadiran kami membawa cahaya</div>
       </div>
 
       <form id="loginForm">
