@@ -1,16 +1,10 @@
 """
-Shadow Mode Service - A/B Testing LLAMA vs Claude
+Shadow Mode Service - A/B Testing (LEGACY - Currently Unused)
 
-Runs LLAMA in parallel with Claude (shadow mode) without affecting user experience.
-Logs both responses for comparison and quality analysis.
+NOTE: This service was used for A/B testing during migration to ZANTARA AI.
+It is kept for reference but is not actively used in production.
 
-Use cases:
-1. Validate LLAMA quality before production switch
-2. Collect real-world performance metrics
-3. A/B test different models without user impact
-4. Gradual rollout with safety net
-
-IMPORTANT: Shadow mode has NO user-facing impact. User always receives Claude response.
+The system now uses ZANTARA AI (ZantaraAIClient) as the primary engine.
 """
 
 import asyncio
@@ -53,7 +47,7 @@ class ShadowModeService:
         Initialize shadow mode service
 
         Args:
-            llama_client: ZantaraClient for LLAMA inference
+            llama_client: ZantaraAIClient for ZANTARA AI inference (legacy parameter - not used)
             log_dir: Directory for comparison logs
             enabled: Enable/disable shadow mode
             traffic_percent: Percentage of traffic to test (0-100)
@@ -336,7 +330,7 @@ def initialize_shadow_mode(
     Initialize global shadow mode service
 
     Args:
-        llama_client: ZantaraClient instance
+        llama_client: ZantaraAIClient instance (legacy parameter - not used)
         log_dir: Log directory
         enabled: Enable/disable (defaults to env SHADOW_MODE_ENABLED)
         traffic_percent: Traffic sampling percentage
