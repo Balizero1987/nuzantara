@@ -36,13 +36,16 @@ class SystemHandlersClient {
         // Check if feature is enabled
         if (!this.config.endpoints.call) {
             console.log('ℹ️ System Handlers feature disabled (no call endpoint)');
-            // Try to use default if not in config
-            this.config.endpoints.call = '/api/v3/zantara/handlers/call';
+            // Use correct endpoint: /call (not /api/v3/zantara/handlers/call)
+            this.config.endpoints.call = '/call';
         }
 
         // Fetch from backend
         try {
-            const endpoint = this.config.endpoints.call + '/tools';
+            // Backend expects POST /call with body { key: 'system.handlers.tools' }
+            // NOT /call/tools
+            const endpoint = this.config.endpoints.call;
+            console.log(`🔧 Fetching tools from: ${this.baseURL}${endpoint}`);
             const data = await this.api.post(endpoint, { key: 'system.handlers.tools' });
 
             this.tools = data.tools || [];
