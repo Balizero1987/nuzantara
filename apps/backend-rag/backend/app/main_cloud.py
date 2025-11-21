@@ -1337,7 +1337,7 @@ class BaliZeroResponse(BaseModel):
     success: bool
     response: str
     model_used: str
-    ai_used: str  # "haiku" | "llama"
+    ai_used: str  # "zantara-ai" (configurable via ZANTARA_AI_MODEL)
     sources: Optional[List[Dict[str, Any]]] = None
     usage: Optional[Dict[str, Any]] = None
     used_rag: Optional[bool] = None  # PHASE 1: Track RAG usage
@@ -2260,7 +2260,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                     logger.warning(f"Source extraction failed: {e}")
 
             # Personalize response ONLY for greetings or first interaction
-            # This makes conversations more natural and fluid like Claude
+            # This makes conversations more natural and fluid
             try:
                 if collaborator and answer:
                     # Only add name if:
