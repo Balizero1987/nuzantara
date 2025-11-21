@@ -916,7 +916,7 @@ async def _initialize_backend_services():
             autonomous_research_service = AutonomousResearchService(
                 search_service=search_service,
                 query_router=query_router,
-                claude_sonnet_service=zantara_ai_client  # Using ZANTARA AI as synthesis engine
+                zantara_ai_service=zantara_ai_client  # Using ZANTARA AI as synthesis engine
             )
             logger.info("✅ AutonomousResearchService initialized (self-directed iterative research)")
             logger.info(f"   Max iterations: {autonomous_research_service.MAX_ITERATIONS}")
@@ -1426,20 +1426,18 @@ async def debug_startup():
 async def debug_ai_keys():
     """Debug endpoint to check which AI API keys are configured"""
     openrouter_llama_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
-    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
 
     result = {
         "environment_variables": {
             "OPENROUTER_API_KEY_LLAMA": {
                 "present": bool(openrouter_llama_key),
-                "prefix": openrouter_llama_key[:15] + "..." if openrouter_llama_key else None
+                "prefix": openrouter_llama_key[:15] + "..." if openrouter_llama_key else None,
+                "description": "ZANTARA AI PRIMARY - Required"
             },
-            "ANTHROPIC_API_KEY": {
-                "present": bool(anthropic_key),
-                "prefix": anthropic_key[:15] + "..." if anthropic_key else None
-            },
-            "OPENROUTER_API_KEY": bool(os.getenv("OPENROUTER_API_KEY")),
-            "OPENAI_API_KEY": bool(os.getenv("OPENAI_API_KEY"))
+            "OPENAI_API_KEY": {
+                "present": bool(os.getenv("OPENAI_API_KEY")),
+                "description": "For embeddings (text-embedding-3-small) - Required"
+            }
         },
         "services": {
             "zantara_ai_client": zantara_ai_client is not None,
@@ -2161,7 +2159,7 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
             # Build conversation history with memory context if available
             messages = request.conversation_history or []
 
-            # OPTIMIZATION: Add timeout to AI routing (max 25 seconds)
+            # OPTIMIZATION: Add timeout to AI routing (configurable)
             try:
                 routing_result = await asyncio.wait_for(
                     intelligent_router.route_chat(
@@ -2172,11 +2170,11 @@ async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundT
                         collaborator=collaborator,  # ← NEW: Pass collaborator for team personalization
                         frontend_tools=request.tools  # ← NEW: Pass tools from frontend
                     ),
-                    timeout=60.0  # 60 second timeout for AI response (ChromaDB + Sonnet can take time)
+                    timeout=settings.timeout_ai_response  # Configurable timeout from settings
                 )
             except asyncio.TimeoutError:
-                logger.error("❌ AI routing timed out after 60 seconds")
-                raise HTTPException(504, "AI response timeout - please try again")
+                logger.error(f"❌ AI routing timed out after {settings.timeout_ai_response} seconds")
+                raise HTTPException(504, f"AI response timeout - please try again")
 
             # Extract response from router
             answer = routing_result["response"]
@@ -3341,8 +3339,6 @@ async def root():
         """Get current AI configuration status"""
         # Check if ZANTARA AI is available
         has_openrouter_key = os.getenv("OPENROUTER_API_KEY_LLAMA") is not None
-        has_anthropic_key = os.getenv("ANTHROPIC_API_KEY") is not None
-
         if has_openrouter_key:
             # ZANTARA AI is primary
             current_model = os.getenv("ZANTARA_AI_MODEL", "meta-llama/llama-4-scout")
@@ -3354,19 +3350,11 @@ async def root():
                 "performance": "Configurable via ZANTARA_AI_MODEL env var",
                 "status": "✅ ZANTARA AI ACTIVE"
             }
-        elif has_anthropic_key:
-            # Legacy fallback mode (if configured)
-            return {
-                "primary": "ZANTARA AI (configurable via ZANTARA_AI_MODEL)",
-                "routing": "Intelligent Router (ZANTARA AI)",
-                "cost_savings": "Configurable via environment variables",
-                "status": "⚠️ Using legacy Anthropic key (configure OPENROUTER_API_KEY_LLAMA for ZANTARA AI)"
-            }
         else:
             # No AI available
             return {
                 "status": "❌ No AI configured",
-                "setup_required": "Set OPENROUTER_API_KEY_LLAMA or ANTHROPIC_API_KEY"
+                "setup_required": "Set OPENROUTER_API_KEY_LLAMA for ZANTARA AI"
             }
 
     try:

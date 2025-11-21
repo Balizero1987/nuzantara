@@ -1,5 +1,5 @@
-"""LLM clients for Bali Zero"""
+"""LLM clients for ZANTARA AI"""
 
-from .zantara_client import ZantaraClient
+from .zantara_ai_client import ZantaraAIClient
 
-__all__ = ["ZantaraClient"]
+__all__ = ["ZantaraAIClient"]
