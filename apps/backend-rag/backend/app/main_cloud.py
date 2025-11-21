@@ -4558,8 +4558,8 @@ async def get_prometheus_metrics():
             f"zantara_rag_queries_total {getattr(app, 'rag_queries', 0)} {timestamp}",
             "",
             f"# HELP zantara_ai_requests_total Total ZANTARA AI requests",
-            f"# TYPE zantara_claude_requests_total counter",
-            f"zantara_claude_requests_total {getattr(app, 'claude_requests', 0)} {timestamp}",
+            f"# TYPE zantara_ai_requests_total counter",
+            f"zantara_ai_requests_total {getattr(app, 'zantara_ai_requests', 0)} {timestamp}",
         ]
 
         # Service-specific metrics if available
@@ -4936,7 +4936,7 @@ app.request_count = 0
 app.sse_connections = 0
 app.active_sse_connections = 0
 app.rag_queries = 0
-app.claude_requests = 0
+app.zantara_ai_requests = 0
 
 # Request counting middleware
 @app.middleware("http")
