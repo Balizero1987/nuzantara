@@ -8,16 +8,21 @@ import { API_CONFIG } from './api-config.js';
  */
 class SystemHandlersClient {
     constructor() {
-        this.api = new UnifiedAPIClient({ baseURL: API_CONFIG.backend.url });
+        // Use backend TypeScript service (nuzantara-backend) for handlers
+        const backendUrl = API_CONFIG.backend?.url || 'https://nuzantara-backend.fly.dev';
+        this.baseURL = backendUrl; // Store for logging
+        this.api = new UnifiedAPIClient({ baseURL: backendUrl });
         this.config = {
             ...API_CONFIG.systemHandlers,
-            cacheTTL: 10 * 60 * 1000, // 10 minutes (default, can be overridden by API_CONFIG)
+            cacheTTL: 10 * 60 * 1000, // 10 minutes
+            endpoints: {
+                call: '/call' // Correct endpoint for backend TypeScript
+            }
         };
         this.tools = [];
         this.lastFetch = null;
-
-        // Use unified API client
-        this.api = window.apiClient || new window.UnifiedAPIClient({ baseURL: this.config.apiUrl });
+        
+        console.log(`🔧 SystemHandlersClient initialized with backend: ${backendUrl}`);
     }
 
     /**
