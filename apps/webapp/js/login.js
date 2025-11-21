@@ -24,8 +24,14 @@ document.addEventListener('DOMContentLoaded', async function() {
   pinToggle = document.getElementById('pinToggle');
   loginButton = document.getElementById('loginButton');
   errorMessage = document.getElementById('errorMessage');
-  welcomeMessage = document.getElementById('welcomeMessage');
+  welcomeMessage = document.getElementById('welcomeMessage'); // Optional
   loginForm = document.getElementById('loginForm');
+  
+  // Verify critical elements exist
+  if (!emailInput || !pinInput || !loginButton || !loginForm) {
+    console.error('❌ Critical login elements missing!');
+    return;
+  }
 
   // Setup event listeners
   setupEventListeners();
@@ -65,7 +71,9 @@ function setupEventListeners() {
  */
 function handleEmailBlur() {
   // Clear any messages on blur
-  welcomeMessage.classList.remove('show');
+  if (welcomeMessage) {
+    welcomeMessage.classList.remove('show');
+  }
 }
 
 /**
@@ -177,13 +185,10 @@ async function handleLogin(e) {
 
     console.log('✅ Auth data saved to localStorage (zantara-* format)');
 
-    // Show success message
+    // Show success message and redirect
     showSuccess(`Welcome back, ${user.name || user.email}! 🎉`);
-
-    // Redirect after 1.5 seconds
-    setTimeout(() => {
-      window.location.href = '/chat.html';
-    }, 1500);
+    
+    // Redirect is handled in showSuccess() - immediate redirect
 
   } catch (error) {
     console.error('❌ Login failed:', error);
@@ -216,7 +221,17 @@ async function handleLogin(e) {
  * Show error message
  */
 function showError(message) {
-  errorMessage.textContent = message;
+  if (!errorMessage) return;
+  
+  // Use .error-text span if exists, otherwise use textContent
+  const errorText = errorMessage.querySelector('.error-text');
+  if (errorText) {
+    errorText.textContent = message;
+  } else {
+    errorMessage.textContent = message;
+  }
+  
+  errorMessage.style.display = 'block';
   errorMessage.classList.add('show');
 }
 
@@ -224,13 +239,24 @@ function showError(message) {
  * Clear error message
  */
 function clearError() {
-  errorMessage.classList.remove('show');
+  if (errorMessage) {
+    errorMessage.style.display = 'none';
+    errorMessage.classList.remove('show');
+  }
 }
 
 /**
  * Show success message
  */
 function showSuccess(message) {
-  welcomeMessage.textContent = message;
-  welcomeMessage.classList.add('show', 'success');
+  // Optional: show success message if element exists
+  if (welcomeMessage) {
+    welcomeMessage.textContent = message;
+    welcomeMessage.classList.add('show', 'success');
+  } else {
+    console.log('✅', message);
+  }
+  
+  // Always redirect immediately (no delay needed if no UI feedback)
+  window.location.href = '/chat.html';
 }
