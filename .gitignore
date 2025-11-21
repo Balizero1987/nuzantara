@@ -265,3 +265,4 @@ orchestra/
 orchestra_*/
 agents/
 coverage/
+node_modules

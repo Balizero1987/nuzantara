@@ -1,8 +1,13 @@
 """
 ZANTARA AI Client - Primary engine for all conversational AI
 
-Current implementation: Llama 4 Scout via OpenRouter
-Model can be changed in the future via environment variables without code modifications.
+AI engine is fully configurable via environment variables:
+- ZANTARA_AI_MODEL: Model identifier (default: meta-llama/llama-4-scout)
+- OPENROUTER_API_KEY_LLAMA: API key for OpenRouter provider
+- ZANTARA_AI_COST_INPUT: Cost per 1M input tokens (default: 0.20)
+- ZANTARA_AI_COST_OUTPUT: Cost per 1M output tokens (default: 0.20)
+
+Change AI model by updating ZANTARA_AI_MODEL env var - no code changes required.
 """
 
 import os
@@ -17,8 +22,12 @@ class ZantaraAIClient:
     """
     ZANTARA AI Client – primary engine for all conversational AI.
 
-    Current implementation: Llama 4 Scout via OpenRouter.
-    Model can be changed in the future via env without touching the codebase.
+    Fully configurable via environment variables:
+    - ZANTARA_AI_MODEL: Model identifier (e.g., meta-llama/llama-4-scout)
+    - Provider: OpenRouter (configurable via base_url)
+    - Costs: Configurable via ZANTARA_AI_COST_INPUT/OUTPUT env vars
+    
+    Change AI model by updating environment variables - no code changes required.
     """
 
     def __init__(
@@ -69,7 +78,7 @@ class ZantaraAIClient:
         """
 
         if use_v6_optimized:
-            # Use optimized v6.0 prompt for LLAMA 4 Scout
+            # Use optimized v6.0 prompt for ZANTARA AI
             base_prompt = """You are ZANTARA, the intelligent assistant for Bali Zero. Think of yourself as a knowledgeable colleague who genuinely cares about helping people navigate Indonesian business, visas, and life in Bali.
 
 Your expertise spans visa procedures, company formation (PT, PT PMA, CV), tax compliance, legal requirements, and practical aspects of doing business in Indonesia. You have deep knowledge of KBLI codes, immigration regulations, and the cultural nuances that make Indonesia unique.
@@ -372,7 +381,7 @@ When showing Bali Zero service prices:
         Compatible interface for IntelligentRouter - conversational WITH tool calling
 
         NOTE: Tool calling support depends on the underlying model capabilities.
-        Currently, Llama 4 Scout may have limited tool calling support.
+        Tool calling support depends on the configured ZANTARA_AI_MODEL.
 
         Args:
             message: User message

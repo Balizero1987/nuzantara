@@ -3,7 +3,7 @@ Intelligent Router - ZANTARA AI (REFACTORED)
 Uses pattern matching for intent classification, routes to ZANTARA AI
 
 Routing logic:
-- PRIMARY AI → ZANTARA AI (Llama 4 Scout via OpenRouter)
+- PRIMARY AI → ZANTARA AI (configurable via environment variables)
 
 PHASE 1 & 2 FIXES (2025-10-21):
 - Response sanitization (removes training data artifacts)
@@ -18,8 +18,8 @@ REFACTORED (2025-11-05):
 - Independent, testable modules
 
 REFACTORED (2025-12-01):
-- Removed Claude Haiku fallback
-- Using ZANTARA AI exclusively (Llama 4 Scout via OpenRouter)
+- Using ZANTARA AI exclusively (configurable via ZANTARA_AI_MODEL env var)
+- AI engine abstraction allows switching models without code changes
 """
 
 import logging
@@ -40,11 +40,11 @@ class IntelligentRouter:
 
     Architecture:
     1. Pattern Matching: Fast intent classification (no AI cost)
-    2. ZANTARA AI: Primary AI engine (Llama 4 Scout via OpenRouter)
+    2. ZANTARA AI: Primary AI engine (configurable via environment)
     3. RAG Integration: Enhanced context for all business queries
     4. Tool Use: Full access to all 164 tools via ZANTARA AI
 
-    Cost optimization: ZANTARA AI $0.20/$0.20 per 1M tokens
+    AI Engine: Configurable via ZANTARA_AI_MODEL environment variable
     """
 
     def __init__(
@@ -118,7 +118,7 @@ class IntelligentRouter:
         Returns:
             {
                 "response": str,
-                "ai_used": "haiku"|"sonnet"|"llama",
+                "ai_used": "zantara-ai",
                 "category": str,
                 "model": str,
                 "tokens": dict,
@@ -133,7 +133,7 @@ class IntelligentRouter:
             tools_to_use = frontend_tools
             if not tools_to_use:
                 await self.tool_manager.load_tools()
-                tools_to_use = self.tool_manager.get_available_tools("haiku")
+                tools_to_use = self.tool_manager.get_available_tools("zantara-ai")
                 if tools_to_use:
                     logger.info(f"🔧 [Router] Using {len(tools_to_use)} tools from BACKEND")
             else:
@@ -470,7 +470,7 @@ class IntelligentRouter:
                     "use_case": "ALL queries (greetings, casual, business, complex)",
                     "cost": "$0.20/$0.20 per 1M tokens",
                     "traffic": "100%",
-                    "engine": "Llama 4 Scout via OpenRouter"
+                    "engine": "ZANTARA AI (configurable via environment)"
                 }
             },
             "rag_available": self.rag_manager.search is not None,
