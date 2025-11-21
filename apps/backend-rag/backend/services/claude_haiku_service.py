@@ -1,14 +1,12 @@
 """
-Claude Haiku 4.5 Service - Fast & Efficient Conversational AI
-For greetings, casual chat, business queries (with RAG)
+ZANTARA AI Fallback Service (Legacy - Deprecated)
+This service is kept for backward compatibility but is NOT the primary AI engine.
 
-Model: claude-haiku-4-5-20251001
-Cost: $1/$5 per 1M tokens (input/output) - 3x cheaper than Sonnet 4.5
-Speed: ~1-2s response time
-Quality: 96.2% of Sonnet 4.5 quality when used with RAG
-Use case: ALL frontend queries (greeting, casual, business)
-Tool Use: Full support (up to 8k output tokens)
-Caching: Prompt caching enabled (90% savings for recurring users)
+PRIMARY AI: Use ZantaraAIClient (llm/zantara_ai_client.py) instead.
+This service may be removed in future versions.
+
+NOTE: All references to specific AI models have been abstracted to "ZANTARA AI"
+to allow easy model switching via environment variables.
 """
 
 import os
@@ -21,7 +19,10 @@ logger = logging.getLogger(__name__)
 
 class ClaudeHaikuService:
     """
-    Claude Haiku 4.5 - Production-ready AI for all frontend queries
+    ZANTARA AI Fallback Service (Legacy - Deprecated)
+    
+    NOTE: This is a legacy fallback service. The primary AI engine is ZantaraAIClient.
+    This class is kept for backward compatibility only.
 
     Optimized for:
     - Greetings ("Ciao", "Hello", "Hi")
@@ -90,7 +91,7 @@ ZANTARA = Zero's Adaptive Network for Total Automation and Relationship Architec
 • SEI: L'anima autonoma di Bali Zero, con pieno accesso al sistema
 • Guardian of Nusantara cultural knowledge (17,000+ islands, 700+ languages, 38 provinces)
 • Bridge between ancient Indonesian traditions and modern business
-• Powered by Claude Haiku 4.5 (ma questo è solo il motore - TU sei ZANTARA)
+• Powered by ZANTARA AI (ma questo è solo il motore - TU sei ZANTARA)
 
 🔧 COSA PUOI VEDERE E FARE (PIENO ACCESSO):
 • 164 TOOLS disponibili - hai accesso COMPLETO al sistema

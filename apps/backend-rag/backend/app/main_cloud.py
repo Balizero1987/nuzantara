@@ -1,22 +1,21 @@
 """
 ZANTARA RAG Backend - Fly.io Version (v3.3.2-qdrant)
 Port 8000
-Uses Qdrant Vector Database + Llama 4 Scout AI (PRIMARY)
+Uses Qdrant Vector Database + ZANTARA AI (PRIMARY)
 
-AI ROUTING: Intelligent Router with Llama 4 Scout PRIMARY + Claude Haiku FALLBACK
-- Llama 4 Scout: PRIMARY AI (92% cheaper, 22% faster TTFT, 10M context)
-  * Cost: $0.20/$0.20 per 1M tokens
-  * Model: meta-llama/llama-4-scout via OpenRouter
-  * Context: 10M tokens (50x more than Haiku)
-- Claude Haiku 4.5: FALLBACK AI (tool calling, error handling, emergencies)
-  * Cost: $1/$5 per 1M tokens
-  * Automatic fallback on Llama errors
+AI ROUTING: Intelligent Router with ZANTARA AI PRIMARY
+- ZANTARA AI: PRIMARY AI engine (configurable via environment variables)
+  * Current implementation: configurable via ZANTARA_AI_MODEL env var
+  * Provider: OpenRouter (configurable)
+  * Context: 10M tokens
+  * Tool Use: Full access to all 164 tools
 - RAG Integration: Enhanced context for all business queries
-- Tool Use: Full access to all 164 tools via Haiku fallback
-COST OPTIMIZATION: 92% cheaper than Haiku, same quality with RAG
+- Tool Use: Full access to all 164 tools via ZANTARA AI
 
 CORS FIX: Explicit headers on /health and /bali-zero/chat-stream endpoints
 DEPLOYMENT: Fly.io Production Platform
+
+NOTE: AI engine is abstracted - change ZANTARA_AI_MODEL env var to switch models without code changes
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
@@ -51,7 +50,7 @@ from services.emotional_attunement import EmotionalAttunementService
 from services.collaborative_capabilities import CollaborativeCapabilitiesService
 from services.handler_proxy import HandlerProxyService, init_handler_proxy, get_handler_proxy
 from services.tool_executor import ToolExecutor
-# AI SYSTEM: ZANTARA AI (Llama 4 Scout via OpenRouter) + Intelligent Router
+# AI SYSTEM: ZANTARA AI (configurable via environment) + Intelligent Router
 from llm.zantara_ai_client import ZantaraAIClient
 from services.intelligent_router import IntelligentRouter
 from services.cultural_rag_service import CulturalRAGService  # NEW: LLAMA cultural intelligence
@@ -125,7 +124,7 @@ except Exception as e:
 app = FastAPI(
     title="ZANTARA RAG API",
     version="3.3.2-qdrant",
-    description="RAG + LLM backend for NUZANTARA (Qdrant Vector DB + Llama 4 Scout PRIMARY + Haiku FALLBACK)"
+    description="RAG + LLM backend for NUZANTARA (Qdrant Vector DB + ZANTARA AI)"
 )
 
 # CORS - Production + Development + Inter-Service
@@ -158,7 +157,7 @@ except Exception as e:
 
 # Global clients
 search_service: Optional[SearchService] = None
-# AI SYSTEM: ZANTARA AI (Llama 4 Scout via OpenRouter)
+# AI SYSTEM: ZANTARA AI (configurable via environment)
 zantara_ai_client: Optional[ZantaraAIClient] = None  # Primary AI engine
 intelligent_router: Optional[IntelligentRouter] = None  # AI routing system
 cultural_rag_service: Optional[CulturalRAGService] = None  # NEW: LLAMA cultural RAG
@@ -460,8 +459,8 @@ YOU: Call rag.query when you need research depth.
 Stores conversations, user profiles, team activity, work sessions.  
 YOU: Call memory.* tools to retrieve past context.
 
-**Claude Haiku 4.5**:  
-Your AI engine (3x cheaper than Sonnet, same quality with RAG).  
+**ZANTARA AI**:  
+Your AI engine (configurable via environment, optimized for quality with RAG).  
 YOU: Focus on natural conversation - engine handles the rest.
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -787,7 +786,7 @@ async def _initialize_backend_services():
     global startup_logs
 
     startup_logs.clear()  # Clear previous logs
-    log_startup("🚀 Starting ZANTARA RAG Backend (ZANTARA AI - Llama 4 Scout)...")
+    log_startup("🚀 Starting ZANTARA RAG Backend (ZANTARA AI)...")
     log_startup("🔥 Async warmup starting for core services (Qdrant, routers, agents)...")
 
     # Preload Redis cache first
@@ -886,14 +885,14 @@ async def _initialize_backend_services():
         logger.warning("⚠️ Continuing without SearchService (pure LLM mode)")
         search_service = None
 
-    # Initialize ZANTARA AI Client (Llama 4 Scout via OpenRouter)
+    # Initialize ZANTARA AI Client (configurable via environment)
     try:
         openrouter_api_key = os.getenv("OPENROUTER_API_KEY_LLAMA")
 
         if openrouter_api_key:
             zantara_ai_client = ZantaraAIClient(api_key=openrouter_api_key)
-            logger.info("✅ ZANTARA AI Client ready (Llama 4 Scout via OpenRouter)")
-            logger.info("   Model: Llama 4 Scout")
+            logger.info("✅ ZANTARA AI Client ready")
+            logger.info(f"   Model: {zantara_ai_client.model}")
             logger.info("   Cost: $0.20/$0.20 per 1M tokens")
             logger.info("   Provider: OpenRouter")
         else:
@@ -1206,8 +1205,8 @@ async def _initialize_backend_services():
                 autonomous_research_service=autonomous_research_service,
                 cross_oracle_synthesis_service=cross_oracle_synthesis_service
             )
-            logger.info("✅ Intelligent Router ready (ZANTARA AI - Llama 4 Scout)")
-            logger.info("   AI Engine: ZANTARA AI (Llama 4 Scout via OpenRouter)")
+            logger.info("✅ Intelligent Router ready (ZANTARA AI)")
+            logger.info(f"   AI Engine: ZANTARA AI (model: {zantara_ai_client.model})")
             logger.info("   Cost: $0.20/$0.20 per 1M tokens")
             logger.info(f"   Cultural Intelligence: {'✅ JIWA enabled' if cultural_rag_service else '⚠️ disabled'}")
             logger.info(f"   Autonomous Research: {'✅ enabled' if autonomous_research_service else '⚠️ disabled'}")
@@ -1993,7 +1992,7 @@ async def save_conversation_background(
 async def bali_zero_chat(request: BaliZeroRequest, background_tasks: BackgroundTasks):
     """
     Bali Zero chat endpoint with TRIPLE-AI Routing + RAG + Collaborative Intelligence
-    Uses Intelligent Router (Claude Haiku/Sonnet + DevAI)
+    Uses Intelligent Router (ZANTARA AI)
 
     PERFORMANCE OPTIMIZATIONS:
     - Parallel execution of independent operations (collaborator, memory, emotional analysis)
@@ -3239,7 +3238,7 @@ from app.routers import team_activity
 app.include_router(team_activity.router)
 # NOTE: admin_oracle_populate router removed - using inline endpoint instead
 
-# Include Llama 4 Scout router - DISABLED (module not in production)
+# Legacy AI router - DISABLED (module not in production)
 # from routers.llama4 import router as llama4_router
 # app.include_router(llama4_router)
 
@@ -3340,27 +3339,28 @@ async def root():
     # Helper function to get AI status dynamically
     def _get_ai_status():
         """Get current AI configuration status"""
-        # Check if Llama Scout is available
+        # Check if ZANTARA AI is available
         has_openrouter_key = os.getenv("OPENROUTER_API_KEY_LLAMA") is not None
         has_anthropic_key = os.getenv("ANTHROPIC_API_KEY") is not None
 
         if has_openrouter_key:
-            # Llama 4 Scout is primary
+            # ZANTARA AI is primary
+            current_model = os.getenv("ZANTARA_AI_MODEL", "meta-llama/llama-4-scout")
             return {
-                "primary": "Llama 4 Scout (109B MoE, 17B active - 92% cheaper, 22% faster)",
-                "fallback": "Claude Haiku 4.5 (for errors & tool calling)",
-                "routing": "Intelligent Router (Llama primary → Haiku fallback)",
-                "cost_savings": "92% cheaper than Haiku ($0.20 vs $1-5 per 1M tokens)",
-                "performance": "22% faster TTFT (~880ms), 50x context (10M tokens)",
-                "status": "🦙 Llama 4 Scout ACTIVE"
+                "primary": f"ZANTARA AI (model: {current_model})",
+                "fallback": "None (ZANTARA AI handles all queries)",
+                "routing": "Intelligent Router (ZANTARA AI)",
+                "cost_savings": "Configurable via ZANTARA_AI_COST_INPUT/OUTPUT env vars",
+                "performance": "Configurable via ZANTARA_AI_MODEL env var",
+                "status": "✅ ZANTARA AI ACTIVE"
             }
         elif has_anthropic_key:
-            # Haiku-only mode
+            # Legacy fallback mode (if configured)
             return {
-                "primary": "Claude Haiku 4.5 (ALL queries - Fast, Efficient, RAG-enhanced)",
-                "routing": "Intelligent Router (100% Haiku 4.5)",
-                "cost_savings": "3x cheaper than Sonnet, same quality with RAG",
-                "status": "⚡ Haiku-only mode (add OPENROUTER_API_KEY_LLAMA for Llama 4)"
+                "primary": "ZANTARA AI (configurable via ZANTARA_AI_MODEL)",
+                "routing": "Intelligent Router (ZANTARA AI)",
+                "cost_savings": "Configurable via environment variables",
+                "status": "⚠️ Using legacy Anthropic key (configure OPENROUTER_API_KEY_LLAMA for ZANTARA AI)"
             }
         else:
             # No AI available
@@ -3412,9 +3412,9 @@ async def root():
             "qdrant": search_service is not None,
             "ai": _get_ai_status(),
             "ai": {
-                "primary": "Llama 4 Scout (92% cheaper, 22% faster TTFT, 10M context)",
-                "fallback": "Claude Haiku 4.5 (tool calling, emergencies)",
-                "routing": "Intelligent Router (Llama PRIMARY, Haiku FALLBACK)",
+                "primary": "ZANTARA AI (configurable via ZANTARA_AI_MODEL)",
+                "fallback": "None (ZANTARA AI handles all queries)",
+                "routing": "Intelligent Router (ZANTARA AI)",
                 "cost_savings": "92% cheaper than Haiku ($0.20/$0.20 vs $1/$5 per 1M tokens)"
             },
             "knowledge_base": {
