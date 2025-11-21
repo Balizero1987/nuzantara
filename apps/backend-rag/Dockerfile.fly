@@ -11,13 +11,13 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements first (better caching)
-COPY apps/backend-rag/requirements.txt .
+COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY apps/backend-rag/backend ./backend
+COPY backend ./backend
 
 # Environment variables are set via fly.toml (QDRANT_URL, OPENAI_API_KEY, etc.)
 

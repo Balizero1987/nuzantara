@@ -476,7 +476,7 @@ Il team Bali Zero è composto da 23 professionisti esperti pronti ad aiutarti!`;
         message: 'Feedback recorded successfully',
       });
     } catch (error) {
-      logger.error('Feedback recording error:', error);
+      logger.error('Feedback recording error:', error instanceof Error ? error : undefined, { error: String(error) });
       res.status(500).json({
         success: false,
         error: 'Internal server error during feedback recording',
