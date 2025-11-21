@@ -317,7 +317,7 @@ class PluginRegistry:
         Get all plugins as Anthropic tool definitions
 
         Returns:
-            List of tool definitions for Claude AI
+            List of tool definitions for ZANTARA AI
         """
         tools = []
         for plugin in self._plugins.values():
