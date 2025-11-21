@@ -68,7 +68,7 @@ router.post('/kbli', async (req: Request, res: Response) => {
 
     return res.status(500).json({ error: 'No result from handler' });
   } catch (error: any) {
-    logger.error('KBLI cache error:', error);
+    logger.error('KBLI cache error:', error instanceof Error ? error : new Error(String(error)));
     // Fallback to direct handler on cache error
     return kbliLookup(req, res);
   }
@@ -110,7 +110,7 @@ router.post('/kbli/requirements', async (req: Request, res: Response) => {
 
     return res.status(500).json({ error: 'No result from handler' });
   } catch (error: any) {
-    logger.error('KBLI requirements cache error:', error);
+    logger.error('KBLI requirements cache error:', error instanceof Error ? error : new Error(String(error)));
     return kbliRequirements(req, res);
   }
 });
@@ -124,7 +124,7 @@ router.get('/pricing', cacheMiddleware('pricing', 3600), async (req: Request, re
     const result = await baliZeroPricing(req.query);
     return res.json(result);
   } catch (error: any) {
-    logger.error('Pricing error:', error);
+    logger.error('Pricing error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({ error: 'Pricing system error' });
   }
 });
@@ -152,7 +152,7 @@ router.post('/pricing', async (req: Request, res: Response) => {
 
     return res.status(500).json({ error: 'No result from handler' });
   } catch (error: any) {
-    logger.error('Pricing cache error:', error);
+    logger.error('Pricing cache error:', error instanceof Error ? error : new Error(String(error)));
     // Fallback to direct handler
     try {
       const result = await baliZeroPricing(req.body);
@@ -188,7 +188,7 @@ router.post('/price', async (req: Request, res: Response) => {
 
     return res.status(500).json({ error: 'No result from handler' });
   } catch (error: any) {
-    logger.error('Quick price cache error:', error);
+    logger.error('Quick price cache error:', error instanceof Error ? error : new Error(String(error)));
     // Fallback to direct handler
     try {
       const result = await baliZeroQuickPrice(req.body);
@@ -237,7 +237,7 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     return res.json(result);
   } catch (error: any) {
-    logger.error('Chat cache error:', error);
+    logger.error('Chat cache error:', error instanceof Error ? error : new Error(String(error)));
     // Fallback to direct handler
     const result = await baliZeroChat(req.body);
     return res.json(result);
@@ -294,7 +294,7 @@ router.get(
         try {
           parsedHistory = JSON.parse(conversation_history);
         } catch (error) {
-          logger.warn('[Stream] Failed to parse conversation_history:', error);
+          logger.warn('[Stream] Failed to parse conversation_history:', error instanceof Error ? error : new Error(String(error)));
         }
       }
 
@@ -354,7 +354,7 @@ router.get(
         duration,
       });
     } catch (error: any) {
-      logger.error('[Stream] Chat stream error:', error);
+      logger.error('[Stream] Chat stream error:', error instanceof Error ? error : new Error(String(error)));
 
       // Audit log: Stream failed
       const duration = Date.now() - startTime;
@@ -469,7 +469,7 @@ router.post(
         duration,
       });
     } catch (error: any) {
-      logger.error('[Stream] Chat stream error:', error);
+      logger.error('[Stream] Chat stream error:', error instanceof Error ? error : new Error(String(error)));
 
       // Audit log: Stream failed
       const duration = Date.now() - startTime;

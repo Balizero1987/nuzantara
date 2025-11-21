@@ -378,7 +378,7 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
 
     next();
   } catch (error: any) {
-    logger.error('Demo auth error:', error);
+    logger.error('Demo auth error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: 'Authentication error',

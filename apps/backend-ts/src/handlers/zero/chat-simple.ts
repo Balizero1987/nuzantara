@@ -53,7 +53,7 @@ export async function zeroChatSimple(params: ZeroChatSimpleParams): Promise<Zero
       toolsUsed: ['zantara'],
     };
   } catch (error: any) {
-    logger.error('Zero chat simple error:', error);
+    logger.error('Zero chat simple error:', error instanceof Error ? error : new Error(String(error)));
     return {
       ok: false,
       error: `Zero chat failed: ${error.message}`,

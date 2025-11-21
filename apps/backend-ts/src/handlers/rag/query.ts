@@ -77,7 +77,7 @@ export async function ragQuery(params: RAGQueryParams) {
       query,
     };
   } catch (error: any) {
-    logger.error('RAG query error:', error);
+    logger.error('RAG query error:', error instanceof Error ? error : new Error(String(error)));
     throw new Error(`RAG query failed: ${error?.message || 'Unknown error'}`);
   }
 }
@@ -116,7 +116,7 @@ export async function semanticSearch(params: SemanticSearchParams) {
       query,
     };
   } catch (error: any) {
-    logger.error('Semantic search error:', error);
+    logger.error('Semantic search error:', error instanceof Error ? error : new Error(String(error)));
     throw new Error(`Semantic search failed: ${error?.message || 'Unknown error'}`);
   }
 }
@@ -151,7 +151,7 @@ export async function getCollections() {
       total_documents: 0, // Sum from stats if needed
     };
   } catch (error: any) {
-    logger.error('Get collections error:', error);
+    logger.error('Get collections error:', error instanceof Error ? error : new Error(String(error)));
     throw new Error(`Failed to get collections: ${error?.message || 'Unknown error'}`);
   }
 }
@@ -187,7 +187,7 @@ export async function generateEmbeddings(params: EmbeddingParams) {
       model,
     };
   } catch (error: any) {
-    logger.error('Generate embeddings error:', error);
+    logger.error('Generate embeddings error:', error instanceof Error ? error : new Error(String(error)));
     throw new Error(`Failed to generate embeddings: ${error?.message || 'Unknown error'}`);
   }
 }
@@ -217,7 +217,7 @@ export async function getRagHealth() {
       data,
     };
   } catch (error: any) {
-    logger.error('RAG health check error:', error);
+    logger.error('RAG health check error:', error instanceof Error ? error : new Error(String(error)));
     return {
       ok: false,
       status: 'unhealthy',

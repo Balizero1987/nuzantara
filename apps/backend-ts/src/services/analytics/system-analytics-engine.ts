@@ -152,7 +152,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
         timestamp: new Date().toISOString(),
       };
     } catch (error: any) {
-      logger.error('System behavior analysis failed:', error);
+      logger.error('System behavior analysis failed:', error instanceof Error ? error : new Error(String(error)));
       return {
         insights: [
           {
@@ -449,7 +449,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
         critical: criticalCount,
       };
     } catch (error: any) {
-      logger.error('Anomaly detection failed:', error);
+      logger.error('Anomaly detection failed:', error instanceof Error ? error : new Error(String(error)));
       return { anomalies: [], totalDetected: 0, critical: 0 };
     }
   }
@@ -938,7 +938,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
       await this.analyzeSystemBehavior();
       await this.detectAnomalies();
     } catch (error: any) {
-      logger.error('Periodic analysis failed:', error);
+      logger.error('Periodic analysis failed:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -959,7 +959,7 @@ export class SystemAnalyticsEngine extends EventEmitter {
       this.isInitialized = true;
       logger.info('🧠 System Analytics Engine initialized');
     } catch (error: any) {
-      logger.error('Analytics engine initialization failed:', error);
+      logger.error('Analytics engine initialization failed:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 }

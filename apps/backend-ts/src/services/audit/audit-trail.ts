@@ -119,7 +119,7 @@ class AuditTrailService {
         await this.redis.connect();
         logger.info('✅ Audit trail service initialized');
       } catch (error: any) {
-        logger.error('Failed to initialize audit trail Redis:', error);
+        logger.error('Failed to initialize audit trail Redis:', error instanceof Error ? error : new Error(String(error)));
         this.redis = null;
         this.isConnected = false;
       }
@@ -278,7 +278,7 @@ class AuditTrailService {
 
       logger.debug(`Flushed ${events.length} audit events to Redis`);
     } catch (error: any) {
-      logger.error('Failed to flush audit buffer:', error);
+      logger.error('Failed to flush audit buffer:', error instanceof Error ? error : new Error(String(error)));
       // Re-add events to buffer for retry
       this.eventBuffer.unshift(...events);
     }
@@ -340,7 +340,7 @@ class AuditTrailService {
 
       return events;
     } catch (error: any) {
-      logger.error('Failed to query audit events:', error);
+      logger.error('Failed to query audit events:', error instanceof Error ? error : new Error(String(error)));
       return [];
     }
   }
@@ -452,7 +452,7 @@ class AuditTrailService {
       logger.info(`Cleaned up ${deleted} expired audit records`);
       return deleted;
     } catch (error: any) {
-      logger.error('Failed to cleanup audit records:', error);
+      logger.error('Failed to cleanup audit records:', error instanceof Error ? error : new Error(String(error)));
       return 0;
     }
   }

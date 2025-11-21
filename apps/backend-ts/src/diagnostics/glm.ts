@@ -151,6 +151,6 @@ runGLM()
     process.exit(hasErrors ? 1 : 0);
   })
   .catch((error) => {
-    logger.error('GLM failed:', error);
+    logger.error('GLM failed:', error instanceof Error ? error : new Error(String(error)));
     process.exit(1);
   });

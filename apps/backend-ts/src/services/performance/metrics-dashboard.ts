@@ -191,7 +191,7 @@ class MetricsCollector {
       this.metrics.requests.success++;
     } else {
       this.metrics.requests.error++;
-      logger.error(`Request failed: ${endpoint}`, error);
+      logger.error(`Request failed: ${endpoint}`, error instanceof Error ? error : new Error(String(error)));
     }
 
     // Update endpoint-specific metrics
@@ -533,7 +533,7 @@ export function getMetricsDashboard(_req: any, res?: any) {
 
     return response;
   } catch (error: any) {
-    logger.error('Failed to get metrics dashboard:', error);
+    logger.error('Failed to get metrics dashboard:', error instanceof Error ? error : new Error(String(error)));
     const errorResponse = {
       success: false,
       error: 'Failed to retrieve metrics',
@@ -566,7 +566,7 @@ export function resetMetrics(_req: any, res?: any) {
 
     return response;
   } catch (error: any) {
-    logger.error('Failed to reset metrics:', error);
+    logger.error('Failed to reset metrics:', error instanceof Error ? error : new Error(String(error)));
     const errorResponse = {
       success: false,
       error: 'Failed to reset metrics',

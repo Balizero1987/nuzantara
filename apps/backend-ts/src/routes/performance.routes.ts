@@ -154,7 +154,7 @@ router.get('/dashboard', (req: Request, res: Response) => {
 
     // Get comprehensive data for dashboard
     const summary = performanceMonitor.getPerformanceSummary(timeWindowMinutes);
-    const v3Metrics = performanceMonitor.getV3Metrics(timeWindowMinutes);
+    // v3Metrics removed - using summary data instead
     const alerts = performanceMonitor.getActiveAlerts();
 
     // Prepare dashboard data
@@ -169,18 +169,18 @@ router.get('/dashboard', (req: Request, res: Response) => {
         activeAlerts: alerts.length,
         criticalAlerts: alerts.filter((a) => a.severity === 'critical').length,
       },
-      endpoints: Object.entries(v3Metrics).map(([endpoint, metrics]) => ({
+      endpoints: Object.entries(summary.endpoints || {}).map(([endpoint, metrics]) => ({
         endpoint,
-        requests: metrics.totalRequests,
-        avgResponseTime: Math.round(metrics.averageResponseTime),
-        p95ResponseTime: Math.round(metrics.p95ResponseTime),
-        cacheHitRate: Math.round(metrics.cacheHitRate * 100),
-        errorRate: Math.round(metrics.errorRate * 100),
-        requestsPerMinute: Math.round(metrics.requestsPerMinute * 10) / 10,
+        requests: (metrics as any).totalRequests,
+        avgResponseTime: Math.round((metrics as any).averageResponseTime),
+        p95ResponseTime: Math.round((metrics as any).p95ResponseTime),
+        cacheHitRate: Math.round((metrics as any).cacheHitRate * 100),
+        errorRate: Math.round((metrics as any).errorRate * 100),
+        requestsPerMinute: Math.round((metrics as any).requestsPerMinute * 10) / 10,
         health:
-          metrics.averageResponseTime < 1000 && metrics.errorRate < 0.05
+          (metrics as any).averageResponseTime < 1000 && (metrics as any).errorRate < 0.05
             ? 'good'
-            : metrics.averageResponseTime < 5000 && metrics.errorRate < 0.1
+            : (metrics as any).averageResponseTime < 5000 && (metrics as any).errorRate < 0.1
               ? 'warning'
               : 'critical',
       })),
@@ -188,9 +188,9 @@ router.get('/dashboard', (req: Request, res: Response) => {
       domainPerformance: summary.domainPerformance,
       trends: {
         // Calculate simple trends (would be enhanced in real implementation)
-        responseTimeTrend: calculateTrend(v3Metrics, 'averageResponseTime'),
-        cacheHitTrend: calculateTrend(v3Metrics, 'cacheHitRate'),
-        errorRateTrend: calculateTrend(v3Metrics, 'errorRate'),
+        responseTimeTrend: calculateTrend(summary.endpoints || {}, 'averageResponseTime'),
+        cacheHitTrend: calculateTrend(summary.endpoints || {}, 'cacheHitRate'),
+        errorRateTrend: calculateTrend(summary.endpoints || {}, 'errorRate'),
       },
       lastUpdated: new Date().toISOString(),
     };

@@ -399,7 +399,7 @@ export class EnhancedTestSuite {
       } catch (error) {
         totalTests++;
         failedTests++;
-        logger.error(`Test error: ${test.name}`, error);
+        logger.error(`Test error: ${test.name}`, error instanceof Error ? error : new Error(String(error)));
       }
     }
 

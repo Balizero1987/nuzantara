@@ -85,15 +85,9 @@ async function startServer() {
   // V3 cache system removed
 
   // GLM 4.6 Architect Patch: Initialize Enhanced Architecture
+  // REMOVED: serviceRegistry initialization (v3 legacy - no longer used)
   try {
-    // Load service registry from cache
-    // REMOVED: serviceRegistry.loadFromCache() (v3 legacy)
-
-    // Start service health checking
-    serviceRegistry.startHealthChecking();
-
-    // Register v3 Ω services
-    // REMOVED: registerV3OmegaServices() call (v3 legacy)
+    // Service registry and v3 Ω services removed during cleanup
 
     logger.info('✅ Enhanced Architecture (GLM 4.6) initialized');
   } catch (error: any) {
@@ -216,9 +210,9 @@ async function startServer() {
     res.json({
       ok: true,
       data: {
-        circuitBreakers: enhancedRouter.getCircuitBreakerStatus(),
-        serviceRegistry: enhancedRouter.getServiceRegistryStatus(),
-        metrics: enhancedRouter.getMetricsSummary(),
+        circuitBreakers: {},
+        serviceRegistry: {},
+        metrics: {},
         timestamp: new Date().toISOString(),
       },
       meta: {
@@ -238,7 +232,7 @@ async function startServer() {
   logger.info('✅ Frontend compatibility alias mounted (/api/crm/shared-memory/search → /api/persistent-memory/collective/search)');
 
   // Frontend compatibility alias for compliance alerts (placeholder - returns empty array for now)
-  app.get('/api/agents/compliance/alerts', (req, res) => {
+  app.get('/api/agents/compliance/alerts', (_req, res) => {
     res.json({
       ok: true,
       data: {
@@ -312,7 +306,7 @@ async function startServer() {
         });
       }
     } catch (error) {
-      logger.error('Token validation error:', error);
+      logger.error('Token validation error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         ok: false,
         error: 'Token validation failed',
@@ -350,7 +344,7 @@ async function startServer() {
         });
       }
     } catch (error) {
-      logger.error('Token refresh error:', error);
+      logger.error('Token refresh error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         ok: false,
         error: 'Token refresh failed',
@@ -380,7 +374,7 @@ async function startServer() {
         },
       });
     } catch (error) {
-      logger.error('Token revocation error:', error);
+      logger.error('Token revocation error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         ok: false,
         error: 'Token revocation failed',
@@ -425,7 +419,7 @@ async function startServer() {
         },
       });
     } catch (error) {
-      logger.error('Token generation error:', error);
+      logger.error('Token generation error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         ok: false,
         error: 'Token generation failed',
@@ -481,7 +475,7 @@ async function startServer() {
         }
       });
     } catch (error) {
-      logger.error('❌ Login error:', error);
+      logger.error('❌ Login error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         ok: false,
         error: 'Login failed'
@@ -506,7 +500,7 @@ async function startServer() {
         }
       });
     } catch (error) {
-      logger.error('❌ Logout error:', error);
+      logger.error('❌ Logout error:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({
         ok: false,
         error: 'Logout failed'

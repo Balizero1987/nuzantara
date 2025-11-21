@@ -240,7 +240,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query);
 
-      return result.rows.map((row) => ({
+      return result.rows.map((row: any) => ({
         id: row.id,
         name: row.name,
         role: row.role,
@@ -282,7 +282,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query, [department]);
 
-      return result.rows.map((row) => ({
+      return result.rows.map((row: any) => ({
         id: row.id,
         name: row.name,
         role: row.role,
@@ -327,7 +327,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query, [memberId]);
 
-      return result.rows.map((row) => ({
+      return result.rows.map((row: any) => ({
         id: row.id,
         name: row.name,
         role: row.role,
@@ -373,7 +373,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query, params);
 
-      return result.rows.map((row) => ({
+      return result.rows.map((row: any) => ({
         id: row.id,
         member_a: row.member_a,
         member_b: row.member_b,
@@ -435,7 +435,7 @@ export class TeamKnowledgeDatabase {
 
       const relationshipsResult = await client.query(relationshipsQuery, [memberId]);
       const relationshipContext = relationshipsResult.rows.map(
-        (row) => `${row.related_name} (${row.relationship_type}, ${row.interaction_frequency})`
+        (row: any) => `${row.related_name} (${row.relationship_type}, ${row.interaction_frequency})`
       );
 
       return {
@@ -551,7 +551,7 @@ export class TeamKnowledgeDatabase {
 
       const result = await client.query(query, [searchTerm, limit]);
 
-      return result.rows.map((row) => ({
+      return result.rows.map((row: any) => ({
         id: row.id,
         name: row.name,
         role: row.role,
@@ -597,7 +597,7 @@ export class TeamKnowledgeDatabase {
       `;
       const deptResult = await client.query(deptQuery);
       const departments: { [key: string]: number } = {};
-      deptResult.rows.forEach((row) => {
+      deptResult.rows.forEach((row: any) => {
         departments[row.department] = parseInt(row.count);
       });
 
@@ -609,7 +609,7 @@ export class TeamKnowledgeDatabase {
       `;
       const verifyResult = await client.query(verifyQuery);
       const verification_status = { verified: 0, pending: 0, unverified: 0 };
-      verifyResult.rows.forEach((row) => {
+      verifyResult.rows.forEach((row: any) => {
         verification_status[row.verification_status as keyof typeof verification_status] = parseInt(
           row.count
         );
@@ -806,7 +806,7 @@ export class PersistentTeamEngine {
 
       const result = await client.query(query, [memberId]);
 
-      return result.rows.map((row) => ({
+      return result.rows.map((row: any) => ({
         topic: row.topics_discussed[0] || 'General discussion',
         date: row.date,
         participants: row.team_members_mentioned,
@@ -840,7 +840,7 @@ export class PersistentTeamEngine {
 
       const result = await client.query(query, [userId]);
 
-      return result.rows.map((row) => ({
+      return result.rows.map((row: any) => ({
         query: row.query_text,
         response: row.response_text,
         date: row.date,

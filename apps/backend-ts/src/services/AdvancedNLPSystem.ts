@@ -1493,7 +1493,7 @@ export class AdvancedNLPSystem {
         this.lastCacheUpdate = now;
         logger.info(`🔄 Team member cache refreshed with ${teamMembers.length} members`);
       } catch (error: any) {
-        logger.error('❌ Failed to refresh team member cache:', error);
+        logger.error('❌ Failed to refresh team member cache:', error instanceof Error ? error : new Error(String(error)));
       }
     }
   }

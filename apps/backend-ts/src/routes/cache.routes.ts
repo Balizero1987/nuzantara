@@ -58,7 +58,7 @@ router.get('/get', async (req: Request, res: Response) => {
       });
     }
   } catch (error: any) {
-    logger.error('Cache get error:', error);
+    logger.error('Cache get error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       status: 'error',
       message: 'Failed to retrieve from cache',
@@ -92,7 +92,7 @@ router.post('/set', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    logger.error('Cache set error:', error);
+    logger.error('Cache set error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       status: 'error',
       message: 'Failed to store in cache',
@@ -125,7 +125,7 @@ router.delete('/clear/:key', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    logger.error('Cache delete error:', error);
+    logger.error('Cache delete error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       status: 'error',
       message: 'Failed to delete from cache',
@@ -159,7 +159,7 @@ router.post('/invalidate', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    logger.error('Cache invalidation error:', error);
+    logger.error('Cache invalidation error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       status: 'error',
       message: 'Failed to invalidate cache',
@@ -182,7 +182,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    logger.error('Cache stats error:', error);
+    logger.error('Cache stats error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       status: 'error',
       message: 'Failed to retrieve cache stats',
@@ -218,7 +218,7 @@ router.get('/health', async (_req: Request, res: Response) => {
       });
     }
   } catch (error: any) {
-    logger.error('Cache health check error:', error);
+    logger.error('Cache health check error:', error instanceof Error ? error : new Error(String(error)));
     res.status(503).json({
       status: 'unhealthy',
       connected: false,

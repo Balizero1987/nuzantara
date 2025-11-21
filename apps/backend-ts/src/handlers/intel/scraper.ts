@@ -139,7 +139,7 @@ export async function intelScraperRun(params: ScraperParams): Promise<ScraperRes
       }
     });
   } catch (error: any) {
-    logger.error('Intel scraper error:', error);
+    logger.error('Intel scraper error:', error instanceof Error ? error : new Error(String(error)));
     return {
       success: false,
       jobId: `error_${Date.now()}`,

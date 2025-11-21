@@ -46,7 +46,7 @@ export class InternalServiceRegistry {
       logger.debug(`✅ Internal handler completed: ${name}`);
       return result;
     } catch (error) {
-      logger.error(`❌ Internal handler failed: ${name}`, error);
+      logger.error(`❌ Internal handler failed: ${name}`, error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }

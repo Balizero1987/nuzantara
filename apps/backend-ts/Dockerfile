@@ -16,7 +16,7 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 
 # Install ALL dependencies (including devDependencies for build)
-# Use --legacy-peer-deps to resolve chromadb/@google/generative-ai conflict
+# Note: --legacy-peer-deps used to resolve peer dependency conflicts
 RUN npm install --legacy-peer-deps
 
 # Copy source code
