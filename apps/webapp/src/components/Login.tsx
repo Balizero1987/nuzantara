@@ -16,9 +16,23 @@ export const Login: React.FC<LoginProps> = () => {
 
   const { loading, error, success, login, clearError, clearSuccess } = useLogin();
 
-  // Autofocus email on mount
+  // Load email and PIN from URL params (if present)
   useEffect(() => {
-    emailInputRef.current?.focus();
+    const params = new URLSearchParams(window.location.search);
+    const urlEmail = params.get('email');
+    const urlPin = params.get('pin');
+    
+    if (urlEmail) {
+      setEmail(decodeURIComponent(urlEmail));
+    }
+    if (urlPin) {
+      setPin(urlPin);
+    }
+    
+    // Autofocus email on mount (unless URL params provided)
+    if (!urlEmail) {
+      emailInputRef.current?.focus();
+    }
   }, []);
 
   // Email validation
