@@ -48,8 +48,14 @@ class SystemHandlersClient {
             console.log(`🔧 Fetching tools from: ${this.baseURL}${endpoint}`);
             const data = await this.api.post(endpoint, { key: 'system.handlers.tools' });
 
-            this.tools = data.tools || [];
+            // Backend returns { ok: true, tools: [...] } or { tools: [...] }
+            this.tools = data.tools || data.data?.tools || [];
             this.lastFetch = Date.now();
+            
+            console.log(`✅ Received ${this.tools.length} tools from backend`);
+            if (this.tools.length > 0) {
+                console.log(`📋 Sample tools:`, this.tools.slice(0, 3).map(t => t.name || t.key || t.handler));
+            }
 
             // Cache in localStorage
             try {
