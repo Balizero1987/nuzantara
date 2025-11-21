@@ -71,7 +71,9 @@ function setupEventListeners() {
  */
 function handleEmailBlur() {
   // Clear any messages on blur
-  welcomeMessage.classList.remove('show');
+  if (welcomeMessage) {
+    welcomeMessage.classList.remove('show');
+  }
 }
 
 /**
@@ -237,6 +239,10 @@ function clearError() {
  * Show success message
  */
 function showSuccess(message) {
-  welcomeMessage.textContent = message;
-  welcomeMessage.classList.add('show', 'success');
+  if (welcomeMessage) {
+    welcomeMessage.textContent = message;
+    welcomeMessage.classList.add('show', 'success');
+  } else {
+    console.log('✅', message);
+  }
 }
