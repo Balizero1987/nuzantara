@@ -270,7 +270,7 @@ Message: "${text}"`;
     const response = await aiChat({
       prompt,
       max_tokens: 100,
-      model: 'claude-3-5-haiku-20241022',
+      model: 'meta-llama/llama-3.3-70b-instruct',
     });
 
     const responseData: any = response.data || response;
@@ -455,7 +455,7 @@ async function sendIntelligentInstagramResponse(to: string, userMessage: string,
     const aiResponse = await aiChat({
       prompt,
       max_tokens: 250,
-      model: 'claude-3-5-haiku-20241022',
+      model: 'meta-llama/llama-3.3-70b-instruct',
     });
 
     const responseData: any = aiResponse.data || aiResponse;

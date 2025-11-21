@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { UnifiedAPIClient } from './core/unified-api-client.js';
+// Unified client now available as window.ZantaraAPIClient
 import { API_CONFIG } from './api-config.js';
 
 /**

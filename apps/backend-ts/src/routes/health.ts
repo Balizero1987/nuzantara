@@ -9,7 +9,6 @@ import { Router } from 'express';
 import { logger } from '../services/logger.js';
 import { featureFlags, FeatureFlag } from '../services/feature-flags.js';
 import { getDatabasePool } from '../services/connection-pool.js';
-import { getChromaDBPool } from '../services/chromadb-pool.js';
 import { dbCircuitBreaker, ragCircuitBreaker } from '../services/circuit-breaker.js';
 import { ok, err } from '../utils/response.js';
 
@@ -83,32 +82,6 @@ router.get('/health/detailed', async (_req: Request, res: Response) => {
     }
   } catch (error: any) {
     health.services.postgresql = {
-      status: 'unhealthy',
-      error: error.message,
-    };
-    allHealthy = false;
-  }
-
-  // Check ChromaDB
-  try {
-    if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
-      const chromaPool = getChromaDBPool();
-      const chromaHealthy = await chromaPool.healthCheck();
-
-      health.services.chromadb = {
-        status: chromaHealthy ? 'healthy' : 'unhealthy',
-        lastHealthCheck: chromaPool.getLastHealthCheck(),
-      };
-
-      if (!chromaHealthy) allHealthy = false;
-    } else {
-      health.services.chromadb = {
-        status: 'check_disabled',
-        note: 'Enhanced pooling disabled via feature flag',
-      };
-    }
-  } catch (error: any) {
-    health.services.chromadb = {
       status: 'unhealthy',
       error: error.message,
     };

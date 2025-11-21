@@ -6,7 +6,7 @@ Automatically builds and maintains a knowledge graph from all data sources
 import os
 import psycopg2
 from typing import List, Dict, Set, Tuple
-from anthropic import AsyncAnthropic
+from llm.zantara_ai_client import ZantaraAIClient
 import json
 from datetime import datetime
 
@@ -22,7 +22,7 @@ class KnowledgeGraphBuilder:
 
     def __init__(self):
         self.db_url = os.getenv("DATABASE_URL")
-        self.anthropic = AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        self.zantara_client = ZantaraAIClient()
 
     async def init_graph_schema(self):
         """Create knowledge graph tables"""
@@ -116,16 +116,14 @@ Return JSON array:
 
 Be precise. Only extract clear entities."""
 
-        response = await self.anthropic.messages.create(
-            model="claude-3-5-haiku-20241022",
+        text = await self.zantara_client.generate_text(
+            prompt=prompt,
             max_tokens=2048,
-            temperature=0.2,
-            messages=[{"role": "user", "content": prompt}]
+            temperature=0.2
         )
 
         try:
             # Extract JSON from response
-            text = response.content[0].text
             json_start = text.find('[')
             json_end = text.rfind(']') + 1
             if json_start >= 0 and json_end > json_start:
@@ -164,15 +162,13 @@ Return JSON array:
 
 Only include clear, meaningful relationships."""
 
-        response = await self.anthropic.messages.create(
-            model="claude-3-5-haiku-20241022",
+        text = await self.zantara_client.generate_text(
+            prompt=prompt,
             max_tokens=2048,
-            temperature=0.2,
-            messages=[{"role": "user", "content": prompt}]
+            temperature=0.2
         )
 
         try:
-            text = response.content[0].text
             json_start = text.find('[')
             json_end = text.rfind(']') + 1
             if json_start >= 0 and json_end > json_start:

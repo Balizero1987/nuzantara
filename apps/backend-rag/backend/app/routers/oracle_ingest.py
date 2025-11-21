@@ -1,6 +1,6 @@
 """
 ORACLE INGEST API Router
-Endpoint per caricare massivamente documenti legali su ChromaDB
+Endpoint per caricare massivamente documenti legali su Qdrant
 
 POST /api/oracle/ingest - Bulk upload di chunks con embeddings
 """
@@ -78,7 +78,7 @@ async def ingest_documents(
     service: SearchService = Depends(get_search_service)
 ):
     """
-    Bulk ingest documents into ChromaDB collection
+    Bulk ingest documents into Qdrant collection
     
     **Usage:**
     ```python
@@ -137,7 +137,7 @@ async def ingest_documents(
         logger.info(f"Generating embeddings for {len(contents)} documents...")
         embeddings = embedder.generate_batch_embeddings(contents)
         
-        # Prepare data for ChromaDB
+        # Prepare data for Qdrant
         documents = []
         metadatas = []
         ids = []

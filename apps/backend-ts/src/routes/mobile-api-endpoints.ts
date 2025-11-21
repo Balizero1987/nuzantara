@@ -4,7 +4,7 @@
  * Mobile-optimized API endpoints with compression, caching, and performance optimization
  * Tailored for mobile devices with slower connections and limited resources
  *
- * @author Claude Code Architecture v4.0
+ * @author ZANTARA Architecture v4.0
  * @version 1.0.0
  */
 

@@ -1,7 +1,6 @@
 // Weekly Report System for ZANTARA v5.2.0
 // Automatic Sunday analysis and reporting to Zero
 import logger from '../../services/logger.js';
-import { getFirestore } from '../../services/firebase.js';
 import { getGmail, getDrive } from '../../services/google-auth-service.js';
 import { ok } from '../../utils/response.js';
 
@@ -20,26 +19,10 @@ async function getGmailService() {
 
 // Get conversations for a specific user within date range
 async function getUserConversations(userId: string, startDate: Date, endDate: Date) {
-  try {
-    const db = getFirestore();
-    const conversationsRef = db.collection('conversations');
-
-    const snapshot = await conversationsRef
-      .where('userId', '==', userId)
-      .where('timestamp', '>=', startDate.toISOString())
-      .where('timestamp', '<=', endDate.toISOString())
-      .orderBy('timestamp', 'asc')
-      .limit(BATCH_SIZE)
-      .get();
-
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-  } catch (error: any) {
-    logger.error(`Failed to get conversations for ${userId}:`, error.message);
-    return [];
-  }
+  // Firestore removed - conversations now come from PostgreSQL memory service
+  // TODO: Query PostgreSQL for conversations when needed
+  logger.debug('getUserConversations called (PostgreSQL integration pending)', { userId, startDate, endDate });
+  return [];
 }
 
 // Aggregate daily conversations into single summary
@@ -528,27 +511,9 @@ export async function generateWeeklyReport() {
 
 // Archive processed conversations to save space
 async function archiveProcessedConversations(conversations: any[]) {
-  try {
-    const db = getFirestore();
-    const batch = db.batch();
-
-    conversations.forEach((conv) => {
-      const docRef = db.collection('conversations_archive').doc(conv.id);
-      batch.set(docRef, {
-        ...conv,
-        archivedAt: new Date().toISOString(),
-      });
-
-      // Delete from main collection
-      const originalRef = db.collection('conversations').doc(conv.id);
-      batch.delete(originalRef);
-    });
-
-    await batch.commit();
-    logger.info(`📦 Archived ${conversations.length} conversations`);
-  } catch (error: any) {
-    logger.error('Failed to archive conversations:', error.message);
-  }
+  // Firestore removed - archiving now uses PostgreSQL
+  // TODO: Implement PostgreSQL archiving when needed
+  logger.debug('Archive conversations (PostgreSQL integration pending)', { count: conversations.length });
 }
 
 // Schedule function (to be called by cron or scheduler)

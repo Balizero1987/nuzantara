@@ -39,7 +39,7 @@ def get_db():
 
 # Phase 1 Optimization: Dependency Injection
 # SearchService is injected via get_search_service() dependency
-# This eliminates ChromaDBClient duplication (was creating 2 instances per request)
+# This eliminates QdrantClient duplication (was creating 2 instances per request)
 # Memory footprint reduced by ~80%
 
 
@@ -112,7 +112,7 @@ async def search_tax_info(
     """
     Semantic search for tax information
     Searches both tax updates and tax knowledge collections
-    Phase 1 Optimization: Uses injected SearchService instead of creating ChromaDBClient instances
+    Phase 1 Optimization: Uses injected SearchService instead of creating QdrantClient instances
     """
     try:
         # Search tax updates (using shared collection from SearchService)
@@ -493,7 +493,7 @@ async def get_recent_tax_updates(
     service: SearchService = Depends(get_search_service)
 ):
     """
-    Get recent tax updates from ChromaDB
+    Get recent tax updates from Qdrant
     hours: How many hours back to look (default 168 = 7 days)
     Phase 1 Optimization: Uses injected SearchService
     """

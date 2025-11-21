@@ -55,7 +55,6 @@ class TimesheetWidget {
                 </div>
             </div>
             ${timesheetClient.isAdmin() ? `
-                <a href="team-dashboard.html" class="admin-link-mini" title="Team Dashboard">📊</a>
             ` : ''}
         `;
 

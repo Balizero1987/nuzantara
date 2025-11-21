@@ -20,7 +20,7 @@ class ConversationTrainer:
 
     def __init__(self):
         self.db_url = os.getenv("DATABASE_URL")
-        self.anthropic = AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        self.zantara_client = ZantaraAIClient()
         self.github_token = os.getenv("GITHUB_TOKEN")
 
     async def analyze_winning_patterns(self, days_back: int = 7):
@@ -87,14 +87,13 @@ Provide actionable recommendations in JSON format:
 }}
 """
 
-        response = await self.anthropic.messages.create(
-            model="claude-3-5-sonnet-20241022",
+        text = await self.zantara_client.generate_text(
+            prompt=analysis_prompt,
             max_tokens=4096,
-            temperature=0.3,
-            messages=[{"role": "user", "content": analysis_prompt}]
+            temperature=0.3
         )
 
-        return response.content[0].text
+        return text
 
     async def generate_prompt_update(self, analysis: str):
         """Generate improved system prompt based on analysis"""
@@ -113,14 +112,13 @@ Current prompt structure:
 
 Return the improved prompt ready to be committed."""
 
-        response = await self.anthropic.messages.create(
-            model="claude-3-5-sonnet-20241022",
+        text = await self.zantara_client.generate_text(
+            prompt=update_prompt,
             max_tokens=8192,
-            temperature=0.5,
-            messages=[{"role": "user", "content": update_prompt}]
+            temperature=0.5
         )
 
-        return response.content[0].text
+        return text
 
     async def create_improvement_pr(self, improved_prompt: str, analysis: str):
         """Create GitHub PR with prompt improvements"""

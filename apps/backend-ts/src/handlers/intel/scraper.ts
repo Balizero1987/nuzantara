@@ -5,8 +5,8 @@
  *
  * Features:
  * - 630+ sources across 12 categories
- * - AI-powered filtering (Llama 4 Scout + Gemini 2.0 Flash + Claude Haiku)
- * - Cost: ~$0.0004 per article (91% cheaper than Claude-only)
+ * - AI-powered filtering (Llama 4 Scout + Gemini 2.0 Flash + Zantara AI fallback)
+ * - Cost: ~$0.0004 per article with multi-model routing
  * - Generates professional Bali Zero Journal articles
  */
 
@@ -20,7 +20,7 @@ const OUTPUT_DIR = path.join(SCRAPER_DIR, 'data');
 
 interface ScraperParams {
   categories?: string[]; // Specific categories to scrape (default: all 12)
-  runStage2?: boolean; // Run AI article generation (Llama + Gemini + Claude fallback)
+  runStage2?: boolean; // Run AI article generation (Llama + Gemini + Zantara fallback)
   dryRun?: boolean; // Test mode without actual scraping
   limit?: number; // Max articles per category (default: 10)
   maxArticles?: number; // Max total articles to generate (default: 100)

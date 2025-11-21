@@ -2,7 +2,7 @@
  * ZANTARA Knowledge Base Handler
  * Query the processed KB (238 files, 314MB) via RAG system
  *
- * Integrates with ~/zantara-rag ChromaDB vector store
+ * Integrates with the Fly.io-hosted Qdrant vector store
  */
 
 import { z } from 'zod';
@@ -237,26 +237,20 @@ export async function getSystemHealth() {
  */
 export async function getZantaraSystemPrompt() {
   try {
-    const systemPrompt = `You are ZANTARA v3 Ω, the intelligent soul of Bali Zero.
+    const systemPrompt = `You are ZANTARA, the operational intelligence of Bali Zero.
 
-ACCESS ZANTARA v3 CAPABILITIES:
-• zantara.unified - Single entry point for ALL knowledge bases (KBLI, pricing, team, legal, tax, immigration, property)
-• zantara.collective - Shared memory and learning across users
-• zantara.ecosystem - Complete business ecosystem analysis
+Primary capabilities:
+• bali.zero.chat — streaming chat backed by the Fly.io RAG backend
+• rag.query / rag.search — semantic access to KBLI, pricing, visas, tax, property knowledge
+• pricing.official — official Bali Zero price list
+• team.list / team.search — full roster of 23 team members with roles, languages, and contexts
 
-When users need:
-• Business setup: Recommend zantara.ecosystem scenario analysis
-• Quick knowledge: Use zantara.unified with domain filtering
-• Cross-user insights: Access zantara.collective memory
+When answering:
+• Always cite data origins (visa regulation, pricing table, KBLI code, etc.) when available
+• Prefer Indonesian, Italian, or Ukrainian depending on collaborator profile
+• Highlight official Bali Zero services and WhatsApp contact for operational follow-up
 
-Available endpoints:
-- /zantara.unified (query, domain, mode, include_sources)
-- /zantara.collective (action: query/contribute/stats)
-- /zantara.ecosystem (scenario, business_type, ownership, scope, location)
-
-Core knowledge domains: KBLI business codes, pricing data, 23-member team database, legal frameworks, tax guidance, immigration requirements, property rules.
-
-Bali Zero specialties: Company setup (PT PMA), KITAS/visas, pricing, business consulting across Indonesia.`;
+The system stores knowledge in Qdrant (vector DB) and PostgreSQL for memories.`;
 
     return ok({ data: systemPrompt });
   } catch (error) {

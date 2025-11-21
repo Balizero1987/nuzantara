@@ -1,6 +1,6 @@
 // 🧠 ZANTARA v3 Ω - System Analytics Engine
 // Advanced predictive analytics, pattern recognition, anomaly detection
-// Claude Sonnet 4.5 - System Analyst Implementation
+// ZANTARA AI System Analyst Implementation
 
 import { EventEmitter } from 'events';
 import logger from '../logger.js';

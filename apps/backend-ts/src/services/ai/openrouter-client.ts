@@ -19,9 +19,7 @@ export type OpenRouterModel =
   | 'deepseek/deepseek-coder' // FREE - Best for code review
   | 'qwen/qwen-2.5-72b-instruct' // FREE - Best for test generation
   | 'mistralai/mistral-7b-instruct' // FREE - Fast for chat
-  | 'anthropic/claude-3.5-haiku' // $0.25/M - Fast, economical
-  | 'anthropic/claude-3.5-sonnet' // $3/M - Premium quality
-  | 'openai/gpt-4-turbo'; // $2.50/M - General purpose
+  | 'openai/gpt-4-turbo'; // Premium fallback
 
 export interface OpenRouterMessage {
   role: 'user' | 'assistant' | 'system';
@@ -352,7 +350,7 @@ export class OpenRouterClient {
       'code-review': 'deepseek/deepseek-coder', // FREE, specialized
       'refactoring': 'meta-llama/llama-3.3-70b-instruct', // FREE, powerful
       'testing': 'qwen/qwen-2.5-72b-instruct', // FREE, precise
-      'prediction': 'anthropic/claude-3.5-haiku', // $0.25/M, fast
+      'prediction': 'meta-llama/llama-3.3-70b-instruct',
       'chat': 'mistralai/mistral-7b-instruct', // FREE, fast
       'documentation': 'meta-llama/llama-3.3-70b-instruct' // FREE, good for text
     };
@@ -373,8 +371,6 @@ export class OpenRouterClient {
       'deepseek/deepseek-coder': { prompt: 0, completion: 0 },
       'qwen/qwen-2.5-72b-instruct': { prompt: 0, completion: 0 },
       'mistralai/mistral-7b-instruct': { prompt: 0, completion: 0 },
-      'anthropic/claude-3.5-haiku': { prompt: 0.25, completion: 1.25 },
-      'anthropic/claude-3.5-sonnet': { prompt: 3, completion: 15 },
       'openai/gpt-4-turbo': { prompt: 2.5, completion: 10 }
     };
 

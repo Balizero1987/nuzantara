@@ -158,19 +158,19 @@ async function handleLogin(e) {
 
   try {
     console.log('🔐 Attempting login...');
-    console.log('📍 API URL:', `${API_BASE_URL}/api/auth/demo`);
+    console.log('📍 API URL:', `${API_BASE_URL}/api/auth/team/login`);
     console.log('📧 Email:', email);
 
-    // Call auth API with email (backend accepts email or userId)
-    // Backend doesn't validate password for demo endpoint
-    const response = await fetch(`${API_BASE_URL}/api/auth/demo`, {
+    // Call auth API with email and PIN
+    const response = await fetch(`${API_BASE_URL}/api/auth/team/login`, {
       method: 'POST',
       credentials: 'include', // Include cookies for CORS
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: email  // Backend accepts email or userId
+        email: email,
+        pin: pin
       }),
     });
     
@@ -185,18 +185,17 @@ async function handleLogin(e) {
     const result = await response.json();
     console.log('✅ API Response:', result);
 
-    // Login successful - handle actual backend response format
-    // Backend returns: {token: "demo_xxx", expiresIn: 3600, userId: "demo"}
-    const token = result.token || result.access_token;
+    // Login successful - handle backend response format
+    const token = result.data?.token || result.token || result.access_token;
 
     // CRITICAL: Verify token exists
     if (!token) {
       throw new Error('Server did not return authentication token. Please contact support.');
     }
 
-    const expiresIn = result.expiresIn || result.expires_in || 3600; // 1 hour default
-    const user = result.user || {
-      id: result.userId || 'demo',
+    const expiresIn = result.data?.expiresIn || result.expiresIn || result.expires_in || 3600;
+    const user = result.data?.user || result.user || {
+      id: result.data?.userId || result.userId || email.split('@')[0],
       email: email,
       name: email.split('@')[0]
     };

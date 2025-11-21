@@ -1,7 +1,7 @@
 /**
  * Performance Monitoring Middleware
  *
- * Tracks request/response performance for v3 Ω endpoints
+ * Tracks request/response performance for all endpoints
  * Integrates with performance monitor for metrics collection
  */
 
@@ -254,7 +254,7 @@ export function performanceHeaders(req: Request, res: Response, next: NextFuncti
   res.setHeader('Server-Timing', 'zantara-monitor;desc="Performance Monitoring"');
 
   // Add cache control headers for API responses
-  if (req.path.startsWith('/api/v3/zantara') || req.path.startsWith('/zantara.')) {
+  if (false) { // V3 endpoints removed
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');

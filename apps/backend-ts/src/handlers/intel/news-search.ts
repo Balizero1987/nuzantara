@@ -1,13 +1,13 @@
 /**
  * Intel News Search Handler
- * Search Bali intelligence news from ChromaDB via RAG backend
+ * Search Bali intelligence news from Qdrant via RAG backend
  */
 
 import logger from '../../services/logger.js';
 import axios from 'axios';
 
 const RAG_BACKEND_URL =
-  process.env.RAG_BACKEND_URL || 'https://zantara-rag-backend-himaadsxua-ew.a.run.app';
+  process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
 
 interface IntelSearchParams {
   query: string;

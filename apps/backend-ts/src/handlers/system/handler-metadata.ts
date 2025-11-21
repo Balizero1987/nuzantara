@@ -43,14 +43,7 @@ export const HANDLER_REGISTRY: Record<string, HandlerMetadata> = {
     },
     returns: '{ ok: boolean, userId: string, email: string, profile: object, isNew: boolean }',
   },
-  'onboarding.start': {
-    key: 'onboarding.start',
-    category: 'identity',
-    description: 'Start AMBARADAM onboarding process',
-    params: {
-      email: { type: 'string', description: 'User email', required: true },
-    },
-  },
+  // REMOVED: onboarding.start (legacy handler no longer used)
 
   // === GOOGLE WORKSPACE ===
   'gmail.read': {
@@ -245,7 +238,7 @@ export const HANDLER_REGISTRY: Record<string, HandlerMetadata> = {
   'ai.chat': {
     key: 'ai.chat',
     category: 'ai',
-    description: 'AI chat with automatic fallback (OpenAI → Claude → Gemini)',
+    description: 'AI chat with automatic fallback (OpenAI → Llama → Gemini)',
     params: {
       message: { type: 'string', description: 'User message', required: true },
       model: { type: 'string', description: 'Preferred model', required: false },
@@ -365,7 +358,7 @@ export const HANDLER_REGISTRY: Record<string, HandlerMetadata> = {
     description: 'Query RAG knowledge base (forwards to Python backend)',
     params: {
       query: { type: 'string', description: 'Search query', required: true },
-      collection: { type: 'string', description: 'ChromaDB collection', required: false },
+      collection: { type: 'string', description: 'Qdrant collection', required: false },
     },
   },
   'bali.zero.chat': {

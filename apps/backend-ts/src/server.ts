@@ -50,7 +50,6 @@ import correlationMiddleware from './logging/correlation-middleware.js';
 // Load balancing and high availability components
 import { featureFlags, FeatureFlag } from './services/feature-flags.js';
 import { initializeDatabasePool, getDatabasePool } from './services/connection-pool.js';
-import { initializeChromaDBPool, getChromaDBPool } from './services/chromadb-pool.js';
 import { prioritizedRateLimiter } from './middleware/prioritized-rate-limit.js';
 import healthRoutes from './routes/health.js';
 import { auditTrail } from './services/audit-trail.js';
@@ -66,9 +65,7 @@ import {
 } from './middleware/performance-middleware.js';
 import performanceRoutes from './routes/performance.routes.js';
 
-// GLM 4.6 Architect Patch - Enhanced Architecture
-import { serviceRegistry } from './services/architecture/service-registry.js';
-import { enhancedRouter } from './services/architecture/enhanced-router.js';
+// REMOVED: v3 Ω services (legacy - no longer used)
 
 // UNIFIED AUTHENTICATION - Strategy Pattern Implementation (Gemini Pro 2.5)
 import {
@@ -78,127 +75,25 @@ import {
 // AI AUTOMATION - Cron Scheduler (OpenRouter Integration)
 import aiMonitoringRoutes from './routes/ai-monitoring.js';
 
-// GLM 4.6 Architect Patch: Register v3 Ω services
-async function registerV3OmegaServices(): Promise<void> {
-  // Register v3 Ω service instances
-  const v3Services = [
-    {
-      id: 'unified-service-1',
-      name: 'unified',
-      version: '1.0.0',
-      host: 'localhost',
-      port: 8080,
-      protocol: 'http' as const,
-      health: 'healthy' as const,
-      lastHealthCheck: Date.now(),
-      metadata: {
-        description: 'Unified knowledge hub service',
-        weight: 10,
-        domain: 'all',
-      },
-    },
-    {
-      id: 'collective-service-1',
-      name: 'collective',
-      version: '1.0.0',
-      host: 'localhost',
-      port: 8080,
-      protocol: 'http' as const,
-      health: 'healthy' as const,
-      lastHealthCheck: Date.now(),
-      metadata: {
-        description: 'Collective memory service',
-        weight: 8,
-        domain: 'memory',
-      },
-    },
-    {
-      id: 'ecosystem-service-1',
-      name: 'ecosystem',
-      version: '1.0.0',
-      host: 'localhost',
-      port: 8080,
-      protocol: 'http' as const,
-      health: 'healthy' as const,
-      lastHealthCheck: Date.now(),
-      metadata: {
-        description: 'Business ecosystem analysis',
-        weight: 7,
-        domain: 'business',
-      },
-    },
-  ];
-
-  for (const service of v3Services) {
-    await serviceRegistry.registerService(service);
-  }
-
-
-  // Register enhanced routes
-  enhancedRouter.registerRoute({
-    path: '/zantara.unified',
-    method: 'POST',
-    service: 'unified',
-    timeout: 10000,
-    retryAttempts: 3,
-    rateLimit: {
-      windowMs: 60000,
-      max: 100,
-    },
-  });
-
-  enhancedRouter.registerRoute({
-    path: '/zantara.collective',
-    method: 'POST',
-    service: 'collective',
-    timeout: 15000,
-    retryAttempts: 2,
-    rateLimit: {
-      windowMs: 60000,
-      max: 50,
-    },
-  });
-
-  enhancedRouter.registerRoute({
-    path: '/zantara.ecosystem',
-    method: 'POST',
-    service: 'ecosystem',
-    timeout: 20000,
-    retryAttempts: 2,
-    rateLimit: {
-      windowMs: 60000,
-      max: 30,
-    },
-  });
-
-  logger.info('✅ v3 Ω services registered with enhanced routing');
-}
+// REMOVED: registerV3OmegaServices() function (v3 legacy endpoints no longer used)
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
   // Initialize Redis cache
   await initializeRedis();
 
-  // 🚀 CRITICAL: Initialize V3 Performance Cache System
-  try {
-    const { initializeV3CacheSystem } = await import('./services/v3-cache-init.js');
-    await initializeV3CacheSystem();
-    logger.info('✅ V3 Performance Cache System initialized');
-  } catch (error: any) {
-    logger.warn(`⚠️ V3 Cache initialization failed: ${error.message}`);
-    logger.warn('⚠️ Continuing without V3 cache optimization');
-  }
+  // V3 cache system removed
 
   // GLM 4.6 Architect Patch: Initialize Enhanced Architecture
   try {
     // Load service registry from cache
-    await serviceRegistry.loadFromCache();
+    // REMOVED: serviceRegistry.loadFromCache() (v3 legacy)
 
     // Start service health checking
     serviceRegistry.startHealthChecking();
 
     // Register v3 Ω services
-    await registerV3OmegaServices();
+    // REMOVED: registerV3OmegaServices() call (v3 legacy)
 
     logger.info('✅ Enhanced Architecture (GLM 4.6) initialized');
   } catch (error: any) {
@@ -214,10 +109,6 @@ async function startServer() {
         logger.info('✅ Database connection pool initialized');
       }
 
-      if (process.env.CHROMADB_URL) {
-        await initializeChromaDBPool();
-        logger.info('✅ ChromaDB connection pool initialized');
-      }
     } catch (error: any) {
       logger.warn(`⚠️  Connection pooling initialization failed: ${error.message}`);
       logger.warn('⚠️  Continuing without enhanced pooling');
@@ -337,31 +228,7 @@ async function startServer() {
     });
   });
 
-  // Enhanced v3 Ω endpoints with circuit breaker protection
-  const { zantaraUnified } = await import('./handlers/zantara/zantara-unified.js');
-  const { zantaraCollective } = await import('./handlers/zantara/zantara-collective.js');
-  const { zantaraEcosystem } = await import('./handlers/zantara/zantara-ecosystem.js');
-  app.post('/zantara.unified', zantaraUnified);
-  app.post('/zantara.collective', zantaraCollective);
-  app.post('/zantara.ecosystem', zantaraEcosystem);
-
-  // FIX 2: Frontend compatibility aliases - /api/v3/zantara/* → /zantara.*
-  app.post('/api/v3/zantara/unified', (req, res, next) => {
-    req.url = '/zantara.unified';
-    app._router.handle(req, res, next);
-  });
-
-  app.post('/api/v3/zantara/collective', (req, res, next) => {
-    req.url = '/zantara.collective';
-    app._router.handle(req, res, next);
-  });
-
-  app.post('/api/v3/zantara/ecosystem', (req, res, next) => {
-    req.url = '/zantara.ecosystem';
-    app._router.handle(req, res, next);
-  });
-
-  logger.info('✅ Frontend compatibility aliases mounted (/api/v3/zantara/* → /zantara.*)');
+  // V3 endpoints removed - using direct RAG backend instead
 
   // Frontend compatibility alias for shared memory search
   app.get('/api/crm/shared-memory/search', (req, res, next) => {
@@ -567,51 +434,7 @@ async function startServer() {
     }
   });
 
-  // FIX 1: POST /api/auth/demo - Generate demo token for testing/development
-  app.post('/api/auth/demo', async (req, res) => {
-    try {
-      const { userId, name, email } = req.body;
-
-      const demoUserId = userId || `demo_${Date.now()}`;
-      const demoUser = {
-        id: demoUserId,
-        userId: demoUserId, // Compatibility layer
-        email: email || `${userId || 'demo'}@demo.zantara.io`,
-        name: name || 'Demo User',
-        role: 'User' as const,
-        department: 'demo',
-        permissions: ['read' as const],
-        isActive: true,
-        lastLogin: new Date(),
-        authType: 'legacy' as const
-      };
-
-      const token = unifiedAuth.generateToken(demoUser, 'legacy');
-      const expiresIn = 3600;
-
-      logger.info(`✅ Demo token generated for user: ${demoUser.id}`);
-
-      res.json({
-        ok: true,
-        data: {
-          token,
-          expiresIn,
-          user: {
-            id: demoUser.id,
-            email: demoUser.email,
-            name: demoUser.name,
-            role: demoUser.role
-          }
-        }
-      });
-    } catch (error) {
-      logger.error('❌ Demo auth error:', error);
-      res.status(500).json({
-        ok: false,
-        error: 'Failed to generate demo token'
-      });
-    }
-  });
+  // Legacy demo auth endpoint removed (only real team auth supported)
 
   // FIX 4a: POST /auth/login - User login (JWT generation)
   app.post('/auth/login', async (req, res) => {
@@ -740,10 +563,7 @@ async function startServer() {
   // seedTestData(); // Initialize test companies
   // logger.info('✅ Tax Dashboard routes loaded');
 
-  // V3 Performance Monitoring Routes
-  const v3PerformanceRoutes = await import('./routes/v3-performance.routes.js');
-  app.use('/api/v3/performance', v3PerformanceRoutes.default);
-  logger.info('✅ V3 Performance monitoring routes mounted');
+  // V3 Performance routes removed
 
   // Cursor Ultra Auto Patch: Enhanced Code Quality Routes
   const codeQualityRoutes = await import('./routes/code-quality.routes.js');
@@ -839,11 +659,6 @@ async function startServer() {
             logger.info('Database connection pool closed');
           }
 
-          if (process.env.CHROMADB_URL) {
-            const chromaPool = getChromaDBPool();
-            await chromaPool.close();
-            logger.info('ChromaDB connection pool closed');
-          }
         } catch (error: any) {
           logger.error(`Error closing connection pools: ${error.message}`);
         }

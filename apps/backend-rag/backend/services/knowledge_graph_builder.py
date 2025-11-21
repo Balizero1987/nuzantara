@@ -2,7 +2,7 @@
 Knowledge Graph Builder - Phase 4 (Advanced Agent)
 
 Builds and maintains a knowledge graph of relationships between entities
-discovered in ChromaDB collections.
+discovered in Qdrant collections.
 
 Example Knowledge Graph:
 ```
@@ -99,7 +99,7 @@ class Relationship:
 
 class KnowledgeGraphBuilder:
     """
-    Builds and maintains knowledge graph from ChromaDB collections.
+    Builds and maintains knowledge graph from Qdrant collections.
 
     Process:
     1. Extract entities from collection texts

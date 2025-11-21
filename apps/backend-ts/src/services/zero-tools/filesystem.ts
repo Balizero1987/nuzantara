@@ -30,7 +30,7 @@ export interface GlobResult {
 }
 
 /**
- * Read file with line numbers (Claude Code style)
+ * Read file with line numbers (editor style)
  */
 export async function readFileZero(relativePath: string): Promise<ReadFileResult> {
   try {
@@ -60,7 +60,7 @@ export async function readFileZero(relativePath: string): Promise<ReadFileResult
 }
 
 /**
- * Edit file with exact string replacement (Claude Code style)
+ * Edit file with exact string replacement (editor style)
  */
 export async function editFileZero(
   relativePath: string,
@@ -110,7 +110,7 @@ export async function editFileZero(
 }
 
 /**
- * Write new file (Claude Code style)
+ * Write new file (editor style)
  */
 export async function writeFileZero(
   relativePath: string,
@@ -131,7 +131,7 @@ export async function writeFileZero(
 }
 
 /**
- * Glob pattern matching (Claude Code style)
+ * Glob pattern matching (editor style)
  */
 export async function globZero(pattern: string): Promise<GlobResult> {
   try {

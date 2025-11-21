@@ -141,8 +141,8 @@ export async function npmRunZero(script: string): Promise<BashResult> {
  */
 export async function healthCheckZero(): Promise<BashResult> {
   const backends = [
-    'https://zantara-v520-nuzantara-1064094238013.europe-west1.run.app/health',
-    'https://zantara-rag-backend-himaadsxua-ew.a.run.app/health',
+    'https://nuzantara-backend.fly.dev/health',
+    'https://nuzantara-rag.fly.dev/health',
   ];
 
   const results = await Promise.all(backends.map((url) => bashZero(`curl -sS ${url}`)));

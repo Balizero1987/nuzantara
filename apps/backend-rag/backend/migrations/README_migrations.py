@@ -27,7 +27,7 @@ print("   1. Deploy to Fly.io")
 print("   2. Run backend with DATABASE_URL configured")
 print()
 print("💡 For local development without PostgreSQL:")
-print("   - The scrapers will work with ChromaDB only (file-based)")
+print("   - The scrapers will work with Qdrant only (file-based)")
 print("   - API endpoints requiring PostgreSQL will show appropriate errors")
 print("   - Full functionality requires Fly.io deployment with PostgreSQL")
 print()
@@ -43,9 +43,9 @@ print("   - Use the SQL console to run the migration files in order")
 print()
 print("=" * 70)
 
-# Check if we can run knowledge base population with ChromaDB only
+# Check if we can run knowledge base population with Qdrant only
 print()
-print("Checking ChromaDB setup for local development...")
+print("Checking Qdrant setup for local development...")
 print()
 
 chroma_dirs = [
@@ -62,14 +62,14 @@ for dir_path in chroma_dirs:
         print(f"📁 {dir_path} will be created on first run")
 
 print()
-print("✅ ChromaDB is ready for local development (file-based storage)")
+print("✅ Qdrant is ready for local development (file-based storage)")
 print()
 print("Next steps:")
 print("1. Run knowledge base population: python migrate_oracle_kb.py")
-print("   (Will work with ChromaDB, PostgreSQL parts will be skipped)")
+print("   (Will work with Qdrant, PostgreSQL parts will be skipped)")
 print()
 print("2. Run scrapers locally: python backend/scrapers/tax_scraper.py --mode once")
-print("   (Will save to ChromaDB only)")
+print("   (Will save to Qdrant only)")
 print()
 print("3. For full PostgreSQL integration, deploy to Fly.io")
 print()
