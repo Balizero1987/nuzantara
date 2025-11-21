@@ -363,6 +363,28 @@ async function startServer() {
 
   logger.info('✅ Frontend compatibility aliases mounted (/api/v3/zantara/* → /zantara.*)');
 
+  // Frontend compatibility alias for shared memory search
+  app.get('/api/crm/shared-memory/search', (req, res, next) => {
+    req.url = '/api/persistent-memory/collective/search';
+    app._router.handle(req, res, next);
+  });
+  logger.info('✅ Frontend compatibility alias mounted (/api/crm/shared-memory/search → /api/persistent-memory/collective/search)');
+
+  // Frontend compatibility alias for compliance alerts (placeholder - returns empty array for now)
+  app.get('/api/agents/compliance/alerts', (req, res) => {
+    res.json({
+      ok: true,
+      data: {
+        alerts: [],
+        total: 0,
+        critical: 0,
+        warning: 0,
+        lastUpdated: new Date().toISOString()
+      }
+    });
+  });
+  logger.info('✅ Frontend compatibility alias mounted (/api/agents/compliance/alerts - placeholder)');
+
   // UNIFIED AUTHENTICATION ENDPOINTS (Gemini Pro 2.5)
   app.get('/auth/strategies', (_req, res) => {
     res.json({
