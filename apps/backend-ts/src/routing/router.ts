@@ -294,9 +294,9 @@ const handlers: Record<string, Handler> = {
 
     const quotes = {
       visa: {
-        'B211A (Visit Visa)': { price: '150', timeline: '3-5 days' },
-        'B211B (Business Visa)': { price: '200', timeline: '5-7 days' },
-        'B213 (Investor Visa)': { price: '500', timeline: '10-14 days' },
+        'Visit Visa': { price: '150', timeline: '3-5 days' },
+        'Business Visa': { price: '200', timeline: '5-7 days' },
+        'Investor Visa': { price: '500', timeline: '10-14 days' },
         'Kitas (Stay Permit)': { price: '800', timeline: '30-45 days' },
       },
       company: {
@@ -644,7 +644,7 @@ const handlers: Record<string, Handler> = {
    * await call('memory.save', {
    *   userId: 'client456',
    *   key: 'visa_type',
-   *   value: 'B211A Tourist Visa',
+   *   value: 'Example Tourist Visa',
    *   type: 'service_interest'
    * })
    */
@@ -712,14 +712,14 @@ const handlers: Record<string, Handler> = {
 
   // 📊 ZANTARA Dashboard handlers removed
 
-  // 💰 BALI ZERO OFFICIAL PRICING - HARDCODED ONLY
+  // 💰 BALI ZERO OFFICIAL PRICING - DELEGATES TO RAG BACKEND
   /**
    * @handler bali.zero.pricing
-   * @description Get official Bali Zero pricing data (2025 pricelist). CRITICAL: Returns only hardcoded official prices, NO AI generation allowed. Includes anti-hallucination safeguards.
+   * @description Get official Bali Zero pricing data from database (Qdrant/PostgreSQL via RAG backend). All pricing data is stored in the database, not hardcoded.
    * @param {string} [params.service_type='all'] - Service category: visa, kitas, kitap, business, tax, or all
-   * @param {string} [params.specific_service] - Search for specific service by name (e.g., "C1 Tourism", "Working KITAS")
+   * @param {string} [params.specific_service] - Search for specific service by name (e.g., "tourist visa", "work permit")
    * @param {boolean} [params.include_details=true] - Include full service details and notes
-   * @returns {Promise<{ok: boolean, data: object, official_notice: string, currency: string, contact_info: object}>} Official pricing with contact details
+   * @returns {Promise<{ok: boolean, data: object, official_notice: string, source: string, contact_info: object}>} Official pricing from database
    * @throws Never throws - returns fallback contact info on error
    * @example
    * // Get all visa prices
@@ -796,11 +796,11 @@ const handlers: Record<string, Handler> = {
    * @example
    * // Ask about visa requirements
    * await call('bali.zero.chat', {
-   *   query: 'What documents do I need for B211A visa extension?',
+   *   query: 'What documents do I need for a long-stay visa extension?',
    *   user_role: 'member',
    *   conversation_history: [
    *     { role: 'user', content: 'I need a visa' },
-   *     { role: 'assistant', content: 'B211A is good for tourism...' }
+   *     { role: 'assistant', content: 'This tourist visa is good for tourism...' }
    *   ]
    * })
    *

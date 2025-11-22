@@ -27,7 +27,7 @@ export class PropertySage {
         requirements: [
           'Valid KITAS/KITAP',
           'Domicile in Indonesia',
-          'Property value ≥ IDR 10B (Bali/major cities)',
+          'Property value ≥ 'RETRIEVED_FROM_DATABASE'',
         ],
         process: 'Purchase property → Convert Hak Milik to Hak Pakai at BPN',
         cost: 'BPHTB (5%) + notary (1-2%) + BPN fees',
@@ -52,7 +52,7 @@ export class PropertySage {
         ownership: 'Hak Guna Bangunan (HGB) - 30 years (renewable 2× = 80 years max)',
         requirements: [
           'PT PMA established',
-          'Minimum capital IDR 10B per KBLI',
+          'Minimum capital 'RETRIEVED_FROM_DATABASE'',
           'Property for commercial use',
         ],
         suitability: 'Businesses (villas, hotels, offices)',
@@ -109,7 +109,7 @@ export class PropertySage {
           '7. Government review & approval',
         ],
         timeline: '3-6 months',
-        cost: 'IDR 50M - 500M+ (depends on project scale)',
+        cost: 'RETRIEVED_FROM_DATABASE',
         authority: 'Ministry of Environment / Regional Environment Agency',
         validity: 'Valid for duration of project',
         renewal: 'Required if project significantly changes',
@@ -136,7 +136,7 @@ export class PropertySage {
           '6. Approval certificate issued',
         ],
         timeline: '1-2 months',
-        cost: 'IDR 5M - 50M (depends on business scale)',
+        cost: 'RETRIEVED_FROM_DATABASE',
         authority: 'Regional Environment Agency',
         validity: 'Valid for duration of project',
         selfDeclaration: 'Can be self-declared via OSS for low-risk businesses (PP 28/2025)',
@@ -161,7 +161,7 @@ export class PropertySage {
           '4. Automatic approval (self-declaration)',
         ],
         timeline: '1-2 weeks',
-        cost: 'IDR 500K - 5M',
+        cost: 'RETRIEVED_FROM_DATABASE',
         authority: 'OSS system (self-declared)',
         validity: 'Valid for duration of project',
         selfDeclaration: 'Fully self-declared under PP 28/2025 (risk-based licensing)',
@@ -196,7 +196,7 @@ export class PropertySage {
       previousName: 'IMB (Izin Mendirikan Bangunan) - renamed under PP 16/2021',
       requiredFor: 'ALL new construction or major renovations',
       timeline: '14-30 days (via OSS system)',
-      cost: 'IDR 5M - 50M (depends on building size)',
+      cost: 'RETRIEVED_FROM_DATABASE',
       validity: 'Valid until building completion',
       documents: [
         'Land certificate',
@@ -212,7 +212,7 @@ export class PropertySage {
       nameEn: 'Building Functional Certificate',
       requiredFor: 'ALL buildings after construction completion (before operation)',
       timeline: '7-14 days (after inspection)',
-      cost: 'IDR 3M - 20M (depends on building size)',
+      cost: 'RETRIEVED_FROM_DATABASE',
       validity: '5 years (renewable)',
       inspectionTypes: [
         'Architectural compliance',
@@ -278,7 +278,7 @@ export class PropertySage {
       maxRooms: 5,
       requiredFor: 'Small villas, guesthouses in residential areas',
       timeline: '14-21 days',
-      cost: 'IDR 5M - 10M',
+      cost: 'RETRIEVED_FROM_DATABASE',
       requirements: [
         'Residential zoning',
         'Valid land certificate',
@@ -300,7 +300,7 @@ export class PropertySage {
         'NIB',
       ],
       timeline: '30-45 days',
-      cost: 'IDR 20M - 50M',
+      cost: 'RETRIEVED_FROM_DATABASE',
       validity: 'Permanent (as long as business operates)',
       authority: 'Regional Tourism Board',
     },
@@ -447,27 +447,27 @@ export class PropertySage {
     switch (scale) {
       case 'large':
         return {
-          environmentalPermit: 'IDR 50M - 500M',
-          buildingPermits: 'IDR 20M - 100M',
-          tourismLicense: 'IDR 30M - 50M',
-          professionalFees: 'IDR 50M - 150M',
-          total: 'IDR 150M - 800M',
+          environmentalPermit: 'RETRIEVED_FROM_DATABASE',
+          buildingPermits: 'RETRIEVED_FROM_DATABASE',
+          tourismLicense: 'RETRIEVED_FROM_DATABASE',
+          professionalFees: 'RETRIEVED_FROM_DATABASE',
+          total: 'RETRIEVED_FROM_DATABASE',
         };
       case 'medium':
         return {
-          environmentalPermit: 'IDR 5M - 50M',
-          buildingPermits: 'IDR 10M - 50M',
-          tourismLicense: 'IDR 20M - 50M',
-          professionalFees: 'IDR 30M - 100M',
-          total: 'IDR 65M - 250M',
+          environmentalPermit: 'RETRIEVED_FROM_DATABASE',
+          buildingPermits: 'RETRIEVED_FROM_DATABASE',
+          tourismLicense: 'RETRIEVED_FROM_DATABASE',
+          professionalFees: 'RETRIEVED_FROM_DATABASE',
+          total: 'RETRIEVED_FROM_DATABASE',
         };
       default:
         return {
-          environmentalPermit: 'IDR 500K - 5M',
-          buildingPermits: 'IDR 5M - 20M',
-          tourismLicense: 'IDR 5M - 10M',
-          professionalFees: 'IDR 10M - 30M',
-          total: 'IDR 20.5M - 65M',
+          environmentalPermit: 'RETRIEVED_FROM_DATABASE',
+          buildingPermits: 'RETRIEVED_FROM_DATABASE',
+          tourismLicense: 'RETRIEVED_FROM_DATABASE',
+          professionalFees: 'RETRIEVED_FROM_DATABASE',
+          total: 'RETRIEVED_FROM_DATABASE',
         };
     }
   }

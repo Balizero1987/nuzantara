@@ -219,30 +219,30 @@ export class EyeKBLI {
 
   private capitalRequirements = {
     generalRule: {
-      minimum: 'IDR 10 billion',
+      minimum: 'RETRIEVED_FROM_DATABASE',
       excludes: 'Land and buildings',
       application: 'Per 5-digit KBLI code per project location',
       example:
-        'Restaurant (56101) in Seminyak = IDR 10B, Restaurant (56101) in Ubud = IDR 10B (separate capital required)',
+        'Restaurant (56101) in Seminyak = 'RETRIEVED_FROM_DATABASE'',
     },
 
     multipleKBLI: {
-      sameLocation: 'IDR 10B × number of KBLI codes',
-      example: 'Villa (55130) + Restaurant (56101) + Bar (56301) in Canggu = IDR 30B minimum',
-      note: 'Each KBLI requires separate IDR 10B capital at same location',
+      sameLocation: 'RETRIEVED_FROM_DATABASE',
+      example: 'Villa (55130) + Restaurant (56101) + Bar (56301) in Canggu = 'RETRIEVED_FROM_DATABASE'',
+      note: 'Each KBLI requires separate 'RETRIEVED_FROM_DATABASE'',
     },
 
     exceptions: {
       ecommerce: {
         kbli: '47919',
-        localOwnership: 'IDR 10B (if foreign ownership)',
-        foreignOwnership100: 'IDR 100B (for 100% foreign-owned e-commerce)',
+        localOwnership: 'RETRIEVED_FROM_DATABASE',
+        foreignOwnership100: 'RETRIEVED_FROM_DATABASE',
         note: 'Higher capital for 100% foreign ownership',
       },
     },
 
     paidUpCapital: {
-      minimum: 'IDR 2.5 billion',
+      minimum: 'RETRIEVED_FROM_DATABASE',
       timing: 'Must be paid within timeframe specified in deed',
       verification: 'Bank statement + auditor verification required',
     },
@@ -270,7 +270,7 @@ export class EyeKBLI {
       online: {
         kbli: '47919 (E-commerce retail)',
         foreignOwnership: '100% (OPEN)',
-        capitalRequirement: 'IDR 100B for 100% foreign ownership',
+        capitalRequirement: 'RETRIEVED_FROM_DATABASE',
       },
     },
 
@@ -293,23 +293,23 @@ export class EyeKBLI {
         status: 'MANDATORY for ALL food & beverage businesses',
         legalBasis: 'PP 39/2021',
         validity: '4 years',
-        cost: 'IDR 500K - 5M+ (depends on SKUs)',
+        cost: 'RETRIEVED_FROM_DATABASE',
         authority: 'BPJPH (replaced MUI as issuing body)',
         note: 'No longer optional - business necessity in Muslim-majority Indonesia',
       },
 
       commonKBLI: [
-        { code: '56101', name: 'Restaurant', capital: 'IDR 10B', risk: 'Medium-Low' },
-        { code: '56102', name: 'Food Stalls', capital: 'IDR 10B', risk: 'Low' },
-        { code: '56104', name: 'Mobile Food & Beverage', capital: 'IDR 10B', risk: 'Low' },
+        { code: '56101', name: 'Restaurant', capital: 'RETRIEVED_FROM_DATABASE', risk: 'Medium-Low' },
+        { code: '56102', name: 'Food Stalls', capital: 'RETRIEVED_FROM_DATABASE', risk: 'Low' },
+        { code: '56104', name: 'Mobile Food & Beverage', capital: 'RETRIEVED_FROM_DATABASE', risk: 'Low' },
         {
           code: '56301',
           name: 'Bar (serving alcohol)',
-          capital: 'IDR 10B',
+          capital: 'RETRIEVED_FROM_DATABASE',
           risk: 'High',
           note: 'NPPBCK alcohol license required',
         },
-        { code: '56306', name: 'Catering', capital: 'IDR 10B', risk: 'Medium-Low' },
+        { code: '56306', name: 'Catering', capital: 'RETRIEVED_FROM_DATABASE', risk: 'Medium-Low' },
       ],
     },
 
@@ -317,7 +317,7 @@ export class EyeKBLI {
       kbli: '41011',
       name: 'Residential Building Construction',
       foreignOwnership: { nonASEAN: '67%', ASEAN: '70%' },
-      capital: 'IDR 10B per location',
+      capital: 'RETRIEVED_FROM_DATABASE',
       risk: 'Medium to High',
       scale: 'Large scale',
       licenses: [
@@ -334,7 +334,7 @@ export class EyeKBLI {
       '56101': {
         name: 'Restoran',
         nameEn: 'Restaurant',
-        capital: 'IDR 10,000,000,000',
+        capital: 'RETRIEVED_FROM_DATABASE',
         licenses: ['SIUP', 'TDP', 'HO', 'Hygiene Certificate'],
         timeline: '21-30 days',
         restrictions: 'No street-facing in traditional market areas',
@@ -343,7 +343,7 @@ export class EyeKBLI {
       '56301': {
         name: 'Bar',
         nameEn: 'Bar/Nightclub',
-        capital: 'IDR 10,000,000,000',
+        capital: 'RETRIEVED_FROM_DATABASE',
         licenses: ['SIUP', 'TDP', 'HO', 'Alcohol License', 'STPW'],
         timeline: '45-60 days',
         restrictions: 'Zoning restrictions apply, not near schools/temples',
@@ -352,7 +352,7 @@ export class EyeKBLI {
       '93290': {
         name: 'Beach Club / Entertainment',
         nameEn: 'Recreation & Entertainment',
-        capital: 'IDR 10,000,000,000',
+        capital: 'RETRIEVED_FROM_DATABASE',
         licenses: ['SIUP', 'TDP', 'HO', 'Tourism License'],
         timeline: '30-45 days',
         restrictions: 'Beachfront requires additional permits',
@@ -363,7 +363,7 @@ export class EyeKBLI {
       '55130': {
         name: 'Villa',
         nameEn: 'Villa Accommodation',
-        capital: 'IDR 10,000,000,000',
+        capital: 'RETRIEVED_FROM_DATABASE',
         licenses: ['Pondok Wisata', 'SIUP', 'TDP', 'PBG'],
         timeline: '30-45 days',
         restrictions: 'Max 5 rooms for Pondok Wisata',
@@ -374,7 +374,7 @@ export class EyeKBLI {
       '70209': {
         name: 'Konsultan',
         nameEn: 'Business Consultant',
-        capital: 'IDR 10,000,000,000',
+        capital: 'RETRIEVED_FROM_DATABASE',
         licenses: ['SIUP', 'TDP'],
         timeline: '14-21 days',
         restrictions: 'Some sectors require specific qualifications',
@@ -466,8 +466,8 @@ export class EyeKBLI {
       ],
       capitalRequirement: kbli.capital,
       timeEstimate: kbli.timeline,
-      governmentFees: 'IDR 5,000,000 - 15,000,000',
-      professionalFees: 'IDR 20,000,000 - 50,000,000',
+      governmentFees: 'RETRIEVED_FROM_DATABASE',
+      professionalFees: 'RETRIEVED_FROM_DATABASE',
     };
   }
 

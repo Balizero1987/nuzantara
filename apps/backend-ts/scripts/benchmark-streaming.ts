@@ -97,7 +97,7 @@ async function benchmarkStream(baseUrl: string, query: string): Promise<Benchmar
 }
 
 async function runBenchmarks(baseUrl: string, iterations: number = 10) {
-  const query = 'What documents do I need for B211A visa extension?';
+  const query = 'What documents do I need for a long-stay visa extension?';
   const results: BenchmarkResult[] = [];
 
   console.log(`\n🚀 Starting SSE Streaming Benchmark (${iterations} iterations)`);

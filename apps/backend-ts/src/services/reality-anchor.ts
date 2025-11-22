@@ -44,7 +44,7 @@ export class RealityAnchorSystem {
       immutable: true,
     },
     {
-      fact: 'Visa types handled: B211A, B211B, KITAS, KITAP, VOA',
+      fact: 'Visa services handled: visit visas, business visas, KITAS, KITAP, VOA',
       source: 'verified',
       lastVerified: '2025-09-26',
       immutable: true,

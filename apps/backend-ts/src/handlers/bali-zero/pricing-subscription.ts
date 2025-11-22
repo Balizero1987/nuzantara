@@ -37,11 +37,7 @@ const SUBSCRIPTION_PLANS = {
       'Access to KBLI database',
       'Monthly tax report',
     ],
-    pricing: {
-      monthly: { IDR: '4.999.000', USD: '315' },
-      quarterly: { IDR: '14.299.000', USD: '900' }, // 5% discount
-      annual: { IDR: '54.890.000', USD: '3465' }, // 10% discount
-    },
+    pricing: 'RETRIEVED_FROM_DATABASE',
     renewal_terms: 'Auto-renews on billing date',
     cancellation_notice: '7 days',
     features_limit: {
@@ -66,9 +62,9 @@ const SUBSCRIPTION_PLANS = {
       'Custom reporting',
     ],
     pricing: {
-      monthly: { IDR: '12.999.000', USD: '825' },
-      quarterly: { IDR: '37.497.000', USD: '2375' }, // 5% discount
-      annual: { IDR: '139.989.000', USD: '8865' }, // 10% discount
+      monthly: 'RETRIEVED_FROM_DATABASE',
+      quarterly: 'RETRIEVED_FROM_DATABASE',
+      annual: 'RETRIEVED_FROM_DATABASE',
     },
     renewal_terms: 'Auto-renews on billing date',
     cancellation_notice: '14 days',
@@ -97,7 +93,7 @@ const SUBSCRIPTION_PLANS = {
       'Quarterly business review',
     ],
     pricing: {
-      monthly: { IDR: '49.999.000', USD: '3165' },
+      monthly: 'RETRIEVED_FROM_DATABASE',
       quarterly: { IDR: '144.997.000', USD: '9180' }, // 5% discount
       annual: { IDR: '539.989.000', USD: '34200' }, // 10% discount
     },
