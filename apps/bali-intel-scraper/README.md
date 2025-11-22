@@ -49,7 +49,7 @@ BALI ZERO INTELLIGENCE PIPELINE
 │  ├─ Final fallback Claude Haiku (baseline)                  │
 │  └─ Output: data/articles/{category}/*.md                   │
 ├─────────────────────────────────────────────────────────────┤
-│  STAGE 3: CHROMADB UPLOAD (optional)                        │
+│  STAGE 3: VECTOR DB UPLOAD (optional)                       │
 │  └─ Upload to RAG backend for semantic search               │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -405,7 +405,7 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 
 ## 📝 **TODO / Roadmap**
 
-- [ ] Implement ChromaDB upload (Stage 3)
+- [ ] Implement vector DB upload (Stage 3)
 - [ ] Add web dashboard for monitoring
 - [ ] Add Telegram/WhatsApp notifications
 - [ ] Multi-language support (Indonesian + English)

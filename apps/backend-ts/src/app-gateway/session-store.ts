@@ -47,8 +47,8 @@ export function getSession(id: string) {
   return inMem.get(id) || null;
 }
 
-export async function persistSessionFirestore(_rec: SessionRecord) {
-  // Firestore persistence removed - sessions now use in-memory only
-  // TODO: If persistence needed, use PostgreSQL
+export async function persistSession(_rec: SessionRecord) {
+  // Session persistence currently disabled - using in-memory only
+  // TODO: If persistence is needed, integrate PostgreSQL or the memory service
   logger.debug('Session persistence disabled (using in-memory only)');
 }

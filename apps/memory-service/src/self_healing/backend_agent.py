@@ -5,7 +5,7 @@ Autonomous agent that monitors backend service health and auto-fixes issues
 Runs continuously on each Fly.io service (RAG, Memory, etc.)
 
 Features:
-- Health checks (API, DB, Redis, ChromaDB)
+- Health checks (API, DB, Redis, vector DB)
 - Auto-restart on failures
 - Memory leak detection
 - Database connection pool management

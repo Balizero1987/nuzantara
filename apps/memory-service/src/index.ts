@@ -2,7 +2,7 @@
  * NUZANTARA MEMORY SERVICE v1.0
  *
  * Standalone microservice for intelligent memory management
- * Architecture: Multi-layer storage (PostgreSQL, Redis, ChromaDB, Neo4j)
+ * Architecture: Multi-layer storage (PostgreSQL, Redis, vector DB, Neo4j)
  *
  * Phase 1: PostgreSQL Foundation
  * - Session management

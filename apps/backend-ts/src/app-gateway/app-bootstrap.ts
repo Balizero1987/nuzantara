@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { BootstrapArgs, BootstrapResponse } from './types.js';
 import { getFlags } from '../config/flags.js';
-import { createSession, persistSessionFirestore } from './session-store.js';
+import { createSession, persistSession } from './session-store.js';
 
 function genSessionId(): string {
   return `sess_${Date.now().toString(36)}_${crypto.randomBytes(4).toString('hex')}`;
@@ -32,7 +32,7 @@ export async function buildBootstrapResponse(args: BootstrapArgs): Promise<Boots
       channel: 'webapp',
       csrfToken,
     });
-    persistSessionFirestore({
+    persistSession({
       id: sessionId,
       user: args.user,
       origin: args.origin,

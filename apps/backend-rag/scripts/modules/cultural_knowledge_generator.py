@@ -35,7 +35,7 @@ class CulturalKnowledgeGenerator:
         database_url: str,
         runpod_endpoint: Optional[str] = None,
         runpod_api_key: Optional[str] = None,
-        search_service=None  # NEW: SearchService for ChromaDB integration
+        search_service=None  # NEW: SearchService for vector DB integration
     ):
         """
         Initialize generator
@@ -44,7 +44,7 @@ class CulturalKnowledgeGenerator:
             database_url: PostgreSQL connection string
             runpod_endpoint: RunPod LLAMA endpoint
             runpod_api_key: RunPod API key
-            search_service: SearchService instance for ChromaDB integration (optional)
+            search_service: SearchService instance for vector DB integration (optional)
         """
         self.database_url = database_url
         self.runpod_endpoint = runpod_endpoint
@@ -109,7 +109,7 @@ class CulturalKnowledgeGenerator:
                 tone=tone
             )
 
-            # Save to ChromaDB for fast retrieval (if SearchService available)
+            # Save to vector DB for fast retrieval (if SearchService available)
             if self.search_service:
                 await self._save_to_chromadb(
                     topic=topic,
@@ -455,7 +455,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
             logger.error(f"❌ Failed to save cultural chunk: {e}")
             raise
 
-    async def _save_to_chromadb(
+    async def _save_to_vector_db(
         self,
         topic: str,
         content: str,
@@ -463,7 +463,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
         tone: str
     ):
         """
-        Save cultural chunk to ChromaDB for fast retrieval
+        Save cultural chunk to vector DB for fast retrieval
 
         Args:
             topic: Topic identifier
@@ -472,7 +472,7 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
             tone: Tone identifier
         """
         if not self.search_service:
-            logger.warning("⚠️ SearchService not available, skipping ChromaDB save")
+            logger.warning("⚠️ SearchService not available, skipping vector DB save")
             return
 
         try:
@@ -491,13 +491,13 @@ Write ONLY the knowledge chunk (no introduction, no "Here's the content"):"""
             )
 
             if success:
-                logger.info(f"✅ Saved to ChromaDB: {topic}")
+                logger.info(f"✅ Saved to vector DB: {topic}")
             else:
-                logger.warning(f"⚠️ ChromaDB save failed for: {topic}")
+                logger.warning(f"⚠️ Vector DB save failed for: {topic}")
 
         except Exception as e:
-            logger.error(f"❌ Failed to save to ChromaDB: {e}")
-            # Don't raise - ChromaDB save is optional, PostgreSQL is primary
+            logger.error(f"❌ Failed to save to vector DB: {e}")
+            # Don't raise - vector DB save is optional, PostgreSQL is primary
 
     async def batch_generate_cultural_chunks(self) -> Dict:
         """

@@ -227,7 +227,7 @@ async function getInstagramUserInfo(userId: string): Promise<any> {
 }
 
 /**
- * Save Instagram message to Firestore memory
+ * Save Instagram message to persistent memory service
  */
 async function saveInstagramMessageToMemory(data: any) {
   try {
