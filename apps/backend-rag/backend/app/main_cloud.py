@@ -34,6 +34,7 @@ from llm.zantara_ai_client import ZantaraAIClient
 
 from app.routers import (
     agents,
+    auth,
     autonomous_agents,
     conversations,
     crm_clients,
@@ -93,6 +94,8 @@ app.add_middleware(
 
 
 def include_routers(api: FastAPI) -> None:
+    # Authentication router (highest priority)
+    api.include_router(auth.router)
     api.include_router(health.router)
     api.include_router(handlers.router)
     api.include_router(agents.router)
