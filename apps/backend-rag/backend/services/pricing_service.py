@@ -70,8 +70,8 @@ class PricingService:
         # Map service types to specific methods
         if service_type == "visa":
             return self.get_visa_prices()
-        elif service_type == "kitas":
-            return self.get_kitas_prices()
+        elif service_type == "kitas" or service_type == "long_stay_permit":
+            return self.get_kitas_prices()  # Generic long-stay permit prices
         elif service_type == "business_setup":
             return self.get_business_prices()
         elif service_type == "tax_consulting":
@@ -249,8 +249,8 @@ class PricingService:
         # Map service types to specific methods
         if service_type == "visa":
             return self.get_visa_prices()
-        elif service_type == "kitas":
-            return self.get_kitas_prices()
+        elif service_type == "kitas" or service_type == "long_stay_permit":
+            return self.get_kitas_prices()  # Generic long-stay permit prices
         elif service_type == "business_setup":
             return self.get_business_prices()
         elif service_type == "tax_consulting":
@@ -292,7 +292,7 @@ class PricingService:
             context_parts.append("")
 
         if service_type == "kitas" or service_type is None:
-            context_parts.append("## KITAS PRICES")
+            context_parts.append("## Long-stay Permit Prices")  # Generic - no specific codes
             for name, data in services.get('kitas_permits', {}).items():
                 offshore = data.get('offshore', data.get('price_1y_off', 'Contact'))
                 onshore = data.get('onshore', data.get('price_1y_on', 'Contact'))

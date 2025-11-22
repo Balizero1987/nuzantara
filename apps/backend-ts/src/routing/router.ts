@@ -145,7 +145,7 @@ import {
 import { adminAuth } from '../middleware/admin-auth.js';
 
 // Memory & Persistence
-// PRIORITY 5: Firestore handlers removed - using Python memory system only
+// LEGACY CODE CLEANED: Firestore removed - using Python memory system only
 import { memorySave, memorySearch, memoryRetrieve } from '../handlers/memory/memory.js';
 // Enhanced memory handlers commented out until implemented
 // import {
@@ -200,7 +200,7 @@ const AI_FALLBACK_ORDER = (process.env.AI_FALLBACK_ORDER || 'ai.chat')
   .filter(Boolean);
 const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 30000);
 
-// Firestore handlers removed - using Python memory system only
+// LEGACY CODE CLEANED: Firestore removed - using Python memory system only
 
 async function runHandler(key: string, params: any, ctx: any) {
   const handler = handlers[key];
@@ -239,25 +239,28 @@ const handlers: Record<string, Handler> = {
   'team.token.verify': async (params: any) => verifyToken(params.token),
 
   // Custom GPT Business Handlers
+  // TABULA RASA: Contact information should be retrieved from database
+  // For now, this handler returns a placeholder structure indicating data comes from database
   'contact.info': async () =>
     ok({
-      company: 'Bali Zero',
-      tagline: 'From Zero to Infinity ∞',
-      services: ['Visas', 'Company Setup', 'Tax Consulting', 'Real Estate Legal'],
+      company: 'RETRIEVED_FROM_DATABASE',
+      tagline: 'RETRIEVED_FROM_DATABASE',
+      services: [], // Retrieved from database
       office: {
-        location: 'Kerobokan, Bali, Indonesia',
-        mapUrl: 'https://maps.app.goo.gl/i6DbEmfCtn1VJ3G58',
+        location: 'RETRIEVED_FROM_DATABASE',
+        mapUrl: 'RETRIEVED_FROM_DATABASE',
       },
       communication: {
-        email: 'info@balizero.com',
-        whatsapp: '+62 859 0436 9574',
-        instagram: '@balizero0',
+        email: 'RETRIEVED_FROM_DATABASE',
+        whatsapp: 'RETRIEVED_FROM_DATABASE',
+        instagram: 'RETRIEVED_FROM_DATABASE',
       },
       team: {
-        ceo: 'Zainal Abidin',
-        departments: ['Setup Team', 'Tax Department', 'Marketing', 'Reception', 'Board'],
+        ceo: 'RETRIEVED_FROM_DATABASE',
+        departments: [], // Retrieved from database
       },
-      availability: '24/7 via WhatsApp, Office hours 9AM-6PM Bali time',
+      availability: 'RETRIEVED_FROM_DATABASE',
+      note: 'All contact information is stored in the database and should be retrieved via RAG backend or settings API',
     }),
 
   'lead.save': async (params: any) => {
@@ -576,7 +579,7 @@ const handlers: Record<string, Handler> = {
   // Memory System handlers
   /**
    * @handler memory.save
-   * @description Save user conversation memory to Firestore with automatic fallback to in-memory Map. Supports multiple data formats (content, key-value, object) and deduplicates entries automatically.
+   * @description Save user conversation memory (Firestore removed - using Python memory system). Supports multiple data formats (content, key-value, object) and deduplicates entries automatically.
    * @param {string} params.userId - User ID (required)
    * @param {string} [params.content] - Memory content to save (preferred format)
    * @param {string} [params.key] - Memory key for key-value format
@@ -623,7 +626,7 @@ const handlers: Record<string, Handler> = {
 
   /**
    * @handler memory.retrieve
-   * @description Retrieve user memory from Firestore with automatic fallback to in-memory Map. Returns most recent fact or fact matching a specific key.
+   * @description Retrieve user memory (Firestore removed - using Python memory system). Returns most recent fact or fact matching a specific key.
    * @param {string} [params.userId] - User ID to retrieve memory for
    * @param {string} [params.key] - Memory key to search for (acts as filter or fallback userId)
    * @returns {Promise<{ok: boolean, content: string, userId: string, facts_count: number, last_updated: string}>} Memory content and metadata
@@ -685,7 +688,7 @@ const handlers: Record<string, Handler> = {
    *
    * // Search for specific service
    * await call('bali.zero.pricing', {
-   *   specific_service: 'Working KITAS',
+   *   specific_service: 'Working long-stay permit',
    *   service_type: 'all'
    * })
    *
@@ -1606,9 +1609,7 @@ export function attachRoutes(app: import('express').Express) {
         const shouldAutoSave = autoSaveKeys.some((k) => key.includes(k) || key === k);
 
         if (shouldAutoSave) {
-          // Prompt and response variables removed - not used (Firestore deprecated)
-
-          // Auto-save disabled (Firestore deprecated)
+          // LEGACY CODE CLEANED: Auto-save disabled (Firestore removed)
         }
 
         return res.status(200).json(ok(result?.data ?? result));

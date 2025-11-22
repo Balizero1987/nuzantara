@@ -339,87 +339,23 @@ CREATE INDEX idx_tax_treaties_country ON tax_treaty_benefits(country_name);
 -- ========================================
 -- SEED DATA - Property Legal Structures
 -- ========================================
-
-INSERT INTO property_legal_structures (structure_type, name, description, foreign_eligible, pros, cons, setup_cost_min, setup_cost_max, annual_cost_min, annual_cost_max, timeline_min_days, timeline_max_days, requirements, risks, applicable_property_types) VALUES
-('PT_PMA', 'PT PMA Company', 'Foreign investment company for property ownership', true,
-    ARRAY['Can hold HGB rights (30+20+30 years)', 'Legal and secure', 'Can mortgage property', 'Can rent commercially', 'Asset protection'],
-    ARRAY['High setup cost', 'Minimum investment 10B IDR', 'Annual compliance', 'Cannot hold freehold'],
-    40000000, 60000000, 30000000, 50000000, 21, 28,
-    ARRAY['10B IDR investment plan', '2 shareholders minimum', 'Indonesian director', 'Physical office'],
-    ARRAY['Regulatory changes', 'Compliance burden'],
-    ARRAY['villa', 'land', 'commercial']
-),
-('HAK_PAKAI', 'Hak Pakai (Right to Use)', 'Direct ownership for foreigners', true,
-    ARRAY['Direct ownership for foreigners', 'No company needed', '25+20+25 years', 'Simpler process'],
-    ARRAY['Cannot mortgage', 'Limited property types', 'Minimum price requirements', 'Cannot sublet easily'],
-    10000000, 20000000, 0, 1000000, 14, 21,
-    ARRAY['Valid KITAS/KITAP', 'Property meets minimum value', 'Not agricultural land'],
-    ARRAY['Limited financing options', 'Resale restrictions'],
-    ARRAY['villa', 'residential']
-),
-('LEASEHOLD', 'Long-term Lease', 'Lease agreement (25-30 years)', true,
-    ARRAY['Lower upfront cost', 'Flexibility', 'Can be extended', 'No ownership restrictions'],
-    ARRAY['No asset ownership', 'Renewal uncertainty', 'Cannot mortgage', 'Deprecating value'],
-    5000000, 10000000, 0, 0, 7, 7,
-    ARRAY['Lease agreement', 'Notarized contract', 'Clear terms'],
-    ARRAY['Lease not renewed', 'Landlord disputes'],
-    ARRAY['villa', 'land', 'residential', 'commercial']
-)
-ON CONFLICT DO NOTHING;
+-- TABULA RASA: All property legal structures data is loaded from Qdrant/PostgreSQL via data ingestion scripts
+-- No hardcoded INSERT statements - all data comes from database
+-- This migration only creates the table structure
 
 -- ========================================
 -- SEED DATA - Tax Optimization Strategies
 -- ========================================
-
-INSERT INTO tax_optimization_strategies (strategy_name, strategy_type, description, eligibility_criteria, risk_level, requirements, timeline, legal_basis, applicable_entity_types, active) VALUES
-('Small Business Tax Rate', 'small_business_rate', 'Qualify for 0.5% tax rate instead of 22%',
-    '{"revenue_max": 4800000000}'::jsonb, 'low',
-    ARRAY['Revenue < 4.8B IDR annually', 'Proper bookkeeping', 'Annual election'],
-    'Immediate (next tax year)', 'PP 23/2018',
-    ARRAY['PT', 'PT_PMA', 'CV'], true
-),
-('Super Deduction R&D', 'super_deduction', '200% deduction for R&D expenses',
-    '{"has_rnd": true}'::jsonb, 'low',
-    ARRAY['Approved R&D activities', 'Proper documentation', 'Annual application'],
-    'Next tax year', 'PMK 153/2020',
-    ARRAY['PT', 'PT_PMA'], true
-),
-('Super Deduction Vocational Training', 'super_deduction', '200% deduction for vocational training expenses',
-    '{"has_training": true}'::jsonb, 'low',
-    ARRAY['Approved training programs', 'Documentation', 'Training certificates'],
-    'Next tax year', 'PMK 153/2020',
-    ARRAY['PT', 'PT_PMA'], true
-),
-('Tax Treaty Benefits', 'treaty_benefits', 'Reduced withholding tax via tax treaty',
-    '{"has_parent_abroad": true}'::jsonb, 'low',
-    ARRAY['Tax residency certificate', 'DGT form', 'Parent company abroad'],
-    '1-2 months', 'Tax Treaty',
-    ARRAY['PT_PMA'], true
-)
-ON CONFLICT DO NOTHING;
+-- TABULA RASA: All tax optimization strategies data is loaded from Qdrant/PostgreSQL via data ingestion scripts
+-- No hardcoded INSERT statements - all data comes from database
+-- This migration only creates the table structure
 
 -- ========================================
 -- SEED DATA - Tax Treaty Benefits
 -- ========================================
-
-INSERT INTO tax_treaty_benefits (country_name, dividend_rate, royalty_rate, interest_rate, capital_gains_exempt, requirements, required_documents, active) VALUES
-('Italy', 0.10, 0.10, 0.10, false,
-    ARRAY['Tax residency certificate', 'Beneficial ownership declaration'],
-    ARRAY['Certificate of residence', 'DGT form'], true
-),
-('Singapore', 0.10, 0.08, 0.10, false,
-    ARRAY['Tax residency certificate', 'Beneficial ownership declaration'],
-    ARRAY['Certificate of residence', 'DGT form'], true
-),
-('Netherlands', 0.05, 0.05, 0.05, false,
-    ARRAY['Tax residency certificate', 'Beneficial ownership declaration'],
-    ARRAY['Certificate of residence', 'DGT form'], true
-),
-('USA', 0.10, 0.10, 0.10, false,
-    ARRAY['Tax residency certificate', 'Beneficial ownership declaration'],
-    ARRAY['Certificate of residence', 'DGT form'], true
-)
-ON CONFLICT DO NOTHING;
+-- TABULA RASA: All tax treaty benefits data is loaded from Qdrant/PostgreSQL via data ingestion scripts
+-- No hardcoded INSERT statements - all data comes from database
+-- This migration only creates the table structure
 
 -- ========================================
 -- COMMENTS

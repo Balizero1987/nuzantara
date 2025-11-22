@@ -21,7 +21,7 @@ class PricingQueryInput(PluginInput):
         description="Type of service: visa, kitas, business_setup, tax_consulting, legal, or all",
     )
     query: Optional[str] = Field(
-        None, description="Optional: specific search query (e.g. 'KITAS E23', 'PT PMA')"
+        None, description="Optional: specific search query (e.g. 'long-stay permit', 'company setup')"
     )
 
 

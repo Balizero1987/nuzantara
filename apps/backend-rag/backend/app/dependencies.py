@@ -14,16 +14,16 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from services.search_service import SearchService
 
+# LEGACY CODE CLEANED: Anthropic/Claude removed - using ZANTARA AI only
 # Type hints only - these modules don't exist in production
 if TYPE_CHECKING:
-    from typing import Any as AnthropicClient, Any as BaliZeroRouter
+    from typing import Any as BaliZeroRouter
 else:
-    AnthropicClient = Any
     BaliZeroRouter = Any
 
 # Global service instances (initialized by main_integrated.py at startup)
 search_service: Optional[SearchService] = None
-anthropic_client: Optional[Any] = None
+# anthropic_client removed - using ZANTARA AI only
 bali_zero_router: Optional[Any] = None
 
 
@@ -47,12 +47,8 @@ def get_search_service() -> SearchService:
     return search_service
 
 
-def get_anthropic_client() -> Optional[Any]:
-    """
-    Dependency injection for Anthropic client.
-    Returns None in production (AI generation disabled for Oracle endpoints).
-    """
-    return anthropic_client
+# LEGACY CODE REMOVED: get_anthropic_client() - Anthropic/Claude removed
+# Use ZANTARA AI client instead
 
 
 def get_bali_zero_router() -> Optional[Any]:

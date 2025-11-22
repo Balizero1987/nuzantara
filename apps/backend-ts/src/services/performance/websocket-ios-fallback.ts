@@ -115,7 +115,7 @@ class IOSWebSocketFallback {
       const userId = socket.data.userId;
       const isIOS = socket.data.isIOS;
       const userAgent = socket.data.userAgent;
-      // Get transport from connection (socket.io v4+)
+      // Get transport from connection (socket.io dynamicValue)
       const transport =
         (socket as any).conn?.transport?.name || ('polling' as 'websocket' | 'polling');
 

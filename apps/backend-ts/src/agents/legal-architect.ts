@@ -70,20 +70,20 @@ export class LegalArchitect {
         hakGunaBangunan: {
           name: 'HGB (Right to Build)',
           holders: 'Indonesian citizens + PT PMA',
-          duration: '30+20+30 years (max 80)',
+          duration: '3dynamicValue2dynamicValue30 years (max 80)',
           certificate: 'SHGB - YELLOW',
           foreignersAllowed: 'Via PT PMA only',
         },
         hakPakai: {
           name: 'Hak Pakai (Right to Use)',
           holders: 'Indonesian citizens + Foreigners with KITAS/KITAP',
-          duration: '25-30+20+30 years (max 70-80)',
+          duration: '25-3dynamicValue2dynamicValue30 years (max 70-80)',
           certificate: 'SHP - BLUE',
           foreignersAllowed: 'Yes (with valid visa)',
           minimumValue: {
             jakarta: 'USD 195,000-650,000',
-            bali: 'USD 150,000+',
-            canggu: 'USD 150,000+',
+            bali: 'USD 150,00dynamicValue',
+            canggu: 'USD 150,00dynamicValue',
           },
         },
         hakSewa: {

@@ -71,7 +71,7 @@ class JourneyStep:
 class ClientJourney:
     """Complete client journey"""
     journey_id: str
-    journey_type: str  # e.g., "pt_pma_setup", "visa_application", etc.
+    journey_type: str  # e.g., "company_setup", "visa_application", etc. (retrieved from database)
     client_id: str
     title: str
     description: str

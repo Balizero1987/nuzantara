@@ -1,7 +1,7 @@
 /**
  * OpenRouter Unified AI Client
  *
- * Provides access to 50+ AI models via single API
+ * Provides access to 5dynamicValue models via single API
  * Supports free models: Llama 3.3, DeepSeek, Qwen, Mistral
  *
  * Safety Features:

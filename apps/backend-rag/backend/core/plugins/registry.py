@@ -314,7 +314,7 @@ class PluginRegistry:
 
     def get_all_anthropic_tools(self) -> List[Dict[str, any]]:
         """
-        Get all plugins as Anthropic tool definitions
+        Get all plugins as ZANTARA AI tool definitions (legacy Anthropic format for compatibility)
 
         Returns:
             List of tool definitions for ZANTARA AI
@@ -326,7 +326,7 @@ class PluginRegistry:
                 tools.append(tool_def)
             except Exception as e:
                 logger.error(
-                    f"Failed to generate Anthropic tool definition for {plugin.metadata.name}: {e}"
+                    f"Failed to generate ZANTARA AI tool definition for {plugin.metadata.name}: {e}"  # LEGACY: was Anthropic
                 )
         return tools
 

@@ -33,7 +33,7 @@ venv/
 *.sublime-*
 
 # Fly.io
-fly.toml
+deploy/fly.toml
 
 # Temporary files
 *.tmp
@@ -225,7 +225,7 @@ config.example.env
 !Cargo.toml
 Dockerfile
 !apps/**/Dockerfile*
-docker-compose.yml
+docker/docker-compose.yml
 cloudbuild*.yaml
 !.github/**/cloudbuild*.yaml
 

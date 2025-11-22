@@ -316,32 +316,11 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
 }
 
 // Firebase Auth Strategy (placeholder for future integration)
-export class FirebaseAuthStrategy implements AuthenticationStrategy {
-  readonly name = 'firebase';
-  readonly priority = 60;
+// LEGACY CODE REMOVED: FirebaseAuthStrategy completely removed
+// Firebase/Firestore removed from codebase - use PostgreSQL-based authentication
 
-  canHandle(req: Request): boolean {
-    const authHeader = req.headers.authorization;
-    return (authHeader?.startsWith('Bearer ') ?? false) && false; // Disabled until Firebase is integrated
-  }
-
-  async authenticate(_req: Request): Promise<UnifiedUser | null> {
-    logger.warn('Firebase Auth strategy removed - use other authentication methods');
-    return null;
-  }
-
-  generateToken(_user: UnifiedUser): string {
-    // Firebase custom token generation removed
-    throw new Error('Firebase Auth strategy removed - use other authentication methods');
-  }
-
-  async validateToken(_token: string): Promise<UnifiedUser | null> {
-    // Firebase token validation removed
-    return null;
-  }
-}
-
-// Legacy JWT Strategy (fallback)
+// LEGACY CODE: Legacy JWT Strategy (kept for backward compatibility only)
+// TODO: Migrate to modern JWT strategy
 export class LegacyJWTStrategy implements AuthenticationStrategy {
   readonly name = 'legacy';
   readonly priority = 20;

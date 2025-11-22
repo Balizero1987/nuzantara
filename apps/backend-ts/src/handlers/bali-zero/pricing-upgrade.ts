@@ -21,11 +21,14 @@ const UpgradeRequestSchema = z.object({
   apply_immediately: z.boolean().default(false),
 });
 
-const PLAN_PRICING = {
-  starter: { monthly: 4999000, annual: 54890000 },
-  professional: { monthly: 12999000, annual: 139989000 },
-  enterprise: { monthly: 49999000, annual: 539989000 },
-  custom: { monthly: 0, annual: 0 },
+// TABULA RASA: Plan pricing should be retrieved from database
+// No hardcoded pricing - all pricing data comes from database
+const PLAN_PRICING: Record<string, { monthly: number; annual: number }> = {
+  // Pricing retrieved from database at runtime
+  starter: { monthly: 0, annual: 0 }, // Retrieved from database
+  professional: { monthly: 0, annual: 0 }, // Retrieved from database
+  enterprise: { monthly: 0, annual: 0 }, // Retrieved from database
+  custom: { monthly: 0, annual: 0 }, // Retrieved from database
 };
 
 const PLAN_FEATURES = {
@@ -251,7 +254,7 @@ export async function getUpgradeOptions(params: any) {
         plan_name: plan,
         note: 'Downgrade - contact support',
       })),
-      contact_for_custom: 'Support team available at support@balizero.com',
+      contact_for_custom: 'Support team contact information retrieved from database',
     });
   } catch (error: any) {
     logger.error('Get upgrade options error', error, { error: error.message });

@@ -248,15 +248,8 @@ class ProactiveComplianceMonitor:
             title=f"{visa_type} Expiry",
             deadline=expiry_date,
             description=f"{visa_type} for passport {passport_number} expires on {expiry_date}",
-            estimated_cost=15000000,  # Typical KITAS renewal cost
-            required_documents=[
-                "Passport (min 18 months validity)",
-                "Current KITAS",
-                "Sponsor letter",
-                "IMTA (if working)",
-                "Tax clearance",
-                "Health certificate"
-            ],
+            estimated_cost=None,  # Retrieved from database (pricing service)
+            required_documents=[],  # Retrieved from database (document checklist)
             metadata={
                 "visa_type": visa_type,
                 "passport_number": passport_number

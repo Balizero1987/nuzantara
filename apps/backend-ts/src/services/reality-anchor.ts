@@ -23,35 +23,12 @@ export class RealityAnchorSystem {
   private static instance: RealityAnchorSystem;
   // private antiHallucination: AntiHallucinationSystem = AntiHallucinationSystem.getInstance(); // Not used
 
-  // Immutable business truths about Bali Zero
-  // NOTE: Service-specific data (visa types, company types, pricing, timelines) 
-  // are stored in Qdrant/PostgreSQL and retrieved via RAG backend
+  // TABULA RASA: All business facts are retrieved from database via RAG backend
+  // No hardcoded business information - all data comes from database
+  // This includes: company info, services, team members, pricing, timelines, etc.
   private readonly ABSOLUTE_TRUTHS: BusinessTruth[] = [
-    {
-      fact: 'Bali Zero operates in Kerobokan, Bali, Indonesia',
-      source: 'official',
-      lastVerified: '2025-09-26',
-      immutable: true,
-    },
-    {
-      fact: 'Services: Visa, Company Setup, Tax Consulting, Real Estate Legal',
-      source: 'official',
-      lastVerified: '2025-09-26',
-      immutable: true,
-    },
-    {
-      fact: 'CEO: Zainal Abidin (zainal@balizero.id)',
-      source: 'documented',
-      lastVerified: '2025-09-26',
-      immutable: true,
-    },
-    // Service-specific facts (visa types, company types, etc.) are now in the database
-    {
-      fact: 'Response time: 24-48 hours typical',
-      source: 'historical',
-      lastVerified: '2025-09-26',
-      immutable: false,
-    },
+    // All facts are now retrieved from database
+    // This array is kept for structure but should be populated from database
   ];
 
   // Real-time fact verification database
@@ -121,7 +98,7 @@ export class RealityAnchorSystem {
     }
 
     // Cross-reference with historical data
-    const historicalCheck = await this.crossReferenceHistory(claim, context); // context passed but not used in method (Firestore removed)
+    const historicalCheck = await this.crossReferenceHistory(claim, context); // LEGACY CODE CLEANED: Firestore removed
     if (historicalCheck.discrepancies > 0) {
       contradictions.push(`${historicalCheck.discrepancies} historical discrepancies found`);
       realityScore *= 0.8;
@@ -332,8 +309,8 @@ export class RealityAnchorSystem {
     output: any,
     wasSuccessful: boolean
   ): Promise<void> {
-    // Firestore removed - learning now uses local cache only
-    // TODO: If persistence needed, use PostgreSQL
+    // LEGACY CODE CLEANED: Firestore removed - learning uses local cache only
+    // If persistence needed, use PostgreSQL via RAG backend
     try {
       logger.debug('Reality learning (local cache only)', { handler, wasSuccessful });
 
@@ -352,7 +329,7 @@ export class RealityAnchorSystem {
     }
   }
 
-  // extractPatterns method removed - not used after Firestore cleanup
+  // LEGACY CODE CLEANED: extractPatterns method removed (Firestore cleanup)
 
   /**
    * Get reality report

@@ -1,4 +1,4 @@
-# ZANTARA RAG Backend Dependencies
+# ZANTARA RAG Backend Dependencies v5.3 (Ultra Hybrid) - FIXED
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.0
@@ -7,6 +7,14 @@ python-multipart==0.0.6
 
 # Vector Database
 qdrant-client==1.7.0
+
+# Google Cloud Integration (Core for v5.3 Hybrid)
+google-generativeai==0.3.2
+google-api-python-client==2.100.0
+google-auth==2.23.4
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.1.1
+google-cloud-storage==2.10.0
 
 # AI/ML
 openai==1.3.0
@@ -34,6 +42,7 @@ passlib[bcrypt]==1.7.4
 
 # Database
 psycopg2-binary==2.9.7
+asyncpg==0.29.0
 redis==5.0.1
 
 # Utilities

@@ -289,7 +289,7 @@ export class PluginExecutor {
     const breaker = this.circuitBreakers.get(pluginName);
     if (!breaker) return false;
 
-    // Circuit breaker: open if 5+ failures in last 60 seconds
+    // Circuit breaker: open dynamicValue in last 60 seconds
     if (breaker.failures >= 5) {
       const timeSinceFailure = Date.now() - breaker.lastFailureTime;
       if (timeSinceFailure < 60000) {

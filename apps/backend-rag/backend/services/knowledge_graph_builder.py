@@ -116,22 +116,26 @@ class KnowledgeGraphBuilder:
             r"business\s+classification\s+(\d{5})"
         ],
         EntityType.VISA_TYPE: [
-            r"(KITAS|KITAP|B211[AB]?|C\d+|D\d+|E\d+)\s+visa",
-            r"(work permit|stay permit|residence permit)",
-            r"(IMTA|MERP|RPTKA)"
+            # Generic visa/permit patterns - no specific codes (codes are in database)
+            r"([A-Z]\d+[A-Z]?)\s+visa",  # Generic visa code pattern
+            r"(work permit|stay permit|residence permit|long-stay permit)",
+            r"([A-Z]+)\s+permit"  # Generic permit pattern
         ],
         EntityType.TAX_TYPE: [
-            r"(PPh\s+\d+|PPn|PBB|BPHTB)",
-            r"(NPWP|PKP)",
-            r"(tax\s+ID|VAT\s+number)"
+            # Generic tax patterns - no specific codes (codes are in database)
+            r"([A-Z]+\s+\d+)",  # Generic tax code pattern
+            r"([A-Z]{2,10})",  # Generic tax acronym pattern
+            r"(tax\s+ID|VAT\s+number|tax\s+registration)"
         ],
         EntityType.LEGAL_ENTITY: [
-            r"(PT\s+PMA|PT\s+Local|CV|Firma|UD|Yayasan)",
-            r"(limited\s+liability|partnership|foundation)"
+            # Generic legal entity patterns - no specific codes (codes are in database)
+            r"([A-Z]{2,10}\s+[A-Z]+)",  # Generic company type pattern
+            r"(limited\s+liability|partnership|foundation|company\s+type)"
         ],
         EntityType.PERMIT: [
-            r"(NIB|OSS|TDP|SIUP|HO|UKL-UPL)",
-            r"(business\s+license|operational\s+permit)"
+            # Generic permit patterns - no specific codes (codes are in database)
+            r"([A-Z]{2,10}(-[A-Z]+)?)",  # Generic permit acronym pattern
+            r"(business\s+license|operational\s+permit|permit\s+code)"
         ]
     }
 

@@ -85,37 +85,37 @@ class FollowupService:
                 "en": [
                     "What visa types are available?",
                     "How do I extend my visa?",
-                    "What are the requirements for KITAS?",
+                    "What are the requirements?",
                     "Can you help me with the application process?"
                 ],
                 "it": [
                     "Quali tipi di visto sono disponibili?",
                     "Come posso estendere il mio visto?",
-                    "Quali sono i requisiti per il KITAS?",
+                    "Quali sono i requisiti?",
                     "Puoi aiutarmi con la procedura?"
                 ],
                 "id": [
                     "Jenis visa apa yang tersedia?",
                     "Bagaimana cara memperpanjang visa?",
-                    "Apa syarat untuk KITAS?",
+                    "Apa saja syaratnya?",
                     "Bisakah bantu proses aplikasi?"
                 ]
             },
             "tax": {
                 "en": [
-                    "What tax rates apply to my business?",
+                    "What tax information applies to my business?",
                     "How do I register for tax in Indonesia?",
                     "Are there any tax incentives?",
                     "When are tax filing deadlines?"
                 ],
                 "it": [
-                    "Quali aliquote fiscali si applicano?",
+                    "Quali informazioni fiscali si applicano?",
                     "Come mi registro per le tasse in Indonesia?",
                     "Ci sono incentivi fiscali?",
                     "Quando scadono le tasse?"
                 ],
                 "id": [
-                    "Berapa tarif pajak untuk bisnis saya?",
+                    "Informasi pajak apa yang berlaku untuk bisnis saya?",
                     "Bagaimana cara daftar pajak di Indonesia?",
                     "Ada insentif pajak?",
                     "Kapan batas waktu lapor pajak?"

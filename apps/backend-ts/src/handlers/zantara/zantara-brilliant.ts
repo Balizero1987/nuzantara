@@ -105,31 +105,8 @@ export async function queryAgent(req: Request, res: Response) {
       note: 'Agent system is currently under development',
     };
 
-    /* AGENTS TEMPORARILY DISABLED - Uncomment when agents are implemented
-    let agentResponse;
-    switch (agent) {
-      case 'visa':
-        const { VisaOracle } = await import('../agents/visa-oracle.js');
-        const visaOracle = new VisaOracle();
-        agentResponse = await visaOracle.analyze({ keywords: [query] });
-        break;
-
-      case 'kbli':
-        const { EyeKBLI } = await import('../agents/eye-kbli.js');
-        const eyeKBLI = new EyeKBLI();
-        agentResponse = await eyeKBLI.analyze({ keywords: [query] });
-        break;
-
-      case 'tax':
-        const { TaxGenius } = await import('../agents/tax-genius.js');
-        const taxGenius = new TaxGenius();
-        agentResponse = await taxGenius.analyze({ keywords: [query] });
-        break;
-
-      default:
-        return res.status(400).json(err('Unknown agent'));
-    }
-    */
+    // LEGACY CODE REMOVED: Agent system not implemented
+    // Agents should be implemented via RAG backend if needed
 
     return res.json(
       ok({

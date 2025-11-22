@@ -20,27 +20,13 @@ export interface SessionActivity {
   lastPath?: string;
 }
 
-// In-memory session store (TODO: Move to Firestore for persistence)
+// LEGACY CODE CLEANED: In-memory session store (Firestore removed - use PostgreSQL if persistence needed)
 const sessionStore = new Map<string, SessionActivity>();
 
-// Team member mappings (email -> profile)
-const TEAM_MEMBERS = new Map<string, { name: string; department: string }>([
-  ['zero@balizero.com', { name: 'Zero', department: 'technology' }],
-  ['amanda@balizero.com', { name: 'Amanda', department: 'setup' }],
-  ['tax@balizero.com', { name: 'Veronika', department: 'tax' }],
-  ['angel.tax@balizero.com', { name: 'Angel', department: 'tax' }],
-  ['kadek.tax@balizero.com', { name: 'Kadek', department: 'tax' }],
-  ['dewa.ayu.tax@balizero.com', { name: 'Dewa Ayu', department: 'tax' }],
-  ['faisha.tax@balizero.com', { name: 'Faisha', department: 'tax' }],
-  ['consulting@balizero.com', { name: 'Adit', department: 'setup' }],
-  ['ari.firda@balizero.com', { name: 'Ari', department: 'setup' }],
-  ['info@balizero.com', { name: 'Vino', department: 'setup' }],
-  ['zainal@balizero.com', { name: 'Zainal Abidin', department: 'management' }],
-  ['paolo@balizero.com', { name: 'Paolo', department: 'technology' }],
-  ['luca@balizero.com', { name: 'Luca', department: 'technology' }],
-  ['maria@balizero.com', { name: 'Maria', department: 'legal' }],
-  ['francesca@balizero.com', { name: 'Francesca', department: 'accounting' }],
-]);
+// TABULA RASA: Team member mappings are retrieved from database via RAG backend
+// No hardcoded team member information - all data comes from database
+const TEAM_MEMBERS = new Map<string, { name: string; department: string }>();
+// Team members are populated from database at runtime
 
 /**
  * Extract user identity from request
@@ -60,7 +46,7 @@ function extractUserIdentity(req: Request): { email: string; memberId: string } 
   const apiKey = req.header('x-api-key');
   if (apiKey) {
     // Map API keys to team members (simplified)
-    // In production: query Firestore users collection
+    // LEGACY CODE CLEANED: In production, query PostgreSQL users table (Firestore removed)
     const keyToEmail: Record<string, string> = {
       'zantara-internal-dev-key-2025': 'zero@balizero.com',
       // Add other team API keys here

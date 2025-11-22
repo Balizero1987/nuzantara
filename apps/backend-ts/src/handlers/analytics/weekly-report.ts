@@ -9,8 +9,9 @@ const ZERO_EMAIL = 'zero@balizero.com';
 const REPORT_DAY = 0; // Sunday = 0
 // BATCH_SIZE removed - PostgreSQL handles batching internally
 
-// Team members for analysis
-const TEAM_MEMBERS = ['zero', 'zainal', 'setup', 'tax', 'marketing', 'reception', 'board'];
+// Team members for analysis - retrieved from database
+// TABULA RASA: No hardcoded team member names - all data comes from database
+const TEAM_MEMBERS: string[] = []; // Populated from database at runtime
 
 // Initialize Gmail for sending reports using centralized service
 async function getGmailService() {
@@ -748,10 +749,10 @@ function analyzeClientPatterns(conversations: any[]) {
   conversations.forEach((conv) => {
     const prompt = (conv.prompt || '').toLowerCase();
 
-    // Extract business topics
-    if (prompt.includes('b211')) topics.set('B211 Visa', (topics.get('B211 Visa') || 0) + 1);
-    if (prompt.includes('kitas')) topics.set('KITAS', (topics.get('KITAS') || 0) + 1);
-    if (prompt.includes('pt pma')) topics.set('PT PMA', (topics.get('PT PMA') || 0) + 1);
+    // Extract business topics (generic - no specific codes)
+    if (prompt.includes('visa') || prompt.includes('long-stay permit')) topics.set('Visa Services', (topics.get('Visa Services') || 0) + 1);
+    if (prompt.includes('long-stay permit') || prompt.includes('work permit')) topics.set('Long-stay Permits', (topics.get('Long-stay Permits') || 0) + 1);
+    if (prompt.includes('company') || prompt.includes('business setup')) topics.set('Company Setup', (topics.get('Company Setup') || 0) + 1);
     if (prompt.includes('property')) topics.set('Property', (topics.get('Property') || 0) + 1);
 
     // Track urgent and completed

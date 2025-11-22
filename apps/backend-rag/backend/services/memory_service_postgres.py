@@ -357,9 +357,10 @@ class MemoryServicePostgres:
         """
         Retrieve user memory in format expected by ZantaraTools.
 
-        This method is called by ZantaraTools when Claude uses the
+        This method is called by ZantaraTools when ZANTARA AI uses the
         retrieve_user_memory tool. It provides a structured format
         with all user memory data, optionally filtered by category.
+        LEGACY CODE CLEANED: Claude references removed
 
         Args:
             user_id: User ID or email address

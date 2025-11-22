@@ -8,8 +8,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements with migration dependencies
-COPY requirements-minimal.txt .
-RUN pip install --no-cache-dir -r requirements-minimal.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy migration script and dependencies
 COPY scripts/migrate_r2_to_qdrant.py ./migrate_r2_to_qdrant.py

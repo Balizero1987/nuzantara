@@ -5,7 +5,6 @@ Semantic text splitting for optimal RAG performance
 
 from typing import List, Dict, Any
 import logging
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 try:
     from app.config import settings
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class TextChunker:
     """
-    Semantic text chunker using LangChain's RecursiveCharacterTextSplitter.
+    Semantic text chunker using recursive text splitting.
     Optimized for book content with natural language structure.
     """
 
@@ -35,33 +34,80 @@ class TextChunker:
             chunk_overlap: Overlap between chunks for context (default from settings)
             max_chunks: Maximum chunks to create per document
         """
-        self.chunk_size = chunk_size or settings.chunk_size
-        self.chunk_overlap = chunk_overlap or settings.chunk_overlap
-        self.max_chunks = max_chunks or settings.max_chunks_per_book
+        self.chunk_size = chunk_size or (settings.chunk_size if settings else 1000)
+        self.chunk_overlap = chunk_overlap or (settings.chunk_overlap if settings else 100)
+        self.max_chunks = max_chunks or (settings.max_chunks_per_book if settings else 500)
 
-        # Initialize LangChain text splitter
-        self.splitter = RecursiveCharacterTextSplitter(
-            chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap,
-            length_function=len,
-            separators=[
-                "\n\n\n",  # Chapter breaks
-                "\n\n",    # Paragraph breaks
-                "\n",      # Line breaks
-                ". ",      # Sentence breaks
-                "! ",      # Exclamation
-                "? ",      # Question
-                "; ",      # Semicolon
-                ", ",      # Comma
-                " ",       # Word breaks
-                ""         # Character level
-            ]
-        )
+        # Separators in order of preference (from most to least semantic)
+        self.separators = [
+            "\n\n\n",  # Chapter breaks
+            "\n\n",    # Paragraph breaks
+            "\n",      # Line breaks
+            ". ",      # Sentence breaks
+            "! ",      # Exclamation
+            "? ",      # Question
+            "; ",      # Semicolon
+            ", ",      # Comma
+            " ",       # Word breaks
+            ""         # Character level
+        ]
 
         logger.info(
             f"TextChunker initialized: chunk_size={self.chunk_size}, "
             f"overlap={self.chunk_overlap}, max_chunks={self.max_chunks}"
         )
+
+    def _split_text_recursive(self, text: str, separator: str) -> List[str]:
+        """
+        Recursively split text using the given separator.
+
+        Args:
+            text: Text to split
+            separator: Current separator to use
+
+        Returns:
+            List of text chunks
+        """
+        # First, split by current separator
+        splits = text.split(separator)
+
+        # Now combine splits into chunks that respect the chunk_size
+        chunks = []
+        current_chunk = ""
+
+        for i, split in enumerate(splits):
+            # Add separator back (except for empty separator)
+            if separator and i < len(splits) - 1:
+                split_with_sep = split + separator
+            else:
+                split_with_sep = split
+
+            # If adding this split would exceed chunk_size
+            if len(current_chunk) + len(split_with_sep) > self.chunk_size and current_chunk:
+                # Save current chunk and start new one
+                chunks.append(current_chunk.strip())
+                current_chunk = split_with_sep
+            else:
+                # Add to current chunk
+                current_chunk += split_with_sep
+
+        # Don't forget the last chunk
+        if current_chunk.strip():
+            chunks.append(current_chunk.strip())
+
+        # If any chunk is still too big, try splitting with next separator
+        separator_idx = self.separators.index(separator) if separator in self.separators else -1
+        if separator_idx < len(self.separators) - 1:
+            next_separator = self.separators[separator_idx + 1]
+            final_chunks = []
+            for chunk in chunks:
+                if len(chunk) > self.chunk_size:
+                    final_chunks.extend(self._split_text_recursive(chunk, next_separator))
+                else:
+                    final_chunks.append(chunk)
+            return final_chunks
+
+        return chunks
 
     def semantic_chunk(
         self,
@@ -83,8 +129,19 @@ class TextChunker:
             return []
 
         try:
-            # Split text into chunks
-            chunks = self.splitter.split_text(text)
+            # Start with the first separator (most semantic)
+            chunks = self._split_text_recursive(text, self.separators[0]) if self.separators else [text]
+
+            # Apply overlap between chunks
+            if self.chunk_overlap > 0 and len(chunks) > 1:
+                overlapped_chunks = []
+                for i, chunk in enumerate(chunks):
+                    # Add overlap from previous chunk
+                    if i > 0:
+                        overlap_text = chunks[i-1][-self.chunk_overlap:] if len(chunks[i-1]) > self.chunk_overlap else chunks[i-1]
+                        chunk = overlap_text + chunk
+                    overlapped_chunks.append(chunk)
+                chunks = overlapped_chunks
 
             # Limit number of chunks if needed
             if len(chunks) > self.max_chunks:
@@ -112,7 +169,7 @@ class TextChunker:
 
             logger.info(
                 f"Created {len(chunk_objects)} chunks "
-                f"(avg length: {sum(len(c['text']) for c in chunk_objects) // len(chunk_objects)})"
+                f"(avg length: {sum(len(c['text']) for c in chunk_objects) // len(chunk_objects) if chunk_objects else 0})"
             )
 
             return chunk_objects
