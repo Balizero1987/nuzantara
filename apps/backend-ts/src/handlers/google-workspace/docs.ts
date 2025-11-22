@@ -72,7 +72,6 @@ export async function docsCreate(params: DocsCreateParams) {
       created: new Date().toISOString(),
     });
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Docs not configured');
 }
 
@@ -117,7 +116,6 @@ export async function docsRead(params: DocsReadParams) {
       throw error;
     }
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Docs not configured');
 }
 
@@ -171,6 +169,5 @@ export async function docsUpdate(params: DocsUpdateParams) {
       throw error;
     }
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Docs not configured');
 }

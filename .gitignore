@@ -266,3 +266,6 @@ orchestra_*/
 agents/
 coverage/
 node_modules
+
+# Build artifacts
+apps/backend-ts/build-working.js

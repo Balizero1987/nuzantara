@@ -39,7 +39,6 @@ export async function sheetsRead(params: SheetsReadParams) {
     const res = await sheets.spreadsheets.values.get({ spreadsheetId, range });
     return ok({ values: res.data.values || [], range });
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Sheets not configured');
 }
 
@@ -62,7 +61,6 @@ export async function sheetsAppend(params: SheetsAppendParams) {
     });
     return ok({ update: res.data.updates || null });
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Sheets not configured');
 }
 
@@ -103,6 +101,5 @@ export async function sheetsCreate(params: SheetsCreateParams) {
   }
 
   // Fallback to bridge if sheets service not available
-  if (bridged) return bridged;
   throw new BadRequestError('Sheets not configured');
 }

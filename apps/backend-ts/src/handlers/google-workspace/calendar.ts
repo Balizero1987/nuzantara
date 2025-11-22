@@ -62,7 +62,6 @@ export async function calendarList(params: CalendarListParams) {
     });
     return ok({ events: res.data.items || [] });
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Calendar not configured');
 }
 
@@ -100,7 +99,6 @@ export async function calendarCreate(params: CalendarCreateParams) {
     const res = await cal.events.insert({ calendarId, requestBody });
     return ok({ event: res.data });
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Calendar not configured');
 }
 
@@ -123,6 +121,5 @@ export async function calendarGet(params: CalendarGetParams) {
       throw error;
     }
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Calendar not configured');
 }

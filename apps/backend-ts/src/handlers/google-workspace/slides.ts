@@ -53,7 +53,6 @@ export async function slidesCreate(params: SlidesCreateParams) {
       created: new Date().toISOString(),
     });
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Slides not configured');
 }
 
@@ -108,7 +107,6 @@ export async function slidesRead(params: SlidesReadParams) {
       throw error;
     }
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Slides not configured');
 }
 
@@ -138,6 +136,5 @@ export async function slidesUpdate(params: SlidesUpdateParams) {
       throw error;
     }
   }
-  if (bridged) return bridged;
   throw new BadRequestError('Slides not configured');
 }
