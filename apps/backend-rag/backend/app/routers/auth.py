@@ -148,11 +148,11 @@ async def login(request: LoginRequest):
         if not verify_password(request.password, user['pin_hash']):
             raise HTTPException(status_code=401, detail="Invalid email or PIN")
 
-        # Update last login
-        await conn.execute(
-            "UPDATE users SET last_login = NOW() WHERE id = $1",
-            user['id']
-        )
+        # Update last login (TODO: add last_login column to users table)
+        # await conn.execute(
+        #     "UPDATE users SET last_login = NOW() WHERE id = $1",
+        #     user['id']
+        # )
 
         # Create JWT token
         access_token_expires = timedelta(hours=JWT_ACCESS_TOKEN_EXPIRE_HOURS)

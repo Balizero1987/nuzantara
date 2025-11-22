@@ -31,8 +31,8 @@ npm run dev
 nuzantara/
 ├── apps/
 │   ├── webapp/          # Frontend (GitHub Pages)
-│   ├── backend-ts/      # TypeScript backend (Fly.io)
-│   └── backend-rag/     # Python RAG service (Fly.io)
+│   ├── backend-ts/      # TypeScript backend (OpenRouter Gateway)
+│   └── backend-rag/     # Python RAG service (Gemini 1.5 Flash + Qdrant)
 ├── docs/                # Documentation
 │   ├── reports/         # Status reports & analytics
 │   ├── guides/          # Setup & development guides
@@ -45,10 +45,12 @@ nuzantara/
 
 ## 🎯 Key Features
 
-### 🤖 AI-Powered
-- **Primary AI:** Llama 4 Scout (92% cheaper than Haiku)
-- **Fallback:** Claude Haiku 4.5
-- **Cost Optimization:** $0.20/$0.20 per 1M tokens
+### 🧠 Ultra Hybrid AI Architecture
+- **Reasoning Engine:** Google Gemini 1.5 Flash (via Google AI)
+- **Code & Logic:** DeepSeek Coder & Llama 3.3 (via OpenRouter)
+- **Testing:** Qwen 2.5 (via OpenRouter)
+- **Conversational:** Mistral 7B / Llama 4 Scout
+- **Fallback:** GPT-4 Turbo (Premium)
 
 ### 🌐 Production Deployment
 - **Frontend:** GitHub Pages (auto-deploy on push)
@@ -69,16 +71,17 @@ nuzantara/
 - HTML5 + CSS3
 - GitHub Pages deployment
 
-### Backend
-- **TypeScript:** Express.js (Fly.io)
-- **Python:** FastAPI + RAG (Fly.io)
-- **Vector DB:** Qdrant
-- **Cache:** Redis
+### Backend (TypeScript)
+- **Runtime:** Node.js (Express.js)
+- **AI Gateway:** OpenRouter Unified Client
+- **Resilience:** Circuit Breaker, Rate Limiting, Budgeting
 
-### AI/ML
-- Llama 4 Scout (via OpenRouter)
-- Claude Haiku 4.5 (via Anthropic)
-- Intelligent routing with fallback
+### Backend (Python RAG)
+- **Framework:** FastAPI
+- **Reasoning:** Google Gemini 1.5 Flash
+- **Vector DB:** Qdrant (Semantic Search)
+- **Storage:** Google Drive (Full PDF Analysis)
+- **Orchestration:** LangChain / LangGraph
 
 ---
 
@@ -152,7 +155,12 @@ npm run typecheck
 
 ---
 
-## 📊 Recent Updates (Nov 8, 2025)
+## 📊 Recent Updates (Nov 2025)
+
+### ✅ AI Architecture Upgrade
+- Integrated **Gemini 1.5 Flash** as primary reasoning engine
+- Implemented **OpenRouter Client** with multi-model fallback
+- Added **DeepSeek Coder** for specialized code tasks
 
 ### ✅ Performance Optimization
 - Frontend bundle: 1.3MB → 192KB (-85%)
@@ -163,13 +171,6 @@ npm run typecheck
 - Organized 94 docs into subdirectories
 - Reduced root clutter by 92.5%
 - Clean Git repository (2.1GB)
-
-### ✅ Deployment Automation
-- GitHub Pages auto-deploy workflow
-- Custom domain with DNS configuration
-- HTTPS enforced
-
-**Full details:** [Session Report](docs/sessions/SESSION_FINAL_NOV8_2025.md)
 
 ---
 
@@ -193,6 +194,6 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ---
 
-**Last Updated:** November 8, 2025  
+**Last Updated:** November 2025  
 **Maintained by:** Balizero Team  
 **AI Assistant:** Claude Code (Anthropic)
