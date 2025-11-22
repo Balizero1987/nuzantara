@@ -198,37 +198,63 @@ Return JSON array of extracted facts:`;
   }
 
   /**
-   * Store extracted fact in collective_memory
+   * Store extracted fact in correct table based on type
    */
   async storeFact(fact: ExtractedFact, createdBy: string): Promise<void> {
     try {
-      await this.postgres.query(
-        `INSERT INTO collective_memory
-         (memory_key, memory_type, content, importance_score, created_by, tags, metadata)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         ON CONFLICT (memory_key) DO UPDATE
-         SET access_count = collective_memory.access_count + 1,
-             last_accessed = NOW(),
-             updated_at = NOW()`,
-        [
-          fact.memory_key,
-          fact.memory_type,
-          fact.content,
-          fact.importance_score,
-          createdBy,
-          fact.tags,
-          JSON.stringify({
-            confidence: fact.confidence,
-            source: fact.source,
-            extraction_date: new Date().toISOString(),
-          }),
-        ]
-      );
+      // Determine if this is a personal fact or shared knowledge
+      const personalTypes = ['client_preference', 'specific_requirement', 'verified_information', 'personal_detail'];
+      const isPersonal = personalTypes.includes(fact.memory_type) || fact.content.toLowerCase().includes('client') || fact.content.toLowerCase().includes('user');
 
-      console.log(`💾 Stored fact: ${fact.memory_key}`);
+      if (isPersonal) {
+        // Store in Personal Memory (memory_facts)
+        await this.postgres.query(
+          `INSERT INTO memory_facts
+           (user_id, fact_type, fact_content, confidence, source, metadata)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            createdBy, // user_id
+            fact.memory_type,
+            fact.content,
+            fact.confidence,
+            fact.source, // session_id as source
+            JSON.stringify({
+              importance: fact.importance_score,
+              tags: fact.tags,
+              extracted_at: new Date().toISOString()
+            })
+          ]
+        );
+        console.log(`👤 Stored PERSONAL fact for user ${createdBy}: ${fact.content.substring(0, 50)}...`);
+      } else {
+        // Store in Collective Memory (collective_memory)
+        await this.postgres.query(
+          `INSERT INTO collective_memory
+           (memory_key, memory_type, content, importance_score, created_by, tags, metadata)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           ON CONFLICT (memory_key) DO UPDATE
+           SET access_count = collective_memory.access_count + 1,
+               last_accessed = NOW(),
+               updated_at = NOW()`,
+          [
+            fact.memory_key,
+            fact.memory_type,
+            fact.content,
+            fact.importance_score,
+            createdBy,
+            fact.tags,
+            JSON.stringify({
+              confidence: fact.confidence,
+              source: fact.source,
+              extraction_date: new Date().toISOString(),
+            }),
+          ]
+        );
+        console.log(`📚 Stored COLLECTIVE fact: ${fact.memory_key}`);
+      }
     } catch (error) {
       console.error('❌ Failed to store fact:', error);
-      throw error;
+      // Don't throw, just log error to prevent crashing the batch
     }
   }
 

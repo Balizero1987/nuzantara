@@ -201,35 +201,33 @@ class ZantaraClient {
   // ========================================================================
 
   /**
-   * Send message with SSE streaming (EventSource) - ENHANCED
-   * Supports: Agent Thoughts, Emotions, and standard Tokens
+   * Send message with SSE streaming (EventSource) - ENHANCED with Chat Bubble Effect
+   * Supports: Agent Thoughts, Emotions, standard Tokens, and Simulated Typing Latency
    */
   async sendMessageStream(content, callbacks = {}) {
     const { 
       onStart = () => {}, 
       onToken = () => {}, 
-      onStatus = () => {}, // FEATURE 1: Agent Thoughts hook
+      onStatus = () => {}, 
       onComplete = () => {}, 
       onError = () => {} 
     } = callbacks;
     
-    // Prepare context
-    const context = this.messages.slice(-10); // Last 10 messages
+    // Context preparation
+    const context = this.messages.slice(-10);
     
     try {
       await this.authenticate();
       this.isStreaming = true;
       if (onStart) onStart();
 
-      // Update session
       await this.updateSession(this.messages);
       const sessionId = await this.ensureSession();
 
-      // Build URL
       const url = new URL(`${this.config.apiUrl}${this.config.streamEndpoint}`);
       url.searchParams.append('query', content);
       url.searchParams.append('session_id', sessionId);
-      url.searchParams.append('stream', 'true'); // Explicit stream param
+      url.searchParams.append('stream', 'true');
 
       const userEmail = window.UserContext?.user?.email || 'demo@example.com';
       url.searchParams.append('user_email', userEmail);
@@ -245,80 +243,106 @@ class ZantaraClient {
       url.searchParams.append('_t', Date.now());
 
       console.log(`🔌 Connecting to stream: ${url.toString().substring(0, 100)}...`);
-
-      // Use Fetch API for better control over headers/body if needed, 
-      // but EventSource is standard for GET SSE. 
-      // The previous implementation used EventSource. We'll stick to it but enhance parsing.
       
       this.eventSource = new EventSource(url.toString());
       let accumulatedText = '';
       let currentMetadata = {};
+      
+      // --- CHAT BUBBLE EFFECT LOGIC ---
+      const tokenQueue = [];
+      let isProcessingQueue = false;
+      let streamFinished = false;
+
+      const processTokenQueue = async () => {
+        if (isProcessingQueue) return;
+        isProcessingQueue = true;
+
+        while (tokenQueue.length > 0 || (this.isStreaming && !streamFinished)) {
+          if (tokenQueue.length === 0) {
+            await new Promise(resolve => setTimeout(resolve, 50)); // Wait for tokens
+            continue;
+          }
+
+          const token = tokenQueue.shift();
+          
+          // 1. Append to visual text
+          // Handle replacement vs append logic (simplified to append)
+          if (accumulatedText.length > 0 && token.startsWith(accumulatedText)) {
+             accumulatedText = token; // Full refresh
+          } else {
+             accumulatedText += token;
+          }
+
+          // 2. Render
+          onToken(token, accumulatedText);
+
+          // 3. Calculate "Human" Latency
+          let delay = 15; // Base typing speed (very fast but visible)
+          
+          if (token.match(/[.?!]\s*$/)) {
+            delay = 400; // Long pause after sentence
+          } else if (token.match(/[,;]\s*$/)) {
+            delay = 150; // Short pause after comma
+          } else if (token.includes('\n')) {
+            delay = 300; // Pause on new line
+          } else if (token.length > 5) {
+            delay = 30; // Slight adjustment for long words
+          }
+
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+
+        isProcessingQueue = false;
+        
+        // Finalize if stream is done
+        if (streamFinished) {
+           onComplete(accumulatedText, currentMetadata);
+        }
+      };
+      // --------------------------------
 
       this.eventSource.onopen = () => {
         console.log('✅ EventSource connection opened');
+        processTokenQueue(); // Start the consumer loop
       };
 
       this.eventSource.onmessage = (event) => {
         try {
-          // Parse the incoming data
-          // Some backends send "event: name\ndata: ..." which EventSource handles automatically via listeners
-          // If backend sends all as "message" events with JSON data:
           const data = JSON.parse(event.data);
 
-          // Check for completion signal
           if (data.done === true || data === '[DONE]') {
             console.log('✅ Stream completed signal received');
             this.eventSource.close();
-            this.isStreaming = false;
-            onComplete(accumulatedText, currentMetadata);
+            this.isStreaming = false; // Stops the loop condition
+            streamFinished = true;    // Triggers finalization
             return;
           }
 
-          // FEATURE 1: Agent Thoughts / Status Updates
           if (data.type === 'status' || data.type === 'thought' || data.status) {
             const statusText = data.message || data.status || data.action;
-            if (statusText && onStatus) {
-              onStatus(statusText);
-            }
-            return; // Don't append status to text
+            if (statusText && onStatus) onStatus(statusText);
+            return;
           }
 
-          // FEATURE 2: Metadata / Emotions
           if (data.type === 'metadata' || data.metadata) {
             const newMeta = data.metadata || data;
             currentMetadata = { ...currentMetadata, ...newMeta };
-            
-            // If emotion present in this chunk, we might want to trigger an update immediately?
-            // Usually applied at finalization, but could be live.
             return;
           }
 
-          // Standard Text Token
-          // Backend might send { text: "..." } or just "..."
           const token = data.text || data.content || data.token || '';
 
           if (token) {
-            // Handle replacement vs append logic if needed (simplified here to append)
-            if (accumulatedText.length > 0 && token.startsWith(accumulatedText)) {
-               // It's a full refresh
-               accumulatedText = token;
-            } else {
-               accumulatedText += token;
-            }
-
-            // Clean internal artifacts
             let cleanToken = token.replace(/KBLI_DECISION_HELPER\.(md|csv)/g, 'official documentation');
-            
-            if (onToken) onToken(cleanToken, accumulatedText.replace(/KBLI_DECISION_HELPER\.(md|csv)/g, 'official documentation'));
+            // Push to queue instead of rendering immediately
+            tokenQueue.push(cleanToken);
           }
 
         } catch (error) {
-          // If not JSON, treat as raw text if needed, or ignore
           console.warn('Failed to parse SSE data:', event.data, error);
         }
       };
 
-      // Listen for specific named events if backend uses them
       this.eventSource.addEventListener('status', (e) => {
         try {
           const data = JSON.parse(e.data);
@@ -337,25 +361,27 @@ class ZantaraClient {
         console.error('❌ EventSource error');
         this.eventSource.close();
         this.isStreaming = false;
+        streamFinished = true;
         
-        // If we have text, consider it a partial success
         if (accumulatedText) {
           console.log('⚠️ Returning partial response on error');
+          // Ensure queue is drained before completing? 
+          // For error, maybe just complete immediately
           onComplete(accumulatedText, currentMetadata);
         } else {
           onError(error);
         }
       };
 
-      // Safety timeout
       setTimeout(() => {
         if (this.isStreaming && accumulatedText) {
           console.warn('⚠️ Stream timeout, forcing completion');
           this.eventSource.close();
           this.isStreaming = false;
-          onComplete(accumulatedText, currentMetadata);
+          streamFinished = true;
+          // Completion handled by queue processor loop
         }
-      }, 20000);
+      }, 40000); // Increased timeout for long bubble effects
 
     } catch (error) {
       console.error('Stream setup error:', error);

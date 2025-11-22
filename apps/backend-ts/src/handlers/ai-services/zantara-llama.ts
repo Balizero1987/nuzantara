@@ -8,6 +8,7 @@ import logger from '../../services/logger.js';
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
 import { ENV } from '../../config/index.js';
+import { memoryServiceClient } from '../../services/memory-service-client.js';
 
 // RAG Backend Configuration
 const RAG_BACKEND_URL = ENV.RAG_BACKEND_URL;
@@ -38,6 +39,31 @@ export async function zantaraChat(params: ZantaraParams) {
     `🎯 [ZANTARA RAG] Mode: ${mode}, User: ${user_email}, Message: ${message.substring(0, 50)}...`
   );
 
+  // --- PERSONAL MEMORY INJECTION ---
+  let enrichedContext = params.context || '';
+  try {
+    if (user_email !== 'guest') {
+      const memoryResult = await memoryServiceClient.getUserFacts(user_email);
+      const facts = memoryResult.facts || [];
+      
+      if (facts.length > 0) {
+        const factsBlock = facts
+          .map((f: any) => `- ${f.fact_content}`)
+          .join('\n');
+        
+        enrichedContext = enrichedContext 
+          ? `${enrichedContext}\n\nUSER PERSONAL FACTS:\n${factsBlock}`
+          : `USER PERSONAL FACTS:\n${factsBlock}`;
+          
+        logger.info(`🧠 [ZANTARA MEMORY] Injected ${facts.length} personal facts for ${user_email}`);
+      }
+    }
+  } catch (memError) {
+    logger.warn(`⚠️ [ZANTARA MEMORY] Failed to retrieve facts: ${(memError as Error).message}`);
+    // Continue without memory - don't block chat
+  }
+  // ---------------------------------
+
   try {
     // Call RAG Backend with shorter timeout
     const controller = new AbortController();
@@ -53,6 +79,7 @@ export async function zantaraChat(params: ZantaraParams) {
         mode: mode,
         user_email: user_email, // CRITICAL: Pass actual user email for identification
         user_role: 'member',
+        context: enrichedContext, // Pass enriched context with memory
       }),
       signal: controller.signal,
     });
@@ -86,6 +113,13 @@ export async function zantaraChat(params: ZantaraParams) {
     logger.info(`🔄 [ZANTARA FALLBACK] Trying direct RunPod...`);
 
     try {
+      // Inject memory into fallback prompt too
+      const fallbackPrompt = `You are ZANTARA, Indonesian AI assistant for Bali Zero. Respond in the same language as the user. Mode: ${mode.toUpperCase()}. 
+      
+      ${enrichedContext ? `CONTEXT:\n${enrichedContext}\n` : ''}
+      
+      User message: ${message}`;
+
       const fallbackResponse = await fetch('https://api.runpod.ai/v2/itz2q5gmid4cyt/runsync', {
         method: 'POST',
         headers: {
@@ -94,7 +128,7 @@ export async function zantaraChat(params: ZantaraParams) {
         },
         body: JSON.stringify({
           input: {
-            prompt: `You are ZANTARA, Indonesian AI assistant for Bali Zero. Respond in the same language as the user. Mode: ${mode.toUpperCase()}. User message: ${message}`,
+            prompt: fallbackPrompt,
             max_tokens: mode === 'santai' ? 100 : 300,
             temperature: 0.7,
           },
