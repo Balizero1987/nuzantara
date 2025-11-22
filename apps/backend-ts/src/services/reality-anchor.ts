@@ -24,6 +24,8 @@ export class RealityAnchorSystem {
   // private antiHallucination: AntiHallucinationSystem = AntiHallucinationSystem.getInstance(); // Not used
 
   // Immutable business truths about Bali Zero
+  // NOTE: Service-specific data (visa types, company types, pricing, timelines) 
+  // are stored in Qdrant/PostgreSQL and retrieved via RAG backend
   private readonly ABSOLUTE_TRUTHS: BusinessTruth[] = [
     {
       fact: 'Bali Zero operates in Kerobokan, Bali, Indonesia',
@@ -43,18 +45,7 @@ export class RealityAnchorSystem {
       lastVerified: '2025-09-26',
       immutable: true,
     },
-    {
-      fact: 'Visa services handled: visit visas, business visas, KITAS, KITAP, VOA',
-      source: 'verified',
-      lastVerified: '2025-09-26',
-      immutable: true,
-    },
-    {
-      fact: 'Company types: PT, PT PMA, CV',
-      source: 'verified',
-      lastVerified: '2025-09-26',
-      immutable: true,
-    },
+    // Service-specific facts (visa types, company types, etc.) are now in the database
     {
       fact: 'Response time: 24-48 hours typical',
       source: 'historical',

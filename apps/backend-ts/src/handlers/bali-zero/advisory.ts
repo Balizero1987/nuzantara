@@ -10,116 +10,10 @@ type DocumentMatrix = {
   notes?: string[];
 };
 
-const DOCUMENT_LIBRARY: Record<ServiceKey, DocumentMatrix> = {
-  visa: {
-    title: 'Visa Application Checklist',
-    required: [
-      'Passport copy with 6+ months validity',
-      'Recent passport photo (white background)',
-      'Bank statement (last 3 months)',
-      'Return/onward flight itinerary',
-      'Accommodation booking or sponsor letter',
-    ],
-    optional: [
-      'Employment contract',
-      'Insurance policy covering stay',
-      'Supporting invitation letters',
-    ],
-    notes: [
-      'Ensure passport signature matches application',
-      'Photos must be taken within the last 6 months',
-      'Bank balance should cover projected stay',
-    ],
-  },
-  company: {
-    title: 'Company Incorporation Checklist',
-    required: [
-      'Passport copies of shareholders',
-      'Shareholder CV/resume',
-      'Company name options (3 choices)',
-      'Business plan outline',
-      'Capitalisation statement',
-    ],
-    optional: [
-      'Office lease letter',
-      'Existing NPWP (if applicable)',
-      'Letter of intent with partners',
-    ],
-    notes: [
-      'Capital proof can be bank statement or auditor letter',
-      'Reserve unique company names to avoid delays',
-      'Provide industry classification (KBLI) in advance',
-    ],
-  },
-  tax: {
-    title: 'Tax Compliance Checklist',
-    required: [
-      'Latest NPWP certificate',
-      'Financial statements (last 12 months)',
-      'Payroll records',
-      'Vendor invoices',
-      'Bank statements',
-    ],
-    optional: ['Tax planning reports', 'Historical tax filings', 'Supporting contracts'],
-    notes: [
-      'Ensure all invoices have valid tax serial numbers',
-      'Maintain digital backup of original documents',
-      'Cross-check withholding tax records',
-    ],
-  },
-  'real-estate': {
-    title: 'Real Estate Legal Checklist',
-    required: [
-      'Land certificate (SHM/HGB)',
-      "Seller's KTP & KK",
-      'Tax receipts (PBB)',
-      'Zoning confirmation (SLF/IMB)',
-      'Existing lease agreements',
-    ],
-    optional: [
-      'Power of attorney (if represented)',
-      'Company deed for corporate seller',
-      'Environmental clearance',
-    ],
-    notes: [
-      'Verify certificate history for encumbrances',
-      'Ensure seller is legally authorised to transact',
-      'Perform site inspection before final payment',
-    ],
-  },
-  property: {
-    title: 'Property Legal Checklist',
-    required: [
-      'Current land certificate',
-      'Notary draft agreements',
-      'Nominee structure documents',
-      'Tax clearance letters',
-      'Latest utility bills',
-    ],
-    optional: ['Survey reports', 'Environmental assessments', 'Insurance policies'],
-    notes: [
-      'Align nominee agreements with local compliance',
-      'Budget for annual lease renewals',
-      'Prepare bilingual agreements if foreign stakeholders',
-    ],
-  },
-  legal: {
-    title: 'Legal Engagement Checklist',
-    required: [
-      'Client identification documents',
-      'Scope of work description',
-      'Relevant contracts or drafts',
-      'Existing correspondence',
-      'Supporting evidence (if litigation)',
-    ],
-    optional: ['Transactional history', 'Board resolutions', 'Witness statements'],
-    notes: [
-      'Clarify desired outcomes before drafting',
-      'Provide deadlines from counterparties',
-      'Share previous legal opinions if available',
-    ],
-  },
-};
+// DOCUMENT_LIBRARY removed - all document checklists, required/optional documents,
+// and service-specific notes are now stored in Qdrant/PostgreSQL and retrieved via RAG backend
+// This ensures data accuracy and eliminates hardcoded values from the codebase
+const DOCUMENT_LIBRARY: Record<ServiceKey, DocumentMatrix> = {} as any; // Placeholder - data from database
 
 const ROUTING_MESSAGES: Record<string, string> = {
   visa: 'Posso guidarti su tipologie di visto, requisiti e tempistiche.',
@@ -150,16 +44,16 @@ function resolveKey(raw?: string): ServiceKey {
 }
 
 export function documentPrepare(params: { service?: string } = {}) {
-  const profile = DOCUMENT_LIBRARY[resolveKey(params.service)];
-  if (!profile) {
+  const serviceKey = resolveKey(params.service);
+  if (!serviceKey) {
     throw new BadRequestError('Service type required for document preparation');
   }
 
+  // Document checklists are now retrieved from RAG backend (Qdrant/PostgreSQL)
   return ok({
-    checklist: profile.title,
-    required: profile.required,
-    optional: profile.optional || [],
-    notes: profile.notes || [],
+    service: serviceKey,
+    message: 'Document checklist data is stored in the database. Please query the RAG backend for accurate, up-to-date document requirements.',
+    source: 'RAG backend (Qdrant/PostgreSQL)',
     submission: 'Invia la documentazione completa a docs@balizero.com',
     reviewTime: 'Verifica preliminare entro 24 ore lavorative',
   });

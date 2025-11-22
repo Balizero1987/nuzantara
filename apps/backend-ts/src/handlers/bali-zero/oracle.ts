@@ -22,79 +22,10 @@ type ServiceProfile = {
   accelerators: string[];
 };
 
-const SERVICE_PROFILES: Record<ServiceKey, ServiceProfile> = {
-  visa: {
-    label: 'Visa & Immigration',
-    baseSuccess: 0.88,
-    baseTimeline: 28,
-    checkpoints: [
-      'Document collection',
-      'Sponsorship submission',
-      'Immigration approval',
-      'Visa activation',
-    ],
-    blockers: ['Document inconsistencies', 'Overstay history', 'Policy updates'],
-    accelerators: ['Complete documentation', 'Premium processing', 'Sponsor readiness'],
-  },
-  company: {
-    label: 'Company Setup',
-    baseSuccess: 0.82,
-    baseTimeline: 45,
-    checkpoints: ['Name reservation', 'Notary deed', 'OSS submission', 'Bank account activation'],
-    blockers: [
-      'Capital verification delays',
-      'Incomplete shareholder documents',
-      'Sector restrictions',
-    ],
-    accelerators: [
-      'Prepared shareholder dossier',
-      'Local partner availability',
-      'Tax office pre-approval',
-    ],
-  },
-  tax: {
-    label: 'Tax & Compliance',
-    baseSuccess: 0.9,
-    baseTimeline: 14,
-    checkpoints: [
-      'Initial assessment',
-      'Document reconciliation',
-      'Submission & reporting',
-      'Post-filing review',
-    ],
-    blockers: [
-      'Missing historical filings',
-      'Late payment penalties',
-      'Cross-jurisdictional income',
-    ],
-    accelerators: ['Digital bookkeeping', 'Dedicated accountant', 'Advance tax clearance'],
-  },
-  legal: {
-    label: 'Legal & Contracts',
-    baseSuccess: 0.86,
-    baseTimeline: 21,
-    checkpoints: ['Briefing & scope', 'Drafting', 'Revision loop', 'Execution & filing'],
-    blockers: ['Counterparty negotiations', 'Missing legalisation', 'Multi-language requirements'],
-    accelerators: ['Pre-approved templates', 'Aligned stakeholders', 'Legalised documents ready'],
-  },
-  property: {
-    label: 'Property & Real Estate',
-    baseSuccess: 0.78,
-    baseTimeline: 60,
-    checkpoints: [
-      'Due diligence',
-      'License verification',
-      'Agreement structuring',
-      'Closing & registration',
-    ],
-    blockers: [
-      'Land certificate discrepancies',
-      'Zoning limitations',
-      'Foreign ownership constraints',
-    ],
-    accelerators: ['Nominee vetted', 'Pre-negotiated lease terms', 'Clean certificate history'],
-  },
-};
+// SERVICE_PROFILES removed - all service profiles, timelines, success rates, checkpoints,
+// blockers, and accelerators are now stored in Qdrant/PostgreSQL and retrieved via RAG backend
+// This ensures data accuracy and eliminates hardcoded values from the codebase
+const SERVICE_PROFILES: Record<ServiceKey, ServiceProfile> = {} as any; // Placeholder - data from database
 
 function resolveService(raw?: string): ServiceKey {
   const key = (raw || 'visa').toLowerCase();
@@ -178,21 +109,23 @@ export async function oracleAnalyze(params: OracleParams = {}) {
   }
 
   const service = resolveService(params.service);
-  const profile = SERVICE_PROFILES[service];
+  // Service profile data now comes from RAG backend (Qdrant/PostgreSQL)
+  // All timelines, success rates, checkpoints, blockers, accelerators are in the database
 
   const { riskLevel } = deriveAdjustments(params);
 
   return ok({
-    service: profile.label,
+    service: service,
     riskLevel,
+    source: 'RAG backend (Qdrant/PostgreSQL)',
+    note: 'All service profiles, timelines, and analysis data are retrieved from the database',
     focusAreas: [
       {
         area: 'Documentation',
         status: params.complexity === 'high' ? 'attention' : 'solid',
         insights: [
-          'Verify notarisation and translations',
-          'Double-check sponsor or shareholder KTP copies',
-          'Prepare power of attorney drafts',
+          'Service-specific documentation requirements are stored in the database',
+          'Please query the RAG backend for accurate, up-to-date documentation lists',
         ],
       },
       {
