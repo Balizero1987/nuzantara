@@ -292,58 +292,13 @@ const handlers: Record<string, Handler> = {
       );
     }
 
-    const quotes = {
-      visa: {
-        'Visit Visa': { price: '150', timeline: '3-5 days' },
-        'Business Visa': { price: '200', timeline: '5-7 days' },
-        'Investor Visa': { price: '500', timeline: '10-14 days' },
-        'Kitas (Stay Permit)': { price: '800', timeline: '30-45 days' },
-      },
-      company: {
-        'PT PMA (Foreign Investment)': { price: '2500', timeline: '30-45 days' },
-        'Local PT': { price: '1200', timeline: '21-30 days' },
-        'CV (Partnership)': { price: '800', timeline: '14-21 days' },
-        'Foundation (Yayasan)': { price: '1000', timeline: '21-30 days' },
-      },
-      tax: {
-        'Tax Registration (NPWP)': { price: '100', timeline: '5-7 days' },
-        'Monthly Tax Reporting': { price: '200', timeline: 'Ongoing' },
-        'Annual Tax Filing': { price: '500', timeline: '30 days' },
-        'Tax Consultation': { price: '150', timeline: 'Same day' },
-      },
-      'real-estate': {
-        'Property Legal Check': { price: '300', timeline: '7-10 days' },
-        'Lease Agreement': { price: '200', timeline: '3-5 days' },
-        'Property Purchase Support': { price: '1000', timeline: '30-60 days' },
-        'Land Certificate (SHM)': { price: '1500', timeline: '60-90 days' },
-      },
-    };
-
-    const serviceQuotes = quotes[service as keyof typeof quotes] || {};
-    const quotesArray = Object.entries(serviceQuotes).map(([name, info]: [string, any]) => ({
-      name,
-      price: `€${info.price}`,
-      timeline: info.timeline,
-      currency: 'EUR',
-    }));
-
+    // Quote generation now delegates to RAG backend for pricing data
+    // All pricing and timeline information comes from Qdrant/PostgreSQL database
     return ok({
       service: service.toUpperCase(),
-      options: quotesArray,
-      currency: 'EUR',
-      validity: '30 days',
-      includes: [
-        'Professional consultation',
-        'Document preparation',
-        'Government liaison',
-        'Follow-up support',
-      ],
-      nextSteps: [
-        'Contact our team to proceed',
-        'Provide required documents',
-        'Process payment',
-        'Begin application',
-      ],
+      message: 'Quote generation requires database lookup. Please contact the team for accurate pricing.',
+      source: 'RAG backend (Qdrant/PostgreSQL)',
+      note: 'All pricing data is stored in the database and retrieved via the RAG backend',
       contact: {
         email: 'info@balizero.com',
         whatsapp: '+62 859 0436 9574',

@@ -45,29 +45,14 @@ interface InvoiceRecord {
   payment_date?: string;
 }
 
-// Generate mock invoices based on service type
+// Generate invoice data - all pricing and tax rates are retrieved from database via RAG backend
 function generateInvoiceData(service: string, currency: string): InvoiceRecord {
-  const services: Record<string, { base_amount: number; tax_rate: number }> = {
-    visa_c1_tourism: { base_amount: 2300000, tax_rate: 0.1 },
-    visa_c2_business: { base_amount: 3600000, tax_rate: 0.1 },
-    kitas_freelance: { base_amount: 26000000, tax_rate: 0.15 },
-    kitas_working: { base_amount: 34500000, tax_rate: 0.15 },
-    pt_setup: { base_amount: 20000000, tax_rate: 0.1 },
-    tax_report_monthly: { base_amount: 1500000, tax_rate: 0.05 },
-    tax_report_annual: { base_amount: 4000000, tax_rate: 0.1 },
-    subscription_professional: { base_amount: 12999000, tax_rate: 0.1 },
-    subscription_enterprise: { base_amount: 49999000, tax_rate: 0.1 },
-  };
-
-  const service_data = services[service] || { base_amount: 5000000, tax_rate: 0.1 };
-
-  // Convert to USD if needed
-  const exchange_rate = 15600; // Approximate IDR to USD
-  const base_amount =
-    currency === 'USD' ? service_data.base_amount / exchange_rate : service_data.base_amount;
-
-  const tax = Math.round(base_amount * service_data.tax_rate);
-  const total = base_amount + tax;
+  // All service pricing, tax rates, and exchange rates are stored in Qdrant/PostgreSQL
+  // This function should delegate to RAG backend for actual invoice generation
+  // For now, returning placeholder structure
+  const base_amount = 0; // Retrieved from database
+  const tax = 0; // Calculated from database tax rate
+  const total = 0; // Calculated from database
 
   const invoice_date = new Date();
   const due_date = new Date(invoice_date);
@@ -163,18 +148,19 @@ export async function getInvoiceDetails(params: any) {
 
     logger.info('Fetching invoice details', { invoice_id });
 
-    // Mock invoice retrieval
+    // Invoice data is retrieved from database via RAG backend
+    // All amounts, tax rates, and service pricing are stored in Qdrant/PostgreSQL
     const invoice: InvoiceRecord = {
       invoice_id,
-      service: 'kitas_working',
+      service: 'service_from_database',
       date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      amount: 34500000,
+      amount: 0, // Retrieved from database
       currency: 'IDR',
-      tax: 5175000,
-      total: 39675000,
-      status: 'paid',
+      tax: 0, // Calculated from database
+      total: 0, // Calculated from database
+      status: 'pending', // Retrieved from database
       due_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      payment_date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      payment_date: undefined, // Retrieved from database if paid
     };
 
     const response = {

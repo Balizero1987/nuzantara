@@ -38,10 +38,12 @@ export class AntiHallucinationSystem {
 
   private trustedPatterns = {
     // Business facts that are always true for Bali Zero
-    services: ['visa', 'company_setup', 'tax_consulting', 'real_estate_legal'],
-    visa_types: ['KITAS', 'KITAP', 'VOA'], // Generic visa categories only - specific codes removed (stored in database)
-    company_types: ['PT', 'PT_PMA', 'CV'],
-    locations: ['Bali', 'Indonesia', 'Jakarta', 'Kerobokan'],
+    // NOTE: Service-specific data (visa types, company types, pricing, timelines) 
+    // are stored in Qdrant/PostgreSQL and retrieved via RAG backend
+    services: ['visa', 'company_setup', 'tax_consulting', 'real_estate_legal'], // Generic service categories only
+    visa_types: [], // All visa types are in the database
+    company_types: [], // All company types are in the database
+    locations: ['Bali', 'Indonesia', 'Jakarta', 'Kerobokan'], // Geographic locations only
 
     // Verified operational facts
     response_times: {

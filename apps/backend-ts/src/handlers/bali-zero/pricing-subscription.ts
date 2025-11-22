@@ -94,8 +94,8 @@ const SUBSCRIPTION_PLANS = {
     ],
     pricing: {
       monthly: 'RETRIEVED_FROM_DATABASE',
-      quarterly: { IDR: '144.997.000', USD: '9180' }, // 5% discount
-      annual: { IDR: '539.989.000', USD: '34200' }, // 10% discount
+      quarterly: 'RETRIEVED_FROM_DATABASE',
+      annual: 'RETRIEVED_FROM_DATABASE',
     },
     renewal_terms: 'Auto-renews on billing date',
     cancellation_notice: '30 days',

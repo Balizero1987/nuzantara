@@ -568,88 +568,16 @@ export class AdvancedNLPSystem {
   private extractServices(query: string, language: string): ExtractedEntity[] {
     const entities: ExtractedEntity[] = [];
 
-    const services = {
-      it: [
-        'kitas',
-        'vitas',
-        'imta',
-        'izin kerja',
-        'izin tinggal',
-        'pt pma',
-        'pendirian pt',
-        'perizinan',
-        'izin usaha',
-        'nib',
-        'siup',
-        'tdp',
-        'api',
-        'npwp',
-        'spt',
-        'pph 21',
-        'pph 23',
-        'ppn',
-        'bpjs',
-        'asuransi',
-        'visa',
-        'passaporto',
-        'ktp',
-        'sim',
-        'kk',
-      ],
-      en: [
-        'kitas',
-        'vitas',
-        'work permit',
-        'business visa',
-        'pt pma',
-        'company registration',
-        'business license',
-        'nib',
-        'siup',
-        'tdp',
-        'api',
-        'tax id',
-        'npwp',
-        'tax filing',
-        'withholding tax',
-        'vat',
-        'bpjs',
-        'insurance',
-        'visa',
-        'passport',
-        'id card',
-        'sim card',
-        'family card',
-      ],
-      id: [
-        'kitas',
-        'vitas',
-        'izin kerja',
-        'izin tinggal',
-        'pt pma',
-        'pendirian pt',
-        'perizinan',
-        'izin usaha',
-        'nib',
-        'siup',
-        'tdp',
-        'api',
-        'npwp',
-        'spt',
-        'pph 21',
-        'pph 23',
-        'ppn',
-        'bpjs',
-        'asuransi',
-        'visa',
-        'paspor',
-        'ktp',
-        'sim',
-        'kk',
-      ],
+    // Service keywords are now retrieved from the database via RAG backend
+    // This method should delegate to RAG for service extraction to ensure accuracy
+    // For now, using generic service category detection without hardcoded values
+    const genericServicePatterns = {
+      it: ['visa', 'permesso', 'azienda', 'società', 'fiscale', 'tasse', 'immobiliare', 'legale'],
+      en: ['visa', 'permit', 'company', 'business', 'tax', 'legal', 'property', 'real estate'],
+      id: ['visa', 'izin', 'perusahaan', 'pajak', 'hukum', 'properti'],
     };
 
-    const serviceKeywords = (services as Record<string, string[]>)[language] || (services as Record<string, string[]>)['mixed'];
+    const serviceKeywords = (genericServicePatterns as Record<string, string[]>)[language] || [];
 
     for (const service of serviceKeywords) {
       const regex = new RegExp(`\\b${this.escapeRegExp(service)}\\b`, 'gi');
@@ -1537,24 +1465,27 @@ export class AdvancedNLPSystem {
   }
 
   private getServiceCategory(service: string): string {
-    const categories = {
-      kitas: 'immigration',
-      vitas: 'immigration',
-      'work permit': 'immigration',
-      'pt pma': 'company_registration',
-      tax: 'tax',
-      legal: 'legal',
-      insurance: 'insurance',
-    };
-
+    // Service categorization now uses generic patterns only
+    // Specific service types (kitas, pt pma, npwp, etc.) are stored in the database
     const lowerService = service.toLowerCase();
-    for (const [category, keywords] of Object.entries(categories)) {
-      const keywordsArray = Array.isArray(keywords) ? keywords : [];
-      if (keywordsArray.some((keyword) => lowerService.includes(keyword))) {
-        return category;
-      }
+    
+    // Generic category detection based on keywords (not specific service names)
+    if (lowerService.includes('visa') || lowerService.includes('permit') || lowerService.includes('immigration')) {
+      return 'immigration';
     }
-
+    if (lowerService.includes('company') || lowerService.includes('business') || lowerService.includes('registration')) {
+      return 'company_registration';
+    }
+    if (lowerService.includes('tax') || lowerService.includes('pajak')) {
+      return 'tax';
+    }
+    if (lowerService.includes('legal') || lowerService.includes('hukum')) {
+      return 'legal';
+    }
+    if (lowerService.includes('property') || lowerService.includes('real estate') || lowerService.includes('properti')) {
+      return 'property';
+    }
+    
     return 'general';
   }
 

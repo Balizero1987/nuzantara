@@ -148,7 +148,7 @@ export class VisaOracle {
           onshore: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Work permit (IMTA) without specific employer - DJs, marketing managers, etc.',
-        requirements: ['Working permit (IMTA)'],
+        requirements: 'RETRIEVED_FROM_DATABASE','Working permit (IMTA)'],
         multipleEntry: true,
       },
       E23_WORKING: {
@@ -162,7 +162,7 @@ export class VisaOracle {
           extension: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Work for Indonesian company with one type of work',
-        requirements: ['Sponsoring company', 'Work permit'],
+        requirements: 'RETRIEVED_FROM_DATABASE','Sponsoring company', 'Work permit'],
         multipleEntry: true,
       },
       E28A: {
@@ -176,7 +176,7 @@ export class VisaOracle {
           extension: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Foreign investors with PT PMA (foreign investment company)',
-        requirements: ['PT PMA ownership', 'Investment proof', 'BKPM approval'],
+        requirements: 'RETRIEVED_FROM_DATABASE','PT PMA ownership', 'Investment proof', 'BKPM approval'],
         multipleEntry: true,
         bestFor: 'Business owners, investors in Indonesia',
       },
@@ -231,8 +231,8 @@ export class VisaOracle {
           onshore: 'RETRIEVED_FROM_DATABASE',
           extension: 'RETRIEVED_FROM_DATABASE',
         },
-        description: 'For foreign nationals aged 55+ who want to retire in Indonesia',
-        requirements: ['Age 55+', 'Financial proof'],
+        description: 'For foreign nationals age 'RETRIEVED_FROM_DATABASE' who want to retire in Indonesia',
+        requirements: 'RETRIEVED_FROM_DATABASE','Age 55+', 'Financial proof'],
         multipleEntry: true,
       },
       E33G: {
@@ -246,7 +246,7 @@ export class VisaOracle {
           extension: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'For remote workers and digital nomads',
-        requirements: ['Proof of remote employment', 'Financial proof'],
+        requirements: 'RETRIEVED_FROM_DATABASE','Proof of remote employment', 'Financial proof'],
         multipleEntry: true,
         bestFor: 'Digital nomads, remote workers',
       },
@@ -261,7 +261,7 @@ export class VisaOracle {
         duration: '5 years (renewable indefinitely)',
         price: 'Contact for quote',
         description: 'Minimum 3 years holding shares in Indonesian company',
-        requirements: ['3+ years as investor', 'PT PMA ownership'],
+        requirements: 'RETRIEVED_FROM_DATABASE','3+ years as investor', 'PT PMA ownership'],
       },
       WORKING: {
         code: 'Working KITAP',
@@ -270,7 +270,7 @@ export class VisaOracle {
         duration: '5 years',
         price: 'Contact for quote',
         description: 'Minimum 3 years as BOD/BOC in Indonesian company under Working KITAS',
-        requirements: ['3+ years as BOD/BOC', 'Working KITAS history'],
+        requirements: 'RETRIEVED_FROM_DATABASE','3+ years as BOD/BOC', 'Working KITAS history'],
       },
       FAMILY: {
         code: 'Family KITAP',
@@ -279,7 +279,7 @@ export class VisaOracle {
         duration: '5 years (renewable indefinitely)',
         price: 'Contact for quote',
         description: 'Married to Indonesian citizens or children from mixed-nationality marriages',
-        requirements: ['Marriage certificate', 'Indonesian spouse'],
+        requirements: 'RETRIEVED_FROM_DATABASE','Marriage certificate', 'Indonesian spouse'],
       },
       RETIREMENT: {
         code: 'Retirement KITAP',
@@ -288,7 +288,7 @@ export class VisaOracle {
         duration: '5 years',
         price: 'Contact for quote',
         description: 'Minimum 4 years holding Retirement KITAS',
-        requirements: ['4+ years Retirement KITAS'],
+        requirements: 'RETRIEVED_FROM_DATABASE','4+ years Retirement KITAS'],
       },
     },
 
@@ -483,7 +483,7 @@ export class VisaOracle {
               tiers: [
                 {
                   duration: '5 years',
-                  investment: 'USD 350,000',
+                  investment: ''RETRIEVED_FROM_DATABASE'',
                   options: [
                     'Indonesian government bonds',
                     'Public company shares',
@@ -492,7 +492,7 @@ export class VisaOracle {
                 },
                 {
                   duration: '10 years',
-                  investment: 'USD 700,000',
+                  investment: ''RETRIEVED_FROM_DATABASE'',
                   options: [
                     'Indonesian government bonds',
                     'Public company shares',
@@ -506,7 +506,7 @@ export class VisaOracle {
               tiers: [
                 {
                   duration: '5 years',
-                  investment: 'USD 2.5 million',
+                  investment: ''RETRIEVED_FROM_DATABASE'',
                   options: [
                     'Share purchases',
                     'Company establishment',
@@ -515,7 +515,7 @@ export class VisaOracle {
                 },
                 {
                   duration: '10 years',
-                  investment: 'USD 5 million',
+                  investment: ''RETRIEVED_FROM_DATABASE'',
                   options: [
                     'Share purchases',
                     'Company establishment',
@@ -529,12 +529,12 @@ export class VisaOracle {
               tiers: [
                 {
                   duration: '5 years',
-                  investment: 'USD 25 million (company investment)',
+                  investment: ''RETRIEVED_FROM_DATABASE'',
                   eligibility: 'Directors and commissioners',
                 },
                 {
                   duration: '10 years',
-                  investment: 'USD 50 million (company investment)',
+                  investment: ''RETRIEVED_FROM_DATABASE'',
                   eligibility: 'Directors and commissioners',
                 },
               ],
@@ -559,7 +559,7 @@ export class VisaOracle {
             {
               type: 'Bank Deposit',
               amount: 'RETRIEVED_FROM_DATABASE',
-              requirements: [
+              requirements: 'RETRIEVED_FROM_DATABASE',
                 "Maintained in applicant's own name",
                 'State-owned Indonesian bank',
                 'Frozen for visa duration',
@@ -568,8 +568,8 @@ export class VisaOracle {
             },
             {
               type: 'Property Investment',
-              amount: 'USD 1 million minimum',
-              requirements: [
+              amount: ''RETRIEVED_FROM_DATABASE'',
+              requirements: 'RETRIEVED_FROM_DATABASE',
                 'Residential properties (flats/apartments)',
                 "Must be registered in applicant's name",
                 'Proof of ownership required',
@@ -604,13 +604,13 @@ export class VisaOracle {
 
           requirements: {
             financial: [
-              'Minimum pension: USD 18,000/year (some sources: USD 36,000/year)',
-              'OR: Proof of income USD 3,000/month',
+              'Minimum pension: 'RETRIEVED_FROM_DATABASE'',
+              'OR: Proof of income 'RETRIEVED_FROM_DATABASE'',
               'Bank statements (6 months)',
             ],
             insurance: 'RETRIEVED_FROM_DATABASE',
             accommodation: '1-year lease agreement required',
-            age: 'Minimum 55 years (standard) or 60 years (Silver Hair)',
+            age: 'RETRIEVED_FROM_DATABASE',
             restrictions: 'No work allowed in Indonesia',
           },
 
@@ -630,9 +630,9 @@ export class VisaOracle {
             code: 'E33G',
             duration: '1 year',
             renewable: 'Once (total 2 years)',
-            cost: 'USD 630 + USD 150 processing fee',
+            cost: ''RETRIEVED_FROM_DATABASE'',
 
-            requirements: [
+            requirements: 'RETRIEVED_FROM_DATABASE',
               'Proof of remote employment',
               'Income statement (minimum threshold applies)',
               'Health insurance',
@@ -707,7 +707,7 @@ export class VisaOracle {
               dkpTka: {
                 name: 'DKP-TKA (Dana Kompensasi Penggunaan Tenaga Kerja Asing)',
                 translation: 'Foreign Workers Compensation Fund',
-                amount: 'USD 100/month per foreign worker',
+                amount: ''RETRIEVED_FROM_DATABASE'',
                 payableTo: 'Ministry of Manpower',
                 frequency: 'Monthly',
                 purpose: 'Manpower development fund',
@@ -835,7 +835,7 @@ export class VisaOracle {
 
           requirements: {
             passport: 'Valid for minimum 6 months',
-            financial: 'Bank statement USD 2,000 minimum (last 3 months)',
+            financial: 'Bank statement 'RETRIEVED_FROM_DATABASE'',
             documents: [
               'Marriage certificate (official, legalized)',
               'Marriage certificate translation to Indonesian (if not English) by sworn translator',
@@ -909,7 +909,7 @@ export class VisaOracle {
             acceptance: 'Letter of acceptance from Indonesian university',
             studyPermit: 'Study permit from Ministry of Education',
             financial: [
-              'Proof of sufficient funds (USD 1,500 - 2,000)',
+              'Proof of sufficient funds ('RETRIEVED_FROM_DATABASE'',
               'Bank statements (6 months)',
               'Financial guarantee letter',
             ],
@@ -918,7 +918,7 @@ export class VisaOracle {
 
           costs: {
             processing: 'RETRIEVED_FROM_DATABASE',
-            visaFee: 'USD 150 (at overseas Indonesian Embassy)',
+            visaFee: ''RETRIEVED_FROM_DATABASE'',
             biometrics: 'RETRIEVED_FROM_DATABASE',
           },
 
@@ -966,7 +966,7 @@ export class VisaOracle {
 
           requirements: {
             passport: 'Valid for minimum 6 months',
-            financial: 'Bank statement USD 2,000 minimum (last 3 months)',
+            financial: 'Bank statement 'RETRIEVED_FROM_DATABASE'',
             sponsor: 'Indonesian hospital/medical facility (must sponsor)',
             documents: [
               'Medical appointment records/confirmation',
@@ -1113,7 +1113,7 @@ export class VisaOracle {
 
             requirements: {
               passport: 'Valid for minimum 6 months, 1 blank page',
-              financial: 'Bank statement USD 2,000 minimum (last 3 months)',
+              financial: 'Bank statement 'RETRIEVED_FROM_DATABASE'',
               sponsor: [
                 'Invitation letter from Indonesian organization/NGO',
                 'Sponsor must be registered entity',
@@ -1160,7 +1160,7 @@ export class VisaOracle {
 
             requirements: {
               passport: 'Valid for minimum 6 months, 1 blank page',
-              financial: 'Bank statement USD 2,000 minimum (last 3 months)',
+              financial: 'Bank statement 'RETRIEVED_FROM_DATABASE'',
               sponsor: [
                 'Invitation from Indonesian research institution/university',
                 'Research proposal/plan',
@@ -1226,7 +1226,7 @@ export class VisaOracle {
               'All certificates translated by sworn translator to Indonesian',
               'Legalized documents (if issued abroad)',
             ],
-            financial: "Bank statement USD 1,500 - 2,000 (in sponsor's account)",
+            financial: "Bank statement 'RETRIEVED_FROM_DATABASE''s account)",
           },
 
           processingTime: {
@@ -1293,7 +1293,7 @@ export class VisaOracle {
 
           requirements: {
             passport: 'Valid for minimum 6 months',
-            financial: 'Bank statement USD 2,000 minimum per crew member',
+            financial: 'Bank statement 'RETRIEVED_FROM_DATABASE'',
             productionDocuments: [
               'Company profile (production company)',
               'Past credits/portfolio',
@@ -1309,7 +1309,7 @@ export class VisaOracle {
               'Passport scan (valid 6 months)',
               'Passport photos (3x4 color)',
               'Completed visa application form',
-              'Bank statement (USD 2,000+)',
+              'Bank statement ('RETRIEVED_FROM_DATABASE'',
               'Flight itinerary',
             ],
           },
@@ -1703,7 +1703,7 @@ export class VisaOracle {
 
             requirements: {
               passport: 'Valid minimum 6 months (12 months for emergency passports)',
-              financial: 'Bank statement USD 2,000 minimum (last 3 months)',
+              financial: 'Bank statement 'RETRIEVED_FROM_DATABASE'',
               sponsor: 'Indonesian company sponsor/guarantor (mandatory)',
               documents: [
                 'Sponsor invitation letter',
@@ -1776,7 +1776,7 @@ export class VisaOracle {
 
           keyAdvantages: [
             '✅ NO work permit (RPTKA) required',
-            '✅ NO DKP-TKA monthly contribution (saves USD 100/month)',
+            '✅ NO DKP-TKA monthly contribution (saves 'RETRIEVED_FROM_DATABASE'',
             '✅ Direct investment in PT PMA',
             '✅ Can work in invested company',
             '✅ 2-year validity (renewable)',
