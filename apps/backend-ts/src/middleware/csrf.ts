@@ -3,7 +3,7 @@
  * Generates and validates CSRF tokens
  */
 
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, Router } from 'express';
 import crypto from 'crypto';
 import logger from '../services/logger.js';
 
@@ -117,4 +117,35 @@ function cleanupExpiredTokens() {
 
 // Cleanup every 5 minutes
 setInterval(cleanupExpiredTokens, 5 * 60 * 1000);
+
+/**
+ * CSRF Routes
+ */
+export const csrfRoutes = Router();
+
+// Get CSRF token endpoint
+csrfRoutes.get('/csrf-token', (req, res) => {
+  try {
+    const sessionId = req.headers['x-session-id'] as string || crypto.randomUUID();
+    const token = crypto.randomBytes(32).toString('hex');
+
+    csrfTokens.set(sessionId, {
+      token,
+      expiresAt: Date.now() + TOKEN_EXPIRY,
+    });
+
+    res.setHeader('X-CSRF-Token', token);
+    res.setHeader('X-Session-Id', sessionId);
+
+    res.json({
+      ok: true,
+      csrfToken: token,
+      sessionId: sessionId,
+      expiresIn: TOKEN_EXPIRY / 1000 // seconds
+    });
+  } catch (error) {
+    logger.error('CSRF token endpoint error:', error instanceof Error ? error : new Error(String(error)));
+    res.status(500).json({ ok: false, error: 'Failed to generate CSRF token' });
+  }
+});
 
