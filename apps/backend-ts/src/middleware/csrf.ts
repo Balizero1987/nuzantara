@@ -54,6 +54,11 @@ export function validateCsrfToken(req: Request, res: Response, next: NextFunctio
     return next();
   }
 
+  // Skip CSRF for authentication endpoints (JWT handles security)
+  if (req.path && req.path.startsWith('/auth/')) {
+    return next();
+  }
+
   try {
     const sessionId = req.headers['x-session-id'] as string;
     const token = req.headers['x-csrf-token'] as string;
