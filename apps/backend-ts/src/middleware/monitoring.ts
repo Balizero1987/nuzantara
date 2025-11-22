@@ -137,21 +137,9 @@ export async function getHealthMetrics() {
 
   // Firestore/Firebase removed - using PostgreSQL instead
   let serviceAccountStatus = { available: false, error: 'Firebase removed - using PostgreSQL' } as any;
-  try {
-    // Firebase service removed - monitoring now uses PostgreSQL
-    serviceAccountStatus = {
-        available: false,
-        error: firebaseStatus.error,
-      };
-    } else {
-      serviceAccountStatus = {
-        available: false,
-        error: 'Firebase not initialized yet',
-      };
-    }
-  } catch (error: any) {
-    serviceAccountStatus = { available: false, error: error?.message || 'status_unavailable' };
-  }
+  
+  // PostgreSQL check could go here if needed
+  // For now, just return static status for legacy compatibility
 
   return {
     status: 'healthy',
