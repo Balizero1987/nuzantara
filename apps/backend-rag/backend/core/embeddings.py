@@ -148,14 +148,15 @@ class EmbeddingsGenerator:
         logger.info(f"Generating embeddings for {len(texts)} texts using OpenAI")
 
         # Call OpenAI API
+        # Note: dimensions parameter removed - text-embedding-3-small defaults to 1536 dims
+        # which matches our Qdrant collections configuration
         response = self.client.embeddings.create(
             model=self.model,
-            input=texts,
-            dimensions=self.dimensions
+            input=texts
         )
 
         embeddings = [item.embedding for item in response.data]
-        logger.info(f"✅ Generated {len(embeddings)} embeddings (OpenAI)")
+        logger.info(f"✅ Generated {len(embeddings)} embeddings (OpenAI, {len(embeddings[0]) if embeddings else 0} dims)")
         return embeddings
 
     def _generate_embeddings_sentence_transformers(self, texts: List[str]) -> List[List[float]]:
