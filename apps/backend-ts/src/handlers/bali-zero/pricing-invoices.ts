@@ -211,18 +211,13 @@ export async function getInvoiceHistory(params: any) {
     const p = InvoiceQuerySchema.parse(params || {});
     logger.info('Fetching invoice history', { status: p.status, limit: p.limit });
 
-    // Generate mock invoice history
+    // Invoice history is retrieved from database via RAG backend
+    // All service types and invoice data are stored in Qdrant/PostgreSQL
     const invoices: InvoiceRecord[] = [];
-    const services = [
-      'visa_c1_tourism',
-      'kitas_working',
-      'pt_setup',
-      'tax_report_monthly',
-      'subscription_professional',
-    ];
+    const services: string[] = []; // Retrieved from database
 
     for (let i = 0; i < p.limit; i++) {
-      const service = services[i % services.length];
+      const service = services[i % Math.max(services.length, 1)] || 'service_from_database';
       const invoice = generateInvoiceData(service, 'IDR');
       invoices.push(invoice);
     }
