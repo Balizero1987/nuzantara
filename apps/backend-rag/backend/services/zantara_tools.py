@@ -1,6 +1,7 @@
 """
-ZANTARA Tools - Python Native Tools for Claude
+ZANTARA Tools - Python Native Tools for ZANTARA AI
 Direct execution (no HTTP calls) - faster & more reliable
+LEGACY CODE CLEANED: Claude references removed - using ZANTARA AI only
 """
 
 import logging
@@ -208,35 +209,34 @@ class ZantaraTools:
 
     def get_tool_definitions(self, include_admin_tools: bool = False) -> List[Dict[str, Any]]:
         """
-        Get Anthropic-compatible tool definitions
+        Get ZANTARA AI-compatible tool definitions
 
         Returns:
-            List of tool definitions for Claude API
+            List of tool definitions for ZANTARA AI (legacy Anthropic format for compatibility)
         """
         tools = [
             {
                 "name": "get_pricing",
-                "description": """Get OFFICIAL Bali Zero pricing for services (visa, KITAS, PT PMA setup, tax consulting).
+                "description": """Get OFFICIAL Bali Zero pricing for services.
 
 ⚠️ CRITICAL: ALWAYS use this tool for ANY pricing question. NEVER generate prices from memory.
 
-This returns OFFICIAL 2025 prices including:
-- Visa prices (C1 Tourism, C2 Business, D1/D2 Multiple Entry, etc.)
-- KITAS prices (E23 Freelance, E23 Working, E28A Investor, E33F Retirement, E33G Remote Worker)
-- Business services (PT PMA setup, company revision, alcohol license, legal real estate)
-- Tax services (NPWP, monthly/annual reports, BPJS)
-- Quick quote packages
-- Bali Zero service margins and government fee breakdowns
+This returns OFFICIAL prices from the database including:
+- Visa prices (retrieved from database)
+- Long-stay permit prices (retrieved from database)
+- Business services (retrieved from database)
+- Tax services (retrieved from database)
+- All pricing data is stored in Qdrant/PostgreSQL and retrieved via this tool
 
 MANDATORY USAGE:
 - If user asks about ANY price → CALL THIS TOOL
 - Examples that REQUIRE this tool:
-  * "How much does KITAS cost?"
-  * "Berapa harga PT PMA?"
+  * "How much does [service] cost?"
+  * "Berapa harga [service]?"
   * "What's the price for..."
   * "Quanto costa..."
 
-DO NOT generate prices from memory - prices change and must be accurate.""",
+DO NOT generate prices from memory - prices change and must be accurate. All pricing comes from the database.""",
                 "input_schema": {
                     "type": "object",
                     "properties": {
@@ -247,7 +247,7 @@ DO NOT generate prices from memory - prices change and must be accurate.""",
                         },
                         "query": {
                             "type": "string",
-                            "description": "Optional: specific search query (e.g. 'KITAS E23', 'PT PMA', 'B211B visa')"
+                            "description": "Optional: specific search query (e.g. 'long-stay permit', 'company setup', 'visa')"
                         }
                     },
                     "required": ["service_type"]

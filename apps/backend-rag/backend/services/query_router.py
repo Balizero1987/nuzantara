@@ -34,13 +34,11 @@ class QueryRouter:
     """
 
     # Domain-specific keywords for multi-collection routing
+    # Generic patterns only - no specific codes (B211, C1, E23, etc. are in database)
     VISA_KEYWORDS = [
-        "visa", "b211", "b211a", "b211b", "c1", "c2", "c7", "d1", "d2", "d12",
-        "e23", "e28", "e31", "e33", "e33g", "kitas", "kitap", "immigration", "imigrasi",
-        "passport", "paspor", "sponsor", "stay permit", "tourist visa", "social visa",
-        "work permit", "imta", "merp", "rptka", "voa", "visit visa", "golden visa",
-        "second home", "retirement visa", "digital nomad", "investor visa",
-        "permenkumham", "dirjen imigrasi"
+        "visa", "immigration", "imigrasi", "passport", "paspor", "sponsor",
+        "stay permit", "tourist visa", "social visa", "work permit", "visit visa",
+        "long stay", "permit", "residence", "immigration office", "dirjen imigrasi"
     ]
 
     KBLI_KEYWORDS = [
@@ -52,11 +50,9 @@ class QueryRouter:
     ]
 
     TAX_KEYWORDS = [
-        "tax", "pajak", "npwp", "pph", "ppn", "pbb", "spt", "tax reporting",
-        "withholding tax", "vat", "income tax", "corporate tax", "fiscal",
-        "djp", "direktorat jenderal pajak", "tax compliance", "e-faktur",
-        "coretax", "tax amnesty", "transfer pricing", "tax treaty",
-        "dividend tax", "carbon tax"
+        "tax", "pajak", "tax reporting", "withholding tax", "vat", "income tax",
+        "corporate tax", "fiscal", "tax compliance", "tax calculation",
+        "tax registration", "tax filing", "tax office", "direktorat jenderal pajak"
     ]
 
     # Tax Genius specific keywords (for procedural/calculation queries)
@@ -68,37 +64,30 @@ class QueryRouter:
     ]
 
     LEGAL_KEYWORDS = [
-        "pt pma", "pt", "pma", "foreign investment", "bkpm", "limited liability",
-        "perseroan terbatas", "company formation", "incorporation", "deed",
-        "akta", "notary", "notaris", "shareholder", "pemegang saham",
-        "domicile", "domisili", "skdp", "business entity", "legal entity",
-        "law", "hukum", "regulation", "peraturan", "legal compliance",
-        "contract", "perjanjian", "property law", "marriage law"
+        "company", "foreign investment", "limited liability", "company formation",
+        "incorporation", "deed", "notary", "notaris", "shareholder",
+        "business entity", "legal entity", "law", "hukum", "regulation",
+        "peraturan", "legal compliance", "contract", "perjanjian"
     ]
 
-    # Phase 2: Property-related keywords (for property_listings & property_knowledge)
+    # Property-related keywords (generic patterns only - no specific locations)
     PROPERTY_KEYWORDS = [
         "property", "properti", "villa", "land", "tanah", "house", "rumah",
         "apartment", "apartemen", "real estate", "listing", "for sale", "dijual",
-        "lease", "sewa", "rent", "rental", "leasehold", "freehold", "hak milik",
-        "hak pakai", "hak guna bangunan", "hgb", "strata title", "imb",
-        "building permit", "beachfront", "ocean view", "canggu", "seminyak",
-        "ubud", "sanur", "nusa dua", "jimbaran", "uluwatu", "pererenan",
+        "lease", "sewa", "rent", "rental", "leasehold", "freehold",
         "investment property", "development", "land bank", "zoning", "setback",
         "due diligence", "title deed", "sertipikat", "ownership structure"
     ]
 
-    # NEW: Team-specific keywords for team queries (fix for team data retrieval bug)
+    # Team-specific keywords (generic patterns only - no specific names)
     TEAM_KEYWORDS = [
         "team", "tim", "staff", "employee", "karyawan", "personil",
-        "bali zero team", "team bali zero", "zantara team",
-        "krisna", "anton", "vino", "amanda", "veronika", "olena", "angel", "kadek",
-        "dea", "rina", "nina", "sahira", "marta", "zero", "antonello",
+        "team member", "colleague", "consultant", "specialist",
         "setup specialist", "tax specialist", "consulting", "accounting",
         "founder", "ceo", "director", "manager", "lead",
-        "contattare", "contatta", "whatsapp", "email", "info@balizero.com",
-        "dipartimento", "division", "department", "team member",
-        "professionista", "specialist", "expert", "consulente"
+        "contact", "contattare", "contatta", "whatsapp", "email",
+        "dipartimento", "division", "department",
+        "professionista", "expert", "consulente"
     ]
 
     # NEW: Enumeration keywords that trigger team data retrieval

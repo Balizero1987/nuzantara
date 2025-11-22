@@ -22,8 +22,9 @@ Process:
 
 Integration with bali-intel-scraper:
 - Extends existing scraper with structured ingestion
-- Uses same 2-tier filtering (LLAMA → Claude)
+- Uses same 2-tier filtering (LLAMA → ZANTARA AI)
 - Adds to Qdrant instead of just logging
+- LEGACY CODE CLEANED: Claude references removed
 """
 
 import logging
@@ -117,9 +118,10 @@ class AutoIngestionOrchestrator:
 
     Features:
     - Monitors multiple external sources
-    - Intelligent filtering (2-tier: LLAMA → Claude)
+    - Intelligent filtering (2-tier: LLAMA → ZANTARA AI)
     - Automatic embedding generation
     - Collection-specific routing
+    - LEGACY CODE CLEANED: Claude references removed
     - Deduplication
     - Admin notifications
     - Health check triggering
@@ -172,11 +174,11 @@ class AutoIngestionOrchestrator:
 
         Args:
             search_service: SearchService for adding to collections
-            claude_service: Claude for filtering and extraction
+            claude_service: LEGACY - ZANTARA AI for filtering and extraction (renamed for compatibility)
             scraper_service: Optional scraper service (bali-intel-scraper)
         """
         self.search = search_service
-        self.claude = claude_service
+        self.claude = claude_service  # LEGACY: Actually ZANTARA AI service
         self.scraper = scraper_service
 
         # Storage
@@ -301,7 +303,7 @@ class AutoIngestionOrchestrator:
         Filter scraped content for relevance (2-tier filtering).
 
         Tier 1: Quick keyword filter
-        Tier 2: Claude analysis
+        Tier 2: ZANTARA AI analysis (legacy: was Claude)
 
         Args:
             content_list: List of scraped content
@@ -329,12 +331,12 @@ class AutoIngestionOrchestrator:
         if not self.claude or not tier1_filtered:
             return tier1_filtered
 
-        # Tier 2: Claude analysis (smart)
+        # Tier 2: ZANTARA AI analysis (smart) - LEGACY: was Claude
         tier2_filtered = []
 
         for content in tier1_filtered:
             try:
-                # Ask Claude if this is a relevant regulation/update
+                # Ask ZANTARA AI if this is a relevant regulation/update
                 prompt = f"""Analyze this content and determine if it's a relevant regulation, policy, or business requirement update.
 
 Title: {content.title}
@@ -347,6 +349,7 @@ Is this:
 
 Answer with YES or NO and a brief reason."""
 
+                # LEGACY: claude renamed but actually uses ZANTARA AI
                 response = await self.claude.conversational(
                     message=prompt,
                     user_id="auto_ingestion",
@@ -371,11 +374,11 @@ Answer with YES or NO and a brief reason."""
                     tier2_filtered.append(content)
 
             except Exception as e:
-                logger.error(f"Claude filtering error: {e}")
+                logger.error(f"ZANTARA AI filtering error: {e}")  # LEGACY: was Claude
                 # Include by default if error
                 tier2_filtered.append(content)
 
-        logger.info(f"   Tier 2: {len(tier2_filtered)}/{len(tier1_filtered)} passed Claude filter")
+        logger.info(f"   Tier 2: {len(tier2_filtered)}/{len(tier1_filtered)} passed ZANTARA AI filter")  # LEGACY: was Claude
 
         return tier2_filtered
 

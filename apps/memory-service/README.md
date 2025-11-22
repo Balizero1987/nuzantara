@@ -227,7 +227,7 @@ curl -X POST https://nuzantara-memory.fly.dev/api/memory/collective/store \
   -H "Content-Type: application/json" \
   -d '{
     "category": "visa_rules",
-    "content": "Example visa type allows 60-day stay extendable twice (30 days each)",
+    "content": "Example visa type allows extended stay with specific renewal periods",
     "importance": 9,
     "metadata": {
       "source": "official_regulation",
@@ -254,7 +254,7 @@ curl -X POST https://nuzantara-memory.fly.dev/api/memory/fact/store \
   -d '{
     "user_id": "zero",
     "fact_key": "preferred_visa",
-    "fact_value": "Example long-stay visa for digital nomads",
+    "fact_value": "Example long-stay permit for remote workers",
     "importance": 8
   }'
 ```

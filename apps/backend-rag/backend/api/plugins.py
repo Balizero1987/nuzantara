@@ -197,7 +197,7 @@ async def get_statistics():
 @router.get("/tools/anthropic")
 async def get_anthropic_tools(model: Optional[str] = None):
     """
-    Get plugin definitions in Anthropic tool format
+    Get plugin definitions in ZANTARA AI tool format (legacy Anthropic format for compatibility)
 
     Query Parameters:
     - model: Filter by model (haiku, sonnet, opus)

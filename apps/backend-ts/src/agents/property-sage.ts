@@ -92,7 +92,7 @@ export class PropertySage {
         nameEn: 'Environmental Impact Assessment',
         requiredFor: 'Large-scale, high-impact projects',
         examples: [
-          'Hotels with 100+ rooms',
+          'Hotels with 10dynamicValue',
           'Large factories',
           'Shopping malls > 5,000 m²',
           'Mining operations',

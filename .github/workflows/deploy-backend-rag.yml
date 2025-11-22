@@ -6,7 +6,7 @@ on:
     paths:
       - 'apps/backend-rag/**'
       - '.github/workflows/deploy-backend-rag.yml'
-      - 'fly.toml'
+      - 'deploy/fly.toml'
   workflow_dispatch:
     inputs:
       environment:
@@ -134,7 +134,7 @@ jobs:
           echo "**Region:** ${{ env.FLY_REGION }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Deploy from project root (where fly.toml is)
+          # Deploy from deploy directory (where fly.toml is)
           flyctl deploy \
             --app ${{ env.FLY_APP_NAME }} \
             --strategy rolling \

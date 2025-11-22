@@ -181,7 +181,7 @@ class StreamingService:
 
         Args:
             messages: Conversation messages
-            model: Claude model
+            model: ZANTARA AI model (legacy: was Claude)
             system: System prompt (optional)
             max_tokens: Maximum tokens
             max_retries: Maximum retry attempts

@@ -174,10 +174,10 @@ class HandlerProxyService:
 
     async def get_anthropic_tools(self, internal_key: Optional[str] = None) -> List[Dict[str, Any]]:
         """
-        Get Anthropic-compatible tool definitions for all handlers
+        Get ZANTARA AI-compatible tool definitions for all handlers (legacy Anthropic format)
 
         Returns:
-            List of tool definitions ready for Anthropic API
+            List of tool definitions ready for ZANTARA AI (legacy Anthropic format for compatibility)
         """
         try:
             endpoint = f"{self.backend_url}/call"

@@ -73,7 +73,7 @@ Thumbs.db
 # Docker files
 Dockerfile*
 docker-compose*
-fly.toml
+deploy/fly.toml
 
 # Local data
 data/

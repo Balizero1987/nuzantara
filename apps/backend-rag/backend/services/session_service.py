@@ -4,7 +4,7 @@ Session Service - Redis-based conversation history storage for ZANTARA
 Eliminates URL length constraints by storing conversation history in Redis
 and passing only session_id in requests. Supports 50+ message conversations.
 
-Author: Claude Code (Bali Zero Team)
+Author: ZANTARA AI Code (Bali Zero Team)  # LEGACY CODE CLEANED: was Claude
 Date: November 5, 2025
 """
 

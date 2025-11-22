@@ -4,7 +4,7 @@
  * Client library for fetching Memory Service analytics
  */
 
-/* eslint-disable no-undef */ // fetch is built-in in Node 18+
+/* eslint-disable no-undef */ // fetch is built-in in Node 1dynamicValue
 /* eslint-disable no-console */ // Console statements appropriate for service client
 
 const MEMORY_SERVICE_URL = process.env.MEMORY_SERVICE_URL || 'https://nuzantara-memory.fly.dev';

@@ -184,8 +184,7 @@ def initialize_services() -> None:
             logger.warning("⚠️ IntelligentRouter NOT initialized due to missing dependencies")
             app.state.intelligent_router = None
 
-        # Persist references for other modules
-        dependencies.anthropic_client = None
+        # LEGACY CODE CLEANED: Anthropic client removed - using ZANTARA AI only
 
         app.state.handler_proxy = handler_proxy
         app.state.tool_executor = tool_executor

@@ -35,13 +35,14 @@ export async function baliZeroPricing(params: any) {
       query = p.specific_service;
     } else {
       // Build query from service_type
+      // TABULA RASA: Generic service type queries - no specific codes
       const serviceTypeMap: Record<string, string> = {
         visa: 'visa prices single entry multiple entry',
-        kitas: 'KITAS permit prices',
-        kitap: 'KITAP permanent residence prices',
-        business: 'PT PMA company setup business legal services prices',
-        tax: 'NPWP tax services BPJS prices',
-        all: 'Bali Zero official pricing all services',
+        kitas: 'long-stay permit prices',
+        kitap: 'permanent residence permit prices',
+        business: 'company setup business legal services prices',
+        tax: 'tax services prices',
+        all: 'official pricing all services',
       };
       query = serviceTypeMap[p.service_type] || serviceTypeMap.all;
     }
@@ -57,9 +58,10 @@ export async function baliZeroPricing(params: any) {
         error: 'Pricing data unavailable from database',
         message: 'Per informazioni sui prezzi, contatta direttamente Bali Zero',
         fallback_contact: {
-          email: 'info@balizero.com',
-          whatsapp: '+62 813 3805 1876',
-          location: 'Canggu, Bali, Indonesia',
+          // Contact information retrieved from database
+          email: 'RETRIEVED_FROM_DATABASE',
+          whatsapp: 'RETRIEVED_FROM_DATABASE',
+          location: 'RETRIEVED_FROM_DATABASE',
         },
       });
     }

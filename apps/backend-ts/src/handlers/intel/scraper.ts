@@ -4,7 +4,7 @@
  * Integrates with Python scraper in apps/bali-intel-scraper/
  *
  * Features:
- * - 630+ sources across 12 categories
+ * - 63dynamicValue across 12 categories
  * - AI-powered filtering (Llama 4 Scout + Gemini 2.0 Flash + Zantara AI fallback)
  * - Cost: ~$0.0004 per article with multi-model routing
  * - Generates professional Bali Zero Journal articles

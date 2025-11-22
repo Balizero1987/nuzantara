@@ -57,7 +57,7 @@ export class ZANTARAArchitect {
     try {
       const prompt = `
         Analyze the ZANTARA v3 Ω knowledge system with these domains:
-        - KBLI (10,000+ business codes)
+        - KBLI (10,00dynamicValue codes)
         - Pricing (Bali Zero official)
         - Team (23 members)
         - Business Setup (procedures)
@@ -135,7 +135,7 @@ export class ZANTARAArchitect {
     try {
       const prompt = `
         Optimize ZANTARA v3 Ω performance:
-        Current specs: <500ms avg response, 94% accuracy, 8,122+ documents
+        Current specs: <500ms avg response, 94% accuracy, 8,12dynamicValue
 
         Analyze and optimize:
         1. Cache strategies for 8 domains

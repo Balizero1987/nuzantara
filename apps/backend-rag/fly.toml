@@ -1,43 +1,47 @@
-# ZANTARA RAG Backend - Fly.io Configuration
-app = "nuzantara-rag"
-primary_region = "sin"
+# fly.toml app configuration file generated for nuzantara-rag on 2025-11-22T18:00:25+08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'nuzantara-rag'
+primary_region = 'sin'
 
 [build]
-  dockerfile = "Dockerfile.fly"
+  dockerfile = 'Dockerfile.fly'
 
-[[mounts]]
-  source = "nuzantara_rag_data"
-  destination = "/data"
+[deploy]
+  strategy = 'rolling'
 
 [env]
-  EMBEDDING_PROVIDER = "openai"
-  QDRANT_URL = "https://nuzantara-qdrant.fly.dev"
-  LOG_LEVEL = "INFO"
-  PORT = "8080"
+  EMBEDDING_PROVIDER = 'openai'
+  LOG_LEVEL = 'INFO'
+  PORT = '8080'
+  QDRANT_URL = 'https://nuzantara-qdrant.fly.dev'
+
+[[mounts]]
+  source = 'nuzantara_rag_data'
+  destination = '/data'
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = false
+  auto_stop_machines = 'off'
   auto_start_machines = true
   min_machines_running = 1
 
   [http_service.concurrency]
-    type = "requests"
+    type = 'requests'
     hard_limit = 250
     soft_limit = 200
 
   [[http_service.checks]]
-    interval = "10s"
-    timeout = "5s"
-    grace_period = "120s"
-    method = "GET"
-    path = "/healthz"
+    interval = '15s'
+    timeout = '10s'
+    grace_period = '1m0s'
+    method = 'GET'
+    path = '/healthz'
 
 [[vm]]
-  memory = "4gb"
-  cpu_kind = "shared"
+  memory = '4gb'
+  cpu_kind = 'shared'
   cpus = 2
-
-[deploy]
-  strategy = "rolling"

@@ -139,8 +139,9 @@ async def search_shared_memory(
 
                     results["practices"] = [dict(row) for row in cursor.fetchall()]
 
-        # 3. Practice type search (KITAS, PT PMA, etc.)
-        practice_codes = ["KITAS", "PT_PMA", "INVESTOR_VISA", "RETIREMENT_VISA", "NPWP", "BPJS", "IMTA"]
+        # 3. Practice type search - retrieved from database
+        # TABULA RASA: No hardcoded practice codes - all practice types come from database
+        practice_codes = []  # Retrieved from database at runtime
         detected_practice_type = None
 
         for code in practice_codes:

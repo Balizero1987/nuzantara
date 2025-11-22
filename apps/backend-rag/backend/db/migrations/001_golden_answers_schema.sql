@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS golden_answers (
     sources JSONB DEFAULT '[]',  -- [{title, url, score}]
 
     -- Metadata
-    generated_by VARCHAR(50) NOT NULL,  -- 'llama-3.1-zantara' or 'claude-sonnet'
-    generation_method VARCHAR(50) DEFAULT 'llama_rag',  -- 'llama_rag', 'claude_rag'
+    generated_by VARCHAR(50) NOT NULL,  -- 'llama-3.1-zantara' or 'zantara-ai'
+    generation_method VARCHAR(50) DEFAULT 'llama_rag',  -- 'llama_rag', 'zantara_rag' (legacy: was claude_rag)
     confidence FLOAT DEFAULT 0.0,
 
     -- Analytics
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS nightly_worker_runs (
 
     -- AI usage
     llama_tokens_used INTEGER DEFAULT 0,
-    claude_fallback_tokens INTEGER DEFAULT 0,
+    zantara_fallback_tokens INTEGER DEFAULT 0,  -- LEGACY: was claude_fallback_tokens
 
     -- Status
     status VARCHAR(20) DEFAULT 'running',  -- 'running', 'completed', 'failed'

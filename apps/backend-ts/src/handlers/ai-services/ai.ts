@@ -9,35 +9,12 @@ import { ok } from '../../utils/response.js';
 import { zantaraChat } from './zantara-llama.js';
 import { memoryServiceClient } from '../../services/memory-service-client.js';
 
-// Team member recognition database
-const TEAM_RECOGNITION: Record<
-  string,
-  { name: string; role: string; department: string; language: string; personalizedResponse: string }
-> = {
-  zero: {
-    name: 'Zero',
-    role: 'AI Bridge/Tech Lead',
-    department: 'technology',
-    language: 'Italian',
-    personalizedResponse:
-      'Ciao Zero! Bentornato. Come capo del team tech, hai accesso completo a tutti i sistemi ZANTARA e Bali Zero.',
-  },
-  zainal: {
-    name: 'Zainal Abidin',
-    role: 'CEO',
-    department: 'management',
-    language: 'Indonesian',
-    personalizedResponse:
-      'Selamat datang kembali Zainal! Sebagai CEO, Anda memiliki akses penuh ke semua sistem Bali Zero dan ZANTARA.',
-  },
-  antonello: {
-    name: 'Antonello Siano',
-    role: 'Founder',
-    department: 'technology',
-    language: 'Italian',
-    personalizedResponse:
-      'Ciao Antonello! Bentornato. Come fondatore di Bali Zero, hai accesso completo a tutti i sistemi.',
-  },
+// TABULA RASA: Team member recognition MUST be retrieved from database
+// This legacy structure is kept only as a fallback stub - all team data comes from database
+// TODO: Remove this stub once database integration is complete
+const TEAM_RECOGNITION: Record<string, any> = {
+  // TABULA RASA: All team member data removed - must be retrieved from database
+  // No hardcoded team members - empty stub only
 };
 
 // Check for identity recognition

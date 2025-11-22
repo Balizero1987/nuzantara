@@ -232,7 +232,7 @@ class Plugin(ABC):
 
     def to_anthropic_tool_definition(self) -> Dict[str, Any]:
         """
-        Convert plugin to Anthropic tool definition format.
+        Convert plugin to ZANTARA AI tool definition format (legacy Anthropic format for compatibility).
         Used for ZANTARA AI integration.
         """
         return {

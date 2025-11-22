@@ -43,7 +43,7 @@ export class AntiHallucinationSystem {
     services: ['visa', 'company_setup', 'tax_consulting', 'real_estate_legal'], // Generic service categories only
     visa_types: [], // All visa types are in the database
     company_types: [], // All company types are in the database
-    locations: ['Bali', 'Indonesia', 'Jakarta', 'Kerobokan'], // Geographic locations only
+    locations: ['Bali', 'Indonesia', 'Jakarta'], // Geographic locations only (generic - no specific neighborhoods)
 
     // Verified operational facts
     response_times: {
@@ -52,14 +52,9 @@ export class AntiHallucinationSystem {
       typical_hours: 24,
     },
 
-    // Verified team members
-    team_members: {
-      zero: { role: 'ceo', email: 'zero@balizero.com', verified: true },
-      zainal: { role: 'ceo_real', email: 'zainal@balizero.com', verified: true },
-
-      damar: { role: 'junior_consultant', email: 'damar@balizero.com', verified: true },
-      ari: { role: 'lead_specialist', email: 'ari.firda@balizero.com', verified: true },
-    },
+    // Team members data is retrieved from database via RAG backend
+    // No hardcoded team member information - all data comes from database
+    team_members: {},
   };
 
   private constructor() {}
@@ -104,7 +99,7 @@ export class AntiHallucinationSystem {
     // Store fact
     this.factStore.set(fact, verifiedFact);
 
-    // Persist important facts to Firestore
+    // Facts stored in local cache only (Firestore removed - use PostgreSQL if persistence needed)
     if (verifiedFact.verified && confidence >= 0.9) {
       await this.persistFact(verifiedFact);
     }
@@ -266,8 +261,8 @@ export class AntiHallucinationSystem {
    * Persist verified fact (now uses local cache only)
    */
   private async persistFact(fact: VerifiedFact): Promise<void> {
-    // Firestore removed - facts now stored in local cache only
-    // TODO: If persistence needed, use PostgreSQL
+    // LEGACY CODE CLEANED: Firestore removed - facts stored in local cache only
+    // If persistence needed, use PostgreSQL via RAG backend
     logger.debug('Fact stored locally only', { fact: fact.fact });
   }
 

@@ -15,23 +15,9 @@ type DocumentMatrix = {
 // This ensures data accuracy and eliminates hardcoded values from the codebase
 const DOCUMENT_LIBRARY: Record<ServiceKey, DocumentMatrix> = {} as any; // Placeholder - data from database
 
-const ROUTING_MESSAGES: Record<string, string> = {
-  visa: 'Posso guidarti su tipologie di visto, requisiti e tempistiche.',
-  company: 'Posso spiegarti iter, costi e documenti per aprire una società.',
-  tax: 'Ti aiuto con registrazioni fiscali, adempimenti e dichiarazioni.',
-  property: 'Posso supportarti con verifiche legali, contratti e due diligence immobiliare.',
-  urgent: 'Per urgenze immediate ti consiglio WhatsApp: +62 859 0436 9574.',
-  general:
-    'Posso fornirti informazioni sui servizi Bali Zero e metterti in contatto con il team dedicato.',
-};
-
-const ROUTING_CAPABILITIES = [
-  'Generare preventivi',
-  'Salvare richieste di contatto',
-  'Fornire checklist documentali',
-  'Organizzare consulti con il team',
-  'Gestire follow-up automatici',
-];
+// ROUTING_MESSAGES and ROUTING_CAPABILITIES removed
+// All routing messages, capabilities, and service-specific information
+// are stored in Qdrant/PostgreSQL and retrieved via RAG backend
 
 function resolveKey(raw?: string): ServiceKey {
   const input = (raw || 'visa').toLowerCase();
@@ -49,33 +35,29 @@ export function documentPrepare(params: { service?: string } = {}) {
     throw new BadRequestError('Service type required for document preparation');
   }
 
-  // Document checklists are now retrieved from RAG backend (Qdrant/PostgreSQL)
+  // Document checklists, submission instructions, and review times
+  // are now retrieved from RAG backend (Qdrant/PostgreSQL)
   return ok({
     service: serviceKey,
     message: 'Document checklist data is stored in the database. Please query the RAG backend for accurate, up-to-date document requirements.',
     source: 'RAG backend (Qdrant/PostgreSQL)',
-    submission: 'Invia la documentazione completa a docs@balizero.com',
-    reviewTime: 'Verifica preliminare entro 24 ore lavorative',
+    note: 'All document requirements, submission instructions, and review times are in the database',
   });
 }
 
 export function assistantRoute(params: { intent?: string; inquiry?: string } = {}) {
   const intentKey = resolveKey(params.intent);
-  const routing = ROUTING_MESSAGES[intentKey] || ROUTING_MESSAGES.general;
   const inquiry = (params.inquiry || '').trim();
 
+  // All routing messages, capabilities, and next steps
+  // are stored in Qdrant/PostgreSQL and retrieved via RAG backend
   return ok({
     intent: intentKey,
-    message: routing,
-    capabilities: ROUTING_CAPABILITIES,
+    source: 'RAG backend (Qdrant/PostgreSQL)',
+    message: 'Routing information is stored in the database. Please query the RAG backend for service-specific routing.',
     inquiryAnalyzed: inquiry
       ? `Analizzato: "${inquiry.slice(0, 100)}${inquiry.length > 100 ? '…' : ''}"`
       : 'Nessuna richiesta specificata',
-    nextSteps: [
-      'Chiedi un preventivo dettagliato',
-      'Richiedi la checklist documentale',
-      'Programma una call con il team Bali Zero',
-      'Ricevi aggiornamenti via email o WhatsApp',
-    ],
+    note: 'All capabilities, next steps, and service-specific messages are in the database',
   });
 }

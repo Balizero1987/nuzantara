@@ -2,7 +2,7 @@
  * Master Handler Loader
  *
  * Imports all module registries to trigger auto-registration
- * Call this once at app startup to register all 136+ handlers
+ * Call this once at app startup to register all 13dynamicValue
  */
 
 import { logger } from '../logging/unified-logger.js';
@@ -19,22 +19,22 @@ export async function loadAllHandlers() {
     // Auth (team login)
     await import('../handlers/auth/registry.js');
 
-    // Google Workspace (8+ handlers)
+    // Google Workspace (dynamicValue)
     await import('../handlers/google-workspace/registry.js');
 
-    // AI Services (10+ handlers)
+    // AI Services (1dynamicValue)
     await import('../handlers/ai-services/registry.js');
 
-    // Bali Zero (15+ handlers)
+    // Bali Zero (1dynamicValue)
     await import('../handlers/bali-zero/registry.js');
 
-    // ZANTARA (20+ handlers)
+    // ZANTARA (2dynamicValue)
     await import('../handlers/zantara/registry.js');
 
-    // Communication (10+ handlers)
+    // Communication (1dynamicValue)
     await import('../handlers/communication/registry.js');
 
-    // Analytics (15+ handlers)
+    // Analytics (1dynamicValue)
     await import('../handlers/analytics/registry.js');
 
     // PRIORITY 5: Memory handlers removed (legacy store deprecated - using Python memory service)

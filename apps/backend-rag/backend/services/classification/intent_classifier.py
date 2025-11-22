@@ -50,7 +50,8 @@ EMOTIONAL_PATTERNS = [
 ]
 
 BUSINESS_KEYWORDS = [
-    "kitas", "visa", "pt pma", "company", "business", "investimento", "investment",
+    # Generic business keywords only - no specific codes (KITAS, PT PMA are in database)
+    "visa", "company", "business", "investimento", "investment",
     "tax", "pajak", "immigration", "imigrasi", "permit", "license", "regulation",
     "real estate", "property", "kbli", "nib", "oss", "work permit"
 ]

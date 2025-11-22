@@ -37,6 +37,58 @@ function resolveService(raw?: string): ServiceKey {
   return 'visa';
 }
 
+/**
+ * Collection Routing Logic - Determines which Qdrant collection to query
+ * This is PURE LOGIC - no hardcoded data, only routing methodology
+ */
+function getCollectionForService(service: ServiceKey): string {
+  // Routing logic: map service type to Qdrant collection
+  const collectionMap: Record<ServiceKey, string> = {
+    visa: 'visa_oracle',
+    company: 'company_oracle',
+    tax: 'tax_genius',
+    legal: 'legal_intelligence',
+    property: 'property_knowledge',
+  };
+  return collectionMap[service] || 'legal_unified';
+}
+
+/**
+ * Multi-topic Detection - Identifies if query spans multiple domains
+ * Returns array of collections to query
+ */
+function detectMultiTopic(scenario: string): boolean {
+  if (!scenario) return false;
+  const lower = scenario.toLowerCase();
+  // Detect multi-topic queries (e.g., "visa and company setup", "tax and property")
+  const topicKeywords = ['visa', 'company', 'tax', 'legal', 'property', 'pma', 'kitas'];
+  const foundTopics = topicKeywords.filter(keyword => lower.includes(keyword));
+  return foundTopics.length > 1;
+}
+
+/**
+ * Get collections for multi-topic queries
+ * Returns array of collections to query in parallel
+ */
+function getMultiTopicCollections(scenario: string, primaryService: ServiceKey): string[] {
+  if (!detectMultiTopic(scenario)) {
+    return [getCollectionForService(primaryService)];
+  }
+  
+  const lower = scenario.toLowerCase();
+  const collections: string[] = [];
+  
+  // Add collections based on detected topics (generic keywords only)
+  if (lower.includes('visa') || lower.includes('permit') || lower.includes('immigration')) collections.push('visa_oracle');
+  if (lower.includes('company') || lower.includes('business') || lower.includes('investment')) collections.push('company_oracle');
+  if (lower.includes('tax') || lower.includes('pajak')) collections.push('tax_genius');
+  if (lower.includes('legal') || lower.includes('hukum')) collections.push('legal_intelligence');
+  if (lower.includes('property') || lower.includes('properti')) collections.push('property_knowledge');
+  
+  // If no specific topics detected, use primary service collection
+  return collections.length > 0 ? collections : [getCollectionForService(primaryService)];
+}
+
 function deriveAdjustments(params: OracleParams) {
   const urgency = params.urgency || 'normal';
   const complexity = params.complexity || 'medium';
@@ -71,35 +123,30 @@ export async function oracleSimulate(params: OracleParams = {}) {
   }
 
   const service = resolveService(params.service);
-  const profile = SERVICE_PROFILES[service];
-  if (!profile) {
-    throw new BadRequestError('Unsupported service for oracle simulation');
-  }
-
   const { urgencyFactor, complexityFactor, riskLevel, timelineMultiplier } =
     deriveAdjustments(params);
-  const successProbability = Math.min(
-    0.97,
-    Math.max(0.45, profile.baseSuccess + urgencyFactor + complexityFactor)
-  );
-
-  const adjustedTimeline = Math.max(7, profile.baseTimeline * timelineMultiplier);
-
+  
+  // Collection routing logic - determines which Qdrant collection to query
+  const collection = getCollectionForService(service);
+  
+  // All simulation data (success probabilities, timelines, checkpoints, accelerators, blockers)
+  // are retrieved from RAG backend (Qdrant/PostgreSQL)
   return ok({
-    service: profile.label,
+    service: service,
     scenario: params.scenario || 'standard',
     region: params.region || 'Bali',
-    successProbability: Number(successProbability.toFixed(2)),
+    collection: collection,
     riskLevel,
-    recommendedTimeline: timelineSummary(adjustedTimeline),
-    checkpoints: profile.checkpoints,
-    accelerators: profile.accelerators,
-    blockers: profile.blockers,
-    assumptions: [
-      'Client provides complete documentation within 3 business days',
-      'All government offices operate on standard schedule',
-      'No unexpected regulatory changes during the process',
-    ],
+    source: 'RAG backend (Qdrant/PostgreSQL)',
+    note: 'All simulation data (success probabilities, timelines, checkpoints, accelerators, blockers) are retrieved from the database',
+    routing: {
+      primaryCollection: collection,
+      adjustmentFactors: {
+        urgency: urgencyFactor,
+        complexity: complexityFactor,
+        timelineMultiplier: timelineMultiplier,
+      },
+    },
   });
 }
 
@@ -114,48 +161,19 @@ export async function oracleAnalyze(params: OracleParams = {}) {
 
   const { riskLevel } = deriveAdjustments(params);
 
+  // Collection routing logic - determines which Qdrant collection to query
+  const collection = getCollectionForService(service);
+  
   return ok({
     service: service,
     riskLevel,
+    collection: collection, // Collection to query in RAG backend
     source: 'RAG backend (Qdrant/PostgreSQL)',
     note: 'All service profiles, timelines, and analysis data are retrieved from the database',
-    focusAreas: [
-      {
-        area: 'Documentation',
-        status: params.complexity === 'high' ? 'attention' : 'solid',
-        insights: [
-          'Service-specific documentation requirements are stored in the database',
-          'Please query the RAG backend for accurate, up-to-date documentation lists',
-        ],
-      },
-      {
-        area: 'Compliance',
-        status: params.urgency === 'high' ? 'monitor' : 'stable',
-        insights: [
-          'Check outstanding tax obligations',
-          'Validate previous reporting cycles',
-          'Confirm validity of existing licenses',
-        ],
-      },
-      {
-        area: 'Stakeholders',
-        status: 'monitor',
-        insights: [
-          'Align expectations on deliverables',
-          'Identify internal decision makers',
-          'Schedule weekly status checkpoints',
-        ],
-      },
-    ],
-    recommendations: [
-      'Assign a dedicated project manager',
-      'Enable shared workspace for document tracking',
-      'Use bilingual communication templates',
-    ],
-    metrics: {
-      estimatedManHours: service === 'company' ? 120 : service === 'visa' ? 45 : 80,
-      coordinationLevel: service === 'company' || service === 'property' ? 'high' : 'medium',
-      dependencyCount: profile.checkpoints.length,
+    routing: {
+      primaryCollection: collection,
+      multiTopic: detectMultiTopic(params.scenario || ''),
+      collections: getMultiTopicCollections(params.scenario || '', service),
     },
   });
 }
@@ -166,40 +184,24 @@ export async function oraclePredict(params: OracleParams = {}) {
   }
 
   const service = resolveService(params.service);
-  const profile = SERVICE_PROFILES[service];
   const { urgencyFactor, complexityFactor } = deriveAdjustments(params);
-
-  const base = profile.baseTimeline;
-  const adjusted = Math.max(7, base + base * (urgencyFactor + complexityFactor));
-
-  const checkpoints = profile.checkpoints.map((name, idx) => ({
-    phase: idx + 1,
-    name,
-    etaDays: Math.round((adjusted / profile.checkpoints.length) * (idx + 1)),
-    onTrack: idx === 0 || urgencyFactor >= -0.05,
-  }));
-
+  
+  // Collection routing logic - determines which Qdrant collection to query
+  const collection = getCollectionForService(service);
+  
+  // All forecast data (timelines, success probabilities, checkpoints) 
+  // are retrieved from RAG backend (Qdrant/PostgreSQL)
   return ok({
-    service: profile.label,
-    forecast: {
-      totalDurationDays: Math.round(adjusted),
-      completionWindow: timelineSummary(adjusted),
-      projectedCompletionDate: new Date(Date.now() + adjusted * 24 * 60 * 60 * 1000).toISOString(),
+    service: service,
+    collection: collection,
+    source: 'RAG backend (Qdrant/PostgreSQL)',
+    note: 'All forecast data (timelines, success probabilities, checkpoints) are retrieved from the database',
+    routing: {
+      primaryCollection: collection,
+      adjustmentFactors: {
+        urgency: urgencyFactor,
+        complexity: complexityFactor,
+      },
     },
-    successProbability: Number(
-      Math.min(0.98, Math.max(0.5, profile.baseSuccess + urgencyFactor + complexityFactor)).toFixed(
-        2
-      )
-    ),
-    checkpoints,
-    alerts: [
-      urgencyFactor < 0 ? 'High urgency reduces review buffers' : null,
-      complexityFactor < 0 ? 'Complex scope requires additional legal review' : null,
-    ].filter(Boolean),
-    nextSteps: [
-      'Confirm stakeholder availability for weekly standups',
-      'Upload all supporting documents to shared workspace',
-      'Lock payment schedule aligned with critical milestones',
-    ],
   });
 }

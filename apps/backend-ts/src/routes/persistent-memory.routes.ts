@@ -364,21 +364,22 @@ async function createTriggers() {
  * Insert seed data
  */
 async function insertSeedData() {
+  // TABULA RASA: Seed data should use generic placeholders - no specific team member names
   // Insert test sessions
   await pool.query(`
     INSERT INTO persistent_sessions (session_id, user_id, member_name, language, expires_at) VALUES
-    ('test-session-001', 'test-user', 'Zero', 'it', NOW() + INTERVAL '24 hours'),
-    ('test-session-002', 'test-user', 'Surya', 'id', NOW() + INTERVAL '24 hours'),
-    ('test-session-003', 'test-user', 'Olena', 'ua', NOW() + INTERVAL '24 hours')
+    ('test-session-001', 'test-user', 'TestUser1', 'it', NOW() + INTERVAL '24 hours'),
+    ('test-session-002', 'test-user', 'TestUser2', 'id', NOW() + INTERVAL '24 hours'),
+    ('test-session-003', 'test-user', 'TestUser3', 'ua', NOW() + INTERVAL '24 hours')
     ON CONFLICT (session_id) DO NOTHING
   `);
 
-  // Insert test collective memory
+  // Insert test collective memory (generic examples - no specific names or locations)
   await pool.query(`
     INSERT INTO collective_memory (memory_key, memory_type, memory_content, related_members, created_by, tags) VALUES
-    ('client-microsoft-cloud', 'client_info', 'Microsoft customer for cloud migration project', ARRAY['Surya', 'Adit', 'Marta'], 'system', ARRAY['cloud', 'migration', 'microsoft']),
-    ('project-blockchain', 'project', 'Blockchain implementation for supply chain management', ARRAY['Zero', 'Ruslana', 'Adit'], 'system', ARRAY['blockchain', 'supply-chain', 'technical']),
-    ('decision-office-jakarta', 'decision', 'Decision to open new office in Jakarta SCBD area', ARRAY['Zero', 'Surya', 'Olena'], 'system', ARRAY['office', 'jakarta', 'expansion'])
+    ('client-example-cloud', 'client_info', 'Example customer for cloud migration project', ARRAY['TeamMember1', 'TeamMember2', 'TeamMember3'], 'system', ARRAY['cloud', 'migration', 'example']),
+    ('project-example-blockchain', 'project', 'Example implementation for supply chain management', ARRAY['TeamMember1', 'TeamMember2', 'TeamMember3'], 'system', ARRAY['blockchain', 'supply-chain', 'technical']),
+    ('decision-example-office', 'decision', 'Decision to open new office in example location', ARRAY['TeamMember1', 'TeamMember2', 'TeamMember3'], 'system', ARRAY['office', 'location', 'expansion'])
     ON CONFLICT DO NOTHING
   `);
 }

@@ -24,7 +24,7 @@ router = APIRouter(prefix="/crm/practices", tags=["crm-practices"])
 
 class PracticeCreate(BaseModel):
     client_id: int
-    practice_type_code: str  # 'KITAS', 'PT_PMA', etc.
+    practice_type_code: str  # Practice type code retrieved from database
     status: str = "inquiry"
     priority: str = "normal"  # 'low', 'normal', 'high', 'urgent'
     quoted_price: Optional[Decimal] = None
@@ -92,7 +92,7 @@ async def create_practice(
     Create a new practice for a client
 
     - **client_id**: ID of the client
-    - **practice_type_code**: Code like 'KITAS', 'PT_PMA', 'INVESTOR_VISA'
+    - **practice_type_code**: Practice type code (retrieved from database)
     - **status**: Initial status (default: 'inquiry')
     - **quoted_price**: Price quoted to client
     - **assigned_to**: Team member email to handle this

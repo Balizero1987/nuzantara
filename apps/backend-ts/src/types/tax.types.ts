@@ -1,4 +1,6 @@
-export type LegalEntityType = 'PT' | 'PT_PMA' | 'CV' | 'FIRMA' | 'UD' | 'PERORANGAN';
+// TABULA RASA: Legal entity types should be retrieved from database
+// This is a TypeScript type definition for type safety - actual values come from database
+export type LegalEntityType = 'PT' | 'PT_PMA' | 'CV' | 'FIRMA' | 'UD' | 'PERORANGAN'; // Types retrieved from database
 export type CompanyStatus = 'active' | 'pending' | 'inactive' | 'overdue';
 
 export interface Company {

@@ -44,7 +44,7 @@ echo "🌐 Copiando Frontend Webapp..."
 mkdir -p "$BACKUP_DIR/apps/webapp"
 cp -r "$PROJECT_ROOT/apps/webapp/js" "$BACKUP_DIR/apps/webapp/" 2>/dev/null || true
 cp -r "$PROJECT_ROOT/apps/webapp/css" "$BACKUP_DIR/apps/webapp/" 2>/dev/null || true
-cp "$PROJECT_ROOT/apps/webapp/index.html" "$BACKUP_DIR/apps/webapp/" 2>/dev/null || true
+cp "$PROJECT_ROOT/deploy/index.html" "$BACKUP_DIR/apps/webapp/" 2>/dev/null || true
 cp "$PROJECT_ROOT/apps/webapp/chat.html" "$BACKUP_DIR/apps/webapp/" 2>/dev/null || true
 cp "$PROJECT_ROOT/apps/webapp/login.html" "$BACKUP_DIR/apps/webapp/" 2>/dev/null || true
 
@@ -52,8 +52,8 @@ cp "$PROJECT_ROOT/apps/webapp/login.html" "$BACKUP_DIR/apps/webapp/" 2>/dev/null
 echo "⚙️ Copiando configurazioni..."
 mkdir -p "$BACKUP_DIR/config"
 cp "$PROJECT_ROOT/.gitignore" "$BACKUP_DIR/" 2>/dev/null || true
-cp "$PROJECT_ROOT/fly.toml" "$BACKUP_DIR/" 2>/dev/null || true
-cp "$PROJECT_ROOT/docker-compose.yml" "$BACKUP_DIR/" 2>/dev/null || true
+cp "$PROJECT_ROOT/deploy/fly.toml" "$BACKUP_DIR/" 2>/dev/null || true
+cp "$PROJECT_ROOT/docker/docker-compose.yml" "$BACKUP_DIR/" 2>/dev/null || true
 
 # 6. Documentazione essenziale
 echo "📚 Copiando documentazione essenziale..."

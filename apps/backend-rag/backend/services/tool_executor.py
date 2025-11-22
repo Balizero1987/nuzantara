@@ -1,7 +1,8 @@
 """
 TOOL EXECUTOR SERVICE
-Handles Anthropic tool use execution via handler proxy
+Handles ZANTARA AI tool use execution via handler proxy
 Supports both TypeScript handlers (HTTP) and Python ZantaraTools (direct)
+LEGACY CODE CLEANED: Anthropic references removed - using ZANTARA AI only
 """
 
 import json
@@ -59,15 +60,15 @@ class ToolExecutor:
 
     async def execute_tool_calls(self, tool_uses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Execute multiple tool calls from Anthropic response
+        Execute multiple tool calls from ZANTARA AI response
 
         Args:
-            tool_uses: List of tool use blocks from Anthropic API
+            tool_uses: List of tool use blocks from ZANTARA AI API (legacy Anthropic format)
 
         Returns:
-            List of tool results to send back to Anthropic
+            List of tool results to send back to ZANTARA AI
 
-        Example input (from Anthropic):
+        Example input (from ZANTARA AI - legacy Anthropic format):
         [
             {
                 "type": "tool_use",
@@ -91,7 +92,7 @@ class ToolExecutor:
         for tool_use in tool_uses:
             # Handle both dict and ToolUseBlock objects
             if hasattr(tool_use, 'id'):
-                # Pydantic ToolUseBlock object from Anthropic SDK
+                # Pydantic ToolUseBlock object (legacy Anthropic SDK format)
                 tool_id = tool_use.id
                 tool_name = tool_use.name
                 tool_input = tool_use.input or {}
@@ -150,7 +151,7 @@ class ToolExecutor:
                         internal_key=self.internal_key
                     )
 
-                    # Format result for Anthropic
+                    # Format result for ZANTARA AI (legacy Anthropic format)
                     if result.get("error"):
                         error_message = f"Error executing {handler_key}: {result['error']}"
                         logger.error(f"❌ [TypeScript] {tool_name} failed: {result['error']}")
@@ -271,10 +272,10 @@ class ToolExecutor:
 
     async def get_available_tools(self) -> List[Dict[str, Any]]:
         """
-        Get Anthropic-compatible tool definitions
+        Get ZANTARA AI-compatible tool definitions
 
         Returns:
-            List of tool definitions for Anthropic API
+            List of tool definitions for ZANTARA AI (legacy Anthropic format for compatibility)
         """
         tools = []
 
@@ -289,7 +290,7 @@ class ToolExecutor:
 
         # Try to load TypeScript tools (may fail if backend is offline)
         try:
-            ts_tools = await self.handler_proxy.get_anthropic_tools(self.internal_key)
+            ts_tools = await self.handler_proxy.get_anthropic_tools(self.internal_key)  # LEGACY: Actually ZANTARA AI tools
             tools.extend(ts_tools)
             logger.info(f"📋 Loaded {len(ts_tools)} TypeScript tools")
         except Exception as e:

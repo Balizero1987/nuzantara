@@ -2,13 +2,13 @@
 TAX GENIUS API Router
 Endpoints for tax intelligence, optimization, and compliance
 
-⚠️ DEPRECATED (Phase 3): These endpoints are deprecated in favor of the universal endpoint.
+⚠️ DEPRECATED: These endpoints are deprecated in favor of the universal endpoint.
 Please migrate to POST /api/oracle/query for automatic intelligent routing.
-These endpoints remain available for backward compatibility.
+These endpoints remain available for backward compatibility only.
 
 Migration example:
-    OLD: POST /api/oracle/tax/search {"query": "PPh 21 rates", "limit": 10}
-    NEW: POST /api/oracle/query {"query": "PPh 21 rates", "limit": 10}
+    OLD: POST /api/oracle/tax/search {"query": "tax query", "limit": 10}
+    NEW: POST /api/oracle/query {"query": "tax query", "limit": 10}
 """
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -54,7 +54,7 @@ class TaxSearchRequest(BaseModel):
 
 class CompanyProfileRequest(BaseModel):
     company_name: str
-    entity_type: str  # PT_PMA, PT, CV
+    entity_type: str  # Entity type retrieved from database (e.g., foreign investment company, local company, partnership)
     industry: str
     annual_revenue: int
     profit_margin: float

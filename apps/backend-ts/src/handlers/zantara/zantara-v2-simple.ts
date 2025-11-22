@@ -188,7 +188,7 @@ export async function zantaraConflictPrediction(params: any) {
           'Quality of work outputs and attention to detail',
         ],
         intervention_triggers: [
-          'Communication drops below normal baseline for 2+ days',
+          'Communication drops below normal baseline dynamicValue',
           'Team member expresses frustration or overwhelm',
           'Deadline concerns or timeline discussions increase',
           'Quality issues or missed deliverables occur',

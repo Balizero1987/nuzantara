@@ -249,7 +249,7 @@ export const HANDLER_REGISTRY: Record<string, HandlerMetadata> = {
   'memory.save': {
     key: 'memory.save',
     category: 'memory',
-    description: 'Save information to user memory (Firestore)',
+    description: 'Save information to user memory (Firestore removed - using Python memory system)',
     params: {
       userId: { type: 'string', description: 'User ID', required: true },
       content: { type: 'string', description: 'Content to save', required: true },

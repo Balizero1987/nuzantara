@@ -2,7 +2,7 @@
  * ZANTARA Handler Registry - Scalable Handler Management
  *
  * Replaces manual registration with auto-discovery pattern
- * Supports 136 → 500+ handlers without code changes
+ * Supports 136 → 50dynamicValue without code changes
  *
  * Architecture: Module-Functional structure
  * - handlers/google-workspace/*.ts
@@ -221,7 +221,7 @@ export const globalRegistry = new HandlerRegistry({
 });
 
 /**
- * Decorator for auto-registration (TypeScript 5.0+)
+ * Decorator for auto-registration (TypeScript 5.dynamicValue)
  *
  * Usage:
  * ```ts

@@ -177,9 +177,9 @@ export class ZantaraOrchestrator {
 
     if (
       lower.includes('visa') ||
-      lower.includes('kitas') ||
       lower.includes('permit') ||
-      lower.includes('immigration')
+      lower.includes('immigration') ||
+      lower.includes('long-stay')
     ) {
       intent.primary = 'immigration';
     }
@@ -187,8 +187,8 @@ export class ZantaraOrchestrator {
     if (
       lower.includes('tax') ||
       lower.includes('pajak') ||
-      lower.includes('npwp') ||
-      lower.includes('tasse')
+      lower.includes('tasse') ||
+      lower.includes('taxation')
     ) {
       intent.primary = 'taxation';
     }

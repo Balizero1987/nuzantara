@@ -76,7 +76,7 @@ CREATE INDEX IF NOT EXISTS idx_clients_tags ON clients USING GIN(tags);
 -- ================================================
 CREATE TABLE IF NOT EXISTS practice_types (
     id SERIAL PRIMARY KEY,
-    code VARCHAR(50) UNIQUE NOT NULL, -- 'KITAS', 'PT_PMA', 'INVESTOR_VISA'
+    code VARCHAR(50) UNIQUE NOT NULL, -- Practice type code (retrieved from database)
     name VARCHAR(255) NOT NULL,
     category VARCHAR(100), -- 'visa', 'company', 'tax', 'property'
     description TEXT,
@@ -91,16 +91,9 @@ CREATE TABLE IF NOT EXISTS practice_types (
 CREATE INDEX IF NOT EXISTS idx_practice_types_code ON practice_types(code);
 CREATE INDEX IF NOT EXISTS idx_practice_types_category ON practice_types(category);
 
--- Insert default Bali Zero services
-INSERT INTO practice_types (code, name, category, base_price, currency, duration_days, required_documents) VALUES
-('KITAS', 'KITAS (Limited Stay Permit)', 'visa', 15000000, 'IDR', 90, '["Passport", "Sponsor Letter", "Photos"]'),
-('PT_PMA', 'PT PMA (Foreign Investment Company)', 'company', 25000000, 'IDR', 120, '["Business Plan", "Shareholder IDs", "NIB"]'),
-('INVESTOR_VISA', 'Investor Visa', 'visa', 12000000, 'IDR', 60, '["Investment Proof", "Passport", "Bank Statement"]'),
-('RETIREMENT_VISA', 'Retirement Visa', 'visa', 10000000, 'IDR', 45, '["Age Proof (55+)", "Pension Proof", "Passport"]'),
-('NPWP', 'NPWP (Tax ID)', 'tax', 500000, 'IDR', 14, '["ID/Passport", "KITAS", "Address Proof"]'),
-('BPJS', 'BPJS (Health Insurance)', 'tax', 300000, 'IDR', 7, '["NPWP", "KITAS", "Photos"]'),
-('IMTA', 'IMTA (Work Permit)', 'visa', 8000000, 'IDR', 60, '["KITAS", "Employment Contract", "Company Docs"]')
-ON CONFLICT (code) DO NOTHING;
+-- Practice types data is loaded from Qdrant/PostgreSQL via data ingestion scripts
+-- No hardcoded INSERT statements - all data comes from database
+-- This migration only creates the table structure
 
 -- ================================================
 -- 4. PRACTICES (Pratiche in Corso/Completate)
@@ -124,7 +117,7 @@ CREATE TABLE IF NOT EXISTS practices (
     inquiry_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     start_date TIMESTAMP WITH TIME ZONE,
     completion_date TIMESTAMP WITH TIME ZONE,
-    expiry_date DATE, -- for renewable services (KITAS, visas)
+    expiry_date DATE, -- for renewable services (long-stay permits, visas)
     next_renewal_date DATE, -- calculated reminder
 
     -- Financial

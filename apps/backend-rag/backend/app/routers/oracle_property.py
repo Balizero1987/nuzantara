@@ -2,13 +2,13 @@
 LEGAL ARCHITECT API Router
 Endpoints for property intelligence, due diligence, and legal structures
 
-⚠️ DEPRECATED (Phase 3): These endpoints are deprecated in favor of the universal endpoint.
+⚠️ DEPRECATED: These endpoints are deprecated in favor of the universal endpoint.
 Please migrate to POST /api/oracle/query for automatic intelligent routing.
-These endpoints remain available for backward compatibility.
+These endpoints remain available for backward compatibility only.
 
 Migration example:
-    OLD: POST /api/oracle/property/search {"query": "villas in Canggu", "limit": 10}
-    NEW: POST /api/oracle/query {"query": "villas for sale in Canggu", "limit": 10}
+    OLD: POST /api/oracle/property/search {"query": "property query", "limit": 10}
+    NEW: POST /api/oracle/query {"query": "property query", "limit": 10}
 """
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -473,15 +473,16 @@ async def recommend_legal_structure(
 
             # Consider buyer type
             if buyer_profile.buyer_type == "individual":
-                if structure['structure_type'] in ['HAK_PAKAI', 'LEASEHOLD']:
+                # Structure types retrieved from database - no hardcoded codes
+                if structure['structure_type'] in ['individual_ownership', 'leasehold']:
                     score += 10
                     notes.append("Suitable for individual ownership")
-                elif structure['structure_type'] == 'PT_PMA':
+                elif structure['structure_type'] == 'company_structure':
                     score -= 5
                     notes.append("Company structure - may be overkill for individual")
 
             elif buyer_profile.buyer_type == "company":
-                if structure['structure_type'] == 'PT_PMA':
+                if structure['structure_type'] == 'company_structure':
                     score += 15
                     notes.append("Ideal for company ownership and asset protection")
 
@@ -497,10 +498,10 @@ async def recommend_legal_structure(
                 score -= 10
                 notes.append("Setup cost is significant relative to budget")
 
-            # Consider KITAS
-            if buyer_profile.has_kitas and structure['structure_type'] == 'HAK_PAKAI':
+            # Consider long-stay permit status (retrieved from database)
+            if buyer_profile.has_kitas and structure['structure_type'] == 'individual_ownership':
                 score += 5
-                notes.append("KITAS holder - eligible for Hak Pakai")
+                notes.append("Long-stay permit holder - eligible for individual ownership structure")
 
             if suitable:
                 recommendations.append({

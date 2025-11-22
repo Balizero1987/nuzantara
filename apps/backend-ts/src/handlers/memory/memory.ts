@@ -2,7 +2,7 @@
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
 
-// Mock memory store for development - in production this would use Firestore
+// LEGACY CODE CLEANED: Mock memory store (Firestore removed - use Python memory system in production)
 class MemoryStore {
   private store: Map<string, any> = new Map();
 

@@ -33,11 +33,11 @@ async function runTest() {
   console.log(`Session ID: ${sessionId}\n`);
 
   // Simulate a multi-turn conversation
-  console.log('📝 Turn 1: User asks about KBLI codes');
-  await storeMessage('user', 'What is KBLI code 62010?');
+  console.log('📝 Turn 1: User asks about business classification codes');
+  await storeMessage('user', 'What is business classification code for software development?');
   await storeMessage(
     'assistant',
-    'KBLI code 62010 is for Computer Programming Activities. This includes writing, modifying, testing, and supporting software for creating and implementing IT applications.'
+    'Business classification codes for software development cover Computer Programming Activities. This includes writing, modifying, testing, and supporting software for creating and implementing IT applications. Specific codes are available in the database.'
   );
   console.log('✅ Turn 1 stored\n');
 
@@ -47,7 +47,7 @@ async function runTest() {
   await storeMessage('user', 'What documents do I need to register a company with that code?');
   await storeMessage(
     'assistant',
-    'For registering a company with KBLI 62010 (Computer Programming), you will need: 1) Business registration (NIB), 2) Company deed from notary, 3) Tax registration (NPWP), 4) Business license specific to IT services. As a foreign investor, you will also need a PMA company structure.'
+    'For registering a company with software development classification, you will need: 1) Business registration, 2) Company deed from notary, 3) Tax registration, 4) Business license specific to IT services. As a foreign investor, you will also need a foreign investment company structure. Specific requirements are available in the database.'
   );
   console.log('✅ Turn 2 stored\n');
 
@@ -57,7 +57,7 @@ async function runTest() {
   await storeMessage('user', 'And how long does the registration process take?');
   await storeMessage(
     'assistant',
-    'The registration process for a PMA company with KBLI 62010 typically takes 2-4 weeks, including: 1-2 days for company name approval, 3-5 days for notary deed, 1-2 weeks for Ministry approval, and additional time for NIB and business licenses. Bali Zero can help expedite this process.'
+    'The registration process for a foreign investment company with software development classification typically takes 2-4 weeks, including: 1-2 days for company name approval, 3-5 days for notary deed, 1-2 weeks for Ministry approval, and additional time for business registration and licenses. Specific timelines are available in the database. Bali Zero can help expedite this process.'
   );
   console.log('✅ Turn 3 stored\n');
 
