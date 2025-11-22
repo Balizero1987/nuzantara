@@ -15,10 +15,7 @@ export class VisaOracle {
         nameId: 'Visa Turis',
         duration: '60 days',
         extensions: '2x60 days (max 180 days total)',
-        price: {
-          initial: 'IDR 2,300,000',
-          extension: 'IDR 1,700,000',
-        },
+        price: 'RETRIEVED_FROM_DATABASE',
         description:
           'Tourism, visiting friends/family, meetings, incentives, conventions, exhibitions',
         extendable: true,
@@ -30,10 +27,7 @@ export class VisaOracle {
         nameId: 'Visa Bisnis',
         duration: '60 days',
         extensions: '2x60 days (max 180 days total)',
-        price: {
-          initial: 'IDR 3,600,000',
-          extension: 'IDR 1,700,000',
-        },
+        price: 'RETRIEVED_FROM_DATABASE',
         description: 'Business activities, meetings, shopping, checking goods at office/factory',
         extendable: true,
         multipleEntry: false,
@@ -45,7 +39,7 @@ export class VisaOracle {
         duration: '30 days',
         extensions: 'Not extendable',
         price: {
-          initial: 'IDR 5,000,000',
+          initial: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Chefs, yoga instructors, bartenders, photographers invited for events',
         extendable: false,
@@ -58,7 +52,7 @@ export class VisaOracle {
         duration: '30 days',
         extensions: 'Not extendable',
         price: {
-          initial: 'IDR 4,500,000',
+          initial: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Musical performance activities',
         extendable: false,
@@ -71,8 +65,8 @@ export class VisaOracle {
         duration: '60 or 180 days',
         extensions: 'Not extendable',
         price: {
-          '60days': 'IDR 4,800,000',
-          '180days': 'IDR 5,800,000',
+          '60days': 'RETRIEVED_FROM_DATABASE',
+          '180days': 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Internship for academic requirements from overseas education',
         extendable: false,
@@ -85,8 +79,8 @@ export class VisaOracle {
         duration: '60 or 180 days',
         extensions: 'Not extendable',
         price: {
-          '60days': 'IDR 4,800,000',
-          '180days': 'IDR 5,800,000',
+          '60days': 'RETRIEVED_FROM_DATABASE',
+          '180days': 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Internship for skill development within company/office/workplace',
         extendable: false,
@@ -104,8 +98,8 @@ export class VisaOracle {
         extensions: '2x60 days per visit (max 180 days)',
         validity: '1 or 2 years',
         price: {
-          '1year': 'IDR 5,000,000',
-          '2years': 'IDR 7,000,000',
+          '1year': 'RETRIEVED_FROM_DATABASE',
+          '2years': 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Meetings, incentives, conventions, exhibitions, tourism, visiting family',
         multipleEntry: true,
@@ -118,8 +112,8 @@ export class VisaOracle {
         extensions: '2x60 days per visit (max 180 days)',
         validity: '1 or 2 years',
         price: {
-          '1year': 'IDR 6,000,000',
-          '2years': 'IDR 8,000,000',
+          '1year': 'RETRIEVED_FROM_DATABASE',
+          '2years': 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Business activities, meetings, shopping, checking goods',
         multipleEntry: true,
@@ -132,9 +126,9 @@ export class VisaOracle {
         extensions: '1 extension possible',
         validity: '1 or 2 years',
         price: {
-          '1year': 'IDR 7,500,000',
-          '2years': 'IDR 10,000,000',
-          extension: 'IDR 3,500,000',
+          '1year': 'RETRIEVED_FROM_DATABASE',
+          '2years': 'RETRIEVED_FROM_DATABASE',
+          extension: 'RETRIEVED_FROM_DATABASE',
         },
         description:
           'Investigating business opportunities: site visits, field surveys, feasibility studies',
@@ -150,8 +144,8 @@ export class VisaOracle {
         nameId: 'KITAS Freelance',
         duration: '6 months',
         price: {
-          offshore: 'IDR 26,000,000',
-          onshore: 'IDR 28,000,000',
+          offshore: 'RETRIEVED_FROM_DATABASE',
+          onshore: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Work permit (IMTA) without specific employer - DJs, marketing managers, etc.',
         requirements: ['Working permit (IMTA)'],
@@ -163,9 +157,9 @@ export class VisaOracle {
         nameId: 'KITAS Kerja',
         duration: '1 year',
         price: {
-          offshore: 'IDR 34,500,000',
-          onshore: 'IDR 36,000,000',
-          extension: 'IDR 31,000,000',
+          offshore: 'RETRIEVED_FROM_DATABASE',
+          onshore: 'RETRIEVED_FROM_DATABASE',
+          extension: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Work for Indonesian company with one type of work',
         requirements: ['Sponsoring company', 'Work permit'],
@@ -177,9 +171,9 @@ export class VisaOracle {
         nameId: 'KITAS Investor',
         duration: '2 years',
         price: {
-          offshore: 'IDR 17,000,000',
-          onshore: 'IDR 19,000,000',
-          extension: 'IDR 18,000,000',
+          offshore: 'RETRIEVED_FROM_DATABASE',
+          onshore: 'RETRIEVED_FROM_DATABASE',
+          extension: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'Foreign investors with PT PMA (foreign investment company)',
         requirements: ['PT PMA ownership', 'Investment proof', 'BKPM approval'],
@@ -193,14 +187,14 @@ export class VisaOracle {
         duration: '1 or 2 years',
         price: {
           '1year': {
-            offshore: 'IDR 11,000,000',
-            onshore: 'IDR 13,500,000',
-            extension: 'IDR 9,000,000',
+            offshore: 'RETRIEVED_FROM_DATABASE',
+            onshore: 'RETRIEVED_FROM_DATABASE',
+            extension: 'RETRIEVED_FROM_DATABASE',
           },
           '2years': {
-            offshore: 'IDR 15,000,000',
-            onshore: 'IDR 18,000,000',
-            extension: 'IDR 15,000,000',
+            offshore: 'RETRIEVED_FROM_DATABASE',
+            onshore: 'RETRIEVED_FROM_DATABASE',
+            extension: 'RETRIEVED_FROM_DATABASE',
           },
         },
         description: 'Married to Indonesian citizen',
@@ -213,14 +207,14 @@ export class VisaOracle {
         duration: '1 or 2 years',
         price: {
           '1year': {
-            offshore: 'IDR 11,000,000',
-            onshore: 'IDR 13,500,000',
-            extension: 'IDR 9,000,000',
+            offshore: 'RETRIEVED_FROM_DATABASE',
+            onshore: 'RETRIEVED_FROM_DATABASE',
+            extension: 'RETRIEVED_FROM_DATABASE',
           },
           '2years': {
-            offshore: 'IDR 15,000,000',
-            onshore: 'IDR 18,000,000',
-            extension: 'IDR 15,000,000',
+            offshore: 'RETRIEVED_FROM_DATABASE',
+            onshore: 'RETRIEVED_FROM_DATABASE',
+            extension: 'RETRIEVED_FROM_DATABASE',
           },
         },
         description:
@@ -233,9 +227,9 @@ export class VisaOracle {
         nameId: 'KITAS Pensiun',
         duration: '1 year',
         price: {
-          offshore: 'IDR 14,000,000',
-          onshore: 'IDR 16,000,000',
-          extension: 'IDR 10,000,000',
+          offshore: 'RETRIEVED_FROM_DATABASE',
+          onshore: 'RETRIEVED_FROM_DATABASE',
+          extension: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'For foreign nationals aged 55+ who want to retire in Indonesia',
         requirements: ['Age 55+', 'Financial proof'],
@@ -247,9 +241,9 @@ export class VisaOracle {
         nameId: 'KITAS Remote Worker',
         duration: '1 year',
         price: {
-          offshore: 'IDR 12,500,000',
-          onshore: 'IDR 14,000,000',
-          extension: 'IDR 10,000,000',
+          offshore: 'RETRIEVED_FROM_DATABASE',
+          onshore: 'RETRIEVED_FROM_DATABASE',
+          extension: 'RETRIEVED_FROM_DATABASE',
         },
         description: 'For remote workers and digital nomads',
         requirements: ['Proof of remote employment', 'Financial proof'],
@@ -300,7 +294,7 @@ export class VisaOracle {
 
     // Common mistakes and tips
     commonMistakes: [
-      'Overstaying even 1 day = IDR 1,000,000/day fine + possible ban',
+      'Overstaying even 1 day = 'RETRIEVED_FROM_DATABASE'',
       'Working on tourist visa = deportation + blacklist',
       'Wrong visa type for activity = application rejection',
       'Incomplete documents = process restart',
@@ -308,7 +302,7 @@ export class VisaOracle {
     ],
 
     insiderTips: [
-      'Apply offshore for KITAS - saves IDR 1-3 million',
+      'Apply offshore for KITAS - saves 'RETRIEVED_FROM_DATABASE'',
       'Extend visa at least 7 days before expiry',
       'Keep all payment receipts - often requested later',
       'Use professional agent for KITAS applications',
@@ -564,7 +558,7 @@ export class VisaOracle {
           investmentOptions: [
             {
               type: 'Bank Deposit',
-              amount: 'IDR 2 billion (~USD 130,000)',
+              amount: 'RETRIEVED_FROM_DATABASE',
               requirements: [
                 "Maintained in applicant's own name",
                 'State-owned Indonesian bank',
@@ -614,7 +608,7 @@ export class VisaOracle {
               'OR: Proof of income USD 3,000/month',
               'Bank statements (6 months)',
             ],
-            insurance: 'IDR 25 million (~USD 1,600) - health + life insurance',
+            insurance: 'RETRIEVED_FROM_DATABASE',
             accommodation: '1-year lease agreement required',
             age: 'Minimum 55 years (standard) or 60 years (Silver Hair)',
             restrictions: 'No work allowed in Indonesia',
@@ -630,41 +624,6 @@ export class VisaOracle {
         },
 
         digitalNomadVisa2025: {
-          b211ARemoteWorker: {
-            name: 'B211A Visa for Remote Workers (now C1 Tourist Visit Visa)',
-            code: 'B211A / C1',
-            duration: '60 days initial',
-            extensions: '2x60 days (max 180 days total)',
-            cost: 'USD 205 (USD 150 visa + USD 55 processing)',
-
-            requirements: [
-              'Valid passport (12 months minimum)',
-              'Bank balance: USD 2,000 minimum',
-              'Income proof: USD 60,000/year minimum',
-              'Employment contract with company abroad',
-              'Outgoing flight ticket',
-            ],
-
-            restrictions: [
-              '❌ NO work for Indonesian clients',
-              '❌ NO employment by Indonesian company',
-              '❌ NO payment received in Indonesia',
-              '✅ ONLY work for clients/employer outside Indonesia',
-              '✅ Payment to foreign bank account only',
-            ],
-
-            benefits: [
-              'NOT subject to Indonesian income tax',
-              'Can extend twice (total 180 days)',
-              'No sponsor required',
-            ],
-
-            limitations: [
-              'Single-entry only (cannot re-enter without new visa)',
-              'Cannot be converted to KITAS',
-              'Must leave after 180 days',
-            ],
-          },
 
           e33GRemoteWorkerVisa: {
             name: 'E33G Remote Worker Visa (NEW April 2024)',
@@ -689,10 +648,8 @@ export class VisaOracle {
             ],
 
             comparison: {
-              vsB211A:
-                'E33G better for long-term stays (1 year vs 180 days), but more expensive (USD 780 vs USD 205)',
               recommendation:
-                'Use B211A for testing lifestyle (6 months), then upgrade to E33G if staying long-term',
+                'Use C1 Tourist Visa for short stays, then upgrade to E33G for long-term remote work',
             },
           },
         },
@@ -770,7 +727,7 @@ export class VisaOracle {
 
         overstayAndDeportation2025: {
           overstayPenalties: {
-            rate: 'IDR 1,000,000/day (~USD 65/day)',
+            rate: 'RETRIEVED_FROM_DATABASE',
             enforcement: 'Strict - even 1 day overstay triggers fine',
             payment: 'Must be paid in full before departure',
 
@@ -779,7 +736,7 @@ export class VisaOracle {
                 duration: 'Under 60 days',
                 classification: 'Administrative violation',
                 consequences: [
-                  'Fine: IDR 1,000,000/day',
+                  'Fine: 'RETRIEVED_FROM_DATABASE'',
                   'Must leave Indonesia immediately after payment',
                   'Possible re-entry ban (6 months - 2 years)',
                 ],
@@ -960,9 +917,9 @@ export class VisaOracle {
           },
 
           costs: {
-            processing: 'IDR 1,970,000 (~USD 135)',
+            processing: 'RETRIEVED_FROM_DATABASE',
             visaFee: 'USD 150 (at overseas Indonesian Embassy)',
-            biometrics: 'IDR 1,000,000 - 2,000,000 (depends on validity period)',
+            biometrics: 'RETRIEVED_FROM_DATABASE',
           },
 
           process: [
@@ -1036,7 +993,7 @@ export class VisaOracle {
             borderInspection: 'May require: flight tickets, medical appointment records as proof',
             duringHospitalization:
               '⚠️ CRITICAL: If visa will expire during hospitalization, contact immigration BEFORE expiry to avoid overstay fines',
-            overstay: 'IDR 1,000,000/day (~USD 65/day) - strictly enforced',
+            overstay: 'RETRIEVED_FROM_DATABASE',
           },
 
           advantages: [
@@ -1060,7 +1017,7 @@ export class VisaOracle {
             '⚠️ Contact immigration if hospitalized near visa expiry',
             '✅ Can bring family members (apply dependent visas)',
             '✅ Multiple entries over 1-5 years',
-            '⚠️ Overstay = IDR 1M/day (no exceptions, even if hospitalized)',
+            '⚠️ Overstay = 'RETRIEVED_FROM_DATABASE'',
           ],
         },
 
@@ -1405,7 +1362,7 @@ export class VisaOracle {
           nameIndonesian: 'Visa Kedatangan',
           duration: '30 days',
           extensions: '1 extension x 30 days (max 60 days total)',
-          cost: 'IDR 500,000 (~USD 33)',
+          cost: 'RETRIEVED_FROM_DATABASE',
 
           eligibleCountries: {
             total: 97,
@@ -1510,7 +1467,7 @@ export class VisaOracle {
               'Extension granted (additional 30 days)',
             ],
 
-            cost: 'IDR 500,000 (~USD 33)',
+            cost: 'RETRIEVED_FROM_DATABASE',
             totalStay: 'Maximum 60 days (30 initial + 30 extension)',
           },
 
@@ -1520,7 +1477,7 @@ export class VisaOracle {
             '❌ CANNOT conduct business activities (use business visa)',
             '⚠️ Extendable ONLY ONCE (max 60 days total)',
             '⚠️ Must leave Indonesia after 60 days (cannot convert to other visa types)',
-            '⚠️ Overstay = IDR 1,000,000/day fine',
+            '⚠️ Overstay = 'RETRIEVED_FROM_DATABASE'',
           ],
 
           importantNotes: [
@@ -1563,25 +1520,7 @@ export class VisaOracle {
             processingTime: {
               standard: '5-10 working days',
               express: '1 working day (if system operational)',
-              note: 'GAC can apply for e-Visa B211A online',
             },
-          },
-
-          b211ACrewJoiner: {
-            code: 'B211A',
-            name: 'Visit Visa for Crew Joiners',
-            nameIndonesian: 'Visa Kunjungan untuk Awak Kapal',
-            purpose: 'Alternative visa for crew members joining vessels',
-
-            process: [
-              'Shipping agent (e.g., GAC) applies online via evisa.imigrasi.go.id',
-              'e-Visa B211A issued electronically',
-              'Crew member flies to Indonesia with e-Visa',
-              'Show e-Visa at immigration upon arrival',
-              'Join vessel at Indonesian port',
-            ],
-
-            processingTime: '5-10 working days (1 day Express Mode)',
           },
 
           airportTransitProvisions: {
@@ -1607,7 +1546,7 @@ export class VisaOracle {
 
           importantNotes: [
             '✅ C13 for joining vessels in Indonesian ports',
-            '✅ B211A alternative via shipping agent (e-Visa)',
+            '✅ Visit Visa alternative via shipping agent (e-Visa)',
             '✅ Express processing available (1 day if system works)',
             '✅ Airport transit up to 8 hours visa-free (specific conditions)',
             '⚠️ Passport must be valid 6 months minimum',
@@ -1810,23 +1749,23 @@ export class VisaOracle {
 
           investmentRequirements: {
             standard: {
-              minimumInvestment: 'IDR 1.25 billion in company shares',
+              minimumInvestment: 'RETRIEVED_FROM_DATABASE',
               eligibility: 'General investor (shareholder only)',
             },
             directorPosition: {
-              minimumInvestment: 'IDR 1 billion in company shares',
+              minimumInvestment: 'RETRIEVED_FROM_DATABASE',
               eligibility: 'Investor holding director/commissioner position',
             },
             higherStandard: {
-              minimumInvestment: 'IDR 10 billion in company shares',
+              minimumInvestment: 'RETRIEVED_FROM_DATABASE',
               note: 'Some sources indicate this higher requirement',
             },
           },
 
           companyRequirements: {
-            authorizedCapital: 'Exceeds IDR 10 billion',
+            authorizedCapital: 'Exceeds 'RETRIEVED_FROM_DATABASE'',
             paidUpCapital: 'Minimum 25% of authorized capital',
-            investorPersonalShares: 'Minimum IDR 1 billion (if Director/Commissioner)',
+            investorPersonalShares: 'Minimum 'RETRIEVED_FROM_DATABASE'',
           },
 
           eligiblePositions: [
@@ -1852,7 +1791,7 @@ export class VisaOracle {
             '⚠️ Investment must be in PT PMA company shares',
             '✅ Exempted from work permit requirements',
             '✅ More flexible than E23 Working KITAS',
-            '⚠️ Investment amount varies (IDR 1B - 10B depending on source)',
+            '⚠️ Investment amount varies ('RETRIEVED_FROM_DATABASE'',
             '✅ Suitable for business owners and major shareholders',
           ],
         },
@@ -2006,7 +1945,7 @@ export class VisaOracle {
           extensionFees: {
             voa: {
               visaType: 'Visa on Arrival (VOA)',
-              extensionFee: 'IDR 500,000 (~USD 33)',
+              extensionFee: 'RETRIEVED_FROM_DATABASE',
               duration: '30 days extension (one time only)',
               totalStay: '60 days maximum (30 initial + 30 extension)',
             },
@@ -2019,7 +1958,7 @@ export class VisaOracle {
           },
 
           overstayFines: {
-            rate: 'IDR 1,000,000 per day (~USD 65/day)',
+            rate: 'RETRIEVED_FROM_DATABASE',
             enforcement: 'Automatic and strictly enforced (even 1 day)',
             payment: {
               location: 'Airport upon departure',
@@ -2030,7 +1969,7 @@ export class VisaOracle {
             consequences: {
               under60Days: {
                 classification: 'Administrative violation',
-                fine: 'IDR 1,000,000/day',
+                fine: 'RETRIEVED_FROM_DATABASE',
                 action: 'Pay fine + leave immediately',
                 reEntryBan: 'Possible 6 months - 2 years',
               },

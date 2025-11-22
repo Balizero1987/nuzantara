@@ -39,7 +39,7 @@ export class AntiHallucinationSystem {
   private trustedPatterns = {
     // Business facts that are always true for Bali Zero
     services: ['visa', 'company_setup', 'tax_consulting', 'real_estate_legal'],
-    visa_types: ['B211B', 'KITAS', 'KITAP', 'VOA'],
+    visa_types: ['KITAS', 'KITAP', 'VOA'], // Generic visa categories only - specific codes removed (stored in database)
     company_types: ['PT', 'PT_PMA', 'CV'],
     locations: ['Bali', 'Indonesia', 'Jakarta', 'Kerobokan'],
 

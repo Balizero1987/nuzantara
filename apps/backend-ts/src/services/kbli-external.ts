@@ -148,7 +148,7 @@ class KBLIExternalService {
 
       const requirements = {
         foreignOwnership: response.data.foreign_ownership || 'Check latest regulations',
-        capitalRequirement: response.data.capital_requirement || 'IDR 10,000,000,000',
+        capitalRequirement: response.data.capital_requirement || 'RETRIEVED_FROM_DATABASE',
         restrictions: response.data.restrictions || [],
         specialPermits: response.data.special_permits || [],
       };
@@ -164,7 +164,7 @@ class KBLIExternalService {
       // Return fallback data
       return {
         foreignOwnership: 'Check latest DNI regulations',
-        capitalRequirement: 'IDR 10,000,000,000',
+        capitalRequirement: 'RETRIEVED_FROM_DATABASE',
         restrictions: ['Check latest regulations'],
         specialPermits: ['May require additional permits'],
       };
@@ -335,7 +335,7 @@ class KBLIExternalService {
       nameEn: item.nama_en || item.nama || '',
       description: item.deskripsi || '',
       riskLevel: item.resiko || 'MT',
-      capitalRequirement: item.modal || 'IDR 10,000,000,000',
+      capitalRequirement: item.modal || 'RETRIEVED_FROM_DATABASE',
       foreignOwnership: item.asing || 'Check regulations',
       requirements: item.persyaratan || [],
       lastUpdated: item.updated_at || new Date().toISOString(),
@@ -355,7 +355,7 @@ class KBLIExternalService {
       nameEn: item.description || item.uraian || '',
       description: item.keterangan || '',
       riskLevel: 'MT', // BPS doesn't provide risk level, default to medium-high
-      capitalRequirement: 'IDR 10,000,000,000',
+      capitalRequirement: 'RETRIEVED_FROM_DATABASE',
       foreignOwnership: 'Check latest regulations',
       requirements: [],
       lastUpdated: item.last_updated || new Date().toISOString(),

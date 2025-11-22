@@ -64,10 +64,10 @@ export async function memorySave(params: any) {
 
   // Handle different data formats
   if (key && value !== undefined) {
-    // Key-value pair format: key="visa_type", value="B211A"
+    // Key-value pair format: key="visa_type", value="EXAMPLE_VISA_CODE"
     fact = `${key}: ${value}`;
   } else if (data && typeof data === 'object') {
-    // Object format: data={visa_type: "B211A", preference: "WhatsApp"}
+    // Object format: data={visa_type: "EXAMPLE_VISA_CODE", preference: "WhatsApp"}
     const entries = Object.entries(data)
       .map(([k, v]) => `${k}: ${v}`)
       .join(', ');

@@ -227,7 +227,7 @@ curl -X POST https://nuzantara-memory.fly.dev/api/memory/collective/store \
   -H "Content-Type: application/json" \
   -d '{
     "category": "visa_rules",
-    "content": "B211A visa allows 60-day stay extendable twice (30 days each)",
+    "content": "Example visa type allows 60-day stay extendable twice (30 days each)",
     "importance": 9,
     "metadata": {
       "source": "official_regulation",
@@ -254,7 +254,7 @@ curl -X POST https://nuzantara-memory.fly.dev/api/memory/fact/store \
   -d '{
     "user_id": "zero",
     "fact_key": "preferred_visa",
-    "fact_value": "B211A for digital nomads",
+    "fact_value": "Example long-stay visa for digital nomads",
     "importance": 8
   }'
 ```
@@ -279,7 +279,7 @@ curl -X POST https://nuzantara-memory.fly.dev/api/conversation/session_123/summa
 ```json
 {
   "success": true,
-  "summary": "User inquired about B211A visa requirements...",
+  "summary": "User inquired about long-stay visa requirements...",
   "messages_summarized": 25,
   "tokens_saved": 1500
 }

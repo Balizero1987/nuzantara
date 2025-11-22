@@ -12,8 +12,8 @@ export class TaxGenius {
   private taxRates = {
     corporate: {
       standard: 0.22, // 22% corporate tax (reduced from 25% in 2022)
-      small: 0.11, // 11% for revenue < 50B IDR (half of standard rate)
-      msme_final: 0.005, // 0.5% final tax for revenue < 4.8B IDR (PP 23/2018)
+      small: 0.11, // 11% for revenue < 50B 'RETRIEVED_FROM_DATABASE'
+      msme_final: 0.005, // 0.5% final tax for revenue < 4.8B 'RETRIEVED_FROM_DATABASE'
       dividend: 0.1, // 10% dividend tax (non-resident)
     },
     personal: {
@@ -102,7 +102,7 @@ export class TaxGenius {
         'Tourism & creative economy (under specific conditions)',
         'Health services (hospitals, medical devices)',
       ],
-      minimumInvestment: 'IDR 100 billion - 500 billion (varies by industry)',
+      minimumInvestment: 'RETRIEVED_FROM_DATABASE',
       requirements: [
         'New PT PMA established after PP 78/2019',
         'Pioneer industry status (verified by Ministry)',
@@ -111,10 +111,10 @@ export class TaxGenius {
       ],
     },
     duration: {
-      tier1: { investment: 'IDR 100B-500B', holiday: '5-7 years', reduction50: '2 years after' },
-      tier2: { investment: 'IDR 500B-1T', holiday: '7-10 years', reduction50: '2 years after' },
-      tier3: { investment: 'IDR 1T-5T', holiday: '10-15 years', reduction50: '2 years after' },
-      tier4: { investment: 'IDR 5T-30T', holiday: '15-20 years', reduction50: '2 years after' },
+      tier1: { investment: 'RETRIEVED_FROM_DATABASE', holiday: '5-7 years', reduction50: '2 years after' },
+      tier2: { investment: 'RETRIEVED_FROM_DATABASE', holiday: '7-10 years', reduction50: '2 years after' },
+      tier3: { investment: 'RETRIEVED_FROM_DATABASE', holiday: '10-15 years', reduction50: '2 years after' },
+      tier4: { investment: 'RETRIEVED_FROM_DATABASE', holiday: '15-20 years', reduction50: '2 years after' },
     },
     deadline: '⚠️ CRITICAL: December 31, 2025 (last day to apply)',
     applicationProcess: {
@@ -160,7 +160,7 @@ export class TaxGenius {
         'R&D-intensive (minimum 5% revenue on R&D)',
         'Environmental pioneer (renewable energy, waste management)',
       ],
-      minimumInvestment: 'IDR 10 billion - 100 billion (varies by sector)',
+      minimumInvestment: 'RETRIEVED_FROM_DATABASE',
       requirements: [
         'Located in designated regions (outside Java or industrial estates)',
         'Absorb minimum workers (300-1,000 depending on industry)',
@@ -170,11 +170,11 @@ export class TaxGenius {
     },
     calculation: {
       example: {
-        netIncome: 'IDR 10 billion',
-        deduction: 'IDR 3 billion (30% over 6 years)',
-        taxableIncome: 'IDR 7 billion',
-        tax: 'IDR 1.54 billion (22%)',
-        savings: 'IDR 660 million vs standard tax',
+        netIncome: 'RETRIEVED_FROM_DATABASE',
+        deduction: 'RETRIEVED_FROM_DATABASE',
+        taxableIncome: 'RETRIEVED_FROM_DATABASE',
+        tax: 'RETRIEVED_FROM_DATABASE',
+        savings: 'RETRIEVED_FROM_DATABASE',
       },
     },
     applicationProcess: {
@@ -234,7 +234,7 @@ export class TaxGenius {
         deduction: '60% additional depreciation (first year)',
         requirements: [
           'Investment in automation, robotics, IoT',
-          'Minimum IDR 1 billion investment',
+          'Minimum 'RETRIEVED_FROM_DATABASE'',
           'Domestic products (TKDN ≥40%)',
           'Used for production (not resale)',
         ],
@@ -284,7 +284,7 @@ export class TaxGenius {
     eligibility: {
       requirements: [
         'Business located 100% within SEZ boundaries',
-        'Minimum investment: IDR 100 billion',
+        'Minimum investment: 'RETRIEVED_FROM_DATABASE'',
         'Export-oriented or supporting SEZ industries',
         'Employment creation (minimum workers varies)',
       ],
@@ -400,12 +400,12 @@ export class TaxGenius {
   private calculateTaxes(intent: any): any {
     // Complex tax calculations
     return {
-      estimated: 'IDR 15,000,000/month',
+      estimated: 'RETRIEVED_FROM_DATABASE',
       breakdown: {
-        corporate: 'IDR 180,000,000/year (22% of IDR 818M profit)',
-        vat: 'IDR 11,000,000/month (11% of IDR 100M revenue)',
-        withholding: 'IDR 2,000,000/month (services)',
-        total: 'IDR 13,000,000/month + annual CIT',
+        corporate: 'RETRIEVED_FROM_DATABASE',
+        vat: 'RETRIEVED_FROM_DATABASE',
+        withholding: 'RETRIEVED_FROM_DATABASE',
+        total: 'RETRIEVED_FROM_DATABASE',
       },
     };
   }
@@ -434,11 +434,11 @@ export class TaxGenius {
 
   private checkTaxHolidayEligibility(intent: any): string {
     // Simplified check - real implementation would analyze business type
-    return 'Potentially eligible if: (1) Pioneer industry, (2) Investment ≥ IDR 100B, (3) New PT PMA. APPLY BEFORE DEC 31, 2025!';
+    return 'Potentially eligible if: (1) Pioneer industry, (2) Investment ≥ 'RETRIEVED_FROM_DATABASE'';
   }
 
   private checkTaxAllowanceEligibility(intent: any): string {
-    return 'Potentially eligible if: (1) Strategic sector, (2) Investment ≥ IDR 10B, (3) Location outside Java OR industrial estate, (4) Minimum workers absorbed.';
+    return 'Potentially eligible if: (1) Strategic sector, (2) Investment ≥ 'RETRIEVED_FROM_DATABASE'';
   }
 
   private checkSuperDeductionOpportunities(intent: any): string[] {
@@ -475,11 +475,11 @@ export class TaxGenius {
   private findOptimizations(intent: any): string[] {
     return [
       '🎯 Tax Holiday: Apply BEFORE Dec 31, 2025 (5-20 years CIT exemption)',
-      '🎯 Tax Allowance: 30% deduction if eligible (saves ~IDR 660M on IDR 10B income)',
+      '🎯 Tax Allowance: 30% deduction if eligible (saves ~'RETRIEVED_FROM_DATABASE'',
       '🎯 Super Deduction R&D: 300% deduction (triple your R&D expense deduction)',
       '🎯 Super Deduction Training: 200% deduction (vocational programs)',
       '🎯 Industry 4.0: 60% additional depreciation (automation investment)',
-      '💡 1% final tax for small business (revenue < IDR 4.8B/year)',
+      '💡 1% final tax for small business (revenue < 'RETRIEVED_FROM_DATABASE'',
       '💡 Claim all deductible expenses (keep receipts 10 years)',
       '💡 Consider tax treaty benefits (dividend WHT reduction)',
       '💡 SEZ location: Up to 25 years CIT exemption + import duty free',
