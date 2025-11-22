@@ -137,14 +137,14 @@ async function handleLogin(e) {
     console.log('🔐 Attempting login...');
 
     // Call auth API with email + PIN
-    const response = await fetch(`${API_BASE_URL}/api/auth/team/login`, {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         email: email,
-        pin: pin
+        password: pin  // Backend mock expects 'password' field
       }),
     });
 
