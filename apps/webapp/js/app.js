@@ -269,20 +269,7 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
 
   // FEATURE 2: Emotional UI
   if (metadata.emotion) {
-    messageEl.classList.remove('emotion-calm', 'emotion-urgent', 'emotion-positive', 'emotion-neutral');
-    
-    const emotionMap = {
-      'calm': 'emotion-calm',
-      'analytical': 'emotion-calm',
-      'urgent': 'emotion-urgent',
-      'warning': 'emotion-urgent',
-      'happy': 'emotion-positive',
-      'success': 'emotion-positive',
-      'neutral': 'emotion-neutral'
-    };
-    
-    const emotionClass = emotionMap[metadata.emotion.toLowerCase()] || 'emotion-neutral';
-    messageEl.classList.add(emotionClass);
+    applyEmotionalStyling(messageEl, metadata.emotion);
   }
 
   // Add Sources
@@ -318,7 +305,8 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
   console.log('✅ Message saved');
 }
 
-function addFeedbackControls(messageEl, messageId) {
+// FEATURE 3: RLHF Feedback Loop
+function handleFeedback(messageEl, messageId) {
   const actionsDiv = document.createElement('div');
   actionsDiv.className = 'feedback-actions';
   actionsDiv.innerHTML = `
@@ -336,7 +324,12 @@ function addFeedbackControls(messageEl, messageId) {
       const rating = this.dataset.rating;
       btns.forEach(b => b.classList.remove('active'));
       this.classList.add('active');
-      window.zantaraClient.sendFeedback(messageId, rating);
+
+      // Call the feedback function
+      if (window.zantaraClient && window.zantaraClient.sendFeedback) {
+        window.zantaraClient.sendFeedback(messageId, rating);
+        console.log(`👍 Feedback sent: ${messageId} -> ${rating}`);
+      }
     });
   });
 
@@ -344,7 +337,71 @@ function addFeedbackControls(messageEl, messageId) {
   if (contentEl) contentEl.appendChild(actionsDiv);
 }
 
+// Alias for backward compatibility
+function addFeedbackControls(messageEl, messageId) {
+  handleFeedback(messageEl, messageId);
+}
+
 // ... (Utility functions like loadMessageHistory, showWelcomeMessage, scrollToBottom etc.) ...
+
+// FEATURE 2: Emotional UI - Dynamic Styling
+function applyEmotionalStyling(messageEl, emotion) {
+  if (!messageEl || !emotion) return;
+
+  // Remove existing emotion classes
+  messageEl.classList.remove('emotion-calm', 'emotion-urgent', 'emotion-positive', 'emotion-neutral');
+
+  // Map emotion words to CSS classes
+  const emotionMap = {
+    'calm': 'emotion-calm',
+    'analytical': 'emotion-calm',
+    'information': 'emotion-calm',
+    'neutral': 'emotion-neutral',
+    'urgent': 'emotion-urgent',
+    'warning': 'emotion-urgent',
+    'critical': 'emotion-urgent',
+    'positive': 'emotion-positive',
+    'happy': 'emotion-positive',
+    'success': 'emotion-positive',
+    'good': 'emotion-positive'
+  };
+
+  // Apply the new emotion class
+  const emotionClass = emotionMap[emotion.toLowerCase()] || 'emotion-neutral';
+  messageEl.classList.add(emotionClass);
+
+  console.log(`🎭 Applied emotional styling: ${emotion} -> ${emotionClass}`);
+}
+
+// FEATURE 1: Agent Thoughts - UI Update
+function updateThinking(text) {
+  let el = document.getElementById('agent-thought-process');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'agent-thought-process';
+    el.className = 'agent-thought';
+    el.innerHTML = `
+      <div class="spinner-pulse"></div>
+      <span class="thought-text">Thinking...</span>
+    `;
+    messageSpace.appendChild(el);
+  }
+
+  el.classList.remove('hidden');
+  const textSpan = el.querySelector('.thought-text');
+  if (textSpan) {
+    const displayText = text.length > 80 ? text.substring(0, 77) + '...' : text;
+    textSpan.textContent = displayText;
+  }
+  scrollToBottom();
+}
+
+function hideThinking() {
+  const el = document.getElementById('agent-thought-process');
+  if (el) {
+    el.classList.add('hidden');
+  }
+}
 
 function scrollToBottom() {
   setTimeout(() => {

@@ -86,7 +86,6 @@ export async function contactsList(params: ContactsListParams) {
     }
   }
 
-  if (bridged) return bridged;
   throw new BadRequestError('Google Contacts not configured');
 }
 
@@ -178,6 +177,5 @@ export async function contactsCreate(params: ContactsCreateParams) {
     }
   }
 
-  if (bridged) return bridged;
   throw new BadRequestError('Google Contacts not configured');
 }

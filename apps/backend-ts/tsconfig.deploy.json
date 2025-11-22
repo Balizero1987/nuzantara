@@ -3,11 +3,22 @@
   "compilerOptions": {
     "strict": false,
     "noImplicitAny": false,
-    "skipLibCheck": true,
     "noImplicitReturns": false,
     "noImplicitThis": false,
-    "suppressImplicitAnyIndexErrors": true
+    "skipLibCheck": true,
+    "noEmitOnError": false,
+    "target": "ES2022",
+    "module": "ES2022",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"],
-  "exclude": ["src/handlers/router-system/migration-adapter.ts"]
+  "exclude": [
+    "src/tests/**/*",
+    "src/**/__tests__/**/*",
+    "src/**/*.test.ts",
+    "src/handlers/router-system/migration-adapter.ts"
+  ]
 }

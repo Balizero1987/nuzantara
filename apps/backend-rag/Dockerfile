@@ -28,8 +28,8 @@ COPY *.py ./
 
 # Qdrant is hosted externally, no local data directory needed
 
-# Set Python path
-ENV PYTHONPATH=/app/backend
+# Set Python path to include both /app and /app/backend for proper imports
+ENV PYTHONPATH=/app:/app/backend
 
 # Set runtime working directory so uvicorn can load main_cloud module directly
 WORKDIR /app/backend/app
