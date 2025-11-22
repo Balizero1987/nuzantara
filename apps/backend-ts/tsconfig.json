@@ -52,9 +52,15 @@
     "src/handlers/memory/memory-firestore.ts",
     "src/handlers/identity/identity.ts",
     "src/handlers/analytics/dashboard-analytics.ts",
+    "src/handlers/analytics/weekly-report.ts",
     "src/middleware/chat-oidc.ts",
     "src/handlers/communication/translate.ts",
+    "src/handlers/communication/instagram.ts",
+    "src/handlers/communication/whatsapp.ts",
+    "src/handlers/intel/scraper.ts",
     "src/handlers/memory/conversation-autosave.ts",
+    "src/app-gateway/session-store.ts",
+    "src/middleware/demo-user-auth.ts",
     "src/logging/**/*"
   ]
 }

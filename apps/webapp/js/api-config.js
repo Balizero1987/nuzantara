@@ -28,17 +28,17 @@ export const API_ENDPOINTS = {
   // Agents
   agents: {
     compliance: '/api/agents/compliance/alerts',
-    journey: '/api/agents/journey/next-steps',
-    research: '/api/agents/research/start',
-    semanticSearch: '/api/agent/semantic_search',
-    hybridQuery: '/api/agent/hybrid_query',
-    documentIntelligence: '/api/agent/document_intelligence'
+    journey: '/api/agents/journey/{journey_id}/next-steps',
+    research: '/api/agents/autonomous-agents/conversation-trainer/run',
+    semanticSearch: '/api/search/',
+    hybridQuery: '/api/search/',
+    documentIntelligence: '/ai/creative/vision'
   },
 
   // Notifications
   notifications: {
-    list: '/api/notifications',
-    markRead: '/api/notifications/read'
+    list: '/api/notifications/status',
+    markRead: '/api/notifications/send'
   },
 
   // Memory/Conversations
@@ -51,15 +51,17 @@ export const API_ENDPOINTS = {
 
   // Integrations
   integrations: {
-    gmail: '/api/integrations/gmail/status',
-    calendar: '/api/integrations/calendar/status',
-    twitter: '/api/integrations/twitter/status'
+    gmail: '/google/gmail/list',
+    calendar: '/google/calendar/list',
+    twitter: '/communication/translate'
   },
 
   // RAG/Knowledge Base
   rag: {
-    query: '/api/query',
-    collections: '/api/collections'
+    query: '/api/oracle/query',
+    collections: '/api/oracle/collections',
+    files: '/api/handlers/list',
+    upload: '/api/oracle/ingest'
   }
 };
 

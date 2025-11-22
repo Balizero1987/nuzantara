@@ -5,7 +5,7 @@ Semantic text splitting for optimal RAG performance
 
 from typing import List, Dict, Any
 import logging
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 try:
     from app.config import settings

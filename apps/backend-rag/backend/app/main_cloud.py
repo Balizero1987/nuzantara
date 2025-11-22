@@ -15,12 +15,12 @@ import logging
 import os
 from typing import AsyncIterator, List, Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from backend.app import dependencies
-from backend.app.config import settings
+from app import dependencies
+from app.config import settings
 
 from services.search_service import SearchService
 from services.tool_executor import ToolExecutor
@@ -32,7 +32,7 @@ from services.query_router import QueryRouter
 
 from llm.zantara_ai_client import ZantaraAIClient
 
-from backend.app.routers import (
+from app.routers import (
     agents,
     autonomous_agents,
     conversations,

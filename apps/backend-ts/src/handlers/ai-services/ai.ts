@@ -160,7 +160,7 @@ export async function aiChat(params: any) {
           );
         }
     } catch (err) {
-      logger.warn('⚠️  Failed to retrieve conversation history:', err);
+      logger.warn('⚠️  Failed to retrieve conversation history:', { error: err instanceof Error ? err : new Error(String(err)) });
     }
 
     // Check for identity recognition FIRST

@@ -150,8 +150,7 @@ export async function driveUpload(params: DriveUploadParams) {
 
       return ok({ file: res.data, sharedDrive: validDriveId || null });
     } catch (error: any) {
-      logger.error('❌ Drive upload failed:', {
-        error: error?.message,
+      logger.error('❌ Drive upload failed:', error instanceof Error ? error : new Error(String(error)), {
         code: error?.code,
         status: error?.status,
         details: error?.response?.data || error?.errors,
