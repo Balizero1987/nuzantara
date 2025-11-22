@@ -1,16 +1,147 @@
+/* =========================================
+   FEATURE 1: AGENT THOUGHTS (The Brain)
+   ========================================= */
+.agent-thought {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  margin-left: 10px;
+  margin-bottom: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  border-left: 2px solid rgba(212, 175, 55, 0.5); /* Gold line */
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0 8px 8px 0;
+  width: fit-content;
+  transition: all 0.3s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.agent-thought.hidden {
+  opacity: 0;
+  transform: translateY(10px);
+  height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.thought-text {
+  background: linear-gradient(90deg, #ffffff 0%, #aaaaaa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 500;
+}
+
+/* Pulse Animation for the "Brain" icon */
+.spinner-pulse {
+  width: 10px;
+  height: 10px;
+  background-color: #D4AF37; /* Bali Zero Gold */
+  border-radius: 100%;
+  animation: sk-scaleout 1.0s infinite ease-in-out;
+}
+
+@keyframes sk-scaleout {
+  0% { transform: scale(0); }
+  100% {
+    transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+/* =========================================
+   FEATURE 2: EMOTIONAL UI (Attunement)
+   ========================================= */
+.message.ai .message-content {
+  transition: border-color 0.5s ease, box-shadow 0.5s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Default */
+}
+
+/* Calm / Analytical / Information (Blue/Cyan) */
+.message.emotion-calm .message-content {
+  border-color: rgba(64, 224, 208, 0.4);
+  box-shadow: 0 0 15px rgba(64, 224, 208, 0.1);
+}
+
+/* Urgent / Warning / Critical (Red/Orange) */
+.message.emotion-urgent .message-content {
+  border-color: rgba(255, 69, 0, 0.5);
+  box-shadow: 0 0 15px rgba(255, 69, 0, 0.15);
+}
+
+/* Positive / Success / Happy (Green/Gold) */
+.message.emotion-positive .message-content {
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+}
+
+/* Neutral */
+.message.emotion-neutral .message-content {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* =========================================
+   FEATURE 3: RLHF FEEDBACK (The Loop)
+   ========================================= */
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  opacity: 0; /* Hidden by default, shown on hover */
+  transition: opacity 0.2s ease;
+}
+
+.message:hover .feedback-actions {
+  opacity: 1;
+}
+
+.feedback-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.feedback-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.feedback-btn.active {
+  color: #D4AF37; /* Gold for selected */
+  transform: scale(1.1);
+}
+
+.feedback-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
 /* Message Sources Styling */
 .message-sources {
   margin-top: 12px;
   padding: 12px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  border-left: 3px solid var(--primary-color);
+  border-left: 3px solid #D4AF37; /* Gold */
 }
 
 .sources-header {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--primary-color);
+  color: #D4AF37;
   margin-bottom: 8px;
 }
 
@@ -36,7 +167,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  background: var(--primary-color);
+  background: #D4AF37;
   color: white;
   border-radius: 50%;
   font-size: 0.7rem;
@@ -57,7 +188,7 @@
 
 .source-score {
   font-size: 0.75rem;
-  color: var(--primary-color);
+  color: #D4AF37;
   font-weight: 600;
   flex-shrink: 0;
 }

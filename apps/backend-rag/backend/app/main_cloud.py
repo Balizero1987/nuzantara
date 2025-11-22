@@ -131,55 +131,75 @@ def initialize_services() -> None:
 
     logger.info("🚀 Initializing ZANTARA RAG services...")
 
-    # Search / Qdrant
-    search_service = SearchService()
-    dependencies.search_service = search_service
-
-    # AI Client
     try:
-        ai_client = ZantaraAIClient()
-    except Exception as exc:  # pragma: no cover - fail fast on missing API key
-        logger.exception("Failed to initialize ZantaraAIClient: %s", exc)
-        raise
+        # Search / Qdrant
+        try:
+            search_service = SearchService()
+            dependencies.search_service = search_service
+            app.state.search_service = search_service
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize SearchService: {e}")
+            search_service = None
 
-    # Tool stack (Python + TS handlers)
-    ts_backend_url = os.getenv("TS_BACKEND_URL", "https://nuzantara-backend.fly.dev")
-    handler_proxy = HandlerProxyService(backend_url=ts_backend_url)
-    zantara_tools = ZantaraTools()
-    internal_api_key = os.getenv("TS_INTERNAL_API_KEY")
-    tool_executor = ToolExecutor(
-        handler_proxy=handler_proxy,
-        internal_key=internal_api_key,
-        zantara_tools=zantara_tools,
-    )
+        # AI Client
+        try:
+            ai_client = ZantaraAIClient()
+            app.state.ai_client = ai_client
+        except Exception as exc:
+            logger.error(f"❌ Failed to initialize ZantaraAIClient: {exc}")
+            ai_client = None
 
-    # RAG helpers
-    cultural_rag_service = CulturalRAGService(search_service=search_service)
-    query_router = QueryRouter()
+        # Tool stack (Python + TS handlers)
+        ts_backend_url = os.getenv("TS_BACKEND_URL", "https://nuzantara-backend.fly.dev")
+        handler_proxy = HandlerProxyService(backend_url=ts_backend_url)
+        zantara_tools = ZantaraTools()
+        internal_api_key = os.getenv("TS_INTERNAL_API_KEY")
+        tool_executor = ToolExecutor(
+            handler_proxy=handler_proxy,
+            internal_key=internal_api_key,
+            zantara_tools=zantara_tools,
+        )
 
-    intelligent_router = IntelligentRouter(
-        ai_client=ai_client,
-        search_service=search_service,
-        tool_executor=tool_executor,
-        cultural_rag_service=cultural_rag_service,
-        autonomous_research_service=None,
-        cross_oracle_synthesis_service=None,
-    )
+        # RAG helpers
+        if search_service:
+            cultural_rag_service = CulturalRAGService(search_service=search_service)
+        else:
+            cultural_rag_service = None
+            
+        query_router = QueryRouter()
 
-    # Persist references for other modules
-    dependencies.anthropic_client = None
-    dependencies.bali_zero_router = intelligent_router
+        if ai_client and search_service:
+            intelligent_router = IntelligentRouter(
+                ai_client=ai_client,
+                search_service=search_service,
+                tool_executor=tool_executor,
+                cultural_rag_service=cultural_rag_service,
+                autonomous_research_service=None,
+                cross_oracle_synthesis_service=None,
+            )
+            # Persist references for other modules
+            dependencies.bali_zero_router = intelligent_router
+            app.state.intelligent_router = intelligent_router
+        else:
+            logger.warning("⚠️ IntelligentRouter NOT initialized due to missing dependencies")
+            app.state.intelligent_router = None
 
-    app.state.search_service = search_service
-    app.state.ai_client = ai_client
-    app.state.handler_proxy = handler_proxy
-    app.state.tool_executor = tool_executor
-    app.state.zantara_tools = zantara_tools
-    app.state.query_router = query_router
-    app.state.intelligent_router = intelligent_router
-    app.state.services_initialized = True
+        # Persist references for other modules
+        dependencies.anthropic_client = None
 
-    logger.info("✅ ZANTARA RAG services initialized")
+        app.state.handler_proxy = handler_proxy
+        app.state.tool_executor = tool_executor
+        app.state.zantara_tools = zantara_tools
+        app.state.query_router = query_router
+        
+        # Mark as initialized (even if partially) to prevent retry loops
+        app.state.services_initialized = True
+
+        logger.info("✅ ZANTARA RAG services initialization attempt complete")
+        
+    except Exception as e:
+        logger.exception("🔥 CRITICAL: Unexpected error during service initialization: %s", e)
+        # Do not raise, allow app to start for health checks
 
 
 @app.on_event("startup")
