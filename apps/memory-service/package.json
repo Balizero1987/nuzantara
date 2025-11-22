@@ -1,7 +1,7 @@
 {
   "name": "@nuzantara/memory-service",
   "version": "5.2.0",
-  "description": "Standalone Memory Service with multi-layer storage (PostgreSQL, ChromaDB, Neo4j)",
+  "description": "Standalone Memory Service with multi-layer storage (PostgreSQL, vector DB, Neo4j)",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

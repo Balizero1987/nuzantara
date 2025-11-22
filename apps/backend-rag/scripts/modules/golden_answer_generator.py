@@ -2,7 +2,7 @@
 Golden Answer Generator - Create comprehensive FAQ answers using LLAMA + RAG
 
 For each query cluster:
-1. Query RAG/ChromaDB for relevant legal documents
+1. Query RAG/vector DB for relevant legal documents
 2. Pass to LLAMA 3.1 with cluster questions
 3. Generate comprehensive, authoritative answer
 4. Save to golden_answers table in PostgreSQL
@@ -39,7 +39,7 @@ class GoldenAnswerGenerator:
             database_url: PostgreSQL connection string
             runpod_endpoint: RunPod LLAMA endpoint
             runpod_api_key: RunPod API key
-            rag_backend_url: RAG backend URL for ChromaDB queries
+            rag_backend_url: RAG backend URL for vector DB queries
         """
         self.database_url = database_url
         self.runpod_endpoint = runpod_endpoint
@@ -141,7 +141,7 @@ class GoldenAnswerGenerator:
         limit: int = 5
     ) -> List[Dict]:
         """
-        Query RAG/ChromaDB for relevant documents
+        Query RAG/vector DB for relevant documents
 
         Args:
             query: User query

@@ -49,6 +49,11 @@ export function validateCsrfToken(req: Request, res: Response, next: NextFunctio
     return next();
   }
 
+  // Skip CSRF for the csrf-token endpoint itself
+  if (req.path === '/api/csrf-token') {
+    return next();
+  }
+
   try {
     const sessionId = req.headers['x-session-id'] as string;
     const token = req.headers['x-csrf-token'] as string;

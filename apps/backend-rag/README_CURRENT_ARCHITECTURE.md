@@ -69,9 +69,8 @@ apps/backend-rag/
 │   │   └── embeddings.py     # Embedding generation
 │   └── llm/
 │       └── zantara_ai_client.py # AI client
-├── scripts/                   # Active scripts
-│   └── deprecated/           # Legacy dataset generators (archived)
-├── scripts/legacy_chromadb/  # ChromaDB scripts (archived)
+├── scripts/                   # Active scripts (migrations, maintenance, dataset tools)
+│   └── modules/              # Shared script modules
 └── docs/
     ├── archive/              # Legacy documentation
     └── prompts/              # System prompts

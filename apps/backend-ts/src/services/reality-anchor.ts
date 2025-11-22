@@ -248,7 +248,7 @@ export class RealityAnchorSystem {
   ): Promise<{ discrepancies: number; details: string[] }> {
     const discrepancies: string[] = [];
 
-    // Firestore removed - using local cache only
+    // Legacy persistence layer removed - using local cache only
     // TODO: If persistence needed, use PostgreSQL
 
     return {

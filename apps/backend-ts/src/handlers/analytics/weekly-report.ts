@@ -19,7 +19,7 @@ async function getGmailService() {
 
 // Get conversations for a specific user within date range
 async function getUserConversations(userId: string, startDate: Date, endDate: Date) {
-  // Firestore removed - conversations now come from PostgreSQL memory service
+  // Legacy document store removed - conversations will come from the PostgreSQL memory service
   // TODO: Query PostgreSQL for conversations when needed
   logger.debug('getUserConversations called (PostgreSQL integration pending)', { userId, startDate, endDate });
   return [];
@@ -511,7 +511,7 @@ export async function generateWeeklyReport() {
 
 // Archive processed conversations to save space
 async function archiveProcessedConversations(conversations: any[]) {
-  // Firestore removed - archiving now uses PostgreSQL
+  // Legacy document store removed - archiving will use PostgreSQL
   // TODO: Implement PostgreSQL archiving when needed
   logger.debug('Archive conversations (PostgreSQL integration pending)', { count: conversations.length });
 }

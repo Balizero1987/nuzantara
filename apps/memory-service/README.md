@@ -740,7 +740,7 @@ Monitor these thresholds:
   - [ ] Memory consolidation
 
 ### 📋 Planned
-- [ ] Phase 3: ChromaDB Vector Search
+- [ ] Phase 3: Vector Search
   - [ ] Semantic memory search
   - [ ] Similar conversation retrieval
   - [ ] Context-aware suggestions

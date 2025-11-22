@@ -47,7 +47,7 @@ interface GroupContext {
   lastAnalyzed: string;
 }
 
-// In-memory cache for group contexts (will be persisted to Firestore)
+// In-memory cache for group contexts (optionally persisted via memory service)
 const groupContexts = new Map<string, GroupContext>();
 
 /**
@@ -219,7 +219,7 @@ function extractMessageText(message: any): string | null {
 }
 
 /**
- * Save message to Firestore memory
+ * Save message to persistent memory service
  */
 async function saveMessageToMemory(data: any) {
   try {
