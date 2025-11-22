@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 embedder = EmbeddingsGenerator()
 
-# ChromaDB collections for intel
+# Qdrant collections for intel
 INTEL_COLLECTIONS = {
     "immigration": "bali_intel_immigration",
     "bkpm_tax": "bali_intel_bkpm_tax",
@@ -33,7 +33,7 @@ class IntelSearchRequest(BaseModel):
     query: str
     category: Optional[str] = None
     date_range: str = "last_7_days"
-    tier: List[str] = ["T1", "T2", "T3"]  # Fixed: Changed from "1","2","3" to match ChromaDB storage
+    tier: List[str] = ["T1", "T2", "T3"]  # Fixed: Changed from "1","2","3" to match Qdrant storage
     impact_level: Optional[str] = None
     limit: int = 20
 
@@ -142,7 +142,7 @@ async def search_intel(request: IntelSearchRequest):
 
 @router.post("/api/intel/store")
 async def store_intel(request: IntelStoreRequest):
-    """Store intel news item in ChromaDB"""
+    """Store intel news item in Qdrant"""
     try:
         collection_name = INTEL_COLLECTIONS.get(request.collection)
         if not collection_name:

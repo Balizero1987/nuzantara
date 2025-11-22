@@ -11,7 +11,7 @@ Features:
 Performance Impact:
 - Latency: 800ms → 150ms (-81%)
 - API costs: -50% (fewer embeddings)
-- Database load: -70% (fewer ChromaDB queries)
+- Database load: -70% (fewer Qdrant queries)
 """
 
 import hashlib

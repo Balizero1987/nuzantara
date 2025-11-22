@@ -89,7 +89,7 @@ export class ZANTARAArchitect {
 
       return this.parseKnowledgeAnalysis(response.data.choices[0].message.content);
     } catch (error) {
-      logger.error('Knowledge analysis failed:', error);
+      logger.error('Knowledge analysis failed:', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Failed to analyze knowledge base');
     }
   }
@@ -123,7 +123,7 @@ export class ZANTARAArchitect {
 
       return docs;
     } catch (error) {
-      logger.error('Documentation generation failed:', error);
+      logger.error('Documentation generation failed:', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Failed to generate documentation');
     }
   }
@@ -165,7 +165,7 @@ export class ZANTARAArchitect {
 
       return this.parseOptimizationReport(response.data.choices[0].message.content);
     } catch (error) {
-      logger.error('System optimization failed:', error);
+      logger.error('System optimization failed:', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Failed to optimize system');
     }
   }
@@ -194,7 +194,7 @@ export class ZANTARAArchitect {
         System context:
         - Multi-agent knowledge system
         - 8 domain parallel processing
-        - ChromaDB vector search
+        - Qdrant vector search
         - Redis caching
         - Express.js API
 
@@ -224,14 +224,14 @@ export class ZANTARAArchitect {
 
       return this.parseTroubleshootingReport(response.data.choices[0].message.content);
     } catch (error) {
-      logger.error('Troubleshooting failed:', error);
+      logger.error('Troubleshooting failed:', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Failed to troubleshoot issue');
     }
   }
 
   // Private helper methods
   private async discoverEndpoints(): Promise<string[]> {
-    return ['/api/v3/zantara/unified', '/api/v3/zantara/collective', '/api/v3/zantara/ecosystem'];
+    return []; // V3 endpoints removed
   }
 
   private parseKnowledgeAnalysis(_content: string): KnowledgeAnalysis {

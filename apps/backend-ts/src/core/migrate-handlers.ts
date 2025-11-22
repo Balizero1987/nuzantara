@@ -59,9 +59,7 @@ export const MODULE_STRUCTURE: ModuleMapping[] = [
   {
     module: 'zantara',
     handlers: [
-      'zantara-test',
       'zantara-v2-simple',
-      'zantara-dashboard',
       'zantara-brilliant',
       'zantaraKnowledgeHandler',
     ],

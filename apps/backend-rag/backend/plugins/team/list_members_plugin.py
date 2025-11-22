@@ -75,24 +75,21 @@ class TeamMembersListPlugin(Plugin):
 
             logger.info(f"👥 Team list: department={department}")
 
-            # Build roster from TEAM_DATABASE
-            roster = []
-            for email, data in self.collaborator_service.TEAM_DATABASE.items():
-                # Filter by department if specified
-                if department and data.get("department", "").lower() != department:
-                    continue
+            profiles = self.collaborator_service.list_members(department)
 
-                roster.append(
-                    {
-                        "name": data["name"],
-                        "email": email,
-                        "role": data["role"],
-                        "department": data["department"],
-                        "expertise_level": data["expertise_level"],
-                        "sub_rosa_level": data["sub_rosa_level"],
-                        "language": data["language"],
-                    }
-                )
+            roster = [
+                {
+                    "name": profile.name,
+                    "email": profile.email,
+                    "role": profile.role,
+                    "department": profile.department,
+                    "expertise_level": profile.expertise_level,
+                    "language": profile.language,
+                    "traits": profile.traits,
+                    "notes": profile.notes,
+                }
+                for profile in profiles
+            ]
 
             # Group by department for better readability
             by_department = {}

@@ -2,7 +2,7 @@
 Cross-Oracle Synthesis Agent - Phase 3 (Core Agent #1)
 
 Orchestrates queries across multiple Oracle collections and synthesizes
-integrated recommendations using Claude Sonnet.
+integrated recommendations using ZANTARA AI.
 
 Example Scenario: "I want to open a restaurant in Canggu"
 → Queries: kbli_eye, legal_architect, tax_genius, visa_oracle, property_knowledge, bali_zero_pricing
@@ -100,7 +100,7 @@ class CrossOracleSynthesisService:
     def __init__(
         self,
         search_service,
-        claude_sonnet_service,
+        zantara_ai_client=None,
         golden_answer_service=None
     ):
         """
@@ -108,11 +108,14 @@ class CrossOracleSynthesisService:
 
         Args:
             search_service: SearchService for collection queries
-            claude_sonnet_service: Claude Sonnet for synthesis
+            zantara_ai_client: ZANTARA AI client for synthesis (optional)
             golden_answer_service: Optional cache for common scenarios
         """
         self.search = search_service
-        self.claude = claude_sonnet_service
+        if zantara_ai_client is None:
+            from llm.zantara_ai_client import ZantaraAIClient
+            zantara_ai_client = ZantaraAIClient()
+        self.zantara = zantara_ai_client
         self.golden_answers = golden_answer_service
 
         self.synthesis_stats = {
@@ -308,14 +311,14 @@ class CrossOracleSynthesisService:
 
         return results_dict
 
-    async def synthesize_with_claude(
+    async def synthesize_with_zantara(
         self,
         query: str,
         scenario_type: str,
         oracle_results: Dict[str, Any]
     ) -> str:
         """
-        Use Claude Sonnet to synthesize Oracle results into integrated answer.
+        Use ZANTARA AI to synthesize Oracle results into integrated answer.
 
         Args:
             query: Original user query
@@ -378,16 +381,14 @@ Be specific, actionable, and reference which Oracle provided which information w
 Keep the response comprehensive but concise (max 800 words).
 """
 
-        logger.info("🧠 Synthesizing with Claude Sonnet...")
+        logger.info("🧠 Synthesizing with ZANTARA AI...")
 
         try:
-            # Call Claude Sonnet (assuming it has a simple text completion method)
-            response = await self.claude.conversational(
-                message=synthesis_prompt,
-                user_id="cross_oracle_synthesis",
-                context=None,
-                conversation_history=[],
-                max_tokens=1500
+            # Call ZANTARA AI
+            response = await self.zantara.generate_text(
+                prompt=synthesis_prompt,
+                max_tokens=1500,
+                temperature=0.7
             )
 
             synthesis_text = response.get("text", "")
@@ -511,8 +512,8 @@ Keep the response comprehensive but concise (max 800 words).
             / self.synthesis_stats["total_syntheses"]
         )
 
-        # Step 5: Synthesize with Claude Sonnet
-        synthesis_text = await self.synthesize_with_claude(
+        # Step 5: Synthesize with ZANTARA AI
+        synthesis_text = await self.synthesize_with_zantara(
             query,
             scenario_type,
             oracle_results

@@ -1,5 +1,5 @@
 // Complete Unified Authentication Strategy v2.0
-// Integrates all 4 auth methods + Firebase with intelligent routing
+// Integrates all 4 auth methods with intelligent routing
 
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../logging/unified-logger.js';
@@ -16,7 +16,7 @@ export interface UnifiedAuthUser {
   role: string;
   department?: string;
   permissions: string[];
-  source: 'jwt' | 'api_key' | 'demo' | 'team' | 'firebase';
+  source: 'jwt' | 'api_key' | 'demo' | 'team';
   metadata?: any;
 }
 
@@ -34,69 +34,9 @@ export interface RequestWithUnifiedAuth {
   [key: string]: any;
 }
 
-// Firebase Auth Integration (when available)
-class FirebaseAuthService {
-  private enabled: boolean = false;
-
-  async initialize() {
-    try {
-      // Check if Firebase is available and configured
-      if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
-        // Firebase would be initialized here
-        // this.admin = require('firebase-admin');
-        // await this.admin.initializeApp();
-        this.enabled = true;
-        logger.info('🔥 Firebase Auth initialized');
-      } else {
-        logger.info('Firebase Auth disabled - missing configuration');
-      }
-    } catch (error) {
-      logger.warn('Firebase Auth initialization failed:', error as any);
-      this.enabled = false;
-    }
-  }
-
-  async verifyToken(_token: string): Promise<UnifiedAuthUser | null> {
-    if (!this.enabled) return null;
-
-    try {
-      // Firebase token verification would go here
-      // const decodedToken = await this.admin.auth().verifyIdToken(token);
-      // return {
-      //   id: decodedToken.uid,
-      //   email: decodedToken.email,
-      //   name: decodedToken.name,
-      //   role: 'user',
-      //   permissions: [],
-      //   source: 'firebase'
-      // };
-
-      // Mock implementation for now
-      logger.info('🔥 Firebase token verification (mock)');
-      return null;
-    } catch (error) {
-      logger.warn('Firebase token verification failed:', error as any);
-      return null;
-    }
-  }
-
-  async generateCustomToken(_uid: string, _additionalClaims?: any): Promise<string | null> {
-    if (!this.enabled) return null;
-
-    try {
-      // Firebase custom token generation would go here
-      // return await this.admin.auth().createCustomToken(uid, additionalClaims);
-      return null;
-    } catch (error) {
-      logger.error('Firebase custom token generation failed:', error as Error);
-      return null;
-    }
-  }
-}
 
 // Main Unified Authentication Strategy
 class UnifiedAuthenticationStrategy {
-  public firebaseAuth: FirebaseAuthService;
   private authMethods: Array<{
     name: string;
     handler: (req: Request, res: Response, next: NextFunction) => Promise<void>;
@@ -106,12 +46,10 @@ class UnifiedAuthenticationStrategy {
   }> = [];
 
   constructor() {
-    this.firebaseAuth = new FirebaseAuthService();
     this.setupAuthMethods();
   }
 
   async initialize() {
-    await this.firebaseAuth.initialize();
     logger.info('🔐 Unified Authentication initialized');
   }
 
@@ -152,17 +90,7 @@ class UnifiedAuthenticationStrategy {
       confidence: 0.8,
     });
 
-    // Priority 4: Firebase Auth
-    this.authMethods.push({
-      name: 'firebase',
-      handler: this.createFirebaseHandler(),
-      priority: 4,
-      test: (req) => {
-        const firebaseToken = req.headers['x-firebase-token'] as string;
-        return !!firebaseToken;
-      },
-      confidence: 0.85,
-    });
+    // Firebase Auth removed - no longer supported
 
     // Priority 5: Demo User Auth (fallback)
     this.authMethods.push({
@@ -265,25 +193,7 @@ class UnifiedAuthenticationStrategy {
     };
   }
 
-  private createFirebaseHandler() {
-    return async (req: Request, _res: Response, next: NextFunction) => {
-      try {
-        const firebaseToken = req.headers['x-firebase-token'] as string;
-        if (!firebaseToken) {
-          return next();
-        }
-
-        const user = await this.firebaseAuth.verifyToken(firebaseToken);
-        if (user) {
-          (req as unknown as RequestWithUnifiedAuth).user = user;
-          (req as unknown as RequestWithUnifiedAuth).authMethod = 'firebase';
-        }
-      } catch (error) {
-        logger.warn('Firebase auth failed:', error as any);
-        next();
-      }
-    };
-  }
+  // Firebase handler removed - no longer supported
 
   private createDemoHandler() {
     return async (req: Request, _res: Response, next: NextFunction) => {
@@ -410,7 +320,7 @@ const unifiedAuth = new UnifiedAuthenticationStrategy();
 
 // Initialize on module load
 unifiedAuth.initialize().catch((error) => {
-  logger.error('Failed to initialize unified auth:', error);
+  logger.error('Failed to initialize unified auth:', error instanceof Error ? error : new Error(String(error)));
 });
 
 // Middleware function
@@ -498,12 +408,4 @@ export const getAvailableAuthMethods = () => {
   return unifiedAuth.getAvailableMethods();
 };
 
-// Firebase custom token generation (when available)
-export const generateFirebaseCustomToken = async (
-  uid: string,
-  additionalClaims?: any
-): Promise<string | null> => {
-  return await unifiedAuth.firebaseAuth.generateCustomToken(uid, additionalClaims);
-};
-
-export { unifiedAuth, FirebaseAuthService };
+export { unifiedAuth };

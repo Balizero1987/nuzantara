@@ -1,5 +1,5 @@
 /**
- * Zero Tools - Claude Code-like capabilities for ZANTARA
+ * Zero Tools - in-editor automation capabilities for ZANTARA
  *
  * Available when userId === 'zero'
  * Supports both localhost (MCP) and Cloud Run (custom tools)
@@ -32,7 +32,7 @@ import {
 } from './deployment.js';
 
 /**
- * Tool definitions for Claude API
+ * Tool definitions for OpenRouter-compatible APIs
  */
 export const ZERO_TOOLS = [
   {
@@ -53,7 +53,7 @@ export const ZERO_TOOLS = [
   {
     name: 'edit_file',
     description:
-      'Edit file with exact string replacement (like Claude Code Edit tool). Fails if string not found or multiple matches.',
+      'Edit file with exact string replacement. Fails if string not found or multiple matches.',
     input_schema: {
       type: 'object',
       properties: {

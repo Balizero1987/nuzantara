@@ -13,7 +13,7 @@ import logger from './logger.js';
 import type { Request, Response } from 'express';
 
 const RAG_BACKEND_URL =
-  process.env.RAG_BACKEND_URL || 'https://zantara-rag-backend-himaadsxua-ew.a.run.app';
+  process.env.RAG_BACKEND_URL || 'https://nuzantara-rag.fly.dev';
 
 interface StreamChunk {
   type: 'token' | 'metadata' | 'done' | 'error' | 'heartbeat';
@@ -78,7 +78,7 @@ export class StreamingService {
       try {
         this.sendSSE(res, { type: 'heartbeat', data: { timestamp: Date.now() } }, sequenceNumber++);
       } catch (error) {
-        logger.error(`[Stream] Heartbeat failed for ${connectionId}:`, error);
+        logger.error(`[Stream] Heartbeat failed for ${connectionId}:`, error instanceof Error ? error : new Error(String(error)));
         this.cleanupConnection(connectionId);
         clearInterval(heartbeatInterval);
       }
@@ -243,7 +243,7 @@ export class StreamingService {
       this.cleanupConnection(connectionId);
       clearInterval(heartbeatInterval);
     } catch (error: any) {
-      logger.error(`[Stream] Stream error for ${connectionId}:`, error);
+      logger.error(`[Stream] Stream error for ${connectionId}:`, error instanceof Error ? error : new Error(String(error)));
 
       // Send error to client
       try {

@@ -357,7 +357,7 @@ class MemoryOptimizer:
     
     @staticmethod
     def optimize_chroma_settings():
-        """Optimize ChromaDB settings for production"""
+        """Optimize Qdrant settings for production"""
         return {
             "anonymized_telemetry": False,
             "allow_reset": False,

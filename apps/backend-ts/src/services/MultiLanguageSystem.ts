@@ -4,7 +4,7 @@
  * Enhanced multi-language system with Ukrainian support and automatic language adaptation
  * based on recognized team members - Zero speaks Italian, Ukrainian team in Ukrainian, others in Indonesian
  *
- * @author Claude Code Architecture v4.0
+ * @author ZANTARA Architecture v4.0
  * @version 2.0.0
  */
 

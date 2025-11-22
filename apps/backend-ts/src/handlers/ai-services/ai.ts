@@ -235,7 +235,7 @@ export async function aiChat(params: any) {
 
     return zantaraResult;
   } catch (error: any) {
-    logger.error('❌ ZANTARA error:', error);
+    logger.error('❌ ZANTARA error:', error instanceof Error ? error : new Error(String(error)));
 
     // Graceful fallback response instead of throwing error
     return ok({
@@ -302,7 +302,7 @@ export async function getAIModels(_params: any) {
       timestamp: Date.now(),
     };
   } catch (error: any) {
-    logger.error('Error fetching AI models:', error);
+    logger.error('Error fetching AI models:', error instanceof Error ? error : new Error(String(error)));
     return {
       success: false,
       error: error.message || 'Failed to fetch models',

@@ -11,7 +11,8 @@ Date: 2025-10-16
 
 import logging
 from typing import List, Dict, Any, Optional
-from anthropic import AsyncAnthropic
+
+from llm.zantara_ai_client import ZantaraAIClient
 
 logger = logging.getLogger(__name__)
 
@@ -24,18 +25,19 @@ class FollowupService:
     - Context-aware question generation
     - Language-appropriate suggestions (EN, IT, ID)
     - Topic-specific follow-ups (business, casual, technical)
-    - Fast generation using Claude Haiku
+    - Fast generation using ZANTARA AI
     """
 
-    def __init__(self, anthropic_api_key: Optional[str] = None):
+    def __init__(self):
         """
-        Initialize follow-up service
-
-        Args:
-            anthropic_api_key: Anthropic API key for Claude Haiku (optional)
+        Initialize follow-up service with ZANTARA AI
         """
-        self.claude_client = AsyncAnthropic(api_key=anthropic_api_key) if anthropic_api_key else None
-        logger.info("✅ FollowupService initialized")
+        try:
+            self.zantara_client = ZantaraAIClient()
+            logger.info("✅ FollowupService initialized with ZANTARA AI")
+        except Exception as e:
+            logger.warning(f"⚠️ FollowupService: ZANTARA AI not available: {e}")
+            self.zantara_client = None
 
 
     def get_topic_based_followups(
@@ -192,26 +194,25 @@ class FollowupService:
         Returns:
             List of 3-4 AI-generated follow-up questions
         """
-        if not self.claude_client:
-            logger.warning("⚠️ [Follow-ups] Claude client not available, cannot generate dynamic follow-ups")
+        if not self.zantara_client:
+            logger.warning("⚠️ [Follow-ups] ZANTARA AI client not available, cannot generate dynamic follow-ups")
             # Fallback to topic-based
             return self.get_topic_based_followups(query, response, "business", language)
 
-        # Build prompt for Claude Haiku
+        # Build prompt for ZANTARA AI
         prompt = self._build_followup_generation_prompt(query, response, conversation_context, language)
 
         try:
-            logger.info(f"🤖 [Follow-ups] Generating dynamic follow-ups using Claude Haiku ({language})")
+            logger.info(f"🤖 [Follow-ups] Generating dynamic follow-ups using ZANTARA AI ({language})")
 
-            # Call Claude Haiku for fast follow-up generation
-            haiku_response = await self.claude_client.messages.create(
-                model="claude-3-haiku-20240307",  # Fast & cheap
-                max_tokens=200,
-                messages=[{"role": "user", "content": prompt}]
+            # Call ZANTARA AI for fast follow-up generation
+            ai_response = await self.zantara_client.chat_async(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=200
             )
 
             # Parse response (expecting numbered list)
-            text = haiku_response.content[0].text.strip()
+            text = ai_response["text"].strip()
             followups = self._parse_followup_list(text)
 
             if followups:
@@ -391,7 +392,7 @@ Keep questions concise (max 10 words each)."""
         logger.info(f"📊 [Follow-ups] Detected: topic={topic}, language={language}")
 
         # Use AI if available and requested
-        if use_ai and self.claude_client:
+        if use_ai and self.zantara_client:
             return await self.generate_dynamic_followups(
                 query=query,
                 response=response,
@@ -416,9 +417,9 @@ Keep questions concise (max 10 words each)."""
         """
         return {
             "status": "healthy",
-            "ai_available": self.claude_client is not None,
+            "ai_available": self.zantara_client is not None,
             "features": {
-                "dynamic_generation": self.claude_client is not None,
+                "dynamic_generation": self.zantara_client is not None,
                 "topic_based_fallback": True,
                 "supported_languages": ["en", "it", "id"],
                 "supported_topics": ["business", "immigration", "tax", "casual", "technical"]

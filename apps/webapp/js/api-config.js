@@ -22,7 +22,7 @@ export const API_ENDPOINTS = {
 
   // System Handlers
   system: {
-    call: '/api/v3/zantara/handlers/call'
+    call: '/call'  // RPC-style endpoint (not v3)
   },
 
   // Agents

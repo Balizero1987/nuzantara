@@ -83,7 +83,7 @@ export class ZANTARAAgentRouter {
       // Fallback logic
       return this.fallbackIntentDetection(query);
     } catch (error) {
-      logger.error('TinyLlama routing failed:', error);
+      logger.error('TinyLlama routing failed:', error instanceof Error ? error : new Error(String(error)));
       return this.fallbackIntentDetection(query);
     }
   }
@@ -155,7 +155,7 @@ export class ZANTARAAgentRouter {
         model_size: '2.5B',
       };
     } catch (error) {
-      logger.error('Qwen agent failed:', error);
+      logger.error('Qwen agent failed:', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Qwen reasoning agent unavailable');
     }
   }
@@ -186,7 +186,7 @@ export class ZANTARAAgentRouter {
         model_size: '7B',
       };
     } catch (error) {
-      logger.error('Mistral agent failed:', error);
+      logger.error('Mistral agent failed:', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Mistral business agent unavailable');
     }
   }
@@ -217,7 +217,7 @@ export class ZANTARAAgentRouter {
         model_size: '3.1B',
       };
     } catch (error) {
-      logger.error('Llama agent failed:', error);
+      logger.error('Llama agent failed:', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Llama multilingual agent unavailable');
     }
   }

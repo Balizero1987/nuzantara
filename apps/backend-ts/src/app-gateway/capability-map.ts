@@ -14,24 +14,7 @@ export const CAPABILITY_MAP: Record<ActionName, Capability> = {
   lead_save: { handler: 'lead.save', tier: 'low', rate: { windowMs: 60_000, max: 30 } },
   set_language: { handler: 'identity.resolve', tier: 'low', rate: { windowMs: 60_000, max: 60 } },
 
-  // ZANTARA v3 Ω Strategic Endpoints (Production Ready)
-  zantara_unified: {
-    handler: 'zantara.unified',
-    tier: 'high',
-    rate: { windowMs: 60_000, max: 50 },
-  },
-  zantara_collective: {
-    handler: 'zantara.collective',
-    tier: 'medium',
-    rate: { windowMs: 60_000, max: 30 },
-  },
-  zantara_ecosystem: {
-    handler: 'zantara.ecosystem',
-    tier: 'high',
-    rate: { windowMs: 60_000, max: 20 },
-  },
-
-  // ZANTARA v3 Knowledge Domains
+  // Knowledge Domains
   kbli_lookup: { handler: 'kbli.lookup', tier: 'medium', rate: { windowMs: 60_000, max: 40 } },
   team_search: { handler: 'team.search', tier: 'low', rate: { windowMs: 60_000, max: 60 } },
   pricing_query: {

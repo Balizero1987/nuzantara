@@ -95,7 +95,7 @@ export class CacheOptimizer {
         cacheKey,
       };
     } catch (error) {
-      logger.error(`Cache query failed for ${queryType}:${queryKey}`, error);
+      logger.error(`Cache query failed for ${queryType}:${queryKey}`, error instanceof Error ? error : new Error(String(error)));
       // Fallback to direct execution
       const data = await queryFn();
       return {
@@ -152,7 +152,7 @@ export class CacheOptimizer {
         logger.info(`🗑️ Cache invalidated: ${keys.length} keys for ${queryType}`);
       }
     } catch (error) {
-      logger.error(`Failed to invalidate cache for ${queryType}`, error);
+      logger.error(`Failed to invalidate cache for ${queryType}`, error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -175,7 +175,7 @@ export class CacheOptimizer {
 
       return stats;
     } catch (error) {
-      logger.error('Failed to get cache stats', error);
+      logger.error('Failed to get cache stats', error instanceof Error ? error : new Error(String(error)));
       return {};
     }
   }
@@ -196,7 +196,7 @@ export class CacheOptimizer {
       try {
         await this.cachedQuery(warmup.type, warmup.key, warmup.fn);
       } catch (error) {
-        logger.warn(`Cache warmup failed for ${warmup.type}:${warmup.key}`, error);
+        logger.warn(`Cache warmup failed for ${warmup.type}:${warmup.key}`, { error: error instanceof Error ? error.message : String(error) });
       }
     }
 

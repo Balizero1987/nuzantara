@@ -216,7 +216,7 @@ export async function handleAppEvent(
       });
     }
   } catch (error: any) {
-    logger.error(`Gateway handler error [${ev.action}]:`, error);
+    logger.error(`Gateway handler error [${ev.action}]:`, error instanceof Error ? error : new Error(String(error)));
 
     // Add error notification
     patches.push({

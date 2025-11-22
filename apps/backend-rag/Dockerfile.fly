@@ -1,38 +1,35 @@
 # ZANTARA RAG Backend - Fly.io Deployment
-# Python 3.11 + FastAPI + Qdrant Vector Database + OpenAI Embeddings
 FROM python:3.11-slim
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
+    net-tools \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy requirements first (better caching)
-COPY apps/backend-rag/requirements.txt .
-
-# Install Python dependencies
+# Copy requirements first
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY apps/backend-rag/backend ./backend
+COPY backend ./backend
 
-# Environment variables are set via fly.toml (QDRANT_URL, OPENAI_API_KEY, etc.)
+# Make script executable
+RUN chmod +x backend/scripts/entrypoint.sh
 
-# Set Python path to include the backend directory
+# Set PYTHONPATH
 ENV PYTHONPATH=/app/backend
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
 
-# Set runtime working directory to backend (parent of app/)
-# This allows Python to find the app module properly
+# Set working directory
 WORKDIR /app/backend
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
-# Health check is configured in fly.toml with 5min grace_period
-# (removed from Dockerfile to avoid conflicts)
-
-# Start uvicorn
-CMD ["uvicorn", "app.main_cloud:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start via script
+CMD ["./scripts/entrypoint.sh"]

@@ -65,7 +65,7 @@ export async function handleDriveUploadMultipart(req: Request, res: Response) {
       },
     });
   } catch (error: any) {
-    logger.error('Drive upload error:', error);
+    logger.error('Drive upload error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error?.message || 'Upload failed',

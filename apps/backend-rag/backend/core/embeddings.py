@@ -104,7 +104,7 @@ class EmbeddingsGenerator:
             # Fallback to OpenAI
             logger.warning("🔌 [EmbeddingsGenerator] Sentence Transformers not available (size constraint)")
             logger.warning("   Falling back to OpenAI (text-embedding-3-small)")
-            logger.warning("   ⚠️ NOTE: This may cause dimension mismatch if ChromaDB collections expect 384 dims")
+            logger.warning("   ⚠️ NOTE: This may cause dimension mismatch if Qdrant collections expect 384 dims")
             self._init_openai(model=None)
 
         except Exception as e:

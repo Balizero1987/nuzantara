@@ -1,5 +1,4 @@
 import { logger } from '../logging/unified-logger.js';
-import { getFirestore } from '../services/firebase.js';
 
 interface SessionRecord {
   id: string;
@@ -49,11 +48,7 @@ export function getSession(id: string) {
 }
 
 export async function persistSessionFirestore(rec: SessionRecord) {
-  try {
-    const db = getFirestore();
-    await db.collection('app_sessions').doc(rec.id).set(rec, { merge: true });
-  } catch (e) {
-    // Best-effort in P0
-    logger.warn('Session Firestore persist failed (best-effort):', (e as any)?.message || e);
-  }
+  // Firestore persistence removed - sessions now use in-memory only
+  // TODO: If persistence needed, use PostgreSQL
+  logger.debug('Session persistence disabled (using in-memory only)');
 }

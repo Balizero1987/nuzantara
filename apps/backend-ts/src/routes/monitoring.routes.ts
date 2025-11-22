@@ -70,7 +70,7 @@ router.get('/cron-status', async (_req, res) => {
     logger.info('Cron status requested', { jobsActive: jobs.length });
     res.json({ success: true, status });
   } catch (error: any) {
-    logger.error('Failed to get cron status', error);
+    logger.error('Failed to get cron status', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -113,7 +113,7 @@ router.get('/agent-tasks', async (_req, res) => {
       },
     });
   } catch (error: any) {
-    logger.error('Failed to get agent tasks', error);
+    logger.error('Failed to get agent tasks', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -185,7 +185,7 @@ router.post('/trigger-job', async (req, res) => {
       taskId,
     });
   } catch (error: any) {
-    logger.error('Failed to trigger job', error);
+    logger.error('Failed to trigger job', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ success: false, error: error.message });
   }
 });

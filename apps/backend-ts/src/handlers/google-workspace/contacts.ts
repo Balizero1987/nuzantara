@@ -1,6 +1,5 @@
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
-import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
 import { getContacts } from '../../services/google-auth-service.js';
 
 // Param interfaces
@@ -87,8 +86,6 @@ export async function contactsList(params: ContactsListParams) {
     }
   }
 
-  // Fallback to Bridge legacy implementation
-  const bridged = await forwardToBridgeIfSupported('contacts.list', params);
   if (bridged) return bridged;
   throw new BadRequestError('Google Contacts not configured');
 }
@@ -181,8 +178,6 @@ export async function contactsCreate(params: ContactsCreateParams) {
     }
   }
 
-  // Fallback to Bridge legacy implementation
-  const bridged = await forwardToBridgeIfSupported('contacts.create', params);
   if (bridged) return bridged;
   throw new BadRequestError('Google Contacts not configured');
 }

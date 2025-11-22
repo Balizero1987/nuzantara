@@ -5,18 +5,6 @@
 import logger from '../../services/logger.js';
 import { globalRegistry } from '../../core/handler-registry.js';
 import {
-  zantaraPersonalityProfile,
-  zantaraAttune,
-  zantaraSynergyMap,
-  zantaraAnticipateNeeds,
-  zantaraCommunicationAdapt,
-  zantaraLearnTogether,
-  zantaraMoodSync,
-  zantaraConflictMediate,
-  zantaraGrowthTrack,
-  zantaraCelebrationOrchestrate,
-} from './zantara-test.js';
-import {
   zantaraEmotionalProfileAdvanced,
   zantaraConflictPrediction,
   zantaraMultiProjectOrchestration,
@@ -24,33 +12,9 @@ import {
   zantaraCulturalIntelligenceAdaptation,
   zantaraPerformanceOptimization,
 } from './zantara-v2-simple.js';
-import {
-  zantaraDashboardOverview,
-  zantaraTeamHealthMonitor,
-  zantaraPerformanceAnalytics,
-  zantaraSystemDiagnostics,
-} from './zantara-dashboard.js';
 import { getZantaraKnowledge, getSystemHealth } from './knowledge.js';
 
 export function registerZantaraHandlers() {
-  // ZANTARA Test Framework
-  globalRegistry.registerModule(
-    'zantara',
-    {
-      'personality.profile': zantaraPersonalityProfile,
-      attune: zantaraAttune,
-      'synergy.map': zantaraSynergyMap,
-      'anticipate.needs': zantaraAnticipateNeeds,
-      'communication.adapt': zantaraCommunicationAdapt,
-      'learn.together': zantaraLearnTogether,
-      'mood.sync': zantaraMoodSync,
-      'conflict.mediate': zantaraConflictMediate,
-      'growth.track': zantaraGrowthTrack,
-      'celebration.orchestrate': zantaraCelebrationOrchestrate,
-    },
-    { requiresAuth: true, description: 'Collaborative Intelligence' }
-  );
-
   // ZANTARA v2 Advanced
   globalRegistry.registerModule(
     'zantara',
@@ -63,18 +27,6 @@ export function registerZantaraHandlers() {
       'performance.optimization': zantaraPerformanceOptimization,
     },
     { requiresAuth: true, description: 'Advanced Emotional AI' }
-  );
-
-  // ZANTARA Dashboard
-  globalRegistry.registerModule(
-    'zantara',
-    {
-      'dashboard.overview': zantaraDashboardOverview,
-      'team.health.monitor': zantaraTeamHealthMonitor,
-      'performance.analytics': zantaraPerformanceAnalytics,
-      'system.diagnostics': zantaraSystemDiagnostics,
-    },
-    { requiresAuth: true, description: 'Real-time Monitoring' }
   );
 
   // ZANTARA Knowledge & Health

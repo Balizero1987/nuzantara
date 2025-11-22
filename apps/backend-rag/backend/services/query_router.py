@@ -1,6 +1,6 @@
 """
 ZANTARA RAG - Query Router
-Intelligent routing between multiple ChromaDB collections based on query content
+Intelligent routing between multiple Qdrant collections based on query content
 
 Phase 3 Enhancement: Smart Fallback Chain Agent
 - Confidence scoring for routing decisions

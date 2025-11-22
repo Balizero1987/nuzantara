@@ -64,7 +64,7 @@ export async function oracleUniversalQuery(params: OracleUniversalParams) {
       executionTime: data.execution_time_ms,
     });
   } catch (error: any) {
-    logger.error('❌ Oracle universal query error:', error);
+    logger.error('❌ Oracle universal query error:', error instanceof Error ? error : new Error(String(error)));
     return err(`Oracle query failed: ${error.message}`);
   }
 }
@@ -93,7 +93,7 @@ export async function oracleCollections() {
       descriptions: data.description,
     });
   } catch (error: any) {
-    logger.error('❌ Oracle collections error:', error);
+    logger.error('❌ Oracle collections error:', error instanceof Error ? error : new Error(String(error)));
     return err(`Failed to fetch collections: ${error.message}`);
   }
 }

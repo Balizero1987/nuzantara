@@ -70,10 +70,24 @@ class HealthMonitor:
 
     async def _check_health(self):
         """Perform health check and send alerts if needed"""
-        from app.main_cloud import search_service, memory_service, intelligent_router, tool_executor
+        from app.dependencies import get_search_service
+        from services.memory_service_postgres import MemoryServicePostgres
+        from services.intelligent_router import IntelligentRouter
+        from services.tool_executor import ToolExecutor
+        
+        # Get services from dependencies
+        try:
+            search_service = get_search_service()
+        except:
+            search_service = None
+        
+        # These would need to be passed in or retrieved from dependencies
+        memory_service = None  # TODO: Add to dependencies
+        intelligent_router = None  # TODO: Add to dependencies
+        tool_executor = None  # TODO: Add to dependencies
 
         current_status = {
-            "chromadb": await self._check_chromadb(search_service),
+            "qdrant": await self._check_qdrant(search_service),
             "postgresql": await self._check_postgresql(memory_service),
             "ai_router": await self._check_ai_router(intelligent_router),
             "tools": tool_executor is not None  # Simple check for optional service
@@ -136,8 +150,8 @@ class HealthMonitor:
 
         logger.info(f"✅ ALERT SENT: {service_name} RECOVERED")
 
-    async def _check_chromadb(self, search_service) -> bool:
-        """Check if ChromaDB is actually working"""
+    async def _check_qdrant(self, search_service) -> bool:
+        """Check if Qdrant is actually working"""
         if search_service is None:
             return False
 
@@ -148,7 +162,7 @@ class HealthMonitor:
                 return len(collections) >= 0  # Even 0 is OK (means connection works)
             return True  # Service exists
         except Exception as e:
-            logger.debug(f"ChromaDB health check failed: {e}")
+            logger.debug(f"Qdrant health check failed: {e}")
             return False
 
     async def _check_postgresql(self, memory_service) -> bool:

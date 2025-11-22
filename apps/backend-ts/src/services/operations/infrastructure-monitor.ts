@@ -155,7 +155,7 @@ export class InfrastructureMonitor {
         this.collectApplicationMetrics();
         this.checkAlertRules();
       } catch (error) {
-        logger.error('Metrics collection error:', error);
+        logger.error('Metrics collection error:', error instanceof Error ? error : new Error(String(error)));
       }
     }, this.metricsInterval);
 
@@ -570,7 +570,7 @@ export class InfrastructureMonitor {
         metrics.status = 'healthy';
       }
     } catch (error) {
-      logger.error('Error recording request:', error);
+      logger.error('Error recording request:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -582,12 +582,14 @@ export class InfrastructureMonitor {
     const count = this.errorCounts.get(key) || 0;
     this.errorCounts.set(key, count + 1);
 
-    logger.error('Application error recorded', {
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    logger.error('Application error recorded', errorObj);
+    logger.error('Application error details', {
       message: error.message,
       stack: error.stack,
       endpoint,
       count: count + 1,
-    });
+    } as any);
   }
 
   /**

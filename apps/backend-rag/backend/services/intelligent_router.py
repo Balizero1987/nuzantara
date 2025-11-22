@@ -29,7 +29,7 @@ from typing import Dict, Optional, List, Any
 from .classification import IntentClassifier
 from .context import ContextBuilder, RAGManager
 from .routing import SpecializedServiceRouter, ResponseHandler
-from .tools import ToolManager
+# ToolManager removed - using tool_executor directly
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +80,8 @@ class IntelligentRouter:
             cross_oracle_synthesis_service
         )
         self.response_handler = ResponseHandler()
-        self.tool_manager = ToolManager(tool_executor)
+        # ToolManager removed - using tool_executor directly
+        self.tool_executor = tool_executor
 
         logger.info("🎯 [IntelligentRouter] Initialized (ZANTARA AI, MODULAR)")
         logger.info(f"   Classification: {'✅' if True else '❌'} (Pattern Matching)")
@@ -131,9 +132,9 @@ class IntelligentRouter:
 
             # STEP 1: Determine tools to use (frontend or backend)
             tools_to_use = frontend_tools
-            if not tools_to_use:
-                await self.tool_manager.load_tools()
-                tools_to_use = self.tool_manager.get_available_tools("zantara-ai")
+            if not tools_to_use and self.tool_executor:
+                # Get tools directly from tool_executor if available
+                tools_to_use = getattr(self.tool_executor, 'get_available_tools', lambda: [])()
                 if tools_to_use:
                     logger.info(f"🔧 [Router] Using {len(tools_to_use)} tools from BACKEND")
             else:
@@ -200,7 +201,7 @@ class IntelligentRouter:
             # STEP 11: Route to ZANTARA AI
             logger.info("🎯 [Router] Using ZANTARA AI")
 
-            if self.tool_manager.tool_executor and tools_to_use:
+            if self.tool_executor and tools_to_use:
                 logger.info(f"   Tool use: ENABLED ({len(tools_to_use)} tools)")
                 result = await self.ai.conversational_with_tools(
                     message=message,
@@ -208,7 +209,7 @@ class IntelligentRouter:
                     conversation_history=conversation_history,
                     memory_context=combined_context,
                     tools=tools_to_use,
-                    tool_executor=self.tool_manager.tool_executor,
+                    tool_executor=self.tool_executor,
                     max_tokens=8000,
                     max_tool_iterations=5
                 )
@@ -317,15 +318,7 @@ class IntelligentRouter:
                 None
             )
 
-            # STEP 7: Load tools and detect prefetch needs
-            await self.tool_manager.load_tools()
-            tool_needs = self.tool_manager.detect_tool_needs(message)
-
-            # STEP 8: Prefetch tool data if needed
-            if tool_needs["should_prefetch"] and self.tool_manager.tool_executor:
-                prefetched_context = await self._prefetch_tool_data(tool_needs)
-                if prefetched_context:
-                    combined_context = (combined_context or "") + prefetched_context
+            # STEP 7: Tools are used directly during AI call
 
             # STEP 9: Stream from ZANTARA AI
             logger.info("🎯 [Router Stream] Using ZANTARA AI with REAL token-by-token streaming")
@@ -371,14 +364,14 @@ class IntelligentRouter:
 
         memory_context = self.context_builder.build_memory_context(memory)
 
-        if self.tool_manager.tool_executor and tools_to_use:
+        if self.tool_executor and tools_to_use:
             result = await self.ai.conversational_with_tools(
                 message=message,
                 user_id=user_id,
                 conversation_history=conversation_history,
                 memory_context=memory_context,
                 tools=tools_to_use,
-                tool_executor=self.tool_manager.tool_executor,
+                tool_executor=self.tool_executor,
                 max_tokens=8000,
                 max_tool_iterations=5
             )
@@ -433,31 +426,7 @@ class IntelligentRouter:
 
         return None
 
-    async def _prefetch_tool_data(self, tool_needs: Dict) -> Optional[str]:
-        """Prefetch tool data before streaming (internal helper)"""
-        try:
-            tool_name = tool_needs["tool_name"]
-            tool_input = tool_needs["tool_input"]
-
-            logger.info(f"🚀 [Prefetch] Executing {tool_name} before streaming...")
-
-            tool_result = await self.tool_manager.tool_executor.execute_tool(
-                tool_name=tool_name,
-                tool_input=tool_input
-            )
-
-            if tool_result.get("success"):
-                prefetched_data = tool_result.get("result")
-                logger.info(f"✅ [Prefetch] Got data: {len(str(prefetched_data))} chars")
-
-                return f"\n\n<official_data_from_{tool_name}>\n{prefetched_data}\n</official_data_from_{tool_name}>\n"
-
-            logger.warning(f"⚠️ [Prefetch] Tool failed: {tool_result.get('error')}")
-
-        except Exception as e:
-            logger.error(f"❌ [Prefetch] Failed to execute {tool_name}: {e}")
-
-        return None
+    # _prefetch_tool_data method removed - tools are used directly during AI call
 
     def get_stats(self) -> Dict:
         """Get router statistics"""

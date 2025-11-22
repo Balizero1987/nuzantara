@@ -133,21 +133,20 @@ export class PerformanceMonitor {
   }
 
   /**
-   * Get all v3 Ω endpoint metrics
+   * Build metrics snapshot for all observed endpoints
    */
-  getV3Metrics(timeWindowMinutes: number = 60): { [endpoint: string]: AggregatedMetrics } {
-    const v3Endpoints = [
-      '/api/v3/zantara/unified',
-      '/api/v3/zantara/collective',
-      '/api/v3/zantara/ecosystem',
-      '/zantara.unified',
-      '/zantara.collective',
-      '/zantara.ecosystem',
-    ];
+  private getEndpointMetricsSnapshot(
+    timeWindowMinutes: number = 60
+  ): { [endpoint: string]: AggregatedMetrics } {
+    const now = Date.now();
+    const windowMs = timeWindowMinutes * 60 * 1000;
+
+    const recentEndpoints = new Set(
+      this.metrics.filter((m) => now - m.timestamp <= windowMs).map((m) => m.endpoint)
+    );
 
     const results: { [endpoint: string]: AggregatedMetrics } = {};
-
-    v3Endpoints.forEach((endpoint) => {
+    recentEndpoints.forEach((endpoint) => {
       results[endpoint] = this.getAggregatedMetrics(endpoint, timeWindowMinutes);
     });
 
@@ -158,16 +157,34 @@ export class PerformanceMonitor {
    * Get performance summary for dashboard
    */
   getPerformanceSummary(timeWindowMinutes: number = 60): any {
-    const v3Metrics = this.getV3Metrics(timeWindowMinutes);
+    const endpointMetrics = this.getEndpointMetricsSnapshot(timeWindowMinutes);
+    const endpoints = Object.keys(endpointMetrics);
 
-    const totalRequests = Object.values(v3Metrics).reduce((sum, m) => sum + m.totalRequests, 0);
+    if (endpoints.length === 0) {
+      return {
+        summary: {
+          totalRequests: 0,
+          averageResponseTime: 0,
+          cacheHitRate: 0,
+          errorRate: 0,
+          requestsPerMinute: 0,
+        },
+        endpoints: {},
+        domainPerformance: [],
+        alerts: [],
+        health: 100,
+        timestamp: Date.now(),
+      };
+    }
+
+    const metricsList = Object.values(endpointMetrics);
+
+    const totalRequests = metricsList.reduce((sum, m) => sum + m.totalRequests, 0);
     const avgResponseTime =
-      Object.values(v3Metrics).reduce((sum, m) => sum + m.averageResponseTime, 0) /
-      Object.keys(v3Metrics).length;
+      metricsList.reduce((sum, m) => sum + m.averageResponseTime, 0) / metricsList.length;
     const avgCacheHitRate =
-      Object.values(v3Metrics).reduce((sum, m) => sum + m.cacheHitRate, 0) /
-      Object.keys(v3Metrics).length;
-    const totalErrors = Object.values(v3Metrics).reduce(
+      metricsList.reduce((sum, m) => sum + m.cacheHitRate, 0) / metricsList.length;
+    const totalErrors = metricsList.reduce(
       (sum, m) => sum + m.errorRate * m.totalRequests,
       0
     );
@@ -182,13 +199,13 @@ export class PerformanceMonitor {
         cacheHitRate: Math.round(avgCacheHitRate * 100) / 100,
         errorRate: totalRequests > 0 ? Math.round((totalErrors / totalRequests) * 100) / 100 : 0,
         requestsPerMinute: Math.round(
-          Object.values(v3Metrics).reduce((sum, m) => sum + m.requestsPerMinute, 0)
+          metricsList.reduce((sum, m) => sum + m.requestsPerMinute, 0)
         ),
       },
-      endpoints: v3Metrics,
+      endpoints: endpointMetrics,
       domainPerformance,
       alerts: this.getActiveAlerts(),
-      health: this.calculateHealthScore(v3Metrics),
+      health: this.calculateHealthScore(endpointMetrics),
       timestamp: Date.now(),
     };
   }
@@ -236,7 +253,7 @@ export class PerformanceMonitor {
    */
   getActiveAlerts(): any[] {
     const alerts: any[] = [];
-    const v3Metrics = this.getV3Metrics(5); // Last 5 minutes
+    const v3Metrics = this.getEndpointMetricsSnapshot(5); // Last 5 minutes
 
     Object.entries(v3Metrics).forEach(([endpoint, metrics]) => {
       if (metrics.totalRequests > 0) {
@@ -365,30 +382,31 @@ export class PerformanceMonitor {
    * Get metrics for Prometheus
    */
   getPrometheusMetrics(): string {
-    const v3Metrics = this.getV3Metrics(5); // Last 5 minutes
+    const v3Metrics = this.getEndpointMetricsSnapshot(5); // Last 5 minutes
 
     let prometheusText = '';
 
     Object.entries(v3Metrics).forEach(([endpoint, metrics]) => {
+      const metricsTyped = metrics as any;
       // Response time metrics
       prometheusText += `# HELP zantara_response_time_seconds Response time in seconds\n`;
       prometheusText += `# TYPE zantara_response_time_seconds gauge\n`;
-      prometheusText += `zantara_response_time_seconds{endpoint="${endpoint}"} ${metrics.averageResponseTime / 1000}\n`;
+      prometheusText += `zantara_response_time_seconds{endpoint="${endpoint}"} ${metricsTyped.averageResponseTime / 1000}\n`;
 
       // Request count metrics
       prometheusText += `# HELP zantara_requests_total Total number of requests\n`;
       prometheusText += `# TYPE zantara_requests_total counter\n`;
-      prometheusText += `zantara_requests_total{endpoint="${endpoint}"} ${metrics.totalRequests}\n`;
+      prometheusText += `zantara_requests_total{endpoint="${endpoint}"} ${metricsTyped.totalRequests}\n`;
 
       // Cache hit rate metrics
       prometheusText += `# HELP zantara_cache_hit_rate Cache hit rate ratio\n`;
       prometheusText += `# TYPE zantara_cache_hit_rate gauge\n`;
-      prometheusText += `zantara_cache_hit_rate{endpoint="${endpoint}"} ${metrics.cacheHitRate}\n`;
+      prometheusText += `zantara_cache_hit_rate{endpoint="${endpoint}"} ${metricsTyped.cacheHitRate}\n`;
 
       // Error rate metrics
       prometheusText += `# HELP zantara_error_rate Error rate ratio\n`;
       prometheusText += `# TYPE zantara_error_rate gauge\n`;
-      prometheusText += `zantara_error_rate{endpoint="${endpoint}"} ${metrics.errorRate}\n`;
+      prometheusText += `zantara_error_rate{endpoint="${endpoint}"} ${metricsTyped.errorRate}\n`;
     });
 
     return prometheusText;

@@ -1,6 +1,6 @@
 """
 Re-ranker Service for improved retrieval quality
-Uses Cross-Encoder to re-rank ChromaDB results by semantic relevance
+Uses Cross-Encoder to re-rank Qdrant results by semantic relevance
 
 OPTIMIZATIONS:
 - Query similarity caching (cache reranker results for similar queries)
@@ -33,7 +33,7 @@ class RerankerService:
     Cross-Encoder re-ranker for semantic search results
 
     Improves retrieval quality by:
-    1. Over-fetching candidates from ChromaDB (n=20)
+    1. Over-fetching candidates from Qdrant (n=20)
     2. Re-ranking by TRUE semantic relevance (not just vector distance)
     3. Returning top-K results (n=5)
 
@@ -161,7 +161,7 @@ class RerankerService:
 
         Args:
             query: User query string
-            documents: List of document dicts from ChromaDB
+            documents: List of document dicts from Qdrant
                       Each doc must have 'text' or 'document' field
             top_k: Number of top results to return (default: 5)
 

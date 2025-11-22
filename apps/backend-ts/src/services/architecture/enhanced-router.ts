@@ -213,7 +213,7 @@ class EnhancedRouter {
           error: error instanceof Error ? error.message : String(error),
         });
 
-        logger.error(`Route ${key} failed:`, error);
+        logger.error(`Route ${key} failed:`, error instanceof Error ? error : new Error(String(error)));
 
         res.status(500).json({
           ok: false,
@@ -243,7 +243,7 @@ class EnhancedRouter {
         });
         return result;
       } catch (error) {
-        logger.error(`❌ Internal handler failed: ${serviceName}`, error);
+        logger.error(`❌ Internal handler failed: ${serviceName}`, error instanceof Error ? error : new Error(String(error)));
         throw error;
       }
     }

@@ -250,7 +250,7 @@ export class ZantaraOrchestrator {
           sources: data.sources || [],
         };
       } catch (error) {
-        logger.error(`Agent ${agentName} failed:`, error);
+        logger.error(`Agent ${agentName} failed:`, error instanceof Error ? error : new Error(String(error)));
         return null;
       }
     });

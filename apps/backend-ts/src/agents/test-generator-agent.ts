@@ -218,7 +218,7 @@ export class TestGeneratorAgent {
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`❌ Test generation failed for ${filePath}`, { error: errorMessage });
+      logger.error(`❌ Test generation failed for ${filePath}`, error instanceof Error ? error : new Error(errorMessage));
 
       return {
         success: false,

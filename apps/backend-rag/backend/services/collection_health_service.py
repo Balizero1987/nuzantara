@@ -1,7 +1,7 @@
 """
 Collection Health Monitor - Phase 3
 
-Monitors the health and quality of all ChromaDB collections:
+Monitors the health and quality of all Qdrant collections:
 - Last update timestamps
 - Document counts
 - Query hit rates
@@ -55,7 +55,7 @@ class CollectionMetrics:
 
 class CollectionHealthService:
     """
-    Monitors and reports on ChromaDB collection health.
+    Monitors and reports on Qdrant collection health.
 
     Tracks:
     - Collection usage patterns
@@ -327,7 +327,7 @@ class CollectionHealthService:
 
         Args:
             collection_name: Collection to check
-            document_count: Optional document count (from ChromaDB)
+            document_count: Optional document count (from Qdrant)
             last_updated: Optional last update timestamp
 
         Returns:
@@ -346,7 +346,7 @@ class CollectionHealthService:
                 health_status=HealthStatus.CRITICAL,
                 staleness=StalenessSeverity.VERY_STALE,
                 issues=["Collection not found"],
-                recommendations=["Check collection exists in ChromaDB"]
+                recommendations=["Check collection exists in Qdrant"]
             )
 
         metrics = self.metrics[collection_name]

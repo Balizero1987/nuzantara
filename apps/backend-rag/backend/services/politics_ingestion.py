@@ -143,7 +143,7 @@ if __name__ == "__main__":
     import argparse
 
     logging.basicConfig(level=logging.INFO)
-    parser = argparse.ArgumentParser(description="Ingest Indonesian politics KB into ChromaDB")
+    parser = argparse.ArgumentParser(description="Ingest Indonesian politics KB into Qdrant")
     parser.add_argument("--kb-root", type=str, required=False,
                         default=str(Path(__file__).parent.parent / "kb" / "politics" / "id"))
     parser.add_argument("--chroma", type=str, required=False, default="/tmp/chroma_db")

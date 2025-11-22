@@ -2,7 +2,6 @@
 // Ensures ZANTARA remains grounded in verifiable reality
 
 import logger from './logger.js';
-import { getFirestore } from './firebase.js';
 // import { AntiHallucinationSystem } from "./anti-hallucination.js"; // Not used
 
 interface RealityCheck {
@@ -131,7 +130,7 @@ export class RealityAnchorSystem {
     }
 
     // Cross-reference with historical data
-    const historicalCheck = await this.crossReferenceHistory(claim, context);
+    const historicalCheck = await this.crossReferenceHistory(claim, context); // context passed but not used in method (Firestore removed)
     if (historicalCheck.discrepancies > 0) {
       contradictions.push(`${historicalCheck.discrepancies} historical discrepancies found`);
       realityScore *= 0.8;
@@ -244,31 +243,13 @@ export class RealityAnchorSystem {
    * Cross-reference with historical data
    */
   private async crossReferenceHistory(
-    claim: string,
-    context: string
+    _claim: string,
+    _context: string
   ): Promise<{ discrepancies: number; details: string[] }> {
     const discrepancies: string[] = [];
 
-    try {
-      const db = getFirestore();
-
-      // Check recent similar claims
-      const recentClaims = await db
-        .collection('verified_facts')
-        .where('context', '==', context)
-        .orderBy('created_at', 'desc')
-        .limit(10)
-        .get();
-
-      recentClaims.forEach((doc) => {
-        const data = doc.data();
-        if (this.claimContradictsTruth(claim, data.fact)) {
-          discrepancies.push(`Contradicts previous: ${data.fact}`);
-        }
-      });
-    } catch (error) {
-      logger.info('📝 Using local history only');
-    }
+    // Firestore removed - using local cache only
+    // TODO: If persistence needed, use PostgreSQL
 
     return {
       discrepancies: discrepancies.length,
@@ -360,18 +341,10 @@ export class RealityAnchorSystem {
     output: any,
     wasSuccessful: boolean
   ): Promise<void> {
+    // Firestore removed - learning now uses local cache only
+    // TODO: If persistence needed, use PostgreSQL
     try {
-      const db = getFirestore();
-
-      await db.collection('reality_learning').add({
-        handler,
-        input,
-        output,
-        success: wasSuccessful,
-        reality_score: output.reality_anchor?.score || 0,
-        timestamp: new Date(),
-        learned_patterns: this.extractPatterns(input, output),
-      });
+      logger.debug('Reality learning (local cache only)', { handler, wasSuccessful });
 
       // Update verification cache
       if (wasSuccessful && output.reality_anchor?.score > 0.8) {
@@ -388,23 +361,7 @@ export class RealityAnchorSystem {
     }
   }
 
-  /**
-   * Extract patterns for learning
-   */
-  private extractPatterns(input: any, output: any): string[] {
-    const patterns: string[] = [];
-
-    // Input patterns
-    if (input.service) patterns.push(`service:${input.service}`);
-    if (input.type) patterns.push(`type:${input.type}`);
-    if (input.urgency) patterns.push(`urgency:${input.urgency}`);
-
-    // Output patterns
-    if (output.ok) patterns.push('success:true');
-    if (output.error) patterns.push(`error:${output.error}`);
-
-    return patterns;
-  }
+  // extractPatterns method removed - not used after Firestore cleanup
 
   /**
    * Get reality report

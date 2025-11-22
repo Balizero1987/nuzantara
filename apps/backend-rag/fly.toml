@@ -1,0 +1,43 @@
+# ZANTARA RAG Backend - Fly.io Configuration
+app = "nuzantara-rag"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile.fly"
+
+[[mounts]]
+  source = "nuzantara_rag_data"
+  destination = "/data"
+
+[env]
+  EMBEDDING_PROVIDER = "openai"
+  QDRANT_URL = "https://nuzantara-qdrant.fly.dev"
+  LOG_LEVEL = "INFO"
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 250
+    soft_limit = 200
+
+  [[http_service.checks]]
+    interval = "10s"
+    timeout = "5s"
+    grace_period = "120s"
+    method = "GET"
+    path = "/healthz"
+
+[[vm]]
+  memory = "4gb"
+  cpu_kind = "shared"
+  cpus = 2
+
+[deploy]
+  strategy = "rolling"

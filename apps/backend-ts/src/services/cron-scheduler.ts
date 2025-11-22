@@ -67,7 +67,7 @@ export class CronScheduler {
         logger.info('Refactoring Agent Stats:', refactoringAgent.getStats());
 
       } catch (error) {
-        logger.error('❌ Daily refactoring job failed', { error });
+        logger.error('❌ Daily refactoring job failed', error instanceof Error ? error : new Error(String(error)));
       }
     });
 
@@ -107,7 +107,7 @@ export class CronScheduler {
         logger.info('Test Generator Stats:', testGenerator.getStats());
 
       } catch (error) {
-        logger.error('❌ Daily test generation job failed', { error });
+        logger.error('❌ Daily test generation job failed', error instanceof Error ? error : new Error(String(error)));
       }
     });
 
@@ -135,7 +135,7 @@ export class CronScheduler {
         }
 
       } catch (error) {
-        logger.error('❌ Health check failed', { error });
+        logger.error('❌ Health check failed', error instanceof Error ? error : new Error(String(error)));
       }
     });
 
@@ -181,7 +181,7 @@ export class CronScheduler {
           logger.info(`✅ Cron job completed: ${name} (${duration}ms)`);
         } catch (error) {
           const duration = Date.now() - startTime;
-          logger.error(`❌ Cron job failed: ${name} (${duration}ms)`, { error });
+          logger.error(`❌ Cron job failed: ${name} (${duration}ms)`, error instanceof Error ? error : new Error(String(error)));
         }
       },
       {

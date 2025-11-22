@@ -100,7 +100,7 @@ export class ZantaraWebSocketServer {
 
     // Handle errors
     client.on('error', (error) => {
-      logger.error(`❌ WebSocket error (${clientId}):`, error);
+      logger.error(`❌ WebSocket error (${clientId}):`, error instanceof Error ? error : new Error(String(error)));
     });
   }
 
@@ -137,7 +137,7 @@ export class ZantaraWebSocketServer {
           logger.warn(`⚠️ Unknown message type: ${message.type}`);
       }
     } catch (error) {
-      logger.error('❌ Error handling WebSocket message:', error);
+      logger.error('❌ Error handling WebSocket message:', error instanceof Error ? error : new Error(String(error)));
       this.sendToClient(client, {
         type: 'message',
         channel: 'error',

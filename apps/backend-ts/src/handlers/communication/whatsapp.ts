@@ -97,7 +97,7 @@ export async function whatsappWebhookReceiver(req: any, res: any) {
       }
     }
   } catch (error) {
-    logger.error('❌ WhatsApp Webhook Error:', error);
+    logger.error('❌ WhatsApp Webhook Error:', error instanceof Error ? error : new Error(String(error)));
     // Still return 200 to Meta to avoid retries
   }
 }
@@ -197,7 +197,7 @@ async function handleIncomingMessage(value: any) {
       });
     }
   } catch (error) {
-    logger.error('❌ Error handling incoming message:', error);
+    logger.error('❌ Error handling incoming message:', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -237,12 +237,12 @@ async function saveMessageToMemory(data: any) {
 
     logger.info('💾 Message saved to memory:', data.userId);
   } catch (error) {
-    logger.error('❌ Error saving to memory:', error);
+    logger.error('❌ Error saving to memory:', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
 /**
- * Analyze sentiment using Claude Haiku
+ * Analyze sentiment using the OpenRouter stack
  */
 async function analyzeSentiment(
   text: string
@@ -260,7 +260,7 @@ Message: "${text}"`;
     const response = await aiChat({
       prompt,
       max_tokens: 100,
-      model: 'claude-3-5-haiku-20241022',
+      model: 'meta-llama/llama-3.3-70b-instruct',
     });
 
     const responseData: any = response.data || response;
@@ -271,7 +271,7 @@ Message: "${text}"`;
     );
     return result;
   } catch (error) {
-    logger.error('❌ Sentiment analysis error:', error);
+    logger.error('❌ Sentiment analysis error:', error instanceof Error ? error : new Error(String(error)));
     return { score: 5, label: 'neutral', urgency: 'low' };
   }
 }
@@ -329,7 +329,7 @@ async function updateGroupContext(
 
     logger.info(`📊 Group context updated: ${groupName} (${context.members.size} members)`);
   } catch (error) {
-    logger.error('❌ Error updating group context:', error);
+    logger.error('❌ Error updating group context:', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -449,7 +449,7 @@ async function sendIntelligentResponse(to: string, userMessage: string, context:
     const aiResponse = await aiChat({
       prompt,
       max_tokens: 300,
-      model: 'claude-3-5-haiku-20241022',
+      model: 'meta-llama/llama-3.3-70b-instruct',
     });
 
     const responseData: any = aiResponse.data || aiResponse;
@@ -463,7 +463,7 @@ async function sendIntelligentResponse(to: string, userMessage: string, context:
 
     logger.info(`✅ Response sent to ${context.userName}`);
   } catch (error) {
-    logger.error('❌ Error sending intelligent response:', error);
+    logger.error('❌ Error sending intelligent response:', error instanceof Error ? error : new Error(String(error)));
   }
 }
 
@@ -542,7 +542,7 @@ async function checkAndSendAlerts(params: any) {
     try {
       await sendTeamAlert(alert);
     } catch (error) {
-      logger.error('❌ Failed to send team alert:', error);
+      logger.error('❌ Failed to send team alert:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 }

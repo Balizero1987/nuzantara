@@ -7,7 +7,7 @@ from typing import Dict, List
 import logging
 import re
 
-from ..app.models import TierLevel
+from app.models import TierLevel
 
 logger = logging.getLogger(__name__)
 

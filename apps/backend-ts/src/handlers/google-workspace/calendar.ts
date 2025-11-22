@@ -1,6 +1,5 @@
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
-import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
 import { getCalendar } from '../../services/google-auth-service.js';
 
 // Using centralized Google authentication service
@@ -63,7 +62,6 @@ export async function calendarList(params: CalendarListParams) {
     });
     return ok({ events: res.data.items || [] });
   }
-  const bridged = await forwardToBridgeIfSupported('calendar.list', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Calendar not configured');
 }
@@ -102,7 +100,6 @@ export async function calendarCreate(params: CalendarCreateParams) {
     const res = await cal.events.insert({ calendarId, requestBody });
     return ok({ event: res.data });
   }
-  const bridged = await forwardToBridgeIfSupported('calendar.create', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Calendar not configured');
 }
@@ -126,7 +123,6 @@ export async function calendarGet(params: CalendarGetParams) {
       throw error;
     }
   }
-  const bridged = await forwardToBridgeIfSupported('calendar.get', params as any);
   if (bridged) return bridged;
   throw new BadRequestError('Calendar not configured');
 }

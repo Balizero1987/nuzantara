@@ -288,7 +288,7 @@ export async function kbliLookup(req: Request, res: Response) {
       },
     });
   } catch (error: any) {
-    logger.error('kbli.lookup error:', error);
+    logger.error('kbli.lookup error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to lookup KBLI code',
@@ -352,7 +352,7 @@ export async function kbliRequirements(req: Request, res: Response) {
       },
     });
   } catch (error: any) {
-    logger.error('kbli.requirements error:', error);
+    logger.error('kbli.requirements error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to get KBLI requirements',

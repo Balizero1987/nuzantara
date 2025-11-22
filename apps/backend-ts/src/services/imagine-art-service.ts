@@ -74,7 +74,7 @@ export class ImagineArtService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        logger.error('🔥 Imagine.art API error:', { status: response.status, error: errorText });
+        logger.error('🔥 Imagine.art API error:', new Error(`Status: ${response.status} - ${errorText}`));
         throw new Error(`Imagine.art API error: ${response.status} - ${errorText}`);
       }
 
@@ -166,10 +166,7 @@ export class ImagineArtService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        logger.error('🔥 Imagine.art upscale error:', {
-          status: response.status,
-          error: errorText,
-        });
+        logger.error('🔥 Imagine.art upscale error:', new Error(`Status: ${response.status} - ${errorText}`));
         throw new Error(`Imagine.art upscale error: ${response.status} - ${errorText}`);
       }
 
@@ -238,7 +235,7 @@ export class ImagineArtService {
 
       return true;
     } catch (error) {
-      logger.error('🔥 Imagine.art connection test failed:', error);
+      logger.error('🔥 Imagine.art connection test failed:', error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   }
