@@ -40,7 +40,7 @@ import { attachRoutes } from './routing/router.js';
 // import { loadAllHandlers } from './core/load-all-handlers.js';
 import { applySecurity, globalRateLimiter } from './middleware/security.middleware.js';
 import { corsMiddleware } from './middleware/cors.js';
-import { generateCsrfToken, validateCsrfToken } from './middleware/csrf.js';
+import { generateCsrfToken, validateCsrfToken, csrfRoutes } from './middleware/csrf.js';
 import { setupWebSocket } from './websocket.js';
 import { metricsMiddleware, metricsHandler } from './middleware/observability.middleware.js';
 import { initializeRedis } from './middleware/cache.middleware.js';
@@ -175,6 +175,9 @@ async function startServer() {
 
   // Enhanced health check routes (replaces old /health)
   app.use(healthRoutes);
+
+  // CSRF token endpoint (must be before auth routes)
+  app.use('/api', csrfRoutes);
 
   // 🚀 PERFORMANCE MONITORING: Add performance monitoring routes
   app.use('/performance', performanceRoutes);
