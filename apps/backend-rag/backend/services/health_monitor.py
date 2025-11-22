@@ -87,7 +87,7 @@ class HealthMonitor:
         tool_executor = None  # TODO: Add to dependencies
 
         current_status = {
-            "chromadb": await self._check_chromadb(search_service),
+            "qdrant": await self._check_qdrant(search_service),
             "postgresql": await self._check_postgresql(memory_service),
             "ai_router": await self._check_ai_router(intelligent_router),
             "tools": tool_executor is not None  # Simple check for optional service
@@ -150,7 +150,7 @@ class HealthMonitor:
 
         logger.info(f"✅ ALERT SENT: {service_name} RECOVERED")
 
-    async def _check_chromadb(self, search_service) -> bool:
+    async def _check_qdrant(self, search_service) -> bool:
         """Check if Qdrant is actually working"""
         if search_service is None:
             return False
