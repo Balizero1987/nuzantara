@@ -5,24 +5,9 @@ Auto-discovers and exposes all available handlers/tools for ZANTARA
 from fastapi import APIRouter, HTTPException
 from typing import Dict, List, Any
 import inspect
-from app.routers import (
-    agents,
-    conversations,
-    crm_clients,
-    crm_interactions,
-    crm_practices,
-    health,
-    ingest,
-    intel,
-    memory_vector,
-    notifications,
-    oracle_universal,
-    search,
-    productivity
-)
 
+# Initialize Router
 router = APIRouter(prefix="/api/handlers", tags=["handlers"])
-
 
 def extract_handlers_from_router(module) -> List[Dict[str, Any]]:
     """Extract all route handlers from a router module"""
@@ -41,13 +26,28 @@ def extract_handlers_from_router(module) -> List[Dict[str, Any]]:
     
     return handlers
 
-
 @router.get("/list")
 async def list_all_handlers():
     """
     Returns complete registry of all available handlers
     This is the master catalog that ZANTARA uses to see all available tools
     """
+    # Lazy import to avoid circular dependencies
+    from app.routers import (
+        agents,
+        conversations,
+        crm_clients,
+        crm_interactions,
+        crm_practices,
+        health,
+        ingest,
+        intel,
+        memory_vector,
+        notifications,
+        oracle_universal,
+        search,
+        productivity
+    )
     
     modules = [
         agents,

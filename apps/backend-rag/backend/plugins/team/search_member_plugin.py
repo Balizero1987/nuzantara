@@ -75,23 +75,21 @@ class TeamMemberSearchPlugin(Plugin):
 
             logger.info(f"👥 Team search: query={query}")
 
-            # Search in TEAM_DATABASE by name only
-            results = []
-            for email, data in self.collaborator_service.TEAM_DATABASE.items():
-                name = data.get("name", "").lower()
+            profiles = self.collaborator_service.search_members(query)
 
-                # Match by full name or partial match
-                if query in name or name.startswith(query):
-                    results.append(
-                        {
-                            "name": data["name"],
-                            "email": email,
-                            "role": data["role"],
-                            "department": data["department"],
-                            "expertise_level": data["expertise_level"],
-                            "language": data["language"],
-                        }
-                    )
+            results = [
+                {
+                    "name": profile.name,
+                    "email": profile.email,
+                    "role": profile.role,
+                    "department": profile.department,
+                    "expertise_level": profile.expertise_level,
+                    "language": profile.language,
+                    "traits": profile.traits,
+                    "notes": profile.notes,
+                }
+                for profile in profiles
+            ]
 
             if not results:
                 return TeamSearchOutput(

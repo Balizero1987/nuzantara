@@ -203,11 +203,13 @@ export async function getDrive() {
         logger.info('🔍 Verifying OAuth2 Drive scopes...');
         return service;
       } catch (error: any) {
-        logger.error('🔴 OAuth2 Drive service failed:', {
+        const errorObj = error instanceof Error ? error : new Error(String(error));
+        logger.error('🔴 OAuth2 Drive service failed:', errorObj);
+        logger.error('🔴 OAuth2 Drive service details:', undefined, {
           error: error.message,
           code: error.code,
           details: error?.response?.data || error?.errors,
-        });
+        } as any);
         throw error;
       }
     }

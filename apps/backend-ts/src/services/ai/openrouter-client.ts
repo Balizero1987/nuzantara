@@ -19,9 +19,7 @@ export type OpenRouterModel =
   | 'deepseek/deepseek-coder' // FREE - Best for code review
   | 'qwen/qwen-2.5-72b-instruct' // FREE - Best for test generation
   | 'mistralai/mistral-7b-instruct' // FREE - Fast for chat
-  | 'anthropic/claude-3.5-haiku' // $0.25/M - Fast, economical
-  | 'anthropic/claude-3.5-sonnet' // $3/M - Premium quality
-  | 'openai/gpt-4-turbo'; // $2.50/M - General purpose
+  | 'openai/gpt-4-turbo'; // Premium fallback
 
 export interface OpenRouterMessage {
   role: 'user' | 'assistant' | 'system';
@@ -175,11 +173,7 @@ export class OpenRouterClient {
         if (errorRate > this.circuitBreakerThreshold && this.rateLimitState.callsThisHour > 10) {
           this.isCircuitOpen = true;
           this.circuitOpenTime = Date.now();
-          logger.error('🚨 Circuit breaker opened due to high error rate', {
-            errorRate: `${(errorRate * 100).toFixed(1)}%`,
-            errorCount: this.rateLimitState.errorCount,
-            totalCalls: this.rateLimitState.callsThisHour
-          });
+          logger.error(`🚨 Circuit breaker opened due to high error rate: ${(errorRate * 100).toFixed(1)}% (${this.rateLimitState.errorCount} errors / ${this.rateLimitState.callsThisHour} calls)`);
           throw new Error('Circuit breaker opened - too many errors');
         }
 
@@ -253,11 +247,7 @@ export class OpenRouterClient {
     // Check budget
     if (this.costToday >= this.dailyBudget) {
       const hoursUntilReset = Math.ceil((24 * 60 * 60 * 1000 - dayElapsed) / 1000 / 60 / 60);
-      logger.error('🚨 Daily budget exceeded', {
-        spent: `$${this.costToday.toFixed(2)}`,
-        budget: `$${this.dailyBudget}`,
-        resetIn: `${hoursUntilReset}h`
-      });
+      logger.error(`🚨 Daily budget exceeded: $${this.costToday.toFixed(2)} / $${this.dailyBudget} (reset in ${hoursUntilReset}h)`);
       throw new Error(
         `Daily budget exceeded: $${this.costToday.toFixed(2)}/$${this.dailyBudget}. Reset in ${hoursUntilReset}h.`
       );
@@ -302,10 +292,12 @@ export class OpenRouterClient {
     } catch (error) {
       this.rateLimitState.errorCount++;
       if (error instanceof AxiosError) {
-        logger.error('OpenRouter streaming error', {
+        const errorObj = error instanceof Error ? error : new Error(String(error));
+        logger.error('OpenRouter streaming error', errorObj);
+        logger.error('OpenRouter streaming details', undefined, {
           status: error.response?.status,
           message: error.response?.data?.error?.message || error.message
-        });
+        } as any);
       }
       throw error;
     }
@@ -352,7 +344,7 @@ export class OpenRouterClient {
       'code-review': 'deepseek/deepseek-coder', // FREE, specialized
       'refactoring': 'meta-llama/llama-3.3-70b-instruct', // FREE, powerful
       'testing': 'qwen/qwen-2.5-72b-instruct', // FREE, precise
-      'prediction': 'anthropic/claude-3.5-haiku', // $0.25/M, fast
+      'prediction': 'meta-llama/llama-3.3-70b-instruct',
       'chat': 'mistralai/mistral-7b-instruct', // FREE, fast
       'documentation': 'meta-llama/llama-3.3-70b-instruct' // FREE, good for text
     };
@@ -373,8 +365,6 @@ export class OpenRouterClient {
       'deepseek/deepseek-coder': { prompt: 0, completion: 0 },
       'qwen/qwen-2.5-72b-instruct': { prompt: 0, completion: 0 },
       'mistralai/mistral-7b-instruct': { prompt: 0, completion: 0 },
-      'anthropic/claude-3.5-haiku': { prompt: 0.25, completion: 1.25 },
-      'anthropic/claude-3.5-sonnet': { prompt: 3, completion: 15 },
       'openai/gpt-4-turbo': { prompt: 2.5, completion: 10 }
     };
 

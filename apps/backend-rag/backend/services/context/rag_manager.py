@@ -1,6 +1,6 @@
 """
 RAG Manager Module
-Handles ChromaDB search and result formatting
+Handles Qdrant search and result formatting
 """
 
 import logging
@@ -14,7 +14,7 @@ class RAGManager:
     RAG Manager for retrieval-augmented generation
 
     Handles:
-    - ChromaDB document search
+    - Qdrant document search
     - Result formatting and truncation
     - Context string building
     """
@@ -24,7 +24,7 @@ class RAGManager:
         Initialize RAG manager
 
         Args:
-            search_service: SearchService instance for ChromaDB queries
+            search_service: SearchService instance for Qdrant queries
         """
         self.search = search_service
         logger.info(f"🔍 [RAGManager] Initialized (search: {'✅' if search_service else '❌'})")
@@ -72,7 +72,7 @@ class RAGManager:
         try:
             logger.info(f"🔍 [RAGManager] Fetching context for {query_type} query")
 
-            # Retrieve relevant documents from ChromaDB
+            # Retrieve relevant documents from Qdrant
             search_results = await self.search.search(
                 query=query,
                 user_level=user_level,

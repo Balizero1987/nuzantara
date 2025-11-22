@@ -140,9 +140,9 @@ class SpecializedServiceRouter:
 
             return {
                 "response": research_result.final_answer,
-                "ai_used": "haiku",
+                "ai_used": "zantara",
                 "category": "autonomous_research",
-                "model": "claude-haiku-4.5",
+                "model": "zantara-ai",
                 "tokens": {"input": 0, "output": 0},
                 "used_rag": True,
                 "autonomous_research": {
@@ -228,9 +228,9 @@ class SpecializedServiceRouter:
 
             return {
                 "response": synthesis_result.synthesis,
-                "ai_used": "haiku",
+                "ai_used": "zantara",
                 "category": "cross_oracle_synthesis",
-                "model": "claude-haiku-4.5",
+                "model": "zantara-ai",
                 "tokens": {"input": 0, "output": 0},
                 "used_rag": True,
                 "cross_oracle_synthesis": {

@@ -38,9 +38,6 @@ import translateRoutes from './communication/translate.routes.js';
 // Analytics Routes
 import analyticsRoutes from './analytics/analytics.routes.js';
 
-// RAG Management Routes
-import ragRoutes from './rag.routes.js';
-
 // ZANTARA V4.0 Persistent Memory Routes
 import persistentMemoryRoutes from './persistent-memory.routes.js';
 
@@ -73,13 +70,10 @@ export function attachModularRoutes(app: Express) {
   // Analytics
   app.use('/api/analytics', analyticsRoutes);
 
-  // RAG Management
-  app.use('/api/rag', ragRoutes);
-
   // ZANTARA V4.0 Persistent Memory
   app.use('/api/persistent-memory', persistentMemoryRoutes);
 
-  logger.info('✅ Modular routes attached (including RAG and Persistent Memory)');
+  logger.info('✅ Modular routes attached (including Persistent Memory)');
 }
 
 /**
@@ -87,7 +81,7 @@ export function attachModularRoutes(app: Express) {
  */
 export function getRouteStats() {
   return {
-    totalModules: 13, // Update as routes are added
+    totalModules: 12, // Update as routes are added
     implemented: [
       'gmail',
       'drive',

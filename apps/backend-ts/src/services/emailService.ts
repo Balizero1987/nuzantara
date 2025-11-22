@@ -114,7 +114,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
       };
     }
   } catch (error: any) {
-    logger.error('Email send error:', error);
+    logger.error('Email send error:', error instanceof Error ? error : new Error(String(error)));
     return {
       success: false,
       error: error.message || 'Failed to send email',
@@ -182,7 +182,7 @@ async function sendViaSendGrid(
       messageId: `sendgrid-${Date.now()}`,
     };
   } catch (error: any) {
-    logger.error('SendGrid email error:', error);
+    logger.error('SendGrid email error:', error instanceof Error ? error : new Error(String(error)));
     return {
       success: false,
       error: error.message,
@@ -238,7 +238,7 @@ export async function sendPasswordResetEmail(
           error: result.error || 'Failed to send password reset email',
         };
   } catch (error: any) {
-    logger.error('Error sending password reset email:', error);
+    logger.error('Error sending password reset email:', error instanceof Error ? error : new Error(String(error)));
     return {
       success: false,
       error: error.message || 'Failed to send password reset email',

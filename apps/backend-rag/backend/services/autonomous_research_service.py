@@ -1,7 +1,7 @@
 """
 Autonomous Research Agent - Phase 4 (Advanced Agent)
 
-Self-directed research agent that iteratively explores ChromaDB collections
+Self-directed research agent that iteratively explores Qdrant collections
 to answer complex or ambiguous queries without human intervention.
 
 Example: "How to open a crypto company in Indonesia?"
@@ -56,7 +56,7 @@ class ResearchResult:
 
 class AutonomousResearchService:
     """
-    Autonomous research agent that explores collections iteratively.
+    Autonomous research agent that explores Qdrant collections iteratively.
 
     The agent:
     1. Starts with initial query
@@ -65,7 +65,7 @@ class AutonomousResearchService:
     4. Expands query based on findings
     5. Searches additional collections
     6. Repeats until confident or max iterations
-    7. Synthesizes findings into final answer
+    7. Synthesizes findings into final answer using ZANTARA AI
     """
 
     MAX_ITERATIONS = 5  # Safety limit
@@ -76,7 +76,7 @@ class AutonomousResearchService:
         self,
         search_service,
         query_router,
-        claude_sonnet_service
+        zantara_ai_service
     ):
         """
         Initialize Autonomous Research Agent.
@@ -84,11 +84,11 @@ class AutonomousResearchService:
         Args:
             search_service: SearchService for collection queries
             query_router: QueryRouter for collection selection
-            claude_sonnet_service: Claude Sonnet for synthesis
+            zantara_ai_service: ZANTARA AI for synthesis
         """
         self.search = search_service
         self.router = query_router
-        self.claude = claude_sonnet_service
+        self.zantara = zantara_ai_service
 
         self.research_stats = {
             "total_researches": 0,
@@ -387,10 +387,9 @@ Format:
 """
 
         try:
-            response = await self.claude.conversational(
+            response = await self.zantara.conversational(
                 message=prompt,
                 user_id="autonomous_research",
-                context=None,
                 conversation_history=[],
                 max_tokens=1000
             )

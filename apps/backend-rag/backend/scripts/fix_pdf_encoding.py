@@ -5,7 +5,7 @@ This script:
 1. Finds all PDF files in kb/ directory
 2. Extracts text using PyMuPDF (handles binary encoding issues)
 3. Saves clean UTF-8 text as .txt files
-4. Ready for re-ingestion into ChromaDB
+4. Ready for re-ingestion into Qdrant
 
 Usage:
     cd /path/to/backend
@@ -94,7 +94,7 @@ def fix_pdf_encoding():
         print(f"\n📋 PROSSIMI STEP:")
         print(f"1. Verifica i file .txt generati:")
         print(f"   ls -lh {kb_dir}/*.txt")
-        print(f"\n2. (Opzionale) Backup ChromaDB esistente:")
+        print(f"\n2. (Opzionale) Backup Qdrant esistente:")
         print(f"   cp -r chroma_db chroma_db.backup_$(date +%Y%m%d_%H%M%S)")
         print(f"\n3. Re-ingest la knowledge base:")
         print(f"   python scripts/run_ingestion.py")

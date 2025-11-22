@@ -35,7 +35,7 @@ export function generateCsrfToken(req: Request, res: Response, next: NextFunctio
 
     next();
   } catch (error) {
-    logger.error('CSRF token generation error:', error);
+    logger.error('CSRF token generation error:', error instanceof Error ? error : new Error(String(error)));
     next(error);
   }
 }
@@ -98,7 +98,7 @@ export function validateCsrfToken(req: Request, res: Response, next: NextFunctio
 
     next();
   } catch (error) {
-    logger.error('CSRF validation error:', error);
+    logger.error('CSRF validation error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({ ok: false, error: 'CSRF validation failed' });
   }
 }

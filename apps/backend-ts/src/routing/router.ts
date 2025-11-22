@@ -7,18 +7,17 @@ import { apiKeyAuth, RequestWithCtx } from '../middleware/auth.js';
 import { jwtAuth, RequestWithJWT } from '../middleware/jwt-auth.js';
 import { demoUserAuth, RequestWithDemo } from '../middleware/demo-user-auth.js';
 import { ForbiddenError, BadRequestError, UnauthorizedError } from '../utils/errors.js';
-import { forwardToBridgeIfSupported } from '../services/bridgeProxy.js';
+// Bridge proxy removed - all handlers use direct implementations
 
 // Create Express router
 const router = express.Router();
 
 // === MODULE-FUNCTIONAL IMPORTS (Auto-organized by domain) ===
 
-// Identity & Onboarding
-import { identityResolve, onboardingStart } from '../handlers/identity/identity.js';
+// Identity & Onboarding - removed legacy modules
 
 // Team Authentication
-import { teamLogin, getTeamMembers, logoutSession } from '../handlers/auth/team-login.js';
+import { logoutSession, teamLogin, getTeamMembers } from '../handlers/auth/team-login.js';
 import {
   teamLoginSecure,
   verifyToken,
@@ -66,18 +65,6 @@ import { teamRecentActivity } from '../handlers/bali-zero/team-activity.js';
 
 // ZANTARA Collaborative Intelligence
 import {
-  zantaraPersonalityProfile,
-  zantaraAttune,
-  zantaraSynergyMap,
-  zantaraAnticipateNeeds,
-  zantaraCommunicationAdapt,
-  zantaraLearnTogether,
-  zantaraMoodSync,
-  zantaraConflictMediate,
-  zantaraGrowthTrack,
-  zantaraCelebrationOrchestrate,
-} from '../handlers/zantara/zantara-test.js';
-import {
   zantaraEmotionalProfileAdvanced,
   zantaraConflictPrediction,
   zantaraMultiProjectOrchestration,
@@ -85,12 +72,6 @@ import {
   zantaraCulturalIntelligenceAdaptation,
   zantaraPerformanceOptimization,
 } from '../handlers/zantara/zantara-v2-simple.js';
-import {
-  zantaraDashboardOverview,
-  zantaraTeamHealthMonitor,
-  zantaraPerformanceAnalytics,
-  zantaraSystemDiagnostics,
-} from '../handlers/zantara/zantara-dashboard.js';
 import {
   zantaraBrilliantChat,
   zantaraPersonality,
@@ -158,12 +139,7 @@ import {
   processUpgrade,
   getUpgradeOptions,
 } from '../handlers/bali-zero/pricing-upgrade.js';
-// AI Bridge (DevAI integration)
-import {
-  zantaraCallDevAI,
-  zantaraOrchestrateWorkflow,
-  zantaraGetConversationHistory,
-} from '../handlers/ai-services/ai-bridge.js';
+// AI Bridge removed - DevAI integration no longer used
 
 // Admin auth middleware
 import { adminAuth } from '../middleware/admin-auth.js';
@@ -224,38 +200,7 @@ const AI_FALLBACK_ORDER = (process.env.AI_FALLBACK_ORDER || 'ai.chat')
   .filter(Boolean);
 const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS || 30000);
 
-// PRIORITY 5: Firestore handler stubs (removed handlers - using Python memory system)
-const firestoreHandlerStub = async () => {
-  throw new BadRequestError(
-    'Firestore handlers have been deprecated. Use Python memory system via RAG backend.'
-  );
-};
-
-// Deprecated Firestore handlers
-const memoryList = firestoreHandlerStub;
-const memorySearchByEntity = firestoreHandlerStub;
-const memoryGetEntities = firestoreHandlerStub;
-const memoryEntityInfo = firestoreHandlerStub;
-const memoryEventSave = firestoreHandlerStub;
-const memoryTimelineGet = firestoreHandlerStub;
-const memoryEntityEvents = firestoreHandlerStub;
-const memorySearchSemantic = firestoreHandlerStub;
-const memorySearchHybrid = firestoreHandlerStub;
-const memoryCacheStats = firestoreHandlerStub;
-const memoryCacheClear = firestoreHandlerStub;
-const userMemorySave = firestoreHandlerStub;
-const userMemoryRetrieve = firestoreHandlerStub;
-const userMemoryList = firestoreHandlerStub;
-const userMemoryLogin = firestoreHandlerStub;
-const autoSaveConversation = async (
-  _req: any,
-  _prompt: string,
-  _response: string,
-  _handlerKey: string,
-  _metadata: any
-) => {
-  /* Deprecated: Firestore autosave disabled */
-};
+// Firestore handlers removed - using Python memory system only
 
 async function runHandler(key: string, params: any, ctx: any) {
   const handler = handlers[key];
@@ -286,47 +231,10 @@ async function aiChatWithFallback(ctx: any, params: any) {
 
 // Minimal core handlers for testing
 const handlers: Record<string, Handler> = {
-  // 🧩 Identity & AMBARADAM
-  /**
-   * @handler identity.resolve
-   * @description Resolve user identity from email or identity hint, creating profile if needed. Core handler for user identification and AMBARADAM integration.
-   * @param {string} [params.email] - User email address
-   * @param {string} [params.identity_hint] - Identity hint (automatically mapped to email)
-   * @param {object} [params.metadata] - Additional user metadata (name, company, phone, etc.)
-   * @returns {Promise<{ok: boolean, userId: string, email: string, profile: object, isNew: boolean}>} Resolved user identity
-   * @throws {BadRequestError} If neither email nor identity_hint provided
-   * @example
-   * // Resolve existing user
-   * await call('identity.resolve', {
-   *   email: 'john@example.com'
-   * })
-   *
-   * // Create new user profile
-   * await call('identity.resolve', {
-   *   email: 'maria@newclient.com',
-   *   metadata: {
-   *     name: 'Maria Rossi',
-   *     company: 'Rossi Trading LLC',
-   *     phone: '+62812345678',
-   *     service_interest: 'PT PMA Setup'
-   *   }
-   * })
-   *
-   * // Using identity_hint (for backwards compatibility)
-   * await call('identity.resolve', {
-   *   identity_hint: 'client@business.com'
-   * })
-   */
-  'identity.resolve': identityResolve,
-  'onboarding.start': onboardingStart,
-  'onboarding.ambaradam.start': onboardingStart, // Alias
-
   // Team Authentication
-  'team.login': teamLogin, // Legacy (deprecated - no PIN)
-  'team.login.secure': teamLoginSecure, // NEW: PIN-based secure login
+  'team.login.secure': teamLoginSecure, // PIN-based secure login
   'team.login.reset': resetLoginAttempts, // Admin: Reset login attempts (unblock account)
-  'team.members': async () => getTeamMemberList(), // NEW: Safe list (no emails exposed)
-  'team.members.legacy': async () => getTeamMembers(), // Legacy full list
+  'team.members': async () => getTeamMemberList(), // Safe list (no emails exposed)
   'team.logout': async (params: any) => logoutSession(params.sessionId),
   'team.token.verify': async (params: any) => verifyToken(params.token),
 
@@ -578,10 +486,7 @@ const handlers: Record<string, Handler> = {
   'pricing.upgrade.process': processUpgrade,
   'pricing.upgrade.options': getUpgradeOptions,
 
-  // Zantara AI Bridge - DevAI Integration (legacy)
-  'zantara.devai.call': zantaraCallDevAI,
-  'zantara.orchestrate.workflow': zantaraOrchestrateWorkflow,
-  'zantara.conversation.history': zantaraGetConversationHistory,
+  // Zantara AI Bridge removed - DevAI integration no longer used
 
   /**
    * @handler ai.chat
@@ -610,8 +515,7 @@ const handlers: Record<string, Handler> = {
    * // NOTE: Price-related queries are automatically blocked and redirected to bali.zero.pricing
    */
   'ai.chat': aiChat,
-  // Real AI handlers (TS). Router prefers these; bridgeProxy is used inside if keys missing.
-  // ARCHIVED: Other AI providers removed - ZANTARA-ONLY mode
+  // Real AI handlers (TS). ZANTARA-ONLY mode
 
   // 🏢 KBLI Business Codes (NEW)
   'kbli.lookup': async (params: any) => {
@@ -782,112 +686,6 @@ const handlers: Record<string, Handler> = {
    * })
    */
   'memory.retrieve': memoryRetrieve,
-  'memory.list': memoryList,
-
-  /**
-   * @handler memory.search.entity (NEW Quick Win)
-   * @description Search memories by entity (person, project, skill)
-   * @param {string} params.entity - Entity name to search for
-   * @param {string} [params.category] - Entity category (people/projects/skills/companies)
-   * @param {number} [params.limit=20] - Max results
-   * @returns {Promise<{ok: boolean, entity: string, memories: Array, count: number}>}
-   * @example
-   * await call('memory.search.entity', { entity: 'zero' })
-   */
-  'memory.search.entity': memorySearchByEntity,
-
-  /**
-   * @handler memory.entities (NEW Quick Win)
-   * @description Get all entities (people/projects/skills) related to a user
-   * @param {string} params.userId - User ID
-   * @returns {Promise<{ok: boolean, entities: {people, projects, skills, companies}, total: number}>}
-   * @example
-   * await call('memory.entities', { userId: 'zero' })
-   */
-  'memory.entities': memoryGetEntities,
-
-  /**
-   * @handler memory.entity.info (NEW Phase 1)
-   * @description Get complete entity profile (semantic facts + episodic events)
-   * @param {string} params.entity - Entity name (zero, zantara, pricing, etc)
-   * @param {string} [params.category] - Entity category (people/projects/skills/companies)
-   * @returns {Promise<{ok: boolean, entity: string, semantic: {memories, count}, episodic: {events, count}}>}
-   * @example
-   * await call('memory.entity.info', { entity: 'zero' })
-   */
-  'memory.entity.info': memoryEntityInfo,
-
-  /**
-   * @handler memory.event.save (NEW Phase 1)
-   * @description Save timestamped event to episodic memory
-   * @param {string} params.userId - User ID
-   * @param {string} params.event - Event description
-   * @param {string} [params.type='general'] - Event type (deployment|meeting|task|decision)
-   * @param {object} [params.metadata={}] - Additional event metadata
-   * @param {string} [params.timestamp] - ISO timestamp (defaults to now)
-   * @returns {Promise<{ok: boolean, eventId: string, saved: boolean, entities: Array}>}
-   * @example
-   * await call('memory.event.save', { userId: 'zero', event: 'Deployed Google Workspace', type: 'deployment' })
-   */
-  'memory.event.save': memoryEventSave,
-
-  /**
-   * @handler memory.timeline.get (NEW Phase 1)
-   * @description Get user's timeline of events in time range
-   * @param {string} params.userId - User ID
-   * @param {string} [params.startDate] - ISO date (inclusive)
-   * @param {string} [params.endDate] - ISO date (inclusive)
-   * @param {number} [params.limit=50] - Max events to return
-   * @returns {Promise<{ok: boolean, timeline: Array, count: number}>}
-   * @example
-   * await call('memory.timeline.get', { userId: 'zero', startDate: '2025-10-01', endDate: '2025-10-05' })
-   */
-  'memory.timeline.get': memoryTimelineGet,
-
-  /**
-   * @handler memory.entity.events (NEW Phase 1)
-   * @description Get all events mentioning an entity
-   * @param {string} params.entity - Entity name
-   * @param {string} [params.category] - Entity category (people/projects/skills/companies)
-   * @param {number} [params.limit=50] - Max events to return
-   * @returns {Promise<{ok: boolean, events: Array, count: number}>}
-   * @example
-   * await call('memory.entity.events', { entity: 'google_workspace', category: 'projects' })
-   */
-  'memory.entity.events': memoryEntityEvents,
-
-  /**
-   * @handler memory.search.semantic (NEW Phase 2)
-   * @description Semantic search using vector embeddings (searches by meaning, not keywords)
-   * @param {string} params.query - Search query (natural language)
-   * @param {string} [params.userId] - Optional filter by user
-   * @param {number} [params.limit=10] - Max results
-   * @returns {Promise<{ok: boolean, results: Array<{userId, content, similarity, entities}>, count: number}>}
-   * @example
-   * await call('memory.search.semantic', { query: 'chi aiuta con KITAS?' })
-   * // Returns: Krisna (KITAS specialist) even if exact keywords don't match
-   */
-  'memory.search.semantic': memorySearchSemantic,
-
-  /**
-   * @handler memory.search.hybrid (NEW Phase 2)
-   * @description Hybrid search (combines keyword + semantic for best results)
-   * @param {string} params.query - Search query
-   * @param {string} [params.userId] - Optional filter by user
-   * @param {number} [params.limit=10] - Max results
-   * @returns {Promise<{ok: boolean, results: Array, count: number, sources: {semantic, keyword, combined}}>}
-   * @example
-   * await call('memory.search.hybrid', { query: 'tax expert' })
-   */
-  'memory.search.hybrid': memorySearchHybrid,
-  'memory.cache.stats': memoryCacheStats,
-  'memory.cache.clear': memoryCacheClear,
-
-  // User Memory handlers (team members) - TS implementation
-  'user.memory.save': userMemorySave,
-  'user.memory.retrieve': userMemoryRetrieve,
-  'user.memory.list': userMemoryList,
-  'user.memory.login': userMemoryLogin,
 
   // Translation handlers - NEW!
   ...translateHandlers,
@@ -902,16 +700,7 @@ const handlers: Record<string, Handler> = {
   ...analyticsHandlers,
 
   // 🧠 ZANTARA - Collaborative Intelligence Framework v1.0
-  'zantara.personality.profile': zantaraPersonalityProfile,
-  'zantara.attune': zantaraAttune,
-  'zantara.synergy.map': zantaraSynergyMap,
-  'zantara.anticipate.needs': zantaraAnticipateNeeds,
-  'zantara.communication.adapt': zantaraCommunicationAdapt,
-  'zantara.learn.together': zantaraLearnTogether,
-  'zantara.mood.sync': zantaraMoodSync,
-  'zantara.conflict.mediate': zantaraConflictMediate,
-  'zantara.growth.track': zantaraGrowthTrack,
-  'zantara.celebration.orchestrate': zantaraCelebrationOrchestrate,
+  // ZANTARA Test Framework handlers removed
 
   // 🧠 ZANTARA v2.0 - Advanced Emotional AI & Predictive Intelligence
   'zantara.emotional.profile.advanced': zantaraEmotionalProfileAdvanced,
@@ -921,11 +710,7 @@ const handlers: Record<string, Handler> = {
   'zantara.cultural.intelligence.adaptation': zantaraCulturalIntelligenceAdaptation,
   'zantara.performance.optimization': zantaraPerformanceOptimization,
 
-  // 📊 ZANTARA Dashboard - Real-Time Monitoring & Analytics
-  'zantara.dashboard.overview': zantaraDashboardOverview,
-  'zantara.team.health.monitor': zantaraTeamHealthMonitor,
-  'zantara.performance.analytics': zantaraPerformanceAnalytics,
-  'zantara.system.diagnostics': zantaraSystemDiagnostics,
+  // 📊 ZANTARA Dashboard handlers removed
 
   // 💰 BALI ZERO OFFICIAL PRICING - HARDCODED ONLY
   /**
@@ -971,7 +756,7 @@ const handlers: Record<string, Handler> = {
   // 🧠 RAG System - Python Backend Integration (Ollama + Bali Zero)
   /**
    * @handler rag.query
-   * @description Query RAG backend (proxy to Python service) for semantic search + LLM answer generation using Ollama and ChromaDB. Includes graceful degradation if RAG backend unavailable.
+   * @description Query RAG backend (proxy to Python service) for semantic search + LLM answer generation using Ollama and Qdrant. Includes graceful degradation if RAG backend unavailable.
    * @param {string} params.query - Search query or question (required)
    * @param {number} [params.k=5] - Number of relevant documents to retrieve
    * @param {boolean} [params.use_llm=true] - Whether to use LLM for answer generation (false = retrieval only)
@@ -1081,75 +866,14 @@ const handlers: Record<string, Handler> = {
   'system.handlers.batch': executeBatchHandlers,
 };
 
-const BRIDGE_ONLY_KEYS = [
-  'ambaradam.profile.upsert',
-  'ambaradam.folder.ensure',
-  'document.analyze',
-  'drive.download',
-  'drive.upload.enhanced',
-  'docs.create.enhanced',
-  'calendar.create.enhanced',
-  'drive.upload.simple',
-  'sheets.append.simple',
-  'memory.save.enhanced',
-  'memory.search.enhanced',
-  'memory.retrieve.enhanced',
-  // user.memory.* handlers now registered directly in handlers map (see line 372)
-  'workspace.create',
-] as const;
-
-for (const key of BRIDGE_ONLY_KEYS) {
-  handlers[key] ??= async (params: any) => {
-    const bridged = await forwardToBridgeIfSupported(key, params);
-    if (bridged !== null) {
-      return bridged;
-    }
-    throw new BadRequestError(`Handler ${key} not available`);
-  };
-}
+// Bridge proxy removed - all handlers use direct implementations
 
 const FORBIDDEN_FOR_EXTERNAL = new Set<string>(['report.generate']);
 
 export function attachRoutes(app: import('express').Express) {
   // === NEW v2 RESTful Operations (for OpenAPI v2) ===
 
-  // Identity Management
-  app.post('/identity.resolve', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
-    try {
-      const result = await identityResolve(req.body);
-      return res.status(200).json(result?.data ?? result);
-    } catch (e: any) {
-      if (e instanceof ZodError) {
-        return res.status(400).json(err('INVALID_PAYLOAD'));
-      }
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-      if (e instanceof ForbiddenError) return res.status(403).json(err(e.message));
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  }) as any);
-
-  // Team Authentication Routes
-  app.post('/team.login', demoUserAuth as any, (async (req: RequestWithDemo, res: Response) => // @ts-ignore
-   {
-    try {
-      const result = await teamLogin(req.body);
-      return res.status(200).json(result?.data ?? result);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      if (e instanceof UnauthorizedError) return res.status(401).json(err(e.message));
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  }) as any);
-
-  app.get('/team.members', apiKeyAuth, async (_req: RequestWithCtx, res: Response) => {
-    try {
-      const result = getTeamMembers();
-      return res.status(200).json(ok(result));
-    } catch (e: any) {
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  });
+  // Team Authentication Routes (legacy routes removed - using handlers only)
 
   app.post('/team.logout', demoUserAuth as any, (async (req: RequestWithDemo, res: Response) => // @ts-ignore
    {
@@ -1516,38 +1240,7 @@ export function attachRoutes(app: import('express').Express) {
     }
   }) as any);
 
-  // ZANTARA v3 Unified endpoint (main production endpoint)
-  app.post('/zantara.unified', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
-    try {
-      const result = await aiChat(req.body);
-      return res.status(200).json(ok(result?.data ?? result));
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  }) as any);
-
-  // ZANTARA v3 Collective endpoint
-  app.post('/zantara.collective', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
-    try {
-      const result = await aiChat(req.body);
-      return res.status(200).json(ok(result?.data ?? result));
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  }) as any);
-
-  // ZANTARA v3 Ecosystem endpoint
-  app.post('/zantara.ecosystem', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
-    try {
-      const result = await aiChat(req.body);
-      return res.status(200).json(ok(result?.data ?? result));
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  }) as any);
+  // V3 endpoints removed - use RAG backend directly
 
   // Memory Search
   app.post('/memory.search', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
@@ -1559,10 +1252,7 @@ export function attachRoutes(app: import('express').Express) {
         return res.status(400).json(err(e.message));
       }
 
-      const bridged = await forwardToBridgeIfSupported('memory.search', req.body);
-      if (bridged !== null) {
-        return res.status(200).json(bridged);
-      }
+      // Bridge proxy removed - using direct handler
 
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
@@ -1912,34 +1602,14 @@ export function attachRoutes(app: import('express').Express) {
           }
 
           // Use ZANTARA-ONLY mode for consistency
-          const startTime = Date.now();
+          // startTime removed - not used
           const r = await aiChat(params);
 
-          // Auto-save AI conversation
-          const responseData: any = r?.data || r;
-          await autoSaveConversation(
-            req,
-            (params as any).prompt || (params as any).message || '',
-            responseData?.response || responseData?.answer || '',
-            'ai.chat',
-            {
-              responseTime: Date.now() - startTime,
-              model: responseData?.model || 'zantara',
-            }
-          );
+          // Auto-save disabled (Firestore deprecated)
 
           return res.status(200).json(ok(r?.data ?? r));
         }
 
-        // identity.resolve: accetta { email } come parametro standard
-        if (
-          key === 'identity.resolve' &&
-          params &&
-          (params as any).identity_hint &&
-          !(params as any).email
-        ) {
-          (params as any).email = (params as any).identity_hint;
-        }
 
         let result: any;
         if (key === 'ai.chat') {
@@ -1976,38 +1646,14 @@ export function attachRoutes(app: import('express').Express) {
           'memory.save',
           'memory.retrieve',
           'memory.search',
-          'user.memory.save',
-          'user.memory.retrieve',
         ];
 
         const shouldAutoSave = autoSaveKeys.some((k) => key.includes(k) || key === k);
 
         if (shouldAutoSave) {
-          const prompt =
-            (params as any).prompt ||
-            (params as any).message ||
-            (params as any).text ||
-            (params as any).query ||
-            (params as any).content ||
-            JSON.stringify(params);
-          const response =
-            result?.data?.response ||
-            result?.response ||
-            result?.data?.translatedText ||
-            result?.data?.content ||
-            JSON.stringify(result?.data || result);
+          // Prompt and response variables removed - not used (Firestore deprecated)
 
-          // Don't await (fire and forget to avoid slowing down response)
-          autoSaveConversation(
-            req,
-            prompt.substring(0, 5000), // Limit size
-            response.substring(0, 10000), // Limit size
-            key,
-            {
-              responseTime: 0, // Will be updated properly
-              model: result?.data?.model || key,
-            }
-          ).catch((err) => logger.info('⚠️ Auto-save failed:', err.message));
+          // Auto-save disabled (Firestore deprecated)
         }
 
         return res.status(200).json(ok(result?.data ?? result));
@@ -2311,26 +1957,6 @@ export function attachRoutes(app: import('express').Express) {
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
   }) as any);
-
-  // ========================================
-  // ZANTARA v3 Ω STRATEGIC ENDPOINTS
-  // ========================================
-
-  /**
-   * @endpoint POST /zantara.unified
-   * @description ZANTARA v3 Ω Unified Knowledge Endpoint - Single entry point for ALL knowledge bases
-   * @access Public (demo user auth)
-   * @example
-   * // Query KBLI domain
-   * await call('zantara.unified', {
-   *   params: {
-   *     query: 'restaurant',
-   *     domain: 'kbli',
-   *     mode: 'comprehensive',
-   *     include_sources: true
-   *   }
-   * })
-   */
 
   app.post('/intel.scraper.status', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {

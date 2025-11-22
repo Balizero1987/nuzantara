@@ -110,7 +110,7 @@ class ZantaraTools:
 
     async def _search_team_member(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Search team member by name or ambaradam
+        Search team member by name
 
         Args:
             params: {"query": str}
@@ -125,23 +125,9 @@ class ZantaraTools:
 
         logger.info(f"👥 search_team_member: query={query}")
 
-        # Search in TEAM_DATABASE by name only
-        results = []
-        for email, data in self.collaborator_service.TEAM_DATABASE.items():
-            name = data.get("name", "").lower()
+        profiles = self.collaborator_service.search_members(query)
 
-            # Match by full name or partial match
-            if query in name or name.startswith(query):
-                results.append({
-                    "name": data["name"],
-                    "email": email,
-                    "role": data["role"],
-                    "department": data["department"],
-                    "expertise_level": data["expertise_level"],
-                    "language": data["language"]
-                })
-
-        if not results:
+        if not profiles:
             return {
                 "success": True,
                 "data": {
@@ -149,6 +135,20 @@ class ZantaraTools:
                     "suggestion": "Try searching by first name or department"
                 }
             }
+
+        results = [
+            {
+                "name": profile.name,
+                "email": profile.email,
+                "role": profile.role,
+                "department": profile.department,
+                "expertise_level": profile.expertise_level,
+                "language": profile.language,
+                "notes": profile.notes,
+                "traits": profile.traits
+            }
+            for profile in profiles
+        ]
 
         return {
             "success": True,
@@ -169,22 +169,21 @@ class ZantaraTools:
 
         logger.info(f"👥 get_team_members_list: department={department}")
 
-        # Build roster from TEAM_DATABASE
-        roster = []
-        for email, data in self.collaborator_service.TEAM_DATABASE.items():
-            # Filter by department if specified
-            if department and data.get("department", "").lower() != department:
-                continue
+        profiles = self.collaborator_service.list_members(department)
 
-            roster.append({
-                "name": data["name"],
-                "email": email,
-                "role": data["role"],
-                "department": data["department"],
-                "expertise_level": data["expertise_level"],
-                "sub_rosa_level": data["sub_rosa_level"],
-                "language": data["language"]
-            })
+        roster = [
+            {
+                "name": profile.name,
+                "email": profile.email,
+                "role": profile.role,
+                "department": profile.department,
+                "expertise_level": profile.expertise_level,
+                "language": profile.language,
+                "traits": profile.traits,
+                "notes": profile.notes
+            }
+            for profile in profiles
+        ]
 
         # Group by department for better readability
         by_department = {}

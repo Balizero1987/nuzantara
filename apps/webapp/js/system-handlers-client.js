@@ -1,5 +1,5 @@
 /* eslint-disable no-undef, no-console */
-import { UnifiedAPIClient } from './core/unified-api-client.js';
+// Unified client now available as window.ZantaraAPIClient
 import { API_CONFIG } from './api-config.js';
 
 /**
@@ -41,7 +41,6 @@ class SystemHandlersClient {
         // Check if feature is enabled
         if (!this.config.endpoints.call) {
             console.log('ℹ️ System Handlers feature disabled (no call endpoint)');
-            // Use correct endpoint: /call (not /api/v3/zantara/handlers/call)
             this.config.endpoints.call = '/call';
         }
 

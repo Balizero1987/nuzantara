@@ -1,16 +1,14 @@
-import { getFirestore } from 'firebase-admin/firestore';
 import type { Credentials } from 'google-auth-library';
 
-const col = () => getFirestore().collection('oauth_tokens');
+// Token store now uses in-memory cache (Firestore removed)
+// TODO: If persistence needed, use PostgreSQL
+const tokenCache = new Map<string, Credentials & { updatedAt: number }>();
 
 export const tokenStore = {
   async save(email: string, tokens: Credentials) {
-    await col()
-      .doc(email)
-      .set({ ...tokens, updatedAt: Date.now() }, { merge: true });
+    tokenCache.set(email, { ...tokens, updatedAt: Date.now() });
   },
   async get(email: string) {
-    const snap = await col().doc(email).get();
-    return snap.exists ? (snap.data() as Credentials) : null;
+    return tokenCache.get(email) || null;
   },
 };

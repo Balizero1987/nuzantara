@@ -36,7 +36,7 @@ kill_timeout = '30s'
     timeout = '10s'
     grace_period = '5m0s'  # 5 minutes to allow Python imports + AI services initialization
     method = 'GET'
-    path = '/health'
+    path = '/healthz'
 
 [[vm]]
   memory = '4gb'

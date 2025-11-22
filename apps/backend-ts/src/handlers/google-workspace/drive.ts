@@ -1,7 +1,6 @@
 import logger from '../../services/logger.js';
 import { ok } from '../../utils/response.js';
 import { BadRequestError } from '../../utils/errors.js';
-import { forwardToBridgeIfSupported } from '../../services/bridgeProxy.js';
 import { getDrive } from '../../services/google-auth-service.js';
 
 // === Minimal typed interfaces (Step 1 migration) ===
@@ -109,7 +108,7 @@ export async function driveUpload(params: DriveUploadParams) {
   const supportsAllDrives = params?.supportsAllDrives;
 
   // Target folder (shared drive) if provided
-  const driveId = process.env.DRIVE_FOLDER_ID || process.env.GDRIVE_AMBARADAM_DRIVE_ID;
+  const driveId = process.env.DRIVE_FOLDER_ID;
 
   // Only use driveId if it's not the placeholder value
   const validDriveId = driveId && driveId !== 'your_drive_id' ? driveId : null;
@@ -170,15 +169,7 @@ export async function driveUpload(params: DriveUploadParams) {
     }
   }
 
-  // Fallback to Bridge legacy implementation
-  logger.info('⚠️ Drive service not available, trying Bridge fallback...');
-  const bridged = await forwardToBridgeIfSupported('drive.upload', params);
-  if (bridged) {
-    logger.info('✅ Upload succeeded via Bridge fallback');
-    return bridged;
-  }
-
-  logger.error('❌ Drive not configured - both Service Account and Bridge failed');
+  logger.error('❌ Drive not configured');
   throw new BadRequestError('Drive not configured - check authentication settings');
 }
 
@@ -226,8 +217,6 @@ export async function driveList(params: DriveListParams) {
       nextPageToken: (res.data as any).nextPageToken || null,
     });
   }
-  const bridged = await forwardToBridgeIfSupported('drive.list', params);
-  if (bridged) return bridged;
   throw new BadRequestError('Drive not configured');
 }
 
@@ -280,8 +269,6 @@ export async function driveSearch(params: DriveSearchParams) {
       nextPageToken: (res.data as any).nextPageToken || null,
     });
   }
-  const bridged = await forwardToBridgeIfSupported('drive.search', params);
-  if (bridged) return bridged;
   throw new BadRequestError('Drive not configured');
 }
 
@@ -328,7 +315,5 @@ export async function driveRead(params: DriveReadParams) {
       throw error;
     }
   }
-  const bridged = await forwardToBridgeIfSupported('drive.read', params);
-  if (bridged) return bridged;
   throw new BadRequestError('Drive not configured');
 }

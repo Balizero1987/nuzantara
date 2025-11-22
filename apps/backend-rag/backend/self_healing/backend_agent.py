@@ -5,7 +5,7 @@ Autonomous agent that monitors backend service health and auto-fixes issues
 Runs continuously on each Fly.io service (RAG, Memory, etc.)
 
 Features:
-- Health checks (API, DB, Redis, ChromaDB)
+- Health checks (API, DB, Redis, Qdrant)
 - Auto-restart on failures
 - Memory leak detection
 - Database connection pool management
@@ -203,7 +203,7 @@ class BackendSelfHealingAgent:
 
     async def check_db_health(self) -> bool:
         """Check if database is accessible"""
-        # Implementation depends on DB type (PostgreSQL, ChromaDB, etc.)
+        # Implementation depends on DB type (PostgreSQL, Qdrant, etc.)
         # Placeholder for now
         return True
 

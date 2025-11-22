@@ -51,7 +51,7 @@ export async function zeroChat(params: any) {
       ts: Date.now(),
     });
   } catch (error: any) {
-    logger.error('Zero chat error:', error);
+    logger.error('Zero chat error:', error instanceof Error ? error : new Error(String(error)));
     throw new BadRequestError(`Zero chat failed: ${error.message}`);
   }
 }

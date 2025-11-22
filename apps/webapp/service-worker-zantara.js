@@ -11,7 +11,6 @@ const PRECACHE_ASSETS = [
     '/',
     '/chat.html',
     '/login.html',
-    '/team-dashboard.html',
     '/css/design-system.css',
     '/css/variables-and-utilities.css',
     '/css/bali-zero-theme.css',

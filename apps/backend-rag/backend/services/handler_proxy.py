@@ -20,7 +20,7 @@ class HandlerProxyService:
         Initialize handler proxy service
 
         Args:
-            backend_url: TypeScript backend URL (e.g., https://zantara-v520-nuzantara-himaadsxua-ew.a.run.app)
+            backend_url: TypeScript backend URL (e.g., https://nuzantara-backend.fly.dev)
         """
         self.backend_url = backend_url.rstrip('/')
         self.client = httpx.AsyncClient(timeout=30.0)

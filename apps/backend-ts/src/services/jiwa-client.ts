@@ -174,7 +174,7 @@ export class JiwaClient {
       logger.warn('🛡️ Protection activated for ${userId}: ${response.data.protection_id}');
       return response.data;
     } catch (error) {
-      logger.error('❌ Protection activation failed:', error instanceof Error ? error.message : String(error));
+      logger.error('❌ Protection activation failed:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }
@@ -187,7 +187,7 @@ export class JiwaClient {
       const response = await this.client.get('/jiwa-status');
       return response.data;
     } catch (error) {
-      logger.error('❌ Failed to get JIWA status:', error instanceof Error ? error.message : String(error));
+      logger.error('❌ Failed to get JIWA status:', error instanceof Error ? error : new Error(String(error)));
       return null;
     }
   }

@@ -2,43 +2,7 @@
 # Central registry for all available handlers/tools in the ecosystem
 
 AVAILABLE_HANDLERS = {
-    # ZANTARA v3 Ω Core Handlers
-    "zantara_unified_query": {
-        "endpoint": "/api/v3/zantara/unified",
-        "method": "POST",
-        "backend": "ts",
-        "params": ["query", "domain", "mode", "include_sources"],
-        "description": "Unified knowledge query across all domains (KBLI, pricing, team, legal, etc.)",
-        "category": "zantara_core",
-        "examples": [
-            {"call": "CALL_HANDLER[zantara_unified_query](restaurant, kbli, detailed)", "result": "Restaurant KBLI codes and requirements"},
-            {"call": "CALL_HANDLER[zantara_unified_query](visa pricing, pricing, quick)", "result": "Current visa pricing information"}
-        ]
-    },
-
-    "zantara_collective_intelligence": {
-        "endpoint": "/api/v3/zantara/collective",
-        "method": "POST",
-        "backend": "ts",
-        "params": ["action", "data", "userId", "confidence"],
-        "description": "Collective intelligence and shared learning across users",
-        "category": "zantara_core",
-        "examples": [
-            {"call": "CALL_HANDLER[zantara_collective_intelligence](query, {query: 'restaurant setup'}, demo, 0.7)", "result": "Community insights about restaurant setup"}
-        ]
-    },
-
-    "zantara_ecosystem_analysis": {
-        "endpoint": "/api/v3/zantara/ecosystem",
-        "method": "POST",
-        "backend": "ts",
-        "params": ["scenario", "business_type", "ownership", "scope", "location"],
-        "description": "Complete business ecosystem analysis with recommendations",
-        "category": "zantara_core",
-        "examples": [
-            {"call": "CALL_HANDLER[zantara_ecosystem_analysis](business_setup, restaurant, foreign, detailed, bali)", "result": "Full restaurant business analysis"}
-        ]
-    },
+    # V3 endpoints removed - use RAG backend directly
 
     # Bali Zero Services Handlers
     "kbli_lookup": {
@@ -192,11 +156,7 @@ AVAILABLE_HANDLERS = {
 
 # Handler categories for organization
 HANDLER_CATEGORIES = {
-    "zantara_core": {
-        "name": "ZANTARA v3 Ω Core",
-        "description": "Primary ZANTARA intelligence endpoints",
-        "priority": "critical"
-    },
+    # V3 core category removed
     "business_services": {
         "name": "Business Services",
         "description": "Bali Zero business process handlers",

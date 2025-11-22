@@ -437,7 +437,7 @@ async def test_generator():
     database_url = os.getenv("DATABASE_URL")
     runpod_endpoint = os.getenv("RUNPOD_LLAMA_ENDPOINT")
     runpod_api_key = os.getenv("RUNPOD_API_KEY")
-    rag_backend_url = os.getenv("RAG_BACKEND_URL", "https://zantara-rag-backend-1064094238013.europe-west1.run.app")
+    rag_backend_url = os.getenv("RAG_BACKEND_URL", "https://nuzantara-rag.fly.dev")
 
     if not database_url:
         print("❌ DATABASE_URL not set")

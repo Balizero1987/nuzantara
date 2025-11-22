@@ -2,7 +2,6 @@
 // Eliminates false information and ensures all responses are grounded in verified data
 
 import logger from './logger.js';
-import { getFirestore } from './firebase.js';
 
 export interface VerifiedFact {
   fact: string;
@@ -26,7 +25,7 @@ export class AntiHallucinationSystem {
   private static instance: AntiHallucinationSystem;
   private factStore: Map<string, VerifiedFact> = new Map();
   private verifiedSources = new Set([
-    'firestore',
+    'postgresql',
     'google_workspace',
     'api_response',
     'user_input',
@@ -262,18 +261,12 @@ export class AntiHallucinationSystem {
   }
 
   /**
-   * Persist verified fact to Firestore
+   * Persist verified fact (now uses local cache only)
    */
   private async persistFact(fact: VerifiedFact): Promise<void> {
-    try {
-      const db = getFirestore();
-      await db.collection('verified_facts').add({
-        ...fact,
-        created_at: new Date(),
-      });
-    } catch (error) {
-      logger.info('📝 Fact stored locally only');
-    }
+    // Firestore removed - facts now stored in local cache only
+    // TODO: If persistence needed, use PostgreSQL
+    logger.debug('Fact stored locally only', { fact: fact.fact });
   }
 
   /**
@@ -323,7 +316,7 @@ export class AntiHallucinationSystem {
     // Determine sources based on handler
     const sources: string[] = [];
 
-    if (handlerName.includes('memory')) sources.push('firestore');
+    if (handlerName.includes('memory')) sources.push('postgresql');
     if (handlerName.includes('drive') || handlerName.includes('calendar'))
       sources.push('google_workspace');
     if (handlerName.includes('ai') || handlerName.includes('openai')) sources.push('external_api');
@@ -337,7 +330,7 @@ export class AntiHallucinationSystem {
 
     // Log if not well-grounded
     if (!grounded.grounded) {
-      logger.warn(`⚠️ Low confidence response from ${handlerName}:`, grounded.confidence);
+      logger.warn(`⚠️ Low confidence response from ${handlerName}: ${grounded.confidence}`);
     }
 
     return grounded;

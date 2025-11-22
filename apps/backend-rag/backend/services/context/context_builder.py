@@ -15,7 +15,7 @@ class ContextBuilder:
 
     Builds natural-language context from:
     - Memory (user profile facts and conversation history)
-    - RAG (retrieved documents from ChromaDB)
+    - RAG (retrieved documents from Qdrant)
     - Team (collaborator profile and preferences)
     - Cultural (Indonesian cultural insights)
     """
@@ -92,14 +92,15 @@ class ContextBuilder:
         language_map = {
             "it": "Italian",
             "id": "Indonesian",
-            "en": "English"
+            "en": "English",
+            "ua": "Ukrainian"
         }
         lang_full = language_map.get(collaborator.language, collaborator.language.upper())
         team_parts.append(f"IMPORTANT: You MUST respond ONLY in {lang_full} language")
 
         # Identity and role
         team_parts.append(
-            f"You're talking to {collaborator.name} ({collaborator.ambaradam_name}), "
+            f"You're talking to {collaborator.name}, "
             f"{collaborator.role} in the {collaborator.department} department"
         )
 
@@ -158,9 +159,6 @@ class ContextBuilder:
             if instruction_parts:
                 team_parts.append(". ".join(instruction_parts))
 
-        # Sub Rosa level
-        if hasattr(collaborator, 'sub_rosa_level'):
-            team_parts.append(f"Security clearance: Level {collaborator.sub_rosa_level}")
 
         # Build natural sentence
         team_context = ". ".join(team_parts) + "."

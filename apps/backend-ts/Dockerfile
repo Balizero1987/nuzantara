@@ -1,34 +1,54 @@
-# TypeScript Backend Dockerfile for Fly.io
-FROM node:20-alpine
+# ZANTARA TypeScript Backend - Production Dockerfile
+# Multi-stage build for minimal size and memory usage
 
-# Force rebuild - cache bust for rate limiter fixes
-ARG CACHEBUST=2025-11-10-v2
-RUN echo "Build: $CACHEBUST"
+# --- Stage 1: Builder ---
+FROM node:20-alpine AS builder
 
-# Install curl for health checks
-RUN apk add --no-cache curl
-
-# Set working directory
 WORKDIR /app
 
-# Copy package files first (better caching)
+# Install build dependencies
+RUN apk add --no-cache python3 make g++
+
+# Copy package files
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-# Install ALL dependencies (including devDependencies for build)
-# Use --legacy-peer-deps to resolve chromadb/@google/generative-ai conflict
-RUN npm install --legacy-peer-deps
+# Install dependencies (including devDependencies for build)
+RUN npm install
 
 # Copy source code
-COPY src/ ./src/
+COPY src ./src
 
-# Build the TypeScript code
+# Build the application (transpile TS to JS in /dist)
 RUN npm run build
 
-# Expose port (Fly.io uses PORT env var)
-EXPOSE $PORT
+# Prune dev dependencies to save space for the next stage copy (optional but good practice)
+RUN npm prune --production
 
-# Health check removed - using Fly.io's built-in health monitoring
+# --- Stage 2: Runner ---
+FROM node:20-alpine AS runner
 
-# Start the application with tsx (TypeScript runtime)
-CMD ["npx", "tsx", "src/server.ts"]
+WORKDIR /app
+
+# Install runtime dependencies (curl for healthcheck)
+RUN apk add --no-cache curl
+
+# Copy built artifacts from builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+
+# Environment settings
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Expose port
+EXPOSE 8080
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
+
+# Start the application using Node (NOT tsx/nodemon)
+# This reduces memory usage significantly (~50MB vs ~200MB+)
+CMD ["node", "dist/index.js"]

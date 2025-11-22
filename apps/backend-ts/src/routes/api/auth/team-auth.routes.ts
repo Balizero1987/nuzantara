@@ -60,7 +60,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     res.json(result);
   } catch (error: any) {
-    logger.error('Team login error:', error);
+    logger.error('Team login error:', error instanceof Error ? error : new Error(String(error)));
     res.status(error.statusCode || 500).json({
       ok: false,
       error: error.message || 'Login failed',
@@ -84,7 +84,7 @@ router.get('/members', async (_req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    logger.error('Get team members error:', error);
+    logger.error('Get team members error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: error?.message || 'Failed to get team members',
@@ -125,7 +125,7 @@ router.post('/logout', async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    logger.error('Team logout error:', error);
+    logger.error('Team logout error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: error?.message || 'Logout failed',
@@ -171,7 +171,7 @@ router.get('/validate', async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    logger.error('Session validation error:', error);
+    logger.error('Session validation error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: error?.message || 'Validation failed',
@@ -212,7 +212,7 @@ router.get('/profile', async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    logger.error('Get profile error:', error);
+    logger.error('Get profile error:', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: error?.message || 'Failed to get profile',

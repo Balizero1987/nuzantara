@@ -134,7 +134,7 @@ class KeyboardShortcutsManager {
         if (dashboardLink) {
             window.location.href = dashboardLink.href;
         } else {
-            window.location.href = '/team-dashboard.html';
+            // Dashboard removed
         }
     }
 

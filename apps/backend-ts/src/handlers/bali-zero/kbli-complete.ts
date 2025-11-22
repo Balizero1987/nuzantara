@@ -604,7 +604,7 @@ export async function kbliLookupComplete(req: Request, res: Response) {
       },
     });
   } catch (error: any) {
-    logger.error('kbli.lookup.complete error:', error);
+    logger.error('kbli.lookup.complete error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to lookup KBLI code from complete database',
@@ -685,7 +685,7 @@ export async function kbliBusinessAnalysis(req: Request, res: Response) {
       },
     });
   } catch (error: any) {
-    logger.error('kbli.business.analysis error:', error);
+    logger.error('kbli.business.analysis error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: error.message || 'Failed to analyze business requirements',

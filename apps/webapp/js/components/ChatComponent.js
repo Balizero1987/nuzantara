@@ -5,7 +5,7 @@
  */
 
 import DOMPurify from 'dompurify';
-import { apiClient } from '../core/api-client.js';
+// apiClient removed - now using window.ZantaraAPIClient
 import { stateManager } from '../core/state-manager.js';
 
 export class ChatComponent {

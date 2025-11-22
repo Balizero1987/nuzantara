@@ -71,11 +71,6 @@ export const SAFE_CACHE_CONFIG: Record<string, CacheConfig> = {
     category: 'never',
     description: 'Never cache authentication',
   },
-  'ambaradam.profile.upsert': {
-    ttl: 0,
-    category: 'never',
-    description: 'Always update user profiles in real-time',
-  },
 };
 
 /**

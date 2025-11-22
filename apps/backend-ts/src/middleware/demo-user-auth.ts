@@ -150,11 +150,6 @@ const DEMO_ALLOWED_HANDLERS = new Set([
   // Basic memory read
   'memory.retrieve',
 
-  // === ZANTARA v3 Ω STRATEGIC ENDPOINTS - Public access for complete knowledge ===
-  'zantara.unified', // Single entry point for ALL knowledge bases
-  'zantara.collective', // Shared memory and learning across users
-  'zantara.ecosystem', // Complete business ecosystem analysis
-
   // === BALI ZERO TEAM ACCESS - Public access to team information ===
   'bali.zero.team', // Complete team directory with 23 members
   'team.list', // Team member listing with search and filter
@@ -269,13 +264,12 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
       // User is already authenticated with JWT, check if they have access to this endpoint
       const path = req.path || req.route?.path || '';
 
-      // v3 Ω endpoints are allowed for authenticated users
-      const v3Endpoints = ['/zantara.unified', '/zantara.collective', '/zantara.ecosystem'];
-      if (v3Endpoints.some((endpoint) => path.includes(endpoint))) {
-        // Authenticated users have full access to v3 Ω endpoints
+      // V3 endpoints removed
+      const v3Endpoints: string[] = [];
+      if (false) { // V3 endpoints removed
         // Ensure isDemo is set correctly for downstream handlers
         if (req.user.isDemo === undefined) {
-          req.user.isDemo = false;
+          req.user!.isDemo = false;
         }
         return next();
       }
@@ -298,7 +292,7 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
 
       // Ensure isDemo is set correctly for downstream handlers
       if (req.user.isDemo === undefined) {
-        req.user.isDemo = false;
+        req.user!.isDemo = false;
       }
 
       // Authenticated user with valid permissions - proceed
@@ -316,7 +310,7 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
         const decoded = jwt.verify(token, jwtSecret) as any;
 
         // Set user from JWT
-        req.user = {
+        req.user! = {
           userId: decoded.userId || 'unknown',
           email: decoded.email || 'unknown',
           role: decoded.role || 'member',
@@ -325,17 +319,11 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
 
         // Special case: Zero is always admin
         if (decoded.email === 'zero@balizero.com' || decoded.userId === 'zero') {
-          req.user.role = 'admin';
-          req.user.isDemo = false;
+          req.user!.role = 'admin';
+          req.user!.isDemo = false;
         }
 
-        // Check if this is a v3 Ω endpoint
-        const path = req.path || req.route?.path || '';
-        const v3Endpoints = ['/zantara.unified', '/zantara.collective', '/zantara.ecosystem'];
-        if (v3Endpoints.some((endpoint) => path.includes(endpoint))) {
-          // Authenticated users have full access to v3 Ω endpoints
-          return next();
-        }
+        // v3 endpoints removed - no special handling needed
 
         // Check handler permissions for authenticated user (for /call endpoint)
         const { handler, key } = req.body || {};
@@ -367,19 +355,7 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
     const { handler, key } = req.body || {};
     const handlerKey = handler || key;
 
-    // Check if this is a v3 Ω endpoint (allow demo access)
-    const path = req.path || req.route?.path || '';
-    const v3Endpoints = ['/zantara.unified', '/zantara.collective', '/zantara.ecosystem'];
-    if (v3Endpoints.some((endpoint) => path.includes(endpoint))) {
-      // v3 Ω endpoints allow demo access (as per DEMO_ALLOWED_HANDLERS)
-      req.user = {
-        userId: DEMO_USER.userId,
-        email: DEMO_USER.email,
-        role: DEMO_USER.role,
-        isDemo: true,
-      };
-      return next();
-    }
+    // v3 endpoints removed - no special handling needed
 
     // Create demo user context
     req.user = {
@@ -402,7 +378,7 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
 
     next();
   } catch (error: any) {
-    logger.error('Demo auth error:', error);
+    logger.error('Demo auth error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json({
       ok: false,
       error: 'Authentication error',

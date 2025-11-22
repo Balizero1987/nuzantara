@@ -46,13 +46,18 @@ class AuditService {
     }
 
     // Log to Winston (will be stored in files/Loki)
-    const logLevel = entry.success ? 'info' : 'warn';
-    logger.log(logLevel, '[AUDIT]', {
+    const auditContext = {
       ...auditEntry,
       // Redact sensitive data for logs
       userEmail: this.shouldLogEmail(entry) ? entry.userEmail : '[REDACTED]',
       ipAddress: this.shouldLogIP(entry) ? entry.ipAddress : '[REDACTED]',
-    });
+    };
+
+    if (entry.success) {
+      logger.info('[AUDIT]', auditContext as any);
+    } else {
+      logger.warn('[AUDIT]', auditContext as any);
+    }
   }
 
   /**

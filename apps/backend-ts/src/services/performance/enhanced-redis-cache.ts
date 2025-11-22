@@ -147,7 +147,7 @@ class EnhancedRedisCache {
       await this.redis.connect();
       logger.info('✅ Enhanced Redis cache initialized');
     } catch (error: any) {
-      logger.error('Failed to initialize enhanced cache Redis:', error);
+      logger.error('Failed to initialize enhanced cache Redis:', error instanceof Error ? error : new Error(String(error)));
       this.redis = null;
       this.isConnected = false;
     }
@@ -210,7 +210,7 @@ class EnhancedRedisCache {
         }
         this.stats.l2Misses++;
       } catch (error: any) {
-        logger.error('Cache get error for key ${key}:', error);
+        logger.error('Cache get error for key ${key}:', error instanceof Error ? error : new Error(String(error)));
       }
     }
 
@@ -287,7 +287,7 @@ class EnhancedRedisCache {
           }
         }
       } catch (error: any) {
-        logger.error(`Cache set error for key ${key}:`, error);
+        logger.error(`Cache set error for key ${key}:`, error instanceof Error ? error : new Error(String(error)));
       }
     }
 
@@ -311,7 +311,7 @@ class EnhancedRedisCache {
       try {
         await this.redis!.del(key);
       } catch (error: any) {
-        logger.error(`Cache del error for key ${key}:`, error);
+        logger.error(`Cache del error for key ${key}:`, error instanceof Error ? error : new Error(String(error)));
       }
     }
 
@@ -381,7 +381,7 @@ class EnhancedRedisCache {
               await this.set(key, value);
             }
           } catch (error: any) {
-            logger.error(`Cache warming error for key ${key}:`, error);
+            logger.error(`Cache warming error for key ${key}:`, error instanceof Error ? error : new Error(String(error)));
           }
         })
       );
@@ -433,7 +433,7 @@ class EnhancedRedisCache {
           await this.redis!.del(keys);
         }
       } catch (error: any) {
-        logger.error('Cache clear error:', error);
+        logger.error('Cache clear error:', error instanceof Error ? error : new Error(String(error)));
       }
     }
 

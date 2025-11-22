@@ -53,7 +53,7 @@ export async function verifyToken(req: Request, res: Response) {
       return res.status(401).json(err('Invalid token'));
     }
 
-    logger.error('Token verification error:', error);
+    logger.error('Token verification error:', error instanceof Error ? error : new Error(String(error)));
     return res.status(500).json(err('Token verification failed'));
   }
 }

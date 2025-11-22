@@ -25,7 +25,7 @@ router.get('/cron-status', async (_req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
-    logger.error('Failed to get cron status', { error: error.message });
+    logger.error('Failed to get cron status', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: 'Cron scheduler not available',
@@ -49,7 +49,7 @@ router.get('/ai-stats', async (_req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
-    logger.error('Failed to get AI stats', { error: error.message });
+    logger.error('Failed to get AI stats', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: 'OpenRouter client not available',
@@ -83,7 +83,7 @@ router.get('/ai-health', async (_req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
-    logger.error('AI health check failed', { error: error.message });
+    logger.error('AI health check failed', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       healthy: false,
@@ -109,7 +109,7 @@ router.get('/refactoring-stats', async (_req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
-    logger.error('Failed to get refactoring stats', { error: error.message });
+    logger.error('Failed to get refactoring stats', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: 'Refactoring agent not available',
@@ -134,7 +134,7 @@ router.get('/test-generator-stats', async (_req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
-    logger.error('Failed to get test generator stats', { error: error.message });
+    logger.error('Failed to get test generator stats', error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       ok: false,
       error: 'Test generator not available',

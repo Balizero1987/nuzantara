@@ -121,7 +121,7 @@ export const aiChatLimiter = rateLimit({
  * RAG Query Rate Limiter
  *
  * Limits: 15 requests per 1 minute per user/IP
- * Use case: rag.query, rag.search (ChromaDB + embeddings expensive)
+ * Use case: rag.query, rag.search (Qdrant + embeddings expensive)
  */
 export const ragQueryLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
