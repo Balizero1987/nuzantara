@@ -72,7 +72,7 @@ export async function instagramWebhookReceiver(req: any, res: any) {
     // Quick ACK to Meta (required within 20s)
     res.status(200).send('EVENT_RECEIVED');
 
-    logger.info('📸 Instagram Webhook Event:', JSON.stringify(body, null, 2));
+    logger.info('📸 Instagram Webhook Event:', { event: body });
 
     // Parse webhook payload
     if (!body.object || body.object !== 'instagram') {
@@ -84,7 +84,7 @@ export async function instagramWebhookReceiver(req: any, res: any) {
       // Auto-detect Page ID and Instagram Account ID
       if (entry.id && !INSTAGRAM_CONFIG.pageId) {
         INSTAGRAM_CONFIG.pageId = entry.id;
-        logger.info('📄 Auto-detected Page ID:', INSTAGRAM_CONFIG.pageId);
+        logger.info('📄 Auto-detected Page ID:', { pageId: INSTAGRAM_CONFIG.pageId });
       }
 
       // Handle different event types
@@ -538,9 +538,9 @@ async function checkInstagramAlerts(params: any) {
     });
   }
 
-  // Send alerts to team
-  for (const alert of alerts) {
-    logger.info(`🚨 INSTAGRAM ALERT [${alert.severity}]:`, alert.message);
+    // Send alerts to team
+    for (const alert of alerts) {
+      logger.info(`🚨 INSTAGRAM ALERT [${alert.severity}]:`, { message: alert.message });
 
     // Send to Slack/Discord
     try {

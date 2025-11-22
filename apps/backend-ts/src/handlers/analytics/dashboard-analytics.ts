@@ -1,5 +1,4 @@
 // ZANTARA Dashboard Analytics - Real-time Metrics & Monitoring
-import logger from '../../services/logger.js';
 import { ok, err } from '../../utils/response.js';
 
 interface ConversationMetrics {
@@ -62,10 +61,8 @@ class DashboardAnalytics {
   }
 
   async getConversationMetrics(): Promise<ConversationMetrics> {
-    const now = new Date();
-    const todayStart = new Date(now.setHours(0, 0, 0, 0));
-    const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    // Date calculations removed - metrics now come from PostgreSQL
+    // TODO: Query PostgreSQL for conversation metrics when needed
 
     let metrics: ConversationMetrics = {
       total_conversations: 0,
@@ -129,7 +126,7 @@ class DashboardAnalytics {
     };
   }
 
-  async getTopUsers(limit: number = 10): Promise<UserActivity[]> {
+  async getTopUsers(_limit: number = 10): Promise<UserActivity[]> {
     const users: UserActivity[] = [];
 
     // User metrics now come from PostgreSQL

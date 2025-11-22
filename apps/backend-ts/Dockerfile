@@ -13,16 +13,16 @@ RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-# Install dependencies (including devDependencies for build)
-RUN npm install
+# Install dependencies with network optimizations
+RUN npm install --verbose --no-audit --no-fund
 
 # Copy source code
 COPY src ./src
 
-# Build the application (transpile TS to JS in /dist)
+# Proper TypeScript compilation
 RUN npm run build
 
-# Prune dev dependencies to save space for the next stage copy (optional but good practice)
+# Prune dev dependencies to save space for the next stage copy
 RUN npm prune --production
 
 # --- Stage 2: Runner ---
@@ -49,6 +49,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
-# Start the application using Node (NOT tsx/nodemon)
-# This reduces memory usage significantly (~50MB vs ~200MB+)
-CMD ["node", "dist/index.js"]
+# Start the application using Node.js runtime on compiled JS
+CMD ["node", "dist/server.js"]

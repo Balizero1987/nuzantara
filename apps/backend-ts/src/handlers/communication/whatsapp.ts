@@ -81,7 +81,7 @@ export async function whatsappWebhookReceiver(req: any, res: any) {
     // Quick ACK to Meta (required within 20s)
     res.status(200).send('EVENT_RECEIVED');
 
-    logger.info('📨 WhatsApp Webhook Event:', JSON.stringify(body, null, 2));
+    logger.info('📨 WhatsApp Webhook Event:', { body });
 
     // Parse webhook payload
     if (!body.object || body.object !== 'whatsapp_business_account') {
@@ -112,11 +112,11 @@ async function handleIncomingMessage(value: any) {
     const contacts = value.contacts || [];
     const metadata = value.metadata || {};
 
-    // Auto-detect phone number ID
-    if (!WHATSAPP_CONFIG.phoneNumberId && metadata.phone_number_id) {
-      WHATSAPP_CONFIG.phoneNumberId = metadata.phone_number_id;
-      logger.info('📱 Auto-detected Phone Number ID:', WHATSAPP_CONFIG.phoneNumberId);
-    }
+      // Auto-detect phone number ID
+      if (!WHATSAPP_CONFIG.phoneNumberId && metadata.phone_number_id) {
+        WHATSAPP_CONFIG.phoneNumberId = metadata.phone_number_id;
+        logger.info('📱 Auto-detected Phone Number ID:', { phoneNumberId: WHATSAPP_CONFIG.phoneNumberId });
+      }
 
     for (const message of messages) {
       const contact = contacts.find((c: any) => c.wa_id === message.from);
@@ -534,9 +534,9 @@ async function checkAndSendAlerts(params: any) {
     });
   }
 
-  // Send alerts to team via Slack/Discord
-  for (const alert of alerts) {
-    logger.info(`🚨 ALERT [${alert.severity}]:`, alert.message);
+    // Send alerts to team via Slack/Discord
+    for (const alert of alerts) {
+      logger.info(`🚨 ALERT [${alert.severity}]:`, { message: alert.message });
 
     // Send to Slack/Discord (if webhooks configured)
     try {

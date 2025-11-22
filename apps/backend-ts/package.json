@@ -7,9 +7,9 @@
   },
   "scripts": {
     "start": "npx tsx src/server.ts",
-    "build": "mkdir -p dist && cp -r src/* dist/ 2>/dev/null || true && find dist -name '*.ts' -exec sh -c 'mv \"$1\" \"${1%.ts}.js\"' _ {} \\;",
-    "build:prod": "npm run build && node -e \"require('./dist/index.js'); console.log('✅ Build validation passed')\"",
-    "validate": "node -e \"require('./dist/index.js')\" || echo '❌ Build validation failed'",
+    "build": "tsc",
+    "build:prod": "npm run build && node -e \"require('./dist/server.js'); console.log('✅ Build validation passed')\"",
+    "validate": "node -e \"require('./dist/server.js')\" || echo '❌ Build validation failed'",
     "typecheck": "tsc --noEmit",
     "dev": "tsx watch src/server.ts",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",

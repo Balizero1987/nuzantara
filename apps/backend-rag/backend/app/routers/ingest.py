@@ -17,8 +17,8 @@ from ..models import (
     BatchIngestionResponse,
     TierLevel
 )
-from backend.services.ingestion_service import IngestionService
-from backend.core.qdrant_db import QdrantClient
+from services.ingestion_service import IngestionService
+from core.qdrant_db import QdrantClient
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/ingest", tags=["ingestion"])

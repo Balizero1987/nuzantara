@@ -40,8 +40,8 @@ export async function loadAllHandlers() {
     // PRIORITY 5: Memory handlers removed (Firestore deprecated - using Python memory)
     // await import('../handlers/memory/registry.js');
 
-    // Identity (3 handlers)
-    await import('../handlers/identity/registry.js');
+    // Identity (3 handlers) - Temporarily disabled
+    // await import('../handlers/identity/registry.js');
 
     // RAG (4 handlers)
     await import('../handlers/rag/registry.js');

@@ -240,7 +240,7 @@ function parseScraperOutput(output: string) {
     if (filteredMatch && filteredMatch[1]) stats.articlesFiltered = parseInt(filteredMatch[1], 10);
     if (efficiencyMatch && efficiencyMatch[1]) stats.filterEfficiency = `${efficiencyMatch[1]}%`;
   } catch (err) {
-    logger.warn('Failed to parse scraper output stats', err);
+    logger.warn('Failed to parse scraper output stats', { error: err instanceof Error ? err : new Error(String(err)) });
   }
 
   return stats;

@@ -7,7 +7,7 @@ import { ok } from '../../utils/response.js';
 // Configuration
 const ZERO_EMAIL = 'zero@balizero.com';
 const REPORT_DAY = 0; // Sunday = 0
-const BATCH_SIZE = 100; // Max conversations to process at once
+// BATCH_SIZE removed - PostgreSQL handles batching internally
 
 // Team members for analysis
 const TEAM_MEMBERS = ['zero', 'zainal', 'setup', 'tax', 'marketing', 'reception', 'board'];

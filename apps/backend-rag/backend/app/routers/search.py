@@ -9,7 +9,7 @@ import time
 import logging
 
 from ..models import SearchQuery, SearchResponse, SearchResult, ChunkMetadata
-from backend.services.search_service import SearchService
+from services.search_service import SearchService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/search", tags=["search"])

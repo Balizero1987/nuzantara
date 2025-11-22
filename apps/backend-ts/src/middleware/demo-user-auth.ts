@@ -262,17 +262,7 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
     // OR if isDemo is explicitly false
     if (req.user && req.user.role && (req.user.isDemo === undefined || req.user.isDemo === false)) {
       // User is already authenticated with JWT, check if they have access to this endpoint
-      const path = req.path || req.route?.path || '';
-
-      // V3 endpoints removed
-      const v3Endpoints: string[] = [];
-      if (false) { // V3 endpoints removed
-        // Ensure isDemo is set correctly for downstream handlers
-        if (req.user.isDemo === undefined) {
-          req.user!.isDemo = false;
-        }
-        return next();
-      }
+      // V3 endpoints removed - no special handling needed
 
       // For /call endpoint, check handler permissions
       const { handler, key } = req.body || {};
