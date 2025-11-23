@@ -257,10 +257,10 @@ export class LegalArchitect {
 
       ptPma: {
         status: '✅ 100% LEGAL (gold standard)',
-        when: 'Multiple properties, rental business, or investment ≥ 'RETRIEVED_FROM_DATABASE'',
+        when: 'Multiple properties, rental business, or investment ≥ "RETRIEVED_FROM_DATABASE"',
         capital2025: {
-          old: 'RETRIEVED_FROM_DATABASE',
-          new: 'RETRIEVED_FROM_DATABASE',
+          old: "RETRIEVED_FROM_DATABASE",
+          new: "RETRIEVED_FROM_DATABASE",
           clarification: '⚠️ TO VERIFY: 10B capital OR 10B total investment plan?',
           usdEquivalent: 'USD ~650,000 at 15,400 IDR/USD',
         },

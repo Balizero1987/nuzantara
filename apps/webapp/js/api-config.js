@@ -5,7 +5,7 @@ export const API_ENDPOINTS = {
   auth: {
     login: '/auth/login',
     teamLogin: '/api/auth/team/login',
-    check: '/auth/me',
+    check: '/api/user/profile',
     logout: '/api/auth/logout',
     profile: '/api/user/profile'
   },
@@ -29,7 +29,7 @@ export const API_ENDPOINTS = {
   agents: {
     compliance: '/api/agents/compliance/alerts',
     journey: '/api/agents/journey/{journey_id}/next-steps',
-    research: '/api/agents/autonomous-agents/conversation-trainer/run',
+    research: '/api/autonomous-agents/conversation-trainer/run',
     semanticSearch: '/api/search/',
     hybridQuery: '/api/search/',
     documentIntelligence: '/ai/creative/vision'
@@ -53,7 +53,7 @@ export const API_ENDPOINTS = {
   integrations: {
     gmail: '/google/gmail/list',
     calendar: '/google/calendar/list',
-    twitter: '/communication/translate'
+    twitter: '/api/translate/text'
   },
 
   // RAG/Knowledge Base

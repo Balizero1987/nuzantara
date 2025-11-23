@@ -61,6 +61,8 @@ export async function ragQuery(params: any): Promise<RAGQueryResponse> {
  * Handler: bali.zero.chat
  * Specialized for immigration/visa queries
  */
+import { zantaraRouter } from '../../services/zantara-router.js';
+
 export async function baliZeroChat(params: any): Promise<BaliZeroResponse> {
   const { query, conversation_history, user_role = 'member', user_email } = params;
 
@@ -68,25 +70,24 @@ export async function baliZeroChat(params: any): Promise<BaliZeroResponse> {
     throw new Error('Query parameter is required');
   }
 
-  logger.info(`🔐 [baliZeroChat] Forwarding to backend with user_email: ${user_email || 'NONE'}`);
+  logger.info(`🔐 [baliZeroChat] Forwarding to Zantara Router with user_email: ${user_email || 'NONE'}`);
 
   try {
-    const result = await ragService.baliZeroChat({
-      query,
-      conversation_history,
-      user_role,
-      user_email,
+    // Use Zantara Router (Smart Broker)
+    const routerResult = await zantaraRouter.handleRequest({
+      message: query,
+      user_email: user_email || 'guest'
     });
 
-    const hasText = typeof result?.response === 'string' && result.response.trim().length > 0;
-    const fallback =
-      'I could not generate a direct answer from the knowledge base. Please rephrase or ask a more specific question.';
-    const normalized = {
-      ...result,
-      response: hasText ? result.response : fallback,
-    } as BaliZeroResponse;
+    return {
+      success: true,
+      response: routerResult.response,
+      sources: [],
+      model_used: routerResult.source || 'zantara-smart-broker',
+      token_usage: { total_tokens: 0, prompt_tokens: 0, completion_tokens: 0 }, // Oracle doesn't return usage yet
+      execution_time: 0
+    };
 
-    return normalized;
   } catch (error: any) {
     logger.error('Bali Zero chat error:', error instanceof Error ? error : new Error(String(error)));
     throw error;

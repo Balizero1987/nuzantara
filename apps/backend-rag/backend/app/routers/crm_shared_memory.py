@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/crm/shared-memory", tags=["crm-shared-memory"])
+router = APIRouter(prefix="/api/crm/shared-memory", tags=["crm-shared-memory"])
 
 
 # ================================================
