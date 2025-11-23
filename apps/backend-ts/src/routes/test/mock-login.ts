@@ -13,6 +13,11 @@ import { ok } from '../../utils/response.js';
 
 const router = Router();
 
+// Production guard
+if (process.env.NODE_ENV === 'production') {
+  throw new Error('Mock login is disabled in production');
+}
+
 // Mock team members data (same PIN: 1234 for testing)
 const mockTeamMembers = [
   {

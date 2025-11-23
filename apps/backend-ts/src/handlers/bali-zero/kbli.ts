@@ -1,35 +1,26 @@
-import logger from '../../services/logger.js';
-import { Request, Response } from 'express';
-
 /**
- * KBLI handlers (TS backend)
- *
- * NOTE:
- * - All authoritative KBLI data now lives in Qdrant/PostgreSQL and is served via the RAG backend.
- * - This TypeScript handler no longer contains any embedded KBLI tables or regulatory data.
- * - Frontends should call the RAG /oracle endpoints for actual KBLI lookups and requirements.
+ * DEPRECATED: KBLI endpoints moved to RAG backend
+ * Returns 410 Gone for all requests
  */
 
-export async function kbliLookup(_req: Request, res: Response) {
-  logger.warn(
-    'kbliLookup called: static KBLI tables removed from TS backend. Use RAG /oracle endpoints instead.',
-  );
+import { ok } from '../../utils/response.js';
 
-  return res.status(501).json({
+export async function kbliLookup() {
+  return {
     ok: false,
-    error: 'KBLI lookup is now handled by the RAG backend. This endpoint is deprecated.',
-  });
+    error: 'This endpoint has been permanently moved to the RAG backend',
+    code: 'ENDPOINT_MOVED',
+    statusCode: 410,
+    newEndpoint: 'https://nuzantara-rag.fly.dev/api/oracle/kbli'
+  };
 }
 
-export async function kbliRequirements(_req: Request, res: Response) {
-  logger.warn(
-    'kbliRequirements called: static KBLI tables removed from TS backend. Use RAG /oracle endpoints instead.',
-  );
-
-  return res.status(501).json({
+export async function kbliRequirements() {
+  return {
     ok: false,
-    error: 'KBLI requirements are now handled by the RAG backend. This endpoint is deprecated.',
-  });
+    error: 'This endpoint has been permanently moved to the RAG backend',
+    code: 'ENDPOINT_MOVED',
+    statusCode: 410,
+    newEndpoint: 'https://nuzantara-rag.fly.dev/api/oracle/kbli'
+  };
 }
-
-
