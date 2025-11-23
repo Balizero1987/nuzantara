@@ -3,17 +3,10 @@ import { BadRequestError } from '../../utils/errors.js';
 
 type ServiceKey = 'visa' | 'company' | 'tax' | 'real-estate' | 'property' | 'legal';
 
-type DocumentMatrix = {
-  title: string;
-  required: string[];
-  optional?: string[];
-  notes?: string[];
-};
 
-// DOCUMENT_LIBRARY removed - all document checklists, required/optional documents,
-// and service-specific notes are now stored in Qdrant/PostgreSQL and retrieved via RAG backend
+// All document checklists, required/optional documents,
+// and service-specific notes are stored in Qdrant/PostgreSQL and retrieved via RAG backend
 // This ensures data accuracy and eliminates hardcoded values from the codebase
-const DOCUMENT_LIBRARY: Record<ServiceKey, DocumentMatrix> = {} as any; // Placeholder - data from database
 
 // ROUTING_MESSAGES and ROUTING_CAPABILITIES removed
 // All routing messages, capabilities, and service-specific information

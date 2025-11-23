@@ -40,7 +40,7 @@ export async function teamList(req: Request, res: Response) {
     // TABULA RASA: Team members MUST be retrieved from database
     // TODO: Replace with database query
     logger.warn('⚠️ Team list using fallback stub - team data should come from database');
-    const members: any[] = []; // Retrieved from database
+    let members: any[] = []; // Retrieved from database
 
     // Filter by department
     if (department) {

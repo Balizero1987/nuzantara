@@ -90,7 +90,7 @@ class UnifiedAuthenticationStrategy {
       confidence: 0.8,
     });
 
-    // Firebase Auth removed - no longer supported
+    // Firebase Auth removed - using PostgreSQL-based authentication instead
 
     // Priority 5: Demo User Auth (fallback)
     this.authMethods.push({
@@ -193,7 +193,7 @@ class UnifiedAuthenticationStrategy {
     };
   }
 
-  // Firebase handler removed - no longer supported
+  // Firebase handler removed - using PostgreSQL-based authentication instead
 
   private createDemoHandler() {
     return async (req: Request, _res: Response, next: NextFunction) => {

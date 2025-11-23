@@ -84,9 +84,8 @@ export async function bashZero(
       maxBuffer: 10 * 1024 * 1024, // 10MB
       env: {
         ...process.env,
-        // Ensure git/gcloud use project config
+        // Ensure git uses project config
         GIT_DIR: `${PROJECT_ROOT}/.git`,
-        CLOUDSDK_CORE_PROJECT: process.env.FIREBASE_PROJECT_ID || 'involuted-box-469105-r0',
       },
     });
 

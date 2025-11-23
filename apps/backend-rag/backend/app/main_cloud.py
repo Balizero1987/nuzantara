@@ -2,7 +2,7 @@
 FastAPI entrypoint for the ZANTARA RAG backend.
 
 Responsibilities:
-* Initialize shared services (SearchService, ZantaraAI, ToolExecutor, IntentRouter, ZantaraVoice)
+* Initialize shared services (SearchService, ZantaraAI, ToolExecutor) - IntentRouter and ZantaraVoice disabled
 * Mount all API routers
 * Expose "Smart Broker" streaming endpoint (/bali-zero/chat-stream)
 * Configure CORS and health checks
@@ -33,8 +33,8 @@ from services.cultural_rag_service import CulturalRAGService
 from services.query_router import QueryRouter
 
 # --- New "Smart Broker" Services ---
-from services.intent_router import IntentRouter
-from services.zantara_voice import ZantaraVoice
+# from services.intent_router import IntentRouter  # Module not found - commented out
+# from services.zantara_voice import ZantaraVoice   # Module not found - commented out
 
 # --- LLM Client ---
 from llm.zantara_ai_client import ZantaraAIClient
@@ -156,20 +156,12 @@ def initialize_services() -> None:
             ai_client = None
 
         # 3. New: Intent Router & Zantara Voice (Ollama)
-        try:
-            # Defaults to your Oracle server IP if env var not set
-            oracle_url = os.getenv("ZANTARA_ORACLE_URL", "http://168.110.196.106:11434/v1")
-            
-            intent_router = IntentRouter(base_url=oracle_url)
-            zantara_voice = ZantaraVoice(base_url=oracle_url)
-            
-            app.state.intent_router = intent_router
-            app.state.zantara_voice = zantara_voice
-            logger.info(f"✅ Zantara Voice connected to {oracle_url}")
-        except Exception as e:
-            logger.warning(f"⚠️ Zantara Voice/Router init failed: {e}. Fallback to standard RAG.")
-            app.state.intent_router = None
-            app.state.zantara_voice = None
+        # Modules not found - disabled
+        logger.info(f"⚠️ IntentRouter and ZantaraVoice modules disabled - not found")
+
+        # Set None for disabled modules
+        app.state.intent_router = None
+        app.state.zantara_voice = None
 
         # 4. Tool stack
         ts_backend_url = os.getenv("TS_BACKEND_URL", "https://nuzantara-backend.fly.dev")
@@ -278,8 +270,10 @@ async def bali_zero_chat_stream(
 
     # Load Services
     intelligent_router: IntelligentRouter = app.state.intelligent_router
-    intent_router: Optional[IntentRouter] = getattr(app.state, "intent_router", None)
-    zantara_voice: Optional[ZantaraVoice] = getattr(app.state, "zantara_voice", None)
+    # intent_router: Optional[IntentRouter] = getattr(app.state, "intent_router", None)  # Module not found - commented out
+    # zantara_voice: Optional[ZantaraVoice] = getattr(app.state, "zantara_voice", None)   # Module not found - commented out
+    intent_router = None
+    zantara_voice = None
     
     conversation_history_list = _parse_history(conversation_history)
     user_id = user_email or user_role or "anonymous"

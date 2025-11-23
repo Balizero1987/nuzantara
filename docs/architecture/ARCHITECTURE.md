@@ -91,7 +91,6 @@ ZANTARA is a comprehensive AI assistant system for Bali Zero, providing intellig
 - `RAG_BACKEND_URL`: RAG backend URL (default: `https://nuzantara-rag.fly.dev`)
 - `OPENROUTER_API_KEY`: OpenRouter API key for ZANTARA AI
 - `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`: Google Workspace OAuth (optional)
-- `FIREBASE_PROJECT_ID`: Legacy (Firebase disabled, kept for backward compatibility)
 
 #### Backend RAG
 - `OPENAI_API_KEY`: OpenAI API key for embeddings

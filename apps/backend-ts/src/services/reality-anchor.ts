@@ -98,7 +98,7 @@ export class RealityAnchorSystem {
     }
 
     // Cross-reference with historical data
-    const historicalCheck = await this.crossReferenceHistory(claim, context); // LEGACY CODE CLEANED: Firestore removed
+    const historicalCheck = await this.crossReferenceHistory(claim, context);
     if (historicalCheck.discrepancies > 0) {
       contradictions.push(`${historicalCheck.discrepancies} historical discrepancies found`);
       realityScore *= 0.8;

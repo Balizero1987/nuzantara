@@ -74,7 +74,7 @@ router.post('/login', async (req: Request, res: Response) => {
  */
 router.get('/members', async (_req: Request, res: Response) => {
   try {
-    const members = getTeamMembers();
+    const members = await getTeamMembers();
 
     res.json({
       ok: true,

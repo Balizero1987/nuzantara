@@ -144,7 +144,7 @@ async function handleLogin(e) {
       },
       body: JSON.stringify({
         email: email,
-        password: pin
+        pin: pin
       }),
     });
 

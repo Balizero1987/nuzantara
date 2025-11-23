@@ -64,7 +64,7 @@ export async function ragQuery(params: any): Promise<RAGQueryResponse> {
 import { zantaraRouter } from '../../services/zantara-router.js';
 
 export async function baliZeroChat(params: any): Promise<BaliZeroResponse> {
-  const { query, conversation_history, user_role = 'member', user_email } = params;
+  const { query, user_email } = params;
 
   if (!query) {
     throw new Error('Query parameter is required');
@@ -84,8 +84,6 @@ export async function baliZeroChat(params: any): Promise<BaliZeroResponse> {
       response: routerResult.response,
       sources: [],
       model_used: routerResult.source || 'zantara-smart-broker',
-      token_usage: { total_tokens: 0, prompt_tokens: 0, completion_tokens: 0 }, // Oracle doesn't return usage yet
-      execution_time: 0
     };
 
   } catch (error: any) {

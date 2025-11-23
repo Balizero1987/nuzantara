@@ -11,7 +11,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 // Configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'zantara-jwt-secret-CHANGE-IN-PRODUCTION-2025';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required for secure team login');
+}
 const JWT_EXPIRY = '24h';
 const MAX_LOGIN_ATTEMPTS = 3;
 const BLOCK_DURATION_MS = 5 * 60 * 1000; // 5 minutes

@@ -388,7 +388,7 @@ export class MultiLanguageSystem {
   private getPersonalizedGreeting(memberName: string, language: string): string {
     const greetings = {
       it: {
-        Zero: 'Buongiorno! Sono Zero, il tuo AI Bridge.',
+        Zero: 'Buongiorno! Sono Zero, il tuo assistente AI.',
         Ruslana: 'Buongiorno, sono Ruslana.',
         Olena: 'Salve, sono Olena.',
         Marta: 'Ciao, sono Marta.',

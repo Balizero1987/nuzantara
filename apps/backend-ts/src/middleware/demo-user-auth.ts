@@ -207,8 +207,8 @@ const DEMO_FORBIDDEN_HANDLERS = new Set([
  * Check if user can access handler based on role
  */
 export function isHandlerAllowed(handlerKey: string, role: string = 'demo'): boolean {
-  // Admin has full access (role = 'admin' or 'AI Bridge/Tech Lead')
-  if (role === 'admin' || role === 'AI Bridge/Tech Lead' || role === 'tech') {
+  // Admin has full access (role = 'admin' or 'Tech Lead')
+  if (role === 'admin' || role === 'Tech Lead' || role === 'tech') {
     return true;
   }
 
@@ -294,7 +294,14 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
     // Check for JWT token (if not already authenticated)
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      const jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
+      const jwtSecret = process.env.JWT_SECRET;
+
+      if (!jwtSecret) {
+        return res.status(500).json({
+          error: 'Server configuration error',
+          message: 'JWT authentication system unavailable'
+        });
+      }
 
       try {
         const decoded = jwt.verify(token, jwtSecret) as any;
@@ -380,7 +387,10 @@ export function demoUserAuth(req: RequestWithDemo, res: Response, next: NextFunc
  * Create demo user JWT token
  */
 export function createDemoToken(): string {
-  const jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET environment variable is required for demo token creation');
+  }
 
   return jwt.sign(
     {

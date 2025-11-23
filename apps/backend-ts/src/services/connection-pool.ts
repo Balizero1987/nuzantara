@@ -101,18 +101,34 @@ export class DatabaseConnectionPool {
     }
 
     // Check circuit breaker state before attempting connection
-    if (dbCircuitBreaker.getState() === 'OPEN') {
+    if (dbCircuitBreaker.getState() === 'open') {
       throw new Error('Database circuit breaker is OPEN');
     }
 
-    try {
-      const client = await this.pool.connect();
-      // On success, circuit breaker will be notified via query method
-      return client;
-    } catch (error) {
-      // On failure, circuit breaker will be notified via query method
-      throw error;
+    // Implement retry logic with exponential backoff
+    let lastError: Error;
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 second
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const client = await this.pool.connect();
+        // On success, circuit breaker will be notified via query method
+        return client;
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+
+        // Log retry attempt
+        if (attempt < maxRetries) {
+          const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
+          logger.warn(`Database connection attempt ${attempt} failed, retrying in ${delay}ms:`, lastError.message);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
     }
+
+    // All retries failed, let circuit breaker handle the failure
+    throw lastError;
   }
 
   /**

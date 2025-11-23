@@ -47,7 +47,7 @@ async function getSecretManagerClient() {
   try {
     const { SecretManagerServiceClient } = await import('@google-cloud/secret-manager');
     secretManagerClient = new SecretManagerServiceClient({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'involuted-box-469105-r0',
+      projectId: 'nuzantara-backend',
     });
     return secretManagerClient;
   } catch (error: any) {
@@ -62,7 +62,7 @@ async function saveTokensToSecretManager(tokens: OAuth2Tokens): Promise<boolean>
     const client = await getSecretManagerClient();
     if (!client) return false;
 
-    const projectId = process.env.FIREBASE_PROJECT_ID || 'involuted-box-469105-r0';
+    const projectId = 'nuzantara-backend';
     const secretName = `projects/${projectId}/secrets/OAUTH2_TOKENS`;
 
     await client.addSecretVersion({

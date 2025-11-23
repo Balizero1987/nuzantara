@@ -37,7 +37,6 @@ export async function loadAllHandlers() {
     // Analytics (1dynamicValue)
     await import('../handlers/analytics/registry.js');
 
-    // PRIORITY 5: Memory handlers removed (legacy store deprecated - using Python memory service)
     // await import('../handlers/memory/registry.js');
 
     // Identity (3 handlers) - Temporarily disabled

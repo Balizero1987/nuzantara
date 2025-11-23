@@ -1,11 +1,10 @@
 /**
  * Unified Authentication Strategy Pattern
  *
- * Consolidates 4 different JWT systems into 1 unified architecture:
+ * Consolidates 3 different JWT systems into 1 unified architecture:
  * 1. Enhanced JWT Auth (GLM 4.6)
  * 2. Team Login JWT (team-login.ts)
- * 3. Firebase Auth (Google)
- * 4. Legacy JWT (various handlers)
+ * 3. Legacy JWT (various handlers)
  *
  * @author Gemini Pro 2.5 Recommendations
  * @version 1.0.0
@@ -29,7 +28,7 @@ export interface UnifiedUser {
   lastLogin?: Date;
   metadata?: Record<string, any>;
   // Extended properties for different auth types
-  authType: 'enhanced' | 'team' | 'firebase' | 'legacy';
+  authType: 'enhanced' | 'team' | 'legacy';
   sessionId?: string;
   language?: string;
   personalizedResponse?: string;
@@ -47,7 +46,7 @@ export interface AuthenticationStrategy {
   authenticate(req: Request): Promise<UnifiedUser | null>;
 
   // Generate token for this strategy
-  generateToken(user: UnifiedUser): string;
+  generateToken(user: UnifiedUser): Promise<string>;
 
   // Validate token for this strategy
   validateToken(token: string): Promise<UnifiedUser | null>;
@@ -109,7 +108,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
     }
   }
 
-  generateToken(user: UnifiedUser): string {
+  async generateToken(user: UnifiedUser): Promise<string> {
     const enhancedUser: EnhancedUser = {
       id: user.id,
       userId: user.userId,
@@ -181,7 +180,13 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
 export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   readonly name = 'team';
   readonly priority = 80;
-  private jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
+  private jwtSecret = process.env.JWT_SECRET;
+
+  constructor() {
+    if (!this.jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is required for Team Login authentication');
+    }
+  }
 
   canHandle(req: Request): boolean {
     const authHeader = req.headers.authorization;
@@ -203,9 +208,9 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
       if (!authHeader?.startsWith('Bearer ')) return null;
 
       const token = authHeader.substring(7);
-      const jwt = require('jsonwebtoken');
+      const jwt = await import('jsonwebtoken');
 
-      const decoded = jwt.verify(token, this.jwtSecret) as any;
+      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
 
       // Get team member data
       const teamMember = await this.getTeamMember(decoded.userId);
@@ -232,11 +237,11 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
     }
   }
 
-  generateToken(user: UnifiedUser): string {
-    const jwt = require('jsonwebtoken');
+  async generateToken(user: UnifiedUser): Promise<string> {
+    const jwt = await import('jsonwebtoken');
     const sessionId = `session_${Date.now()}_${user.id}`;
 
-    return jwt.sign(
+    return (await jwt).sign(
       {
         userId: user.id,
         email: user.email,
@@ -251,8 +256,8 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
 
   async validateToken(token: string): Promise<UnifiedUser | null> {
     try {
-      const jwt = require('jsonwebtoken');
-      const decoded = jwt.verify(token, this.jwtSecret) as any;
+      const jwt = await import('jsonwebtoken');
+      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
 
       const teamMember = await this.getTeamMember(decoded.userId);
       if (!teamMember) return null;
@@ -303,7 +308,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   private getPermissionsForRole(role: string): string[] {
     const permissions: { [key: string]: string[] } = {
       CEO: ['all', 'admin', 'finance', 'hr', 'tech', 'marketing'],
-      'AI Bridge/Tech Lead': ['all', 'tech', 'admin', 'finance'],
+      'Tech Lead': ['all', 'tech', 'admin', 'finance'],
       'Executive Consultant': ['setup', 'finance', 'clients', 'reports'],
       'Junior Consultant': ['setup', 'clients'],
       'Tax Manager': ['tax', 'finance', 'reports', 'clients'],
@@ -315,9 +320,6 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   }
 }
 
-// Firebase Auth Strategy (placeholder for future integration)
-// LEGACY CODE REMOVED: FirebaseAuthStrategy completely removed
-// Firebase/Firestore removed from codebase - use PostgreSQL-based authentication
 
 // LEGACY CODE: Legacy JWT Strategy (kept for backward compatibility only)
 // TODO: Migrate to modern JWT strategy
@@ -325,7 +327,13 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
   readonly name = 'legacy';
   readonly priority = 20;
 
-  private jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
+  private jwtSecret = process.env.JWT_SECRET;
+
+  constructor() {
+    if (!this.jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is required for Legacy authentication');
+    }
+  }
 
   canHandle(req: Request): boolean {
     const authHeader = req.headers.authorization;
@@ -338,9 +346,9 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
       if (!authHeader?.startsWith('Bearer ')) return null;
 
       const token = authHeader.substring(7);
-      const jwt = require('jsonwebtoken');
+      const jwt = await import('jsonwebtoken');
 
-      const decoded = jwt.verify(token, this.jwtSecret) as any;
+      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
 
       return {
         id: decoded.userId || decoded.sub,
@@ -360,10 +368,10 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
     }
   }
 
-  generateToken(user: UnifiedUser): string {
-    const jwt = require('jsonwebtoken');
+  async generateToken(user: UnifiedUser): Promise<string> {
+    const jwt = await import('jsonwebtoken');
 
-    return jwt.sign(
+    return (await jwt).sign(
       {
         userId: user.id,
         email: user.email,
@@ -379,8 +387,8 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
 
   async validateToken(token: string): Promise<UnifiedUser | null> {
     try {
-      const jwt = require('jsonwebtoken');
-      const decoded = jwt.verify(token, this.jwtSecret) as any;
+      const jwt = await import('jsonwebtoken');
+      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
 
       return {
         id: decoded.userId || decoded.sub,
@@ -417,7 +425,6 @@ export class UnifiedAuthenticationManager {
     // Register strategies in priority order
     this.registerStrategy(new EnhancedJWTStrategy());
     this.registerStrategy(new TeamLoginJWTStrategy());
-    this.registerStrategy(new FirebaseAuthStrategy());
     this.registerStrategy(new LegacyJWTStrategy());
 
     logger.info(
@@ -477,13 +484,13 @@ export class UnifiedAuthenticationManager {
     return null;
   }
 
-  generateToken(user: UnifiedUser, strategyName: string = 'enhanced'): string {
+  async generateToken(user: UnifiedUser, strategyName: string = 'enhanced'): Promise<string> {
     const strategy = this.strategies.find((s) => s.name === strategyName);
     if (!strategy) {
       throw new Error(`Unknown authentication strategy: ${strategyName}`);
     }
 
-    return strategy.generateToken(user);
+    return await strategy.generateToken(user);
   }
 
   async refreshToken(token: string): Promise<string | null> {

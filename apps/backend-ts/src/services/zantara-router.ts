@@ -99,9 +99,9 @@ export class ZantaraRouter {
         user_email: user_email,
         mode: 'pikiran' // Force deep reasoning in RAG
       });
-      // zantaraChat returns an API response object { status: 200, data: { ... } } 
+      // zantaraChat returns an API response object { status: 200, data: { ... } }
       // We need to extract the actual text
-      ragResponse = ragResult.data?.answer || ragResult.data?.response || "Maaf, sistem RAG sedang busy.";
+      ragResponse = ragResult.data?.answer || ragResult.data?.response || ragResult.answer || "Maaf, sistem RAG sedang busy.";
     } catch (error) {
       logger.error('❌ RAG Backend failed, falling back to Oracle Direct');
       return this.handleChatMode(message, memoryContext);

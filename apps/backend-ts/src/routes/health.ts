@@ -70,7 +70,7 @@ router.get('/health/detailed', async (_req: Request, res: Response) => {
       health.services.postgresql = {
         status: dbHealthy ? 'healthy' : 'unhealthy',
         metrics: metrics || null,
-        circuitBreaker: dbCircuitBreaker.getStats(),
+        circuitBreaker: dbCircuitBreaker.getHealthSummary(),
       };
 
       if (!dbHealthy) allHealthy = false;
@@ -91,8 +91,8 @@ router.get('/health/detailed', async (_req: Request, res: Response) => {
   // Circuit breaker status
   if (featureFlags.isEnabled(FeatureFlag.ENABLE_CIRCUIT_BREAKER)) {
     health.circuitBreakers = {
-      database: dbCircuitBreaker.getStats(),
-      rag: ragCircuitBreaker.getStats(),
+      database: dbCircuitBreaker.getHealthSummary(),
+      rag: ragCircuitBreaker.getHealthSummary(),
     };
   }
 
@@ -207,18 +207,18 @@ router.get('/metrics', async (_req: Request, res: Response) => {
 
     // Circuit breaker metrics
     if (featureFlags.isEnabled(FeatureFlag.ENABLE_CIRCUIT_BREAKER)) {
-      const dbStats = dbCircuitBreaker.getStats();
+      const dbStats = dbCircuitBreaker.getHealthSummary();
       metrics.push(
         `# HELP circuit_breaker_state Circuit breaker state (0=CLOSED, 1=OPEN, 2=HALF_OPEN)`
       );
       metrics.push(`# TYPE circuit_breaker_state gauge`);
       metrics.push(
-        `circuit_breaker_state{service="database"} ${dbStats.state === 'CLOSED' ? 0 : dbStats.state === 'OPEN' ? 1 : 2}`
+        `circuit_breaker_state{service="database"} ${dbStats.state === 'closed' ? 0 : dbStats.state === 'open' ? 1 : 2}`
       );
 
       metrics.push(`# HELP circuit_breaker_failures_total Total failures`);
       metrics.push(`# TYPE circuit_breaker_failures_total counter`);
-      metrics.push(`circuit_breaker_failures_total{service="database"} ${dbStats.totalFailures}`);
+      metrics.push(`circuit_breaker_failures_total{service="database"} ${dbStats.currentFailures}`);
     }
 
     res.setHeader('Content-Type', 'text/plain');

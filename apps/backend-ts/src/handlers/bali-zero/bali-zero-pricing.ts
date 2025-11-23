@@ -12,7 +12,7 @@
  */
 import { z } from 'zod';
 import { ok } from '../../utils/response.js';
-import { ragService } from '../../services/ragService.js';
+import { ragService, type RAGQueryResponse } from '../../services/ragService.js';
 import logger from '../../services/logger.js';
 
 const PricingQuerySchema = z.object({
@@ -50,7 +50,7 @@ export async function baliZeroPricing(params: any) {
     logger.info(`💰 Pricing query: service_type=${p.service_type}, query="${query}"`);
 
     // Query RAG backend for pricing data from database
-    const ragResult = await ragService.search(query, 10, 'bali_zero_pricing');
+    const ragResult: RAGQueryResponse = await ragService.search(query, 10, 'bali_zero_pricing');
 
     if (!ragResult || !ragResult.success) {
       return ok({
@@ -123,7 +123,7 @@ export async function baliZeroQuickPrice(params: any) {
     logger.info(`💰 Quick price lookup: "${service}"`);
 
     // Query RAG backend
-    const ragResult = await ragService.search(service, 5, 'bali_zero_pricing');
+    const ragResult: RAGQueryResponse = await ragService.search(service, 5, 'bali_zero_pricing');
 
     if (!ragResult || !ragResult.success || !ragResult.sources || ragResult.sources.length === 0) {
       return ok({
