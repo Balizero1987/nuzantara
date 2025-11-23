@@ -5,16 +5,9 @@
 
 import logger from '../../services/logger.js';
 import { ok } from '../../utils/response.js';
-import { BadRequestError } from '../../utils/errors.js';
+import { BadRequestError, InternalServerError } from '../../utils/errors.js';
 import jwt from 'jsonwebtoken';
-
-// TABULA RASA: Team member database MUST be retrieved from database
-// This legacy structure is kept only as a fallback stub - all team data comes from database
-// TODO: Remove this stub once database integration is complete
-const TEAM_RECOGNITION: Record<string, any> = {
-  // TABULA RASA: All team member data removed - must be retrieved from database
-  // No hardcoded team members - empty stub only
-};
+import { getDatabasePool } from '../../services/connection-pool.js';
 
 // Session management
 const activeSessions = new Map<string, any>();
@@ -38,13 +31,21 @@ export async function teamLogin(params: any) {
     throw new BadRequestError('Invalid PIN format. Must be 4-8 digits.');
   }
 
-  // Find team member by email
+  // Find team member by email in DATABASE
   let member: any = null;
-  for (const teamMember of Object.values(TEAM_RECOGNITION)) {
-    if (teamMember.email.toLowerCase() === email.toLowerCase()) {
-      member = teamMember;
-      break;
+  try {
+    const db = getDatabasePool();
+    const result = await db.query(
+      'SELECT * FROM team_members WHERE LOWER(email) = LOWER($1)',
+      [email]
+    );
+    
+    if (result.rows.length > 0) {
+      member = result.rows[0];
     }
+  } catch (error) {
+    logger.error(`Database error during login for ${email}:`, error as Error);
+    throw new InternalServerError('Authentication service unavailable');
   }
 
   if (!member) {
@@ -96,11 +97,11 @@ export async function teamLogin(params: any) {
       name: member.name,
       role: member.role,
       department: member.department,
-      language: member.language,
+      language: member.language || 'en', // Default fallback
       email: member.email,
     },
     permissions: session.permissions,
-    personalizedResponse: member.personalizedResponse,
+    personalizedResponse: member.personalized_response || false, // DB usually uses snake_case
     loginTime: session.loginTime,
   });
 }
@@ -147,17 +148,17 @@ export function validateSession(sessionId: string): any {
 }
 
 /**
- * Get all team members for login form
+ * Get all team members for login form (Public safe list)
  */
-export function getTeamMembers() {
-  return Object.values(TEAM_RECOGNITION).map((member) => ({
-    id: member.id,
-    name: member.name,
-    role: member.role,
-    department: member.department,
-    email: member.email,
-    pin: member.pin, // Required for PIN validation in router.ts
-  }));
+export async function getTeamMembers() {
+  try {
+    const db = getDatabasePool();
+    const result = await db.query('SELECT id, name, role, department, email, pin FROM team_members ORDER BY name');
+    return result.rows;
+  } catch (error) {
+    logger.error('Failed to retrieve team members list:', error as Error);
+    return [];
+  }
 }
 
 /**
