@@ -4,31 +4,31 @@
  */
 
 /** Set up for OpenTelemetry tracing **/
-import { resourceFromAttributes } from "@opentelemetry/resources";
-import {
-  NodeTracerProvider,
-  SimpleSpanProcessor,
-} from "@opentelemetry/sdk-trace-node";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
-import { registerInstrumentations } from "@opentelemetry/instrumentation";
-import { OpenAIInstrumentation } from "@traceloop/instrumentation-openai";
+// import { resourceFromAttributes } from "@opentelemetry/resources";
+// import {
+//   NodeTracerProvider,
+//   SimpleSpanProcessor,
+// } from "@opentelemetry/sdk-trace-node";
+// import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
+// import { registerInstrumentations } from "@opentelemetry/instrumentation";
+// import { OpenAIInstrumentation } from "@traceloop/instrumentation-openai";
 
-const exporter = new OTLPTraceExporter({
-    url: "http://localhost:4318/v1/traces",
-});
-const provider = new NodeTracerProvider({
-    resource: resourceFromAttributes({
-        "service.name": "nuzantara-backend-ts",
-    }),
-    spanProcessors: [
-        new SimpleSpanProcessor(exporter)
-    ],
-});
-provider.register();
+// const exporter = new OTLPTraceExporter({
+//     url: "http://localhost:4318/v1/traces",
+// });
+// const provider = new NodeTracerProvider({
+//     resource: resourceFromAttributes({
+//         "service.name": "nuzantara-backend-ts",
+//     }),
+//     spanProcessors: [
+//         new SimpleSpanProcessor(exporter)
+//     ],
+// });
+// provider.register();
 
-registerInstrumentations({
-    instrumentations: [new OpenAIInstrumentation()],
-});
+// registerInstrumentations({
+//     instrumentations: [new OpenAIInstrumentation()],
+// });
 /** Set up for OpenTelemetry tracing **/
 
 import express from 'express';
