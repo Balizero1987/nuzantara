@@ -49,5 +49,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
-# Start the application using Node.js runtime on compiled JS
-CMD ["node", "dist/server.js"]
+# Start the application using tsx (Direct Source Execution for Stability)
+CMD ["npx", "tsx", "src/server.ts"]
