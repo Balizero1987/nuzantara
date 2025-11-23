@@ -6,7 +6,7 @@
  */
 
 import logger from './logger.js';
-import { dbCircuitBreaker } from './circuit-breaker.js';
+import { dbCircuitBreaker } from './architecture/circuit-breaker.js';
 
 export interface PoolMetrics {
   total: number;
