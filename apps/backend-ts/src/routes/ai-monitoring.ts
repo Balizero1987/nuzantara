@@ -97,50 +97,50 @@ router.get('/ai-health', async (_req: Request, res: Response) => {
  * Get refactoring agent stats
  * GET /api/monitoring/refactoring-stats
  */
-router.get('/refactoring-stats', async (_req: Request, res: Response) => {
-  try {
-    const { RefactoringAgent } = await import('../agents/refactoring-agent.js');
-    const agent = new RefactoringAgent();
-    const stats = agent.getStats();
+// router.get('/refactoring-stats', async (_req: Request, res: Response) => {
+//   try {
+//     const { RefactoringAgent } = await import('../agents/refactoring-agent.js');
+//     const agent = new RefactoringAgent();
+//     const stats = agent.getStats();
 
-    res.json({
-      ok: true,
-      data: stats,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error: any) {
-    logger.error('Failed to get refactoring stats', error instanceof Error ? error : new Error(String(error)));
-    res.status(500).json({
-      ok: false,
-      error: 'Refactoring agent not available',
-      message: error.message
-    });
-  }
-});
+//     res.json({
+//       ok: true,
+//       data: stats,
+//       timestamp: new Date().toISOString()
+//     });
+//   } catch (error: any) {
+//     logger.error('Failed to get refactoring stats', error instanceof Error ? error : new Error(String(error)));
+//     res.status(500).json({
+//       ok: false,
+//       error: 'Refactoring agent not available',
+//       message: error.message
+//     });
+//   }
+// });
 
 /**
  * Get test generator stats
  * GET /api/monitoring/test-generator-stats
  */
-router.get('/test-generator-stats', async (_req: Request, res: Response) => {
-  try {
-    const { TestGeneratorAgent } = await import('../agents/test-generator-agent.js');
-    const agent = new TestGeneratorAgent();
-    const stats = agent.getStats();
+// router.get('/test-generator-stats', async (_req: Request, res: Response) => {
+//   try {
+//     const { TestGeneratorAgent } = await import('../agents/test-generator-agent.js');
+//     const agent = new TestGeneratorAgent();
+//     const stats = agent.getStats();
 
-    res.json({
-      ok: true,
-      data: stats,
-      timestamp: new Date().toISOString()
-    });
-  } catch (error: any) {
-    logger.error('Failed to get test generator stats', error instanceof Error ? error : new Error(String(error)));
-    res.status(500).json({
-      ok: false,
-      error: 'Test generator not available',
-      message: error.message
-    });
-  }
-});
+//     res.json({
+//       ok: true,
+//       data: stats,
+//       timestamp: new Date().toISOString()
+//     });
+//   } catch (error: any) {
+//     logger.error('Failed to get test generator stats', error instanceof Error ? error : new Error(String(error)));
+//     res.status(500).json({
+//       ok: false,
+//       error: 'Test generator not available',
+//       message: error.message
+//     });
+//   }
+// });
 
 export default router;

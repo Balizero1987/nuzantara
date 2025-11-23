@@ -19,9 +19,6 @@ RUN npm install --verbose --no-audit --no-fund
 # Copy source code
 COPY src ./src
 
-# Remove broken legacy agents to ensure clean build
-RUN rm -rf src/agents
-
 # Proper TypeScript compilation
 RUN npm run build
 

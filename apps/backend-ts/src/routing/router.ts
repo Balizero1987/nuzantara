@@ -72,12 +72,12 @@ import {
   zantaraCulturalIntelligenceAdaptation,
   zantaraPerformanceOptimization,
 } from '../handlers/zantara/zantara-v2-simple.js';
-import {
-  zantaraBrilliantChat,
-  zantaraPersonality,
-  queryAgent,
-  getContext,
-} from '../handlers/zantara/zantara-brilliant.js';
+// import {
+//   zantaraBrilliantChat,
+//   zantaraPersonality,
+//   queryAgent,
+//   getContext,
+// } from '../handlers/zantara/zantara-brilliant.js';
 
 // Communication
 import {
@@ -1783,18 +1783,18 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // ========================================
-  // ZANTARA BRILLIANT SYSTEM
+  // ZANTARA BRILLIANT SYSTEM (DISABLED)
   // ========================================
 
   // ZANTARA Brilliant Chat (POST) - Main chat interface
-  app.post('/zantara/brilliant/chat', apiKeyAuth, async (req: RequestWithCtx, res) => {
-    try {
-      return await zantaraBrilliantChat(req, res);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  });
+  // app.post('/zantara/brilliant/chat', apiKeyAuth, async (req: RequestWithCtx, res) => {
+  //   try {
+  //     return await zantaraBrilliantChat(req, res);
+  //   } catch (e: any) {
+  //     if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+  //     return res.status(500).json(err(e?.message || 'Internal Error'));
+  //   }
+  // });
 
   // ========================================
   // ZANTARA KNOWLEDGE SYSTEM
@@ -1834,33 +1834,33 @@ export function attachRoutes(app: import('express').Express) {
   });
 
   // ZANTARA Personality Info (GET) - Get system personality details
-  app.get('/zantara/personality', async (req, res) => {
-    try {
-      return await zantaraPersonality(req, res);
-    } catch (e: any) {
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  });
+  // app.get('/zantara/personality', async (req, res) => {
+  //   try {
+  //     return await zantaraPersonality(req, res);
+  //   } catch (e: any) {
+  //     return res.status(500).json(err(e?.message || 'Internal Error'));
+  //   }
+  // });
 
   // Direct Agent Query (POST) - For testing and debugging
-  app.post('/zantara/agent/query', apiKeyAuth, async (req: RequestWithCtx, res) => {
-    try {
-      return await queryAgent(req, res);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  });
+  // app.post('/zantara/agent/query', apiKeyAuth, async (req: RequestWithCtx, res) => {
+  //   try {
+  //     return await queryAgent(req, res);
+  //   } catch (e: any) {
+  //     if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+  //     return res.status(500).json(err(e?.message || 'Internal Error'));
+  //   }
+  // });
 
   // Get User Context (GET) - Retrieve conversation context
-  app.get('/zantara/context/:userId', apiKeyAuth, async (req: RequestWithCtx, res) => {
-    try {
-      return await getContext(req, res);
-    } catch (e: any) {
-      if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  });
+  // app.get('/zantara/context/:userId', apiKeyAuth, async (req: RequestWithCtx, res) => {
+  //   try {
+  //     return await getContext(req, res);
+  //   } catch (e: any) {
+  //     if (e instanceof BadRequestError) return res.status(400).json(err(e.message));
+  //     return res.status(500).json(err(e?.message || 'Internal Error'));
+  //   }
+  // });
 
   // ========================================
   // INTEL NEWS SEARCH (Bali Intelligence)
