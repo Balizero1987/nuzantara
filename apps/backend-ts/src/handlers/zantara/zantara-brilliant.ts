@@ -5,11 +5,11 @@
 
 import { Request, Response } from 'express';
 import { logger } from '../../logging/unified-logger.js';
-import { ZantaraOrchestrator } from '../../core/zantara-orchestrator.js';
+// import { ZantaraOrchestrator } from '../../core/zantara-orchestrator.js'; // BROKEN - DISABLED
 import { ok, err } from '../../utils/response.js';
 
 // Single orchestrator instance
-const orchestrator = new ZantaraOrchestrator();
+// const orchestrator = new ZantaraOrchestrator(); // DISABLED
 
 /**
  * Main ZANTARA chat endpoint - brilliant responses
@@ -32,11 +32,15 @@ export async function zantaraBrilliantChat(req: Request, res: Response) {
     };
 
     // Get brilliant response from orchestrator
-    const response = await orchestrator.respond(message, context);
+    // const response = await orchestrator.respond(message, context);
+    const response = {
+      answer: "Zantara Brilliant Orchestrator is currently disabled for maintenance. Please use standard chat.",
+      mode: "maintenance"
+    };
 
     // Save context for continuity
     if (userId !== 'anonymous') {
-      await orchestrator.saveContext(userId, context);
+      // await orchestrator.saveContext(userId, context);
     }
 
     return res.json(
@@ -133,7 +137,8 @@ export async function getContext(req: Request, res: Response) {
       return res.status(400).json(err('User ID is required'));
     }
 
-    const context = await orchestrator.loadContext(userId);
+    // const context = await orchestrator.loadContext(userId);
+    const context = { history: [] }; // Mock
 
     return res.json(
       ok({
