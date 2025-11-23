@@ -135,7 +135,7 @@ async def login(request: LoginRequest):
     try:
         # Real database authentication only
         query = """
-            SELECT id, email, name, pin_hash, role, status, metadata, language_preference
+            SELECT id, email, name, password_hash, role, status, metadata, language_preference
             FROM users
             WHERE email = $1 AND status = 'active'
         """
@@ -145,7 +145,7 @@ async def login(request: LoginRequest):
             raise HTTPException(status_code=401, detail="Invalid email or PIN")
 
         # Verify PIN
-        if not verify_password(request.password, user['pin_hash']):
+        if not verify_password(request.password, user['password_hash']):
             raise HTTPException(status_code=401, detail="Invalid email or PIN")
 
         # Update last login (TODO: add last_login column to users table)

@@ -1,309 +1,148 @@
-// ZANTARA Multi-Agent Router - TinyLlama Intent Detection
-// 637MB model → Fast local inference → $0 monthly cost
-
-import axios from 'axios';
+import { intentRouter } from './intent-router.js';
+import { oracleClient } from './ai/oracle-client.js';
+import { zantaraChat } from '../handlers/ai-services/zantara-llama.js'; // Legacy RAG handler
+import { memoryServiceClient } from './memory-service-client.js';
 import logger from './logger.js';
 
-export interface AgentIntent {
-  agent: 'qwen' | 'mistral' | 'llama';
-  confidence: number;
-  reasoning: string;
-  estimated_tokens: number;
+export interface ZantaraRequest {
+  message: string;
+  user_email?: string;
+  session_id?: string;
 }
 
-export interface ZANTARAQuery {
-  query: string;
-  domain?: string;
-  user_id?: string;
-  context?: any;
-}
-
-export class ZANTARAAgentRouter {
-  private tinyllamaEndpoint: string;
-  private agentEndpoints = {
-    qwen: process.env.QWEN_ENDPOINT || 'http://localhost:8000/qwen',
-    mistral: process.env.MISTRAL_ENDPOINT || 'http://localhost:8001/mistral',
-    llama: process.env.LLAMA_ENDPOINT || 'http://localhost:8002/llama',
-  };
-
-  constructor() {
-    this.tinyllamaEndpoint = process.env.TINYLLAMA_ENDPOINT || 'http://localhost:11434';
-  }
-
+export class ZantaraRouter {
+  
   /**
-   * Fast local TinyLlama intent detection
-   * Model: 637MB, ~50ms response time
+   * Main entry point for Zantara Chat
+   * Routes between "Nongkrong" (Chat) and "Daging" (Consulting) modes
    */
-  async detectIntent(query: string, context?: any): Promise<AgentIntent> {
+  async handleRequest(req: ZantaraRequest) {
+    const { message, user_email = 'guest' } = req;
+    
+    // 1. Retrieve Memory Context (Used for both modes)
+    let memoryContext = '';
     try {
-      const prompt = `
-        Analyze this ZANTARA query and select the best agent:
-
-        Query: "${query}"
-        Domain: ${context?.domain || 'general'}
-
-        AGENTS:
-        - qwen: Business reasoning, financial analysis, complex logic
-        - mistral: Business intelligence, market analysis, strategic planning
-        - llama: General conversation, multi-language, creative tasks
-
-        Respond with JSON: {"agent": "qwen|mistral|llama", "confidence": 0.9, "reasoning": "analysis", "estimated_tokens": 500}
-      `;
-
-      const response = await axios.post(
-        `${this.tinyllamaEndpoint}/api/generate`,
-        {
-          model: 'tinyllama-1.1b-chat',
-          prompt,
-          max_tokens: 150,
-          temperature: 0.1,
-          stream: false,
-        },
-        {
-          timeout: 2000,
-          headers: {
-            'Content-Type': 'application/json',
-          },
+      if (user_email !== 'guest') {
+        const memoryResult = await memoryServiceClient.getUserFacts(user_email);
+        const facts = memoryResult.facts || [];
+        if (facts.length > 0) {
+          memoryContext = facts.map((f: any) => `- ${f.fact_content}`).join('\n');
+          logger.debug(`🧠 Loaded ${facts.length} facts for ${user_email}`);
         }
-      );
-
-      const content = response.data.response;
-      const match = content.match(/\{[^}]+\}/);
-
-      if (match) {
-        const parsed = JSON.parse(match[0]);
-        return {
-          agent: parsed.agent || 'llama',
-          confidence: parsed.confidence || 0.8,
-          reasoning: parsed.reasoning || 'Default routing',
-          estimated_tokens: parsed.estimated_tokens || 500,
-        };
       }
+    } catch (e) {
+      logger.warn('⚠️ Memory retrieval failed, proceeding without memory.');
+    }
 
-      // Fallback logic
-      return this.fallbackIntentDetection(query);
-    } catch (error) {
-      logger.error('TinyLlama routing failed:', error instanceof Error ? error : new Error(String(error)));
-      return this.fallbackIntentDetection(query);
+    // 2. Classify Intent
+    const intent = await intentRouter.classify(message);
+    logger.info(`🚦 [ZANTARA ROUTER] Intent: ${intent} | User: ${user_email}`);
+
+    if (intent === 'CHAT') {
+      // --- MODE 1: NONGKRONG (Direct to Oracle) ---
+      return this.handleChatMode(message, memoryContext);
+    } else {
+      // --- MODE 2: CONSULTING (RAG + Style Transfer) ---
+      return this.handleConsultingMode(message, user_email, memoryContext);
     }
   }
 
   /**
-   * Route to appropriate agent
+   * MODE 1: Pure Chat (Fast, Cheap, Personable)
+   * Uses Zantara Jaksel model on Oracle Cloud directly.
    */
-  async routeToAgent(zantaraQuery: ZANTARAQuery): Promise<any> {
-    const startTime = Date.now();
+  private async handleChatMode(message: string, memoryContext: string) {
+    logger.info('💬 [MODE] Entering CHAT mode (Oracle Direct)');
+    
+    const systemPrompt = `
+    You are ZANTARA, a Senior Legal Consultant in Jakarta (SCBD).
+    
+    CONTEXT (User Facts):
+    ${memoryContext}
+    
+    STYLE GUIDE:
+    - Speak "Bahasa Jaksel" (Indo mixed with English terms like "Basically", "Which is").
+    - Be chill, friendly, and professional. Like a smart colleague.
+    - NO Balinese terms (No Bli, No Suksma).
+    - If the user asks a specific legal question you don't know, say: "Sebentar, gue cek regulasi resminya dulu ya." (Do not hallucinate laws).
+    `;
 
-    // Step 1: Detect intent with TinyLlama
-    const intent = await this.detectIntent(zantaraQuery.query, zantaraQuery.context);
-
-    logger.info(`Intent detected: ${intent.agent} (confidence: ${intent.confidence})`);
-
-    // Step 2: Route to selected agent
-    let agentResponse;
-    switch (intent.agent) {
-      case 'qwen':
-        agentResponse = await this.callQwenAgent(zantaraQuery, intent);
-        break;
-      case 'mistral':
-        agentResponse = await this.callMistralAgent(zantaraQuery, intent);
-        break;
-      case 'llama':
-      default:
-        agentResponse = await this.callLlamaAgent(zantaraQuery, intent);
-        break;
-    }
-
-    const processingTime = Date.now() - startTime;
+    const response = await oracleClient.chat({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: message }
+      ],
+      temperature: 0.8, // Higher creativity for chat
+      max_tokens: 300
+    });
 
     return {
-      ...agentResponse,
-      routing: {
-        selected_agent: intent.agent,
-        confidence: intent.confidence,
-        reasoning: intent.reasoning,
-        processing_time_ms: processingTime,
-        tinyllama_routing: true,
-        cost_estimate: '$0 (local models)',
-      },
+      response: response,
+      mode: 'chat',
+      source: 'oracle-direct'
     };
   }
 
   /**
-   * Call Qwen Reasoning Agent (2.5B ~1.6GB)
+   * MODE 2: Consulting (Accurate, RAG-backed)
+   * Uses Python RAG to get facts, then Oracle to rewrite in style.
    */
-  private async callQwenAgent(query: ZANTARAQuery, _intent: AgentIntent): Promise<any> {
+  private async handleConsultingMode(message: string, user_email: string, memoryContext: string) {
+    logger.info('⚖️ [MODE] Entering CONSULTING mode (RAG + Style Transfer)');
+
+    // Step A: Get Raw Facts from RAG (Gemini Flash via Python Backend)
+    // We use the existing zantaraChat handler which calls the Python RAG
+    let ragResponse;
     try {
-      const response = await axios.post(
-        this.agentEndpoints.qwen,
-        {
-          query: query.query,
-          domain: query.domain,
-          context: query.context,
-          agent_type: 'reasoning',
-          max_tokens: 1000,
-          temperature: 0.1,
-        },
-        { timeout: 5000 }
-      );
-
-      return {
-        agent: 'qwen-reasoning',
-        response: response.data,
-        capabilities: ['complex_reasoning', 'financial_analysis', 'logical_deduction'],
-        cost: 0,
-        model_size: '2.5B',
-      };
+      const ragResult = await zantaraChat({
+        message: message,
+        user_email: user_email,
+        mode: 'pikiran' // Force deep reasoning in RAG
+      });
+      // zantaraChat returns an API response object { status: 200, data: { ... } } 
+      // We need to extract the actual text
+      ragResponse = ragResult.data?.answer || ragResult.data?.response || "Maaf, sistem RAG sedang busy.";
     } catch (error) {
-      logger.error('Qwen agent failed:', error instanceof Error ? error : new Error(String(error)));
-      throw new Error('Qwen reasoning agent unavailable');
-    }
-  }
-
-  /**
-   * Call Mistral Business Intelligence Agent (7B ~5GB)
-   */
-  private async callMistralAgent(query: ZANTARAQuery, _intent: AgentIntent): Promise<any> {
-    try {
-      const response = await axios.post(
-        this.agentEndpoints.mistral,
-        {
-          query: query.query,
-          domain: query.domain,
-          context: query.context,
-          agent_type: 'business_intelligence',
-          max_tokens: 1200,
-          temperature: 0.2,
-        },
-        { timeout: 7000 }
-      );
-
-      return {
-        agent: 'mistral-business',
-        response: response.data,
-        capabilities: ['market_analysis', 'business_strategy', 'competitive_intelligence'],
-        cost: 0,
-        model_size: '7B',
-      };
-    } catch (error) {
-      logger.error('Mistral agent failed:', error instanceof Error ? error : new Error(String(error)));
-      throw new Error('Mistral business agent unavailable');
-    }
-  }
-
-  /**
-   * Call Llama Multi-Language Agent (3.1B ~2GB)
-   */
-  private async callLlamaAgent(query: ZANTARAQuery, _intent: AgentIntent): Promise<any> {
-    try {
-      const response = await axios.post(
-        this.agentEndpoints.llama,
-        {
-          query: query.query,
-          domain: query.domain,
-          context: query.context,
-          agent_type: 'multilingual',
-          max_tokens: 800,
-          temperature: 0.3,
-        },
-        { timeout: 4000 }
-      );
-
-      return {
-        agent: 'llama-multilingual',
-        response: response.data,
-        capabilities: ['multilingual', 'general_knowledge', 'creative_tasks'],
-        cost: 0,
-        model_size: '3.1B',
-      };
-    } catch (error) {
-      logger.error('Llama agent failed:', error instanceof Error ? error : new Error(String(error)));
-      throw new Error('Llama multilingual agent unavailable');
-    }
-  }
-
-  /**
-   * Fallback intent detection without TinyLlama
-   */
-  private fallbackIntentDetection(query: string): AgentIntent {
-    const lowerQuery = query.toLowerCase();
-
-    // Business/Financial queries → Qwen
-    if (
-      lowerQuery.includes('investment') ||
-      lowerQuery.includes('financial') ||
-      lowerQuery.includes('analysis') ||
-      lowerQuery.includes('calculation') ||
-      lowerQuery.includes('optimization')
-    ) {
-      return {
-        agent: 'qwen',
-        confidence: 0.8,
-        reasoning: 'Keyword-based business detection',
-        estimated_tokens: 600,
-      };
+      logger.error('❌ RAG Backend failed, falling back to Oracle Direct');
+      return this.handleChatMode(message, memoryContext);
     }
 
-    // Market/Strategy queries → Mistral
-    if (
-      lowerQuery.includes('market') ||
-      lowerQuery.includes('strategy') ||
-      lowerQuery.includes('competition') ||
-      lowerQuery.includes('business plan')
-    ) {
-      return {
-        agent: 'mistral',
-        confidence: 0.7,
-        reasoning: 'Keyword-based market detection',
-        estimated_tokens: 800,
-      };
-    }
+    // Step B: Style Transfer using Oracle (Zantara Jaksel)
+    // Takes the boring legal answer and makes it "Jaksel"
+    logger.info('🎨 [STYLE] Transferring style via Oracle...');
+    
+    const stylePrompt = `
+    TASK: Rewrite the following legal advice into "Bahasa Jaksel" style (SCBD Consultant).
+    
+    RAW LEGAL INFO:
+    "${ragResponse}"
+    
+    USER CONTEXT:
+    ${memoryContext}
+    
+    GUIDELINES:
+    - Keep all legal facts (prices, laws, dates) EXACTLY as they are.
+    - Change the tone to: Professional, Chill, Smart.
+    - Use terms like: "Basically", "Compliance", "Issue", "Strict", "Make sure".
+    - Do not use lists unless necessary. Make it conversational.
+    `;
 
-    // Default → Llama
+    const styledResponse = await oracleClient.chat({
+      messages: [
+        { role: 'system', content: "You are a Style Transfer Engine. You rewrite text into Jakarta Business Slang." },
+        { role: 'user', content: stylePrompt }
+      ],
+      temperature: 0.4, // Lower temperature for factual consistency
+      max_tokens: 600
+    });
+
     return {
-      agent: 'llama',
-      confidence: 0.6,
-      reasoning: 'Default routing to multilingual agent',
-      estimated_tokens: 400,
-    };
-  }
-
-  /**
-   * Get router status and available agents
-   */
-  async getStatus(): Promise<any> {
-    return {
-      router: 'TinyLlama Intent Detection',
-      model: 'tinyllama-1.1b-chat (637MB)',
-      agents: {
-        qwen: {
-          name: 'Qwen 2.5B Reasoning',
-          size: '1.6GB',
-          capabilities: ['Complex Reasoning', 'Financial Analysis', 'Logical Deduction'],
-          status: 'available',
-        },
-        mistral: {
-          name: 'Mistral 7B Business',
-          size: '5GB',
-          capabilities: ['Market Analysis', 'Business Strategy', 'Competitive Intelligence'],
-          status: 'available',
-        },
-        llama: {
-          name: 'Llama 3.1B Multi-L',
-          size: '2GB',
-          capabilities: ['Multi-Language', 'General Knowledge', 'Creative Tasks'],
-          status: 'available',
-        },
-      },
-      total_memory_usage: '~8.6GB',
-      monthly_cost: '$0',
-      performance: {
-        intent_detection: '~50ms',
-        agent_response: '2-5s',
-        total_latency: '~2.5-5.5s',
-      },
+      response: styledResponse,
+      mode: 'consulting',
+      source: 'rag-oracle-hybrid',
+      original_fact: ragResponse // Optional: keep for debugging
     };
   }
 }
 
-export default ZANTARAAgentRouter;
+export const zantaraRouter = new ZantaraRouter();
