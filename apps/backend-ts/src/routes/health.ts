@@ -9,7 +9,7 @@ import { Router } from 'express';
 import { logger } from '../services/logger.js';
 import { featureFlags, FeatureFlag } from '../services/feature-flags.js';
 import { getDatabasePool } from '../services/connection-pool.js';
-import { dbCircuitBreaker, ragCircuitBreaker } from '../services/circuit-breaker.js';
+import { dbCircuitBreaker, ragCircuitBreaker } from '../services/architecture/circuit-breaker.js';
 import { ok, err } from '../utils/response.js';
 
 const router = Router();
