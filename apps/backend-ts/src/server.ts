@@ -129,11 +129,11 @@ async function startServer() {
   // Fix for Fly.io proxy headers - configure trust proxy
   app.set('trust proxy', true);
 
+  // PATCH-3: CORS with security configuration (Must be first)
+  app.use(corsMiddleware);
+
   // PATCH-3: Apply security middleware (headers, sanitization, logging)
   app.use(applySecurity);
-
-  // PATCH-3: CORS with security configuration
-  app.use(corsMiddleware);
 
   // Cookie parsing
   app.use(cookieParser());
