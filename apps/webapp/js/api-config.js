@@ -30,9 +30,9 @@ export const API_ENDPOINTS = {
     compliance: '/api/agents/compliance/alerts',
     journey: '/api/agents/journey/{journey_id}/next-steps',
     research: '/api/autonomous-agents/conversation-trainer/run',
-    semanticSearch: '/api/search/',
-    hybridQuery: '/api/search/',
-    documentIntelligence: '/ai/creative/vision'
+    semanticSearch: '/search',
+    hybridQuery: '/search',
+    // documentIntelligence: '/ai/creative/vision' // TODO: Endpoint not implemented
   },
 
   // Notifications
