@@ -29,7 +29,7 @@ interface EnhancedRequest extends Request {
 
 // Role hierarchy for permission checking
 const ROLE_HIERARCHY = {
-  'AI Bridge/Tech Lead': 100,
+  'Tech Lead': 100,
   'Setup Team Lead': 80,
   'Legal Team Lead': 80,
   'Operations Lead': 80,
@@ -95,7 +95,10 @@ export class EnhancedJWTAuth {
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
-    this.jwtSecret = process.env.JWT_SECRET || 'default-secret-change-in-production';
+    this.jwtSecret = process.env.JWT_SECRET;
+    if (!this.jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is required for Enhanced JWT authentication');
+    }
 
     // Clean up expired cache entries periodically
     setInterval(() => this.cleanupCache(), 60000); // Every minute

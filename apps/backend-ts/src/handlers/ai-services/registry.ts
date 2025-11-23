@@ -9,12 +9,12 @@ import { aiChat } from './ai.js';
 import { aiAnticipate, aiLearn, xaiExplain } from './advanced-ai.js';
 import { creativeHandlers } from './creative.js';
 import {
-  zantaraCallDevAI,
-  zantaraOrchestrateWorkflow,
-  zantaraGetConversationHistory,
-  zantaraGetSharedContext,
-  zantaraClearWorkflow,
-} from './ai-bridge.js';
+  callAI,
+  orchestrateWorkflow,
+  getConversationHistory,
+  getSharedContext,
+  clearWorkflow,
+} from './ai-integration.js';
 import { aiImageGenerate, aiImageUpscale, aiImageTest } from './imagine-art-handler.js';
 
 export function registerAIServicesHandlers() {
@@ -44,19 +44,19 @@ export function registerAIServicesHandlers() {
     }
   );
 
-  // ZANTARA Bridge handlers for AI communication
+  // ZANTARA AI integration handlers
   globalRegistry.registerModule(
     'ai-services',
     {
-      'zantara.call-devai': zantaraCallDevAI,
-      'zantara.orchestrate': zantaraOrchestrateWorkflow,
-      'zantara.history': zantaraGetConversationHistory,
-      'zantara.context': zantaraGetSharedContext,
-      'zantara.clear': zantaraClearWorkflow,
+      'zantara.call-ai': callAI,
+      'zantara.orchestrate': orchestrateWorkflow,
+      'zantara.history': getConversationHistory,
+      'zantara.context': getSharedContext,
+      'zantara.clear': clearWorkflow,
     },
     {
       requiresAuth: true,
-      description: 'ZANTARA AI communication bridge',
+      description: 'ZANTARA AI integration services',
     }
   );
 

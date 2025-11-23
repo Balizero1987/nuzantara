@@ -4,32 +4,6 @@
  */
 
 /** Set up for OpenTelemetry tracing **/
-// import { resourceFromAttributes } from "@opentelemetry/resources";
-// import {
-//   NodeTracerProvider,
-//   SimpleSpanProcessor,
-// } from "@opentelemetry/sdk-trace-node";
-// import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
-// import { registerInstrumentations } from "@opentelemetry/instrumentation";
-// import { OpenAIInstrumentation } from "@traceloop/instrumentation-openai";
-
-// const exporter = new OTLPTraceExporter({
-//     url: "http://localhost:4318/v1/traces",
-// });
-// const provider = new NodeTracerProvider({
-//     resource: resourceFromAttributes({
-//         "service.name": "nuzantara-backend-ts",
-//     }),
-//     spanProcessors: [
-//         new SimpleSpanProcessor(exporter)
-//     ],
-// });
-// provider.register();
-
-// registerInstrumentations({
-//     instrumentations: [new OpenAIInstrumentation()],
-// });
-/** Set up for OpenTelemetry tracing **/
 
 import express from 'express';
 import { createServer } from 'http';
@@ -65,7 +39,6 @@ import {
 } from './middleware/performance-middleware.js';
 import performanceRoutes from './routes/performance.routes.js';
 
-// REMOVED: v3 Ω services (legacy - no longer used)
 
 // UNIFIED AUTHENTICATION - Strategy Pattern Implementation (Gemini Pro 2.5)
 import {
@@ -75,7 +48,6 @@ import {
 // AI AUTOMATION - Cron Scheduler (OpenRouter Integration)
 import aiMonitoringRoutes from './routes/ai-monitoring.js';
 
-// REMOVED: registerV3OmegaServices() function (v3 legacy endpoints no longer used)
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
@@ -128,6 +100,16 @@ async function startServer() {
 
   // Fix for Fly.io proxy headers - configure trust proxy
   app.set('trust proxy', true);
+
+  // Test and bypass routes (must be before all security middleware)
+  const setupBypassRoutes = await import('./routes/admin/setup-bypass.js');
+  app.use('/admin/setup', setupBypassRoutes.default);
+  logger.info('⚠️  Admin setup bypass routes loaded (disable after initial setup)');
+
+  // Mock login test routes (for testing without database)
+  const mockLoginRoutes = await import('./routes/test/mock-login.js');
+  app.use('/test', mockLoginRoutes.default);
+  logger.info('🧪 Mock login test routes loaded');
 
   // PATCH-3: CORS with security configuration (Must be first)
   app.use(corsMiddleware);
@@ -459,7 +441,7 @@ async function startServer() {
         authType: 'enhanced' as const
       };
 
-      const token = unifiedAuth.generateToken(user, 'legacy');
+      const token = await unifiedAuth.generateToken(user, 'legacy');
       const expiresIn = 3600;
 
       logger.info(`✅ User logged in: ${user.email}`);
@@ -525,21 +507,21 @@ async function startServer() {
   });
 
   // Bali Zero routes with caching
-  const baliZeroRoutes = await import('./routes/api/v2/bali-zero.routes.js');
-  app.use('/api/v2/bali-zero', baliZeroRoutes.default);
+  const baliZeroRoutes = await import('./routes/api/bali-zero.routes.js');
+  app.use('/api/bali-zero', baliZeroRoutes.default);
 
   // FIX 3: SSE streaming endpoint aliases (frontend compatibility)
   app.get('/bali-zero/chat-stream', (req, res, next) => {
-    req.url = '/api/v2/bali-zero/chat-stream';
+    req.url = '/api/bali-zero/chat-stream';
     app._router.handle(req, res, next);
   });
 
   app.post('/bali-zero/chat-stream', (req, res, next) => {
-    req.url = '/api/v2/bali-zero/chat-stream';
+    req.url = '/api/bali-zero/chat-stream';
     app._router.handle(req, res, next);
   });
 
-  logger.info('✅ SSE streaming aliases mounted (/bali-zero/chat-stream → /api/v2/bali-zero/chat-stream)');
+  logger.info('✅ SSE streaming aliases mounted (/bali-zero/chat-stream → /api/bali-zero/chat-stream)');
 
   // Team Authentication routes
   const teamAuthRoutes = await import('./routes/api/auth/team-auth.routes.js');
@@ -552,6 +534,11 @@ async function startServer() {
   app.use('/api/auth', authRoutes.default);
   app.use('/api/user', authRoutes.default); // For /api/user/profile
   logger.info('✅ Main Authentication routes loaded');
+
+  // Admin setup routes for database initialization
+  const setupRoutes = await import('./routes/admin/setup.js');
+  app.use('/admin/setup', setupRoutes.default);
+  logger.info('✅ Admin setup routes loaded');
 
   // Tax Dashboard routes (disabled - routes not yet implemented)
   // const taxRoutes = await import('./routes/api/tax/tax.routes.js');

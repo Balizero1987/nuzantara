@@ -111,6 +111,7 @@ export class AntiHallucinationSystem {
    * Check fact against known patterns
    */
   private checkAgainstPatterns(fact: string): boolean {
+    if (!fact || typeof fact !== 'string') return false;
     const lowerFact = fact.toLowerCase();
 
     // Check service mentions

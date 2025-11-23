@@ -1,5 +1,4 @@
 import { ok } from '../../utils/response.js';
-import { BadRequestError } from '../../utils/errors.js';
 
 type OracleParams = {
   service?: string;
@@ -13,19 +12,10 @@ type OracleParams = {
 
 type ServiceKey = 'visa' | 'company' | 'tax' | 'legal' | 'property';
 
-type ServiceProfile = {
-  label: string;
-  baseSuccess: number;
-  baseTimeline: number; // days
-  checkpoints: string[];
-  blockers: string[];
-  accelerators: string[];
-};
 
-// SERVICE_PROFILES removed - all service profiles, timelines, success rates, checkpoints,
-// blockers, and accelerators are now stored in Qdrant/PostgreSQL and retrieved via RAG backend
+// All service profiles, timelines, success rates, checkpoints,
+// blockers, and accelerators are stored in Qdrant/PostgreSQL and retrieved via RAG backend
 // This ensures data accuracy and eliminates hardcoded values from the codebase
-const SERVICE_PROFILES: Record<ServiceKey, ServiceProfile> = {} as any; // Placeholder - data from database
 
 function resolveService(raw?: string): ServiceKey {
   const key = (raw || 'visa').toLowerCase();
@@ -110,12 +100,6 @@ function deriveAdjustments(params: OracleParams) {
   return { urgencyFactor, complexityFactor, riskLevel, timelineMultiplier };
 }
 
-function timelineSummary(days: number) {
-  if (days <= 15) return `${Math.round(days)} days (rapid)`;
-  if (days <= 30) return `${Math.round(days)} days (standard)`;
-  if (days <= 60) return `${Math.round(days)} days (extended)`;
-  return `${Math.round(days)} days (long-term)`;
-}
 
 export async function oracleSimulate(params: OracleParams = {}) {
   if (process.env.BRIDGE_ORACLE_ENABLED === 'true') {

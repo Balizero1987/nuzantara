@@ -4,10 +4,10 @@ import { z, ZodError } from 'zod';
 import type { Request, Response } from 'express';
 import { ok, err } from '../utils/response.js';
 import { apiKeyAuth, RequestWithCtx } from '../middleware/auth.js';
+import { memorySchemas, handlerSchemas, authSchemas, validateInput } from '../utils/validation-schemas.js';
 import { jwtAuth, RequestWithJWT } from '../middleware/jwt-auth.js';
 import { demoUserAuth, RequestWithDemo } from '../middleware/demo-user-auth.js';
 import { ForbiddenError, BadRequestError, UnauthorizedError } from '../utils/errors.js';
-// Bridge proxy removed - all handlers use direct implementations
 
 // Create Express router
 const router = express.Router();
@@ -71,7 +71,7 @@ import {
   zantaraClientRelationshipIntelligence,
   zantaraCulturalIntelligenceAdaptation,
   zantaraPerformanceOptimization,
-} from '../handlers/zantara/zantara-v2-simple.js';
+} from '../handlers/zantara/zantara-simple.js';
 // import {
 //   zantaraBrilliantChat,
 //   zantaraPersonality,
@@ -139,7 +139,7 @@ import {
   processUpgrade,
   getUpgradeOptions,
 } from '../handlers/bali-zero/pricing-upgrade.js';
-// AI Bridge removed - DevAI integration no longer used
+// DevAI integration removed - no longer used
 
 // Admin auth middleware
 import { adminAuth } from '../middleware/admin-auth.js';
@@ -444,7 +444,7 @@ const handlers: Record<string, Handler> = {
   'pricing.upgrade.process': processUpgrade,
   'pricing.upgrade.options': getUpgradeOptions,
 
-  // Zantara AI Bridge removed - DevAI integration no longer used
+  // DevAI integration removed - no longer used
 
   /**
    * @handler ai.chat
@@ -824,7 +824,6 @@ const handlers: Record<string, Handler> = {
   'system.handlers.batch': executeBatchHandlers,
 };
 
-// Bridge proxy removed - all handlers use direct implementations
 
 const FORBIDDEN_FOR_EXTERNAL = new Set<string>(['report.generate']);
 
@@ -855,16 +854,13 @@ export function attachRoutes(app: import('express').Express) {
     const _userAgent = req.header('user-agent') || 'unknown';
 
     try {
-      const { email, pin } = req.body;
-
-      if (!email || !pin) {
-        logger.warn('JWT Login: Missing credentials', { ip: clientIP });
-        return res.status(400).json(err('Email and pin are required'));
-      }
+      // Validate input
+      const validatedData = validateInput(authSchemas.teamLogin, req.body);
+      const { email, pin } = validatedData;
 
       // BUG FIX: teamLogin requires { name, email }, not { email, pin }
       // Solution: Find user by email first, then use name for teamLogin
-      const teamMembers = getTeamMembers();
+      const teamMembers = await getTeamMembers();
       const member = teamMembers.find((m: any) => m.email?.toLowerCase() === email.toLowerCase());
 
       if (!member) {
@@ -1004,6 +1000,15 @@ export function attachRoutes(app: import('express').Express) {
         ip: clientIP,
       });
 
+      // Handle validation errors specifically
+      if (e.name === 'ValidationError' || e.name === 'ZodError') {
+        logger.warn('JWT Login: Validation failed', {
+          error: e.message,
+          ip: clientIP
+        });
+        return res.status(400).json(err(e.message));
+      }
+
       logger.info('JWT_LOGIN_AUDIT', {
         event: 'login_error',
         reason: e.name || 'unexpected_error',
@@ -1097,7 +1102,7 @@ export function attachRoutes(app: import('express').Express) {
       }
 
       // Get user data
-      const teamMembers = getTeamMembers();
+      const teamMembers = await getTeamMembers();
       const user = teamMembers.find((m: any) => m.id === userId || m.userId === userId);
 
       if (!user) {
@@ -1203,14 +1208,19 @@ export function attachRoutes(app: import('express').Express) {
   // Memory Search
   app.post('/memory.search', apiKeyAuth, (async (req: RequestWithCtx, res: Response) => {
     try {
-      const result = await memorySearch(req.body);
+      // Validate input
+      const validatedData = validateInput(memorySchemas.search, req.body);
+      const result = await memorySearch(validatedData);
       return res.status(200).json(result);
     } catch (e: any) {
       if (e instanceof BadRequestError) {
         return res.status(400).json(err(e.message));
       }
 
-      // Bridge proxy removed - using direct handler
+      // Handle validation errors
+      if (e.name === 'ValidationError') {
+        return res.status(400).json(err(e.message));
+      }
 
       return res.status(500).json(err(e?.message || 'Internal Error'));
     }
@@ -1458,11 +1468,9 @@ export function attachRoutes(app: import('express').Express) {
     selectiveRateLimiter,
     async (req: RequestWithCtx, res: Response) => {
       try {
-        const { handler, params = {} } = req.body;
-
-        if (!handler) {
-          return res.status(400).json(err('Handler name required'));
-        }
+        // Validate input
+        const validatedData = validateInput(handlerSchemas.call, req.body);
+        const { handler, params = {} } = validatedData;
 
         // RBAC by API key
         if (req.ctx?.role === 'external' && FORBIDDEN_FOR_EXTERNAL.has(handler)) {
@@ -1563,7 +1571,6 @@ export function attachRoutes(app: import('express').Express) {
           // startTime removed - not used
           const r = await aiChat(params);
 
-          // Auto-save disabled (Firestore deprecated)
 
           return res.status(200).json(ok(r?.data ?? r));
         }

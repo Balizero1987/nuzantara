@@ -13,7 +13,10 @@ import { verifyToken } from '../handlers/auth/verify.js';
 const router = Router();
 
 // JWT Secret from environment
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required for authentication routes');
+}
 const JWT_EXPIRY = '7d'; // 7 days
 
 // Validation schemas

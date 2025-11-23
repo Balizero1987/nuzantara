@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ok } from '../../utils/response.js';
 
-// ZARA v2.0 Simplified - Advanced Emotional AI & Predictive Intelligence
+// ZANTARA Simplified - Advanced Emotional AI & Predictive Intelligence
 // Production-ready version with enhanced capabilities
 
 // Simplified Schemas

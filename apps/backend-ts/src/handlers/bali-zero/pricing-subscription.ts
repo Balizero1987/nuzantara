@@ -154,8 +154,9 @@ export async function getSubscriptionPlans(params: any) {
         response_data.plan = {
           ...plan,
           selected_billing_cycle: p.billing_cycle || 'annual',
-          current_pricing:
-            plan.pricing[p.billing_cycle as keyof typeof plan.pricing] || plan.pricing.annual,
+          current_pricing: typeof plan.pricing === 'string'
+            ? plan.pricing
+            : (plan.pricing[p.billing_cycle as keyof typeof plan.pricing] || plan.pricing.annual),
         };
       } else {
         response_data.error = 'Plan not found';
@@ -166,8 +167,9 @@ export async function getSubscriptionPlans(params: any) {
         acc[key] = {
           name: plan.name,
           description: plan.description,
-          pricing_summary:
-            plan.pricing[p.billing_cycle as keyof typeof plan.pricing] || plan.pricing.annual,
+          pricing_summary: typeof plan.pricing === 'string'
+            ? plan.pricing
+            : (plan.pricing[p.billing_cycle as keyof typeof plan.pricing] || plan.pricing.annual),
           features_count: plan.features.length,
         };
         return acc;

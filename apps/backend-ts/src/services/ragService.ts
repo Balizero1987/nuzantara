@@ -158,7 +158,7 @@ export class RAGService {
    * Search only (no LLM generation)
    * Use for fast semantic search
    */
-  async search(query: string, k: number = 5, collection: string = 'legal_unified') {
+  async search(query: string, k: number = 5, collection: string = 'legal_unified'): Promise<RAGQueryResponse> {
     try {
       return await this.makeAuthenticatedRequest('post', '/search', {
         query,

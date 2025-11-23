@@ -360,3 +360,25 @@ class CircuitBreakerFactory {
 }
 
 export { CircuitBreakerImpl, CircuitBreakerFactory };
+
+
+// Pre-configured circuit breaker instances
+export const dbCircuitBreaker = CircuitBreakerFactory.create({
+  name: 'database',
+  config: {
+    failureThreshold: 5,
+    resetTimeout: 60000, // 1 minute
+    monitoringPeriod: 30000,
+    expectedRecoveryTime: 30000
+  }
+});
+
+export const ragCircuitBreaker = CircuitBreakerFactory.create({
+  name: 'rag',
+  config: {
+    failureThreshold: 3,
+    resetTimeout: 30000, // 30 seconds
+    monitoringPeriod: 15000,
+    expectedRecoveryTime: 15000
+  }
+});

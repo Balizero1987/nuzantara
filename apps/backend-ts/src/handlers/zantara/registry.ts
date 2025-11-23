@@ -11,7 +11,7 @@ import {
   zantaraClientRelationshipIntelligence,
   zantaraCulturalIntelligenceAdaptation,
   zantaraPerformanceOptimization,
-} from './zantara-v2-simple.js';
+} from './zantara-simple.js';
 import { getZantaraKnowledge, getSystemHealth } from './knowledge.js';
 
 export function registerZantaraHandlers() {

@@ -1,7 +1,7 @@
 /**
  * WebSocket Server for Real-Time Features
  *
- * Bridges Redis pub/sub to WebSocket clients
+ * Connects Redis pub/sub to WebSocket clients
  * Enables real-time notifications without polling
  */
 
@@ -71,8 +71,8 @@ export function setupWebSocket(httpServer: HTTPServer) {
     });
   });
 
-  // Bridge Redis pub/sub to WebSocket
-  setupRedisBridge(io);
+  // Connect Redis pub/sub to WebSocket
+  setupRedisConnection(io);
 
   logger.info('✅ WebSocket server ready');
 
@@ -80,9 +80,9 @@ export function setupWebSocket(httpServer: HTTPServer) {
 }
 
 /**
- * Bridge Redis pub/sub events to WebSocket clients
+ * Connect Redis pub/sub events to WebSocket clients
  */
-function setupRedisBridge(io: Server) {
+function setupRedisConnection(io: Server) {
   // User notifications
   PubSubService.psubscribe<UserNotification>(
     `${CHANNELS.USER_NOTIFICATIONS}:*`,
@@ -113,7 +113,7 @@ function setupRedisBridge(io: Server) {
     logger.debug('System event broadcasted');
   });
 
-  logger.info('✅ Redis → WebSocket bridge established');
+  logger.info('✅ Redis → WebSocket connection established');
 }
 
 /**

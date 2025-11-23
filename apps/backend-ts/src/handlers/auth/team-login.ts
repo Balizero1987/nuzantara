@@ -7,10 +7,34 @@ import logger from '../../services/logger.js';
 import { ok } from '../../utils/response.js';
 import { BadRequestError, InternalServerError } from '../../utils/errors.js';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { getDatabasePool } from '../../services/connection-pool.js';
 
-// Session management
+// Session management with automatic cleanup
 const activeSessions = new Map<string, any>();
+const SESSION_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+// Session cleanup function
+function cleanupExpiredSessions() {
+  const now = Date.now();
+  let cleanedCount = 0;
+
+  for (const [sessionId, session] of activeSessions.entries()) {
+    if (now - session.createdAt > SESSION_TTL) {
+      activeSessions.delete(sessionId);
+      cleanedCount++;
+    }
+  }
+
+  if (cleanedCount > 0) {
+    logger.info(`🧹 Cleaned up ${cleanedCount} expired sessions`);
+  }
+}
+
+// Start cleanup interval (every hour)
+if (typeof setInterval !== 'undefined') {
+  setInterval(cleanupExpiredSessions, 60 * 60 * 1000); // Every hour
+}
 
 /**
  * Team member login authentication
@@ -36,7 +60,7 @@ export async function teamLogin(params: any) {
   try {
     const db = getDatabasePool();
     const result = await db.query(
-      'SELECT * FROM team_members WHERE LOWER(email) = LOWER($1)',
+      'SELECT id, name, email, pin_hash, role, department, language, personalized_response, is_active FROM team_members WHERE LOWER(email) = LOWER($1) AND is_active = true',
       [email]
     );
     
@@ -52,8 +76,9 @@ export async function teamLogin(params: any) {
     throw new BadRequestError('User not found. Please check your email.');
   }
 
-  // Verify PIN
-  if (member.pin !== pin) {
+  // Verify PIN using bcrypt (secure comparison)
+  const isValidPin = await bcrypt.compare(pin, member.pin_hash);
+  if (!isValidPin) {
     // Log failed attempt for security monitoring
     logger.warn(`Failed login attempt for ${email} - Invalid PIN`);
     throw new BadRequestError('Invalid PIN. Please try again.');
@@ -61,18 +86,35 @@ export async function teamLogin(params: any) {
 
   // Create session
   const sessionId = `session_${Date.now()}_${member.id}`;
+  const now = Date.now();
   const session = {
     id: sessionId,
     user: member,
-    loginTime: new Date().toISOString(),
-    lastActivity: new Date().toISOString(),
+    loginTime: new Date(now).toISOString(),
+    lastActivity: new Date(now).toISOString(),
+    createdAt: now, // For TTL tracking
     permissions: getPermissionsForRole(member.role),
   };
 
   activeSessions.set(sessionId, session);
 
+  // Update last login timestamp in database
+  try {
+    const updateDb = getDatabasePool();
+    await updateDb.query(
+      'UPDATE team_members SET last_login = NOW() WHERE id = $1',
+      [member.id]
+    );
+  } catch (error) {
+    logger.warn('Failed to update last_login timestamp:', error as Error);
+  }
+
   // Generate JWT token for API authentication
-  const jwtSecret = process.env.JWT_SECRET || 'zantara-jwt-secret-2025';
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    logger.error('🚨 JWT_SECRET environment variable is not configured!');
+    throw new InternalServerError('Server configuration error - authentication service unavailable');
+  }
   const token = jwt.sign(
     {
       userId: member.id,

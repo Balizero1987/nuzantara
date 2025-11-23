@@ -44,9 +44,8 @@ async function getTranslateService() {
       service,
       client,
       projectId:
-        process.env.FIREBASE_PROJECT_ID ||
         process.env.GOOGLE_CLOUD_PROJECT_ID ||
-        'involuted-box-469105-r0',
+        'nuzantara-backend',
       baseUrl: 'https://translation.googleapis.com/language/translate/v2',
     };
   } catch (error: any) {
