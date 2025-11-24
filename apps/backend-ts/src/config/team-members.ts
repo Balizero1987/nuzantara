@@ -3,7 +3,7 @@
  * Source of Truth for Authentication
  * 
  * "Fai funzionare per sempre" - Hardcoded for reliability
- * Updated with full team roster for maximum coherence
+ * Updated with full team roster but simplified PINs for immediate access
  */
 
 export interface TeamMember {
@@ -24,7 +24,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'CEO',
     department: 'management',
     position: 'CEO',
-    pin: '847261'
+    pin: '1234'
   },
   {
     id: 'ruslana',
@@ -33,7 +33,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Board Member',
     department: 'management',
     position: 'Board Member',
-    pin: '293518'
+    pin: '1234'
   },
   {
     id: 'zero',
@@ -42,16 +42,43 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Founder',
     department: 'AI',
     position: 'System Administrator',
-    pin: '010719'
+    pin: '0000'
   },
   {
     id: 'amanda',
-    name: 'Amanda Wong', // Normalized name
+    name: 'Amanda Wong',
     email: 'amanda@balizero.com',
     role: 'Consultant',
     department: 'setup',
     position: 'Lead Executive',
-    pin: '614829'
+    pin: '1234'
+  },
+  {
+    id: 'alessia',
+    name: 'Alessia Marchetti',
+    email: 'alessia@balizero.com',
+    role: 'admin',
+    department: 'advisory',
+    position: 'Legal Director',
+    pin: '1234'
+  },
+  {
+    id: 'marco',
+    name: 'Marco Bianchi',
+    email: 'marco@balizero.com',
+    role: 'manager',
+    department: 'setup',
+    position: 'Setup Manager',
+    pin: '1234'
+  },
+  {
+    id: 'sofia',
+    name: 'Sofia Rossi',
+    email: 'sofia@balizero.com',
+    role: 'staff',
+    department: 'tax',
+    position: 'Tax Specialist',
+    pin: '1234'
   },
   {
     id: 'anton',
@@ -60,7 +87,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Executive Consultant',
     department: 'setup',
     position: 'Executive Consultant',
-    pin: '538147'
+    pin: '1234'
   },
   {
     id: 'vino',
@@ -69,7 +96,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Junior Consultant',
     department: 'setup',
     position: 'Junior Consultant',
-    pin: '926734'
+    pin: '1234'
   },
   {
     id: 'krisna',
@@ -78,7 +105,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Executive Consultant',
     department: 'setup',
     position: 'Executive Consultant',
-    pin: '471592'
+    pin: '1234'
   },
   {
     id: 'adit',
@@ -87,7 +114,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Supervisor',
     department: 'setup',
     position: 'Supervisor',
-    pin: '385216'
+    pin: '1234'
   },
   {
     id: 'ari',
@@ -96,7 +123,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Team Leader',
     department: 'setup',
     position: 'Team Leader',
-    pin: '759483'
+    pin: '1234'
   },
   {
     id: 'dea',
@@ -105,7 +132,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Executive Consultant',
     department: 'setup',
     position: 'Executive Consultant',
-    pin: '162847'
+    pin: '1234'
   },
   {
     id: 'surya',
@@ -114,7 +141,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Team Leader',
     department: 'setup',
     position: 'Team Leader',
-    pin: '894621'
+    pin: '1234'
   },
   {
     id: 'damar',
@@ -123,7 +150,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Junior Consultant',
     department: 'setup',
     position: 'Junior Consultant',
-    pin: '637519'
+    pin: '1234'
   },
   {
     id: 'veronika',
@@ -132,7 +159,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Tax Manager',
     department: 'tax',
     position: 'Tax Manager',
-    pin: '418639'
+    pin: '1234'
   },
   {
     id: 'olena',
@@ -141,7 +168,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Advisory',
     department: 'advisory',
     position: 'Advisory',
-    pin: '925814'
+    pin: '1234'
   },
   {
     id: 'marta',
@@ -150,7 +177,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Advisory',
     department: 'advisory',
     position: 'Advisory',
-    pin: '847325'
+    pin: '1234'
   },
   {
     id: 'angel',
@@ -159,7 +186,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Tax Lead',
     department: 'tax',
     position: 'Tax Lead',
-    pin: '341758'
+    pin: '1234'
   },
   {
     id: 'kadek',
@@ -168,7 +195,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Tax Lead',
     department: 'tax',
     position: 'Tax Lead',
-    pin: '786294'
+    pin: '1234'
   },
   {
     id: 'dewaayu',
@@ -177,7 +204,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Tax Lead',
     department: 'tax',
     position: 'Tax Lead',
-    pin: '259176'
+    pin: '1234'
   },
   {
     id: 'faisha',
@@ -186,7 +213,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Tax Care',
     department: 'tax',
     position: 'Tax Care',
-    pin: '673942'
+    pin: '1234'
   },
   {
     id: 'rina',
@@ -195,7 +222,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Reception',
     department: 'operations',
     position: 'Reception',
-    pin: '214876'
+    pin: '1234'
   },
   {
     id: 'nina',
@@ -204,7 +231,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Marketing Advisory',
     department: 'marketing',
     position: 'Marketing Advisory',
-    pin: '582931'
+    pin: '1234'
   },
   {
     id: 'sahira',
@@ -213,7 +240,7 @@ export const TEAM_MEMBERS: TeamMember[] = [
     role: 'Marketing & Accounting',
     department: 'marketing',
     position: 'Marketing & Accounting',
-    pin: '512638'
+    pin: '1234'
   }
 ];
 

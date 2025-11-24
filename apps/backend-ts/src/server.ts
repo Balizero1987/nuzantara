@@ -430,7 +430,7 @@ async function startServer() {
       }
 
       // 2. Authentication Source of Truth (Hardcoded for reliability)
-      const { getTeamMemberByEmail } = await import('./config/team-members.js');
+      // Uses static import getTeamMemberByEmail from top of file
       const user = getTeamMemberByEmail(email);
 
       if (!user) {
