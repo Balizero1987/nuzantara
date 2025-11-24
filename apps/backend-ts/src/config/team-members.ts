@@ -214,52 +214,6 @@ export const TEAM_MEMBERS: TeamMember[] = [
     department: 'marketing',
     position: 'Marketing & Accounting',
     pin: '512638'
-  },
-  // Legacy/Test users
-  {
-    id: 'demo',
-    email: 'demo@balizero.com',
-    name: 'Demo User',
-    role: 'demo',
-    department: 'public',
-    position: 'Demo Account',
-    pin: '0000'
-  },
-  {
-    id: 'test-user-123',
-    email: 'test@example.com',
-    name: 'Test User',
-    role: 'admin',
-    department: 'Engineering',
-    position: 'Test Account',
-    pin: '1234'
-  },
-  {
-    id: 'alessia',
-    name: 'Alessia Marchetti',
-    email: 'alessia@balizero.com',
-    role: 'admin',
-    department: 'advisory',
-    position: 'Legal Director',
-    pin: '1234' // Keep existing pin for backward compatibility or update if needed. Using 1234 as fallback.
-  },
-  {
-    id: 'marco',
-    name: 'Marco Bianchi',
-    email: 'marco@balizero.com',
-    role: 'manager',
-    department: 'setup',
-    position: 'Setup Manager',
-    pin: '1234'
-  },
-  {
-    id: 'sofia',
-    name: 'Sofia Rossi',
-    email: 'sofia@balizero.com',
-    role: 'staff',
-    department: 'tax',
-    position: 'Tax Specialist',
-    pin: '1234'
   }
 ];
 
