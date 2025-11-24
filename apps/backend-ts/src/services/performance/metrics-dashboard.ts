@@ -58,8 +58,8 @@ interface PerformanceMetrics {
 
   // Knowledge base metrics
   knowledgeBase: {
-    kbliQueries: number;
-    kblHitRate: number;
+    queries: number;
+    hitRate: number;
     averageResults: number;
     domainBreakdown: Record<string, number>;
   };
@@ -131,8 +131,8 @@ class MetricsCollector {
         successRate: 0,
       },
       knowledgeBase: {
-        kbliQueries: 0,
-        kblHitRate: 0,
+        queries: 0,
+        hitRate: 0,
         averageResults: 0,
         domainBreakdown: {},
       },
@@ -240,8 +240,8 @@ class MetricsCollector {
   }
 
   // Record knowledge base query
-  recordKBLIQuery(domain: string, resultsCount: number, _searchMethod: string) {
-    this.metrics.knowledgeBase.kbliQueries++;
+  recordKnowledgeBaseQuery(domain: string, resultsCount: number, _searchMethod: string) {
+    this.metrics.knowledgeBase.queries++;
 
     if (!this.metrics.knowledgeBase.domainBreakdown[domain]) {
       this.metrics.knowledgeBase.domainBreakdown[domain] = 0;
@@ -254,10 +254,9 @@ class MetricsCollector {
       this.metrics.knowledgeBase.averageResults * (1 - alpha) + resultsCount * alpha;
 
     // Update hit rate if we got results
-    if (resultsCount > 0) {
-      this.metrics.knowledgeBase.kblHitRate =
-        this.metrics.knowledgeBase.kblHitRate * (1 - alpha) + 1 * alpha;
-    }
+    const hitValue = resultsCount > 0 ? 1 : 0;
+    this.metrics.knowledgeBase.hitRate =
+      this.metrics.knowledgeBase.hitRate * (1 - alpha) + hitValue * alpha;
   }
 
   // Record memory operation
@@ -354,12 +353,12 @@ class MetricsCollector {
         totalRequests: this.metrics.requests.total,
         cacheHits: this.metrics.cache.totalHits,
         authAttempts: this.metrics.auth.totalAttempts,
-        kbliQueries: this.metrics.knowledgeBase.kbliQueries,
+        knowledgeQueries: this.metrics.knowledgeBase.queries,
       },
       business: {
         memoryOps: this.metrics.memory.vectorSearches,
         popularAuthMethod: this.getMostPopularAuthMethod(),
-        topKBLIDomain: this.getTopKBLIDomain(),
+        topKnowledgeDomain: this.getTopKnowledgeDomain(),
       },
     };
   }
@@ -371,7 +370,7 @@ class MetricsCollector {
     return methods.reduce((a, b) => (b[1].count > a[1].count ? b : a))[0];
   }
 
-  private getTopKBLIDomain(): string {
+  private getTopKnowledgeDomain(): string {
     const domains = Object.entries(this.metrics.knowledgeBase.domainBreakdown);
     if (domains.length === 0) return 'none';
 
@@ -383,7 +382,7 @@ class MetricsCollector {
     // This would require more detailed tracking per endpoint
     // For now, return a placeholder
     return {
-      'kbli.lookup.complete': {
+      'rag.query': {
         requests: 0,
         averageTime: 0,
         successRate: 1.0,

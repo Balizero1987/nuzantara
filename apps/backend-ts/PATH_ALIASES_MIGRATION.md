@@ -27,7 +27,7 @@
 // ❌ OLD: Deep relative paths
 import { BadRequestError } from '../../../utils/errors.js';
 import { createMockRequest } from '../../../../tests/helpers/mocks.js';
-import { kbliLookup } from '../../../handlers/bali-zero/kbli.js';
+import { baliZeroPricing } from '../../../handlers/bali-zero/bali-zero-pricing.js';
 import logger from '../../../services/logger.js';
 ```
 
@@ -37,7 +37,7 @@ import logger from '../../../services/logger.js';
 // ✅ NEW: Clean path aliases
 import { BadRequestError } from '@utils/errors.js';
 import { createMockRequest } from '@tests/helpers/mocks.js';
-import { kbliLookup } from '@handlers/bali-zero/kbli.js';
+import { baliZeroPricing } from '@handlers/bali-zero/bali-zero-pricing.js';
 import logger from '@services/logger.js';
 ```
 
@@ -83,7 +83,7 @@ import logger from '@services/logger.js';
 
 ### Routes
 ```typescript
-import { kbliLookup } from '@handlers/bali-zero/kbli.js';
+import { baliZeroPricing } from '@handlers/bali-zero/bali-zero-pricing.js';
 import { cacheMiddleware } from '@middleware/cache.middleware.js';
 import logger from '@services/logger.js';
 ```

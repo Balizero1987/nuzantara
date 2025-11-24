@@ -380,7 +380,6 @@ class EnhancedRouter {
       'unified',
       'collective',
       'ecosystem',
-      'kbli',
       'pricing',
       'legal',
       'immigration',

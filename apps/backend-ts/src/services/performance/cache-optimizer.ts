@@ -34,7 +34,6 @@ export class CacheOptimizer {
 
   constructor() {
     // Configure cache settings for different query types
-    this.cacheConfigs.set('kbli', { ttl: 3600, keyPrefix: 'kbli:', enabled: true }); // 1 hour
     this.cacheConfigs.set('pricing', { ttl: 1800, keyPrefix: 'pricing:', enabled: true }); // 30 min
     this.cacheConfigs.set('team', { ttl: 7200, keyPrefix: 'team:', enabled: true }); // 2 hours
     this.cacheConfigs.set('legal', { ttl: 86400, keyPrefix: 'legal:', enabled: true }); // 24 hours

@@ -90,9 +90,6 @@ const TEAM_MEMBER_HANDLERS = new Set([
   'onboarding.start',
 
   // === BUSINESS OPERATIONS ===
-  'kbli.lookup',
-  'kbli.requirements',
-  'kbli.search',
 
   // === ANALYTICS (Read-only) ===
   'analytics.overview',
@@ -155,8 +152,6 @@ const DEMO_ALLOWED_HANDLERS = new Set([
   'team.list', // Team member listing with search and filter
   'team.departments', // Team departments information
   'team.members', // Safe team member list
-  'kbli.lookup', // KBLI business code lookup
-  'kbli.requirements', // KBLI requirements lookup
   'identity.resolve', // Identity resolution and profile creation
   'memory.save', // Memory save functionality
   'memory.retrieve', // Memory retrieval functionality

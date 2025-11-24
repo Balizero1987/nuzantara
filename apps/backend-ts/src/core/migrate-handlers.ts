@@ -21,7 +21,7 @@
  *     openai.ts
  *   bali-zero/
  *     pricing.ts
- *     kbli.ts
+ *     (legacy kbli.ts removed - RAG backend now owns KBLI)
  */
 
 import { logger } from '../logging/unified-logger.js';
@@ -54,7 +54,7 @@ export const MODULE_STRUCTURE: ModuleMapping[] = [
   },
   {
     module: 'bali-zero',
-    handlers: ['bali-zero-pricing', 'kbli', 'advisory', 'oracle', 'team'],
+    handlers: ['bali-zero-pricing', 'advisory', 'oracle', 'team'],
   },
   {
     module: 'zantara',
