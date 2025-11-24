@@ -24,7 +24,7 @@ export class ImportanceScorer {
    * Calculate initial importance score for a new fact
    * Uses heuristics + optionally AI (though FactExtractor already uses AI)
    */
-  calculateInitialScore(content: string, type: string, metadata: any = {}): number {
+  calculateInitialScore(content: string, type: string, _metadata: any = {}): number {
     let score = 0.5; // Base score
 
     // Type multipliers

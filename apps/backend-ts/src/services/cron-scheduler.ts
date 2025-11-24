@@ -32,86 +32,84 @@ export class CronScheduler {
     // ========================================
 
     // Daily AI Code Refactoring (2 AM UTC, uses DeepSeek Coder - FREE)
-    // DISABLED: Agents module refactored/removed
-    // this.scheduleJob('ai-code-refactoring', '0 2 * * *', async () => {
-    //   logger.info('🔧 Starting daily AI code refactoring...');
+    this.scheduleJob('ai-code-refactoring', '0 2 * * *', async () => {
+      logger.info('🔧 Starting daily AI code refactoring...');
 
-    //   try {
-    //     const { RefactoringAgent } = await import('../agents/refactoring-agent.js');
-    //     const refactoringAgent = new RefactoringAgent();
+      try {
+        const { RefactoringAgent } = await import('../agents/refactoring-agent.js');
+        const refactoringAgent = new RefactoringAgent();
 
-    //     // Get tech debt hotspots (replace with actual implementation)
-    //     const hotspots = await this.getTechDebtHotspots();
+        // Get tech debt hotspots (replace with actual implementation)
+        const hotspots = await this.getTechDebtHotspots();
 
-    //     if (hotspots.length === 0) {
-    //       logger.info('No tech debt hotspots found, skipping refactoring');
-    //       return;
-    //     }
+        if (hotspots.length === 0) {
+          logger.info('No tech debt hotspots found, skipping refactoring');
+          return;
+        }
 
-    //     logger.info(`Found ${hotspots.length} tech debt hotspots, processing top 5...`);
+        logger.info(`Found ${hotspots.length} tech debt hotspots, processing top 5...`);
 
-    //     const results = [];
-    //     for (const hotspot of hotspots.slice(0, 5)) { // Top 5 per day (ANTI-LOOP)
-    //       const result = await refactoringAgent.refactorFile(
-    //         hotspot.file,
-    //         hotspot.issues
-    //       );
-    //       results.push(result);
-    //     }
+        const results = [];
+        for (const hotspot of hotspots.slice(0, 5)) { // Top 5 per day (ANTI-LOOP)
+          const result = await refactoringAgent.refactorFile(
+            hotspot.file,
+            hotspot.issues
+          );
+          results.push(result);
+        }
 
-    //     const successful = results.filter(r => r.success).length;
-    //     const skipped = results.filter(r => r.skipped).length;
+        const successful = results.filter(r => r.success).length;
+        const skipped = results.filter(r => r.skipped).length;
 
-    //     logger.info(`✅ Daily refactoring complete: ${successful} successful, ${skipped} skipped, ${results.length - successful - skipped} failed`);
+        logger.info(`✅ Daily refactoring complete: ${successful} successful, ${skipped} skipped, ${results.length - successful - skipped} failed`);
 
-    //     // Log stats
-    //     logger.info('Refactoring Agent Stats:', refactoringAgent.getStats());
+        // Log stats
+        logger.info('Refactoring Agent Stats:', refactoringAgent.getStats());
 
-    //   } catch (error) {
-    //     logger.error('❌ Daily refactoring job failed', error instanceof Error ? error : new Error(String(error)));
-    //   }
-    // });
+      } catch (error) {
+        logger.error('❌ Daily refactoring job failed', error instanceof Error ? error : new Error(String(error)));
+      }
+    });
 
     // Daily Test Generation (3 AM UTC, uses Qwen 2.5 - FREE)
-    // DISABLED: Agents module refactored/removed
-    // this.scheduleJob('ai-test-generation', '0 3 * * *', async () => {
-    //   logger.info('🧪 Starting daily AI test generation...');
+    this.scheduleJob('ai-test-generation', '0 3 * * *', async () => {
+      logger.info('🧪 Starting daily AI test generation...');
 
-    //   try {
-    //     const { TestGeneratorAgent } = await import('../agents/test-generator-agent.js');
-    //     const testGenerator = new TestGeneratorAgent();
+      try {
+        const { TestGeneratorAgent } = await import('../agents/test-generator-agent.js');
+        const testGenerator = new TestGeneratorAgent();
 
-    //     // Get untested files (replace with actual implementation)
-    //     const untestedFiles = await this.getUntestedFiles();
+        // Get untested files (replace with actual implementation)
+        const untestedFiles = await this.getUntestedFiles();
 
-    //     if (untestedFiles.length === 0) {
-    //       logger.info('No untested files found, skipping test generation');
-    //       return;
-    //     }
+        if (untestedFiles.length === 0) {
+          logger.info('No untested files found, skipping test generation');
+          return;
+        }
 
-    //     logger.info(`Found ${untestedFiles.length} untested files, processing top 10...`);
+        logger.info(`Found ${untestedFiles.length} untested files, processing top 10...`);
 
-    //     const results = [];
-    //     for (const file of untestedFiles.slice(0, 10)) { // Top 10 per day (ANTI-LOOP)
-    //       const result = await testGenerator.generateTests(file);
-    //       results.push(result);
-    //     }
+        const results = [];
+        for (const file of untestedFiles.slice(0, 10)) { // Top 10 per day (ANTI-LOOP)
+          const result = await testGenerator.generateTests(file);
+          results.push(result);
+        }
 
-    //     const successful = results.filter(r => r.success).length;
-    //     const skipped = results.filter(r => r.skipped).length;
-    //     const avgCoverage = successful > 0
-    //       ? results.filter(r => r.coverage).reduce((sum, r) => sum + (r.coverage || 0), 0) / successful
-    //       : 0;
+        const successful = results.filter(r => r.success).length;
+        const skipped = results.filter(r => r.skipped).length;
+        const avgCoverage = successful > 0
+          ? results.filter(r => r.coverage).reduce((sum, r) => sum + (r.coverage || 0), 0) / successful
+          : 0;
 
-    //     logger.info(`✅ Test generation complete: ${successful} successful, ${skipped} skipped, avg coverage: ${avgCoverage.toFixed(1)}%`);
+        logger.info(`✅ Test generation complete: ${successful} successful, ${skipped} skipped, avg coverage: ${avgCoverage.toFixed(1)}%`);
 
-    //     // Log stats
-    //     logger.info('Test Generator Stats:', testGenerator.getStats());
+        // Log stats
+        logger.info('Test Generator Stats:', testGenerator.getStats());
 
-    //   } catch (error) {
-    //     logger.error('❌ Daily test generation job failed', error instanceof Error ? error : new Error(String(error)));
-    //   }
-    // });
+      } catch (error) {
+        logger.error('❌ Daily test generation job failed', error instanceof Error ? error : new Error(String(error)));
+      }
+    });
 
     // Health check (every hour) - monitors AI agents
     this.scheduleJob('ai-health-check', '0 * * * *', async () => {

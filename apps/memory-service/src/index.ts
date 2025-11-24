@@ -24,6 +24,7 @@ import path from 'path';
 import { MemoryAnalytics } from './analytics';
 import { ConversationSummarizer } from './summarization';
 import { FactExtractor } from './fact-extraction';
+import { ImportanceScorer } from './importance-scorer';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -102,6 +103,9 @@ const factExtractor = new FactExtractor(postgres, {
   minConfidence: 0.7,
   minImportance: 0.6,
 });
+
+// Initialize Importance Scorer
+const importanceScorer = new ImportanceScorer(postgres);
 
 // ============================================================
 // DATABASE INITIALIZATION
@@ -934,6 +938,23 @@ app.post('/api/admin/optimize-database', async (_req: Request, res: Response) =>
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+app.post('/api/admin/recalibrate-scores', async (_req: Request, res: Response) => {
+  try {
+    await importanceScorer.recalibrateScores();
+    
+    res.json({
+      success: true,
+      message: 'Importance scores recalibrated successfully'
+    });
+  } catch (error) {
+    console.error('Recalibration error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
