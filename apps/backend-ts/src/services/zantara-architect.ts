@@ -56,7 +56,7 @@ export class ZANTARAArchitect {
   async analyzeKnowledgeBase(): Promise<KnowledgeAnalysis> {
     try {
       const prompt = `
-        Analyze the ZANTARA v3 Ω knowledge system with these domains:
+        Analyze the ZANTARA knowledge system with these domains:
         - KBLI (10,00dynamicValue codes)
         - Pricing (Bali Zero official)
         - Team (23 members)
@@ -99,7 +99,7 @@ export class ZANTARAArchitect {
    */
   async generateDocumentation(): Promise<DocumentationSet> {
     try {
-      // Get all ZANTARA v3 endpoints
+      // Get all ZANTARA endpoints
       const endpoints = await this.discoverEndpoints();
 
       const docs = {
@@ -134,7 +134,7 @@ export class ZANTARAArchitect {
   async optimizeSystem(): Promise<OptimizationReport> {
     try {
       const prompt = `
-        Optimize ZANTARA v3 Ω performance:
+        Optimize ZANTARA performance:
         Current specs: <500ms avg response, 94% accuracy, 8,12dynamicValue
 
         Analyze and optimize:
@@ -189,7 +189,7 @@ export class ZANTARAArchitect {
   async troubleshootIssues(issueDescription: string): Promise<TroubleshootingReport> {
     try {
       const prompt = `
-        Troubleshoot ZANTARA v3 Ω issue: ${issueDescription}
+        Troubleshoot ZANTARA issue: ${issueDescription}
 
         System context:
         - Multi-agent knowledge system

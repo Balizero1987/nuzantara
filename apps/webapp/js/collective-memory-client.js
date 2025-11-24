@@ -11,7 +11,7 @@ import { API_CONFIG } from './api-config.js';
 class CollectiveMemoryClient {
     constructor() {
         this.config = {
-            apiUrl: API_CONFIG.backend.url || 'https://nuzantara-backend.fly.dev',
+            apiUrl: API_CONFIG.backend.url,
             endpoints: {
                 store: API_CONFIG.endpoints?.crm?.sharedMemory || '/api/crm/shared-memory',
                 query: API_CONFIG.endpoints?.crm?.sharedMemory || '/api/crm/shared-memory',

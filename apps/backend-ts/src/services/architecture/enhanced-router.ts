@@ -1,7 +1,7 @@
 /**
  * Enhanced Router with Service Registry and Circuit Breaker
  *
- * Advanced routing system for v3 Ω endpoints with:
+ * Advanced routing system with:
  * - Service discovery and load balancing
  * - Circuit breaker pattern for resilience
  * - Request/response transformation
@@ -373,7 +373,7 @@ class EnhancedRouter {
   }
 
   /**
-   * Initialize default circuit breakers for v3 Ω services
+   * Initialize default circuit breakers for services
    */
   private initializeDefaultCircuitBreakers(): void {
     const v3Services = [
@@ -398,7 +398,7 @@ class EnhancedRouter {
       });
     });
 
-    logger.info('Default circuit breakers initialized for v3 Ω services');
+    logger.info('Default circuit breakers initialized for services');
   }
 
   /**

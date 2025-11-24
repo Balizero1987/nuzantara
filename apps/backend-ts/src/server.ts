@@ -56,12 +56,9 @@ async function startServer() {
 
   // V3 cache system removed
 
-  // GLM 4.6 Architect Patch: Initialize Enhanced Architecture
-  // REMOVED: serviceRegistry initialization (v3 legacy - no longer used)
+  // Initialize Enhanced Architecture
   try {
-    // Service registry and v3 Ω services removed during cleanup
-
-    logger.info('✅ Enhanced Architecture (GLM 4.6) initialized');
+    logger.info('✅ Enhanced Architecture initialized');
   } catch (error: any) {
     logger.warn(`⚠️ Enhanced Architecture initialization failed: ${error.message}`);
     logger.warn('⚠️ Continuing with basic architecture');
@@ -106,10 +103,14 @@ async function startServer() {
   app.use('/admin/setup', setupBypassRoutes.default);
   logger.info('⚠️  Admin setup bypass routes loaded (disable after initial setup)');
 
-  // Mock login test routes (for testing without database)
-  const mockLoginRoutes = await import('./routes/test/mock-login.js');
-  app.use('/test', mockLoginRoutes.default);
-  logger.info('🧪 Mock login test routes loaded');
+  // Mock login test routes (only in development/test environments)
+  if (process.env.NODE_ENV !== 'production') {
+    const mockLoginRoutes = await import('./routes/test/mock-login.js');
+    app.use('/test', mockLoginRoutes.default);
+    logger.info('🧪 Mock login test routes loaded (DEV MODE)');
+  } else {
+    logger.info('⚠️ Mock login disabled in production');
+  }
 
   // PATCH-3: CORS with security configuration (Must be first)
   app.use(corsMiddleware);
@@ -196,7 +197,6 @@ async function startServer() {
       ok: true,
       data: {
         circuitBreakers: {},
-        serviceRegistry: {},
         metrics: {},
         timestamp: new Date().toISOString(),
       },

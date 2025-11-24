@@ -1,7 +1,7 @@
 /**
  * Performance Monitoring Service
  *
- * Comprehensive metrics collection for v3 Ω endpoints
+ * Comprehensive metrics collection for endpoints
  * Tracks performance improvements and system health
  */
 

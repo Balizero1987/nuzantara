@@ -8,7 +8,7 @@
 class AgentsClient {
     constructor(config = {}) {
         this.config = {
-            apiUrl: window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev',
+            apiUrl: window.API_CONFIG?.rag?.url || window.API_CONFIG?.backend?.url,
             endpoints: window.API_ENDPOINTS?.agents || {},
             ...config
         };

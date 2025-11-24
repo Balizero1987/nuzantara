@@ -1,4 +1,4 @@
-// External KBLI API Integration for ZANTARA v3 Ω
+// External KBLI API Integration for ZANTARA
 // Connects to real-time Indonesian government APIs for KBLI data
 
 import logger from './logger.js';

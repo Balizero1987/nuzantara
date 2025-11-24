@@ -8,7 +8,7 @@
 class TeamAnalyticsClient {
     constructor(config = {}) {
         this.config = {
-            apiUrl: window.API_CONFIG?.backend?.url || 'https://nuzantara-rag.fly.dev',
+            apiUrl: window.API_CONFIG?.backend?.url,
             endpoints: window.API_ENDPOINTS?.team || {},
             ...config
         };

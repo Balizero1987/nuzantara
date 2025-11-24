@@ -19,8 +19,8 @@ import { generateSessionId } from './utils/session-id.js';
 class ZantaraClient {
   constructor(config = {}) {
     this.config = {
-      apiUrl: config.apiUrl || 'https://nuzantara-rag.fly.dev',
-      authUrl: config.authUrl || 'https://nuzantara-rag.fly.dev',
+      apiUrl: config.apiUrl || window.API_CONFIG?.rag?.url,
+      authUrl: config.authUrl || window.API_CONFIG?.rag?.url,
       authEndpoint: config.authEndpoint || '/api/auth/team/login',
       chatEndpoint: config.chatEndpoint || '/bali-zero/chat',
       streamEndpoint: config.streamEndpoint || '/bali-zero/chat-stream',

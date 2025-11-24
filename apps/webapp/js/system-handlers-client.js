@@ -9,7 +9,7 @@ import { API_CONFIG } from './api-config.js';
 class SystemHandlersClient {
     constructor() {
         // Use backend TypeScript service (nuzantara-backend) for handlers
-        const backendUrl = API_CONFIG.backend?.url || 'https://nuzantara-backend.fly.dev';
+        const backendUrl = API_CONFIG.backend?.url;
         this.baseURL = backendUrl; // Store for logging
         this.api = new UnifiedAPIClient({ baseURL: backendUrl });
         this.config = {

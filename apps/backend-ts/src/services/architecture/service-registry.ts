@@ -1,7 +1,7 @@
 /**
  * Service Registry Pattern Implementation
  *
- * Centralized service registration and discovery for v3 Ω endpoints
+ * Centralized service registration and discovery for endpoints
  * with circuit breaker pattern and health monitoring.
  *
  * Features:

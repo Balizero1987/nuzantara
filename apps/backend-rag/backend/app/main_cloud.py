@@ -45,10 +45,12 @@ from app.routers import (
     auth,
     autonomous_agents,
     conversations,
+    crm_analytics,
     crm_clients,
     crm_interactions,
     crm_practices,
     crm_shared_memory,
+    document_intelligence,
     handlers,
     health,
     ingest,
@@ -108,10 +110,12 @@ def include_routers(api: FastAPI) -> None:
     api.include_router(agents.router)
     api.include_router(autonomous_agents.router)
     api.include_router(conversations.router)
+    api.include_router(crm_analytics.router)
     api.include_router(crm_clients.router)
     api.include_router(crm_interactions.router)
     api.include_router(crm_practices.router)
     api.include_router(crm_shared_memory.router)
+    api.include_router(document_intelligence.router)
     api.include_router(ingest.router)
     api.include_router(intel.router)
     api.include_router(memory_vector.router)
