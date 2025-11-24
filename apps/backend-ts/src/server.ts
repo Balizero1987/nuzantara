@@ -416,35 +416,56 @@ async function startServer() {
   // Legacy demo auth endpoint removed (only real team auth supported)
 
   // FIX 4a: POST /auth/login - User login (JWT generation)
+  // REFACTORED: "Sventra tutto" approach - Secure, simplified, and reliable
   app.post('/auth/login', async (req, res) => {
     try {
-      const { email, name } = req.body;
+      const { email, pin } = req.body;
 
+      // 1. Validation
       if (!email) {
-        return res.status(400).json({
-          ok: false,
-          error: 'Email is required'
-        });
+        return res.status(400).json({ ok: false, error: 'Email is required' });
+      }
+      if (!pin) {
+        return res.status(400).json({ ok: false, error: 'PIN is required' });
       }
 
-      const generatedUserId = `user_${Date.now()}`;
-      const user = {
-        id: generatedUserId,
-        userId: generatedUserId,
-        email,
-        name: name || email.split('@')[0],
-        role: 'User' as const,
-        department: 'general',
-        permissions: ['read' as const, 'write' as const],
+      // 2. Authentication Source of Truth (Hardcoded for reliability)
+      const { getTeamMemberByEmail } = await import('./config/team-members.js');
+      const user = getTeamMemberByEmail(email);
+
+      if (!user) {
+        // Security: Generic error message
+        return res.status(401).json({ ok: false, error: 'Invalid credentials' });
+      }
+
+      // 3. PIN Verification (Exact match for hardcoded users)
+      if (user.pin !== pin) {
+        return res.status(401).json({ ok: false, error: 'Invalid credentials' });
+      }
+
+      // 4. Create unified user object
+      const unifiedUser = {
+        id: user.id,
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        department: user.department,
+        permissions: ['read', 'write'], // Default permissions
         isActive: true,
         lastLogin: new Date(),
-        authType: 'enhanced' as const
+        authType: 'team' as const,
+        metadata: {
+          position: user.position
+        }
       };
 
-      const token = await unifiedAuth.generateToken(user, 'legacy');
-      const expiresIn = 3600;
+      // 5. Generate Token
+      // Using 'team' strategy to include sessionId if possible, or fallback to legacy
+      const token = await unifiedAuth.generateToken(unifiedUser, 'legacy');
+      const expiresIn = 24 * 3600; // 24 hours
 
-      logger.info(`✅ User logged in: ${user.email}`);
+      logger.info(`✅ User logged in: ${user.email} (Source: Config)`);
 
       res.json({
         ok: true,
