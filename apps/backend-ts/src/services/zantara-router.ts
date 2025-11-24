@@ -2,6 +2,7 @@ import { intentRouter } from './intent-router.js';
 import { oracleClient } from './ai/oracle-client.js';
 import { zantaraChat } from '../handlers/ai-services/zantara-llama.js'; // Legacy RAG handler
 import { memoryServiceClient } from './memory-service-client.js';
+import { getTeamMemberByEmail } from '../config/team-members.js';
 import logger from './logger.js';
 
 export interface ZantaraRequest {
@@ -23,11 +24,16 @@ export class ZantaraRouter {
     let memoryContext = '';
     try {
       if (user_email !== 'guest') {
-        const memoryResult = await memoryServiceClient.getUserFacts(user_email);
+        // Resolve User ID from Email for consistent memory retrieval
+        // This ensures coherence between Login (ID-based) and Memory (ID-based)
+        const user = getTeamMemberByEmail(user_email);
+        const memoryKey = user ? user.id : user_email; // Fallback to email if not found
+
+        const memoryResult = await memoryServiceClient.getUserFacts(memoryKey);
         const facts = memoryResult.facts || [];
         if (facts.length > 0) {
           memoryContext = facts.map((f: any) => `- ${f.fact_content}`).join('\n');
-          logger.debug(`🧠 Loaded ${facts.length} facts for ${user_email}`);
+          logger.debug(`🧠 Loaded ${facts.length} facts for ${memoryKey} (${user_email})`);
         }
       }
     } catch (e) {
