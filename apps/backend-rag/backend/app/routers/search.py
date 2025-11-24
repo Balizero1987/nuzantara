@@ -12,7 +12,7 @@ from ..models import SearchQuery, SearchResponse, SearchResult, ChunkMetadata
 from services.search_service import SearchService
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/search", tags=["search"])
+router = APIRouter(prefix="/api/search", tags=["search"])
 
 
 @router.post("/", response_model=SearchResponse)

@@ -15,7 +15,7 @@ from psycopg2.extras import RealDictCursor, Json
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/crm/practices", tags=["crm-practices"])
+router = APIRouter(prefix="/api/crm/practices", tags=["crm-practices"])
 
 
 # ================================================

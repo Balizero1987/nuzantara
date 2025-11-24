@@ -1,46 +1,114 @@
 # 🔧 Manual Fixes Required - NUZANTARA Codebase
 
-Questi fix richiedono attenzione manuale e non possono essere automatizzati completamente.
+**Last Updated:** 2025-11-24  
+**Status:** Most critical fixes have been automated and applied
 
 ---
 
-## 1. CRM Endpoints - Backend Python
+## ✅ COMPLETED FIXES (Automated - 2025-11-24)
 
-**File:** `apps/backend-rag/backend/app/routers/crm_clients.py`
-**File:** `apps/backend-rag/backend/app/routers/crm_interactions.py`
-**File:** `apps/backend-rag/backend/app/routers/crm_practices.py`
+### 1. CRM Endpoints - Backend Python ✅
+**Files:** 
+- `apps/backend-rag/backend/app/routers/crm_clients.py`
+- `apps/backend-rag/backend/app/routers/crm_interactions.py`
+- `apps/backend-rag/backend/app/routers/crm_practices.py`
 
-### Cambiamento richiesto:
+**Applied Fix:**
 ```python
-# PRIMA:
+# Changed from:
 router = APIRouter(prefix="/crm/clients", tags=["crm-clients"])
 
-# DOPO:
+# To:
 router = APIRouter(prefix="/api/crm/clients", tags=["crm-clients"])
 ```
 
-Applicare a tutti e tre i file CRM.
-
-**Alternativa:** Modificare il frontend per rimuovere `/api` prefix (meno raccomandato).
+✅ **Status:** All three CRM routers now use `/api/crm/*` prefix
 
 ---
 
-## 2. Search Endpoint - Backend Python
+### 2. Search Endpoint - Backend Python ✅
 
 **File:** `apps/backend-rag/backend/app/routers/search.py`
 
-### Cambiamento richiesto:
+**Applied Fix:**
 ```python
-# PRIMA:
+# Changed from:
 router = APIRouter(prefix="/search", tags=["search"])
 
-# DOPO:
+# To:
 router = APIRouter(prefix="/api/search", tags=["search"])
 ```
 
+✅ **Status:** Search endpoint now uses `/api/search` prefix
+
 ---
 
-## 3. Memory Service URL Verification
+### 3. Ingest Endpoint - Backend Python ✅
+
+**File:** `apps/backend-rag/backend/app/routers/ingest.py`
+
+**Applied Fix:**
+```python
+# Changed from:
+router = APIRouter(prefix="/ingest", tags=["ingestion"])
+
+# To:
+router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
+```
+
+✅ **Status:** Ingest endpoint now uses `/api/ingest` prefix
+
+---
+
+### 4. Pydantic Validation Error - Oracle Universal ✅
+
+**File:** `apps/backend-rag/backend/app/routers/oracle_universal.py`
+
+**Applied Fix:**
+```python
+# Added initialization of timing variables at function start (line 612-615):
+execution_time = 0.0
+search_time = 0.0
+reasoning_time = 0.0
+target_language = 'en'  # Default fallback language
+
+# Added safety checks in error handler (line 807-810):
+if 'search_time' not in locals():
+    search_time = 0.0
+if 'reasoning_time' not in locals():
+    reasoning_time = 0.0
+```
+
+✅ **Status:** All error responses now include required `execution_time_ms` field
+
+---
+
+## ⚠️ REMAINING MANUAL FIXES
+
+These require manual intervention or external service access (Fly.io secrets, etc.)
+
+---
+
+### 1. OpenAI API Key Configuration (CRITICAL - BLOCKER)
+
+**Location:** Fly.io Secrets for `nuzantara-rag` app
+
+**Issue:** Current OpenAI API key is invalid, causing all embedding generation to fail
+
+**Fix Required:**
+```bash
+# Set valid OpenAI API key in Fly.io
+flyctl secrets set OPENAI_API_KEY="sk-proj-your-valid-key-here" -a nuzantara-rag
+
+# Restart the service
+flyctl apps restart nuzantara-rag
+```
+
+**Impact:** BLOCKER - Oracle Universal endpoint returns 503 without valid key
+
+---
+
+### 2. Memory Service URL Verification
 
 **File:** `apps/webapp/js/api-config.js`
 
@@ -66,7 +134,7 @@ memory: {
 
 ---
 
-## 4. Mock Login Production Guard
+### 3. Mock Login Production Guard (RECOMMENDED)
 
 **File:** `apps/backend-ts/src/server.ts`
 
@@ -91,65 +159,24 @@ if (process.env.NODE_ENV !== 'production') {
 
 ---
 
-## 5. API Config - Complete Fix
+### 4. Frontend API Config Updates (OPTIONAL - Endpoints now aligned)
 
 **File:** `apps/webapp/js/api-config.js`
 
-### Sezione CRM (linee 14-21):
-```javascript
-// PRIMA:
-crm: {
-  clients: '/api/crm/clients',
-  clientsCreate: '/api/crm/clients',
-  interactions: '/api/crm/interactions',
-  practices: '/api/crm/practices',
-  analytics: '/api/crm/analytics',
-  sharedMemory: '/api/crm/shared-memory'
-},
+**Note:** Backend endpoints have been updated to include `/api` prefix. Frontend config should already be compatible, but verify if needed:
 
-// DOPO (Opzione A - Se fissi il backend Python):
-crm: {
-  clients: '/api/crm/clients',
-  clientsCreate: '/api/crm/clients',
-  interactions: '/api/crm/interactions',
-  practices: '/api/crm/practices',
-  // analytics: '/api/crm/analytics',  // TODO: Not implemented yet
-  sharedMemory: '/api/crm/shared-memory'
-},
+**CRM Endpoints:**
+- ✅ Frontend expects: `/api/crm/clients`, `/api/crm/interactions`, `/api/crm/practices`
+- ✅ Backend now provides: `/api/crm/clients`, `/api/crm/interactions`, `/api/crm/practices`
+- ⚠️ Frontend also references: `/api/crm/analytics` (not implemented yet - can be removed)
 
-// DOPO (Opzione B - Se NON fissi il backend):
-crm: {
-  clients: '/crm/clients',
-  clientsCreate: '/crm/clients',
-  interactions: '/crm/interactions',
-  practices: '/crm/practices',
-  // analytics: '/api/crm/analytics',  // TODO: Not implemented yet
-  sharedMemory: '/api/crm/shared-memory'
-},
-```
+**Search Endpoints:**
+- ✅ Backend now provides: `/api/search`
+- Update frontend from `/search` to `/api/search` if needed
 
-### Sezione Agents (linee 29-36):
-```javascript
-// PRIMA:
-agents: {
-  compliance: '/api/agents/compliance/alerts',
-  journey: '/api/agents/journey/{journey_id}/next-steps',
-  research: '/api/autonomous-agents/conversation-trainer/run',
-  semanticSearch: '/api/search/',
-  hybridQuery: '/api/search/',
-  documentIntelligence: '/ai/creative/vision'
-},
-
-// DOPO:
-agents: {
-  compliance: '/api/agents/compliance/alerts',
-  journey: '/api/agents/journey/{journey_id}/next-steps',
-  research: '/api/autonomous-agents/conversation-trainer/run',
-  semanticSearch: '/search',  // ✅ Fixed (removed /api)
-  hybridQuery: '/search',     // ✅ Fixed (removed /api)
-  // documentIntelligence: '/ai/creative/vision'  // ❌ Not implemented
-},
-```
+**Ingest Endpoints:**
+- ✅ Backend now provides: `/api/ingest`
+- Update frontend from `/ingest` to `/api/ingest` if needed
 
 ---
 

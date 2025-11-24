@@ -609,9 +609,10 @@ async def hybrid_oracle_query(
     start_time = time.time()
     query_hash = generate_query_hash(request.query)
     user_profile = None
-    execution_time = 0
-    search_time = 0
-    reasoning_time = 0
+    execution_time = 0.0
+    search_time = 0.0
+    reasoning_time = 0.0
+    target_language = 'en'  # Default fallback language
 
     try:
         logger.info(f"🚀 Starting hybrid oracle query: {request.query[:100]}...")
@@ -803,13 +804,19 @@ async def hybrid_oracle_query(
         logger.error(f"❌ Hybrid Oracle query error after {execution_time:.2f}ms: {e}")
         logger.debug(f"❌ Full error: {traceback.format_exc()}")
 
+        # Ensure all timing variables are set for error response
+        if 'search_time' not in locals():
+            search_time = 0.0
+        if 'reasoning_time' not in locals():
+            reasoning_time = 0.0
+
         # Store error analytics
         error_analytics = {
             "user_id": user_profile.get('id') if user_profile else None,
             "query_hash": query_hash,
             "query_text": request.query,
             "response_text": None,
-            "language_preference": target_language if 'target_language' in locals() else 'en',
+            "language_preference": target_language,
             "model_used": None,
             "response_time_ms": execution_time,
             "document_count": 0,
@@ -827,7 +834,7 @@ async def hybrid_oracle_query(
             query=request.query,
             user_email=request.user_email,
             answer=None,
-            answer_language=target_language if 'target_language' in locals() else 'en',
+            answer_language=target_language,
             model_used=None,
             sources=[],
             document_count=0,
@@ -835,7 +842,7 @@ async def hybrid_oracle_query(
             routing_reason=None,
             domain_confidence=None,
             user_profile=UserProfile(**user_profile) if user_profile else None,
-            language_detected=target_language if 'target_language' in locals() else 'en',
+            language_detected=target_language,
             execution_time_ms=execution_time,
             search_time_ms=search_time,
             reasoning_time_ms=reasoning_time,

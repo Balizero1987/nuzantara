@@ -14,7 +14,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/crm/clients", tags=["crm-clients"])
+router = APIRouter(prefix="/api/crm/clients", tags=["crm-clients"])
 
 
 # ================================================
