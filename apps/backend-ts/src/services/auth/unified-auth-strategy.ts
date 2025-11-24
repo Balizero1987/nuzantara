@@ -13,6 +13,7 @@
 import { Request, Response, NextFunction } from 'express';
 import logger from '../../services/logger.js';
 import { enhancedJWTAuth, EnhancedUser } from '../../middleware/enhanced-jwt-auth.js';
+import { getTeamMemberById } from '../../config/team-members.js';
 
 // Unified User Interface - compatible with all systems
 export interface UnifiedUser {
@@ -295,13 +296,23 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
     }
   }
 
-  private async getTeamMember(_userId: string): Promise<any> {
-    // This would integrate with the team-login.ts data
-    // For now, return mock data
+  private async getTeamMember(userId: string): Promise<any> {
+    // Use the hardcoded Source of Truth
+    const member = getTeamMemberById(userId);
+    
+    if (member) {
+      return {
+        name: member.name,
+        language: 'en', // Default
+        personalizedResponse: false,
+      };
+    }
+
+    // Fallback for unknown users (shouldn't happen if token is valid and signed by us)
     return {
-      name: 'Team Member',
-      language: 'English',
-      personalizedResponse: 'Welcome back!',
+      name: 'Unknown Team Member',
+      language: 'en',
+      personalizedResponse: false,
     };
   }
 

@@ -691,7 +691,7 @@ async function startServer() {
     });
 
     // Force shutdown after 30 seconds
-    setTimeout(() => {
+    global.setTimeout(() => {
       logger.error('Forced shutdown after timeout');
       process.exit(1);
     }, 30000);
