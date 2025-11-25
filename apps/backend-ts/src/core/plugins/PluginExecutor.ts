@@ -6,6 +6,7 @@
 
 import { Plugin, PluginOutput, PluginContext } from './Plugin';
 import { registry } from './PluginRegistry';
+import logger from '../../services/logger.js';
 
 interface MetricsData {
   calls: number;
@@ -33,7 +34,7 @@ export class PluginExecutor {
   private readonly CACHE_TTL = 3600 * 1000;
 
   constructor() {
-    console.log('✅ PluginExecutor initialized');
+    logger.info('✅ PluginExecutor initialized');
 
     // Clean up cache periodically
     setInterval(() => this.cleanupCache(), 300000); // Every 5 minutes
@@ -146,15 +147,15 @@ export class PluginExecutor {
 
         return result;
       } catch (error: any) {
-        console.error(
+        logger.error(
           `Plugin ${pluginName} execution failed (attempt ${attempt + 1}/${retryCount + 1}):`,
-          error
+          error instanceof Error ? error : new Error(String(error))
         );
 
         if (attempt < retryCount) {
           // Wait before retry with exponential backoff
           const waitTime = Math.pow(2, attempt) * 1000;
-          console.log(`Retrying ${pluginName} in ${waitTime}ms...`);
+          logger.info(`Retrying ${pluginName} in ${waitTime}ms...`);
           await this.sleep(waitTime);
         } else {
           // Final failure
@@ -272,7 +273,7 @@ export class PluginExecutor {
 
     // Check limit
     if (recentTimestamps.length >= limit) {
-      console.warn(`Rate limit exceeded for ${key}`);
+      logger.warn(`Rate limit exceeded for ${key}`);
       return false;
     }
 

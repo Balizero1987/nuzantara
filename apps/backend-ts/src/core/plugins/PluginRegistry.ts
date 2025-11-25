@@ -5,6 +5,7 @@
  */
 
 import { Plugin, PluginMetadata, PluginCategory } from './Plugin';
+import logger from '../../services/logger.js';
 
 export class PluginRegistry {
   private plugins: Map<string, Plugin> = new Map();
@@ -13,7 +14,7 @@ export class PluginRegistry {
   private aliases: Map<string, string> = new Map();
 
   constructor() {
-    console.log('✅ PluginRegistry initialized');
+    logger.info('✅ PluginRegistry initialized');
   }
 
   /**
@@ -28,9 +29,7 @@ export class PluginRegistry {
     if (this.plugins.has(metadata.name)) {
       const existing = this.metadata.get(metadata.name);
       if (existing && existing.version === metadata.version) {
-        console.warn(
-          `Plugin ${metadata.name} v${metadata.version} already registered, skipping`
-        );
+        logger.warn(`Plugin ${metadata.name} v${metadata.version} already registered, skipping`);
         return;
       }
     }
@@ -54,11 +53,9 @@ export class PluginRegistry {
     // Call lifecycle hook
     try {
       await plugin.onLoad();
-      console.log(
-        `✅ Registered plugin: ${metadata.name} v${metadata.version} (${metadata.category})`
-      );
+      logger.info(`✅ Registered plugin: ${metadata.name} v${metadata.version} (${metadata.category})`);
     } catch (error: any) {
-      console.error(`❌ Failed to load plugin ${metadata.name}:`, error);
+      logger.error(`❌ Failed to load plugin ${metadata.name}:`, error instanceof Error ? error : new Error(String(error)));
       // Rollback registration
       this.plugins.delete(metadata.name);
       this.metadata.delete(metadata.name);
@@ -76,7 +73,7 @@ export class PluginRegistry {
       try {
         await this.register(plugin);
       } catch (error: any) {
-        console.error(`Failed to register plugin:`, error);
+        logger.error(`Failed to register plugin:`, error instanceof Error ? error : new Error(String(error)));
       }
     }
   }
@@ -91,9 +88,9 @@ export class PluginRegistry {
     if (plugin) {
       try {
         await plugin.onUnload();
-        console.log(`Unloaded plugin: ${name}`);
+        logger.info(`Unloaded plugin: ${name}`);
       } catch (error: any) {
-        console.error(`Error unloading plugin ${name}:`, error);
+        logger.error(`Error unloading plugin ${name}:`, error instanceof Error ? error : new Error(String(error)));
       }
 
       this.plugins.delete(name);
@@ -106,7 +103,7 @@ export class PluginRegistry {
         }
       }
 
-      console.log(`Unregistered plugin: ${name}`);
+      logger.info(`Unregistered plugin: ${name}`);
     }
   }
 
@@ -243,9 +240,9 @@ export class PluginRegistry {
         const toolDef = plugin.toAnthropicToolDefinition();
         tools.push(toolDef);
       } catch (error: any) {
-        console.error(
+        logger.error(
           `Failed to generate Anthropic tool definition for ${plugin.metadata.name}:`,
-          error
+          error instanceof Error ? error : new Error(String(error))
         );
       }
     }
@@ -267,7 +264,7 @@ export class PluginRegistry {
           const toolDef = plugin.toAnthropicToolDefinition();
           tools.push(toolDef);
         } catch (error: any) {
-          console.error(`Failed to generate tool definition:`, error);
+          logger.error(`Failed to generate tool definition:`, error instanceof Error ? error : new Error(String(error)));
         }
       }
     }
@@ -290,7 +287,7 @@ export class PluginRegistry {
     await this.unregister(name);
     await this.register(plugin);
 
-    console.log(`Reloaded plugin: ${name}`);
+    logger.info(`Reloaded plugin: ${name}`);
   }
 
   /**

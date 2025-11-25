@@ -24,7 +24,7 @@ router.get('/check', jwtAuth as any, (async (req: RequestWithJWT, res: Response)
     const userId = req.user?.userId || req.user?.email;
 
     // Find full user data
-    const user = getTeamMemberById(String(userId)) || getTeamMemberByEmail(String(userId));
+    const user = await getTeamMemberById(String(userId)) || await getTeamMemberByEmail(String(userId));
 
     if (!user) {
       return res.status(401).json(err('User not found'));
@@ -82,7 +82,7 @@ router.get('/profile', jwtAuth as any, (async (req: RequestWithJWT, res: Respons
     const userId = req.user?.userId || req.user?.email;
 
     // Find user
-    const user = getTeamMemberById(String(userId)) || getTeamMemberByEmail(String(userId));
+    const user = await getTeamMemberById(String(userId)) || await getTeamMemberByEmail(String(userId));
 
     if (!user) {
       return res.status(404).json(err('User not found'));

@@ -41,8 +41,8 @@ export class AntiHallucinationSystem {
     // NOTE: Service-specific data (visa types, company types, pricing, timelines) 
     // are stored in Qdrant/PostgreSQL and retrieved via RAG backend
     services: ['visa', 'company_setup', 'tax_consulting', 'real_estate_legal'], // Generic service categories only
-    visa_types: [], // All visa types are in the database
-    company_types: [], // All company types are in the database
+    visa_types: [] as string[], // All visa types are in the database
+    company_types: [] as string[], // All company types are in the database
     locations: ['Bali', 'Indonesia', 'Jakarta'], // Geographic locations only (generic - no specific neighborhoods)
 
     // Verified operational facts
