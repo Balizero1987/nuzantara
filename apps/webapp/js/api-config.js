@@ -34,6 +34,17 @@ export const API_ENDPOINTS = {
     hybridQuery: '/search',
   },
 
+  // Team Analytics
+  team: {
+    trends: '/api/team/analytics/trends',
+    skills: '/api/team/analytics/skills',
+    workload: '/api/team/analytics/workload',
+    collaboration: '/api/team/analytics/collaboration',
+    responseTimes: '/api/team/analytics/response-times',
+    satisfaction: '/api/team/analytics/satisfaction',
+    knowledgeSharing: '/api/team/analytics/knowledge-sharing'
+  },
+
   // Notifications
   notifications: {
     list: '/api/notifications/status',

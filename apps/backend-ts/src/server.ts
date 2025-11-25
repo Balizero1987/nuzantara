@@ -223,7 +223,7 @@ async function startServer() {
   const createProxyOptions = (label: string) => ({
     target: PYTHON_SERVICE_URL,
     changeOrigin: true,
-    logLevel: 'warn',
+    logLevel: 'warn' as const,
     onError: (err: Error, _req: express.Request, res: express.Response) => {
       logger.error(`❌ ${label} proxy error:`, err);
       if (!res.headersSent) {

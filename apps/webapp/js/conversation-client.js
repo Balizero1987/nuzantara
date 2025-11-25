@@ -18,6 +18,7 @@ class ZantaraConversationClient {
     this.memoryServiceUrl = config.memoryServiceUrl || API_CONFIG.memory.url;
     this.sessionId = null;
     this.userId = null;
+    this.userEmail = null;
     this.maxHistorySize = config.maxHistorySize || 50;
   }
 
@@ -28,6 +29,7 @@ class ZantaraConversationClient {
     console.log(`💬 [ConversationClient] Initializing session for user: ${userId}`);
 
     this.userId = userId;
+    this.userEmail = userEmail || null;
 
     // Check if we have an existing session in localStorage
     const storedSession = localStorage.getItem('zantara-conversation-session');
@@ -59,7 +61,7 @@ class ZantaraConversationClient {
     try {
       this.sessionId = generateSessionId(userId); // Use shared utility
 
-      const response = await fetch(`${this.memoryServiceUrl}/api/conversations`, {
+      const response = await fetch(`${this.memoryServiceUrl}/api/session/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,6 +69,7 @@ class ZantaraConversationClient {
         body: JSON.stringify({
           session_id: this.sessionId,
           user_id: userId,
+          member_name: userEmail,
           metadata: {
             user_email: userEmail,
             platform: 'ZANTARA_Web',
@@ -110,8 +113,8 @@ class ZantaraConversationClient {
 
     try {
       const url = limit
-        ? `${this.memoryServiceUrl}/api/conversations/${this.sessionId}?limit=${limit}`
-        : `${this.memoryServiceUrl}/api/conversations/${this.sessionId}`;
+        ? `${this.memoryServiceUrl}/api/conversation/${this.sessionId}?limit=${limit}`
+        : `${this.memoryServiceUrl}/api/conversation/${this.sessionId}`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -195,37 +198,20 @@ class ZantaraConversationClient {
     }
 
     try {
-      const response = await fetch(`${this.memoryServiceUrl}/api/conversations/${this.sessionId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          history: messages
-        }),
-      });
+      const newMessages = this._getUnsyncedMessages(messages);
 
-      if (!response.ok) {
-        throw new Error(`Failed to update history: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        // Update localStorage message count
-        const storedSession = localStorage.getItem('zantara-conversation-session');
-        if (storedSession) {
-          const session = JSON.parse(storedSession);
-          session.messageCount = messages.length;
-          session.lastActivity = Date.now();
-          localStorage.setItem('zantara-conversation-session', JSON.stringify(session));
-        }
-
-        console.log(`✅ [ConversationClient] History updated (${messages.length} messages)`);
+      if (newMessages.length === 0) {
+        this._updateSessionMetadata(messages.length);
         return true;
       }
 
-      return false;
+      for (const message of newMessages) {
+        await this._storeMessage(message);
+      }
+
+      this._updateSessionMetadata(messages.length);
+      console.log(`✅ [ConversationClient] History synced (${messages.length} messages)`);
+      return true;
 
     } catch (error) {
       console.error('❌ [ConversationClient] Failed to update history:', error);
@@ -256,6 +242,71 @@ class ZantaraConversationClient {
       return JSON.parse(storedSession);
     }
     return null;
+  }
+
+  /**
+   * Determine which messages still need to be synced with the server
+   */
+  _getUnsyncedMessages(messages) {
+    try {
+      const storedSession = this.getSessionInfo();
+      const syncedCount = storedSession?.syncedCount ?? storedSession?.messageCount ?? 0;
+
+      if (syncedCount >= messages.length) {
+        return [];
+      }
+
+      return messages.slice(syncedCount);
+    } catch {
+      return messages;
+    }
+  }
+
+  async _storeMessage(message) {
+    const payload = {
+      session_id: this.sessionId,
+      user_id: this.userId || 'anonymous',
+      message_type: this._normalizeRole(message),
+      content: typeof message.content === 'string' ? message.content : JSON.stringify(message.content),
+      metadata: {
+        platform: 'ZANTARA_Web',
+        timestamp: message.timestamp || new Date().toISOString(),
+        user_email: this.userEmail || undefined,
+        ...message.metadata,
+      }
+    };
+
+    const response = await fetch(`${this.memoryServiceUrl}/api/conversation/store`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to store message: ${response.status}`);
+    }
+  }
+
+  _normalizeRole(message) {
+    const role = message?.role || message?.type || 'system';
+    if (role === 'assistant' || role === 'user' || role === 'system') {
+      return role;
+    }
+    return role === 'ai' ? 'assistant' : 'user';
+  }
+
+  _updateSessionMetadata(messageCount) {
+    const storedSession = this.getSessionInfo() || {
+      id: this.sessionId,
+      userId: this.userId,
+      createdAt: Date.now(),
+    };
+    storedSession.messageCount = messageCount;
+    storedSession.syncedCount = messageCount;
+    storedSession.lastActivity = Date.now();
+    localStorage.setItem('zantara-conversation-session', JSON.stringify(storedSession));
   }
 
   /**
