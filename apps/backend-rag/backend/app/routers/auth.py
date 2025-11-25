@@ -20,7 +20,7 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "zantara_default_secret_key_2025_ch
 JWT_ALGORITHM = "HS256"
 JWT_ACCESS_TOKEN_EXPIRE_HOURS = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_HOURS", "24"))
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
+router = APIRouter(prefix="/api/auth", tags=["authentication"])
 security = HTTPBearer()
 
 # ============================================================================
