@@ -12,7 +12,7 @@ on:
 
 env:
   NODE_VERSION: '20.x'
-  FLY_APP_PRODUCTION: nuzantara-core
+  FLY_APP_PRODUCTION: nuzantara-backend
   FLY_APP_BLUE: nuzantara-blue
   FLY_APP_GREEN: nuzantara-green
   REGISTRY: ghcr.io
