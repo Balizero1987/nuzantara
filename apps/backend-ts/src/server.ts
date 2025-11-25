@@ -570,7 +570,9 @@ async function startServer() {
   }
 
   const server = httpServer.listen(PORT, '0.0.0.0', async () => {
-    logger.info(`🚀 ZANTARA TS-BACKEND started on port ${PORT}`);
+    const addr = server.address();
+    const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr?.port}`;
+    logger.info(`🚀 ZANTARA TS-BACKEND started on ${bind}`);
     logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);
     logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
     if (process.env.REDIS_URL) {
