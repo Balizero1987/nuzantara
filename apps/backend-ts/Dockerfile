@@ -19,8 +19,8 @@ RUN npm install --verbose --no-audit --no-fund
 # Copy source code
 COPY src ./src
 
-# Skip TypeScript compilation for now (fix login first)
-# RUN npm run build
+# Build the application
+RUN npm run build
 
 # Prune dev dependencies to save space for the next stage copy
 RUN npm prune --production
@@ -33,13 +33,11 @@ WORKDIR /app
 # Install runtime dependencies (curl for healthcheck)
 RUN apk add --no-cache curl
 
-# Copy built artifacts from builder
-COPY --from=builder /app/dist ./dist
+# Copy source files and dependencies (using tsx for runtime TypeScript execution)
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
-
-# Also copy source files for any runtime needs (like tsx if needed)
 COPY --from=builder /app/src ./src
+COPY --from=builder /app/tsconfig*.json ./
 
 # Environment settings
 ENV NODE_ENV=production
