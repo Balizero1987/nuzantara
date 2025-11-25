@@ -66,10 +66,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   // ... (rest of initialization same as original) ...
 });
 
-// ========================================================================
 // FEATURE 1: UI Element for Agent Thoughts
-// ========================================================================
-
 function createThinkingElement() {
   const thinkingEl = document.createElement('div');
   thinkingEl.id = 'agent-thought-process';
@@ -86,21 +83,9 @@ function createThinkingElement() {
   return thinkingEl;
 }
 
-function updateThinking(text) {
-  let el = document.getElementById('agent-thought-process');
-  if (!el) el = createThinkingElement();
-  
-  el.classList.remove('hidden');
-  const textSpan = el.querySelector('.thought-text');
-  if (textSpan) textSpan.textContent = text;
-  
-  scrollToBottom();
-}
+// updateThinking function moved below to avoid duplication - see line 377
 
-function hideThinking() {
-  const el = document.getElementById('agent-thought-process');
-  if (el) el.classList.add('hidden');
-}
+/* function hideThinking() removed to avoid duplication */
 
 // ========================================================================
 // EVENT HANDLERS
