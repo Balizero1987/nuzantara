@@ -12,9 +12,7 @@ import jwt from 'jsonwebtoken';
 
 // Configuration
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required for secure team login');
-}
+// Lazy validation: Check inside handlers instead of top-level
 const JWT_EXPIRY = '24h';
 const MAX_LOGIN_ATTEMPTS = 3;
 const BLOCK_DURATION_MS = 5 * 60 * 1000; // 5 minutes
@@ -123,6 +121,11 @@ export async function resetLoginAttempts(params: any) {
  * 🔐 Secure Team Login with PIN
  */
 export async function teamLoginSecure(params: any) {
+  if (!JWT_SECRET) {
+    logger.error('JWT_SECRET is missing in environment variables');
+    throw new Error('Authentication configuration error');
+  }
+
   const { email, pin } = params || {};
 
   // Validation
@@ -184,7 +187,7 @@ export async function teamLoginSecure(params: any) {
       department: member.department,
       name: member.name, // Added for adminAuth compatibility
     },
-    JWT_SECRET,
+    JWT_SECRET!,
     { expiresIn: JWT_EXPIRY }
   );
 
@@ -219,6 +222,10 @@ export async function teamLoginSecure(params: any) {
  * Verify JWT token
  */
 export function verifyToken(token: string): any {
+  if (!JWT_SECRET) {
+    return { valid: false, error: 'Configuration error: Missing JWT_SECRET' };
+  }
+
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     return { valid: true, payload: decoded };
