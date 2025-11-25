@@ -8,6 +8,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import cookieParser from 'cookie-parser';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import { ENV } from './config/index.js';
 import logger from './services/logger.js';
 import { attachRoutes } from './routing/router.js';
@@ -48,6 +49,9 @@ import {
 // AI AUTOMATION - Cron Scheduler (OpenRouter Integration)
 import aiMonitoringRoutes from './routes/ai-monitoring.js';
 
+
+const PYTHON_SERVICE_URL =
+  process.env.PYTHON_SERVICE_URL || process.env.RAG_BACKEND_URL || 'http://localhost:8000';
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
@@ -212,9 +216,36 @@ async function startServer() {
   // Frontend compatibility alias for shared memory search
   app.get('/api/crm/shared-memory/search', (req, res, next) => {
     req.url = '/api/persistent-memory/collective/search';
-    app._router.handle(req, res, next);
+    return app._router.handle(req, res, next);
   });
   logger.info('✅ Frontend compatibility alias mounted (/api/crm/shared-memory/search → /api/persistent-memory/collective/search)');
+
+  const createProxyOptions = (label: string) => ({
+    target: PYTHON_SERVICE_URL,
+    changeOrigin: true,
+    logLevel: 'warn',
+    onError: (err: Error, _req: express.Request, res: express.Response) => {
+      logger.error(`❌ ${label} proxy error:`, err);
+      if (!res.headersSent) {
+        res.status(502).json({
+          ok: false,
+          error: `${label} service temporarily unavailable`,
+        });
+      }
+    },
+  });
+
+  app.use('/api/agents', createProxyMiddleware(createProxyOptions('agents')));
+
+  const crmProxy = createProxyMiddleware(createProxyOptions('crm'));
+  app.use('/api/crm', (req, res, next) => {
+    if (req.path.startsWith('/shared-memory/search')) {
+      return next();
+    }
+    return crmProxy(req, res, next);
+  });
+
+  logger.info(`✅ Proxy routes mounted for CRM & Agents → ${PYTHON_SERVICE_URL}`);
 
   // Frontend compatibility alias for compliance alerts (placeholder - returns empty array for now)
   app.get('/api/agents/compliance/alerts', (_req, res) => {
