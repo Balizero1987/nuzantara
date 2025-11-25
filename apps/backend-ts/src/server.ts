@@ -55,6 +55,8 @@ const PYTHON_SERVICE_URL =
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
+  console.log('🚀 Starting ZANTARA Backend v5.2.1-fixed (Zod validation fix applied)');
+  
   // Initialize Redis cache
   await initializeRedis();
 
