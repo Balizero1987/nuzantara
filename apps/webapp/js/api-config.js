@@ -2,9 +2,8 @@
 export const API_ENDPOINTS = {
   // Authentication
   auth: {
-    // Use TypeScript backend REST endpoint for team login
-    // Frontend will call: https://nuzantara-backend.fly.dev/api/auth/login
-    login: '/api/auth/login',
+    // Primary login endpoint - consolidated from multiple redundant routes
+    // Frontend will call: https://nuzantara-backend.fly.dev/api/auth/team/login
     teamLogin: '/api/auth/team/login',
     check: '/api/user/profile',
     logout: '/api/auth/logout',
@@ -33,7 +32,6 @@ export const API_ENDPOINTS = {
     research: '/api/autonomous-agents/conversation-trainer/run',
     semanticSearch: '/search',
     hybridQuery: '/search',
-    // documentIntelligence: '/ai/creative/vision' // TODO: Endpoint not implemented
   },
 
   // Notifications
