@@ -826,7 +826,7 @@ async def hybrid_oracle_query(
                 if answer and request.user_email:
                     try:
                         # Use Gemini-only personality translation (Oracle not accessible externally)
-                        personality_result = await personality_service.translate_to_personality_gemini_only(
+                        personality_result = await personality_service.translate_to_personality(
                             gemini_response=answer,
                             user_email=request.user_email,
                             original_query=request.query,
