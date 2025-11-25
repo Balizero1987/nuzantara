@@ -170,7 +170,31 @@ class GoogleServices:
         """Get Gemini model instance"""
         if not self._gemini_initialized:
             raise RuntimeError("Gemini AI not initialized")
-        return genai.GenerativeModel(model_name)
+
+        # Try alternative model names for API compatibility
+        alternative_names = [
+            "models/gemini-1.5-flash",
+            "gemini-1.5-flash-latest",
+            "models/gemini-1.5-flash-001",
+            "models/gemini-1.5-flash-exp"
+        ]
+
+        # Try original name first
+        try:
+            return genai.GenerativeModel(model_name)
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to load model '{model_name}': {e}")
+
+            # Try alternative names
+            for alt_name in alternative_names:
+                try:
+                    logger.info(f"🔄 Trying alternative model name: {alt_name}")
+                    return genai.GenerativeModel(alt_name)
+                except Exception as e2:
+                    logger.warning(f"⚠️ Failed to load alternative model '{alt_name}': {e2}")
+                    continue
+
+            raise RuntimeError(f"Could not load Gemini model '{model_name}' or any alternatives")
 
 # Initialize Google services
 google_services = GoogleServices()
@@ -516,7 +540,7 @@ async def reason_with_gemini(documents: List[str], query: str, user_instruction:
         logger.info(f"🧠 Starting Gemini reasoning with {len(documents)} documents")
 
         # Configure model for production
-        model = google_services.get_gemini_model("gemini-1.5-flash-001")
+        model = google_services.get_gemini_model("gemini-1.5-flash")
 
         # Build comprehensive prompt
         if use_full_docs and documents:
@@ -1073,7 +1097,7 @@ async def test_personality(
 async def test_gemini_integration():
     """Test Google Gemini integration"""
     try:
-        model = google_services.get_gemini_model("gemini-1.5-flash-001")
+        model = google_services.get_gemini_model("gemini-1.5-flash")
         response = model.generate_content("Hello, please confirm you are working correctly for Zantara v5.3.")
 
         return {

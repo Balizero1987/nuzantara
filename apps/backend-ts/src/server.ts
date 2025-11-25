@@ -284,19 +284,12 @@ async function startServer() {
     // Preserve the full path - http-proxy-middleware strips the prefix by default
     // So we need to add it back via pathRewrite
     pathRewrite: (path: string) => {
-      // If path doesn't start with the prefix, add it
+      // The path received here is already stripped of the prefix (e.g., /clients instead of /api/crm/clients)
+      // So we need to add the prefix back
       if (!path.startsWith(pathPrefix)) {
         return pathPrefix + path;
       }
       return path;
-    },
-    onProxyReq: (proxyReq: any, req: any) => {
-      // Ensure the full path is preserved
-      const fullPath = req.originalUrl || req.url;
-      if (!proxyReq.path.startsWith(pathPrefix)) {
-        proxyReq.path = pathPrefix + proxyReq.path;
-      }
-      logger.debug(`🔀 Proxy ${label}: ${fullPath} → ${PYTHON_SERVICE_URL}${proxyReq.path}`);
     },
     onError: (err: Error, _req: express.Request, res: express.Response) => {
       logger.error(`❌ ${label} proxy error:`, err);
