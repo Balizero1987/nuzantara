@@ -269,3 +269,5 @@ node_modules
 
 # Build artifacts
 apps/backend-ts/build-working.js
+*.gguf
+models/
