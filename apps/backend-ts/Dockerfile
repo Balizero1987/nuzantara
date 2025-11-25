@@ -19,8 +19,8 @@ RUN npm install --verbose --no-audit --no-fund
 # Copy source code
 COPY src ./src
 
-# Build the application
-# RUN npm run build
+# Build the application (uses esbuild)
+RUN npm run build
 
 # Prune dev dependencies to save space for the next stage copy
 RUN npm prune --production
@@ -33,11 +33,12 @@ WORKDIR /app
 # Install runtime dependencies (curl for healthcheck)
 RUN apk add --no-cache curl
 
-# Copy source files and dependencies (using tsx for runtime TypeScript execution)
-COPY --from=builder /app/node_modules ./node_modules
+# Copy package.json and node_modules (for native deps excluded from bundle)
 COPY --from=builder /app/package.json ./
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/tsconfig*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy the bundled server
+COPY --from=builder /app/dist ./dist
 
 # Environment settings
 ENV NODE_ENV=production
@@ -50,5 +51,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
-# Start the application using tsx (skip build for now)
-CMD ["npx", "tsx", "src/server.ts"]
+# Start the application using node
+CMD ["node", "dist/server.js"]
