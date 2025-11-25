@@ -30,11 +30,14 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   // Check if already authenticated
+  // Disabled to allow re-login if stuck
+  /*
   if (unifiedAuth.isAuthenticated()) {
     console.log('ℹ️ Already authenticated, redirecting...');
     window.location.href = '/chat.html';
     return;
   }
+  */
 
   // Setup event listeners
   setupEventListeners();
