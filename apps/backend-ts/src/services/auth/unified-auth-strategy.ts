@@ -181,14 +181,23 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
 export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   readonly name = 'team';
   readonly priority = 80;
-  private jwtSecret: string;
+  private _jwtSecret: string | null = null;
 
-  constructor() {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error('JWT_SECRET environment variable is required for Team Login authentication');
+  /**
+   * Get JWT secret with lazy validation (only when actually used)
+   */
+  private getJwtSecret(): string {
+    if (!this._jwtSecret) {
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        throw new Error('JWT_SECRET environment variable is required for Team Login authentication');
+      }
+      if (secret.length < 32) {
+        throw new Error('JWT_SECRET must be at least 32 characters long');
+      }
+      this._jwtSecret = secret;
     }
-    this.jwtSecret = secret;
+    return this._jwtSecret;
   }
 
   canHandle(req: Request): boolean {
@@ -213,7 +222,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
       const token = authHeader.substring(7);
       const jwt = await import('jsonwebtoken');
 
-      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
+      const decoded = (await jwt).verify(token, this.getJwtSecret()) as any;
 
       // Get team member data
       const teamMember = await this.getTeamMember(decoded.userId);
@@ -252,7 +261,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
         department: user.department,
         sessionId: sessionId,
       },
-      this.jwtSecret,
+      this.getJwtSecret(),
       { expiresIn: '7d' }
     );
   }
@@ -260,7 +269,7 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   async validateToken(token: string): Promise<UnifiedUser | null> {
     try {
       const jwt = await import('jsonwebtoken');
-      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
+      const decoded = (await jwt).verify(token, this.getJwtSecret()) as any;
 
       const teamMember = await this.getTeamMember(decoded.userId);
       if (!teamMember) return null;
@@ -330,14 +339,23 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
   readonly name = 'legacy';
   readonly priority = 20;
 
-  private jwtSecret: string;
+  private _jwtSecret: string | null = null;
 
-  constructor() {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error('JWT_SECRET environment variable is required for Legacy authentication');
+  /**
+   * Get JWT secret with lazy validation (only when actually used)
+   */
+  private getJwtSecret(): string {
+    if (!this._jwtSecret) {
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        throw new Error('JWT_SECRET environment variable is required for Legacy authentication');
+      }
+      if (secret.length < 32) {
+        throw new Error('JWT_SECRET must be at least 32 characters long');
+      }
+      this._jwtSecret = secret;
     }
-    this.jwtSecret = secret;
+    return this._jwtSecret;
   }
 
   canHandle(req: Request): boolean {
@@ -353,7 +371,7 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
       const token = authHeader.substring(7);
       const jwt = await import('jsonwebtoken');
 
-      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
+      const decoded = (await jwt).verify(token, this.getJwtSecret()) as any;
 
       return {
         id: decoded.userId || decoded.sub,
@@ -385,7 +403,7 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
         name: user.name,
         permissions: user.permissions,
       },
-      this.jwtSecret,
+      this.getJwtSecret(),
       { expiresIn: '24h' }
     );
   }
@@ -393,7 +411,7 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
   async validateToken(token: string): Promise<UnifiedUser | null> {
     try {
       const jwt = await import('jsonwebtoken');
-      const decoded = (await jwt).verify(token, this.jwtSecret) as any;
+      const decoded = (await jwt).verify(token, this.getJwtSecret()) as any;
 
       return {
         id: decoded.userId || decoded.sub,
