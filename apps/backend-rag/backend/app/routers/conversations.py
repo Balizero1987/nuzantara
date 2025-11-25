@@ -20,7 +20,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/bali-zero/conversations", tags=["conversations"])
+router = APIRouter(prefix="/api/bali-zero/conversations", tags=["conversations"])
 
 # Import auto-CRM service (lazy import to avoid circular dependencies)
 _auto_crm_service = None

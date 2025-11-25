@@ -21,7 +21,7 @@ from services.ingestion_service import IngestionService
 from core.qdrant_db import QdrantClient
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/ingest", tags=["ingestion"])
+router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
 
 
 @router.post("/upload", response_model=BookIngestionResponse)

@@ -55,6 +55,7 @@ const PYTHON_SERVICE_URL =
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
+<<<<<<< HEAD
   // Initialize Redis cache (non-blocking)
   initializeRedis().catch(err => logger.error('Redis initialization failed:', err));
 
@@ -63,6 +64,16 @@ async function startServer() {
   // GLM 4.6 Architect Patch: Initialize Enhanced Architecture
   try {
     logger.info('✅ Enhanced Architecture (GLM 4.6) initialized');
+=======
+  logger.info('🚀 Starting ZANTARA Backend v5.2.1-fixed (Zod validation fix applied)');
+  
+  // Initialize Redis cache
+  await initializeRedis();
+
+  // Initialize enhanced architecture components
+  try {
+    logger.info('✅ Enhanced Architecture initialized');
+>>>>>>> restore-7pm-state
   } catch (error: any) {
     logger.warn(`⚠️ Enhanced Architecture initialization failed: ${error.message}`);
   }
@@ -100,9 +111,13 @@ async function startServer() {
 
 
   // Mock login test routes (for testing without database)
-  const mockLoginRoutes = await import('./routes/test/mock-login.js');
-  app.use('/test', mockLoginRoutes.default);
-  logger.info('🧪 Mock login test routes loaded');
+  if (process.env.NODE_ENV !== 'production') {
+    const mockLoginRoutes = await import('./routes/test/mock-login.js');
+    app.use('/test', mockLoginRoutes.default);
+    logger.info('🧪 Mock login test routes loaded (DEV MODE)');
+  } else {
+    logger.info('⛔ Mock login routes disabled in production');
+  }
 
   // PATCH-3: CORS with security configuration (Must be first)
   app.use(corsMiddleware);
@@ -172,6 +187,63 @@ async function startServer() {
   // Metrics endpoint for Prometheus (if not already in health routes)
   app.get('/metrics', metricsHandler);
 
+  // API Documentation (Swagger/OpenAPI)
+  if (ENV.NODE_ENV !== 'production' || process.env.ENABLE_API_DOCS === 'true') {
+    try {
+      // @ts-ignore - swagger-jsdoc types may not be available
+      const swaggerJsdoc = (await import('swagger-jsdoc')).default;
+      // @ts-ignore - swagger-ui-express may not be installed
+      const swaggerUi = (await import('swagger-ui-express')).default;
+
+      const swaggerOptions = {
+        definition: {
+          openapi: '3.0.0',
+          info: {
+            title: 'ZANTARA API',
+            version: '5.2.0',
+            description: 'ZANTARA AI Platform - Indonesian Business Intelligence & Legal Advisory Platform',
+            contact: {
+              name: 'Bali Zero',
+              email: 'zero@balizero.com',
+            },
+          },
+          servers: [
+            {
+              url: ENV.NODE_ENV === 'production' 
+                ? 'https://nuzantara-backend.fly.dev' 
+                : `http://localhost:${ENV.PORT}`,
+              description: ENV.NODE_ENV === 'production' ? 'Production server' : 'Development server',
+            },
+          ],
+          components: {
+            securitySchemes: {
+              bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+              },
+              apiKeyAuth: {
+                type: 'apiKey',
+                in: 'header',
+                name: 'x-api-key',
+              },
+            },
+          },
+        },
+        apis: ['./src/routes/**/*.ts', './src/handlers/**/*.ts', './src/routing/router.ts'],
+      };
+
+      const swaggerSpec = swaggerJsdoc(swaggerOptions);
+      app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+        customCss: '.swagger-ui .topbar { display: none }',
+        customSiteTitle: 'ZANTARA API Documentation',
+      }));
+      logger.info('✅ API Documentation (Swagger) available at /api-docs');
+    } catch (error) {
+      logger.warn('⚠️ Failed to initialize Swagger documentation:', error instanceof Error ? error : new Error(String(error)));
+    }
+  }
+
   // Cache management routes
   app.use('/cache', cacheRoutes);
 
@@ -200,7 +272,6 @@ async function startServer() {
     });
   });
 
-  // V3 endpoints removed - using direct RAG backend instead
 
   // Frontend compatibility alias for shared memory search
   app.get('/api/crm/shared-memory/search', (req, res, next) => {
@@ -433,8 +504,6 @@ async function startServer() {
     }
   });
 
-  // REMOVED: POST /auth/login - Consolidated to /api/auth/team/login
-  // All login functionality is now handled by /api/auth/team/login route
 
   // FIX 4b: POST /auth/logout - User logout (token revocation)
   app.post('/auth/logout', async (req, res) => {

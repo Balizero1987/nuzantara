@@ -123,7 +123,7 @@ export class RAGService {
       };
       return await this.makeAuthenticatedRequest<RAGQueryResponse>(
         'post',
-        '/search',
+        '/api/search',
         requestWithDefaults
       );
     } catch (error: any) {
@@ -160,7 +160,7 @@ export class RAGService {
    */
   async search(query: string, k: number = 5, collection: string = 'legal_unified'): Promise<RAGQueryResponse> {
     try {
-      return await this.makeAuthenticatedRequest('post', '/search', {
+      return await this.makeAuthenticatedRequest('post', '/api/search', {
         query,
         k,
         collection, // Default: legal_unified (1536-dim)

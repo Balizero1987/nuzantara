@@ -30,8 +30,8 @@ export const API_ENDPOINTS = {
     compliance: '/api/agents/compliance/alerts',
     journey: '/api/agents/journey/{journey_id}/next-steps',
     research: '/api/autonomous-agents/conversation-trainer/run',
-    semanticSearch: '/search',
-    hybridQuery: '/search',
+    semanticSearch: '/api/search',
+    hybridQuery: '/api/search',
   },
 
   // Team Analytics
