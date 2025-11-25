@@ -14,10 +14,20 @@ import logger from '../../services/logger.js';
 
 const router = Router();
 
-// Production guard
-if (process.env.NODE_ENV === 'production') {
-  throw new Error('Mock login is disabled in production');
-}
+// Production guard middleware - blocks all routes in production
+const productionGuard = (_req: Request, res: Response, _next: () => void) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      ok: false,
+      error: 'Mock login is disabled in production',
+      code: 'MOCK_DISABLED'
+    });
+  }
+  _next();
+};
+
+// Apply production guard to all routes
+router.use(productionGuard);
 
 // Mock team members data (same PIN: 1234 for testing)
 const mockTeamMembers = [

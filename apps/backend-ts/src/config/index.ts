@@ -90,6 +90,11 @@ try {
 }
 
 function buildKeyList(raw: string, placeholder: string, label: string) {
+  // Handle undefined values by using the placeholder
+  if (!raw) {
+    raw = placeholder;
+  }
+
   const keys = raw
     .split(',')
     .map((s) => s.trim())
