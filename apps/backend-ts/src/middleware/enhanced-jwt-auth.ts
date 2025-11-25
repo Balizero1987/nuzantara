@@ -480,9 +480,20 @@ export class EnhancedJWTAuth {
   }
 }
 
-// Export singleton instance
-export const enhancedJWTAuth = new EnhancedJWTAuth();
+// Lazy initialization - don't instantiate at module load
+let _enhancedJWTAuth: EnhancedJWTAuth | null = null;
 
-// Export middleware function for easy use
+/**
+ * Get or create EnhancedJWTAuth instance (lazy initialization)
+ * This prevents JWT_SECRET validation at module load time
+ */
+export function getEnhancedJWTAuth(): EnhancedJWTAuth {
+  if (!_enhancedJWTAuth) {
+    _enhancedJWTAuth = new EnhancedJWTAuth();
+  }
+  return _enhancedJWTAuth;
+}
+
+// Export middleware function for easy use (lazy)
 export const authenticate = (permissions?: PermissionLevel[]) =>
-  enhancedJWTAuth.authenticate(permissions);
+  getEnhancedJWTAuth().authenticate(permissions);
