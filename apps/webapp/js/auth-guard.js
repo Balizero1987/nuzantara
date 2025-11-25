@@ -8,7 +8,7 @@
 (function() {
   // Configuration
   const PROTECTED_PAGES = ['/chat', '/chat.html', '/admin', '/dashboard'];
-  const LOGIN_PAGE = '/login';
+  const LOGIN_PAGE = '/login.html';
   
   // Safe logging
   const log = (msg, ...args) => console.log(`🛡️ [AuthGuard] ${msg}`, ...args);
