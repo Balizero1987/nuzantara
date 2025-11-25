@@ -10,12 +10,23 @@ import { BadRequestError, UnauthorizedError } from '../../utils/errors.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-// Configuration
-const JWT_SECRET: string = process.env.JWT_SECRET || '';
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required for secure team login');
-}
+// Configuration - JWT_SECRET checked at runtime, not at module load
 const JWT_EXPIRY = '24h';
+
+/**
+ * Get JWT_SECRET with validation
+ * Throws error only when actually needed, not at module load
+ */
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required for secure team login');
+  }
+  if (secret.length < 32) {
+    throw new Error('JWT_SECRET must be at least 32 characters long');
+  }
+  return secret;
+}
 const MAX_LOGIN_ATTEMPTS = 3;
 const BLOCK_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -184,7 +195,7 @@ export async function teamLoginSecure(params: any) {
       department: member.department,
       name: member.name, // Added for adminAuth compatibility
     },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: JWT_EXPIRY }
   );
 
@@ -220,7 +231,7 @@ export async function teamLoginSecure(params: any) {
  */
 export function verifyToken(token: string): any {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getJwtSecret());
     return { valid: true, payload: decoded };
   } catch (error: any) {
     return { valid: false, error: error.message };
