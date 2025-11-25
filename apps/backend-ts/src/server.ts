@@ -278,46 +278,55 @@ async function startServer() {
   logger.info('✅ Frontend compatibility alias mounted (/api/crm/shared-memory/search → /api/persistent-memory/collective/search)');
 
   // Proxy configuration - preserve full path when forwarding to Python backend
-  // When using app.use('/api/crm', proxy), http-proxy-middleware strips the prefix
-  // So we need to add it back via pathRewrite function
-  const createProxyOptions = (label: string, pathPrefix: string) => {
-    if (!PYTHON_SERVICE_URL) {
-      logger.error(`❌ PYTHON_SERVICE_URL not configured for ${label} proxy`);
-      throw new Error(`PYTHON_SERVICE_URL not configured`);
-    }
-    return {
+  if (!PYTHON_SERVICE_URL) {
+    logger.error('❌ PYTHON_SERVICE_URL not configured - proxy disabled');
+  } else {
+    logger.info(`✅ Configuring proxy to Python backend: ${PYTHON_SERVICE_URL}`);
+    
+    // Create proxy for /api/agents - preserve full path
+    const agentsProxyOptions = {
       target: PYTHON_SERVICE_URL,
       changeOrigin: true,
       logLevel: 'warn' as const,
       pathRewrite: (path: string) => {
-        // Path is already stripped of prefix by http-proxy-middleware
-        // Add it back to preserve full path
-        if (!path.startsWith('/')) {
-          path = '/' + path;
-        }
-        return pathPrefix + path;
+        // Path is stripped of /api/agents prefix, add it back
+        return '/api/agents' + path;
       },
       onError: (err: Error, _req: express.Request, res: express.Response) => {
-        logger.error(`❌ ${label} proxy error:`, err);
+        logger.error('❌ Agents proxy error:', err);
         if (!res.headersSent) {
-          res.status(502).json({
-            ok: false,
-            error: `${label} service temporarily unavailable`,
-          });
+          res.status(502).json({ ok: false, error: 'Agents service unavailable' });
         }
       },
     };
-  };
 
-  app.use('/api/agents', createProxyMiddleware(createProxyOptions('agents', '/api/agents')));
+    // Create proxy for /api/crm - preserve full path
+    const crmProxyOptions = {
+      target: PYTHON_SERVICE_URL,
+      changeOrigin: true,
+      logLevel: 'warn' as const,
+      pathRewrite: (path: string) => {
+        // Path is stripped of /api/crm prefix, add it back
+        return '/api/crm' + path;
+      },
+      onError: (err: Error, _req: express.Request, res: express.Response) => {
+        logger.error('❌ CRM proxy error:', err);
+        if (!res.headersSent) {
+          res.status(502).json({ ok: false, error: 'CRM service unavailable' });
+        }
+      },
+    };
 
-  const crmProxy = createProxyMiddleware(createProxyOptions('crm', '/api/crm'));
-  app.use('/api/crm', (req, res, next) => {
-    if (req.path.startsWith('/shared-memory/search')) {
-      return next();
-    }
-    return crmProxy(req, res, next);
-  });
+    app.use('/api/agents', createProxyMiddleware(agentsProxyOptions));
+
+    const crmProxy = createProxyMiddleware(crmProxyOptions);
+    app.use('/api/crm', (req, res, next) => {
+      if (req.path.startsWith('/shared-memory/search')) {
+        return next();
+      }
+      return crmProxy(req, res, next);
+    });
+  }
 
   logger.info(`✅ Proxy routes mounted for CRM & Agents → ${PYTHON_SERVICE_URL}`);
 
