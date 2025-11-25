@@ -1,6 +1,7 @@
 {
   "name": "@nuzantara/webapp",
   "version": "5.2.0",
+  "type": "module",
   "description": "NUZANTARA Web Application",
   "main": "index.js",
   "scripts": {

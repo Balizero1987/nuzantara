@@ -2,17 +2,17 @@
  * ZANTARA Unified Authentication Service
  *
  * Unifies authentication systems:
- * 1. Team Login (email + PIN) → /auth/login
+ * 1. Team Login (email + PIN) → /api/auth/team/login
  * 2. Auto token refresh
+ * 3. Centralized localStorage management
  *
  * Features:
- * - Centralized token management
- * - Automatic token refresh
+ * - Single source of truth for auth state
+ * - Automatic token refresh (stubbed for now)
  * - Compatible with existing localStorage schema
- * - Uses API_CONFIG for proper URL resolution
  */
 
-import { API_CONFIG } from '../api-config.js';
+import { API_CONFIG, API_ENDPOINTS } from '../api-config.js';
 
 class UnifiedAuth {
   constructor() {
@@ -61,16 +61,19 @@ class UnifiedAuth {
         this.permissions = JSON.parse(permissionsData);
       }
 
-      // Detect strategy from token
+      // Detect strategy
       if (this.token?.token) {
         this.strategy = this.token.token.startsWith('demo_') ? 'demo' : 'team';
       }
 
-      if (this.user) {
-        console.log(`✅ Auth loaded: ${this.user.name} (${this.strategy} strategy)`);
+      if (this.isAuthenticated()) {
+        console.log(`✅ Auth loaded: ${this.user?.name} (${this.strategy})`);
+      } else {
+        console.log('ℹ️ No active session found');
       }
     } catch (error) {
       console.error('❌ Failed to load auth data:', error);
+      this.clearStorage();
     }
   }
 
@@ -123,7 +126,7 @@ class UnifiedAuth {
    * Check if user is authenticated
    */
   isAuthenticated() {
-    return this.token && this.user && !this.isTokenExpired();
+    return !!(this.token && this.token.token && !this.isTokenExpired());
   }
 
   /**
@@ -131,9 +134,9 @@ class UnifiedAuth {
    */
   isTokenExpired() {
     if (!this.token?.expiresAt) {
-      return false; // No expiry = never expires
+      return false; // No expiry = never expires (e.g. demo)
     }
-    return this.token.expiresAt < Date.now();
+    return Date.now() > this.token.expiresAt;
   }
 
   /**
@@ -144,64 +147,12 @@ class UnifiedAuth {
   }
 
   // ========================================================================
-  // TOKEN MANAGEMENT
-  // ========================================================================
-
-  /**
-   * Get current token (auto-refresh if needed)
-   */
-  async getToken() {
-    // Check if we have a token
-    if (!this.token) {
-      console.warn('⚠️ No token available');
-      return null;
-    }
-
-    // Check if token is expired
-    if (this.isTokenExpired()) {
-      console.log('🔄 Token expired, attempting refresh...');
-
-      try {
-        await this.refreshToken();
-      } catch (error) {
-        console.error('❌ Token refresh failed:', error);
-        return null;
-      }
-    }
-
-    return this.token.token;
-  }
-
-  /**
-   * Refresh token (strategy-specific)
-   */
-  async refreshToken() {
-    if (!this.strategy) {
-      throw new Error('No authentication strategy available');
-    }
-
-    if (this.strategy === 'demo') {
-      // Demo tokens don't need refresh (or re-login with same userId)
-      console.log('ℹ️ Demo token refresh not needed');
-      return this.token.token;
-    }
-
-    if (this.strategy === 'team') {
-      // Team tokens: need to re-authenticate
-      // For now, just extend expiry (in production, implement proper refresh endpoint)
-      console.warn('⚠️ Team token refresh not fully implemented - extending expiry');
-      this.token.expiresAt = Date.now() + (7 * 24 * 60 * 60 * 1000); // +7 days
-      this.saveToStorage();
-      return this.token.token;
-    }
-  }
-
-  // ========================================================================
   // TEAM LOGIN (Email + PIN)
   // ========================================================================
 
   /**
    * Login with team credentials
+   * Uses the robust /api/auth/team/login endpoint
    * @param {string} email - Team member email
    * @param {string} pin - 4-8 digit PIN
    * @returns {Promise<Object>} User data
@@ -209,14 +160,15 @@ class UnifiedAuth {
   async loginTeam(email, pin) {
     try {
       console.log('🔐 Team login attempt:', email);
+      const baseUrl = API_CONFIG.backend.url;
+      const endpoint = API_ENDPOINTS.auth.teamLogin || '/api/auth/team/login';
 
-      const response = await fetch(`${API_CONFIG.backend.url}/api/auth/team/login`, {
+      const response = await fetch(`${baseUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: email.split('@')[0],
           email,
           pin
         }),
@@ -224,32 +176,41 @@ class UnifiedAuth {
 
       const result = await response.json();
 
-      if (!response.ok || !result.ok) {
-        throw new Error(result.error || 'Login failed');
+      if (!response.ok || (result.ok === false)) {
+        throw new Error(result.error || result.message || 'Login failed');
       }
 
-      // Extract data
-      const { data } = result;
+      // Extract data from standardized response structure: { ok: true, data: { ... } }
+      // Fallback to direct properties if 'data' wrapper is missing
+      const authData = result.data || result;
+
+      if (!authData.token) {
+        throw new Error('Server returned success but no token found.');
+      }
 
       // Store auth data
+      // Note: Backend sets httpOnly cookie, but we also store token for non-browser clients or easy access
       this.token = {
-        token: data.token,
-        expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days
+        token: authData.token,
+        expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days default
       };
-      this.user = data.user;
+      
+      this.user = authData.user || { email, name: email.split('@')[0] };
+      
       this.session = {
-        id: data.sessionId,
-        createdAt: Date.now(),
+        id: authData.sessionId || `session_${Date.now()}`,
+        createdAt: authData.loginTime || Date.now(),
         lastActivity: Date.now(),
       };
-      this.permissions = data.permissions || [];
+      
+      this.permissions = authData.permissions || [];
       this.strategy = 'team';
 
       // Save to localStorage
       this.saveToStorage();
 
       console.log(`✅ Team login successful: ${this.user.name}`);
-      return data;
+      return this.user;
 
     } catch (error) {
       console.error('❌ Team login failed:', error);
@@ -258,167 +219,36 @@ class UnifiedAuth {
   }
 
   // ========================================================================
-  // DEMO LOGIN (UserID)
+  // TOKEN & HEADER MANAGEMENT
   // ========================================================================
 
   /**
-   * Login with user credentials
-   * @param {string} userId - User ID (default: 'demo')
-   * @returns {Promise<Object>} User data
+   * Get current token string
    */
-  async loginDemo(userId = 'demo') {
-    try {
-      console.log('🔐 Login attempt:', userId);
-
-      const response = await fetch(`${API_CONFIG.rag.url}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: userId, password: 'default' }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Demo auth failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // Store auth data
-      this.token = {
-        token: data.token,
-        expiresAt: Date.now() + (data.expiresIn || 3600) * 1000,
-      };
-      this.user = {
-        id: data.userId,
-        name: `Demo User (${userId})`,
-        email: `${userId}@demo.zantara.io`,
-        role: 'Demo',
-      };
-      this.session = {
-        id: `session_${Date.now()}_${userId}`,
-        createdAt: Date.now(),
-        lastActivity: Date.now(),
-      };
-      this.permissions = ['read'];
-      this.strategy = 'demo';
-
-      // Save to localStorage
-      this.saveToStorage();
-
-      console.log(`✅ Demo login successful: ${userId}`);
-      return { user: this.user, token: this.token.token };
-
-    } catch (error) {
-      console.error('❌ Demo login failed:', error);
-
-      // Fallback to local demo token
-      console.log('⚠️ Using fallback demo token');
-      this.token = { token: 'demo-token', expiresAt: null };
-      this.user = {
-        id: userId,
-        name: `Demo User (${userId})`,
-        email: `${userId}@demo.zantara.io`,
-        role: 'Demo',
-      };
-      this.session = {
-        id: `session_${Date.now()}_${userId}`,
-        createdAt: Date.now(),
-        lastActivity: Date.now(),
-      };
-      this.permissions = ['read'];
-      this.strategy = 'demo';
-
-      this.saveToStorage();
-      return { user: this.user, token: this.token.token };
+  getToken() {
+    if (this.isAuthenticated()) {
+      return this.token.token;
     }
+    return null;
   }
-
-  // ========================================================================
-  // LOGOUT
-  // ========================================================================
-
-  /**
-   * Logout - clear all auth data
-   */
-  async logout() {
-    try {
-      // If team strategy, notify backend
-      if (this.strategy === 'team' && this.session?.id) {
-        await fetch(`${API_CONFIG.backend.url}/api/team/logout`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${this.token?.token}`,
-          },
-          body: JSON.stringify({
-            sessionId: this.session.id,
-          }),
-        }).catch(err => console.warn('Logout notification failed:', err));
-      }
-
-      // Clear all data
-      this.clearStorage();
-
-      console.log('✅ Logout successful');
-
-    } catch (error) {
-      console.error('❌ Logout error:', error);
-      // Still clear local data even if backend call fails
-      this.clearStorage();
-    }
-  }
-
-  // ========================================================================
-  // USER INFO GETTERS (Compatible with UserContext)
-  // ========================================================================
-
-  getUser() {
-    return this.user;
-  }
-
-  getName() {
-    return this.user?.name || 'Guest';
-  }
-
-  getEmail() {
-    return this.user?.email || '';
-  }
-
-  getRole() {
-    return this.user?.role || 'User';
-  }
-
-  getSessionId() {
-    return this.session?.id || null;
-  }
-
-  hasPermission(permission) {
-    return this.permissions.includes(permission) || this.permissions.includes('all');
-  }
-
-  /**
-   * Update last activity timestamp
-   */
-  updateActivity() {
-    if (this.session) {
-      this.session.lastActivity = Date.now();
-      localStorage.setItem('zantara-session', JSON.stringify(this.session));
-    }
-  }
-
-  // ========================================================================
-  // AUTHORIZATION HEADER (for API calls)
-  // ========================================================================
 
   /**
    * Get Authorization header value
-   * @returns {Promise<string|null>} "Bearer <token>" or null
+   * @returns {string|null} "Bearer <token>" or null
    */
-  async getAuthHeader() {
-    const token = await this.getToken();
+  getAuthHeader() {
+    const token = this.getToken();
     return token ? `Bearer ${token}` : null;
   }
+
+  // ========================================================================
+  // USER INFO GETTERS
+  // ========================================================================
+
+  getUser() { return this.user; }
+  getName() { return this.user?.name || 'Guest'; }
+  getEmail() { return this.user?.email || ''; }
+  getRole() { return this.user?.role || 'User'; }
 }
 
 // Create singleton instance
@@ -428,7 +258,7 @@ const unifiedAuth = new UnifiedAuth();
 export { unifiedAuth };
 export default unifiedAuth;
 
-// Expose globally for backward compatibility
+// Expose globally for debugging/legacy
 if (typeof window !== 'undefined') {
   window.UnifiedAuth = unifiedAuth;
 }
