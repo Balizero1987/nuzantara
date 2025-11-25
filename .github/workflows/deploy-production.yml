@@ -157,7 +157,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.service == 'backend' && './apps/backend-ts' || './apps/webapp' }}
-          file: ./docker/${{ matrix.service }}/Dockerfile
+          file: ${{ matrix.service == 'backend' && './apps/backend-ts/Dockerfile' || './apps/webapp/Dockerfile' }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
