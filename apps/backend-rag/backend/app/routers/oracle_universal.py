@@ -825,10 +825,12 @@ async def hybrid_oracle_query(
                 # Apply personality translation if user email is provided
                 if answer and request.user_email:
                     try:
-                        personality_result = await personality_service.translate_to_personality(
+                        # Use Gemini-only personality translation (Oracle not accessible externally)
+                        personality_result = await personality_service.translate_to_personality_gemini_only(
                             gemini_response=answer,
                             user_email=request.user_email,
-                            original_query=request.query
+                            original_query=request.query,
+                            gemini_model_getter=google_services.get_zantara_model
                         )
 
                         if personality_result["success"]:
