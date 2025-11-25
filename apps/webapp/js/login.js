@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Check if already authenticated
   if (unifiedAuth.isAuthenticated()) {
     console.log('ℹ️ Already authenticated, redirecting...');
-    window.location.href = '/chat';
+    window.location.href = '/chat.html';
     return;
   }
 
@@ -149,7 +149,7 @@ async function handleLogin(e) {
 
     // Redirect after 1.5 seconds
     setTimeout(() => {
-      window.location.href = '/chat';
+      window.location.href = '/chat.html';
     }, 1500);
 
   } catch (error) {
