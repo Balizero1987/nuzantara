@@ -166,17 +166,20 @@ class GoogleServices:
     def drive_service(self):
         return self._drive_service
 
-    def get_gemini_model(self, model_name: str = "gemini-1.5-flash"):
+    def get_gemini_model(self, model_name: str = "models/gemini-2.5-pro"):
         """Get Gemini model instance"""
         if not self._gemini_initialized:
             raise RuntimeError("Gemini AI not initialized")
 
-        # Try alternative model names for API compatibility
+        # Try alternative model names for API compatibility (2025 models)
+        # Priority: PRO models for legal reasoning, then Flash as fallback
         alternative_names = [
-            "models/gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
-            "models/gemini-1.5-flash-001",
-            "models/gemini-1.5-flash-exp"
+            "models/gemini-2.5-pro",           # Primary: Best for legal/business reasoning
+            "models/gemini-2.5-pro-preview-03-25",
+            "models/gemini-3-pro-preview",     # Latest generation
+            "models/gemini-2.5-flash",         # Fallback for speed
+            "models/gemini-2.0-flash-001",
+            "models/gemini-pro-latest"
         ]
 
         # Try original name first
@@ -195,6 +198,57 @@ class GoogleServices:
                     continue
 
             raise RuntimeError(f"Could not load Gemini model '{model_name}' or any alternatives")
+
+    def get_zantara_model(self, use_case: str = "legal_reasoning") -> genai.GenerativeModel:
+        """
+        Get the best Gemini model for specific ZANTARA use cases
+
+        Args:
+            use_case: Type of task
+                - "legal_reasoning": Complex legal analysis (use PRO)
+                - "personality_translation": Fast personality conversion (use Flash)
+                - "multilingual": Multi-language support (use 3 Pro)
+                - "document_analysis": Deep document understanding (use PRO)
+        """
+        if not self._gemini_initialized:
+            raise RuntimeError("Gemini AI not initialized")
+
+        # Select best model based on use case
+        model_mapping = {
+            "legal_reasoning": [
+                "models/gemini-2.5-pro",           # Best for legal analysis
+                "models/gemini-2.5-pro-preview-03-25",
+                "models/gemini-3-pro-preview"
+            ],
+            "personality_translation": [
+                "models/gemini-2.5-flash",         # Fast for personality conversion
+                "models/gemini-2.0-flash-001",
+                "models/gemini-flash-latest"
+            ],
+            "multilingual": [
+                "models/gemini-3-pro-preview",     # Latest for multi-language
+                "models/gemini-2.5-pro",
+                "models/gemini-pro-latest"
+            ],
+            "document_analysis": [
+                "models/gemini-2.5-pro",           # Deep understanding
+                "models/gemini-2.5-pro-preview-03-25",
+                "models/gemini-3-pro-preview"
+            ]
+        }
+
+        models_to_try = model_mapping.get(use_case, model_mapping["legal_reasoning"])
+
+        for model_name in models_to_try:
+            try:
+                logger.info(f"🧠 Using {model_name} for {use_case}")
+                return genai.GenerativeModel(model_name)
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to load {model_name}: {e}")
+                continue
+
+        # Ultimate fallback
+        return self.get_gemini_model()
 
 # Initialize Google services
 google_services = GoogleServices()
@@ -539,8 +593,8 @@ async def reason_with_gemini(documents: List[str], query: str, user_instruction:
         start_reasoning = time.time()
         logger.info(f"🧠 Starting Gemini reasoning with {len(documents)} documents")
 
-        # Configure model for production
-        model = google_services.get_gemini_model("gemini-1.5-flash")
+        # Configure model for production - Use PRO for better legal reasoning
+        model = google_services.get_gemini_model("models/gemini-2.5-pro")
 
         # Build comprehensive prompt
         if use_full_docs and documents:
