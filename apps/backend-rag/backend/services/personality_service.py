@@ -7,7 +7,7 @@ Gestisce le diverse personalità dell'AI system:
 - Professional: Standard English/Indonesian
 - Custom: Basato sulle preferenze del team member
 
-Integra Gemini 1.5 (RAG research) + Zantara Locale (personality voice)
+Integra Gemini 1.5 (RAG research) + Zantara Oracle Cloud (personality voice)
 """
 
 import os
@@ -33,11 +33,15 @@ class PersonalityService:
     """
 
     def __init__(self):
-        self.zantara_ollama_url = "http://localhost:11434/api/generate"
+        # Usa il nostro modello Zantara su Oracle Cloud
+        self.zantara_oracle_url = os.getenv("ZANTARA_ORACLE_URL", "https://zantara.oracle.cloud/api/generate")
+        self.oracle_api_key = os.getenv("ORACLE_API_KEY", "")
         self.team_members = TEAM_MEMBERS
         self.personality_profiles = self._build_personality_profiles()
 
         logger.info("✅ PersonalityService initialized")
+        logger.info(f"   Zantara Oracle URL: {self.zantara_oracle_url}")
+        logger.info(f"   Oracle API Key: {'✅ Set' if self.oracle_api_key else '⚠️ Not set'}")
         logger.info(f"   Team members loaded: {len(self.team_members)}")
         logger.info(f"   Personality profiles: {len(self.personality_profiles)}")
 
@@ -205,15 +209,20 @@ TASK: Rewrite this professional answer in your personality style. Keep all the a
 
 Your response:"""
 
-            # Call local Zantara model
+            # Call Zantara model on Oracle Cloud
+            headers = {}
+            if self.oracle_api_key:
+                headers["Authorization"] = f"Bearer {self.oracle_api_key}"
+
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    self.zantara_ollama_url,
+                    self.zantara_oracle_url,
                     json={
                         "model": "zantara",
                         "prompt": zantara_prompt,
                         "stream": False
                     },
+                    headers=headers,
                     timeout=aiohttp.ClientTimeout(total=30)
                 ) as response:
                     if response.status == 200:
@@ -276,14 +285,19 @@ Your response:"""
         personality = self.personality_profiles[personality_type]
 
         try:
+            headers = {}
+            if self.oracle_api_key:
+                headers["Authorization"] = f"Bearer {self.oracle_api_key}"
+
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    self.zantara_ollama_url,
+                    self.zantara_oracle_url,
                     json={
                         "model": "zantara",
                         "prompt": f"{personality['system_prompt']}\n\nUser: {test_message}\n\nResponse:",
                         "stream": False
                     },
+                    headers=headers,
                     timeout=aiohttp.ClientTimeout(total=30)
                 ) as response:
                     if response.status == 200:
