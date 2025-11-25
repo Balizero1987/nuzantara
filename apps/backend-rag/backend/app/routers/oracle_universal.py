@@ -591,8 +591,8 @@ async def reason_with_gemini(documents: List[str], query: str, user_instruction:
         start_reasoning = time.time()
         logger.info(f"🧠 Starting Gemini reasoning with {len(documents)} documents")
 
-        # Configure model for production - Use PRO for better legal reasoning
-        model = google_services.get_gemini_model("models/gemini-2.5-pro")
+        # Configure model for production - Use Flash (unlimited on ULTRA plan)
+        model = google_services.get_gemini_model("models/gemini-2.5-flash")
 
         # Build comprehensive prompt
         if use_full_docs and documents:
@@ -637,7 +637,7 @@ RELEVANT DOCUMENT EXCERPTS:
 
         result = {
             "answer": response.text,
-            "model_used": "gemini-1.5-flash",
+            "model_used": "gemini-2.5-flash",
             "reasoning_time_ms": reasoning_time,
             "document_count": len(documents),
             "full_analysis": use_full_docs,
@@ -654,7 +654,7 @@ RELEVANT DOCUMENT EXCERPTS:
 
         return {
             "answer": f"I encountered an error while processing your request. The system has been notified. Please try again or contact support if the issue persists.",
-            "model_used": "gemini-1.5-flash",
+            "model_used": "gemini-2.5-flash",
             "reasoning_time_ms": error_time,
             "document_count": len(documents),
             "full_analysis": False,
@@ -1151,14 +1151,14 @@ async def test_personality(
 async def test_gemini_integration():
     """Test Google Gemini integration"""
     try:
-        model = google_services.get_gemini_model("gemini-1.5-flash")
+        model = google_services.get_gemini_model("gemini-2.5-flash")
         response = model.generate_content("Hello, please confirm you are working correctly for Zantara v5.3.")
 
         return {
             "success": True,
             "message": "Gemini integration successful",
             "test_response": response.text[:200] + "..." if len(response.text) > 200 else response.text,
-            "model": "gemini-1.5-flash",
+            "model": "gemini-2.5-flash",
             "timestamp": datetime.now().isoformat()
         }
 
