@@ -1,3 +1,7 @@
+// Log immediately to console before any imports that might fail
+console.log('[CONFIG] Starting environment validation...');
+console.log('[CONFIG] JWT_SECRET length:', process.env.JWT_SECRET?.length || 0);
+
 import { logger } from '../logging/unified-logger.js';
 import { z } from 'zod';
 
@@ -45,9 +49,11 @@ const envSchema = z.object({
 
 // Parse and validate environment variables
 // This will throw an error if validation fails (fail-fast)
+console.log('[CONFIG] Parsing environment variables...');
 let parsed: z.infer<typeof envSchema>;
 try {
   parsed = envSchema.parse(process.env);
+  console.log('[CONFIG] Environment validation successful');
 } catch (error) {
   if (error instanceof z.ZodError) {
     // Log to console directly to ensure it's visible even if logger hasn't flushed
