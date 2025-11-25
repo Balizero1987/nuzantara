@@ -166,20 +166,18 @@ class GoogleServices:
     def drive_service(self):
         return self._drive_service
 
-    def get_gemini_model(self, model_name: str = "models/gemini-2.5-pro"):
+    def get_gemini_model(self, model_name: str = "models/gemini-2.5-flash"):
         """Get Gemini model instance"""
         if not self._gemini_initialized:
             raise RuntimeError("Gemini AI not initialized")
 
         # Try alternative model names for API compatibility (2025 models)
-        # Priority: PRO models for legal reasoning, then Flash as fallback
+        # SOLO FLASH MODE - Illimitato e veloce per piano ULTRA
         alternative_names = [
-            "models/gemini-2.5-pro",           # Primary: Best for legal/business reasoning
-            "models/gemini-2.5-pro-preview-03-25",
-            "models/gemini-3-pro-preview",     # Latest generation
-            "models/gemini-2.5-flash",         # Fallback for speed
+            "models/gemini-2.5-flash",         # Primario: Illimitato!
             "models/gemini-2.0-flash-001",
-            "models/gemini-pro-latest"
+            "models/gemini-flash-latest",
+            "models/gemini-pro-latest"         # Fallback solo se necessario
         ]
 
         # Try original name first
@@ -213,27 +211,27 @@ class GoogleServices:
         if not self._gemini_initialized:
             raise RuntimeError("Gemini AI not initialized")
 
-        # Select best model based on use case
+        # SOLO GEMINI 2.5 FLASH - Illimitato e performante per piano ULTRA
         model_mapping = {
             "legal_reasoning": [
-                "models/gemini-2.5-pro",           # Best for legal analysis
-                "models/gemini-2.5-pro-preview-03-25",
-                "models/gemini-3-pro-preview"
+                "models/gemini-2.5-flash",         # Flash ce la fa benissimo!
+                "models/gemini-2.0-flash-001",
+                "models/gemini-flash-latest"
             ],
             "personality_translation": [
-                "models/gemini-2.5-flash",         # Fast for personality conversion
+                "models/gemini-2.5-flash",         # PERFETTO: Illimitato
                 "models/gemini-2.0-flash-001",
                 "models/gemini-flash-latest"
             ],
             "multilingual": [
-                "models/gemini-3-pro-preview",     # Latest for multi-language
-                "models/gemini-2.5-pro",
-                "models/gemini-pro-latest"
+                "models/gemini-2.5-flash",         # Flash per tutto (unlimited)
+                "models/gemini-2.0-flash-001",
+                "models/gemini-flash-latest"
             ],
             "document_analysis": [
-                "models/gemini-2.5-pro",           # Deep understanding
-                "models/gemini-2.5-pro-preview-03-25",
-                "models/gemini-3-pro-preview"
+                "models/gemini-2.5-flash",         # Flash per ogni analisi
+                "models/gemini-2.0-flash-001",
+                "models/gemini-flash-latest"
             ]
         }
 
