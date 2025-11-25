@@ -277,30 +277,30 @@ async function startServer() {
   });
   logger.info('✅ Frontend compatibility alias mounted (/api/crm/shared-memory/search → /api/persistent-memory/collective/search)');
 
-  const createProxyOptions = (label: string, pathPrefix: string) => ({
-    target: PYTHON_SERVICE_URL,
-    changeOrigin: true,
-    logLevel: 'warn' as const,
-    // Preserve the full path - http-proxy-middleware strips the prefix by default
-    // So we need to add it back via pathRewrite
-    pathRewrite: (path: string) => {
-      // The path received here is already stripped of the prefix (e.g., /clients instead of /api/crm/clients)
-      // So we need to add the prefix back
-      if (!path.startsWith(pathPrefix)) {
+  // Proxy configuration - preserve full path when forwarding to Python backend
+  // When using app.use('/api/crm', proxy), http-proxy-middleware strips the prefix
+  // So we need to add it back via pathRewrite function
+  const createProxyOptions = (label: string, pathPrefix: string) => {
+    return {
+      target: PYTHON_SERVICE_URL,
+      changeOrigin: true,
+      logLevel: 'warn' as const,
+      pathRewrite: function(path: string) {
+        // Path is already stripped of prefix by http-proxy-middleware
+        // Add it back to preserve full path
         return pathPrefix + path;
-      }
-      return path;
-    },
-    onError: (err: Error, _req: express.Request, res: express.Response) => {
-      logger.error(`❌ ${label} proxy error:`, err);
-      if (!res.headersSent) {
-        res.status(502).json({
-          ok: false,
-          error: `${label} service temporarily unavailable`,
-        });
-      }
-    },
-  });
+      },
+      onError: (err: Error, _req: express.Request, res: express.Response) => {
+        logger.error(`❌ ${label} proxy error:`, err);
+        if (!res.headersSent) {
+          res.status(502).json({
+            ok: false,
+            error: `${label} service temporarily unavailable`,
+          });
+        }
+      },
+    };
+  };
 
   app.use('/api/agents', createProxyMiddleware(createProxyOptions('agents', '/api/agents')));
 
