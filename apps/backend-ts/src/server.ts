@@ -55,71 +55,47 @@ const PYTHON_SERVICE_URL =
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
+  // Initialize Redis cache (non-blocking)
+  initializeRedis().catch(err => logger.error('Redis initialization failed:', err));
+
+  // V3 cache system removed
+
+  // GLM 4.6 Architect Patch: Initialize Enhanced Architecture
   try {
-    console.log('🚀 Starting ZANTARA Backend v5.2.1-debug (Full Error Capture)');
-    
-    console.log('DEBUG: Initializing Redis...');
-    // Initialize Redis cache
-    await initializeRedis();
-    console.log('DEBUG: Redis initialized.');
+    logger.info('✅ Enhanced Architecture (GLM 4.6) initialized');
+  } catch (error: any) {
+    logger.warn(`⚠️ Enhanced Architecture initialization failed: ${error.message}`);
+  }
 
-    // V3 cache system removed
-
-    console.log('DEBUG: Initializing Architecture...');
-    // GLM 4.6 Architect Patch: Initialize Enhanced Architecture
-    // REMOVED: serviceRegistry initialization (v3 legacy - no longer used)
-    try {
-      // Service registry and v3 Ω services removed during cleanup
-
-      logger.info('✅ Enhanced Architecture (GLM 4.6) initialized');
-    } catch (error: any) {
-      logger.warn(`⚠️ Enhanced Architecture initialization failed: ${error.message}`);
-      logger.warn('⚠️ Continuing with basic architecture');
+  // Initialize connection pools if enabled (non-blocking)
+  if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
+    if (process.env.DATABASE_URL) {
+      initializeDatabasePool().catch(err => 
+        logger.warn(`⚠️ Connection pooling initialization failed: ${err.message}`)
+      );
     }
+  }
 
-    console.log('DEBUG: Checking Feature Flags...');
-    // Initialize connection pools if enabled
-    if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
-      try {
-        if (process.env.DATABASE_URL) {
-          console.log('DEBUG: Initializing DB Pool...');
-          await initializeDatabasePool();
-          logger.info('✅ Database connection pool initialized');
-        }
+  // Initialize audit trail if enabled
+  if (featureFlags.isEnabled(FeatureFlag.ENABLE_AUDIT_TRAIL)) {
+    logger.info('✅ Audit trail system enabled');
+    // Audit logging is fire-and-forget usually, but initial setup is fast
+  }
 
-      } catch (error: any) {
-        logger.warn(`⚠️  Connection pooling initialization failed: ${error.message}`);
-        logger.warn('⚠️  Continuing without enhanced pooling');
-      }
-    }
+  // 🚀 Start performance monitoring cleanup scheduler
+  startMetricsCleanup();
+  logger.info('✅ Performance monitoring system initialized');
 
-    // Initialize audit trail if enabled
-    if (featureFlags.isEnabled(FeatureFlag.ENABLE_AUDIT_TRAIL)) {
-      logger.info('✅ Audit trail system enabled');
-      await auditTrail.log({
-        eventType: 'SYSTEM_STARTUP' as any,
-        action: 'Server started',
-        result: 'success',
-      } as any);
-    }
+  // Create Express app
+  const app = express();
 
-    console.log('DEBUG: Starting Metrics Cleanup...');
-    // 🚀 Start performance monitoring cleanup scheduler
-    startMetricsCleanup();
-    logger.info('✅ Performance monitoring system initialized');
+  // Fix for Fly.io proxy headers - configure trust proxy
+  app.set('trust proxy', true);
 
-    console.log('DEBUG: Creating Express App...');
-    // Create Express app
-    const app = express();
-
-    // Fix for Fly.io proxy headers - configure trust proxy
-    app.set('trust proxy', true);
-
-    console.log('DEBUG: Loading Routes...');
-    // Test and bypass routes (must be before all security middleware)
-    const setupBypassRoutes = await import('./routes/admin/setup-bypass.js');
-    app.use('/admin/setup', setupBypassRoutes.default);
-    logger.info('⚠️  Admin setup bypass routes loaded (disable after initial setup)');
+  // Test and bypass routes (must be before all security middleware)
+  const setupBypassRoutes = await import('./routes/admin/setup-bypass.js');
+  app.use('/admin/setup', setupBypassRoutes.default);
+  logger.info('⚠️  Admin setup bypass routes loaded (disable after initial setup)');
 
 
 
@@ -574,105 +550,98 @@ async function startServer() {
   // Create HTTP server (for WebSocket)
   const httpServer = createServer(app);
 
-      // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
-      if (process.env.REDIS_URL) {
-        setupWebSocket(httpServer);
-        logger.info('✅ WebSocket server initialized');
-      } else {
-        logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
-      }
-  
-      console.log('DEBUG: Starting HTTP Server listen...');
-      const server = httpServer.listen(PORT, '0.0.0.0', async () => {
-        const addr = server.address();
-        const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr?.port}`;
-        console.log('DEBUG: Server is listening!');
-        logger.info(`🚀 ZANTARA TS-BACKEND started on ${bind}`);
-        logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);    logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
+    // Setup WebSocket for real-time features (P0.4) - only if Redis is configured
     if (process.env.REDIS_URL) {
-      logger.info(`🔌 WebSocket ready for real-time features`);
+      setupWebSocket(httpServer);
+      logger.info('✅ WebSocket server initialized');
+    } else {
+      logger.warn('⚠️  REDIS_URL not set - WebSocket real-time features disabled');
     }
 
-    // Start AI Automation Cron Scheduler
-    try {
-      getCronScheduler().start();
-      logger.info('🤖 AI Automation Cron Scheduler started');
-    } catch (error: any) {
-      logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
-      logger.warn('⚠️  Continuing without AI automation');
-    }
-
-    // Initialize Cron Scheduler for Autonomous Agents
-    try {
-      const cronScheduler = getCronScheduler();
-      await cronScheduler.start();
-      logger.info('✅ Autonomous Agents Cron Scheduler activated');
-    } catch (error: any) {
-      logger.error('❌ Failed to start Cron Scheduler:', error.message);
-    }
-  });
-
-  // Handle shutdown gracefully
-  async function gracefulShutdown(signal: string) {
-    logger.info(`${signal} signal received: starting graceful shutdown`);
-
-    // Stop cron scheduler
-    try {
-      const cronScheduler = getCronScheduler();
-      await cronScheduler.stop();
-      logger.info('Cron Scheduler stopped');
-    } catch (error: any) {
-      logger.error('Error stopping Cron Scheduler:', error.message);
-    }
-
-    // Stop accepting new requests
-    server.close(async () => {
-      logger.info('HTTP server closed');
-
-      // Close connection pools
-      if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
-        try {
-          if (process.env.DATABASE_URL) {
-            const dbPool = getDatabasePool();
-            await dbPool.close();
-            logger.info('Database connection pool closed');
-          }
-
-        } catch (error: any) {
-          logger.error(`Error closing connection pools: ${error.message}`);
-        }
-      }
-
-      // Stop AI Automation Cron Scheduler
+    const server = httpServer.listen(PORT, '0.0.0.0', async () => {
+      logger.info(`🚀 ZANTARA TS-BACKEND started on port ${PORT}`);
+      logger.info(`🌐 Environment: ${ENV.NODE_ENV}`);
+      logger.info(`🔗 Health check: http://localhost:${PORT}/health`);
+      
+      // Start AI Automation Cron Scheduler
       try {
-        await getCronScheduler().stop();
-        logger.info('AI Automation Cron Scheduler stopped');
+        getCronScheduler().start();
+        logger.info('🤖 AI Automation Cron Scheduler started');
       } catch (error: any) {
-        logger.warn(`Error stopping cron scheduler: ${error.message}`);
+        logger.warn(`⚠️  AI Automation Cron Scheduler failed to start: ${error.message}`);
       }
 
-      // Log shutdown to audit trail
-      if (featureFlags.isEnabled(FeatureFlag.ENABLE_AUDIT_TRAIL)) {
-        await auditTrail.log({
-          eventType: 'SYSTEM_SHUTDOWN' as any,
-          action: `Server shutdown: ${signal}`,
-          result: 'success',
-        } as any);
+      // Initialize Cron Scheduler for Autonomous Agents
+      try {
+        const cronScheduler = getCronScheduler();
+        await cronScheduler.start();
+        logger.info('✅ Autonomous Agents Cron Scheduler activated');
+      } catch (error: any) {
+        logger.error('❌ Failed to start Cron Scheduler:', error.message);
       }
-
-      logger.info('Graceful shutdown complete');
-      process.exit(0);
     });
 
-    // Force shutdown after 30 seconds
-    setTimeout(() => {
-      logger.error('Forced shutdown after timeout');
-      process.exit(1);
-    }, 30000);
-  }
+    // Handle shutdown gracefully
+    async function gracefulShutdown(signal: string) {
+      logger.info(`${signal} signal received: starting graceful shutdown`);
 
-  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+      // Stop cron scheduler
+      try {
+        const cronScheduler = getCronScheduler();
+        await cronScheduler.stop();
+        logger.info('Cron Scheduler stopped');
+      } catch (error: any) {
+        logger.error('Error stopping Cron Scheduler:', error.message);
+      }
+
+      // Stop accepting new requests
+      server.close(async () => {
+        logger.info('HTTP server closed');
+
+        // Close connection pools
+        if (featureFlags.isEnabled(FeatureFlag.ENABLE_ENHANCED_POOLING)) {
+          try {
+            if (process.env.DATABASE_URL) {
+              const dbPool = getDatabasePool();
+              await dbPool.close();
+              logger.info('Database connection pool closed');
+            }
+
+          } catch (error: any) {
+            logger.error(`Error closing connection pools: ${error.message}`);
+          }
+        }
+
+        // Stop AI Automation Cron Scheduler
+        try {
+          await getCronScheduler().stop();
+          logger.info('AI Automation Cron Scheduler stopped');
+        } catch (error: any) {
+          logger.warn(`Error stopping cron scheduler: ${error.message}`);
+        }
+
+        // Log shutdown to audit trail
+        if (featureFlags.isEnabled(FeatureFlag.ENABLE_AUDIT_TRAIL)) {
+          await auditTrail.log({
+            eventType: 'SYSTEM_SHUTDOWN' as any,
+            action: `Server shutdown: ${signal}`,
+            result: 'success',
+          } as any);
+        }
+
+        logger.info('Graceful shutdown complete');
+        process.exit(0);
+      });
+
+      // Force shutdown after 30 seconds
+      setTimeout(() => {
+        logger.error('Forced shutdown after timeout');
+        process.exit(1);
+      }, 30000);
+    }
+
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 // Start the server
