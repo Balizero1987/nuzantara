@@ -195,6 +195,142 @@ paths:
               schema:
                 type: string
 
+  /api/auth/team/login:
+    post:
+      operationId: teamLogin
+      summary: Team member authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - pin
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Team member email address
+                pin:
+                  type: string
+                  pattern: '^[0-9]{4,8}$'
+                  description: 4-8 digit PIN code
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        description: JWT authentication token
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          email:
+                            type: string
+                          name:
+                            type: string
+                          role:
+                            type: string
+        '400':
+          description: Bad request - missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+        '401':
+          description: Unauthorized - invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+
+  /api/auth/team/members:
+    get:
+      operationId: getTeamMembers
+      summary: Get list of team members
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Team members list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      members:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            email:
+                              type: string
+                            name:
+                              type: string
+                            role:
+                              type: string
+                            status:
+                              type: string
+                      total:
+                        type: integer
+
+  /api/auth/team/logout:
+    post:
+      operationId: teamLogout
+      summary: Logout team member
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                      message:
+                        type: string
+
   /call:
     post:
       operationId: callHandler

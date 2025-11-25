@@ -4,7 +4,7 @@ import { z, ZodError } from 'zod';
 import type { Request, Response } from 'express';
 import { ok, err } from '../utils/response.js';
 import { apiKeyAuth, RequestWithCtx } from '../middleware/auth.js';
-import { memorySchemas, handlerSchemas, authSchemas, validateInput } from '../utils/validation-schemas.js';
+import { memorySchemas, handlerSchemas, validateInput } from '../utils/validation-schemas.js';
 import { jwtAuth, RequestWithJWT } from '../middleware/jwt-auth.js';
 import { demoUserAuth, RequestWithDemo } from '../middleware/demo-user-auth.js';
 import { ForbiddenError, BadRequestError, UnauthorizedError } from '../utils/errors.js';
@@ -17,7 +17,7 @@ const router = express.Router();
 // Identity & Onboarding - removed legacy modules
 
 // Team Authentication
-import { logoutSession, teamLogin, getTeamMembers } from '../handlers/auth/team-login.js';
+import { logoutSession, getTeamMembers } from '../handlers/auth/team-login.js';
 import {
   teamLoginSecure,
   verifyToken,
@@ -53,7 +53,7 @@ import { creativeHandlers } from '../handlers/ai-services/creative.js';
 import { oracleSimulate, oracleAnalyze, oraclePredict } from '../handlers/bali-zero/oracle.js';
 import { documentPrepare, assistantRoute } from '../handlers/bali-zero/advisory.js';
 import { kbliLookup, kbliRequirements } from '../handlers/bali-zero/kbli.js';
-import { kbliLookupComplete, kbliBusinessAnalysis } from '../handlers/bali-zero/kbli-complete.js';
+// import { kbliLookupComplete, kbliBusinessAnalysis } from '../handlers/bali-zero/kbli-complete.js';
 import { baliZeroPricing, baliZeroQuickPrice } from '../handlers/bali-zero/bali-zero-pricing.js';
 import {
   teamList,
@@ -477,38 +477,28 @@ const handlers: Record<string, Handler> = {
 
   // 🏢 KBLI Business Codes (NEW)
   'kbli.lookup': async (params: any) => {
-    const mockReq = { body: { params } } as any;
-    const mockRes = {
-      json: (data: any) => data,
-      status: (_code: number) => ({ json: (data: any) => data }),
-    } as any;
-    return await kbliLookup(mockReq, mockRes);
+    return await kbliLookup(params);
   },
   'kbli.requirements': async (params: any) => {
-    const mockReq = { body: { params } } as any;
-    const mockRes = {
-      json: (data: any) => data,
-      status: (_code: number) => ({ json: (data: any) => data }),
-    } as any;
-    return await kbliRequirements(mockReq, mockRes);
+    return await kbliRequirements(params);
   },
   // 🚀 KBLI COMPLETE DATABASE - Enhanced endpoints
-  'kbli.lookup.complete': async (params: any) => {
-    const mockReq = { body: { params } } as any;
-    const mockRes = {
-      json: (data: any) => data,
-      status: (_code: number) => ({ json: (data: any) => data }),
-    } as any;
-    return await kbliLookupComplete(mockReq, mockRes);
-  },
-  'kbli.business.analysis': async (params: any) => {
-    const mockReq = { body: { params } } as any;
-    const mockRes = {
-      json: (data: any) => data,
-      status: (_code: number) => ({ json: (data: any) => data }),
-    } as any;
-    return await kbliBusinessAnalysis(mockReq, mockRes);
-  },
+  // 'kbli.lookup.complete': async (params: any) => {
+  //   const mockReq = { body: { params } } as any;
+  //   const mockRes = {
+  //     json: (data: any) => data,
+  //     status: (_code: number) => ({ json: (data: any) => data }),
+  //   } as any;
+  //   return await kbliLookupComplete(mockReq, mockRes);
+  // },
+  // 'kbli.business.analysis': async (params: any) => {
+  //   const mockReq = { body: { params } } as any;
+  //   const mockRes = {
+  //     json: (data: any) => data,
+  //     status: (_code: number) => ({ json: (data: any) => data }),
+  //   } as any;
+  //   return await kbliBusinessAnalysis(mockReq, mockRes);
+  // },
 
   // Communication handlers
   'slack.notify': slackNotify,
@@ -847,178 +837,8 @@ export function attachRoutes(app: import('express').Express) {
   // JWT AUTHENTICATION ENDPOINTS
   // ========================================
 
-  // JWT Login endpoint - BUG FIX
-  app.post('/auth/login', (async (req: RequestWithCtx, res: Response) => {
-    const startTime = Date.now();
-    const clientIP = req.header('x-forwarded-for') || req.ip || 'unknown';
-    const _userAgent = req.header('user-agent') || 'unknown';
-
-    try {
-      // Validate input
-      const validatedData = validateInput(authSchemas.teamLogin, req.body);
-      const { email, pin } = validatedData;
-
-      // BUG FIX: teamLogin requires { name, email }, not { email, pin }
-      // Solution: Find user by email first, then use name for teamLogin
-      const teamMembers = await getTeamMembers();
-      const member = teamMembers.find((m: any) => m.email?.toLowerCase() === email.toLowerCase());
-
-      if (!member) {
-        logger.warn('JWT Login: User not found', {
-          email: email.substring(0, 3) + '***',
-          ip: clientIP,
-        });
-
-        // Audit log (GDPR compliant - no pin)
-        logger.info('JWT_LOGIN_AUDIT', {
-          event: 'login_failure',
-          email: email.substring(0, 3) + '***',
-          reason: 'user_not_found',
-          ip: clientIP,
-          timestamp: new Date().toISOString(),
-        });
-
-        return res.status(401).json(err('Invalid credentials'));
-      }
-
-      // Verify PIN
-      if (member.pin !== pin) {
-        logger.warn('JWT Login: Invalid PIN', {
-          email: email.substring(0, 3) + '***',
-          ip: clientIP,
-        });
-
-        logger.info('JWT_LOGIN_AUDIT', {
-          event: 'login_failure',
-          userId: member.id,
-          email: email.substring(0, 3) + '***',
-          reason: 'invalid_pin',
-          ip: clientIP,
-          timestamp: new Date().toISOString(),
-        });
-
-        return res.status(401).json(err('Invalid credentials'));
-      }
-
-      // Use teamLogin with name
-      const loginResult = await teamLogin({
-        name: member.name,
-        email: member.email,
-      });
-
-      if (!loginResult.data.success) {
-        logger.warn('JWT Login: Team login failed', {
-          email: email.substring(0, 3) + '***',
-          ip: clientIP,
-        });
-
-        logger.info('JWT_LOGIN_AUDIT', {
-          event: 'login_failure',
-          userId: member.id,
-          email: email.substring(0, 3) + '***',
-          reason: 'team_login_failed',
-          ip: clientIP,
-          timestamp: new Date().toISOString(),
-        });
-
-        return res.status(401).json(err('Invalid credentials'));
-      }
-
-      // BUG FIX: Check JWT_SECRET (NO HARDCODED FALLBACK)
-      const jwtSecret = process.env.JWT_SECRET;
-      if (!jwtSecret) {
-        logger.error('JWT_SECRET not configured');
-
-        logger.info('JWT_LOGIN_AUDIT', {
-          event: 'login_error',
-          userId: member.id,
-          email: email.substring(0, 3) + '***',
-          reason: 'misconfiguration',
-          ip: clientIP,
-          timestamp: new Date().toISOString(),
-        });
-
-        return res.status(500).json(err('Authentication service misconfigured'));
-      }
-
-      // BUG FIX: Import jwt at top instead of require
-      const jwt = await import('jsonwebtoken');
-      const jwtDefault = jwt.default;
-
-      // BUG FIX: Include name in token for adminAuth compatibility
-      const accessToken = jwtDefault.sign(
-        {
-          userId: loginResult.data.user.id,
-          email: loginResult.data.user.email,
-          role: loginResult.data.user.role,
-          name: loginResult.data.user.name, // Added for adminAuth
-          department: loginResult.data.user.department, // Added for consistency
-        },
-        jwtSecret,
-        { expiresIn: '15m' }
-      );
-
-      const refreshToken = jwtDefault.sign(
-        {
-          userId: loginResult.data.user.id,
-          type: 'refresh',
-        },
-        jwtSecret,
-        { expiresIn: '7d' }
-      );
-
-      const processingTime = Date.now() - startTime;
-
-      // Audit log (GDPR compliant)
-      logger.info('JWT_LOGIN_AUDIT', {
-        event: 'login_success',
-        userId: loginResult.data.user.id,
-        email: loginResult.data.user.email.substring(0, 3) + '***',
-        role: loginResult.data.user.role,
-        ip: clientIP,
-        userAgent: _userAgent.substring(0, 50),
-        processingTime: `${processingTime}ms`,
-        timestamp: new Date().toISOString(),
-      });
-
-      return res.status(200).json(
-        ok({
-          accessToken,
-          refreshToken,
-          user: {
-            id: loginResult.data.user.id,
-            email: loginResult.data.user.email,
-            name: loginResult.data.user.name,
-            role: loginResult.data.user.role,
-            department: loginResult.data.user.department,
-          },
-          expiresIn: 900, // 15 minutes
-        })
-      );
-    } catch (e: any) {
-      logger.error('JWT Login error:', e, {
-        ip: clientIP,
-      });
-
-      // Handle validation errors specifically
-      if (e.name === 'ValidationError' || e.name === 'ZodError') {
-        logger.warn('JWT Login: Validation failed', {
-          error: e.message,
-          ip: clientIP
-        });
-        return res.status(400).json(err(e.message));
-      }
-
-      logger.info('JWT_LOGIN_AUDIT', {
-        event: 'login_error',
-        reason: e.name || 'unexpected_error',
-        ip: clientIP,
-        timestamp: new Date().toISOString(),
-      });
-
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  }) as any);
+  // REMOVED: POST /auth/login - Consolidated to /api/auth/team/login
+  // All login functionality is now handled by /api/auth/team/login route
 
   // JWT Refresh endpoint - BUG FIX
   app.post('/auth/refresh', (async (req: RequestWithCtx, res: Response) => {
@@ -1032,7 +852,7 @@ export function attachRoutes(app: import('express').Express) {
       }
 
       // BUG FIX: Check JWT_SECRET
-      const jwtSecret = process.env.JWT_SECRET;
+      const jwtSecret = process.env.JWT_SECRET!;
       if (!jwtSecret) {
         logger.error('JWT_SECRET not configured');
         return res.status(500).json(err('Authentication service misconfigured'));
@@ -1172,25 +992,6 @@ export function attachRoutes(app: import('express').Express) {
     }
   }) as any);
 
-  // JWT Logout endpoint
-  app.post('/auth/logout', (async (req: RequestWithCtx, res: Response) => {
-    try {
-      const { refreshToken: _refreshToken } = req.body;
-
-      // In a production system, you would blacklist the refresh token
-      // For now, we just return success
-
-      return res.status(200).json(
-        ok({
-          success: true,
-          message: 'Logged out successfully',
-        })
-      );
-    } catch (e: any) {
-      logger.error('JWT Logout error:', e);
-      return res.status(500).json(err(e?.message || 'Internal Error'));
-    }
-  }) as any);
 
   // AI Chat (JWT protected)
   app.post('/ai.chat', jwtAuth as any, (async (req: RequestWithJWT, res: Response) => {
@@ -1470,7 +1271,7 @@ export function attachRoutes(app: import('express').Express) {
       try {
         // Validate input
         const validatedData = validateInput(handlerSchemas.call, req.body);
-        const { handler, params = {} } = validatedData;
+        const { key: handler, params = {} } = validatedData;
 
         // RBAC by API key
         if (req.ctx?.role === 'external' && FORBIDDEN_FOR_EXTERNAL.has(handler)) {
@@ -1633,9 +1434,8 @@ export function attachRoutes(app: import('express').Express) {
           timestamp: new Date().toISOString(),
         };
 
-        logger.error('🔥 Handler Error [${requestId}] ${key}:', undefined, {
-          error: e.message,
-          stack: e.stack?.split('\n').slice(0, 5).join('\n'),
+        const error = e instanceof Error ? e : new Error(String(e));
+        logger.error(`🔥 Handler Error [${requestId}] ${key}:`, error, {
           ...errorContext,
         });
 
@@ -1646,9 +1446,9 @@ export function attachRoutes(app: import('express').Express) {
 
         // Log critical errors for investigation
         if (key.includes('ai.') || key.includes('memory.') || key.includes('identity.')) {
-          logger.error('🚨 Critical handler failure: ${key}', undefined, {
+          const error = e instanceof Error ? e : new Error(String(e));
+          logger.error(`🚨 Critical handler failure: ${key}`, error, {
             errorType: e.constructor.name,
-            errorMessage: e.message,
             ...errorContext,
           });
         }

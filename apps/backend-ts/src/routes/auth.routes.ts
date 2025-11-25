@@ -4,141 +4,15 @@
  */
 
 import { Router, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import { z } from 'zod';
 import { ok, err } from '../utils/response.js';
 import { jwtAuth, RequestWithJWT } from '../middleware/jwt-auth.js';
 import { verifyToken } from '../handlers/auth/verify.js';
+import { getTeamMemberByEmail, getTeamMemberById } from '../config/team-members.js';
 
 const router = Router();
 
-// JWT Secret from environment
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required for authentication routes');
-}
-const JWT_EXPIRY = '7d'; // 7 days
-
-// Validation schemas
-const LoginSchema = z.object({
-  email: z.string().email(),
-  pin: z.string().min(4).max(6),
-});
-
-// Team members database (hardcoded for now - matches team-login.ts)
-const TEAM_MEMBERS = [
-  {
-    id: '1',
-    email: 'amanda@balizero.com',
-    name: 'Amanda Wong',
-    pin: '1234',
-    role: 'admin',
-    department: 'management',
-    position: 'Lead Executive',
-  },
-  {
-    id: '2',
-    email: 'alessia@balizero.com',
-    name: 'Alessia Marchetti',
-    pin: '1234',
-    role: 'admin',
-    department: 'advisory',
-    position: 'Legal Director',
-  },
-  {
-    id: '3',
-    email: 'marco@balizero.com',
-    name: 'Marco Bianchi',
-    pin: '1234',
-    role: 'manager',
-    department: 'setup',
-    position: 'Setup Manager',
-  },
-  {
-    id: '4',
-    email: 'sofia@balizero.com',
-    name: 'Sofia Rossi',
-    pin: '1234',
-    role: 'staff',
-    department: 'tax',
-    position: 'Tax Specialist',
-  },
-  {
-    id: '5',
-    email: 'demo@balizero.com',
-    name: 'Demo User',
-    pin: '0000',
-    role: 'demo',
-    department: 'public',
-    position: 'Demo Account',
-  },
-  {
-    id: 'test-user-123',
-    email: 'test@example.com',
-    name: 'Test User',
-    pin: '1234',
-    role: 'admin',
-    department: 'Engineering',
-    position: 'Test Account',
-  },
-];
-
-/**
- * POST /api/auth/login
- * Authenticate user with email and PIN
- */
-router.post('/login', async (req: Request, res: Response) => {
-  try {
-    const { email, pin } = LoginSchema.parse(req.body);
-
-    // Find user
-    const user = TEAM_MEMBERS.find(
-      (member) => member.email.toLowerCase() === email.toLowerCase()
-    );
-
-    if (!user) {
-      return res.status(401).json(err('Invalid credentials'));
-    }
-
-    // Verify PIN
-    if (user.pin !== pin) {
-      return res.status(401).json(err('Invalid credentials'));
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      {
-        user_id: user.id,
-        email: user.email,
-        role: user.role,
-        department: user.department,
-      },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRY }
-    );
-
-    // Return success with token and user data
-    return res.status(200).json(
-      ok({
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          department: user.department,
-          position: user.position,
-        },
-        expires_in: JWT_EXPIRY,
-      })
-    );
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json(err('Invalid request: ' + error.message));
-    }
-    return res.status(500).json(err(error?.message || 'Internal server error'));
-  }
-});
+// REMOVED: POST /api/auth/login - Consolidated to /api/auth/team/login
+// All login functionality is now handled by /api/auth/team/login route
 
 /**
  * GET /api/auth/check
@@ -150,9 +24,7 @@ router.get('/check', jwtAuth as any, (async (req: RequestWithJWT, res: Response)
     const userId = req.user?.userId || req.user?.email;
 
     // Find full user data
-    const user = TEAM_MEMBERS.find(
-      (member) => member.id === userId || member.email === userId
-    );
+    const user = getTeamMemberById(String(userId)) || getTeamMemberByEmail(String(userId));
 
     if (!user) {
       return res.status(401).json(err('User not found'));
@@ -210,9 +82,7 @@ router.get('/profile', jwtAuth as any, (async (req: RequestWithJWT, res: Respons
     const userId = req.user?.userId || req.user?.email;
 
     // Find user
-    const user = TEAM_MEMBERS.find(
-      (member) => member.id === userId || member.email === userId
-    );
+    const user = getTeamMemberById(String(userId)) || getTeamMemberByEmail(String(userId));
 
     if (!user) {
       return res.status(404).json(err('User not found'));
