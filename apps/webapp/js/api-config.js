@@ -1,9 +1,10 @@
 // API Configuration - Centralized
-// API Configuration - Centralized
 export const API_ENDPOINTS = {
   // Authentication
   auth: {
-    login: '/auth/login',
+    // Use TypeScript backend REST endpoint for team login
+    // Frontend will call: https://nuzantara-backend.fly.dev/api/auth/login
+    login: '/api/auth/login',
     teamLogin: '/api/auth/team/login',
     check: '/api/user/profile',
     logout: '/api/auth/logout',
@@ -150,13 +151,31 @@ export async function fetchCsrfTokens() {
 // Helper: Get auth headers with CSRF
 export function getAuthHeaders() {
   try {
-    const token = localStorage.getItem('zantara-token');
+    const tokenData = localStorage.getItem('zantara-token');
+    let token = null;
+
+    if (tokenData) {
+      try {
+        // Try parsing as JSON (new format)
+        const parsed = JSON.parse(tokenData);
+        if (typeof parsed === 'object' && parsed !== null) {
+          token = parsed.token;
+        } else {
+          // It was a valid JSON string but not an object? Or just a string that looked like JSON?
+          token = parsed; 
+        }
+      } catch (e) {
+        // Not JSON, assume legacy plain string
+        token = tokenData;
+      }
+    }
+
     const headers = {
       'Content-Type': 'application/json'
     };
 
     // Add authorization if token exists
-    if (token) {
+    if (token && typeof token === 'string') {
       headers['Authorization'] = `Bearer ${token}`;
     }
 

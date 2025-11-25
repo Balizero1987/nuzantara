@@ -446,11 +446,8 @@ class ZantaraClient {
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
     html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-    html = html.replace(/
-
-/g, '</p><p>');
-    html = html.replace(/
-/g, '<br>');
+    html = html.replace(/\n\n/g, '</p><p>');
+    html = html.replace(/\n/g, '<br>');
     if (!html.startsWith('<')) html = `<p>${html}</p>`;
     return html;
   }

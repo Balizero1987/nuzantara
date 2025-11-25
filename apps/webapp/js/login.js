@@ -1,13 +1,9 @@
 /**
  * ZANTARA Login Page - Email + PIN Authentication
+ * Powered by UnifiedAuth
  */
 
-// Configuration - Use centralized API_CONFIG (fallback to backend fly URL)
-const API_CONFIG = window.API_CONFIG || {
-  backend: { url: 'https://nuzantara-backend.fly.dev' },
-  memory: { url: 'https://nuzantara-backend.fly.dev' }
-};
-const API_BASE_URL = API_CONFIG.backend.url;
+import { unifiedAuth } from './auth/unified-auth.js';
 
 // DOM Elements
 let emailInput, pinInput, pinToggle, loginButton, errorMessage, welcomeMessage, loginForm;
@@ -30,6 +26,13 @@ document.addEventListener('DOMContentLoaded', async function() {
   // If the page doesn't have the login form, bail out gracefully
   if (!emailInput || !pinInput || !loginButton || !loginForm) {
     console.warn('⚠️ Login elements not found on page - skipping login.js');
+    return;
+  }
+
+  // Check if already authenticated
+  if (unifiedAuth.isAuthenticated()) {
+    console.log('ℹ️ Already authenticated, redirecting...');
+    window.location.href = '/chat';
     return;
   }
 
@@ -134,56 +137,12 @@ async function handleLogin(e) {
   clearError();
 
   try {
-    console.log('🔐 Attempting login...');
+    console.log('🔐 Attempting login via UnifiedAuth...');
 
-    // Call auth API with email + PIN
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: email,
-        pin: pin
-      }),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.detail || result.message || 'Login failed');
-    }
-
-    // Login successful - handle backend response format
-    const token = result.data?.token || result.token || result.access_token;
-
-    // CRITICAL: Verify token exists
-    if (!token) {
-      throw new Error('Server did not return authentication token. Please contact support.');
-    }
-
-    const expiresIn = result.data?.expiresIn || result.expiresIn || result.expires_in || 3600; // default 1h
-    const user = result.data?.user || result.user || {
-      id: result.data?.userId || result.userId || 'demo',
-      email: email,
-      name: email.split('@')[0]
-    };
+    // Delegate to UnifiedAuth
+    const user = await unifiedAuth.loginTeam(email, pin);
 
     console.log('✅ Login successful:', user.name || user.email);
-
-    // Store auth data in ZANTARA format (zantara-*)
-    localStorage.setItem('zantara-token', JSON.stringify({
-      token: token,
-      expiresAt: Date.now() + (expiresIn * 1000), // Convert seconds to milliseconds
-    }));
-    localStorage.setItem('zantara-user', JSON.stringify(user));
-    localStorage.setItem('zantara-session', JSON.stringify({
-      id: user.id || `session_${Date.now()}`,
-      createdAt: Date.now(),
-      lastActivity: Date.now(),
-    }));
-
-    console.log('✅ Auth data saved to localStorage (zantara-* format)');
 
     // Show success message
     showSuccess(`Welcome back, ${user.name || user.email}! 🎉`);
@@ -200,11 +159,11 @@ async function handleLogin(e) {
     let errorMsg = error.message || 'Login failed';
 
     // User-friendly error messages
-    if (errorMsg.includes('Invalid PIN')) {
-      errorMsg = 'Invalid PIN. Please try again.';
+    if (errorMsg.includes('Invalid PIN') || errorMsg.includes('credentials')) {
+      errorMsg = 'Invalid PIN or email. Please try again.';
     } else if (errorMsg.includes('User not found')) {
       errorMsg = 'Email not found. Please check your email.';
-    } else if (errorMsg.includes('fetch')) {
+    } else if (errorMsg.includes('fetch') || errorMsg.includes('Failed to fetch')) {
       errorMsg = 'Connection error. Please check your internet.';
     }
 

@@ -2,102 +2,116 @@
  * ZANTARA Auth Guard
  * Protects pages that require authentication
  * Uses ZANTARA token format (zantara-*)
+ * Robust version to prevent crashes on malformed data
  */
 
-// Prefer backend service; fallback to TS backend in production
-const API_BASE_URL = window.API_CONFIG?.backend?.url || 'https://nuzantara-backend.fly.dev';
-
-/**
- * Check if user is authenticated
- * Uses httpOnly cookies - token is automatically sent by browser
- */
-async function checkAuth() {
-  // Check for token in localStorage (simple auth check)
-  try {
-    const tokenData = localStorage.getItem('zantara-token');
-    
-    if (!tokenData) {
-      console.log('⚠️  No token found');
-      redirectToLogin();
-      return false;
-    }
-
-    const parsed = JSON.parse(tokenData);
-    
-    // Check if token is expired
-    if (!parsed.token || !parsed.expiresAt || Date.now() >= parsed.expiresAt) {
-      console.log('⚠️  Token expired');
-      clearAuthData();
-      redirectToLogin();
-      return false;
-    }
-
-    console.log('✅ Authentication verified (valid token)');
-    return true;
-  } catch (error) {
-    console.warn('⚠️  Auth check failed:', error.message);
-    clearAuthData();
-    redirectToLogin();
-    return false;
-  }
-}
-
-function clearAuthData() {
-  // Clear all auth data from localStorage
-  localStorage.removeItem('zantara-token');
-  localStorage.removeItem('zantara-user');
-  localStorage.removeItem('zantara-session');
-  localStorage.removeItem('zantara-permissions');
-}
-
-function redirectToLogin() {
-  const currentPage = window.location.pathname;
-  if (currentPage.includes('login') || currentPage === '/') {
-    return;
-  }
-  console.log('↩️  Redirecting to login...');
-  window.location.href = '/login';
-}
-
-function getCurrentUser() {
-  const userJson = localStorage.getItem('zantara-user');
-  return userJson ? JSON.parse(userJson) : null;
-}
-
-function getAuthToken() {
-  // Get token from localStorage
-  try {
-    const tokenData = localStorage.getItem('zantara-token');
-    if (!tokenData) return null;
-    
-    const parsed = JSON.parse(tokenData);
-    return parsed.token || null;
-  } catch (error) {
-    return null;
-  }
-}
-
-// Auto-run auth check on protected pages
-if (typeof window !== 'undefined') {
-  const currentPage = window.location.pathname;
-  const publicPages = ['/', '/login', '/login.html', '/index.html'];
-  const protectedPages = ['/chat', '/chat.html'];
-
-  // Only check auth on protected pages (explicit list to avoid loop)
-  const isProtectedPage = protectedPages.some(page =>
-    currentPage.includes(page) || currentPage.endsWith(page)
-  );
-
-  if (isProtectedPage) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', checkAuth);
-    } else {
-      checkAuth();
-    }
-  }
+(function() {
+  // Configuration
+  const PROTECTED_PAGES = ['/chat', '/chat.html', '/admin', '/dashboard'];
+  const LOGIN_PAGE = '/login';
   
+  // Safe logging
+  const log = (msg, ...args) => console.log(`🛡️ [AuthGuard] ${msg}`, ...args);
+
+  /**
+   * Check if user is authenticated
+   */
+  function checkAuth() {
+    const currentPage = window.location.pathname;
+    
+    // Skip check on non-protected pages
+    const isProtected = PROTECTED_PAGES.some(page => 
+      currentPage.includes(page) || currentPage.endsWith(page)
+    );
+    
+    if (!isProtected) return true;
+
+    try {
+      // 1. Check Token Existence
+      const tokenData = localStorage.getItem('zantara-token');
+      if (!tokenData) {
+        log('No token found. Redirecting...');
+        redirectToLogin();
+        return false;
+      }
+
+      // 2. Parse Token (Handle both JSON object and legacy string)
+      let token = null;
+      let expiresAt = null;
+
+      try {
+        const parsed = JSON.parse(tokenData);
+        if (typeof parsed === 'object' && parsed !== null) {
+          // Standard object format
+          token = parsed.token;
+          expiresAt = parsed.expiresAt;
+        } else {
+          // Legacy/Plain string format (fallback)
+          token = parsed; 
+        }
+      } catch (e) {
+        // If not JSON, maybe it's a raw string?
+        token = tokenData;
+      }
+
+      if (!token) {
+        log('Invalid token format. Redirecting...');
+        clearAuthData();
+        redirectToLogin();
+        return false;
+      }
+
+      // 3. Check Expiration
+      if (expiresAt && Date.now() > expiresAt) {
+        log('Token expired. Redirecting...');
+        clearAuthData();
+        redirectToLogin();
+        return false;
+      }
+
+      log('✅ Authorized');
+      return true;
+
+    } catch (error) {
+      console.warn('⚠️ Auth check error:', error);
+      // Fail safe: don't redirect if it's just a runtime error, but maybe safe to stay? 
+      // Better to redirect if unsure security-wise.
+      redirectToLogin();
+      return false;
+    }
+  }
+
+  function clearAuthData() {
+    localStorage.removeItem('zantara-token');
+    localStorage.removeItem('zantara-user');
+    localStorage.removeItem('zantara-session');
+    localStorage.removeItem('zantara-permissions');
+  }
+
+  function redirectToLogin() {
+    // Prevent redirect loop
+    if (window.location.pathname.includes('login')) return;
+    
+    window.location.href = LOGIN_PAGE;
+  }
+
+  // Expose helpers globally
   window.checkAuth = checkAuth;
-  window.getCurrentUser = getCurrentUser;
-  window.getAuthToken = getAuthToken;
   window.clearAuthData = clearAuthData;
-}
+  window.getAuthToken = function() {
+    try {
+      const data = localStorage.getItem('zantara-token');
+      if (!data) return null;
+      const parsed = JSON.parse(data);
+      return parsed.token || null;
+    } catch (e) { return null; }
+  };
+
+  // Execute immediately
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkAuth);
+  } else {
+    checkAuth();
+  }
+
+})();
