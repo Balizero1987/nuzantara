@@ -516,7 +516,7 @@ async def reason_with_gemini(documents: List[str], query: str, user_instruction:
         logger.info(f"🧠 Starting Gemini reasoning with {len(documents)} documents")
 
         # Configure model for production
-        model = google_services.get_gemini_model("gemini-1.5-flash")
+        model = google_services.get_gemini_model("gemini-1.5-flash-001")
 
         # Build comprehensive prompt
         if use_full_docs and documents:
@@ -1073,7 +1073,7 @@ async def test_personality(
 async def test_gemini_integration():
     """Test Google Gemini integration"""
     try:
-        model = google_services.get_gemini_model("gemini-1.5-flash")
+        model = google_services.get_gemini_model("gemini-1.5-flash-001")
         response = model.generate_content("Hello, please confirm you are working correctly for Zantara v5.3.")
 
         return {
