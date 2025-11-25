@@ -1,5 +1,4 @@
 import { build } from 'esbuild';
-import { glob } from 'glob';
 import fs from 'fs';
 import path from 'path';
 
@@ -10,6 +9,27 @@ if (fs.existsSync('dist')) {
   fs.rmSync('dist', { recursive: true, force: true });
 }
 
+// Plugin to resolve .js imports to .ts files
+const resolveJsToTs = {
+  name: 'resolve-js-to-ts',
+  setup(build) {
+    build.onResolve({ filter: /.*\.js$/ }, async (args) => {
+      if (args.importer) {
+        const p = path.join(args.resolveDir, args.path);
+        const tsPath = p.replace(/\.js$/, '.ts');
+        if (fs.existsSync(tsPath)) {
+          return { path: tsPath };
+        }
+        const tsxPath = p.replace(/\.js$/, '.tsx');
+        if (fs.existsSync(tsxPath)) {
+          return { path: tsxPath };
+        }
+      }
+      return null;
+    });
+  },
+};
+
 // Build
 build({
   entryPoints: ['src/server.ts'],
@@ -18,6 +38,7 @@ build({
   target: 'node20',
   outfile: 'dist/server.js',
   format: 'esm',
+  plugins: [resolveJsToTs],
   external: [
     // Exclude dependencies that have native bindings or issues with bundling
     // We will install production dependencies in the Docker image
@@ -30,6 +51,10 @@ build({
     'pg-native',
     'snappy',
     '@napi-rs/snappy-darwin-arm64',
+    '@napi-rs/snappy-linux-x64-gnu',
+    '@napi-rs/snappy-linux-x64-musl',
+    '@napi-rs/snappy-linux-arm64-gnu',
+    '@napi-rs/snappy-linux-arm64-musl',
     'twilio'
   ],
   banner: {
