@@ -55,7 +55,7 @@ export function validateCsrfToken(req: Request, res: Response, next: NextFunctio
   }
 
   // Skip CSRF for authentication endpoints (JWT handles security)
-  if (req.path && req.path.startsWith('/auth/')) {
+  if (req.path && (req.path.startsWith('/auth/') || req.path.startsWith('/api/auth/'))) {
     return next();
   }
 
