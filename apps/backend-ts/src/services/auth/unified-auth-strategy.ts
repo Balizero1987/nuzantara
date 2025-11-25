@@ -12,7 +12,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import logger from '../../services/logger.js';
-import { enhancedJWTAuth, EnhancedUser } from '../../middleware/enhanced-jwt-auth.js';
+import { getEnhancedJWTAuth, EnhancedUser } from '../../middleware/enhanced-jwt-auth.js';
 
 // Unified User Interface - compatible with all systems
 export interface UnifiedUser {
@@ -84,7 +84,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
 
       // Use enhanced JWT auth system
       return new Promise((resolve, reject) => {
-        const middleware = enhancedJWTAuth.authenticate();
+        const middleware = getEnhancedJWTAuth().authenticate();
         middleware(req, {} as Response, (error?: any) => {
           if (error) {
             reject(error);
@@ -123,15 +123,16 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
       metadata: user.metadata,
     };
 
-    return enhancedJWTAuth.createEnhancedToken(enhancedUser);
+    return getEnhancedJWTAuth().createEnhancedToken(enhancedUser);
   }
 
   async validateToken(token: string): Promise<UnifiedUser | null> {
     try {
       // Use enhanced JWT validation
-      const payload = enhancedJWTAuth['verifyToken'](token);
+      const auth = getEnhancedJWTAuth();
+      const payload = auth['verifyToken'](token);
 
-      const userStatus = await enhancedJWTAuth['checkUserStatus'](payload.userId);
+      const userStatus = await auth['checkUserStatus'](payload.userId);
 
       return {
         id: payload.userId,
@@ -167,7 +168,7 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
 
   async revokeToken(token: string): Promise<boolean> {
     try {
-      await enhancedJWTAuth.blacklistToken(token);
+      await getEnhancedJWTAuth().blacklistToken(token);
       return true;
     } catch (error) {
       logger.error('Enhanced JWT token revocation failed:', error instanceof Error ? error : new Error(String(error)));
@@ -557,12 +558,56 @@ export class UnifiedAuthenticationManager {
   }
 }
 
-// Export singleton and middleware
-export const unifiedAuth = UnifiedAuthenticationManager.getInstance();
+// Lazy initialization - don't instantiate at module load
+let _unifiedAuth: UnifiedAuthenticationManager | null = null;
+
+/**
+ * Get or create UnifiedAuthenticationManager instance (lazy initialization)
+ * This prevents JWT_SECRET validation at module load time
+ */
+export function getUnifiedAuth(): UnifiedAuthenticationManager {
+  if (!_unifiedAuth) {
+    _unifiedAuth = UnifiedAuthenticationManager.getInstance();
+  }
+  return _unifiedAuth;
+}
+
+// Backward compatibility - proxy object for existing code
+export const unifiedAuth = {
+  get instance() {
+    return getUnifiedAuth();
+  },
+  authenticate: (req: Request) => getUnifiedAuth().authenticate(req),
+  generateToken: (user: UnifiedUser, strategyName?: string) => getUnifiedAuth().generateToken(user, strategyName),
+  validateToken: (token: string, strategyName?: string) => {
+    // Find strategy and validate token
+    const manager = getUnifiedAuth();
+    const strategies = manager.getStrategies();
+    const strategy = strategyName 
+      ? strategies.find(s => s.name === strategyName)
+      : strategies[0]; // Use first strategy by default
+    
+    if (!strategy || !strategy.validateToken) {
+      return Promise.resolve(null);
+    }
+    
+    return strategy.validateToken(token).then(user => {
+      if (!user) return null;
+      return {
+        ...user,
+        authType: strategy.name,
+      } as UnifiedUser;
+    });
+  },
+  refreshToken: (token: string) => getUnifiedAuth().refreshToken(token),
+  revokeToken: (token: string) => getUnifiedAuth().revokeToken(token),
+  getStrategies: () => getUnifiedAuth().getStrategies(),
+  getStrategyStats: () => getUnifiedAuth().getStrategyStats(),
+};
 
 // Unified authentication middleware
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
-  unifiedAuth
+  getUnifiedAuth()
     .authenticate(req)
     .then((user) => {
       if (user) {
@@ -573,7 +618,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
           ok: false,
           error: 'Authentication failed',
           code: 'AUTH_REQUIRED',
-          strategies: unifiedAuth.getStrategies().map((s) => s.name),
+          strategies: getUnifiedAuth().getStrategies().map((s) => s.name),
         });
       }
     })
