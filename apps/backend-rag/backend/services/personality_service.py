@@ -35,8 +35,8 @@ class PersonalityService:
     """
 
     def __init__(self):
-        # Usa il nostro modello Zantara su Oracle Cloud (temporaneamente non accessibile esternamente)
-        self.zantara_oracle_url = os.getenv("ZANTARA_ORACLE_URL", "http://168.110.196.106:11434/api/generate")
+        # Usa Zantara locale tramite SSH tunnel per Jaksel personality
+        self.zantara_oracle_url = os.getenv("ZANTARA_ORACLE_URL", "http://localhost:11434/api/generate")
         self.oracle_api_key = os.getenv("ORACLE_API_KEY", "")
         self.team_members = TEAM_MEMBERS
         self.personality_profiles = self._build_personality_profiles()
@@ -211,28 +211,42 @@ TASK: Rewrite this professional answer in your personality style. Keep all the a
 
 Your response:"""
 
-            # Call Zantara model on Oracle Cloud
+            # Call Zantara model via SSH tunnel for Jaksel personality
             headers = {}
             if self.oracle_api_key:
                 headers["Authorization"] = f"Bearer {self.oracle_api_key}"
 
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    self.zantara_oracle_url,
-                    json={
-                        "model": "zantara",
-                        "prompt": zantara_prompt,
-                        "stream": False
-                    },
-                    headers=headers,
-                    timeout=aiohttp.ClientTimeout(total=30)
-                ) as response:
-                    if response.status == 200:
-                        result = await response.json()
-                        personalized_response = result.get("response", gemini_response)
-                    else:
-                        logger.warning(f"⚠️ Zantara model failed: {response.status}")
-                        personalized_response = gemini_response
+            # Use different approach for Jaksel (real Zantara) vs others (Gemini)
+            if user_context["personality_type"] == "jaksel":
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.post(
+                            self.zantara_oracle_url,
+                            json={
+                                "model": "zantara",
+                                "prompt": zantara_prompt,
+                                "stream": False
+                            },
+                            headers=headers,
+                            timeout=aiohttp.ClientTimeout(total=30)
+                        ) as response:
+                            if response.status == 200:
+                                result = await response.json()
+                                personalized_response = result.get("response", gemini_response)
+                                model_used = "zantara-oracle"
+                            else:
+                                logger.warning(f"⚠️ Zantara model failed: {response.status}")
+                                personalized_response = gemini_response
+                                model_used = "gemini-fallback"
+                except Exception as zantara_error:
+                    logger.warning(f"⚠️ Zantara Oracle unavailable: {zantara_error}")
+                    personalized_response = gemini_response
+                    model_used = "gemini-fallback"
+            else:
+                # For ZERO and Professional, use Gemini-only translation
+                return await self.translate_to_personality_gemini_only(
+                    gemini_response, user_email, original_query
+                )
 
             return {
                 "success": True,
@@ -240,7 +254,7 @@ Your response:"""
                 "personality_used": personality["name"],
                 "personality_type": user_context["personality_type"],
                 "user": user,
-                "model_used": "zantara-local",
+                "model_used": model_used,
                 "original_gemini_response": gemini_response
             }
 
