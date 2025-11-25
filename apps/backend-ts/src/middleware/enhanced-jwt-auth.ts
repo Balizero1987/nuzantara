@@ -95,10 +95,11 @@ export class EnhancedJWTAuth {
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
-    this.jwtSecret = process.env.JWT_SECRET;
-    if (!this.jwtSecret) {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
       throw new Error('JWT_SECRET environment variable is required for Enhanced JWT authentication');
     }
+    this.jwtSecret = secret;
 
     // Clean up expired cache entries periodically
     setInterval(() => this.cleanupCache(), 60000); // Every minute

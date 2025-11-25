@@ -180,12 +180,14 @@ export class EnhancedJWTStrategy implements AuthenticationStrategy {
 export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   readonly name = 'team';
   readonly priority = 80;
-  private jwtSecret = process.env.JWT_SECRET;
+  private jwtSecret: string;
 
   constructor() {
-    if (!this.jwtSecret) {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
       throw new Error('JWT_SECRET environment variable is required for Team Login authentication');
     }
+    this.jwtSecret = secret;
   }
 
   canHandle(req: Request): boolean {
@@ -327,12 +329,14 @@ export class LegacyJWTStrategy implements AuthenticationStrategy {
   readonly name = 'legacy';
   readonly priority = 20;
 
-  private jwtSecret = process.env.JWT_SECRET;
+  private jwtSecret: string;
 
   constructor() {
-    if (!this.jwtSecret) {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
       throw new Error('JWT_SECRET environment variable is required for Legacy authentication');
     }
+    this.jwtSecret = secret;
   }
 
   canHandle(req: Request): boolean {

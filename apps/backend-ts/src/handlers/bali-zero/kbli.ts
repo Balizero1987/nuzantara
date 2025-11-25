@@ -3,8 +3,6 @@
  * Returns 410 Gone for all requests
  */
 
-import { ok } from '../../utils/response.js';
-
 export async function kbliLookup() {
   return {
     ok: false,

@@ -17,7 +17,7 @@
 import { createClient, RedisClientType } from 'redis';
 import logger from '../logger.js';
 import { getFlags } from '../../config/flags.js';
-import { auditLog } from '../audit/audit-trail.js';
+import { auditTrail } from '../audit-trail.js';
 
 interface Message {
   id: string;
@@ -168,12 +168,17 @@ class MessageQueueService {
       await this.updateQueueDepth();
 
       // Audit log
-      auditLog('message_queue_enqueue', {
-        messageId: msg.id,
+      await auditTrail.log({
+        eventType: 'MESSAGE_QUEUE_ENQUEUE' as any,
+        action: 'message_queue_enqueue',
         userId: message.userId,
-        channel: message.channel,
-        priority: message.priority,
-      });
+        metadata: {
+          messageId: msg.id,
+          channel: message.channel,
+          priority: message.priority,
+        },
+        result: 'success',
+      } as any);
 
       logger.debug(`Message queued: ${msg.id} (${message.channel}, ${message.priority})`);
       return msg.id;
@@ -227,11 +232,16 @@ class MessageQueueService {
               const processingTime = Date.now() - startTime;
               this.updateStats(true, processingTime);
 
-              auditLog('message_queue_process', {
-                messageId: message.id,
-                channel,
-                processingTime,
-              });
+              await auditTrail.log({
+                eventType: 'MESSAGE_QUEUE_PROCESS' as any,
+                action: 'message_queue_process',
+                metadata: {
+                  messageId: message.id,
+                  channel,
+                  processingTime,
+                },
+                result: 'success',
+              } as any);
             } catch (error: any) {
               // Handle retry logic - message must be defined here
               if (message) {
@@ -281,11 +291,16 @@ class MessageQueueService {
       }
 
       this.updateStats(false, 0);
-      auditLog('message_queue_dead_letter', {
-        messageId: message.id,
-        error: error.message,
-        retryCount,
-      });
+      await auditTrail.log({
+        eventType: 'MESSAGE_QUEUE_DEAD_LETTER' as any,
+        action: 'message_queue_dead_letter',
+        metadata: {
+          messageId: message.id,
+          error: error.message,
+          retryCount,
+        },
+        result: 'failure',
+      } as any);
 
       logger.error(`Message ${message.id} moved to dead letter queue after ${retryCount} retries`);
       return;
