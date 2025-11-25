@@ -52,6 +52,7 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from services.search_service import SearchService
 from services.smart_oracle import smart_oracle
+from services.personality_service import PersonalityService
 from app.dependencies import get_search_service
 from core.qdrant_db import QdrantClient
 from core.embeddings import EmbeddingsGenerator
@@ -595,6 +596,9 @@ def generate_query_hash(query_text: str) -> str:
 
 router = APIRouter(prefix="/api/oracle", tags=["Oracle v5.3 - Ultra Hybrid"])
 
+# Initialize Personality Service for multi-voice support
+personality_service = PersonalityService()
+
 @router.post("/query", response_model=OracleQueryResponse)
 async def hybrid_oracle_query(
     request: OracleQueryRequest,
@@ -739,6 +743,26 @@ async def hybrid_oracle_query(
                     model_used = reasoning_result["model_used"]
 
                 reasoning_time = reasoning_result.get("reasoning_time_ms", 0) if reasoning_result else 0
+
+                # Apply personality translation if user email is provided
+                if answer and request.user_email:
+                    try:
+                        personality_result = await personality_service.translate_to_personality(
+                            gemini_response=answer,
+                            user_email=request.user_email,
+                            original_query=request.query
+                        )
+
+                        if personality_result["success"]:
+                            answer = personality_result["response"]
+                            model_used = f"{model_used} + {personality_result['personality_used']}"
+                            logger.info(f"🎭 Applied {personality_result['personality_used']} personality")
+                        else:
+                            logger.warning(f"⚠️ Personality translation failed: {personality_result.get('error', 'Unknown error')}")
+
+                    except Exception as e:
+                        logger.error(f"❌ Personality service error: {e}")
+                        # Keep original answer if personality service fails
 
             except Exception as e:
                 logger.error(f"❌ Error in reasoning pipeline: {e}")
@@ -1003,6 +1027,47 @@ async def test_drive_connection():
             "error": f"Drive connection failed: {str(e)}",
             "timestamp": datetime.now().isoformat()
         }
+
+@router.get("/personalities")
+async def get_personalities():
+    """Get available AI personalities"""
+    try:
+        personalities = personality_service.get_available_personalities()
+        return {
+            "success": True,
+            "personalities": personalities,
+            "total": len(personalities),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"❌ Error getting personalities: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get personalities: {str(e)}"
+        )
+
+@router.post("/personality/test")
+async def test_personality(
+    personality_type: str,
+    message: str
+):
+    """Test a specific personality"""
+    try:
+        result = await personality_service.test_personality(personality_type, message)
+        return {
+            "success": result.get("success", False),
+            "personality": personality_type,
+            "message": message,
+            "response": result.get("response", ""),
+            "error": result.get("error"),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"❌ Error testing personality: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to test personality: {str(e)}"
+        )
 
 @router.get("/gemini/test")
 async def test_gemini_integration():

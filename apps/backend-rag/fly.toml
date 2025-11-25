@@ -7,7 +7,7 @@ app = 'nuzantara-rag'
 primary_region = 'sin'
 
 [build]
-  dockerfile = 'Dockerfile.fly'
+  dockerfile = 'Dockerfile'
 
 [deploy]
   strategy = 'rolling'
