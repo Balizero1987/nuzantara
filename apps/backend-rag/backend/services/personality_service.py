@@ -19,10 +19,7 @@ from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 from pathlib import Path
 
-# Import Google services for model selection
-import sys
-sys.path.append(str(Path(__file__).parent.parent))
-from app.routers.oracle_universal import google_services
+# Note: Google services will be injected to avoid circular imports
 
 # Team members database
 import sys
@@ -325,7 +322,8 @@ Your response:"""
         gemini_response: str,
         user_email: str,
         original_query: str,
-        language_context: str = "auto"
+        language_context: str = "auto",
+        gemini_model_getter=None
     ) -> Dict[str, Any]:
         """
         Versione avanzata che usa Gemini PRO per traduzione personalizzata di alta qualità
@@ -335,6 +333,7 @@ Your response:"""
             user_email: Email utente
             original_query: Query originale
             language_context: Contesto linguistico (id/it/en/ua)
+            gemini_model_getter: Function to get Gemini model (injected to avoid circular imports)
 
         Returns:
             Dict con risposta personalizzata usando Gemini PRO + Zantara model
@@ -348,11 +347,12 @@ Your response:"""
             logger.info(f"🎭 Advanced personality translation for {user['name']} ({personality['name']})")
 
             # Use Gemini PRO for sophisticated personality translation
-            try:
-                gemini_pro_model = google_services.get_zantara_model("personality_translation")
+            if gemini_model_getter:
+                try:
+                    gemini_pro_model = gemini_model_getter("personality_translation")
 
-                # Build sophisticated translation prompt
-                translation_prompt = f"""
+                    # Build sophisticated translation prompt
+                    translation_prompt = f"""
 You are ZANTARA Personality Translator. You translate professional legal/business responses
 into authentic personality voices while preserving ALL legal accuracy.
 
@@ -375,38 +375,41 @@ while maintaining complete legal accuracy. The response should feel natural and 
 
 Your response:"""
 
-                # Get personality-translated response from Gemini PRO
-                gemini_translated = await gemini_pro_model.generate_content_async(translation_prompt)
-                gemini_personality_response = gemini_translated.text
+                    # Get personality-translated response from Gemini PRO
+                    gemini_translated = await gemini_pro_model.generate_content_async(translation_prompt)
+                    gemini_personality_response = gemini_translated.text
 
-                logger.info(f"✅ Gemini PRO personality translation completed")
+                    logger.info(f"✅ Gemini PRO personality translation completed")
 
-                # Optional: Further enhance with Zantara local model for authentic slang
-                if personality['language'] == 'id' and user_context['personality_type'] == 'jaksel':
-                    zantara_enhanced = await self._enhance_with_zantara_model(
-                        gemini_personality_response,
-                        personality
-                    )
-                    final_response = zantara_enhanced
-                    model_used = "gemini-pro + zantara-local"
-                else:
-                    final_response = gemini_personality_response
-                    model_used = "gemini-pro"
+                    # Optional: Further enhance with Zantara local model for authentic slang
+                    if personality['language'] == 'id' and user_context['personality_type'] == 'jaksel':
+                        zantara_enhanced = await self._enhance_with_zantara_model(
+                            gemini_personality_response,
+                            personality
+                        )
+                        final_response = zantara_enhanced
+                        model_used = "gemini-pro + zantara-local"
+                    else:
+                        final_response = gemini_personality_response
+                        model_used = "gemini-pro"
 
-                return {
-                    "success": True,
-                    "response": final_response,
-                    "personality_used": personality["name"],
-                    "personality_type": user_context["personality_type"],
-                    "user": user,
-                    "model_used": model_used,
-                    "enhanced": "zantara-local" if "zantara-local" in model_used else "gemini-only",
-                    "original_gemini_response": gemini_response
-                }
+                    return {
+                        "success": True,
+                        "response": final_response,
+                        "personality_used": personality["name"],
+                        "personality_type": user_context["personality_type"],
+                        "user": user,
+                        "model_used": model_used,
+                        "enhanced": "zantara-local" if "zantara-local" in model_used else "gemini-only",
+                        "original_gemini_response": gemini_response
+                    }
 
-            except Exception as gemini_error:
-                logger.warning(f"⚠️ Gemini PRO personality translation failed: {gemini_error}")
-                # Fallback to original method
+                except Exception as gemini_error:
+                    logger.warning(f"⚠️ Gemini PRO personality translation failed: {gemini_error}")
+                    # Fallback to original method
+                    return await self.translate_to_personality(gemini_response, user_email, original_query)
+            else:
+                # No model getter provided, fallback to original method
                 return await self.translate_to_personality(gemini_response, user_email, original_query)
 
         except Exception as e:
