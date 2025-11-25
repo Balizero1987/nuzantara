@@ -4,8 +4,8 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { baliZeroChat } from '../../../handlers/rag/rag.js';
-import logger from '../../../logging/unified-logger.js';
+import { baliZeroChat } from '../../handlers/rag/rag.js';
+import logger from '../../logging/unified-logger.js';
 
 const router = Router();
 
