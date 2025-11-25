@@ -16,8 +16,9 @@ COPY tsconfig*.json ./
 # Install dependencies with network optimizations
 RUN npm install --verbose --no-audit --no-fund
 
-# Copy source code
+# Copy source code and build scripts
 COPY src ./src
+COPY scripts ./scripts
 
 # Build the application (uses esbuild)
 RUN npm run build
