@@ -55,10 +55,14 @@ const PYTHON_SERVICE_URL =
 
 // Main async function to ensure handlers load before server starts
 async function startServer() {
-  logger.info('🚀 Starting ZANTARA Backend v5.2.1-fixed (Zod validation fix applied)');
-  
-  // Initialize Redis cache
-  await initializeRedis();
+  try {
+    logger.info('🚀 Starting ZANTARA Backend v5.2.1-fixed (Zod validation fix applied)');
+    logger.info(`📋 PYTHON_SERVICE_URL: ${PYTHON_SERVICE_URL || 'NOT SET'}`);
+    
+    // Initialize Redis cache
+    logger.info('🔄 Initializing Redis cache...');
+    await initializeRedis();
+    logger.info('✅ Redis cache initialized');
 
   // Initialize enhanced architecture components
   try {
@@ -278,57 +282,64 @@ async function startServer() {
   logger.info('✅ Frontend compatibility alias mounted (/api/crm/shared-memory/search → /api/persistent-memory/collective/search)');
 
   // Proxy configuration - preserve full path when forwarding to Python backend
-  if (!PYTHON_SERVICE_URL) {
-    logger.error('❌ PYTHON_SERVICE_URL not configured - proxy disabled');
-  } else {
-    logger.info(`✅ Configuring proxy to Python backend: ${PYTHON_SERVICE_URL}`);
-    
-    // Create proxy for /api/agents - preserve full path
-    const agentsProxyOptions = {
-      target: PYTHON_SERVICE_URL,
-      changeOrigin: true,
-      logLevel: 'warn' as const,
-      pathRewrite: (path: string) => {
-        // Path is stripped of /api/agents prefix, add it back
-        return '/api/agents' + path;
-      },
-      onError: (err: Error, _req: express.Request, res: express.Response) => {
-        logger.error('❌ Agents proxy error:', err);
-        if (!res.headersSent) {
-          res.status(502).json({ ok: false, error: 'Agents service unavailable' });
+  try {
+    if (!PYTHON_SERVICE_URL) {
+      logger.error('❌ PYTHON_SERVICE_URL not configured - proxy disabled');
+    } else {
+      logger.info(`✅ Configuring proxy to Python backend: ${PYTHON_SERVICE_URL}`);
+      
+      // Create proxy for /api/agents - preserve full path
+      const agentsProxyOptions = {
+        target: PYTHON_SERVICE_URL,
+        changeOrigin: true,
+        logLevel: 'warn' as const,
+        pathRewrite: (path: string) => {
+          // Path is stripped of /api/agents prefix, add it back
+          return '/api/agents' + path;
+        },
+        onError: (err: Error, _req: express.Request, res: express.Response) => {
+          logger.error('❌ Agents proxy error:', err);
+          if (!res.headersSent) {
+            res.status(502).json({ ok: false, error: 'Agents service unavailable' });
+          }
+        },
+      };
+
+      // Create proxy for /api/crm - preserve full path
+      const crmProxyOptions = {
+        target: PYTHON_SERVICE_URL,
+        changeOrigin: true,
+        logLevel: 'warn' as const,
+        pathRewrite: (path: string) => {
+          // Path is stripped of /api/crm prefix, add it back
+          return '/api/crm' + path;
+        },
+        onError: (err: Error, _req: express.Request, res: express.Response) => {
+          logger.error('❌ CRM proxy error:', err);
+          if (!res.headersSent) {
+            res.status(502).json({ ok: false, error: 'CRM service unavailable' });
+          }
+        },
+      };
+
+      app.use('/api/agents', createProxyMiddleware(agentsProxyOptions));
+      logger.info('✅ Agents proxy middleware mounted');
+
+      const crmProxy = createProxyMiddleware(crmProxyOptions);
+      app.use('/api/crm', (req, res, next) => {
+        if (req.path.startsWith('/shared-memory/search')) {
+          return next();
         }
-      },
-    };
+        return crmProxy(req, res, next);
+      });
+      logger.info('✅ CRM proxy middleware mounted');
 
-    // Create proxy for /api/crm - preserve full path
-    const crmProxyOptions = {
-      target: PYTHON_SERVICE_URL,
-      changeOrigin: true,
-      logLevel: 'warn' as const,
-      pathRewrite: (path: string) => {
-        // Path is stripped of /api/crm prefix, add it back
-        return '/api/crm' + path;
-      },
-      onError: (err: Error, _req: express.Request, res: express.Response) => {
-        logger.error('❌ CRM proxy error:', err);
-        if (!res.headersSent) {
-          res.status(502).json({ ok: false, error: 'CRM service unavailable' });
-        }
-      },
-    };
-
-    app.use('/api/agents', createProxyMiddleware(agentsProxyOptions));
-
-    const crmProxy = createProxyMiddleware(crmProxyOptions);
-    app.use('/api/crm', (req, res, next) => {
-      if (req.path.startsWith('/shared-memory/search')) {
-        return next();
-      }
-      return crmProxy(req, res, next);
-    });
+      logger.info(`✅ Proxy routes mounted for CRM & Agents → ${PYTHON_SERVICE_URL}`);
+    }
+  } catch (error) {
+    logger.error('❌ Failed to configure proxy middleware:', error instanceof Error ? error : new Error(String(error)));
+    logger.warn('⚠️ Continuing without proxy - some endpoints may not work');
   }
-
-  logger.info(`✅ Proxy routes mounted for CRM & Agents → ${PYTHON_SERVICE_URL}`);
 
   // Frontend compatibility alias for compliance alerts (placeholder - returns empty array for now)
   app.get('/api/agents/compliance/alerts', (_req, res) => {
@@ -740,6 +751,13 @@ async function startServer() {
 
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  
+  logger.info('✅ Server initialization complete');
+  } catch (error) {
+    logger.error('❌ Critical error during server initialization:', error instanceof Error ? error : new Error(String(error)));
+    logger.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace available');
+    throw error; // Re-throw to be caught by outer catch
+  }
 }
 
 // Start the server
