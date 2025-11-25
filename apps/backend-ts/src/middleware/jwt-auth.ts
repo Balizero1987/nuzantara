@@ -29,30 +29,30 @@ const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_FAILED_ATTEMPTS = 5;
 const BLOCK_DURATION_MS = 30 * 60 * 1000; // 30 minutes block
 
-interface AuditEvent {
-  event: 'auth_success' | 'auth_failure' | 'auth_error' | 'token_expired' | 'invalid_token';
+export interface AuditEvent {
+  event: 'auth_success' | 'auth_failure' | 'auth_error' | 'token_expired' | 'invalid_token' | string;
   userId?: string;
   email?: string;
   ip?: string;
   userAgent?: string;
   reason?: string;
-  timestamp: string;
+  timestamp?: string;
+  [key: string]: any;
 }
 
 /**
  * Audit logging for authentication events (GDPR compliant - no passwords/tokens)
  */
-function auditLog(event: AuditEvent): void {
+export function auditLog(event: AuditEvent): void {
   if (!ENABLE_AUDIT_LOGGING) return;
 
   logger.info('JWT_AUTH_AUDIT', {
-    event: event.event,
+    ...event,
     userId: event.userId || 'unknown',
-    email: event.email ? event.email.substring(0, 3) + '***' : 'unknown', // Partial email for privacy
+    email: event.email ? event.email.substring(0, 3) + '***' : 'unknown',
     ip: event.ip || 'unknown',
-    userAgent: event.userAgent?.substring(0, 50) || 'unknown', // Truncated
-    reason: event.reason,
-    timestamp: event.timestamp,
+    userAgent: event.userAgent?.substring(0, 50) || 'unknown',
+    timestamp: event.timestamp || new Date().toISOString(),
   });
 }
 
@@ -182,7 +182,7 @@ export function jwtAuth(req: RequestWithJWT, res: Response, next: NextFunction) 
     }
 
     // BUG FIX: Check for JWT_SECRET in environment (NO HARDCODED FALLBACK)
-    const jwtSecret = process.env.JWT_SECRET;
+    const jwtSecret = process.env.JWT_SECRET!;
     if (!jwtSecret) {
       logger.error('JWT_SECRET not configured in environment variables');
 
@@ -390,32 +390,34 @@ export function optionalJwtAuth(req: RequestWithJWT, _res: Response, next: NextF
     const token = authHeader.substring(7);
 
     // BUG FIX: Check for JWT_SECRET
-    const jwtSecret = process.env.JWT_SECRET;
+    const jwtSecret = process.env.JWT_SECRET!;
     if (!jwtSecret) {
       logger.warn('JWT_SECRET not configured, skipping optional JWT auth');
       return next();
     }
 
-    let decoded: any;
+    let decoded: jwt.JwtPayload | string;
     try {
       decoded = jwt.verify(token, jwtSecret);
-    } catch (verifyError: any) {
+    } catch (verifyError: unknown) {
       // Token invalid, but continue without user (no rate limiting for optional)
+      const errorMessage = verifyError instanceof Error ? verifyError.message : String(verifyError);
       logger.debug('Optional JWT Auth: Token verification failed', {
-        error: verifyError.message,
+        error: errorMessage,
       });
       return next();
     }
 
     // BUG FIX: Validate decoded token
-    if (!decoded || typeof decoded !== 'object') {
+    if (!decoded || typeof decoded !== 'object' || typeof decoded === 'string') {
       logger.debug('Optional JWT Auth: Invalid token payload');
       return next();
     }
 
     // BUG FIX: Handle multiple ID field names
-    const userId = decoded.userId || decoded.id || decoded.sub;
-    const extractedEmail = decoded.email || decoded.email_address || '';
+    const decodedPayload = decoded as jwt.JwtPayload;
+    const userId = decodedPayload.userId || decodedPayload.id || decodedPayload.sub;
+    const extractedEmail = decodedPayload.email || decodedPayload.email_address || '';
 
     if (!userId || !extractedEmail) {
       logger.debug('Optional JWT Auth: Missing required fields');
@@ -426,11 +428,11 @@ export function optionalJwtAuth(req: RequestWithJWT, _res: Response, next: NextF
     req.user = {
       userId: userId,
       email: extractedEmail,
-      role: decoded.role || decoded.user_role || 'member',
-      name: decoded.name || decoded.username || extractedEmail.split('@')[0],
-      department: decoded.department,
-      sessionId: decoded.sessionId,
-      isDemo: decoded.isDemo || false,
+      role: decodedPayload.role || decodedPayload.user_role || 'member',
+      name: decodedPayload.name || decodedPayload.username || extractedEmail.split('@')[0],
+      department: decodedPayload.department,
+      sessionId: decodedPayload.sessionId,
+      isDemo: decodedPayload.isDemo || false,
     };
 
     // Only set user if we have valid data
@@ -439,11 +441,13 @@ export function optionalJwtAuth(req: RequestWithJWT, _res: Response, next: NextF
     }
 
     next();
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Token invalid, but continue without user
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorName = error instanceof Error ? error.name : 'UnknownError';
     logger.debug('Optional JWT Auth warning:', {
-      error: error.message,
-      name: error.name,
+      error: errorMessage,
+      name: errorName,
     });
     next();
   }

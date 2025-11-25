@@ -130,12 +130,12 @@ async function getAuthenticatedService<T>(
     logger.info(`✅ Service Account authentication successful for ${config.serviceName}`);
     return service;
   } catch (error: any) {
-    logger.error(`❌ ${config.serviceName} Service Account authentication failed:`, error?.message);
-    logger.error('❌ Error details:', undefined, {
-      name: error.name,
-      code: error.code,
-      status: error.status,
-      stack: error.stack?.split('\n').slice(0, 3).join('\n'),
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    logger.error(`❌ ${config.serviceName} Service Account authentication failed:`, errorObj);
+    logger.error('❌ Error details:', errorObj, {
+      name: errorObj.name,
+      code: error?.code,
+      status: error?.status,
     });
 
     // Provide helpful error messages
@@ -202,14 +202,13 @@ export async function getDrive() {
         // Check if the OAuth2 client has sufficient scopes
         logger.info('🔍 Verifying OAuth2 Drive scopes...');
         return service;
-      } catch (error: any) {
+      } catch (error: unknown) {
         const errorObj = error instanceof Error ? error : new Error(String(error));
         logger.error('🔴 OAuth2 Drive service failed:', errorObj);
-        logger.error('🔴 OAuth2 Drive service details:', undefined, {
-          error: error.message,
-          code: error.code,
-          details: error?.response?.data || error?.errors,
-        } as any);
+        logger.error('🔴 OAuth2 Drive service details:', errorObj, {
+          code: (error as any)?.code,
+          details: (error as any)?.response?.data || (error as any)?.errors,
+        });
         throw error;
       }
     }

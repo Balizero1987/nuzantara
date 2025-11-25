@@ -413,60 +413,8 @@ async function startServer() {
     }
   });
 
-  // Legacy demo auth endpoint removed (only real team auth supported)
-
-  // FIX 4a: POST /auth/login - User login (JWT generation)
-  app.post('/auth/login', async (req, res) => {
-    try {
-      const { email, name } = req.body;
-
-      if (!email) {
-        return res.status(400).json({
-          ok: false,
-          error: 'Email is required'
-        });
-      }
-
-      const generatedUserId = `user_${Date.now()}`;
-      const user = {
-        id: generatedUserId,
-        userId: generatedUserId,
-        email,
-        name: name || email.split('@')[0],
-        role: 'User' as const,
-        department: 'general',
-        permissions: ['read' as const, 'write' as const],
-        isActive: true,
-        lastLogin: new Date(),
-        authType: 'enhanced' as const
-      };
-
-      const token = await unifiedAuth.generateToken(user, 'legacy');
-      const expiresIn = 3600;
-
-      logger.info(`✅ User logged in: ${user.email}`);
-
-      res.json({
-        ok: true,
-        data: {
-          token,
-          expiresIn,
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role
-          }
-        }
-      });
-    } catch (error) {
-      logger.error('❌ Login error:', error instanceof Error ? error : new Error(String(error)));
-      res.status(500).json({
-        ok: false,
-        error: 'Login failed'
-      });
-    }
-  });
+  // REMOVED: POST /auth/login - Consolidated to /api/auth/team/login
+  // All login functionality is now handled by /api/auth/team/login route
 
   // FIX 4b: POST /auth/logout - User logout (token revocation)
   app.post('/auth/logout', async (req, res) => {
