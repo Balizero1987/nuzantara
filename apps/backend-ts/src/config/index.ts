@@ -50,7 +50,6 @@ try {
   parsed = envSchema.parse(process.env);
 } catch (error) {
   if (error instanceof z.ZodError) {
-    const missingFields = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join('\n');
     logger.error('❌ Environment variable validation failed');
     logger.error('Missing or invalid environment variables:');
     error.errors.forEach((err) => {
