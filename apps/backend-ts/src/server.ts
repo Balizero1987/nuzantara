@@ -754,9 +754,12 @@ async function startServer() {
   
   logger.info('✅ Server initialization complete');
   } catch (error) {
-    logger.error('❌ Critical error during server initialization:', error instanceof Error ? error : new Error(String(error)));
-    logger.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace available');
-    throw error; // Re-throw to be caught by outer catch
+    const err = error instanceof Error ? error : new Error(String(error));
+    logger.error('❌ Critical error during server initialization:', err);
+    if (err.stack) {
+      logger.error('Stack trace:', err.stack);
+    }
+    throw err; // Re-throw to be caught by outer catch
   }
 }
 
