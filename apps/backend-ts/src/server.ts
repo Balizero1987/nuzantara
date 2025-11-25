@@ -281,13 +281,20 @@ async function startServer() {
   // When using app.use('/api/crm', proxy), http-proxy-middleware strips the prefix
   // So we need to add it back via pathRewrite function
   const createProxyOptions = (label: string, pathPrefix: string) => {
+    if (!PYTHON_SERVICE_URL) {
+      logger.error(`❌ PYTHON_SERVICE_URL not configured for ${label} proxy`);
+      throw new Error(`PYTHON_SERVICE_URL not configured`);
+    }
     return {
       target: PYTHON_SERVICE_URL,
       changeOrigin: true,
       logLevel: 'warn' as const,
-      pathRewrite: function(path: string) {
+      pathRewrite: (path: string) => {
         // Path is already stripped of prefix by http-proxy-middleware
         // Add it back to preserve full path
+        if (!path.startsWith('/')) {
+          path = '/' + path;
+        }
         return pathPrefix + path;
       },
       onError: (err: Error, _req: express.Request, res: express.Response) => {
