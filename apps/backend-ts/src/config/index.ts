@@ -50,18 +50,32 @@ try {
   parsed = envSchema.parse(process.env);
 } catch (error) {
   if (error instanceof z.ZodError) {
+    // Log to console directly to ensure it's visible even if logger hasn't flushed
+    console.error('❌ Environment variable validation failed');
+    console.error('Missing or invalid environment variables:');
+    error.errors.forEach((err) => {
+      const path = err.path.join('.');
+      console.error(`  - ${path}: ${err.message}`);
+      if (path === 'JWT_SECRET') {
+        console.error('    JWT_SECRET must be at least 32 characters long');
+        console.error('    Current value length:', process.env.JWT_SECRET?.length || 0);
+        console.error('    Set it with: fly secrets set JWT_SECRET="your-secret-here" -a nuzantara-backend');
+      }
+    });
+    console.error('Server cannot start without valid environment variables. Exiting...');
+    
+    // Also log via logger
     logger.error('❌ Environment variable validation failed');
-    logger.error('Missing or invalid environment variables:');
     error.errors.forEach((err) => {
       const path = err.path.join('.');
       logger.error(`  - ${path}: ${err.message}`);
-      if (path === 'JWT_SECRET') {
-        logger.error('    JWT_SECRET must be at least 32 characters long');
-        logger.error('    Set it with: fly secrets set JWT_SECRET="your-secret-here" -a nuzantara-backend');
-      }
     });
-    logger.error('Server cannot start without valid environment variables. Exiting...');
-    process.exit(1);
+    
+    // Give time for logs to flush before exiting
+    setTimeout(() => {
+      process.exit(1);
+    }, 1000);
+    return; // Prevent further execution - parsed will be undefined but that's ok since we're exiting
   }
   throw error;
 }
