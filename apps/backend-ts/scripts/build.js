@@ -68,16 +68,30 @@ build({
       const __dirname = dirname(__filename);
       
       console.log("🔥 BOOTSTRAP: Ultimate Bundle Starting...");
+      console.log("[BOOTSTRAP] Node version:", process.version);
+      console.log("[BOOTSTRAP] NODE_ENV:", process.env.NODE_ENV);
+      console.log("[BOOTSTRAP] JWT_SECRET length:", process.env.JWT_SECRET?.length || 0);
       
       // Global error handlers at the absolute top level
       process.on('uncaughtException', (err) => {
         console.error('🔥 FATAL UNCAUGHT EXCEPTION:', err);
-        // In production, logging is critical before exit
-        process.exit(1);
+        console.error('🔥 Stack:', err.stack);
+        // Give time for logs to flush
+        setTimeout(() => {
+          process.exit(1);
+        }, 2000);
       });
-      process.on('unhandledRejection', (reason) => {
+      process.on('unhandledRejection', (reason, promise) => {
         console.error('🔥 FATAL UNHANDLED REJECTION:', reason);
+        console.error('🔥 Promise:', promise);
+        // Give time for logs to flush
+        setTimeout(() => {
+          process.exit(1);
+        }, 2000);
       });
+      
+      // Log when imports start
+      console.log("[BOOTSTRAP] Starting module imports...");
     `,
   },
   sourcemap: true,
