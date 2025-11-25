@@ -31,7 +31,7 @@ export const commonSchemas = {
 
   // Arrays
   stringArray: z.array(z.string()).max(100),
-  optionalStringArray: z.array(z.string()).optional().max(100),
+  optionalStringArray: z.array(z.string()).max(100).optional(),
 };
 
 // AI Service validation schemas
