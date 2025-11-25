@@ -272,5 +272,5 @@ export async function getCacheStats(): Promise<any> {
   }
 }
 
-// Auto-initialize on module load
-initializeRedis().catch((err) => logger.error('Failed to auto-initialize Redis:', err));
+// Auto-initialize on module load removed to prevent premature connection and crashes
+// initializeRedis().catch((err) => logger.error('Failed to auto-initialize Redis:', err));
