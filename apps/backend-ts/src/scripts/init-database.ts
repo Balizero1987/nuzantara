@@ -10,12 +10,12 @@
 import { getDatabasePool } from '../services/connection-pool.js';
 import bcrypt from 'bcrypt';
 
-const DATABASE_URL = process.env.DATABASE_URL;
+// const DATABASE_URL = process.env.DATABASE_URL;
 
-if (!DATABASE_URL) {
-  console.error('❌ DATABASE_URL environment variable is required');
-  process.exit(1);
-}
+// if (!DATABASE_URL) {
+//   console.error('❌ DATABASE_URL environment variable is required');
+//   // process.exit(1);
+// }
 
 async function initializeDatabase() {
   console.log('🚀 Initializing ZANTARA database...');
@@ -211,8 +211,8 @@ async function initializeDatabase() {
 }
 
 // Run initialization if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  initializeDatabase().catch(console.error);
-}
+// if (import.meta.url === `file://${process.argv[1]}`) {
+//   initializeDatabase().catch(console.error);
+// }
 
 export { initializeDatabase };
