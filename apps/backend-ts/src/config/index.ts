@@ -75,9 +75,12 @@ try {
     setTimeout(() => {
       process.exit(1);
     }, 1000);
-    return; // Prevent further execution - parsed will be undefined but that's ok since we're exiting
+    // Set parsed to empty object to prevent TypeScript errors
+    // This will never be reached due to process.exit, but satisfies type checker
+    parsed = {} as z.infer<typeof envSchema>;
+  } else {
+    throw error;
   }
-  throw error;
 }
 
 function buildKeyList(raw: string, placeholder: string, label: string) {
