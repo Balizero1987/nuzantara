@@ -6,6 +6,7 @@ on:
     paths:
       - 'apps/backend-rag/**'
       - '.github/workflows/deploy-backend-rag.yml'
+      - 'deploy/fly.toml'
   workflow_dispatch:
     inputs:
       environment:
