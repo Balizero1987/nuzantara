@@ -163,21 +163,72 @@ class UnifiedAuth {
       const baseUrl = API_CONFIG.backend.url;
       const endpoint = API_ENDPOINTS.auth.teamLogin || '/api/auth/team/login';
 
-      const response = await fetch(`${baseUrl}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          pin
-        }),
-      });
+      let response;
+      try {
+        response = await fetch(`${baseUrl}${endpoint}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            pin,
+          }),
+        });
+      } catch (fetchError) {
+        // Network error - backend not reachable
+        const errorMessage = fetchError.message || 'Unknown network error';
+        console.error('❌ Network error during login:', errorMessage);
 
-      const result = await response.json();
+        // Create a more descriptive error
+        const networkError = new Error(
+          'Impossibile connettersi al server. Verifica la connessione internet o riprova tra qualche secondo.'
+        );
+        networkError.name = 'NetworkError';
+        networkError.originalError = fetchError;
+        networkError.statusCode = null;
+        throw networkError;
+      }
 
-      if (!response.ok || (result.ok === false)) {
-        throw new Error(result.error || result.message || 'Login failed');
+      // Check if response is ok before trying to parse JSON
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        // Server returned non-JSON response (likely HTML error page)
+        console.error('❌ Invalid JSON response:', response.status, response.statusText);
+        const serverError = new Error(
+          'Il server ha restituito una risposta non valida. Riprova più tardi.'
+        );
+        serverError.name = 'ServerError';
+        serverError.statusCode = response.status;
+        throw serverError;
+      }
+
+      // Handle HTTP error responses
+      if (!response.ok || result.ok === false) {
+        const statusCode = response.status;
+        const errorMsg = result.error || result.message || 'Login failed';
+
+        console.error(`❌ Login failed with status ${statusCode}:`, errorMsg);
+
+        // Create error with appropriate message based on status code
+        let userFriendlyMessage;
+        if (statusCode === 401 || statusCode === 403) {
+          userFriendlyMessage = 'Email o PIN non corretti. Riprova.';
+        } else if (statusCode === 500 || statusCode >= 502) {
+          userFriendlyMessage = 'Errore del server. Riprova più tardi.';
+        } else if (statusCode === 429) {
+          userFriendlyMessage = 'Troppi tentativi. Attendi qualche minuto prima di riprovare.';
+        } else {
+          userFriendlyMessage = errorMsg || 'Errore durante il login. Riprova.';
+        }
+
+        const httpError = new Error(userFriendlyMessage);
+        httpError.name = 'HttpError';
+        httpError.statusCode = statusCode;
+        httpError.originalMessage = errorMsg;
+        throw httpError;
       }
 
       // Extract data from standardized response structure: { ok: true, data: { ... } }
@@ -185,24 +236,26 @@ class UnifiedAuth {
       const authData = result.data || result;
 
       if (!authData.token) {
-        throw new Error('Server returned success but no token found.');
+        const tokenError = new Error('Il server non ha restituito un token valido. Riprova.');
+        tokenError.name = 'TokenError';
+        throw tokenError;
       }
 
       // Store auth data
       // Note: Backend sets httpOnly cookie, but we also store token for non-browser clients or easy access
       this.token = {
         token: authData.token,
-        expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000), // 7 days default
+        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days default
       };
-      
+
       this.user = authData.user || { email, name: email.split('@')[0] };
-      
+
       this.session = {
         id: authData.sessionId || `session_${Date.now()}`,
         createdAt: authData.loginTime || Date.now(),
         lastActivity: Date.now(),
       };
-      
+
       this.permissions = authData.permissions || [];
       this.strategy = 'team';
 
@@ -211,10 +264,23 @@ class UnifiedAuth {
 
       console.log(`✅ Team login successful: ${this.user.name}`);
       return this.user;
-
     } catch (error) {
-      console.error('❌ Team login failed:', error);
-      throw error;
+      // If error already has a user-friendly message, just re-throw it
+      if (
+        error.name === 'NetworkError' ||
+        error.name === 'HttpError' ||
+        error.name === 'TokenError' ||
+        error.name === 'ServerError'
+      ) {
+        throw error;
+      }
+
+      // For any other unexpected errors, provide a generic message
+      console.error('❌ Unexpected error during login:', error);
+      const unexpectedError = new Error('Errore imprevisto durante il login. Riprova.');
+      unexpectedError.name = 'UnexpectedError';
+      unexpectedError.originalError = error;
+      throw unexpectedError;
     }
   }
 
@@ -245,10 +311,18 @@ class UnifiedAuth {
   // USER INFO GETTERS
   // ========================================================================
 
-  getUser() { return this.user; }
-  getName() { return this.user?.name || 'Guest'; }
-  getEmail() { return this.user?.email || ''; }
-  getRole() { return this.user?.role || 'User'; }
+  getUser() {
+    return this.user;
+  }
+  getName() {
+    return this.user?.name || 'Guest';
+  }
+  getEmail() {
+    return this.user?.email || '';
+  }
+  getRole() {
+    return this.user?.role || 'User';
+  }
 }
 
 // Create singleton instance
