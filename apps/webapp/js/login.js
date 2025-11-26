@@ -11,7 +11,7 @@ let emailInput, pinInput, pinToggle, loginButton, errorMessage, welcomeMessage, 
 /**
  * Initialize login page
  */
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
   console.log('🔐 ZANTARA Login Page Loading...');
 
   // Get DOM elements
@@ -154,20 +154,33 @@ async function handleLogin(e) {
     setTimeout(() => {
       window.location.href = '/chat.html';
     }, 1500);
-
   } catch (error) {
     console.error('❌ Login failed:', error);
 
-    // Show error message
-    let errorMsg = error.message || 'Login failed';
+    // Get error message - use the user-friendly message from unified-auth.js
+    let errorMsg = error.message || 'Errore durante il login. Riprova.';
 
-    // User-friendly error messages
-    if (errorMsg.includes('Invalid PIN') || errorMsg.includes('credentials')) {
-      errorMsg = 'Invalid PIN or email. Please try again.';
-    } else if (errorMsg.includes('User not found')) {
-      errorMsg = 'Email not found. Please check your email.';
-    } else if (errorMsg.includes('fetch') || errorMsg.includes('Failed to fetch')) {
-      errorMsg = 'Connection error. Please check your internet.';
+    // Additional fallback mapping for any edge cases
+    if (error.name === 'NetworkError' || error.name === 'TypeError') {
+      // Network errors are already handled in unified-auth.js, but add fallback
+      if (errorMsg.includes('fetch') || errorMsg.includes('Failed to fetch')) {
+        errorMsg =
+          'Impossibile connettersi al server. Verifica la connessione internet o riprova tra qualche secondo.';
+      }
+    } else if (error.name === 'HttpError') {
+      // HTTP errors are already handled in unified-auth.js with user-friendly messages
+      // Just use the message as-is
+    } else if (error.name === 'TokenError' || error.name === 'ServerError') {
+      // These are already user-friendly from unified-auth.js
+    } else {
+      // Legacy error message handling for backwards compatibility
+      if (errorMsg.includes('Invalid PIN') || errorMsg.includes('credentials')) {
+        errorMsg = 'Email o PIN non corretti. Riprova.';
+      } else if (errorMsg.includes('User not found')) {
+        errorMsg = 'Email non trovata. Verifica il tuo indirizzo email.';
+      } else if (errorMsg.includes('fetch') || errorMsg.includes('Failed to fetch')) {
+        errorMsg = 'Impossibile connettersi al server. Verifica la connessione internet.';
+      }
     }
 
     showError(errorMsg);
