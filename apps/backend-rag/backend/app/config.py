@@ -3,6 +3,7 @@ ZANTARA RAG - Configuration Management
 Centralized configuration for all services
 """
 
+import os
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
 from typing import Optional
@@ -54,7 +55,7 @@ class Settings(BaseSettings):
     # API CONFIGURATION
     # ========================================
     api_host: str = "0.0.0.0"
-    api_port: int = 8000
+    api_port: int = int(os.getenv("PORT", 8080))  # Use PORT env var (default 8080 for Fly.io)
     api_reload: bool = True
 
     # ========================================
