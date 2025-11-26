@@ -105,8 +105,8 @@ class GlobalErrorHandler {
      * Send error to monitoring service
      */
     sendToMonitoring(errorInfo) {
-        // TODO: Integrate with Sentry, LogRocket, or similar
-        // For now, just store in localStorage for debugging
+        // Error monitoring: Currently using localStorage
+        // Future: Integrate with Sentry, LogRocket, or similar service
         try {
             const stored = JSON.parse(localStorage.getItem('zantara-errors') || '[]');
             stored.push(errorInfo);

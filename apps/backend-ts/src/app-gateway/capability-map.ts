@@ -15,7 +15,6 @@ export const CAPABILITY_MAP: Record<ActionName, Capability> = {
   set_language: { handler: 'identity.resolve', tier: 'low', rate: { windowMs: 60_000, max: 60 } },
 
   // Knowledge Domains
-  kbli_lookup: { handler: 'kbli.lookup', tier: 'medium', rate: { windowMs: 60_000, max: 40 } },
   team_search: { handler: 'team.search', tier: 'low', rate: { windowMs: 60_000, max: 60 } },
   pricing_query: {
     handler: 'pricing.official',

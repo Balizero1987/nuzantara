@@ -2,6 +2,17 @@
  * ZANTARA Conversation Client
  * Manages conversation history persistence via Memory Service
  *
+ * NOTE: This client connects DIRECTLY to the Memory Service microservice,
+ * not through the backend-ts. This is intentional because:
+ * 
+ * 1. Memory Service is a standalone microservice (nuzantara-memory.fly.dev)
+ * 2. It manages persistent storage (PostgreSQL + Redis)
+ * 3. It has its own API and architecture
+ * 4. Direct connection reduces latency and complexity
+ * 
+ * Other clients (CRM, Agents) go through backend-ts because they use
+ * proxy services to Python backend. This is different.
+ *
  * Features:
  * - Create new conversation sessions
  * - Load conversation history

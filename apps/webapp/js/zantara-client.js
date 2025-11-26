@@ -11,20 +11,26 @@
  * - Proper error UI
  * - Loading states
  * - Retry logic with exponential backoff
- * - RLHF Feedback Loop
  */
 
 import { generateSessionId } from './utils/session-id.js';
+import { Logger } from './core/logger.js';
+import EventSourceWithHeaders from './utils/event-source-with-headers.js';
+
+const clientLogger = new Logger('ZantaraClient');
 
 class ZantaraClient {
   constructor(config = {}) {
+    this._authPromise = null; // Track auth promise to prevent race conditions
+    // Use API_CONFIG if available, otherwise fallback to defaults
+    const apiConfig = typeof window !== 'undefined' ? window.API_CONFIG : null;
+    
     this.config = {
-      apiUrl: config.apiUrl || 'https://nuzantara-rag.fly.dev',
-      authUrl: config.authUrl || 'https://nuzantara-rag.fly.dev',
+      apiUrl: config.apiUrl || apiConfig?.rag?.url || 'https://nuzantara-rag.fly.dev',
+      authUrl: config.authUrl || apiConfig?.backend?.url || 'https://nuzantara-backend.fly.dev',
       authEndpoint: config.authEndpoint || '/api/auth/team/login',
       chatEndpoint: config.chatEndpoint || '/bali-zero/chat',
       streamEndpoint: config.streamEndpoint || '/bali-zero/chat-stream',
-      feedbackEndpoint: '/api/v1/feedback', // New RLHF endpoint
       maxRetries: config.maxRetries || 3,
       retryDelay: config.retryDelay || 1000,
       sessionKey: 'zantara-session',
@@ -50,19 +56,26 @@ class ZantaraClient {
   // ========================================================================
 
   async authenticate(userId = null) {
-    try {
-      const storedToken = localStorage.getItem(this.config.tokenKey);
-      if (storedToken) {
-        const tokenData = JSON.parse(storedToken);
-        if (tokenData.expiresAt > Date.now()) {
-          this.token = tokenData.token;
-          console.log('✅ Using cached JWT token');
-          return this.token;
-        }
-      }
+    // Prevent race condition: if auth is in progress, return existing promise
+    if (this._authPromise) {
+      return this._authPromise;
+    }
 
-      const authUrl = window.API_CONFIG?.backend?.url || this.config.authUrl;
-      console.log(`🔐 Authenticating via ${authUrl}${this.config.authEndpoint}...`);
+    this._authPromise = (async () => {
+      try {
+        const storedToken = localStorage.getItem(this.config.tokenKey);
+        if (storedToken) {
+          const tokenData = JSON.parse(storedToken);
+          if (tokenData.expiresAt > Date.now()) {
+            this.token = tokenData.token;
+            clientLogger.log('✅ Using cached JWT token');
+            this._authPromise = null; // Clear promise
+            return this.token;
+          }
+        }
+
+        const authUrl = window.API_CONFIG?.backend?.url || this.config.authUrl;
+        clientLogger.log(`🔐 Authenticating via ${authUrl}${this.config.authEndpoint}...`);
       const response = await fetch(`${authUrl}${this.config.authEndpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,12 +97,17 @@ class ZantaraClient {
         })
       );
 
-      console.log('✅ Authentication successful');
-      return this.token;
-    } catch (error) {
-      console.error('❌ Authentication failed:', error);
-      throw new Error('Authentication required. Please login again.');
-    }
+        clientLogger.log('✅ Authentication successful');
+        this._authPromise = null; // Clear promise
+        return this.token;
+      } catch (error) {
+        this._authPromise = null; // Clear promise on error
+        clientLogger.error('❌ Authentication failed:', error);
+        throw new Error('Authentication required. Please login again.');
+      }
+    })();
+
+    return this._authPromise;
   }
 
   // ========================================================================
@@ -101,11 +119,11 @@ class ZantaraClient {
     if (stored) {
       const session = JSON.parse(stored);
       this.sessionId = session.id;
-      console.log(`📝 Loaded session: ${this.sessionId}`);
+        clientLogger.log(`📝 Loaded session: ${this.sessionId}`);
     } else {
       this.sessionId = this.generateSessionId();
       this.saveSession();
-      console.log(`✨ Created new session: ${this.sessionId}`);
+      clientLogger.log(`✨ Created new session: ${this.sessionId}`);
     }
   }
 
@@ -135,7 +153,7 @@ class ZantaraClient {
 
   async updateSession(messages) {
     this.saveHistory();
-    console.log(`💾 Session saved to localStorage (${messages.length} messages)`);
+    clientLogger.debug(`💾 Session saved to localStorage (${messages.length} messages)`);
 
     if (typeof window.CONVERSATION_CLIENT !== 'undefined') {
       try {
@@ -147,9 +165,9 @@ class ZantaraClient {
             timestamp: msg.timestamp ? new Date(msg.timestamp).toISOString() : new Date().toISOString()
           }))
         );
-        console.log(`✅ Session synced to Memory Service: ${sessionId}`);
+        clientLogger.log(`✅ Session synced to Memory Service: ${sessionId}`);
       } catch (error) {
-        console.warn('⚠️ Failed to sync with Memory Service (using localStorage only):', error.message);
+        clientLogger.warn('⚠️ Failed to sync with Memory Service (using localStorage only):', error.message);
       }
     }
   }
@@ -163,10 +181,10 @@ class ZantaraClient {
       const stored = localStorage.getItem(this.config.historyKey);
       if (stored) {
         this.messages = JSON.parse(stored);
-        console.log(`📚 Loaded ${this.messages.length} messages from history`);
+        clientLogger.debug(`📚 Loaded ${this.messages.length} messages from history`);
       }
     } catch (error) {
-      console.error('Failed to load history:', error);
+      clientLogger.error('Failed to load history:', error);
       this.messages = [];
     }
   }
@@ -176,7 +194,7 @@ class ZantaraClient {
       const recentMessages = this.messages.slice(-50);
       localStorage.setItem(this.config.historyKey, JSON.stringify(recentMessages));
     } catch (error) {
-      console.error('Failed to save history:', error);
+      clientLogger.error('Failed to save history:', error);
     }
   }
 
@@ -193,7 +211,7 @@ class ZantaraClient {
   clearHistory() {
     this.messages = [];
     localStorage.removeItem(this.config.historyKey);
-    console.log('🗑️  History cleared');
+    clientLogger.log('🗑️  History cleared');
   }
 
   // ========================================================================
@@ -242,9 +260,29 @@ class ZantaraClient {
 
       url.searchParams.append('_t', Date.now());
 
-      console.log(`🔌 Connecting to stream: ${url.toString().substring(0, 100)}...`);
+      // Get token for Authorization header (more secure than query parameter)
+      const storedToken = this.getStoredToken();
+      const headers = {};
       
-      this.eventSource = new EventSource(url.toString());
+      if (storedToken) {
+        // Use Bearer token in header instead of query parameter for security
+        headers['Authorization'] = `Bearer ${storedToken}`;
+      }
+
+      clientLogger.debug(`🔌 Connecting to stream: ${url.toString().substring(0, 100)}...`);
+      
+      // Use EventSourceWithHeaders to send token in header (more secure)
+      // Falls back to query parameter if EventSourceWithHeaders fails
+      try {
+        this.eventSource = new EventSourceWithHeaders(url.toString(), { headers });
+      } catch (error) {
+        clientLogger.warn('EventSourceWithHeaders failed, falling back to query parameter:', error);
+        // Fallback: if polyfill fails, use query parameter (less secure but functional)
+        if (storedToken) {
+          url.searchParams.append('auth_token', storedToken);
+        }
+        this.eventSource = new EventSource(url.toString());
+      }
       let accumulatedText = '';
       let currentMetadata = {};
       
@@ -302,7 +340,7 @@ class ZantaraClient {
       // --------------------------------
 
       this.eventSource.onopen = () => {
-        console.log('✅ EventSource connection opened');
+        clientLogger.log('✅ EventSource connection opened');
         processTokenQueue(); // Start the consumer loop
       };
 
@@ -311,7 +349,7 @@ class ZantaraClient {
           const data = JSON.parse(event.data);
 
           if (data.done === true || data === '[DONE]') {
-            console.log('✅ Stream completed signal received');
+            clientLogger.log('✅ Stream completed signal received');
             this.eventSource.close();
             this.isStreaming = false; // Stops the loop condition
             streamFinished = true;    // Triggers finalization
@@ -339,32 +377,34 @@ class ZantaraClient {
           }
 
         } catch (error) {
-          console.warn('Failed to parse SSE data:', event.data, error);
+          clientLogger.warn('Failed to parse SSE data:', event.data, error);
         }
       };
 
-      this.eventSource.addEventListener('status', (e) => {
-        try {
-          const data = JSON.parse(e.data);
-          if (onStatus) onStatus(data.message || data.action);
-        } catch (err) { console.warn('Error parsing status event', err); }
-      });
+      // Handle custom events (status, metadata) - works with both native and polyfill EventSource
+      if (this.eventSource.addEventListener) {
+        this.eventSource.addEventListener('status', (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (onStatus) onStatus(data.message || data.action);
+          } catch (err) { clientLogger.warn('Error parsing status event', err); }
+        });
 
       this.eventSource.addEventListener('metadata', (e) => {
         try {
           const data = JSON.parse(e.data);
           currentMetadata = { ...currentMetadata, ...data };
-        } catch (err) { console.warn('Error parsing metadata event', err); }
+        } catch (err) { clientLogger.warn('Error parsing metadata event', err); }
       });
 
       this.eventSource.onerror = (error) => {
-        console.error('❌ EventSource error');
+        clientLogger.error('❌ EventSource error');
         this.eventSource.close();
         this.isStreaming = false;
         streamFinished = true;
         
         if (accumulatedText) {
-          console.log('⚠️ Returning partial response on error');
+          clientLogger.warn('⚠️ Returning partial response on error');
           // Ensure queue is drained before completing? 
           // For error, maybe just complete immediately
           onComplete(accumulatedText, currentMetadata);
@@ -375,7 +415,7 @@ class ZantaraClient {
 
       setTimeout(() => {
         if (this.isStreaming && accumulatedText) {
-          console.warn('⚠️ Stream timeout, forcing completion');
+          clientLogger.warn('⚠️ Stream timeout, forcing completion');
           this.eventSource.close();
           this.isStreaming = false;
           streamFinished = true;
@@ -384,42 +424,11 @@ class ZantaraClient {
       }, 40000); // Increased timeout for long bubble effects
 
     } catch (error) {
-      console.error('Stream setup error:', error);
+      clientLogger.error('Stream setup error:', error);
       if (onError) onError(error);
     }
   }
 
-  /**
-   * FEATURE 3: RLHF Feedback Loop
-   */
-  async sendFeedback(messageId, rating, comment = '') {
-    try {
-      const payload = {
-        message_id: messageId,
-        rating: rating, // 'positive' | 'negative'
-        comment: comment,
-        timestamp: new Date().toISOString()
-      };
-
-      // Optimistic UI update (no await blocking)
-      const url = `${this.config.apiUrl}${this.config.feedbackEndpoint}`;
-      console.log(`👍 Sending feedback to ${url}`, payload);
-      
-      fetch(url, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          // 'Authorization': ... if needed
-        },
-        body: JSON.stringify(payload)
-      }).catch(err => console.warn('Background feedback failed:', err));
-
-      return true;
-    } catch (error) {
-      console.error('Feedback Error:', error);
-      return false;
-    }
-  }
 
   // ========================================================================
   // UTILS (Existing)
@@ -431,7 +440,28 @@ class ZantaraClient {
       this.eventSource.close();
       this.eventSource = null;
     }
-    console.log('⏹️  Stream stopped');
+    clientLogger.log('⏹️  Stream stopped');
+  }
+
+  getStoredToken() {
+    try {
+      const tokenData = localStorage.getItem(this.config.tokenKey);
+      if (!tokenData) {
+        return null;
+      }
+      try {
+        const parsed = JSON.parse(tokenData);
+        if (parsed && typeof parsed === 'object' && parsed.token) {
+          return parsed.token;
+        }
+        return typeof parsed === 'string' ? parsed : null;
+      } catch (error) {
+        return tokenData;
+      }
+    } catch (error) {
+      console.warn('Failed to read stored token:', error);
+      return null;
+    }
   }
 
   fetchWithRetry(url, options, attempt = 0) {
@@ -443,12 +473,15 @@ class ZantaraClient {
   renderMarkdown(text) {
     if (!text) return '';
     let html = text;
+    // Escape HTML first to prevent XSS, then convert markdown
+    html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
     html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
     html = html.replace(/\n\n/g, '</p><p>');
     html = html.replace(/\n/g, '<br>');
     if (!html.startsWith('<')) html = `<p>${html}</p>`;
+    // Note: Final sanitization is done in app.js with DOMPurify
     return html;
   }
 

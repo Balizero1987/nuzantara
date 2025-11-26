@@ -24,7 +24,7 @@
     "pre-commit": "lint-staged",
     "dev": "tsx watch apps/backend-ts/src/index.ts",
     "start:dev": "nodemon --watch apps/backend-ts/src --ext ts,js --exec tsx apps/backend-ts/src/index.ts",
-    "test": "jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --coverageReporters=lcov",
     "test:ci": "jest --ci --coverage --watchAll=false --coverageReporters=lcov",

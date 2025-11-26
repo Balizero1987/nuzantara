@@ -58,7 +58,7 @@ interface PerformanceMetrics {
 
   // Knowledge base metrics
   knowledgeBase: {
-    kbliQueries: number;
+    queryCount: number;
     kblHitRate: number;
     averageResults: number;
     domainBreakdown: Record<string, number>;
@@ -131,7 +131,7 @@ class MetricsCollector {
         successRate: 0,
       },
       knowledgeBase: {
-        kbliQueries: 0,
+        queryCount: 0,
         kblHitRate: 0,
         averageResults: 0,
         domainBreakdown: {},
@@ -241,7 +241,7 @@ class MetricsCollector {
 
   // Record knowledge base query
   recordKBLIQuery(domain: string, resultsCount: number, _searchMethod: string) {
-    this.metrics.knowledgeBase.kbliQueries++;
+    this.metrics.knowledgeBase.queryCount++;
 
     if (!this.metrics.knowledgeBase.domainBreakdown[domain]) {
       this.metrics.knowledgeBase.domainBreakdown[domain] = 0;
@@ -354,12 +354,12 @@ class MetricsCollector {
         totalRequests: this.metrics.requests.total,
         cacheHits: this.metrics.cache.totalHits,
         authAttempts: this.metrics.auth.totalAttempts,
-        kbliQueries: this.metrics.knowledgeBase.kbliQueries,
+        queryCount: this.metrics.knowledgeBase.queryCount,
       },
       business: {
         memoryOps: this.metrics.memory.vectorSearches,
         popularAuthMethod: this.getMostPopularAuthMethod(),
-        topKBLIDomain: this.getTopKBLIDomain(),
+        topKnowledgeDomain: this.getTopKnowledgeDomain(),
       },
     };
   }
@@ -371,7 +371,7 @@ class MetricsCollector {
     return methods.reduce((a, b) => (b[1].count > a[1].count ? b : a))[0];
   }
 
-  private getTopKBLIDomain(): string {
+  private getTopKnowledgeDomain(): string {
     const domains = Object.entries(this.metrics.knowledgeBase.domainBreakdown);
     if (domains.length === 0) return 'none';
 
@@ -383,11 +383,6 @@ class MetricsCollector {
     // This would require more detailed tracking per endpoint
     // For now, return a placeholder
     return {
-      'kbli.lookup.complete': {
-        requests: 0,
-        averageTime: 0,
-        successRate: 1.0,
-      },
       'memory.search.enhanced': {
         requests: 0,
         averageTime: 0,
