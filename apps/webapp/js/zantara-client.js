@@ -1,4 +1,4 @@
-/* eslint-disable no-undef, no-console */
+/* eslint-disable no-undef */
 /**
  * ZANTARA Production Client v1.0 - Enhanced for Agents & Emotions
  *
@@ -24,7 +24,7 @@ class ZantaraClient {
     this._authPromise = null; // Track auth promise to prevent race conditions
     // Use API_CONFIG if available, otherwise fallback to defaults
     const apiConfig = typeof window !== 'undefined' ? window.API_CONFIG : null;
-    
+
     this.config = {
       apiUrl: config.apiUrl || apiConfig?.rag?.url || 'https://nuzantara-rag.fly.dev',
       authUrl: config.authUrl || apiConfig?.backend?.url || 'https://nuzantara-backend.fly.dev',
@@ -76,26 +76,26 @@ class ZantaraClient {
 
         const authUrl = window.API_CONFIG?.backend?.url || this.config.authUrl;
         clientLogger.log(`🔐 Authenticating via ${authUrl}${this.config.authEndpoint}...`);
-      const response = await fetch(`${authUrl}${this.config.authEndpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
+        const response = await fetch(`${authUrl}${this.config.authEndpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`Auth failed: ${response.status}`);
-      }
+        if (!response.ok) {
+          throw new Error(`Auth failed: ${response.status}`);
+        }
 
-      const data = await response.json();
-      this.token = data.token;
+        const data = await response.json();
+        this.token = data.token;
 
-      localStorage.setItem(
-        this.config.tokenKey,
-        JSON.stringify({
-          token: this.token,
-          expiresAt: Date.now() + (data.expiresIn || 3600) * 1000,
-        })
-      );
+        localStorage.setItem(
+          this.config.tokenKey,
+          JSON.stringify({
+            token: this.token,
+            expiresAt: Date.now() + (data.expiresIn || 3600) * 1000,
+          })
+        );
 
         clientLogger.log('✅ Authentication successful');
         this._authPromise = null; // Clear promise
@@ -119,7 +119,7 @@ class ZantaraClient {
     if (stored) {
       const session = JSON.parse(stored);
       this.sessionId = session.id;
-        clientLogger.log(`📝 Loaded session: ${this.sessionId}`);
+      clientLogger.log(`📝 Loaded session: ${this.sessionId}`);
     } else {
       this.sessionId = this.generateSessionId();
       this.saveSession();
@@ -159,15 +159,20 @@ class ZantaraClient {
       try {
         const sessionId = await this.ensureSession();
         await window.CONVERSATION_CLIENT.updateHistory(
-          messages.slice(-50).map(msg => ({
+          messages.slice(-50).map((msg) => ({
             role: msg.type === 'user' ? 'user' : 'assistant',
             content: msg.content,
-            timestamp: msg.timestamp ? new Date(msg.timestamp).toISOString() : new Date().toISOString()
+            timestamp: msg.timestamp
+              ? new Date(msg.timestamp).toISOString()
+              : new Date().toISOString(),
           }))
         );
         clientLogger.log(`✅ Session synced to Memory Service: ${sessionId}`);
       } catch (error) {
-        clientLogger.warn('⚠️ Failed to sync with Memory Service (using localStorage only):', error.message);
+        clientLogger.warn(
+          '⚠️ Failed to sync with Memory Service (using localStorage only):',
+          error.message
+        );
       }
     }
   }
@@ -223,17 +228,17 @@ class ZantaraClient {
    * Supports: Agent Thoughts, Emotions, standard Tokens, and Simulated Typing Latency
    */
   async sendMessageStream(content, callbacks = {}) {
-    const { 
-      onStart = () => {}, 
-      onToken = () => {}, 
-      onStatus = () => {}, 
-      onComplete = () => {}, 
-      onError = () => {} 
+    const {
+      onStart = () => {},
+      onToken = () => {},
+      onStatus = () => {},
+      onComplete = () => {},
+      onError = () => {},
     } = callbacks;
-    
-    // Context preparation
-    const context = this.messages.slice(-10);
-    
+
+    // Context preparation (currently not used in URL params)
+    // const context = this.messages.slice(-10);
+
     try {
       await this.authenticate();
       this.isStreaming = true;
@@ -253,7 +258,7 @@ class ZantaraClient {
       if (window.availableTools && window.availableTools.length > 0) {
         const handlersContext = {
           available_tools: window.availableTools.length,
-          tools: window.availableTools.slice(0, 50)
+          tools: window.availableTools.slice(0, 50),
         };
         url.searchParams.append('handlers_context', JSON.stringify(handlersContext));
       }
@@ -263,14 +268,14 @@ class ZantaraClient {
       // Get token for Authorization header (more secure than query parameter)
       const storedToken = this.getStoredToken();
       const headers = {};
-      
+
       if (storedToken) {
         // Use Bearer token in header instead of query parameter for security
         headers['Authorization'] = `Bearer ${storedToken}`;
       }
 
       clientLogger.debug(`🔌 Connecting to stream: ${url.toString().substring(0, 100)}...`);
-      
+
       // Use EventSourceWithHeaders to send token in header (more secure)
       // Falls back to query parameter if EventSourceWithHeaders fails
       try {
@@ -285,7 +290,7 @@ class ZantaraClient {
       }
       let accumulatedText = '';
       let currentMetadata = {};
-      
+
       // --- CHAT BUBBLE EFFECT LOGIC ---
       const tokenQueue = [];
       let isProcessingQueue = false;
@@ -297,18 +302,18 @@ class ZantaraClient {
 
         while (tokenQueue.length > 0 || (this.isStreaming && !streamFinished)) {
           if (tokenQueue.length === 0) {
-            await new Promise(resolve => setTimeout(resolve, 50)); // Wait for tokens
+            await new Promise((resolve) => setTimeout(resolve, 50)); // Wait for tokens
             continue;
           }
 
           const token = tokenQueue.shift();
-          
+
           // 1. Append to visual text
           // Handle replacement vs append logic (simplified to append)
           if (accumulatedText.length > 0 && token.startsWith(accumulatedText)) {
-             accumulatedText = token; // Full refresh
+            accumulatedText = token; // Full refresh
           } else {
-             accumulatedText += token;
+            accumulatedText += token;
           }
 
           // 2. Render
@@ -316,7 +321,7 @@ class ZantaraClient {
 
           // 3. Calculate "Human" Latency
           let delay = 15; // Base typing speed (very fast but visible)
-          
+
           if (token.match(/[.?!]\s*$/)) {
             delay = 400; // Long pause after sentence
           } else if (token.match(/[,;]\s*$/)) {
@@ -327,14 +332,14 @@ class ZantaraClient {
             delay = 30; // Slight adjustment for long words
           }
 
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
 
         isProcessingQueue = false;
-        
+
         // Finalize if stream is done
         if (streamFinished) {
-           onComplete(accumulatedText, currentMetadata);
+          onComplete(accumulatedText, currentMetadata);
         }
       };
       // --------------------------------
@@ -352,7 +357,7 @@ class ZantaraClient {
             clientLogger.log('✅ Stream completed signal received');
             this.eventSource.close();
             this.isStreaming = false; // Stops the loop condition
-            streamFinished = true;    // Triggers finalization
+            streamFinished = true; // Triggers finalization
             return;
           }
 
@@ -371,11 +376,13 @@ class ZantaraClient {
           const token = data.text || data.content || data.token || '';
 
           if (token) {
-            let cleanToken = token.replace(/KBLI_DECISION_HELPER\.(md|csv)/g, 'official documentation');
+            let cleanToken = token.replace(
+              /KBLI_DECISION_HELPER\.(md|csv)/g,
+              'official documentation'
+            );
             // Push to queue instead of rendering immediately
             tokenQueue.push(cleanToken);
           }
-
         } catch (error) {
           clientLogger.warn('Failed to parse SSE data:', event.data, error);
         }
@@ -387,25 +394,30 @@ class ZantaraClient {
           try {
             const data = JSON.parse(e.data);
             if (onStatus) onStatus(data.message || data.action);
-          } catch (err) { clientLogger.warn('Error parsing status event', err); }
+          } catch (err) {
+            clientLogger.warn('Error parsing status event', err);
+          }
         });
 
-      this.eventSource.addEventListener('metadata', (e) => {
-        try {
-          const data = JSON.parse(e.data);
-          currentMetadata = { ...currentMetadata, ...data };
-        } catch (err) { clientLogger.warn('Error parsing metadata event', err); }
-      });
+        this.eventSource.addEventListener('metadata', (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            currentMetadata = { ...currentMetadata, ...data };
+          } catch (err) {
+            clientLogger.warn('Error parsing metadata event', err);
+          }
+        });
+      }
 
       this.eventSource.onerror = (error) => {
         clientLogger.error('❌ EventSource error');
         this.eventSource.close();
         this.isStreaming = false;
         streamFinished = true;
-        
+
         if (accumulatedText) {
           clientLogger.warn('⚠️ Returning partial response on error');
-          // Ensure queue is drained before completing? 
+          // Ensure queue is drained before completing?
           // For error, maybe just complete immediately
           onComplete(accumulatedText, currentMetadata);
         } else {
@@ -422,13 +434,11 @@ class ZantaraClient {
           // Completion handled by queue processor loop
         }
       }, 40000); // Increased timeout for long bubble effects
-
     } catch (error) {
       clientLogger.error('Stream setup error:', error);
       if (onError) onError(error);
     }
   }
-
 
   // ========================================================================
   // UTILS (Existing)
@@ -455,19 +465,19 @@ class ZantaraClient {
           return parsed.token;
         }
         return typeof parsed === 'string' ? parsed : null;
-      } catch (error) {
+      } catch {
         return tokenData;
       }
-    } catch (error) {
+    } catch {
       console.warn('Failed to read stored token:', error);
       return null;
     }
   }
 
-  fetchWithRetry(url, options, attempt = 0) {
+  fetchWithRetry(url, options) {
     // ... (implementation same as original)
     // Simplified for brevity in this overwrite, assuming original logic was fine
-    return fetch(url, options); 
+    return fetch(url, options);
   }
 
   renderMarkdown(text) {
@@ -488,10 +498,10 @@ class ZantaraClient {
   getErrorMessage(error) {
     // ... (implementation same as original)
     return {
-        type: 'unknown',
-        title: 'Error',
-        message: error.message || 'An unknown error occurred',
-        canRetry: true
+      type: 'unknown',
+      title: 'Error',
+      message: error.message || 'An unknown error occurred',
+      canRetry: true,
     };
   }
 }

@@ -14,7 +14,7 @@
 curl -s https://nuzantara-backend.fly.dev/health | jq '.'
 
 # Backend RAG
-curl -s https://nuzantara-rag.fly.dev/healthz | jq '.'
+curl -s https://nuzantara-rag.fly.dev/health | jq '.'
 ```
 
 ### 2. Smoke Tests Completi
@@ -97,7 +97,7 @@ echo "=== BACKEND RAG TESTS ==="
 echo ""
 
 # Backend RAG Tests
-test_endpoint_json "Backend RAG - Healthz" "https://nuzantara-rag.fly.dev/healthz" "200"
+test_endpoint_json "Backend RAG - Health" "https://nuzantara-rag.fly.dev/health" "200"
 test_endpoint "Backend RAG - Oracle Health" "https://nuzantara-rag.fly.dev/api/oracle/health" "200"
 test_endpoint "Backend RAG - Auth Verify" "https://nuzantara-rag.fly.dev/api/auth/verify" "200 401 400"
 
@@ -139,7 +139,7 @@ bash <(cat test-post-deploy.sh)
 - ✅ `/api/auth/verify`: 200/401/400 (endpoint responds)
 
 ### Backend RAG
-- ✅ `/healthz`: 200 OK
+- ✅ `/health`: 200 OK
 - ✅ `/api/oracle/health`: 200 OK (may be optional)
 - ✅ `/api/auth/verify`: 200/401/400 (endpoint responds)
 

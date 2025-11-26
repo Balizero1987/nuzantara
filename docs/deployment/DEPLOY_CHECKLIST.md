@@ -74,7 +74,7 @@ curl https://nuzantara-rag.fly.dev/health
 ```bash
 MAX_RETRIES=15
 RETRY_COUNT=0
-URL="https://nuzantara-backend.fly.dev/health"  # O nuzantara-rag.fly.dev/healthz
+URL="https://nuzantara-backend.fly.dev/health"  # O nuzantara-rag.fly.dev/health
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || echo "000")
