@@ -1,16 +1,16 @@
 /**
  * Jest configuration for ES Modules support
- * 
+ *
  * The repository uses "type": "module" in package.json, so we need to
  * configure Jest to handle ES modules correctly.
- * 
+ *
  * Run Jest with: node --experimental-vm-modules node_modules/jest/bin/jest.js
  * Or update package.json test script to use NODE_OPTIONS
  */
 
 export default {
   preset: 'ts-jest/presets/default-esm',
-  extensionsToTreatAsEsm: ['.ts', '.js'],
+  extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
@@ -37,4 +37,3 @@ export default {
     customExportConditions: [''],
   },
 };
-

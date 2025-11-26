@@ -39,7 +39,7 @@ primary_region = 'sin'
     timeout = '10s'
     grace_period = '1m0s'
     method = 'GET'
-    path = '/healthz'
+    path = '/health'
 
 [[vm]]
   memory = '4gb'
