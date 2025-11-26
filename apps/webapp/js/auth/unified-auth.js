@@ -182,7 +182,7 @@ class UnifiedAuth {
 
         // Create a more descriptive error
         const networkError = new Error(
-          'Impossibile connettersi al server. Verifica la connessione internet o riprova tra qualche secondo.'
+          'Unable to connect to server. Please check your internet connection or try again in a few seconds.'
         );
         networkError.name = 'NetworkError';
         networkError.originalError = fetchError;
@@ -198,7 +198,7 @@ class UnifiedAuth {
         // Server returned non-JSON response (likely HTML error page)
         console.error('❌ Invalid JSON response:', response.status, response.statusText);
         const serverError = new Error(
-          'Il server ha restituito una risposta non valida. Riprova più tardi.'
+          'Server returned an invalid response. Please try again later.'
         );
         serverError.name = 'ServerError';
         serverError.statusCode = response.status;
@@ -215,13 +215,13 @@ class UnifiedAuth {
         // Create error with appropriate message based on status code
         let userFriendlyMessage;
         if (statusCode === 401 || statusCode === 403) {
-          userFriendlyMessage = 'Email o PIN non corretti. Riprova.';
+          userFriendlyMessage = 'Invalid email or PIN. Please try again.';
         } else if (statusCode === 500 || statusCode >= 502) {
-          userFriendlyMessage = 'Errore del server. Riprova più tardi.';
+          userFriendlyMessage = 'Server error. Please try again later.';
         } else if (statusCode === 429) {
-          userFriendlyMessage = 'Troppi tentativi. Attendi qualche minuto prima di riprovare.';
+          userFriendlyMessage = 'Too many attempts. Please wait a few minutes before trying again.';
         } else {
-          userFriendlyMessage = errorMsg || 'Errore durante il login. Riprova.';
+          userFriendlyMessage = errorMsg || 'Login error. Please try again.';
         }
 
         const httpError = new Error(userFriendlyMessage);
@@ -236,7 +236,7 @@ class UnifiedAuth {
       const authData = result.data || result;
 
       if (!authData.token) {
-        const tokenError = new Error('Il server non ha restituito un token valido. Riprova.');
+        const tokenError = new Error('Server did not return a valid token. Please try again.');
         tokenError.name = 'TokenError';
         throw tokenError;
       }
@@ -277,7 +277,7 @@ class UnifiedAuth {
 
       // For any other unexpected errors, provide a generic message
       console.error('❌ Unexpected error during login:', error);
-      const unexpectedError = new Error('Errore imprevisto durante il login. Riprova.');
+      const unexpectedError = new Error('Unexpected error during login. Please try again.');
       unexpectedError.name = 'UnexpectedError';
       unexpectedError.originalError = error;
       throw unexpectedError;
