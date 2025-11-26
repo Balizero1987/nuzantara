@@ -158,14 +158,14 @@ async function handleLogin(e) {
     console.error('❌ Login failed:', error);
 
     // Get error message - use the user-friendly message from unified-auth.js
-    let errorMsg = error.message || 'Errore durante il login. Riprova.';
+    let errorMsg = error.message || 'Login error. Please try again.';
 
     // Additional fallback mapping for any edge cases
     if (error.name === 'NetworkError' || error.name === 'TypeError') {
       // Network errors are already handled in unified-auth.js, but add fallback
       if (errorMsg.includes('fetch') || errorMsg.includes('Failed to fetch')) {
         errorMsg =
-          'Impossibile connettersi al server. Verifica la connessione internet o riprova tra qualche secondo.';
+          'Unable to connect to server. Please check your internet connection or try again in a few seconds.';
       }
     } else if (error.name === 'HttpError') {
       // HTTP errors are already handled in unified-auth.js with user-friendly messages
@@ -175,11 +175,11 @@ async function handleLogin(e) {
     } else {
       // Legacy error message handling for backwards compatibility
       if (errorMsg.includes('Invalid PIN') || errorMsg.includes('credentials')) {
-        errorMsg = 'Email o PIN non corretti. Riprova.';
+        errorMsg = 'Invalid email or PIN. Please try again.';
       } else if (errorMsg.includes('User not found')) {
-        errorMsg = 'Email non trovata. Verifica il tuo indirizzo email.';
+        errorMsg = 'Email not found. Please check your email address.';
       } else if (errorMsg.includes('fetch') || errorMsg.includes('Failed to fetch')) {
-        errorMsg = 'Impossibile connettersi al server. Verifica la connessione internet.';
+        errorMsg = 'Unable to connect to server. Please check your internet connection.';
       }
     }
 
