@@ -137,6 +137,11 @@ QUICK_*.md
 !DATASET_GEMMA/QUICK_START.md
 SECRETS_*.md
 
+# File di analisi temporanei (ora spostati in docs/analysis)
+ANALISI_*.md
+CORREZIONI_*.md
+VERIFICA_*.md
+
 # Script Python temporanei e di test
 *_scraper*.py
 test_*.py

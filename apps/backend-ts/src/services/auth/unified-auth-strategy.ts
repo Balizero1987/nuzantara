@@ -1,10 +1,9 @@
 /**
  * Unified Authentication Strategy Pattern
  *
- * Consolidates 3 different JWT systems into 1 unified architecture:
+ * Consolidates 2 different JWT systems into 1 unified architecture:
  * 1. Enhanced JWT Auth (GLM 4.6)
  * 2. Team Login JWT (team-login.ts)
- * 3. Legacy JWT (various handlers)
  *
  * @author Gemini Pro 2.5 Recommendations
  * @version 1.0.0
@@ -28,7 +27,7 @@ export interface UnifiedUser {
   lastLogin?: Date;
   metadata?: Record<string, any>;
   // Extended properties for different auth types
-  authType: 'enhanced' | 'team' | 'legacy';
+  authType: 'enhanced' | 'team';
   sessionId?: string;
   language?: string;
   personalizedResponse?: string;
@@ -332,106 +331,6 @@ export class TeamLoginJWTStrategy implements AuthenticationStrategy {
   }
 }
 
-
-// LEGACY CODE: Legacy JWT Strategy (kept for backward compatibility only)
-// TODO: Migrate to modern JWT strategy
-export class LegacyJWTStrategy implements AuthenticationStrategy {
-  readonly name = 'legacy';
-  readonly priority = 20;
-
-  private _jwtSecret: string | null = null;
-
-  /**
-   * Get JWT secret with lazy validation (only when actually used)
-   */
-  private getJwtSecret(): string {
-    if (!this._jwtSecret) {
-      const secret = process.env.JWT_SECRET;
-      if (!secret) {
-        throw new Error('JWT_SECRET environment variable is required for Legacy authentication');
-      }
-      if (secret.length < 32) {
-        throw new Error('JWT_SECRET must be at least 32 characters long');
-      }
-      this._jwtSecret = secret;
-    }
-    return this._jwtSecret;
-  }
-
-  canHandle(req: Request): boolean {
-    const authHeader = req.headers.authorization;
-    return !!authHeader?.startsWith('Bearer ');
-  }
-
-  async authenticate(req: Request): Promise<UnifiedUser | null> {
-    try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader?.startsWith('Bearer ')) return null;
-
-      const token = authHeader.substring(7);
-      const jwt = await import('jsonwebtoken');
-
-      const decoded = (await jwt).verify(token, this.getJwtSecret()) as any;
-
-      return {
-        id: decoded.userId || decoded.sub,
-        userId: decoded.userId || decoded.sub,
-        email: decoded.email,
-        role: decoded.role || 'User',
-        department: decoded.department || 'general',
-        name: decoded.name || decoded.email?.split('@')[0] || 'User',
-        permissions: decoded.permissions || ['read'],
-        isActive: true,
-        lastLogin: new Date(),
-        authType: 'legacy',
-      };
-    } catch (error) {
-      logger.error('Legacy JWT authentication failed:', error instanceof Error ? error : new Error(String(error)));
-      return null;
-    }
-  }
-
-  async generateToken(user: UnifiedUser): Promise<string> {
-    const jwt = await import('jsonwebtoken');
-
-    return (await jwt).sign(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        department: user.department,
-        name: user.name,
-        permissions: user.permissions,
-      },
-      this.getJwtSecret(),
-      { expiresIn: '24h' }
-    );
-  }
-
-  async validateToken(token: string): Promise<UnifiedUser | null> {
-    try {
-      const jwt = await import('jsonwebtoken');
-      const decoded = (await jwt).verify(token, this.getJwtSecret()) as any;
-
-      return {
-        id: decoded.userId || decoded.sub,
-        userId: decoded.userId || decoded.sub,
-        email: decoded.email,
-        role: decoded.role || 'User',
-        department: decoded.department || 'general',
-        name: decoded.name || decoded.email?.split('@')[0] || 'User',
-        permissions: decoded.permissions || ['read'],
-        isActive: true,
-        lastLogin: new Date(),
-        authType: 'legacy',
-      };
-    } catch (error) {
-      logger.error('Legacy JWT validation failed:', error instanceof Error ? error : new Error(String(error)));
-      return null;
-    }
-  }
-}
-
 // Unified Authentication Manager
 export class UnifiedAuthenticationManager {
   private strategies: AuthenticationStrategy[] = [];
@@ -448,7 +347,6 @@ export class UnifiedAuthenticationManager {
     // Register strategies in priority order
     this.registerStrategy(new EnhancedJWTStrategy());
     this.registerStrategy(new TeamLoginJWTStrategy());
-    this.registerStrategy(new LegacyJWTStrategy());
 
     logger.info(
       `🔐 Unified Authentication Manager initialized with strategies: ${this.strategies.map((s) => s.name).join(', ')}`

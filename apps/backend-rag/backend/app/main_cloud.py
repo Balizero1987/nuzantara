@@ -2,9 +2,9 @@
 FastAPI entrypoint for the ZANTARA RAG backend.
 
 Responsibilities:
-* Initialize shared services (SearchService, ZantaraAI, ToolExecutor) - IntentRouter and ZantaraVoice disabled
+* Initialize shared services (SearchService, ZantaraAI, ToolExecutor)
 * Mount all API routers
-* Expose "Smart Broker" streaming endpoint (/bali-zero/chat-stream)
+* Expose streaming endpoint (/bali-zero/chat-stream)
 * Configure CORS and health checks
 """
 
@@ -18,6 +18,7 @@ from typing import AsyncIterator, List, Optional
 from fastapi import Depends, FastAPI, HTTPException, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
+import httpx
 
 # --- App Dependencies & Config ---
 from app import dependencies
@@ -31,10 +32,6 @@ from services.handler_proxy import HandlerProxyService
 from services.intelligent_router import IntelligentRouter
 from services.cultural_rag_service import CulturalRAGService
 from services.query_router import QueryRouter
-
-# --- New "Smart Broker" Services ---
-# from services.intent_router import IntentRouter  # Module not found - commented out
-# from services.zantara_voice import ZantaraVoice   # Module not found - commented out
 
 # --- LLM Client ---
 from llm.zantara_ai_client import ZantaraAIClient
@@ -56,8 +53,6 @@ from app.routers import (
     memory_vector,
     notifications,
     oracle_ingest,
-    oracle_property,
-    oracle_tax,
     oracle_universal,
     productivity,
     search,
@@ -67,12 +62,13 @@ from app.routers import (
 # Setup Logging
 logger = logging.getLogger("zantara.backend")
 logger.setLevel(logging.INFO)
+TS_BACKEND_FALLBACK_URL = os.getenv("TS_BACKEND_URL", "https://nuzantara-backend.fly.dev")
 
 # Setup FastAPI
 app = FastAPI(
     title="ZANTARA RAG Backend",
-    version="5.3.0", # Bumped version for Zantara Voice
-    description="Python FastAPI backend for ZANTARA RAG + Tooling + Voice",
+    version="5.3.0",
+    description="Python FastAPI backend for ZANTARA RAG + Tooling",
 )
 
 # --- CORS Configuration ---
@@ -117,8 +113,6 @@ def include_routers(api: FastAPI) -> None:
     api.include_router(memory_vector.router)
     api.include_router(notifications.router)
     api.include_router(oracle_ingest.router)
-    api.include_router(oracle_property.router)
-    api.include_router(oracle_tax.router)
     api.include_router(oracle_universal.router)
     api.include_router(productivity.router)
     api.include_router(search.router)
@@ -126,11 +120,51 @@ def include_routers(api: FastAPI) -> None:
 
 include_routers(app)
 
+
+async def _validate_auth_token(token: Optional[str]) -> Optional[dict]:
+    """
+    Validate frontend-issued JWT tokens by delegating to the TypeScript backend.
+    Returns the unified user payload when the token is valid, otherwise None.
+    
+    ⚠️ DEPENDENCY: This function requires the TypeScript backend to be reachable.
+    If TS_BACKEND_URL is unreachable, token validation fails and chat stream will fail.
+    
+    TODO: Implement local JWT verification as fallback to avoid single point of failure.
+    Alternatively, accept tokens signed by Python auth.py to avoid extra network hop.
+    """
+    if not token:
+        return None
+
+    configured_url = getattr(app.state, "ts_backend_url", TS_BACKEND_FALLBACK_URL)
+    candidate_urls = []
+    for base in [configured_url, TS_BACKEND_FALLBACK_URL]:
+        normalized = base.rstrip("/")
+        if normalized and normalized not in candidate_urls:
+            candidate_urls.append(normalized)
+
+    for base_url in candidate_urls:
+        validate_url = f"{base_url}/auth/validate"
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.post(validate_url, json={"token": token})
+            if response.status_code != 200:
+                logger.warning("Token validation failed via %s (status %s)", base_url, response.status_code)
+                continue
+            payload = response.json()
+            user = payload.get("data", {}).get("user")
+            if user:
+                return user
+        except Exception as exc:
+            logger.error("Token validation request failed via %s: %s", base_url, exc)
+            continue
+
+    return None
+
 # --- Service Initialization -------------------------------------------------
 
 def initialize_services() -> None:
     """
-    Initialize all services including the new Zantara Voice & Router components.
+    Initialize all ZANTARA RAG services.
     """
     if getattr(app.state, "services_initialized", False):
         return
@@ -155,15 +189,7 @@ def initialize_services() -> None:
             logger.error(f"❌ Failed to initialize ZantaraAIClient: {exc}")
             ai_client = None
 
-        # 3. New: Intent Router & Zantara Voice (Ollama)
-        # Modules not found - disabled
-        logger.info(f"⚠️ IntentRouter and ZantaraVoice modules disabled - not found")
-
-        # Set None for disabled modules
-        app.state.intent_router = None
-        app.state.zantara_voice = None
-
-        # 4. Tool stack
+        # 3. Tool stack
         ts_backend_url = os.getenv("TS_BACKEND_URL", "https://nuzantara-backend.fly.dev")
         handler_proxy = HandlerProxyService(backend_url=ts_backend_url)
         zantara_tools = ZantaraTools()
@@ -198,6 +224,7 @@ def initialize_services() -> None:
         app.state.tool_executor = tool_executor
         app.state.zantara_tools = zantara_tools
         app.state.query_router = query_router
+        app.state.ts_backend_url = ts_backend_url
         
         app.state.services_initialized = True
         logger.info("✅ ZANTARA Services Initialization Complete.")
@@ -221,8 +248,7 @@ async def on_shutdown() -> None:
 async def healthz():
     return JSONResponse(content={
         "status": "ok", 
-        "version": app.version, 
-        "voice_active": bool(getattr(app.state, "zantara_voice", None))
+        "version": app.version
     })
 
 @app.get("/", tags=["root"])
@@ -250,73 +276,57 @@ async def bali_zero_chat_stream(
     user_role: str = "member",
     conversation_history: Optional[str] = None,
     authorization: Optional[str] = Header(None),
+    auth_token: Optional[str] = None,
 ):
     """
-    Smart Broker Endpoint:
-    1. Classify Intent (Chat vs Consult) via IntentRouter
-    2. If CHAT -> Stream directly from Zantara (Oracle)
-    3. If CONSULT -> Run RAG (IntelligentRouter) -> Style Transfer -> Stream
+    Streaming chat endpoint using IntelligentRouter for RAG-based responses.
     """
 
     if not query.strip():
         raise HTTPException(status_code=400, detail="Query must not be empty")
 
     # Auth Check
-    if authorization and not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid authorization header")
+    token_value: Optional[str] = None
+    if authorization:
+        if not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Invalid authorization header")
+        token_value = authorization.split(" ", 1)[1].strip()
+    elif auth_token:
+        token_value = auth_token.strip()
+    else:
+        raise HTTPException(status_code=401, detail="Authorization token required")
+
+    user_profile = await _validate_auth_token(token_value)
+    if not user_profile:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     if not getattr(app.state, "services_initialized", False):
         raise HTTPException(status_code=503, detail="Services are still initializing")
 
     # Load Services
     intelligent_router: IntelligentRouter = app.state.intelligent_router
-    # intent_router: Optional[IntentRouter] = getattr(app.state, "intent_router", None)  # Module not found - commented out
-    # zantara_voice: Optional[ZantaraVoice] = getattr(app.state, "zantara_voice", None)   # Module not found - commented out
-    intent_router = None
-    zantara_voice = None
     
+    if not user_email:
+        user_email = user_profile.get("email") or user_profile.get("name")
+    user_role = user_profile.get("role", user_role or "member")
+
     conversation_history_list = _parse_history(conversation_history)
-    user_id = user_email or user_role or "anonymous"
+    user_id = user_email or user_role or user_profile.get("id") or "anonymous"
 
     async def event_stream() -> AsyncIterator[str]:
         # Send connection metadata
         yield f"data: {json.dumps({'type': 'metadata', 'data': {'status': 'connected', 'user': user_id}}, ensure_ascii=False)}\n\n"
 
         try:
-            # 1. INTENT CLASSIFICATION
-            intent = "CONSULT" # Default safe fallback
-            if intent_router:
-                try:
-                    intent = intent_router.classify(query)
-                    logger.info(f"🚦 Intent Classified: {intent} for query: {query[:20]}...")
-                except Exception as e:
-                    logger.error(f"Router failed, fallback to CONSULT: {e}")
-
-            # 2. EXECUTION PATH
-            if intent == "CHAT" and zantara_voice:
-                # PATH A: Direct "Nongkrong" Mode (Oracle)
-                # Low latency, high personality
-                async for chunk in zantara_voice.stream_chat_direct(query, conversation_history_list):
-                    yield f"data: {json.dumps({'type': 'token', 'data': chunk}, ensure_ascii=False)}\n\n"
-            
-            else:
-                # PATH B: "Daging" Mode (RAG + Style Transfer)
-                # High intelligence (Gemini), Zantara Style
-                
-                # Note: IntelligentRouter already handles RAG. 
-                # Ideally, we would pipe its output to ZantaraVoice for styling if not integrated inside.
-                # For now, we use the IntelligentRouter which (in this architecture) should use ZantaraVoice internally 
-                # or we stream the RAG result directly.
-                
-                # Assuming IntelligentRouter generates the final answer:
-                async for chunk in intelligent_router.stream_chat(
-                    message=query,
-                    user_id=user_id,
-                    conversation_history=conversation_history_list,
-                    memory=None,
-                    collaborator=None,
-                ):
-                    yield f"data: {json.dumps({'type': 'token', 'data': chunk}, ensure_ascii=False)}\n\n"
+            # Stream response using IntelligentRouter (RAG-based)
+            async for chunk in intelligent_router.stream_chat(
+                message=query,
+                user_id=user_id,
+                conversation_history=conversation_history_list,
+                memory=None,
+                collaborator=None,
+            ):
+                yield f"data: {json.dumps({'type': 'token', 'data': chunk}, ensure_ascii=False)}\n\n"
 
             # Done
             yield f"data: {json.dumps({'type': 'done', 'data': None})}\n\n"

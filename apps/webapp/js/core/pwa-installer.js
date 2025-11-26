@@ -35,6 +35,7 @@ class PWAInstaller {
   }
 
   async registerServiceWorker() {
+    // Use the same service worker as chat.html
     const registration = await navigator.serviceWorker.register('/service-worker.js', {
       scope: '/',
     });

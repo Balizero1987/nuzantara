@@ -16,17 +16,15 @@ const STATIC_ASSETS = [
   '/chat.html',
   '/login.html',
   '/js/core/error-handler.js',
-  '/js/core/cache-manager.js',
   '/js/core/state-manager.js',
-  '/js/core/request-deduplicator.js',
   '/js/api-config.js',
-  '/js/config.js',
+  // '/js/config.js', // REMOVED: File does not exist
   '/js/zantara-client.js',
   '/css/design-system.css',
   '/css/bali-zero-theme.css',
-  '/styles/chat.css',
-  '/styles/design-tokens.css',
-  '/assets/logoscon.png',
+  // '/styles/chat.css', // REMOVED: File does not exist
+  // '/styles/design-tokens.css', // REMOVED: File does not exist
+  // '/assets/logoscon.png', // REMOVED: File does not exist
   '/assets/images/logo1-zantara.svg',
   '/manifest.json',
 ];
@@ -141,7 +139,7 @@ async function handleStaticRequest(request) {
     }
 
     return networkResponse;
-  } catch (error) {
+    } catch {
     // Network failed, try cache
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
@@ -171,7 +169,7 @@ async function handleAPIRequest(request) {
     }
 
     return networkResponse;
-  } catch (error) {
+    } catch {
     // Network failed, try cache
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
@@ -202,7 +200,7 @@ async function updateCacheInBackground(request) {
       const cache = await caches.open(CACHE_DYNAMIC);
       cache.put(request, networkResponse.clone());
     }
-  } catch (error) {
+    } catch {
     // Silently fail - we already served from cache
   }
 }
@@ -247,8 +245,9 @@ async function syncOfflineActions() {
   // Implement offline action queue sync
   console.log('[SW] Syncing offline actions...');
 
-  // TODO: Get offline actions from IndexedDB and sync
-  // This would be implemented based on your specific needs
+  // NOTE: Offline action sync via IndexedDB is a future enhancement
+  // Currently, offline actions are handled by the main app's retry logic
+  // To implement: Store failed requests in IndexedDB and retry on sync event
 }
 
 // Push notifications
@@ -259,8 +258,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'ZANTARA';
   const options = {
     body: data.body || 'You have a new notification',
-    icon: '/assets/logoscon.png',
-    badge: '/assets/logoscon.png',
+    icon: '/assets/images/logo1-zantara.svg', // Updated: use existing logo
+    badge: '/assets/images/logo1-zantara.svg', // Updated: use existing logo
     data: data.url || '/',
     vibrate: [200, 100, 200],
   };

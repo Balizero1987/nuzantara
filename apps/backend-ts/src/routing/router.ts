@@ -52,8 +52,6 @@ import { creativeHandlers } from '../handlers/ai-services/creative.js';
 // Bali Zero Business Services
 import { oracleSimulate, oracleAnalyze, oraclePredict } from '../handlers/bali-zero/oracle.js';
 import { documentPrepare, assistantRoute } from '../handlers/bali-zero/advisory.js';
-import { kbliLookup, kbliRequirements } from '../handlers/bali-zero/kbli.js';
-// import { kbliLookupComplete, kbliBusinessAnalysis } from '../handlers/bali-zero/kbli-complete.js';
 import { baliZeroPricing, baliZeroQuickPrice } from '../handlers/bali-zero/bali-zero-pricing.js';
 import {
   teamList,
@@ -474,31 +472,6 @@ const handlers: Record<string, Handler> = {
    */
   'ai.chat': aiChat,
   // Real AI handlers (TS). ZANTARA-ONLY mode
-
-  // 🏢 KBLI Business Codes (NEW)
-  'kbli.lookup': async (_params: any) => {
-    return await kbliLookup();
-  },
-  'kbli.requirements': async (_params: any) => {
-    return await kbliRequirements();
-  },
-  // 🚀 KBLI COMPLETE DATABASE - Enhanced endpoints
-  // 'kbli.lookup.complete': async (params: any) => {
-  //   const mockReq = { body: { params } } as any;
-  //   const mockRes = {
-  //     json: (data: any) => data,
-  //     status: (_code: number) => ({ json: (data: any) => data }),
-  //   } as any;
-  //   return await kbliLookupComplete(mockReq, mockRes);
-  // },
-  // 'kbli.business.analysis': async (params: any) => {
-  //   const mockReq = { body: { params } } as any;
-  //   const mockRes = {
-  //     json: (data: any) => data,
-  //     status: (_code: number) => ({ json: (data: any) => data }),
-  //   } as any;
-  //   return await kbliBusinessAnalysis(mockReq, mockRes);
-  // },
 
   // Communication handlers
   'slack.notify': slackNotify,

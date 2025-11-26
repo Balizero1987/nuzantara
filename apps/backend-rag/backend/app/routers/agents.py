@@ -354,6 +354,9 @@ async def export_knowledge_graph(format: str = "neo4j"):
     """
     Export knowledge graph in Neo4j-ready format
     
+    ⚠️ PLACEHOLDER ENDPOINT: Service not implemented
+    Knowledge Graph builder exists but export functionality is not wired.
+    
     Formats:
     - neo4j: Cypher queries for Neo4j
     - json: JSON format
@@ -361,10 +364,11 @@ async def export_knowledge_graph(format: str = "neo4j"):
     """
     return {
         "success": True,
+        "warning": "PLACEHOLDER: Export functionality not implemented",
         "format": format,
         "message": "Knowledge graph export ready",
         "supported_formats": ["neo4j", "json", "graphml"],
-        "note": "Full export available in next update."
+        "note": "To enable: Implement KnowledgeGraphBuilder export in services and wire to this endpoint."
     }
 
 
@@ -380,6 +384,9 @@ async def run_auto_ingestion(
     """
     🤖 AGENT 4: Auto Ingestion Orchestrator
     
+    ⚠️ PLACEHOLDER ENDPOINT: Service exists but not wired into main_cloud.py
+    The AutoIngestionOrchestrator service is implemented but not initialized.
+    
     Automatically monitor and ingest updates from government sources
     
     Sources:
@@ -390,10 +397,11 @@ async def run_auto_ingestion(
     """
     return {
         "success": True,
+        "warning": "PLACEHOLDER: Service not wired into main_cloud.py initialization",
         "message": "Auto ingestion orchestrator triggered",
         "sources": sources or ["kemenkeu", "bpk", "kemendag", "ortax"],
         "force": force,
-        "note": "Ingestion runs automatically in background. Check /ingestion/status for details."
+        "note": "To enable: Initialize AutoIngestionOrchestrator in main_cloud.py and wire it to this endpoint."
     }
 
 

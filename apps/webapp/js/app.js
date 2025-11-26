@@ -9,6 +9,9 @@
 import { stateManager } from './core/state-manager.js';
 import { ErrorHandler } from './core/error-handler.js';
 import { notificationManager } from './components/notification.js';
+import { logger } from './core/logger.js';
+import DOMPurify from 'https://cdn.jsdelivr.net/npm/dompurify@3.0.6/+esm';
+import { loadClient } from './utils/lazy-loader.js';
 
 // Initialize Error Handler
 const errorHandler = new ErrorHandler();
@@ -27,7 +30,7 @@ let messageSpace, messageInput, sendButton, quickActions, messagesContainer;
  * Initialize application
  */
 document.addEventListener('DOMContentLoaded', async function () {
-  console.log('🚀 ZANTARA Chat Application Starting...');
+  logger.log('🚀 ZANTARA Chat Application Starting...');
 
   const userContext = window.UserContext;
   if (!userContext || !userContext.isAuthenticated()) {
@@ -39,11 +42,13 @@ document.addEventListener('DOMContentLoaded', async function () {
   displayUserInfo();
 
   const API_CONFIG = window.API_CONFIG || {
+    backend: { url: 'https://nuzantara-backend.fly.dev' },
     rag: { url: 'https://nuzantara-rag.fly.dev' },
+    memory: { url: 'https://nuzantara-memory.fly.dev' },
   };
 
   if (typeof window.ZantaraClient === 'undefined') {
-    console.error('ZantaraClient not loaded!');
+    logger.error('ZantaraClient not loaded!');
     return;
   }
 
@@ -63,20 +68,40 @@ document.addEventListener('DOMContentLoaded', async function () {
   await loadMessageHistory();
   setupEventListeners();
 
+  // Lazy load non-critical clients when needed
+  setupLazyLoading();
+
   // ... (rest of initialization same as original) ...
 });
+
+/**
+ * Setup lazy loading for non-critical clients
+ */
+async function setupLazyLoading() {
+  // Load clients only when their functionality is accessed
+  // This improves initial page load performance
+  
+  // Example: Load CRM client when CRM features are accessed
+  // Example: Load Agents client when agent features are accessed
+  // Example: Load System Handlers when tools are needed
+  // Example: Load Collective Memory when memory features are accessed
+  // Example: Load Timesheet when timesheet widget is needed
+  
+  // For now, we keep the clients available but they can be loaded on-demand
+  // when specific features are triggered
+}
 
 // FEATURE 1: UI Element for Agent Thoughts
 function createThinkingElement() {
   const thinkingEl = document.createElement('div');
   thinkingEl.id = 'agent-thought-process';
   thinkingEl.className = 'agent-thought hidden';
-  thinkingEl.innerHTML = `
+  thinkingEl.innerHTML = DOMPurify.sanitize(`
     <div class="thought-icon">
       <div class="spinner-pulse"></div>
     </div>
     <span class="thought-text">Zantara is thinking...</span>
-  `;
+  `);
   // Insert at the bottom of message space
   const messageSpace = document.getElementById('messageSpace');
   messageSpace.appendChild(thinkingEl);
@@ -92,10 +117,35 @@ function createThinkingElement() {
 // ========================================================================
 
 function setupEventListeners() {
-  messageInput.addEventListener('input', handleInputChange);
-  messageInput.addEventListener('keydown', handleKeyDown);
-  sendButton.addEventListener('click', handleSend);
+  // Store handlers for cleanup
+  eventListeners.input = handleInputChange;
+  eventListeners.keydown = handleKeyDown;
+  eventListeners.click = handleSend;
+  
+  messageInput.addEventListener('input', eventListeners.input);
+  messageInput.addEventListener('keydown', eventListeners.keydown);
+  sendButton.addEventListener('click', eventListeners.click);
   // ...
+}
+
+/**
+ * Cleanup event listeners to prevent memory leaks
+ */
+function cleanupEventListeners() {
+  if (messageInput && eventListeners.input) {
+    messageInput.removeEventListener('input', eventListeners.input);
+  }
+  if (messageInput && eventListeners.keydown) {
+    messageInput.removeEventListener('keydown', eventListeners.keydown);
+  }
+  if (sendButton && eventListeners.click) {
+    sendButton.removeEventListener('click', eventListeners.click);
+  }
+  
+  // Clear references
+  eventListeners.input = null;
+  eventListeners.keydown = null;
+  eventListeners.click = null;
 }
 
 function handleInputChange() {
@@ -182,7 +232,7 @@ function handleSendError(error) {
 }
 
 // ========================================================================
-// RENDERING - ENHANCED FOR EMOTIONS & FEEDBACK
+// RENDERING - ENHANCED FOR EMOTIONS
 // ========================================================================
 
 function renderMessage(msg, saveToHistory = true) {
@@ -197,7 +247,9 @@ function renderMessage(msg, saveToHistory = true) {
   textEl.className = 'message-text';
   
   if (msg.type === 'ai') {
-    textEl.innerHTML = zantaraClient.renderMarkdown(msg.content);
+    // Sanitize markdown output to prevent XSS
+    const sanitizedContent = DOMPurify.sanitize(zantaraClient.renderMarkdown(msg.content));
+    textEl.innerHTML = sanitizedContent;
   } else {
     textEl.textContent = msg.content;
   }
@@ -250,7 +302,11 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
 
   // Render Markdown
   const textEl = messageEl.querySelector('.message-text');
-  if (textEl) textEl.innerHTML = zantaraClient.renderMarkdown(fullText);
+  if (textEl) {
+    // Sanitize markdown output to prevent XSS
+    const sanitizedContent = DOMPurify.sanitize(zantaraClient.renderMarkdown(fullText));
+    textEl.innerHTML = sanitizedContent;
+  }
 
   // FEATURE 2: Emotional UI
   if (metadata.emotion) {
@@ -261,7 +317,7 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
   if (metadata.sources && metadata.sources.length > 0) {
     const sourcesEl = document.createElement('div');
     sourcesEl.className = 'message-sources';
-    sourcesEl.innerHTML = `
+    sourcesEl.innerHTML = DOMPurify.sanitize(`
       <div class="sources-header">📚 Sources (${metadata.sources.length})</div>
       <div class="sources-list">
         ${metadata.sources.map((source, idx) => `
@@ -275,9 +331,6 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
     messageEl.querySelector('.message-content').appendChild(sourcesEl);
   }
 
-  // FEATURE 3: RLHF Feedback Loop
-  const messageId = metadata.message_id || Date.now().toString();
-  addFeedbackControls(messageEl, messageId);
 
   // Save to history
   const aiMsg = {
@@ -287,45 +340,9 @@ function finalizeLiveMessage(messageEl, fullText, metadata = {}) {
     metadata: metadata
   };
   zantaraClient.addMessage(aiMsg);
-  console.log('✅ Message saved');
+  logger.log('✅ Message saved');
 }
 
-// FEATURE 3: RLHF Feedback Loop
-function handleFeedback(messageEl, messageId) {
-  const actionsDiv = document.createElement('div');
-  actionsDiv.className = 'feedback-actions';
-  actionsDiv.innerHTML = `
-    <button class="feedback-btn" data-rating="positive" aria-label="Helpful">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
-    </button>
-    <button class="feedback-btn" data-rating="negative" aria-label="Not Helpful">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg>
-    </button>
-  `;
-
-  const btns = actionsDiv.querySelectorAll('.feedback-btn');
-  btns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      const rating = this.dataset.rating;
-      btns.forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-
-      // Call the feedback function
-      if (window.zantaraClient && window.zantaraClient.sendFeedback) {
-        window.zantaraClient.sendFeedback(messageId, rating);
-        console.log(`👍 Feedback sent: ${messageId} -> ${rating}`);
-      }
-    });
-  });
-
-  const contentEl = messageEl.querySelector('.message-content');
-  if (contentEl) contentEl.appendChild(actionsDiv);
-}
-
-// Alias for backward compatibility
-function addFeedbackControls(messageEl, messageId) {
-  handleFeedback(messageEl, messageId);
-}
 
 // ... (Utility functions like loadMessageHistory, showWelcomeMessage, scrollToBottom etc.) ...
 
@@ -355,7 +372,7 @@ function applyEmotionalStyling(messageEl, emotion) {
   const emotionClass = emotionMap[emotion.toLowerCase()] || 'emotion-neutral';
   messageEl.classList.add(emotionClass);
 
-  console.log(`🎭 Applied emotional styling: ${emotion} -> ${emotionClass}`);
+  logger.debug(`🎭 Applied emotional styling: ${emotion} -> ${emotionClass}`);
 }
 
 // FEATURE 1: Agent Thoughts - UI Update
@@ -365,7 +382,7 @@ function updateThinking(text) {
     el = document.createElement('div');
     el.id = 'agent-thought-process';
     el.className = 'agent-thought';
-    el.innerHTML = `
+    el.innerHTML = DOMPurify.sanitize(`
       <div class="spinner-pulse"></div>
       <span class="thought-text">Thinking...</span>
     `;
