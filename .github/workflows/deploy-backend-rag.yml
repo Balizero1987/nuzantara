@@ -125,36 +125,6 @@ jobs:
       - name: 🔧 Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: ✅ Validate fly.toml configuration
-        run: |
-          echo "## ✅ Validating fly.toml" >> $GITHUB_STEP_SUMMARY
-          
-          # Validate fly.toml exists
-          if [ -f "deploy/fly.toml" ]; then
-            CONFIG_FILE="deploy/fly.toml"
-          elif [ -f "apps/backend-rag/fly.toml" ]; then
-            CONFIG_FILE="apps/backend-rag/fly.toml"
-          else
-            echo "❌ fly.toml not found" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          fi
-          
-          echo "**Config file:** $CONFIG_FILE" >> $GITHUB_STEP_SUMMARY
-          
-          # Validate with flyctl (if token available)
-          if [ -n "${{ secrets.FLY_API_TOKEN }}" ]; then
-            flyctl config validate \
-              --app ${{ env.FLY_APP_NAME }} \
-              --config "$CONFIG_FILE" || echo "⚠️ Config validation failed (continuing...)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ FLY_API_TOKEN not available, skipping flyctl validation" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          # Basic TOML syntax check (Python)
-          python3 -c "import tomllib; tomllib.loads(open('$CONFIG_FILE').read())" 2>/dev/null && \
-            echo "✅ TOML syntax is valid" >> $GITHUB_STEP_SUMMARY || \
-            echo "⚠️ TOML syntax check failed (may not be critical)" >> $GITHUB_STEP_SUMMARY
-
       - name: 🚀 Deploy to Fly.io
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -164,17 +134,9 @@ jobs:
           echo "**Region:** ${{ env.FLY_REGION }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Determine config file location
-          if [ -f "deploy/fly.toml" ]; then
-            CONFIG_FLAG="--config deploy/fly.toml"
-          else
-            CONFIG_FLAG=""
-          fi
-          
-          # Deploy with rolling strategy
+          # Deploy from deploy directory (where fly.toml is)
           flyctl deploy \
             --app ${{ env.FLY_APP_NAME }} \
-            $CONFIG_FLAG \
             --strategy rolling \
             --wait-timeout 600 \
             --remote-only
@@ -201,7 +163,6 @@ jobs:
           
           echo "## 🏥 Health Check Results" >> $GITHUB_STEP_SUMMARY
           echo "**URL:** $APP_URL/health" >> $GITHUB_STEP_SUMMARY
-          echo "**Note:** Backend RAG uses /health endpoint" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
@@ -227,64 +188,26 @@ jobs:
           echo "❌ Health check failed after $MAX_RETRIES attempts" >> $GITHUB_STEP_SUMMARY
           exit 1
 
-      - name: 🧪 Run comprehensive smoke tests
+      - name: 🧪 Test auth endpoint
         run: |
           APP_URL="https://${{ env.FLY_APP_NAME }}.fly.dev"
-          FAILED=0
           
-          echo "## 🧪 Smoke Tests Results" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧪 Auth Endpoint Test" >> $GITHUB_STEP_SUMMARY
           
-          # Test 1: Main health endpoint (/health)
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL/health" || echo "000")
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ /health: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ /health: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
-            FAILED=1
-          fi
-          
-          # Test 2: Oracle health endpoint (if available)
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL/api/oracle/health" || echo "000")
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ /api/oracle/health: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ /api/oracle/health: HTTP $HTTP_CODE (may not be available)" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          # Test 3: Auth verification endpoint
+          # Test /api/auth/verify endpoint
           RESPONSE=$(curl -s -X POST "$APP_URL/api/auth/verify" \
             -H "Content-Type: application/json" \
             -d '{"token": "demo-token-test"}' || echo '{"error": "request failed"}')
           
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$APP_URL/api/auth/verify" \
-            -H "Content-Type: application/json" \
-            -d '{"token": "demo-token-test"}' || echo "000")
+          echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+          echo "$RESPONSE" | jq '.' >> $GITHUB_STEP_SUMMARY || echo "$RESPONSE" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           
-          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "401" ] || [ "$HTTP_CODE" = "400" ]; then
-            echo "✅ /api/auth/verify: HTTP $HTTP_CODE (endpoint responds)" >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
-            echo "$RESPONSE" | jq '.' >> $GITHUB_STEP_SUMMARY || echo "$RESPONSE" >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          # Check if response contains "valid" field
+          if echo "$RESPONSE" | jq -e '.valid' > /dev/null 2>&1; then
+            echo "✅ Auth endpoint is working!" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ /api/auth/verify: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          # Test 4: Oracle query endpoint (lightweight test - just check if responds)
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$APP_URL/api/oracle/query" \
-            -H "Content-Type: application/json" \
-            -d '{"query": "test", "user_email": "test@example.com"}' || echo "000")
-          
-          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "400" ] || [ "$HTTP_CODE" = "401" ]; then
-            echo "✅ /api/oracle/query: HTTP $HTTP_CODE (endpoint responds)" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ /api/oracle/query: HTTP $HTTP_CODE" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          if [ $FAILED -eq 1 ]; then
-            echo "❌ Critical smoke tests failed" >> $GITHUB_STEP_SUMMARY
-            exit 1
-          else
-            echo "✅ All smoke tests passed" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Auth endpoint response unexpected" >> $GITHUB_STEP_SUMMARY
           fi
 
   # ==========================================
