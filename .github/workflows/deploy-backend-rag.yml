@@ -134,14 +134,14 @@ jobs:
           echo "**Region:** ${{ env.FLY_REGION }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Deploy from deploy directory (where fly.toml is)
-       cd apps/backend-rag
-       flyctl deploy \
-     --app ${{ env.FLY_APP_NAME }} \
-     --config fly.toml \
-     --strategy rolling \
-     --wait-timeout 600 \
-     --remote-only
+          # Deploy from apps/backend-rag directory (where fly.toml and Dockerfile are)
+          cd apps/backend-rag
+          flyctl deploy \
+            --app ${{ env.FLY_APP_NAME }} \
+            --config fly.toml \
+            --strategy rolling \
+            --wait-timeout 600 \
+            --remote-only
           
           echo "✅ Deployment completed successfully!" >> $GITHUB_STEP_SUMMARY
 
@@ -291,3 +291,4 @@ jobs:
                 }
               ]
             }' || echo "Slack webhook not configured"
+
